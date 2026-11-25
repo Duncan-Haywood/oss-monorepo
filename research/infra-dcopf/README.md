@@ -501,6 +501,20 @@ The method of record (frozen repair, IPOPT reactive stage, rule CF) scored on th
 - **Reactive-stage points need the fallback:** the IPOPT point sits on its voltage and Q limits, so on 7 of 8 every margined QP is empty and CP cannot move; CF steps on all 8. Over 180 rounds CP meets 75 empty QPs, CF none.
 - **One prediction refuted:** arm J's mean after CF is +1.139, above the +1.000 bar set in advance; case2848_rte TYP (+6.776 to +6.208 %) holds it up. Six of seven predictions held.
 
+## Why the case2869_pegase overload stalls stall (added 2026-11-25, `experiments/diag_overload_stall.py`, `diag_overload_stall.txt`)
+The three case2869_pegase confirmation cases end the frozen repair 2 to 4 overloads short (101 to 110 % loading). A wrapper around `vlin.solve` that changes nothing asks HiGHS, on every round whose hard QP fails, whether the same linearised set is empty as run (H), without the trust box (NB), without the safety margins (NM) and without both (NBM), and the smallest box scale with a point. All three reruns reproduce their stored runs.
+
+| failed hard QPs, 3 cases | empty | not empty | not settled (LP time limit) |
+|---|---|---|---|
+| H, as run | 38 | 0 | 0 |
+| NB, no trust box | **0** | 33 | 5 |
+| NM, no margins | 37 | 1 | 0 |
+| NBM, neither | 0 | 34 | 4 |
+
+- **The box, not the linear model or the margins.** At every settled stall point the linearised AC model has a dispatch inside every physical limit with no thermal excess; the repair cannot reach it because its step box is too small. This is the same mechanism the 2026-11-19 IIS step found on the two development stalls.
+- **The needed box grows as the box shrinks:** 1.04 to 102 times the round's own box (median 3.45 over 29 settled), above 2 on 18. On API it roughly doubles every one or two rounds from round 10, as rejected elastic steps halve the box around a base point that barely moves. That is why widening by at most twice the current box (rule C) found nothing on most of these rounds.
+- Two changes to the diagnostic after its plan, neither to what is scored: the thermal phase-1 is skipped where it is 0 by construction, and each LP has a time limit (unsettled answers are counted as such). Next: a step rule that decouples the step length from the box.
+
 ## Next steps
 1. Published binding ratings done on 23 PGLib-OPF cases, and an AC-informed linearisation on them (sections above): successive linearisation clears 7 of 11 API cases where `corrected_dc` clears 1. SAD held-out test done (C-ang clean on 7 of 11, same rules). Voltage schedule not from the AC optimum done (clean on 2 of 11 API and SAD at 1.0 pu; section above). Voltage setpoints as decision variables done (with interior margins, 28 of 34 fully clean with the reactive stage; tuned on these cases). Analytic sensitivities done (19 and 29 of 34; the QP is the bottleneck). Next: a sparse or screened QP (done) and a post-feasibility cost phase (done 2026-11-23, rule CP, above); Next, as milestones of the programme [`grid-linopf`](../grid-linopf/PROPOSAL.md): the frozen J-m on held-out (larger) PGLib cases; LPAC and optimised-linearisation baselines; an exact loss/congestion decomposition of the API LMPs from the AC duals.
 2. Previous-interval factors keep ~90 % of the oracle gain for 0.1 load steps, and essentially all of it on two real hourly weeks (above). Ramp and single-line outage stress tests done (above): stale factors beat plain DC on all 80 trips. Next: outages on a case whose ratings bind (PGLib API), a refresh rule driven by the factor change, a DC-based estimate of the point, or a distributed slack.
@@ -543,6 +557,7 @@ OMP_NUM_THREADS=1 python experiments/run_converge.py  # milestone 7, traced repa
 python experiments/check_theory.py  # milestone 7 theory half: Theorems 1-3 and Proposition 2 on those traces, under a second; results_theory.txt/.json
 OMP_NUM_THREADS=1 python experiments/run_backoff.py dev held  # rule B: the margin-backoff check on 34 development cases (~4 min) and the 19 held-out cases that reach the repair (~1.5 h on 4 processes, needs cyipopt); results_backoff.txt/.json
 OMP_NUM_THREADS=1 python experiments/run_confirm_reactive.py run 4  # confirmation split: rerun the 22 unfinished frozen runs and apply the IPOPT reactive stage (J+R) at each best point, 45-min wall limit each; ~2.5 h on 4 processes, resumable, needs cyipopt; results_confirm_reactive.txt/.json
+OMP_NUM_THREADS=1 python experiments/diag_overload_stall.py run  # case2869_pegase TYP, API, SAD stalls: H/NB/NM/NBM emptiness and box scale on every failed hard QP (HiGHS); ~1.3 to 2.7 h per case, one process each, resumable; diag_overload_stall.txt/.json
 OMP_NUM_THREADS=1 python experiments/diag_dc_highs.py [--start]  # HiGHS feasibility LP and elastic LP on case2853_sdet; --start: DC OPF QP on HiGHS as the start, then the frozen repair and J+R (~70 min); results_dc_highs.txt, results_dc_highs_start.json
 OMP_NUM_THREADS=1 python experiments/run_summerit.py dev held  # rule S: the summed-excess merit on 34 development cases (~5 min on 4 processes) and the 19 held-out cases (~10 min); results_summerit.txt/.json
 OMP_NUM_THREADS=1 python experiments/run_elastic.py --T --P --diag  # elastic penalty on the two stalls (~5 min) and acceptance on it on 36 cases (~6 min, 4 processes); results_elastic.txt/.json

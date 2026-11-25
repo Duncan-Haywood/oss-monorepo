@@ -15,6 +15,20 @@ co-bidder as a link they can open and keep editing, instead of retyping it
 from a PDF or the Markdown export. It is free, requires no account or API key,
 and keeps bid details in the browser.
 
+## The deadline: date, time and the office's time zone
+
+A solicitation's deadline is a minute on a particular clock ("2:00 PM local
+time at the County Purchasing Office"), and a bid received after it is late
+(FAR 14.304 for US federal sealed bids). Enter the due date alone and the
+checklist counts whole calendar days in your browser's time zone. Add the due
+time and the time zone the deadline is read in, and the bid reads past-due
+from that minute (`model.mjs`, `dueInstant` and `assessBid`): at 1:40 PM
+Central a 2:00 PM Central bid reads "The deadline is today at 14:00
+America/Chicago time, 20 min from now." and at 3:00 PM it reads past-due,
+from whichever time zone the page is opened in. The report shows the urgency
+label (normal, urgent at two days or fewer, past-due) next to the summary,
+and the share link and Markdown report carry the time and zone.
+
 ## Privacy and usage
 
 Everything runs in your browser. Your data is never uploaded, and there are no
@@ -44,11 +58,6 @@ confirm requirements with the issuing authority.
 
 From [`portfolio/quality/audits/2026-11-19-contractor-bid-readiness.json`](../../portfolio/quality/audits/2026-11-19-contractor-bid-readiness.json):
 
-- **The deadline is a date, not a time.** A bid due at 2:00 pm today still
-  reads "urgent" at 3:00 pm, after it can no longer be filed. A due-time and
-  issuing-office time-zone field is the fix; until then the days page says so.
-- **The urgency label is computed but not shown on the page** (the Markdown
-  report now carries it), though several pages describe it.
 - **Checklist rows are not saved** between visits unless a share link is copied.
 - **The DST test only bites when the runner's time zone observes DST**; run
   `TZ=America/New_York node --test '*.test.mjs'` as well.

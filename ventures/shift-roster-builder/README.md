@@ -13,6 +13,21 @@ shuffling on Sunday night.
 
 **Start without typing:** pick a template (café or restaurant, hair salon, retail shop, clinic front office) from "or start from a template" and the page builds a roster for an invented team straight away; replace the names and wages with yours (`TEMPLATES` in `calc.mjs`).
 
+## Hosted team hub (built 2026-11-25, not live yet)
+
+The same hub, run for you: sign in at `/start`, create a hub for your team, and get its admin link and team link; no
+server, no Cloudflare account. Many teams share one deployment on AWS (`aws/app.mjs`, stack
+`platform/aws/stacks/shift-roster`); each team's state is one Postgres row written under a row lock, so two staff
+posting at once cannot overwrite each other (the Durable Object's guarantee, kept). Only SHA-256 fingerprints of the
+links are stored, so lost links are replaced ("New links"), not recovered. Differences from self-hosting: chat
+webhooks are off (the hosted app makes no outbound calls), and settings are the same names as the self-host
+environment, per team. **Moving in:** `aws/migrate-hub.mjs` copies a self-hosted hub (Node or Worker) into a hosted
+one from its new `/admin/export.json` backup (also linked on the admin page). **Not claimed:** it is not deployed
+(there is no AWS account yet), no team has used it, and pricing is not set: one hub per account is free and more
+answer "subscription required" until checkout exists. Tested: `aws/app.test.mjs` (in memory), `aws/pg.test.mjs`
+(Postgres 16, twenty simultaneous replies, none lost), `aws/console-browser.check.mjs` (Chromium: sign-in with code +
+PKCE against a faked Cognito, create, publish, staff view, delete).
+
 ## Run your own team schedule (self-hosted)
 
 The browser tool builds the roster; `server.mjs` is the part that gets it to your staff. You build and publish the
@@ -3700,7 +3715,8 @@ way, and there the reserve changed nothing in seeds 7-12; build time did not gro
 
 **What landed:** under a time budget, `coverRepairReserveMs` now defaults to a tenth of the budget, at most 2 s, on weeks of 300 or
 more shift copies, and to 0 below (where every bench build already reaches its floor, README "The repair reserve at 30-60
-people"). An explicit `coverRepairReserveMs` (0 turns it off) wins; `optimality.coverRepairReserveMs` reports the reserve used.
+people"). An explicit `coverRepairReserveMs` (0 turns it off) wins; `optimality.coverRepairReserveMs` reports the reserve the build applies to its cover passes, set from the week's size and the
+budget, so it reads the same whether or not a loaded machine reaches the passes (2026-11-25).
 
 Tests: `repair-flow.test.mjs` adds that a 348-copy bench week under a 3 s budget reserves 300 ms, a 149-copy week reserves none,
 and an explicit value is kept. Not claimed: generated weeks only, single runs on one cloud machine; the reserve's size (2 s) and

@@ -883,6 +883,7 @@ def job_order(jobs: dict) -> list[str]:
 # Measured: one site build 111 s cold, 47 s warm (process run 2026-11-14,
 # docs/history/run-workflow-locally-card-cache-2026-11-14.md).
 CACHE_ACTION = re.compile(r"^actions/cache(/restore)?@")
+DOWNLOAD_ARTIFACT = re.compile(r"^actions/download-artifact@")
 RUNNER_TEMP_PATH = re.compile(r"^\$\{\{\s*runner\.temp\s*\}\}/(.+)$")
 
 
@@ -944,6 +945,24 @@ def collect(workflow: dict, only: set | None = None) -> tuple[list[Step], list[s
         job_dir = _default_dir(job, top_dir)
         for raw in job.get("steps") or []:
             name = raw.get("name") or raw.get("uses") or "(unnamed)"
+            # A download-artifact step fetches files another job uploaded in
+            # CI, often from a `uses:` step (CodeQL's SARIF) that never runs
+            # here. Kept as a skipped Step, not just a note, so run_steps
+            # counts it like a skipped run: step and a later failure in the
+            # job reads UNRUN (after-skip), not FAILED: `priv-codeql.yml`'s
+            # gate and `priv-security-gate.yml`'s Verdict both read as real
+            # failures in --for-changes (doc friction, 2026-11-25).
+            if DOWNLOAD_ARTIFACT.match(str(raw.get("uses") or "")):
+                if false_on_pull_request(raw.get("if")):
+                    skipped.append(f"{job_id} / {name}: if: is false on a pull request")
+                    continue
+                artifact = (raw.get("with") or {}).get("name") or "(all)"
+                step = Step(job_id, name, "", job_dir)
+                step.status = "skipped"
+                step.reason = (f"uses: actions/download-artifact ({artifact}); "
+                               "its files exist only in CI")
+                steps.append(step)
+                continue
             if "run" not in raw:
                 kept = local_cache_dirs(raw)
                 skipped.append(f"{job_id} / {name}: uses: step, not run:"

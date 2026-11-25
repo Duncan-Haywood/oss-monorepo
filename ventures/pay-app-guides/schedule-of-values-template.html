@@ -21,6 +21,7 @@
     <a href="retainage-explained.html">Retainage explained</a>
     <a href="conditional-vs-unconditional-lien-waivers.html">Lien waivers</a>
     <a href="change-orders-schedule-of-values.html">Change orders and the SOV</a>
+    <a href="retainage-in-quickbooks.html">Retainage in QuickBooks</a>
   </nav>
 </header>
 <main>
@@ -33,20 +34,20 @@
 
 <section class="card">
   <h2>What is in the continuation sheet</h2>
-  <div class="scroll"><table>
-    <thead><tr><th scope="col">Column</th><th scope="col">You type, or it works out</th><th scope="col">Formula</th></tr></thead>
+  <div class="scroll"><table class="stack" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">Column</th><th role="columnheader" scope="col">You type, or it works out</th><th role="columnheader" scope="col">Formula</th></tr></thead>
     <tbody>
-      <tr><td>A Item</td><td>You type: the SOV line number; CO-1, CO-2 for change orders</td><td></td></tr>
-      <tr><td>B Description of work</td><td>You type: the line as it reads on the approved SOV</td><td></td></tr>
-      <tr><td>C Scheduled value</td><td>You type: the line's value; a deductive change order is negative</td><td></td></tr>
-      <tr><td>D From previous application</td><td>You type: billed on this line in all earlier applications</td><td></td></tr>
-      <tr><td>E This period</td><td>You type: work installed this period, in dollars</td><td></td></tr>
-      <tr><td>F Materials presently stored</td><td>You type: delivered, not yet installed, not in D or E</td><td></td></tr>
-      <tr><td>G Total completed and stored</td><td>Works out</td><td>D + E + F</td></tr>
-      <tr><td>H % complete</td><td>Works out</td><td>G ÷ C</td></tr>
-      <tr><td>I Balance to finish</td><td>Works out</td><td>C − G</td></tr>
-      <tr><td>J Retainage</td><td>Works out</td><td>(D + E) × work rate + F × stored rate, rounded to the cent</td></tr>
-      <tr><td>K Check</td><td>Works out</td><td>"Over-billed" if G is more than C; "No scheduled value" if work is billed on a line with none</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">A Item</td><td role="cell" data-label="You type, or it works out">You type: the SOV line number; CO-1, CO-2 for change orders</td><td role="cell" data-label="Formula"></td></tr>
+      <tr role="row"><td role="cell" data-label="Column">B Description of work</td><td role="cell" data-label="You type, or it works out">You type: the line as it reads on the approved SOV</td><td role="cell" data-label="Formula"></td></tr>
+      <tr role="row"><td role="cell" data-label="Column">C Scheduled value</td><td role="cell" data-label="You type, or it works out">You type: the line's value; a deductive change order is negative</td><td role="cell" data-label="Formula"></td></tr>
+      <tr role="row"><td role="cell" data-label="Column">D From previous application</td><td role="cell" data-label="You type, or it works out">You type: billed on this line in all earlier applications</td><td role="cell" data-label="Formula"></td></tr>
+      <tr role="row"><td role="cell" data-label="Column">E This period</td><td role="cell" data-label="You type, or it works out">You type: work installed this period, in dollars</td><td role="cell" data-label="Formula"></td></tr>
+      <tr role="row"><td role="cell" data-label="Column">F Materials presently stored</td><td role="cell" data-label="You type, or it works out">You type: delivered, not yet installed, not in D or E</td><td role="cell" data-label="Formula"></td></tr>
+      <tr role="row"><td role="cell" data-label="Column">G Total completed and stored</td><td role="cell" data-label="You type, or it works out">Works out</td><td role="cell" data-label="Formula">D + E + F</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">H % complete</td><td role="cell" data-label="You type, or it works out">Works out</td><td role="cell" data-label="Formula">G ÷ C</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">I Balance to finish</td><td role="cell" data-label="You type, or it works out">Works out</td><td role="cell" data-label="Formula">C − G</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">J Retainage</td><td role="cell" data-label="You type, or it works out">Works out</td><td role="cell" data-label="Formula">(D + E) × work rate + F × stored rate, rounded to the cent</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">K Check</td><td role="cell" data-label="You type, or it works out">Works out</td><td role="cell" data-label="Formula">"Over-billed" if G is more than C; "No scheduled value" if work is billed on a line with none</td></tr>
     </tbody>
   </table></div>
 </section>

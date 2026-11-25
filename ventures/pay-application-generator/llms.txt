@@ -4,6 +4,8 @@
 
 Reads the Excel (.xlsx) continuation sheet a contractor already keeps, title block, two-row headers, subtotals and totals row included, in the browser, and checks its arithmetic: a typed-over total, a SUM range that misses a line, retainage that disagrees with the rate.
 
+Handles a retainage reduction at a percent complete either way a contract reads it: the reduced rate on everything billed, or only on work completed after that point, with what was held staying held.
+
 Rolls an application forward to next month: previous takes this period, this period starts at zero, stored stays stored, previous certificates carried exactly.
 
 Downloads the application as an Excel workbook with live formulas (summary sheet linked to a lettered continuation sheet), and offers a free blank pay application template (.xlsx, 30 lines). Own layout; not the AIA G702/G703 form.
@@ -15,6 +17,7 @@ Free to use and source available (FSL-1.1-MIT). Results are estimates from the n
 ## Pages
 
 - [The tool](https://marisstella.app/pay-application-generator/)
+- [Free pay application template for Excel](https://marisstella.app/pay-application-generator/pay-application-template.html): what each formula in the workbook does and how to fill it in month by month
 
 ## Source
 

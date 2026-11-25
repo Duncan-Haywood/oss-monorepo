@@ -42,6 +42,43 @@ done; the current text says 5%. North Carolina's small-project exemption
 reads $150,000 in the statute text we found, while a 2025 session bill (H1123)
 changes the threshold. The guide says so rather than picking one.
 
+## "Reduced at 50%" can mean two different numbers
+
+*Added 2026-11-25.* A clause that drops retainage from 10% to 5% once the
+job is half done can be read two ways, and they bill differently.
+
+Take a $100,000 subcontract with $70,000 completed:
+
+- **The reduced rate on everything billed.** 5% of $70,000 is $3,500 held.
+  The application releases part of what earlier ones held.
+- **The reduced rate only on work completed after the halfway point.** The
+  first $50,000 stays at 10% ($5,000) and the $20,000 after it is held at
+  5% ($1,000): $6,000 held. Nothing already held comes back early. A
+  statute that stops withholding *new* retainage at 50%, as Michigan's does
+  in the table, is this reading with 0% after the point: $5,000 stays held
+  however far the job goes.
+
+That $2,500 gap is on one application for one sub. If your sheet uses one
+reading and the owner's reviewer uses the other, the application gets sent
+back. The contract decides which applies, and the
+[pay application generator](https://marisstella.app/pay-application-generator/)
+now does both. Under "The reduced rate applies to", choose everything billed
+or only work completed after that point. In the second mode, each line's
+share of the amount past the point is in proportion to its work billed. With
+no stored materials and no per-line rates, that makes the total exact. The
+generator shows the split in a note, uses it to estimate previous
+certificates, and carries the mode into next month's application. The Excel
+download writes the split as live formulas: the reduced rate and the
+completion point are cells on the continuation sheet, so changing a number
+in Excel still gives the right retainage. LibreOffice recalculated the
+workbook from its formulas alone and matched the page to the cent, on a
+case with stored materials and a line with its own rate.
+
+One limit: the tool assumes the reduction began exactly at the completion
+point. If the owner applied it from the next application instead, enter the
+previous certificates from your last application, and the payment due will
+be exact again.
+
 How the table was made: each row links the legislature's own published
 statute. The first twelve were read on 2026-11-24 through search results
 limited to the official legislature domains, because the pages themselves

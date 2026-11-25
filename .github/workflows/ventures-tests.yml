@@ -12,15 +12,25 @@ on:
   pull_request:
     paths:
       - "ventures/**"
-      - "platform/ci/run_venture_tests.py"
-      - "platform/ci/test_run_venture_tests.py"
+      # The unwired tree checks (unwired_checks.py, doc_index.py check) run
+      # from this workflow, so a PR touching only these trees must start it
+      # too (red-team findings 2026-11-06 and 2026-11-13).
+      - "platform/ci/**"
+      - "platform/pages/*.mjs"
+      - "docs/reports/**"
+      - "docs/taxonomy.json"
       - ".github/workflows/ventures-tests.yml"
   push:
     branches: [main]
     paths:
       - "ventures/**"
-      - "platform/ci/run_venture_tests.py"
-      - "platform/ci/test_run_venture_tests.py"
+      # The unwired tree checks (unwired_checks.py, doc_index.py check) run
+      # from this workflow, so a PR touching only these trees must start it
+      # too (red-team findings 2026-11-06 and 2026-11-13).
+      - "platform/ci/**"
+      - "platform/pages/*.mjs"
+      - "docs/reports/**"
+      - "docs/taxonomy.json"
       - ".github/workflows/ventures-tests.yml"
   workflow_dispatch:
 

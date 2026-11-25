@@ -27,3 +27,12 @@ output "client_ids" {
 output "hosted_domain" {
   value = "https://${aws_cognito_user_pool_domain.this.domain}.auth.${data.aws_region.current.region}.amazoncognito.com"
 }
+
+output "mfa_configuration" {
+  value = aws_cognito_user_pool.this.mfa_configuration
+}
+
+output "admin_create_user_only" {
+  description = "true: no self sign-up; accounts are made by an admin."
+  value       = aws_cognito_user_pool.this.admin_create_user_config[0].allow_admin_create_user_only
+}

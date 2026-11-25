@@ -53,6 +53,8 @@ module "auth" {
   native_logout_urls   = var.auth.native_logout_urls
   ses_identity_arn     = var.auth.ses_identity_arn
   from_email           = var.auth.from_email
+  self_sign_up         = var.auth.self_sign_up
+  mfa                  = var.auth.mfa
   deletion_protection  = var.deletion_protection
 }
 
@@ -242,6 +244,9 @@ resource "aws_lambda_function" "app" {
       APP_VARS            = jsonencode(var.vars)
       NODE_EXTRA_CA_CERTS = "/var/runtime/ca-cert.pem"
       COGNITO_ISSUER      = module.auth.issuer
+      # Public values a sign-in page needs (hosted sign-in, code + PKCE; the web client has no secret).
+      COGNITO_DOMAIN        = module.auth.hosted_domain
+      COGNITO_WEB_CLIENT_ID = module.auth.web_client_id
       },
       # Lambda reserves AWS_* names (AWS_REGION is already set), so they are dropped here.
       { for k, v in var.environment : k => v if !startswith(k, "AWS_") },

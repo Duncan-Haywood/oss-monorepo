@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import vm from 'node:vm';
 import { spawnSync } from 'node:child_process';
-import { AGENT_BLOG, autoSeoTitle, BLOG, buildWriting, PAGE_SIZE as WRITING_PAGE_SIZE, TOPICS, loadPosts, parseFrontMatter, postPageTitle, rankRelated, relatedPosts, renderFeed, renderIndex, renderPost, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
+import { AGENT_BLOG, autoSeoTitle, BLOG, bodyMatcher, buildWriting, PAGE_SIZE as WRITING_PAGE_SIZE, TOPICS, loadPosts, parseFrontMatter, postPageTitle, rankRelated, relatedPosts, renderFeed, renderIndex, renderPost, renderSearchIndex, searchText, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
 
 const BASE = 'https://example.test/site/';
 
@@ -87,6 +87,13 @@ test('build writes an index, one page per post and a feed, each with a disclaime
     .find((b) => b['@type'] === 'BreadcrumbList');
   assert.deepEqual(crumb.itemListElement.map((i) => i.item), [BASE, `${BASE}writing/`, `${BASE}writing/hello/`]);
   assert.equal(crumb.itemListElement.at(-1).name, 'Hello <world>');
+  // The post's own structured data names its URL, publisher and author (article-ld.mjs).
+  const posting = [...page.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+    .map((m) => JSON.parse(m[1]))
+    .find((b) => b['@type'] === 'BlogPosting');
+  assert.equal(posting.mainEntityOfPage['@id'], `${BASE}writing/hello/`);
+  assert.equal(posting.publisher['@id'], `${BASE}#organization`);
+  assert.equal(posting.author['@type'], 'Organization');
   // Repository-relative links become GitHub links.
   assert.match(page, /href="https:\/\/github\.com\/Duncan-Haywood\/oss-monorepo\/blob\/main\/README\.md"/);
   assert.match(feed, new RegExp(`<id>${BASE}writing/hello/</id>`));
@@ -227,8 +234,9 @@ test('the index can be searched and filtered: finder, card data, full-text index
   assert.match(index, /<li data-slug="older" data-topic="research" data-tags="agents notes" data-date="2026-10-01"/);
   // The pressed state of a topic chip follows the active topic, not its opposite.
   assert.match(index, /setAttribute\('aria-pressed', String\(c\.dataset\.topicChip === topic\)\)/);
-  const search = JSON.parse(await fs.readFile(path.join(w, 'search.json'), 'utf8'));
-  assert.match(search.older, /zlib level nine/);
+  const has = bodyMatcher(JSON.parse(await fs.readFile(path.join(w, 'search.json'), 'utf8')));
+  assert.deepEqual([...has('zlib')], ['older']);
+  assert.deepEqual([...has('nine.')], ['older']);
   const older = await fs.readFile(path.join(w, 'older/index.html'), 'utf8');
   assert.match(older, /<a class="topic" href="\.\.\/topic\/research\/">Research findings<\/a>/);
   assert.match(older, /<a href="\.\.\/topic\/research\/">More in Research findings<\/a>/);
@@ -386,7 +394,7 @@ test('relatedPosts gives every post an inbound link, taken from the weakest slot
 
 // Runs the index's inline finder script against a small fake DOM, so the count
 // text and the tag-menu fallback are checked by behaviour, not by matching source.
-async function runFinder(search, { selectedIndex = 0 } = {}) {
+async function runFinder(search, { selectedIndex = 0, full = null } = {}) {
   const root = repoWith({ '2026-10-16-hello.md': post('Hello', '2026-10-16') });
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-finder-'));
   await buildWriting(out, BASE, { root });
@@ -401,12 +409,47 @@ async function runFinder(search, { selectedIndex = 0 } = {}) {
     document: { getElementById: (id) => els[id], querySelectorAll: () => [] },
     location: { search, pathname: '/writing/' },
     history: { replaceState() {} },
-    fetch: () => Promise.resolve({ ok: false }),
+    fetch: (url) => Promise.resolve(full && url === 'search.json' ? { ok: true, json: () => Promise.resolve(full) } : { ok: false }),
     URLSearchParams, Array, String,
   };
   vm.runInNewContext(script, ctx);
-  return els;
+  if (full) await new Promise((r) => setTimeout(r, 0));
+  return { ...els, items };
 }
+
+// search.json is an inverted index since 2026-11-25 (perf): the page's own script must still find
+// a word that is only in a post's body, and must read a file in the old slug-to-text shape that a
+// cache may serve during a deploy.
+test('finder searches post bodies through the inverted search.json, and through the old shape', async () => {
+  const index = JSON.parse(renderSearchIndex([{ slug: 'x', body: 'Delta **wing**' }, { slug: 'y', body: 'A gamma-ray [burst](https://e.x/)' }]));
+  for (const full of [index, { x: 'delta wing', y: 'a gamma-ray burst' }]) {
+    const hit = await runFinder('?q=ray', { full });
+    assert.equal(hit.count.textContent, '1 of 2 posts');
+    assert.deepEqual(hit.items.map((li) => li.hidden), [true, false]);
+    // Card text and body text both count, each term on its own.
+    assert.equal((await runFinder('?q=alph+wing', { full })).count.textContent, '1 of 2 posts');
+    assert.equal((await runFinder('?q=beta+wing', { full })).count.textContent, '0 of 2 posts');
+  }
+});
+
+test('search.json gives exactly the posts whose plain body contains the term', () => {
+  // A small seeded generator, so the corpus is the same every run.
+  let seed = 7;
+  const rnd = (n) => ((seed = (seed * 1103515245 + 12345) % 2147483648) % n);
+  const vocab = ['retainage', 'g702', "sub's", 'pay-app', 'lien', 'waiver', 'é', 'a', 'ab', 'abc', '[link](https://x.y/z)', '**bold**', '#', '`code`'];
+  const posts = Array.from({ length: 60 }, (_, i) => ({
+    slug: `p${i}`,
+    body: Array.from({ length: rnd(30) }, () => vocab[rnd(vocab.length)]).join(rnd(5) ? ' ' : '\n'),
+  }));
+  posts.push({ slug: 'empty', body: '' });
+  const has = bodyMatcher(JSON.parse(renderSearchIndex(posts)));
+  const terms = ['a', 'b', 'ab', 'bc', 'ret', 'age', 'g70', "'s", '-', 'pay-app', 'é', 'link', 'https', 'x.y', 'bold', 'code', 'zzz', ']'];
+  for (const t of terms) {
+    const want = posts.filter((p) => searchText(p.body).includes(t)).map((p) => p.slug).sort();
+    assert.deepEqual([...has(t)].sort(), want, t);
+    assert.deepEqual([...has(t)].sort(), want, `${t} (memoised)`);
+  }
+});
 
 // The filter controls read as one designed row (polish 2026-11-13): the menus match the search box's
 // height, sit two to a row so a phone never clips "Newest first", and Clear lives on the count line.

@@ -39,6 +39,7 @@ import fnmatch
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -225,6 +226,86 @@ def parse_trivy(data, root: Path) -> list[Finding]:
     return out
 
 
+# Container base images (tools.yaml `trivy-image`). The scanning baseline asks for
+# images pinned by digest and scanned for known vulnerabilities
+# (docs/reports/2026-11-24-cloud-provider-comparison.md, "Scanning baseline").
+FROM_RE = re.compile(r"^\s*FROM\s+(?:--platform=\S+\s+)?(\S+)(?:\s+AS\s+(\S+))?", re.I | re.M)
+IMAGE_RE = re.compile(r"^\s*image:\s*['\"]?([^'\"\s#]+)", re.M)
+
+
+def is_compose(path: str) -> bool:
+    return bool(re.fullmatch(r"(docker-)?compose([.-][\w.-]+)?\.ya?ml", path.rsplit("/", 1)[-1]))
+
+
+def image_refs(path: str, text: str) -> list[str]:
+    """Images a Dockerfile or Compose file pulls. Build-stage names, `scratch`
+    and refs built from variables (${BASE}) are skipped: they are not pullable as written."""
+    if is_compose(path):
+        return sorted({m for m in IMAGE_RE.findall(text) if "$" not in m})
+    refs, stages = set(), set()
+    for ref, stage in FROM_RE.findall(text):
+        if ref.lower() != "scratch" and "$" not in ref and ref.lower() not in stages:
+            refs.add(ref)
+        if stage:
+            stages.add(stage.lower())
+    return sorted(refs)
+
+
+def _h(text: str) -> str:
+    return hashlib.sha256(text.encode()).hexdigest()[:16]
+
+
+def unpinned_images(path: str, refs: list[str]) -> list[Finding]:
+    return [Finding("trivy-image", "image-not-pinned-by-digest", "medium", path, None,
+                    f"{r} is not pinned by digest (@sha256:...); a tag can be repointed to different contents", _h(r))
+            for r in refs if "@sha256:" not in r]
+
+
+def parse_trivy_image(data, image: str, source: str) -> list[Finding]:
+    """`trivy image --format json` for one image; findings are filed under the
+    Dockerfile or Compose file that names it."""
+    out = []
+    for res in (data or {}).get("Results") or []:
+        for v in res.get("Vulnerabilities") or []:
+            vid, pkg = str(v.get("VulnerabilityID", "?")), f"{v.get('PkgName', '')}@{v.get('InstalledVersion', '')}"
+            fixed = v.get("FixedVersion") or ""
+            msg = f"{image}: {pkg} {v.get('Title') or ''}".strip() + (f" (fixed in {fixed})" if fixed else "")
+            out.append(Finding("trivy-image", vid, str(v.get("Severity", "medium")).lower(), source, None, msg[:300],
+                               _h(f"{image} {pkg}")))
+    return out
+
+
+def scan_images(exe: Path, target: Path, files: list[str] | None, patterns: list[str], work: Path) -> list[Finding]:
+    """Scan every image the given Dockerfiles and Compose files name. An image
+    that cannot be fetched (a locally built name such as app:latest, or a
+    registry outage) becomes a finding, so one bad ref neither hides the rest
+    nor reads as a clean scan."""
+    if files is None:
+        files = selected([p.relative_to(target).as_posix() for p in target.rglob("*") if p.is_file()], patterns)
+    found: list[Finding] = []
+    first_source: dict[str, str] = {}
+    for rel in files:
+        try:
+            refs = image_refs(rel, (target / rel).read_text(encoding="utf-8", errors="replace"))
+        except OSError:
+            continue
+        found += unpinned_images(rel, refs)
+        for r in refs:
+            first_source.setdefault(r, rel)
+    for image, source in sorted(first_source.items()):
+        report = work / f"image-{_h(image)}.json"
+        proc = run([str(exe), "image", "--format", "json", "--quiet", "--scanners", "vuln", "--severity", "HIGH,CRITICAL",
+                    "--ignore-unfixed", "--output", str(report), image],
+                   env={"TRIVY_NO_PROGRESS": "true", "TRIVY_CACHE_DIR": str(work / "trivy-cache")})
+        if proc.returncode != 0 or not report.is_file():
+            why = (proc.stderr or proc.stdout).strip().splitlines()
+            found.append(Finding("trivy-image", "image-not-scanned", "medium", source, None,
+                                 f"{image}: trivy could not fetch or scan it ({why[-1][:200] if why else proc.returncode})", _h(image)))
+            continue
+        found += parse_trivy_image(json.loads(report.read_text() or "{}"), image, source)
+    return found
+
+
 def parse_zizmor(data, root: Path) -> list[Finding]:
     out = []
     for r in data or []:
@@ -340,6 +421,8 @@ def scan_tool(name: str, spec: dict, target: Path, files: list[str] | None, tool
         if proc.returncode != 0:
             raise RuntimeError(f"exit {proc.returncode}: {proc.stderr.strip()[-600:]}")
         return parse_trivy(json.loads(report.read_text() or "{}"), target)
+    if name == "trivy-image":
+        return scan_images(exe, target, files, spec.get("paths") or [], work)
     if name == "zizmor":
         args = [str(exe), "--format", "json", "--no-progress", "--no-config"]
         targets = files if files is not None else ["."]

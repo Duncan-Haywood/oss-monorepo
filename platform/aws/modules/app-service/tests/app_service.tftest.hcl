@@ -123,6 +123,10 @@ run "lambda_private_and_capped" {
     error_message = "IAM-auth DB user and RDS CA bundle are configured"
   }
   assert {
+    condition     = aws_lambda_function.app.environment[0].variables.COGNITO_WEB_CLIENT_ID == output.auth.web_client_id && startswith(aws_lambda_function.app.environment[0].variables.COGNITO_DOMAIN, "https://")
+    error_message = "the app gets the public sign-in values (client id, hosted domain) for its own sign-in page"
+  }
+  assert {
     condition     = jsondecode(aws_lambda_invocation.ensure_db.input).products == ["hello"]
     error_message = "db-admin is asked for exactly this product"
   }
@@ -148,6 +152,22 @@ run "push_grants_only_its_platform_apps" {
   assert {
     condition     = one([for s in output.policy.Statement : s.Resource if s.Sid == "PushSend"]) == ["arn:aws:sns:us-east-1:111111111111:endpoint/*/saas-starter-hello-apns/*"]
     error_message = "publish only to endpoints of this product's platform application"
+  }
+}
+
+run "internal_site_auth_admin_only_with_mfa" {
+  command = apply
+  variables {
+    auth = {
+      domain_prefix     = "hello-test"
+      web_callback_urls = ["https://hello.example/auth/login"]
+      self_sign_up      = false
+      mfa               = "ON"
+    }
+  }
+  assert {
+    condition     = module.auth.admin_create_user_only && module.auth.mfa_configuration == "ON"
+    error_message = "an internal site's pool takes no sign-ups and requires MFA"
   }
 }
 

@@ -24,6 +24,10 @@ node --test ventures/sales-export-to-journal/
 
 - `index.html`: the tool's page.
 - `calc.mjs`: the logic, kept separate from the page so it can be tested.
+- `engines/*.mjs`: byte-for-byte copies of the single-platform tools' `calc.mjs`.
+  After changing one of those tools, run
+  `node ventures/sales-export-to-journal/copy-engines.mjs` (`--check` only
+  reports); `engines.test.mjs` fails while any copy is out of step.
 - `usage.mjs`: anonymous, opt-in-only usage counters (off by default; see
   `portfolio/usage/README.md` in the monorepo).
 - `*.test.mjs`: tests for the logic and the page.

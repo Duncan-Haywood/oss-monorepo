@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b51'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Change Order Log for Subcontractors</title>
+  <meta name="description" content="Free change order log for subcontractors: approved, pending and rejected totals, aging, revised contract sum, and SOV lines for your pay app. Nothing uploaded.">
+  <meta property="og:title" content="Change order log: what is signed, what is at risk, and what goes on the pay app">
+  <meta property="og:description" content="Paste your change order log. Get the revised contract sum, pending money at risk and how long it has waited, problems flagged, and approved change orders as schedule-of-values lines.">
+  <link rel="canonical" href="./change-order-log.html">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid var(--input); border-radius: 7px; font: 13px ui-monospace, monospace; background: var(--card); color: var(--ink); }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 6px 0 12px; }
+    .tile { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+    .tile b { display: block; font-size: 1.25rem; color: var(--head); font-variant-numeric: tabular-nums; }
+    .tile span { font-size: .8rem; color: var(--muted); }
+    .pill.approved { background: #e3f1e5; color: #1d5b2a; }
+    .pill.rejected, .pill.void { background: #ececec; color: #444; }
+    .err { color: #9a3412; font-weight: 600; }
+    input[type=file] { border: 0; padding: 8px 0; }
+  </style>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Change Order Log", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What goes in a change order log?", "acceptedAnswer": {"@type": "Answer", "text": "One row per change: its number, a description, its status (pending, approved, rejected or void), the amount, any days of schedule time it asks for, the date it was submitted, the date it was approved, and what has been billed against it."}}, {"@type": "Question", "name": "Can I bill a pending change order on my pay application?", "acceptedAnswer": {"@type": "Answer", "text": "Usually not. Most pay applications only carry executed change orders, so pending work is tracked in the log and billed the month it is signed. Some subcontracts allow billing work approved in principle; check yours."}}, {"@type": "Question", "name": "How do approved change orders get onto the schedule of values?", "acceptedAnswer": {"@type": "Answer", "text": "Each approved change order becomes its own line, CO-1, CO-2 and so on, with its full amount as the scheduled value; a deductive change order is a negative line. This page writes those lines for you in the columns the free pay application generator reads."}}]}</script>
+</head>
+<body>
+<header>
+  <p class="kicker">Pay app guides · runs in your browser · nothing uploaded</p>
+  <h1>Change order log for subcontractors</h1>
+  <p>Paste your change order log, or start from the example. The page works out the <strong>revised contract sum</strong>, how much is <strong>pending and at risk</strong> and how long it has waited, flags billing on unsigned or rejected changes, and writes the <strong>approved change orders as schedule-of-values lines</strong> for next month's pay application.</p>
+  <p class="note">Your log stays in this browser. It does the arithmetic and checks; your contract decides what may be billed and when notice is due.</p>
+  <nav class="guides" aria-label="Guides">
+    <a href="./">Schedule of values calculator</a>
+    <a href="change-orders-schedule-of-values.html">Change orders and the SOV</a>
+    <a href="conditional-vs-unconditional-lien-waivers.html">Lien waivers</a>
+    <a href="retainage-explained.html">Retainage explained</a>
+  </nav>
+</header>
+<main>
+<section class="card" id="inputs">
+  <h2>1. The job</h2>
+  <div class="grid">
+    <div><label for="project">Project</label><input id="project" placeholder="Job name"></div>
+    <div><label for="original">Original contract sum ($)</label><input id="original" inputmode="decimal" placeholder="0"></div>
+    <div><label for="asof">As of (YYYY-MM-DD)</label><input id="asof"></div>
+    <div><label for="stale">Flag pending after (days)</label><input id="stale" inputmode="numeric" value="30"></div>
+  </div>
+  <h2>2. Change order log</h2>
+  <label for="log">One change order per row, with a header row (comma or tab separated: paste straight from a spreadsheet)</label>
+  <textarea id="log" spellcheck="false" wrap="off" placeholder="CO #,Description,Status,Amount,Days,Submitted,Approved,Billed&#10;1,Added egress window,Approved,7800,2,2026-09-02,2026-09-16,7800"></textarea>
+  <p class="note">Columns: <strong>CO #</strong>, <strong>Description</strong>, <strong>Status</strong> (approved, executed or signed; pending, submitted or proposed; rejected; void or withdrawn), <strong>Amount</strong> (a deduct is negative), <strong>Days</strong> of time asked for, <strong>Submitted</strong> and <strong>Approved</strong> dates, and <strong>Billed</strong> to date. Only status and amount are required.</p>
+  <label for="file">Or open a CSV file (read on this device only)</label>
+  <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+  <button type="button" class="secondary" id="sample">Load an example</button>
+  <button type="button" class="secondary" id="clear">Clear</button>
+  <label style="font-weight:400"><input type="checkbox" id="remember" style="width:auto"> Remember this log in this browser</label>
+</section>
+
+<section class="card" id="result" aria-live="polite">
+  <h2>3. Where the job stands</h2>
+  <div id="errors"></div>
+  <div class="tiles">
+    <div class="tile"><span>Revised contract sum</span><b id="t-revised">$0.00</b></div>
+    <div class="tile"><span>Approved change orders, net</span><b id="t-approved">$0.00</b></div>
+    <div class="tile"><span>Pending, not yet signed</span><b id="t-pending">$0.00</b></div>
+    <div class="tile"><span>Pending past the flag</span><b id="t-stale">0</b></div>
+  </div>
+  <div id="findings"></div>
+  <div class="scroll"><table class="stack compact" role="table">
+    <thead><tr><th role="columnheader" scope="col">CO</th><th role="columnheader" scope="col">Description</th><th role="columnheader" scope="col">Status</th><th role="columnheader" scope="col" class="n">Amount</th><th role="columnheader" scope="col" class="n">Days</th><th role="columnheader" scope="col" class="n">Billed</th><th role="columnheader" scope="col" class="n">Waiting</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table></div>
+  <h3>Summary</h3>
+  <pre class="sum" id="summary"></pre>
+  <button type="button" class="secondary" id="copy">Copy summary</button>
+  <button type="button" class="secondary" id="csv">Download log CSV</button>
+
+  <h3>Approved change orders as schedule-of-values lines</h3>
+  <p class="note">Each approved change order as its own line, with what is billed to date as "previous". Paste these under your original lines in the <a href="https://marisstella.app/pay-application-generator/">pay application generator</a> and fill in this period.</p>
+  <pre class="sum" id="sov"></pre>
+  <button type="button" class="secondary" id="copy-sov">Copy SOV lines</button>
+
+  <h3>Exceptions wording for a progress lien waiver</h3>
+  <p class="note">A starting point for the exceptions you list when signing a progress waiver while change orders are still open. Some states require a statutory waiver form; add exceptions only where that form allows them, and ask an attorney if unsure. See <a href="conditional-vs-unconditional-lien-waivers.html">lien waivers</a>.</p>
+  <pre class="sum" id="waiver"></pre>
+  <button type="button" class="secondary" id="copy-waiver">Copy wording</button>
+</section>
+
+<section class="card" id="rules">
+  <h2>How the numbers are worked out</h2>
+  <ul>
+    <li><strong>Revised contract sum</strong> = original contract + approved additions + approved deductions. Pending, rejected and void change orders do not count.</li>
+    <li><strong>If every pending change order is approved</strong> = revised contract + pending. The difference is money you may have performed and not yet secured.</li>
+    <li><strong>Waiting</strong> = days from the submitted date to the as-of date, for pending change orders. <strong>Days to approve</strong> = approved date − submitted date.</li>
+    <li><strong>Checks:</strong> anything billed on a pending, rejected or void change order; billing outside zero to the approved amount; pending changes past your flag; pending additions above 10% of the original contract; repeated numbers; approved with no approval date.</li>
+    <li><strong>Not decided here:</strong> whether a change is owed, notice and claim deadlines in your subcontract, markup limits, and what your state's lien waiver forms allow.</li>
+  </ul>
+</section>
+
+<section class="card" id="faq">
+  <h2>Common questions</h2>
+  <h3>What goes in a change order log?</h3>
+  <p>One row per change: its number, a description, its status (pending, approved, rejected or void), the amount, any days of schedule time it asks for, the date it was submitted, the date it was approved, and what has been billed against it.</p>
+  <h3>Can I bill a pending change order on my pay application?</h3>
+  <p>Usually not. Most pay applications only carry executed change orders, so pending work is tracked in the log and billed the month it is signed. Some subcontracts allow billing work approved in principle; check yours.</p>
+  <h3>How do approved change orders get onto the schedule of values?</h3>
+  <p>Each approved change order becomes its own line, CO-1, CO-2 and so on, with its full amount as the scheduled value; a deductive change order is a negative line. This page writes those lines for you in the columns the free pay application generator reads.</p>
+  <p class="note">Worked example: <a href="change-orders-schedule-of-values.html">change orders and the schedule of values</a>.</p>
+</section>
+
+<section class="card cta" id="early-access">
+  <h2>Chasing change orders across several jobs?</h2>
+  <p>We are building hosted pay-app billing for specialty subcontractors: a change order log per job that adds each change order to the next pay app the month it is signed, next to retainage and lien waivers. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
+</section>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, or financial advice, and it does not replace your contract, your accountant, or an attorney. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+  <p><strong>Privacy.</strong> Everything runs in your browser. Your log is never uploaded; there are no accounts, cookies, or analytics vendors. If you tick "remember", the log is kept in this browser's local storage only. Anonymous feature events (<code>colog_calculated</code>, <code>colog_example_loaded</code>, <code>colog_summary_copied</code>, <code>colog_sov_copied</code>, <code>colog_waiver_copied</code>, <code>colog_csv_downloaded</code>) are counted only on your device, never with your numbers, and Do Not Track switches them off.</p>
+  <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+</footer>
+<script type="module">
+  import { compute, summaryText, sovRows, logCsv, waiverExceptions, sampleLog, SAMPLE_SETTINGS, dollars } from "./colog.mjs";
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const SAVE = "pay-app-guides-change-order-log";
+  const FIELDS = ["project", "original", "asof", "stale", "log"];
+  let counted = false, last;
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(SAVE) || "null"); } catch { return null; } },
+    set(v) { try { localStorage.setItem(SAVE, JSON.stringify(v)); } catch { /* storage is optional */ } },
+    clear() { try { localStorage.removeItem(SAVE); } catch { /* storage is optional */ } },
+  };
+  const settings = () => ({ project: $("#project").value, originalContract: $("#original").value, asOf: $("#asof").value, staleDays: $("#stale").value });
+
+  function update() {
+    last = compute($("#log").value, settings());
+    $("#errors").innerHTML = last.errors.map((e) => `<p class="err">${esc(e)}</p>`).join("");
+    const t = last.totals;
+    $("#t-revised").textContent = dollars(t ? t.revisedContract : 0);
+    $("#t-approved").textContent = dollars(t ? t.approvedNet : 0);
+    $("#t-pending").textContent = dollars(t ? t.pendingNet : 0);
+    $("#t-stale").textContent = t ? `${t.staleCount} · ${dollars(t.staleAmount)}` : "0";
+    $("#findings").innerHTML = last.findings.map((f) => `<p class="finding"><span class="pill ${f.severity}">${f.severity === "high" ? "check" : "note"}</span>${esc(f.title)}</p>`).join("");
+    $("#rows").innerHTML = (t ? last.lines : []).map((x) => `<tr><td data-label="CO">${esc(x.number)}</td><td data-label="Description">${esc(x.desc)}</td><td data-label="Status"><span class="pill ${x.status}">${x.status}</span></td><td data-label="Amount" class="n">${dollars(x.amount)}</td><td data-label="Days" class="n">${x.days || ""}</td><td data-label="Billed" class="n">${x.billed ? dollars(x.billed) : ""}</td><td data-label="Waiting" class="n">${x.age != null ? `${x.age} d` : x.turnaround != null ? `took ${x.turnaround} d` : ""}</td></tr>`).join("");
+    $("#summary").textContent = t ? summaryText(last, settings()) : "";
+    $("#sov").textContent = t ? sovRows(last) : "";
+    $("#waiver").textContent = t ? waiverExceptions(last) || "No pending change orders to except." : "";
+    if ($("#remember").checked) store.set({ ...Object.fromEntries(FIELDS.map((f) => [f, $("#" + f).value])), remember: true });
+    if (!counted && t) { counted = true; record("colog_calculated"); }
+  }
+  async function copy(id, btn, event) {
+    try { await navigator.clipboard.writeText($(id).textContent); btn.textContent = "Copied"; record(event); } catch { btn.textContent = "Select the text and copy it"; }
+  }
+
+  $("#asof").value = new Date().toISOString().slice(0, 10);
+  const saved = store.get();
+  if (saved && saved.remember) { for (const f of FIELDS) if (typeof saved[f] === "string") $("#" + f).value = saved[f]; $("#remember").checked = true; }
+  document.addEventListener("input", (e) => { if (e.target.closest("#inputs") && e.target.type !== "file") update(); });
+  $("#remember").addEventListener("change", (e) => { if (!e.target.checked) store.clear(); update(); });
+  $("#file").addEventListener("change", (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    if (f.size > 2_000_000) { $("#errors").innerHTML = '<p class="err">That file is over 2 MB; export just the change order log.</p>'; return; }
+    f.text().then((txt) => { $("#log").value = txt; update(); });
+  });
+  $("#sample").addEventListener("click", () => {
+    $("#project").value = SAMPLE_SETTINGS.project; $("#original").value = SAMPLE_SETTINGS.originalContract;
+    $("#asof").value = SAMPLE_SETTINGS.asOf; $("#stale").value = SAMPLE_SETTINGS.staleDays; $("#log").value = sampleLog();
+    record("colog_example_loaded"); update();
+  });
+  $("#clear").addEventListener("click", () => { $("#log").value = ""; $("#project").value = ""; $("#original").value = ""; update(); });
+  $("#copy").addEventListener("click", (e) => copy("#summary", e.target, "colog_summary_copied"));
+  $("#copy-sov").addEventListener("click", (e) => copy("#sov", e.target, "colog_sov_copied"));
+  $("#copy-waiver").addEventListener("click", (e) => copy("#waiver", e.target, "colog_waiver_copied"));
+  $("#csv").addEventListener("click", () => {
+    if (!last || !last.totals) return;
+    const url = URL.createObjectURL(new Blob([logCsv(last)], { type: "text/csv" }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: "change-order-log.csv" });
+    a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); record("colog_csv_downloaded");
+  });
+  $("#optout").addEventListener("click", (e) => { setUsageOptOut(true); e.target.textContent = "Usage counting is off"; e.target.disabled = true; });
+  if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
+  update();
+</script>
+</body>
+</html>
