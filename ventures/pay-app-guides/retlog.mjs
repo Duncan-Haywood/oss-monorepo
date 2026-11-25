@@ -160,6 +160,9 @@ export function compute(text, settings = {}) {
 
 const cents = (c) => (c / 100).toFixed(2);
 
+// Every cell goes through csvCell (colog.mjs), the formula-injection guard: a cell starting =, +, -, @, tab
+// or CR gets a leading apostrophe. retlog.test.mjs checks it on a typed =HYPERLINK job name.
+
 export function jobsCsv(result) {
   const head = ["Job", "GC", "Contract", "Retainage held", "Released", "Outstanding", "Completed", "Release days", "Due", "Release billed", "Days overdue", "Aging", "Carrying cost"];
   const label = Object.fromEntries(BUCKETS);
