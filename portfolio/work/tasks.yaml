@@ -301,10 +301,13 @@ tasks:
       by a live `curl -I`; HTML, CSS and modules keep must-revalidate until
       their URLs carry a content hash (next task).
     hours: 2
-    status: open
+    status: done
     added: 2026-11-07
     notes: >-
-      Every file on the site, CSS and icons included, answers
+      Landed 2026-11-25: split.mjs writes one `/*.<ext>` rule per image, font
+      and media type into both Workers' _headers (`public, max-age=86400,
+      stale-while-revalidate=604800`); live check and reading in
+      docs/history/site-asset-cache-perf-2026-11-25.md. Before that, every file on the site, CSS and icons included, answers
       `cache-control: public, max-age=0, must-revalidate` (checked
       2026-11-07), so a repeat visit revalidates each one. Images and fonts
       are safe to cache: a stale one never breaks a page.
