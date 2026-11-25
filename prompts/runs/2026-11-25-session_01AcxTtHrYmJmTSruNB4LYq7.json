@@ -63,7 +63,7 @@
     "portfolio/monetization/README.md (Funnels section)"
   ],
   "goal": "North star step 2 (getting buyers to the for-profit products): 63 free tools now link, with a tracked footer line, to one of 14 proprietary products.",
-  "notes": "Checks run here: node --test platform/pages/product-funnel.test.mjs (4/4), related-tools/cta-row-phone/counter-wiring/feedback-page tests (18/18), writing.test.mjs (57/57), check_post_frontmatter/links/posts ok, preview build --only=stripe-payout-to-journal,sales-export-to-journal renders the line on the feeder and not on the product; screenshot at 390px shows no horizontal scroll. build.test.mjs: see final commit. Word-overlap matching was prototyped first and rejected (whole groups mispaired).",
+  "notes": "Checks run here: node --test platform/pages/product-funnel.test.mjs (4/4), related-tools/cta-row-phone/counter-wiring/feedback-page tests (18/18), writing.test.mjs (57/57), check_post_frontmatter/links/posts ok, preview build --only=stripe-payout-to-journal,sales-export-to-journal renders the line on the feeder and not on the product; screenshot at 390px shows no horizontal scroll. build.test.mjs 336/336 pass. Word-overlap matching was prototyped first and rejected (whole groups mispaired).",
   "corrections": [],
   "redteam": null
 }
