@@ -134,6 +134,32 @@ test("impossible calendar dates are rejected", () => {
   assert.ok(checkInvoice(invoice).some((error) => error.rule === "INV-003"));
 });
 
+// Number() reads "+8", " 8" and "-001" as numbers, so a length-and-dash check
+// alone let these through as valid dates; the Python mirror (date.fromisoformat)
+// rejects every one.
+const NOT_ISO = ["2026-+8-24", "2026- 8-24", "2026-08- 4", "2026-08-+4", "-001-08-24", "+202-08-24", "0000-08-24", "2026-\u0660\u0668-24"];
+
+test("dates with signs, spaces or non-ASCII digits are not ISO dates", () => {
+  for (const bad of NOT_ISO) {
+    const invoice = clone(VALID);
+    invoice.issue_date = bad;
+    invoice.due_date = bad;
+    const rules = new Set(checkInvoice(invoice).map((error) => error.rule));
+    assert.ok(rules.has("INV-003"), `issue_date ${JSON.stringify(bad)}`);
+    assert.ok(rules.has("INV-020"), `due_date ${JSON.stringify(bad)}`);
+  }
+});
+
+test("a year below 100 is a real date, as in the Python mirror", () => {
+  const invoice = clone(VALID);
+  invoice.issue_date = "0050-08-24";
+  invoice.due_date = "0050-09-23";
+  const rules = new Set(checkInvoice(invoice).map((error) => error.rule));
+  assert.ok(!rules.has("INV-003"));
+  assert.ok(!rules.has("INV-020"));
+  assert.ok(!rules.has("INV-021"));
+});
+
 test("non-object invoice fails with INV-001", () => {
   assert.equal(checkInvoice([]).length, 1);
   assert.equal(checkInvoice("nope")[0].rule, "INV-001");

@@ -3,7 +3,7 @@ title: "Thirteen date checks that said yes to 30 February"
 seo_title: "Date.parse accepts 2026-02-30: validating YYYY-MM-DD in JavaScript"
 date: 2026-11-11
 tags: [einvoice-preflight, fatturapa, dates, javascript, mutation-testing, redteam]
-description: "In V8, Date.parse('2026-02-30') is a real timestamp, 2 March. Thirteen of our validators trusted it to reject bad dates. A lint now flags the pattern."
+description: "In V8, Date.parse('2026-02-30') is a real timestamp, 2 March. Thirteen of our validators trusted it to reject bad dates. A lint now flags the pattern, and a parity test keeps the e-invoice checker's dates in step with Python."
 ---
 
 Today's red-team run seeded eight faults into `fatturapa.mjs`, the
@@ -54,6 +54,26 @@ through `Date.UTC`, which this lint does not cover; that one builds dates from p
 different shape. The next day's run found the hand-written shape of the same mistake, a
 day range of 1 to 31 for every month, in seven more tools:
 [Every month had 31 days](2026-11-12-every-month-had-31-days.md).
+
+## The other way round: dates the round trip let through (2026-11-25)
+
+A later red-team run found the opposite hole in the same product, in the one parser the
+issue date, due date, invoice period and payment-terms checks all used. It did do the
+round trip, but it found the parts with `Number(value.slice(5, 7))` after checking only
+that the string was ten characters long with dashes at positions 5 and 8. `Number()` is
+forgiving: `Number("+7")` and `Number(" 7")` are both 7, and `Number("-001")` is -1. So
+`2026-+7-01`, `2026-07- 1` and `-001-01-01` came back as real dates, and an invoice with
+any of them in its issue date passed `INV-003` in the web checker. The Python package,
+which uses `date.fromisoformat`, rejected all three. The two sides also disagreed the
+other way: `Date.UTC` reads years 0 to 99 as 1900 to 1999, so the web checker refused
+`0050-01-01`, a valid date to the XML schema and to Python.
+
+The fix is one parser instead of three copies: ASCII digits only (`[0-9]`, not a loose
+`Number()`), year 1 or later, and `setUTCFullYear` instead of `Date.UTC`. `checks.mjs` and
+`terms.mjs` now import it from `period.mjs`. The guard that keeps it fixed is
+`date-parity.test.mjs`: it hands the same 3,031 strings (31 fixed, 3,000 seeded-random
+near-dates) to the JavaScript parser and the three Python ones and fails on any
+disagreement. On the old code it finds 141.
 
 What this does not show: the rule codes are this tool's own, not SdI's, and none of this was
 checked against SdI itself. It is an offline check of a file's shape and arithmetic, not

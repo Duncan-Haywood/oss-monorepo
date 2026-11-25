@@ -13,7 +13,7 @@ import { inspectDocumentType } from "./document.mjs";
 import { inspectPartyEndpoint, inspectPartyIdentifiers, inspectLineSchemedIds } from "./endpoint.mjs";
 import { inspectPaymentIban } from "./iban.mjs";
 import { inspectPaymentMeans } from "./means.mjs";
-import { inspectInvoicePeriod } from "./period.mjs";
+import { inspectInvoicePeriod, parseIsoDate as isoDate } from "./period.mjs";
 import { inspectCommercialReferences } from "./reference.mjs";
 import { inspectPaymentRemittance } from "./remittance.mjs";
 import { inspectTaxExemption } from "./tax.mjs";
@@ -45,25 +45,6 @@ export function wholeUnitTaxAgrees(currency, stated, expected) {
 function money(value) {
   const parsed = parseNumber(value);
   return parsed === null ? null : roundHalfUpToCents(parsed);
-}
-
-function isoDate(value) {
-  if (typeof value !== "string" || value.length !== 10 || value[4] !== "-" || value[7] !== "-") {
-    return null;
-  }
-  const year = Number(value.slice(0, 4));
-  const month = Number(value.slice(5, 7));
-  const day = Number(value.slice(8, 10));
-  if (![year, month, day].every((part) => Number.isInteger(part))) return null;
-  const date = new Date(Date.UTC(year, month - 1, day));
-  if (
-    date.getUTCFullYear() !== year ||
-    date.getUTCMonth() !== month - 1 ||
-    date.getUTCDate() !== day
-  ) {
-    return null;
-  }
-  return date;
 }
 
 function statedBreakdownTax(invoice, breakdownFindings) {

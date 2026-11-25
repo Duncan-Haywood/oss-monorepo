@@ -2,27 +2,12 @@
 // Mirrors src/einvoice_preflight/terms.py. Findings never repeat party
 // or account data. The expected due date may appear in the fix.
 
+import { parseIsoDate } from "./period.mjs";
+
+export { parseIsoDate };
+
 function finding(rule, message, fix, path) {
   return { rule, message, fix, path };
-}
-
-export function parseIsoDate(value) {
-  if (typeof value !== "string" || value.length !== 10 || value[4] !== "-" || value[7] !== "-") {
-    return null;
-  }
-  const year = Number(value.slice(0, 4));
-  const month = Number(value.slice(5, 7));
-  const day = Number(value.slice(8, 10));
-  if (![year, month, day].every((part) => Number.isInteger(part))) return null;
-  const date = new Date(Date.UTC(year, month - 1, day));
-  if (
-    date.getUTCFullYear() !== year
-    || date.getUTCMonth() !== month - 1
-    || date.getUTCDate() !== day
-  ) {
-    return null;
-  }
-  return date;
 }
 
 export function parseTermsDays(value) {

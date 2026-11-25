@@ -43,6 +43,19 @@ test("parseIsoDate accepts the extended form only", () => {
   assert.equal(parseIsoDate("2026-13-01"), null);
   assert.equal(parseIsoDate("2026-02-30"), null);
   assert.equal(parseIsoDate(null), null);
+  assert.equal(parseIsoDate("2026-07x01"), null);
+  assert.equal(parseIsoDate("2026x07-01"), null);
+});
+
+test("parseIsoDate matches Python's date.fromisoformat on odd input", () => {
+  for (const bad of ["2026-+7-01", "2026- 7-01", "2026-07- 1", "-001-01-01", "+202-01-01", "0000-01-01", "2026-\u0660\u0667-01"]) {
+    assert.equal(parseIsoDate(bad), null, JSON.stringify(bad));
+    assert.deepEqual(inspectInvoicePeriod(invoice({ start: bad, end: "2026-07-31" })).map((f) => f.path), ["/period/start"], bad);
+  }
+  assert.equal(parseIsoDate("0050-01-01").toISOString().slice(0, 10), "0050-01-01");
+  assert.equal(parseIsoDate("0099-12-31").toISOString().slice(0, 10), "0099-12-31");
+  assert.equal(parseIsoDate("0050-02-29"), null);
+  assert.equal(parseIsoDate("2024-02-29").toISOString().slice(0, 10), "2024-02-29");
 });
 
 test("omitted period is not a finding", () => {
