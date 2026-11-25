@@ -18,8 +18,11 @@ import {
   INDUSTRIES,
   PRODUCT_LINES,
   STATUS,
+  buildFirstHref,
   earlyAccessHref,
   hardwareLines,
+  industriesWithProducts,
+  industriesWithoutProducts,
   linesForIndustry,
   softwareLines,
 } from './business.mjs';
@@ -32,6 +35,8 @@ export const industryPath = (slug) => `${INDUSTRIES_PATH}${slug}/`;
 // here because build.mjs imports this module. products.test.mjs holds them equal.
 export const COUNTER_SCRIPT = 'pf-site.js';
 export const COUNTER_ATTR = 'data-pf-slug';
+// build.mjs's CUSTOM_DEV_PATH, repeated for the same reason; products.test.mjs holds them equal.
+export const CUSTOM_DEV_PATH = 'custom-development/';
 
 // "Small nonprofits" -> "small nonprofits" after "For", but "CNC machine shops" keeps its acronym.
 const lowerFirst = (text) => (/^[A-Z][a-z]/.test(text) ? text.charAt(0).toLowerCase() + text.slice(1) : text);
@@ -118,6 +123,13 @@ const PAGE_CSS = `
   .ind-list a:hover { border-color:var(--accent); }
   .ind-list b { display:block; font-size:1.1rem; }
   .ind-list span { display:block; color:var(--muted); font-size:.9rem; margin-top:4px; }
+  .jobs { max-width:66ch; margin:12px 0 0; padding-left:1.2em; }
+  .jobs li { margin:0 0 6px; }
+  .tool-list { list-style:none; margin:14px 0 0; padding:0; display:grid; gap:10px; grid-template-columns:repeat(auto-fill, minmax(min(100%, 260px), 1fr)); }
+  .tool-list a { display:block; padding:12px 14px; background:var(--panel); border:1px solid var(--line); border-radius:12px; text-decoration:none; color:var(--ink); }
+  .tool-list a:hover { border-color:var(--accent); }
+  .cta-row { display:flex; flex-wrap:wrap; gap:10px 16px; margin:14px 0 0; align-items:center; }
+  .cta-row .go { display:inline-block; font-weight:650; padding:9px 16px; border-radius:9px; text-decoration:none; background:var(--accent); color:var(--accent-ink); }
   footer { margin-top:52px; border-top:1px solid var(--line); padding-top:24px; font-size:.87rem; line-height:1.6; color:var(--muted); }
   :focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
 ${PRODUCT_CARD_CSS}`;
@@ -207,7 +219,12 @@ or write to <a href="mailto:${CONTACT_EMAIL}">${CONTACT_EMAIL}</a>. Free tools f
 
 const INDUSTRIES_TITLE = 'Industries we build for';
 const INDUSTRIES_DESCRIPTION =
-  'Construction, manufacturing, online sellers, EU e-invoicing and nonprofits: the businesses our products serve and the jobs each struggles with most.';
+  'Construction, restaurants, salons, clinics, shops, trucking, farms and more: the small businesses we build for, the jobs each finds hardest, and free tools.';
+
+function industryItem(i, toRoot, lines) {
+  const names = linesForIndustry(i.slug, lines).map((l) => l.name).join(', ');
+  return `<li><a href="${esc(toRoot + industryPath(i.slug))}"><b>${esc(i.name)}</b><span>${esc(i.who)}</span>${names ? `<span>${esc(names)}</span>` : ''}</a></li>`;
+}
 
 export function renderIndustriesPage({ baseUrl = '', lines = PRODUCT_LINES } = {}) {
   const toRoot = '../';
@@ -220,28 +237,66 @@ export function renderIndustriesPage({ baseUrl = '', lines = PRODUCT_LINES } = {
     url: canonical || undefined,
     hasPart: INDUSTRIES.map((i) => ({ '@type': 'WebPage', name: i.name, url: baseUrl ? `${baseUrl}${industryPath(i.slug)}` : undefined })),
   };
+  const withProducts = industriesWithProducts(lines);
+  const next = industriesWithoutProducts(lines);
   const body = `<header>
 <p class="eyebrow">Industries</p>
 <h1>${esc(INDUSTRIES_TITLE)}</h1>
-<p class="dek">We build for specific kinds of small business, one at a time, starting from the job each finds hardest. Pick yours.</p>
+<p class="dek">Software for most kinds of small business, built around the job each finds hardest. Pick yours.</p>
 </header>
+<section class="band" aria-labelledby="ind-products-h">
+<h2 id="ind-products-h">Products in development</h2>
+<p class="band-lede">Each of these has a product being built for it, and free tools that already do part of the job.</p>
 <ul class="ind-list">
-${INDUSTRIES.map((i) => {
-  const names = linesForIndustry(i.slug, lines).map((l) => l.name).join(', ');
-  return `<li><a href="${esc(toRoot + industryPath(i.slug))}"><b>${esc(i.name)}</b><span>${esc(i.who)}</span>${names ? `<span>${esc(names)}</span>` : ''}</a></li>`;
-}).join('\n')}
+${withProducts.map((i) => industryItem(i, toRoot, lines)).join('\n')}
 </ul>
-<section class="band" aria-labelledby="all-h">
-<h2 id="all-h">Everything in one list</h2>
-<p class="band-lede">Every product line, with its status, and the hardware designs: <a href="${esc(toRoot + PRODUCTS_PATH)}">see all products</a>.</p>
+</section>
+${next.length ? `<section class="band" aria-labelledby="ind-next-h">
+<h2 id="ind-next-h">Free tools today, products next</h2>
+<p class="band-lede">No paid product for these yet. Each page lists the jobs we are starting from and the free tools that help today, and asks you which job to build first.</p>
+<ul class="ind-list">
+${next.map((i) => industryItem(i, toRoot, lines)).join('\n')}
+</ul>
+</section>
+` : ''}<section class="band" aria-labelledby="all-h">
+<h2 id="all-h">Not listed, or need something specific?</h2>
+<p class="band-lede">Every product line, with its status, and the hardware designs: <a href="${esc(toRoot + PRODUCTS_PATH)}">see all products</a>.
+Any small business can also <a href="${esc(toRoot + CUSTOM_DEV_PATH)}">ask for a tool to be built</a>, free and in public.</p>
 </section>`;
   return page({ toRoot, current: 'industries', slug: 'industries', title: INDUSTRIES_TITLE, description: INDUSTRIES_DESCRIPTION, canonical, body, jsonLd });
 }
 
 /** The default page for one industry: its lines, their problems and the free tools. */
 export function renderIndustryPage(industry, { baseUrl = '', published = null, lines = PRODUCT_LINES } = {}) {
-  const toRoot = '../../';
   const mine = linesForIndustry(industry.slug, lines);
+  return mine.length
+    ? renderIndustryWithProducts(industry, mine, { baseUrl, published })
+    : renderIndustryWithoutProducts(industry, { baseUrl, published });
+}
+
+function otherIndustries(industry, toRoot) {
+  return `<section class="band" aria-labelledby="more-h">
+<h2 id="more-h">Other industries</h2>
+<ul class="jump">${INDUSTRIES.filter((i) => i.slug !== industry.slug).map((i) => `<li><a href="${esc(toRoot + industryPath(i.slug))}">${esc(i.name)}</a></li>`).join('')}<li><a href="${esc(toRoot + PRODUCTS_PATH)}">All products</a></li></ul>
+</section>`;
+}
+
+function industryPage(industry, { toRoot, title, description, canonical, body, jsonLd }) {
+  return page({
+    toRoot,
+    current: 'industries',
+    slug: `industries/${industry.slug}`,
+    title,
+    description,
+    canonical,
+    crumbs: [{ label: 'Industries', href: `${toRoot}${INDUSTRIES_PATH}` }, { label: industry.name }],
+    body,
+    jsonLd,
+  });
+}
+
+function renderIndustryWithProducts(industry, mine, { baseUrl, published }) {
+  const toRoot = '../../';
   const canonical = baseUrl ? `${baseUrl}${industryPath(industry.slug)}` : '';
   const title = `${industry.name}: products and free tools`;
   const description = `${industry.who}: the jobs they struggle with most, the products we are building for them, and free tools that help today.`.slice(0, 158);
@@ -260,21 +315,49 @@ export function renderIndustryPage(industry, { baseUrl = '', published = null, l
 the jobs it is for, and the free tools that already do part of it.</p>
 </header>
 ${renderProductGrid(mine, { toRoot, published, heading: 'h2' })}
-<section class="band" aria-labelledby="more-h">
-<h2 id="more-h">Other industries</h2>
-<ul class="jump">${INDUSTRIES.filter((i) => i.slug !== industry.slug).map((i) => `<li><a href="${esc(toRoot + industryPath(i.slug))}">${esc(i.name)}</a></li>`).join('')}<li><a href="${esc(toRoot + PRODUCTS_PATH)}">All products</a></li></ul>
-</section>`;
-  return page({
-    toRoot,
-    current: 'industries',
-    slug: `industries/${industry.slug}`,
-    title,
+${otherIndustries(industry, toRoot)}`;
+  return industryPage(industry, { toRoot, title, description, canonical, body, jsonLd });
+}
+
+/** An industry with free tools and no paid product yet: the jobs, the tools, and "which first?". */
+function renderIndustryWithoutProducts(industry, { baseUrl, published }) {
+  const toRoot = '../../';
+  const canonical = baseUrl ? `${baseUrl}${industryPath(industry.slug)}` : '';
+  const title = `${industry.name}: free tools, and what we build next`;
+  const description = `${industry.who}: free tools for the jobs that take the most time, and a say in which job we build a product for first.`.slice(0, 158);
+  const tools = industry.tools.filter((slug) => !published || published.has(slug));
+  const toolName = (slug) => (published instanceof Map && published.get(slug)) || slug.replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase());
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: title,
     description,
-    canonical,
-    crumbs: [{ label: 'Industries', href: `${toRoot}${INDUSTRIES_PATH}` }, { label: industry.name }],
-    body,
-    jsonLd,
-  });
+    url: canonical || undefined,
+    hasPart: tools.map((slug) => ({ '@type': 'WebApplication', name: toolName(slug), url: baseUrl ? `${baseUrl}${slug}/` : undefined })),
+  };
+  const body = `<header>
+<p class="eyebrow">${esc(industry.name)}</p>
+<h1>${esc(title)}</h1>
+<p class="dek">For ${esc(lowerFirst(industry.who))}. There is no paid product for you yet. Below are the jobs we are
+starting from, the free tools that help with them today, and a way to tell us which one to build first.</p>
+</header>
+<section class="band" aria-labelledby="jobs-h">
+<h2 id="jobs-h">The jobs we are starting from</h2>
+<ul class="jobs">${industry.problems.map((p) => `<li>${esc(p)}</li>`).join('')}</ul>
+</section>
+${tools.length ? `<section class="band" aria-labelledby="tools-h">
+<h2 id="tools-h">Free tools that help today</h2>
+<p class="band-lede">Free, in your browser, no account needed.</p>
+<ul class="tool-list">${tools.map((slug) => `<li><a href="${esc(`${toRoot}${slug}/`)}" data-pf-to="${esc(slug)}">${esc(toolName(slug))}</a></li>`).join('')}</ul>
+</section>
+` : ''}<section class="band" aria-labelledby="first-h">
+<h2 id="first-h">Which job should we build first?</h2>
+<p class="band-lede">Tell us which of these costs your business the most time, or what is missing from the list. The answers decide which product we build next for ${esc(lowerFirst(industry.name))}.
+If you need something specific for your own business, we build that too: free, in public, and you pay only what it costs to run.</p>
+<p class="cta-row"><a class="go" href="${esc(buildFirstHref(industry))}">Tell us what to build first</a><a href="${esc(toRoot + CUSTOM_DEV_PATH)}">Ask for a custom tool</a></p>
+</section>
+${otherIndustries(industry, toRoot)}`;
+  return industryPage(industry, { toRoot, title, description, canonical, body, jsonLd });
 }
 
 /** Every URL these pages add, site-relative, for the sitemap. */

@@ -40,6 +40,12 @@ test("robots and sitemap let crawlers find the page", () => {
   assert.match(page("sitemap.xml"), /index\.html/);
 });
 
+// pay-app-guides (2026-11-24) is the free front door for the pay-app billing
+// bet; this is its inbound sibling link (platform/pages/siblings-budget.json).
+test("index links one hop to the pay-app-guides sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/pay-app-guides\/"/);
+});
+
 test("next-month carry-forward is on the page and the suite pitch claims no sale or price", () => {
   const html = page("index.html");
   assert.match(html, /id="next-start"/);

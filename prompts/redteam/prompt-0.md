@@ -10,6 +10,13 @@ The master prompt (`prompt.md`) routes about 7% of runs here (`redteam` in
 `prompts/routing.json`; [`prompts/goals.md`](../goals.md) holds it between 5%
 and 10%). The goals and guardrails there bind every version of this prompt.
 
+**North star** (owner, 2026-11-24: $10k MRR; `goals.md`, "North star"):
+when choosing which product to attack, prefer one that brings a paying
+subscriber closer: a for-profit product's code, pages or funnel, or a free
+page that leads to one. `python3 portfolio/monetization/transition.py` lists
+the for-profit products (its numbered rows; `transition.json` has each paid
+page).
+
 This run attacks the repository and then defends it. The **red team** seeds
 known bugs and hunts for real ones. The **blue team** patches every real bug
 it finds and adds the guard that catches each seeded bug that got through.

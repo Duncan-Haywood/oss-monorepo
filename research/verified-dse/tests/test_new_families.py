@@ -17,7 +17,7 @@ def test_designs_are_unseen_and_new_families():
     run, a = _load("run"), _load("analyse")
     seen = set()
     for f in EXP.parent.glob("*/results*.jsonl"):
-        if f.parent.name == "new_families":
+        if f.parent.name == "new_families" or f.parent.name in ("naming_shifters", "naming_above"):  # 166/167 reroute these designs later
             continue
         for line in f.read_text().splitlines():
             try:

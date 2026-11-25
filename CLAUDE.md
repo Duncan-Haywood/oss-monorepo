@@ -31,9 +31,11 @@ summarised in `prompts/goals.md`, "The 2026-11-24 pivot, in one place". Definiti
 [`prompts/goals.md`](prompts/goals.md), "North star", and
 [`portfolio/monetization/mrr.yaml`](portfolio/monetization/mrr.yaml).
 
-This repository holds two peer portfolios: products in `ventures/` and open
-research in `research/`. Their job is to ship products people use and research
-people can build on. `README.md` ("Finding your way") says which guide covers
+This repository holds products in `ventures/` and a paused research portfolio
+in `research/`. **No standalone research** (owner, 2026-11-25: "drop the
+research if you have to do r and d you can but as part of actual paid
+projects. not as independent academic research"): R&D happens inside a paid
+product, for that product (`prompts/goals.md`, pivot point 11). `README.md` ("Finding your way") says which guide covers
 which work.
 
 - **Product work:** [`AGENTS.md`](AGENTS.md), then
@@ -42,9 +44,8 @@ which work.
   costs, the API-key switch, disclaimer text, SEO checklist, definition of
   done). [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) is a long
   reference: `grep -n '^## '` it and read only what your task touches.
-- **Research work:** [`research/CLAUDE.md`](research/CLAUDE.md). Its brief,
-  not the product rules, governs `research/`. The bar is PhD level: multi-session
-  programmes aimed at publishable papers ([`research/PROGRAMMES.md`](research/PROGRAMMES.md)).
+- **Research work:** paused (above). [`research/CLAUDE.md`](research/CLAUDE.md)
+  keeps the integrity bar that R&D inside a product still meets.
 - **[`prompt.md`](prompt.md) is the master prompt.** It routes a run to a
   sub-prompt with `python3 prompts/promptctl.py route` and asks for a run
   record before the merge ([`prompts/README.md`](prompts/README.md)).

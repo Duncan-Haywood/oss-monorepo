@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKkpoWN7PbHgjt6cwxW",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T00:18:15Z",
+  "ended": "2026-11-25T00:26:23Z",
+  "wall_minutes": 8.34,
+  "tokens_in": 4776401,
+  "tokens_out": 39216,
+  "cost_usd": 2.6924,
+  "tool_calls": 43,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18763",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A Python splice anchored on '\\n**For Other Minds**' matched the shelf description near the top of BIBLE.md, not the Next up heading, and duplicated ~360 lines; caught by git diff --stat, restored with git checkout and redone."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/subjects.txt",
+      "issue": "The catenary line is listed as unused by overlap.mjs --unused (term 'catenary'), but The Bunting That Would Not Go Straight (2026-11-05) already tells exactly that physics; I wrote a catenary proposal before a broader overlap search on 'sag' caught it. The subjects.txt line should add 'sag, bunting' to its terms or be removed."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The flywheel proposal asked for a measured clay-on-wheel drag figure; none was findable offline, so the story invents and labels the torques. Proposals that ask for a measured figure could say what to do if none is found (they mostly do: 'say about')."
+    },
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "Flags a fiction story page for 'personal data/tracking' and 'email/outreach' (keyword hits on the standard page template and the word 'invoices'); noise for creative runs."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "North star says for-profit work first; the router drew the creative track and its sub-prompt governs the run.",
+      "did": "Followed the routed creative track (Hearth & Horizon, the shelf creative_due.py drew).",
+      "result": "A finished story, post and fresh proposal landed; no product work this run."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-the-wheel-that-kept-turning-between-kicks.md"
+  ],
+  "goal": null,
+  "notes": "Creative track: Hearth & Horizon, slug the-wheel-that-kept-turning-between-kicks (flywheel / kick wheel, Bovey Tracey 2063), ~4,400 words, text only (audio 581 MB > 400 MB cap). Numbers from a scratch Python model (concrete disc 62.6 kg I=4.52, steel plate 31.3 kg I=2.26; constant-torque drags invented and labelled). Dates checked in code (6 Feb 2063 Tue; Easter 15 Apr, Ash Wed 28 Feb; 2 Mar Fri). New Next up proposal: gear ratio (cargo bike), replacing a catenary one found to overlap. Local checks: node --test in ventures/hearth-and-horizon 22/22 pass; check_posts ok; risk_review: nothing blocked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8ddc28a0-d462-5cd7-a84a-9e6ea98d6396",
+    "transcripts": 1,
+    "first": "2026-11-25T00:18:15Z",
+    "last": "2026-11-25T00:26:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 81,
+        "output": 39216,
+        "thinking": 15525,
+        "cache_read": 4654210,
+        "cache_write_5m": 0,
+        "cache_write_1h": 122110,
+        "api_equivalent_usd": 2.6924,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 81,
+      "output": 39216,
+      "thinking": 15525,
+      "cache_read": 4654210,
+      "cache_write_5m": 0,
+      "cache_write_1h": 122110,
+      "api_equivalent_usd": 2.6924,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 38,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.34,
+      "active_minutes": 8.34,
+      "model_minutes": 7.6,
+      "tool_minutes": 0.74,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a skilled writer drafting and fact-checking a 4,400-word hard-SF story with worked physics, plus a blog post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 222.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

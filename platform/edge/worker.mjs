@@ -39,6 +39,7 @@ import {
 } from '../counter/core.mjs';
 import { feedbackRecord } from './feedback.mjs';
 import { receiveEmail, readInbox, deleteInboxMessage } from './inbox.mjs';
+import { storeOf } from './store.mjs';
 
 const FEEDBACK_MAX_BODY = 6000;
 
@@ -51,10 +52,8 @@ async function countHit(request, env, headers, cf) {
   if (!verdict.count && !verdict.bot) return;
   const day = utcDay();
   const cap = Number(env.MAX_PER_SLUG_PER_DAY || 20000);
-  const add = (slug) =>
-    env.DB.prepare(
-      'INSERT INTO counts (day, slug, n) VALUES (?1, ?2, 1) ON CONFLICT (day, slug) DO UPDATE SET n = n + 1 WHERE n < ?3',
-    ).bind(day, slug, cap).run();
+  const store = storeOf(env);
+  const add = (slug) => store.addCount(day, slug, cap);
   // A funnel event adds to its own key only: the page load it happened on was
   // already counted, with its country and device, by that load's own beacon.
   if (verdict.funnel) {
@@ -62,12 +61,11 @@ async function countHit(request, env, headers, cf) {
     return;
   }
   if (verdict.bot) {
-    const r = await add(`${BOT_KEY}${verdict.bot}`);
-    if (r?.meta?.changes && verdict.slug) await add(`${BOT_PAGE_KEY}${verdict.slug}`);
+    const counted = await add(`${BOT_KEY}${verdict.bot}`);
+    if (counted && verdict.slug) await add(`${BOT_PAGE_KEY}${verdict.slug}`);
     return;
   }
-  const r = await add(verdict.slug);
-  if (!r?.meta?.changes) return;
+  if (!(await add(verdict.slug))) return;
   if (verdict.ref) await add(`${REF_KEY}${verdict.ref}`);
   if (verdict.src) await add(`${SOURCE_KEY}${verdict.src}`);
   const geo = countryCode(cf?.country);
@@ -76,27 +74,19 @@ async function countHit(request, env, headers, cf) {
 }
 
 async function readCounts(env, since) {
-  const { results = [] } = await env.DB.prepare('SELECT day, slug, n FROM counts WHERE day >= ?1 ORDER BY day, slug')
-    .bind(since).all();
   const days = {};
-  for (const { day, slug, n } of results) (days[day] ||= {})[slug] = n;
+  for (const { day, slug, n } of await storeOf(env).readCounts(since)) (days[day] ||= {})[slug] = n;
   return days;
 }
 
 /** One more submission today, unless the site-wide daily cap is reached. */
 async function underDailyCap(env) {
   const cap = Number(env.FEEDBACK_DAILY_CAP || 50);
-  const r = await env.DB.prepare(
-    'INSERT INTO feedback_daily (day, n) VALUES (?1, 1) ON CONFLICT (day) DO UPDATE SET n = n + 1 WHERE n < ?2',
-  ).bind(utcDay(), cap).run();
-  return Boolean(r?.meta?.changes);
+  return storeOf(env).takeDaily('feedback', utcDay(), cap);
 }
 
-async function readFeedback(env, after) {
-  const { results = [] } = await env.DB.prepare(
-    'SELECT id, day, type, tool, page, message FROM feedback WHERE id > ?1 ORDER BY id LIMIT 1000',
-  ).bind(after).all();
-  return results;
+function readFeedback(env, after) {
+  return storeOf(env).readFeedback(after);
 }
 
 // ALLOWED_ORIGIN is a comma-separated list, so the site can be served from
@@ -121,15 +111,16 @@ async function handleFeedback(request, env, headers, cors) {
   if (verdict.drop) return json(200, { ok: true }, cors);
   if (verdict.error) return json(400, { error: verdict.error }, cors);
   // Per-sender burst limit. The address is used for this check and never
-  // written anywhere by this code.
+  // written anywhere by this code (on AWS only a keyed hash of it is, for two
+  // minutes: aws/lambda.mjs). `x-edge-client-ip` is set by the Lambda adapter
+  // from CloudFront's viewer address, after dropping any client-sent copy.
   if (env.FEEDBACK_LIMITER) {
-    const { success } = await env.FEEDBACK_LIMITER.limit({ key: headers['cf-connecting-ip'] || 'unknown' });
+    const { success } = await env.FEEDBACK_LIMITER.limit({ key: headers['cf-connecting-ip'] || headers['x-edge-client-ip'] || 'unknown' });
     if (!success) return json(429, { error: 'slow-down' }, cors);
   }
   if (!(await underDailyCap(env))) return json(429, { error: 'daily-cap' }, cors);
   const { type, tool, page, message } = verdict.record;
-  await env.DB.prepare('INSERT INTO feedback (day, type, tool, page, message) VALUES (?1, ?2, ?3, ?4, ?5)')
-    .bind(utcDay(), type, tool, page, message).run();
+  await storeOf(env).insertFeedback({ day: utcDay(), type, tool, page, message });
   return json(201, { ok: true }, cors);
 }
 

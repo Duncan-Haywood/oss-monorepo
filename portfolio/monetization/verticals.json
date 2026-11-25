@@ -38,9 +38,9 @@
     }
   },
   "counts": {
-    "ventures": 1442,
+    "ventures": 1443,
     "by_vertical": {
-      "construction": 164,
+      "construction": 165,
       "manufacturing-engineering": 8,
       "online-sellers": 105,
       "eu-einvoicing-accounting": 12,
@@ -55,7 +55,7 @@
       "other": 478
     },
     "front_doors_by_bet": {
-      "payapps": 153,
+      "payapps": 154,
       "jobshop-quote": 10,
       "einvoice": 12,
       "cmmc": 2,
@@ -64,7 +64,7 @@
       "grants": 9
     },
     "by_status": {
-      "front-door": 302,
+      "front-door": 303,
       "frozen": 1140
     }
   },
@@ -5830,7 +5830,7 @@
       "venture": "machine-shop-guides",
       "vertical": "manufacturing-engineering",
       "rule": "slug",
-      "site_category": "more",
+      "site_category": "services",
       "front_door_for": "jobshop-quote",
       "status": "front-door"
     },
@@ -6875,10 +6875,18 @@
       "status": "frozen"
     },
     {
+      "venture": "pay-app-guides",
+      "vertical": "construction",
+      "rule": "slug",
+      "site_category": "trades",
+      "front_door_for": "payapps",
+      "status": "front-door"
+    },
+    {
       "venture": "pay-application-generator",
       "vertical": "construction",
       "rule": "slug",
-      "site_category": "services",
+      "site_category": "trades",
       "front_door_for": "payapps",
       "status": "front-door"
     },
