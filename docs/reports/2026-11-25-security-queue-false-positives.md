@@ -90,6 +90,9 @@ Run in parallel with the third pass and merged after it. This pass adds:
   - #1181 to #1203 `js/redos` in `regex-redos-check/*.test.mjs`, and #1208 in `devsec-toolkit/tests/fixtures/vulnerable-repo/`:
     deliberately vulnerable patterns that a ReDoS checker's tests and fixtures exist to detect.
 - **Claimed elsewhere:** #274, #275, #574, #997 have `security-fix/` branches.
+- **Also checked (session_01E5sJKmkUbQ6HRKzyLaAjMJ, same day):** #1050 `js/incomplete-url-substring-sanitization`,
+  `platform/pages/custom-domain.test.mjs:151`: the same `body.includes(PLACEHOLDER_ORIGIN)` build check as #1049, in its test,
+  so it is a false positive for the same reason. With this, every alert in the queue is claimed or recorded here.
 
 ## Fifth pass, same day (overlaps the third and fourth)
 
