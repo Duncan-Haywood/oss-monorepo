@@ -3,7 +3,7 @@ number: 180
 slug: othniel-and-achsah-and-the-upper-and-lower-springs
 title: Othniel and Achsah and the Upper and Lower Springs
 published: 2026-11-25
-summary: Caleb's daughter Achsah is given dry land in the south, gets down from her donkey, and asks her father for springs of water; her husband Othniel becomes the first judge of Israel. Joshua 15, Judges 1 and 3.
+summary: Caleb's daughter Achsah gets down from her donkey and asks for springs of water; her husband Othniel becomes Israel's first judge.
 figures: Caleb son of Jephunneh; his daughter Achsah; Othniel son of Kenaz, the first judge of Israel; Cushan-rishathaim king of Aram-naharaim; with Tova, an invented maid of Caleb's household, and an invented donkey
 tradition: Catholic and Orthodox; both read the Books of Joshua and Judges as Scripture; Caleb and Othniel are honoured among the righteous of the Old Testament, with no widely kept feast day of their own that we know of
 feast: Caleb, Othniel and Achsah are remembered with all the righteous of the Old Testament on the Sunday of the Holy Forefathers, the second Sunday before Christmas, in the Orthodox Church; we know of no separate day for them in the Roman Martyrology
