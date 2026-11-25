@@ -105,6 +105,41 @@ What they are:
 - The dependency advisories are real work: 25 critical and 114 high entries
   in shipped lockfiles. They belong in the product owners' queues
   (`npm audit fix` / version bumps per product), not in the gate.
-- Not measured: Trivy image scanning (no container image is built in CI
-  yet), CodeQL (PR #18529 adds it), Semgrep's registry rules and OSV's
+- Not measured here: CodeQL (PR #18529 adds it), Semgrep's registry rules and OSV's
   online resolution (both need hosts this session could not reach; CI can).
+
+## Added 2026-11-25: container base images (`trivy-image`)
+
+`trivy-image` (Trivy v0.76.2, the same pinned binary as `trivy-config`)
+reads the images that Dockerfiles and Compose files pull and scans each for
+high and critical vulnerabilities that have a fix (`--ignore-unfixed`). It
+also reports every image reference that is not pinned by `@sha256:` digest.
+Full-tree reading, taken on main at `cb1b15e5b` (2026-11-25), in a cloud
+session that could reach Docker Hub:
+
+- **74 files** (Dockerfiles and Compose files, fixtures excluded) name **7
+  distinct images**, and **none is pinned by digest**: `node:22-alpine` (41
+  files), `nginx:1.27-alpine` (28), `node:22-slim` (2), and `nginx:alpine`,
+  `node:22-bookworm`, `python:3.12-slim-bookworm` and `caddy:2-alpine` (1
+  each). That is 75 `image-not-pinned-by-digest` findings, rated medium:
+  reported, not blocking.
+- **101 fixable vulnerabilities, 64 distinct CVEs, in 5 of the 7 images.**
+  3 are critical and 98 high. `nginx:1.27-alpine` alone carries 70 of them
+  (3 critical), mostly in libexpat (13), libcrypto3 and libssl3 (9 each),
+  libpng and libxml2 (6 each) and curl/libcurl. Each of the three
+  `node:22-*` images carries 10, all in npm's bundled packages. `caddy:2-alpine`
+  carries 1. `python:3.12-slim-bookworm` and `nginx:alpine` had none at this
+  severity.
+- **0 images could not be fetched.** An image that cannot be pulled (a
+  locally built name, a registry outage) is reported as
+  `image-not-scanned`, never as clean.
+
+In a PR, as with every scanner here, only findings the PR adds count. A PR
+that keeps `nginx:1.27-alpine` is not blocked by its 70 old advisories. A PR
+that moves an image to one with a new fixable high or critical CVE is
+blocked. The scanner is not `required`: it pulls from public registries, so
+an outage cannot stop development.
+
+The obvious follow-up: move the 28 `nginx:1.27-alpine` Dockerfiles to a
+current nginx release pinned by digest. That one change clears 70 of the 101.
+

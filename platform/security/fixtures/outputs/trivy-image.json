@@ -1,0 +1,38 @@
+{
+ "SchemaVersion": 2,
+ "ArtifactName": "alpine:3.18.0",
+ "ArtifactType": "container_image",
+ "Results": [
+  {
+   "Target": "alpine:3.18.0 (alpine 3.18.0)",
+   "Class": "os-pkgs",
+   "Type": "alpine",
+   "Vulnerabilities": [
+    {
+     "VulnerabilityID": "CVE-2022-48174",
+     "PkgName": "busybox",
+     "InstalledVersion": "1.36.0-r9",
+     "FixedVersion": "1.36.1-r1",
+     "Severity": "CRITICAL",
+     "Title": "busybox: stack overflow vulnerability in ash.c leads to arbitrary code execution"
+    },
+    {
+     "VulnerabilityID": "CVE-2022-48174",
+     "PkgName": "busybox-binsh",
+     "InstalledVersion": "1.36.0-r9",
+     "FixedVersion": "1.36.1-r1",
+     "Severity": "CRITICAL",
+     "Title": "busybox: stack overflow vulnerability in ash.c leads to arbitrary code execution"
+    },
+    {
+     "VulnerabilityID": "CVE-2023-5363",
+     "PkgName": "libcrypto3",
+     "InstalledVersion": "3.1.0-r4",
+     "FixedVersion": "3.1.4-r0",
+     "Severity": "HIGH",
+     "Title": "openssl: Incorrect cipher key and IV length processing"
+    }
+   ]
+  }
+ ]
+}
