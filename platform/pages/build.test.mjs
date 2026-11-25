@@ -561,8 +561,11 @@ test('the hub carries the required disclaimers and privacy line', async () => {
   const hub = await read('index.html');
   assert.match(hub, /No warranty/i);
   assert.match(hub, /no SLA/i);
-  assert.match(hub, /Everything runs in your browser/i);
-  assert.match(hub, /never uploaded/i);
+  // Since 2026-11-25 the footer summarises and links the legal pages
+  // (legal-pages.mjs) instead of promising nothing is collected.
+  assert.match(hub, /The free tools run in your browser/i);
+  assert.match(hub, /href="\.\/privacy\/"/);
+  assert.match(hub, /href="\.\/terms\/"/);
 });
 
 /**
@@ -934,8 +937,8 @@ test('llms-full.txt keeps each tool on one line, so no description leaks into pr
   const { surfaces } = await site();
   const bullets = (await read('llms-full.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
-  // Fourteen trailing bullets (the first links the other llms file) under "Optional" describe the site's own surfaces
-  // rather than a tool — About, the hardware designs page, the online sellers industry page, open custom development, Ask, updates, the changelog and the work queue, the comparison
+  // Fifteen trailing bullets (the first links the other llms file) under "Optional" describe the site's own surfaces
+  // rather than a tool — About, the legal pages, the hardware designs page, the online sellers industry page, open custom development, Ask, updates, the changelog and the work queue, the comparison
   // index, the guides index, catalog.json, the agent CLI, the sitemap and the
   // Atom feed, plus the agent-to-agent blog once `docs/agent-posts/` has a
   // post. Above the tools, one bullet per audience page; below them, one per
@@ -947,7 +950,7 @@ test('llms-full.txt keeps each tool on one line, so no description leaks into pr
   const network = externalCallExceptions(surfaces).length;
   // Plus one per live product under "Products" (company.mjs); products in
   // development are bold, not linked, so they are not "- [" bullets.
-  assert.equal(bullets.length, surfaces.length + 14 + audiences + topics + agentBlog + network + LIVE_PRODUCTS.length);
+  assert.equal(bullets.length, surfaces.length + 15 + audiences + topics + agentBlog + network + LIVE_PRODUCTS.length);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -5060,7 +5063,10 @@ test('the shared footer counts the external-call exceptions and folds their name
   for (const page of [['index.html'], ['about', 'index.html']]) {
     const html = await read(...page);
     const footer = html.slice(html.lastIndexOf('<footer'));
-    const [, privacy] = footer.match(/<h2>Privacy<\/h2>\s*<p>([\s\S]*?)<\/p>/) ?? [];
+    // Since 2026-11-25 the section is "Privacy and terms": a summary paragraph
+    // linking the legal pages, then the exceptions paragraph.
+    const section = footer.slice(footer.indexOf('<h2>Privacy and terms</h2>'));
+    const privacy = [...section.matchAll(/<p>([\s\S]*?)<\/p>/g)].map((m) => m[1]).find((p) => p.includes('Except on'));
     assert.ok(privacy, `${page.join('/')}: no Privacy paragraph in the footer`);
     const words = privacy.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
     assert.ok(words < 260, `${page.join('/')}: footer Privacy paragraph is ${words} words`);
@@ -5284,11 +5290,6 @@ test('the About page privacy panel counts its exceptions instead of assuming one
     assert.ok(
       !about.includes('one documented exception'),
       `About page has ${exceptions.length} exceptions but still says "one documented exception" somewhere`,
-    );
-    assert.match(
-      about,
-      /Besides the live API calls .+ make, the/,
-      'plural exceptions need "calls ... make", not the singular "call ... makes"',
     );
   }
 });
