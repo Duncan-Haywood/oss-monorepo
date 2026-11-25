@@ -3,7 +3,7 @@ title: "An SPRS score calculator whose weights sum to −203"
 seo_title: "Free SPRS score calculator for NIST SP 800-171"
 date: 2026-11-24
 tags: [for-customers, machine-shop-guides, manufacturing, cmmc, nist-800-171, sprs, machine-shops, quoting]
-description: "A free SPRS score calculator for small machine shops, the one-line check that every weight is in place, and where CMMC Phase 2 stands on 24 November 2026."
+description: "A free SPRS score calculator for small machine shops, every weight checked against the 5- and 3-point lists in 32 CFR 170.24, the FCI-for-CUI rule for Level 1, and where CMMC Phase 2 stands."
 ---
 
 A small machine shop that takes defense work usually has to post a NIST SP
@@ -30,10 +30,41 @@ gives the score range as −203 to 110. So the 109 scored weights must add up to
 requirements, 14 three-point and 51 one-point: 220 + 42 + 51 = 313. One
 mistyped weight breaks the sum, unless a second mistake happens to cancel it.
 
-This session could not open the official .gov hosts directly (the container's
-proxy refused them), so the weights were transcribed and then checked against
-that sum. The venture's `SOURCES.md` says so, and names the first two things
-a session with direct access should re-read.
+The session that built the page could not open the official .gov hosts, so
+the weights were transcribed and then checked against that sum. A sum only
+catches so much: swap a 5 and a 3 between two requirements and it still comes
+to 313.
+
+## Checked against the regulation, 25 November 2026
+
+The eCFR answered the next day, and the regulation turns out to be a better
+check than the sum.
+[32 CFR 170.24(c)(2)(i)(B)](https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170/subpart-D/section-170.24)
+names every requirement worth more than 1 point:
+
+| Points | Requirements | Count |
+|---|---|---|
+| 5 | 3.1.1, 3.1.2, 3.2.1, 3.2.2, 3.3.1, 3.4.1, 3.4.2, 3.5.1, 3.5.2, 3.6.1, 3.6.2, 3.7.2, 3.8.3, 3.9.2, 3.10.1, 3.10.2, 3.12.1, 3.12.3, 3.13.1, 3.13.2, 3.14.1, 3.14.2, 3.14.3 (basic); 3.1.12, 3.1.13, 3.1.16, 3.1.17, 3.1.18, 3.3.5, 3.4.5, 3.4.6, 3.4.7, 3.4.8, 3.5.10, 3.7.5, 3.8.7, 3.11.2, 3.13.5, 3.13.6, 3.13.15, 3.14.4, 3.14.6 (derived) | 42 |
+| 5, or 3 if partial | 3.5.3 (MFA), 3.13.11 (FIPS-validated encryption) | 2 |
+| 3 | 3.3.2, 3.7.1, 3.8.1, 3.8.2, 3.9.1, 3.11.1, 3.12.2 (basic); 3.1.5, 3.1.19, 3.7.4, 3.8.8, 3.13.8, 3.14.5, 3.14.7 (derived) | 14 |
+| none | 3.12.4 (the SSP) | 1 |
+| 1 | everything else | 51 |
+
+All 110 weights in the calculator match, and the test suite now checks each
+one against these lists, not just the total. The same day we read
+[170.21](https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170/subpart-D/section-170.21)
+directly: the six requirements it bars from a POA&M are the six below, and
+the 80% line is 88 of 110.
+
+One trap turned up in the regulation, and it matters for Level 1 shops.
+[170.15(c)(1)(i)](https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170/subpart-C/section-170.15)
+says a Level 1 self-assessment uses the NIST SP 800-171A objectives, and "in
+any case where an objective addresses CUI, FCI should be substituted for CUI
+in the objective." Five Level 1 objectives are affected: three on public
+websites (3.1.22) and two on wiping or destroying media (3.8.3). A shop that
+only holds federal contract information should read those as FCI. Our
+[Level 1 checklist](https://marisstella.app/machine-shop-guides/cmmc-level-1-self-assessment.html)
+already does.
 
 ## What the calculator does beyond the sum
 
@@ -79,10 +110,9 @@ marks each row "Yes" or "No" with the reason, and the
 [SSP template](https://marisstella.app/machine-shop-guides/nist-800-171-ssp-template.html)
 flags these rows in its review.
 
-The list was read through search excerpts of the eCFR page, because the
-session that added it could not reach ecfr.gov directly. The DoD CIO's
-[CMMC FAQ](https://dodcio.defense.gov/Portals/0/Documents/CMMC/FAQsv6.pdf)
-confirms there are six. Re-read the section before an assessment.
+The list was first read through search excerpts of the eCFR page, then
+read directly on 25 November 2026; it matches. Re-read the section before an
+assessment, since rules change.
 
 ## Where CMMC stands, 24 November 2026
 
