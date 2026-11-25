@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, conversion]
+topics: [design, money]
 date: 2026-11-25
 ---
 # Polish 2026-11-25: real tool stills on the construction front door
@@ -47,7 +47,7 @@ a pay-app tool.
 | Sideways scroll at 390 | none | none (scrollWidth 390) |
 | Rendered lead still at 390 | n/a | 360 px wide, 600w file at 1x |
 
-`check.mjs`: publishable, no dead links. `node --test 'platform/pages/*.test.mjs'`: see PR.
+`check.mjs`: publishable, no dead links. `node --test 'platform/pages/*.test.mjs'`: 2,089 / 2,089 pass.
 No traffic or conversion claim: usage on this page is unmeasured.
 
 ## Still weakest, next
