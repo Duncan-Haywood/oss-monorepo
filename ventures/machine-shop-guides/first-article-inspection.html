@@ -64,7 +64,7 @@
   <li><strong>Form 3, characteristic accountability:</strong> every design characteristic, numbered to a balloon on the drawing, with its requirement, the measured result, the tooling used and a nonconformance number where it failed. This checker covers Form 3.</li>
 </ul>
 <h3>When one is due</h3>
-<p>A first article is normally due on a new part and again after a change that could affect the part: the design, the manufacturing process or source, the inspection method, the tooling or the location. A partial (delta) FAI covers only the characteristics a change touched. A lapse in production is a trigger too, but customers differ on it: Lockheed Martin's Q2A quality clause, for one, asks for a full FAI after a lapse of more than two years (<a href="https://www.lockheedmartin.com/content/dam/lockheed-martin/aero/documents/scm/Quality-Requirements/Clauses/q2a_rev12.pdf">Q2A rev 12</a>). Your customer's PO clauses and quality manual decide; read them, and the <a href="rfq-review.html">RFQ review checklist</a> flags an FAI requirement when it is in the RFQ, so you can price the inspection time into the quote.</p>
+<p>A first article is normally due on a new part and again after a change that could affect the part: the design, the manufacturing process or source, the inspection method, the tooling or the location. A partial (delta) FAI covers only the characteristics a change touched. A lapse in production is a trigger too, but customers differ on it: Lockheed Martin's Q2A quality clause, for one, asks for a full FAI after a lapse of more than two years (<a href="https://www.lockheedmartin.com/content/dam/lockheed-martin/aero/documents/scm/Quality-Requirements/Clauses/q2a_rev12.pdf">Q2A rev 12</a>). Your customer's PO clauses and quality manual decide; read them, and the <a href="rfq-review.html">RFQ review checklist</a> · <a href="drawing-review.html">Drawing review</a> flags an FAI requirement when it is in the RFQ, so you can price the inspection time into the quote.</p>
 <h3>Ballooning the drawing</h3>
 <p>Number every characteristic once, in a sequence with no gaps: dimensions, geometric tolerances, notes, finishes, thread callouts, markings. A feature called out "4X" can carry one balloon with four results, or four balloons (4.1 to 4.4), depending on what your customer asks for; either way every place needs a result. Basic dimensions are not inspected on their own: their tolerance lives in the feature control frame that refers to them. Reference dimensions in parentheses are not inspected.</p>
 <h3>Why first article reports get sent back</h3>
@@ -132,6 +132,21 @@
     f.requestSubmit();
   });
   document.getElementById("clear").addEventListener("click", () => { f.reset(); ta.value = ""; last = null; document.getElementById("out").hidden = true; });
+  // Handed over from the drawing review page: general tolerances in the query
+  // (?g1=&g2=&g3=&g4=&ga=), the starter characteristic list in the # part,
+  // which the browser never sends to a server. Results are left for the user.
+  try {
+    const params = new URLSearchParams(location.search);
+    for (const k of ["g1", "g2", "g3", "g4", "ga"]) {
+      const v = Number(params.get(k));
+      if (params.has(k) && Number.isFinite(v) && v > 0 && v < 30) f.elements[k].value = String(v);
+    }
+    const chars = new URLSearchParams(location.hash.slice(1)).get("chars");
+    if (chars && !ta.value) {
+      ta.value = chars.slice(0, 200000);
+      history.replaceState(null, "", location.pathname + location.search);
+    }
+  } catch {}
   document.getElementById("csv").addEventListener("click", () => {
     if (!last) return;
     const a = document.createElement("a");
