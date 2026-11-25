@@ -43,6 +43,10 @@
     {
       "file": ".github/prompts/cloud-session.md",
       "issue": "The private repo's CI 'fails' in 3 s with a 404 job log (no runner); only the payapps agent docs say so. Worth one line in cloud-session.md: run the app's workflow steps locally, migration drift included."
+    },
+    {
+      "file": "portfolio/monetization/models.yaml",
+      "issue": "Changing a row's stage changes portfolio/monetization/transition.json (a bet's front door moves to proprietary), but no PR workflow runs test_transition.py and nothing near models.yaml says to run `transition.py --write`; run_workflow_locally.py caught it."
     }
   ],
   "deviations": [
@@ -63,7 +67,7 @@
     "docs/reports/ventures-2026-11-25-jobshop-billing.md"
   ],
   "goal": null,
-  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/101 merged: jobshop-quote billing dark (plans = pricing page, RFQ allowance counted atomically on first AI read and refunded on failure, seats, per-plan AI ceiling via orgCapMicros, Paddle checkout/portal/webhook, Billing page, migration 0002). Private CI has no runner; locally: biome ci clean, typecheck clean, unit 81/81, worker 57/57 (19 new), build ok, drizzle-kit check/generate no drift; offline demo driven by Playwright through fake checkout.",
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/101 merged: jobshop-quote billing dark (plans = pricing page, RFQ allowance counted atomically on first AI read and refunded on failure, seats, per-plan AI ceiling via orgCapMicros, Paddle checkout/portal/webhook, Billing page, migration 0002). Private CI has no runner; locally: biome ci clean, typecheck clean, unit 81/81, worker 57/57 (19 new), build ok, drizzle-kit check/generate no drift; offline demo driven by Playwright through fake checkout. Public PR also regenerates transition.json (machine-shop-guides now proprietary, following the built-dark row).",
   "corrections": [],
   "redteam": null,
   "usage": {
