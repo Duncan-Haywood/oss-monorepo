@@ -616,8 +616,7 @@
     import { budget, budgetCsv, priceSheet } from "./budget.mjs";
     import { proposal, proposalText, proposalHtml } from "./bidletter.mjs";
     import { bidPackageHtml } from "./bidpackage.mjs";
-    import { buyLink, checkLicence } from "./licence.mjs";
-    import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
+    import { wireBuyButton, checkLicence } from "./licence.mjs";
     import { levelBids } from "./bidlevel.mjs";
     import { budgetDiff } from "./compare.mjs";
     import { sensitivity } from "./sensitivity.mjs";
@@ -1672,13 +1671,13 @@
     $("#priceText").addEventListener("input", () => { renderBudget(); try { localStorage.setItem(KEY + ".prices", $("#priceText").value); } catch (e) { /* optional */ } });
     $("#bidText").addEventListener("input", renderBids);
     {
-      const buy = buyLink(CHECKOUT_URL);
-      if (buy) { $("#buyLink").href = buy; $("#buyRow").hidden = false; }
+      const buy = wireBuyButton($("#buyLink"), { onKey: (k) => { $("#pkgKey").value = k; $("#pkgCheck").click(); }, onStatus: (m) => { if (m) $("#pkgState").textContent = m; } });
+      if (buy) { $("#buyRow").hidden = false; }
       let logo = "";
       $("#pkgLogo").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) { logo = ""; return; } const r = new FileReader(); r.onload = () => { logo = String(r.result); }; r.readAsDataURL(f); });
       $("#pkgCheck").addEventListener("click", async () => {
         $("#pkgState").textContent = "Checking...";
-        const v = await checkLicence($("#pkgKey").value, { url: VALIDATE_URL });
+        const v = await checkLicence($("#pkgKey").value);
         $("#pkgState").textContent = v.valid ? "Key accepted." : "Not unlocked: " + v.reason + (buy ? "" : " (no licence is on sale yet)");
         $("#pkgFields").hidden = !v.valid;
         if (v.valid) record("bid_package_unlocked");

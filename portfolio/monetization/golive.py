@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 """Go-live switch for the dark paid paths: one command instead of six hand edits.
 
+Superseded 2026-11-25 for the packs sold through Paddle: their checkout.mjs is
+generated from platform/billing/catalogue.mjs by platform/billing/sync.mjs, so
+they no longer carry a CHECKOUT_URL line and this script lists none of them.
+Set the price id, client-side token and public key in the catalogue instead
+(platform/billing/README.md). This stays for any checkout.mjs that still has
+a CHECKOUT_URL line.
+
     python3 portfolio/monetization/golive.py                 # status of every checkout.mjs
     python3 portfolio/monetization/golive.py set URL         # one link for every dark path
     python3 portfolio/monetization/golive.py set slug=URL ...  # a link per venture
@@ -55,6 +62,9 @@ def main(argv: list[str], repo: Path = REPO) -> int:
     cmd = argv[0] if argv else "status"
     if cmd == "status":
         rows = status(repo)
+        if not rows:
+            print("No checkout.mjs with a CHECKOUT_URL line. Paddle packs go live from "
+                  "platform/billing/catalogue.mjs (then node platform/billing/sync.mjs).")
         for slug, url, v in rows:
             print(f"{slug:28} {'LIVE ' + url if url else 'dark'}")
         n = sum(1 for _, u, _ in rows if u)
