@@ -205,7 +205,7 @@ is public.
 ## On AWS (beside the Worker until cutover)
 
 The same handler also runs on AWS Lambda behind CloudFront
-([`platform/aws/stacks/edge-api/`](../aws/edge-api/README.md), decided 2026-11-24 in
+([`platform/aws/stacks/edge-api/`](../aws/stacks/edge-api/README.md), decided 2026-11-24 in
 `docs/reports/2026-11-24-cloud-provider-comparison.md`, section 7). How:
 
 - `store.mjs` is the storage port. `worker.mjs` and `inbox.mjs` call

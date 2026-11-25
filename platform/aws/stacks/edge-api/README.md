@@ -1,6 +1,6 @@
 # edge-api: the site's counter, feedback form and support inbox on Lambda
 
-The AWS home of [`platform/edge`](../../edge/README.md): the same handler the
+The AWS home of [`platform/edge`](../../../edge/README.md): the same handler the
 Cloudflare Worker runs, on Lambda behind the site's CloudFront distribution,
 with its data in DynamoDB. The Worker keeps serving until cutover.
 

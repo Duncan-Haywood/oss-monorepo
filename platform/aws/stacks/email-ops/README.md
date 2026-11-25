@@ -1,6 +1,6 @@
 # email-ops: inbound support mail, consent and suppression, the SES sender
 
-The half of the email move that [`stacks/email`](../email/) (PR #18749) does
+The half of the email move that `stacks/email` (PR #18749, `platform/aws/stacks/email/`) does
 not cover. That stack owns the SES identities, Easy DKIM, MAIL FROM, DMARC,
 one configuration set per purpose and the SES → SNS → SQS event feed. This
 one adds, in the same **apps** account and **us-east-1**:
