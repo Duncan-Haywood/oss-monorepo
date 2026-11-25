@@ -30,13 +30,18 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "first `git reset --hard origin/main` to refresh the clone was refused by the auto-mode classifier; used `git merge --ff-only` instead"
+    "first `git reset --hard origin/main` to refresh the clone was refused by the auto-mode classifier; used `git merge --ff-only` instead",
+    "security-scan flagged the pinned unsubscribe token as a JWT (base64url JSON starts eyJ); pinned the signature half and decoded payload instead"
   ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "prompts/redteam.py",
       "issue": "suite_for only knew <stem>.test.mjs siblings outside ventures/, so `targets --under platform/billing` printed 0 and --target refused the Paddle server; 40 platform files were unreachable. Fixed in this PR."
+    },
+    {
+      "file": "platform/aws/stacks/email-ops/sender/unsubscribe-token.mjs",
+      "issue": "tokens are base64url JSON, so any golden token in a test trips semgrep detected-jwt-token; pin parts, not the whole string"
     }
   ],
   "deviations": [

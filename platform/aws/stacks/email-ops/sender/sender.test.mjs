@@ -125,7 +125,10 @@ test('unsubscribe tokens: tamper-proof', () => {
 test('red-team 2026-11-25: tokens already sent keep working, an unset secret verifies nothing, both fields are required', () => {
   // A link in an email sent before a deploy must still unsubscribe: pin one
   // token byte for byte (a 23-character signature passed the suite before).
-  assert.equal(unsubscribeToken(SECRET, 'a@b.co', 'cold'), 'eyJhIjoiYUBiLmNvIiwicyI6ImNvbGQifQ.t3iwyLndhs1bFZfyrVlwh8');
+  // (The signature half only: a whole base64url-JSON token trips the JWT secret scan.)
+  const [payload, signature] = unsubscribeToken(SECRET, 'a@b.co', 'cold').split('.');
+  assert.equal(Buffer.from(payload, 'base64url').toString('utf8'), '{"a":"a@b.co","s":"cold"}');
+  assert.equal(signature, 't3iwyLndhs1bFZfyrVlwh8');
   const forge = (secret, obj) => {
     const p = Buffer.from(JSON.stringify(obj)).toString('base64url');
     return `${p}.${createHmac('sha256', secret).update(p).digest('base64url').slice(0, 22)}`;
