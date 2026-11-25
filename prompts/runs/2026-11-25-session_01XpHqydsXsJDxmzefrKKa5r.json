@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqydsXsJDxmzefrKKa5r",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T22:39:22Z",
+  "ended": "2026-11-25T22:46:14Z",
+  "wall_minutes": 7.02,
+  "tokens_in": 5701649,
+  "tokens_out": 27655,
+  "cost_usd": 2.5558,
+  "tool_calls": 60,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19120",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Not wrong, but missing: the cmmc-ci 'D1 migrations in sync' step uses git status, so it fails on an uncommitted generated migration. Commit before running run_workflow_locally."
+    },
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "'New outbound hosts' flags an example.test fixture string in a unit test; a reserved .test TLD could be ignored."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Bet #1 payapps had no free, unblocked item ready (GC portal formats need vendor CSV specs I could not fetch without guessing; the rest are 'once a customer asks' or already claimed).",
+      "did": "Took bet #4 (cmmc) ROADMAP item 2 part 3, the subscribable calendar link",
+      "result": "Shipped and merged as private PR 185"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-cmmc-level-1-self-assessment-checklist.md (extended)",
+    "docs/reports/ventures-2026-11-25-cmmc-affirmation-calendar-feed.md"
+  ],
+  "goal": null,
+  "notes": "Private PR 185 merged (e9cb502). cmmc-ci locally: 8/8 run: steps ok (uses: steps not run). New worker tests 4, unit tests 2.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4e3de945-d919-59f0-a9e7-90f3593b0ad5",
+    "transcripts": 1,
+    "first": "2026-11-25T22:39:22Z",
+    "last": "2026-11-25T22:46:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 108,
+        "output": 27655,
+        "thinking": 3711,
+        "cache_read": 5591027,
+        "cache_write_5m": 0,
+        "cache_write_1h": 110514,
+        "api_equivalent_usd": 2.5558,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 108,
+      "output": 27655,
+      "thinking": 3711,
+      "cache_read": 5591027,
+      "cache_write_5m": 0,
+      "cache_write_1h": 110514,
+      "api_equivalent_usd": 2.5558,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 52,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.02,
+      "active_minutes": 7.02,
+      "model_minutes": 4.13,
+      "tool_minutes": 2.89,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "schema+migration, token service, public route, admin UI, tests, privacy/security docs for one feature",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 234.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
