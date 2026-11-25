@@ -43,6 +43,7 @@ import { formatCount } from './count.mjs';
 import { SITE_NAME, TITLE_BUDGET, siteTitle, sponsorsNote, withSiteHeader } from './site-nav.mjs';
 import { loadResearchRegistry } from './research-registry.mjs';
 import { decodeEntities } from './entities.mjs';
+import { softwareLines } from './business.mjs';
 import { loadEpisodes, renderPlayer, renderPodcastBody, renderPodcastHero, writePodcastAssets, PODCAST_PATH, SHOW_DESCRIPTION, SHOW_TITLE } from './podcast.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -67,6 +68,9 @@ export const PAGE_SIZE = 50;
  * the query a reader would type; `label` is the chip and the page's `h1`.
  */
 export const TOPICS = Object.freeze([
+  // First since 2026-11-25 (owner: "blogs get moved from dev blog to marketing blog"): the blog
+  // leads with what a paid product's customer came to read. See CUSTOMER_TAGS and topicOf.
+  { id: 'business', seo: "Guides for contractors, machine shops, sellers and nonprofits", label: 'For your business', blurb: 'Practical answers for the businesses our products serve: builders and subcontractors, machine shops, resellers, e-invoicing firms and nonprofits.' },
   { id: 'start', seo: "Start here: what each free tool and research project is for", label: 'Start here', blurb: 'Who each project is for, what you get from it, and your first ten minutes with it.' },
   { id: 'quality', seo: "Quality audits of AI-built software, graded on a fixed rubric", label: 'Quality audits', blurb: 'Is the work finished, correct and at a senior professional level? Seeded random samples graded on a fixed rubric, with the evidence (portfolio/quality/).' },
   { id: 'agents', seo: "Building software with unattended AI coding agents", label: 'Building with AI agents', blurb: 'How the agent fleet builds, steers and measures itself: process, cost, mistakes and what changed.' },
@@ -78,6 +82,16 @@ export const TOPICS = Object.freeze([
   { id: 'infrastructure', seo: "Static hosting, CI and build performance notes", label: 'Hosting and infrastructure', blurb: 'Hosting, CI, performance and the plumbing under the site.' },
 ]);
 const TOPIC_IDS = new Set(TOPICS.map((t) => t.id));
+/**
+ * Tags that file a post under "For your business": `for-customers` (say so explicitly), or the id
+ * of a paid software line or one of its free tools (business.mjs), so a post about framing takeoff,
+ * pay applications or reseller fees reaches the customer blog without a re-tag. A post that also
+ * carries a DEV_TAGS tag is about how the thing was built, not for its user, and stays where it was.
+ */
+export const CUSTOMER_TAGS = Object.freeze(new Set(['for-customers', ...softwareLines().flatMap((l) => [l.id, ...l.tools])]));
+const DEV_TAGS = ['testing', 'test-coverage', 'property-testing', 'redteam', 'red-team', 'mutation-testing', 'fault-injection',
+  'quality-audit', 'process', 'prompting', 'prompt-engineering', 'ai-agents', 'agents', 'opinion', 'ci', 'build', 'caching',
+  'performance', 'perf', 'bug', 'bugfix', 'refactor', 'refactoring', 'polish', 'seo', 'aeo', 'llms-txt', 'site', 'github-actions', 'hosting', 'tooling', 'research'];
 const TOOL_TAGS = ['projects', 'tools', 'mcp', 'distribution', 'voice-interfaces', 'byok', 'local-llm', 'privacy', 'podcasting', 'desktop-apps'];
 const INFRA_TAGS = ['github-pages', 'hosting', 'kubernetes', 'github-actions', 'static-site', 'static-sites'];
 const AGENT_TAGS = ['ai-agents', 'process', 'prompting', 'prompt-engineering', 'engineering-management'];
@@ -101,7 +115,8 @@ const PLUMBING_LOOSE_TAGS = ['ci', 'build', 'caching'];
 const BACKSTAGE_TAGS = ['process', 'prompting', 'prompt-engineering', 'engineering-management', ...INFRA_TAGS];
 
 /**
- * A post's topic from its tags, first rule wins: onboarding posts (`start-here`)
+ * A post's topic from its tags, first rule wins (customer-facing posts, `CUSTOMER_TAGS`, come
+ * fourth, before fiction and research): onboarding posts (`start-here`)
  * are the newcomer's way in, so they group together whatever else they name; quality audits
  * (`quality-audit`, portfolio/quality/) grade work from every track, so they group apart; opinion pieces are about
  * steering the fleet; then fiction (`FICTION_TAGS`, unless it is about running a shelf); then research (the `research` tag, or a tag naming a project in
@@ -120,6 +135,7 @@ export function topicOf(tags = [], explicit = '', projects = NO_PROJECTS) {
   if (tags.includes('start-here')) return 'start';
   if (tags.includes('quality-audit')) return 'quality';
   if (tags.includes('opinion')) return 'agents';
+  if (tags.includes('for-customers') || (tags.some((t) => CUSTOMER_TAGS.has(t)) && !has(DEV_TAGS))) return 'business';
   if (has(FICTION_TAGS) && !has(BACKSTAGE_TAGS)) return 'stories';
   if (tags.includes('research') || tags.some((t) => projects.research.has(t))) return 'research';
   if (has(TESTING_TAGS)) return 'testing';
@@ -1054,6 +1070,27 @@ ${renderProjectNav(projects, 0, { toProjects: `${toTopic}`, current: project.slu
   });
 }
 
+/** Newest customer posts pinned on the blog's first page. */
+export const CUSTOMER_LEAD = 6;
+
+/**
+ * The first thing on the blog: the newest "For your business" posts (owner, 2026-11-25: "blogs
+ * get moved from dev blog to marketing blog"), above the finder over every post. Empty when
+ * there are none, so a build with no customer posts shows the plain index.
+ */
+export function renderCustomerLead(posts, { n = CUSTOMER_LEAD, toTopics = 'topic/' } = {}) {
+  const mine = posts.filter((p) => p.topic === 'business').sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+  if (!mine.length) return '';
+  return `<section class="customer-lead" aria-labelledby="customer-lead-h">
+<h2 id="customer-lead-h">For your business</h2>
+<ul class="posts">
+${renderCards(mine.slice(0, n), '', { topicPill: false })}
+</ul>
+<p class="meta"><a href="${toTopics}business/">All ${formatCount(mine.length)} guides for your business →</a></p>
+</section>
+`;
+}
+
 /**
  * One blog index. Page 1 (`page` omitted) is `<section>/index.html` with the
  * finder over every post; page n is `<section>/page/n/` with a plain list.
@@ -1075,8 +1112,8 @@ export function renderIndex(allPosts, { baseUrl = '', socialCard = '', episodes 
 and lead with what to do. People are welcome to read along. For a model, the plain-text entry points are
 <a href="llms.txt">llms.txt</a> (the index), <a href="llms-full.txt">llms-full.txt</a> (every post in one file) and each post's
 raw Markdown (<code>&lt;slug&gt;.txt</code>). New posts: the <a href="feed.xml">Atom feed</a>. The blog for people is <a href="../">here</a>.</p>`
-    : `<p class="dek">Essays on building software with unattended AI coding agents, drawn from this repository's own history and numbers.
-Subscribe with the <a href="feed.xml">Atom feed</a>.${episodes.length ? ` Or listen: <a href="podcast/">the podcast</a> has spoken versions of ${episodes.length} of these posts, by topic.` : ` The <a href="podcast/">podcast</a> will carry spoken versions.`} What shipped and what is next: <a href="../updates/">updates and roadmap</a>.${agentPosts ? ` There is also an <a href="agents/">agent-to-agent blog</a>, written by AI agents with other agents as the readers.` : ''}</p>`;
+    : `<p class="dek">Practical guides for the businesses our products serve: subcontractors and builders, machine shops, resellers, European firms facing e-invoicing, and nonprofits.
+The build log (how AI agents make and test it all) and the research notes follow under their own topics. Subscribe with the <a href="feed.xml">Atom feed</a>.${episodes.length ? ` Or listen: <a href="podcast/">the podcast</a> has spoken versions of ${episodes.length} of these posts, by topic.` : ` The <a href="podcast/">podcast</a> will carry spoken versions.`} What shipped and what is next: <a href="../updates/">updates and roadmap</a>.${agentPosts ? ` There is also an <a href="agents/">agent-to-agent blog</a>, written by AI agents with other agents as the readers.` : ''}</p>`;
   const title = `${isAgents ? 'Agent-to-agent blog' : 'Blog'}${sub ? `, page ${page}` : ''} · ${SITE_NAME}`;
   const pager = renderPager(page, count, up ? '../../' : '');
   return shell({
@@ -1100,7 +1137,7 @@ ${dek}`,
 ${items}
 </ul>
 ${pager}`
-        : `${renderFinder(allPosts)}
+        : `${isAgents ? '' : renderCustomerLead(allPosts)}${renderFinder(allPosts)}
 <ul class="posts" id="posts"${paged ? ` data-all="posts.json" data-total="${allPosts.length}"` : ''}>
 ${items}
 </ul>

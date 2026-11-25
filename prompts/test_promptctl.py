@@ -165,6 +165,37 @@ class RouteTest(PromptTestCase):
         r = promptctl.route(self.fx.root, rng=random.Random(0), track="research", task="revenue")
         self.assertEqual(r["track"], "research")  # an explicit --track wins over the text
 
+    def test_a_paused_track_is_not_inferred_from_task_text(self):
+        task = "finish the research paper"
+        self.assertEqual(promptctl.route(self.fx.root, rng=random.Random(0), task=task)["track"],
+                         "research")
+        self.fx.edit_routing("research", weight=0)
+        for seed in range(20):
+            r = promptctl.route(self.fx.root, rng=random.Random(seed), task=task)
+            self.assertEqual(r["track"], "ventures")
+        self.assertEqual(promptctl.route(self.fx.root, track="research")["track"], "research")
+
+    def test_mrr_words_route_to_ventures(self):
+        for task in ("work toward 10k MRR", "ship the paid tier for the top bet",
+                     "a pricing page and checkout for payapps"):
+            r = promptctl.route(self.fx.root, rng=random.Random(0), task=task)
+            self.assertEqual(r["track"], "ventures", task)
+        # "unpaid" distribution is not a paid-product hint
+        a = promptctl.route(self.fx.root, rng=random.Random(3), task="unpaid distribution")
+        b = promptctl.route(self.fx.root, rng=random.Random(3))
+        self.assertEqual(a["track"], b["track"])
+
+    def test_route_names_the_focus_for_product_and_research_runs(self):
+        r = promptctl.route(self.fx.root, track="ventures", rng=random.Random(0))
+        self.assertIn("bets.md", r["focus"])
+        r = promptctl.route(self.fx.root, track="research", rng=random.Random(0))
+        self.assertIn("product", r["focus"])
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            promptctl.print_route(promptctl.route(self.fx.root, track="ventures",
+                                                  rng=random.Random(0)))
+        self.assertIn("Focus:", out.getvalue())
+
     def test_task_text_without_a_hint_leaves_the_draw(self):
         a = promptctl.route(self.fx.root, rng=random.Random(3), task="tidy up")
         b = promptctl.route(self.fx.root, rng=random.Random(3))
@@ -420,12 +451,14 @@ class RepositoryTest(unittest.TestCase):
         weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
         self.assertAlmostEqual(weights["explore"] / sum(weights.values()), 0.05, places=3)
 
-    def test_creative_work_gets_about_ten_percent(self):
+    def test_creative_work_gets_about_three_percent(self):
         # The owner, 2026-10-21: a portion of the scheduled fleet operates the
-        # creative projects (prompts/creative/prompt-0.md).
+        # creative projects (prompts/creative/prompt-0.md). Cut from 10% to 3% on
+        # 2026-11-25 ("demote some of the passion projects"), the rest to ventures.
         tracks = promptctl.load_routing(promptctl.ROOT)["tracks"]
         weights = {t: float(c["weight"]) for t, c in tracks.items() if t != promptctl.REVIEW}
-        self.assertAlmostEqual(weights["creative"] / sum(weights.values()), 0.10, places=3)
+        self.assertAlmostEqual(weights["creative"] / sum(weights.values()), 0.03, places=3)
+        self.assertGreater(weights["ventures"] / sum(weights.values()), 0.5)
 
     def test_polish_gets_about_five_percent_for_a_period(self):
         # The owner, 2026-10-28: "like 5% of work going to making the sites
