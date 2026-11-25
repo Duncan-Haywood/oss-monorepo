@@ -358,16 +358,9 @@ tasks:
       workflow that runs them on PRs and makes them required is its own
       control-plane PR for the owner.
     hours: 16
-    status: done
+    status: open
     added: 2026-11-24
-    pr: 18758
-    notes: >-
-      CodeQL is a GitHub setting plus a workflow; include it in the control-plane PR.
-      Landed as platform/security/scan/ (install.py, scan.py, baseline.json, policy.json,
-      rules/semgrep.yml, test_scan.py); first full-repo numbers in
-      docs/reports/2026-11-25-security-scan-first-run.md. The PR workflow is the owner's
-      control-plane PR 18759 (security-scan.yml); CodeQL is already in PR 18529, so 18759
-      does not duplicate it. Next: sec-codeowners-scan-gate once 18759 and 18529 merge.
+    notes: CodeQL is a GitHub setting plus a workflow; include it in the control-plane PR.
 
   - id: sec-codeowners-scan-gate
     direction: security-first
