@@ -1,3 +1,7 @@
+---
+kind: milestone
+date: 2026-11-25
+---
 # PayApps (bet #1) can now be deployed: what the next run needs to know
 
 2026-11-25, ventures run. Private PR: Duncan-Haywood/private-monorepo#63.
