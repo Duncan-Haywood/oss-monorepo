@@ -6,10 +6,8 @@ import { mkdtemp, mkdir, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
-import pg from "pg";
 import { makeSiteApp, resolveFile, signSession, verifySession, parseEmails, loginScriptHash, dbKeySource, COOKIE } from "../src/site.mjs";
 import { lambdaHandler } from "../src/adapter.mjs";
-import { migrate } from "../src/migrate.mjs";
 
 let root;
 before(async () => {
@@ -127,6 +125,9 @@ test("session tokens: signed, bound to the key and the list", async () => {
 
 const SU = process.env.PG_SUPERUSER_URL;
 test("the HMAC key lives in the product database, made once", { skip: !SU && "PG_SUPERUSER_URL not set" }, async () => {
+  // Imported here so the rest of this file runs without `npm ci` (the unwired-checks runner has no node_modules).
+  const { default: pg } = await import("pg");
+  const { migrate } = await import("../src/migrate.mjs");
   const u = new URL(SU); u.pathname = "/postgres";
   const admin = new pg.Client({ connectionString: u.toString() });
   await admin.connect();
