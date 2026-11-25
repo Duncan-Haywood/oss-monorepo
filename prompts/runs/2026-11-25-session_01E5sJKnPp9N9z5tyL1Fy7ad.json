@@ -1,0 +1,79 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKnPp9N9z5tyL1Fy7ad",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-25T23:19:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Bet #2 Job Shop Quote: removal rate per machine and material for Rough from CAD (ROADMAP item 5)",
+  "projects": [
+    "jobshop-quote"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19129",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First full test run raced a `git merge origin/main` that changed test files mid-run: 3 worker failures in routing-suggest/win-loss",
+      "fix": "Re-ran those files on the merged tree: all pass; full local CI on the merged tree"
+    },
+    {
+      "what": "Private PR 192 conflicted at merge: PR 191 (sender allowlist) merged migration 0021 while this run's 0021 was open",
+      "fix": "Took main's meta, deleted 0021_removal_rates, regenerated as 0022 with drizzle-kit, re-ran full local CI"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "roadmap_claim.py is run from the oss-monorepo clone (platform/ci/), not from private-monorepo; the 'Claim the item' step reads as if it runs there. Running it chained with a grep returned exit 2 even though the claim was pushed, and a rerun then reported my own claim as TAKEN."
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "Bet #1 payapps' free Next items are all blocked (GC portal formats need hosts the proxy refuses, OCR/HEIC need new deps the private CLAUDE.md forbids, the rest are 'once a customer asks'); the ROADMAP does not say so, so each run re-derives it before falling to bet #2."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Its migration-renumber warning held exactly: the claim reserved no number and a parallel run took 0021 within the hour. Running `drizzle-kit generate` after taking main's meta (git checkout --theirs on the snapshot and journal) is the quick fix; worth stating."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Top bet #1 (payapps) had no buildable free item this session (sources 403, deps forbidden, customer-gated items)",
+      "did": "Took bet #2 Job Shop Quote, ROADMAP item 5 part: per-material removal rate",
+      "result": "Private PR 192 with tests; quoting accuracy improvement for aluminum vs steel parts"
+    },
+    {
+      "file": "prompt.md",
+      "why": "No new post: the owner asks for consolidated posts",
+      "did": "Extended the existing Job Shop Quote post with a section",
+      "result": "One post kept current"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-a-step-file-now-sizes-the-blank-in-the-job-shop-quoter.md (section 'Removal rate per material')",
+    "docs/reports/ventures-2026-11-25-jobshop-quote-removal-rate-by-material.md"
+  ],
+  "goal": "$10k MRR: bet #2 wedge accuracy (Rough from CAD timing by material)",
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/192. Local jobshop-quote-ci via run_workflow_locally.py on the tree merged with private main: Biome, typecheck, unit (306), worker integration, build, deploy provisioning, D1 migrations in sync all ok; e2e result below.",
+  "corrections": [],
+  "redteam": null
+}

@@ -300,6 +300,29 @@ check that the import is all or nothing, that an estimator is refused, and that 
 never match another shop's rows. The flow was also run in the offline demo: paste a chart in
 mm/min, check the preview, save it, and download it again.
 
+## Removal rate per material
+
+Roughing had the same weakness that cutting had before. Each machine had one removal rate, the
+cubic inches a minute the shop measured it clearing, and "Rough from CAD" used it for every part.
+A mill clears aluminum several times faster than steel, so a rate measured in 6061 underquoted
+every steel part, and a rate measured in steel overquoted the aluminum. A shop with two mills that
+both had a rate got no roughing suggestion at all.
+
+Private-monorepo PR #192 adds a "Removal rates by material" card to the rate card. The owner picks
+a mill or lathe and one of the material rows, and types the rate the shop gets in that material.
+When a STEP part is quoted in that material:
+
+- the roughing is timed at that rate, and the label says so: "Rough from CAD: 2.48 in³ removed at
+  4 in³/min (rate for Aluminum 6061-T6 plate)", or 0.6 min a part;
+- if only one machine has a rate for the material, it gets the roughing even when other machines
+  have a default rate. If two machines have a rate for the same material, the estimator chooses;
+- with no rate for the material, the machine's default applies, as before.
+
+As with cut speeds, the app never fills in a rate itself: the right number depends on the
+machine, the tooling and the strategy, so it has to come from the shop's own cuts. A laser cannot
+be given a removal rate, a rate on a retired machine is ignored, only owners and admins can change
+them, and tests check that one shop cannot read, set or delete another shop's rates.
+
 ## Big STEP files no longer slow the upload
 
 Private-monorepo PR #169 fixed a failure that hadn't happened yet, before any customer could hit
@@ -472,7 +495,8 @@ tests cover the name reading, the scoring and a retired 6061 bar row; the job-sh
 The next item on the flagship list (milestone 3) is reading tolerances, material and finish from
 a PDF drawing. The extraction already handles the RFQ email and the drawing's text. On the CAD
 side, the next steps are peck time for deep holes, a time per thread size if one tapping time per
-hole proves too coarse, and reading IGES and STL files.
+hole proves too coarse, importing removal rates from a spreadsheet the way cut speeds are, and
+reading IGES and STL files.
 
 The product isn't live yet. Deploy and billing are on its roadmap, and the paid path stays
 switched off until the owner sets it up.
