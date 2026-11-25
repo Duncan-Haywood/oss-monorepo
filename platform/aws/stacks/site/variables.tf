@@ -40,7 +40,7 @@ variable "app_origins" {
 }
 
 variable "github_oidc_provider_arn" {
-  description = "ARN of the account's GitHub OIDC provider (foundation stack output github_oidc_provider_arn). Null skips the publisher role."
+  description = "ARN of an existing GitHub OIDC provider in this account. Null creates one here: the bootstrap (platform/aws/bootstrap) puts one only in the management account, and the llm stack creates its own in apps."
   type        = string
   default     = null
 }

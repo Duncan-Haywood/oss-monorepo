@@ -10,7 +10,7 @@
 //     "/a/b", as Cloudflare's auto-trailing-slash does (307 kept for parity);
 //   - "/a/" is fetched from S3 key "a/index.html";
 //   - "/a/b" is fetched from S3 key "a/b": the deploy script
-//     (platform/aws/site/deploy/) uploads "a/b.html" under that key, and for
+//     (platform/aws/stacks/site/deploy/) uploads "a/b.html" under that key, and for
 //     a directory "a/b/" it uploads a stub at "a/b" that viewer-response.js
 //     turns into a 307 to "/a/b/".
 //

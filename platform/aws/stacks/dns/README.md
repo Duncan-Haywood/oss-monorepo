@@ -2,7 +2,7 @@
 
 The zone moves from Cloudflare DNS to a Route 53 hosted zone in the
 `shared-infra` account (owner decision 2026-11-24,
-[`docs/reports/2026-11-24-cloud-provider-comparison.md`](../../../docs/reports/2026-11-24-cloud-provider-comparison.md) §7).
+[`docs/reports/2026-11-24-cloud-provider-comparison.md`](../../../../docs/reports/2026-11-24-cloud-provider-comparison.md) §7).
 Nothing here is applied: there is no AWS account yet, and the nameserver
 change is the owner's.
 
@@ -31,29 +31,40 @@ refuses to apply it unless `allow_unverified_records = true` (only for
 creating the zone early to read its nameservers). The export is the
 source of truth.
 
-## Mail records
+## Mail records, and who owns which name
 
-Mail moves with the zone. Today the domain has no MX, SPF or DMARC, so
-`support@`, `hello@` and `accounts@` bounce and anyone can send mail
-claiming to be from the domain (`asks.yaml`). `planned.json` adds:
+Mail moves with the zone. Route 53 holds one record set per name and type,
+so each name has exactly one owning stack:
 
-- `MX 0 .` (null MX, RFC 7505): the domain receives no mail. It is dropped
-  automatically if the export or another stack supplies a real MX, since
-  a null MX must never sit beside other MX records;
-- `TXT "v=spf1 -all"` at the apex: no server sends as the domain;
-- `_dmarc TXT "v=DMARC1; p=reject"`: the record `asks.yaml` asked for;
+| Names | Owner | How |
+|---|---|---|
+| apex `MX`, apex `TXT` (SPF, site verification), `CAA`, every other exported name | this stack | `records.json` + `planned.json` `add` + `extra_records` from other stacks |
+| `_dmarc`, `*._domainkey`, `*._domainkey.news`, `bounce`, `bounce.news` | `stacks/email` (PR 18749), once its `route53_zone_id` is set | its own `aws_route53_record`s |
+| apex, `www`, `grants` A/AAAA aliases; ACM validation `_*` | `stacks/site` | its own records |
+
+`planned.json`'s `allow` list names these, with their owner. `cf_export.py`
+still exports a record on an owned name (the diff needs it) but marks it
+`"replaced_by": "<owner>"`, so this stack never writes it.
+
+The 2026-11-24 lookups showed no MX, SPF or DMARC (as did the 2026-11-10
+check in `asks.yaml`), so `support@`, `hello@` and `accounts@` bounced and
+anyone could send mail claiming to be from the domain. The email stack's
+notes assume Cloudflare Email Routing receives mail today; the export
+settles which is true. `planned.json` adds only protective defaults that
+step aside when a real record exists:
+
+- `MX 0 .` (null MX, RFC 7505): dropped automatically if the export (Email
+  Routing's `route*.mx.cloudflare.net`) or `extra_records` carries a real
+  MX, since a null MX must never sit beside other MX records;
+- `TXT "v=spf1 -all"` at the apex: dropped automatically if another SPF
+  exists (one SPF record per name, RFC 7208). SES sends with MAIL FROM
+  `bounce.marisstella.app`, which has its own SPF, so this can stay
+  alongside SES;
 - `CAA 0 issue "amazon.com"`, `0 issuewild ";"`: only ACM issues certificates.
 
-If the export shows Cloudflare Email Routing was turned on since
-(`route1/2/3.mx.cloudflare.net` MX and an SPF `include:_spf.mx.cloudflare.net`),
-those records are exported and carried over unchanged, and they keep
-working only as long as Cloudflare Email Routing exists. `aws-ses-email`
-replaces them. **Other stacks add records at a name this stack owns (the
-apex TXT, the apex MX) through `extra_records`, not with their own
-`aws_route53_record`:** Route 53 holds one record set per name and type,
-and two stacks writing it would overwrite each other. Records at their own
-names (SES DKIM `*._domainkey`, a MAIL FROM subdomain) they write directly,
-listed under `allow` in `planned.json` so the diff knows them.
+DMARC is the email stack's (`dmarc_policy`, starting at `none`).
+`asks.yaml`'s request for `p=reject` is for it to raise once its aggregate
+reports are clean.
 
 ## Records that need a decision
 
@@ -84,6 +95,10 @@ registrar points at, and a new zone gets new ones.
 ## Cutover runbook
 
 Each step says who does it. Nothing is torn down until `retire-cloudflare`.
+In the phases of the AWS cutover runbook (aws-cutover.md, from PR 18749):
+steps 0–3 run after its Phase 1, step 5 is this zone's shadow phase (its
+Phase 3), steps 6–8 are the flip (its Phase 4), and `retire-cloudflare` is
+its Phase 5.
 
 **0. Before starting (agent):** confirm the site stack's phase 1 has
 published for at least a day with `verify-live.sh` and
@@ -95,8 +110,8 @@ token with *Zone → DNS → Read* (and *Zone → Zone → Read*) on
 marisstella.app only, then
 
 ```sh
-CLOUDFLARE_API_TOKEN=... python3 platform/aws/dns/scripts/cf_export.py \
-  --raw "$HOME/cloudflare-export.json" --out platform/aws/dns/records.json
+CLOUDFLARE_API_TOKEN=... python3 platform/aws/stacks/dns/scripts/cf_export.py \
+  --raw "$HOME/cloudflare-export.json" --out platform/aws/stacks/dns/records.json
 ```
 
 Keep the raw export outside the tree (it is public DNS data, but it is the
@@ -104,7 +119,10 @@ rollback copy). Commit `records.json` in a PR; resolve any
 `needs-decision`. The token can be revoked afterwards or saved as an
 Actions secret for step 5.
 
-**2. Apply `dns` (CI).** Note `name_servers`.
+**2. Apply `dns` (CI).** Note `name_servers`. Then set the email stack's
+`route53_zone_id` to this stack's `zone_id` and apply it, so its DKIM,
+MAIL FROM and DMARC records exist in Route 53 too. Until then they are only
+in Cloudflare, and step 5's diff reports them `MISSING`.
 
 **3. Certificate (agent, owner adds records if no DNS-edit token):** the
 site stack's phase 2 needs its ACM validation CNAMEs in Cloudflare too,
@@ -127,7 +145,7 @@ rollback.
 
 ```sh
 aws route53 list-resource-record-sets --hosted-zone-id <zone_id> --output json > route53.json
-python3 platform/aws/dns/scripts/zone_diff.py --cloudflare cloudflare-export.json --route53 route53.json
+python3 platform/aws/stacks/dns/scripts/zone_diff.py --cloudflare cloudflare-export.json --route53 route53.json
 ```
 
 It must print `0 difference(s)`. Re-export first if anything changed in

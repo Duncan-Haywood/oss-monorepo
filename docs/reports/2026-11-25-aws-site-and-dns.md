@@ -12,19 +12,19 @@ For the next session on `aws-site-cloudfront` / `aws-route53-zone`.
 - `platform/aws/modules/static-site/`: bucket, OAC, CloudFront, WAF + logs,
   headers policy, two CloudFront Functions, optional ACM + aliases, app
   origins, OIDC publisher role. `tofu test` file in `tests/`.
-- `platform/aws/site/`: the marisstella.app stack (phase 1 without custom
+- `platform/aws/stacks/site/`: the marisstella.app stack (phase 1 without custom
   domains, phase 2 with), `deploy/publish.mjs` (+ `sdk.mjs`, pinned AWS SDK
   3.1165.0 with lockfile), `deploy/emulate.mjs`, the draft job
   `ci/deploy-aws.job.yml` for `priv-portfolio-pages.yml`.
-- `platform/aws/dns/`: the zone stack, `records.json` (unverified seed),
+- `platform/aws/stacks/dns/`: the zone stack, `records.json` (unverified seed),
   `planned.json`, `scripts/cf_export.py`, `scripts/zone_diff.py`, runbook.
 
 ## Verified here
 
 - `node --test` on functions (9), publish (8), emulator (4): all pass.
-- `python3 -m unittest` on the DNS scripts (10): pass.
+- `python3 -m unittest` on the DNS scripts (12): pass.
 - Every `.tf`/`.tftest.hcl` parses (python-hcl2).
-- Checkov 3: 44 passed, 0 failed, 13 skipped with inline reasons.
+- Checkov 3: 45 passed, 0 failed, 12 skipped with inline reasons.
 
 ## Not verified here, and why
 
@@ -50,3 +50,24 @@ For the next session on `aws-site-cloudfront` / `aws-route53-zone`.
   validation records; the dns stack owns everything else, and other stacks
   add apex TXT/MX through its `extra_records` (one record set per name and
   type in Route 53).
+
+## Fits with PR 18749 (the org, baseline, email and llm stacks)
+
+- Layout `platform/aws/stacks/<stack>/` + `platform/aws/modules/<name>/`,
+  as that PR set (the orchestrating session asked for it mid-run).
+- Record ownership in the zone: `stacks/email` writes `_dmarc`, SES DKIM
+  and the `bounce.` MAIL FROM records once its `route53_zone_id` is set;
+  `stacks/site` writes the aliases and ACM validation; `stacks/dns` the
+  rest. `planned.json`'s `allow` list holds the map, and `cf_export.py`
+  marks exported records on an owned name `replaced_by` their owner. This
+  run first had DMARC `p=reject` in `planned.json`; it was dropped because
+  the email stack owns `_dmarc` and starts it at `p=none`.
+- Roles: OpenTofu reaches `shared-infra` through
+  `OrganizationAccountAccessRole` from that PR's `github-apply`; the site
+  stack creates GitHub's OIDC provider in `shared-infra` for its publisher
+  role (the bootstrap's is in the management account).
+- State keys: the brief said `stacks/<stack>/terraform.tfstate`, which these
+  stacks' `backend.hcl.example` use; PR 18749 says `<stack>/terraform.tfstate`.
+  Whichever the apply workflow settles on, only `backend.hcl` changes.
+- `shared-infra`'s budget in that PR's spend stack is $20 a month; the site's
+  estimate is about $10-12.

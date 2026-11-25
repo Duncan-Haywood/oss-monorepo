@@ -1,6 +1,6 @@
 """Tests for cf_export.py and zone_diff.py with recorded API shapes, no network.
 
-    python3 -m unittest discover -s platform/aws/dns/scripts -p 'test_*.py'
+    python3 -m unittest discover -s platform/aws/stacks/dns/scripts -p 'test_*.py'
 """
 import io
 import json
@@ -31,6 +31,8 @@ CF_RAW = [
     {"name": "_sip._tcp.marisstella.app", "type": "SRV", "content": "5 5060 sip.example.com", "priority": 10,
      "data": {"priority": 10, "weight": 5, "port": 5060, "target": "sip.example.com"}, "ttl": 300, "proxied": False},
     {"name": "marisstella.app", "type": "NS", "content": "x.ns.cloudflare.com", "ttl": 86400, "proxied": False},
+    {"name": "_dmarc.marisstella.app", "type": "TXT", "content": "v=DMARC1; p=none; adkim=r; aspf=r", "ttl": 3600, "proxied": False},
+    {"name": "tok1._domainkey.marisstella.app", "type": "CNAME", "content": "tok1.dkim.amazonses.com", "ttl": 3600, "proxied": False},
 ]
 
 
@@ -64,8 +66,10 @@ def r53_from(records_doc):
     rrs = [{"Name": f"{ZONE}.", "Type": "SOA", "TTL": 900, "ResourceRecords": [{"Value": "x"}]},
            {"Name": f"{ZONE}.", "Type": "NS", "TTL": 172800, "ResourceRecords": [{"Value": "ns-1.awsdns-00.com."}]}]
     sets = {}
+    # Records another stack owns (replaced_by email) are written by that
+    # stack with the same values; "site" ones become the aliases below.
     for r in records_doc["records"] + PLANNED["add"]:
-        if r.get("replaced_by"):
+        if r.get("replaced_by") in ("site", "needs-decision"):
             continue
         key = (r["name"], r["type"])
         s = sets.setdefault(key, {"ttl": r["ttl"], "values": []})
@@ -74,6 +78,8 @@ def r53_from(records_doc):
     for (name, t), s in sets.items():
         if t == "MX" and len(s["values"]) > 1:
             s["values"] = [v for v in s["values"] if v != "0 ."]  # as main.tf does
+        if t == "TXT" and sum(v.startswith("v=spf1") for v in s["values"]) > 1:
+            s["values"] = [v for v in s["values"] if v != "v=spf1 -all"]  # as main.tf does
         fq = ZONE if name == "@" else f"{name}.{ZONE}"
         vals = [f'"{v}"' if t == "TXT" else v for v in s["values"]]
         rrs.append({"Name": fq + ".", "Type": t, "TTL": s["ttl"], "ResourceRecords": [{"Value": v} for v in vals]})
@@ -106,7 +112,7 @@ class Export(unittest.TestCase):
         self.assertEqual(len(opener.calls), 3)
 
     def test_convert(self):
-        doc = cf_export.convert(CF_RAW, ZONE)
+        doc = cf_export.convert(CF_RAW, ZONE, allow=PLANNED["allow"])
         by = {(r["name"], r["type"]): r for r in doc["records"]}
         self.assertTrue(doc["verified"])
         self.assertNotIn(("@", "NS"), by)
@@ -118,6 +124,10 @@ class Export(unittest.TestCase):
                          {"v=spf1 include:_spf.mx.cloudflare.net ~all", "google-site-verification=abc"})
         self.assertEqual(by[("_sip._tcp", "SRV")]["values"], ["10 5 5060 sip.example.com"])
         self.assertEqual(by[("docs", "CNAME")]["values"], ["example.github.io"])
+        # Owned by the email stack: exported for the diff, never written here.
+        self.assertEqual(by[("_dmarc", "TXT")]["replaced_by"], "email")
+        self.assertEqual(by[("tok1._domainkey", "CNAME")]["replaced_by"], "email")
+        self.assertNotIn("replaced_by", by[("docs", "CNAME")])
 
     def test_unknown_proxied_and_apex_cname_need_a_decision(self):
         doc = cf_export.convert([
@@ -139,11 +149,11 @@ class Diff(unittest.TestCase):
         return zone_diff.diff(cf, r53, PLANNED, ZONE, ignore_ttl)
 
     def test_export_applied_gives_zero_differences(self):
-        doc = cf_export.convert(CF_RAW, ZONE)
+        doc = cf_export.convert(CF_RAW, ZONE, allow=PLANNED["allow"])
         differences, notes = self.run_diff(r53_from(doc))
         self.assertEqual(differences, [])
         self.assertTrue(any(n.startswith("replaced marisstella.app A") for n in notes))
-        self.assertTrue(any("_dmarc" in n and "planned" in n for n in notes))
+        self.assertTrue(any("CAA" in n and "planned" in n for n in notes))
 
     def test_missing_changed_extra_and_ttl_are_reported(self):
         doc = cf_export.convert(CF_RAW, ZONE)
@@ -170,6 +180,22 @@ class Diff(unittest.TestCase):
         self.assertIn("INVALID  marisstella.app MX", "\n".join(self.run_diff(r53)[0]))
         ttl_only = [d for d in self.run_diff(r53, ignore_ttl=True)[0] if d.startswith("TTL")]
         self.assertEqual(ttl_only, [])
+
+    def test_two_spf_records_are_invalid(self):
+        doc = cf_export.convert(CF_RAW, ZONE, allow=PLANNED["allow"])
+        r53 = r53_from(doc)
+        for r in r53["ResourceRecordSets"]:
+            if r["Name"] == f"{ZONE}." and r["Type"] == "TXT":
+                r["ResourceRecords"].append({"Value": '"v=spf1 -all"'})
+        self.assertIn("INVALID  marisstella.app TXT", "\n".join(self.run_diff(r53)[0]))
+
+    def test_planned_spf_applies_beside_a_non_spf_txt(self):
+        cf_raw = [{"name": ZONE, "type": "TXT", "content": "google-site-verification=abc", "ttl": 300, "proxied": False}]
+        doc = cf_export.convert(cf_raw, ZONE, allow=PLANNED["allow"])
+        r53 = zone_diff.route53_sets(r53_from(doc), ZONE)
+        self.assertEqual(r53[(ZONE, "TXT")]["values"], {"google-site-verification=abc", "v=spf1 -all"})
+        differences, _ = zone_diff.diff(zone_diff.cloudflare_sets(cf_raw, ZONE), r53, PLANNED, ZONE)
+        self.assertEqual(differences, [])
 
     def test_seed_plus_planned_is_clean_against_seed_shaped_cloudflare(self):
         # Cloudflare as the seed describes it: two proxied names, no mail.

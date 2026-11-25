@@ -1,0 +1,71 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyfQsoRLKAF6wJKNEho",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "System-delivered brief from the orchestrating session: aws-site-cloudfront + aws-route53-zone (one of six parallel AWS agents)",
+  "input_sha256": "391255e4b54f6a065b1ee600834067e5d644796c2c376c22d71d133c1f4659aa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-25T00:20:59Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "aws-site-cloudfront, aws-route53-zone",
+  "projects": [
+    "platform/aws/stacks/site",
+    "platform/aws/stacks/dns",
+    "platform/aws/modules/static-site"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18760",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "Downloading the OpenTofu 1.10.7 release binary (checksum-verified) was refused twice by the session's permission classifier, so tofu fmt/init/validate/test never ran and no .terraform.lock.hcl is committed; HCL was parse-checked with python-hcl2 and scanned with Checkov instead.",
+    "First AWS SDK pin (3.913.0) had critical advisories in fast-xml-parser; re-pinned to 3.1165.0 (newest release older than two weeks), npm audit 0.",
+    "run_workflow_locally --for-changes: checklist-coverage failed because the new Python test directory was not in verify-and-merge.md; added the lines."
+  ],
+  "integrity_issues": [
+    "records.json is a seed from public lookups, not the Cloudflare export the task asks for; it is marked verified:false and the stack refuses to apply it without an explicit override.",
+    "Cost figures in site/README.md are list prices from memory, labelled as such, to be confirmed before apply."
+  ],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The brief asks agents to install OpenTofu from its GitHub release, but the cloud session's auto-mode classifier refuses downloading and running a release binary; the brief cannot be followed as written in such sessions."
+    },
+    {
+      "file": "docs/reports/2026-11-24-cloud-provider-comparison.md",
+      "issue": "Six parallel agents got a shared convention (platform/aws/<stack>/, state key stacks/<stack>/...) that a sibling PR (18749) then changed to platform/aws/stacks/<stack>/ and <stack>/terraform.tfstate mid-run; the layout was moved here, the state key left as briefed."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "tofu validate/test could not run in this session (binary download refused).",
+      "did": "Parse-checked every .tf/.tftest.hcl with python-hcl2, Checkov 45/0/12, node and python tests for all scripts; listed the unrun checks in the PR and report.",
+      "result": "Merged with the tofu checks left for the first session that has tofu."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-moving-a-40000-file-site-from-workers-to-cloudfront.md",
+    "docs/reports/2026-11-25-aws-site-and-dns.md",
+    "platform/aws/stacks/site/README.md",
+    "platform/aws/stacks/dns/README.md"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}

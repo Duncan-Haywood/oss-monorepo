@@ -23,16 +23,23 @@ locals {
 
   grouped = { for r in local.all : "${r.name} ${r.type}" => r... }
 
+  # planned.json's protective defaults step aside when a real record exists:
+  # a null MX ("0 .") never sits beside real MX records (RFC 7505), and its
+  # "v=spf1 -all" is dropped when the export or extra_records carries
+  # another SPF (one SPF record per name, RFC 7208).
+  merged = {
+    for k, rs in local.grouped : k => distinct(flatten([for r in rs : r.values]))
+  }
   rrsets = {
     for k, rs in local.grouped : k => {
       fqdn = rs[0].name == "@" ? var.zone_name : "${rs[0].name}.${var.zone_name}"
       type = rs[0].type
       ttl  = min([for r in rs : r.ttl]...)
-      # A null MX ("0 .") never sits beside real MX records (RFC 7505): the
-      # planned one applies only when nobody else publishes MX.
-      values = (rs[0].type == "MX" && length(distinct(flatten([for r in rs : r.values]))) > 1
-        ? [for v in distinct(flatten([for r in rs : r.values])) : v if v != "0 ."]
-      : distinct(flatten([for r in rs : r.values])))
+      values = (
+        rs[0].type == "MX" && length(local.merged[k]) > 1 ? [for v in local.merged[k] : v if v != "0 ."] :
+        rs[0].type == "TXT" && length([for v in local.merged[k] : v if startswith(lower(v), "v=spf1")]) > 1 ? [for v in local.merged[k] : v if v != "v=spf1 -all"] :
+        local.merged[k]
+      )
     }
   }
 
@@ -50,7 +57,7 @@ locals {
 resource "aws_route53_zone" "this" {
   # checkov:skip=CKV2_AWS_38:DNSSEC is a follow-up once Route 53 is authoritative and stable (README.md, "After the cutover"); signing before the move risks a validation outage
   name          = var.zone_name
-  comment       = "Managed by OpenTofu (platform/aws/dns). Not authoritative until the registrar's nameservers change."
+  comment       = "Managed by OpenTofu (platform/aws/stacks/dns). Not authoritative until the registrar's nameservers change."
   force_destroy = false
 
   lifecycle {

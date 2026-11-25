@@ -33,6 +33,7 @@ node --test platform/uitest/*.test.mjs        # browser half skips unless PLAYWR
 node --test 'ventures/<slug>/**/*.test.mjs'   # quote it: 21 ventures keep suites in a subdirectory
 node --test research/marriage-divorce-evidence/app/tests/*.test.mjs
 node --test research/civ-levers/app/tests/*.test.mjs
+node --test platform/aws/stacks/site/deploy/*.test.mjs platform/aws/modules/static-site/functions/*.test.mjs  # the AWS site: publisher, CloudFront Functions, verify-live.sh against an emulator
 python3 platform/ci/run_venture_tests.py --changed   # every venture your branch touches, in parallel (no args: all ~1,300, minutes not hours)
 # No pytest/numpy? PY=$(python3 platform/ci/pyenv.py pytest numpy), then "$PY" -m pytest: some images split python3 from what pip/apt install into.
 (cd platform/ci && rc=0; for m in test_*.py; do python3 -m unittest "${m%.py}" || { echo "FAILED $m"; rc=1; }; done; exit $rc)  # runs every module, lists each failure
@@ -40,6 +41,7 @@ python3 platform/ci/run_venture_tests.py --changed   # every venture your branch
 (cd platform/security && python3 -m unittest test_risk_review)  # the cyber and legal risk review (docs/security/risk-review.md)
 python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline -q  # >4 min in a shallow clone (router's real-portfolio tests; run reports 2026-10-19): run_in_background
 python3 -m pytest portfolio/work -q                      # directions and tasks registry (workctl.py), under 1 s
+python3 -m pytest platform/aws/stacks/dns/scripts -q    # Route 53 export and zone diff (cf_export.py, zone_diff.py), under 1 s
 python3 -m pytest portfolio/research/<probe> -q          # one at a time: 4 share a test_measure.py basename
 python3 -m pytest portfolio/pipeline/probes/<probe> -q   # one at a time: root pytest --ignore's this tree
 python3 -m pytest prompts -q && python3 prompts/promptctl.py validate   # prompt.md, prompts/, run records

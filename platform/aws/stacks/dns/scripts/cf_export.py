@@ -4,11 +4,11 @@
 Reads every DNS record through the Cloudflare API and writes:
 
   --raw FILE   the API's records, unchanged (zone_diff.py compares against it);
-  --out FILE   records.json for platform/aws/dns: one entry per (name, type),
+  --out FILE   records.json for platform/aws/stacks/dns: one entry per (name, type),
                Route 53 spellings, marked verified.
 
-    CLOUDFLARE_API_TOKEN=... python3 platform/aws/dns/scripts/cf_export.py \\
-        --raw cloudflare-export.json --out platform/aws/dns/records.json
+    CLOUDFLARE_API_TOKEN=... python3 platform/aws/stacks/dns/scripts/cf_export.py \\
+        --raw cloudflare-export.json --out platform/aws/stacks/dns/records.json
 
 The token needs only Zone -> DNS -> Read (and Zone -> Zone -> Read to find
 the zone by name, or set CLOUDFLARE_ZONE_ID). It is read from the
@@ -25,6 +25,7 @@ one), is written with "replaced_by": "needs-decision", which the dns stack
 refuses to apply until someone decides.
 """
 import argparse
+import fnmatch
 import json
 import os
 import sys
@@ -74,8 +75,21 @@ def fetch(zone, token, opener=urllib.request.urlopen):
         page += 1
 
 
-def convert(raw, zone, site_hosts=("@", "www", "grants"), now=None):
-    """Cloudflare API records -> records.json document."""
+PLANNED = Path(__file__).resolve().parent.parent / "planned.json"
+
+
+def owner_of(name, rtype, allow):
+    """The stack that owns (name, type) per planned.json's allow list, or None."""
+    for a in allow:
+        if fnmatch.fnmatch(name, a["name"]) and rtype in [t.upper() for t in a["types"]]:
+            return a.get("owner")
+    return None
+
+
+def convert(raw, zone, site_hosts=("@", "www", "grants"), now=None, allow=()):
+    """Cloudflare API records -> records.json document. Records on a name
+    another stack owns (planned.json `allow`) are kept, for the diff and the
+    record, but marked replaced_by that stack so this one never writes them."""
     grouped = {}
     for rec in raw:
         rtype = rec["type"].upper()
@@ -102,13 +116,15 @@ def convert(raw, zone, site_hosts=("@", "www", "grants"), now=None):
             r["replaced_by"] = "site" if name in site_hosts else "needs-decision"
         elif rtype == "CNAME" and name == "@":
             r["replaced_by"] = "needs-decision"
+        elif owner_of(name, rtype, allow):
+            r["replaced_by"] = owner_of(name, rtype, allow)
         if g["comments"]:
             r["comment"] = "; ".join(sorted(set(g["comments"])))
         records.append(r)
     stamp = (now or datetime.now(timezone.utc)).strftime("%Y-%m-%dT%H:%M:%SZ")
     return {
         "zone": zone,
-        "source": f"cloudflare-export {stamp} (platform/aws/dns/scripts/cf_export.py)",
+        "source": f"cloudflare-export {stamp} (platform/aws/stacks/dns/scripts/cf_export.py)",
         "verified": True,
         "records": records,
     }
@@ -128,7 +144,8 @@ def main(argv=None):
     raw = fetch(args.zone, token)
     if args.raw:
         Path(args.raw).write_text(json.dumps(raw, indent=2, sort_keys=True) + "\n")
-    doc = convert(raw, args.zone, tuple(args.site_hosts))
+    allow = json.loads(PLANNED.read_text()).get("allow", [])
+    doc = convert(raw, args.zone, tuple(args.site_hosts), allow=allow)
     text = json.dumps(doc, indent=2) + "\n"
     if args.out:
         Path(args.out).write_text(text)

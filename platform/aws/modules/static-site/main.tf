@@ -60,7 +60,7 @@ resource "aws_s3_bucket_ownership_controls" "site" {
 # and with SSE-S3 an object's ETag is its MD5, which is how the deploy script
 # uploads only the files that changed (about 40,000 files per build; a full
 # re-upload eight times a day would cost about $50 a month in PUTs). See
-# ../../site/README.md, "Scanner baseline".
+# ../../stacks/site/README.md, "Scanner baseline".
 resource "aws_s3_bucket_server_side_encryption_configuration" "site" {
   bucket = aws_s3_bucket.site.id
   rule {

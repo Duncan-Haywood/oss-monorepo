@@ -3,10 +3,10 @@
 
 Run before the nameserver change (README.md, step 5) and again after it:
 
-    python3 platform/aws/dns/scripts/zone_diff.py \\
+    python3 platform/aws/stacks/dns/scripts/zone_diff.py \\
         --cloudflare cloudflare-export.json \\
         --route53 route53.json \\
-        --planned platform/aws/dns/planned.json
+        --planned platform/aws/stacks/dns/planned.json
 
   --cloudflare  cf_export.py --raw output (the Cloudflare API's records);
   --route53     `aws route53 list-resource-record-sets --hosted-zone-id Z...
@@ -40,6 +40,10 @@ from zonelib import cf_ttl, cf_value, fqdn, norm_value  # noqa: E402
 NULL_MX = "0 ."
 
 
+def is_spf(value):
+    return value.lower().startswith("v=spf1")
+
+
 def cloudflare_sets(raw, zone):
     sets = {}
     for rec in raw:
@@ -70,14 +74,18 @@ def route53_sets(doc, zone):
     return sets
 
 
-def planned_values(planned, zone, name, rtype):
+def planned_values(planned, zone, name, rtype, existing=()):
     """Values planned.json adds to a record set Cloudflare also has. A null
     MX ("0 .") is dropped beside real MX records (RFC 7505), as main.tf does."""
     out = set()
     for rec in planned.get("add", []):
         if fqdn(rec["name"], zone) == name and rec["type"].upper() == rtype:
             out |= {norm_value(rtype, v) for v in rec["values"]}
-    return out - {NULL_MX} if rtype == "MX" else out
+    if rtype == "MX":
+        out.discard(NULL_MX)
+    if rtype == "TXT" and any(is_spf(v) for v in existing):
+        out = {v for v in out if not is_spf(v)}
+    return out
 
 
 def planned_matches(planned, zone, name, rtype, r53):
@@ -116,7 +124,7 @@ def diff(cf, r53, planned, zone, ignore_ttl=False):
         if r["alias"]:
             differences.append(f"CHANGED  {name} {t}: Cloudflare {sorted(c['values'])}, Route 53 alias {r['alias']}")
             continue
-        added = planned_values(planned, zone, name, t)
+        added = planned_values(planned, zone, name, t, c["values"])
         if r["values"] != c["values"] | added:
             want = sorted(c["values"] | added)
             differences.append(f"CHANGED  {name} {t}: Cloudflare + planned {want}, Route 53 {sorted(r['values'])}")
@@ -125,6 +133,8 @@ def diff(cf, r53, planned, zone, ignore_ttl=False):
     for (name, t), r in sorted(r53.items()):
         if t == "MX" and NULL_MX in r["values"] and len(r["values"]) > 1:
             differences.append(f"INVALID  {name} MX: a null MX beside other MX records (RFC 7505)")
+        if t == "TXT" and sum(is_spf(v) for v in r["values"]) > 1:
+            differences.append(f"INVALID  {name} TXT: more than one SPF record (RFC 7208)")
         if (name, t) in explained:
             continue
         why = planned_matches(planned, zone, name, t, r)

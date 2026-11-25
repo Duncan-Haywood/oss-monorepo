@@ -3,11 +3,11 @@
 The public site moved off Cloudflare's two free Workers onto one private S3
 bucket behind one CloudFront distribution, in the `shared-infra` account
 (owner decision 2026-11-24,
-[`docs/reports/2026-11-24-cloud-provider-comparison.md`](../../../docs/reports/2026-11-24-cloud-provider-comparison.md) §7).
+[`docs/reports/2026-11-24-cloud-provider-comparison.md`](../../../../docs/reports/2026-11-24-cloud-provider-comparison.md) §7).
 Nothing here is applied yet: there is no AWS account. The stack is written
 to be applied from CI once the owner's account steps are done.
 
-The resources live in [`../modules/static-site/`](../modules/static-site/);
+The resources live in [`../../modules/static-site/`](../../modules/static-site/);
 this directory wires them for marisstella.app and holds the publisher.
 
 ## What replaces what
@@ -29,18 +29,29 @@ belongs to Cloudflare and goes away with it (`retire-cloudflare`).
 
 ## Apply order
 
-1. **Owner, once (AWS forces these):** create the management account, root
-   MFA, a card, IAM Identity Center. The foundation and bootstrap stacks
-   (other agents) then create the accounts, the state bucket, the GitHub
-   OIDC provider and the `gha-oss-monorepo-site-{plan,apply}` roles.
+The phases are those of the AWS cutover runbook (aws-cutover.md, from PR 18749)
+(PR 18749, the LLM and email move); the site and DNS fit in after its
+Phase 1.
+
+1. **Phase 0 and 1 (owner, then CI):** the management account, root MFA,
+   the card, `platform/aws/bootstrap/bootstrap.yaml` (state bucket, GitHub
+   OIDC provider, `github-plan`/`github-apply`), then `stacks/org` creates
+   the `shared-infra` account and `stacks/baseline` its security baseline.
+   OpenTofu reaches `shared-infra` through `OrganizationAccountAccessRole`,
+   assumed from `github-apply` (plan: `github-plan-readonly`).
 2. **`dns` stack** ([`../dns/README.md`](../dns/README.md)). It creates the
    hosted zone; this stack looks it up by name.
 3. **This stack, phase 1** (`enable_custom_domains = false`, the default):
    bucket, distribution on its `*.cloudfront.net` address, WAF, functions,
    the publisher role. Inputs:
-   - `deploy_role_arn`: `gha-oss-monorepo-site-apply` in `shared-infra`;
+   - `deploy_role_arn`: `arn:aws:iam::<shared-infra id>:role/OrganizationAccountAccessRole`
+     on apply (`github-plan-readonly` on plan);
    - `allowed_account_ids`: `["<shared-infra id>"]`;
-   - `github_oidc_provider_arn`: the foundation stack's output.
+   - `github_oidc_provider_arn`: leave null. The stack creates GitHub's OIDC
+     provider in `shared-infra` for the publisher role (the bootstrap's is in
+     the management account only).
+   The `spend` stack budgets `shared-infra` at $20 a month; this stack's
+   estimate (below) fits under it.
 4. **Publish and verify on the CloudFront address.** Paste
    [`ci/deploy-aws.job.yml`](ci/deploy-aws.job.yml) into
    `priv-portfolio-pages.yml` (control plane: the owner's PR), set the four
@@ -55,7 +66,7 @@ belongs to Cloudflare and goes away with it (`retire-cloudflare`).
    `certificate_validation_records`, add those CNAMEs in Cloudflare, then
    apply in full (the validation waits up to 75 minutes). CloudFront then
    answers for marisstella.app too, while DNS still points at Cloudflare.
-6. **Cutover:** the nameserver change in [`../dns/README.md`](../dns/README.md),
+6. **Cutover (the site's Phase 4):** the nameserver change in [`../dns/README.md`](../dns/README.md),
    then switch `AWS_SITE_VERIFY_URL` to `https://marisstella.app/`.
 
 ## Cost (us-east-1 list prices, checked 2026-11-24 from memory of AWS's pages; confirm on the pricing pages before applying)
@@ -77,9 +88,9 @@ bill: it is the security baseline's requirement (§7), so it stays.
 
 ```sh
 node --test platform/aws/modules/static-site/functions/functions.test.mjs  # CloudFront Functions
-node --test platform/aws/site/deploy/publish.test.mjs                      # publish plan, layout, guards
-node --test platform/aws/site/deploy/emulate.test.mjs                      # verify-live.sh + check_site_fresh.py against the AWS serving path
-cd platform/aws/site && tofu init -backend=false && tofu validate && tofu test
+node --test platform/aws/stacks/site/deploy/publish.test.mjs                      # publish plan, layout, guards
+node --test platform/aws/stacks/site/deploy/emulate.test.mjs                      # verify-live.sh + check_site_fresh.py against the AWS serving path
+cd platform/aws/stacks/site && tofu init -backend=false && tofu validate && tofu test
 cd platform/aws/modules/static-site && tofu init -backend=false && tofu test
 ```
 
@@ -87,7 +98,7 @@ To look at a real build the way CloudFront will serve it:
 
 ```sh
 node platform/pages/build.mjs --out=platform/pages/dist
-node platform/aws/site/deploy/emulate.mjs --dir platform/pages/dist --port 8787
+node platform/aws/stacks/site/deploy/emulate.mjs --dir platform/pages/dist --port 8787
 bash platform/pages/verify-live.sh http://127.0.0.1:8787/
 ```
 

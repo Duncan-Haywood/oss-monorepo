@@ -1,4 +1,4 @@
-// node --test platform/aws/site/deploy/emulate.test.mjs
+// node --test platform/aws/stacks/site/deploy/emulate.test.mjs
 //
 // The deploy's own checks, verify-live.sh and check_site_fresh.py, pointed at
 // the AWS serving path (publish.mjs layout + CloudFront Functions) instead of
@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url';
 
 import { emulate } from './emulate.mjs';
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../../..');
 const SHA = 'b'.repeat(40);
 
 async function build({ builtAt = new Date().toISOString() } = {}) {

@@ -7,9 +7,9 @@ ACM certificate with Route 53 validation and aliases, optional app origins
 for paths an application serves, and an optional GitHub OIDC publisher role
 that may only sync the bucket and invalidate the distribution.
 
-Used by [`../../site/`](../../site/README.md), which explains the layout the
+Used by [`../../stacks/site/`](../../stacks/site/README.md), which explains the layout the
 functions expect (served-form keys and directory stubs written by
-`site/deploy/publish.mjs`). Every resource is in the provider's region, which
+`stacks/site/deploy/publish.mjs`). Every resource is in the provider's region, which
 must be us-east-1 (CloudFront certificates and WAF).
 
 Inputs: `variables.tf`. Outputs: `outputs.tf`. Tests:

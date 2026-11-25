@@ -1,4 +1,4 @@
-# cd platform/aws/dns && tofu init -backend=false && tofu test
+# cd platform/aws/stacks/dns && tofu init -backend=false && tofu test
 # Plan-only: the zone has prevent_destroy, which an apply-and-destroy test
 # run would trip.
 
@@ -21,13 +21,13 @@ run "seed_with_override_plans_planned_records_only" {
   }
 
   assert {
-    condition     = toset(keys(aws_route53_record.this)) == toset(["@ CAA", "@ MX", "@ TXT", "_dmarc TXT"])
+    condition     = toset(keys(aws_route53_record.this)) == toset(["@ CAA", "@ MX", "@ TXT"])
     error_message = "Proxied seed records are replaced by the site stack; only planned records remain."
   }
 
   assert {
-    condition     = aws_route53_record.this["_dmarc TXT"].records == toset(["v=DMARC1; p=reject"])
-    error_message = "DMARC must reject."
+    condition     = aws_route53_record.this["@ TXT"].records == toset(["v=spf1 -all"])
+    error_message = "With no exported SPF the protective SPF applies."
   }
 
   assert {
@@ -60,6 +60,22 @@ run "extra_mx_replaces_the_null_mx" {
   assert {
     condition     = length(aws_route53_record.this["@ TXT"].records) == 2 && aws_route53_record.this["@ TXT"].ttl == 300
     error_message = "Apex TXT values from several sources merge into one record set at the lowest TTL."
+  }
+}
+
+run "another_spf_replaces_the_planned_one" {
+  command = plan
+
+  variables {
+    allow_unverified_records = true
+    extra_records = [
+      { name = "@", type = "TXT", ttl = 300, values = ["v=spf1 include:_spf.mx.cloudflare.net ~all"] },
+    ]
+  }
+
+  assert {
+    condition     = aws_route53_record.this["@ TXT"].records == toset(["v=spf1 include:_spf.mx.cloudflare.net ~all"])
+    error_message = "One SPF record per name: the planned v=spf1 -all must step aside."
   }
 }
 

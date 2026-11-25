@@ -58,7 +58,7 @@
 
       - name: Install the publisher (pinned, lockfile)
         run: npm ci --ignore-scripts --no-audit --no-fund
-        working-directory: platform/aws/site/deploy
+        working-directory: platform/aws/stacks/site/deploy
 
       - name: Assume the publish role (GitHub OIDC, no keys)
         uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
@@ -72,7 +72,7 @@
         env:
           BUCKET: ${{ vars.AWS_SITE_BUCKET }}
           DISTRIBUTION: ${{ vars.AWS_SITE_DISTRIBUTION_ID }}
-        run: node platform/aws/site/deploy/publish.mjs --dir "$RUNNER_TEMP/site" --bucket "$BUCKET" --distribution "$DISTRIBUTION"
+        run: node platform/aws/stacks/site/deploy/publish.mjs --dir "$RUNNER_TEMP/site" --bucket "$BUCKET" --distribution "$DISTRIBUTION"
 
       - name: Verify the published site answers
         env:

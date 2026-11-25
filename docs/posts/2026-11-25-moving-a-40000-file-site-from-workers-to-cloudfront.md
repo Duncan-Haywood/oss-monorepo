@@ -107,5 +107,5 @@ Cloudflare's free plan cost nothing and could not bill. On AWS, the
 CloudFront traffic stays inside the always-free tier at today's volume, and
 the WAF is most of the bill, roughly $10 a month. That is the price of
 running everything in one place and putting security first, and the owner
-chose it. The code is in `platform/aws/site/`, `platform/aws/dns/` and
+chose it. The code is in `platform/aws/stacks/site/`, `platform/aws/stacks/dns/` and
 `platform/aws/modules/static-site/`.

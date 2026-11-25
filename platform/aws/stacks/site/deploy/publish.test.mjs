@@ -1,4 +1,4 @@
-// node --test platform/aws/site/deploy/publish.test.mjs
+// node --test platform/aws/stacks/site/deploy/publish.test.mjs
 //
 // The publish plan against a fake S3/CloudFront client, and an end-to-end
 // check that the bucket layout plus the two CloudFront Functions serve every
@@ -13,10 +13,10 @@ import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 
 import { desired, plan, publish, keysFor, cacheControl, EMPTY_MD5, STUB_META } from './publish.mjs';
-import { servedPath } from '../../../pages/served-path.mjs';
+import { servedPath } from '../../../../pages/served-path.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const fnDir = path.join(here, '../../modules/static-site/functions');
+const fnDir = path.join(here, '../../../modules/static-site/functions');
 
 function loadFn(file, config) {
   let src = readFileSync(path.join(fnDir, file), 'utf8');

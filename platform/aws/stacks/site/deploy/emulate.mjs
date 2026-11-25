@@ -3,7 +3,7 @@
 // in-memory bucket with publish.mjs's layout and serves it through the two
 // CloudFront Functions and the distribution's 403/404 -> /404.html rule.
 //
-//   node platform/aws/site/deploy/emulate.mjs --dir platform/pages/dist [--port 8787]
+//   node platform/aws/stacks/site/deploy/emulate.mjs --dir platform/pages/dist [--port 8787]
 //   bash platform/pages/verify-live.sh http://127.0.0.1:8787/
 //
 // It is how verify-live.sh and check_site_fresh.py are tested against the AWS
@@ -20,7 +20,7 @@ import { fileURLToPath } from 'node:url';
 import { publish } from './publish.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const FN_DIR = path.join(here, '../../modules/static-site/functions');
+const FN_DIR = path.join(here, '../../../modules/static-site/functions');
 
 export function loadFunction(file, config) {
   let src = readFileSync(path.join(FN_DIR, file), 'utf8');

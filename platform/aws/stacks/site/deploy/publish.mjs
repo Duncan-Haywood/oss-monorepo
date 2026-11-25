@@ -2,7 +2,7 @@
 // Publishes a build of the site (platform/pages/build.mjs output) to the
 // private S3 bucket behind CloudFront, then invalidates the distribution.
 //
-//   node platform/aws/site/deploy/publish.mjs --dir platform/pages/dist \
+//   node platform/aws/stacks/site/deploy/publish.mjs --dir platform/pages/dist \
 //        --bucket <bucket_name> --distribution <distribution_id> [--dry-run]
 //
 // Credentials come from the environment (GitHub OIDC via
