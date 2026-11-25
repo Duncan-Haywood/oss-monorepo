@@ -1,0 +1,33 @@
+{
+  "id": "P082",
+  "title": "friction_rank.py drops 'worked as documented' confirmations and dates reports by session start",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "Runs now record confirmations ('add_repo + one clone worked first time, as documented; no friction') as doc_friction entries. NO_FRICTION only matches entries that start with 'none/no friction', so these clustered into the top live row and sent process runs to re-read a section that was working. Reports were also dated by session end, though a session reads the docs at its start.",
+  "evidence": [
+    "2026-11-25, `friction_rank.py --live --ungated --days 3 --no-fetch --no-prs`: #1 was .github/prompts/cloud-session.md at 22 sessions; about half its reports were confirmations, and its three real ones (private-repo migration numbers) were buried",
+    "2026-11-25: 28 doc_friction entries across prompts/runs/ match is_confirmation; none of the 28 read as friction on a manual pass",
+    "2026-11-25: the top two prompts/ventures/prompt-1.md and bets.md clusters were fixed on main by PR #18882 and PR #18936 but stayed live because the fixes edited docs, which --live does not count; settled with friction_verdicts.json"
+  ],
+  "change": "is_confirmation() filters praise-only entries before clustering (any caveat word keeps the entry); load() prefers `started` over `ended`; three verdicts recorded; cloud-session.md step 4 says to renumber migrations before merging.",
+  "touches": [
+    "platform/ci/friction_rank.py",
+    "platform/ci/test_friction_rank.py",
+    "platform/ci/friction_verdicts.json",
+    ".github/prompts/cloud-session.md"
+  ],
+  "metric": "Share of the top 10 `friction_rank.py --live --ungated --days 3` clusters whose example entry is a confirmation or already fixed on main",
+  "baseline": "2026-11-25 before this PR: 3 of the top 4 (cloud-session.md confirmations, ventures/prompt-1.md clone refusal, ventures/prompt-1.md saturation)",
+  "opened": "2026-11-25",
+  "source": "process run 2026-11-25 (critique: friction_rank top clusters read against main)",
+  "pr": "this",
+  "result": null,
+  "history": [
+    {
+      "date": "2026-11-25",
+      "note": "Shipped. The started-time change hid no extra clusters on the 3- and 7-day windows (43 and 80 hidden, same as before), so its value is correctness, not count. Verify by re-reading the top 10 in a few days."
+    }
+  ]
+}
