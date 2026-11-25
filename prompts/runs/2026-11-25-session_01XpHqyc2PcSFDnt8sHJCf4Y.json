@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyc2PcSFDnt8sHJCf4Y",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T06:39:45Z",
+  "ended": "2026-11-25T06:45:32Z",
+  "wall_minutes": 5.96,
+  "tokens_in": 4930327,
+  "tokens_out": 34859,
+  "cost_usd": 2.6636,
+  "tool_calls": 48,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18878",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Cloning private-monorepo after add_repo was refused by the auto-mode permission classifier; stayed on the public front door.",
+    "waivers.test.mjs first failed: the 'through date after signed' check misfired on conditional waivers, which are normally signed before the period ends; limited it to unconditional waivers."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Says to work in private-monorepo when the session can reach it; add_repo succeeded but the clone was refused by the permission classifier, so 'can reach' needs a cheap test that does not spend a clone attempt."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The hook that refuses pkill -f also rejects a command line where the bracketed pattern appears elsewhere (e.g. the server start in the same call); cost one retry."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "Free-choice slot spent on the top bet's front door (bet #1 lien waiver tracking) rather than a new idea, since the north star prefers paid-bet work and open PRs already covered the machine-shop RFQ ideas.",
+      "did": "Built the lien waiver log page in pay-app-guides.",
+      "result": "Merged with tests."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (new section: lien waivers in both directions)"
+  ],
+  "goal": null,
+  "notes": "Explore idea: lien waiver log for subcontractors (given and collected, pairing and chase list), bet #1 front door. 101 pay-app-guides tests pass; playwright smoke at 390px: no errors, no horizontal scroll. Risk review: innerHTML sinks escaped, no data leaves the browser.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2fc77cd7-4f31-523a-9ea1-04ae36e5b67b",
+    "transcripts": 1,
+    "first": "2026-11-25T06:39:45Z",
+    "last": "2026-11-25T06:45:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 89,
+        "output": 34859,
+        "thinking": 5732,
+        "cache_read": 4804594,
+        "cache_write_5m": 0,
+        "cache_write_1h": 125644,
+        "api_equivalent_usd": 2.6636,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 89,
+      "output": 34859,
+      "thinking": 5732,
+      "cache_read": 4804594,
+      "cache_write_5m": 0,
+      "cache_write_1h": 125644,
+      "api_equivalent_usd": 2.6636,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 41,
+      "Read": 2,
+      "Write": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.96,
+      "active_minutes": 5.96,
+      "model_minutes": 4.9,
+      "tool_minutes": 1.06,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "engine, tests, page and post section for a small venture page",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 225.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
