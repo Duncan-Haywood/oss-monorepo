@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [design, seo]
+date: 2026-11-25
+---
 # Polish 2026-11-25: the pay-app calculator's header no longer hides the tool on a phone
 
 Bet #1's front door is `ventures/pay-app-guides/index.html`, the schedule-of-values
