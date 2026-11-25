@@ -33,7 +33,8 @@
   "outcome": "success",
   "errors": [
     "First colog.test.mjs run failed: normStatus returned undefined for an unknown word and `status == null` caught it as 'blank'; fixed to ===, test now covers it.",
-    "platform/security/risk_review.py crashed on a fresh shallow clone (git merge-base origin/main HEAD exit 1) until `git fetch --depth=40 origin main`."
+    "platform/security/risk_review.py crashed on a fresh shallow clone (git merge-base origin/main HEAD exit 1) until `git fetch --depth=40 origin main`.",
+    "venture-preflight round 1 found three real defects in colog.mjs (incomplete CSV formula guard, literal U+FEFF, comma-stripping money parser) and a main-wide failure (platform/security/test_scan.py defined ConcatenatedJson after its __main__ guard); all fixed in this PR. Round 3 found the FAQ answer differed from its JSON-LD by a link; fixed."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -44,6 +45,10 @@
     {
       "file": "platform/security/risk_review.py",
       "issue": "Tracebacks on a shallow clone with no merge base instead of printing 'run git fetch --depth=40 origin main'."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Stops at the first failing stage, so four runs (~6 min each) to clear four independent findings; the checks it runs (check_money_comma, check_csv_formula_guard, faq-visible) could be listed in ventures/CLAUDE.md for a quick pre-pass."
     }
   ],
   "deviations": [
@@ -58,7 +63,7 @@
     "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (extended: change order log section)"
   ],
   "goal": "$10k MRR: front door for bet #1 pay-app billing",
-  "notes": "Security queue empty; ideas inbox empty; route drew ventures/1. node --test *.test.mjs in ventures/pay-app-guides: 30 pass, 0 fail. Playwright 1200px and 390px: sample totals render, scrollWidth equals viewport, no console errors. risk_review: nothing blocked; innerHTML sinks all escaped; no personal data. venture-preflight result appended below.",
+  "notes": "Security queue empty; ideas inbox empty; route drew ventures/1. node --test *.test.mjs in ventures/pay-app-guides: 30 pass, 0 fail. Playwright 1200px and 390px: sample totals render, scrollWidth equals viewport, no console errors. risk_review: nothing blocked; innerHTML sinks all escaped; no personal data. venture-preflight result appended below. venture-preflight pay-app-guides: clean on the 4th run (build + check.mjs passed). Also moved test_scan.py's __main__ guard last (24 tests pass, 3 that never ran as a script now do), which turns main_health green for every branch.",
   "corrections": [],
   "redteam": null,
   "usage": {
