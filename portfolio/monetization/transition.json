@@ -14,7 +14,7 @@
   "proprietary": [
     {
       "venture": "einvoice-preflight",
-      "source_lines": 36477,
+      "source_lines": 36493,
       "track": "proprietary",
       "why": "flagship #3: the depth people pay for",
       "model": "subscription",
@@ -33,7 +33,7 @@
     },
     {
       "venture": "wall-framing-takeoff",
-      "source_lines": 18136,
+      "source_lines": 18156,
       "track": "proprietary",
       "why": "flagship #6: the depth people pay for",
       "model": "one-off",
@@ -60,7 +60,7 @@
     },
     {
       "venture": "changepoint-detector",
-      "source_lines": 16498,
+      "source_lines": 16500,
       "track": "proprietary",
       "why": "flagship #10: the depth people pay for",
       "model": "one-off",
@@ -85,15 +85,15 @@
       "source_lines": 78142,
       "track": "proprietary",
       "why": "flagship #12: the depth people pay for",
-      "model": "one-off",
-      "model_why": "runs in the user's browser or machine; no per-user cost to serve",
+      "model": "subscription",
+      "model_why": "the cull and pipeline run on the user's machine and stay free; the paid part is hosted proofing galleries, which have a per-user storage cost (models.yaml, 2026-11-25)",
       "third_party_licences": [],
       "moved": null,
       "move_order": 6
     },
     {
       "venture": "quick-pick-survey",
-      "source_lines": 24922,
+      "source_lines": 24937,
       "track": "proprietary",
       "why": "flagship #13: the depth people pay for",
       "model": "one-off",
@@ -104,7 +104,7 @@
     },
     {
       "venture": "league-schedule-generator",
-      "source_lines": 24879,
+      "source_lines": 24880,
       "track": "proprietary",
       "why": "flagship #14: the depth people pay for",
       "model": "subscription",
@@ -115,7 +115,7 @@
     },
     {
       "venture": "ids-model-check",
-      "source_lines": 20292,
+      "source_lines": 20297,
       "track": "proprietary",
       "why": "flagship #17: the depth people pay for",
       "model": "one-off",
@@ -128,7 +128,7 @@
     },
     {
       "venture": "xer-schedule-check",
-      "source_lines": 16567,
+      "source_lines": 16575,
       "track": "proprietary",
       "why": "flagship #18: the depth people pay for",
       "model": "one-off",
@@ -150,7 +150,7 @@
     },
     {
       "venture": "local-site-studio",
-      "source_lines": 96963,
+      "source_lines": 96981,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "subscription",
@@ -172,7 +172,7 @@
     },
     {
       "venture": "shed-designer",
-      "source_lines": 20647,
+      "source_lines": 20649,
       "track": "proprietary",
       "why": "has a paid model in models.yaml",
       "model": "one-off",
@@ -196,7 +196,7 @@
     },
     {
       "venture": "clothing-design-studio",
-      "source_lines": 14650,
+      "source_lines": 14654,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "one-off",
@@ -218,7 +218,7 @@
     },
     {
       "venture": "retail-pilot-intel",
-      "source_lines": 8543,
+      "source_lines": 8584,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "one-off",
