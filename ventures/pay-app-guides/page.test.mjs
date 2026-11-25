@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html"];
+const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html", "prompt-payment-laws.html"];
 
 test("every page carries the no-warranty clause, sponsor link, opt-out and honest CTA", () => {
   for (const name of PAGES) {
@@ -112,4 +112,16 @@ test("the QuickBooks lines table, built in the browser, labels its cells for the
   for (const label of ["QuickBooks item", "Posts to", "Amount"]) {
     assert.equal(html.split(`, "${label}")`).length - 1, 2, `${label}: a line row and the total row`);
   }
+});
+
+test("the prompt payment table links each state to its official legislature site, with a read date, and the calculator is labelled", () => {
+  const html = page("prompt-payment-laws.html");
+  const start = html.indexOf('id="state-table"');
+  const table = html.slice(start, html.indexOf("</table>", start));
+  const rows = [...table.matchAll(/<tr[^>]*><td[^>]*>([A-Z][a-z]+(?: [A-Z][a-z]+)?)<\/td><td[^>]*><a href="([^"]+)"/g)];
+  assert.ok(rows.length >= 7, `only ${rows.length} states`);
+  const official = /^https:\/\/(statutes\.capitol\.texas\.gov|leginfo\.legislature\.ca\.gov|www\.ilga\.gov|www\.ncleg\.gov|www\.legis\.state\.pa\.us|law\.lis\.virginia\.gov|www\.leg\.state\.fl\.us)\//;
+  for (const [, state, href] of rows) assert.match(href, official, state);
+  assert.match(html, /2026-11-25/);
+  for (const id of ["pp-state", "pp-amount", "pp-received", "pp-paid", "pp-days", "pp-rate", "pp-per", "pp-method"]) assert.match(html, new RegExp(`<label for="${id}">`));
 });

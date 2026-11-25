@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[2]
 # Control plane (.github/CODEOWNERS): fixed in its own PR, owner approval. Listed
 # so this check starts green; the test fails once the file is clean, so the entry
 # cannot go stale.
-KNOWN = {"prompts/test_promptctl.py"}
+KNOWN: set[str] = set()
 
 
 def is_main_guard(node):
