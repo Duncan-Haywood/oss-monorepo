@@ -451,7 +451,9 @@ export function aliasesFor(slug) {
 const EXCLUDED_FILES = new Set([
   'VENTURE.yaml', 'robots.txt', 'README.md', 'package.json', 'package-lock.json',
 ]);
-const EXCLUDED_DIRS = new Set(['node_modules', '.git', 'dist', 'coverage', '.cache', 'tests', 'mobile', '__pycache__']);
+// `aws` (2026-11-25): a venture's AWS-hosted server side (handler, SQL migrations, build script) for the starter in
+// platform/aws; it runs on Lambda, never as a page, and `.sql` has no served type.
+const EXCLUDED_DIRS = new Set(['node_modules', '.git', 'dist', 'coverage', '.cache', 'tests', 'mobile', '__pycache__', 'aws']);
 // Every dot-directory is skipped unless it is named here, and the allowlist is
 // the whole reason this is a rule rather than four more entries in the set
 // above. That set is a list of names someone had already seen, and it has now
