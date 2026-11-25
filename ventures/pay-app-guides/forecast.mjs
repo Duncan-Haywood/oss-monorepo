@@ -256,7 +256,10 @@ export function forecast({ jobs = [], apps = [] } = {}, settings = {}) {
 
 const c2 = (c) => (c / 100).toFixed(2);
 
-/** One row per expected payment, formula-safe cells (csvCell). */
+// Every cell goes through csvCell (colog.mjs), the formula-injection guard: a cell starting =, +, -, @,
+// tab or CR gets a leading apostrophe. forecast.test.mjs checks it on a typed =HYPERLINK job name.
+
+/** One row per expected payment. */
 export function receiptsCsv(result) {
   const head = ["Job", "GC", "Application", "Sent or planned", "Submitted", "Expected", "Amount", "Days late"];
   const rows = result.receipts.map((r) => [r.job, r.gc, r.app, r.kind === "sent" ? "Sent" : "Planned", dayText(r.submitted), dayText(r.expected), c2(r.amount), r.late || ""].map(csvCell).join(","));
