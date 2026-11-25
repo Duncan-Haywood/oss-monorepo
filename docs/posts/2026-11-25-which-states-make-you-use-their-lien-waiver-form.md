@@ -119,3 +119,38 @@ property only (RSMo § 429.016.27). The note's advice points at this guide for t
 The checker also links the guides a reader needs before and after signing (which of the four
 waivers to sign, this state table, the waiver log, joint checks and short payments), which it did
 not before. It still does not decide whether a waiver is valid in your state.
+
+## Update, 2026-11-25: California's preliminary notice, read from the same download
+
+Before a California sub or supplier can record a lien, give a stop payment notice or claim on a
+payment bond, it must have given a preliminary notice (Civ. Code § 8200). We read the ten sections
+on that notice (§§ 8102-8118 and 8200-8216) from the same Legislative Counsel bulk download as the
+waivers. Unlike Wyoming, California does not print a form. It lists what the notice must say, and
+gives one statement, "NOTICE TO PROPERTY OWNER", to copy word for word "in boldface type"
+(§ 8202(a)(3)). What a subcontractor should know:
+
+- **Three people get it**: the owner or reputed owner, the direct contractor (the GC with the
+  contract with the owner), and the construction lender, if any (§ 8200(a)). A laborer need not
+  give one. A contractor whose contract is with the owner gives it only to the lender (§ 8200(e)).
+- **Twenty days.** "A preliminary notice shall be given not later than 20 days after the claimant
+  has first furnished work on the work of improvement" (§ 8204(a)). A late notice is not worthless:
+  it still covers work "performed within 20 days prior to the service of the preliminary notice, and
+  at any time thereafter". Work done more than 20 days before you served it is not covered.
+- **What it must contain**: the owner's, direct contractor's and lender's names and addresses; a
+  description of the site with its street address; your name, address and relationship to the
+  parties; who you work for; a general description of the work; and an estimate of the total price
+  (§§ 8102(a), 8202(a)). A general description also covers later work outside it (§ 8206(c)).
+- **One per contract, not one per job, when you work for more than one subcontractor** on the same
+  job (§ 8206(b)).
+- **How to serve it**: personal delivery, or registered or certified mail, express mail or
+  overnight delivery (§§ 8106, 8110). Proof is a declaration with the postal or carrier record
+  (§ 8118), so keep the receipt.
+- **Licensed subs, take note**: on a subcontract over $400, failing to give the notice is grounds
+  for discipline under the Contractors' State License Law (§ 8216).
+
+These rules are for private jobs. Public works have their own notice (§ 9300 ff.), which we have
+not read yet. PayApps, the pay-app product we are building, now prints the California notice from a
+job's page. Each item sits under the statute's own words, followed by the bold statement. It fills
+in the owner, the GC and its address, the site, your company and an estimate (the contract sum plus
+approved change orders), and leaves the "if any" items off when they are blank. It does not work out
+your 20-day date, because only you know when you first furnished work. Not legal advice.
