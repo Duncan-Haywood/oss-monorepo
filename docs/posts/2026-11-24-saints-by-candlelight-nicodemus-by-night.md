@@ -87,3 +87,17 @@ The entry moved to `DONE.md`. Three sequels were added: Joseph of
 Arimathea told with all four Gospels, the last great day of the Feast of
 Booths with the Siloam water and the Mishnah's lamps (Sukkah 4-5), and
 Gamaliel's counsel in Acts 5.
+
+## A fix the episode turned up
+
+The site's description check failed on this episode's page. Its meta
+description was the whole summary plus a tag line, more than 400
+characters, and search engines cut a description at about 160. The
+generator had always done that, and all 176 earlier episodes were on the
+check's list of known offenders. Hearth & Horizon's story pages had the
+same habit, with 559 entries. Both generators now keep the summary's first
+sentence, or cut it at a word boundary. The page itself, the feeds and the
+structured data still carry the whole summary. The known-offenders list
+dropped from 3,823 to 3,089 pages. Three eBay guide pages that had joined
+the list on `main` were also shortened by hand, so the check is green
+again for every PR.

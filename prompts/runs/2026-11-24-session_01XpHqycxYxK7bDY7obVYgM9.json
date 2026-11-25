@@ -29,12 +29,14 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "First push failed CI: the saints generator writes meta descriptions over 160 characters, and main was already red on the same test from 4 other pages."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
-      "file": "platform/ci/check_posts.py",
-      "issue": "description limit (160) only caught after writing; creative_due.py prints it, so this was my miss, not the doc's. No real friction this run."
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "issue": "'Making an episode' lists node --test in the venture but not platform/pages/description-length.test.mjs, which every new episode page tripped until this run fixed the generator."
     }
   ],
   "deviations": [],
@@ -42,7 +44,7 @@
     "docs/posts/2026-11-24-saints-by-candlelight-nicodemus-by-night.md"
   ],
   "goal": null,
-  "notes": "Project: saints-by-candlelight; piece: episode 177, nicodemus-and-the-conversation-by-night (text only, audio 581 MB over 400 MB cap). Security queue empty, IDEAS.md and website requests empty; route drew creative. check-script ok (7,092 words), node --test 20/20, check_posts ok, risk_review: no owner review. No agent doc: nothing the next run needs beyond the list sequels in PRODUCTION.md.",
+  "notes": "Project: saints-by-candlelight; piece: episode 177, nicodemus-and-the-conversation-by-night (text only, audio 581 MB over 400 MB cap). Security queue empty, IDEAS.md and website requests empty; route drew creative. check-script ok (7,092 words), node --test 20/20, check_posts ok, risk_review: no owner review. No agent doc: nothing the next run needs beyond the list sequels in PRODUCTION.md. CI 'test' (priv-portfolio-pages) failed on description-length: the new episode page plus 4 pages already over 160 on main (3 ebay guides, hearth the-stall-that-paid-double). Fixed at the generators: saints episodes.mjs and hearth stories.mjs now emit <=160-char meta descriptions (first sentence or word-boundary clip), baseline 3823 -> 3089; ebay descriptions shortened by hand.",
   "corrections": [],
   "redteam": null,
   "usage": {

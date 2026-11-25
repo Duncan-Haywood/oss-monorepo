@@ -269,6 +269,21 @@ for (const audio of document.querySelectorAll("audio")) {
 </script>`;
 }
 
+// Search engines cut a meta description at about 160 characters, and the
+// site's ratchet (platform/pages/description-length.mjs) holds every page to
+// it. Keep the summary's first sentence, or clip at a word boundary; the
+// page, the feeds and JSON-LD still carry the whole summary.
+export const META_MAX = 160;
+export function metaDescription(summary) {
+  const s = String(summary).replace(/\s+/g, ' ').trim();
+  if (s.length <= META_MAX) return s;
+  const first = (s.match(/^.*?[.!?](?=\s|$)/) || [s])[0];
+  if (first.length <= META_MAX) return first;
+  const cut = first.slice(0, META_MAX - 1);
+  const sp = cut.lastIndexOf(' ');
+  return `${(sp > 80 ? cut.slice(0, sp) : cut).replace(/[\s,;:]+$/, '')}\u2026`;
+}
+
 function page({ title, description, canonical, image, jsonLd, body, prefix, event, type = 'website' }) {
   return `<!doctype html>
 <html lang="en">
@@ -340,7 +355,7 @@ ${markdownToHtml(story.body)}
 </section>`;
   return page({
     title: storyTitle(story, shelf, Boolean(a)),
-    description: `${story.summary}`.slice(0, 300),
+    description: metaDescription(story.summary),
     canonical: storyUrl(story),
     image: `${SITE}${coverPath(shelf.id)}`,
     jsonLd,
