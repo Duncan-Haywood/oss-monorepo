@@ -11,7 +11,7 @@
   <link rel="canonical" href="https://marisstella.app/machine-shop-guides/ssp-and-poam.html">
   <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%232c4a3e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EM%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="style.css">
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "What Goes in an SSP and a POA&amp;M (NIST SP 800-171)", "description": "What a small shop's NIST SP 800-171 system security plan and plan of action and milestones contain, and the CMMC POA&amp;M limits in 32 CFR 170.21.", "datePublished": "2026-11-24", "dateModified": "2026-11-24"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "What Goes in an SSP and a POA&amp;M (NIST SP 800-171)", "description": "What a small shop's NIST SP 800-171 system security plan and plan of action and milestones contain, and the CMMC POA&amp;M limits in 32 CFR 170.21.", "datePublished": "2026-11-24", "dateModified": "2026-11-25"}</script>
 </head>
 <body data-page="ssp-and-poam">
 <nav class="crumbs"><a href="./">Machine shop guides</a></nav>
@@ -41,7 +41,7 @@
 <ul>
   <li>Conditional status needs a score of at least 80% of the maximum (88 of 110).</li>
   <li>Open items are generally limited to 1-point requirements. The stated exception is 3.13.11 when you encrypt CUI but the cryptography is not FIPS-validated (a 3-point partial deduction).</li>
-  <li>Section 170.21(a)(2) names further requirements that can never be on a POA&amp;M. Read the list there.</li>
+  <li>Six requirements can never be on a POA&amp;M, whatever their points (170.21(a)(2)(iii)): 3.1.20 external connections, 3.1.22 control of public information, 3.12.4 the system security plan, 3.10.3 escorting visitors, 3.10.4 physical access logs and 3.10.5 managing physical access devices. Each is worth 1 point or none, so they are easy to leave open by mistake. The <a href="sprs-score-calculator.html">SPRS calculator</a> and the <a href="nist-800-171-ssp-template.html">SSP template</a> flag them.</li>
   <li>Open items must be closed and confirmed by a closeout assessment within 180 days, or the conditional status expires.</li>
   <li>Level 1 allows no POA&amp;M at all (<a href="https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170/subpart-D/section-170.15">32 CFR 170.15</a>).</li>
 </ul>
