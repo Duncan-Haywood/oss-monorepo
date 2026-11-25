@@ -53,7 +53,7 @@
     "docs/posts/2026-11-25-retainage-in-quickbooks-online.md (extended: Fixed the same day)"
   ],
   "goal": null,
-  "notes": "Target pay-app-guides (front door to the payapps bet). Guard added: tests in the product suites (ventures-tests runs them on every PR); no new lint, since the CO-numbering class lives in two files only. Local: pay-app-guides 33 pass, pay-application-generator 60 pass, template --check ok, risk_review blocked nothing.",
+  "notes": "Target pay-app-guides (front door to the payapps bet). Guard added: tests in the product suites (ventures-tests runs them on every PR); no new lint, since the CO-numbering class lives in two files only. Local: pay-app-guides 33 pass, pay-application-generator 60 pass, template --check ok, risk_review blocked nothing. Also fixed two reds on main that every venture PR hit: stale transition.json and the saas-starter unwired node suites (missing npm deps now skip, as missing Python packages do).",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -395,6 +395,16 @@
       {
         "file": "ventures/pay-app-guides/calc.mjs",
         "issue": "quickbooksLines accepted a negative 'retainage held' (the guide tells people to enter retainage in QuickBooks as a negative number, so typing -4000 is natural) and turned it into a +$4,000 Retainage line: the invoice billed the retainage instead of holding it (total $44,000 instead of $36,000 on $40,000). Now refused with a message; label says 'as a positive amount'. Failing-first test.",
+        "patched": true
+      },
+      {
+        "file": "platform/ci/unwired_checks.py",
+        "issue": "Since PR 18765 every venture PR's changed-ventures job was red: the unwired runner ran platform/aws/stacks/saas-starter/runtime/test/*.test.mjs, which import @aws-sdk/client-s3 and pg from the starter's package.json, and nothing runs npm ci there. Patched: a declared-but-uninstalled npm package is now a SKIP like the Python missing-module case (an undeclared import stays red), with a test. Remaining: a workflow step that runs npm ci in saas-starter/runtime and its tests (workflow change, own PR), so they run rather than skip.",
+        "patched": true
+      },
+      {
+        "file": "portfolio/monetization/transition.json",
+        "issue": "Stale since PR 18757 made photo-editing a subscription; test_committed_json_is_current red on main. Regenerated with transition.py --write.",
         "patched": true
       }
     ]
