@@ -23,6 +23,7 @@ export const GROUPS = [
     ["retainage-explained.html", "Retainage explained, with state caps"],
     ["retainage-release.html", "Getting retainage released"],
     ["retainage-in-quickbooks.html", "Retainage in QuickBooks"],
+    ["retainage-tracker.html", "Retainage tracker (every job)"],
     ["pay-application-software-compared.html", "Pay app software compared"],
   ]],
   ["Getting paid and lien waivers", [
@@ -30,6 +31,7 @@ export const GROUPS = [
     ["conditional-vs-unconditional-lien-waivers.html", "Conditional vs unconditional lien waivers"],
     ["lien-waiver-forms-by-state.html", "Lien waiver forms by state"],
     ["lien-waiver-log.html", "Lien waiver log (given and collected)"],
+    ["sworn-statement.html", "Contractor's sworn statement builder"],
     ["joint-checks.html", "Joint check splitter and split letter"],
   ]],
 ];
