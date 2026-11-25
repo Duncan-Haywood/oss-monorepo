@@ -310,3 +310,30 @@ test("Miller Act page: inputs labelled, statute and FAR linked with a read date,
   assert.match(html, /federal jobs only/);
   for (const name of ["prompt-payment-laws.html", "joint-checks.html", "conditional-vs-unconditional-lien-waivers.html"]) assert.match(page(name), /href="miller-act-payment-bond-claims\.html"/, name);
 });
+
+// Guides that carry FAQPage markup (polish, 2026-11-25). The list may only
+// grow: a guide that answers the question people search should keep saying
+// so in a form an answer engine can lift. Each question must also be an h3 in
+// the page's visible "Common questions" section.
+const FAQ_PAGES = [
+  "change-order-log.html", "conditional-vs-unconditional-lien-waivers.html",
+  "front-loading-schedule-of-values.html", "how-to-fill-out-a-pay-application.html",
+  "index.html", "lien-waiver-log.html", "pay-app-cash-forecast.html",
+  "pay-if-paid-clauses.html", "prompt-payment-laws.html", "retainage-explained.html",
+  "retainage-tracker.html", "schedule-of-values-template.html", "stored-materials-billing.html",
+];
+
+test("guides with an FAQ keep FAQPage markup that matches visible questions", () => {
+  const decode = (s) => s.replace(/&quot;/g, '"').replace(/&#x27;|&#39;|&rsquo;/g, "'").replace(/&amp;/g, "&");
+  for (const name of FAQ_PAGES) {
+    const html = page(name);
+    const block = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+      .flatMap((m) => { const d = JSON.parse(m[1]); return Array.isArray(d) ? d : d["@graph"] || [d]; })
+      .find((d) => d["@type"] === "FAQPage");
+    assert.ok(block, `${name}: no FAQPage JSON-LD`);
+    const faq = html.match(/<section[^>]*id="faq"[^>]*>([\s\S]*?)<\/section>/);
+    if (!faq) continue; // index.html: questions are derived by the site build from its own markup
+    const visible = [...faq[1].matchAll(/<h3>([\s\S]*?)<\/h3>/g)].map((m) => decode(m[1].replace(/<[^>]+>/g, "")));
+    for (const q of block.mainEntity) assert.ok(visible.includes(q.name), `${name}: "${q.name}" not shown on the page`);
+  }
+});
