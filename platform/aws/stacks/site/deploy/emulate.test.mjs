@@ -13,7 +13,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { emulate } from './emulate.mjs';
+import { emulate, toQuerystring } from './emulate.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../../..');
 const SHA = 'b'.repeat(40);
@@ -111,4 +111,16 @@ test('served forms over HTTP: redirects, extensionless pages, 404 page', async (
     assert.equal(r.status, 404);
     assert.match(await r.text(), /not found/);
   });
+});
+
+test('query keys like __proto__ stay plain keys and never touch Object.prototype', () => {
+  const qs = toQuerystring(new URLSearchParams('__proto__=x&__proto__=y&constructor=1&toString=2&a=1&a=2&b=3'));
+  assert.equal({}.multiValue, undefined);
+  assert.equal(Object.prototype.multiValue, undefined);
+  assert.deepEqual(Object.getOwnPropertyDescriptor(qs, '__proto__').value,
+    { value: 'x', multiValue: [{ value: 'x' }, { value: 'y' }] });
+  assert.deepEqual(qs.constructor, { value: '1' });
+  assert.deepEqual(qs.toString, { value: '2' });
+  assert.deepEqual(qs.a, { value: '1', multiValue: [{ value: '1' }, { value: '2' }] });
+  assert.deepEqual(qs.b, { value: '3' });
 });

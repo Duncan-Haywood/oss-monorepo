@@ -37,6 +37,15 @@ class RenderTest(unittest.TestCase):
         self.assertEqual(sorted(files), ["QUEUE.md", "alerts/2.md", "alerts/3.md",
                                          "alerts/5.md", "alerts/9.md"])
 
+    def test_analysed_commit_is_named_in_queue_and_alert_file(self):
+        a = alert(4, "high")
+        a["most_recent_instance"]["commit_sha"] = "e98ec5cbb40466e8de978265ab5fe5115be7407d"
+        files = render([a, alert(6, "high")])
+        self.assertIn("Analysed at commit(s) `e98ec5cbb404`.", files["QUEUE.md"])
+        self.assertIn("`a.py:7` as of commit `e98ec5cbb404`", files["alerts/4.md"])
+        self.assertNotIn("as of commit", files["alerts/6.md"])
+        self.assertNotIn("Analysed at", render([alert(6, "high")])["QUEUE.md"])
+
     def test_every_severity_label_ranks_in_order(self):
         # critical > high = error > medium = warning > low > note > unknown.
         labels = ["critical", "high", "medium", "low", "note", "unknown"]

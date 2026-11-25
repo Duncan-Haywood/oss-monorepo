@@ -74,6 +74,7 @@ def summarise(alert: dict) -> dict:
         "message": message[:MESSAGE_CHARS],
         "created": str(alert.get("created_at") or "")[:10],
         "url": str(alert.get("html_url") or ""),
+        "commit": str(inst.get("commit_sha") or "")[:12],
     }
 
 
@@ -85,7 +86,8 @@ def alert_file(s: dict) -> str:
         f"- Severity: {s['severity']}",
         f"- Tool: {s['tool']}",
         f"- Rule: `{s['rule']}`: {s['description']}",
-        f"- Location: `{s['path']}:{s['line']}`",
+        f"- Location: `{s['path']}:{s['line']}`"
+        + (f" as of commit `{s['commit']}` (the line may have moved since)" if s.get("commit") else ""),
         f"- Finding: {s['message']}",
         f"- Open since: {s['created']}",
         f"- Alert page (write access only): {s['url']}",
@@ -124,6 +126,16 @@ def render(alerts: list[dict]) -> dict[str, str]:
         f"(`{BRANCH_PREFIX}<n>`) does not exist; its file says how.",
         "",
     ]
+    # A main scan takes about an hour and newer pushes cancel the pending ones, so the
+    # alerts can describe a commit well behind main. On 2026-11-25 the queue listed
+    # 1,243 alerts from a scan taken an hour before a fix that changed 726 of their
+    # 748 files. Naming the commit lets a session check before it starts work.
+    commits = sorted({s["commit"] for s in todo if s.get("commit")})
+    if commits:
+        lines += ["Analysed at commit(s) " + ", ".join(f"`{c}`" for c in commits) + ". If main has "
+                  "moved on, `git diff --stat <commit> origin/main -- <path>` shows whether a "
+                  "file changed since: an alert in a changed file may already be fixed and "
+                  "will close on the next main scan.", ""]
     lines += [f"- [{s['severity']}] #{s['number']} `{s['rule']}` in `{s['path']}:{s['line']}`: "
               f"alerts/{s['number']}.md" for s in todo] or ["Empty: no open alerts."]
     files["QUEUE.md"] = "\n".join(lines) + "\n"

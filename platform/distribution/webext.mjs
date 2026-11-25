@@ -28,7 +28,9 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
 export const VERSION = '0.1.0';
 const REPO_URL = 'https://github.com/duncan-haywood/oss-monorepo';
-const SCRIPT_RE = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
+// The end tag may carry spaces or junk before its `>` (`</script >`), and HTML
+// still ends the script there, so the pattern accepts it too.
+const SCRIPT_RE = /<script\b([^>]*)>([\s\S]*?)<\/script\b[^>]*>/gi;
 // import("./x.mjs") with a relative string is a local file: importsOf() follows
 // it and the file is packaged. Any other dynamic import (a URL, a variable, a
 // template) could fetch from anywhere.
@@ -51,7 +53,14 @@ export function clipDescription(text) {
  * ld+json blocks are data, not code, and stay inline.
  */
 export function rewritePage(html) {
-  if (/\son[a-z]+\s*=\s*["']|javascript:/i.test(html.replace(SCRIPT_RE, ''))) return { skip: 'inline event handlers or javascript: URLs' };
+  // Scripts removed until none is left, so a removal cannot splice a new one together.
+  let markup = html;
+  let prev;
+  do {
+    prev = markup;
+    markup = markup.replace(SCRIPT_RE, '');
+  } while (markup !== prev);
+  if (/\son[a-z]+\s*=\s*["']|javascript:/i.test(markup)) return { skip: 'inline event handlers or javascript: URLs' };
   if (/(?:src|href)\s*=\s*["']\/\//i.test(html) || /<(?:script|link)\b[^>]*(?:src|href)\s*=\s*["']https?:/i.test(html)) return { skip: 'loads a file from another origin' };
   const scripts = {};
   let n = 0;
