@@ -14,15 +14,19 @@ official domains where possible. Two items are **transcribed rather than
 re-read** and are the first thing a session with access should verify:
 
 1. **Annex A point values** (`sprs-data.mjs`). Transcribed from the DoD
-   Assessment Methodology v1.2.1 Annex A. Internal check: the 109 scored
-   values sum to 313, so an all-unmet score is 110 − 313 = −203, which matches
-   the −203 to 110 range in the DoD CIO briefing "CMMC Alignment to NIST
-   Standards". A single wrong weight would break that sum unless offset by
-   another error; `sprs.test.mjs` asserts it.
+   Assessment Methodology v1.2.1 Annex A and first checked only by the sum
+   (109 scored values add to 313, so all-unmet is −203). **Verified 25 Nov 2026
+   against the regulation:** ecfr.gov answered that day, and 32 CFR
+   170.24(c)(2)(i)(B)(1)–(4) lists by number every 5-point requirement (23
+   basic, 19 derived, plus 3.5.3 and 3.13.11 at 5 or 3) and every 3-point one
+   (7 basic, 7 derived), the rest being 1. All 110 values in `sprs-data.mjs`
+   match; `sprs.test.mjs` pins them to those lists. The Methodology PDF itself
+   (acq.osd.mil) still was not opened.
 2. **The 32 CFR 170.21(a)(2)(iii) list** of requirements that may never be
-   on a POA&M. Encoded on 25 Nov 2026 (`POAM_PROHIBITED` in `sprs-data.mjs`)
-   from search excerpts of the eCFR page, not a direct read; see the row
-   below. Re-read (A)-(F) on the eCFR page when it is reachable.
+   on a POA&M. Encoded from search excerpts, then **read directly** on the
+   eCFR renderer API on 25 Nov 2026
+   (`/api/renderer/v1/content/enhanced/current/title-32?part=170&section=170.21`):
+   (A)-(F) are the six in `POAM_PROHIBITED`, titles identical.
 
 ## Sources
 
