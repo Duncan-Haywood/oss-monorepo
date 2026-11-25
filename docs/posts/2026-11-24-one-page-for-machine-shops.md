@@ -489,8 +489,15 @@ not yet on sale) can now answer it on the PDF itself.
   the quote page compares it with Rev 1 or any other earlier revision, not
   only the last one.
 
-Still to come in this item: an email to the estimator the day before a sent
-quote expires, so they can follow up or revise.
+- **The same lines in the email** (added later on 25 November). When Rev 2
+  goes out by email from the app, the message repeats the PDF's "Changes from
+  Q-1001" lines under the estimator's note, so the buyer sees what moved
+  before opening the attachment. They are the same lines, taken from the
+  same two frozen revisions. A revision sent without the checkbox gets none.
+  The send form shows them first, and a long list stops at 20 lines and
+  points to the PDF for the rest.
+
+The day-before expiry email mentioned earlier was added the same day.
 
 ## Update, 25 November 2026: what we promise about your drawings
 
