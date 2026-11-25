@@ -51,7 +51,7 @@ test("every input has a label and nothing is sent anywhere", () => {
 
 test("the module scripts import only local files, and the inline script parses", () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./checkout.mjs", "./import-7shifts.mjs", "./import-deputy-staff.mjs", "./import-deputy.mjs", "./import-shifts.mjs", "./import-square.mjs", "./import-staff.mjs", "./import-wheniwork.mjs", "./licence.mjs", "./staffpack.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./checkout.mjs", "./licence.mjs", "./staffpack.mjs", "./usage.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
   // calc.mjs may import its own sibling modules (bnp.mjs), never anything remote or bare.
   for (const m of page("calc.mjs").matchAll(/^\s*import\s.*?from\s+"([^"]+)"/gm)) assert.match(m[1], /^\.\/[\w-]+\.mjs$/, m[1]);
@@ -59,6 +59,23 @@ test("the module scripts import only local files, and the inline script parses",
   assert.doesNotMatch(page("bnp.mjs"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|import\(/);
   const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
   assert.doesNotThrow(() => new Function(src.replace(/^\s*import .*$/gm, "")));
+});
+
+test("the file importers load on demand, and every name the handlers take is exported by one of them", async () => {
+  const html = page("index.html");
+  const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
+  // No importer is in the page's static graph (the Pages build preloads that graph).
+  assert.doesNotMatch(src, /^\s*import\s.*from\s+"\.\/import-/m);
+  const loaders = {};
+  for (const m of src.matchAll(/const (\w+) = onDemand\(\(\) => Promise\.all\(\[([^\]]+)\]\)/g)) loaders[m[1]] = [...m[2].matchAll(/import\("([^"]+)"\)/g)].map((x) => x[1]);
+  assert.deepEqual(Object.keys(loaders).sort(), ["shiftImporters", "staffImporters"]);
+  for (const [name, files] of Object.entries(loaders)) {
+    const exported = new Set();
+    for (const f of files) for (const k of Object.keys(await import(f))) exported.add(k);
+    const uses = [...src.matchAll(new RegExp(`m = await ${name}\\(\\);[^\\n]*\\n\\s*const \\{ ([^}]+) \\} = m;`, "g"))];
+    assert.equal(uses.length, 1, name);
+    for (const n of uses[0][1].split(",").map((x) => x.trim())) assert.ok(exported.has(n), `${name} lacks ${n}`);
+  }
 });
 
 test("every name the inline script imports is exported by calc.mjs", async () => {

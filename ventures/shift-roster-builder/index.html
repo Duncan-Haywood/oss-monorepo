@@ -332,13 +332,6 @@
   </footer>
 
   <script type="module">
-    import { importStaffCsv } from "./import-staff.mjs";
-    import { importShiftsCsv } from "./import-shifts.mjs";
-    import { import7shifts, import7shiftsStaff } from "./import-7shifts.mjs";
-    import { importWhenIWork, looksLikeWhenIWork } from "./import-wheniwork.mjs";
-    import { importSquare, looksLikeSquare } from "./import-square.mjs";
-    import { importDeputy, looksLikeDeputy } from "./import-deputy.mjs";
-    import { importDeputyStaff, looksLikeDeputyStaff } from "./import-deputy-staff.mjs";
     import { staffPackHtml } from "./staffpack.mjs";
     import { buyLink, checkLicence } from "./licence.mjs";
     import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
@@ -347,6 +340,14 @@
 
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
+    // The seven file importers (about 46 kB gzip) load on the first file a visitor picks, not with the page: most visits
+    // type or load the example. Memoised; a failed load clears the memo so the next pick retries.
+    const onDemand = (load) => { let p = null; return () => (p ??= load().catch((e) => { p = null; throw e; })); };
+    const staffImporters = onDemand(() => Promise.all([import("./import-staff.mjs"), import("./import-7shifts.mjs"), import("./import-deputy-staff.mjs")])
+      .then(([a, b, c]) => ({ ...a, ...b, ...c })));
+    const shiftImporters = onDemand(() => Promise.all([import("./import-shifts.mjs"), import("./import-7shifts.mjs"), import("./import-wheniwork.mjs"), import("./import-square.mjs"), import("./import-deputy.mjs")])
+      .then((ms) => Object.assign({}, ...ms)));
+    const importerFailed = () => { status.textContent = "Could not load the importer. Check your connection and pick the file again."; };
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const val = (id, d) => { const t = $("#" + id).value.trim(); return t === "" ? d : Number(t); };
     let last = null, lastIn = null;
@@ -786,7 +787,9 @@
       // Saved Deputy JSON (Employee, EmployeeAgreement, EmployeeWorkplace, Company; EmployeeAvailability and Leave become dated
       // off: cells when a week is picked), saved 7shifts JSON (users, roles,
       // locations, each user's assignments and wages) or a staff CSV.
-      Promise.all(fs.map((x) => x.text())).then((texts) => {
+      Promise.all(fs.map((x) => x.text())).then(async (texts) => {
+        let m; try { m = await staffImporters(); } catch { importerFailed(); return; }
+        const { importStaffCsv, import7shiftsStaff, importDeputyStaff, looksLikeDeputyStaff } = m;
         const f = { name: fs.length === 1 ? fs[0].name : `${fs.length} files` };
         const json = texts.every((t) => /^\s*[[{]/.test(t.replace(/^\uFEFF/, "")));
         const r = json ? (looksLikeDeputyStaff(texts) ? importDeputyStaff : import7shiftsStaff)(texts, $("#weekstart").value ? { week: $("#weekstart").value } : {}) : importStaffCsv(texts[0]); if (r.rows) { $("#staff").value = r.staffText; persist(); } status.textContent = r.rows ? `Imported ${r.rows} ${r.rows === 1 ? "person" : "people"} from ${f.name}. ${r.notes.join(" ")}${r.skipped.length ? " Skipped: " + r.skipped.join("; ") + "." : ""}` : r.notes.join(" ");
@@ -796,8 +799,10 @@
     // gets two pickers; the file stays in memory only, so changing a picker re-reads it without another upload.
     let shiftsFile = null;
     const famLabel = { schedule: "rostered shifts", final: "final shifts", "": "shifts", initial: "first-published shifts", timesheet: "worked times (timesheets)" };
-    const runShiftsImport = () => {
+    const runShiftsImport = async () => {
       if (!shiftsFile) return;
+      let m; try { m = await shiftImporters(); } catch { importerFailed(); return; }
+      const { importShiftsCsv, import7shifts, importWhenIWork, looksLikeWhenIWork, importSquare, looksLikeSquare, importDeputy, looksLikeDeputy } = m;
       const loc = $("#import-shifts-loc").value, use = $("#import-shifts-use").value;
       // Saved Deputy, Square, When I Work or 7shifts API responses are JSON (told apart by their fields; Deputy first, by its
       // capitalised StartTime, then Square since its
@@ -813,12 +818,13 @@
     };
     $("#import-shifts-file").addEventListener("change", (e) => {
       const files = [...e.target.files]; if (!files.length) return;
-      Promise.all(files.map((f) => f.text())).then((texts) => {
+      Promise.all(files.map((f) => f.text())).then(async (texts) => {
         const json = texts.every((t) => /^\s*[{[]/.test(t));
         shiftsFile = { name: files.map((f) => f.name).join(", "), text: texts[0], texts, json };
         $("#import-shifts-loc").value = ""; $("#import-shifts-use").value = "";
         fillPick($("#import-shifts-loc"), [], ""); fillPick($("#import-shifts-use"), [], "");
-        const r = runShiftsImport();
+        const r = await runShiftsImport();
+        if (!r) return;
         fillPick($("#import-shifts-loc"), [["", `All ${r.locations.length} locations as one`], ...r.locations.map((l) => [l.name, `${l.name} (${l.rows} rows)`])], "");
         fillPick($("#import-shifts-use"), r.families.map((x, i) => [i === 0 ? "" : x === "" ? "plain" : x, famLabel[x]]), "");
         $("#import-shifts-loc").hidden = $("#import-shifts-loc").previousElementSibling.hidden = r.locations.length < 2;
