@@ -2,7 +2,7 @@
 // platforms wrote it (AdSense, Airbnb, Amazon, eBay, Etsy, Fiverr, Gumroad, KDP, Ko-fi/Buy Me a Coffee/Teachable, Paddle, Patreon/Lemon Squeezy, PayPal, Shopify, Square, Stripe, Upwork) by running each
 // platform's own reader over it and keeping the one that understands the most rows, then hands back
 // that engine's journals. The readers are unmodified copies of the per-platform tools in this
-// portfolio, so a fix to one is a copy away from the hub; detect.test.mjs feeds every engine's own
+// portfolio, kept byte-identical by sync-engines.mjs (engines.test.mjs fails on drift); detect.test.mjs feeds every engine's own
 // sample report to the hub and fails if the wrong platform wins.
 import * as adsense from "./engines/adsense.mjs";
 import * as airbnb from "./engines/airbnb.mjs";
