@@ -160,15 +160,21 @@
 </main>
 <script type="module">
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
-  import { csvReport } from "./report.mjs";
-  import { htmlReport } from "./html-report.mjs";
-  import { bcfZip } from "./bcf.mjs";
-  import { fixStructure } from "./fix.mjs";
-  import { suggestBsddLinks, addBsddLinks } from "./bsdd-suggest.mjs";
   import { isZip, unzipModel, inflateRawStream } from "./zip.mjs";
-  import { sheetFromIds, rowsToXlsx, rowsToCsv, sheetLists, sheetVersions } from "./sheet.mjs";
-  import { readRequirementSheet, idsToExcel2Ids, excel2IdsToXlsx } from "./excel2ids.mjs";
-  import { docFromIds, docToMarkdown, docToHtml, classNamesFrom } from "./spec-doc.mjs";
+  // Everything below runs only after a file is chosen or a button pressed, so
+  // it loads then: a first visit fetched 164 kB gzip of modules (the IDS
+  // parser and four model readers among them, which the worker loads for
+  // itself) before the page could respond; now 3 kB
+  // (docs/history/ids-model-check-page-perf-2026-11-25.md).
+  const lazy = (load) => { let p; return () => (p ||= load()); };
+  const reportMod = lazy(() => import("./report.mjs"));
+  const htmlReportMod = lazy(() => import("./html-report.mjs"));
+  const bcfMod = lazy(() => import("./bcf.mjs"));
+  const fixMod = lazy(() => import("./fix.mjs"));
+  const bsddMod = lazy(() => import("./bsdd-suggest.mjs"));
+  const sheetMod = lazy(() => import("./sheet.mjs"));
+  const excel2idsMod = lazy(() => import("./excel2ids.mjs"));
+  const specDocMod = lazy(() => import("./spec-doc.mjs"));
 
   const $ = (id) => document.getElementById(id);
   const state = { ifc: null, ifcName: null, ids: null, idsName: null, report: null };
@@ -192,6 +198,7 @@
         // A spreadsheet of an IDS: one row per facet (sheet.mjs), or an
         // Excel2IDS requirement matrix (excel2ids.mjs, one IDS per purpose);
         // written into IDS 1.0 here.
+        const { readRequirementSheet } = await excel2idsMod();
         const sh = await readRequirementSheet(bytes, inflateRawStream);
         const good = sh.files.filter((f) => f.text);
         if (!good.length) {
@@ -321,10 +328,14 @@
     $("out").innerHTML = "";
     worker ||= new Worker(new URL("./worker.mjs", import.meta.url), { type: "module" });
     const req = ++reqNo;
-    worker.onmessage = (ev) => {
+    worker.onmessage = async (ev) => {
       if (ev.data.req !== req) return;
       ready();
       if (ev.data.error) { $("status").textContent = "Could not audit: " + ev.data.error; record("check_error"); return; }
+      const [{ fixStructure }, { sheetFromIds, rowsToXlsx, rowsToCsv, sheetLists, sheetVersions }] = await Promise.all([fixMod(), sheetMod()])
+        .catch((e) => { $("status").textContent = "Could not load the audit's report code: " + e.message; throw e; });
+      // A newer check or audit started while these loaded: its reply owns the page.
+      if (req !== reqNo) return;
       const a = ev.data.audit;
       $("status").textContent = `Audited in ${a.seconds.toFixed(2)} s.`;
       record("ids_audited");
@@ -372,13 +383,15 @@
           let classNames = {};
           try {
             const get = (f) => fetch("./schema/" + f).then((r) => { if (!r.ok) throw new Error(f); return r.json(); });
+            const { classNamesFrom } = await specDocMod();
             classNames = classNamesFrom(await Promise.all(["ifc2x3.json", "ifc4.json", "ifc4x3.json"].map(get)));
           } catch { /* class names stay as the IDS writes them */ }
           const fixedNow = fixStructure(state.ids);
+          const { docFromIds } = await specDocMod();
           return docFromIds(!fixedNow.error && fixedNow.fixes.length ? fixedNow.text : state.ids, { classNames });
         };
-        $("dl-doc-html").onclick = async () => { record("doc_downloaded_html"); download(docBase + "-requirements.html", docToHtml(await makeDoc()), "text/html"); };
-        $("dl-doc-md").onclick = async () => { record("doc_downloaded_md"); download(docBase + "-requirements.md", docToMarkdown(await makeDoc()), "text/markdown"); };
+        $("dl-doc-html").onclick = async () => { record("doc_downloaded_html"); const doc = await makeDoc(); const { docToHtml } = await specDocMod(); download(docBase + "-requirements.html", docToHtml(doc), "text/html"); };
+        $("dl-doc-md").onclick = async () => { record("doc_downloaded_md"); const doc = await makeDoc(); const { docToMarkdown } = await specDocMod(); download(docBase + "-requirements.md", docToMarkdown(doc), "text/markdown"); };
       }
       if (sheet) {
         const base = (state.idsName || "spec.ids").replace(/(\.ids|\.xml)+$/i, "");
@@ -397,8 +410,9 @@
         };
         $("dl-sheet-csv").onclick = () => { record("sheet_downloaded_csv"); download(base + "-ids.csv", rowsToCsv(sheet.rows), "text/csv"); };
         // The Excel2IDS template layout (excel2ids.mjs): categories in columns, an X per requirement.
-        $("dl-excel2ids").onclick = () => {
+        $("dl-excel2ids").onclick = async () => {
           record("excel2ids_downloaded");
+          const { idsToExcel2Ids, excel2IdsToXlsx } = await excel2idsMod();
           const fixedNow = fixStructure(state.ids);
           const w = idsToExcel2Ids(!fixedNow.error && fixedNow.fixes.length ? fixedNow.text : state.ids);
           $("excel2ids-note").textContent = (w.tool.length ? ` ${w.tool.join("; ")}.` : "") + (w.notes.length ? ` ${w.kept} of ${w.total} specification(s) fit the Excel2IDS template; left out: ${w.notes.slice(0, 3).join("; ")}${w.notes.length > 3 ? `; ${w.notes.length - 3} more` : ""}.` : ` All ${w.total} specification(s) fit the template.`);
@@ -430,6 +444,7 @@
     let list;
     try {
       psets43 = psets43 || await fetch("./schema/psets-ifc4x3.json").then((r) => r.json());
+      const { suggestBsddLinks } = await bsddMod();
       list = suggestBsddLinks(idsText, { psets: psets43 });
     } catch { return; }
     if (!list.length || state.ids !== idsText) return;
@@ -441,6 +456,7 @@
     b += `</ul><div class="row"><button class="ghost" id="dl-bsdd" type="button">Download IDS with bSDD links</button></div></div>`;
     d.innerHTML = b;
     $("out").appendChild(d);
+    const { addBsddLinks } = await bsddMod();
     $("dl-bsdd").onclick = () => { record("ids_bsdd_linked_downloaded"); download((state.idsName || "spec.ids").replace(/(\.ids|\.xml)*$/i, "-bsdd.ids"), addBsddLinks(idsText, list), "application/xml"); };
   }
   // What the ifcXML writer's stats say, as lines for the page.
@@ -577,9 +593,9 @@
       };
     }
     const base = (state.ifcName || "model").replace(/\.(ifc|ifcxml|ifczip|ifcjson|json|xml|zip)$/i, "");
-    $("dl-bcf").onclick = () => { record("bcf_downloaded"); download(base + "-ids.bcfzip", bcfZip(r, { modelName: state.ifcName }), "application/octet-stream"); };
-    $("dl-html").onclick = () => { record("html_report_downloaded"); download(base + "-ids-report.html", htmlReport(r, { modelName: state.ifcName, idsName: state.idsName }), "text/html"); };
-    $("dl-csv").onclick = () => { record("csv_downloaded"); download(base + "-ids.csv", csvReport(r), "text/csv"); };
+    $("dl-bcf").onclick = async () => { record("bcf_downloaded"); const { bcfZip } = await bcfMod(); download(base + "-ids.bcfzip", bcfZip(r, { modelName: state.ifcName }), "application/octet-stream"); };
+    $("dl-html").onclick = async () => { record("html_report_downloaded"); const { htmlReport } = await htmlReportMod(); download(base + "-ids-report.html", htmlReport(r, { modelName: state.ifcName, idsName: state.idsName }), "text/html"); };
+    $("dl-csv").onclick = async () => { record("csv_downloaded"); const { csvReport } = await reportMod(); download(base + "-ids.csv", csvReport(r), "text/csv"); };
     $("dl-json").onclick = () => { record("json_downloaded"); download(base + "-ids.json", JSON.stringify(r, null, 2), "application/json"); };
   }
 
