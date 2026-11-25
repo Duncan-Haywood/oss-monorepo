@@ -73,3 +73,28 @@ prints a warning first rather than starting silently.
 
 The code is in `portfolio/ledger/supersede_check.py`, with tests in
 `portfolio/ledger/test_supersede_check.py` (4 new tests).
+
+## Update, 2026-11-25: the slug check's first call, and a test that never ran
+
+The other duplicate check, `platform/ci/slug_dupe.py <slug>`, learned this
+week to refresh `origin/main` before it looks (PR #19047), because a run had
+checked a stale ref and missed a sibling's merge. The refresh asked for the
+full 14-day window in one fetch. In a fresh cloud clone that took 49 s
+(919 to 4,325 commits; a repeat call took 6 s), and two sessions on the same
+day reported it timing out at 60 s and skipped the check.
+
+The refresh is now two steps. First the tip, fetching only commits newer than
+the history the clone already holds; that is the part that catches a sibling
+merged ten minutes ago. Then the deepen to `--days`, bounded by `--budget`
+(30 s by default; `0` removes the limit). When the budget runs out, git
+discards the half-done fetch, the clone keeps what it had, and the tool says
+how far back it actually searched instead of implying 14 days. Forced with
+`--days 20 --budget 3` here: 9.6 s, with the window printed.
+
+While adding tests I found that PR #19047's own test for the refresh had never
+run. It was indented under `if __name__ == "__main__": unittest.main()`, so
+it was a function defined inside the main guard, which neither unittest nor
+pytest collects, and the suite printed OK without it. It now sits in the test
+class and passes. `platform/ci/check_uncollected_tests.py` now also fails on
+any test defined under the main guard in the repository's 2,499 tracked test
+files. This was the only one, and the check takes 3.4 s.

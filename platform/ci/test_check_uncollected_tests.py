@@ -50,5 +50,19 @@ class UncollectedTestsTest(unittest.TestCase):
         self.assertEqual(cut.bare_tests(self.root / "broken" / "test_e.py"), [])
 
 
+
+class GuardedTestsTest(unittest.TestCase):
+    def test_flags_tests_under_the_main_guard_only(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "test_g.py"
+            p.write_text(CASE + "\n\nif HAVE_X:\n    class U(unittest.TestCase):\n"
+                         "        def test_ok(self):\n            pass\n"
+                         "\n\nif __name__ == \"__main__\":\n    unittest.main()\n\n"
+                         "    def test_dead(self):\n        pass\n")
+            self.assertEqual(cut.guarded_tests(p), ["test_dead"])
+            (Path(d) / "test_bad.py").write_text("def test_(:\n")
+            self.assertEqual(cut.guarded_tests(Path(d) / "test_bad.py"), [])
+
+
 if __name__ == "__main__":
     unittest.main()

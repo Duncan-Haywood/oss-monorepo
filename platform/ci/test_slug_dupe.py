@@ -144,10 +144,6 @@ class T(unittest.TestCase):
     def test_unknown(self):
         self.assertEqual(slug_dupe.check("nope-zzz"), (False, [], []))
 
-
-if __name__ == "__main__":
-    unittest.main()
-
     def test_refreshes_stale_origin_main_first(self):
         # A sibling merges after this clone last fetched: the local origin/main
         # cannot see it, so only the refresh catches the duplicate.
@@ -162,3 +158,42 @@ if __name__ == "__main__":
         with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
             self.assertEqual(slug_dupe.main(["late-tool", "--no-fetch"]), 0)
             self.assertEqual(slug_dupe.main(["late-tool"]), 1)
+
+
+    def test_deepen_timeout_still_refreshes_tip_and_names_window(self):
+        # The tip fetch (days=0) must happen even when the deepen runs out of budget,
+        # and the note must say the window was cut rather than claim --days.
+        import contextlib, io
+        calls = []
+        orig_fetch, orig_shallow = slug_dupe.fetch_ref.fetch_ref, slug_dupe.fetch_ref.is_shallow
+
+        def fake(ref, remote, days, cwd, out, timeout=None):
+            calls.append((days, timeout))
+            if days:
+                raise subprocess.TimeoutExpired("git fetch", timeout)
+            return 0
+        slug_dupe.fetch_ref.fetch_ref, slug_dupe.fetch_ref.is_shallow = fake, lambda cwd: True
+        err = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
+                self.assertEqual(slug_dupe.main(["foo-calc", "--days", "100000", "--budget", "5"]), 1)
+        finally:
+            slug_dupe.fetch_ref.fetch_ref, slug_dupe.fetch_ref.is_shallow = orig_fetch, orig_shallow
+        self.assertEqual(calls, [(0, None), (100000, 5)])
+        self.assertIn("searched back to", err.getvalue())
+
+    def test_full_clone_skips_the_deepen(self):
+        import contextlib, io
+        calls = []
+        orig = slug_dupe.fetch_ref.fetch_ref
+        slug_dupe.fetch_ref.fetch_ref = lambda ref, remote, days, cwd, out, timeout=None: calls.append(days) or 0
+        try:
+            with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                slug_dupe.main(["nope-zzz"])
+        finally:
+            slug_dupe.fetch_ref.fetch_ref = orig
+        self.assertEqual(calls, [0])  # the test clone is not shallow
+
+
+if __name__ == "__main__":
+    unittest.main()
