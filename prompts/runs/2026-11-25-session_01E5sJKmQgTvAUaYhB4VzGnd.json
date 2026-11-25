@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKmQgTvAUaYhB4VzGnd",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T14:11:26Z",
+  "ended": "2026-11-25T14:22:30Z",
+  "wall_minutes": 11.57,
+  "tokens_in": 9033870,
+  "tokens_out": 41290,
+  "cost_usd": 3.752,
+  "tool_calls": 78,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18996",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Built 'QuickBooks item per job' in full (private branch payapps-qbo-job-item); PR 113 from a parallel run merged the same item 2 minutes after this run read the open PRs, so it was dropped unmerged. Deleting that remote branch was refused by the proxy (remote end hung up)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "The private-monorepo clone worked first time with add_repo access push, as documented. The parallel-run collision guidance (check open AND just-merged PRs) still lost a full feature, because runs pick the top ROADMAP item within minutes of each other. A claim step (open a draft PR before building) would prevent it."
+    },
+    {
+      "file": "apps/payapps/ROADMAP.md (private)",
+      "issue": "'Getting started, part 4' asked for a switch 'on the account page', but no account settings page exists."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "apps/payapps/ROADMAP.md (private)",
+      "why": "there is no account page",
+      "did": "put the reminder switch under the Getting started checklist on the Projects page, shown only to owners",
+      "result": "shipped in private PR 116"
+    },
+    {
+      "file": "prompt.md",
+      "why": "the duplicate feature PR was dropped, and the branch delete was refused",
+      "did": "left branch payapps-qbo-job-item on the private remote",
+      "result": "stray branch remains; noted in the agent doc"
+    }
+  ],
+  "writeups": [
+    "docs/reports/ventures-2026-11-25-payapps-no-job-reminder.md (extended with the private PR 116 update)"
+  ],
+  "goal": null,
+  "notes": "Private PR 116 merged. Local CI from payapps-ci.yml: biome ci (1 older warning), typecheck, unit 397/397, worker 242/242, build, drizzle check and no drift. No customer blog post: an internal settings switch is not post material (goals.md, Write about the work).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f3803759-82c6-5501-a282-481bd8e64cab",
+    "transcripts": 1,
+    "first": "2026-11-25T14:11:26Z",
+    "last": "2026-11-25T14:23:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 74,
+        "input": 142,
+        "output": 41290,
+        "thinking": 3892,
+        "cache_read": 8890281,
+        "cache_write_5m": 0,
+        "cache_write_1h": 143447,
+        "api_equivalent_usd": 3.752,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 74,
+      "input": 142,
+      "output": 41290,
+      "thinking": 3892,
+      "cache_read": 8890281,
+      "cache_write_5m": 0,
+      "cache_write_1h": 143447,
+      "api_equivalent_usd": 3.752,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 78,
+    "tools": {
+      "Bash": 68,
+      "mcp__github__list_pull_requests": 4,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.57,
+      "active_minutes": 11.57,
+      "model_minutes": 7.43,
+      "tool_minutes": 4.14,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a senior engineer: the per-job QuickBooks item (dropped) plus the reminder switch with its tests and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 159.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
