@@ -385,6 +385,28 @@ on its list don't exist in the app, so it had been measuring the "Page not found
 reporting it as fine. The new test fails when a page doesn't load, and it now measures the
 spreadsheet-import panel by opening it on the rate card.
 
+## Routing suggestions now see 6061 bar and 6061 plate as the same alloy
+
+When an estimator opens a quote line, the quoter suggests up to three of the shop's saved
+routings. Each suggestion is based on the shop's own earlier lines, and it says so ("Used on 3
+earlier lines in Aluminum 6061-T6 plate (2 won)"). Before this change it only counted lines in
+the exact same rate-card row. Most shops keep one row per stock form, though. A routing used
+ten times on "6061 bar 1 in" got no credit on a line in "6061-T6 plate 0.5 in", even though
+both are the same aluminium, cut the same way.
+
+Private-monorepo PR #189 reads the alloy family from each row's name. The quoter takes the first
+numbered grade that isn't a size: 6061, 304 (from 304L), 17-4, A36, C360 or D2. A temper such as
+-T651 is dropped, and decimals, fractions, "2x4" and numbers followed by a unit are treated as
+sizes. A name with no number keeps its own words, minus words like "rod" or "plate": "Delrin
+rod" and "Delrin plate" are both "delrin". There are no synonym lists, so "acetal" stays apart
+from "Delrin". A row like "Alloy 20 bar" gets no family, because the number alone doesn't say
+which alloy it is. Leaving a family out costs one weak hint. Guessing one wrong would mean
+suggesting a 303 stainless routing for 304. The scores rank a same-family line between a
+same-row line and a line in some other material, and the reason names the alloy: "Used on 2
+earlier lines in other 6061 stock (1 won)". Old lines in retired rows still count. Eight new
+tests cover the name reading, the scoring and a retired 6061 bar row; the job-shop unit suite
+(310 tests) passes locally.
+
 ## Next
 
 The next item on the flagship list (milestone 3) is reading tolerances, material and finish from
