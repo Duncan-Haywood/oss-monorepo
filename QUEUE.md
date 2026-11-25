@@ -5,15 +5,15 @@ Open code-scanning alerts, most severe then oldest first. Generated hourly by
 do not edit by hand. Take the first one whose claim branch
 (`security-fix/code-scanning-<n>`) does not exist; its file says how.
 
-Scanned commit: `5f857bb81c00` (the commit most open alerts were last seen on). Fixes merged after it are still listed until CodeQL finishes on a newer main: `git diff --stat 5f857bb81c00 origin/main -- <path>` before fixing (each alert file says how).
+Scanned commit: `8e093a6fe6a3` (the commit most open alerts were last seen on). Fixes merged after it are still listed until CodeQL finishes on a newer main: `git diff --stat 8e093a6fe6a3 origin/main -- <path>` before fixing (each alert file says how).
 
-- [high] #7 `py/clear-text-storage-sensitive-data` in `platform/security/risk_review.py:457`: alerts/7.md
+- [high] #7 `py/clear-text-storage-sensitive-data` in `platform/security/risk_review.py:490`: alerts/7.md
 - [high] #12 `py/clear-text-logging-sensitive-data` in `platform/ci/secrets_inventory.py:261`: alerts/12.md
 - [high] #34 `py/clear-text-logging-sensitive-data` in `ventures/einvoice-preflight/src/einvoice_preflight/cli.py:853`: alerts/34.md
 - [high] #38 `py/clear-text-logging-sensitive-data` in `portfolio/monetization/monetization.py:323`: alerts/38.md
 - [high] #39 `py/clear-text-logging-sensitive-data` in `portfolio/monetization/monetization.py:331`: alerts/39.md
-- [high] #42 `py/clear-text-logging-sensitive-data` in `platform/security/risk_review.py:451`: alerts/42.md
-- [high] #43 `py/clear-text-logging-sensitive-data` in `platform/security/risk_review.py:458`: alerts/43.md
+- [high] #42 `py/clear-text-logging-sensitive-data` in `platform/security/risk_review.py:484`: alerts/42.md
+- [high] #43 `py/clear-text-logging-sensitive-data` in `platform/security/risk_review.py:491`: alerts/43.md
 - [high] #65 `js/incomplete-sanitization` in `ventures/pay-app-guides/template.test.mjs:62`: alerts/65.md
 - [high] #104 `js/regex-injection` in `platform/ci/copy_drift.mjs:189`: alerts/104.md
 - [high] #105 `js/regex-injection` in `platform/ci/copy_drift.mjs:190`: alerts/105.md
@@ -27,7 +27,7 @@ Scanned commit: `5f857bb81c00` (the commit most open alerts were last seen on). 
 - [high] #960 `js/xss-through-dom` in `ventures/quick-pick-survey/site/rank.html:461`: alerts/960.md
 - [high] #968 `js/xss-through-dom` in `ventures/shed-designer/hoa-page.mjs:59`: alerts/968.md
 - [high] #969 `js/xss-through-dom` in `ventures/silence-cutter/index.html:258`: alerts/969.md
-- [high] #1049 `js/incomplete-url-substring-sanitization` in `platform/pages/check.mjs:1466`: alerts/1049.md
+- [high] #1049 `js/incomplete-url-substring-sanitization` in `platform/pages/check.mjs:1470`: alerts/1049.md
 - [high] #1050 `js/incomplete-url-substring-sanitization` in `platform/pages/custom-domain.test.mjs:151`: alerts/1050.md
 - [high] #1086 `js/disabling-certificate-validation` in `ventures/status-keeper/certs.mjs:12`: alerts/1086.md
 - [high] #1181 `js/redos` in `ventures/regex-redos-check/cli.test.mjs:81`: alerts/1181.md
