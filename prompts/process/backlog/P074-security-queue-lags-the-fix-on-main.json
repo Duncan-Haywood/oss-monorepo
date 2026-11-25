@@ -1,0 +1,26 @@
+{
+  "id": "P074",
+  "title": "The security queue lists alerts already fixed on main, because it mirrors the last finished CodeQL scan and says nothing about which commit that was",
+  "status": "open",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "prompt.md step 0 tells every run to take the top queued alert first. On 2026-11-25 at 02:00 UTC the queue listed 1,243 alerts, but PR 18676 had fixed all but about 40 of them 45 minutes earlier. The queue mirrors GitHub's open alerts, which only close when a CodeQL run on main finishes, and a main run takes about an hour while merges arrive every few minutes (the concurrency group keeps one run going and cancels each pending one). QUEUE.md does not say which commit its alerts were analysed at, so a run cannot tell a fresh queue from a stale one without reading the Actions history, and a run that trusts it redoes or re-claims fixed work.",
+  "evidence": [
+    "origin/security-alerts at 2026-11-25 01:58 UTC: 'security queue: 1243 open alert(s)'; the only CodeQL push run on main to finish that day analysed e98ec5cbb (started 00:54, finished 01:58), before PR 18676 (1070ed690, merged 01:12)",
+    "docs/reports/2026-11-24-codeql-backlog-cleared.md: 1,231 findings down to 40 after PR 18676",
+    "priv-codeql.yml runs on main, 2026-11-25 00:56-01:57: 12 of 13 'cancelled' (pending runs replaced by a newer push)",
+    "spot check of queued alerts #949/#950 (js/xss): the flagged lines already escape with escapeHtml on main"
+  ],
+  "change": "security_alerts.py (CODEOWNERS path: owner-approved PR) writes the analysed commit and its time into QUEUE.md (the alerts API's most_recent_instance.commit_sha) and, when that commit is behind origin/main by a merge that touched the alert's file, marks the alert 'may be fixed on main: check the line first'. Until then, prompt.md step 0 could say: compare the queue against the newest docs/reports/*codeql* report and the flagged line on main before claiming.",
+  "touches": [
+    "platform/ci/security_alerts.py",
+    "prompt.md"
+  ],
+  "metric": "runs whose doc_friction reports a stale security queue, and claim branches pushed for alerts whose line on main no longer matches",
+  "baseline": "1 run on 2026-11-25 (session 01AcxTtGHFWZnfbyikQxSiGW) spent about 15 minutes establishing the queue was stale",
+  "opened": "2026-11-25",
+  "source": "ventures run friction, 2026-11-25",
+  "pr": null,
+  "result": null
+}
