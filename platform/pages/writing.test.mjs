@@ -508,7 +508,7 @@ test('a long "Claim: detail" headline with no seo_title gets the clean cut autom
 });
 
 // Paging: one index page of every post was 2.3 MB (site-perf-paginate-indexes).
-import { PAGE_SIZE, renderPostRows } from './writing.mjs';
+import { PAGE_SIZE, renderPostRows, topicLabel } from './writing.mjs';
 
 function manyPosts(n) {
   const files = {};
@@ -549,7 +549,7 @@ test('an index over PAGE_SIZE posts lists the newest page, pages the rest, and e
   assert.match(second, /rel="next" href="\.\.\/\.\.\/page\/3\/"/);
   const rows = JSON.parse(await fs.readFile(path.join(dir, 'posts.json'), 'utf8'));
   assert.equal(rows.length, n);
-  assert.equal(rows[0].length, 9);
+  assert.equal(rows[0].length, 7);
   assert.ok(first.length < 150_000);
 });
 
@@ -568,12 +568,13 @@ test('a post may not take the slug "page", which holds the numbered index pages'
   assert.throws(() => loadPosts(root), /page/);
 });
 
-test('posts.json rows are the finder cards: slug, title, description, date, minutes, topic, label, tags, text', () => {
+test('posts.json rows are the finder cards: slug, title, description, date, minutes, topic, tags', () => {
   const rows = JSON.parse(renderPostRows(loadPosts(repoWith({ '2026-10-01-a.md': post('A', '2026-10-01') }))));
+  assert.equal(rows[0].length, 7);
   assert.equal(rows[0][0], 'a');
   assert.equal(rows[0][1], 'A');
   assert.equal(rows[0][3], '2026-10-01');
-  assert.match(rows[0][7], /agents/);
+  assert.match(rows[0][6], /agents/);
 });
 
 test('reading time rounds words / 230 to the nearest minute (exactly 345 words is 2, not 1)', () => {
@@ -915,6 +916,56 @@ test('finder: a search over posts.json renders each card with its date and readi
   assert.equal(card.dataset.topic, 'agents');
   const meta = text(card.children[2]);
   assert.match(meta, /5 March 2026 · 7 min read/);
+});
+
+// Runs the index's finder script against a fake DOM, answering posts.json with `rows`, and
+// returns the cards it rendered for `?q=<query>`.
+async function finderCards(rows, query) {
+  const root = repoWith({ '2026-10-16-hello.md': post('Hello', '2026-10-16') });
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-finder-rows-'));
+  await buildWriting(out, BASE, { root });
+  const index = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
+  const script = [...index.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\b[^>]*>/gi)].map((m) => m[1]).find((s) => s.includes("getElementById('posts')"));
+  const node = (tag) => ({ tag, dataset: {}, children: [], textContent: '', hidden: false, appendChild(c) { this.children.push(c); } });
+  const el = () => ({ value: '', hidden: true, textContent: '', dataset: {}, addEventListener() {}, setAttribute() {}, focus() {} });
+  let shown = [];
+  const list = { dataset: { all: 'posts.json', total: String(rows.length) }, children: [], appendChild() {}, replaceChildren(...xs) { shown = xs; } };
+  const els = { posts: list, q: el(), tag: { ...el(), selectedIndex: 0 }, sort: el(), count: el(), none: el(), clear: el(), finder: el(), pager: el() };
+  vm.runInNewContext(script, {
+    document: { getElementById: (id) => els[id], querySelectorAll: () => [], createElement: node, createTextNode: (t) => ({ tag: '#text', textContent: t }) },
+    location: { search: `?q=${encodeURIComponent(query)}`, pathname: '/writing/' }, history: { replaceState() {} },
+    fetch: (url) => Promise.resolve({ ok: true, json: () => (url === 'posts.json' ? rows : {}) }),
+    URLSearchParams, Array, String, Number, Date, Boolean, Object,
+  });
+  for (let i = 0; i < 10 && !shown.length; i++) await new Promise((r) => setImmediate(r));
+  return shown;
+}
+
+test('finder: a seven-column row rebuilds the same card text, tags and topic label the build wrote before (2026-11-25)', async () => {
+  const posts = [
+    { slug: 'a', title: 'Retainage  In\tQuickBooks', description: 'How to  bill it.\nTwo lines', date: '2026-11-01', minutes: 3, topic: 'business', tags: ['pay-application-generator', 'retainage'] },
+    { slug: 'b', title: 'Écoute', description: '', date: '2026-11-02', minutes: 1, topic: 'agents', tags: [] },
+    { slug: 'c', title: 'Unknown topic', description: 'd', date: '2026-11-03', minutes: 2, topic: 'no-such-topic', tags: ['x'] },
+  ];
+  // What the nine-column file held for each post, rebuilt from the pre-2026-11-25 formula.
+  const oldText = (p) => [p.title, p.description, p.tags.join(' '), topicLabel(p.topic)].join(' ').toLowerCase().replace(/\s+/g, ' ');
+  const rows = JSON.parse(renderPostRows(posts));
+  const cards = await finderCards(rows, 'e');
+  assert.equal(cards.length, 3);
+  cards.forEach((card, i) => {
+    assert.equal(card.dataset.text, oldText(posts[i]), posts[i].slug);
+    assert.equal(card.dataset.tags, posts[i].tags.join(' '));
+    assert.equal(card.dataset.topic, posts[i].topic);
+    assert.equal(card.children[2].children[0].textContent, topicLabel(posts[i].topic));
+  });
+});
+
+test('finder: a nine-column row from an older posts.json still renders its card', async () => {
+  const old = [['deep', 'Deep', 'D', '2026-03-05', 7, 'agents', 'Agents label', 'a b', 'deep d a b agents label']];
+  const [card] = await finderCards(old, 'deep');
+  assert.equal(card.dataset.text, 'deep d a b agents label');
+  assert.equal(card.dataset.tags, 'a b');
+  assert.equal(card.children[2].children[0].textContent, 'Agents label');
 });
 
 test('posts for a paid product line\'s customers lead the blog as "For your business" (2026-11-25)', async () => {

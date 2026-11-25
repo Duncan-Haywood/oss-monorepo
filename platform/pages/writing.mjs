@@ -701,6 +701,8 @@ const FINDER_SCRIPT = `(() => {
   let topic = chips.some((c) => c.dataset.topicChip === params.get('topic')) ? params.get('topic') : '';
   let full = null, loading = null;
   const bodyMatcher = ${bodyMatcher.toString()};
+  const cardTextOf = ${cardTextOf.toString()};
+  const labels = ${JSON.stringify(Object.fromEntries(TOPICS.map((t) => [t.id, t.label])))};
   q.value = params.get('q') || '';
   tag.value = params.get('tag') || '';
   if (tag.selectedIndex < 0) tag.value = '';
@@ -716,14 +718,18 @@ const FINDER_SCRIPT = `(() => {
   }
   function card(r) {
     const li = document.createElement('li');
+    // Rows are [slug, title, description, date, minutes, topic, tags]; a nine-column row from an
+    // older build also holds the topic label at 6, the tags at 7 and the card text at 8.
+    const old = r.length > 7, tags = old ? r[7] : r[6];
+    const label = old ? r[6] : (Object.prototype.hasOwnProperty.call(labels, r[5]) ? labels[r[5]] : r[5]);
     li.dataset.slug = r[0]; li.dataset.date = r[3]; li.dataset.mins = String(r[4]); li.dataset.topic = r[5];
-    li.dataset.tags = r[7]; li.dataset.text = r[8];
+    li.dataset.tags = tags; li.dataset.text = old ? r[8] : cardTextOf(r[1], r[2], tags, label);
     const h = document.createElement('h2'), a = document.createElement('a');
     a.href = r[0] + '/'; a.textContent = r[1]; h.appendChild(a);
     const d = document.createElement('p'); d.textContent = r[2];
     const m = document.createElement('p'); m.className = 'meta';
     // The same markup as a server-rendered card (renderIndex), so a search result looks like the list it came from.
-    const tp = document.createElement('span'); tp.className = 'topic'; tp.textContent = r[6];
+    const tp = document.createElement('span'); tp.className = 'topic'; tp.textContent = label;
     const w = document.createElement('span'); w.className = 'when';
     const t = document.createElement('time'); t.dateTime = r[3];
     t.textContent = new Date(r[3] + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
@@ -820,7 +826,15 @@ function renderFinder(posts) {
 }
 
 /** The text the index's search reads before the full text arrives. */
-const cardText = (p) => [p.title, p.description, p.tags.join(' '), topicLabel(p.topic)].join(' ').toLowerCase().replace(/\s+/g, ' ');
+/**
+ * The text a card's own words match against: title, description, tags and topic label, lower case
+ * with single spaces. The finder script embeds this same function (`cardTextOf.toString()`) to
+ * rebuild it from a posts.json row, so the file need not carry it.
+ */
+export function cardTextOf(title, description, tags, label) {
+  return [title, description, tags, label].join(' ').toLowerCase().replace(/\s+/g, ' ');
+}
+const cardText = (p) => cardTextOf(p.title, p.description, p.tags.join(' '), topicLabel(p.topic));
 
 /** A post's body as lower-case plain words separated by single spaces: the text the full-text search reads. */
 export const searchText = (md) =>
@@ -901,9 +915,14 @@ export function bodyMatcher(index) {
   };
 }
 
-/** The rows `posts.json` holds for the finder: slug, title, description, date, minutes, topic id, topic label, tags, search text. */
+/**
+ * The rows `posts.json` holds for the finder: slug, title, description, date, minutes, topic id, tags.
+ * Until 2026-11-25 each row also carried the topic label and the card's search text, both pure
+ * functions of the rest (`TOPIC_LABELS`, `cardTextOf`): 4.7 MB raw. The finder still reads that
+ * nine-column shape, for a cache that serves the old file during a deploy.
+ */
 export function renderPostRows(posts) {
-  return JSON.stringify(posts.map((p) => [p.slug, p.title, p.description, p.date, p.minutes, p.topic, topicLabel(p.topic), p.tags.join(' '), cardText(p)]));
+  return JSON.stringify(posts.map((p) => [p.slug, p.title, p.description, p.date, p.minutes, p.topic, p.tags.join(' ')]));
 }
 
 const pageCount = (posts) => Math.max(1, Math.ceil(posts.length / PAGE_SIZE));

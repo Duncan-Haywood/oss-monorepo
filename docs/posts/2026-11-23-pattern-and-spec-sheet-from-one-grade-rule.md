@@ -62,6 +62,23 @@ the tiled PDF, the nesting marker (counted as rib, which usually comes off a
 separate roll) and the rectangle cutting plan, which had typed its own band
 length before.
 
+## Update 2026-11-25: the fabric estimate used a third set of sleeves
+
+The pattern and the spec sheet agreed after this fix, but the cutting
+marker (`marker.mjs`, which estimates how many metres to buy) kept its own
+sleeve table: tee 22 cm, hoodie 62 cm, the same in every size. The spec sheet
+says 21 cm and 64 cm at M, plus or minus 1 cm per size. The marker now
+takes each size's sleeve from the drafted pattern, as it already did the
+neckband, and a test checks it against the spec sheet in every garment and
+size. Re-checked the same day: 72 of 72 sleeve, shoulder and neck points
+across tee, long sleeve, crewneck and hoodie are within the spec's
+tolerance.
+
+For a run of 143 tees (S30, M70, L40, XXL3) on 150 cm cloth, the quote moves
+from 135.74 m to 132.06 m, about 2.7% less cloth. The marker still adds a
+1.5 cm seam allowance where the pattern adds 1 cm, so it stays on the
+cautious side. A factory's own marker figure always wins.
+
 ## What is still unproven
 
 The grade steps and the 85% band ratio are typical trade figures written from
