@@ -49,6 +49,10 @@
     {
       "file": "portfolio/router/flagship_field.py",
       "issue": "--replace refuses with 'no venture folder ventures/payapps' because payapps lives in private-monorepo. The over-cap field on main could only be fixed by editing the YAML by hand."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 had two runs triage the same alerts at once. Neither pushed a claim branch (the harness only allows pushing to the session branch), so the claim mechanism didn't stop the duplicate."
     }
   ],
   "deviations": [
@@ -69,7 +73,7 @@
     "docs/reports/2026-11-25-security-queue-false-positives.md (extended: third pass)"
   ],
   "goal": null,
-  "notes": "Security queue, step 0. Fixed #849 and #65 (incomplete regex escaping). Read and recorded as false positives for owner dismissal: #741, #862, #960, #968, #969, #1049, #1086, #1181-#1203, #1208. Already documented FPs: #7, #12, #34, #38, #39, #42, #43, #104-#106. Tests: tools.test.mjs 22/22 pass; template.test.mjs 0 fail (soffice skips). portfolio-validate was red on main: flagships.yaml payapps `next:` was 2126 chars. I trimmed it, then found a concurrent main commit had already fixed it, so I took main's version in the merge and this PR doesn't touch flagships.yaml. run_workflow_locally --for-changes: the other 8 of 9 workflows pass; codeql, pages deploy, the security gate's LLM step and the cross-review bots can't run locally.",
+  "notes": "Security queue, step 0. Fixed #849 and #65 (incomplete regex escaping). Read and recorded as false positives for owner dismissal: #741, #862, #960, #968, #969, #1049, #1086, #1181-#1203, #1208. Already documented FPs: #7, #12, #34, #38, #39, #42, #43, #104-#106. Tests: tools.test.mjs 22/22 pass; template.test.mjs 0 fail (soffice skips). portfolio-validate was red on main: flagships.yaml payapps `next:` was 2126 chars. I trimmed it, then found a concurrent main commit had already fixed it, so I took main's version in the merge and this PR doesn't touch flagships.yaml. run_workflow_locally --for-changes: the other 8 of 9 workflows pass; codeql, pages deploy, the security gate's LLM step and the cross-review bots can't run locally. A concurrent run triaged the same alerts (third pass) while this PR waited on CI. I merged both into one report: theirs stays as the third pass, mine is cut to what it adds (#849/#65 fixed, #862, #1049, redos fixtures).",
   "corrections": [],
   "redteam": null,
   "usage": {

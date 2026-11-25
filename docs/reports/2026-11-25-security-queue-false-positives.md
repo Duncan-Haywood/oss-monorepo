@@ -59,35 +59,34 @@ Checked by reading `main` at `f67c21c96`. No code change was needed.
   - `js/regex-injection` #106 (`dxf-nesting/dxf.mjs:174`). "Ignore layers matching" is a regex the user types into their own browser tab or CLI, and no one else's input reaches it.
 - **Still unchecked:** the remaining `js/double-escaping` alerts, #119 onward. Most of them are in `*.test.mjs` files, and the same reasoning as the test-file note above applies.
 
-## Third pass, same day (queue scanned at `5f857bb81c00`, checked on main at `20071c007`)
+## Third pass, same day (queue scanned at `5f857bb81c00`)
 
-The first unclaimed alerts after the ones above. Each flagged line was read on `main`.
+Checked by reading `main` at `578f7f19a`; the flagged files are unchanged since the scan. No code change was needed.
 
-- **Fixed in this pass (they close on the next completed scan):**
-  - #849 `js/incomplete-sanitization`, `platform/agents/tools.mjs:170`. `commentFor` escaped only `$` before building
-    a regex from an export name. It now escapes every regex metacharacter. Low impact (names are JS identifiers and
-    an `includes()` prefilter ran first), but the escape is now complete; test added in `tools.test.mjs`.
-  - #65 `js/incomplete-sanitization`, `ventures/pay-app-guides/template.test.mjs:62`. Same rule in a test: the label
-    escape now covers every metacharacter, not just `.`.
-- **False positives (dismiss):**
-  - #960 `js/xss-through-dom`, `quick-pick-survey/site/rank.html:461`. `picture()` returns only `blob:` URLs that
-    `addPicture` made with `URL.createObjectURL`, and the value is assigned to `img.src`, not markup.
-  - #969 `js/xss-through-dom`, `silence-cutter/index.html:258`. `a.href = URL.createObjectURL(blob)`: always a `blob:` URL.
-  - #968 `js/xss-through-dom`, `shed-designer/hoa-page.mjs:59`. `packetHtml` passes every text field through `esc`, and
-    colours come from `hex()` of numeric RGB tables, so the `#d=` link cannot inject markup. (The SVG builders it calls
-    were not re-audited line by line.)
-  - #741 `js/incomplete-sanitization`, `shopify-to-woocommerce-converter/converter.mjs:69`. `\,` is WooCommerce's own
-    escape for a comma inside an attribute value (`explode_values` replaces `\,` before splitting); its parser has no
-    backslash escape, so also doubling backslashes would corrupt values on import.
-  - #1049 `js/incomplete-url-substring-sanitization`, `platform/pages/check.mjs` (now ~line 1470). `text.includes(PLACEHOLDER_ORIGIN)`
-    is a build check that the placeholder origin never ships in a page, not a URL allow-list.
-  - #1086 `js/disabling-certificate-validation`, `status-keeper/certs.mjs:12`. The probe must read expired or untrusted
-    certificates to report on them; it records `socket.authorized` and `checkTls` fails the check when strict (the default).
-  - #1181–#1203 `js/redos`, `regex-redos-check/*.test.mjs`, and #1208 in `devsec-toolkit/tests/fixtures/vulnerable-repo/`:
-    deliberately vulnerable patterns that a ReDoS checker's tests and fixtures exist to detect.
+- **False positives (dismiss as "false positive"):**
+  - `js/xss-through-dom` #960 (`quick-pick-survey/site/rank.html:461`): the `src` comes from `picture(i)`, which returns only `blob:` URLs the page created itself (line 271), else `undefined`.
+  - `js/xss-through-dom` #968 (`shed-designer/hoa-page.mjs:59`): `href = ./#d=` plus `encodeDesign(design)`, which is base64url (`hoa.mjs:542`), so no markup or scheme can get in.
+  - `js/xss-through-dom` #969 (`silence-cutter/index.html:258`): `a.href = URL.createObjectURL(blob)` for a download; a blob URL from our own data.
+- **By design (dismiss as "won't fix"):**
+  - `js/disabling-certificate-validation` #1086 (`status-keeper/certs.mjs:12`): an expiry checker has to read the certificate of a server whose certificate is expired or untrusted. It records `socket.authorized` and `authorizationError` and reports an untrusted certificate as not ok (strict mode, the default). No data is sent over the connection.
+  - `js/incomplete-sanitization` #741 (`shopify-to-woocommerce-converter/converter.mjs:69`): `esc` writes WooCommerce's `\,` list-separator escape. WooCommerce's importer has no backslash escape, so escaping backslashes would corrupt values instead of protecting them.
+  - `js/incomplete-sanitization` #849 (`platform/agents/tools.mjs:170`): `name` is a JavaScript export identifier, and `$` is the only regex metacharacter an identifier can hold. That character is escaped.
+
+## Fourth pass, same day (overlaps the third; checked on main at `20071c007`)
+
+Run in parallel with the third pass and merged after it. This pass adds:
+
+- **Fixed (they close on the next completed scan):**
+  - #849 `js/incomplete-sanitization`, `platform/agents/tools.mjs:170`. The third pass is right that an identifier
+    can only carry `$`. The escape now covers every regex metacharacter anyway, so the rule is satisfied and
+    nothing depends on that assumption. Test added in `tools.test.mjs`.
+  - #65 `js/incomplete-sanitization`, `ventures/pay-app-guides/template.test.mjs:62`. The label escape in the test
+    now covers every metacharacter, not just `.`.
+- **False positives not covered above (dismiss):**
   - #862 `js/incomplete-sanitization`, `research/marriage-divorce-evidence/report-app/src/use-data-app.js:315`.
-    `replace("..", " – ")` turns a range filter like `2010..2020` into display text that React renders escaped; it is
-    formatting, not sanitisation.
+    `replace("..", " – ")` turns a range filter into display text that React renders escaped. It is formatting.
+  - #1049 `js/incomplete-url-substring-sanitization`, `platform/pages/check.mjs` (now ~line 1470).
+    `text.includes(PLACEHOLDER_ORIGIN)` is a build check that the placeholder origin never ships, not a URL allow-list.
+  - #1181 to #1203 `js/redos` in `regex-redos-check/*.test.mjs`, and #1208 in `devsec-toolkit/tests/fixtures/vulnerable-repo/`:
+    deliberately vulnerable patterns that a ReDoS checker's tests and fixtures exist to detect.
 - **Claimed elsewhere:** #274, #275, #574, #997 have `security-fix/` branches.
-- After this pass, every alert in the queue at `5f857bb81c00` has been read; the queue is empty of actionable work
-  apart from the claimed branches and the owner's dismissals.
