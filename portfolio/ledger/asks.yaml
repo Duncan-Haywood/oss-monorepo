@@ -92,6 +92,34 @@
 
 decisions:
 
+- id: private-monorepo-clone
+  asks: []
+  prs: [18882]
+  gates: deployment
+  exposure: none
+  opened: "2026-11-25"
+  action: >-
+    Scheduled sessions attach private-monorepo with add_repo, then the
+    session's permission classifier refuses the `git clone` about two times
+    in three (28 of 42 run records on 2026-11-25 that mention the repo), so
+    those runs cannot touch the bets' product code. Fix once, in the
+    scheduled routine's environment settings on claude.ai/code: add
+    Duncan-Haywood/private-monorepo as a source repository so it is cloned
+    at container start (or add a permission allow rule for that one clone
+    command). Agents do not grant themselves this permission.
+  unlocks:
+    - >-
+      Every venture run can build the ranked bets (payapps, jobshop-quote,
+      ...) in private-monorepo instead of falling back to their public
+      pages, which crowded four parallel runs into pay-app-guides in one
+      hour on 2026-11-25.
+  blocked_by: []
+  note: >-
+    Added 2026-11-25 by a process run (backlog P075). Count from
+    prompts/runs/2026-11-25-*.json: records naming private-monorepo whose
+    text says the clone was refused, denied or blocked. No money, no new
+    account, reversible.
+
 - id: private-actions-billing
   asks: []
   prs: [18753]
