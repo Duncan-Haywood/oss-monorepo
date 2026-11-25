@@ -1,0 +1,24 @@
+{
+  "id": "P079",
+  "title": "Claim a private-monorepo ROADMAP item before building it",
+  "status": "open",
+  "owner": "agent",
+  "effect": 3,
+  "cost": 2,
+  "problem": "Parallel ventures runs on bet #1 read the same payapps ROADMAP 'Next' list and pick the same item. The duplicate check (open PRs at start) cannot see a PR opened or merged minutes later, so whole slices are built twice and closed.",
+  "evidence": [
+    "2026-11-25: private-monorepo PRs 106 (merged), 107 and 108 (closed) all built 'Weekly email, part 3: the member's own time zone and hour' within about 20 minutes; run record prompts/runs/2026-11-25-session_01XpHqydVFvCareni32JhLEe.json"
+  ],
+  "change": "A claim step for private roadmap items, like security_next.py --claim: push an empty-tree branch `claim/<app>/<item-slug>` to private-monorepo (fails if taken), listed by a small script that ventures runs call before choosing; or have allocate.py print claimed items. Document it in cloud-session.md, 'Reaching private-monorepo'.",
+  "touches": [
+    ".github/prompts/cloud-session.md",
+    "prompts/ventures/"
+  ],
+  "metric": "Closed-unmerged duplicate PRs in private-monorepo per week",
+  "baseline": "2 closed duplicates of one item on 2026-11-25 (PRs 107, 108)",
+  "opened": "2026-11-25",
+  "source": "prompts/runs/2026-11-25-session_01XpHqydVFvCareni32JhLEe.json",
+  "pr": null,
+  "result": null,
+  "history": []
+}
