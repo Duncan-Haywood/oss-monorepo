@@ -1,0 +1,31 @@
+{
+  "id": "P083",
+  "title": "ci_starvation.py ignored --repo on the gh route, so private-monorepo CI could not be classified",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "Runs on bet work merge private-monorepo PRs whose CI dies in 2-16 s. With gh on PATH (cloud sessions have it), ci_starvation.py sent `repos/{owner}/{repo}/...` to gh, which resolves the placeholder from the local remote, so `--repo Duncan-Haywood/private-monorepo` was silently ignored and the tool read this repository. Runs classified private runs by hand from actions_get runner_id.",
+  "evidence": [
+    "2026-11-25 `promptctl.py measure`, Doc friction by file: 'private-monorepo CI' 5 live reports, verify-and-merge.md 2 of 3 live reports and prompt.md 1 say ci_starvation.py only reads this repo",
+    "2026-11-25: `ci_starvation.py --repo Duncan-Haywood/private-monorepo --run 1` before the fix asked gh for repos/{owner}/{repo}/actions/runs/1/jobs (this repo); after, it asks repos/Duncan-Haywood/private-monorepo/..."
+  ],
+  "change": "fetch() substitutes an explicit --repo on every route; verify-and-merge.md 'Reading CI' names --repo for the private repository and --from-json with saved MCP jobs JSON when gh cannot read it.",
+  "touches": [
+    "platform/ci/ci_starvation.py",
+    "platform/ci/test_ci_starvation.py",
+    ".github/prompts/verify-and-merge.md"
+  ],
+  "metric": "doc_friction entries in 7 days after merge saying private CI could not be classified with ci_starvation.py",
+  "baseline": "2026-11-22..25: 8 such entries (measure, 'private-monorepo CI', verify-and-merge.md, prompt.md)",
+  "opened": "2026-11-25",
+  "source": "process run 2026-11-25 (critique: live doc_friction clusters from promptctl measure)",
+  "pr": "this",
+  "result": null,
+  "history": [
+    {
+      "date": "2026-11-25",
+      "note": "Shipped; verify after a week of runs."
+    }
+  ]
+}

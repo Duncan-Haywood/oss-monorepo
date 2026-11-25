@@ -166,7 +166,10 @@ longer served, so there is no need to run `publish-branch.sh` by hand.
   branch) when it has `workflow_dispatch`; otherwise run its checks locally
   (`run_workflow_locally.py`). An empty commit or a close/reopen is not the fix.
 - **Classify before you debug:** `python3 platform/ci/ci_starvation.py --run
-  <run_id>` (or a job id, or `--from-json <file>`; it needs no `gh`). It
+  <run_id>` (or a job id, or `--from-json <file>`; it needs no `gh`; add
+  `--repo Duncan-Haywood/private-monorepo` for the private repository, or
+  save the MCP `actions_list`/`actions_get` jobs JSON for `--from-json`
+  when the session cannot read it through `gh`). It
   votes only on `runner_id`, because a starved job has `runner_id: 0` and
   no steps. Exit 0: every job got a runner, so a failure is real and yours.
   Exit 1: starved, so verify locally and say what you ran. Exit 2: the run

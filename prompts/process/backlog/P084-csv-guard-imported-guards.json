@@ -1,0 +1,31 @@
+{
+  "id": "P084",
+  "title": "check_csv_formula_guard.py did not credit a guard imported from a sibling module",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "The exporter check counted a file as guarded only if the formula test (or a comment naming the risk) sat in the same file. Exporters that import their cell guard (`q` from ./csvq.mjs, `csvCell`) failed, and the only way through was pasting a comment, which also satisfies the check for an exporter that does not guard at all.",
+  "evidence": [
+    "2026-11-25 `promptctl.py measure`: platform/ci/check_csv_formula_guard.py 4 live reports in 3 days, two of them the imported-guard case (06:45, 07:24)",
+    "2026-11-25: four ai-bookkeeper exporters (projects, rental, taxdepr, taxforms) import and call q from csvq.mjs yet sat on the unguarded baseline"
+  ],
+  "change": "An exporter counts as guarded when it imports, by name, an export whose own definition holds the defusing formula test (guard_exports) and calls it. A guard inside a private helper of another export (greenbutton's espiToCsv) does not count. Four baseline lines removed.",
+  "touches": [
+    "platform/ci/check_csv_formula_guard.py",
+    "platform/ci/test_check_csv_formula_guard.py",
+    "platform/ci/csv_formula_guard_baseline.txt"
+  ],
+  "metric": "doc_friction entries naming check_csv_formula_guard.py and an imported guard, 7 days after merge",
+  "baseline": "2026-11-25: 2 in the preceding day",
+  "opened": "2026-11-25",
+  "source": "process run 2026-11-25 (critique: live doc_friction clusters from promptctl measure)",
+  "pr": "this",
+  "result": null,
+  "history": [
+    {
+      "date": "2026-11-25",
+      "note": "Shipped; verify after a week of runs."
+    }
+  ]
+}
