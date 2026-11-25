@@ -86,7 +86,7 @@ header{padding:20px 16px 8px;max-width:1200px;margin:0 auto}h1{margin:0 0 4px;fo
 .bar{position:sticky;top:0;z-index:2;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;max-width:1200px;margin:0 auto}
 button{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer}
 button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-main{max-width:1200px;margin:0 auto;padding:12px 16px 40px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+main{max-width:1200px;margin:0 auto;padding:12px 16px 40px;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(260px,100%),1fr));gap:12px}
 figure{margin:0;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
 figure.on{outline:3px solid var(--accent)}
 img{display:block;width:100%;height:auto;background:var(--line);cursor:zoom-in}
