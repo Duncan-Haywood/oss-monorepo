@@ -32,6 +32,16 @@ test('rewritePage refuses what MV3 cannot run or what reaches out', () => {
   assert.equal(rewritePage('<p onclick-free>ok</p>').skip, undefined);
 });
 
+test('an end tag with a space before its > still closes the script', () => {
+  const r = rewritePage('<p>a</p><script>const x = 1;</script ><p>b</p>');
+  assert.equal(r.skip, undefined);
+  assert.equal(r.scripts['inline-1.js'], 'const x = 1;\n');
+  assert.match(r.html, /^<p>a<\/p><script src="inline-1\.js"><\/script><p>b<\/p>$/);
+  assert.match(rewritePage('<script>fetch("/x")</SCRIPT\t>').skip, /network/);
+  // An event handler spliced together by removing a script is still caught.
+  assert.match(rewritePage('<b o<script></script>nclick="go()">x</b>').skip, /inline event handlers/);
+});
+
 test('a literal dynamic import of a local file is bundled; import(expr) and a package import are refused', async () => {
   assert.equal(rewritePage('<script type="module">const m = () => import("./lazy.mjs");</script>').skip, undefined);
   assert.match(rewritePage('<script>import(url)</script>').skip, /network/);
