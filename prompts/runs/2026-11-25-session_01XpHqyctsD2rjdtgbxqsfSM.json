@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyctsD2rjdtgbxqsfSM",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T07:39:17Z",
+  "ended": "2026-11-25T07:44:14Z",
+  "wall_minutes": 5.12,
+  "tokens_in": 3334541,
+  "tokens_out": 22395,
+  "cost_usd": 1.8113,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18894",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "quality_mutate.py runs the test command in the venture root (ventures/retail-pilot-intel), not the package that holds the mutated file; my first 'cd packages/analytics && pnpm test' failed the baseline. 'pnpm test' from the venture root worked."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Steps 1-5 describe a sample round; quality_audit.py mode chose fix mode, so I followed README 'Five modes' (fix the queue, quality-fix post) instead.",
+      "did": "Fixed the highest-severity defect on a for-profit product in the queue (retail-pilot-intel, transition.py row 18), per the track's north-star note.",
+      "result": "Defect fixed with 8 new tests; 2 seeded mutants caught."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-quality-fix-the-sale-after-midnight-in-rome.md"
+  ],
+  "goal": null,
+  "notes": "Mode: fix (queue seed 2026-11-25-b580). Subject: ventures/retail-pilot-intel, audit 2026-11-19 defect 0 (high, logic-error): daily KPIs by UTC date and across stores. Fix: local-day bounds (Europe/Rome default, --tz), --store scope, ReportScopeError -> HTTP 409 for multiple stores or mixed currencies, local 'today'. Verification: venture pnpm test 68/68 pass (portal 9, edge 4, pos 15, analytics 40), pnpm -r typecheck and eslint clean; quality_mutate: zone forced to UTC caught, store filter dropped caught. quality_audit validate: 673 files, 0 problems. risk_review: nothing blocked, no checks triggered. Share meeting the bar: n/a (fix mode, no scoring). Fix PRs: #18894.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8dcf408e-1a4e-52e3-969d-9befad6dc4a3",
+    "transcripts": 1,
+    "first": "2026-11-25T07:39:17Z",
+    "last": "2026-11-25T07:44:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 68,
+        "output": 22395,
+        "thinking": 2731,
+        "cache_read": 3245208,
+        "cache_write_5m": 0,
+        "cache_write_1h": 89265,
+        "api_equivalent_usd": 1.8113,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 68,
+      "output": 22395,
+      "thinking": 2731,
+      "cache_read": 3245208,
+      "cache_write_5m": 0,
+      "cache_write_1h": 89265,
+      "api_equivalent_usd": 1.8113,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 32,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.12,
+      "active_minutes": 5.12,
+      "model_minutes": 3.17,
+      "tool_minutes": 1.95,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior TS dev: tz-boundary logic, store scoping, tests, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 165.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -13,12 +13,16 @@
     "docs/history/ci-perf-2026-11-07-pool-reading-cache-hit-confirmed.md"
   ],
   "change": "checkout with filter: blob:none and a cone sparse-checkout of platform, .github, docs, portfolio; after 'Fetch the base commit', run git sparse-checkout add ventures/<slug> for each slug in `git diff --name-only --no-renames $BASE HEAD -- ventures`, or git sparse-checkout disable when BASE is empty or zero. Check venture suites that read another venture (a handful of prose refs only) and that clauses.mjs/typecheck.mjs see their ventures. Read the after number from ci_profile.py.",
-  "touches": [".github/workflows/ventures-tests.yml"],
+  "touches": [
+    ".github/workflows/ventures-tests.yml"
+  ],
   "metric": "ventures tests checkout seconds per job (ci_profile.py)",
   "baseline": "22.7 s per job, 2026-11-07",
   "opened": "2026-11-07",
   "source": "docs/history/ci-perf-2026-11-07-pool-reading-cache-hit-confirmed.md",
   "pr": null,
   "result": null,
-  "history": []
+  "history": [
+    "2026-11-25: not landable as written. Since 2026-11-13 this job also runs unwired_checks.py (every check_*.py tree check, platform node suites, doc_index.py check) via run_venture_tests.py --since; a sparse tree would narrow what those checks see, which is weakening a check. Four stalled drafts (PRs 13748, 13868, 14240, 14251) predate that. A sparse layout needs the unwired checks moved to their own full-tree job first (docs/history/pages-test-perf-2026-11-25-test-card-cache-never-saved.md)."
+  ]
 }

@@ -99,3 +99,28 @@ test("a plan cell reading free or none is not a paid plan", () => {
   assert.equal(s.counts.free, 2);
   assert.equal(s.counts.former, 0);
 });
+
+// Quality audit 2026-11-19 (portfolio/quality/audits/2026-11-19-substack-subscriber-export-analyzer.json, defects 0 and 7):
+// an export shaped like the one Ghost's Substack importer reads has no plan or first_payment_at column, only
+// active_subscription and expiry. It must not report 0 paid.
+test("active_subscription alone marks paid and former subscribers; blank is free", () => {
+  const csv = "email,active_subscription,expiry,email_disabled,created_at\n" +
+    "a@x.invalid,true,2026-12-01,false,2026-01-10\n" +
+    "b@x.invalid,true,2027-01-01,false,2026-02-10\n" +
+    "c@x.invalid,false,2026-05-01,false,2026-02-11\n" +
+    "d@x.invalid,,,false,2026-03-01\n" +
+    "e@x.invalid,,,false,2026-03-02\n";
+  const n = normalizeRows(parseCsv(csv, detectDelimiter(csv)));
+  const s = analyze(n.members, {}).summary;
+  assert.equal(s.counts.paid, 2);
+  assert.equal(s.counts.former, 1);
+  assert.equal(s.counts.free, 2);
+});
+
+test("an ios_app subscription type counts as paid", () => {
+  const csv = "email,type,created_at\na@x.invalid,ios_app,2026-01-10\nb@x.invalid,free,2026-01-11\n";
+  const n = normalizeRows(parseCsv(csv, detectDelimiter(csv)));
+  const s = analyze(n.members, {}).summary;
+  assert.equal(s.counts.paid, 1);
+  assert.equal(s.counts.free, 1);
+});

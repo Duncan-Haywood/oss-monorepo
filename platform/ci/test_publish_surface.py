@@ -221,7 +221,7 @@ class SinglePagesDeployer(unittest.TestCase):
         return {"workflow": name, "classification": "gated", "publishes": [step]}
 
     def test_two_workflows_behind_the_same_variable_conflict(self):
-        # The incident: pages.yml and portfolio-pages.yml, same flip, one origin.
+        # The incident: pages.yml and priv-portfolio-pages.yml, same flip, one origin.
         rows = [
             self.row("a.yml", "github.event_name != 'pull_request' && vars.GITHUB_PAGES_ENABLED == 'true'"),
             self.row("b.yml", "${{ vars.GITHUB_PAGES_ENABLED == 'true' }}"),
@@ -378,25 +378,25 @@ class OneOriginPerGate(unittest.TestCase):
     def test_two_pages_deploys_on_one_variable_is_reported(self):
         problems = ps.check_single_pages_deployer([
             self._pages_row("pages.yml", "GITHUB_PAGES_ENABLED"),
-            self._pages_row("portfolio-pages.yml", "GITHUB_PAGES_ENABLED"),
+            self._pages_row("priv-portfolio-pages.yml", "GITHUB_PAGES_ENABLED"),
         ])
         self.assertEqual(len(problems), 1)
         self.assertIn("GITHUB_PAGES_ENABLED", problems[0])
         self.assertIn("pages.yml", problems[0])
-        self.assertIn("portfolio-pages.yml", problems[0])
+        self.assertIn("priv-portfolio-pages.yml", problems[0])
 
     def test_separate_variables_are_fine(self):
         self.assertEqual(
             ps.check_single_pages_deployer([
                 self._pages_row("pages.yml", "PAGES_PYTHON_BUILDER"),
-                self._pages_row("portfolio-pages.yml", "GITHUB_PAGES_ENABLED"),
+                self._pages_row("priv-portfolio-pages.yml", "GITHUB_PAGES_ENABLED"),
             ]),
             [],
         )
 
     def test_one_workflow_on_one_variable_is_fine(self):
         self.assertEqual(
-            ps.check_single_pages_deployer([self._pages_row("portfolio-pages.yml", "GITHUB_PAGES_ENABLED")]),
+            ps.check_single_pages_deployer([self._pages_row("priv-portfolio-pages.yml", "GITHUB_PAGES_ENABLED")]),
             [],
         )
 
@@ -404,7 +404,7 @@ class OneOriginPerGate(unittest.TestCase):
         # `vars.A == 'true' && vars.B == 'true'` shares the origin with anything
         # gated on A alone: setting A and B fires both.
         rows = [
-            self._pages_row("portfolio-pages.yml", "GITHUB_PAGES_ENABLED"),
+            self._pages_row("priv-portfolio-pages.yml", "GITHUB_PAGES_ENABLED"),
             {
                 "workflow": "other.yml",
                 "classification": "gated",

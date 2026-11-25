@@ -68,4 +68,4 @@ record of what anyone agreed. Review the list before you send it.
 `extract.mjs` (engine, shared by page and CLI), `ai.mjs` + `byok.mjs` (optional AI pass), `cli.mjs`, `index.html`, `how-to-write-meeting-action-items.html`,
 `usage.mjs` (opt-out local counters), tests: `node --test ventures/meeting-action-items/*.test.mjs`.
 
-MIT licensed. Free; support via GitHub Sponsors is optional.
+FSL-1.1-MIT licensed. Free; support via GitHub Sponsors is optional.

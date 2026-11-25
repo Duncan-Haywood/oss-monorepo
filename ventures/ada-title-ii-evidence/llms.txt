@@ -2,7 +2,7 @@
 
 > Turn a government website's axe-core JSON scan into a dated WCAG 2.1 AA evidence record for ADA Title II, split into required findings and best-practice extras. Runs locally in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -12,4 +12,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ada-title-ii-evidence): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ada-title-ii-evidence): FSL-1.1-MIT licensed.

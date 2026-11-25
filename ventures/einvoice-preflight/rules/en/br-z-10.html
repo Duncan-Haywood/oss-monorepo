@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BR-Z-10: Zero-rated VAT breakdown must not have an exemption reason</title>
+<meta name="description" content="BR-Z-10: A VAT breakdown entry with category Z (zero rated) must not contain an exemption reason code (BT-121) or exemption reason text (BT-120). In EN 16931…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/en/br-z-10">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/br-z-10">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/br-z-10">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/br-z-10">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/br-z-10">
+<meta property="og:title" content="BR-Z-10: Zero-rated VAT breakdown must not have an exemption reason">
+<meta property="og:description" content="BR-Z-10: A VAT breakdown entry with category Z (zero rated) must not contain an exemption reason code (BT-121) or exemption reason text (BT-120). In EN 16931…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does BR-Z-10 mean?","acceptedAnswer":{"@type":"Answer","text":"A VAT breakdown entry with category Z (zero rated) must not contain an exemption reason code (BT-121) or exemption reason text (BT-120). In EN 16931 zero rating is a taxable rate of 0 %, not an exemption, so the reason fields are not allowed there."}},{"@type":"Question","name":"How do I fix BR-Z-10?","acceptedAnswer":{"@type":"Answer","text":"Check that Z is the category you meant; which category fits your sale is a tax question, so ask your tax adviser if unsure. If Z is right, delete TaxExemptionReason and TaxExemptionReasonCode (CII: ram:ExemptionReason and ram:ExemptionReasonCode) from that breakdown entry. If you want to explain the zero rate to the buyer, use an invoice note (BT-22) instead."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-invoice rule explained · EN 16931</p>
+<h1>BR-Z-10: Zero-rated VAT breakdown must not have an exemption reason</h1>
+<nav class="langs" aria-label="Other languages"><a href="../de/br-z-10.html" hreflang="de" lang="de">Deutsch</a><a href="../fr/br-z-10.html" hreflang="fr" lang="fr">Français</a><a href="index.html">All rules</a></nav>
+</header>
+<section>
+<h2>Official message</h2>
+<blockquote lang="en">A VAT breakdown (BG-23) with VAT Category code (BT-118) &quot;Zero rated&quot; shall not have a VAT exemption reason code (BT-121) or VAT exemption reason text (BT-120).</blockquote>
+<blockquote lang="en">A VAT Breakdown (BG-23) with VAT Category code (BT-118) &quot;Zero rated&quot; shall not have a VAT exemption reason code (BT-121) or VAT exemption reason text (BT-120).</blockquote>
+<dl>
+<dt>Severity</dt><dd>Error (the invoice is rejected)</dd>
+<dt>Checked in</dt><dd>UBL, CII</dd>
+<dt>Business terms</dt><dd>BG-23, BT-118, BT-121, BT-120</dd>
+</dl>
+</section>
+<section>
+<h2>What does BR-Z-10 mean?</h2>
+<p>A VAT breakdown entry with category Z (zero rated) must not contain an exemption reason code (BT-121) or exemption reason text (BT-120). In EN 16931 zero rating is a taxable rate of 0 %, not an exemption, so the reason fields are not allowed there.</p>
+<h2>Usual causes</h2>
+<ul>
+<li>The software fills in an exemption reason for every 0 % entry, whatever the category.</li>
+<li>A template made for exempt (E) or reverse charge (AE) invoices was reused with category Z.</li>
+<li>The category should have been a different one and Z was picked because the rate is 0 %.</li>
+</ul>
+</section>
+<section>
+<h2>How do I fix BR-Z-10?</h2>
+<ol>
+<li>Check that Z is the category you meant; which category fits your sale is a tax question, so ask your tax adviser if unsure.</li>
+<li>If Z is right, delete TaxExemptionReason and TaxExemptionReasonCode (CII: ram:ExemptionReason and ram:ExemptionReasonCode) from that breakdown entry.</li>
+<li>If you want to explain the zero rate to the buyer, use an invoice note (BT-22) instead.</li>
+</ol>
+<h2>Corrected XML (minimal example we wrote)</h2>
+<p><strong>UBL</strong></p>
+<pre><code>&lt;cac:TaxSubtotal&gt;
+  &lt;cbc:TaxableAmount currencyID=&quot;EUR&quot;&gt;250.00&lt;/cbc:TaxableAmount&gt;
+  &lt;cbc:TaxAmount currencyID=&quot;EUR&quot;&gt;0.00&lt;/cbc:TaxAmount&gt;
+  &lt;cac:TaxCategory&gt;
+    &lt;cbc:ID&gt;Z&lt;/cbc:ID&gt;
+    &lt;cbc:Percent&gt;0&lt;/cbc:Percent&gt;
+    &lt;cac:TaxScheme&gt;
+      &lt;cbc:ID&gt;VAT&lt;/cbc:ID&gt;
+    &lt;/cac:TaxScheme&gt;
+  &lt;/cac:TaxCategory&gt;
+&lt;/cac:TaxSubtotal&gt;</code></pre>
+<p class="note">Example values only. Put the elements in place of, or beside, what your file has; element order matters in both syntaxes.</p>
+</section>
+<section>
+<h2>Check your file for free</h2>
+<p>The free checker runs the official EN 16931, XRechnung and Peppol rules in your browser. Your file is not uploaded.</p>
+<p><a class="button" href="../../index.html">Open the free checker</a></p>
+</section>
+<section class="cta">
+<p><span class="state">In development — early access</span></p>
+<h2>Fix-and-explain for accountants and invoicing teams</h2>
+<p>A paid service that explains every failed rule in plain German, French or English and proposes a corrected file is in development. <a href="https://example.invalid/industries/eu-e-invoicing/">Early access</a></p>
+</section>
+<section>
+<h2>Source</h2>
+<p>Rule id and official message from the CEN/TC 434 EN 16931 validation artefacts, validation-1.3.17 (EUPL-1.2), compiled from upstream commit 6e35e0a. The explanation, causes, fix and XML on this page are our own, not the rule publisher's. <a href="https://github.com/ConnectingEurope/eInvoicing-EN16931/tree/validation-1.3.17" rel="noopener">CEN/TC 434 EN 16931 validation artefacts validation-1.3.17</a></p>
+</section>
+<footer>
+<p><strong>Not tax or legal advice.</strong> This page explains what a validation rule checks and how to make a file pass it. It does not say which VAT treatment applies to your sale; ask a tax adviser. <strong>No warranty:</strong> provided free and as-is; check the result before you rely on it.</p>
+<p>Our code and explanations are FSL-1.1-MIT-licensed. Official rule messages are quoted under their publishers' licences (EUPL-1.2, Apache-2.0, MPL-2.0), named on each page.</p>
+</footer>
+</main></body></html>

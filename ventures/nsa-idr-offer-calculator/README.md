@@ -42,4 +42,4 @@ billing advice. The win-chance curve is the user's assumption, not a prediction 
 an arbitrator's decision, and the tool carries no fee schedule or QPA of its own.
 Unverified against real IDR outcomes: tested on hand-calculated examples.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

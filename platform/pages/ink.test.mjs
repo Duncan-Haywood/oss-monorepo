@@ -187,7 +187,7 @@ test('a page with no stylesheet, or no background, is declined not passed', () =
 test('every venture page currently on this branch clears 4.5:1 on its links', () => {
   // No argument: the default resolves `ventures/` from this file, so the audit
   // reads the same tree whether the suite is run from the repository root or
-  // from `platform/pages` -- which is the directory `portfolio-pages.yml` runs
+  // from `platform/pages` -- which is the directory `priv-portfolio-pages.yml` runs
   // it in, and where passing 'ventures' threw ENOENT.
   const { findings, decided, pages } = auditVentures();
   assert.deepEqual(findings, [], findings.map((f) =>

@@ -56,4 +56,4 @@ the environment. `template/price-watch.yml` is the scheduled workflow.
 `usage.mjs` (opt-out local counters), `template/`. Tests:
 `node --test ventures/price-drop-watcher/*.test.mjs`.
 
-MIT licensed. Free; support via GitHub Sponsors is optional.
+FSL-1.1-MIT licensed. Free; support via GitHub Sponsors is optional.

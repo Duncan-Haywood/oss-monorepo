@@ -65,4 +65,4 @@ does not evaluate whether a facility, run, or kennel meets any local
 licensing, zoning, or animal-care regulation, does not screen dogs or
 owners, and does not replace your own judgment, contract, or insurance.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.

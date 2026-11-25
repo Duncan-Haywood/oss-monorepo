@@ -148,7 +148,14 @@ test('has no external script or stylesheet resources', () => {
   const externalHrefs = [...html.matchAll(/https?:\/\/[^"'\s)]+/g)].map((m) => m[0]);
   for (const href of externalHrefs) {
     assert.ok(
-      href.startsWith('https://schema.org') || href === 'http://www.w3.org/2000/svg',
+      (() => {
+        try {
+          const u = new URL(href);
+          return u.protocol === 'https:' && u.hostname === 'schema.org';
+        } catch {
+          return false;
+        }
+      })() || href === 'http://www.w3.org/2000/svg',
       `unexpected external reference: ${href}`,
     );
   }

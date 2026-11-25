@@ -109,7 +109,7 @@ function composeServerRepo({ slug, title, serverFiles }) {
   out['render.yaml'] = serverFiles['render.yaml'].text;
   out['README.md'] = `# ${title}
 
-Your own copy of **${title}**, a server app from the open-source portfolio
+Your own copy of **${title}**, a server app from the source-available portfolio
 (\`ventures/${slug}\`). It runs on **Render** in your own account.
 
 ## Finish the deploy
@@ -124,7 +124,7 @@ Your own copy of **${title}**, a server app from the open-source portfolio
 
 This copy runs in your account. You are responsible for it: its domain, terms, privacy
 policy, customers' data and any changes you make. The creator does not host it, sees none
-of its traffic, and provides it as-is under the MIT license, with no warranty.
+of its traffic, and provides it as-is under the FSL-1.1-MIT license, with no warranty.
 
 ## Tear it down
 
@@ -199,7 +199,7 @@ echo "Wrote .env. Open it and uncomment and fill in the values you need, then: d
 `;
   out['README.md'] = `# ${title}
 
-Your own copy of **${title}**, a server app from the open-source portfolio
+Your own copy of **${title}**, a server app from the source-available portfolio
 (\`ventures/${slug}\`), packaged to run with Docker on a machine you control.
 
 ## Run it
@@ -218,7 +218,7 @@ Secrets live only in \`.env\` on your machine (mode 600). Do not commit it.
 
 This copy runs on your machine. You are responsible for it: its domain, terms, privacy
 policy, customers' data and any changes you make. The creator does not host it, sees none
-of its traffic, and provides it as-is under the MIT license, with no warranty. Some apps
+of its traffic, and provides it as-is under the FSL-1.1-MIT license, with no warranty. Some apps
 start in a safe dry-run mode; read \`.env.example\`.
 
 ## Tear it down
@@ -278,7 +278,7 @@ ${literals.map((e) => `  ${e.key} = ${tomlStr(e.value)}`).join('\n')}
   ];
   out['README.md'] = `# ${title}
 
-Your own copy of **${title}**, a server app from the open-source portfolio
+Your own copy of **${title}**, a server app from the source-available portfolio
 (\`ventures/${slug}\`), set up to run on **Fly.io** in your own account.
 
 ## Deploy it
@@ -297,7 +297,7 @@ the deploy page${secrets.length ? '; replace each \`...\` above with your own va
 
 This copy runs in your own Fly.io account and Fly bills you. You are responsible for it:
 its domain, terms, privacy policy, customers' data and any changes you make. The creator
-does not host it, sees none of its traffic, and provides it as-is under the MIT license,
+does not host it, sees none of its traffic, and provides it as-is under the FSL-1.1-MIT license,
 with no warranty. Some apps start in a safe dry-run mode; read \`fly.toml\` and the app's own notes.
 
 ## Tear it down
@@ -362,14 +362,14 @@ function readme({ slug, title, provider }) {
   const android = provider === 'android';
   return `# ${title}
 
-Your own copy of **${title}**, deployed from the open-source portfolio
+Your own copy of **${title}**, deployed from the source-available portfolio
 (\`ventures/${slug}\`). Hosted on **${PROVIDERS[provider].label}**.
 
 ## You are the operator
 
 This copy runs in your account. You are responsible for it: its domain, terms,
 privacy policy, users and any changes you make. The creator does not host it,
-sees none of its traffic, and provides it as-is under the MIT license, with no
+sees none of its traffic, and provides it as-is under the FSL-1.1-MIT license, with no
 warranty. Keep the notice at the bottom of the page accurate.
 
 ## Redeploy

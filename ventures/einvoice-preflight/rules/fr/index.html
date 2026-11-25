@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="fr"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Erreurs de facture électronique expliquées : EN 16931, Peppol</title>
+<meta name="description" content="Ce que signifient 74 erreurs XRechnung (BR-DE), EN 16931 (BR-CO, BR-S) et Peppol (PEPPOL-EN16931) et comment les corriger, avec XML corrigé.">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/fr/">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/">
+<meta property="og:title" content="Erreurs de facture électronique expliquées : EN 16931, Peppol">
+<meta property="og:description" content="Ce que signifient 74 erreurs XRechnung (BR-DE), EN 16931 (BR-CO, BR-S) et Peppol (PEPPOL-EN16931) et comment les corriger, avec XML corrigé.">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"D'où viennent ces identifiants de règles ?","acceptedAnswer":{"@type":"Answer","text":"Des artefacts de validation officiels : le Schematron XRechnung de la KoSIT pour les règles BR-DE, les artefacts de validation EN 16931 du CEN/TC 434 pour les règles BR-, et les règles BIS Billing 3 d'OpenPeppol pour les règles PEPPOL-. Chaque page cite la version et donne le lien."}},{"@type":"Question","name":"Un avertissement est-il un rejet ?","acceptedAnswer":{"@type":"Answer","text":"Non. Dans les référentiels officiels, une règle de gravité avertissement ou information ne rejette pas la facture à elle seule, mais une plateforme destinataire peut être plus stricte. Une erreur (fatal) la rejette."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-invoice Preflight</p>
+<h1>Erreurs de validation des factures électroniques, expliquées</h1>
+<p>74 règles de validation qui rejettent ou signalent des factures électroniques, chacune avec sa signification, ses causes fréquentes, sa correction et un extrait XML corrigé. Les identifiants et messages viennent des référentiels officiels cités sur chaque page.</p>
+<nav class="langs" aria-label="Autres langues"><a href="../en/index.html" hreflang="en" lang="en">English</a><a href="../de/index.html" hreflang="de" lang="de">Deutsch</a></nav>
+</header>
+<section>
+<h2>Règles de base EN 16931 (toutes les factures électroniques de l'UE)</h2>
+<p class="note"><a href="https://github.com/ConnectingEurope/eInvoicing-EN16931/tree/validation-1.3.17" rel="noopener">CEN/TC 434 EN 16931 validation artefacts validation-1.3.17</a></p>
+<ul class="rules">
+<li><a href="br-27.html"><strong>BR-27</strong></a>: Prix net de l'article négatif</li>
+<li><a href="br-49.html"><strong>BR-49</strong></a>: Moyens de paiement sans code de type</li>
+<li><a href="br-61.html"><strong>BR-61</strong></a>: Virement sans compte bénéficiaire</li>
+<li><a href="br-62.html"><strong>BR-62</strong></a>: Adresse électronique du vendeur sans identifiant de schéma</li>
+<li><a href="br-63.html"><strong>BR-63</strong></a>: Adresse électronique de l'acheteur sans identifiant de schéma</li>
+<li><a href="br-ae-10.html"><strong>BR-AE-10</strong></a>: Ventilation de TVA « autoliquidation » sans motif d'exonération</li>
+<li><a href="br-cl-14.html"><strong>BR-CL-14</strong></a>: Code pays non conforme à l'ISO 3166-1</li>
+<li><a href="br-cl-23.html"><strong>BR-CL-23</strong></a>: Unité de mesure hors recommandation UN/ECE 20/21</li>
+<li><a href="br-co-09.html"><strong>BR-CO-09</strong></a>: Le numéro de TVA ne commence pas par un code pays valide</li>
+<li><a href="br-co-10.html"><strong>BR-CO-10</strong></a>: La somme des montants nets des lignes ne correspond pas aux lignes</li>
+<li><a href="br-co-13.html"><strong>BR-CO-13</strong></a>: Le total hors TVA ne correspond pas aux lignes, remises et charges</li>
+<li><a href="br-co-14.html"><strong>BR-CO-14</strong></a>: Le total de TVA n'est pas égal à la somme de la ventilation</li>
+<li><a href="br-co-15.html"><strong>BR-CO-15</strong></a>: Le total TTC n'est pas égal au total HT plus la TVA</li>
+<li><a href="br-co-16.html"><strong>BR-CO-16</strong></a>: Le montant à payer n'est pas le total moins l'acompte plus l'arrondi</li>
+<li><a href="br-co-17.html"><strong>BR-CO-17</strong></a>: Le montant de TVA de la ventilation ne correspond pas à base × taux</li>
+<li><a href="br-co-26.html"><strong>BR-CO-26</strong></a>: Le vendeur n'a ni identifiant, ni numéro d'immatriculation, ni numéro de TVA</li>
+<li><a href="br-dec-23.html"><strong>BR-DEC-23</strong></a>: Montant net de ligne avec plus de deux décimales</li>
+<li><a href="br-e-10.html"><strong>BR-E-10</strong></a>: Ventilation de TVA « exonéré » sans motif d'exonération</li>
+<li><a href="br-s-01.html"><strong>BR-S-01</strong></a>: Lignes au taux normal sans ventilation de TVA au taux normal</li>
+<li><a href="br-s-08.html"><strong>BR-S-08</strong></a>: Base imposable au taux normal incohérente avec les lignes</li>
+<li><a href="br-s-09.html"><strong>BR-S-09</strong></a>: Montant de TVA au taux normal différent de base × taux</li>
+<li><a href="br-z-10.html"><strong>BR-Z-10</strong></a>: Ventilation au taux zéro : motif d'exonération interdit</li>
+</ul>
+</section>
+<section>
+<h2>XRechnung (Allemagne, BR-DE)</h2>
+<p class="note"><a href="https://github.com/itplr-kosit/xrechnung-schematron/tree/v2.6.0" rel="noopener">KoSIT XRechnung Schematron v2.6.0 (for XRechnung 3.0)</a></p>
+<ul class="rules">
+<li><a href="br-de-1.html"><strong>BR-DE-1</strong></a>: Les moyens de paiement sont absents</li>
+<li><a href="br-de-2.html"><strong>BR-DE-2</strong></a>: Le contact du vendeur est absent</li>
+<li><a href="br-de-3.html"><strong>BR-DE-3</strong></a>: La ville du vendeur est absente</li>
+<li><a href="br-de-4.html"><strong>BR-DE-4</strong></a>: Le code postal du vendeur est absent</li>
+<li><a href="br-de-5.html"><strong>BR-DE-5</strong></a>: Le nom du contact du vendeur est absent</li>
+<li><a href="br-de-6.html"><strong>BR-DE-6</strong></a>: Le téléphone du contact du vendeur est absent</li>
+<li><a href="br-de-7.html"><strong>BR-DE-7</strong></a>: L'adresse e-mail du contact du vendeur est absente</li>
+<li><a href="br-de-8.html"><strong>BR-DE-8</strong></a>: La ville de l'acheteur est absente</li>
+<li><a href="br-de-9.html"><strong>BR-DE-9</strong></a>: Le code postal de l'acheteur est absent</li>
+<li><a href="br-de-10.html"><strong>BR-DE-10</strong></a>: L'adresse de livraison n'a pas de ville</li>
+<li><a href="br-de-11.html"><strong>BR-DE-11</strong></a>: L'adresse de livraison n'a pas de code postal</li>
+<li><a href="br-de-14.html"><strong>BR-DE-14</strong></a>: La ventilation de TVA n'indique pas de taux</li>
+<li><a href="br-de-15.html"><strong>BR-DE-15</strong></a>: La référence acheteur (Leitweg-ID) est absente</li>
+<li><a href="br-de-16.html"><strong>BR-DE-16</strong></a>: Numéro de TVA, numéro fiscal ou représentant fiscal du vendeur absent</li>
+<li><a href="br-de-17.html"><strong>BR-DE-17</strong></a>: Le code de type de facture n'est pas l'un de ceux attendus par XRechnung</li>
+<li><a href="br-de-18.html"><strong>BR-DE-18</strong></a>: La ligne d'escompte (Skonto) n'a pas le format exigé</li>
+<li><a href="br-de-19.html"><strong>BR-DE-19</strong></a>: Le compte du bénéficiaire n'est pas un IBAN valide pour un virement SEPA</li>
+<li><a href="br-de-20.html"><strong>BR-DE-20</strong></a>: Le compte débité n'est pas un IBAN valide pour un prélèvement SEPA</li>
+<li><a href="br-de-21.html"><strong>BR-DE-21</strong></a>: L'identifiant de spécification n'est pas celui de XRechnung 3.0</li>
+<li><a href="br-de-22.html"><strong>BR-DE-22</strong></a>: Deux pièces jointes intégrées portent le même nom de fichier</li>
+<li><a href="br-de-23-a.html"><strong>BR-DE-23-a</strong></a>: Virement sans compte du bénéficiaire</li>
+<li><a href="br-de-23-b.html"><strong>BR-DE-23-b</strong></a>: Le virement contient aussi des données de carte ou de prélèvement</li>
+<li><a href="br-de-24-a.html"><strong>BR-DE-24-a</strong></a>: Paiement par carte sans informations de carte</li>
+<li><a href="br-de-24-b.html"><strong>BR-DE-24-b</strong></a>: Le paiement par carte contient aussi des données de virement ou de prélèvement</li>
+<li><a href="br-de-25-a.html"><strong>BR-DE-25-a</strong></a>: Prélèvement sans informations de prélèvement</li>
+<li><a href="br-de-25-b.html"><strong>BR-DE-25-b</strong></a>: Le prélèvement contient aussi un compte de virement ou des données de carte</li>
+<li><a href="br-de-26.html"><strong>BR-DE-26</strong></a>: La facture rectificative ne référence pas la facture corrigée</li>
+<li><a href="br-de-27.html"><strong>BR-DE-27</strong></a>: Le téléphone du contact vendeur compte moins de trois chiffres</li>
+<li><a href="br-de-28.html"><strong>BR-DE-28</strong></a>: L'adresse e-mail du contact vendeur est mal formée</li>
+<li><a href="br-de-30.html"><strong>BR-DE-30</strong></a>: Prélèvement sans identifiant de créancier</li>
+<li><a href="br-de-31.html"><strong>BR-DE-31</strong></a>: Prélèvement sans compte débité</li>
+<li><a href="br-de-cvd-01.html"><strong>BR-DE-CVD-01</strong></a>: Référence du contrat manquante sur une facture « véhicules propres »</li>
+<li><a href="br-de-cvd-02.html"><strong>BR-DE-CVD-02</strong></a>: Référence de l'appel d'offres ou du lot manquante sur une facture « véhicules propres »</li>
+<li><a href="br-de-cvd-03.html"><strong>BR-DE-CVD-03</strong></a>: Aucune ligne de facture n'identifie le véhicule propre</li>
+<li><a href="br-de-cvd-04.html"><strong>BR-DE-CVD-04</strong></a>: Le code de catégorie du véhicule n'est pas une valeur autorisée</li>
+<li><a href="br-de-cvd-05.html"><strong>BR-DE-CVD-05</strong></a>: L'attribut « véhicule propre » a une valeur non autorisée</li>
+<li><a href="br-de-cvd-06-a.html"><strong>BR-DE-CVD-06-a</strong></a>: Une ligne avec une catégorie CVD doit avoir exactement un attribut cva</li>
+<li><a href="br-de-cvd-06-b.html"><strong>BR-DE-CVD-06-b</strong></a>: Une ligne avec un attribut cva doit avoir exactement une catégorie CVD</li>
+<li><a href="br-de-tmp-32.html"><strong>BR-DE-TMP-32</strong></a>: Aucune date de livraison ni période de prestation</li>
+</ul>
+</section>
+<section>
+<h2>Peppol BIS Billing 3</h2>
+<p class="note"><a href="https://github.com/OpenPEPPOL/peppol-bis-invoice-3/tree/3.0.22" rel="noopener">OpenPeppol BIS Billing 3 rules 3.0.22</a></p>
+<ul class="rules">
+<li><a href="peppol-en16931-p0112.html"><strong>PEPPOL-EN16931-P0112</strong></a>: Type de facture 326, 384 ou 389 utilisé hors des pays autorisés</li>
+<li><a href="peppol-en16931-r001.html"><strong>PEPPOL-EN16931-R001</strong></a>: Le processus métier (identifiant de profil) est absent</li>
+<li><a href="peppol-en16931-r003.html"><strong>PEPPOL-EN16931-R003</strong></a>: Ni référence acheteur ni numéro de commande</li>
+<li><a href="peppol-en16931-r004.html"><strong>PEPPOL-EN16931-R004</strong></a>: L'identifiant de spécification n'est pas celui de Peppol BIS Billing 3.0</li>
+<li><a href="peppol-en16931-r007.html"><strong>PEPPOL-EN16931-R007</strong></a>: L'identifiant de processus métier n'est pas une valeur approuvée</li>
+<li><a href="peppol-en16931-r008.html"><strong>PEPPOL-EN16931-R008</strong></a>: Le document contient un élément vide</li>
+<li><a href="peppol-en16931-r010.html"><strong>PEPPOL-EN16931-R010</strong></a>: L'adresse électronique de l'acheteur est absente</li>
+<li><a href="peppol-en16931-r020.html"><strong>PEPPOL-EN16931-R020</strong></a>: L'adresse électronique du vendeur est absente</li>
+<li><a href="peppol-en16931-r046.html"><strong>PEPPOL-EN16931-R046</strong></a>: Le prix net de l'article n'est pas égal au prix brut moins la remise</li>
+<li><a href="peppol-en16931-r051.html"><strong>PEPPOL-EN16931-R051</strong></a>: Un montant est dans une autre devise que celle de la facture</li>
+<li><a href="peppol-en16931-r053.html"><strong>PEPPOL-EN16931-R053</strong></a>: Il faut exactement un total de TVA avec ventilation</li>
+<li><a href="peppol-en16931-r120.html"><strong>PEPPOL-EN16931-R120</strong></a>: Le montant net de la ligne ne correspond pas à quantité, prix et remises ou frais</li>
+<li><a href="peppol-en16931-r121.html"><strong>PEPPOL-EN16931-R121</strong></a>: La quantité de base du prix est nulle ou négative</li>
+</ul>
+</section>
+<section>
+<h2>Vérifier votre fichier gratuitement</h2>
+<p>Le vérificateur gratuit exécute les règles officielles EN 16931, XRechnung et Peppol dans votre navigateur. Votre fichier n'est pas envoyé.</p>
+<p><a class="button" href="../../index.html">Ouvrir le vérificateur gratuit</a></p>
+</section>
+<section class="cta">
+<p><span class="state">En développement — accès anticipé</span></p>
+<h2>Corriger et expliquer, pour les experts-comptables et les équipes de facturation</h2>
+<p>Un service payant qui explique chaque règle en échec en français, en allemand ou en anglais clair et propose un fichier corrigé est en cours de développement. <a href="https://example.invalid/industries/eu-e-invoicing/">Accès anticipé</a></p>
+</section>
+<section>
+<h2>D'où viennent ces identifiants de règles ?</h2>
+<p>Des artefacts de validation officiels : le Schematron XRechnung de la KoSIT pour les règles BR-DE, les artefacts de validation EN 16931 du CEN/TC 434 pour les règles BR-, et les règles BIS Billing 3 d'OpenPeppol pour les règles PEPPOL-. Chaque page cite la version et donne le lien.</p>
+<h2>Un avertissement est-il un rejet ?</h2>
+<p>Non. Dans les référentiels officiels, une règle de gravité avertissement ou information ne rejette pas la facture à elle seule, mais une plateforme destinataire peut être plus stricte. Une erreur (fatal) la rejette.</p>
+</section>
+<footer>
+<p><strong>Ni conseil fiscal ni conseil juridique.</strong> Cette page explique ce que vérifie une règle de validation et comment faire passer un fichier. Elle ne dit pas quel régime de TVA s'applique à votre vente ; demandez à votre expert-comptable. <strong>Sans garantie (no warranty) :</strong> gratuit et fourni en l'état ; vérifiez le résultat avant de vous y fier.</p>
+<p>Notre code et nos explications sont sous licence MIT. Les messages officiels des règles sont cités sous la licence de leur éditeur (EUPL-1.2, Apache-2.0, MPL-2.0), indiquée sur chaque page.</p>
+</footer>
+</main></body></html>

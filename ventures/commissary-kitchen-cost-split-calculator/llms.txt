@@ -2,7 +2,7 @@
 
 > Free calculator for commissary/shared-kitchen operators: split pooled monthly costs (rent, utilities, trash, cleaning, pest control, insurance) fairly among multiple food-truck tenants by hours booked and storage used, instead of splitting evenly, and get an itemized bill for each tenant.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -12,4 +12,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/commissary-kitchen-cost-split-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/commissary-kitchen-cost-split-calculator): FSL-1.1-MIT licensed.

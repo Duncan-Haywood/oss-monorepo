@@ -164,7 +164,7 @@ import { concentration } from "./metrics.mjs";
 
 test("concentration reports top-N shares and a risk band, with no ids", () => {
   const c = concentration({ a: 500, b: 300, c: 100, d: 100 });
-  assert.equal(c.subscriptions, 4);
+  assert.equal(c.customers, 4);
   assert.equal(c.top1, 0.5);
   assert.equal(c.top5, 1);
   assert.deepEqual(c.top, [0.5, 0.3, 0.1, 0.1]);
@@ -380,7 +380,7 @@ test("forecast reads the last three complete months by default", () => {
 
 test("concentration leaves out zero-MRR subscriptions", () => {
   const c = concentration({ a: 300, b: 100, free: 0 });
-  assert.equal(c.subscriptions, 2);
+  assert.equal(c.customers, 2);
   assert.deepEqual(c.top, [0.75, 0.25]);
 });
 
@@ -441,4 +441,41 @@ test("quick ratio counts reactivated MRR in its numerator", () => {
   ];
   // By hand: (100 + 50 + 100) / (50 + 150) = 1.25; without reactivation it would be 0.75.
   assert.equal(summarize(months).rates.quickRatio, 1.25);
+});
+
+// Quality audit 2026-11-21 (mrr-pulse, defect 0): customers, logo churn and the
+// movements were per subscription. These are the audit's two cases.
+import { customerKey } from "./metrics.mjs";
+test("an add-on dropped by a customer who stays is contraction, not logo churn", () => {
+  const T0 = Date.UTC(2026, 0, 10), now = Date.UTC(2026, 3, 15);
+  const subs = [
+    { id: "base1", customer: "cus_1", status: "active", mrr: 5000, created: T0, endedAt: null },
+    { id: "addon1", customer: "cus_1", status: "canceled", mrr: 1000, created: T0, endedAt: Date.UTC(2026, 2, 5) },
+    { id: "base2", customer: "cus_2", status: "active", mrr: 2000, created: T0, endedAt: null },
+  ];
+  const { months } = backfill(subs, now, 4);
+  const mar = months.find((m) => m.month === "2026-03");
+  assert.equal(mar.churnCount, 0); assert.equal(mar.churn, 0); assert.equal(mar.contraction, 1000);
+  assert.equal(mar.startCustomers, 2); assert.equal(mar.customers, 2);
+  const r = summarize(months).rates;
+  assert.equal(r.basis, "2026-03"); assert.equal(r.logoChurn, 0); assert.equal(r.revenueChurn, 0);
+});
+
+test("a plan swap by cancel-and-create is expansion, NRR 1.6, no logo churn", () => {
+  const state = { months: {}, last: liveMap([{ id: "old", customer: "cus_1", status: "active", mrr: 5000 }]), ever: {} };
+  for (const k of Object.keys(state.last)) state.ever[k] = 1;
+  const t = Date.UTC(2026, 9, 3);
+  state.months["2026-10"] = { month: "2026-10", mrr: 5000, customers: 1, new: 0, expansion: 0, contraction: 0, churn: 0, reactivation: 0, newCount: 0, churnCount: 0, reactivationCount: 0, startMrr: 5000, startCustomers: 1 };
+  const m = applySync(state, liveMap([{ id: "old", customer: "cus_1", status: "canceled", mrr: 5000 }, { id: "new", customer: "cus_1", status: "active", mrr: 8000 }]), t);
+  assert.deepEqual([m.expansion, m.churn, m.new, m.churnCount, m.newCount], [3000, 0, 0, 0, 0]);
+  const row = state.months["2026-10"];
+  const s = summarize([row, { ...row, month: "2026-11" }]);
+  assert.equal(s.rates.nrr, 1.6); assert.equal(s.rates.logoChurn, 0); assert.equal(s.customers, 1);
+});
+
+test("subscriptions with no customer id each stand for a customer", () => {
+  const live = liveMap([{ id: "x", status: "active", mrr: 100 }, { id: "y", status: "active", mrr: 200 }, { id: "z", customer: "cus_1", status: "active", mrr: 300 }]);
+  assert.deepEqual(live, { x: 100, y: 200, cus_1: 300 });
+  assert.equal(customerKey({ id: "sub_1" }), "sub_1");
+  assert.equal(concentration(liveMap([{ id: "a", customer: "c", status: "active", mrr: 100 }, { id: "b", customer: "c", status: "active", mrr: 100 }])).customers, 1);
 });

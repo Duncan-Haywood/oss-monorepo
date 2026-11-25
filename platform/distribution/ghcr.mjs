@@ -47,7 +47,7 @@ LABEL org.opencontainers.image.title="${slug}" \\
       org.opencontainers.image.description="${oneLine(description)}" \\
       org.opencontainers.image.source="${REPO_URL}" \\
       org.opencontainers.image.url="${tagUrl(toolUrl(slug), 'ghcr')}" \\
-      org.opencontainers.image.licenses="MIT" \\
+      org.opencontainers.image.licenses="FSL-1.1-MIT" \\
       org.opencontainers.image.version="${version}"
 COPY . /opt/tool
 USER node

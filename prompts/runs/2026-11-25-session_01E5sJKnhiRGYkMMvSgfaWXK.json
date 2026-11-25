@@ -1,0 +1,325 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKnhiRGYkMMvSgfaWXK",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T09:18:47Z",
+  "ended": "2026-11-25T09:19:49Z",
+  "wall_minutes": 6.04,
+  "tokens_in": 2617817,
+  "tokens_out": 23000,
+  "cost_usd": 1.593,
+  "tool_calls": 31,
+  "task": "redteam: pay-app-guides frontload.mjs (bet #1 front door, landed 2026-11-25)",
+  "projects": [
+    "ventures/pay-app-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18921",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "campaign run on a stale local branch (claude/epic-wright-c6uyp5 already existed at e196056e6, one commit behind main)",
+      "fix": "git reset --keep origin/main after the campaign; the target file was identical on both"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "step 0's three open entries all need a control-plane workflow PR or a new eval set; the list will keep re-surfacing them to every red-team run, costing a read each time. A 'blocked: needs owner/control-plane' state for open entries would let `redteam.py open` skip them."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "step 0 says fix open entries first; all three need a control-plane workflow change (owner-approved, own PR) or a help-center eval set that does not exist",
+      "did": "left them open and spent the run on bet #1's newest front-door tool",
+      "result": "one real defect found and fixed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (front-loading section: the fix)"
+  ],
+  "goal": null,
+  "notes": "Target chosen for bet #1 (frontload.mjs landed on main the same day). Campaign: 12 mutants, 3 caught before (25%), 8 of 12 after the new tests (66.7%); the other 4 are triaged equivalent with reasons. Guard that runs without a red-team run: the seeded property test in frontload.test.mjs (runs in ventures-tests.yml) re-checks the fitted SOV on 300 random schedules; it failed on the old code. Verification: node --test *.test.mjs in ventures/pay-app-guides: 177 pass, 0 fail.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/pay-app-guides/frontload.mjs",
+        "test": "node --test ventures/pay-app-guides/**/*.test.mjs  (in .)",
+        "seed": 644835225,
+        "commit": "e196056e6",
+        "sites": 279,
+        "baseline_seconds": 2.3,
+        "mutants": [
+          {
+            "file": "ventures/pay-app-guides/frontload.mjs",
+            "line": 62,
+            "col": 85,
+            "operator": "or-to-and",
+            "before": "const order = raw.map((r, i) => [r - Math.floor(r), i]).sort((a, b) => b[0] - a[0] || a[1] - b[1]);",
+            "after": "const order = raw.map((r, i) => [r - Math.floor(r), i]).sort((a, b) => b[0] - a[0] && a[1] - b[1]);",
+            "line_text": "  const order = raw.map((r, i) => [r - Math.floor(r), i]).sort((a, b) => b[0] - a[0] || a[1] - b[1]);",
+            "caught": false,
+            "seconds": 1.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "apportion tie-break: new test apportion(100,[3,2,1]) needs the largest remainder, not the first index"
+          },
+          {
+            "file": "ventures/pay-app-guides/frontload.mjs",
+            "line": 63,
+            "col": 37,
+            "operator": "const-plus-one",
+            "before": "for (let k = 0; left > 0; k = (k + 1) % order.length, left--) out[order[k][1]]++;",
+            "after": "for (let k = 0; left > 0; k = (k + 2) % order.length, left--) out[order[k][1]]++;",
+            "line_text": "  for (let k = 0; left > 0; k = (k + 1) % order.length, left--) out[order[k][1]]++;",
+            "caught": false,
+            "seconds": 1.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "leftover-unit step: new test apportion(200,[1,1,1]) gives two leftover cents to lines 1 and 2"
+          },
+          {
+            "file": "ventures/pay-app-guides/frontload.mjs",
+            "line": 79,
+            "col": 58,
+            "operator": "const-plus-one",
+            "before": "const lo = costs.map((c) => c * (1 + Math.max(M - tol, -1)));",
+            "after": "const lo = costs.map((c) => c * (1 + Math.max(M - tol, -2)));",
+            "line_text": "  const lo = costs.map((c) => c * (1 + Math.max(M - tol, -1)));",
+            "caught": false,
+            "seconds": 1.3,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "withinTolerance lower bound floor -1 -> -2: the floor only bites when M - tol < -1, which is job-wide, so every line's lo is below 0 <= its value; nothing is raised at k=0, so sum(at(0)) <= V, the root has k >= 0, and every fitted value is >= min(v_i, hi_i) >= 0 = the same as with the floor. Same output."
+          },
+          {
+            "file": "ventures/pay-app-guides/frontload.mjs",
+            "line": 84,
+            "col": 51,
+            "operator": "const-plus-one",
+            "before": "const span = (V + values.reduce((a, v) => a + v, 0)) / Math.min(...costs.filter((c) => c > 0)) + 1;",
+            "after": "const span = (V + values.reduce((a, v) => a + v, 1)) / Math.min(...costs.filter((c) => c > 0)) + 1;",
+            "line_text": "  const span = (V + values.reduce((a, v) => a + v, 0)) / Math.min(...costs.filter((c) => c > 0)) + 1;",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "bisection bracket widened by 1/minCost: sum(k) is monotone and every term is constant wherever the sum is, so a wider bracket returns the same at(k) (span already bounds the root, shown in review)."
+          },
+          {
+            "file": "ventures/pay-app-guides/frontload.mjs",
+            "line": 87,
+            "col": 15,
+            "operator": "plus-to-minus",
+            "before": "return at((a + b) / 2);",
+            "after": "return at((a - b) / 2);",
+            "line_text": "  return at((a + b) / 2);",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/frontload.mjs",
+            "line": 108,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "const ret = num(settings.retainage, 10);",
+            "after": "const ret = num(settings.retainage, 11);",
+            "line_text": "  const ret = num(settings.retainage, 10);",
+            "caught": false,
+            "seconds": 1.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "default retainage: new test compares the cash view with retainage blank and '10'"
+          },
+          {
+            "file": "ventures/pay-app-guides/frontload.mjs",
+            "line": 146,
+            "col": 26,
+            "operator": "and-to-or",
+            "before": "x.early = !x.closeout && s <= Math.max(1, Math.ceil(N / 3));",
+            "after": "x.early = !x.closeout || s <= Math.max(1, Math.ceil(N / 3));",
+            "line_text": "    x.early = !x.closeout && s <= Math.max(1, Math.ceil(N / 3));",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "early classification: new test checks a middle line is neither early nor late and a closeout line listed first is late, not early"
+          },
+          {
+            "file": "ventures/pay-app-guides/frontload.mjs",
+            "line": 159,
+            "col": 58,
+            "operator": "gt-to-ge",
+            "before": "x.flag = x.cost === 0 ? x.value > 0 : Math.abs(x.off) > tol + 1e-9;",
+            "after": "x.flag = x.cost === 0 ? x.value > 0 : Math.abs(x.off) >= tol + 1e-9;",
+            "line_text": "    x.flag = x.cost === 0 ? x.value > 0 : Math.abs(x.off) > tol + 1e-9;",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": ">= vs > against tol + 1e-9: differs only when |off| equals the double tol + 1e-9 exactly; off is a ratio of integer cents minus the job markup, and no input we could construct hits that double."
+          },
+          {
+            "file": "ventures/pay-app-guides/frontload.mjs",
+            "line": 159,
+            "col": 64,
+            "operator": "plus-to-minus",
+            "before": "x.flag = x.cost === 0 ? x.value > 0 : Math.abs(x.off) > tol + 1e-9;",
+            "after": "x.flag = x.cost === 0 ? x.value > 0 : Math.abs(x.off) > tol - 1e-9;",
+            "line_text": "    x.flag = x.cost === 0 ? x.value > 0 : Math.abs(x.off) > tol + 1e-9;",
+            "caught": false,
+            "seconds": 1.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "epsilon sign: new test puts a line exactly 10 points over the job markup (float off 0.09999999999999998) and requires it unflagged"
+          },
+          {
+            "file": "ventures/pay-app-guides/frontload.mjs",
+            "line": 163,
+            "col": 61,
+            "operator": "gt-to-ge",
+            "before": "const pulledForward = L.filter((x) => x.early && x.loading > 0).reduce((a, x) => a + x.loading, 0);",
+            "after": "const pulledForward = L.filter((x) => x.early && x.loading >= 0).reduce((a, x) => a + x.loading, 0);",
+            "line_text": "  const pulledForward = L.filter((x) => x.early && x.loading > 0).reduce((a, x) => a + x.loading, 0);",
+            "caught": false,
+            "seconds": 1.3,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "loading > 0 vs >= 0 in a sum: the extra terms are zero."
+          },
+          {
+            "file": "ventures/pay-app-guides/frontload.mjs",
+            "line": 197,
+            "col": 13,
+            "operator": "const-plus-one",
+            "before": "let dB = 0, dBal = 0, dC = 0;",
+            "after": "let dB = 1, dBal = 0, dC = 0;",
+            "line_text": "    let dB = 0, dBal = 0, dC = 0;",
+            "caught": true,
+            "seconds": 1.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/frontload.mjs",
+            "line": 202,
+            "col": 101,
+            "operator": "times-to-div",
+            "before": "const share = (v) => (k === x.finish ? v - Math.round((v * (span - 1)) / span) : Math.round((v * k - v * (x.start - 1)) / span) - Math.round((v * (k - 1) - v * (x.start - 1)) / span));",
+            "after": "const share = (v) => (k === x.finish ? v - Math.round((v * (span - 1)) / span) : Math.round((v / k - v * (x.start - 1)) / span) - Math.round((v * (k - 1) - v * (x.start - 1)) / span));",
+            "line_text": "      const share = (v) => (k === x.finish ? v - Math.round((v * (span - 1)) / span) : Math.round((v * k - v * (x.start - 1)) / span) - Math.round((v * (k - 1) - v * (x.start - 1)) / span));",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/pay-app-guides/frontload.mjs",
+        "issue": "The 'within tolerance' SOV (offered on the page as the least change that brings every line inside the band) failed its own check: withinTolerance left lines exactly on the band's edge and plain largest-remainder rounding pushed them just outside, so re-checking it flagged 4/3/4 of the 10 sample lines (cent/dollar/hundred rounding) with high findings; 1,666 of 3,000 random schedules failed. Fixed with roundWithin (bounded largest-remainder rounding to each line's band), a re-check test at all three units and a seeded 300-schedule property test; after the fix 0 of 3,000 fail where the band holds a whole unit.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18921"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5fea93f6-f910-5e72-b06c-f2fcb1441cb5",
+    "transcripts": 1,
+    "first": "2026-11-25T09:18:47Z",
+    "last": "2026-11-25T09:24:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 31,
+        "input": 60,
+        "output": 23000,
+        "thinking": 9120,
+        "cache_read": 2539657,
+        "cache_write_5m": 0,
+        "cache_write_1h": 78100,
+        "api_equivalent_usd": 1.593,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 31,
+      "input": 60,
+      "output": 23000,
+      "thinking": 9120,
+      "cache_read": 2539657,
+      "cache_write_5m": 0,
+      "cache_write_1h": 78100,
+      "api_equivalent_usd": 1.593,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 31,
+    "tools": {
+      "Bash": 29,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.04,
+      "active_minutes": 6.04,
+      "model_minutes": 4.59,
+      "tool_minutes": 1.45,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer: mutation triage, rounding fix with bounds, property test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 188.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

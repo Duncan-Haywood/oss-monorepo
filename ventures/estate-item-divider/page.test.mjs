@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { solve, sampleInput, money, MAX_HEIRS } from "./calc.mjs";
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const GUIDE = "how-to-divide-personal-property-among-heirs.html";
 
@@ -36,8 +38,8 @@ test("SEO basics", () => {
   assert.match(html, /<title>Estate Item Divider/);
   assert.match(html, /<meta name="description" content="[^"]{80,}/);
   assert.match(html, /<link rel="canonical" href="\.\/index\.html">/);
-  assert.match(page("sitemap.xml"), new RegExp(GUIDE.replace(/\./g, "\\.")));
-  assert.match(page("llms.txt"), new RegExp(GUIDE.replace(/\./g, "\\.")));
+  assert.match(page("sitemap.xml"), new RegExp(escapeRegExp(GUIDE)));
+  assert.match(page("llms.txt"), new RegExp(escapeRegExp(GUIDE)));
 });
 
 test("nothing is sent anywhere and static inputs are labelled", () => {

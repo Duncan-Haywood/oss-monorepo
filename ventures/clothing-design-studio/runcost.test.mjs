@@ -55,3 +55,10 @@ test("small sizes and low totals are flagged", () => {
   assert.ok(r.notes.some(n => /XS under 10/.test(n)));
   assert.ok(r.notes.some(n => /minimum order/.test(n)));
 });
+
+test("fabric factor is chest x body length against M, by hand (quality audit 2026-11-22, defect 4: dropping length left every test green)", () => {
+  // regular tee: XS 96 cm chest x 67 cm long, M 112 x 71, XXL 136 x 77 (fit.mjs)
+  const f = fabricFactors("tee");
+  assert.equal(f.XS, 0.809);  // 6432 / 7952 = 0.80885; chest alone would give 0.857
+  assert.equal(f.XXL, 1.317); // 10472 / 7952 = 1.31690; chest alone would give 1.214
+});

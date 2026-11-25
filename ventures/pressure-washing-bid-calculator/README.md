@@ -109,7 +109,7 @@ it**, and for meeting any obligation it helps you prepare for. To the
 maximum extent permitted by law, the authors accept no liability for any
 loss or damage arising from its use.
 
-MIT licensed — see [`LICENSE`](LICENSE).
+FSL-1.1-MIT licensed — see [`LICENSE`](LICENSE).
 
 Optional support via the [GitHub repository](https://github.com/Duncan-Haywood/monorepo-projects)
 never changes what the tool does.

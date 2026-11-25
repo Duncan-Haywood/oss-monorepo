@@ -52,7 +52,33 @@ test("dates read the way site teams type them", () => {
   assert.equal(iso("Dec 3, 2025"), "2025-12-03T00:00");
   assert.equal(iso("45994"), "2025-12-03T00:00"); // an Excel day number
   assert.equal(iso("31/02/2025"), null);
+  // every month name lands on its own month (red team 2026-11-24: Apr read as May escaped)
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  months.forEach((mon, i) => assert.equal(iso(`3-${mon}-26`), `2026-${String(i + 1).padStart(2, "0")}-03T00:00`, mon));
+  assert.equal(iso("Sept 3, 2026"), "2026-09-03T00:00");
+  // a three-digit month is a typo, not December: it warns instead of reading
+  assert.equal(iso("2025-012-03"), null);
+  assert.equal(iso("2025-12-03 08:30"), "2025-12-03T08:30");
   assert.equal(iso("next week"), null);
+});
+
+test("one date order for the whole log: a day-first file reads 03/12 as 3 December", () => {
+  // red team 2026-11-24: 25/12/2025 read as 25 Dec but 03/12/2025 in the same
+  // file as 12 March, so a UK log's December delivery showed as overdue
+  const day = (m) => new Date(m * 60000).toISOString().slice(0, 10);
+  const uk = parseConstraintLog("Activity,Constraint,Expected,Cleared\nA1,Steel,25/12/2025,\nA2,Glass,03/12/2025,04/11/2025\n");
+  assert.deepEqual(uk.items.map((i) => day(i.expected)), ["2025-12-25", "2025-12-03"]);
+  assert.equal(day(uk.items[1].clearedOn), "2025-11-04");
+  assert.deepEqual(uk.warnings, []);
+  const us = parseConstraintLog("Activity,Expected\nA1,12/25/2025\nA2,03/12/2025\n");
+  assert.deepEqual(us.items.map((i) => day(i.expected)), ["2025-12-25", "2025-03-12"]);
+  const mixed = parseConstraintLog("Activity,Expected\nA1,25/12/2025\nA2,12/26/2025\nA3,03/12/2025\n");
+  assert.deepEqual(mixed.items.map((i) => day(i.expected)), ["2025-12-25", "2025-12-26", "2025-03-12"]);
+  assert.ok(mixed.warnings.some((w) => /day first .* month first/.test(w)));
+  const iso = (v, o) => day(parseLogDate(v, o));
+  assert.equal(iso("03/12/2025", "dmy"), "2025-12-03");
+  assert.equal(iso("03/12/2025", "mdy"), "2025-03-12");
+  assert.equal(iso("12/25/2025", "dmy"), "2025-12-25"); // the only reading it has
 });
 
 test("header names, several activities in a row, cleared values", () => {
@@ -86,6 +112,7 @@ test("make-ready with the log: constrained, late, overdue, the finish what-if", 
     "C,Shop drawings,Architect,,", // no date
     "D,Old RFI,Architect,2025-12-20,2025-11-30", // cleared before the data date
     "ZZZ,Unknown,,2025-12-02,", // not in the file
+    "A,Scaffold tag,Scaffolder,2025-12-20,", // late against started work: no late start to pass
   ].join("\n");
   const la = lookahead(x, { weeks: 2, constraints: log });
   const a = by(la);
@@ -97,8 +124,13 @@ test("make-ready with the log: constrained, late, overdue, the finish what-if", 
   assert.equal(a.D.openConstraints.length, 0);
   const cl = la.constraintLog;
   const st = Object.fromEntries(cl.items.map((i) => [i.what, i.status]));
-  assert.deepEqual(st, { "Drywall delivery": "on track", Inspection: "late", "Lift on site": "overdue", "Shop drawings": "no date", "Old RFI": "cleared", Unknown: "not in file" });
-  assert.equal(cl.summary.open, 4);
+  assert.deepEqual(st, { "Drywall delivery": "on track", Inspection: "late", "Lift on site": "overdue", "Shop drawings": "no date", "Old RFI": "cleared", Unknown: "not in file", "Scaffold tag": "late" });
+  // "past late start" needs a late start and an open row
+  const byWhat = Object.fromEntries(cl.items.map((i) => [i.what, i]));
+  assert.equal(byWhat["Old RFI"].links[0].past, false); // cleared
+  assert.equal(byWhat["Scaffold tag"].links[0].past, false); // started: no late start
+  assert.equal(byWhat["Shop drawings"].links[0].past, false); // no date
+  assert.equal(cl.summary.open, 5);
   assert.equal(la.summary.constrained, 1);
   // the inspection on 12-08 holds B from 12-03 to 12-08: three working days on the finish
   assert.equal(cl.finish.base, "2025-12-05 17:00");
@@ -124,7 +156,7 @@ test("make-ready with the log: constrained, late, overdue, the finish what-if", 
   assert.match(html, /Constraints log/);
   assert.match(html, /2025-12-10 17:00/);
   const back = constraintLogCsv(cl).trim().split("\n");
-  assert.equal(back.length, 7);
+  assert.equal(back.length, 8); // header + seven rows
   assert.match(back[2], /^3,B,Inspection,,City,,2025-12-08,,,late,2025-12-03,2025-12-03,-3,3,Activity B$/);
 });
 

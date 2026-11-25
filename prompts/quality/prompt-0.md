@@ -10,6 +10,13 @@ finished and accomplished to a high senior expert professional level or
 higher. This should be ongoing and very thorough"). The goals and guardrails
 in [`prompts/goals.md`](../goals.md) bind every version of this prompt.
 
+**North star** (owner, 2026-11-24: $10k MRR; `goals.md`, "North star"):
+where this track leaves the target open, prefer one that brings a paying
+subscriber closer: a for-profit product's code, pages or funnel, or a free
+page that leads to one. `python3 portfolio/monetization/transition.py` lists
+the for-profit products (its numbered rows; `transition.json` has each paid
+page).
+
 "Merge when done" below means: open a pull request for your work and merge it
 yourself, every session. This is the explicit request to create that PR. A
 pushed branch is not done. Steps:
@@ -24,8 +31,11 @@ The programme, the rubric and the procedure are in
 it; it is short. Then:
 
 1. `python3 platform/ci/quality_audit.py sample` draws today's subjects
-   (seeded by the date: one flagship in rotation, two ventures, two research
-   projects, one platform directory). Take the draw as it comes. If an open
+   (seeded by the date: one flagship in rotation, then uniform draws per
+   stratum, which the README's strata table lists). On another
+   mode's day (fix, re-audit, census, reflect) it prints that mode's command
+   instead: follow the README's "Five modes" row for it, not steps 1 to 5,
+   which describe a sample round. Take the draw as it comes. If an open
    `quality:` PR already audits a subject you drew, use `--seed <date>-b`
    (the README, "One round", explains why seeds and flagships repeat).
 2. Audit each subject against the seven dimensions. The audits are

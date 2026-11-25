@@ -2,8 +2,9 @@
 // written from memory, no live lookup:
 //  - Qualifying week = the 15th week before the expected week of childbirth
 //    (EWC); weeks run Sunday to Saturday.
-//  - Employee must have been continuously employed for 26 weeks ending with
-//    the qualifying week, and average weekly earnings (AWE) in the 8 weeks
+//  - Employee must have been continuously employed for 26 weeks into the
+//    qualifying week, a part week counting as a whole one (checked against
+//    GOV.UK's employer calculator and HMRC SPM250800 on 2026-11-24), and average weekly earnings (AWE) in the 8 weeks
 //    to the end of that week must be at least the lower earnings limit (LEL).
 //  - SMP lasts up to 39 weeks: 90% of AWE for the first 6 weeks, then the
 //    LOWER of the standard weekly rate and 90% of AWE for 33 weeks. It can
@@ -73,8 +74,11 @@ export function compute(input) {
   const qualifyingWeek = ewcWeek - 15 * 7;
   const earliestStart = ewcWeek - 11 * 7;
   const qwRate = rateAt(qualifyingWeek + 6);
-  const employedFor = qualifyingWeek + 6 - emp + 1; // days employed to end of QW
-  const employedWeeks = Math.floor(employedFor / 7);
+  // Weeks run Sunday to Saturday and a part week counts as a whole one (ERA 1996
+  // s.212(1); HMRC SPM250800), so a start on any day up to the Saturday of the
+  // 26th week back qualifies, as GOV.UK's employer calculator asks. Red team
+  // 2026-11-24 (was whole 7-day blocks, 6 days too strict).
+  const employedWeeks = (qualifyingWeek - sundayOnOrBefore(emp)) / 7 + 1;
   const lengthOk = employedWeeks >= 26;
   const earningsOk = awe >= qwRate.lel;
   const eligible = lengthOk && earningsOk;
@@ -88,6 +92,8 @@ export function compute(input) {
     findings.push({ severity: "medium", title: `Maternity pay cannot start before ${fromDay(earliestStart)} (11 weeks before the expected week); the calculation uses that date instead of ${fromDay(leave)}.` });
     start = earliestStart;
   }
+  // GOV.UK: leave starts the day after the birth at the latest (red team 2026-11-24).
+  if (leave !== null && leave > ewc + 1) findings.push({ severity: "medium", title: `Maternity leave and pay start the day after the birth at the latest, so a start on ${fromDay(leave)} only holds if the baby is born after ${fromDay(leave - 1)}, later than the due date (${fromDay(ewc)}).` });
   if (leave === null) findings.push({ severity: "info", title: `No start date given, so maternity pay is shown from the earliest possible date, ${fromDay(earliestStart)}.` });
 
   const rows = [];
@@ -116,6 +122,10 @@ export function compute(input) {
     const std = rateAt(ps).standard;
     const weekly = r2(Math.min(std, 0.9 * awe));
     spp = { weekly, total: r2(weekly * SPP_WEEKS), from: ps };
+    // GOV.UK: paternity leave starts on or after the birth and must finish
+    // within 52 weeks of it (red team 2026-11-24: any date was priced).
+    if (pat !== null && pat < ewc) findings.push({ severity: "medium", title: `Paternity pay starts on the birth date or later, so a start on ${fromDay(pat)} only holds if the baby is born by then, before the due date (${fromDay(ewc)}).` });
+    if (pat !== null && pat + 7 * SPP_WEEKS - 1 > ewc + 363) findings.push({ severity: "medium", title: `Paternity pay starts too late: the ${SPP_WEEKS} weeks from ${fromDay(pat)} must finish within 52 weeks of the birth (by ${fromDay(ewc + 363)} for a birth on the due date).` });
     findings.push({ severity: "info", title: `Statutory Paternity Pay (a partner or other eligible person with the same employment test) would be ${money(weekly)} a week for up to ${SPP_WEEKS} weeks (${money(spp.total)}) at these earnings and dates.` });
   }
   findings.push({ severity: "info", title: "Average weekly earnings must be worked out from gross pay in the 8 weeks to the end of the qualifying week, including some bonuses and back-pay. This tool takes the figure you enter." });

@@ -2,7 +2,7 @@
 
 > Free online generalised Lomb-Scargle periodogram (Zechmeister & Kurster 2009) for measurements taken at uneven times, with errors as weights and one offset per instrument or site. It lists the strongest periods with amplitude and Baluev's (2008) false alarm probability, removes each and searches again (pre-whitening), and checks every period against the spectral window for sampling aliases. Power matches astropy 6.1.4's LombScargle to 1e-9. On 401 public radial velocities of HD 164922 it finds peaks at the periods of all four planets the NASA Exoplanet Archive lists. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A significant period is not proof of a cause; the false alarm probability assumes independent noise with the stated errors.
+Free to use and source available (FSL-1.1-MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A significant period is not proof of a cause; the false alarm probability assumes independent noise with the stated errors.
 
 ## Pages
 
@@ -24,4 +24,4 @@ Free and open source (MIT). Results are statistical estimates from the data you 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/lomb-scargle-periodogram): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/lomb-scargle-periodogram): FSL-1.1-MIT licensed.

@@ -28,6 +28,16 @@ any start x, so a mixture over x is the Bessel process with the mixed start law)
 carried sheet's failure for ||m|| = r. READ tares when q(||m||, P) > eps; TRACK sets m = 0 by moving
 the offset and tares when q(0, P) > eps. eps is calibrated per row so the wall's Monte Carlo failure
 is at most alpha (`simulate`).
+
+BALANCE (milestone 77). Under TRACK the tare decision depends only on P, and P only on the sheets since
+the last tare, so TRACK is a fixed schedule: it tares at the first sheet j with q_j = q(0, P_j) > eps,
+every sheet or never on most rows (milestone 76's cliff). BALANCE spends a wall budget B = eps x sheets
+instead: q_0 = f_0 is the sheet's failure from a tare, a run of L sheets after a tare costs
+c(L) = q_0 + ... + q_{L-1}, and BALANCE takes the fewest tares T whose wall cost, with the T + 1 runs
+as equal as integers allow, is <= B. Because q_j is increasing in j (P_j rises monotonically from 0
+to its steady state), c is convex, so for a given T the most equal split minimises the summed cost:
+BALANCE is the optimum of milestone 75's dynamic programme on the tracked residual under the union
+bound, and eps (hence B) is calibrated by Monte Carlo like READ's and TRACK's.
 """
 import numpy as np
 from scipy import stats
@@ -114,11 +124,57 @@ def threshold(q, r, eps):
     return float(r[k - 1] + (eps - q[k - 1]) / (q[k] - q[k - 1]) * (r[k] - r[k - 1]))
 
 
+def p_sequence(n, starts, tau, pre, sigma, s, sheets):
+    """P_j at the reading of the j-th sheet after a tare (j = 1 .. sheets - 1), with no tare between,
+    for the in-sheet re-zero positions `starts` (deterministic: it is the filter's variance)."""
+    zmask = np.zeros(n, bool)
+    zmask[list(starts)] = True
+    out = [0.0]
+    P = 0.0
+    for _ in range(1, sheets):
+        for l in range(n):
+            if zmask[l]:
+                P = 0.0
+            P += sigma ** 2 * tau
+        P += sigma ** 2 * pre
+        if s > 0:
+            P = P * s ** 2 / (P + s ** 2)
+        else:
+            P = 0.0
+        out.append(P)
+    return out
+
+
+def per_sheet_risk(risk, starts, rest, f0, Ps):
+    """q_j = q(0, P_j) for j >= 1 and q_0 = f0: each sheet's failure under TRACK, j sheets after a tare."""
+    return [f0] + [float(carry_fail(risk, P, starts, rest)[0]) for P in Ps[1:]]
+
+
+def balanced_runs(sheets, T):
+    """Lengths of T + 1 runs covering `sheets`, as equal as integers allow (longer runs first)."""
+    k = T + 1
+    base, extra = divmod(sheets, k)
+    return [base + 1] * extra + [base] * (k - extra)
+
+
+def balance_schedule(q, sheets, budget):
+    """Fewest tares T (sheet starts, 1 .. sheets - 1) whose balanced runs cost sum c(L) <= budget, with
+    c(L) = q_0 + ... + q_{L-1}. Returns (tare sheet indices, wall cost); every sheet tared if none fits."""
+    cum = np.concatenate([[0.0], np.cumsum(q)])
+    for T in range(sheets):
+        runs = balanced_runs(sheets, T)
+        cost = float(sum(cum[L] for L in runs))
+        if cost <= budget:
+            break
+    starts = np.cumsum([0] + runs[:-1])[1:]
+    return [int(x) for x in starts], cost
+
+
 def simulate(policy, allow, tau, pre, sheets, sigma, s, eps, risk, LS_sheet, trials, seed,
              beta=0.0, chunk=1000):
     """Monte Carlo of a closed-loop wall: (wall failure, mean re-zeros, 95th percentile re-zeros).
 
-    policy 'READ' or 'TRACK'; s the reading noise sd a axis (N); beta a systematic reading error
+    policy 'READ', 'TRACK' or 'BALANCE'; s the reading noise sd a axis (N); beta a systematic reading error
     along x (N); eps the per-sheet risk level. A re-zero count excludes the implied first tare."""
     allow = np.asarray(allow, float)
     n = len(allow)
@@ -136,6 +192,13 @@ def simulate(policy, allow, tau, pre, sheets, sigma, s, eps, risk, LS_sheet, tri
             q = carry_fail(risk, P, starts, rest)
             q_tab[k] = (q, threshold(q, risk.r, eps))
         return q_tab[k]
+
+    tare_at = set()
+    if policy == "BALANCE":
+        cut = [0] + list(starts) + [n]
+        f0 = 1.0 - np.exp(sum(LS_sheet[a][b - a - 1] for a, b in zip(cut[:-1], cut[1:])))
+        q = per_sheet_risk(risk, starts, rest, f0, p_sequence(n, starts, tau, pre, sigma, s, sheets))
+        tare_at = set(balance_schedule(q, sheets, eps * sheets)[0])
 
     rng = np.random.default_rng(seed)
     fails, counts = [], []
@@ -160,11 +223,16 @@ def simulate(policy, allow, tau, pre, sheets, sigma, s, eps, risk, LS_sheet, tri
                     P = P * (1.0 - K)
                 else:
                     m, P = e.copy(), np.zeros(N)
-                if policy == "TRACK":
+                if policy in ("TRACK", "BALANCE"):
                     e = e - m
                     m[:] = 0.0
                 tare = np.zeros(N, bool)
-                for pv in np.unique(np.round(P, 15)):
+                if policy == "BALANCE":
+                    tare[:] = k in tare_at
+                    pvs = []
+                else:
+                    pvs = np.unique(np.round(P, 15))
+                for pv in pvs:
                     sel = np.abs(P - pv) <= 1e-15
                     q, th = qtab(pv)
                     if policy == "READ":

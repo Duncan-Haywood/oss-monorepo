@@ -1,0 +1,1262 @@
+{
+ "n": 18,
+ "missing": [],
+ "pooled": {
+  "chooser5": 1.624269949420113,
+  "chooser4": 2.375259704912556,
+  "spread": 2.1628787920233568,
+  "se": 1.685979092609621,
+  "regime": 1.7513875648813315
+ },
+ "sfse": {
+  "chooser5": 2.2756708698254955,
+  "chooser4": 2.0640948818247473,
+  "spread": 2.316057033569789,
+  "se": 2.35183835611382,
+  "regime": 2.242866152858175
+ },
+ "austin": {
+  "chooser5": 0.3214681086093473,
+  "chooser4": 2.9975893510881733,
+  "spread": 1.8565223089304925,
+  "se": 0.35426056560122277,
+  "regime": 0.7684303889276455
+ },
+ "worst": {
+  "chooser5": 6.028319229021363,
+  "chooser4": 7.327890282963239,
+  "spread": 5.7456519666702235,
+  "se": 6.028319229021363,
+  "regime": 5.7456519666702235
+ },
+ "changed_spread": 6,
+ "picks": {
+  "chooser5": {
+   "_nc1": 11,
+   "_nc2": 0,
+   "_nc3": 4,
+   "_nc4": 1,
+   "_nc5": 2
+  },
+  "chooser4": {
+   "_nc1": 0,
+   "_nc2": 10,
+   "_nc3": 5,
+   "_nc4": 1,
+   "_nc5": 2
+  },
+  "spread": {
+   "_nc1": 6,
+   "_nc2": 3,
+   "_nc3": 5,
+   "_nc4": 2,
+   "_nc5": 2
+  },
+  "se": {
+   "_nc1": 8,
+   "_nc2": 3,
+   "_nc3": 3,
+   "_nc4": 2,
+   "_nc5": 2
+  },
+  "regime": {
+   "_nc1": 6,
+   "_nc2": 5,
+   "_nc3": 4,
+   "_nc4": 1,
+   "_nc5": 2
+  }
+ },
+ "median_winner_spread": 0.9996872573606623,
+ "sweep_post_hoc": {
+  "0": 1.624269949420113,
+  "0.5": 1.883040792785265,
+  "1": 2.1628787920233568,
+  "2": 2.9754000943390073,
+  "3": 4.67286015871232,
+  "5": 5.781831716162453,
+  "10": 7.392915151622735
+ },
+ "predictions": {
+  "D0": true,
+  "D1": false,
+  "D2": false,
+  "D3": false,
+  "D4": true,
+  "D5": true,
+  "D6": false,
+  "D7": false
+ },
+ "cells": [
+  {
+   "held": "austin",
+   "year": 2017,
+   "oracle": "cpin_es3_nc1",
+   "picks": {
+    "chooser5": "cpin_es3_nc1",
+    "chooser4": "cpin_es3_nc2",
+    "spread": "cpin_es3_nc3",
+    "se": "cpin_es3_nc2",
+    "regime": "cpin_es3_nc2"
+   },
+   "regret": {
+    "chooser5": 0.0,
+    "chooser4": 2.1255633936073366,
+    "spread": 5.107004310462827,
+    "se": 2.1255633936073366,
+    "regime": 2.1255633936073366
+   },
+   "winner_spread": 11.01636187258535,
+   "winner_se": 3.212773910580884,
+   "gap_next": 2.9992954405062875,
+   "seeds": {
+    "cpin_es3_nc1": [
+     64.48894070689758,
+     57.610696223258095,
+     53.47257883431223
+    ],
+    "cpin_es3_nc2": [
+     62.70040401666979,
+     60.935231490303266,
+     60.93446657901371
+    ],
+    "cpin_es3_nc3": [
+     65.70909412393085,
+     64.58082614374521,
+     64.0953354295845
+    ],
+    "cpin_es3_nc4": [
+     89.83293511874805,
+     78.50096009827682,
+     80.91713773544804
+    ],
+    "cpin_es3_nc5": [
+     105.62979991722817,
+     89.4919016374188,
+     95.80223662714903
+    ]
+   },
+   "sources": {
+    "cpin_es3_nc1": "rounds_score_floor_i2c.json",
+    "cpin_es3_nc2": "rounds_score_floor_i2c.json",
+    "cpin_es3_nc3": "rounds_score_austin_i2c.json",
+    "cpin_es3_nc4": "rounds_score_austin_i2c.json",
+    "cpin_es3_nc5": "rounds_score_austin_i2c.json"
+   },
+   "sweep": {
+    "0": 0.0,
+    "0.5": 2.1255633936073366,
+    "1": 5.107004310462827,
+    "2": 5.107004310462827,
+    "3": 20.633313983046563,
+    "5": 33.94036831205146,
+    "10": 33.94036831205146
+   }
+  },
+  {
+   "held": "austin",
+   "year": 2018,
+   "oracle": "cpin_es3_nc1",
+   "picks": {
+    "chooser5": "cpin_es3_nc1",
+    "chooser4": "cpin_es3_nc2",
+    "spread": "cpin_es3_nc1",
+    "se": "cpin_es3_nc1",
+    "regime": "cpin_es3_nc1"
+   },
+   "regret": {
+    "chooser5": 0.0,
+    "chooser4": 3.279561925878575,
+    "spread": 0.0,
+    "se": 0.0,
+    "regime": 0.0
+   },
+   "winner_spread": 1.2664055259904856,
+   "winner_se": 0.4090822052357351,
+   "gap_next": 3.585981140025858,
+   "seeds": {
+    "cpin_es3_nc1": [
+     60.634994616369724,
+     59.36858909037924,
+     59.45106774951633
+    ],
+    "cpin_es3_nc2": [
+     68.73639419744558,
+     58.113753495645014,
+     63.362447183252286
+    ],
+    "cpin_es3_nc3": [
+     73.08178102431356,
+     64.7712535840114,
+     70.48808307572465
+    ],
+    "cpin_es3_nc4": [
+     87.13173521089101,
+     80.65133748401493,
+     84.80155185096578
+    ],
+    "cpin_es3_nc5": [
+     86.66637207752972,
+     81.5985320370262,
+     91.5191036499384
+    ]
+   },
+   "sources": {
+    "cpin_es3_nc1": "rounds_score_floor_i2c.json",
+    "cpin_es3_nc2": "rounds_score_floor_i2c.json",
+    "cpin_es3_nc3": "rounds_score_austin_i2c.json",
+    "cpin_es3_nc4": "rounds_score_austin_i2c.json",
+    "cpin_es3_nc5": "rounds_score_austin_i2c.json"
+   },
+   "sweep": {
+    "0": 0.0,
+    "0.5": 0.0,
+    "1": 0.0,
+    "2": 0.0,
+    "3": 3.279561925878575,
+    "5": 3.279561925878575,
+    "10": 8.668220718022248
+   }
+  },
+  {
+   "held": "austin",
+   "year": 2019,
+   "oracle": "cpin_es3_nc1",
+   "picks": {
+    "chooser5": "cpin_es3_nc1",
+    "chooser4": "cpin_es3_nc2",
+    "spread": "cpin_es3_nc1",
+    "se": "cpin_es3_nc1",
+    "regime": "cpin_es3_nc1"
+   },
+   "regret": {
+    "chooser5": 0.0,
+    "chooser4": 7.327890282963239,
+    "spread": 0.0,
+    "se": 0.0,
+    "regime": 0.0
+   },
+   "winner_spread": 3.97914163737353,
+   "winner_se": 1.2967110809651365,
+   "gap_next": 8.36501314840389,
+   "seeds": {
+    "cpin_es3_nc1": [
+     51.990481509299116,
+     55.969623146672646,
+     52.175070189633765
+    ],
+    "cpin_es3_nc2": [
+     60.6706851873398,
+     64.56899762484285,
+     59.99053147863456
+    ],
+    "cpin_es3_nc3": [
+     64.06841301824988,
+     68.57217926600525,
+     64.26341897539923
+    ],
+    "cpin_es3_nc4": [
+     77.50619617165809,
+     80.20441468450937,
+     80.79715943065887
+    ],
+    "cpin_es3_nc5": [
+     84.69340608999777,
+     75.67266882461143,
+     83.2883276819435
+    ]
+   },
+   "sources": {
+    "cpin_es3_nc1": "rounds_score_floor_i2c.json",
+    "cpin_es3_nc2": "rounds_score_floor_i2c.json",
+    "cpin_es3_nc3": "rounds_score_austin_i2c.json",
+    "cpin_es3_nc4": "rounds_score_austin_i2c.json",
+    "cpin_es3_nc5": "rounds_score_austin_i2c.json"
+   },
+   "sweep": {
+    "0": 0.0,
+    "0.5": 0.0,
+    "1": 0.0,
+    "2": 0.0,
+    "3": 7.327890282963239,
+    "5": 10.763543421874957,
+    "10": 27.209493004821027
+   }
+  },
+  {
+   "held": "austin",
+   "year": 2020,
+   "oracle": "cpin_es3_nc2",
+   "picks": {
+    "chooser5": "cpin_es3_nc1",
+    "chooser4": "cpin_es3_nc2",
+    "spread": "cpin_es3_nc3",
+    "se": "cpin_es3_nc2",
+    "regime": "cpin_es3_nc2"
+   },
+   "regret": {
+    "chooser5": 1.9288086516560838,
+    "chooser4": 0.0,
+    "spread": 3.5471106031615918,
+    "se": 0.0,
+    "regime": 0.0
+   },
+   "winner_spread": 10.345222691392237,
+   "winner_se": 3.114094287793053,
+   "gap_next": 0.0988914658654707,
+   "seeds": {
+    "cpin_es3_nc1": [
+     55.36655745218515,
+     57.89142925281358,
+     65.71178014357739
+    ],
+    "cpin_es3_nc2": [
+     59.6458611326085,
+     58.18253615205382,
+     61.4380439615102
+    ],
+    "cpin_es3_nc3": [
+     63.57316357617461,
+     59.406442663206334,
+     68.00255453724918
+    ],
+    "cpin_es3_nc4": [
+     82.77639726360883,
+     73.88911935554258,
+     77.54694553323887
+    ],
+    "cpin_es3_nc5": [
+     84.00870305816387,
+     76.27401438249062,
+     71.07284145567593
+    ]
+   },
+   "sources": {
+    "cpin_es3_nc1": "rounds_score_floor_i2c.json",
+    "cpin_es3_nc2": "rounds_score_floor_i2c.json",
+    "cpin_es3_nc3": "rounds_score_austin_i2c.json",
+    "cpin_es3_nc4": "rounds_score_austin_i2c.json",
+    "cpin_es3_nc5": "rounds_score_austin_i2c.json"
+   },
+   "sweep": {
+    "0": 1.9288086516560838,
+    "0.5": 3.5471106031615918,
+    "1": 3.5471106031615918,
+    "2": 16.971209886295334,
+    "3": 16.971209886295334,
+    "5": 16.971209886295334,
+    "10": 16.971209886295334
+   }
+  },
+  {
+   "held": "austin",
+   "year": 2021,
+   "oracle": "cpin_es3_nc1",
+   "picks": {
+    "chooser5": "cpin_es3_nc1",
+    "chooser4": "cpin_es3_nc2",
+    "spread": "cpin_es3_nc1",
+    "se": "cpin_es3_nc1",
+    "regime": "cpin_es3_nc1"
+   },
+   "regret": {
+    "chooser5": 0.0,
+    "chooser4": 2.7675015641213534,
+    "spread": 0.0,
+    "se": 0.0,
+    "regime": 0.0
+   },
+   "winner_spread": 2.628341837818283,
+   "winner_se": 0.7691260926398292,
+   "gap_next": 4.812947929076628,
+   "seeds": {
+    "cpin_es3_nc1": [
+     58.46786872786582,
+     59.40407284255109,
+     56.775731004732805
+    ],
+    "cpin_es3_nc2": [
+     64.87408930128862,
+     59.61855443048036,
+     64.5938726306106
+    ],
+    "cpin_es3_nc3": [
+     64.87408930128862,
+     61.01368850817922,
+     70.47781059461505
+    ],
+    "cpin_es3_nc4": [
+     84.59737819393081,
+     81.4330095890493,
+     78.9281849913484
+    ],
+    "cpin_es3_nc5": [
+     83.34634890608024,
+     87.47974148335781,
+     86.18082648232365
+    ]
+   },
+   "sources": {
+    "cpin_es3_nc1": "rounds_score_floor_i2c.json",
+    "cpin_es3_nc2": "rounds_score_floor_i2c.json",
+    "cpin_es3_nc3": "rounds_score_austin_i2c.json",
+    "cpin_es3_nc4": "rounds_score_austin_i2c.json",
+    "cpin_es3_nc5": "rounds_score_austin_i2c.json"
+   },
+   "sweep": {
+    "0": 0.0,
+    "0.5": 0.0,
+    "1": 0.0,
+    "2": 2.7675015641213534,
+    "3": 4.703332374352691,
+    "5": 4.703332374352691,
+    "10": 19.137878336139984
+   }
+  },
+  {
+   "held": "austin",
+   "year": 2022,
+   "oracle": "cpin_es3_nc1",
+   "picks": {
+    "chooser5": "cpin_es3_nc1",
+    "chooser4": "cpin_es3_nc2",
+    "spread": "cpin_es3_nc2",
+    "se": "cpin_es3_nc1",
+    "regime": "cpin_es3_nc2"
+   },
+   "regret": {
+    "chooser5": 0.0,
+    "chooser4": 2.485018939958536,
+    "spread": 2.485018939958536,
+    "se": 0.0,
+    "regime": 2.485018939958536
+   },
+   "winner_spread": 8.165986565717944,
+   "winner_se": 2.4491434376693686,
+   "gap_next": 5.865164250898815,
+   "seeds": {
+    "cpin_es3_nc1": [
+     48.95306584951428,
+     57.119052415232225,
+     51.04301378394389
+    ],
+    "cpin_es3_nc2": [
+     59.529962073780524,
+     56.91118314315331,
+     58.269479584453016
+    ],
+    "cpin_es3_nc3": [
+     58.32900832125827,
+     69.3470278869422,
+     59.28133843785792
+    ],
+    "cpin_es3_nc4": [
+     74.87662024116737,
+     68.35973808110799,
+     66.88162005068286
+    ],
+    "cpin_es3_nc5": [
+     83.65199073140766,
+     80.9094600239272,
+     83.99674057461908
+    ]
+   },
+   "sources": {
+    "cpin_es3_nc1": "rounds_score_floor_i2c.json",
+    "cpin_es3_nc2": "rounds_score_floor_i2c.json",
+    "cpin_es3_nc3": "rounds_score_austin_i2c.json",
+    "cpin_es3_nc4": "rounds_score_austin_i2c.json",
+    "cpin_es3_nc5": "rounds_score_austin_i2c.json"
+   },
+   "sweep": {
+    "0": 0.0,
+    "0.5": 0.0,
+    "1": 2.485018939958536,
+    "2": 5.204745502687594,
+    "3": 11.004559349862099,
+    "5": 21.274410979758763,
+    "10": 21.274410979758763
+   }
+  },
+  {
+   "held": "sf",
+   "year": 2017,
+   "oracle": "cpin_es3_nc3",
+   "picks": {
+    "chooser5": "cpin_es3_nc1",
+    "chooser4": "cpin_es3_nc2",
+    "spread": "cpin_es3_nc1",
+    "se": "cpin_es3_nc1",
+    "regime": "cpin_es3_nc1"
+   },
+   "regret": {
+    "chooser5": 1.5166463010878743,
+    "chooser4": 0.698224677555416,
+    "spread": 1.5166463010878743,
+    "se": 1.5166463010878743,
+    "regime": 1.5166463010878743
+   },
+   "winner_spread": 0.46792999526523005,
+   "winner_se": 0.13510061397747275,
+   "gap_next": 0.9933855490180861,
+   "seeds": {
+    "cpin_es3_nc1": [
+     52.246210284311324,
+     52.473053293308574,
+     52.714140279576554
+    ],
+    "cpin_es3_nc2": [
+     53.668433497538494,
+     53.580034169292006,
+     53.16509283742023
+    ],
+    "cpin_es3_nc3": [
+     55.41954279830101,
+     55.42302002812682,
+     55.309136648340065
+    ],
+    "cpin_es3_nc4": [
+     61.32467543000517,
+     61.265465663926726,
+     61.03017467086635
+    ],
+    "cpin_es3_nc5": [
+     73.99610392349311,
+     73.56807928157828,
+     73.49596396162993
+    ]
+   },
+   "sources": {
+    "cpin_es3_nc1": "rounds_score_floor5_i2c.json",
+    "cpin_es3_nc2": "rounds_score_floor_i2c.json",
+    "cpin_es3_nc3": "rounds_score_early_i2c.json",
+    "cpin_es3_nc4": "rounds_score_early_i2c.json",
+    "cpin_es3_nc5": "rounds_score_early_i2c.json"
+   },
+   "sweep": {
+    "0": 1.5166463010878743,
+    "0.5": 1.5166463010878743,
+    "1": 1.5166463010878743,
+    "2": 1.5166463010878743,
+    "3": 0.698224677555416,
+    "5": 0.698224677555416,
+    "10": 0.0
+   }
+  },
+  {
+   "held": "sf",
+   "year": 2018,
+   "oracle": "cpin_es3_nc4",
+   "picks": {
+    "chooser5": "cpin_es3_nc1",
+    "chooser4": "cpin_es3_nc2",
+    "spread": "cpin_es3_nc2",
+    "se": "cpin_es3_nc2",
+    "regime": "cpin_es3_nc2"
+   },
+   "regret": {
+    "chooser5": 3.8846737893661327,
+    "chooser4": 3.920393056286656,
+    "spread": 3.920393056286656,
+    "se": 3.920393056286656,
+    "regime": 3.920393056286656
+   },
+   "winner_spread": 0.3825918932676018,
+   "winner_se": 0.1141089361291025,
+   "gap_next": 0.0919259285541898,
+   "seeds": {
+    "cpin_es3_nc1": [
+     54.930019775510395,
+     54.54742788224279,
+     54.82477745253693
+    ],
+    "cpin_es3_nc2": [
+     54.9956646996616,
+     54.54568982258983,
+     55.03664837370127
+    ],
+    "cpin_es3_nc3": [
+     56.81215586611349,
+     56.69789767683679,
+     56.632997097402416
+    ],
+    "cpin_es3_nc4": [
+     59.119347777525824,
+     58.89500270841516,
+     58.871880266209324
+    ],
+    "cpin_es3_nc5": [
+     68.70338493131321,
+     69.13343669089673,
+     69.35090286946024
+    ]
+   },
+   "sources": {
+    "cpin_es3_nc1": "rounds_score_floor5_i2c.json",
+    "cpin_es3_nc2": "rounds_score_floor_i2c.json",
+    "cpin_es3_nc3": "rounds_score_early_i2c.json",
+    "cpin_es3_nc4": "rounds_score_early_i2c.json",
+    "cpin_es3_nc5": "rounds_score_early_i2c.json"
+   },
+   "sweep": {
+    "0": 3.8846737893661327,
+    "0.5": 3.920393056286656,
+    "1": 3.920393056286656,
+    "2": 3.920393056286656,
+    "3": 3.920393056286656,
+    "5": 3.920393056286656,
+    "10": 0.7293271312632612
+   }
+  },
+  {
+   "held": "sf",
+   "year": 2019,
+   "oracle": "cpin_es3_nc4",
+   "picks": {
+    "chooser5": "cpin_es3_nc1",
+    "chooser4": "cpin_es3_nc2",
+    "spread": "cpin_es3_nc1",
+    "se": "cpin_es3_nc1",
+    "regime": "cpin_es3_nc1"
+   },
+   "regret": {
+    "chooser5": 5.7456519666702235,
+    "chooser4": 6.9598320906563345,
+    "spread": 5.7456519666702235,
+    "se": 5.7456519666702235,
+    "regime": 5.7456519666702235
+   },
+   "winner_spread": 0.41764034624505086,
+   "winner_se": 0.12442836554367209,
+   "gap_next": 0.4625515926355206,
+   "seeds": {
+    "cpin_es3_nc1": [
+     59.09655633794287,
+     58.795409737086665,
+     59.213050083331716
+    ],
+    "cpin_es3_nc2": [
+     59.70521329341083,
+     59.234690807344634,
+     59.55276683551237
+    ],
+    "cpin_es3_nc3": [
+     60.74068654929942,
+     60.67343418645009,
+     60.43018343495781
+    ],
+    "cpin_es3_nc4": [
+     62.7191954858213,
+     62.79793302688553,
+     62.32995334519296
+    ],
+    "cpin_es3_nc5": [
+     68.47459917873631,
+     67.54202592439496,
+     68.04531585461562
+    ]
+   },
+   "sources": {
+    "cpin_es3_nc1": "rounds_score_floor5_i2c.json",
+    "cpin_es3_nc2": "rounds_score_floor_i2c.json",
+    "cpin_es3_nc3": "rounds_score_oos_i2c.json",
+    "cpin_es3_nc4": "rounds_score_grid_i2c.json",
+    "cpin_es3_nc5": "rounds_score_oos_i2c.json"
+   },
+   "sweep": {
+    "0": 5.7456519666702235,
+    "0.5": 5.7456519666702235,
+    "1": 5.7456519666702235,
+    "2": 6.9598320906563345,
+    "3": 6.9598320906563345,
+    "5": 1.5595052173775343,
+    "10": 0.0
+   }
+  },
+  {
+   "held": "sf",
+   "year": 2020,
+   "oracle": "cpin_es3_nc5",
+   "picks": {
+    "chooser5": "cpin_es3_nc1",
+    "chooser4": "cpin_es3_nc2",
+    "spread": "cpin_es3_nc2",
+    "se": "cpin_es3_nc1",
+    "regime": "cpin_es3_nc2"
+   },
+   "regret": {
+    "chooser5": 6.028319229021363,
+    "chooser4": 5.598943358492988,
+    "spread": 5.598943358492988,
+    "se": 6.028319229021363,
+    "regime": 5.598943358492988
+   },
+   "winner_spread": 0.3824928319558154,
+   "winner_se": 0.1139882362514492,
+   "gap_next": 0.2778621388296685,
+   "seeds": {
+    "cpin_es3_nc1": [
+     60.79867303921605,
+     60.69236358315702,
+     61.07485641511283
+    ],
+    "cpin_es3_nc2": [
+     61.19051379881319,
+     60.99146795392791,
+     61.21749770123377
+    ],
+    "cpin_es3_nc3": [
+     61.51536466748954,
+     61.58326292578558,
+     61.66971526628388
+    ],
+    "cpin_es3_nc4": [
+     62.78006330081685,
+     62.411085479049405,
+     62.91529574554175
+    ],
+    "cpin_es3_nc5": [
+     65.4678650218389,
+     66.12276181486287,
+     65.3587808935674
+    ]
+   },
+   "sources": {
+    "cpin_es3_nc1": "rounds_score_floor5_i2c.json",
+    "cpin_es3_nc2": "rounds_score_floor_i2c.json",
+    "cpin_es3_nc3": "rounds_score_oos_i2c.json",
+    "cpin_es3_nc4": "rounds_score_grid_i2c.json",
+    "cpin_es3_nc5": "rounds_score_oos_i2c.json"
+   },
+   "sweep": {
+    "0": 6.028319229021363,
+    "0.5": 6.028319229021363,
+    "1": 5.598943358492988,
+    "2": 1.0862565939888356,
+    "3": 1.0862565939888356,
+    "5": 0.15436652106957638,
+    "10": 0.15436652106957638
+   }
+  },
+  {
+   "held": "sf",
+   "year": 2021,
+   "oracle": "cpin_es3_nc3",
+   "picks": {
+    "chooser5": "cpin_es3_nc1",
+    "chooser4": "cpin_es3_nc3",
+    "spread": "cpin_es3_nc1",
+    "se": "cpin_es3_nc1",
+    "regime": "cpin_es3_nc1"
+   },
+   "regret": {
+    "chooser5": 2.5410137528547807,
+    "chooser4": 0.0,
+    "spread": 2.5410137528547807,
+    "se": 2.5410137528547807,
+    "regime": 2.5410137528547807
+   },
+   "winner_spread": 0.05838310724517015,
+   "winner_se": 0.016886729584265486,
+   "gap_next": 0.2918515087340836,
+   "seeds": {
+    "cpin_es3_nc1": [
+     60.59747859889091,
+     60.62350561214115,
+     60.65586170613608
+    ],
+    "cpin_es3_nc2": [
+     60.49444440091534,
+     61.710836627752954,
+     60.98695401320872
+    ],
+    "cpin_es3_nc3": [
+     60.74646786071402,
+     60.90029867185575,
+     61.10563391080062
+    ],
+    "cpin_es3_nc4": [
+     63.453929695766064,
+     63.28616283330124,
+     63.59967536009391
+    ],
+    "cpin_es3_nc5": [
+     63.52695235986096,
+     66.75652397511894,
+     66.91702580660045
+    ]
+   },
+   "sources": {
+    "cpin_es3_nc1": "rounds_score_floor5_i2c.json",
+    "cpin_es3_nc2": "rounds_score_floor_i2c.json",
+    "cpin_es3_nc3": "rounds_score_oos_i2c.json",
+    "cpin_es3_nc4": "rounds_score_grid_i2c.json",
+    "cpin_es3_nc5": "rounds_score_oos_i2c.json"
+   },
+   "sweep": {
+    "0": 2.5410137528547807,
+    "0.5": 2.5410137528547807,
+    "1": 2.5410137528547807,
+    "2": 2.5410137528547807,
+    "3": 2.5410137528547807,
+    "5": 0.0,
+    "10": 0.0
+   }
+  },
+  {
+   "held": "sf",
+   "year": 2022,
+   "oracle": "cpin_es3_nc3",
+   "picks": {
+    "chooser5": "cpin_es3_nc3",
+    "chooser4": "cpin_es3_nc3",
+    "spread": "cpin_es3_nc4",
+    "se": "cpin_es3_nc4",
+    "regime": "cpin_es3_nc3"
+   },
+   "regret": {
+    "chooser5": 0.0,
+    "chooser4": 0.0,
+    "spread": 0.87829056853937,
+    "se": 0.87829056853937,
+    "regime": 0.0
+   },
+   "winner_spread": 0.9996872573606623,
+   "winner_se": 0.30741703523832264,
+   "gap_next": 0.2248055119189587,
+   "seeds": {
+    "cpin_es3_nc1": [
+     72.76886387556281,
+     73.64237545587746,
+     72.36018951154969
+    ],
+    "cpin_es3_nc2": [
+     72.39447882011362,
+     73.0699350089603,
+     72.52636584576678
+    ],
+    "cpin_es3_nc3": [
+     70.60885490264218,
+     69.60916764528152,
+     69.79118090631974
+    ],
+    "cpin_es3_nc4": [
+     70.70447382246532,
+     70.2853512298446,
+     69.69379493769036
+    ],
+    "cpin_es3_nc5": [
+     71.71739488658525,
+     71.54503796328142,
+     71.4006283789235
+    ]
+   },
+   "sources": {
+    "cpin_es3_nc1": "rounds_score_floor5_i2c.json",
+    "cpin_es3_nc2": "rounds_score_floor_i2c.json",
+    "cpin_es3_nc3": "rounds_score_oos_i2c.json",
+    "cpin_es3_nc4": "rounds_score_grid_i2c.json",
+    "cpin_es3_nc5": "rounds_score_oos_i2c.json"
+   },
+   "sweep": {
+    "0": 0.0,
+    "0.5": 0.87829056853937,
+    "1": 0.87829056853937,
+    "2": 3.043084098343634,
+    "3": 3.043084098343634,
+    "5": 3.043084098343634,
+    "10": 3.043084098343634
+   }
+  },
+  {
+   "held": "seattle",
+   "year": 2017,
+   "oracle": "cpin_es3_nc4",
+   "picks": {
+    "chooser5": "cpin_es3_nc4",
+    "chooser4": "cpin_es3_nc4",
+    "spread": "cpin_es3_nc4",
+    "se": "cpin_es3_nc4",
+    "regime": "cpin_es3_nc4"
+   },
+   "regret": {
+    "chooser5": 0.0,
+    "chooser4": 0.0,
+    "spread": 0.0,
+    "se": 0.0,
+    "regime": 0.0
+   },
+   "winner_spread": 0.5818890699044204,
+   "winner_se": 0.17351712213902024,
+   "gap_next": 0.21993477503423264,
+   "seeds": {
+    "cpin_es3_nc1": [
+     60.941686780410606,
+     60.5252054831133,
+     60.87181458454756
+    ],
+    "cpin_es3_nc2": [
+     58.13239162160039,
+     58.071181661677564,
+     58.137296467940644
+    ],
+    "cpin_es3_nc3": [
+     58.30828364232328,
+     57.8491333396231,
+     58.24629308396318
+    ],
+    "cpin_es3_nc4": [
+     58.22812957190348,
+     57.64624050199906,
+     57.806695352213374
+    ],
+    "cpin_es3_nc5": [
+     60.3675324624101,
+     61.02335571958933,
+     60.51301451592093
+    ]
+   },
+   "sources": {
+    "cpin_es3_nc1": "rounds_score_floor5_i2c.json",
+    "cpin_es3_nc2": "rounds_score_floor_i2c.json",
+    "cpin_es3_nc3": "rounds_score_early_i2c.json",
+    "cpin_es3_nc4": "rounds_score_early_i2c.json",
+    "cpin_es3_nc5": "rounds_score_early_i2c.json"
+   },
+   "sweep": {
+    "0": 0.0,
+    "0.5": 0.0,
+    "1": 0.0,
+    "2": 0.0,
+    "3": 0.0,
+    "5": 1.8221596353419756,
+    "10": 1.8221596353419756
+   }
+  },
+  {
+   "held": "seattle",
+   "year": 2018,
+   "oracle": "cpin_es3_nc4",
+   "picks": {
+    "chooser5": "cpin_es3_nc3",
+    "chooser4": "cpin_es3_nc3",
+    "spread": "cpin_es3_nc3",
+    "se": "cpin_es3_nc3",
+    "regime": "cpin_es3_nc3"
+   },
+   "regret": {
+    "chooser5": 1.2035201211019029,
+    "chooser4": 1.2035201211019029,
+    "spread": 1.2035201211019029,
+    "se": 1.2035201211019029,
+    "regime": 1.2035201211019029
+   },
+   "winner_spread": 0.4879569960957397,
+   "winner_se": 0.1537592370995615,
+   "gap_next": 0.25687926429021246,
+   "seeds": {
+    "cpin_es3_nc1": [
+     59.51634286602939,
+     59.68563111646377,
+     60.2894236327998
+    ],
+    "cpin_es3_nc2": [
+     58.637562389932164,
+     58.12262598851851,
+     58.797962924696805
+    ],
+    "cpin_es3_nc3": [
+     58.56812768621494,
+     58.0801706901192,
+     58.139215133942685
+    ],
+    "cpin_es3_nc4": [
+     58.40001570379957,
+     58.937345477563106,
+     59.22353479914979
+    ],
+    "cpin_es3_nc5": [
+     61.13930878065095,
+     61.283387922518195,
+     61.93701390143815
+    ]
+   },
+   "sources": {
+    "cpin_es3_nc1": "rounds_score_floor5_i2c.json",
+    "cpin_es3_nc2": "rounds_score_floor_i2c.json",
+    "cpin_es3_nc3": "rounds_score_early_i2c.json",
+    "cpin_es3_nc4": "rounds_score_early_i2c.json",
+    "cpin_es3_nc5": "rounds_score_early_i2c.json"
+   },
+   "sweep": {
+    "0": 1.2035201211019029,
+    "0.5": 1.2035201211019029,
+    "1": 1.2035201211019029,
+    "2": 0.0,
+    "3": 0.0,
+    "5": 0.0,
+    "10": 0.12195410610203794
+   }
+  },
+  {
+   "held": "seattle",
+   "year": 2019,
+   "oracle": "cpin_es3_nc4",
+   "picks": {
+    "chooser5": "cpin_es3_nc3",
+    "chooser4": "cpin_es3_nc3",
+    "spread": "cpin_es3_nc3",
+    "se": "cpin_es3_nc3",
+    "regime": "cpin_es3_nc3"
+   },
+   "regret": {
+    "chooser5": 1.9487107364867597,
+    "chooser4": 1.9487107364867597,
+    "spread": 1.9487107364867597,
+    "se": 1.9487107364867597,
+    "regime": 1.9487107364867597
+   },
+   "winner_spread": 0.1992933534875263,
+   "winner_se": 0.061910226688433066,
+   "gap_next": 0.3221541029217434,
+   "seeds": {
+    "cpin_es3_nc1": [
+     59.923988466510366,
+     59.79172433449788,
+     59.844676394872934
+    ],
+    "cpin_es3_nc2": [
+     58.75387498006256,
+     59.66391485993545,
+     58.374812538644655
+    ],
+    "cpin_es3_nc3": [
+     57.364449648976475,
+     57.532707585432405,
+     57.33341423194488
+    ],
+    "cpin_es3_nc4": [
+     57.8921169164854,
+     57.27446520800221,
+     58.0304516506314
+    ],
+    "cpin_es3_nc5": [
+     59.95464689250822,
+     59.07203249933968,
+     59.87875902025529
+    ]
+   },
+   "sources": {
+    "cpin_es3_nc1": "rounds_score_floor5_i2c.json",
+    "cpin_es3_nc2": "rounds_score_floor_i2c.json",
+    "cpin_es3_nc3": "rounds_score_oos_i2c.json",
+    "cpin_es3_nc4": "rounds_score_grid_i2c.json",
+    "cpin_es3_nc5": "rounds_score_oos_i2c.json"
+   },
+   "sweep": {
+    "0": 1.9487107364867597,
+    "0.5": 1.9487107364867597,
+    "1": 1.9487107364867597,
+    "2": 0.0,
+    "3": 0.0,
+    "5": 0.0,
+    "10": 0.0
+   }
+  },
+  {
+   "held": "seattle",
+   "year": 2020,
+   "oracle": "cpin_es3_nc5",
+   "picks": {
+    "chooser5": "cpin_es3_nc3",
+    "chooser4": "cpin_es3_nc3",
+    "spread": "cpin_es3_nc3",
+    "se": "cpin_es3_nc3",
+    "regime": "cpin_es3_nc3"
+   },
+   "regret": {
+    "chooser5": 4.43951454131691,
+    "chooser4": 4.43951454131691,
+    "spread": 4.43951454131691,
+    "se": 4.43951454131691,
+    "regime": 4.43951454131691
+   },
+   "winner_spread": 0.2290478368274762,
+   "winner_se": 0.06632157552745602,
+   "gap_next": 0.5977361188993342,
+   "seeds": {
+    "cpin_es3_nc1": [
+     68.17140789871642,
+     65.557916756634,
+     67.87998720600837
+    ],
+    "cpin_es3_nc2": [
+     66.42896963367876,
+     64.44549944728875,
+     64.11999313010178
+    ],
+    "cpin_es3_nc3": [
+     62.659123234362376,
+     62.789131943943154,
+     62.56008410711568
+    ],
+    "cpin_es3_nc4": [
+     63.57690873045103,
+     62.736883836274394,
+     63.487755075393814
+    ],
+    "cpin_es3_nc5": [
+     64.92074401331026,
+     63.24923972440563,
+     64.42445001987623
+    ]
+   },
+   "sources": {
+    "cpin_es3_nc1": "rounds_score_floor5_i2c.json",
+    "cpin_es3_nc2": "rounds_score_floor_i2c.json",
+    "cpin_es3_nc3": "rounds_score_oos_i2c.json",
+    "cpin_es3_nc4": "rounds_score_grid_i2c.json",
+    "cpin_es3_nc5": "rounds_score_oos_i2c.json"
+   },
+   "sweep": {
+    "0": 4.43951454131691,
+    "0.5": 4.43951454131691,
+    "1": 4.43951454131691,
+    "2": 4.43951454131691,
+    "3": 1.9428107847376026,
+    "5": 1.9428107847376026,
+    "10": 0.0
+   }
+  },
+  {
+   "held": "seattle",
+   "year": 2021,
+   "oracle": "cpin_es3_nc5",
+   "picks": {
+    "chooser5": "cpin_es3_nc5",
+    "chooser4": "cpin_es3_nc5",
+    "spread": "cpin_es3_nc5",
+    "se": "cpin_es3_nc5",
+    "regime": "cpin_es3_nc5"
+   },
+   "regret": {
+    "chooser5": 0.0,
+    "chooser4": 0.0,
+    "spread": 0.0,
+    "se": 0.0,
+    "regime": 0.0
+   },
+   "winner_spread": 1.3879292463433117,
+   "winner_se": 0.458226535832718,
+   "gap_next": 0.8160143626070209,
+   "seeds": {
+    "cpin_es3_nc1": [
+     65.52285721518017,
+     64.31857414691272,
+     66.20569414986475
+    ],
+    "cpin_es3_nc2": [
+     63.89296246016761,
+     64.63999945393591,
+     64.50372986711014
+    ],
+    "cpin_es3_nc3": [
+     63.478139160465766,
+     64.03983873164108,
+     63.537209331673516
+    ],
+    "cpin_es3_nc4": [
+     63.637088374373185,
+     64.07281070153223,
+     63.52709335588716
+    ],
+    "cpin_es3_nc5": [
+     63.34065576603505,
+     61.95272651969174,
+     63.31376185023252
+    ]
+   },
+   "sources": {
+    "cpin_es3_nc1": "rounds_score_floor5_i2c.json",
+    "cpin_es3_nc2": "rounds_score_floor_i2c.json",
+    "cpin_es3_nc3": "rounds_score_oos_i2c.json",
+    "cpin_es3_nc4": "rounds_score_grid_i2c.json",
+    "cpin_es3_nc5": "rounds_score_oos_i2c.json"
+   },
+   "sweep": {
+    "0": 0.0,
+    "0.5": 0.0,
+    "1": 0.0,
+    "2": 0.0,
+    "3": 0.0,
+    "5": 0.0,
+    "10": 0.0
+   }
+  },
+  {
+   "held": "seattle",
+   "year": 2022,
+   "oracle": "cpin_es3_nc5",
+   "picks": {
+    "chooser5": "cpin_es3_nc5",
+    "chooser4": "cpin_es3_nc5",
+    "spread": "cpin_es3_nc5",
+    "se": "cpin_es3_nc5",
+    "regime": "cpin_es3_nc5"
+   },
+   "regret": {
+    "chooser5": 0.0,
+    "chooser4": 0.0,
+    "spread": 0.0,
+    "se": 0.0,
+    "regime": 0.0
+   },
+   "winner_spread": 1.087575996969548,
+   "winner_se": 0.36094507623827576,
+   "gap_next": 0.6499932897019676,
+   "seeds": {
+    "cpin_es3_nc1": [
+     67.29407996422283,
+     68.26722673877644,
+     67.38981691522892
+    ],
+    "cpin_es3_nc2": [
+     66.00162800733693,
+     66.85856481798437,
+     66.20375823413308
+    ],
+    "cpin_es3_nc3": [
+     65.62376597522301,
+     66.34430931740347,
+     66.01140551892044
+    ],
+    "cpin_es3_nc4": [
+     65.4116545930662,
+     66.03823078792725,
+     65.70773271828581
+    ],
+    "cpin_es3_nc5": [
+     64.70350586582776,
+     64.71305050154828,
+     65.79108186279731
+    ]
+   },
+   "sources": {
+    "cpin_es3_nc1": "rounds_score_floor5_i2c.json",
+    "cpin_es3_nc2": "rounds_score_floor_i2c.json",
+    "cpin_es3_nc3": "rounds_score_oos_i2c.json",
+    "cpin_es3_nc4": "rounds_score_grid_i2c.json",
+    "cpin_es3_nc5": "rounds_score_oos_i2c.json"
+   },
+   "sweep": {
+    "0": 0.0,
+    "0.5": 0.0,
+    "1": 0.0,
+    "2": 0.0,
+    "3": 0.0,
+    "5": 0.0,
+    "10": 0.0
+   }
+  }
+ ]
+}

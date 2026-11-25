@@ -85,6 +85,13 @@ test('parseFlagships keeps file order and unfolds >- scalars', () => {
   ]);
 });
 
+test('parseFlagships keeps a bet row\'s `app:` (2026-11-24 ranking)', () => {
+  const src = 'flagships:\n  - venture: payapps\n    bet: 1\n    app: private-monorepo/apps/payapps\n    why: >-\n      Pay apps.\n    next: >-\n      Build it.\n';
+  assert.deepEqual(parseFlagships(src), [
+    { venture: 'payapps', why: 'Pay apps.', next: 'Build it.', app: 'private-monorepo/apps/payapps' },
+  ]);
+});
+
 test('parseProgrammes reads only the Open programmes table', () => {
   assert.deepEqual(parseProgrammes(PROGRAMMES), [
     { slug: 'sim-a', question: 'How few trials?', venue: 'CoRL' },

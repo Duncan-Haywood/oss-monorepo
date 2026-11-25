@@ -32,7 +32,7 @@ each step's `working-directory`, and reports which passed.
     python3 platform/ci/run_workflow_locally.py --tree
     python3 platform/ci/run_workflow_locally.py portfolio-validate.yml
     python3 platform/ci/run_workflow_locally.py doc-refs-ci prompts-ci   # several, in turn
-    python3 platform/ci/run_workflow_locally.py --list portfolio-pages.yml
+    python3 platform/ci/run_workflow_locally.py --list priv-portfolio-pages.yml
 
 Under an agent harness a run still going after 100 s detaches and prints
 its log path and a `wait_for.py` line (exit 3); `--foreground` stays attached.
@@ -56,7 +56,7 @@ Choosing the workflow is the other half. Running the right steps of the
 wrong workflow verifies nothing, and `AGENTS.md` named only
 `portfolio-validate.yml` -- so on 2026-08-30 a `FAQPage` whose JSON-LD did
 not match its own visible copy reached `main`. The guard that catches it
-(`faq-visible.test.mjs`) runs in `portfolio-pages.yml`, on any
+(`faq-visible.test.mjs`) runs in `priv-portfolio-pages.yml`, on any
 `ventures/**` change. `--for-changes` reads the `paths:` filters and works
 that out from the diff instead of asking a session to remember, then runs
 the jobs that cannot write anything and names the ones it held back.
@@ -120,9 +120,9 @@ WORKFLOWS = os.path.join(REPO, ".github", "workflows")
 VERIFICATION_ONLY = {
     "portfolio-validate.yml",
     "ventures-tests.yml",
-    "portfolio-pages.yml",
+    "priv-portfolio-pages.yml",
     "agent-permission-harness-ci.yml",
-    "conflict-markers-ci.yml",
+    "priv-conflict-markers-ci.yml",
     "duplicate-symbols-ci.yml",
     # Added 2026-09-07 with the workflow itself. `--tree` is the mode that
     # answers "is `main` green right now?", and a gate that only runs when a
@@ -175,7 +175,7 @@ VERIFICATION_ONLY = {
 
 # Commands that change something outside this working tree. A verification
 # run has no business doing any of them, and the one workflow in this repo
-# that legitimately does (branch-cleanup.yml) is exactly what this catches.
+# that legitimately does (priv-branch-cleanup.yml) is exactly what this catches.
 MUTATING = [
     (re.compile(r"\bgit\s+push\b"), "git push"),
     (re.compile(r"\bgit\s+push\b.*--force|\bgit\s+push\s+-f\b"), "force push"),
@@ -238,7 +238,7 @@ STATUS_MARK = {
 # an unset repository variable is the empty string, and every workflow here is
 # written around that. `gitops/ci/README.md` says so outright for `CI_RUNNER`
 # ("Unset, `vars.CI_RUNNER` is the empty string, which is falsy, so the
-# expression falls back to `ubuntu-latest`"), and `portfolio-pages.yml`'s
+# expression falls back to `ubuntu-latest`"), and `priv-portfolio-pages.yml`'s
 # `PAGES_BASE_URL` is the same shape -- `build.mjs` reads it as
 # `process.env.PAGES_BASE_URL || DEFAULT_BASE_URL`.
 #
@@ -442,7 +442,7 @@ def ambient_github_token() -> str:
     return os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN") or ""
 
 # GitHub Actions runs a Linux `run:` step under bash, and workflows here rely
-# on that: `portfolio-pages.yml` opens a step with `set -euo pipefail`, which
+# on that: `priv-portfolio-pages.yml` opens a step with `set -euo pipefail`, which
 # is a syntax error in dash. Python's `shell=True` is `/bin/sh`, so without
 # this the tool reports a false failure on any step using a bash-ism -- the
 # one thing a verification tool must never do, since the reader's next move
@@ -780,7 +780,7 @@ EVENT_TERM = re.compile(
 
 
 # Why `&&` is split only outside parentheses. Until 2026-11-14 any `||` in an
-# `if:` made the whole condition unknown, so portfolio-pages.yml's `deploy`
+# `if:` made the whole condition unknown, so priv-portfolio-pages.yml's `deploy`
 # job -- `... && (needs.gate.outputs.cloudflare != 'true' || ...) && ... &&
 # github.event_name != 'pull_request' && ...` -- ran locally, and its
 # "Announce the deployed site to IndexNow" step reached `indexnow.mjs
@@ -870,7 +870,7 @@ def job_order(jobs: dict) -> list[str]:
 
 # Why an `actions/cache` restore gets a local stand-in. `runner.temp` resolves
 # to a fresh temp directory per process, so the share-card cache that
-# portfolio-pages.yml restores into `${{ runner.temp }}/share-cards` was empty
+# priv-portfolio-pages.yml restores into `${{ runner.temp }}/share-cards` was empty
 # on every local run: each of the site-builder suite's four full builds drew
 # all ~7,300 cards again. Cold, that step took 330 s here, past the sweep's
 # 300 s per-workflow budget, so every venture or post diff ended NO_VERDICT
@@ -883,6 +883,7 @@ def job_order(jobs: dict) -> list[str]:
 # Measured: one site build 111 s cold, 47 s warm (process run 2026-11-14,
 # docs/history/run-workflow-locally-card-cache-2026-11-14.md).
 CACHE_ACTION = re.compile(r"^actions/cache(/restore)?@")
+DOWNLOAD_ARTIFACT = re.compile(r"^actions/download-artifact@")
 RUNNER_TEMP_PATH = re.compile(r"^\$\{\{\s*runner\.temp\s*\}\}/(.+)$")
 
 
@@ -944,6 +945,24 @@ def collect(workflow: dict, only: set | None = None) -> tuple[list[Step], list[s
         job_dir = _default_dir(job, top_dir)
         for raw in job.get("steps") or []:
             name = raw.get("name") or raw.get("uses") or "(unnamed)"
+            # A download-artifact step fetches files another job uploaded in
+            # CI, often from a `uses:` step (CodeQL's SARIF) that never runs
+            # here. Kept as a skipped Step, not just a note, so run_steps
+            # counts it like a skipped run: step and a later failure in the
+            # job reads UNRUN (after-skip), not FAILED: `priv-codeql.yml`'s
+            # gate and `priv-security-gate.yml`'s Verdict both read as real
+            # failures in --for-changes (doc friction, 2026-11-25).
+            if DOWNLOAD_ARTIFACT.match(str(raw.get("uses") or "")):
+                if false_on_pull_request(raw.get("if")):
+                    skipped.append(f"{job_id} / {name}: if: is false on a pull request")
+                    continue
+                artifact = (raw.get("with") or {}).get("name") or "(all)"
+                step = Step(job_id, name, "", job_dir)
+                step.status = "skipped"
+                step.reason = (f"uses: actions/download-artifact ({artifact}); "
+                               "its files exist only in CI")
+                steps.append(step)
+                continue
             if "run" not in raw:
                 kept = local_cache_dirs(raw)
                 skipped.append(f"{job_id} / {name}: uses: step, not run:"
@@ -956,7 +975,7 @@ def collect(workflow: dict, only: set | None = None) -> tuple[list[Step], list[s
             workdir = raw.get("working-directory", job_dir)
             step = Step(job_id, name, command, workdir)
             # A step can carry the expression in its `env:` rather than in the
-            # command. `portfolio-pages.yml`'s post-deploy check is the case:
+            # command. `priv-portfolio-pages.yml`'s post-deploy check is the case:
             # the command is plain bash, but `PAGE_URL` comes from the
             # deploy-pages action's output, so locally it runs with the
             # variable unset and dies on `set -u`. That is not a repository
@@ -1020,7 +1039,7 @@ def screen(step: Step) -> str | None:
 # changing a venture page verifies that one and stops -- but the guard that
 # would have caught it often lives elsewhere. On 2026-08-30 a `FAQPage`
 # whose JSON-LD did not match its own visible copy reached `main` that way:
-# `faq-visible.test.mjs` catches it, `portfolio-pages.yml` runs it on any
+# `faq-visible.test.mjs` catches it, `priv-portfolio-pages.yml` runs it on any
 # `ventures/**` change, and no session ran that workflow.
 #
 # The workflow files already say which paths they answer to. This reads them
@@ -1082,7 +1101,7 @@ def selects(workflow: dict, changed: list[str]) -> bool:
     A workflow with a `pull_request` trigger is judged by that block alone:
     it is what the PR's CI runs. Its `push` block (here always `branches:
     [main]`) fires after the merge, not on the diff under review. Reading it
-    too made `portfolio-pages.yml`, whose `push` has no path filter, answer to
+    too made `priv-portfolio-pages.yml`, whose `push` has no path filter, answer to
     every diff, so a research-only change sat through the site build and the
     site-builder suite that its PR never runs (15 doc-friction reports,
     2026-11-10..16). A push-only workflow still counts its `push` block.
@@ -1212,14 +1231,14 @@ def read_only_jobs(workflow: dict) -> tuple[set, list[tuple[str, str]]]:
     """Split a workflow's jobs into those safe to run here, and why not.
 
     The gate is what a job is *allowed* to do, not what its commands look
-    like. `branch-cleanup.yml` is why: it deletes refs from inside
+    like. `priv-branch-cleanup.yml` is why: it deletes refs from inside
     `branch_cleanup.py`, so every shell command in it is an innocent
     `python3 ...` and the mutation screen passes it clean. What it cannot
     hide is the capability -- deleting a remote ref needs `contents: write`
     and a token, and both are declared in the file.
 
     Per job rather than per workflow, because the two usually sit in one
-    file. `portfolio-pages.yml` is the case that matters: its `build` job is
+    file. `priv-portfolio-pages.yml` is the case that matters: its `build` job is
     six read-only verification steps, including the FAQPage guard, and its
     `deploy` job holds `pages: write`. Judging the file as a whole would hold
     back the very steps this tool exists to run.
@@ -1415,7 +1434,7 @@ def runner_files() -> dict[str, str]:
 
     A step that writes `>> "$GITHUB_OUTPUT"` fails here with an unset
     variable (bash: ambiguous redirect), whatever the diff: every
-    `--for-changes` run selects portfolio-pages.yml, and its first step does
+    `--for-changes` run selects priv-portfolio-pages.yml, and its first step does
     exactly that, so each run reported FAILED rows it did not cause (run
     record 2026-11-11, session_01E5sJKmNy2). What a step writes lands in one
     temp directory per process; values a later `${{ steps.x.outputs.y }}`
@@ -1946,7 +1965,7 @@ BUDGET_SPENT = 3
 AFTER_SKIP = 4
 # report()'s exit when every step was skipped and none ran. A by-name run maps
 # it to 1, as before; a sweep counts it as no verdict, not a failure. Every
-# diff selects agent-cross-review.yml, whose one runnable step reads
+# diff selects priv-agent-cross-review.yml, whose one runnable step reads
 # `github.event.pull_request.number` and so always skips: as a failure it made
 # every --for-changes sweep exit 1 with nothing failed (three run records,
 # 2026-11-14, had to read the log to say so).
@@ -1954,7 +1973,7 @@ NOTHING_RAN = 6
 # The sweep's exit (`--for-changes`, `--tree`) when no step failed but some
 # workflow reached no verdict (BUDGET_SPENT or AFTER_SKIP). Still not a pass,
 # but not 1 either: through 2026-11-14 a text-only diff ended `DONE exit 1`
-# because portfolio-pages.yml's site-builder suite outran the 300 s budget,
+# because priv-portfolio-pages.yml's site-builder suite outran the 300 s budget,
 # and some twenty run records in two days had to read the log to learn that
 # nothing had failed ("an exit code that separates 'failed' from
 # 'unverifiable here' would save a reading pass"). 5, not 2 or 3: 2 is a
@@ -2398,7 +2417,7 @@ def budget_hint(n_selected: int, per_workflow_s: int, listing: bool) -> str | No
 # CI runs those jobs on separate runners at once. Seconds per workflow, from
 # that sweep; a workflow not listed counts as nothing.
 MEASURED_LOCAL_S = {
-    "portfolio-pages.yml": 525,
+    "priv-portfolio-pages.yml": 525,
     "portfolio-validate.yml": 235,
     "ventures-tests.yml": 83,
     "prompts-ci.yml": 29,
@@ -2813,7 +2832,7 @@ def _run_selected(args, selected, held, absent=(), changed=()) -> int:
             if drift is None:
                 stable.append(name)
 
-    # A workflow with no step this machine can run (agent-cross-review.yml's
+    # A workflow with no step this machine can run (priv-agent-cross-review.yml's
     # one runnable step reads the PR number, and every diff selects it) is a
     # held job by another name: CI is its only verdict. Counted as no verdict,
     # it made every sweep exit 5, a clean one included (measured 2026-11-15:

@@ -14,7 +14,7 @@ command line, or from an agent.
 Who it is for: field ecologists and students comparing plots, transects or
 traps; microbiome analysts comparing OTU or ASV richness between samples;
 instructors teaching rarefaction; anyone counting items per class who needs
-to know how many classes were missed. Free, MIT licensed, nothing uploaded.
+to know how many classes were missed. Free, FSL-1.1-MIT licensed, nothing uploaded.
 
 ## What it computes
 
@@ -136,4 +136,4 @@ statistical estimates and are only as good as the sampling behind them.
 Independent: not affiliated with the authors of the cited papers or of iNEXT,
 or with the Portal Project or Weecology. Built with AI assistance.
 
-MIT licence (`LICENSE`).
+FSL-1.1-MIT licence (`LICENSE`).

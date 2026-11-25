@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01EhTJVMDK2vMpb3KVYz4mXv",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T12:57:06Z",
+  "ended": "2026-11-25T13:04:27Z",
+  "wall_minutes": 7.97,
+  "tokens_in": 8602976,
+  "tokens_out": 31354,
+  "cost_usd": 3.3468,
+  "tool_calls": 77,
+  "task": "bet #1 PayApps: roadmap item 'Change orders, part 4: a GC project manager contact per job for the request' plus change order email drafts",
+  "projects": [
+    "payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18974",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The cloud-session.md add_repo + one-clone route reached private-monorepo first time; the CLAUDE.md wording ('try one clone') does not mention add_repo is needed first, which cloud-session.md does."
+    },
+    {
+      "file": "add_repo tool result",
+      "issue": "Says to call register_repo_root, which ToolSearch does not surface; cloud-session.md already says to skip it, which saved time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "venture-preflight.mjs targets oss-monorepo ventures; this change is in private-monorepo/apps/payapps only, so it does not apply.",
+      "did": "Ran the private repo's payapps-ci.yml steps locally instead (biome ci, typecheck, unit, worker, build, provision test, drizzle drift check).",
+      "result": "All passed."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No customer blog post: the feature is pre-launch in a private app and the work is a slice of an existing product; the agent doc records it.",
+      "did": "Agent doc in docs/reports only.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/reports/ventures-2026-11-25-payapps-gc-pm-change-order-email.md"
+  ],
+  "goal": null,
+  "notes": "Private PR: https://github.com/Duncan-Haywood/private-monorepo/pull/98. Claimed the roadmap item by pushing branch claude/payapps-gc-pm-contact before coding (duplicate-work.md). Local verification in the private clone: pnpm typecheck ok; unit 37 files / 348 tests pass; worker 33 files / 218 tests pass; biome ci one pre-existing warning (billing.ts:162). Private Actions runners have been starved per earlier records, so local checks are the verification.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "039692f0-1a4f-553c-8e69-7b6a09b9e20e",
+    "transcripts": 1,
+    "first": "2026-11-25T12:57:06Z",
+    "last": "2026-11-25T13:05:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 74,
+        "input": 142,
+        "output": 31354,
+        "thinking": 3945,
+        "cache_read": 8474807,
+        "cache_write_5m": 0,
+        "cache_write_1h": 128027,
+        "api_equivalent_usd": 3.3468,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 74,
+      "input": 142,
+      "output": 31354,
+      "thinking": 3945,
+      "cache_read": 8474807,
+      "cache_write_5m": 0,
+      "cache_write_1h": 128027,
+      "api_equivalent_usd": 3.3468,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 66,
+      "Write": 3,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.97,
+      "active_minutes": 7.97,
+      "model_minutes": 5.89,
+      "tool_minutes": 2.08,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "migration, API, PDF line, pure email drafter with tests, UI panel: a mid-level dev's day",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 179.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

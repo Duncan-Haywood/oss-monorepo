@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BR-CO-17: VAT amount in the breakdown does not match base times rate</title>
+<meta name="description" content="BR-CO-17: In each VAT breakdown row, the VAT amount (BT-117) should be the taxable amount (BT-116) times the rate (BT-119) divided by 100, rounded to two…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/en/br-co-17">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/br-co-17">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/br-co-17">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/br-co-17">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/br-co-17">
+<meta property="og:title" content="BR-CO-17: VAT amount in the breakdown does not match base times rate">
+<meta property="og:description" content="BR-CO-17: In each VAT breakdown row, the VAT amount (BT-117) should be the taxable amount (BT-116) times the rate (BT-119) divided by 100, rounded to two…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does BR-CO-17 mean?","acceptedAnswer":{"@type":"Answer","text":"In each VAT breakdown row, the VAT amount (BT-117) should be the taxable amount (BT-116) times the rate (BT-119) divided by 100, rounded to two decimals; for example 145.00 × 19 % = 27.55. The official test is looser than its message: it accepts any amount less than 1.00 away from that result (up to 1.00 inclusive in CII). With a rate of 0, or no rate, the VAT amount must round to zero, that is be under 0.50."}},{"@type":"Question","name":"How do I fix BR-CO-17?","acceptedAnswer":{"@type":"Answer","text":"Recalculate each row: taxable amount × rate ÷ 100, rounded to two decimals (145.00 × 19 ÷ 100 = 27.55). For a 0 % category, set the VAT amount of the row to 0.00. Enter the rate as a percentage in cbc:Percent (UBL) or ram:RateApplicablePercent (CII)."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-invoice rule explained · EN 16931</p>
+<h1>BR-CO-17: VAT amount in the breakdown does not match base times rate</h1>
+<nav class="langs" aria-label="Other languages"><a href="../de/br-co-17.html" hreflang="de" lang="de">Deutsch</a><a href="../fr/br-co-17.html" hreflang="fr" lang="fr">Français</a><a href="index.html">All rules</a></nav>
+</header>
+<section>
+<h2>Official message</h2>
+<blockquote lang="en">VAT category tax amount (BT-117) = VAT category taxable amount (BT-116) x (VAT category rate (BT-119) / 100), rounded to two decimals.</blockquote>
+<dl>
+<dt>Severity</dt><dd>Error (the invoice is rejected)</dd>
+<dt>Checked in</dt><dd>UBL, CII</dd>
+<dt>Business terms</dt><dd>BT-117, BT-116, BT-119</dd>
+</dl>
+</section>
+<section>
+<h2>What does BR-CO-17 mean?</h2>
+<p>In each VAT breakdown row, the VAT amount (BT-117) should be the taxable amount (BT-116) times the rate (BT-119) divided by 100, rounded to two decimals; for example 145.00 × 19 % = 27.55. The official test is looser than its message: it accepts any amount less than 1.00 away from that result (up to 1.00 inclusive in CII). With a rate of 0, or no rate, the VAT amount must round to zero, that is be under 0.50.</p>
+<h2>Usual causes</h2>
+<ul>
+<li>The VAT amount was copied from another row or another invoice.</li>
+<li>The taxable amount was changed (for example by a document-level allowance) without recalculating the VAT.</li>
+<li>A 0 % row (exempt, reverse charge, export) carries a VAT amount.</li>
+<li>The rate was entered as a fraction (0.19) instead of a percentage (19).</li>
+</ul>
+</section>
+<section>
+<h2>How do I fix BR-CO-17?</h2>
+<ol>
+<li>Recalculate each row: taxable amount × rate ÷ 100, rounded to two decimals (145.00 × 19 ÷ 100 = 27.55).</li>
+<li>For a 0 % category, set the VAT amount of the row to 0.00.</li>
+<li>Enter the rate as a percentage in cbc:Percent (UBL) or ram:RateApplicablePercent (CII).</li>
+</ol>
+<h2>Corrected XML (minimal example we wrote)</h2>
+<p><strong>UBL</strong></p>
+<pre><code>&lt;cac:TaxSubtotal&gt;
+  &lt;cbc:TaxableAmount currencyID=&quot;EUR&quot;&gt;145.00&lt;/cbc:TaxableAmount&gt;
+  &lt;cbc:TaxAmount currencyID=&quot;EUR&quot;&gt;27.55&lt;/cbc:TaxAmount&gt;
+  &lt;cac:TaxCategory&gt;
+    &lt;cbc:ID&gt;S&lt;/cbc:ID&gt;
+    &lt;cbc:Percent&gt;19&lt;/cbc:Percent&gt;
+    &lt;cac:TaxScheme&gt;
+      &lt;cbc:ID&gt;VAT&lt;/cbc:ID&gt;
+    &lt;/cac:TaxScheme&gt;
+  &lt;/cac:TaxCategory&gt;
+&lt;/cac:TaxSubtotal&gt;</code></pre>
+<p><strong>CII</strong></p>
+<pre><code>&lt;ram:ApplicableTradeTax&gt;
+  &lt;ram:CalculatedAmount&gt;27.55&lt;/ram:CalculatedAmount&gt;
+  &lt;ram:TypeCode&gt;VAT&lt;/ram:TypeCode&gt;
+  &lt;ram:BasisAmount&gt;145.00&lt;/ram:BasisAmount&gt;
+  &lt;ram:CategoryCode&gt;S&lt;/ram:CategoryCode&gt;
+  &lt;ram:RateApplicablePercent&gt;19&lt;/ram:RateApplicablePercent&gt;
+&lt;/ram:ApplicableTradeTax&gt;</code></pre>
+<p class="note">Example values only. Put the elements in place of, or beside, what your file has; element order matters in both syntaxes.</p>
+</section>
+<section>
+<h2>Check your file for free</h2>
+<p>The free checker runs the official EN 16931, XRechnung and Peppol rules in your browser. Your file is not uploaded.</p>
+<p><a class="button" href="../../index.html">Open the free checker</a></p>
+</section>
+<section class="cta">
+<p><span class="state">In development — early access</span></p>
+<h2>Fix-and-explain for accountants and invoicing teams</h2>
+<p>A paid service that explains every failed rule in plain German, French or English and proposes a corrected file is in development. <a href="https://example.invalid/industries/eu-e-invoicing/">Early access</a></p>
+</section>
+<section>
+<h2>Source</h2>
+<p>Rule id and official message from the CEN/TC 434 EN 16931 validation artefacts, validation-1.3.17 (EUPL-1.2), compiled from upstream commit 6e35e0a. The explanation, causes, fix and XML on this page are our own, not the rule publisher's. <a href="https://github.com/ConnectingEurope/eInvoicing-EN16931/tree/validation-1.3.17" rel="noopener">CEN/TC 434 EN 16931 validation artefacts validation-1.3.17</a></p>
+</section>
+<footer>
+<p><strong>Not tax or legal advice.</strong> This page explains what a validation rule checks and how to make a file pass it. It does not say which VAT treatment applies to your sale; ask a tax adviser. <strong>No warranty:</strong> provided free and as-is; check the result before you rely on it.</p>
+<p>Our code and explanations are FSL-1.1-MIT-licensed. Official rule messages are quoted under their publishers' licences (EUPL-1.2, Apache-2.0, MPL-2.0), named on each page.</p>
+</footer>
+</main></body></html>

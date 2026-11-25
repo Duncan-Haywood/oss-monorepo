@@ -268,7 +268,7 @@ ${body}
 <div><h2>Pages</h2><ul>${pages.filter((p) => p.key !== "home").map((p) => `<li><a href="${p.path}">${esc(p.nav)}</a></li>`).join("")}</ul></div>
 ${social.length ? `<div><h2>Follow</h2><ul>${social.map((s) => `<li><a href="${esc(s.url)}" rel="me noopener">${esc(s.label)}</a></li>`).join("")}</ul></div>` : ""}
 <div><h2>Pray with us</h2><p>${esc(text(c.footer?.text) || "Please remember us in your prayers, as we remember you in ours.")}</p>${c.prayer !== false ? `<p><a href="prayer.html">Send a prayer request</a></p>` : ""}</div>
-</div><div class="wrap"><p>${esc(text(c.footer?.legal) || `© ${name}`)}. <a href="privacy.html">Privacy</a>. Website built with the free, open-source <a href="https://marisstella.app/monastery-site/">monastery site template</a>.</p></div></footer>
+</div><div class="wrap"><p>${esc(text(c.footer?.legal) || `© ${name}`)}. <a href="privacy.html">Privacy</a>. Website built with the free, source-available <a href="https://marisstella.app/monastery-site/">monastery site template</a>.</p></div></footer>
 ${FORM_SCRIPT}
 </body>
 </html>

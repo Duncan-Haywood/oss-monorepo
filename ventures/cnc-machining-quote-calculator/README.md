@@ -132,6 +132,6 @@ yourself.
 
 ## Licence
 
-[MIT](LICENSE). If it helped you price the next job,
+[FSL-1.1-MIT](LICENSE). If it helped you price the next job,
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is entirely
 optional and never changes what the tool does.

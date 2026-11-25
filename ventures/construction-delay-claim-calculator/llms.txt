@@ -2,7 +2,7 @@
 
 > Free construction delay claim calculator: sort delay days by cause, see the time extension you earn, the compensable cost with an Eichleay home-office share, and the liquidated damages left. Runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/construction-delay-claim-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/construction-delay-claim-calculator): FSL-1.1-MIT licensed.

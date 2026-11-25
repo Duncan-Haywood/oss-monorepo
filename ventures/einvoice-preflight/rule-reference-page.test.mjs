@@ -5,6 +5,7 @@ import path from "node:path";
 
 const here = new URL("./", import.meta.url);
 const read = (name) => fs.readFileSync(new URL(name, here), "utf8");
+const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const PAGE = "what-does-this-e-invoice-error-code-mean.html";
 const html = read(PAGE);
@@ -59,11 +60,11 @@ test("the page does not invent rule ids the checker never emits", () => {
 });
 
 test("index links to the rule reference page", () => {
-  assert.match(index, new RegExp(PAGE.replace(/[.]/g, "\\.")));
+  assert.match(index, new RegExp(escapeRe(PAGE)));
 });
 
 test("the page is in the venture sitemap", () => {
-  assert.match(read("sitemap.xml"), new RegExp(PAGE.replace(/[.]/g, "\\.")));
+  assert.match(read("sitemap.xml"), new RegExp(escapeRe(PAGE)));
 });
 
 test("the docs page carries the house discovery and disclaimer furniture", () => {
@@ -101,5 +102,5 @@ test("the reference cross-links the mixed-rate deep page it shares rules with", 
     fs.existsSync(path.join(new URL(".", here).pathname, sibling)),
     `${sibling} is expected to exist; if it was renamed, update the cross-link on ${PAGE}`,
   );
-  assert.match(html, new RegExp(sibling.replace(/[.]/g, "\\.")));
+  assert.match(html, new RegExp(escapeRe(sibling)));
 });

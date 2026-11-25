@@ -41,7 +41,7 @@ behaviour of git's `attr.c`, `dir.c`, `quote.c` and `convert.c` (no git code is 
 - States: `name` set, `-name` unset, `!name` unspecified, `name=value`; names `[-._0-9a-zA-Z]+`, not starting
   with `-`; `builtin_` reserved from git 2.44 (present in `attr.c` at v2.44.0, absent at v2.43.0).
 - Matching: git's `wildmatch` and `match_basename`/`match_pathname`, shared with
-  [`../gitignore-explainer`](../gitignore-explainer/README.md) (same repository, same MIT licence), including
+  [`../gitignore-explainer`](../gitignore-explainer/README.md) (same repository, same FSL-1.1-MIT licence), including
   the git 2.52 change to `**` glued to a literal prefix. A pattern without `/` matches the file name at any
   depth; with `/` it is anchored to the folder of its file; a trailing `/` matches folders only.
 - Precedence: `.git/info/attributes`, then the path's own folder up to the root, then the global and system
@@ -114,4 +114,4 @@ node --test gitattributes.test.mjs gitattributes.diff.test.mjs eol.git.test.mjs 
 GITATTRIBUTES_DIFF_TRIALS=3000 node --test gitattributes.diff.test.mjs   # the long run
 ```
 
-MIT licence. Support is optional: https://github.com/sponsors/Duncan-Haywood
+FSL-1.1-MIT licence. Support is optional: https://github.com/sponsors/Duncan-Haywood

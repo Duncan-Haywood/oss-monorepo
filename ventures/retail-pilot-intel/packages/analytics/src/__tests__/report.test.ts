@@ -1,7 +1,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { insertAggregate, insertSale, openDb } from "../db.js";
-import { dailySummary, latestDayWithActivity } from "../report.js";
+import {
+  dailySummary,
+  latestDayWithActivity,
+  localDayBoundsUtc,
+  localIsoDate,
+  ReportScopeError,
+} from "../report.js";
 import { aggregateEvent, saleEvent, stubAggregateEvent, stubSaleEvent, withTempDb } from "./test-db.js";
 
 test("dailySummary computes conversion_rate from entries and purchases on the same day", () => {
@@ -16,6 +22,9 @@ test("dailySummary computes conversion_rate from entries and purchases on the sa
     const summary = dailySummary(dbPath, "2026-08-19");
     assert.deepEqual(summary, {
       date: "2026-08-19",
+      store_id: "store-1",
+      time_zone: "Europe/Rome",
+      currency: "EUR",
       entries: 10,
       bounces: 2,
       purchases: 2,
@@ -71,6 +80,9 @@ test("dailySummary returns zeroed conversion_rate (not NaN) when there are no en
     const summary = dailySummary(dbPath, "2026-08-19");
     assert.deepEqual(summary, {
       date: "2026-08-19",
+      store_id: null,
+      time_zone: "Europe/Rome",
+      currency: null,
       entries: 0,
       bounces: 0,
       purchases: 0,
@@ -128,5 +140,97 @@ test("dailySummary rounds conversion_rate to 4 decimal places", () => {
     const summary = dailySummary(dbPath, "2026-08-19");
     // 1 / 3 = 0.3333333... -> rounded to 0.3333
     assert.equal(summary.conversion_rate, 0.3333);
+  });
+});
+
+// Store-day and store-separation checks (quality audit 2026-11-19, defect 0).
+// The expected figures are worked by hand from the Europe/Rome rules
+// (CET = UTC+1, CEST = UTC+2 from the last Sunday of March to the last Sunday
+// of October), not from this code.
+
+test("localDayBoundsUtc gives the Rome trading day in UTC, 23 h and 25 h on DST days", () => {
+  assert.deepEqual(localDayBoundsUtc("2026-08-19"), ["2026-08-18T22:00:00.000Z", "2026-08-19T22:00:00.000Z"]);
+  assert.deepEqual(localDayBoundsUtc("2026-01-15"), ["2026-01-14T23:00:00.000Z", "2026-01-15T23:00:00.000Z"]);
+  // 2026-03-29: clocks go 02:00 CET -> 03:00 CEST.
+  assert.deepEqual(localDayBoundsUtc("2026-03-29"), ["2026-03-28T23:00:00.000Z", "2026-03-29T22:00:00.000Z"]);
+  // 2026-10-25: clocks go 03:00 CEST -> 02:00 CET.
+  assert.deepEqual(localDayBoundsUtc("2026-10-25"), ["2026-10-24T22:00:00.000Z", "2026-10-25T23:00:00.000Z"]);
+  assert.deepEqual(localDayBoundsUtc("2026-08-19", "UTC"), ["2026-08-19T00:00:00.000Z", "2026-08-20T00:00:00.000Z"]);
+  assert.throws(() => localDayBoundsUtc("2026-08-19", "Mars/Olympus"), RangeError);
+});
+
+test("localIsoDate reads the calendar day in the store's zone", () => {
+  assert.equal(localIsoDate(new Date("2026-08-19T22:30:00Z")), "2026-08-20");
+  assert.equal(localIsoDate(new Date("2026-08-19T21:59:59Z")), "2026-08-19");
+  assert.equal(localIsoDate(new Date("2026-08-19T22:30:00Z"), "UTC"), "2026-08-19");
+});
+
+test("dailySummary counts a 00:30 Rome sale on the Rome day, not the UTC day", () => {
+  withTempDb((dbPath) => {
+    const db = openDb(dbPath);
+    insertAggregate(db, aggregateEvent({ event_id: "e1", value: 10, bucket_start: "2026-08-19T08:00:00Z" }));
+    insertSale(db, saleEvent({ event_id: "s-day", closed_at: "2026-08-19T10:00:00+02:00", total_cents: 30000 }));
+    // 00:30 CEST on the 20th is 22:30Z on the 19th: it belongs to the 20th.
+    insertSale(db, saleEvent({ event_id: "s-late", closed_at: "2026-08-20T00:30:00+02:00", total_cents: 9000 }));
+    // 23:30 CEST on the 19th, written in UTC: 21:30Z belongs to the 19th.
+    insertSale(db, saleEvent({ event_id: "s-eve", closed_at: "2026-08-19T21:30:00Z", total_cents: 5000 }));
+
+    const day = dailySummary(dbPath, "2026-08-19");
+    assert.equal(day.purchases, 2);
+    assert.equal(day.revenue_cents, 35000);
+    const next = dailySummary(dbPath, "2026-08-20");
+    assert.equal(next.purchases, 1);
+    assert.equal(next.revenue_cents, 9000);
+    // Reading by UTC date instead puts all three on the 19th.
+    assert.equal(dailySummary(dbPath, "2026-08-19", { timeZone: "UTC" }).purchases, 3);
+  });
+});
+
+test("dailySummary filters by store and refuses to add two stores together", () => {
+  withTempDb((dbPath) => {
+    const db = openDb(dbPath);
+    insertAggregate(db, aggregateEvent({ event_id: "e1", store_id: "pilot-leather-01", value: 20 }));
+    insertSale(db, saleEvent({ event_id: "s1", store_id: "pilot-leather-01", total_cents: 34600 }));
+    insertSale(db, saleEvent({ event_id: "s2", store_id: "pilot-leather-01", total_cents: 34600 }));
+    insertAggregate(db, aggregateEvent({ event_id: "e2", store_id: "milano", value: 50 }));
+    insertSale(db, saleEvent({ event_id: "s3", store_id: "milano", total_cents: 9000 }));
+
+    const leather = dailySummary(dbPath, "2026-08-19", { storeId: "pilot-leather-01" });
+    assert.equal(leather.store_id, "pilot-leather-01");
+    assert.equal(leather.entries, 20);
+    assert.equal(leather.purchases, 2);
+    assert.equal(leather.revenue_cents, 69200);
+    assert.equal(leather.conversion_rate, 0.1);
+    const milano = dailySummary(dbPath, "2026-08-19", { storeId: "milano" });
+    assert.equal(milano.entries, 50);
+    assert.equal(milano.purchases, 1);
+
+    assert.throws(
+      () => dailySummary(dbPath, "2026-08-19"),
+      (error: unknown) => error instanceof ReportScopeError && error.code === "multiple_stores",
+    );
+  });
+});
+
+test("dailySummary refuses to sum revenue across currencies", () => {
+  withTempDb((dbPath) => {
+    const db = openDb(dbPath);
+    insertSale(db, saleEvent({ event_id: "s1", currency: "EUR", total_cents: 1000 }));
+    insertSale(db, saleEvent({ event_id: "s2", currency: "USD", total_cents: 1000 }));
+    assert.throws(
+      () => dailySummary(dbPath, "2026-08-19"),
+      (error: unknown) => error instanceof ReportScopeError && error.code === "mixed_currencies",
+    );
+  });
+});
+
+test("latestDayWithActivity reports the Rome day of the last event, per store", () => {
+  withTempDb((dbPath) => {
+    const db = openDb(dbPath);
+    insertSale(db, saleEvent({ event_id: "s1", store_id: "a", closed_at: "2026-08-19T22:30:00Z" }));
+    insertSale(db, saleEvent({ event_id: "s2", store_id: "b", closed_at: "2026-08-25T10:00:00Z" }));
+    assert.equal(latestDayWithActivity(dbPath, { storeId: "a" }), "2026-08-20");
+    assert.equal(latestDayWithActivity(dbPath, { storeId: "a", timeZone: "UTC" }), "2026-08-19");
+    assert.equal(latestDayWithActivity(dbPath), "2026-08-25");
   });
 });

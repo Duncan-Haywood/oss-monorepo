@@ -165,7 +165,7 @@ The size pages get a hero each. `renders/manifest.json` gives each picture's fil
 
 A price, a name or a change elsewhere in the tool does not change it.
 
-The Pages build (`portfolio-pages.yml`, "Redraw stale Shed Designer pictures") redraws any stale design before it builds. It then runs `renders.test.mjs` with `RENDERS_STRICT=1`, where a stale picture fails the publish. Everywhere else, including pull requests, a stale picture is only reported (a test diagnostic), so the twenty-odd lanes changing these designs are not blocked. The picker draws a changed preset live.
+The Pages build (`priv-portfolio-pages.yml`, "Redraw stale Shed Designer pictures") redraws any stale design before it builds. It then runs `renders.test.mjs` with `RENDERS_STRICT=1`, where a stale picture fails the publish. Everywhere else, including pull requests, a stale picture is only reported (a test diagnostic), so the twenty-odd lanes changing these designs are not blocked. The picker draws a changed preset live.
 
 `renders.test.mjs` always fails when:
 - a file is missing, stray or over budget;
@@ -231,3 +231,5 @@ Everything runs in your browser. Your designs are never uploaded, and there are 
 ## License and support
 
 MIT (see `LICENSE`). If it saved you a trip to the yard, [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) or [Buy Me a Coffee](https://buymeacoffee.com/duncanhaywood) are optional and change nothing about the tool.
+
+**Checkout moved to Paddle (2026-11-25).** The pack's Buy button now opens Paddle's overlay checkout, and its licence key is an Ed25519-signed token a separate billing Worker issues from Paddle's webhook and the page checks offline (`paddle.mjs`, a synced copy of `platform/billing/client.mjs`; `checkout.mjs` is generated from `platform/billing/catalogue.mjs`). The old Lemon Squeezy validate call is gone. It stays dark until the owner deploys that Worker and sets the catalogue's price id, client-side token and public key (`platform/billing/README.md`).

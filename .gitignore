@@ -69,3 +69,6 @@ ventures/shed-designer/shed-lumber-list-by-size.html
 ventures/shed-designer/.gallery-stamp
 .redteam/
 MUJOCO_LOG.TXT
+
+# Built or downloaded Python wheels (four landed by accident in PR #18854).
+*.whl

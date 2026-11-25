@@ -1,0 +1,69 @@
+name: Risk review
+
+# The cyber and legal risk review (docs/security/risk-review.md) as a required
+# check, in place of waiting for the owner. The owner, 2026-11-24: "we want to
+# avoid that generally unless it is really human dependent ... move to systems
+# that remove human review as much as possible."
+#
+# Why pull_request_target: the job runs main's copy of risk_review.py and
+# main's CODEOWNERS, so a PR is never judged by a reviewer it edited. The PR's
+# commits are fetched as git objects and diffed; they are never checked out,
+# imported or run, so this is safe for fork PRs too. No secrets, read-only
+# token, no paid API.
+#
+# Fails on, with no approval path (the owner, same day: human review "should
+# generally not be the case"; the threats get controls instead): a likely
+# secret in the diff, lines removed from the guardrails, an existing licence
+# moved outside the allowed list, or a change that weakens this gate's own
+# files. Threats and controls: docs/security/risk-review.md.
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  risk-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.base.sha }}
+          sparse-checkout: |
+            .github
+            platform/ci
+            platform/security
+
+      - name: Fetch the PR's commits as data (not checked out)
+        env:
+          PR: ${{ github.event.pull_request.number }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -eu
+          spec="+refs/pull/${PR}/head:refs/remotes/pr/head"
+          # Depth only on a shallow clone (the runner's); a full clone, as
+          # run_workflow_locally.py uses, must not be truncated.
+          if [ "$(git rev-parse --is-shallow-repository)" = true ]; then
+            git fetch --no-tags --filter=blob:none --depth=100 origin "$BASE_SHA" "$spec"
+          else
+            git fetch --no-tags --filter=blob:none origin "$BASE_SHA" "$spec"
+          fi
+          for _ in 1 2 3 4 5 6 7 8; do
+            git merge-base "$BASE_SHA" refs/remotes/pr/head >/dev/null 2>&1 && exit 0
+            git fetch --no-tags --filter=blob:none --deepen=400 origin "$BASE_SHA" "$spec"
+          done
+          git merge-base "$BASE_SHA" refs/remotes/pr/head
+
+      # -I: main's script only, never a module the PR could plant on sys.path.
+      - name: Risk review (main's reviewer, this PR's diff)
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: python3 -I platform/security/risk_review.py --base "$BASE_SHA" --head refs/remotes/pr/head --gate

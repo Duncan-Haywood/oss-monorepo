@@ -55,7 +55,7 @@ test("every input has a label and nothing is sent anywhere", () => {
 
 test("the module script imports only local files and parses", () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./analyze-job.mjs", "./checkout.mjs", "./consensus.mjs", "./drift-report.mjs", "./drift-view.mjs", "./engine.mjs", "./licence.mjs", "./multi-report.mjs", "./multi-view.mjs", "./multivariate.mjs", "./report.mjs", "./synth-view.mjs", "./turns-cli.mjs", "./turns-view.mjs", "./usage.mjs", "./watch-core.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./analyze-job.mjs", "./consensus.mjs", "./drift-report.mjs", "./drift-view.mjs", "./engine.mjs", "./licence.mjs", "./multi-report.mjs", "./multi-view.mjs", "./multivariate.mjs", "./report.mjs", "./synth-view.mjs", "./turns-cli.mjs", "./turns-view.mjs", "./usage.mjs", "./watch-core.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
   const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
   assert.doesNotThrow(() => new Function(src.replace(/^\s*import .*$/gm, "")));
@@ -98,7 +98,7 @@ test("robots, sitemap, README, LICENSE, VENTURE.yaml and data source exist", () 
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
   assert.match(page("README.md"), /No warranty/);
-  assert.match(page("LICENSE"), /MIT License/);
+  assert.match(page("LICENSE"), /Functional Source License/);
   assert.match(page("VENTURE.yaml"), /^name: changepoint-detector$/m);
   assert.match(page("data/SOURCE.md"), /public domain/i);
 });

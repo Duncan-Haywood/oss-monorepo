@@ -7,7 +7,7 @@
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
-import { extname, join } from "node:path";
+import { extname, join, resolve, sep } from "node:path";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 let chromium;
@@ -22,10 +22,17 @@ for (const c of candidates) {
   try { ({ chromium } = await import(c.startsWith("/") ? "file://" + c : c)); break; } catch {}
 }
 if (!chromium) { console.log("skipped: playwright not installed"); process.exit(0); }
+// Map a request path to a file under root; refuse anything that resolves outside it.
+const rootDir = resolve(root);
+const servedPath = (u) => {
+  const p = resolve(rootDir, "." + (u === "/" ? "/index.html" : decodeURIComponent(u)));
+  if (!p.startsWith(rootDir + sep)) throw new Error("outside root");
+  return p;
+};
 const types = { ".html": "text/html", ".mjs": "text/javascript", ".js": "text/javascript", ".json": "application/json" };
 const server = createServer(async (req, res) => {
   try {
-    const p = join(root, req.url.split("?")[0] === "/" ? "index.html" : decodeURIComponent(req.url.split("?")[0]));
+    const p = servedPath(req.url.split("?")[0]);
     const body = await readFile(p);
     res.writeHead(200, { "content-type": types[extname(p)] || "text/plain" }).end(body);
   } catch { res.writeHead(404).end(); }

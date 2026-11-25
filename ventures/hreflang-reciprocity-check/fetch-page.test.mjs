@@ -78,9 +78,11 @@ test('fetchPage resolves a relative redirect Location against the request URL', 
 });
 
 test('fetchPage gives up after too many redirects rather than looping forever', async () => {
+  let hops = 0;
   await withServer(
-    (req, res) => {
-      res.writeHead(302, { location: req.url + 'x' }); // always redirects to a new URL
+    (_req, res) => {
+      hops += 1;
+      res.writeHead(302, { location: `/hop-${hops}` }); // always redirects to a new URL
       res.end();
     },
     async (base) => {

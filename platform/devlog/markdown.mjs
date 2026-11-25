@@ -116,15 +116,22 @@ export const STACK_WORDY_CELL = 18;
  */
 export const STACK_COMPACT_CELL = 10;
 
+/** Text without markup: removes tags until none are left, so `<<b>script>` cannot reassemble one. */
+const stripTags = (s) => {
+  let prev;
+  do { prev = s; s = s.replace(/<[^>]+>/g, ''); } while (s !== prev);
+  return s;
+};
+
 // `from` = 1 skips the row-name column, which becomes the card's title.
 const meanCellChars = (rows, from = 1) => {
-  const body = rows.flatMap((r) => r.slice(from)).map((c) => String(c).replace(/<[^>]+>/g, '').trim());
+  const body = rows.flatMap((r) => r.slice(from)).map((c) => stripTags(String(c)).trim());
   return body.reduce((n, c) => n + c.length, 0) / Math.max(1, body.length);
 };
 
 /** A cell's label for `data-label`: the header's text, without markup, attribute-safe. */
 const labelOf = (cellHtml) =>
-  String(cellHtml).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().replace(/"/g, '&quot;');
+  stripTags(String(cellHtml)).replace(/\s+/g, ' ').trim().replace(/"/g, '&quot;');
 
 /**
  * A cell that reads as one figure: a count, amount, percentage, ratio or measured time, with an
@@ -150,7 +157,7 @@ export function numericColumns(rowsHtml, cols, align = []) {
   for (let j = 0; j < cols; j++) {
     if (align[j] === 'right') { out.push(true); continue; }
     if (align[j] || j === 0) { out.push(false); continue; }
-    const vals = rowsHtml.map((r) => String(r[j] ?? '').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim()).filter((v) => !BLANK_CELL.test(v));
+    const vals = rowsHtml.map((r) => stripTags(String(r[j] ?? '')).replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim()).filter((v) => !BLANK_CELL.test(v));
     out.push(vals.length > 0 && vals.every((v) => NUMERIC_CELL.test(v)));
   }
   return out;

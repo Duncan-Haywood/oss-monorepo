@@ -38,7 +38,7 @@ bound the expected share of false positives among those kept.
 Citations:
 ${[...PAPERS, ...ONLINE_PAPERS].map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}.${p.doi ? ` doi:${p.doi}` : ""} ${p.url}`).join("\n")}
 
-Statistical output from your data, not medical, legal or financial advice. No warranty. MIT licence.
+Statistical output from your data, not medical, legal or financial advice. No warranty. FSL-1.1-MIT licence.
 Web version: https://marisstella.app/fdr-multiple-testing/`;
 
 const FLAGS = { "--column": "column", "--label": "labelColumn", "--kind": "kind", "--alpha": "alpha", "--method": "method", "--lambda": "lambda", "--w0": "w0Share" };

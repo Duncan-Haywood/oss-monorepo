@@ -10,6 +10,13 @@ The master prompt (`prompt.md`) routes about 7% of runs here (`redteam` in
 `prompts/routing.json`; [`prompts/goals.md`](../goals.md) holds it between 5%
 and 10%). The goals and guardrails there bind every version of this prompt.
 
+**North star** (owner, 2026-11-24: $10k MRR; `goals.md`, "North star"):
+when choosing which product to attack, prefer one that brings a paying
+subscriber closer: a for-profit product's code, pages or funnel, or a free
+page that leads to one. `python3 portfolio/monetization/transition.py` lists
+the for-profit products (its numbered rows; `transition.json` has each paid
+page).
+
 This run attacks the repository and then defends it. The **red team** seeds
 known bugs and hunts for real ones. The **blue team** patches every real bug
 it finds and adds the guard that catches each seeded bug that got through.
@@ -50,7 +57,7 @@ python3 prompts/redteam.py campaign --mutants 8 --record prompts/runs/<your reco
 With no `--target`, the tool picks a random file that some test suite guards,
 redrawing past suites slower than 20 s (`--probe N` changes that, 0 turns it off)
 (`redteam.py targets` lists them; about 95% are under `ventures/`, so
-`--under platform` aims the draw at the CI and tooling code; add `--probe 20` to print each listed file's suite time, or ">20s (too slow)", before you commit to one). Pass `--target` (it skips the probe: check the file with `targets --probe 20` first, since a 300 s baseline timeout wasted 5 min on 2026-10-29) to aim at a file that just
+`--under platform` aims the draw at the CI and tooling code, `--under ventures/<slug>` at one product, and `--fresh` skips files an earlier campaign mutated; add `--probe 20` to print each listed file's suite time, or ">20s (too slow)", before you commit to one). Pass `--target` (it skips the probe: check the file with `targets --probe 20` first, since a 300 s baseline timeout wasted 5 min on 2026-10-29) to aim at a file that just
 changed on `main` (`git log --since=3.days --name-only origin/main`) or that
 users rely on most. The campaign prints the baseline time and an estimate; run two or
 three campaigns if each takes under a minute, and for a slow suite (anything over ~20 s per mutant, since a campaign runs
@@ -118,8 +125,8 @@ Fix what you find even when it reaches past the target: a sweep across many
 files, a sibling with the same bug, or a test that was red before you came
 (the open list's three oldest entries were each "too wide" or "unrelated",
 and each took under an hour to fix). Leave `patched: false` only when the fix
-is unsafe here: a product that needs a redesign, a control-plane file
-(`.github/CODEOWNERS`) that wants its own PR, or another person's open PR. Say
+is unsafe here: a product that needs a redesign, a file in the owner-only
+core of `.github/CODEOWNERS` that wants its own PR, or another person's open PR. Say
 in `issue` what the fix needs, so the run that picks it up from step 0 can
 start without rediscovering it.
 
@@ -159,8 +166,10 @@ blue team run"). In rough order of preference:
   (`platform/ci/security_alerts.py`, the `security-alerts` branch). A check
   that writes its findings into a file queue like that one counts too.
 
-A new workflow file is control plane (`.github/CODEOWNERS`): open it as its
-own small PR so the fixes in this run aren't held up. Say in `notes` which
+A new workflow that needs a secret or a write token is a `priv-*` workflow
+and owner-only (`.github/CODEOWNERS`): open it as its own small PR so the
+fixes in this run aren't held up. Any other new workflow lands like the rest
+once `ci-policy` and the risk review (`docs/security/risk-review.md`) pass. Say in `notes` which
 guard you added or tightened, and what it caught on its first run.
 
 ## 5. Record and land

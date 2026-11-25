@@ -32,7 +32,7 @@ uploaded. Anonymous feature counts stay in local storage and can be switched off
 A share link contains the names you typed, so send it only to people who should
 see them.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.
 
 ## Known gaps
 

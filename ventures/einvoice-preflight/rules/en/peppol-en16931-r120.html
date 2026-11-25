@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PEPPOL-EN16931-R120: Peppol BIS explained</title>
+<meta name="description" content="PEPPOL-EN16931-R120: For each line, the net amount (BT-131) must equal quantity (BT-129) times net price (BT-146) divided by the price base quantity (BT-149),…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/en/peppol-en16931-r120">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/peppol-en16931-r120">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/peppol-en16931-r120">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/peppol-en16931-r120">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/peppol-en16931-r120">
+<meta property="og:title" content="PEPPOL-EN16931-R120: Peppol BIS explained">
+<meta property="og:description" content="PEPPOL-EN16931-R120: For each line, the net amount (BT-131) must equal quantity (BT-129) times net price (BT-146) divided by the price base quantity (BT-149),…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does PEPPOL-EN16931-R120 mean?","acceptedAnswer":{"@type":"Answer","text":"For each line, the net amount (BT-131) must equal quantity (BT-129) times net price (BT-146) divided by the price base quantity (BT-149), plus line charges (BT-141) minus line allowances (BT-136). A difference of up to 0.02 is tolerated. The line allowances and charges are summed and rounded to two decimals; a missing quantity or base quantity counts as 1, a missing price as 0."}},{"@type":"Question","name":"How do I fix PEPPOL-EN16931-R120?","acceptedAnswer":{"@type":"Answer","text":"Recalculate: quantity x price / base quantity + line charges - line allowances, rounded to two decimals, and write that as cbc:LineExtensionAmount. If the price is per 100 units, give cbc:BaseQuantity 100 with the same unit code as the quantity. Write the unit price with enough decimals that the product works out, or apply each discount only once (in the price or as a line allowance)."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-invoice rule explained · Peppol BIS</p>
+<h1>PEPPOL-EN16931-R120: Line net amount does not match quantity, price and line allowances or charges</h1>
+<nav class="langs" aria-label="Other languages"><a href="../de/peppol-en16931-r120.html" hreflang="de" lang="de">Deutsch</a><a href="../fr/peppol-en16931-r120.html" hreflang="fr" lang="fr">Français</a><a href="index.html">All rules</a></nav>
+</header>
+<section>
+<h2>Official message</h2>
+<blockquote lang="en">Invoice line net amount MUST equal (Invoiced quantity * (Item net price/item price base quantity) + Sum of invoice line charge amount - sum of invoice line allowance amount</blockquote>
+<dl>
+<dt>Severity</dt><dd>Error (the invoice is rejected)</dd>
+<dt>Checked in</dt><dd>UBL, CII</dd>
+<dt>Business terms</dt><dd>BT-131, BT-129, BT-146, BT-149, BT-136, BT-141</dd>
+</dl>
+</section>
+<section>
+<h2>What does PEPPOL-EN16931-R120 mean?</h2>
+<p>For each line, the net amount (BT-131) must equal quantity (BT-129) times net price (BT-146) divided by the price base quantity (BT-149), plus line charges (BT-141) minus line allowances (BT-136). A difference of up to 0.02 is tolerated. The line allowances and charges are summed and rounded to two decimals; a missing quantity or base quantity counts as 1, a missing price as 0.</p>
+<h2>Usual causes</h2>
+<ul>
+<li>The price is per 100 or per 1,000 units but the base quantity (cbc:BaseQuantity) was left out, so the checker treats it as per 1.</li>
+<li>The net amount was computed with a more precise unit price than the one written in the file.</li>
+<li>A line discount was taken off the price and also given as a line allowance, so it counts twice.</li>
+<li>The quantity is negative on a credit and the price or amount sign does not follow.</li>
+</ul>
+</section>
+<section>
+<h2>How do I fix PEPPOL-EN16931-R120?</h2>
+<ol>
+<li>Recalculate: quantity x price / base quantity + line charges - line allowances, rounded to two decimals, and write that as cbc:LineExtensionAmount.</li>
+<li>If the price is per 100 units, give cbc:BaseQuantity 100 with the same unit code as the quantity.</li>
+<li>Write the unit price with enough decimals that the product works out, or apply each discount only once (in the price or as a line allowance).</li>
+</ol>
+<h2>Corrected XML (minimal example we wrote)</h2>
+<p><strong>UBL</strong></p>
+<pre><code>&lt;cac:InvoiceLine&gt;
+  &lt;cbc:ID&gt;1&lt;/cbc:ID&gt;
+  &lt;cbc:InvoicedQuantity unitCode=&quot;C62&quot;&gt;10&lt;/cbc:InvoicedQuantity&gt;
+  &lt;cbc:LineExtensionAmount currencyID=&quot;EUR&quot;&gt;245.00&lt;/cbc:LineExtensionAmount&gt;
+  &lt;cac:AllowanceCharge&gt;
+    &lt;cbc:ChargeIndicator&gt;false&lt;/cbc:ChargeIndicator&gt;
+    &lt;cbc:AllowanceChargeReason&gt;Discount&lt;/cbc:AllowanceChargeReason&gt;
+    &lt;cbc:Amount currencyID=&quot;EUR&quot;&gt;5.00&lt;/cbc:Amount&gt;
+  &lt;/cac:AllowanceCharge&gt;
+  &lt;cac:Item&gt;
+    &lt;cbc:Name&gt;Widget&lt;/cbc:Name&gt;
+    &lt;cac:ClassifiedTaxCategory&gt;
+      &lt;cbc:ID&gt;S&lt;/cbc:ID&gt;
+      &lt;cbc:Percent&gt;19&lt;/cbc:Percent&gt;
+      &lt;cac:TaxScheme&gt;
+        &lt;cbc:ID&gt;VAT&lt;/cbc:ID&gt;
+      &lt;/cac:TaxScheme&gt;
+    &lt;/cac:ClassifiedTaxCategory&gt;
+  &lt;/cac:Item&gt;
+  &lt;cac:Price&gt;
+    &lt;cbc:PriceAmount currencyID=&quot;EUR&quot;&gt;25.00&lt;/cbc:PriceAmount&gt;
+    &lt;cbc:BaseQuantity unitCode=&quot;C62&quot;&gt;1&lt;/cbc:BaseQuantity&gt;
+  &lt;/cac:Price&gt;
+&lt;/cac:InvoiceLine&gt;</code></pre>
+<p class="note">Example values only. Put the elements in place of, or beside, what your file has; element order matters in both syntaxes.</p>
+</section>
+<section>
+<h2>Check your file for free</h2>
+<p>The free checker runs the official EN 16931, XRechnung and Peppol rules in your browser. Your file is not uploaded.</p>
+<p><a class="button" href="../../index.html">Open the free checker</a></p>
+</section>
+<section class="cta">
+<p><span class="state">In development — early access</span></p>
+<h2>Fix-and-explain for accountants and invoicing teams</h2>
+<p>A paid service that explains every failed rule in plain German, French or English and proposes a corrected file is in development. <a href="https://example.invalid/industries/eu-e-invoicing/">Early access</a></p>
+</section>
+<section>
+<h2>Source</h2>
+<p>Rule id and official message from the OpenPeppol BIS Billing 3 rules, 3.0.22 (MPL-2.0), compiled from upstream commit 38d693d. The explanation, causes, fix and XML on this page are our own, not the rule publisher's. <a href="https://github.com/OpenPEPPOL/peppol-bis-invoice-3/tree/3.0.22" rel="noopener">OpenPeppol BIS Billing 3 rules 3.0.22</a></p>
+</section>
+<footer>
+<p><strong>Not tax or legal advice.</strong> This page explains what a validation rule checks and how to make a file pass it. It does not say which VAT treatment applies to your sale; ask a tax adviser. <strong>No warranty:</strong> provided free and as-is; check the result before you rely on it.</p>
+<p>Our code and explanations are FSL-1.1-MIT-licensed. Official rule messages are quoted under their publishers' licences (EUPL-1.2, Apache-2.0, MPL-2.0), named on each page.</p>
+</footer>
+</main></body></html>

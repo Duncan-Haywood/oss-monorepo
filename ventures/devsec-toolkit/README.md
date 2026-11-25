@@ -1,6 +1,6 @@
 # devsec-toolkit — Every DevSecOps Check in One Free, Open-Source Command
 
-Every DevSecOps check, one command. Free, open source (MIT), zero
+Every DevSecOps check, one command. Free, source available (FSL-1.1-MIT), zero
 dependencies, and nothing leaves your machine.
 
 Supply-chain and CI security tooling is mostly paid, or scattered across a
@@ -183,5 +183,5 @@ it yourself.
 A clean report means these checks found nothing. It does not mean the
 repository is secure.
 
-MIT licensed. If it helped, [sponsoring](https://github.com/sponsors/Duncan-Haywood)
+FSL-1.1-MIT licensed. If it helped, [sponsoring](https://github.com/sponsors/Duncan-Haywood)
 is optional and never changes what the tool does.

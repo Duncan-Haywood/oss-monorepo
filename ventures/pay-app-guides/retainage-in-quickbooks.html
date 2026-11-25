@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b51'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Retainage in QuickBooks Online</title>
+  <meta name="description" content="QuickBooks has no retainage field. Set up a Retainage Receivable account and item, hold it back on each invoice, bill the release, and see what is owed.">
+  <meta property="og:title" content="How to track retainage in QuickBooks Online">
+  <meta property="og:description" content="The retainage receivable account, the negative invoice line, the release invoice, the aging report that leaves retainage out, and the cash-basis trap. With a worked example and a line calculator.">
+  <link rel="canonical" href="./retainage-in-quickbooks.html">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "How to track retainage in QuickBooks Online", "datePublished": "2026-11-25", "dateModified": "2026-11-25"}</script>
+</head>
+<body>
+<header>
+  <p class="kicker">Pay app guides · <a href="./">schedule of values calculator</a></p>
+  <h1>How to track retainage in QuickBooks Online</h1>
+  <p>QuickBooks Online can bill a job in progress, but it has no retainage field on an invoice. The method answers on Intuit's own community forum keep giving is a <strong>Retainage Receivable</strong> account and a <strong>Retainage</strong> item: a negative line holds the money back each month, and a positive line on a later invoice bills it when it is released. This page sets that up step by step, works one subcontract through it, and lists the three places it goes wrong.</p>
+  <nav class="guides" aria-label="Guides">
+    <a href="retainage-explained.html">Retainage explained, with state caps</a>
+    <a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a>
+    <a href="schedule-of-values-template.html">Free Excel template</a>
+    <a href="change-orders-schedule-of-values.html">Change orders and the SOV</a>
+  </nav>
+</header>
+<main>
+<section class="card">
+  <h2>Before you start</h2>
+  <ul>
+    <li><strong>Accrual or cash?</strong> The method below is written for books kept on the accrual basis. Intuit describes the Retainage detail type as one used in construction when income is recorded on an accrual basis (<a href="https://quickbooks.intuit.com/learn-support/en-au/other-questions/account-and-detail-types/00/621037" rel="noopener">Intuit community</a>). If you file on the cash basis, read <a href="#cash">the cash-basis trap</a> first and ask your accountant.</li>
+    <li><strong>Progress invoicing</strong> (several partial invoices from one estimate) is on the Plus and Advanced plans, under Settings → Account and settings → Sales → Progress Invoicing (<a href="https://quickbooks.intuit.com/learn-support/en-us/help-article/invoicing/set-send-progress-invoices-quickbooks-online/L0Ymm6WjR_US_en_US" rel="noopener">Intuit help</a>). You do not need it for retainage: a plain invoice per pay app works too.</li>
+    <li>Menu names change. We read Intuit's pages on 2026-11-25 through search results, not inside a live QuickBooks company, so check each label against your own screen.</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2>Set it up once</h2>
+  <ol>
+    <li><strong>Create the account.</strong> Settings (gear) → Chart of accounts → New. Account type <em>Other Current Assets</em>, detail type <em>Retainage</em>, name it <em>Retainage Receivable</em>. Intuit's guide to detail types describes Retainage as the type to use when customers routinely hold back part of the contract amount until the project is finished (<a href="https://quickbooks.intuit.com/learn-support/en-uk/help-article/chart-accounts/understanding-detail-types-quickbooks-online/L9IuTxhDc_GB_en_GB" rel="noopener">Intuit help</a>).</li>
+    <li><strong>Create the item.</strong> Sales → Products and services → New → Service (or Non-inventory). Name it <em>Retainage</em>, tick "I sell this product/service to my customers", and choose <em>Retainage Receivable</em> as its income account. Leave the price blank; it changes every invoice (<a href="https://quickbooks.intuit.com/learn-support/en-us/reports-and-accounting/how-do-i-account-for-retention-on-customer-payments/00/1386234" rel="noopener">Intuit community</a>).</li>
+    <li><strong>Make the item non-taxable</strong> if you charge sales tax on invoices, so the holdback does not reduce the tax line. Whether retainage is taxed when billed or when released depends on your state: ask your accountant.</li>
+  </ol>
+</section>
+
+<section class="card">
+  <h2>Each pay application</h2>
+  <ol>
+    <li>Bill the work completed (and stored materials, if your contract pays for them) with your normal sales items, either one line per schedule-of-values line or one line for the period.</li>
+    <li>On the next line, choose the <em>Retainage</em> item and enter the amount held back as a <strong>negative</strong> number. QuickBooks will not work out a percentage for you; the <a href="#lines">calculator below</a> does (<a href="https://quickbooks.intuit.com/learn-support/en-us/reports-and-accounting/how-do-i-set-up-a-retention-account-in-quickbooks-online/00/248627" rel="noopener">Intuit community</a>).</li>
+    <li>The invoice total is now the current payment due on your pay application. Check it matches before you send it.</li>
+  </ol>
+  <p>Behind the scenes, on accrual books, the full value of the work goes to income, the payment due goes to accounts receivable, and the holdback goes to Retainage Receivable, where it waits.</p>
+</section>
+
+<section class="card">
+  <h2>When retainage is released</h2>
+  <p>Raise a new invoice to the same customer and project with the <em>Retainage</em> item as a <strong>positive</strong> line for the amount released. No new income is booked, because it was booked when the work was billed: the amount moves from Retainage Receivable to accounts receivable, and the customer's payment clears it like any other invoice. A partial release (say, at substantial completion) is the same with a smaller amount.</p>
+  <p>Release usually comes with paperwork: a final conditional lien waiver, close-out documents, sometimes consent of surety. See <a href="conditional-vs-unconditional-lien-waivers.html">lien waivers</a> and <a href="retainage-explained.html">how release works</a>.</p>
+</section>
+
+<section class="card">
+  <h2>Worked example</h2>
+  <p>A $150,000 electrical subcontract with 10% retainage, billed in three pay apps, then released.</p>
+  <div class="scroll"><table class="stack compact" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">Invoice</th><th role="columnheader" scope="col" class="n">Work line</th><th role="columnheader" scope="col" class="n">Retainage line</th><th role="columnheader" scope="col" class="n">Invoice total</th><th role="columnheader" scope="col" class="n">Retainage Receivable after</th></tr></thead>
+    <tbody>
+      <tr role="row"><td role="cell" data-label="Invoice">Pay app 1</td><td role="cell" data-label="Work line" class="n">$40,000.00</td><td role="cell" data-label="Retainage line" class="n">-$4,000.00</td><td role="cell" data-label="Invoice total" class="n">$36,000.00</td><td role="cell" data-label="Retainage Receivable after" class="n">$4,000.00</td></tr>
+      <tr role="row"><td role="cell" data-label="Invoice">Pay app 2</td><td role="cell" data-label="Work line" class="n">$50,000.00</td><td role="cell" data-label="Retainage line" class="n">-$5,000.00</td><td role="cell" data-label="Invoice total" class="n">$45,000.00</td><td role="cell" data-label="Retainage Receivable after" class="n">$9,000.00</td></tr>
+      <tr role="row"><td role="cell" data-label="Invoice">Pay app 3</td><td role="cell" data-label="Work line" class="n">$60,000.00</td><td role="cell" data-label="Retainage line" class="n">-$6,000.00</td><td role="cell" data-label="Invoice total" class="n">$54,000.00</td><td role="cell" data-label="Retainage Receivable after" class="n">$15,000.00</td></tr>
+      <tr role="row"><td role="cell" data-label="Invoice">Retainage release</td><td role="cell" data-label="Work line" class="n"></td><td role="cell" data-label="Retainage line" class="n">$15,000.00</td><td role="cell" data-label="Invoice total" class="n">$15,000.00</td><td role="cell" data-label="Retainage Receivable after" class="n">$0.00</td></tr>
+      <tr role="row" class="total"><td role="cell" data-label="Invoice">Totals</td><td role="cell" data-label="Work line" class="n">$150,000.00</td><td role="cell" data-label="Retainage line" class="n">$0.00</td><td role="cell" data-label="Invoice total" class="n">$150,000.00</td><td role="cell" data-label="Retainage Receivable after" class="n"></td></tr>
+    </tbody>
+  </table></div>
+  <p>Income for the job is $150,000 by the end of pay app 3, and the customer pays $150,000 in all. Until the release invoice is sent, $15,000 is real money owed to you that sits outside accounts receivable.</p>
+</section>
+
+<section class="card" id="lines">
+  <h2>Invoice line calculator</h2>
+  <p>Type this pay app's figures and copy the lines into QuickBooks.</p>
+  <div class="grid">
+    <div><label for="qb-billed">Work and stored materials billed this period ($)</label><input id="qb-billed" inputmode="decimal" value="40000"></div>
+    <div><label for="qb-rate">Retainage (%)</label><input id="qb-rate" inputmode="decimal" value="10"></div>
+    <div><label for="qb-held">Or retainage held, if it is not one rate ($, as a positive amount)</label><input id="qb-held" inputmode="decimal" placeholder="optional"></div>
+    <div><label for="qb-released">Retainage released on this invoice ($)</label><input id="qb-released" inputmode="decimal" placeholder="0"></div>
+  </div>
+  <div id="qb-errors" aria-live="polite"></div>
+  <div class="scroll"><table class="stack" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">QuickBooks item</th><th role="columnheader" scope="col">Posts to</th><th role="columnheader" scope="col" class="n">Amount</th></tr></thead>
+    <tbody id="qb-rows"></tbody>
+  </table></div>
+  <p class="note">Your numbers stay in this browser tab. Use the <a href="./">schedule of values calculator</a> to get the period's figures from your continuation sheet.</p>
+</section>
+
+<section class="card">
+  <h2>Three places it goes wrong</h2>
+  <h3>1. The A/R aging report leaves retainage out</h3>
+  <p>Because retainage sits in an asset account rather than accounts receivable, the standard A/R aging report does not show it, and it is easy to forget to bill. To see what is owed: open Retainage Receivable from the chart of accounts, or run Transaction Detail by Account and filter it to that account (<a href="https://quickbooks.intuit.com/learn-support/en-us/reports-and-accounting/how-do-i-account-for-retention-on-customer-payments/00/1386234" rel="noopener">Intuit community</a>). Filter or group by customer and project to see retainage per job. Put each job's release conditions and expected date in a list you review every month; the free <a href="retainage-tracker.html">retainage tracker</a> ages that list for you, flags completed jobs with no release billed and totals it by GC.</p>
+
+  <h3 id="cash">2. The cash-basis trap</h3>
+  <p>On a cash-basis company, users report that a retainage item mapped to a balance-sheet account makes the cash-basis profit and loss show income before the retainage is paid (<a href="https://quickbooks.intuit.com/learn-support/en-us/reports-and-accounting/p-l-showing-contractor-retention-is-paid-when-it-has-not-yet/00/1378103" rel="noopener">Intuit community</a>). The answers on Intuit's forums disagree on the fix: some map the item to an income account instead, others put retainage on a separate invoice. Which is right depends on how you file. This is a question for your accountant, not a setting to guess.</p>
+
+  <h3>3. Retainage you hold on your own subs</h3>
+  <p>If you pay lower-tier subcontractors and hold retainage from them, that is the mirror image: money you owe, which belongs in a liability account (Retainage Payable) and comes off their bills, not your invoices. Do not mix the two in one account.</p>
+</section>
+
+<section class="card">
+  <h2>QuickBooks Desktop</h2>
+  <p>Desktop uses the same idea: a retainage account and an item tied to it, entered as a negative amount on the progress invoice, with any percentage worked out by hand (<a href="https://quickbooks.intuit.com/learn-support/en-us/reports-and-accounting/does-anyone-know-how-to-include-retainage-on-an-invoice-or-for-a/00/218433" rel="noopener">Intuit community</a>). Progress invoicing is turned on under Edit → Preferences → Jobs &amp; Estimates → Company Preferences (<a href="https://quickbooks.intuit.com/community/other-questions-9/how-do-i-manage-project-contracts-and-projects-with-my-clients-in-premier-professional-services-97421" rel="noopener">Intuit community</a>, answered for a Premier edition).</p>
+</section>
+
+<section class="card cta" id="early-access">
+  <h2>Tired of tracking retainage by hand?</h2>
+  <p>We are building hosted pay-app billing for specialty subcontractors that works out retainage on every line, keeps a running balance per job, reminds you when it is due for release, and is designed to sync to QuickBooks. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
+</section>
+</main>
+<!-- all-guides: generated by nav.mjs, do not edit by hand -->
+<nav class="all-guides" id="all-guides" aria-label="All pay app tools and guides">
+    <div>
+      <h2>Tools</h2>
+      <ul>
+      <li><a href="./">Schedule of values calculator</a></li>
+      <li><a href="pay-application-checker.html">Pay app checker (this month vs last)</a></li>
+      <li><a href="change-order-log.html">Change order log</a></li>
+      <li><a href="tm-tickets.html">T&amp;M ticket log and CO request</a></li>
+      <li><a href="schedule-of-values-template.html">Free Excel SOV template</a></li>
+      <li><a href="front-loading-schedule-of-values.html">Front-loading check (balanced SOV)</a></li>
+      <li><a href="pay-if-paid-clauses.html">Pay-if-paid clause reader</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Billing guides</h2>
+      <ul>
+      <li><a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a></li>
+      <li><a href="change-orders-schedule-of-values.html">Change orders and the SOV</a></li>
+      <li><a href="stored-materials-billing.html">Billing stored materials</a></li>
+      <li><a href="overbilling-underbilling.html">Overbilling and underbilling</a></li>
+      <li><a href="retainage-explained.html">Retainage explained, with state caps</a></li>
+      <li><a href="retainage-release.html">Getting retainage released</a></li>
+      <li><a href="retainage-in-quickbooks.html" aria-current="page">Retainage in QuickBooks</a></li>
+      <li><a href="retainage-tracker.html">Retainage tracker (every job)</a></li>
+      <li><a href="pay-application-software-compared.html">Pay app software compared</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Getting paid and lien waivers</h2>
+      <ul>
+      <li><a href="prompt-payment-laws.html">Prompt payment laws by state</a></li>
+      <li><a href="conditional-vs-unconditional-lien-waivers.html">Conditional vs unconditional lien waivers</a></li>
+      <li><a href="lien-waiver-forms-by-state.html">Lien waiver forms by state</a></li>
+      <li><a href="lien-waiver-log.html">Lien waiver log (given and collected)</a></li>
+      <li><a href="sworn-statement.html">Contractor's sworn statement builder</a></li>
+      <li><a href="paid-short.html">Paid short? Reconcile the check</a></li>
+      <li><a href="joint-checks.html">Joint check splitter and split letter</a></li>
+      <li><a href="miller-act-payment-bond-claims.html">Miller Act bond claim deadlines (federal jobs)</a></li>
+      <li><a href="pay-app-cash-forecast.html">When will I get paid? Cash forecast</a></li>
+      </ul>
+    </div>
+</nav>
+<!-- /all-guides -->
+<footer>
+  <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, or financial advice, and it does not replace your contract, your accountant, or an attorney. You are responsible for verifying anything you bill or record. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Not affiliated with Intuit.</strong> QuickBooks is a trademark of Intuit Inc. This guide describes a common workaround and links Intuit's own pages; it is not Intuit documentation.</p>
+  <p><strong>Privacy.</strong> No accounts, cookies or analytics vendors. One anonymous counter (<code>guide_retainage_quickbooks_viewed</code>) is kept in local storage on your device only, and Do Not Track switches it off. <button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
+</footer>
+<script type="module">
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  import { quickbooksLines, fmt } from "./calc.mjs";
+  record("guide_retainage_quickbooks_viewed");
+  const b = document.getElementById("optout");
+  b.addEventListener("click", () => { setUsageOptOut(true); b.textContent = "Usage counting is off"; b.disabled = true; });
+  if (usageOptedOut()) { b.textContent = "Usage counting is off"; b.disabled = true; }
+
+  const $ = (id) => document.getElementById(id);
+  // data-label: the column header a phone card shows beside the value (style.css, table.stack).
+  function cell(text, cls, label) { const td = document.createElement("td"); td.textContent = text; if (cls) td.className = cls; if (label) td.dataset.label = label; td.setAttribute("role", "cell"); return td; }
+  function row(cls, ...cells) { const tr = document.createElement("tr"); tr.setAttribute("role", "row"); if (cls) tr.className = cls; tr.append(...cells); return tr; }
+  function render() {
+    const r = quickbooksLines({ billed: $("qb-billed").value, rate: $("qb-rate").value, held: $("qb-held").value, released: $("qb-released").value });
+    $("qb-errors").replaceChildren(...r.errors.map((e) => { const p = document.createElement("p"); p.className = "finding"; p.textContent = e; return p; }));
+    const rows = r.lines.map((l) => row("", cell(l.item, "", "QuickBooks item"), cell(l.account, "", "Posts to"), cell(fmt(l.amount), "n", "Amount")));
+    if (!r.errors.length) rows.push(row("total", cell("Invoice total", "", "QuickBooks item"), cell("Accounts receivable", "", "Posts to"), cell(fmt(r.total), "n", "Amount")));
+    $("qb-rows").replaceChildren(...rows);
+  }
+  for (const id of ["qb-billed", "qb-rate", "qb-held", "qb-released"]) $(id).addEventListener("input", render);
+  render();
+</script>
+</body>
+</html>

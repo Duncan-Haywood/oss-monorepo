@@ -19,6 +19,8 @@ import subprocess
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
+# Source text that calls Stripe's API (a code search, not a URL check).
+STRIPE_API = re.compile(r"api\.stripe\.com")
 FORMAT_BY_100 = re.compile(r"""style:\s*["']currency["'].*/\s*100\b""")
 
 
@@ -28,7 +30,7 @@ def stripe_ventures(files):
         parts = rel.split("/")
         if len(parts) >= 3 and parts[0] == "ventures" and rel.endswith(".mjs") and ".test." not in rel:
             try:
-                if "api.stripe.com" in (ROOT / rel).read_text(encoding="utf-8"):
+                if STRIPE_API.search((ROOT / rel).read_text(encoding="utf-8")):
                     dirs.add(parts[1])
             except (OSError, UnicodeDecodeError):
                 pass

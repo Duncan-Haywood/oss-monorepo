@@ -1,8 +1,8 @@
 # Turn more free trials into paying customers
 
-> Turn more Stripe free trials into paying customers: card-on-file trials get an honest price-and-date heads-up, card-less trials get escalating add-a-card emails and an optional one-time extension. Preview the plan, then run the open-source server in your own account. Free, MIT.
+> Turn more Stripe free trials into paying customers: card-on-file trials get an honest price-and-date heads-up, card-less trials get escalating add-a-card emails and an optional one-time extension. Preview the plan, then run the source-available server in your own account. Free, FSL-1.1-MIT.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/trial-converter): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/trial-converter): FSL-1.1-MIT licensed.

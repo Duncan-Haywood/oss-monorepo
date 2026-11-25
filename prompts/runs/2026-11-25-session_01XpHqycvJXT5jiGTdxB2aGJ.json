@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqycvJXT5jiGTdxB2aGJ",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T14:39:26Z",
+  "ended": "2026-11-25T14:44:31Z",
+  "wall_minutes": 5.27,
+  "tokens_in": 5151308,
+  "tokens_out": 17308,
+  "cost_usd": 2.5151,
+  "tool_calls": 38,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19000",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "fix-mode queue lists defects whose fix PR (#15120) was written but never merged; the free-modelcost audit counted all its defects fixed because fix_prs named an unmerged PR. queue/validate could check that each fix_prs URL is merged."
+    },
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "steps 1-5 describe a sample round, but mode picked fix; the README covers fix mode, the track prompt does not mention modes at all."
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "why": "PR #15120 said it was waiting on the owner (CODEOWNERS /prompts/), which that doc says to leave alone; the 2026-11-24 direction in CLAUDE.md removed owner review, so the PR was stalled, not parked.",
+      "did": "cherry-picked its commit unchanged onto this branch with a risk review, values re-checked against the Claude API skill's pricing tables",
+      "result": "rate card fixed; #15120 to be closed as superseded after merge"
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "why": "research is paused (2026-11-25), but the swe-cachecost headline was a published wrong number on the live site and in a start-here post",
+      "did": "corrected the numbers and added a date cutoff only; no new research",
+      "result": "headline, index bullet, card and post corrected"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-quality-fix-the-cache-read-at-twice-the-price.md"
+  ],
+  "goal": null,
+  "notes": "Quality mode: fix (seeded draw). Queue seed 2026-11-25-6586. Fixed: swe-cachecost defects 0,1,2 (high, high, medium) and free-modelcost defect 0 (high, rate card) in PR #19000; marked free-modelcost 1,4 fixed by #15117 (its README correction). Verification: prompts test_runcost 16 OK; seeded mutant (Sonnet 5.5 cache_read 0.10 -> 0.20) fails the new multiplier test; swe-cachecost tests OK; research homepage build ok; check_md_links ok; check_posts ok; quality_audit validate 673 files 0 problems. No sample draw today, so no share-at-bar figure.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "303fb7d0-b189-5ad9-9ea0-2a0e3f5c55c2",
+    "transcripts": 1,
+    "first": "2026-11-25T14:39:26Z",
+    "last": "2026-11-25T14:44:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 76,
+        "output": 17308,
+        "thinking": 3018,
+        "cache_read": 5005279,
+        "cache_write_5m": 0,
+        "cache_write_1h": 145953,
+        "api_equivalent_usd": 2.5151,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 76,
+      "output": 17308,
+      "thinking": 3018,
+      "cache_read": 5005279,
+      "cache_write_5m": 0,
+      "cache_write_1h": 145953,
+      "api_equivalent_usd": 2.5151,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 33,
+      "Skill": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.27,
+      "active_minutes": 5.25,
+      "model_minutes": 2.71,
+      "tool_minutes": 2.54,
+      "waiting_on_human_minutes": 0.02,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "re-deriving the cost split, regenerating results and correcting four public pages by hand",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 119.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

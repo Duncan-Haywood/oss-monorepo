@@ -26,7 +26,7 @@ owner: duncan
 # Hacker News asking "loops alternative", "customer.io alternative self hosted",
 # "onboarding email sequence open source". Volume not measured.
 #
-# Path to revenue (payments stay off): free and MIT as the lead magnet;
+# Path to revenue (payments stay off): free and FSL-1.1-MIT as the lead magnet;
 # done-for-you sequence writing and setup, a hosted copy under the deployer's
 # own name, or GitHub Sponsors are the paid steps. Hosting under the public name
 # is owner-gated.

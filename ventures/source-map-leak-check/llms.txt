@@ -2,7 +2,7 @@
 
 > Free tool: paste your site's URL (or a list of JS file URLs), and it finds every script's sourceMappingURL comment, fetches the map, and names which ones are publicly readable and whether they embed full original source text. Nothing uploaded to us.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -12,4 +12,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/source-map-leak-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/source-map-leak-check): FSL-1.1-MIT licensed.

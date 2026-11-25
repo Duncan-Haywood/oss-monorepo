@@ -14,7 +14,7 @@ Who it is for: quality and manufacturing engineers running the measurement
 system analysis for a PPAP or a new gauge; metrology and lab technicians;
 students in a quality or Six Sigma course; anyone who wants to know whether a
 measurement (a caliper, a CMM program, a test rig, a benchmark harness) can tell
-their parts apart. Free, MIT licensed, nothing uploaded.
+their parts apart. Free, FSL-1.1-MIT licensed, nothing uploaded.
 
 ## What it computes
 
@@ -112,4 +112,4 @@ generators).
 
 No warranty. A statistical estimate from the readings you give, not engineering
 certification, a quality-system audit or professional advice. Not affiliated
-with the cited authors, the AIAG or any software vendor. MIT licence.
+with the cited authors, the AIAG or any software vendor. FSL-1.1-MIT licence.

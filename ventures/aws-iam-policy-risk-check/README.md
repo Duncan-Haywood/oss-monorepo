@@ -35,5 +35,5 @@ permission boundaries, SCPs, session policies, attachment, Condition
 correctness. A clean result is not proof of safety. No warranty; see the page
 footer.
 
-Tests: `node --test`. MIT licensed (`LICENSE`); no secrets, no private
+Tests: `node --test`. FSL-1.1-MIT licensed (`LICENSE`); no secrets, no private
 dependencies, no personal data.

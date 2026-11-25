@@ -1,0 +1,269 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKmyq1TUYPj19wYrCtx",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T10:09:37Z",
+  "ended": "2026-11-25T10:11:14Z",
+  "wall_minutes": 12.11,
+  "tokens_in": 6557026,
+  "tokens_out": 28631,
+  "cost_usd": 2.9118,
+  "tool_calls": 64,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18935",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam.py",
+      "issue": "suite_for has no mapping for platform/billing/client.mjs (no client.test.mjs sibling), so the shared payment code cannot be a campaign target; had to mutate a venture copy and re-run mutants against billing.test.mjs by hand."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Targeted a venture copy of client.mjs and also measured mutants against billing.test.mjs by hand, since the tool cannot target client.mjs",
+      "did": "8 mutants via campaign + manual replay on client.mjs",
+      "result": "both measurements recorded in notes; guards cover both"
+    },
+    {
+      "file": "prompt.md",
+      "why": "No new blog post: red-team CI/test-guard work has no customer-facing reader",
+      "did": "agent doc in docs/reports instead",
+      "result": "writeup recorded"
+    }
+  ],
+  "writeups": [
+    "docs/reports/redteam-2026-11-25-billing-licence-path.md"
+  ],
+  "goal": null,
+  "notes": "Guard added: ventures-tests.yml paths now cover platform/** and portfolio/**; unwired_checks.untriggered_suites() + Triggers test (failed on main's workflow, passes now). testkit identity check makes all 7 paid ventures catch copy edits. Local: billing 16/16, other ventures' licence suites 28/28, unwired_checks 294/296 (2 npm skips), test_unwired_checks 32/32. Open list's 3 entries still reproduce (control-plane/eval-set fixes), untouched.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/wall-framing-takeoff/paddle.mjs",
+        "test": "node --test ventures/wall-framing-takeoff/**/*.test.mjs  (in .)",
+        "seed": 913792155,
+        "commit": "31efac3ed",
+        "sites": 125,
+        "baseline_seconds": 25.8,
+        "mutants": [
+          {
+            "file": "ventures/wall-framing-takeoff/paddle.mjs",
+            "line": 48,
+            "col": 46,
+            "operator": "false-to-true",
+            "before": "if (!cfg || typeof cfg !== \"object\") return false;",
+            "after": "if (!cfg || typeof cfg !== \"object\") return true;",
+            "line_text": "  if (!cfg || typeof cfg !== \"object\") return false;",
+            "caught": false,
+            "seconds": 25.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "onSale(null) true. billing.test.mjs already caught it on client.mjs (onSale(null)); the venture suite never compared its copy. Guard: testkit's assertPackLicence now asserts the copy equals client.mjs."
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/paddle.mjs",
+            "line": 50,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "return /^[a-z0-9][a-z0-9-]{1,63}$/.test(String(cfg.product || \"\"))",
+            "after": "return /^[a-z0-9][a-z0-9-]{2,63}$/.test(String(cfg.product || \"\"))",
+            "line_text": "  return /^[a-z0-9][a-z0-9-]{1,63}$/.test(String(cfg.product || \"\"))",
+            "caught": false,
+            "seconds": 23.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "a two-letter product slug read as dark. Missed by billing.test.mjs too; new red-team test asserts onSale for 'ab' true and 'a' false. Copy guarded by testkit identity check."
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/paddle.mjs",
+            "line": 52,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "&& /^(live|test)_[A-Za-z0-9]{10,60}$/.test(String(cfg.clientToken || \"\"))",
+            "after": "&& /^(live|test)_[A-Za-z0-10]{10,60}$/.test(String(cfg.clientToken || \"\"))",
+            "line_text": "    && /^(live|test)_[A-Za-z0-9]{10,60}$/.test(String(cfg.clientToken || \"\"))",
+            "caught": false,
+            "seconds": 22.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "client token with digits 2-9 read as dark. billing.test.mjs's CAT token caught it on client.mjs; venture copy guarded by testkit identity check; new test adds an explicit digits token."
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/paddle.mjs",
+            "line": 74,
+            "col": 80,
+            "operator": "false-to-true",
+            "before": "if (!o.publicKey || !/^[A-Za-z0-9_-]{43}$/.test(o.publicKey)) return { valid: false, reason: \"licence check unavailable\" };",
+            "after": "if (!o.publicKey || !/^[A-Za-z0-9_-]{43}$/.test(o.publicKey)) return { valid: true, reason: \"licence check unavailable\" };",
+            "line_text": "  if (!o.publicKey || !/^[A-Za-z0-9_-]{43}$/.test(o.publicKey)) return { valid: false, reason: \"licence check unavailable\" };",
+            "caught": false,
+            "seconds": 22.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "SECURITY: a missing or malformed public key returned valid:true (unlock with no check). billing.test.mjs and testkit asserted only .reason. New test asserts valid:false for '', undefined, short, overlong keys."
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/paddle.mjs",
+            "line": 86,
+            "col": 23,
+            "operator": "neq-flip",
+            "before": "if (o.product && c.p !== o.product) return { valid: false, reason: \"this key is for another tool (\" + String(c.p).slice(0, 40) + \")\" };",
+            "after": "if (o.product && c.p === o.product) return { valid: false, reason: \"this key is for another tool (\" + String(c.p).slice(0, 40) + \")\" };",
+            "line_text": "  if (o.product && c.p !== o.product) return { valid: false, reason: \"this key is for another tool (\" + String(c.p).slice(0, 40) + \")\" };",
+            "caught": true,
+            "seconds": 23.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/paddle.mjs",
+            "line": 123,
+            "col": 72,
+            "operator": "plus-to-minus",
+            "before": "const r = await f(o.edge.replace(/\\/$/, \"\") + \"/billing/claim?c=\" + encodeURIComponent(claim), { headers: { accept: \"application/json\" } });",
+            "after": "const r = await f(o.edge.replace(/\\/$/, \"\") + \"/billing/claim?c=\" - encodeURIComponent(claim), { headers: { accept: \"application/json\" } });",
+            "line_text": "      const r = await f(o.edge.replace(/\\/$/, \"\") + \"/billing/claim?c=\" + encodeURIComponent(claim), { headers: { accept: \"application/json\" } });",
+            "caught": false,
+            "seconds": 26.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "claim URL broken (NaN). Fake fetch ignored the URL; new test asserts the exact URL with a trailing-slash edge and an encoded claim."
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/paddle.mjs",
+            "line": 128,
+            "col": 26,
+            "operator": "neq-flip",
+            "before": "} else if (r.status !== 404) return null;",
+            "after": "} else if (r.status === 404) return null;",
+            "line_text": "      } else if (r.status !== 404) return null;",
+            "caught": false,
+            "seconds": 27.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "404 stops polling at once. billing.test.mjs caught it on client.mjs (404,404,200 sequence); venture copy guarded by testkit identity check."
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/paddle.mjs",
+            "line": 130,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "if (i < tries - 1) await new Promise((res) => setTimeout(res, wait));",
+            "after": "if (i < tries - 2) await new Promise((res) => setTimeout(res, wait));",
+            "line_text": "    if (i < tries - 1) await new Promise((res) => setTimeout(res, wait));",
+            "caught": false,
+            "seconds": 26.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no wait before the last try. New test asserts tries=2 takes at least one waitMs."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": ".github/workflows/ventures-tests.yml",
+        "issue": "platform/billing/billing.test.mjs (Paddle webhook signature, licence signing, copy-sync) and 61 other suites in 16 folders run only via unwired_checks.py in ventures-tests.yml, whose pull_request paths filter left those folders out: a PR touching only platform/billing/server.mjs ran none of them. Added platform/** and portfolio/** to the filter, plus untriggered_suites() and a Triggers test.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18935"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c16ea865-e42b-5a92-a49d-1cb918a387c9",
+    "transcripts": 1,
+    "first": "2026-11-25T10:09:37Z",
+    "last": "2026-11-25T10:21:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 119,
+        "output": 28631,
+        "thinking": 10601,
+        "cache_read": 6425195,
+        "cache_write_5m": 0,
+        "cache_write_1h": 131712,
+        "api_equivalent_usd": 2.9118,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 119,
+      "output": 28631,
+      "thinking": 10601,
+      "cache_read": 6425195,
+      "cache_write_5m": 0,
+      "cache_write_1h": 131712,
+      "api_equivalent_usd": 2.9118,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 60,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.11,
+      "active_minutes": 12.11,
+      "model_minutes": 6.44,
+      "tool_minutes": 5.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "mutation campaign, CI trigger audit, guards and tests for a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 171.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

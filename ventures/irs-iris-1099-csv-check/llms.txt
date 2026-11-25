@@ -2,7 +2,7 @@
 
 > Free IRIS 1099-NEC and 1099-MISC CSV checker: finds bad TINs, invalid SSNs, state and ZIP errors, money formats, below-threshold amounts and duplicate recipients with line numbers, and applies safe fixes. Reads the IRS IRIS Taxpayer Portal template layout (TY2025: 54 columns for 1099-NEC, 64 for 1099-MISC; cross-checked in open-source copies, not on irs.gov) and the older short layout. Runs in your browser; the file is never uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/irs-iris-1099-csv-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/irs-iris-1099-csv-check): FSL-1.1-MIT licensed.

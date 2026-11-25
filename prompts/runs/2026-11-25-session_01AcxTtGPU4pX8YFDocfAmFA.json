@@ -1,0 +1,308 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtGPU4pX8YFDocfAmFA",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T04:06:39Z",
+  "ended": "2026-11-25T04:10:06Z",
+  "wall_minutes": 7.27,
+  "tokens_in": 4198639,
+  "tokens_out": 18453,
+  "cost_usd": 1.9524,
+  "tool_calls": 45,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18842",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 takes 'the top alert with no claim branch', but the top unclaimed alerts (#7, #12, #34, #38, #39) were already triaged as false positives in docs/reports/2026-11-25-security-queue-false-positives.md, and they stay at the top of QUEUE.md until the owner dismisses them. Each run re-reads them. Two sessions also claimed #849/#65 within minutes of each other. The queue generator should skip alerts listed in that triage file (PR #18809 heads that way)."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "rerun leaves caught_after_fix null when the fix rewrites the mutated line itself. The prompt covers this ('line changed'), but rerun printed no such label in its tail output, only null."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "My own security-queue fixes (#849, #65, #862) duplicated PRs #18836/#18837 opened during this run",
+      "did": "dropped them and took the routed red-team track instead",
+      "result": "no duplicate PR"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "no post: this is a correctness fix to an existing calculator page whose post landed yesterday (#18828); a new post would be thin",
+      "did": "described the fixes in the PR and the record",
+      "result": "n/a"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "step 4b asks for an automated guard; the class (Number() as a money parser across ventures) needs a survey of hundreds of venture parsers first",
+      "did": "noted it as the next guard to build",
+      "result": "not built this run"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Red team: 10 mutants on ventures/pay-app-guides/calc.mjs, catch rate 0.6 before and 1.0 after (excluding 1 equivalent). 2 real defects patched. The step-0 open list (9 entries) is all control-plane or redesign work, so none was taken. A candidate guard for later: a lint that flags Number(...) on user money input in ventures/*/calc*.mjs.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/pay-app-guides/calc.mjs",
+        "test": "node --test ventures/pay-app-guides/**/*.test.mjs  (in .)",
+        "seed": 371522394,
+        "commit": "9c5cc9ec3",
+        "sites": 193,
+        "baseline_seconds": 1.1,
+        "mutants": [
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 32,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "return Math.round(n * 100);",
+            "after": "return Math.round(n * 101);",
+            "line_text": "  return Math.round(n * 100);",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 71,
+            "col": 24,
+            "operator": "ge-to-gt",
+            "before": "const sr = storedRate >= 0 && storedRate <= 1 ? storedRate : 0;",
+            "after": "const sr = storedRate > 0 && storedRate <= 1 ? storedRate : 0;",
+            "line_text": "  const sr = storedRate >= 0 && storedRate <= 1 ? storedRate : 0;",
+            "caught": false,
+            "seconds": 0.9,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "storedRate is 0 exactly when the >= and > differ, and both branches then give sr = 0."
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 91,
+            "col": 12,
+            "operator": "const-plus-one",
+            "before": "if (D < 0 || F < 0) bad(`${label}: previous work and stored materials cannot be negative.`);",
+            "after": "if (D < 1 || F < 0) bad(`${label}: previous work and stored materials cannot be negative.`);",
+            "line_text": "    if (D < 0 || F < 0) bad(`${label}: previous work and stored materials cannot be negative.`);",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 102,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "const retainageHeld = Math.max(0, retainageGross - rel);",
+            "after": "const retainageHeld = Math.max(1, retainageGross - rel);",
+            "line_text": "  const retainageHeld = Math.max(0, retainageGross - rel);",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "calc.test.mjs: releasing all the retainage leaves none held."
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 149,
+            "col": 191,
+            "operator": "times-to-div",
+            "before": "body.push([\"\", \"Totals\", plain(t.contractSumToDate), plain(t.previous), plain(t.thisPeriod), plain(t.stored), plain(t.completedStored), t.percentComplete === null ? \"\" : (t.percentComplete * 100).toFixed(1), plain(t.balanceToFinish), plain(t.retainageGross)]);",
+            "after": "body.push([\"\", \"Totals\", plain(t.contractSumToDate), plain(t.previous), plain(t.thisPeriod), plain(t.stored), plain(t.completedStored), t.percentComplete === null ? \"\" : (t.percentComplete / 100).toFixed(1), plain(t.balanceToFinish), plain(t.retainageGross)]);",
+            "line_text": "  body.push([\"\", \"Totals\", plain(t.contractSumToDate), plain(t.previous), plain(t.thisPeriod), plain(t.stored), plain(t.completedStored), t.percentComplete === null ? \"\" : (t.percentComplete * 100).toFixed(1), plain(t.balanceToFinish), plain(t.retainageGross)]);",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 149,
+            "col": 206,
+            "operator": "const-plus-one",
+            "before": "body.push([\"\", \"Totals\", plain(t.contractSumToDate), plain(t.previous), plain(t.thisPeriod), plain(t.stored), plain(t.completedStored), t.percentComplete === null ? \"\" : (t.percentComplete * 100).toFixed(1), plain(t.balanceToFinish), plain(t.retainageGross)]);",
+            "after": "body.push([\"\", \"Totals\", plain(t.contractSumToDate), plain(t.previous), plain(t.thisPeriod), plain(t.stored), plain(t.completedStored), t.percentComplete === null ? \"\" : (t.percentComplete * 100).toFixed(2), plain(t.balanceToFinish), plain(t.retainageGross)]);",
+            "line_text": "  body.push([\"\", \"Totals\", plain(t.contractSumToDate), plain(t.previous), plain(t.thisPeriod), plain(t.stored), plain(t.completedStored), t.percentComplete === null ? \"\" : (t.percentComplete * 100).toFixed(1), plain(t.balanceToFinish), plain(t.retainageGross)]);",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 198,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "if (Number.isNaN(rel) || rel < 0) errors.push(\"Retainage released must be zero or a positive amount.\");",
+            "after": "if (Number.isNaN(rel) || rel < 1) errors.push(\"Retainage released must be zero or a positive amount.\");",
+            "line_text": "  if (Number.isNaN(rel) || rel < 0) errors.push(\"Retainage released must be zero or a positive amount.\");",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 242,
+            "col": 39,
+            "operator": "and-to-or",
+            "before": "return d.getUTCMonth() === +m[2] - 1 && d.getUTCDate() === +m[3] ? t : NaN;",
+            "after": "return d.getUTCMonth() === +m[2] - 1 || d.getUTCDate() === +m[3] ? t : NaN;",
+            "line_text": "  return d.getUTCMonth() === +m[2] - 1 && d.getUTCDate() === +m[3] ? t : NaN;",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "prompt-pay.test.mjs: 2026-13-01 rolls to 2027-01-01, whose day matches, so || accepted it."
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 261,
+            "col": 27,
+            "operator": "lt-to-le",
+            "before": "if (Number.isNaN(r) || r < 0 || r > 1) errors.push(\"The interest rate must be between 0% and 100%.\");",
+            "after": "if (Number.isNaN(r) || r <= 0 || r > 1) errors.push(\"The interest rate must be between 0% and 100%.\");",
+            "line_text": "  if (Number.isNaN(r) || r < 0 || r > 1) errors.push(\"The interest rate must be between 0% and 100%.\");",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "prompt-pay.test.mjs: an explicit 0% rate computes (a contract waiving interest). [rerun: line changed; triage by hand] rerun reported the line changed (the fix rewrote it to 'else if'); re-applied r <= 0 by hand on the new line: the blank-rate test fails with it."
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 268,
+            "col": 71,
+            "operator": "const-plus-one",
+            "before": "else periods = method === \"fraction\" ? Math.ceil(late / 30) : late / 30;",
+            "after": "else periods = method === \"fraction\" ? Math.ceil(late / 30) : late / 31;",
+            "line_text": "  else periods = method === \"fraction\" ? Math.ceil(late / 30) : late / 30;",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/pay-app-guides/calc.mjs",
+        "issue": "promptPayInterest read a blank rate as 0%, and the California, Pennsylvania and Florida presets blank the rate box (no confirmed statutory rate), so the prompt-payment-laws page showed 'Interest $0.00' for a payment 45 days late with no error. Now a blank rate is an error asking for the statute's or contract's rate; an explicit 0 still computes.",
+        "patched": true
+      },
+      {
+        "file": "ventures/pay-app-guides/calc.mjs",
+        "issue": "toCents and toRate used Number(), which reads '0x10' as 16, '0b11' as 3 and '1e5' as 100000, so a mistyped schedule-of-values cell became a billed amount instead of 'a number could not be read'. Both now accept plain decimals only.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "01d9d840-e46f-539c-9396-2e71540bc0d3",
+    "transcripts": 1,
+    "first": "2026-11-25T04:06:39Z",
+    "last": "2026-11-25T04:13:55Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 89,
+        "output": 18453,
+        "thinking": 4620,
+        "cache_read": 4103261,
+        "cache_write_5m": 0,
+        "cache_write_1h": 95289,
+        "api_equivalent_usd": 1.9524,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 89,
+      "output": 18453,
+      "thinking": 4620,
+      "cache_read": 4103261,
+      "cache_write_5m": 0,
+      "cache_write_1h": 95289,
+      "api_equivalent_usd": 1.9524,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 43,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.27,
+      "active_minutes": 7.27,
+      "model_minutes": 4.53,
+      "tool_minutes": 2.74,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "a QA engineer: mutation run, two fixes with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 102.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

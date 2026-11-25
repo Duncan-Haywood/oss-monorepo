@@ -1,0 +1,57 @@
+# Writes Homebrew formulas for npm-published venture CLIs into the owner's tap repo.
+# Off by default: with vars.DISTRIBUTE_HOMEBREW unset this only prints a dry run.
+# Free, no paid spend. Spec: portfolio/distribution/README.md
+name: distribute-homebrew
+on:
+  schedule:
+    - cron: '17 17 * * 4'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  formulas:
+    # The tap is written with a one-hour token from a GitHub App installed on
+    # the tap repository only; its key lives in the `publish` environment,
+    # limited to main (docs/security/trusted-publishing-setup.md, "Homebrew tap").
+    environment: publish
+    if: ${{ vars.DISTRIBUTE_HOMEBREW == 'true' && vars.HOMEBREW_TAP_REPO != '' && vars.HOMEBREW_TAP_APP_ID != '' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Split HOMEBREW_TAP_REPO into owner and name
+        id: tap
+        env:
+          TAP: ${{ vars.HOMEBREW_TAP_REPO }}
+        run: |
+          echo "owner=${TAP%%/*}" >> "$GITHUB_OUTPUT"
+          echo "name=${TAP#*/}" >> "$GITHUB_OUTPUT"
+      - name: Mint a one-hour token for the tap repository only
+        id: app
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1
+        with:
+          app-id: ${{ vars.HOMEBREW_TAP_APP_ID }}
+          private-key: ${{ secrets.HOMEBREW_TAP_APP_PRIVATE_KEY }}
+          owner: ${{ steps.tap.outputs.owner }}
+          repositories: ${{ steps.tap.outputs.name }}
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: ${{ vars.HOMEBREW_TAP_REPO }}
+          token: ${{ steps.app.outputs.token }}
+          path: tap
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - run: node platform/distribution/homebrew.mjs --write tap
+        env:
+          DISTRIBUTE_HOMEBREW: ${{ vars.DISTRIBUTE_HOMEBREW }}
+          NPM_SCOPE: ${{ vars.NPM_SCOPE }}
+      - name: Commit new formulas
+        working-directory: tap
+        run: |
+          git add Formula
+          if git diff --cached --quiet; then echo "no new formulas"; exit 0; fi
+          git -c user.name="distribute-homebrew (GitHub Actions)" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -m "Add formulas for newly published CLIs"
+          git push

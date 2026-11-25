@@ -2,7 +2,7 @@
 
 > Price a post-frame pole barn from bays, eave height, overhead doors, lean-to, and gravel vs slab — plus the walk-away price a $45-a-foot ag special cannot see.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pole-barn-bid-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pole-barn-bid-calculator): FSL-1.1-MIT licensed.

@@ -141,7 +141,14 @@ import {
   isNodeOnlyScript,
   CATCH_ALL_MAX,
 } from './build.mjs';
+import { IN_DEVELOPMENT, LIVE_PRODUCTS } from './company.mjs';
 import { LATE_NAV_DIRS, SITE_NAV, HEADER_MARKER, VENTURE_CHROME_CSS } from './site-nav.mjs';
+import { APP_DIRS } from './cloudflare/router.mjs';
+import { productSitemapPaths } from './products.mjs';
+
+// Paths the site Worker serves from an app of its own (Grant Autopilot at
+// grants/), so no file for them exists in the build output.
+const workerServed = (href) => Object.keys(APP_DIRS).some((dir) => href.replace(/^(\.\.\/)+/, '') .startsWith(`${dir}/`));
 import { STORIES_PATH, STORY_VENTURES } from './stories.mjs';
 import { ASSISTANT_VOICE_CSS } from './assistant.mjs';
 import { STICKY_FIT_CSS } from './sticky-fit.mjs';
@@ -157,6 +164,50 @@ import { formatCount } from './count.mjs';
 import { normalizeBid, normalizeOutcome, stripForInjection } from './jobs.mjs';
 
 const BASE = 'https://example.test/site/';
+
+/** The page without its script elements, repeated until nothing changes. */
+function withoutScripts(html) {
+  let prev;
+  let out = html;
+  do {
+    prev = out;
+    out = out.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, '');
+  } while (out !== prev);
+  return out;
+}
+
+/**
+ * The code a page runs: its inline scripts (not JSON-LD or other data blocks)
+ * and its on* handler attributes. Tests that ask "what does this page fetch?"
+ * read this rather than the whole page, so a post card or tool blurb that
+ * mentions fetch() or XMLHttpRequest in prose cannot turn main red (run record
+ * 2026-11-25, PR #18765: a post description saying fetch() failed
+ * "usage counting is local").
+ */
+function pageCode(html) {
+  const parts = [];
+  for (const [, attrs, body] of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\b[^>]*>/gi)) {
+    const type = /\btype\s*=\s*["']?([^"'\s>]+)/i.exec(attrs)?.[1]?.toLowerCase();
+    if (!type || type === 'module' || /javascript|ecmascript/.test(type)) parts.push(body);
+  }
+  for (const [, , value] of withoutScripts(html).matchAll(/\son[a-z]+\s*=\s*(["'])([\s\S]*?)\1/gi)) parts.push(value);
+  return parts.join('\n');
+}
+
+/** Every absolute http(s) URL written in `text`, parsed (unparseable ones skipped). */
+function urlsIn(text) {
+  const urls = [];
+  for (const [raw] of text.matchAll(/https?:\/\/[^\s"'<>`)\]]+/g)) {
+    try { urls.push(new URL(raw)); } catch { /* not a URL */ }
+  }
+  return urls;
+}
+
+/** True when `text` links to `base` or to a page under it (same origin, path inside). */
+function linksUnder(text, base) {
+  const root = new URL(base);
+  return urlsIn(text).some((u) => u.origin === root.origin && u.pathname.startsWith(root.pathname));
+}
 const VENTURES = path.join(REPO_ROOT, 'ventures');
 
 // The suite builds from the live checkout, so a file written under docs/,
@@ -213,8 +264,9 @@ function site() {
     // Started here so it runs beside the shared build, not after it: see
     // 'an identical build produces an identical cache name'.
     childSite().catch(() => {});
-    // The same for the two-venture fixture the /compare/ and /guides/ tests read.
-    hubFixtureSite().catch(() => {});
+    // The two-venture fixture the /compare/ and /guides/ end-to-end tests read
+    // is built by custom-domain.test.mjs, which builds the same kind of fixture
+    // anyway (docs/history/pages-test-perf-2026-11-25-one-fixture-build.md).
   }
   return built;
 }
@@ -446,7 +498,7 @@ test('no page still points at the placeholder origin', async () => {
   for (const file of textFiles) {
     // The origin, not the bare host: a changelog line quoting a merge titled
     // "... example.invalid placeholders" is prose, not a leaked URL.
-    if ((await readText(file)).includes('https://example.invalid')) {
+    if (urlsIn(await readText(file)).some((u) => u.protocol === 'https:' && u.hostname === 'example.invalid')) {
       stale.push(path.relative(outDir, file));
     }
   }
@@ -475,7 +527,13 @@ test('venture sitemaps are rewritten to the real origin', async () => {
  * builds markup in script is one edit away from the same false positive.
  */
 function stripRawText(html) {
-  return html.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, '');
+  let prev;
+  let out = html;
+  do {
+    prev = out;
+    out = out.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1\b[^>]*>/gi, '');
+  } while (out !== prev);
+  return out;
 }
 
 test('every discovered tool has a landing page in the output', async () => {
@@ -490,7 +548,8 @@ test('every hub link resolves to a file that exists', async () => {
   const { outDir } = await site();
   const hub = stripRawText(await read('index.html'));
 
-  const all = [...hub.matchAll(/href="([^"]+)"/g)].map((m) => m[1]).filter((h) => !h.startsWith('http'));
+  // http(s) and mailto: (the early-access links on product cards) are not files.
+  const all = [...hub.matchAll(/href="([^"]+)"/g)].map((m) => m[1]).filter((h) => !h.startsWith('http') && !h.startsWith('mailto:'));
   const hrefs = all.filter((h) => !h.startsWith('#'));
   assert.ok(hrefs.length > 20, 'the hub should link to every tool');
 
@@ -498,6 +557,7 @@ test('every hub link resolves to a file that exists', async () => {
   for (const href of hrefs) {
     // deploy/ and dev/ (and dev/daily/ under it) are written after the site build.
     if (LATE_NAV_DIRS.some((dir) => href.startsWith(`${dir}/`))) continue;
+    if (workerServed(href)) continue;
     // A fragment names a section of the target page, not a file.
     await fs.access(hrefTarget(href.split('#')[0], hub_, outDir));
   }
@@ -552,8 +612,11 @@ test('the hub carries the required disclaimers and privacy line', async () => {
   const hub = await read('index.html');
   assert.match(hub, /No warranty/i);
   assert.match(hub, /no SLA/i);
-  assert.match(hub, /Everything runs in your browser/i);
-  assert.match(hub, /never uploaded/i);
+  // Since 2026-11-25 the footer summarises and links the legal pages
+  // (legal-pages.mjs) instead of promising nothing is collected.
+  assert.match(hub, /The free tools run in your browser/i);
+  assert.match(hub, /href="(\.\/)?privacy\/"/);
+  assert.match(hub, /href="(\.\/)?terms\/"/);
 });
 
 /**
@@ -650,12 +713,12 @@ test('the hub declares structured data listing every section', async () => {
 
 test('every tool is reachable from the hub without JavaScript, in at most two clicks', async () => {
   const { surfaces } = await site();
-  const hub = (await read('index.html')).replace(/<script\b[\s\S]*?<\/script>/g, '');
+  const hub = withoutScripts(await read('index.html'));
   const reachable = new Set([...hub.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]));
   const categories = [...hub.matchAll(/href="c\/([^"/]+)\/" data-category="\1"/g)].map((m) => m[1]);
   assert.ok(categories.length >= groupByCategory(surfaces).length, 'the hub links every category page');
   for (const id of categories) {
-    const page = (await read(CATEGORY_PATH_PREFIX, id, 'index.html')).replace(/<script\b[\s\S]*?<\/script>/g, '');
+    const page = withoutScripts(await read(CATEGORY_PATH_PREFIX, id, 'index.html'));
     for (const [, slug] of page.matchAll(/data-tool="([^"]+)" data-pf-to/g)) reachable.add(slug);
   }
   const missing = surfaces.map((s) => s.slug).filter((slug) => !reachable.has(slug));
@@ -667,11 +730,23 @@ test('usage counting is local, opt-out, and honours browser signals', async () =
   assert.match(hub, /localStorage/);
   assert.match(hub, /doNotTrack/);
   assert.match(hub, /globalPrivacyControl/);
-  assert.ok(!/XMLHttpRequest|sendBeacon/.test(hub), 'nothing about a visit leaves the device');
+  const code = pageCode(hub);
+  assert.ok(!/XMLHttpRequest|sendBeacon/.test(code), 'nothing about a visit leaves the device');
   // One request, to this site's own search index, and it carries nothing.
-  const fetches = [...hub.matchAll(/fetch\(([^)]*)\)/g)].map((m) => m[1]);
+  const fetches = [...code.matchAll(/fetch\(([^)]*)\)/g)].map((m) => m[1]);
   assert.deepEqual(fetches, ['SEARCH_INDEX']);
   assert.match(hub, new RegExp(`const SEARCH_INDEX = '${SEARCH_INDEX_FILE}';`));
+});
+
+test('pageCode reads scripts and handlers, not prose or JSON-LD', () => {
+  const html = `<p>Our post explains fetch() and XMLHttpRequest.</p>
+    <script type="application/ld+json">{"description":"uses fetch(x)"}</script>
+    <script>fetch(SEARCH_INDEX)</script><script type="module">navigator.sendBeacon(u)</script>
+    <button onclick="fetch(evil)">go</button>`;
+  const code = pageCode(html);
+  assert.deepEqual([...code.matchAll(/fetch\(([^)]*)\)/g)].map((m) => m[1]), ['SEARCH_INDEX', 'evil']);
+  assert.match(code, /sendBeacon/);
+  assert.doesNotMatch(code, /XMLHttpRequest/);
 });
 
 test('the hub makes no off-origin request', async () => {
@@ -877,7 +952,7 @@ test('.nojekyll is emitted so Pages serves the tree verbatim', async () => {
 
 test('a 404 page routes visitors back to the index', async () => {
   const notFound = await read('404.html');
-  assert.ok(notFound.includes(BASE));
+  assert.ok(linksUnder(notFound, BASE));
 });
 
 // ---------------------------------------------------------------------------
@@ -925,8 +1000,8 @@ test('llms-full.txt keeps each tool on one line, so no description leaks into pr
   const { surfaces } = await site();
   const bullets = (await read('llms-full.txt')).split('\n').filter((line) => line.startsWith('- ['));
 
-  // Twelve trailing bullets (the first links the other llms file) under "Optional" describe the site's own surfaces
-  // rather than a tool — About, open custom development, Ask, updates, the changelog and the work queue, the comparison
+  // Sixteen trailing bullets (the first links the other llms file) under "Optional" describe the site's own surfaces
+  // rather than a tool — About, the legal pages, the hardware designs page, the online sellers and e-invoicing industry pages, open custom development, Ask, updates, the changelog and the work queue, the comparison
   // index, the guides index, catalog.json, the agent CLI, the sitemap and the
   // Atom feed, plus the agent-to-agent blog once `docs/agent-posts/` has a
   // post. Above the tools, one bullet per audience page; below them, one per
@@ -936,7 +1011,9 @@ test('llms-full.txt keeps each tool on one line, so no description leaks into pr
   const agentBlog = loadPosts(undefined, AGENT_POSTS_DIR).length ? 1 : 0;
   // Plus one per tool that calls the network, under "Tools that call the network".
   const network = externalCallExceptions(surfaces).length;
-  assert.equal(bullets.length, surfaces.length + 12 + audiences + topics + agentBlog + network);
+  // Plus one per live product under "Products" (company.mjs); products in
+  // development are bold, not linked, so they are not "- [" bullets.
+  assert.equal(bullets.length, surfaces.length + 16 + audiences + topics + agentBlog + network + LIVE_PRODUCTS.length);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -1365,9 +1442,10 @@ test('the search index lists every tool and every research project, and the hub 
   }
   // The front door no longer carries the catalogue: a handful of example and
   // featured links, not one card per tool.
-  const hub = (await read('index.html')).replace(/<script\b[\s\S]*?<\/script>/g, '');
+  const hub = withoutScripts(await read('index.html'));
   const linked = new Set([...hub.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]));
-  assert.ok(linked.size > 10 && linked.size < surfaces.length / 4, `the hub links ${linked.size} tools directly`);
+  // Since 2026-11-25 it links products and category pages, not tools.
+  assert.ok(linked.size < surfaces.length / 4, `the hub links ${linked.size} tools directly`);
   assert.doesNotMatch(hub, /data-search=/);
 });
 
@@ -1957,7 +2035,7 @@ test('every discovered tool lands on exactly one category page', async () => {
   const { surfaces } = await site();
   const counts = new Map(surfaces.map((s) => [s.slug, 0]));
   for (const { category } of groupByCategory(surfaces)) {
-    const page = (await read(CATEGORY_PATH_PREFIX, category.id, 'index.html')).replace(/<script\b[\s\S]*?<\/script>/g, '');
+    const page = withoutScripts(await read(CATEGORY_PATH_PREFIX, category.id, 'index.html'));
     for (const [, slug] of page.matchAll(/data-tool="([^"]+)"/g)) counts.set(slug, (counts.get(slug) ?? 0) + 1);
   }
   for (const [slug, n] of counts) assert.equal(n, 1, `${slug} is on ${n} category pages`);
@@ -1994,7 +2072,7 @@ test('a long category page is sub-divided with jump links, and a short one stays
 // Heading order is how a screen-reader user browses a directory this long.
 test('no heading level is skipped on the hub or a category page', async () => {
   for (const parts of [['index.html'], [CATEGORY_PATH_PREFIX, 'trades', 'index.html'], [CATEGORY_PATH_PREFIX, 'index.html']]) {
-    const html = (await read(...parts)).replace(/<script\b[\s\S]*?<\/script>/g, '');
+    const html = withoutScripts(await read(...parts));
     const levels = [...html.matchAll(/<h([1-6])[ >]/g)].map((m) => Number(m[1]));
     const skip = levels.slice(1).find((level, i) => level > levels[i] + 1);
     assert.equal(skip, undefined, `${parts.join('/')} skips a heading level`);
@@ -2163,8 +2241,9 @@ test('hub markup escapes venture copy', () => {
     [{ slug: 'x', title: '<script>alert(1)</script>', description: 'a & b', pageCount: 1, hasSitemap: false }],
     BASE,
   );
+  // Since 2026-11-25 the front door names products, not tools, so the title
+  // is not printed there at all; it must still never arrive unescaped.
   assert.ok(!hub.includes('<script>alert(1)</script>'));
-  assert.ok(hub.includes('&lt;script&gt;'));
 });
 
 // ---------------------------------------------------------------------------
@@ -2270,6 +2349,7 @@ test('every injected link resolves to a page that exists', async () => {
     for (const [, ref] of html.matchAll(/href="([^"]+)"[^>]*data-pf-to=/g)) {
       // 404.html links absolutely: it is served under whatever path was mistyped.
       if (/^https?:/.test(ref)) continue;
+      if (workerServed(ref)) continue;
       const resolved = path.resolve(path.dirname(file), ref);
       const target = ref.endsWith('/') ? path.join(resolved, 'index.html') : resolved;
       assert.ok(
@@ -2317,7 +2397,8 @@ test('the header fits itself inline, before the page below it is laid out', () =
   assert.ok(after[1].includes("querySelector('nav.pf-chrome.pf-chrome-top')"));
   assert.equal(out.split(HEADER_MARKER).length - 1, 1, 'still one header marker on the page');
   assert.ok(out.indexOf(after[1]) < out.indexOf('<h1>Tool</h1>'), 'it runs before the venture markup');
-  assert.equal(out.match(/<script>/g).length, 1);
+  const inline = [...out.matchAll(/<script\b([^>]*)>/gi)].filter((m) => !/\bsrc\s*=/i.test(m[1]));
+  assert.equal(inline.length, 1, 'one inline script');
   assert.doesNotThrow(() => new Function(after[1].slice(8, -9)));
 });
 
@@ -2364,6 +2445,19 @@ test('a venture canonical pointing at index.html is repaired to the served URL',
 
   const found = [...out.matchAll(/<link[^>]+rel="canonical"[^>]*href="([^"]+)"/g)].map((m) => m[1]);
   assert.deepEqual(found, [CANONICAL], 'exactly one canonical, and it is the served URL');
+});
+
+test("an Article's JSON-LD gets the url, card image, author and publisher it left out", () => {
+  // The pay-app guides' shape: headline and dates only (97 venture pages, 2026-11-25).
+  const page = '<html><head><title>Guide</title><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Guide", "datePublished": "2026-11-24"}</script></head><body>x</body></html>';
+  const out = injectDiscoveryTags(page, { canonical: CANONICAL, baseUrl: BASE, title: 'Guide', cardFile: 'flat-roof-bid-calculator/share-card.png' });
+  const ld = JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(out)[1]);
+  assert.equal(ld.url, CANONICAL);
+  assert.equal(ld.mainEntityOfPage['@id'], CANONICAL);
+  assert.equal(ld.image, `${BASE}flat-roof-bid-calculator/share-card.png`, 'the same card og:image names');
+  assert.equal(ld.publisher['@id'], `${BASE}#organization`);
+  assert.equal(ld.author['@id'], `${BASE}#organization`);
+  assert.equal(ld.headline, 'Guide');
 });
 
 test('an already-correct canonical is left as it stands', () => {
@@ -2674,15 +2768,16 @@ test('a lone tool advertises no siblings and still renders', () => {
 
 // 2026-11-11: every story page marked "Tools" as its section and led through
 // "Learning & practice", though Stories has its own place in the top nav.
-test('story pages sit under Stories in the header, the trail and the BreadcrumbList', () => {
+test('story pages sit under Stories in the trail and the BreadcrumbList', () => {
   const page = '<html><head><title>Aim Off</title></head><body><p>Fog.</p></body></html>';
   const html = injectChrome(page, {
     slug: 'hearth-and-horizon', toRoot: '../', total: 2, related: [],
     title: 'Hearth & Horizon: free AI-written science fiction and Catholic bedtime stories, with audio',
     pageTitle: 'Aim Off', canonical: 'https://x.test/hearth-and-horizon/aim-off', baseUrl: 'https://x.test/', isEntry: false,
   });
-  assert.match(html, /data-pfs-nav="stories" href="\.\.\/stories\/" aria-current="page"/);
-  assert.doesNotMatch(html, /data-pfs-nav="tools"[^>]*aria-current/);
+  // Stories left the header on 2026-11-25; the trail and BreadcrumbList still name it, and no tab is marked.
+  assert.doesNotMatch(html, /data-pfs-nav="stories"/);
+  assert.doesNotMatch(html, /data-pfs-nav="[a-z]+"[^>]*aria-current/);
   assert.match(html, /<a href="\.\.\/stories\/">Stories<\/a>/);
   assert.match(html, /<a href="\.\.\/hearth-and-horizon\/" class="pfs-mid">Hearth &amp; Horizon<\/a>/);
   const trail = JSON.parse(html.match(/<script type="application\/ld\+json">(\{[^<]*BreadcrumbList[^<]*\})<\/script>/)[1]);
@@ -3040,6 +3135,13 @@ test('a click on the sponsor link is counted, under the same rules as every othe
   other.clickOn('[data-pf-to]');
   assert.equal(other.counts()[SPONSOR_CLICK_EVENT], undefined);
   assert.equal(other.counts()['cross_tool_click:roofing-bid-calculator'], 1);
+
+  // The footer's product offer (`product-offer.mjs`) is its own event, so a
+  // click toward a paid product is not read as an ordinary cross-tool click.
+  const offered = chromeCounter();
+  offered.clickOn('[data-pf-offer]');
+  assert.equal(offered.counts()['product_offer_click:roofing-bid-calculator'], 1);
+  assert.equal(offered.counts()['cross_tool_click:roofing-bid-calculator'], undefined);
 
   // A click on neither -- the ordinary case, since most clicks on these pages
   // land on a number field.
@@ -3706,7 +3808,7 @@ test('a navigation that fails with nothing cached lands on the offline page', as
   assert.match(sw, /caches\.match\(OFFLINE_PAGE\)/);
   const offlinePage = await read('offline.html');
   assert.match(offlinePage, /offline/i);
-  assert.ok(offlinePage.includes(BASE), 'it routes back to the hub');
+  assert.ok(linksUnder(offlinePage, BASE), 'it routes back to the hub');
 });
 
 test('the save-for-offline bundle covers every tool and only real files', async () => {
@@ -3903,8 +4005,9 @@ test('the offline offer is honest and gates nothing', async () => {
   assert.match(hub, /Nothing is uploaded either way/);
   // Still no request about a visit leaving the device: the worker fetches
   // pages, and the page fetches only its own search index.
-  assert.ok(!/XMLHttpRequest|sendBeacon/.test(hub));
-  assert.deepEqual([...hub.matchAll(/fetch\(([^)]*)\)/g)].map((m) => m[1]), ['SEARCH_INDEX']);
+  const code = pageCode(hub);
+  assert.ok(!/XMLHttpRequest|sendBeacon/.test(code));
+  assert.deepEqual([...code.matchAll(/fetch\(([^)]*)\)/g)].map((m) => m[1]), ['SEARCH_INDEX']);
 });
 
 test('the offline widget is hidden unless the browser can honour it', async () => {
@@ -4110,7 +4213,7 @@ test('every tool page declares the breadcrumb trail it shows', async () => {
     const visible = /class="pfs-crumbs(?: [^"]*)?"[^>]*>([\s\S]*?)<\/span><\/nav>/.exec(html);
     if (!crumb || !visible) { mismatched.push(`${rel}: ${crumb ? 'no visible trail' : 'no BreadcrumbList'}`); continue; }
     const labels = [...visible[1].matchAll(/<(?:a|span aria-current="page")[^>]*>([^<]*)</g)].map((m) =>
-      m[1].replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>'));
+      m[1].replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&'));
     // A venture that wrote its own trail keeps it; only the build's must match.
     if (crumb.itemListElement[0].name !== 'Maris Stella Labs') continue;
     const names = crumb.itemListElement.map((i) => i.name);
@@ -5023,7 +5126,7 @@ test('a category holding a documented external-call exception says so, not "noth
     } else {
       assert.equal(
         count,
-        `${items.length} free tool${items.length === 1 ? '' : 's'} · no account · nothing you type is uploaded`,
+        `${items.length} tool${items.length === 1 ? '' : 's'} · free, no account · nothing you type is uploaded`,
         `${category.id} holds no exception, so its count line should make the unconditional claim`,
       );
     }
@@ -5041,7 +5144,10 @@ test('the shared footer counts the external-call exceptions and folds their name
   for (const page of [['index.html'], ['about', 'index.html']]) {
     const html = await read(...page);
     const footer = html.slice(html.lastIndexOf('<footer'));
-    const [, privacy] = footer.match(/<h2>Privacy<\/h2>\s*<p>([\s\S]*?)<\/p>/) ?? [];
+    // Since 2026-11-25 the section is "Privacy and terms": a summary paragraph
+    // linking the legal pages, then the exceptions paragraph.
+    const section = footer.slice(footer.indexOf('<h2>Privacy and terms</h2>'));
+    const privacy = [...section.matchAll(/<p>([\s\S]*?)<\/p>/g)].map((m) => m[1]).find((p) => p.includes('Except on'));
     assert.ok(privacy, `${page.join('/')}: no Privacy paragraph in the footer`);
     const words = privacy.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
     assert.ok(words < 260, `${page.join('/')}: footer Privacy paragraph is ${words} words`);
@@ -5123,6 +5229,26 @@ test('the hub links every category page, and the sitemap lists them', async () =
   }
 });
 
+test('llms.txt leads with the company, its products and industries, and puts the free tools after', () => {
+  const surfaces = [{ slug: 'a-tool', title: 'A tool', description: 'Does a thing.' }];
+  const llms = renderLlmsTxt(surfaces, BASE);
+  const quote = llms.split('\n').find((line) => line.startsWith('> '));
+  assert.match(quote, /one owner with AI agents/);
+  for (const p of LIVE_PRODUCTS) {
+    assert.ok(quote.includes(p.name), `the summary names live product ${p.name}`);
+    assert.ok(llms.includes(`- [${p.name}](${BASE}${p.path}): `), `${p.name} is linked under Products`);
+  }
+  const full = renderLlmsTxt(surfaces, BASE, [], [], { full: true });
+  for (const [name] of IN_DEVELOPMENT) {
+    assert.ok(llms.includes(name), `${name} is named as in development`);
+    assert.ok(full.includes(`- **${name}**`), `${name} is described in llms-full.txt`);
+    assert.ok(!llms.includes(`[${name}](`), `${name} is in development and must not be linked as if live`);
+  }
+  const at = (h) => llms.indexOf(h);
+  assert.ok(at('## Products') > 0 && at('## Products') < at('## Free tools'), 'products come before the free tools');
+  assert.ok(at('## Free tools') < at(`](${BASE}a-tool/)`), 'the tools sit under the free-tools heading');
+});
+
 test('llms.txt links a product\'s own LLM docs only when it ships them', () => {
   const surfaces = [
     { slug: 'with-docs', title: 'With docs', description: 'Has a brief.', llmsDoc: true },
@@ -5168,6 +5294,11 @@ test('the About page ships, carries the disclaimer, and states the real catalogu
   const about = await read('about', 'index.html');
 
   assert.match(about, /no warranty/i, 'About must carry the liability disclaimer like every page');
+  // The company voice: who runs it, what is live, what is not yet.
+  assert.match(about, /one owner and a team of AI agents/);
+  for (const p of LIVE_PRODUCTS) assert.ok(about.includes(`href="${BASE}${p.path}"`), `About links live product ${p.name}`);
+  for (const [name] of IN_DEVELOPMENT) assert.ok(about.includes(`<strong>${name}</strong>`), `About lists ${name} as in development`);
+  assert.match(about, /None of them takes payment or sign-ups yet/);
   assert.match(about, new RegExp(`${formatCount(surfaces.length)} free calculators`));
   // The copy-paste boilerplate: its numbers come from `surfaces`, so they
   // cannot drift from the catalogue the way hand-written blurbs do.
@@ -5240,11 +5371,6 @@ test('the About page privacy panel counts its exceptions instead of assuming one
     assert.ok(
       !about.includes('one documented exception'),
       `About page has ${exceptions.length} exceptions but still says "one documented exception" somewhere`,
-    );
-    assert.match(
-      about,
-      /Besides the live API calls .+ make, the/,
-      'plural exceptions need "calls ... make", not the singular "call ... makes"',
     );
   }
 });
@@ -5331,7 +5457,7 @@ test('the About page documents the embed feature that #2561 shipped, not just th
   assert.match(about, new RegExp(`min-height:${DEFAULT_EMBED_HEIGHT}px`));
 });
 
-test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask, custom development and its request pages, /compare/, /research/, Stories, updates, the changelog, the work queue and /guides/, and nothing else', () => {
+test('the hub sitemap holds the hub, the product pages, the Tools index, the categories, About, Ask, custom development, /hardware/, the request pages, /compare/, /research/, Stories, updates, the changelog, the work queue and /guides/, and nothing else', () => {
   const xml = renderHubSitemap(BASE, ['marketplace', 'trades']);
   const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
   // About, the comparison index and the guides index are hub-level pages
@@ -5339,12 +5465,21 @@ test('the hub sitemap holds the hub, the Tools index, the categories, About, Ask
   // any of them.
   assert.deepEqual(locs, [
     BASE,
+    // The product pages (products.mjs): /products/, /industries/ and each industry.
+    ...productSitemapPaths().map((p) => `${BASE}${p}`),
     `${BASE}c/`,
     `${BASE}c/marketplace/`,
     `${BASE}c/trades/`,
     `${BASE}about/`,
+    // The legal pages (legal-pages.mjs), hub-level like About.
+    `${BASE}privacy/`,
+    `${BASE}terms/`,
+    `${BASE}cookies/`,
     `${BASE}ask/`,
     `${BASE}custom-development/`,
+    // The construction industry landing page (industry-construction.mjs).
+    `${BASE}industries/construction/`,
+    `${BASE}hardware/`,
     // Each request's own page, one per entry in portfolio/requests/requests.json.
     ...loadRequests().map((r) => `${BASE}custom-development/${r.id}/`),
     `${BASE}${COMPARE_PATH}`,
@@ -6102,103 +6237,7 @@ test('the hub sitemap lists every product page the build writes', () => {
   assert.ok(xml.includes('<loc>https://example.test/compare/housecall-pro/</loc>'));
 });
 
-// One fixture build serves both the /compare/ and /guides/ end-to-end tests:
-// buildSite does the same fixed, expensive work whatever the ventures
-// directory holds (about 60 s and 28 s as two builds, 2026-11-04), so a second
-// build for a second assertion about the hub is pure cost.
-//
-// It builds in a child process started beside the shared build (site() starts
-// it), not in this process once the shared build is done: buildSite keeps
-// per-build state at module level, so an in-process build had to wait its turn,
-// and its 31 s (warm cards; 81 s cold) ran on the sequential tail with cores idle
-// (docs/history/pages-test-perf-2026-11-12-hub-fixture-child.md). The child
-// also keeps the fixture's module state out of this process.
-let hubFixture;
-function hubFixtureSite() {
-  hubFixture ??= (async () => {
-    const out = await fs.mkdtemp(path.join(os.tmpdir(), 'hub-fixture-'));
-    const ventures = path.join(out, 'ventures');
-    const mk = async (slug, files) => {
-      await fs.mkdir(path.join(ventures, slug), { recursive: true });
-      for (const [name, body] of Object.entries(files)) {
-        await fs.writeFile(path.join(ventures, slug, name), body);
-      }
-    };
-    const page = (title, body) =>
-      `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${title}</title>` +
-      `<meta name="description" content="A free calculator that does arithmetic in your browser."></head>` +
-      `<body>${body}<p>No warranty: this is an estimate, not advice.</p></body></html>`;
-    await mk('alpha-calculator', {
-      'index.html': page(
-        'Alpha Calculator',
-        '<h1>Alpha Calculator</h1><a href="how-much-to-charge.html">How much to charge</a>',
-      ),
-      'how-much-to-charge.html': page('How much to charge', '<h1>How much to charge</h1>'),
-      // A comparison page belongs to /compare/, not /guides/.
-      'vs-jobber.html': page('This calculator vs. Jobber', '<h1>This calculator vs. Jobber</h1>'),
-    });
-    await mk('beta-calculator', {
-      'index.html': page('Beta Calculator', '<h1>Beta Calculator</h1>'),
-      'vs-jobber.html': page('This calculator vs. Jobber', '<h1>This calculator vs. Jobber</h1>'),
-    });
-    const dist = path.join(out, 'dist');
-    const code = `import { buildSite } from ${JSON.stringify(BUILD_MODULE)};
-      const r = await buildSite({ venturesDir: ${JSON.stringify(ventures)}, outDir: ${JSON.stringify(dist)},
-        baseUrl: 'https://example.test/', log: () => {}, disableWorker: true, cards: false });
-      process.stdout.write(JSON.stringify({ comparisons: r.comparisons }));`;
-    const { stdout } = await promisify(execFile)(process.execPath, ['--input-type=module', '-e', code], {
-      maxBuffer: 1 << 28,
-    });
-    return { out, dist, result: JSON.parse(stdout.slice(stdout.lastIndexOf('{"comparisons"'))) };
-  })();
-  return hubFixture;
-}
-
-test('the built site publishes /compare/, links it, and lists it in the sitemap', async () => {
-  const { dist, result } = await hubFixtureSite();
-  assert.equal(result.comparisons.length, 1, 'both tools compare with one product');
-  assert.equal(result.comparisons[0].subject, 'Jobber');
-
-  const compare = await readText(path.join(dist, COMPARE_PATH, 'index.html'));
-  assert.ok(compare.includes('href="../alpha-calculator/vs-jobber.html"'));
-  assert.ok(compare.includes('href="../beta-calculator/vs-jobber.html"'));
-
-  const hub = await readText(path.join(dist, 'index.html'));
-  assert.ok(hub.includes(`href="${COMPARE_PATH}"`), 'the hub must link /compare/');
-
-  const hubSitemap = await readText(path.join(dist, 'sitemap-hub.xml'));
-  assert.ok(hubSitemap.includes(`<loc>https://example.test/${COMPARE_PATH}</loc>`));
-
-  const llms = await readText(path.join(dist, 'llms.txt'));
-  assert.ok(llms.includes(`https://example.test/${COMPARE_PATH}`), 'llms.txt must name /compare/');
-});
-
-test('the built site publishes /guides/, links it, and lists it in the sitemap', async () => {
-  // The end-to-end half of the guides index: the three places a page has to
-  // appear before anyone reaches it — a link a visitor can click, a sitemap
-  // entry a crawler follows, and an llms.txt line an assistant reads.
-  const { dist } = await hubFixtureSite();
-
-  const guides = await readText(path.join(dist, GUIDES_PATH, 'index.html'));
-  assert.ok(guides.includes('href="../alpha-calculator/how-much-to-charge.html"'));
-  assert.ok(guides.includes('How much to charge'), 'the page’s own heading is the entry');
-  assert.ok(
-    !guides.includes('vs-jobber.html'),
-    'a comparison page has /compare/ and must not be listed twice',
-  );
-
-  const hub = await readText(path.join(dist, 'index.html'));
-  assert.ok(hub.includes(`href="${GUIDES_PATH}"`), 'the hub must link /guides/');
-
-  const hubSitemap = await readText(path.join(dist, 'sitemap-hub.xml'));
-  assert.ok(hubSitemap.includes(`<loc>https://example.test/${GUIDES_PATH}</loc>`));
-
-  const llms = await readText(path.join(dist, 'llms.txt'));
-  assert.ok(llms.includes(`https://example.test/${GUIDES_PATH}`), 'llms.txt must name /guides/');
-});
-
 after(async () => {
-  if (hubFixture) await fs.rm((await hubFixture).out, { recursive: true, force: true });
   // The shared build is about 1.6 GB; left behind, every run of this file
   // filled the session's fixed disk allowance by that much
   // (docs/history/pages-test-perf-2026-11-18-temp-dirs-and-one-read.md).
@@ -6414,28 +6453,27 @@ test('copyTree leaves out git-ignored local-only paths, and localOnlyPaths finds
 
 // P019: the home page is a home for everything, not a calculator list. These
 // pin the sections, so the framing cannot drift back one venture at a time.
-test('the hub is a home for everything: apps, CLIs, research and self-deploy have their own place', () => {
+test('the hub is a finder first, and the catalogue, apps, CLIs and research are one link away', () => {
   const surfaces = [
     { slug: 'ebay-fee-calculator', title: 'eBay fee calculator', description: 'Fees.', kind: 'browser' },
     { slug: 'dunning-engine', title: 'Dunning engine', description: 'Failed-payment recovery.', kind: 'app' },
     { slug: 'pinned-actions-check', title: 'Pinned actions check', description: 'CI check.', kind: 'cli' },
   ];
   const hub = renderHub(surfaces, 'https://example.test/', { researchCount: 461 });
-  assert.match(hub, /<dl class="stats" id="overview">/);
-  assert.match(hub, /<dt>Browser tools<\/dt><dd><a href="c\/">1<\/a>/);
-  assert.match(hub, /<dt>Self-hostable apps<\/dt><dd><a href="c\/apps\/">1<\/a>/);
-  assert.match(hub, /<dt>Command-line tools<\/dt><dd><a href="c\/cli\/">1<\/a>/);
-  assert.match(hub, /<dt>Research projects<\/dt><dd><a href="research\/">461<\/a>/);
-  // A front door, in order: what it is and the search over everything, then
-  // the browse grid by job and by type, then research and self-deploy.
   const at = (re) => hub.search(re);
-  assert.ok(at(/<h1>/) < at(/id="q"/), 'the search sits in the hero');
-  assert.ok(at(/id="q"/) < at(/id="browse"/));
-  assert.ok(at(/id="browse"/) < at(/id="types"/));
-  assert.ok(at(/id="types"/) < at(/id="research"/));
-  assert.match(hub, /href="c\/apps\/" data-category="apps"[\s\S]*Dunning engine/);
-  assert.match(hub, /href="c\/cli\/" data-category="cli"[\s\S]*Pinned actions check/);
-  assert.match(hub, /href="deploy\/"/);
+  // Owner, 2026-11-25: a sales funnel, not a catalogue. Business, then problem, then product.
+  assert.ok(at(/<h1>/) < at(/id="find"/), 'the finder sits in the hero');
+  assert.ok(at(/id="find"/) < at(/id="products"/));
+  assert.ok(at(/id="products"/) < at(/id="free-tools"/));
+  assert.ok(at(/id="free-tools"/) < at(/id="q"/), 'search is for the free tools, below the products');
+  assert.match(hub, /href="c\/"/);
+  // Standalone research paused on 2026-11-25: one quiet link to the archive.
+  assert.match(hub, /href="research\/">Research archive</);
+  // Gone from the front door: catalogue tiles, stats, and self-deploy (retired 2026-11-24).
+  assert.doesNotMatch(hub, /id="overview"|id="types"|id="featured"|class="marquee"/);
+  const more = hub.slice(hub.indexOf('id="more"'));
+  assert.match(more, /href="about\/"/);
+  assert.doesNotMatch(more.slice(0, more.indexOf('</section>')), /href="deploy\//);
   assert.ok(!/<h1>[^<]*Calculators/.test(hub), 'the headline names more than calculators');
   // The site header, with no second top bar.
   assert.equal(hub.match(/<nav\b[^>]*aria-label="Site"/g).length, 1);
@@ -6493,18 +6531,9 @@ test('clampMetaDescription cuts at a word with an ellipsis when no sentence fits
 
 // Ranking by page count alone put a day-count adder with ten explainer pages
 // at the front of the featured row (2026-10-21). Flagships lead it now.
-test('the featured row leads with the flagships, then fills by page count', () => {
-  const surfaces = [
-    { slug: 'state-residency-day-counter', title: 'State residency day counter', description: 'Days.', kind: 'browser', pageCount: 11 },
-    { slug: 'changepoint-detector', title: 'Changepoint detector', description: 'PELT.', kind: 'browser', pageCount: 2 },
-    { slug: 'einvoice-preflight', title: 'E-invoice preflight', description: 'EN 16931.', kind: 'browser', pageCount: 19 },
-  ];
-  const featuredRow = (hub) => hub.slice(hub.indexOf('id="featured"')).match(/data-tool="([^"]+)"/g).map((m) => m.slice(11, -1));
-  const hub = renderHub(surfaces, 'https://example.test/', { flagships: ['changepoint-detector', 'einvoice-preflight', 'not-a-surface'] });
-  const row = featuredRow(hub);
-  assert.deepEqual(row.slice(0, 2), ['changepoint-detector', 'einvoice-preflight']);
-  assert.equal(new Set(row).size, row.length, 'no tool twice');
-  assert.ok(row.includes('state-residency-day-counter'), 'room left is filled by page count');
+// The hub's featured row left on 2026-11-25 with the rest of the catalogue
+// (the front door is a business -> problem -> product finder now).
+test('the flagships file parses', () => {
   assert.ok(flagshipSlugs().includes('changepoint-detector'), 'the real file parses');
 });
 

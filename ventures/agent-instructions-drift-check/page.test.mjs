@@ -3,13 +3,16 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { parseInstructions, diffFileRefs, diffScriptRefs, summarize } from "./engine.mjs";
 
+// Escape every regex metacharacter so a literal string can sit inside a RegExp.
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const DOCS_PAGE = "why-ai-agent-instruction-files-rot.html";
 
 test("index links to the docs page", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(
     page,
-    new RegExp(`href="${DOCS_PAGE.replace(/\./g, "\\.")}"`),
+    new RegExp(`href="${escapeRegExp(DOCS_PAGE)}"`),
     "index must link the secondary docs page so crawlers can reach it",
   );
 });

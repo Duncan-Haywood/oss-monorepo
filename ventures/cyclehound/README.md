@@ -281,7 +281,7 @@ npm corpus is byte-identical before and after the fix.
 
 ## Licence
 
-MIT. madge, dependency-cruiser and eslint-plugin-import are their authors'
+FSL-1.1-MIT. madge, dependency-cruiser and eslint-plugin-import are their authors'
 projects; cyclehound reimplements the idea (an import graph and its cycles)
 from their public behaviour and shares no code with them, and is not
 affiliated with or endorsed by any of them.

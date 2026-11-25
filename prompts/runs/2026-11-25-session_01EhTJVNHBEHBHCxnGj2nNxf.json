@@ -1,0 +1,155 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01EhTJVNHBEHBHCxnGj2nNxf",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T01:56:16Z",
+  "ended": "2026-11-25T02:01:00Z",
+  "wall_minutes": 5.0,
+  "tokens_in": 3355035,
+  "tokens_out": 21727,
+  "cost_usd": 1.9378,
+  "tool_calls": 39,
+  "task": "Bet 1 (payapps) public side: retainage-in-QuickBooks guide with invoice-line calculator in pay-app-guides, plus customer post",
+  "projects": [
+    "pay-app-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18804",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "git clone of private-monorepo after add_repo (push access) refused by the auto-mode permission classifier, third session today; took the bet's public side",
+    "quickbooks.intuit.com does not resolve from this session (WebFetch ENOTFOUND); Intuit pages read through WebSearch results restricted to that domain",
+    "risk_review.py --base origin/main crashed with CalledProcessError (no merge base in the depth-1 clone) instead of a readable message; fixed by git fetch --depth=40 origin main"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "issue": "Says to build bets in private-monorepo when reachable; add_repo succeeds but the clone is refused by the permission classifier (3 sessions on 2026-11-25). Worth one line saying so, so runs go straight to the public side."
+    },
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "Raw traceback when origin/main shares no merge base with HEAD in a shallow clone; it could print 'run git fetch --depth=40 origin main'."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Many parallel sessions take bet #1's public side at once (5 open pay-app-guides PRs). They all edit the same PAGES list, sitemap and llms.txt in pay-app-guides, so merge conflicts are likely."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Top bet's code is in private-monorepo, but the clone was refused",
+      "did": "Built the bet's public side: a QuickBooks retainage guide (the bet names QBO's missing retainage as a day-one need) with a small tested calculator",
+      "result": "Page, tests and post in PR #18804"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Consolidate posts: the natural host post (retainage caps) is being rewritten by open PR #18798",
+      "did": "Wrote a separate customer post aimed at a different search ('retainage in QuickBooks')",
+      "result": "Similarity check: 0 near copies"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-retainage-in-quickbooks-online.md (new customer post, for-customers tag)"
+  ],
+  "goal": "North star $10k MRR: SEO front door for bet 1 on the search 'retainage QuickBooks', the integration buyers need",
+  "notes": "run_venture_tests.py pay-app-guides: 1 suite run, 0 failed (26 node tests). Playwright at 390px: calculator 40000/-4000/36000, and 51000 with a 15000 release; no page errors; scrollWidth 390. check_post_frontmatter/links/posts and post_similarity clean. risk_review: nothing blocked; one personal-data check answered in the PR (local anonymous counter only).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "49585733-fa1f-5ac7-bdf6-34e2e03a1172",
+    "transcripts": 1,
+    "first": "2026-11-25T01:56:16Z",
+    "last": "2026-11-25T02:01:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 70,
+        "output": 21727,
+        "thinking": 2891,
+        "cache_read": 3248306,
+        "cache_write_5m": 0,
+        "cache_write_1h": 106659,
+        "api_equivalent_usd": 1.9378,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 70,
+      "output": 21727,
+      "thinking": 2891,
+      "cache_read": 3248306,
+      "cache_write_5m": 0,
+      "cache_write_1h": 106659,
+      "api_equivalent_usd": 1.9378,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 26,
+      "WebSearch": 4,
+      "ToolSearch": 2,
+      "WebFetch": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.0,
+      "active_minutes": 5.0,
+      "model_minutes": 3.75,
+      "tool_minutes": 1.24,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "construction bookkeeper researching QBO retainage workaround, writing a guide, small calculator and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 258.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

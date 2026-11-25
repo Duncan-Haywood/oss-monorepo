@@ -4,8 +4,8 @@
 // Jan 31 W-2 / 1099-NEC / 940 date, quarterly 941 dates, the filing deadline
 // and, when a state is named, each sales tax return. Dates are the ones the
 // rest of the venture already uses; a calendar to plan from, not advice.
-import { estimatedDueDates } from "./taxforms.mjs";
-import { salesTaxDueDates, nextBusinessDay } from "./salestaxreturn.mjs";
+import { estimatedDueDates } from "./irsdates.mjs";
+import { salesTaxDueDates, nextBusinessDay } from "./salestax-rules.mjs";
 
 export function taxCalendar(year, { state = null, frequency = "quarterly", payroll = false, contractors = false, estimates = null, dueDay, endMonth } = {}) {
   const ev = [];

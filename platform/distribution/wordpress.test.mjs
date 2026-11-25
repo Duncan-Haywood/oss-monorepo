@@ -79,7 +79,7 @@ echo $GLOBALS['sc']['free_tools_list'](array());
   assert.doesNotMatch(run.stdout, /height="30[1-9]"/);
   assert.match(run.stdout, /Alpha &quot;Quote&quot; Tool/);
   assert.match(run.stdout, /\[unknown:\]/);
-  assert.doesNotMatch(run.stdout, /<script>/);
+  assert.doesNotMatch(run.stdout, /<script\b/i);
   assert.match(run.stdout, /<li><a href="[^"]+\/b\/">Beta<\/a><\/li>/);
 });
 

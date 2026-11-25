@@ -2,7 +2,7 @@
 
 > Free cut list optimizer for woodworkers and sign shops. Lay out plywood, MDF, or acrylic, compare 4×8 vs 5×5 sheets, and rank 8 ft vs 10 ft vs 12 ft boards before you buy. Nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cut-list-optimizer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cut-list-optimizer): FSL-1.1-MIT licensed.

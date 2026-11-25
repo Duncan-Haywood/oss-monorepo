@@ -1,0 +1,93 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqydYvvmMWmNSywVGa41",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Task: aws-move-products for the public repo (ai-first-markets, shift-roster-builder, real-estate-agent-photo-app docs, retail-pilot-intel docs, local-site-studio Convex); one PR per product; Grant Autopilot left to the private-repo session.",
+  "input_sha256": "bac7e5ff5c218868f347d8317a005accf1c87489543c79e709c75028292260bd",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-25T01:28:07Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "aws-move-products",
+  "projects": [
+    "shift-roster-builder",
+    "real-estate-agent-photo-app",
+    "retail-pilot-intel",
+    "ai-first-markets",
+    "local-site-studio"
+  ],
+  "pr": 18787,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 30,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "my shift-roster pg test left a database granting entitlement_writer, which broke the starter's own e2e on the same server",
+      "fix": "the test now cleans up after itself"
+    },
+    {
+      "what": "migrate-hub.mjs set a query parameter with searchParams.set, which the share-location privacy lint rejects even for a server-to-server call",
+      "fix": "build the URL as a string"
+    },
+    {
+      "what": "copied saas-starter's provider locks (aws 6.73.0, HashiCorp-zip hashes) did not match what priv-aws-plan generates from the OpenTofu registry",
+      "fix": "committed the printed locks (aws 6.74.0) and checked them locally against the OpenTofu registry's own provider zips"
+    },
+    {
+      "what": "the Pages build copied ventures/*/aws/ (Lambda code, .sql migrations) onto the public site and failed on .sql",
+      "fix": "platform/pages/build.mjs skips aws/ directories"
+    },
+    {
+      "what": "pushing new heads repeatedly cancelled the in-flight Security gate runs, which then reported 'no verdict'",
+      "fix": "stopped pushing until the runs finished"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/aws/stacks/saas-starter/README.md",
+      "issue": "'a product is one module call in products.tf' conflicts with the brief's 'a product stack under stacks/<product>/' and the <stack>-* IAM naming; resolved by overriding platform.name_prefix per stack"
+    },
+    {
+      "file": "platform/aws/stacks/saas-starter/backend.hcl.example",
+      "issue": "its key is stacks/saas-starter/terraform.tfstate, the convention elsewhere is <stack>/terraform.tfstate; product stacks default saas_starter_state_key to the convention"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/work/tasks.yaml",
+      "why": "shift-roster-builder had no Worker of ours to move (its hub runs on users' own machines); moving it meant building the hosted multi-team hub plus a per-team migration path, not porting a deployment",
+      "did": "built aws/app.mjs + migrate-hub.mjs + /admin/export.json",
+      "result": "hosted hub tested in memory, on Postgres 16 and in Chromium"
+    },
+    {
+      "file": "docs/reports/2026-11-25-aws-move-products.md",
+      "why": "local-site-studio's Convex backend was never deployed, so the task's 'move it' had nothing to move; porting it is a launch decision",
+      "did": "wrote the exception with scope and trigger",
+      "result": "exception recorded"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-a-hosted-team-hub-from-a-self-hosted-one.md",
+    "docs/posts/2026-11-25-private-docs-without-cloudflare-access.md",
+    "docs/posts/2026-11-25-retail-pilot-docs-on-aws.md",
+    "docs/reports/2026-11-25-aws-move-products.md"
+  ],
+  "goal": "North star: shift-roster's hosted hub is the first paid-shaped product on the AWS starter (paid gate dark)",
+  "notes": "PRs (one per product): 18787 shift-roster, 18792 listing-lens, 18794 retail-pilot-intel, 18795 ai-first-markets, 18796 local-site-studio exception + this record. The AI-First Markets write-up was folded into the private-docs post (consolidated posts, CLAUDE.md). Verified here (no AWS account; nothing applied): tofu 1.13.10 with hashicorp/aws 6.73.0 and archive 2.8.1 from a SHA256-checked filesystem mirror. tofu test: shift-roster 5, listing-lens 5, retail-pilot-intel 4, ai-first-markets 3, app-service 9, app-auth 2, dns 7, all pass; tofu fmt -check clean. saas-starter runtime node --test with Postgres 16: 15 pass (site.mjs gate, traversal, DB key). shift-roster: aws/app.test.mjs 7, aws/pg.test.mjs 1 (20 concurrent writes kept), console-browser.check.mjs in Chromium, run_venture_tests.py 794 tests 0 failed. site-browser.check.mjs in Chromium on the real listing-lens, retail-pilot-intel and ai-first-markets builds. ai-first-markets vitest 60 + tsc clean. Found and fixed: real-estate docs-site built every /docs/<slug>/ page as 'Page not found' (Next 16 params Promise). CI runners were queued most of the session.",
+  "corrections": [],
+  "redteam": null
+}

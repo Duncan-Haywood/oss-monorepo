@@ -107,6 +107,23 @@ def test_moved_products_are_marked():
     assert set(moved) == set(t.MOVED)
 
 
+def test_move_records_are_complete():
+    for slug, rec in t.MOVED.items():
+        assert rec["status"] in t.MOVE_STATUSES, slug
+        assert rec["free_tag"] == f"{slug}-free-v1"
+        assert rec["paid_page"].startswith("https://marisstella.app/industries/")
+        assert rec["where"]
+    assert t.MOVED["wall-framing-takeoff"]["status"] == "moved"
+    assert t.MOVED["einvoice-preflight"]["status"] == "moving"
+
+
+def test_free_edition_pages_link_the_paid_edition():
+    for slug, rec in t.MOVED.items():
+        page = (t.ROOT / "ventures" / slug / "index.html").read_text()
+        assert "free edition" in page.lower(), slug
+        assert rec["paid_page"] in page, slug
+
+
 def test_line_counts_alone_do_not_make_it_stale():
     data = t.build()
     moved = json.loads(json.dumps(data))

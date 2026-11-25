@@ -1,0 +1,307 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKnv5JwbBpCxCC3E8nT",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T07:18:39Z",
+  "ended": "2026-11-25T07:19:54Z",
+  "wall_minutes": 10.46,
+  "tokens_in": 2955733,
+  "tokens_out": 14115,
+  "cost_usd": 1.4235,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18892",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "The campaign on a 0.17 s file took ~20 s per mutant because it runs every suite that imports the target (9 files in wall-framing-takeoff); a single 10-mutant campaign exceeded the 120 s foreground limit. Saying 'start it in the background by default' would have saved a retry."
+    },
+    {
+      "file": "prompts/process/backlog/",
+      "issue": "main had two P075 entries (PR #18882 and PR #18884 merged the same hour), so promptctl.py validate was red; renumbered the clone-refused one to P076."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0's 3 open defects all need control-plane PRs (browser-checks nightly, ids-model-check workflow step) or a help-center eval set; none is safe to fix in this run.",
+      "did": "Left them open and went straight to seeding.",
+      "result": "Time went to a for-profit construction product instead."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No new post: the fix is one warning in a calculator, and its FAQ sentence on the page is the user-facing write-up; a post section would be thin.",
+      "did": "Updated the page's FAQ (visible text and JSON-LD) instead.",
+      "result": "n/a"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b (an automated guard for the class): the defect was a value that was computed and reported but never checked against the input; no cheap repo-wide lint fits.",
+      "did": "Left per-file tests that run in CI on every PR.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "ventures/wall-framing-takeoff/ventilation-calculator.html (FAQ sentence)"
+  ],
+  "goal": null,
+  "notes": "Target ventures/wall-framing-takeoff/ventilation.mjs (bet #2 construction). 10 mutants, 2 caught, 7 gaps guarded, 1 equivalent; catch rate after fix 1.0. Real defect: short ridge at 1/300 misreported the high share and gave no warning; patched. Verified with node --test over the 9 suites that import ventilation: 256 pass, 0 fail.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/wall-framing-takeoff/ventilation.mjs",
+        "test": "node --test ventures/wall-framing-takeoff/**/*.test.mjs  (in .)",
+        "seed": 252389771,
+        "commit": "c380b1462",
+        "sites": 182,
+        "baseline_seconds": 21.1,
+        "mutants": [
+          {
+            "file": "ventures/wall-framing-takeoff/ventilation.mjs",
+            "line": 34,
+            "col": 51,
+            "operator": "gt-to-ge",
+            "before": "if (v.ridgeNfaPerFt != null && !(v.ridgeNfaPerFt > 0 && v.ridgeNfaPerFt <= 60)) e.push(\"Ridge vent net free area must be between 0 and 60 sq in per foot.\");",
+            "after": "if (v.ridgeNfaPerFt != null && !(v.ridgeNfaPerFt >= 0 && v.ridgeNfaPerFt <= 60)) e.push(\"Ridge vent net free area must be between 0 and 60 sq in per foot.\");",
+            "line_text": "  if (v.ridgeNfaPerFt != null && !(v.ridgeNfaPerFt > 0 && v.ridgeNfaPerFt <= 60)) e.push(\"Ridge vent net free area must be between 0 and 60 sq in per foot.\");",
+            "caught": false,
+            "seconds": 21.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "ridgeNfaPerFt 0 accepted would divide by zero; new bounds test refuses it"
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/ventilation.mjs",
+            "line": 35,
+            "col": 77,
+            "operator": "const-plus-one",
+            "before": "if (v.soffitUnitNfa != null && !(v.soffitUnitNfa > 0 && v.soffitUnitNfa <= 200)) e.push(\"Soffit vent net free area must be between 0 and 200 sq in per unit.\");",
+            "after": "if (v.soffitUnitNfa != null && !(v.soffitUnitNfa > 0 && v.soffitUnitNfa <= 201)) e.push(\"Soffit vent net free area must be between 0 and 200 sq in per unit.\");",
+            "line_text": "  if (v.soffitUnitNfa != null && !(v.soffitUnitNfa > 0 && v.soffitUnitNfa <= 200)) e.push(\"Soffit vent net free area must be between 0 and 200 sq in per unit.\");",
+            "caught": false,
+            "seconds": 21.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "upper bound 200 untested; bounds test"
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/ventilation.mjs",
+            "line": 36,
+            "col": 84,
+            "operator": "const-plus-one",
+            "before": "if (v.soffitUnitWidth != null && !(v.soffitUnitWidth >= 4 && v.soffitUnitWidth <= 96)) e.push(\"Soffit vent unit width must be between 4 and 96 inches.\");",
+            "after": "if (v.soffitUnitWidth != null && !(v.soffitUnitWidth >= 4 && v.soffitUnitWidth <= 97)) e.push(\"Soffit vent unit width must be between 4 and 96 inches.\");",
+            "line_text": "  if (v.soffitUnitWidth != null && !(v.soffitUnitWidth >= 4 && v.soffitUnitWidth <= 96)) e.push(\"Soffit vent unit width must be between 4 and 96 inches.\");",
+            "caught": false,
+            "seconds": 22.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "upper bound 96 untested; bounds test"
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/ventilation.mjs",
+            "line": 40,
+            "col": 60,
+            "operator": "const-plus-one",
+            "before": "if (v.ridgeNailSpacing != null && !(v.ridgeNailSpacing >= 2 && v.ridgeNailSpacing <= 48)) e.push(\"Ridge vent nail spacing must be between 2 and 48 inches on centre.\");",
+            "after": "if (v.ridgeNailSpacing != null && !(v.ridgeNailSpacing >= 3 && v.ridgeNailSpacing <= 48)) e.push(\"Ridge vent nail spacing must be between 2 and 48 inches on centre.\");",
+            "line_text": "  if (v.ridgeNailSpacing != null && !(v.ridgeNailSpacing >= 2 && v.ridgeNailSpacing <= 48)) e.push(\"Ridge vent nail spacing must be between 2 and 48 inches on centre.\");",
+            "caught": false,
+            "seconds": 22.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "lower bound 2 untested; bounds test"
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/ventilation.mjs",
+            "line": 52,
+            "col": 34,
+            "operator": "false-to-true",
+            "before": "if (errors.length) return { ok: false, errors };",
+            "after": "if (errors.length) return { ok: true, errors };",
+            "line_text": "  if (errors.length) return { ok: false, errors };",
+            "caught": false,
+            "seconds": 21.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test checked ok:false on invalid settings"
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/ventilation.mjs",
+            "line": 60,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "const ridgeRunIn = hip ? Math.max(0, roof.length - roof.width) : (rn.ridgeFeet ?? roof.length / 12) * 12;",
+            "after": "const ridgeRunIn = hip ? Math.max(1, roof.length - roof.width) : (rn.ridgeFeet ?? roof.length / 12) * 12;",
+            "line_text": "  const ridgeRunIn = hip ? Math.max(0, roof.length - roof.width) : (rn.ridgeFeet ?? roof.length / 12) * 12;",
+            "caught": false,
+            "seconds": 22.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "square hip with ridgeEndGap 0 would get 1/12 ft of ridge vent; new test"
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/ventilation.mjs",
+            "line": 61,
+            "col": 51,
+            "operator": "times-to-div",
+            "before": "const ridgeVentFeet = Math.max(0, ridgeRunIn - 2 * gap) / 12;",
+            "after": "const ridgeVentFeet = Math.max(0, ridgeRunIn - 2 / gap) / 12;",
+            "line_text": "  const ridgeVentFeet = Math.max(0, ridgeRunIn - 2 * gap) / 12;",
+            "caught": true,
+            "seconds": 21.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/ventilation.mjs",
+            "line": 71,
+            "col": 55,
+            "operator": "const-plus-one",
+            "before": "if (useRidge && ridgeFeetNeeded > ridgeVentFeet + 1e-9) {",
+            "after": "if (useRidge && ridgeFeetNeeded > ridgeVentFeet + 1e-10) {",
+            "line_text": "  if (useRidge && ridgeFeetNeeded > ridgeVentFeet + 1e-9) {",
+            "caught": false,
+            "seconds": 20.8,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "Tolerance 1e-9 vs 1e-10 ft on the short-ridge comparison: only changes the outcome when the need exceeds the ridge by under a billionth of a foot, and then only adds a note while the clamp gives the same feet."
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/ventilation.mjs",
+            "line": 80,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "const ridgeNails = useRidge && nSp ? 2 * Math.ceil((ridgeFeetNeeded * 12) / nSp - 1e-9) : 0;",
+            "after": "const ridgeNails = useRidge && nSp ? 3 * Math.ceil((ridgeFeetNeeded * 12) / nSp - 1e-9) : 0;",
+            "line_text": "  const ridgeNails = useRidge && nSp ? 2 * Math.ceil((ridgeFeetNeeded * 12) / nSp - 1e-9) : 0;",
+            "caught": true,
+            "seconds": 20.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/ventilation.mjs",
+            "line": 93,
+            "col": 55,
+            "operator": "const-plus-one",
+            "before": "const baffles = roof.spacing ? Math.ceil((eaveFeet * 12) / roof.spacing - 1e-9) : 0;",
+            "after": "const baffles = roof.spacing ? Math.ceil((eaveFeet * 13) / roof.spacing - 1e-9) : 0;",
+            "line_text": "  const baffles = roof.spacing ? Math.ceil((eaveFeet * 12) / roof.spacing - 1e-9) : 0;",
+            "caught": false,
+            "seconds": 20.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "baffle count was never asserted; hand-checked 84 ft x 12 / 16 = 63"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/wall-framing-takeoff/ventilation.mjs",
+        "issue": "A ridge too short for its share (hip 240x300 in at 1/300) printed '50% high' when the ridge supplied 22.5%, below the 40% the 1/300 balanced option needs, with no warning, so the page sized vents at 1/300 (278 sq in) where 1/150 (480 sq in) applied unless a vapor retarder is present. Fixed: upperShare is now the achieved share (upperShareAsked keeps the input) and a note says the balanced option is not met.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18892"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "77c628cd-e7fe-5696-92c2-5070c27f7870",
+    "transcripts": 1,
+    "first": "2026-11-25T07:18:39Z",
+    "last": "2026-11-25T07:29:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 76,
+        "output": 14115,
+        "thinking": 3408,
+        "cache_read": 2885177,
+        "cache_write_5m": 0,
+        "cache_write_1h": 70480,
+        "api_equivalent_usd": 1.4235,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 76,
+      "output": 14115,
+      "thinking": 3408,
+      "cache_read": 2885177,
+      "cache_write_5m": 0,
+      "cache_write_1h": 70480,
+      "api_equivalent_usd": 1.4235,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 31,
+      "ToolSearch": 2,
+      "Monitor": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.46,
+      "active_minutes": 9.18,
+      "model_minutes": 3.16,
+      "tool_minutes": 6.02,
+      "waiting_on_human_minutes": 1.28,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer: mutation triage, code-rule check, fix and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 210.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

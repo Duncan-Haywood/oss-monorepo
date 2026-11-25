@@ -15,7 +15,7 @@ missing from several registries (multiple-list estimation).
 Who it is for: field biologists and wildlife students running a mark-recapture
 survey; ecology and statistics instructors; software teams estimating how many
 defects their reviewers have not found; epidemiologists with overlapping case
-lists. Free, MIT licensed, nothing uploaded.
+lists. Free, FSL-1.1-MIT licensed, nothing uploaded.
 
 ## What it computes
 
@@ -116,7 +116,7 @@ spatial capture-recapture.
 Provided free and as-is, without warranty of any kind. A statistical estimate
 from the captures you enter, not wildlife-management, regulatory,
 epidemiological, legal or other professional advice. Not affiliated with the
-authors of the cited papers or the U.S. Geological Survey. MIT licence.
+authors of the cited papers or the U.S. Geological Survey. FSL-1.1-MIT licence.
 
 AI-assisted: written with an AI coding agent; the method follows the cited
 papers and the numbers are reproducible from the files above.

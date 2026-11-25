@@ -122,8 +122,8 @@ from ci_starvation import (  # noqa: E402  (path shim must precede the import)
 
 # `publish-pages-branch.yml` until 2026-10-20, when the Pages source moved to
 # GitHub Actions and that workflow was retired; the deploy job of
-# `portfolio-pages.yml` announces now.
-PUBLISH_WORKFLOW = "portfolio-pages.yml"
+# `priv-portfolio-pages.yml` announces now.
+PUBLISH_WORKFLOW = "priv-portfolio-pages.yml"
 SERVING_BRANCH = "gh-pages"
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
@@ -149,7 +149,7 @@ BRANCH_PATH = f"repos/{REPO_PLACEHOLDER}/branches/{SERVING_BRANCH}"
 # Matched case-insensitively against a step's name. Every spelling is listed
 # because the step was renamed when it moved: `Notify IndexNow` was the
 # original (#4366), then `Announce the live snapshot to IndexNow`, and
-# `Announce the deployed site to IndexNow` in `portfolio-pages.yml` is the
+# `Announce the deployed site to IndexNow` in `priv-portfolio-pages.yml` is the
 # current one. A historical run carries the name it ran under, so a reading that knew
 # only today's name would report a genuine past submission as `never`.
 ANNOUNCE_STEP_NAMES = (

@@ -2,7 +2,7 @@
 
 > Free CBAM cost estimator for EU importers of steel, aluminium, cement, fertilisers and hydrogen: embedded emissions, free-allocation phase-out 2026 to 2034, certificates needed, cost per tonne, and the 50-tonne threshold. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cbam-cost-estimator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cbam-cost-estimator): FSL-1.1-MIT licensed.

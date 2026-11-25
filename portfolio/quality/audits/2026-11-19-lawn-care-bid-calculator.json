@@ -167,21 +167,24 @@
       "what": "Monthly fixed costs (equipment share, other) are recovered only in in-season months: annual price = per-visit * season visits, so a $40/mo mower share on the default 32-week season recovers $295.38 of $480 a year (38% short) and every seasonal bid is understated",
       "where": "ventures/lawn-care-bid-calculator/calc.mjs:139",
       "category": "domain-rule",
-      "origin": "spec"
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18931"
     },
     {
       "severity": "medium",
       "what": "Travel person-hours ignore crew size: a two-person crew's 36-minute round trip is charged as 0.6 person-hours, not 1.2; the FAQ then tells operators adding a second person never changes the price",
       "where": "ventures/lawn-care-bid-calculator/calc.mjs:104",
       "category": "logic-error",
-      "origin": "implementation"
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18931"
     },
     {
       "severity": "medium",
       "what": "A blank wage, burden, fuel or other cost field is silently read as 0 (Number('') === 0), so clearing the wage shows a $25.73 per-visit price with no labour in it",
       "where": "ventures/lawn-care-bid-calculator/calc.mjs:40",
       "category": "input-handling",
-      "origin": "implementation"
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18931"
     },
     {
       "severity": "medium",
@@ -226,7 +229,8 @@
       "what": "No test at the break-even equality boundary: belowBreakEven < -> <= survives",
       "where": "ventures/lawn-care-bid-calculator/calc.test.mjs:1",
       "category": "untested-core",
-      "origin": "tests"
+      "origin": "tests",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18931"
     },
     {
       "severity": "low",
@@ -237,6 +241,6 @@
       "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17816"
     }
   ],
-  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17816"],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17816", "https://github.com/Duncan-Haywood/oss-monorepo/pull/18931"],
   "verdict": "A tidy, private, well-tested recurring-stop calculator whose arithmetic reproduces by hand to the cent (default $459.73/month, $106.09/visit, margin on price) and whose guide-page figures all reproduce. It does not meet the bar: correctness and claims are 2. Its signature 'honest annual' drops year-round fixed costs (a $40/mo equipment share recovers $295 of $480 on a 32-week season), a two-person crew's windshield time is charged once, a blank wage prices labour at zero, an FAQ claim about travel share is false on the tool's own numbers, and the proposal calls a monthly amount 'Total price'. 119 tests pass and 4 of 5 seeded mutants were caught. Finished (completeness 3), not senior-operator grade until the fixed-cost and crew-travel handling are fixed."
 }

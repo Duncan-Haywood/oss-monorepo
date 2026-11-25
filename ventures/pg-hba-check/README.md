@@ -126,7 +126,7 @@ patterns were not found.
 
 ## Licence
 
-MIT, see [`LICENSE`](LICENSE). The fixture `fixtures/ubuntu-24.04-pg16/pg_hba.conf`
+FSL-1.1-MIT, see [`LICENSE`](LICENSE). The fixture `fixtures/ubuntu-24.04-pg16/pg_hba.conf`
 is PostgreSQL's sample file as Ubuntu installs it, under the PostgreSQL
 Licence (see [`fixtures/README.md`](fixtures/README.md)). Not affiliated with
 the PostgreSQL Global Development Group.

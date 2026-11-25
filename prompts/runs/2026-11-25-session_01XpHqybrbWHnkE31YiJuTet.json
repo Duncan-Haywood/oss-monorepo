@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqybrbWHnkE31YiJuTet",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T13:39:45Z",
+  "ended": "2026-11-25T13:52:33Z",
+  "wall_minutes": 12.95,
+  "tokens_in": 13252026,
+  "tokens_out": 60118,
+  "cost_usd": 5.2162,
+  "tool_calls": 102,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18987",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "PayApps weekly-email time zone work (bet #1) duplicated sibling session's private PR 106, merged ~5 min before this run's push on the identical branch name claude/payapps-digest-time-zone; dropped, not pushed"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Reaching private-monorepo steps worked first time (add_repo then clone in <1 min); register_repo_root not available, as the doc says."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Default 'take the top bet' sends every parallel run to PayApps; two sessions picked the same ROADMAP 'Next' item within minutes and even the same branch name. Nothing tells a run to push a claim branch before coding on a crowded bet."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Top bet (PayApps) item was taken by a sibling mid-run",
+      "did": "Moved to bet #2 (Job Shop Quote), roadmap item 9 part 1 (repeat parts), unclaimed",
+      "result": "Shipped and merged as private PR 110"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No customer-facing post: the feature is in a product with no public launch yet, and the marketing site lives in private apps/jobshop-site",
+      "did": "Wrote an agent doc in docs/reports instead",
+      "result": "Agent doc landed in this PR"
+    }
+  ],
+  "writeups": [
+    "docs/reports/ventures-2026-11-25-jobshop-repeat-parts.md"
+  ],
+  "goal": null,
+  "notes": "Private PR 110 (Duncan-Haywood/private-monorepo) merged: GET quotes/:id/lines/:lineId/history and POST .../copy-from, UI panel on each quote line. Local verification: biome ci clean, typecheck clean, unit 85 passed, worker 60 passed (3 new), build ok, drizzle-kit check ok. Private Actions has no runners.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2bede66f-55b4-5044-b563-eafa84e0f806",
+    "transcripts": 1,
+    "first": "2026-11-25T13:39:45Z",
+    "last": "2026-11-25T13:52:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 96,
+        "input": 182,
+        "output": 60118,
+        "thinking": 7912,
+        "cache_read": 13077127,
+        "cache_write_5m": 0,
+        "cache_write_1h": 174717,
+        "api_equivalent_usd": 5.2162,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 96,
+      "input": 182,
+      "output": 60118,
+      "thinking": 7912,
+      "cache_read": 13077127,
+      "cache_write_5m": 0,
+      "cache_write_1h": 174717,
+      "api_equivalent_usd": 5.2162,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 102,
+    "tools": {
+      "Bash": 94,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.95,
+      "active_minutes": 12.95,
+      "model_minutes": 8.48,
+      "tool_minutes": 4.48,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior dev: design + endpoints + UI + tests for repeat-part history/copy, plus a discarded duplicate feature",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 191.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -231,5 +231,19 @@ class VatFunctionsTest(unittest.TestCase):
         assert vat._fr("40303265045")
 
 
+
+class Remainder10Test(unittest.TestCase):
+    """Quality audit 2026-11-19: BG/CZ check digits from the remainder-10 branch (same cases as vat.test.mjs)."""
+
+    def test_remainder_ten_numbers(self):
+        def rule(v):
+            return [f["rule"] for f in inspect_party_vat({"vat_id": v}, "seller") if f["rule"] == "INV-023"]
+
+        for number in ["BG955103765", "BG088448100", "CZ30803331", "CZ30686130", "CZ5409060900"]:
+            self.assertEqual(rule(number), [], number)
+            bumped = number[:-1] + str((int(number[-1]) + 1) % 10)
+            self.assertEqual(rule(bumped), ["INV-023"], bumped)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -366,6 +366,26 @@ test("CPM: as late as possible takes up free float; loops are found and reported
   const lo = schedule(loopy);
   assert.equal(lo.loops.length, 1);
   assert.equal(lo.loops[0].length, 3);
+  // an activity stuck only because it follows a loop is not a loop itself
+  const downstream = project([task("1", "A", 8), task("2", "B", 8), task("3", "C", 8), task("4", "D", 8)],
+    [link("1", "2", "1"), link("2", "3", "2"), link("3", "1", "3"), link("4", "4", "3")]);
+  const dl = schedule(downstream);
+  assert.equal(dl.loops.length, 1);
+  assert.deepEqual([...dl.loops[0]].sort(), ["1", "2", "3"]);
+});
+
+test("CPM: an ALAP milestone stays zero-length even when the file gives it a remaining duration", () => {
+  // P6 exports and converted files can carry hours on a milestone; the forward
+  // pass ignores them, so ALAP must too (red team 2026-11-24: the milestone test escaped)
+  for (const type of ["TT_FinMile", "TT_Mile"]) {
+    const x = project(
+      [task("1", "A", 8), task("2", "M", 8, { task_type: type, cstr_type: "CS_ALAP" }), task("3", "C", 24), task("4", "End", 0, { task_type: "TT_FinMile" })],
+      [link("1", "2", "1"), link("2", "4", "2"), link("3", "4", "3")],
+    );
+    const m = at(schedule(x), x, "M");
+    assert.equal(m.es, m.ef, type);
+    assert.equal(m.tf, 0, type);
+  }
 });
 
 test("DCMA: each point counts what it should on a small schedule", () => {
@@ -528,6 +548,9 @@ test("expected finish: sets the remaining duration, absorbs a predecessor's slip
   const slip = schedule(on, { delay: { taskId: "1", minutes: 3 * 8 * 60 } });
   assert.equal(at(slip, on, "B").ef, "2025-12-19 17:00");
   assert.equal(at(slip, on, "C").ef, at(base, on, "C").ef);
+  // the critical path test's delay on B itself goes on top of the expected
+  // finish: 10 d to 12-19, then 3 d more (12-24 a half day, 12-25 off)
+  assert.equal(at(schedule(on, { delay: { taskId: "2", minutes: 3 * 8 * 60 } }), on, "B").ef, "2025-12-26 12:00");
   // without the rule the slip reaches C
   assert.notEqual(at(schedule(on, { expectedFinish: false, delay: { taskId: "1", minutes: 3 * 8 * 60 } }), on, "C").ef, at(base, on, "C").ef);
   // expected finish before B can start: ignored, the stored 80 h stand
@@ -607,4 +630,49 @@ test("red team 2026-11-24: the driving path starts from the finishing activity e
   const x = project([task("1", "A", 40), task("2", "B", 8)], [link("1", "2", "1", "PR_SS")]);
   const out = schedule(x);
   assert.deepEqual(drivingPath(out, "1").map((id) => out.model.tasks.get(id).code), ["A"]);
+});
+
+test("CPM: a negative duration is taken as 0 and reported, never scheduled to finish before it starts", () => {
+  // found by the red team, 2026-11-25: -80 h on a driving activity finished it
+  // two weeks before its start and pulled the project finish in, silently
+  const tasks = (bHours, bOrig = bHours) => [task("1", "A", 40), task("2", "B", bHours, { target_drtn_hr_cnt: bOrig }), task("3", "C", 40)];
+  const preds = [link("1", "2", "1"), link("2", "3", "2")];
+  const zero = project(tasks(0), preds);
+  const neg = project(tasks(-80, -80), preds);
+  const out = schedule(neg);
+  const b = at(out, neg, "B");
+  assert.ok(b.ef >= b.es, `${b.es} to ${b.ef}`);
+  assert.equal(at(out, neg, "C").ef, at(schedule(zero), zero, "C").ef);
+  assert.ok(out.warnings.some((w) => /1 remaining duration value is negative and was taken as 0: B \("-80"\)/.test(w)), JSON.stringify(out.warnings));
+  assert.ok(out.warnings.some((w) => /1 original duration value is negative/.test(w)));
+  // a negative lag is a lead, not an error
+  const lead = project(tasks(8), [link("1", "2", "1", "PR_FS", -8), link("2", "3", "2")]);
+  assert.ok(!schedule(lead).warnings.some((w) => /negative/.test(w)));
+});
+
+test("DCMA: a project with no activities has no critical path, so no CPLI", () => {
+  const x = project([], []);
+  const c13 = assess(x).checks.find((k) => k.id === 13);
+  assert.equal(c13.value, null);
+  assert.equal(c13.pass, false);
+  assert.equal(c13.note, "");
+});
+
+test("DCMA: a project id the file does not hold falls back to the project with the most open work", async () => {
+  const { EXAMPLE_XER } = await import("./example.mjs");
+  const x = parseXer(EXAMPLE_XER);
+  assert.equal(assess(x, { projId: "no-such-project" }).project.code, assess(x).project.code);
+});
+
+test("DCMA 10: an activity cost loaded by an expense (PROJCOST) has a cost assignment", async () => {
+  const { EXAMPLE_XER } = await import("./example.mjs");
+  const x = parseXer(EXAMPLE_XER);
+  const c10 = (a) => a.checks.find((c) => c.id === 10);
+  assert.deepEqual(c10(assess(x)).items.map((i) => i.code), ["A1040", "A1180"]);
+  const t = x.tables.TASK.find((r) => r.task_code === "A1040");
+  x.tables.PROJCOST = [{ cost_item_id: "1", task_id: t.task_id, proj_id: t.proj_id, cost_name: "Door supply", target_cost: "5000", act_cost: "0", remain_cost: "5000" }];
+  assert.deepEqual(c10(assess(x)).items.map((i) => i.code), ["A1180"]);
+  // expenses alone load a file: the note does not say it has nothing loaded
+  x.tables.TASKRSRC = [];
+  assert.equal(c10(assess(x)).note, "Open activities with duration and no resource assignment or expense.");
 });

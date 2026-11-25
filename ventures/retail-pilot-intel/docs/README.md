@@ -38,4 +38,4 @@ To regenerate TSX from HTML sources: `pnpm docs:convert-html`
 
 CI builds `apps/docs/dist` on every push to `main`. Workflow `.github/workflows/deploy-docs.yml` publishes to **private GitHub Pages** when enabled (Settings → Pages → Source: GitHub Actions; visibility: Private).
 
-Full setup: [`deployment.md`](./deployment.md) and [`apps/docs/DEPLOY.md`](../apps/docs/DEPLOY.md). Vercel template: `vercel.docs.json`.
+Full setup: [`deployment.md`](./deployment.md) and [`apps/docs/DEPLOY.md`](../apps/docs/DEPLOY.md). Cloudflare Worker config: `apps/docs/wrangler.toml`.

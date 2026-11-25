@@ -2,7 +2,7 @@
 
 > Free tool: paste a tsconfig.json and see what TypeScript 7.0 rejects and which TypeScript 6.0 default changes affect it. Flags target ES5/ES3, moduleResolution node/node10/classic, baseUrl, outFile, module AMD/UMD/System/None, downlevelIteration, esModuleInterop/allowSyntheticDefaultImports/alwaysStrict false, and the 5.5-removed options (TS5023 "unknown option" in 7), with the exact error codes tsc 6.0 and 7.0 print; explains the new defaults (strict on, types [], target ES2025, bundler resolution, rootDir at the tsconfig folder, noUncheckedSideEffectImports) and suggests a fixed compilerOptions. Every rule was confirmed by running tsc 5.9.3, 6.0.3 and 7.0.2; on 61 configs (including 35 @tsconfig/bases versions) it named exactly what tsc 7.0.2 rejected. Runs in the browser; nothing is uploaded. A Node CLI (`node cli.mjs tsconfig.json`) follows extends and exits 1 when TypeScript 7 would reject the config.
 
-Free and open source (MIT). Checks the config file, not your code; not legal or professional advice. Not affiliated with Microsoft or the TypeScript project.
+Free to use and source available (FSL-1.1-MIT). Checks the config file, not your code; not legal or professional advice. Not affiliated with Microsoft or the TypeScript project.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Checks the config file, not your code; not legal or 
 
 ## Source
 
-- [Source code, README and eval data](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tsconfig-ts7-check): MIT licensed.
+- [Source code, README and eval data](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tsconfig-ts7-check): FSL-1.1-MIT licensed.

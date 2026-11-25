@@ -98,7 +98,7 @@ const regionTaxRate: Record<CheckoutShippingRegion, number> = {
 };
 
 function generateSessionId(): string {
-  return `chk_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+  return `chk_${Date.now()}_${globalThis.crypto.randomUUID().replace(/-/g, "").slice(0, 12)}`;
 }
 
 export function artworkToCheckoutLine(

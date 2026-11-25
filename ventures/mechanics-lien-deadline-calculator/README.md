@@ -31,6 +31,33 @@ Design choice worth knowing: when a rule runs from project completion and you
 do not enter it, the tool uses your last furnishing date, which can only be
 the same or earlier — the cautious direction for a deadline.
 
+## Statute check, 2026-11-25
+
+The rules were first taken from lien-service and law-firm explainers. On
+2026-11-25 each was compared with the statute text on the legislature's site
+(Justia's copy for Georgia and Colorado), read through web-search results
+limited to those domains, because this cloud session could not load the hosts
+directly. Texas, Florida, Arizona, Georgia and Colorado matched as written.
+Three things changed:
+
+- **California citation.** A subcontractor's or supplier's lien clock is
+  Civ. Code § 8414 (claimants other than a direct contractor), not § 8412
+  (direct contractors, whose notice-of-completion window is 60 days). The
+  dates were already right.
+- **Washington tiers.** RCW 60.04.031(2)(c) exempts a subcontractor who
+  contracts directly with the prime contractor from the notice of right to
+  claim a lien, except on repair, alteration or remodel of an existing
+  owner-occupied single-family home or garage ((3)(b)). The tool had asked
+  every tier for a notice.
+- **Late notices.** California (§ 8204), Arizona (§ 33-992.01) and Washington
+  let a notice be given late; it then protects work from 20 days (60 in
+  Washington, 10 on a new single-family home) before it is given. Florida
+  makes a late Notice to Owner a complete defense (§ 713.06(2)(a)). A passed
+  date now gives the earliest work date a notice served today still covers,
+  or says the state treats lateness as fatal.
+
+Each result links the sections it uses (`sources` in `calc.mjs`), including North Carolina, New York and Ohio, which were added from the statute text the same day; Ohio's late notice of furnishing gets the 21-day look-back.
+
 ## Try it
 
 Open [`index.html`](index.html), choose a state, enter your first and last
@@ -48,8 +75,8 @@ All in [`calc.mjs`](calc.mjs), pure functions, no dependencies:
 ## What this does not cover
 
 - Not legal advice; lien rights are lost by missing a deadline.
-- First- and second-tier claimants (added 2026-11-16): the tier changes the result only in Georgia, where a Notice to Contractor is owed only by claimants without a contract with the general contractor. Texas lists one notice date per month of unpaid work and applies the post-2022 (HB 2237) rules, the same for every tier; projects whose original contract predates 2022-01-01 follow older rules this tool does not model. Third-tier claimants, laborers' special rules and Texas retainage notices are not modelled. The 2026-11-16 additions come from agreeing secondary sources found by search; the statute hosts were not reachable from the session.
-- Seven states only (California, Texas, Florida, Arizona, Washington, Georgia, Colorado). Colorado added 2026-11-10 from law-firm and lien-service explainers that agree on 4 months and a 10-day notice of intent (statute text not opened; its residential and extension wrinkles are flagged in the result). Nevada and Oregon were searched the same day and left out: sources conflict on notice-of-completion and notice timing.
+- First- and second-tier claimants (added 2026-11-16): the tier changes the result in Georgia, where a Notice to Contractor is owed only by claimants without a contract with the general contractor, and (since the 2026-11-25 statute check) Washington, where a sub hired by the prime contractor owes no notice except on an owner-occupied remodel. Texas lists one notice date per month of unpaid work and applies the post-2022 (HB 2237) rules, the same for every tier; projects whose original contract predates 2022-01-01 follow older rules this tool does not model. Third-tier claimants, laborers' special rules and Texas retainage notices are not modelled. The 2026-11-16 additions come from agreeing secondary sources found by search; the statute hosts were not reachable from the session.
+- Ten states only (California, Texas, Florida, Arizona, Washington, Georgia, Colorado, North Carolina, New York, Ohio). North Carolina (G.S. 44A-11.2, 44A-12), New York (Lien Law § 10) and Ohio (R.C. 1311.05, 1311.06) added 2026-11-25 from the statute text itself, read through search results limited to ncleg.gov, nysenate.gov and codes.ohio.gov (direct loads were blocked by the session's network policy); North Carolina's Notice to Lien Agent applies only where a lien agent is designated and Ohio's notice of furnishing only where a notice of commencement was recorded, both said in the result. Colorado added 2026-11-10 from law-firm and lien-service explainers that agree on 4 months and a 10-day notice of intent; checked against § 38-22-109 on 2026-11-25 (its labor-only 2-month, bona fide purchaser and extension wrinkles are flagged in the result). Nevada and Oregon were searched the same day and left out: sources conflict on notice-of-completion and notice timing.
 - No public-project bond claims, no holidays, no notice content or delivery
   rules, no foreclosure deadlines.
 - Point-in-time figures; statutes change.

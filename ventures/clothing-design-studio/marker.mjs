@@ -20,16 +20,21 @@
 import { garmentMeasurements, BODY_CHEST_CM } from "./fit.mjs";
 import { draft } from "./pattern.mjs";
 
-// The neck band is the drafted one (pattern.mjs: 85% of the whole neck seam, folded); until 2026-11-23 this
-// file typed its own 0.45 x body chest. Drafting is cached per garment, size, fit and chart.
-const bandCache = new Map();
-function draftedBand(garment, size, fit, sizeChart) {
+// The neck band and the sleeve are the drafted ones (pattern.mjs). Until 2026-11-23 this file typed its own
+// 0.45 x body chest for the band, and until 2026-11-25 its own sleeve table (tee 22, hoodie 62 cm in every
+// size) that disagreed with the spec sheet and the pattern (tee 21 at M, hoodie 64, +1 cm a size step).
+// Drafting is cached per garment, size, fit and chart.
+const draftCache = new Map();
+function drafted(garment, size, fit, sizeChart) {
   const k = JSON.stringify([garment, size, fit, sizeChart]);
-  if (!bandCache.has(k)) {
+  if (!draftCache.has(k)) {
     const d = draft(garment, size, { fit, sizeChart });
-    bandCache.set(k, d.ok && d.checks.neckbandLengthCm ? { l: d.checks.neckbandLengthCm, w: 2 * d.checks.neckbandWidthCm } : null);
+    draftCache.set(k, d.ok ? {
+      band: d.checks.neckbandLengthCm ? { l: d.checks.neckbandLengthCm, w: 2 * d.checks.neckbandWidthCm } : null,
+      sleeve: { w: d.checks.sleeveBicepGirthCm, l: d.checks.sleeveLengthCm },
+    } : null);
   }
-  return bandCache.get(k);
+  return draftCache.get(k);
 }
 import { nestRatio, nestSvg } from "./nest.mjs";
 import { DRAFTED } from "./pattern.mjs";
@@ -38,22 +43,23 @@ const round1 = v => Math.round(v * 10) / 10;
 const round2 = v => Math.round(v * 100) / 100;
 
 export const SEAM_ALLOWANCE_CM = 1.5;
-export const SLEEVE_LENGTH_CM = Object.freeze({ tee: 22, longsleeve: 62, crewneck: 62, hoodie: 62 });
 
 /** Pattern pieces for one garment in one size: [{name, w, l, qty}] in cm, seam allowance included. */
 export function patternPieces(garment, size, fit = "regular", sizeChart = BODY_CHEST_CM, seam = SEAM_ALLOWANCE_CM) {
   const g = garmentMeasurements(garment, fit, sizeChart)[size];
   if (!g) return null;
-  if (!(garment in SLEEVE_LENGTH_CM)) return null;
+  if (!DRAFTED.includes(garment)) return null;
+  const d = drafted(garment, size, fit, sizeChart);
+  if (!d) return null;
   const a = 2 * seam;
   const P = (name, w, l, qty) => ({ name, w: round1(w + a), l: round1(l + a), qty });
   const out = [
     P("front", g.flatWidth, g.length, 1),
     P("back", g.flatWidth, g.length, 1),
-    P("sleeve", 0.34 * g.chest, SLEEVE_LENGTH_CM[garment], 2),
+    P("sleeve", d.sleeve.w, d.sleeve.l, 2), // bicep girth x shoulder-point-to-cuff, graded with the spec sheet
   ];
   if (garment !== "hoodie") { // the hoodie's hood takes the neck
-    const band = draftedBand(garment, size, fit, sizeChart);
+    const band = d.band;
     out.push(band ? P("neck band", band.w, band.l, 1) : P("neck band", 4.5, 0.45 * g.bodyChest, 1));
   }
   if (garment === "crewneck" || garment === "hoodie") {

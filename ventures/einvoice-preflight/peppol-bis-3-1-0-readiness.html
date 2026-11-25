@@ -4,7 +4,7 @@
   <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231f5f86'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Peppol BIS 3.1.0 readiness check: which invoices fail in February</title>
-  <meta name="description" content="Drop a batch of sent Peppol invoices and see which pass BIS 3.0.22 today but are rejected under 3.1.0 from 24 February 2027, by rule, with the fix. Free, in your browser.">
+  <meta name="description" content="Drop sent Peppol invoices and see which pass BIS 3.0.22 but fail 3.1.0 from 24 February 2027, by rule, with the fix. Free, in your browser.">
   <link rel="canonical" href="./peppol-bis-3-1-0-readiness.html">
   <style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2330; background: #f3f6f9; }
@@ -213,7 +213,7 @@
   <h2>What breaks most often?</h2>
   <p>On OpenPeppol's own published examples, five of seventeen files that passed 3.0.22 failed 3.1.0, all on PEPPOL-COMMON-R040: scheme 0088 now takes a 13-digit GLN only. Your files may break on other rules; the check lists them.</p>
   <h2>Thousands of files?</h2>
-  <p>The same check runs from a terminal on a folder of any size and writes a CSV: <code>node peppol-readiness-cli.mjs ./sent-invoices --csv readiness.csv</code> (MIT licensed, in the <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/einvoice-preflight">source</a>). To check a single file against every rule, not only what changes, use the <a href="./">full checker</a>.</p>
+  <p>The same check runs from a terminal on a folder of any size and writes a CSV: <code>node peppol-readiness-cli.mjs ./sent-invoices --csv readiness.csv</code> (FSL-1.1-MIT licensed, in the <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/einvoice-preflight">source</a>). To check a single file against every rule, not only what changes, use the <a href="./">full checker</a>.</p>
   <p><label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label></p>
 </main>
 <footer>

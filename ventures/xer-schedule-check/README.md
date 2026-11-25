@@ -5,7 +5,7 @@ schedule assessment** with every activity behind each failing point, a critical
 path recomputed from the logic, the critical path test, and the faults the 14
 points miss: logic loops, out-of-sequence progress, open finishes, expected
 finish dates that hide delay, and stored
-float that no longer matches the logic. MIT licensed, no dependencies, nothing
+float that no longer matches the logic. FSL-1.1-MIT licensed, no dependencies, nothing
 uploaded.
 
 It also **converts an XER to Microsoft Project XML** for someone with Project
@@ -361,7 +361,10 @@ equipment) kept as the spreadsheet the site team already has, one row per
 constraint, pasted or opened as a CSV. Columns are found by name (activity
 ID, constraint, type, owner, need by, expected, cleared, notes; only the
 activity column is required, and a row may name several activities); dates
-read as typed (2026-04-14, 4/14/2026, 14-Apr-26, an Excel day number). Each
+read as typed (2026-04-14, 4/14/2026, 14-Apr-26, an Excel day number;
+slash dates take one order for the whole log, day first when any of them has
+a day over 12, so a UK log's 03/12/2026 is 3 December, and a log mixing both
+orders gets a warning). Each
 row gets the date the schedule needs it by (the activity's remaining early
 start, or now for work under way), the latest start before a deadline moves,
 the working days to spare, and a status: **overdue** (open, its promised
@@ -1216,7 +1219,7 @@ event graph on it (start and finish of each activity, FS/SS/FF/SF links between 
 finds the minimum cut by max flow, shortens the cut together by the least working time that wins
 what the step can (up to a day), and reschedules to measure the gain. A cut may also give back time
 bought at an earlier step (Phillips and Dessouky's un-crashing). Rates CSV: `activity_id,
-max_shorten_days, cost_per_day`; without one each task may lose 25% of its remaining duration at 1
+max_shorten_days, cost_per_day` (headers are read by name, in any order: a "crash cost" column is the cost, and a bare "days" column the room); without one each task may lose 25% of its remaining duration at 1
 per day, so the cost counts activity-days shortened. With `--drag-cost` it stops where a day costs
 more to win than a day of finish is worth. Milestones, mandatory constraints and expected-finish
 activities are never shortened.
@@ -1382,8 +1385,14 @@ project's updates for delay claims; a collapsed as-built or as-planned vs as-bui
   activities (not complete, not level of effort or WBS summary), durations and
   float in working days of each activity's own calendar. The critical path test
   delays an open activity on the driving path by 600 working days and
-  recomputes. Missed tasks and BEI use P6's planned dates as the baseline (a
-  single XER rarely carries the baseline project; the page says so). P6 resets
+  recomputes. Missed tasks and BEI are scored against a baseline project's XER
+  when one is given (`--baseline baseline.xer`, or the page's Baseline project
+  input): each activity's baseline finish (its actual finish there, else its
+  early finish, else its planned finish; `baselineFinishes`, the same rule
+  GAO practice 10 uses), matched by activity ID, with activities added since
+  the baseline left out (`dcma-baseline.test.mjs`). Without one they fall back
+  on P6's planned dates (a single XER rarely carries the baseline project;
+  the page and the CLI say which was used). P6 resets
   a not-started activity's planned dates to its early dates whenever it
   schedules (on the CCA sample all 11,775 not-started activities have planned
   finish equal to early finish), so overdue work that has not started is never

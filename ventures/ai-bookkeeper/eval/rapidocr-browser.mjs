@@ -14,7 +14,7 @@ import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { existsSync, mkdtempSync, readdirSync, statSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { extname, join } from "node:path";
+import { extname, join, resolve, sep } from "node:path";
 import { tmpdir } from "node:os";
 
 const [src, out, tgz] = process.argv.slice(2).filter((a) => !a.startsWith("--"));
@@ -41,9 +41,14 @@ const types = { ".html": "text/html", ".mjs": "text/javascript", ".js": "text/ja
 const server = createServer(async (req, res) => {
   const url = decodeURIComponent(req.url.split("?")[0]);
   try {
-    if (url.startsWith("/photo/")) return res.writeHead(200, { "content-type": "image/jpeg" }).end(await readFile(join(src, url.slice(7))));
     if (url === "/") return res.writeHead(200, { "content-type": "text/html" }).end("<!doctype html><title>rapid</title>");
-    const p = join(root, url); res.writeHead(200, { "content-type": types[extname(p)] || "text/plain" }).end(await readFile(p));
+    // the request path resolved inside the photos folder (/photo/...) or the venture folder;
+    // anything that climbs out (../, an absolute path) is refused (the folder itself is no file either)
+    const photo = url.startsWith("/photo/");
+    const b = resolve(photo ? src : root), p = resolve(b, (photo ? url.slice(7) : url).replace(/^\/+/, ""));
+    if (!p.startsWith(b + sep)) throw new Error("outside the served folder");
+    if (photo) return res.writeHead(200, { "content-type": "image/jpeg" }).end(await readFile(p));
+    res.writeHead(200, { "content-type": types[extname(p)] || "text/plain" }).end(await readFile(p));
   } catch { res.writeHead(404).end(); }
 });
 await new Promise((r) => server.listen(0, "127.0.0.1", r));
