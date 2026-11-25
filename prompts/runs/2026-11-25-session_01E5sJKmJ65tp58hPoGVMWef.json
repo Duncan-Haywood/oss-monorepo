@@ -1,0 +1,158 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKmJ65tp58hPoGVMWef",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T12:18:54Z",
+  "ended": "2026-11-25T12:37:02Z",
+  "wall_minutes": 18.87,
+  "tokens_in": 16992976,
+  "tokens_out": 83820,
+  "cost_usd": 6.6225,
+  "tool_calls": 107,
+  "task": "Bet #1 PayApps: backup packet (application + PDF/photo backup in one PDF)",
+  "projects": [
+    "payapps",
+    "payapps-site"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18969",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "partial",
+  "errors": [
+    {
+      "what": "Built the full backup packet (private PR 93, ~1,100 lines) that a parallel run landed first as private PR 92; closed unmerged as a duplicate.",
+      "cost": "most of the run's build time"
+    },
+    {
+      "what": "PNG tRNS chunk dropped by a string replace that missed the line's '} else if' prefix; caught by the real-file render (black background) and a new test."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "Searching PRs once at the start does not prevent duplicates on PayApps, where many runs share the ROADMAP 'Next' list per hour: PR 92 opened ~15 min after my check. Suggest: open a draft PR naming the item immediately after picking it, and re-check open+merged PRs before large builds."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "private-monorepo Actions jobs fail in 3-10 s with no downloadable logs (PRs 90, 92, 93, 94); not covered by the CI-starvation note, and ci_starvation.py targets the public repo."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Merged private PR 94 on local verification because private CI runners never started (same as PRs 90 and 92).",
+      "did": "Ran pdf-merge unit tests, packet worker tests, typecheck, biome, site tests and builds locally; listed them in the PR body.",
+      "result": "merged"
+    },
+    {
+      "file": "prompt.md",
+      "why": "No new blog post: the shipped change is a security fix plus a site line, and the backup packet itself was shipped by another run, which owns its write-up.",
+      "did": "Agent doc in docs/reports instead.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/reports/ventures-2026-11-25-payapps-packet-duplicate.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (exit 3); ideas inbox empty. Routed ventures/2, top bet PayApps. private-monorepo attached via add_repo and cloned first try. Own packet implementation verified on 6 PDF producers + JPEG/PNG (72 pages, poppler clean), unit 324/324 and worker 207/207 green, then found PR 92 already merged. Ran my hostile-input ideas against PR 92's reader: object-stream header loop ran to /N on empty tokens (Number('')===0); 74 s on a 1 KB file in the unit test. Fixed + tested in PR 94 (merged): pdf-merge 15/15, packet worker 4/4, typecheck, biome, site 21/21. Site lists the packet as built and drops stale 'per-line retainage' from next.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "dc0cd7b3-0bfc-5770-af4d-4c4beb330a60",
+    "transcripts": 1,
+    "first": "2026-11-25T12:18:54Z",
+    "last": "2026-11-25T12:37:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 103,
+        "input": 203,
+        "output": 83820,
+        "thinking": 17568,
+        "cache_read": 16794478,
+        "cache_write_5m": 0,
+        "cache_write_1h": 198295,
+        "api_equivalent_usd": 6.6225,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 103,
+      "input": 203,
+      "output": 83820,
+      "thinking": 17568,
+      "cache_read": 16794478,
+      "cache_write_5m": 0,
+      "cache_write_1h": 198295,
+      "api_equivalent_usd": 6.6225,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 107,
+    "tools": {
+      "Bash": 83,
+      "Write": 5,
+      "ToolSearch": 4,
+      "Read": 4,
+      "mcp__github__create_pull_request": 3,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.87,
+      "active_minutes": 18.87,
+      "model_minutes": 14.04,
+      "tool_minutes": 4.83,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: DoS diagnosis+fix+test ~1h, plus a dependency-free PDF merge prototype later discarded ~5h",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 90.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
