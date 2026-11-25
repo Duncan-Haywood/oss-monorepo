@@ -35,6 +35,10 @@
     {
       "file": "prompts/process/prompt-1.md",
       "issue": "Critique mode still names measure --section 'doc friction' (stale per-file rows); friction_rank.py --live --ungated --days 3 found the clusters in one call, as earlier records said."
+    },
+    {
+      "file": "prompts/process/backlog/README.md",
+      "issue": "Two concurrent process runs took the same next backlog id (P075); validate only catches it after both merge, turning main red."
     }
   ],
   "deviations": [
@@ -47,7 +51,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Critique mode. friction_rank clusters #5 (creative_due.py, 5 reports) and #17 (module-weight.mjs ENOENT, 2) fixed; #3/#6/#10 private-monorepo clone cluster left to open PR #18882; pkill hook report is designed behaviour. main_health.py 325/325 green. module-weight checked by hand: venture dir, no arg, bad dir (exit 2).",
+  "notes": "Critique mode. friction_rank clusters #5 (creative_due.py, 5 reports) and #17 (module-weight.mjs ENOENT, 2) fixed; #3/#6/#10 private-monorepo clone cluster left to open PR #18882; pkill hook report is designed behaviour. main_health.py 325/325 green. module-weight checked by hand: venture dir, no arg, bad dir (exit 2). Fixed main red: PRs #18882 and #18884 merged minutes apart both used backlog id P075, failing promptctl validate; renamed the later one (private-monorepo clone) to P076 and its asks.yaml reference.",
   "corrections": [],
   "redteam": null,
   "usage": {
