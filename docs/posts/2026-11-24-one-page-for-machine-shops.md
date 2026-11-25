@@ -229,3 +229,37 @@ now sends the quote itself, from the sent quote's page:
 Mail goes out through Cloudflare Email Service once the app is deployed.
 Until then, the page says plainly that nothing leaves the server, and the
 PDF download still works.
+
+## Update, 25 November 2026: routings you set up once per part family
+
+Most of a job shop's quotes are variations on parts it has made before:
+another bracket in 6061, another turned shaft, another plate that goes out
+for anodizing. Each part number differs, but the routing behind it is
+usually one the shop already knows. Two or three machine operations with
+familiar setup times, then the same outside finish. Typing those operations
+again for every line is slow, and a skipped deburr or a missing anodize lot
+charge turns into a quote that loses money.
+
+The RFQ-to-quote app (bet #2, still in private development, not yet on sale)
+now keeps routing templates:
+
+- **Save a line's operations as a routing.** That covers each machine, the
+  op label, setup minutes, cycle minutes per part and the finishing steps,
+  under a name like "6061 bracket, 2 ops", with an optional part family
+  ("Brackets").
+- **Apply it to the next part of the family.** *Use routing* replaces the
+  line's operations and finishing. *Add after* appends them to what is
+  already there, for a part with an extra step. The line's material, blank
+  size, extras and quantity breaks stay as they were.
+- **A routing holds minutes, not money.** The line is priced from today's
+  rate card the moment the routing is applied, as with any edit. A machine
+  retired since the routing was saved is flagged; an old rate is never
+  carried over. That matters because shop rates change, and a template that
+  froze last year's rate would underquote without anyone noticing.
+- **Each shop's routings stay in that shop.** A routing can only name
+  machines and finishing steps on that shop's own rate card. Viewers can
+  see the routings; only estimators can save or delete them.
+
+This is the first part of a larger item. Next comes editing a routing in
+place, then offering a part's quote history on the RFQ screen before a
+quote exists.
