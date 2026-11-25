@@ -2,6 +2,8 @@
 
 > Free pay application generator for subcontractors and small general contractors: paste your schedule of values, set retainage, and get the contract sum, change orders, retainage, previous certificates and current payment due, plus a line-by-line table and CSV. Private, runs in your browser.
 
+Reads the Excel (.xlsx) continuation sheet a contractor already keeps, title block, two-row headers, subtotals and totals row included, in the browser, and checks its arithmetic: a typed-over total, a SUM range that misses a line, retainage that disagrees with the rate.
+
 Rolls an application forward to next month: previous takes this period, this period starts at zero, stored stays stored, previous certificates carried exactly.
 
 Downloads the application as an Excel workbook with live formulas (summary sheet linked to a lettered continuation sheet), and offers a free blank pay application template (.xlsx, 30 lines). Own layout; not the AIA G702/G703 form.

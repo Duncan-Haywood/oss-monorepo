@@ -85,9 +85,10 @@ a gate.
 The template also has its own page now,
 [free pay application template for Excel](https://marisstella.app/pay-application-generator/pay-application-template.html),
 with what each lettered column's formula does and how to roll it to next
-month. The guide to
-[filling out a pay application](https://marisstella.app/pay-app-guides/how-to-fill-out-a-pay-application.html)
-links to it from its column-by-column table.
+month. If you are still drawing up the schedule of values itself, the
+pay app guides have a
+[schedule of values template](https://marisstella.app/pay-app-guides/schedule-of-values-template.html)
+for that step, and the template page links to it.
 
 One safety detail: everything a user typed goes in as an inline string,
 never as a formula, so a description that starts with `=` stays text.
