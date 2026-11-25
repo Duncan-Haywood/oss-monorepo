@@ -100,11 +100,15 @@ decisions:
   opened: "2026-08-19"
   action: >-
     **Rail open 2026-11-24: Paddle** (owner: "we have payment rails thorugh
-    paddle now"). What is left, per paid product, is yours: create its
-    product and prices in Paddle, then set the price ids, API key and webhook
-    secret in that app's owner-only config (Cloudflare secrets), never in a
-    repo or a session. Agents build each paid path against Paddle and ship it
-    dark until you do; nothing else waits on you.
+    paddle now"). Products and prices are code since 2026-11-25
+    (Duncan-Haywood/private-monorepo#36): each app commits a catalog file and
+    its production deploy creates them in Paddle with the key already in
+    Actions secrets, then reads the price ids back. What is left is yours,
+    once per account, not per product: (1) Paddle account verification (the
+    domain review wants a live pricing page, terms, privacy and refund
+    policy); (2) give the API key product and price read and write
+    permissions, plus an expiry; (3) switch on live checkout when you want to
+    take money. Webhook destinations can be automated the same way next.
   unlocks:
     - >-
       The only thing that moves the revenue ceiling off $0. Every other item in
@@ -211,40 +215,3 @@ decisions:
     portfolio/ledger/asks.yaml`). No money, no new account beyond a Google and
     Microsoft login the owner already controls, and fully reversible (remove
     the token, delete the property).
-
-- id: cloudflare-mail-and-ruleset
-  asks: []
-  prs: [14427]
-  gates: deployment
-  exposure: credential
-  opened: "2026-11-10"
-  action: >-
-    Two owner-only settings the 2026-11-10 CI/Cloudflare audit found not
-    applied (portfolio/quality/audits/2026-11-10-*.json). (1) GitHub ->
-    Settings -> Rules -> Rulesets -> `main`: import or match
-    `.github/rulesets/main.json` (one click; only a repository admin can
-    change rulesets, which is the point). Live (API, 2026-11-10) the ruleset
-    requires no status checks, so red PRs merge (3 workflows red on main that
-    day). Since 2026-11-24 the file asks for no code-owner review: it makes
-    the automated `risk-review`, `control-plane`, `ci-policy` and
-    `conflict-markers` checks required instead (docs/security/risk-review.md).
-    (2) Optional now that email moves to SES (task aws-ses-email): Give the Cloudflare deploy token the Email Routing
-    permissions listed in `platform/pages/cloudflare/email-routing.mjs`'s
-    header, run Actions -> "Cloudflare email routing" with apply ticked, then
-    in Cloudflare DNS add `_dmarc.marisstella.app TXT "v=DMARC1; p=reject"`
-    (the SPF record Email Routing adds stays as it is). Today
-    marisstella.app has no MX, no SPF and no DMARC (DNS-over-HTTPS,
-    2026-11-10), so support@, hello@ and accounts@ bounce and anyone can send
-    mail as the domain. Remove this row once both are done.
-  unlocks:
-    - >-
-      Required automated checks (the risk review included) as a gate, not a
-      convention. No owner review of PRs either way.
-    - >-
-      The agent inbox and the accounts@ sign-up address that
-      portfolio/distribution/accounts.json tells sessions to use.
-  blocked_by: []
-  note: >-
-    No money, no new account; reversible in the same settings pages. The
-    EMAIL_FORWARD_TO secret in priv-cloudflare-email.yml is unused by the script
-    (PR 12773 removes it) and does not need to be set.
