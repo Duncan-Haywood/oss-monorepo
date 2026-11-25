@@ -364,3 +364,25 @@ shop's RFQ inbox with its drawings attached.
 The address only starts working once the app is deployed and the receiving
 domain is routed to it. Until then the RFQs page doesn't show the option at
 all.
+
+## Update, 25 November: every free page answers its question first
+
+The free machine-shop pages
+([machine-shop-guides](https://marisstella.app/machine-shop-guides/))
+are the front door to both products above, and none of their 15 pages had a
+"Common questions" section. A shop owner who types "what is the minimum SPRS
+score for CMMC" or "when is a first article inspection required" was landing
+on a calculator that answered it somewhere halfway down, if at all.
+
+Each page now ends with three plain answers to the questions it is actually
+about (four on the index), with matching `FAQPage` structured data so search
+and AI answers can quote them. Every answer restates what the page already
+says and sources: the 88-of-110 Conditional floor and the six requirements
+that can never sit on a POA&M (32 CFR 170.21), the 72-hour DIBNet clock and
+the 90 days of images that start at the report, not at discovery (DFARS
+252.204-7012), why a 5-off costs more per part than a 100-off, and why the
+quote-vs-actual factor is a median. Nothing new was claimed to fill a slot.
+
+The questions live in one file, `faq.mjs`, which writes both the visible
+section and the JSON-LD; the venture's tests fail if a page has no FAQ or
+the two copies differ.
