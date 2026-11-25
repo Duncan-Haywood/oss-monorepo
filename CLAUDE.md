@@ -143,11 +143,17 @@ Merge when it is verified. There is no human review gate; fix forward. That
 covers `ventures/*` product code as much as `platform/`, docs and CI. The
 cross-review bots (`platform/ci/agent_review/README.md`) can auto-merge a
 same-repo PR on two bot approvals and green CI; they assist, they are not a
-gate. The one exception is the control plane (owner, 2026-10-30, against
-rogue agents): a PR touching a path in `.github/CODEOWNERS` (agent
-instructions, hooks, MCP config, CI, the reviewer config) waits for the
-owner's approval once the ruleset is applied. Keep those edits in their own
-small PR so the rest of your work isn't held up
+gate. No human approves anything, the control plane included (owner,
+2026-11-24: "replace my review with thorough cysec and reliability and
+liability checks not my human review"). Two required checks judge every PR
+with `main`'s copy of the rules, never the PR's: `security-scan` (pinned
+scanners, fails on findings the PR adds) and `adversarial-gate` (rules for
+how a rogue agent would attack the repo, plus an LLM red-team review for
+paths in `.github/CODEOWNERS`, AWS and other high-risk files). Each blocking
+finding says how to fix it; a false positive is cleared by an entry in
+`platform/ci/adversarial_gate/allowlist.yaml` in a separate PR first, since
+a change to the gate is judged by the old gate. Keep control-plane edits in
+their own small PR
 ([`docs/security/agent-hardening.md`](docs/security/agent-hardening.md)).
 
 Before merging: CI green (or, when runners are starved, the checks your change
