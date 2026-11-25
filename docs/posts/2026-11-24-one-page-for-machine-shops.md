@@ -417,6 +417,33 @@ not yet on sale) can now answer it on the PDF itself.
 Still to come in this item: an email to the estimator the day before a sent
 quote expires, so they can follow up or revise.
 
+## Update, 25 November 2026: what we promise about your drawings
+
+A shop's RFQs carry its customers' drawings, and often their prices too. Before
+the RFQ-to-quote app (bet #2, still in private development, not yet on sale)
+lets strangers sign up, it now has written terms, a privacy policy, a refund
+policy and an acceptable use policy. Each new user reads and accepts them once,
+before they set up a shop. They are drafts until a lawyer has reviewed them,
+and each page says so. Here is what they commit to, in plain terms:
+
+- **Your rates set the price.** Every price comes from the shop's own rate card
+  and the estimator's inputs. The AI's reading of an RFQ is a suggestion, and a
+  part goes onto a quote only after someone in the shop confirms it.
+- **The AI sees only what a step needs.** To read an RFQ, the AI model gets the
+  RFQ's text and the text read from its drawings, and only when an estimator
+  presses the button. To draft a cover note it gets what the customer will see
+  on the quote: never the shop's rates, costs or markups. The policy names
+  every company that handles the data (hosting, the AI model, the payment
+  processor), and the shop's data is not used to train AI models.
+- **No export-controlled data.** The app is not built for ITAR, EAR or CUI
+  technical data, and the terms ask shops not to upload it. Defense work
+  belongs in a system built for it.
+- **Thirty days to change your mind.** A paid plan can be refunded in full
+  within 30 days of the first payment, and the free plan needs no card.
+
+The documents are public, so a shop owner can read them before creating an
+account.
+
 ## Update, 25 November: every free page answers its question first
 
 The free machine-shop pages
