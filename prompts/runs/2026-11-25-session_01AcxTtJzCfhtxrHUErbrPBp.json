@@ -1,0 +1,67 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtJzCfhtxrHUErbrPBp",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-25T05:11:24Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "bet #1 pay-app billing, public side: retainage release guide + calculator/letter",
+  "projects": [
+    "pay-app-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18854",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    "git clone of private-monorepo (after add_repo succeeded) was refused by the session's auto-mode permission classifier, so the bet's private product code could not be touched"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0: every alert in QUEUE.md already had a security-fix/code-scanning-<n> claim branch; the queue lists claimed alerts too, so finding that out took a full ls-remote comparison (PRs #18851/#18852 propose a script for this)."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "risk_review.py fails with 'no merge base' on the default shallow clone; needed --base HEAD~1. CLAUDE.md says to run it but not that it needs a base on a shallow clone."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Top bet's code lives in private-monorepo, which this session could not clone.",
+      "did": "Did the bet's public side as the prompt allows: a new search-intent guide with a working calculator in pay-app-guides.",
+      "result": "Shipped; tests green."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Consolidated posts over new posts (2026-11-24 direction).",
+      "did": "Extended the existing for-customers retainage post with a section instead of writing a new post.",
+      "result": "One post, one new section."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-retainage-in-quickbooks-online.md (new section 'Then getting it released')"
+  ],
+  "goal": "$10k MRR: front-door SEO and lead capture for pay-app billing (bet #1)",
+  "notes": "Security queue: all listed alerts claimed. Ideas inbox and requests empty. Routed ventures/2. Pay-app-guides suite: node --test *.test.mjs 56 pass 0 fail. Playwright check at 390px: no overflow, no console errors, letter matches worked example (due 2026-07-31, 46 days late); checkbox layout bug found by screenshot and fixed. risk_review.py --base HEAD~1: nothing blocked; answers in PR body.",
+  "corrections": [],
+  "redteam": null
+}
