@@ -106,4 +106,4 @@ in the visitor's own browser (`analysis_run`, `example_loaded`,
 `report_downloaded`), never with their data, and off under Do Not Track or
 the page's opt-out.
 
-MIT licence (`LICENSE`).
+FSL-1.1-MIT licence (`LICENSE`).

@@ -63,7 +63,7 @@ copied.
   `.git/config` alone to check the repository format. A bad line in either is
   where git stops, before the main read; found by the differential test.
 - The `wildmatch` port is this repository's own, from
-  [`../gitignore-explainer`](../gitignore-explainer/README.md) (same MIT licence).
+  [`../gitignore-explainer`](../gitignore-explainer/README.md) (same FSL-1.1-MIT licence).
 
 ### How it was checked
 
@@ -149,4 +149,4 @@ node --test gitconfig.test.mjs gitconfig.diff.test.mjs page.test.mjs usage.test.
 GITCONFIG_DIFF_TRIALS=5000 node --test gitconfig.diff.test.mjs   # the long run
 ```
 
-MIT licence. Support is optional: https://github.com/sponsors/Duncan-Haywood
+FSL-1.1-MIT licence. Support is optional: https://github.com/sponsors/Duncan-Haywood

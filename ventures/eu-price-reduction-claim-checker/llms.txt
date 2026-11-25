@@ -2,7 +2,7 @@
 
 > Free EU 30-day lowest price checker for webshops: paste a price history and see the prior price you may show next to a sale, the true percentage off, and whether your crossed-out price or advertised discount holds up. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/eu-price-reduction-claim-checker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/eu-price-reduction-claim-checker): FSL-1.1-MIT licensed.

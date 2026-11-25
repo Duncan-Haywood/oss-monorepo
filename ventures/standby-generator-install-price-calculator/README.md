@@ -12,4 +12,4 @@ After using this, you can now **quote a standby generator install knowing the de
 2. Pure logic is in `calc.mjs` (`plan()`, `price()`, `jobCost()`, `sizeCheck()`, `encodeShare()`); tests: `node --test`.
 
 Modelled: generator, switch and pad; gas run and meter fee; electrical run; permit, subcontractors and commissioning; crew labour with drive time; expected callback cost; margin as a share of the price and a minimum charge; the deposit against pre-install cash; overrun and margin tables; a service-plan lifetime value; a rough size screen; a share link. Not modelled: sales tax, licences, insurance, utility or engineering fees, trenching beyond what you enter, local code.
-Not legal, tax, financial, electrical or gas advice: the size check is not a load calculation. No warranty; see the page footer. MIT licensed (`LICENSE`).
+Not legal, tax, financial, electrical or gas advice: the size check is not a load calculation. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

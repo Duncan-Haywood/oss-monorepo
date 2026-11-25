@@ -6,6 +6,11 @@ tags: [hosting, cloudflare, aws, gpu, infrastructure]
 description: "At 415 MB of traffic a month, egress price decides nothing; spend caps and IaC do. Answer: $5 Workers Paid, a Postgres host and Modal, not a migration."
 ---
 
+**Update, same day:** the owner weighed this and decided to consolidate
+everything onto AWS, security first. The reasoning below is the morning's;
+the decision and why AWS won over GCP and Azure are in
+[the follow-up post](2026-11-24-aws-gcp-or-azure-for-a-small-saas.md).
+
 The owner asked for a first-principles comparison of cloud providers, from
 the hyperscalers to the GPU neoclouds, to see whether this portfolio should
 move. The full table, with every source and every number we could not verify,

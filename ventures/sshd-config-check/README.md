@@ -160,5 +160,5 @@ Usage counting: anonymous `check_run` and `example_loaded` counts in the
 browser's local storage only, with an off switch on the page; Do Not Track and
 Global Privacy Control are honoured.
 
-MIT licensed ([`LICENSE`](LICENSE)). The fixture `sshd_config` is OpenSSH's and
+FSL-1.1-MIT licensed ([`LICENSE`](LICENSE)). The fixture `sshd_config` is OpenSSH's and
 Debian's, under the terms in [`fixtures/OPENSSH-COPYRIGHT`](fixtures/OPENSSH-COPYRIGHT).

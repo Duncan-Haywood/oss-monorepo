@@ -27,4 +27,4 @@ Everything runs in your browser. Your add-on figures are saved locally on this d
 
 This calculator produces arithmetic observations from numbers you supply. It does not do tax planning, business-entity formation, or contract review — verify all of that independently. It does not audit your books or replace your own liability or gear insurance, your signed client contract, or your accountant.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.

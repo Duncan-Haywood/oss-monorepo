@@ -21,4 +21,4 @@ Not modelled: tips, equipment depreciation, sales tax, multi-day events, weather
 holds no price data; the example numbers are made up. Not legal, tax or financial advice. No warranty; see
 the page footer.
 
-Tests: `node --test`. MIT licensed (`LICENSE`); no secrets, no private dependencies.
+Tests: `node --test`. FSL-1.1-MIT licensed (`LICENSE`); no secrets, no private dependencies.

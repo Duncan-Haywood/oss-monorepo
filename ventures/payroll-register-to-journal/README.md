@@ -33,7 +33,7 @@ node --test ventures/payroll-register-to-journal/
 
 ## License
 
-MIT. See `LICENSE`.
+FSL-1.1-MIT. See `LICENSE`.
 
 ## No warranty
 

@@ -20,4 +20,4 @@ financial advice. It does not model sales tax, disposal rules, financing,
 warranty and returns, comebacks or inventory carrying cost. Unverified against a
 real shop's books: tested on hand-calculated examples.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

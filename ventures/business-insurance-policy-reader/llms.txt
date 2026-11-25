@@ -2,7 +2,7 @@
 
 > Free business insurance policy reader: paste a general liability, professional liability or BOP policy and get the limits, deductible, claims-made trigger and renewal dates (downloadable .ics), whether the limits meet a client's contract requirement, and the exclusions to ask your broker about.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/business-insurance-policy-reader): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/business-insurance-policy-reader): FSL-1.1-MIT licensed.

@@ -8,7 +8,7 @@ every close.
 
 **Live tool:** https://marisstella.app/rev-rec/
 
-Two parts, both free and MIT:
+Two parts, both free and FSL-1.1-MIT:
 
 - **`index.html`**: paste an invoice-line export (or load sample data) and get
   billings, revenue recognised and deferred revenue by month, the revenue

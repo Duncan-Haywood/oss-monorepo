@@ -2,7 +2,7 @@
 
 > Free padel club profit calculator: courts, peak and off-peak court-hour prices, utilisation, members, coaching, food and drink, staffing, rent and a loan become monthly profit, break-even court utilisation, the price change that hits a target margin, the ramp-up cash reserve and payback. Private, runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/padel-club-profit-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/padel-club-profit-calculator): FSL-1.1-MIT licensed.

@@ -11,7 +11,7 @@ import { csvCell, htmlEsc, icsEscape, icsFold, icsAlarm, standingsCsv } from "./
 import { csvRows, relabelPlan, parseTimes, parseNameList, parseCourtClosures, courtClosedOn, forfeitReport } from "./fields.mjs";
 import { roundRobin } from "./rounds.mjs";
 import { mulberry32 } from "./rng.mjs";
-import { parseDate, parseDateList, parseWeekdays, dayIso, dayOfWeek, dayLabel } from "./dates.mjs";
+import { parseDate, parseDateList, dateOrder, MIXED_ORDER, parseWeekdays, dayIso, dayOfWeek, dayLabel } from "./dates.mjs";
 import { parseOfficials } from "./officials.mjs";
 import { parseResults, standings, tieBreakNotes, parsePointSystem, weeklyUpdate, playoffRace, remainingFixtures, raceText } from "./standings.mjs";
 import { playoffBracket, seedOrder, bracketText } from "./brackets.mjs";
@@ -459,6 +459,8 @@ const BALANCE_WINDOW = 6; // nights a make-up may be weighed over when keeping h
  */
 export function parseDivisionBlackouts(text, divisions) {
   const blackouts = {}, errors = [];
+  const order = dateOrder(text);
+  if (order.mixed) errors.push(MIXED_ORDER);
   for (const [i, raw] of String(text ?? "").split(/\r?\n/).entries()) {
     const line = raw.trim();
     if (!line) continue;
@@ -468,7 +470,7 @@ export function parseDivisionBlackouts(text, divisions) {
     const di = divisions.findIndex((d) => d.name.toLowerCase() === dn.trim().toLowerCase());
     const ti = di < 0 || !tn.length ? -1 : divisions[di].teams.findIndex((t) => t.toLowerCase() === tn.join("/").trim().toLowerCase());
     if (ti < 0) { errors.push(`Line ${i + 1}: "${m[1].trim()}" is not a Division/Team in this league.`); continue; }
-    const { days, errors: e } = parseDateList(m[2]);
+    const { days, errors: e } = parseDateList(m[2], order.order ?? null);
     for (const x of e) errors.push(`Line ${i + 1}: ${x}`);
     const k = `${di}/${ti}`;
     blackouts[k] = [...new Set([...(blackouts[k] || []), ...days])].sort((a, b) => a - b);

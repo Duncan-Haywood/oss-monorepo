@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { compute, parseMoney, parsePercent, summaryText, scheduleCsv, sampleList, SAMPLE_SETTINGS, dollars } from "./calc.mjs";
+import { compute, parseMoney, parsePercent, summaryText, scheduleCsv, sampleList, SAMPLE_SETTINGS, dollars, nextPeriod, nextPeriodEnd } from "./calc.mjs";
 
 const S = (o = {}) => ({ retainagePct: "10", ...o });
 
@@ -96,4 +96,74 @@ test("outputs: summary text and CSV carry the totals; delimiter and quoting surv
 test("tab-separated spreadsheet pastes work", () => {
   const r = compute("Description\tScheduled value\tPrevious\tThis period\nA\t1000\t0\t100", S());
   assert.equal(r.summary.completed, 10000);
+});
+
+test("next period: previous takes this period, this period starts at zero, stored stays stored", () => {
+  const r = compute(sampleList(), SAMPLE_SETTINGS);
+  const n = nextPeriod(r, SAMPLE_SETTINGS);
+  const next = compute(n.csv, n.settings);
+  assert.deepEqual(next.errors, []);
+  r.lines.forEach((l, i) => {
+    const m = next.lines[i];
+    assert.equal(m.d, l.d + l.e, l.desc);
+    assert.equal(m.e, 0);
+    assert.equal(m.f, l.f);
+    assert.equal(m.c, l.c);
+    assert.equal(m.isCo, l.isCo, `${l.desc} stays a change order`);
+  });
+  assert.equal(next.summary.original, r.summary.original);
+  assert.equal(next.summary.changes, r.summary.changes);
+  assert.equal(n.settings.applicationNo, "5");
+  assert.equal(n.settings.periodTo, "2026-11-30");
+  assert.equal(n.settings.previousCertificates, (r.summary.earnedLess / 100).toFixed(2));
+});
+
+test("next period with no new work is due exactly zero, and new work is due net of retainage", () => {
+  const r = compute(sampleList(), SAMPLE_SETTINGS);
+  const n = nextPeriod(r, SAMPLE_SETTINGS);
+  const idle = compute(n.csv, n.settings);
+  assert.equal(idle.summary.due, 0);
+  assert.ok(!idle.findings.some((f) => /estimated/.test(f.title)), "previous certificates carried, not estimated");
+  // Bill $10,000 of drywall next month at 10% retainage: $9,000 due.
+  const billed = n.csv.replace(/^(7,Drywall,,41000\.00,0\.00,)0\.00/m, "$110000");
+  assert.notEqual(billed, n.csv);
+  assert.equal(compute(billed, n.settings).summary.due, 900000);
+});
+
+test("next period chains: three months rolled match one month billed in total", () => {
+  const sov = "Item,Description,Scheduled value,Previous,This period,Stored\n1,Framing,100000,0,25000,0\n2,Roofing,50000,0,0,5000";
+  let s = { retainagePct: "10", applicationNo: "1", periodTo: "2026-01-31" };
+  let r = compute(sov, s), paid = r.summary.due;
+  for (const add of [20000, 30000]) {
+    const n = nextPeriod(r, s);
+    s = n.settings;
+    r = compute(n.csv.replace(/^(1,Framing,,100000\.00,[\d.]+,)0\.00/m, `$1${add}`), s);
+    paid += r.summary.due;
+  }
+  assert.equal(s.applicationNo, "3");
+  assert.equal(s.periodTo, "2026-03-31");
+  assert.equal(r.lines[0].d, 4500000);
+  assert.equal(paid, r.summary.earnedLess, "the sum of every payment due equals total earned less retainage");
+});
+
+test("next period keeps a line's own retainage rate and notes stored and finished lines", () => {
+  const r = compute("Description,Scheduled value,Previous,This period,Stored,Retainage\nA,1000,500,500,0,5\nB,2000,0,0,300,", S({ previousCertificates: "" }));
+  const n = nextPeriod(r, {});
+  assert.match(n.csv.split("\n")[0], /Retainage$/);
+  const next = compute(n.csv, n.settings);
+  assert.equal(next.lines[0].own, 500);
+  assert.equal(next.lines[1].own, null);
+  assert.ok(n.notes.some((x) => /still stored on 1 line \(B\)/.test(x)));
+  assert.ok(n.notes.some((x) => /1 line is fully billed/.test(x)));
+  assert.equal(nextPeriod({ errors: ["x"], summary: null }), null);
+});
+
+test("period end rolls month ends to month ends and clips other days", () => {
+  assert.equal(nextPeriodEnd("2026-01-31"), "2026-02-28");
+  assert.equal(nextPeriodEnd("2028-01-31"), "2028-02-29");
+  assert.equal(nextPeriodEnd("2026-02-28"), "2026-03-31");
+  assert.equal(nextPeriodEnd("2026-12-25"), "2027-01-25");
+  assert.equal(nextPeriodEnd("2026-01-30"), "2026-02-28");
+  assert.equal(nextPeriodEnd("Oct 31"), "");
+  assert.equal(nextPeriodEnd(""), "");
 });

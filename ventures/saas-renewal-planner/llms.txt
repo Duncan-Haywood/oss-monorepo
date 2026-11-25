@@ -2,7 +2,7 @@
 
 > Paste your SaaS subscriptions and get the last day to give notice before each auto-renewal, which renewals to negotiate first, a floor and stretch target price, a calendar file and an email draft per vendor. Free, runs in your browser, nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/saas-renewal-planner): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/saas-renewal-planner): FSL-1.1-MIT licensed.

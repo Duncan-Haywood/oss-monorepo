@@ -59,9 +59,9 @@ test('the sponsor link points at the correct GitHub Sponsors profile', () => {
   assert.match(html, /https:\/\/github\.com\/sponsors\/Duncan-Haywood/);
 });
 
-test('the MIT license is linked', () => {
+test('the FSL-1.1-MIT license is linked', () => {
   assert.match(html, /href="LICENSE"/);
-  assert.match(html, /MIT licen[cs]e/);
+  assert.match(html, /FSL-1.1-MIT licen[cs]e/);
 });
 
 test('a usage opt-out control exists', () => {
@@ -124,10 +124,10 @@ test('the guide page carries the no-warranty and authorisation text', () => {
   assert.match(cdnDoc, /authoris(?:ed|ation)/i);
 });
 
-test('the guide page keeps the sponsor link and MIT licence', () => {
+test('the guide page keeps the sponsor link and FSL-1.1-MIT licence', () => {
   assert.match(cdnDoc, /https:\/\/github\.com\/sponsors\/Duncan-Haywood/);
   assert.match(cdnDoc, /href="LICENSE"/);
-  assert.match(cdnDoc, /MIT licen[cs]e/);
+  assert.match(cdnDoc, /FSL-1.1-MIT licen[cs]e/);
 });
 
 // Each of these is a finding `analyze.mjs` can emit. If a finding is renamed

@@ -50,4 +50,4 @@ None. There is no API key and no backend.
 
 ## Licence
 
-MIT — see `LICENSE`. Support is optional: https://github.com/sponsors/Duncan-Haywood
+FSL-1.1-MIT — see `LICENSE`. Support is optional: https://github.com/sponsors/Duncan-Haywood

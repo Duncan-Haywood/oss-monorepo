@@ -2,7 +2,7 @@
 
 > Paste an RFP, RFQ or tender. Get a compliance matrix of every shall/must/required obligation with section numbers, categories and owner/status columns, plus the page limits, due dates and forms. CSV download. Private, in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rfp-compliance-matrix): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rfp-compliance-matrix): FSL-1.1-MIT licensed.

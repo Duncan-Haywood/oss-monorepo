@@ -2,7 +2,7 @@
 
 > Free tool: paste a Content-Security-Policy header or meta tag, see its weaknesses ('unsafe-inline' with no nonce, wildcard or data: script sources, missing object-src and base-uri, 'strict-dynamic' with no nonce, misspelt and duplicate directives), and test whether a script URL, inline script, event handler, style or eval() would be allowed under the W3C CSP Level 3 rules. Runs in the browser; nothing is uploaded. A Node CLI (`node cli.mjs`) does the same and exits 1 on a high finding or a blocked test.
 
-Free and open source (MIT). Findings describe the policy text, not a security assessment of a site; not security, legal or professional advice.
+Free to use and source available (FSL-1.1-MIT). Findings describe the policy text, not a security assessment of a site; not security, legal or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Findings describe the policy text, not a security as
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/csp-policy-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/csp-policy-check): FSL-1.1-MIT licensed.

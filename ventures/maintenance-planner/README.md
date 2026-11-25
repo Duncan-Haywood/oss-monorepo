@@ -58,4 +58,4 @@ Everything runs in the browser. The data is kept in this browser's local storage
 
 **Best-effort hosting, no SLA.** These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.
 
-MIT licensed (`LICENSE`).
+FSL-1.1-MIT licensed (`LICENSE`).

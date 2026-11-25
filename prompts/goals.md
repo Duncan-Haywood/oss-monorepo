@@ -105,6 +105,22 @@ replace that work.
   [`portfolio/monetization/mrr.yaml`](../portfolio/monetization/mrr.yaml).
   Only the owner can read the merchant dashboard, so only the owner fills in a
   reading. An empty month is unmeasured, never zero.
+- **Margins: 40 to 60% is the minimum goal, not a ceiling** (owner, 2026-11-24:
+  "we want to aim for min 40-60% margins in the products"; and "the 40-60
+  isn't a limit for how high the margins go but a sort of minimal goal").
+  Higher is better. Margin is one minus the full
+  cost of serving a plan used to its whole allowance (model tokens, hosting,
+  merchant fees, a refund reserve) over its price, monthly and annual billing
+  both. Below 40% a plan fails CI (`packages/billing` in `private-monorepo`;
+  `evaluate.mjs --check` here); 60% or more is what to aim for, and there is
+  no upper limit.
+- **The cheapest model that does the job correctly** (owner, same day: "use
+  the general principle in products of use the cheapest model that does the
+  job correctly you know. no need to use opus for a haiku task"). Start each
+  model purpose on Haiku and move it up to Sonnet or Opus only when the
+  product's evals show the cheaper one getting it wrong, writing down why.
+  Grant Autopilot's drafts went from about $1.30 each on Opus to about $0.03
+  on Haiku (`PRODUCT_PLAYBOOK.md`, section 4).
 - **Where it comes from.** Payments run through Paddle (Guardrails,
   "Payments"). The revenue comes from the subscription products in
   [`LICENSING_TRANSITION.md`](../portfolio/monetization/LICENSING_TRANSITION.md)
@@ -133,9 +149,11 @@ says otherwise. The hard limits under Guardrails still hold.
    "North star" above.
 2. **Best product for the user.** Drop the static-page, free-first, privacy-
    as-feature and no-accounts defaults. See "North star".
-3. **Hosted SaaS by default** for products and free tools alike. Self-deploy
-   is built only when a request asks for it. Being the operator is fine. See
-   Mission, "The business model".
+3. **Hosted SaaS by default** for products and free tools alike. Being the
+   operator is fine. See Mission, "The business model". **Self-deploy is
+   retired** (owner, later the same day): no per-app deploy templates or
+   self-host scaffolds; a client who wants to own their hosting gets their
+   AWS account handed over instead (point 8).
 4. **Productize the tools.** "I think we also want to productize a lot of the
    tools move them to potentially more feature rich"; "move things away from
    static pages into full feature web apps to deliver more value. also the
@@ -153,6 +171,18 @@ says otherwise. The hard limits under Guardrails still hold.
    anything else fits a product better on cost, features, reliability or
    speed, write the reasoning down (a short `docs/reports/` note) and move it.
    Opening or paying for a new provider account is still the owner's step.
+   **Decided later the same day: one platform, AWS, security first.** "move
+   towards unified hosting saas can have native apps and stuff move onto one
+   of the big three"; "unified hosting set up all iac and very heavily
+   security scanned for the dev workflow and everything security as a
+   priority." The owner chose AWS, and everything moves: the site to S3 and
+   CloudFront, DNS to Route 53, the apps and native-app backends onto one
+   starter, email to SES. Cloudflare is retired once each piece has cut over.
+   No production workload lands until the PR scanning pipeline gates every PR
+   and the AWS security baseline is applied, all as OpenTofu. Reasoning,
+   principles and order:
+   `docs/reports/2026-11-24-cloud-provider-comparison.md`, §7. Tasks:
+   `security-first` and `aws-consolidation` in `portfolio/work/`.
 6. **Minimise click ops.** "I think one of the things is to minimize click
    ops as much as possible." Every provider setting that has an API or a
    Terraform/OpenTofu provider lives in the repo with an apply step: DNS,
@@ -182,6 +212,52 @@ says otherwise. The hard limits under Guardrails still hold.
    Agents build the sequences, lists, targeting and tooling. Sending
    under the portfolio's name and any paid send volume are switched on once by
    the owner (Hard limits, "Owner-only actions"), and after that they run.
+8. **A free custom dev shop, paid by running cost.** "requests for dev still
+   worthwhile. ai voice and agent potential customer dev requests possible";
+   "free dev service offered at operating cost plus transparent profit margin
+   in exchange for ease of mind less headaches etc." Building for a small
+   business is free. Running it is charged at its AWS cost plus a margin shown
+   as its own line, so each client project gets its own AWS account. Requests
+   can also come in through an AI voice or chat agent. The margin, invoicing
+   rail and terms are the owner's to set; request work stays MIT
+   (`portfolio/requests/README.md`).
+9. **From a bunch of projects to a bunch of specialized products.** "better
+   niched down multiple products for very specific users than multiple broad
+   products"; "only promoting 20 to paid seems a bit silly to me unless the
+   1400 are really quite useless." Every venture is either promoted into a
+   niche product for one specific user (bundling the tools that user needs,
+   with a marketing page) or demoted. One paid tier comes from the platform to
+   every tool. Measured usage, not line counts, orders the launches. Task list:
+   `promote-or-demote` in `portfolio/work/`.
+10. **Review instead of waiting for the owner.** "i really don't like all this
+   stuff that is blocking itself on my behalf. not a good practice in general.
+   can we instead have maybe a review process on cysec and legal risks
+   instead?" Every PR gets a cyber and legal risk review
+   (`python3 platform/security/risk_review.py`,
+   `docs/security/risk-review.md`) and merges on it. Later the same day:
+   "we want to avoid that generally unless it is really human dependent for
+   example creating an api key. but we want to also move to systems that
+   remove human review as much as possible"; "the threats and risks ...
+   identified ... and ... a thorough assurance system to avoid those risks";
+   "I don't need to review. just be extra careful for adversarial changes."
+   So no PR waits for the owner. Liability-grade threats (secrets, guardrail
+   cuts, relicensing, weakening the gate) are blocked by the required
+   `risk-review` check, which runs main's reviewer, with no approval path.
+   The owner is asked only for what a person must do: account signups,
+   cards, secret values, admin-only settings. Don't add new owner gates; add
+   a control to the review instead.
+11. **No standalone research; R&D only inside paid products** (owner,
+   2026-11-25: "drop the research if you have to do r and d you can but as
+   part of actual paid projects. not as independent academic research").
+   The research track takes no scheduled runs (`prompts/routing.json`,
+   weight 0; its share went to ventures). Research, algorithms, evals and
+   experiments are welcome where a paid product needs them, done in that
+   product's tree and judged by what they do for its users, not by a paper.
+   Open programmes under `research/` are paused, not deleted: a product run
+   may lift code or results from them. The research guardrails (integrity,
+   no fabrication, licences) still bind any R&D a product does. Where the
+   research sections below ("Mission", "Direction: research at PhD+ level",
+   "How a run is scored") say otherwise, this wins.
 
 ## Mission
 
@@ -675,6 +751,10 @@ platform"). Spec, licence rules and definition of done:
 [`portfolio/research-tools/README.md`](../portfolio/research-tools/README.md).
 
 ## Direction: research at PhD+ level, aimed at deep tech
+
+**Paused 2026-11-25** (pivot point 11 above): no standalone research
+runs. The text below is kept as the record and as the bar for R&D a paid
+product does.
 
 Set by the owner on 2026-11-01: "lets set as a direction to move the research
 into phd+ level with applications in deep tech applications". It raises the

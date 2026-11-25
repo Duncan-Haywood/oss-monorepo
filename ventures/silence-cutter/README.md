@@ -34,7 +34,7 @@ Each name is a trademark of its owner, used only to describe what this tool
 is and is not.
 
 The business case: video creators, podcasters, course makers and agencies cut
-silence on every recording. The tool is free and MIT licensed; the paths to
+silence on every recording. The tool is free and FSL-1.1-MIT licensed; the paths to
 revenue are a supported hosted/batch version (whole folders, cloud storage
 inputs) and filler-word removal ("um", "uh") with an on-device speech model,
 both later milestones.
@@ -150,4 +150,4 @@ its use.
 slow, broken, moved, or taken offline without notice. Do not use this as a
 system of record. If a tool needs to survive, run it yourself.
 
-MIT licence: [LICENSE](LICENSE).
+FSL-1.1-MIT licence: [LICENSE](LICENSE).

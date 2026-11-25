@@ -2,7 +2,7 @@
 
 > Paste a GitHub Actions workflow and check whether a reusable workflow or composite action it pins to a commit SHA itself loads a third-party action by a mutable tag underneath — a gap a top-level SHA pin does not close.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -12,4 +12,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/actions-transitive-pin-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/actions-transitive-pin-check): FSL-1.1-MIT licensed.

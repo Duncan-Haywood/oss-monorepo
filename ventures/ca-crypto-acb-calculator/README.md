@@ -57,4 +57,4 @@ file you load. `docker compose up -d` (nginx, <http://localhost:8080>), or deplo
 Tests: `node --test deploy.test.mjs`. The Docker image has not been built in the
 session that added these files; build it once and open the page before relying on it.
 
-No warranty. Not tax advice. MIT licence, see `LICENSE`.
+No warranty. Not tax advice. FSL-1.1-MIT licence, see `LICENSE`.

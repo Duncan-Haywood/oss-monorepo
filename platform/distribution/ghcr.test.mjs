@@ -19,7 +19,7 @@ async function fixture(slugs) {
     const d = path.join(root, 'ventures', s);
     await fs.mkdir(d, { recursive: true });
     await fs.writeFile(path.join(d, 'cli.mjs'), '#!/usr/bin/env node\nconsole.log("hi");\n');
-    await fs.writeFile(path.join(d, 'LICENSE'), 'MIT License\n\nCopyright (c) x');
+    await fs.writeFile(path.join(d, 'LICENSE'), 'Functional Source License\n\nCopyright (c) x');
     await fs.writeFile(path.join(d, 'VENTURE.yaml'), 'name: x\ndescription: Checks a "thing".\n');
   }
   return root;

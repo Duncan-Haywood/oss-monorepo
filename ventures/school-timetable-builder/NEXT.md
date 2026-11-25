@@ -7,4 +7,4 @@
    solutions, so the benchmark is not only synthetic.
 4. Per-teacher one-click PDF pack and an .ics per teacher.
 5. Paid step (owner-gated): a done-for-you timetable service for schools that
-   send their constraints; the tool stays free and MIT.
+   send their constraints; the tool stays free and FSL-1.1-MIT.

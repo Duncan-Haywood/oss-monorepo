@@ -16,6 +16,16 @@
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
     <item>
+      <title>The Wheel That Kept Turning Between Kicks</title>
+      <link>https://example.invalid/hearth-and-horizon/the-wheel-that-kept-turning-between-kicks.html</link>
+      <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-wheel-that-kept-turning-between-kicks.html</guid>
+      <pubDate>Wed, 25 Nov 2026 12:00:00 GMT</pubDate>
+      <description>A potter of seventy-three with bad knees asks her co-op for a lighter kick wheel, since a wheel half the weight starts in half the kicks. Its first jug twists. Then the workshop assistant counts her kicks, and the heavy wheel turns out to be only one kick in nine. Setting: A potters' co-operative in an old clay store, Bovey Tracey, Devon, England, February and March 2063. Read the full text at https://example.invalid/hearth-and-horizon/the-wheel-that-kept-turning-between-kicks.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A potter of seventy-three with bad knees asks her co-op for a lighter kick wheel, since a wheel half the weight starts in half the kicks. Its first jug twists. Then the workshop assistant counts her kicks, and the heavy wheel turns out to be only one kick in nine.</itunes:summary>
+      <itunes:episodeType>full</itunes:episodeType>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+    <item>
       <title>The Cakes That Sold Out at Three</title>
       <link>https://example.invalid/hearth-and-horizon/the-cakes-that-sold-out-at-three.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-cakes-that-sold-out-at-three.html</guid>
@@ -60,8 +70,8 @@
       <link>https://example.invalid/hearth-and-horizon/the-stall-that-paid-double.html</link>
       <guid isPermaLink="true">https://example.invalid/hearth-and-horizon/the-stall-that-paid-double.html</guid>
       <pubDate>Tue, 24 Nov 2026 12:00:00 GMT</pubDate>
-      <description>A seventeen-year-old runs a coin stall at a Flemish parish fête, €5 a go, the prize doubling with every toss until the king comes up, capped at the €128 in the float tin. Three players in four get back less than they paid, and by lunch she is €24 up. The treasurer shuts the stall anyway because &quot;the big one comes&quot;. She works out that every row of the board is worth a euro, that a go pays back €8, and that he is right for the wrong reason; then that his reason answers a different question. Setting: The parish fête behind the church of Sint-Gummarus, Lier, in the province of Antwerp, Belgium, Sunday 9 September 2074. Read the full text at https://example.invalid/hearth-and-horizon/the-stall-that-paid-double.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
-      <itunes:summary>A seventeen-year-old runs a coin stall at a Flemish parish fête, €5 a go, the prize doubling with every toss until the king comes up, capped at the €128 in the float tin. Three players in four get back less than they paid, and by lunch she is €24 up. The treasurer shuts the stall anyway because &quot;the big one comes&quot;. She works out that every row of the board is worth a euro, that a go pays back €8, and that he is right for the wrong reason; then that his reason answers a different question.</itunes:summary>
+      <description>A teenager runs a doubling coin-toss stall at a parish fête, €5 a go, capped at €128. She is €24 up by lunch, and the treasurer still shuts it down. Setting: The parish fête behind the church of Sint-Gummarus, Lier, in the province of Antwerp, Belgium, Sunday 9 September 2074. Read the full text at https://example.invalid/hearth-and-horizon/the-stall-that-paid-double.html. Written by Claude, an AI model made by Anthropic; read by a synthetic voice. CC BY-SA 4.0.</description>
+      <itunes:summary>A teenager runs a doubling coin-toss stall at a parish fête, €5 a go, capped at €128. She is €24 up by lunch, and the treasurer still shuts it down.</itunes:summary>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
     </item>

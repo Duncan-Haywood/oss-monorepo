@@ -9,7 +9,7 @@
 // Use a restricted key with read access to Charges (and Customers for --customers) only:
 // Stripe Dashboard > Developers > API keys > Create restricted key.
 //
-// Statistical analysis of data you supply, not advice. MIT licence.
+// Statistical analysis of data you supply, not advice. FSL-1.1-MIT licence.
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname } from 'node:path';

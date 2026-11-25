@@ -1,0 +1,27 @@
+name: pay-app-guides
+description: Free front door for paid bet #1 (pay-app billing for specialty subcontractors). A browser schedule-of-values / continuation-sheet calculator plus guides on filling out a pay application, retainage (with cited public retainage caps for 12 states), lien waivers and change orders, each ending with an honest early-access CTA.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Subcontractors searching "how to fill out a pay application", "retainage", "schedule of values" and "conditional vs unconditional lien waiver" will land on these guides and use the calculator.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Some of those visitors will click through to the construction early-access page for hosted pay-app billing.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No search impressions for the guide pages 90 days after they are published.
+  - No early-access clicks from these pages within 120 days of the construction early-access page going live.
+links:
+  production: https://marisstella.app/pay-app-guides/
+  analytics: null

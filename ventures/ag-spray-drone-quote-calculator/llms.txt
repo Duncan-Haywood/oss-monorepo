@@ -2,7 +2,7 @@
 
 > Free spray drone quote calculator for custom applicators. Enter your drone, batteries, costs and a list of fields; get the real time on each field, cost per acre, a recommended quote, minimum-charge check and season break-even. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ag-spray-drone-quote-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ag-spray-drone-quote-calculator): FSL-1.1-MIT licensed.

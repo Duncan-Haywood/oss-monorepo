@@ -130,5 +130,5 @@ Provided free and as-is, without warranty of any kind. It is not legal or
 professional advice. Calendar apps and libraries read rules differently; check
 the dates in the software your attendees use before relying on them.
 
-MIT licensed. Not affiliated with or endorsed by the IETF, CalConnect, Google,
+FSL-1.1-MIT licensed. Not affiliated with or endorsed by the IETF, CalConnect, Google,
 Microsoft, Apple or the python-dateutil maintainers.

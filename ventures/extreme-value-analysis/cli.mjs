@@ -36,7 +36,7 @@ Citations:
 ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}. ${p.url}`).join("\n")}
 
 Statistical estimates from your data, not engineering, legal, tax or financial advice, and not a
-regulatory flood study (US federal flood frequency follows Bulletin 17C). No warranty. MIT licence.
+regulatory flood study (US federal flood frequency follows Bulletin 17C). No warranty. FSL-1.1-MIT licence.
 Web version: https://marisstella.app/extreme-value-analysis/`;
 
 const FLAGS = { "--value": "value", "--date": "date", "--year": "year", "--year-start": "yearStart", "--method": "method", "--threshold": "threshold", "--run-length": "runLength", "--per-year": "perYear", "--periods": "returnPeriods", "--confidence": "confidence", "--design-life": "designLife" };

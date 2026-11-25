@@ -578,3 +578,9 @@ test("every .html file in the venture is listed in sitemap.xml", () => {
     assert.ok(sitemap.includes(name), `${name} is missing from sitemap.xml`);
   }
 });
+
+// machine-shop-guides (2026-11-24) links this page outbound; this is the
+// return half, which lowered platform/pages/siblings-budget.json back to 0.
+test("index links one hop to the machine-shop-guides sibling", () => {
+  assert.match(INDEX, /href="\.\.\/machine-shop-guides\/"/);
+});

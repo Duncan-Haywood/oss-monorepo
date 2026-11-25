@@ -84,11 +84,11 @@ name = "${name}"
 version = "${version}"
 description = "${esc(description)}"
 readme = "README.md"
-license = { text = "MIT" }
+license = { text = "FSL-1.1-MIT" }
 requires-python = ">=${PYTHON_FLOOR}"
 dependencies = []
-keywords = ["cli", "free", "open-source"]
-classifiers = ["License :: OSI Approved :: MIT License", "Programming Language :: Python :: 3", "Environment :: Console"]
+keywords = ["cli", "free", "source-available"]
+classifiers = ["Programming Language :: Python :: 3", "Environment :: Console"]
 
 [project.urls]
 Homepage = "${tagUrl(toolUrl(slug), 'pypi')}"
@@ -112,7 +112,7 @@ export async function buildPackage({ slug, dir, version = VERSION }) {
   const bad = disqualifying(src);
   if (bad) return { skip: `imports "${bad}"` };
   const license = await fs.readFile(path.join(dir, 'LICENSE'), 'utf8').catch(() => null);
-  if (license === null || !/MIT License/i.test(license)) return { skip: 'no MIT LICENSE' };
+  if (license === null || !/Functional Source License/i.test(license)) return { skip: 'no FSL-1.1-MIT LICENSE' };
   const yaml = await fs.readFile(path.join(dir, 'VENTURE.yaml'), 'utf8').catch(() => '');
   const description = descriptionOf(yaml);
   if (!description) return { skip: 'no description in VENTURE.yaml' };
@@ -123,7 +123,7 @@ export async function buildPackage({ slug, dir, version = VERSION }) {
     [`${mod}/__main__.py`]: `from .cli import main\nraise SystemExit(main())\n`,
     [`${mod}/cli.py`]: src,
     LICENSE: license,
-    'README.md': `${readme.trimEnd()}\n\n---\n\nFree and open source (MIT), from [Maris Stella Labs](${tagUrl(toolUrl(slug), 'pypi')}). Install: \`pipx run ${slug}\`. Not legal, tax or professional advice.\nSource: ${REPO_URL}/tree/main/ventures/${slug}\n`,
+    'README.md': `${readme.trimEnd()}\n\n---\n\nFree to use and source available (FSL-1.1-MIT), from [Maris Stella Labs](${tagUrl(toolUrl(slug), 'pypi')}). Install: \`pipx run ${slug}\`. Not legal, tax or professional advice.\nSource: ${REPO_URL}/tree/main/ventures/${slug}\n`,
     'pyproject.toml': pyproject({ name: slug, slug, description, version }),
   };
   return { name: slug, version, files };

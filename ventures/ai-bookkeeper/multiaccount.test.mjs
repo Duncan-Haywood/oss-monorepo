@@ -1,5 +1,5 @@
 // One CSV that names the account on every row (the Mint export shape, seen in
-// the MIT-licensed csv2ofx project's sample file, which also uses bare CR line
+// the FSL-1.1-MIT-licensed csv2ofx project's sample file, which also uses bare CR line
 // breaks). Rows here are rewritten in that shape, not a real download.
 import test from "node:test";
 import assert from "node:assert/strict";
