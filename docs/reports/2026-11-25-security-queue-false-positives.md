@@ -136,3 +136,13 @@ fixture). I checked each pattern against its test line. #862 is left out, becaus
 
 Still unchecked in the queue: #1050 (`js/incomplete-url-substring-sanitization` in
 `platform/pages/custom-domain.test.mjs:151`).
+
+## Seventh pass, same day
+
+- #849 follow-up: `commentFor` (`platform/agents/tools.mjs`) now ends its pattern with `(?![\w$])`
+  instead of `\b`. With `\b`, an export whose name ends in `$` (a legal identifier) never matched,
+  so its comment came back empty. `tools.test.mjs` checks `$a$`.
+- #1050 (`js/incomplete-url-substring-sanitization`, `platform/pages/custom-domain.test.mjs:151`):
+  false positive. `body.includes(PLACEHOLDER_ORIGIN)` is a test that a built page still carries
+  the placeholder origin. It is not a URL allow-check. It is the same pattern as #1049, which is
+  already in `codeql-triage.json`; the next session that edits that file can add #1050 as well.
