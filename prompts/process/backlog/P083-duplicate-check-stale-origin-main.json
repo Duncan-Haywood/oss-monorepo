@@ -22,7 +22,7 @@
   "baseline": "2026-11-23..25: 2 sessions in friction_rank cluster #19 (stale ref), plus the duplicate pairs named in duplicate-work.md",
   "opened": "2026-11-25",
   "source": "process run 2026-11-25 (critique: friction_rank --live cluster #19)",
-  "pr": "this",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19047",
   "result": null,
   "history": [
     {
