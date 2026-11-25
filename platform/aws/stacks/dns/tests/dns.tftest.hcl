@@ -1,0 +1,145 @@
+# cd platform/aws/stacks/dns && tofu init -backend=false && tofu test
+# Plan-only: the zone has prevent_destroy, which an apply-and-destroy test
+# run would trip.
+
+mock_provider "aws" {
+  mock_data "aws_caller_identity" {
+    defaults = {
+      account_id = "111111111111"
+    }
+  }
+  mock_resource "aws_cloudwatch_log_group" {
+    defaults = {
+      arn = "arn:aws:logs:us-east-1:111111111111:log-group:mock"
+    }
+  }
+  mock_resource "aws_route53_zone" {
+    defaults = {
+      arn     = "arn:aws:route53:::hostedzone/Z0000000EXAMPLE"
+      zone_id = "Z0000000EXAMPLE"
+    }
+  }
+}
+
+variables {
+  deploy_role_arn = "arn:aws:iam::111111111111:role/gha-oss-monorepo-dns-plan"
+}
+
+run "seed_is_refused_without_the_override" {
+  command         = plan
+  expect_failures = [aws_route53_zone.this]
+}
+
+run "seed_with_override_plans_planned_records_only" {
+  command = plan
+
+  variables {
+    allow_unverified_records = true
+  }
+
+  assert {
+    condition     = toset(keys(aws_route53_record.this)) == toset(["@ CAA", "@ MX", "@ TXT"])
+    error_message = "Proxied seed records are replaced by the site stack; only planned records remain."
+  }
+
+  assert {
+    condition     = aws_route53_record.this["@ TXT"].records == toset(["v=spf1 -all"])
+    error_message = "With no exported SPF the protective SPF applies."
+  }
+
+  assert {
+    condition     = aws_route53_record.this["@ MX"].records == toset(["0 ."])
+    error_message = "With no exported MX the null MX applies."
+  }
+
+  assert {
+    condition     = aws_route53_query_log.this.cloudwatch_log_group_arn != null
+    error_message = "Query logging must be on."
+  }
+}
+
+run "extra_mx_replaces_the_null_mx" {
+  command = plan
+
+  variables {
+    allow_unverified_records = true
+    extra_records = [
+      { name = "@", type = "MX", ttl = 300, values = ["10 inbound-smtp.us-east-1.amazonaws.com"] },
+      { name = "@", type = "TXT", ttl = 300, values = ["google-site-verification=abc"] },
+    ]
+  }
+
+  assert {
+    condition     = aws_route53_record.this["@ MX"].records == toset(["10 inbound-smtp.us-east-1.amazonaws.com"])
+    error_message = "A null MX must not sit beside a real MX."
+  }
+
+  assert {
+    condition     = length(aws_route53_record.this["@ TXT"].records) == 2 && aws_route53_record.this["@ TXT"].ttl == 300
+    error_message = "Apex TXT values from several sources merge into one record set at the lowest TTL."
+  }
+}
+
+run "another_spf_replaces_the_planned_one" {
+  command = plan
+
+  variables {
+    allow_unverified_records = true
+    extra_records = [
+      { name = "@", type = "TXT", ttl = 300, values = ["v=spf1 include:_spf.mx.cloudflare.net ~all"] },
+    ]
+  }
+
+  assert {
+    condition     = aws_route53_record.this["@ TXT"].records == toset(["v=spf1 include:_spf.mx.cloudflare.net ~all"])
+    error_message = "One SPF record per name: the planned v=spf1 -all must step aside."
+  }
+}
+
+run "long_txt_is_split" {
+  command = plan
+
+  variables {
+    allow_unverified_records = true
+    extra_records = [
+      { name = "k._domainkey", type = "TXT", ttl = 300, values = ["v=DKIM1; p=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"] },
+    ]
+  }
+
+  assert {
+    condition     = strcontains(one(aws_route53_record.this["k._domainkey TXT"].records), "\"\"")
+    error_message = "TXT values over 255 characters must be split for Route 53."
+  }
+}
+
+run "alias_records_for_other_stacks" {
+  command = plan
+
+  variables {
+    allow_unverified_records = true
+    extra_alias_records = [
+      { name = "api", target_dns_name = "d-abc123.execute-api.us-east-1.amazonaws.com", target_zone_id = "Z1UJRXOUMOOFQ8" },
+    ]
+  }
+
+  assert {
+    condition     = aws_route53_record.alias["api A"].name == "api.marisstella.app"
+    error_message = "saas-starter's api_domain_target becomes an alias at api."
+  }
+}
+
+run "inbound_mx_through_extra_records" {
+  command = plan
+
+  variables {
+    allow_unverified_records = true
+    extra_records = [
+      { name = "@", type = "MX", ttl = 300, values = ["10 inbound-smtp.us-east-1.amazonaws.com"] },
+    ]
+  }
+
+  assert {
+    condition     = aws_route53_record.this["@ MX"].records == toset(["10 inbound-smtp.us-east-1.amazonaws.com"])
+    error_message = "email-ops' inbound MX replaces the null MX."
+  }
+}
