@@ -22,6 +22,6 @@
   "opened": "2026-11-21",
   "source": "process critique, 2026-11-21 (doc friction on flagship_field.py)",
   "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18076",
-  "result": null,
+  "result": "helped for the automatic path: history_pieces over the 14 flagships.yaml rows on main 2026-11-25 offers 5 pieces, 0 with next/misses (baseline 3). The same class recurred on the named --history path (PR #18387's record, xer-schedule-check HISTORY.md line 51): filed and fixed as P082.",
   "change_shipped": "OPENISH now includes next and miss(es|ing); test_history_pieces_keep_dated_pieces_with_their_own_next_step. Offered pieces with those cues on main: 3 -> 0."
 }

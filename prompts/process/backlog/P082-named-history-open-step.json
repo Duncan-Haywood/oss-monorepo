@@ -1,0 +1,27 @@
+{
+  "id": "P082",
+  "title": "A named --history moved a result together with its own open step to HISTORY.md",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "P071 and the 2026-11-22 sentences/leads_open change stopped the automatic movers (history_pieces, history_candidates) from offering a dated piece that names its own next step. A piece the run names itself with --history TEXT went through remove_text unchecked, so a result and its '; next ...' step moved to HISTORY.md together and the open step left the open list.",
+  "evidence": [
+    "prompts/runs/2026-11-23-session_01EhTJVN6r8Z2otNGHEx2BUi.json (PR #18387): doc_friction on flagship_field.py, '--history moves a whole clause including its open next part to HISTORY.md, so the open item had to be re-parked in NEXT.md by hand'",
+    "ventures/xer-schedule-check/HISTORY.md line 51 holds '...; next a commercial tool's levelled risk run to compare'; NEXT.md line 7 is the hand re-park",
+    "open_tail over the '(moved ...)' entries in ventures/*/HISTORY.md on main, 2026-11-25: 8 of 154 carry an open step (changepoint-detector 3, league-schedule-generator 3, xer-schedule-check 1, photo-editing 1), 0 false positives on read; 2 league steps were in no NEXT.md or row"
+  ],
+  "change": "remove_text refuses a --history piece with an open step (OPEN_TAIL after a separator, or an OPEN_MARK past its start) and prints the finished head as a ready --history flag; covers next: and buildable:. Re-park the two lost league steps.",
+  "touches": [
+    "portfolio/router/flagship_field.py",
+    "portfolio/router/test_flagship_field.py",
+    "ventures/league-schedule-generator/NEXT.md"
+  ],
+  "metric": "new '(moved ...)' HISTORY.md entries after 2026-11-25 for which open_tail > 0, and run records reporting open work re-parked by hand after a --history",
+  "baseline": "8 of 154 entries on main 2026-11-25; 1 run record (2026-11-23)",
+  "opened": "2026-11-25",
+  "source": "process critique, 2026-11-25 (verifying P071; doc friction on flagship_field.py)",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19023",
+  "result": null,
+  "change_shipped": "open_tail (HISTORY_OPEN_STEP) + refusal in remove_text; tests test_named_history_refuses_a_piece_with_its_own_open_step and test_open_tail_spares_finished_results. Two lost league steps re-parked in NEXT.md."
+}
