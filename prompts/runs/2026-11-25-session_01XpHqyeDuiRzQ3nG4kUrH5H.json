@@ -36,16 +36,16 @@
   "integrity_issues": [],
   "doc_friction": [
     {
-      "file": "prompt.md",
-      "issue": "Step 0 trusts QUEUE.md, but the queue came from a scan taken before PR 18676. 1,243 alerts were listed against ~40 real ones, and no alert file named the commit it was scanned at. security_alerts.py now names it."
-    },
-    {
       "file": "security-alerts:alerts/N.md",
       "issue": "'Claim it' pushes a branch, but cloud sessions cannot delete one through the proxy. An unfixed claim blocks the alert for 48h."
     },
     {
       "file": ".github/workflows/priv-codeql.yml",
       "issue": "A main scan takes ~64 min, and each push cancels the pending one. Main is scanned about hourly, so the queue lags merges by 1-2 h."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "Three sessions (PRs 18806, 18807, 18819) found the stale queue and added the scanned commit to security_alerts.py within an hour. Step 0 has no claim marker for 'the queue itself is wrong', so the 'search open PRs first' check before starting missed work begun minutes later."
     }
   ],
   "deviations": [
@@ -60,13 +60,19 @@
       "why": "An internal security/CI fix has no customer-facing story; a post would be thin",
       "did": "Wrote an agent doc in docs/reports instead of a post",
       "result": "next session can check queue staleness"
+    },
+    {
+      "file": "platform/ci/security_alerts.py",
+      "why": "main gained the same change (PRs 18806/18807) while this PR was open",
+      "did": "Took main's version in the merge and dropped this PR's copy and its report; appended the fixes to the other session's report",
+      "result": "No duplicate code; the PR now carries only the emulate/webext fixes that report had left open"
     }
   ],
   "writeups": [
-    "docs/reports/2026-11-25-security-queue-is-a-stale-scan.md"
+    "docs/reports/2026-11-25-security-queue-stale-scan.md (extended: 'Fixed after this report')"
   ],
   "goal": null,
-  "notes": "Local checks: node --test platform/distribution + platform/aws/stacks/site/deploy 276/276 pass; test_security_alerts 14/14 pass. Likely false positives for owner dismissal: #94 (source-map-leak-check reads user-named http URLs, executes nothing), #275 (webext rewrite transform). #1065,#1069-1072,#1075-1079 incomplete-hostname-regexp: no regex flow found by reading; unconfirmed without CodeQL CLI (download denied in this session). risk_review.py #7/#42/#43 untouched (gate, CODEOWNERS).",
+  "notes": "Local checks: node --test platform/distribution + platform/aws/stacks/site/deploy 276/276 pass; test_security_alerts 14/14 pass. Likely false positives for owner dismissal: #94 (source-map-leak-check reads user-named http URLs, executes nothing), #275 (webext rewrite transform). #1065,#1069-1072,#1075-1079 incomplete-hostname-regexp: no regex flow found by reading; unconfirmed without CodeQL CLI (download denied in this session). risk_review.py #7/#42/#43 untouched (gate, CODEOWNERS). The PR's GitHub CodeQL check failed once on the moved webext replace (annotation read via the public check-runs annotations API); fixed by a matchAll rewrite.",
   "corrections": [],
   "redteam": null,
   "usage": {

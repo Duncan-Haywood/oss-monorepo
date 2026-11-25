@@ -43,6 +43,18 @@ rate) and any release, and it prints the invoice lines and total to type
 into QuickBooks. It runs in the browser, uploads nothing, and is tested
 against the worked example.
 
+**Fixed the same day.** The guide tells you to type the retainage line into
+QuickBooks as a negative number, so it is natural to type the held amount
+into the calculator as "-4000" too. Until a red-team pass on 2026-11-25,
+the calculator turned that into a *positive* $4,000 Retainage line: on
+$40,000 billed it printed a $44,000 invoice that charged the retainage
+instead of holding it back. It now refuses a negative held amount and says
+the sign is added for you. The same pass found that the pay-app guides'
+worksheet read items numbered "CO1" or "C.O. 3" (and the pay application
+generator read "C.O. 3") as base-contract work rather than change orders,
+which overstated the original contract sum; both now recognise those
+numberings, and each fix has a test.
+
 How the guide was made: Intuit's help and community pages were read on
 2026-11-25 through search results, because this session could not load
 quickbooks.intuit.com directly. Every step links the Intuit page it came

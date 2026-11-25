@@ -61,6 +61,30 @@ export function securityHeaders() {
   return '/*\n' + Object.entries(SECURITY_HEADERS).map(([k, v]) => `  ${k}: ${v}\n`).join('');
 }
 
+/** File types a browser may reuse for a day without asking again. Every file
+ *  on the site used to answer `public, max-age=0, must-revalidate` (Workers'
+ *  default; docs/reports/2026-11-07-live-site-measurements.md), so a repeat
+ *  view revalidated each icon, font and picture: one round trip apiece. These
+ *  types are safe to cache because a stale one never breaks a page; at worst
+ *  an edited picture shows its old version for a day. HTML, CSS, scripts and
+ *  modules are deliberately absent: new HTML importing an old cached module
+ *  can break the page, so they wait for content-hashed URLs
+ *  (portfolio/work/tasks.yaml, site-perf-hashed-modules). Lower and upper
+ *  case are both listed because _headers paths match case-sensitively. */
+export const LONG_CACHE_EXTENSIONS = Object.freeze([
+  'png', 'jpg', 'jpeg', 'webp', 'avif', 'gif', 'svg', 'ico',
+  'woff2', 'woff', 'ttf', 'otf',
+  'mp3', 'mp4', 'webm',
+]);
+export const LONG_CACHE_CONTROL = 'public, max-age=86400, stale-while-revalidate=604800';
+
+/** One _headers rule per extension. A splat matches any path, so `/*.png`
+ *  reaches every PNG at any depth. Cloudflare allows 100 rules per file. */
+export function assetCacheHeaders() {
+  const exts = [...new Set(LONG_CACHE_EXTENSIONS.flatMap((e) => [e, e.toUpperCase()]))];
+  return exts.map((e) => `/*.${e}\n  Cache-Control: ${LONG_CACHE_CONTROL}\n`).join('');
+}
+
 export async function split(siteDir, shardDir) {
   await fs.mkdir(shardDir, { recursive: true });
   for (const d of SHARD_DIRS) {
@@ -73,9 +97,9 @@ export async function split(siteDir, shardDir) {
   const site = await survey(siteDir);
   const shard = await survey(shardDir);
   // After the count: Cloudflare reads _headers as configuration, not an asset.
-  await fs.writeFile(path.join(siteDir, '_headers'), workersDevHeaders() + securityHeaders());
-  // The shard serves its own assets, so its responses need the rule too.
-  await fs.writeFile(path.join(shardDir, '_headers'), securityHeaders());
+  await fs.writeFile(path.join(siteDir, '_headers'), workersDevHeaders() + securityHeaders() + assetCacheHeaders());
+  // The shard serves its own assets, so its responses need the rules too.
+  await fs.writeFile(path.join(shardDir, '_headers'), securityHeaders() + assetCacheHeaders());
   const problems = [];
   for (const [name, s] of [['site', site], ['shard', shard]]) {
     if (s.files > MAX_FILES) problems.push(`${name}: ${s.files} files, over the free plan's ${MAX_FILES}`);
