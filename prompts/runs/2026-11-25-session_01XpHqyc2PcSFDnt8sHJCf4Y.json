@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "Cloning private-monorepo after add_repo was refused by the auto-mode permission classifier; stayed on the public front door.",
-    "waivers.test.mjs first failed: the 'through date after signed' check misfired on conditional waivers, which are normally signed before the period ends; limited it to unconditional waivers."
+    "waivers.test.mjs first failed: the 'through date after signed' check misfired on conditional waivers, which are normally signed before the period ends; limited it to unconditional waivers.",
+    "CI changed-ventures failed check_csv_formula_guard.py: it reads each exporter's own text and missed the guard imported from colog.mjs; added a comment naming the guard (the behaviour was already tested)."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -42,6 +43,10 @@
     {
       "file": "CLAUDE.md",
       "issue": "The hook that refuses pkill -f also rejects a command line where the bracketed pattern appears elsewhere (e.g. the server start in the same call); cost one retry."
+    },
+    {
+      "file": "platform/ci/check_csv_formula_guard.py",
+      "issue": "Flags an exporter whose cells go through an imported csvCell guard; only a comment in the file satisfies it. Runs only in CI's unwired checks, so a local venture test pass does not catch it."
     }
   ],
   "deviations": [

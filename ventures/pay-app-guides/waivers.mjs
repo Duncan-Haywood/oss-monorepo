@@ -174,6 +174,8 @@ export function statusText(x) {
 
 const cents = (c) => (c == null ? "" : (c / 100).toFixed(2));
 
+// Every cell goes through csvCell (colog.mjs), the formula-injection guard: a cell starting =, +, -, @, tab or CR
+// that is not a plain number gets a leading apostrophe (tested in waivers.test.mjs).
 export function logCsv(result) {
   const head = ["Direction", "Party", "Pay app", "Type", "Through", "Amount", "Signed", "Paid", "Paid amount", "Status"];
   const rows = result.lines.map((x) => [x.direction, x.party, x.payApp, `${x.condition} ${x.stage}`, dayText(x.through), cents(x.amount), dayText(x.signed), dayText(x.paid), cents(x.paidAmount), statusText(x)].map(csvCell).join(","));
