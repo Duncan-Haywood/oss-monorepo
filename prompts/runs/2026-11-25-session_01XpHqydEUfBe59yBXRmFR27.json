@@ -19,8 +19,8 @@
   "projects": [
     "platform/edge",
     "platform/counter",
-    "platform/aws/edge-api",
-    "platform/aws/email"
+    "platform/aws/stacks/edge-api",
+    "platform/aws/stacks/email-ops"
   ],
   "pr": 18766,
   "repo": "duncan-haywood/oss-monorepo",
@@ -45,6 +45,10 @@
     {
       "file": ".github/workflows/portfolio-validate.yml",
       "issue": "Runs only platform/edge/*.test.mjs and platform/counter/*.test.mjs; nothing runs platform/aws/** tests yet, so new AWS code tests sit at top level of platform/edge or wait for the IaC workflow."
+    },
+    {
+      "file": "orchestrator brief",
+      "issue": "The brief named platform/aws/<stack>/, shared-infra for the edge and state keys stacks/<stack>/...; the foundation PR #18749 uses platform/aws/stacks/<stack>/, apps for SES and <stack>/terraform.tfstate. The correction arrived mid-run, after an email stack had been written twice."
     }
   ],
   "deviations": [
@@ -66,7 +70,7 @@
     "docs/reports/2026-11-25-aws-edge-api-and-email.md"
   ],
   "goal": "AWS consolidation turnover point: edge API and email stacks apply-ready",
-  "notes": "Verification run here. node --test platform/edge/*.test.mjs platform/counter/*.test.mjs platform/aws/email/sender/*.test.mjs: 143 pass, 0 fail (41 pre-existing Worker tests unchanged). OpenTofu 1.10.7 (zip SHA256 c79bb458...2ae6 checked), aws 6.72.0/archive 2.7.1/random 3.8.1: fmt -check ok, init -backend=false -lockfile=readonly ok, validate ok, tofu test edge-api 6/6 and email 9/9; mutating main.tf (dynamodb:* and restrict_public_buckets=false) made two runs fail as intended. Checkov 3.2.469: edge-api 87 passed/0 failed/13 skipped, email 90/0/10, every skip reasoned inline. risk_review.py: owner review not needed; answered in the PR body. Unverified until applied: CloudWatch JSON protocol for GetMetricData, CloudFront v2 log field names, Authorization forwarding by AllViewerExceptHostHeader (smoke test in the edge-api README).",
+  "notes": "Verification run here. node --test platform/edge/*.test.mjs platform/counter/*.test.mjs platform/aws/email/sender/*.test.mjs: 143 pass, 0 fail (41 pre-existing Worker tests unchanged). OpenTofu 1.10.7 (zip SHA256 c79bb458...2ae6 checked), aws 6.72.0/archive 2.7.1/random 3.8.1: fmt -check ok, init -backend=false -lockfile=readonly ok, validate ok, tofu test edge-api 6/6 and email-ops 6/6; mutating main.tf (dynamodb:* and restrict_public_buckets=false) made two runs fail as intended. Checkov 3.2.469: edge-api 87 passed/0 failed/13 skipped, email-ops 60/0/11, every skip reasoned inline. risk_review.py: owner review not needed; answered in the PR body. Unverified until applied: CloudWatch JSON protocol for GetMetricData, CloudFront v2 log field names, Authorization forwarding by AllViewerExceptHostHeader (smoke test in the edge-api README). Mid-run the orchestrating session pointed at PR #18749 (stacks/email, the stacks/<stack>/ layout): moved to platform/aws/stacks/{edge-api,email-ops}, dropped this branch's own SES identity stack, fed the consent table from #18749's ses-events queue, put edge-api in the apps account beside SES, added permissions_boundary_arn and <stack>-* role names.",
   "corrections": [],
   "redteam": null
 }

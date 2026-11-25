@@ -1,14 +1,32 @@
+# email-ops: what stacks/email (identities, DKIM, MAIL FROM, configuration
+# sets, SES -> SNS -> SQS events) does not cover, in the same apps account:
+#
+#   consent.tf   the one suppression + consent table every sender checks,
+#                filled from stacks/email's events queue by the email-ops
+#                function, plus the public one-click unsubscribe endpoint;
+#   inbound.tf   SES receiving for support@, hello@, accounts@, replacing
+#                Cloudflare Email Routing, into the edge-api stack's inbox.
+#
+# The sending side's code is sender/ (policy, consent store, SES adapter).
+
 data "aws_caller_identity" "current" {}
 data "aws_partition" "current" {}
 data "aws_region" "current" {}
 
-# The edge-api stack owns the inbox bucket and the function that stores
-# support mail; this stack only points SES at them.
+data "terraform_remote_state" "email" {
+  backend = "s3"
+  config = {
+    bucket = var.state_bucket
+    key    = "email/terraform.tfstate"
+    region = var.region
+  }
+}
+
 data "terraform_remote_state" "edge_api" {
   backend = "s3"
   config = {
     bucket = var.state_bucket
-    key    = "stacks/edge-api/terraform.tfstate"
+    key    = "edge-api/terraform.tfstate"
     region = var.region
   }
 }
@@ -17,32 +35,13 @@ locals {
   account_id = data.aws_caller_identity.current.account_id
   partition  = data.aws_partition.current.partition
   region     = data.aws_region.current.region
+  email      = data.terraform_remote_state.email.outputs
   edge       = data.terraform_remote_state.edge_api.outputs
 
   # The support addresses, read from the same file Cloudflare Email Routing
   # is applied from, so the two can never disagree during the overlap.
-  routing           = jsondecode(file("${path.module}/../../pages/cloudflare/email-routing.json"))
+  routing           = jsondecode(file("${path.module}/../../../pages/cloudflare/email-routing.json"))
   support_addresses = sort([for a in local.routing.addresses : "${a.local}@${local.routing.zone}"])
-
-  # One sending identity per stream; cold only once its own domain exists.
-  streams = merge(
-    {
-      transactional = { domain = var.transactional_domain, zone_id = var.zone_id }
-      marketing     = { domain = var.marketing_domain, zone_id = var.zone_id }
-    },
-    var.cold_domain == null ? {} : { cold = { domain = var.cold_domain, zone_id = var.cold_zone_id } },
-  )
-  # The apex is verified too: SES only receives for verified domains, and
-  # replies to support mail go out from support@<apex>.
-  identities = merge(local.streams, { inbound = { domain = local.routing.zone, zone_id = var.zone_id } })
-
-  dkim_records = merge([
-    for k, v in local.identities : {
-      for i in range(3) : "${k}-${i}" => { identity = k, index = i, zone_id = v.zone_id }
-    }
-  ]...)
-
-  matching_events = ["SEND", "REJECT", "BOUNCE", "COMPLAINT", "DELIVERY", "DELIVERY_DELAY", "RENDERING_FAILURE"]
 }
 
 # ---------------------------------------------------------------- encryption
@@ -71,22 +70,7 @@ data "aws_iam_policy_document" "kms" {
     condition {
       test     = "ArnLike"
       variable = "kms:EncryptionContext:aws:logs:arn"
-      values   = ["arn:${local.partition}:logs:${local.region}:${local.account_id}:log-group:/aws/lambda/email-events"]
-    }
-  }
-  # EventBridge writes undeliverable SES events to the encrypted dead-letter queue.
-  statement {
-    sid       = "EventBridgeDeadLetter"
-    actions   = ["kms:GenerateDataKey", "kms:Decrypt"]
-    resources = ["*"]
-    principals {
-      type        = "Service"
-      identifiers = ["events.amazonaws.com"]
-    }
-    condition {
-      test     = "StringEquals"
-      variable = "aws:SourceAccount"
-      values   = [local.account_id]
+      values   = ["arn:${local.partition}:logs:${local.region}:${local.account_id}:log-group:/aws/lambda/email-ops"]
     }
   }
   dynamic "statement" {
@@ -108,14 +92,14 @@ data "aws_iam_policy_document" "kms" {
   }
 }
 
-resource "aws_kms_key" "email" {
-  description             = "email: consent table, secrets, logs"
+resource "aws_kms_key" "email_ops" {
+  description             = "email-ops: consent table, secrets, logs"
   enable_key_rotation     = true
   deletion_window_in_days = 30
   policy                  = data.aws_iam_policy_document.kms.json
 }
 
-resource "aws_kms_alias" "email" {
-  name          = "alias/email"
-  target_key_id = aws_kms_key.email.key_id
+resource "aws_kms_alias" "email_ops" {
+  name          = "alias/email-ops"
+  target_key_id = aws_kms_key.email_ops.key_id
 }

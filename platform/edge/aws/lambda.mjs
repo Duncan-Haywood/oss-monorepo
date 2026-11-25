@@ -4,7 +4,7 @@
 //   HTTP   a Lambda function URL request (payload 2.0), arriving through
 //          CloudFront. It becomes a web-standard Request, `worker.fetch`
 //          answers it with the DynamoDB store, and the Response goes back.
-//   SES    an inbound-mail receipt (`platform/aws/email/`): SES has already
+//   SES    an inbound-mail receipt (`platform/aws/stacks/email-ops/`): SES has already
 //          written the message to S3; this reads it back (capped) and hands
 //          it to the same `receiveEmail` the Worker's `email()` handler uses.
 //
@@ -24,7 +24,7 @@
 //
 // Caps are unchanged (FEEDBACK_DAILY_CAP, MAX_PER_SLUG_PER_DAY,
 // INBOX_DAILY_CAP); spend is capped by the function's reserved concurrency
-// and the WAF rate rule (`platform/aws/edge-api/README.md`).
+// and the WAF rate rule (`platform/aws/stacks/edge-api/README.md`).
 
 import { createHmac } from 'node:crypto';
 import worker from '../worker.mjs';

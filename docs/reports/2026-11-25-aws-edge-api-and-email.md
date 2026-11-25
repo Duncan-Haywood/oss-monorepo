@@ -20,8 +20,16 @@ For the next session on `aws-edge-api`, `aws-ses-email`, the site stack,
 | `platform/edge/aws/{lambda,dynamo-store,sigv4,migrate-d1,fake-dynamo}.mjs` | Lambda adapter (HTTP + SES inbound), DynamoDB store, SDK-free SigV4, D1 to DynamoDB migration, strict test fake |
 | `platform/edge/aws-*.test.mjs` | Lambda route scenarios, store contract (SQLite + fake), SigV4 vectors, migration; at top level so `portfolio-validate.yml`'s glob runs them |
 | `platform/counter/pull-aws.mjs` | CloudFront/Lambda/WAF metrics + crawler classes from the CloudFront log into `portfolio/usage/aws-analytics.json` |
-| `platform/aws/edge-api/` | OpenTofu stack, tests, README (apply order, outputs for the site stack) |
-| `platform/aws/email/` | OpenTofu stack (identities, config sets, inbound, consent table, events Lambda) and `sender/` (policy, consent store, SES adapter, unsubscribe) |
+| `platform/aws/stacks/edge-api/` | OpenTofu stack in the apps account, tests, README (apply order, outputs for the site stack) |
+| `platform/aws/stacks/email-ops/` | OpenTofu stack on top of PR #18749's `stacks/email` (inbound receipt rule, consent table fed by its `ses-events` queue, unsubscribe URL) and `sender/` (policy, consent store, SES adapter, unsubscribe) |
+
+Layout and conventions follow PR #18749 (the foundation): `platform/aws/stacks/<stack>/`,
+state keys `<stack>/terraform.tfstate`, the apps account found from
+`org/terraform.tfstate`'s `account_ids`, member role unless a per-stack
+`deploy_role_arn` is passed, IAM roles named `<stack>-*` with an optional
+`permissions_boundary_arn` (the github-oidc stack's `workload-boundary`).
+This branch first had its own SES identity stack; the orchestrating session
+pointed at #18749, so that part was dropped rather than duplicated.
 
 ## Interfaces other stacks rely on
 
@@ -35,8 +43,12 @@ For the next session on `aws-edge-api`, `aws-ses-email`, the site stack,
 - **Route 53 zone stack** gives `zone_id` and must leave the apex MX (and,
   after cutover, the apex SPF) to the email stack.
 - **Spend guards** give an SNS topic for `alarm_topic_arn`.
-- **Foundation** gives the state bucket (`state_bucket`) and the
-  `gha-oss-monorepo-{edge-api,email}-{plan,apply}` roles in shared-infra.
+- **Foundation** gives the state bucket (`state_bucket`), the org stack's
+  `account_ids`, and later the `gha-oss-monorepo-{edge-api,email-ops}-{plan,apply}`
+  roles and the `workload-boundary` policy.
+- **`stacks/email`** (#18749) gives `events_queue_arn` and
+  `events_kms_key_arn`; its transactional identity is the apex, which lets
+  SES receive for it in the same account.
 - **Ventures** switch with `senderFromEnv(env, { consent })` when
   `MAIL_PROVIDER=ses` (README, "The sender port").
 

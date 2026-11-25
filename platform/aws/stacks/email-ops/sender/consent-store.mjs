@@ -1,5 +1,5 @@
 // The one suppression and consent table every sender checks
-// (`platform/aws/email/` creates it). Addresses are never stored in clear:
+// (`platform/aws/stacks/email-ops/` creates it). Addresses are never stored in clear:
 // the key is an HMAC of the normalised address with a pepper kept in Secrets
 // Manager, so the table alone does not reveal who is on it, and a lookup by
 // address still works.

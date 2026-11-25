@@ -4,7 +4,7 @@ The AWS home of [`platform/edge`](../../edge/README.md): the same handler the
 Cloudflare Worker runs, on Lambda behind the site's CloudFront distribution,
 with its data in DynamoDB. The Worker keeps serving until cutover.
 
-Account: **shared-infra**. Region: **us-east-1**. Nothing here has been
+Account: **apps** (beside SES, so inbound mail is one account; found from the org stack's `account_ids`). Region: **us-east-1**. Nothing here has been
 applied; there is no AWS account yet.
 
 ## What it creates
@@ -32,8 +32,9 @@ applied; there is no AWS account yet.
 
 ## What the site stack needs from here (outputs)
 
-The site stack (`platform/aws/site/`, another agent's) attaches this as an
-origin. It reads these outputs from `stacks/edge-api/terraform.tfstate`:
+The site stack (another agent's) attaches this as an origin. It reads these
+outputs from `edge-api/terraform.tfstate` (state keys are `<stack>/terraform.tfstate`,
+as in `platform/aws/README.md`):
 
 | Output | Use in the distribution |
 |---|---|
@@ -53,13 +54,17 @@ it belongs to the site stack; 300 requests per 5 minutes per IP on
 
 ## Apply order
 
-1. **Owner, once** (AWS forces these): create the management account, root
-   MFA, card, IAM Identity Center. Then CI runs the foundation stacks
-   (`bootstrap`, accounts, OIDC roles; other agents' directories).
-2. **This stack:** `tofu init -backend-config=backend.hcl && tofu apply`
-   with `deploy_role_arn` = the shared-infra `gha-oss-monorepo-edge-api-apply` role.
-3. **Email stack** (`../email/`): it reads this stack's state for the inbox
-   bucket and function.
+1. **Owner, once** (AWS forces these): `platform/aws/bootstrap`, root MFA,
+   card, IAM Identity Center. Then CI applies `org`, `baseline`, `spend`,
+   `email` (PR #18749's stacks).
+2. **This stack:** `tofu init -backend-config=backend.hcl && tofu apply -var
+   state_bucket=...`. With `deploy_role_arn` null it assumes the
+   organisation member role in apps, like the other stacks; once the
+   github-oidc stack exists, pass `gha-oss-monorepo-edge-api-apply` and
+   `permissions_boundary_arn` (the account's `workload-boundary`). Roles it
+   creates are named `edge-api-*`.
+3. **`email-ops`** (`../email-ops/`): it reads this stack's state for the
+   inbox bucket and function.
 4. **Site stack:** attaches the origin.
 5. **Migrate** (twice, before and after the DNS move; it is idempotent):
    ```sh
@@ -80,7 +85,7 @@ it belongs to the site stack; 300 requests per 5 minutes per IP on
 
 ```sh
 node --test 'platform/edge/*.test.mjs' 'platform/counter/*.test.mjs'   # Worker + Lambda + store contract + migration
-cd platform/aws/edge-api
+cd platform/aws/stacks/edge-api
 tofu fmt -check -recursive && tofu init -backend=false && tofu validate && tofu test
 checkov -d . --framework terraform
 ```

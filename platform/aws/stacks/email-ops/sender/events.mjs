@@ -1,7 +1,8 @@
-// The email stack's one Lambda (`platform/aws/email/`), for two jobs:
+// The email-ops function (`platform/aws/stacks/email-ops/`), for two jobs:
 //
 //   SES events     bounces and complaints from every configuration set reach
-//                  it through EventBridge. A permanent bounce or a complaint
+//                  it through stacks/email's SNS -> SQS queue (an EventBridge
+//                  event is accepted too). A permanent bounce or a complaint
 //                  suppresses the address for every stream; transient bounces
 //                  are ignored (SES retries them).
 //   /unsubscribe   the public one-click endpoint every marketing and cold
@@ -14,7 +15,7 @@
 
 import { consentStore } from './consent-store.mjs';
 import { readUnsubscribeToken } from './unsubscribe-token.mjs';
-import { jsonProtocol } from '../../../edge/aws/sigv4.mjs';
+import { jsonProtocol } from '../../../../edge/aws/sigv4.mjs';
 
 /** Pure: the suppression events in one SES event (EventBridge `detail`). */
 export function sesEvents(detail = {}) {
@@ -53,6 +54,25 @@ export function createHandler({ store, unsubscribeSecret, log = () => {} }) {
   }
 
   return async function handler(event) {
+    // stacks/email's SES -> SNS -> SQS feed (raw message delivery: the body
+    // is the SES event). A record that fails is reported back, so SQS retries
+    // only it and, past maxReceiveCount, keeps it in the dead-letter queue.
+    if (Array.isArray(event?.Records) && event.Records[0]?.eventSource === 'aws:sqs') {
+      const batchItemFailures = [];
+      let n = 0;
+      for (const r of event.Records) {
+        try {
+          let detail = JSON.parse(r.body);
+          if (detail?.Type === 'Notification' && typeof detail.Message === 'string') detail = JSON.parse(detail.Message);
+          for (const { address, event: e } of sesEvents(detail)) { await store.suppress(address, e); n += 1; }
+        } catch (err) {
+          log({ suppress_error: err.message });
+          batchItemFailures.push({ itemIdentifier: r.messageId });
+        }
+      }
+      log({ ses_events: event.Records.length, suppressed: n, failed: batchItemFailures.length });
+      return { batchItemFailures };
+    }
     if (event?.source === 'aws.ses' && event.detail) {
       let n = 0;
       for (const { address, event: e } of sesEvents(event.detail)) {

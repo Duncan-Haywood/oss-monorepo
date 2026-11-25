@@ -1,20 +1,5 @@
-output "configuration_sets" {
-  description = "Configuration set per stream (SES_CONFIGURATION_SET for sender/ses-sender.mjs)."
-  value       = { for k, v in aws_sesv2_configuration_set.stream : k => v.configuration_set_name }
-}
-
-output "sending_domains" {
-  description = "Sending domain per stream (MAIL_FROM uses an address on it)."
-  value       = { for k, v in local.streams : k => v.domain }
-}
-
-output "identity_arns" {
-  description = "SES identity ARN per domain (FromEmailAddressIdentityArn for cross-account senders)."
-  value       = { for k, v in aws_sesv2_email_identity.domain : k => v.arn }
-}
-
 output "consent_table_name" {
-  description = "The suppression and consent table every sender checks."
+  description = "The suppression and consent table every sender checks (sender/consent-store.mjs)."
   value       = aws_dynamodb_table.consent.name
 }
 
@@ -44,6 +29,11 @@ output "support_addresses" {
 }
 
 output "inbound_mx_record" {
-  description = "The apex MX value that moves support mail to SES (published only when receive_mail = true)."
-  value       = "10 inbound-smtp.${local.region}.amazonaws.com"
+  description = "The apex MX that moves support mail to SES; publish it (Cloudflare, or Route 53 via receive_mail) only at the inbound cutover."
+  value = {
+    type     = "MX"
+    name     = local.routing.zone
+    content  = "inbound-smtp.${local.region}.amazonaws.com"
+    priority = 10
+  }
 }

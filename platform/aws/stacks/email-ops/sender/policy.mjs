@@ -4,7 +4,7 @@
 // are tested directly.
 //
 // Three streams, each on its own sending domain and configuration set
-// (`platform/aws/email/`), so a complaint spike in one cannot damage the
+// (`platform/aws/stacks/email-ops/`), so a complaint spike in one cannot damage the
 // reputation of another:
 //
 //   transactional  receipts, password resets, alerts a user asked for.

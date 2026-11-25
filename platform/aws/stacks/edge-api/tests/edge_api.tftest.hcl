@@ -41,8 +41,17 @@ mock_provider "aws" {
 
 mock_provider "random" {}
 
+override_data {
+  target = data.terraform_remote_state.org
+  values = {
+    outputs = { account_ids = { apps = "123456789012" } }
+  }
+}
+
 variables {
-  deploy_role_arn = "arn:aws:iam::123456789012:role/gha-oss-monorepo-edge-api-plan"
+  state_bucket             = "123456789012-tofu-state-us-east-1"
+  deploy_role_arn          = "arn:aws:iam::123456789012:role/gha-oss-monorepo-edge-api-plan"
+  permissions_boundary_arn = "arn:aws:iam::123456789012:policy/workload-boundary"
 }
 
 run "data_is_encrypted_recoverable_and_protected" {
@@ -131,6 +140,10 @@ run "function_iam_is_least_privilege" {
   assert {
     condition     = one([for s in data.aws_iam_policy_document.assume_lambda.statement : s.principals]) != null
     error_message = "The role must be assumable by Lambda only."
+  }
+  assert {
+    condition     = startswith(aws_iam_role.function.name, "edge-api-") && aws_iam_role.function.permissions_boundary == "arn:aws:iam::123456789012:policy/workload-boundary"
+    error_message = "Roles are named edge-api-* and carry the workload boundary."
   }
 }
 

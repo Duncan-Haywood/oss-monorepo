@@ -1,5 +1,5 @@
 // The edge API's store on DynamoDB: the same operations as `d1Store` in
-// `../store.mjs`, on one on-demand table (`platform/aws/edge-api/`).
+// `../store.mjs`, on one on-demand table (`platform/aws/stacks/edge-api/`).
 //
 // Why DynamoDB and not Postgres: the API is a handful of counters and two
 // append-only logs, read by key range. DynamoDB on demand costs nothing at

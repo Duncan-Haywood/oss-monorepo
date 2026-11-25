@@ -3,6 +3,8 @@
 # Routing. Each message is written to the edge-api inbox bucket, then the
 # edge-api function stores a capped copy in its table, exactly as the
 # Worker's email() handler does today. Nothing is forwarded anywhere.
+# SES receives only for verified domains: stacks/email's transactional
+# identity is the apex, in this same account.
 
 resource "aws_ses_receipt_rule_set" "support" {
   rule_set_name = "support"
@@ -45,11 +47,12 @@ resource "aws_ses_receipt_rule" "support" {
 }
 
 # The cutover: off until receive_mail = true. While it is off, Cloudflare's
-# MX records keep delivering to the Worker. The aws-route53-zone stack must
-# leave the apex MX to this resource.
+# MX records keep delivering to the Worker. Before the zone moves to Route 53
+# the record is only output (inbound_mx_record) for the Cloudflare DNS step;
+# the aws-route53-zone stack must leave the apex MX to this resource.
 resource "aws_route53_record" "inbound_mx" {
-  count   = var.receive_mail ? 1 : 0
-  zone_id = var.zone_id
+  count   = var.receive_mail && var.route53_zone_id != "" ? 1 : 0
+  zone_id = var.route53_zone_id
   name    = local.routing.zone
   type    = "MX"
   ttl     = 300

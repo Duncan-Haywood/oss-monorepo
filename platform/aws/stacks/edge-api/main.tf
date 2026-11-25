@@ -10,14 +10,14 @@ locals {
   # The Lambda zip holds the same modules the Worker runs, at the same
   # relative paths, so `../counter/core.mjs` resolves inside the zip too.
   package_files = {
-    "edge/worker.mjs"           = "${path.module}/../../edge/worker.mjs"
-    "edge/feedback.mjs"         = "${path.module}/../../edge/feedback.mjs"
-    "edge/inbox.mjs"            = "${path.module}/../../edge/inbox.mjs"
-    "edge/store.mjs"            = "${path.module}/../../edge/store.mjs"
-    "edge/aws/lambda.mjs"       = "${path.module}/../../edge/aws/lambda.mjs"
-    "edge/aws/dynamo-store.mjs" = "${path.module}/../../edge/aws/dynamo-store.mjs"
-    "edge/aws/sigv4.mjs"        = "${path.module}/../../edge/aws/sigv4.mjs"
-    "counter/core.mjs"          = "${path.module}/../../counter/core.mjs"
+    "edge/worker.mjs"           = "${path.module}/../../../edge/worker.mjs"
+    "edge/feedback.mjs"         = "${path.module}/../../../edge/feedback.mjs"
+    "edge/inbox.mjs"            = "${path.module}/../../../edge/inbox.mjs"
+    "edge/store.mjs"            = "${path.module}/../../../edge/store.mjs"
+    "edge/aws/lambda.mjs"       = "${path.module}/../../../edge/aws/lambda.mjs"
+    "edge/aws/dynamo-store.mjs" = "${path.module}/../../../edge/aws/dynamo-store.mjs"
+    "edge/aws/sigv4.mjs"        = "${path.module}/../../../edge/aws/sigv4.mjs"
+    "counter/core.mjs"          = "${path.module}/../../../counter/core.mjs"
   }
   inbox_prefix = "inbox/"
 }
@@ -294,8 +294,9 @@ data "aws_iam_policy_document" "assume_lambda" {
 }
 
 resource "aws_iam_role" "function" {
-  name               = "${var.name}-function"
-  assume_role_policy = data.aws_iam_policy_document.assume_lambda.json
+  name                 = "${var.name}-function"
+  assume_role_policy   = data.aws_iam_policy_document.assume_lambda.json
+  permissions_boundary = var.permissions_boundary_arn
 }
 
 # Least privilege: the item operations the store uses, on this table only;

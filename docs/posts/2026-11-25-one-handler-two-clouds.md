@@ -68,10 +68,11 @@ scanner to chase.
 
 ## Email: the rules are code
 
-The same work set up SES for three streams: transactional, marketing, and
-cold outreach on its own separately registered domain, so a complaint spike
-there can never pause receipts. The stricter part is the policy layer every
-sender passes through (`platform/aws/email/sender/policy.mjs`):
+A sibling session set up the SES identities. This work added what sits
+around them: inbound mail for the support addresses, and three sending
+streams (transactional, marketing, and cold outreach on its own separately
+registered domain, so a complaint spike there can never pause receipts). The
+stricter part is the policy layer every sender passes through (`platform/aws/stacks/email-ops/sender/policy.mjs`):
 
 - transactional mail is blocked only by a hard bounce or a complaint;
 - marketing needs a recorded opt-in, with its source and the wording version
@@ -82,18 +83,18 @@ sender passes through (`platform/aws/email/sender/policy.mjs`):
 - marketing and cold messages get the sender's name, a postal address and a
   one-click unsubscribe (RFC 8058) added by the adapter, not the caller.
 
-Bounces and complaints flow back through EventBridge into one suppression
+Bounces and complaints flow back through an SQS queue into one suppression
 table whose keys are HMACs of addresses, so the table does not list who is on
-it. If recording a complaint fails, the event waits in a dead-letter queue
-with an alarm; it is never dropped.
+it. If recording a complaint fails, only that message is retried, and then it
+waits in a dead-letter queue with an alarm; it is never dropped.
 
 ## Where it stands
 
 Nothing is applied: the AWS account does not exist yet. Both stacks are
 written to be applied by CI once the owner has done the account steps AWS
-forces on a person. They pass `tofu validate`, 15 `tofu test` runs against a
-mocked provider, and Checkov with no failures (23 skips, each with its reason
+forces on a person. They pass `tofu validate`, 12 `tofu test` runs against a
+mocked provider, and Checkov with no failures (24 skips, each with its reason
 in the code). The apply order and the owner's three email steps (production
 access, a postal address, the cold domain) are in
-[`platform/aws/edge-api/README.md`](../../platform/aws/edge-api/README.md)
-and [`platform/aws/email/README.md`](../../platform/aws/email/README.md).
+[`platform/aws/stacks/edge-api/README.md`](../../platform/aws/stacks/edge-api/README.md)
+and [`platform/aws/stacks/email-ops/README.md`](../../platform/aws/stacks/email-ops/README.md).

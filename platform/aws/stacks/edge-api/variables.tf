@@ -9,14 +9,33 @@ variable "region" {
   }
 }
 
-variable "deploy_role_arn" {
-  description = "Role in the shared-infra account that OpenTofu assumes (gha-oss-monorepo-edge-api-apply in CI, the -plan role for PRs)."
+
+variable "state_bucket" {
+  description = "The bootstrap state bucket, to read other stacks' outputs (org; email-ops also reads email and edge-api)."
   type        = string
+}
+
+variable "deploy_role_arn" {
+  description = "Role OpenTofu assumes in the apps account: this stack's gha-oss-monorepo-<stack>-apply (or -plan) role once the github-oidc stack exists. Null = the organisation member role."
+  type        = string
+  default     = null
 
   validation {
-    condition     = can(regex("^arn:aws:iam::[0-9]{12}:role/", var.deploy_role_arn))
+    condition     = var.deploy_role_arn == null || can(regex("^arn:aws:iam::[0-9]{12}:role/", var.deploy_role_arn))
     error_message = "deploy_role_arn must be an IAM role ARN."
   }
+}
+
+variable "member_role_name" {
+  description = "The organisation's member-account role, used when deploy_role_arn is null."
+  type        = string
+  default     = "OrganizationAccountAccessRole"
+}
+
+variable "permissions_boundary_arn" {
+  description = "The account's workload-boundary policy (github-oidc stack), attached to every role this stack creates. Null until that stack exists."
+  type        = string
+  default     = null
 }
 
 variable "name" {

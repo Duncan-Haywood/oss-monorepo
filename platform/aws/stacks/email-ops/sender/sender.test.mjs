@@ -5,7 +5,7 @@ import { consentStore, addressKey } from './consent-store.mjs';
 import { sesSender, senderFromEnv, sendEmailInput, SuppressedError } from './ses-sender.mjs';
 import { unsubscribeToken, readUnsubscribeToken } from './unsubscribe-token.mjs';
 import { createHandler, sesEvents } from './events.mjs';
-import { fakeDynamo } from '../../../edge/aws/fake-dynamo.mjs';
+import { fakeDynamo } from '../../../../edge/aws/fake-dynamo.mjs';
 
 const PEPPER = 'pepper-of-at-least-16-chars';
 const SECRET = 'unsubscribe-signing-secret';
@@ -143,4 +143,19 @@ test('events: hard bounces and complaints suppress; GET shows a button, POST uns
   assert.equal((await h(ev('POST', 'bad.token'))).statusCode, 400);
   assert.equal((await h(ev('GET', t, '/other'))).statusCode, 404);
   assert.ok(!JSON.stringify(logs).includes('@'), 'no address logged');
+});
+
+test('events: the SQS feed from stacks/email suppresses, and reports only failed records for retry', async () => {
+  const { store } = newStore();
+  const h = createHandler({ store, unsubscribeSecret: SECRET });
+  const complaint = { eventType: 'Complaint', complaint: { complainedRecipients: [{ emailAddress: 'q@r.co' }] } };
+  const wrapped = { Type: 'Notification', Message: JSON.stringify({ eventType: 'Bounce', bounce: { bounceType: 'Permanent', bouncedRecipients: [{ emailAddress: 's@t.co' }] } }) };
+  const out = await h({ Records: [
+    { eventSource: 'aws:sqs', messageId: 'm1', body: JSON.stringify(complaint) },
+    { eventSource: 'aws:sqs', messageId: 'm2', body: '{not json' },
+    { eventSource: 'aws:sqs', messageId: 'm3', body: JSON.stringify(wrapped) },
+  ] });
+  assert.deepEqual(out, { batchItemFailures: [{ itemIdentifier: 'm2' }] });
+  assert.equal((await store.state('q@r.co')).suppressed.all, 'complaint');
+  assert.equal((await store.state('s@t.co')).suppressed.all, 'hard-bounce', 'an SNS envelope (raw delivery off) is unwrapped too');
 });

@@ -1,6 +1,6 @@
 // Copies the site's AWS edge analytics into the repository: the AWS twin of
 // `pull-cloudflare.mjs`, for after the site and the edge API move to
-// CloudFront and Lambda (`platform/aws/site/`, `platform/aws/edge-api/`).
+// CloudFront and Lambda (`platform/aws/stacks/site/`, `platform/aws/stacks/edge-api/`).
 //
 //   AWS_REGION=us-east-1 CLOUDFRONT_DISTRIBUTION_ID=E... EDGE_FUNCTION_NAME=edge-api \
 //   CLOUDFRONT_LOG_GROUP=/aws/cloudfront/site WAF_WEB_ACL_NAME=site \
@@ -21,7 +21,7 @@
 //
 // Credentials: the standard AWS environment variables, set in CI by GitHub
 // OIDC (a read-only role: cloudwatch:GetMetricData, logs:StartQuery,
-// logs:GetQueryResults on the one log group; `platform/aws/edge-api/README.md`).
+// logs:GetQueryResults on the one log group; `platform/aws/stacks/edge-api/README.md`).
 // A dataset that cannot be read goes under `last_pull.errors` and the script
 // exits 0, as the Cloudflare pull does, so the gap stays visible.
 

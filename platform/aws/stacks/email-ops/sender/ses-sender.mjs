@@ -19,7 +19,7 @@
 //      message with its stream so bounce and complaint events find their way
 //      back to the suppression table (events.mjs).
 
-import { awsClient } from '../../../edge/aws/sigv4.mjs';
+import { awsClient } from '../../../../edge/aws/sigv4.mjs';
 import { maySend, complianceParts, normalizeAddress } from './policy.mjs';
 import { unsubscribeToken } from './unsubscribe-token.mjs';
 
