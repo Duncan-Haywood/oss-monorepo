@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html", "prompt-payment-laws.html", "retainage-release.html"];
+const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html", "prompt-payment-laws.html", "change-order-log.html", "retainage-release.html"];
 
 test("every page carries the no-warranty clause, sponsor link, opt-out and honest CTA", () => {
   for (const name of PAGES) {
@@ -60,7 +60,9 @@ test("robots and sitemap list every page", () => {
 // card whose cells show their column header from data-label. A row added without labels would
 // show bare values on a phone, so every cell must carry its own column's header, in order.
 test("guide tables stack on a phone, every cell labelled with its column header", () => {
-  const guides = PAGES.filter((name) => name !== "index.html");
+  // Tool pages fill their tables from script, so there are no static rows to check here;
+  // change-order-log.html's rendered rows are checked for labels in the next test.
+  const guides = PAGES.filter((name) => name !== "index.html" && name !== "change-order-log.html");
   for (const name of guides) {
     const html = page(name);
     const at = html.indexOf("<main>");
@@ -132,4 +134,11 @@ test("retainage release page: inputs labelled, letter output present, links the 
   assert.match(html, /id="rr-letter"/);
   assert.match(html, /href="retainage-explained\.html#state-table"/);
   assert.match(html, /not a legal notice/);
+});
+
+test("change order log rows render as labelled phone cards", () => {
+  const html = page("change-order-log.html");
+  assert.match(html, /<table class="stack compact" role="table">/);
+  const row = /\$\("#rows"\)\.innerHTML = [^\n]*/.exec(html)[0];
+  for (const label of ["Description", "Status", "Amount", "Days", "Billed", "Waiting"]) assert.match(row, new RegExp(`data-label="${label}"`), label);
 });

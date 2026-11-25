@@ -254,7 +254,8 @@ export function promptPayInterest({ amount, received, paid, days, rate, per = "m
   const r = toRate(rate);
   const rec = parseDate(received);
   const pd = parseDate(paid);
-  const n = Number(String(days ?? "").trim());
+  // A blank day count is an error, not 0: Number("") is 0, which moved the due date to the day the GC was paid (red team 2026-11-25).
+  const n = String(days ?? "").trim() === "" ? NaN : Number(String(days).trim());
   if (Number.isNaN(a) || a <= 0) errors.push("Enter the amount owed to you as a positive number.");
   if (Number.isNaN(rec)) errors.push("Enter the date the contractor was paid as YYYY-MM-DD.");
   if (Number.isNaN(pd)) errors.push("Enter the date you were paid (or today) as YYYY-MM-DD.");

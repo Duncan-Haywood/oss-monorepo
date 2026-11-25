@@ -43,6 +43,10 @@
     {
       "file": "CLAUDE.md",
       "issue": "risk_review.py fails with 'no merge base' on the default shallow clone; needed --base HEAD~1. CLAUDE.md says to run it but not that it needs a base on a shallow clone."
+    },
+    {
+      "file": "ventures/pay-app-guides/page.test.mjs",
+      "issue": "Two parallel PRs (#18793, #18812) each passed on their own and left main red together; the stack-table test assumes every guide's first table has static rows."
     }
   ],
   "deviations": [
@@ -63,7 +67,7 @@
     "docs/posts/2026-11-25-retainage-in-quickbooks-online.md (new section 'Then getting it released')"
   ],
   "goal": "$10k MRR: front-door SEO and lead capture for pay-app billing (bet #1)",
-  "notes": "Security queue: all listed alerts claimed. Ideas inbox and requests empty. Routed ventures/2. Pay-app-guides suite: node --test *.test.mjs 56 pass 0 fail. Playwright check at 390px: no overflow, no console errors, letter matches worked example (due 2026-07-31, 46 days late); checkbox layout bug found by screenshot and fixed. risk_review.py --base HEAD~1: nothing blocked; answers in PR body. venture-preflight pay-app-guides: clean (launched.json, counts, repo checks, 139 site tests, privacy tests, build + check.mjs).",
+  "notes": "Security queue: all listed alerts claimed. Ideas inbox and requests empty. Routed ventures/2. Pay-app-guides suite: node --test *.test.mjs 56 pass 0 fail. Playwright check at 390px: no overflow, no console errors, letter matches worked example (due 2026-07-31, 46 days late); checkbox layout bug found by screenshot and fixed. risk_review.py --base HEAD~1: nothing blocked; answers in PR body. venture-preflight pay-app-guides: clean (launched.json, counts, repo checks, 139 site tests, privacy tests, build + check.mjs). Merging main: main's pay-app-guides page.test.mjs was red (PR #18793 change-order-log.html table vs PR #18812 phone-table test, merged in parallel). Fixed forward here: the log's rendered rows are stacked phone cards with data-labels (screenshot checked at 390px), the static-table test exempts that script-filled page and a new test checks the rendered labels. Suite after merge: 70 pass, 0 fail.",
   "corrections": [],
   "redteam": null,
   "usage": {
