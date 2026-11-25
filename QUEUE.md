@@ -29,7 +29,7 @@ for a session. The owner dismisses each on its alert page.
 - [high] #968 `js/xss-through-dom` in `ventures/shed-designer/hoa-page.mjs:59`: alerts/968.md
 - [high] #969 `js/xss-through-dom` in `ventures/silence-cutter/index.html:258`: alerts/969.md
 - [high] #1049 `js/incomplete-url-substring-sanitization` in `platform/pages/check.mjs:1470`: alerts/1049.md
-- [high] #1050 `js/incomplete-url-substring-sanitization` in `platform/pages/custom-domain.test.mjs:151`: alerts/1050.md
+- [high] #1050 `js/incomplete-url-substring-sanitization` in `platform/pages/custom-domain.test.mjs:161`: alerts/1050.md
 - [high] #1086 `js/disabling-certificate-validation` in `ventures/status-keeper/certs.mjs:12`: alerts/1086.md
 - [high] #1181 `js/redos` in `ventures/regex-redos-check/cli.test.mjs:81`: alerts/1181.md
 - [high] #1182 `js/redos` in `ventures/regex-redos-check/engine.test.mjs:9`: alerts/1182.md
