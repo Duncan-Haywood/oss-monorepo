@@ -53,6 +53,8 @@ test("public site: types, caching, 404 page, SPA fallback, noindex, HEAD, no wri
   const lost = await get(app, "/nope", env());
   assert.equal(lost.status, 404);
   assert.equal(await lost.text(), "<h1>lost</h1>");
+  assert.equal((await get(app, "/", env({ ROBOTS: "noindex, nofollow, noarchive" }))).headers.get("x-robots-tag"), "noindex, nofollow, noarchive");
+  assert.equal((await get(app, "/", env())).headers.get("x-robots-tag"), null);
   const spa = await get(app, "/deep/route", env({ SPA: "index.html" }));
   assert.equal(spa.status, 200);
   assert.equal(await spa.text(), "<h1>home</h1>");
