@@ -3,7 +3,7 @@ title: "Getting iPhone HEIC photos into a pay application's PDF backup packet"
 seo_title: "iPhone HEIC photos in a PDF pay app backup packet"
 date: 2026-11-25
 tags: [ventures, construction, pay-applications, photos]
-description: "Why an iPhone's HEIC job photos fall out of a PDF backup packet, and how PayApps now converts HEIC and WebP to JPEG in the browser before upload."
+description: "Why an iPhone's HEIC job photos fall out of a PDF backup packet, how PayApps converts HEIC and WebP to JPEG in the browser, and how it shrinks large job photos while keeping the time they were taken."
 ---
 
 A subcontractor's monthly pay application often goes to the GC as one PDF:
@@ -61,5 +61,43 @@ On an iPhone, Settings > Camera > Formats > **Most Compatible** makes the
 camera save JPEG from then on. Photos already taken stay HEIC. Sharing them
 by mail, or choosing them in a web form that asks for JPEG, usually converts
 them.
+
+## Update: shrinking large photos, keeping when they were taken
+
+A phone's 12-megapixel JPEG is usually 2.5 to 5 MB. PayApps' free plan
+holds 250 MB of files, which is only about 60 photos at that size. Each one
+also takes seconds to upload over a weak signal on site, and a 48-megapixel
+shot can exceed the 15 MB file limit.
+
+So the upload form now shrinks large photos in the browser before sending
+them:
+
+- **What gets shrunk:** a JPEG over 1 MB is redrawn with its long side at
+  2560 pixels. That is still over 250 dpi across a letter page, more than a
+  printed packet needs. The smaller copy is sent only if it saves at least
+  a fifth of the size. HEIC and WebP photos that are being converted anyway
+  are drawn at the same size.
+- **What is left alone:** PNGs, because they are often screenshots or
+  drawings, where JPEG blurs the text.
+- **What the photo keeps:** the time it was taken. A browser's canvas
+  writes a JPEG with no metadata at all, and for a job photo, *when* is
+  often the point. So PayApps reads the original's EXIF capture time
+  (date, time and the camera's UTC offset) and writes it into the smaller
+  file.
+- **What the photo loses:** location and camera details, left out on
+  purpose, so the packet you send a GC carries no GPS data. When the
+  location matters as evidence, untick the box (below) and send the
+  original.
+- **Turning it off:** a checkbox, "Make large photos smaller before upload",
+  is on by default and remembered in that browser. Untick it when a photo
+  has to go up at full size.
+
+How it was checked: in Chromium, a 4032 × 3024 test JPEG of 7 MB came out
+upright at 1920 × 2560 and 1.8 MB. It was written by Pillow, a separate
+image library, with the phone's "rotate 90°" orientation tag. The test
+image is noise, which compresses worst, so real photos come out smaller.
+Pillow then read the date, time and offset back from the smaller file and
+found no GPS, camera model or orientation tag. As with HEIC, this has not
+yet been tried on a real phone.
 
 This post was written with AI assistance.
