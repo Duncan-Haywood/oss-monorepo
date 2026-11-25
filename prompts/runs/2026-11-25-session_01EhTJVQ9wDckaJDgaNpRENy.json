@@ -28,7 +28,7 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "failed",
+  "outcome": "partial",
   "errors": [
     "Misread `security_next.py --claim` exit 3 ('None to take') as my own claim being counted; it meant another session had claimed #1248 first. That session's PR #18928 landed the same fix while this PR waited on CI, so this PR's code change was dropped at merge and only this record lands."
   ],
@@ -36,13 +36,13 @@
   "doc_friction": [
     {
       "file": "platform/ci/security_next.py",
-      "issue": "When --claim loses the race it prints the generic 'None to take: go to step 1' rather than 'claim rejected: alert #N already claimed by another run', which is easy to misread as success."
+      "issue": "When --claim found nothing workable because another run had just claimed the alert an earlier read listed, it printed only the generic 'None to take', which I misread as my own claim being counted. Fixed in this PR: --claim now says 'Nothing claimed by this run ... do not start on it'."
     }
   ],
   "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "Duplicate of PR #18928 (same alert #1248). Took main's rfq.mjs/rfq.test.mjs at merge; node --test rfq.test.mjs passes on main's version. Lesson: if --claim exits non-zero, don't fix the alert.",
+  "notes": "Duplicate of PR #18928 (same alert #1248): took main's rfq.mjs/rfq.test.mjs at merge (node --test rfq.test.mjs 14/14 on main's version). Shipped instead: security_next.py --claim lost-race message + 2 tests (python3 -m unittest test_security_next: 13 OK).",
   "corrections": [],
   "redteam": null,
   "usage": {
