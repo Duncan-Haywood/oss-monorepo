@@ -12,7 +12,7 @@
 // statutory wording or the oath, which the page links.
 //
 // Pure functions, no I/O. Money is integer cents.
-import { fmt } from "./calc.mjs";
+import { fmt, csvCell } from "./calc.mjs";
 import { parseCsv, parseMoney } from "./colog.mjs";
 
 // The worked example on sworn-statement.html: a $480,000 electrical subcontract.
@@ -147,7 +147,7 @@ export function swornStatement(lines, settings = {}) {
   return { errors, findings, rows, totals, waivers };
 }
 
-const csvCell = (s) => (/[",\n]/.test(String(s)) ? `"${String(s).replace(/"/g, '""')}"` : String(s));
+// csvCell (calc.mjs) quotes commas and is the CSV formula-injection guard: a cell starting =, +, -, @ is prefixed with an apostrophe.
 const money = (c) => (c / 100).toFixed(2);
 
 export function toCsv(result) {

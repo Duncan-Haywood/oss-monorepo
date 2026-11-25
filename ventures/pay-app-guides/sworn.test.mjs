@@ -134,3 +134,9 @@ test("a firm whose name merely starts with 'Self' is not read as your own forces
   assert.match(r.findings.map((f) => f.text).join(" "), /Selfridge Plumbing: no address/);
   assert.equal(r.waivers.length, 1);
 });
+
+test("CSV defuses a name a spreadsheet would run as a formula, and keeps negative numbers", () => {
+  const csv = toCsv(swornStatement([{ name: "=HYPERLINK(\"x\")", address: "x", contract: "100", changes: "-10" }]));
+  assert.match(csv.split("\n")[1], /^"'=HYPERLINK\(""x""\)"/);
+  assert.match(csv.split("\n")[1], /,-10\.00,/);
+});
