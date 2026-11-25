@@ -8,7 +8,8 @@
 // no more than 50% of the area is in the upper part of the attic (a ridge vent),
 // the rest low in the eaves. The ratio is set by `ratio` (150 or 300); which
 // one applies to a house is the builder's and the inspector's call, not this
-// file's. Net free area (NFA) per foot of ridge vent and per soffit vent unit
+// file's, but a short ridge that leaves less than 40% high at 1/300 gets a note.
+// Net free area (NFA) per foot of ridge vent and per soffit vent unit
 // is read off the product's label, so both are typed; the defaults below are
 // placeholders in the usual range, not any maker's figure.
 //
@@ -73,6 +74,10 @@ export function layoutVentilation(v, roof) {
     ridgeFeetNeeded = ridgeVentFeet;
   }
   const ridgeSqIn = ridgeFeetNeeded * ridgeNfa;
+  // The share the ridge really supplies, which a short ridge leaves below the share asked of it.
+  const upperShareAsked = upperShare;
+  upperShare = requiredSqIn > 0 ? ridgeSqIn / requiredSqIn : 0;
+  if (ratio === 300 && useRidge && upperShare < 0.4 - 1e-9) notes.push(`At 1/300 the ridge supplies only ${(100 * upperShare).toFixed(0)}% of the area, below the 40% the balanced option needs: 1/300 then holds only with a Class I or II vapor retarder on the warm side of the ceiling; otherwise size at 1/150.`);
   const ridgePiece = v.ridgePiece ?? 48;
   const ridgePieces = useRidge ? Math.ceil((ridgeFeetNeeded * 12) / ridgePiece - 1e-9) : 0;
   // Ridge vent nails, opt-in: a spacing in inches on centre you type from the vent maker's instructions (never assumed), down both flanges, rounded up per flange; boxes only when a box size is typed.
@@ -95,7 +100,7 @@ export function layoutVentilation(v, roof) {
   const priced = v.ridgePrice != null || v.soffitPrice != null;
   notes.push("Ratio, upper share, label NFA and unit sizes are your inputs; the 1/150 or 1/300 choice is for you and the inspector. Gable and box vents, power vents and cathedral or spray-foam assemblies are not counted.");
   return {
-    ok: true, shape: hip ? "hip" : "gable", ratio, atticSqFt, requiredSqIn, upperShare,
+    ok: true, shape: hip ? "hip" : "gable", ratio, atticSqFt, requiredSqIn, upperShare, upperShareAsked,
     ridgeVentFeet, ridgeFeetUsed: ridgeFeetNeeded, ridgeNfaPerFt: ridgeNfa, ridgeSqIn, ridgePieces, ridgePiece, ridgeNails, ridgeNailBoxes,
     lowerSqIn, soffitUnits, soffitUnitNfa: unitNfa, soffitUnitWidth: unitWidth, maxSoffitUnits: maxUnits, soffitFits: fits,
     providedSqIn: ridgeSqIn + soffitUnits * unitNfa, baffles,
