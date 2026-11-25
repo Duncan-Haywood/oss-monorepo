@@ -428,9 +428,7 @@ flagships:
       eval/phaseone-iiq-calibration-newer-backs-*); Sony's vignetting table vs an
       evenly lit frame (its JPEG lifts none: eval/sony-vignetting-preview-*);
       Near-clean leak closed on Bayer 2026-11-19 (k 12,
-      eval/near-clean-gate-2026-11-19.md); X-Trans tuned on 51 fresh bodies the same
-      day: no loser to fix, stays off; Bayer's 15 there were a noisy ISO 1600
-      reference; X-Trans mpcws read: own ramp failed, Bayer ramp 3 of 4
+      eval/near-clean-gate-2026-11-19.md); X-Trans mpcws read: own ramp failed, Bayer ramp 3 of 4
       (eval/xtrans-drawn-mpcws-*; next blind 6-body set, raw.pixls.us); D780/D600
       over-reads (HISTORY.md): next a read kept off grain floors. Browser cull page
       2026-11-23 (site/cull.html; 520-file card 25.8 s; merges existing sidecars,
@@ -441,9 +439,10 @@ flagships:
       developed in-page 2026-11-24, eval/cull-orf-compacts-*); keyword trees, codes,
       C captions, a loaded Lightroom/Photo Mechanic keyword list resolving names and
       synonyms to paths 2026-11-24 (ExifTool, eval/cull-keyword-list-*; next
-      Lightroom's own import, needs Lightroom; K autocomplete from the list). Nikon
-      AF points, half faces at the edge 2026-11-24 (eval/cull-nikon-af-*,
-      eval/cull-edge-mirror-*). More open items: NEXT.md.
+      Lightroom's own import, needs Lightroom; K autocomplete from the list). Client
+      proofing set 2026-11-25 (zip + offline gallery, hearts pasted back as labels,
+      eval/cull-proofing-set-*); paid next, most valuable: that gallery hosted
+      behind a share link (models.yaml row). More open items: NEXT.md.
   - venture: quick-pick-survey
     demoted: >-
       2026-11-24: no bet; not among the candidates bets.md scored as SMB paid
