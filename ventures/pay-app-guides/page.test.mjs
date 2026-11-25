@@ -23,7 +23,7 @@ test("every page carries the no-warranty clause, sponsor link, opt-out and hones
 });
 
 test("no page sends anything anywhere or loads remote scripts", () => {
-  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "billing.mjs", "check.mjs", "usage.mjs"]) {
+  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "billing.mjs", "check.mjs", "waivers.mjs", "usage.mjs"]) {
     const src = page(name);
     assert.doesNotMatch(src, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/, name);
     assert.doesNotMatch(src, /<script[^>]+src=["']https?:/, name);
@@ -77,7 +77,7 @@ test("robots and sitemap list every page", () => {
 // show bare values on a phone, so every cell must carry its own column's header, in order.
 test("guide tables stack on a phone, every cell labelled with its column header", () => {
   // change-order-log.html fills its rows from script; its own test below checks the labels.
-  const guides = PAGES.filter((name) => name !== "index.html" && name !== "change-order-log.html");
+  const guides = PAGES.filter((name) => name !== "index.html" && name !== "change-order-log.html" && name !== "lien-waiver-log.html");
   for (const name of guides) {
     const html = page(name);
     const at = html.indexOf("<main>");
@@ -183,6 +183,17 @@ test("overbilling page: inputs labelled, entry and summary present, links the WI
   assert.match(html, /href="https:\/\/marisstella\.app\/contractor-wip-schedule\/"/);
   assert.match(html, /href="change-order-log\.html"/);
   assert.match(page("index.html"), /href="overbilling-underbilling\.html"/);
+});
+
+test("lien waiver log: inputs labelled, phone labels match headers, linked from the waiver guide and the calculator", () => {
+  const html = page("lien-waiver-log.html");
+  for (const id of ["project", "asof", "chase", "next", "log", "file"]) assert.match(html, new RegExp(`<label for="${id}">`), id);
+  const table = html.slice(html.indexOf("<table"), html.indexOf("</table>"));
+  const heads = [...table.matchAll(/<th role="columnheader" scope="col"[^>]*>([^<]*)<\/th>/g)].map((m) => m[1].trim());
+  const row = /\$\("#rows"\)\.innerHTML = [^\n]*/.exec(html)[0];
+  assert.deepEqual([...row.matchAll(/<td data-label="([^"]*)"/g)].map((m) => m[1]), heads);
+  for (const name of ["index.html", "conditional-vs-unconditional-lien-waivers.html"]) assert.match(page(name), /href="lien-waiver-log\.html"/, name);
+  assert.match(html, /does not decide|Not decided here/);
 });
 
 // nav.mjs: every page carries the same grouped list of every page, so no page is an orphan.

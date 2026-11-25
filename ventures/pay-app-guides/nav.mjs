@@ -29,6 +29,7 @@ export const GROUPS = [
     ["prompt-payment-laws.html", "Prompt payment laws by state"],
     ["conditional-vs-unconditional-lien-waivers.html", "Conditional vs unconditional lien waivers"],
     ["lien-waiver-forms-by-state.html", "Lien waiver forms by state"],
+    ["lien-waiver-log.html", "Lien waiver log (given and collected)"],
   ]],
 ];
 

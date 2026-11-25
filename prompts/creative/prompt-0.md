@@ -43,10 +43,10 @@ build with nothing to edit. A new shelf or fiction venture needs a line in
 
 ## Pick one piece of work
 
-Spread the runs: look at what landed on `main` most recently
-(`git log --oneline -15 -- ventures/hearth-and-horizon ventures/saints-by-candlelight docs/podcast`)
-and pick the project that has gone longest without a new piece, unless
-something below is more urgent. Then search open PRs (`search_pull_requests`,
+Spread the runs: `python3 platform/ci/creative_due.py` names the shelf due
+for a piece (read from front matter, since `git log` on a shallow clone holds
+only a few commits) and whether new audio fits the cap; take its `due:` shelf
+unless something below is more urgent. Then search open PRs (`search_pull_requests`,
 `hearth-and-horizon in:title` or `saints-by-candlelight in:title`) so you do
 not write the story or episode another session is already writing.
 
