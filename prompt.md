@@ -20,6 +20,8 @@ starting message names a task, read the security queue first:
 - It lists alerts: take the top one with no `security-fix/code-scanning-<n>` branch
   (`git ls-remote`); its `alerts/<n>.md` says how. This comes before ideas, website
   requests and routing, every run, until the queue is empty.
+  The queue mirrors the last *completed* analysis of `main`, about an hour behind merges:
+  QUEUE.md names the scanned commit, so check `git log <sha>..origin/main` for a bulk fix first.
 - It says `Unavailable:`: the alerts cannot be read (usually CodeQL has no analysis on
   `main`). Check the last `CodeQL` and `Security alert queue` runs on `main`, fix what
   is broken if it is outside the control plane, and otherwise note it in the run record's
