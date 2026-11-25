@@ -162,11 +162,14 @@ flagships:
       and their assessment objectives from NIST's public text, with a per-control
       status, evidence notes and the DoD assessment methodology's SPRS score
       (weights from the published method; unit tests on the scoring); (2) a System
-      Security Plan and POA&M generated from those answers as documents; (3) the 15
-      Level 1 requirements as a free self-assessment page in this repository (the
-      front door); (4) ISO 9001 / AS9100 clause checklist sharing the evidence
-      store. Never claim certification or C3PAO status, and tell users not to upload
-      CUI. A run that lands a slice replaces its item here.
+      Security Plan and POA&M generated from those answers as documents; (3) landed
+      2026-11-25: the free Level 1 self-assessment page,
+      ventures/machine-shop-guides/cmmc-level-1-self-assessment.html (FAR text
+      verified verbatim; judged by its 59 NIST SP 800-171A objectives with met/not
+      met/N/A, mapping read from eCFR; the app should import l1-data.mjs rather than
+      retype it); (4) ISO 9001 / AS9100 clause checklist sharing the evidence store.
+      Never claim certification or C3PAO status, and tell users not to upload CUI. A
+      run that lands a slice replaces its item here.
   # Bet 5 in portfolio/monetization/bets.md (2026-11-24 ranking).
   - venture: seller-books
     bet: 5
