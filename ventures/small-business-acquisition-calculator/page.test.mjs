@@ -11,7 +11,7 @@ test("index page carries the disclaimer, privacy line and sponsor link", () => {
   assert.match(html, /Everything runs in your browser/);
   assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
   assert.match(html, /<script type="application\/ld\+json">/);
-  assert.match(html, /Not affiliated with any court, housing agency or government body/);
+  assert.match(html, /Not affiliated with the SBA, any lender or any government body/);
 });
 
 test("inputs have labels and nothing can send the numbers anywhere", () => {
@@ -31,7 +31,7 @@ test("the module scripts import only local files", () => {
 test("page states the model, review date and what it does not decide", () => {
   const html = page("index.html");
   assert.match(html, /Not decided/);
-  assert.match(html, /2026-10-06/);
+  assert.match(html, /2026-11-25/);
   assert.match(html, /DSCR/);
 });
 

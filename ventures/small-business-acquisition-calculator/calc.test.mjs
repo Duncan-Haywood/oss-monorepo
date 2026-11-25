@@ -53,12 +53,56 @@ test("a deal above the floor reports clears, a deal under 1.0 reports fails", ()
   assert.equal(evaluate({ ...sampleInputs(), price: 2500000 }).verdict, "fails");
 });
 
-test("standby seller note drops out of DSCR but not out of cash flow", () => {
+// Quality audit 2026-11-19: full standby means no P&I for the whole SBA term (SOP 50 10 8), so the note's payments
+// must leave year-one cash as well as the DSCR. Sample: $71,716 shown before, $99,555 is right.
+test("standby seller note drops out of DSCR and out of year-one cash", () => {
   const raw = sampleInputs();
   const a = evaluate(raw), b = evaluate({ ...raw, standby: true });
   assert.ok(b.dscr > a.dscr);
   near(b.dscr, b.cfads / b.bankDS, 1e-9);
-  near(b.afterDebt, a.afterDebt, 0.001);
+  near(a.surplus, 71715.65, 0.05);
+  near(b.surplus, 99555.35, 0.5);
+  near(b.afterDebt - a.afterDebt, a.sellerDS, 0.001);
+  near(b.sensitivity[0].cashAfter, b.surplus, 0.01);
+  near(b.cashOnCash, b.surplus / b.cashTotal, 1e-9);
+  near(b.yearOneDS, b.bankDS, 1e-9);
+});
+
+test("after standby the note's payment is on the balance accrued over the bank term", () => {
+  const b = evaluate({ ...sampleInputs(), standby: true });
+  // By hand: 120,000 x 1.005^120 = 218,327.2; 5-year 6% level payment = 4,220.88/month = 50,650.6/year.
+  const accrued = 120000 * Math.pow(1.005, 120);
+  near(accrued, 218327.2, 0.5);
+  const monthly = (accrued * 0.005) / (1 - Math.pow(1.005, -60));
+  near(monthly * 12, 50650.6, 1);
+  near(b.sellerDSAfterStandby, monthly * 12, 0.01);
+  assert.equal(evaluate(sampleInputs()).sellerDSAfterStandby, 0);
+  assert.match(b.notes.join(" "), /costs about \$50,651 a year/);
+});
+
+test("SBA equity check: 10% of project cost, a standby note supplies at most half", () => {
+  const sample = evaluate(sampleInputs());
+  near(sample.projectCost, 1298000, 0.001);
+  near(sample.equityRequired, 129800, 0.001);
+  assert.equal(sample.equityShort, 0);
+  // 5% cash + 10% seller note on a $1.2M price with no closing costs or working capital: needs $120,000.
+  const base = { ...sampleInputs(), downPct: 5, closingPct: 0, workingCap: 0 };
+  const onStandby = evaluate({ ...base, standby: true });
+  near(onStandby.equityCounted, 60000 + 60000, 0.001); // the note counts only up to half of 120,000
+  assert.equal(onStandby.equityShort, 0);
+  assert.doesNotMatch(onStandby.notes.join(" "), /Equity injection is short/);
+  const notStandby = evaluate(base);
+  near(notStandby.equityShort, 60000, 0.001);
+  assert.match(notStandby.notes.join(" "), /Equity injection is short by about \$60,000/);
+  // 3% cash + 10% standby note: the note's credit is capped at 60,000, so 24,000 short.
+  near(evaluate({ ...base, downPct: 3, standby: true }).equityShort, 120000 - 36000 - 60000, 0.001);
+});
+
+test("notes flag a DSCR floor under the SBA 1.25 minimum and a bank loan over the 7(a) maximum", () => {
+  assert.match(evaluate({ ...sampleInputs(), targetDscr: 1.15 }).notes.join(" "), /sets 1.25 as the minimum/);
+  assert.doesNotMatch(evaluate(sampleInputs()).notes.join(" "), /sets 1.25 as the minimum/);
+  assert.match(evaluate({ ...sampleInputs(), price: 7000000, sde: 2500000 }).notes.join(" "), /maximum loan is \$5,000,000/);
+  assert.doesNotMatch(evaluate(sampleInputs()).notes.join(" "), /maximum loan/);
 });
 
 test("all-cash structure has no debt and an infinite DSCR", () => {
@@ -82,9 +126,9 @@ test("sensitivity rows fall as SDE falls", () => {
 });
 
 test("notes flag a thin down payment, a high multiple and a salary the business cannot cover", () => {
-  const r = evaluate({ ...sampleInputs(), downPct: 5, price: 2000000 });
+  const r = evaluate({ ...sampleInputs(), downPct: 5, price: 2000000, closingPct: 0, workingCap: 0 });
   const text = r.notes.join(" ");
-  assert.match(text, /under 10%/);
+  assert.match(text, /Equity injection is short/);
   assert.match(text, /more than 4x SDE/);
   assert.match(text, /below your 1.25 floor/);
   assert.match(evaluate({ ...sampleInputs(), sde: 100000 }).notes.join(" "), /does not cover your salary/);

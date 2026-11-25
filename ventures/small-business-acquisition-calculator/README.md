@@ -6,8 +6,25 @@ Free, private browser tool for people buying a small business: enter the asking 
 
 Open `index.html`. Tests: `node --test 'ventures/small-business-acquisition-calculator/**/*.test.mjs'`.
 
+## SBA rules it applies (reviewed 2026-11-25)
+
+- **Full-standby seller note:** no principal or interest while the bank/SBA loan runs (SOP 50 10 8 and 8.1), so its
+  payments are left out of the DSCR *and* out of year-one cash; the page shows the yearly payment once the bank loan is
+  paid, assuming interest accrues at the note rate meanwhile.
+- **Equity injection:** at least 10% of total project cost (price, closing costs, working capital) for a change of
+  ownership; a full-standby note may supply up to half.
+- **Warnings:** a DSCR floor under 1.25 (the SOP 50 10 8.1 minimum for an initial acquisition or owner buyout), and a
+  bank loan over the $5,000,000 7(a) maximum.
+
+The SOP text itself was not reachable from the session that made these changes; they follow secondary summaries by
+lenders and law firms, and the page tells users to confirm with a lender.
+
 ## Known gaps (quality audit 2026-11-19)
 
-The [audit](../../portfolio/quality/audits/2026-11-19-small-business-acquisition-calculator.json) reproduced the loan maths but found it departs from SBA SOP 50 10 8.1 in three places a lender would catch: a seller note on full standby still has its payments taken out of year-one cash (SBA allows none during the loan term); the upfront SBA guaranty fee is not modelled (3.5% of the guaranteed share on the sample loan, about $25,200, usually financed); and the equity check uses 10% of price rather than of total project cost and ignores that a standby note may supply half. Fixed in the audit's PR: inputs such as `90k` are now rejected instead of read as 90, and tests pin the sensitivity table and cash-on-cash figures.
+The [audit](../../portfolio/quality/audits/2026-11-19-small-business-acquisition-calculator.json) found three
+departures from SBA practice. Two are fixed (the standby treatment and the equity check, above). Still open: the
+upfront SBA guaranty fee is not modelled (a percentage of the guaranteed share, usually financed, which raises the loan
+and its debt service); users type it into closing costs, which counts it as cash. The SOP 50 10 8.1 quality-of-earnings
+requirement for larger deals is not flagged either.
 
 Not financial advice. Does not value the business or know any lender's rules. See `VENTURE.yaml`.

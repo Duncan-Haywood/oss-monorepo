@@ -4,6 +4,14 @@
 
 Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
+## What it checks
+
+- DSCR = (SDE - your salary - capex reserve) / a year of loan payments, against your floor; warns under 1.25, the SBA 7(a) minimum for buying a business (SOP 50 10 8.1).
+- A seller note on full standby pays nothing while the bank loan runs: out of the DSCR and out of year-one cash, with its later payment shown.
+- SBA equity injection: 10% of total project cost, a standby seller note supplying at most half.
+- Cash needed at close, take-home after debt and salary, maximum price at your floor, and a table for SDE 10-30% lower.
+- Not modelled: the SBA guaranty fee, the quality-of-earnings rule, collateral, taxes. Confirm SBA rules with a lender.
+
 ## Pages
 
 - [The tool](https://duncan-haywood.github.io/oss-monorepo/small-business-acquisition-calculator/)
