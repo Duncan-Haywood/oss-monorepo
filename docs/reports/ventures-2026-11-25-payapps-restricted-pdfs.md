@@ -4,7 +4,7 @@ date: 2026-11-25
 ---
 # PayApps (bet #1): restricted PDFs go into backup packets and the PDF SOV import
 
-2026-11-25, ventures run. Private PR: Duncan-Haywood/private-monorepo#121.
+2026-11-25, ventures run. Private PR: Duncan-Haywood/private-monorepo#121 (merged).
 
 **What landed.** Two roadmap items at once ("Backup packets, part 2" and "SOV import from a PDF,
 part 2": PDFs encrypted with an empty user password). Bank statements, insurance certificates,
@@ -47,7 +47,7 @@ files pixel for pixel.
 Private Actions gave the CI job no runner (it finished in 3 s with no logs). So every step of
 `payapps-ci.yml` that this change reaches was run locally after merging main: `biome ci` (one
 existing warning in billing), `pnpm typecheck`, unit tests (432 passed), worker tests (250 passed
-before the merge, and again after it), `pnpm build` and `scripts/provision.test.mjs`. There is no
+before the merge, 257 after it), `pnpm build` and `scripts/provision.test.mjs`. There is no
 schema change.
 
 **Overlap.** PRs 119 (G702 summary tab) and 120 (QuickBooks item per line) merged while this ran.
