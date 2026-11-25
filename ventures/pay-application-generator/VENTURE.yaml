@@ -29,6 +29,10 @@ owner: duncan
 # sub who can roll one job by hand meets the real pain the hosted suite removes: many jobs, saved per job, retainage to
 # release, waivers and change orders. Saved jobs, an owner-ready PDF and waivers stay in the paid suite.
 #
+# 2026-11-25: an .xlsx export with live formulas and a blank template shipped free (workbook.mjs), aimed at the top
+# search phrase above ("g702 g703 template excel"). A spreadsheet is what subs already use; the paid line stays saved
+# jobs across many projects, the owner-ready PDF, retainage release and waivers.
+#
 # Liability: arithmetic on the user's own figures, with the contract's terms entered by the user; carries the
 # no-warranty and not-advice clauses, does not reproduce or imitate the AIA form, says it is not affiliated, and lists
 # state retainage limits, prompt-payment and lien rules as not decided.

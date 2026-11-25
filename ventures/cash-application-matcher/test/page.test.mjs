@@ -22,7 +22,7 @@ test('every element app.mjs reaches for by id exists on the page', () => {
 
 test('the visible FAQ and the FAQPage schema ask the same questions', () => {
   const schema = JSON.parse(html.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema.org","@type":"FAQPage".*?)<\/script>/)[1]);
-  for (const q of schema.mainEntity) assert.ok(html.includes(`<h3>${q.name.replace(/'/g, "'")}</h3>`), q.name);
+  for (const q of schema.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
 });
 
 test('footer links its sibling, the payment reconciliation workbench', () => {

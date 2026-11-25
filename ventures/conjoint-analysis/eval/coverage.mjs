@@ -58,7 +58,7 @@ const mean = (a) => a.reduce((t, x) => t + x, 0) / a.length;
   out.push(`Part 2: utilities vary by respondent (meal-kit settings: SD ${TRUE_SD["Price per serving"]} on price, ${TRUE_SD.other} on levels, ${TRUE_SD.None} on none), 300 respondents x 12 tasks, ${n2} studies`);
   out.push("coefficient,true_mean,mean_estimate,sd_of_estimates,mean_model_se,mean_cluster_robust_se");
   for (const n of names) {
-    const k = n.replace(" (per unit)", "").replace(" (no-choice constant)", "").replace("None", "None");
+    const k = n.replace(" (per unit)", "").replace(" (no-choice constant)", "");
     out.push(`${n},${(TRUE_MEAN[k] ?? 0).toFixed(3)},${mean(est[n]).toFixed(3)},${sd(est[n]).toFixed(4)},${mean(seM[n]).toFixed(4)},${mean(seR[n]).toFixed(4)}`);
   }
   const big = names.filter((n) => !n.startsWith("None") && Math.abs(TRUE_MEAN[n.replace(" (per unit)", "")]) >= 0.25);

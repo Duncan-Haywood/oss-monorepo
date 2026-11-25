@@ -140,6 +140,11 @@ def build(work):
         return float(v) if v == v and v >= 0 else np.nan
 
     audit = dict(spouse_educ_pre_roster=0, cohab_unknown=0, educ_unknown=0)
+
+    def tally(key, n):
+        """Add n rows (a count or a bool) to an aggregate audit counter."""
+        audit[key] = audit.get(key, 0) + n
+
     recs = []
     for k, r in enumerate(m.itertuples(index=False)):
         i, w = ix[k], int(r.wedding_cm)
@@ -162,7 +167,7 @@ def build(work):
             # no date is Unknown rather than Less than high school.
             hg = HGC[i, r0] if r0 is not None else np.nan
             own = 'Unknown' if (hg == hg and 12 < hg < 95) else 'Less than high school'
-        audit['educ_unknown'] += own == 'Unknown'
+        tally('educ_unknown', own == 'Unknown')
 
         # Cohabitation before the wedding (dated monthly arrays).
         if r.cohab_months_before > 0:
@@ -171,7 +176,7 @@ def build(work):
             cohab = 'No'
         else:
             cohab = 'Unknown'
-        audit['cohab_unknown'] += cohab == 'Unknown'
+        tally('cohab_unknown', cohab == 'Unknown')
 
         # Spouse education: pre-wedding roster only, partner co-resident at that interview.
         sp_educ = 'Unknown'
@@ -188,7 +193,7 @@ def build(work):
                     if val(i, f'HHI_UID.{h:02d}@{y}') == uid:
                         sp_educ = hgc_educ(val(i, f'HHI_HIGHGRADE.{h:02d}@{y}'))
                         break
-        audit['spouse_educ_pre_roster'] += sp_educ != 'Unknown'
+        tally('spouse_educ_pre_roster', sp_educ != 'Unknown')
 
         # Spouse race-ethnicity (fixed): roster of the first post-wedding interview with a
         # husband/wife listed (the lens's choice), else the partner section.
@@ -251,7 +256,7 @@ def build(work):
                 yn = {1.0: 'Yes', 0.0: 'No'}
                 sp_pm = yn.get(r.spouse_prior_marriage, 'Unknown')
                 sp_pc = yn.get(r.spouse_prior_children, 'Unknown')
-        audit['spouse_prior_pre_listing'] = audit.get('spouse_prior_pre_listing', 0) + (sp_pm != 'Unknown')
+        tally('spouse_prior_pre_listing', sp_pm != 'Unknown')
         sp_side = dict(age=sp_age, educ=sp_educ, prior_marriage=sp_pm, prior_children=sp_pc, race=sp_race)
         wife, husb = (own_side, sp_side) if sex == 'Woman' else (sp_side, own_side)
         recs.append(dict(dataset='nlsy97', id=f'nlsy97:{int(r.id)}', weight=r.weight97, duration_years=r.years,

@@ -138,8 +138,8 @@ function runFile(path, seed, pdf) {
 }
 
 function pdfPages(file) {
-  const js = `const { chromium } = require('playwright'); (async () => { const b = await chromium.launch(); const p = await b.newPage(); await p.goto('file://' + ${JSON.stringify(file)}); const buf = await p.pdf({ format: 'Letter' }); console.log((buf.toString('latin1').match(/\\/Type\\s*\\/Page[^s]/g) || []).length); await b.close(); })();`;
-  try { return +execFileSync("node", ["-e", js], { encoding: "utf8", cwd: "/tmp" }).trim(); } catch { return null; }
+  const js = `const { chromium } = require('playwright'); (async () => { const b = await chromium.launch(); const p = await b.newPage(); await p.goto('file://' + process.argv[1]); const buf = await p.pdf({ format: 'Letter' }); console.log((buf.toString('latin1').match(/\\/Type\\s*\\/Page[^s]/g) || []).length); await b.close(); })();`;
+  try { return +execFileSync("node", ["-e", js, file], { encoding: "utf8", cwd: "/tmp" }).trim(); } catch { return null; }
 }
 
 const all = [];

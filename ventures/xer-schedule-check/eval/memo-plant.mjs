@@ -36,7 +36,7 @@ export function plantEntry(r) {
     else html.push(`<P>${inl(lines[0])}</P>`);
   });
   let memo;
-  if (form === "plain") memo = want.join("\x7f\x7f").replace(/^- /gm, "- ");
+  if (form === "plain") memo = want.join("\x7f\x7f");
   else if (form === "desktop") memo = `<HTML>\x7f\x7f<HEAD>\x7f\x7f<META NAME="GENERATOR" Content="Microsoft DHTML Editing Control">\x7f\x7f<TITLE></TITLE>\x7f\x7f</HEAD>\x7f\x7f<BODY bgColor=#ffffff>\x7f\x7f${html.join("\x7f\x7f")}\x7f\x7f</BODY>\x7f\x7f</HTML>`;
   else memo = `<HTML><BODY>${html.join("")}</BODY></HTML>`;
   if (form === "plain") memo = memo.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\t/g, " ");

@@ -51,7 +51,7 @@ test("every input has a label and nothing is sent anywhere", () => {
 
 test("the module scripts import only local files, and the inline script parses", () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./checkout.mjs", "./licence.mjs", "./staffpack.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./licence.mjs", "./staffpack.mjs", "./usage.mjs"]);
   // the importers load when a file is chosen (import("./x.mjs") through onDemand), local files only
   assert.deepEqual([...new Set([...html.matchAll(/import\("([^"]+)"\)/g)].map((m) => m[1]))].sort(), ["./import-7shifts.mjs", "./import-deputy-staff.mjs", "./import-deputy.mjs", "./import-shifts.mjs", "./import-square.mjs", "./import-staff.mjs", "./import-wheniwork.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);

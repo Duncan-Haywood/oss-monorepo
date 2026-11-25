@@ -301,9 +301,22 @@
   }
 
   $('#check-image').addEventListener('click', () => {
-    const url = els.imageUrl.value.trim();
-    if (!url) {
+    const input = els.imageUrl.value.trim();
+    if (!input) {
       els.imageStatus.innerHTML = '<span class="error">Paste an image URL first.</span>';
+      return;
+    }
+    // Only web and in-page image URLs are loaded; anything else (javascript:,
+    // vbscript:, ...) is refused before it reaches an element's src.
+    let url = null;
+    try {
+      const parsed = new URL(input, location.href);
+      if (['http:', 'https:', 'data:', 'blob:'].includes(parsed.protocol)) url = parsed.href;
+    } catch {
+      url = null;
+    }
+    if (url === null) {
+      els.imageStatus.innerHTML = '<span class="error">Could not load that URL as an image.</span>';
       return;
     }
     els.imageStatus.textContent = 'Loading…';
@@ -355,8 +368,7 @@
   URL you name and its preview image -- never through this site. The page you're reading now only parses
   JSON you paste into it, and loads an image URL you paste into it, locally; nothing is uploaded anywhere
   this tool controls. The only thing stored is an anonymous local count of which features were used and the
-  day -- no target URLs, no page content, no image URLs, no account, no tracking cookies, no analytics
-  vendor. Turn it off with the checkbox above.</p>
+  day -- no target URLs, no page content, no image URLs, no account, no tracking cookies. Turn it off with the checkbox above.</p>
   <p>Free to use and source available. The <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a>
   — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and
   never changes what the tool does.</p>

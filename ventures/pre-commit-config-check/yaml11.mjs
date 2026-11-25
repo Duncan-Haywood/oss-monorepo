@@ -102,7 +102,7 @@ function pyFloat(src) {
   } else v = Number(s);
   // Python prints floats with at least one decimal place.
   const out = String(v);
-  return /[.e]|inf|nan/i.test(out) ? out.replace("e+", "e+") : out + ".0";
+  return /[.e]|inf|nan/i.test(out) ? out : out + ".0";
 }
 
 // ------------------------------------------------------------------ lexing

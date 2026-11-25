@@ -19,8 +19,8 @@ const html = readFileSync(new URL('./vs-skimmer.html', import.meta.url), 'utf8')
 /** Text as a visitor sees it, with entities decoded for the few used here. */
 function visibleText(source) {
   return source
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ' ')
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style\b[^>]*>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&mdash;/g, '—')
     .replace(/&larr;/g, '←')

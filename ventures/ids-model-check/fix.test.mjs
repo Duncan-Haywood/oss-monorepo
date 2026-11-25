@@ -43,7 +43,7 @@ test("the schema URL as namespace, no namespace, and an undeclared xs: prefix", 
   const body = SPEC(`ifcVersion="IFC4"`, `      <applicability><entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCWALL"/></xs:restriction></name></entity></applicability>`);
   for (const attrs of [`xmlns="${NS}/1.0/ids.xsd"`, ``]) {
     const r = fixStructure(wrap(body, attrs));
-    assert.match(r.text, new RegExp(`<ids xmlns:xs="http://www.w3.org/2001/XMLSchema"|xmlns="${NS}"`));
+    assert.ok(r.text.includes(`<ids xmlns:xs="http://www.w3.org/2001/XMLSchema"`) || r.text.includes(`xmlns="${NS}"`), r.text);
     assert.deepEqual(r.remaining, [], attrs);
     assert.deepEqual(parseIds(r.text).specs, parseIds(wrap(body)).specs);
   }

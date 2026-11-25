@@ -121,10 +121,9 @@ test('parseArgs separates hostnames from --json and --timeout <ms>', () => {
 /** Runs main() with argv, a fake global fetch (DoH answers from `cnames`,
  * every probe answers `probeText`), and process.exit/console captured. */
 async function runMain(args, { cnames = {}, probeText = '', dohStatus = 0 } = {}) {
-  const saved = { argv: process.argv, exit: process.exit, fetch: globalThis.fetch, log: console.log, error: console.error };
+  const saved = { exit: process.exit, fetch: globalThis.fetch, log: console.log, error: console.error };
   const out = [];
   let code = null;
-  process.argv = ['node', 'check.mjs', ...args];
   process.exit = (c) => { if (code === null) code = c; throw new Error('__exit__'); };
   console.log = (s) => out.push(String(s));
   console.error = (s) => out.push(String(s));
@@ -138,11 +137,11 @@ async function runMain(args, { cnames = {}, probeText = '', dohStatus = 0 } = {}
     return new Response(probeText, { status: 404 });
   };
   try {
-    await main();
+    await main(args);
   } catch (err) {
     if (err.message !== '__exit__') throw err;
   } finally {
-    Object.assign(process, { argv: saved.argv, exit: saved.exit });
+    process.exit = saved.exit;
     globalThis.fetch = saved.fetch;
     console.log = saved.log;
     console.error = saved.error;

@@ -226,12 +226,15 @@ node resync.mjs movie.es.srt --reference movie.en.srt -o movie.es.fixed.srt</pre
       }
       showNow();
     }
+    // Drop subtitle markup (<i>, <font ...>) for the preview, repeating until
+    // nothing changes so a tag split by another (`<<i>i>`) cannot survive.
+    function stripTags(s) { let prev; do { prev = s; s = s.replace(/<[^>]*>/g, ''); } while (s !== prev); return s; }
     function showNow() {
       const c = cues();
       for (const k of ['p1', 'p2']) {
         const i = Number($(`#${k}-cue`).value) - 1;
         const cue = c[i];
-        $(`#${k}-now`).textContent = cue ? `now at ${formatTimestamp(cue.startMs)}: “${cue.lines.join(' ').replace(/<[^>]*>/g, '').slice(0, 50)}”` : '';
+        $(`#${k}-now`).textContent = cue ? `now at ${formatTimestamp(cue.startMs)}: “${stripTags(cue.lines.join(' ')).slice(0, 50)}”` : '';
       }
     }
     $('#subs-text').addEventListener('input', describeFile);

@@ -79,7 +79,7 @@ test("the page escapes every typed name, marks the followed team and loads nothi
   assert.match(html, /lsgEmbedHeight/);
   assert.ok(!/(src|href)="(https?:)?\/\/(?!marisstella\.app\/league-schedule-generator\/)/.test(html), "only the credit link points elsewhere");
   // One script: the page's height reporter.
-  assert.equal((html.match(/<script>/g) || []).length, 1);
+  assert.equal((html.match(/<script\b/gi) || []).length, 1);
   const light = embedHtml({ schedule: sched, table: null }, [], parseEmbedOptions(new URLSearchParams("theme=light&results=0"), sched.teams), 30);
   assert.ok(!light.includes("prefers-color-scheme"));
   assert.match(light, /No more games scheduled/);
@@ -160,7 +160,7 @@ test("the embed guide's FAQ matches its page, names the real options and is link
   const name = "how-to-put-a-league-schedule-on-your-website.html";
   const html = read(name);
   assert.match(html, /No warranty/);
-  assert.match(html, new RegExp(`<link rel="canonical" href="\\./${name.replace(/\./g, "\\.")}">`));
+  assert.match(html, new RegExp(`<link rel="canonical" href="\\./${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}">`));
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
   // Every option the guide names is one parseEmbedOptions() reads, with the effect it claims.

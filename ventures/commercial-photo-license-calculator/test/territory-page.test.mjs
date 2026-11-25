@@ -32,9 +32,9 @@ test('the table figures match calculate() at the stated shoot defaults, not hand
   ];
   for (const [, territory] of territories) {
     const result = calculate({ ...base, territory });
-    assert.match(html, new RegExp(money(result.rights).replace(/[$,.]/g, '\\$&')), `usage rights for territory ${territory} should appear as ${money(result.rights)}`);
-    assert.match(html, new RegExp(money(result.total).replace(/[$,.]/g, '\\$&')), `total quote for territory ${territory} should appear as ${money(result.total)}`);
-    assert.match(html, new RegExp(money(result.perImage).replace(/[$,.]/g, '\\$&')), `per-image allocation for territory ${territory} should appear as ${money(result.perImage)}`);
+    assert.match(html, new RegExp(money(result.rights).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `usage rights for territory ${territory} should appear as ${money(result.rights)}`);
+    assert.match(html, new RegExp(money(result.total).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `total quote for territory ${territory} should appear as ${money(result.total)}`);
+    assert.match(html, new RegExp(money(result.perImage).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `per-image allocation for territory ${territory} should appear as ${money(result.perImage)}`);
   }
 
   const local = calculate({ ...base, territory: 1 });

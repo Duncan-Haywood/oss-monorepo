@@ -314,7 +314,11 @@ function checkCityCode(root, n, parent, p, out, notes) {
 /** Check an ABRASF NFS-e file. Returns {findings, skipped, meta}. */
 export function checkAbrasf(text) {
   const findings = [], skipped = [];
-  const body = String(text).replace(/<!\[CDATA\[[\s\S]*?\]\]>|<!--[\s\S]*?-->/g, "");
+  let body = String(text);
+  for (let prev; prev !== body;) {
+    prev = body;
+    body = body.replace(/<!\[CDATA\[[\s\S]*?\]\]>|<!--[\s\S]*?-->/g, "");
+  }
   const amp = /&(?!(?:amp|lt|gt|quot|apos|#\d+|#x[0-9a-fA-F]+);)/.exec(body);
   if (amp) {
     const line = body.slice(0, amp.index).split("\n").length;

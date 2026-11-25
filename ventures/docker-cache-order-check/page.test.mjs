@@ -3,12 +3,14 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { scanText, hasRisk, FINDING_KINDS } from "./engine.mjs";
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const DOCS_PAGE = "why-docker-build-cache-gets-busted.html";
 const VS_PAGE = "vs-manually-reviewing-a-dockerfile.html";
 
 test("index links to the docs page", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
-  assert.match(page, new RegExp(`href="${DOCS_PAGE.replace(/\./g, "\\.")}"`));
+  assert.match(page, new RegExp(`href="${escapeRegExp(DOCS_PAGE)}"`));
 });
 
 test("docs page links back to the tool", async () => {
@@ -18,7 +20,7 @@ test("docs page links back to the tool", async () => {
 
 test("index links to the comparison page", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
-  assert.match(page, new RegExp(`href="${VS_PAGE.replace(/\./g, "\\.")}"`));
+  assert.match(page, new RegExp(`href="${escapeRegExp(VS_PAGE)}"`));
 });
 
 test("the comparison page links back to the checker and names no specific product", async () => {
@@ -101,7 +103,7 @@ test("the comparison page does not repeat a question the index page already answ
 test("sitemap lists all three published pages", async () => {
   const sitemap = await readFile(new URL("./sitemap.xml", import.meta.url), "utf8");
   for (const page of ["index.html", DOCS_PAGE, VS_PAGE]) {
-    assert.match(sitemap, new RegExp(page.replace(/\./g, "\\.")), `sitemap missing ${page}`);
+    assert.match(sitemap, new RegExp(escapeRegExp(page)), `sitemap missing ${page}`);
   }
 });
 
@@ -132,10 +134,10 @@ test("the default textarea contents demonstrate a real finding", async () => {
   const match = /<textarea id="dockerfile-input"[^>]*>([\s\S]*?)<\/textarea>/.exec(page);
   assert.ok(match, "expected the default textarea contents in index.html");
   const dockerfile = match[1]
-    .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"');
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, "&");
   const findings = scanText(dockerfile, "Dockerfile");
   assert.ok(hasRisk(findings), "default textarea contents should demonstrate a real finding");
 });

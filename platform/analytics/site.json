@@ -1,0 +1,6 @@
+{
+  "provider": "cloudflare-web-analytics",
+  "host": "marisstella.app",
+  "token": "",
+  "note": "The Cloudflare Web Analytics site token for host. It is public by design: every page carries it in the beacon tag. Empty = the deploy asks the Cloudflare API for it (provision.mjs); paste it here to skip that. platform/analytics/README.md."
+}

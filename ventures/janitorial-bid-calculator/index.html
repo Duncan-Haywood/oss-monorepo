@@ -793,8 +793,8 @@
       row.className = 'periodic-row';
       row.innerHTML = `
         <label>Service <input class="q-name" type="text" maxlength="80" placeholder="e.g. Quarterly floor care" value="${escapeHtml(service.name || '')}"></label>
-        <label>Cost / occurrence <input class="q-cost" type="number" min="0" step="1" value="${service.costPerOccurrence ?? 0}"></label>
-        <label>Times / year <input class="q-freq" type="number" min="0" step="1" value="${service.occurrencesPerYear ?? 4}"></label>
+        <label>Cost / occurrence <input class="q-cost" type="number" min="0" step="1" value="${escapeHtml(String(service.costPerOccurrence ?? 0))}"></label>
+        <label>Times / year <input class="q-freq" type="number" min="0" step="1" value="${escapeHtml(String(service.occurrencesPerYear ?? 4))}"></label>
         <button type="button" class="remove">Remove</button>
       `;
       row.querySelectorAll('input').forEach(input => {

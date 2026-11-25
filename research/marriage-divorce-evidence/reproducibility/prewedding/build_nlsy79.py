@@ -171,6 +171,13 @@ RELIGION = {'No religion': 'None', 'Catholic': 'Catholic', 'Baptist': 'Protestan
 SLOTS = range(1, 31)
 rows, audit = [], {'separation_from_record': 0, 'separation_from_interview_midpoint': 0, 'spouse_educ_from_prewedding_partner': 0,
                    'separation_before_divorce': 0, 'separation_without_divorce_by_last_interview': 0}
+
+
+def tally(key):
+    """Count one more row under an aggregate audit counter."""
+    audit[key] += 1
+
+
 for r in m.itertuples(index=False):
     i = row_of[r.id]
     w = r.wedding_month
@@ -180,8 +187,8 @@ for r in m.itertuples(index=False):
     sep, sep_src = separation(i, w, upper)
     if np.isfinite(sep) and (not r.ended or sep < r.exit_month):
         end, event = sep, 1
-        audit['separation_from_' + sep_src] += 1
-        audit['separation_before_divorce' if (r.ended and not r.widowed) else 'separation_without_divorce_by_last_interview'] += 1
+        tally('separation_from_' + sep_src)
+        tally('separation_before_divorce' if (r.ended and not r.widowed) else 'separation_without_divorce_by_last_interview')
     else:
         end, event = r.exit_month, int(r.event)
     # race: screener cohort (fixed); non-Black non-Hispanic split by the 1979 interviewer remark
@@ -210,7 +217,7 @@ for r in m.itertuples(index=False):
     audit.setdefault('partner_age_from_birth_date', 0)
     audit.setdefault('partner_age_birth_date_vs_roster_abs_diff_le_1y', [0, 0])
     if np.isfinite(sp_age):
-        audit['partner_age_from_birth_date'] += 1
+        tally('partner_age_from_birth_date')
         if np.isfinite(sp_roster):
             audit['partner_age_birth_date_vs_roster_abs_diff_le_1y'][0] += int(abs(sp_age - sp_roster) <= 1)
             audit['partner_age_birth_date_vs_roster_abs_diff_le_1y'][1] += 1
@@ -232,7 +239,7 @@ for r in m.itertuples(index=False):
             gr = col(P, f'HHI_FINAL_GRADECODE.{s:02d}')[i]
             if 14 <= age_p <= 99 and abs(age_p + (w - r.pre_round_month) / 12 - sp_age) <= 1.0 and 0 <= gr <= 20:
                 sp_educ = band(gr)
-                audit['spouse_educ_from_prewedding_partner'] += 1
+                tally('spouse_educ_from_prewedding_partner')
     woman = r.sex == 'Woman'
     own_educ = band(r.grade_completed)
     fam = r.family_at_14

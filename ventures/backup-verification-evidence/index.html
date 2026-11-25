@@ -137,7 +137,13 @@
       headline.textContent = "Could not read those records";
       headline.className = "hero-number warn";
       alerts.innerHTML = "";
-      rows.innerHTML = `<tr><td colspan="5" class="error">${message}</td></tr>`;
+      const row = document.createElement("tr");
+      const cell = document.createElement("td");
+      cell.colSpan = 5;
+      cell.className = "error";
+      cell.textContent = message;
+      row.append(cell);
+      rows.replaceChildren(row);
       report.textContent = "";
       latestTrend = null;
     }

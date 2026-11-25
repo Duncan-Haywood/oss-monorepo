@@ -48,7 +48,8 @@ test('every FAQPage schema question on the vs-Printavo page has a matching visib
 test('the FAQPage JSON-LD answers are verbatim on the visible page, not only inside the script tag', () => {
   const match = printavoSeo.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?\})<\/script>/s);
   const schema = JSON.parse(match[1]);
-  const visible = printavoSeo.replace(/<script[\s\S]*?<\/script>/g, '');
+  let visible = printavoSeo, prev;
+  do { prev = visible; visible = visible.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ''); } while (visible !== prev);
   for (const { acceptedAnswer } of schema.mainEntity) {
     assert.ok(visible.includes(acceptedAnswer.text), `answer not found verbatim outside the JSON-LD script tag: ${acceptedAnswer.text.slice(0, 60)}...`);
   }

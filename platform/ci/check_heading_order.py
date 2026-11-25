@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-STRIP = re.compile(r"<script\b.*?</script>|<style\b.*?</style>|<!--.*?-->|<template\b.*?</template>", re.S | re.I)
+STRIP = re.compile(r"<script\b.*?</script\b[^>]*>|<style\b.*?</style\b[^>]*>|<!--.*?-->|<template\b.*?</template\b[^>]*>", re.S | re.I)
 HEADING = re.compile(r"<h([1-6])\b", re.I)
 
 
