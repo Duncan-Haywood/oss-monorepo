@@ -45,6 +45,15 @@ every docs push once `RETAIL_PILOT_INTEL_DOCS_CLOUDFLARE=true`). Build env: `DOC
 `DOCS_SITE_URL` variable. For a network boundary beyond the client passcode, put Cloudflare Access in
 front of the workers.dev host.
 
+### AWS (built 2026-11-25, not applied yet)
+
+`platform/aws/stacks/retail-pilot-intel` serves the same `dist/` from the AWS SaaS starter's site app, with the
+same response headers. Its `allowed_emails` variable adds the server-side sign-in gate this file suggested Cloudflare
+Access for (empty by default, so the passcode stays the only check until addresses are set). Build:
+`pnpm docs:build`, then in `platform/aws/stacks/saas-starter/runtime`:
+`node build.mjs site rpi_docs ../../../../../ventures/retail-pilot-intel/apps/docs/dist`. Apply and cutover steps:
+that stack's README. The Worker and its workflow stay until the cutover.
+
 ## Security layers
 
 | Layer | Purpose |
