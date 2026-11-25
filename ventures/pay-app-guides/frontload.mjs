@@ -87,9 +87,43 @@ export function withinTolerance(values, costs, tol) {
   return at((a + b) / 2);
 }
 
-// Round real-valued cents to `unit` keeping the sum at `total`.
-function roundTo(xs, total, unit) {
-  return apportion(total, xs.map((x) => Math.max(x, 0)), unit);
+/**
+ * Round real-valued cents to multiples of `unit` keeping the sum at `total` and, where the units allow,
+ * each line inside [lo_i, hi_i]. Plain largest-remainder rounding moved lines that withinTolerance left on
+ * the band's edge just outside it, so the "within tolerance" SOV failed its own check (red team, 2026-11-25).
+ * Each line starts at its rounded-down value clamped to the whole units inside its band; the units left
+ * over (or short) go to the lines with room, largest remainder first. A band too narrow to hold a whole
+ * unit keeps the nearest unit. Odd cents (a total that is not a multiple of `unit`) go to a line with room.
+ */
+export function roundWithin(xs, total, unit, lo, hi) {
+  const n = xs.length;
+  if (!n) return [];
+  const slack = 1e-6; // cents; well inside the check's 1e-9 of markup on any real line
+  const U = Math.floor(total / unit), odd = total - U * unit;
+  const lu = lo.map((l) => Math.max(Math.ceil((l - slack) / unit), 0));
+  const hu = hi.map((h) => Math.floor((h + slack) / unit));
+  const q = xs.map((x) => Math.max(x, 0) / unit);
+  const out = q.map((v, i) => (lu[i] <= hu[i] ? Math.min(Math.max(Math.floor(v), lu[i]), hu[i]) : Math.round(v)));
+  let left = U - out.reduce((a, x) => a + x, 0);
+  const byRem = (dir) => q.map((v, i) => [v - out[i], i]).sort((a, b) => dir * (b[0] - a[0]) || a[1] - b[1]).map((p) => p[1]);
+  while (left > 0) {
+    const room = byRem(1).filter((i) => out[i] < hu[i]);
+    const order = room.length ? room : byRem(1).filter((i) => hi[i] > 0);
+    const pick = order.length ? order : byRem(1);
+    for (const i of pick) { if (left <= 0) break; out[i]++; left--; }
+  }
+  while (left < 0) {
+    const room = byRem(-1).filter((i) => out[i] > lu[i]);
+    const pick = room.length ? room : byRem(-1).filter((i) => out[i] > 0);
+    for (const i of pick) { if (left >= 0) break; out[i]--; left++; }
+  }
+  const res = out.map((u) => u * unit);
+  if (odd) {
+    const fits = res.map((v, i) => i).filter((i) => res[i] + odd <= hi[i] + slack);
+    const i = fits.length ? fits.reduce((a, j) => (hi[j] - res[j] > hi[a] - res[a] ? j : a)) : xs.indexOf(Math.max(...xs));
+    res[i] += odd;
+  }
+  return res;
 }
 
 /**
@@ -149,7 +183,8 @@ export function compute(text, settings = {}) {
   });
 
   const balanced = apportion(V, L.map((x) => x.cost), unit);
-  const fitted = roundTo(withinTolerance(L.map((x) => x.value), L.map((x) => x.cost), tol), V, unit);
+  const fitted = roundWithin(withinTolerance(L.map((x) => x.value), L.map((x) => x.cost), tol), V, unit,
+    L.map((x) => x.cost * (1 + Math.max(M - tol, -1))), L.map((x) => x.cost * (1 + M + tol)));
   L.forEach((x, i) => {
     x.balanced = balanced[i];
     x.fitted = fitted[i];

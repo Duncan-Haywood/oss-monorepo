@@ -273,7 +273,12 @@ are the starting point, not the product:
   $23,000 as submitted against $1,582 balanced, and at a 9% cost of money
   that early cash is worth about $2,066: the trade a sub is making against a
   rejected SOV. It makes no claim about what a given contract allows; a
-  mobilization cap is entered from your own contract.
+  mobilization cap is entered from your own contract. A red-team pass the
+  same day found the first version's "within tolerance" SOV failed its own
+  check: it left lines exactly on the band's edge, and rounding pushed 3 of
+  the example's 10 lines (at dollar rounding) a hair outside, so pasting the
+  fix back in still read as front-loaded. It now rounds each line inside its
+  band, and a test re-checks the output on 300 random schedules.
   ([source](../../ventures/pay-app-guides/frontload.mjs))
 
 - [Free schedule of values template](https://marisstella.app/pay-app-guides/schedule-of-values-template.html)
