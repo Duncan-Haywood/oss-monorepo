@@ -1,0 +1,166 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtGPAxJZfcVxHE4raid",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T03:06:17Z",
+  "ended": "2026-11-25T03:17:28Z",
+  "wall_minutes": 12.22,
+  "tokens_in": 12887383,
+  "tokens_out": 50532,
+  "cost_usd": 4.9556,
+  "tool_calls": 95,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18827",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "risk_review.py crashed (git merge-base exit 1) until main was fetched with --depth=40 in the shallow clone",
+    "Playwright flow failed once: my local D1 insert into subscriptions omitted created_at (NOT NULL)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 says QUEUE.md names the scanned commit; the 02:45 queue had no such line (PR 18806 merged after it was generated), so staleness had to be shown by hand: the newest alerts' lines no longer match the code"
+    },
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 has no rule for a queue whose top entries are documented false positives (risk_review.py #7/#42/#43, secrets_inventory #12, monetization #38/#39): every run re-reads them. They need the owner's dismissal in the Security tab, or a skip list in security_alerts.py"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "'when this session can reach private-monorepo' gives no way to reach it; ten run records gave up with 'clone refused'. add_repo with access push worked first time (now in .github/prompts/cloud-session.md)"
+    },
+    {
+      "file": "private-monorepo .github/workflows/payapps-ci.yml",
+      "issue": "Every run fails in about 10 s with no steps and no logs (runs 41-46), so the PR check is red for every payapps PR; sessions verify locally"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Security queue non-empty, but its top entries were stale (fixed by PR 18676) or documented false positives, and a fresh analysis of main was pending",
+      "did": "Checked the newest alerts against the code (line contents no longer match) and the false-positive table in docs/reports/2026-11-24-codeql-backlog-cleared.md, then routed to step 1",
+      "result": "No duplicate re-fixing; the bet got the session"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Writing defaults ask for a customer post per PR; payapps is not launched or for sale, so a customer post about inviting your team would advertise something nobody can buy",
+      "did": "No post. Product docs (ROADMAP.md, docs/EMAIL.md) updated in the private repo, and the agent doc (cloud-session.md) here",
+      "result": "null"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "private-monorepo CI never gets a runner",
+      "did": "Ran each payapps-ci step locally (biome ci, typecheck, test:unit, test:worker, build, drizzle-kit check + drift generate) and merged PR 47 on that",
+      "result": "All green locally"
+    }
+  ],
+  "writeups": [
+    ".github/prompts/cloud-session.md (section 'Reaching private-monorepo')",
+    "private-monorepo apps/payapps/ROADMAP.md and docs/EMAIL.md"
+  ],
+  "goal": null,
+  "notes": "Security queue: generated 02:45 UTC, 1,186 entries, no scanned-commit line. #7/#42/#43 (platform/security/risk_review.py) flag result['secrets'] which holds only {path, kind}, never a value: false positive by the name heuristic, like #12/#34/#38/#39 already listed. #1213 and #1240-1244: lines no longer contain the flagged replace. CodeQL push runs on main were queued (run 185 pending, the earlier ones cancelled as pending runs replaced each other). Bet #1 work in private-monorepo PR 47 (merged 84104d30): invitation table + migration 0004, services/invitations.ts, routes, People page, home-page Invitations card. Verification: pnpm typecheck clean; test:unit 58/58; test:worker 73/73 (10 new in test/worker/invitations.test.ts covering: no-account invite -> sign-up -> accept, single use, unverified or other users see nothing (404/403), admin-only and cross-company 404s, owner/bad address/existing member refused, canceled/declined/expired not acceptable (409/410), re-invite replaces, seats incl. pending and recheck on accept (402), 20/hour throttle (429), HTML escaping of the inviter name); biome ci; drizzle-kit check and drift generate (no changes); build. Playwright on pnpm dev with FAKE_EXTERNALS: owner signs up, creates company, invites; invitee opens /invitations at 390px, signs up, accepts, lands in the company; owner sees them as editor; scrollWidth 390; no page errors.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "637bb027-35ce-5c0b-8f21-f90599aaf9f7",
+    "transcripts": 1,
+    "first": "2026-11-25T03:06:17Z",
+    "last": "2026-11-25T03:18:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 89,
+        "input": 169,
+        "output": 50532,
+        "thinking": 10836,
+        "cache_read": 12711978,
+        "cache_write_5m": 0,
+        "cache_write_1h": 175236,
+        "api_equivalent_usd": 4.9556,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 89,
+      "input": 169,
+      "output": 50532,
+      "thinking": 10836,
+      "cache_read": 12711978,
+      "cache_write_5m": 0,
+      "cache_write_1h": 175236,
+      "api_equivalent_usd": 4.9556,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 95,
+    "tools": {
+      "Bash": 75,
+      "mcp__github__actions_list": 4,
+      "Write": 3,
+      "ToolSearch": 2,
+      "Read": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Edit": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.22,
+      "active_minutes": 12.22,
+      "model_minutes": 9.44,
+      "tool_minutes": 2.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior engineer: invitation schema/service/routes with seat and throttle rules, People page, 10 integration tests, browser check, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 201.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
