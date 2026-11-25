@@ -60,6 +60,14 @@ live on their users' own machines (moved per team by `migrate-hub.mjs`).
 2. After the account exists and each stack is applied and cut over: the follow-up PRs that
    remove `wrangler.*`, the Pages/Worker deploy workflows and the replaced auth code (listed in
    each stack's README). Not before.
-3. Not done here: CI workflows to plan/apply these stacks (the per-stack CI roles come from
-   PR #18768's `github-oidc`; copy `saas-starter/ci/saas-starter.yml`), and ACM certificates
-   for the four names (a sibling edge/DNS stack's job).
+3. Not done here: CI workflows to plan/apply these stacks (copy `saas-starter/ci/saas-starter.yml`),
+   and ACM certificates for the four names (a sibling edge/DNS stack's job).
+4. Per the aws-org-baseline session (2026-11-25): each of `shift-roster`, `listing-lens`,
+   `retail-pilot-intel` and `ai-first-markets` needs an entry in `stacks/github-oidc`'s `stacks`
+   variable (PR #18768, apps account) to get its `gha-oss-monorepo-<stack>-plan/-apply` roles;
+   the apply role may only create IAM names `<stack>-*` carrying `workload-boundary`, which
+   these stacks already do. The apply role also needs `lambda:InvokeFunction` on saas-starter's
+   db-admin (each product's `ensure_db`). `priv-aws-plan`'s check compares each
+   `.terraform.lock.hcl` with the registry: the four were copied from saas-starter's (aws
+   6.73.0, archive 2.8.1); commit whatever that job prints. Nothing here makes a public bucket
+   or S3 website endpoint, which PR #18780's resource control policies would refuse.
