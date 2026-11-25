@@ -216,7 +216,6 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - Elisha and the Shunammite's land given back, the seven years of famine and Gehazi telling the king the story at the very moment she walked in (Second Kings 8:1-6; left by episode 168).
 - The king of Arad and the vow at Hormah, the first battle after Mount Hor, and the long way round Edom by the Red Sea road (Numbers 21:1-4; left by episode 165).
 - Moses on the mountains of Abarim and a shepherd for the congregation, Joshua commissioned before Eleazar the priest, the man in whom is the spirit (Numbers 27:12-23, with Deuteronomy 3:23-28; left by episode 166).
-- Job's three daughters, Jemimah, Keziah and Keren-happuch, the end of the book told gently, the inheritance among their brothers (Job 42:7-17; left by episode 166).
 - The twelve leaders and the dedication of the altar, twelve days and the same gift each day, six covered wagons and twelve oxen for the Levites (Numbers 7; left by episode 167).
 - The cloud over the tabernacle and the two silver trumpets, setting out from Sinai, Hobab asked to be their eyes, and 'Arise, O Lord' when the ark set out (Numbers 9:15 to 10:36; left by episode 167).
 - The new king who did not know Joseph and the store cities of Pithom and Raamses, the bricks and the people who multiplied anyway, told as a quieter episode about work and its dignity (Exodus 1:1-14, with Genesis 50:22-26; left by episode 171).
@@ -230,11 +229,13 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - Gamaliel and the counsel in the council, 'if this is of God you will not be able to overthrow them', the teacher of Saul of Tarsus (Acts 5:33-42 and 22:3, with Lucian's letter of four hundred and fifteen told as legend; left by episode 177).
 - The Canaanite woman of the region of Tyre and Sidon, the crumbs under the table and her daughter healed, told with Mark and Matthew side by side and carefully (Mark 7:24-30, Matthew 15:21-28; left by episode 178).
 - Ezekiel's lament for the ship of Tyre, the mast of cedar and the sail of Egyptian linen and every trading people named on board, told as a quieter episode about trade and pride (Ezekiel 27; left by episode 178).
+- Job's three friends and the seven days of silence, Eliphaz, Bildad and Zophar who came from their own places to comfort him, told as an episode about visiting the sick and sitting with the grieving (Job 2:11-13, with Romans 12:15; left by episode 179).
+- The Lord's answer from the whirlwind told on its own, the storehouses of the snow, the mountain goats, the wild ass, the ostrich and the horse, a quiet nature episode (Job 38-39; left by episode 179).
 
 ## Audio status
 
 <!-- audio-status: written by node generate.mjs from episodes/ and audio/manifest.json -->
-Audio: 29 of 178 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 178.
+Audio: 29 of 179 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 179.
 <!-- /audio-status -->
 
 Whether to add audio is the creative prompt's call, not this file's: `prompts/creative/prompt-0.md`, "Audio size", says text only while the `du` it names is over 400 MB (577 MB on 2026-11-18), and the higher layer wins. The case that the cap is stale (audio has been served from jsDelivr, outside the deploy artifact, since 2026-10-24, so the cost left is git history) is in [`docs/reports/2026-11-13-audio-cap-is-stale.md`](../../docs/reports/2026-11-13-audio-cap-is-stale.md); changing the rule is a `prompts/` edit, which waits on the owner's approval. This paragraph used to recommend voicing the backlog against the prompt, and five run records from 2026-11-16 to 2026-11-18 reported the two guides disagreeing. When the rule allows audio, voice the backlog in episode order, about 60 MB a run (episodes 20 to 24 took 7 to 11 minutes each on 4 cores, 2026-11-15). Read the episode for names first and add any the voice would trip on to `SAY` in `render_audio.py`. The line above is regenerated with the pages, so a new episode or render needs no edit here. If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 8 to 15 minutes.
