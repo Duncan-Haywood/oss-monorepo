@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b51'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Retainage Tracker for Subcontractors</title>
+  <meta name="description" content="Free retainage tracker: paste your jobs and see retainage outstanding, aging, overdue releases, unbilled releases and totals by GC. Nothing uploaded.">
+  <meta property="og:title" content="Retainage tracker: every job's retainage, what is overdue, and who to chase first">
+  <meta property="og:description" content="Paste one row per job. Get outstanding retainage, release due dates from your own terms, aging buckets, completed jobs with no release billed, totals by GC and a chase list.">
+  <link rel="canonical" href="./retainage-tracker.html">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid var(--input); border-radius: 7px; font: 13px ui-monospace, monospace; background: var(--card); color: var(--ink); }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 6px 0 12px; }
+    .tile { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+    .tile b { display: block; font-size: 1.25rem; color: var(--head); font-variant-numeric: tabular-nums; }
+    .tile span { font-size: .8rem; color: var(--muted); }
+    .pill.approved { background: #e3f1e5; color: #1d5b2a; }
+    .pill.rejected, .pill.void { background: #ececec; color: #444; }
+    .err { color: #9a3412; font-weight: 600; }
+    input[type=file] { border: 0; padding: 8px 0; }
+  </style>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Retainage Tracker", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I track retainage across jobs?", "acceptedAnswer": {"@type": "Answer", "text": "Keep one row per job with the retainage held to date, the retainage released, the completion date, the number of days your subcontract allows for release after completion, and the date you billed the release. Outstanding retainage is held minus released; the release is due on the completion date plus the release days."}}, {"@type": "Question", "name": "Why does my A/R aging report not show retainage?", "acceptedAnswer": {"@type": "Answer", "text": "Retainage is usually not invoiced until it is released, so in many setups (QuickBooks Online among them) it sits in a separate retainage receivable account and never ages like an open invoice. A retainage tracker ages it from the date the release fell due instead."}}, {"@type": "Question", "name": "When is retainage overdue?", "acceptedAnswer": {"@type": "Answer", "text": "When the date your subcontract (or, on some public work, a statute) sets for release has passed and it has not been paid. That date is usually a number of days after substantial or final completion, often conditional on closeout documents and a final lien waiver. This page uses the days you enter; it does not decide what your contract or state law says."}}]}</script>
+</head>
+<body>
+<header>
+  <p class="kicker">Pay app guides · runs in your browser · nothing uploaded</p>
+  <h1>Retainage tracker for subcontractors</h1>
+  <p>Retainage is often the profit on a job, and it is the money most likely to be forgotten: it does not show on an ordinary A/R aging report because nobody invoiced it yet. Paste one row per job, or start from the example. The page works out <strong>retainage still outstanding</strong>, when each job's release <strong>falls due</strong> from the terms you enter, how long the overdue ones have waited, <strong>completed jobs with no release billed</strong>, totals <strong>by GC</strong>, and a chase list in the order worth calling.</p>
+  <p class="note">Your job list stays in this browser. It does the arithmetic and flags; your subcontract (and, on some public work, a statute) decides when retainage is actually owed.</p>
+  <nav class="guides" aria-label="Guides">
+    <a href="./">Schedule of values calculator</a>
+    <a href="retainage-explained.html">Retainage explained</a>
+    <a href="retainage-release.html">Getting retainage released</a>
+    <a href="retainage-in-quickbooks.html">Retainage in QuickBooks</a>
+  </nav>
+</header>
+<main>
+<section class="card" id="inputs">
+  <h2>1. Settings</h2>
+  <div class="grid">
+    <div><label for="asof">As of (YYYY-MM-DD)</label><input id="asof"></div>
+    <div><label for="days">Default release days after completion</label><input id="days" inputmode="numeric" placeholder="from your subcontract"></div>
+    <div><label for="rate">Cost of money, % a year (optional)</label><input id="rate" inputmode="decimal" placeholder="e.g. your line of credit rate"></div>
+  </div>
+  <p class="note">The default release days apply to any job whose own row leaves them blank. Leave it blank if your jobs differ; a completed job with no days gets no due date and is listed so you can fill it in. Public-work release rules for some states are in <a href="retainage-explained.html">retainage explained</a>.</p>
+  <h2>2. Jobs</h2>
+  <label for="jobs">One job per row, with a header row (comma or tab separated: paste straight from a spreadsheet)</label>
+  <textarea id="jobs" spellcheck="false" wrap="off" placeholder="Job,GC,Contract,Retainage held,Released,Completed,Release days,Release billed&#10;Maple St clinic,Northgate Builders,412000,41200,0,2026-06-30,60,2026-07-08"></textarea>
+  <p class="note">Columns: <strong>Job</strong>, <strong>GC</strong>, <strong>Contract</strong>, <strong>Retainage held</strong> to date, retainage <strong>Released</strong> (paid back) to date, <strong>Completed</strong> (substantial completion, or whatever event starts your release clock), <strong>Release days</strong> after it, and the date you sent the <strong>Release billed</strong> invoice. Only job and retainage held are required. Dates as YYYY-MM-DD or M/D/YYYY.</p>
+  <label for="file">Or open a CSV file (read on this device only)</label>
+  <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+  <button type="button" class="secondary" id="sample">Load an example</button>
+  <button type="button" class="secondary" id="clear">Clear</button>
+  <label style="font-weight:400"><input type="checkbox" id="remember" style="width:auto"> Remember this list in this browser</label>
+</section>
+
+<section class="card" id="result" aria-live="polite">
+  <h2>3. Your retainage</h2>
+  <div id="errors"></div>
+  <div class="tiles">
+    <div class="tile"><span>Outstanding retainage</span><b id="t-out">$0.00</b></div>
+    <div class="tile"><span>Overdue</span><b id="t-overdue">$0.00</b></div>
+    <div class="tile"><span>Completed, release not billed</span><b id="t-unbilled">$0.00</b></div>
+    <div class="tile"><span>Carrying cost of overdue</span><b id="t-carry">n/a</b></div>
+  </div>
+  <div id="findings"></div>
+  <div class="scroll"><table class="stack compact" role="table">
+    <thead><tr><th role="columnheader" scope="col">Job</th><th role="columnheader" scope="col">GC</th><th role="columnheader" scope="col" class="n">Outstanding</th><th role="columnheader" scope="col">Completed</th><th role="columnheader" scope="col">Due</th><th role="columnheader" scope="col" class="n">Overdue</th><th role="columnheader" scope="col">Aging</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table></div>
+  <h3>Summary, aging and totals by GC</h3>
+  <pre class="sum" id="summary"></pre>
+  <button type="button" class="secondary" id="copy">Copy summary</button>
+  <button type="button" class="secondary" id="csv">Download job list CSV</button>
+
+  <h3>Chase list</h3>
+  <p class="note">Overdue jobs first, by money times days late, then completed jobs whose release has not been billed. For each one, the <a href="retainage-release.html">release calculator</a> writes a request letter listing the closeout items still missing.</p>
+  <pre class="sum" id="chase"></pre>
+  <button type="button" class="secondary" id="copy-chase">Copy chase list</button>
+</section>
+
+<section class="card" id="rules">
+  <h2>How the numbers are worked out</h2>
+  <ul>
+    <li><strong>Outstanding</strong> = retainage held to date − retainage released to date, per job. Jobs paid in full drop out of the totals.</li>
+    <li><strong>Due</strong> = completion date + release days (the job's own, or the default). No completion date: the job is still open and nothing is due. No release days: no due date, and the job is listed.</li>
+    <li><strong>Overdue</strong> = days from the due date to the as-of date. Aging buckets: not complete; complete, not yet due; no release days; overdue 1–30, 31–90, 91–180 and over 180 days.</li>
+    <li><strong>Carrying cost</strong> = outstanding × your rate × days overdue ÷ 365, simple interest. It is what the wait costs you at your own cost of money, not interest anyone owes you; any statutory or contract interest is set by its own terms (see <a href="prompt-payment-laws.html">prompt payment laws</a>).</li>
+    <li><strong>Checks:</strong> completed jobs with no release billed; overdue jobs; more released than held; retainage above 10% of the contract; release billed before completion; completion dates after the as-of date; one GC holding over half of your retainage; repeated job names.</li>
+    <li><strong>Not decided here:</strong> whether a condition to release (closeout documents, final waiver, punch list, owner acceptance, pay-when-paid) has been met, and what your contract or state law says.</li>
+  </ul>
+</section>
+
+<section class="card" id="faq">
+  <h2>Common questions</h2>
+  <h3>How do I track retainage across jobs?</h3>
+  <p>Keep one row per job with the retainage held to date, the retainage released, the completion date, the number of days your subcontract allows for release after completion, and the date you billed the release. Outstanding retainage is held minus released; the release is due on the completion date plus the release days.</p>
+  <h3>Why does my A/R aging report not show retainage?</h3>
+  <p>Retainage is usually not invoiced until it is released, so in many setups (QuickBooks Online among them) it sits in a separate retainage receivable account and never ages like an open invoice. A retainage tracker ages it from the date the release fell due instead. See <a href="retainage-in-quickbooks.html">retainage in QuickBooks</a>.</p>
+  <h3>When is retainage overdue?</h3>
+  <p>When the date your subcontract (or, on some public work, a statute) sets for release has passed and it has not been paid. That date is usually a number of days after substantial or final completion, often conditional on closeout documents and a final lien waiver. This page uses the days you enter; it does not decide what your contract or state law says.</p>
+</section>
+
+<section class="card cta" id="early-access">
+  <h2>Want this kept up to date for you?</h2>
+  <p>We are building hosted pay-app billing for specialty subcontractors that fills this in from your pay applications: retainage held and released on every job, the release date from each subcontract, and a reminder when a job completes with no release billed. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
+</section>
+</main>
+<!-- all-guides: generated by nav.mjs, do not edit by hand -->
+<nav class="all-guides" aria-label="All pay app tools and guides">
+    <div>
+      <h2>Tools</h2>
+      <ul>
+      <li><a href="./">Schedule of values calculator</a></li>
+      <li><a href="pay-application-checker.html">Pay app checker (this month vs last)</a></li>
+      <li><a href="change-order-log.html">Change order log</a></li>
+      <li><a href="schedule-of-values-template.html">Free Excel SOV template</a></li>
+      <li><a href="pay-if-paid-clauses.html">Pay-if-paid clause reader</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Billing guides</h2>
+      <ul>
+      <li><a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a></li>
+      <li><a href="change-orders-schedule-of-values.html">Change orders and the SOV</a></li>
+      <li><a href="overbilling-underbilling.html">Overbilling and underbilling</a></li>
+      <li><a href="retainage-explained.html">Retainage explained, with state caps</a></li>
+      <li><a href="retainage-release.html">Getting retainage released</a></li>
+      <li><a href="retainage-in-quickbooks.html">Retainage in QuickBooks</a></li>
+      <li><a href="retainage-tracker.html" aria-current="page">Retainage tracker (every job)</a></li>
+      <li><a href="pay-application-software-compared.html">Pay app software compared</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Getting paid and lien waivers</h2>
+      <ul>
+      <li><a href="prompt-payment-laws.html">Prompt payment laws by state</a></li>
+      <li><a href="conditional-vs-unconditional-lien-waivers.html">Conditional vs unconditional lien waivers</a></li>
+      <li><a href="lien-waiver-forms-by-state.html">Lien waiver forms by state</a></li>
+      <li><a href="lien-waiver-log.html">Lien waiver log (given and collected)</a></li>
+      <li><a href="sworn-statement.html">Contractor's sworn statement builder</a></li>
+      </ul>
+    </div>
+</nav>
+<!-- /all-guides -->
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, or financial advice, and it does not replace your contract, your accountant, or an attorney. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+  <p><strong>Privacy.</strong> Everything runs in your browser. Your job list is never uploaded; there are no accounts, cookies, or analytics vendors. If you tick "remember", the list is kept in this browser's local storage only. Anonymous feature events (<code>retlog_calculated</code>, <code>retlog_example_loaded</code>, <code>retlog_summary_copied</code>, <code>retlog_chase_copied</code>, <code>retlog_csv_downloaded</code>) are counted only on your device, never with your numbers, and Do Not Track switches them off.</p>
+  <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+</footer>
+<script type="module">
+  import { compute, summaryText, chaseList, jobsCsv, sampleJobs, SAMPLE_SETTINGS, BUCKETS, dollars, dayText } from "./retlog.mjs";
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const SAVE = "pay-app-guides-retainage-tracker";
+  const FIELDS = ["asof", "days", "rate", "jobs"];
+  const AGING = Object.fromEntries(BUCKETS);
+  let counted = false, last;
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(SAVE) || "null"); } catch { return null; } },
+    set(v) { try { localStorage.setItem(SAVE, JSON.stringify(v)); } catch { /* storage is optional */ } },
+    clear() { try { localStorage.removeItem(SAVE); } catch { /* storage is optional */ } },
+  };
+  const settings = () => ({ asOf: $("#asof").value, defaultDays: $("#days").value, rate: $("#rate").value });
+
+  function update() {
+    last = compute($("#jobs").value, settings());
+    $("#errors").innerHTML = last.errors.map((e) => `<p class="err">${esc(e)}</p>`).join("");
+    const t = last.totals;
+    $("#t-out").textContent = dollars(t ? t.outstanding : 0);
+    $("#t-overdue").textContent = t ? `${dollars(t.overdue)} · ${t.overdueCount}` : "$0.00";
+    $("#t-unbilled").textContent = t ? `${dollars(t.unbilled)} · ${t.unbilledCount}` : "$0.00";
+    $("#t-carry").textContent = t && t.rate !== null ? dollars(t.carrying) : "n/a";
+    $("#findings").innerHTML = last.findings.map((f) => `<p class="finding"><span class="pill ${f.severity}">${f.severity === "high" ? "check" : "note"}</span>${esc(f.title)}</p>`).join("");
+    $("#rows").innerHTML = (t ? last.jobs : []).map((x) => `<tr><td data-label="Job">${esc(x.job)}</td><td data-label="GC">${esc(x.gc)}</td><td data-label="Outstanding" class="n">${dollars(x.outstanding)}</td><td data-label="Completed">${dayText(x.completed)}</td><td data-label="Due">${dayText(x.due)}</td><td data-label="Overdue" class="n">${x.overdue ? `${x.overdue} d` : ""}</td><td data-label="Aging">${x.outstanding > 0 ? esc(AGING[x.bucket]) : "Paid in full"}</td></tr>`).join("");
+    $("#summary").textContent = t ? summaryText(last) : "";
+    $("#chase").textContent = t ? chaseList(last) || "Nothing overdue or waiting to be billed." : "";
+    if ($("#remember").checked) store.set({ ...Object.fromEntries(FIELDS.map((f) => [f, $("#" + f).value])), remember: true });
+    if (!counted && t) { counted = true; record("retlog_calculated"); }
+  }
+  async function copy(id, btn, event) {
+    try { await navigator.clipboard.writeText($(id).textContent); btn.textContent = "Copied"; record(event); } catch { btn.textContent = "Select the text and copy it"; }
+  }
+
+  $("#asof").value = new Date().toISOString().slice(0, 10);
+  const saved = store.get();
+  if (saved && saved.remember) { for (const f of FIELDS) if (typeof saved[f] === "string") $("#" + f).value = saved[f]; $("#remember").checked = true; }
+  document.addEventListener("input", (e) => { if (e.target.closest("#inputs") && e.target.type !== "file") update(); });
+  $("#remember").addEventListener("change", (e) => { if (!e.target.checked) store.clear(); update(); });
+  $("#file").addEventListener("change", (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    if (f.size > 2_000_000) { $("#errors").innerHTML = '<p class="err">That file is over 2 MB; export just the job list.</p>'; return; }
+    f.text().then((txt) => { $("#jobs").value = txt; update(); });
+  });
+  $("#sample").addEventListener("click", () => {
+    $("#asof").value = SAMPLE_SETTINGS.asOf; $("#days").value = SAMPLE_SETTINGS.defaultDays; $("#rate").value = SAMPLE_SETTINGS.rate;
+    $("#jobs").value = sampleJobs(); record("retlog_example_loaded"); update();
+  });
+  $("#clear").addEventListener("click", () => { $("#jobs").value = ""; update(); });
+  $("#copy").addEventListener("click", (e) => copy("#summary", e.target, "retlog_summary_copied"));
+  $("#copy-chase").addEventListener("click", (e) => copy("#chase", e.target, "retlog_chase_copied"));
+  $("#csv").addEventListener("click", () => {
+    if (!last || !last.totals) return;
+    const url = URL.createObjectURL(new Blob([jobsCsv(last)], { type: "text/csv" }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: "retainage-tracker.csv" });
+    a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); record("retlog_csv_downloaded");
+  });
+  $("#optout").addEventListener("click", (e) => { setUsageOptOut(true); e.target.textContent = "Usage counting is off"; e.target.disabled = true; });
+  if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
+  update();
+</script>
+</body>
+</html>
