@@ -117,11 +117,28 @@ mock_provider "aws" {
     }
   }
 
+  mock_resource "aws_ce_anomaly_monitor" {
+    defaults = {
+      arn = "arn:aws:ce::000000000000:anomalymonitor/mock"
+    }
+  }
+
   mock_resource "aws_s3_bucket" {
     defaults = {
       arn = "arn:aws:s3:::mock"
     }
   }
+}
+
+# Distinct topic ARNs, so the tests can tell the kill topic from the alerts topic.
+override_resource {
+  target = aws_sns_topic.alerts
+  values = { arn = "arn:aws:sns:us-east-1:000000000000:budget-alerts" }
+}
+
+override_resource {
+  target = aws_sns_topic.kill
+  values = { arn = "arn:aws:sns:us-east-1:000000000000:budget-kill" }
 }
 
 override_data {
@@ -165,5 +182,100 @@ run "spend_shape" {
   assert {
     condition     = strcontains(aws_organizations_policy.freeze.content, "aws-external-anthropic:CreateInference")
     error_message = "the freeze SCP stops Claude calls"
+  }
+}
+
+run "per_account_kill_switch_and_alerts" {
+  command = plan
+
+  assert {
+    condition = alltrue([for k, b in aws_budgets_budget.account :
+      contains([for n in b.notification : n.threshold if n.notification_type == "ACTUAL"], 50)
+    ])
+    error_message = "every account budget alerts at 50%"
+  }
+
+  assert {
+    # The hard-line notification of shared-infra (site, DNS) and payments
+    # (Paddle webhooks) must not reach the kill topic.
+    condition = alltrue([for k in ["shared-infra", "payments", "log-archive", "security", "management"] :
+      alltrue([for n in aws_budgets_budget.account[k].notification : !contains(n.subscriber_sns_topic_arns, aws_sns_topic.kill.arn)])
+    ])
+    error_message = "only kill_switch_accounts may notify the kill topic"
+  }
+
+  assert {
+    condition = alltrue([for k in ["apps", "sandbox"] :
+      length([for n in aws_budgets_budget.account[k].notification : n if contains(n.subscriber_sns_topic_arns, aws_sns_topic.kill.arn)]) == 1
+    ])
+    error_message = "apps and sandbox wake the kill switch at the hard line, once"
+  }
+
+  assert {
+    condition     = jsondecode(aws_lambda_function.kill_switch.environment[0].variables.KILL_ON_BUDGET) == ["apps", "sandbox"]
+    error_message = "the function itself must refuse budget kills elsewhere (belt and braces)"
+  }
+
+  assert {
+    condition     = aws_lambda_function.kill_switch.environment[0].variables.REGIONS == "us-east-1,us-west-2"
+    error_message = "the kill switch sweeps both allowed regions"
+  }
+}
+
+run "freeze_scp_leaves_data_logs_and_dns_alone" {
+  command = plan
+
+  assert {
+    condition = length([for a in jsondecode(aws_organizations_policy.freeze.content).Statement[0].Action :
+    a if can(regex("^(s3|logs|cloudtrail|route53|route53domains|kms|dynamodb|secretsmanager|guardduty|securityhub|config):", a))]) == 0
+    error_message = "the freeze must never touch storage, logs, audit, DNS, domains or keys"
+  }
+
+  assert {
+    condition = alltrue([for a in ["autoscaling:UpdateAutoScalingGroup", "lambda:UpdateEventSourceMapping", "ec2:RequestSpotInstances"] :
+    contains(jsondecode(aws_organizations_policy.freeze.content).Statement[0].Action, a)])
+    error_message = "the freeze stops the kill switch's work from being undone"
+  }
+}
+
+run "anomaly_detection" {
+  command = plan
+
+  assert {
+    condition     = length(aws_ce_anomaly_monitor.services) == 1
+    error_message = "a per-service monitor by default"
+  }
+
+  assert {
+    condition     = length(jsondecode(aws_ce_anomaly_monitor.accounts.monitor_specification).Dimensions.Values) == 7
+    error_message = "the account monitor covers every account, management included"
+  }
+
+  assert {
+    condition     = one(aws_ce_anomaly_subscription.alerts.subscriber).address == aws_sns_topic.alerts.arn
+    error_message = "anomalies go to the alerts topic"
+  }
+}
+
+run "unknown_kill_switch_account_is_refused" {
+  command = plan
+
+  variables {
+    kill_switch_accounts = ["apps", "nope"]
+  }
+
+  expect_failures = [aws_budgets_budget.account]
+}
+
+run "alert_emails_are_sensitive_but_subscribed" {
+  command = plan
+
+  variables {
+    alert_emails = ["one@example.invalid", "two@example.invalid"]
+  }
+
+  assert {
+    condition     = length(aws_sns_topic_subscription.alert_email) == 2
+    error_message = "one email subscription per address (count, so the addresses never become printed keys)"
   }
 }

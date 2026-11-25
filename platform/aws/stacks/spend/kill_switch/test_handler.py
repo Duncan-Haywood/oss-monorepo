@@ -40,6 +40,10 @@ class FakeAWS:
         }
         self.services = {"arn:svc:web": {"desiredCount": 2, "tags": {}}}
         self.dbs = {"db1": {"status": "available", "tags": {}}}
+        self.clusters = {"aurora": {"status": "available", "tags": {}}}
+        self.groups = {"web-asg": {"size": (1, 4, 2), "tags": {}}}
+        self.mappings = {"m1": {"state": "Enabled", "fn": "api", "tags": {}}}
+        self.endpoints = {"ep": "InService"}
         self.ses_enabled = True
         self.roles = {"app-llm": {"spend-guard": "deny-on-budget"}, "other": {}}
         self.users = {"transitional-worker": {"spend-guard": "deny-on-budget"}}
@@ -47,7 +51,8 @@ class FakeAWS:
         self.calls = []
 
     def factory(self, name):
-        return {"ec2": EC2, "lambda": Lambda, "ecs": ECS, "rds": RDS, "sesv2": SES, "iam": IAM}[name](self)
+        return {"ec2": EC2, "lambda": Lambda, "ecs": ECS, "rds": RDS, "sesv2": SES, "iam": IAM,
+                "autoscaling": ASG, "sagemaker": SageMaker}[name](self)
 
 
 class Svc:
@@ -60,7 +65,8 @@ class EC2(Svc):
         def pages(Filters):
             state = Filters[0]["Values"][0]
             return [{"Reservations": [{"Instances": [
-                {"InstanceId": i["InstanceId"], "Tags": i["Tags"]} for i in self.s.instances.values() if i["State"] == state
+                {"InstanceId": i["InstanceId"], "Tags": i["Tags"], **({"InstanceLifecycle": "spot"} if i.get("spot") else {})}
+                for i in self.s.instances.values() if i["State"] == state
             ]}]}]
         p = Paginator([])
         p.paginate = lambda **kw: iter(pages(**kw))
@@ -88,10 +94,21 @@ class EC2(Svc):
 
 class Lambda(Svc):
     def _by_arn(self, arn):
+        if arn.startswith("arn:esm:"):
+            return self.s.mappings[arn.split(":")[-1]]
         return next(f for f in self.s.functions.values() if f["arn"] == arn)
 
-    def get_paginator(self, _):
+    def get_paginator(self, name):
+        if name == "list_event_source_mappings":
+            return Paginator([{"EventSourceMappings": [
+                {"UUID": u, "EventSourceMappingArn": f"arn:esm:{u}", "State": m["state"],
+                 "FunctionArn": f"arn:aws:lambda:us-east-1:111111111111:function:{m['fn']}"}
+                for u, m in self.s.mappings.items()
+            ]}])
         return Paginator([{"Functions": [{"FunctionName": n, "FunctionArn": f["arn"]} for n, f in self.s.functions.items()]}])
+
+    def update_event_source_mapping(self, UUID, Enabled):
+        self.s.mappings[UUID]["state"] = "Enabled" if Enabled else "Disabled"
 
     def list_tags(self, Resource):
         return {"Tags": dict(self._by_arn(Resource)["tags"])}
@@ -139,19 +156,34 @@ class ECS(Svc):
 
 
 class RDS(Svc):
-    def get_paginator(self, _):
+    def get_paginator(self, name):
+        if name == "describe_db_clusters":
+            return Paginator([{"DBClusters": [
+                {"DBClusterIdentifier": k, "DBClusterArn": f"arn:cluster:{k}", "Status": c["status"],
+                 "TagList": [{"Key": a, "Value": b} for a, b in c["tags"].items()]}
+                for k, c in self.s.clusters.items()
+            ]}])
         return Paginator([{"DBInstances": [
             {"DBInstanceIdentifier": k, "DBInstanceArn": f"arn:db:{k}", "DBInstanceStatus": d["status"],
              "TagList": [{"Key": a, "Value": b} for a, b in d["tags"].items()]}
             for k, d in self.s.dbs.items()
         ]}])
 
+    def _store(self, arn):
+        return self.s.clusters if arn.startswith("arn:cluster:") else self.s.dbs
+
     def add_tags_to_resource(self, ResourceName, Tags):
-        self.s.dbs[ResourceName.split(":")[-1]]["tags"].update({t["Key"]: t["Value"] for t in Tags})
+        self._store(ResourceName)[ResourceName.split(":")[-1]]["tags"].update({t["Key"]: t["Value"] for t in Tags})
 
     def remove_tags_from_resource(self, ResourceName, TagKeys):
         for k in TagKeys:
-            self.s.dbs[ResourceName.split(":")[-1]]["tags"].pop(k, None)
+            self._store(ResourceName)[ResourceName.split(":")[-1]]["tags"].pop(k, None)
+
+    def stop_db_cluster(self, DBClusterIdentifier):
+        self.s.clusters[DBClusterIdentifier]["status"] = "stopped"
+
+    def start_db_cluster(self, DBClusterIdentifier):
+        self.s.clusters[DBClusterIdentifier]["status"] = "available"
 
     def stop_db_instance(self, DBInstanceIdentifier):
         self.s.dbs[DBInstanceIdentifier]["status"] = "stopped"
@@ -166,6 +198,31 @@ class SES(Svc):
 
     def put_account_sending_attributes(self, SendingEnabled):
         self.s.ses_enabled = SendingEnabled
+
+
+class ASG(Svc):
+    def get_paginator(self, _):
+        return Paginator([{"AutoScalingGroups": [
+            {"AutoScalingGroupName": n, "MinSize": g["size"][0], "MaxSize": g["size"][1], "DesiredCapacity": g["size"][2],
+             "Tags": [{"Key": k, "Value": v} for k, v in g["tags"].items()]}
+            for n, g in self.s.groups.items()
+        ]}])
+
+    def create_or_update_tags(self, Tags):
+        for t in Tags:
+            self.s.groups[t["ResourceId"]]["tags"][t["Key"]] = t["Value"]
+
+    def delete_tags(self, Tags):
+        for t in Tags:
+            self.s.groups[t["ResourceId"]]["tags"].pop(t["Key"], None)
+
+    def update_auto_scaling_group(self, AutoScalingGroupName, MinSize, MaxSize, DesiredCapacity):
+        self.s.groups[AutoScalingGroupName]["size"] = (MinSize, MaxSize, DesiredCapacity)
+
+
+class SageMaker(Svc):
+    def get_paginator(self, _):
+        return Paginator([{"Endpoints": [{"EndpointName": n, "EndpointStatus": st} for n, st in self.s.endpoints.items()]}])
 
 
 class NoSuchEntityException(Exception):
@@ -289,3 +346,86 @@ def test_resume_without_kill_is_a_no_op():
 def test_rejects_unknown_action_or_account(event):
     with pytest.raises(ValueError):
         run(FakeAWS(), event)
+
+
+# --- Added with the anomaly / per-account / multi-region follow-up ---------
+
+
+def test_kill_covers_asg_event_sources_aurora_and_reports_what_it_cannot_stop():
+    aws = FakeAWS()
+    aws.instances["i-spot"] = {"InstanceId": "i-spot", "State": "running", "Tags": [], "spot": True}
+    out = run(aws, {"action": "kill", "account": "apps"})
+    assert aws.groups["web-asg"]["size"] == (0, 0, 0)
+    assert aws.mappings["m1"]["state"] == "Disabled"
+    assert aws.clusters["aurora"]["status"] == "stopped"
+    assert aws.instances["i-spot"]["State"] == "running", "spot instances are reported, never terminated"
+    reports = [a for a in out["accounts"]["apps"] if a.startswith("REPORT")]
+    assert any("i-spot" in r for r in reports) and any("sagemaker endpoint ep" in r for r in reports)
+
+
+def test_resume_restores_asg_event_sources_and_aurora():
+    aws = FakeAWS()
+    aws.mappings["m-off"] = {"state": "Disabled", "fn": "api", "tags": {}}
+    run(aws, {"action": "kill", "account": "apps"})
+    run(aws, {"action": "resume", "account": "apps"})
+    assert aws.groups["web-asg"]["size"] == (1, 4, 2) and aws.groups["web-asg"]["tags"] == {}
+    assert aws.mappings["m1"]["state"] == "Enabled" and aws.mappings["m1"]["tags"] == {}
+    assert aws.mappings["m-off"]["state"] == "Disabled", "only re-enables what the switch disabled"
+    assert aws.clusters["aurora"]["status"] == "available" and aws.clusters["aurora"]["tags"] == {}
+
+
+def test_kill_twice_keeps_original_asg_size():
+    aws = FakeAWS()
+    run(aws, {"action": "kill", "account": "apps"})
+    run(aws, {"action": "kill", "account": "apps"})
+    run(aws, {"action": "resume", "account": "apps"})
+    assert aws.groups["web-asg"]["size"] == (1, 4, 2)
+
+
+def test_exempt_asg_and_event_source_left_alone():
+    aws = FakeAWS()
+    aws.groups["web-asg"]["tags"] = {"spend-guard": "exempt"}
+    aws.mappings["m1"]["tags"] = {"spend-guard": "exempt"}
+    run(aws, {"action": "kill", "account": "apps"})
+    assert aws.groups["web-asg"]["size"] == (1, 4, 2)
+    assert aws.mappings["m1"]["state"] == "Enabled"
+
+
+def test_budget_only_stops_kill_switch_accounts():
+    aws = FakeAWS()
+    msg = {"Records": [{"Sns": {"Message": "Budget Name: monthly-shared-infra"}}]}
+    out = handler.handle(msg, ACCOUNTS, False, lambda _a: aws.factory, kill_on_budget=["apps", "sandbox"])
+    assert out["accounts"] == {} and out["alert_only"] == ["shared-infra"]
+    assert aws.instances["i-run"]["State"] == "running" and aws.calls == []
+
+
+def test_manual_invocation_can_stop_an_alert_only_account():
+    aws = FakeAWS()
+    out = handler.handle({"action": "kill", "account": "shared-infra"}, ACCOUNTS, False, lambda _a: aws.factory,
+                         kill_on_budget=["apps"])
+    assert "shared-infra" in out["accounts"] and aws.instances["i-run"]["State"] == "stopped"
+
+
+def test_every_region_swept_and_iam_runs_once():
+    per_region = {"us-east-1": FakeAWS(), "us-west-2": FakeAWS()}
+    iam_calls = []
+
+    def factory(name, region):
+        if name == "iam":
+            iam_calls.append(region)
+        return per_region[region].factory(name)
+
+    out = handler.handle({"action": "kill", "account": "apps"}, ACCOUNTS, False, lambda _a: factory,
+                         self_function="spend-kill-switch", regions=["us-east-1", "us-west-2"])
+    for region, aws in per_region.items():
+        assert aws.instances["i-run"]["State"] == "stopped", region
+        assert aws.groups["web-asg"]["size"] == (0, 0, 0), region
+    assert set(iam_calls) == {"us-east-1"}, "IAM is global: only the first region touches it"
+    assert any(a.startswith("us-west-2 ec2 stop") for a in out["accounts"]["apps"])
+
+
+def test_never_deletes_or_terminates():
+    src = pathlib.Path(handler.__file__).read_text(encoding="utf-8")
+    for verb in ("terminate_instances", "delete_db_", "delete_service", "delete_function(", "delete_auto_scaling_group",
+                 "delete_endpoint", "delete_bucket", "delete_object", "delete_event_source_mapping"):
+        assert verb not in src, verb

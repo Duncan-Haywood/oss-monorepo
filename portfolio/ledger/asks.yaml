@@ -240,3 +240,48 @@ decisions:
     portfolio/ledger/asks.yaml`). No money, no new account beyond a Google and
     Microsoft login the owner already controls, and fully reversible (remove
     the token, delete the property).
+
+- id: aws-turnover
+  asks: []
+  prs: [18755]
+  gates: deployment
+  exposure: legal-person
+  opened: "2026-11-24"
+  action: >-
+    The AWS move (owner decision 2026-11-24) needs ten steps that only you
+    can take. They are written once, in order, in the "Owner checklist" of
+    docs/runbooks/aws-cutover.md: (1) open the AWS account with your card,
+    turn on root MFA, give your future login access to billing, and set
+    AWS's own spend limit if the console offers one; (2) paste the bootstrap
+    into CloudShell; (3) run platform/aws/github/configure.sh and set
+    AWS_BUDGET_ALERT_EMAIL; (4) after the first apply, enable IAM Identity
+    Center with MFA for yourself; (5) sign up for Claude Platform on AWS and
+    set a workspace spend limit; (6) request SES production access when an
+    agent says the email checks are green; (7) close the old Anthropic and
+    Resend accounts at the end; (8) move DNS to Route 53 when an agent's PR
+    shows zero zone differences: a Zone Read token, lower TTLs, check
+    DNSSEC and the registrar, then the nameservers; (9) retire Cloudflare;
+    (10) apply .github/rulesets/main.json with an admin token so the merge
+    gate is required before CI starts applying.
+    Steps 1-4 take about an hour and reach the turnover point: after that CI
+    applies every stack on merge. Do not create an AWS Organization or
+    enable Identity Center before step 3's first apply. This one row covers
+    every AWS step; do not add others.
+  unlocks:
+    - >-
+      CI applies every platform/aws stack (organization, security baseline,
+      spend guards, LLM, email, DNS, site, edge API) on each merge, so the
+      move onto one host can finish without more owner work.
+    - >-
+      Spend guarded by code from the first apply: anomaly alerts, budgets
+      at 50/80/100 %, a freeze SCP at the hard line, and a kill switch for
+      the apps and sandbox accounts.
+  blocked_by: []
+  note: >-
+    Added 2026-11-24 by the aws-spend-guards follow-up (PR 18755) after PR
+    18749 landed the stacks and the runbook. It costs money: AWS usage is
+    billed to your card from step 1, Claude Platform bills through AWS
+    Marketplace from step 5, and step 8 may need a paid domain transfer if
+    Cloudflare is the registrar. The cloudflare-mail-and-ruleset row's
+    Email Routing part becomes moot once SES receives mail; its ruleset
+    part does not.
