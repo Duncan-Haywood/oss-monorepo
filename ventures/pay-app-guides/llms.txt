@@ -15,6 +15,7 @@ Free to use and source available (FSL-1.1-MIT). Not legal, tax, accounting or fi
 - [Change orders and the schedule of values](https://marisstella.app/pay-app-guides/change-orders-schedule-of-values.html): approved and deductive change orders on the SOV and summary.
 - [Retainage in QuickBooks Online](https://marisstella.app/pay-app-guides/retainage-in-quickbooks.html): QuickBooks has no retainage field; the Retainage Receivable account and item, the negative invoice line, the release invoice, finding unbilled retainage outside A/R aging, the cash-basis caveat, and an invoice-line calculator. Sources are Intuit help and community pages.
 - [Prompt payment laws for subcontractors](https://marisstella.app/pay-app-guides/prompt-payment-laws.html): how many days a GC has to pass the owner's payment down to a sub, and late-payment interest, in Texas, California, Illinois, North Carolina, Pennsylvania, Virginia (public work) and Florida, each linked to the statute (read 2026-11-25; rates given only where the text read confirmed them), plus a late-payment interest calculator.
+- [How to get your retainage released](https://marisstella.app/pay-app-guides/retainage-release.html): what GCs and owners usually ask for before releasing retainage (punch list, final pay app, final conditional waiver, lower-tier waivers, consent of surety, closeout documents), how the release date is set by the subcontract or a statute, and a release date calculator that writes a dated request letter listing any closeout items still open.
 
 ## Source
 

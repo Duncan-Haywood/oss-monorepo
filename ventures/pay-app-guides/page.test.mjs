@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html", "prompt-payment-laws.html"];
+const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html", "prompt-payment-laws.html", "retainage-release.html"];
 
 test("every page carries the no-warranty clause, sponsor link, opt-out and honest CTA", () => {
   for (const name of PAGES) {
@@ -124,4 +124,12 @@ test("the prompt payment table links each state to its official legislature site
   for (const [, state, href] of rows) assert.match(href, official, state);
   assert.match(html, /2026-11-25/);
   for (const id of ["pp-state", "pp-amount", "pp-received", "pp-paid", "pp-days", "pp-rate", "pp-per", "pp-method"]) assert.match(html, new RegExp(`<label for="${id}">`));
+});
+
+test("retainage release page: inputs labelled, letter output present, links the statute table rather than restating it", () => {
+  const html = page("retainage-release.html");
+  for (const id of ["rr-held", "rr-released", "rr-trigger", "rr-days", "rr-today", "rr-basis", "rr-project", "rr-to", "rr-from"]) assert.match(html, new RegExp(`<label for="${id}">`), id);
+  assert.match(html, /id="rr-letter"/);
+  assert.match(html, /href="retainage-explained\.html#state-table"/);
+  assert.match(html, /not a legal notice/);
 });
