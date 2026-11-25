@@ -1,10 +1,13 @@
 import {
+  DEFAULT_TIME_ZONE,
   dailySummary,
+  localIsoDate,
   isIsoDate,
   latestDayWithActivity,
   shiftIsoDate,
   summaryHasActivity,
   type DailySummary,
+  type ReportOptions,
 } from "./report.js";
 
 export type KpiResolvedFrom = "requested" | "latest";
@@ -20,6 +23,9 @@ export interface LiveKpiPayload {
   source: "live";
   date: string;
   resolvedFrom: KpiResolvedFrom;
+  store_id: string | null;
+  time_zone: string;
+  currency: string | null;
   entries: number;
   bounces: number;
   purchases: number;
@@ -30,9 +36,9 @@ export interface LiveKpiPayload {
   vsPriorWeek: PriorWeekKpis | null;
 }
 
-function priorWeekIfPresent(dbPath: string, date: string): PriorWeekKpis | null {
+function priorWeekIfPresent(dbPath: string, date: string, options: ReportOptions): PriorWeekKpis | null {
   const priorDate = shiftIsoDate(date, -7);
-  const prior = dailySummary(dbPath, priorDate);
+  const prior = dailySummary(dbPath, priorDate, options);
   if (!summaryHasActivity(prior)) {
     return null;
   }
@@ -55,15 +61,19 @@ export function liveKpiPayload(
   dbPath: string,
   date: string,
   resolvedFrom: KpiResolvedFrom,
+  options: ReportOptions = {},
 ): LiveKpiPayload {
   if (!isIsoDate(date)) {
     throw new Error("liveKpiPayload expects YYYY-MM-DD");
   }
-  const summary = dailySummary(dbPath, date);
+  const summary = dailySummary(dbPath, date, options);
   return {
     source: "live",
     date: summary.date,
     resolvedFrom,
+    store_id: summary.store_id,
+    time_zone: summary.time_zone,
+    currency: summary.currency,
     entries: summary.entries,
     bounces: summary.bounces,
     purchases: summary.purchases,
@@ -71,26 +81,31 @@ export function liveKpiPayload(
     revenue_cents: summary.revenue_cents,
     revenue_per_entrant_cents: summary.revenue_per_entrant_cents,
     avg_basket_cents: avgBasketCents(summary),
-    vsPriorWeek: priorWeekIfPresent(dbPath, date),
+    vsPriorWeek: priorWeekIfPresent(dbPath, date, options),
   };
 }
 
-export function todayIsoDate(now = new Date()): string {
-  return now.toISOString().slice(0, 10);
+/** Today's calendar date in the store's time zone (not UTC). */
+export function todayIsoDate(now = new Date(), timeZone = DEFAULT_TIME_ZONE): string {
+  return localIsoDate(now, timeZone);
 }
 
-export function kpisForDate(dbPath: string, date: string): LiveKpiPayload {
-  return liveKpiPayload(dbPath, date, "requested");
+export function kpisForDate(dbPath: string, date: string, options: ReportOptions = {}): LiveKpiPayload {
+  return liveKpiPayload(dbPath, date, "requested", options);
 }
 
-export function kpisForToday(dbPath: string, now = new Date()): LiveKpiPayload {
-  return liveKpiPayload(dbPath, todayIsoDate(now), "requested");
+export function kpisForToday(
+  dbPath: string,
+  now = new Date(),
+  options: ReportOptions = {},
+): LiveKpiPayload {
+  return liveKpiPayload(dbPath, todayIsoDate(now, options.timeZone), "requested", options);
 }
 
-export function kpisForLatest(dbPath: string): LiveKpiPayload | null {
-  const latest = latestDayWithActivity(dbPath);
+export function kpisForLatest(dbPath: string, options: ReportOptions = {}): LiveKpiPayload | null {
+  const latest = latestDayWithActivity(dbPath, options);
   if (!latest) {
     return null;
   }
-  return liveKpiPayload(dbPath, latest, "latest");
+  return liveKpiPayload(dbPath, latest, "latest", options);
 }

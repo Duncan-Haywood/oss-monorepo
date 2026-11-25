@@ -1,6 +1,6 @@
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import type { AddressInfo } from "node:net";
-import { isIsoDate } from "./report.js";
+import { isIsoDate, ReportScopeError, type ReportOptions } from "./report.js";
 import { kpisForDate, kpisForLatest, kpisForToday, type LiveKpiPayload } from "./kpi.js";
 
 export const DEFAULT_KPI_PORT = 8787;
@@ -18,6 +18,10 @@ export interface KpiServerOptions {
   host?: string;
   port?: number;
   corsOrigins?: readonly string[];
+  /** Default store for every request; a `store` query parameter overrides it. */
+  storeId?: string;
+  /** IANA time zone of the store's calendar days (default Europe/Rome). */
+  timeZone?: string;
 }
 
 export interface StartedKpiServer {
@@ -53,18 +57,31 @@ function requestUrl(req: IncomingMessage): URL {
   return new URL(req.url ?? "/", "http://kpi.local");
 }
 
-function handleGet(dbPath: string, req: IncomingMessage, res: ServerResponse): void {
+const STORE_ID = /^[A-Za-z0-9._-]{1,64}$/;
+
+function handleGet(
+  dbPath: string,
+  defaults: ReportOptions,
+  req: IncomingMessage,
+  res: ServerResponse,
+): void {
   const url = requestUrl(req);
+  const storeParam = url.searchParams.get("store");
+  if (storeParam !== null && !STORE_ID.test(storeParam)) {
+    json(res, 400, { error: "invalid_store", message: "store must be 1-64 letters, digits, '.', '_' or '-'." });
+    return;
+  }
+  const options: ReportOptions = { ...defaults, ...(storeParam !== null ? { storeId: storeParam } : {}) };
   if (url.pathname === "/health") {
     json(res, 200, { ok: true });
     return;
   }
   if (url.pathname === "/api/kpis/today") {
-    json(res, 200, kpisForToday(dbPath));
+    json(res, 200, kpisForToday(dbPath, new Date(), options));
     return;
   }
   if (url.pathname === "/api/kpis/latest") {
-    const latest = kpisForLatest(dbPath);
+    const latest = kpisForLatest(dbPath, options);
     if (!latest) {
       json(res, 404, { error: "no_activity", message: "Store database has no door or POS events yet." });
       return;
@@ -78,7 +95,7 @@ function handleGet(dbPath: string, req: IncomingMessage, res: ServerResponse): v
       json(res, 400, { error: "invalid_date", message: "Pass date=YYYY-MM-DD." });
       return;
     }
-    json(res, 200, kpisForDate(dbPath, date) satisfies LiveKpiPayload);
+    json(res, 200, kpisForDate(dbPath, date, options) satisfies LiveKpiPayload);
     return;
   }
   json(res, 404, { error: "not_found" });
@@ -89,6 +106,10 @@ export function startKpiServer(options: KpiServerOptions): Promise<StartedKpiSer
   const port = options.port ?? DEFAULT_KPI_PORT;
   const corsOrigins = options.corsOrigins ?? DEFAULT_CORS_ORIGINS;
   const { dbPath } = options;
+  const defaults: ReportOptions = {
+    ...(options.storeId !== undefined ? { storeId: options.storeId } : {}),
+    ...(options.timeZone !== undefined ? { timeZone: options.timeZone } : {}),
+  };
 
   const server = createServer((req, res) => {
     applyCors(req, res, corsOrigins);
@@ -102,8 +123,12 @@ export function startKpiServer(options: KpiServerOptions): Promise<StartedKpiSer
       return;
     }
     try {
-      handleGet(dbPath, req, res);
-    } catch {
+      handleGet(dbPath, defaults, req, res);
+    } catch (error) {
+      if (error instanceof ReportScopeError) {
+        json(res, 400, { error: error.code, message: error.message });
+        return;
+      }
       json(res, 500, { error: "internal_error" });
     }
   });

@@ -114,7 +114,7 @@ Full matrix with scores, monthly € math, and payback: `pnpm docs:dev` → **RO
 
 From the quality audit of 2026-11-19 ([`portfolio/quality/audits/2026-11-19-retail-pilot-intel.json`](../../portfolio/quality/audits/2026-11-19-retail-pilot-intel.json)):
 
-- **Daily KPIs are by UTC date and not split by store** (`packages/analytics/src/report.ts`): a second store's receipts, or a sale after midnight in Rome, land in the wrong store or day, and EUR and USD are summed. Needs a `store_id` filter and Europe/Rome day boundaries.
+- Fixed 2026-11-25: daily KPIs were UTC dates summed across stores and currencies. They now use Europe/Rome calendar days (`--tz` to change), take a store id (`--store`, or `?store=` on the KPI API), refuse a multi-store database without one, and refuse a day whose sales mix currencies (`packages/analytics/src/report.ts`). Hourly buckets are still not built.
 - A basket whose discount or refund line is rejected is still imported at full price (`packages/pos/src/importer.ts`).
 - `pnpm bootstrap` prints an all-zero report, because its sample events are marked synthetic and left out.
 - The door camera is a stub; SKU gap, upsell and experiments are demo data only.

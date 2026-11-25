@@ -145,3 +145,37 @@ test("KPI server serves today, latest, dated lookup, and rejects unsafe dates", 
     }
   });
 });
+
+test("kpisForToday uses the store's calendar day: 23:30 UTC is already tomorrow in Rome", () => {
+  withTempDb((dbPath) => {
+    openDb(dbPath);
+    assert.equal(kpisForToday(dbPath, new Date("2026-08-25T23:30:00Z")).date, "2026-08-26");
+    assert.equal(kpisForToday(dbPath, new Date("2026-08-25T23:30:00Z"), { timeZone: "UTC" }).date, "2026-08-25");
+  });
+});
+
+test("KPI server refuses a multi-store database without ?store and filters with it", async () => {
+  await withTempDb(async (dbPath) => {
+    const db = openDb(dbPath);
+    insertSale(db, saleEvent({ event_id: "a", store_id: "store-a", total_cents: 1000 }));
+    insertSale(db, saleEvent({ event_id: "b", store_id: "store-b", total_cents: 7000 }));
+    const server = await startKpiServer({ dbPath, host: "127.0.0.1", port: 0 });
+    try {
+      const mixed = await fetch(`${server.url}/api/kpis?date=2026-08-19`);
+      assert.equal(mixed.status, 400);
+      assert.equal(((await mixed.json()) as { error: string }).error, "multiple_stores");
+
+      const one = await fetch(`${server.url}/api/kpis?date=2026-08-19&store=store-b`);
+      assert.equal(one.status, 200);
+      const body = (await one.json()) as { revenue_cents: number; store_id: string; currency: string };
+      assert.equal(body.revenue_cents, 7000);
+      assert.equal(body.store_id, "store-b");
+      assert.equal(body.currency, "EUR");
+
+      const bad = await fetch(`${server.url}/api/kpis?date=2026-08-19&store=${encodeURIComponent("x' OR 1=1")}`);
+      assert.equal(bad.status, 400);
+    } finally {
+      await server.close();
+    }
+  });
+});

@@ -1,6 +1,6 @@
 import { syncInbox } from "./sync-inbox.js";
 import { DEFAULT_DB, openDb } from "./db.js";
-import { printReport } from "./report.js";
+import { DEFAULT_TIME_ZONE, localIsoDate, printReport, type ReportOptions } from "./report.js";
 import {
   DEFAULT_CORS_ORIGINS,
   DEFAULT_KPI_HOST,
@@ -10,13 +10,18 @@ import {
 
 const [, , command, ...rest] = process.argv;
 
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10);
-}
 
 function parseFlag(name: string, fallback: string): string {
   const i = rest.indexOf(name);
   return i >= 0 && rest[i + 1] ? rest[i + 1]! : fallback;
+}
+
+function reportOptions(): ReportOptions {
+  const store = parseFlag("--store", "");
+  return {
+    timeZone: parseFlag("--tz", DEFAULT_TIME_ZONE),
+    ...(store ? { storeId: store } : {}),
+  };
 }
 
 function parsePort(raw: string): number {
@@ -40,9 +45,10 @@ switch (command) {
     break;
   }
   case "report": {
-    const day =
-      parseFlag("--date", "today") === "today" ? todayIso() : parseFlag("--date", todayIso());
-    printReport(DEFAULT_DB, day);
+    const options = reportOptions();
+    const raw = parseFlag("--date", "today");
+    const day = raw === "today" ? localIsoDate(new Date(), options.timeZone) : raw;
+    printReport(DEFAULT_DB, day, options);
     break;
   }
   case "serve-kpis": {
@@ -54,18 +60,18 @@ switch (command) {
       .split(",")
       .map((origin) => origin.trim())
       .filter((origin) => origin.length > 0);
-    const server = await startKpiServer({ dbPath, host, port, corsOrigins });
+    const server = await startKpiServer({ dbPath, host, port, corsOrigins, ...reportOptions() });
     console.log(`KPI API listening on ${server.url}`);
     console.log("  GET /health");
     console.log("  GET /api/kpis/today");
     console.log("  GET /api/kpis/latest");
-    console.log("  GET /api/kpis?date=YYYY-MM-DD");
+    console.log("  GET /api/kpis?date=YYYY-MM-DD[&store=<store id>]");
     console.log("Read-only aggregates. Bind --host 0.0.0.0 only on a trusted store LAN.");
     break;
   }
   default:
     console.error(
-      "Usage: cli.ts init | sync | report [--date today|YYYY-MM-DD] | serve-kpis [--port 8787] [--host 127.0.0.1] [--db data/pilot.db] [--cors-origin http://localhost:5174]",
+      "Usage: cli.ts init | sync | report [--date today|YYYY-MM-DD] [--store ID] [--tz Europe/Rome] | serve-kpis [--store ID] [--tz Europe/Rome] [--port 8787] [--host 127.0.0.1] [--db data/pilot.db] [--cors-origin http://localhost:5174]",
     );
     process.exit(1);
 }
