@@ -46,7 +46,7 @@ function randomCases(n) {
   return out;
 }
 
-test("JS and Python agree on which strings are ISO dates", (t) => {
+test("JS and Python agree on which strings are ISO dates", () => {
   const cases = [...FIXED, ...randomCases(3000)];
   const script = [
     "import json, sys",
@@ -62,10 +62,9 @@ test("JS and Python agree on which strings are ISO dates", (t) => {
     "print(json.dumps(out))",
   ].join("\n");
   const run = spawnSync("python3", ["-I", "-c", script], { cwd: HERE, input: JSON.stringify(cases), encoding: "utf8" });
-  if (run.error) {
-    t.skip("python3 is not available");
-    return;
-  }
+  // The package's own CI runs the Python suite, so python3 is always there;
+  // a missing interpreter is a failure, not a skip.
+  assert.ifError(run.error);
   assert.equal(run.status, 0, run.stderr);
   const python = JSON.parse(run.stdout);
   const disagree = [];
