@@ -67,7 +67,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Red: budget.mjs (wall-framing-takeoff, construction bet) 8 mutants, 6 caught, 1 equivalent (stair labor >=0), 1 gap (dormer roof <1 sq ft) now tested; catch rate 0.857 -> 1.0. checkout.mjs had 0 sites. Blue/guards: unwired_checks (run on every venture PR, and now on platform/ci, platform/pages, docs/reports PRs) was red on main with 6 failures: 4 real defects fixed, 1 flaky test fixed, 1 the saas-starter suites (now a declared-dep skip). einvoice-preflight browser-test now installs slimdom/fontoxpath: 144 -> 16 skipped, 128 more tests run, all pass locally (2315 pass; the 1 fail is this container's pdfdetach wrapper).",
+  "notes": "Red: budget.mjs (wall-framing-takeoff, construction bet) 8 mutants, 6 caught, 1 equivalent (stair labor >=0), 1 gap (dormer roof <1 sq ft) now tested; catch rate 0.857 -> 1.0. checkout.mjs had 0 sites. Blue/guards: unwired_checks (run on every venture PR, and now on platform/ci, platform/pages, docs/reports PRs) was red on main with 6 failures: 4 real defects fixed, 1 flaky test fixed, 1 the saas-starter suites (now a declared-dep skip). einvoice-preflight browser-test now installs slimdom/fontoxpath: 144 -> 16 skipped, 128 more tests run, all pass locally (2315 pass; the 1 fail is this container's pdfdetach wrapper). shift-roster-builder repair-flow test failed once in CI under full-suite load (pre-existing, timing-dependent; logged as an open defect, re-run used).",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -218,6 +218,11 @@
         "issue": "Gone test asserted matching(tag)==[] the instant p.wait() returned; the SIGKILLed group's forked child was still in /proc under unwired_checks' parallel load. Now waits up to 5 s with wait_gone.",
         "patched": true,
         "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18785"
+      },
+      {
+        "file": "ventures/shift-roster-builder/repair-flow.test.mjs",
+        "issue": "'the repair reserve is on by default from 300 copies' (line 132) builds a 252-person-week at timeBudgetMs 10000 and asserts optimality.coverRepairReserveMs === 1000; the reserve is only set once the cover passes start (~2.7 s idle, after eject ~1.4 s and scoreCG ~1 s), so on a loaded runner the budget runs out first and it reads null. Failed on PR #18785's changed-ventures job (all 511 suites ran because platform/ci changed). Tried: timeBudgetMs 30000 (scoreCG and floors scale with the budget: 32 s idle, too slow); scoreCG:false (the build then ran >200 s, ignoring its 10 s budget: a second defect worth its own look). Fix needs a way to start the cover passes early without timing (e.g. an option skipping eject, or exporting the reserve decision from buildRoster's option path), or reading the reserve from the plan before the passes run.",
+        "patched": false
       }
     ]
   },
