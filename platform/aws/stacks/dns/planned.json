@@ -150,6 +150,15 @@
       ],
       "owner": "retail-pilot-intel",
       "reason": "retail-pilot-intel stack: API Gateway custom domain for the Retail Pilot Intel docs (replaces the retail-pilot-intel-docs Worker)"
+    },
+    {
+      "name": "markets",
+      "types": [
+        "A",
+        "AAAA"
+      ],
+      "owner": "ai-first-markets",
+      "reason": "ai-first-markets stack: API Gateway custom domain for the owner's AI-First Markets notes (replaces the ai-first-markets Worker)"
     }
   ]
 }

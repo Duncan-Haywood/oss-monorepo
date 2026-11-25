@@ -152,6 +152,20 @@ test("QuickBooks lines: a negative retainage held is refused, not flipped into a
   assert.equal(quickbooksLines({ billed: "40000", held: "4000" }).total, 3_600_000);
 });
 
+// Red team 2026-11-25: these three escaped every test (>= for >, && for || in the rate check).
+test("a line billed to exactly its scheduled value is complete, not over-billed", () => {
+  const { findings } = compute([{ item: "1", description: "Done", scheduled: "10000", previous: "6000", thisPeriod: "4000", stored: "0" }], { workRetainage: "10" });
+  assert.ok(!findings.some((f) => /Over-billing/.test(f.msg)), JSON.stringify(findings));
+  const over = compute([{ item: "1", description: "Over", scheduled: "10000", previous: "6000", thisPeriod: "4000.01", stored: "0" }], { workRetainage: "10" });
+  assert.ok(over.findings.some((f) => /Over-billing/.test(f.msg)));
+});
+
+test("QuickBooks lines refuse a negative retainage rate", () => {
+  assert.deepEqual(quickbooksLines({ billed: "1000", rate: "-5" }).errors, ["Retainage must be between 0% and 100%."]);
+  assert.deepEqual(quickbooksLines({ billed: "1000", rate: "150" }).errors, ["Retainage must be between 0% and 100%."]);
+  assert.deepEqual(quickbooksLines({ billed: "1000", rate: "0" }).errors, []);
+});
+
 test("releasing all the retainage leaves none held (red team 2026-11-25)", () => {
   const { totals: t } = compute(SAMPLE.lines, SAMPLE.settings);
   const all = compute(SAMPLE.lines, { ...SAMPLE.settings, retainageReleased: String(t.retainageGross / 100) }).totals;

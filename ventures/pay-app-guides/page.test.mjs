@@ -21,7 +21,7 @@ test("every page carries the no-warranty clause, sponsor link, opt-out and hones
 });
 
 test("no page sends anything anywhere or loads remote scripts", () => {
-  for (const name of [...PAGES, "calc.mjs", "usage.mjs"]) {
+  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "usage.mjs"]) {
     const src = page(name);
     assert.doesNotMatch(src, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/, name);
     assert.doesNotMatch(src, /<script[^>]+src=["']https?:/, name);
@@ -50,6 +50,19 @@ test("the retainage table covers at least 10 states, each linked to an official 
   assert.match(html, /2026-11-24/);
 });
 
+test("change order log inputs are labelled and the guide pages link to it", () => {
+  const html = page("change-order-log.html");
+  for (const id of ["project", "original", "asof", "stale", "log", "file"]) assert.match(html, new RegExp(`<label for="${id}">`));
+  for (const name of ["index.html", "change-orders-schedule-of-values.html"]) assert.match(page(name), /href="change-order-log\.html"/, name);
+  // Its rows are built in script, so the phone card labels live in the row template.
+  const table = html.slice(html.indexOf("<table"), html.indexOf("</table>"));
+  assert.match(table, /^<table class="stack compact" role="table">/);
+  const heads = [...table.matchAll(/<th role="columnheader" scope="col"[^>]*>([^<]*)<\/th>/g)].map((m) => m[1].trim());
+  const row = /\$\("#rows"\)\.innerHTML = [^\n]*/.exec(html)[0];
+  const labels = [...row.matchAll(/<td data-label="([^"]*)"/g)].map((m) => m[1]);
+  assert.deepEqual(labels, heads);
+});
+
 test("robots and sitemap list every page", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   const sitemap = page("sitemap.xml");
@@ -60,7 +73,8 @@ test("robots and sitemap list every page", () => {
 // card whose cells show their column header from data-label. A row added without labels would
 // show bare values on a phone, so every cell must carry its own column's header, in order.
 test("guide tables stack on a phone, every cell labelled with its column header", () => {
-  const guides = PAGES.filter((name) => name !== "index.html");
+  // change-order-log.html fills its rows from script; its own test below checks the labels.
+  const guides = PAGES.filter((name) => name !== "index.html" && name !== "change-order-log.html");
   for (const name of guides) {
     const html = page(name);
     const at = html.indexOf("<main>");
