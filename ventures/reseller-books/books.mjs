@@ -25,6 +25,7 @@ import * as poshmark from "./engines/poshmark.mjs";
 import * as whatnot from "./engines/whatnot.mjs";
 import * as shopify from "./engines/shopify.mjs";
 import * as mercari from "./engines/mercari.mjs";
+import * as depop from "./engines/depop.mjs";
 import { isTripLog, mergeTrips, summarizeTrips, tripNotes, sampleTripCsv } from "./trips.mjs";
 
 export const CHANNELS = {
@@ -34,6 +35,7 @@ export const CHANNELS = {
   whatnot: "Whatnot",
   shopify: "Shopify",
   mercari: "Mercari",
+  depop: "Depop",
 };
 
 const r2 = (n) => Math.round(n * 100) / 100;
@@ -66,6 +68,8 @@ export function detectKind(text) {
   const h = headerTokens(text);
   // Mercari's Gross Sales Report: field names from Mercari's help centre.
   if (mercari.isMercariHeader(h)) return "mercari";
+  // Depop's sales export: before Poshmark, since both have a Brand column.
+  if (depop.isDepopHeader(h)) return "depop";
   const has = (...names) => names.every((n) => h.some((x) => x === n));
   // Shopify Payments "Transactions" export: a payout status and a type per money
   // movement. Checked before the item-per-row formats, none of which has these.
@@ -301,6 +305,53 @@ function mercariChannel(files, costText) {
   return { line: out, months, detail: r, skipped, costBad: costs.bad.length };
 }
 
+// Depop books a sale on its date of sale, at item price plus the shipping the
+// buyer paid (credited to the seller; the label is deducted). The file has no
+// payout per sale, so the net is built from its fee, label, boost and refund
+// columns. Overlapping downloads are de-duplicated by date, time, buyer,
+// description and price.
+function depopChannel(files, costText) {
+  const out = emptyLine("depop");
+  const perFile = [];
+  let skipped = 0;
+  for (const f of files) {
+    const n = depop.normalizeReport(depop.parseCsv(f.text, depop.detectDelimiter(f.text)));
+    if (n.error) return { error: `${f.name}: ${n.error}` };
+    perFile.push(n.rows);
+    skipped += n.skipped.length;
+  }
+  const costs = costText ? depop.parseCosts(costText) : { costs: {}, bad: [] };
+  const r = depop.analyze(perFile, { costs: costs.costs });
+  if (r.invalid) return { error: r.invalid };
+  const s = r.summary;
+  out.orders = s.orders;
+  out.sales = s.sales;
+  out.refunds = s.refunds;
+  out.platformFees = s.fees;
+  out.labels = s.labels;
+  out.ads = s.ads;
+  out.net = s.net;
+  out.from = s.firstMonth;
+  out.to = s.lastMonth;
+  out.notes.push("Depop's export has no payout figure per sale, so Depop's net here is item price plus buyer shipping, less the label, Depop fee, Depop Payments fee, boosting and refunds. Check it against your Depop payouts.");
+  if (s.duplicates) out.notes.push(`${s.duplicates} Depop row(s) repeated a sale from another download (same date, time, buyer, description and price) and were counted once.`);
+  if (s.feeRefunds) out.notes.push(`Depop gave back $${s.feeRefunds.toFixed(2)} of fees on refunded sales; it is netted against Depop's fees.`);
+  if (s.fullyRefunded) out.notes.push(`${s.fullyRefunded} Depop sale(s) were refunded in full and are taken to have come back into stock.`);
+  if (s.bundled) out.notes.push(`${s.bundled} Depop row(s) were part of a bundle; a bundle's shipping and fees can sit on one of its rows, so per-item figures are approximate while the totals are not.`);
+  const buyer = r2(s.buyerTax + s.buyerFees);
+  if (buyer > 0) out.notes.push(`Buyers also paid $${buyer.toFixed(2)} on top on Depop (sales tax $${s.buyerTax.toFixed(2)}, Buyer Marketplace Fee $${s.buyerFees.toFixed(2)}). None of it reached you, so it is not in sales, but a 1099-K can include some of it.`);
+  if (s.costed === s.orders) {
+    out.cogs = s.cogs;
+    out.costedShare = 1;
+    out.profit = r2(s.net - s.cogs);
+  } else if (s.costed > 0) {
+    out.costedShare = s.costed / s.orders;
+    out.notes.push(`${s.costed} of ${s.orders} Depop sales have a cost, so Depop profit is left blank rather than overstated.`);
+  }
+  const months = r.months.map((m) => ({ month: m.month, sales: m.sales, refunds: m.refunds, deductions: r2(m.net - m.sales - m.refunds), net: m.net, cogs: m.costed === m.orders ? m.cogs : null }));
+  return { line: out, months, detail: r, skipped, costBad: costs.bad.length };
+}
+
 function itemChannel(channel, engine, files, costText, feeMode) {
   const out = emptyLine(channel);
   const items = [];
@@ -354,7 +405,7 @@ function itemChannel(channel, engine, files, costText, feeMode) {
  *   its own key (eBay item title or number, SKU on the others).
  */
 export function buildBooks(files, { costs = "", feeMode = "auto", openingInventory = null } = {}) {
-  const groups = { ebay: [], etsy: [], "etsy-items": [], poshmark: [], whatnot: [], shopify: [], "shopify-orders": [], mercari: [], mileage: [], inventory: [] };
+  const groups = { ebay: [], etsy: [], "etsy-items": [], poshmark: [], whatnot: [], shopify: [], "shopify-orders": [], mercari: [], depop: [], mileage: [], inventory: [] };
   const unread = [];
   for (const f of files) {
     const kind = detectKind(f.text);
@@ -390,6 +441,7 @@ export function buildBooks(files, { costs = "", feeMode = "auto", openingInvento
   if (groups.poshmark.length) add("poshmark", itemChannel("poshmark", poshmark, groups.poshmark, costs, feeMode));
   if (groups.whatnot.length) add("whatnot", itemChannel("whatnot", whatnot, groups.whatnot, costs, feeMode));
   if (groups.mercari.length) add("mercari", mercariChannel(groups.mercari, costs));
+  if (groups.depop.length) add("depop", depopChannel(groups.depop, costs));
   if (groups.shopify.length) add("shopify", shopifyChannel(groups.shopify, groups["shopify-orders"], costs));
   if (groups["shopify-orders"].length && !groups.shopify.length) {
     problems.push("A Shopify Orders export was given without the Shopify Payments Transactions export. The transactions file is the one with the fees; add it.");
@@ -402,7 +454,7 @@ export function buildBooks(files, { costs = "", feeMode = "auto", openingInvento
     problems.unshift("A mileage log was read, but no marketplace file. Add your marketplace reports too: the mileage is an expense against the sales in them.");
   }
   if (!channels.length) {
-    return { invalid: problems[0] || "No marketplace file could be recognised. Expected an eBay Transaction report, an Etsy Payment Account statement, a Poshmark My Sales Report, a Whatnot orders export, a Shopify Payments Transactions export or a Mercari Gross Sales Report.", unread, problems };
+    return { invalid: problems[0] || "No marketplace file could be recognised. Expected an eBay Transaction report, an Etsy Payment Account statement, a Poshmark My Sales Report, a Whatnot orders export, a Shopify Payments Transactions export, a Mercari Gross Sales Report or a Depop sales export.", unread, problems };
   }
 
   // Combined months, newest last. Every row reconciles: sales + refunds +
@@ -497,6 +549,7 @@ export function soldUnits(details) {
   for (const p of details.shopify?.products || []) add("shopify", p.name, [p.sku, p.name], Math.max(0, p.netUnits));
   for (const ch of ["poshmark", "whatnot"]) for (const x of details[ch]?.items || []) add(ch, x.title, [x.sku, x.id, x.title], 1);
   for (const x of details.mercari?.sold || []) add("mercari", x.title, [x.id, x.title], 1);
+  for (const x of details.depop?.sold || []) add("depop", x.title, [x.title], 1);
   return out;
 }
 
@@ -645,6 +698,7 @@ export function sampleFiles() {
       { name: "shopify-payments-transactions.csv", text: sh.transactions },
       { name: "shopify-orders.csv", text: sh.orders },
       { name: "mercari-gross-sales-report.csv", text: mercari.sampleCsv() },
+      { name: "depop-sales.csv", text: depop.sampleCsv() },
       { name: "mileage-log.csv", text: sampleTripCsv() },
     ],
     costs: e.costs + "\n" + sh.costs.split("\n").slice(1).join("\n"),

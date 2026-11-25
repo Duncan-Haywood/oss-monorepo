@@ -8,18 +8,22 @@ preparer.** Files are read in the browser; nothing is uploaded and no account ac
 **Live page:** https://marisstella.app/reseller-books/
 
 After using this, you can now **see all your marketplaces in one set of books, compare what
-eBay, Etsy, Poshmark, Mercari, Whatnot and Shopify actually keep after fees, postage, ads and refunds, and hand
+eBay, Etsy, Poshmark, Mercari, Depop, Whatnot and Shopify actually keep after fees, postage, ads and refunds, and hand
 a preparer numbers already grouped by tax line**, which used to mean four exports, four
 shapes and an afternoon in a spreadsheet.
 
 ## Input
 
 Any mix of: the eBay Transaction report, the Etsy Payment Account statement (plus the Sold
-Order Items file to cost Etsy sales), the Poshmark My Sales Report, the Mercari Gross Sales Report, the Whatnot orders export, the Shopify Payments Transactions export (plus the Shopify Orders export, which takes collected sales tax out of Shopify sales and costs products).
+Order Items file to cost Etsy sales), the Poshmark My Sales Report, the Mercari Gross Sales Report, the Depop sales export (Selling Hub, Download sales), the Whatnot orders export, the Shopify Payments Transactions export (plus the Shopify Orders export, which takes collected sales tax out of Shopify sales and costs products).
 The channel is decided from the header row. **Column names are matched by alias from memory
 of each export; no real exports were available.** Unrecognised files are named on the page.
 The Mercari reader is the exception: its 20 field names are the ones Mercari's help centre lists for the
 Gross Sales Report (mercari.com/us/help_center/article/541, read 2026-11-24), though no real file has been read yet.
+The Depop reader (`engines/depop.mjs`) is the other exception: Depop's help centre describes the file's contents but not its
+header strings, so the 34 column names come from the header row of a real export printed in an open-source Depop analysis
+notebook, and three other open-source Depop tools hard-code the same names (found by GitHub code search 2026-11-25; the
+sources are named in the file). No real export was read by this repository; buyer names and addresses in it are never read.
 
 Optionally, an **inventory log**: a sourcing sheet CSV with an item or SKU, a cost (unit or total) and a purchase date,
 plus optional quantity, date sold and status (`personal`, `kept`, `donated`, `lost`, `damaged`...). It costs every sale
@@ -40,6 +44,14 @@ estimates; canceled and in-progress orders are counted in a note. Buyer-paid shi
 never reach the seller, so they are reported beside the books, not in sales. Overlapping downloads are
 de-duplicated by Item ID (the later status wins), and a row whose fees do not add up to its Net Seller Proceeds
 keeps the file's net and is flagged.
+Depop: a sale is booked on its Date of sale at Item price plus Buyer shipping cost (Depop credits buyer shipping to the seller
+and deducts the label as USPS Cost); Depop fee and Depop Payments fee are fees, less Fees refunded to seller; Boosting fee is
+advertising; Refunded to buyer amount is a refund. The file has no payout per sale, so the net is computed from those
+columns (and checked by `depop.test.mjs` against a hand sum), not read; Total is not used because some exports fold US
+sales tax into it. Sales tax and the Buyer Marketplace Fee are paid by the buyer and reported beside the books. Money cells
+written `="-"` or `$-` are zero; dates are day first when the file shows it (UK exports). A sale with the same date, time,
+buyer, description and price in two files counts once; identical rows in one file all count (bundles). A sale refunded
+in full sells no unit for Part III.
 Mileage (`trips.mjs`, rates from `engines/mileage.mjs`, a verbatim copy of `mileage-log/calc.mjs`): business trips are
 priced at the IRS standard mileage rate for each trip's date (70c 2025, Notice 2025-5; 72.5c Jan 1 to Jun 30 2026,
 Notice 2026-10; 76c from Jul 1 2026, Announcement 2026-11; verified against irs.gov on 2026-09-29), plus business
