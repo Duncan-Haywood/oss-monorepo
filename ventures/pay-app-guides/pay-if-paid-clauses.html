@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b51'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pay-If-Paid vs Pay-When-Paid Clauses</title>
+  <meta name="description" content="Pay-if-paid or pay-when-paid? Paste your subcontract's payment clause to see which it is, and how 11 states treat it, each linked to the statute or case.">
+  <meta property="og:title" content="Pay-if-paid vs pay-when-paid clauses: which one you signed, and what your state does with it">
+  <meta property="og:description" content="A free clause reader for subcontractors: paste the payment clause, see the words that make it pay-if-paid or pay-when-paid, and the rule in CA, FL, IL, MD, MO, NV, NY, NC, OH, SC and WI with links to the statute or court opinion.">
+  <link rel="canonical" href="./pay-if-paid-clauses.html">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    textarea { width: 100%; box-sizing: border-box; min-height: 130px; padding: 9px 10px; border: 1px solid var(--input); border-radius: 7px; font: 14px/1.5 system-ui, sans-serif; background: var(--card); color: var(--ink); }
+    .verdict { font-weight: 600; }
+    .quote { font-style: italic; }
+  </style>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Pay-if-paid vs pay-when-paid clauses: which one you signed, and what your state does with it", "datePublished": "2026-11-25", "dateModified": "2026-11-25"}</script>
+</head>
+<body>
+<header>
+  <p class="kicker">Pay app guides · <a href="./">schedule of values calculator</a></p>
+  <h1>Pay-if-paid vs pay-when-paid: what your subcontract's payment clause means</h1>
+  <p>A <strong>pay-when-paid</strong> clause says <em>when</em> the general contractor pays you: so many days after the owner pays the GC. A <strong>pay-if-paid</strong> clause says <em>whether</em>: the owner's payment is a condition of you being paid at all, so if the owner never pays, the GC argues it never owes you. The words decide which one you signed, and your state decides whether a pay-if-paid clause holds. Paste the clause below to see both.</p>
+  <nav class="guides" aria-label="Guides">
+    <a href="prompt-payment-laws.html">Prompt payment laws</a>
+    <a href="retainage-release.html">Getting retainage released</a>
+    <a href="conditional-vs-unconditional-lien-waivers.html">Lien waivers</a>
+    <a href="lien-waiver-forms-by-state.html">Lien waiver forms by state</a>
+  </nav>
+</header>
+<main>
+<section class="card" id="reader">
+  <h2>Clause reader</h2>
+  <p>Paste the payment clause from your subcontract (usually titled "Payment", "Progress payments" or "Final payment"). It runs in this browser tab; nothing is uploaded.</p>
+  <label for="clause">Payment clause</label>
+  <textarea id="clause" spellcheck="false">Receipt of payment by Contractor from Owner for Subcontractor's work is a condition precedent to Contractor's obligation to pay Subcontractor. Subcontractor expressly assumes the risk of Owner's nonpayment.</textarea>
+  <div class="grid">
+    <div><label for="cl-state">Project state</label><select id="cl-state"><option value="">Another state</option></select></div>
+  </div>
+  <p><button type="button" class="secondary" id="ex-when">Try a pay-when-paid example</button> <button type="button" class="secondary" id="ex-if">Try a pay-if-paid example</button></p>
+  <div aria-live="polite">
+    <p id="cl-verdict" class="verdict"></p>
+    <ul id="cl-signals"></ul>
+    <p id="cl-state-text"></p>
+    <p id="cl-cite" class="note"></p>
+    <h3 id="cl-q-head">What to ask</h3>
+    <ul id="cl-questions"></ul>
+  </div>
+  <p class="note">The reader looks for the wording courts have pointed to (a "condition precedent", "if and only if", a named risk of the owner not paying, the owner's payment as the "sole source", or a number of days after receipt). It does not read the rest of your subcontract, and a court reads the contract as a whole. Treat its answer as a starting point for a conversation with the GC or a construction attorney, not as a legal opinion.</p>
+</section>
+
+<section class="card" id="state-table">
+  <h2>How 11 states treat a pay-if-paid clause</h2>
+  <p class="note">Each row was read on <strong>2026-11-25</strong> from the state legislature's own published statute, or from the court opinion on Justia, through search results limited to those sites (the pages could not be opened directly from where this was written). Statutes and case law change; a later court may have narrowed an older decision. Open the link before relying on a row. This is a summary, not legal advice.</p>
+  <div class="scroll"><table class="stack" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">State</th><th role="columnheader" scope="col">Source</th><th role="columnheader" scope="col">Effect on pay-if-paid</th><th role="columnheader" scope="col">What it says</th></tr></thead>
+    <tbody>
+      <tr role="row"><td role="cell" data-label="State">California</td><td role="cell" data-label="Source"><a href="https://law.justia.com/cases/california/supreme-court/4th/15/882.html">Wm. R. Clarke Corp. v. Safeco Ins. Co. (1997) 15 Cal.4th 882</a> (case law)</td><td role="cell" data-label="Effect on pay-if-paid">Pay-if-paid unenforceable</td><td role="cell" data-label="What it says">The California Supreme Court held pay-if-paid provisions contrary to public policy and unenforceable, because in practice they waive the sub's mechanics lien rights. They do not shield the GC or its payment bond surety.</td></tr>
+      <tr role="row"><td role="cell" data-label="State">Florida</td><td role="cell" data-label="Source"><a href="https://law.justia.com/cases/florida/supreme-court/1977/50758-0.html">Peacock Construction Co. v. Modern Air Conditioning, 353 So. 2d 840 (Fla. 1977)</a> (case law)</td><td role="cell" data-label="Effect on pay-if-paid">Read as timing unless clear</td><td role="cell" data-label="What it says">A clause tying payment to the owner's payment is read as setting the time for payment, so the GC owes the sub within a reasonable time, unless the contract unambiguously says the sub takes the risk of the owner not paying. The court called the time-for-payment reading the majority rule.</td></tr>
+      <tr role="row"><td role="cell" data-label="State">Illinois</td><td role="cell" data-label="Source"><a href="https://www.ilga.gov/legislation/ilcs/fulltext.asp?DocName=077000600K21">770 ILCS 60/21(e), Mechanics Lien Act (added by Public Act 103-0827)</a> (statute)</td><td role="cell" data-label="Effect on pay-if-paid">No defense to lien claims</td><td role="cell" data-label="What it says">A provision conditioning the contractor's payment to a sub or supplier on receipt of payment from any other party, including a private or public owner, is not a defense to a claim under sections 21, 22, 23 or 28 of the Act. For this section a contractor includes a subcontractor or supplier.</td></tr>
+      <tr role="row"><td role="cell" data-label="State">Maryland</td><td role="cell" data-label="Source"><a href="https://mgaleg.maryland.gov/mgawebsite/Laws/StatuteText?article=grp&amp;section=9-113&amp;enactments=false">Md. Code, Real Property §9-113</a> (statute)</td><td role="cell" data-label="Effect on pay-if-paid">No defense to lien claims</td><td role="cell" data-label="What it says">A provision in an executory contract between a contractor and a sub that makes payment depend on the contractor being paid by the owner or a third party cannot take away the sub's mechanics lien right or right to sue on the contractor's bond. A provision made in violation of the section is void as against public policy.</td></tr>
+      <tr role="row"><td role="cell" data-label="State">Missouri</td><td role="cell" data-label="Source"><a href="https://revisor.mo.gov/main/OneSection.aspx?section=431.183">RSMo §431.183</a> (statute)</td><td role="cell" data-label="Effect on pay-if-paid">No defense to lien claims</td><td role="cell" data-label="What it says">A provision making a contractor's payment to a subcontractor, trade or specialty contractor or supplier contingent on payment from any other private party, including a private owner, is no defense to a claim to enforce a mechanic's lien under chapter 429.</td></tr>
+      <tr role="row"><td role="cell" data-label="State">Nevada</td><td role="cell" data-label="Source"><a href="https://www.leg.state.nv.us/nrs/nrs-624.html">NRS 624.624–624.626</a> (statute)</td><td role="cell" data-label="Effect on pay-if-paid">Outside date applies anyway</td><td role="cell" data-label="What it says">NRS 624.626 gives a lower-tiered sub remedies, including stopping work, when the higher-tiered contractor fails to pay within 45 days after the 25th day of the month in which the sub asked for payment, even if the higher-tiered contractor has not been paid and the agreement says it pays only if or when it is paid. NRS 624.628 voids other listed provisions. Check the current subsection numbers on the chapter page.</td></tr>
+      <tr role="row"><td role="cell" data-label="State">New York</td><td role="cell" data-label="Source"><a href="https://law.justia.com/cases/new-york/court-of-appeals/1995/87-n-y-2d-148-0.html">West-Fair Electric Contractors v. Aetna Casualty &amp; Surety Co., 87 N.Y.2d 148 (1995)</a> (case law)</td><td role="cell" data-label="Effect on pay-if-paid">Pay-if-paid unenforceable</td><td role="cell" data-label="What it says">A clause making the owner's payment a condition precedent, so the sub bears the risk of the owner not paying, is void and unenforceable as contrary to the public policy in Lien Law §34. A clause that only sets a time for payment is still allowed, and payment on a stated event is read as timing unless the words say otherwise.</td></tr>
+      <tr role="row"><td role="cell" data-label="State">North Carolina</td><td role="cell" data-label="Source"><a href="https://www.ncleg.gov/EnactedLegislation/Statutes/HTML/BySection/Chapter_22c/GS_22c-2.html">N.C. Gen. Stat. §22C-2</a> (statute)</td><td role="cell" data-label="Effect on pay-if-paid">Pay-if-paid unenforceable</td><td role="cell" data-label="What it says">Payment by the owner to a contractor is not a condition precedent for payment to a subcontractor, nor is a contractor's payment to one sub a condition for payment to another; an agreement to the contrary is unenforceable. 2025 House Bill 383 would also make pay-when-paid clauses unenforceable and add a 30-day limit; check whether it passed.</td></tr>
+      <tr role="row"><td role="cell" data-label="State">Ohio (federal court applying Ohio law)</td><td role="cell" data-label="Source"><a href="https://law.justia.com/cases/federal/appellate-courts/F2/303/655/458116/">Thos. J. Dyer Co. v. Bishop International Engineering Co., 303 F.2d 655 (6th Cir. 1962)</a> (case law)</td><td role="cell" data-label="Effect on pay-if-paid">Read as timing unless clear</td><td role="cell" data-label="What it says">A clause saying payment is due five days after the owner pays was read as an unconditional promise to pay, with the time postponed until the owner pays or for a reasonable time if the owner does not. Reading it as an endless wait was an unreasonable construction the parties did not intend. This is a federal court's reading of Ohio law, not an Ohio statute.</td></tr>
+      <tr role="row"><td role="cell" data-label="State">South Carolina</td><td role="cell" data-label="Source"><a href="https://www.scstatehouse.gov/code/t29c006.php">S.C. Code §29-6-230</a> (statute)</td><td role="cell" data-label="Effect on pay-if-paid">Pay-if-paid unenforceable</td><td role="cell" data-label="What it says">Performance under its contract entitles a construction sub to payment from the party it contracted with. The owner's payment to the contractor, or the contractor's payment to another sub or supplier, is not a condition precedent for payment to the sub, and an agreement to the contrary is not enforceable.</td></tr>
+      <tr role="row"><td role="cell" data-label="State">Wisconsin</td><td role="cell" data-label="Source"><a href="https://docs.legis.wisconsin.gov/document/statutes/779.135">Wis. Stat. §779.135(3)</a> (statute)</td><td role="cell" data-label="Effect on pay-if-paid">Condition void; delay allowed</td><td role="cell" data-label="What it says">In a contract to improve land in Wisconsin, a provision making payment to the prime contractor by someone who has no contract with the sub a condition precedent to the prime paying the sub is void. The subsection does not stop a provision that delays the sub's payment until the prime is paid.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Not listed: the other states. We have not read their current rules, so they are left out rather than filled in from memory. Several of them have prompt payment statutes that set deadlines whatever the subcontract says; see <a href="prompt-payment-laws.html">prompt payment laws</a>.</p>
+</section>
+
+<section class="card">
+  <h2>Three kinds of rule</h2>
+  <ul>
+    <li><strong>The condition is void.</strong> North Carolina and South Carolina by statute, and California and New York by their highest courts, will not let the owner's payment be a condition of yours. Wisconsin voids the condition but allows a clause that only delays your payment until the GC is paid.</li>
+    <li><strong>The clause cannot defeat your lien.</strong> Illinois, Maryland and Missouri say a pay-if-paid clause is no defense to your mechanics lien claim (Maryland adds your bond claim). Their statutes do not say the clause is void for every purpose, so your lien rights matter more there, and their deadlines keep running: the free <a href="https://marisstella.app/mechanics-lien-deadline-calculator/">mechanics lien deadline calculator</a> works out the dates.</li>
+    <li><strong>Clear words or it is timing.</strong> In Florida, and in the federal court decision applying Ohio law, a clause tying payment to the owner's payment is read as setting a reasonable time to pay, unless the contract clearly puts the risk of the owner not paying on you. Where courts enforce pay-if-paid, they ask for words like "condition precedent".</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2>Before you sign</h2>
+  <ul>
+    <li><strong>Ask for timing wording.</strong> "Contractor shall pay Subcontractor within 7 days after Contractor receives payment for Subcontractor's work, and in any event within 45 days after Subcontractor's pay application is approved" gives you a date even if the owner is late. Your state's prompt payment statute may already set one.</li>
+    <li><strong>Strike "condition precedent" and "assumes the risk".</strong> These are the words that turn timing into a condition.</li>
+    <li><strong>Protect your lien rights.</strong> California's and New York's courts struck pay-if-paid down because in practice it waives the sub's lien rights, and Illinois, Maryland and Missouri protect those rights by statute. Read the rest of the subcontract for any other lien or bond waiver, and do not sign an unconditional waiver for money you have not received (<a href="conditional-vs-unconditional-lien-waivers.html">conditional vs unconditional lien waivers</a>).</li>
+    <li><strong>Get it read.</strong> Whether a clause holds on your job is a question for a construction attorney licensed in the project's state.</li>
+  </ul>
+</section>
+
+<section class="card cta" id="early-access">
+  <h2>See which jobs are waiting on the owner</h2>
+  <p>We are building hosted pay-app billing for specialty subcontractors that keeps every pay application, payment date, retainage balance and lien waiver per job, so you can see what is owed, since when, and which lien deadlines are coming. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
+</section>
+</main>
+<!-- all-guides: generated by nav.mjs, do not edit by hand -->
+<nav class="all-guides" aria-label="All pay app tools and guides">
+    <div>
+      <h2>Tools</h2>
+      <ul>
+      <li><a href="./">Schedule of values calculator</a></li>
+      <li><a href="pay-application-checker.html">Pay app checker (this month vs last)</a></li>
+      <li><a href="change-order-log.html">Change order log</a></li>
+      <li><a href="schedule-of-values-template.html">Free Excel SOV template</a></li>
+      <li><a href="pay-if-paid-clauses.html" aria-current="page">Pay-if-paid clause reader</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Billing guides</h2>
+      <ul>
+      <li><a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a></li>
+      <li><a href="change-orders-schedule-of-values.html">Change orders and the SOV</a></li>
+      <li><a href="stored-materials-billing.html">Billing stored materials</a></li>
+      <li><a href="overbilling-underbilling.html">Overbilling and underbilling</a></li>
+      <li><a href="retainage-explained.html">Retainage explained, with state caps</a></li>
+      <li><a href="retainage-release.html">Getting retainage released</a></li>
+      <li><a href="retainage-in-quickbooks.html">Retainage in QuickBooks</a></li>
+      <li><a href="retainage-tracker.html">Retainage tracker (every job)</a></li>
+      <li><a href="pay-application-software-compared.html">Pay app software compared</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Getting paid and lien waivers</h2>
+      <ul>
+      <li><a href="prompt-payment-laws.html">Prompt payment laws by state</a></li>
+      <li><a href="conditional-vs-unconditional-lien-waivers.html">Conditional vs unconditional lien waivers</a></li>
+      <li><a href="lien-waiver-forms-by-state.html">Lien waiver forms by state</a></li>
+      <li><a href="lien-waiver-log.html">Lien waiver log (given and collected)</a></li>
+      <li><a href="sworn-statement.html">Contractor's sworn statement builder</a></li>
+      <li><a href="paid-short.html">Paid short? Reconcile the check</a></li>
+      </ul>
+    </div>
+</nav>
+<!-- /all-guides -->
+<footer>
+  <p><strong>No warranty.</strong> This guide and clause reader are provided free and as-is, without warranty of any kind, express or implied. They are not legal, tax, accounting, or financial advice, and they do not replace your contract, your accountant, or an attorney. The state rules shown have exceptions and may have changed. You are responsible for verifying anything you rely on or send. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
+  <p><strong>Privacy.</strong> No accounts, cookies or analytics vendors. The clause you paste stays in this tab. Two anonymous counters (<code>guide_pay_if_paid_viewed</code>, <code>clause_read</code>) are kept in local storage on your device only, and Do Not Track switches them off. <button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
+</footer>
+<script type="module">
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  import { readClause, stateReading, questions, STATES } from "./clause.mjs";
+  record("guide_pay_if_paid_viewed");
+  const b = document.getElementById("optout");
+  b.addEventListener("click", () => { setUsageOptOut(true); b.textContent = "Usage counting is off"; b.disabled = true; });
+  if (usageOptedOut()) { b.textContent = "Usage counting is off"; b.disabled = true; }
+
+  const $ = (id) => document.getElementById(id);
+  for (const [k, s] of Object.entries(STATES)) { const o = document.createElement("option"); o.value = k; o.textContent = s.state; $("cl-state").append(o); }
+  const EX_WHEN = "Contractor shall pay Subcontractor within seven (7) days after Contractor's receipt of payment from the Owner for work performed by Subcontractor.";
+  const EX_IF = $("clause").value;
+  const li = (text, cls) => { const e = document.createElement("li"); e.textContent = text; if (cls) e.className = cls; return e; };
+  let counted = false;
+  function render() {
+    const r = readClause($("clause").value);
+    const key = $("cl-state").value;
+    $("cl-verdict").textContent = r.summary;
+    $("cl-signals").replaceChildren(...[...r.ifPaid, ...r.whenPaid].map((s) => li(`"${s.context}": ${s.means}`)));
+    const sr = r.kind === "empty" ? null : stateReading(r.kind, key);
+    $("cl-state-text").textContent = sr ? sr.text : "";
+    $("cl-cite").textContent = sr && sr.known ? `${sr.state}: ${sr.cite} (${sr.source}). ${sr.rule}` : "";
+    const qs = questions(r, key);
+    $("cl-q-head").hidden = !qs.length;
+    $("cl-questions").replaceChildren(...qs.map((q) => li(q)));
+  }
+  $("clause").addEventListener("input", () => { render(); if (!counted) { counted = true; record("clause_read"); } });
+  $("cl-state").addEventListener("change", render);
+  $("ex-when").addEventListener("click", () => { $("clause").value = EX_WHEN; render(); });
+  $("ex-if").addEventListener("click", () => { $("clause").value = EX_IF; render(); });
+  render();
+</script>
+</body>
+</html>

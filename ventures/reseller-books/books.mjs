@@ -18,12 +18,14 @@
 //
 // Nothing here fetches anything. Files are read in the caller's browser tab.
 
+import { isInventoryLog, parseInventory, partThree, partThreeNotes, costLines, sampleInventoryCsv } from "./inventory.mjs";
 import * as ebay from "./engines/ebay.mjs";
 import * as etsy from "./engines/etsy.mjs";
 import * as poshmark from "./engines/poshmark.mjs";
 import * as whatnot from "./engines/whatnot.mjs";
 import * as shopify from "./engines/shopify.mjs";
 import * as mercari from "./engines/mercari.mjs";
+import * as depop from "./engines/depop.mjs";
 import { isTripLog, mergeTrips, summarizeTrips, tripNotes, sampleTripCsv } from "./trips.mjs";
 
 export const CHANNELS = {
@@ -33,6 +35,7 @@ export const CHANNELS = {
   whatnot: "Whatnot",
   shopify: "Shopify",
   mercari: "Mercari",
+  depop: "Depop",
 };
 
 const r2 = (n) => Math.round(n * 100) / 100;
@@ -65,6 +68,8 @@ export function detectKind(text) {
   const h = headerTokens(text);
   // Mercari's Gross Sales Report: field names from Mercari's help centre.
   if (mercari.isMercariHeader(h)) return "mercari";
+  // Depop's sales export: before Poshmark, since both have a Brand column.
+  if (depop.isDepopHeader(h)) return "depop";
   const has = (...names) => names.every((n) => h.some((x) => x === n));
   // Shopify Payments "Transactions" export: a payout status and a type per money
   // movement. Checked before the item-per-row formats, none of which has these.
@@ -78,6 +83,9 @@ export function detectKind(text) {
   // A trip log (sourcing runs, post office): a date and a miles column. Checked
   // last; no marketplace export has a miles column.
   if (isTripLog(text)) return "mileage";
+  // A sourcing sheet: item or SKU, cost and purchase date. No marketplace
+  // export has a purchase date.
+  if (isInventoryLog(text)) return "inventory";
   return null;
 }
 
@@ -297,6 +305,53 @@ function mercariChannel(files, costText) {
   return { line: out, months, detail: r, skipped, costBad: costs.bad.length };
 }
 
+// Depop books a sale on its date of sale, at item price plus the shipping the
+// buyer paid (credited to the seller; the label is deducted). The file has no
+// payout per sale, so the net is built from its fee, label, boost and refund
+// columns. Overlapping downloads are de-duplicated by date, time, buyer,
+// description and price.
+function depopChannel(files, costText) {
+  const out = emptyLine("depop");
+  const perFile = [];
+  let skipped = 0;
+  for (const f of files) {
+    const n = depop.normalizeReport(depop.parseCsv(f.text, depop.detectDelimiter(f.text)));
+    if (n.error) return { error: `${f.name}: ${n.error}` };
+    perFile.push(n.rows);
+    skipped += n.skipped.length;
+  }
+  const costs = costText ? depop.parseCosts(costText) : { costs: {}, bad: [] };
+  const r = depop.analyze(perFile, { costs: costs.costs });
+  if (r.invalid) return { error: r.invalid };
+  const s = r.summary;
+  out.orders = s.orders;
+  out.sales = s.sales;
+  out.refunds = s.refunds;
+  out.platformFees = s.fees;
+  out.labels = s.labels;
+  out.ads = s.ads;
+  out.net = s.net;
+  out.from = s.firstMonth;
+  out.to = s.lastMonth;
+  out.notes.push("Depop's export has no payout figure per sale, so Depop's net here is item price plus buyer shipping, less the label, Depop fee, Depop Payments fee, boosting and refunds. Check it against your Depop payouts.");
+  if (s.duplicates) out.notes.push(`${s.duplicates} Depop row(s) repeated a sale from another download (same date, time, buyer, description and price) and were counted once.`);
+  if (s.feeRefunds) out.notes.push(`Depop gave back $${s.feeRefunds.toFixed(2)} of fees on refunded sales; it is netted against Depop's fees.`);
+  if (s.fullyRefunded) out.notes.push(`${s.fullyRefunded} Depop sale(s) were refunded in full and are taken to have come back into stock.`);
+  if (s.bundled) out.notes.push(`${s.bundled} Depop row(s) were part of a bundle; a bundle's shipping and fees can sit on one of its rows, so per-item figures are approximate while the totals are not.`);
+  const buyer = r2(s.buyerTax + s.buyerFees);
+  if (buyer > 0) out.notes.push(`Buyers also paid $${buyer.toFixed(2)} on top on Depop (sales tax $${s.buyerTax.toFixed(2)}, Buyer Marketplace Fee $${s.buyerFees.toFixed(2)}). None of it reached you, so it is not in sales, but a 1099-K can include some of it.`);
+  if (s.costed === s.orders) {
+    out.cogs = s.cogs;
+    out.costedShare = 1;
+    out.profit = r2(s.net - s.cogs);
+  } else if (s.costed > 0) {
+    out.costedShare = s.costed / s.orders;
+    out.notes.push(`${s.costed} of ${s.orders} Depop sales have a cost, so Depop profit is left blank rather than overstated.`);
+  }
+  const months = r.months.map((m) => ({ month: m.month, sales: m.sales, refunds: m.refunds, deductions: r2(m.net - m.sales - m.refunds), net: m.net, cogs: m.costed === m.orders ? m.cogs : null }));
+  return { line: out, months, detail: r, skipped, costBad: costs.bad.length };
+}
+
 function itemChannel(channel, engine, files, costText, feeMode) {
   const out = emptyLine(channel);
   const items = [];
@@ -349,8 +404,8 @@ function itemChannel(channel, engine, files, costText, feeMode) {
  *   `costs` is pasted `key,cost` lines, handed to each engine, which matches by
  *   its own key (eBay item title or number, SKU on the others).
  */
-export function buildBooks(files, { costs = "", feeMode = "auto" } = {}) {
-  const groups = { ebay: [], etsy: [], "etsy-items": [], poshmark: [], whatnot: [], shopify: [], "shopify-orders": [], mercari: [], mileage: [] };
+export function buildBooks(files, { costs = "", feeMode = "auto", openingInventory = null } = {}) {
+  const groups = { ebay: [], etsy: [], "etsy-items": [], poshmark: [], whatnot: [], shopify: [], "shopify-orders": [], mercari: [], depop: [], mileage: [], inventory: [] };
   const unread = [];
   for (const f of files) {
     const kind = detectKind(f.text);
@@ -360,6 +415,10 @@ export function buildBooks(files, { costs = "", feeMode = "auto" } = {}) {
   if (!groups["etsy-items"].length || groups.etsy.length) {
     /* an items file alone is not a channel; it only costs Etsy sales */
   }
+  // An inventory log prices every sale it names (average cost per SKU or
+  // title); costs typed in step 2 come after it, so they win for a key.
+  const inv = groups.inventory.length ? parseInventory(groups.inventory) : null;
+  if (inv && inv.lots.length) costs = [costLines(inv.lots), costs].filter(Boolean).join("\n");
   const channels = [];
   const monthsBy = {};
   const problems = [];
@@ -382,6 +441,7 @@ export function buildBooks(files, { costs = "", feeMode = "auto" } = {}) {
   if (groups.poshmark.length) add("poshmark", itemChannel("poshmark", poshmark, groups.poshmark, costs, feeMode));
   if (groups.whatnot.length) add("whatnot", itemChannel("whatnot", whatnot, groups.whatnot, costs, feeMode));
   if (groups.mercari.length) add("mercari", mercariChannel(groups.mercari, costs));
+  if (groups.depop.length) add("depop", depopChannel(groups.depop, costs));
   if (groups.shopify.length) add("shopify", shopifyChannel(groups.shopify, groups["shopify-orders"], costs));
   if (groups["shopify-orders"].length && !groups.shopify.length) {
     problems.push("A Shopify Orders export was given without the Shopify Payments Transactions export. The transactions file is the one with the fees; add it.");
@@ -394,7 +454,7 @@ export function buildBooks(files, { costs = "", feeMode = "auto" } = {}) {
     problems.unshift("A mileage log was read, but no marketplace file. Add your marketplace reports too: the mileage is an expense against the sales in them.");
   }
   if (!channels.length) {
-    return { invalid: problems[0] || "No marketplace file could be recognised. Expected an eBay Transaction report, an Etsy Payment Account statement, a Poshmark My Sales Report, a Whatnot orders export, a Shopify Payments Transactions export or a Mercari Gross Sales Report.", unread, problems };
+    return { invalid: problems[0] || "No marketplace file could be recognised. Expected an eBay Transaction report, an Etsy Payment Account statement, a Poshmark My Sales Report, a Whatnot orders export, a Shopify Payments Transactions export, a Mercari Gross Sales Report or a Depop sales export.", unread, problems };
   }
 
   // Combined months, newest last. Every row reconciles: sales + refunds +
@@ -439,6 +499,20 @@ export function buildBooks(files, { costs = "", feeMode = "auto" } = {}) {
     if (merged.skipped) mileage.notes.push(`${merged.skipped} trip row(s) had no readable date or miles and were skipped.`);
     if (merged.repeatsDropped) mileage.notes.push(`${merged.repeatsDropped} trip row(s) repeated in another trip file were counted once.`);
   }
+  let inventory = null;
+  if (inv) {
+    const years = [...new Set(keys.map((k) => k.slice(0, 4)))];
+    if (!inv.lots.length) inventory = { invalid: "The inventory log had no readable rows." + (inv.skipped.length ? ` ${inv.skipped.length} row(s) were skipped (first: ${inv.skipped[0].file} line ${inv.skipped[0].line}, ${inv.skipped[0].reason}).` : "") };
+    else if (years.length !== 1) inventory = { invalid: `Schedule C Part III is for one tax year, and these reports cover ${years.join(", ")}. Load one year's marketplace reports with the inventory log to get Part III.` };
+    else {
+      inventory = partThree(inv.lots, soldUnits(details), { year: Number(years[0]), opening: openingInventory });
+      inventory.lots = inv.lots.length;
+      inventory.skipped = inv.skipped;
+      inventory.notes = partThreeNotes(inventory);
+      if (details.etsy && !(details.etsy.listings || []).length) inventory.notes.push("Etsy sales are matched to the inventory log through the Sold Order Items file, which was not given, so none of them took stock from it and line 41 counts those items as still on hand. Add the file.");
+      if (inv.skipped.length) inventory.notes.push(`${inv.skipped.length} inventory row(s) were skipped (first: ${inv.skipped[0].file} line ${inv.skipped[0].line}, ${inv.skipped[0].reason}).`);
+    }
+  }
   total.carTruck = mileage ? mileage.carTruck : null;
   total.profitAfterCar = total.profit !== null && mileage ? r2(total.profit - mileage.carTruck) : null;
 
@@ -453,12 +527,30 @@ export function buildBooks(files, { costs = "", feeMode = "auto" } = {}) {
     months,
     total,
     mileage,
-    schedule: scheduleWorksheet(channels, total, mileage),
-    findings: findings(channels, total, months, mileage),
+    inventory,
+    schedule: scheduleWorksheet(channels, total, mileage, inventory),
+    findings: findings(channels, total, months, mileage, inventory),
     unread,
     problems,
     details,
   };
+}
+
+/**
+ * Units sold per item, from each channel's analysis, in the shape partThree
+ * matches: the names a sale goes by on that marketplace, and net units
+ * (a returned unit is back on the shelf).
+ */
+export function soldUnits(details) {
+  const out = [];
+  const add = (channel, name, keys, units) => { if (units > 0) out.push({ channel: CHANNELS[channel], name: name || keys.find(Boolean) || "", keys: keys.filter(Boolean).map(String), units }); };
+  for (const it of details.ebay?.items || []) add("ebay", it.name, [it.label, it.name, it.itemId], Math.max(0, it.netUnits));
+  for (const l of details.etsy?.listings || []) add("etsy", l.name, [l.name], Math.max(0, l.netUnits));
+  for (const p of details.shopify?.products || []) add("shopify", p.name, [p.sku, p.name], Math.max(0, p.netUnits));
+  for (const ch of ["poshmark", "whatnot"]) for (const x of details[ch]?.items || []) add(ch, x.title, [x.sku, x.id, x.title], 1);
+  for (const x of details.mercari?.sold || []) add("mercari", x.title, [x.id, x.title], 1);
+  for (const x of details.depop?.sold || []) add("depop", x.title, [x.title], 1);
+  return out;
 }
 
 /**
@@ -468,17 +560,31 @@ export function buildBooks(files, { costs = "", feeMode = "auto" } = {}) {
  * often cost of goods sold, sometimes "other expenses"), the row says which
  * lines a number could belong to and leaves the decision to the preparer.
  */
-export function scheduleWorksheet(channels, total, mileage = null) {
+export function scheduleWorksheet(channels, total, mileage = null, inventory = null) {
   const neg = (v) => r2(-v);
   const rows = [
     { line: "1", label: "Gross receipts or sales", amount: r2(total.sales), note: "As the marketplaces recorded them. Compare with any 1099-K, which may also include sales tax and shipping." },
     { line: "2", label: "Returns and allowances", amount: neg(total.refunds), note: "Refunds the marketplaces deducted." },
-    { line: "4 / 42", label: "Cost of goods sold", amount: total.cogs, note: total.cogs === null ? "Not computed: not every sale has a cost. Add costs, or use your purchase records." : "From the costs you supplied. Opening and closing inventory are not modelled." },
+    inventory && !inventory.invalid
+      ? { line: "4 / 42", label: "Cost of goods sold", amount: inventory.line42, note: `From Part III below (${inventory.year}, inventory valued at cost): line 40 less closing inventory.${inventory.unmatchedUnits ? ` ${inventory.unmatchedUnits} sold unit(s) are not in the inventory log, so this is short by their cost.` : ""}` }
+      : { line: "4 / 42", label: "Cost of goods sold", amount: total.cogs, note: total.cogs === null ? "Not computed: not every sale has a cost. Add costs or an inventory log, or use your purchase records." : "From the costs you supplied, sale by sale. Add an inventory log (what you bought, when) for Part III with opening and closing inventory." },
     { line: "8", label: "Advertising", amount: neg(total.ads), note: "Promoted listings and Etsy ads." },
     { line: "10", label: "Commissions and fees", amount: neg(total.platformFees), note: "Final value, transaction, processing, listing and commission fees." },
     { line: "27a / 4", label: "Postage bought through the marketplace", amount: neg(total.labels), note: "Shipping labels. Often reported inside cost of goods or as an other expense; ask your preparer which." },
     { line: "27a", label: "Other marketplace deductions", amount: neg(total.other), note: "Anything else between sales and payout (subscriptions, disputes, credits, shipping adjustments), net of credits." },
   ];
+  if (inventory && !inventory.invalid) {
+    const p = inventory;
+    rows.push(
+      { line: "Part III 33", label: "Method used to value closing inventory", amount: null, note: "Cost (33a): each unit at what you paid for it, oldest purchase sold first." },
+      { line: "Part III 35", label: "Inventory at beginning of year", amount: p.line35, note: p.openingSource === "entered" ? "As you entered it (last year's line 41)." : `From the log: purchases before ${p.year} not marked sold before it. Should equal last year's line 41.` },
+      { line: "Part III 36", label: "Purchases less cost of items withdrawn for personal use", amount: p.line36, note: `${p.year} purchases in the log${p.withdrawn ? `, less $${p.withdrawn.toFixed(2)} marked personal or kept` : ""}.` },
+      { line: "Part III 37-39", label: "Labor, materials and supplies, other costs", amount: null, note: "Not in a sourcing sheet. Add any to line 40 with your preparer." },
+      { line: "Part III 40", label: "Add lines 35 through 39", amount: p.line40, note: "Lines 35 and 36 only." },
+      { line: "Part III 41", label: "Inventory at end of year", amount: p.line41, note: `${p.closingUnits} unit(s) bought by Dec 31 ${p.year} and not sold in these reports or marked gone. Count what is on your shelves and compare.` },
+      { line: "Part III 42", label: "Cost of goods sold (line 40 less line 41)", amount: p.line42, note: `Carried to line 4. ${p.matchedUnits} sold unit(s) matched to purchases at $${p.matchedCost.toFixed(2)}.` },
+    );
+  }
   if (mileage) {
     const rates = mileage.rates.map((r) => `${(r * 100).toFixed(1).replace(/\.0$/, "")}¢`).join(" and ");
     rows.push({ line: "9", label: "Car and truck expenses (standard mileage rate)", amount: mileage.carTruck, note: `${mileage.businessMiles} business miles from your trip log at ${rates || "the IRS rate"} a mile by trip date (2026: 72.5¢ to June 30, 76¢ from July 1), plus $${(mileage.tolls + mileage.parking).toFixed(2)} of business tolls and parking. The standard rate replaces actual car costs (gas, repairs, insurance, depreciation) and generally has to be chosen in the first year the car is used for business.` });
@@ -487,8 +593,17 @@ export function scheduleWorksheet(channels, total, mileage = null) {
   return rows;
 }
 
-function findings(channels, total, months, mileage = null) {
+function findings(channels, total, months, mileage = null, inventory = null) {
   const out = [];
+  if (inventory && inventory.invalid) out.push({ severity: "medium", title: `Inventory: ${inventory.invalid}`, detail: "" });
+  else if (inventory) {
+    out.push({
+      severity: inventory.unmatchedUnits ? "high" : "info",
+      title: `Schedule C Part III for ${inventory.year}: cost of goods sold $${inventory.line42.toFixed(2)}, closing inventory $${inventory.line41.toFixed(2)}`,
+      detail: `Opening inventory $${inventory.line35.toFixed(2)} plus purchases $${inventory.line36.toFixed(2)}, less $${inventory.line41.toFixed(2)} still on hand at December 31 (${inventory.closingUnits} unit(s)). ${inventory.matchedUnits} sold unit(s) were matched to the purchase that bought them, oldest first.`,
+    });
+    for (const n of inventory.notes) out.push({ severity: /no purchase in the inventory log/.test(n) ? "high" : "info", title: `Inventory: ${n}`, detail: "" });
+  }
   if (mileage && mileage.businessTrips) {
     out.push({
       severity: "info",
@@ -562,6 +677,8 @@ export function summaryText(result) {
   const t = result.total;
   out.push(`Sales ${m(t.sales)}, refunds ${m(t.refunds)}, fees ${m(t.platformFees)}, postage ${m(t.labels)}, ads ${m(t.ads)}, other ${m(t.other)}, net payout ${m(t.net)}.`);
   out.push(t.profit === null ? "Profit not computed (not every sale has a cost)." : `Cost of goods ${m(t.cogs)}; profit ${m(t.profit)}.`);
+  const inv = result.inventory;
+  if (inv && !inv.invalid) out.push(`Schedule C Part III (${inv.year}, at cost): opening inventory ${m(inv.line35)}, purchases ${m(inv.line36)}, closing inventory ${m(inv.line41)}, cost of goods sold ${m(inv.line42)}${inv.unmatchedUnits ? ` (${inv.unmatchedUnits} sold unit(s) not in the inventory log)` : ""}.`);
   if (result.mileage) out.push(`Mileage: ${result.mileage.businessMiles} business miles, car and truck expenses ${m(result.mileage.carTruck)} (standard rate)${t.profitAfterCar === null ? "" : `; profit after the car ${m(t.profitAfterCar)}`}.`);
   for (const c of result.channels) out.push(`${c.label}: ${c.orders} orders, sales ${m(c.sales)}, kept ${m(c.net)} (${(c.keepRate * 100).toFixed(1)}%)${c.profit === null ? "" : `, profit ${m(c.profit)}`}`);
   return out.join("\n");
@@ -581,6 +698,7 @@ export function sampleFiles() {
       { name: "shopify-payments-transactions.csv", text: sh.transactions },
       { name: "shopify-orders.csv", text: sh.orders },
       { name: "mercari-gross-sales-report.csv", text: mercari.sampleCsv() },
+      { name: "depop-sales.csv", text: depop.sampleCsv() },
       { name: "mileage-log.csv", text: sampleTripCsv() },
     ],
     costs: e.costs + "\n" + sh.costs.split("\n").slice(1).join("\n"),
@@ -589,3 +707,4 @@ export function sampleFiles() {
 
 export const money = (v) => (v === null || v === undefined ? "–" : ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(v).toLocaleString("en-US", { style: "currency", currency: "USD" })));
 export const decodeBuffer = poshmark.decodeBuffer;
+export { sampleInventoryCsv };

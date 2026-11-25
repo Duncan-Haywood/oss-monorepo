@@ -21,6 +21,8 @@
     <a href="retainage-explained.html">Retainage explained</a>
     <a href="conditional-vs-unconditional-lien-waivers.html">Lien waivers</a>
     <a href="change-orders-schedule-of-values.html">Change orders and the SOV</a>
+    <a href="retainage-in-quickbooks.html">Retainage in QuickBooks</a>
+    <a href="prompt-payment-laws.html">Prompt payment laws</a>
   </nav>
 </header>
 <main>
@@ -32,19 +34,19 @@
 <section class="card">
   <h2>The continuation sheet, column by column</h2>
   <p>Our example is a $150,000 electrical subcontract plus one $8,500 change order, on its third application, 10% retainage.</p>
-  <div class="scroll"><table>
-    <thead><tr><th scope="col">Column</th><th scope="col">What goes in it</th><th scope="col">Switchgear line in the example</th></tr></thead>
+  <div class="scroll"><table class="stack" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">Column</th><th role="columnheader" scope="col">What goes in it</th><th role="columnheader" scope="col">Switchgear line in the example</th></tr></thead>
     <tbody>
-      <tr><td>Item number</td><td>The SOV line number. Change orders get their own numbers (CO-1).</td><td>3</td></tr>
-      <tr><td>Description of work</td><td>The SOV line description, unchanged from the approved SOV.</td><td>Switchgear</td></tr>
-      <tr><td>Scheduled value</td><td>The dollar value of the line from the approved SOV.</td><td class="n">$60,000</td></tr>
-      <tr><td>Work completed: from previous application</td><td>The total billed on this line on all earlier applications. Copy it from last month's "total completed" for the line, minus any stored material that has since been installed and moved into work.</td><td class="n">$9,000</td></tr>
-      <tr><td>Work completed: this period</td><td>Installed work this period, as a dollar value. Use the percent you can defend on a walk.</td><td class="n">$6,000</td></tr>
-      <tr><td>Materials presently stored</td><td>Material delivered and stored (on site or, if the contract allows, off site) but not yet installed.</td><td class="n">$15,000</td></tr>
-      <tr><td>Total completed and stored to date</td><td>Previous + this period + stored.</td><td class="n">$30,000</td></tr>
-      <tr><td>Percent complete</td><td>Total completed and stored ÷ scheduled value.</td><td class="n">50%</td></tr>
-      <tr><td>Balance to finish</td><td>Scheduled value − total completed and stored.</td><td class="n">$30,000</td></tr>
-      <tr><td>Retainage</td><td>The line's share of retainage, if the form shows it per line.</td><td class="n">$3,000</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">Item number</td><td role="cell" data-label="What goes in it">The SOV line number. Change orders get their own numbers (CO-1).</td><td role="cell" data-label="Switchgear line in the example">3</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">Description of work</td><td role="cell" data-label="What goes in it">The SOV line description, unchanged from the approved SOV.</td><td role="cell" data-label="Switchgear line in the example">Switchgear</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">Scheduled value</td><td role="cell" data-label="What goes in it">The dollar value of the line from the approved SOV.</td><td role="cell" data-label="Switchgear line in the example" class="n">$60,000</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">Work completed: from previous application</td><td role="cell" data-label="What goes in it">The total billed on this line on all earlier applications. It is last month's "total completed and stored" for the line minus last month's materials presently stored: stored material stays in its own column until it is installed, then it is billed as this period's work (<a href="stored-materials-billing.html">how stored materials roll forward</a>).</td><td role="cell" data-label="Switchgear line in the example" class="n">$9,000</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">Work completed: this period</td><td role="cell" data-label="What goes in it">Installed work this period, as a dollar value. Use the percent you can defend on a walk.</td><td role="cell" data-label="Switchgear line in the example" class="n">$6,000</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">Materials presently stored</td><td role="cell" data-label="What goes in it">Material delivered and stored (on site or, if the contract allows, off site) but not yet installed.</td><td role="cell" data-label="Switchgear line in the example" class="n">$15,000</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">Total completed and stored to date</td><td role="cell" data-label="What goes in it">Previous + this period + stored.</td><td role="cell" data-label="Switchgear line in the example" class="n">$30,000</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">Percent complete</td><td role="cell" data-label="What goes in it">Total completed and stored ÷ scheduled value.</td><td role="cell" data-label="Switchgear line in the example" class="n">50%</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">Balance to finish</td><td role="cell" data-label="What goes in it">Scheduled value − total completed and stored.</td><td role="cell" data-label="Switchgear line in the example" class="n">$30,000</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">Retainage</td><td role="cell" data-label="What goes in it">The line's share of retainage, if the form shows it per line.</td><td role="cell" data-label="Switchgear line in the example" class="n">$3,000</td></tr>
     </tbody>
   </table></div>
 </section>
@@ -69,11 +71,12 @@
   <h2>What to attach, and why pay apps get kicked back</h2>
   <ul>
     <li><strong>Lien waivers:</strong> usually a conditional waiver for this payment and an unconditional one for the last payment received, plus your suppliers' and sub-subs' waivers. See <a href="conditional-vs-unconditional-lien-waivers.html">conditional vs unconditional lien waivers</a>.</li>
-    <li><strong>Stored materials backup:</strong> invoices, bills of sale, photos, and proof of insurance for off-site storage if the contract allows it at all.</li>
+    <li><strong>Sworn statement:</strong> in Illinois and Michigan, and on many lender- or title-company-funded jobs elsewhere, a sworn list of every sub and supplier with what each is paid and owed. The <a href="sworn-statement.html">sworn statement builder</a> totals it and checks it against your contract and this request.</li>
+    <li><strong>Stored materials backup:</strong> invoices, bills of sale, photos, and proof of insurance for off-site storage if the contract allows it at all. See <a href="stored-materials-billing.html">billing stored materials</a>.</li>
     <li><strong>Notarization</strong> where the GC, lender or form requires it.</li>
     <li><strong>The deadline:</strong> GCs collect sub pay apps several days before they bill the owner. Miss the cutoff and you wait a month.</li>
   </ul>
-  <p>Common reasons for a rejected or reduced pay app: a line billed over its scheduled value; "from previous" not matching last month's approved numbers; billing a change order that is not yet signed; retainage at the wrong rate; stored materials without backup; missing waivers. The calculator flags the first and checks the arithmetic of the rest.</p>
+  <p>Common reasons for a rejected or reduced pay app: a line billed over its scheduled value; "from previous" not matching last month's approved numbers; billing a change order that is not yet signed; retainage at the wrong rate; stored materials without backup; missing waivers. The calculator flags the first and checks the arithmetic of the rest; the <a href="pay-application-checker.html">pay application checker</a> compares your draft with last month's approved application, line by line, and catches the "from previous" and changed-value mistakes.</p>
 </section>
 
 <section class="card cta" id="early-access">
@@ -81,6 +84,45 @@
   <p>We are building hosted pay-app billing for specialty subcontractors: carry the SOV forward each month, track retainage and change orders, and collect lien waivers in one place. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
 </section>
 </main>
+<!-- all-guides: generated by nav.mjs, do not edit by hand -->
+<nav class="all-guides" aria-label="All pay app tools and guides">
+    <div>
+      <h2>Tools</h2>
+      <ul>
+      <li><a href="./">Schedule of values calculator</a></li>
+      <li><a href="pay-application-checker.html">Pay app checker (this month vs last)</a></li>
+      <li><a href="change-order-log.html">Change order log</a></li>
+      <li><a href="schedule-of-values-template.html">Free Excel SOV template</a></li>
+      <li><a href="pay-if-paid-clauses.html">Pay-if-paid clause reader</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Billing guides</h2>
+      <ul>
+      <li><a href="how-to-fill-out-a-pay-application.html" aria-current="page">How to fill out a pay application</a></li>
+      <li><a href="change-orders-schedule-of-values.html">Change orders and the SOV</a></li>
+      <li><a href="stored-materials-billing.html">Billing stored materials</a></li>
+      <li><a href="overbilling-underbilling.html">Overbilling and underbilling</a></li>
+      <li><a href="retainage-explained.html">Retainage explained, with state caps</a></li>
+      <li><a href="retainage-release.html">Getting retainage released</a></li>
+      <li><a href="retainage-in-quickbooks.html">Retainage in QuickBooks</a></li>
+      <li><a href="retainage-tracker.html">Retainage tracker (every job)</a></li>
+      <li><a href="pay-application-software-compared.html">Pay app software compared</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Getting paid and lien waivers</h2>
+      <ul>
+      <li><a href="prompt-payment-laws.html">Prompt payment laws by state</a></li>
+      <li><a href="conditional-vs-unconditional-lien-waivers.html">Conditional vs unconditional lien waivers</a></li>
+      <li><a href="lien-waiver-forms-by-state.html">Lien waiver forms by state</a></li>
+      <li><a href="lien-waiver-log.html">Lien waiver log (given and collected)</a></li>
+      <li><a href="sworn-statement.html">Contractor's sworn statement builder</a></li>
+      <li><a href="paid-short.html">Paid short? Reconcile the check</a></li>
+      </ul>
+    </div>
+</nav>
+<!-- /all-guides -->
 <footer>
   <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, or financial advice, and it does not replace your contract, your accountant, or an attorney. You are responsible for verifying anything you submit. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
   <p><strong>Not affiliated with the American Institute of Architects.</strong> AIA, G702 and G703 are marks of their owner. This guide describes the general layout of a pay application and does not reproduce the AIA forms.</p>

@@ -137,6 +137,38 @@ class Collect(unittest.TestCase):
         self.assertEqual(len(skipped), 1)
         self.assertIn("actions/checkout@v4", skipped[0])
 
+    def test_a_failure_after_download_artifact_is_no_verdict(self):
+        # priv-codeql.yml's gate reads SARIF another job's CodeQL action
+        # uploaded; locally there is none, which is not a repository defect.
+        steps, skipped = self.collect("""
+            jobs:
+              gate:
+                steps:
+                  - uses: actions/checkout@v4
+                  - uses: actions/download-artifact@v4
+                    with:
+                      name: sarif
+                      path: sarif-results
+                  - name: gate
+                    run: test -d sarif-results
+        """)
+        self.assertEqual([s.status for s in steps], ["skipped", "pending"])
+        self.assertIn("sarif", steps[0].reason)
+        self.assertEqual(len(skipped), 1)  # checkout only
+        with contextlib.redirect_stdout(io.StringIO()):
+            runner.run_steps(steps, 60)
+            code = runner.report("wf.yml", steps, skipped, False)
+        self.assertEqual(steps[1].status, "unrun")
+        self.assertEqual(steps[1].missing_kind, "after-skip")
+        self.assertEqual(code, runner.AFTER_SKIP)
+
+    def test_this_repositorys_codeql_gate_follows_its_artifact_download(self):
+        path = os.path.join(runner.REPO, ".github/workflows/priv-codeql.yml")
+        steps, _ = runner.collect(runner.load_workflow(path))
+        gate = [s.name for s in steps if s.job == "gate"]
+        self.assertLess(gate.index("actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093"),
+                        gate.index("Gate new findings on this PR's lines"))
+
     def test_working_directory_is_carried_from_the_step(self):
         steps, _ = self.collect("""
             jobs:

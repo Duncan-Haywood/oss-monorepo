@@ -1,5 +1,5 @@
 name: machine-shop-guides
-description: Free front door for small machine shops on defense work — an SPRS score calculator for the 110 NIST SP 800-171 requirements (DoD Assessment Methodology, 110 minus 5/3/1), a job-shop quote calculator from the shop's own rates, and guides to CMMC Level 1 vs Level 2, SSPs and POA&Ms, and pricing a machined part — leading to the RFQ-to-quote and CMMC workspace products in development.
+description: Free front door for small machine shops on defense work — an SPRS score calculator for the 110 NIST SP 800-171 requirements (DoD Assessment Methodology, 110 minus 5/3/1), a NIST 800-171 SSP template that builds the system security plan and POA&M in the browser, a stock-size reader that takes a customer's STEP or STL file and returns the bounding box, round-bar diameter and stock to cut (in the browser, nothing uploaded), a job-shop quote calculator from the shop's own rates, and guides to CMMC Level 1 vs Level 2, SSPs and POA&Ms, and pricing a machined part — leading to the RFQ-to-quote and CMMC workspace products in development.
 stage: prototype
 
 owner: duncan

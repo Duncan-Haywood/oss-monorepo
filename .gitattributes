@@ -1,0 +1,11 @@
+# Merge drivers for files that parallel sessions append to at the same time.
+#
+# A venture's sitemap.xml is overwritten at build time by one generated from
+# the pages that published (`renderVentureSitemap` in platform/pages/build.mjs),
+# so the committed copy is never served. Sessions still append a <url> line to
+# it with each new page, and two PRs adding pages to one venture conflicted on
+# it on every merge of main (pay-app-guides, 2026-11-25: 4+ PRs in an hour).
+# `union` keeps both sides' lines, which is always right for a list of URLs.
+# Applies to local `git merge`; GitHub's web conflict check ignores it.
+# Keep union off prose and code: on a line both sides changed it keeps both.
+ventures/**/sitemap.xml merge=union

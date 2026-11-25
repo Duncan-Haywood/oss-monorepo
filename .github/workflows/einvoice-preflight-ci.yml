@@ -33,6 +33,16 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          # This venture, platform/billing (auditpack.test.mjs imports its
+          # testkit) and .github; cone mode adds the root files. Checked by
+          # running every step in such a tree (sparse_checkout_verify.py). The
+          # full 51k-file checkout was most of each job
+          # (docs/history/ci-perf-2026-11-25-einvoice-sparse.md).
+          filter: blob:none
+          sparse-checkout: |
+            .github
+            platform/billing
+            ventures/einvoice-preflight
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"
@@ -57,9 +67,24 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          # This venture, platform/billing (auditpack.test.mjs imports its
+          # testkit) and .github; cone mode adds the root files. Checked by
+          # running every step in such a tree (sparse_checkout_verify.py). The
+          # full 51k-file checkout was most of each job
+          # (docs/history/ci-perf-2026-11-25-einvoice-sparse.md).
+          filter: blob:none
+          sparse-checkout: |
+            .github
+            platform/billing
+            ventures/einvoice-preflight
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
+      # The official-rules route (plain-schematron, PINT, ZATCA, CIUS-RO/PT/HR,
+      # BR-FR and others) needs slimdom and fontoxpath; without them those
+      # tests skip, and 128 of them never ran here (red-team finding,
+      # 2026-11-11, fixed 2026-11-25). Pinned, not saved to a lockfile.
+      - run: npm i --no-save --no-package-lock --ignore-scripts slimdom@4.3.5 fontoxpath@3.34.0
       - run: node --test
 
   examples:
@@ -74,6 +99,16 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          # This venture, platform/billing (auditpack.test.mjs imports its
+          # testkit) and .github; cone mode adds the root files. Checked by
+          # running every step in such a tree (sparse_checkout_verify.py). The
+          # full 51k-file checkout was most of each job
+          # (docs/history/ci-perf-2026-11-25-einvoice-sparse.md).
+          filter: blob:none
+          sparse-checkout: |
+            .github
+            platform/billing
+            ventures/einvoice-preflight
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: "3.12"

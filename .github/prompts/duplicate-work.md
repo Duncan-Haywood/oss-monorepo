@@ -31,5 +31,9 @@ python3 portfolio/ledger/supersede_check.py <pr>      # before closing a PR as "
 - **Overlap is not supersession, and a conflict is not a reason to close.**
   Merge `main` into the branch and resolve it. A conflict means the work is
   still wanted where others are editing.
+- **Shared page lists conflict when siblings add pages to one venture.**
+  Its `sitemap.xml` merges by union (`.gitattributes`; the build overwrites
+  it anyway), and a page test should read the folder rather than list pages.
+  The rest (llms.txt, README table, nav) you resolve by keeping both sides.
 - **Shallow clones lie about history.** History-based checks need a
   deeper fetch first: [`cloud-session.md`](cloud-session.md), "Shallow clones".

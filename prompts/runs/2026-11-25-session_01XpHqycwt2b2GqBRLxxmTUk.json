@@ -1,0 +1,158 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqycwt2b2GqBRLxxmTUk",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T06:38:12Z",
+  "ended": "2026-11-25T06:44:59Z",
+  "wall_minutes": 7.92,
+  "tokens_in": 8091861,
+  "tokens_out": 40548,
+  "cost_usd": 3.5141,
+  "tool_calls": 71,
+  "task": "Bet #1 (pay-app billing): land the stranded PayApps marketing site (private-monorepo PR #18) with pricing synced to the app's catalog and features marked built/next",
+  "projects": [
+    "private-monorepo/apps/payapps-site",
+    "private-monorepo/apps/payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/18",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [
+    "be976685b1b92ac8e3f68982da20960640a4f93e"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "error": "private-monorepo CI starved: all 12 jobs on PR #18 failed in ~3 s with runner_id 0 and no steps (no runner assigned; likely Actions minutes on the private repo). Merged on local verification per CLAUDE.md 'Reading CI'."
+    }
+  ],
+  "integrity_issues": [
+    {
+      "issue": "PR #18's site proposed Solo $99 / Crew $169 / Office $249 with an AI cost per job and listed every feature as planned, while the app sells Free/Solo $99/Crew $179/Company $249, makes no AI calls and already has most features. Fixed: site now mirrors the app, with a sync test."
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to use register_repo_root after add_repo; that tool did not exist in this session (ToolSearch found nothing), so private-monorepo's CLAUDE.md was read by hand."
+    },
+    {
+      "file": "private-monorepo apps/payapps/docs/BILLING.md vs apps/payapps-site/docs/PRICING.md",
+      "issue": "Two cost models for the same product (40% margin floor without support time vs a 1.5-2.0x band with support); PRICING.md now explains the difference."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No new blog post: the deliverable is a private product's marketing site, and a public post about unreleased pricing would pre-announce it.",
+      "did": "Run record only in oss-monorepo; work and verification notes in private PR #18's body and docs/PRICING.md.",
+      "result": "n/a"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Venture preflight (platform/pages/venture-preflight.mjs) covers oss-monorepo ventures; the change is in private-monorepo.",
+      "did": "Ran that app's own typecheck, unit, worker, build, biome and a 390px no-scroll check instead.",
+      "result": "all green"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Security queue empty (5 claimed), no ideas pending, routed ventures/1. Merged main into PR #18 (lockfile conflict regenerated with pnpm install --lockfile-only: only the payapps-site importer added). Local: payapps-site typecheck ok, test:unit 21 passed, test:worker 6 passed, build 14 files, biome ci clean; app plans.test 4 passed. Mutation: site Crew at $169 fails 2 sync tests. Open item: name mismatch PayPencil (site) vs PayApps (app UI). Merged as be97668. PayApps unit suite 175 passed + typecheck after the plans.ts string change.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "848e51fc-159b-5b64-a6ea-046daf432f68",
+    "transcripts": 1,
+    "first": "2026-11-25T06:38:12Z",
+    "last": "2026-11-25T06:46:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 137,
+        "output": 40548,
+        "thinking": 6674,
+        "cache_read": 7952713,
+        "cache_write_5m": 0,
+        "cache_write_1h": 139011,
+        "api_equivalent_usd": 3.5141,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 137,
+      "output": 40548,
+      "thinking": 6674,
+      "cache_read": 7952713,
+      "cache_write_5m": 0,
+      "cache_write_1h": 139011,
+      "api_equivalent_usd": 3.5141,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 54,
+      "ToolSearch": 4,
+      "mcp__github__pull_request_read": 3,
+      "Write": 2,
+      "Read": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__actions_get": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.92,
+      "active_minutes": 7.92,
+      "model_minutes": 5.86,
+      "tool_minutes": 2.06,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "merge+lockfile, pricing sync with tests, features/pricing copy rewrite, cost model doc",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 142.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

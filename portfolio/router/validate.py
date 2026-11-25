@@ -195,7 +195,7 @@ def check_flagships(errors, path=FLAGSHIPS_PATH):
                 f"appending (portfolio/router/flagship_field.py <venture> --replace OLD NEW); "
                 f"history belongs in the venture's README; "
                 f"`flagship_field.py {entry.get('venture')} --landed` lists the landed notes to cut, and "
-                f"`--park ITEM` moves an open item to ventures/{entry.get('venture')}/NEXT.md "
+                f"`--park ITEM` moves an open item to the venture's NEXT.md "
                 f"(it combines with --replace in one call)."
             )
         hosts = entry.get("hosts")

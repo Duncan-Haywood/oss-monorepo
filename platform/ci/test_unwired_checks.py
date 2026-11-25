@@ -286,6 +286,27 @@ class PullRequestTrigger(unittest.TestCase):
         self.assertIn("cd platform/s && node --test r.test.mjs",
                       u.report([("platform/s/r.test.mjs", 1, "boom")]))
 
+    def test_a_declared_but_uninstalled_npm_package_is_a_skip_not_a_red(self):
+        # platform/aws/stacks/saas-starter (PR 18765) imports @aws-sdk/client-s3
+        # from its own package.json; no workflow runs npm ci there, so every
+        # venture PR's changed-ventures job went red on main's code.
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "platform/s/test").mkdir(parents=True)
+            (root / "platform/s/package.json").write_text(
+                '{"dependencies": {"@aws-sdk/client-s3": "3.0.0"}}')
+            (root / "platform/s/test/n.test.mjs").write_text(
+                "import { test } from 'node:test';\nimport '@aws-sdk/client-s3';\ntest('x', () => {});\n")
+            (root / "platform/s/test/t.test.mjs").write_text(
+                "import { test } from 'node:test';\nimport 'not-declared-pkg';\ntest('x', () => {});\n")
+            name, rc, out = u.run_node_suite(root / "platform/s/test/n.test.mjs", root=root)
+            self.assertEqual(rc, 0, out)
+            self.assertTrue(out.startswith(u.SKIPPED), out)
+            self.assertIn("@aws-sdk/client-s3", out)
+            # An import nobody declared is a real break and stays red.
+            name, rc, out = u.run_node_suite(root / "platform/s/test/t.test.mjs", root=root)
+            self.assertNotEqual(rc, 0)
+
 
 class PortfolioSuites(unittest.TestCase):
     """portfolio/**/test_*.py that no pull-request workflow runs (2026-11-19)."""

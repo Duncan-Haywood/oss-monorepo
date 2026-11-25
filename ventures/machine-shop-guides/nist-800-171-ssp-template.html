@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>NIST 800-171 SSP Template: Free System Security Plan Builder</title>
+  <meta name="description" content="Free NIST 800-171 SSP template: fill in your system security plan in the browser, see what an assessor would flag, and download the SSP and POA&amp;M.">
+  <meta property="og:title" content="NIST 800-171 SSP Template: Free System Security Plan Builder">
+  <meta property="og:description" content="Fill in your system security plan for the 110 NIST SP 800-171 Rev. 2 requirements, see what an assessor would flag, and download the SSP and POA&amp;M.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://marisstella.app/machine-shop-guides/nist-800-171-ssp-template.html">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%232c4a3e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "NIST 800-171 SSP Template: Free System Security Plan Builder", "description": "Fill in a NIST SP 800-171 Rev. 2 system security plan in the browser: system boundary, environment, connections, an implementation statement for each of the 110 requirements, a review of what is missing, and the POA&M. Downloads as HTML, Markdown and CSV.", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+</head>
+<body data-page="nist-800-171-ssp-template">
+<nav class="crumbs"><a href="./">Machine shop guides</a></nav>
+<main>
+<h1>NIST 800-171 SSP template: a free system security plan builder</h1>
+<p class="lede">Write your system security plan here instead of in a blank Word file. Describe the system, then go through the 110 NIST SP 800-171 Rev. 2 requirements: status, how it is done in your shop, who owns it, where the evidence is, and for each gap the planned action and date. The page checks what an assessor would send back, keeps the score, and downloads the SSP and the POA&amp;M.</p>
+<p class="note">Nothing you type leaves your browser. The plan is kept only if you tick "keep a draft in this browser" or save the plan file, and the plan file is yours to store wherever your CUI documentation lives. This is a drafting aid, not an assessment.</p>
+
+<section class="card sticky" id="result" aria-live="polite">
+  <div class="grid">
+    <div><span class="note">Score (self-calculated)</span><div class="big" id="score">—</div></div>
+    <div><span class="note">Requirements answered</span><div class="big" id="answered">0</div></div>
+    <div><span class="note">To fix before it reads as an SSP</span><div class="big" id="blocking">0</div></div>
+  </div>
+  <p id="status" class="note"></p>
+</section>
+
+<section class="card" id="actions">
+  <h2>Start, save and download</h2>
+  <p>
+    <button type="button" id="from-sprs" class="secondary">Start from my SPRS calculator answers</button>
+    <button type="button" id="open" class="secondary">Open a plan file</button>
+    <input type="file" id="open-file" accept="application/json,.json" aria-label="Plan file to open" hidden>
+    <button type="button" id="clear" class="secondary">Clear the plan</button>
+  </p>
+  <p>
+    <button type="button" id="dl-html">Download the SSP (HTML, opens in Word)</button>
+    <button type="button" id="dl-md" class="secondary">SSP as Markdown</button>
+    <button type="button" id="dl-poam" class="secondary">POA&amp;M (CSV)</button>
+    <button type="button" id="dl-json" class="secondary">Save the plan file (JSON)</button>
+  </p>
+  <label style="font-weight:400"><input type="checkbox" id="keep" style="width:auto"> Keep a draft in this browser <span class="hint">Off by default. On a shared computer, leave it off and save the plan file instead.</span></label>
+  <p class="note" id="msg" role="status"></p>
+</section>
+
+<section class="card">
+  <h2>1. The system</h2>
+  <div id="system"></div>
+  <h3>Contacts</h3>
+  <div id="contacts"></div>
+</section>
+
+<h2>2. The 110 requirements</h2>
+<p class="note">Requirement titles are short paraphrases. Decide each status against the full text of <a href="https://csrc.nist.gov/pubs/sp/800/171/r2/upd1/final">NIST SP 800-171 Rev. 2</a> and its assessment objectives in NIST SP 800-171A. "Not applicable" is scored as met (32 CFR 170.24(b) treats a not-applicable objective as met), so use it only when every objective is, and say why.</p>
+<div id="families"></div>
+
+<section class="card">
+  <h2>3. What an assessor would send back</h2>
+  <ul id="issues"><li>Nothing checked yet.</li></ul>
+</section>
+
+<section>
+<h2>What this SSP template covers</h2>
+<p>Requirement 3.12.4 of NIST SP 800-171 Rev. 2 asks you to develop, document and periodically update system security plans that describe the system boundaries, the environments of operation, how each security requirement is implemented, and the relationships with or connections to other systems. NIST does not prescribe a format, so this template is laid out the way a small shop's plan usually reads: contacts, the system (purpose, CUI, boundary, environment, inventory, data flow, connections, users), a summary, one entry per requirement, and the POA&amp;M. See <a href="ssp-and-poam.html">what goes in an SSP and a POA&amp;M</a> for each part in plain language.</p>
+<p>Without an SSP the DoD Assessment Methodology (v1.2.1) says an assessment cannot be completed, which is why 3.12.4 has no point value but blocks the score. The review above flags the parts of 3.12.4 the plan does not yet cover as "to fix", and every requirement row that would not survive a read: met with no implementation statement, met with nowhere to see the evidence, not applicable with no reason, a gap with no planned action or no date, and dates that have passed.</p>
+<h2>The score and the date you post in SPRS</h2>
+<p>The score is the same arithmetic as the <a href="sprs-score-calculator.html">SPRS score calculator</a>: 110 minus 5, 3 or 1 point for each requirement not met, with partial credit for 3.5.3 (MFA) and 3.13.11 (FIPS-validated cryptography). A Basic assessment in SPRS also asks for the date you expect to reach 110; the summary takes it from the latest milestone date on your gaps, and only when every gap has one. If you already went through the calculator in this browser, "Start from my SPRS calculator answers" copies those statuses in without touching anything you have written.</p>
+<h2>Downloads</h2>
+<ul>
+  <li><strong>SSP (HTML):</strong> one self-contained file that prints cleanly and opens in Word or Google Docs for your own formatting.</li>
+  <li><strong>SSP (Markdown):</strong> for a wiki or a document repository.</li>
+  <li><strong>POA&amp;M (CSV):</strong> one row per gap, heaviest first: requirement, points, status, the weakness as written, planned action, responsible, milestone, provider.</li>
+  <li><strong>Plan file (JSON):</strong> everything you entered; open it here next time to keep editing.</li>
+</ul>
+<p class="note">Writing the plan is the shop's job: no template knows how your shop actually works. The statements here are what you type; the page adds none. Keep the finished SSP with your other CUI documentation and review it at least yearly and whenever the system changes.</p>
+</section>
+
+<script type="module">
+  import { REQUIREMENTS, FAMILIES, PARTIAL } from "./sprs-data.mjs";
+  import { CONDITIONAL_MIN } from "./sprs.mjs";
+  import { SYSTEM_FIELDS, emptySsp, normaliseSsp, applySprsAnswers, reviewSsp, sspToMarkdown, sspToHtml, poamToCsv } from "./ssp.mjs";
+  import { recordUsage, usageStorage } from "./usage.mjs";
+
+  const DRAFT_KEY = "machine-shop-guides-ssp-draft";
+  const SPRS_KEY = "machine-shop-guides-sprs-answers";
+  const store = usageStorage();
+  const today = () => new Date().toISOString().slice(0, 10);
+  const msg = (t) => { document.getElementById("msg").textContent = t; };
+
+  let doc = emptySsp();
+  let keep = false;
+  try { const saved = store?.getItem(DRAFT_KEY); if (saved) { doc = normaliseSsp(JSON.parse(saved)); keep = true; } } catch { doc = emptySsp(); }
+  document.getElementById("keep").checked = keep;
+
+  function persist() {
+    if (!keep) return;
+    try { store?.setItem(DRAFT_KEY, JSON.stringify(doc)); } catch { msg("This browser would not store the draft. Save the plan file instead."); }
+  }
+
+  const el = (tag, props = {}, ...kids) => { const n = document.createElement(tag); Object.assign(n, props); n.append(...kids); return n; };
+
+  function field(label, hint, value, long, onInput, type) {
+    const wrap = el("div");
+    const id = "f" + Math.random().toString(36).slice(2, 9);
+    const lab = el("label", { htmlFor: id, textContent: label });
+    if (hint) lab.append(el("span", { className: "hint", textContent: hint }));
+    const input = long ? el("textarea", { id, rows: 3 }) : el("input", { id, type: type || "text" });
+    input.value = value || "";
+    input.addEventListener("input", () => onInput(input.value));
+    wrap.append(lab, input);
+    return { wrap, input };
+  }
+
+  const inputs = [];
+  function buildSystem() {
+    const box = document.getElementById("system");
+    box.replaceChildren();
+    const short = el("div", { className: "grid" });
+    for (const f of SYSTEM_FIELDS) {
+      const { wrap, input } = field(f.label, f.hint, doc.system[f.key], f.long, (v) => { doc.system[f.key] = v; changed(); }, f.date ? "date" : "text");
+      inputs.push(input);
+      (f.long ? box : short).append(wrap);
+      if (f.key === "nextReview") box.append(short);
+    }
+    const cbox = document.getElementById("contacts");
+    cbox.replaceChildren();
+    doc.contacts.forEach((c, i) => {
+      const row = el("div", { className: "grid" });
+      row.append(el("p", { className: "note", textContent: c.role, style: "margin:14px 0 0;font-weight:700" }));
+      for (const [k, l] of [["name", "Name"], ["email", "Email"], ["phone", "Phone"]]) {
+        row.append(field(l, "", c[k], false, (v) => { doc.contacts[i][k] = v; changed(); }, k === "email" ? "email" : "text").wrap);
+      }
+      cbox.append(row);
+    });
+  }
+
+  function req(id) {
+    if (!doc.requirements[id]) doc.requirements[id] = { status: "", implementation: "", responsible: "", evidence: "", provider: "", plannedAction: "", milestone: "", naReason: "" };
+    return doc.requirements[id];
+  }
+
+  function buildRequirements() {
+    const wrap = document.getElementById("families");
+    wrap.replaceChildren();
+    for (const [fam, name] of Object.entries(FAMILIES)) {
+      const d = el("details", { className: "family" });
+      const s = el("summary"); s.dataset.family = fam;
+      d.append(s);
+      const rows = el("div", { className: "rows" });
+      for (const r of REQUIREMENTS.filter((q) => q.family === fam)) {
+        const cur = doc.requirements[r.id] || {};
+        const box = el("div", { className: "sspreq" });
+        const head = el("div", { className: "req" });
+        const sel = el("select", { id: "s-" + r.id });
+        const opts = [["", "— status —"], ["met", "Met"], ["not_met", "Not met"]];
+        if (PARTIAL[r.id]) opts.push(["partial", PARTIAL[r.id].label]);
+        opts.push(["na", "Not applicable"]);
+        for (const [v, t] of opts) sel.append(el("option", { value: v, textContent: t }));
+        sel.value = cur.status || "";
+        head.append(el("span", { textContent: r.id }), el("label", { htmlFor: "s-" + r.id, textContent: r.label, style: "margin:0;font-weight:400" }), el("span", { className: "num", textContent: r.weight === null ? "SSP" : String(r.weight), title: "Points deducted if not met" }), sel);
+        const more = el("div", { className: "sspmore" });
+        const mk = (key, label, hint, long, type) => { const f = field(label, hint, cur[key], long, (v) => { req(r.id)[key] = v; changed(); }, type); f.wrap.dataset.key = key; more.append(f.wrap); return f.wrap; };
+        mk("implementation", "How it is implemented", "Plain language about what actually happens, so someone can go and see it working.", true);
+        const g = el("div", { className: "grid" }); more.append(g);
+        for (const [k, l, h] of [["responsible", "Responsible", "Role or person"], ["evidence", "Evidence", "Setting, log, record or form"], ["provider", "Provided or shared by", "e.g. your MSP or cloud tenant, if not you"]]) {
+          const f = field(l, h, cur[k], false, (v) => { req(r.id)[k] = v; changed(); }); g.append(f.wrap);
+        }
+        const gap = el("div", { className: "grid" });
+        const pa = field("Planned action", "What will close the gap", cur.plannedAction, false, (v) => { req(r.id).plannedAction = v; changed(); });
+        const ms = field("Milestone date", "", cur.milestone, false, (v) => { req(r.id).milestone = v; changed(); }, "date");
+        gap.append(pa.wrap, ms.wrap); more.append(gap);
+        const na = mk("naReason", "Why it does not apply", "Every assessment objective has to be not applicable.", false);
+        const vis = () => { const st = sel.value; gap.hidden = !(st === "not_met" || st === "partial"); na.hidden = st !== "na"; };
+        vis();
+        sel.addEventListener("change", () => { req(r.id).status = sel.value; vis(); changed(); });
+        box.append(head, more);
+        rows.append(box);
+      }
+      d.append(rows);
+      wrap.append(d);
+    }
+  }
+
+  let timer = null;
+  function changed() { clearTimeout(timer); timer = setTimeout(() => { persist(); paint(); }, 250); }
+
+  let counted = false;
+  function paint() {
+    const rv = reviewSsp(doc, { today: today() });
+    const sc = rv.score;
+    const scoreEl = document.getElementById("score");
+    scoreEl.textContent = sc.sspMissing || rv.answered === 0 ? "—" : String(sc.score);
+    scoreEl.className = "big " + (sc.score >= CONDITIONAL_MIN ? "good" : "bad");
+    document.getElementById("answered").textContent = rv.answered + " / " + REQUIREMENTS.length;
+    document.getElementById("blocking").textContent = String(rv.blocking);
+    const warns = rv.issues.length - rv.blocking;
+    document.getElementById("status").textContent =
+      (rv.blocking ? rv.blocking + " part(s) of 3.12.4 not yet described. " : "") +
+      (warns ? warns + " thing(s) to tighten (listed in section 3). " : "") +
+      (sc.gaps.length ? sc.gaps.length + " open gap(s); all planned to close by " + (rv.fullScoreDate || "— (a gap has no date)") + "." : rv.answered ? "No open gaps." : "Start with the system description, or from your SPRS answers.");
+    for (const s of document.querySelectorAll("summary[data-family]")) {
+      const fam = s.dataset.family;
+      const list = REQUIREMENTS.filter((q) => q.family === fam);
+      const done = list.filter((q) => doc.requirements[q.id]?.status).length;
+      const f = sc.byFamily[fam];
+      s.textContent = fam + " " + f.name + " — " + done + " of " + list.length + " answered" + (f.deducted ? ", −" + f.deducted + " points" : "");
+    }
+    const ul = document.getElementById("issues");
+    ul.replaceChildren();
+    if (!rv.issues.length) ul.append(el("li", { textContent: rv.answered ? "Nothing to send back: every section is filled and every row has what it needs." : "Nothing checked yet." }));
+    for (const i of rv.issues.slice(0, 200)) {
+      const li = el("li");
+      li.append(el("strong", { className: i.level === "block" ? "bad" : "", textContent: (i.level === "block" ? "To fix · " : "") + i.where + ": " }), i.message);
+      ul.append(li);
+    }
+    if (rv.issues.length > 200) ul.append(el("li", { textContent: "…and " + (rv.issues.length - 200) + " more." }));
+    if (rv.answered === REQUIREMENTS.length && !counted) { counted = true; recordUsage("ssp-all-answered"); }
+  }
+
+  function download(name, type, text, event) {
+    const a = el("a", { href: URL.createObjectURL(new Blob([text], { type })), download: name });
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    recordUsage(event);
+  }
+  const base = () => (doc.system.name || "system-security-plan").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "system-security-plan";
+
+  function rebuild() { inputs.length = 0; buildSystem(); buildRequirements(); paint(); }
+
+  document.getElementById("keep").addEventListener("change", (e) => {
+    keep = e.target.checked;
+    if (keep) { persist(); msg("Draft kept in this browser."); }
+    else { try { store?.removeItem(DRAFT_KEY); } catch {} msg("Draft removed from this browser. Save the plan file to keep your work."); }
+  });
+  document.getElementById("from-sprs").addEventListener("click", () => {
+    let answers = null;
+    try { answers = JSON.parse(store?.getItem(SPRS_KEY) || "null"); } catch { answers = null; }
+    if (!answers || typeof answers !== "object" || !Object.keys(answers).length) { msg("No SPRS calculator answers found in this browser. Use the SPRS score calculator first, or set statuses here."); return; }
+    doc = applySprsAnswers(doc, answers);
+    rebuild(); persist();
+    msg("Statuses copied from your SPRS calculator answers. Your statements were left as they were.");
+  });
+  document.getElementById("open").addEventListener("click", () => document.getElementById("open-file").click());
+  document.getElementById("open-file").addEventListener("change", async (e) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    if (f.size > 2_000_000) { msg("That file is too large to be a plan file."); return; }
+    try { doc = normaliseSsp(JSON.parse(await f.text())); rebuild(); persist(); msg("Plan file opened."); recordUsage("ssp-open"); }
+    catch { msg("That file is not a plan file saved from this page."); }
+    e.target.value = "";
+  });
+  document.getElementById("clear").addEventListener("click", () => {
+    if (!confirm("Clear the whole plan? Save the plan file first if you want to keep it.")) return;
+    doc = emptySsp(); rebuild(); persist(); msg("Plan cleared.");
+  });
+  document.getElementById("dl-html").addEventListener("click", () => download(base() + "-ssp.html", "text/html", sspToHtml(doc, { today: today() }), "ssp-html"));
+  document.getElementById("dl-md").addEventListener("click", () => download(base() + "-ssp.md", "text/markdown", sspToMarkdown(doc, { today: today() }), "ssp-md"));
+  document.getElementById("dl-poam").addEventListener("click", () => download(base() + "-poam.csv", "text/csv", poamToCsv(doc), "ssp-poam"));
+  document.getElementById("dl-json").addEventListener("click", () => download(base() + "-plan.json", "application/json", JSON.stringify(normaliseSsp(doc), null, 2) + "\n", "ssp-json"));
+
+  rebuild();
+</script>
+</main>
+<section class="card cta" id="early-access">
+  <h2>In development — early access</h2>
+  <p>We are building two paid products for small machine shops: an <strong>RFQ-to-quote assistant</strong> that turns a drawing and an email into a priced quote from your own rates, and a <strong>CMMC Level 1/2 and ISO 9001 workspace</strong> that keeps your SSP, POA&amp;M and SPRS score in one place, with evidence attached to each requirement, reminders before milestones and review dates, and a history of every change. Neither is released yet. Read what is planned and how to get early access on the <a href="https://marisstella.app/industries/manufacturing/">manufacturing page</a>.</p>
+  <p class="note">Neither product certifies anyone. Only an authorized C3PAO (or the government) can issue a CMMC Level 2 certification; software can help you prepare, nothing more.</p>
+</section>
+<footer>
+  <p><a href="./">Machine shop guides</a> · <a href="cmmc-level-1-self-assessment.html">CMMC Level 1 self-assessment</a> · <a href="sprs-score-calculator.html">SPRS score calculator</a> · <a href="nist-800-171-ssp-template.html">SSP template</a> · <a href="dfars-7012-incident-reporting.html">DFARS 7012 incident reporting</a> · <a href="stock-size-from-step-file.html">Stock size from a STEP file</a> · <a href="job-shop-quote-calculator.html">Job-shop quote calculator</a> · <a href="rfq-review.html">RFQ review checklist</a> · <a href="quote-vs-actual.html">Quoted vs actual hours</a> · <a href="cmmc-level-1-vs-level-2.html">CMMC Level 1 vs Level 2</a> · <a href="ssp-and-poam.html">SSP and POA&amp;M</a> · <a href="how-to-price-a-machined-part.html">How to price a machined part</a> · <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/machine-shop-guides">Source (FSL-1.1-MIT)</a></p>
+  <p><strong>Not affiliated with or endorsed by the Department of Defense (Department of War), NIST, the Cyber AB or any C3PAO.</strong> A plan or score you prepare here is a self-help draft, not a CMMC assessment, a certification or an SPRS submission. Regulations are summarised with dates in <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/machine-shop-guides/SOURCES.md">SOURCES.md</a>; read the official text before you rely on it, because the rules change.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, compliance, financial or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  <p>Privacy: nothing you type leaves your browser. This page keeps an anonymous visit count in your own browser's storage only. <button type="button" class="secondary" id="usage-toggle">Turn off counting</button></p>
+</footer>
+<script type="module">
+  import { recordUsage, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+  const btn = document.getElementById("usage-toggle");
+  const paint = () => { btn.textContent = usageOptedOut() ? "Turn counting back on" : "Turn off counting"; };
+  btn.addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); paint(); });
+  paint();
+  recordUsage("view:" + (document.body.dataset.page || "page"));
+</script>
+</body>
+</html>

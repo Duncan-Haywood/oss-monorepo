@@ -2,7 +2,7 @@
 title: "Eighteen product pages whose search snippet stopped mid-sentence"
 seo_title: "Rewriting 18 meta descriptions to fit a 160-character snippet"
 date: 2026-11-24
-tags: [polish, seo, meta-description]
+tags: [polish, seo, meta-description, wall-framing-takeoff, structured-data, pay-app-guides, einvoice-preflight]
 description: "The front pages of the tools moving to paid editions had meta descriptions of 178 to 355 characters. Each now fits in 160, and a ratchet stops new long ones."
 ---
 
@@ -58,3 +58,67 @@ That leaves 3,823 venture pages over 160. They now sit in a baseline file
 ratchet: a new page over 160 fails the site builder's tests, and a listed page
 that gets fixed has to leave the list, so the number can only go down. No
 traffic change is claimed here; usage on these pages is unmeasured.
+
+## Update, 2026-11-25: the framing takeoff's 43 calculator pages
+
+The Wall Framing Takeoff is the construction product, and its 43 calculator
+and comparison pages (roof, deck, stair stringer, drywall, concrete and the
+rest) were all on the baseline at 168 to 264 characters. Each now fits in
+160 (134 to 157), and the baseline is down to 3,000 pages.
+
+Most of these pages had the same shape: "type A, B and C, and get X, Y and Z.
+Runs in your browser." The rewrite kept that shape as "A in; X out", which
+puts the inputs and the quantities a builder searches for inside the
+snippet and drops the boilerplate tail. Before, the stair stringer page (255)
+was cut after "the shorter first riser, stringer length, strin…". After (139):
+
+> Free stair stringer calculator: total rise in; riser count and height,
+> tread run, stringer length and count, and the stairwell opening out.
+
+Nothing was added that the old text did not say. Titles, `og:description` and
+the pages' JSON-LD were left alone; the share-card text is the next thing to
+shorten.
+
+## Update, 2026-11-25: the structured data behind the snippet
+
+The pay application guides are the free front door to the pay-app billing
+product, and each carries a small block of Article structured data. Every
+block had a headline and dates but no picture, publisher, author or
+address. Across the catalogue, 97 hand-written Article blocks had
+the same gap, and so did every post on this blog.
+
+The site build now fills in what a page left out: its own address, the share
+card picture it already shows on social sites, and the site's organisation as
+author and publisher. A value the page sets itself always wins. When a later
+step draws a page its own share card, the structured data moves to that card
+too, so the two never name different pictures. The pay application
+generator's description was also cut from 312 characters to 156, so its
+search snippet no longer stops at "the contract sum…".
+
+As before, no traffic change is claimed. Search engines read these fields,
+but whether they show them is their decision, and usage here is unmeasured.
+
+## Update, 2026-11-25: 101 e-invoicing country pages
+
+E-invoice Preflight is the subscription product for businesses that send
+invoices into more than one country's e-invoicing rules. Its free front door
+is a page per country mandate, and 101 of its pages had descriptions of 165
+to 313 characters, the most of any paid product. A search for "Belgium
+e-invoicing mandate" showed a snippet cut before the fines; the Côte d'Ivoire
+page (313) was cut in the middle of its list of conflicting start dates.
+
+Each now fits in 139 to 160 characters. Most country pages follow one shape:
+the rule and its date first, then the one hedge the page itself makes ("as
+reported", "sources disagree"), then what the free check tests. The Belgian
+page went from 265 characters to 156:
+
+> Belgian B2B invoices must be structured Peppol e-invoices since 1 January
+> 2026. The dates, the fines (EUR 1,500 to 5,000) and a free Peppol BIS 3.0
+> checker.
+
+Three pages are written by scripts (the 2027 deadlines list, the "which
+deadline applies" tool and the SdI error codes), so their generators were
+changed rather than the HTML. As before, nothing was added that the old text
+did not say, titles and JSON-LD were left alone, and no ranking change is
+claimed. The list of over-long descriptions across the catalogue fell from
+2,999 pages to 2,898.

@@ -9,7 +9,7 @@
   <meta property="og:description" content="Approved change orders get their own SOV lines, change the contract sum to date, and carry retainage like everything else. A worked example and the mistakes that get pay apps rejected.">
   <link rel="canonical" href="./change-orders-schedule-of-values.html">
   <link rel="stylesheet" href="style.css">
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "How change orders flow into the schedule of values", "datePublished": "2026-11-24", "dateModified": "2026-11-24"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "How change orders flow into the schedule of values", "datePublished": "2026-11-24", "dateModified": "2026-11-25"}</script>
 </head>
 <body>
 <header>
@@ -21,6 +21,8 @@
     <a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a>
     <a href="retainage-explained.html">Retainage explained</a>
     <a href="conditional-vs-unconditional-lien-waivers.html">Lien waivers</a>
+    <a href="retainage-in-quickbooks.html">Retainage in QuickBooks</a>
+    <a href="change-order-log.html">Change order log</a>
   </nav>
 </header>
 <main>
@@ -37,15 +39,15 @@
 <section class="card">
   <h2>Worked example</h2>
   <p>A $150,000 electrical subcontract adds CO-1, $8,500 of EV charger circuits, half done this month.</p>
-  <div class="scroll"><table>
-    <thead><tr><th scope="col">Summary line</th><th scope="col" class="n">Before CO-1</th><th scope="col" class="n">After CO-1</th></tr></thead>
+  <div class="scroll"><table class="stack compact" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">Summary line</th><th role="columnheader" scope="col" class="n">Before CO-1</th><th role="columnheader" scope="col" class="n">After CO-1</th></tr></thead>
     <tbody>
-      <tr><td>Original contract sum</td><td class="n">$150,000.00</td><td class="n">$150,000.00</td></tr>
-      <tr><td>Net change by change orders</td><td class="n">$0.00</td><td class="n">$8,500.00</td></tr>
-      <tr><td>Contract sum to date</td><td class="n">$150,000.00</td><td class="n">$158,500.00</td></tr>
-      <tr><td>CO-1 completed this period</td><td class="n"></td><td class="n">$4,250.00</td></tr>
-      <tr><td>Retainage on CO-1 at 10%</td><td class="n"></td><td class="n">$425.00</td></tr>
-      <tr><td>Added to this month's payment due</td><td class="n"></td><td class="n">$3,825.00</td></tr>
+      <tr role="row"><td role="cell" data-label="Summary line">Original contract sum</td><td role="cell" data-label="Before CO-1" class="n">$150,000.00</td><td role="cell" data-label="After CO-1" class="n">$150,000.00</td></tr>
+      <tr role="row"><td role="cell" data-label="Summary line">Net change by change orders</td><td role="cell" data-label="Before CO-1" class="n">$0.00</td><td role="cell" data-label="After CO-1" class="n">$8,500.00</td></tr>
+      <tr role="row"><td role="cell" data-label="Summary line">Contract sum to date</td><td role="cell" data-label="Before CO-1" class="n">$150,000.00</td><td role="cell" data-label="After CO-1" class="n">$158,500.00</td></tr>
+      <tr role="row"><td role="cell" data-label="Summary line">CO-1 completed this period</td><td role="cell" data-label="Before CO-1" class="n"></td><td role="cell" data-label="After CO-1" class="n">$4,250.00</td></tr>
+      <tr role="row"><td role="cell" data-label="Summary line">Retainage on CO-1 at 10%</td><td role="cell" data-label="Before CO-1" class="n"></td><td role="cell" data-label="After CO-1" class="n">$425.00</td></tr>
+      <tr role="row"><td role="cell" data-label="Summary line">Added to this month's payment due</td><td role="cell" data-label="Before CO-1" class="n"></td><td role="cell" data-label="After CO-1" class="n">$3,825.00</td></tr>
     </tbody>
   </table></div>
   <p>In the <a href="./">calculator</a>, any line whose item starts with "CO" is counted as a change order rather than part of the original contract sum. Press "Load an example" to see this one.</p>
@@ -55,17 +57,70 @@
   <h2>Keeping change orders from costing you money</h2>
   <ul>
     <li>Get the change order signed before the work if your contract requires it; many subcontracts waive payment for unapproved extra work.</li>
-    <li>Keep a log of every request, its status and its value. Unsigned changes are the easiest money to lose on a job.</li>
+    <li>Keep a log of every request, its status and its value. Unsigned changes are the easiest money to lose on a job. The free <a href="change-order-log.html">change order log</a> totals what is approved and pending, flags changes waiting too long, and writes the approved ones as SOV lines.</li>
     <li>When you sign a progress lien waiver, list unapproved change orders as an exception (see <a href="conditional-vs-unconditional-lien-waivers.html">lien waivers</a>).</li>
     <li>Watch notice deadlines in your subcontract for claims and change requests; they can be short.</li>
   </ul>
 </section>
 
+<section class="card" id="change-order-request">
+  <h2>What to put in a change order request</h2>
+  <p>The request is what the GC signs to turn extra work into a billable SOV line, so it should answer every question their PM will ask before signing:</p>
+  <ul>
+    <li><strong>Who, which job and which number:</strong> your company, the GC, the project and job number, and a change order number that matches your log and the SOV line it will become (CO-1, CO-2).</li>
+    <li><strong>The scope in plain words:</strong> what changed, why (the RFI, ASI, field directive or drawing revision behind it) and what is excluded.</li>
+    <li><strong>The price by line:</strong> new scope as its own line, changes to existing lines as additions or deductions, and the total. Attach your backup (quotes, labor and material breakdown) if the subcontract asks for it.</li>
+    <li><strong>The contract sum before and after:</strong> original contract, previously approved change orders, this change, and the new contract sum if it is approved. It lets the PM check your numbers against theirs in one glance.</li>
+    <li><strong>Time:</strong> any change to the schedule, in days, or "no schedule impact". Many subcontracts treat silence as no extension.</li>
+    <li><strong>Two signatures and dates:</strong> yours and the GC's. Until the GC signs, the work is pending: track it, do not bill it.</li>
+  </ul>
+  <p>Record the date you sent it. A request that has waited 30 days without an answer is worth a call, and the <a href="change-order-log.html">change order log</a> flags those for you. This is general information, not legal advice: your subcontract's change and notice clauses decide what the request must contain and when it is due.</p>
+</section>
+
 <section class="card cta" id="early-access">
   <h2>Losing track of change orders across jobs?</h2>
-  <p>We are building hosted pay-app billing for specialty subcontractors that logs change orders from request to signature and adds them to the next pay app when approved. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
+  <p>We are building hosted pay-app billing for specialty subcontractors that logs change orders from request to signature, prints the request for the GC to sign, and adds them to the next pay app when approved. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
 </section>
 </main>
+<!-- all-guides: generated by nav.mjs, do not edit by hand -->
+<nav class="all-guides" aria-label="All pay app tools and guides">
+    <div>
+      <h2>Tools</h2>
+      <ul>
+      <li><a href="./">Schedule of values calculator</a></li>
+      <li><a href="pay-application-checker.html">Pay app checker (this month vs last)</a></li>
+      <li><a href="change-order-log.html">Change order log</a></li>
+      <li><a href="schedule-of-values-template.html">Free Excel SOV template</a></li>
+      <li><a href="pay-if-paid-clauses.html">Pay-if-paid clause reader</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Billing guides</h2>
+      <ul>
+      <li><a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a></li>
+      <li><a href="change-orders-schedule-of-values.html" aria-current="page">Change orders and the SOV</a></li>
+      <li><a href="stored-materials-billing.html">Billing stored materials</a></li>
+      <li><a href="overbilling-underbilling.html">Overbilling and underbilling</a></li>
+      <li><a href="retainage-explained.html">Retainage explained, with state caps</a></li>
+      <li><a href="retainage-release.html">Getting retainage released</a></li>
+      <li><a href="retainage-in-quickbooks.html">Retainage in QuickBooks</a></li>
+      <li><a href="retainage-tracker.html">Retainage tracker (every job)</a></li>
+      <li><a href="pay-application-software-compared.html">Pay app software compared</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Getting paid and lien waivers</h2>
+      <ul>
+      <li><a href="prompt-payment-laws.html">Prompt payment laws by state</a></li>
+      <li><a href="conditional-vs-unconditional-lien-waivers.html">Conditional vs unconditional lien waivers</a></li>
+      <li><a href="lien-waiver-forms-by-state.html">Lien waiver forms by state</a></li>
+      <li><a href="lien-waiver-log.html">Lien waiver log (given and collected)</a></li>
+      <li><a href="sworn-statement.html">Contractor's sworn statement builder</a></li>
+      <li><a href="paid-short.html">Paid short? Reconcile the check</a></li>
+      </ul>
+    </div>
+</nav>
+<!-- /all-guides -->
 <footer>
   <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, or financial advice, and it does not replace your contract, your accountant, or an attorney. You are responsible for verifying anything you bill. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
   <p><strong>Privacy.</strong> No accounts, cookies or analytics vendors. One anonymous counter (<code>guide_change_orders_viewed</code>) is kept in local storage on your device only, and Do Not Track switches it off. <button type="button" class="secondary" id="optout">Turn usage counting off</button></p>

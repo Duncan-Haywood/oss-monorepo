@@ -132,12 +132,13 @@ function benchWeek(P, S) {
 test("the repair reserve is on by default from 300 copies, off below, and an explicit value wins", () => {
   const big = benchWeek(90, 252), small = benchWeek(40, 112);
   assert.ok(big.slots.length >= 300 && small.slots.length < 300);
-  // 10 s, not 3 s: the reserve is set when the cover passes start, and on this week anneal and ejection take about 2.3 s and column
-  // generation at least 1 s before them, so at 3 s a loaded runner never reached them (reserve null; CI on PR #16481, and 4 of 4
-  // copies at once here). One cover pass and no day sweeps keep the build short; neither changes the reserve's default.
-  const rb = buildRoster(big.staff, big.slots, { exact: true, timeBudgetMs: 10000, seed: 1, coverPassRuns: 1, dayLNS: false });
-  assert.ok(rb.unfilledHours > 0);
+  // The reserve is set from the week's size and the budget before any pass runs, so it is reported even when the passes never
+  // start: here they are turned off, which also keeps the build short. (Before 2026-11-25 it was set only once the passes
+  // started, and a loaded runner that spent the budget first read null: CI on PR #16481, PR #16599 and PR #18785.)
+  const rb = buildRoster(big.staff, big.slots, { exact: true, timeBudgetMs: 10000, seed: 1, coverPass: false, dayLNS: false });
+  assert.equal(rb.optimality.coverGuided, null);
   assert.equal(rb.optimality.coverRepairReserveMs, 1000);
+  assert.equal(buildRoster(big.staff, big.slots, { exact: true, timeBudgetMs: 10000, seed: 1, coverPass: false, dayLNS: false, coverRepairReserveMs: 0 }).optimality.coverRepairReserveMs, 0);
   // The small-week builds at 3 s failed the same way on a loaded runner (reserve null: CI on PR #16599; 9 of 12 copies at once
   // here, and 5 of 12 even at 10 s), so the rule below and above 300 copies is checked on the pure function instead.
   assert.equal(repairReserveFor(small.slots.length, 3000), 0);

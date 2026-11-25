@@ -50,15 +50,17 @@ export function memoryClient() {
   };
 }
 
-function toQuerystring(searchParams) {
-  const qs = {};
+// Grouped in a Map, then made an object with Object.fromEntries, which defines
+// own properties: a query key such as `__proto__` or `constructor` is a plain
+// key here, as in CloudFront's own event, never a write to Object.prototype.
+export function toQuerystring(searchParams) {
+  const groups = new Map();
   for (const [k, v] of searchParams) {
-    if (qs[k]) {
-      qs[k].multiValue = qs[k].multiValue ?? [{ value: qs[k].value }];
-      qs[k].multiValue.push({ value: v });
-    } else qs[k] = { value: v };
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push({ value: v });
   }
-  return qs;
+  return Object.fromEntries([...groups].map(([k, values]) =>
+    [k, values.length === 1 ? values[0] : { value: values[0].value, multiValue: values }]));
 }
 
 export function edgeServer(bucket, config = { apex: 'marisstella.app', hostRedirects: {} }) {

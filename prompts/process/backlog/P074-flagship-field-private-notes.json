@@ -1,0 +1,25 @@
+{
+  "id": "P074",
+  "title": "flagship_field.py --park/--history/over-cap --replace refuse for flagships whose code is private (no ventures/<v>/ folder)",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "The bets' flagships (payapps, jobshop-quote, cmmc, ...) live in private-monorepo, so ventures/<v>/ does not exist here. flagship_field.py wrote parked items and finished results only to ventures/<v>/NEXT.md and HISTORY.md and raised 'no venture folder' otherwise, so the tool's own suggested fix for an over-cap row failed and runs hand-edited flagships.yaml.",
+  "evidence": [
+    "prompts/runs/2026-11-25-session_01E5sJKinhhkzfpirphXMuPp.json, 2026-11-25-session_01EhTJVKyigrqxjUCY1RmWRM.json, 2026-11-25-session_01EhTJVLr4Mih3na8FW3JJMp.json: doc_friction on portfolio/router/flagship_field.py, 'No venture folder ventures/payapps'",
+    "promptctl.py measure, 'Doc friction by file', 2026-11-25: flagship_field.py has 8 live reports in 3 days, the latest three this one"
+  ],
+  "change": "notes_dir(): ventures/<v>/ when it exists, else portfolio/flagships/<v>/ (created on write). Tests cover both; a test that relied on the refusal now passes --no-make-room.",
+  "touches": [
+    "portfolio/router/flagship_field.py",
+    "portfolio/router/test_flagship_field.py",
+    "portfolio/router/validate.py"
+  ],
+  "metric": "run records whose doc_friction names 'no venture folder' from flagship_field.py",
+  "baseline": "3 runs on 2026-11-25 (records above)",
+  "opened": "2026-11-25",
+  "source": "process critique, 2026-11-25 (doc friction by file)",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18870",
+  "result": null
+}

@@ -15,14 +15,19 @@ import security_alerts  # noqa: E402
 from security_alerts import render, summarise, write_tree  # noqa: E402
 
 
-def alert(number, level=None, severity="warning", state="open", path="a.py"):
+SHA_A = "a" * 40
+SHA_B = "b" * 40
+
+
+def alert(number, level=None, severity="warning", state="open", path="a.py", commit=None):
     return {
         "number": number,
         "state": state,
         "rule": {"id": f"py/rule-{number}", "security_severity_level": level, "severity": severity},
         "tool": {"name": "CodeQL"},
         "most_recent_instance": {"location": {"path": path, "start_line": 7},
-                                 "message": {"text": "  spread\n over lines  "}},
+                                 "message": {"text": "  spread\n over lines  "},
+                                 **({"commit_sha": commit} if commit is not None else {})},
         "created_at": "2026-10-01T00:00:00Z",
         "html_url": f"https://example.test/{number}",
     }
@@ -59,6 +64,41 @@ class RenderTest(unittest.TestCase):
         self.assertIn("security-fix/code-scanning-4", text)
         self.assertIn("`a.py:7`", text)
 
+    def test_queue_points_at_earlier_triage_notes(self):
+        queue = render([alert(4, "high")])["QUEUE.md"]
+        self.assertIn("docs/reports/*security-queue*.md", queue)
+        self.assertTrue(list(Path(__file__).resolve().parents[2].glob("docs/reports/*security-queue*.md")))
+
+    def test_alert_file_says_how_to_check_the_finding_is_still_on_main(self):
+        text = render([alert(4, "high", commit=SHA_A)])["alerts/4.md"]
+        self.assertIn(f"Last seen on commit: `{SHA_A}`", text)
+        self.assertIn(f"git fetch -q --depth=1 origin {SHA_A} main && git diff --stat {SHA_A[:12]} origin/main -- 'a.py'", text)
+        self.assertLess(text.index("0. Check it is still there"), text.index("1. Claim it"))
+
+    def test_no_commit_means_no_stale_check_and_no_header(self):
+        files = render([alert(4, "high")])
+        self.assertNotIn("Check it is still there", files["alerts/4.md"])
+        self.assertIn("Last seen on commit: `unknown`", files["alerts/4.md"])
+        self.assertNotIn("Scanned commit", files["QUEUE.md"])
+
+    def test_queue_names_the_commit_most_alerts_were_seen_on(self):
+        files = render([alert(1, "high", commit=SHA_B), alert(2, "high", commit=SHA_A),
+                        alert(3, "high", commit=SHA_A)])
+        self.assertIn(f"Scanned commit: `{SHA_A[:12]}`", files["QUEUE.md"])
+
+    def test_commit_and_path_cannot_inject_into_the_pasted_command(self):
+        # A sha that is not 40 hex characters is dropped, and a path that could leave the
+        # single quotes is left out of the command the session pastes into a shell.
+        bad_sha = render([alert(4, "high", commit="$(touch pwned)" + "a" * 26)])["alerts/4.md"]
+        self.assertNotIn("pwned", bad_sha)
+        self.assertNotIn("git fetch", bad_sha)
+        bad_path = render([alert(5, "high", commit=SHA_A, path="x';touch pwned;'.js")])["alerts/5.md"]
+        command = [ln for ln in bad_path.splitlines() if "git fetch" in ln][0]
+        self.assertNotIn("pwned", command)
+        self.assertTrue(command.rstrip().endswith("origin/main`"))
+        route = render([alert(6, "high", commit=SHA_A, path="app/api/[slug]/route.ts")])["alerts/6.md"]
+        self.assertIn("-- 'app/api/[slug]/route.ts'", route)
+
     def test_summary_flattens_and_normalises(self):
         s = summarise(alert(4, "HIGH"))
         self.assertEqual(s["severity"], "high")
@@ -71,6 +111,55 @@ class RenderTest(unittest.TestCase):
             write_tree(out, render([alert(1, "high"), alert(2, "low")]))
             write_tree(out, render([alert(2, "low")]))
             self.assertEqual(sorted(p.name for p in (out / "alerts").iterdir()), ["2.md"])
+
+
+class TriageTest(unittest.TestCase):
+    def entry(self, number, rule=None, path="a.py", reason="read it: harmless"):
+        return {"number": number, "rule": rule or f"py/rule-{number}", "path": path, "reason": reason}
+
+    def test_triaged_alert_leaves_the_work_list_but_stays_visible(self):
+        files = render([alert(1, "high"), alert(2, "high")], [self.entry(1)])
+        work, _, triaged = files["QUEUE.md"].partition("## Triaged, awaiting dismissal")
+        self.assertNotIn("#1 ", work)
+        self.assertIn("#2 ", work)
+        self.assertIn("#1 ", triaged)
+        self.assertIn("false positive", files["alerts/1.md"])
+        self.assertIn("read it: harmless", files["alerts/1.md"])
+        self.assertIn("Claim it", files["alerts/2.md"])
+
+    def test_entry_must_match_number_rule_and_path(self):
+        for wrong in (self.entry(1, rule="py/other"), self.entry(1, path="b.py"),
+                      self.entry(9), self.entry(1, reason="  ")):
+            queue = render([alert(1, "high")], [wrong])["QUEUE.md"]
+            self.assertNotIn("## Triaged", queue, wrong)
+            self.assertIn("- [high] #1 ", queue)
+
+    def test_all_triaged_says_empty_of_work(self):
+        queue = render([alert(1, "high")], [self.entry(1)])["QUEUE.md"]
+        self.assertIn("Empty: no open alerts awaiting a fix.", queue)
+
+    def test_unavailable_keeps_only_work_lines(self):
+        previous = render([alert(1, "high"), alert(2, "high")], [self.entry(1)])["QUEUE.md"]
+        text = security_alerts.unavailable(404, "", previous)
+        self.assertIn("#2 ", text)
+        self.assertNotIn("#1 ", text)
+
+    def test_load_triage_tolerates_missing_and_bad_files(self):
+        with tempfile.TemporaryDirectory() as d:
+            self.assertEqual(security_alerts.load_triage(Path(d) / "none.json"), [])
+            bad = Path(d) / "bad.json"
+            bad.write_text("{not json")
+            self.assertEqual(security_alerts.load_triage(bad), [])
+
+    def test_repository_triage_file_is_well_formed(self):
+        entries = security_alerts.load_triage(security_alerts.TRIAGE)
+        self.assertTrue(entries)
+        root = security_alerts.TRIAGE.parents[2]
+        for e in entries:
+            self.assertIsInstance(e["number"], int)
+            self.assertRegex(e["rule"], r"^[a-z]+/[a-z-]+$")
+            self.assertTrue((root / e["path"]).exists(), e["path"])
+            self.assertGreater(len(e["reason"]), 40, e)
 
 
 class MainTest(unittest.TestCase):

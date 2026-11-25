@@ -34,10 +34,13 @@ test("every input and select carries a visible <label>", () => {
   }
 });
 
-test("the page names all seven modeled states and does not pretend to cover others", () => {
+test("the page names every modeled state, counts them right and does not pretend to cover others", () => {
   const html = page("index.html");
-  for (const s of ["California", "Texas", "Florida", "Arizona", "Washington", "Georgia", "Colorado"]) assert.match(html, new RegExp(s));
-  assert.match(html, /Seven states only/);
+  for (const { name } of Object.values(STATE_RULES)) assert.match(html, new RegExp(name));
+  for (const code of Object.keys(STATE_RULES)) assert.match(html, new RegExp(`<option value="${code}"`), code);
+  assert.match(html, /Ten states only/);
+  assert.match(html, /<title>[^<]*Free, 10 States<\/title>/);
+  assert.equal(Object.keys(STATE_RULES).length, 10);
 });
 
 test("the usage events are counted separately", () => {

@@ -33,7 +33,7 @@ resource "aws_organizations_organization" "this" {
     "sso.amazonaws.com",
   ]
 
-  enabled_policy_types = ["SERVICE_CONTROL_POLICY"]
+  enabled_policy_types = ["RESOURCE_CONTROL_POLICY", "SERVICE_CONTROL_POLICY"]
 }
 
 resource "aws_organizations_organizational_unit" "this" {

@@ -71,6 +71,7 @@
 /platform/ci/branch_cleanup.py    @Duncan-Haywood
 /platform/ci/research_archive.py  @Duncan-Haywood
 /platform/ci/security_alerts.py   @Duncan-Haywood
+/platform/security/codeql-triage.json @Duncan-Haywood
 /portfolio/direction/report.py    @Duncan-Haywood
 /platform/distribution/           @Duncan-Haywood
 /platform/counter/core.mjs        @Duncan-Haywood
@@ -83,3 +84,7 @@
 /prompts/runs/
 /prompts/derived/
 /prompts/drift/
+# Runs with the Cloudflare credentials in priv-portfolio-pages.yml's
+# web-analytics job (ci_policy_check: privileged code needs an owner).
+/platform/analytics/provision.mjs     @Duncan-Haywood
+/platform/analytics/web-analytics.mjs @Duncan-Haywood

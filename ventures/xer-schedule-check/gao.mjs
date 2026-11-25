@@ -33,7 +33,7 @@
 // against the planned dates the file keeps, which P6 resets for unstarted
 // work, so the result there is said to be weaker.
 
-import { assess } from "./dcma.mjs";
+import { assess, baselineFinishes } from "./dcma.mjs";
 import { schedule, hardConstraint } from "./cpm.mjs";
 import { parseDate, formatDate } from "./xer.mjs";
 import { rangesFromUdf } from "./udf-ranges.mjs";
@@ -81,7 +81,7 @@ const pct = (n, d) => (d ? Math.round((1000 * n) / d) / 10 : 0);
 
 export function gao(xer, opts = {}) {
   const result = opts.result || schedule(xer);
-  const report = opts.report || assess(xer, { projId: opts.projId, result });
+  const report = opts.report || assess(xer, { projId: opts.projId, result, baseline: opts.baseline });
   const { model } = result;
   const pid = report.project.id;
   const p = result.projects.get(pid);
@@ -142,9 +142,9 @@ export function gao(xer, opts = {}) {
   // 3 Assigning resources
   {
     const c = check(10);
-    const loaded = (xer.tables.TASKRSRC || []).length > 0;
+    const loaded = (xer.tables.TASKRSRC || []).length + (xer.tables.PROJCOST || []).length > 0;
     if (c) add(3, { id: "dcma-10", name: "Open activities with duration and a resource or cost assignment (DCMA 10)", value: `${pct(c.total - c.count, c.total)}% (${c.count} of ${c.total} without)`, threshold: "100%", pass: c.pass, items: c.items, count: c.count,
-      note: loaded ? "" : "The file has no resource assignments at all." });
+      note: loaded ? "" : "The file has no resource assignments or expenses at all." });
     const rs = (xer.tables.RSRC || []).length;
     const limited = new Set((xer.tables.RSRCRATE || []).filter((r) => Number(r.max_qty_per_hr) > 0).map((r) => r.rsrc_id));
     const used = new Set((xer.tables.TASKRSRC || []).filter((a) => open.some((t) => t.id === a.task_id)).map((a) => a.rsrc_id));
@@ -293,10 +293,10 @@ export function gao(xer, opts = {}) {
 // Baseline finish: the baseline's actual finish when it had one, else its
 // stored early finish (the dates P6 gave the baseline when it was set).
 function baselineTests(bx, all, dd) {
-  const rows = (bx.tables.TASK || []).filter((r) => r.task_type !== "TT_LOE" && r.task_type !== "TT_WBS");
+  const { rows, finish } = baselineFinishes(bx);
   if (!rows.length) return { tests: [], error: "the baseline file has no activities", note: "" };
-  const byCode = new Map(rows.map((r) => [r.task_code, r]));
-  const bFinish = (r) => parseDate(r.act_end_date) ?? parseDate(r.early_end_date) ?? parseDate(r.target_end_date);
+  const byCode = new Map(rows.map((r) => [r.task_code, r.task_code]));
+  const bFinish = (code) => finish.get(code);
   const cur = new Map(all.map((t) => [t.code, t]));
   const matched = all.filter((t) => byCode.has(t.code));
   const added = all.filter((t) => !byCode.has(t.code));

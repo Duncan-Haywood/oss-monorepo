@@ -338,7 +338,8 @@
       {
         "file": ".github/workflows/ventures-tests.yml",
         "issue": "unwired_checks runs via run_venture_tests.py --since in ventures-tests.yml, whose pull_request/push paths are ventures/** only, so a PR touching only platform/pages, platform/ci or docs/reports (how both 2026-11-13 reds landed) skips it. Fix: add 'platform/ci/**', 'platform/pages/*.mjs' and 'docs/reports/**', 'docs/taxonomy.json' to both paths lists (with no venture changed, --since runs only the unwired set, ~20 s). Control plane, own PR; this session could push only its own branch.",
-        "patched": false
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18785"
       }
     ]
   },

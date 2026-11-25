@@ -59,7 +59,7 @@ function recalc(buf) {
 test("recalculated, the example matches the worked example in the guides", { skip: !soffice() && "soffice not installed" }, () => {
   const { cs, summary } = recalc(buildWorkbook(EXAMPLE));
   for (const [label, value] of [["3. Contract sum to date", "158500"], ["4. Total completed and stored to date", "79850"], ["5. Retainage", "7985"], ["6. Total earned less retainage", "71865"], ["8. Current payment due", "40365"]]) {
-    assert.match(summary, new RegExp(`^"?${label.replace(/\./g, "\\.")}"?,,${value},`, "m"), label);
+    assert.match(summary, new RegExp(`^"?${label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"?,,${value},`, "m"), label);
   }
   assert.match(summary, /^"9\. Balance to finish, including retainage",,86635,/m);
   assert.match(cs, /^3,Switchgear \(stored on site\),60000,9000,6000,15000,30000,[^,]*,30000,3000,$/m);
@@ -75,4 +75,16 @@ test("recalculated, an over-billed line and work on a line with no value are fla
   assert.match(cs, /^5,Unscheduled work,,,100,,100,,-100,10,No scheduled value$/m);
   assert.match(cs, /2 line\(s\) to check/);
   assert.match(summary, /2 line\(s\) to check on the continuation sheet/);
+});
+
+// Red team 2026-11-25: `node template.mjs --check` is how a person checks the
+// committed files; it must run as a script and fail when a file is missing.
+test("node template.mjs --check runs and fails on a missing or stale file", () => {
+  const dir = mkdtempSync(join(tmpdir(), "sov-check-"));
+  for (const f of ["template.mjs", "calc.mjs"]) writeFileSync(join(dir, f), readFileSync(new URL(`./${f}`, import.meta.url)));
+  let status = 0, stderr = "";
+  try { execFileSync(process.execPath, [join(dir, "template.mjs"), "--check"], { stdio: "pipe" }); } catch (e) { status = e.status; stderr = String(e.stderr); }
+  assert.equal(status, 1);
+  assert.match(stderr, /schedule-of-values-template\.xlsx is stale/);
+  execFileSync(process.execPath, [new URL("./template.mjs", import.meta.url).pathname, "--check"], { stdio: "pipe" });
 });

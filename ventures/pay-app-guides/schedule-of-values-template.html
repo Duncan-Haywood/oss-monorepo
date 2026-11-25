@@ -21,6 +21,7 @@
     <a href="retainage-explained.html">Retainage explained</a>
     <a href="conditional-vs-unconditional-lien-waivers.html">Lien waivers</a>
     <a href="change-orders-schedule-of-values.html">Change orders and the SOV</a>
+    <a href="retainage-in-quickbooks.html">Retainage in QuickBooks</a>
   </nav>
 </header>
 <main>
@@ -33,20 +34,20 @@
 
 <section class="card">
   <h2>What is in the continuation sheet</h2>
-  <div class="scroll"><table>
-    <thead><tr><th scope="col">Column</th><th scope="col">You type, or it works out</th><th scope="col">Formula</th></tr></thead>
+  <div class="scroll"><table class="stack" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">Column</th><th role="columnheader" scope="col">You type, or it works out</th><th role="columnheader" scope="col">Formula</th></tr></thead>
     <tbody>
-      <tr><td>A Item</td><td>You type: the SOV line number; CO-1, CO-2 for change orders</td><td></td></tr>
-      <tr><td>B Description of work</td><td>You type: the line as it reads on the approved SOV</td><td></td></tr>
-      <tr><td>C Scheduled value</td><td>You type: the line's value; a deductive change order is negative</td><td></td></tr>
-      <tr><td>D From previous application</td><td>You type: billed on this line in all earlier applications</td><td></td></tr>
-      <tr><td>E This period</td><td>You type: work installed this period, in dollars</td><td></td></tr>
-      <tr><td>F Materials presently stored</td><td>You type: delivered, not yet installed, not in D or E</td><td></td></tr>
-      <tr><td>G Total completed and stored</td><td>Works out</td><td>D + E + F</td></tr>
-      <tr><td>H % complete</td><td>Works out</td><td>G ÷ C</td></tr>
-      <tr><td>I Balance to finish</td><td>Works out</td><td>C − G</td></tr>
-      <tr><td>J Retainage</td><td>Works out</td><td>(D + E) × work rate + F × stored rate, rounded to the cent</td></tr>
-      <tr><td>K Check</td><td>Works out</td><td>"Over-billed" if G is more than C; "No scheduled value" if work is billed on a line with none</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">A Item</td><td role="cell" data-label="You type, or it works out">You type: the SOV line number; CO-1, CO-2 for change orders</td><td role="cell" data-label="Formula"></td></tr>
+      <tr role="row"><td role="cell" data-label="Column">B Description of work</td><td role="cell" data-label="You type, or it works out">You type: the line as it reads on the approved SOV</td><td role="cell" data-label="Formula"></td></tr>
+      <tr role="row"><td role="cell" data-label="Column">C Scheduled value</td><td role="cell" data-label="You type, or it works out">You type: the line's value; a deductive change order is negative</td><td role="cell" data-label="Formula"></td></tr>
+      <tr role="row"><td role="cell" data-label="Column">D From previous application</td><td role="cell" data-label="You type, or it works out">You type: billed on this line in all earlier applications</td><td role="cell" data-label="Formula"></td></tr>
+      <tr role="row"><td role="cell" data-label="Column">E This period</td><td role="cell" data-label="You type, or it works out">You type: work installed this period, in dollars</td><td role="cell" data-label="Formula"></td></tr>
+      <tr role="row"><td role="cell" data-label="Column">F Materials presently stored</td><td role="cell" data-label="You type, or it works out">You type: delivered, not yet installed, not in D or E</td><td role="cell" data-label="Formula"></td></tr>
+      <tr role="row"><td role="cell" data-label="Column">G Total completed and stored</td><td role="cell" data-label="You type, or it works out">Works out</td><td role="cell" data-label="Formula">D + E + F</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">H % complete</td><td role="cell" data-label="You type, or it works out">Works out</td><td role="cell" data-label="Formula">G ÷ C</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">I Balance to finish</td><td role="cell" data-label="You type, or it works out">Works out</td><td role="cell" data-label="Formula">C − G</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">J Retainage</td><td role="cell" data-label="You type, or it works out">Works out</td><td role="cell" data-label="Formula">(D + E) × work rate + F × stored rate, rounded to the cent</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">K Check</td><td role="cell" data-label="You type, or it works out">Works out</td><td role="cell" data-label="Formula">"Over-billed" if G is more than C; "No scheduled value" if work is billed on a line with none</td></tr>
     </tbody>
   </table></div>
 </section>
@@ -90,6 +91,45 @@
   <p>We are building hosted pay-app billing for specialty subcontractors: the schedule of values carried forward for you every month on every job, retainage tracked until release, change orders, and lien waivers with each application. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
 </section>
 </main>
+<!-- all-guides: generated by nav.mjs, do not edit by hand -->
+<nav class="all-guides" aria-label="All pay app tools and guides">
+    <div>
+      <h2>Tools</h2>
+      <ul>
+      <li><a href="./">Schedule of values calculator</a></li>
+      <li><a href="pay-application-checker.html">Pay app checker (this month vs last)</a></li>
+      <li><a href="change-order-log.html">Change order log</a></li>
+      <li><a href="schedule-of-values-template.html" aria-current="page">Free Excel SOV template</a></li>
+      <li><a href="pay-if-paid-clauses.html">Pay-if-paid clause reader</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Billing guides</h2>
+      <ul>
+      <li><a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a></li>
+      <li><a href="change-orders-schedule-of-values.html">Change orders and the SOV</a></li>
+      <li><a href="stored-materials-billing.html">Billing stored materials</a></li>
+      <li><a href="overbilling-underbilling.html">Overbilling and underbilling</a></li>
+      <li><a href="retainage-explained.html">Retainage explained, with state caps</a></li>
+      <li><a href="retainage-release.html">Getting retainage released</a></li>
+      <li><a href="retainage-in-quickbooks.html">Retainage in QuickBooks</a></li>
+      <li><a href="retainage-tracker.html">Retainage tracker (every job)</a></li>
+      <li><a href="pay-application-software-compared.html">Pay app software compared</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Getting paid and lien waivers</h2>
+      <ul>
+      <li><a href="prompt-payment-laws.html">Prompt payment laws by state</a></li>
+      <li><a href="conditional-vs-unconditional-lien-waivers.html">Conditional vs unconditional lien waivers</a></li>
+      <li><a href="lien-waiver-forms-by-state.html">Lien waiver forms by state</a></li>
+      <li><a href="lien-waiver-log.html">Lien waiver log (given and collected)</a></li>
+      <li><a href="sworn-statement.html">Contractor's sworn statement builder</a></li>
+      <li><a href="paid-short.html">Paid short? Reconcile the check</a></li>
+      </ul>
+    </div>
+</nav>
+<!-- /all-guides -->
 <footer>
   <p><strong>No warranty.</strong> This template and guide are provided free and as-is, without warranty of any kind, express or implied. They are not legal, tax, accounting, or financial advice, and they do not replace your contract, your accountant, or an attorney. You are responsible for verifying anything you submit. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
   <p><strong>Not affiliated with the American Institute of Architects.</strong> AIA, G702 and G703 are marks of their owner. This template follows the general layout of a pay application and does not reproduce the AIA forms.</p>

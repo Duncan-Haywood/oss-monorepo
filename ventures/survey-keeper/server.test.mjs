@@ -20,7 +20,7 @@ test("the public survey renders escaped, with no scripts, and unknown slugs are 
   const s = await boot();
   const r = await fetch(`${s.base}/s/pulse-check`); const html = await r.text();
   assert.equal(r.status, 200);
-  assert.match(html, /Pulse &lt;b&gt;check&lt;\/b&gt;/); assert.doesNotMatch(html, /<script/);
+  assert.match(html, /Pulse &lt;b&gt;check&lt;\/b&gt;/); assert.doesNotMatch(html, /<script/i);
   assert.match(r.headers.get("content-security-policy"), /frame-ancestors 'none'/);
   assert.match(html, /name="q1" value="10"/); assert.match(html, /type="checkbox" name="q3"/);
   assert.equal((await fetch(`${s.base}/s/nope`)).status, 404);

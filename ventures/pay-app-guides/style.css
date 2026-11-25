@@ -27,7 +27,7 @@ th, td { text-align: left; padding: 8px 7px; border-bottom: 1px solid var(--rule
 th { font-size: .74rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); }
 td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 tr.total td { font-weight: 700; border-top: 2px solid var(--head); }
-.scroll { overflow-x: auto; }
+.scroll { overflow-x: auto; position: relative; } /* contains .vh labels inside it, or they widen the page */
 .due { font-size: 1.7rem; font-weight: 800; color: var(--head); }
 .finding { padding: 6px 0; }
 .pill { display: inline-block; font-size: .68rem; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: var(--soft); color: var(--head); }
@@ -35,6 +35,38 @@ tr.total td { font-weight: 700; border-top: 2px solid var(--head); }
 pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 14px; overflow-x: auto; }
 .cta { border: 2px solid var(--accent); }
 .cta h2 { margin-top: 0; }
+/* Every page: the generated block from nav.mjs, grouped, above the footer. */
+nav.all-guides { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 4px 24px; margin: 32px 0 0; padding-top: 18px; border-top: 1px solid var(--line); }
+nav.all-guides h2 { font-size: .78rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+nav.all-guides ul { list-style: none; margin: 0 0 14px; padding: 0; }
+nav.all-guides li { margin: 0; }
+nav.all-guides a { display: inline-block; padding: 5px 0; font-size: .95rem; }
+nav.all-guides a[aria-current="page"] { color: var(--head); font-weight: 700; text-decoration: none; }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 footer { margin-top: 28px; border-top: 1px solid var(--line); padding-top: 16px; }
 @media (max-width: 720px) { body { padding: 16px; } }
+/* Guide tables on a phone: one card per row, the first cell as its title and the rest as
+   label / value pairs (data-label is the column header). Same pattern as the site's
+   STACK_TABLE_CSS (platform/pages/site-nav.mjs), which venture pages do not load. At 390 px the
+   retainage caps table was 457 px wide in a 312 px scroller, with Notes off screen. */
+@media (max-width: 600px) {
+  table.stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  table.stack, table.stack tbody, table.stack tr, table.stack td, table.stack th[scope="row"] { display: block; }
+  table.stack { margin-top: 12px; }
+  table.stack tr { border: 1px solid var(--line); border-radius: 10px; padding: 2px 12px; margin: 0 0 10px; background: var(--card); }
+  /* Label above value, not a two-column grid: a grid makes every inline child (<strong>, <a>)
+     its own grid item, which split the lien-waiver cells into fragments. */
+  table.stack td { border: 0; border-top: 1px solid var(--rule); padding: 7px 0; text-align: left; white-space: normal; }
+  table.stack td::before { content: attr(data-label); display: block; color: var(--muted); font-size: .78rem; font-weight: 600; line-height: 1.5; }
+  table.stack td:first-child, table.stack th[scope="row"] { display: block; border: 0; font-weight: 700; color: var(--head); padding: 9px 0 7px; font-size: 1rem; text-transform: none; letter-spacing: 0; }
+  table.stack td:first-child::before { content: none; }
+  table.stack.compact td:not(:first-child) { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  table.stack.compact td::before { display: inline; }
+  table.stack td:empty, table.stack.compact td:empty { display: none; }
+}
 @media print { body { background: #fff; color: #000; padding: 0; } .card { border: 0; } button, nav, footer, .cta, #inputs { display: none; } }
+
+/* Closeout checklist on retainage-release.html */
+.checks { border: 1px solid var(--line); border-radius: 8px; margin: 14px 0; padding: 8px 14px; }
+.checks label { font-weight: 400; margin: 6px 0; display: flex; gap: 8px; align-items: baseline; }
+.checks input { width: auto; flex: none; margin: 0; }

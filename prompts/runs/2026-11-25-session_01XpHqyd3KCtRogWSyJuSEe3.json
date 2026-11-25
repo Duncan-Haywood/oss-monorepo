@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyd3KCtRogWSyJuSEe3",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T05:39:14Z",
+  "ended": "2026-11-25T05:42:57Z",
+  "wall_minutes": 3.88,
+  "tokens_in": 3682823,
+  "tokens_out": 11935,
+  "cost_usd": 1.7652,
+  "tool_calls": 41,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18863",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Clone of private-monorepo refused by the permission classifier after add_repo succeeded, so bet #1 was worked on its public side."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "'Advance the top bet' sends every concurrent ventures run to pay-app-guides: 6 open PRs on that one venture at the start of this run, so new work there mostly creates merge conflicts. A note on checking open PRs per venture and taking the next bet when one is saturated would save time."
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "Bet #5's wedge names Depop, but Depop publishes no column names for its sales CSV (only a third-party guide), so a Depop reader cannot be built without a real file."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The private repo was unreachable and the public side of bet #1 already had 6 open PRs. A Depop reader for bet #5 would have rested on guessed columns.",
+      "did": "Landed stalled PR #18798 (16-state retainage table) on current main, re-reading the Minnesota and Utah statutes and Utah's 2027 version.",
+      "result": "Conflicts resolved, 61/61 tests pass, PR #18863."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No new post: the PR extends the existing retainage post (consolidation, owner 2026-11-24).",
+      "did": "The post was extended in the landed commits.",
+      "result": "No thin new post."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-retainage-caps-in-twelve-states.md (extended, carried from PR #18798)"
+  ],
+  "goal": null,
+  "notes": "node --test ventures/pay-app-guides/*.test.mjs: 61 pass 0 fail. risk_review: nothing blocked. Security queue: 48 alerts, all claimed (exit 3). IDEAS and requests empty.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5a68a038-9318-591f-b9f6-feea4f9002d1",
+    "transcripts": 1,
+    "first": "2026-11-25T05:39:14Z",
+    "last": "2026-11-25T05:43:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 76,
+        "output": 11935,
+        "thinking": 2468,
+        "cache_read": 3581504,
+        "cache_write_5m": 0,
+        "cache_write_1h": 101243,
+        "api_equivalent_usd": 1.7652,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 76,
+      "output": 11935,
+      "thinking": 2468,
+      "cache_read": 3581504,
+      "cache_write_5m": 0,
+      "cache_write_1h": 101243,
+      "api_equivalent_usd": 1.7652,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 28,
+      "WebFetch": 3,
+      "mcp__github__pull_request_read": 3,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.88,
+      "active_minutes": 3.88,
+      "model_minutes": 2.61,
+      "tool_minutes": 1.27,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "merge conflict resolution plus two statute re-reads",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 85.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

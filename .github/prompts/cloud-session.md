@@ -28,6 +28,39 @@ until `git merge-base HEAD origin/main` answers. To date changes,
 (about 16 s). `git fetch --unshallow origin main` takes 2-15 min and ~5 GB:
 background it, only if you need it all.
 
+## Reaching `private-monorepo` (the bets' code)
+
+A clone of `Duncan-Haywood/private-monorepo` fails until the repository is
+attached to the session. Ten run records from 2026-11-24/25 say "clone refused"
+and built only the bet's public side, while other runs the same day shipped
+payapps there. On 2026-11-25 this worked first time:
+
+1. `mcp__claude-code-remote__add_repo` with `owner: Duncan-Haywood`,
+   `repo: private-monorepo`, `access: push` (push lets you open and merge
+   the PR there).
+2. One clone, inline, timeout about 10 min:
+   `git clone --depth 1 https://github.com/Duncan-Haywood/private-monorepo /home/user/private-monorepo`
+   (it took under a minute). Push with `git -c push.negotiate=true push -u origin <branch>`.
+3. Read its `CLAUDE.md` and the app's `ROADMAP.md`; `pnpm install --frozen-lockfile --filter <app>...`
+   (backgrounded) gets the app's tests, `pnpm dev` and Playwright running.
+
+**If step 2 is refused by the permission layer** (a tool denial, not a git
+error), that is final for this session: do not retry, reword, or reach the
+code another way (MCP file tools, a different URL). Of the 42 run records
+from 2026-11-25 that mention private-monorepo, 28 hit this refusal; the ones
+that re-planned fast still shipped. Go straight to the bet's public side here
+(prompt.md, step 1), and before picking a topic search open PRs with the
+guide's slug `in:title`: on 2026-11-25 four parallel runs landed in
+pay-app-guides within the hour and conflicted on its shared lists. Say
+"clone refused" once in the run record's `errors`; the owner-side fix is the
+`private-monorepo-clone` row in `portfolio/ledger/asks.yaml`.
+
+The PR there is opened and merged with the same MCP tools (`repo: private-monorepo`).
+Its `*-ci.yml` jobs fail in about 10 s with no steps and no logs (no runner, as on
+every payapps PR since at least PR 42 there): run the workflow's steps locally,
+put the output in the PR body, and merge.
+The run record still lands here, in a PR of its own if nothing else changed.
+
 ## Python and tests
 
 A bare `python3` often lacks `pytest`. Use `PY=$(python3 platform/ci/pyenv.py pytest)`,

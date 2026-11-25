@@ -31,10 +31,17 @@ stacks/spend               budgets per account, budget actions (freeze SCP), kil
 stacks/llm                 Claude Platform on AWS IAM (apps + CI gate), outbound web identity federation
 stacks/email               SES identities, DKIM, MAIL FROM, DMARC, config sets, events -> SNS -> SQS
 stacks/app-identity        TRANSITIONAL: an IAM user for Cloudflare Workers, key rotated in Secrets Manager
+stacks/github-oidc         per-stack CI roles and a state bucket in each workload account (payments: private repo only)
+stacks/findings            HIGH/CRITICAL Security Hub findings -> SQS -> files on security-alerts
 ```
 
 Apply order (the apply workflow follows it): `org`, `baseline`, `spend`,
-`llm`, `email`, `app-identity`. Each stack has its own state key
+`llm`, `email`, `app-identity`; then `github-oidc` and `findings` (both
+with the management credentials, not yet in the workflow). After those come
+the workload stacks, each applied by its own `gha-<repo>-<stack>-apply` role
+against its own account's state bucket: `dns` (shared-infra), then `site`
+and `edge` (shared-infra), then `saas-starter` (apps), then `products`
+(apps). `payments` is applied from the private repository. Each stack has its own state key
 (`<stack>/terraform.tfstate`) and reads the ones before it through
 `terraform_remote_state`.
 
@@ -56,6 +63,13 @@ turning off account-level S3 Block Public Access or default EBS encryption;
 no root user; no IAM users or access keys (except the transitional ones
 below); only `allowed_regions`; no purchases or commitments, and AWS
 Marketplace subscriptions only by the owner's Identity Center role.
+
+RCPs on every OU (`stacks/org/rcps.tf`): S3, KMS, Secrets Manager and SQS
+answer only this organization's principals and AWS services (a data
+perimeter, so a mistaken bucket or key policy grants an outsider nothing;
+serve public content through CloudFront, never a public bucket). On the
+Payments OU: no GitHub Actions token whose subject is this public repository
+is accepted, whatever a role's trust policy says.
 
 ## The bootstrap: what the owner runs, and what each role can do
 
