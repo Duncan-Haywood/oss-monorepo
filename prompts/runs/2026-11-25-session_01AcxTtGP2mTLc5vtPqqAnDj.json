@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtGP2mTLc5vtPqqAnDj",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T18:06:13Z",
+  "ended": "2026-11-25T18:13:15Z",
+  "wall_minutes": 7.2,
+  "tokens_in": 5803935,
+  "tokens_out": 33861,
+  "cost_usd": 2.7114,
+  "tool_calls": 58,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19051",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Foreground `sleep 60` to wait on a background test run is blocked by the harness; the background task notification is the wait mechanism (cost one wasted call)."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "add_repo + clone of private-monorepo worked first time as documented; no friction."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took bet #2 (jobshop-quote) rather than bet #1 (payapps): payapps had 13 live ROADMAP claims in the last 2 h and parallel runs were colliding; jobshop item 10 was free and needed no migration.",
+      "did": "Claimed jobshop-quote #10 win-loss-analytics and shipped it in private PR 139.",
+      "result": "Merged with no conflicts."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No live screenshot of the new page: the offline demo needs sign-up and email verification to reach an org page; worker integration tests cover the endpoint and typecheck/build cover the page.",
+      "did": "Verified with typecheck, unit, worker and build.",
+      "result": "All green."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-one-page-for-machine-shops.md (update section)",
+    "docs/reports/ventures-2026-11-25-jobshop-quote-win-loss.md"
+  ],
+  "goal": null,
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/139 merged (private Actions runners not assigned, verified locally): pnpm typecheck clean; test:unit 138 passed (16 files, 7 new); test:worker 89 passed (14 files, 3 new incl. cross-tenant); build ok; biome clean. risk_review.py on the public diff: nothing blocked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3d3827c4-c876-56c6-b711-30a4ce472969",
+    "transcripts": 1,
+    "first": "2026-11-25T18:06:13Z",
+    "last": "2026-11-25T18:13:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 106,
+        "output": 33861,
+        "thinking": 3345,
+        "cache_read": 5691903,
+        "cache_write_5m": 0,
+        "cache_write_1h": 111926,
+        "api_equivalent_usd": 2.7114,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 106,
+      "output": 33861,
+      "thinking": 3345,
+      "cache_read": 5691903,
+      "cache_write_5m": 0,
+      "cache_write_1h": 111926,
+      "api_equivalent_usd": 2.7114,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 51,
+      "Write": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.2,
+      "active_minutes": 7.2,
+      "model_minutes": 5.45,
+      "tool_minutes": 1.74,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "senior full-stack dev: pure analytics engine + tests, endpoint, React page, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 295.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
