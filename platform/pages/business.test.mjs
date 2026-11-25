@@ -4,7 +4,8 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  CONTACT_EMAIL, INDUSTRIES, PRODUCT_LINES, STATUS, earlyAccessHref, hardwareLines, linesForIndustry, softwareLines,
+  CONTACT_EMAIL, INDUSTRIES, PRODUCT_LINES, STATUS, buildFirstHref, earlyAccessHref, hardwareLines, industriesWithProducts,
+  industriesWithoutProducts, linesForIndustry, softwareLines,
 } from './business.mjs';
 
 const VENTURES = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'ventures');
@@ -54,12 +55,40 @@ test('every free tool a line names is a venture in this repository', () => {
   }
 });
 
-test('every industry has at least one line, and its slug is a path segment', () => {
+test('every industry has a path-segment slug, and either a product line or jobs and free tools', () => {
+  const slugs = new Set();
   for (const i of INDUSTRIES) {
     assert.match(i.slug, /^[a-z0-9]+(-[a-z0-9]+)*$/);
-    assert.ok(linesForIndustry(i.slug).length > 0, i.slug);
+    assert.ok(!slugs.has(i.slug), `duplicate industry ${i.slug}`);
+    slugs.add(i.slug);
+    for (const k of ['name', 'who']) assert.ok(typeof i[k] === 'string' && i[k].length > 3, `${i.slug}.${k}`);
+    if (linesForIndustry(i.slug).length) continue;
+    // Owner, 2026-11-25: cover most kinds of small business. An industry with
+    // no product yet earns its page with the jobs and the free tools for them.
+    assert.ok(i.problems.length >= 2 && i.problems.length <= 4, `${i.slug}: 2 to 4 jobs`);
+    assert.ok(i.tools.length >= 3, `${i.slug}: at least 3 free tools`);
   }
-  assert.deepEqual(INDUSTRIES.map((i) => i.slug), ['construction', 'manufacturing', 'online-sellers', 'eu-e-invoicing', 'nonprofits']);
+  // The five with a product keep bets.md's order at the top.
+  assert.deepEqual(industriesWithProducts().map((i) => i.slug), ['construction', 'manufacturing', 'online-sellers', 'eu-e-invoicing', 'nonprofits']);
+  assert.deepEqual(INDUSTRIES.slice(0, 5).map((i) => i.slug), industriesWithProducts().map((i) => i.slug));
+  assert.ok(industriesWithoutProducts().length >= 12, 'most kinds of small business are covered');
+});
+
+test('every free tool an industry names is a venture in this repository', () => {
+  for (const i of INDUSTRIES) {
+    for (const slug of i.tools) assert.ok(existsSync(path.join(VENTURES, slug, 'index.html')), `${i.slug}: ${slug}`);
+  }
+});
+
+test('no industry makes up a statistic, a customer quote or a product', () => {
+  for (const i of INDUSTRIES) {
+    const text = [i.name, i.who, ...i.problems].join(' ');
+    assert.doesNotMatch(text, /\d+\s*%|percent|customers? (tell|say|love|trust)|trusted by|\$\d|€\d|“[^”]*” —/i, i.slug);
+  }
+});
+
+test('asking what to build first goes to the agent-managed inbox with the industry in the subject', () => {
+  assert.equal(buildFirstHref({ name: 'Fitness studios' }), `mailto:${CONTACT_EMAIL}?subject=Build%20first%20for%20Fitness%20studios`);
 });
 
 test('software lines put live first and otherwise keep the bets order', () => {

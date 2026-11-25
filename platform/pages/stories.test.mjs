@@ -6,11 +6,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadAudio as loadStoryAudio } from '../../ventures/hearth-and-horizon/generate.mjs';
 import { loadAudio as loadEpisodeAudio } from '../../ventures/saints-by-candlelight/generate.mjs';
-import { SITE_NAV } from './site-nav.mjs';
+import { SITE_NAV, renderSiteFooterNav } from './site-nav.mjs';
 import { badSelectors, styleBlocks, unitlessLengths } from './css-lint.mjs';
 
-test('the Stories page is in the top navigation', () => {
-  assert.ok(SITE_NAV.some((item) => item.id === 'stories' && item.href === STORIES_PATH));
+test('the Stories page is in the footer, not the top navigation (moved 2026-11-25)', () => {
+  assert.ok(!SITE_NAV.some((item) => item.id === 'stories'));
+  assert.match(renderSiteFooterNav({ toRoot: '' }), new RegExp(`href="${STORIES_PATH}"`));
 });
 
 test('every shelf of both fiction ventures is listed, newest first, linking into the venture', () => {
@@ -29,7 +30,7 @@ test('the page links each shelf, its feed and its newest pieces, and says it is 
   const shelves = loadFiction();
   const html = renderStoriesPage(shelves, { baseUrl: 'https://example.org/' });
   assert.match(html, /<link rel="canonical" href="https:\/\/example.org\/stories\/">/);
-  assert.match(html, /data-pfs-nav="stories" href="..\/stories\/" aria-current="page"/);
+  assert.match(html, /href="..\/stories\/"/, 'the footer links back to the page');
   for (const s of shelves) {
     assert.ok(html.includes(`href="../${s.feed}"`), s.id);
     assert.ok(html.includes(`href="../${s.items[0].href}"`), s.id);
