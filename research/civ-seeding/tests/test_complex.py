@@ -144,3 +144,23 @@ def test_latent_homophily_adopters_are_informed(setup):
     Y, I = cx.simulate(v, beta, 0.05, 0.3, 60, np.random.default_rng(7), return_informed=True,
                        latent=(2.0, 2.0))
     assert (Y <= I).all()
+
+
+def test_mixed_homophily_reinforcement_sigma_zero_is_reinforcement(setup):
+    # milestone 30: latent=(0, rho) with gamma > 0 is the reinforcement model in take-up
+    V, beta = setup
+    v = V[0]
+    a = cx.simulate(v, beta, 0.05, 0.3, 2000, np.random.default_rng(11), gamma=0.15, delta=-0.5)
+    b = cx.simulate(v, beta, 0.05, 0.3, 2000, np.random.default_rng(12), gamma=0.15, delta=-0.5,
+                    latent=(0.0, 8.0))
+    assert abs(a.mean() - b.mean()) < 0.01
+
+
+def test_mixed_reinforcement_adds_to_homophily(setup):
+    # same seed: gamma > 0 on top of the field adds adopters on average
+    V, beta = setup
+    v = V[2]
+    a = cx.simulate(v, beta, 0.05, 0.3, 300, np.random.default_rng(13), latent=(1.5, 8.0))
+    b = cx.simulate(v, beta, 0.05, 0.3, 300, np.random.default_rng(13), latent=(1.5, 8.0),
+                    gamma=0.2)
+    assert b.mean() > a.mean()
