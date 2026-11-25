@@ -58,3 +58,36 @@ Checked by reading `main` at `f67c21c96`. No code change was needed.
   - `js/regex-injection` #104 and #105 (`platform/ci/copy_drift.mjs:189-190`). `--name` and `--skip` are regex flags typed by whoever runs the local CI script.
   - `js/regex-injection` #106 (`dxf-nesting/dxf.mjs:174`). "Ignore layers matching" is a regex the user types into their own browser tab or CLI, and no one else's input reaches it.
 - **Still unchecked:** the remaining `js/double-escaping` alerts, #119 onward. Most of them are in `*.test.mjs` files, and the same reasoning as the test-file note above applies.
+
+## Third pass, same day (queue scanned at `5f857bb81c00`, main at `6714ba814`)
+
+The top seven alerts (#7, #12, #34, #38, #39, #42, #43) are the false positives in the first table;
+#274, #275 and #574 are claimed. The rest of the non-test head of the queue, read on main:
+
+- **Fixed in this PR** (all `js/incomplete-sanitization` or the same family):
+  - #65 `ventures/pay-app-guides/template.test.mjs:62`: the label was regex-escaped for `.` only. It now
+    escapes every regex metacharacter, backslash included.
+  - #849 `platform/agents/tools.mjs:170` (`commentFor`): the export name was escaped for `$` only. It now
+    escapes every metacharacter, and the trailing `\b` became `(?![\w$])` so a name ending in `$` (a legal
+    identifier) is found at all; `tools.test.mjs` covers both.
+  - #862 `research/marriage-divorce-evidence/report-app/src/use-data-app.js:315`: `replace("..")` became
+    `replaceAll`, so a filter value with more than one `..` reads right in the chip.
+- **False positives (dismiss):**
+  - #741 `js/incomplete-sanitization` in `shopify-to-woocommerce-converter/converter.mjs:69`. `esc` writes
+    WooCommerce's `\,` list-separator escape. WooCommerce's importer (`explode_values`) swaps `\,` for a
+    placeholder and has no backslash escape, so escaping `\` as `\\` would put two backslashes in the shop.
+  - #960 `js/xss-through-dom` in `quick-pick-survey/site/rank.html:461`: the line sets `img.src` (an object
+    URL), `img.alt` and `textContent`. Every `innerHTML` in the file passes names through `esc` or `listNames`.
+  - #968 `js/xss-through-dom` in `shed-designer/hoa-page.mjs:59`: `packetHtml` (`hoa.mjs:518`) runs every
+    text value (design name, summary rows, swatch labels, the 3D picture URL) through `esc`.
+  - #969 `js/xss-through-dom` in `silence-cutter/index.html:258`: `a.href = URL.createObjectURL(blob)` on a
+    download link; no markup is built.
+  - #1049 and #1050 `js/incomplete-url-substring-sanitization` in `platform/pages/check.mjs:1470` and
+    `custom-domain.test.mjs:151`: `text.includes('https://example.invalid')` looks for a leftover placeholder
+    in built pages so the check can fail on it. It is a search, not a URL allow-check.
+  - #1086 `js/disabling-certificate-validation` in `status-keeper/certs.mjs:12`: the monitor must read the
+    certificate of a site whose certificate is bad, to report expiry. It returns `socket.authorized` and
+    `authorizationError` and sends nothing over the socket, so no data trusts the unverified peer.
+- **Test fixtures, by design:** #1181 to #1203 (`regex-redos-check/*.test.mjs`) are the catastrophic regexes
+  the ReDoS checker is tested on, and #1208 is in `devsec-toolkit/tests/fixtures/vulnerable-repo/`, a repo
+  that is vulnerable on purpose.

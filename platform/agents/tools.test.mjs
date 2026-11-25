@@ -66,6 +66,10 @@ test('commentFor returns the comment above an export and the module header', () 
   assert.equal(commentFor(src, 'add'), 'Adds.\nReally.');
   assert.equal(commentFor(src, 'k'), 'Doc block.');
   assert.equal(commentFor(src, 'bare'), '');
+  // Identifiers may hold `$`; a name with other regex characters must not match by accident.
+  const s2 = '// Dollar.\nexport const $a$ = 1;\n// Other.\nexport const ab = 2;\n';
+  assert.equal(commentFor(s2, '$a$'), 'Dollar.');
+  assert.equal(commentFor(s2, 'a.'), '');
 });
 
 test('toJson keeps Maps, Sets, Infinity and BigInt readable', () => {
