@@ -1,0 +1,28 @@
+{
+  "id": "P073",
+  "title": "The six non-venture sub-prompts never mention the 2026-11-24 North star, so their runs pick targets with no for-profit hint",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "prompt.md and CLAUDE.md say for-profit products come first, but the weighted draw still sends ~37% of runs to explore, perf, polish, creative, quality and redteam, and none of their prompt-0.md files said anything about the North star or where the for-profit products are listed. Runs on those tracks reported having to decide for themselves (or not) whether to aim at paid products, and one perf run guessed which pages feed a paid bet.",
+  "evidence": [
+    "prompts/runs/2026-11-24/25 *.json: 57 runs on the six tracks; 4 name the gap in doc_friction (polish 01AcxTtLCaLcFtYBebsPEYK3, explore 01EhTJVMqoW3GBnC2yy1TVXe, creative 01XpHqycpy3auKHtGfeZpbAt, perf 01EhTJVMQnbSD8Erfmd51Ydz); perf 01E5sJKkQYjyBhXkJPTK7Eas: 'no row names a bet's core paid product'",
+    "grep -n -i 'north star|for-profit' prompts/{explore,perf,polish,creative,quality,redteam}/prompt-0.md on main 2026-11-25: no hits"
+  ],
+  "change": "One paragraph in each of the six prompt-0.md files: where the track leaves the target open, prefer one that serves a for-profit product, and `python3 portfolio/monetization/transition.py` lists them. No routing weight change (the draw is the owner's split; a reweight would be a review-track or owner call).",
+  "touches": [
+    "prompts/explore/prompt-0.md",
+    "prompts/perf/prompt-0.md",
+    "prompts/polish/prompt-0.md",
+    "prompts/creative/prompt-0.md",
+    "prompts/quality/prompt-0.md",
+    "prompts/redteam/prompt-0.md"
+  ],
+  "metric": "share of runs on these six tracks whose doc_friction names a missing North star / for-profit hint; secondarily, share whose PR touches a transition.json proprietary venture",
+  "baseline": "4 of 57 runs, 2026-11-24..25 (records above)",
+  "opened": "2026-11-25",
+  "source": "process critique, 2026-11-25 (doc friction of recent runs)",
+  "pr": null,
+  "result": null
+}
