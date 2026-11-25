@@ -4,8 +4,8 @@
 Run with: python3 -m unittest portfolio/router/test_allocate.py
 (or: cd portfolio/router && python3 -m unittest test_allocate)
 """
-import copy
 import json
+import pickle
 import tempfile
 import unittest
 from pathlib import Path
@@ -57,14 +57,15 @@ def load_ventures(*args, **kwargs):
     Twelve tests loaded the real tree, ~10 s each without libyaml (the CI
     runner's case). Calls with the default tree share one parse and get a deep
     copy, so a test that mutates its list cannot leak into another; calls with
-    their own directory still parse fresh.
+    their own directory still parse fresh. The copy is a pickle round trip,
+    about ten times cheaper than deepcopy (2 s of the module's 8 s, 2026-11-25).
     """
     global _REAL_VENTURES
     if args and args[0] != VENTURES_DIR or kwargs:
         return _load_ventures(*args, **kwargs)
     if _REAL_VENTURES is None:
-        _REAL_VENTURES = _load_ventures(VENTURES_DIR)
-    return copy.deepcopy(_REAL_VENTURES)
+        _REAL_VENTURES = pickle.dumps(_load_ventures(VENTURES_DIR), pickle.HIGHEST_PROTOCOL)
+    return pickle.loads(_REAL_VENTURES)
 
 
 def make(
@@ -524,6 +525,37 @@ class MeritTests(unittest.TestCase):
     def test_work_queue_exposes_merit(self):
         queue = work_queue(load_ventures(VENTURES_DIR))
         self.assertTrue(all("merit" in item for item in queue))
+
+
+class ParsedYamlMemoTests(unittest.TestCase):
+    """_load_yaml parses each distinct text once but hands every caller its own objects."""
+
+    def test_fresh_objects_per_call_and_edits_reparse(self):
+        import allocate
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "VENTURE.yaml"
+            path.write_text("name: memo-probe\nkill_criteria:\n  - one\nwhen: 2026-11-25\n")
+            first = allocate._load_yaml(path)
+            first["kill_criteria"].append("leaked")
+            second = allocate._load_yaml(path)
+            self.assertEqual(second["kill_criteria"], ["one"])
+            self.assertIsNot(first, second)
+            self.assertEqual(type(second["when"]).__name__, "date")
+            path.write_text("name: memo-probe-2\n")
+            self.assertEqual(allocate._load_yaml(path), {"name": "memo-probe-2"})
+            path.write_text("")
+            self.assertEqual(allocate._load_yaml(path), {})
+
+    def test_memo_gives_the_same_ventures_as_a_cold_parse(self):
+        import allocate
+        warm = _load_ventures(VENTURES_DIR)
+        saved = dict(allocate._PARSED)
+        allocate._PARSED.clear()
+        try:
+            cold = _load_ventures(VENTURES_DIR)
+        finally:
+            allocate._PARSED.update(saved)
+        self.assertEqual(warm, cold)
 
 
 class LoadRealVenturesTests(unittest.TestCase):
