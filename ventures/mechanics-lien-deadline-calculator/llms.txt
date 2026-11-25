@@ -8,11 +8,14 @@ Free to use and source available (FSL-1.1-MIT). Results are estimates from the n
 
 - Texas: one notice date per month of unpaid work (15th day of the 3rd month after it, 2nd on residential), lien affidavit 15th of the 4th (3rd) month; rules for original contracts from 2022-01-01, the same for every tier.
 - Georgia: Notice to Contractor shown only for second-tier claimants (hired by a subcontractor), as the statute requires it only without privity with the contractor.
-- California, Arizona, Florida, Washington, Colorado: the same clocks for first- and second-tier claimants.
+- Washington: a subcontractor hired by the prime contractor owes no notice of right to claim a lien (RCW 60.04.031(2)(c)), except on repair or remodel of an existing owner-occupied single-family home; second-tier claimants get the 60-day (10-day on a new single-family home) look-back.
+- Late notices: California and Arizona protect work from 20 days before a late notice, Washington 60 (10); Florida treats a late Notice to Owner as a complete defense to the lien (713.06(2)(a)). A passed date shows the earliest work a notice served today still covers.
+- California, Arizona, Florida, Colorado: the same clocks for first- and second-tier claimants.
+- Each result links the statute sections it uses; timing checked against the statute text on 2026-11-25 (California's sub lien clock is Civ. Code § 8414).
 
 ## Pages
 
-- [The tool](https://duncan-haywood.github.io/oss-monorepo/mechanics-lien-deadline-calculator/)
+- [The tool](https://marisstella.app/mechanics-lien-deadline-calculator/)
 
 ## Source
 

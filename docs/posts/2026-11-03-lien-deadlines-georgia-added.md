@@ -5,6 +5,8 @@ tags: [construction, mechanics-lien, calculators]
 description: "The mechanics lien deadline calculator now covers Georgia (30-day notice, 90-day lien window); Utah and Nevada wait on conflicting sources."
 ---
 
+*Folded into [Mechanics lien deadlines for subcontractors in seven states, checked against the statutes](2026-11-25-mechanics-lien-deadlines-seven-states-checked-against-the-statutes.md) (2026-11-25), which is kept current; this post stays as the record of when the state was added.*
+
 The mechanics lien deadline calculator now covers six states: California, Texas, Florida, Arizona, Washington and Georgia.
 
 Georgia is a 30-day notice to the contractor and a 90-day window to record the lien after your last furnishing. Sources agree on both. The statute counts the 30 days from the later of first furnishing and the owner's notice of commencement. The tool counts from first furnishing, which gives the earlier, safe date, and says so.
