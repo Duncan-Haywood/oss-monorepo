@@ -25,17 +25,19 @@ Date: 2026-11-25, about 02:15 UTC. Found by a scheduled run that took alert #1 f
 
 A session that followed the queue as written would have redone fixes already on main.
 
-## What changed (this PR)
+## What changed
 
-`platform/ci/security_alerts.py` now reads each alert's `most_recent_instance.commit_sha`:
+PR 18806, from another session, landed first. It names the scanned commit in `QUEUE.md` and adds a
+step 0 to each alert file: `git log --oneline <sha>..origin/main -- <path>`. This PR
+started on the same fix independently. After merging main, it keeps 18806's version and
+changes only step 0. Cloud clones are shallow (`--depth=1`), so that `git log` has no history to
+walk and fails with "Invalid revision range". Step 0 now runs
+`git fetch -q --depth=1 origin <full sha> && git diff --stat <full sha> origin/main -- <path>`.
+That needs the full SHA, because `git fetch` takes no abbreviation. I checked it here on
+`e98ec5cbb`: it shows that `run.py` and `test_bic.py` changed since the scan.
 
-- `QUEUE.md` says which commit(s) the scan ran on, and warns that main may have moved on.
-- Each `alerts/<n>.md` names the commit and starts with **step 0**:
-  `git fetch -q --depth=1 origin <sha> && git diff --stat <sha> origin/main -- <path>`.
-  If the file changed, read the flagged line on main before fixing anything. This works in the
-  shallow cloud clone (checked here on `e98ec5cbb`).
-
-Tests: `platform/ci/test_security_alerts.py`, three new cases (16 pass).
+Tests: `platform/ci/test_security_alerts.py`, where 18806's test now asserts the shallow-safe
+command (15 pass).
 
 ## Not fixed in unchanged files, for the next run
 

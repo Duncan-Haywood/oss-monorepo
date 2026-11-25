@@ -12,6 +12,7 @@ Free to use and source available (FSL-1.1-MIT). Not legal, tax, accounting or fi
 - [Conditional vs unconditional lien waivers](https://marisstella.app/pay-app-guides/conditional-vs-unconditional-lien-waivers.html): the four waiver types, when to sign each, California and Florida statutory forms.
 - [Free schedule of values template (Excel)](https://marisstella.app/pay-app-guides/schedule-of-values-template.html): a blank .xlsx continuation sheet and summary with the formulas in (total completed and stored, percent, balance to finish, per-line retainage, payment due, an over-billing check), plus a filled-in example. No macros or external links; opens in Excel, Google Sheets and LibreOffice.
 - [Change orders and the schedule of values](https://marisstella.app/pay-app-guides/change-orders-schedule-of-values.html): approved and deductive change orders on the SOV and summary.
+- [Retainage in QuickBooks Online](https://marisstella.app/pay-app-guides/retainage-in-quickbooks.html): QuickBooks has no retainage field; the Retainage Receivable account and item, the negative invoice line, the release invoice, finding unbilled retainage outside A/R aging, the cash-basis caveat, and an invoice-line calculator. Sources are Intuit help and community pages.
 
 ## Source
 

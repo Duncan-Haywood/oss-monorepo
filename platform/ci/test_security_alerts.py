@@ -15,20 +15,40 @@ import security_alerts  # noqa: E402
 from security_alerts import render, summarise, write_tree  # noqa: E402
 
 
-def alert(number, level=None, severity="warning", state="open", path="a.py"):
+def alert(number, level=None, severity="warning", state="open", path="a.py", commit=None):
     return {
         "number": number,
         "state": state,
         "rule": {"id": f"py/rule-{number}", "security_severity_level": level, "severity": severity},
         "tool": {"name": "CodeQL"},
         "most_recent_instance": {"location": {"path": path, "start_line": 7},
-                                 "message": {"text": "  spread\n over lines  "}},
+                                 "message": {"text": "  spread\n over lines  "},
+                                 **({"commit_sha": commit} if commit else {})},
         "created_at": "2026-10-01T00:00:00Z",
         "html_url": f"https://example.test/{number}",
     }
 
 
 class RenderTest(unittest.TestCase):
+    def test_queue_names_the_scanned_commit_so_stale_entries_are_visible(self):
+        sha = "1070ed69048f8cfa31ba9d19"
+        files = render([alert(1, "high", commit=sha), alert(2, "high", commit=sha),
+                        alert(3, "high", commit="aaaaaaaaaaaaaaaa")])
+        self.assertIn("Scanned at commit `1070ed69048f`", files["QUEUE.md"])
+        self.assertIn("git log --oneline 1070ed69048f..origin/main`", files["QUEUE.md"])
+        self.assertIn("- Last seen at commit: `1070ed69048f`", files["alerts/1.md"])
+        # Step 0 must work in a shallow clone: fetch the scanned commit by its full SHA
+        # (a fetch takes no abbreviation) and diff the trees, rather than walk history.
+        self.assertIn(f"git fetch -q --depth=1 origin {sha} && git diff --stat {sha} origin/main -- a.py",
+                      files["alerts/1.md"])
+        self.assertNotIn("git log --oneline 1070ed69048f..origin/main -- a.py", files["alerts/1.md"])
+
+    def test_no_commit_means_no_staleness_hint(self):
+        files = render([alert(1, "high")])
+        self.assertNotIn("Scanned at commit", files["QUEUE.md"])
+        self.assertIn("- Last seen at commit: `unknown`", files["alerts/1.md"])
+        self.assertNotIn("Still there?", files["alerts/1.md"])
+
     def test_queue_is_most_severe_first_then_oldest(self):
         files = render([alert(5, "medium"), alert(9, "critical"), alert(2, "medium"), alert(3, None, "note")])
         order = [line.split("#")[1].split(" ")[0] for line in files["QUEUE.md"].splitlines()
@@ -58,33 +78,6 @@ class RenderTest(unittest.TestCase):
         text = render([alert(4, "high")])["alerts/4.md"]
         self.assertIn("security-fix/code-scanning-4", text)
         self.assertIn("`a.py:7`", text)
-
-    def test_scan_commit_is_named_with_a_still_there_check(self):
-        a = alert(4, "high")
-        a["most_recent_instance"]["commit_sha"] = "e98ec5cbb0123456789abcdef0123456789abcde"
-        files = render([a, alert(5, "low")])
-        text = files["alerts/4.md"]
-        self.assertIn("- Scanned at commit: `e98ec5cbb012`", text)
-        self.assertIn("git fetch -q --depth=1 origin e98ec5cbb0123456789abcdef0123456789abcde && "
-                      "git diff --stat e98ec5cbb0123456789abcdef0123456789abcde origin/main -- a.py", text)
-        self.assertLess(text.index("0. Check it is still on main"), text.index("1. Claim it"))
-        self.assertIn("Scanned at: `e98ec5cbb012`.", files["QUEUE.md"])
-        # An alert without a commit gets no step 0 and no scan line.
-        self.assertNotIn("Scanned at", files["alerts/5.md"])
-        self.assertNotIn("0. Check", files["alerts/5.md"])
-
-    def test_queue_lists_at_most_five_scan_commits(self):
-        alerts = []
-        for n in range(1, 8):
-            a = alert(n, "high")
-            a["most_recent_instance"]["commit_sha"] = f"{n:040x}"
-            alerts.append(a)
-        line = next(ln for ln in render(alerts)["QUEUE.md"].splitlines() if ln.startswith("Scanned at:"))
-        self.assertEqual(line.count("`") // 2, 5)
-        self.assertIn("and 2 more", line)
-
-    def test_no_commits_no_scan_line(self):
-        self.assertNotIn("Scanned at", render([alert(1, "high")])["QUEUE.md"])
 
     def test_summary_flattens_and_normalises(self):
         s = summarise(alert(4, "HIGH"))

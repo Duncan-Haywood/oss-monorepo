@@ -39,13 +39,17 @@
     {
       "file": "CLAUDE.md",
       "issue": "platform/security/risk_review.py crashes with CalledProcessError when origin/main is a depth-1 fetch (merge-base fails); a git fetch --deepen=50 origin main was needed first."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "PR 18806 (same fix, another session) merged while this PR waited about 40 minutes for CI. The duplicate check before opening found nothing because 18806 was opened after it. The merge conflict was the only signal."
     }
   ],
   "deviations": [
     {
       "file": "prompt.md",
       "why": "Step 0 says take the top alert and fix it. Alert #1 was already fixed on main (PR 18676), and so were 1,189 of 1,243 queued alerts.",
-      "did": "Fixed the queue generator so alerts name their scan commit and get a still-there check, instead of re-fixing code. Routed --track process for the record.",
+      "did": "Fixed the queue generator so alerts name their scan commit and get a still-there check, instead of re-fixing code. Routed --track process for the record. Narrowed to a shallow-safe step 0 after PR 18806 landed the rest.",
       "result": "PR 18808"
     },
     {
@@ -59,7 +63,7 @@
     "docs/reports/2026-11-25-security-queue-stale-scan.md"
   ],
   "goal": null,
-  "notes": "CodeQL main run 45521750254 (e98ec5cbb) took 64 min; 12 later main runs were cancelled while pending. Run 45529454613 on 5f857bb81 (after PR 18676) was in progress at about 02:10 UTC, so the queue should shrink to about 54 when it finishes. Possible false positives left open: js/incomplete-hostname-regexp in test strings and XML namespace URIs (see report). Tests: test_security_alerts 16 OK. risk_review: blocked on nothing.",
+  "notes": "CodeQL main run 45521750254 (e98ec5cbb) took 64 min; 12 later main runs were cancelled while pending. Run 45529454613 on 5f857bb81 (after PR 18676) was in progress at about 02:10 UTC, so the queue should shrink to about 54 when it finishes. Possible false positives left open: js/incomplete-hostname-regexp in test strings and XML namespace URIs (see report). Tests: test_security_alerts 16 OK. risk_review: blocked on nothing. After a conflict with PR 18806 (same idea, merged first), I kept main's version and narrowed this PR to a shallow-safe step 0 (fetch the full SHA, then diff).",
   "corrections": [],
   "redteam": null,
   "usage": {

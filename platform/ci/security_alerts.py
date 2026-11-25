@@ -37,6 +37,7 @@ Usage (in Actions; GITHUB_TOKEN and GITHUB_REPOSITORY come from the runner):
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import json
 import os
 import shutil
@@ -74,25 +75,11 @@ def summarise(alert: dict) -> dict:
         "message": message[:MESSAGE_CHARS],
         "created": str(alert.get("created_at") or "")[:10],
         "url": str(alert.get("html_url") or ""),
-        # The commit the newest analysis that still reports the alert ran on. Main
-        # moves on while CodeQL runs (about an hour a scan), so a fix can already be
-        # on main and the alert still open until the next scan finishes.
-        "commit": str(inst.get("commit_sha") or ""),
+        "commit": str(inst.get("commit_sha") or "")[:12],
+        # The full SHA: `git fetch origin <sha>` accepts no abbreviation, and the cloud
+        # sessions' clones are shallow, so `git log <sha>..` has no history to walk.
+        "commit_full": str(inst.get("commit_sha") or ""),
     }
-
-
-def still_there(s: dict) -> list[str]:
-    """Step 0 of an alert file: check main still has the finding before fixing it."""
-    c, path = s.get("commit"), s["path"]
-    if not c:
-        return []
-    return [
-        f"0. Check it is still on main: the scan ran on `{c[:12]}`. Run",
-        f"   `git fetch -q --depth=1 origin {c} && git diff --stat {c} origin/main -- {path}`.",
-        "   If the file changed, read the flagged line on main: a fix may have landed after the",
-        "   scan and be waiting for the next one (each takes about an hour; on 2026-11-25 the",
-        "   queue still listed 977 alerts that PR 18676 had fixed). Take the next alert then.",
-    ]
 
 
 def alert_file(s: dict) -> str:
@@ -107,11 +94,17 @@ def alert_file(s: dict) -> str:
         f"- Finding: {s['message']}",
         f"- Open since: {s['created']}",
         f"- Alert page (write access only): {s['url']}",
-    ] + ([f"- Scanned at commit: `{s['commit'][:12]}`"] if s.get("commit") else []) + [
+        f"- Last seen at commit: `{s['commit'] or 'unknown'}`",
         "",
         "## To fix",
         "",
-        *still_there(s),
+        *([f"0. Still there? `git fetch -q --depth=1 origin {s['commit_full']} && git diff --stat "
+           f"{s['commit_full']} origin/main -- {s['path']}`",
+           "   shows whether the file changed since that scan (it works in a shallow clone, where",
+           "   `git log <sha>..origin/main` has no history to walk). If it changed, read the flagged",
+           "   line on main: if a fix landed, the alert closes on the next completed analysis of",
+           "   main, so take the next alert instead of redoing the fix.",
+           ] if s["commit"] else []),
         f"1. Claim it: `git ls-remote origin refs/heads/{BRANCH_PREFIX}{n}` prints nothing,",
         f"   then `git checkout -b {BRANCH_PREFIX}{n} origin/main && git push -u origin HEAD`.",
         "   If the push is rejected or the branch exists, someone has it: take the next alert.",
@@ -144,11 +137,15 @@ def render(alerts: list[dict]) -> dict[str, str]:
         f"(`{BRANCH_PREFIX}<n>`) does not exist; its file says how.",
         "",
     ]
-    commits = sorted({s["commit"] for s in todo if s["commit"]})
+    commits = Counter(s["commit"] for s in todo if s["commit"])
     if commits:
-        shown = ", ".join(f"`{c[:12]}`" for c in commits[:5]) + (f" and {len(commits) - 5} more" if len(commits) > 5 else "")
-        lines += [f"Scanned at: {shown}. Main may have moved on since: each alert file's step 0",
-                  "checks the finding is still there before you fix it.", ""]
+        # The alerts mirror the last *completed* analysis of main, which lags merges by about
+        # an hour (a full scan takes that long and newer pushes queue behind it). On
+        # 2026-11-25 the queue listed 1,244 alerts that PR 18676 had already fixed.
+        sha = commits.most_common(1)[0][0]
+        lines += [f"Scanned at commit `{sha}`. Before fixing, check what merged since: "
+                  f"`git log --oneline {sha}..origin/main`. A bulk fix there means most entries "
+                  "below are stale until the next analysis of main completes.", ""]
     lines += [f"- [{s['severity']}] #{s['number']} `{s['rule']}` in `{s['path']}:{s['line']}`: "
               f"alerts/{s['number']}.md" for s in todo] or ["Empty: no open alerts."]
     files["QUEUE.md"] = "\n".join(lines) + "\n"
