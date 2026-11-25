@@ -469,10 +469,6 @@ class OpenPrTest(unittest.TestCase):
         self.assertIsNone(m.open_pr_titles(run=boom))
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class PausedResearchTest(unittest.TestCase):
     """Standalone research is paused (2026-11-25): the CLI leaves research/ subjects out unless --research."""
 
@@ -485,3 +481,7 @@ class PausedResearchTest(unittest.TestCase):
 
     def test_paused_note_names_the_flag(self):
         self.assertIn("--research", m.paused_note(3, "open defects"))
+
+
+if __name__ == "__main__":
+    unittest.main()
