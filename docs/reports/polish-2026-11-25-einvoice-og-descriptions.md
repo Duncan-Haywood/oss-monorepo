@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [seo, open-graph]
+topics: [seo]
 date: 2026-11-25
 ---
 # Polish 2026-11-25: einvoice-preflight share cards fit 200
