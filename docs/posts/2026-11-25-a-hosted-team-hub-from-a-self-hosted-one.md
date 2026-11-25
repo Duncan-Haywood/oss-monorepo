@@ -3,7 +3,7 @@ title: "One hub per deploy to many hubs per deploy: hosting Shift Roster Builder
 seo_title: "Hosting a self-hosted staff schedule hub for many teams"
 date: 2026-11-25
 tags: [shift-roster-builder, aws, hosting, saas]
-description: "The team hub ran one team per deploy, on the user's own server or Cloudflare account. It now runs many teams on one AWS deployment, with the same handler and the same one-request-at-a-time guarantee. Not deployed yet."
+description: "The team hub ran one team per deploy on the user's own server. It now runs many teams on one AWS deployment with the same handler. Built, not deployed."
 ---
 
 Shift Roster Builder's team hub is the part that gets a roster to the staff:
