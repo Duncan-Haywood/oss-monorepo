@@ -2,7 +2,7 @@
 
 > Split a short-term rental stay's occupancy tax into what Airbnb or Vrbo already collects and what is left for the host to remit directly, layer by layer -- state, county, city, and a flat per-night fee. Free, private, nothing leaves your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/str-occupancy-tax-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/str-occupancy-tax-calculator): FSL-1.1-MIT licensed.

@@ -85,4 +85,4 @@ authority's own determination.
 **Privacy.** Everything runs in your browser; your dates are never uploaded.
 Anonymous feature counts stay in local storage and can be switched off.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

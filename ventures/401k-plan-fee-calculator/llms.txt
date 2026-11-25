@@ -2,7 +2,7 @@
 
 > Free 401(k) plan fee calculator for small-business owners and plan committees: all-in cost as a percent of assets and per participant, recordkeeper, advisor and fund fees, an editable size benchmark, and what the excess costs a participant over 20 years. Runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/401k-plan-fee-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/401k-plan-fee-calculator): FSL-1.1-MIT licensed.

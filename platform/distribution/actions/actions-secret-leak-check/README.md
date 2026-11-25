@@ -11,4 +11,4 @@ Free, read-only checker that scans GitHub Actions workflow YAML for the two docu
 
 For a stable pin, replace `@main` with a full commit SHA, or with a `actions-secret-leak-check-v<version>` tag from this repository's Releases once one exists (portfolio/distribution/versions.json has the current version).
 
-Runs [`ventures/actions-secret-leak-check/check.py`](../../../../ventures/actions-secret-leak-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://marisstella.app/actions-secret-leak-check/?ref=gh-action
+Runs [`ventures/actions-secret-leak-check/check.py`](../../../../ventures/actions-secret-leak-check/check.py) (FSL-1.1-MIT, stdlib-only Python, no network calls). Docs: https://marisstella.app/actions-secret-leak-check/?ref=gh-action

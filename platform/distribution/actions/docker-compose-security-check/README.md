@@ -11,4 +11,4 @@ Free, read-only heuristic scanner that reads your own docker-compose.yml for ris
 
 For a stable pin, replace `@main` with a full commit SHA, or with a `docker-compose-security-check-v<version>` tag from this repository's Releases once one exists (portfolio/distribution/versions.json has the current version).
 
-Runs [`ventures/docker-compose-security-check/check.py`](../../../../ventures/docker-compose-security-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://marisstella.app/docker-compose-security-check/?ref=gh-action
+Runs [`ventures/docker-compose-security-check/check.py`](../../../../ventures/docker-compose-security-check/check.py) (FSL-1.1-MIT, stdlib-only Python, no network calls). Docs: https://marisstella.app/docker-compose-security-check/?ref=gh-action

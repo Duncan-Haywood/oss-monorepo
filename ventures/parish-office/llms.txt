@@ -2,7 +2,7 @@
 
 > A free, open-source Mass intentions book for Catholic parish offices. Record intentions and offerings, list Masses, book intentions into free Masses, and check the book against canons 948-958 of the Code of Canon Law (one offered intention per Mass, the one-year limit, bination, transfers). Runs in the browser; nothing is uploaded.
 
-Free and open source (MIT). Not canonical, legal, tax or financial advice; the diocese's own rules come first. The canon text it quotes is the English translation on vatican.va.
+Free to use and source available (FSL-1.1-MIT). Not canonical, legal, tax or financial advice; the diocese's own rules come first. The canon text it quotes is the English translation on vatican.va.
 
 ## Pages
 

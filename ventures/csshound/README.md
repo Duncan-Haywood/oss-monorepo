@@ -112,4 +112,4 @@ The selector rules follow [PurgeCSS](https://github.com/FullHuman/purgecss)
 (MIT), read from its 9.1.0 source; no PurgeCSS code is copied. csshound is
 not affiliated with or endorsed by the PurgeCSS authors.
 
-MIT licence. Free, as-is, no warranty.
+FSL-1.1-MIT licence. Free, as-is, no warranty.

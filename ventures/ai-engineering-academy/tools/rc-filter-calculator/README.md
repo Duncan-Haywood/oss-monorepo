@@ -88,4 +88,4 @@ node --test
 
 ## License
 
-[MIT](LICENSE).
+[FSL-1.1-MIT](LICENSE).

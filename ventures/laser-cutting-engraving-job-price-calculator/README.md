@@ -12,4 +12,4 @@ After using this, you can now **quote a laser job from how many pieces nest on a
 2. Pure logic is in `calc.mjs` (`plan()`, `jobCost()`, `piecesPerSheet()`, `quantityBreaks()`, `breakEvenQty()`, `impliedMachineRate()`, `encodeShare()`); tests: `node --test`.
 
 Modelled: grid nesting on whole sheets in both orientations; cut time by path, passes and speed; engrave time by area and speed; laser cost per hour; setup, loading and finishing labour with overhead; scrap; margin as a share of the price, rush surcharge and a minimum charge; price by order size; the order size that meets a customer's target price; what the target implies the laser earns per hour; a sheet price sensitivity table; a share link that keeps the numbers in the URL. Not modelled: design time, sales tax, shipping, marketplace fees, downtime, irregular-shape nesting, local rates.
-Not legal, tax or financial advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
+Not legal, tax or financial advice. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

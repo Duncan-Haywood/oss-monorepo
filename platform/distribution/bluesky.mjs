@@ -59,7 +59,7 @@ function clip(s, max) {
 /** Post text and link facet for one tool. The text always fits MAX_GRAPHEMES. */
 export function composePost({ title, description }, url) {
   const head = `New free tool: ${title.split(/\s[—–|-]\s/)[0]}`;
-  const tail = `\n\n${url}\n\nFree and open source (MIT). Automated post.`;
+  const tail = `\n\n${url}\n\nFree to use and source available (FSL-1.1-MIT). Automated post.`;
   const room = MAX_GRAPHEMES - graphemes(head).length - graphemes(tail).length - 2;
   const body = room > 20 ? `\n${clip(description.split(/(?<=\.)\s/)[0], room)}` : '';
   const text = clip(head, MAX_GRAPHEMES - graphemes(tail).length) + body + tail;

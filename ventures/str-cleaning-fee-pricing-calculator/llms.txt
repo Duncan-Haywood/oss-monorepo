@@ -2,7 +2,7 @@
 
 > Free cleaning fee calculator for Airbnb and VRBO hosts: the fee that covers your cleaner, host profit and guest total price by stay length, and whether to roll the fee into the nightly rate. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/str-cleaning-fee-pricing-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/str-cleaning-fee-pricing-calculator): FSL-1.1-MIT licensed.

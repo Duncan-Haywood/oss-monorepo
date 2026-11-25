@@ -53,7 +53,7 @@ counts as the description; every date the repair rewrites is listed by line.
 
 ## License
 
-MIT. See `LICENSE`.
+FSL-1.1-MIT. See `LICENSE`.
 
 ## No warranty
 

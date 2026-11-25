@@ -2,7 +2,7 @@
 
 > Free pottery pricing calculator. Clay, glaze, kiln firing cost, breakage, your hours and studio rent in; true cost per sellable piece, the retail and wholesale price for your target margin and your hourly return out. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pottery-piece-pricing-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pottery-piece-pricing-calculator): FSL-1.1-MIT licensed.

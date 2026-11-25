@@ -58,7 +58,7 @@ This calculator produces arithmetic observations from numbers you supply. It
 does not audit your books, set a market rate, verify a custom-farming
 agreement, or replace your own contract, insurance, or accountant.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.
 
 ## Known gaps
 

@@ -19,4 +19,4 @@ financial advice and not an appraisal. It carries no auction's fee schedule, no
 tax rate and no market value. Unverified against real auction results: tested on
 hand-calculated examples.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

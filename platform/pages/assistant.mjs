@@ -312,7 +312,7 @@ export function renderAskPage({ baseUrl, siteName, chrome, toolCount }) {
       <p>Without WebMCP, agents can read <a href="${toRoot}llms.txt">llms.txt</a> and <a href="${toRoot}catalog.json">catalog.json</a>. Every calculator is a plain HTML form an agent can fill directly.</p>
 
       <h2>Source</h2>
-      <p>Everything here is open source, MIT licensed: ${src('platform/pages/assistant/client.js')} (the panel), ${src('platform/pages/assistant/fill.mjs')} (the rule-based reader), ${src('platform/pages/assistant/worker.js')} (on-device model and speech), ${src('platform/llm/byok.mjs')} (bring your own key), and ${src('platform/pages/assistant.mjs')} (how pages load it).</p>
+      <p>Everything here is source available, FSL-1.1-MIT licensed: ${src('platform/pages/assistant/client.js')} (the panel), ${src('platform/pages/assistant/fill.mjs')} (the rule-based reader), ${src('platform/pages/assistant/worker.js')} (on-device model and speech), ${src('platform/llm/byok.mjs')} (bring your own key), and ${src('platform/pages/assistant.mjs')} (how pages load it).</p>
 
       <h2>Questions</h2>
       ${faq.map(([q, a]) => `<h3>${esc(q)}</h3>\n      <p>${esc(a)}</p>`).join('\n      ')}

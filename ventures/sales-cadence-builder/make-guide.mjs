@@ -95,7 +95,7 @@ ${faq.map(([q, a]) => `    <h3>${q}</h3>\n    <p>${a}</p>`).join("\n")}
 </main>
   <footer>
     <p><strong>No warranty.</strong> A template and a worked example, not legal or sales-compliance advice. You are responsible for every message and call you make and for the rules where you and your prospects are. The example people and companies are invented.</p>
-    <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+    <p>Free to use and source available under the <a href="LICENSE" rel="noopener">FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
   </footer>
 </body>
 </html>

@@ -2,7 +2,7 @@
 
 > Free calculator for coffee shop owners: what each latte, cold brew and drip coffee really earns after beans, milk, cup, card fee and barista time. Margin per drink, profit per barista-hour, target price, break-even drinks per day. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cafe-drink-margin-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cafe-drink-margin-calculator): FSL-1.1-MIT licensed.

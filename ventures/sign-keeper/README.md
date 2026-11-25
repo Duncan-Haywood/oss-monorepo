@@ -4,7 +4,7 @@ After using this, you can now **send a document link, get a typed-name signature
 
 **Live tool:** https://marisstella.app/sign-keeper/
 
-Two parts, both free and MIT:
+Two parts, both free and FSL-1.1-MIT:
 
 - **`index.html`**: the product page with an in-browser tamper-check demo (clearly labelled sample data). Nothing is uploaded.
 - **`server.mjs`**: the service. One Node process, **zero dependencies**, state in one JSON file.

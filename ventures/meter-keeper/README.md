@@ -133,7 +133,7 @@ previews are calculations from what this server saw, not invoices.
 
 ## Disclaimer
 
-Free and MIT, provided as-is with no warranty and no uptime guarantee. You run
+Free and FSL-1.1-MIT, provided as-is with no warranty and no uptime guarantee. You run
 it, so you are responsible for what you charge, for backups and for your
 customers' privacy: send ids you choose, not names or emails. Not legal, tax or
 financial advice. If it helps, [sponsor the author](https://github.com/sponsors/Duncan-Haywood).

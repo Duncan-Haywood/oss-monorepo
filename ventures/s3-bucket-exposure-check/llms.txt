@@ -2,7 +2,7 @@
 
 > Free tool: paste an S3 bucket name and it sends two real, unsigned GET requests -- one asking the bucket to list its own contents, one asking to read its ACL -- to name whether anonymous listing is enabled and whether the ACL grants read or write access to AllUsers or AuthenticatedUsers.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -12,4 +12,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/s3-bucket-exposure-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/s3-bucket-exposure-check): FSL-1.1-MIT licensed.

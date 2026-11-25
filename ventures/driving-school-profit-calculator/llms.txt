@@ -2,7 +2,7 @@
 
 > Free driving school calculator: enter lesson, block-lesson and road-test prices, car minutes, fuel and wear, cancellation rate, rent and instructor pay, and see profit per lesson and per car hour, the price for your target margin, break-even lessons per week and whether to employ an instructor or lease the car.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/driving-school-profit-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/driving-school-profit-calculator): FSL-1.1-MIT licensed.

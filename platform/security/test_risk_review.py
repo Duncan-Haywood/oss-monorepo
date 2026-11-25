@@ -67,28 +67,80 @@ class EscalationTests(unittest.TestCase):
         self.assertTrue(r["secrets"])
         self.assertTrue(any("likely secret" in e for e in r["escalate"]))
 
-    def test_owner_core_escalates_and_instructions_do_not(self):
-        r = rr.review(rr.parse_unified_diff(diff(".github/workflows/priv-x.yml", ["on: push"])))
-        self.assertTrue(any("owner-only core" in e for e in r["escalate"]))
+    def test_sensitive_core_is_reported_but_needs_no_owner(self):
+        # Owner, 2026-11-24: owner review only where "really human dependent".
+        for path in [".github/workflows/priv-x.yml", ".claude/settings.json", "prompts/promptctl.py",
+                     "platform/ci/control_plane_guard.py"]:
+            r = rr.review(rr.parse_unified_diff(diff(path, ["x = 1"])))
+            self.assertEqual(r["escalate"], [], path)
+            self.assertIn(path, r["sensitive"], path)
         r = rr.review(rr.parse_unified_diff(diff(".github/workflows/x-ci.yml", ["on: push"])))
-        self.assertFalse(any("owner-only core" in e for e in r["escalate"]))
+        self.assertEqual(r["sensitive"], [])
         r = rr.review(rr.parse_unified_diff(diff("prompts/goals.md", ["a new direction"])))
         self.assertEqual(r["escalate"], [])
 
-    def test_removing_a_line_inside_the_guardrails_escalates_but_outside_does_not(self):
-        base = "# Goals\n## Mission\nm\n## Guardrails (every track)\n### Hard limits\nnever fabricate\n## After\n"
-        inside = rr.parse_unified_diff(diff("prompts/goals.md", removed_at=[6]))
-        outside = rr.parse_unified_diff(diff("prompts/goals.md", removed_at=[3]))
-        r = rr.review(inside, lambda p: base)
-        self.assertTrue(any("protected section" in e for e in r["escalate"]))
-        r = rr.review(outside, lambda p: base)
+    def test_the_gate_may_grow_but_not_shrink(self):
+        co_base = "/a/ @o\n/b/ @o\n"
+        grow = rr.parse_unified_diff(diff(".github/CODEOWNERS", ["/c/ @o"]))
+        r = rr.review(grow, lambda p: co_base, head_text=lambda p: co_base + "/c/ @o\n")
+        self.assertEqual(r["escalate"], [])
+        r = rr.review(grow, lambda p: co_base, head_text=lambda p: "/a/ @o\n")
+        self.assertTrue(any("no longer owned: /b/" in e for e in r["escalate"]))
+
+    def test_dropping_a_required_check_or_rule_is_blocked(self):
+        import json
+        def rs(checks, types=("deletion", "required_status_checks")):
+            rules = [{"type": t} for t in types if t != "required_status_checks"]
+            rules.append({"type": "required_status_checks", "parameters": {
+                "required_status_checks": [{"context": c} for c in checks]}})
+            return json.dumps({"enforcement": "active", "rules": rules})
+        d = rr.parse_unified_diff(diff(".github/rulesets/main.json", ["x"]))
+        ok = rr.review(d, lambda p: rs(["a"]), head_text=lambda p: rs(["a", "risk-review"]))
+        self.assertEqual(ok["escalate"], [])
+        bad = rr.review(d, lambda p: rs(["a", "b"]), head_text=lambda p: rs(["a"]))
+        self.assertTrue(any("required checks removed: b" in e for e in bad["escalate"]))
+        bad = rr.review(d, lambda p: rs(["a"]), head_text=lambda p: rs(["a"], types=("required_status_checks",)))
+        self.assertTrue(any("rules removed: deletion" in e for e in bad["escalate"]))
+
+    def test_dropping_a_secret_pattern_from_the_reviewer_is_blocked(self):
+        base = Path(rr.__file__).read_text()
+        lines = base.splitlines(keepends=True)
+        head = "".join(l for l in lines if '("Slack token"' not in l)
+        self.assertNotEqual(base, head)
+        d = rr.parse_unified_diff(diff("platform/security/risk_review.py", ["x"]))
+        r = rr.review(d, lambda p: base, head_text=lambda p: head)
+        self.assertTrue(any("SECRET_PATTERNS" in e for e in r["escalate"]))
+        r = rr.review(d, lambda p: base, head_text=lambda p: base + "\n# comment\n")
         self.assertEqual(r["escalate"], [])
 
-    def test_changing_an_existing_licence_escalates_but_a_new_one_does_not(self):
-        r = rr.review(rr.parse_unified_diff(diff("ventures/x/LICENSE", ["All rights reserved"])))
-        self.assertTrue(any("licence" in e for e in r["escalate"]))
-        r = rr.review(rr.parse_unified_diff(diff("ventures/y/LICENSE", ["MIT"], new=True)))
-        self.assertFalse(any("licence" in e for e in r["escalate"]))
+    def test_the_workflow_must_keep_running_mains_reviewer(self):
+        base = "\n".join(rr.WORKFLOW_ANCHORS)
+        d = rr.parse_unified_diff(diff(".github/workflows/priv-risk-review.yml", ["x"]))
+        r = rr.review(d, lambda p: base, head_text=lambda p: base.replace("pull_request_target:", "pull_request:"))
+        self.assertTrue(any("pull_request_target" in e for e in r["escalate"]))
+
+    def test_deleting_a_gate_file_is_blocked(self):
+        d = rr.parse_unified_diff(diff(".github/CODEOWNERS", removed_at=[1]))
+        r = rr.review(d, lambda p: "/a/ @o\n", head_text=lambda p: None)
+        self.assertTrue(any("file deleted" in e for e in r["escalate"]))
+
+
+class GateTests(unittest.TestCase):
+    """No approval path: blocked means fix it."""
+
+    def verdict(self, files_diff, base=lambda p: None, head=lambda p: None):
+        return rr.gate_exit(rr.review(rr.parse_unified_diff(files_diff), base, head_text=head))[0]
+
+    def test_a_clean_pr_passes_even_with_triggered_checks_and_sensitive_files(self):
+        self.assertEqual(self.verdict(diff("CLAUDE.md", ["new rule"])), 0)
+        self.assertEqual(self.verdict(diff(".github/workflows/priv-x.yml", ["on: push"])), 0)
+
+    def test_a_secret_fails(self):
+        self.assertEqual(self.verdict(diff("x.txt", ["KEY=AKIA" + "ABCDEFGHIJKLMNOP"])), 1)
+
+    def test_a_guardrail_cut_fails(self):
+        base = "## Guardrails\nnever fabricate\n## After\n"
+        self.assertEqual(self.verdict(diff("prompts/goals.md", removed_at=[2]), base=lambda p: base), 1)
 
 
 class OwnerCoreTests(unittest.TestCase):
@@ -109,9 +161,9 @@ class OwnerCoreTests(unittest.TestCase):
 
 
 class RenderTests(unittest.TestCase):
-    def test_render_says_no_owner_needed_when_nothing_escalates(self):
+    def test_render_says_nothing_blocked(self):
         out = rr.render(rr.review(rr.parse_unified_diff(diff("CLAUDE.md", ["x"]))))
-        self.assertIn("Owner review needed:** no", out)
+        self.assertIn("Blocked:** nothing", out)
         self.assertIn("- [ ] **Agent instructions changed**", out)
 
 

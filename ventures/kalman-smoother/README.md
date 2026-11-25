@@ -121,7 +121,7 @@ statsmodels (BSD-3) was used only to produce the reference values.
 Example data: the Nile series (public domain; Cobb 1978) and the UK driver
 series (Harvey & Durbin 1986); see `data/SOURCE.md`.
 
-MIT licence. **No warranty.** Statistical output from data you supply, not
+FSL-1.1-MIT licence. **No warranty.** Statistical output from data you supply, not
 legal, tax, financial or professional advice; a smoothed level is a model's
 reading, a flag is not proof that anything happened, and a forecast is not a
 promise.

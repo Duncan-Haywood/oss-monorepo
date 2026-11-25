@@ -344,7 +344,7 @@ export function sampleText() {
 // that into the average (or busy-day) demand for each weekday and hour, in the text `parseDemand` reads. Wall-clock time
 // as written is used; a trailing Z or offset is dropped, so export in the shop's own time zone.
 
-function parseStamp(raw) {
+function parseStamp(raw, order) {
   const s = String(raw).trim().replace(/\s*(?:Z|[+-]\d{2}:?\d{2}|UTC|[A-Z]{3,4})$/, "");
   let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T\s]+(\d{1,2}):(\d{2})(?::\d{2}(?:\.\d+)?)?\s*(am|pm)?)?$/i);
   let y, mo, d, h = 0, ap;
@@ -353,7 +353,9 @@ function parseStamp(raw) {
     m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2}|\d{4})(?:[T\s]+(\d{1,2}):(\d{2})(?::\d{2})?\s*(am|pm)?)?$/i);
     if (!m) return null;
     let a = +m[1], b = +m[2];
-    if (a > 12) [a, b] = [b, a]; // 25/10/2026 can only be day first; otherwise month first
+    // 25/10/2026 can only be day first; otherwise month first, unless the
+    // export's other rows showed it is day first (order, from stampOrder)
+    if (order === "dmy" ? b <= 12 : order !== "mdy" && a > 12) [a, b] = [b, a];
     mo = a; d = b; y = +m[3] < 100 ? 2000 + +m[3] : +m[3];
     h = m[4] === undefined ? null : +m[4]; ap = m[6];
   }
@@ -364,6 +366,20 @@ function parseStamp(raw) {
   const dt = new Date(t);
   if (dt.getUTCMonth() !== mo - 1 || dt.getUTCDate() !== d) return null;
   return { date: `${y}-${String(mo).padStart(2, "0")}-${String(d).padStart(2, "0")}`, dow: (dt.getUTCDay() + 6) % 7, hour: h };
+}
+
+// One day/month order for a whole export: a till that wrote 25/10/2026 wrote
+// 03/11/2026 for 3 November, not March 11 (read row by row, every order on the
+// 1st-12th of a month landed on the wrong weekday). "dmy", "mdy", "mixed" or undefined.
+function stampOrder(values) {
+  let dmy = false, mdy = false;
+  for (const v of values) {
+    const m = /^(\d{1,2})[/.-](\d{1,2})[/.-](?:\d{2}|\d{4})(?!\d)/.exec(String(v ?? "").trim());
+    if (!m) continue;
+    if (+m[1] > 12 && +m[2] <= 12) dmy = true;
+    else if (+m[2] > 12 && +m[1] <= 12) mdy = true;
+  }
+  return dmy && mdy ? "mixed" : dmy ? "dmy" : mdy ? "mdy" : undefined;
 }
 
 function splitCsvLine(l) {
@@ -396,11 +412,13 @@ export function demandFromHistory(text, opts = {}) {
   if (opts.valueColumn) vcol = head.findIndex((h) => h.toLowerCase() === String(opts.valueColumn).toLowerCase());
   else vcol = head.findIndex((h, j) => j !== tcol && /^(net |gross )?(sales|total|amount|revenue|subtotal)\b|net sales|gross sales|grand total/i.test(h));
   const unit = vcol >= 0 ? "sales" : "orders";
+  let order = stampOrder(rows.map((r) => r[tcol]));
+  if (order === "mixed") { warnings.push("Some dates put the day first (25/10/2026) and some the month first (10/25/2026); each row was read on its own, and 03/11-style dates as month first. Export dates as YYYY-MM-DD to be sure."); order = undefined; }
   const perHour = new Map(); // date -> hour -> value
   const dates = new Map(); // date -> weekday
   let bad = 0, used = 0;
   for (const r of rows) {
-    const t = r[tcol] === undefined ? null : parseStamp(r[tcol]);
+    const t = r[tcol] === undefined ? null : parseStamp(r[tcol], order);
     let v = 1;
     if (vcol >= 0) { v = Number(String(r[vcol] ?? "").replace(/[$,£€\s]/g, "").replace(/^\((.*)\)$/, "-$1")); if (!Number.isFinite(v)) { bad++; continue; } if (v < 0) continue; }
     if (!t) { bad++; continue; }

@@ -2,7 +2,7 @@
 
 > Free calculator for estate sale commission quotes. Enter a company's tiered commission rates, setup fee, card-processing fee, and haul-away fee against your estimated sale total to see the real net proceeds — and compare two companies' quotes side by side. Nothing leaves your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -12,4 +12,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/estate-sale-net-proceeds-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/estate-sale-net-proceeds-calculator): FSL-1.1-MIT licensed.

@@ -19,4 +19,4 @@ financial advice. It does not model financing, taxes, depreciation, repairs,
 labor or local market prices. Unverified against a real store's books: tested on
 hand-calculated examples.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

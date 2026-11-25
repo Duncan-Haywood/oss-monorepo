@@ -42,7 +42,7 @@ ${PAPERS.map((p) => `  ${p.cite}${p.doi ? ` doi:${p.doi}` : ""}`).join("\n")}
 
 A statistical estimate that assumes individuals were sampled at random and
 independently. Not legal, regulatory, environmental-assessment or other
-professional advice. No warranty. MIT licence.
+professional advice. No warranty. FSL-1.1-MIT licence.
 Web version: https://marisstella.app/species-diversity/`;
 
 const WITH_VALUE = { "--species": "species", "--count": "count", "--group": "group", "--confidence": "confidence", "--bootstrap": "bootstrap", "--seed": "seed", "--knots": "knots", "--endpoint": "endpoint", "--counts": "counts" };

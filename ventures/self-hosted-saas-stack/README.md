@@ -5,7 +5,7 @@ replace small-SaaS subscriptions: booking pages (Calendly alternative), help
 center (Help Scout Docs alternative), error tracking (Sentry alternative),
 feature flags (LaunchDarkly alternative), cookie-free analytics (Plausible
 alternative), lifecycle email, referral programs, Stripe revenue metrics,
-e-signature and more. Each is MIT licensed, a zero-dependency Node server, and
+e-signature and more. Each is FSL-1.1-MIT licensed, a zero-dependency Node server, and
 deploys to your own cloud.
 
 Live page: https://marisstella.app/self-hosted-saas-stack/
@@ -20,4 +20,4 @@ Live page: https://marisstella.app/self-hosted-saas-stack/
 Add a tool by adding a row to `stack.mjs` and running `node build.mjs`.
 
 **No warranty.** Free and as-is; product names are used only to say what each
-tool is compared with. MIT licence, see `LICENSE`.
+tool is compared with. FSL-1.1-MIT licence, see `LICENSE`.

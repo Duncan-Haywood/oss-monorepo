@@ -2,7 +2,7 @@
 
 > Paste an S3 Inventory CSV and see current monthly cost by storage class and the net 12-month saving of moving objects to Standard-IA, Glacier or Intelligent-Tiering after transition fees, minimum sizes, minimum durations and retrieval. Free, runs in your browser, nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/s3-storage-class-savings): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/s3-storage-class-savings): FSL-1.1-MIT licensed.

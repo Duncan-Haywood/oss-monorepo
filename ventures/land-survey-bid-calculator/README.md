@@ -75,4 +75,4 @@ boundary determination, a check against any state's minimum technical
 standards, or a substitute for a licensed surveyor's own professional
 judgment.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.

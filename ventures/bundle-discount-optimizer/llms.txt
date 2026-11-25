@@ -2,7 +2,7 @@
 
 > Free bundle pricing tool for Shopify, Etsy and Amazon sellers. Paste your order history and product costs to find which products customers already buy together, the bundle discount that earns the most, and how much more often shoppers must add the second item for the discount to pay.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/bundle-discount-optimizer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/bundle-discount-optimizer): FSL-1.1-MIT licensed.

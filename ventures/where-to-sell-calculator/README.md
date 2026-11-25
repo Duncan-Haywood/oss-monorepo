@@ -473,7 +473,7 @@ full feature set — there is no paid tier and no gated feature.
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and
 changes nothing about what the tool does.
 
-MIT licensed.
+FSL-1.1-MIT licensed.
 
 ## Host your own copy
 

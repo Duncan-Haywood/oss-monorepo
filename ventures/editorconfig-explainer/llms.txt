@@ -2,7 +2,7 @@
 
 > Free .editorconfig checker. From your .editorconfig files (top-level and nested, `root = true` honoured) and a list of file paths, it gives every file's settings with the section and line that set each one and the values they overrode, resolved the way an EditorConfig core does (later sections and nearer files win; derived `tab_width` and `indent_size = tab` as the cores report them). It flags sections that match none of the files and suggests a glob that would (`*` stops at `/`, a `/` anchors the name, `{md}` with one item is literal), `root = true` inside a section or a nested file that cuts off its parents, pairs above the first section, misspelled keys (`indent-size`), invalid values, and values EditorConfig cores read differently: `indent_size = 4 # four` (a comment since spec 0.15 is part of the value; editorconfig-core-py 0.17.1 still strips it), `[\*.c]` (core-py still treats `\*` as a wildcard) and reversed ranges like `{9..1}` (the npm core counts down). Runs in the browser; nothing is uploaded. A zero-dependency CLI runs it over a whole repository.
 
-Free and open source (MIT). The engine passes all 198 runnable tests of the official EditorConfig core-tests suite and agrees with editorconfig-core-py and the npm `editorconfig` core on every one of about 23,000 random cases except the named disagreements above; it is not legal, security or professional advice, and your editor's plugin is the final word.
+Free to use and source available (FSL-1.1-MIT). The engine passes all 198 runnable tests of the official EditorConfig core-tests suite and agrees with editorconfig-core-py and the npm `editorconfig` core on every one of about 23,000 random cases except the named disagreements above; it is not legal, security or professional advice, and your editor's plugin is the final word.
 
 ## Pages
 
@@ -16,4 +16,4 @@ Free and open source (MIT). The engine passes all 198 runnable tests of the offi
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/editorconfig-explainer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/editorconfig-explainer): FSL-1.1-MIT licensed.

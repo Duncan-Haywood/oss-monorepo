@@ -22,7 +22,7 @@ async function fixtureRoot(ventures) {
   }
   return root;
 }
-const DEMO = { 'index.html': PAGE, 'calc.mjs': CALC, LICENSE: 'MIT License\n' };
+const DEMO = { 'index.html': PAGE, 'calc.mjs': CALC, LICENSE: 'Functional Source License\n' };
 
 test('productName is safe in installer file names', () => {
   assert.equal(productName('Shift Roster Builder — free'), 'Shift Roster Builder');
@@ -130,7 +130,7 @@ test('launcher and home link escape and insert safely', () => {
 test('buildDesktop skips what the extension packager skips, and refuses odd targets', async () => {
   const root = await fixtureRoot({
     nolicense: { 'index.html': PAGE, 'calc.mjs': CALC, LICENSE: 'x' },
-    remote: { 'index.html': `${PAGE}<script src="https://cdn.example/x.js"></script>`, LICENSE: 'MIT License' },
+    remote: { 'index.html': `${PAGE}<script src="https://cdn.example/x.js"></script>`, LICENSE: 'Functional Source License' },
   });
   assert.match((await buildDesktop({ target: 'nolicense', root })).skip, /MIT/);
   assert.match((await buildDesktop({ target: 'remote', root })).skip, /another origin/);

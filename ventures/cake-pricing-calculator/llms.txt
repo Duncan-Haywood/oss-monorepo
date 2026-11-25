@@ -2,7 +2,7 @@
 
 > Free cake pricing calculator for home bakers and cake decorators: ingredients, decoration, hours, delivery, overhead and fees in, a price per cake and per serving out, with break-even, target and premium tiers. Runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cake-pricing-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cake-pricing-calculator): FSL-1.1-MIT licensed.

@@ -2,7 +2,7 @@
 
 > Free car lease calculator. Turn a money factor into APR, find the money factor hiding in a quoted payment, price dealer markup in dollars, and compare leasing with buying. Private, in your browser, nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/car-lease-deal-checker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/car-lease-deal-checker): FSL-1.1-MIT licensed.

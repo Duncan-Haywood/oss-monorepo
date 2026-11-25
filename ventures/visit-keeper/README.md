@@ -4,7 +4,7 @@ After using this, you can now **see who visits your site, where they came from a
 
 **Live tool:** https://marisstella.app/visit-keeper/
 
-Free and MIT. One Node 22 process, **zero dependencies**, state in one JSON file, about 700 lines to audit.
+Free and FSL-1.1-MIT. One Node 22 process, **zero dependencies**, state in one JSON file, about 700 lines to audit.
 
 - **`index.html`**: the setup page. Builds your snippet and estimates disk use. Runs in the browser; nothing is uploaded.
 - **`server.mjs`**: the collector, the dashboard and the API.

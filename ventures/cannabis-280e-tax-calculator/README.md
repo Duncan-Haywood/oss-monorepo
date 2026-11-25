@@ -17,4 +17,4 @@ node cli.mjs --receipts 2400000 --cogs 1300000 --opex 780000 --fed 21 --state 7
 node cli.mjs --receipts 2400000 --cogs 1300000 --opex 780000 --no-280e
 ```
 
-Tests: `node --test tax.test.mjs page.test.mjs`. MIT licence.
+Tests: `node --test tax.test.mjs page.test.mjs`. FSL-1.1-MIT licence.

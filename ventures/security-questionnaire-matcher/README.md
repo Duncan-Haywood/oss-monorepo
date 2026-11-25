@@ -43,4 +43,4 @@ Everything runs in your browser or on your machine. The questionnaire and librar
 
 **Best-effort hosting, no SLA.** These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.
 
-MIT licensed. Optional support: [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood).
+FSL-1.1-MIT licensed. Optional support: [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood).

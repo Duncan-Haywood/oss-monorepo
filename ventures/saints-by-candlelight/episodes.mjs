@@ -156,7 +156,7 @@ function footer() {
   <p>For ten-minute saints stories for small children, see Little Lamps in <a href="../hearth-and-horizon/">Hearth &amp; Horizon</a>.</p>
   <p>For one-minute Catholic videos (apologetics with sources, saints of the day), see <a href="../catholic-shorts/">Catholic Shorts</a>.</p>
   <p>For grown-ups: <a href="../sed-contra/">Sed Contra</a> stages Thomas Aquinas's Summa as stories, podcast and video, with his own words checked word for word.</p>
-  <p>Stories, audio and cover: <a href="${LICENSE_URL}" rel="license">${LICENSE_NAME}</a>. Code: MIT. <a href="${SOURCE_URL}">Source</a> · <a href="${HUB}">More free tools</a> · <a href="${SPONSOR_URL}">Sponsor on GitHub</a></p>
+  <p>Stories, audio and cover: <a href="${LICENSE_URL}" rel="license">${LICENSE_NAME}</a>. Code: FSL-1.1-MIT. <a href="${SOURCE_URL}">Source</a> · <a href="${HUB}">More free tools</a> · <a href="${SPONSOR_URL}">Sponsor on GitHub</a></p>
 </div></footer>`;
 }
 

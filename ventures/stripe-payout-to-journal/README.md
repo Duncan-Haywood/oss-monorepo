@@ -57,7 +57,7 @@ A second, blind audit of the same round ([`portfolio/quality/blind-pairs/2026-11
 
 ## License
 
-MIT. See `LICENSE`.
+FSL-1.1-MIT. See `LICENSE`.
 
 ## No warranty
 
