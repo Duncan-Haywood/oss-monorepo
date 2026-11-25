@@ -165,6 +165,16 @@ class RouteTest(PromptTestCase):
         r = promptctl.route(self.fx.root, rng=random.Random(0), track="research", task="revenue")
         self.assertEqual(r["track"], "research")  # an explicit --track wins over the text
 
+    def test_a_paused_track_is_not_inferred_from_task_text(self):
+        task = "finish the research paper"
+        self.assertEqual(promptctl.route(self.fx.root, rng=random.Random(0), task=task)["track"],
+                         "research")
+        self.fx.edit_routing("research", weight=0)
+        for seed in range(20):
+            r = promptctl.route(self.fx.root, rng=random.Random(seed), task=task)
+            self.assertEqual(r["track"], "ventures")
+        self.assertEqual(promptctl.route(self.fx.root, track="research")["track"], "research")
+
     def test_task_text_without_a_hint_leaves_the_draw(self):
         a = promptctl.route(self.fx.root, rng=random.Random(3), task="tidy up")
         b = promptctl.route(self.fx.root, rng=random.Random(3))
