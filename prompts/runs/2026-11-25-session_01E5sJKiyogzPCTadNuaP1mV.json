@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKiyogzPCTadNuaP1mV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T18:18:05Z",
+  "ended": "2026-11-25T18:28:17Z",
+  "wall_minutes": 12.93,
+  "tokens_in": 10476906,
+  "tokens_out": 52777,
+  "cost_usd": 4.3965,
+  "tool_calls": 78,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19057",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Migration 0006 collided with private PR 142 merged mid-run; regenerated as 0007 after resetting onto private main.",
+    "D1 'too many SQL variables' on a 50-row test insert; chunked it."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Its migration-renumber warning was accurate and needed again: private PR 142 took 0006 during this run."
+    },
+    {
+      "file": "private-monorepo CI (jobshop-quote-ci.yml)",
+      "issue": "Every check run on private PRs (142, 145) fails in 2-3 s with no downloadable log, so runners never start; verified every CI step locally instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Private repo CI starved (no runner, no logs); merged private PR 145 on local verification of every CI step",
+      "did": "ran biome ci, typecheck, test:unit (169), test:worker (103), build, drizzle-kit check/generate drift, d1 migrations apply --local",
+      "result": "all green; merged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-one-page-for-machine-shops.md (update section)",
+    "docs/reports/ventures-2026-11-25-jobshop-inbound-rfq-email.md"
+  ],
+  "goal": null,
+  "notes": "Bet #1 PayApps fully claimed; took bet #2 Job Shop Quote ROADMAP item 8 (inbound RFQ email). Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/145 merged (60be248).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "feb57e22-fff5-564b-a7e9-3897701d976a",
+    "transcripts": 1,
+    "first": "2026-11-25T18:18:05Z",
+    "last": "2026-11-25T18:31:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 76,
+        "input": 147,
+        "output": 52777,
+        "thinking": 8106,
+        "cache_read": 10317141,
+        "cache_write_5m": 0,
+        "cache_write_1h": 159618,
+        "api_equivalent_usd": 4.3965,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 76,
+      "input": 147,
+      "output": 52777,
+      "thinking": 8106,
+      "cache_read": 10317141,
+      "cache_write_5m": 0,
+      "cache_write_1h": 159618,
+      "api_equivalent_usd": 4.3965,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 78,
+    "tools": {
+      "Bash": 66,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.93,
+      "active_minutes": 12.93,
+      "model_minutes": 9.53,
+      "tool_minutes": 3.4,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "MIME parser + email handler + API/UI + tests + docs, senior engineer estimate",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 363.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
