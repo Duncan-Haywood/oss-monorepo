@@ -3,6 +3,7 @@
 import assert from "node:assert/strict";
 import { signLicence } from "./server.mjs";
 import { onSale } from "./client.mjs";
+import fs from "node:fs";
 
 /**
  * @param {any} licence  the venture's licence.mjs module
@@ -11,6 +12,13 @@ import { onSale } from "./client.mjs";
  */
 export async function assertPackLicence(licence, paddle, product) {
   assert.equal(paddle.product, product, "checkout.mjs names this venture");
+  // The venture's paddle.mjs is a byte-for-byte copy of client.mjs, whose
+  // behaviour billing.test.mjs checks; an edit to the copy alone is untested
+  // code on a paid path (red-team 2026-11-25: 7 of 8 seeded faults in a copy
+  // passed the venture's own suite). Fix: edit client.mjs, run sync.mjs.
+  const copy = new URL(`../../ventures/${product}/paddle.mjs`, import.meta.url);
+  assert.equal(fs.readFileSync(copy, "utf8"), fs.readFileSync(new URL("./client.mjs", import.meta.url), "utf8"),
+    `ventures/${product}/paddle.mjs differs from platform/billing/client.mjs: edit client.mjs, then run node platform/billing/sync.mjs`);
   // The Buy button is live exactly when every public value is set.
   let wired = false;
   const el = { hidden: true, tagName: "A", getAttribute: () => null, setAttribute() {}, addEventListener: () => { wired = true; } };

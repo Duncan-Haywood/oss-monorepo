@@ -17,6 +17,14 @@ on:
       # too (red-team findings 2026-11-06 and 2026-11-13).
       - "platform/ci/**"
       - "platform/pages/*.mjs"
+      # unwired_checks.py also runs every platform node suite and portfolio
+      # suite no other pull-request workflow runs (platform/billing's Paddle
+      # webhook and licence tests, platform/proposal, portfolio/ledger, 62
+      # suites on 2026-11-25), so a change to their folders alone must start
+      # this workflow too (red-team finding 2026-11-25; guarded by
+      # test_unwired_checks.py, Triggers).
+      - "platform/**"
+      - "portfolio/**"
       - "docs/reports/**"
       - "docs/taxonomy.json"
       - ".github/workflows/ventures-tests.yml"
@@ -29,6 +37,14 @@ on:
       # too (red-team findings 2026-11-06 and 2026-11-13).
       - "platform/ci/**"
       - "platform/pages/*.mjs"
+      # unwired_checks.py also runs every platform node suite and portfolio
+      # suite no other pull-request workflow runs (platform/billing's Paddle
+      # webhook and licence tests, platform/proposal, portfolio/ledger, 62
+      # suites on 2026-11-25), so a change to their folders alone must start
+      # this workflow too (red-team finding 2026-11-25; guarded by
+      # test_unwired_checks.py, Triggers).
+      - "platform/**"
+      - "portfolio/**"
       - "docs/reports/**"
       - "docs/taxonomy.json"
       - ".github/workflows/ventures-tests.yml"
