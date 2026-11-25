@@ -18,9 +18,9 @@ test("both pages carry no-warranty, FAQ data; index carries sponsor, privacy, op
     assert.match(p, /no warranty/i, f);
     assert.match(p, /FAQPage/, f);
     assert.match(p, /not a market rate/i, f);
-    for (const block of p.match(/<script type="application\/ld\+json">[\s\S]*?<\/script>/g)) {
-      JSON.parse(block.replace(/<\/?script[^>]*>/g, ""));
-    }
+    const ldBlocks = [...p.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script\b[^>]*>/gi)];
+    assert.ok(ldBlocks.length > 0, f);
+    for (const [, json] of ldBlocks) JSON.parse(json);
   }
   const idx = await read("index.html");
   assert.match(idx, /github\.com\/sponsors\/Duncan-Haywood/);

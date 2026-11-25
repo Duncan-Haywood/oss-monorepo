@@ -85,7 +85,8 @@ test('every FAQPage schema question has a matching visible heading', () => {
 test('the FAQPage answers appear verbatim on the visible page, not only in the script tag', () => {
   const match = page.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
   const schema = JSON.parse(match[1]);
-  const visible = page.replace(/<script[\s\S]*?<\/script>/g, '');
+  let visible = page, prev;
+  do { prev = visible; visible = visible.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ''); } while (visible !== prev);
   for (const { acceptedAnswer } of schema.mainEntity) {
     assert.ok(
       visible.includes(acceptedAnswer.text),

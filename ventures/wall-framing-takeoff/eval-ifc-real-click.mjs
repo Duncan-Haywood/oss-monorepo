@@ -6,9 +6,10 @@ import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { existsSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { extname, join } from "node:path";
+import { extname, join, resolve, sep } from "node:path";
 
 const root = fileURLToPath(new URL(".", import.meta.url));
+const serveRoot = resolve(root);
 const dir = process.env.IFC_MODELS;
 if (!dir || !existsSync(dir)) { console.log("skipped: set IFC_MODELS to a folder with the fetched models"); process.exit(0); }
 let chromium;
@@ -21,7 +22,8 @@ if (!chromium) { console.log("skipped: playwright not installed"); process.exit(
 const types = { ".html": "text/html", ".mjs": "text/javascript", ".wasm": "application/wasm" };
 const server = createServer(async (req, res) => {
   try {
-    const p = join(root, decodeURIComponent(req.url.split("?")[0]));
+    const p = resolve(join(root, decodeURIComponent(req.url.split("?")[0])));
+    if (!p.startsWith(serveRoot + sep)) throw new Error("outside root");
     res.writeHead(200, { "content-type": types[extname(p)] || "text/plain" }).end(await readFile(p));
   } catch { res.writeHead(404).end(); }
 });

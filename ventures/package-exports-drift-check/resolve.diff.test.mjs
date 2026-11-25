@@ -65,7 +65,10 @@ function generate(seed, count) {
   const KEYS = [".", "./a", "./lib/*", "./lib/*.js", "./lib/x/*", "./*", "./*.js", "./a/", "./feature", "./sub/*/index", "./**", "./a*b", "./dist/*"];
   const IKEYS = ["#a", "#lib/*", "#lib/*.js", "#*", "#x", "#dep", "#a/", "#a*b"];
   const fills = ["q", "q/r", "x.js", "..", "../q", "a/../b", "node_modules/q", "%2e%2e", "a%2fb", "", "q/", "Q", "a//b"];
-  const fill = (key) => (key.includes("*") ? key.replace("*", pick(fills)) : key);
+  const fill = (key) => {
+    const star = key.indexOf("*");
+    return star === -1 ? key : key.slice(0, star) + pick(fills) + key.slice(star + 1);
+  };
 
   const pkgs = [];
   for (let i = 0; i < count; i++) {

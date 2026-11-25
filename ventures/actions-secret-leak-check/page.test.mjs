@@ -3,6 +3,25 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { readdirSync } from 'node:fs';
 
+// Strip <script> blocks case-insensitively, tolerating attributes in either tag, until stable.
+const stripScripts = (s) => {
+  let p;
+  do {
+    p = s;
+    s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, '');
+  } while (s !== p);
+  return s;
+};
+// Strip HTML tags until stable so nested fragments cannot leave a tag behind.
+const stripTags = (s) => {
+  let p;
+  do {
+    p = s;
+    s = s.replace(/<[^>]+>/g, '');
+  } while (s !== p);
+  return s;
+};
+
 const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
 const secondary = await readFile(
   new URL('./why-github-actions-secret-masking-fails.html', import.meta.url),
@@ -32,7 +51,7 @@ test('the page never claims a clean scan means secrets are safe', () => {
   // "does a clean scan mean my secrets are safe?", which is the honest
   // question, so a blanket ban on the phrase would forbid the question
   // along with the overclaim.
-  const prose = index.replace(/<script[\s\S]*?<\/script>/g, '');
+  const prose = stripScripts(index);
   const claims = /\b(?:is|are|was|were)\s+safe\b/gi;
   for (const match of prose.matchAll(claims)) {
     const preceding = prose.slice(Math.max(0, match.index - 60), match.index);
@@ -59,7 +78,7 @@ test('the JSON-LD FAQPage questions match the visible FAQ headings', () => {
   const faq = JSON.parse(ldMatch[1]);
   const questions = faq.mainEntity.map((entry) => entry.name);
   const headings = [...index.matchAll(/<h3>(.*?)<\/h3>/g)].map((m) =>
-    m[1].replace(/<[^>]+>/g, '').trim(),
+    stripTags(m[1]).trim(),
   );
   assert.ok(headings.length > 0, 'expected visible h3 FAQ headings');
   for (const heading of headings) {
@@ -100,7 +119,7 @@ test('every .html file in the venture is reachable from the sitemap', async () =
   const htmlFiles = readdirSync(dir).filter((name) => name.endsWith('.html'));
   for (const name of htmlFiles) {
     if (name === 'index.html') continue;
-    assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
+    assert.ok(sitemap.includes(name), `${name} is missing from sitemap.xml`);
   }
 });
 

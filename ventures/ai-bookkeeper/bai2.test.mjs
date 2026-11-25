@@ -46,7 +46,7 @@ test("closing ledger balance (015) is the statement balance", () => {
 });
 
 test("more than one account is flagged and gets no balance; odd codes are named", () => {
-  const two = FILE.replace("49,", "49,").replace("98,", "03,222,USD,015,100,,/\n16,801,500,0,,,LOAN ADV/\n98,");
+  const two = FILE.replace("98,", "03,222,USD,015,100,,/\n16,801,500,0,,,LOAN ADV/\n98,");
   const r = readBai2(two);
   assert.match(r.problems.join(" "), /2 accounts/);
   assert.match(r.problems.join(" "), /type code 801/);

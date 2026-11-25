@@ -31,7 +31,7 @@ test('addBaseStyle goes before the page own <style>, once, and fixes the page', 
 });
 
 test('every base rule has zero specificity, so a page rule always wins', () => {
-  const css = baseStyle(page('')).replace(/<\/?style[^>]*>/g, '').replace(/\/\*[\s\S]*?\*\//g, '');
+  const css = /<style\b[^>]*>([\s\S]*?)<\/style\b[^>]*>/i.exec(baseStyle(page('')))[1].replace(/\/\*[\s\S]*?\*\//g, '');
   for (const m of css.matchAll(/([^{}]+)\{[^{}]*\}/g)) {
     const sel = m[1].trim();
     assert.match(sel, /^:where\(/, `unwrapped selector: ${sel}`);

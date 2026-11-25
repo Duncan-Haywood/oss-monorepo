@@ -14,7 +14,7 @@ import { readFile } from "node:fs/promises";
 import { existsSync, statSync, mkdtempSync, readdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { extname, join } from "node:path";
+import { extname, join, resolve, sep } from "node:path";
 import { tmpdir } from "node:os";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -43,9 +43,16 @@ const local = (u) => {
   return join(unpacked, folder, rest);
 };
 
+// Map a request path to a file under root; refuse anything that resolves outside it.
+const rootDir = resolve(root);
+const servedPath = (u) => {
+  const p = resolve(rootDir, "." + (u === "/" ? "/index.html" : decodeURIComponent(u)));
+  if (!p.startsWith(rootDir + sep)) throw new Error("outside root");
+  return p;
+};
 const types = { ".html": "text/html", ".mjs": "text/javascript", ".js": "text/javascript", ".json": "application/json" };
 const server = createServer(async (req, res) => {
-  try { const p = join(root, req.url.split("?")[0] === "/" ? "index.html" : decodeURIComponent(req.url.split("?")[0])); res.writeHead(200, { "content-type": types[extname(p)] || "text/plain" }).end(await readFile(p)); }
+  try { const p = servedPath(req.url.split("?")[0]); res.writeHead(200, { "content-type": types[extname(p)] || "text/plain" }).end(await readFile(p)); }
   catch { res.writeHead(404).end(); }
 });
 await new Promise((r) => server.listen(0, "127.0.0.1", r));

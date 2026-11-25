@@ -239,7 +239,10 @@ export default class ExamplePlugin extends Plugin {
       th.textContent = label;
       tr.appendChild(th);
       const td = document.createElement('td');
-      td.innerHTML = `<span class="status-${statusClass}">${text}</span>`;
+      const span = document.createElement('span');
+      span.className = `status-${statusClass}`;
+      span.textContent = text;
+      td.appendChild(span);
       tr.appendChild(td);
       tbody.appendChild(tr);
     }

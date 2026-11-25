@@ -3,6 +3,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { analyze } from "./engine.mjs";
 
+// Remove every tag, repeating until no tag-shaped text is left.
+const stripTags = (s, sub = "") => { let p; do { p = s; s = s.replace(/<[^>]*>/g, sub); } while (s !== p); return s; };
+
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const NETWORK = /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts|import\(/;
 
@@ -25,7 +28,7 @@ test("JSON-LD blocks parse and the FAQ matches the page", () => {
   assert.equal(blocks[0].offers.price, "0");
   assert.equal(blocks[1]["@type"], "FAQPage");
   assert.ok(blocks[1].mainEntity.length >= 5);
-  const text = html.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&gt;/g, ">").replace(/&lt;/g, "<");
+  const text = stripTags(html).replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/&amp;/g, "&");
   for (const q of blocks[1].mainEntity) {
     assert.ok(text.includes(q.name), q.name);
     assert.ok(text.includes(q.acceptedAnswer.text), `answer to "${q.name}" is not shown on the page`);

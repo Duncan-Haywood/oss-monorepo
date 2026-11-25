@@ -22,8 +22,8 @@ import { SHARD_DIRS } from './cloudflare/router.mjs';
 export function inlineBytes(html) {
   let script = 0;
   let style = 0;
-  for (const m of html.matchAll(/<script\b[^>]*>[\s\S]*?<\/script>/gi)) script += Buffer.byteLength(m[0]);
-  for (const m of html.matchAll(/<style\b[^>]*>[\s\S]*?<\/style>/gi)) style += Buffer.byteLength(m[0]);
+  for (const m of html.matchAll(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi)) script += Buffer.byteLength(m[0]);
+  for (const m of html.matchAll(/<style\b[^>]*>[\s\S]*?<\/style\b[^>]*>/gi)) style += Buffer.byteLength(m[0]);
   return { script, style };
 }
 

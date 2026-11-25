@@ -154,7 +154,7 @@ test('customer-supplied text cannot inject markup into the printed page', () => 
   }));
   // The property that matters is that no customer-supplied text survives as
   // markup: `onerror=` as escaped *text* is inert, `<img onerror=` is not.
-  assert.doesNotMatch(html, /<script>/);
+  assert.doesNotMatch(html, /<script\b/i);
   assert.doesNotMatch(html, /<img/i);
   assert.match(html, /&lt;script&gt;/);
   assert.match(html, /&lt;img src=x onerror=alert\(1\)&gt;/);

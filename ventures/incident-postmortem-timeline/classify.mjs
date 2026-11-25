@@ -115,7 +115,7 @@ export function toMarkdown(r, title = 'Incident') {
   out.push(`| Time to detect | ${fmtDuration(m.ttd)} |`, `| Time to acknowledge | ${fmtDuration(m.tta)} |`, `| Time to mitigate | ${fmtDuration(m.ttm)} |`, `| Time to resolve | ${fmtDuration(m.ttr)} |`, '');
   if (r.startEstimated) out.push('> Start was not marked, so the first log line was used as the start. Detect and resolve times are measured from it.', '');
   out.push('## Timeline', '', '| Time (UTC) | Phase | Event |', '| --- | --- | --- |');
-  for (const e of r.events) out.push(`| ${clock(e.ms)} | ${e.phase || ''} | ${e.text.replace(/\|/g, '\\|')} |`);
+  for (const e of r.events) out.push(`| ${clock(e.ms)} | ${e.phase || ''} | ${e.text.replace(/[\\|]/g, '\\$&')} |`);
   out.push('');
   if (r.gaps.length) {
     out.push('## Questions the timeline raises', '');

@@ -42,14 +42,16 @@ test('buildProbeSet derives six probes with the expected labels and origins', ()
 test('prefix-match origin genuinely starts with the target origin (the bypass this probe tests)', () => {
   const set = buildProbeSet('https://api.example.com/v1/thing');
   const prefix = set.find((p) => p.label === 'prefix-match').requestOrigin;
-  assert.ok(prefix.startsWith('https://api.example.com'));
+  const target = 'https://api.example.com';
+  assert.equal(prefix.slice(0, target.length), target);
   assert.notEqual(prefix, 'https://api.example.com', 'must be a different origin, not the real one');
 });
 
 test('suffix-match origin genuinely ends with the target hostname (the bypass this probe tests)', () => {
   const set = buildProbeSet('https://api.example.com/v1/thing');
   const suffix = set.find((p) => p.label === 'suffix-match').requestOrigin;
-  assert.ok(suffix.endsWith('api.example.com'));
+  const host = 'api.example.com';
+  assert.equal(suffix.slice(-host.length), host);
   assert.notEqual(suffix, 'https://api.example.com');
 });
 
@@ -62,8 +64,10 @@ test('two calls without an injected randomOrigin produce different reflect origi
 test('sendProbe reads back the three CORS headers this tool cares about', async () => {
   await withServer(
     (req, res) => {
+      // Allow-list the one origin this test sends rather than reflecting any.
+      const allowed = 'https://attacker.invalid';
       res.writeHead(200, {
-        'access-control-allow-origin': req.headers.origin || '',
+        'access-control-allow-origin': req.headers.origin === allowed ? allowed : '',
         'access-control-allow-credentials': 'true',
         vary: 'Origin',
       });

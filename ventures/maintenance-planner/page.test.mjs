@@ -31,7 +31,7 @@ test("JSON-LD parses, the FAQ matches the visible questions, the module parses",
   assert.equal(blocks.length, 2);
   for (const q of blocks[1].mainEntity) {
     assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
-    assert.ok(html.includes(`<p>${q.acceptedAnswer.text.replace(/'/g, "'")}</p>`), q.name);
+    assert.ok(html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
   }
   const m = /<script type="module">([\s\S]*?)<\/script>/.exec(html);
   assert.doesNotThrow(() => new Function(m[1].replace(/^\s*import .*$/gm, "")));
