@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyfsCL4LHV6T7ELt2QV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T07:39:35Z",
+  "ended": "2026-11-25T07:50:51Z",
+  "wall_minutes": 11.44,
+  "tokens_in": 12698119,
+  "tokens_out": 50014,
+  "cost_usd": 4.8035,
+  "tool_calls": 98,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18896",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Built a change order request PDF in private-monorepo that another session (PR 61) merged 3 minutes before mine was pushed; rebuilt the branch on main and kept only the new contract-time delta (private PR 62).",
+    "The public guide section also duplicated a parallel session's; resolved by keeping main's text."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "Searched open PRs in private-monorepo before starting (none on change orders), but a parallel session took the same ROADMAP 'Next' item at the same time; nothing marks a ROADMAP item as claimed, so the first ~40 minutes duplicated PR 61. A claim branch or a line in ROADMAP.md at start would prevent it."
+    },
+    {
+      "file": "private-monorepo/.github/workflows/payapps-ci.yml",
+      "issue": "Every payapps-ci run since PR 60 fails in seconds with runner_id 0 (no runner); job logs return 404. platform/ci/ci_starvation.py targets oss-monorepo, so private-repo starvation has to be read from the job's runner_id by hand."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Merged private-monorepo PR 62 with payapps-ci red: the job never got a runner (runner_id 0, 24 s); the same is true of the merged PRs 60 and 61.",
+      "did": "Ran the workflow's steps locally (biome ci, typecheck, unit 189, worker 130, build, drizzle-generated migration) and put the output in the PR body.",
+      "result": "merged"
+    }
+  ],
+  "writeups": [
+    "ventures/pay-app-guides/change-orders-schedule-of-values.html: my change-order-request section collided with an equivalent one a parallel session merged first; kept main's and added only the not-legal-advice line it lacked"
+  ],
+  "goal": null,
+  "notes": "Ventures track, bet #1 (pay-app billing). private-monorepo PR 62 (merged): change orders record the contract time asked for (schedule_days, migration 0012, PUT .../:coId/schedule, form field and Time button) and the change order request PDF from PR 61 prints it. oss-monorepo: the front-door guide gains a change-order-request section and llms.txt line; pay-app-guides 119 tests pass.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "aa9eaf0f-e3e5-5446-950b-37703440e75f",
+    "transcripts": 1,
+    "first": "2026-11-25T07:39:35Z",
+    "last": "2026-11-25T07:51:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 94,
+        "input": 185,
+        "output": 50014,
+        "thinking": 5523,
+        "cache_read": 12536025,
+        "cache_write_5m": 0,
+        "cache_write_1h": 161909,
+        "api_equivalent_usd": 4.8035,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 94,
+      "input": 185,
+      "output": 50014,
+      "thinking": 5523,
+      "cache_read": 12536025,
+      "cache_write_5m": 0,
+      "cache_write_1h": 161909,
+      "api_equivalent_usd": 4.8035,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 98,
+    "tools": {
+      "Bash": 76,
+      "ToolSearch": 5,
+      "mcp__github__list_pull_requests": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Read": 1,
+      "Edit": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__actions_get": 1,
+      "mcp__github__actions_list": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.44,
+      "active_minutes": 11.44,
+      "model_minutes": 7.38,
+      "tool_minutes": 4.05,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior full-stack dev: migration, API, form, PDF line, tests, rebase onto a parallel PR, guide section",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 124.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
