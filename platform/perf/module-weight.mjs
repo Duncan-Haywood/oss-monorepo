@@ -1,16 +1,25 @@
 // Module weight sweep: for each ventures/<slug>/index.html, walk the static ES
 // import graph of its module scripts and print the gzip total, largest first.
-// Usage: node platform/perf/module-weight.mjs .   (repo root)
+// Usage: node platform/perf/module-weight.mjs [.]   (repo root, the default)
+//        node platform/perf/module-weight.mjs ventures/<slug>   (one venture)
 // A page over ~200 kB gzip makes its buttons wait for all of it; follow up
 // with module-exclusive.mjs to see what a dynamic import would save.
 import fs from 'node:fs'; import path from 'node:path'; import zlib from 'node:zlib';
-const root = process.argv[2];
+// A venture dir was passed twice in run records and crashed with ENOENT on
+// ventures/<slug>/ventures, so one venture's folder is accepted as well.
+let root = path.resolve(process.argv[2] || '.'), only = null;
+if (!fs.existsSync(path.join(root,'ventures')) && path.basename(path.dirname(root)) === 'ventures') {
+  only = path.basename(root); root = path.dirname(path.dirname(root));
+}
+if (!fs.existsSync(path.join(root,'ventures'))) {
+  console.error(`module-weight: no ventures/ under ${root}; pass the repo root or ventures/<slug>`); process.exit(2);
+}
 // \s* (not \s+) around the clause so minified `import{a}from'./a.mjs'` counts too.
 const staticRe = /(?:^|[;\n}])\s*import\s*(?:[\w*{}\s,$]+?\s*from\s*)?['"]([^'"]+)['"]/g;
 const exportFromRe = /export\s*(?:\*(?:\s*as\s+[\w$]+)?|\{[^}]*\})\s*from\s*['"]([^'"]+)['"]/g;
 function deps(src){ const out=[]; for (const re of [staticRe, exportFromRe]) { re.lastIndex=0; let m; while((m=re.exec(src))) out.push(m[1]); } return out; }
 const rows=[];
-for (const v of fs.readdirSync(path.join(root,'ventures'))) {
+for (const v of only ? [only] : fs.readdirSync(path.join(root,'ventures'))) {
   const html = path.join(root,'ventures',v,'index.html');
   if (!fs.existsSync(html)) continue;
   const h = fs.readFileSync(html,'utf8');
