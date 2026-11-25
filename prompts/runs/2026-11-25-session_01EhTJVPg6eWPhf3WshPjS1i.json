@@ -62,7 +62,7 @@
     "ventures/pay-app-guides/prompt-payment-laws.html (follow-up email templates section; extended existing page, no new post)"
   ],
   "goal": null,
-  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/81 merged (e85cfd9). Local: unit 272 passed, worker 176 passed, build ok, biome ci 0 errors (1 pre-existing warning), drizzle-kit check fine. Public: pay-app-guides page.test.mjs + prompt-pay.test.mjs 36 passed; venture-preflight.mjs pay-app-guides: "preflight clean", exit 0.",
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/81 merged (e85cfd9). Local: unit 272 passed, worker 176 passed, build ok, biome ci 0 errors (1 pre-existing warning), drizzle-kit check fine. Public: pay-app-guides page.test.mjs + prompt-pay.test.mjs 36 passed; venture-preflight.mjs pay-app-guides: preflight clean, exit 0.",
   "corrections": [],
   "redteam": null,
   "usage": {
