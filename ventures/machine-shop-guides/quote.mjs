@@ -10,6 +10,9 @@
  *   other ops  = sum over ops of (q x minutes / 60 x rate) + flat lot charge
  *   cost       = sum of the above
  *   price      = cost x (1 + markup)
+ * Optional calibration factors (from the quote-vs-actual page, calibrate.mjs)
+ * multiply the estimated hours before they are priced:
+ *   setup hours x setupFactor, cycle minutes x cycleFactor   (blank = 1)
  * Quantity breaks re-run the same formula at each quantity, so a break is the
  * setup and programming being spread over more parts, not a discount invented
  * by the tool.
@@ -20,10 +23,20 @@ const num = (v, d = 0) => {
   return Number.isFinite(n) ? n : d;
 };
 
+// A blank, zero or unreadable factor means "as estimated" (1); validate() reports
+// a typed 0 or negative so it is never silently ignored.
+const factorOf = (v) => {
+  const n = num(v, 1);
+  return n > 0 ? n : 1;
+};
+
 export function validate(input) {
   const errors = [];
   const nonNeg = ["materialPerPart", "scrapPct", "setupHours", "setupRate", "programHours", "programRate", "cycleMinutes", "machineRate", "markupPct"];
   for (const k of nonNeg) if (num(input[k], 0) < 0) errors.push(`${k} cannot be negative`);
+  for (const k of ["setupFactor", "cycleFactor"]) {
+    if (input[k] !== undefined && String(input[k]).trim() !== "" && !(num(input[k], 0) > 0)) errors.push(`${k} must be above 0 (leave it blank for 1)`);
+  }
   if (num(input.lotsOverProgramLife, 1) < 1) errors.push("lotsOverProgramLife must be at least 1");
   for (const [i, op] of (input.ops || []).entries()) {
     if (num(op.minutesPerPart) < 0 || num(op.rate) < 0 || num(op.lotCharge) < 0) errors.push(`operation ${i + 1} has a negative value`);
@@ -35,9 +48,10 @@ export function costLot(input, quantity) {
   const q = Math.max(1, Math.floor(num(quantity, 1)));
   const scrap = num(input.scrapPct) / 100;
   const material = q * num(input.materialPerPart) * (1 + scrap);
-  const setup = num(input.setupHours) * num(input.setupRate);
+  const setupFactor = factorOf(input.setupFactor), cycleFactor = factorOf(input.cycleFactor);
+  const setup = num(input.setupHours) * setupFactor * num(input.setupRate);
   const programming = (num(input.programHours) * num(input.programRate)) / Math.max(1, num(input.lotsOverProgramLife, 1));
-  const machining = (q * num(input.cycleMinutes) / 60) * num(input.machineRate);
+  const machining = (q * num(input.cycleMinutes) * cycleFactor / 60) * num(input.machineRate);
   let ops = 0;
   for (const op of input.ops || []) {
     ops += (q * num(op.minutesPerPart) / 60) * num(op.rate) + num(op.lotCharge);
