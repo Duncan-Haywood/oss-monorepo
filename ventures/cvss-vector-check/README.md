@@ -95,5 +95,5 @@ not published advisories.
 - `usage.mjs`: local-only feature counters with an opt-out, honouring Do Not Track.
 - `oracle/`: fixture generators and the oracle scoring script.
 
-MIT licensed. Not affiliated with or endorsed by FIRST, NIST, the NVD, MITRE
+FSL-1.1-MIT licensed. Not affiliated with or endorsed by FIRST, NIST, the NVD, MITRE
 or Red Hat. CVSS is owned and managed by FIRST.Org, Inc.

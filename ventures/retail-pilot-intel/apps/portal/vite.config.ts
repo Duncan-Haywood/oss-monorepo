@@ -1,9 +1,13 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { createHash } from "node:crypto";
+import { pbkdf2Sync } from "node:crypto";
 
-function sha256(input: string): string {
-  return createHash("sha256").update(input).digest("hex");
+// Must match the salt and iteration count in src/auth/demoAuth.ts.
+const PASSCODE_SALT = "retail-pilot-intel/portal/passcode-v2";
+const PASSCODE_ITERATIONS = 600_000;
+
+function derivePasscodeHash(passcode: string): string {
+  return pbkdf2Sync(passcode, PASSCODE_SALT, PASSCODE_ITERATIONS, 32, "sha256").toString("hex");
 }
 
 export default defineConfig({
@@ -11,7 +15,7 @@ export default defineConfig({
   base: "./",
   define: {
     __DEMO_PASSCODE_HASH__: JSON.stringify(
-      sha256(process.env.VITE_DEMO_PASSCODE?.trim() || "atelier-demo"),
+      derivePasscodeHash(process.env.VITE_DEMO_PASSCODE?.trim() || "atelier-demo"),
     ),
   },
   server: {

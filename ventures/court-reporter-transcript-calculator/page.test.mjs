@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 
@@ -17,12 +18,12 @@ const visibleText = (html) =>
     .replace(/<[^>]*>/g, " ")
     .replace(/&mdash;/g, "—")
     .replace(/&larr;/g, "←")
-    .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
     .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
     .replace(/\s+/g, " ")
     .trim();
 
@@ -238,7 +239,7 @@ test("the comparison page's FAQPage JSON-LD answer text matches the visible FAQ 
 test("the index links the explainer, so it is reachable without the sitemap", () => {
   assert.match(
     page("index.html"),
-    new RegExp(`href="${RATE_PAGE.replace(/[.]/g, "\\.")}"`),
+    new RegExp(`href="${escapeRegExp(RATE_PAGE)}"`),
     "index must link the explainer -- the published site is served from a subpath where sitemap auto-discovery does not happen, so a crawl path is the only route to it",
   );
 });

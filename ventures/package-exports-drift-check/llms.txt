@@ -4,7 +4,7 @@
 
 It also flags wildcard targets that reach no listed file and targets Node refuses (no leading "./", another package's name, a ".." segment: ERR_INVALID_PACKAGE_TARGET) and folder-mapping keys like "./lib/" that Node 17 removed, and its resolver names the file `import "my-lib/feature"` or `require("#internal")` reaches under any conditions, using Node 22's algorithm, checked against Node itself on more than 85,000 generated cases with no disagreement (resolve.diff.test.mjs). CLI: `node cli.mjs check`, `node cli.mjs resolve <specifier> [--require] [--conditions=a,b]`.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -15,4 +15,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/package-exports-drift-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/package-exports-drift-check): FSL-1.1-MIT licensed.

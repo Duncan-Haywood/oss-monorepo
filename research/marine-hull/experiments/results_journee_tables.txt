@@ -1,0 +1,51 @@
+data: Journee (1992) DUT-SHL report 0909, Tables 2-III, 6-III, 8-III, as asserted in boatmath crates/seakeeping/src/validation.rs (commit 2d4b3acf; second-hand, report not opened here)
+hull: Wigley III (alpha 0), L 3 B 0.3 d 0.1875, kyy 0.25 L, fresh water
+## grid (16, 30): volume 0.07805 m3 (quoted 0.078, +0.06%), CB 0.4625; table 15 of 1350 points near irregular frequencies interpolated
+# A. forced heave, Fn 0.3: omega' A33''_exp A33''_model ratio B33''_exp B33''_model ratio
+row 2.22 0.707 0.632 0.894 1.963 2.235 1.139
+row 2.78 0.537 0.488 0.908 1.994 2.194 1.100
+row 3.34 0.465 0.414 0.891 1.854 2.020 1.090
+row 3.88 0.425 0.388 0.913 1.706 1.774 1.040
+row 4.45 0.421 0.390 0.927 1.518 1.479 0.974
+# B. restrained wave loads, Fn 0.3: lambda/L X3''_exp X3''_model ratio X5''_exp X5''_model ratio
+row 1.250 0.345 0.326 0.946 0.444 0.469 1.057
+row 1.500 0.454 0.452 0.995 0.546 0.583 1.067
+row 1.750 0.515 0.542 1.053 0.600 0.666 1.110
+row 2.000 0.577 0.608 1.054 0.658 0.730 1.109
+# C. heave RAO in head waves: Fn lambda/L measured 7zg_model 7zg_ratio zeta0_model zeta0_ratio
+row 0.2 1.250 0.71 0.715 1.006 0.772 1.087
+row 0.2 1.500 0.81 0.787 0.971 0.825 1.018
+row 0.2 2.000 0.90 0.881 0.979 0.903 1.003
+row 0.3 1.250 1.28 1.179 0.921 1.360 1.063
+row 0.3 1.384 1.11 1.060 0.955 1.178 1.061
+row 0.3 1.500 1.01 1.011 1.001 1.098 1.087
+row 0.3 2.000 0.99 0.979 0.989 1.017 1.028
+  Fn 0.3 heave RAO peak (7zg) 1.285 at lambda/L 1.13 (scan 1.00 to 2.00 by 0.01)
+## grid (24, 40): volume 0.07803 m3 (quoted 0.078, +0.04%), CB 0.4624; table 9 of 1800 points near irregular frequencies interpolated
+# A. forced heave, Fn 0.3: omega' A33''_exp A33''_model ratio B33''_exp B33''_model ratio
+row 2.22 0.707 0.629 0.890 1.963 2.231 1.137
+row 2.78 0.537 0.486 0.904 1.994 2.191 1.099
+row 3.34 0.465 0.412 0.887 1.854 2.017 1.088
+row 3.88 0.425 0.386 0.908 1.706 1.772 1.039
+row 4.45 0.421 0.388 0.922 1.518 1.479 0.974
+# B. restrained wave loads, Fn 0.3: lambda/L X3''_exp X3''_model ratio X5''_exp X5''_model ratio
+row 1.250 0.345 0.327 0.948 0.444 0.470 1.059
+row 1.500 0.454 0.452 0.996 0.546 0.583 1.069
+row 1.750 0.515 0.543 1.054 0.600 0.667 1.111
+row 2.000 0.577 0.609 1.055 0.658 0.730 1.109
+# C. heave RAO in head waves: Fn lambda/L measured 7zg_model 7zg_ratio zeta0_model zeta0_ratio
+row 0.2 1.250 0.71 0.715 1.007 0.772 1.087
+row 0.2 1.500 0.81 0.787 0.972 0.825 1.018
+row 0.2 2.000 0.90 0.881 0.979 0.903 1.003
+row 0.3 1.250 1.28 1.181 0.923 1.363 1.065
+row 0.3 1.384 1.11 1.060 0.955 1.179 1.062
+row 0.3 1.500 1.01 1.011 1.001 1.098 1.087
+row 0.3 2.000 0.99 0.979 0.989 1.017 1.027
+  Fn 0.3 heave RAO peak (7zg) 1.290 at lambda/L 1.13 (scan 1.00 to 2.00 by 0.01)
+## expectations (registered in LOG.md, d4621716a)
+E0 volume within 0.5%: +0.06%: True
+E1 A33 within 15% at 5/5, B33 at 5/5 (need >= 4 each): True
+E2 X3 within 10% at 4/4, X5 within 15% at 4/4 (need 4 each): True
+E3 Fn 0.2 heave ratios (7zg) 1.006 0.971 0.979 all within 15%: True
+E4 Fn 0.3 lambda/L 1.25 heave ratio 7zg 0.921 (more than 15% low: False), zeta 0 1.063 (within 15%: True): False
+E5 largest move from (16, 30) to (24, 40): -0.47% at ('A33', 3.88): True

@@ -599,7 +599,7 @@ export function cqHash(s) {
   }).join("");
 }
 
-const mdCell = (s) => String(s ?? "").replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
+const mdCell = (s) => String(s ?? "").replace(/[\\|]/g, "\\$&").replace(/\r?\n/g, " ");
 
 export function stepSummary(runs, { maxFailures = 5, failOnUnchecked = false, failOnAudit = false, failOnDuplicates = false, maxDuplicates = 50, federation = null, failOnShared = false } = {}) {
   const t = tally(runs, federation);

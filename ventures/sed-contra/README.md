@@ -48,7 +48,7 @@ recurring frame, the script format and the next ten articles.
 Stories, scripts, audio and video: **CC BY-SA 4.0**. Repost, cut, translate and
 show them in class with credit to "Sed Contra", under the same licence. The
 Dominican translation in `sources/` is in the public domain in the United
-States (Project Gutenberg eBook #17611). Code: MIT (`LICENSE`).
+States (Project Gutenberg eBook #17611). Code: FSL-1.1-MIT (`LICENSE`).
 
 Written by an AI (Claude, made by Anthropic) and read by synthetic voices, from
 a Catholic point of view. It is not official Church teaching and has not been

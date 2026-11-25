@@ -2,7 +2,7 @@
 
 > Free pawn loan profit calculator for pawnbrokers: enter your rate, redemption rate, loan-to-value and what forfeits sell for to see profit per loan, break-even redemption, the largest loan an item can carry and the smallest loan worth writing. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pawn-loan-profit-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pawn-loan-profit-calculator): FSL-1.1-MIT licensed.

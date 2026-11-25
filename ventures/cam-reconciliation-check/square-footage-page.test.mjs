@@ -3,6 +3,8 @@ import test from 'node:test';
 import fs from 'node:fs';
 import { reconcile } from './calc.mjs';
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const docsPage = (name) => fs.readFileSync(new URL(`./${name}`, import.meta.url), 'utf8');
 const html = docsPage('how-much-cam-do-i-owe-based-on-square-footage.html');
 const index = docsPage('index.html');
@@ -32,9 +34,9 @@ test('the table figures match reconcile() at the stated building defaults, not h
     const sharePct = `${(result.share * 100).toFixed(2)}%`;
     const annual = money(result.modeledShare);
     const monthly = money(result.modeledShare / 12);
-    assert.match(html, new RegExp(sharePct.replace('.', '\\.')), `area share for ${tenantArea} sq ft should appear as ${sharePct}`);
-    assert.match(html, new RegExp(annual.replace(/[$,.]/g, '\\$&')), `modeled annual CAM for ${tenantArea} sq ft should appear as ${annual}`);
-    assert.match(html, new RegExp(monthly.replace(/[$,.]/g, '\\$&')), `modeled monthly CAM for ${tenantArea} sq ft should appear as ${monthly}`);
+    assert.match(html, new RegExp(escapeRegExp(sharePct)), `area share for ${tenantArea} sq ft should appear as ${sharePct}`);
+    assert.match(html, new RegExp(escapeRegExp(annual)), `modeled annual CAM for ${tenantArea} sq ft should appear as ${annual}`);
+    assert.match(html, new RegExp(escapeRegExp(monthly)), `modeled monthly CAM for ${tenantArea} sq ft should appear as ${monthly}`);
   }
 });
 

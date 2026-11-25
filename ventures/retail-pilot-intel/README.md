@@ -17,7 +17,7 @@ pnpm portal:dev    # http://localhost:5174 — sales demo portal (passcode: atel
 pnpm portal:build  # → apps/portal/dist
 ```
 
-Deploy the private docs site to Vercel with a custom domain and **Deployment Protection** — see `apps/docs/DEPLOY.md`.
+Deploy the private docs site to its own free-plan Cloudflare Worker (optionally behind Cloudflare Access) — see `apps/docs/DEPLOY.md`.
 
 ### Sales / marketing demo walkthrough
 
@@ -48,13 +48,13 @@ Production builds gate the site with a passcode (`VITE_DOCS_PASSCODE`, default `
 
 Only people with access to this repository can view private Pages. The client passcode adds a second layer for shared links.
 
-### Vercel (optional — external stakeholders)
+### Cloudflare (external stakeholders; replaced Vercel on 2026-11-24)
 
-Use a separate Vercel project when you need a URL with **Deployment Protection** for people without GitHub access:
-
-1. Import this repo in Vercel; use `vercel.docs.json` (install/build/output).
-2. Enable [Deployment Protection → Password](https://vercel.com/docs/deployment-protection/methods-to-protect-deployments/password-protection) on the project.
-3. Set repository variable `VERCEL_DEPLOY=true` and secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` to enable the optional `deploy-vercel` job in `deploy-docs.yml`.
+`apps/docs/wrangler.toml` serves the built docs from a free-plan Cloudflare Worker,
+`retail-pilot-intel-docs`, on its workers.dev address. The `deploy-cloudflare` job in
+`.github/workflows/priv-retail-pilot-intel-deploy-docs.yml` publishes it on a manual run, or on every
+docs push once the repository variable `RETAIL_PILOT_INTEL_DOCS_CLOUDFLARE=true`. For a login in
+front of the passcode, add a Cloudflare Access application for that host (free up to 50 users).
 
 ### Local / LAN preview
 
@@ -123,4 +123,4 @@ From the quality audit of 2026-11-19 ([`portfolio/quality/audits/2026-11-19-reta
 
 ## License
 
-MIT — see [`LICENSE`](LICENSE).
+FSL-1.1-MIT — see [`LICENSE`](LICENSE).

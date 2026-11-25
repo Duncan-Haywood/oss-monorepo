@@ -17,6 +17,8 @@
 /** The two fields the opportunity header carries. */
 export const TEXT_FIELD_IDS = Object.freeze(['opportunity']);
 export const DATE_FIELD_IDS = Object.freeze(['due']);
+/** The due time (`<input type=time>`) and the issuing office's zone (`<select>`). */
+export const TIMING_FIELD_IDS = Object.freeze(['dueTime', 'timeZone']);
 
 /** Mirrors the select options `add()` renders for a requirement row. */
 export const ROW_STATUSES = Object.freeze(['ready', 'attention', 'blocked']);
@@ -35,6 +37,18 @@ const ROW_SEPARATOR = ',';
 const CELL_SEPARATOR = ':';
 const ROWS_PARAM = 'items';
 const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
+// An IANA name's shape ("America/Chicago", "UTC", "America/Argentina/Buenos_Aires");
+// model.mjs's usableTimeZone checks it is a zone the browser knows.
+const ZONE_RE = /^[A-Za-z][A-Za-z0-9_+-]{0,30}(\/[A-Za-z0-9_+-]{1,30}){0,2}$/;
+
+function usableTime(value) {
+  return typeof value === 'string' && TIME_RE.test(value) ? value : null;
+}
+
+function usableZone(value) {
+  return typeof value === 'string' && ZONE_RE.test(value) ? value : null;
+}
 
 // Shape-checked rather than calendar-checked: a link carrying "2099-13-40" is
 // passed through to `daysUntilDue`, which already treats an unparseable date
@@ -109,6 +123,10 @@ export function encodeInputs(inputs) {
 
   const date = usableDate(due);
   if (date !== null) params.set('due', date);
+  const time = usableTime(inputs && inputs.dueTime);
+  if (time !== null) params.set('time', time);
+  const zone = usableZone(inputs && inputs.timeZone);
+  if (zone !== null) params.set('tz', zone);
 
   const rows = Array.isArray(items) ? items.slice(0, MAX_ROWS) : [];
   const encodedRows = rows
@@ -125,7 +143,7 @@ export function encodeInputs(inputs) {
 }
 
 /**
- * Read a fragment (or query string) back into { opportunity, due, items }.
+ * Read a fragment (or query string) back into { opportunity, due, dueTime, timeZone, items }.
  *
  * Anything unrecognised, over-long, or not one of the form's own status
  * options is dropped or coerced rather than thrown on, so a truncated or
@@ -147,6 +165,14 @@ export function decodeInputs(source) {
   if (params.has('due')) {
     const date = usableDate(params.get('due'));
     if (date !== null) result.due = date;
+  }
+  if (params.has('time')) {
+    const time = usableTime(params.get('time'));
+    if (time !== null) result.dueTime = time;
+  }
+  if (params.has('tz')) {
+    const zone = usableZone(params.get('tz'));
+    if (zone !== null) result.timeZone = zone;
   }
   if (params.has(ROWS_PARAM)) {
     const items = params.get(ROWS_PARAM)

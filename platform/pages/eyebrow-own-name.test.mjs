@@ -19,7 +19,16 @@ import { fileURLToPath } from 'node:url';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const VENTURES = join(ROOT, 'ventures');
 
-const decode = (s) => s.replace(/&amp;/g, '&').replace(/&#39;|&apos;/g, "'").replace(/&quot;/g, '"');
+// `&amp;` last, so `&amp;quot;` decodes to the text `&quot;`, not to `"`.
+const decode = (s) => s.replace(/&#39;|&apos;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+const stripTags = (s) => {
+  let previous;
+  do {
+    previous = s;
+    s = s.replace(/<[^>]+>/g, '');
+  } while (s !== previous);
+  return s;
+};
 
 /** Lower-case word tokens, as a sorted space-joined key ("ko-fi" -> "fi ko"). */
 export function nameKey(text) {
@@ -39,7 +48,7 @@ export function eyebrowName(html) {
   if (!hm || !/<h1\b/.test(hm[1])) return null;
   const pm = /<p class="(?:note|eyebrow)"[^>]*>([\s\S]*?)<\/p>/.exec(hm[1]);
   if (!pm) return null;
-  const text = decode(pm[1].replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim();
+  const text = decode(stripTags(pm[1])).replace(/\s+/g, ' ').trim();
   return text.split(/\s+·\s+/)[0].trim();
 }
 

@@ -22,4 +22,4 @@ Run the tests: `node --test`. Serve `index.html` from any static host.
 
 Sibling of [Schedule E Categorizer](../rental-property-schedule-e-categorizer/), [Rent Roll Delinquency Analyzer](../rent-roll-delinquency-analyzer/), [Repair or Replace Planner](../landlord-repair-or-replace-planner/), [Rental DSCR Calculator](../rental-dscr-calculator/) and [Renewal Rent Optimizer](../renewal-rent-optimizer/).
 
-Not legal, tax or financial advice; see the disclaimer on the page. MIT licensed.
+Not legal, tax or financial advice; see the disclaimer on the page. FSL-1.1-MIT licensed.

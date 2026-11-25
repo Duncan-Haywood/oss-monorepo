@@ -1,6 +1,8 @@
 #!/usr/bin/env node
-// node cli.mjs schedule.xer [--json] [--csv findings.csv] [--schedule activities.csv] [--project CODE]
-// Prints the DCMA 14-point assessment of a Primavera P6 XER file. Any
+// node cli.mjs schedule.xer [--baseline baseline.xer] [--json] [--csv findings.csv] [--schedule activities.csv] [--project CODE]
+// Prints the DCMA 14-point assessment of a Primavera P6 XER file;
+// --baseline scores missed tasks (11) and BEI (14) against the baseline
+// project's XER, matched by activity ID, instead of the planned dates. Any
 // schedule argument can also be a Microsoft Project XML (MSPDI) file
 // (mspdi.mjs): File, Save As, XML Format in Microsoft Project; or a P6 XML
 // file (pmxml.mjs): P6's File, Export, Primavera PM (XML), P6 EPPM or Primavera Cloud.
@@ -467,8 +469,8 @@ if (args.includes("--crash")) {
 }
 if (args.includes("--gao")) {
   const result = schedule(xer);
-  const report = assess(xer, { projId, result });
   const baseline = opt("--baseline") ? parseSchedule(decodeXer(readFileSync(opt("--baseline")))) : null;
+  const report = assess(xer, { projId, result, baseline });
   const r = gao(xer, { projId: report.project.id, result, report, baseline });
   if (opt("--csv")) writeFileSync(opt("--csv"), gaoCsv(r));
   if (opt("--html")) { writeFileSync(opt("--html"), gaoHtml(r, { by: opt("--by") })); console.error(`GAO scorecard written to ${opt("--html")}`); }
@@ -618,7 +620,7 @@ if (args.includes("--level")) {
   for (const a of r.activities.slice(0, 15)) console.log(`  ${String(a.delayDays).padStart(7)} d  ${a.code}  ${a.levelledStart} -> ${a.levelledFinish}  ${a.by.join(", ") || "(logic)"}`);
   process.exit(0);
 }
-const report = assess(xer, { projId });
+const report = assess(xer, { projId, baseline: opt("--baseline") ? parseSchedule(decodeXer(readFileSync(opt("--baseline")))) : null });
 writeReview(report, null);
 if (args.includes("--csv")) writeFileSync(args[args.indexOf("--csv") + 1], findingsCsv(report));
 if (args.includes("--schedule")) writeFileSync(args[args.indexOf("--schedule") + 1], scheduleCsv(report));
@@ -629,7 +631,11 @@ if (args.includes("--json")) {
   console.log(`${p.name}  (${/^MSPDI/.test(p.version || "") ? "Microsoft Project XML" + p.version.slice(5) : "P6 " + p.version}; data date ${p.dataDate}; forecast finish ${p.finish}${p.mustFinish ? `; must finish by ${p.mustFinish}` : ""})`);
   console.log(`${p.open} open of ${p.activities} activities, ${p.relationships} relationships`);
   for (const w of report.warnings) console.log(`WARNING: ${w}`);
-  console.log(`DCMA 14-point: ${report.passed} of 14 pass\n`);
+  console.log(`DCMA 14-point: ${report.passed} of 14 pass`);
+  const b = report.baseline;
+  console.log(b && b.source === "file"
+    ? `Missed tasks and BEI against the baseline file: ${b.matched} of ${b.activities} activities matched by activity ID, ${b.due} due by the data date.\n`
+    : "Missed tasks and BEI use this file's planned dates (no --baseline given): late work not yet started is not counted.\n");
   for (const c of report.checks) {
     const v = c.value === null ? "n/a" : `${typeof c.value === "number" ? (Math.abs(c.value) < 10 ? Math.round(c.value * 1000) / 1000 : Math.round(c.value * 10) / 10) : c.value}${c.unit ? " " + c.unit : ""}`;
     console.log(`${c.pass ? "PASS" : "FAIL"}  ${String(c.id).padStart(2)}. ${c.name.padEnd(36)} ${v.padEnd(22)} (${c.threshold})${c.total ? `  ${c.count}/${c.total}` : ""}`);

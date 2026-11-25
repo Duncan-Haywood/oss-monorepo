@@ -2,7 +2,7 @@
 
 > Free RRULE tester. From an iCalendar recurrence (RFC 5545 RRULE with DTSTART, RDATE and EXDATE, or a bare FREQ=... plus a start) it prints the rule in plain English, every date it produces with the UTC time and the clock changes it crosses (a skipped 02:30 is read with the offset before the jump; a repeated 01:30 is the first), and findings: months a rule on the 29th-31st skips (with the fixed rule), rules that never fire, a DTSTART the rule does not make (RFC counts it, python-dateutil drops it), dates that change with WKST, BYDAY lists mixing MO and 2TU (python-dateutil intersects them), COUNT with UNTIL, UNTIL of the wrong type or not in UTC, and parts RFC 5545 forbids for the FREQ. Runs in the browser; nothing is uploaded. A zero-dependency CLI does the same in a terminal or CI job.
 
-Free and open source (MIT). Dates come from this tool's own implementation of RFC 5545; its python-dateutil mode gives exactly python-dateutil 4.0.0's dates on 1,600 random rules. It is not legal or professional advice, and calendar apps differ.
+Free to use and source available (FSL-1.1-MIT). Dates come from this tool's own implementation of RFC 5545; its python-dateutil mode gives exactly python-dateutil 4.0.0's dates on 1,600 random rules. It is not legal or professional advice, and calendar apps differ.
 
 ## Pages
 
@@ -16,4 +16,4 @@ Free and open source (MIT). Dates come from this tool's own implementation of RF
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rrule-explainer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/rrule-explainer): FSL-1.1-MIT licensed.

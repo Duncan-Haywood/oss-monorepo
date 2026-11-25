@@ -100,7 +100,9 @@ export function createCounterServer({ tally, allowOrigin, now = () => new Date()
     });
     req.on('end', () => {
       const verdict = classify({ method: req.method, url, headers: req.headers, body: tooBig ? 'x'.repeat(MAX_BODY + 1) : body });
-      if (verdict.count) {
+      if (verdict.funnel) {
+        tally.add(verdict.funnel, utcDay(now()));
+      } else if (verdict.count) {
         const day = utcDay(now());
         if (tally.add(verdict.slug, day)) {
           if (verdict.ref) tally.add(`${REF_KEY}${verdict.ref}`, day);

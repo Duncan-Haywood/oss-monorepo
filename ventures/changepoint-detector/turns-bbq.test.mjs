@@ -47,7 +47,7 @@ test('the registered result reruns: D1 fails by 0.019, nothing ships', () => {
   assert.equal(readFileSync(`${root}/eval/turns-bbq.out.txt`, 'utf8'), out);
   assert.match(out, /D1 FAILS: GDP matched share 0\.781 \(bar 0\.80\)/);
   assert.match(out, /D2 PASSES/);
-  assert.match(out, /D3 PASSES: mean bbq - shipped \+0\.407/);
+  assert.match(out, /D3 PASSES: mean bbq - shipped \+0\.436/);
   assert.match(out, /G1 PASSES: Iran growth F1 0\.727/);
   assert.match(out, /Ships: nothing\./);
 });

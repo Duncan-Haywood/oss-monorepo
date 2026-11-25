@@ -625,6 +625,22 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    held), and a 0.02 N gravity-model error unknown to the filter raises the wall's failure to 10 to 12% where a policy
    runs near its margin (H312 refuted, for both policies). Next: a tare schedule optimised for the tracked residual; a
    pose-dependent gravity-model error; a warm-up transient; a logged drift trace.
+77. **BALANCE, a wall budget for the tracked residual** (done 2026-11-24, `experiments/m77_balance/`, offline): because
+   the tracked filter's variance, and so each sheet's risk j sheets after a tare, is a fixed table, the fewest tares at a
+   union-bound wall budget are equal runs (the cost is convex). Never worse than TRACK on 90 cells (H315 held) and the
+   best closed-loop policy at 0.01 N on all 11 large rows (H318 held), but a median 2% saving over TRACK (H317 refuted):
+   it pays where a per-sheet level forced a tare every sheet (G1 LAYOUT at 0.2 N, s = 0.05 N: 116 against 199, below
+   OPT's 142). The G1's weak pose at 0.02 N stays at the open-loop optimum (97 against 96, H316 held); a 0.02 N
+   gravity-model error still gives 11.9% failure (H319 held). Next: a filter that estimates the gravity-model error; a
+   warm-up transient; a logged drift trace.
+78. **A filter that learns the gravity-model error** (done 2026-11-25, `experiments/m78_augfilter/`, offline): the
+   free-air reading's error beta, fixed at the reading pose, carried in the filter state with prior N(0, sb&sup2;) and
+   learnt from readings that follow tares. With sb = 0.02 N and s = 0.01 N the naive filter fails 51.5% of walls on the
+   G1's weak pose (H321 held), and recalibrating it helps only by taring every sheet, or not at all (its risk table does not see beta); AUG+R (one extra reading
+   straight after every tare) holds 1% on all 72 cells (worst 1.09%, H320 held) for 67 re-zeros there against 48 with
+   beta known and OPT's 96 (median excess over known beta 7.7%, H323 held; no worse than OPT on all 11 large rows, H324
+   held; 0.78% at a fixed 0.04 N, H325 held). Next: a pose-dependent beta; front-loaded tares; a warm-up transient; a
+   logged drift trace.
 
 ## Target venue
 

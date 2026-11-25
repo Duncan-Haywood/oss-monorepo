@@ -2,7 +2,7 @@
 
 > Free wedding day timeline builder. Enter your date, city, ceremony time and guest count and get a minute-by-minute schedule: hair and makeup, first look, portraits, ceremony, cocktail hour, dinner, toasts and dancing, with sunset portraits placed at golden hour. Separate views for each vendor.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wedding-day-timeline-builder): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wedding-day-timeline-builder): FSL-1.1-MIT licensed.

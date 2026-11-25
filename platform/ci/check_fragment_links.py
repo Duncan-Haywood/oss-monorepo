@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-STRIP = re.compile(r"<script\b.*?</script>|<style\b.*?</style>|<!--.*?-->", re.S | re.I)
+STRIP = re.compile(r"<script\b.*?</script\b[^>]*>|<style\b.*?</style\b[^>]*>|<!--.*?-->", re.S | re.I)
 TARGET = re.compile(r'<[a-zA-Z][^>]*?\s(?:id|name)=["\']([^"\']+)["\']')
 LINK = re.compile(r'<a\b[^>]*?\shref=["\']#([^"\']+)["\']', re.I)
 TEMPLATE = ("${", "{{", "<%", "{%")

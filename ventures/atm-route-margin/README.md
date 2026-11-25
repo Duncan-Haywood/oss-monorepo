@@ -27,4 +27,4 @@ Everything runs in your browser. Your transaction figures and location list are 
 
 This calculator produces arithmetic observations from numbers you supply. It does not audit your books, verify a location placement agreement, process a live transaction, or replace your own contract, insurance, or accountant.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.

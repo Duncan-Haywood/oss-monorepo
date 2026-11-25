@@ -3,8 +3,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { buildSchedule, parseDate } from "./calc.mjs";
 import { printPackHtml, safeColor, safeLogo } from "./printpack.mjs";
-import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
-import { buyLink, cleanKey, interpret, checkLicence } from "./licence.mjs";
+import { PADDLE } from "./checkout.mjs";
+import * as licence from "./licence.mjs";
+import { assertPackLicence } from "../../platform/billing/testkit.mjs";
 
 const mk = (n, extra = {}) => buildSchedule({ teams: Array.from({ length: n }, (_, i) => `Team ${i + 1}`), double: false, start: parseDate("2026-10-06"), weekdays: [2], skipDays: [], blackouts: {}, courts: [], times: [], seed: 1, minutes: 60, ...extra });
 
@@ -41,14 +42,8 @@ test("a valid logo and colour reach the page", () => {
   assert.match(h, /--a:#aa0000/);
 });
 
-test("the pack stays dark until a checkout link is set, and unlock never throws", async () => {
-  assert.equal(buyLink(CHECKOUT_URL), CHECKOUT_URL || null); // dark when empty, live when golive.py set a link
-  assert.equal(buyLink("http://x.test"), null);
-  assert.equal(cleanKey("short"), null);
-  assert.equal(interpret({ valid: true, license_key: { status: "active" } }).valid, true);
-  assert.equal(interpret({ valid: true, license_key: { status: "disabled" } }).valid, false);
-  assert.equal((await checkLicence("ABCD-1234-EFGH", { url: VALIDATE_URL, fetch: async () => { throw new Error("offline"); } })).valid, false);
-  assert.equal((await checkLicence("ABCD-1234-EFGH", { url: VALIDATE_URL, fetch: async () => ({ json: async () => ({ valid: true, license_key: { status: "active" } }) }) })).valid, true);
+test("licence: dark until the catalogue is set; only a key signed for this pack unlocks; never throws", async () => {
+  await assertPackLicence(licence, PADDLE, "league-schedule-generator");
 });
 
 test("the page wires the pack and keeps the free exports", () => {

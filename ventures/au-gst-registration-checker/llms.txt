@@ -2,7 +2,7 @@
 
 > Free Australia GST registration checker: enter your last 12 months of sales to see whether GST turnover has reached AUD 75,000, test your projected turnover, and get your 21-day registration deadline. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/au-gst-registration-checker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/au-gst-registration-checker): FSL-1.1-MIT licensed.

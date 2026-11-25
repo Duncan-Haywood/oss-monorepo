@@ -2,7 +2,7 @@
 
 > Trial length analyzer for SaaS and app founders. Paste when each SaaS trial started and when that user first paid to see on which day people convert, whether they wait for the deadline, and what a shorter trial would have lost. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/trial-conversion-timing-analyzer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/trial-conversion-timing-analyzer): FSL-1.1-MIT licensed.

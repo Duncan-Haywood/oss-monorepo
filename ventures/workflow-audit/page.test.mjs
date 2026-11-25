@@ -2,6 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
+// Strip markup until stable, case-insensitive, tolerant of attributes in closing tags.
+const stripScripts = (s, sub = '') => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, sub); } while (s !== p); return s; };
+
 const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
 const action = await readFile(new URL('./action.yml', import.meta.url), 'utf8');
 
@@ -16,7 +19,7 @@ test('the page carries the portfolio disclaimers and local-only claims', () => {
 });
 
 test('the page never claims a clean report means safe', () => {
-  const prose = index.replace(/<script[\s\S]*?<\/script>/g, '');
+  const prose = stripScripts(index);
   for (const m of prose.matchAll(/\b(?:is|are)\s+(?:safe|secure)\b/gi)) {
     const before = prose.slice(Math.max(0, m.index - 60), m.index);
     assert.ok(/\b(?:not|never|no)\b/i.test(before) || prose.slice(m.index + m[0].length).trimStart().startsWith('?'), m[0]);

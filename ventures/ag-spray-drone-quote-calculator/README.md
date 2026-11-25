@@ -26,4 +26,4 @@ against flown fields.
 **Privacy.** Everything runs in your browser; your fields and costs are never uploaded
 and are not saved. Anonymous feature counts stay in local storage and can be switched off.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

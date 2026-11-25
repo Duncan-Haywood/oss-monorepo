@@ -92,7 +92,13 @@ export function unitlessLengths(css) {
  * inside one (csshound builds a page that way) is not a stylesheet.
  */
 export function styleBlocks(html) {
-  return [...String(html || '').replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ' ').matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)].map((m) => m[1]).join('\n');
+  let text = String(html || '');
+  let previous;
+  do {
+    previous = text;
+    text = text.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ' ');
+  } while (text !== previous);
+  return [...text.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style\b[^>]*>/gi)].map((m) => m[1]).join('\n');
 }
 
 // An invalid selector is the other silent drop: the browser throws away the whole rule, every

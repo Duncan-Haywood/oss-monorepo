@@ -2,7 +2,7 @@
 
 > Free .gitattributes checker. From your attribute files (root and nested .gitattributes, .git/info/attributes, the global file) and a list of paths, it gives every attribute of every path with the file and line that decided it and the macro it came through, resolved the way `git check-attr -a` does. It flags lines git drops (`!` patterns, `[attr]` macros below the root, invalid or `builtin_` names, lines of 2,048+ bytes), `docs/` folder patterns that never reach a file, Git LFS lines without `-text`, misspelled names and values git ignores (`eol=CRLF`, `text=true`, `diff=false`, `Text`), and says per file what git does to line endings under core.autocrlf and core.eol. Runs in the browser; nothing is uploaded. A zero-dependency CLI runs it over a whole repository and can compare every answer with your own git (`--verify`).
 
-Free and open source (MIT). Results come from this tool's reimplementation of git's attribute rules, checked against `git check-attr -a` and `git ls-files --eol` on random repositories and against real commits and checkouts for line endings; it is not legal, security or professional advice, and your own git is the final word. `linguist-*` attributes are read by GitHub Linguist, not git; they are resolved here the way git resolves them.
+Free to use and source available (FSL-1.1-MIT). Results come from this tool's reimplementation of git's attribute rules, checked against `git check-attr -a` and `git ls-files --eol` on random repositories and against real commits and checkouts for line endings; it is not legal, security or professional advice, and your own git is the final word. `linguist-*` attributes are read by GitHub Linguist, not git; they are resolved here the way git resolves them.
 
 ## Pages
 
@@ -16,4 +16,4 @@ Free and open source (MIT). Results come from this tool's reimplementation of gi
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gitattributes-explainer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gitattributes-explainer): FSL-1.1-MIT licensed.

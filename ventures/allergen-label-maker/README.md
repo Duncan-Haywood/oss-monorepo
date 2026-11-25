@@ -12,7 +12,7 @@ recipe you already have**, which used to mean reading every ingredient against t
 by hand.
 
 Not legal advice. It reads words; the seller is responsible for the label. Confirm every dish
-against supplier information. MIT licence. Nothing is uploaded; usage counts stay in local
+against supplier information. FSL-1.1-MIT licence. Nothing is uploaded; usage counts stay in local
 storage and can be turned off.
 
 ## Try it

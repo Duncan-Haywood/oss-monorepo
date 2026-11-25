@@ -17,7 +17,7 @@ what each automated agent run cost. Live page:
 | Red on main now, time for main to recover | the newest 500 push runs on `main` |
 | Where the runs go (`allocation`): runs today, 7 days, 30 days and all records, by portfolio, track and project; runs per day by track | `prompts/runs/*.json`; a run's project is its record's `projects`, else its PR's merge-title prefix from `git log --first-parent`, else the `ventures/` or `research/` directory its text names most |
 | Where the next runs go (`allocation.next`): planned track shares beside last week's, expected runs per track in the next 24 h and 7 days, review due, the product lane (requests, then flagships) and research programmes with the runs each got | `prompts/routing.json`, `portfolio/requests/requests.json`, `portfolio/flagships.yaml`, `research/PROGRAMMES.md` (parsed by `platform/pages/queue.mjs`) |
-| Delivery (`delivery`): deploys, merge to live, and per gate the failed share, red spells, time to restore, hours red | every run on `main` of `portfolio-pages.yml` and `portfolio-validate.yml` in the last 3 days, plus the checkout's first-parent merges |
+| Delivery (`delivery`): deploys, merge to live, and per gate the failed share, red spells, time to restore, hours red | every run on `main` of `priv-portfolio-pages.yml` and `portfolio-validate.yml` in the last 3 days, plus the checkout's first-parent merges |
 
 ```
 node platform/devstats/build.mjs --out=_site/dev [--previous=<published stats.json>]

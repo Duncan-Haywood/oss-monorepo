@@ -81,7 +81,20 @@ const REFERENCE_RE = /(?:href|src)\s*=\s*"([^"]+)"/g;
 // template placeholder as a dead link and failed the Pages build over a page
 // that is correct. The hub check below already strips scripts for this reason;
 // this applies the same rule to the per-page scan.
-const SCRIPT_OR_STYLE_RE = /<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi;
+const SCRIPT_OR_STYLE_RE = /<(script|style)\b[^>]*>[\s\S]*?<\/\1\b[^>]*>/gi;
+// Strip until nothing changes, so a block that only forms once an inner one is
+// removed (`<scr<script></script>ipt>`) is stripped too.
+const stripUntilStable = (text, re) => {
+  let previous;
+  do {
+    previous = text;
+    text = text.replace(re, '');
+  } while (text !== previous);
+  return text;
+};
+const stripScriptsAndStyles = (text) => stripUntilStable(text, SCRIPT_OR_STYLE_RE);
+const SCRIPT_ONLY_RE = /<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi;
+const stripScripts = (text) => stripUntilStable(text, SCRIPT_ONLY_RE);
 // Both quote styles, and `import(...)` as well as `from ...`. Every calculator
 // here loads its `calc.mjs` from an inline module script, and a specifier this
 // pattern misses is a tool that renders its form and then does nothing. These
@@ -129,6 +142,18 @@ export const ASK_DIR = 'ask';
 export const LAB_DIR = 'lab';
 // The fiction section (`stories.mjs`): an indexed page linking the story ventures.
 export const STORIES_DIR = 'stories';
+// The company's product pages (`products.mjs`): /products/ and the /industries/
+// index. Marketing pages about the site's own products, not tools.
+export const PRODUCTS_DIR = 'products';
+// Industry pages (2026-11-24 pivot): industries/<id>/, one per kind of
+// business, each written by its own module (industry-nonprofits.mjs, ...).
+export const INDUSTRIES_DIR = 'industries';
+// Paths the site Worker serves from another binding, so they are never in
+// this artifact: Grant Autopilot at /grants/ (cloudflare/router.mjs, GRANTS;
+// build.mjs GRANTS_ROBOTS). A link into one is live, not dead.
+export const WORKER_SERVED_PREFIXES = Object.freeze(['grants/']);
+export const isWorkerServed = (rootRelative) =>
+  WORKER_SERVED_PREFIXES.some((prefix) => rootRelative === prefix.slice(0, -1) || rootRelative.startsWith(prefix));
 
 // Directories the site builds for itself. They are not products, so the
 // reachability check below must not demand a `data-tool` card on the hub for
@@ -154,7 +179,15 @@ export const FEEDBACK_DIR = 'feedback';
 // request queue and how to add to it, linked from the footer, not a tool.
 export const CUSTOM_DEV_DIR = 'custom-development';
 
-export const SITE_OWN_DIRS = new Set([CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, LAB_DIR, SHOWCASE_DIR, FEEDBACK_DIR, CUSTOM_DEV_DIR, ASK_DIR, STORIES_DIR]);
+// The open hardware designs page (`hardware-page.mjs`): about future products,
+// linked from the footer, not a tool.
+export const HARDWARE_DIR = 'hardware';
+
+// The Privacy Policy, Terms of Use and Cookie Policy (`legal-pages.mjs`):
+// about the site, linked from every footer, not tools.
+export const LEGAL_DIRS = ['privacy', 'terms', 'cookies'];
+
+export const SITE_OWN_DIRS = new Set([...LEGAL_DIRS, HARDWARE_DIR, CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, LAB_DIR, SHOWCASE_DIR, FEEDBACK_DIR, CUSTOM_DEV_DIR, ASK_DIR, STORIES_DIR, INDUSTRIES_DIR, PRODUCTS_DIR]);
 
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
@@ -179,7 +212,7 @@ export const SNIPPET_MAX = 160;
 
 // Every `<script>` on a page, with its attributes and its inline body. Used to
 // parse-check the bodies; `SCRIPT_OR_STYLE_RE` above strips them instead.
-const SCRIPT_BLOCK_RE = /<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi;
+const SCRIPT_BLOCK_RE = /<script\b([^>]*)>([\s\S]*?)<\/script\b[^>]*>/gi;
 const TYPE_ATTR_RE = /\btype\s*=\s*["']([^"']+)["']/i;
 
 // Script types the browser executes as JavaScript. A bare `<script>` with no
@@ -738,7 +771,7 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
     // offline widget builds hub markup by concatenation, so its source contains
     // the literal `data-tool="' + slug + '"` — scraped raw, that reads as a link
     // to a product called `' + slug + '` and fails the check on a healthy site.
-    const markupOnly = hubHtml.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+    const markupOnly = stripScripts(hubHtml);
     const linked = new Set([...markupOnly.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]));
     hubCategoryLinks = new Set([...markupOnly.matchAll(/data-category="([^"]+)"/g)].map((m) => m[1]));
     for (const slug of linked) {
@@ -747,7 +780,7 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
     const reachable = new Set(linked);
     for (const id of hubCategoryLinks) {
       const page = await fs.readFile(path.join(site, CATEGORY_DIR, id, 'index.html'), 'utf8').catch(() => '');
-      const markup = page.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+      const markup = stripScripts(page);
       for (const m of markup.matchAll(/data-tool="([^"]+)"/g)) reachable.add(m[1]);
     }
     if (reachable.size > 0) {
@@ -797,7 +830,7 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
       }
       // A category page that lists a tool the build did not publish is a 404
       // handed to the one visitor who was closest to using it.
-      const markup = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+      const markup = stripScripts(html);
       const tools = new Set([...markup.matchAll(/data-tool="([^"]+)"/g)].map((m) => m[1]));
       if (tools.size === 0) problems.push(`${relative}: lists no tools`);
       for (const slug of tools) {
@@ -829,7 +862,17 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
     }
   }
 
-  for (const dir of [UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, STORIES_DIR]) {
+  // Industry pages: each carries the disclaimer. Reachability comes from the
+  // industries index and the hub sitemap, not a direct hub link.
+  const industryEntries = await fs.readdir(path.join(site, INDUSTRIES_DIR), { withFileTypes: true }).catch(() => []);
+  for (const entry of industryEntries.filter((e) => e.isDirectory())) {
+    const relative = path.join(INDUSTRIES_DIR, entry.name, 'index.html');
+    const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
+    if (html === null) problems.push(`${INDUSTRIES_DIR}/${entry.name}/ has no index.html`);
+    else if (!DISCLAIMER_MARKER.test(html)) problems.push(`${relative}: carries no disclaimer, so it must not ship`);
+  }
+
+  for (const dir of [UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, STORIES_DIR, HARDWARE_DIR, PRODUCTS_DIR, INDUSTRIES_DIR]) {
     // Optional, like the writing pages: a fixture build may write neither.
     const relative = path.join(dir, 'index.html');
     const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
@@ -1036,7 +1079,9 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
       // the page about the site, or about a trade, instead of a tool. They are
       // not products, so the "no such product shipped" reading is wrong for
       // them; that they shipped is checked in their own blocks above.
-      if (!productDirs.includes(slug) && !SITE_OWN_DIRS.has(slug)) {
+      // A Worker-served product (Grant Autopilot at /grants/) is listed under
+      // "Products" but is never in this artifact; it shipped, elsewhere.
+      if (!productDirs.includes(slug) && !SITE_OWN_DIRS.has(slug) && !isWorkerServed(`${slug}/`)) {
         problems.push(`llms-full.txt: lists "${slug}" but no such product shipped`);
       }
     }
@@ -1437,7 +1482,7 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
     // them); IMPORT_RE/DYNAMIC_IMPORT_RE below are what actually matter for a
     // script file, and they already scan the unstripped text on every
     // extension in LINKED_EXTENSIONS.
-    const markupOnly = extension === '.html' ? text.replace(SCRIPT_OR_STYLE_RE, '') : '';
+    const markupOnly = extension === '.html' ? stripScriptsAndStyles(text) : '';
     // Split rather than concatenated, because the reachability walk below may
     // only follow the first kind. A crawler navigates *markup* on a page it
     // rendered; an `import` specifier is a module the browser fetches, not a
@@ -1464,6 +1509,7 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
       if (isExternal(target)) continue;
       const cleaned = decodeURIComponent(target.split('#')[0].split('?')[0]);
       if (!cleaned) continue;
+      if (!cleaned.startsWith('/') && isWorkerServed(path.posix.normalize(path.posix.join(dir.split(path.sep).join('/'), cleaned)))) continue;
 
       const key = `${isHtml ? 'h' : 'o'}${dir}\0${cleaned}`;
       let outcome = linkOutcomes.get(key);

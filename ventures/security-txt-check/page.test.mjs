@@ -2,6 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
+// Remove every <script> element, case-insensitively and until nothing is left to strip.
+const stripScripts = (s, sub = '') => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, sub); } while (s !== p); return s; };
+// Remove every tag, repeating until no tag-shaped text is left.
+const stripTags = (s, sub = '') => { let p; do { p = s; s = s.replace(/<[^>]*>/g, sub); } while (s !== p); return s; };
+// Escape every regular-expression metacharacter so the text matches literally.
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const DOCS_PAGE = 'why-security-txt-expires.html';
 const VS_PAGE = 'vs-securitytxt-org-generator.html';
 const GENERIC_VS_PAGE = 'vs-checking-it-by-eye.html';
@@ -59,9 +66,7 @@ test('every FAQ answer in the JSON-LD also appears as visible copy', async () =>
       // Strip the markup as well as the scripts: the visible copy wraps field
       // names in <code>, so the answer text never matches the HTML byte for
       // byte even when the two say exactly the same thing.
-      const visible = html
-        .replace(/<script[\s\S]*?<\/script>/g, '')
-        .replace(/<[^>]*>/g, '');
+      const visible = stripTags(stripScripts(html));
       assert.ok(
         visible.includes(needle),
         `${file}: FAQ answer for ${JSON.stringify(entry.name)} has no visible counterpart (looked for ${JSON.stringify(needle)})`,
@@ -90,10 +95,10 @@ test('the sponsor link points at the correct GitHub Sponsors profile on all thre
   }
 });
 
-test('the MIT license is linked from index', async () => {
+test('the FSL-1.1-MIT license is linked from index', async () => {
   const html = await read('index.html');
   assert.match(html, /href="LICENSE"/);
-  assert.match(html, /MIT licen[cs]e/);
+  assert.match(html, /FSL-1.1-MIT licen[cs]e/);
 });
 
 test('a usage opt-out control exists', async () => {
@@ -114,12 +119,12 @@ test('engine.mjs and usage.mjs are imported as ES modules, not duplicated inline
 test('index links to the docs page and the docs page links back', async () => {
   const index = await read('index.html');
   const docs = await read(DOCS_PAGE);
-  assert.match(index, new RegExp(`href="${DOCS_PAGE.replace(/\./g, '\\.')}"`));
+  assert.match(index, new RegExp(`href="${escapeRegExp(DOCS_PAGE)}"`));
   assert.match(docs, /href="\.\/"/);
 });
 
 test('index links to the comparison page, which links back and names its non-affiliation', async () => {
-  assert.match(await read('index.html'), new RegExp(`href="${VS_PAGE.replace(/\./g, '\\.')}"`));
+  assert.match(await read('index.html'), new RegExp(`href="${escapeRegExp(VS_PAGE)}"`));
   const vs = await read(VS_PAGE);
   assert.match(vs, /href="\.\/"/, 'must link back to the tool');
   assert.match(vs, /not affiliated with, endorsed by, or sponsored by securitytxt\.org/i, 'missing the non-affiliation disclaimer');
@@ -179,7 +184,7 @@ test('the worked example actually produces the findings the status line promises
 });
 
 test('index links to the generic-method comparison page, which links back and names no product', async () => {
-  assert.match(await read('index.html'), new RegExp(`href="${GENERIC_VS_PAGE.replace(/\./g, '\\.')}"`));
+  assert.match(await read('index.html'), new RegExp(`href="${escapeRegExp(GENERIC_VS_PAGE)}"`));
   const vs = await read(GENERIC_VS_PAGE);
   assert.match(vs, /href="\.\/"/, 'must link back to the tool');
   assert.match(vs, /names no specific product or company/i, 'missing the generic-method disclaimer');

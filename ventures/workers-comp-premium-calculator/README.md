@@ -55,4 +55,4 @@ input validation and no-network assertions.
 Not insurance, legal, tax or financial advice. No class-code or rate lookup,
 no experience-mod computation from claims, no state rule engine (premium
 discount tables, owner-officer rules, deductible programs, minimum premiums).
-Your carrier's quote and audit control. MIT licensed.
+Your carrier's quote and audit control. FSL-1.1-MIT licensed.

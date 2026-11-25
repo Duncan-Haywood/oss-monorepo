@@ -45,6 +45,17 @@ const sources: SourceSpec[] = [
   },
 ];
 
+/** Apply a removal regex until the string stops changing, so nested or overlapping matches cannot survive. */
+function removeAll(input: string, pattern: RegExp): string {
+  let current = input;
+  let previous: string;
+  do {
+    previous = current;
+    current = current.replace(pattern, "");
+  } while (current !== previous);
+  return current;
+}
+
 function extractTitle(html: string): string {
   const m = html.match(/<title[^>]*>([^<]*)<\/title>/i);
   return m?.[1]?.replace(/\s*[—–-]\s*Retail Pilot Intel\s*$/i, "").trim() ?? "Report";
@@ -57,9 +68,7 @@ function extractMeta(html: string): string {
     /<header[\s\S]*?<p class="meta"[^>]*>([\s\S]*?)<\/p>/i,
   );
   if (!metaMatch) return "";
-  return metaMatch[1]
-    .replace(/<br\s*\/?>/gi, " · ")
-    .replace(/<[^>]+>/g, "")
+  return removeAll(metaMatch[1].replace(/<br\s*\/?>/gi, " · "), /<[^>]+>/g)
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -77,9 +86,9 @@ function extractBodyContent(html: string): string {
   content = content.replace(/<\/div>\s*<\/body>/i, "</div>");
 
   // Remove scripts
-  content = content.replace(/<script[\s\S]*?<\/script>/gi, "");
+  content = removeAll(content, /<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi);
   // Remove HTML comments
-  content = content.replace(/<!--[\s\S]*?-->/g, "");
+  content = removeAll(content, /<!--[\s\S]*?--!?>/g);
 
   return content.trim();
 }
@@ -176,7 +185,7 @@ export function ${spec.exportName}() {
 
 function generateIndex(manifest: Array<{ exportName: string; routeSlug: string; title: string }>): void {
   const imports = manifest
-    .map((m) => `import { ${m.exportName} } from "./${m.exportName.replace(/Page$/, "Page")}";`)
+    .map((m) => `import { ${m.exportName} } from "./${m.exportName}";`)
     .join("\n");
 
   const exports = manifest.map((m) => `  ${m.exportName},`).join("\n");

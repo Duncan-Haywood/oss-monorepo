@@ -31,7 +31,7 @@
 
 ## The soil-sample example (`SAMPLE_TEXT` in `engine.mjs`)
 
-Made up for illustration, labelled so on the page; MIT licensed with the rest
+Made up for illustration, labelled so on the page; FSL-1.1-MIT licensed with the rest
 of this directory.
 
 ## `../eval/simulation.json`

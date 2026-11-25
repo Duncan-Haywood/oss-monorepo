@@ -8,6 +8,14 @@ PDF file, or run the CLI below. The page never uploads the invoice.
 
 **Live tool:** https://marisstella.app/einvoice-preflight/
 
+**This is the free edition** (frozen 2026-11-24 at main commit `cf0b6311f`, to be tagged `einvoice-preflight-free-v1`).
+It stays MIT, public and working; from now on it gets lead-magnet maintenance
+only (fixes, rule-page polish), not new depth. A paid edition that fixes and
+explains rejected e-invoices is **in development** in the owner's private
+repository and not for sale yet:
+[early access](https://marisstella.app/industries/e-invoicing/). Why and how:
+`portfolio/monetization/LICENSING_TRANSITION.md`.
+
 This free local CLI also checks a small, transparent JSON, UBL XML,
 UN/CEFACT CII (XRechnung CII / Factur-X), or Factur-X / ZUGFeRD PDF invoice
 for missing fields and arithmetic mistakes, then prints rule IDs and
@@ -1656,11 +1664,9 @@ escaped; the logo is accepted only as a raster data: URL; the accent only as
 `#rrggbb`.
 
 It sits behind the same licence-key check as the sibling ventures' packs
-(`licence.mjs`, `checkout.mjs`). `CHECKOUT_URL` is empty, so the card on
-`index.html` stays hidden and nothing can be bought; `python3
-portfolio/monetization/golive.py` sets the link once the owner has made the
-merchant-of-record product. The validate call is written from memory of the
-provider's docs and not run against a live product. Checked 2026-11-03:
+(`licence.mjs`, `checkout.mjs`). Until Paddle's price id is set in
+`platform/billing/catalogue.mjs` the card on `index.html` stays hidden and
+nothing can be bought (the 2026-11-25 note below). Checked 2026-11-03:
 `node --test auditpack.test.mjs` (5 tests, including that the committed
 `sample-audit-pack.html` equals what `node build-sample-pack.mjs` makes), and
 a headless-browser run with a stubbed checkout link and licence answer: card
@@ -2172,7 +2178,7 @@ warning is seeded into it in `hungary-nav-product-fee.test.mjs` (8 tests). No re
 business's product fee invoice has been read.
 
 Tests: `hungary-nav.test.mjs` (14) and `hungary-nav-product-fee.test.mjs` (8) on
-six of NAV's files kept in `fixtures/hungary-nav/` with NAV's MIT licence.
+six of NAV's files kept in `fixtures/hungary-nav/` with NAV's FSL-1.1-MIT licence.
 
 ### The schema gate: invoiceData.xsd with NTCA common 1.0 (2026-11-15, latest)
 
@@ -2339,3 +2345,5 @@ INV-039 also stops calling twelve EAS codes unpublished that EN 16931's BR-CL-25
 ## Peppol BIS 3.1.0 readiness for a whole folder (2026-11-24)
 
 `peppol-bis-3-1-0-readiness.html` answers the sender's question before 24 February 2027: drop a folder of invoices you have sent and each Peppol file runs under 3.0.22 and 3.1.0 in the browser. The page counts the files that pass today and would be rejected then, groups what 3.1.0 adds by rule with what to change (0088 GLN-only, the Dutch formats now fatal, Belgian/Luxembourg numbers, the "exactly one" UBL rules, national changes), and downloads a CSV or Markdown summary. Below the tool, a table generated from the compiled sets lists every rule 3.1.0 adds, removes, raises to fatal or retests (147 rows; `node build-peppol-readiness-page.mjs` rewrites it). One thing the diff surfaced: in CII, the Norwegian and Swedish VAT rules NO-R-001, SE-R-001/002 looked for scheme `VAT` (CII writes `VA`) and could not fire under 3.0.22; 3.1.0 fixes that. Terminal: `node peppol-readiness-cli.mjs <folder> --csv out.csv` (exit 1 when a file is newly rejected). On OpenPeppol's 17 published Peppol examples: 5 newly rejected, all R040. 3.1.0 was not yet tagged on GitHub on 2026-11-24 (newest tag 3.0.22; rules stay on release-candidate branch `2026-Q4-QA2` at `90f078a`). Tests: `peppol-readiness.test.mjs` (8). Write-up: `eval/peppol-readiness-2026-11-24.md`. Open: a real sender's folder; rebuild from the tag.
+
+**Checkout moved to Paddle (2026-11-25).** The pack's Buy button now opens Paddle's overlay checkout, and its licence key is an Ed25519-signed token a separate billing Worker issues from Paddle's webhook and the page checks offline (`paddle.mjs`, a synced copy of `platform/billing/client.mjs`; `checkout.mjs` is generated from `platform/billing/catalogue.mjs`). The old Lemon Squeezy validate call is gone. It stays dark until the owner deploys that Worker and sets the catalogue's price id, client-side token and public key (`platform/billing/README.md`).

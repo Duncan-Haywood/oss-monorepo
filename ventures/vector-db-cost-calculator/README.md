@@ -71,7 +71,7 @@ identifiers, cookies, or third-party service involved. Toggle the checkbox on
 the page to turn it off; Do Not Track and Global Privacy Control disable it
 automatically. See `usage.mjs` / `usage.test.mjs`.
 
-Free and open source. [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood)
+Free to use and source available. [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood)
 is optional and never changes what the tool does.
 
 ## Tests

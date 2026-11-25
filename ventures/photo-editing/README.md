@@ -236,6 +236,35 @@ node eval/cull-orf-compacts.mjs OUT FILE... > OUT/rows.jsonl
 python eval/cull-orf-compacts-check.py score OUT FILE...   # rawpy, numpy, Pillow
 ```
 
+## Send the picks to the client: a proofing set from the cull page (2026-11-25)
+
+Under the download buttons, "Send the picks to your client (proofing set)"
+turns the rated frames (1 to 5 stars, or one colour label) into a zip:
+`photos/<stem>.jpg` at a 1,600, 2,048 or 3,000 px long edge (never larger than
+the camera's embedded preview), with an optional text watermark bottom right,
+and `index.html`, a gallery that needs no server or network. The client opens
+it from the unzipped folder, taps a heart on each photo (kept in their
+browser), and presses "Copy my list" or downloads `favourites.txt`. Pasting
+that reply into the cull page labels the matching frames (Purple by default),
+so Show › Colour labelled lists them and the XMP sidecars carry the label into
+Lightroom. The reader also takes what clients type instead: raw names, stems,
+`1. IMG_0412`, comma lists and bare frame numbers ("0412"); a number or stem
+that fits two frames is reported and left alone. Nothing is uploaded.
+
+Code: `site/proofing.mjs` (pure functions: which frames, proof names,
+size, watermark layout, the gallery page with every text escaped, the list
+reader), `site/proofing.test.mjs` (9 tests), wiring in `site/cull.html`.
+Checked end to end in Chromium (`eval/cull-proofing-set-2026-11-25.md`):
+three rated JPEGs became 2048x1365, 1365x2048 and 2048x1365 proofs, the gallery
+loaded all three from `file://`, two hearts came back as two Purple labels, no
+console errors. Not yet seen: a real client's reply, a real raw card through
+it, or Safari and iOS Files opening the gallery.
+
+This is the free half of the business model in
+`portfolio/monetization/models.yaml` (photo-editing): the planned paid tier is
+the same gallery hosted behind a share link, with favourites synced back
+instead of pasted.
+
 ## Your Lightroom keyword list in the cull page (2026-11-24)
 
 Load the keyword list Lightroom Classic exports (Metadata › Export Keywords;
@@ -3076,7 +3105,7 @@ whole plane between two banded passes.
 ## A phone's lossless-JPEG DNG, sensel for sensel, and its tiles on every CPU (2026-11-13)
 
 The first camera-written lossless-JPEG DNG ShootFlow has read: a Google Pixel 3 XL raw (4032 x
-3024, 192 lossless-JPEG tiles, four GainMaps, a WarpRectilinear; MIT-licensed, from the tinydng
+3024, 192 lossless-JPEG tiles, four GainMaps, a WarpRectilinear; FSL-1.1-MIT-licensed, from the tinydng
 repository, downloaded at check time). All 12,192,768 sensels equal LibRaw's `raw_image`, and the
 half-size render matches LibRaw's to a median 0.054 of an 8-bit step with opcodes off. With the
 phone's lens shading map on, the two lit corners come to 110% and 85% of the phone's own preview

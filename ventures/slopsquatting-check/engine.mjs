@@ -182,7 +182,7 @@ export function extractDependencies(packageJsonText) {
 
 /** The registry document URL for a (possibly scoped) package name. */
 export function registryUrl(name) {
-  return `https://registry.npmjs.org/${name.replace("/", "%2F")}`;
+  return `https://registry.npmjs.org/${name.replaceAll("/", "%2F")}`;
 }
 
 /**

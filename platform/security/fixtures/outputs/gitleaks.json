@@ -1,0 +1,42 @@
+[
+ {
+  "RuleID": "aws-access-token",
+  "Description": "Identified a pattern that may indicate AWS credentials, risking unauthorized cloud resource access and data breaches on AWS platforms.",
+  "StartLine": 13,
+  "EndLine": 13,
+  "StartColumn": 25,
+  "EndColumn": 44,
+  "Match": "REDACTED",
+  "Secret": "REDACTED",
+  "File": "ventures/terraform-plan-secret-exposure-check/engine.test.mjs",
+  "SymlinkFile": "",
+  "Commit": "",
+  "Entropy": 3.8841836,
+  "Author": "",
+  "Email": "",
+  "Date": "",
+  "Message": "",
+  "Tags": [],
+  "Fingerprint": "tree/ventures/terraform-plan-secret-exposure-check/engine.test.mjs:aws-access-token:13"
+ },
+ {
+  "RuleID": "aws-access-token",
+  "Description": "Identified a pattern that may indicate AWS credentials, risking unauthorized cloud resource access and data breaches on AWS platforms.",
+  "StartLine": 24,
+  "EndLine": 24,
+  "StartColumn": 25,
+  "EndColumn": 44,
+  "Match": "REDACTED",
+  "Secret": "REDACTED",
+  "File": "ventures/terraform-plan-secret-exposure-check/engine.test.mjs",
+  "SymlinkFile": "",
+  "Commit": "",
+  "Entropy": 3.8841836,
+  "Author": "",
+  "Email": "",
+  "Date": "",
+  "Message": "",
+  "Tags": [],
+  "Fingerprint": "tree/ventures/terraform-plan-secret-exposure-check/engine.test.mjs:aws-access-token:24"
+ }
+]

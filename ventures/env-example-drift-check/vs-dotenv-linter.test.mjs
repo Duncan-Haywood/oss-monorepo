@@ -38,7 +38,7 @@ test('the standard clauses and the sponsor link are present', () => {
   assert.match(page, /provided free and as-is, without warranty/);
   assert.match(page, /Best-effort hosting, no SLA/);
   assert.match(page, /href="LICENSE"/);
-  assert.match(page, /MIT licen[cs]e/);
+  assert.match(page, /FSL-1.1-MIT licen[cs]e/);
   assert.match(page, /https:\/\/github\.com\/sponsors\/Duncan-Haywood/);
 });
 
@@ -46,7 +46,7 @@ test('the standard clauses and the sponsor link are present', () => {
 // figure this repo cannot verify against the competitor's own public site.
 // No session here can fetch arbitrary hosts freely, so the page compares what
 // each tool *does* rather than printing a price, tier, or user count nobody
-// checked. dotenv-linter is free and open source, which is a fact stated in
+// checked. dotenv-linter is free to use and source available, which is a fact stated in
 // prose, not a number.
 test('no unverifiable price, subscription figure, or traction claim about dotenv-linter', () => {
   assert.doesNotMatch(page, /\$\d/);
@@ -79,7 +79,11 @@ test('every FAQPage schema question has a matching visible heading', () => {
 test('the FAQPage answers appear verbatim on the visible page, not only in the script tag', () => {
   const match = page.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
   const schema = JSON.parse(match[1]);
-  const visible = page.replace(/<script[\s\S]*?<\/script>/g, '');
+  let visible = page;
+  for (let prev; prev !== visible; ) {
+    prev = visible;
+    visible = visible.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, '');
+  }
   for (const { acceptedAnswer } of schema.mainEntity) {
     assert.ok(
       visible.includes(acceptedAnswer.text),

@@ -86,10 +86,18 @@ const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' }
 
 /** Readable text from an HTML body: scripts and styles dropped, blocks as lines. */
 export function htmlText(html) {
-  return html
-    .replace(/<(script|style|head)\b[\s\S]*?<\/\1\s*>/gi, '')
-    .replace(/<br\s*\/?>|<\/(p|div|li|tr|h[1-6]|blockquote)\s*>/gi, '\n')
-    .replace(/<[^>]*>/g, '')
+  const untilStable = (s, re, by) => {
+    let prev;
+    let out = s;
+    do {
+      prev = out;
+      out = out.replace(re, by);
+    } while (out !== prev);
+    return out;
+  };
+  const noRawText = untilStable(html, /<(script|style|head)\b[\s\S]*?<\/\1\b[^>]*>/gi, '');
+  const lines = noRawText.replace(/<br\s*\/?>|<\/(p|div|li|tr|h[1-6]|blockquote)\s*>/gi, '\n');
+  return untilStable(lines, /<[^>]*>/g, '')
     .replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (m, e) => {
       if (e[0] === '#') {
         const n = e[1].toLowerCase() === 'x' ? Number.parseInt(e.slice(2), 16) : Number.parseInt(e.slice(1), 10);

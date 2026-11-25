@@ -10,13 +10,15 @@ what a move involves: LICENSING_TRANSITION.md in this directory.
 Tracks:
   proprietary   a product: new work continues in the private repository under
                 a proprietary licence and is sold as a subscription or a
-                one-off licence. What is already published here stays MIT.
+                one-off licence. What is already published here stays MIT (or
+                FSL-1.1-MIT, for anything published after 2026-11-24).
   mit-lead-magnet  a small free tool whose job is to be found and send
-                visitors to the products. Stays MIT and public.
+                visitors to the products. Stays public, under FSL-1.1-MIT since
+                2026-11-24 (the track keeps its old name).
   mit-commons   open hardware, open data and devotional work whose point is
-                being open. Stays MIT.
+                being open. Stays public, FSL-1.1-MIT.
   mit-deployer-run  the deployer must be the operator (sender of record,
-                merchant): stays MIT and self-hosted.
+                merchant): stays public (FSL-1.1-MIT) and self-hosted.
 
 Model (proprietary only), by per-use cost:
   subscription  serving a user costs money every month (model calls, a server,
@@ -79,6 +81,10 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "model": "subscription",
         "why": "hosted sites for local businesses (hosting, domain, edits) are a monthly cost per customer",
     },
+    "photo-editing": {
+        "model": "subscription",
+        "why": "the cull and pipeline run on the user's machine and stay free; the paid part is hosted proofing galleries, which have a per-user storage cost (models.yaml, 2026-11-25)",
+    },
     "changepoint-detector": {
         "model": "one-off",
         "why": "statistics run on the user's own data in the browser or CLI; nothing to serve per user",
@@ -87,11 +93,33 @@ OVERRIDES: dict[str, dict[str, str]] = {
 
 COMMONS_PREFIXES = ("open-",)
 
-# Products already imported into the private repository (step 2 of "How one
-# product moves" in LICENSING_TRANSITION.md), with where it landed.
-MOVED: dict[str, str] = {
-    "wall-framing-takeoff": "private-monorepo apps/wall-framing-takeoff (PR #8, 2026-11-24)",
+# Products on their way to the private repository ("How one product moves" in
+# LICENSING_TRANSITION.md). status "moved": imported (step 2) and the public
+# copy frozen as the free edition (step 1); "moving": the free edition is
+# frozen and the import is next. `free_tag` is the git tag of the frozen free
+# edition; `paid_page` is where the paid edition is announced (in development).
+MOVED: dict[str, dict[str, str]] = {
+    "wall-framing-takeoff": {
+        "status": "moved",
+        "where": "private-monorepo apps/wall-framing-takeoff (PR #8, 2026-11-24)",
+        "free_tag": "wall-framing-takeoff-free-v1",
+        "paid_page": "https://marisstella.app/industries/construction/",
+    },
+    "einvoice-preflight": {
+        "status": "moving",
+        "where": "free edition frozen 2026-11-24; import to private-monorepo apps/einvoice-preflight is next",
+        "free_tag": "einvoice-preflight-free-v1",
+        "paid_page": "https://marisstella.app/industries/e-invoicing/",
+    },
 }
+MOVE_STATUSES = ("moving", "moved")
+# Both free editions freeze main at cf0b6311f (2026-11-24). The session that
+# froze them could not push tags (HTTP 403), so the tags are the owner's to
+# create, once:
+#   git tag wall-framing-takeoff-free-v1 cf0b6311f
+#   git tag einvoice-preflight-free-v1 cf0b6311f
+#   git push origin wall-framing-takeoff-free-v1 einvoice-preflight-free-v1
+FREE_EDITION_COMMIT = "cf0b6311f"
 
 SUBSCRIPTION_FILE = re.compile(r"(^|[-_])(server|api|sync|wrangler)([-_.]|$)|^wrangler\.", re.I)
 SUBSCRIPTION_TEXT = re.compile(

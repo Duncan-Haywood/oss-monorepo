@@ -4,66 +4,76 @@
   "counts": {
     "mit-commons": 5,
     "mit-deployer-run": 1,
-    "mit-lead-magnet": 1417,
+    "mit-lead-magnet": 1419,
     "proprietary": 20
   },
   "models": {
-    "subscription": 8,
-    "one-off": 12
+    "subscription": 9,
+    "one-off": 11
   },
   "proprietary": [
     {
-      "venture": "wall-framing-takeoff",
-      "source_lines": 17913,
-      "track": "proprietary",
-      "why": "flagship #1: the depth people pay for",
-      "model": "one-off",
-      "model_why": "runs in the user's browser or machine; no per-user cost to serve",
-      "third_party_licences": [],
-      "moved": "private-monorepo apps/wall-framing-takeoff (PR #8, 2026-11-24)",
-      "move_order": 1
-    },
-    {
-      "venture": "ai-bookkeeper",
-      "source_lines": 18183,
-      "track": "proprietary",
-      "why": "flagship #2: the depth people pay for",
-      "model": "subscription",
-      "model_why": "holds a business's books, imports bank feeds and calls a model every month",
-      "third_party_licences": [],
-      "moved": null,
-      "move_order": 2
-    },
-    {
-      "venture": "changepoint-detector",
-      "source_lines": 16175,
-      "track": "proprietary",
-      "why": "flagship #4: the depth people pay for",
-      "model": "one-off",
-      "model_why": "statistics run on the user's own data in the browser or CLI; nothing to serve per user",
-      "third_party_licences": [],
-      "moved": null,
-      "move_order": 3
-    },
-    {
       "venture": "einvoice-preflight",
-      "source_lines": 35918,
+      "source_lines": 36493,
       "track": "proprietary",
-      "why": "flagship #5: the depth people pay for",
+      "why": "flagship #3: the depth people pay for",
       "model": "subscription",
       "model_why": "60+ countries of e-invoice rules that change every quarter; the cost is keeping them current",
       "third_party_licences": [
         "ventures/einvoice-preflight/eval/nfe-corpus/nfelib/LICENSE-nfelib",
         "ventures/einvoice-preflight/fixtures/hungary-nav/LICENCE-NAV.md"
       ],
+      "moved": {
+        "status": "moving",
+        "where": "free edition frozen 2026-11-24; import to private-monorepo apps/einvoice-preflight is next",
+        "free_tag": "einvoice-preflight-free-v1",
+        "paid_page": "https://marisstella.app/industries/e-invoicing/"
+      },
+      "move_order": 1
+    },
+    {
+      "venture": "wall-framing-takeoff",
+      "source_lines": 18156,
+      "track": "proprietary",
+      "why": "flagship #6: the depth people pay for",
+      "model": "one-off",
+      "model_why": "runs in the user's browser or machine; no per-user cost to serve",
+      "third_party_licences": [],
+      "moved": {
+        "status": "moved",
+        "where": "private-monorepo apps/wall-framing-takeoff (PR #8, 2026-11-24)",
+        "free_tag": "wall-framing-takeoff-free-v1",
+        "paid_page": "https://marisstella.app/industries/construction/"
+      },
+      "move_order": 2
+    },
+    {
+      "venture": "ai-bookkeeper",
+      "source_lines": 18422,
+      "track": "proprietary",
+      "why": "flagship #8: the depth people pay for",
+      "model": "subscription",
+      "model_why": "holds a business's books, imports bank feeds and calls a model every month",
+      "third_party_licences": [],
+      "moved": null,
+      "move_order": 3
+    },
+    {
+      "venture": "changepoint-detector",
+      "source_lines": 16500,
+      "track": "proprietary",
+      "why": "flagship #10: the depth people pay for",
+      "model": "one-off",
+      "model_why": "statistics run on the user's own data in the browser or CLI; nothing to serve per user",
+      "third_party_licences": [],
       "moved": null,
       "move_order": 4
     },
     {
       "venture": "shift-roster-builder",
-      "source_lines": 13384,
+      "source_lines": 13606,
       "track": "proprietary",
-      "why": "flagship #6: the depth people pay for",
+      "why": "flagship #11: the depth people pay for",
       "model": "subscription",
       "model_why": "runs a server-side part (server.mjs): a monthly cost per user",
       "third_party_licences": [],
@@ -72,20 +82,20 @@
     },
     {
       "venture": "photo-editing",
-      "source_lines": 77761,
+      "source_lines": 78142,
       "track": "proprietary",
-      "why": "flagship #7: the depth people pay for",
-      "model": "one-off",
-      "model_why": "runs in the user's browser or machine; no per-user cost to serve",
+      "why": "flagship #12: the depth people pay for",
+      "model": "subscription",
+      "model_why": "the cull and pipeline run on the user's machine and stay free; the paid part is hosted proofing galleries, which have a per-user storage cost (models.yaml, 2026-11-25)",
       "third_party_licences": [],
       "moved": null,
       "move_order": 6
     },
     {
       "venture": "quick-pick-survey",
-      "source_lines": 24922,
+      "source_lines": 24937,
       "track": "proprietary",
-      "why": "flagship #8: the depth people pay for",
+      "why": "flagship #13: the depth people pay for",
       "model": "one-off",
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
@@ -94,9 +104,9 @@
     },
     {
       "venture": "league-schedule-generator",
-      "source_lines": 24627,
+      "source_lines": 24880,
       "track": "proprietary",
-      "why": "flagship #9: the depth people pay for",
+      "why": "flagship #14: the depth people pay for",
       "model": "subscription",
       "model_why": "runs a server-side part (server.mjs): a monthly cost per user",
       "third_party_licences": [],
@@ -105,9 +115,9 @@
     },
     {
       "venture": "ids-model-check",
-      "source_lines": 20165,
+      "source_lines": 20297,
       "track": "proprietary",
-      "why": "flagship #12: the depth people pay for",
+      "why": "flagship #17: the depth people pay for",
       "model": "one-off",
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [
@@ -118,9 +128,9 @@
     },
     {
       "venture": "xer-schedule-check",
-      "source_lines": 16548,
+      "source_lines": 16612,
       "track": "proprietary",
-      "why": "flagship #13: the depth people pay for",
+      "why": "flagship #18: the depth people pay for",
       "model": "one-off",
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
@@ -129,9 +139,9 @@
     },
     {
       "venture": "ifc-quantity-takeoff",
-      "source_lines": 11119,
+      "source_lines": 11137,
       "track": "proprietary",
-      "why": "flagship #14: the depth people pay for",
+      "why": "flagship #19: the depth people pay for",
       "model": "one-off",
       "model_why": "runs in the user's browser or machine; no per-user cost to serve",
       "third_party_licences": [],
@@ -140,7 +150,7 @@
     },
     {
       "venture": "local-site-studio",
-      "source_lines": 96963,
+      "source_lines": 96981,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "subscription",
@@ -162,7 +172,7 @@
     },
     {
       "venture": "shed-designer",
-      "source_lines": 20426,
+      "source_lines": 20649,
       "track": "proprietary",
       "why": "has a paid model in models.yaml",
       "model": "one-off",
@@ -186,7 +196,7 @@
     },
     {
       "venture": "clothing-design-studio",
-      "source_lines": 14629,
+      "source_lines": 14654,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "one-off",
@@ -208,7 +218,7 @@
     },
     {
       "venture": "retail-pilot-intel",
-      "source_lines": 8542,
+      "source_lines": 8584,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "one-off",
@@ -232,7 +242,7 @@
     },
     {
       "venture": "sales-export-to-journal",
-      "source_lines": 6560,
+      "source_lines": 6694,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "one-off",
@@ -254,5 +264,5 @@
       "sales-agent"
     ]
   },
-  "lead_magnets": 1417
+  "lead_magnets": 1419
 }

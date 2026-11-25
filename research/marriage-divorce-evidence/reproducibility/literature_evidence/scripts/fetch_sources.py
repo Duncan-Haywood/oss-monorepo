@@ -95,7 +95,8 @@ def doi(cache, dois):
 
 
 def html2text(raw):
-    t = re.sub(r'(?s)<script.*?</script>|<style.*?</style>|<nav.*?</nav>|<header.*?</header>|<footer.*?</footer>', '', raw)
+    t = re.sub(r'(?is)<script\b.*?</script\b[^>]*>|<style\b.*?</style\b[^>]*>|<nav\b.*?</nav\b[^>]*>'
+               r'|<header\b.*?</header\b[^>]*>|<footer\b.*?</footer\b[^>]*>', '', raw)
     t = re.sub(r'<(p|br|h\d|li|tr|div)[^>]*>', '\n', t)
     t = html.unescape(re.sub(r'<[^>]+>', ' ', t))
     return re.sub(r'\n\s*\n+', '\n', re.sub(r'[ \t\r]+', ' ', t))

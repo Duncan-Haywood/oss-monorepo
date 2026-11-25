@@ -14,7 +14,7 @@ the value with a 1-in-*T* chance of being exceeded in a year. It fits
   intervals most tools print;
 - the chance of at least one exceedance over a **design life**.
 
-Free and open source (MIT). Runs in the browser; nothing is uploaded. Zero dependencies.
+Free to use and source available (FSL-1.1-MIT). Runs in the browser; nothing is uploaded. Zero dependencies.
 
 **No warranty.** Statistical estimates from the data you supply, not engineering, legal, tax
 or financial advice, and not a flood study. US federal flood frequency analysis follows

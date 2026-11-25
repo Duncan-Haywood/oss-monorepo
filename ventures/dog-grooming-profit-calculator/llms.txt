@@ -2,7 +2,7 @@
 
 > Dog grooming profit calculator for groomers and salon owners. Enter services, minutes, supplies and dogs per week to see profit per hour after overhead, the price that hits your target, and own shop versus booth rent versus commission. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dog-grooming-profit-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dog-grooming-profit-calculator): FSL-1.1-MIT licensed.

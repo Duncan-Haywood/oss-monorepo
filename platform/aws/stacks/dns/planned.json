@@ -1,0 +1,137 @@
+{
+  "comment": "Records Route 53 holds that Cloudflare does not, on purpose (`add`, created by this stack), and names other stacks own (`allow`, each with its `owner`). zone_diff.py reads both; cf_export.py marks exported records on an `allow` name as replaced_by its owner, so this stack never writes a record set another stack writes. Values here are not secret.",
+  "add": [
+    {
+      "name": "@",
+      "type": "CAA",
+      "ttl": 3600,
+      "values": [
+        "0 issue \"amazon.com\"",
+        "0 issuewild \";\""
+      ],
+      "reason": "only Amazon (ACM) may issue certificates for the domain once Route 53 is authoritative; no wildcard certificates"
+    },
+    {
+      "name": "@",
+      "type": "MX",
+      "ttl": 3600,
+      "values": [
+        "0 ."
+      ],
+      "reason": "null MX (RFC 7505): the domain receives no mail as far as public DNS showed on 2026-11-24 (and asks.yaml cloudflare-mail-and-ruleset); dropped automatically if the export (Cloudflare Email Routing) or extra_records carries a real MX"
+    },
+    {
+      "name": "@",
+      "type": "TXT",
+      "ttl": 3600,
+      "values": [
+        "v=spf1 -all"
+      ],
+      "reason": "no server sends mail as the apex today; dropped automatically if the export or extra_records carries another SPF (one SPF record per name, RFC 7208). SES sends with MAIL FROM bounce.marisstella.app, which has its own SPF (email stack)"
+    }
+  ],
+  "allow": [
+    {
+      "name": "@",
+      "types": [
+        "A",
+        "AAAA"
+      ],
+      "reason": "site stack: CloudFront alias for the apex",
+      "owner": "site"
+    },
+    {
+      "name": "www",
+      "types": [
+        "A",
+        "AAAA"
+      ],
+      "reason": "site stack: CloudFront alias, 301 to the apex (www is NXDOMAIN on Cloudflare)",
+      "owner": "site"
+    },
+    {
+      "name": "grants",
+      "types": [
+        "A",
+        "AAAA"
+      ],
+      "reason": "site stack: CloudFront alias, 301 to /grants/",
+      "owner": "site"
+    },
+    {
+      "name": "_*",
+      "types": [
+        "CNAME"
+      ],
+      "reason": "site stack: ACM certificate validation records (also copied into Cloudflare before the nameserver change)",
+      "owner": "site"
+    },
+    {
+      "name": "_*.www",
+      "types": [
+        "CNAME"
+      ],
+      "reason": "site stack: ACM validation for www",
+      "owner": "site"
+    },
+    {
+      "name": "_*.grants",
+      "types": [
+        "CNAME"
+      ],
+      "reason": "site stack: ACM validation for grants",
+      "owner": "site"
+    },
+    {
+      "name": "_dmarc",
+      "types": [
+        "TXT"
+      ],
+      "owner": "email",
+      "reason": "email stack (platform/aws/stacks/email, PR 18749): DMARC for the apex, policy raised from none by that stack"
+    },
+    {
+      "name": "*._domainkey",
+      "types": [
+        "CNAME"
+      ],
+      "owner": "email",
+      "reason": "email stack: SES Easy DKIM for marisstella.app"
+    },
+    {
+      "name": "*._domainkey.news",
+      "types": [
+        "CNAME"
+      ],
+      "owner": "email",
+      "reason": "email stack: SES Easy DKIM for news.marisstella.app"
+    },
+    {
+      "name": "bounce",
+      "types": [
+        "MX",
+        "TXT"
+      ],
+      "owner": "email",
+      "reason": "email stack: SES custom MAIL FROM"
+    },
+    {
+      "name": "bounce.news",
+      "types": [
+        "MX",
+        "TXT"
+      ],
+      "owner": "email",
+      "reason": "email stack: SES custom MAIL FROM for news."
+    },
+    {
+      "name": "hub",
+      "types": [
+        "A",
+        "AAAA"
+      ],
+      "owner": "shift-roster",
+      "reason": "shift-roster stack: API Gateway custom domain for the hosted team hub (api_domain_target, through extra_alias_records)"
+    }
+  ]
+}

@@ -4,7 +4,7 @@
 #   cd ../my-metric-watch && git init && git add . && git commit -m "watch a metric" && git push ...
 # Without a clone of the repository (about 5 GB), the same script fetches the files it needs:
 #   curl -fsSL https://raw.githubusercontent.com/Duncan-Haywood/oss-monorepo/main/ventures/changepoint-detector/deploy/make-watch-repo.sh | sh -s -- my-metric-watch
-# It copies the engine and watch.mjs (zero dependencies, MIT) and the scheduled workflow. Nothing
+# It copies the engine and watch.mjs (zero dependencies, FSL-1.1-MIT) and the scheduled workflow. Nothing
 # here talks to us after that: the runs, the data and the webhook stay in your account.
 set -eu
 DEST=${1:?usage: sh deploy/make-watch-repo.sh <new-folder>}
@@ -25,7 +25,7 @@ cat > "$DEST/README.md" <<'MD'
 
 Checks a metric once a day and tells you when its level has changed: a lasting shift, not one odd
 day. Made with the free [Changepoint Detector](https://marisstella.app/changepoint-detector/)
-(PELT, Killick et al. 2012), MIT licence.
+(PELT, Killick et al. 2012), FSL-1.1-MIT licence.
 
 1. Put your series in `data/metric.csv` (a date column and a value column, oldest first), or keep a
    link to a CSV that some other job updates.

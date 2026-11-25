@@ -34,13 +34,22 @@ import { promisify } from 'node:util';
 
 import { decodeEntities } from './entities.mjs';
 import { REFS as CHANNEL_REFS, SOURCE_HOSTS, SOURCE_LABELS, sourceOf } from '../counter/counter.mjs';
+import { FUNNEL_ATTRS, FUNNEL_TOKEN_RE } from '../counter/core.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
+import { buildManufacturingPage } from './industry-manufacturing.mjs';
+import { buildConstructionPage, CONSTRUCTION_PATH } from './industry-construction.mjs';
+import { buildNonprofitsPage } from './industry-nonprofits.mjs';
+import { renderHardwarePage, HARDWARE_PATH } from './hardware-page.mjs';
 import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES } from '../../portfolio/requests/requests.mjs';
 import { moveAudioToCdn } from './audio-cdn.mjs';
 import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, descriptionHtml, loadPosts, WRITING_PATH } from './writing.mjs';
 import { loadPages, resolvePostTitleClashes } from './page-identity.mjs';
 import { addModulePreloads } from './preload.mjs';
+import { COOKIES_PATH, legalDocuments, legalFooterHtml, PRIVACY_PATH, TERMS_PATH } from './legal-pages.mjs';
+import { injectDir as injectWebAnalytics, normaliseToken as normaliseAnalyticsToken, resolveToken as resolveAnalyticsToken } from '../analytics/web-analytics.mjs';
 import { buildStories, STORIES_PATH, STORY_VENTURES } from './stories.mjs';
+import { buildProducts, productSitemapPaths, PRODUCT_CARD_CSS, renderProductGrid, PRODUCTS_PATH, INDUSTRIES_PATH, industryPath } from './products.mjs';
+import { PRODUCT_LINES, softwareLines, hardwareLines, INDUSTRIES as BUSINESS_INDUSTRIES, buildFirstHref } from './business.mjs';
 import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
 import { buildQueue, clip, QUEUE_PATH } from './queue.mjs';
@@ -160,6 +169,7 @@ import {
 } from './site-nav.mjs';
 import { ASK_PATH, ASSISTANT_LAUNCHER_JS, ASSISTANT_VOICE_CSS, renderAskPage, renderAssistantFiles } from './assistant.mjs';
 import { formatCount } from './count.mjs';
+import { ONLINE_SELLERS_PATH, renderOnlineSellersPage } from './industry-online-sellers.mjs';
 import { loadResearchRegistry } from './research-registry.mjs';
 import {
   HERO_BACKDROP_HTML,
@@ -178,12 +188,17 @@ import {
   cardName,
   icon,
   renderCategoryCard,
-  renderHowItWorks,
+  renderFinder,
+  finderChoices,
+  finderCss,
   renderLatestWriting,
   renderResearchBand,
   siteStructuredData,
 } from './home.mjs';
 import { servedPath } from './served-path.mjs';
+import { COMPANY_SUMMARY, IN_DEVELOPMENT, INDUSTRIES, LIVE_PRODUCTS } from './company.mjs';
+import { liveIndustries, pruneDoors, renderPageDoor, renderToolDoor } from './front-doors.mjs';
+import { loadFunnel, offerTable, OFFER_ATTR, renderProductOffer } from './product-offer.mjs';
 import { acquireBuildLock, waitForBuildLock } from './build-lock.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -440,7 +455,9 @@ export function aliasesFor(slug) {
 const EXCLUDED_FILES = new Set([
   'VENTURE.yaml', 'robots.txt', 'README.md', 'package.json', 'package-lock.json',
 ]);
-const EXCLUDED_DIRS = new Set(['node_modules', '.git', 'dist', 'coverage', '.cache', 'tests', 'mobile', '__pycache__']);
+// `aws` (2026-11-25): a venture's AWS-hosted server side (handler, SQL migrations, build script) for the starter in
+// platform/aws; it runs on Lambda, never as a page, and `.sql` has no served type.
+const EXCLUDED_DIRS = new Set(['node_modules', '.git', 'dist', 'coverage', '.cache', 'tests', 'mobile', '__pycache__', 'aws']);
 // Every dot-directory is skipped unless it is named here, and the allowlist is
 // the whole reason this is a rule rather than four more entries in the set
 // above. That set is a list of names someone had already seen, and it has now
@@ -733,7 +750,7 @@ const CATEGORY_RULES = [
     // meta description and llms.txt. A category whose blurb fits needs none
     // (build.test.mjs, "every category tile ends on a whole sentence").
     card: 'Business software you run on your own server, from failed-payment recovery to status pages. Your keys, your data.',
-    blurb: 'Open-source business software you run on your own server: failed-payment recovery, cancellation flows, MRR and revenue recognition, lifecycle email, referrals, feature flags, status pages, help centres, booking pages, cookie-free analytics and more. Deploy your own copy with your own keys; you own the data.',
+    blurb: 'Source-available business software you run on your own server: failed-payment recovery, cancellation flows, MRR and revenue recognition, lifecycle email, referrals, feature flags, status pages, help centres, booking pages, cookie-free analytics and more. Deploy your own copy with your own keys; you own the data.',
     // Named apps first; then any venture that ships a server and a deploy
     // manifest (surfaceKind 'app') that no other section claims, so the next
     // self-hosted app lands here instead of in the catch-all.
@@ -1064,7 +1081,7 @@ const CATEGORY_RULES = [
     // revision compare of the drawing set, beside `submittal-register` (the spec book).
     // `pdf-plan-takeoff` joined 2026-11-23 on its first commit: an estimator's takeoff
     // from the PDF drawings, beside `drawing-set-index` and `ifc-quantity-takeoff`.
-    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'pdf-plan-takeoff' || slug === 'ids-model-check' || slug === 'ifc-quantity-takeoff' || slug === 'submittal-register' || slug === 'drawing-set-index' || slug === 'xer-schedule-check' || slug === 'concrete-maturity' || slug === 'floor-flatness' || slug === 'formwork-pressure' || slug === 'earthwork-cut-fill' || slug === 'stormwater-detention-sizer' || slug === 'rebar-schedule' || slug === 'continuous-beam-calculator' || slug === 'roof-snow-load-calculator' || slug === 'window-design-pressure-calculator' || slug === 'hvac-load-calc' || slug === 'water-supply-sizing' || slug === 'sprinkler-hydraulic-calc' || slug === 'elevator-traffic-analysis' || slug === 'shed-designer' || slug === 'service-load-check' || slug === 'pv-string-sizer' || slug === 'pv-row-spacing-optimizer' || slug === 'voltage-drop-calculator' || slug === 'fault-current-check' || slug === 'wall-condensation-check' || slug === 'psychrometric-calculator' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
+    test: (slug) => (/bid-calculator$/.test(slug) && !/^water-well-drilling/.test(slug)) || slug === 'wall-framing-takeoff' || slug === 'pdf-plan-takeoff' || slug === 'ids-model-check' || slug === 'ifc-quantity-takeoff' || slug === 'submittal-register' || slug === 'drawing-set-index' || slug === 'xer-schedule-check' || slug === 'concrete-maturity' || slug === 'floor-flatness' || slug === 'formwork-pressure' || slug === 'earthwork-cut-fill' || slug === 'stormwater-detention-sizer' || slug === 'rebar-schedule' || slug === 'continuous-beam-calculator' || slug === 'roof-snow-load-calculator' || slug === 'window-design-pressure-calculator' || slug === 'hvac-load-calc' || slug === 'water-supply-sizing' || slug === 'sprinkler-hydraulic-calc' || slug === 'elevator-traffic-analysis' || slug === 'shed-designer' || slug === 'service-load-check' || slug === 'pv-string-sizer' || slug === 'pv-row-spacing-optimizer' || slug === 'voltage-drop-calculator' || slug === 'fault-current-check' || slug === 'wall-condensation-check' || slug === 'psychrometric-calculator' || /^(upholstery-shop-job-profit|standby-generator-install|mosquito-control-program|surety-bond-capacity|experience-mod-calculator|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|roofing-insurance-supplement|janitorial|coi-expiry-gap-checker|retainage|pay-app|quote-margin|no-show-fee|freelance-retainer|freelance-rate-increase|price-increase-breakeven|change-order|construction-delay-claim|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|trade-bid-studio|auto-repair-effective-labor-rate|cleaning-dilution|hvac-maintenance|appliance-repair|plumber-flat-rate|hvac-repair-tier|cut-list|tile-layout|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|commercial-solar-ppa|which-job-first|solar-panel-cleaning|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|project-estimate-calibrator|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|snow-plow-contract|stump-grinding|lead-response-time)/.test(slug),
   },
   {
     id: 'food-service',
@@ -1706,6 +1723,7 @@ const CATEGORY_RULES = [
     // `water-damage-drying-estimate-calculator` joined 2026-10-11 on its first commit beside `grease-trap-pumping-price-calculator`: a restoration contractor turning wet area, equipment days and labour into a job invoice and margin.
     // `hoarding-cleanout-bid-calculator` joined 2026-10-11 on its first commit beside `dumpster-rental-margin-calculator`: a cleanout contractor pricing volume, crew days and containers.
     // `powder-coating-job-price-calculator` joined 2026-10-10 on its first commit beside `cnc-machining-quote-calculator`: a job shop turning labour, machine and material into a customer price.
+    // `machine-shop-guides` joined 2026-11-24 beside `cnc-machining-quote-calculator`: free guides and a quote calculator for the same small machine shops; it was the sixth tool in the catch-all.
     // `dxf-nesting` joined 2026-11-18 on its first commit beside `laser-cutting-engraving-job-price-calculator` and `cnc-machining-quote-calculator`: the same laser, plasma and CNC job shop, nesting the customer's DXF parts on sheets before it prices the cut.
     // `laser-cutting-engraving-job-price-calculator` joined 2026-10-10 on its first commit beside `cnc-machining-quote-calculator`: a laser shop turning sheet, machine time and labour into a customer price.
     // `therapy-8-minute-rule-calculator` joined 2026-10-10: a therapy practice turning timed minutes into billable units is a services-business job; the catch-all was at 6, over the bound of five (build.test.mjs).
@@ -1733,9 +1751,11 @@ const CATEGORY_RULES = [
     // `yoga-pilates-studio-class-profit-calculator` joined 2026-10-11 on its first commit: a boutique studio owner turning classes, attendance, the price mix and teacher pay into profit per class and room hour sits beside `boutique-fitness-studio-pricing-planner` and `music-teacher-studio-profit-calculator`, the same small-studio owner job.
     // `laundromat-acquisition-offer-calculator` joined 2026-10-11 on its first commit beside `laundromat-machine-payback-calculator`: a buyer turning a laundromat's revenue and costs into a walk-away price.
     test: (slug) =>
+      // `machine-shop-guides` joined 2026-11-24 (filed after it tripped the catch-all bound at 6): a job shop's quote
+      // calculator and SPRS self-check sit beside `cnc-machining-quote`, the same small shop pricing work for a customer.
       // `school-timetable-builder` joined 2026-11-16 on its first commit: a school office turning lessons, teachers and rooms into a
       // clash-free week is the same organiser scheduling job as `league-schedule-generator` and `volunteer-shift-scheduler` here.
-      /^(youth-lineup-rotator|axe-throwing-bar-profit-calculator|tournament-pairing-manager|tailor-alterations-shop-profit-calculator|shoe-repair-shop-profit-calculator|phone-repair-shop-profit-calculator|barbershop-chair-profit-calculator|driving-school-profit-calculator|braiding-studio-profit-calculator|esthetician-studio-profit-calculator|lash-studio-profit-calculator|bail-bond-agency-exposure-calculator|school-timetable-builder|local-site-studio|review-reply-desk|bowling-center-profit-calculator|padel-club-profit-calculator|pet-boarding-daycare-profit-calculator|arcade-game-payback-calculator|self-serve-dog-wash-profit-calculator|coworking-space-profit-calculator|rv-boat-storage-lot-calculator|subscription-proration-calculator|patent-maintenance-fee-planner|climbing-gym-profit-calculator|trampoline-park-profit-calculator|golf-simulator-bay-profit-calculator|mini-golf-course-profit-calculator|ebike-rental-fleet-profit-calculator|pilot-car-escort-run-profit-calculator|event-rental-inventory-payback-calculator|kids-birthday-party-package-profit-calculator|indoor-play-center-profit-calculator|lawn-aeration-overseeding-bid-calculator|party-bus-charter-profit-calculator|tent-rental-job-profit-calculator|courier-van-route-profit-calculator|laundromat-acquisition-offer-calculator|amusement-route-location-calculator|private-school-tuition-discount-calculator|mobile-oil-change-route-profit-calculator|boat-rental-fleet-profit-calculator|mobile-phlebotomy-route-profit-calculator|music-teacher-studio-profit-calculator|yoga-pilates-studio-class-profit-calculator|freelance-project-picker|swim-lesson-pool-rental-profit-calculator|home-inspection-business-profit-calculator|hydroseeding-job-bid-calculator|bike-shop-repair-profit-calculator|ski-snowboard-tune-shop-profit-calculator|fundraising-event-net-calculator|therapy-8-minute-rule-calculator|real-estate-photographer-shoot-profit-calculator|auto-detailing-service-menu-picker|saas-feature-packaging-optimizer|saas-tier-price-optimizer|pto-accrual-liability-calculator|wedding-flower-order-optimizer|project-staffing-margin-optimizer|appointment-no-show-analyzer|vending-machine-planogram-optimizer|capex-budget-prioritizer|childcare-enrollment-mix-optimizer|wedding-venue-date-pricing-optimizer|water-well-drilling-bid-calculator|sign-shop-job-pricing-calculator|medical-billing-pricing-calculator|ghostwriter-book-quote-calculator|sbir-budget-builder|speaker-fee-calculator|recipe-costing-calculator|pte-tax-election-calculator|appointment-no-show-cost-calculator|aba-authorization-tracker|h1b-weighted-lottery-odds-calculator|rent-increase-notice-checker|pay-application-generator|lien-waiver-checker|employment-contract-checker|worker-classification-checker|freelance-contract-checker|exemption-certificate-audit-check|insurance-commission-reconciler|mrr-waterfall-calculator|hoa-reserve-fund-calculator|pickleball-facility|property-management-profit|mobile-welding-job-price|sauna-cold-plunge-install-bid-calculator|good-faith-estimate|collision-shop-drp|escape-room-pricing|boutique-fitness-studio|waterfront-rental-season|car-wash-membership|law-firm-realization-rate-calculator|laundromat-machine-payback|ev-charging-site-roi|home-care-agency|childcare-center-break-even|booth-rent|commercial-photo-license|notary-trip|mobile-signing-agent|pool-route|pool-service-route|fishing-charter-trip-pricing|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|tattoo-piece-profit|massage-therapist-profit|dj-gig-profit|band-tour-profit|driving-instructor-lesson-pricing|wedding-photographer-profit|wedding-videographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|embroidery-shop-quote|screen-print-job-quote|sports-official-game-fee|powder-coating-job-price|grease-trap-pumping-price|hoarding-cleanout-bid|bed-bug-heat-treatment-price|ppf-ceramic-coating-price|paintless-dent-repair-quote|water-damage-drying-estimate|laser-cutting-engraving-job-price|cnc-machining-quote|dxf-nesting|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|home-inspection-report-builder|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule|volunteer-shift-scheduler|coffee-roaster-margin|house-cleaning-quote|str-turnover-crew|process-server-day|appraisal-assignment|translation-job|tax-season-client|interior-design-fee|nail-tech-booth-rent|birth-doula-package|pet-sitting-platform-fee|dog-grooming-price|farrier-visit|pet-waste-removal-route|private-pilot-training-cost|wedding-officiant-fee|cdl-school-payback|mobile-mechanic-visit|fishing-charter|horse-boarding-stall-profit|tutor-effective-hourly-rate|campground-site-profit|mobile-detailing-day-planner|fishing-crew-share-settlement|scrap-gold-buy-price|pawn-loan-profit|junk-car-buyer-offer|grape-grower-sell-vs-bottle|adjunct-course-offer-calculator|lash-studio-service-profit-calculator|optical-dispensary-margin-calculator|hearing-aid-dispensing-margin-calculator|provider-credentialing-delay-cost-calculator|independent-pharmacy-rx-margin-calculator|veterinary-wellness-plan-pricing-calculator|veterinary-dental-estimate-calculator|mobile-vet-house-call-fee-calculator|demand-charge-interval-analyzer|dental-patient-financing-fee-calculator|pool-opening-closing-price-calculator|private-chef-service-price-calculator)/.test(
+      /^(youth-lineup-rotator|axe-throwing-bar-profit-calculator|tournament-pairing-manager|tailor-alterations-shop-profit-calculator|shoe-repair-shop-profit-calculator|phone-repair-shop-profit-calculator|barbershop-chair-profit-calculator|driving-school-profit-calculator|braiding-studio-profit-calculator|esthetician-studio-profit-calculator|lash-studio-profit-calculator|bail-bond-agency-exposure-calculator|school-timetable-builder|local-site-studio|review-reply-desk|bowling-center-profit-calculator|padel-club-profit-calculator|pet-boarding-daycare-profit-calculator|arcade-game-payback-calculator|self-serve-dog-wash-profit-calculator|coworking-space-profit-calculator|rv-boat-storage-lot-calculator|subscription-proration-calculator|patent-maintenance-fee-planner|climbing-gym-profit-calculator|trampoline-park-profit-calculator|golf-simulator-bay-profit-calculator|mini-golf-course-profit-calculator|ebike-rental-fleet-profit-calculator|pilot-car-escort-run-profit-calculator|event-rental-inventory-payback-calculator|kids-birthday-party-package-profit-calculator|indoor-play-center-profit-calculator|lawn-aeration-overseeding-bid-calculator|party-bus-charter-profit-calculator|tent-rental-job-profit-calculator|courier-van-route-profit-calculator|laundromat-acquisition-offer-calculator|amusement-route-location-calculator|private-school-tuition-discount-calculator|mobile-oil-change-route-profit-calculator|boat-rental-fleet-profit-calculator|mobile-phlebotomy-route-profit-calculator|music-teacher-studio-profit-calculator|yoga-pilates-studio-class-profit-calculator|freelance-project-picker|swim-lesson-pool-rental-profit-calculator|home-inspection-business-profit-calculator|hydroseeding-job-bid-calculator|bike-shop-repair-profit-calculator|ski-snowboard-tune-shop-profit-calculator|fundraising-event-net-calculator|therapy-8-minute-rule-calculator|real-estate-photographer-shoot-profit-calculator|auto-detailing-service-menu-picker|saas-feature-packaging-optimizer|saas-tier-price-optimizer|pto-accrual-liability-calculator|wedding-flower-order-optimizer|project-staffing-margin-optimizer|appointment-no-show-analyzer|vending-machine-planogram-optimizer|capex-budget-prioritizer|childcare-enrollment-mix-optimizer|wedding-venue-date-pricing-optimizer|water-well-drilling-bid-calculator|sign-shop-job-pricing-calculator|medical-billing-pricing-calculator|ghostwriter-book-quote-calculator|sbir-budget-builder|speaker-fee-calculator|recipe-costing-calculator|pte-tax-election-calculator|appointment-no-show-cost-calculator|aba-authorization-tracker|h1b-weighted-lottery-odds-calculator|rent-increase-notice-checker|pay-application-generator|lien-waiver-checker|employment-contract-checker|worker-classification-checker|freelance-contract-checker|exemption-certificate-audit-check|insurance-commission-reconciler|mrr-waterfall-calculator|hoa-reserve-fund-calculator|pickleball-facility|property-management-profit|mobile-welding-job-price|sauna-cold-plunge-install-bid-calculator|good-faith-estimate|collision-shop-drp|escape-room-pricing|boutique-fitness-studio|waterfront-rental-season|car-wash-membership|law-firm-realization-rate-calculator|laundromat-machine-payback|ev-charging-site-roi|home-care-agency|childcare-center-break-even|booth-rent|commercial-photo-license|notary-trip|mobile-signing-agent|pool-route|pool-service-route|fishing-charter-trip-pricing|portable-restroom|translator-project|fire-extinguisher-inspection|atm-route-margin|vending-machine-route|dog-walking-route|dog-boarding-daycare|dog-grooming-profit|tattoo-piece-profit|massage-therapist-profit|dj-gig-profit|band-tour-profit|driving-instructor-lesson-pricing|wedding-photographer-profit|wedding-videographer-profit|photo-booth-event-quote|dumpster-rental-margin|pour-cost|wash-and-fold|apparel-decoration|embroidery-shop-quote|screen-print-job-quote|sports-official-game-fee|powder-coating-job-price|grease-trap-pumping-price|hoarding-cleanout-bid|bed-bug-heat-treatment-price|ppf-ceramic-coating-price|paintless-dent-repair-quote|water-damage-drying-estimate|laser-cutting-engraving-job-price|cnc-machining-quote|machine-shop-guides|dxf-nesting|staffing-markup|bounce-house-rental|drone-mapping-job|home-inspection-fee|home-inspection-report-builder|childcare-tuition|food-truck-event-margin|court-reporter-transcript|process-server-fee|photo-addon-pricing|bridal-hair-makeup|backflow-test-fee|wedding-florist-proposal|propane-delivery-route|sign-language-interpreter-rate|client-rebooking|rental-fleet-size|event-seating-chart|league-schedule|volunteer-shift-scheduler|coffee-roaster-margin|house-cleaning-quote|str-turnover-crew|process-server-day|appraisal-assignment|translation-job|tax-season-client|interior-design-fee|nail-tech-booth-rent|birth-doula-package|pet-sitting-platform-fee|dog-grooming-price|farrier-visit|pet-waste-removal-route|private-pilot-training-cost|wedding-officiant-fee|cdl-school-payback|mobile-mechanic-visit|fishing-charter|horse-boarding-stall-profit|tutor-effective-hourly-rate|campground-site-profit|mobile-detailing-day-planner|fishing-crew-share-settlement|scrap-gold-buy-price|pawn-loan-profit|junk-car-buyer-offer|grape-grower-sell-vs-bottle|adjunct-course-offer-calculator|lash-studio-service-profit-calculator|optical-dispensary-margin-calculator|hearing-aid-dispensing-margin-calculator|provider-credentialing-delay-cost-calculator|independent-pharmacy-rx-margin-calculator|veterinary-wellness-plan-pricing-calculator|veterinary-dental-estimate-calculator|mobile-vet-house-call-fee-calculator|demand-charge-interval-analyzer|dental-patient-financing-fee-calculator|pool-opening-closing-price-calculator|private-chef-service-price-calculator)/.test(
         slug,
       ),
   },
@@ -4155,8 +4175,8 @@ const CATEGORY_RULES = [
     id: 'open-hardware',
     title: 'Open hardware, robots & house plans',
     accent: '#7a4a12',
-    card: 'Things you can build, change and sell: MIT-licensed robot CAD, firmware and simulators, and public-domain house plans.',
-    blurb: 'Things you can build, change and sell: MIT-licensed robot CAD with laser-cut and 3D-print files, firmware, bills of materials and a browser simulator for each (a robot vacuum and mop, a robotic lawn mower, tennis ball robots), and a generator of public-domain house plans with drawings, IFC and DXF.',
+    card: 'Things you can build and change: FSL-1.1-MIT-licensed robot CAD, firmware and simulators, and public-domain house plans.',
+    blurb: 'Things you can build and change: FSL-1.1-MIT-licensed robot CAD with laser-cut and 3D-print files, firmware, bills of materials and a browser simulator for each (a robot vacuum and mop, a robotic lawn mower, tennis ball robots), and a generator of public-domain house plans with drawings, IFC and DXF.',
     test: (slug) => ['open-floor-robots', 'open-robot-mower', 'open-tennis-robots', 'open-house-plans'].includes(slug),
   },
   {
@@ -4660,10 +4680,10 @@ export const COMPARISON_FILE_PATTERN = /^vs-[a-z0-9][a-z0-9-]*\.html$/i;
 export function comparisonText(value) {
   return value
     .replace(/<[^>]*>/g, ' ')
-    .replace(/&amp;/g, '&')
     .replace(/&#0?39;|&apos;|&rsquo;|&#8217;/g, "'")
     .replace(/&quot;/g, '"')
     .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -5194,7 +5214,7 @@ const SUBCATEGORY_RULES = {
       // `trade-bid-studio` is the trade-agnostic bid front door: it prices a job from
       // labour, burden, materials and overhead at a target margin, the same
       // job-costing shape as `job-margin`, so it sits here.
-      test: (slug) => /^(trade-bid-studio|construction-delay-claim|surety-bond-capacity|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|mosquito-control-program|quote-margin|coi-expiry-gap-checker|retainage|freelance-retainer|price-increase-breakeven|freelance-rate-increase|no-show-fee|change-order|construction-delay|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|project-estimate-calibrator|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|plumber-flat-rate|hvac-repair-tier|auto-repair-effective-labor-rate|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|which-job-first|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|lead-response-time|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|land-survey|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|experience-mod)/.test(slug),
+      test: (slug) => /^(trade-bid-studio|construction-delay-claim|surety-bond-capacity|bid-leveling|timber-sale|hunting-lease|grazing-lease|hay-sale-price|grain-store-or-sell|vineyard-grape-vs-wine|solar-land-lease|pollination-contract|fixed-bid-overrun|mosquito-control-program|quote-margin|coi-expiry-gap-checker|retainage|pay-app|freelance-retainer|price-increase-breakeven|freelance-rate-increase|no-show-fee|change-order|construction-delay|job-margin|subcontractor-cashflow|contractor-bid-readiness|bid-win-rate|quote-follow-up-timing|revenue-target-lead-planner|project-estimate-calibrator|construction-evidence|shop-rate|tire-shop-ticket-margin|handyman-minimum-job|plumber-flat-rate|hvac-repair-tier|auto-repair-effective-labor-rate|rfp-compliance-matrix|security-questionnaire-matcher|tender-bid-readiness|tender-radar|recompete-radar|sawmill-custom-sawing|which-job-first|crew-dispatch-optimizer|service-van-stock-optimizer|route-account-pruner|lead-response-time|custom-farm-rate|cow-calf-breakeven|stocker-cattle-margin|firewood-profit|land-survey|home-service-lead-roi|invoice-aging|late-invoice-collections|client-profitability|experience-mod)/.test(slug),
     },
     {
       id: 'trades-cleaning',
@@ -6488,52 +6508,10 @@ export function disclaimerHtml(toRoot, surfaces = [], { counter = counterOn() } 
         or taken offline without notice. We do not promise uptime, backups of
         anything you type, or that a URL will keep working. Do not use them as
         a system of record. If a tool needs to survive, export your inputs —
-        every one of them is open source and runs from a local file.
+        every one of them is source available and runs from a local file.
       </p>
-      <h2>Privacy</h2>
-      <p>
-        Everything runs in your browser. What you type is never uploaded: there
-        is no account system, no tracking cookie, no analytics vendor, and no
-        server that could receive it.${exceptionNote}${feedbackOn() ? ` The one thing
-        that is sent on purpose is a message you choose to submit through the
-        <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a>, which
-        is published in this site's public GitHub repository.` : ''}
-      </p>${exceptionList}
-      <details class="pfs-exceptions pfs-privacy-more">
-        <summary>What is counted, and what happens to email you send</summary>
-      <p>We count anonymous, aggregate events —
-        which tools get opened, never anything about who opened them — and that
-        count stays in your own browser's local storage.
-      </p>
-      <p>${counter ? `
-        Each page load also adds one to a daily per-page total on our own
-        open-source counter, and those totals are published in the repository.
-        That total is anonymous and first-party, so it includes browsers sending
-        <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em>
-        (those signals still switch off the tallies kept in your own browser);
-        the opt-out at the foot of the tool list stops it.
-      </p>
-      <ul class="pfs-counted">
-        <li><strong>Counted, as daily totals only:</strong> which page; which day;
-        the channel, if you came from one of our own links (a release note, a
-        package page); the kind of site that sent you ("google", "reddit"),
-        never its address; the country, as a two-letter code; and phone, tablet
-        or desktop.</li>
-        <li><strong>Never stored:</strong> anything you type, a cookie, your IP
-        address. Its host sees each request the way any web server does.</li>
-      </ul>` : `
-        Browsers sending
-        <em>Do&nbsp;Not&nbsp;Track</em> or <em>Global Privacy Control</em> are
-        not counted at all.
-      </p>`}
-      <p>
-        If you email one of this site's addresses, your message and address
-        are stored privately with our host, Cloudflare, read only to answer
-        you, never published or sold, and deleted after 90 days; reply asking
-        and we delete it sooner. You can ask what we hold about you, have it
-        corrected or deleted, and complain to your data-protection authority.
-      </p>
-      </details>`;
+${legalFooterHtml(toRoot, { analytics: analyticsOn(), counter })}${exceptionNote ? `
+      <p>${exceptionNote.trim()}</p>` : ''}${exceptionList}`;
 }
 
 /**
@@ -6607,6 +6585,8 @@ const CATEGORY_STYLE = `
          letter-spacing: -.04em; margin: 0 0 14px; }
     .lede { font-size: 1.06rem; line-height: 1.55; color: var(--muted); margin: 0 0 10px; }
     .count { font-size: .85rem; color: var(--soft); margin: 0; }
+    .door { margin: 0 0 18px; max-width: 70ch; line-height: 1.55; padding: 10px 14px; border: 1px solid var(--line);
+            border-left: 4px solid var(--pf-cat, var(--accent)); border-radius: 8px; background: var(--panel); font-size: .95rem; }
     .subgroup { margin-top: 30px; scroll-margin-top: 14px; }
     .subgroup h2 { font-size: .82rem; text-transform: uppercase; letter-spacing: .07em;
                    color: var(--muted); font-weight: 700; margin: 0 0 12px;
@@ -6782,6 +6762,18 @@ export function audienceQuestions(tools, guides, limit = 8) {
  * `data-search` payload, which is a meaningful weight saving on the 112-tool
  * trades page.
  */
+/**
+ * A category page's visible headline: its search title without the leading
+ * "Free". Owner, 2026-11-24: free single-purpose tools are front doors to paid
+ * products, so "free" is a fact on these pages (the count line under the hero
+ * says it), not the pitch. The <title>, og:title and JSON-LD keep the search
+ * title unchanged, so the page's search snippet is the same.
+ */
+export function heroTitle(title) {
+  const rest = String(title).replace(/^Free\s+/, '');
+  return rest === title ? title : rest.charAt(0).toUpperCase() + rest.slice(1);
+}
+
 export function renderCategoryPage({
   category,
   items,
@@ -6964,15 +6956,15 @@ ${otherAudiences
   <div class="wrap"${category.accent ? ` style="--pf-cat:${escapeHtml(category.accent)}"` : ''}>
     <header class="pf-hero">
       <p class="eyebrow">${escapeHtml(category.title)}</p>
-      <h1>${escapeHtml(copy.title)}</h1>
+      <h1>${escapeHtml(heroTitle(copy.title))}</h1>
       <p class="lede">${escapeHtml(copy.intro)}</p>${
         copy.starting
           ? `
       <p class="starting">${escapeHtml(copy.starting)}</p>`
           : ''
       }
-      <p class="count">${formatCount(items.length)} free tool${items.length === 1 ? '' : 's'} · no account · ${countPrivacyClaim}</p>${countExceptionList}
-    </header>
+      <p class="count">${formatCount(items.length)} tool${items.length === 1 ? '' : 's'} · free, no account · ${countPrivacyClaim}</p>${countExceptionList}
+    </header>${renderPageDoor({ pageId: category.id, toRoot })}
 ${copy.lead ?? ''}${jumps}
 ${filter}
 
@@ -8064,8 +8056,9 @@ export function renderAboutPage({ surfaces, groups, baseUrl }) {
   const toRoot = '../';
   const total = surfaces.length;
   const categoryCount = groups.length;
-  const title = 'About these tools';
-  const description = `Who makes these ${formatCount(total)} free calculators, why they are free, and what happens to the numbers you type in (nothing — every tool runs in your browser).`;
+  const title = `About ${SITE_NAME}`;
+  // Under 160 characters: check.mjs holds og:/twitter:description to it.
+  const description = `${SITE_NAME} builds software for small businesses, run by one owner with AI agents: what is live, what is in development, and how the free tools work.`;
 
   // The one absolute claim below — nothing typed ever leaves the browser —
   // is true for every tool except one this checks for: a tool whose whole
@@ -8111,7 +8104,7 @@ ${exceptions.map((x) => `        <li><a href="${escapeHtml(`${toRoot}${x.slug}/`
   const deviceClaim = exceptions.length
     ? `the numbers a user types never leave their device, except on ${exceptions.length === 1 ? toolProseName(exceptions[0].title) : `${exceptions.length} ${EXCEPTION_NOUN} (${EXCEPTION_KINDS})`}, which send what you give them to that service and nowhere else`
     : `the numbers a user types never leave their device`;
-  const longBoiler = `${SITE_NAME} is a collection of ${formatCount(total)} free web tools for people who run a small business: trade contractors pricing a job, marketplace sellers working out what a sale actually nets, logistics buyers comparing quotes, and small teams assembling compliance evidence. Every tool is a single static page that does its arithmetic in the visitor's own browser. There is no account system, no payment, and no third-party analytics — ${deviceClaim}, and each tool keeps working offline once it has been opened. All ${formatCount(total)} are free with no gated features and no paid tier.`;
+  const longBoiler = `${SITE_NAME} builds software for small and medium businesses; it is run by one owner, with AI agents doing most of the building in public. Beside ${LIVE_PRODUCTS.length === 1 ? 'its paid product' : 'its paid products'}, ${listProse(LIVE_PRODUCTS.map((p) => `${p.name} for ${p.audience}`))}, it publishes ${formatCount(total)} free web tools for people who run a small business: trade contractors pricing a job, marketplace sellers working out what a sale actually nets, logistics buyers comparing quotes, and small teams assembling compliance evidence. Every tool is a single static page that does its arithmetic in the visitor's own browser. There is no account system, no payment, and no third-party analytics — ${deviceClaim}, and each tool keeps working offline once it has been opened. All ${formatCount(total)} are free with no gated features and no paid tier.`;
 
   // A stand-in slug, not a real one: naming an actual tool here would go stale
   // the day that tool is renamed, and every real snippet is already generated,
@@ -8175,7 +8168,7 @@ ${exceptions.map((x) => `        <li><a href="${escapeHtml(`${toRoot}${x.slug}/`
     <header class="pf-hero">
       <p class="eyebrow">About</p>
       <h1>${escapeHtml(title)}</h1>
-      <p class="lede">${formatCount(total)} free calculators and checks for people who run a small business. They run in your browser and they cost nothing. ${
+      <p class="lede">We build software for small and medium businesses: the billing, quoting, paperwork and compliance jobs that eat an owner's week. The company is one owner and a team of AI agents, working in public. ${LIVE_PRODUCTS.length === 1 ? 'One paid product is live today' : `${LIVE_PRODUCTS.length} paid products are live today`}; others are in development, and ${formatCount(total)} free calculators and checks stay up beside them. ${
         exceptions.length
           ? `The numbers you type never leave your device, except on the ${exceptions.length} ${EXCEPTION_NOUN} listed below (${EXCEPTION_KINDS}), which send what you give them to that service.`
           : 'The numbers you type never leave your device.'
@@ -8183,46 +8176,91 @@ ${exceptions.map((x) => `        <li><a href="${escapeHtml(`${toRoot}${x.slug}/`
     </header>
 
     <main class="prose">
-      <h2>Who makes this</h2>
+      <h2>What we build</h2>
       <p>
-        ${escapeHtml(SITE_NAME)} is a small open-source lab in Colorado, founded
-        and run by Duncan Haywood. AI coding agents build the tools and the
-        research in public, in one
-        <a href="${escapeHtml(REPO_WEB_URL)}">GitHub repository</a>; every change
+        Software for one kind of business at a time, covering whatever software
+        and AI can do for it. Each product starts from one sharp job that
+        business already pays to get done (a pay application, a quote, an
+        invoice that has to pass a new legal format) and grows from there into
+        a suite: accounts, saved data, imports, and the integrations the
+        business already uses. Products are priced for a business, monthly,
+        and built so the price covers what they cost to run.
+      </p>
+
+      <h2>What is live and what is in development</h2>
+      <h3>Live</h3>
+      <ul>
+${/* Absolute: a live product may be served by the site Worker rather than
+     from this build's output (Grant Autopilot is), so a relative link would
+     read as dead to check.mjs. */ ''}${LIVE_PRODUCTS.map((p) => `        <li><strong><a href="${escapeHtml(`${baseUrl}${p.path}`)}">${escapeHtml(p.name)}</a></strong>, for ${escapeHtml(p.audience)}: it ${escapeHtml(p.summary)}</li>`).join('\n')}
+      </ul>
+      <h3>In development</h3>
+      <p>
+        These are being built now. None of them takes payment or sign-ups yet,
+        and the order changes when the evidence does.
+      </p>
+      <ul>
+${IN_DEVELOPMENT.map(([name, what]) => `        <li><strong>${escapeHtml(name)}</strong>, ${escapeHtml(what)}.</li>`).join('\n')}
+      </ul>
+      <p>
+        If your business has a problem software could take off your hands,
+        <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}`)}">describe it</a>:
+        requests are built free and in public, and they tell us which product
+        to build next.
+      </p>
+
+      <h2>Who we build for</h2>
+      <p>
+        Small and medium businesses that already pay for software to run their
+        money and operations. Construction comes first (specialty
+        subcontractors, general contractors, remodelers, roofers, estimators),
+        then the industries beside it: machine shops, fabricators and small
+        manufacturers, engineering and design firms. Grant Autopilot serves
+        small nonprofits, and the e-invoicing work serves any small business
+        that has to send invoices in the new formats. The free tools are
+        grouped by trade <a href="#trades">at the foot of this page</a>.
+      </p>
+
+      <h2>How we work</h2>
+      <p>
+        ${escapeHtml(SITE_NAME)} is owned and run by ${escapeHtml(SITE_FOUNDER)}, in
+        Colorado. There is no other staff: AI coding agents write the code,
+        tests, research and most of the writing, in public, in one
+        <a href="${escapeHtml(REPO_WEB_URL)}">GitHub repository</a>. Every change
         is tested before it ships, and the history of every merge is public.
-        Everything is MIT licensed, so you can use it, change it, or run your own
-        copy as a business of your own.
+        Decisions about money, accounts and anything published under the
+        company's name are the owner's.
+      </p>
+      <ul>
+        <li><strong>Agents.</strong> Scheduled agent sessions pick the next job from a written queue, build it, check it and merge it. What they did and why is in the repository; the <a href="${escapeHtml(`${toRoot}${UPDATES_PATH}`)}">updates page</a> summarises each week.</li>
+        <li><strong>Open research.</strong> The <a href="${escapeHtml(`${toRoot}${RESEARCH_PATH}`)}">research projects</a> are published with their code, tests and limitations. New research is aimed at a product: a question gets studied because the answer goes into something a business will use.</li>
+        <li><strong>Open hardware designs.</strong> <a href="${escapeHtml(`${toRoot}${HARDWARE_PATH}`)}">Robot and house-plan designs for businesses</a> are published with their CAD, firmware and bills of materials, FSL-1.1-MIT licensed. They are at the design and simulation stage: nothing has been built and nothing physical is for sale. Real hardware products are a long-term goal.</li>
+        <li><strong>Source available.</strong> The free tools and the hardware designs are FSL-1.1-MIT licensed: use them, change them or run your own copy for anything but a competing commercial product, and each version becomes MIT two years after release. The research is MIT licensed. The paid products are developed privately.</li>
+      </ul>
+
+      <h2>The free tools</h2>
+      <p>
+        ${total} small, single-purpose web tools across ${categoryCount} areas:
+        pricing a job, checking what a marketplace sale actually nets, planning
+        cashflow, normalising freight quotes, and assembling the evidence a
+        compliance obligation asks for. Each answers one question for one kind
+        of business. They are free, they stay up, and the ones that fit a
+        product link to it.
       </p>
 
-      <h2>What this is</h2>
-      <p>
-        A working set of ${total} small, single-purpose web tools across
-        ${categoryCount} areas — pricing a job, checking what a marketplace sale
-        actually nets, planning cashflow, normalising freight quotes, and
-        assembling the evidence a compliance obligation asks for. Each one
-        exists because the arithmetic behind it is easy to get wrong under time
-        pressure and expensive to get wrong in front of a customer.
-      </p>
-      <p>
-        They are deliberately narrow. A tool here answers one question for one
-        kind of business, rather than being a spreadsheet template that answers
-        none of them well.
-      </p>
-
-      <h2>What happens to what you type</h2>
+      <h2>What happens to what you type into a free tool</h2>
       <div class="panel">
         <h3>${exceptions.length ? `Nothing, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`} below.` : feedbackOn() ? 'Nothing. No tool sends it anywhere.' : 'Nothing. There is no server that could receive it.'}</h3>
         <p>
-          Every tool on this site is a static page. The calculation happens in
+          Every free tool on this site is a static page. The calculation happens in
           your browser, in JavaScript you can read with your browser's own
           <em>View Source</em> or developer tools — no build step, no
           minification, nothing hidden from you. Specifically:
         </p>
         <ul>
           <li><strong>No account and no sign-up.</strong> There is no login, no email capture, and no "enter your address to see the result" gate.</li>
-          <li><strong>${exceptions.length ? `Nothing you enter is transmitted, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`}.` : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, no background beacon${counterOn() ? ' (the page-view ping described below carries only the page name and where-from labels; the counter adds the country code and device type from the request)' : ''}${exceptions.length ? ` — except ${exceptionRef}, which call an outside service (${EXCEPTION_KINDS}). What you give one of those goes to the host it names and nowhere else on this site` : ''}.</li>
-          <li><strong>No third-party scripts.</strong> No analytics vendor, no tag manager, no advertising network, no hosted fonts, no CDN. ${exceptions.length ? `Besides the live API call${exceptions.length === 1 ? '' : 's'} ${exceptionRef} make${exceptions.length === 1 ? 's' : ''}, the` : 'The'} only outside addresses on this site are links you can choose to click.</li>
-          <li><strong>No cookies and no cross-site identifiers.</strong></li>${feedbackOn() ? `
+          <li><strong>${exceptions.length ? `Nothing you enter is transmitted, with ${exceptions.length === 1 ? 'one documented exception' : `${exceptions.length} documented exceptions`}.` : 'Nothing you enter is transmitted.'}</strong> These pages make no network request with your input — no form post, and no beacon carries it${counterOn() ? ' (the page-view ping described below carries only the page name and where-from labels, the counter adds the country code and device type from the request, and a product-link ping carries only the page, industry and product names the page itself wrote)' : ''}${exceptions.length ? ` — except ${exceptionRef}, which call an outside service (${EXCEPTION_KINDS}). What you give one of those goes to the host it names and nowhere else on this site` : ''}.</li>
+          <li><strong>No advertising or tracking cookies, and no cross-site identifiers.</strong> No tag manager, no advertising network, no third-party pixels. ${analyticsOn() ? 'Every page loads cookieless Cloudflare Web Analytics, which reports the page address, referrer, browser type, country and load timings as aggregate statistics.' : ''} The <a href="${escapeHtml(`${toRoot}${PRIVACY_PATH}`)}">Privacy Policy</a> lists everything that is collected.</li>${feedbackOn() ? `
           <li><strong>Feedback is sent only when you send it.</strong> The <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}`)}">feedback form</a> posts the message you write, the type you pick and the tool it is about, and nothing else, to this site's own small server, and is then published in the site's public GitHub repository. Nothing about you is stored with it, and email addresses are removed from the text first. Don't include anything you would not want published.</li>` : ''}
           <li><strong>It works offline.</strong> Once a tool has loaded, its page keeps working with the connection off, which is the plainest demonstration that the answer is computed where you are${exceptions.length ? ` — except ${exceptionRef}, whose whole point is a live call, so ${exceptions.length === 1 ? 'it needs' : 'they need'} the connection back to check anything new` : ''}.</li>
         </ul>
@@ -8243,7 +8281,11 @@ ${exceptions.map((x) => `        <li><a href="${escapeHtml(`${toRoot}${x.slug}/`
         code, such as <code>US</code>) and whether the browser string is a
         phone's, a tablet's or a desktop's. It keeps one number per page, per
         channel, per kind of site, per country and per device type, per day,
-        and none of these is linked to another or to you. Self-declared
+        and none of these is linked to another or to you. On pages that point
+        to one of this site's products, a separate ping says that a product
+        link was shown or clicked, carrying the page's name, the industry and
+        the product the page itself names, and nothing else; it is tallied the
+        same way, per day. Self-declared
         crawlers are tallied separately by name (such as <code>googlebot</code>)
         and never counted as visits. No IP address, cookie, browser string or
         referring address is stored. The daily totals are committed to the public
@@ -8260,12 +8302,13 @@ ${exceptions.map((x) => `        <li><a href="${escapeHtml(`${toRoot}${x.slug}/`
         <a href="${escapeHtml(toRoot)}" data-pf-to="hub">the tool list</a>.
       </p>
 
-      <h2>Why it is free</h2>
+      <h2>Why the free tools are free</h2>
       <p>
-        Because keeping it free costs almost nothing. A static page has no
+        Because keeping them free costs almost nothing. A static page has no
         per-user cost, so there is no usage to meter and no reason to build a
-        paywall around arithmetic. There is no paid tier, no trial, and no
-        feature held back — the version you are using is the whole product.
+        paywall around arithmetic. A free tool has no paid tier, no trial, and
+        no feature held back. The paid products are separate software with
+        accounts and saved data, and they say so on their own pages.
       </p>
       <p>
         If one of these has saved you money,
@@ -8301,7 +8344,7 @@ ${exceptions.map((x) => `        <li><a href="${escapeHtml(`${toRoot}${x.slug}/`
       <ul>
         <li><strong>${formatCount(total)} tools</strong> across ${categoryCount} categories, all free, none gated.</li>
         <li><strong>Runs client-side.</strong> Static pages; no account, no third-party analytics; works offline once opened.${exceptions.length ? ` ${listed ? `The <a href="#outside-services">${exceptions.length} ${EXCEPTION_NOUN}</a> listed above are` : `${exceptionNames} ${exceptions.length === 1 ? 'is' : 'are'}`} the documented exception${exceptions.length === 1 ? '' : 's'}.` : ' No upload.'}</li>
-        <li><strong>MIT licensed.</strong> Every tool ships its licence text alongside it — open any tool and add <code>LICENSE</code> to its address.</li>
+        <li><strong>FSL-1.1-MIT licensed.</strong> Every tool ships its licence text alongside it — open any tool and add <code>LICENSE</code> to its address.</li>
         <li><strong>Front page:</strong> <a href="${escapeHtml(toRoot)}" data-pf-to="hub">${escapeHtml(baseUrl)}</a></li>
       </ul>
       <p>
@@ -8345,8 +8388,8 @@ ${exceptions.map((x) => `        <li><a href="${escapeHtml(`${toRoot}${x.slug}/`
       </p>
     </main>
 
-    <section class="siblings">
-      <h2>Browse by trade</h2>
+    <section class="siblings" id="trades">
+      <h2>Free tools by trade</h2>
       <ul>
 ${categoryLinks}
       </ul>
@@ -8361,6 +8404,57 @@ ${categoryLinks}
        not send anyone on to a tool, and only the cross_tool_click half of this
        tells them apart. -->
   <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="about" defer></script>
+</body>
+</html>
+`;
+}
+
+/** One legal page (legal-pages.mjs) in the About page's shell. */
+export function renderLegalPage({ doc, surfaces, baseUrl }) {
+  const toRoot = '../';
+  const url = `${baseUrl}${doc.path}`;
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(siteTitle(doc.title))}</title>
+  <meta name="description" content="${escapeHtml(snippetize(doc.description))}">
+  <link rel="canonical" href="${escapeHtml(url)}">
+  <link rel="icon" href="${escapeHtml(`${toRoot}favicon.svg`)}" type="image/svg+xml">
+  <link rel="alternate icon" href="${escapeHtml(`${toRoot}favicon.ico`)}" sizes="16x16">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${escapeHtml(doc.title)}">
+  <meta property="og:description" content="${escapeHtml(doc.description)}">
+  <meta property="og:url" content="${escapeHtml(url)}">
+  <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
+  <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="${escapeHtml(SITE_NAME)}">
+  <meta name="twitter:card" content="summary_large_image">
+  <style>${CATEGORY_STYLE}${ABOUT_STYLE}
+    .prose table { border-collapse: collapse; width: 100%; display: block; overflow-x: auto; }
+    .prose th, .prose td { border: 1px solid var(--line, #d6d3c8); padding: .4rem .5rem; text-align: left; vertical-align: top; }
+  </style>
+  ${siteStyleLink(toRoot)}
+</head>
+<body>
+  ${renderSiteHeader({ toRoot, current: 'about', crumbs: [{ label: doc.title }] })}
+  <div class="wrap">
+    <header class="pf-hero">
+      <p class="eyebrow">Legal</p>
+      <h1>${escapeHtml(doc.title)}</h1>
+    </header>
+
+    <main class="prose">${doc.body}
+    </main>
+
+    <footer>${disclaimerHtml(toRoot, surfaces)}
+      ${renderSiteFooterNav({ toRoot })}
+    </footer>
+  </div>
+  <script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="${escapeHtml(doc.path.replace(/\/$/, ''))}" defer></script>
 </body>
 </html>
 `;
@@ -8409,7 +8503,7 @@ export function renderFeedbackPage({ surfaces = [], baseUrl, feedbackUrl = SITE_
         <p class="fb-terms">Ideas, research questions and topics join the
         <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}`)}">custom development</a> queue,
         are built free and in public, and come ahead of routine work. What is built is published under the MIT
-        licence with the repository owner's copyright notice; you get no exclusive
+        licence with the repository owner's copyright notice, in the tool's own directory; you get no exclusive
         rights to it.</p>
         <p id="fb-tool-line" hidden>About: <a id="fb-tool-link" href="${escapeHtml(toRoot)}"></a></p>
         <label for="fb-message">Your message</label>
@@ -8806,6 +8900,24 @@ function renderRequestForm({ toRoot, feedbackUrl, surfaces, requests, directions
 }
 
 /** The `<head>` shared by the custom development pages. */
+/**
+ * The online sellers industry page with this build's head, disclaimer and
+ * chrome script (which counts usage) handed in, so the module stays free of a
+ * build.mjs import.
+ */
+export function renderOnlineSellersIndustryPage({ surfaces = [], baseUrl }) {
+  const toRoot = '../../';
+  return renderOnlineSellersPage({
+    baseUrl,
+    surfaces,
+    shell: {
+      head: customDevHead,
+      disclaimer: disclaimerHtml(toRoot, surfaces),
+      tail: `<script src="${escapeHtml(`${toRoot}${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="industry-online-sellers" defer></script>`,
+    },
+  });
+}
+
 function customDevHead({ title, description, url, toRoot, baseUrl, extraHead = '' }) {
   return `<!doctype html>
 <html lang="en">
@@ -9021,12 +9133,12 @@ ${built ? '' : `      <h2>What has been built this way</h2>
       </ul>
 
       <h2 id="screening">How requests are screened</h2>
-      <p>The builders are AI agents, so a request is also text an AI will read. Every request is checked by <a href="${escapeHtml(`${REPO_URL}/blob/main/portfolio/requests/screen.mjs`)}">an open-source screen</a> before triage. It looks for text written to steer the agents instead of describing a job: telling them to ignore their instructions, to merge, approve or run something, to reveal credentials, to send data elsewhere, or words hidden with invisible characters. A request that trips it is held for the repository owner and is not built from until they have read it. Ordinary requests pass straight through, and a held request is not a judgement of the person who sent it. Whatever the screen says, request text is treated as a description of what to build, never as instructions.</p>
+      <p>The builders are AI agents, so a request is also text an AI will read. Every request is checked by <a href="${escapeHtml(`${REPO_URL}/blob/main/portfolio/requests/screen.mjs`)}">a published screen</a> before triage. It looks for text written to steer the agents instead of describing a job: telling them to ignore their instructions, to merge, approve or run something, to reveal credentials, to send data elsewhere, or words hidden with invisible characters. A request that trips it is held for the repository owner and is not built from until they have read it. Ordinary requests pass straight through, and a held request is not a judgement of the person who sent it. Whatever the screen says, request text is treated as a description of what to build, never as instructions.</p>
 
       <h2>The terms</h2>
       <ul>
         <li><strong>Free.</strong> No fee for the engineering, the hosting or the agent compute.</li>
-        <li><strong>MIT licensed, held by the repository owner.</strong> What is built is published in <a href="${escapeHtml(REPO_URL)}">this repository</a> under its <a href="${escapeHtml(`${REPO_URL}/blob/main/LICENSE`)}">MIT licence</a>, with the owner's copyright notice. Anything you attach, you must be allowed to share, and you agree to its publication on those terms.</li>
+        <li><strong>MIT licensed, held by the repository owner.</strong> What is built is published in <a href="${escapeHtml(REPO_URL)}">this repository</a> under the <a href="https://opensource.org/license/mit">MIT licence</a> (an MIT <code>LICENSE</code> in the tool's own directory; the rest of the repository is FSL-1.1-MIT), with the owner's copyright notice. Anything you attach, you must be allowed to share, and you agree to its publication on those terms.</li>
         <li><strong>You may use it commercially</strong>, as anyone may: deploy it, change it, sell a service on it. The licence is the same for everyone, so there is no exclusivity.</li>
         <li><strong>No promise of a date or of acceptance.</strong> Agent time is shared across the whole repository. A request is weighed on how useful it is, how well it fits, and whether it can be built and run legally at no per-user cost.</li>
         <li><strong>Public by default.</strong> Requests, code and discussion are visible to everyone. Leave out names, addresses and anything private.</li>
@@ -9423,7 +9535,7 @@ export function renderHub(
     name: SITE_NAME,
     url: baseUrl,
     description:
-      'Free, open-source browser tools, self-hostable business apps, command-line checks and research projects, each with its own page.',
+      'Software and hardware products for specific small businesses, plus free source-available browser tools, self-hostable apps and research projects.',
     isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: baseUrl },
     mainEntity: {
       '@type': 'ItemList',
@@ -9439,52 +9551,10 @@ export function renderHub(
     },
   };
 
-  const categoryTiles = groups
-    .map(({ category, items }) =>
-      renderCategoryTile({
-        id: category.id,
-        title: category.title,
-        blurb: category.card ?? category.blurb,
-        count: items.length,
-        examples: exampleTools(items, 4),
-        accent: category.accent,
-      }),
-    )
-    .join('\n');
-  const kindTiles = kindPages
-    .map(({ page, items }) =>
-      renderCategoryTile({
-        id: page.id,
-        title: page.title,
-        blurb: page.card ?? page.blurb,
-        count: items.length,
-        examples: exampleTools(items, 4),
-        note: `All ${items.length} ${page.kind === 'app' ? 'apps' : 'command-line tools'}`,
-        accent: page.accent,
-      }),
-    )
-    .join('\n');
-
-  // A short featured row: the flagships first (`flagshipSlugs`), then, while
-  // there is room, the tool with the most pages in each of the largest
-  // categories. Page count alone put a day-count adder at the front
-  // (2026-10-21): pages measure explainers written beside a tool, not the
-  // engineering in it (docs/reports/2026-10-21-flagship-front-door.md).
-  const bySlug = new Map(surfaces.map((s) => [s.slug, s]));
-  const featured = flagships.map((slug) => bySlug.get(slug)).filter(Boolean).slice(0, 6);
-  for (const { items } of [...groups].sort((a, b) => b.items.length - a.items.length)) {
-    if (featured.length >= 6) break;
-    const pick = exampleTools(items.filter((s) => !featured.includes(s)), 1)[0];
-    if (pick) featured.push(pick);
-  }
-
-  // The moving shelf under the hero: a few tools from every section, split
-  // across two rows so neither repeats a section back to back.
-  const shortName = (s) => cardName(s.title);
-  const shelf = groups.flatMap(({ items }) => exampleTools(items, 5)).map((s) => ({ slug: s.slug, name: shortName(s) }));
-  const marqueeRows = [shelf.filter((_, i) => i % 2 === 0), shelf.filter((_, i) => i % 2 === 1)];
-  const titles = new Map(surfaces.map((s) => [s.slug, shortName(s)]));
-  const audienceWords = audiencePages.map(({ audience }) => audience.name).slice(0, 14);
+  // The product lines (business.mjs). Tools the build did not publish drop out of the cards.
+  const publishedTools = new Map(surfaces.map((s) => [s.slug, cardName(s.title)]));
+  const liveLines = PRODUCT_LINES.filter((l) => l.status === 'live');
+  const liveNames = liveLines.map((l) => l.name).join(' and ') || 'None';
 
   return `<!doctype html>
 <html lang="en">
@@ -9492,10 +9562,10 @@ export function renderHub(
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="./favicon.ico" sizes="16x16">
-  <title>${escapeHtml(SITE_NAME)} | Free Tools, Self-Hostable Apps &amp; Research</title>
+  <title>${escapeHtml(SITE_NAME)} | Software &amp; Hardware for Small Businesses</title>
   <meta name="description" content="${escapeHtml(
     snippetize(
-      `Free bid calculators, fee checkers and pricing tools for small businesses: ${formatCount(browserCount)} open-source tools that run in your browser, plus self-hostable apps. No sign-up.`,
+      `Software for specific small businesses: contractor billing, job shop quoting, e-invoicing, reseller books and grants. Plus ${formatCount(browserCount)} free tools for the same businesses.`,
     ),
   )}">
   <link rel="canonical" href="${escapeHtml(baseUrl)}">${verificationHead()}
@@ -9506,7 +9576,7 @@ export function renderHub(
   <link rel="alternate" type="application/atom+xml" title="${escapeHtml(`${SITE_NAME} — new tools`)}" href="${escapeHtml(FEED_FILE)}">
   <meta property="og:type" content="website">
   <meta property="og:title" content="${escapeHtml(SITE_NAME)}">
-  <meta property="og:description" content="Free tools to price the job, check the fees and run your business. No sign-up, open source, and the numbers stay in your browser.">
+  <meta property="og:description" content="Software and hardware for specific small businesses, built around the jobs each finds hardest, plus free tools for the same businesses.">
   <meta property="og:url" content="${escapeHtml(baseUrl)}">
   <meta property="og:site_name" content="${escapeHtml(SITE_NAME)}">
   <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
@@ -9518,7 +9588,10 @@ export function renderHub(
   <script type="application/ld+json">${jsonLd(siteStructuredData({
     baseUrl,
     siteName: SITE_NAME,
-    description: 'Free, open-source browser tools, self-hostable business apps and reproducible research.',
+    description: 'Software for small and medium businesses, with free source-available tools and reproducible research beside it.',
+    organizationDescription: `${SITE_NAME} ${COMPANY_SUMMARY}.`,
+    // Only what is live: a product in development is not an offer.
+    offers: LIVE_PRODUCTS.map((p) => ({ name: p.name, url: `${baseUrl}${p.path}`, audience: p.audience, description: `${p.name} ${p.summary}` })),
     repoUrl: REPO_WEB_URL,
     founder: SITE_FOUNDER,
     logo: `${baseUrl}icon-512.png`,
@@ -9594,12 +9667,22 @@ export function renderHub(
                 font-variant-numeric: tabular-nums; }
     .stats dd a { color: var(--ink); text-decoration: none; }
     .stats dd a:hover, .stats dd a:focus-visible { color: var(--accent); }
-    .build-band { margin: 22px 0 0; max-width: 820px; padding: 16px 18px; border: 1px solid var(--accent);
+    /* The hero's two calls to action (2026-11-24): the products first. */
+    .hero-cta { display: flex; flex-wrap: wrap; gap: 10px 12px; margin: 16px 0 0; }
+    .hero-cta a { display: inline-block; font-weight: 650; padding: 10px 18px; border-radius: 10px; text-decoration: none; }
+    .hero-cta a.go { background: #fff; color: #0b1f3a; } /* the hero is dark in both themes */
+    .hero-cta a.ghost { border: 1px solid rgba(220,232,250,.55); color: #e8f0fb; }
+    .hero-cta a:hover, .hero-cta a:focus-visible { text-decoration: underline; }
+    .hero .search { margin-top: 22px; }
+    .products-band .pl-grid { margin-top: 18px; }
+    .products-more { margin: 14px 0 0; color: var(--muted); }
+${PRODUCT_CARD_CSS}
+    .build-band { margin: 28px 0 0; max-width: 820px; padding: 16px 18px; border: 1px solid var(--accent);
                   border-radius: 14px; background: var(--panel); }
     .build-band h2 { margin: 0; font-size: 1.15rem; letter-spacing: -.01em; }
     .build-band p { margin: 6px 0 0; color: var(--muted); line-height: 1.5; }
     .build-band a.go { display: inline-block; margin-top: 10px; font-weight: 650; padding: 8px 16px; border-radius: 9px;
-                       background: #fff; color: #0b1f3a; text-decoration: none; } /* the hero is dark in both themes */
+                       background: var(--accent); color: var(--accent-ink); text-decoration: none; } /* under the products since 2026-11-24, on the page's own palette */
     .build-band a.go:hover, .build-band a.go:focus-visible { text-decoration: underline; }
     @media (max-width: 640px) {
       .stats { grid-template-columns: repeat(2, 1fr); }
@@ -9752,6 +9835,7 @@ export function renderHub(
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 ${HOME_MOTION_CSS}
 ${HOME_SECTIONS_CSS}
+${finderCss(finderChoices(BUSINESS_INDUSTRIES, PRODUCT_LINES))}
   </style>
 </head>
 <body>
@@ -9761,68 +9845,31 @@ ${HOME_SECTIONS_CSS}
   <header class="hero">
 ${HERO_BACKDROP_HTML}
     <div class="hero-inner">
-      <p class="eyebrow">Free · No sign-up · Open source</p>
-      <h1>Free tools to <span class="grad">price the job, check the fees</span> and run your business.</h1>
-${
-  audienceWords.length
-    ? `      <p class="ticker" data-longest="${escapeHtml(longestWord(audienceWords))}"><span>Built for <b data-words="${escapeHtml(JSON.stringify(audienceWords))}">${escapeHtml(audienceWords[0])}</b> and anyone with numbers to run.</span></p>\n`
-    : ''
-}
-      <!-- Two sentences, so the search box sits above the fold on a phone
-           (polish 2026-11-12: the old five-sentence lede ran 13 lines at
-           320 px). "Open source", "check how a number was reached" and "run
-           your own copy" are steps 2 and 3 of the how-it-works band below;
-           research is in the search label and the stats. -->
-      <div class="hero-grid">
-      <div class="hero-main">
+      <p class="eyebrow">Software for small businesses</p>
+      <h1>Software built for <span class="grad">your kind of business</span> and the jobs it finds hardest.</h1>
+      <!-- The front door is a finder, not a catalogue (owner, 2026-11-25:
+           "target marketing sales pipeline not a catalog of random stuff";
+           "easy navigation to find your profession and your problem"). Every
+           status comes from business.mjs, so "live" is only said of what is
+           live. The full tool catalogue is one link away at c/. -->
       <p class="lede">
-        Bid calculators for the trades, fee checkers for marketplace sellers, and
-        pricing, tax and back-office tools for service businesses. Type your
-        numbers and get an answer: no account, no paywall, and the arithmetic
-        happens on your device.
+        Pick your business, then the problem costing you the most time.
+        ${escapeHtml(liveNames)} ${liveLines.length === 1 ? 'is' : 'are'} live; the rest are in early access, with
+        free tools that already do part of each job.
       </p>
-
-      <!-- The search runs over a JSON index of every tool and research project
-           (search-index.json), fetched when a visitor first types. Without
-           JavaScript the category grid below is the way in: every tool is on
-           its category's page. -->
-      <form class="search" id="${SEARCH_ANCHOR}" role="search" action="./" method="get">
-        <label for="q">Search ${formatCount(surfaces.length)} tools${researchCount ? ` and ${formatCount(researchCount)} research projects` : ''}</label>
-        <div class="search-row">
-          <input id="q" name="q" type="search" placeholder="eBay fees, roofing bid, freight, VAT, scoring rules…"
-                 autocomplete="off" spellcheck="false">
-          <button type="submit">Search</button>
-        </div>
-        <noscript><p class="search-hint">Search needs JavaScript. Every tool is listed on its category page below.</p></noscript>
-        <p class="count" id="count" aria-live="polite"></p>
-        <p class="closest" id="closest" hidden></p>
-        <ol class="results" id="results" hidden></ol>
-        <p class="results-more" id="results-more" hidden></p>
-        <p class="empty" id="empty" hidden>No tool matches that. Try a marketplace, a trade, or the thing you are pricing — or <a href="${CATEGORY_PATH_PREFIX}/">browse by category</a>.</p>
-      </form>
-
-      <dl class="stats" id="overview">
-        <div><dt>Browser tools</dt><dd><a href="${CATEGORY_PATH_PREFIX}/">${formatCount(browserCount)}</a></dd></div>
-        <div><dt>Self-hostable apps</dt><dd><a href="${escapeHtml(categoryPagePath('apps'))}">${formatCount(apps.length)}</a></dd></div>
-        <div><dt>Command-line tools</dt><dd><a href="${escapeHtml(categoryPagePath('cli'))}">${formatCount(clis.length)}</a></dd></div>
-        <div><dt>Research projects</dt><dd><a href="${RESEARCH_PATH}">${formatCount(researchCount)}</a></dd></div>
-      </dl>
-
-      <!-- The open custom development offer, aimed at businesses (owner,
-           2026-11-02: "advertise to businesses more"; tagline "describe your
-           problem and it gets built"). Terms are on the linked page. -->
-      <section class="build-band" aria-labelledby="build-band-h">
-        <h2 id="build-band-h">Run a business? Describe your problem and it gets built.</h2>
-        <p>No tool here does what you need? Tell us the job, and the AI agents that build this site may build it for you, free and in public. The one condition: the result stays open source (MIT).</p>
-        <a class="go" href="${CUSTOM_DEV_PATH}">Describe your problem</a>
-      </section>
-      </div>
-${renderHeroArt(showcase.shots, (slug) => titles.get(slug) ?? slug)}
-      </div>
+${renderFinder({
+  industries: BUSINESS_INDUSTRIES,
+  lines: PRODUCT_LINES,
+  trades: audiencePages.map(({ audience }) => ({ id: audiencePageId(audience), name: audience.name, href: categoryPagePath(audiencePageId(audience)) })),
+  statusLabel: (status) => (status === 'live' ? 'live' : 'early access'),
+  industryHref: industryPath,
+  askHref: ASK_PATH,
+  customHref: CUSTOM_DEV_PATH,
+  toolsHref: `${CATEGORY_PATH_PREFIX}/`,
+  buildFirstHref,
+})}
     </div>
   </header>
-
-${renderMarquee(marqueeRows)}
 
   <main class="wrap" id="main">
     <!-- Filled in by script from the saved bids on this device. Above everything
@@ -9878,95 +9925,56 @@ ${renderMarquee(marqueeRows)}
       <ul id="yoursList"></ul>
     </section>
 
-${renderHowItWorks({ toolCount: browserCount, appCount: apps.length })}
-
-${
-  audiencePages.length
-    ? `    <section class="band" id="for" aria-labelledby="for-h">
-      <p class="section-eyebrow">Who it is for</p>
-      <h2 id="for-h">Find the tools for your trade, business or stage of life</h2>
-      <p class="band-lede">The same tools, filed by who they are for. Each page lists the calculators that kind of business uses, and what to price first if you are just starting one.</p>
-      <ul class="for-list">
-${audiencePages
-  .map(
-    ({ audience, items }) =>
-      `        <li><a href="${escapeHtml(categoryPagePath(audiencePageId(audience)))}" data-category="${escapeHtml(
-        audiencePageId(audience),
-      )}">${escapeHtml(audience.name)} <span>${items.length}</span></a></li>`,
-  )
-  .join('\n')}
-      </ul>
+    <section class="band products-band" id="products" aria-labelledby="products-h">
+      <p class="section-eyebrow">Products</p>
+      <h2 id="products-h">One product for each kind of business, built around its hardest jobs</h2>
+      <p class="band-lede">Live means you can use it today. Early access means it is being built, and the free tools listed with it already do part of the job.</p>
+${renderProductGrid(softwareLines(), { toRoot: '', published: publishedTools, anchor: true })}
+      <p class="products-more"><a href="${PRODUCTS_PATH}">All products →</a> · <a href="${INDUSTRIES_PATH}">Browse by industry →</a></p>
+      <!-- The open custom development offer, aimed at businesses (owner,
+           2026-11-02: "advertise to businesses more"; tagline "describe your
+           problem and it gets built"). Terms are on the linked page. Moved
+           here from the hero on 2026-11-24, under the products. -->
+      <section class="build-band" aria-labelledby="build-band-h">
+        <h2 id="build-band-h">Don’t see your business? Describe your problem and it gets built.</h2>
+        <p>Tell us the job, and the AI agents that build this site may build it for you, free and in public. The one condition: the result is published under the MIT licence.</p>
+        <a class="go" href="${CUSTOM_DEV_PATH}">Describe your problem</a>
+      </section>
     </section>
 
-`
-    : ''
-}
-    <section class="band" id="browse" aria-labelledby="browse-h">
-      <p class="section-eyebrow">Browse</p>
-      <h2 id="browse-h">Tools by the job they do</h2>
-      <p class="band-lede">${formatCount(surfaces.length)} free tools in ${groups.length} sections. Each section's page lists every tool in it, grouped and filterable. <a href="${CATEGORY_PATH_PREFIX}/">See every section →</a></p>
-      <ul class="cats">
-${categoryTiles}
-      </ul>
+    <section class="band" id="free-tools" aria-labelledby="free-tools-h">
+      <p class="section-eyebrow">Free tools</p>
+      <h2 id="free-tools-h">Need one number, not a whole product?</h2>
+      <!-- The search runs over a JSON index of every tool and research project
+           (search-index.json), fetched when a visitor first types. Without
+           JavaScript the category grid below is the way in: every tool is on
+           its category's page. -->
+      <form class="search" id="${SEARCH_ANCHOR}" role="search" action="./" method="get">
+        <label for="q">Search ${formatCount(surfaces.length)} free tools by the job: a fee, a bid, a file to check</label>
+        <div class="search-row">
+          <input id="q" name="q" type="search" placeholder="eBay fees, roofing bid, freight, VAT, scoring rules…"
+                 autocomplete="off" spellcheck="false">
+          <button type="submit">Search</button>
+        </div>
+        <noscript><p class="search-hint">Search needs JavaScript. Every tool is listed on its category page below.</p></noscript>
+        <p class="count" id="count" aria-live="polite"></p>
+        <p class="closest" id="closest" hidden></p>
+        <ol class="results" id="results" hidden></ol>
+        <p class="results-more" id="results-more" hidden></p>
+        <p class="empty" id="empty" hidden>No tool matches that. Try a marketplace, a trade, or the thing you are pricing — or <a href="${CATEGORY_PATH_PREFIX}/">browse by category</a>.</p>
+      </form>
+      <!-- One line of text links, not tiles: keeps every tool two clicks from
+           the front door without JavaScript (crawl depth), without the clutter. -->
+      <p class="band-lede cat-links">Browse by the job: ${groups
+        .map(({ category, items }) => `<a href="${escapeHtml(categoryPagePath(category.id))}" data-category="${escapeHtml(category.id)}">${escapeHtml(category.title)}</a> <span>${formatCount(items.length)}</span>`)
+        .join(' · ')} · By type: ${kindPages
+        .map(({ page, items }) => `<a href="${escapeHtml(categoryPagePath(page.id))}" data-category="${escapeHtml(page.id)}">${escapeHtml(page.id === 'apps' ? 'Web apps' : page.title)}</a> <span>${formatCount(items.length)}</span>`)
+        .join(' · ')} · <a href="${CATEGORY_PATH_PREFIX}/">every free tool →</a></p>
     </section>
-
-    <section class="band" id="types" aria-labelledby="types-h">
-      <p class="section-eyebrow">By type</p>
-      <h2 id="types-h">Apps you run yourself, and checks for your terminal</h2>
-      <ul class="cats">
-${kindTiles}
-      </ul>
-    </section>
-
-${renderShowcaseSection(showcase, (slug) => titles.get(slug) ?? slug)}
-
-    <section class="band" id="featured" aria-labelledby="featured-h">
-      <p class="section-eyebrow">Featured</p>
-      <h2 id="featured-h">The deepest projects here</h2>
-      <p class="band-lede">When you need more than one calculation: the larger products, each built up over many sessions and still being extended, listed first.</p>
-      <ul class="featured">
-${featured
-  .map(
-    (s) => `        <li style="--feat:${escapeHtml(categoryFor(s.slug).accent)}"><a href="${escapeHtml(s.slug)}/" data-tool="${escapeHtml(s.slug)}">${escapeHtml(cardName(s.title))}</a><span class="f-cat">${escapeHtml(categoryFor(s.slug).title)}</span><p>${escapeHtml(s.description ?? '')}</p></li>`,
-  )
-  .join('\n')}
-      </ul>
-    </section>
-
-${renderResearchBand(research, researchCount, { researchPath: RESEARCH_PATH, topicsDir: RESEARCH_TOPICS_DIR })}
-
-${renderLatestWriting(posts, { writingPath: WRITING_PATH })}
 
     <section class="band" id="more" aria-labelledby="more-h">
-      <p class="section-eyebrow">Also here</p>
-      <h2 id="more-h">Run your own copy, read the guides, follow the work</h2>
-      <div class="pillar-grid">
-        <a class="pillar" href="deploy/">
-          <span class="pillar-ico">${icon('deploy')}</span>
-          <h3>Deploy your own copy</h3>
-          <p>Every app and tool is MIT licensed. Pick one, paste your own cloud credentials, and get a running copy in your own account. Nothing of ours sits in between.</p>
-          <span class="pillar-more">Deploy your own →</span>
-        </a>
-        <a class="pillar" href="${GUIDES_PATH}">
-          <span class="pillar-ico">${icon('guide')}</span>
-          <h3>Guides and comparisons</h3>
-          <p>The explainers written beside each tool, and products compared side by side, filed by trade.</p>
-          <span class="pillar-more">Read the guides →</span>
-        </a>
-        <a class="pillar" href="${UPDATES_PATH}">
-          <span class="pillar-ico">${icon('pulse')}</span>
-          <h3>Built in public</h3>
-          <p>What shipped this week, what is in progress, where the project is going and how AI agents build it, from the repository's own records.</p>
-          <span class="pillar-more">Updates and roadmap →</span>
-        </a>
-      </div>
-      <ul class="principles">
-        <li>No accounts or sign-up</li>
-        <li>No tracking cookies</li>
-        <li>MIT licence throughout</li>
-        <li>Every change in the <a href="${CHANGELOG_PATH}">public changelog</a></li>
-        <li>What gets built next, in order, on the <a href="${QUEUE_PATH}">work queue</a></li>
-      </ul>
+      <h2 id="more-h" class="section-eyebrow">Also here</h2>
+      <p class="more-links"><a href="${ABOUT_PATH}">About the company</a> · <a href="${GUIDES_PATH}">Guides and comparisons</a> · <a href="${WRITING_PATH}">Writing</a> · <a href="${UPDATES_PATH}">Updates and roadmap</a> · <a href="${RESEARCH_PATH}">Research archive</a></p>
     </section>
 
 <!-- With the other "your data on this device" panel rather than at the top:
@@ -9983,7 +9991,7 @@ ${disclaimerHtml('', surfaces)}
         <label><input type="checkbox" id="optout"> Don't count my visit</label>
       </p>
       <p>
-        Open source — every tool is a static page, and one you have opened keeps
+        Source available — every tool is a static page, and one you have opened keeps
         working with no connection.
       </p>
       ${renderSiteFooterNav({ toRoot: '' })}
@@ -10759,6 +10767,17 @@ export function counterOn() {
  * nothing is sent; on, the page carries the form and the copy says where its
  * text goes. Same lifetime and reason as `SITE_COUNTER_URL`.
  */
+/**
+ * Cloudflare Web Analytics (`platform/analytics/`), off unless the build is
+ * given the site token (`--web-analytics-token=`, `PAGES_WEB_ANALYTICS_TOKEN`
+ * or `platform/analytics/site.json`). On, every page gets the beacon and the
+ * Privacy Policy, Cookie Policy and footer say so; off, none of them do. Same
+ * lifetime and reason as `SITE_COUNTER_URL`.
+ */
+let SITE_ANALYTICS_TOKEN = '';
+export function analyticsOn() {
+  return SITE_ANALYTICS_TOKEN !== '';
+}
 let SITE_FEEDBACK_URL = '';
 export function feedbackOn() {
   return SITE_FEEDBACK_URL !== '';
@@ -10894,7 +10913,8 @@ const CHROME_CSS = `
 .pf-chrome-foot ul{list-style:none;margin:0 0 14px;padding:0;display:grid;gap:8px 18px;
   grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr))}
 .pf-chrome-foot li{margin:0}
-.pf-chrome-foot p.pf-ask{margin:0 0 18px;padding:10px 14px;border:1px solid var(--pf-line);border-left-width:4px;border-radius:8px}
+.pf-chrome-foot p.pf-ask,.pf-chrome-foot p.pf-product{margin:0 0 18px;padding:10px 14px;border:1px solid var(--pf-line);border-left-width:4px;border-radius:8px}
+.pf-chrome-foot p.pf-door{margin:0 0 12px;padding:10px 14px;border:1px solid var(--pf-line);border-left-width:4px;border-radius:8px}
 .pf-ci{margin:0 0 14px}
 .pf-ci summary{cursor:pointer;font-weight:600}
 .pf-ci pre{overflow-x:auto;margin:0 0 10px;padding:8px 10px;border:1px solid var(--pf-line);border-radius:6px;font-size:.82rem}
@@ -11073,7 +11093,36 @@ const CHROME_SCRIPT = ({ counterUrl = '' } = {}) => `
       var rh=document.referrer?new URL(document.referrer).hostname:'';
       if(rh&&rh!==location.hostname){var src=(${sourceOf.toString()})(rh,${JSON.stringify(SOURCE_HOSTS)},${JSON.stringify(SOURCE_LABELS)});if(src)hit.s=src;}
     }catch(e){}
-    try{navigator.sendBeacon(${JSON.stringify(`${counterUrl}/hit`)},new Blob([JSON.stringify(hit)],{type:'text/plain'}));}catch(e){}` : ''}
+    var send=function(o){try{navigator.sendBeacon(${JSON.stringify(`${counterUrl}/hit`)},new Blob([JSON.stringify(o)],{type:'text/plain'}));}catch(e){}};
+    send(hit);
+    try{
+      var FA=${JSON.stringify(FUNNEL_ATTRS)},TOK=${FUNNEL_TOKEN_RE.toString()};
+      var tok=function(el,a){var h=el.closest('['+a+']');var v=h?h.getAttribute(a)||'':'';return TOK.test(v)?v:'';};
+      var prod=function(el){return tok(el,'data-funnel-product')||tok(el,'data-pf-offer');};
+      var fev=function(el,ev){var o={p:slug,e:ev},i=tok(el,'data-funnel-industry'),t=prod(el);if(i)o.i=i;if(t)o.t=t;send(o);};
+      var seen={};
+      var once=function(el,ev){var k=ev+'|'+tok(el,'data-funnel-industry')+'|'+prod(el);if(seen[k])return;seen[k]=1;fev(el,ev);};
+      var scan=function(){
+        var els=document.querySelectorAll('[data-funnel],[data-pf-offer]'),io=null;
+        if(typeof IntersectionObserver==='function')io=new IntersectionObserver(function(es){es.forEach(function(x){
+          if(x.isIntersecting&&(x.intersectionRatio>=0.5||(x.rootBounds&&x.intersectionRect.height>=x.rootBounds.height/2))){io.unobserve(x.target);once(x.target,FA.cta);}
+        });},{threshold:[0,0.5,1]});
+        for(var j=0;j<els.length;j++){
+          var el=els[j],v=el.getAttribute('data-funnel')||'cta';
+          if(v==='cta'){if(io)io.observe(el);else once(el,FA.cta);}
+          else if(v!=='outbound'&&Object.prototype.hasOwnProperty.call(FA,v))once(el,FA[v]);
+        }
+      };
+      if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',scan);else scan();
+      document.addEventListener('click',function(e){
+        var t=e.target&&e.target.closest?e.target:null;
+        if(!t)return;
+        var c=t.closest('[data-funnel="cta"],[data-pf-offer]');
+        if(c)fev(c,'cta_click');
+        var o=t.closest('[data-funnel="outbound"]');
+        if(o)fev(o,FA.outbound);
+      });
+    }catch(e){}` : ''}
     if(navigator.doNotTrack==='1'||navigator.globalPrivacyControl===true)return;
     var k='portfolio-hub-usage';
     var bump=function(event){
@@ -11090,6 +11139,8 @@ const CHROME_SCRIPT = ({ counterUrl = '' } = {}) => `
       if(!t)return;
       var a=t.closest('[data-pf-to]');
       if(a)bump('cross_tool_click:'+a.getAttribute('data-pf-to'));
+      var o=t.closest('[${OFFER_ATTR}]');
+      if(o)bump('product_offer_click:'+o.getAttribute('${OFFER_ATTR}'));
       if(t.closest('[${SPONSOR_LINK_ATTR}]'))bump('${SPONSOR_CLICK_EVENT}');
     });
   }catch(e){}
@@ -11732,7 +11783,7 @@ export function injectDiscoveryTags(html, { canonical, baseUrl, title, descripti
   }
 
   const has = (attr, value) =>
-    new RegExp(`<meta\\b[^>]*\\b${attr}=["']${value.replace(/:/g, ':')}["']`, 'i').test(next);
+    new RegExp(`<meta\\b[^>]*\\b${attr}=["']${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}["']`, 'i').test(next);
   const tags = [];
   const add = (attr, value, content) => {
     if (!content || has(attr, value)) return;
@@ -11788,6 +11839,20 @@ const decodeTextEntities = (value) =>
     .replace(/&#(\d+);/g, (_, code) => codePointOr(Number(code)))
     .replace(/&#x([0-9a-f]+);/gi, (_, code) => codePointOr(parseInt(code, 16)))
     .replace(/&([a-z][a-z0-9]*);/gi, (whole, name) => TEXT_ENTITIES[name.toLowerCase()] ?? whole);
+
+/**
+ * The page with every HTML comment removed, `--!>` endings included, repeated
+ * until nothing changes so a comment split around another cannot survive.
+ */
+function stripHtmlComments(html) {
+  let prev;
+  let out = html;
+  do {
+    prev = out;
+    out = out.replace(/<!--[\s\S]*?--!?>/g, '');
+  } while (out !== prev);
+  return out;
+}
 
 /** Visible text of an HTML fragment, with script/style content dropped. */
 const stripTags = (fragment) =>
@@ -12121,9 +12186,9 @@ function crumbShort(name) {
  * desktop app, a watch face, a server or a page with nothing to type into.
  * This line claims nothing about the page above it.
  */
-export const FOOTER_LEAD_NOT_A_BROWSER_TOOL = 'More from the same free, open-source catalogue.';
+export const FOOTER_LEAD_NOT_A_BROWSER_TOOL = 'More from the same free, source-available catalogue.';
 
-export function injectChrome(html, { slug, toRoot, total, related = [], canonical, baseUrl, isEntry, title, pageTitle, externalCallHosts = [], audiences = [], linkedCss = '', browserTool = true }) {
+export function injectChrome(html, { slug, toRoot, total, related = [], canonical, baseUrl, isEntry, title, pageTitle, externalCallHosts = [], audiences = [], linkedCss = '', browserTool = true, offer = null, offerName = '', door = '' }) {
   if (html.includes(CHROME_MARKER)) return html;
   const initialBody = locateBody(html);
   if (!initialBody) return html;
@@ -12177,7 +12242,7 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
       })}</script>`;
     }
   }
-  if (isEntry && !html.replace(/<!--[\s\S]*?-->/g, '').includes('FAQPage')) {
+  if (isEntry && !stripHtmlComments(html).includes('FAQPage')) {
     // Only where the venture wrote none of its own: two FAQPage blocks on one
     // page describe the same page twice, and a crawler is free to believe
     // whichever it reads first. 37 ventures author their own — those are left
@@ -12248,9 +12313,12 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
   // "somewhat prominent without being dominant"): one bordered line at the top
   // of the footer, below everything the tool itself shows.
   const askLine = `    <p class="pf-ask"><strong>Need this tool to do more?</strong> <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}?kind=feature&tool=${encodeURIComponent(slug)}#request`)}">Request a feature</a>, built free and in public, or <a href="${escapeHtml(`${toRoot}${CUSTOM_DEV_PATH}?kind=problem&tool=${encodeURIComponent(slug)}#request`)}">tell us what is wrong</a>.</p>\n`;
+  // `door` (front-doors.mjs): on a mapped tool only, the paid product its
+  // visitors are plausibly customers for, first in the footer so the free
+  // tool above keeps the page.
   const footer = `<aside class="pf-chrome pf-chrome-foot" aria-label="More free tools">
   <div class="pf-inner">
-${askLine}    <h2>More free tools</h2>
+${door}${askLine}${renderProductOffer({ offer, name: offerName, toRoot })}    <h2>More free tools</h2>
     <p>${externalCallHosts.length
       ? `Everything on this page runs in your browser too, except this one lookup: what you type here also goes to ${listProse(externalCallHosts)}, because that is what checking it means — see the note on this page for exactly what is sent.`
       : browserTool
@@ -12263,7 +12331,11 @@ ${askLine}    <h2>More free tools</h2>
 ${noSla}${isEntry && baseUrl && hasCiChannels(slug) ? renderCiInstall(slug, baseUrl) : ''}${links ? `    <ul>\n${links}\n    </ul>\n` : ''}${forLinks}    <p>
       <a href="${escapeHtml(hub)}" data-pf-to="hub">Browse all ${formatCount(total)} free tools →</a>
       &nbsp;·&nbsp;
-      <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About &amp; privacy</a>
+      <a href="${escapeHtml(`${toRoot}${ABOUT_PATH}`)}">About</a>
+      &nbsp;·&nbsp;
+      <a href="${escapeHtml(`${toRoot}${PRIVACY_PATH}`)}">Privacy</a>
+      &nbsp;·&nbsp;
+      <a href="${escapeHtml(`${toRoot}${TERMS_PATH}`)}">Terms</a>
       &nbsp;·&nbsp;
       <a href="${escapeHtml(`${toRoot}${FEEDBACK_PATH}?tool=${encodeURIComponent(slug)}`)}">Report a problem or suggest a feature</a>
       &nbsp;·&nbsp;
@@ -12392,6 +12464,11 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
 
   // Every footer's related tools, ranked and balanced once (`relatedToolsTable`).
   const relatedTable = relatedToolsTable(surfaces);
+  // The industry pages already written, so a tool's front door never links a
+  // page that is not there (front-doors.mjs).
+  const liveDoors = liveIndustries(outDir);
+  // The product each free tool's footer names, if any (`product-offer.mjs`).
+  const offers = offerTable(loadFunnel(), new Set(surfaces.map((surface) => surface.slug)));
   const perSurface = await mapLimit(surfaces, 16, async (surface) => {
     const found = { wrapped: [], rated: [], saved: [], shared: [], described: [], highlighted: [], narrowed: [], embedded: [] };
     const { wrapped, rated, saved, shared, described, highlighted, narrowed, embedded } = found;
@@ -12435,6 +12512,11 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
         // electronics academy's index pages are hubs; their calculators are
         // pages inside them).
         browserTool: (names.get(surface.slug)?.browserTool ?? true) || hasOwnControls(html),
+        // One pitch per footer: a tool that already names a specific product
+        // (`product-offer.mjs`) keeps that line and gets no industry door.
+        door: offers.has(surface.slug) ? '' : renderToolDoor({ slug: surface.slug, toRoot, live: liveDoors }),
+        offer: offers.get(surface.slug) ?? null,
+        offerName: offers.has(surface.slug) ? names.get(offers.get(surface.slug).product)?.name : '',
       })), toRoot);
       // After the chrome, which guarantees the canonical this repairs, and read
       // from the venture's *own* markup: a deep SEO page inside a tool has its
@@ -12614,7 +12696,7 @@ export function renderFeed(surfaces, baseUrl, launched = {}) {
   <link rel="alternate" type="text/html" href="${escapeHtml(baseUrl)}"/>
   <id>${escapeHtml(`tag:marisstella.dev,2026:${SITE_NAME.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`)}</id>
   <updated>${updated}</updated>
-  <rights>Tools are MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
+  <rights>Tools are FSL-1.1-MIT-licensed. They are estimates and records to act on, not professional advice.</rights>
 ${entries.map(entryXml).join('\n')}
 </feed>
 `;
@@ -12655,8 +12737,10 @@ ${entries.join('\n')}
  * own — they are the same kind of page (this build's, not a venture's) and a
  * crawler following `robots.txt` reaches them through the same index.
  */
-export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys = [], researchSlugs = [], writingSlugs = []) {
+export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys = [], researchSlugs = [], writingSlugs = [], extraPaths = []) {
   const urls = [`  <url><loc>${baseUrl}</loc></url>`]
+    // The company's product pages (products.mjs), always written.
+    .concat(productSitemapPaths().map((p) => `  <url><loc>${baseUrl}${p}</loc></url>`))
     // The Tools section's index of every category page.
     .concat([`  <url><loc>${baseUrl}${CATEGORY_PATH_PREFIX}/</loc></url>`])
     .concat(categoryIds.map((id) => `  <url><loc>${baseUrl}${categoryPagePath(id)}</loc></url>`))
@@ -12664,10 +12748,16 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     // here or in no sitemap at all — and an unlisted page is one a crawler
     // reaches only by following a footer link on a page it happened to find.
     .concat([`  <url><loc>${baseUrl}${ABOUT_PATH}</loc></url>`])
+    // The legal pages, on the same terms.
+    .concat([PRIVACY_PATH, TERMS_PATH, COOKIES_PATH].map((p) => `  <url><loc>${baseUrl}${p}</loc></url>`))
     // The assistant's page, on the same terms: hub-level, so listed here or nowhere.
     .concat([`  <url><loc>${baseUrl}${ASK_PATH}</loc></url>`])
     // Open custom development, on the same terms.
     .concat([`  <url><loc>${baseUrl}${CUSTOM_DEV_PATH}</loc></url>`])
+    // The construction industry landing page (industry-construction.mjs).
+    .concat([`  <url><loc>${baseUrl}${CONSTRUCTION_PATH}</loc></url>`])
+    // The hardware designs page, on the same terms.
+    .concat([`  <url><loc>${baseUrl}${HARDWARE_PATH}</loc></url>`])
     .concat(loadRequests().filter((r) => /^R-\d{4}$/.test(r.id || '')).map((r) => `  <url><loc>${baseUrl}${customRequestPath(r.id)}</loc></url>`))
     // And the comparison index, on exactly the same terms: a hub-level page
     // this build writes, so it is listed here or nowhere.
@@ -12680,6 +12770,9 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     .concat(writingSlugs.map((slug) => `  <url><loc>${baseUrl}${WRITING_PATH}${slug}/</loc></url>`))
     // The fiction section, a hub-level page this build always writes.
     .concat([`  <url><loc>${baseUrl}${STORIES_PATH}</loc></url>`])
+    // Hub-level pages written by their own modules (industries/nonprofits/ ...).
+    // (Ones products.mjs already listed above are not repeated.)
+    .concat(extraPaths.filter((p) => !productSitemapPaths().includes(p)).map((p) => `  <url><loc>${baseUrl}${p}</loc></url>`))
     // The open book: updates and the changelog. Both change with every merge,
     // which is what a crawler deciding how often to come back wants to see.
     .concat([`  <url><loc>${baseUrl}${UPDATES_PATH}</loc></url>`, `  <url><loc>${baseUrl}${CHANGELOG_PATH}</loc></url>`, `  <url><loc>${baseUrl}${QUEUE_PATH}</loc></url>`])
@@ -12762,7 +12855,7 @@ export function renderCatalog(surfaces, baseUrl, launched = {}) {
     {
       name: 'Free calculators for sellers, contractors, and small back offices',
       url: baseUrl,
-      license: 'MIT',
+      license: 'FSL-1.1-MIT',
       price: { amount: '0', currency: 'USD' },
       privacy: 'client-side-only',
       generated_by: 'platform/pages/build.mjs',
@@ -12838,7 +12931,7 @@ export function renderProductLlmsTxt({ slug, title, description, fullDescription
 ## Pages
 
 - [The tool](${baseUrl}${slug}/): the tool itself, with its own notes and disclaimer.
-- [Source and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/${slug}): MIT-licensed code, tests and notes.
+- [Source and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/${slug}): FSL-1.1-MIT-licensed code, tests and notes.
 - [All tools](${baseUrl}llms.txt): the catalogue this tool belongs to.
 
 ## Limits
@@ -12874,7 +12967,10 @@ ${asOf}`;
  * publish its second half as body prose.
  */
 const LLMS_INDEX_DESC_MAX = 140;
-const LLMS_INDEX_TOOLS_PER_CATEGORY = 4;
+// 3, not 4, since 2026-11-24: the index now opens with the products and
+// industries, and the free tools are the front door to them rather than the
+// headline. Every tool is still in llms-full.txt and on its category page.
+const LLMS_INDEX_TOOLS_PER_CATEGORY = 3;
 
 export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guideGroups = [], { audiences = [], research = { themes: [] }, agentPostCount = 0, full = false, updated = '' } = {}) {
   const oneLine = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
@@ -12935,7 +13031,11 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     full
       ? `- [Short index](${baseUrl}llms.txt): the same tools with one-sentence descriptions, small enough to read in one fetch.`
       : `- [Full text](${baseUrl}llms-full.txt): every tool with its complete description and the LLM docs a product ships; large (several hundred KB), fetch only when the index does not answer the question.`,
-    `- [About and press kit](${baseUrl}${ABOUT_PATH}): what this site is, how visitor data is handled (${counterOn() ? 'inputs never leave the browser; a cookieless per-page daily tally, with the kind of referring site, the country code and the device type, goes to a first-party counter' : 'it never leaves the browser'}${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
+    `- [About and press kit](${baseUrl}${ABOUT_PATH}): who runs the company (one owner, AI agents), what is live and in development, how the free tools handle what you type (it stays in the browser${exceptions.length ? ', with a documented exception listed there' : ''}), the licence, and pre-written boilerplate for citing or linking to these tools.`,
+    `- [Privacy Policy](${baseUrl}${PRIVACY_PATH}): what the site collects (request data seen by the host, Cloudflare${analyticsOn() ? '; cookieless Cloudflare Web Analytics' : ''}${counterOn() ? '; aggregate daily page counts on a first-party counter' : ''}; email and feedback you send), why, and your rights. The [Terms of Use](${baseUrl}${TERMS_PATH}) and [Cookie Policy](${baseUrl}${COOKIES_PATH}) sit beside it.`,
+    `- [Open hardware designs for businesses](${baseUrl}${HARDWARE_PATH}): robots for tennis clubs (ball collection), cleaning companies (floor cleaning) and grounds crews (a wire-free mower), open house plans for builders, and construction robotics research, each with its honest stage. Every design is FSL-1.1-MIT licensed (MIT two years after release) and at the CAD and simulation stage: nothing has been built, nothing is for sale, and there are no prices or dates. Each card links the site's feedback form so a business can say it would use one.`,
+    // Full file only: the short index sits at its 50,000-byte cap (build.test.mjs).
+    ...(full ? [`- [Online sellers](${baseUrl}${ONLINE_SELLERS_PATH}): resellers on eBay, Etsy, Poshmark, Mercari, Whatnot, Depop: profit after fees, payouts, cost of goods, mileage, Schedule C; Seller Books (in development) and free tools.`] : []),
     `- [Free custom software for your business](${baseUrl}${CUSTOM_DEV_PATH}): describe your problem and it gets built. How a business, or anyone, can ask the agents that build this site for a new tool, free and in public, the one condition (the result stays MIT licensed, held by the repository owner), and every request so far with its status. Each request has its own page (custom-development/R-0001/ and so on) showing its stage and what is still open, with a form for feedback on it.`,
     `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
@@ -12982,7 +13082,7 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     // than a page to send a person to. Every tool's arithmetic is a pure module
     // beside its page; platform/agents/tools.mjs calls those modules from a
     // clone, from the command line or as an MCP server, with no browser.
-    `- [Command line and MCP server for agents](${REPO_URL}/tree/main/platform/agents): call any of these tools' calculation engines directly with JSON inputs from a clone of the open-source repository — \`node platform/agents/tools.mjs search|describe|call\`, or the same as a local stdio MCP server. No browser, no network, no account.`,
+    `- [Command line and MCP server for agents](${REPO_URL}/tree/main/platform/agents): call any of these tools' calculation engines directly with JSON inputs from a clone of the source-available repository — \`node platform/agents/tools.mjs search|describe|call\`, or the same as a local stdio MCP server. No browser, no network, no account.`,
     `- [Sitemap](${baseUrl}sitemap.xml): every published page, including the worked-example and decision pages inside each tool.`,
     `- [Atom feed](${baseUrl}${FEED_FILE}): new tools as they are published, newest first. Poll this rather than re-reading the whole catalogue to find out what is new.`,
     '',
@@ -12992,9 +13092,9 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
   // question names a trade rather than a tool. Absent from this file until
   // 2026-10-21, while every tool was here.
   const audienceSection = audiences.length
-    ? `## Tools by who you are
+    ? `## Industries and trades
 
-One page per trade or kind of business, listing only the tools that serve it.
+One page per trade or kind of business, listing the free tools that serve it.
 
 ${audiences
   .map(({ audience, items }) => `- [${oneLine(audience.title)}](${baseUrl}${categoryPagePath(audiencePageId(audience))}): ${items.length} tools. ${oneLine(audience.description)}`)
@@ -13029,16 +13129,35 @@ ${full ? `\n${exceptions.map((x) => `- [${oneLine(toolProseName(x.title))}](${ba
 `
     : '';
 
+  // Products and industries first, free tools after (2026-11-24 revamp: the
+  // site is a for-profit portfolio of products for specific SMBs, and the free
+  // tools are the front door to them). Live products are linked; products in
+  // development are named in bold, not linked, because they have no page to
+  // send anyone to yet. Shared with the About page through company.mjs.
+  const products = `## Products
+
+Live:
+
+${LIVE_PRODUCTS.map((p) => `- [${p.name}](${baseUrl}${p.path}): for ${p.audience}. ${p.name} ${full ? p.summary : shortText(p.summary)}`).join('\n')}
+
+${full ? `In development (not for sale yet, no sign-ups; the order changes with the evidence):
+
+${IN_DEVELOPMENT.map(([name, what]) => `- **${name}**, ${what}.`).join('\n')}` : `In development, not for sale yet: ${IN_DEVELOPMENT.map(([name]) => name).join('; ')}. Each is described in [llms-full.txt](${baseUrl}llms-full.txt).`}
+
+${full ? `Built for ${INDUSTRIES}. A business with a problem software could solve can [ask for it to be built](${baseUrl}${CUSTOM_DEV_PATH}), free and in public.` : 'Built for construction, manufacturing and other small businesses; the industry pages follow.'}
+`;
+
+  const live = LIVE_PRODUCTS.map((p) => `${p.name}, for ${p.audience}`);
   return `# ${SITE_NAME}
 
-> ${SITE_NAME} is an open-source lab where AI agents build tools and research in public, all MIT licensed. ${formatCount(surfaces.length)} free, open-source tools (browser calculators and checks, self-hostable business apps and command-line tools) for marketplace sellers, trade contractors, logistics buyers and small teams, plus ${researchProjects ? `${formatCount(researchProjects)} reproducible research projects` : 'open research'}; no account or payment, and the numbers you type stay in your browser.
+> ${SITE_NAME} ${COMPANY_SUMMARY}. Live: ${listProse(live)}; more products are in development for construction, manufacturing and other small businesses. Free: ${formatCount(surfaces.length)} source-available tools${researchProjects ? ` and ${formatCount(researchProjects)} research projects` : ''}, MIT licensed.
 
-Each tool is a static page that works offline once opened, and is free with no
-gated features. They are estimates and records to act on, not professional
-advice or a determination made on anyone's behalf; each page carries its own
-limitations.
+${products}
+${audienceSection ? `${audienceSection}\n` : ''}## Free tools
 
-${network}${audienceSection ? `${audienceSection}\n` : ''}${sections.join('\n')}
+${full ? `${formatCount(surfaces.length)} free, source-available tools (browser calculators and checks, self-hostable apps, command-line tools) for sellers, contractors, logistics buyers and small teams. No account; the numbers you type stay in your browser. Estimates and records to act on, not professional advice; each page states its limits.` : 'No account; inputs stay in the browser. Estimates, not professional advice.'}
+
+${network}${sections.join('\n')}
 ${researchSection ? `${researchSection}\n` : ''}${optional}${/^\d{4}-\d{2}-\d{2}/.test(updated) ? `\n${llmsAsOfLine(updated)}\n` : ''}`;
 }
 
@@ -13383,6 +13502,8 @@ export async function buildSite({
   counterUrl = '',
   // platform/edge's origin; '' (the default) builds the feedback page without its form.
   feedbackUrl = '',
+  // Cloudflare Web Analytics site token; '' (the default) builds with no beacon.
+  webAnalyticsToken = '',
   // Link committed MP3s from jsDelivr instead of shipping them (audio-cdn.mjs).
   // The deploy turns it on with --audio-cdn; local and test builds keep the files.
   audioCdn = false,
@@ -13396,6 +13517,7 @@ export async function buildSite({
   setCardDrawing(cards);
   SITE_COUNTER_URL = normaliseCounterUrl(counterUrl);
   SITE_FEEDBACK_URL = normaliseCounterUrl(feedbackUrl);
+  SITE_ANALYTICS_TOKEN = normaliseAnalyticsToken(webAnalyticsToken);
   const pending = {};
   try {
     return await buildSiteInner({ venturesDir, outDir, base, log, disableWorker, audioCdn, pending, only });
@@ -13406,6 +13528,7 @@ export async function buildSite({
     setCardDrawing(true);
     SITE_COUNTER_URL = '';
     SITE_FEEDBACK_URL = '';
+    SITE_ANALYTICS_TOKEN = '';
   }
 }
 
@@ -13672,6 +13795,10 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // Stills and a recording of real tools for the hub (showcase/capture.mjs).
   const showcase = loadShowcase(surfaces.map((s) => s.slug));
   log(`Published ${await copyShowcase(outDir, showcase)} showcase file(s).`);
+  // The product pages (products.mjs, from business.mjs). Written before the hub
+  // and before anything else, so a richer industries/<slug>/ page a later step
+  // writes replaces the plain one.
+  await buildProducts(outDir, base, { published: new Map(surfaces.map((s) => [s.slug, cardName(s.title)])) });
   await fs.writeFile(
     path.join(outDir, 'index.html'),
     renderHub(surfaces, base, { researchCount: researchProjectCount(), research, showcase, posts: loadPosts(), flagships: flagshipSlugs() }),
@@ -13773,6 +13900,45 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   const feedbackDir = path.join(outDir, FEEDBACK_PATH);
   await fs.mkdir(feedbackDir, { recursive: true });
   await fs.writeFile(path.join(feedbackDir, 'index.html'), renderFeedbackPage({ surfaces, baseUrl: base }));
+  // The Privacy Policy, Terms of Use and Cookie Policy (legal-pages.mjs).
+  for (const doc of Object.values(legalDocuments({
+    toRoot: '../', analytics: analyticsOn(), counter: counterOn(), feedback: feedbackOn(),
+    exceptions: externalCallExceptions(surfaces),
+  }))) {
+    await fs.mkdir(path.join(outDir, doc.path), { recursive: true });
+    await fs.writeFile(path.join(outDir, doc.path, 'index.html'), renderLegalPage({ doc, surfaces, baseUrl: base }));
+  }
+  // The nonprofits industry page (2026-11-24 pivot): small nonprofits'
+  // common problems, Grant Autopilot, and the free nonprofit tools. See
+  // `industry-nonprofits.mjs`.
+  const industryPages = [
+    await buildNonprofitsPage(outDir, base, {
+      published: new Set(surfaces.map((s) => s.slug)),
+      footer: `${disclaimerHtml('../../', surfaces)}\n      ${renderSiteFooterNav({ toRoot: '../../' })}`,
+      tail: `  <script src="../../${CHROME_MODULE_FILE}" ${CHROME_SLUG_ATTR}="industry-nonprofits" defer></script>`,
+    }),
+    // Job shops and small engineering firms: quoting and CMMC/ISO 9001
+    // products in development, and the free tools (`industry-manufacturing.mjs`).
+    await buildManufacturingPage(outDir, base, {
+      published: new Set(surfaces.map((s) => s.slug)),
+      footer: `${disclaimerHtml('../../', surfaces)}\n      ${renderSiteFooterNav({ toRoot: '../../' })}`,
+      tail: `  <script src="../../${CHROME_MODULE_FILE}" ${CHROME_SLUG_ATTR}="industry-manufacturing" defer></script>`,
+    }),
+  ];
+  // The online sellers industry page (industry-online-sellers.mjs): resellers'
+  // problems, Seller Books in development, and the best free seller tools.
+  await fs.mkdir(path.join(outDir, ONLINE_SELLERS_PATH), { recursive: true });
+  await fs.writeFile(path.join(outDir, ONLINE_SELLERS_PATH, 'index.html'), renderOnlineSellersIndustryPage({ surfaces, baseUrl: base }));
+  industryPages.push(ONLINE_SELLERS_PATH);
+  // The open hardware designs as future products for businesses (see `hardware-page.mjs`).
+  const hardwareDir = path.join(outDir, HARDWARE_PATH);
+  await fs.mkdir(hardwareDir, { recursive: true });
+  await fs.writeFile(path.join(hardwareDir, 'index.html'), renderHardwarePage({
+    baseUrl: base,
+    footerHtml: disclaimerHtml('../', surfaces),
+    chromeScript: `<script src="${escapeHtml(`../${CHROME_MODULE_FILE}`)}" ${CHROME_SLUG_ATTR}="hardware" defer></script>`,
+    socialCard: `${base}${SOCIAL_CARD_FILE}`,
+  }));
   const customDevDir = path.join(outDir, CUSTOM_DEV_PATH);
   const customRequests = loadRequests();
   const researchDirs = researchDirections();
@@ -13840,6 +14006,16 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // spent and is blocked on, read from the committed run records and history.
   // `noindex` and in no sitemap; see `engineering.mjs`.
   await buildEngineeringPage(outDir, base);
+
+  // The construction industry landing page (`industry-construction.mjs`):
+  // links only tools and research this build published.
+  await buildConstructionPage(outDir, {
+    baseUrl: base,
+    disclaimer: disclaimerHtml('../../', surfaces),
+    footer: renderSiteFooterNav({ toRoot: '../../' }),
+    liveSlugs: new Set(surfaces.map((surface) => surface.slug)),
+    researchSlugs: new Set(researchSlugs),
+  });
 
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
   // each post is listed in the hub sitemap below.
@@ -13934,6 +14110,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
       compareProducts.map((group) => group.key),
       [...researchSlugs, ...researchTopics, ...researchApps],
       writingPages,
+      industryPages,
     ),
   );
   await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base, launched));
@@ -14016,6 +14193,21 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     wrapped, rated, saved, shared, described, highlighted, narrowed, embedded,
   } = await addSiteChrome({ outDir, surfaces, baseUrl: base });
 
+  // Category and audience pages were written before the industry pages
+  // they may point at; drop any front door whose page is not in the site
+  // (front-doors.mjs). After the chrome pass, which reads the same set.
+  {
+    const live = liveIndustries(outDir);
+    const categoryRoot = path.join(outDir, CATEGORY_PATH_PREFIX);
+    for (const id of (await exists(categoryRoot)) ? await fs.readdir(categoryRoot) : []) {
+      const file = path.join(categoryRoot, id, 'index.html');
+      if (!(await exists(file))) continue;
+      const html = await fs.readFile(file, 'utf8');
+      const pruned = pruneDoors(html, live);
+      if (pruned !== html) await fs.writeFile(file, pruned);
+    }
+  }
+
   // After the chrome pass, which writes the sponsor line into the footer of
   // every page it wraps -- marking before it would leave those unmarked and
   // uncounted. After every generator has written its pages: a card for each
@@ -14043,6 +14235,11 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // static import graph as modulepreload links, so the browser fetches it in
   // one round instead of one round per import level (preload.mjs).
   const preloads = await addModulePreloads(outDir, { listFiles });
+
+  // Before the offline layer, which hashes the finished pages. The deploy
+  // runs the same pass again over pages written after build.mjs (the
+  // development dashboard, the daily brief); it skips pages already done.
+  if (analyticsOn()) await injectWebAnalytics(outDir, SITE_ANALYTICS_TOKEN);
 
   // After the chrome pass, not before: the offline layer hashes the finished
   // site to name its cache, and injects into pages the chrome has already
@@ -14172,6 +14369,10 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     feedbackUrl: process.argv.find((a) => a.startsWith('--feedback-url='))?.slice('--feedback-url='.length)
       ?? process.env.PAGES_FEEDBACK_URL
       ?? JSON.parse(await fs.readFile(path.join(REPO_ROOT, 'platform', 'edge', 'site.json'), 'utf8')).url,
+    webAnalyticsToken: await resolveAnalyticsToken({
+      explicit: process.argv.find((a) => a.startsWith('--web-analytics-token='))?.slice('--web-analytics-token='.length)
+        ?? process.env.PAGES_WEB_ANALYTICS_TOKEN,
+    }),
     audioCdn: process.argv.includes('--audio-cdn'),
     only: cliOnly,
     // A preview is for looking at pages; the share-card PNGs (thousands, for

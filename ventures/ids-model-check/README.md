@@ -3,7 +3,7 @@
 Check an IFC building model against a buildingSMART **Information Delivery
 Specification (IDS 1.0)** file, in the browser or on the command line, and get
 every failing element with the reason, plus a BCF issue list your BIM tool can
-open. MIT licensed, no dependencies, nothing uploaded.
+open. FSL-1.1-MIT licensed, no dependencies, nothing uploaded.
 
 **Live tool:** https://marisstella.app/ids-model-check/
 
@@ -637,6 +637,21 @@ with one systematic fault gives one line:
   IFC4X3's comparison on IFC2X3 and IFC4 models too and says so as a
   `context-origin` note when only that one fails (0 of the 102 public
   originals; the seeded copies all do).
+- **Cycles of wholes (2026-11-24,
+  [eval/decomposition-cycles-2026-11-24.md](eval/decomposition-cycles-2026-11-24.md)).**
+  Two records that are each other's parts (an assembly holding an assembly
+  that holds it, a port nesting the element it belongs to, two tasks nesting
+  each other) break no WHERE rule and no inverse count in any of the three
+  schemas, and `ifcopenshell.validate` 0.9.0 passes them; IfcTester 0.9.0's
+  partOf check climbs such a chain with no memory of where it has been and
+  never returns. Seeded into the same 102 public files four ways (187 seeds),
+  the schema caught every spatial and containment cycle only because the whole
+  already had a parent, and caught 0 of 28 assembly cycles and 3 of 6 nest
+  cycles. The conformance pass now reports a `decomposition-cycle` for every
+  loop through aggregation, nesting, containment, groups, voids and fills
+  (187 of 187 seeds, 0 of the 102 originals), and a failing IDS row on an
+  element in or below the loop carries a note saying so. A partOf facet here
+  no longer lists an element as its own whole when the walk comes back to it.
 - **Where it shows:** `node cli.mjs --conformance MODEL.ifc [--json]` (exit 1 on
   any fault, with the outside-schema notes and duplicate GlobalIds). It is also
   a model warning in every check of a STEP file up to 40 MB, on the page (a
@@ -2364,4 +2379,4 @@ judgment of the architect, engineer or BIM manager responsible for the model.
 
 ## License
 
-MIT, see `LICENSE`.
+FSL-1.1-MIT, see `LICENSE`.

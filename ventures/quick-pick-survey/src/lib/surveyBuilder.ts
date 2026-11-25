@@ -35,14 +35,21 @@ export type ParseResult =
 const RESERVED = new Set(["admin", "api", "app", "couple", "insights", "login", "privacy", "profile", "s", "terms"]);
 
 export function slugify(text: string): string {
-  return text
+  const slug = text
     .normalize("NFKD")
     .replace(/[̀-ͯ]/g, "")
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 60)
-    .replace(/-+$/g, "");
+    .replace(/[^a-z0-9]+/g, "-");
+  return trimDashes(trimDashes(slug).slice(0, 60));
+}
+
+/** Drop leading and trailing hyphens with a plain scan (no backtracking regex). */
+function trimDashes(s: string): string {
+  let start = 0;
+  let end = s.length;
+  while (start < end && s[start] === "-") start++;
+  while (end > start && s[end - 1] === "-") end--;
+  return s.slice(start, end);
 }
 
 /** Strip control characters and collapse whitespace; labels are one line. */

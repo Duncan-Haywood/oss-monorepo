@@ -46,7 +46,7 @@ test('the FAQPage answer text matches the visible paragraph exactly (modulo enti
   const schema = JSON.parse(match[1]);
   const squash = (text) => text.replace(/\s+/g, ' ').trim().toLowerCase();
   const visible = html
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&mdash;/g, '—')
     .replace(/&amp;/g, '&');

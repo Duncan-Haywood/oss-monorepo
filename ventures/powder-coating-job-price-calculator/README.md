@@ -12,4 +12,4 @@ After using this, you can now **quote a coating job from the powder it really us
 2. Pure logic is in `calc.mjs` (`plan()`, `jobCost()`, `quantityBreaks()`, `breakEvenQty()`, `sensitivity()`, `encodeShare()`); tests: `node --test`.
 
 Modelled: powder weight from coverage, film thickness and specific gravity; transfer efficiency and reclaim; scrap; prep, masking, hanging and spray labour with overhead; colour setup per coat; whole oven batches and multiple coats; margin as a share of the price, rush surcharge and a minimum charge; price by order size; the order size that meets a customer's target price; a powder price sensitivity table; a share link that keeps the numbers in the URL. Not modelled: sales tax, freight, outsourced blasting or pretreatment, rack stripping, warranty beyond the scrap rate, local rates.
-Not legal, tax or financial advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
+Not legal, tax or financial advice. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

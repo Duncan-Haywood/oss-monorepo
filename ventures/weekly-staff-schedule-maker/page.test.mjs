@@ -94,7 +94,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist and carry the scre
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /how-to-make-a-staff-schedule\.html/);
   assert.match(page("README.md"), /No warranty/);
-  assert.match(page("LICENSE"), /MIT License/);
+  assert.match(page("LICENSE"), /Functional Source License/);
   const y = page("VENTURE.yaml");
   assert.match(y, /^name: weekly-staff-schedule-maker$/m);
   assert.match(y, /duplicate_check\.py: closest rows/);

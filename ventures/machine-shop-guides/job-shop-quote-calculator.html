@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Job Shop Quote Calculator: Price a Machined Part from Your Own Rates</title>
+  <meta name="description" content="Free job-shop quote calculator: material, setup, programming, cycle time, secondary ops and markup from your own rates, priced at every quantity break.">
+  <meta property="og:title" content="Job Shop Quote Calculator: Price a Machined Part from Your Own Rates">
+  <meta property="og:description" content="Free job-shop quote calculator: material, setup, programming, cycle time, secondary ops and markup from your own rates, with price per part at every quantity break.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://marisstella.app/machine-shop-guides/job-shop-quote-calculator.html">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%232c4a3e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Job Shop Quote Calculator: Price a Machined Part from Your Own Rates", "description": "Free job-shop quote calculator: material, setup, programming, cycle time, secondary ops and markup from your own rates, with price per part at every quantity break.", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+</head>
+<body data-page="job-shop-quote-calculator">
+<nav class="crumbs"><a href="./">Machine shop guides</a></nav>
+<main>
+<h1>Job-shop quote calculator</h1>
+<p class="lede">Price a machined part from <em>your</em> numbers: material, setup, programming, cycle time, secondary operations and markup, with the price per part recomputed at every quantity break. The tool has no built-in rates. Every field starts empty because a rate we made up would be wrong for your shop.</p>
+<p class="note">How each line is worked out, and where to get the numbers from your own records: <a href="how-to-price-a-machined-part.html">how to price a machined part</a>.</p>
+
+<form id="f" class="card" autocomplete="off">
+  <h2>Material</h2>
+  <div class="grid">
+    <label>Material cost per part ($)<span class="hint">Bar or plate price ÷ parts per bar, from your supplier's invoice</span><input name="materialPerPart" type="number" min="0" step="any" inputmode="decimal"></label>
+    <label>Scrap allowance (%)<span class="hint">Extra stock for setup pieces and rejects</span><input name="scrapPct" type="number" min="0" step="any" inputmode="decimal"></label>
+  </div>
+  <h2>Setup and programming (once per lot)</h2>
+  <div class="grid">
+    <label>Setup hours<input name="setupHours" type="number" min="0" step="any" inputmode="decimal"></label>
+    <label>Setup rate ($/h)<input name="setupRate" type="number" min="0" step="any" inputmode="decimal"></label>
+    <label>Programming hours<input name="programHours" type="number" min="0" step="any" inputmode="decimal"></label>
+    <label>Programming rate ($/h)<input name="programRate" type="number" min="0" step="any" inputmode="decimal"></label>
+    <label>Lots you expect off this program<span class="hint">1 = charge all programming to this lot</span><input name="lotsOverProgramLife" type="number" min="1" step="1" value="1" inputmode="numeric"></label>
+  </div>
+  <h2>Machining (per part)</h2>
+  <div class="grid">
+    <label>Cycle time per part (minutes)<span class="hint">Spindle plus load/unload, from a prove-out or your CAM estimate</span><input name="cycleMinutes" type="number" min="0" step="any" inputmode="decimal"></label>
+    <label>Machine rate ($/h)<span class="hint">Your shop rate for this machine</span><input name="machineRate" type="number" min="0" step="any" inputmode="decimal"></label>
+  </div>
+  <h2>Other operations</h2>
+  <p class="note">Deburr, inspection, heat treat, anodize, plating: minutes per part at a rate, and/or a flat charge per lot (an outside vendor's lot minimum, for example).</p>
+  <div class="scroller"><table><thead><tr><th>Operation</th><th>Min/part</th><th>Rate $/h</th><th>Flat $/lot</th></tr></thead><tbody id="ops"></tbody></table></div>
+  <button type="button" class="secondary" id="add-op">Add an operation</button>
+  <h2>Markup and quantities</h2>
+  <div class="grid">
+    <label>Markup on cost (%)<input name="markupPct" type="number" min="0" step="any" inputmode="decimal"></label>
+    <label>Quantity breaks<span class="hint">Comma-separated</span><input name="breaks" type="text" value="1, 5, 10, 25, 50, 100"></label>
+  </div>
+  <button type="submit">Price it</button>
+  <button type="button" class="secondary" id="clear">Clear</button>
+  <p id="err" class="bad" role="alert"></p>
+</form>
+
+<section class="card" id="out" aria-live="polite" hidden>
+  <h2>Price at each quantity</h2>
+  <div class="scroller"><table>
+    <thead><tr><th class="num">Qty</th><th class="num">Material</th><th class="num">Setup + prog.</th><th class="num">Machining</th><th class="num">Other ops</th><th class="num">Lot cost</th><th class="num">Lot price</th><th class="num">Price / part</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table></div>
+  <p class="note" id="explain"></p>
+</section>
+
+<section>
+<h2>What this calculator does and does not do</h2>
+<p>It adds up the lines you give it and spreads the once-per-lot costs (setup, programming, any flat lot charge) over the quantity. That spreading is why a 5-off costs more per part than a 100-off: the quantity breaks are arithmetic, not a discount schedule we invented. It does not estimate a cycle time from a drawing, look up a material price or tell you what the market will pay; those numbers are yours.</p>
+<p>Markup here is applied to cost (price = cost × (1 + markup)). If you think in margin instead, a 20% margin on price is a 25% markup on cost. For a deeper model with bar and plate yield, tool life and outside-process minimums, there is also a separate <a href="https://marisstella.app/cnc-machining-quote-calculator/">CNC machining quote calculator</a>.</p>
+</section>
+
+<script type="module">
+  import { quoteBreaks, validate } from "./quote.mjs";
+  import { recordUsage, usageStorage } from "./usage.mjs";
+  const KEY = "machine-shop-guides-quote-draft";
+  const store = usageStorage();
+  const f = document.getElementById("f");
+  const opsBody = document.getElementById("ops");
+  const money = (n) => n.toLocaleString(undefined, { style: "currency", currency: "USD" });
+  function addOp(op = {}) {
+    const tr = document.createElement("tr");
+    for (const [k, type] of [["name", "text"], ["minutesPerPart", "number"], ["rate", "number"], ["lotCharge", "number"]]) {
+      const td = document.createElement("td"); const i = document.createElement("input");
+      i.type = type; i.dataset.k = k; i.value = op[k] ?? ""; i.setAttribute("aria-label", k);
+      if (type === "number") { i.min = "0"; i.step = "any"; }
+      td.append(i); tr.append(td);
+    }
+    opsBody.append(tr);
+  }
+  function read() {
+    const d = Object.fromEntries(new FormData(f));
+    d.ops = [...opsBody.rows].map((tr) => Object.fromEntries([...tr.querySelectorAll("input")].map((i) => [i.dataset.k, i.value])))
+      .filter((o) => o.name || o.minutesPerPart || o.rate || o.lotCharge);
+    return d;
+  }
+  function write(d) {
+    for (const el of f.elements) if (el.name && d[el.name] !== undefined) el.value = d[el.name];
+    opsBody.replaceChildren();
+    for (const o of d.ops || []) addOp(o);
+    if (!opsBody.rows.length) { addOp({ name: "Deburr" }); addOp({ name: "Inspection" }); }
+  }
+  try { write(JSON.parse(store?.getItem(KEY) || "{}") || {}); } catch { write({}); }
+  document.getElementById("add-op").addEventListener("click", () => addOp());
+  document.getElementById("clear").addEventListener("click", () => { f.reset(); write({}); try { store?.removeItem(KEY); } catch {} document.getElementById("out").hidden = true; });
+  f.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const d = read();
+    try { store?.setItem(KEY, JSON.stringify(d)); } catch {}
+    const errs = validate(d);
+    document.getElementById("err").textContent = errs.join("; ");
+    if (errs.length) return;
+    const breaks = String(d.breaks || "1").split(/[ ,;]+/).map(Number).filter((n) => n >= 1);
+    const rows = quoteBreaks(d, breaks.length ? breaks : [1]);
+    const tb = document.getElementById("rows"); tb.replaceChildren();
+    for (const r of rows) {
+      const tr = document.createElement("tr");
+      for (const v of [r.quantity, money(r.lines.material), money(r.lines.setup + r.lines.programming), money(r.lines.machining), money(r.lines.ops), money(r.cost), money(r.price), money(r.priceEach)]) {
+        const td = document.createElement("td"); td.className = "num"; td.textContent = v; tr.append(td);
+      }
+      tb.append(tr);
+    }
+    const first = rows[0], last = rows[rows.length - 1];
+    document.getElementById("explain").textContent = rows.length > 1
+      ? `Setup and programming add ${money(first.fixedShareEach)} to each part at ${first.quantity} and ${money(last.fixedShareEach)} at ${last.quantity}. That difference is the quantity break.`
+      : "Add more quantities to see the break.";
+    document.getElementById("out").hidden = false;
+    recordUsage("quote");
+  });
+</script>
+</main>
+<section class="card cta" id="early-access">
+  <h2>In development — early access</h2>
+  <p>We are building two paid products for small machine shops: an <strong>RFQ-to-quote assistant</strong> that turns a drawing and an email into a priced quote from your own rates, and a <strong>CMMC Level 1/2 and ISO 9001 workspace</strong> that keeps your SSP, POA&amp;M and SPRS score in one place. Neither is released yet. Read what is planned and how to get early access on the <a href="https://marisstella.app/industries/manufacturing/">manufacturing page</a>.</p>
+  <p class="note">Neither product certifies anyone. Only an authorized C3PAO (or the government) can issue a CMMC Level 2 certification; software can help you prepare, nothing more.</p>
+</section>
+<footer>
+  <p><a href="./">Machine shop guides</a> · <a href="cmmc-level-1-self-assessment.html">CMMC Level 1 self-assessment</a> · <a href="sprs-score-calculator.html">SPRS score calculator</a> · <a href="job-shop-quote-calculator.html">Job-shop quote calculator</a> · <a href="cmmc-level-1-vs-level-2.html">CMMC Level 1 vs Level 2</a> · <a href="ssp-and-poam.html">SSP and POA&amp;M</a> · <a href="how-to-price-a-machined-part.html">How to price a machined part</a> · <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/machine-shop-guides">Source (FSL-1.1-MIT)</a></p>
+  <p><strong>Not affiliated with or endorsed by the Department of Defense (Department of War), NIST, the Cyber AB or any C3PAO.</strong> A score you calculate here is a self-check, not a CMMC assessment, a certification or an SPRS submission. Regulations are summarised with dates in <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/machine-shop-guides/SOURCES.md">SOURCES.md</a>; read the official text before you rely on it, because the rules change.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, compliance, financial or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  <p>Privacy: nothing you type leaves your browser. This page keeps an anonymous visit count in your own browser's storage only. <button type="button" class="secondary" id="usage-toggle">Turn off counting</button></p>
+</footer>
+<script type="module">
+  import { recordUsage, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+  const btn = document.getElementById("usage-toggle");
+  const paint = () => { btn.textContent = usageOptedOut() ? "Turn counting back on" : "Turn off counting"; };
+  btn.addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); paint(); });
+  paint();
+  recordUsage("view:" + (document.body.dataset.page || "page"));
+</script>
+</body>
+</html>

@@ -73,8 +73,8 @@
     .muted{color:var(--muted)}
     .err{color:var(--rej)}
     footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:1rem;margin-top:2rem}
-    #iptcBox{border-top:1px solid var(--line);padding-top:.6rem;margin:.6rem 0}
-    #iptcBox summary{cursor:pointer}
+    #iptcBox,#proofBox{border-top:1px solid var(--line);padding-top:.6rem;margin:.6rem 0}
+    #iptcBox summary,#proofBox summary{cursor:pointer}
     .iptc{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:.5rem .8rem}
     .iptc label{display:flex;flex-direction:column;font-size:.85rem;color:var(--muted);gap:.15rem}
     .iptc label.wide{grid-column:1/-1}
@@ -110,6 +110,7 @@
       <option value="rejected">Rejected</option>
       <option value="best">Sharpest of each burst</option>
       <option value="eyesclosed">Eyes closed</option>
+      <option value="labelled">Colour labelled</option>
     </select></label>
     <label class="status">Sort <select id="sort">
       <option value="time">Capture time</option>
@@ -167,6 +168,34 @@
       <button id="dlPicks">Picks list (.txt)</button>
       <button id="dlCsv">All frames (.csv)</button>
     </div>
+    <details id="proofBox">
+      <summary><strong>Send the picks to your client (proofing set)</strong> <span class="status">a zip of web-size JPEGs and a gallery page they heart favourites in</span></summary>
+      <p class="muted">Makes web-size JPEGs of your picks from the previews the camera stored, with your watermark if you type one, plus <code>index.html</code>, a gallery your client opens from the unzipped folder on a phone or computer. They tap a heart on each photo they want and press “Copy my list”; paste their reply below and those frames get a colour label here, ready for the sidecars. Nothing is uploaded: you send the zip however you already send files. Proofs are no larger than the camera's embedded preview (often about 1,600 to 6,000 px wide).</p>
+      <div class="iptc">
+        <label>Which frames<select id="pfWhich">
+          <option value="1">rated 1 star or more</option><option value="2">2 stars or more</option><option value="3">3 stars or more</option><option value="4">4 stars or more</option><option value="5">5 stars</option>
+          <option value="L:Red">Red label</option><option value="L:Yellow">Yellow label</option><option value="L:Green">Green label</option><option value="L:Blue">Blue label</option>
+        </select></label>
+        <label>Long edge<select id="pfSize"><option value="1600">1,600 px</option><option value="2048" selected>2,048 px</option><option value="3000">3,000 px</option></select></label>
+        <label>Watermark (blank for none)<input id="pfMark" placeholder="© Your Name"></label>
+        <label>Gallery title<input id="pfTitle" placeholder="Smith wedding, proofs"></label>
+        <label>From (your name or studio)<input id="pfBy" autocomplete="organization"></label>
+        <label class="wide">Note to the client<input id="pfNote" placeholder="Please heart up to 40 for the album by Friday."></label>
+      </div>
+      <div class="bar">
+        <button class="primary" id="dlProof">Download proofing set (.zip)</button>
+        <span class="status" id="pfState"></span>
+      </div>
+      <div class="iptc">
+        <label class="wide">The client's list (paste their reply: file names, stems or frame numbers)<textarea id="pfBack" rows="3" spellcheck="false" placeholder="ShootFlow favourites — Smith wedding&#10;IMG_0412.jpg&#10;IMG_0417.jpg"></textarea></label>
+        <label>Label their favourites<select id="pfLabel"><option>Purple</option><option>Red</option><option>Yellow</option><option>Green</option><option>Blue</option></select></label>
+      </div>
+      <div class="bar">
+        <button id="pfApply">Label the client's favourites</button>
+        <label class="btnlike">Open their list (.txt)<input type="file" id="pfBackFile" accept=".txt,text/plain"></label>
+        <span class="status" id="pfBackState"></span>
+      </div>
+    </details>
     <p class="muted">Unzip the sidecars into the folder that holds the raw files, then import. If you dropped existing .xmp sidecars with the raws, the zip carries those same files back with only the rating and label changed, so develop settings, keywords and crops in them are kept; in Lightroom, use Metadata › Read Metadata from Files for photos already in the catalogue. Lightroom reads sidecar ratings for raw files only; it keeps JPEG and DNG metadata inside the file, so ratings for those will not carry over this way. In Lightroom, a rating of −1 shows as rejected.</p>
   </section>
 
@@ -230,7 +259,7 @@
     <p>Early-stage software. It only reads your files and never changes or deletes them; still, keep your own backups of all media.</p>
     <p><strong>No warranty.</strong> This software is provided free and as-is, without warranty of any kind, express or implied. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
   </section>
-  <footer><a href="./">ShootFlow</a>: card copies with checksums, offline culling, raw development and overnight grading. <a href="camera-raw-formats.html">Camera raw formats</a>. Open source, MIT licensed. Part of the tool catalogue.</footer>
+  <footer><a href="./">ShootFlow</a>: card copies with checksums, offline culling, raw development and overnight grading. <a href="camera-raw-formats.html">Camera raw formats</a>. Open source, FSL-1.1-MIT licensed. Part of the tool catalogue.</footer>
 </main>
 
 <div id="loupe" role="dialog" aria-modal="true" aria-label="Large view">
@@ -252,6 +281,7 @@ import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 import { summarizeFaces, eyesOpenCandidates, describeFaces, loadFaceLandmarker, EDGES, edgeLayout, drawEdgeView, edgeFacesFromResult, needsEdgeSearch } from "./eyes.mjs";
 import { IPTC_FIELDS, frameIptc, mergeIptc, readIptc, splitKeywords, parseCodes } from "./iptc.mjs";
 import { parseKeywordList, keywordVocabulary, resolveKeywords, keywordListText } from "./keywordlist.mjs";
+import { proofingFrames, proofNames, fitSize, watermarkLayout, galleryHtml, readFavourites } from "./proofing.mjs";
 
 const $ = (id) => document.getElementById(id);
 const grid = $("grid");
@@ -557,6 +587,7 @@ function buildView() {
     if (f === "picks") return it.rating >= 1 && !it.rejected;
     if (f === "3") return it.rating >= 3 && !it.rejected;
     if (f === "unrated") return !it.rating && !it.rejected;
+    if (f === "labelled") return !!it.label;
     if (f === "rejected") return it.rejected;
     if (f === "best") return it.best && !it.error;
     if (f === "eyesclosed") return !!it.eyes?.eyesClosed;
@@ -954,6 +985,71 @@ $("dlCsv").onclick = () => {
   download("shootflow-cull.csv", rows.map((r) => r.map(q).join(",")).join("\n") + "\n", "text/csv");
   record("csv_downloaded");
 };
+
+// ---------------------------------------------------------------- client proofing set
+
+const PF_STORE = "shootflow-cull-proofing";
+const pfFields = ["pfWhich", "pfSize", "pfMark", "pfTitle", "pfBy", "pfNote", "pfLabel"];
+try { const v = JSON.parse(localStorage.getItem(PF_STORE) || "{}") || {}; for (const k of pfFields) if (typeof v[k] === "string" && v[k]) $(k).value = v[k]; } catch { /* optional */ }
+for (const k of pfFields) $(k).addEventListener("change", () => { try { localStorage.setItem(PF_STORE, JSON.stringify(Object.fromEntries(pfFields.map((f) => [f, $(f).value])))); } catch { /* optional */ } });
+let lastProofs = []; // [{ file, original }] of the last set made in this tab
+function pfChoice() { const v = $("pfWhich").value; return v.startsWith("L:") ? { label: v.slice(2) } : { minRating: +v }; }
+async function proofJpeg(it, longEdge, mark) {
+  const bmp = await createImageBitmap(previewBlob(it));
+  const [ow, oh] = orientedSize(bmp.width, bmp.height, it.orient);
+  const [W, H] = fitSize(ow, oh, longEdge);
+  const c = document.createElement("canvas"); c.width = W; c.height = H;
+  const ctx = c.getContext("2d");
+  ctx.imageSmoothingQuality = "high";
+  drawOriented(ctx, bmp, it.orient, W, H);
+  bmp.close?.();
+  if (mark) {
+    const m = watermarkLayout(W, H);
+    ctx.font = `600 ${m.size}px system-ui, sans-serif`; ctx.textAlign = m.align; ctx.textBaseline = m.baseline;
+    ctx.lineWidth = Math.max(2, m.size / 10); ctx.strokeStyle = "rgba(0,0,0,.45)"; ctx.fillStyle = "rgba(255,255,255,.82)";
+    ctx.strokeText(mark, m.x, m.y); ctx.fillText(mark, m.x, m.y);
+  }
+  const blob = await new Promise((res) => c.toBlob(res, "image/jpeg", 0.86));
+  return { data: new Uint8Array(await blob.arrayBuffer()), w: W, h: H };
+}
+$("dlProof").onclick = async () => {
+  const frames = proofingFrames(items, pfChoice());
+  if (!frames.length) { $("pfState").textContent = "No frames match: rate some picks (1-5) or choose another option."; return; }
+  const names = proofNames(frames.map((it) => it.name)), longEdge = +$("pfSize").value, mark = $("pfMark").value.trim();
+  const files = [], list = [];
+  $("dlProof").disabled = true;
+  try {
+    for (let i = 0; i < frames.length; i++) {
+      $("pfState").textContent = `Making proof ${i + 1} of ${frames.length}…`;
+      try {
+        const j = await proofJpeg(frames[i], longEdge, mark);
+        files.push({ name: `photos/${names[i]}`, data: j.data });
+        list.push({ file: names[i], original: frames[i].name, w: j.w, h: j.h });
+      } catch { /* a preview that will not decode is left out and counted below */ }
+    }
+    const title = $("pfTitle").value.trim() || "Proofs";
+    files.unshift({ name: "index.html", data: galleryHtml({ title, by: $("pfBy").value.trim(), note: $("pfNote").value.trim(), frames: list }) });
+    const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "proofs";
+    download(`${slug}-proofing.zip`, zipStored(files), "application/zip");
+    lastProofs = list.map(({ file, original }) => ({ file, original }));
+    const left = frames.length - list.length;
+    $("pfState").textContent = `${list.length} proofs and index.html in the zip${left ? `; ${left} left out (preview would not decode)` : ""}. Unzip it and open index.html to see what your client sees.`;
+    record("proofing_set_downloaded");
+    if (mark) record("proofing_set_watermarked");
+  } finally { $("dlProof").disabled = false; }
+};
+function applyFavourites(text) {
+  const proofs = lastProofs.length ? lastProofs : proofNames(items.map((it) => it.name)).map((file, i) => ({ file, original: items[i].name }));
+  const r = readFavourites(text, proofs);
+  const label = $("pfLabel").value, byName = new Map(items.map((it) => [it.name, it]));
+  let n = 0;
+  for (const name of r.matched) { const it = byName.get(name); if (it) { it.label = label; it.from = "here"; n++; } }
+  if (n) { saveMarks(); refresh(); record("proofing_favourites_labelled"); }
+  const few = (a) => a.slice(0, 6).join(", ") + (a.length > 6 ? ` and ${a.length - 6} more` : "");
+  $("pfBackState").textContent = [`${n} frame${n === 1 ? "" : "s"} labelled ${label}`, r.ambiguous.length ? `fits more than one frame, so left alone: ${few(r.ambiguous)}` : "", r.unknown.length ? `not found: ${few(r.unknown)}` : ""].filter(Boolean).join("; ") + (n ? ". Show › Colour labelled lists them, and the sidecars carry the label." : ".");
+}
+$("pfApply").onclick = () => applyFavourites($("pfBack").value);
+$("pfBackFile").onchange = async (e) => { const f = e.target.files[0]; if (!f) return; const t = await f.text(); $("pfBack").value = t; applyFavourites(t); e.target.value = ""; };
 
 // ---------------------------------------------------------------- closed eyes
 

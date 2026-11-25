@@ -194,3 +194,32 @@ test("a tab export with decimal commas is read as decimals, and thousands separa
   assert.equal(detectDecimalComma("a,b\n1,25\n", ","), false);
   assert.equal(detectDecimalComma("a;b\n1;2\n", ";"), true);
 });
+
+test("a realistic daily export (per-day frequency near 1.2) still flags an ad whose CTR fell", () => {
+  // Meta reports per-day reach in a Day breakdown, so each row's Frequency is
+  // that day's; the averaged figure never reaches the period threshold of 3.
+  let daily = "Day,Campaign name,Ad name,Amount spent,Impressions,Reach,Frequency,Link clicks,Purchases\n";
+  for (let d = 1; d <= 28; d++) {
+    const day = `2026-09-${String(d).padStart(2, "0")}`;
+    const clicks = Math.round(2000 * (0.02 - (0.011 * (d - 1)) / 27));
+    daily += `${day},C,Hero video,40,2000,1695,1.18,${clicks},2\n`;
+    daily += `${day},C,Steady,40,2000,1695,1.18,40,2\n`;
+    daily += `${day},C,Steady 2,40,2000,1695,1.18,40,2\n`;
+  }
+  const r = analyze(normalizeRows(parseCsv(daily)).rows);
+  const hero = r.ads.find((a) => a.ad === "Hero video");
+  assert.ok(Math.abs(hero.freq - 1.18) < 1e-9);
+  assert.ok(hero.dailyFreq);
+  assert.ok(Math.abs(hero.freqUpper - 56000 / 1695) < 1e-9);
+  assert.ok(hero.fatigued, "the decaying ad is flagged");
+  assert.match(hero.reasons[0], /daily CTR fell \d+%.*per-day.*at most 33\.0/);
+  assert.ok(!r.ads.find((a) => a.ad === "Steady").fatigued);
+  // A period export (one row per ad) keeps the frequency gate.
+  const period = "Ad name,Amount spent,Impressions,Reach,Frequency,Link clicks,Purchases\nA,100,5000,4000,1.25,20,1\nB,100,5000,4000,1.25,100,5\nC,100,5000,4000,1.25,100,5\n";
+  assert.equal(analyze(normalizeRows(parseCsv(period)).rows).fatigued.length, 0);
+});
+
+test("the page says the column names are unverified against a real export", async () => {
+  const { readFileSync } = await import("node:fs");
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /have not yet been checked against a real Ads Manager file/);
+});

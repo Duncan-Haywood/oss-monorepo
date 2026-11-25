@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
-  encodeInputs, decodeInputs, TEXT_FIELD_IDS, DATE_FIELD_IDS, ROW_STATUSES, MAX_ROW_TEXT, MAX_ROWS,
+  encodeInputs, decodeInputs, TEXT_FIELD_IDS, DATE_FIELD_IDS, TIMING_FIELD_IDS, ROW_STATUSES, MAX_ROW_TEXT, MAX_ROWS,
 } from './share.mjs';
 
 const sample = {
@@ -35,7 +35,12 @@ test('every top-level field index.html reads has a share slot', () => {
   // requirement row's inputs via readItems(). This pins the two scalar ids
   // this module carries -- a third field added to the opportunity panel and
   // not added here would silently vanish from every shared link.
-  assert.deepEqual([...TEXT_FIELD_IDS, ...DATE_FIELD_IDS].sort(), ['due', 'opportunity'].sort());
+  const ids = [...TEXT_FIELD_IDS, ...DATE_FIELD_IDS, ...TIMING_FIELD_IDS];
+  assert.deepEqual(ids.sort(), ['due', 'dueTime', 'opportunity', 'timeZone'].sort());
+  const page = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  const panel = page.slice(page.indexOf('<h2>Opportunity</h2>'), page.indexOf('<h2>Required artifacts</h2>'));
+  const pageIds = [...panel.matchAll(/ id="([^"]+)"/g)].map((m) => m[1]).sort();
+  assert.deepEqual(pageIds, ids.sort(), 'every field in the Opportunity panel travels in a share link');
 });
 
 test('every field readItems() collects on a row is carried', () => {
@@ -113,4 +118,11 @@ test('drops unknown top-level fields', () => {
   const encoded = encodeInputs({ ...sample, secret: 'nope' });
   const params = new URLSearchParams(encoded);
   assert.equal(params.has('secret'), false);
+});
+
+test('a share link carries the due time and the issuing office zone (quality audit 2026-11-19)', () => {
+  const hash = encodeInputs({ opportunity: 'Roof', due: '2099-06-15', dueTime: '14:00', timeZone: 'America/Chicago', items: [] });
+  assert.deepEqual(decodeInputs(`#${hash}`), { opportunity: 'Roof', due: '2099-06-15', dueTime: '14:00', timeZone: 'America/Chicago' });
+  assert.deepEqual(decodeInputs('#time=25:99&tz=%3Cscript%3E'), {}, 'a malformed time or zone is dropped');
+  assert.equal(encodeInputs({ dueTime: '', timeZone: '' }), '', 'blank timing fields are omitted');
 });

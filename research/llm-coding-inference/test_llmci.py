@@ -923,3 +923,74 @@ def test_mid_p_interval_known_values():
         ml, mh = G.mid_p(x, 200)
         cl, ch = V.clopper_pearson(x, 200)
         assert cl < ml < x / 200 < mh < ch
+
+
+def test_high_tail_hull_7bh_summary_matches_the_log_and_paper():
+    """7bh: the committed summary and per-cell diagnostic hold the numbers the log, README and paper quote."""
+    here = Path(__file__).resolve().parent
+    txt = (here / "experiments" / "h7bh_high_tail_hull.txt").read_text()
+    assert "cells run: 39; errors (cell with < 2 labels): 0" in txt
+    assert "P1 w3 under 93% in 3 of 39 cells: yes" in txt and "q15 sadness p0.02 n 200 92.0" in txt
+    assert "P2 hm10 93%+ in every cell: yes" in txt and "P4a mean cost 0.0446" in txt
+    assert "Decision rule (b)" in txt
+    hm = next(l for l in txt.splitlines() if l.startswith("hm10: "))
+    assert "lowest coverage 95.7" in hm and "largest +0.0980" in hm
+    byx = (here / "experiments" / "h7bh_high_tail_hull_byx.txt").read_text()
+    assert "x 7: 3986 | 80.3 | 85.8" in byx and "replay check" in byx
+    paper = (here / "paper" / "paper.md").read_text()
+    assert "7bh" in paper and "0.045 of pooled" in paper and "94.4%" in paper
+
+
+def test_hull_interval_only_widens():
+    """7bh's hull: never narrower than the shipped interval for 3 <= x < top, untouched at x >= top, Wilson below 3."""
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "experiments"))
+    import h7bh_high_tail_hull as H
+    import h7av_rare_fallback as V
+    fb = H.FALLBACKS["hm10"]
+    for x in range(3, 10):
+        lo, hi = x / 200 - 0.001, x / 200 + 0.001
+        l2, h2, fired = H.hull_interval(x, 200, lo, hi, fb)
+        assert l2 <= lo and h2 >= hi and fired
+        l3, h3, _ = H.hull_interval(x, 200, lo, hi, H.FALLBACKS["hml10"])
+        assert l3 == l2 and h3 == hi
+    assert H.hull_interval(12, 200, 0.05, 0.07, fb) == (0.05, 0.07, False)
+    assert H.hull_interval(2, 200, 0.0, 1.0, fb)[:2] == V.wilson_labels(2, 200)
+
+
+def test_lower_band_7bi_moves_only_the_lower_bound_inside_its_band():
+    """7bi's band: for bottom <= x < top only the lower bound can drop; outside it the shipped interval is kept,
+    Wilson below 3; the 90% band is never lower than the 95% one."""
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "experiments"))
+    import h7bi_lower_band as B
+    import h7av_rare_fallback as V
+    l7, l7n, l5 = B.FALLBACKS["l7"], B.FALLBACKS["l7n"], B.FALLBACKS["l5"]
+    for x in range(3, 12):
+        lo, hi = x / 200 - 0.001, x / 200 + 0.004
+        l2, h2, fired = B.hull_interval(x, 200, lo, hi, l7)
+        assert h2 == hi and l2 <= lo
+        assert fired == (7 <= x < 10)
+        if not 7 <= x < 10:
+            assert (l2, h2) == (lo, hi)
+        ln, _, _ = B.hull_interval(x, 200, lo, hi, l7n)
+        assert ln >= l2
+        assert B.hull_interval(x, 200, lo, hi, l5)[2] == (5 <= x < 10)
+    assert B.hull_interval(2, 200, 0.0, 1.0, l7)[:2] == V.wilson_labels(2, 200)
+    assert B.hull_interval(5, 200, 0.02, 0.04, B.FALLBACKS["w3"]) == (0.02, 0.04, False)
+
+
+def test_lower_band_7bi_summary_matches_the_log_and_paper():
+    """7bi: the committed summary and diagnostic hold the numbers the log, README and paper quote."""
+    here = Path(__file__).resolve().parent
+    txt = (here / "experiments" / "h7bi_lower_band.txt").read_text()
+    assert "cells run: 52 (39 near-trigger, 13 cost); errors (cell with < 2 labels): 0" in txt
+    assert "P1 w3 under 93% in 0 of 39 near-trigger cells: no" in txt
+    assert "P2 l7 93%+ in every cell: yes" in txt and "P4a mean cost 0.0074" in txt and "P4b largest 0.0330" in txt
+    assert "Decision rule (c)" in txt
+    l7 = next(l for l in txt.splitlines() if l.startswith("l7: "))
+    assert "lowest coverage 93.9" in l7 and "near-trigger only +0.0044" in l7
+    byx = (here / "experiments" / "h7bi_lower_band_byx.txt").read_text()
+    assert "x 7: 7806 | 89.9 | 92.5" in byx and "replay check: pooled w3 and l7" in byx
+    paper = (here / "paper" / "paper.md").read_text()
+    assert "7bi" in paper and "0.0074 of pooled" in paper and "5 of 112" in paper

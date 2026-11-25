@@ -144,11 +144,11 @@ export function parseSitemapXml(xml) {
   const urls = [];
   for (const m of matches) {
     const decoded = m[1]
-      .replace(/&amp;/g, "&")
       .replace(/&lt;/g, "<")
       .replace(/&gt;/g, ">")
       .replace(/&quot;/g, '"')
-      .replace(/&apos;/g, "'");
+      .replace(/&apos;/g, "'")
+      .replace(/&amp;/g, "&");
     if (decoded) urls.push(decoded);
   }
   return urls;

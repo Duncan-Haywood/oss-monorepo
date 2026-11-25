@@ -2,7 +2,7 @@
 
 > Free psychrometric calculator. Fix a point of moist air by any two of dry bulb, wet bulb, dew point, relative humidity, humidity ratio and enthalpy, at any altitude or barometric pressure, in IP or SI units, and get every other property (specific volume, density, vapour pressure, degree of saturation). Then run a process: adiabatic mixing of two airstreams (with fog detection), a cooling coil from entering and leaving air (total, sensible and latent load, sensible heat ratio, condensate, apparatus dew point, bypass factor) or from an ADP and bypass factor, sensible heating or cooling, or a direct evaporative cooler. Plots everything on a psychrometric chart drawn for the pressure. Runs in the browser; nothing is uploaded.
 
-Free and open source (MIT). Results are arithmetic from the ASHRAE Handbook Fundamentals Chapter 1 psychrometric equations (Hyland-Wexler saturation pressure, over ice below 0 °C) on the numbers typed in, not engineering advice. Not modelled: fan and duct heat, condensate enthalpy, coil performance at other airflows, psychrometer reading errors.
+Free to use and source available (FSL-1.1-MIT). Results are arithmetic from the ASHRAE Handbook Fundamentals Chapter 1 psychrometric equations (Hyland-Wexler saturation pressure, over ice below 0 °C) on the numbers typed in, not engineering advice. Not modelled: fan and duct heat, condensate enthalpy, coil performance at other airflows, psychrometer reading errors.
 
 ## Pages
 
@@ -15,4 +15,4 @@ Free and open source (MIT). Results are arithmetic from the ASHRAE Handbook Fund
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/psychrometric-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/psychrometric-calculator): FSL-1.1-MIT licensed.

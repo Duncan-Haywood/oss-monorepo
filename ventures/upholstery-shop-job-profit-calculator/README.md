@@ -12,4 +12,4 @@ After using this, you can now **tell which piece to push when the bench is full 
 2. Pure logic is in `calc.mjs` (`plan()`, `seasonResult()`, `serviceLine()`, `tradeLine()`, `encodeShare()`); tests: `node --test`.
 
 Modelled: three job types with price, bench minutes and materials, burdened upholsterer pay, profit per bench hour, a target-margin price per job type, tools spread over their seasons, rent for the open months, a prepaid designer trade block with its break-even block size, bench-hour utilization, a break-even job count, a volume table, a share link. Not modelled: the owner's own pay, pickup and delivery, sales tax, card fees, insurance, hiring a second upholsterer, income tax.
-Not legal, tax or financial advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
+Not legal, tax or financial advice. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

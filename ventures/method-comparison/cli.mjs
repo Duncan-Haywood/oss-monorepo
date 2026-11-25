@@ -37,7 +37,7 @@ ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}.${p.doi 
 
 Statistical estimates from the readings you give. Not medical, laboratory
 accreditation, regulatory or other professional advice; a standard (CLSI,
-ISO 15189, a regulator) may require a different protocol. No warranty. MIT licence.
+ISO 15189, a regulator) may require a different protocol. No warranty. FSL-1.1-MIT licence.
 Web version: https://marisstella.app/method-comparison/`;
 
 const WITH_VALUE = ["--x", "--y", "--lambda", "--sd-x", "--sd-y", "--levels", "--multiplier", "--alpha", "--bootstrap", "--seed"];

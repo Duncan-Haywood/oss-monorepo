@@ -283,7 +283,7 @@ function analyze(input) {
       const missing = ["OFXHEADER", "VERSION", "SECURITY", "OLDFILEUID", "NEWFILEUID"].filter((k) => !(k in attrs));
       if (missing.length) add("error", piOff, `<?OFX?> header is missing ${missing.join(", ")}`, "OFX 2.x importers expect all five attributes.", () => { ctx.xmlHeaderAttrs = missing; return `Added missing <?OFX?> attribute${missing.length === 1 ? "" : "s"}: ${missing.join(", ")}.`; });
       if (attrs.OFXHEADER && attrs.OFXHEADER !== "200") add("error", piOff, "OFXHEADER should be 200 in an XML file", `Found "${attrs.OFXHEADER}".`, () => { ctx.xmlHeaderSet = { ...(ctx.xmlHeaderSet || {}), OFXHEADER: "200" }; return "Set OFXHEADER to 200."; });
-      if (attrs.VERSION && !XML_VERSIONS.has(attrs.VERSION)) add("warning", piOff, "Unusual OFX version", `VERSION="${attrs.VERSION}" is not one of 200-203, 210, 211 or 220.`);
+      if (attrs.VERSION && !XML_VERSIONS.has(attrs.VERSION)) add("warning", piOff, "Unusual OFX version", `VERSION=${JSON.stringify(attrs.VERSION)} is not one of 200-203, 210, 211 or 220.`);
     }
     if (!hasXmlDecl) add("warning", 0, "No <?xml ...?> declaration", "OFX 2.x files are XML and normally start with <?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>.", () => { ctx.xmlDecl = true; return "Added the XML declaration."; });
     for (const m of leafMissingClose) {

@@ -64,7 +64,13 @@ test('the FAQPage schema is valid JSON and matches the visible FAQ headings', ()
       `FAQ schema question "${question.name}" has no matching <h3> on the page`,
     );
     const squash = (s) => s.replace(/\s+/g, ' ').trim();
-    const visible = html.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<[^>]+>/g, ' ');
+    let visible = html;
+    let prev;
+    do {
+      prev = visible;
+      visible = visible.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ' ');
+    } while (visible !== prev);
+    visible = visible.replace(/<[^>]+>/g, ' ');
     assert.ok(
       squash(visible).includes(squash(question.acceptedAnswer.text)),
       `FAQ answer for "${question.name}" is not visible on the page`,

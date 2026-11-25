@@ -344,7 +344,8 @@
       {
         "file": ".github/workflows/einvoice-preflight-ci.yml",
         "issue": "browser-test runs `node --test` without slimdom/fontoxpath, so 45 tests of the official PINT/ZATCA/plain-runner route (report-plain-route, pint, zatca, pint-current and others) are always skipped in CI; mutants at report.mjs:123 and :150 survived because of it. Fix: add `npm i --no-save --no-package-lock slimdom@4.3.5 fontoxpath@3.34.0` before `node --test` in the browser-test job (suite goes 5 s -> 12 s, all 1432 pass locally). Control plane: its own PR, owner approval.",
-        "patched": false
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18785"
       }
     ]
   },

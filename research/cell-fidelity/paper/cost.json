@@ -155,15 +155,15 @@
   {
    "look": "7h lopo5 (5 pools)",
    "rule": "F",
-   "cycles": 43.208333333333336,
-   "cycles_saved": 0.13583333333333325,
-   "flag_share": 0.8302083333333334,
+   "cycles": 43.20833333333333,
+   "cycles_saved": 0.13583333333333347,
+   "flag_share": 0.8302083333333332,
    "time_saved_continue": 0.12202864800029278,
    "time_saved_continue_range": [
-    0.12088243184848757,
-    0.1242787293468719
+    0.12088243184848768,
+    0.12427872934687201
    ],
-   "time_saved_restart": -0.11151200155246843
+   "time_saved_restart": -0.11151200155246821
   },
   {
    "look": "7h lopo5 (5 pools)",

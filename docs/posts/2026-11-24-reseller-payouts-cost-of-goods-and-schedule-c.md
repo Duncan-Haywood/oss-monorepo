@@ -1,0 +1,105 @@
+---
+title: "Resellers: from marketplace payout to Schedule C in three steps"
+seo_title: "Reseller payouts, cost of goods and Schedule C"
+date: 2026-11-24
+tags: [resellers, ebay, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
+description: "Three new guides for multi-platform resellers: bridge a payout back to sales, cost a mixed lot by resale value, and map the year onto Schedule C."
+---
+
+A marketplace fee calculator answers one question: what does this sale pay
+out? The ten seller tools in this repository (eBay, Etsy, Poshmark, Mercari,
+Depop, Whatnot, Grailed, Facebook Marketplace, StockX and TikTok Shop) answer
+it well. The question a reseller faces at tax time is different: what did I
+*earn*, across every platform, for the year? That needs three things the
+calculators don't do, so we wrote them up as guides, with worked numbers
+that a test checks.
+
+**1. Reconcile each payout back to sales.** In the worked month on eBay,
+$1,350.00 of sales (items plus buyer-paid shipping) became a $923.68 bank
+deposit. The bridge between them: $189.32 of final value fees after the
+credit on one refund, $12.00 of per-order fees, $40.00 of Promoted Listings,
+$135.00 of labels and a $50.00 refund. The $96.00 of sales tax eBay collected
+never reached the seller at all, but it is in the $1,446.00 the buyers paid.
+Report deposits as income and every one of those deductions disappears.
+[How to reconcile marketplace payouts to sales](../../ventures/ebay-fee-calculator/how-to-reconcile-marketplace-payouts-to-sales.html).
+
+**2. Cost each item, and split lots by expected resale value.** A $120.00
+lot of 20 pieces split equally puts $6.00 on each $5 piece, a loss booked
+before you list it. Split by expected price instead, it puts $21.82 on each
+of the two $60 pieces and $1.82 on each $5 one, and the 20 allocations still
+add to $120.00. At year end those per-item costs make Schedule C Part III a
+sum rather than a guess.
+[Cost of goods sold for resellers](../../ventures/ebay-fee-calculator/cost-of-goods-sold-for-resellers.html).
+
+**3. Map the year onto Schedule C.** Fees on line 10 (the IRS instructions
+say a dealer in property enters fees paid to facilitate a sale there), ads
+on line 8, mailers on line 22, labels to buyers in Part V. A worked year
+runs from $42,000 of gross receipts to $14,800 of net profit before mileage.
+[Schedule C worksheet for resellers](../../ventures/ebay-fee-calculator/schedule-c-worksheet-for-resellers.html).
+None of it is tax advice; every line cites the IRS page it comes from.
+
+## Opening and closing inventory, from your sourcing sheet (added 2026-11-25)
+
+Schedule C Part III is where a reseller's cost of goods actually lives, and
+it is not a sum of what the sold items cost. It is a balance: inventory at
+the start of the year (line 35), plus the year's purchases less anything you
+kept for yourself (line 36), less what is still on the shelves at December 31
+(line 41), gives cost of goods sold (line 42), which goes to line 4. Line
+numbers are from the 2026 form on irs.gov, read on 2026-11-25.
+
+The [Reseller Books tool](../../ventures/reseller-books/) now reads your
+sourcing spreadsheet as a CSV (item or SKU, quantity, cost, date bought, and
+a date sold or a status such as *personal* or *donated* if you keep them)
+next to one tax year of marketplace reports. Each unit a report says you
+sold takes the oldest matching purchase still on hand, by the SKU or title
+the marketplace shows; a returned unit goes back on the shelf. What the
+sheet still holds at December 31 is line 41.
+
+In the page's worked example (a made-up eBay shop, not a real seller), four
+film cameras bought in November 2025 at $135 make line 35 $540.00. The year's
+purchases are $9,774.00 after a $22.00 jacket kept for personal use. Three
+cameras at $142, one LEGO set, four jackets and twenty sleeve lots are left
+at year end, so line 41 is $1,186.00 and line 42 is $9,128.00. That equals
+the cost of the 167 units the reports sold plus a $40.00 card lot marked
+sold at a local show, and a test checks the two always agree.
+
+Three things the page says rather than hides. A sold unit with no purchase in
+the sheet is listed by name, because it makes line 42 too low. If you enter
+last year's line 41 and the sheet disagrees, the entered figure is used and
+the gap is explained, since the form asks for an explanation when line 35
+differs from last year's closing inventory. And Etsy sales can only be
+matched through Etsy's Sold Order Items file. Part III is also optional for
+some sellers: the Schedule C instructions let a small business taxpayer
+choose not to keep an inventory. That choice is yours and your preparer's,
+and none of this is tax advice.
+
+## The fee figures, rechecked
+
+Each of the ten tools states its marketplace's current fee in a sourced lead,
+and we rechecked all of them today. The marketplaces' own help pages could
+not be fetched from our build machine, so we read them through search
+extracts of the official pages; the
+[agent note](../reports/2026-11-24-seller-tools-front-doors.md) lists each one. All ten still match.
+Three sources got better or more honest. Grailed's tiered commission (6% under
+$120 with a $1.99 minimum, 9% from $120) is now cited to Grailed's own help
+centre rather than to third-party guides. StockX's page now says its help
+centre lists a $5.00 minimum seller fee, which the calculator does not apply
+for you. Poshmark's page notes the Texas seller fee tax deducted since
+October 2025. TikTok Shop's 8% referral fee is still unconfirmed by TikTok's
+public table, and the page says that instead of picking a side.
+
+One thing these pages do not say: that a 1099-K is coming for you. The
+federal threshold is back at more than $20,000 and more than 200
+transactions. Income is reportable either way, and that is reason enough to
+keep the books.
+
+## What comes next
+
+Each of the ten tool pages now ends with a short "track true profit across
+every platform" section. It points to the
+[online sellers page](https://marisstella.app/industries/online-sellers/),
+where Seller Books, a hosted product that does all three steps from your
+payout files, is listed as in development, with early access. Until then, the
+free in-browser [Reseller Books tool](../../ventures/reseller-books/)
+already groups eBay, Etsy, Poshmark, Whatnot and Shopify exports into
+Schedule C lines.

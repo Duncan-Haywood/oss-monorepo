@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { readdirSync } from 'node:fs';
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
 const guide = await readFile(new URL('./how-to-write-a-blameless-postmortem.html', import.meta.url), 'utf8');
 
@@ -63,7 +65,7 @@ test('every phase the analyzer emits is described on the guide page', async () =
 test('every .html file is reachable from the sitemap', async () => {
   const sitemap = await readFile(new URL('./sitemap.xml', import.meta.url), 'utf8');
   for (const name of readdirSync(new URL('./', import.meta.url)).filter((n) => n.endsWith('.html'))) {
-    if (name !== 'index.html') assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')));
+    if (name !== 'index.html') assert.match(sitemap, new RegExp(escapeRegExp(name)));
   }
 });
 

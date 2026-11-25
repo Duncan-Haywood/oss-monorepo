@@ -7,9 +7,10 @@ import { readdirSync, readFileSync } from "node:fs";
 
 const DIR = new URL("./", import.meta.url);
 const MAX = 70;
-const decode = (s) => s.replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
-  .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(+d))
-  .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"');
+// One pass, so an entity's output is never decoded again (`&amp;lt;` stays `&lt;`).
+const NAMED = { amp: "&", lt: "<", gt: ">", quot: '"' };
+const decode = (s) => s.replace(/&(?:#[xX]([0-9a-fA-F]+)|#(\d+)|(amp|lt|gt|quot));/g, (_, h, d, n) =>
+  h ? String.fromCodePoint(parseInt(h, 16)) : d ? String.fromCodePoint(+d) : NAMED[n]);
 
 test(`every page title is at most ${MAX} characters`, () => {
   const long = [];

@@ -77,7 +77,7 @@ test("the guide's worked example is the engine's answer", () => {
   const html = page(GUIDE);
   const r = solve(sampleInput());
   const c = compareJobs(sampleInput(), sampleJob());
-  for (const v of [cents(r.quoted), cents(r.revenue), cents(r.labor), cents(r.fuel), cents(r.processing), cents(r.depreciation), cents(r.fixedShare), cents(r.costs), cents(r.profit), cents(r.profitPerHour), r.breakevenRuns.toFixed(0), cents(r.needRevenue), cents(r.minQuote).replace("$", "$"), cents(c.b.profit), cents(c.b.profitPerHour), cents(c.b.revenue)]) {
+  for (const v of [cents(r.quoted), cents(r.revenue), cents(r.labor), cents(r.fuel), cents(r.processing), cents(r.depreciation), cents(r.fixedShare), cents(r.costs), cents(r.profit), cents(r.profitPerHour), r.breakevenRuns.toFixed(0), cents(r.needRevenue), cents(r.minQuote), cents(c.b.profit), cents(c.b.profitPerHour), cents(c.b.revenue)]) {
     assert.ok(html.includes(v), v);
   }
   for (const v of [cents(r.revenue), cents(r.costs), cents(r.profit), cents(r.profitPerHour), cents(r.depreciation), cents(r.fixedShare), cents(c.b.profit), cents(c.b.profitPerHour)]) assert.ok(html.includes(`<strong>${v}</strong>`), v);

@@ -110,3 +110,17 @@ test('live: skips names already on PyPI, caps the run, uploads with a token', as
   assert.equal(upload[2].env.TWINE_PASSWORD, 'pypi-secret');
   assert.ok(MAX_PER_RUN <= 3);
 });
+
+test('live with PYPI_DIST_DIR: builds into that directory and never runs twine', async () => {
+  const root = await tree({ a: { py: toml().replace('demo-tool', 'pkg-a') } });
+  const dist = path.join(await fs.mkdtemp(path.join(os.tmpdir(), 'ppdist-')), 'dist');
+  const execs = [];
+  const r = await main({
+    env: { DISTRIBUTE_PYPI: 'true', PYPI_DIST_DIR: dist }, root, fetchImpl: async () => ({ ok: false, status: 404 }), log() {}, ...listed(['a']),
+    exec: async (cmd, args, opts) => { execs.push([cmd, args, opts]); },
+  });
+  assert.equal(r.published, 1);
+  assert.equal(execs.length, 1);
+  assert.deepEqual(execs[0][1], ['-m', 'build', '--outdir', dist, '.']);
+  assert.ok(!execs.some((e) => e[1].includes('twine')));
+});

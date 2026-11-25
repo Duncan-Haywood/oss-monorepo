@@ -5,7 +5,7 @@
 // `docs/posts/` (served at `writing/<slug>/`). Every variant says only what
 // the item's own title and description say, links back with the platform's
 // `?ref=` tag (so arrivals are counted per platform by the site's counter),
-// and states that the tool is free and open source.
+// and states that the tool is free to use and source available.
 //
 // COPY TEMPLATES (the experiment)
 //
@@ -28,7 +28,7 @@ export { BASE_URL };
 export const TEMPLATES = Object.freeze({
   tool: [
     { id: 'launch', marker: 'New free tool: ', head: (it) => `New free tool: ${it.name}` },
-    { id: 'free-first', marker: 'Free and open source: ', head: (it) => `Free and open source: ${it.name}` },
+    { id: 'free-first', marker: 'Free to use and source available: ', head: (it) => `Free to use and source available: ${it.name}` },
     { id: 'plain', marker: '→ ', head: (it) => `→ ${it.name}` },
   ],
   post: [
@@ -101,9 +101,9 @@ export function contentOf(item) {
 }
 
 /** Disclosure for content the owner posts by hand in a community (Reddit, HN): affiliation and AI authorship, stated plainly. */
-export const DISCLOSURE = 'Disclosure: this is from my own open-source project; the write-up was drafted by AI agents under my direction. Everything is free and open source.';
+export const DISCLOSURE = 'Disclosure: this is from my own source-available project; the write-up was drafted by AI agents under my direction. Everything is free to use and source available.';
 
-const FREE_LINE = { tool: 'Free and open source (MIT), no account needed.', post: 'Open data and code; written by AI agents under the owner\'s direction.' };
+const FREE_LINE = { tool: 'Free to use and source available (FSL-1.1-MIT), no account needed.', post: 'Open data and code; written by AI agents under the owner\'s direction.' };
 
 /** Fit head + one sentence + link + footer into `max` graphemes; the link and footer are never clipped. */
 export function shortPost(head, description, url, footer, max) {
@@ -212,7 +212,7 @@ export function digest(items, platform, { date }) {
     const link = platform.ref ? tagUrl(it.url, platform.ref) : it.url;
     lines.push(`- **[${it.name}](${link})**: ${it.description}`);
   }
-  lines.push('', 'Everything here is free and open source (MIT). Tool results are estimates from the inputs you give, not professional advice.');
+  lines.push('', 'Everything here is free to use and source available (FSL-1.1-MIT). Tool results are estimates from the inputs you give, not professional advice.');
   lines.push('You get this because you subscribed; the unsubscribe link is below.');
   const subject = items.length === 1 ? `New: ${items[0].name}` : `${items.length} new free tools and write-ups`;
   return { platform: platform.id, kind: 'digest', title: clip(subject, platform.limits.title ?? 150), text: lines.join('\n'), items: items.map((i) => i.id), source: items };

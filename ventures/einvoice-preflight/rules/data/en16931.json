@@ -1,0 +1,746 @@
+[
+  {
+    "id": "BR-S-01",
+    "source": "en16931",
+    "terms": [
+      "BG-25",
+      "BG-20",
+      "BG-21",
+      "BT-151",
+      "BT-95",
+      "BT-102",
+      "BG-23",
+      "BT-118"
+    ],
+    "en": {
+      "title": "Standard-rated lines but no standard-rated VAT breakdown",
+      "meaning": "If any invoice line, document-level allowance or document-level charge has VAT category S (standard rated), the VAT breakdown (BG-23) must contain at least one entry with category S. In the UBL version the check also works the other way round: an S entry in the breakdown with no S line, allowance or charge fails as well.",
+      "causes": [
+        "The lines carry category S, but the software wrote the VAT breakdown with a different code (for example a local code or E).",
+        "The VAT breakdown was left out or built only for some of the rates on the invoice.",
+        "A line was changed to S (or away from S) after the totals were calculated, and the breakdown was not rebuilt."
+      ],
+      "fix": [
+        "Check the VAT category code on every line, allowance and charge; the code chosen there is what the breakdown must reflect.",
+        "Add one VAT breakdown entry with category S for each standard rate used, with its taxable amount and tax amount.",
+        "Remove any S breakdown entry that no line, allowance or charge refers to, then recalculate the invoice totals."
+      ]
+    },
+    "de": {
+      "title": "Normalsatz-Positionen ohne Umsatzsteuer-Aufschlüsselung zum Normalsatz",
+      "meaning": "Hat eine Rechnungsposition, ein Nachlass oder ein Zuschlag auf Belegebene die Umsatzsteuerkategorie S (Normalsatz), muss die Umsatzsteuer-Aufschlüsselung (BG-23) mindestens einen Eintrag mit Kategorie S enthalten. In der UBL-Fassung prüft die Regel auch umgekehrt: Ein S-Eintrag in der Aufschlüsselung ohne passende Position, Nachlass oder Zuschlag fällt ebenfalls durch.",
+      "causes": [
+        "Die Positionen tragen Kategorie S, die Software schreibt die Aufschlüsselung aber mit einem anderen Code (etwa einem internen Code oder E).",
+        "Die Umsatzsteuer-Aufschlüsselung fehlt ganz oder wurde nur für einen Teil der Steuersätze erzeugt.",
+        "Eine Position wurde nachträglich auf S (oder von S weg) umgestellt, ohne die Aufschlüsselung neu zu berechnen."
+      ],
+      "fix": [
+        "Prüfen Sie den Steuerkategorie-Code jeder Position, jedes Nachlasses und jedes Zuschlags; die dort gewählte Kategorie muss sich in der Aufschlüsselung wiederfinden.",
+        "Legen Sie für jeden verwendeten Normalsatz einen Aufschlüsselungseintrag mit Kategorie S, Bemessungsgrundlage und Steuerbetrag an.",
+        "Entfernen Sie S-Einträge, auf die keine Position verweist, und berechnen Sie die Rechnungssummen neu."
+      ]
+    },
+    "fr": {
+      "title": "Lignes au taux normal sans ventilation de TVA au taux normal",
+      "meaning": "Si une ligne de facture, une remise ou une charge au niveau du document porte la catégorie de TVA S (taux normal), la ventilation de TVA (BG-23) doit contenir au moins une entrée de catégorie S. En UBL, la règle vérifie aussi l'inverse : une entrée S dans la ventilation sans ligne, remise ou charge S est également rejetée.",
+      "causes": [
+        "Les lignes portent la catégorie S, mais le logiciel écrit la ventilation avec un autre code (code interne, E, etc.).",
+        "La ventilation de TVA est absente ou n'a été générée que pour une partie des taux.",
+        "Une ligne a été passée en S (ou retirée de S) après le calcul des totaux, sans que la ventilation soit recalculée."
+      ],
+      "fix": [
+        "Vérifiez le code de catégorie de TVA de chaque ligne, remise et charge : la catégorie choisie là doit se retrouver dans la ventilation.",
+        "Ajoutez une entrée de ventilation de catégorie S pour chaque taux normal utilisé, avec sa base imposable et son montant de taxe.",
+        "Supprimez les entrées S auxquelles aucune ligne ne correspond, puis recalculez les totaux de la facture."
+      ]
+    },
+    "ubl": "<cac:TaxTotal>\n  <cbc:TaxAmount currencyID=\"EUR\">19.00</cbc:TaxAmount>\n  <cac:TaxSubtotal>\n    <cbc:TaxableAmount currencyID=\"EUR\">100.00</cbc:TaxableAmount>\n    <cbc:TaxAmount currencyID=\"EUR\">19.00</cbc:TaxAmount>\n    <cac:TaxCategory>\n      <cbc:ID>S</cbc:ID>\n      <cbc:Percent>19</cbc:Percent>\n      <cac:TaxScheme>\n        <cbc:ID>VAT</cbc:ID>\n      </cac:TaxScheme>\n    </cac:TaxCategory>\n  </cac:TaxSubtotal>\n</cac:TaxTotal>\n<cac:InvoiceLine>\n  <cbc:ID>1</cbc:ID>\n  <cbc:InvoicedQuantity unitCode=\"HUR\">1</cbc:InvoicedQuantity>\n  <cbc:LineExtensionAmount currencyID=\"EUR\">100.00</cbc:LineExtensionAmount>\n  <cac:Item>\n    <cbc:Name>Consulting</cbc:Name>\n    <cac:ClassifiedTaxCategory>\n      <cbc:ID>S</cbc:ID>\n      <cbc:Percent>19</cbc:Percent>\n      <cac:TaxScheme>\n        <cbc:ID>VAT</cbc:ID>\n      </cac:TaxScheme>\n    </cac:ClassifiedTaxCategory>\n  </cac:Item>\n  <cac:Price>\n    <cbc:PriceAmount currencyID=\"EUR\">100.00</cbc:PriceAmount>\n  </cac:Price>\n</cac:InvoiceLine>"
+  },
+  {
+    "id": "BR-S-08",
+    "source": "en16931",
+    "terms": [
+      "BT-119",
+      "BT-118",
+      "BT-116",
+      "BG-23",
+      "BT-131",
+      "BT-99",
+      "BT-92",
+      "BT-151",
+      "BT-102",
+      "BT-95",
+      "BT-152",
+      "BT-103",
+      "BT-96"
+    ],
+    "en": {
+      "title": "Standard-rated taxable amount does not match the lines",
+      "meaning": "For each standard rate (category S) in the VAT breakdown, the taxable amount (BT-116) must equal the line net amounts at that rate, plus document-level charges, minus document-level allowances at that rate. The UBL check tolerates a difference of less than 1.00 and also fails when no line, allowance or charge uses that rate at all; the CII check compares exactly after rounding each sum to two decimals.",
+      "causes": [
+        "A document-level discount or charge was left out of (or counted twice in) the taxable amount.",
+        "The rate on a line differs from the rate in the breakdown, for example 19 on the lines and 16 in the breakdown, so the lines are not counted for it.",
+        "Lines with different standard rates were merged into one breakdown entry.",
+        "The taxable amount was calculated from unrounded line amounts or prices instead of the rounded line net amounts."
+      ],
+      "fix": [
+        "Group the lines, allowances and charges with category S by their exact rate.",
+        "For each rate, add up the line net amounts (BT-131), add the charges and subtract the allowances; write that figure as the taxable amount.",
+        "Use one breakdown entry per rate, with the same rate the lines carry, then recalculate the tax amount and invoice totals."
+      ]
+    },
+    "de": {
+      "title": "Bemessungsgrundlage zum Normalsatz passt nicht zu den Positionen",
+      "meaning": "Für jeden Normalsteuersatz (Kategorie S) in der Umsatzsteuer-Aufschlüsselung muss die Bemessungsgrundlage (BT-116) gleich der Summe der Positionsnettobeträge mit diesem Satz sein, zuzüglich Zuschlägen und abzüglich Nachlässen auf Belegebene mit diesem Satz. Die UBL-Prüfung lässt eine Abweichung unter 1,00 zu und schlägt auch fehl, wenn gar keine Position, kein Nachlass und kein Zuschlag diesen Satz verwendet; die CII-Prüfung vergleicht nach Rundung jeder Summe auf zwei Nachkommastellen exakt.",
+      "causes": [
+        "Ein Nachlass oder Zuschlag auf Belegebene wurde in der Bemessungsgrundlage vergessen oder doppelt gezählt.",
+        "Der Satz in der Position weicht vom Satz in der Aufschlüsselung ab (etwa 19 in den Positionen und 16 in der Aufschlüsselung), sodass die Positionen nicht mitgezählt werden.",
+        "Positionen mit unterschiedlichen Normalsätzen wurden in einem Aufschlüsselungseintrag zusammengefasst.",
+        "Die Bemessungsgrundlage wurde aus ungerundeten Beträgen oder Preisen statt aus den gerundeten Positionsnettobeträgen berechnet."
+      ],
+      "fix": [
+        "Gruppieren Sie Positionen, Nachlässe und Zuschläge der Kategorie S nach ihrem genauen Steuersatz.",
+        "Addieren Sie je Satz die Positionsnettobeträge (BT-131), zählen Sie Zuschläge hinzu und ziehen Sie Nachlässe ab; dieser Wert ist die Bemessungsgrundlage.",
+        "Legen Sie je Satz genau einen Aufschlüsselungseintrag mit demselben Satz wie in den Positionen an und berechnen Sie Steuerbetrag und Rechnungssummen neu."
+      ]
+    },
+    "fr": {
+      "title": "Base imposable au taux normal incohérente avec les lignes",
+      "meaning": "Pour chaque taux normal (catégorie S) de la ventilation de TVA, la base imposable (BT-116) doit être égale à la somme des montants nets des lignes à ce taux, plus les charges et moins les remises au niveau du document à ce taux. En UBL, la règle tolère un écart inférieur à 1,00 et échoue aussi si aucune ligne, remise ou charge n'utilise ce taux ; en CII, la comparaison est exacte après arrondi de chaque somme à deux décimales.",
+      "causes": [
+        "Une remise ou une charge au niveau du document a été oubliée dans la base imposable, ou comptée deux fois.",
+        "Le taux d'une ligne diffère de celui de la ventilation (par exemple 19 sur les lignes et 16 dans la ventilation), si bien que les lignes ne sont pas comptées.",
+        "Des lignes à des taux normaux différents ont été regroupées dans une seule entrée de ventilation.",
+        "La base a été calculée à partir de montants ou de prix non arrondis au lieu des montants nets de ligne arrondis."
+      ],
+      "fix": [
+        "Regroupez les lignes, remises et charges de catégorie S par taux exact.",
+        "Pour chaque taux, additionnez les montants nets de ligne (BT-131), ajoutez les charges et retranchez les remises : c'est la base imposable.",
+        "Créez une entrée de ventilation par taux, avec le même taux que sur les lignes, puis recalculez le montant de TVA et les totaux."
+      ]
+    },
+    "ubl": "<!-- Lines at S 19%: 100.00 + 50.00 = 150.00; 150.00 + 10.00 charge - 20.00 allowance = 140.00 -->\n<cac:AllowanceCharge>\n  <cbc:ChargeIndicator>true</cbc:ChargeIndicator>\n  <cbc:AllowanceChargeReason>Freight</cbc:AllowanceChargeReason>\n  <cbc:Amount currencyID=\"EUR\">10.00</cbc:Amount>\n  <cac:TaxCategory>\n    <cbc:ID>S</cbc:ID>\n    <cbc:Percent>19</cbc:Percent>\n    <cac:TaxScheme>\n      <cbc:ID>VAT</cbc:ID>\n    </cac:TaxScheme>\n  </cac:TaxCategory>\n</cac:AllowanceCharge>\n<cac:AllowanceCharge>\n  <cbc:ChargeIndicator>false</cbc:ChargeIndicator>\n  <cbc:AllowanceChargeReason>Discount</cbc:AllowanceChargeReason>\n  <cbc:Amount currencyID=\"EUR\">20.00</cbc:Amount>\n  <cac:TaxCategory>\n    <cbc:ID>S</cbc:ID>\n    <cbc:Percent>19</cbc:Percent>\n    <cac:TaxScheme>\n      <cbc:ID>VAT</cbc:ID>\n    </cac:TaxScheme>\n  </cac:TaxCategory>\n</cac:AllowanceCharge>\n<cac:TaxTotal>\n  <cbc:TaxAmount currencyID=\"EUR\">26.60</cbc:TaxAmount>\n  <cac:TaxSubtotal>\n    <cbc:TaxableAmount currencyID=\"EUR\">140.00</cbc:TaxableAmount>\n    <cbc:TaxAmount currencyID=\"EUR\">26.60</cbc:TaxAmount>\n    <cac:TaxCategory>\n      <cbc:ID>S</cbc:ID>\n      <cbc:Percent>19</cbc:Percent>\n      <cac:TaxScheme>\n        <cbc:ID>VAT</cbc:ID>\n      </cac:TaxScheme>\n    </cac:TaxCategory>\n  </cac:TaxSubtotal>\n</cac:TaxTotal>"
+  },
+  {
+    "id": "BR-S-09",
+    "source": "en16931",
+    "terms": [
+      "BT-117",
+      "BG-23",
+      "BT-118",
+      "BT-116",
+      "BT-119"
+    ],
+    "en": {
+      "title": "Standard-rated VAT amount is not taxable amount times rate",
+      "meaning": "In each VAT breakdown entry with category S, the VAT amount (BT-117) must equal the taxable amount (BT-116) multiplied by the rate (BT-119), rounded to two decimals. The check compares absolute values and accepts a difference of less than 1.00, so a failure means the amount is clearly wrong, not just a rounding cent.",
+      "causes": [
+        "The VAT was added up line by line and the per-line results drifted, or the taxable amount was changed afterwards without recalculating the VAT.",
+        "The rate in the breakdown is not the rate actually used for the calculation (for example 19 written, 7 applied).",
+        "The VAT of two rates was put into one breakdown entry.",
+        "The rate was written as a fraction (0.19) instead of a percentage (19)."
+      ],
+      "fix": [
+        "Write the rate as a percentage, for example 19 for 19 %.",
+        "Calculate the VAT amount as taxable amount × rate ÷ 100 and round to two decimals.",
+        "Make the total VAT amount (BT-110) the sum of the breakdown VAT amounts and update the payable amount."
+      ]
+    },
+    "de": {
+      "title": "Umsatzsteuerbetrag zum Normalsatz ist nicht Bemessungsgrundlage mal Steuersatz",
+      "meaning": "In jedem Aufschlüsselungseintrag mit Kategorie S muss der Steuerbetrag (BT-117) gleich Bemessungsgrundlage (BT-116) mal Steuersatz (BT-119) sein, auf zwei Nachkommastellen gerundet. Die Prüfung vergleicht Absolutbeträge und lässt eine Abweichung unter 1,00 zu; ein Fehler bedeutet also, dass der Betrag deutlich falsch ist und nicht nur ein Rundungscent fehlt.",
+      "causes": [
+        "Die Steuer wurde pro Position berechnet und aufsummiert, und die Summen sind auseinandergelaufen, oder die Bemessungsgrundlage wurde nachträglich geändert, ohne die Steuer neu zu berechnen.",
+        "Der Satz in der Aufschlüsselung ist nicht der Satz, mit dem gerechnet wurde (z. B. 19 angegeben, 7 angewendet).",
+        "Die Steuer zweier Sätze wurde in einem Aufschlüsselungseintrag zusammengefasst.",
+        "Der Satz wurde als Bruch (0.19) statt als Prozentwert (19) geschrieben."
+      ],
+      "fix": [
+        "Geben Sie den Satz als Prozentwert an, also 19 für 19 %.",
+        "Berechnen Sie den Steuerbetrag als Bemessungsgrundlage × Satz ÷ 100 und runden Sie auf zwei Nachkommastellen.",
+        "Setzen Sie die Umsatzsteuer-Gesamtsumme (BT-110) als Summe der Aufschlüsselungsbeträge und passen Sie den Zahlbetrag an."
+      ]
+    },
+    "fr": {
+      "title": "Montant de TVA au taux normal différent de base × taux",
+      "meaning": "Dans chaque entrée de ventilation de catégorie S, le montant de TVA (BT-117) doit être égal à la base imposable (BT-116) multipliée par le taux (BT-119), arrondi à deux décimales. La règle compare les valeurs absolues et tolère un écart inférieur à 1,00 : un rejet signifie donc que le montant est nettement faux, pas seulement un centime d'arrondi.",
+      "causes": [
+        "La TVA a été calculée ligne par ligne puis additionnée et les écarts se sont cumulés, ou la base a été modifiée sans recalculer la TVA.",
+        "Le taux indiqué dans la ventilation n'est pas celui utilisé pour le calcul (par exemple 19 indiqué, 7 appliqué).",
+        "La TVA de deux taux a été placée dans une seule entrée de ventilation.",
+        "Le taux a été écrit sous forme de fraction (0.19) au lieu d'un pourcentage (19)."
+      ],
+      "fix": [
+        "Indiquez le taux en pourcentage, par exemple 19 pour 19 %.",
+        "Calculez le montant de TVA comme base × taux ÷ 100, arrondi à deux décimales.",
+        "Faites du total de TVA (BT-110) la somme des montants de la ventilation et mettez à jour le montant à payer."
+      ]
+    },
+    "ubl": "<cac:TaxTotal>\n  <cbc:TaxAmount currencyID=\"EUR\">26.60</cbc:TaxAmount>\n  <cac:TaxSubtotal>\n    <cbc:TaxableAmount currencyID=\"EUR\">140.00</cbc:TaxableAmount>\n    <cbc:TaxAmount currencyID=\"EUR\">26.60</cbc:TaxAmount>\n    <cac:TaxCategory>\n      <cbc:ID>S</cbc:ID>\n      <cbc:Percent>19</cbc:Percent>\n      <cac:TaxScheme>\n        <cbc:ID>VAT</cbc:ID>\n      </cac:TaxScheme>\n    </cac:TaxCategory>\n  </cac:TaxSubtotal>\n</cac:TaxTotal>",
+    "cii": "<ram:ApplicableTradeTax>\n  <ram:CalculatedAmount>26.60</ram:CalculatedAmount>\n  <ram:TypeCode>VAT</ram:TypeCode>\n  <ram:BasisAmount>140.00</ram:BasisAmount>\n  <ram:CategoryCode>S</ram:CategoryCode>\n  <ram:RateApplicablePercent>19</ram:RateApplicablePercent>\n</ram:ApplicableTradeTax>"
+  },
+  {
+    "id": "BR-AE-10",
+    "source": "en16931",
+    "terms": [
+      "BG-23",
+      "BT-118",
+      "BT-121",
+      "BT-120"
+    ],
+    "en": {
+      "title": "Reverse charge VAT breakdown has no exemption reason",
+      "meaning": "When the VAT breakdown uses category AE (reverse charge), that entry must also carry an exemption reason code (BT-121) or an exemption reason text (BT-120). The official message expects it to say \"Reverse charge\"; the check itself only tests that one of the two is present.",
+      "causes": [
+        "The software sets category AE but has no field for the exemption reason, or leaves it empty.",
+        "The reverse charge wording was printed in a free-text note on the invoice instead of in the VAT breakdown.",
+        "The reason was put on the invoice line, not on the VAT breakdown entry."
+      ],
+      "fix": [
+        "This rule only applies once AE has been chosen; whether reverse charge applies to your sale is a tax question, so ask your tax adviser if unsure.",
+        "In the AE breakdown entry, add the code VATEX-EU-AE and/or the text \"Reverse charge\" (or the standard wording in the invoice language).",
+        "If you keep a note for the buyer, keep it as well; the breakdown entry still needs its own reason."
+      ]
+    },
+    "de": {
+      "title": "Umsatzsteuer-Aufschlüsselung „Reverse Charge“ ohne Befreiungsgrund",
+      "meaning": "Verwendet die Umsatzsteuer-Aufschlüsselung die Kategorie AE (Steuerschuldnerschaft des Leistungsempfängers, Reverse Charge), muss dieser Eintrag auch einen Befreiungsgrund-Code (BT-121) oder einen Befreiungsgrund-Text (BT-120) enthalten. Die offizielle Meldung erwartet sinngemäß „Reverse charge“; die Prüfung selbst kontrolliert nur, dass eines von beiden vorhanden ist.",
+      "causes": [
+        "Die Software setzt die Kategorie AE, hat aber kein Feld für den Befreiungsgrund oder lässt es leer.",
+        "Der Hinweis „Steuerschuldnerschaft des Leistungsempfängers“ steht nur als freier Text in einer Rechnungsbemerkung statt in der Aufschlüsselung.",
+        "Der Grund wurde an der Rechnungsposition statt am Aufschlüsselungseintrag angegeben."
+      ],
+      "fix": [
+        "Diese Regel greift erst, wenn AE bereits gewählt ist; ob Reverse Charge für Ihren Umsatz gilt, ist eine steuerliche Frage, die Sie im Zweifel mit Ihrer Steuerberatung klären.",
+        "Ergänzen Sie im AE-Aufschlüsselungseintrag den Code VATEX-EU-AE und/oder den Text „Reverse charge“ bzw. „Steuerschuldnerschaft des Leistungsempfängers“.",
+        "Eine Bemerkung für den Käufer können Sie zusätzlich behalten; der Aufschlüsselungseintrag braucht trotzdem seinen eigenen Grund."
+      ]
+    },
+    "fr": {
+      "title": "Ventilation de TVA « autoliquidation » sans motif d'exonération",
+      "meaning": "Lorsque la ventilation de TVA utilise la catégorie AE (autoliquidation), cette entrée doit aussi porter un code de motif d'exonération (BT-121) ou un texte de motif (BT-120). Le message officiel attend la mention « Autoliquidation » ; le contrôle lui-même vérifie seulement que l'un des deux est présent.",
+      "causes": [
+        "Le logiciel applique la catégorie AE mais n'a pas de champ pour le motif, ou le laisse vide.",
+        "La mention d'autoliquidation figure seulement dans une note libre de la facture et non dans la ventilation.",
+        "Le motif a été placé sur la ligne de facture et non sur l'entrée de ventilation."
+      ],
+      "fix": [
+        "Cette règle ne s'applique qu'une fois AE choisie ; savoir si l'autoliquidation s'applique à votre vente est une question fiscale, à voir avec votre conseiller en cas de doute.",
+        "Dans l'entrée de ventilation AE, ajoutez le code VATEX-EU-AE et/ou le texte « Autoliquidation » (ou « Reverse charge »).",
+        "Vous pouvez garder une note pour l'acheteur ; l'entrée de ventilation doit malgré tout porter son propre motif."
+      ]
+    },
+    "ubl": "<cac:TaxSubtotal>\n  <cbc:TaxableAmount currencyID=\"EUR\">1000.00</cbc:TaxableAmount>\n  <cbc:TaxAmount currencyID=\"EUR\">0.00</cbc:TaxAmount>\n  <cac:TaxCategory>\n    <cbc:ID>AE</cbc:ID>\n    <cbc:Percent>0</cbc:Percent>\n    <cbc:TaxExemptionReasonCode>VATEX-EU-AE</cbc:TaxExemptionReasonCode>\n    <cbc:TaxExemptionReason>Reverse charge</cbc:TaxExemptionReason>\n    <cac:TaxScheme>\n      <cbc:ID>VAT</cbc:ID>\n    </cac:TaxScheme>\n  </cac:TaxCategory>\n</cac:TaxSubtotal>",
+    "cii": "<ram:ApplicableTradeTax>\n  <ram:CalculatedAmount>0.00</ram:CalculatedAmount>\n  <ram:TypeCode>VAT</ram:TypeCode>\n  <ram:ExemptionReason>Reverse charge</ram:ExemptionReason>\n  <ram:BasisAmount>1000.00</ram:BasisAmount>\n  <ram:CategoryCode>AE</ram:CategoryCode>\n  <ram:ExemptionReasonCode>VATEX-EU-AE</ram:ExemptionReasonCode>\n  <ram:RateApplicablePercent>0</ram:RateApplicablePercent>\n</ram:ApplicableTradeTax>"
+  },
+  {
+    "id": "BR-E-10",
+    "source": "en16931",
+    "terms": [
+      "BG-23",
+      "BT-118",
+      "BT-121",
+      "BT-120"
+    ],
+    "en": {
+      "title": "Exempt VAT breakdown has no exemption reason",
+      "meaning": "When the VAT breakdown uses category E (exempt from VAT), that entry must carry an exemption reason code (BT-121) or an exemption reason text (BT-120). The check only tests that one of them is there; it does not judge whether the reason is the right one.",
+      "causes": [
+        "The software sets category E but leaves the exemption reason empty.",
+        "The legal basis for the exemption is printed in a note on the invoice instead of in the VAT breakdown.",
+        "The reason was put on the invoice line, not on the VAT breakdown entry."
+      ],
+      "fix": [
+        "This rule only applies once E has been chosen; which exemption covers your sale is a tax question, so ask your tax adviser if unsure.",
+        "In the E breakdown entry, add the exemption text, usually the legal provision your invoice already cites, and/or the matching VATEX code.",
+        "Repeat this for every E breakdown entry if there is more than one."
+      ]
+    },
+    "de": {
+      "title": "Umsatzsteuer-Aufschlüsselung „steuerfrei“ ohne Befreiungsgrund",
+      "meaning": "Verwendet die Umsatzsteuer-Aufschlüsselung die Kategorie E (von der Umsatzsteuer befreit), muss dieser Eintrag einen Befreiungsgrund-Code (BT-121) oder einen Befreiungsgrund-Text (BT-120) enthalten. Die Prüfung kontrolliert nur, dass eines davon vorhanden ist, nicht ob der Grund inhaltlich passt.",
+      "causes": [
+        "Die Software setzt die Kategorie E, lässt den Befreiungsgrund aber leer.",
+        "Die Rechtsgrundlage der Steuerbefreiung steht nur in einer Bemerkung auf der Rechnung statt in der Aufschlüsselung.",
+        "Der Grund wurde an der Rechnungsposition statt am Aufschlüsselungseintrag angegeben."
+      ],
+      "fix": [
+        "Diese Regel greift erst, wenn E bereits gewählt ist; welche Befreiung für Ihren Umsatz gilt, ist eine steuerliche Frage, die Sie im Zweifel mit Ihrer Steuerberatung klären.",
+        "Ergänzen Sie im E-Aufschlüsselungseintrag den Befreiungstext, in der Regel die Vorschrift, die Ihre Rechnung ohnehin nennt, und/oder den passenden VATEX-Code.",
+        "Gibt es mehrere E-Einträge, braucht jeder einen eigenen Grund."
+      ]
+    },
+    "fr": {
+      "title": "Ventilation de TVA « exonéré » sans motif d'exonération",
+      "meaning": "Lorsque la ventilation de TVA utilise la catégorie E (exonéré de TVA), cette entrée doit porter un code de motif d'exonération (BT-121) ou un texte de motif (BT-120). Le contrôle vérifie seulement que l'un des deux est présent, pas que le motif est le bon.",
+      "causes": [
+        "Le logiciel applique la catégorie E mais laisse le motif d'exonération vide.",
+        "La base légale de l'exonération figure seulement dans une note de la facture et non dans la ventilation.",
+        "Le motif a été placé sur la ligne de facture et non sur l'entrée de ventilation."
+      ],
+      "fix": [
+        "Cette règle ne s'applique qu'une fois E choisie ; savoir quelle exonération couvre votre vente est une question fiscale, à voir avec votre conseiller en cas de doute.",
+        "Dans l'entrée de ventilation E, ajoutez le texte du motif, en général la disposition légale que votre facture cite déjà, et/ou le code VATEX correspondant.",
+        "S'il y a plusieurs entrées E, chacune doit porter son motif."
+      ]
+    },
+    "ubl": "<cac:TaxSubtotal>\n  <cbc:TaxableAmount currencyID=\"EUR\">500.00</cbc:TaxableAmount>\n  <cbc:TaxAmount currencyID=\"EUR\">0.00</cbc:TaxAmount>\n  <cac:TaxCategory>\n    <cbc:ID>E</cbc:ID>\n    <cbc:Percent>0</cbc:Percent>\n    <cbc:TaxExemptionReason>Exempt from VAT under [legal provision your invoice cites]</cbc:TaxExemptionReason>\n    <cac:TaxScheme>\n      <cbc:ID>VAT</cbc:ID>\n    </cac:TaxScheme>\n  </cac:TaxCategory>\n</cac:TaxSubtotal>"
+  },
+  {
+    "id": "BR-Z-10",
+    "source": "en16931",
+    "terms": [
+      "BG-23",
+      "BT-118",
+      "BT-121",
+      "BT-120"
+    ],
+    "en": {
+      "title": "Zero-rated VAT breakdown must not have an exemption reason",
+      "meaning": "A VAT breakdown entry with category Z (zero rated) must not contain an exemption reason code (BT-121) or exemption reason text (BT-120). In EN 16931 zero rating is a taxable rate of 0 %, not an exemption, so the reason fields are not allowed there.",
+      "causes": [
+        "The software fills in an exemption reason for every 0 % entry, whatever the category.",
+        "A template made for exempt (E) or reverse charge (AE) invoices was reused with category Z.",
+        "The category should have been a different one and Z was picked because the rate is 0 %."
+      ],
+      "fix": [
+        "Check that Z is the category you meant; which category fits your sale is a tax question, so ask your tax adviser if unsure.",
+        "If Z is right, delete TaxExemptionReason and TaxExemptionReasonCode (CII: ram:ExemptionReason and ram:ExemptionReasonCode) from that breakdown entry.",
+        "If you want to explain the zero rate to the buyer, use an invoice note (BT-22) instead."
+      ]
+    },
+    "de": {
+      "title": "Aufschlüsselung zum Nullsatz darf keinen Befreiungsgrund enthalten",
+      "meaning": "Ein Aufschlüsselungseintrag mit Kategorie Z (Nullsatz) darf weder einen Befreiungsgrund-Code (BT-121) noch einen Befreiungsgrund-Text (BT-120) enthalten. In EN 16931 ist der Nullsatz ein steuerpflichtiger Satz von 0 %, keine Befreiung; deshalb sind die Grundfelder dort nicht erlaubt.",
+      "causes": [
+        "Die Software trägt bei jedem 0-%-Eintrag einen Befreiungsgrund ein, unabhängig von der Kategorie.",
+        "Eine Vorlage für steuerfreie (E) oder Reverse-Charge-Rechnungen (AE) wurde mit Kategorie Z weiterverwendet.",
+        "Eigentlich wäre eine andere Kategorie richtig gewesen, und Z wurde nur wegen des Satzes von 0 % gewählt."
+      ],
+      "fix": [
+        "Prüfen Sie, ob Z die gewollte Kategorie ist; welche Kategorie zu Ihrem Umsatz passt, ist eine steuerliche Frage, die Sie im Zweifel mit Ihrer Steuerberatung klären.",
+        "Ist Z richtig, löschen Sie TaxExemptionReason und TaxExemptionReasonCode (CII: ram:ExemptionReason und ram:ExemptionReasonCode) aus dem Eintrag.",
+        "Möchten Sie den Nullsatz für den Käufer erläutern, nutzen Sie dafür eine Rechnungsbemerkung (BT-22)."
+      ]
+    },
+    "fr": {
+      "title": "Ventilation au taux zéro : motif d'exonération interdit",
+      "meaning": "Une entrée de ventilation de catégorie Z (taux zéro) ne doit contenir ni code de motif d'exonération (BT-121) ni texte de motif (BT-120). Dans la norme EN 16931, le taux zéro est un taux imposable de 0 %, pas une exonération : les champs de motif n'y ont donc pas leur place.",
+      "causes": [
+        "Le logiciel ajoute un motif d'exonération à toute entrée à 0 %, quelle que soit la catégorie.",
+        "Un modèle prévu pour des factures exonérées (E) ou en autoliquidation (AE) a été réutilisé avec la catégorie Z.",
+        "Une autre catégorie était sans doute visée et Z a été choisie uniquement parce que le taux est de 0 %."
+      ],
+      "fix": [
+        "Vérifiez que Z est bien la catégorie voulue ; la catégorie applicable à votre vente est une question fiscale, à voir avec votre conseiller en cas de doute.",
+        "Si Z est correcte, supprimez TaxExemptionReason et TaxExemptionReasonCode (CII : ram:ExemptionReason et ram:ExemptionReasonCode) de cette entrée.",
+        "Pour expliquer le taux zéro à l'acheteur, utilisez plutôt une note de facture (BT-22)."
+      ]
+    },
+    "ubl": "<cac:TaxSubtotal>\n  <cbc:TaxableAmount currencyID=\"EUR\">250.00</cbc:TaxableAmount>\n  <cbc:TaxAmount currencyID=\"EUR\">0.00</cbc:TaxAmount>\n  <cac:TaxCategory>\n    <cbc:ID>Z</cbc:ID>\n    <cbc:Percent>0</cbc:Percent>\n    <cac:TaxScheme>\n      <cbc:ID>VAT</cbc:ID>\n    </cac:TaxScheme>\n  </cac:TaxCategory>\n</cac:TaxSubtotal>"
+  },
+  {
+    "id": "BR-CL-14",
+    "source": "en16931",
+    "terms": [],
+    "en": {
+      "title": "Country code is not an ISO 3166-1 code",
+      "meaning": "Every country code in the invoice (seller, buyer, delivery and other addresses, and the item's country of origin) must be a two-letter ISO 3166-1 alpha-2 code in capital letters, such as DE, FR or AT. The list also accepts XI for Northern Ireland and 1A for Kosovo.",
+      "causes": [
+        "A country name (\"Germany\", \"Deutschland\") or a three-letter code (DEU) was written instead of the two-letter code.",
+        "The code is in lower case (de) or contains a space.",
+        "A VAT prefix was used as a country code: EL for Greece (the country code is GR) or UK for the United Kingdom (the country code is GB)."
+      ],
+      "fix": [
+        "Look up the two-letter ISO 3166-1 code of each country on the invoice.",
+        "Write it in capitals with no spaces in every country field: cbc:IdentificationCode in UBL, ram:CountryID in CII.",
+        "Fix the master data in your customer and supplier records so the next invoice is right too."
+      ]
+    },
+    "de": {
+      "title": "Ländercode ist kein ISO-3166-1-Code",
+      "meaning": "Jeder Ländercode in der Rechnung (Anschriften von Verkäufer, Käufer und Lieferort sowie das Ursprungsland eines Artikels) muss ein zweistelliger Code nach ISO 3166-1 alpha-2 in Großbuchstaben sein, etwa DE, FR oder AT. Die Liste akzeptiert außerdem XI für Nordirland und 1A für Kosovo.",
+      "causes": [
+        "Statt des Codes steht der Ländername („Deutschland“, „Germany“) oder ein dreistelliger Code (DEU).",
+        "Der Code ist kleingeschrieben (de) oder enthält ein Leerzeichen.",
+        "Ein USt-IdNr.-Präfix wurde als Ländercode verwendet: EL für Griechenland (richtig: GR) oder UK für das Vereinigte Königreich (richtig: GB)."
+      ],
+      "fix": [
+        "Ermitteln Sie für jedes Land auf der Rechnung den zweistelligen ISO-3166-1-Code.",
+        "Tragen Sie ihn in Großbuchstaben ohne Leerzeichen in jedes Länderfeld ein: cbc:IdentificationCode in UBL, ram:CountryID in CII.",
+        "Korrigieren Sie die Stammdaten von Kunden und Lieferanten, damit auch die nächste Rechnung stimmt."
+      ]
+    },
+    "fr": {
+      "title": "Code pays non conforme à l'ISO 3166-1",
+      "meaning": "Chaque code pays de la facture (adresses du vendeur, de l'acheteur, de livraison, pays d'origine d'un article) doit être un code ISO 3166-1 alpha-2 de deux lettres en majuscules, comme FR, DE ou BE. La liste accepte aussi XI pour l'Irlande du Nord et 1A pour le Kosovo.",
+      "causes": [
+        "Le nom du pays (« France », « Allemagne ») ou un code à trois lettres (FRA) a été saisi à la place du code à deux lettres.",
+        "Le code est en minuscules (fr) ou contient une espace.",
+        "Un préfixe de TVA a servi de code pays : EL pour la Grèce (le code pays est GR) ou UK pour le Royaume-Uni (le code pays est GB)."
+      ],
+      "fix": [
+        "Recherchez le code ISO 3166-1 à deux lettres de chaque pays figurant sur la facture.",
+        "Saisissez-le en majuscules, sans espace, dans chaque champ pays : cbc:IdentificationCode en UBL, ram:CountryID en CII.",
+        "Corrigez les fiches clients et fournisseurs pour que la prochaine facture soit juste."
+      ]
+    },
+    "ubl": "<cac:PostalAddress>\n  <cbc:StreetName>Musterstraße 1</cbc:StreetName>\n  <cbc:CityName>Berlin</cbc:CityName>\n  <cbc:PostalZone>10115</cbc:PostalZone>\n  <cac:Country>\n    <cbc:IdentificationCode>DE</cbc:IdentificationCode>\n  </cac:Country>\n</cac:PostalAddress>",
+    "cii": "<ram:PostalTradeAddress>\n  <ram:PostcodeCode>10115</ram:PostcodeCode>\n  <ram:LineOne>Musterstraße 1</ram:LineOne>\n  <ram:CityName>Berlin</ram:CityName>\n  <ram:CountryID>DE</ram:CountryID>\n</ram:PostalTradeAddress>"
+  },
+  {
+    "id": "BR-CL-23",
+    "source": "en16931",
+    "terms": [],
+    "en": {
+      "title": "Unit of measure is not a UN/ECE Recommendation 20/21 code",
+      "meaning": "The unitCode on the invoiced quantity (BT-130) and on the price base quantity (BT-150) must be a code from UN/ECE Recommendation 20 or 21, written exactly as listed. Common ones are C62 (one/unit), H87 (piece), HUR (hour), DAY (day), MON (month), KGM (kilogram), MTR (metre), LTR (litre) and LS (lump sum).",
+      "causes": [
+        "A label from the invoicing software or the printed invoice was used, such as \"Stk\", \"pcs\", \"h\" or \"pce\".",
+        "The code is in lower case (hur) or has a space in it.",
+        "A unit was mapped to a code that looks plausible but is not on the list."
+      ],
+      "fix": [
+        "Map each unit in your software to its Recommendation 20/21 code, for example piece to H87, hour to HUR, flat fee to LS.",
+        "Write the code exactly, in capitals, in the unitCode attribute of cbc:InvoicedQuantity / cbc:BaseQuantity (CII: ram:BilledQuantity / ram:BasisQuantity).",
+        "Keep the readable label for the PDF if you like; only the code goes in the XML attribute."
+      ]
+    },
+    "de": {
+      "title": "Mengeneinheit ist kein Code nach UN/ECE-Empfehlung 20/21",
+      "meaning": "Das Attribut unitCode an der berechneten Menge (BT-130) und an der Basismenge des Preises (BT-150) muss ein Code aus der UN/ECE-Empfehlung 20 oder 21 sein, genau wie dort geschrieben. Gängig sind C62 (Einheit), H87 (Stück), HUR (Stunde), DAY (Tag), MON (Monat), KGM (Kilogramm), MTR (Meter), LTR (Liter) und LS (Pauschale).",
+      "causes": [
+        "Es wurde eine Bezeichnung aus der Rechnungssoftware oder dem Rechnungsdruck verwendet, etwa „Stk“, „Std“, „h“ oder „pcs“.",
+        "Der Code ist kleingeschrieben (hur) oder enthält ein Leerzeichen.",
+        "Eine Einheit wurde einem plausibel aussehenden Code zugeordnet, der aber nicht in der Liste steht."
+      ],
+      "fix": [
+        "Ordnen Sie in Ihrer Software jeder Einheit ihren Code nach Empfehlung 20/21 zu, etwa Stück zu H87, Stunde zu HUR, Pauschale zu LS.",
+        "Schreiben Sie den Code exakt und in Großbuchstaben in das Attribut unitCode von cbc:InvoicedQuantity / cbc:BaseQuantity (CII: ram:BilledQuantity / ram:BasisQuantity).",
+        "Die lesbare Bezeichnung können Sie für das PDF behalten; ins XML-Attribut gehört nur der Code."
+      ]
+    },
+    "fr": {
+      "title": "Unité de mesure hors recommandation UN/ECE 20/21",
+      "meaning": "L'attribut unitCode de la quantité facturée (BT-130) et de la quantité de base du prix (BT-150) doit être un code de la recommandation UN/ECE 20 ou 21, écrit exactement comme dans la liste. Les plus courants : C62 (unité), H87 (pièce), HUR (heure), DAY (jour), MON (mois), KGM (kilogramme), MTR (mètre), LTR (litre) et LS (forfait).",
+      "causes": [
+        "Un libellé du logiciel ou de la facture imprimée a été utilisé, comme « pce », « u », « h » ou « forfait ».",
+        "Le code est en minuscules (hur) ou contient une espace.",
+        "Une unité a été associée à un code plausible mais absent de la liste."
+      ],
+      "fix": [
+        "Associez dans votre logiciel chaque unité à son code de la recommandation 20/21, par exemple pièce à H87, heure à HUR, forfait à LS.",
+        "Écrivez le code exactement, en majuscules, dans l'attribut unitCode de cbc:InvoicedQuantity / cbc:BaseQuantity (CII : ram:BilledQuantity / ram:BasisQuantity).",
+        "Vous pouvez garder le libellé lisible sur le PDF ; seul le code va dans l'attribut XML."
+      ]
+    },
+    "ubl": "<cbc:InvoicedQuantity unitCode=\"HUR\">8</cbc:InvoicedQuantity>",
+    "cii": "<ram:SpecifiedLineTradeDelivery>\n  <ram:BilledQuantity unitCode=\"HUR\">8</ram:BilledQuantity>\n</ram:SpecifiedLineTradeDelivery>"
+  },
+  {
+    "id": "BR-61",
+    "source": "en16931",
+    "terms": [
+      "BT-81",
+      "BT-84"
+    ],
+    "en": {
+      "title": "Credit transfer without the account to pay into",
+      "meaning": "When the payment means code (BT-81) says credit transfer, the invoice must give the payment account identifier (BT-84), normally the IBAN. In UBL the check fires for codes 30 and 58 only. In CII it only looks inside an account block that is already present, so a CII file with code 30 or 58 and no account block at all is not caught by this rule.",
+      "causes": [
+        "Payment means code 58 (SEPA credit transfer) or 30 (credit transfer) is set, but the bank details were left out of the XML.",
+        "The IBAN was placed in a free-text payment note (BT-82) or in the seller's details instead of the payee account.",
+        "In UBL the IBAN sits in an element other than cbc:ID inside cac:PayeeFinancialAccount; in CII the account block is there but has neither ram:IBANID nor ram:ProprietaryID."
+      ],
+      "fix": [
+        "Add the account you want to be paid into: in UBL as cbc:ID in cac:PayeeFinancialAccount, in CII as ram:IBANID (or ram:ProprietaryID for a non-IBAN account).",
+        "Check the code matches how you want to be paid: 58 for SEPA credit transfer, 30 for other credit transfers.",
+        "Store the bank details in your invoicing software's company settings so every invoice carries them."
+      ]
+    },
+    "de": {
+      "title": "Überweisung ohne Empfängerkonto",
+      "meaning": "Gibt der Code der Zahlungsart (BT-81) eine Überweisung an, muss die Rechnung die Kennung des Zahlungskontos (BT-84) enthalten, in der Regel die IBAN. In UBL greift die Prüfung nur bei den Codes 30 und 58. In CII prüft sie nur innerhalb eines bereits vorhandenen Kontoblocks; eine CII-Datei mit Code 30 oder 58 ganz ohne Kontoblock fällt bei dieser Regel nicht auf.",
+      "causes": [
+        "Die Zahlungsart 58 (SEPA-Überweisung) oder 30 (Überweisung) ist gesetzt, die Bankverbindung fehlt aber im XML.",
+        "Die IBAN steht in einem freien Verwendungszweck (BT-82) oder bei den Verkäuferangaben statt beim Zahlungsempfängerkonto.",
+        "In UBL steht die IBAN nicht in cbc:ID innerhalb von cac:PayeeFinancialAccount; in CII ist der Kontoblock vorhanden, enthält aber weder ram:IBANID noch ram:ProprietaryID."
+      ],
+      "fix": [
+        "Geben Sie das Konto an, auf das gezahlt werden soll: in UBL als cbc:ID in cac:PayeeFinancialAccount, in CII als ram:IBANID (oder ram:ProprietaryID für ein Konto ohne IBAN).",
+        "Prüfen Sie, ob der Code zur gewünschten Zahlungsart passt: 58 für SEPA-Überweisung, 30 für andere Überweisungen.",
+        "Hinterlegen Sie die Bankverbindung in den Firmeneinstellungen Ihrer Rechnungssoftware, damit jede Rechnung sie enthält."
+      ]
+    },
+    "fr": {
+      "title": "Virement sans compte bénéficiaire",
+      "meaning": "Lorsque le code du moyen de paiement (BT-81) indique un virement, la facture doit donner l'identifiant du compte de paiement (BT-84), en général l'IBAN. En UBL, le contrôle ne vise que les codes 30 et 58. En CII, il ne regarde qu'à l'intérieur d'un bloc de compte déjà présent : un fichier CII avec le code 30 ou 58 et aucun bloc de compte n'est pas détecté par cette règle.",
+      "causes": [
+        "Le moyen de paiement 58 (virement SEPA) ou 30 (virement) est indiqué, mais les coordonnées bancaires manquent dans le XML.",
+        "L'IBAN figure dans une note de paiement libre (BT-82) ou dans les informations du vendeur au lieu du compte bénéficiaire.",
+        "En UBL, l'IBAN n'est pas dans cbc:ID sous cac:PayeeFinancialAccount ; en CII, le bloc de compte existe mais ne contient ni ram:IBANID ni ram:ProprietaryID."
+      ],
+      "fix": [
+        "Indiquez le compte sur lequel vous voulez être payé : en UBL dans cbc:ID sous cac:PayeeFinancialAccount, en CII dans ram:IBANID (ou ram:ProprietaryID pour un compte sans IBAN).",
+        "Vérifiez que le code correspond au moyen de paiement voulu : 58 pour un virement SEPA, 30 pour les autres virements.",
+        "Enregistrez les coordonnées bancaires dans les paramètres de votre logiciel de facturation pour que chaque facture les porte."
+      ]
+    },
+    "ubl": "<cac:PaymentMeans>\n  <cbc:PaymentMeansCode>58</cbc:PaymentMeansCode>\n  <cbc:PaymentID>INV-2026-001</cbc:PaymentID>\n  <cac:PayeeFinancialAccount>\n    <cbc:ID>DE02120300000000202051</cbc:ID>\n    <cbc:Name>Example GmbH</cbc:Name>\n  </cac:PayeeFinancialAccount>\n</cac:PaymentMeans>",
+    "cii": "<ram:SpecifiedTradeSettlementPaymentMeans>\n  <ram:TypeCode>58</ram:TypeCode>\n  <ram:PayeePartyCreditorFinancialAccount>\n    <ram:IBANID>DE02120300000000202051</ram:IBANID>\n    <ram:AccountName>Example GmbH</ram:AccountName>\n  </ram:PayeePartyCreditorFinancialAccount>\n</ram:SpecifiedTradeSettlementPaymentMeans>"
+  },
+  {
+    "id": "BR-62",
+    "source": "en16931",
+    "terms": [
+      "BT-34"
+    ],
+    "en": {
+      "title": "Seller electronic address has no scheme identifier",
+      "meaning": "If the invoice gives the seller's electronic address (BT-34), it must say what kind of address it is with a scheme identifier (the schemeID attribute), taken from the EAS code list, for example EM for an email address or 0088 for a GLN. In CII only the first electronic address of the seller is checked.",
+      "causes": [
+        "The address was written without the schemeID attribute, often because the software only stores the bare value.",
+        "The scheme was written in another attribute or as a prefix in the value (for example \"0088:4000001000005\").",
+        "The schemeID attribute is present but empty."
+      ],
+      "fix": [
+        "Find out which kind of address you are giving: an email address (EM), a GLN (0088), a VAT number (for Germany 9930) or another identifier from the EAS list.",
+        "Add the matching EAS code as schemeID on cbc:EndpointID in cac:AccountingSupplierParty (CII: on ram:URIID in ram:URIUniversalCommunication).",
+        "Keep only the identifier itself in the value, without any prefix."
+      ]
+    },
+    "de": {
+      "title": "Elektronische Adresse des Verkäufers ohne Schema-Kennung",
+      "meaning": "Gibt die Rechnung die elektronische Adresse des Verkäufers (BT-34) an, muss eine Schema-Kennung (Attribut schemeID) aus der EAS-Codeliste sagen, um welche Art Adresse es sich handelt, etwa EM für eine E-Mail-Adresse oder 0088 für eine GLN. In CII wird nur die erste elektronische Adresse des Verkäufers geprüft.",
+      "causes": [
+        "Die Adresse wurde ohne Attribut schemeID geschrieben, oft weil die Software nur den reinen Wert speichert.",
+        "Das Schema steht in einem anderen Attribut oder als Präfix im Wert (etwa „0088:4000001000005“).",
+        "Das Attribut schemeID ist vorhanden, aber leer."
+      ],
+      "fix": [
+        "Klären Sie, welche Art Adresse Sie angeben: eine E-Mail-Adresse (EM), eine GLN (0088), eine USt-IdNr. (für Deutschland 9930) oder eine andere Kennung aus der EAS-Liste.",
+        "Setzen Sie den passenden EAS-Code als schemeID an cbc:EndpointID in cac:AccountingSupplierParty (CII: an ram:URIID in ram:URIUniversalCommunication).",
+        "Lassen Sie im Wert nur die Kennung selbst stehen, ohne Präfix."
+      ]
+    },
+    "fr": {
+      "title": "Adresse électronique du vendeur sans identifiant de schéma",
+      "meaning": "Si la facture indique l'adresse électronique du vendeur (BT-34), elle doit préciser le type d'adresse par un identifiant de schéma (attribut schemeID) de la liste EAS, par exemple EM pour une adresse e-mail ou 0088 pour un GLN. En CII, seule la première adresse électronique est contrôlée.",
+      "causes": [
+        "L'adresse a été écrite sans attribut schemeID, souvent parce que le logiciel ne stocke que la valeur brute.",
+        "Le schéma figure dans un autre attribut ou en préfixe de la valeur (par exemple « 0088:4000001000005 »).",
+        "L'attribut schemeID est présent mais vide."
+      ],
+      "fix": [
+        "Déterminez le type d'adresse que vous indiquez : une adresse e-mail (EM), un GLN (0088), un SIRET (0009) ou un autre identifiant de la liste EAS.",
+        "Ajoutez le code EAS correspondant en schemeID sur cbc:EndpointID dans cac:AccountingSupplierParty (CII : sur ram:URIID dans ram:URIUniversalCommunication).",
+        "Ne laissez dans la valeur que l'identifiant lui-même, sans préfixe."
+      ]
+    },
+    "ubl": "<cac:AccountingSupplierParty>\n  <cac:Party>\n    <cbc:EndpointID schemeID=\"EM\">invoices@example.com</cbc:EndpointID>\n  </cac:Party>\n</cac:AccountingSupplierParty>",
+    "cii": "<ram:SellerTradeParty>\n  <ram:URIUniversalCommunication>\n    <ram:URIID schemeID=\"EM\">invoices@example.com</ram:URIID>\n  </ram:URIUniversalCommunication>\n</ram:SellerTradeParty>"
+  },
+  {
+    "id": "BR-63",
+    "source": "en16931",
+    "terms": [
+      "BT-49"
+    ],
+    "en": {
+      "title": "Buyer electronic address has no scheme identifier",
+      "meaning": "If the invoice gives the buyer's electronic address (BT-49), it must say what kind of address it is with a scheme identifier (the schemeID attribute), taken from the EAS code list, for example EM for an email address or 0088 for a GLN. In CII only the first electronic address of the buyer is checked.",
+      "causes": [
+        "The address was written without the schemeID attribute, often because the software only stores the bare value.",
+        "The scheme was written in another attribute or as a prefix in the value (for example \"0088:4000001000005\").",
+        "The schemeID attribute is present but empty."
+      ],
+      "fix": [
+        "Find out which kind of address you are giving: the address the buyer told you to send to, for example a Leitweg-ID (0204), an email address (EM) or a GLN (0088).",
+        "Add the matching EAS code as schemeID on cbc:EndpointID in cac:AccountingCustomerParty (CII: on ram:URIID in ram:URIUniversalCommunication).",
+        "Keep only the identifier itself in the value, without any prefix."
+      ]
+    },
+    "de": {
+      "title": "Elektronische Adresse des Käufers ohne Schema-Kennung",
+      "meaning": "Gibt die Rechnung die elektronische Adresse des Käufers (BT-49) an, muss eine Schema-Kennung (Attribut schemeID) aus der EAS-Codeliste sagen, um welche Art Adresse es sich handelt, etwa EM für eine E-Mail-Adresse oder 0088 für eine GLN. In CII wird nur die erste elektronische Adresse des Käufers geprüft.",
+      "causes": [
+        "Die Adresse wurde ohne Attribut schemeID geschrieben, oft weil die Software nur den reinen Wert speichert.",
+        "Das Schema steht in einem anderen Attribut oder als Präfix im Wert (etwa „0088:4000001000005“).",
+        "Das Attribut schemeID ist vorhanden, aber leer."
+      ],
+      "fix": [
+        "Klären Sie, welche Art Adresse Sie angeben: die Adresse, die der Käufer Ihnen genannt hat, etwa eine Leitweg-ID (0204), eine E-Mail-Adresse (EM) oder eine GLN (0088).",
+        "Setzen Sie den passenden EAS-Code als schemeID an cbc:EndpointID in cac:AccountingCustomerParty (CII: an ram:URIID in ram:URIUniversalCommunication).",
+        "Lassen Sie im Wert nur die Kennung selbst stehen, ohne Präfix."
+      ]
+    },
+    "fr": {
+      "title": "Adresse électronique de l'acheteur sans identifiant de schéma",
+      "meaning": "Si la facture indique l'adresse électronique de l'acheteur (BT-49), elle doit préciser le type d'adresse par un identifiant de schéma (attribut schemeID) de la liste EAS, par exemple EM pour une adresse e-mail ou 0088 pour un GLN. En CII, seule la première adresse électronique est contrôlée.",
+      "causes": [
+        "L'adresse a été écrite sans attribut schemeID, souvent parce que le logiciel ne stocke que la valeur brute.",
+        "Le schéma figure dans un autre attribut ou en préfixe de la valeur (par exemple « 0088:4000001000005 »).",
+        "L'attribut schemeID est présent mais vide."
+      ],
+      "fix": [
+        "Déterminez le type d'adresse que vous indiquez : l'adresse que l'acheteur vous a communiquée, par exemple une Leitweg-ID allemande (0204), une adresse e-mail (EM) ou un GLN (0088).",
+        "Ajoutez le code EAS correspondant en schemeID sur cbc:EndpointID dans cac:AccountingCustomerParty (CII : sur ram:URIID dans ram:URIUniversalCommunication).",
+        "Ne laissez dans la valeur que l'identifiant lui-même, sans préfixe."
+      ]
+    },
+    "ubl": "<cac:AccountingCustomerParty>\n  <cac:Party>\n    <cbc:EndpointID schemeID=\"0204\">04011000-12345-34</cbc:EndpointID>\n  </cac:Party>\n</cac:AccountingCustomerParty>",
+    "cii": "<ram:BuyerTradeParty>\n  <ram:URIUniversalCommunication>\n    <ram:URIID schemeID=\"0204\">04011000-12345-34</ram:URIID>\n  </ram:URIUniversalCommunication>\n</ram:BuyerTradeParty>"
+  },
+  {
+    "id": "BR-DEC-23",
+    "source": "en16931",
+    "terms": [
+      "BT-131"
+    ],
+    "en": {
+      "title": "Line net amount has more than two decimals",
+      "meaning": "The invoice line net amount (BT-131) may have at most two digits after the decimal point. The check simply counts the characters after the point, so 10.000 fails just like 9.999 does, even though it is the same as 10.00.",
+      "causes": [
+        "The line amount was written as quantity × price without rounding, for example 3 × 3.3333 = 9.9999.",
+        "The software writes amounts with a fixed number of decimals (three or four) for every number.",
+        "Trailing zeros were kept from a calculation (10.000)."
+      ],
+      "fix": [
+        "Round each line net amount to two decimals before writing it; the unit price (BT-146) may keep more decimals.",
+        "Build the document totals and the VAT breakdown from the rounded line amounts, so the other sum checks still pass.",
+        "Set your export to write all monetary amounts with exactly two decimals."
+      ]
+    },
+    "de": {
+      "title": "Positionsnettobetrag mit mehr als zwei Nachkommastellen",
+      "meaning": "Der Nettobetrag der Rechnungsposition (BT-131) darf höchstens zwei Nachkommastellen haben. Die Prüfung zählt einfach die Zeichen nach dem Punkt; 10.000 fällt also ebenso durch wie 9.999, obwohl es 10,00 entspricht.",
+      "causes": [
+        "Der Positionsbetrag wurde als Menge × Preis ohne Rundung geschrieben, etwa 3 × 3.3333 = 9.9999.",
+        "Die Software schreibt alle Zahlen mit fester Stellenzahl (drei oder vier Nachkommastellen).",
+        "Nullen am Ende aus einer Berechnung blieben stehen (10.000)."
+      ],
+      "fix": [
+        "Runden Sie jeden Positionsnettobetrag vor dem Schreiben auf zwei Nachkommastellen; der Einzelpreis (BT-146) darf mehr Stellen behalten.",
+        "Bilden Sie Belegsummen und Umsatzsteuer-Aufschlüsselung aus den gerundeten Positionsbeträgen, damit auch die übrigen Summenprüfungen bestehen.",
+        "Stellen Sie den Export so ein, dass alle Geldbeträge mit genau zwei Nachkommastellen geschrieben werden."
+      ]
+    },
+    "fr": {
+      "title": "Montant net de ligne avec plus de deux décimales",
+      "meaning": "Le montant net d'une ligne de facture (BT-131) peut avoir au plus deux chiffres après le point décimal. Le contrôle compte simplement les caractères après le point : 10.000 est donc rejeté comme 9.999, alors qu'il vaut 10,00.",
+      "causes": [
+        "Le montant de ligne a été écrit comme quantité × prix sans arrondi, par exemple 3 × 3.3333 = 9.9999.",
+        "Le logiciel écrit tous les nombres avec un nombre fixe de décimales (trois ou quatre).",
+        "Des zéros de fin issus d'un calcul ont été conservés (10.000)."
+      ],
+      "fix": [
+        "Arrondissez chaque montant net de ligne à deux décimales avant de l'écrire ; le prix unitaire (BT-146) peut garder plus de décimales.",
+        "Calculez les totaux du document et la ventilation de TVA à partir des montants de ligne arrondis, pour que les autres contrôles de sommes passent.",
+        "Réglez l'export pour écrire tous les montants avec exactement deux décimales."
+      ]
+    },
+    "ubl": "<cac:InvoiceLine>\n  <cbc:ID>1</cbc:ID>\n  <cbc:InvoicedQuantity unitCode=\"H87\">3</cbc:InvoicedQuantity>\n  <cbc:LineExtensionAmount currencyID=\"EUR\">10.00</cbc:LineExtensionAmount>\n  <cac:Item>\n    <cbc:Name>Widget</cbc:Name>\n  </cac:Item>\n  <cac:Price>\n    <cbc:PriceAmount currencyID=\"EUR\">3.3333</cbc:PriceAmount>\n  </cac:Price>\n</cac:InvoiceLine>"
+  },
+  {
+    "id": "BR-27",
+    "source": "en16931",
+    "terms": [
+      "BT-146"
+    ],
+    "en": {
+      "title": "Item net price is negative",
+      "meaning": "The item net price (BT-146) on an invoice line must be zero or more. Returns and credits are shown with a negative quantity (and so a negative line amount), or as an allowance, never with a negative price.",
+      "causes": [
+        "A returned item or a refund was entered as a line with a negative unit price.",
+        "A discount was entered as its own line with a negative price.",
+        "A credit note was built by flipping the sign of every amount, including the price."
+      ],
+      "fix": [
+        "Keep the unit price positive and make the quantity negative instead; the line net amount then becomes negative.",
+        "For a discount, use a line allowance or a document-level allowance rather than a negative-price line.",
+        "For a full reversal, consider issuing a credit note with positive amounts."
+      ]
+    },
+    "de": {
+      "title": "Nettopreis des Artikels ist negativ",
+      "meaning": "Der Nettopreis des Artikels (BT-146) in einer Rechnungsposition muss null oder größer sein. Rücksendungen und Gutschriften werden mit negativer Menge (und damit negativem Positionsbetrag) oder als Nachlass dargestellt, nie mit negativem Preis.",
+      "causes": [
+        "Eine Rücksendung oder Erstattung wurde als Position mit negativem Einzelpreis erfasst.",
+        "Ein Rabatt wurde als eigene Position mit negativem Preis eingetragen.",
+        "Eine Gutschrift entstand, indem bei allen Beträgen das Vorzeichen umgedreht wurde, auch beim Preis."
+      ],
+      "fix": [
+        "Lassen Sie den Einzelpreis positiv und machen Sie stattdessen die Menge negativ; der Positionsnettobetrag wird dann negativ.",
+        "Bilden Sie Rabatte als Nachlass auf Positions- oder Belegebene ab statt als Position mit negativem Preis.",
+        "Für eine vollständige Stornierung bietet sich eine Rechnungskorrektur bzw. Gutschrift mit positiven Beträgen an."
+      ]
+    },
+    "fr": {
+      "title": "Prix net de l'article négatif",
+      "meaning": "Le prix net de l'article (BT-146) d'une ligne de facture doit être positif ou nul. Les retours et avoirs s'expriment par une quantité négative (donc un montant de ligne négatif) ou par une remise, jamais par un prix négatif.",
+      "causes": [
+        "Un retour ou un remboursement a été saisi comme une ligne à prix unitaire négatif.",
+        "Une remise a été saisie comme une ligne distincte à prix négatif.",
+        "Un avoir a été construit en inversant le signe de tous les montants, prix compris."
+      ],
+      "fix": [
+        "Gardez le prix unitaire positif et rendez plutôt la quantité négative ; le montant net de la ligne devient alors négatif.",
+        "Pour une remise, utilisez une remise de ligne ou de document plutôt qu'une ligne à prix négatif.",
+        "Pour une annulation complète, envisagez un avoir avec des montants positifs."
+      ]
+    },
+    "ubl": "<cac:InvoiceLine>\n  <cbc:ID>2</cbc:ID>\n  <cbc:InvoicedQuantity unitCode=\"H87\">-1</cbc:InvoicedQuantity>\n  <cbc:LineExtensionAmount currencyID=\"EUR\">-50.00</cbc:LineExtensionAmount>\n  <cac:Item>\n    <cbc:Name>Returned widget</cbc:Name>\n  </cac:Item>\n  <cac:Price>\n    <cbc:PriceAmount currencyID=\"EUR\">50.00</cbc:PriceAmount>\n  </cac:Price>\n</cac:InvoiceLine>"
+  },
+  {
+    "id": "BR-49",
+    "source": "en16931",
+    "terms": [
+      "BG-16",
+      "BT-81"
+    ],
+    "en": {
+      "title": "Payment instructions have no payment means code",
+      "meaning": "Every payment instructions block (BG-16) in the invoice must state the payment means type code (BT-81) from the UNCL 4461 list, for example 58 for SEPA credit transfer, 59 for SEPA direct debit or 30 for credit transfer.",
+      "causes": [
+        "Bank details or a payment reference were written, but the code saying how to pay was left out.",
+        "The payment method was given only as text (\"Bank transfer\") and not as a code.",
+        "An empty PaymentMeans block (CII: ram:SpecifiedTradeSettlementPaymentMeans) was generated for a payment method that is not used."
+      ],
+      "fix": [
+        "Decide which payment method the block describes and add its UNCL 4461 code: cbc:PaymentMeansCode in UBL, ram:TypeCode in CII.",
+        "Put the code first in the block, before the payment reference and account details.",
+        "Remove payment instruction blocks you do not need instead of leaving them without a code."
+      ]
+    },
+    "de": {
+      "title": "Zahlungsanweisungen ohne Code der Zahlungsart",
+      "meaning": "Jeder Block Zahlungsanweisungen (BG-16) in der Rechnung muss den Code der Zahlungsart (BT-81) aus der Liste UNCL 4461 enthalten, etwa 58 für SEPA-Überweisung, 59 für SEPA-Lastschrift oder 30 für Überweisung.",
+      "causes": [
+        "Bankverbindung oder Verwendungszweck wurden angegeben, der Code für die Zahlungsart fehlt aber.",
+        "Die Zahlungsart steht nur als Text („Überweisung“) und nicht als Code in der Datei.",
+        "Für eine nicht genutzte Zahlungsart wurde ein leerer PaymentMeans-Block (CII: ram:SpecifiedTradeSettlementPaymentMeans) erzeugt."
+      ],
+      "fix": [
+        "Legen Sie fest, welche Zahlungsart der Block beschreibt, und ergänzen Sie den Code nach UNCL 4461: cbc:PaymentMeansCode in UBL, ram:TypeCode in CII.",
+        "Setzen Sie den Code an den Anfang des Blocks, vor Verwendungszweck und Kontoangaben.",
+        "Entfernen Sie nicht benötigte Zahlungsblöcke, statt sie ohne Code stehen zu lassen."
+      ]
+    },
+    "fr": {
+      "title": "Moyens de paiement sans code de type",
+      "meaning": "Chaque bloc d'instructions de paiement (BG-16) de la facture doit indiquer le code du type de moyen de paiement (BT-81) de la liste UNCL 4461, par exemple 58 pour un virement SEPA, 59 pour un prélèvement SEPA ou 30 pour un virement.",
+      "causes": [
+        "Les coordonnées bancaires ou la référence de paiement sont présentes, mais le code du moyen de paiement manque.",
+        "Le moyen de paiement n'est donné qu'en texte (« Virement ») et non sous forme de code.",
+        "Un bloc PaymentMeans vide (CII : ram:SpecifiedTradeSettlementPaymentMeans) a été généré pour un moyen de paiement non utilisé."
+      ],
+      "fix": [
+        "Déterminez le moyen de paiement décrit par le bloc et ajoutez son code UNCL 4461 : cbc:PaymentMeansCode en UBL, ram:TypeCode en CII.",
+        "Placez le code en tête du bloc, avant la référence de paiement et les coordonnées du compte.",
+        "Supprimez les blocs de paiement inutiles plutôt que de les laisser sans code."
+      ]
+    },
+    "ubl": "<cac:PaymentMeans>\n  <cbc:PaymentMeansCode>58</cbc:PaymentMeansCode>\n  <cbc:PaymentID>INV-2026-001</cbc:PaymentID>\n  <cac:PayeeFinancialAccount>\n    <cbc:ID>DE02120300000000202051</cbc:ID>\n  </cac:PayeeFinancialAccount>\n</cac:PaymentMeans>",
+    "cii": "<ram:SpecifiedTradeSettlementPaymentMeans>\n  <ram:TypeCode>58</ram:TypeCode>\n  <ram:PayeePartyCreditorFinancialAccount>\n    <ram:IBANID>DE02120300000000202051</ram:IBANID>\n  </ram:PayeePartyCreditorFinancialAccount>\n</ram:SpecifiedTradeSettlementPaymentMeans>"
+  }
+]

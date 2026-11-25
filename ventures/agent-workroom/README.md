@@ -139,4 +139,4 @@ python3 -m http.server -d ventures/agent-workroom 8000   # then open http://loca
 
 ## Licence
 
-MIT. See [LICENSE](LICENSE). No warranty.
+FSL-1.1-MIT. See [LICENSE](LICENSE). No warranty.

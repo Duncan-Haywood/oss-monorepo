@@ -1,9 +1,7 @@
 {
  "doi:10.1016/0197-2456(86)90046-2": {
-  "checked": "2026-11-19",
-  "source": "web search: PubMed 3802833, Controlled Clinical Trials 7(3):177-188",
-  "title": "Meta-analysis in clinical trials (1986)",
-  "via": "hand"
+  "checked": "2026-11-24",
+  "title": "Meta-analysis in clinical trials (1986)"
  },
  "doi:10.1109/ICCV.2015.261": {
   "checked": "2026-11-18",
@@ -14,15 +12,11 @@
   "title": "A benchmark for the evaluation of RGB-D SLAM systems (2012)"
  },
  "doi:10.1186/1471-2288-14-25": {
-  "checked": "2026-11-19",
-  "source": "web search: PMC4015721, BMC Med Res Methodol 14:25",
-  "title": "The Hartung-Knapp-Sidik-Jonkman method for random effects meta-analysis is straightforward and considerably outperforms the standard DerSimonian-Laird method (2014)",
-  "via": "hand"
+  "checked": "2026-11-24",
+  "title": "The Hartung-Knapp-Sidik-Jonkman method for random effects meta-analysis is straightforward and considerably outperforms the standard DerSimonian-Laird method (2014)"
  },
  "doi:10.1186/s12874-015-0091-1": {
-  "checked": "2026-11-19",
-  "source": "web search: PMC4647507, arXiv 1508.01227",
-  "title": "Hartung-Knapp-Sidik-Jonkman approach and its modification for random-effects meta-analysis with few studies (2015)",
-  "via": "hand"
+  "checked": "2026-11-24",
+  "title": "Hartung-Knapp-Sidik-Jonkman approach and its modification for random-effects meta-analysis with few studies (2015)"
  }
 }

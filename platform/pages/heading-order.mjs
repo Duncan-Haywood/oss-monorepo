@@ -21,15 +21,30 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+/** `s` with every match of `re` removed, repeated until none remain, so a removal cannot splice a new match together. */
+function removeAll(s, re) {
+  let prev;
+  do {
+    prev = s;
+    s = s.replace(re, '');
+  } while (s !== prev);
+  return s;
+}
+
 /** Every heading in document order, without the parts a browser does not render as headings. */
 export function headings(html) {
-  const body = String(html)
-    .replace(/<!--[\s\S]*?-->/g, '')
-    .replace(/<(script|style|template|noscript|svg)\b[\s\S]*?<\/\1>/gi, '');
+  // Comments and non-rendered blocks, removed until none remain (a removal cannot splice a new one together).
+  let body = String(html);
+  let prev;
+  do {
+    prev = body;
+    body = removeAll(body, /<!--[\s\S]*?--!?>/g);
+    body = removeAll(body, /<(script|style|template|noscript|svg)\b[\s\S]*?<\/\1\b[^>]*>/gi);
+  } while (body !== prev);
   const out = [];
   for (const m of body.matchAll(/<h([1-6])\b([^>]*)>([\s\S]*?)<\/h\1>/gi)) {
     if (/\bhidden\b|aria-hidden="true"/.test(m[2])) continue;
-    out.push({ level: Number(m[1]), text: m[3].replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim().slice(0, 60) });
+    out.push({ level: Number(m[1]), text: removeAll(m[3], /<[^>]+>/g).replace(/\s+/g, ' ').trim().slice(0, 60) });
   }
   return out;
 }

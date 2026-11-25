@@ -29,7 +29,7 @@ test('a page that is not a browser tool gets the neutral lead', () => {
 
 test('a lookup tool still names its hosts, whatever the flag', () => {
   const out = injectChrome(page, { ...opts, browserTool: false, externalCallHosts: ['api.example.org'] });
-  assert.ok(out.includes('api.example.org'));
+  assert.match(out, /api\.example\.org/);
 });
 
 test('addSiteChrome: the entry page or the page itself has a control', async () => {

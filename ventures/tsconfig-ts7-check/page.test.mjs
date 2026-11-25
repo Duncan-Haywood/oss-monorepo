@@ -3,10 +3,13 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { parseJsonc, checkConfig, REMOVED_IN_7, REMOVED_IN_55 } from './tsconfig7.mjs';
 
+// Strip markup until stable, case-insensitive, tolerant of attributes in closing tags.
+const stripTags = (s, sub = '') => { let p; do { p = s; s = s.replace(/<[^>]*>/g, sub); } while (s !== p); return s; };
+
 const read = (f) => readFileSync(new URL(f, import.meta.url), 'utf8');
 const html = read('./index.html');
 const ld = (src) => [...src.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
-const unhtml = (s) => s.replace(/<[^>]+>/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+const unhtml = (s) => stripTags(s).replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
 
 test('JSON-LD parses: SoftwareApplication (free) and FAQPage', () => {
   const blocks = ld(html);
@@ -31,7 +34,7 @@ test('the FAQ list of removed options names every option the rules remove', () =
 test('no-warranty clause, sponsor link, licence, privacy line and opt-out', () => {
   assert.match(html, /provided free and as-is, without warranty/);
   assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
-  assert.match(html, /MIT licence/);
+  assert.match(html, /FSL-1.1-MIT licence/);
   assert.match(html, /never uploaded/);
   assert.match(html, /id="usageOptOut"/);
 });

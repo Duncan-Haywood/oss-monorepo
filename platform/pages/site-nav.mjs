@@ -75,17 +75,26 @@ export function sponsorsNote() {
 
 /** The primary navigation, in order. `href` is relative to the site root. */
 export const SITE_NAV = Object.freeze([
+  // The company's products first, then the industries they serve (owner,
+  // 2026-11-24: the site moves to "a for profit marketing style for portfolio
+  // of software and hardware products targeted to lots of specific smbs").
+  // Both pages are products.mjs; the lines themselves are business.mjs.
+  //
+  // Header room goes to what a paying customer needs (owner, 2026-11-25:
+  // "demote some of the passion projects and move more towards the paid
+  // product track with dev resource and website real estate"). Research,
+  // Stories and Self-host left the header that day; each keeps its pages and
+  // its link in the footer (renderSiteFooterNav below), and a page in one of
+  // those sections still passes its id as `current`, which simply marks no tab.
+  Object.freeze({ id: 'products', label: 'Products', href: 'products/' }),
+  Object.freeze({ id: 'industries', label: 'Industries', href: 'industries/' }),
   Object.freeze({ id: 'tools', label: 'Tools', href: 'c/' }),
-  Object.freeze({ id: 'research', label: 'Research', href: 'research/' }),
-  // The reading side is two items (owner, 2026-11-24: "move more of the blog
-  // stuff to consolidated ... two items there"): Blog and Stories. Podcast and
+  // The reading side is one item, Blog (owner, 2026-11-24: "move more of the
+  // blog stuff to consolidated"; Stories moved to the footer 2026-11-25). Podcast and
   // Updates were top-level tabs of their own (owner, 2026-10-21); they now sit
   // under Blog (the blog index links both, and their pages mark Blog current)
   // and stay in the footer's "Read" group.
   Object.freeze({ id: 'writing', label: 'Blog', href: 'writing/' }),
-  // The creative track's fiction (owner, 2026-10-24: its "own page on the
-  // website"); see stories.mjs.
-  Object.freeze({ id: 'stories', label: 'Stories', href: 'stories/' }),
   Object.freeze({ id: 'ask', label: 'Ask', href: 'ask/' }),
   // Anyone may ask for a tool, product or feature to be built (owner,
   // 2026-11-02: "on the top tab. request a tool product or feature"). The
@@ -93,7 +102,6 @@ export const SITE_NAV = Object.freeze([
   // Labelled for businesses since 2026-11-02 (owner: "advertise to businesses
   // more", "describe your problem and it gets built").
   Object.freeze({ id: 'request', label: 'Get it built', href: 'custom-development/' }),
-  Object.freeze({ id: 'deploy', label: 'Deploy your own', href: 'deploy/' }),
   Object.freeze({ id: 'about', label: 'About', href: 'about/' }),
 ]);
 
@@ -222,8 +230,12 @@ export function renderSiteFooterNav({ toRoot = '' } = {}) {
     ]],
     ['Project', [
       ['about/', 'About &amp; press kit'],
+      ['privacy/', 'Privacy Policy'],
+      ['terms/', 'Terms of Use'],
+      ['cookies/', 'Cookie Policy'],
       ['feedback/', 'Report a problem'],
       ['custom-development/', 'Custom development'],
+      ['hardware/', 'Hardware designs'],
       ['queue/', 'Work queue'],
       ['engineering/', 'Engineering status'],
       ['dev/', 'Development dashboard'],
@@ -244,7 +256,7 @@ export function renderSiteFooterNav({ toRoot = '' } = {}) {
       .map(([h, label]) => `<li><a href="${esc(href(h))}">${label}</a></li>`)
       .join('')}</ul></div>`)
     .join('');
-  return `<p class="pfs-support">${sponsorsNote()}</p><nav class="pfs-foot" aria-label="Site links">${cols}</nav><p class="pfs-foot pfs-credit">A ${esc(SITE_NAME)} project, MIT licensed.</p>`;
+  return `<p class="pfs-support">${sponsorsNote()}</p><nav class="pfs-foot" aria-label="Site links">${cols}</nav><p class="pfs-foot pfs-credit">A ${esc(SITE_NAME)} project. Tools FSL-1.1-MIT, research MIT.</p>`;
 }
 
 /**

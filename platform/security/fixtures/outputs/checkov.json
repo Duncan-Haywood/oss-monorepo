@@ -1,0 +1,89 @@
+[
+ {
+  "check_type": "dockerfile",
+  "results": {
+   "failed_checks": [
+    {
+     "check_id": "CKV_DOCKER_2",
+     "bc_check_id": null,
+     "check_name": "Ensure that HEALTHCHECK instructions have been added to container images",
+     "check_result": {
+      "result": "FAILED",
+      "results_configuration": null
+     },
+     "code_block": null,
+     "file_path": "/platform/counter/deploy/Dockerfile",
+     "file_abs_path": "/scan-root/platform/counter/deploy/Dockerfile",
+     "repo_file_path": "/tree/platform/counter/deploy/Dockerfile",
+     "file_line_range": [
+      1,
+      9
+     ],
+     "resource": "/platform/counter/deploy/Dockerfile.",
+     "evaluations": null,
+     "check_class": "checkov.dockerfile.checks.HealthcheckExists",
+     "fixed_definition": null,
+     "entity_tags": null,
+     "caller_file_path": null,
+     "caller_file_line_range": null,
+     "resource_address": null,
+     "severity": null,
+     "bc_category": null,
+     "benchmarks": null,
+     "description": null,
+     "short_description": null,
+     "vulnerability_details": null,
+     "connected_node": null,
+     "guideline": null,
+     "details": [],
+     "check_len": null,
+     "definition_context_file_path": null
+    },
+    {
+     "check_id": "CKV_DOCKER_3",
+     "bc_check_id": null,
+     "check_name": "Ensure that a user for the container has been created",
+     "check_result": {
+      "result": "FAILED",
+      "results_configuration": null
+     },
+     "code_block": null,
+     "file_path": "/ventures/ad-spend-saturation-optimizer/Dockerfile",
+     "file_abs_path": "/scan-root/ventures/ad-spend-saturation-optimizer/Dockerfile",
+     "repo_file_path": "/tree/ventures/ad-spend-saturation-optimizer/Dockerfile",
+     "file_line_range": [
+      1,
+      6
+     ],
+     "resource": "/ventures/ad-spend-saturation-optimizer/Dockerfile.",
+     "evaluations": null,
+     "check_class": "checkov.dockerfile.checks.UserExists",
+     "fixed_definition": null,
+     "entity_tags": null,
+     "caller_file_path": null,
+     "caller_file_line_range": null,
+     "resource_address": null,
+     "severity": null,
+     "bc_category": null,
+     "benchmarks": null,
+     "description": null,
+     "short_description": null,
+     "vulnerability_details": null,
+     "connected_node": null,
+     "guideline": null,
+     "details": [],
+     "check_len": null,
+     "definition_context_file_path": null
+    }
+   ]
+  },
+  "summary": {
+   "passed": 2106,
+   "failed": 39,
+   "skipped": 0,
+   "parsing_errors": 0,
+   "resource_count": 75,
+   "checkov_version": "3.4.3"
+  }
+ }
+]

@@ -18,4 +18,4 @@ licensing or food-safety advice. It does not model cottage-food rules, permits,
 labels, sales caps or demand. Unverified against a real kitchen's books: tested on
 hand-calculated examples.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

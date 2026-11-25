@@ -7,7 +7,9 @@ verdict has to fail an unreviewed agent merge and stay quiet on everything
 else, or main goes red on unrelated work and the check gets switched off.
 """
 
+import json
 import unittest
+from unittest import mock
 
 import control_plane_guard as guard
 
@@ -64,9 +66,14 @@ class MainExitCode(unittest.TestCase):
     def test_check_coverage_exit_code_follows_problems(self):
         from unittest import mock
 
-        with mock.patch.object(guard, "check_coverage", return_value=[]):
+        with mock.patch.object(guard, "check_coverage", return_value=[]), \
+             mock.patch.object(guard, "check_invariants", return_value=[]):
             self.assertEqual(guard.main(["--check-coverage"]), 0)
-        with mock.patch.object(guard, "check_coverage", return_value=["x has no code owner"]):
+        with mock.patch.object(guard, "check_coverage", return_value=["x has no code owner"]), \
+             mock.patch.object(guard, "check_invariants", return_value=[]):
+            self.assertEqual(guard.main(["--check-coverage"]), 1)
+        with mock.patch.object(guard, "check_coverage", return_value=[]), \
+             mock.patch.object(guard, "check_invariants", return_value=["ruleset has bypass actors"]):
             self.assertEqual(guard.main(["--check-coverage"]), 1)
 
 
@@ -108,6 +115,21 @@ class Audit(unittest.TestCase):
     def test_untouched_control_plane_passes(self):
         self.assertEqual(guard.audit_verdict([], None, [], {"owner"})[0], 0)
 
+    def test_passing_risk_review_passes_without_owner(self):
+        code, _ = guard.audit_verdict(["CLAUDE.md"], {"number": 1, "user": {"login": "bot"}}, [], {"owner"}, True)
+        self.assertEqual(code, 0)
+
+    def test_risk_review_must_come_from_mains_workflow(self):
+        run = {"name": "risk-review", "conclusion": "success", "app": {"slug": "github-actions"},
+               "check_suite": {"id": 7}}
+        good = {7: {"path": ".github/workflows/priv-risk-review.yml", "event": "pull_request_target"}}
+        self.assertTrue(guard.risk_review_ok([run], good))
+        faked = {7: {"path": ".github/workflows/some-ci.yml", "event": "pull_request"}}
+        self.assertFalse(guard.risk_review_ok([run], faked))
+        wrong_event = {7: {"path": ".github/workflows/priv-risk-review.yml", "event": "pull_request"}}
+        self.assertFalse(guard.risk_review_ok([run], wrong_event))
+        self.assertFalse(guard.risk_review_ok([dict(run, conclusion="failure")], good))
+
     def test_owner_approval_passes(self):
         code, _ = guard.audit_verdict(["CLAUDE.md"], self.pr, [review("Owner")], {"owner"})
         self.assertEqual(code, 0)
@@ -134,6 +156,96 @@ class Audit(unittest.TestCase):
         self.assertTrue(msg.startswith("::warning::"))
 
 
+def ruleset(**over):
+    doc = json.loads(guard.RULESET.read_text(encoding="utf-8"))
+    doc.update(over)
+    return doc
+
+
+class RulesetInvariants(unittest.TestCase):
+    def test_repo_ruleset_is_clean(self):
+        self.assertEqual(guard.ruleset_problems(ruleset()), [])
+
+    def test_bypass_actor_is_refused(self):
+        doc = ruleset(bypass_actors=[{"actor_id": 5, "actor_type": "RepositoryRole", "bypass_mode": "always"}])
+        self.assertTrue(any("bypass" in p for p in guard.ruleset_problems(doc)))
+
+    def test_dropping_a_required_check_is_refused(self):
+        doc = ruleset()
+        for rule in doc["rules"]:
+            if rule["type"] == "required_status_checks":
+                rule["parameters"]["required_status_checks"] = [
+                    c for c in rule["parameters"]["required_status_checks"] if c["context"] != "adversarial-gate"
+                ]
+        self.assertIn(
+            "required status check `adversarial-gate` is missing from the ruleset", guard.ruleset_problems(doc)
+        )
+
+    def test_check_from_any_app_is_refused(self):
+        doc = ruleset()
+        for rule in doc["rules"]:
+            if rule["type"] == "required_status_checks":
+                for c in rule["parameters"]["required_status_checks"]:
+                    if c["context"] == "security-scan":
+                        del c["integration_id"]
+        self.assertTrue(any("security-scan" in p and "integration_id" in p for p in guard.ruleset_problems(doc)))
+
+    def test_disabled_enforcement_is_refused(self):
+        self.assertIn("ruleset enforcement is not `active`", guard.ruleset_problems(ruleset(enforcement="evaluate")))
+
+    def test_code_owner_review_may_be_off(self):
+        doc = ruleset()
+        for rule in doc["rules"]:
+            if rule["type"] == "pull_request":
+                self.assertFalse(rule["parameters"]["require_code_owner_review"])
+
+
+class GateWorkflowInvariants(unittest.TestCase):
+    def text(self):
+        return guard.GATE_WORKFLOW.read_text(encoding="utf-8")
+
+    def test_repo_gate_workflow_is_clean(self):
+        self.assertEqual(guard.gate_workflow_problems(self.text()), [])
+
+    def test_missing_workflow_is_refused(self):
+        self.assertEqual(guard.gate_workflow_problems(None), [".github/workflows/priv-security-gate.yml is missing"])
+
+    def test_switching_to_pull_request_trigger_is_refused(self):
+        weakened = self.text().replace("pull_request_target:", "pull_request:")
+        self.assertTrue(any("pull_request_target" in p for p in guard.gate_workflow_problems(weakened)))
+
+    def test_trigger_switch_is_refused_without_pyyaml(self):
+        # The fallback must read the `on:` block, not any mention in the file:
+        # here a comment still names pull_request_target.
+        weakened = self.text().replace("pull_request_target:", "pull_request:  # was pull_request_target")
+        with mock.patch.object(guard, "_load_yaml", return_value=None):
+            self.assertTrue(any("pull_request_target" in p for p in guard.gate_workflow_problems(weakened)))
+            self.assertEqual(guard.gate_workflow_problems(self.text()), [])
+
+    def test_checking_out_the_pr_head_is_refused(self):
+        weakened = self.text().replace(
+            "persist-credentials: false",
+            "persist-credentials: false\n          ref: ${{ github.event.pull_request.head.sha }}",
+            1,
+        )
+        self.assertTrue(any("checks out the PR" in p for p in guard.gate_workflow_problems(weakened)))
+
+    def test_renaming_a_required_job_is_refused(self):
+        weakened = self.text().replace("\n  adversarial-gate:\n", "\n  adversarial-gate-v2:\n")
+        self.assertTrue(any("adversarial-gate" in p for p in guard.gate_workflow_problems(weakened)))
+
+    def test_continue_on_error_is_refused(self):
+        weakened = self.text().replace("    timeout-minutes:", "    continue-on-error: true\n    timeout-minutes:", 1)
+        self.assertTrue(any("continue-on-error" in p for p in guard.gate_workflow_problems(weakened)))
+
+    def test_not_running_the_gate_script_is_refused(self):
+        weakened = self.text().replace("platform/ci/adversarial_gate/gate.py", "platform/ci/adversarial_gate/noop.py")
+        self.assertTrue(any("no longer runs platform/ci/adversarial_gate/gate.py" in p for p in guard.gate_workflow_problems(weakened)))
+
+    def test_repo_invariants_hold(self):
+        self.assertEqual(guard.check_invariants(), [])
+
+
 class TrailingDoubleStar(unittest.TestCase):
     def test_dir_double_star_matches_nested_depth(self):
         rules = guard.parse_codeowners("/docs/** @owner\n")
@@ -155,7 +267,7 @@ class PrSummary(unittest.TestCase):
         import os
         from unittest import mock
 
-        files = [{"filename": "CLAUDE.md"}, {"filename": "ventures/x/a.mjs"}]
+        files = [{"filename": ".mcp.json"}, {"filename": "ventures/x/a.mjs"}]
         out = []
         with mock.patch.dict(os.environ, {"GITHUB_REPOSITORY": "o/r"}), \
              mock.patch.object(guard, "gh_pages", return_value=files), \
@@ -163,7 +275,7 @@ class PrSummary(unittest.TestCase):
             code = guard.main(["--pr", "5"])
         self.assertEqual(code, 0)
         self.assertEqual(len(out), 1)
-        self.assertIn("- `CLAUDE.md`", out[0])
+        self.assertIn("- `.mcp.json`", out[0])
         self.assertNotIn("ventures/x/a.mjs", out[0])
 
 

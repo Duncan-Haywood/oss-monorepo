@@ -7,7 +7,7 @@ anti-abuse plumbing yourself.
 
 **Live tool:** https://marisstella.app/waitlist-keeper/
 
-Two parts, both free and MIT:
+Two parts, both free and FSL-1.1-MIT:
 
 - **`index.html`**: paste an email list to find aliases, duplicates and
   disposable addresses, and project referral growth. Runs in the browser;
