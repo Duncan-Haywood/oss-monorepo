@@ -622,12 +622,14 @@ products:
         price: $199 a month plus $20 a user
         source: https://jobtread.com/blog/jobtread-vs-buildertrend-construction-management-software-comparison
         read: 2026-11-24
-    stage: planned
+    stage: built-dark
     next: >-
-      Build milestone (1) of the payapps flagship row (portfolio/flagships.yaml,
-      bet 1) in private-monorepo/apps/payapps, with the Paddle BillingProvider
-      copied from apps/grants and left dark. Then the Paddle catalogue for these
-      tiers as code, so the owner only sets ids.
+      The tiers are code in private-monorepo/apps/payapps/src/shared/plans.ts
+      (PR #37), with a Free plan of 1 active job and 1 user as the default, the
+      Paddle catalogue as code (billing/paddle-catalog.json) and a 40%-margin
+      test; checkout, portal and the signed webhook are built and dark. Next for
+      revenue: a payapps deploy workflow that runs the Paddle catalog sync, then
+      the owner's Paddle secrets (apps/payapps/docs/BILLING.md, "Turning it on").
     next_owner: false
 
   - app: private-monorepo/apps/jobshop-quote
