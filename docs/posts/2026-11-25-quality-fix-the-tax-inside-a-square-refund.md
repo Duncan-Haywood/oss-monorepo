@@ -1,9 +1,9 @@
 ---
 title: "Quality fix: the sales tax inside a Square partial refund"
-seo_title: "Square partial refund sales tax journal entry: take the tax out of the payable"
+seo_title: "Square partial refund sales tax: the journal entry bookkeepers need"
 date: 2026-11-25
 tags: [quality-audit, square-sales-to-journal, for-customers, bookkeeping, sales-tax]
-description: "Square Sales To Journal now takes the sales tax in a partial refund back out of Sales Tax Payable, instead of booking the whole refund to Refunds and overstating the tax you owe."
+description: "Square Sales To Journal now takes the sales tax in a partial refund out of Sales Tax Payable instead of overstating the tax you owe."
 ---
 
 A customer buys $100 of goods, pays $8 sales tax and a $5 tip, then brings
