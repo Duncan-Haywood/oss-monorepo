@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const PAGES = ["index", "cmmc-level-1-self-assessment", "sprs-score-calculator", "nist-800-171-ssp-template", "stock-size-from-step-file", "job-shop-quote-calculator", "cmmc-level-1-vs-level-2", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual"];
+const PAGES = ["index", "cmmc-level-1-self-assessment", "sprs-score-calculator", "nist-800-171-ssp-template", "dfars-7012-incident-reporting", "stock-size-from-step-file", "job-shop-quote-calculator", "cmmc-level-1-vs-level-2", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual"];
 const read = (p) => readFileSync(new URL(`./${p}.html`, import.meta.url), "utf8");
 
 for (const p of PAGES) {
@@ -21,7 +21,7 @@ for (const p of PAGES) {
 
   test(`${p}: makes no certification or endorsement claim`, () => {
     const text = read(p).replace(/<[^>]+>/g, " ");
-    for (const bad of [/\bCMMC[- ]certified\b/i, /\bget certified\b/i, /\bDoD[- ]approved\b/i, /\bendorsed by the DoD\b(?![^.]*Not affiliated)/i, /\bguarantee(d|s)? (compliance|a score|certification)\b/i]) {
+    for (const bad of [/\bCMMC[- ]certified\b/i, /\bget certified\b/i, /\bDoD[- ]approved\b(?! medium assurance certificate)/i, /\bendorsed by the DoD\b(?![^.]*Not affiliated)/i, /\bguarantee(d|s)? (compliance|a score|certification)\b/i]) {
       assert.doesNotMatch(text, bad, `${p} matches ${bad}`);
     }
   });
@@ -67,4 +67,12 @@ test("quote-vs-actual page ships no benchmark: no dollar or hour figure outside 
   assert.doesNotMatch(text, /\$\s?\d/);
   assert.match(text, /Load an invented example/);
   assert.match(text, /href="job-shop-quote-calculator.html"/);
+});
+
+test("incident page builds the DOM from text, never innerHTML, and keeps nothing by default", () => {
+  const html = read("dfars-7012-incident-reporting");
+  assert.doesNotMatch(html, /innerHTML|outerHTML|insertAdjacentHTML|document\.write/);
+  assert.match(html, /id="keep-draft"(?![^>]*checked)/);
+  assert.match(html, /https:\/\/dibnet\.dod\.mil/);
+  assert.match(html, /within 72 hours of discovery of any cyber incident/);
 });
