@@ -150,11 +150,13 @@ test('sourcing ceiling is the buy cost that still hits the target ROI', () => {
   assert.equal(ceiling.amountOverCeiling, 0);
 });
 
-test('sourcing ceiling stays per item across batches and flags unreachable targets', () => {
+test('sourcing ceiling is per item, shares the order fee across a batch, and flags unreachable targets', () => {
   const input = { price: 40, shippingCharged: 6, quantity: 3, finalValueRate: 13.25, fixedFee: 0.3, shippingCost: 5, packagingCost: 1 };
   const single = calculateSourcingCeiling({ ...input, quantity: 1 }, 100);
   const batch = calculateSourcingCeiling(input, 100);
-  near(batch.maximumAcquisitionCost, single.maximumAcquisitionCost, 'batch ceiling remains per item');
+  // Per item, but the one $0.30 order fee is shared by 3 units: $0.20 less
+  // to recover per item, over (1 + 100%) at the 100% target.
+  near(batch.maximumAcquisitionCost - single.maximumAcquisitionCost, (0.3 - 0.3 / 3) / 2, 'batch ceiling shares the order fee');
   near(batch.maximumBatchAcquisitionCost, batch.maximumAcquisitionCost * 3, 'batch buy budget is the per-item ceiling times units');
   near(single.maximumBatchAcquisitionCost, single.maximumAcquisitionCost, 'one unit budget matches the per-item ceiling');
   assert.equal(calculateSourcingCeiling({ price: 10, finalValueRate: 90, shippingCost: 5 }, 100).isReachable, false);
@@ -2663,4 +2665,68 @@ test('redteam: a custom tier list without Premium reports no Premium gain', () =
   const r = compareStoreTiers(STORE_BASE, STORE_TIER_PRESETS.slice(0, 2));
   assert.equal(r.premium, undefined);
   assert.equal(r.extraKeptOnPremium, 0);
+});
+
+// Red-team guards, 2026-11-24 (prompts/runs/2026-11-24-session_01E5sJKkoZ6uXKS7ozuohj21.json).
+test('auction and Buy It Now deltas are each other negated', () => {
+  const comparison = compareListingFormat({ ...formatBase, auctionExpectedClose: 36 });
+  near(comparison.auction.expectedProfitDelta, comparison.auction.expectedProfit - comparison.bin.expectedProfit, 'auction delta');
+  near(comparison.auction.expectedProfitDelta, -comparison.bin.expectedProfitDelta, 'deltas mirror');
+});
+
+test('an exact combined-shipping tie never reads as keeping less', () => {
+  const row = { expectedProfit: 10, shippingCharged: 8, postageAndPack: 7.75 };
+  const note = combinedShippingNote({ itemCount: 2, separate: { ...row, shippingCharged: 12 }, combined: row, breakEvenCombinedCharged: 8 });
+  assert.match(note, /\$0\.00 more/);
+  assert.doesNotMatch(note, /less/);
+});
+
+test('the immediate-payment row has no unpaid orders to show', () => {
+  const comparison = compareImmediatePayment(agBase);
+  assert.equal(comparison.immediate.unpaidPct, 0);
+  assert.equal(comparison.later.unpaidPct, DEFAULT_UNPAID_RATE);
+});
+
+test('Managed Returns at the break-even fee ties self-label, with fees partly refunded', () => {
+  const input = { ...MANAGED_BASE, feeRefundOnReturnPercent: 50, managedReturnRatePercent: 11 };
+  const r = compareManagedReturns(input);
+  assert.ok(Number.isFinite(r.breakEvenManagedFee) && r.breakEvenManagedFee > 0, 'a positive ceiling exists');
+  const at = compareManagedReturns({ ...input, managedReturnFee: r.breakEvenManagedFee });
+  near(at.managed.expectedProfit, at.self.expectedProfit, 'ceiling fee ties self-label');
+  assert.equal(compareManagedReturns(MANAGED_BASE).breakEvenManagedFee, -Infinity, 'more returns at any fee lose');
+});
+
+test('a cleared rate box falls back to its default instead of silently reading 0%', () => {
+  // The page passes each box's raw string, so a cleared final value fee used
+  // to compute a 0% fee and overstate profit (red team, 2026-11-24).
+  const typed = { price: '40', shippingCharged: '6', costOfGoods: '12', shippingCost: '5', returnRatePercent: '10' };
+  const cleared = calculateOrder({ ...typed, finalValueRate: '', fixedFee: '', feeRefundOnReturnPercent: '', quantity: '' });
+  const omitted = calculateOrder(typed);
+  near(cleared.feeTotal, omitted.feeTotal, 'default fee stack');
+  near(cleared.feeTotal, 46 * 0.136 + 0.4, '13.6% plus $0.40');
+  near(cleared.expectedProfit, omitted.expectedProfit, 'default fee refund on return');
+  assert.equal(cleared.quantity, 1);
+  near(calculateOrder({ ...typed, finalValueRate: '0' }).fees.finalValue, 0, 'a typed 0 is still 0');
+});
+
+test('price for a target leftover charges the per-order fixed fee once across a batch', () => {
+  // It spread the $0.40 per unit, so at 10 units the price it named left
+  // $33.61 instead of the $30 asked for (red team, 2026-11-24).
+  for (const quantity of [1, 3, 10]) {
+    const input = { shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.4, costOfGoods: 12, shippingCost: 5, packagingCost: 1, quantity };
+    const price = priceToMatchProfit(input, 30);
+    assert.ok(Math.abs(calculateOrder({ ...input, price }).profit - 30) < 0.01 * quantity, `${quantity} units: leftover at the named price`);
+  }
+  near(priceToMatchProfit({ shippingCharged: 6, costOfGoods: 12, finalValueRate: '', fixedFee: '' }, 30),
+    priceToMatchProfit({ shippingCharged: 6, costOfGoods: 12 }, 30), 'cleared boxes take the defaults here too');
+});
+
+test('the sourcing ceiling hits the target ROI on a batch too', () => {
+  // It priced the one per-order fee into every unit, so at 10 units the
+  // ceiling it named returned 26.1%, not the 25% asked (red team, 2026-11-24).
+  for (const quantity of [1, 10]) {
+    const input = { price: 40, shippingCharged: 6, finalValueRate: 13.25, fixedFee: 0.4, costOfGoods: 12, shippingCost: 5, packagingCost: 1, quantity };
+    const ceiling = calculateSourcingCeiling(input, 25);
+    near(calculateOrder({ ...input, costOfGoods: ceiling.maximumAcquisitionCost }).roi, 25, `${quantity} units: ROI at the ceiling`);
+  }
 });

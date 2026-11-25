@@ -211,14 +211,13 @@ test('every story page title fits a search result, keeping the longest descripti
   assert.equal(storyTitle({ title: 'Isidore and the Angels Who Ploughed' }, lamps, true), 'Isidore and the Angels Who Ploughed: a Catholic bedtime story');
 });
 
-test('metaDescription keeps whole sentences within 160 characters, else cuts at a word', async () => {
+test('a story page meta description fits 160 characters, cut on a word with an ellipsis', async () => {
   const { metaDescription } = await import('./stories.mjs');
   assert.equal(metaDescription('Short.'), 'Short.');
-  const long = `${'A sentence that runs on for a while. '.repeat(3)}${'word '.repeat(60)}`;
+  const long = 'A seventeen-year-old runs a coin stall at a Flemish parish fête, €5 a go, the prize doubling with every toss until the king comes up, capped at the €128 in the float tin.';
   const d = metaDescription(long);
-  assert.ok(d.length <= 160, d);
-  assert.ok(d.endsWith('.'), d);
-  const oneLong = 'word '.repeat(60);
-  const e = metaDescription(oneLong);
-  assert.ok(e.length <= 160 && e.endsWith('\u2026') && !e.includes('wor\u2026'), e);
+  assert.ok(d.length <= 160, `${d.length}`);
+  assert.ok(d.endsWith('…'));
+  assert.ok(long.startsWith(d.slice(0, -1)));
+  assert.ok(!/[ ,]…$/.test(d));
 });
