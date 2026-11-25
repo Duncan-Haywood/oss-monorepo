@@ -14,8 +14,10 @@
 const cents = (n) => Math.round(n * 100) / 100;
 const num = (v) => {
   if (v === null || v === undefined || v === "") return null;
-  const n = typeof v === "number" ? v : Number(String(v).replace(/[$,\s]/g, ""));
-  return Number.isFinite(n) ? n : NaN;
+  if (typeof v === "number") return Number.isFinite(v) ? v : NaN;
+  // Plain decimals only: Number() alone would read "1e1" as 10 and "0x7" as 7.
+  const t = String(v).replace(/[$,\s]/g, "");
+  return /^-?(\d+\.?\d*|\.\d+)$/.test(t) ? Number(t) : NaN;
 };
 
 // What the 2018 Travelers handout (hosted by AGC) says, grouped. Each state appears under

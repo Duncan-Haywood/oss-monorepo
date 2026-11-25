@@ -97,3 +97,9 @@ test("supplier lines: thousands commas, names with commas, optional share, tabs"
     { name: "Bolt", owed: "500", agreed: null },
   ]);
 });
+
+test("typed amounts are plain decimals: exponents, hex and junk are errors", () => {
+  for (const bad of ["1e4", "0x10", "12abc", "--5"]) assert.equal(splitJointCheck({ check: bad, suppliers: [{ name: "A", owed: 1 }] }).ok, false, bad);
+  assert.equal(splitJointCheck({ check: "100", suppliers: [{ name: "A", owed: "1e1" }] }).ok, false);
+  assert.equal(splitJointCheck({ check: " $1,000.50 ", suppliers: [{ name: "A", owed: ".5" }] }).toSub, 1000);
+});
