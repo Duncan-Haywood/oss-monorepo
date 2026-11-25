@@ -327,7 +327,7 @@ ${claimBlock}
 ${offBlock}
 <h2>Availability replies (${state.replies.length})</h2>
 <form method="post" action="/admin/merge?key=${k}"><textarea name="replies" readonly>${replies}</textarea><button ${state.replies.length ? "" : "disabled"}>Merge into staff list</button></form>
-<p class="note">${p ? `Published ${esc(p.at)}: ${p.unfilled} open shift(s).` : "Nothing published yet."} Staff link: <code>/team?t=TEAM_TOKEN</code></p><p><a href="/admin/changes?key=${k}">Schedule changes and notice pay</a> (${(state.changeLog || []).length} change(s) logged)</p>${clockOn ? `<p><a href="/admin/timesheet?key=${k}">Timesheet: hours worked against the schedule</a> (${(state.punches || []).length} punch(es) recorded) · <a href="/admin/leave?key=${k}">Leave balances</a> · <a href="/admin/payroll?key=${k}">Payroll import file</a></p>` : ""}`);
+<p class="note">${p ? `Published ${esc(p.at)}: ${p.unfilled} open shift(s).` : "Nothing published yet."} Staff link: <code>/team?t=TEAM_TOKEN</code></p><p><a href="/admin/changes?key=${k}">Schedule changes and notice pay</a> (${(state.changeLog || []).length} change(s) logged)</p>${clockOn ? `<p><a href="/admin/timesheet?key=${k}">Timesheet: hours worked against the schedule</a> (${(state.punches || []).length} punch(es) recorded) · <a href="/admin/leave?key=${k}">Leave balances</a> · <a href="/admin/payroll?key=${k}">Payroll import file</a></p>` : ""}<p class="note"><a href="/admin/export.json?key=${k}">Download a backup</a> of everything this hub holds (one JSON file; it includes wages, so keep it private).</p>`);
 }
 
 // The manager's timesheet for a published week (the current one or one of the last 12): worked time beside the
@@ -725,6 +725,11 @@ export function handler(state, save, env = globalThis.process?.env ?? {}, now = 
     if (req.method === "GET" && url.pathname === "/admin") {
       const note = url.searchParams.get("note");
       return send(200, adminPage(state, adminKey, note ? `<p class="ok">${esc(note)}</p>` : "", browserBuild, clockOn, fww));
+    }
+    // The whole hub state as one JSON file: a backup, and what aws/migrate-hub.mjs moves into a hosted hub. Admin only
+    // (it holds wages and punches); no-store so a shared browser or proxy keeps no copy.
+    if (req.method === "GET" && url.pathname === "/admin/export.json") {
+      return send(200, JSON.stringify(state), "application/json; charset=utf-8", { "content-disposition": `attachment; filename="hub-state.json"`, "cache-control": "no-store" });
     }
     if (clockOn && req.method === "GET" && url.pathname === "/admin/timesheet") {
       const note = url.searchParams.get("note");
