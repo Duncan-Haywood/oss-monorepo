@@ -26,8 +26,27 @@ test("inputs have labels and nothing can send the schedule anywhere", () => {
 test("the module scripts import only local files", () => {
   const html = page("index.html");
   const imports = [...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]);
-  assert.deepEqual(imports.sort(), ["./calc.mjs", "./sheet.mjs", "./usage.mjs", "./workbook.mjs"]);
+  assert.deepEqual(imports.sort(), ["./calc.mjs", "./usage.mjs"]);
+  const dynamic = [...html.matchAll(/import\("([^"]+)"\)/g)].map((m) => m[1]);
+  assert.deepEqual(dynamic.sort(), ["./sheet.mjs", "./workbook.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
+});
+
+// docs/history/pay-application-page-perf-2026-11-25.md: the .xlsx reader and writer load on first use.
+test("the .xlsx reader and writer load on demand, and every call to them goes through the loaded module", () => {
+  const html = page("index.html");
+  const script = /<script type="module">([\s\S]*?)<\/script>/.exec(html)[1];
+  for (const fn of ["readXlsx", "pickSheet", "findSchedule", "retainageChecks"]) {
+    assert.match(page("sheet.mjs"), new RegExp(`export (async )?function ${fn}\\b`));
+    for (const m of script.matchAll(new RegExp(`(.{6})\\b${fn}\\(`, "g"))) assert.equal(m[1], "sheet.", `${fn} is called without sheet.`);
+  }
+  assert.match(page("workbook.mjs"), /export function workbookXlsx\b/);
+  for (const m of script.matchAll(/(.{2})\bworkbookXlsx\(/g)) assert.equal(m[1], "w.", "workbookXlsx is called without the loaded module");
+  // run() asks for sheet.mjs before the header search, and the caller loads it and runs again
+  assert.match(script, /if \(!sheet\) return null;[^\n]*\n\s*const found = sheet\.findSchedule/);
+  assert.match(script, /if \(ok === null\) \{\s*try \{ await loadSheet\(\); \}/);
+  // a failed fetch clears the memo so the next press retries
+  assert.match(script, /p \?\?= load\(\)\.catch\(\(err\) => \{ p = null; throw err; \}\)/);
 });
 
 test("page says what it does not decide and does not pose as the AIA form", () => {
