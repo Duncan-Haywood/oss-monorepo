@@ -119,6 +119,13 @@ now handles this the way paper quoting systems always did:
 - **Expiry is automatic.** Each morning, sent quotes past their valid-until
   day are marked expired. A quote valid until the 25th is still good all of
   the 25th. An expired quote can still be revised when the buyer comes back.
+- **A heads-up the day before** (added later on 25 November). Each morning,
+  every estimator gets one email listing their own sent quotes that expire
+  today or tomorrow: the customer and contact, the total and a link to each.
+  That leaves a day to call the buyer or send a revision with a new date,
+  instead of finding out after the quote has lapsed. The email goes only to
+  the person who wrote the quote, never twice for the same quote, and each
+  estimator can turn it off under the quote log.
 
 This matters for more than tidiness. A quote is an offer, and a shop that
 cannot show which revision a PO accepted is in a weak position if there is a
