@@ -109,44 +109,15 @@ No browser run. The card is rendered through the router in its component test.
 **Next.** An item per SOV line or per job. The weekly email could name the count of payments not
 yet in QuickBooks; that would need `cash-digest.ts` to take the list as input.
 
-## Update: balances closed short sent to QuickBooks as credit memos (private PR 115)
+## Duplicate-work note: credit memos built twice (private PRs 114 and 115)
 
-Later the same day (Duncan-Haywood/private-monorepo#115), ROADMAP "Cash report, part 4". Once a
-balance is closed short as a **backcharge** or **written off**, the pay-app's QuickBooks panel offers
-**Send credit memo to QuickBooks**. It creates a `CreditMemo` numbered `CM<job>-<nn>`, with one line
-for exactly the closed balance on the invoice's work item, dated the day the balance was closed. It
-then applies the memo to the invoice with a zero-total `Payment` that links both, so the invoice
-closes in QuickBooks too (`POST .../pay-apps/:id/quickbooks/credit-memo`, `qbo_credit_memo_syncs`,
-migration 0032).
+Two runs built ROADMAP "Cash report, part 4" (a balance closed short sent to QuickBooks as a credit
+memo) in parallel, in the same hour, with nearly the same design. PR 114 merged first and PR 115
+was closed unmerged, so read PR 114's agent doc for the feature itself. Both runs ran into PR 113
+(an item per job) taking migration 0031, and both renumbered to 0032.
 
-**Why it matters to a buyer.** Before this, closing a backcharge in PayApps left the same money open
-on the invoice in QuickBooks until the bookkeeper wrote a credit memo by hand. QuickBooks' A/R then
-overstated what the GC owed, which is the mismatch the Crew-plan sync is sold to remove.
-
-**Choices to keep.**
-
-- A disputed balance is never sent, because the contractor still claims it.
-- Every payment on the application must be in QuickBooks first. The invoice's open balance is
-  checked before anything is written, the same check `sendPayment` uses, and that check now
-  subtracts a sent credit too.
-- QuickBooks' "Automatically apply credits" setting can put a new memo on the GC's *oldest* open
-  invoice, which may belong to another job. After creating the memo, PayApps reads its
-  `remainingCredit` and the invoice balance. If the credit landed elsewhere it returns 409
-  `quickbooks_credit_elsewhere`, records nothing, and the bookkeeper moves the credit and marks it
-  by hand. The fake models this with `autoApplyCredits`.
-- Reopening the balance, or deleting a payment, which also reopens it, asks first (409
-  `credit_memo_in_quickbooks`). PayApps never voids anything in QuickBooks.
-- `packages/qbo-sync` field names come from Intuit's `Finance.xsd`. The apply-by-zero-payment
-  pattern is listed under "Not yet verified" for the first sandbox run.
-
-**Verification** (run locally): typecheck clean, unit 399/399, worker suite green (7 new in
-`quickbooks-credit-memo.test.ts`, including cross-tenant), build ok, qbo-sync 58 tests (9 new),
-no schema drift. There was no browser run.
-
-**Duplicate-work note.** PR 113 (an item per job) merged while this was being built and took
-migration 0031. Rebasing onto it meant regenerating the migration as 0032, and calling `workItem`
-with the job, so the credit memo uses the job's own item. Fetch `origin/main` and check
-`apps/payapps/migrations/` right before pushing.
-
-**Next.** List closed-short balances that are not yet in QuickBooks beside the unsent payments on
-the cash report (ROADMAP "Cash report, part 5").
+What would have caught it: at the start, neither run had an open PR on the private repo, and
+"Cash report, part 4" was still in the ROADMAP's Next list. **Open the draft PR on the private repo
+right after the first commit, with the ROADMAP line in its title**, so a parallel run's open-PR check
+sees the claim. Before merging, fetch `origin/main` again: PR 115 found PR 114 only because its
+merge was refused with "merge conflicts".
