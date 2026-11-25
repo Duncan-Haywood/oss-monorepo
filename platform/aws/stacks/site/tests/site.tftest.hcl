@@ -3,6 +3,11 @@
 #   cd platform/aws/stacks/site && tofu init -backend=false && tofu test
 
 mock_provider "aws" {
+  mock_data "aws_caller_identity" {
+    defaults = {
+      account_id = "222222222222"
+    }
+  }
   mock_data "aws_route53_zone" {
     defaults = {
       zone_id = "Z0000000EXAMPLE"
@@ -23,25 +28,30 @@ run "phase_one_serves_cloudfront_address_only" {
   }
 }
 
-run "oidc_provider_is_created_only_when_none_is_given" {
+run "oidc_provider_comes_from_github_oidc_stack_by_default" {
   command = plan
-
-  assert {
-    condition     = length(aws_iam_openid_connect_provider.github) == 1
-    error_message = "Without an ARN the stack creates the provider in shared-infra."
-  }
-}
-
-run "existing_oidc_provider_is_reused" {
-  command = plan
-
-  variables {
-    github_oidc_provider_arn = "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
-  }
 
   assert {
     condition     = length(aws_iam_openid_connect_provider.github) == 0
-    error_message = "A given provider ARN must not create a second provider."
+    error_message = "By default the provider is stacks/github-oidc's, not a second one."
+  }
+
+  assert {
+    condition     = local.github_oidc_provider_arn == "arn:aws:iam::222222222222:oidc-provider/token.actions.githubusercontent.com"
+    error_message = "The default provider ARN is this account's GitHub provider."
+  }
+}
+
+run "oidc_provider_created_only_on_request" {
+  command = plan
+
+  variables {
+    create_github_oidc_provider = true
+  }
+
+  assert {
+    condition     = length(aws_iam_openid_connect_provider.github) == 1
+    error_message = "create_github_oidc_provider creates exactly one provider."
   }
 }
 
@@ -49,7 +59,8 @@ run "publisher_role_is_created_with_custom_domains" {
   command = apply
 
   variables {
-    enable_custom_domains = true
+    enable_custom_domains    = true
+    permissions_boundary_arn = "arn:aws:iam::222222222222:policy/workload-boundary"
   }
 
   override_resource {
@@ -62,6 +73,11 @@ run "publisher_role_is_created_with_custom_domains" {
   assert {
     condition     = module.site.publisher_role_arn != null
     error_message = "The publisher role must exist."
+  }
+
+  assert {
+    condition     = endswith(module.site.publisher_role_arn, ":role/site-publish")
+    error_message = "The publisher role is named site-*."
   }
 
   assert {

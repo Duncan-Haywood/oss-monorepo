@@ -563,6 +563,7 @@ resource "aws_iam_role" "publisher" {
   description          = "GitHub Actions publishes ${var.domain_name}: sync ${local.bucket_name}, invalidate the distribution. Nothing else."
   assume_role_policy   = local.publisher_trust
   max_session_duration = 3600
+  permissions_boundary = var.publisher.permissions_boundary_arn
 }
 
 resource "aws_iam_role_policy" "publisher" {

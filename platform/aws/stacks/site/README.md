@@ -29,7 +29,7 @@ belongs to Cloudflare and goes away with it (`retire-cloudflare`).
 
 ## Apply order
 
-The phases are those of the AWS cutover runbook (aws-cutover.md, from PR 18749)
+The phases are those of the AWS cutover runbook (aws-cutover.md)
 (PR 18749, the LLM and email move); the site and DNS fit in after its
 Phase 1.
 
@@ -37,19 +37,22 @@ Phase 1.
    the card, `platform/aws/bootstrap/bootstrap.yaml` (state bucket, GitHub
    OIDC provider, `github-plan`/`github-apply`), then `stacks/org` creates
    the `shared-infra` account and `stacks/baseline` its security baseline.
-   OpenTofu reaches `shared-infra` through `OrganizationAccountAccessRole`,
-   assumed from `github-apply` (plan: `github-plan-readonly`).
+   The `stacks/github-oidc` stack (stacked on PR 18749) then gives this
+   stack its own CI roles in `shared-infra`, `gha-oss-monorepo-site-plan`
+   (PRs) and `gha-oss-monorepo-site-apply` (main, `aws-prod`), allowed to
+   create IAM names `site-*` only under the account's `workload-boundary`
+   permissions boundary, and GitHub's OIDC provider in that account.
 2. **`dns` stack** ([`../dns/README.md`](../dns/README.md)). It creates the
    hosted zone; this stack looks it up by name.
 3. **This stack, phase 1** (`enable_custom_domains = false`, the default):
    bucket, distribution on its `*.cloudfront.net` address, WAF, functions,
-   the publisher role. Inputs:
-   - `deploy_role_arn`: `arn:aws:iam::<shared-infra id>:role/OrganizationAccountAccessRole`
-     on apply (`github-plan-readonly` on plan);
+   the publisher role `site-publish`. Inputs:
+   - `deploy_role_arn`: `gha-oss-monorepo-site-apply` (`-plan` on PRs);
    - `allowed_account_ids`: `["<shared-infra id>"]`;
-   - `github_oidc_provider_arn`: leave null. The stack creates GitHub's OIDC
-     provider in `shared-infra` for the publisher role (the bootstrap's is in
-     the management account only).
+   - `permissions_boundary_arn`: the `workload-boundary` policy's ARN;
+   - `github_oidc_provider_arn`: leave null for the provider
+     `stacks/github-oidc` made (`create_github_oidc_provider = true` only
+     in an account it has not reached).
    The `spend` stack budgets `shared-infra` at $20 a month; this stack's
    estimate (below) fits under it.
 4. **Publish and verify on the CloudFront address.** Paste

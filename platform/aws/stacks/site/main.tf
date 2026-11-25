@@ -12,16 +12,22 @@ data "aws_route53_zone" "site" {
 }
 
 # The publisher role trusts GitHub's OIDC issuer in this (shared-infra)
-# account. One provider per account and URL: if another stack already made
-# it here, pass its ARN instead.
+# account. stacks/github-oidc creates that provider in every workload
+# account; create_github_oidc_provider exists only for an account it has not
+# reached (one provider per URL per account).
+data "aws_caller_identity" "current" {}
+
 resource "aws_iam_openid_connect_provider" "github" {
-  count          = var.github_oidc_provider_arn == null ? 1 : 0
+  count          = var.create_github_oidc_provider ? 1 : 0
   url            = "https://token.actions.githubusercontent.com"
   client_id_list = ["sts.amazonaws.com"]
 }
 
 locals {
-  github_oidc_provider_arn = coalesce(var.github_oidc_provider_arn, try(aws_iam_openid_connect_provider.github[0].arn, null))
+  github_oidc_provider_arn = (
+    var.create_github_oidc_provider ? aws_iam_openid_connect_provider.github[0].arn :
+    coalesce(var.github_oidc_provider_arn, "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/token.actions.githubusercontent.com")
+  )
 }
 
 module "site" {
@@ -37,8 +43,11 @@ module "site" {
   logs_kms_key_arn         = var.logs_kms_key_arn
 
   publisher = {
-    role_name         = "gha-oss-monorepo-site-publish"
-    oidc_provider_arn = local.github_oidc_provider_arn
-    subject           = "repo:${var.github_repository}:environment:${var.publish_environment}"
+    # IAM names in a stack start with the stack's name (stacks/github-oidc
+    # limits each stack's apply role to "<stack>-*").
+    role_name                = "site-publish"
+    oidc_provider_arn        = local.github_oidc_provider_arn
+    subject                  = "repo:${var.github_repository}:environment:${var.publish_environment}"
+    permissions_boundary_arn = var.permissions_boundary_arn
   }
 }

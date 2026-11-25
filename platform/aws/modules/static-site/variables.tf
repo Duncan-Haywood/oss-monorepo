@@ -97,11 +97,12 @@ variable "noncurrent_version_days" {
 }
 
 variable "publisher" {
-  description = "GitHub OIDC publisher role (s3 sync + invalidation only). Null creates none. oidc_provider_arn comes from the foundation stack; subject is the exact OIDC sub claim allowed, e.g. repo:OWNER/REPO:environment:aws-prod."
+  description = "GitHub OIDC publisher role (s3 sync + invalidation only). Null creates none. subject is the exact OIDC sub claim allowed, e.g. repo:OWNER/REPO:environment:aws-prod; permissions_boundary_arn is the account's workload-boundary policy (stacks/github-oidc)."
   type = object({
-    role_name         = string
-    oidc_provider_arn = string
-    subject           = string
+    role_name                = string
+    oidc_provider_arn        = string
+    subject                  = string
+    permissions_boundary_arn = optional(string)
   })
   default = null
 

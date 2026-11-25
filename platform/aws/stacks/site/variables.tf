@@ -40,7 +40,19 @@ variable "app_origins" {
 }
 
 variable "github_oidc_provider_arn" {
-  description = "ARN of an existing GitHub OIDC provider in this account. Null creates one here: the bootstrap (platform/aws/bootstrap) puts one only in the management account, and the llm stack creates its own in apps."
+  description = "ARN of GitHub's OIDC provider in this account. Null means the one stacks/github-oidc creates in every workload account (arn:aws:iam::<this account>:oidc-provider/token.actions.githubusercontent.com)."
+  type        = string
+  default     = null
+}
+
+variable "create_github_oidc_provider" {
+  description = "Create GitHub's OIDC provider here. Only if stacks/github-oidc has not: an account holds one provider per URL, so two stacks creating it would collide."
+  type        = bool
+  default     = false
+}
+
+variable "permissions_boundary_arn" {
+  description = "The account's workload-boundary policy (stacks/github-oidc), attached to every role this stack creates. Null attaches none."
   type        = string
   default     = null
 }

@@ -187,10 +187,16 @@ run "publisher_role_is_least_privilege" {
 
   variables {
     publisher = {
-      role_name         = "gha-oss-monorepo-site-publish"
-      oidc_provider_arn = "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
-      subject           = "repo:Duncan-Haywood/oss-monorepo:environment:aws-prod"
+      role_name                = "site-publish"
+      oidc_provider_arn        = "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com"
+      subject                  = "repo:Duncan-Haywood/oss-monorepo:environment:aws-prod"
+      permissions_boundary_arn = "arn:aws:iam::111111111111:policy/workload-boundary"
     }
+  }
+
+  assert {
+    condition     = aws_iam_role.publisher[0].permissions_boundary == "arn:aws:iam::111111111111:policy/workload-boundary"
+    error_message = "The publisher role must carry the workload boundary."
   }
 
   assert {

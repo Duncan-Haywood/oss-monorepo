@@ -62,10 +62,11 @@ For the next session on `aws-site-cloudfront` / `aws-route53-zone`.
   marks exported records on an owned name `replaced_by` their owner. This
   run first had DMARC `p=reject` in `planned.json`; it was dropped because
   the email stack owns `_dmarc` and starts it at `p=none`.
-- Roles: OpenTofu reaches `shared-infra` through
-  `OrganizationAccountAccessRole` from that PR's `github-apply`; the site
-  stack creates GitHub's OIDC provider in `shared-infra` for its publisher
-  role (the bootstrap's is in the management account).
+- Roles (the coming `stacks/github-oidc`): OpenTofu uses
+  `gha-oss-monorepo-site-{plan,apply}` / `-dns-` in `shared-infra`; the one
+  role this work creates is `site-publish`, under the account's
+  `workload-boundary` (`permissions_boundary_arn`). GitHub's OIDC provider
+  there is that stack's; `create_github_oidc_provider` is off by default.
 - State keys: the brief said `stacks/<stack>/terraform.tfstate`, which these
   stacks' `backend.hcl.example` use; PR 18749 says `<stack>/terraform.tfstate`.
   Whichever the apply workflow settles on, only `backend.hcl` changes.
