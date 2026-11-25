@@ -112,13 +112,18 @@ class BaselineTest(unittest.TestCase):
 class ParserTest(unittest.TestCase):
     """Shapes captured from the pinned versions (tools.json), trimmed to the fields used."""
 
-    def test_gitleaks_never_keeps_the_secret(self):
+    def test_gitleaks_never_keeps_the_secret_but_tells_secrets_apart(self):
+        secret = "AKIAZZZZTESTONLYVALUE"
         data = [{"RuleID": "aws-access-token", "Description": "AWS key", "File": "/repo/a/b.env", "StartLine": 3,
-                 "Secret": "REDACTED", "Match": "key=REDACTED", "Commit": "abc123def4567890"}]
-        [f] = scan.parse_gitleaks(data, Path("/repo"))
+                 "Secret": secret, "Match": f"key={secret}", "Commit": "abc123def4567890"},
+                {"RuleID": "aws-access-token", "Description": "AWS key", "File": "/repo/a/b.env", "StartLine": 9,
+                 "Secret": secret + "2", "Match": "x", "Commit": "abc123def4567890"}]
+        f, g = scan.parse_gitleaks(data, Path("/repo"))
         self.assertEqual((f.path, f.line, f.severity), ("a/b.env", 3, "critical"))
-        self.assertNotIn("REDACTED", json.dumps(f.__dict__).replace("abc", ""))
+        self.assertNotIn(secret, json.dumps(f.__dict__))
+        self.assertNotIn("ZZZZ", json.dumps(f.__dict__))
         self.assertIn("abc123def456", f.message)
+        self.assertNotEqual(f.fingerprint, g.fingerprint)  # one accepted fixture must not cover a new secret
 
     def test_semgrep(self):
         data = {"results": [{"check_id": "tmp.rules.py-yaml-unsafe-load", "path": "x/a.py", "start": {"line": 5},
@@ -266,7 +271,8 @@ class ScannerTest(unittest.TestCase):
         self.assertEqual(r.status, "ok")
         cmd = next(c for c in runner.calls if "git" in c)
         self.assertIn("abc..HEAD", cmd)
-        self.assertIn("--redact", cmd)
+        report = Path(cmd[cmd.index("--report-path") + 1])
+        self.assertFalse(report.exists())  # the unredacted report is deleted after parsing
 
     def test_osv_offline_flags_and_requirements_prefix(self):
         runner = FakeRunner({"scan source": (1, json.dumps({"results": []}), "")})

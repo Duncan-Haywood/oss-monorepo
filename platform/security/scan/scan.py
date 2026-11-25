@@ -261,6 +261,8 @@ def parse_gitleaks(data, root: Path = ROOT) -> list[Finding]:
     out = []
     for r in data or []:
         path = rel(r.get("File", ""), root)
+        # The value itself never leaves this function: only 64 bits of its hash, enough to
+        # tell two secrets apart in a baseline and far too little to recover a real key.
         secret_id = hashlib.sha256(str(r.get("Secret", "")).encode()).hexdigest()[:16]
         out.append(Finding("gitleaks", r.get("RuleID", "secret"), "critical", path, int(r.get("StartLine") or 0),
                            f"{r.get('Description') or 'secret'} (commit {str(r.get('Commit') or 'worktree')[:12]})",
@@ -460,17 +462,25 @@ class Scanner:
     def gitleaks(self, targets) -> list[Finding]:
         exe = self.exe("gitleaks")
         report = self.tmp / "gitleaks.json"
+        # No --redact: a redacted report says "REDACTED" for every secret, so the fingerprint
+        # would be rule + path only and one accepted fixture would accept any new secret in
+        # that file. The unredacted report stays in a private temp file, parse_gitleaks keeps
+        # only a truncated SHA-256 of each value, and the report is deleted straight after.
         common = ["--report-format", "json", "--report-path", str(report), "--exit-code", "0",
-                  "--redact", "--no-banner", "--log-level", "warn", "--max-target-megabytes", "5"]
+                  "--no-banner", "--log-level", "warn", "--max-target-megabytes", "5"]
         if self.all_mode:
             cmd = [exe, "dir", str(self.root)] + common
         else:
             log_opts = getattr(self, "gitleaks_log_opts", None) or f"{self.base}..HEAD"
             cmd = [exe, "git", str(self.root), "--log-opts", log_opts] + common
-        rc, out, err = self.run(cmd, self.root)
-        if rc != 0 or not report.exists():
-            raise RuntimeError(f"gitleaks exited {rc}: {err.strip()[-500:]}")
-        return parse_gitleaks(self._json(report.read_text(), "gitleaks") or [], self.root)
+        try:
+            rc, out, err = self.run(cmd, self.root)
+            if rc != 0 or not report.exists():
+                raise RuntimeError(f"gitleaks exited {rc}: {err.strip()[-500:]}")
+            os.chmod(report, 0o600)
+            return parse_gitleaks(self._json(report.read_text(), "gitleaks") or [], self.root)
+        finally:
+            report.unlink(missing_ok=True)
 
     def semgrep(self, targets) -> list[Finding]:
         out_file = self.tmp / "semgrep.json"
