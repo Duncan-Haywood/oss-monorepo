@@ -34,3 +34,8 @@ allow:
     contains: 'Condition.StringLike["token.actions.githubusercontent.'
     reason: the test asserts the payments RCP's Deny names every subject of the public repository (repo:Duncan-Haywood/oss-monorepo:*); it reads the policy, it grants nothing (PR #18780)
     added: 2026-11-25
+  - rule: aws-guardrail-weakened
+    path: platform/aws/stacks/spend/README.md
+    contains: topic invokes the kill switch, which stops what is running
+    reason: an intended narrowing (PR #18802) - a budget now wakes the kill switch only for kill_switch_accounts (apps, sandbox), because stopping shared-infra would take the site and DNS down and stopping payments would drop Paddle webhooks; those accounts keep every alert and the freeze SCP, a manual stop still reaches them, and tofu tests pin the list
+    added: 2026-11-25
