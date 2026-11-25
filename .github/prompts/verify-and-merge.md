@@ -25,6 +25,7 @@ node --test platform/devstats/*.test.mjs
 node --test platform/daily/*.test.mjs
 (cd platform/audio && python3 -m unittest test_narrate)  # the narration engine; needs numpy, ffmpeg for the Master case
 node --test platform/counter/*.test.mjs
+node --test platform/analytics/*.test.mjs
 node --test platform/edge/*.test.mjs           # the site's feedback/counts Worker (platform/edge)
 node --test platform/ci/*.test.mjs             # venture YAML readers guard (PR #16739)
 node --test portfolio/requests/*.test.mjs       # the open custom development request queue
