@@ -3,7 +3,7 @@
 # resource argument, so the value also lands in OpenTofu state, which is KMS-encrypted in the
 # state bucket and readable only by the apply role.
 #
-#   APNs (token auth) secret JSON: {"key_id":"...","team_id":"...","bundle_id":"...","signing_key":"-----BEGIN PRIVATE KEY-----..."}
+#   APNs (token auth) secret JSON: {"key_id":"...","team_id":"...","bundle_id":"...","signing_key":"<contents of the .p8 auth key file>"}
 #   FCM (HTTP v1)     secret: the Firebase service-account JSON, as is.
 
 data "aws_secretsmanager_secret_version" "apns" {
