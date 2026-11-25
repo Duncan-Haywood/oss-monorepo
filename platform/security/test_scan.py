@@ -190,6 +190,7 @@ class Applicable(unittest.TestCase):
         self.assertIn("liability-audit", scan.applicable(tools, ["ventures/x/index.html"]))
 
 
+
 class ConcatenatedJson(unittest.TestCase):
     def test_one_document_unchanged(self):
         self.assertEqual(scan._loads_concatenated('{"a": 1}'), {"a": 1})
@@ -203,6 +204,62 @@ class ConcatenatedJson(unittest.TestCase):
     def test_garbage_still_raises(self):
         with self.assertRaises(ValueError):
             scan._loads_concatenated('{"a": 1} not-json')
+
+
+class ContainerImages(unittest.TestCase):
+    def test_dockerfile_refs_skip_stages_scratch_and_variables(self):
+        text = ("ARG BASE=python\nFROM --platform=linux/amd64 node:22@sha256:abc AS build\nFROM build AS test\n"
+                "FROM ${BASE}:3.12\nFROM scratch\nfrom python:3.12-slim\n")
+        refs = scan.image_refs("app/Dockerfile", text)
+        self.assertEqual(refs, ["node:22@sha256:abc", "python:3.12-slim"])
+        unpinned = scan.unpinned_images("app/Dockerfile", refs)
+        self.assertEqual([(f.rule, f.severity) for f in unpinned], [("image-not-pinned-by-digest", "medium")])
+        self.assertIn("python:3.12-slim", unpinned[0].message)
+
+    def test_compose_refs(self):
+        text = "services:\n  db:\n    image: postgres:16\n  app:\n    image: \"${APP_IMAGE}\"\n  c:\n    image: 'redis:7' # cache\n"
+        self.assertEqual(scan.image_refs("docker-compose.override.yml", text), ["postgres:16", "redis:7"])
+
+    def test_parser_on_real_trivy_output(self):
+        got = scan.parse_trivy_image(load("trivy-image.json"), "alpine:3.18.0", "app/Dockerfile")
+        self.assertEqual(len(got), 3)
+        self.assertEqual(got[0].severity, "critical")
+        self.assertTrue(all(f.path == "app/Dockerfile" and f.tool == "trivy-image" for f in got))
+        self.assertIn("fixed in", got[0].message)
+        # Same package and image on both sides of a PR gives the same key, so it is not "new".
+        again = scan.parse_trivy_image(load("trivy-image.json"), "alpine:3.18.0", "app/Dockerfile")
+        self.assertEqual(scan.new_findings(again, got), [])
+
+    def test_unfetchable_image_is_a_finding_not_a_clean_scan(self):
+        with tempfile.TemporaryDirectory() as t:
+            root, work = Path(t, "tree"), Path(t, "work")
+            (root / "app").mkdir(parents=True)
+            work.mkdir()
+            (root / "app" / "Dockerfile").write_text("FROM demo/app:latest\nFROM alpine:3.18.0@sha256:abc\n")
+
+            def fake_run(argv, **kw):
+                image = argv[-1]
+                if image.startswith("demo/"):
+                    return subprocess.CompletedProcess(argv, 1, stdout="", stderr="FATAL unable to find the specified image")
+                Path(argv[argv.index("--output") + 1]).write_text(json.dumps(load("trivy-image.json")))
+                return subprocess.CompletedProcess(argv, 0, stdout="", stderr="")
+
+            with mock.patch.object(scan, "run", side_effect=fake_run):
+                got = scan.scan_images(Path("/bin/trivy"), root, None, scan.load_tools()["trivy-image"]["paths"], work)
+        rules = sorted({f.rule for f in got})
+        self.assertIn("image-not-scanned", rules)
+        self.assertIn("image-not-pinned-by-digest", rules)
+        self.assertIn("CVE-2022-48174", rules)
+        nf = next(f for f in got if f.rule == "image-not-scanned")
+        self.assertIn("demo/app:latest", nf.message)
+
+    def test_applicable_and_not_required(self):
+        tools = scan.load_tools()
+        self.assertIn("trivy-image", scan.applicable(tools, ["ventures/x/Dockerfile"]))
+        self.assertIn("trivy-image", scan.applicable(tools, ["ventures/x/docker-compose.yml"]))
+        self.assertNotIn("trivy-image", scan.applicable(tools, ["ventures/x/main.tf"]))
+        self.assertFalse(tools["trivy-image"]["required"])
+        self.assertEqual(tools["trivy-image"]["go_sum"], tools["trivy-config"]["go_sum"])
 
 
 if __name__ == "__main__":

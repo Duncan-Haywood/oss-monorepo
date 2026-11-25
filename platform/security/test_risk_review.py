@@ -143,6 +143,16 @@ class GateTests(unittest.TestCase):
         self.assertEqual(self.verdict(diff("prompts/goals.md", removed_at=[2]), base=lambda p: base), 1)
 
 
+    def test_ruleset_readme_is_prose_not_a_ruleset(self):
+        # Only *.json under .github/rulesets/ is parsed as a ruleset; editing the
+        # README there used to block as "cannot be parsed".
+        self.assertEqual(rr.gate_weakenings(".github/rulesets/README.md", "# Rulesets\n", "# Rulesets\nmore\n"), [])
+
+    def test_ruleset_json_losing_a_required_check_still_fails(self):
+        base = '{"enforcement": "active", "rules": [{"type": "required_status_checks", "parameters": {"required_status_checks": [{"context": "risk-review"}]}}]}'
+        head = '{"enforcement": "active", "rules": [{"type": "required_status_checks", "parameters": {"required_status_checks": []}}]}'
+        self.assertTrue(rr.gate_weakenings(".github/rulesets/main.json", base, head))
+
 class OwnerCoreTests(unittest.TestCase):
     """The owner-only core is read from .github/CODEOWNERS, not kept here."""
 
