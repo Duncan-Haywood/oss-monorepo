@@ -19,13 +19,14 @@ test("inputs have labels and nothing can send the schedule anywhere", () => {
   for (const id of ["file", "paste", "ret", "sret", "reduce-at", "reduced", "prev", "project", "appno", "period", "contractor", "owner"]) assert.match(html, new RegExp(`<label for="${id}">`));
   assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/);
   assert.doesNotMatch(page("calc.mjs"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket/);
+  assert.doesNotMatch(page("sheet.mjs"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|import\(/);
   assert.doesNotMatch(page("workbook.mjs"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket/);
 });
 
 test("the module scripts import only local files", () => {
   const html = page("index.html");
   const imports = [...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]);
-  assert.deepEqual(imports.sort(), ["./calc.mjs", "./usage.mjs", "./workbook.mjs"]);
+  assert.deepEqual(imports.sort(), ["./calc.mjs", "./sheet.mjs", "./usage.mjs", "./workbook.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
 });
 
@@ -59,6 +60,15 @@ test("next-month carry-forward is on the page and the suite pitch claims no sale
   assert.match(suite, /https:\/\/marisstella\.app\/feedback\/\?type=idea&amp;tool=pay-application-generator/);
 });
 
+test("an Excel workbook can be chosen and the import is explained on the page", () => {
+  const html = page("index.html");
+  assert.match(html, /accept="\.xlsx,\.xlsm,\.csv/);
+  assert.match(html, /id="import-notes"/);
+  assert.match(html, /workbook_imported/);
+  assert.match(html, /Can I use the Excel continuation sheet I already have\?/);
+  assert.match(html, /"name": "Can I use the Excel continuation sheet I already have\?"/);
+});
+
 test("the Excel template section is on the page, tracked, and says it is not the AIA form", () => {
   const html = page("index.html");
   const sec = /<section class="card" id="template">([\s\S]*?)<\/section>/.exec(html)[1];
@@ -69,4 +79,22 @@ test("the Excel template section is on the page, tracked, and says it is not the
     assert.match(html, new RegExp(`record\\("${ev}"\\)`));
     assert.match(html, new RegExp(`<code>${ev}</code>`));
   }
+});
+
+test("the template's own page is linked, honest about the AIA, sends nothing and quotes no price", () => {
+  assert.match(page("index.html"), /href="pay-application-template\.html"/);
+  const t = page("pay-application-template.html");
+  assert.match(t, /<title>Pay Application Template \(Excel\)<\/title>/);
+  assert.match(t, /not the AIA G702\/G703 form/);
+  assert.match(t, /Not affiliated with the American Institute of Architects/);
+  assert.match(t, /No warranty/);
+  assert.match(t, /FAQPage/);
+  assert.match(t, /href="\.\.\/pay-app-guides\/"/);
+  assert.doesNotMatch(t, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/);
+  assert.doesNotMatch(t, /<script[^>]+src=["']https?:/);
+  assert.deepEqual([...t.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./usage.mjs", "./workbook.mjs"]);
+  const suite = /<section class="card" id="suite">([\s\S]*?)<\/section>/.exec(t)[1];
+  assert.match(suite, /not on sale yet/);
+  assert.doesNotMatch(suite, /\$\s?\d/);
+  assert.match(page("sitemap.xml"), /pay-application-template\.html/);
 });

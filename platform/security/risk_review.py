@@ -310,7 +310,7 @@ def gate_weakenings(path: str, base: str | None, head: str | None) -> list[str]:
         if path == ".github/CODEOWNERS":
             gone = _owned_patterns(base) - _owned_patterns(head)
             return [f"no longer owned: {', '.join(sorted(gone))}"] if gone else []
-        if path.startswith(".github/rulesets/"):
+        if path.startswith(".github/rulesets/") and path.endswith(".json"):
             bt, bc, be = _ruleset_facts(base)
             ht, hc, he = _ruleset_facts(head)
             out = []

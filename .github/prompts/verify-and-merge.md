@@ -27,6 +27,7 @@ node --test platform/daily/*.test.mjs
 node --test platform/aws/stacks/email-ops/sender/*.test.mjs  # SES sender, consent store, unsubscribe
 (cd platform/audio && python3 -m unittest test_narrate)  # the narration engine; needs numpy, ffmpeg for the Master case
 node --test platform/counter/*.test.mjs
+node --test platform/analytics/*.test.mjs
 node --test platform/edge/*.test.mjs           # the site's feedback/counts Worker (platform/edge)
 node --test platform/ci/*.test.mjs             # venture YAML readers guard (PR #16739)
 node --test platform/aws/stacks/saas-starter/runtime/test/*.test.mjs  # needs `npm ci` there first; the Postgres e2e skips unless PG_SUPERUSER_URL is set

@@ -265,7 +265,7 @@ ${jsonLd}
     <h2>Privacy</h2>
     <p class="fine">
       Your inputs never leave your device. There are no accounts, no
-      tracking cookies, and no analytics vendor. Each calculator counts
+      tracking cookies, and only cookieless page analytics. Each calculator counts
       anonymous, aggregate feature-use events (for example &#8220;a
       calculation was run&#8221;) in your own browser's
       <code>localStorage</code>, purely so this project's maintainers can
