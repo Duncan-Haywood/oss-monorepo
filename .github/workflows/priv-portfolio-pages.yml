@@ -203,7 +203,7 @@ jobs:
   # three key inputs, lookup only) and stops there when it exists, which is
   # every push but the day's first. Otherwise it runs the same suite once and
   # saves what it drew, so the day's pull requests restore warm cards. Same
-  # key, same suite, same save rule as `test`; contents: read, no secrets.
+  # key, same suite, same save rule as `test`; read-only, and it reads no secret.
   test-cards:
     if: github.event_name == 'push'
     runs-on: ${{ vars.CI_RUNNER || 'ubuntu-latest' }}
