@@ -164,7 +164,8 @@
       "what": "postsAlong uses floor(L/spacing)+1, so the entered 'post spacing' is not a maximum: a 15-ft side at 8-ft spacing gets 2 posts (a 15-ft clear beam span), a 20-ft side 3 posts at 10-ft bays. Post, footing, knee-brace and labor counts are under-suggested on any side that is not a multiple of the spacing, with no warning that the bay exceeds the spacing typed.",
       "where": "ventures/pergola-bid-calculator/calc.mjs:130",
       "category": "domain-rule",
-      "origin": "spec"
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19088"
     },
     {
       "severity": "low",
@@ -197,6 +198,6 @@
       "origin": "implementation"
     }
   ],
-  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17868"],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17868", "https://github.com/Duncan-Haywood/oss-monorepo/pull/19088"],
   "verdict": "Arithmetic is right: an independent re-implementation reproduces all four published preset rows to the cent, margin is taken on price, inputs are validated, 131 tests pass and 4 of 5 seeded mutants are caught. It meets the bar on correctness, claims and verification, but a pergola estimator would flag the takeoff: 'post spacing' is a divisor not a maximum (a 15-ft side gets one 15-ft bay at 8-ft spacing) and beams carry no overhang, so fitness and domain sit at 2."
 }

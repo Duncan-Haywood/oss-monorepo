@@ -80,7 +80,8 @@ test('the worked-example table figures match calc.mjs run against the shipped jo
   // rafterSpacingInches (neither is overwritten by a job preset -- only
   // width, depth, attachment, shade, height, and the checkboxes are), plus
   // every hours/cost field the shade and height kits never touch.
-  const postSpacingFeet = 8;
+  const postSpacingFeet = 12;
+  const beamOverhangFeet = 1;
   const rafterSpacingInches = 24;
   const formDefaults = {
     hoursTrip: 2.5, hoursPerPost: 1.6, hoursPerRafter: 0.25, hoursPerBeamLf: 0.12,
@@ -96,7 +97,7 @@ test('the worked-example table figures match calc.mjs run against the shipped jo
     const heightKit = suggestedHeightKit(preset.height);
     const postCount = suggestedPostCount(preset.widthFeet, preset.depthFeet, postSpacingFeet, preset.attachment);
     const rafterCount = suggestedRafterCount(preset.widthFeet, rafterSpacingInches);
-    const beamLf = suggestedBeamLf(preset.widthFeet, preset.depthFeet, postSpacingFeet, preset.attachment);
+    const beamLf = suggestedBeamLf(preset.widthFeet, preset.depthFeet, postSpacingFeet, preset.attachment, beamOverhangFeet);
     const ledgerLf = suggestedLedgerLf(preset.widthFeet, preset.attachment);
     const footingCount = postCount;
     const kneeBraceCount = suggestedKneeBraceCount(postCount, preset.includeKneeBraces);
@@ -133,14 +134,14 @@ test('the worked-example table figures match calc.mjs run against the shipped jo
   assert.equal(hardLouvered.footprintSf, 192);
   assert.equal(bigDemo.footprintSf, 320);
 
-  assert.equal(easyOpen.totalCost.toFixed(2), '2813.18');
-  assert.equal(easyOpen.price.toFixed(2), '3750.90');
-  assert.equal(easySlats.totalCost.toFixed(2), '4840.90');
-  assert.equal(easySlats.price.toFixed(2), '6454.54');
-  assert.equal(hardLouvered.totalCost.toFixed(2), '8210.93');
-  assert.equal(hardLouvered.price.toFixed(2), '10947.91');
-  assert.equal(bigDemo.totalCost.toFixed(2), '11792.29');
-  assert.equal(bigDemo.price.toFixed(2), '15723.06');
+  assert.equal(easyOpen.totalCost.toFixed(2), '2937.34');
+  assert.equal(easyOpen.price.toFixed(2), '3916.45');
+  assert.equal(easySlats.totalCost.toFixed(2), '4902.99');
+  assert.equal(easySlats.price.toFixed(2), '6537.31');
+  assert.equal(hardLouvered.totalCost.toFixed(2), '8273.02');
+  assert.equal(hardLouvered.price.toFixed(2), '11030.69');
+  assert.equal(bigDemo.totalCost.toFixed(2), '11978.54');
+  assert.equal(bigDemo.price.toFixed(2), '15971.38');
 
   const flatOf = (job) => job.footprintSf * FLAT_RATE_PER_SF;
   const marginPctOf = (job) => ((flatOf(job) - job.totalCost) / flatOf(job)) * 100;
@@ -150,29 +151,29 @@ test('the worked-example table figures match calc.mjs run against the shipped jo
   assert.equal(flatOf(hardLouvered).toFixed(2), '8640.00');
   assert.equal(flatOf(bigDemo).toFixed(2), '14400.00');
 
-  assert.equal(marginPctOf(easyOpen).toFixed(1), '37.5');
-  assert.equal(marginPctOf(easySlats).toFixed(1), '44.0');
-  assert.equal(marginPctOf(hardLouvered).toFixed(1), '5.0');
-  assert.equal(marginPctOf(bigDemo).toFixed(1), '18.1');
+  assert.equal(marginPctOf(easyOpen).toFixed(1), '34.7');
+  assert.equal(marginPctOf(easySlats).toFixed(1), '43.3');
+  assert.equal(marginPctOf(hardLouvered).toFixed(1), '4.2');
+  assert.equal(marginPctOf(bigDemo).toFixed(1), '16.8');
 
-  assert.equal((hardLouvered.price - flatOf(hardLouvered)).toFixed(2), '2307.91');
-  assert.equal((bigDemo.price - flatOf(bigDemo)).toFixed(2), '1323.06');
+  assert.equal((hardLouvered.price - flatOf(hardLouvered)).toFixed(2), '2390.69');
+  assert.equal((bigDemo.price - flatOf(bigDemo)).toFixed(2), '1571.38');
 
   assert.match(html, /\$4,500\.00/);
-  assert.match(html, /\$2,813\.18/);
-  assert.match(html, /\$3,750\.90/);
-  assert.match(html, /37\.5%/);
+  assert.match(html, /\$2,937\.34/);
+  assert.match(html, /\$3,916\.45/);
+  assert.match(html, /34\.7%/);
   assert.match(html, /\$8,640\.00/);
-  assert.match(html, /\$4,840\.90/);
-  assert.match(html, /\$6,454\.54/);
-  assert.match(html, /44\.0%/);
-  assert.match(html, /\$8,210\.93/);
-  assert.match(html, /\$10,947\.91/);
-  assert.match(html, /5\.0%/);
-  assert.match(html, /\$2,307\.91/);
+  assert.match(html, /\$4,902\.99/);
+  assert.match(html, /\$6,537\.31/);
+  assert.match(html, /43\.3%/);
+  assert.match(html, /\$8,273\.02/);
+  assert.match(html, /\$11,030\.69/);
+  assert.match(html, /4\.2%/);
+  assert.match(html, /\$2,390\.69/);
   assert.match(html, /\$14,400\.00/);
-  assert.match(html, /\$11,792\.29/);
-  assert.match(html, /\$15,723\.06/);
-  assert.match(html, /18\.1%/);
-  assert.match(html, /\$1,323\.06/);
+  assert.match(html, /\$11,978\.54/);
+  assert.match(html, /\$15,971\.38/);
+  assert.match(html, /16\.8%/);
+  assert.match(html, /\$1,571\.38/);
 });

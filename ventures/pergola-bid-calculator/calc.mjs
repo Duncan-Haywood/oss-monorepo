@@ -119,15 +119,34 @@ function flag(value) {
 }
 
 /**
- * Posts along one side. A 10-foot side at 8-foot spacing is two posts
- * (the corners). A 16-foot side is three. Floor-plus-one, not ceil,
- * because a 12-foot beam is a common span — ceil would invent a third
- * post the shop did not plan to set.
+ * Starting maximum post spacing (the longest clear beam span between two
+ * posts) and beam overhang past the end posts. Common residential starting
+ * points, not a span table: size the beam for the bay the result shows.
+ */
+export const DEFAULT_MAX_POST_SPACING_FEET = 12;
+export const DEFAULT_BEAM_OVERHANG_FEET = 1;
+
+/**
+ * Posts along one side. The spacing is a maximum bay: the side is split
+ * into the fewest equal bays no longer than it, so a 10-foot side at
+ * 12-foot spacing is two posts (one 10-ft bay), a 16-foot side is three
+ * (two 8-ft bays), and a 15-foot side at 8-foot spacing is three (two
+ * 7.5-ft bays), never two posts with a 15-ft clear span. Before 2026-11-25
+ * this was floor(side / spacing) + 1, which left bays longer than the
+ * spacing typed (quality census 2026-11-20, defect 0).
  */
 export function postsAlong(dimensionFeet, postSpacingFeet) {
   const dim = number(dimensionFeet, 'Span (feet)', { allowZero: false });
   const spacing = number(postSpacingFeet, 'Post spacing (feet)', { allowZero: false });
-  return Math.max(2, Math.floor(dim / spacing) + 1);
+  // Round away float noise so 16 / 8 stays exactly two bays.
+  const bays = Math.ceil(Math.round((dim / spacing) * 1e9) / 1e9);
+  return Math.max(2, bays + 1);
+}
+
+/** Clear bay between posts along one side, in feet: never above the spacing. */
+export function bayFeet(dimensionFeet, postSpacingFeet) {
+  const dim = number(dimensionFeet, 'Span (feet)', { allowZero: false });
+  return dim / (postsAlong(dim, postSpacingFeet) - 1);
 }
 
 /**
@@ -158,16 +177,19 @@ export function suggestedRafterCount(widthFeet, rafterSpacingInches) {
 
 /**
  * Beam lineal feet: one beam per post-row, each the width of the
- * structure. Attached work replaces the house-side row with a ledger,
- * so that row is not counted as beam.
+ * structure plus an overhang tail past each end post (pergola beams
+ * normally run 1-2 ft past the posts). Attached work replaces the
+ * house-side row with a ledger, so that row is not counted as beam.
  */
-export function suggestedBeamLf(widthFeet, depthFeet, postSpacingFeet, attachment) {
+export function suggestedBeamLf(widthFeet, depthFeet, postSpacingFeet, attachment,
+  overhangFeet = DEFAULT_BEAM_OVERHANG_FEET) {
   const width = number(widthFeet, 'Width (feet)', { allowZero: false });
+  const overhang = number(overhangFeet, 'Beam overhang (feet)');
   const rows = postsAlong(depthFeet, postSpacingFeet);
   const id = String(attachment);
   if (id !== 'freestanding' && id !== 'attached') throw new Error('Unknown attachment');
   const beamRows = id === 'attached' ? Math.max(1, rows - 1) : rows;
-  return width * beamRows;
+  return (width + 2 * overhang) * beamRows;
 }
 
 /**
