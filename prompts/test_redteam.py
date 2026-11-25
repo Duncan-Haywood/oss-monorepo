@@ -110,6 +110,23 @@ class CampaignTest(unittest.TestCase):
         self.assertEqual(redteam.list_targets(self.repo), [self.target])
         self.assertIsNone(redteam.suite_for(self.venture / "calc.test.mjs", self.repo))
 
+    def test_directory_suite_that_imports_the_file_guards_it(self):
+        # platform/billing/server.mjs has no server.test.mjs; billing.test.mjs
+        # imports it, and before 2026-11-25 no campaign could target it.
+        pkg = self.repo / "platform" / "billing"
+        pkg.mkdir(parents=True)
+        (pkg / "server.mjs").write_text("export const x = 1;\n")
+        (pkg / "unused.mjs").write_text("export const y = 2;\n")
+        (pkg / "billing.test.mjs").write_text('import { x } from "./server.mjs";\n')
+        cmd, cwd = redteam.suite_for(pkg / "server.mjs", self.repo)
+        self.assertEqual(cmd, ["node", "--test", "platform/billing/billing.test.mjs"])
+        self.assertEqual(cwd, self.repo)
+        self.assertIsNone(redteam.suite_for(pkg / "unused.mjs", self.repo))
+        # A sibling suite still wins over the directory one.
+        (pkg / "server.test.mjs").write_text('import { x } from "./server.mjs";\n')
+        cmd, _ = redteam.suite_for(pkg / "server.mjs", self.repo)
+        self.assertEqual(cmd, ["node", "--test", "platform/billing/server.test.mjs"])
+
     def test_usage_counter_suite_includes_the_ci_contract(self):
         # A usage.mjs mutant that CI's usage_contract.mjs rejects is caught;
         # the venture suite alone used to read it as escaped (2026-11-15).
