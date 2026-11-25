@@ -32,7 +32,7 @@ output "origin_verify_header_name" {
 }
 
 output "origin_verify_secret_arn" {
-  description = "Secrets Manager secret holding that header's value; the site stack reads it with data.aws_secretsmanager_secret_version."
+  description = "Secrets Manager secret (apps account) holding that header's value. The site stack (shared-infra) does not read it: the apply job reads it with the apps account's role and passes it as the sensitive TF_VAR_edge_origin_verify_value, so shared-infra has no standing cross-account read on it."
   value       = aws_secretsmanager_secret.origin_verify.arn
 }
 

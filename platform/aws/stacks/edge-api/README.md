@@ -39,7 +39,7 @@ as in `platform/aws/README.md`):
 | Output | Use in the distribution |
 |---|---|
 | `origin_domain_name` | `origin { domain_name = ... }`, `custom_origin_config { origin_protocol_policy = "https-only", origin_ssl_protocols = ["TLSv1.2"] }` |
-| `origin_verify_header_name`, `origin_verify_secret_arn` | `custom_header { name = "x-origin-verify", value = data.aws_secretsmanager_secret_version.x.secret_string }` |
+| `origin_verify_header_name`, `origin_verify_secret_arn` | `custom_header { name = "x-origin-verify", value = var.edge_origin_verify_value }`: the apply job reads the secret with the apps role and passes it as the sensitive `TF_VAR_edge_origin_verify_value`, so shared-infra holds no cross-account read on it (site stack README, "The edge API origin") |
 | `origin_path_pattern` (`/_edge/*`) | `ordered_cache_behavior { path_pattern = ... }` |
 | `cloudfront_cache_policy_id` | managed CachingDisabled |
 | `cloudfront_origin_request_policy_id` | managed AllViewerExceptHostHeader (forwards Origin, User-Agent, DNT, Sec-GPC, Authorization, CloudFront-Viewer-Country and -Address) |
@@ -115,7 +115,7 @@ secret rotation (see below).
   read the new value from Secrets Manager. The function caches it per
   container, so new containers pick it up within minutes.
 - `origin-verify`: `tofu apply -replace=random_password.origin_verify` here,
-  then apply the site stack at once (CloudFront sends the new header). Expect
+  then re-run the site stack's apply job at once (it reads the new value and CloudFront sends it). Expect
   403s for the minutes between the two; do it at a quiet hour.
 
 ## Cost
