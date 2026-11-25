@@ -9,8 +9,8 @@
 export async function migrateHub({ adminUrl, hostedUrl, token, name = "My team", settings = {}, fetchImpl = fetch }) {
   const a = new URL(adminUrl);
   if (!a.searchParams.get("key")) throw new Error("HUB_ADMIN_URL must be the admin link, with ?key=");
-  const exp = new URL("/admin/export.json", a);
-  exp.searchParams.set("key", a.searchParams.get("key"));
+  // The hub reads its admin key from the query string (as every admin link does); this is a server-to-server call.
+  const exp = new URL(`/admin/export.json?key=${encodeURIComponent(a.searchParams.get("key"))}`, a);
   const r = await fetchImpl(exp.toString());
   if (!r.ok) throw new Error(`export failed: ${r.status} (is the old hub up to date? /admin/export.json landed 2026-11-25)`);
   const state = await r.json();
