@@ -2,7 +2,7 @@
 title: "How to quote a laser or plasma cutting job from a DXF: cut length, pierces and sheets"
 seo_title: "How to quote laser cutting from a DXF: price per part"
 date: 2026-11-25
-description: "Price a laser, plasma or waterjet job from its DXF files: nest the parts, time the cut length and pierces at your speeds, charge the sheets, split the total per part."
+description: "Price a laser, plasma or waterjet job from its DXF files: nest the parts, time cut length and pierces at your speeds, charge the sheets, price each part."
 tags: [jobshop-quote, dxf-nesting, for-customers, manufacturing, sheet-metal]
 ---
 
