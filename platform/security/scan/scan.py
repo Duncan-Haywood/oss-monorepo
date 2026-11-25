@@ -306,6 +306,18 @@ def parse_osv(data, root: Path = ROOT) -> list[Finding]:
     return out
 
 
+def json_documents(text: str) -> list:
+    """Checkov prints one JSON document per framework, back to back; read them all."""
+    dec, i, out = json.JSONDecoder(), 0, []
+    while True:
+        while i < len(text) and text[i].isspace():
+            i += 1
+        if i >= len(text):
+            return out
+        doc, i = dec.raw_decode(text, i)
+        out.append(doc)
+
+
 def _checkov_reports(data) -> list[dict]:
     if isinstance(data, list):
         return [d for d in data if isinstance(d, dict)]
@@ -518,7 +530,11 @@ class Scanner:
                                 dict(os.environ, BC_SKIP_MAPPING="TRUE", CHECKOV_RUN_SCA_PACKAGE_SCAN_V2="false"))
         if rc != 0:
             raise RuntimeError(f"checkov exited {rc}: {err.strip()[-500:]}")
-        return parse_checkov(self._json(out, "checkov"), self.policy, self.root)
+        try:
+            docs = json_documents(out)
+        except json.JSONDecodeError as e:
+            raise RuntimeError(f"checkov: output is not JSON ({e}); first bytes: {out[:200]!r}")
+        return [f for d in docs for f in parse_checkov(d, self.policy, self.root)]
 
     def trivy_config(self, targets) -> list[Finding]:
         findings = []
@@ -545,7 +561,12 @@ class Scanner:
                                      "--scanners", "vuln", "--severity", "HIGH,CRITICAL", "--ignore-unfixed",
                                      image], self.root)
             if rc != 0:
-                raise RuntimeError(f"trivy image {image} exited {rc}: {err.strip()[-500:]}")
+                # One unpullable image (a locally built name such as demo/app:latest) must not
+                # hide the others; it is reported as a finding, so it is still seen.
+                findings.append(Finding("trivy-image", "image-not-scanned", "medium", source, 0,
+                                        f"{image}: trivy could not fetch it ({err.strip().splitlines()[0][:200] if err.strip() else rc})",
+                                        fingerprint("trivy-image", "image-not-scanned", source, image)))
+                continue
             findings += parse_trivy_image(self._json(out, "trivy image") or {}, image, source)
         return findings
 

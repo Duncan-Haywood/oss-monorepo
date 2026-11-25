@@ -155,6 +155,12 @@ class ParserTest(unittest.TestCase):
                          [("CKV_AWS_20", "high", "platform/aws/x/main.tf", 1),
                           ("CKV_AWS_18", "medium", "platform/aws/x/main.tf", 1)])
 
+    def test_checkov_back_to_back_documents(self):
+        doc = {"check_type": "dockerfile", "results": {"failed_checks": [
+            {"check_id": "CKV_DOCKER_8", "repo_file_path": "/a/Dockerfile", "file_line_range": [1, 1], "resource": "r"}]}}
+        text = json.dumps(doc, indent=2) + "\n" + json.dumps(doc) + "\n"
+        self.assertEqual(len(scan.json_documents(text)), 2)
+
     def test_trivy_config_paths_for_dir_and_file_targets(self):
         data = {"Results": [{"Target": "main.tf", "Misconfigurations": [
             {"ID": "AWS-0086", "Severity": "HIGH", "Status": "FAIL", "Title": "block public ACL", "Message": "m",
@@ -282,6 +288,16 @@ class ScannerTest(unittest.TestCase):
         cmd = next(c for c in runner.calls if "scan" in c)
         self.assertIn("--offline-vulnerabilities", cmd)
         self.assertIn("requirements.txt:x/requirements/dev.txt", cmd)
+
+    def test_one_unpullable_image_does_not_hide_the_others(self):
+        (self.tmp / "Dockerfile").write_text("FROM demo/app:latest\nFROM python:3.12@sha256:abc\n")
+        runner = FakeRunner({"demo/app": (1, "", "no such image"),
+                             "python:3.12": (0, json.dumps({"Results": [{"Vulnerabilities": [
+                                 {"VulnerabilityID": "CVE-1", "PkgName": "p", "InstalledVersion": "1",
+                                  "FixedVersion": "2", "Severity": "HIGH"}]}]}), "")})
+        r = scan.Scanner(self.bin, runner, root=self.tmp, tmp=self.tmp).run_tool("trivy-image", ["Dockerfile"])
+        self.assertEqual(r.status, "ok")
+        self.assertEqual(sorted(f.rule for f in r.findings), ["CVE-1", "image-not-pinned-by-digest", "image-not-scanned"])
 
     def test_tofu_init_failure_is_an_error(self):
         stack = self.tmp / "platform" / "aws" / "site"
