@@ -91,7 +91,7 @@ export function classifyExportEntries(entries) {
   for (const entry of entries) {
     const pattern = entry.subpath.includes("*") && entry.subpath.indexOf("*") === entry.subpath.lastIndexOf("*");
     const probe = pattern
-      ? resolveExports({ [entry.subpath]: entry.target }, entry.subpath.replace("*", "x"), { conditions: [] })
+      ? resolveExports({ [entry.subpath]: entry.target }, replaceFirstStar(entry.subpath, "x"), { conditions: [] })
       : resolveExports({ ".": entry.target }, ".", { conditions: [] });
     if (!pattern && entry.subpath !== "." && entry.subpath.endsWith("/")) invalid.push({ ...entry, reason: folderMappingReason(entry.subpath) });
     else if (!probe.ok && probe.code === "ERR_INVALID_PACKAGE_TARGET") invalid.push({ ...entry, reason: invalidReason(entry.target) });
@@ -140,7 +140,7 @@ export function checkWildcards(wildcard, fileSet) {
     return {
       ...entry,
       reached,
-      examples: reached.slice(0, 3).map((f) => ({ file: f, subpath: entry.subpath.replace("*", () => re.exec(f)[1]) })),
+      examples: reached.slice(0, 3).map((f) => ({ file: f, subpath: replaceFirstStar(entry.subpath, re.exec(f)[1]) })),
     };
   });
 }
@@ -225,4 +225,10 @@ export function summarize(report, { wildcardCount = 0, invalidCount = 0, unmatch
     };
   }
   return { status: "missing", text: problems.join("; ") + "." };
+}
+
+/** Substitute the single "*" of an exports pattern key (first occurrence only, like Node). */
+function replaceFirstStar(key, value) {
+  const i = key.indexOf("*");
+  return i === -1 ? key : key.slice(0, i) + value + key.slice(i + 1);
 }

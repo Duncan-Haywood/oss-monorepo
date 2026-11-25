@@ -5,6 +5,25 @@ import { readdirSync } from "node:fs";
 
 import { decodeEntities } from "../../platform/pages/entities.mjs";
 
+// Remove <script> blocks (any case, attributes, whitespace in the end tag), repeating until stable.
+const stripScripts = (s, repl = "") => {
+  let p;
+  do {
+    p = s;
+    s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, repl);
+  } while (s !== p);
+  return s;
+};
+// Remove every tag, repeating until no tag is left.
+const stripTags = (s, repl = "") => {
+  let p;
+  do {
+    p = s;
+    s = s.replace(/<[^>]*>/g, repl);
+  } while (s !== p);
+  return s;
+};
+
 const index = await readFile(new URL("./index.html", import.meta.url), "utf8");
 const versus = await readFile(
   new URL("./vs-manually-checking-nested-references.html", import.meta.url),
@@ -33,7 +52,7 @@ test("the page carries the portfolio disclaimers and names the fetch honestly", 
 });
 
 test("the page never claims a clean result means the repository is secure", () => {
-  const prose = index.replace(/<script[\s\S]*?<\/script>/g, "");
+  const prose = stripScripts(index);
   const claims = /\b(?:is|are|was|were)\s+secure\b/gi;
   for (const match of prose.matchAll(claims)) {
     const preceding = prose.slice(Math.max(0, match.index - 60), match.index);
@@ -57,7 +76,7 @@ test("the JSON-LD FAQPage questions match the visible FAQ headings", () => {
   const ldMatch = index.match(/"@type":"FAQPage"[\s\S]*?<\/script>/);
   assert.ok(ldMatch, "expected a FAQPage JSON-LD block");
   const ld = ldMatch[0];
-  const headings = [...index.matchAll(/<h3>(.*?)<\/h3>/g)].map((m) => m[1].replace(/<[^>]+>/g, "").trim());
+  const headings = [...index.matchAll(/<h3>(.*?)<\/h3>/g)].map((m) => stripTags(m[1]).trim());
   assert.ok(headings.length > 0, "expected visible h3 FAQ headings");
   for (const heading of headings) {
     assert.ok(ld.includes(heading), `visible heading not found in FAQPage JSON-LD: ${heading}`);
@@ -75,7 +94,7 @@ test("every .html file in the venture is reachable from the sitemap", async () =
   const htmlFiles = readdirSync(dir).filter((name) => name.endsWith(".html"));
   for (const name of htmlFiles) {
     if (name === "index.html") continue;
-    assert.match(sitemap, new RegExp(name.replace(/\./g, "\\.")), `${name} is missing from sitemap.xml`);
+    assert.ok(sitemap.includes(name), `${name} is missing from sitemap.xml`);
   }
 });
 
@@ -142,7 +161,7 @@ test("the comparison page's FAQPage JSON-LD parses, is non-trivial and matches i
   assert.ok(faq, "vs-manually-checking-nested-references.html has no FAQPage block");
   const names = faq.mainEntity.map((q) => q.name);
   assert.equal(names.length, new Set(names).size, "a question is repeated");
-  const text = versus.replace(/<script[\s\S]*?<\/script>/g, " ").replace(/<[^>]+>/g, " ");
+  const text = stripTags(stripScripts(versus, " "), " ");
   const squash = (s) => decodeEntities(s).replace(/\s+/g, " ").trim();
   const visible = squash(text);
   for (const entry of faq.mainEntity) {

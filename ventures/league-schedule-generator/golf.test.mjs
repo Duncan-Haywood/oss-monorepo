@@ -31,7 +31,7 @@ test("odd league: the bye team keeps a tee time and plays the course", () => {
   assert.deepEqual(validateGolf(s), []);
   assert.equal(s.nSlots, 3);
   for (const wk of s.weeks) assert.equal(wk.groups.filter((g) => g.b === null).length, 1);
-  assert.match(golfText(s), new RegExp(BYE.replace(/[()]/g, "\\$&")));
+  assert.match(golfText(s), new RegExp(BYE.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
 });
 
 test("tee times, shotgun holes, skipped dates and the CSV", () => {

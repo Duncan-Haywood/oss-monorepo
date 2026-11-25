@@ -11,9 +11,13 @@ const types = { '.html':'text/html', '.mjs':'text/javascript', '.js':'text/javas
 const log = []; let t0 = Date.now();
 http.createServer((req, res) => {
   const u = decodeURIComponent(req.url.split('?')[0]);
-  if (u === '/__log') { res.end(JSON.stringify(log)); return; }
+  if (u === '/__log') { res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify(log)); return; }
   if (u === '/__reset') { log.length = 0; t0 = Date.now(); res.end('ok'); return; }
-  let f = path.join(root, u); if (fs.existsSync(f) && fs.statSync(f).isDirectory()) f = path.join(f, 'index.html');
+  // Serve only files inside the site directory: a `..` request must not reach the rest of the disk.
+  let f = path.resolve(root, '.' + u);
+  if (f === root) f = path.join(root, 'index.html');
+  if (!f.startsWith(root + path.sep)) { res.statusCode = 404; res.end(); return; }
+  if (fs.existsSync(f) && fs.statSync(f).isDirectory()) f = path.join(f, 'index.html');
   setTimeout(() => {
     if (!fs.existsSync(f)) { res.statusCode = 404; res.end(); return; }
     const body = fs.readFileSync(f); const etag = '"' + crypto.createHash('md5').update(body).digest('hex') + '"';

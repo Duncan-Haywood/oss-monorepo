@@ -27,7 +27,9 @@ const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "ids-oneof-"));
 fs.writeFileSync(path.join(tmp, "w.ids"), ids);
 const types = { ".html": "text/html", ".mjs": "text/javascript", ".js": "text/javascript", ".json": "application/json", ".xml": "application/xml", ".xsd": "application/xml" };
 const srv = http.createServer((req, res) => {
-  const p = path.join(dir, decodeURIComponent(req.url.split("?")[0]).replace(/\/$/, "/index.html"));
+  const root = path.resolve(dir);
+  const p = path.resolve(root, "." + decodeURIComponent(req.url.split("?")[0]).replace(/\/$/, "/index.html"));
+  if (!p.startsWith(root + path.sep)) { res.writeHead(403); res.end(); return; }
   fs.readFile(p, (e, b) => { if (e) { res.writeHead(404); res.end(); return; } res.writeHead(200, { "content-type": types[path.extname(p)] || "application/octet-stream" }); res.end(b); });
 }).listen(0, async () => {
   const browser = await chromium.launch();

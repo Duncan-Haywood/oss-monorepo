@@ -161,8 +161,8 @@ test('runProbes checks the Realtime Database root and every given Firestore coll
   await withServer(fakeRealtimeDatabase, async (dbBase) => {
     await withServer(fakeFirestore, async (fsBase) => {
       const fetchImpl = (url, init) => {
-        if (typeof url === 'string' && url.includes('firestore.googleapis.com')) {
-          return fetch(url.replace('https://firestore.googleapis.com', fsBase), init);
+        if (typeof url === 'string' && url.startsWith('https://firestore.googleapis.com/')) {
+          return fetch(fsBase + url.slice('https://firestore.googleapis.com'.length), init);
         }
         return fetch(url, init);
       };

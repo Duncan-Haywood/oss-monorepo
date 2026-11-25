@@ -3,6 +3,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { calculateTintBid, DEFAULTS } from './calc.mjs';
 
+// Strip markup until stable, case-insensitive, tolerant of attributes in closing tags.
+const stripScripts = (s, sub = '') => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, sub); } while (s !== p); return s; };
+
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 
 test('every DEFAULTS field has a matching input on the page', () => {
@@ -95,7 +98,7 @@ test('every visible input has a <label for> or is nested inside a <label>', () =
 test('the FAQ structured data matches the visible copy', () => {
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage"[\s\S]*?)<\/script>/)[1]);
   assert.equal(ld['@type'], 'FAQPage');
-  const visible = html.replace(/<script[\s\S]*?<\/script>/g, '');
+  const visible = stripScripts(html);
   for (const entry of ld.mainEntity) {
     assert.ok(visible.includes(`<h3>${entry.name}</h3>`), `structured-data question is not on the page: ${entry.name}`);
   }
@@ -121,7 +124,7 @@ test('every page in the venture is reachable from the sitemap', () => {
       assert.match(sitemap, /window-tinting-bid-calculator\/<\/loc>/);
       continue;
     }
-    assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
+    assert.ok(sitemap.includes(name), `${name} is missing from sitemap.xml`);
   }
 });
 

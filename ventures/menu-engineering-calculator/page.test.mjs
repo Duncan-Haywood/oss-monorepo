@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { calculateMenu, CLASSES, MAX_ITEMS } from './calc.mjs';
+const stripTags = (s) => { let p; do { p = s; s = s.replace(/<[^>]+>/g, ''); } while (s !== p); return s; };
 
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const guide = readFileSync(new URL('./how-menu-engineering-works.html', import.meta.url), 'utf8');
@@ -18,12 +19,11 @@ function structuredData() {
  * by `&mdash;` on one side and `—` on the other.
  */
 function normalise(text) {
-  return text
+  return stripTags(text
     .replace(/&mdash;/g, '—')
     .replace(/&ndash;/g, '–')
     .replace(/&rsquo;/g, '’')
-    .replace(/&amp;/g, '&')
-    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g, '&'))
     .replace(/\s+/g, ' ')
     .trim();
 }

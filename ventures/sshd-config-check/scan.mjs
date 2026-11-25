@@ -376,9 +376,19 @@ export function patternList(string, pattern, lower = false) {
   return positive;
 }
 
+// match_pattern() from OpenSSH's match.c: '*' is any run of characters
+// (including none), '?' is exactly one, everything else is literal. A plain
+// backtracking matcher, so the pattern is never compiled into a RegExp.
 function wild(s, p) {
-  const re = new RegExp("^" + p.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*").replace(/\?/g, ".") + "$", "s");
-  return re.test(s);
+  let si = 0, pi = 0, star = -1, mark = 0;
+  while (si < s.length) {
+    if (pi < p.length && (p[pi] === "?" || p[pi] === s[si])) { si++; pi++; }
+    else if (pi < p.length && p[pi] === "*") { star = pi++; mark = si; }
+    else if (star !== -1) { pi = star + 1; si = ++mark; }
+    else return false;
+  }
+  while (pi < p.length && p[pi] === "*") pi++;
+  return pi === p.length;
 }
 
 function suggestNet(sub) {

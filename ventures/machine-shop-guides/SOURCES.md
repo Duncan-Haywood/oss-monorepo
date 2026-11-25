@@ -39,6 +39,19 @@ re-read** and are the first thing a session with access should verify:
 | SPRS assessment no more than three years old | DFARS 252.204-7019 / 252.204-7020, <https://www.ecfr.gov/current/title-48/chapter-2/subchapter-H/part-252/subpart-252.2/section-252.204-7019> |
 | 3.12.2 and 3.12.4 requirement wording; requirement labels | NIST SP 800-171 Rev. 2, <https://csrc.nist.gov/pubs/sp/800/171/r2/upd1/final> (labels in `sprs-data.mjs` are paraphrases) |
 
+## CMMC Level 1 self-assessment (added 25 November 2026)
+
+| Fact | Source |
+|---|---|
+| The 15 requirement texts in `l1-data.mjs`, and the clause's paragraph (c) flow-down wording | FAR 52.204-21 (Nov 2021), **copied word for word** from GSA's published FAR source, <https://github.com/GSA/GSA-Acquisition-FAR/blob/master/dita/52.204-21.dita> (fetched 25 Nov 2026; file sha256 `5d9ff06ba3d5119fc8ac703902daca44ccec271865de1f7d697118bcc5fc832f`). A script compared all 15 texts to that file: 15 of 15 identical. `l1.test.mjs` pins their hash. The official page is <https://www.acquisition.gov/far/52.204-21>; `acquisition.gov` and `ecfr.gov` were not reachable from the building session. |
+| Level 1 requirements are FAR 52.204-21(b)(1)(i)–(xv); identifier format AC.L1-b.1.i … SI.L1-b.1.xv; the table mapping them to NIST SP 800-171A objectives | 32 CFR 170.14(c)(2) and 170.15. **All 15 rows of Table 2 to 170.15(c)(1)(ii) read directly** from the eCFR versioner API (`/api/versioner/v1/full/2026-11-01/title-32.xml?part=170&section=170.15`, needs `Accept-Encoding: gzip`) by a second session on 25 Nov 2026; all 15 match `l1-data.mjs`, and `l1.test.mjs` pins them. The same session re-read the 15 texts on <https://www.acquisition.gov/far/52.204-21> (reachable that day) and found them identical to the GSA copy. |
+| The 59 assessment objectives (`L1_OBJECTIVES`); "must be performed using the objectives defined in NIST SP 800-171A"; FCI read for CUI | 32 CFR 170.15(c)(1)(i), read directly 25 Nov 2026; objectives extracted with `pdftotext` from NIST SP 800-171A (June 2018), <https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-171A.pdf>, read directly 25 Nov 2026: the "Determine if" items of the 17 mapped NIST numbers (6+2+6+5+3+3+2+4+6+8+2+6+2+1+3). CUI replaced by FCI in five (3.1.22[b], [d], [e]; 3.8.3[a], [b]), flagged `fciSubstituted`. |
+| Every requirement MET for Final Level 1 (Self); annual self-assessment; SPRS entry records level, date, scope, CAGE codes and result | 32 CFR 170.15(a)(1) and (b), same excerpts |
+| No POA&M at Level 1 | 32 CFR 170.21, same excerpts |
+| Affirmation at the end of the self-assessment and annually | 32 CFR 170.22(b)(1), same excerpts |
+| MET / NOT MET / N/A findings; N/A objective "equivalent to ... MET"; evidence in final form, not drafts; Level 1 "scored as MET or NOT MET in their entirety" | 32 CFR 170.24(b) and (c)(1), read directly from the eCFR API 25 Nov 2026. (The first Level 1 build had no N/A because no excerpt it could read covered it; this is that text.) |
+| "Examples of evidence" under each requirement | Ours. Not from any rule; the page says so. |
+
 ## Machining costs
 
 No machining rate, material price, cycle time or markup appears anywhere in

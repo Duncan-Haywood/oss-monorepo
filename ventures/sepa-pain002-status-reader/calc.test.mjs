@@ -122,7 +122,7 @@ test("duplicate EndToEndId inside one block is a warning", () => {
 });
 
 test("a block summary that disagrees with the listed payments is flagged", () => {
-  const x = sampleRejectedReport().replace("</PmtInfSts>", "</PmtInfSts>").replace("<PmtInfSts>PART</PmtInfSts>", "<PmtInfSts>PART</PmtInfSts>\n      <NbOfTxsPerSts><DtldNbOfTxs>9</DtldNbOfTxs><DtldSts>RJCT</DtldSts></NbOfTxsPerSts>");
+  const x = sampleRejectedReport().replace("<PmtInfSts>PART</PmtInfSts>", "<PmtInfSts>PART</PmtInfSts>\n      <NbOfTxsPerSts><DtldNbOfTxs>9</DtldNbOfTxs><DtldSts>RJCT</DtldSts></NbOfTxsPerSts>");
   assert.ok(codes(readReport(x)).includes("PERSTS-MISMATCH"));
 });
 

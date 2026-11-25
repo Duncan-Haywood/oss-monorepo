@@ -15,7 +15,7 @@ for (const v of fs.readdirSync(path.join(root,'ventures'))) {
   if (!fs.existsSync(html)) continue;
   const h = fs.readFileSync(html,'utf8');
   const seen = new Map(); const stack=[];
-  const scriptRe = /<script\b([^>]*)>([\s\S]*?)<\/script>/g; let m;
+  const scriptRe = /<script\b([^>]*)>([\s\S]*?)<\/script\b[^>]*>/gi; let m;
   while ((m=scriptRe.exec(h))) {
     if (!/type=["']?module/.test(m[1])) continue;
     const srcm = /src=["']([^"']+)["']/.exec(m[1]);

@@ -81,6 +81,10 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "model": "subscription",
         "why": "hosted sites for local businesses (hosting, domain, edits) are a monthly cost per customer",
     },
+    "photo-editing": {
+        "model": "subscription",
+        "why": "the cull and pipeline run on the user's machine and stay free; the paid part is hosted proofing galleries, which have a per-user storage cost (models.yaml, 2026-11-25)",
+    },
     "changepoint-detector": {
         "model": "one-off",
         "why": "statistics run on the user's own data in the browser or CLI; nothing to serve per user",

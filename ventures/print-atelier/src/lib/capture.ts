@@ -21,7 +21,7 @@ export type CaptureUploadMetadata = {
 const STORAGE_KEY = "print-atelier-capture-sessions";
 
 function generateSessionId(): string {
-  return `cap_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+  return `cap_${Date.now()}_${globalThis.crypto.randomUUID().replace(/-/g, "").slice(0, 12)}`;
 }
 
 export function createCaptureSessionFromFile(file: File): CaptureUploadMetadata {

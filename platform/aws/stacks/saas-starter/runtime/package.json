@@ -1,0 +1,23 @@
+{
+  "name": "saas-starter-runtime",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "Lambda runtime for the AWS SaaS starter: Workers-style fetch adapter, D1/R2-shaped bindings over Postgres/S3, Paddle webhook receiver, entitlement consumer, db-admin.",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "build": "node build.mjs platform"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "3.1177.0",
+    "@aws-sdk/client-secrets-manager": "3.1177.0",
+    "@aws-sdk/client-sns": "3.1177.0",
+    "@aws-sdk/client-sqs": "3.1177.0",
+    "@aws-sdk/rds-signer": "3.1177.0",
+    "pg": "8.16.3"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12"
+  }
+}

@@ -60,7 +60,11 @@ test('the page is clear that this checker uploads nothing and makes no network c
 });
 
 test('the page never claims a clean scan means the workflow is secure', () => {
-  const prose = html.replace(/<script[\s\S]*?<\/script>/g, '');
+  let prose = html;
+  for (let prev; prev !== prose;) {
+    prev = prose;
+    prose = prose.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, '');
+  }
   const claims = /\b(?:is|are|was|were)\s+secure\b/gi;
   for (const match of prose.matchAll(claims)) {
     const preceding = prose.slice(Math.max(0, match.index - 60), match.index);

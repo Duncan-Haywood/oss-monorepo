@@ -68,10 +68,15 @@ import re
 import sys
 from pathlib import Path
 
-TRANSFORMED_SECRET = "transformed-secret"
+# Rule ids, not secret values. Named for the rule rather than "..._SECRET" so
+# the name says what the constant holds: a public classification string.
+TRANSFORMED_VALUE_RULE = "transformed-secret"
 UNMASKED_ENV_EXPORT = "unmasked-env-export"
 
-RISK_CLASSIFICATIONS = frozenset({TRANSFORMED_SECRET, UNMASKED_ENV_EXPORT})
+RISK_CLASSIFICATIONS = frozenset({TRANSFORMED_VALUE_RULE, UNMASKED_ENV_EXPORT})
+
+# Earlier public name of the rule id, kept so existing importers keep working.
+TRANSFORMED_SECRET = TRANSFORMED_VALUE_RULE
 
 _STEP_ITEM_RE = re.compile(r"^(?P<indent>\s*)-\s")
 _ENV_HEADER_RE = re.compile(r"^(?P<indent>\s*)(?:-\s*)?env:\s*(?:#.*)?$")
@@ -230,7 +235,7 @@ def scan_text(text, filename="<workflow>"):
                     {
                         "file": filename,
                         "line": lineno0 + 1,
-                        "type": TRANSFORMED_SECRET,
+                        "type": TRANSFORMED_VALUE_RULE,
                         "detail": line.strip(),
                         "remediation": (
                             "GitHub's log masking matches the secret's exact string only -- "
@@ -288,7 +293,7 @@ def has_risk(findings):
 
 
 _SARIF_RULES = {
-    TRANSFORMED_SECRET: {
+    TRANSFORMED_VALUE_RULE: {
         "name": "TransformedSecretBypassesMasking",
         "short": "Secret transformed before it can be masked",
         "text": (
@@ -375,7 +380,7 @@ def render_text(findings, root):
             return "No .github/workflows/*.yml or *.yaml files found under " + str(root)
         return f"Scanned {len(files)} workflow file(s); no findings."
 
-    transformed = [f for f in findings if f["type"] == TRANSFORMED_SECRET]
+    transformed = [f for f in findings if f["type"] == TRANSFORMED_VALUE_RULE]
     exported = [f for f in findings if f["type"] == UNMASKED_ENV_EXPORT]
 
     lines = []

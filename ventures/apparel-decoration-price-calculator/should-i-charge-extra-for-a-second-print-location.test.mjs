@@ -87,10 +87,10 @@ test('the 24-piece worked example: setup, break-even, profit and margin for one 
   assert.match(html, /\b3 screens/);
   assert.match(html, /\b6 screens/);
 
-  assert.match(html, new RegExp(money(oneLocation.breakEvenPricePerPiece).replace(/[.$]/g, '\\$&')));
-  assert.match(html, new RegExp(money(twoLocations.breakEvenPricePerPiece).replace(/[.$]/g, '\\$&')));
-  assert.match(html, new RegExp(money(oneLocation.profit).replace(/[.$]/g, '\\$&')));
-  assert.match(html, new RegExp(money(twoLocations.profit).replace(/[.$]/g, '\\$&')));
+  assert.match(html, new RegExp(money(oneLocation.breakEvenPricePerPiece).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  assert.match(html, new RegExp(money(twoLocations.breakEvenPricePerPiece).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  assert.match(html, new RegExp(money(oneLocation.profit).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  assert.match(html, new RegExp(money(twoLocations.profit).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.match(html, new RegExp(`${oneLocation.marginPct}%`));
   assert.match(html, new RegExp(`${twoLocations.marginPct}%`));
 

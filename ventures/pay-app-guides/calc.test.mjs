@@ -82,3 +82,23 @@ test("CSV cells that look like formulas are neutralised, numbers are not", () =>
   assert.equal(csvCell("-1200.00"), "-1200.00");
   assert.equal(csvCell("a,b"), '"a,b"');
 });
+
+import { quickbooksLines } from "./calc.mjs";
+
+test("QuickBooks lines: retainage is a negative line, release a positive one", () => {
+  // Pay app 1 of the guide: $40,000 billed, 10% held -> invoice $36,000.
+  const a = quickbooksLines({ billed: "40,000", rate: "10" });
+  assert.deepEqual(a.lines.map((l) => l.amount), [4_000_000, -400_000]);
+  assert.equal(a.total, 3_600_000);
+  assert.equal(a.retainageChange, 400_000);
+  // Release invoice: nothing new billed, $15,000 released.
+  const c = quickbooksLines({ billed: "0", released: "15000" });
+  assert.deepEqual(c.lines.map((l) => l.amount), [1_500_000]);
+  assert.equal(c.total, 1_500_000);
+  assert.equal(c.retainageChange, -1_500_000);
+  // Held typed directly wins over the rate (e.g. stored materials at another rate).
+  assert.equal(quickbooksLines({ billed: "1000", rate: "10", held: "50" }).total, 95_000);
+  // Rounds to the cent.
+  assert.equal(quickbooksLines({ billed: "333.33", rate: "5" }).lines[1].amount, -1_667);
+  assert.ok(quickbooksLines({ billed: "x", rate: "150" }).errors.length === 2);
+});

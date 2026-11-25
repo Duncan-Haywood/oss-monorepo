@@ -90,7 +90,8 @@ function resolveTargetString(target, subpath, key, pattern, internal, isPathMap,
   if (!resolved.pathname.startsWith(PKG_DIR)) throw invalidTarget(key, target, internal);
   if (subpath === "") return { url: resolved };
   if (INVALID_SEGMENT.test(subpath)) {
-    const request = pattern ? key.replace("*", () => subpath) : key + subpath;
+    const star = key.indexOf("*");
+    const request = pattern && star !== -1 ? key.slice(0, star) + subpath + key.slice(star + 1) : pattern ? key : key + subpath;
     if (FATAL_SEGMENT.test(subpath)) {
       throw new ResolveError(
         "ERR_INVALID_MODULE_SPECIFIER",

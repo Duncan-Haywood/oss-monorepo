@@ -3,6 +3,10 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { readdirSync } from 'node:fs';
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const stripTags = (s) => { let p; do { p = s; s = s.replace(/<[^>]+>/g, ''); } while (s !== p); return s; };
+const stripScripts = (s) => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ''); } while (s !== p); return s; };
+
 const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
 const guide = await readFile(
   new URL('./why-your-kubernetes-rollout-drops-requests.html', import.meta.url),
@@ -36,7 +40,7 @@ test('the page carries the portfolio disclaimers and stays local', () => {
 // clean result mean my deploy is zero-downtime?", and banning the phrase
 // outright would forbid the honest question along with the overclaim.
 test('the page never claims a clean result means the deploy is safe or zero-downtime', () => {
-  const prose = index.replace(/<script[\s\S]*?<\/script>/g, '');
+  const prose = stripScripts(index);
   const claims = /\b(?:is|are|was|were|will be)\s+(?:zero-downtime|safe|downtime-free)\b/gi;
   for (const match of prose.matchAll(claims)) {
     const preceding = prose.slice(Math.max(0, match.index - 70), match.index);
@@ -75,9 +79,9 @@ test('the JSON-LD FAQPage questions match the visible FAQ headings', () => {
     // script builds finding cards with `<h3>` in a template literal, and
     // those are rendered output, not FAQ questions -- counting them would
     // demand a JSON-LD entry for a string that no crawler ever sees.
-    const visible = html.replace(/<script[\s\S]*?<\/script>/g, '');
+    const visible = stripScripts(html);
     const headings = [...visible.matchAll(/<h3>([\s\S]*?)<\/h3>/g)].map((m) =>
-      m[1].replace(/<[^>]+>/g, '').trim(),
+      stripTags(m[1]).trim(),
     );
     assert.ok(headings.length > 0, `${name}: expected visible h3 FAQ headings`);
     for (const heading of headings) {
@@ -128,7 +132,7 @@ test('every .html file in the venture is reachable from the sitemap', async () =
   const dir = new URL('./', import.meta.url);
   for (const name of readdirSync(dir).filter((n) => n.endsWith('.html'))) {
     if (name === 'index.html') continue;
-    assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
+    assert.match(sitemap, new RegExp(escapeRegExp(name)), `${name} is missing from sitemap.xml`);
   }
 });
 
