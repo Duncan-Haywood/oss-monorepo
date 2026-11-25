@@ -2,11 +2,14 @@
 """Tests for the control-plane guard.
 
 The pattern matcher has to agree with GitHub's on the lines this repo uses,
-or the guard reports coverage CODEOWNERS does not actually give. The audit
-verdict has to fail an unreviewed agent merge and stay quiet on everything
-else, or main goes red on unrelated work and the check gets switched off.
+or the guard reports a control-plane map CODEOWNERS does not actually give.
+The invariants have to notice a weakened ruleset or security-gate workflow
+(the adversarial gate runs these from main against a PR's files). The audit
+verdict has to fail a direct push and stay quiet on everything else, or main
+goes red on unrelated work and the check gets switched off.
 """
 
+import json
 import unittest
 
 import control_plane_guard as guard
@@ -64,9 +67,14 @@ class MainExitCode(unittest.TestCase):
     def test_check_coverage_exit_code_follows_problems(self):
         from unittest import mock
 
-        with mock.patch.object(guard, "check_coverage", return_value=[]):
+        with mock.patch.object(guard, "check_coverage", return_value=[]), \
+             mock.patch.object(guard, "check_invariants", return_value=[]):
             self.assertEqual(guard.main(["--check-coverage"]), 0)
-        with mock.patch.object(guard, "check_coverage", return_value=["x has no code owner"]):
+        with mock.patch.object(guard, "check_coverage", return_value=["x has no code owner"]), \
+             mock.patch.object(guard, "check_invariants", return_value=[]):
+            self.assertEqual(guard.main(["--check-coverage"]), 1)
+        with mock.patch.object(guard, "check_coverage", return_value=[]), \
+             mock.patch.object(guard, "check_invariants", return_value=["ruleset has bypass actors"]):
             self.assertEqual(guard.main(["--check-coverage"]), 1)
 
 
@@ -91,10 +99,6 @@ class RepoCodeowners(unittest.TestCase):
         self.assertIn(".claude/settings.json has no code owner", problems)
 
 
-def review(login, state="APPROVED"):
-    return {"user": {"login": login}, "state": state}
-
-
 class Star(unittest.TestCase):
     def test_star_consumes_one_token_then_literal_follows(self):
         rules = guard.parse_codeowners("*.pem @owner\n")
@@ -106,32 +110,100 @@ class Audit(unittest.TestCase):
     pr = {"number": 7, "user": {"login": "kilo-code-bot[bot]"}}
 
     def test_untouched_control_plane_passes(self):
-        self.assertEqual(guard.audit_verdict([], None, [], {"owner"})[0], 0)
+        self.assertEqual(guard.audit_verdict([], None)[0], 0)
 
-    def test_owner_approval_passes(self):
-        code, _ = guard.audit_verdict(["CLAUDE.md"], self.pr, [review("Owner")], {"owner"})
+    def test_merged_pr_passes_without_owner_approval(self):
+        # Owner review was replaced by the adversarial gate (2026-11-24).
+        code, msg = guard.audit_verdict(["CLAUDE.md"], self.pr)
         self.assertEqual(code, 0)
-
-    def test_bot_approvals_alone_fail(self):
-        reviews = [review("cursor[bot]"), review("portfolio-reviewer-gh[bot]")]
-        code, msg = guard.audit_verdict(["CLAUDE.md"], self.pr, reviews, {"owner"})
-        self.assertEqual(code, 1)
-        self.assertIn("CLAUDE.md", msg)
-
-    def test_owner_comment_is_not_approval(self):
-        code, _ = guard.audit_verdict(
-            ["CLAUDE.md"], self.pr, [review("owner", "COMMENTED")], {"owner"}
-        )
-        self.assertEqual(code, 1)
+        self.assertIn("adversarial-gate", msg)
 
     def test_direct_push_fails(self):
-        self.assertEqual(guard.audit_verdict([".mcp.json"], None, [], {"owner"})[0], 1)
+        code, msg = guard.audit_verdict([".mcp.json"], None)
+        self.assertEqual(code, 1)
+        self.assertIn(".mcp.json", msg)
 
-    def test_owner_identity_warns_without_failing(self):
-        pr = {"number": 8, "user": {"login": "owner"}}
-        code, msg = guard.audit_verdict(["CLAUDE.md"], pr, [], {"owner"})
-        self.assertEqual(code, 0)
-        self.assertTrue(msg.startswith("::warning::"))
+
+def ruleset(**over):
+    doc = json.loads(guard.RULESET.read_text(encoding="utf-8"))
+    doc.update(over)
+    return doc
+
+
+class RulesetInvariants(unittest.TestCase):
+    def test_repo_ruleset_is_clean(self):
+        self.assertEqual(guard.ruleset_problems(ruleset()), [])
+
+    def test_bypass_actor_is_refused(self):
+        doc = ruleset(bypass_actors=[{"actor_id": 5, "actor_type": "RepositoryRole", "bypass_mode": "always"}])
+        self.assertTrue(any("bypass" in p for p in guard.ruleset_problems(doc)))
+
+    def test_dropping_a_required_check_is_refused(self):
+        doc = ruleset()
+        for rule in doc["rules"]:
+            if rule["type"] == "required_status_checks":
+                rule["parameters"]["required_status_checks"] = [
+                    c for c in rule["parameters"]["required_status_checks"] if c["context"] != "adversarial-gate"
+                ]
+        self.assertIn(
+            "required status check `adversarial-gate` is missing from the ruleset", guard.ruleset_problems(doc)
+        )
+
+    def test_check_from_any_app_is_refused(self):
+        doc = ruleset()
+        for rule in doc["rules"]:
+            if rule["type"] == "required_status_checks":
+                for c in rule["parameters"]["required_status_checks"]:
+                    if c["context"] == "security-scan":
+                        del c["integration_id"]
+        self.assertTrue(any("security-scan" in p and "integration_id" in p for p in guard.ruleset_problems(doc)))
+
+    def test_disabled_enforcement_is_refused(self):
+        self.assertIn("ruleset enforcement is not `active`", guard.ruleset_problems(ruleset(enforcement="evaluate")))
+
+    def test_code_owner_review_may_be_off(self):
+        doc = ruleset()
+        for rule in doc["rules"]:
+            if rule["type"] == "pull_request":
+                self.assertFalse(rule["parameters"]["require_code_owner_review"])
+
+
+class GateWorkflowInvariants(unittest.TestCase):
+    def text(self):
+        return guard.GATE_WORKFLOW.read_text(encoding="utf-8")
+
+    def test_repo_gate_workflow_is_clean(self):
+        self.assertEqual(guard.gate_workflow_problems(self.text()), [])
+
+    def test_missing_workflow_is_refused(self):
+        self.assertEqual(guard.gate_workflow_problems(None), [".github/workflows/priv-security-gate.yml is missing"])
+
+    def test_switching_to_pull_request_trigger_is_refused(self):
+        weakened = self.text().replace("pull_request_target:", "pull_request:")
+        self.assertTrue(any("pull_request_target" in p for p in guard.gate_workflow_problems(weakened)))
+
+    def test_checking_out_the_pr_head_is_refused(self):
+        weakened = self.text().replace(
+            "persist-credentials: false",
+            "persist-credentials: false\n          ref: ${{ github.event.pull_request.head.sha }}",
+            1,
+        )
+        self.assertTrue(any("checks out the PR" in p for p in guard.gate_workflow_problems(weakened)))
+
+    def test_renaming_a_required_job_is_refused(self):
+        weakened = self.text().replace("\n  adversarial-gate:\n", "\n  adversarial-gate-v2:\n")
+        self.assertTrue(any("adversarial-gate" in p for p in guard.gate_workflow_problems(weakened)))
+
+    def test_continue_on_error_is_refused(self):
+        weakened = self.text().replace("    timeout-minutes:", "    continue-on-error: true\n    timeout-minutes:", 1)
+        self.assertTrue(any("continue-on-error" in p for p in guard.gate_workflow_problems(weakened)))
+
+    def test_not_running_the_gate_script_is_refused(self):
+        weakened = self.text().replace("platform/ci/adversarial_gate/gate.py", "platform/ci/adversarial_gate/noop.py")
+        self.assertTrue(any("no longer runs platform/ci/adversarial_gate/gate.py" in p for p in guard.gate_workflow_problems(weakened)))
+
+    def test_repo_invariants_hold(self):
+        self.assertEqual(guard.check_invariants(), [])
 
 
 class TrailingDoubleStar(unittest.TestCase):
@@ -168,7 +240,7 @@ class PrSummary(unittest.TestCase):
 
 
 class AuditCommitPicksFirstMergedPr(unittest.TestCase):
-    def test_reviews_are_read_for_the_first_merged_pr(self):
+    def test_first_merged_pr_decides(self):
         import os
         from unittest import mock
 
@@ -180,18 +252,25 @@ class AuditCommitPicksFirstMergedPr(unittest.TestCase):
         def fake_get(path):
             return prs if path.endswith("/pulls") else {"files": [{"filename": "CLAUDE.md"}]}
 
-        seen = []
+        out = []
+        with mock.patch.dict(os.environ, {"GITHUB_REPOSITORY": "o/r"}), \
+             mock.patch.object(guard, "gh_get", side_effect=fake_get), \
+             mock.patch.object(guard, "summarize", side_effect=out.append):
+            code = guard.main(["--audit-commit", "abc"])
+        self.assertEqual(code, 0)
+        self.assertIn("PR #1", out[0])
 
-        def fake_pages(path):
-            seen.append(path)
-            return []
+    def test_direct_push_fails_the_audit(self):
+        import os
+        from unittest import mock
+
+        def fake_get(path):
+            return [] if path.endswith("/pulls") else {"files": [{"filename": ".claude/settings.json"}]}
 
         with mock.patch.dict(os.environ, {"GITHUB_REPOSITORY": "o/r"}), \
              mock.patch.object(guard, "gh_get", side_effect=fake_get), \
-             mock.patch.object(guard, "gh_pages", side_effect=fake_pages), \
              mock.patch.object(guard, "summarize"):
-            guard.main(["--audit-commit", "abc"])
-        self.assertEqual(seen, ["/repos/o/r/pulls/1/reviews"])
+            self.assertEqual(guard.main(["--audit-commit", "abc"]), 1)
 
 
 class PagingAndCli(unittest.TestCase):

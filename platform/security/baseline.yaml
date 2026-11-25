@@ -1,0 +1,17 @@
+# Accepted security-scan findings. scan.py fails a PR only on findings the PR
+# ADDS (it scans the merge base and the head the same way), so code already
+# on main needs no entry here. An entry is for a new finding that is a false
+# positive or an accepted risk:
+#
+#   - tool: semgrep                      # a tool from tools.yaml
+#     rule: py-shell-injection           # the rule id the scanner reports
+#     path: platform/x/run.py            # fnmatch glob; `*` crosses /
+#     fingerprint: 3f2a9c0d1e7b4a55      # optional: the finding's snippet_hash
+#     reason: the command is a constant list joined for logging only
+#     added: 2026-11-24
+#
+# main's copy decides, so an entry clears findings from the PR after the one
+# that adds it. The adversarial gate refuses an entry without a specific path
+# and a real reason (rule exception-entry).
+
+accepted: []

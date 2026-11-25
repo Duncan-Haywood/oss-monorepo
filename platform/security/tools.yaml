@@ -1,0 +1,116 @@
+# Scanners run by platform/security/scan.py (the `security-scan` required
+# check). Each is pinned by version and checksum: pip tools by a hash-locked
+# requirements file (pip --require-hashes --only-binary :all:), Go tools by
+# the module's go.sum hash (checked against `go mod download -json` and, by
+# the go command itself, against the public checksum database
+# sum.golang.org). Versions chosen 2026-11-24, each at least two weeks old.
+#
+# The copy on `main` decides: a PR that edits this file is scanned with the
+# old one, and gate.py refuses a PR that drops a scanner, makes a required
+# one optional or raises a block threshold (rule gate-self-weakening).
+#
+# Fields:
+#   kind       pip | go | repo-node (code already in this repository)
+#   required   the job fails when the tool is missing or crashes; network
+#              tools are not required, so an outage cannot stop dev
+#   paths      fnmatch globs (`*` crosses /) selecting the changed files
+#              the tool scans; the full-repo mode scans everything
+#   block_at   lowest severity of a NEW finding that fails the check
+
+tools:
+  gitleaks:
+    kind: go
+    module: github.com/zricethezav/gitleaks/v8
+    package: github.com/zricethezav/gitleaks/v8
+    version: v8.30.1
+    go_sum: "h1:PmEvCfVI7ti9dV3s5aMZUY7sS2GxRvG3yzih7E+cS3w="
+    binary: gitleaks
+    required: true
+    paths: ["*"]
+    block_at: high
+
+  semgrep:
+    kind: pip
+    lock: locks/semgrep.txt
+    version: "1.184.0"
+    binary: semgrep
+    required: true
+    # Local rules only: deterministic and offline (rules in semgrep/).
+    configs: [semgrep/rules.yaml]
+    paths: ["*.py", "*.js", "*.mjs", "*.cjs", "*.ts", "*.tsx", "*.jsx", "*.sh", "*.go", "*.rb", "*.php"]
+    block_at: high
+
+  semgrep-registry:
+    # The registry's maintained rules (semgrep.dev). The rules change over
+    # time, which is fine here: base and head are scanned with the same rules
+    # in the same run, so only findings the PR adds count. Needs network.
+    kind: pip
+    lock: locks/semgrep.txt
+    version: "1.184.0"
+    binary: semgrep
+    required: false
+    configs: [p/default]
+    paths: ["*.py", "*.js", "*.mjs", "*.cjs", "*.ts", "*.tsx", "*.jsx", "*.go", "*.rb", "*.php", "*.java"]
+    block_at: high
+
+  osv-scanner:
+    kind: go
+    module: github.com/google/osv-scanner/v2
+    package: github.com/google/osv-scanner/v2/cmd/osv-scanner
+    version: v2.7.1
+    go_sum: "h1:U7tpL4Gjajxb/laKd9Is1YswSZVu/mbLhReVlUpi57g="
+    binary: osv-scanner
+    required: false  # queries api.osv.dev
+    paths: ["*package-lock.json", "*pnpm-lock.yaml", "*yarn.lock", "*requirements*.txt", "*poetry.lock", "*uv.lock", "*Pipfile.lock", "*go.mod", "*Cargo.lock", "*composer.lock", "*Gemfile.lock"]
+    block_at: high
+
+  checkov:
+    kind: pip
+    lock: locks/checkov.txt
+    version: "3.4.3"
+    binary: checkov
+    required: true
+    paths: ["*.tf", "*.tofu", "*Dockerfile*", "*docker-compose*.yml", "*docker-compose*.yaml", "*compose.yaml", "*/k8s/*", "*/kubernetes/*", "*/helm/*", "*/charts/*", "*/cloudformation/*"]
+    # Directories, not files: Terraform is evaluated per module.
+    scan_dirs: true
+    frameworks: [terraform, dockerfile, kubernetes, cloudformation, helm]
+    block_at: high
+    # Checkov reports no severity without a Prisma Cloud key. These checks
+    # (IDs confirmed with `checkov --list` 3.4.3) are the baseline's "no
+    # public buckets, no wildcard IAM, no unencrypted storage": high.
+    high_checks: [CKV_AWS_1, CKV_AWS_16, CKV_AWS_17, CKV_AWS_19, CKV_AWS_20, CKV_AWS_32, CKV_AWS_33, CKV_AWS_49, CKV_AWS_53,
+                  CKV_AWS_54, CKV_AWS_55, CKV_AWS_56, CKV_AWS_57, CKV_AWS_60, CKV_AWS_62, CKV_AWS_63, CKV_AWS_72, CKV_AWS_96]
+
+  trivy-config:
+    kind: go
+    module: github.com/aquasecurity/trivy
+    package: github.com/aquasecurity/trivy/cmd/trivy
+    version: v0.76.2
+    go_sum: "h1:RYBcQklHCFOHg/sfYSfe8v4/W5H2rAZrP5THPWY5F+A="
+    binary: trivy
+    required: true
+    paths: ["*.tf", "*.tofu", "*Dockerfile*", "*docker-compose*.yml", "*docker-compose*.yaml", "*compose.yaml", "*/k8s/*", "*/kubernetes/*", "*/helm/*", "*/charts/*", "*/cloudformation/*"]
+    scan_dirs: true
+    # Reported, not blocking, below critical: Trivy rates many hardening
+    # suggestions (customer-managed KMS keys, access logging) high, which
+    # would hold every new bucket. Checkov's curated high_checks block the
+    # exposures the baseline forbids.
+    block_at: critical
+
+  zizmor:
+    kind: pip
+    lock: locks/zizmor.txt
+    version: "1.32.0"
+    binary: zizmor
+    required: true
+    paths: [".github/workflows/*.yml", ".github/workflows/*.yaml", "*action.yml", "*action.yaml"]
+    block_at: high
+
+  liability-audit:
+    # The portfolio's own liability scanner (ventures/liability-audit),
+    # run from main's copy on each changed product directory.
+    kind: repo-node
+    script: ventures/liability-audit/cli.mjs
+    required: true
+    paths: ["ventures/*"]
+    block_at: high

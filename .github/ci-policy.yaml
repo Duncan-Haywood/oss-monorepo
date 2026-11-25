@@ -126,3 +126,6 @@ privileged_code_accepted:
   - workflow: priv-direction-report.yml
     path: portfolio/direction/LATEST.json
     why: the report this job writes, not code it runs
+  - workflow: priv-security-gate.yml
+    path: ventures/liability-audit/
+    why: the liability scanner the security-scan job runs (main's copy, files only, read-only token, no secret); owning it would put a product under the control-plane tier

@@ -1,0 +1,16 @@
+# Accepted adversarial-gate findings. Each entry clears one blocking finding:
+#
+#   - rule: remote-exec                 # a rule id from `gate.py rules`
+#     path: ventures/x/install.sh       # the file (fnmatch glob; `*` crosses /)
+#     contains: "curl -fsSL"            # optional: text the finding's evidence must contain
+#     reason: why this is a false positive or an accepted risk, in a sentence
+#     added: 2026-11-24
+#
+# The gate reads this file from `main`, never from the PR it judges, so an
+# entry takes effect for the PR after the one that adds it. That is the only
+# way to clear a finding: no label, comment or PR text can. An entry is itself
+# judged (rule `exception-entry`): it needs a real reason and a specific path.
+# Entries for gate-self-weakening, control-plane-invariants and
+# secret-in-diff must also say `contains`.
+
+allow: []

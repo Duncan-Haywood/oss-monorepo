@@ -1,14 +1,18 @@
 # Control plane: the files that decide what every later agent reads, runs or
-# is allowed to merge. With "Require review from Code Owners" on in the `main`
-# ruleset (.github/rulesets/main.json), a PR touching any of these needs the
-# owner's approval; everything else still merges without review, including
-# workflows not named priv-*.yml (the `ci-policy` check keeps those read-only
-# and secret-free).
+# is allowed to merge. This file is the map of those paths. Since 2026-11-24
+# the owner's review is no longer required for them ("replace my review with
+# thorough cysec and reliability and liability checks not my human review");
+# the `main` ruleset has "Require review from Code Owners" off. Instead the
+# `adversarial-gate` required check, running main's copy of
+# platform/ci/adversarial_gate/gate.py, puts a PR touching any path below in
+# the control-plane tier: the strictest rules plus an LLM red-team review.
+# Workflows not named priv-*.yml stay out of it (the `ci-policy` check keeps
+# those read-only and secret-free).
 #
 # Why each line is here: docs/security/agent-hardening.md. The guard in
-# platform/ci/control_plane_guard.py fails CI if a line it expects goes
-# missing. The last matching line wins, so the unowned exemptions sit at the
-# bottom.
+# platform/ci/control_plane_guard.py (run by the gate from main against the
+# PR's copy of this file) fails if a line it expects goes missing. The last
+# matching line wins, so the unowned exemptions sit at the bottom.
 
 # Instructions every agent session reads.
 /CLAUDE.md                        @Duncan-Haywood
@@ -40,6 +44,14 @@
 /platform/ci/test_control_plane_guard.py @Duncan-Haywood
 /platform/ci/ci_policy_check.py          @Duncan-Haywood
 /platform/ci/test_ci_policy_check.py     @Duncan-Haywood
+# AWS infrastructure: priv-aws-apply.yml applies it to the owner's accounts
+# with a near-admin role on every push to main, so it is production.
+/platform/aws/                    @Duncan-Haywood
+# The automated gate itself and what it runs (priv-security-gate.yml).
+/platform/ci/adversarial_gate/    @Duncan-Haywood
+/platform/security/               @Duncan-Haywood
+/platform/ci/check_hidden_unicode.py      @Duncan-Haywood
+/platform/ci/test_check_hidden_unicode.py @Duncan-Haywood
 # priv-agent-pr-auto-merge.yml pip-installs this inside its write-token job.
 /portfolio/router/requirements.txt @Duncan-Haywood
 
