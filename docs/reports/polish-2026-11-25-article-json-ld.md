@@ -1,6 +1,6 @@
 ---
-kind: note
-topics: [polish, seo, aeo, structured-data, pay-app-guides]
+kind: polish
+topics: [seo]
 date: 2026-11-25
 ---
 # Polish 2026-11-25: Article JSON-LD gets url, image, author and publisher
