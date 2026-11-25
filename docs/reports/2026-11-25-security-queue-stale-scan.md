@@ -101,14 +101,19 @@ when this was written), the queue should drop to about these 54.
   concatenated). Without a local CodeQL run this is unconfirmed. Their claim
   branches could not be deleted through the session proxy and expire after 48 h.
 
-## Later the same day: `security_next.py` does step 0 in one command
+## Later the same day: `security_next.py`, and a claim race it still had
 
-Three run records the same morning (prompt.md `doc_friction`) hit the same routine: a run found
-every alert already claimed only after fetching the queue and diffing it against `ls-remote` by
-hand; one lost #1049/#1050 to a session that pushed the claim between its read and its push; one
-re-triaged alerts an earlier pass had written up. `platform/ci/security_next.py` prints the top
-alert with no claim branch and no triage entry (the notes here and, once PR 18843 lands,
-`platform/security/codeql-triage.json` and QUEUE.md's "Triaged" section), or "Nothing to take"
-with exit 3. `--claim` pushes the branch with `--force-with-lease=<ref>:`, which git refuses when
-the ref already exists, so of two racing sessions one wins and the other moves to the next alert
-(tested against a local bare remote). Its first live run: 48 listed, 48 claimed, 0 workable.
+Three run records that morning (prompt.md `doc_friction`) hit step 0 by hand: every alert already
+claimed, found only after an `ls-remote` diff; #1049/#1050 lost to a session that pushed between
+read and push; alerts re-triaged that an earlier pass had written up. Two sessions built the same
+fix in parallel; PR 18852 landed `platform/ci/security_next.py` first, and PR 18851 (this one)
+was folded into it.
+
+What 18851 adds is a test against a real bare remote, and it found a bug: `--claim` pushed
+`origin/main` itself with `--force-with-lease=<ref>:`. Two racing sessions push the *same* sha,
+so the loser's push is "Everything up-to-date", exits 0, and both think they hold the alert.
+The lease check only runs when git has something to send. Each claim now pushes its own empty
+commit on top of `origin/main` (`git commit-tree`, random nonce in the message), so the second
+push for an alert really is refused. The success line says to start work from that claim commit
+(`git checkout -B <branch> <sha>`), since a branch cut from `origin/main` would no longer
+fast-forward onto it.

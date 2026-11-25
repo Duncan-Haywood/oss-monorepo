@@ -1,167 +1,200 @@
 #!/usr/bin/env python3
-"""Print the next security alert a session can take, and optionally claim it.
+"""Print the next security alert a run can take, or say there is none (prompt.md, step 0).
 
-prompt.md step 0 asks every scheduled session to read `origin/security-alerts:QUEUE.md`
-and take the top alert with no `security-fix/code-scanning-<n>` claim branch. Done by
-hand that is a fetch, an `ls-remote`, a diff of two lists and a read of the triage notes,
-and it races: on 2026-11-25 three runs reported the cost (run records' doc_friction,
-prompt.md): one found every alert already claimed only after the ls-remote, one lost
-#1049/#1050 to a session that pushed the claim between its read and its push, and one
-re-triaged alerts an earlier run had already written up as false positives.
+Step 0 used to be four manual steps: fetch `security-alerts`, read QUEUE.md, list the
+`security-fix/code-scanning-*` claim branches with `git ls-remote`, and cross off what the
+triage notes on main already called false or fixed. Runs did it by hand and got it wrong:
+on 2026-11-25 nine run records reported the same step (`friction_rank.py --live --days 3`,
+prompt.md: "every alert already had a claim branch", "the top unclaimed alerts were already
+triaged", "another session claimed #1049 between my read and my push"). This does all of it
+in one call and, with --claim, takes the alert with a push that fails if the branch exists,
+so two runs cannot both win the same alert.
 
-This does the routine part:
+Usage:
+    python3 platform/ci/security_next.py            # what to take next, or "go to step 1"
+    python3 platform/ci/security_next.py --claim    # also push its claim branch
+    python3 platform/ci/security_next.py --all      # every workable alert, not just the top
 
-  python3 platform/ci/security_next.py           # print the next workable alert, or "none"
-  python3 platform/ci/security_next.py --claim   # also claim it, atomically
+Exit codes: 0 an alert is workable (printed first), 3 none is (queue empty, all claimed or
+triaged: go to step 1), 2 the queue is unavailable or git failed.
 
-Skipped: alerts with a claim branch, and alerts named in the triage notes
-(`docs/reports/*security-queue*.md` on main: false positives and ones already fixed,
-which only the owner can dismiss). `--claim` pushes the branch with
-`--force-with-lease=<ref>:` (an empty expected value means "the ref must not exist"),
-so of two sessions claiming the same alert at once exactly one push succeeds; the loser
-moves on to the next alert instead of duplicating the fix.
-
-Exit 0 with an alert printed; exit 3 when nothing is workable (go to step 1 of
-prompt.md); exit 2 when the queue cannot be read.
+The parsing (`parse_queue`, `triaged_numbers`, `pick`) touches no network and is unit-tested
+in test_security_next.py.
 """
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
+import secrets
 import subprocess
 import sys
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
 QUEUE_BRANCH = "security-alerts"
-BRANCH_PREFIX = "security-fix/code-scanning-"
-TRIAGE_GLOB = "docs/reports/*security-queue*.md"
-TRIAGE_JSON = "platform/security/codeql-triage.json"  # reviewed false positives (PR 18809/18843)
+BRANCH_PREFIX = "security-fix/code-scanning-"  # same as security_alerts.BRANCH_PREFIX
+TRIAGE_GLOB = "docs/reports/*security-queue*.md"  # same as security_alerts.TRIAGE_NOTES
+# The reviewed false-positive list (PR #18843); once it is on main the queue lists its
+# alerts under "## Triaged, awaiting dismissal", which is not work either.
+TRIAGE_JSON = "platform/security/codeql-triage.json"
 
-LINE = re.compile(r"^- \[(?P<sev>\w+)\] #(?P<n>\d+) `(?P<rule>[^`]+)` in `(?P<loc>[^`]+)`")
-# "#68–#91", "#1181 to #1203", "#115 to #118", "#7, #42, #43" in the triage notes.
-RANGE = re.compile(r"#(\d+)\s*(?:–|-|to)\s*#?(\d+)")
+LINE = re.compile(r"^- \[(?P<sev>[a-z]+)\] #(?P<n>\d+) `(?P<rule>[^`]+)` in `(?P<where>[^`]+)`")
+# "#68–#91", "#68-#91", "#115 to #118": a range; any other "#123" is one alert.
+RANGE = re.compile(r"#(\d+)\s*(?:–|-|to)\s*#(\d+)")
 SINGLE = re.compile(r"#(\d+)\b")
-MAX_RANGE = 500  # a typo like "#1 to #9999" should not hide the whole queue
+# A triage note also lists what it did *not* check; those numbers are not triaged.
+UNCHECKED = re.compile(r"not checked|unchecked|onward|nobody has read", re.I)
 
 
-def parse_queue(text: str) -> tuple[str, list[dict]]:
-    """('ok'|'empty'|'unavailable', alerts in queue order).
+def parse_queue(text: str) -> tuple[list[dict], str | None]:
+    """The queue's alert lines in order, and its Unavailable: line if it has one."""
+    for line in text.splitlines():
+        if line.startswith("Unavailable:"):
+            return [], line
+    alerts = []
+    for line in text.split("\n## Triaged", 1)[0].splitlines():
+        m = LINE.match(line)
+        if m:
+            alerts.append({"number": int(m["n"]), "severity": m["sev"], "rule": m["rule"],
+                           "where": m["where"], "line": line})
+    return alerts, None
 
-    An Unavailable queue still lists the last known alerts; they are not work until the
-    cause is fixed. Lines under "## Triaged, awaiting dismissal" (PR 18843) are not work.
+
+def triaged_numbers(text: str) -> set[int]:
+    """Alert numbers a triage note lists as false or already fixed.
+
+    Numbers under a heading or on a line that says they were not checked are left out.
     """
-    if "Unavailable:" in text:
-        return "unavailable", []
-    work = text.split("\n## Triaged", 1)[0]
-    alerts = [m.groupdict() | {"n": int(m["n"])} for m in map(LINE.match, work.splitlines()) if m]
-    return ("ok", alerts) if alerts else ("empty", [])
-
-
-def triaged_numbers(texts: list[str]) -> set[int]:
-    """Alert numbers the triage notes already account for (checked, false or fixed).
-
-    Only lines that read as findings count: table rows and list items. Prose such as
-    "the first scan found 977 alerts" never carries a '#'.
-    """
-    seen: set[int] = set()
-    for text in texts:
-        for line in text.splitlines():
-            s = line.lstrip()
-            if not s.startswith(("|", "-", "*")):
-                continue
-            for a, b in RANGE.findall(s):
-                lo, hi = int(a), int(b)
-                if lo <= hi <= lo + MAX_RANGE:
-                    seen.update(range(lo, hi + 1))
-            seen.update(int(n) for n in SINGLE.findall(s))
-    return seen
+    out: set[int] = set()
+    skip_section = False
+    for line in text.splitlines():
+        if re.match(r"^#{1,6} ", line):
+            skip_section = bool(UNCHECKED.search(line))
+            continue
+        if skip_section or UNCHECKED.search(line):
+            continue
+        for a, b in RANGE.findall(line):
+            lo, hi = int(a), int(b)
+            if 0 < hi - lo <= 500:
+                out.update(range(lo, hi + 1))
+        for n in SINGLE.findall(RANGE.sub("", line)):
+            out.add(int(n))
+    return out
 
 
 def json_triaged(text: str) -> set[int]:
+    """Alert numbers in codeql-triage.json; a missing or unreadable file means none."""
     try:
         data = json.loads(text)
     except ValueError:
         return set()
     entries = data.get("false_positives") if isinstance(data, dict) else None
-    return {e["number"] for e in entries or [] if isinstance(e, dict) and isinstance(e.get("number"), int)}
+    return {e["number"] for e in entries or []
+            if isinstance(e, dict) and isinstance(e.get("number"), int)}
 
 
 def claimed_numbers(ls_remote: str) -> set[int]:
     out = set()
     for line in ls_remote.splitlines():
         ref = line.split()[-1] if line.split() else ""
-        tail = ref.removeprefix("refs/heads/" + BRANCH_PREFIX)
-        if tail != ref and tail.isdigit():
-            out.add(int(tail))
+        tail = ref.rsplit(BRANCH_PREFIX, 1)
+        if len(tail) == 2 and tail[1].isdigit():
+            out.add(int(tail[1]))
     return out
 
 
-def workable(alerts: list[dict], claimed: set[int], triaged: set[int]) -> list[dict]:
-    return [a for a in alerts if a["n"] not in claimed and a["n"] not in triaged]
+def pick(alerts: list[dict], claimed: set[int], triaged: set[int]) -> list[dict]:
+    return [a for a in alerts if a["number"] not in claimed and a["number"] not in triaged]
 
 
 def git(*args: str, check: bool = True) -> subprocess.CompletedProcess:
-    return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True, check=check)
+    return subprocess.run(["git", *args], capture_output=True, text=True, check=check)
 
 
-def claim(n: int, base: str) -> bool:
-    """Create the claim branch on origin only if it does not exist yet."""
+def triage_text() -> str:
+    names = git("ls-tree", "--name-only", "origin/main", "docs/reports/", check=False).stdout.split()
+    pat = re.compile("^" + re.escape(TRIAGE_GLOB).replace(r"\*", ".*") + "$")
+    return "\n".join(git("show", f"origin/main:{n}", check=False).stdout
+                     for n in names if pat.match(n))
+
+
+def triaged_on_main() -> set[int]:
+    return (triaged_numbers(triage_text())
+            | json_triaged(git("show", f"origin/main:{TRIAGE_JSON}", check=False).stdout))
+
+
+def claim(n: int) -> str | None:
+    """Push the claim branch, create-only; the claim commit's sha on success, else None.
+
+    An empty --force-with-lease value fails if the branch exists, but only when git has
+    something to push: if two runs both pushed `origin/main` itself, the loser's push of
+    the same sha is "Everything up-to-date", exit 0, and both would think they won
+    (test_security_next.ClaimRaceTest caught this). So each claim pushes its own empty
+    commit on top of origin/main, whose sha no other run can have.
+    """
     ref = f"refs/heads/{BRANCH_PREFIX}{n}"
-    r = git("push", "-q", f"--force-with-lease={ref}:", "origin", f"{base}:{ref}", check=False)
-    return r.returncode == 0
+    env = {"GIT_AUTHOR_NAME": "security-next", "GIT_AUTHOR_EMAIL": "security-next@invalid",
+           "GIT_COMMITTER_NAME": "security-next", "GIT_COMMITTER_EMAIL": "security-next@invalid"}
+    made = subprocess.run(
+        ["git", "commit-tree", "origin/main^{tree}", "-p", "origin/main",
+         "-m", f"claim code-scanning alert #{n} ({secrets.token_hex(8)})"],
+        capture_output=True, text=True, env={**os.environ, **env})
+    if made.returncode != 0:
+        return None
+    sha = made.stdout.strip()
+    r = git("push", f"--force-with-lease={ref}:", "origin", f"{sha}:{ref}", check=False)
+    return sha if r.returncode == 0 else None
 
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
-    ap.add_argument("--claim", action="store_true",
-                    help="push the claim branch for the next workable alert (atomic; tries the next on a lost race)")
-    ap.add_argument("--base", default="origin/main", help="commit the claim branch points at")
+    ap.add_argument("--claim", action="store_true", help="push the claim branch of the alert taken")
+    ap.add_argument("--all", action="store_true", help="list every workable alert")
     args = ap.parse_args(argv)
 
-    fetch = git("fetch", "-q", "--depth=1", "origin", QUEUE_BRANCH, check=False)
-    if fetch.returncode != 0:
-        print(f"Queue branch {QUEUE_BRANCH} not fetched (missing?): {fetch.stderr.strip()[:200]}")
-        print("Nothing to take: go to step 1 of prompt.md.")
-        return 3
-    queue = git("show", f"origin/{QUEUE_BRANCH}:QUEUE.md", check=False)
-    if queue.returncode != 0:
-        print(f"Cannot read QUEUE.md: {queue.stderr.strip()[:200]}")
+    try:
+        git("fetch", "-q", "--depth=1", "origin", QUEUE_BRANCH, "main")
+    except subprocess.CalledProcessError as e:
+        print(f"could not fetch {QUEUE_BRANCH}/main: {e.stderr.strip()}\n"
+              "If the branch does not exist yet, the queue is empty: go to step 1.")
         return 2
-    state, alerts = parse_queue(queue.stdout)
-    if state == "unavailable":
-        print("QUEUE.md says Unavailable: see prompt.md step 0 (check the CodeQL runs on main).")
-        return 3
-    if state == "empty":
-        print("Queue empty: go to step 1 of prompt.md.")
-        return 3
-
+    queue = git("show", f"origin/{QUEUE_BRANCH}:QUEUE.md", check=False).stdout
+    alerts, unavailable = parse_queue(queue)
+    if unavailable:
+        print(unavailable)
+        print("Check the last CodeQL and Security alert queue runs on main (prompt.md, step 0).")
+        return 2
     claimed = claimed_numbers(git("ls-remote", "origin", f"refs/heads/{BRANCH_PREFIX}*").stdout)
-    triaged = triaged_numbers([p.read_text(encoding="utf-8") for p in sorted(ROOT.glob(TRIAGE_GLOB))])
-    if (ROOT / TRIAGE_JSON).is_file():
-        triaged |= json_triaged((ROOT / TRIAGE_JSON).read_text(encoding="utf-8"))
-    todo = workable(alerts, claimed, triaged)
-    print(f"{len(alerts)} listed, {len(claimed & {a['n'] for a in alerts})} claimed, "
-          f"{len(triaged & {a['n'] for a in alerts} - claimed)} more in the triage notes "
-          f"({TRIAGE_GLOB}), {len(todo)} workable.")
+    triaged = triaged_on_main()
+    scanned = re.search(r"Scanned commit: `([0-9a-f]+)`", queue)
+    todo = pick(alerts, claimed, triaged)
+    listed = {a["number"] for a in alerts}
+    print(f"{len(alerts)} alert(s) queued; {len(listed & claimed)} claimed, "
+          f"{len((listed - claimed) & triaged)} more triaged ({TRIAGE_JSON}, {TRIAGE_GLOB}); "
+          f"{len(todo)} workable.")
     if not todo:
-        print("Nothing to take: go to step 1 of prompt.md.")
+        print("None to take: go to step 1 (route).")
         return 3
-
-    for a in todo:
-        if args.claim:
-            if not claim(a["n"], args.base):
-                print(f"#{a['n']}: claim lost (another session pushed it first); trying the next.")
-                continue
-            print(f"Claimed #{a['n']}: branch {BRANCH_PREFIX}{a['n']} on origin.")
-        print(f"Next: [{a['sev']}] #{a['n']} {a['rule']} in {a['loc']}")
-        print(f"Read: git show origin/{QUEUE_BRANCH}:alerts/{a['n']}.md   (its step 0 checks the scan is not stale)")
-        if args.claim:
-            print(f"Work: git checkout -B {BRANCH_PREFIX}{a['n']} {args.base}")
-        return 0
-    print("Every workable alert was claimed while this ran: go to step 1 of prompt.md.")
-    return 3
+    if scanned:
+        print(f"Scanned commit {scanned[1]}: check the file changed since with "
+              f"`git diff --stat {scanned[1]} origin/main -- <path>` before fixing.")
+    for a in todo if args.all else todo[:1]:
+        print(a["line"])
+    if args.claim:
+        for a in todo:
+            sha = claim(a["number"])
+            if sha:
+                print(f"Claimed: pushed {BRANCH_PREFIX}{a['number']}. "
+                      f"Read `git show origin/{QUEUE_BRANCH}:alerts/{a['number']}.md`; "
+                      f"work on it with `git checkout -B {BRANCH_PREFIX}{a['number']} {sha[:12]}` "
+                      "(the branch holds one empty claim commit, so start from it, not origin/main).")
+                return 0
+            print(f"#{a['number']} was claimed by another run first; trying the next.")
+        print("Every workable alert was claimed while this ran: go to step 1.")
+        return 3
+    top = todo[0]["number"]
+    print(f"Next: `git show origin/{QUEUE_BRANCH}:alerts/{top}.md`; claim it with --claim.")
+    return 0
 
 
 if __name__ == "__main__":
