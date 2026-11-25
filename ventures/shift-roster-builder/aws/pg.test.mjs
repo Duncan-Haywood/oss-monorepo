@@ -28,14 +28,21 @@ before(async () => {
     env: await import(new URL("src/env.mjs", RUNTIME)),
   };
   await su(`DROP DATABASE IF EXISTS ${PRODUCT}`);
-  for (const r of [`app_${PRODUCT}`, "rdsmaster_hub"]) await su(`DROP ROLE IF EXISTS ${r}`);
+  await su(`DROP ROLE IF EXISTS app_${PRODUCT}`);
   await su(`DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'rds_iam') THEN CREATE ROLE rds_iam NOLOGIN; END IF; END $$`);
   await su(`DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'entitlement_writer') THEN CREATE ROLE entitlement_writer NOLOGIN; END IF; END $$`);
-  await su(`CREATE ROLE rdsmaster_hub LOGIN PASSWORD 'm' CREATEDB CREATEROLE`);
+  await su(`DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'rdsmaster_hub') THEN CREATE ROLE rdsmaster_hub LOGIN PASSWORD 'm' CREATEDB CREATEROLE; END IF; END $$`);
   await su(`GRANT rds_iam TO rdsmaster_hub WITH ADMIN OPTION`);
   await su(`GRANT entitlement_writer TO rdsmaster_hub WITH ADMIN OPTION`);
 });
-after(async () => { if (rt) await rt.pg.closePools(); });
+after(async () => {
+  if (!rt) return;
+  await rt.pg.closePools();
+  // Leave the server as found: the starter's own e2e drops and re-creates entitlement_writer, which a leftover
+  // database granting it would block.
+  await su(`DROP DATABASE IF EXISTS ${PRODUCT}`);
+  await su(`DROP ROLE IF EXISTS app_${PRODUCT}`);
+});
 
 test("hosted hub on Postgres: migrations as the app role, many concurrent writes, none lost", { skip }, async () => {
   const connect = async (db) => { const c = new pg.Client({ connectionString: url("rdsmaster_hub", "m", db) }); await c.connect(); return c; };
