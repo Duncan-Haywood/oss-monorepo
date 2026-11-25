@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-11-25
+---
 # Polish 2026-11-25: lien-waiver-checker title, links to pay-app guides, WY/MO states
 
 Track: polish/0. Picked item 2 of "Still weakest" in

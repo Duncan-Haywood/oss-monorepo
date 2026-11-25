@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtHg1kMEfZKJgASVVp2",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T19:06:20Z",
+  "ended": "2026-11-25T19:13:15Z",
+  "wall_minutes": 7.14,
+  "tokens_in": 3173838,
+  "tokens_out": 15875,
+  "cost_usd": 1.5753,
+  "tool_calls": 41,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19065",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Polish picks today were mostly chained from the last report's 'Still weakest' list; a small item fit a short run better than the 3-20 min full build + 5-surface screenshot survey the prompt asks for first."
+    },
+    {
+      "file": "platform/pages/select-track.mjs",
+      "issue": "Running it with no slug launches Playwright over every venture page with a <select>, which outlasts the 120 s tool timeout; passing the slug (read-only without --write) is the fast check. The README could say so."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Skipped the five-surface phone/desktop screenshot survey; took item 2 from the previous polish note on a bet #1 front door instead.",
+      "did": "Screenshotted only the changed page (before/after metrics, one image).",
+      "result": "Shipped a scoped SEO/linking and content-accuracy fix in one run."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Did not run the full node --test 'platform/pages/*.test.mjs' suite; the change touches one venture page and its own tests, not the site build.",
+      "did": "Ran the venture's tests (29 pass), check.mjs (publishable, no dead links), description/title baselines and select-track for the page.",
+      "result": "CI covers the rest."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-which-states-make-you-use-their-lien-waiver-form.md (update section)",
+    "docs/reports/polish-2026-11-25-lien-waiver-checker-links-and-states.md"
+  ],
+  "goal": null,
+  "notes": "lien-waiver-checker: query title, 158-char description, card linking 5 pay-app guides + lien calculator, WY/MO added to statutory-form states (from the forms-by-state guide's statute reads), llms.txt to marisstella.app. Tests 29 pass; check.mjs: 13563 pages, no dead links; risk_review: nothing blocked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2bfdce7b-d5f5-5a4f-a1f4-040a0aeb7a38",
+    "transcripts": 1,
+    "first": "2026-11-25T19:06:20Z",
+    "last": "2026-11-25T19:13:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 73,
+        "output": 15875,
+        "thinking": 2922,
+        "cache_read": 3093930,
+        "cache_write_5m": 0,
+        "cache_write_1h": 79835,
+        "api_equivalent_usd": 1.5753,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 73,
+      "output": 15875,
+      "thinking": 2922,
+      "cache_read": 3093930,
+      "cache_write_5m": 0,
+      "cache_write_1h": 79835,
+      "api_equivalent_usd": 1.5753,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 36,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Read": 1,
+      "TaskStop": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.14,
+      "active_minutes": 7.14,
+      "model_minutes": 3.36,
+      "tool_minutes": 3.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "an SEO generalist: title/description, a links card, two state entries with tests, llms.txt, write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 127.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
