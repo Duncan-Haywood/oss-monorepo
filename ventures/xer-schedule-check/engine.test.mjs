@@ -366,6 +366,12 @@ test("CPM: as late as possible takes up free float; loops are found and reported
   const lo = schedule(loopy);
   assert.equal(lo.loops.length, 1);
   assert.equal(lo.loops[0].length, 3);
+  // an activity stuck only because it follows a loop is not a loop itself
+  const downstream = project([task("1", "A", 8), task("2", "B", 8), task("3", "C", 8), task("4", "D", 8)],
+    [link("1", "2", "1"), link("2", "3", "2"), link("3", "1", "3"), link("4", "4", "3")]);
+  const dl = schedule(downstream);
+  assert.equal(dl.loops.length, 1);
+  assert.deepEqual([...dl.loops[0]].sort(), ["1", "2", "3"]);
 });
 
 test("CPM: an ALAP milestone stays zero-length even when the file gives it a remaining duration", () => {
@@ -542,6 +548,9 @@ test("expected finish: sets the remaining duration, absorbs a predecessor's slip
   const slip = schedule(on, { delay: { taskId: "1", minutes: 3 * 8 * 60 } });
   assert.equal(at(slip, on, "B").ef, "2025-12-19 17:00");
   assert.equal(at(slip, on, "C").ef, at(base, on, "C").ef);
+  // the critical path test's delay on B itself goes on top of the expected
+  // finish: 10 d to 12-19, then 3 d more (12-24 a half day, 12-25 off)
+  assert.equal(at(schedule(on, { delay: { taskId: "2", minutes: 3 * 8 * 60 } }), on, "B").ef, "2025-12-26 12:00");
   // without the rule the slip reaches C
   assert.notEqual(at(schedule(on, { expectedFinish: false, delay: { taskId: "1", minutes: 3 * 8 * 60 } }), on, "C").ef, at(base, on, "C").ef);
   // expected finish before B can start: ignored, the stored 80 h stand
@@ -621,4 +630,22 @@ test("red team 2026-11-24: the driving path starts from the finishing activity e
   const x = project([task("1", "A", 40), task("2", "B", 8)], [link("1", "2", "1", "PR_SS")]);
   const out = schedule(x);
   assert.deepEqual(drivingPath(out, "1").map((id) => out.model.tasks.get(id).code), ["A"]);
+});
+
+test("CPM: a negative duration is taken as 0 and reported, never scheduled to finish before it starts", () => {
+  // found by the red team, 2026-11-25: -80 h on a driving activity finished it
+  // two weeks before its start and pulled the project finish in, silently
+  const tasks = (bHours, bOrig = bHours) => [task("1", "A", 40), task("2", "B", bHours, { target_drtn_hr_cnt: bOrig }), task("3", "C", 40)];
+  const preds = [link("1", "2", "1"), link("2", "3", "2")];
+  const zero = project(tasks(0), preds);
+  const neg = project(tasks(-80, -80), preds);
+  const out = schedule(neg);
+  const b = at(out, neg, "B");
+  assert.ok(b.ef >= b.es, `${b.es} to ${b.ef}`);
+  assert.equal(at(out, neg, "C").ef, at(schedule(zero), zero, "C").ef);
+  assert.ok(out.warnings.some((w) => /1 remaining duration value is negative and was taken as 0: B \("-80"\)/.test(w)), JSON.stringify(out.warnings));
+  assert.ok(out.warnings.some((w) => /1 original duration value is negative/.test(w)));
+  // a negative lag is a lead, not an error
+  const lead = project(tasks(8), [link("1", "2", "1", "PR_FS", -8), link("2", "3", "2")]);
+  assert.ok(!schedule(lead).warnings.some((w) => /negative/.test(w)));
 });
