@@ -848,7 +848,8 @@ def next_task(v: Venture) -> str:
                 f"(same tool with `--field buildable`, capped at {FLAGSHIP_BUILDABLE_MAX} characters; "
                 "drop the field when nothing buildable is left)."
             )
-        where = (f"Work in {v.flagship_app} (attach private-monorepo with add_repo, push access; "
+        where = (f"Work in {v.flagship_app} (attach private-monorepo with add_repo, push access; if the clone is refused, "
+                 "that is final: do this bet's public side here instead; "
                  "the paid bet's model is its `app:` row in portfolio/monetization/models.yaml). "
                  if v.flagship_app else "")
         return (

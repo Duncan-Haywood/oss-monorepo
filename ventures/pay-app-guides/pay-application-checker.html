@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b51'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pay Application Checker</title>
+  <meta name="description" content="Why pay applications get sent back, and a free checker that compares this month's draft with last month's approved pay app line by line.">
+  <meta property="og:title" content="Pay application checker: catch the mistakes that get a pay app sent back">
+  <meta property="og:description" content="Paste last month's approved schedule of values and this month's draft. The checker matches every line and flags a wrong previous column, a changed scheduled value, a missing line, a new line that is not a change order, and the wrong previous certificates. Free, in the browser.">
+  <link rel="canonical" href="./pay-application-checker.html">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid var(--input); border-radius: 7px; font: 13px ui-monospace, monospace; background: var(--card); color: var(--ink); }
+    .pill.medium { background: #fef3c7; color: #92400e; }
+    .err { color: #9a3412; font-weight: 600; }
+  </style>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Pay application checker: catch the mistakes that get a pay app sent back", "datePublished": "2026-11-25", "dateModified": "2026-11-25"}</script>
+</head>
+<body>
+<header>
+  <p class="kicker">Pay app guides · <a href="./">schedule of values calculator</a></p>
+  <h1>Why pay applications get sent back, and a checker</h1>
+  <p>A pay application that comes back for corrections usually misses that month's payment cycle, and the GC's reviewer rarely says everything that is wrong the first time. Most of what they mark is not arithmetic inside the new application; it is the new application disagreeing with <em>last month's approved one</em>. A spreadsheet cannot see that. This page lists what a reviewer compares and checks your draft against last month's application line by line.</p>
+  <nav class="guides" aria-label="Guides">
+    <a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a>
+    <a href="change-orders-schedule-of-values.html">Change orders on the SOV</a>
+    <a href="change-order-log.html">Change order log</a>
+    <a href="retainage-explained.html">Retainage explained</a>
+  </nav>
+</header>
+<main>
+<section class="card">
+  <h2>What a reviewer compares with last month</h2>
+  <p>These are the consistency rules of the continuation sheet itself, the same ones the <a href="how-to-fill-out-a-pay-application.html">column-by-column guide</a> explains. Your subcontract and the GC's own instructions can add more (a notarized summary, a particular waiver form, a cut-off date).</p>
+  <div class="scroll"><table class="stack" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">Check</th><th role="columnheader" scope="col">The rule</th><th role="columnheader" scope="col">How it goes wrong</th></tr></thead>
+    <tbody>
+      <tr role="row"><td role="cell" data-label="Check">From previous applications</td><td role="cell" data-label="The rule">On each line, last month's "from previous" plus last month's "this period", as approved.</td><td role="cell" data-label="How it goes wrong">The new sheet is copied from last month's <em>submitted</em> file, not the one the GC approved after cutting a line back.</td></tr>
+      <tr role="row"><td role="cell" data-label="Check">Scheduled values</td><td role="cell" data-label="The rule">Fixed once the schedule of values is approved. Changes come in as change order lines.</td><td role="cell" data-label="How it goes wrong">A line's value is edited to absorb extra work, or money is moved between lines to bill ahead.</td></tr>
+      <tr role="row"><td role="cell" data-label="Check">Lines</td><td role="cell" data-label="The rule">Every line stays, in the same order and numbering, until closeout; new lines are change orders.</td><td role="cell" data-label="How it goes wrong">A finished line is deleted, or a new base-contract line appears with no change order behind it.</td></tr>
+      <tr role="row"><td role="cell" data-label="Check">Previous certificates</td><td role="cell" data-label="The rule">Last month's total earned less retainage (the amount certified to date).</td><td role="cell" data-label="How it goes wrong">It is typed as what was <em>paid</em>, or the last payment alone, so this month's payment due is wrong.</td></tr>
+      <tr role="row"><td role="cell" data-label="Check">Stored materials</td><td role="cell" data-label="The rule">They leave the stored column when installed, and come back as work completed on the same line.</td><td role="cell" data-label="How it goes wrong">Stored goes down but the work billed is smaller, so materials vanish from the sheet or are billed twice.</td></tr>
+      <tr role="row"><td role="cell" data-label="Check">Retainage</td><td role="cell" data-label="The rule">The subcontract rate, unless a reduction was agreed in writing; released retainage only goes up.</td><td role="cell" data-label="How it goes wrong">A rate drops without paperwork, or release is entered as this month's amount instead of to date.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="card" id="checker">
+  <h2>Check this month's draft against last month</h2>
+  <p>Paste each schedule of values with its header row: CSV or straight from a spreadsheet (tab separated). The columns it needs are item, scheduled value, from previous applications, this period, and optionally description and materials presently stored; the <a href="./">calculator's</a> Download CSV works as it is. Lines are matched by item number. Your numbers stay in this browser tab.</p>
+  <p><button type="button" class="secondary" id="sample">Load the example</button></p>
+  <div class="grid">
+    <div><label for="last">Last month's approved schedule of values</label><textarea id="last" spellcheck="false" wrap="off"></textarea></div>
+    <div><label for="draft">This month's draft</label><textarea id="draft" spellcheck="false" wrap="off"></textarea></div>
+  </div>
+  <div class="grid">
+    <div><label for="l-ret">Last month: retainage on work (%)</label><input id="l-ret" inputmode="decimal" value="10"></div>
+    <div><label for="l-ret-stored">Last month: retainage on stored materials (%)</label><input id="l-ret-stored" inputmode="decimal" value="10"></div>
+    <div><label for="l-released">Last month: retainage released to date ($)</label><input id="l-released" inputmode="decimal" value=""></div>
+    <div><label for="d-ret">This draft: retainage on work (%)</label><input id="d-ret" inputmode="decimal" value="10"></div>
+    <div><label for="d-ret-stored">This draft: retainage on stored materials (%)</label><input id="d-ret-stored" inputmode="decimal" value="10"></div>
+    <div><label for="d-released">This draft: retainage released to date ($)</label><input id="d-released" inputmode="decimal" value=""></div>
+    <div><label for="d-prev">This draft: previous certificates for payment ($)</label><input id="d-prev" inputmode="decimal" value=""></div>
+    <div><label for="project">Project (for the copied note)</label><input id="project" value=""></div>
+  </div>
+  <div id="errors" aria-live="polite"></div>
+  <div class="scroll"><table>
+    <tbody>
+      <tr><td>Current payment due on this draft</td><td class="n" id="due"></td></tr>
+      <tr><td>Previous certificates should be (last month's earned less retainage)</td><td class="n" id="expected"></td></tr>
+    </tbody>
+  </table></div>
+  <div id="findings" aria-live="polite"></div>
+  <p><button type="button" id="copy">Copy the list</button></p>
+  <p class="note">The example has four planted mistakes: a scheduled value raised on item 2, a new item 5 that is not numbered as a change order, switchgear stored materials that dropped by more than was billed as installed, and previous certificates typed as last month's payment rather than the total certified. This is a worksheet check, not an approval: the GC, its contract and the owner's architect decide what is payable.</p>
+</section>
+
+<section class="card">
+  <h2>Before you send it</h2>
+  <ul>
+    <li><strong>Start from the approved copy.</strong> If the GC cut a line last month, its "from previous" this month is the cut figure. Ask for the approved continuation sheet if you did not get it back.</li>
+    <li><strong>Attach what changed.</strong> Signed change orders for new CO lines, invoices and storage proof for new stored materials, and the written retainage reduction if the rate moved.</li>
+    <li><strong>Send the right waiver.</strong> A conditional progress waiver for this application's amount, with unpaid change orders written in as exceptions (<a href="conditional-vs-unconditional-lien-waivers.html">which waiver when</a>; the <a href="change-order-log.html">change order log</a> writes the exceptions).</li>
+    <li><strong>Meet the cut-off.</strong> Most GCs collect sub pay apps by a set day so they can bill the owner; late ones roll to next month.</li>
+  </ul>
+</section>
+
+<section class="card cta" id="early-access">
+  <h2>Pay apps that roll themselves forward</h2>
+  <p>We are building hosted pay-app billing for specialty subcontractors: each month's application starts from last month's approved one, change orders flow onto the schedule of values when signed, and retainage and lien waivers are tracked per job. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
+</section>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, or financial advice, and it does not replace your contract, your accountant, or an attorney. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p>Not affiliated with the American Institute of Architects; this page does not reproduce any AIA form.</p>
+  <p><strong>Privacy.</strong> Everything runs in your browser; nothing you paste is uploaded. No accounts, cookies or analytics vendors. Anonymous counters (<code>guide_pay_app_checker_viewed</code>, <code>pay_app_checked</code>, <code>pay_app_check_copied</code>) are kept in local storage on your device only, never with your numbers, and Do Not Track switches them off. <button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
+</footer>
+<script type="module">
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  import { parseSov, checkPayApp, checkText, SAMPLE_LAST, SAMPLE_DRAFT, SAMPLE_SETTINGS } from "./check.mjs";
+  import { fmt } from "./calc.mjs";
+  record("guide_pay_app_checker_viewed");
+  const b = document.getElementById("optout");
+  b.addEventListener("click", () => { setUsageOptOut(true); b.textContent = "Usage counting is off"; b.disabled = true; });
+  if (usageOptedOut()) { b.textContent = "Usage counting is off"; b.disabled = true; }
+
+  const $ = (id) => document.getElementById(id);
+  let result = null, counted = false;
+  const para = (cls, text, pill) => {
+    const p = document.createElement("p"); p.className = cls;
+    if (pill) { const s = document.createElement("span"); s.className = `pill ${pill}`; s.textContent = pill === "high" ? "fix" : pill === "medium" ? "check" : "note"; p.append(s); }
+    p.append(text); return p;
+  };
+  function render() {
+    const L = parseSov($("last").value), D = parseSov($("draft").value);
+    const errs = [...L.errors.map((e) => `Last month: ${e}`), ...D.errors.map((e) => `This draft: ${e}`)];
+    const blank = !$("last").value.trim() && !$("draft").value.trim();
+    $("errors").replaceChildren(...(blank ? [] : errs.map((e) => para("err", e))));
+    if (blank || errs.length) { result = null; $("findings").replaceChildren(); $("due").textContent = ""; $("expected").textContent = ""; $("copy").disabled = true; return; }
+    result = checkPayApp(
+      { lines: L.lines, settings: { workRetainage: $("l-ret").value, storedRetainage: $("l-ret-stored").value, retainageReleased: $("l-released").value } },
+      { lines: D.lines, settings: { workRetainage: $("d-ret").value, storedRetainage: $("d-ret-stored").value, retainageReleased: $("d-released").value, previousCertificates: $("d-prev").value } },
+    );
+    $("due").textContent = fmt(result.draft.totals.currentPaymentDue);
+    $("expected").textContent = fmt(result.expected.previousCertificates);
+    $("findings").replaceChildren(...(result.findings.length ? result.findings.map((f) => para("finding", f.msg, f.level)) : [para("finding", "No mismatches found between the two applications.")]));
+    $("copy").disabled = false;
+    if (!counted) { record("pay_app_checked"); counted = true; }
+  }
+  for (const id of ["last", "draft", "l-ret", "l-ret-stored", "l-released", "d-ret", "d-ret-stored", "d-released", "d-prev"]) $(id).addEventListener("input", render);
+  $("sample").addEventListener("click", () => {
+    $("last").value = SAMPLE_LAST; $("draft").value = SAMPLE_DRAFT;
+    $("d-prev").value = SAMPLE_SETTINGS.draft.previousCertificates; $("project").value = "Example clinic electrical";
+    render();
+  });
+  $("copy").addEventListener("click", async () => {
+    if (!result) return;
+    try { await navigator.clipboard.writeText(checkText(result, { project: $("project").value })); $("copy").textContent = "Copied"; record("pay_app_check_copied"); }
+    catch { $("copy").textContent = "Copy failed: select the list and copy it"; }
+  });
+  render();
+</script>
+</body>
+</html>

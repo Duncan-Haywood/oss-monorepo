@@ -44,3 +44,15 @@ test("validation catches negatives", () => {
   assert.ok(validate({ ...base, machineRate: -1 }).length);
   assert.ok(validate({ ...base, lotsOverProgramLife: 0 }).length);
 });
+
+test("calibration factors scale setup hours and cycle time; blank means 1", () => {
+  const plain = costLot(base, 10);
+  assert.equal(costLot({ ...base, setupFactor: "", cycleFactor: "" }, 10).cost, plain.cost);
+  const r = costLot({ ...base, setupFactor: 1.5, cycleFactor: 1.2 }, 10);
+  assert.equal(r.lines.setup, 150);
+  assert.ok(Math.abs(r.lines.machining - 360) < 1e-9);
+  assert.equal(r.lines.programming, plain.lines.programming);
+  assert.ok(validate({ ...base, cycleFactor: 0 }).length);
+  assert.ok(validate({ ...base, setupFactor: -1 }).length);
+  assert.deepEqual(validate({ ...base, setupFactor: "", cycleFactor: "1.1" }), []);
+});
