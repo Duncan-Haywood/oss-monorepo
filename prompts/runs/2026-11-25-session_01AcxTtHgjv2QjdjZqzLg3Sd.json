@@ -43,6 +43,10 @@
     {
       "file": ".github/prompts/duplicate-work.md",
       "issue": "I searched open PRs for 'ci-minutes' in:title before opening #19007 and found none. A parallel quality-fix session opened and merged #19008 on the same audit row minutes later. The queue's 'open PR naming it' marker can't see a PR that hasn't been opened yet, so two fix sessions that start together can take the same row. Claiming the row on a branch (like security_next.py --claim) would close that race."
+    },
+    {
+      "file": "platform/ci/test_quality_claim.py",
+      "issue": "Red on main after PRs #19013 and #19010 merged minutes apart. #19013's queue test used research/ subjects, and #19010 made queue drop paused research by default, so changed-ventures failed for every PR. Fixed here by switching the test's subjects to ventures/."
     }
   ],
   "deviations": [
@@ -61,7 +65,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Quality mode: fix (seeded by quality_audit.py mode). Subject: ventures/ci-minutes-pricing-calculator (audit 2026-11-19, defects 0 high and 1 medium). Fetched the vendor pricing pages with curl this session: Buildkite $0.004/vCPU-min (small $0.008), Free plan 2,000 vCPU-min, Pro $30/user with 4,000 vCPU-min; Bitbucket Standard $3.65/user with 2,500 min; CircleCI and GitLab matched. Recomputed crossover: GitHub is cheapest above 14,749 min, $888 at 150k, matching the audit's independent figure. The how-to spread claim changed from 4x to 3x ($29 vs $94) and is pinned by a page test. Tests 29/29 pass. Mutants Buildkite 8->13 and Bitbucket 3.65->3 were both caught. Local sweep: 13/13 selected workflows passed; codeql, portfolio-pages and security-gate reached no verdict locally, so the PR's CI decides those. Fix PR: #19007. Scores not raised; a later reaudit will rescore. UPDATE: PR #19008 (a parallel session) merged an identical rate card first. This PR was reduced to the guide wording fix plus a page test (31/31 pass; mutant Bitbucket overage 10->13 caught by page.test.mjs). The post was dropped as a duplicate of 2026-11-25-quality-fix-the-ci-bill-that-changed-winner.md.",
+  "notes": "Quality mode: fix (seeded by quality_audit.py mode). Subject: ventures/ci-minutes-pricing-calculator (audit 2026-11-19, defects 0 high and 1 medium). Fetched the vendor pricing pages with curl this session: Buildkite $0.004/vCPU-min (small $0.008), Free plan 2,000 vCPU-min, Pro $30/user with 4,000 vCPU-min; Bitbucket Standard $3.65/user with 2,500 min; CircleCI and GitLab matched. Recomputed crossover: GitHub is cheapest above 14,749 min, $888 at 150k, matching the audit's independent figure. The how-to spread claim changed from 4x to 3x ($29 vs $94) and is pinned by a page test. Tests 29/29 pass. Mutants Buildkite 8->13 and Bitbucket 3.65->3 were both caught. Local sweep: 13/13 selected workflows passed; codeql, portfolio-pages and security-gate reached no verdict locally, so the PR's CI decides those. Fix PR: #19007. Scores not raised; a later reaudit will rescore. UPDATE: PR #19008 (a parallel session) merged an identical rate card first. This PR was reduced to the guide wording fix plus a page test (31/31 pass; mutant Bitbucket overage 10->13 caught by page.test.mjs). The post was dropped as a duplicate of 2026-11-25-quality-fix-the-ci-bill-that-changed-winner.md. Also fixed main's red platform/ci/test_quality_claim.py (26/26 quality tests pass). GitHub (git and API) was unreachable for about 30 minutes mid-run with 503s and token-refresh errors.",
   "corrections": [],
   "redteam": null,
   "usage": {
