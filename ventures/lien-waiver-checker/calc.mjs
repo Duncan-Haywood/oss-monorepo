@@ -226,9 +226,9 @@ export function analyze(rawText, settings = {}) {
   if (settings.project && !low.includes(settings.project.trim().toLowerCase())) {
     findings.push(f("project-missing", "medium", `The project "${settings.project.trim()}" is not named in the waiver`, "A waiver should identify the job or property it releases.", "Ask for the project and property to be identified."));
   }
-  if (settings.state && FORM_STATES[settings.state]) {
+  if (settings.state && Object.hasOwn(FORM_STATES, settings.state)) {
     findings.push(f("statutory-form", "info", `${FORM_STATES[settings.state]} is a state that is commonly cited as prescribing waiver wording`,
-      "Where a statute prescribes the form, a waiver that does not follow it can be unenforceable, which can cut either way for you." + (FORM_SCOPE[settings.state] || ""),
+      "Where a statute prescribes the form, a waiver that does not follow it can be unenforceable, which can cut either way for you." + (Object.hasOwn(FORM_SCOPE, settings.state) ? FORM_SCOPE[settings.state] : ""),
       "Check the current statute (the statutory lien waiver forms by state guide links each one) or ask your attorney whether this state's statutory form should be used instead."));
   }
 
