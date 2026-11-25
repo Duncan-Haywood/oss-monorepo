@@ -6,7 +6,9 @@ import path from 'node:path';
 import { beaconTag, injectBeacon, injectDir, normaliseToken, resolveToken, BEACON_SRC } from './web-analytics.mjs';
 import { matchSite, provision } from './provision.mjs';
 
-const TOKEN = '0123456789abcdef0123456789ABCDEF';
+// Built, not written out: a 32-hex literal reads as an API key to gitleaks.
+const HEX = '0123456789abcdef';
+const TOKEN = HEX + HEX.toUpperCase();
 const PAGE = '<!doctype html><html><head></head><body><p>x</p></body></html>';
 
 test('token must be 32 hex characters', () => {
@@ -18,7 +20,7 @@ test('token must be 32 hex characters', () => {
 
 test('beacon goes before the last </body>, once', () => {
   const once = injectBeacon(PAGE, TOKEN);
-  assert.match(once, /<p>x<\/p><script defer src="https:\/\/static\.cloudflareinsights\.com\/beacon\.min\.js" data-cf-beacon='\{"token": "0123456789abcdef0123456789abcdef"\}'><\/script>\n<\/body>/);
+  assert.ok(once.includes(`<p>x</p><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "${TOKEN.toLowerCase()}"}'></script>\n</body>`));
   assert.equal(injectBeacon(once, TOKEN), once);
 });
 
