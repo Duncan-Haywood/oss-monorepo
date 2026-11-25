@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01EhTJVMAj1EQzvA6HDVQ615",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T23:55:54Z",
+  "ended": "2026-11-25T00:08:21Z",
+  "wall_minutes": 12.64,
+  "tokens_in": 4876324,
+  "tokens_out": 32010,
+  "cost_usd": 2.479,
+  "tool_calls": 47,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18746",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A foreground cleanup `rm ../../../../tmp_tex.out` was refused by the safety check (relative path after cd); reran the compile with output in the scratchpad instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/marine-hull/LOG.md",
+      "issue": "7zzf's Next named a pitch sensitivity 'toward boatmath's quoted tank trend' without the numbers; they are in boatmath docs/seakeeping-findings.md (one B55 row at omega' 2.2), which cost a clone and a grep to find."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Section D (Fn 0.3 and 0.4 with the same pitch-damping scaling) was added after the registered expectations were read, because the Fn 0.2 closure alone would have overstated the finding.",
+      "did": "Labelled it post hoc in the results file, LOG, README, paper and post.",
+      "result": "It is the step's main qualifier: one factor cannot fit all three speeds."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-marine-hull-pitch-damping-lever.md",
+    "research/marine-hull/LOG.md (7zzg entry)"
+  ],
+  "goal": null,
+  "notes": "Local checks: tests test_pitch_sensitivity (4), test_journee_tables, test_paper_paragraphs OK; check_numbers ok; build.py ok; check_md_links ok; check_posts ok; paper compiled 8 pages, no warnings. Unrelated test_planing needs pytest (absent in bare python3). risk_review: no owner review needed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f015d33b-a856-58f9-af87-f251b1e8ddb2",
+    "transcripts": 1,
+    "first": "2026-11-24T23:55:54Z",
+    "last": "2026-11-25T00:08:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 87,
+        "output": 32010,
+        "thinking": 7181,
+        "cache_read": 4765576,
+        "cache_write_5m": 0,
+        "cache_write_1h": 110661,
+        "api_equivalent_usd": 2.479,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 87,
+      "output": 32010,
+      "thinking": 7181,
+      "cache_read": 4765576,
+      "cache_write_5m": 0,
+      "cache_write_1h": 110661,
+      "api_equivalent_usd": 2.479,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 44,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.64,
+      "active_minutes": 12.64,
+      "model_minutes": 5.72,
+      "tool_minutes": 6.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a postdoc scripting a strip-theory sensitivity, reading the third-party source, rerunning and writing up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 242.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -222,6 +222,14 @@ One session should produce something usable. Concretely:
   well, beats five half-workflows.
 - **Traditional software first.** Deterministic code is testable, fast, cheap,
   and doesn't hallucinate. Reach for a model when the model *is* the feature.
+- **The cheapest model that does the job correctly** (owner, 2026-11-24: "use
+  the cheapest model that does the job correctly ... no need to use opus for a
+  haiku task"). Start each model purpose on the cheapest current model (Haiku),
+  and move that purpose up to Sonnet or Opus only when the product's evals show
+  the cheaper one getting it wrong; write down the purpose and the failing case.
+  This is what keeps paid plans above the 40% margin floor
+  (`portfolio/monetization/mrr.yaml`): Grant Autopilot's drafts went from about
+  $1.30 each on Opus to about $0.03 on Haiku.
 - **Tests where they protect the user-visible behaviour**, not for coverage.
   The venture's existing test command is the bar — run it.
 - **Run the product itself**, not just its tests. Open the page, run the CLI,

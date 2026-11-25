@@ -105,6 +105,22 @@ replace that work.
   [`portfolio/monetization/mrr.yaml`](../portfolio/monetization/mrr.yaml).
   Only the owner can read the merchant dashboard, so only the owner fills in a
   reading. An empty month is unmeasured, never zero.
+- **Margins: 40 to 60% is the minimum goal, not a ceiling** (owner, 2026-11-24:
+  "we want to aim for min 40-60% margins in the products"; and "the 40-60
+  isn't a limit for how high the margins go but a sort of minimal goal").
+  Higher is better. Margin is one minus the full
+  cost of serving a plan used to its whole allowance (model tokens, hosting,
+  merchant fees, a refund reserve) over its price, monthly and annual billing
+  both. Below 40% a plan fails CI (`packages/billing` in `private-monorepo`;
+  `evaluate.mjs --check` here); 60% or more is what to aim for, and there is
+  no upper limit.
+- **The cheapest model that does the job correctly** (owner, same day: "use
+  the general principle in products of use the cheapest model that does the
+  job correctly you know. no need to use opus for a haiku task"). Start each
+  model purpose on Haiku and move it up to Sonnet or Opus only when the
+  product's evals show the cheaper one getting it wrong, writing down why.
+  Grant Autopilot's drafts went from about $1.30 each on Opus to about $0.03
+  on Haiku (`PRODUCT_PLAYBOOK.md`, section 4).
 - **Where it comes from.** Payments run through Paddle (Guardrails,
   "Payments"). The revenue comes from the subscription products in
   [`LICENSING_TRANSITION.md`](../portfolio/monetization/LICENSING_TRANSITION.md)
