@@ -567,3 +567,28 @@ now uses the shop's own quote log for this:
 
 Everything stays inside the shop's own account: no other shop's quotes are
 read, and nothing here estimates a price the shop has not set.
+
+## Update, 25 November 2026: quoting from a phone on the shop floor
+
+Estimators in small shops are often the owner or the lead machinist, and the
+RFQ gets read on a phone between setups. The quote page of the RFQ-to-quote
+app (bet #2, still in private development, not yet on sale) was 509 pixels
+wide on a 390-pixel phone once a line had prices, so the whole page slid
+sideways under a thumb. Now:
+
+- **Nothing on the page slides sideways.** The price breakdown (quantity,
+  material, setup, run, finishing, extras, markup, unit price, total) scrolls
+  inside its own box, with the quantity column pinned so each row still
+  reads as "100 pieces: ...", and a hint to swipe for unit price and total.
+- **Operations fit a thumb.** Each machine operation (machine, op name, setup
+  minutes, cycle minutes per piece) stacks two fields to a row with a
+  labelled Remove button, instead of five fields squeezed into one line.
+- **The RFQ and team pages too.** Every signed-in page was checked at 390
+  pixels wide; the RFQ page (460) and the team page (406) also overflowed and
+  now fit.
+
+The cause was a browser default: a form section (`<fieldset>`) never gets
+narrower than its widest content, so one nine-column table stretched the
+whole page. A check that signs up, builds a priced quote and measures all
+eleven pages at phone width now runs against the offline demo, so the next
+change that breaks this is caught before it ships.
