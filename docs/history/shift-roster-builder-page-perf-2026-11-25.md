@@ -70,7 +70,7 @@ load).
   of the seven. 26/26 pass (was 25; the inline-script parse check still passes,
   as every `await` sits inside an async function).
 - Full suite: `python3 platform/ci/run_venture_tests.py shift-roster-builder`
-  (result in the run record's notes).
+  -> ok, 786 tests in 242.8 s, 0 failed.
 
 ## Not changed, ranked for the next run
 
