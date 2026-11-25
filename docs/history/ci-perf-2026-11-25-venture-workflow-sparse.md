@@ -93,11 +93,17 @@ Locally on the changed workflow files: `priv-ci-policy.yml`,
 `run_workflow_locally.py`; `validate_workflows.py`: all 137 valid.
 `priv-security-gate.yml` needs the PR's own data, so CI runs it.
 
-The blob filter could not be measured locally (the worktree shares the full
-object store), the same limit `ci-perf-2026-11-03-prompts-sparse.md` hit.
-**The after number has to come from `ci_profile.py` on later runs**: the
-median checkout seconds of these 44 workflows, before 43 s.
-Expected from the earlier sparse passes: single-digit seconds.
+## After
+
+This PR's own CI ran every changed workflow (head b966f6a1f). Step
+timestamps from `actions/runs/<id>/jobs` for the 59 jobs of the 44 changed
+workflows: **checkout median 2 s (max 7 s), job median 8 s**, against 43 s
+and about 50 s before. At the window's rate that is about 30 job-minutes
+saved per 1,000 runs. The local worktree could not measure this (it shares
+the full object store). One job failed: deploy-concurrency-check's scan of
+this repository's workflows, which has been red on `main` since
+2026-11-19 (12 findings in other workflows) and failed the same way in the
+full tree here.
 
 ## Not changed (ranked)
 

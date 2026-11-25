@@ -48,7 +48,7 @@
       "file": "prompts/perf/prompt-0.md",
       "why": "Skipped the two open perf backlog items (both have stalled duplicate PRs) and took the pool reading's largest unclaimed consumer: checkout in per-venture workflows.",
       "did": "Sparse checkout on 44 workflows, verified by a new full-vs-sparse comparison script.",
-      "result": "Landed; after number pending on CI readings."
+      "result": "Landed; checkout 43 s -> 2 s median per job on the PR's own CI."
     },
     {
       "file": "prompt.md",
@@ -62,7 +62,7 @@
     "docs/posts/2026-10-20-we-almost-rewrote-it-in-rust.md (new section)"
   ],
   "goal": null,
-  "notes": "Metric: median checkout seconds per job of the 44 changed per-venture workflows (ci_profile.py). Before: 43 s median (range 30-59 s), 33.8 of 40.3 job-minutes across 33 of them that ran in a 1000-run window (2026-11-25 00:49-01:23 UTC); pool total 806.2 job-min, checkout 374.1. After: not measurable locally (worktree shares the object store); read from ci_profile.py on later runs. Verification: sparse_checkout_verify-style comparison of exit codes and test counts for each workflow, 44 matched, 6 rejected, 16 unchecked; local run_workflow_locally on priv-ci-policy, workflow-self-audit, priv-control-plane-guard, agent-permission-harness-ci, secrets-inventory-ci, priv-conflict-markers-ci all exit 0; validate_workflows.py 137 valid.",
+  "notes": "Metric: median checkout seconds per job of the 44 changed per-venture workflows (ci_profile.py). Before: 43 s median (range 30-59 s), 33.8 of 40.3 job-minutes across 33 of them that ran in a 1000-run window (2026-11-25 00:49-01:23 UTC); pool total 806.2 job-min, checkout 374.1. After: from this PR's own CI (59 jobs of the 44 changed workflows, step timestamps from actions/runs/<id>/jobs): checkout median 2 s (max 7 s), job median 8 s (before ~50 s). Not measurable locally (worktree shares the object store). deploy-concurrency-check 'Scan this repository's own workflows' failed, as it has on main since 2026-11-19. Verification: sparse_checkout_verify-style comparison of exit codes and test counts for each workflow, 44 matched, 6 rejected, 16 unchecked; local run_workflow_locally on priv-ci-policy, workflow-self-audit, priv-control-plane-guard, agent-permission-harness-ci, secrets-inventory-ci, priv-conflict-markers-ci all exit 0; validate_workflows.py 137 valid.",
   "corrections": [],
   "redteam": null,
   "usage": {
