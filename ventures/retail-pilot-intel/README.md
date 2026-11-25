@@ -26,7 +26,7 @@ Deploy the private docs site to its own free-plan Cloudflare Worker (optionally 
 3. Sign in as **Owner** — Business value is first in the nav; ROI banner on Overview
 4. Tour order for stakeholders: **Business value** → **Overview** → **Products** (SKU gap) → **Experiments** → **Trust** (privacy gate)
 5. Use the **Presenter guide** at the bottom of each page for talking points
-6. Optional live Overview KPIs: `pnpm bootstrap`, then `pnpm exec tsx packages/analytics/src/cli.ts serve-kpis`, then `VITE_PILOT_API_URL=http://127.0.0.1:8787 pnpm portal:dev`. Unset the env var to keep illustrative `demoStore` numbers.
+6. Optional live Overview KPIs: `pnpm bootstrap`, then `pnpm exec tsx packages/analytics/src/cli.ts serve-kpis` (add `--store <id>` once the database holds more than one store), then `VITE_PILOT_API_URL=http://127.0.0.1:8787 pnpm portal:dev`. Unset the env var to keep illustrative `demoStore` numbers.
 
 Built docs are verified in CI and uploaded as a GitHub Actions artifact. On push to `main`, they are also published to **private GitHub Pages** when enabled (see [Hosting docs](#hosting-docs-private)). Passcode gate + `noindex` by default.
 
@@ -114,7 +114,7 @@ Full matrix with scores, monthly € math, and payback: `pnpm docs:dev` → **RO
 
 From the quality audit of 2026-11-19 ([`portfolio/quality/audits/2026-11-19-retail-pilot-intel.json`](../../portfolio/quality/audits/2026-11-19-retail-pilot-intel.json)):
 
-- **Daily KPIs are by UTC date and not split by store** (`packages/analytics/src/report.ts`): a second store's receipts, or a sale after midnight in Rome, land in the wrong store or day, and EUR and USD are summed. Needs a `store_id` filter and Europe/Rome day boundaries.
+- Fixed since the audit: daily KPIs now use the store's local day (Europe/Rome by default, `--tz` to change; 23 h and 25 h on clock-change days) and one store at a time (`--store ID` on `report` and `serve-kpis`). A database holding two stores, or one day's sales in two currencies, gets an error (HTTP 409 from the KPI API) instead of a summed number. Hourly buckets are still not built.
 - A basket whose discount or refund line is rejected is still imported at full price (`packages/pos/src/importer.ts`).
 - `pnpm bootstrap` prints an all-zero report, because its sample events are marked synthetic and left out.
 - The door camera is a stub; SKU gap, upsell and experiments are demo data only.
