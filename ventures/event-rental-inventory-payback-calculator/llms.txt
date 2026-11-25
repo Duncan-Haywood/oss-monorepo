@@ -2,7 +2,7 @@
 
 > Free calculator for party and event rental companies. Enter what each item costs, what a rental earns, how often it goes out, handling, breakage and storage; it ranks your inventory by return, shows payback and the lowest price per item. Nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/event-rental-inventory-payback-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/event-rental-inventory-payback-calculator): FSL-1.1-MIT licensed.

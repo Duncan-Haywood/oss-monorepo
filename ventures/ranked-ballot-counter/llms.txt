@@ -2,7 +2,7 @@
 
 > Free ranked-choice vote counter for clubs, associations, co-ops, boards, unions, student bodies and polls. Paste ranked ballots (A > B > C lines, one row per ballot, or a Google Forms multiple choice grid CSV) and it gives the instant-runoff winner round by round, a multi-seat single transferable vote count (Droop quota, weighted inclusive Gregory transfers, 5-decimal values), the Schulze ranking with the Condorcet winner if there is one, the head-to-head table, and the candidate with most first choices. Every round is shown and downloadable as CSV; ties are broken by earlier rounds, then by a seeded lot. Runs in the browser; nothing is uploaded. Not certified election software and not for public elections.
 
-Free and open source (MIT). Checked against published worked examples, property tests on random elections, and a separately written Python recount (3,000 random elections: all 1,909 untied IRV winners and all 3,000 Schulze rankings agree). Not legal or professional advice; an organisation's own rules decide the method and the tie rule.
+Free to use and source available (FSL-1.1-MIT). Checked against published worked examples, property tests on random elections, and a separately written Python recount (3,000 random elections: all 1,909 untied IRV winners and all 3,000 Schulze rankings agree). Not legal or professional advice; an organisation's own rules decide the method and the tie rule.
 
 ## Pages
 
@@ -21,4 +21,4 @@ Free and open source (MIT). Checked against published worked examples, property 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ranked-ballot-counter): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ranked-ballot-counter): FSL-1.1-MIT licensed.

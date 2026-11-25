@@ -120,4 +120,4 @@ survive, export your inputs and run it yourself.
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional
 and never changes what the tool does.
 
-MIT licensed — see [`LICENSE`](LICENSE).
+FSL-1.1-MIT licensed — see [`LICENSE`](LICENSE).

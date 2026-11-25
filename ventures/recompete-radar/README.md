@@ -33,4 +33,4 @@ Tests: `node --test 'ventures/recompete-radar/*.test.mjs'`
 
 Join SAM.gov opportunity notices to calendar rows (needs a free SAM.gov API key supplied by the user), flag small-business set-aside history per office, and add multi-NAICS watchlists saved locally.
 
-Not affiliated with the U.S. government. Not legal or procurement advice. MIT licensed.
+Not affiliated with the U.S. government. Not legal or procurement advice. FSL-1.1-MIT licensed.

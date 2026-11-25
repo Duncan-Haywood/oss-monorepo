@@ -2,7 +2,7 @@
 
 > Free browser tracker for online and multi-channel sellers: enter trailing-12-month gross sales and transaction count by state, and see which states' economic-nexus sales-tax-registration thresholds you've crossed, per state, against each state's own published $100k/$250k/$500k and 200-transaction figures.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## What it answers
 
@@ -17,4 +17,4 @@ In 40 states and DC, an out-of-state seller must register and collect sales tax 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/economic-nexus-threshold-tracker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/economic-nexus-threshold-tracker): FSL-1.1-MIT licensed.

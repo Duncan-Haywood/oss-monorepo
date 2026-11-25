@@ -41,7 +41,7 @@ Citations:
 ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}. doi:${p.doi}`).join("\n")}
 
 Arithmetic on the numbers you give, not legal, tax or financial advice; a court,
-contract or statute may require a different division. No warranty. MIT licence.
+contract or statute may require a different division. No warranty. FSL-1.1-MIT licence.
 Web version: https://marisstella.app/cost-sharing-calculator/`;
 
 const FLAGS = { "--mode": "mode", "--game": "game", "--total": "total", "--estate": "estate", "--unit": "unit" };

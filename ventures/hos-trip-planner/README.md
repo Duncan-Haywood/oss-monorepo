@@ -17,4 +17,4 @@ which used to be a mental sum of 11, 14, 8 and 70.
 Modelled: 11-hour driving limit, 14-hour window, 30-minute break after 8 hours of driving (a 30+ minute dwell counts),
 10-hour reset, 60/70-hour cycle with an optional 34-hour restart (49 CFR 395.3).
 Not modelled: sleeper-berth splits, adverse driving conditions, exemptions, state/Canadian rules, days rolling off the
-cycle. Not a logbook or ELD, and not legal advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
+cycle. Not a logbook or ELD, and not legal advice. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

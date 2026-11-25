@@ -2,7 +2,7 @@
 
 > Free wholesale line sheet maker for makers and small brands: set wholesale prices from MSRP or cost, check your margin and the retailer's margin, simulate boutique orders with tier discounts and minimums, and print a priced line sheet. No signup, works offline, data stays on your device.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wholesale-line-sheet-maker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wholesale-line-sheet-maker): FSL-1.1-MIT licensed.

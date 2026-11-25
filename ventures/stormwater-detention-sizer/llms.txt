@@ -2,7 +2,7 @@
 
 > Free, open-source stormwater detention basin sizer for site civil work in US units: NRCS curve-number runoff, the NRCS triangular unit hydrograph, an alternating-block design storm from an IDF curve (i = a/(t+b)^n), storage-indication routing through a rectangular basin with sloped sides, and a two-stage outlet (bottom orifice, weir above it) sized by bisection so each storm's post-development peak outflow equals its allowable (the pre-development peak unless entered). Reports orifice diameter, weir length and crest, peak stages and storage, basin depth with freeboard, and every step's hydrograph as CSV. Runs in the browser; nothing is uploaded.
 
-Free and open source (MIT). A screening calculation, not engineering advice; the local drainage manual and a licensed engineer decide the design.
+Free to use and source available (FSL-1.1-MIT). A screening calculation, not engineering advice; the local drainage manual and a licensed engineer decide the design.
 
 ## Pages
 
@@ -22,4 +22,4 @@ Free and open source (MIT). A screening calculation, not engineering advice; the
 
 ## Source
 
-- [Source code, CLI and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/stormwater-detention-sizer): MIT licensed. `node cli.mjs --areaAc 8 --postCN 90 --length 120 --width 80`, add `--csv` for the hydrographs.
+- [Source code, CLI and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/stormwater-detention-sizer): FSL-1.1-MIT licensed. `node cli.mjs --areaAc 8 --postCN 90 --length 120 --width 80`, add `--csv` for the hydrographs.

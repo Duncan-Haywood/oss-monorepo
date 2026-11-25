@@ -22,7 +22,7 @@
 // settings), so "today" is worked out in that zone. Errors come back as HTTP 200 with { result: "error", message }.
 // Long fetches are cut into windows of 180 days so a server archiving reports on demand is not asked for years at once.
 //
-// Statistical analysis of data you supply, not advice. MIT licence.
+// Statistical analysis of data you supply, not advice. FSL-1.1-MIT licence.
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname } from 'node:path';

@@ -119,7 +119,7 @@ test("robots, sitemap, README, LICENSE, VENTURE.yaml and data source exist", () 
   assert.match(page("sitemap.xml"), /index\.html/);
   assert.match(page("README.md"), /No warranty/);
   assert.match(page("README.md"), /## Verification/);
-  assert.match(page("LICENSE"), /MIT License/);
+  assert.match(page("LICENSE"), /Functional Source License/);
   assert.match(page("VENTURE.yaml"), /^name: matrix-profile-explorer$/m);
   assert.match(page("VENTURE.yaml"), /production: https:\/\/marisstella\.app\/matrix-profile-explorer\//);
   const src = page("data/SOURCE.md");

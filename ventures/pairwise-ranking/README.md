@@ -148,4 +148,4 @@ Davidson (1970, doi:10.1080/01621459.1970.10481082); Davidson & Beaver
 Provided free and as-is, without warranty of any kind. Statistics on the
 results you enter, not betting, financial or professional advice. Not
 affiliated with the authors of the cited papers, any league, club,
-federation or rating body. MIT licence.
+federation or rating body. FSL-1.1-MIT licence.

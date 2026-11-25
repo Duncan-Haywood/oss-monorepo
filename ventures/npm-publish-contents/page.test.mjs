@@ -110,6 +110,6 @@ test("links: siblings, guide, robots, sitemap, README, llms.txt, LICENSE and VEN
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("README.md"), /No warranty/);
   assert.match(page("llms.txt"), /^# npm Publish Contents/);
-  assert.match(page("LICENSE"), /MIT License/);
+  assert.match(page("LICENSE"), /Functional Source License/);
   assert.match(page("VENTURE.yaml"), /^name: npm-publish-contents$/m);
 });

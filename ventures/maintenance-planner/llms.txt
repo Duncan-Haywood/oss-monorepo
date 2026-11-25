@@ -2,7 +2,7 @@
 
 > Free browser CMMS for small plants, workshops, facilities and fleets: preventive maintenance by calendar, meter or whichever comes first (fixed or floating schedules), work orders with checklists and parts, spare-part reorder points with safety stock, PM compliance by the 10% rule, a 12-week labour forecast, and a censored Weibull fit of each asset's failures that says whether scheduled replacement helps and at what age. No account, no per-user fee; data stays in the browser and in exported files.
 
-Free and open source (MIT). Not engineering or safety advice; equipment makers' instructions and statutory inspections come first.
+Free to use and source available (FSL-1.1-MIT). Not engineering or safety advice; equipment makers' instructions and statutory inspections come first.
 
 ## Pages
 
@@ -17,4 +17,4 @@ Free and open source (MIT). Not engineering or safety advice; equipment makers' 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/maintenance-planner): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/maintenance-planner): FSL-1.1-MIT licensed.

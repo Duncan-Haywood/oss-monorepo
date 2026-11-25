@@ -43,7 +43,7 @@
       <tbody>
         <tr><td>Setup</td><td>Connect your Stripe account (read access to billing data) and wait for the import</td><td>Export a CSV from the Stripe Dashboard, drop it in the page or run <code>node cli.mjs</code></td></tr>
         <tr><td>Where your data goes</td><td>To the vendor, under its terms and security practices</td><td>Nowhere. Read in your browser tab or local process; the page makes no network requests with your file</td></tr>
-        <tr><td>Cost</td><td>Check each vendor's current pricing page</td><td>Free, MIT licensed</td></tr>
+        <tr><td>Cost</td><td>Check each vendor's current pricing page</td><td>Free, FSL-1.1-MIT licensed</td></tr>
         <tr><td>MRR, new and churned MRR, logo and revenue churn</td><td>Yes</td><td>Yes, from start and cancel dates and amounts</td></tr>
         <tr><td>Cohort retention by start month</td><td>Yes</td><td>Yes</td></tr>
         <tr><td>Expansion and contraction MRR (upgrades, downgrades)</td><td>Yes, from invoice and event history</td><td><strong>No.</strong> Each subscription's MRR is held constant</td></tr>
@@ -87,7 +87,7 @@ node cli.mjs subscriptions.csv --max-churn 5   # exit 1 if monthly logo churn &g
     <p>No. This project is not affiliated with, endorsed by or sponsored by ChartMogul, Baremetrics, Paddle or Stripe. Their names are used only to describe what each kind of tool does.</p>
   </section>
 
-  <p class="fine">Free, open source (MIT). Estimates from the dates and amounts in your file; not legal, tax, or financial advice. No warranty. <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor</a>.</p>
+  <p class="fine">Free, source available (FSL-1.1-MIT). Estimates from the dates and amounts in your file; not legal, tax, or financial advice. No warranty. <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor</a>.</p>
 </div>
 </body>
 </html>

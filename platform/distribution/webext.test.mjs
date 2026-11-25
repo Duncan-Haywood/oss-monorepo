@@ -32,6 +32,16 @@ test('rewritePage refuses what MV3 cannot run or what reaches out', () => {
   assert.equal(rewritePage('<p onclick-free>ok</p>').skip, undefined);
 });
 
+test('a literal dynamic import of a local file is bundled; import(expr) and a package import are refused', async () => {
+  assert.equal(rewritePage('<script type="module">const m = () => import("./lazy.mjs");</script>').skip, undefined);
+  assert.match(rewritePage('<script>import(url)</script>').skip, /network/);
+  const page = '<title>Demo Tool — x</title><meta name="description" content="Does a thing."><script type="module">const m = () => import("./lazy.mjs");</script>';
+  const dir = await fixture({ 'lazy.mjs': 'export const x = 1;\n' });
+  const r = await importedFiles(dir, [page]);
+  assert.deepEqual(r.files, ['lazy.mjs']);
+  assert.match((await importedFiles(dir, ['import("left-pad")'])).skip, /imports "left-pad"/);
+});
+
 async function fixture(files) {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'webext-'));
   for (const [n, b] of Object.entries(files)) await fs.writeFile(path.join(dir, n), b);
@@ -40,7 +50,7 @@ async function fixture(files) {
 const PAGE = '<title>Demo Tool — x</title><meta name="description" content="Does a thing."><script type="module">import { f } from "./calc.mjs"; f();</script>';
 
 test('buildExtension bundles the closure, asks for no permissions, and has no remote code', async () => {
-  const dir = await fixture({ 'index.html': PAGE, 'calc.mjs': 'import {g} from "./g.mjs"; export const f=()=>g;', 'g.mjs': 'export const g=1', LICENSE: 'MIT License\n' });
+  const dir = await fixture({ 'index.html': PAGE, 'calc.mjs': 'import {g} from "./g.mjs"; export const f=()=>g;', 'g.mjs': 'export const g=1', LICENSE: 'Functional Source License\n' });
   const e = await buildExtension({ slug: 'demo', dir });
   const m = JSON.parse(e.files['manifest.json']);
   assert.equal(m.manifest_version, 3);
@@ -51,14 +61,14 @@ test('buildExtension bundles the closure, asks for no permissions, and has no re
   assert.equal(Buffer.from(e.files['icons/128.png']).subarray(1, 4).toString(), 'PNG');
 });
 
-test('buildExtension skips a tool with a package import, a missing import or no MIT licence', async () => {
-  const pkg = await fixture({ 'index.html': PAGE, 'calc.mjs': 'import x from "left-pad";', LICENSE: 'MIT License' });
+test('buildExtension skips a tool with a package import, a missing import or no FSL-1.1-MIT licence', async () => {
+  const pkg = await fixture({ 'index.html': PAGE, 'calc.mjs': 'import x from "left-pad";', LICENSE: 'Functional Source License' });
   assert.match((await buildExtension({ slug: 'a', dir: pkg })).skip, /left-pad/);
-  const miss = await fixture({ 'index.html': PAGE, LICENSE: 'MIT License' });
+  const miss = await fixture({ 'index.html': PAGE, LICENSE: 'Functional Source License' });
   assert.match((await buildExtension({ slug: 'a', dir: miss })).skip, /missing calc.mjs/);
   const lic = await fixture({ 'index.html': PAGE, 'calc.mjs': 'export const f=1', LICENSE: 'proprietary' });
   assert.match((await buildExtension({ slug: 'a', dir: lic })).skip, /MIT/);
-  const net = await fixture({ 'index.html': PAGE, 'calc.mjs': 'export const f=()=>fetch("x")', LICENSE: 'MIT License' });
+  const net = await fixture({ 'index.html': PAGE, 'calc.mjs': 'export const f=()=>fetch("x")', LICENSE: 'Functional Source License' });
   assert.match((await buildExtension({ slug: 'a', dir: net })).skip, /network/);
 });
 
@@ -89,9 +99,17 @@ test('the real shift-roster-builder qualifies', async () => {
   assert.equal(ok.length, 1);
 });
 
-test('a dynamic import of a packaged relative file is local; any other import() is network', () => {
-  const page = (js) => `<!doctype html><title>T</title><script type="module">${js}</script>`;
-  assert.ok(!rewritePage(page('const m = await import("./importer.mjs");')).skip);
-  assert.equal(rewritePage(page('await import(url);')).skip, 'inline script reaches the network');
-  assert.equal(rewritePage(page('await import("https://cdn.example/x.mjs");')).skip, 'inline script reaches the network');
+test('a dynamic import of a local file is packaged, not read as the network', async () => {
+  // shift-roster-builder loads its importers on first use (PR #18712); the
+  // packager skipped it as "inline script reaches the network"
+  const ok = rewritePage('<script type="module">const f = () => import("./a.mjs");</script>');
+  assert.equal(ok.skip, undefined);
+  for (const body of ['import("https://x.example/a.js")', 'import(name)', 'import(`./${n}.mjs`)']) {
+    assert.match(rewritePage(`<script type="module">${body}</script>`).skip ?? '', /network/, body);
+  }
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'webext-dyn-'));
+  await fs.writeFile(path.join(dir, 'a.mjs'), 'export const a = () => import("./b.mjs");\n');
+  await fs.writeFile(path.join(dir, 'b.mjs'), 'export const b = 1;\n');
+  const imp = await importedFiles(dir, ['const f = () => import("./a.mjs");']);
+  assert.deepEqual(imp.files, ['a.mjs', 'b.mjs']);
 });

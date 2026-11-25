@@ -19,7 +19,7 @@ async function fixture(files) {
   }
   return root;
 }
-const MIT = 'MIT License\n\nCopyright (c) x';
+const MIT = 'Functional Source License\n\nCopyright (c) x';
 const nodeTool = (slug) => ({
   [`ventures/${slug}/cli.mjs`]: '#!/usr/bin/env node\nimport { f } from "./lib.mjs";\nconsole.log(f());\n',
   [`ventures/${slug}/lib.mjs`]: 'export const f = () => 1;\n',

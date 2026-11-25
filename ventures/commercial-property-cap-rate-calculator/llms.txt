@@ -2,7 +2,7 @@
 
 > Free commercial real estate calculator: enter rent, vacancy and expenses to get NOI, property value at a cap rate, DSCR, cash-on-cash return, break-even occupancy and a cap-rate sensitivity grid. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/commercial-property-cap-rate-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/commercial-property-cap-rate-calculator): FSL-1.1-MIT licensed.

@@ -2,7 +2,7 @@
 
 > Free Schengen 90/180 day rule calculator: paste your past stays to see days used and left, the date your allowance returns, the longest trip from a planned entry date and your last permitted exit. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/schengen-90-180-day-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/schengen-90-180-day-calculator): FSL-1.1-MIT licensed.

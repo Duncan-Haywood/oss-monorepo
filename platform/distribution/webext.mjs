@@ -28,22 +28,11 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, '..', '..');
 export const VERSION = '0.1.0';
 const REPO_URL = 'https://github.com/duncan-haywood/oss-monorepo';
-const SCRIPT_RE = /<script\b([^>]*)>([\s\S]*?)<\/script\b[^>]*>/gi;
-
-/** The page without its script elements, repeated until nothing changes. */
-function withoutScripts(html) {
-  let prev;
-  let out = html;
-  do {
-    prev = out;
-    out = out.replace(SCRIPT_RE, '');
-  } while (out !== prev);
-  return out;
-}
-// A dynamic import of a literal relative path ("./x.mjs") loads a file that
-// importedFiles() packages into the extension, so it stays local; any other
-// import() could load code from the network.
-const NETWORK_RE = /\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts|\bimport\s*\((?!\s*["']\.{1,2}\/)/;
+const SCRIPT_RE = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
+// import("./x.mjs") with a relative string is a local file: importsOf() follows
+// it and the file is packaged. Any other dynamic import (a URL, a variable, a
+// template) could fetch from anywhere.
+const NETWORK_RE = /\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts|\bimport\s*\((?!\s*(["'])\.{1,2}\/[^"'`$]*\1\s*\))/;
 
 /** Names Chrome shows: the title up to its first dash, at most 45 characters. */
 export function extensionName(title) {
@@ -62,12 +51,12 @@ export function clipDescription(text) {
  * ld+json blocks are data, not code, and stay inline.
  */
 export function rewritePage(html) {
-  if (/\son[a-z]+\s*=\s*["']|javascript:/i.test(withoutScripts(html))) return { skip: 'inline event handlers or javascript: URLs' };
+  if (/\son[a-z]+\s*=\s*["']|javascript:/i.test(html.replace(SCRIPT_RE, ''))) return { skip: 'inline event handlers or javascript: URLs' };
   if (/(?:src|href)\s*=\s*["']\/\//i.test(html) || /<(?:script|link)\b[^>]*(?:src|href)\s*=\s*["']https?:/i.test(html)) return { skip: 'loads a file from another origin' };
   const scripts = {};
   let n = 0;
   let skip = null;
-  const rewrite = (whole, attrs, body) => {
+  const out = html.replace(SCRIPT_RE, (whole, attrs, body) => {
     if (/type\s*=\s*["']application\/ld\+json["']/i.test(attrs)) return whole;
     if (/\bsrc\s*=/i.test(attrs)) return whole;
     if (!body.trim()) return whole;
@@ -77,16 +66,7 @@ export function rewritePage(html) {
     scripts[file] = `${body.trim()}\n`;
     const module = /type\s*=\s*["']module["']/i.test(attrs) ? ' type="module"' : '';
     return `<script${module} src="${file}"></script>`;
-  };
-  // Each script element is swapped for its external replacement in one pass
-  // over the page; the text between them is copied through unchanged.
-  let out = '';
-  let last = 0;
-  for (const m of html.matchAll(SCRIPT_RE)) {
-    out += html.slice(last, m.index) + rewrite(m[0], m[1], m[2]);
-    last = m.index + m[0].length;
-  }
-  out += html.slice(last);
+  });
   return skip ? { skip } : { html: out, scripts };
 }
 
@@ -148,7 +128,7 @@ export async function buildExtension({ slug, dir, version = VERSION }) {
   const meta = readMeta(html);
   if (!meta) return { skip: 'no title or description' };
   const license = readText(path.join(dir, 'LICENSE'));
-  if (license === null || !/MIT License/i.test(license)) return { skip: 'no MIT LICENSE' };
+  if (license === null || !/Functional Source License/i.test(license)) return { skip: 'no FSL-1.1-MIT LICENSE' };
   const page = rewritePage(html);
   if (page.skip) return { skip: page.skip };
   const localSrc = [...html.matchAll(SCRIPT_RE)].map((m) => /\bsrc\s*=\s*["']([^"']+)["']/i.exec(m[1])?.[1]).filter(Boolean);
@@ -184,7 +164,7 @@ export async function buildExtension({ slug, dir, version = VERSION }) {
     background: { service_worker: 'background.js' },
     homepage_url: tagUrl(toolUrl(slug), 'webext'),
   }, null, 2)}\n`;
-  files['README.md'] = `# ${name} (browser extension)\n\n${meta.description}\n\nClick the toolbar icon to open the tool in a tab. It runs offline, asks for no permissions and sends nothing anywhere.\n\nFree and open source (MIT). Web version: ${toolUrl(slug)}\nSource: ${REPO_URL}/tree/main/ventures/${slug}\n\nNo warranty; an aid, not legal, tax or professional advice.\n`;
+  files['README.md'] = `# ${name} (browser extension)\n\n${meta.description}\n\nClick the toolbar icon to open the tool in a tab. It runs offline, asks for no permissions and sends nothing anywhere.\n\nFree to use and source available (FSL-1.1-MIT). Web version: ${toolUrl(slug)}\nSource: ${REPO_URL}/tree/main/ventures/${slug}\n\nNo warranty; an aid, not legal, tax or professional advice.\n`;
   return { name, version, files };
 }
 

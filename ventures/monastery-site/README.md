@@ -90,4 +90,4 @@ newsletter archive), and one-click deploys.
 `OUTREACH.md` holds drafts and rules for the owner's own personal emails to
 communities. Agents never send them (`portfolio/distribution/README.md`).
 
-Not affiliated with any order, diocese or the Holy See. MIT licensed.
+Not affiliated with any order, diocese or the Holy See. FSL-1.1-MIT licensed.

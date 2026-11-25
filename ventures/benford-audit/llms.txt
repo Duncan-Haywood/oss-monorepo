@@ -2,7 +2,7 @@
 
 > Free private browser tool (and Node CLI) that runs Mark Nigrini's Benford's-law digit tests on the amounts in a CSV, plus a just-under-approval-limit test and a per-vendor or per-employee ranking corrected for group size and multiple testing, and returns a ranked list of records to review.
 
-Free and open source (MIT). Results are statistical screens of the user's own data, not legal, tax, financial, accounting or audit advice, and never a finding that anything is fraudulent.
+Free to use and source available (FSL-1.1-MIT). Results are statistical screens of the user's own data, not legal, tax, financial, accounting or audit advice, and never a finding that anything is fraudulent.
 
 ## What it computes
 
@@ -23,4 +23,4 @@ Free and open source (MIT). Results are statistical screens of the user's own da
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/benford-audit): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/benford-audit): FSL-1.1-MIT licensed.

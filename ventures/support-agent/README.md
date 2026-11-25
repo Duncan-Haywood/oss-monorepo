@@ -4,7 +4,7 @@ After using this, you can now **let a chat on your site answer the customer ques
 
 **Live tool:** https://marisstella.app/support-agent/
 
-Three parts, all free and MIT:
+Three parts, all free and FSL-1.1-MIT:
 
 - **`index.html`**: paste your articles, ask questions, then paste test questions with known answers and see how often the agent would be right, wrong or hand off, and which confidence bar to use. Runs in the browser; nothing is uploaded.
 - **`server.mjs`**: one Node process, **zero dependencies**, state in one JSON file. Chat API, an embeddable chat bubble (`/widget.js`), handoff to your inbox, and an admin page with the gap list.
@@ -93,4 +93,4 @@ The browser page makes no network request; your articles and questions stay in t
 
 ## Disclaimer
 
-**No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, consumer-protection or professional advice, and it does not replace a person on your support team. **You are responsible for reviewing what it tells your customers** and for your support policies. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. No uptime or delivery guarantee. MIT licensed. If it saves you a subscription, you can [sponsor the author](https://github.com/sponsors/Duncan-Haywood).
+**No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, consumer-protection or professional advice, and it does not replace a person on your support team. **You are responsible for reviewing what it tells your customers** and for your support policies. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. No uptime or delivery guarantee. FSL-1.1-MIT licensed. If it saves you a subscription, you can [sponsor the author](https://github.com/sponsors/Duncan-Haywood).

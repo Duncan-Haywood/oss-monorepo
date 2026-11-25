@@ -2,7 +2,7 @@
 
 > Free online robust PCA by principal component pursuit (Candes, Li, Ma & Wright 2011, J. ACM): paste a numeric table (days by hours, stores by weeks, sensors by readings) and it finds the split M = L + S minimising ||L||_* + lambda ||S||_1 with lambda = 1/sqrt(max(rows, columns)), solved by the inexact augmented Lagrange multiplier method (Lin, Chen & Ma 2010) with a Jacobi SVD. It lists the rows and cells that break the low-rank pattern, fills empty cells from L, and certifies the split with a duality gap. Recovers the paper's Section 4.1 experiment exactly; matches TensorLy 0.10.0's robust_pca. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A flagged cell is unusual against the table's pattern, not proof of an error.
+Free to use and source available (FSL-1.1-MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A flagged cell is unusual against the table's pattern, not proof of an error.
 
 ## Pages
 
@@ -23,4 +23,4 @@ Free and open source (MIT). Results are statistical estimates from the data you 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/robust-pca): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/robust-pca): FSL-1.1-MIT licensed.

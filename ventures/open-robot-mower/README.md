@@ -20,7 +20,7 @@ An open-source robotic lawn mower you can build from laser-cut aluminium,
 **Plan your own lawn in your browser:**
 https://marisstella.app/open-robot-mower/
 
-Everything is MIT-licensed. You can build it, change it, and sell it under
+Everything is FSL-1.1-MIT-licensed. You can build it, change it, and sell it under
 your own brand. If you sell it, you are the manufacturer (see
 [safety](hardware/safety.md)).
 

@@ -55,4 +55,4 @@ node --test ventures/bridal-hair-makeup-pricing-calculator/*.test.mjs
 
 This calculator produces arithmetic observations from numbers you supply. It does not book your clients, draft your contract, determine your sales-tax obligations, or replace your own accountant.
 
-MIT licensed. See `LICENSE`. [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and never changes what the tool does.
+FSL-1.1-MIT licensed. See `LICENSE`. [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and never changes what the tool does.

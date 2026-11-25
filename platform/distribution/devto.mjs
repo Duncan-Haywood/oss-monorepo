@@ -33,7 +33,7 @@ export function composeArticle({ title, description }, url, ref = 'devto') {
   const body = [
     `${description}`,
     '',
-    `**[Open ${name}](${visit})** — it runs in your browser, needs no account, and is free and open source (MIT).`,
+    `**[Open ${name}](${visit})** — it runs in your browser, needs no account, and is free to use and source available (FSL-1.1-MIT).`,
     '',
     '## Good to know',
     '',

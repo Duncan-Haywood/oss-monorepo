@@ -741,7 +741,7 @@ def build(
         render_sitemap_index(products, base_url), encoding="utf-8"
     )
     (out_dir / "robots.txt").write_text(render_robots(base_url), encoding="utf-8")
-    # Every venture ships the same MIT text. Publishing one at the site root
+    # Every venture ships the same licence text (FSL-1.1-MIT since 2026-11-24). Publishing one at the site root
     # both states the licence for the site as a whole and gives a product page
     # linking `../LICENSE` something real to resolve to.
     root_license = next(

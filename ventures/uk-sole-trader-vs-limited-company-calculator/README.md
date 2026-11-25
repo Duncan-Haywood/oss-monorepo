@@ -10,7 +10,7 @@ Static browser tool: `index.html` + `calc.mjs`. Nothing is uploaded. England, Wa
 node --test 'ventures/uk-sole-trader-vs-limited-company-calculator/**/*.test.mjs'
 ```
 
-Free and MIT-licensed; GitHub Sponsors is optional. Not tax advice.
+Free and FSL-1.1-MIT-licensed; GitHub Sponsors is optional. Not tax advice.
 
 ## Known gaps
 

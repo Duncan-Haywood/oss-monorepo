@@ -2,7 +2,7 @@
 
 > Free self-serve and full-service dog wash calculator: tubs, wash price, washes per tub by weekday, weekend and season, water, supplies, labor, build-out and a loan become break-even washes per day, monthly ramp, payback and equity return. Private, runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/self-serve-dog-wash-profit-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/self-serve-dog-wash-profit-calculator): FSL-1.1-MIT licensed.

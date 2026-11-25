@@ -4,7 +4,7 @@ After using this, you can now **answer customer email from a shared inbox you ho
 
 **Live tool:** https://marisstella.app/support-desk/
 
-Two parts, both free and MIT:
+Two parts, both free and FSL-1.1-MIT:
 
 - **`index.html`**: paste a customer email and see its priority guess, the reasons, your first-reply target and which saved replies match. Runs in the browser; nothing is uploaded.
 - **`server.mjs`**: one Node process, **zero dependencies**, state in one JSON file. Email webhook, contact-form endpoint, admin inbox, customer portal, CSV export.
@@ -49,4 +49,4 @@ Fork the repository, then open `https://render.com/deploy?repo=<your fork URL>`.
 
 ## Disclaimer
 
-No warranty; no uptime or delivery guarantee. You operate the desk and are responsible for the messages collected, your privacy notice, data-protection rules and your own email sending. Priority, spam and reply suggestions are heuristics and can be wrong; read before you send. Not legal, tax or financial advice. MIT licensed. If it saves you a subscription, you can [sponsor the author](https://github.com/sponsors/Duncan-Haywood).
+No warranty; no uptime or delivery guarantee. You operate the desk and are responsible for the messages collected, your privacy notice, data-protection rules and your own email sending. Priority, spam and reply suggestions are heuristics and can be wrong; read before you send. Not legal, tax or financial advice. FSL-1.1-MIT licensed. If it saves you a subscription, you can [sponsor the author](https://github.com/sponsors/Duncan-Haywood).

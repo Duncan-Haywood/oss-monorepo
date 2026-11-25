@@ -2,7 +2,7 @@
 
 > Free cell tower lease buyout calculator: compare a lump-sum offer with the rent you would keep collecting. Present value at your discount rate, the buyer's implied return, colocation upside, tenant-exit risk and an after-tax comparison. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cell-tower-lease-buyout-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cell-tower-lease-buyout-calculator): FSL-1.1-MIT licensed.

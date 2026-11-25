@@ -2,7 +2,7 @@
 
 > Paste your dependency licenses, say how you ship (closed-source app, SaaS, internal tool, or an open-source license) and see which dependencies conflict — GPL in a proprietary app, Apache-2.0 in GPL-2.0-only, AGPL and SSPL in a service. Free, runs in your browser, nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/license-compat-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/license-compat-check): FSL-1.1-MIT licensed.

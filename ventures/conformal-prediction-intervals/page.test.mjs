@@ -126,7 +126,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("README.md"), /No warranty/);
   assert.match(page("README.md"), /https:\/\/marisstella\.app\/conformal-prediction-intervals\//);
   assert.match(page("README.md"), /## Verification/);
-  assert.match(page("LICENSE"), /MIT License/);
+  assert.match(page("LICENSE"), /Functional Source License/);
   assert.match(page("VENTURE.yaml"), /^name: conformal-prediction-intervals$/m);
 });
 

@@ -73,10 +73,10 @@ test('the sponsor link points at the correct GitHub Sponsors profile', () => {
   assert.match(html, /https:\/\/github\.com\/sponsors\/Duncan-Haywood/);
 });
 
-test('the MIT license is linked on both pages', () => {
+test('the FSL-1.1-MIT license is linked on both pages', () => {
   for (const source of [html, docHtml]) {
     assert.match(source, /href="LICENSE"/);
-    assert.match(source, /MIT licence/);
+    assert.match(source, /FSL-1.1-MIT licence/);
   }
 });
 
@@ -194,9 +194,9 @@ test('the no-warranty and not-affiliated disclaimers are present on the comparis
   assert.match(vsHtml, /Not affiliated with, endorsed by, or sponsored by Obsidian/);
 });
 
-test('the comparison page carries the MIT license link and no-upload claim', () => {
+test('the comparison page carries the FSL-1.1-MIT license link and no-upload claim', () => {
   assert.match(vsHtml, /href="LICENSE"/);
-  assert.match(vsHtml, /MIT licence/);
+  assert.match(vsHtml, /FSL-1.1-MIT licence/);
   assert.match(vsHtml, /never uploads them|Nothing leaves your browser/);
 });
 

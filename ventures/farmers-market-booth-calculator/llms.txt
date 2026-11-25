@@ -2,7 +2,7 @@
 
 > Free calculator for farmers market, craft fair and festival vendors: what each market really earns after booth fee, drive, product cost, waste and card fees, profit per hour against your target wage, break-even sales and which market to drop or reprice. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/farmers-market-booth-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/farmers-market-booth-calculator): FSL-1.1-MIT licensed.

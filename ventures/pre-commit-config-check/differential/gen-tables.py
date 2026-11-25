@@ -11,11 +11,11 @@ from pre_commit import constants as C
 from pre_commit.all_languages import language_names
 
 j = json.dumps
-print(f"// Generated from identify {md.version('identify')} and pre-commit {C.VERSION} (both MIT licensed:")
+print(f"// Generated from identify {md.version('identify')} and pre-commit {C.VERSION} (both FSL-1.1-MIT licensed:")
 print("// https://github.com/pre-commit/identify, https://github.com/pre-commit/pre-commit).")
 print("// identify: Copyright (c) 2017 Chris Kuehl, Anthony Sottile (MIT).")
 print("// pre-commit: Copyright (c) 2014 pre-commit dev team: Anthony Sottile, Ken Struys (MIT).")
-print("// Both under the MIT licence, whose permission notice is the text of this")
+print("// Both under the FSL-1.1-MIT licence, whose permission notice is the text of this")
 print("// venture's LICENSE file (only the copyright lines differ).")
 print('// Regenerate: see README, "Updating the tables". Do not edit by hand.')
 print(f"export const PRE_COMMIT_VERSION = {j(C.VERSION)};")

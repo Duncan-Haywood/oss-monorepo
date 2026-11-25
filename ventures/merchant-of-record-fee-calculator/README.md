@@ -33,7 +33,7 @@ locally and never uploads anything.
 
 ## Licence
 
-MIT, no warranty. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.
+FSL-1.1-MIT, no warranty. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.
 
 > **No warranty.** This tool is provided free and as-is, without warranty of any
 > kind. It is not financial, legal or tax advice; verify its output before

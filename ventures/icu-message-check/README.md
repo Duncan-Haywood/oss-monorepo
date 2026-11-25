@@ -110,4 +110,4 @@ The locale comes from `@@locale`, then the file name (`fr.json`,
 - `eval/`: the differential check against formatjs and its results.
 - Tests: `node --test icu.test.mjs cli.test.mjs page.test.mjs usage.test.mjs`.
 
-MIT licensed. Not affiliated with the Unicode Consortium, ICU or FormatJS.
+FSL-1.1-MIT licensed. Not affiliated with the Unicode Consortium, ICU or FormatJS.

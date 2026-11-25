@@ -2,7 +2,7 @@
 
 > Free tool for landlords and homeowners. Enter a water heater, furnace, AC, roof or appliance with its age, repair quote and replacement cost to see whether repairing or replacing costs less over the years you will own it, and the break-even repair price. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/landlord-repair-or-replace-planner): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/landlord-repair-or-replace-planner): FSL-1.1-MIT licensed.

@@ -2,7 +2,7 @@
 
 > Price soffit and fascia from eave lineal feet, aluminum wrap versus vinyl replace versus wood replace, 1-story versus 2-story versus 3-story access, and extras — plus the walk-away price a $12 / LF wrap special cannot see.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/soffit-fascia-bid-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/soffit-fascia-bid-calculator): FSL-1.1-MIT licensed.

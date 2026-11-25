@@ -159,4 +159,4 @@ when there is no exclusion restriction.
 
 No warranty. Statistical output from data you supply, under the model's
 assumptions; not legal, tax, financial, medical or policy advice, and not a
-substitute for a statistician or econometrician. MIT licence.
+substitute for a statistician or econometrician. FSL-1.1-MIT licence.

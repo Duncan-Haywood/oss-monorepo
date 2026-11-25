@@ -2,7 +2,7 @@
 
 > Free podcast sponsorship rate calculator. Enter your average downloads per episode, niche, and read type to get a price range for a pre-roll, mid-roll, and post-roll ad spot — based on commonly cited podcast-ad-market CPM benchmarks. No sign-up, nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/podcast-sponsorship-rate-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/podcast-sponsorship-rate-calculator): FSL-1.1-MIT licensed.

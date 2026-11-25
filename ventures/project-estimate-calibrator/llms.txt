@@ -2,7 +2,7 @@
 
 > Free estimate buffer calculator for freelancers, agencies and contractors. Paste your finished projects (estimate and actual) to see how your estimates really miss, the hours or price that covers 80% of outcomes on the next job, and the chance a fixed price loses money. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/project-estimate-calibrator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/project-estimate-calibrator): FSL-1.1-MIT licensed.

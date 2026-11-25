@@ -633,7 +633,7 @@ ${body}
 <footer>
   <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
   <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
-  completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+  completeness, and not advice of any kind. FSL-1.1-MIT-licensed, like the tools.</p>
   <p>${sponsorsNote()}</p>
 </footer>
 </div>

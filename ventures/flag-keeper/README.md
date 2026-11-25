@@ -6,7 +6,7 @@ instead of paying a feature-flag service per seat or per monthly active user.
 
 **Live tool:** https://marisstella.app/flag-keeper/
 
-Three parts, all free and MIT:
+Three parts, all free and FSL-1.1-MIT:
 
 - **`index.html`**: a rollout simulator. Paste your flag config, simulate
   10,000 users and see who gets which variant and why; paste the config you are

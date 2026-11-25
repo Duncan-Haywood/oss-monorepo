@@ -2,7 +2,7 @@
 
 > Free, open-source peak water demand and supply pipe sizing for houses and small buildings. Enter fixture types (rated gpm, seconds per use, uses in the busiest hour), the pressure budget (static psi, meter and backflow losses, minimum at a fixture, fittings allowance, velocity limit), the pipe material and a tree of pipe segments with lengths, rise and the fixtures each feeds. It returns each segment's design flow by Hunter's 1940 probability method worked exactly for the mix of fixtures (a convolution of binomials; the flow exceeded no more than 1% of the busy time, or a share you choose), the smallest copper K/L/M or PEX SDR 9 size within the allowable friction rate and velocity, the friction loss, and the pressure left at every fixture end. An optional trim spends spare pressure on smaller pipe. Runs in the browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates, not engineering advice and not a plumbing code sizing method; the local code and the authority having jurisdiction decide what is accepted.
+Free to use and source available (FSL-1.1-MIT). Results are estimates, not engineering advice and not a plumbing code sizing method; the local code and the authority having jurisdiction decide what is accepted.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates, not engineering advice and no
 
 ## Source
 
-- [Source code, CLI and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/water-supply-sizing): MIT licensed. `node cli.mjs system.json [--json] [--trim]` or `node cli.mjs --example`.
+- [Source code, CLI and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/water-supply-sizing): FSL-1.1-MIT licensed. `node cli.mjs system.json [--json] [--trim]` or `node cli.mjs --example`.

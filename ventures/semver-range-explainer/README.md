@@ -128,4 +128,4 @@ reimplementation of npm's semver rules; check anything that matters with
 npm itself. Not affiliated with or endorsed by npm, Inc., GitHub, the
 node-semver maintainers or the OpenJS Foundation.
 
-MIT licensed. Built with AI assistance.
+FSL-1.1-MIT licensed. Built with AI assistance.

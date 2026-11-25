@@ -116,7 +116,7 @@ test("robots, sitemap, README, LICENSE, VENTURE.yaml and llms.txt exist", () => 
   assert.match(page("README.md"), /No warranty/);
   assert.match(page("README.md"), /https:\/\/marisstella\.app\/robust-pca\//);
   assert.match(page("README.md"), /## Verification/);
-  assert.match(page("LICENSE"), /MIT License/);
+  assert.match(page("LICENSE"), /Functional Source License/);
   assert.match(page("VENTURE.yaml"), /^name: robust-pca$/m);
   assert.match(page("llms.txt"), /principal component pursuit/i);
 });

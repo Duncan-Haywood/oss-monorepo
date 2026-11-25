@@ -221,12 +221,16 @@ test("history to demand: quiet hours inside the open span stay open at zero; str
 });
 
 test("history to demand: reads US, day-first and 12-hour stamps; rejects files with no time of day", () => {
-  const r = demandFromHistory(["When", "10/5/2026 1:30 PM", "25/10/2026 14:05", "2026-10-06 08:00:00Z"].join("\n"));
+  const r = demandFromHistory(["When", "10/5/2026 1:30 PM", "10/25/2026 2:05 PM", "2026-10-06 08:00:00Z"].join("\n"));
   assert.equal(r.error, undefined);
   assert.equal(r.orders, 3);
-  assert.ok(r.csv.split("\n").includes("Mon,13,1"));
+  assert.ok(r.csv.split("\n").includes("Mon,13,1")); // 5 Oct 2026, US order
   assert.ok(r.csv.split("\n").includes("Sun,14,1")); // 25 Oct 2026 is a Sunday
   assert.ok(r.csv.split("\n").includes("Tue,8,1"));
+  // day first: 25/10 shows the export's order, so 10/5/2026 is 10 May (a Sunday too)
+  const dmy = demandFromHistory(["When", "10/5/2026 13:30", "25/10/2026 14:05"].join("\n"), { minShare: 0 });
+  assert.ok(dmy.csv.split("\n").includes("Sun,13,0.5"), dmy.csv); // two Sundays, one order each
+  assert.ok(dmy.csv.split("\n").includes("Sun,14,0.5"), dmy.csv);
   assert.match(demandFromHistory("Date\n2026-10-05\n2026-10-06").error, /date and time/);
   assert.match(demandFromHistory("x").error, /header/);
 });
@@ -239,4 +243,19 @@ test("history to demand: the sample feeds the optimizer end to end", () => {
   const r = optimize(parsed, { wage: 16, perStaff: 12, minStaff: 1, minShiftHours: 4, maxShiftHours: 8 });
   assert.equal(r.error, undefined);
   assert.ok(r.shifts > 0 && r.cost > 0);
+});
+
+test("history to demand: one day/month order for the whole export", () => {
+  // red team 2026-11-24: read row by row, a UK till's 03/11/2026 (Tue 3 Nov)
+  // became 11 March (a Wednesday), so orders on the 1st-12th landed on the wrong day
+  const uk = demandFromHistory(["Date,Total", "27/10/2026 12:05,10", "03/11/2026 12:05,10"].join("\n"), { minShare: 0 });
+  assert.equal(uk.error, undefined);
+  assert.ok(!uk.warnings.some((w) => /day first/.test(w)));
+  assert.ok(uk.csv.split("\n").includes("Tue,12,10"), uk.csv);
+  assert.ok(!uk.csv.includes("Wed,"), uk.csv);
+  // a US export reads as before: 11/03/2026 is Tue 3 Nov, 03/11/2026 Wed 11 Mar
+  const us = demandFromHistory(["Date,Total", "10/27/2026 12:05,10", "03/11/2026 12:05,10"].join("\n"), { minShare: 0 });
+  assert.ok(us.csv.split("\n").includes("Wed,12,10"), us.csv);
+  const mixed = demandFromHistory(["Date,Total", "27/10/2026 12:05,10", "10/28/2026 12:05,10", "03/11/2026 12:05,10"].join("\n"), { minShare: 0 });
+  assert.ok(mixed.warnings.some((w) => /day first .* month first/.test(w)));
 });
