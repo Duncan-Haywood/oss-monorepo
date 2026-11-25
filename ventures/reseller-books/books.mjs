@@ -24,6 +24,7 @@ import * as poshmark from "./engines/poshmark.mjs";
 import * as whatnot from "./engines/whatnot.mjs";
 import * as shopify from "./engines/shopify.mjs";
 import * as mercari from "./engines/mercari.mjs";
+import { isTripLog, mergeTrips, summarizeTrips, tripNotes, sampleTripCsv } from "./trips.mjs";
 
 export const CHANNELS = {
   ebay: "eBay",
@@ -74,6 +75,9 @@ export function detectKind(text) {
   if (has("item name", "order id") && h.some((x) => /sale date|date sold/.test(x))) return "etsy-items";
   if (h.some((x) => /^poshmark fee$|^posh fee$/.test(x)) || (h.includes("brand") && h.some((x) => /order price/.test(x)))) return "poshmark";
   if (h.some((x) => /^commission$|^processing fee$|^show$|^show name$/.test(x)) || (h.includes("product name") && h.some((x) => /sold price/.test(x)))) return "whatnot";
+  // A trip log (sourcing runs, post office): a date and a miles column. Checked
+  // last; no marketplace export has a miles column.
+  if (isTripLog(text)) return "mileage";
   return null;
 }
 
@@ -346,7 +350,7 @@ function itemChannel(channel, engine, files, costText, feeMode) {
  *   its own key (eBay item title or number, SKU on the others).
  */
 export function buildBooks(files, { costs = "", feeMode = "auto" } = {}) {
-  const groups = { ebay: [], etsy: [], "etsy-items": [], poshmark: [], whatnot: [], shopify: [], "shopify-orders": [], mercari: [] };
+  const groups = { ebay: [], etsy: [], "etsy-items": [], poshmark: [], whatnot: [], shopify: [], "shopify-orders": [], mercari: [], mileage: [] };
   const unread = [];
   for (const f of files) {
     const kind = detectKind(f.text);
@@ -386,6 +390,9 @@ export function buildBooks(files, { costs = "", feeMode = "auto" } = {}) {
     problems.push("A Sold Order Items file was given without the Etsy Payment Account statement. The statement is the one with the fees; add it.");
   }
 
+  if (!channels.length && groups.mileage.length) {
+    problems.unshift("A mileage log was read, but no marketplace file. Add your marketplace reports too: the mileage is an expense against the sales in them.");
+  }
   if (!channels.length) {
     return { invalid: problems[0] || "No marketplace file could be recognised. Expected an eBay Transaction report, an Etsy Payment Account statement, a Poshmark My Sales Report, a Whatnot orders export, a Shopify Payments Transactions export or a Mercari Gross Sales Report.", unread, problems };
   }
@@ -420,6 +427,21 @@ export function buildBooks(files, { costs = "", feeMode = "auto" } = {}) {
   total.profit = allCosted ? r2(channels.reduce((a, c) => a + c.profit, 0)) : null;
   total.keepRate = total.sales > 0 ? total.net / total.sales : null;
 
+  // Business mileage: Schedule C line 9 at the IRS standard rate, kept out of
+  // the marketplace reconciliation above (it is not money a marketplace moved).
+  let mileage = null;
+  if (groups.mileage.length) {
+    const merged = mergeTrips(groups.mileage);
+    mileage = summarizeTrips(merged.trips);
+    mileage.skipped = merged.skipped;
+    mileage.repeatsDropped = merged.repeatsDropped;
+    mileage.notes = tripNotes(mileage);
+    if (merged.skipped) mileage.notes.push(`${merged.skipped} trip row(s) had no readable date or miles and were skipped.`);
+    if (merged.repeatsDropped) mileage.notes.push(`${merged.repeatsDropped} trip row(s) repeated in another trip file were counted once.`);
+  }
+  total.carTruck = mileage ? mileage.carTruck : null;
+  total.profitAfterCar = total.profit !== null && mileage ? r2(total.profit - mileage.carTruck) : null;
+
   for (const c of channels) {
     c.keepRate = c.sales > 0 ? c.net / c.sales : null;
     c.takeRate = c.sales > 0 ? -(c.platformFees + c.labels + c.ads + c.other) / c.sales : null;
@@ -430,8 +452,9 @@ export function buildBooks(files, { costs = "", feeMode = "auto" } = {}) {
     channels,
     months,
     total,
-    schedule: scheduleWorksheet(channels, total),
-    findings: findings(channels, total, months),
+    mileage,
+    schedule: scheduleWorksheet(channels, total, mileage),
+    findings: findings(channels, total, months, mileage),
     unread,
     problems,
     details,
@@ -445,7 +468,7 @@ export function buildBooks(files, { costs = "", feeMode = "auto" } = {}) {
  * often cost of goods sold, sometimes "other expenses"), the row says which
  * lines a number could belong to and leaves the decision to the preparer.
  */
-export function scheduleWorksheet(channels, total) {
+export function scheduleWorksheet(channels, total, mileage = null) {
   const neg = (v) => r2(-v);
   const rows = [
     { line: "1", label: "Gross receipts or sales", amount: r2(total.sales), note: "As the marketplaces recorded them. Compare with any 1099-K, which may also include sales tax and shipping." },
@@ -456,11 +479,26 @@ export function scheduleWorksheet(channels, total) {
     { line: "27a / 4", label: "Postage bought through the marketplace", amount: neg(total.labels), note: "Shipping labels. Often reported inside cost of goods or as an other expense; ask your preparer which." },
     { line: "27a", label: "Other marketplace deductions", amount: neg(total.other), note: "Anything else between sales and payout (subscriptions, disputes, credits, shipping adjustments), net of credits." },
   ];
+  if (mileage) {
+    const rates = mileage.rates.map((r) => `${(r * 100).toFixed(1).replace(/\.0$/, "")}¢`).join(" and ");
+    rows.push({ line: "9", label: "Car and truck expenses (standard mileage rate)", amount: mileage.carTruck, note: `${mileage.businessMiles} business miles from your trip log at ${rates || "the IRS rate"} a mile by trip date (2026: 72.5¢ to June 30, 76¢ from July 1), plus $${(mileage.tolls + mileage.parking).toFixed(2)} of business tolls and parking. The standard rate replaces actual car costs (gas, repairs, insurance, depreciation) and generally has to be chosen in the first year the car is used for business.` });
+    rows.push({ line: "Part IV 44a", label: "Business miles", amount: null, miles: mileage.businessMiles, note: `${mileage.businessMiles} business, ${mileage.commuteMiles} commuting, ${mileage.otherMiles} other miles in the log. Part IV also asks for the date the car went into service and whether you have written evidence; the log is that evidence.` });
+  }
   return rows;
 }
 
-function findings(channels, total, months) {
+function findings(channels, total, months, mileage = null) {
   const out = [];
+  if (mileage && mileage.businessTrips) {
+    out.push({
+      severity: "info",
+      title: `${mileage.businessTrips} business trips, ${mileage.businessMiles} miles: $${mileage.carTruck.toFixed(2)} of car and truck expenses`,
+      detail: total.profitAfterCar === null
+        ? "At the IRS standard mileage rate for each trip's date, plus business tolls and parking. Add costs for every sale to see profit after the car."
+        : `At the IRS standard mileage rate for each trip's date, plus business tolls and parking. Profit after the cost of goods and the car: $${total.profitAfterCar.toFixed(2)}.`,
+    });
+  }
+  if (mileage) for (const n of mileage.notes) out.push({ severity: "info", title: `Mileage: ${n}`, detail: "" });
   if (channels.length >= 2) {
     const ranked = [...channels].filter((c) => c.sales > 0).sort((a, b) => b.keepRate - a.keepRate);
     const best = ranked[0];
@@ -509,8 +547,13 @@ export function toCsv(result) {
   const chead = "\nchannel,orders,sales,refunds,fees,postage,ads,other,net_payout,cost_of_goods,profit,keeps_per_sales_dollar";
   const cl = result.channels.map((c) => [q(c.label), c.orders, f(c.sales), f(c.refunds), f(c.platformFees), f(c.labels), f(c.ads), f(c.other), f(c.net), f(c.cogs), f(c.profit), c.keepRate === null ? "" : c.keepRate.toFixed(4)].join(","));
   const shead = "\nschedule_c_line,label,amount";
-  const sl = result.schedule.map((s) => [q(s.line), q(s.label), f(s.amount)].join(","));
-  return [head, ...lines, chead, ...cl, shead, ...sl].join("\n");
+  const sl = result.schedule.map((s) => [q(s.line), q(s.label), s.miles !== undefined ? s.miles : f(s.amount)].join(","));
+  const out = [head, ...lines, chead, ...cl, shead, ...sl];
+  if (result.mileage) {
+    out.push("\nmileage_month,business_miles,standard_rate_deduction,car_and_truck_with_tolls_parking");
+    for (const m of result.mileage.months) out.push([m.month, m.miles, f(m.deduction), f(m.carTruck)].join(","));
+  }
+  return out.join("\n");
 }
 
 export function summaryText(result) {
@@ -519,6 +562,7 @@ export function summaryText(result) {
   const t = result.total;
   out.push(`Sales ${m(t.sales)}, refunds ${m(t.refunds)}, fees ${m(t.platformFees)}, postage ${m(t.labels)}, ads ${m(t.ads)}, other ${m(t.other)}, net payout ${m(t.net)}.`);
   out.push(t.profit === null ? "Profit not computed (not every sale has a cost)." : `Cost of goods ${m(t.cogs)}; profit ${m(t.profit)}.`);
+  if (result.mileage) out.push(`Mileage: ${result.mileage.businessMiles} business miles, car and truck expenses ${m(result.mileage.carTruck)} (standard rate)${t.profitAfterCar === null ? "" : `; profit after the car ${m(t.profitAfterCar)}`}.`);
   for (const c of result.channels) out.push(`${c.label}: ${c.orders} orders, sales ${m(c.sales)}, kept ${m(c.net)} (${(c.keepRate * 100).toFixed(1)}%)${c.profit === null ? "" : `, profit ${m(c.profit)}`}`);
   return out.join("\n");
 }
@@ -537,6 +581,7 @@ export function sampleFiles() {
       { name: "shopify-payments-transactions.csv", text: sh.transactions },
       { name: "shopify-orders.csv", text: sh.orders },
       { name: "mercari-gross-sales-report.csv", text: mercari.sampleCsv() },
+      { name: "mileage-log.csv", text: sampleTripCsv() },
     ],
     costs: e.costs + "\n" + sh.costs.split("\n").slice(1).join("\n"),
   };

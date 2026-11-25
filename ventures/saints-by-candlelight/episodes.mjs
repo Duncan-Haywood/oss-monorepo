@@ -220,9 +220,28 @@ function player(ep, audio) {
     : '<p class="muted">Audio is being recorded. The full script is below.</p>';
 }
 
+// Search engines cut a meta description at about 160 characters, and the
+// site's ratchet (platform/pages/description-length.mjs) holds every page to
+// it. Summaries run longer, so this keeps the first sentence (with the tag
+// line when it fits) or clips at a word boundary. The page lede, the feed and
+// og:description still carry the whole summary.
+export const META_MAX = 160;
+export function metaDescription(summary, tag = '') {
+  const s = String(summary).replace(/\s+/g, ' ').trim();
+  const withTag = (t) => (tag ? `${t} ${tag}` : t);
+  if (withTag(s).length <= META_MAX) return withTag(s);
+  const first = (s.match(/^.*?[.!?](?=\s|$)/) || [s])[0];
+  if (withTag(first).length <= META_MAX) return withTag(first);
+  if (first.length <= META_MAX) return first;
+  const cut = first.slice(0, META_MAX - 1);
+  const sp = cut.lastIndexOf(' ');
+  return `${(sp > 80 ? cut.slice(0, sp) : cut).replace(/[\s,;:]+$/, '')}\u2026`;
+}
+
 export function renderEpisodePage(ep, audio = {}) {
   const a = audio[ep.slug];
-  const description = `${ep.summary} A free bedtime story podcast episode${a ? ` (${minutes(a.seconds)})` : ''}, with the full script.`;
+  const ogDescription = `${ep.summary} A free bedtime story podcast episode${a ? ` (${minutes(a.seconds)})` : ''}, with the full script.`;
+  const description = metaDescription(ep.summary, 'Free bedtime story, full script.');
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'PodcastEpisode',
@@ -261,6 +280,7 @@ ${transcriptHtml(ep.body)}
   return page({
     title: episodeTitle(ep),
     description,
+    ogDescription,
     canonical: pageUrl(ep),
     jsonLd,
     body,
