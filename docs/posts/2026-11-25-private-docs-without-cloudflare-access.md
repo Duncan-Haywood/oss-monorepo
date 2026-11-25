@@ -3,7 +3,7 @@ title: "Private docs without Cloudflare Access, and a bug the move turned up"
 seo_title: "Replacing Cloudflare Access for a private static site on AWS"
 date: 2026-11-25
 tags: [aws, hosting, real-estate-agent-photo-app, security]
-description: "A sign-in gate for static sites on the AWS starter, with no outbound calls and no secret in state. Moving the first site found every doc page built as 'not found'."
+description: "A sign-in gate for static sites on the AWS starter, with no outbound calls and no secret in state. The first site moved had every doc page built as not found."
 ---
 
 Three of the products moving from Cloudflare to AWS are folders of built
