@@ -19,6 +19,10 @@ subcontractor finds from a search on a phone.
 | conditional-vs-unconditional-lien-waivers | 3 columns about 94 px | cards, 843 → 610 px tall |
 | change-orders-schedule-of-values | 326 px in 312 px ("After CO-1" clipped) | compact cards, figures right-aligned |
 
+After merging main, the two guides that landed meanwhile get the same treatment:
+`lien-waiver-forms-by-state` (stack) and `retainage-in-quickbooks` (its static invoice table is
+compact, and its browser-built QuickBooks lines table now sets `data-label` in its `cell()` helper).
+
 Desktop (1280 px) page heights are unchanged (3,103 and 1,861 px on the two pages
 I checked). The rule sits inside `@media (max-width: 600px)`.
 

@@ -49,7 +49,7 @@ test("links back to the calculator", () => {
 });
 
 test("is clear that nothing entered is uploaded", () => {
-  assert.match(html, /there is no network request in the page at all/);
+  assert.match(html, /nothing you type is sent over the network/);
 });
 
 test("this generic-method page is registered as disclaimer-exempt and within the surface budget", async () => {

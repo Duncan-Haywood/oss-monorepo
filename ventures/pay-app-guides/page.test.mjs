@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html"];
+const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html"];
 
 test("every page carries the no-warranty clause, sponsor link, opt-out and honest CTA", () => {
   for (const name of PAGES) {
@@ -65,7 +65,7 @@ test("guide tables stack on a phone, every cell labelled with its column header"
     const html = page(name);
     const at = html.indexOf("<main>");
     const table = html.slice(html.indexOf("<table", at), html.indexOf("</table>", at));
-    assert.match(table, /^<table class="stack( compact)?" role="table">/, name);
+    assert.match(table, /^<table(?: id="[^"]*")? class="stack( compact)?" role="table">/, name);
     const heads = [...table.split("</thead>")[0].matchAll(/<th role="columnheader" scope="col"[^>]*>(.*?)<\/th>/g)].map((m) => m[1].replace(/<[^>]+>/g, "").trim());
     const rows = table.split("</thead>")[1].match(/<tr[^>]*>[\s\S]*?<\/tr>/g);
     assert.ok(rows.length >= 2, name);
@@ -81,4 +81,32 @@ test("guide tables stack on a phone, every cell labelled with its column header"
   const css = page("style.css");
   assert.match(css, /@media \(max-width: 600px\) \{\s*table\.stack thead/, "stacking is phone-only");
   assert.doesNotMatch(css, /table\.stack td \{[^}]*display: grid/, "a grid splits inline <strong>/<a> into separate items");
+});
+
+test("the waiver-forms table links each state to its official legislature site, with a read date", () => {
+  const html = page("lien-waiver-forms-by-state.html");
+  const start = html.indexOf('id="state-table"');
+  const table = html.slice(start, html.indexOf("</table>", start));
+  const rows = [...table.matchAll(/<tr[^>]*><td[^>]*>([A-Z][a-z]+)<\/td><td[^>]*><a href="([^"]+)"/g)];
+  assert.ok(rows.length >= 7, `only ${rows.length} states`);
+  const official = /^https:\/\/(www\.azleg\.gov|www\.leg\.state\.nv\.us|statutes\.capitol\.texas\.gov|le\.utah\.gov|www\.flsenate\.gov|www\.legislature\.mi\.gov|wyoleg\.gov|leginfo\.legislature\.ca\.gov)\//;
+  for (const [, state, href] of rows) assert.match(href, official, state);
+  assert.match(html, /2026-11-25/);
+});
+
+test("the QuickBooks guide cites Intuit's own pages, says it is not Intuit, and its calculator is labelled", () => {
+  const html = page("retainage-in-quickbooks.html");
+  const links = [...html.matchAll(/href="(https:[^"]+)"/g)].map((m) => m[1]).filter((h) => !/marisstella|github\.com\/sponsors/.test(h));
+  assert.ok(links.length >= 5, `only ${links.length} sources`);
+  for (const h of links) assert.match(h, /^https:\/\/quickbooks\.intuit\.com\//, h);
+  assert.match(html, /Not affiliated with Intuit\./);
+  assert.match(html, /accountant/);
+  for (const id of ["qb-billed", "qb-rate", "qb-held", "qb-released"]) assert.match(html, new RegExp(`<label for="${id}">`));
+});
+
+test("the QuickBooks lines table, built in the browser, labels its cells for the phone layout", () => {
+  const html = page("retainage-in-quickbooks.html");
+  for (const label of ["QuickBooks item", "Posts to", "Amount"]) {
+    assert.equal(html.split(`, "${label}")`).length - 1, 2, `${label}: a line row and the total row`);
+  }
 });

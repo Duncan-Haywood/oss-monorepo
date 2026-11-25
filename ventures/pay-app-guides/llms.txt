@@ -11,7 +11,9 @@ Free to use and source available (FSL-1.1-MIT). Not legal, tax, accounting or fi
 - [Retainage explained](https://marisstella.app/pay-app-guides/retainage-explained.html): calculation, reduction, release, flow-down, and public retainage caps for CA, TX, FL, NY, PA, IL, NC, MI, VA, WA, MA, AZ with official statute links.
 - [Conditional vs unconditional lien waivers](https://marisstella.app/pay-app-guides/conditional-vs-unconditional-lien-waivers.html): the four waiver types, when to sign each, California and Florida statutory forms.
 - [Free schedule of values template (Excel)](https://marisstella.app/pay-app-guides/schedule-of-values-template.html): a blank .xlsx continuation sheet and summary with the formulas in (total completed and stored, percent, balance to finish, per-line retainage, payment due, an over-billing check), plus a filled-in example. No macros or external links; opens in Excel, Google Sheets and LibreOffice.
+- [Statutory lien waiver forms by state](https://marisstella.app/pay-app-guides/lien-waiver-forms-by-state.html): which states set the waiver wording by statute (Arizona, Nevada, Texas, Utah, Florida, Michigan, Wyoming read on the official sites on 2026-11-25; California linked), how many forms, how strictly each must be followed, and the traps in each.
 - [Change orders and the schedule of values](https://marisstella.app/pay-app-guides/change-orders-schedule-of-values.html): approved and deductive change orders on the SOV and summary.
+- [Retainage in QuickBooks Online](https://marisstella.app/pay-app-guides/retainage-in-quickbooks.html): QuickBooks has no retainage field; the Retainage Receivable account and item, the negative invoice line, the release invoice, finding unbilled retainage outside A/R aging, the cash-basis caveat, and an invoice-line calculator. Sources are Intuit help and community pages.
 
 ## Source
 

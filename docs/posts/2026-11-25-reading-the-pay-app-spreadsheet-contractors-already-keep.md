@@ -123,3 +123,45 @@ $230,150.75. Its change order is left out and listed. Its grand total of
 $249,050.75 is accepted as lines plus the change order. On the
 uncalculated file, the preview says the sheet's total could not be checked
 instead of reading it as zero.
+
+## Update: a job that is already billing can move too
+
+The limit above is gone. A job's page in the suite now asks "Already billing
+this job somewhere else?" The contractor copies five things off their last
+pay application, the one made in the spreadsheet or the old software:
+
+- its number, so the first application in the suite is the next one (after
+  #3 comes #4, which is what the GC expects);
+- its period end. The first period in the suite has to start after it. A
+  change order approved by that date counts as a previous change order,
+  because the old application already billed it;
+- line 6, total earned less retainage. It becomes line 7, "less previous
+  certificates", on the first application, so the payment due is only the
+  new work;
+- work completed to date on each line, columns D + E of the old
+  continuation sheet. It becomes column D. Stored materials are left out:
+  they are a balance, entered again on the next application;
+- optionally, line 5a, retainage on completed work.
+
+Line 5a is the only figure that can be checked, so it is. The suite
+recomputes retainage on all the work carried over at the first
+application's rate. If that does not match what the old application held,
+the application shows a warning with both numbers. It does not block
+submission. A gap usually means one of two things. Retainage was already
+released before the move, which is entered as a release. Or the rate
+changed, which is set on the application. A wrong figure is shown, not
+quietly smoothed over.
+
+The test that matters: a job billed #1 in one place and #2 and #3 in the
+suite comes out with the same #2 and #3, every column and summary line, as
+a job billed all three times in the suite. On a worked example (a $100,000
+subcontract, $45,000 of work and $40,500 certified on #3 elsewhere, then
+$10,000 of work at 10% retainage), application #4 shows $40,500 as previous
+certificates and $9,000 due.
+
+The opening can be changed until the first application is made in the
+suite. After that it is locked, like the original schedule of values. The
+suite is still in development and not for sale. The import does not yet
+fill the opening from the spreadsheet itself: the sheet's "to date" column
+mixes stored materials into completed work, and that needs splitting out
+first.
