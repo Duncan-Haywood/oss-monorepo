@@ -80,11 +80,27 @@ and the stack will not apply until each is resolved by hand in
 Proxied records on `@`, `www` and `grants` are `"replaced_by": "site"`: the
 site stack's CloudFront aliases replace them.
 
+## Records other stacks hand to this one
+
+Route 53 has one record set per name and type, so a stack that needs a
+record at a name this stack owns passes it in instead of writing it:
+
+- **The inbound MX** (email-ops' `inbound_mx_record`, at the inbound
+  cutover): `extra_records = [{ name = "@", type = "MX", ttl = 300, values
+  = ["10 inbound-smtp.us-east-1.amazonaws.com"] }]`. It replaces the
+  planned null MX automatically.
+- **An apex TXT** (a site verification): through `extra_records` as well.
+  It merges into the apex TXT record set at the lowest TTL.
+- **Aliases** (saas-starter's `api_domain_target`, `{ name, zone_id }`):
+  `extra_alias_records = [{ name = "api", target_dns_name = <name>,
+  target_zone_id = <zone_id> }]`. Each needs an `allow` entry in
+  `planned.json` too, or `zone_diff.py` reports it as `EXTRA`.
+
 ## Apply
 
 Inputs: `deploy_role_arn` (`gha-oss-monorepo-dns-apply` in
 `shared-infra`), `allowed_account_ids`, optionally `extra_records` and
-`logs_kms_key_arn`. Backend key `stacks/dns/terraform.tfstate`
+`logs_kms_key_arn`. Backend key `dns/terraform.tfstate`
 (`backend.hcl.example`). Apply before the `site` stack, which looks the zone
 up by name. Outputs: `zone_id`, `zone_name`, `name_servers`,
 `record_sets`, `records_verified`.

@@ -111,3 +111,35 @@ run "long_txt_is_split" {
     error_message = "TXT values over 255 characters must be split for Route 53."
   }
 }
+
+run "alias_records_for_other_stacks" {
+  command = plan
+
+  variables {
+    allow_unverified_records = true
+    extra_alias_records = [
+      { name = "api", target_dns_name = "d-abc123.execute-api.us-east-1.amazonaws.com", target_zone_id = "Z1UJRXOUMOOFQ8" },
+    ]
+  }
+
+  assert {
+    condition     = aws_route53_record.alias["api A"].name == "api.marisstella.app"
+    error_message = "saas-starter's api_domain_target becomes an alias at api."
+  }
+}
+
+run "inbound_mx_through_extra_records" {
+  command = plan
+
+  variables {
+    allow_unverified_records = true
+    extra_records = [
+      { name = "@", type = "MX", ttl = 300, values = ["10 inbound-smtp.us-east-1.amazonaws.com"] },
+    ]
+  }
+
+  assert {
+    condition     = aws_route53_record.this["@ MX"].records == toset(["10 inbound-smtp.us-east-1.amazonaws.com"])
+    error_message = "email-ops' inbound MX replaces the null MX."
+  }
+}

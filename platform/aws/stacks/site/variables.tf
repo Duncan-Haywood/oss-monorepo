@@ -80,3 +80,23 @@ variable "logs_kms_key_arn" {
   type        = string
   default     = null
 }
+
+variable "edge_origin" {
+  description = "stacks/edge-api's origin for /_edge/*, from its outputs (see README.md, \"The edge API origin\"). Null serves no API path."
+  type = object({
+    domain_name              = string
+    path_pattern             = string
+    verify_header_name       = optional(string, "x-origin-verify")
+    cache_policy_id          = string
+    origin_request_policy_id = string
+    allowed_methods          = optional(list(string), ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"])
+  })
+  default = null
+}
+
+variable "edge_origin_verify_value" {
+  description = "Value of stacks/edge-api's origin_verify_secret_arn, read by the apply job in the apps account and passed as TF_VAR_edge_origin_verify_value."
+  type        = string
+  default     = null
+  sensitive   = true
+}

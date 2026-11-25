@@ -249,3 +249,47 @@ run "wildcard_subject_is_rejected" {
 
   expect_failures = [var.publisher]
 }
+
+run "edge_origin_routes_its_path_with_the_verify_header" {
+  command = apply
+
+  variables {
+    edge_origin = {
+      domain_name              = "abc123.lambda-url.us-east-1.on.aws"
+      path_pattern             = "/_edge/*"
+      cache_policy_id          = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
+      origin_request_policy_id = "b689b0a8-53d0-40ab-baf2-68738e2966ac"
+    }
+    edge_origin_verify_value = "test-only-not-a-secret"
+  }
+
+  assert {
+    condition     = one([for b in aws_cloudfront_distribution.site.ordered_cache_behavior : b if b.path_pattern == "/_edge/*"]).target_origin_id == "edge"
+    error_message = "/_edge/* must go to the edge origin."
+  }
+
+  assert {
+    condition     = one([for b in aws_cloudfront_distribution.site.ordered_cache_behavior : b if b.path_pattern == "/_edge/*"]).viewer_protocol_policy == "https-only"
+    error_message = "The API path must refuse plain HTTP rather than redirect it."
+  }
+
+  assert {
+    condition     = length([for o in aws_cloudfront_distribution.site.origin : o if o.origin_id == "edge" && length(o.custom_header) == 1]) == 1
+    error_message = "The edge origin must carry the origin-verify header."
+  }
+}
+
+run "edge_origin_without_verify_value_is_refused" {
+  command = plan
+
+  variables {
+    edge_origin = {
+      domain_name              = "abc123.lambda-url.us-east-1.on.aws"
+      path_pattern             = "/_edge/*"
+      cache_policy_id          = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
+      origin_request_policy_id = "b689b0a8-53d0-40ab-baf2-68738e2966ac"
+    }
+  }
+
+  expect_failures = [aws_cloudfront_distribution.site]
+}

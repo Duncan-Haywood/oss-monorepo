@@ -117,3 +117,23 @@ variable "logs_kms_key_arn" {
   type        = string
   default     = null
 }
+
+variable "edge_origin" {
+  description = "Optional: an API origin under one path of the site, e.g. stacks/edge-api's Lambda function URL at /_edge/*. Fields map to that stack's outputs: origin_domain_name, origin_path_pattern, origin_verify_header_name, cloudfront_cache_policy_id, cloudfront_origin_request_policy_id, allowed_methods. The origin strips its own prefix."
+  type = object({
+    domain_name              = string
+    path_pattern             = string
+    verify_header_name       = optional(string, "x-origin-verify")
+    cache_policy_id          = string
+    origin_request_policy_id = string
+    allowed_methods          = optional(list(string), ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"])
+  })
+  default = null
+}
+
+variable "edge_origin_verify_value" {
+  description = "The value CloudFront sends in edge_origin.verify_header_name so the origin refuses requests that bypass CloudFront. Comes from stacks/edge-api's origin_verify_secret_arn (apps account), read by the apply job and passed as TF_VAR_edge_origin_verify_value; see stacks/site/README.md, \"The edge API origin\"."
+  type        = string
+  default     = null
+  sensitive   = true
+}

@@ -72,6 +72,43 @@ Phase 1.
 6. **Cutover (the site's Phase 4):** the nameserver change in [`../dns/README.md`](../dns/README.md),
    then switch `AWS_SITE_VERIFY_URL` to `https://marisstella.app/`.
 
+## The edge API origin (`/_edge/*`)
+
+`stacks/edge-api` (PR 18766, apps account) serves the view counts,
+feedback and request intake as a Lambda function URL. It is routed
+through this distribution under `/_edge/*`, so the site calls it on its
+own origin. Set `edge_origin` from that stack's outputs:
+
+| `edge_origin` field | edge-api output |
+|---|---|
+| `domain_name` | `origin_domain_name` |
+| `path_pattern` | `origin_path_pattern` |
+| `verify_header_name` | `origin_verify_header_name` |
+| `cache_policy_id` | `cloudfront_cache_policy_id` |
+| `origin_request_policy_id` | `cloudfront_origin_request_policy_id` |
+| `allowed_methods` | `allowed_methods` |
+
+The behaviour is HTTPS-only (no redirect, which would drop a POST body),
+uncached, and runs no CloudFront Function. The origin strips its own prefix.
+
+**The origin-verify value crosses accounts as a variable.** The secret is
+in the apps account (`origin_verify_secret_arn`); the distribution is in
+shared-infra. The apply job reads it with the apps account's role and passes
+it as `TF_VAR_edge_origin_verify_value` (a `sensitive` variable, never
+printed). This was chosen over a cross-account resource policy on the
+secret plus a second provider, which would grant shared-infra standing read
+access to an apps secret. Two consequences, true of any approach because
+CloudFront stores the header in its own configuration:
+
+- the value is in this stack's state and visible through
+  `cloudfront:GetDistributionConfig`. It is a guard against bypassing
+  CloudFront (WAF, rate limits), not a credential;
+- PR plans run with a role that cannot read secret values, so they show
+  the header as changing. Only the apply on main sets it.
+
+Without a value the plan refuses `edge_origin` (a precondition), because the
+origin would reject every request.
+
 ## Cost (us-east-1 list prices, checked 2026-11-24 from memory of AWS's pages; confirm on the pricing pages before applying)
 
 | Item | Monthly |
@@ -144,4 +181,4 @@ needs an inventory of inline scripts first.
 `bucket_name`, `distribution_id`, `distribution_arn`,
 `distribution_domain_name`, `distribution_hosted_zone_id`,
 `certificate_validation_records`, `web_acl_arn`, `publisher_role_arn`
-(state key `stacks/site/terraform.tfstate`).
+(state key `site/terraform.tfstate`).

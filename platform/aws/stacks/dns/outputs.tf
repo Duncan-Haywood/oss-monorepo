@@ -1,5 +1,5 @@
 # Read by the site stack (by zone name) and by aws-ses-email
-# (terraform_remote_state key stacks/dns/terraform.tfstate).
+# (terraform_remote_state key dns/terraform.tfstate).
 
 output "zone_id" {
   value = aws_route53_zone.this.zone_id

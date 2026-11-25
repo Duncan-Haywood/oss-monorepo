@@ -395,6 +395,26 @@ resource "aws_cloudfront_distribution" "site" {
   }
 
   dynamic "origin" {
+    for_each = var.edge_origin == null ? {} : { edge = var.edge_origin }
+    content {
+      origin_id   = "edge"
+      domain_name = origin.value.domain_name
+
+      custom_header {
+        name  = origin.value.verify_header_name
+        value = var.edge_origin_verify_value
+      }
+
+      custom_origin_config {
+        http_port              = 80
+        https_port             = 443
+        origin_protocol_policy = "https-only"
+        origin_ssl_protocols   = ["TLSv1.2"]
+      }
+    }
+  }
+
+  dynamic "origin" {
     for_each = var.app_origins
     content {
       origin_id   = "app-${origin.key}"
@@ -427,6 +447,22 @@ resource "aws_cloudfront_distribution" "site" {
     function_association {
       event_type   = "viewer-response"
       function_arn = aws_cloudfront_function.viewer_response.arn
+    }
+  }
+
+  # The edge API first: its pattern (/_edge/*) is the most specific.
+  dynamic "ordered_cache_behavior" {
+    for_each = var.edge_origin == null ? [] : [var.edge_origin]
+    content {
+      path_pattern               = ordered_cache_behavior.value.path_pattern
+      target_origin_id           = "edge"
+      viewer_protocol_policy     = "https-only"
+      allowed_methods            = ordered_cache_behavior.value.allowed_methods
+      cached_methods             = ["GET", "HEAD"]
+      compress                   = true
+      cache_policy_id            = ordered_cache_behavior.value.cache_policy_id
+      origin_request_policy_id   = ordered_cache_behavior.value.origin_request_policy_id
+      response_headers_policy_id = aws_cloudfront_response_headers_policy.security.id
     }
   }
 
@@ -474,6 +510,13 @@ resource "aws_cloudfront_distribution" "site" {
   restrictions {
     geo_restriction {
       restriction_type = "none"
+    }
+  }
+
+  lifecycle {
+    precondition {
+      condition     = var.edge_origin == null || var.edge_origin_verify_value != null
+      error_message = "edge_origin needs edge_origin_verify_value, or the origin refuses every request."
     }
   }
 

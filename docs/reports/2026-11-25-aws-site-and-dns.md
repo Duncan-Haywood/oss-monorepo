@@ -67,8 +67,13 @@ For the next session on `aws-site-cloudfront` / `aws-route53-zone`.
   role this work creates is `site-publish`, under the account's
   `workload-boundary` (`permissions_boundary_arn`). GitHub's OIDC provider
   there is that stack's; `create_github_oidc_provider` is off by default.
-- State keys: the brief said `stacks/<stack>/terraform.tfstate`, which these
-  stacks' `backend.hcl.example` use; PR 18749 says `<stack>/terraform.tfstate`.
-  Whichever the apply workflow settles on, only `backend.hcl` changes.
+- State keys: `site/terraform.tfstate` and `dns/terraform.tfstate`, the
+  `<stack>/terraform.tfstate` convention of PR 18749 that edge-api and
+  saas-starter follow (the orchestrator settled it mid-run; the brief had
+  said `stacks/<stack>/...`).
+- Wiring to sibling stacks, all optional: `edge_origin` (+ the sensitive
+  `edge_origin_verify_value`) from edge-api (PR 18766) for `/_edge/*`;
+  `extra_alias_records` for saas-starter's `api_domain_target` (PR 18765);
+  email-ops' `inbound_mx_record` through `extra_records`.
 - `shared-infra`'s budget in that PR's spend stack is $20 a month; the site's
   estimate is about $10-12.

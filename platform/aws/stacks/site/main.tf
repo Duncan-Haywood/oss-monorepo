@@ -41,6 +41,8 @@ module "site" {
   app_origins              = var.app_origins
   access_log_bucket_domain = var.access_log_bucket_domain
   logs_kms_key_arn         = var.logs_kms_key_arn
+  edge_origin              = var.edge_origin
+  edge_origin_verify_value = var.edge_origin_verify_value
 
   publisher = {
     # IAM names in a stack start with the stack's name (stacks/github-oidc

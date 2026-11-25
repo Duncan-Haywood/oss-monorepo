@@ -53,3 +53,20 @@ variable "logs_kms_key_arn" {
   type        = string
   default     = null
 }
+
+variable "extra_alias_records" {
+  description = "Alias records other stacks need at names this zone serves, e.g. saas-starter's api_domain_target { name, zone_id } for its API Gateway custom domain. A name and type here must not also appear in records.json, planned.json or extra_records."
+  type = list(object({
+    name                   = string
+    type                   = optional(string, "A")
+    target_dns_name        = string
+    target_zone_id         = string
+    evaluate_target_health = optional(bool, false)
+  }))
+  default = []
+
+  validation {
+    condition     = alltrue([for r in var.extra_alias_records : contains(["A", "AAAA"], r.type)])
+    error_message = "Alias records here are A or AAAA."
+  }
+}

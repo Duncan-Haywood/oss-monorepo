@@ -90,6 +90,33 @@ resource "aws_route53_record" "this" {
   records = each.value.values
 }
 
+# Aliases other stacks need (saas-starter's API domain). The site stack
+# writes its own CloudFront aliases.
+locals {
+  aliases = { for r in var.extra_alias_records : "${r.name} ${upper(r.type)}" => r }
+}
+
+resource "aws_route53_record" "alias" {
+  for_each = local.aliases
+
+  zone_id = aws_route53_zone.this.zone_id
+  name    = each.value.name == "@" ? var.zone_name : "${each.value.name}.${var.zone_name}"
+  type    = upper(each.value.type)
+
+  alias {
+    name                   = each.value.target_dns_name
+    zone_id                = each.value.target_zone_id
+    evaluate_target_health = each.value.evaluate_target_health
+  }
+
+  lifecycle {
+    precondition {
+      condition     = !contains(keys(local.rendered), each.key)
+      error_message = "An alias and a plain record set share ${each.key}."
+    }
+  }
+}
+
 # ---------------------------------------------------------------- query logs
 
 resource "aws_cloudwatch_log_group" "queries" {

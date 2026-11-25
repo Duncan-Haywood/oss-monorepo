@@ -1,5 +1,5 @@
 # Names other stacks and the publish workflow read (terraform_remote_state
-# key stacks/site/terraform.tfstate).
+# key site/terraform.tfstate).
 
 output "bucket_name" {
   value = module.site.bucket_name
