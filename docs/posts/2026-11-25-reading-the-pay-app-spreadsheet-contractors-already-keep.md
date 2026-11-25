@@ -201,3 +201,34 @@ line 5a as $9,512.53, both matching the printed form, with no warnings. The
 free template printed by LibreOffice gives its line 6 ($71,865.00) from the
 PDF. Its .xlsx cannot, because that file's formulas were saved without
 results. The suite is still in development and not for sale.
+
+## Update: retainage that was already released before the move
+
+One case still came out wrong. Say a sub finished the underground on a job
+and the GC released that line's retainage on application #6, kept in a
+spreadsheet. The job then moves to the suite at #7. The suite used to work
+out retainage on all the work carried over at the job's rate, so the first
+application here held the released money again, and line 8 came out low by
+that much. The only fix was to enter the release on #7, which printed it as
+released "this period". That is not what happened, and a GC's reviewer would
+ask about it.
+
+The opening balance form now has a box, "Some retainage was already
+released on certain lines". Ticking it shows a column where the sub enters
+what was released on each line up to the last application. That amount
+counts as released before the first application here. Column I and line 5
+then start from what the GC actually still holds.
+
+How it was checked: three applications were billed in the suite, the second
+releasing $1,000 of one line's retainage. The same job was then started at
+#3 from an opening balance of #2, with the $1,000 entered on that line. Both
+ways give the same application #3, down to every line. Leave the release
+out, and #3's line 6 comes out $1,000 lower, with a warning that names the
+amount and says where to enter it. A release on a line with no work is
+refused, and one above what the line held is flagged, as on any
+application.
+
+The fill from the last continuation sheet does not guess this figure. The
+sheet's retainage column shows what is held, not why it is lower than the
+rate, and a different rate earlier in the job gives the same picture. The
+suite is still in development and not for sale.
