@@ -71,3 +71,16 @@ test("a difference the lags do not cause is left unexplained, and a typed late d
   assert.match(l.items[1].why, /break it even with no lag .* between A1040's stored late finish 2026-12-31 15:30/);
   assert.equal(l.explained, l.differ - 1);
 });
+
+test("a typed early finish the lags do not explain stays unexplained, even with its float unchanged", () => {
+  const x = setLag(scheduled(), "9019", 40);
+  // Procure doors' stored early finish moved a working week by hand; its float is left as scheduled
+  x.tables.TASK = x.tables.TASK.map((r) => (r.task_code === "A1040" ? { ...r, early_end_date: formatDate(Date.parse(`${r.early_end_date.replace(" ", "T")}:00Z`) / 60000 + 7 * 1440) } : r));
+  const a = assess(x);
+  const l = listed(a);
+  const typed = a.recompute.items.find((i) => i.code === "A1040");
+  assert.ok(typed, "the typed date is a stored-date difference");
+  assert.doesNotMatch(typed.why, /agrees/);
+  assert.equal(l.near, 0);
+  assert.equal(l.explained, l.differ - 1);
+});
