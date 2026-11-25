@@ -6,7 +6,15 @@
 // to make this tool wrong. What it does is the part that is the same
 // everywhere: payroll / 100 x rate, the overtime exclusion, the experience
 // modification, schedule credits and debits, a premium discount, an expense
-// constant, and the audit true-up when actual payroll differs from estimate.
+// constant, terrorism and catastrophe charges per $100 of payroll, and the
+// audit true-up when actual payroll differs from estimate.
+//
+// Order (NCCI Basic Manual rating sequence): manual premium, x experience
+// mod, x (1 + schedule %) = the discountable premium; less the premium
+// discount; then the charges that are not discounted: surcharges and
+// assessments as a % of premium, terrorism and catastrophe as a rate per $100
+// of payroll (not modified, not schedule-rated, not discounted), the expense
+// constant and any flat fees.
 
 const cents = (n) => Math.round(n * 100) / 100;
 
@@ -48,6 +56,7 @@ export function policyPremium(input) {
   const schedulePct = num(input.schedulePct, "schedule credit/debit", { min: -25, max: 25, fallback: 0 });
   const discountPct = num(input.discountPct, "premium discount", { min: 0, max: 30, fallback: 0 });
   const surchargePct = num(input.surchargePct, "surcharges", { min: 0, max: 100, fallback: 0 });
+  const payrollChargeRate = num(input.payrollChargeRate, "terrorism and catastrophe rate", { min: 0, max: 5, fallback: 0 });
   const expenseConstant = num(input.expenseConstant, "expense constant", { fallback: 0 });
   const flatFees = num(input.flatFees, "flat fees", { fallback: 0 });
 
@@ -57,12 +66,13 @@ export function policyPremium(input) {
   const discount = cents(scheduled * (discountPct / 100));
   const afterDiscount = cents(scheduled - discount);
   const surcharges = cents(afterDiscount * (surchargePct / 100));
-  const total = cents(afterDiscount + surcharges + expenseConstant + flatFees);
   const payroll = cents(classes.reduce((s, c) => s + c.payroll, 0));
   const basis = cents(classes.reduce((s, c) => s + c.basis, 0));
+  const payrollCharges = cents((basis / 100) * payrollChargeRate);
+  const total = cents(afterDiscount + surcharges + payrollCharges + expenseConstant + flatFees);
   return {
-    classes, mod, schedulePct, discountPct, surchargePct, expenseConstant, flatFees,
-    manual, modified, scheduled, discount, afterDiscount, surcharges, total,
+    classes, mod, schedulePct, discountPct, surchargePct, payrollChargeRate, expenseConstant, flatFees,
+    manual, modified, scheduled, discount, afterDiscount, surcharges, payrollCharges, total,
     payroll, basis,
     effectiveRate: basis > 0 ? cents((total / basis) * 100) : 0,
   };
@@ -70,11 +80,12 @@ export function policyPremium(input) {
 
 // What moving the experience mod is worth, holding everything else fixed.
 export function modSensitivity(input, step = 0.1) {
+  num(step, "mod step", { min: 0.001, max: 1 });
   const base = policyPremium(input);
   const up = policyPremium({ ...input, mod: Math.min(3, base.mod + step) });
   const down = policyPremium({ ...input, mod: Math.max(0.3, base.mod - step) });
   return {
-    per001: cents((up.total - base.total) / (step * 100 || 1)),
+    per001: cents((up.total - base.total) / (step * 100)),
     up: cents(up.total - base.total),
     down: cents(base.total - down.total),
     step,

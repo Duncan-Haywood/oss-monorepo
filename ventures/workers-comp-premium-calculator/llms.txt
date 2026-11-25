@@ -1,12 +1,12 @@
 # What is your workers' comp premium really made of?
 
-> Free workers' compensation premium calculator for contractors and small employers: class-code rates, experience mod, overtime exclusion, schedule debit, premium discount and the audit true-up. Runs in your browser.
+> Free workers' compensation premium calculator for contractors and small employers: class-code rates, experience mod, overtime exclusion, schedule debit, premium discount, terrorism and catastrophe charges and the audit true-up. Runs in your browser.
 
 Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
-- [The tool](https://duncan-haywood.github.io/oss-monorepo/workers-comp-premium-calculator/)
+- [The tool](https://marisstella.app/workers-comp-premium-calculator/)
 
 ## Source
 
