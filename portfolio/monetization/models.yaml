@@ -707,7 +707,7 @@ products:
     tiers:
       - name: Shop
         price: $199 a month
-        includes: 1 estimator, a monthly RFQ allowance, quote PDFs, rate calibration
+        includes: 3 users, 125 RFQs a month (AI reads), quote PDFs, STEP/DXF geometry
         status: proposal
         why: >-
           QuotedPart lists $199 a month a shop; matching it keeps the comparison
@@ -715,7 +715,7 @@ products:
           a month) sit above.
       - name: Shop Plus
         price: $399 a month
-        includes: 3 estimators, a larger RFQ allowance, STEP geometry, won/lost analytics
+        includes: 10 users, 300 RFQs a month (AI reads), everything in Shop
         status: proposal
         why: >-
           Still well under ProShop's $650 to $715; the allowance covers the model
@@ -741,12 +741,14 @@ products:
         price: $650 to $715 a month
         source: https://www.g2.com/products/proshop/pricing
         read: 2026-11-24
-    stage: planned
+    stage: built-dark
     next: >-
-      Build milestone (1) of the jobshop-quote flagship row (bet 1's scaffold,
-      apps/grants as template): shop profile and the feature-based quote engine
-      with tests. Measure the model cost per RFQ on public sample drawings
-      before fixing the RFQ allowance.
+      Billing is built and dark (private PR 101, 2026-11-25): Early access
+      free (40 RFQs, 3 users), Shop $199 (125 RFQs, 3 users), Shop Plus $399
+      (300 RFQs, 10 users); an RFQ counts on the AI's first read and the plan
+      sets the shop's monthly AI ceiling. Next: the deploy pipeline (ROADMAP
+      item 3, which runs the Paddle catalog sync), then measure the real model
+      cost per RFQ from llm_calls before taking money.
     next_owner: false
 
   - app: private-monorepo/apps/einvoice-preflight
