@@ -413,6 +413,9 @@ workflows:
 - workflow: secrets-inventory-ci.yml
   classification: none
   publishes: []
+- workflow: security-scan.yml
+  classification: none
+  publishes: []
 - workflow: shed-designer-browser.yml
   classification: none
   publishes: []
