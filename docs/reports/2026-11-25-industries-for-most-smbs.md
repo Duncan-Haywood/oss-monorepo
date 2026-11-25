@@ -1,3 +1,11 @@
+---
+kind: analysis
+topics: [money]
+date: 2026-11-25
+title: Industries for most kinds of small business
+description: The site's industries grew from 5 to 19; what changed, how an industry gets promoted, and catalogue depth per new industry for choosing the next paid bet.
+---
+
 # Industries for most kinds of small business (2026-11-25)
 
 **Owner, 2026-11-25:** "we want to expand the industries we address for sure i

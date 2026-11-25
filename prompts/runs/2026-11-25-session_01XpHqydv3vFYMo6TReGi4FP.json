@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": null,
   "projects": [],
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18772",
   "repo": null,
   "commits": [],
   "lines_added": null,
@@ -26,14 +26,26 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/README.md",
+      "issue": "report front matter (`kind`) is required but easy to miss; the blog-post checker is what catches it"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/monetization/verticals.py",
+      "why": "left its 13 verticals unchanged: front-door status follows bets, so splitting verticals would churn verticals.json without changing a decision",
+      "did": "documented in the report instead",
+      "result": "no regeneration needed"
+    }
+  ],
   "writeups": [],
   "goal": null,
-  "notes": "",
+  "notes": "Industries 5 -> 19 on the site. Local: node --test business/products/front-doors/industry-*/description-length 74/74 pass; run_workflow_locally --for-changes red only on report front matter and the unfilled record, both fixed.",
   "corrections": [],
   "redteam": null
 }
