@@ -8,7 +8,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  buildManufacturingPage, EARLY_ACCESS_HREF, FACTS, FREE_TOOLS, INDEXED, INDUSTRIES_DIR,
+  buildManufacturingPage, EARLY_ACCESS_HREF, FACTS, FREE_TOOLS, INDEXED, INDUSTRIES_DIR, LEAD_STILL,
   MANUFACTURING_PATH, PROBLEMS, PRODUCTS, renderManufacturingPage,
 } from './industry-manufacturing.mjs';
 import { CHROME_MODULE_FILE, CUSTOM_DEV_PATH } from './build.mjs';
@@ -102,4 +102,34 @@ test('writes industries/manufacturing/index.html', async () => {
   const written = readFileSync(path.join(out, 'industries', 'manufacturing', 'index.html'), 'utf8');
   assert.ok(written.includes('Software for machine shops'));
   assert.ok(written.includes('<p>site footer</p>') && written.includes('<script>tail</script>'));
+});
+
+test('real stills: the nesting sheet leads, the quote calculator sits in the quoting card', () => {
+  const shots = [
+    { slug: 'dxf-nesting', file: 'dxf-nesting.webp', caption: 'Nests parts', hero: 'dxf-nesting-hero.webp', heroWide: 'dxf-nesting-hero-1200.webp' },
+    { slug: 'cnc-machining-quote-calculator', file: 'cnc-machining-quote-calculator.webp', caption: 'Costs a part' },
+    { slug: 'not-listed-here', file: 'x.webp', caption: 'Other' },
+  ];
+  const page = renderManufacturingPage({ baseUrl: base, shots });
+  const lead = page.indexOf('class="still lead-still"');
+  assert.ok(lead > 0 && lead < page.indexOf('Common problems, and what solves them'), 'lead still sits above the problems');
+  assert.match(page.slice(lead, page.indexOf('</figure>', lead)), /srcset="[^"]*dxf-nesting-hero-1200\.webp 1200w"/);
+  assert.doesNotMatch(page.slice(lead, page.indexOf('</figure>', lead)), /loading="lazy"/, 'the first-screen still is eager');
+  const card = page.slice(page.indexOf('id="jobshop-quote"'));
+  assert.match(card.slice(0, card.indexOf('</section>')), /showcase\/cnc-machining-quote-calculator\.webp" width="960" height="600"[^>]*loading="lazy"/);
+  assert.ok(!page.includes('x.webp'), 'a still of a tool this page does not list is not shown');
+  for (const m of page.matchAll(/<img [^>]*>/g)) assert.match(m[0], /alt="[^"]{20,}"/, 'every still has alt text');
+  // An unpublished tool's still drops with its link; no stills, no figure.
+  const published = new Set(FREE_TOOLS.map((t) => t.slug).filter((slug) => slug !== LEAD_STILL));
+  assert.ok(!renderManufacturingPage({ baseUrl: base, shots, published }).includes('dxf-nesting'));
+  assert.ok(!html.includes('<figure'));
+});
+
+test('the stills the page asks for are captured in the showcase', () => {
+  const manifest = JSON.parse(readFileSync(path.join(HERE, 'showcase', 'manifest.json'), 'utf8'));
+  for (const slug of [LEAD_STILL, ...PRODUCTS.map((p) => p.still).filter(Boolean)]) {
+    const shot = manifest.shots.find((s) => s.slug === slug);
+    assert.ok(shot, `${slug} has no still in showcase/manifest.json`);
+    for (const f of [shot.file, shot.hero, shot.heroWide].filter(Boolean)) assert.ok(existsSync(path.join(HERE, 'showcase', f)), f);
+  }
 });

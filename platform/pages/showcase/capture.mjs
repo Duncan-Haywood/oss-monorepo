@@ -37,6 +37,8 @@ export const SHOTS = [
   { slug: 'wall-framing-takeoff', focus: 'Wall drawing and layout marks', hero: '#drawing', caption: 'Draws every stud, header and cripple, then prices the lumber order' },
   // Bet #1's front door (portfolio/monetization/bets.md): the pay-app suite's free generator.
   { slug: 'pay-application-generator', click: ['#load-ok', '#calc'], focus: 'Current payment due', hero: '#due', caption: 'Rolls a schedule of values into a G702-style pay application, retainage and all' },
+  { slug: 'cnc-machining-quote-calculator', click: '#example', focus: 'This job', hero: '#results .headline', caption: 'Costs a machined part from your own rates, then prices it at every lot size' },
+  { slug: 'dxf-nesting', click: ['#load-example', '#nest'], focus: '3. Nested sheets', hero: '#sheets', caption: 'Nests DXF parts on sheets, holes filled, with cut length and pierces' },
   { slug: 'container-load-planner', click: '#load-example', hero: 'h3:has(+ #view-top)', caption: 'Packs cartons and pallets into containers, drawn to scale' },
   { slug: 'band-tour-profit-planner', click: '#load-example', focus: 'Your tour', hero: '#big', caption: 'Shows which tour dates lose money before you book the van' },
   { slug: 'league-schedule-generator', click: '#load-example', focus: 'Your schedule', hero: '#rounds-table', caption: 'Builds a fair round-robin league schedule in a minute' },

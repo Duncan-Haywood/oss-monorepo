@@ -52,6 +52,8 @@ export const PRODUCTS = Object.freeze([
       'Keeps every quote and its assumptions, so you can see why a job was priced the way it was.',
     ],
     problems: ['rfq-backlog', 'own-rates'],
+    // The free tool whose real still (showcase/capture.mjs) shows under this card.
+    still: 'cnc-machining-quote-calculator',
   }),
   Object.freeze({
     id: 'cmmc',
@@ -152,6 +154,10 @@ export const FREE_TOOLS = Object.freeze([
   Object.freeze({ slug: 'spc-control-charts', name: 'SPC control charts', why: 'X-bar R, I-MR and attribute charts with Nelson rules and Cp/Cpk, for the quality records an ISO 9001 or AS9100 audit asks for.', problem: 'iso' }),
 ]);
 
+// The free tool whose still leads the page, under the opening paragraph: a
+// nested sheet says "this is for a shop that cuts parts" faster than any line.
+export const LEAD_STILL = 'dxf-nesting';
+
 export function esc(value) {
   return String(value)
     .replace(/&/g, '&amp;')
@@ -164,9 +170,27 @@ export function esc(value) {
 const TITLE = 'Software for machine shops and engineering firms';
 const DESCRIPTION = 'Quoting and CMMC/ISO 9001 software in development for CNC and fabrication job shops, plus free tools for shop rates, part costs, nesting and SPC.';
 
-export function renderManufacturingPage({ baseUrl = '', indexed = INDEXED, published = null, footer = '', tail = '' } = {}) {
+export function renderManufacturingPage({ baseUrl = '', indexed = INDEXED, published = null, footer = '', tail = '', shots = [] } = {}) {
   const liveTools = FREE_TOOLS.filter((t) => !published || published.has(t.slug));
   const toRoot = '../../';
+  // Real stills of the free tools (showcase/manifest.json via loadShowcase,
+  // already limited to published tools), keyed by slug; only listed, live tools.
+  const toolBySlug = new Map(liveTools.map((t) => [t.slug, t]));
+  const still = new Map(shots.filter((s) => s && s.slug && s.file && toolBySlug.has(s.slug)).map((s) => [s.slug, s]));
+  // The close crop (600 x 375) with its 1,200 px twin when there is one, else the full still.
+  const figure = (shot, cls, lazy, sizes) => {
+    const tool = toolBySlug.get(shot.slug);
+    const at = (file) => esc(`${toRoot}showcase/${file}`);
+    const href = esc(`${toRoot}${shot.slug}/`);
+    const img = shot.hero
+      ? `src="${at(shot.hero)}"${shot.heroWide ? ` srcset="${at(shot.hero)} 600w, ${at(shot.heroWide)} 1200w" sizes="${sizes}"` : ''} width="600" height="375"`
+      : `src="${at(shot.file)}" width="960" height="600"`;
+    return `<figure class="${cls}">
+  <a href="${href}"><img ${img} alt="${esc(`${tool.name} with its worked example loaded: ${shot.caption}`)}" decoding="async"${lazy ? ' loading="lazy"' : ''}></a>
+  <figcaption>${esc(shot.caption)}. The free <a href="${href}">${esc(tool.name)}</a>, with its example loaded.</figcaption>
+</figure>`;
+  };
+  const leadShot = still.get(LEAD_STILL);
   const url = `${baseUrl}${MANUFACTURING_PATH}`;
   const canonical = baseUrl
     ? `<link rel="canonical" href="${esc(url)}">
@@ -194,6 +218,7 @@ export function renderManufacturingPage({ baseUrl = '', indexed = INDEXED, publi
   <ul>${p.does.map((d) => `<li>${esc(d)}</li>`).join('')}</ul>
   <p class="solves">Solves: ${p.problems.map((id) => `<a href="#${esc(id)}">${esc(problemTitle.get(id))}</a>`).join('; ')}</p>
   ${p.note ? `<p class="note">${esc(p.note)}</p>` : ''}
+  ${p.still && still.has(p.still) ? figure(still.get(p.still), 'still', true, '(max-width: 52rem) calc(100vw - 66px), 600px') : ''}
   <p>Pricing is not set yet. <a class="go" href="${esc(`${toRoot}${EARLY_ACCESS_HREF}`)}">Ask for early access</a></p>
 </section>`).join('\n');
 
@@ -219,13 +244,18 @@ ${indexed ? '' : '<meta name="robots" content="noindex">\n'}${canonical}<style>
 .mfg .note{font-size:.92rem;font-style:italic}
 .mfg .go{font-weight:600}
 .mfg footer{margin-top:2.5rem;font-size:.88rem}
+.mfg .still{margin:1rem 0;max-width:600px}
+.mfg .still img{display:block;width:100%;height:auto;border:1px solid rgba(127,127,127,.4);border-radius:8px;background:#fff}
+.mfg .still figcaption{font-size:.9rem;margin-top:6px;opacity:.85}
+.mfg .lead-still{max-width:720px;margin:1.5rem 0 .5rem}
+.mfg .lead-still img{box-shadow:0 6px 24px rgba(20,30,45,.12)}
 </style>
 </head>
 <body>
 <main class="mfg">
 <h1>${esc(TITLE)}</h1>
 <p class="lede">For CNC and fabrication job shops and small engineering firms: quote faster from your own rates, and keep your CMMC and ISO 9001 paperwork in one place. Two products are in development and open for early access; the free tools below work today.</p>
-
+${leadShot ? `${figure(leadShot, 'still lead-still', false, '(max-width: 52rem) calc(100vw - 32px), 720px')}\n` : ''}
 <h2>Common problems, and what solves them</h2>
 <ol class="problems">
 ${problems}
