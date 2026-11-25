@@ -64,6 +64,11 @@ class RenderTest(unittest.TestCase):
         self.assertIn("security-fix/code-scanning-4", text)
         self.assertIn("`a.py:7`", text)
 
+    def test_queue_points_at_earlier_triage_notes(self):
+        queue = render([alert(4, "high")])["QUEUE.md"]
+        self.assertIn("docs/reports/*security-queue*.md", queue)
+        self.assertTrue(list(Path(__file__).resolve().parents[2].glob("docs/reports/*security-queue*.md")))
+
     def test_alert_file_says_how_to_check_the_finding_is_still_on_main(self):
         text = render([alert(4, "high", commit=SHA_A)])["alerts/4.md"]
         self.assertIn(f"Last seen on commit: `{SHA_A}`", text)

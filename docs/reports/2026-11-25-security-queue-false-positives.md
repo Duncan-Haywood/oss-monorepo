@@ -91,12 +91,19 @@ Run in parallel with the third pass and merged after it. This pass adds:
     deliberately vulnerable patterns that a ReDoS checker's tests and fixtures exist to detect.
 - **Claimed elsewhere:** #274, #275, #574, #997 have `security-fix/` branches.
 
-## Fifth pass, same day (merged after the fourth)
+## Fifth pass, same day (overlaps the third and fourth)
 
-This is a third parallel session. It adds:
+This run took #65, #849 and #862 in parallel with the fourth pass. It kept main's fixes for #65 and #849 and adds:
 
-- #849: `commentFor` also changed the trailing `\b` to `(?![\w$])`. With `\b`, a name ending in `$` (a legal
-  identifier) never matched, so its comment came back empty. `tools.test.mjs` checks `$a$`.
-- #862: `replace("..")` became `replaceAll`. The fourth pass is right that the output is display text that React
-  escapes. The change only makes a value with more than one `..` read right, and closes the alert.
-- #741, #960, #968, #969, #1050 and #1086: same verdicts as the third pass.
+- **#862 fixed** (`use-data-app.js:315`): `replaceAll("..", " – ")`. The fourth pass is right that React escapes
+  the output, so it was never an XSS. A range label with a second `..` still showed it, and `replaceAll`
+  clears the alert without depending on that.
+- **`QUEUE.md` now names these notes** (`platform/ci/security_alerts.py`, header line, with a test). Three passes
+  re-read #7 to #43 the same day because nothing in the queue said this file existed.
+
+## Sixth pass, same day (merged after the fifth)
+
+This was a fourth parallel session on the same alerts. Its only change not already on main: in `commentFor`
+(`platform/agents/tools.mjs`, alert #849), the trailing `\b` became `(?![\w$])`. With `\b`, an export whose
+name ends in `$`, a legal identifier, never matched, so its comment came back empty. `tools.test.mjs` checks
+`$a$`. Four sessions working one queue at the same time is the friction recorded in this run's record.

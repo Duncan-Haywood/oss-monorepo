@@ -61,14 +61,14 @@
 <section class="card">
   <h2>Worked example</h2>
   <p>A $150,000 electrical subcontract with 10% retainage, billed in three pay apps, then released.</p>
-  <div class="scroll"><table>
-    <thead><tr><th scope="col">Invoice</th><th scope="col" class="n">Work line</th><th scope="col" class="n">Retainage line</th><th scope="col" class="n">Invoice total</th><th scope="col" class="n">Retainage Receivable after</th></tr></thead>
+  <div class="scroll"><table class="stack compact" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">Invoice</th><th role="columnheader" scope="col" class="n">Work line</th><th role="columnheader" scope="col" class="n">Retainage line</th><th role="columnheader" scope="col" class="n">Invoice total</th><th role="columnheader" scope="col" class="n">Retainage Receivable after</th></tr></thead>
     <tbody>
-      <tr><td>Pay app 1</td><td class="n">$40,000.00</td><td class="n">-$4,000.00</td><td class="n">$36,000.00</td><td class="n">$4,000.00</td></tr>
-      <tr><td>Pay app 2</td><td class="n">$50,000.00</td><td class="n">-$5,000.00</td><td class="n">$45,000.00</td><td class="n">$9,000.00</td></tr>
-      <tr><td>Pay app 3</td><td class="n">$60,000.00</td><td class="n">-$6,000.00</td><td class="n">$54,000.00</td><td class="n">$15,000.00</td></tr>
-      <tr><td>Retainage release</td><td class="n"></td><td class="n">$15,000.00</td><td class="n">$15,000.00</td><td class="n">$0.00</td></tr>
-      <tr class="total"><td>Totals</td><td class="n">$150,000.00</td><td class="n">$0.00</td><td class="n">$150,000.00</td><td class="n"></td></tr>
+      <tr role="row"><td role="cell" data-label="Invoice">Pay app 1</td><td role="cell" data-label="Work line" class="n">$40,000.00</td><td role="cell" data-label="Retainage line" class="n">-$4,000.00</td><td role="cell" data-label="Invoice total" class="n">$36,000.00</td><td role="cell" data-label="Retainage Receivable after" class="n">$4,000.00</td></tr>
+      <tr role="row"><td role="cell" data-label="Invoice">Pay app 2</td><td role="cell" data-label="Work line" class="n">$50,000.00</td><td role="cell" data-label="Retainage line" class="n">-$5,000.00</td><td role="cell" data-label="Invoice total" class="n">$45,000.00</td><td role="cell" data-label="Retainage Receivable after" class="n">$9,000.00</td></tr>
+      <tr role="row"><td role="cell" data-label="Invoice">Pay app 3</td><td role="cell" data-label="Work line" class="n">$60,000.00</td><td role="cell" data-label="Retainage line" class="n">-$6,000.00</td><td role="cell" data-label="Invoice total" class="n">$54,000.00</td><td role="cell" data-label="Retainage Receivable after" class="n">$15,000.00</td></tr>
+      <tr role="row"><td role="cell" data-label="Invoice">Retainage release</td><td role="cell" data-label="Work line" class="n"></td><td role="cell" data-label="Retainage line" class="n">$15,000.00</td><td role="cell" data-label="Invoice total" class="n">$15,000.00</td><td role="cell" data-label="Retainage Receivable after" class="n">$0.00</td></tr>
+      <tr role="row" class="total"><td role="cell" data-label="Invoice">Totals</td><td role="cell" data-label="Work line" class="n">$150,000.00</td><td role="cell" data-label="Retainage line" class="n">$0.00</td><td role="cell" data-label="Invoice total" class="n">$150,000.00</td><td role="cell" data-label="Retainage Receivable after" class="n"></td></tr>
     </tbody>
   </table></div>
   <p>Income for the job is $150,000 by the end of pay app 3, and the customer pays $150,000 in all. Until the release invoice is sent, $15,000 is real money owed to you that sits outside accounts receivable.</p>
@@ -84,8 +84,8 @@
     <div><label for="qb-released">Retainage released on this invoice ($)</label><input id="qb-released" inputmode="decimal" placeholder="0"></div>
   </div>
   <div id="qb-errors" aria-live="polite"></div>
-  <div class="scroll"><table>
-    <thead><tr><th scope="col">QuickBooks item</th><th scope="col">Posts to</th><th scope="col" class="n">Amount</th></tr></thead>
+  <div class="scroll"><table class="stack" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">QuickBooks item</th><th role="columnheader" scope="col">Posts to</th><th role="columnheader" scope="col" class="n">Amount</th></tr></thead>
     <tbody id="qb-rows"></tbody>
   </table></div>
   <p class="note">Your numbers stay in this browser tab. Use the <a href="./">schedule of values calculator</a> to get the period's figures from your continuation sheet.</p>
@@ -128,12 +128,14 @@
   if (usageOptedOut()) { b.textContent = "Usage counting is off"; b.disabled = true; }
 
   const $ = (id) => document.getElementById(id);
-  function cell(text, cls) { const td = document.createElement("td"); td.textContent = text; if (cls) td.className = cls; return td; }
+  // data-label: the column header a phone card shows beside the value (style.css, table.stack).
+  function cell(text, cls, label) { const td = document.createElement("td"); td.textContent = text; if (cls) td.className = cls; if (label) td.dataset.label = label; td.setAttribute("role", "cell"); return td; }
+  function row(cls, ...cells) { const tr = document.createElement("tr"); tr.setAttribute("role", "row"); if (cls) tr.className = cls; tr.append(...cells); return tr; }
   function render() {
     const r = quickbooksLines({ billed: $("qb-billed").value, rate: $("qb-rate").value, held: $("qb-held").value, released: $("qb-released").value });
     $("qb-errors").replaceChildren(...r.errors.map((e) => { const p = document.createElement("p"); p.className = "finding"; p.textContent = e; return p; }));
-    const rows = r.lines.map((l) => { const tr = document.createElement("tr"); tr.append(cell(l.item), cell(l.account), cell(fmt(l.amount), "n")); return tr; });
-    if (!r.errors.length) { const tr = document.createElement("tr"); tr.className = "total"; tr.append(cell("Invoice total"), cell("Accounts receivable"), cell(fmt(r.total), "n")); rows.push(tr); }
+    const rows = r.lines.map((l) => row("", cell(l.item, "", "QuickBooks item"), cell(l.account, "", "Posts to"), cell(fmt(l.amount), "n", "Amount")));
+    if (!r.errors.length) rows.push(row("total", cell("Invoice total", "", "QuickBooks item"), cell("Accounts receivable", "", "Posts to"), cell(fmt(r.total), "n", "Amount")));
     $("qb-rows").replaceChildren(...rows);
   }
   for (const id of ["qb-billed", "qb-rate", "qb-held", "qb-released"]) $(id).addEventListener("input", render);
