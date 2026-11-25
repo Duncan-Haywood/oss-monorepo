@@ -93,8 +93,9 @@ rights on GitHub. Everything else is done by agents through pull requests.
    (or leave empty) the account. These are billing actions in your name.
 10. **Make the merge gate required** (any time; it matters most before
     the first apply, because merging to main is what applies): with an
-    admin token, apply the branch ruleset, which makes the adversarial
-    gate and the control-plane check required on `main`:
+    admin token, apply the branch ruleset, which makes six checks required
+    on `main` (among them `adversarial-gate`, `security-scan` and
+    `risk-review`):
     `gh api -X PUT repos/Duncan-Haywood/oss-monorepo/rulesets/26239454 --input .github/rulesets/main.json`.
     Read [`.github/rulesets/README.md`](../../.github/rulesets/README.md)
     first: it says when to apply it (after agents have their own
