@@ -52,6 +52,11 @@ test("status words, dates and money parse; bad input is an error, not a guess", 
   assert.equal(parseDate("11/25/2026"), parseDate("2026-11-25"));
   assert.equal(parseMoney("(1,250.50)"), -125050);
   assert.equal(parseMoney("12.345"), null);
+  assert.equal(parseMoney("$12,450.00"), 1245000);
+  assert.equal(parseMoney("-$3,500"), -350000);
+  assert.equal(parseMoney("29,99"), 2999); // decimal comma, not 2,999
+  assert.equal(parseMoney("1.234,56"), 123456);
+  assert.equal(parseMoney("12,34,5"), null);
   assert.match(compute(log("1,x,maybe,100,,,,"), S).errors[0], /not one of approved/);
   assert.match(compute(log("1,x,Approved,abc,,,,"), S).errors[0], /amount is not/);
   assert.match(compute(log("1,x,Pending,100,,2026-13-01,,"), S).errors[0], /submitted date/);

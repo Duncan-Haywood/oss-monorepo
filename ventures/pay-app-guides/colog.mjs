@@ -10,7 +10,7 @@ export const STATUS_WORDS = {
 
 export function parseCsv(text) {
   const rows = [];
-  const src = String(text ?? "").replace(/^﻿/, "").replace(/\r\n?/g, "\n");
+  const src = String(text ?? "").replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n");
   const delim = src.split("\n", 1)[0].includes("\t") ? "\t" : ",";
   let row = [], field = "", q = false;
   for (let i = 0; i < src.length; i++) {
@@ -34,8 +34,12 @@ export function parseMoney(s) {
   if (t === "") return 0;
   let neg = false;
   if (/^\(.*\)$/.test(t)) { neg = true; t = t.slice(1, -1).trim(); }
-  t = t.replace(/[$,\s]/g, "");
+  t = t.replace(/^\$|\s/g, "");
   if (t.startsWith("-")) { neg = !neg; t = t.slice(1); }
+  if (t.startsWith("$")) t = t.slice(1);
+  // Read the comma by its shape: 1,234.50 is thousands; 29,99 or 1.234,56 is a decimal comma; any other comma is not a number.
+  if (/^\d{1,3}(,\d{3})+(\.\d{1,2})?$/.test(t)) t = t.split(",").join("");
+  else if (/^(\d+|\d{1,3}(\.\d{3})+),\d{1,2}$/.test(t)) t = t.split(".").join("").replace(",", ".");
   if (!/^\d+(\.\d{1,2})?$/.test(t)) return null;
   const [d, c = ""] = t.split(".");
   const v = parseInt(d, 10) * 100 + parseInt((c + "00").slice(0, 2), 10);
@@ -184,7 +188,7 @@ export function compute(text, settings = {}) {
 // Quote when needed; a typed cell that a spreadsheet would run as a formula gets a leading apostrophe.
 export function csvCell(v) {
   let s = String(v ?? "");
-  if (/^[=+@\t\r]/.test(s) || (/^-/.test(s) && !/^-\d+(\.\d+)?$/.test(s))) s = `'${s}`;
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
   return /[",\n']/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 const cents = (c) => (c / 100).toFixed(2);
