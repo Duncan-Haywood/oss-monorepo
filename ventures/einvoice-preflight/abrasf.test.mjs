@@ -109,7 +109,8 @@ test("1.00 files (fraction rates, InfRps) skip the schema and still check values
 });
 
 test("an RPS escaped inside a SOAP parameter is found and checked", () => {
-  const inner = rps.replace(/<\?xml[^>]*\?>/, "").replace(/<!--[\s\S]*?-->/, "");
+  let inner = rps.replace(/<\?xml[^>]*\?>/, ""), prev;
+  do { prev = inner; inner = inner.replace(/<!--[\s\S]*?-->/g, ""); } while (inner !== prev);
   const esc = inner.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const soap = `<?xml version="1.0"?><soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><GerarNfse xmlns="http://nfse.abrasf.org.br"><nfseDadosMsg>${esc}</nfseDadosMsg></GerarNfse></soap:Body></soap:Envelope>`;
   assert.ok(looksLikeAbrasf(soap));

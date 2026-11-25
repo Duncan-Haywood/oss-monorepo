@@ -151,7 +151,7 @@ test("builder output escapes < so a field cannot close the script tag", () => {
   const b = build("Article", { headline: "</script><img src=x onerror=alert(1)>" });
   assert.doesNotMatch(b.script.slice(b.script.indexOf("\n"), b.script.lastIndexOf("</script>")), /<\/script>/);
   assert.match(b.script, /\\u003c/);
-  assert.equal(JSON.parse(b.script.replace(/^<script[^>]*>|<\/script>$/g, "")).headline, "</script><img src=x onerror=alert(1)>");
+  assert.equal(JSON.parse(b.script.replace(/^<script\b[^>]*>|<\/script\b[^>]*>$/gi, "")).headline, "</script><img src=x onerror=alert(1)>");
 });
 
 test("empty builder fields yield a check that explains what is missing", () => {

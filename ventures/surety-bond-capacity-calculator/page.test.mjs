@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { JOB_DEFAULTS, BID_DEFAULTS, SHARED_DEFAULTS } from "./calc.mjs";
 
+const stripScripts = (s, sub = "") => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, sub); } while (s !== p); return s; };
+
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 
 test("index page carries the disclaimer, privacy line and sponsor link", () => {
@@ -64,7 +66,7 @@ test("FAQ in the markup and in the structured data are the same questions", () =
   const html = page("index.html");
   const ld = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)].map((m) => JSON.parse(m[1])).find((j) => j["@type"] === "FAQPage");
   // Static markup only: the result renderer's own <h3> headings live in the module script.
-  const markup = html.replace(/<script\b[\s\S]*?<\/script>/g, "");
+  const markup = stripScripts(html);
   const shown = [...markup.matchAll(/<h3>(.*?)<\/h3>/g)].map((m) => m[1].replace(/&#x27;/g, "'"));
   assert.deepEqual(ld.mainEntity.map((q) => q.name), shown);
 });

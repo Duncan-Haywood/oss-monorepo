@@ -6,7 +6,9 @@ import {
   cardName,
   icon,
   renderCategoryCard,
-  renderHowItWorks,
+  finderChoices,
+  finderCss,
+  renderFinder,
   renderLatestWriting,
   renderResearchBand,
   researchMotif,
@@ -45,12 +47,53 @@ test('a category card links its page by id, escapes its copy and carries its acc
   assert.match(html, /All 3 tools →/);
 });
 
-test('how it works names real counts when given them', () => {
-  const html = renderHowItWorks({ toolCount: 12, appCount: 3 });
-  assert.match(html, /12 tools run entirely in your browser/);
-  assert.match(html, /3 self-hostable apps/);
-  assert.equal((html.match(/<li class="step">/g) || []).length, 3);
-  assert.match(html, /<h2 id="how-h">/);
+test('the finder goes business -> problem -> product, and only says live of what is live', async () => {
+  const { INDUSTRIES, PRODUCT_LINES, buildFirstHref, industriesWithoutProducts } = await import('./business.mjs');
+  const html = renderFinder({
+    industries: INDUSTRIES, lines: PRODUCT_LINES, buildFirstHref,
+    trades: [{ id: 'for-roofers', name: 'Roofers', href: 'c/for-roofers/' }],
+    statusLabel: (s) => (s === 'live' ? 'live' : 'early access'),
+  });
+  const choices = finderChoices(INDUSTRIES, PRODUCT_LINES);
+  assert.equal(choices.at(-1).slug, 'other');
+  for (const c of choices) {
+    assert.match(html, new RegExp(`id="pro-${c.slug}"`));
+    assert.match(html, new RegExp(`id="panel-${c.slug}"`));
+    assert.match(finderCss(choices), new RegExp(`#pro-${c.slug}:checked ~ \\.panels #panel-${c.slug}`));
+  }
+  // Every software problem is a link to its product.
+  for (const l of PRODUCT_LINES.filter((x) => x.kind === 'software' && x.industry)) {
+    const href = l.status === 'live' ? l.href : `industries/${l.industry}/#${l.id}`;
+    for (const p of l.problems) assert.ok(html.includes(`href="${href}" data-funnel-product="${l.id}"`), `${l.id}: ${p}`);
+  }
+  assert.equal((html.match(/· live →/g) || []).length, PRODUCT_LINES.filter((l) => l.status === 'live' && l.industry).reduce((n, l) => n + l.problems.length, 0));
+  // An industry with no product is a chip; its problems lead to its own page,
+  // and it is asked what to build first, with no product name, status or offer.
+  const none = industriesWithoutProducts();
+  assert.ok(none.length > 0);
+  const chips = html.slice(html.indexOf('class="pros-more"'), html.indexOf('class="panels"'));
+  assert.match(chips, /<label for="pro-other"/, 'Something else ends the chips');
+  for (const ind of none) {
+    assert.match(chips, new RegExp(`<label for="pro-${ind.slug}"`));
+    const start = html.indexOf(`id="panel-${ind.slug}"`);
+    const panel = html.slice(start, html.indexOf('</div>', start));
+    for (const p of ind.problems) assert.ok(panel.includes(p.replace(/&/g, '&amp;')), `${ind.slug}: ${p}`);
+    assert.ok(panel.includes(`href="industries/${ind.slug}/"`), ind.slug);
+    assert.ok(panel.includes(buildFirstHref(ind).replace(/&/g, '&amp;')), ind.slug);
+    assert.doesNotMatch(panel, /early access|· live/i, `${ind.slug}: no product is claimed`);
+    assert.match(finderCss(choices), new RegExp(`#pro-${ind.slug}:checked ~ \\.pros-more label`));
+  }
+  // Funnel markup the counter understands (platform/counter/FUNNEL.md).
+  assert.match(html, /id="panel-construction" data-funnel="cta" data-funnel-industry="construction"/);
+  assert.match(html, /data-funnel-product="contractor-billing"/);
+  for (const v of html.matchAll(/data-funnel="([^"]+)"/g)) assert.ok(['cta', 'outbound'].includes(v[1]), v[1]);
+  // "Something else" leads to the trades, the assistant and a custom build.
+  const other = html.slice(html.indexOf('id="panel-other"'));
+  assert.match(other, /href="c\/for-roofers\/"/);
+  assert.match(other, /href="ask\/"/);
+  assert.match(other, /href="custom-development\/"/);
+  // Self-deploy was retired on 2026-11-24: the front door no longer sells it.
+  assert.doesNotMatch(html, /deploy\/|self-host/i);
 });
 
 test('the research band shows featured projects with their theme and summary', () => {
@@ -124,4 +167,15 @@ test('the Organization names only the live products it offers, with no price', (
   assert.equal(offer.itemOffered.url, 'https://e.test/p/');
   assert.equal(offer.itemOffered.audience.audienceType, 'small nonprofits');
   assert.equal(offer.price, undefined, 'prices live on the product page, not here');
+});
+
+test('the latest writing prefers posts for customers when there are any (2026-11-25)', () => {
+  const posts = [
+    { slug: 'guide', date: '2026-10-01', title: 'Guide', description: 'd', minutes: 3, topic: 'business' },
+    { slug: 'devlog', date: '2026-10-20', title: 'Devlog', description: 'd', minutes: 5, topic: 'agents' },
+  ];
+  const html = renderLatestWriting(posts, { writingPath: 'writing/', limit: 1 });
+  assert.match(html, /href="writing\/guide\/"/);
+  assert.match(html, /Guides for the businesses we build for/);
+  assert.match(renderLatestWriting([posts[1]], { limit: 1 }), /href="writing\/devlog\/"/);
 });

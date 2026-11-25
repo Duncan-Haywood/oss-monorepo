@@ -71,10 +71,18 @@ const NOT_ADVICE = /not (?:\w+[\s,/]+){0,8}advice|does not (?:constitute|replace
 // "X vs QuickBooks" names a product; "Pallet vs Carton" and "vs Doing It by
 // Hand" do not. A name counts when it is CamelCase, carries a mark symbol,
 // or the page links to a domain spelled like it.
+// Apply a rewrite until the string stops changing, so a removal cannot
+// splice a new match together (e.g. `<scr<script>ipt>`).
+function untilStable(s, step) {
+  let prev;
+  do { prev = s; s = step(s); } while (s !== prev);
+  return s;
+}
+const stripTags = (s, sep) => untilStable(s, (t) => t.replace(/<[^>]+>/g, sep));
 const VS_NAME = /\b[Vv]s\.?\s+((?:[A-Z][\w&+.'-]*)(?:\s+[A-Z][\w&+.'-]*){0,2})/g;
 function namedProducts(html) {
   const title = /<title>([^<]*)<\/title>/i.exec(html)?.[1] ?? '';
-  const h1 = /<h1[^>]*>([\s\S]*?)<\/h1>/i.exec(html)?.[1]?.replace(/<[^>]+>/g, '') ?? '';
+  const h1 = stripTags(/<h1[^>]*>([\s\S]*?)<\/h1>/i.exec(html)?.[1] ?? '', '');
   const hosts = [...html.matchAll(/href\s*=\s*["']https?:\/\/(?:www\.)?([^/"']+)/gi)].map((m) => m[1].toLowerCase().replace(/[^a-z0-9]/g, ''));
   const names = [];
   for (const m of `${title} | ${h1}`.matchAll(VS_NAME)) {
@@ -145,7 +153,8 @@ export function mask(secret) {
 
 // Strip tags, scripts and styles so prose checks read what a visitor reads.
 function visibleText(html) {
-  return html.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ');
+  const noCode = untilStable(html, (s) => s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ' ').replace(/<style\b[^>]*>[\s\S]*?<\/style\b[^>]*>/gi, ' '));
+  return stripTags(noCode, ' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ');
 }
 
 // What the code does, not what it documents: <pre>/<code> samples in pages

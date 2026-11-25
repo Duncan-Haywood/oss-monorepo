@@ -45,7 +45,7 @@ const KNOWN_H4 = new Set([
 
 /** True when an inline script on the page draws `<... class="finding..."><h4>`. */
 export function drawsFindingH4(html) {
-  for (const m of String(html).matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)) {
+  for (const m of String(html).matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\b[^>]*>/gi)) {
     if (/class=\\?"finding[^"\\]*\\?"[^<]*<h4[\s>]/.test(m[1])) return true;
   }
   return false;

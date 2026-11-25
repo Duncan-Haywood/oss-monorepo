@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 test("index links to the docs page", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(
@@ -83,7 +85,7 @@ test("index links one hop to the helm-values-schema-check sibling", async () => 
 test("sitemap lists all published pages", async () => {
   const sitemap = await readFile(new URL("./sitemap.xml", import.meta.url), "utf8");
   for (const loc of ["index.html", "why-a-missing-resource-limit-takes-down-a-node.html", "vs-polaris.html"]) {
-    assert.match(sitemap, new RegExp(loc.replace(/\./g, "\\.")));
+    assert.match(sitemap, new RegExp(escapeRegExp(loc)));
   }
 });
 

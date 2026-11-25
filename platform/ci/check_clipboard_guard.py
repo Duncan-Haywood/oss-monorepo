@@ -223,7 +223,7 @@ def classify(src):
             yield line, "unhandled"
 
 
-_SCRIPT = re.compile(r"<script\b([^>]*)>(.*?)</script\s*>", re.S | re.I)
+_SCRIPT = re.compile(r"<script\b([^>]*)>(.*?)</script\b[^>]*>", re.S | re.I)
 
 
 def scripts(path, src):

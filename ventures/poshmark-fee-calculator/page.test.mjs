@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { calculateSale, compareOffer, INPUT_IDS, OFFER_INPUT_IDS, FLAT_FEE, BREAK_EVEN_PRICE, COMMISSION_THRESHOLD } from './calc.mjs';
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const page = name => readFileSync(new URL(`./${name}`, import.meta.url), 'utf8');
 const markup = page('index.html');
 const ids = new Set([...markup.matchAll(/\bid="([^"]+)"/g)].map(m => m[1]));
@@ -74,7 +75,7 @@ test('every .html file in the venture is reachable from the sitemap', () => {
       assert.match(sitemap, /poshmark-fee-calculator\/<\/loc>/);
       continue;
     }
-    assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
+    assert.match(sitemap, new RegExp(escapeRegExp(name)), `${name} is missing from sitemap.xml`);
   }
 });
 

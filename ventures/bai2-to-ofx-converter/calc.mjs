@@ -460,7 +460,7 @@ export function sampleBrokenFile() {
   const j = ls.findIndex((l) => l.startsWith("16,475,"));
   ls.splice(j, 1);
   const k = ls.findIndex((l) => l.startsWith("16,108,"));
-  ls[k] = ls[k].replace(",,TRN00418,", ",,TRN00418,").replace("20000", "20.00");
+  ls[k] = ls[k].replace("20000", "20.00");
   return ls.join("\n") + "\n";
 }
 

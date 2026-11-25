@@ -1,0 +1,20 @@
+# Template for the billing Worker. Copy it to wrangler.toml in the owner-only
+# place it is deployed from (README.md, "Going live"), on a Cloudflare account
+# separate from the public site's. Never add a GitHub Actions deploy for it in
+# this repository: that would put its secrets within reach of agent-merged code.
+name = "billing"
+main = "worker.mjs"
+compatibility_date = "2025-09-01"
+
+[vars]
+# Origins whose pages may fetch keys (the tool pages).
+ALLOWED_ORIGIN = "https://marisstella.app"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "billing"
+database_id = "paste the id printed by: npx wrangler d1 create billing"
+
+# Secrets, set with `npx wrangler secret put <NAME>`, never written here:
+#   PADDLE_WEBHOOK_SECRET  the notification destination's secret key
+#   LICENCE_SIGNING_KEY    the private key printed by keygen.mjs

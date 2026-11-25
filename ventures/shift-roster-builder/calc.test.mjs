@@ -896,7 +896,7 @@ test("scheduleChanges prices a cancelled shift at its own hours and a flat dolla
 });
 
 test("scheduleChanges leaves out exempt people and says when notice is unknown", () => {
-  const revised = POSTED.replace("Ana,\nWed", "Ana,\nWed").replace("Ben", "Cleo");
+  const revised = POSTED.replace("Ben", "Cleo");
   const a = scheduleChanges(POSTED, revised, { changedAt: 17 * 60 + 2 * 1440 - 60, noticeHours: 48, wages: { Ben: 15, Cleo: 12 }, exempt: ["ben"] });
   assert.equal(a.changes.find((c) => c.person === "Ben").exempt, true);
   assert.equal(a.owed, 12);

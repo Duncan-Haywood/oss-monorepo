@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import test from "node:test";
 import assert from "node:assert/strict";
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const guide = readFileSync(new URL("./why-did-my-pr-drop-coverage.html", import.meta.url), "utf8");
@@ -34,8 +35,8 @@ test("FAQPage JSON-LD questions match the visible headings", () => {
     "Which coverage formats does this work with?",
     "Is my coverage report uploaded anywhere?",
   ]) {
-    assert.match(faq, new RegExp(question.replace(/[?]/g, "\\?")));
-    assert.match(html, new RegExp(`<h3>${question.replace(/[?]/g, "\\?")}</h3>`));
+    assert.match(faq, new RegExp(escapeRegExp(question)));
+    assert.match(html, new RegExp(`<h3>${escapeRegExp(question)}</h3>`));
   }
 });
 
@@ -50,7 +51,7 @@ test("every .html file in the venture is reachable from the sitemap", () => {
   const htmlFiles = readdirSync(new URL("./", import.meta.url)).filter((name) => name.endsWith(".html"));
   for (const name of htmlFiles) {
     if (name === "index.html" || name === "offline.html") continue;
-    assert.match(sitemap, new RegExp(name.replace(/\./g, "\\.")), `${name} is missing from sitemap.xml`);
+    assert.match(sitemap, new RegExp(escapeRegExp(name)), `${name} is missing from sitemap.xml`);
   }
 });
 

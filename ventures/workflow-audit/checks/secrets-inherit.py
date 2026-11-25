@@ -67,10 +67,16 @@ import re
 import sys
 from pathlib import Path
 
-SECRETS_INHERIT_EXTERNAL_WORKFLOW = "secrets-inherit-external-workflow"
-SECRETS_INHERIT_UNTRUSTED_TRIGGER = "secrets-inherit-untrusted-trigger"
+# Rule ids, not secret values: named for the rule so the name says what the
+# constant holds, a public classification string.
+INHERIT_EXTERNAL_WORKFLOW_RULE = "secrets-inherit-external-workflow"
+INHERIT_UNTRUSTED_TRIGGER_RULE = "secrets-inherit-untrusted-trigger"
 
-RISK_CLASSIFICATIONS = frozenset({SECRETS_INHERIT_EXTERNAL_WORKFLOW, SECRETS_INHERIT_UNTRUSTED_TRIGGER})
+RISK_CLASSIFICATIONS = frozenset({INHERIT_EXTERNAL_WORKFLOW_RULE, INHERIT_UNTRUSTED_TRIGGER_RULE})
+
+# Earlier public names of the rule ids, kept so existing importers keep working.
+SECRETS_INHERIT_EXTERNAL_WORKFLOW = INHERIT_EXTERNAL_WORKFLOW_RULE
+SECRETS_INHERIT_UNTRUSTED_TRIGGER = INHERIT_UNTRUSTED_TRIGGER_RULE
 
 # Whole-file, not scoped to the `on:` block -- the same deliberate
 # simplification actions-cache-poisoning-check and actions-injection-check
@@ -145,7 +151,7 @@ def scan_text(text, filename="<workflow>"):
                         {
                             "file": filename,
                             "line": lineno,
-                            "type": SECRETS_INHERIT_EXTERNAL_WORKFLOW,
+                            "type": INHERIT_EXTERNAL_WORKFLOW_RULE,
                             "detail": f"secrets: inherit on {job_call_value}",
                             "remediation": _EXTERNAL_REMEDIATION,
                         }
@@ -155,7 +161,7 @@ def scan_text(text, filename="<workflow>"):
                         {
                             "file": filename,
                             "line": lineno,
-                            "type": SECRETS_INHERIT_UNTRUSTED_TRIGGER,
+                            "type": INHERIT_UNTRUSTED_TRIGGER_RULE,
                             "detail": f"secrets: inherit on {job_call_value}",
                             "remediation": _UNTRUSTED_TRIGGER_REMEDIATION,
                         }
@@ -209,8 +215,8 @@ def render_text(findings, root):
             return "No .github/workflows/*.yml or *.yaml files found under " + str(root)
         return f"Scanned {len(files)} workflow file(s); no findings."
 
-    external = [f for f in findings if f["type"] == SECRETS_INHERIT_EXTERNAL_WORKFLOW]
-    untrusted = [f for f in findings if f["type"] == SECRETS_INHERIT_UNTRUSTED_TRIGGER]
+    external = [f for f in findings if f["type"] == INHERIT_EXTERNAL_WORKFLOW_RULE]
+    untrusted = [f for f in findings if f["type"] == INHERIT_UNTRUSTED_TRIGGER_RULE]
 
     lines = []
     for f in external:

@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01XpHqyfBKDDayX4Vg6fmw12",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "Directional revamp (one of 40 sessions): update the routing guidance (AGENTS.md, ventures/CLAUDE.md, PRODUCT_PLAYBOOK.md, prompt.md, promptctl route, track sub-prompts) to the 2026-11-24 direction in PR #18675; leave the control-plane PR open for owner approval.",
+  "input_sha256": "d73bb25811216f9245b24b083121d51ed0845d3bfe2e5da89683e9e15541f256",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T22:07:33Z",
+  "ended": "2026-11-24T22:20:08Z",
+  "wall_minutes": 12.71,
+  "tokens_in": 6457956,
+  "tokens_out": 21011,
+  "cost_usd": 2.4998,
+  "tool_calls": 46,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18691",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "'Website requests come next' and the ventures sub-prompts' 'deepen a flagship by default' pulled against the 2026-11-24 bets direction; rewritten in this PR."
+    },
+    {
+      "file": "AGENTS.md",
+      "issue": "'Free full access for now \u2014 no paywalls' and build criteria 'free and full-featured' contradicted goals.md North star; replaced."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "'Every session lands its own work' says merge it yourself; the brief and CODEOWNERS put these control-plane paths behind owner approval",
+      "did": "left PR #18691 open for the owner",
+      "result": "waiting on owner; doc-refs check red only on bets.md, which PR #18675 adds"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "most PRs carry a blog post; this is a guidance-only control-plane PR that should stay small and the direction post belongs with PR #18675",
+      "did": "no post",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Local: pytest prompts/ 138 passed; promptctl validate ok; run_workflow_locally --for-changes 9/10 workflows passed, doc-refs-ci failed only on 7 links / 8 backticked paths to portfolio/monetization/bets.md (created by PR #18675). routing.json weights deliberately unchanged (goals.md owns the shares).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6677eb1a-e05c-5c1e-8006-c1d89e16491b",
+    "transcripts": 1,
+    "first": "2026-11-24T22:07:33Z",
+    "last": "2026-11-24T22:20:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 97,
+        "output": 21011,
+        "thinking": 3936,
+        "cache_read": 6356879,
+        "cache_write_5m": 0,
+        "cache_write_1h": 100980,
+        "api_equivalent_usd": 2.4998,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 97,
+      "output": 21011,
+      "thinking": 3936,
+      "cache_read": 6356879,
+      "cache_write_5m": 0,
+      "cache_write_1h": 100980,
+      "api_equivalent_usd": 2.4998,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 37,
+      "ToolSearch": 2,
+      "ReadNotifications": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__claude-code-remote__subscribe_pr_activity": 1,
+      "mcp__claude-code-remote__send_later": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__add_issue_comment": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.71,
+      "active_minutes": 5.84,
+      "model_minutes": 3.27,
+      "tool_minutes": 2.57,
+      "waiting_on_human_minutes": 6.86,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

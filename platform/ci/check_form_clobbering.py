@@ -30,7 +30,7 @@ _FORM_TAG = re.compile(r"<form\b([^>]*)>", re.I)
 _CONTROL = re.compile(r"<(?:input|button|select|textarea|fieldset|output|object)\b([^>]*)>", re.I)
 # One attribute: a name, then an optional double-, single- or un-quoted value.
 _ATTR = re.compile(r"""([^\s"'<>/=]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?""")
-_SCRIPT = re.compile(r"<script\b[^>]*>(.*?)</script\s*>", re.S | re.I)
+_SCRIPT = re.compile(r"<script\b[^>]*>(.*?)</script\b[^>]*>", re.S | re.I)
 # Any tag, so the inline handlers (onclick="this.form.reset()") count as script.
 _TAG = re.compile(r"<[a-zA-Z][^>]*>")
 

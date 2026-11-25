@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtHjnE3ArHHXLsVEprE",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T02:07:18Z",
+  "ended": "2026-11-25T02:10:33Z",
+  "wall_minutes": 3.44,
+  "tokens_in": 3264042,
+  "tokens_out": 14184,
+  "cost_usd": 1.585,
+  "tool_calls": 41,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18806",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 sends runs to the top queued alert, but the queue is ~1h behind merges. Today it listed 1,244 alerts PR 18676 had already fixed, and nothing in the queue showed that. Fixed in this PR."
+    },
+    {
+      "file": "security-alerts:alerts/<n>.md",
+      "issue": "The false-positive path says 'change no code, record in notes', so a queue topped by false positives gives a run nothing to land."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Step 0 says take the top alert. Alerts #1-7 are false positives and most others were already fixed on main.",
+      "did": "Made the queue show its scan commit instead of redoing fixes.",
+      "result": "Merged a small process fix. No alert fixes were needed."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No new blog post: this is an internal CI change with no reader outside agents.",
+      "did": "Extended the existing agent report docs/reports/2026-11-24-codeql-backlog-cleared.md.",
+      "result": "ok"
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-24-codeql-backlog-cleared.md (extended)"
+  ],
+  "goal": null,
+  "notes": "False positives for the owner to dismiss in the Security tab (CodeQL name heuristics): #1 research/cell-fidelity solver run.py:385 (summary.json of solver stats); #2-4 einvoice-preflight tests test_bic/test_iban/test_remittance (synthetic IBAN/BIC fixtures); #5-6 marriage-divorce-evidence model training outputs (aggregate stats); #7 platform/security/risk_review.py:457 (writes only path+kind of a found secret, never its value). CodeQL main run 116 (5f857bb81, after 18676) was queued at the time of this run; the queue should shrink sharply once it completes. Tests: platform/ci test_security_alerts 15/15 OK.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "347bd383-de7e-5671-bbbe-14798754038f",
+    "transcripts": 1,
+    "first": "2026-11-25T02:07:18Z",
+    "last": "2026-11-25T02:10:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 78,
+        "output": 14184,
+        "thinking": 4410,
+        "cache_read": 3180856,
+        "cache_write_5m": 0,
+        "cache_write_1h": 83108,
+        "api_equivalent_usd": 1.585,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 78,
+      "output": 14184,
+      "thinking": 4410,
+      "cache_read": 3180856,
+      "cache_write_5m": 0,
+      "cache_write_1h": 83108,
+      "api_equivalent_usd": 1.585,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 36,
+      "ToolSearch": 2,
+      "mcp__github__actions_list": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.44,
+      "active_minutes": 3.44,
+      "model_minutes": 2.96,
+      "tool_minutes": 0.48,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "triage of a stale queue plus a small script change and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 94.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

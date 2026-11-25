@@ -574,7 +574,10 @@ class Gone(unittest.TestCase):
         finally:
             os.killpg(p.pid, signal.SIGKILL)
             p.wait()
-        self.assertEqual(matching(tag), [])
+        # SIGKILL reaches the shell's forked child (same group, same cmdline
+        # until it execs) asynchronously; under unwired_checks' six-way load it
+        # was still listed a moment after p.wait() (2026-11-25), so wait briefly.
+        self.assertTrue(wait_gone(tag, timeout=5, interval=0.05), matching(tag))
         with contextlib.redirect_stdout(io.StringIO()) as out:
             self.assertEqual(main(["--gone", tag, "--timeout", "1"]), 0)
         self.assertIn("no process matches", out.getvalue())

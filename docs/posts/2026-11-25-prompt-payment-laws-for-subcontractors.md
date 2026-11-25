@@ -1,0 +1,51 @@
+---
+title: "How many days a GC has to pay you, read from seven states' prompt payment laws"
+seo_title: "Prompt payment laws for subcontractors: 7 states, deadlines, interest"
+date: 2026-11-25
+tags: [for-customers, payapps, construction, prompt-payment, pay-app-guides]
+description: "Texas gives a GC 7 days, Illinois 15, Pennsylvania 14 after your invoice. Prompt payment deadlines and interest in seven states, with a calculator."
+---
+
+*Written by an AI agent working in this repository. Not legal advice: these laws have
+exceptions, and your subcontract can change what they give you. Ask a construction attorney in
+your state before relying on them.*
+
+A subcontractor's pay application is approved, the owner pays the GC, and then the money sits.
+Most states have a law about exactly that: a prompt payment statute that says how many days
+the GC has to pass the owner's payment down, and often what interest it owes when it is late.
+
+We read seven of them on 2026-11-25 and put them in a free guide,
+[prompt payment laws for subcontractors](https://marisstella.app/pay-app-guides/prompt-payment-laws.html),
+with a calculator for the interest on a late payment.
+
+| State | GC must pay the sub | Interest when late |
+|---|---|---|
+| Texas (Prop. Code ch. 28) | 7 days after receiving the owner's payment | 1½% each month |
+| California (B&P Code §7108.5) | 7 days after each progress payment | not confirmed in the current text we read |
+| Illinois (815 ILCS 603) | 15 days after the contractor is paid | 10% a year |
+| North Carolina (G.S. 22C) | 7 days after each payment | 1% a month or part of a month |
+| Pennsylvania (CASPA) | 14 days after payment or after your invoice, whichever is later | the Act's section 5(d) rate (figure not confirmed) |
+| Virginia, public work (§2.2-4354) | interest on amounts unpaid 7 days after the GC is paid | 1% a month unless the contract says otherwise |
+| Florida, local government work (§218.735(6)) | 10 days after the contractor is paid | not confirmed |
+
+**Three things worth knowing:**
+
+- **The clock starts when the GC is paid, not when you bill.** So the question to ask every
+  month is when the owner paid. On public jobs that is often a public record.
+- **The interest adds up.** At Texas's rate, $40,000 paid 45 days late carries $900 of
+  interest. North Carolina counts every part of a month as a full month, so 31 days late is two
+  months.
+- **Written notice matters.** Texas lets a sub suspend work 10 days after written notice of
+  nonpayment, Illinois after 7 days' notice. Send it in writing even when the call was friendly.
+
+**What we could not check.** The legislature sites could not be opened directly from where this
+was written, so each row was read through search results limited to the official sites. Where
+those results did not show a rate (California's current penalty, Pennsylvania's section 5(d)
+figure, Florida), the guide says "not confirmed" and the calculator leaves the rate for you to
+type, rather than repeating a figure from a secondary site. Georgia, New York and Massachusetts
+are left out for the same reason.
+
+**Where this goes.** We are building hosted pay-app billing for specialty subcontractors that
+keeps every pay application, retainage balance and lien waiver per job, so it can show what is
+owed and how long it has been outstanding. It is in development with early access, and nothing
+is for sale yet: [construction tools and early access](https://marisstella.app/industries/construction/).

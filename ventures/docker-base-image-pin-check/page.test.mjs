@@ -2,6 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { readdirSync } from 'node:fs';
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const stripTags = (s) => { let p; do { p = s; s = s.replace(/<[^>]+>/g, ''); } while (s !== p); return s; };
+const stripScripts = (s) => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ''); } while (s !== p); return s; };
 
 const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
 const secondary = await readFile(
@@ -32,7 +35,7 @@ test('the page never claims a clean scan means the build is safe or secure', () 
   // only -- the FAQ deliberately *asks* "does a clean scan mean my build is
   // supply-chain safe?", which is the honest question, so a blanket ban on
   // the phrase would forbid the question along with the overclaim.
-  const prose = index.replace(/<script[\s\S]*?<\/script>/g, '');
+  const prose = stripScripts(index);
   const claims = /\b(?:is|are|was|were)\s+(?:supply-chain\s+)?(?:safe|secure)\b/gi;
   for (const match of prose.matchAll(claims)) {
     const preceding = prose.slice(Math.max(0, match.index - 60), match.index);
@@ -61,7 +64,7 @@ test('the JSON-LD FAQPage questions match the visible FAQ headings', () => {
   assert.ok(ldMatch, 'expected a FAQPage JSON-LD block');
   const ld = ldMatch[0];
   const headings = [...index.matchAll(/<h3>(.*?)<\/h3>/g)].map((m) =>
-    m[1].replace(/<[^>]+>/g, '').trim(),
+    stripTags(m[1]).trim(),
   );
   assert.ok(headings.length > 0, 'expected visible h3 FAQ headings');
   for (const heading of headings) {
@@ -102,7 +105,7 @@ test('every .html file in the venture is reachable from the sitemap', async () =
   const htmlFiles = readdirSync(dir).filter((name) => name.endsWith('.html'));
   for (const name of htmlFiles) {
     if (name === 'index.html') continue;
-    assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
+    assert.match(sitemap, new RegExp(escapeRegExp(name)), `${name} is missing from sitemap.xml`);
   }
 });
 

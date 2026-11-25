@@ -2,6 +2,8 @@
 
 > Check a contractor RFP or bid submission for missing documents, owners, and deadline risks. Free, private, and browser-local.
 
+The deadline takes a due time and the time zone it is read in (the issuing office's), so a bid due at 2:00 PM reads past-due from 2:00 PM on that clock, not from the next midnight.
+
 Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages

@@ -54,11 +54,16 @@ test('every FAQ answer in the schema matches the visible answer text', () => {
   // the copy a reader sees is a structured-data mismatch search engines
   // treat as one. Compare on text, after decoding the entities the visible
   // copy uses and the JSON-LD does not.
+  const stripTags = (s) => {
+    let prev;
+    do {
+      prev = s;
+      s = s.replace(/<[^>]+>/g, '');
+    } while (s !== prev);
+    return s;
+  };
   const decode = (s) =>
-    s
-      .replace(/&mdash;/g, '—')
-      .replace(/&amp;/g, '&')
-      .replace(/<[^>]+>/g, '')
+    stripTags(s.replace(/&mdash;/g, '—').replace(/&amp;/g, '&'))
       .replace(/\s+/g, ' ')
       .trim();
   const schema = JSON.parse(

@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const PAGES = ["index", "sprs-score-calculator", "job-shop-quote-calculator", "cmmc-level-1-vs-level-2", "ssp-and-poam", "how-to-price-a-machined-part"];
+const PAGES = ["index", "cmmc-level-1-self-assessment", "sprs-score-calculator", "nist-800-171-ssp-template", "job-shop-quote-calculator", "cmmc-level-1-vs-level-2", "ssp-and-poam", "how-to-price-a-machined-part"];
 const read = (p) => readFileSync(new URL(`./${p}.html`, import.meta.url), "utf8");
 
 for (const p of PAGES) {
@@ -37,7 +37,9 @@ test("the quote calculator ships no rates: every money field starts empty", () =
 });
 
 test("pricing guide contains no dollar figures", () => {
-  const text = read("how-to-price-a-machined-part").replace(/<script[\s\S]*?<\/script>/g, "");
+  let text = read("how-to-price-a-machined-part");
+  let prev;
+  do { prev = text; text = text.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ""); } while (text !== prev);
   assert.doesNotMatch(text, /\$\s?\d/);
 });
 

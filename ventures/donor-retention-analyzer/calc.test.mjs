@@ -139,7 +139,9 @@ test("when behaviour changes in the last year the hold-out calls the model unsta
 });
 
 test("donors who stopped giving are ranked by expected dollars, and the CSV lists every one", () => {
-  const r = run(sampleText().replace(/\n/, "\n\"Smith, Jo\",2022-05-05,2500\n"), {});
+  const text = sampleText();
+  const afterHeader = text.indexOf("\n") + 1;
+  const r = run(text.slice(0, afterHeader) + "\"Smith, Jo\",2022-05-05,2500\n" + text.slice(afterHeader), {});
   const exp = r.lists.LYBUNT.map((x) => x.expected);
   assert.deepEqual(exp, [...exp].sort((a, b) => b - a));
   const csv = reportCsv(r).trim().split("\n");

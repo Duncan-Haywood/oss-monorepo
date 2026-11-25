@@ -30,7 +30,8 @@ owner: duncan
 # Unverified: every platform's column names and every importer layout are from memory of public help documents; the
 # detector is proved only against each engine's own synthetic sample, never against a real export. A real export it
 # misdetects, or a journal an importer refuses, is the priority fix. engines/*.mjs are copies of the per-platform
-# calc.mjs files and drift unless re-copied.
+# calc.mjs files; copy-engines.mjs re-copies them and engines.test.mjs fails on drift (four had drifted by
+# 2026-11-25: Square cash tenders, Gumroad's real export layout, AdSense thousands separators, Upwork's formula guard).
 
 hypotheses:
   - claim: >-

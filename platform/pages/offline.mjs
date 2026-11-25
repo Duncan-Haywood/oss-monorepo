@@ -370,10 +370,16 @@ const MANIFEST_LINK = /<link\b[^>]*\brel\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>
 /** Head content with comments, scripts and styles removed. */
 function scannableHead(html) {
   const end = html.indexOf('</head>');
-  return (end === -1 ? html : html.slice(0, end))
-    .replace(/<!--[\s\S]*?-->/g, ' ')
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ');
+  let head = end === -1 ? html : html.slice(0, end);
+  let prev;
+  do {
+    prev = head;
+    head = head
+      .replace(/<!--[\s\S]*?--!?>/g, ' ')
+      .replace(/<script\b[\s\S]*?<\/script\b[^>]*>/gi, ' ')
+      .replace(/<style\b[\s\S]*?<\/style\b[^>]*>/gi, ' ');
+  } while (head !== prev);
+  return head;
 }
 
 /**

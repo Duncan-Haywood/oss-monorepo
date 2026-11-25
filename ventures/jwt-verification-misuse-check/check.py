@@ -54,8 +54,12 @@ ALG_NONE = "jwt-alg-none"
 ALGORITHMS_NOT_PINNED = "jwt-algorithms-not-pinned"
 EXPIRY_DISABLED = "jwt-expiry-disabled"
 NOT_BEFORE_DISABLED = "jwt-not-before-disabled"
-HARDCODED_SECRET = "jwt-hardcoded-secret"
-WEAK_SECRET = "jwt-weak-secret"
+# Rule ids, not secrets: named *_KEY_LITERAL so the scanner's own output is not
+# mistaken for key material. The *_SECRET names stay as aliases for importers.
+HARDCODED_KEY_LITERAL = "jwt-hardcoded-secret"
+WEAK_KEY_LITERAL = "jwt-weak-secret"
+HARDCODED_SECRET = HARDCODED_KEY_LITERAL
+WEAK_SECRET = WEAK_KEY_LITERAL
 USER_CONTROLLED_KEY = "jwt-user-controlled-key"
 
 RISK_CLASSIFICATIONS = frozenset(
@@ -66,8 +70,8 @@ RISK_CLASSIFICATIONS = frozenset(
         ALGORITHMS_NOT_PINNED,
         EXPIRY_DISABLED,
         NOT_BEFORE_DISABLED,
-        HARDCODED_SECRET,
-        WEAK_SECRET,
+        HARDCODED_KEY_LITERAL,
+        WEAK_KEY_LITERAL,
         USER_CONTROLLED_KEY,
     }
 )
@@ -154,11 +158,11 @@ LINE_RULES = [
 # Secret-literal line rules: (regex, literal group, label). Applied only when the
 # file mentions jwt (any case) for Go/Java, where the call shape is not
 # recognisable from the text alone.
-SECRET_LINE_RULES = [
+KEY_LITERAL_LINE_RULES = [
     (r"\bsecretOrKey[\"']?\s*:\s*([\"'`])((?:\\.|(?!\1).)*)\1", 2, "secretOrKey", False),
     (r"\[\]byte\(\s*([\"`])((?:\\.|(?!\1).)*)\1\s*\)", 2, "[]byte literal", True),
-    (r"\b(?:Algorithm\.HMAC(?:256|384|512)|hmacShaKeyFor|setSigningKey)\(\s*\"((?:\\.|[^\"])*)\"", 1, "HMAC key literal", True),
-    (r"\bsignWith\(\s*SignatureAlgorithm\.\w+\s*,\s*\"((?:\\.|[^\"])*)\"", 1, "signWith key literal", True),
+    (r"\b(?:Algorithm\.HMAC(?:256|384|512)|hmacShaKeyFor|setSigningKey)\(\s*\"((?:\\[\s\S]|[^\"\\])*\\?)\"", 1, "HMAC key literal", True),
+    (r"\bsignWith\(\s*SignatureAlgorithm\.\w+\s*,\s*\"((?:\\[\s\S]|[^\"\\])*\\?)\"", 1, "signWith key literal", True),
 ]
 
 JS_CALLS = re.compile(r"\b(?:jwt|jsonwebtoken)\.(verify|sign|decode)\s*\(")
@@ -166,7 +170,8 @@ PY_CALLS = re.compile(r"\b(?:jwt|pyjwt|PyJWT)\.(decode|encode)\s*\(")
 GO_CALLS = re.compile(r"\bjwt\.(?:Parse|ParseWithClaims)\s*\(")
 # Same shape as classify.mjs: a backslash is an escape or, only before the closing
 # quote, a lone character; the old (?:\\.|(?!\1).)* split backslash runs 2^n ways.
-STRING_ARG = re.compile(r"^[bBuU]?([\"'`])((?:\\.|(?![\\]|\1).)*\\?)\1$")
+# [^\\\n] (not a lookahead) keeps the two alternatives visibly disjoint.
+STRING_ARG = re.compile(r"^[bBuU]?([\"'`])((?:\\.|(?!\1)[^\\\n])*\\?)\1$")
 KEYWORD_ARG = re.compile(r"^([A-Za-z_]\w*)\s*=(?!=)\s*(.*)$")
 USER_KEY = re.compile(
     r"\b(?:req|request|ctx|event)\s*[.\[]|\bheaders?\b|\b(?:params|query|body)\b"
@@ -190,11 +195,11 @@ WEAK_LITERALS = frozenset(
 _COMPILED_LINE_RULES = [
     (t, re.compile(rx, re.I if "i" in fl else 0), d, f) for t, rx, fl, d, f in LINE_RULES
 ]
-_COMPILED_SECRET_RULES = [
-    (re.compile(rx), g, label, gated) for rx, g, label, gated in SECRET_LINE_RULES
+_COMPILED_KEY_LITERAL_RULES = [
+    (re.compile(rx), g, label, gated) for rx, g, label, gated in KEY_LITERAL_LINE_RULES
 ]
 
-_SECRET_FIX = (
+_KEY_LITERAL_FIX = (
     "Load the key from the environment or a secret manager (process.env.JWT_SECRET, "
     "os.environ[\"JWT_SECRET\"], System.getenv), generate it with `openssl rand -base64 48` "
     "(at least 32 random bytes for HS256), and rotate this one -- it is in your version "
@@ -327,7 +332,7 @@ def _key_arg(args, lang_group):
     return args[1] if len(args) > 1 else None
 
 
-def _secret_finding(literal, call_name, lineno, filename):
+def _key_literal_finding(literal, call_name, lineno, filename):
     if "${" in literal:
         return None
     n = len(literal)
@@ -339,14 +344,14 @@ def _secret_finding(literal, call_name, lineno, filename):
         else:
             what = f"a {n}-character literal (too short for an HMAC secret)"
         return _finding(
-            filename, lineno, WEAK_SECRET,
+            filename, lineno, WEAK_KEY_LITERAL,
             f"{call_name} uses {what} as the key, hard-coded in source",
-            _SECRET_FIX,
+            _KEY_LITERAL_FIX,
         )
     return _finding(
-        filename, lineno, HARDCODED_SECRET,
+        filename, lineno, HARDCODED_KEY_LITERAL,
         f"{call_name} uses a {n}-character string literal as the key, hard-coded in source",
-        _SECRET_FIX,
+        _KEY_LITERAL_FIX,
     )
 
 
@@ -360,7 +365,7 @@ def _key_findings(args, group, call_name, lineno, filename):
         return []
     m = STRING_ARG.match(key)
     if m:
-        f = _secret_finding(m.group(2), call_name, lineno, filename)
+        f = _key_literal_finding(m.group(2), call_name, lineno, filename)
         return [f] if f else []
     if USER_KEY.search(key) and not re.search(r"\bkid\b", key):
         return [
@@ -389,12 +394,12 @@ def scan_text(text, filename="<source>"):
         for type_, rx, detail, fix in _COMPILED_LINE_RULES:
             if rx.search(line):
                 findings.append(_finding(filename, lineno, type_, detail, fix))
-        for rx, group, label, gated in _COMPILED_SECRET_RULES:
+        for rx, group, label, gated in _COMPILED_KEY_LITERAL_RULES:
             if gated and not mentions_jwt:
                 continue
             m = rx.search(line)
             if m:
-                f = _secret_finding(m.group(group), label, lineno, filename)
+                f = _key_literal_finding(m.group(group), label, lineno, filename)
                 if f:
                     findings.append(f)
 

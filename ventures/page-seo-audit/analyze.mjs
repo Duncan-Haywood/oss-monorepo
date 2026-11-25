@@ -30,7 +30,11 @@ function attrs(tag) {
 
 export function parse(html) {
   const src = String(html || "");
-  const raw = src.replace(/<!--[\s\S]*?-->/g, "");
+  let raw = src;
+  for (let prev; prev !== raw; ) {
+    prev = raw;
+    raw = raw.replace(/<!--[\s\S]*?--!?>/g, "");
+  }
   // Non-JSON-LD script, style and template bodies can hold markup-looking
   // strings that are not part of the page; blank them before reading tags.
   const body = raw.replace(/<(script|style|template)\b([^>]*)>[\s\S]*?<\/\1>/gi, (m, n, a) =>

@@ -97,6 +97,23 @@ tools:
     # exposures the baseline forbids.
     block_at: critical
 
+  trivy-image:
+    # The same pinned Trivy binary, scanning the base images that changed
+    # Dockerfiles and Compose files name. Each image not pinned by @sha256 is a
+    # medium finding (reported); a high or critical vulnerability with a fix,
+    # in an image the PR adds or changes, blocks. An image that cannot be
+    # fetched is reported as `image-not-scanned`, never as clean. Not required:
+    # it pulls from public registries, so a registry outage cannot stop dev.
+    kind: go
+    module: github.com/aquasecurity/trivy
+    package: github.com/aquasecurity/trivy/cmd/trivy
+    version: v0.76.2
+    go_sum: "h1:RYBcQklHCFOHg/sfYSfe8v4/W5H2rAZrP5THPWY5F+A="
+    binary: trivy
+    required: false
+    paths: ["*Dockerfile*", "*Containerfile*", "*docker-compose*.yml", "*docker-compose*.yaml", "*compose.yaml", "*compose.yml"]
+    block_at: high
+
   zizmor:
     kind: pip
     lock: locks/zizmor.txt

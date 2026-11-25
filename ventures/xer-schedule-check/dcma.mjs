@@ -2,7 +2,7 @@
 // scheduler runs next to it (logic loops, links into a started activity,
 // stored float that no longer matches the logic).
 //
-// assess(xer, { projId }) -> {
+// assess(xer, { projId, baseline }) -> {
 //   project: { code, name, dataDate, finish, mustFinish, activities, ... },
 //   checks: [{ id, name, value, unit, threshold, pass, count, total, items, note }],
 //   recompute: { compared, matched },
@@ -17,10 +17,14 @@
 // most counts, 0 for leads, negative float and invalid dates, 0.95 for CPLI
 // and BEI).
 //
-// What the file cannot say: there is no baseline in a single XER unless the
-// project was exported with one, so missed tasks and BEI use P6's planned
-// dates (target_start/end_date), which P6 keeps as the baseline when the
-// project is set to use its own planned dates.
+// Missed tasks (11) and BEI (14) need a baseline. Given one (`baseline`, the
+// parsed XER of the baseline project), each activity is matched to it by
+// activity ID and its baseline finish is used. Without one they fall back on
+// P6's planned dates (target_end_date), which stand in for the baseline only
+// on started or finished work: P6 resets a not-started activity's planned
+// dates to its early dates every time it schedules, so overdue work that has
+// not started is never due and never missed. The note on each point says
+// which was used.
 
 import { schedule, drivingPath, hardConstraint, lagCalendar } from "./cpm.mjs";
 import { longestPath } from "./floatpaths.mjs";
@@ -30,6 +34,17 @@ import { parseDate, formatDate, num } from "./xer.mjs";
 const DAYS_44 = 44;
 
 const pct = (n, d) => (d ? (100 * n) / d : 0);
+
+// Each activity's baseline finish in a baseline schedule, by activity ID
+// (task_code): its actual finish when it had one, else its stored early
+// finish (the dates P6 gave it when the baseline was set), else its planned
+// finish. Level of effort and WBS summary activities are left out, as in
+// the population. Returns { finish: Map(code -> minutes|null), rows }.
+export function baselineFinishes(bx) {
+  const rows = (bx?.tables?.TASK || []).filter((r) => r.task_type !== "TT_LOE" && r.task_type !== "TT_WBS");
+  const finish = new Map(rows.map((r) => [r.task_code, parseDate(r.act_end_date) ?? parseDate(r.early_end_date) ?? parseDate(r.target_end_date)]));
+  return { finish, rows };
+}
 
 // the predecessor date a link's lag is counted from, as the file stores it
 function fromLabel(pr, rel) {
@@ -120,6 +135,8 @@ export function assess(xer, opts = {}) {
   const rels = model.rels.filter((r) => openIds.has(r.succId));
 
   let popDue = [];
+  let baseInfo = null;
+  const baseWarnings = [];
   // 1 Logic
   {
     const bad = [];
@@ -207,18 +224,31 @@ export function assess(xer, opts = {}) {
       items: bad.map((t) => ({ tid: t.id, code: t.code, name: t.name, why: "no resource or cost assignment" })),
       note: loaded ? "Open activities with duration and no resource or cost assignment." : "The file has no resource assignments at all; skip this check if the schedule is not meant to be resource loaded." });
   }
-  // 11 Missed tasks and 14 BEI (planned finish as the baseline)
+  // 11 Missed tasks and 14 BEI: against the baseline file when one is given,
+  // else the planned finish stands in (see the header)
   {
-    const due = all.filter((t) => !t.span && t.type !== "TT_Mile" && t.type !== "TT_FinMile" && dd !== null && parseDate(t.row.target_end_date) !== null && parseDate(t.row.target_end_date) <= dd);
-    const missed = due.filter((t) => t.actEnd === null || t.actEnd > parseDate(t.row.target_end_date));
+    const isMile = (t) => t.type === "TT_Mile" || t.type === "TT_FinMile";
+    const bl = opts.baseline ? baselineFinishes(opts.baseline) : null;
+    const useBl = !!(bl && bl.rows.length);
+    if (bl && !useBl) baseWarnings.push("The baseline file has no activities, so missed tasks and BEI use the planned dates in this file instead.");
+    const counted = all.filter((t) => !t.span && !isMile(t) && (!useBl || bl.finish.has(t.code)));
+    const bFin = useBl ? (t) => bl.finish.get(t.code) : (t) => parseDate(t.row.target_end_date);
+    const word = useBl ? "baseline finish" : "planned to finish";
+    const due = counted.filter((t) => dd !== null && bFin(t) !== null && bFin(t) <= dd);
+    const missed = due.filter((t) => t.actEnd === null || t.actEnd > bFin(t));
     popDue = due.map((t) => t.id);
+    const matched = useBl ? all.filter((t) => !t.span && bl.finish.has(t.code)).length : null;
+    const ofAll = all.filter((t) => !t.span).length;
+    baseInfo = useBl ? { source: "file", matched, activities: ofAll, due: due.length } : { source: "planned dates", matched: null, activities: ofAll, due: due.length };
     add({ id: 11, name: "Missed tasks", value: pct(missed.length, due.length), unit: "%", threshold: "<= 5%", pass: pct(missed.length, due.length) <= 5, count: missed.length, total: due.length,
-      items: missed.map((t) => ({ tid: t.id, code: t.code, name: t.name, why: t.actEnd === null ? `planned to finish ${t.row.target_end_date}, not finished` : `planned ${t.row.target_end_date}, finished ${formatDate(t.actEnd)}` })),
-      note: "Activities planned to finish by the data date that finished late or have not finished. Planned dates stand in for the baseline only on started or finished activities: P6 resets a not-started activity's planned dates to its early dates when it schedules, so late work not yet started is not counted." });
-    const finished = due.filter((t) => t.actEnd !== null).length;
-    const doneAll = all.filter((t) => !t.span && t.type !== "TT_Mile" && t.type !== "TT_FinMile" && t.status === "TK_Complete").length;
+      items: missed.map((t) => ({ tid: t.id, code: t.code, name: t.name, why: t.actEnd === null ? `${word} ${formatDate(bFin(t))}, not finished` : `${useBl ? "baseline finish" : "planned"} ${formatDate(bFin(t))}, finished ${formatDate(t.actEnd)}` })),
+      note: useBl
+        ? `Activities whose baseline finish is on or before the data date that finished late or have not finished, against the baseline file (${matched} of ${ofAll} activities matched by activity ID; activities added since the baseline are not counted).`
+        : "Activities planned to finish by the data date that finished late or have not finished. No baseline file given, so planned dates stand in for the baseline; that holds only on started or finished activities: P6 resets a not-started activity's planned dates to its early dates when it schedules, so late work not yet started is not counted. Open the baseline project's XER to count it." });
+    // DCMA's BEI: activities finished to date over those the baseline had due by now
+    const doneAll = counted.filter((t) => t.status === "TK_Complete").length;
     const bei = due.length ? doneAll / due.length : null;
-    checks.bei = { value: bei, due: due.length, finished: doneAll, finishedOfDue: finished };
+    checks.bei = { value: bei, due: due.length, finished: doneAll, useBl };
   }
   // 12 Critical path test
   {
@@ -266,7 +296,7 @@ export function assess(xer, opts = {}) {
     const b = checks.bei;
     delete checks.bei;
     add({ id: 14, name: "Baseline execution index (BEI)", value: b.value === null ? null : round3(b.value), unit: "", threshold: ">= 0.95", pass: b.value === null ? true : b.value >= 0.95, count: b.finished, total: b.due,
-      note: b.due ? `${b.finished} activities finished of ${b.due} planned to finish by the data date (planned dates as the baseline).` : "No activity was planned to finish by the data date, so there is nothing to measure yet." });
+      note: b.due ? `${b.finished} activities finished of ${b.due} ${b.useBl ? "due by the data date on the baseline file" : "planned to finish by the data date (planned dates as the baseline: no baseline file given)"}.` : `No activity was ${b.useBl ? "due by the data date on the baseline file" : "planned to finish by the data date"}, so there is nothing to measure yet.` });
   }
 
   // ---- beyond the 14 points
@@ -509,7 +539,8 @@ export function assess(xer, opts = {}) {
       return { code: t.code, name: t.name, start: formatDate(r.remES ?? r.es), finish: formatDate(r.ef), float: r.tf === undefined ? null : round1(r.tf / (t.cal.hoursPerDay || 8)) };
     }),
     longestPath: longest,
-    warnings: result.warnings,
+    baseline: baseInfo,
+    warnings: [...result.warnings, ...baseWarnings],
     passed: checks.filter((c) => c.pass).length,
   };
   // the activities each check counts over (relationship checks: each

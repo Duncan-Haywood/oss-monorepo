@@ -74,15 +74,19 @@ resource "aws_lambda_function" "kill_switch" {
   handler          = "handler.lambda_handler"
   filename         = data.archive_file.kill_switch.output_path
   source_code_hash = data.archive_file.kill_switch.output_base64sha256
-  timeout          = 300
-  memory_size      = 256
-  kms_key_arn      = aws_kms_key.topics.arn
+  # Two regions of sweeping per account.
+  timeout     = 600
+  memory_size = 256
+  kms_key_arn = aws_kms_key.topics.arn
 
   environment {
     variables = {
       ACCOUNTS    = jsonencode(local.accounts)
       TARGET_ROLE = "spend-guard/spend-kill-switch-target"
       DRY_RUN     = var.kill_switch_dry_run ? "1" : "0"
+      # Budget notifications stop only these; the rest alert (README.md).
+      KILL_ON_BUDGET = jsonencode(var.kill_switch_accounts)
+      REGIONS        = join(",", var.kill_switch_regions)
     }
   }
 

@@ -3,8 +3,9 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { newBooks, importStatement } from "./engine.mjs";
 import { closePackHtml, safeColor, safeLogo } from "./closepack.mjs";
-import { buyLink, cleanKey, interpret, checkLicence } from "./licence.mjs";
-import { CHECKOUT_URL } from "./checkout.mjs";
+import * as licence from "./licence.mjs";
+import { assertPackLicence } from "../../platform/billing/testkit.mjs";
+import { PADDLE } from "./checkout.mjs";
 
 const csv = fs.readFileSync(new URL("./fixtures/chase-checking.csv", import.meta.url), "utf8");
 const books = importStatement(newBooks(), csv, "1000").books;
@@ -28,12 +29,6 @@ test("typed text is escaped; no script rides in on logo or colour", () => {
   assert.equal(safeColor("red;}"), "#1f3a5f");
 });
 
-test("licence: dark by default, only an explicit live key unlocks, offline never throws", async () => {
-  assert.equal(buyLink(CHECKOUT_URL), CHECKOUT_URL || null); // dark when empty, live when golive.py set a link
-  assert.equal(cleanKey("short"), null);
-  assert.equal(interpret({ valid: true, license_key: { status: "disabled" } }).valid, false);
-  const off = await checkLicence("ABCD-1234-EFGH", { url: "https://example.com/v", fetch: async () => { throw new Error("offline"); } });
-  assert.equal(off.valid, false);
-  const ok = await checkLicence("ABCD-1234-EFGH", { url: "https://example.com/v", fetch: async () => ({ json: async () => ({ valid: true, license_key: { status: "active" } }) }) });
-  assert.equal(ok.valid, true);
+test("licence: dark until the catalogue is set; only a key signed for this pack unlocks; never throws", async () => {
+  await assertPackLicence(licence, PADDLE, "ai-bookkeeper");
 });

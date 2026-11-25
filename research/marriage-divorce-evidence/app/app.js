@@ -289,7 +289,7 @@ function renderLiterature(cur, a, b, couple, years) {
     $('#litOut').innerHTML = `<p class="note">The literature-based adjustment shifts a year-by-year curve to 5, 10 and 20 years; this lens covers only ${lensHorizons(cur.bundle).map(yrs).join(', ')}, so no adjustment is applied here. Pick a lens with a year-by-year projection to see it.</p>`;
     return;
   }
-  renderLiteratureResult($('#litOut'), { lens: cur.summary.id, evidence, litAnswers, a, b, years, yearsMarried: couple.yearsMarried });
+  renderLiteratureResult($('#litOut'), { lens: cur.summary.id, evidence, litAnswers, a, b, years, yearsMarried: Number(couple.yearsMarried) });
 }
 
 // Summary across lenses: each scorable lens's own estimate at the horizons it supports, its
@@ -420,7 +420,7 @@ function renderChart(years, couple) {
   for (let v = lo; v <= 1.0001; v += (1 - lo) / 5) grid += `<line x1="${L}" x2="${W - R}" y1="${ys(v)}" y2="${ys(v)}" stroke="var(--grid)"/><text x="${L - 6}" y="${ys(v) + 4}" text-anchor="end">${pct(v)}</text>`;
   const rate = isRateLens(bundle);
   const step = span > 30 ? 10 : span > 12 ? 5 : span > 4 ? 2 : 1;
-  for (let t = 0; t <= span + 1e-9; t += step) grid += `<text x="${xs(t)}" y="${H - 12}" text-anchor="middle">${rate ? x0 + t : t}</text>`;
+  for (let t = 0; t <= span + 1e-9; t += step) grid += `<text x="${xs(t)}" y="${H - 12}" text-anchor="middle">${rate ? esc(x0 + t) : t}</text>`;
   grid += `<text x="${(W + L) / 2}" y="${H}" text-anchor="middle">${rate ? 'year of marriage' : `years from ${adapterFor(bundle).referenceAt === 'now' ? 'today' : 'the wedding'}`}</text>`;
   const models = scoringModels(bundle).map((m) => `<path d="${line((p) => p.survival[m.key])}" fill="none" stroke="var(--model-line)" stroke-width="1"/>`).join('');
   $('#chart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Chance of no break-up over time">

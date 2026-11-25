@@ -232,3 +232,10 @@ test('profiles.json: every profile is bounded, documented and plans cleanly', ()
     }
   }
 });
+
+test('redact masks credential-looking env values in an error message', async () => {
+  const { redact } = await import('./mint.mjs');
+  const env = { CLOUDFLARE_MINTER_TOKEN: 'abcdef0123456789', CLOUDFLARE_ACCOUNT_ID: 'acct-not-secret', SHORT_KEY: 'x' };
+  assert.equal(redact('bad: abcdef0123456789 for acct-not-secret', env), 'bad: [redacted] for acct-not-secret');
+  assert.equal(redact('nothing here', env), 'nothing here');
+});

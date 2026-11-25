@@ -51,16 +51,28 @@ export function clearDocsSession(): void {
   sessionStorage.removeItem(SESSION_KEY);
 }
 
-async function sha256Hex(input: string): Promise<string> {
-  const data = new TextEncoder().encode(input);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+// Must match the salt and iteration count in vite.config.ts.
+const PASSCODE_SALT = "retail-pilot-intel/docs/passcode-v2";
+const PASSCODE_ITERATIONS = 600_000;
+
+async function derivePasscodeHash(passcode: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey("raw", encoder.encode(passcode), "PBKDF2", false, [
+    "deriveBits",
+  ]);
+  const bits = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", hash: "SHA-256", salt: encoder.encode(PASSCODE_SALT), iterations: PASSCODE_ITERATIONS },
+    keyMaterial,
+    256,
+  );
+  return Array.from(new Uint8Array(bits))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
 }
 
 export async function verifyDocsPasscode(input: string): Promise<boolean> {
   const normalized = input.trim();
   if (!normalized) return false;
-  const inputHash = await sha256Hex(normalized);
+  const inputHash = await derivePasscodeHash(normalized);
   return inputHash === __DOCS_PASSCODE_HASH__;
 }
