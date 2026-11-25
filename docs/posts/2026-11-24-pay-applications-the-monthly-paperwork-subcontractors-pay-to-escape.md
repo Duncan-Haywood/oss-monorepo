@@ -148,7 +148,7 @@ Still in development and not for sale. Built and tested so far:
 - lien waiver tracking, with the statutory form printed for the states encoded so far;
 - invitations for a team;
 - a cash and retainage report across jobs;
-- sending a pay application to QuickBooks Online as an invoice, with retainage kept in its own account (below).
+- sending a pay application to QuickBooks Online as an invoice, with retainage kept in its own account, and then each check received as a payment against that invoice (below).
 
 **Short pays.** The newest piece handles a GC that pays an application in pieces or short:
 
@@ -194,6 +194,22 @@ the lines. A test runs a job across three applications, with stored
 materials installed and a cut in the retainage rate, and checks that the
 invoices add up to the last application's line 6 (total earned less
 retainage). It has not yet run against a real QuickBooks company.
+
+**Checks received, without counting them twice** (added 2026-11-25). Once
+the invoice is in QuickBooks, each check recorded against the application
+can be sent as a payment from the GC, applied to that invoice, with the date
+received and the check number. On the $22,500 invoice above, take two checks
+of $15,000 and $7,500. The bookkeeper may already have keyed the second check
+in QuickBooks. Sending it again would show the GC as having paid $30,000. So
+before every send the build reads the invoice's open balance in QuickBooks
+and compares it with what it expects: $22,500 less the $15,000 already sent,
+which is $7,500. QuickBooks shows $0, so the build sends nothing and shows
+both figures. The contractor checks the invoice and marks the check
+"already in QuickBooks". Each send also carries a fixed request id, so a
+retry after a dropped connection is the same request. Deleting a check that
+is already in QuickBooks asks first, because the build never deletes anything
+in the contractor's books. Like the invoices, this is tested against a
+simulated QuickBooks company, not yet a real one.
 
 ## What exists now, free
 

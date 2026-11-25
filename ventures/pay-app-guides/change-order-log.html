@@ -66,8 +66,8 @@
     <div class="tile"><span>Pending past the flag</span><b id="t-stale">0</b></div>
   </div>
   <div id="findings"></div>
-  <div class="scroll"><table>
-    <thead><tr><th scope="col">CO</th><th scope="col">Description</th><th scope="col">Status</th><th scope="col" class="n">Amount</th><th scope="col" class="n">Days</th><th scope="col" class="n">Billed</th><th scope="col" class="n">Waiting</th></tr></thead>
+  <div class="scroll"><table class="stack compact" role="table">
+    <thead><tr><th role="columnheader" scope="col">CO</th><th role="columnheader" scope="col">Description</th><th role="columnheader" scope="col">Status</th><th role="columnheader" scope="col" class="n">Amount</th><th role="columnheader" scope="col" class="n">Days</th><th role="columnheader" scope="col" class="n">Billed</th><th role="columnheader" scope="col" class="n">Waiting</th></tr></thead>
     <tbody id="rows"></tbody>
   </table></div>
   <h3>Summary</h3>
@@ -145,7 +145,7 @@
     $("#t-pending").textContent = dollars(t ? t.pendingNet : 0);
     $("#t-stale").textContent = t ? `${t.staleCount} · ${dollars(t.staleAmount)}` : "0";
     $("#findings").innerHTML = last.findings.map((f) => `<p class="finding"><span class="pill ${f.severity}">${f.severity === "high" ? "check" : "note"}</span>${esc(f.title)}</p>`).join("");
-    $("#rows").innerHTML = (t ? last.lines : []).map((x) => `<tr><td>${esc(x.number)}</td><td>${esc(x.desc)}</td><td><span class="pill ${x.status}">${x.status}</span></td><td class="n">${dollars(x.amount)}</td><td class="n">${x.days || ""}</td><td class="n">${x.billed ? dollars(x.billed) : ""}</td><td class="n">${x.age != null ? `${x.age} d` : x.turnaround != null ? `took ${x.turnaround} d` : ""}</td></tr>`).join("");
+    $("#rows").innerHTML = (t ? last.lines : []).map((x) => `<tr><td data-label="CO">${esc(x.number)}</td><td data-label="Description">${esc(x.desc)}</td><td data-label="Status"><span class="pill ${x.status}">${x.status}</span></td><td data-label="Amount" class="n">${dollars(x.amount)}</td><td data-label="Days" class="n">${x.days || ""}</td><td data-label="Billed" class="n">${x.billed ? dollars(x.billed) : ""}</td><td data-label="Waiting" class="n">${x.age != null ? `${x.age} d` : x.turnaround != null ? `took ${x.turnaround} d` : ""}</td></tr>`).join("");
     $("#summary").textContent = t ? summaryText(last, settings()) : "";
     $("#sov").textContent = t ? sovRows(last) : "";
     $("#waiver").textContent = t ? waiverExceptions(last) || "No pending change orders to except." : "";
