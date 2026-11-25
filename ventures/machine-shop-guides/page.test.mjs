@@ -77,6 +77,17 @@ test("incident page builds the DOM from text, never innerHTML, and keeps nothing
   assert.match(html, /within 72 hours of discovery of any cyber incident/);
 });
 
+test("customer quote section: built from text, keeps nothing by default, never keeps customer details", () => {
+  const html = read("job-shop-quote-calculator");
+  assert.match(html, /id="cq"/);
+  assert.match(html, /id="keep-cq"(?![^>]*checked)/);
+  assert.doesNotMatch(html, /innerHTML|outerHTML|insertAdjacentHTML|document\.write/);
+  assert.match(html, /import \{ META_FIELDS, reviewQuote, quoteToHtml, quoteToText \} from "\.\/quote-doc\.mjs"/);
+  const kept = html.match(/const shopOnly = Object\.fromEntries\(\[([^\]]+)\]/);
+  assert.ok(kept, "shop-only key list");
+  for (const k of ["customer", "rfqRef", "partNumber", "quoteNumber"]) assert.doesNotMatch(kept[1], new RegExp(`"${k}"`));
+});
+
 test("RFQ review page keeps pasted text out of storage and renders findings as text", () => {
   const html = read("rfq-review");
   assert.doesNotMatch(html, /localStorage|setItem\(/);
