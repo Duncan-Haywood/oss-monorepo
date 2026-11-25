@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKioqAWg3rXk8YGiNzZ",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T16:19:46Z",
+  "ended": "2026-11-25T16:46:06Z",
+  "wall_minutes": 26.32,
+  "tokens_in": 8463230,
+  "tokens_out": 43060,
+  "cost_usd": 3.5883,
+  "tool_calls": 79,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19025",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "git fetch and the GitHub MCP server returned 503 for the first ~15 minutes; the work went ahead locally and the security queue was read once access came back (empty).",
+    "The first change (shift-roster-builder importers on demand) duplicated PR #18712, merged 2026-11-24. The container's clone was a day behind main (48c3836a3) and the overlap only showed at the merge conflict. The branch was rebuilt on main with ifc-quantity-takeoff work instead. A force-push was refused, so the old head was merged in with -s ours (tree unchanged)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Item 4 says to measure the built site but not to fetch origin/main first. The container's clone was ~400 commits stale, so the sweep picked a page another perf run had fixed the day before. Suggest: 'git fetch --depth=1 origin main && git checkout origin/main' before any sweep."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "'Duplicate PRs' says to search open PRs before opening one. That search cannot see a PR already merged after the clone was taken; checking 'git log origin/main -- <venture>' after a fresh fetch would have caught it."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes lists 150 steps in 13 workflows for a one-venture HTML change plus a post, too broad to run in a session."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Step 0's security-queue fetch failed with 503 at the start.",
+      "did": "Routed and started the perf work, then re-read the queue once GitHub came back.",
+      "result": "The queue was empty, so the perf task stood."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-ifc-takeoff-page-loads-its-3d-viewer-when-you-open-a-model.md",
+    "docs/history/ifc-quantity-takeoff-page-perf-2026-11-25.md"
+  ],
+  "goal": null,
+  "notes": "Metric: ifc-quantity-takeoff index.html first load. Static module graph 14 -> 10 files, 182 -> 145 kB gzip (platform/perf/module-weight.mjs on main ff28eae73). Throttled Chromium (150 ms RTT, 1.6 Mbit/s, CPU 4x, cache off, local gzip server, SwiftShader; 7 runs median): load event 1,537 -> 1,458 ms; transferred at load 218.3 -> 180.8 kB; sample click to drawn model 2,150 -> 2,135 ms (unchanged). Equivalence: Playwright old vs new over sample, next revision, two CSV downloads, plan cut and the pair compare, with and without Worker: 10/10 states identical. Failure path checked with blocked modules. Tests: run_venture_tests.py ifc-quantity-takeoff, 294 pass; the new page test catches a misspelled destructured name (mutation check). Local workflows that passed (run on the earlier duplicate diff, which touched the same kinds of files): conflict-markers, doc-refs, page-integrity, sibling-links, link-contrast, checklist-coverage, readme-live-links.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e8fb88ac-df0c-5716-a19b-a6324ab47dfb",
+    "transcripts": 1,
+    "first": "2026-11-25T16:19:46Z",
+    "last": "2026-11-25T16:46:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 78,
+        "input": 150,
+        "output": 43060,
+        "thinking": 7571,
+        "cache_read": 8330530,
+        "cache_write_5m": 0,
+        "cache_write_1h": 132550,
+        "api_equivalent_usd": 3.5883,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 78,
+      "input": 150,
+      "output": 43060,
+      "thinking": 7571,
+      "cache_read": 8330530,
+      "cache_write_5m": 0,
+      "cache_write_1h": 132550,
+      "api_equivalent_usd": 3.5883,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 79,
+    "tools": {
+      "Bash": 71,
+      "mcp__github__pull_request_read": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.32,
+      "active_minutes": 26.32,
+      "model_minutes": 8.7,
+      "tool_minutes": 17.63,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "two lazy-load refactors with browser equivalence harnesses and write-ups, mid-level front-end engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 111.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
