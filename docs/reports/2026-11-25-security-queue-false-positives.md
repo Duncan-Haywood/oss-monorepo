@@ -72,16 +72,35 @@ Checked by reading `main` at `578f7f19a`; the flagged files are unchanged since 
   - `js/incomplete-sanitization` #741 (`shopify-to-woocommerce-converter/converter.mjs:69`): `esc` writes WooCommerce's `\,` list-separator escape. WooCommerce's importer has no backslash escape, so escaping backslashes would corrupt values instead of protecting them.
   - `js/incomplete-sanitization` #849 (`platform/agents/tools.mjs:170`): `name` is a JavaScript export identifier, and `$` is the only regex metacharacter an identifier can hold. That character is escaped.
 
-## Fourth pass: the verdicts are now a file the queue reads
+## Fourth pass, same day (overlaps the third; checked on main at `20071c007`)
 
-A fourth session read the top of the queue and re-checked #7, #12, #34, #38, #39, #42, #43 and
+Run in parallel with the third pass and merged after it. This pass adds:
+
+- **Fixed (they close on the next completed scan):**
+  - #849 `js/incomplete-sanitization`, `platform/agents/tools.mjs:170`. The third pass is right that an identifier
+    can only carry `$`. The escape now covers every regex metacharacter anyway, so the rule is satisfied and
+    nothing depends on that assumption. Test added in `tools.test.mjs`.
+  - #65 `js/incomplete-sanitization`, `ventures/pay-app-guides/template.test.mjs:62`. The label escape in the test
+    now covers every metacharacter, not just `.`.
+- **False positives not covered above (dismiss):**
+  - #862 `js/incomplete-sanitization`, `research/marriage-divorce-evidence/report-app/src/use-data-app.js:315`.
+    `replace("..", " – ")` turns a range filter into display text that React renders escaped. It is formatting.
+  - #1049 `js/incomplete-url-substring-sanitization`, `platform/pages/check.mjs` (now ~line 1470).
+    `text.includes(PLACEHOLDER_ORIGIN)` is a build check that the placeholder origin never ships, not a URL allow-list.
+  - #1181 to #1203 `js/redos` in `regex-redos-check/*.test.mjs`, and #1208 in `devsec-toolkit/tests/fixtures/vulnerable-repo/`:
+    deliberately vulnerable patterns that a ReDoS checker's tests and fixtures exist to detect.
+- **Claimed elsewhere:** #274, #275, #574, #997 have `security-fix/` branches.
+
+## Fifth pass: the verdicts are now a file the queue reads
+
+A fifth session read the top of the queue and re-checked #7, #12, #34, #38, #39, #42, #43 and
 #104–#106 from scratch before it found this note. The passes above were prose. The queue
 generator could not read them, so it kept offering the same alerts first. PR #18809 (another
 session's work, landed with this pass) added **`platform/security/codeql-triage.json`**.
 `platform/ci/security_alerts.py` moves an open alert that matches an entry on number, rule and
 path into a "Triaged, awaiting dismissal" section of `QUEUE.md`. The alert stays open and listed,
 and only the owner can dismiss it on GitHub. An entry stops applying if the finding moves, and
-the PR-level `codeql gate` jobs never read the file. This pass added 14 entries: every alert in the
+the PR-level `codeql gate` jobs never read the file. This pass added 39 entries: every alert in the
 passes above that is still in the queue, plus the ones below. A verdict of "intended
 behaviour" starts its reason with those words.
 
@@ -98,7 +117,10 @@ New in this pass, checked against `main` at `de2adc485`:
 The verdicts from the first two passes for alerts no longer in the queue (#68–#91, #113, #114,
 #949–#952, #995, #996) are not in the file. Add them if they come back.
 
-Still unchecked in the queue: #1049 and #1050 (`js/incomplete-url-substring-sanitization`, in
-`platform/pages`), and the `js/redos` alerts in `regex-redos-check/*.test.mjs` and the
-`devsec-toolkit` vulnerable-repo fixture. Those two are probably deliberate test inputs, but
-nobody has confirmed it yet.
+The fourth pass's false positives that are still in the queue and unclaimed are in the file too:
+#1049, #1181–#1203 (the ReDoS checker's own test patterns) and #1208 (the devsec-toolkit
+fixture). I checked each pattern against its test line. #862 is left out, because its claim
+branch's PR (#18840) changes that code.
+
+Still unchecked in the queue: #1050 (`js/incomplete-url-substring-sanitization` in
+`platform/pages/custom-domain.test.mjs:151`).

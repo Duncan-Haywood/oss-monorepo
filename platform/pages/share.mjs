@@ -29,6 +29,7 @@ import { Worker } from 'node:worker_threads';
 
 import { renderCard } from './sharecard.mjs';
 import { servedPath } from './served-path.mjs';
+import { retargetArticleImage } from './article-ld.mjs';
 
 export const PAGE_CARD_FILE = 'share-card.png';
 
@@ -301,7 +302,10 @@ export function completeShareTags(html, { card = '', siteName = 'Maris Stella La
   };
 
   if (card) {
+    const previous = metaContent(next, 'property', 'og:image');
     if (!setContent('property', 'og:image', card)) next = next.replace(/<\/head>/i, `<meta property="og:image" content="${escapeAttr(card)}">\n</head>`);
+    // The Article JSON-LD named the old card (article-ld.mjs); it names this one now.
+    next = retargetArticleImage(next, previous, card);
     // A card drawn for this page has its own alt text.
     const title = metaContent(next, 'property', 'og:title');
     if (title) setContent('property', 'og:image:alt', `${cardTitle(title)} — ${siteName}`);

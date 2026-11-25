@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "Built a full triage implementation (code-scanning-triage.json, validator, 6 tests) before searching open PRs and finding PR #18809 with the same design. Discarded it and built on #18809's branch instead, which cost about 15 minutes."
+    "Built a full triage implementation (code-scanning-triage.json, validator, 6 tests) before searching open PRs and finding PR #18809 with the same design. Discarded it and built on #18809's branch instead, which cost about 15 minutes.",
+    "Main merged two parallel prose passes into the same report while this PR was open, which caused two merge conflicts. I resolved both by keeping every section."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -65,7 +66,7 @@
     "docs/reports/2026-11-25-security-queue-false-positives.md (third-pass section)"
   ],
   "goal": null,
-  "notes": "False positives or intended behaviour for the owner to dismiss on GitHub (reasons in platform/security/codeql-triage.json): #12, #34, #38, #39, #42, #43, #104, #105, #106, #741, #960, #968, #969, #1086, plus #1-#7, #95, #949-#951 from PR #18809. Claim branches security-fix/code-scanning-{7,12,34,38,39,42,43,104,105,106,741,960,968,969,1086} were pushed; they expire after 48h. Still unchecked: #1049 and #1050 (platform/pages url-substring), and the js/redos alerts in the regex-redos-check tests and the devsec-toolkit fixture, which are probably deliberate test inputs. Verification: platform/ci unittest test_security_alerts gave 19 OK; risk_review blocked nothing.",
+  "notes": "False positives or intended behaviour for the owner to dismiss on GitHub (reasons in platform/security/codeql-triage.json): #12, #34, #38, #39, #42, #43, #104, #105, #106, #741, #960, #968, #969, #1086, plus #1-#7, #95, #949-#951 from PR #18809. Claim branches security-fix/code-scanning-{7,12,34,38,39,42,43,104,105,106,741,960,968,969,1086} were pushed; they expire after 48h. Also triaged, from a parallel session's fourth pass, after I checked each line: #1049, #1181-#1203 and #1208. Still unchecked: #1050. Verification: platform/ci unittest test_security_alerts gave 19 OK; risk_review blocked nothing.",
   "corrections": [],
   "redteam": null,
   "usage": {

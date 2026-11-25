@@ -1,0 +1,162 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKkZeBeVPkDcr9Xt8sN",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T03:17:56Z",
+  "ended": "2026-11-25T03:30:57Z",
+  "wall_minutes": 15.93,
+  "tokens_in": 14244824,
+  "tokens_out": 42446,
+  "cost_usd": 5.0065,
+  "tool_calls": 110,
+  "task": "Polish (SEO/AEO) for bet 1's front door: Article-type JSON-LD gets url, mainEntityOfPage, image, author and publisher at build time (97 venture guides incl. all 7 pay-app-guides pages, and every blog post); pay-application-generator meta description 312 -> 156",
+  "projects": [
+    "pay-app-guides",
+    "pay-application-generator",
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18830",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    "curl to https://marisstella.app/ got 'CONNECT tunnel failed, response 403' from the proxy; checked the built output locally (build.mjs --only) instead",
+    "First preview after the build.mjs change showed blog posts' BlogPosting image naming the site card while og:image named the post's own card (share.mjs swaps the card later); fixed with retargetArticleImage in completeShareTags, and re-checked: 7,356 Article/BlogPosting nodes, 0 mismatches",
+    "CI validate failed on portfolio/router/validate.py: flagships.yaml payapps next: 2011 > 2000 characters, red on main since PR 18822 (not this diff). Fixed forward: merged main, cut the landed 'SOV import ... (private-monorepo PR #43)' clause with flagship_field.py --replace (1930/2000). A second main merge (PRs #47/#49 notes, main at 2126) conflicted there; took main's text and folded the three landed auth clauses (PRs #46, #47, #49) into one, 1820/2000. Then a third main merge brought another PR's own payapps cap fix; took main's flagships.yaml as is, so this PR no longer changes it"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 says QUEUE.md names the scanned commit; the 02:45 UTC queue (1,186 alerts) had no 'Scanned at commit' line, and it was written before the first CodeQL run on main that includes the bulk fix (run 116 at 5f857bb81, PR 18676) finished at 03:11. Working out that the queue was stale took about 10 tool calls (actions_list on priv-codeql.yml, git log)."
+    },
+    {
+      "file": "security-alerts/alerts/7.md",
+      "issue": "The top alerts (#7, #42, #43 risk_review.py; #12 secrets_inventory.py; #34 einvoice cli.py; #38/#39 monetization.py) are the false positives already listed in docs/reports/2026-11-24-codeql-backlog-cleared.md ('Left open, with reasons'). Each scheduled run re-reads them. The queue could mark alerts the report lists as known false positives awaiting the owner's dismissal, so runs skip them."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Says to screenshot the live site; marisstella.app is refused by the cloud proxy (403), so the --only preview build is the only view. Worth saying so."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Security queue step 0: the queue was stale (it predates the first completed scan that includes PR 18676), and its top entries are documented false positives",
+      "did": "Checked #7/#42/#43 (risk_review.py prints only path and pattern label, never the value), #66 (logs only 5xx errors server-side) and #67 (mint.mjs has redact()); changed no code, claimed no branch, and went on to routing",
+      "result": "No duplicate fixes. The next hourly queue regen (after run 116) should drop most of the 1,186"
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "pay-app-guides HTML is being edited by three open PRs (18793, 18798, 18812)",
+      "did": "Fixed the guides' structured data in the shared build (build.mjs/share.mjs/writing.mjs) instead of their HTML, so no merge conflicts with those PRs",
+      "result": "Same effect on the guides, plus 90 other venture Articles and every blog post"
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "No before/after screenshots: the change is in head metadata, not visible",
+      "did": "Measured before/after property counts in the report instead",
+      "result": "Report docs/reports/polish-2026-11-25-article-json-ld.md"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-paid-product-front-pages-fit-a-search-snippet.md (extended with a 2026-11-25 section, not a new post)",
+    "docs/reports/polish-2026-11-25-article-json-ld.md"
+  ],
+  "goal": "North star $10k MRR: bet 1 (payapps) front-door pages carry complete Article structured data for search and answer engines",
+  "notes": "Security queue false positives for the owner to dismiss (no code changed): #7, #42, #43 py/clear-text-* in platform/security/risk_review.py:451-458. find_secrets returns (path, pattern name) and render/GITHUB_STEP_SUMMARY print only those, never the matched text; CodeQL's name heuristic fires on the variable 'secrets'. Same reasoning as the 2026-11-24 report for #12, #34, #38, #39. Verification: node --test platform/pages/article-ld.test.mjs 9/9; writing.test.mjs 58/58; build.test.mjs name-pattern Article|canonical|share-card 9/9; preview build --only=pay-app-guides,pay-application-generator exit 0, 7,356 Article/BlogPosting nodes with url, author, publisher and image == og:image, 0 bad; description-length --write 3000 -> 2999; risk_review: nothing blocked, 'New outbound hosts' is a false trigger on example.test fixture strings in tests. Final code: node --test platform/pages/share*.test.mjs build.test.mjs writing.test.mjs article-ld.test.mjs description-length*.test.mjs: 444/444 pass. The whole platform/pages/*.test.mjs glob was not finished locally (stopped: a second build.test.mjs full build was competing for the CPU); CI covers it.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "65458550-1f7a-56fb-ab47-d195c92de3f1",
+    "transcripts": 1,
+    "first": "2026-11-25T03:17:56Z",
+    "last": "2026-11-25T03:33:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 104,
+        "input": 198,
+        "output": 42446,
+        "thinking": 9276,
+        "cache_read": 14076950,
+        "cache_write_5m": 0,
+        "cache_write_1h": 167676,
+        "api_equivalent_usd": 5.0065,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 104,
+      "input": 198,
+      "output": 42446,
+      "thinking": 9276,
+      "cache_read": 14076950,
+      "cache_write_5m": 0,
+      "cache_write_1h": 167676,
+      "api_equivalent_usd": 5.0065,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 110,
+    "tools": {
+      "Bash": 98,
+      "mcp__github__pull_request_read": 4,
+      "Write": 3,
+      "mcp__github__actions_list": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.93,
+      "active_minutes": 15.93,
+      "model_minutes": 9.5,
+      "tool_minutes": 6.44,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "front-end SEO engineer: audit JSON-LD across the catalogue, add a build pass with tests, verify a preview build",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 99.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
