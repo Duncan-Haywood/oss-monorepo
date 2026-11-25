@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtJ54qAfzYZGqfSBosi",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T17:06:56Z",
+  "ended": "2026-11-25T17:19:07Z",
+  "wall_minutes": 12.39,
+  "tokens_in": 11484905,
+  "tokens_out": 45409,
+  "cost_usd": 4.4662,
+  "tool_calls": 89,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19039",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Private CI fails in about 9 s on every PR with no downloadable log (also on PRs 129 and 130); verified locally instead.",
+    "Merge conflict with the Michigan waivers PR (private 130), which merged during the run; resolved and re-tested."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "private-monorepo packages/lien-waivers/src/statutory.ts",
+      "issue": "Missouri was listed as a four-form statutory state 'from the project brief and general knowledge'; the statute has one residential-only form. Other unverified entries (GA, MS, WY) may be wrong the same way."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "The 'Reaching private-monorepo' steps worked first time (add_repo push, then one clone)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Bet #1's code lives in private-monorepo, so the product change landed there (PR 131) and this PR carries only the public guide, post and agent doc.",
+      "did": "Merged private PR 131 after local verification, then opened this PR.",
+      "result": "Both landed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-which-states-make-you-use-their-lien-waiver-form.md (extended)",
+    "docs/reports/ventures-2026-11-25-payapps-lien-waivers-missouri.md"
+  ],
+  "goal": null,
+  "notes": "Private PR Duncan-Haywood/private-monorepo#131 merged: Missouri's RSMo 429.016.27 residential unconditional final waiver offered as an alternative form (alternativeForms, formById, formId on POST waivers, 'Which form' UI). Local results after merging main: lien-waivers 200/200, payapps typecheck clean, unit 476/476, waiver worker tests 23/23, biome clean. Public: pay-app-guides 28/28.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e3e55024-d232-5831-8182-7251b2b275ce",
+    "transcripts": 1,
+    "first": "2026-11-25T17:06:56Z",
+    "last": "2026-11-25T17:19:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 88,
+        "input": 170,
+        "output": 45409,
+        "thinking": 9611,
+        "cache_read": 11323145,
+        "cache_write_5m": 0,
+        "cache_write_1h": 161590,
+        "api_equivalent_usd": 4.4662,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 88,
+      "input": 170,
+      "output": 45409,
+      "thinking": 9611,
+      "cache_read": 11323145,
+      "cache_write_5m": 0,
+      "cache_write_1h": 161590,
+      "api_equivalent_usd": 4.4662,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 89,
+    "tools": {
+      "Bash": 76,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.39,
+      "active_minutes": 12.39,
+      "model_minutes": 8.87,
+      "tool_minutes": 3.52,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "statute reading, package API, app wiring and tests for one state form, estimated",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 223.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
