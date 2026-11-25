@@ -33,8 +33,8 @@ locals {
     protect-security-baseline = {
       description = "Nobody but the baseline role turns off CloudTrail, GuardDuty, Config, Security Hub, Access Analyzer, account Block Public Access or default EBS encryption, or touches the CI roles."
       target      = "root"
-      policy      = {
-        Version   = "2012-10-17"
+      policy = {
+        Version = "2012-10-17"
         Statement = [
           {
             Sid    = "ProtectSecurityServices"
@@ -111,8 +111,8 @@ locals {
     deny-unapproved-regions = {
       description = "Regional services only in the approved regions."
       target      = "root"
-      policy      = {
-        Version   = "2012-10-17"
+      policy = {
+        Version = "2012-10-17"
         Statement = [{
           Sid       = "DenyOutsideApprovedRegions"
           Effect    = "Deny"
@@ -126,8 +126,8 @@ locals {
     deny-exit-root-and-long-lived-keys = {
       description = "Member accounts cannot leave the organization, act as root, or create IAM users or access keys: people use Identity Center, machines use roles."
       target      = "root"
-      policy      = {
-        Version   = "2012-10-17"
+      policy = {
+        Version = "2012-10-17"
         Statement = [
           {
             Sid      = "DenyLeaveOrganization"
@@ -161,8 +161,8 @@ locals {
     protect-log-archive = {
       description = "Log and security accounts: nobody shortens object-lock retention or edits a log bucket's lock or policy outside the baseline role."
       target      = "security"
-      policy      = {
-        Version   = "2012-10-17"
+      policy = {
+        Version = "2012-10-17"
         Statement = [{
           Sid    = "ProtectWriteOnceLogs"
           Effect = "Deny"
@@ -189,8 +189,8 @@ locals {
       payments-no-public-repo = {
         description = "Defence in depth: no GitHub Actions token from the public repository is accepted by any role in the payments account (the trust policies already refuse it)."
         target      = "payments"
-        policy      = {
-          Version   = "2012-10-17"
+        policy = {
+          Version = "2012-10-17"
           Statement = [{
             Sid       = "DenyPublicRepoWebIdentity"
             Effect    = "Deny"
@@ -208,8 +208,8 @@ locals {
       data-perimeter = {
         description = "S3, KMS, Secrets Manager and SQS answer only principals of this organization and AWS services acting for it."
         target      = "root"
-        policy      = {
-          Version   = "2012-10-17"
+        policy = {
+          Version = "2012-10-17"
           Statement = [{
             Sid       = "EnforceOrgIdentities"
             Effect    = "Deny"

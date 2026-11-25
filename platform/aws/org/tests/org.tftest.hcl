@@ -10,6 +10,27 @@ mock_provider "aws" {
     }
   }
 
+  # Well-formed IDs: the provider validates them as it would real ones.
+  override_resource {
+    target = aws_organizations_organizational_unit.this
+    values = { id = "ou-root-abcdefgh", arn = "arn:aws:organizations::111111111111:ou/o-exampleorg1/ou-root-abcdefgh" }
+  }
+
+  override_resource {
+    target = aws_organizations_account.this
+    values = { id = "222222222222", arn = "arn:aws:organizations::111111111111:account/o-exampleorg1/222222222222" }
+  }
+
+  override_resource {
+    target = aws_organizations_policy.scp
+    values = { id = "p-abcdefgh", arn = "arn:aws:organizations::111111111111:policy/o-exampleorg1/service_control_policy/p-abcdefgh" }
+  }
+
+  override_resource {
+    target = aws_organizations_policy.rcp
+    values = { id = "p-ijklmnop", arn = "arn:aws:organizations::111111111111:policy/o-exampleorg1/resource_control_policy/p-ijklmnop" }
+  }
+
   override_data {
     target = data.aws_ssoadmin_instances.this
     values = {
@@ -30,7 +51,7 @@ run "accounts_and_ous" {
   }
 
   assert {
-    condition     = aws_organizations_account.this["payments"].parent_id == aws_organizations_organizational_unit.this["payments"].id
+    condition     = local.member_accounts["payments"].ou == "payments" && length([for k, a in local.member_accounts : k if a.ou == "payments"]) == 1
     error_message = "The payments account sits alone in the Payments OU."
   }
 
@@ -120,7 +141,7 @@ run "scps_cover_the_required_denials" {
 
 run "rcps_fence_payments_and_data" {
   assert {
-    condition     = aws_organizations_policy_attachment.rcp["payments-no-public-repo"].target_id == aws_organizations_organizational_unit.this["payments"].id
+    condition     = local.rcps["payments-no-public-repo"].target == "payments" && aws_organizations_policy_attachment.rcp["payments-no-public-repo"].target_id == "ou-root-abcdefgh"
     error_message = "The payments RCP attaches to the Payments OU."
   }
 

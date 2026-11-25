@@ -1,0 +1,4 @@
+# ../bootstrap/backend-config.sh baseline > backend.hcl
+bucket = "oss-monorepo-tfstate-<management-account-id>-us-east-1"
+key    = "stacks/baseline/terraform.tfstate"
+region = "us-east-1"
