@@ -39,6 +39,7 @@ import os
 import random
 import re
 import signal
+import shlex
 import subprocess
 import sys
 import time
@@ -193,7 +194,17 @@ def suite_for(path: Path, repo: Path = REPO) -> tuple[list[str], Path] | None:
             if any(vdir.rglob("*.test.mjs")):
                 # node expands the quoted glob itself, so this reaches suites
                 # kept in a subdirectory (CLAUDE.md's checklist, same shape).
-                return ["node", "--test", f"ventures/{parts[1]}/**/*.test.mjs"], repo
+                cmd = ["node", "--test", f"ventures/{parts[1]}/**/*.test.mjs"]
+                contract = repo / "platform" / "ci" / "usage_contract.mjs"
+                if len(parts) == 3 and path.name == "usage.mjs" and contract.is_file():
+                    # CI also runs this contract over every copy (portfolio-validate,
+                    # check_storage_guard.py), so a mutant it rejects is caught by
+                    # the repository's tests. Measuring the venture suite alone read
+                    # 43 of 152 usage.mjs mutants as escaped (2026-11-15).
+                    chain = " && ".join(shlex.join(c) for c in (
+                        cmd, ["node", "platform/ci/usage_contract.mjs", "ventures"]))
+                    return ["sh", "-c", chain], repo
+                return cmd, repo
             return None
         sibling = path.with_name(path.stem + ".test.mjs")
         if sibling.is_file():
@@ -244,9 +255,22 @@ def run_suite(cmd: list[str], cwd: Path, timeout: int = TIMEOUT_SECONDS) -> tupl
         # No .pyc written: a same-size mutant's pyc (mtime+size match) would
         # keep serving the mutant after the file is restored.
         env = {**os.environ, "PYTHONDONTWRITEBYTECODE": "1"}
-        proc = subprocess.run(cmd, cwd=cwd, capture_output=True, timeout=timeout, env=env)
-        passed = proc.returncode == 0
-    except subprocess.TimeoutExpired:
+        # Its own process group, so a timeout kills the suite's children too: a
+        # looping mutant's per-file `node --test` child used to outlive its parent
+        # and spin into later mutants, timing them out as "caught" (2026-11-14).
+        proc = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                env=env, start_new_session=True)
+        try:
+            proc.communicate(timeout=timeout)
+            passed = proc.returncode == 0
+        except subprocess.TimeoutExpired:
+            passed = False
+            try:
+                os.killpg(proc.pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            proc.communicate()
+    except OSError:
         passed = False
     return passed, round(time.monotonic() - start, 1)
 
@@ -343,6 +367,9 @@ def campaign(target: Path, mutants: int, seed: int, repo: Path = REPO,
 def rerun(record_path: Path, repo: Path = REPO, timeout: int = TIMEOUT_SECONDS) -> dict[str, Any]:
     """Re-apply every escaped, non-equivalent mutant and set `caught_after_fix`."""
     rec = json.loads(record_path.read_text())
+    # A suite that is red without the mutant fails with it too, which proves
+    # nothing (2026-11-10): run each suite clean once and skip its mutants if red.
+    clean: dict[tuple[str, ...], bool] = {}
     for camp in (rec.get("redteam") or {}).get("campaigns", []):
         for m in camp["mutants"]:
             if m["caught"] or m.get("triage") == "equivalent":
@@ -352,6 +379,13 @@ def rerun(record_path: Path, repo: Path = REPO, timeout: int = TIMEOUT_SECONDS) 
             if found is None or not target.is_file():
                 m["caught_after_fix"] = None
                 m["note"] = (m.get("note") or "") + " [rerun: target or suite gone]"
+                continue
+            key = (str(found[1]), *found[0])
+            if key not in clean:
+                clean[key] = run_suite(*found, timeout=timeout)[0]
+            if not clean[key]:
+                m["caught_after_fix"] = None
+                m["note"] = (m.get("note") or "") + " [rerun: suite is red without the mutant; fix it first]"
                 continue
             original = target.read_bytes()
             lines = original.decode().split("\n")
