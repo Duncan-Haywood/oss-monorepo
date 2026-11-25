@@ -1,0 +1,33 @@
+{
+  "id": "P083",
+  "title": "The duplicate check read the clone's stale origin/main and a shallow 14-day window",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "CLAUDE.md said to search open PRs and recent main commits only before opening a PR, and slug_dupe.py grepped whatever origin/main the clone held. A cloud clone's ref is hours old by the time a run builds, so a sibling that merged in the meantime is invisible, and in a shallow clone the --days 14 log grep covered only the commits the clone happened to have.",
+  "evidence": [
+    "prompts/runs/2026-11-25-session_01AcxTtGdNyP3tnH67NWocLz.json doc_friction: the local origin/main was hours stale and the duplicate (#18769) had merged in the meantime; the same run's venture-preflight said 'this branch edits platform/ci' because of the stale ref",
+    "2026-11-25, this session: `slug_dupe.py job-shop` refreshed HEAD + origin/main from 890 to 4322 commits (back to 2026-11-11), so the 14-day window had been about 1 day deep in a fresh clone",
+    "`friction_rank.py --live --ungated --days 3`, 2026-11-25: cluster #19 (CLAUDE.md, 2 sessions)"
+  ],
+  "change": "slug_dupe.py refreshes <remote>/main with fetch_ref.py (keeping --days of history) before checking; --no-fetch skips it; a failed fetch warns and reads the local ref. CLAUDE.md 'Duplicate PRs' and duplicate-work.md name it at task pick and before the PR.",
+  "touches": [
+    "platform/ci/slug_dupe.py",
+    "platform/ci/test_slug_dupe.py",
+    "CLAUDE.md",
+    ".github/prompts/duplicate-work.md"
+  ],
+  "metric": "Run records from the following 7 days whose doc_friction or notes report a duplicate found only after building, or a stale origin/main misreading",
+  "baseline": "2026-11-23..25: 2 sessions in friction_rank cluster #19 (stale ref), plus the duplicate pairs named in duplicate-work.md",
+  "opened": "2026-11-25",
+  "source": "process run 2026-11-25 (critique: friction_rank --live cluster #19)",
+  "pr": "this",
+  "result": null,
+  "history": [
+    {
+      "date": "2026-11-25",
+      "note": "Shipped. Refresh costs about 7 s once history is present; the first call in a fresh clone fetches 14 days of main."
+    }
+  ]
+}

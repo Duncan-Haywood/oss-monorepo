@@ -15,6 +15,7 @@ open-PR check cannot see a sibling that merged ten minutes ago, but the tree
 can:
 
 ```
+python3 platform/ci/slug_dupe.py <slug-or-keyword>    # refreshes origin/main, then: landed in 14 days? branches?
 node platform/pages/surface-budget.mjs --for <slug>   # marketing pages a venture already has
 python3 portfolio/ledger/supersede_check.py <pr>      # before closing a PR as "already on main"
 ```
