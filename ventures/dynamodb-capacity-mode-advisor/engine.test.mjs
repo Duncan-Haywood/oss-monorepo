@@ -88,3 +88,49 @@ test("whole-unit rounding ignores float noise: a 100 RCU/s peak with 10% headroo
   const w = analyze(parseMetrics(flat(0, 25_200, 48)), {});
   assert.ok(w.writeCost.autoscaledAvgUnits === 10);
 });
+
+// Quality audit 2026-11-19 (portfolio/quality/audits/2026-11-19-dynamodb-capacity-mode-advisor.json, defects 0 and 1):
+// CloudWatch omits periods with no datapoint, so the window must be the timestamp span, not the row count.
+const week = (keepIdle) => {
+  const out = [];
+  for (let d = 0; d < 7; d += 1) for (let h = 0; h < 24; h += 1) {
+    const busy = h >= 8;
+    if (busy || keepIdle) out.push(`${new Date(Date.UTC(2026, 8, 1 + d, h)).toISOString()},${busy ? 1_800_000 : 0},${busy ? 180_000 : 0}`);
+  }
+  return out;
+};
+
+test("missing idle periods count as zero: a sparse export prices like the same export with its zero rows", () => {
+  const dense = analyze(parseMetrics(week(true).slice(8).join("\n")), {}); // drop the 8 leading idle hours, which no row can reveal
+  const sparse = analyze(parseMetrics(week(false).join("\n")), {});
+  assert.equal(sparse.rows, 112);
+  assert.equal(sparse.count, 160);
+  assert.equal(sparse.filledPeriods, 48);
+  assert.equal(dense.count, 160);
+  for (const k of ["onDemand", "autoscaled", "staticPeak"]) assert.ok(Math.abs(sparse.totals[k] - dense.totals[k]) < 1e-9, k);
+  // On-demand by hand: 112 busy hours x (1.8M x 0.125 + 0.18M x 0.625) / 1e6 = $37.80 over 160 h, scaled to 730 h.
+  assert.ok(Math.abs(sparse.totals.onDemand - 37.8 * (730 / 160)) < 1e-9);
+  assert.ok(sparse.findings.some((f) => f.rule === "missing-periods-filled"));
+});
+
+test("unsorted rows (get-metric-statistics order) are put in time order before autoscaling is modelled", () => {
+  const sorted = analyze(parseMetrics(week(true).join("\n")), {});
+  const shuffled = analyze(parseMetrics([...week(true)].reverse().join("\n")), {});
+  assert.equal(shuffled.totals.autoscaled, sorted.totals.autoscaled);
+  assert.equal(shuffled.readCost.rampRisk, sorted.readCost.rampRisk);
+});
+
+test("rows spaced unlike the period raise a warning and are not gap-filled", () => {
+  const five = week(true).map((l, i) => l.replace(/^[^,]+/, new Date(Date.UTC(2026, 8, 1) + i * 300_000).toISOString()));
+  const r = analyze(parseMetrics(five.join("\n")), {});
+  assert.ok(r.findings.some((f) => f.rule === "period-mismatch" && f.severity === "warn" && /300 s apart/.test(f.message)));
+  assert.equal(r.filledPeriods, 0);
+  const ok = analyze(parseMetrics(five.join("\n")), { periodSeconds: 300 });
+  assert.ok(!ok.findings.some((f) => f.rule === "period-mismatch"));
+});
+
+test("rows without dates or with repeated timestamps are left as pasted", () => {
+  const r = analyze(parseMetrics(flat(3_600_000, 360_000)), {}); // 48 rows, each hour twice
+  assert.equal(r.count, 48);
+  assert.equal(r.filledPeriods, 0);
+});
