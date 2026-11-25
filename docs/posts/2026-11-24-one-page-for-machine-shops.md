@@ -501,3 +501,32 @@ the plan's allowance (32 of the free plan's 40), and one more when it reaches
 - **No sales pitch while there is nothing to buy.** The email names the next
   plan's allowance and price only once paid plans are on sale; until then it
   says they are not on sale yet.
+
+## Update, 25 November 2026: repeat parts start from the quote you won
+
+Most of a job shop's RFQs are parts it has made before. The estimator still
+retypes the material, setups, cycle times and finishing from an old quote or
+a spreadsheet, and hopes the rates have not moved since.
+
+The RFQ-to-quote app (bet #2, still in private development, not yet on sale)
+now uses the shop's own quote log for this:
+
+- **On the RFQ, before there is a quote.** Each part shows "Quoted before:
+  3 earlier quotes, 1 won", with the quote number, customer, date, PO or lost
+  reason, the unit price at each quantity, and a flag when the revision
+  differs from the one on this RFQ.
+- **Pre-fill repeat parts (a shop setting, off unless an admin turns it on).**
+  A new quote's line for a part the shop has won before, with the same part
+  number and revision, starts from the last won quote's material,
+  operations and finishing. It keeps this RFQ's quantities.
+- **Today's rates, never the old price.** The pre-filled line is priced from
+  the rate card as it is now, so a raised machine rate or a new material
+  price shows up in the quote. The old unit prices are shown to the estimator
+  for reference only.
+- **It says where it came from.** The line reads "Pre-filled from Q-1001 for
+  <customer>, won <date>", with a link, so the estimator checks it before
+  sending. A part whose revision changed, or that had none last time and has
+  one now, is not pre-filled: a new revision can mean a changed drawing.
+
+Everything stays inside the shop's own account: no other shop's quotes are
+read, and nothing here estimates a price the shop has not set.

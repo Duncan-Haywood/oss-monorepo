@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqycpUHtUKb5ZgpNvKq5",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T19:38:18Z",
+  "ended": "2026-11-25T19:47:55Z",
+  "wall_minutes": 12.33,
+  "tokens_in": 12301286,
+  "tokens_out": 44780,
+  "cost_usd": 4.574,
+  "tool_calls": 95,
+  "task": "Job Shop Quote (bet #2) ROADMAP item 9: repeat parts part 2 (RFQ part history + opt-in pre-fill from last won quote)",
+  "projects": [
+    "private-monorepo/apps/jobshop-quote"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19075",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First worker test run: 2 of 5 new tests failed (outcome schema field is `reason`, not `lostReason`; B's own new quote showed in its RFQ history)",
+      "fixed": "test fixes only; behaviour was right"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Migration-number collision warning was accurate: private main took 0013 (PR 154) while this run built; regenerated as 0014 after rebase. Worth noting the cleanest recipe: drop your migration+snapshot+journal entry, rebase, rerun pnpm db:generate."
+    },
+    {
+      "file": "private-monorepo .github/workflows/jobshop-quote-ci.yml",
+      "issue": "Private CI job fails in ~3 s with no downloadable logs (404) on every recent PR (154, 157): runners are not starting. Verified locally with the same steps, including the drizzle-kit drift check."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Default is the top bet (payapps #1); its free ROADMAP items were gated on customers/usage or need undocumented GC-portal formats, and most others were claimed",
+      "did": "took bet #2 item 9 part 2",
+      "result": "merged private PR 157"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Private CI starved (no runner starts), so merged on local verification",
+      "did": "ran typecheck, unit (224), worker (140), build, biome and the drizzle drift check locally on the rebased tree",
+      "result": "all green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-one-page-for-machine-shops.md (extended)",
+    "docs/reports/ventures-2026-11-25-jobshop-repeat-parts-prefill.md"
+  ],
+  "goal": "$10k MRR: deepen bet #2's wedge (repeat RFQs are most of a job shop's quoting)",
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/157 merged (squash b9a1271). Local verification on tree rebased onto c5e937d: pnpm typecheck ok; test:unit 224 passed; test:worker 140 passed; build ok; biome ok; drizzle-kit check + generate no drift. Browser check of the new UI not run (typecheck + build only).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "01733349-c57d-55a7-a0cb-1db25c32c38b",
+    "transcripts": 1,
+    "first": "2026-11-25T19:38:18Z",
+    "last": "2026-11-25T19:50:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 91,
+        "input": 177,
+        "output": 44780,
+        "thinking": 5765,
+        "cache_read": 12145028,
+        "cache_write_5m": 0,
+        "cache_write_1h": 156081,
+        "api_equivalent_usd": 4.574,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 91,
+      "input": 177,
+      "output": 44780,
+      "thinking": 5765,
+      "cache_read": 12145028,
+      "cache_write_5m": 0,
+      "cache_write_1h": 156081,
+      "api_equivalent_usd": 4.574,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 95,
+    "tools": {
+      "Bash": 84,
+      "ToolSearch": 3,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.33,
+      "active_minutes": 12.33,
+      "model_minutes": 6.51,
+      "tool_minutes": 5.82,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior full-stack dev: schema+migration, service, route, 3 UI surfaces, 11 tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 218.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
