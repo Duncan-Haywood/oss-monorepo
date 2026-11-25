@@ -1,6 +1,6 @@
 ---
 title: "Quality fix: a bid due at 2:00 PM is late at 2:01, not at midnight"
-seo_title: "Bid deadline countdown with the due time and the issuing office's time zone, free"
+seo_title: "Bid deadline countdown with due time and office time zone, free"
 date: 2026-11-25
 tags: [quality-audit, for-customers, contractor-bid-readiness, construction, bidding, rfp]
 description: "The bid readiness checklist now takes the solicitation's due time and the time zone it is read in, and reads past-due from that minute on the office's clock."
