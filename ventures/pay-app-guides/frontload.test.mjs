@@ -113,3 +113,71 @@ test("CSV output neutralises formula cells and the summary names the low cash po
   const s = compute(sampleSov(), SAMPLE_SETTINGS);
   assert.match(summaryText(s), /Lowest job cash, balanced/);
 });
+
+// Red-team 2026-11-25: the within-tolerance SOV is offered as the fix, so re-checking it must pass.
+// It used to sit exactly on the band edge and rounding pushed 3 or 4 sample lines just outside it.
+test("the within-tolerance SOV passes its own check at every rounding unit", () => {
+  for (const round of ["cent", "dollar", "hundred"]) {
+    const s = { ...SAMPLE_SETTINGS, round };
+    const r = compute(sampleSov(), s);
+    const again = compute(sov(...r.lines.map((x) => `${x.item},"${x.desc}",${(x.fitted / 100).toFixed(2)},${(x.cost / 100).toFixed(2)}`)), s);
+    assert.deepEqual(again.errors, []);
+    assert.equal(again.totals.value, r.totals.value, round);
+    assert.deepEqual(again.lines.filter((x) => x.flag).map((x) => x.label), [], round);
+    assert.ok(r.lines.every((x) => x.fitted >= 0), round);
+  }
+});
+
+test("apportion: the leftover units go to the largest remainders, one each", () => {
+  assert.deepEqual(apportion(100, [3, 2, 1]), [50, 33, 17]); // remainders 0, .33, .67: the last line takes the cent
+  assert.deepEqual(apportion(200, [1, 1, 1]), [67, 67, 66]); // two leftover cents go to the first two (ties by order)
+});
+
+test("a wide tolerance never fits a line below zero", () => {
+  const x = withinTolerance([40000, 0, 6000], [10000, 10000, 10000], 1.6);
+  assert.ok(x.every((v) => v >= 0), String(x));
+  const r = compute(sov("1,Mobilization,400,100", "2,Rough-in,0,100", "3,Punch list,60,100"), { tolerance: "160", round: "cent" });
+  assert.ok(r.lines.every((v) => v.fitted >= 0));
+});
+
+test("early and late: a middle line is neither; a closeout line listed first is still late", () => {
+  const r = compute(sov("1,Mobilization,11500,10000", "2,Rough-in,57500,50000", "3,Trim,34500,30000", "4,Punch list,11500,10000"));
+  assert.ok(!r.lines[2].early && !r.lines[2].late, "Trim");
+  const c = compute(sov("1,Punch list,11500,10000", "2,Mobilization,57500,50000", "3,Trim,34500,30000"));
+  assert.ok(c.lines[0].late && !c.lines[0].early);
+});
+
+test("retainage defaults to 10% in the cash view", () => {
+  const blank = compute(sampleSov(), { ...SAMPLE_SETTINGS, retainage: "" });
+  const ten = compute(sampleSov(), { ...SAMPLE_SETTINGS, retainage: "10" });
+  assert.deepEqual(blank.months, ten.months);
+});
+
+test("a line exactly on the tolerance edge is inside it", () => {
+  // Cost 10,000 + 10,000, value 23,000: job markup 15%. 12,500 is 25% (10 points over), 10,500 is 5%.
+  const r = compute(sov("1,Rough-in,12500,10000", "2,Trim,10500,10000"));
+  assert.equal(r.totals.flagged, 0);
+});
+
+test("property: on random schedules the within-tolerance SOV sums to the contract, is never negative, and re-checks clean", () => {
+  let seed = 7;
+  const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+  const UNIT = { cent: 1, dollar: 100, hundred: 10000 };
+  for (let t = 0; t < 300; t++) {
+    const rows = [];
+    for (let i = 0, n = 2 + Math.floor(rnd() * 10); i < n; i++) {
+      const c = rnd() < 0.05 ? 0 : Math.round(rnd() * 2e7) + 50;
+      rows.push(`${i + 1},Line ${i + 1},${(Math.round(c * (0.3 + rnd() * 2.5)) / 100).toFixed(2)},${(c / 100).toFixed(2)}`);
+    }
+    const s = { tolerance: String([0, 1, 5, 10, 25, 200][Math.floor(rnd() * 6)]), round: ["cent", "dollar", "hundred"][Math.floor(rnd() * 3)] };
+    const r = compute(sov(...rows), s);
+    if (r.errors.length) continue;
+    assert.equal(sum(r.lines.map((x) => x.fitted)), r.totals.value);
+    assert.ok(r.lines.every((x) => x.fitted >= 0));
+    const again = compute(sov(...r.lines.map((x) => `${x.item},${x.desc},${(x.fitted / 100).toFixed(2)},${(x.cost / 100).toFixed(2)}`)), s);
+    const u = UNIT[s.round], M = again.totals.markup, tol = Number(s.tolerance) / 100;
+    // A line whose band holds no whole rounding unit cannot be fitted; every other line must be inside.
+    const fittable = (x) => x.cost > 0 && Math.floor((x.cost * (1 + M + tol)) / u) >= Math.ceil((x.cost * (1 + Math.max(M - tol, -1))) / u);
+    assert.deepEqual(again.lines.filter((x) => x.flag && fittable(x)).map((x) => x.label), [], JSON.stringify({ t, s }));
+  }
+});
