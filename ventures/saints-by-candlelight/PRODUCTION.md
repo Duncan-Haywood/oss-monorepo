@@ -149,7 +149,10 @@ Script text starts here. Paragraphs are separated by blank lines.
 ```
 
 Front matter values are single lines (no wrapping). `sources` is the only
-list.
+list. Keep `summary` to about 140 characters: the page's og:description is the
+summary plus a fixed suffix, and `platform/pages/og-description-length.test.mjs`
+fails a new page over 200 (older episodes are in its baseline; episode 180's
+first CI run failed on it, and `--check-script` does not catch it).
 
 ## Making an episode
 
@@ -192,7 +195,6 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - The water turned to blood at the edge of the Nile, the first sign by the river in the morning and the magicians who did the same, seven days (Exodus 7:14-25; left by episode 160).
 - Moses and Zipporah on the road back to Egypt and the lodging place, a hard passage told carefully in daylight, with the main readings named and none settled (Exodus 4:24-26; left by episodes 37, 157 and 158).
 - Miriam and Aaron and the cloud over the tent at Hazeroth, the meekest man on the face of the earth (Numbers 12; left by episode 141).
-- Othniel and Achsah and the upper and lower springs, Caleb's daughter who asked for water and the first judge of Israel (Joshua 15:13-19, Judges 1:11-15 and 3:7-11; left by episode 142).
 - Shimei and the stones on the road from Jerusalem, and David who would not let Abishai take his head, then forgave him at the Jordan (Second Samuel 16:5-14 and 19:16-23; left by episode 147).
 - David and the Song of the Bow, the lament for Saul and Jonathan, swifter than eagles and stronger than lions (Second Samuel 1; left by episode 147).
 - David at the gate of Gath, the first time he fled to Achish and let his spittle run down his beard (First Samuel 21:10-15, with Psalm 34's title; left by episode 148).
@@ -231,11 +233,14 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - Ezekiel's lament for the ship of Tyre, the mast of cedar and the sail of Egyptian linen and every trading people named on board, told as a quieter episode about trade and pride (Ezekiel 27; left by episode 178).
 - Job's three friends and the seven days of silence, Eliphaz, Bildad and Zophar who came from their own places to comfort him, told as an episode about visiting the sick and sitting with the grieving (Job 2:11-13, with Romans 12:15; left by episode 179).
 - The Lord's answer from the whirlwind told on its own, the storehouses of the snow, the mountain goats, the wild ass, the ostrich and the horse, a quiet nature episode (Job 38-39; left by episode 179).
+- Ehud and the left hand at the palace of Eglon, told carefully and without the gore, the second judge after the forty years of Othniel's rest (Judges 3:12-30; left by episode 180).
+- Deborah under her palm tree between Ramah and Bethel, the judge who settled cases and the song of Deborah and Barak, told as an episode about wisdom and courage (Judges 4-5; left by episode 180).
+- The generation who did not know the Lord, the angel at Bochim and the people who wept, a quieter episode about passing the faith on to children (Judges 2:1-15, with Psalm 78:1-8; left by episode 180).
 
 ## Audio status
 
 <!-- audio-status: written by node generate.mjs from episodes/ and audio/manifest.json -->
-Audio: 29 of 179 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 179.
+Audio: 29 of 180 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 180.
 <!-- /audio-status -->
 
 Whether to add audio is the creative prompt's call, not this file's: `prompts/creative/prompt-0.md`, "Audio size", says text only while the `du` it names is over 400 MB (577 MB on 2026-11-18), and the higher layer wins. The case that the cap is stale (audio has been served from jsDelivr, outside the deploy artifact, since 2026-10-24, so the cost left is git history) is in [`docs/reports/2026-11-13-audio-cap-is-stale.md`](../../docs/reports/2026-11-13-audio-cap-is-stale.md); changing the rule is a `prompts/` edit, which waits on the owner's approval. This paragraph used to recommend voicing the backlog against the prompt, and five run records from 2026-11-16 to 2026-11-18 reported the two guides disagreeing. When the rule allows audio, voice the backlog in episode order, about 60 MB a run (episodes 20 to 24 took 7 to 11 minutes each on 4 cores, 2026-11-15). Read the episode for names first and add any the voice would trip on to `SAY` in `render_audio.py`. The line above is regenerated with the pages, so a new episode or render needs no edit here. If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 8 to 15 minutes.
