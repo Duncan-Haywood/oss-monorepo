@@ -2,7 +2,7 @@
 title: "QuickBooks has no retainage field: how subcontractors track it anyway"
 seo_title: "How to track retainage in QuickBooks Online (step by step)"
 date: 2026-11-25
-tags: [construction, subcontractors, retainage, retainage-release, quickbooks, pay-applications, pay-app-guides, for-customers]
+tags: [construction, subcontractors, retainage, retainage-release, retainage-tracking, quickbooks, pay-applications, pay-app-guides, for-customers]
 description: "QuickBooks Online cannot hold back retainage on an invoice. The Retainage Receivable account and item, the release invoice, and the report that hides it."
 ---
 
@@ -81,6 +81,33 @@ The page does not restate any state's release rule; it links the
 [retainage caps table](https://marisstella.app/pay-app-guides/retainage-explained.html#state-table),
 where each row links the statute. The letter is a starting point, not a
 legal notice.
+
+## Then every job at once
+
+One job's retainage is easy to remember. Six jobs across three GCs, some
+finished in June and some still framing, is where money gets lost, and
+the A/R aging report is no help because none of it was invoiced. The
+[retainage tracker](https://marisstella.app/pay-app-guides/retainage-tracker.html)
+takes one row per job, pasted from a spreadsheet or opened as a CSV: the
+retainage held and released to date, the completion date, the release days
+from that subcontract, and the date the release was billed. It ages the
+outstanding retainage from each job's own due date, not from the invoice
+date, prices the wait at your own cost of money if you give one, totals it
+by GC, and writes a chase list in the order worth calling.
+
+On its example of six jobs, $200,250 of retainage is outstanding. $63,200
+of it is overdue on two jobs, the worst 88 days past its release date,
+costing about $1,070 at 8% a year. The most useful line is the one an
+aging report cannot produce: two finished jobs holding $39,050 whose
+release nobody has billed yet. One GC holds 60% of the total, which the
+page flags as a cash-flow risk in itself.
+
+The page only uses the release days you type. It does not decide whether a
+closeout condition, a final waiver or a pay-when-paid clause has been met,
+and it does not supply a statute's deadline; those are in the guides it
+links. The arithmetic (outstanding, due dates, days overdue, simple-interest
+carrying cost, bucket and GC totals) is checked against hand sums in its
+tests.
 
 This is the gap the pay-app suite we are building is meant to close:
 retainage worked out per line on every pay application, a running balance

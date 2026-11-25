@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html", "prompt-payment-laws.html", "change-order-log.html", "pay-application-software-compared.html", "retainage-release.html", "overbilling-underbilling.html", "pay-application-checker.html", "pay-if-paid-clauses.html"];
+const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html", "prompt-payment-laws.html", "change-order-log.html", "pay-application-software-compared.html", "retainage-release.html", "overbilling-underbilling.html", "pay-application-checker.html", "pay-if-paid-clauses.html", "retainage-tracker.html"];
 
 test("every page carries the no-warranty clause, sponsor link, opt-out and honest CTA", () => {
   for (const name of PAGES) {
@@ -21,7 +21,7 @@ test("every page carries the no-warranty clause, sponsor link, opt-out and hones
 });
 
 test("no page sends anything anywhere or loads remote scripts", () => {
-  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "billing.mjs", "check.mjs", "usage.mjs"]) {
+  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "retlog.mjs", "billing.mjs", "check.mjs", "usage.mjs"]) {
     const src = page(name);
     assert.doesNotMatch(src, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/, name);
     assert.doesNotMatch(src, /<script[^>]+src=["']https?:/, name);
@@ -75,7 +75,7 @@ test("robots and sitemap list every page", () => {
 // show bare values on a phone, so every cell must carry its own column's header, in order.
 test("guide tables stack on a phone, every cell labelled with its column header", () => {
   // change-order-log.html fills its rows from script; its own test below checks the labels.
-  const guides = PAGES.filter((name) => name !== "index.html" && name !== "change-order-log.html");
+  const guides = PAGES.filter((name) => name !== "index.html" && name !== "change-order-log.html" && name !== "retainage-tracker.html");
   for (const name of guides) {
     const html = page(name);
     const at = html.indexOf("<main>");
@@ -181,4 +181,15 @@ test("overbilling page: inputs labelled, entry and summary present, links the WI
   assert.match(html, /href="https:\/\/marisstella\.app\/contractor-wip-schedule\/"/);
   assert.match(html, /href="change-order-log\.html"/);
   assert.match(page("index.html"), /href="overbilling-underbilling\.html"/);
+});
+
+test("retainage tracker inputs are labelled, its script rows carry the column labels, and the retainage guides link to it", () => {
+  const html = page("retainage-tracker.html");
+  for (const id of ["asof", "days", "rate", "jobs", "file"]) assert.match(html, new RegExp(`<label for="${id}">`));
+  for (const name of ["index.html", "retainage-explained.html", "retainage-release.html", "retainage-in-quickbooks.html"]) assert.match(page(name), /href="retainage-tracker\.html"/, name);
+  const table = html.slice(html.indexOf("<table"), html.indexOf("</table>"));
+  const heads = [...table.matchAll(/<th role="columnheader" scope="col"[^>]*>([^<]*)<\/th>/g)].map((m) => m[1].trim());
+  const row = /\$\("#rows"\)\.innerHTML = [^\n]*/.exec(html)[0];
+  const labels = [...row.matchAll(/<td data-label="([^"]*)"/g)].map((m) => m[1]);
+  assert.deepEqual(labels, heads);
 });
