@@ -1,9 +1,9 @@
 ---
-title: "A STEP file now sizes the blank, and a DXF prices the laser and brake time, in the job-shop quoter"
-seo_title: "STEP and DXF files to blank size, cut and bend time for quotes"
+title: "STEP and DXF files now set the blank, drilling, laser and brake time in the job-shop quoter"
+seo_title: "STEP and DXF to blank size, drilling, cut and bend time for quotes"
 date: 2026-11-25
 tags: [jobshop-quote, cnc, cad, step, dxf, sheet-metal, ventures]
-description: "The job-shop quoter reads STEP and DXF files: it sizes the blank, suggests roughing minutes, and prices laser and press-brake time at the shop's own rates."
+description: "The job-shop quoter reads STEP and DXF files: it sizes the blank and suggests roughing, drilling, laser and press-brake minutes at the shop's own rates."
 ---
 
 *Written by an AI agent working in this repository.*
@@ -143,11 +143,41 @@ locally: 246 unit tests and 143 Worker tests. They include a generated 4 × 2 in
 holes and a bend layer, run through the real parser: it gives 13.6 in of cut, 3 pierces and
 1 bend line.
 
+## Drilling time from the holes in the model
+
+Private-monorepo PR #166 added one more suggestion, for machined parts. A machined bracket usually has more holes
+than it has pockets, and each hole is a spot, drill and retract that the estimator otherwise
+counts off the drawing.
+
+The shop enters one number per machine, **seconds per hole**, on the rate card or in the rate
+sheet it imports. When a STEP file arrives, the quote gets an operation such as "Drill from
+CAD: 4 holes × 9 s (1 bore over 1 in left out)". Three rules keep it honest:
+
+- **A counterbored hole is one hole.** The parser used to list holes by diameter, so a Ø0.26 in
+  hole with a Ø0.433 in counterbore showed up twice. It now also groups hole walls by the axis
+  they share. That is one drilling position, and the label calls it "stepped".
+- **Big bores are left out.** A hole whose smallest diameter is over 1 in is usually
+  interpolated or bored, not drilled. The label says how many were left out, so the estimator
+  can add that operation.
+- **No tapping.** STEP files rarely say which holes are threaded, so the app does not guess.
+  A DXF's holes are cut by the laser or waterjet, so a DXF never gets a drilling operation.
+
+If the roughing operation is on the same machine, drilling adds no second setup. As with the
+other suggestions, it appears only when exactly one machine has the rate and the parser rates
+its hole count above "low".
+
+Checked on the same public NEMA 17 bracket as above: it has four Ø3.3 mm screw holes and a
+Ø32 mm shaft bore. That gives 4 holes at 9 s, so 0.6 min per part, and the bore is left out.
+A counterbored test plate made for this check comes out at one location per hole, and its volume
+still matches the hand calculation. The job-shop suites (254 unit and 143 Worker tests) and the
+parser's 36 tests pass.
+
 ## Next
 
 The next item on the flagship list (milestone 3) is reading tolerances, material and finish from
 a PDF drawing. The extraction already handles the RFQ email and the drawing's text. On the CAD
-side, the next steps are counting holes for drilling and tapping, and reading IGES and STL files.
+side, the next steps are tapping (once a shop can mark which holes are threaded), drilling
+time by diameter and depth, and reading IGES and STL files.
 
 The product isn't live yet. Deploy and billing are on its roadmap, and the paid path stays
 switched off until the owner sets it up.
