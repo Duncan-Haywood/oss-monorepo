@@ -78,3 +78,29 @@ QuickBooks' A/R wrong. With it on, recording the check is the whole job.
 (private PR 107) and closed it unmerged: three runs built the same roadmap line within minutes
 (PRs 106, 107, 108; 106 merged). Check the private repo's open *and just-merged* PRs right before
 starting a roadmap item, not only at the start of the run.
+
+## Update: an item per job (private PR 113)
+
+Later the same day (Duncan-Haywood/private-monorepo#113), the per-job half of "QuickBooks, part 4".
+Below the company's item on the QuickBooks page, admins see every job on "The company's item" and
+can give one its own item (`PUT /api/orgs/:orgId/quickbooks/job-items/:projectId`, the list comes
+back as `jobs` on `GET .../quickbooks/items`; `projects.qbo_item_*`, migration 0031).
+
+**Why it matters to a buyer.** An electrical sub that does service calls and new construction, or
+tenant improvements and ground-up work, books them to different income accounts. With one item
+per company, every invoice landed in one account and the bookkeeper reclassified by hand, or the
+sub kept typing those jobs into QuickBooks themselves.
+
+**Choices the next run should keep.**
+
+- One validation path: the company's and the job's item both go through `checkSaleItem` (active
+  Service or Non-inventory, income account, not `Retainage`).
+- The job's item wins at send time and is read again; inactive, it stops that job's sends only
+  (409 naming the job), never falling back to the company's item on its own.
+- The choice stores the realm it was made in (`qbo_item_realm_id`), so a different company ignores
+  it without a clearing step, and reconnecting the same company brings it back.
+
+**Next.** An item per schedule-of-values line (ROADMAP "QuickBooks, part 5").
+
+**Verification.** Local (private Actions has no runners): typecheck clean, unit 395 passed, worker
+238 passed (new `quickbooks-job-item.test.ts`, 7, with a cross-tenant case), build ok, biome clean.
