@@ -1,0 +1,73 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKinhhkzfpirphXMuPp",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-25T02:24:58Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "polish: pay-app-guides guide tables stack on phones; fix shared STACK_TABLE_CSS splitting inline markup",
+  "projects": [
+    "pay-app-guides",
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18812",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "risk_review.py crashed (git merge-base exit 1) in the shallow clone until `git fetch --depth=40 origin main`"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0: the security queue listed 1,243 alerts from a scan of an older commit, and no claim branches existed. Four open PRs (18806-18809) were already fixing the queue's staleness and triage. I spent the first minutes confirming that before routing. Once one of them merges, step 0 should point at the 'scanned at commit' check."
+    },
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "It crashes with a CalledProcessError traceback in a fresh shallow clone (no merge base with origin/main). It should say 'run git fetch --depth=40 origin main' instead. Open PR 18791 touches a stale --base warning, which may cover this."
+    },
+    {
+      "file": "platform/pages/site-nav.mjs",
+      "issue": "STACK_TABLE_CSS lives only in pf-site.css, so venture pages (pf-chrome.css) can't opt into .stack. I had to write a venture-local copy."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Step 0 says to take the top security alert first. The queue was stale (scan predates the backlog fix) and four open PRs were already handling it, so I routed instead.",
+      "did": "Read alerts/1.md and the stale-scan report on PR 18808's branch, then went to step 1",
+      "result": "No duplicate security PR"
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "The default is to build the whole site (3-20 min) before choosing. Instead I served the target venture's static pages directly and rendered blog tables through the Markdown renderer with the real CSS, which measures the same surfaces faster.",
+      "did": "Playwright on localhost and file renders",
+      "result": "Found both defects without a full build"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-a-css-grid-split-161-phone-tables-into-fragments.md",
+    "docs/reports/polish-2026-11-25-stacked-cells-and-pay-app-tables.md"
+  ],
+  "goal": "Front door to bet #1 (pay-app billing) reads on a phone",
+  "notes": "Security alert #1 (py/clear-text-storage-sensitive-data) was not fixed here. PR 18808's report says it was already fixed on main and the queue is stale. js/insecure-download in ventures/source-map-leak-check/probe.mjs:44 looks like a false positive: the probe fetches a URL the user typed and only reads it as text. Verification: pay-app-guides venture tests 25/25. Stack-table and related platform/pages tests 27/27. Full platform/pages suite started in the background; result below.",
+  "corrections": [],
+  "redteam": null
+}

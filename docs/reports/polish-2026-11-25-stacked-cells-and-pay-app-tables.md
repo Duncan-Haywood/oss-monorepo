@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, accessibility, construction]
+topics: [design, accessibility]
 date: 2026-11-25
 ---
 # Polish, 2026-11-25: pay-app-guides tables stack on phones; shared `.stack` cells no longer split inline markup
