@@ -38,7 +38,7 @@ blocks anyone. Task `sec-scan-pipeline` (`portfolio/work/tasks.yaml`).
 | Trivy config | 27 s | 70 | 1 critical, 33 high, 5 medium, 7 low (46 in all) |
 | Checkov | 6 s | 316 failed checks | 63, all medium (no check on the curated high list failed) |
 | OSV-Scanner | 80 s | 344 (package x advisory) | 25 critical, 114 high, 189 medium, 14 low (342 in all) |
-| Semgrep (local rules) | SEMGREP_TIME | SEMGREP_TOTAL | SEMGREP_SEV |
+| Semgrep (local rules) | 76 s | 241 | 24 high, 217 medium |
 
 What they are:
 
@@ -76,7 +76,21 @@ What they are:
   48 `failed resolution` messages came from unpinned `requirements.txt`
   files whose transitive versions OSV-Scanner resolves through
   api.deps.dev, also unreachable here; those files are under-counted.
-- **Semgrep.** SEMGREP_NOTE
+- **Semgrep, 24 high.** 17 `js-child-process-dynamic` (shell commands
+  built with template strings in the `platform/ci/check_*.js` browser
+  checkers), 4 `py-shell-injection` (`run_workflow_locally.py`,
+  `runner_probe.py` and two research scripts), 2 `js-eval-dynamic` in
+  `platform/ci/check_enter_reload.mjs`, and 1 `js-tls-verify-off` in
+  `ventures/status-keeper/certs.mjs` (a certificate checker, which has to
+  read certificates it does not trust). The 217 medium are `innerHTML`
+  assignments (176), `pickle` loads in research scripts (39) and two
+  unfiltered `tarfile.extractall` calls. 24,444 files scanned; 36 could
+  only be partly parsed. A first run of the same rules, before they were
+  tuned, reported 651 findings (473 high): 362 were `new Function` and
+  `eval` in tests, which evaluate page scripts on purpose, and 85 were
+  `exec` and `pickle` in research experiment scripts. The eval rules now
+  skip tests and `research/`, and `pickle` is medium; a PR adding the same
+  patterns there would otherwise have been blocked for no gain.
 
 ## What this does and does not mean
 
