@@ -21,6 +21,6 @@
   "baseline": "7 distinct sessions on prompts/ventures/prompt-1.md + 3 on flagships.yaml in the 3 days to 2026-11-25 (friction_rank.py)",
   "opened": "2026-11-25",
   "source": "process critique, 2026-11-25 (friction_rank.py --live --ungated --days 3)",
-  "pr": "this",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18882",
   "result": null
 }

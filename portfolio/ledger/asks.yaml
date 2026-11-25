@@ -94,7 +94,7 @@ decisions:
 
 - id: private-monorepo-clone
   asks: []
-  prs: [PRNUM]
+  prs: [18882]
   gates: deployment
   exposure: none
   opened: "2026-11-25"
