@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "Built a change order request PDF in private-monorepo that another session (PR 61) merged 3 minutes before mine was pushed; rebuilt the branch on main and kept only the new contract-time delta (private PR 62)."
+    "Built a change order request PDF in private-monorepo that another session (PR 61) merged 3 minutes before mine was pushed; rebuilt the branch on main and kept only the new contract-time delta (private PR 62).",
+    "The public guide section also duplicated a parallel session's; resolved by keeping main's text."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -52,7 +53,7 @@
     }
   ],
   "writeups": [
-    "ventures/pay-app-guides/change-orders-schedule-of-values.html: new section 'What to put in a change order request' (extended the existing guide rather than a new post)"
+    "ventures/pay-app-guides/change-orders-schedule-of-values.html: my change-order-request section collided with an equivalent one a parallel session merged first; kept main's and added only the not-legal-advice line it lacked"
   ],
   "goal": null,
   "notes": "Ventures track, bet #1 (pay-app billing). private-monorepo PR 62 (merged): change orders record the contract time asked for (schedule_days, migration 0012, PUT .../:coId/schedule, form field and Time button) and the change order request PDF from PR 61 prints it. oss-monorepo: the front-door guide gains a change-order-request section and llms.txt line; pay-app-guides 119 tests pass.",

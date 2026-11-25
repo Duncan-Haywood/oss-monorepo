@@ -289,6 +289,15 @@ def changes(since, rev="HEAD", root=ROOT, run=subprocess.run):
     # A shallow clone's boundary commit diffs against nothing, so it "changes"
     # every file in the tree: drop it.
     commits = [c[:4] for c in commits if not c[4]]
+    if shas:
+        # .git/shallow also lists the boundaries of other shallow fetches: the
+        # security-alerts branch step 0 of prompt.md fetches is one, a commit
+        # from this morning, so before 2026-11-25 every cluster read
+        # "touched-since unknown" and each run paid a needless deepen fetch.
+        # Keep only the boundaries the revisions read here can reach.
+        reach = run(["git", "-C", str(root), "rev-list", *rev], capture_output=True, text=True)
+        mine = set((reach.stdout or "").split())
+        shas = [s for s in shas if s in mine]
     edge = None
     if shas:
         d = run(["git", "-C", str(root), "show", "-s", "--format=%cI", *shas],
