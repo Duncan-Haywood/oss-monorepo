@@ -36,7 +36,8 @@
     "first tofu test runs failed on mock ARNs (random strings rejected by provider ARN validation); suites now give mock ARNs",
     "push hook rejected the post: description 169 characters; shortened",
     "risk_review flagged a PEM marker in a comment (format example, no key); reworded",
-    "checklist-coverage failed locally: the new runtime test directory was not named in .github/prompts/verify-and-merge.md; added"
+    "checklist-coverage failed locally: the new runtime test directory was not named in .github/prompts/verify-and-merge.md; added",
+    "site test 'usage counting is local' failed: the post's description said fetch(), the hub shows it on the latest-post card and the test counts fetch( calls; reworded (2057/2057 pass after)"
   ],
   "integrity_issues": [
     "The task asked to read apps/grants/docs/ARCHITECTURE.md in the private repository; add_repo was refused in this session, so the Workers-to-AWS migration table is from the Workers side and says so in the README; the check moves to aws-move-products",
@@ -51,6 +52,10 @@
     {
       "file": ".github/prompts/cloud-session.md",
       "issue": "Outbound hosts does not mention that registry.opentofu.org is blocked and releases.hashicorp.com works (filesystem-mirror recipe), or that Trivy's GitHub release assets 404"
+    },
+    {
+      "file": "platform/pages/build.test.mjs",
+      "issue": "The hub's no-network test regex-matches fetch( in rendered post descriptions, so a post about code that says fetch() turns main red; the post check could reject it earlier or the test could ignore card text"
     }
   ],
   "deviations": [
@@ -69,7 +74,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Verification here: runtime node --test 9/9 (incl. Postgres 16 e2e); OpenTofu 1.10.7 fmt -check, validate and tofu test (mocked providers) in 10 directories, 29/29 runs; Checkov 3.4.10: 271 passed, 0 failed, 25 skipped with reasons; checklist_coverage ok; risk_review: owner review needed no. Mid-run the orchestrating session asked (by message) to follow draft PR #18749's layout platform/aws/stacks/<stack>/, IAM names <stack>-*, a workload permissions boundary and reuse of stacks/llm; done before merge. Nothing applied (no AWS account).",
+  "notes": "Verification here: runtime node --test 9/9 (incl. Postgres 16 e2e); OpenTofu 1.10.7 fmt -check, validate and tofu test (mocked providers) in 10 directories, 29/29 runs; Checkov 3.4.10: 271 passed, 0 failed, 25 skipped with reasons; checklist_coverage ok; risk_review: owner review needed no. Mid-run the orchestrating session asked (by message) to follow draft PR #18749's layout platform/aws/stacks/<stack>/, IAM names <stack>-*, a workload permissions boundary and reuse of stacks/llm; done before merge. Nothing applied (no AWS account). Local sweep (run_workflow_locally --for-changes): every workflow green after the post fix; site builder 2057/2057.",
   "corrections": [],
   "redteam": null
 }

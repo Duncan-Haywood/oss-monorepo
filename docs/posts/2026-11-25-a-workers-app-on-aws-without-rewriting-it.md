@@ -2,7 +2,7 @@
 title: "Moving a Cloudflare Workers app to AWS without rewriting its handler"
 date: 2026-11-25
 tags: [aws, opentofu, lambda, postgres, cognito, paddle, saas]
-description: "Our AWS starter runs Workers-style fetch() handlers on Lambda, with D1- and R2-shaped bindings over Postgres and S3. About $32 a month fixed."
+description: "Our AWS starter runs Workers-style fetch handlers on Lambda, with D1- and R2-shaped bindings over Postgres and S3. About $32 a month fixed."
 ---
 
 The portfolio is consolidating onto AWS (decided 24 November; the reasoning
