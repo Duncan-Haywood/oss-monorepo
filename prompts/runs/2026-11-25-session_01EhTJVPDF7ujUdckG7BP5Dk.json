@@ -31,7 +31,8 @@
   "outcome": "success",
   "errors": [
     "CSV formula guard: first version defused plain negative numbers; fixed",
-    "VALID[f.id] flagged by inherited_keys.py; switched to Object.hasOwn"
+    "VALID[f.id] flagged by inherited_keys.py; switched to Object.hasOwn",
+    "Regenerated transition.json broke 2 front-doors tests in CI; reverted to main's copy"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -44,8 +45,8 @@
       "issue": "Every official-source host probed (ecfr.gov, dol.gov, acquisition.gov, law.cornell.edu, census.gov, sba.gov, support.procore.com) returned proxy 403 this run, so regulatory or vendor pages could not be built. A list of hosts known to be blocked would save the probing."
     },
     {
-      "file": "portfolio/monetization/transition.json",
-      "issue": "The committed JSON had drifted on main (test_transition.py failed before this PR); any venture PR running --for-changes trips over it."
+      "file": "portfolio/monetization/transition.py",
+      "issue": "transition.json has drifted on main (test_transition.py fails). Regenerating it in this PR reclassified machine-shop-guides as proprietary, because the vendored PDF reader pushes it past 5,000 lines, and that broke front-doors.test.mjs. Reverted to main's copy; vendored files should not count toward the threshold."
     }
   ],
   "deviations": [
@@ -61,7 +62,7 @@
     "docs/reports/ventures-2026-11-25-machine-shop-drawing-review.md"
   ],
   "goal": null,
-  "notes": "Local checks: run_venture_tests machine-shop-guides 221/221 plus 5 PDF siblings and dupehound green; Playwright 390px sample and upload, FAI hand-over verified; run_workflow_locally --for-changes failures fixed (CSV guard, transition drift).",
+  "notes": "Local checks: run_venture_tests machine-shop-guides 221/221 plus 5 PDF siblings and dupehound green; Playwright 390px sample and upload, FAI hand-over verified; run_workflow_locally --for-changes failures fixed (CSV guard, transition drift).; CI 'test' (site builder) failed on 2 front-doors tests caused by the regenerated transition.json; reverted, front-doors.test.mjs 11/11 locally.",
   "corrections": [],
   "redteam": null,
   "usage": {

@@ -32,3 +32,11 @@ step for bet #2 was the most useful thing reachable.
 **Next.** Text pieces split across runs (a stacked `+.002` over `-.000`) are not joined, so those
 callouts are missed; joining stacked tolerance text by position would raise recall. Real CAD exports
 (SolidWorks, Fusion) should be tried as fixtures when a session can get permissively licensed samples.
+
+**Watch out: transition.json.** The vendored PDF reader takes machine-shop-guides over
+`portfolio/monetization/transition.py`'s 5,000-source-line threshold. Regenerating
+`transition.json` (it had already drifted on main, so `test_transition.py` fails) would then
+reclassify this front door as "proprietary", and `platform/pages/front-doors.test.mjs` ("a paid
+product is never a front door to itself") fails. This PR left `transition.json` as it was on main.
+The fix belongs in `transition.py`: exclude vendored files (those covered by a `*-sync.test.mjs`)
+from the line count, or keep listed front doors as front doors. Then regenerate.
