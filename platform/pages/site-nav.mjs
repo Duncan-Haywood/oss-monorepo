@@ -99,10 +99,10 @@ export const SITE_NAV = Object.freeze([
   // Labelled for businesses since 2026-11-02 (owner: "advertise to businesses
   // more", "describe your problem and it gets built").
   Object.freeze({ id: 'request', label: 'Get it built', href: 'custom-development/' }),
-  // "Self-host" since 2026-11-24 (was "Deploy your own"): two new items had to
-  // fit the one-row header budget site-nav.test.mjs measures. The footer keeps
-  // the long name ("Deploy your own copy").
-  Object.freeze({ id: 'deploy', label: 'Self-host', href: 'deploy/' }),
+  // "Self-host" (deploy/) left the header on 2026-11-25 (owner: "retire the
+  // self-host nav link"); self-deploy was retired in the 2026-11-24 pivot. The
+  // footer keeps "Deploy your own copy" until task retire-self-deploy removes
+  // the page and redirects its URL.
   Object.freeze({ id: 'about', label: 'About', href: 'about/' }),
 ]);
 
