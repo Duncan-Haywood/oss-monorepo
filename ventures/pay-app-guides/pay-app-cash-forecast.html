@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b51'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>When Will I Get Paid? Pay App Cash Forecast</title>
+  <meta name="description" content="Free cash forecast for subcontractors: each job's pay-app cutoff and pay terms in, the week each payment lands, late money and your first short week out.">
+  <meta property="og:title" content="When will I get paid? A pay application cash forecast for subcontractors">
+  <meta property="og:description" content="Enter each job's monthly billing, retainage, the GC's pay-app cutoff day and how long the owner and the GC take to pay, plus the applications already sent. See the date each payment should land, which are late, money in week by week, and the first week the bank goes below zero. Runs in the browser.">
+  <link rel="canonical" href="./pay-app-cash-forecast.html">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    textarea { width: 100%; box-sizing: border-box; min-height: 130px; padding: 9px 10px; border: 1px solid var(--input); border-radius: 7px; font: 13px ui-monospace, monospace; background: var(--card); color: var(--ink); }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 6px 0 12px; }
+    .tile { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+    .tile b { display: block; font-size: 1.25rem; color: var(--head); font-variant-numeric: tabular-nums; }
+    .tile span { font-size: .8rem; color: var(--muted); }
+    .err { color: #9a3412; font-weight: 600; }
+    tr.short td { color: #9a3412; font-weight: 600; }
+    #summary { white-space: pre; overflow-x: auto; font: 12px/1.45 ui-monospace, monospace; }
+  </style>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Pay App Cash Forecast", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "When will I get paid on a pay application?", "acceptedAnswer": {"@type": "Answer", "text": "Add up the chain: the date you submit (the GC's cutoff day), the days the owner takes to pay the GC after it receives the application, and the days the GC takes to pay you after the owner pays it. A 25th cutoff with 30-day owner terms and a GC that pays 10 days later puts the money about 40 days after the cutoff. Your subcontract, and on some jobs a prompt payment statute, set the GC's part."}}, {"@type": "Question", "name": "Why do subcontractors run short of cash on profitable jobs?", "acceptedAnswer": {"@type": "Answer", "text": "Payroll and suppliers are paid every week or two, but pay applications go in once a month and are paid 30 to 60 days later, less retainage. Work done just after a cutoff can wait more than two months to become cash. A week-by-week forecast shows the gap before it arrives."}}]}</script>
+</head>
+<body>
+<header>
+  <p class="kicker">Pay app guides · runs in your browser · nothing uploaded</p>
+  <h1>When will I get paid? A pay application cash forecast for subcontractors</h1>
+  <p>Payroll goes out every week. Pay applications go in once a month, on the GC's cutoff day, and the money comes back after the owner pays the GC and the GC pays you, less retainage. Enter each job and the applications you have already sent. The page works out the <strong>date each payment should land</strong>, which ones are <strong>already late</strong>, the money coming in <strong>week by week</strong> and, if you enter cash on hand and weekly spending, <strong>the first week the bank goes below zero</strong>.</p>
+  <p class="note">The day counts are yours: from your subcontracts and from how these GCs have actually paid you. The page does arithmetic on them; it does not decide what anyone owes or when.</p>
+  <nav class="guides" aria-label="Guides">
+    <a href="prompt-payment-laws.html">Prompt payment laws by state</a>
+    <a href="pay-if-paid-clauses.html">Pay-if-paid clause reader</a>
+    <a href="paid-short.html">Paid short? Reconcile the check</a>
+    <a href="retainage-tracker.html">Retainage tracker</a>
+  </nav>
+</header>
+<main>
+<section class="card" id="inputs">
+  <h2>Your jobs and open applications</h2>
+  <p><button type="button" class="secondary" id="sample">Load the example</button></p>
+  <div class="grid">
+    <div><label for="asof">As of (YYYY-MM-DD, blank = today)</label><input id="asof" value=""></div>
+    <div><label for="weeks">Weeks to forecast (4 to 52)</label><input id="weeks" inputmode="numeric" value="13"></div>
+    <div><label for="cash">Cash in the bank now ($, optional)</label><input id="cash" inputmode="decimal" value=""></div>
+    <div><label for="spend">Spending per week: payroll, suppliers, rent ($, optional)</label><input id="spend" inputmode="decimal" value=""></div>
+  </div>
+  <div><label for="jobs">Jobs, one row per job (CSV or pasted from a spreadsheet): Job, GC, Monthly billing, Retainage %, Submit day, Owner days, GC days, Months left, State</label>
+  <textarea id="jobs" spellcheck="false" placeholder="Job,GC,Monthly billing,Retainage %,Submit day,Owner days,GC days,Months left,State&#10;Elm St clinic,Harbor Builders,60000,10,25,30,10,3,tx"></textarea></div>
+  <p class="note"><strong>Monthly billing</strong> is what you expect to bill the job each month before retainage. <strong>Submit day</strong> is the GC's pay-app cutoff (31 means the last day of the month). <strong>Owner days</strong>: from the cutoff until the owner pays the GC. <strong>GC days</strong>: from then until the GC pays you. <strong>Months left</strong>: blank bills every month of the forecast. <strong>State</strong> (two letters, optional) compares your GC days with the <a href="prompt-payment-laws.html">prompt payment table</a>.</p>
+  <div><label for="apps">Applications sent and not fully paid: Job, App #, Amount due, Submitted, Received</label>
+  <textarea id="apps" spellcheck="false" placeholder="Job,App #,Amount due,Submitted,Received&#10;Elm St clinic,6,54000.00,2026-10-25,0"></textarea></div>
+  <p class="note"><strong>Amount due</strong> is the application's current payment due (after retainage). <strong>Received</strong> is what has come in on it so far. Your numbers stay in this browser tab.</p>
+  <div id="errors" aria-live="polite"></div>
+</section>
+
+<section class="card" id="result" hidden>
+  <h2>The forecast</h2>
+  <div class="tiles" id="tiles"></div>
+  <div id="findings" aria-live="polite"></div>
+  <h3>Money in, week by week</h3>
+  <div class="scroll"><table class="stack compact" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">Week of</th><th role="columnheader" scope="col">From applications sent</th><th role="columnheader" scope="col">From applications to send</th><th role="columnheader" scope="col">Total in</th><th role="columnheader" scope="col">Balance</th></tr></thead>
+    <tbody id="weekrows"></tbody>
+  </table></div>
+  <p class="note">Late money is not placed in any week, because nobody knows when it will come; it is the first tile above. Retainage is not in the weeks either: it comes at closeout.</p>
+  <h3>Every payment expected</h3>
+  <div class="scroll"><table class="stack compact" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">Job</th><th role="columnheader" scope="col">Application</th><th role="columnheader" scope="col">Submitted</th><th role="columnheader" scope="col">Expected</th><th role="columnheader" scope="col">Amount</th><th role="columnheader" scope="col">Status</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table></div>
+  <p>
+    <button type="button" id="copy">Copy the summary</button>
+    <button type="button" class="secondary" id="csv-weeks">Download weeks CSV</button>
+    <button type="button" class="secondary" id="csv-receipts">Download payments CSV</button>
+  </p>
+  <p id="summary" class="note"></p>
+</section>
+
+<section class="card">
+  <h2>Why the money comes so late</h2>
+  <p>Take a job with a cutoff on the 25th, an owner who pays the GC 30 days after it gets the application and a GC that pays you 10 days after that. Work you do on the 26th of March goes on the April 25th application and is paid around June 4th: 70 days later. Your crew was paid for it nine or ten times in between. That is the gap a sub finances with its own cash or a line of credit, on every job, all the time.</p>
+  <p>Three things shorten it, and all three are in your hands at least partly:</p>
+  <ul>
+    <li><strong>Never miss a cutoff.</strong> A pay app that misses the 25th waits a whole month, not a few days. The forecast flags a recent cutoff with nothing listed for it.</li>
+    <li><strong>Chase the late ones early.</strong> The usual hold-ups are paperwork: a lien waiver (yours or a supplier's), an insurance certificate, certified payroll, a sworn statement. Ask the week the payment is due, not a month later.</li>
+    <li><strong>Know what the GC may hold, and for how long.</strong> Many states set a number of days for the GC to pay you after it is paid, with interest when it does not (<a href="prompt-payment-laws.html">prompt payment laws by state</a>). Whether the owner paying the GC is a condition of your payment at all depends on the clause (<a href="pay-if-paid-clauses.html">pay-if-paid or pay-when-paid</a>).</li>
+  </ul>
+  <p>Billing for materials delivered and stored, when the contract allows it, also brings money forward (<a href="stored-materials-billing.html">billing stored materials</a>). Front-loading the schedule of values does too, and GCs know it: it is the first thing they cut.</p>
+</section>
+
+<section class="card">
+  <h2>What this forecast does not know</h2>
+  <ul>
+    <li>A short payment: the GC certifying less than you applied for, or deducting a backcharge (<a href="paid-short.html">reconcile a short check</a>).</li>
+    <li>Change orders you have not yet been allowed to bill: they are not in "monthly billing" until they are approved.</li>
+    <li>Retainage. It is held back from every application above and comes at the end of the job; the <a href="retainage-tracker.html">retainage tracker</a> follows it job by job.</li>
+    <li>Anything other than pay applications: time-and-material invoices, service work, a tax refund. Add them to your own cash sheet.</li>
+  </ul>
+</section>
+
+<section class="card cta" id="early-access">
+  <h2>A cash report that keeps itself</h2>
+  <p>We are building hosted pay-app billing for specialty subcontractors. Every application you send, every payment and every short balance is recorded against its job, so the cash report shows what is late and what is coming without anyone retyping a spreadsheet. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
+</section>
+</main>
+<!-- all-guides: generated by nav.mjs, do not edit by hand -->
+<nav class="all-guides" aria-label="All pay app tools and guides">
+    <div>
+      <h2>Tools</h2>
+      <ul>
+      <li><a href="./">Schedule of values calculator</a></li>
+      <li><a href="pay-application-checker.html">Pay app checker (this month vs last)</a></li>
+      <li><a href="change-order-log.html">Change order log</a></li>
+      <li><a href="schedule-of-values-template.html">Free Excel SOV template</a></li>
+      <li><a href="pay-if-paid-clauses.html">Pay-if-paid clause reader</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Billing guides</h2>
+      <ul>
+      <li><a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a></li>
+      <li><a href="change-orders-schedule-of-values.html">Change orders and the SOV</a></li>
+      <li><a href="stored-materials-billing.html">Billing stored materials</a></li>
+      <li><a href="overbilling-underbilling.html">Overbilling and underbilling</a></li>
+      <li><a href="retainage-explained.html">Retainage explained, with state caps</a></li>
+      <li><a href="retainage-release.html">Getting retainage released</a></li>
+      <li><a href="retainage-in-quickbooks.html">Retainage in QuickBooks</a></li>
+      <li><a href="retainage-tracker.html">Retainage tracker (every job)</a></li>
+      <li><a href="pay-application-software-compared.html">Pay app software compared</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Getting paid and lien waivers</h2>
+      <ul>
+      <li><a href="prompt-payment-laws.html">Prompt payment laws by state</a></li>
+      <li><a href="conditional-vs-unconditional-lien-waivers.html">Conditional vs unconditional lien waivers</a></li>
+      <li><a href="lien-waiver-forms-by-state.html">Lien waiver forms by state</a></li>
+      <li><a href="lien-waiver-log.html">Lien waiver log (given and collected)</a></li>
+      <li><a href="sworn-statement.html">Contractor's sworn statement builder</a></li>
+      <li><a href="paid-short.html">Paid short? Reconcile the check</a></li>
+      <li><a href="pay-app-cash-forecast.html" aria-current="page">When will I get paid? Cash forecast</a></li>
+      </ul>
+    </div>
+</nav>
+<!-- /all-guides -->
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, or financial advice, and it does not replace your contract, your accountant, or an attorney. A forecast is an estimate from the numbers you enter, not a promise that anyone will pay on those dates. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Privacy.</strong> Everything runs in your browser; nothing you type is uploaded. No accounts, cookies or analytics vendors. Anonymous counters (<code>guide_cash_forecast_viewed</code>, <code>cash_forecast_calculated</code>, <code>cash_forecast_example_loaded</code>, <code>cash_forecast_copied</code>, <code>cash_forecast_csv_downloaded</code>) are kept in local storage on your device only, never with your numbers, and Do Not Track switches them off. <button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
+</footer>
+<script type="module">
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  import { SAMPLE, dayText, dollars, forecast, parseApps, parseJobs, receiptsCsv, summaryText, weeksCsv } from "./forecast.mjs";
+  record("guide_cash_forecast_viewed");
+  const $ = (id) => document.getElementById(id);
+  $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+  if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+
+  const WEEK_HEADS = ["Week of", "From applications sent", "From applications to send", "Total in", "Balance"];
+  const ROW_HEADS = ["Job", "Application", "Submitted", "Expected", "Amount", "Status"];
+  let result = null, counted = false;
+  const el = (tag, text, cls) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const cell = (label, text, num) => { const td = el("td", text, num ? "n" : ""); td.setAttribute("role", "cell"); td.dataset.label = label; return td; };
+  const tile = (value, label) => { const d = el("div", null, "tile"); d.append(el("b", value), el("span", label)); return d; };
+
+  function update() {
+    const j = parseJobs($("jobs").value), a = parseApps($("apps").value);
+    const blank = !$("jobs").value.trim();
+    let errors = blank ? [] : [...j.errors, ...a.errors];
+    result = null;
+    if (!blank && !errors.length) {
+      const r = forecast({ jobs: j.jobs, apps: a.apps }, { asOf: $("asof").value.trim(), weeks: $("weeks").value, cash: $("cash").value, spend: $("spend").value });
+      errors = r.errors;
+      if (!errors.length) result = r;
+    }
+    $("errors").replaceChildren(...errors.map((e) => el("p", e, "err")));
+    $("result").hidden = !result;
+    if (!result) return;
+    const t = result.totals, bal = t.endBalance != null;
+    $("tiles").replaceChildren(
+      tile(dollars(t.overdue), `late now (${t.overdueCount} application${t.overdueCount === 1 ? "" : "s"})`),
+      tile(dollars(t.expected), `expected by ${dayText(t.end)}`),
+      tile(dollars(t.retainageBuilt), "retainage held back, not in the weeks"),
+      ...(bal ? [tile(t.firstShort != null ? dayText(t.firstShort) : "none", "first week below zero"), tile(dollars(t.lowest), `lowest balance (week of ${dayText(t.lowestWeek)})`)] : []),
+    );
+    $("findings").replaceChildren(...result.findings.map((f) => {
+      const p = el("p", null, "finding"), s = el("span", f.severity === "high" ? "act" : "note", `pill ${f.severity === "high" ? "high" : "low"}`);
+      p.append(s, " ", f.title); return p;
+    }));
+    $("weekrows").replaceChildren(...result.weeks.map((w) => {
+      const tr = el("tr"); tr.setAttribute("role", "row"); if (bal && w.balance < 0) tr.className = "short";
+      tr.append(cell(WEEK_HEADS[0], dayText(w.from)), cell(WEEK_HEADS[1], dollars(w.sent), true), cell(WEEK_HEADS[2], dollars(w.planned), true), cell(WEEK_HEADS[3], dollars(w.total), true), cell(WEEK_HEADS[4], bal ? dollars(w.balance) : "enter cash and spending", bal));
+      return tr;
+    }));
+    $("rows").replaceChildren(...result.receipts.map((r) => {
+      const tr = el("tr"); tr.setAttribute("role", "row");
+      const status = r.late ? `${r.late} days late` : r.kind === "sent" ? (r.partial ? "sent, part paid" : "sent") : "to send";
+      tr.append(cell(ROW_HEADS[0], r.job + (r.gc ? ` (${r.gc})` : "")), cell(ROW_HEADS[1], r.app || "next"), cell(ROW_HEADS[2], dayText(r.submitted)), cell(ROW_HEADS[3], dayText(r.expected)), cell(ROW_HEADS[4], dollars(r.amount), true), cell(ROW_HEADS[5], status));
+      return tr;
+    }));
+    $("summary").textContent = summaryText(result);
+    if (!counted) { counted = true; record("cash_forecast_calculated"); }
+  }
+  for (const id of ["asof", "weeks", "cash", "spend", "jobs", "apps"]) $(id).addEventListener("input", update);
+  $("sample").addEventListener("click", () => {
+    $("asof").value = SAMPLE.asOf; $("weeks").value = SAMPLE.weeks; $("cash").value = SAMPLE.cash; $("spend").value = SAMPLE.spend;
+    $("jobs").value = SAMPLE.jobs; $("apps").value = SAMPLE.apps;
+    record("cash_forecast_example_loaded"); update();
+  });
+  $("copy").addEventListener("click", async () => {
+    if (!result) return;
+    try { await navigator.clipboard.writeText(summaryText(result)); $("copy").textContent = "Copied"; record("cash_forecast_copied"); }
+    catch { $("copy").textContent = "Select the summary below and copy it"; }
+  });
+  const download = (name, text) => {
+    const url = URL.createObjectURL(new Blob([text], { type: "text/csv" }));
+    const a = document.createElement("a"); a.href = url; a.download = name; document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000); record("cash_forecast_csv_downloaded");
+  };
+  $("csv-weeks").addEventListener("click", () => result && download("cash-forecast-weeks.csv", weeksCsv(result)));
+  $("csv-receipts").addEventListener("click", () => result && download("cash-forecast-payments.csv", receiptsCsv(result)));
+  update();
+</script>
+</body>
+</html>

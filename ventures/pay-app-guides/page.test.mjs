@@ -23,7 +23,7 @@ test("every page carries the no-warranty clause, sponsor link, opt-out and hones
 });
 
 test("no page sends anything anywhere or loads remote scripts", () => {
-  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "retlog.mjs", "billing.mjs", "check.mjs", "waivers.mjs", "sworn.mjs", "stored.mjs", "shortpay.mjs", "usage.mjs"]) {
+  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "retlog.mjs", "billing.mjs", "check.mjs", "waivers.mjs", "sworn.mjs", "stored.mjs", "shortpay.mjs", "forecast.mjs", "usage.mjs"]) {
     const src = page(name);
     assert.doesNotMatch(src, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/, name);
     assert.doesNotMatch(src, /<script[^>]+src=["']https?:/, name);
@@ -77,7 +77,7 @@ test("robots and sitemap list every page", () => {
 // show bare values on a phone, so every cell must carry its own column's header, in order.
 test("guide tables stack on a phone, every cell labelled with its column header", () => {
   // change-order-log.html fills its rows from script; its own test below checks the labels.
-  const guides = PAGES.filter((name) => name !== "index.html" && name !== "change-order-log.html" && name !== "lien-waiver-log.html" && name !== "retainage-tracker.html" && name !== "paid-short.html");
+  const guides = PAGES.filter((name) => name !== "index.html" && name !== "change-order-log.html" && name !== "lien-waiver-log.html" && name !== "retainage-tracker.html" && name !== "paid-short.html" && name !== "pay-app-cash-forecast.html");
   for (const name of guides) {
     const html = page(name);
     const at = html.indexOf("<main>");
@@ -260,4 +260,16 @@ test("paid-short page: inputs labelled, phone labels match the header row, never
   assert.ok(html.includes(`const HEADS = ${JSON.stringify(heads).replaceAll('","', '", "')};`), "HEADS matches the header row");
   assert.match(html, /Don't waive what you were not paid/);
   for (const name of ["conditional-vs-unconditional-lien-waivers.html", "prompt-payment-laws.html"]) assert.match(page(name), /href="paid-short\.html"/, name);
+});
+
+test("cash forecast page: inputs labelled, script row labels match both header rows, linked from the payment guides", () => {
+  const html = page("pay-app-cash-forecast.html");
+  for (const id of ["asof", "weeks", "cash", "spend", "jobs", "apps"]) assert.match(html, new RegExp(`<label for="${id}">`), id);
+  const at = html.indexOf('id="result"');
+  const tables = html.slice(at).split("</table>").slice(0, 2);
+  const heads = tables.map((t) => [...t.matchAll(/<th role="columnheader" scope="col">([^<]*)<\/th>/g)].map((m) => m[1]));
+  assert.ok(html.includes(`const WEEK_HEADS = ${JSON.stringify(heads[0]).replaceAll('","', '", "')};`), "WEEK_HEADS matches the week table");
+  assert.ok(html.includes(`const ROW_HEADS = ${JSON.stringify(heads[1]).replaceAll('","', '", "')};`), "ROW_HEADS matches the payments table");
+  assert.match(html, /not a promise that anyone will pay/);
+  for (const name of ["prompt-payment-laws.html", "paid-short.html", "retainage-tracker.html"]) assert.match(page(name), /href="pay-app-cash-forecast\.html"/, name);
 });
