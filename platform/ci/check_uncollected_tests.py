@@ -20,12 +20,19 @@ research/ is not checked: research-ci.yml runs no project's own tests yet
 
 Fix a hit by putting the functions in a `unittest.TestCase` class (a bare
 `assert` works there too), or by running the venture's tests with pytest.
+
+It also fails on a test defined inside `if __name__ == "__main__":` in any
+tracked test file of the repository:
+no runner collects it. platform/ci/test_slug_dupe.py's refresh test sat
+there, under `unittest.main()`, from PR #19047 until it was moved.
 """
 import ast
+import subprocess
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import repo_files  # noqa: E402
 import run_venture_tests as rvt  # noqa: E402
 
 
@@ -38,6 +45,27 @@ def bare_tests(path):
     return [n.name for n in tree.body
             if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))
             and n.name.startswith("test")]
+
+
+def guarded_tests(path):
+    """Names of test functions nested in the module's `if __name__ == "__main__":` block:
+    neither pytest nor unittest ever collects them. (A test under another module-level
+    `if`, such as `if HAVE_NUMPY:`, runs on import and is collected.)"""
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+    except (SyntaxError, UnicodeDecodeError, OSError):
+        return []
+    return [x.name for n in tree.body if isinstance(n, ast.If) and "__name__" in ast.unparse(n.test)
+            for x in ast.walk(n)
+            if isinstance(x, (ast.FunctionDef, ast.AsyncFunctionDef)) and x.name.startswith("test")]
+
+
+def guarded_hits(root=rvt.ROOT):
+    try:
+        files = repo_files.ls_files(root, "*test_*.py", "*_test.py")
+    except (subprocess.CalledProcessError, OSError):
+        return []
+    return [(root / f, names) for f in files if (names := guarded_tests(root / f))]
 
 
 def test_files(slug):
@@ -70,6 +98,12 @@ def main(argv):
         print(f"{path.relative_to(rvt.ROOT)}: {', '.join(names)} never run "
               "(CI runs this venture with `unittest discover`; put them in a "
               "unittest.TestCase class)")
+    guarded = guarded_hits()
+    for path, names in guarded:
+        print(f"{path.relative_to(rvt.ROOT)}: {', '.join(names)} never run "
+              "(defined inside `if __name__ == \"__main__\":`; move them "
+              "into the TestCase class)")
+    found += guarded
     total = sum(len(n) for _, n in found)
     print(f"{total} uncollected test function(s) in {len(found)} file(s)")
     return 1 if found else 0

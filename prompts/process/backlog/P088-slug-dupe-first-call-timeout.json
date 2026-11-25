@@ -1,0 +1,29 @@
+{
+  "id": "P088",
+  "title": "slug_dupe.py's first call deepens a fresh clone to 14 days in one fetch (49 s), so runs timed out and skipped the duplicate check",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "Since P083 slug_dupe.py refreshes origin/main with fetch_ref --days 14 in one fetch. In a fresh shallow cloud clone that deepen dominates the call, and runs that gave the command 60 s lost the refresh and the check. P083's own refresh test sat inside the `if __name__ == \"__main__\":` block and never ran.",
+  "evidence": [
+    "python3 platform/ci/friction_rank.py --live --ungated --days 3, 2026-11-25: cluster 19, 2 sessions, 'Timed out (>60 s) refreshing origin/main in the shallow clone'",
+    "time python3 platform/ci/slug_dupe.py pnpm in this session's fresh clone: 49.4 s (919 -> 4,325 commits); a repeat call 6.4 s",
+    "python3 -m unittest -v test_slug_dupe on main: test_refreshes_stale_origin_main_first not listed (defined under the main guard)"
+  ],
+  "change": "Fetch the tip first (fetch_ref days=0: only commits newer than the held history), then deepen to --days under --budget seconds (default 30, fetch_ref gains timeout=); on expiry print the window actually searched. Move the dead test into the class; check_uncollected_tests.py flags tests under the main guard in every tracked test file.",
+  "touches": [
+    "platform/ci/slug_dupe.py",
+    "platform/ci/fetch_ref.py",
+    "platform/ci/test_slug_dupe.py",
+    "platform/ci/check_uncollected_tests.py",
+    "platform/ci/test_check_uncollected_tests.py"
+  ],
+  "metric": "Run-record doc_friction entries naming slug_dupe.py with 'timed out' or 'timeout', per 7 days after merge; and wall time of a first slug_dupe.py call in a fresh cloud clone",
+  "baseline": "2 sessions on 2026-11-25; 49.4 s first call",
+  "opened": "2026-11-25",
+  "source": "friction_rank.py cluster on platform/ci/slug_dupe.py (2026-11-25) and this run's timing",
+  "pr": "this",
+  "result": null,
+  "history": []
+}

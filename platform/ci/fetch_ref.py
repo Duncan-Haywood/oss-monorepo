@@ -91,10 +91,12 @@ def refspec(ref: str, remote: str = "origin") -> str:
 
 
 def fetch_ref(ref, remote="origin", days=1.0, cwd=ROOT, run=subprocess.run, out=sys.stdout,
-              now=None) -> int:
+              now=None, timeout=None) -> int:
+    """`timeout` (seconds) bounds each git fetch; on expiry subprocess.TimeoutExpired is raised
+    and the clone keeps the history it had (git discards an interrupted fetch)."""
     spec = refspec(ref, remote)
     if not is_shallow(cwd, run):
-        done = shallow_repair.fetch(["-q", remote, spec], cwd=cwd, run=run)
+        done = shallow_repair.fetch(["-q", remote, spec], cwd=cwd, run=run, timeout=timeout)
         if done.returncode != 0:
             print(f"fetch_ref: git fetch failed:\n{done.stderr.strip()}", file=out)
             return 1
@@ -103,14 +105,16 @@ def fetch_ref(ref, remote="origin", days=1.0, cwd=ROOT, run=subprocess.run, out=
     revs = local_revs(remote, cwd, run)
     before = count(revs, cwd, run)
     since = since_for(oldest(revs, cwd, run), days, now)
-    done = shallow_repair.fetch(["-q", f"--shallow-since={since}", remote, spec], cwd=cwd, run=run)
+    done = shallow_repair.fetch(["-q", f"--shallow-since={since}", remote, spec], cwd=cwd, run=run,
+                                timeout=timeout)
     if done.returncode != 0 and re.search(r"shallow info|no commits selected", done.stderr or ""):
         # git refuses --shallow-since when the whole branch is older than the
         # window ("error processing shallow info: 4" from GitHub, "no commits
         # selected for shallow requests" from a local upload-pack; an old,
         # never-merged branch). Take only the branch's own commits instead: still no cut.
         since = f"the branch's own commits (it predates {since})"
-        done = shallow_repair.fetch(["-q", "--shallow-exclude=main", remote, spec], cwd=cwd, run=run)
+        done = shallow_repair.fetch(["-q", "--shallow-exclude=main", remote, spec], cwd=cwd, run=run,
+                                    timeout=timeout)
     if done.returncode != 0:
         print(f"fetch_ref: git fetch back to {since} failed:\n{done.stderr.strip()}", file=out)
         return 1
