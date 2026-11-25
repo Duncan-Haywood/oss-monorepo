@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-11-25
+---
 # Polish, 2026-11-25: og:description length ratchet
 
 ## What I picked and why
