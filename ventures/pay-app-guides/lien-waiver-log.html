@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b51'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Lien Waiver Log and Tracker</title>
+  <meta name="description" content="Free lien waiver tracker for subcontractors: waivers given and collected, conditional matched to unconditional, risky ones flagged. Nothing uploaded.">
+  <meta property="og:title" content="Lien waiver log: what you gave, what you still need to collect">
+  <meta property="og:description" content="Paste your lien waiver log. Unconditional waivers given before payment cleared are flagged, missing unconditionals from your suppliers are listed, and the next pay app's waiver package is written out.">
+  <link rel="canonical" href="./lien-waiver-log.html">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    textarea { width: 100%; box-sizing: border-box; min-height: 180px; padding: 9px 10px; border: 1px solid var(--input); border-radius: 7px; font: 13px ui-monospace, monospace; background: var(--card); color: var(--ink); }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 6px 0 12px; }
+    .tile { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+    .tile b { display: block; font-size: 1.25rem; color: var(--head); font-variant-numeric: tabular-nums; }
+    .tile span { font-size: .8rem; color: var(--muted); }
+    .pill.approved { background: #e3f1e5; color: #1d5b2a; }
+    .pill.rejected, .pill.void { background: #ececec; color: #444; }
+    .err { color: #9a3412; font-weight: 600; }
+    input[type=file] { border: 0; padding: 8px 0; }
+  </style>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Lien Waiver Log", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a lien waiver log?", "acceptedAnswer": {"@type": "Answer", "text": "A list of every lien waiver on a job, both the ones you sign for the GC or owner and the ones you collect from your own suppliers and lower-tier subs: who, conditional or unconditional, progress or final, the through date, the amount, when it was signed and when the payment it covers cleared."}}, {"@type": "Question", "name": "When is it safe to sign an unconditional lien waiver?", "acceptedAnswer": {"@type": "Answer", "text": "After the payment it covers has actually cleared your bank, and only for the amount you received. Before that, give a conditional waiver, which takes effect only when you are paid."}}, {"@type": "Question", "name": "Why collect waivers from my own suppliers?", "acceptedAnswer": {"@type": "Answer", "text": "A supplier or lower-tier sub you paid can still claim a lien on the job until it signs an unconditional waiver for that payment, and most GCs ask for those waivers with your next pay application."}}]}</script>
+</head>
+<body>
+<header>
+  <p class="kicker">Pay app guides · runs in your browser · nothing uploaded</p>
+  <h1>Lien waiver log for subcontractors</h1>
+  <p>Paste your lien waiver log, or start from the example. The page matches each <strong>conditional</strong> waiver to its <strong>unconditional</strong>, flags unconditional waivers you gave <strong>before the money cleared</strong> or for more than you were paid, lists the unconditional waivers you still need from <strong>suppliers and lower-tier subs you have paid</strong>, and writes out the waivers to collect for the <strong>next pay application</strong>.</p>
+  <p class="note">Your log stays in this browser. The page checks the log against itself; which waiver form your state requires, and what it may say, is set by the state and your contract.</p>
+  <nav class="guides" aria-label="Guides">
+    <a href="conditional-vs-unconditional-lien-waivers.html">Conditional vs unconditional</a>
+    <a href="lien-waiver-forms-by-state.html">Waiver forms by state</a>
+    <a href="change-order-log.html">Change order log</a>
+    <a href="./">Schedule of values calculator</a>
+  </nav>
+</header>
+<main>
+<section class="card" id="inputs">
+  <h2>1. The job</h2>
+  <div class="grid">
+    <div><label for="project">Project</label><input id="project" placeholder="Job name"></div>
+    <div><label for="asof">As of (YYYY-MM-DD)</label><input id="asof"></div>
+    <div><label for="chase">Chase an unconditional after (days paid)</label><input id="chase" inputmode="numeric" value="10"></div>
+    <div><label for="next">Next pay app through (YYYY-MM-DD, optional)</label><input id="next" placeholder="2026-11-30"></div>
+  </div>
+  <h2>2. Waiver log</h2>
+  <label for="log">One waiver per row, with a header row (comma or tab separated: paste straight from a spreadsheet)</label>
+  <textarea id="log" spellcheck="false" wrap="off" placeholder="Direction,Party,Pay app,Type,Through,Amount,Signed,Paid,Paid amount&#10;Given,Apex Builders (GC),7,Conditional progress,2026-09-30,48200,2026-09-28,2026-10-24,48200"></textarea>
+  <p class="note">Columns: <strong>Direction</strong> (<em>given</em>: you signed it for the GC or owner; <em>received</em>: a supplier or lower-tier sub signed it for you), <strong>Party</strong>, <strong>Type</strong> (conditional or unconditional, progress or final; CP, UP, CF, UF also work), <strong>Through</strong> date, <strong>Amount</strong>, <strong>Signed</strong> date, <strong>Paid</strong> (the date the payment it covers cleared), and optionally <strong>Paid amount</strong> and <strong>Pay app</strong>. Direction, party, type and amount are required.</p>
+  <label for="file">Or open a CSV file (read on this device only)</label>
+  <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
+  <button type="button" class="secondary" id="sample">Load an example</button>
+  <button type="button" class="secondary" id="clear">Clear</button>
+  <label style="font-weight:400"><input type="checkbox" id="remember" style="width:auto"> Remember this log in this browser</label>
+</section>
+
+<section class="card" id="result" aria-live="polite">
+  <h2>3. Where the waivers stand</h2>
+  <div id="errors"></div>
+  <div class="tiles">
+    <div class="tile"><span>Unconditional given, payment not cleared</span><b id="t-risky">0</b></div>
+    <div class="tile"><span>Paid, unconditional due to the GC</span><b id="t-due">0</b></div>
+    <div class="tile"><span>Paid lower tier, no unconditional held</span><b id="t-missing">0</b></div>
+    <div class="tile"><span>Waivers to collect</span><b id="t-collect">0</b></div>
+  </div>
+  <div id="findings"></div>
+  <div class="scroll"><table class="stack compact" role="table">
+    <thead><tr><th role="columnheader" scope="col">Direction</th><th role="columnheader" scope="col">Party</th><th role="columnheader" scope="col">Type</th><th role="columnheader" scope="col">Through</th><th role="columnheader" scope="col" class="n">Amount</th><th role="columnheader" scope="col">Paid</th><th role="columnheader" scope="col">Status</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table></div>
+  <h3>Summary</h3>
+  <pre class="sum" id="summary"></pre>
+  <button type="button" class="secondary" id="copy">Copy summary</button>
+  <button type="button" class="secondary" id="csv">Download log CSV</button>
+
+  <h3>Waivers to request from your suppliers and lower-tier subs</h3>
+  <p class="note">Unconditional waivers for payments you have made, and, when you give the next pay app's through date, a conditional waiver through that date from each lower tier on the log that has not given a final waiver. Use the form your state or the job requires; see <a href="lien-waiver-forms-by-state.html">waiver forms by state</a>.</p>
+  <pre class="sum" id="request"></pre>
+  <button type="button" class="secondary" id="copy-request">Copy requests</button>
+</section>
+
+<section class="card" id="rules">
+  <h2>How the log is checked</h2>
+  <ul>
+    <li><strong>Matching:</strong> a conditional waiver is matched to an unconditional with the same direction, party (ignoring case), progress or final, and through date.</li>
+    <li><strong>Waivers you gave:</strong> an unconditional with no cleared-payment date, signed before the payment cleared, or for more than the paid amount is flagged; so is a paid conditional with no unconditional yet, as the GC will usually ask for it next.</li>
+    <li><strong>Waivers you collected:</strong> a conditional you have paid on with no matching unconditional is listed; past the chase days it is flagged, because until you hold it that supplier can still claim a lien for that amount.</li>
+    <li><strong>Log checks:</strong> repeated waivers, progress waivers with no through date, an unconditional through a date after it was signed, and progress waivers signed after a final one.</li>
+    <li><strong>Not decided here:</strong> whether a waiver is valid in your state, whether your state requires a statutory form, and what exceptions it allows. Read <a href="conditional-vs-unconditional-lien-waivers.html">conditional vs unconditional lien waivers</a>, and to check the wording of a waiver you were sent, the <a href="https://marisstella.app/lien-waiver-checker/">lien waiver checker</a>.</li>
+  </ul>
+</section>
+
+<section class="card" id="faq">
+  <h2>Common questions</h2>
+  <h3>What is a lien waiver log?</h3>
+  <p>A list of every lien waiver on a job, both the ones you sign for the GC or owner and the ones you collect from your own suppliers and lower-tier subs: who, conditional or unconditional, progress or final, the through date, the amount, when it was signed and when the payment it covers cleared.</p>
+  <h3>When is it safe to sign an unconditional lien waiver?</h3>
+  <p>After the payment it covers has actually cleared your bank, and only for the amount you received. Before that, give a conditional waiver, which takes effect only when you are paid.</p>
+  <h3>Why collect waivers from my own suppliers?</h3>
+  <p>A supplier or lower-tier sub you paid can still claim a lien on the job until it signs an unconditional waiver for that payment, and most GCs ask for those waivers with your next pay application.</p>
+</section>
+
+<section class="card cta" id="early-access">
+  <h2>Chasing waivers across several jobs?</h2>
+  <p>We are building hosted pay-app billing for specialty subcontractors: each pay app tracks the waivers it needs, given and collected, next to retainage and change orders. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
+</section>
+</main>
+<!-- all-guides: generated by nav.mjs, do not edit by hand -->
+<nav class="all-guides" aria-label="All pay app tools and guides">
+    <div>
+      <h2>Tools</h2>
+      <ul>
+      <li><a href="./">Schedule of values calculator</a></li>
+      <li><a href="pay-application-checker.html">Pay app checker (this month vs last)</a></li>
+      <li><a href="change-order-log.html">Change order log</a></li>
+      <li><a href="schedule-of-values-template.html">Free Excel SOV template</a></li>
+      <li><a href="pay-if-paid-clauses.html">Pay-if-paid clause reader</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Billing guides</h2>
+      <ul>
+      <li><a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a></li>
+      <li><a href="change-orders-schedule-of-values.html">Change orders and the SOV</a></li>
+      <li><a href="overbilling-underbilling.html">Overbilling and underbilling</a></li>
+      <li><a href="retainage-explained.html">Retainage explained, with state caps</a></li>
+      <li><a href="retainage-release.html">Getting retainage released</a></li>
+      <li><a href="retainage-in-quickbooks.html">Retainage in QuickBooks</a></li>
+      <li><a href="pay-application-software-compared.html">Pay app software compared</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Getting paid and lien waivers</h2>
+      <ul>
+      <li><a href="prompt-payment-laws.html">Prompt payment laws by state</a></li>
+      <li><a href="conditional-vs-unconditional-lien-waivers.html">Conditional vs unconditional lien waivers</a></li>
+      <li><a href="lien-waiver-forms-by-state.html">Lien waiver forms by state</a></li>
+      <li><a href="lien-waiver-log.html" aria-current="page">Lien waiver log (given and collected)</a></li>
+      <li><a href="sworn-statement.html">Contractor's sworn statement builder</a></li>
+      </ul>
+    </div>
+</nav>
+<!-- /all-guides -->
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, or financial advice, and it does not replace your contract, your accountant, or an attorney. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. Do not use this as a system of record.</p>
+  <p><strong>Privacy.</strong> Everything runs in your browser. Your waiver log is never uploaded; there are no accounts, cookies, or analytics vendors. If you tick "remember", the log is kept in this browser's local storage only. Anonymous feature events (<code>waivers_calculated</code>, <code>waivers_example_loaded</code>, <code>waivers_summary_copied</code>, <code>waivers_request_copied</code>, <code>waivers_csv_downloaded</code>) are counted only on your device, never with your numbers, and Do Not Track switches them off.</p>
+  <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+</footer>
+<script type="module">
+  import { compute, summaryText, logCsv, requestText, statusText, sampleLog, SAMPLE_SETTINGS } from "./waivers.mjs";
+  import { dayText, dollars } from "./colog.mjs";
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const SAVE = "pay-app-guides-lien-waiver-log";
+  const FIELDS = ["project", "asof", "chase", "next", "log"];
+  let counted = false, last;
+
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(SAVE) || "null"); } catch { return null; } },
+    set(v) { try { localStorage.setItem(SAVE, JSON.stringify(v)); } catch { /* storage is optional */ } },
+    clear() { try { localStorage.removeItem(SAVE); } catch { /* storage is optional */ } },
+  };
+  const settings = () => ({ project: $("#project").value, asOf: $("#asof").value, chaseDays: $("#chase").value, nextThrough: $("#next").value });
+
+  function update() {
+    last = compute($("#log").value, settings());
+    $("#errors").innerHTML = last.errors.map((e) => `<p class="err">${esc(e)}</p>`).join("");
+    const t = last.totals;
+    $("#t-risky").textContent = t ? `${t.riskyGivenCount} · ${dollars(t.riskyGivenAmount)}` : "0";
+    $("#t-due").textContent = t ? String(t.awaitingGiveCount) : "0";
+    $("#t-missing").textContent = t ? `${t.missingUncondCount} · ${dollars(t.missingUncondAmount)}` : "0";
+    $("#t-collect").textContent = t ? String(last.toCollect.length) : "0";
+    $("#findings").innerHTML = last.findings.map((f) => `<p class="finding"><span class="pill ${f.severity}">${f.severity === "high" ? "check" : "note"}</span>${esc(f.title)}</p>`).join("");
+    $("#rows").innerHTML = (t ? last.lines : []).map((x) => `<tr><td data-label="Direction">${esc(x.direction)}</td><td data-label="Party">${esc(x.party)}</td><td data-label="Type">${esc(x.condition + " " + x.stage)}</td><td data-label="Through">${esc(dayText(x.through))}</td><td data-label="Amount" class="n">${dollars(x.amount)}</td><td data-label="Paid">${esc(dayText(x.paid))}</td><td data-label="Status">${esc(statusText(x))}</td></tr>`).join("");
+    $("#summary").textContent = t ? summaryText(last, settings()) : "";
+    $("#request").textContent = t ? requestText(last, settings()) || "Nothing to request." : "";
+    if ($("#remember").checked) store.set({ ...Object.fromEntries(FIELDS.map((f) => [f, $("#" + f).value])), remember: true });
+    if (!counted && t) { counted = true; record("waivers_calculated"); }
+  }
+  async function copy(id, btn, event) {
+    try { await navigator.clipboard.writeText($(id).textContent); btn.textContent = "Copied"; record(event); } catch { btn.textContent = "Select the text and copy it"; }
+  }
+
+  $("#asof").value = new Date().toISOString().slice(0, 10);
+  const saved = store.get();
+  if (saved && saved.remember) { for (const f of FIELDS) if (typeof saved[f] === "string") $("#" + f).value = saved[f]; $("#remember").checked = true; }
+  document.addEventListener("input", (e) => { if (e.target.closest("#inputs") && e.target.type !== "file") update(); });
+  $("#remember").addEventListener("change", (e) => { if (!e.target.checked) store.clear(); update(); });
+  $("#file").addEventListener("change", (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    if (f.size > 2_000_000) { $("#errors").innerHTML = '<p class="err">That file is over 2 MB; export just the waiver log.</p>'; return; }
+    f.text().then((txt) => { $("#log").value = txt; update(); });
+  });
+  $("#sample").addEventListener("click", () => {
+    $("#project").value = SAMPLE_SETTINGS.project; $("#asof").value = SAMPLE_SETTINGS.asOf;
+    $("#chase").value = SAMPLE_SETTINGS.chaseDays; $("#next").value = SAMPLE_SETTINGS.nextThrough; $("#log").value = sampleLog();
+    record("waivers_example_loaded"); update();
+  });
+  $("#clear").addEventListener("click", () => { $("#log").value = ""; $("#project").value = ""; $("#next").value = ""; update(); });
+  $("#copy").addEventListener("click", (e) => copy("#summary", e.target, "waivers_summary_copied"));
+  $("#copy-request").addEventListener("click", (e) => copy("#request", e.target, "waivers_request_copied"));
+  $("#csv").addEventListener("click", () => {
+    if (!last || !last.totals) return;
+    const url = URL.createObjectURL(new Blob([logCsv(last)], { type: "text/csv" }));
+    const a = Object.assign(document.createElement("a"), { href: url, download: "lien-waiver-log.csv" });
+    a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); record("waivers_csv_downloaded");
+  });
+  $("#optout").addEventListener("click", (e) => { setUsageOptOut(true); e.target.textContent = "Usage counting is off"; e.target.disabled = true; });
+  if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }
+  update();
+</script>
+</body>
+</html>

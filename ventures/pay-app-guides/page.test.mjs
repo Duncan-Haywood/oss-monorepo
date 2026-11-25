@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html", "prompt-payment-laws.html", "change-order-log.html", "pay-application-software-compared.html", "retainage-release.html", "overbilling-underbilling.html", "pay-application-checker.html", "pay-if-paid-clauses.html", "sworn-statement.html"];
+const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html", "prompt-payment-laws.html", "change-order-log.html", "pay-application-software-compared.html", "retainage-release.html", "overbilling-underbilling.html", "pay-application-checker.html", "pay-if-paid-clauses.html", "lien-waiver-log.html", "sworn-statement.html"];
 
 test("every page carries the no-warranty clause, sponsor link, opt-out and honest CTA", () => {
   for (const name of PAGES) {
@@ -21,7 +21,7 @@ test("every page carries the no-warranty clause, sponsor link, opt-out and hones
 });
 
 test("no page sends anything anywhere or loads remote scripts", () => {
-  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "billing.mjs", "check.mjs", "sworn.mjs", "usage.mjs"]) {
+  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "billing.mjs", "check.mjs", "waivers.mjs", "sworn.mjs", "usage.mjs"]) {
     const src = page(name);
     assert.doesNotMatch(src, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/, name);
     assert.doesNotMatch(src, /<script[^>]+src=["']https?:/, name);
@@ -75,7 +75,7 @@ test("robots and sitemap list every page", () => {
 // show bare values on a phone, so every cell must carry its own column's header, in order.
 test("guide tables stack on a phone, every cell labelled with its column header", () => {
   // change-order-log.html fills its rows from script; its own test below checks the labels.
-  const guides = PAGES.filter((name) => name !== "index.html" && name !== "change-order-log.html");
+  const guides = PAGES.filter((name) => name !== "index.html" && name !== "change-order-log.html" && name !== "lien-waiver-log.html");
   for (const name of guides) {
     const html = page(name);
     const at = html.indexOf("<main>");
@@ -183,6 +183,37 @@ test("overbilling page: inputs labelled, entry and summary present, links the WI
   assert.match(page("index.html"), /href="overbilling-underbilling\.html"/);
 });
 
+test("lien waiver log: inputs labelled, phone labels match headers, linked from the waiver guide and the calculator", () => {
+  const html = page("lien-waiver-log.html");
+  for (const id of ["project", "asof", "chase", "next", "log", "file"]) assert.match(html, new RegExp(`<label for="${id}">`), id);
+  const table = html.slice(html.indexOf("<table"), html.indexOf("</table>"));
+  const heads = [...table.matchAll(/<th role="columnheader" scope="col"[^>]*>([^<]*)<\/th>/g)].map((m) => m[1].trim());
+  const row = /\$\("#rows"\)\.innerHTML = [^\n]*/.exec(html)[0];
+  assert.deepEqual([...row.matchAll(/<td data-label="([^"]*)"/g)].map((m) => m[1]), heads);
+  for (const name of ["index.html", "conditional-vs-unconditional-lien-waivers.html"]) assert.match(page(name), /href="lien-waiver-log\.html"/, name);
+  assert.match(html, /does not decide|Not decided here/);
+});
+
+// nav.mjs: every page carries the same grouped list of every page, so no page is an orphan.
+// A new page fails here until it is added to GROUPS and `node nav.mjs` is run.
+test("every page is in the all-guides list and carries the current block", async () => {
+  const { readdirSync } = await import("node:fs");
+  const { GROUPS, block, listed } = await import("./nav.mjs");
+  const files = readdirSync(new URL("./", import.meta.url)).filter((f) => f.endsWith(".html")).sort();
+  assert.deepEqual([...listed()].sort(), files, "add the page to GROUPS in nav.mjs, then run node nav.mjs");
+  assert.equal(new Set(listed()).size, listed().length, "a page is listed twice");
+  assert.ok(GROUPS.every(([, links]) => links.length));
+  for (const name of files) {
+    const html = page(name);
+    assert.ok(html.includes(block(name)), `${name}: run node nav.mjs`);
+    assert.equal((html.match(/aria-current="page"/g) || []).length, 1, name);
+  }
+});
+
+test("the line-remove column has a header a screen reader can read and nothing clips", () => {
+  assert.match(page("index.html"), /<th scope="col"><span class="vh">Remove line<\/span><\/th>/);
+  assert.match(page("style.css"), /\.vh \{ position: absolute;/);
+});
 test("sworn statement page: inputs labelled, both statutes linked to the official sites with a read date, linked from the guides", () => {
   const html = page("sworn-statement.html");
   for (const id of ["list", "state", "contract-sum", "requested", "project", "through"]) assert.match(html, new RegExp(`<label for="${id}">`));
