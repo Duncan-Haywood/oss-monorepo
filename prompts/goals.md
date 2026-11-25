@@ -247,6 +247,22 @@ says otherwise. The hard limits under Guardrails still hold.
    cards, secret values, admin-only settings. Don't add new owner gates; add
    a control to the review instead.
 
+### 2026-11-25: most kinds of small business
+
+The owner, 2026-11-25: "we want to expand the industries we address for sure
+i think. most types of smbs", "on the website and in general". So the
+portfolio addresses most kinds of small business, not only the five
+industries with a bet. On the website, `INDUSTRIES` in
+`platform/pages/business.mjs` lists them, each with a page at
+`industries/<slug>/`. An industry without a paid product yet shows the jobs
+we are starting from, the free tools that help today, and asks the visitor
+which job to build first. It never claims a product it does not have. In
+general, choosing the next paid bet should consider every industry on that
+list, not only the original five. Catalogue depth per industry, and which one
+to promote next: `docs/reports/2026-11-25-industries-for-most-smbs.md`.
+Point 9 still holds: each paid product is niched to one specific user. This
+direction widens which users we pick from, not how broad each product is.
+
 ## Mission
 
 One public repository for the owner's open-source work, with two portfolios
