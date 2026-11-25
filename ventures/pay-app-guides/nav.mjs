@@ -54,7 +54,7 @@ export function block(current) {
     }).join("\n");
     return `    <div>\n      <h2>${title}</h2>\n      <ul>\n${items}\n      </ul>\n    </div>`;
   }).join("\n");
-  return `${START}\n<nav class="all-guides" aria-label="All pay app tools and guides">\n${groups}\n</nav>\n${END}`;
+  return `${START}\n<nav class="all-guides" id="all-guides" aria-label="All pay app tools and guides">\n${groups}\n</nav>\n${END}`;
 }
 
 export function apply(html, name) {
