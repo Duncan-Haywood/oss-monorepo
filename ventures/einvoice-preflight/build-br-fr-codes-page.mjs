@@ -62,7 +62,7 @@ export function renderPage() {
     return `<section>
 <h2>${esc(title)}</h2>
 ${lede ? `<p class="note">${esc(lede)}</p>` : ""}
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="stack">
 <thead><tr><th>Rule</th><th>What it checks (English)</th><th>FNFE-MPE text (French)</th><th>Applies to</th></tr></thead>
 <tbody>
 ${list.map((r) => `<tr${anchor(r.code)}><td><strong>${esc(r.code)}</strong>${r.flag === "warning" ? " <em>warning</em>" : ""}</td><td>${esc(r.en)}</td><td lang="fr">${esc(r.fr)}</td><td>${[...r.syntaxes].join(", ")}</td></tr>`).join("\n")}
@@ -80,7 +80,7 @@ ${list.map((r) => `<tr${anchor(r.code)}><td><strong>${esc(r.code)}</strong>${r.f
 <meta property="og:title" content="BR-FR error codes in English">
 <meta property="og:description" content="What each French e-invoicing rule (BR-FR, BR-FR-CDV) checks, in English, and a free offline checker that runs them.">
 <script type="application/ld+json">${JSON.stringify(schema)}</script>
-<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:1100px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;max-width:28ch}.lede{font-size:1.05rem;max-width:66ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;min-width:760px;border-collapse:collapse;margin:.6rem 0;font-size:.88rem}th,td{text-align:left;padding:7px 9px;border-bottom:1px solid #d3dbe4;vertical-align:top}td:first-child{white-space:nowrap}td[lang=fr]{color:#3d4f5f}th{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}tr:target{background:#fff6d6}.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}</style>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:1100px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;max-width:28ch}.lede{font-size:1.05rem;max-width:66ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;min-width:760px;border-collapse:collapse;margin:.6rem 0;font-size:.88rem}th,td{text-align:left;padding:7px 9px;border-bottom:1px solid #d3dbe4;vertical-align:top}td:first-child{white-space:nowrap}@media(max-width:600px){table.stack{min-width:0}table.stack td:first-child{white-space:normal}}td[lang=fr]{color:#3d4f5f}th{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}tr:target{background:#fff6d6}.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}</style>
 </head><body><main>
 <header>
 <p class="eyebrow">E-invoice Preflight · France</p>

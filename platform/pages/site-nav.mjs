@@ -727,26 +727,45 @@ html{overflow-x:clip}
  * a cell like "`CLAUDE.md`, `prompt.md`" or "**10%** of the bill" broke into fragments
  * across rows. 161 of the blog's 500 stacked tables had such a cell. A table instead wraps
  * the label's siblings (text, <code>, <a>, <strong>) in one anonymous cell, kept together.
+ * `overflow-wrap:anywhere` breaks a long token (`(cac:AdditionalDocumentReference)`) that
+ * would otherwise push a card past its box.
+ *
+ * A row header (`<th scope="row">`, how venture pages name a row) is the card's title the same
+ * way a first `<td>` is (polish, 2026-11-25), and venture pages get this layout too:
+ * `STACK_TABLE_CHROME_CSS` below.
  */
 export const STACK_TABLE_CSS = `
 @media (max-width:600px){
   table.stack thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-  table.stack,table.stack tbody,table.stack tr,table.stack td{display:block}
+  table.stack,table.stack tbody,table.stack tr,table.stack td,table.stack th[scope=row]{display:block}
   table.stack{background:none;border:0}
   table.stack tr{border:1px solid var(--pfs-line,rgba(128,128,128,.34));border-radius:10px;
     background:var(--pfs-panel,transparent);padding:2px 12px;margin:0 0 10px}
   table.stack td{border:0;border-top:1px solid var(--pfs-line,rgba(128,128,128,.34));padding:7px 0;
-    display:table;table-layout:fixed;width:100%;text-align:left}
+    display:table;table-layout:fixed;width:100%;text-align:left;overflow-wrap:anywhere}
   table.stack td::before{content:attr(data-label);display:table-cell;width:34%;min-width:6.5em;padding-right:10px;
     vertical-align:top;color:var(--pfs-muted,inherit);font-size:13px;font-weight:600;line-height:1.5}
-  table.stack td:first-child{display:block;width:auto;border-top:0;font-weight:650;padding:9px 0 7px}
+  table.stack td:first-child,table.stack th[scope=row]{display:block;width:auto;border:0;font-weight:650;padding:9px 0 7px;text-align:left}
   table.stack td:first-child::before{content:none}
+  table.stack th[scope=row]{font-size:inherit;text-transform:none;letter-spacing:normal;color:inherit}
   table.stack.compact tr{display:flex;flex-wrap:wrap;column-gap:18px}
   table.stack.compact td{flex:1 1 9.5em;width:auto;text-align:right}
   table.stack.compact td::before{width:auto;text-align:left;vertical-align:baseline}
-  table.stack.compact td:first-child{flex-basis:100%;text-align:left}
+  table.stack.compact td:first-child,table.stack.compact th[scope=row]{flex-basis:100%;text-align:left}
 }
 `;
+
+/**
+ * The same card layout for venture pages, written into `pf-chrome.css` (build.mjs,
+ * `renderChromeStyle`). Every `table.stack` selector is wrapped in `:where()`, so the rules
+ * keep their order among themselves but a venture's own table CSS still wins, as
+ * REFLOW_CSS's do: pay-app-guides styles its own `.stack` (label above value), and a page
+ * that opts in checks its own `table{min-width:...}`. The labels and roles are written at
+ * build time from the table's `<thead>` (stack-labels.mjs), so a venture opts in with the
+ * class alone. Polish, 2026-11-25: measured at 390 px, 98 read-only tables on the paid
+ * products' pages ran past their scroll box, and none could use the site's cards.
+ */
+export const STACK_TABLE_CHROME_CSS = STACK_TABLE_CSS.replace(/table\.stack(\.compact)?/g, ':where(table.stack$1)');
 
 /**
  * Columns of figures in Markdown tables (`th.num`, `td.num`, marked by `numericColumns` in
