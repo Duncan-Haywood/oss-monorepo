@@ -45,3 +45,22 @@ test("index links one hop to the sibling estimators", async () => {
   const idx = await read("index.html");
   for (const slug of ["supabase-bill-estimator", "vercel-bill-estimator", "neon-bill-estimator", "auth-mau-pricing-calculator", "sms-segment-cost-calculator", "error-tracking-pricing-calculator", "actions-minutes-estimator"]) assert.match(idx, new RegExp(`href="\\.\\./${slug}/"`));
 });
+
+test("the how-to page's rate range and 10,000-minute spread match the engine's rate card", async () => {
+  const { DEFAULT_PROVIDERS } = await import("./engine.mjs");
+  const html = await read(DOCS);
+  const rates = Object.values(DEFAULT_PROVIDERS).map((p) => p.overagePer1k);
+  const ranges = [...html.matchAll(/overage rate runs from \$(\d+) to \$(\d+) per 1,000/g)];
+  assert.equal(ranges.length, 2, "FAQ schema and body both state the rate range");
+  for (const [, a, b] of ranges) { assert.equal(Number(a), Math.min(...rates)); assert.equal(Number(b), Math.max(...rates)); }
+  const rows = compare(10000);
+  const lo = rows[0].monthly, hi = rows.at(-1).monthly;
+  const spreads = [...html.matchAll(/differ by more than (\w+) times \(\$(\d+) against \$(\d+)/g)];
+  assert.equal(spreads.length, 2, "FAQ schema and body both state the spread");
+  for (const [, word, a, b] of spreads) {
+    const n = { two: 2, three: 3, four: 4, five: 5 }[word];
+    assert.equal(Number(a), lo);
+    assert.equal(Number(b), hi);
+    assert.ok(hi / lo > n && hi / lo < n + 1, `${hi}/${lo} is not "more than ${word}"`);
+  }
+});
