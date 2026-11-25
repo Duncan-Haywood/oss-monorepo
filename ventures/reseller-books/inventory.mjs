@@ -20,7 +20,7 @@
 import { parseCsv } from "./engines/ebay.mjs";
 import { isoDate } from "./trips.mjs";
 
-const norm = (s) => String(s ?? "").replace(/^﻿/, "").trim().toLowerCase().replace(/\s+/g, " ");
+const norm = (s) => String(s ?? "").replace(/^\uFEFF/, "").trim().toLowerCase().replace(/\s+/g, " ");
 
 const COLUMNS = {
   sku: ["sku", "custom label", "item sku", "seller sku", "item id", "item number", "listing id", "inventory id", "item code", "code"],
@@ -230,7 +230,11 @@ export function costLines(lots) {
 /** Plain-language notes for the worksheet and findings. */
 export function partThreeNotes(p) {
   const out = [];
-  const usd = (v) => `$${v.toFixed(2)}`;
+  const usd = (v) => {
+    const format = (v) => `$${v.toFixed(2)}`;
+    const text = format(Math.abs(v));
+    return v < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+  };
   if (p.unmatchedUnits) {
     const names = p.unmatched.slice(0, 4).map((u) => `${u.item} (${u.channel}, ${u.units})`).join("; ");
     out.push(`${p.unmatchedUnits} sold unit(s) have no purchase in the inventory log, so their cost is not in line 42: ${names}${p.unmatched.length > 4 ? "; and more" : ""}. Add them to the log under the same SKU or title the marketplace shows.`);
