@@ -1,6 +1,9 @@
 import os
+import subprocess
 import sys
+import tempfile
 import unittest
+from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
 
@@ -96,6 +99,38 @@ class ParseTest(unittest.TestCase):
         todo = pick(alerts, claimed={120}, triaged=triaged_numbers(TRIAGE))
         self.assertEqual([a["number"] for a in todo], [200])
         self.assertEqual(pick(alerts, claimed={7, 65, 120, 200}, triaged=set()), [])
+
+
+def run(cwd, *args):
+    return subprocess.run(["git", *args], cwd=cwd, check=True, capture_output=True, text=True)
+
+
+class ClaimRaceTest(unittest.TestCase):
+    """claim() against a real remote: create-only, so the second run for one alert loses."""
+
+    def test_second_claim_loses(self):
+        here = os.getcwd()
+        with tempfile.TemporaryDirectory() as tmp:
+            bare, a, b = (Path(tmp) / x for x in ("origin.git", "a", "b"))
+            run(tmp, "init", "-q", "--bare", "-b", "main", str(bare))
+            run(tmp, "clone", "-q", str(bare), str(a))
+            run(a, "-c", "user.name=t", "-c", "user.email=t@example.invalid",
+                "commit", "-q", "--allow-empty", "-m", "base")
+            run(a, "push", "-q", "origin", "HEAD:refs/heads/main")
+            run(a, "fetch", "-q", "origin")
+            run(tmp, "clone", "-q", str(bare), str(b))
+            try:
+                os.chdir(a)
+                self.assertTrue(security_next.claim(1049))
+                run(b, "fetch", "-q", "origin")
+                os.chdir(b)
+                self.assertIsNone(security_next.claim(1049))
+                self.assertTrue(security_next.claim(1050))
+            finally:
+                os.chdir(here)
+            refs = run(a, "ls-remote", "origin").stdout
+            for n in (1049, 1050):
+                self.assertIn(f"refs/heads/{security_next.BRANCH_PREFIX}{n}", refs)
 
 
 if __name__ == "__main__":
