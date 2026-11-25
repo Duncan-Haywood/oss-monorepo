@@ -2,7 +2,7 @@
 
 > Free freight broker margin calculator. Type in your loads and see true net margin after financing the carrier, factoring, claims reserve and overhead, plus the shipper rate to quote and the carrier rate to pay to hit your target. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/freight-broker-load-margin-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/freight-broker-load-margin-calculator): FSL-1.1-MIT licensed.

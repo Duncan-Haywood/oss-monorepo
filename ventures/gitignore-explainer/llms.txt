@@ -2,7 +2,7 @@
 
 > Free .gitignore checker. From your ignore files (root and nested .gitignore, .git/info/exclude) and a list of paths, it names the rule that decides every path the way git does (last match wins, deeper files first, an ignored folder hides everything inside it), finds `!` negations that cannot work because a parent folder is ignored and writes a fix it has re-checked against the list, lists tracked files that ignore rules match but do not affect, and flags rules that match nothing, never decide, or are redundant, plus whitespace, inline-comment, backslash and `**` mistakes. Runs in the browser; nothing is uploaded. A zero-dependency CLI runs it over a whole repository.
 
-Free and open source (MIT). Results come from this tool's reimplementation of git's ignore rules, checked against `git check-ignore` on random repositories, ASCII and UTF-8 names alike (like git, `?` and `[...]` match one byte, so `caf?.txt` does not ignore `café.txt`); it is not legal, security or professional advice, and your own git is the final word.
+Free to use and source available (FSL-1.1-MIT). Results come from this tool's reimplementation of git's ignore rules, checked against `git check-ignore` on random repositories, ASCII and UTF-8 names alike (like git, `?` and `[...]` match one byte, so `caf?.txt` does not ignore `café.txt`); it is not legal, security or professional advice, and your own git is the final word.
 
 ## Pages
 
@@ -16,4 +16,4 @@ Free and open source (MIT). Results come from this tool's reimplementation of gi
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gitignore-explainer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gitignore-explainer): FSL-1.1-MIT licensed.

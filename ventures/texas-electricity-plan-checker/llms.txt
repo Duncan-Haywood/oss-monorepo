@@ -2,7 +2,7 @@
 
 > Free tool for Texas households choosing a retail electricity plan: paste each plan's Electricity Facts Label (EFL) text and a year of usage (a Smart Meter Texas interval or daily CSV, or monthly kWh) and get each plan's bill for every month, ranked: base charge, tiered energy charges, TDU delivery charges, bill credits with their kWh bands, minimum-usage fees and free-nights or free-weekends windows. Each plan's terms are checked against the label's own average prices at 500, 1,000 and 2,000 kWh, so a misread label shows as a mismatch. Also reads a bill credit from a plan list's three prices alone. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates before taxes and charges the label leaves out; not financial or legal advice. Not affiliated with any retail electric provider, Power to Choose, Smart Meter Texas or the PUCT.
+Free to use and source available (FSL-1.1-MIT). Results are estimates before taxes and charges the label leaves out; not financial or legal advice. Not affiliated with any retail electric provider, Power to Choose, Smart Meter Texas or the PUCT.
 
 ## Pages
 
@@ -17,4 +17,4 @@ Free and open source (MIT). Results are estimates before taxes and charges the l
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/texas-electricity-plan-checker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/texas-electricity-plan-checker): FSL-1.1-MIT licensed.

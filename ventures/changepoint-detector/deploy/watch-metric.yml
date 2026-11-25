@@ -1,5 +1,5 @@
 # Watch a metric for changes, in your own GitHub repository, on GitHub's free runners.
-# Made by deploy/make-watch-repo.sh from https://marisstella.app/changepoint-detector/ (MIT).
+# Made by deploy/make-watch-repo.sh from https://marisstella.app/changepoint-detector/.
 #
 # Set in your repository (Settings > Secrets and variables > Actions); the README says more about each:
 #   variable METRIC_CSV      a CSV in this repository (data/metric.csv) or an https:// link to one, rows oldest first

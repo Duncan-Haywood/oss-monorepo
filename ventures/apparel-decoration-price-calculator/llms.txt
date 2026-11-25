@@ -2,7 +2,7 @@
 
 > Free screen printing, embroidery and DTF pricing calculator for custom apparel shops: work out your real cost per shirt from screens or digitising, press or stitch time, blanks and spoilage, then see the break-even price, the margin at what you quoted, and what the same job costs at 12, 24, 48, 72, 144 and 288 pieces.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -14,4 +14,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/apparel-decoration-price-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/apparel-decoration-price-calculator): FSL-1.1-MIT licensed.

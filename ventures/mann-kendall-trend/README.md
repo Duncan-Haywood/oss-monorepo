@@ -13,7 +13,7 @@ Who it is for: hydrologists and water-quality staff testing streamflow, nitrate
 or groundwater levels; ecologists with yearly counts; climate and air-quality
 analysts; anyone asked "is it getting worse?" about a series with a seasonal
 cycle, outliers or a skewed distribution, where a least-squares line is the
-wrong tool. Free, MIT licensed, nothing uploaded.
+wrong tool. Free, FSL-1.1-MIT licensed, nothing uploaded.
 
 ## What it computes
 
@@ -128,7 +128,7 @@ engine.
 
 ## Disclaimer
 
-Free and open source (MIT). **No warranty.** Results are statistical estimates
+Free to use and source available (FSL-1.1-MIT). **No warranty.** Results are statistical estimates
 from the data you supply, not legal, tax, financial, regulatory or other
 professional advice, and the tool does not replace a qualified statistician
 or a method a regulator prescribes. Not affiliated with the cited authors, the

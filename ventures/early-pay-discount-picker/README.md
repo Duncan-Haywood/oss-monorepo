@@ -27,4 +27,4 @@ it.** To the maximum extent permitted by law, the authors accept no liability fo
 **Best-effort hosting, no SLA.** These tools are free, experimental, and may be slow, broken, moved, or taken offline without
 notice. Do not use this as a system of record.
 
-MIT licence. Optional support: https://github.com/sponsors/Duncan-Haywood
+FSL-1.1-MIT licence. Optional support: https://github.com/sponsors/Duncan-Haywood

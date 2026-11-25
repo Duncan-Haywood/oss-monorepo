@@ -71,4 +71,4 @@ per-container price, verify your state or OSHA bloodborne-pathogen decon
 requirements, or replace your own pricing judgment, accountant, or hauler
 contract.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.

@@ -119,5 +119,5 @@ system of record.
 
 ## License
 
-MIT, see [LICENSE](LICENSE). Support is optional:
+FSL-1.1-MIT, see [LICENSE](LICENSE). Support is optional:
 [github.com/sponsors/Duncan-Haywood](https://github.com/sponsors/Duncan-Haywood).

@@ -102,7 +102,7 @@ Not affiliated with, endorsed by, or sponsored by Meta or Facebook. Facebook
 Marketplace is a trademark of Meta Platforms, Inc., named here only to
 describe the published fee schedule this tool computes against.
 
-MIT licensed — see [`LICENSE`](LICENSE). Optional
+FSL-1.1-MIT licensed — see [`LICENSE`](LICENSE). Optional
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) support does
 not change what the tool does.
 

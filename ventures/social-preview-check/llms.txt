@@ -2,7 +2,7 @@
 
 > Free tool: run a CLI that sends real requests to your page and its og:image/twitter:image, then paste the JSON here for a plain-English report on missing tags, a relative og:image URL, an image too small for Facebook/LinkedIn or Twitter's large-image card, and the twitter:image -> og:image fallback chain.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -14,4 +14,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/social-preview-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/social-preview-check): FSL-1.1-MIT licensed.

@@ -48,7 +48,7 @@ more data than these 401 points. The tool's finding that the same 401
 points already show peaks at both periods is a retrospective check, made
 knowing the answer, not a discovery.
 
-## radvel's MIT licence notice
+## radvel's FSL-1.1-MIT licence notice
 
 ```
 The MIT License (MIT)

@@ -44,7 +44,7 @@ ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}.${p.doi 
 
 A description of the pattern in the numbers you give, not proof of a cause.
 Not legal, tax, financial, public-health, planning or other professional
-advice. No warranty. MIT licence.
+advice. No warranty. FSL-1.1-MIT licence.
 Web version: https://marisstella.app/spatial-autocorrelation/`;
 
 const WITH_VALUE = { "--neighbors": "neighborsFile", "--weights": "weights", "--k": "k", "--threshold": "threshold", "--power": "power", "--transform": "transform", "--coordinates": "coordinates", "--var": "variables", "--vars": "variables", "--id": "id", "--x": "x", "--y": "y", "--permutations": "permutations", "--seed": "seed", "--alpha": "alpha", "--bands": "bands" };

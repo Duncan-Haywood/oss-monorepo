@@ -2,7 +2,7 @@
 
 > Price a garage door replacement or broken-spring service from parts, shop labor, and travel — not a lump-sum guess. See when a $189 spring special loses money on the drive.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -14,4 +14,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/garage-door-bid-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/garage-door-bid-calculator): FSL-1.1-MIT licensed.

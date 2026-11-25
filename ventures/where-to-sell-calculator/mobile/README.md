@@ -22,4 +22,4 @@ Publishing to Google Play or the App Store happens under your own developer
 account and your own appId. Nothing here signs, uploads or runs on anyone's
 behalf. The app makes no network calls; the figures stay on the device.
 
-Not legal, tax or financial advice; no warranty. MIT licensed.
+Not legal, tax or financial advice; no warranty. FSL-1.1-MIT licensed.

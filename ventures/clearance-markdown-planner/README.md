@@ -32,4 +32,4 @@ next cut, price points.
 Run the tests: `node --test` in this directory. Open `index.html` through any static
 server (ES modules need http, not file://).
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.

@@ -2,7 +2,7 @@
 
 > Free NIS2 scope checker: pick your sector and enter staff, turnover and balance sheet to see whether Directive (EU) 2022/2555 likely applies to you, as an essential or important entity, with the main duties. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/nis2-scope-checker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/nis2-scope-checker): FSL-1.1-MIT licensed.

@@ -4,7 +4,7 @@
 
 Periods other than 12 months: the AIA, writing-down allowances and £1,000 small pools limit scale by months / 12 (down for a short period, up for a sole trader's period of up to 18 months); a company period over 12 months is refused, since a Corporation Tax accounting period is at most 12 months.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -12,4 +12,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-capital-allowances-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-capital-allowances-calculator): FSL-1.1-MIT licensed.

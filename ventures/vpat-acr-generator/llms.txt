@@ -2,7 +2,7 @@
 
 > Fill in your own WCAG 2.1 A/AA conformance answers and get a correctly formatted VPAT 2.5 / Accessibility Conformance Report (ACR) for a federal or enterprise procurement RFP -- entirely in your browser, no account, nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/vpat-acr-generator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/vpat-acr-generator): FSL-1.1-MIT licensed.

@@ -2,7 +2,7 @@
 
 > Free planner for shared and commissary kitchen owners. Enter rent, costs, stations, hourly rate and memberships; get break-even rate, break-even utilization, member effective rate and a profit grid. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/shared-kitchen-rate-planner): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/shared-kitchen-rate-planner): FSL-1.1-MIT licensed.

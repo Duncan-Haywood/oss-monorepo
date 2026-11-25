@@ -16,4 +16,4 @@ quotes in different units (per CBM versus per box) that nobody divided out.
 Modelled: LCL billed on the greater of CBM and tonnes with a minimum plus fixed charges; flat-priced 20', 40' and 40' high-cube containers with
 volume and payload limits (a second box when either overflows); break-even volume at your cargo's density; carrying cost of the extra LCL days;
 cost per CBM and per unit. Not modelled: surcharges, duty, insurance, drayage, demurrage, carrier rounding.
-Not legal or financial advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
+Not legal or financial advice. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

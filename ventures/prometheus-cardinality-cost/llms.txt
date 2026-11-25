@@ -2,7 +2,7 @@
 
 > Paste a Prometheus or OpenMetrics /metrics scrape and see active series per metric, the high-cardinality labels, the exact series saved by dropping each one, and a monthly cost estimate on Grafana Cloud or Datadog-style pricing. Free, runs in your browser, nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/prometheus-cardinality-cost): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/prometheus-cardinality-cost): FSL-1.1-MIT licensed.

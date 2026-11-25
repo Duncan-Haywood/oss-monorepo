@@ -7,7 +7,7 @@ recovers, or living with Stripe's one-size-fits-all retries.
 
 **Live tool:** https://marisstella.app/dunning-engine/
 
-Two parts, both free and MIT:
+Two parts, both free and FSL-1.1-MIT:
 
 - **`index.html`** — pick a Stripe `decline_code`, see the exact schedule of
   emails and retries Dunning Engine would run, preview the email, and estimate

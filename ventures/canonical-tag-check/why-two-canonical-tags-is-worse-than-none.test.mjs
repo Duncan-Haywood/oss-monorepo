@@ -79,7 +79,7 @@ test('the standard clauses and the sponsor link are present', () => {
   assert.match(html, /provided free and as-is, without warranty/);
   assert.match(html, /Best-effort hosting, no SLA/);
   assert.match(html, /href="LICENSE"/);
-  assert.match(html, /MIT licen[cs]e/);
+  assert.match(html, /FSL-1.1-MIT licen[cs]e/);
   assert.match(html, /https:\/\/github\.com\/sponsors\/Duncan-Haywood/);
 });
 

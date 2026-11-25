@@ -1,6 +1,6 @@
 # School Timetable Builder
 
-> Free, MIT-licensed school timetable generator that runs in the browser (nothing uploaded) or as a dependency-free Node command line. Input is plain text, one line per lesson; output is a weekly timetable with no class, teacher or room double-booked, viewable and printable per class, teacher and room, and exportable as CSV.
+> Free, FSL-1.1-MIT-licensed school timetable generator that runs in the browser (nothing uploaded) or as a dependency-free Node command line. Input is plain text, one line per lesson; output is a weekly timetable with no class, teacher or room double-booked, viewable and printable per class, teacher and room, and exportable as CSV.
 
 - Page: https://marisstella.app/school-timetable-builder/
 - Guide for schools: https://marisstella.app/school-timetable-builder/free-school-timetable-generator.html

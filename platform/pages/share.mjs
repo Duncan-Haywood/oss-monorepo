@@ -111,7 +111,7 @@ const FOOTERS = {
   research: 'Open research · code, tests and results',
   writing: 'Essays from building in public',
 };
-const DEFAULT_FOOTER = 'Free · open source · MIT licensed';
+const DEFAULT_FOOTER = 'Free · source available · FSL-1.1-MIT';
 
 // Every entity below starts with `&`, so a string without one comes back as
 // it went in, without the fourteen passes; most meta values have none

@@ -7,7 +7,7 @@ list with it.
 
 **Live tool:** https://marisstella.app/mrr-pulse/
 
-Two parts, both free and MIT:
+Two parts, both free and FSL-1.1-MIT:
 
 - **`index.html`**: paste a Stripe subscription export (or load sample data)
   and get MRR, ARR, 12 months of history, logo churn, net revenue retention
@@ -147,7 +147,7 @@ Found by the [quality audit of 2026-11-13](../../portfolio/quality/audits/2026-1
 
 No warranty; no uptime guarantee. Figures are computed from the data the API
 returns and are not accounting, tax or financial advice: reconcile against your
-books before using them with investors. MIT licensed. If it saves you a
+books before using them with investors. FSL-1.1-MIT licensed. If it saves you a
 subscription, you can [sponsor the author](https://github.com/sponsors/Duncan-Haywood).
 
 ## Other self-deploy paths

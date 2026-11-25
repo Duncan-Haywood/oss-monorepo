@@ -43,7 +43,7 @@ A BIC whose fifth and sixth letters are not an ISO 3166 country code (or XK) is 
 
 ## License
 
-MIT. See `LICENSE`.
+FSL-1.1-MIT. See `LICENSE`.
 
 ## No warranty
 

@@ -4,7 +4,7 @@ After using this, you can now **run a survey or an NPS check on a server you own
 
 **Live tool:** https://marisstella.app/survey-keeper/
 
-Two parts, both free and MIT:
+Two parts, both free and FSL-1.1-MIT:
 
 - **`index.html`**: paste scores and comments, see the NPS, its range and the word table. Runs in the browser; nothing is uploaded.
 - **`server.mjs`**: one Node process, **zero dependencies**, state in one JSON file. Public survey pages, admin, results, CSV export, a webhook on every detractor.
@@ -62,4 +62,4 @@ Survey definitions and, for each response, the answers, a timestamp and an optio
 
 ## Disclaimer
 
-No warranty; no uptime or delivery guarantee. You operate the survey and are responsible for its questions, your privacy notice and the consent and data-protection rules where you and your respondents live. Scores, ranges and word tables are heuristics and depend on who answers. Not legal, tax or financial advice. MIT licensed. If it saves you a subscription, you can [sponsor the author](https://github.com/sponsors/Duncan-Haywood).
+No warranty; no uptime or delivery guarantee. You operate the survey and are responsible for its questions, your privacy notice and the consent and data-protection rules where you and your respondents live. Scores, ranges and word tables are heuristics and depend on who answers. Not legal, tax or financial advice. FSL-1.1-MIT licensed. If it saves you a subscription, you can [sponsor the author](https://github.com/sponsors/Duncan-Haywood).

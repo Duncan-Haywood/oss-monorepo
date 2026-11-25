@@ -2,7 +2,7 @@
 
 > Free structured settlement buyout calculator: type the payments you would sell and the cash offered, and see the yearly discount rate the buyer is charging, what the payments are worth at a fair rate, cents on the dollar, and what to counter. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/structured-settlement-buyout-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/structured-settlement-buyout-calculator): FSL-1.1-MIT licensed.

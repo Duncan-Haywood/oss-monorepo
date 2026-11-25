@@ -63,4 +63,4 @@ turned off on the page.
 cd ventures/mileage-deduction-calculator && node --test
 ```
 
-MIT licensed. Support via GitHub Sponsors is optional.
+FSL-1.1-MIT licensed. Support via GitHub Sponsors is optional.

@@ -16,4 +16,4 @@ Everything runs in your browser. Your route assumptions are never uploaded, and 
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.

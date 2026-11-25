@@ -2,7 +2,7 @@
 
 > A free static ReDoS scanner for JS, TS and Python with a CI-ready CLI and an optional timing probe. No account, no upload.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## How it checks
 
@@ -15,4 +15,4 @@ Shape rules for known ReDoS patterns, plus an exact automaton check that finds a
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/regex-redos-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/regex-redos-check): FSL-1.1-MIT licensed.

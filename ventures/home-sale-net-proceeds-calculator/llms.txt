@@ -2,7 +2,7 @@
 
 > Free home sale net proceeds calculator. See cash at closing after commissions, fees and payoff, estimate capital gains tax, find the list price that nets a target, and compare offers with concessions. Private, in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/home-sale-net-proceeds-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/home-sale-net-proceeds-calculator): FSL-1.1-MIT licensed.

@@ -38,4 +38,4 @@ not say what a fair price is and is not legal advice. State rules differ. No war
 node --test
 ```
 
-MIT licensed. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.
+FSL-1.1-MIT licensed. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.

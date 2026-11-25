@@ -2,7 +2,7 @@
 
 > Free calculator for independent vehicle wrap and graphics shops: price a full or partial wrap from vehicle surface area, material waste factor, install complexity, and labor, then see exactly what a waste-blind quote loses on every job.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/vehicle-wrap-bid-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/vehicle-wrap-bid-calculator): FSL-1.1-MIT licensed.

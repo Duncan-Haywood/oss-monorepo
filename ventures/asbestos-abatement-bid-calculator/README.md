@@ -87,4 +87,4 @@ state, or local regulatory requirement, or a substitute for a licensed
 contractor's own certification, competent-person determination, or
 professional judgment about scope and liability on a given job.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.

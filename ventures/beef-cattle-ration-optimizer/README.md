@@ -28,4 +28,4 @@ small list, not against real herds.
 and is not saved. Anonymous feature counts stay in local storage and can be
 switched off.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

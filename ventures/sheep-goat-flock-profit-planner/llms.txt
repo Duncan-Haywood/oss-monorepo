@@ -2,7 +2,7 @@
 
 > Free sheep and goat farm profit calculator. Project your flock, lambs or kids sold, hay cost and profit year by year; see what weaning rate, hay price and market price do, plus break-even flock size. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sheep-goat-flock-profit-planner): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sheep-goat-flock-profit-planner): FSL-1.1-MIT licensed.

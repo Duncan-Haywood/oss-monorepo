@@ -2,7 +2,7 @@
 
 > Free SAFE dilution calculator for startup founders. Model post-money and pre-money SAFEs with caps and discounts converting in a priced round with an option pool top-up: your cap table, what each SAFE cost you, valuation sensitivity and an exit waterfall. Illustrative; nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/safe-dilution-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/safe-dilution-calculator): FSL-1.1-MIT licensed.

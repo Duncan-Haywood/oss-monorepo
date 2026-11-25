@@ -45,4 +45,4 @@ is incomplete: an unlisted distribution whose import name differs from its
 install name will read as `not-referenced`. "Not imported" lowers urgency; it is
 not proof of safety. Not a security audit or advice. No warranty.
 
-MIT licence. Sponsor: https://github.com/sponsors/Duncan-Haywood
+FSL-1.1-MIT licence. Sponsor: https://github.com/sponsors/Duncan-Haywood
