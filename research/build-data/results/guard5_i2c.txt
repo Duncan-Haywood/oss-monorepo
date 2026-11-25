@@ -1,0 +1,30 @@
+Session 109: guards on the Y-6 chooser's short lean; q0.9 regret (days) against the G5 oracle, 18 cells
+n: 18
+missing: []
+pooled: {'chooser5': 1.624, 'chooser4': 2.375, 'spread': 2.163, 'se': 1.686, 'regime': 1.751}
+sfse: {'chooser5': 2.276, 'chooser4': 2.064, 'spread': 2.316, 'se': 2.352, 'regime': 2.243}
+austin: {'chooser5': 0.321, 'chooser4': 2.998, 'spread': 1.857, 'se': 0.354, 'regime': 0.768}
+worst: {'chooser5': 6.028, 'chooser4': 7.328, 'spread': 5.746, 'se': 6.028, 'regime': 5.746}
+changed_spread: 6
+picks: {'chooser5': {'_nc1': 11, '_nc2': 0, '_nc3': 4, '_nc4': 1, '_nc5': 2}, 'chooser4': {'_nc1': 0, '_nc2': 10, '_nc3': 5, '_nc4': 1, '_nc5': 2}, 'spread': {'_nc1': 6, '_nc2': 3, '_nc3': 5, '_nc4': 2, '_nc5': 2}, 'se': {'_nc1': 8, '_nc2': 3, '_nc3': 3, '_nc4': 2, '_nc5': 2}, 'regime': {'_nc1': 6, '_nc2': 5, '_nc3': 4, '_nc4': 1, '_nc5': 2}}
+median_winner_spread: 1.0
+sweep_post_hoc: {'0': 1.624, '0.5': 1.883, '1': 2.163, '2': 2.975, '3': 4.673, '5': 5.782, '10': 7.393}
+predictions: {'D0': True, 'D1': False, 'D2': False, 'D3': False, 'D4': True, 'D5': True, 'D6': False, 'D7': False}
+austin 2017 oracle _nc1 {'chooser5': '_nc1', 'chooser4': '_nc2', 'spread': '_nc3', 'se': '_nc2', 'regime': '_nc2'} regret {'chooser5': 0.0, 'chooser4': 2.13, 'spread': 5.11, 'se': 2.13, 'regime': 2.13} winner spread 11.02 se 3.21 gap to next 3.0
+austin 2018 oracle _nc1 {'chooser5': '_nc1', 'chooser4': '_nc2', 'spread': '_nc1', 'se': '_nc1', 'regime': '_nc1'} regret {'chooser5': 0.0, 'chooser4': 3.28, 'spread': 0.0, 'se': 0.0, 'regime': 0.0} winner spread 1.27 se 0.41 gap to next 3.59
+austin 2019 oracle _nc1 {'chooser5': '_nc1', 'chooser4': '_nc2', 'spread': '_nc1', 'se': '_nc1', 'regime': '_nc1'} regret {'chooser5': 0.0, 'chooser4': 7.33, 'spread': 0.0, 'se': 0.0, 'regime': 0.0} winner spread 3.98 se 1.3 gap to next 8.37
+austin 2020 oracle _nc2 {'chooser5': '_nc1', 'chooser4': '_nc2', 'spread': '_nc3', 'se': '_nc2', 'regime': '_nc2'} regret {'chooser5': 1.93, 'chooser4': 0.0, 'spread': 3.55, 'se': 0.0, 'regime': 0.0} winner spread 10.35 se 3.11 gap to next 0.1
+austin 2021 oracle _nc1 {'chooser5': '_nc1', 'chooser4': '_nc2', 'spread': '_nc1', 'se': '_nc1', 'regime': '_nc1'} regret {'chooser5': 0.0, 'chooser4': 2.77, 'spread': 0.0, 'se': 0.0, 'regime': 0.0} winner spread 2.63 se 0.77 gap to next 4.81
+austin 2022 oracle _nc1 {'chooser5': '_nc1', 'chooser4': '_nc2', 'spread': '_nc2', 'se': '_nc1', 'regime': '_nc2'} regret {'chooser5': 0.0, 'chooser4': 2.49, 'spread': 2.49, 'se': 0.0, 'regime': 2.49} winner spread 8.17 se 2.45 gap to next 5.87
+sf 2017 oracle _nc3 {'chooser5': '_nc1', 'chooser4': '_nc2', 'spread': '_nc1', 'se': '_nc1', 'regime': '_nc1'} regret {'chooser5': 1.52, 'chooser4': 0.7, 'spread': 1.52, 'se': 1.52, 'regime': 1.52} winner spread 0.47 se 0.14 gap to next 0.99
+sf 2018 oracle _nc4 {'chooser5': '_nc1', 'chooser4': '_nc2', 'spread': '_nc2', 'se': '_nc2', 'regime': '_nc2'} regret {'chooser5': 3.88, 'chooser4': 3.92, 'spread': 3.92, 'se': 3.92, 'regime': 3.92} winner spread 0.38 se 0.11 gap to next 0.09
+sf 2019 oracle _nc4 {'chooser5': '_nc1', 'chooser4': '_nc2', 'spread': '_nc1', 'se': '_nc1', 'regime': '_nc1'} regret {'chooser5': 5.75, 'chooser4': 6.96, 'spread': 5.75, 'se': 5.75, 'regime': 5.75} winner spread 0.42 se 0.12 gap to next 0.46
+sf 2020 oracle _nc5 {'chooser5': '_nc1', 'chooser4': '_nc2', 'spread': '_nc2', 'se': '_nc1', 'regime': '_nc2'} regret {'chooser5': 6.03, 'chooser4': 5.6, 'spread': 5.6, 'se': 6.03, 'regime': 5.6} winner spread 0.38 se 0.11 gap to next 0.28
+sf 2021 oracle _nc3 {'chooser5': '_nc1', 'chooser4': '_nc3', 'spread': '_nc1', 'se': '_nc1', 'regime': '_nc1'} regret {'chooser5': 2.54, 'chooser4': 0.0, 'spread': 2.54, 'se': 2.54, 'regime': 2.54} winner spread 0.06 se 0.02 gap to next 0.29
+sf 2022 oracle _nc3 {'chooser5': '_nc3', 'chooser4': '_nc3', 'spread': '_nc4', 'se': '_nc4', 'regime': '_nc3'} regret {'chooser5': 0.0, 'chooser4': 0.0, 'spread': 0.88, 'se': 0.88, 'regime': 0.0} winner spread 1.0 se 0.31 gap to next 0.22
+seattle 2017 oracle _nc4 {'chooser5': '_nc4', 'chooser4': '_nc4', 'spread': '_nc4', 'se': '_nc4', 'regime': '_nc4'} regret {'chooser5': 0.0, 'chooser4': 0.0, 'spread': 0.0, 'se': 0.0, 'regime': 0.0} winner spread 0.58 se 0.17 gap to next 0.22
+seattle 2018 oracle _nc4 {'chooser5': '_nc3', 'chooser4': '_nc3', 'spread': '_nc3', 'se': '_nc3', 'regime': '_nc3'} regret {'chooser5': 1.2, 'chooser4': 1.2, 'spread': 1.2, 'se': 1.2, 'regime': 1.2} winner spread 0.49 se 0.15 gap to next 0.26
+seattle 2019 oracle _nc4 {'chooser5': '_nc3', 'chooser4': '_nc3', 'spread': '_nc3', 'se': '_nc3', 'regime': '_nc3'} regret {'chooser5': 1.95, 'chooser4': 1.95, 'spread': 1.95, 'se': 1.95, 'regime': 1.95} winner spread 0.2 se 0.06 gap to next 0.32
+seattle 2020 oracle _nc5 {'chooser5': '_nc3', 'chooser4': '_nc3', 'spread': '_nc3', 'se': '_nc3', 'regime': '_nc3'} regret {'chooser5': 4.44, 'chooser4': 4.44, 'spread': 4.44, 'se': 4.44, 'regime': 4.44} winner spread 0.23 se 0.07 gap to next 0.6
+seattle 2021 oracle _nc5 {'chooser5': '_nc5', 'chooser4': '_nc5', 'spread': '_nc5', 'se': '_nc5', 'regime': '_nc5'} regret {'chooser5': 0.0, 'chooser4': 0.0, 'spread': 0.0, 'se': 0.0, 'regime': 0.0} winner spread 1.39 se 0.46 gap to next 0.82
+seattle 2022 oracle _nc5 {'chooser5': '_nc5', 'chooser4': '_nc5', 'spread': '_nc5', 'se': '_nc5', 'regime': '_nc5'} regret {'chooser5': 0.0, 'chooser4': 0.0, 'spread': 0.0, 'se': 0.0, 'regime': 0.0} winner spread 1.09 se 0.36 gap to next 0.65
