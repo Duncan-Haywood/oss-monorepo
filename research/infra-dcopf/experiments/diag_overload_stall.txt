@@ -1,4 +1,4 @@
-Why do the case2869_pegase overload stalls stall? (diag_overload_stall.py; plan in LOG.md 2026-11-24)
+Why do the case2869_pegase overload stalls stall? (diag_overload_stall.py; plan in LOG.md 2026-11-24, outcome 2026-11-25)
 Every round whose hard QP (frozen margins, trust box) fails on Clarabel, re-asked of HiGHS:
 H as run, NB no box, NM no margins, NBM neither (E = empty, - = not empty); t = smallest box scale with a
 non-empty set; TE = least total thermal excess (fraction of rating) the linear model allows with no box
@@ -17,14 +17,46 @@ case2869_pegase TYP: gate D0 PASSED; 10 failed hard QPs of 20 rounds; final 3 ov
   19  E  -  E  -   5.03     0.00000   
   20  E  -  E  -   1.54     0.00000   
 
-case2869_pegase API: not run
-case2869_pegase SAD: not run
-pooled: 10 failed hard QPs over 1 cases
-  H  : empty 10, not empty 0, not settled (LP time limit) 0 of 10
-  NB : empty 0, not empty 9, not settled (LP time limit) 1 of 10
-  NM : empty 10, not empty 0, not settled (LP time limit) 0 of 10
-  NBM: empty 0, not empty 10, not settled (LP time limit) 0 of 10
-  dropping the margins alone gives a non-empty set (H empty, NM not): 0 of 10
-  thermal phase-1 positive (linear model cannot relieve every rating, no box, no margins): 0 of 10 settled
-  box scale t needed (times the round's own box), 9 settled: min 1.04, median 2.15, max 7.15; t <= 2 on 4
-  box LP not settled where NB is not empty: 0
+case2869_pegase API: gate D0 PASSED; 19 failed hard QPs of 20 rounds; final 4 overloads, max 101.46 %, worst branch 3899; 9629 s
+  it  H  NB NM NBM  t        TE        ends (branch:end excess)
+   2  E  -  E  -   1.83     0.00000   
+   3  E  -  E  -   1.47     0.00000   
+   4  E  -  -  -   1.07     0.00000   
+   5  E  -  E  -   2.14     0.00000   
+   6  E  -  E  -   3.45     0.00000   
+   7  E  -  E  -   ?        0.00000   
+   8  E  -  E  -   ?        0.00000   
+   9  E  -  E  -   ?        0.00000   
+  10  E  -  E  -   7.17     0.00000   
+  11  E  -  E  -   14.3     0.00000   
+  12  E  -  E  -   13.7     0.00000   
+  13  E  -  E  -   27.4     0.00000   
+  14  E  -  E  -   ?        0.00000   
+  15  E  -  E  -   26.2     0.00000   
+  16  E  -  E  -   52.3     0.00000   
+  17  E  -  E  -   51.8     0.00000   
+  18  E  -  E  -   51.1     0.00000   
+  19  E  -  E  -   102      0.00000   
+  20  E  -  E  -   101      0.00000   
+
+case2869_pegase SAD: gate D0 PASSED; 9 failed hard QPs of 20 rounds; final 2 overloads, max 109.12 %, worst branch 2082; 4706 s
+  it  H  NB NM NBM  t        TE        ends (branch:end excess)
+   1  E  -  E  -   1.79     0.00000   
+   2  E  ?  E  ?   -        ?         
+  13  E  -  E  -   1.93     0.00000   
+  15  E  -  E  -   1.91     0.00000   
+  16  E  ?  E  -   -        0.00000   
+  17  E  ?  E  ?   -        ?         
+  18  E  ?  E  -   -        0.00000   
+  19  E  -  E  ?   4.18     ?         
+  20  E  -  E  ?   1.41     ?         
+
+pooled: 38 failed hard QPs over 3 cases
+  H  : empty 38, not empty 0, not settled (LP time limit) 0 of 38
+  NB : empty 0, not empty 33, not settled (LP time limit) 5 of 38
+  NM : empty 37, not empty 1, not settled (LP time limit) 0 of 38
+  NBM: empty 0, not empty 34, not settled (LP time limit) 4 of 38
+  dropping the margins alone gives a non-empty set (H empty, NM not): 1 of 38
+  thermal phase-1 positive (linear model cannot relieve every rating, no box, no margins): 0 of 34 settled
+  box scale t needed (times the round's own box), 29 settled: min 1.04, median 3.45, max 102; t <= 2 on 11
+  box LP not settled where NB is not empty: 4

@@ -1,5 +1,9 @@
 # Research log
 
+## 2026-11-25 · Why do the case2869_pegase overload stalls stall? Outcome. The trust box: every failed hard QP is non-empty without it (33 of 33 settled), the margins clear 1 of 38, and with no box and no margins the linear model always relieves every rating (34 of 34). Needed box 1.04 to 102 times the round's box
+- Plan (2026-11-24), outcome and Next (2026-11-25): `research/infra-dcopf/LOG.md`; numbers in `research/infra-dcopf/experiments/diag_overload_stall.txt`. D0, D2 held; D1, D3, D5 refuted; D4 untestable.
+- Next: a step rule that decouples step length from the box (the hard QP without the box, then backtracking along the step on the AC check), fixed on development and held-out first.
+
 ## 2026-11-24 · Why do the case2869_pegase overload stalls stall? Hard-QP emptiness on every failed round (plan)
 - Plan, diagnostic and predictions D0 to D5: `research/infra-dcopf/LOG.md` (2026-11-24); script `research/infra-dcopf/experiments/diag_overload_stall.py`. Diagnostic only: the frozen repair is rerun unchanged.
 

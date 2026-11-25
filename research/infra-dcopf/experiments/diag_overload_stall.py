@@ -296,7 +296,7 @@ def job(j):
 
 
 def summary(cases):
-    L = ["Why do the case2869_pegase overload stalls stall? (diag_overload_stall.py; plan in LOG.md 2026-11-24)",
+    L = ["Why do the case2869_pegase overload stalls stall? (diag_overload_stall.py; plan in LOG.md 2026-11-24, outcome 2026-11-25)",
          "Every round whose hard QP (frozen margins, trust box) fails on Clarabel, re-asked of HiGHS:",
          "H as run, NB no box, NM no margins, NBM neither (E = empty, - = not empty); t = smallest box scale with a",
          "non-empty set; TE = least total thermal excess (fraction of rating) the linear model allows with no box",
