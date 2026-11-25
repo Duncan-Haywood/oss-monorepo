@@ -1,0 +1,156 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtHcX9sARVVgoh6Hy1d",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T14:06:28Z",
+  "ended": "2026-11-25T14:20:53Z",
+  "wall_minutes": 14.86,
+  "tokens_in": 16179892,
+  "tokens_out": 65532,
+  "cost_usd": 6.1505,
+  "tool_calls": 100,
+  "task": "Bet #1 PayApps: send a balance closed short (backcharge/write-off) to QuickBooks as a credit memo applied to the invoice (ROADMAP cash report part 4)",
+  "projects": [
+    "payapps",
+    "qbo-sync"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18994",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 18,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Migration number collision: private PR 113 merged migration 0031 while this run was building; caught by a pre-push fetch, rebased and regenerated as 0032, and fixed the changed workItem signature.",
+      "cost_minutes": 5
+    },
+    {
+      "what": "A sed over docs/src meant to renumber my own migration reference also edited PR 113's comment in schema/payapps.ts; noticed in git status and reverted.",
+      "cost_minutes": 1
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 1 mentions an allocate.py ([bet N live PRs]) for picking a surface; portfolio/monetization/allocate.py does not exist at that path."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Accurate: add_repo + one clone worked first time (under a minute). Worth adding: fetch origin/main and check apps/<app>/migrations right before pushing, as parallel runs collide on migration numbers."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Write-up extends the existing PayApps QuickBooks agent doc rather than a new post; no customer blog post for an internal integration slice of an unlaunched product.",
+      "did": "Appended an Update section to docs/reports/ventures-2026-11-25-payapps-qbo-own-item.md and one marketing-site bullet in apps/payapps-site.",
+      "result": "Consolidated, per the 2026-11-24 consolidation direction."
+    },
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "venture-preflight.mjs targets public ventures/<slug>; this run's product code is in private-monorepo, so it does not apply.",
+      "did": "Ran the private app's own typecheck, unit, worker, build and qbo-sync suites locally.",
+      "result": "Green (see notes)."
+    }
+  ],
+  "writeups": [
+    "docs/reports/ventures-2026-11-25-payapps-qbo-own-item.md (Update: credit memos, private PR 115)"
+  ],
+  "goal": "$10k MRR: bet #1 Crew-plan QuickBooks sync closes the last A/R gap (backcharges left open in QuickBooks)",
+  "notes": "Private PR: https://github.com/Duncan-Haywood/private-monorepo/pull/115. Local verification after rebase on PR 113: payapps typecheck clean, unit 399/399, worker suite (see PR 115 merge comment), build ok, qbo-sync 58/58, drizzle no drift, biome clean except one older warning in billing.ts. risk_review.py: nothing blocked. No browser run.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ba4d6055-b241-5e59-808e-4506d63f2aaf",
+    "transcripts": 1,
+    "first": "2026-11-25T14:06:28Z",
+    "last": "2026-11-25T14:21:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 96,
+        "input": 182,
+        "output": 65532,
+        "thinking": 11982,
+        "cache_read": 15974172,
+        "cache_write_5m": 0,
+        "cache_write_1h": 205538,
+        "api_equivalent_usd": 6.1505,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 96,
+      "input": 182,
+      "output": 65532,
+      "thinking": 11982,
+      "cache_read": 15974172,
+      "cache_write_5m": 0,
+      "cache_write_1h": 205538,
+      "api_equivalent_usd": 6.1505,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 100,
+    "tools": {
+      "Bash": 89,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Read": 1,
+      "TaskStop": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.86,
+      "active_minutes": 14.86,
+      "model_minutes": 11.54,
+      "tool_minutes": 3.32,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior engineer: QBO credit memo API slice, fake, service, guards, UI, tests, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 162.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
