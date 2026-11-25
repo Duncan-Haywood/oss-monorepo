@@ -3,7 +3,7 @@
 // DSCR floor out. Pure arithmetic over the user's own numbers; it does not value the business and it does not know
 // any lender's underwriting. Level-payment amortisation, monthly compounding.
 
-export const MODEL_REVIEWED = "2026-10-06";
+export const MODEL_REVIEWED = "2026-11-25";
 
 export const FIELDS = [
   { id: "price", label: "Asking price", def: 1200000, min: 1 },
@@ -83,16 +83,23 @@ export function evaluate(raw) {
   const sellerNote = (v.price * v.sellerPct) / 100;
   const bankDS = s.bank * v.price;
   const sellerDS = s.seller * v.price;
-  // On full standby the seller note is not paid while the bank is, so a lender leaves it out of the ratio.
-  const dscrDebt = bankDS + (v.standby ? 0 : sellerDS);
-  const totalDS = bankDS + sellerDS;
+  // On full standby the seller note gets no principal or interest for the whole bank/SBA term (SBA SOP 50 10 8 and
+  // 8.1; quality audit 2026-11-19), so it is out of the ratio AND out of year-one cash. It may accrue interest and is
+  // paid off after the bank loan: sellerDSAfterStandby is that later payment, assuming interest accrues at the note
+  // rate for the bank term and the accrued balance then amortises over the note term.
+  const yearOneDS = bankDS + (v.standby ? 0 : sellerDS);
+  const dscrDebt = yearOneDS;
+  const totalDS = yearOneDS;
+  const sellerDSAfterStandby = v.standby
+    ? annualPayment(sellerNote * Math.pow(1 + v.sellerRate / 100 / 12, Math.round(v.sbaYears * 12)), v.sellerRate, v.sellerYears)
+    : 0;
   const cfads = v.sde - v.salary - v.capex;
   const dscr = dscrDebt > 0 ? cfads / dscrDebt : Infinity;
   const down = (v.price * v.downPct) / 100;
   const closing = (v.price * v.closingPct) / 100;
   const cashAtClose = down + closing;
   const cashTotal = cashAtClose + v.workingCap;
-  const afterDebt = v.sde - v.capex - totalDS; // includes the buyer's own salary
+  const afterDebt = v.sde - v.capex - yearOneDS; // includes the buyer's own salary
   const surplus = afterDebt - v.salary; // what is left over once the job is paid for
   const maxPrice = (floor) => {
     const perDollar = s.bank + (v.standby ? 0 : s.seller);
@@ -103,21 +110,30 @@ export function evaluate(raw) {
     const sde = v.sde * (1 + chg / 100);
     const cf = sde - v.salary - v.capex;
     const ds = dscrDebt;
-    return { chg, sde, dscr: ds > 0 ? cf / ds : Infinity, cashAfter: sde - v.capex - totalDS - v.salary };
+    return { chg, sde, dscr: ds > 0 ? cf / ds : Infinity, cashAfter: sde - v.capex - yearOneDS - v.salary };
   });
-  const bankBalance5 = balanceAfter(bankLoan, v.sbaRate, v.sbaYears, 60);
+  // SBA change-of-ownership equity: 10% of total project cost (price, plus the closing costs and working capital this
+  // page has the buyer pay in cash), of which a full-standby seller note may supply at most half (SOP 50 10 8).
+  const projectCost = v.price + closing + v.workingCap;
+  const equityRequired = 0.1 * projectCost;
+  const standbyEquity = v.standby ? Math.min(sellerNote, equityRequired / 2) : 0;
+  const equityCounted = cashTotal + standbyEquity;
+  const equityShort = Math.max(0, equityRequired - equityCounted);
   const notes = [];
-  if (v.downPct < 10) notes.push("Your down payment is under 10% of the price. Lenders commonly want at least 10% equity in an acquisition, and the rules on what counts change; ask your lender.");
+  if (bankLoan > 0 && equityShort > 0.005) notes.push(`Equity injection is short by about ${money(equityShort)}. For an SBA 7(a) change of ownership the SBA asks for at least 10% of total project cost (${money(equityRequired)} here: price plus closing costs and working capital); your cash counts${v.standby ? " and the standby seller note counts for up to half" : ", and a seller note counts for up to half only if it is on full standby"}. The rules were revised in SOP 50 10 8.1 (from 2026-10-01); confirm with your lender.`);
   if (dscr < v.targetDscr) notes.push(`DSCR ${dscr.toFixed(2)} is below your ${v.targetDscr.toFixed(2)} floor. At this structure the price that clears it is about ${maxPrice(v.targetDscr) ? money(maxPrice(v.targetDscr)) : "unavailable (cash flow after salary and capex is not positive)"}.`);
+  if (bankLoan > 0 && v.targetDscr < 1.25) notes.push(`Your DSCR floor is ${v.targetDscr.toFixed(2)}. For an SBA 7(a) loan to buy a business (an initial acquisition or owner buyout), SOP 50 10 8.1 sets 1.25 as the minimum, so a deal between your floor and 1.25 may not qualify for SBA financing.`);
+  if (bankLoan > 5000000) notes.push(`The bank loan is ${money(bankLoan)}. The SBA 7(a) program's maximum loan is $5,000,000, so this structure needs a conventional loan or a larger down payment or seller note.`);
   if (v.price / v.sde > 4) notes.push("The price is more than 4x SDE. Small owner-operated businesses commonly trade for less than that, so check the multiple against comparable sales, not this page.");
   if (cfads <= 0) notes.push("SDE does not cover your salary and capex reserve, so there is no cash to service any debt.");
   if (surplus < 0) notes.push("After debt service the business does not pay you the salary you entered, so you would be funding the gap from savings.");
-  if (v.standby) notes.push("Seller note on full standby: its payments are left out of the DSCR but are still counted in cash flow after debt, because you owe them eventually.");
+  if (v.standby && sellerNote > 0) notes.push(`Seller note on full standby: no payments while the bank loan runs, so it is left out of the DSCR and out of year-one cash. If it accrues interest at ${v.sellerRate}% for those ${v.sbaYears} years, paying it off afterwards over ${v.sellerYears} years costs about ${money(sellerDSAfterStandby)} a year.`);
   return {
-    values: v, bankLoan, sellerNote, bankDS, sellerDS, totalDS, dscr, multiple: v.price / v.sde, cfads,
+    values: v, bankLoan, sellerNote, bankDS, sellerDS, totalDS, yearOneDS, dscr, multiple: v.price / v.sde, cfads,
     cashAtClose, cashTotal, afterDebt, surplus, cashOnCash: cashTotal > 0 ? surplus / cashTotal : null,
     maxPriceAtFloor: maxPrice(v.targetDscr), maxPriceAtOne: maxPrice(1), breakEvenSde,
-    breakEvenDropPct: (1 - breakEvenSde / v.sde) * 100, sensitivity, bankBalance5, notes,
+    breakEvenDropPct: (1 - breakEvenSde / v.sde) * 100, sensitivity, sellerDSAfterStandby, projectCost, equityRequired,
+    equityCounted, equityShort, notes,
     verdict: dscr >= v.targetDscr ? "clears" : dscr >= 1 ? "thin" : "fails",
   };
 }
@@ -130,7 +146,9 @@ export function reportCsv(r) {
   const v = r.values;
   const rows = [["item", "value"], ...FIELDS.map((f) => [f.label, v[f.id]]), ["Seller note on full standby", v.standby ? "yes" : "no"],
     ["Bank loan", Math.round(r.bankLoan)], ["Seller note", Math.round(r.sellerNote)], ["Bank annual debt service", Math.round(r.bankDS)],
-    ["Seller note annual debt service", Math.round(r.sellerDS)], ["Price / SDE", r.multiple.toFixed(2)], ["DSCR", Number.isFinite(r.dscr) ? r.dscr.toFixed(2) : "n/a"],
+    ["Seller note annual debt service", Math.round(r.sellerDS)], ["Debt service paid in year one", Math.round(r.yearOneDS)],
+    ["Seller note annual payment after standby ends", Math.round(r.sellerDSAfterStandby)], ["SBA equity required (10% of project cost)", Math.round(r.equityRequired)],
+    ["Equity counted (cash plus standby note, capped at half)", Math.round(r.equityCounted)], ["Price / SDE", r.multiple.toFixed(2)], ["DSCR", Number.isFinite(r.dscr) ? r.dscr.toFixed(2) : "n/a"],
     ["Cash needed at close", Math.round(r.cashAtClose)], ["Cash incl. working capital", Math.round(r.cashTotal)],
     ["Cash flow after debt, before your salary", Math.round(r.afterDebt)], ["Surplus after your salary", Math.round(r.surplus)],
     ["Max price at DSCR floor", r.maxPriceAtFloor ? Math.round(r.maxPriceAtFloor) : "n/a"], ["SDE decline that takes DSCR to 1.00 (%)", r.breakEvenDropPct.toFixed(1)]];
