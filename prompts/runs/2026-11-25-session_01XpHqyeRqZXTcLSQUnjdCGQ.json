@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyeRqZXTcLSQUnjdCGQ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T08:38:17Z",
+  "ended": "2026-11-25T08:45:01Z",
+  "wall_minutes": 7.02,
+  "tokens_in": 4851191,
+  "tokens_out": 38147,
+  "cost_usd": 2.6281,
+  "tool_calls": 50,
+  "task": "Bet #1 (pay-app billing) public side: front-loading / balanced schedule of values check",
+  "projects": [
+    "pay-app-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18910",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "add_repo for private-monorepo succeeded and told me to clone, but the clone command was refused by the auto-mode classifier; the note that a refused clone is final held, but the add_repo step cost a turn."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The prompt says no new free tools except as a bet's front door. This is a new tool, added inside the bet #1 front-door venture (pay-app-guides), not as a standalone calculator.",
+      "did": "Built it as a page in pay-app-guides, with the early-access CTA and links from the existing guides.",
+      "result": "Merged with the venture's tests green."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (new section)"
+  ],
+  "goal": "$10k MRR: search front door (\"front loading schedule of values\", \"balanced SOV\") into the payapps early-access CTA",
+  "notes": "Security queue empty (1 claimed). IDEAS empty. Routed to ventures/1 by weighted draw. The private-monorepo clone was refused, so this run did bet #1's public side. Verification: node --test '*.test.mjs' in ventures/pay-app-guides gave 165 pass, 0 fail. Playwright at 390px loaded the example with no console errors and scrollWidth 390. risk_review: nothing blocked; innerHTML inputs are escaped or numeric. No agent doc: the README and post carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4b5f52a5-5850-5f01-a446-b4d73ec0eda7",
+    "transcripts": 1,
+    "first": "2026-11-25T08:38:17Z",
+    "last": "2026-11-25T08:45:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 88,
+        "output": 38147,
+        "thinking": 5965,
+        "cache_read": 4736408,
+        "cache_write_5m": 0,
+        "cache_write_1h": 114695,
+        "api_equivalent_usd": 2.6281,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 88,
+      "output": 38147,
+      "thinking": 5965,
+      "cache_read": 4736408,
+      "cache_write_5m": 0,
+      "cache_write_1h": 114695,
+      "api_equivalent_usd": 2.6281,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 45,
+      "Write": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.02,
+      "active_minutes": 7.02,
+      "model_minutes": 5.64,
+      "tool_minutes": 1.38,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "guide plus a tested SOV analysis tool with a projection algorithm, by a construction-billing developer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 304.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
