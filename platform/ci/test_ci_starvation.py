@@ -233,6 +233,23 @@ class Fetch(unittest.TestCase):
         self.assertEqual(len(rows), 1)
 
 
+    def test_explicit_repo_is_honoured_on_the_gh_route(self):
+        # gh_api would resolve {owner}/{repo} to the local remote, so an
+        # explicit --repo must be substituted before the path reaches it.
+        api = unittest.mock.Mock(return_value={"jobs": []})
+        cs.fetch(argparse_ns(run="7", job=None, repo="o/private"), api=api)
+        self.assertEqual(api.call_args[0][0], "repos/o/private/actions/runs/7/jobs")
+
+    def test_without_repo_the_placeholder_is_left_for_the_route(self):
+        api = unittest.mock.Mock(return_value={"jobs": []})
+        cs.fetch(argparse_ns(run="7", job=None, repo=None), api=api)
+        self.assertIn(cs.REPO_PLACEHOLDER, api.call_args[0][0])
+
+    def test_malformed_repo_is_refused(self):
+        with self.assertRaises(RuntimeError):
+            cs.fetch(argparse_ns(run="7", job=None, repo="nope"), api=unittest.mock.Mock())
+
+
 class GhSubprocessWrappers(unittest.TestCase):
     """`gh_api` and `git_remote_repo` shell out; pin how they call and decode."""
 

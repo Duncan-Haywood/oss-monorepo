@@ -64,7 +64,9 @@ tool are the ones least likely to have the first one:
 
 Route 2 needs to know which repository to ask about, which route 1 got for
 free from the local git remote. `--repo owner/name`, `GITHUB_REPOSITORY`, and
-that same git remote are tried in order.
+that same git remote are tried in order. `--repo` also steers route 1, so
+`--repo Duncan-Haywood/private-monorepo --run <id>` classifies the private
+repository's CI from this clone (before 2026-11-25 the gh route ignored it).
 
 Exit status: 0 if every job examined ran on a real runner, 1 if any was
 starved, 2 if there is no answer to give — a usage or API error, a run whose
@@ -440,7 +442,13 @@ def choose_api(args, env=None, has_gh=None):
 
 
 def fetch(args, api=gh_api):
-    repo = f"repos/{REPO_PLACEHOLDER}"
+    # An explicit --repo is honoured on every route. The gh route used to
+    # ignore it ({owner}/{repo} resolves to the local remote), so asking about
+    # private-monorepo's CI from this clone silently read this repository.
+    explicit = getattr(args, "repo", None)
+    if explicit and explicit.count("/") != 1:
+        raise RuntimeError(f"--repo must be owner/name, got {explicit!r}")
+    repo = f"repos/{explicit or REPO_PLACEHOLDER}"
     if args.run:
         return api(f"{repo}/actions/runs/{args.run}/jobs").get("jobs", [])
     return [api(f"{repo}/actions/jobs/{args.job}")]
@@ -453,8 +461,9 @@ def main(argv=None, api=None):
     parser.add_argument("--json", action="store_true", help="machine-readable")
     parser.add_argument(
         "--repo",
-        help="owner/name for the HTTPS route (default: GITHUB_REPOSITORY, "
-        "then the origin remote)",
+        help="owner/name to ask about, on every route (e.g. "
+        "Duncan-Haywood/private-monorepo; default: GITHUB_REPOSITORY, then "
+        "the origin remote)",
     )
     parser.add_argument(
         "--from-json",
