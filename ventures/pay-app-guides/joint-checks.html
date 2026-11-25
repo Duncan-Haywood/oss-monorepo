@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b51'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Joint Checks in Construction: Split and Waivers</title>
+  <meta name="description" content="A GC pays by joint check to you and your supplier. Split it, see what an endorsing supplier risks, and write the split letter and waivers.">
+  <meta property="og:title" content="Joint checks in construction: who gets what, and what endorsing gives up">
+  <meta property="og:description" content="A free joint check splitter for subcontractors and suppliers: each payee's share, what a supplier risks by endorsing with no written split (the joint check rule), the waivers each signs, a split letter, and a joint check agreement checklist.">
+  <link rel="canonical" href="./joint-checks.html">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    textarea { width: 100%; box-sizing: border-box; min-height: 96px; padding: 9px 10px; border: 1px solid var(--input); border-radius: 7px; font: 14px/1.5 ui-monospace, monospace; background: var(--card); color: var(--ink); }
+    pre#letter { white-space: pre-wrap; background: var(--card); border: 1px solid var(--input); border-radius: 7px; padding: 10px; font-size: 13px; }
+    .checks label { display: block; font-weight: 400; margin: 4px 0; }
+    .flag { color: var(--bad, #a4262c); }
+  </style>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Joint checks in construction: who gets what, and what endorsing gives up", "datePublished": "2026-11-25", "dateModified": "2026-11-25"}</script>
+</head>
+<body>
+<header>
+  <p class="kicker">Pay app guides · <a href="./">schedule of values calculator</a></p>
+  <h1>Joint checks in construction: split the check before anyone endorses it</h1>
+  <p>A <strong>joint check</strong> is a payment from the GC (or owner) made out to a subcontractor <em>and</em> its supplier or lower-tier sub, so the supplier has to endorse before the money moves. GCs use them so a supplier is not left unpaid and filing a lien for material the GC already paid for. The trap is for the supplier: in states that follow the <strong>joint check rule</strong>, a supplier that endorses without a written split can be treated as paid what it was owed, up to the check amount, even if the sub kept the money. Enter the check below to see each payee's share, what is at risk, and what each should sign.</p>
+  <nav class="guides" aria-label="Guides">
+    <a href="conditional-vs-unconditional-lien-waivers.html">Lien waivers</a>
+    <a href="lien-waiver-forms-by-state.html">Lien waiver forms by state</a>
+    <a href="pay-if-paid-clauses.html">Pay-if-paid clauses</a>
+    <a href="prompt-payment-laws.html">Prompt payment laws</a>
+  </nav>
+</header>
+<main>
+<section class="card" id="splitter">
+  <h2>Joint check splitter</h2>
+  <p>It runs in this browser tab; nothing is uploaded.</p>
+  <div class="grid">
+    <div><label for="jc-check">Check amount ($)</label><input id="jc-check" inputmode="decimal" value="48000"></div>
+    <div><label for="jc-state">Project state</label><select id="jc-state"><option value="">Another state</option><option value="federal">Federal project (Miller Act)</option></select></div>
+  </div>
+  <label for="jc-suppliers">Suppliers or lower-tier subs named on the check: one per line, <code>name, owed on this job, agreed share</code>, separated by a comma and a space or a tab (leave the share off if none was agreed; 18,250 reads as one number)</label>
+  <textarea id="jc-suppliers" spellcheck="false">Acme Electric Supply, 18250
+Bolt Equipment Rentals, 2400, 1200</textarea>
+  <p><label><input type="checkbox" id="jc-written"> The split is in writing (a signed joint check agreement, the check stub, or a letter all payees signed) before anyone endorses</label></p>
+  <div aria-live="polite">
+    <p id="jc-errors" class="flag"></p>
+    <h3>Who gets what</h3>
+    <ul id="jc-shares"></ul>
+    <ul id="jc-flags"></ul>
+    <h3>What each payee signs</h3>
+    <ul id="jc-waivers"></ul>
+    <h3>Order of steps</h3>
+    <ol id="jc-steps"></ol>
+    <h3 id="jc-state-head" hidden>What the state summary says</h3>
+    <ul id="jc-state-notes"></ul>
+  </div>
+
+  <h3>Joint check agreement checklist</h3>
+  <p>Tick what your agreement (or the one the supplier or GC sent you) covers. The list is the drafting checklist from a construction-surety handout; see sources below.</p>
+  <div class="checks" id="jc-items"></div>
+  <ul id="jc-missing"></ul>
+
+  <h3>Split letter</h3>
+  <div class="grid">
+    <div><label for="jc-project">Project</label><input id="jc-project" placeholder="Elm St Clinic"></div>
+    <div><label for="jc-payer">Payer (GC or owner)</label><input id="jc-payer" placeholder="Hill Builders"></div>
+    <div><label for="jc-sub">Subcontractor</label><input id="jc-sub" placeholder="Spark Electric"></div>
+    <div><label for="jc-no">Check number</label><input id="jc-no" placeholder="1042"></div>
+  </div>
+  <pre id="letter"></pre>
+  <p><button type="button" id="jc-copy">Copy split letter</button></p>
+  <p class="note">The letter is a plain record of how the payees agreed to divide one check. It is not a joint check agreement and does not replace one; have a construction attorney in the project's state review any agreement before you sign it.</p>
+</section>
+
+<section class="card" id="state-table">
+  <h2>Where the joint check rule applies, by state</h2>
+  <p class="note">This table is a <strong>secondary source</strong>: the groups below are as given in <a href="https://www.agc.org/sites/default/files/pdf/Handout%20on%20Joint%20Checks%20and%20Joint%20Check%20Agreements.pdf">"Joint Checks: Where and How Joint Check Arrangements Can Go Awry"</a>, a 2018 handout by counsel at Travelers Bond, Moss &amp; Associates and Arent Fox, hosted by the Associated General Contractors of America, which itself draws on a 2012 Travelers state survey. We read the handout on <strong>2026-11-25</strong> and read the California Supreme Court's own opinion (below), but have not read each state's cases. Courts apply the rule in many variations. Treat a row as a reason to ask a lawyer, not an answer.</p>
+  <div class="scroll"><table class="stack" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">What the handout says</th><th role="columnheader" scope="col">States it names</th><th role="columnheader" scope="col">What it means for a supplier</th></tr></thead>
+    <tbody>
+      <tr role="row"><td role="cell" data-label="What the handout says">Follows the joint check rule, for the contractor and its surety</td><td role="cell" data-label="States it names">California, Iowa, Louisiana, Missouri, South Carolina, Texas, Washington</td><td role="cell" data-label="What it means for a supplier">Endorsing with no written split can count as full payment, and you may lose your claim on the payment bond too.</td></tr>
+      <tr role="row"><td role="cell" data-label="What the handout says">Unclear or silent on whether the rule reaches the surety</td><td role="cell" data-label="States it names">Arizona, Arkansas, Nevada, Oklahoma, Utah</td><td role="cell" data-label="What it means for a supplier">A bond claim after endorsing may or may not survive.</td></tr>
+      <tr role="row"><td role="cell" data-label="What the handout says">Rule does not extend to the surety</td><td role="cell" data-label="States it names">Maryland, Ohio</td><td role="cell" data-label="What it means for a supplier">A bond claim may survive endorsement, but the rule can still apply against the payer.</td></tr>
+      <tr role="row"><td role="cell" data-label="What the handout says">Endorsement is an effective lien waiver</td><td role="cell" data-label="States it names">California, Montana, Oklahoma</td><td role="cell" data-label="What it means for a supplier">Endorsing can give up your lien rights for what the check covered.</td></tr>
+      <tr role="row"><td role="cell" data-label="What the handout says">Endorsement waives liens only with additional circumstances</td><td role="cell" data-label="States it names">Alabama, Colorado, Connecticut, Idaho, Indiana, Kansas, Massachusetts, Michigan, Minnesota, South Dakota</td><td role="cell" data-label="What it means for a supplier">Endorsement alone is usually not enough to waive, but other facts or papers can be.</td></tr>
+      <tr role="row"><td role="cell" data-label="What the handout says">Endorsement is not recognized as a lien waiver</td><td role="cell" data-label="States it names">Arizona, Arkansas, Oregon</td><td role="cell" data-label="What it means for a supplier">Endorsing alone does not waive your lien, but a waiver you sign does.</td></tr>
+      <tr role="row"><td role="cell" data-label="What the handout says">Any such waiver is void and unenforceable</td><td role="cell" data-label="States it names">Delaware, Maryland</td><td role="cell" data-label="What it means for a supplier">A waiver read into the endorsement is not enforced.</td></tr>
+      <tr role="row"><td role="cell" data-label="What the handout says">Federal projects (Miller Act): the rule does not apply</td><td role="cell" data-label="States it names">Any federal project with a Miller Act payment bond</td><td role="cell" data-label="What it means for a supplier">Endorsement alone does not waive your Miller Act bond rights; a joint check agreement saying endorsement is payment in full can. The handout cites Friedrich Refrigerators v. Forrester, 441 F.2d 779 (5th Cir. 1971) and two Fourth Circuit cases.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Not listed: the other states. The handout says over half the jurisdictions are silent on joint checks or reject the rule, so the effect of an endorsement there is unknown. That is a reason to get the split in writing, not a reason to relax. One statute we have read ourselves: Nevada's lien waiver statute says a joint check counts as payment to a claimant only up to the smallest of the check, the amount meant for it, or its balance on that work (NRS 108.2457(3); see <a href="lien-waiver-forms-by-state.html">lien waiver forms by state</a>).</p>
+</section>
+
+<section class="card">
+  <h2>What the California Supreme Court said</h2>
+  <p>In <a href="https://scocal.stanford.edu/opinion/post-bros-constr-co-v-yoder-28055">Post Bros. Construction Co. v. Yoder (1977) 20 Cal.3d 1</a> (read on the Stanford SCOCAL archive, 2026-11-25), a grading supplier endorsed four joint checks totalling $54,000 that went into the subcontractor's bank account. The sub paid the supplier on other jobs first, and the supplier later claimed a mechanics lien and sued on the bond. It lost both. The court's reasons are the ones to plan around:</p>
+  <ul>
+    <li><strong>You can refuse to endorse.</strong> "The material man may protect himself by simply refusing to endorse the check until assured by escrow of other arrangement that he will recover his rightful share of the check."</li>
+    <li><strong>Your job is to find out what the check is for.</strong> Before endorsing, the supplier has to work out whether the check covers the whole job or is a progress payment: "his burden is to determine what the joint check is for."</li>
+    <li><strong>An agreement beats the rule.</strong> "The joint check rule will give way to an express or implied agreement of the maker and payees." A check or agreement that lists what it pays controls.</li>
+    <li><strong>The surety gets the same defence.</strong> Because the supplier is deemed paid, it "may not recover on the owner's or contractor's surety bond."</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2>For each payee</h2>
+  <ul>
+    <li><strong>Supplier or lower-tier sub.</strong> Ask for a joint check agreement before you ship on credit to a sub you are unsure of. When a check arrives, endorse only against your share in hand: the sub's own check or a wire to you, or the GC handing the endorsed check to you directly. Give a conditional waiver for your share, and an unconditional one only after it clears (<a href="conditional-vs-unconditional-lien-waivers.html">conditional vs unconditional waivers</a>). Your lien and bond deadlines keep running while you wait: the free <a href="https://marisstella.app/mechanics-lien-deadline-calculator/">mechanics lien deadline calculator</a> works out the dates.</li>
+    <li><strong>Subcontractor.</strong> A joint check is still a payment on your subcontract, so the whole check counts against your contract balance on the next pay application, including the part that went to the supplier. Record it that way, or your "previous certificates" will not match the GC's (<a href="pay-application-checker.html">pay application checker</a>). Read whether your subcontract lets the GC pay by joint check; the handout notes a GC without that right may not discharge its debt to you by issuing one.</li>
+    <li><strong>GC or owner.</strong> Get the subcontract right to issue joint checks, but not a duty to; a mandatory promise to pay by joint check can be enforced by the supplier. Read any agreement a supplier proposes for a guarantee of payment hidden in it. Have the sub endorse at your office and deliver the check to the supplier yourself.</li>
+  </ul>
+</section>
+
+<section class="card cta" id="early-access">
+  <h2>Track every joint check against the pay app it paid</h2>
+  <p>We are building hosted pay-app billing for specialty subcontractors that keeps every pay application, payment, retainage balance and lien waiver per job, including who was paid by joint check and which waivers are still owed. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
+</section>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This guide and splitter are provided free and as-is, without warranty of any kind, express or implied. They are not legal, tax, accounting, or financial advice, and they do not replace your contract, your accountant, or an attorney. The state summary is from a secondary source and may be out of date. You are responsible for verifying anything you rely on or send. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
+  <p><strong>Privacy.</strong> No accounts, cookies or analytics vendors. What you type stays in this tab. Two anonymous counters (<code>guide_joint_checks_viewed</code>, <code>joint_check_split</code>) are kept in local storage on your device only, and Do Not Track switches them off. <button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
+</footer>
+<script type="module">
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  import { splitJointCheck, splitLetter, parseSuppliers, fmt, STATES, AGREEMENT_ITEMS } from "./joint.mjs";
+  record("guide_joint_checks_viewed");
+  const b = document.getElementById("optout");
+  b.addEventListener("click", () => { setUsageOptOut(true); b.textContent = "Usage counting is off"; b.disabled = true; });
+  if (usageOptedOut()) { b.textContent = "Usage counting is off"; b.disabled = true; }
+
+  const $ = (id) => document.getElementById(id);
+  for (const s of STATES) { const o = document.createElement("option"); o.value = s; o.textContent = s; $("jc-state").append(o); }
+  for (const [k, text] of AGREEMENT_ITEMS) {
+    const l = document.createElement("label"); const c = document.createElement("input");
+    c.type = "checkbox"; c.value = k; c.addEventListener("change", render);
+    l.append(c, " " + text); $("jc-items").append(l);
+  }
+  const li = (text, cls) => { const e = document.createElement("li"); e.textContent = text; if (cls) e.className = cls; return e; };
+  let counted = false;
+  function render() {
+    const has = [...document.querySelectorAll("#jc-items input:checked")].map((c) => c.value);
+    const r = splitJointCheck({ check: $("jc-check").value, suppliers: parseSuppliers($("jc-suppliers").value), writtenSplit: $("jc-written").checked, state: $("jc-state").value, agreementHas: has });
+    $("jc-errors").textContent = r.ok ? "" : r.errors.join(" ");
+    if (!r.ok) { for (const id of ["jc-shares", "jc-flags", "jc-waivers", "jc-steps", "jc-state-notes", "jc-missing"]) $(id).replaceChildren(); $("letter").textContent = ""; return; }
+    $("jc-shares").replaceChildren(
+      ...r.suppliers.map((s) => li(`${s.name}: ${fmt(s.share)} of ${fmt(s.owed)} owed on this job${s.unpaidAfter ? `; ${fmt(s.unpaidAfter)} still owed after` : ""}${s.atRisk ? `. At risk if it endorses with nothing written: ${fmt(s.atRisk)}` : ""}`)),
+      li(`Subcontractor keeps: ${fmt(r.toSub)} of the ${fmt(r.check)} check`));
+    $("jc-flags").replaceChildren(...r.flags.map((f) => li(f, "flag")));
+    $("jc-waivers").replaceChildren(...r.suppliers.map((s) => li(s.waiver)), li(`The subcontractor signs a conditional waiver for ${fmt(r.check)}, the full check, since the payer paid all of it on the subcontract.`));
+    $("jc-steps").replaceChildren(...r.steps.map((s) => li(s)));
+    $("jc-state-head").hidden = !r.stateNotes.length;
+    $("jc-state-notes").replaceChildren(...r.stateNotes.map((n) => li(n)));
+    $("jc-missing").replaceChildren(...r.missing.map((m) => li(`Missing: ${m}`)));
+    $("letter").textContent = splitLetter(r, { project: $("jc-project").value, payer: $("jc-payer").value, sub: $("jc-sub").value, checkNo: $("jc-no").value, date: new Date().toISOString().slice(0, 10) });
+  }
+  for (const id of ["jc-check", "jc-suppliers", "jc-project", "jc-payer", "jc-sub", "jc-no"]) $(id).addEventListener("input", () => { render(); if (!counted) { counted = true; record("joint_check_split"); } });
+  for (const id of ["jc-state", "jc-written"]) $(id).addEventListener("change", render);
+  $("jc-copy").addEventListener("click", async () => { try { await navigator.clipboard.writeText($("letter").textContent); $("jc-copy").textContent = "Copied"; } catch { $("jc-copy").textContent = "Select the letter and copy it"; } });
+  render();
+</script>
+</body>
+</html>

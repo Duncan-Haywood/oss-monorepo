@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html", "prompt-payment-laws.html", "change-order-log.html", "pay-application-software-compared.html", "retainage-release.html", "overbilling-underbilling.html", "pay-application-checker.html", "pay-if-paid-clauses.html"];
+const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html", "prompt-payment-laws.html", "change-order-log.html", "pay-application-software-compared.html", "retainage-release.html", "overbilling-underbilling.html", "pay-application-checker.html", "pay-if-paid-clauses.html", "joint-checks.html"];
 
 test("every page carries the no-warranty clause, sponsor link, opt-out and honest CTA", () => {
   for (const name of PAGES) {
@@ -21,7 +21,7 @@ test("every page carries the no-warranty clause, sponsor link, opt-out and hones
 });
 
 test("no page sends anything anywhere or loads remote scripts", () => {
-  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "billing.mjs", "check.mjs", "usage.mjs"]) {
+  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "billing.mjs", "check.mjs", "joint.mjs", "usage.mjs"]) {
     const src = page(name);
     assert.doesNotMatch(src, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/, name);
     assert.doesNotMatch(src, /<script[^>]+src=["']https?:/, name);
@@ -181,4 +181,14 @@ test("overbilling page: inputs labelled, entry and summary present, links the WI
   assert.match(html, /href="https:\/\/marisstella\.app\/contractor-wip-schedule\/"/);
   assert.match(html, /href="change-order-log\.html"/);
   assert.match(page("index.html"), /href="overbilling-underbilling\.html"/);
+});
+
+test("joint checks page: inputs labelled, the secondary source said so, the California opinion linked, linked from the waiver guide", () => {
+  const html = page("joint-checks.html");
+  for (const id of ["jc-check", "jc-state", "jc-suppliers", "jc-project", "jc-payer", "jc-sub", "jc-no"]) assert.match(html, new RegExp(`<label for="${id}">`), id);
+  assert.match(html, /secondary source/);
+  assert.match(html, /agc\.org\/sites\/default\/files\/pdf\/Handout/);
+  assert.match(html, /scocal\.stanford\.edu\/opinion\/post-bros-constr-co-v-yoder-28055/);
+  assert.match(html, /2026-11-25/);
+  assert.match(page("conditional-vs-unconditional-lien-waivers.html"), /href="joint-checks\.html"/);
 });
