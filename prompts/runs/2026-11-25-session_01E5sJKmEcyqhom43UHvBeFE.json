@@ -1,0 +1,159 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKmEcyqhom43UHvBeFE",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T16:19:52Z",
+  "ended": "2026-11-25T16:39:55Z",
+  "wall_minutes": 20.34,
+  "tokens_in": 15579892,
+  "tokens_out": 60492,
+  "cost_usd": 5.8762,
+  "tool_calls": 103,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19026",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "git and gh returned 503 'credential service temporarily unavailable' for the first ~10 minutes; worked on retry",
+    "auto-mode classifier refused `git reset --hard origin/main` on the clean work branch; used --deepen + --ff-only instead"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The clone was stale (main at #18508 vs #19017) while GitHub was 503ing, so the first route used old routing.json weights (creative 0.10) and old prompt text; nothing says to fetch main before routing"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says 'git fetch --deepen=500 origin main until merge-base answers'; on a --depth=20 fetch the ff-only merge refused as 'unrelated histories' until deepened, which the text covers but only under merges"
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Private-repo payapps-ci fails in 1-3 s with no log on every PR (also merged PR #123); ci_starvation.py only reads this repo, so nothing classifies private-repo runs"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Routed once on a stale clone (creative); after main fetched, routing.json had cut creative to 0.03 and the creative prompt had changed, so re-routed against current main (ventures)",
+      "did": "re-ran route on current main and followed ventures/1",
+      "result": "shipped bet #1 work instead of a text-only story on a demoted track"
+    },
+    {
+      "file": "apps/payapps/ROADMAP.md (private)",
+      "why": "Top Next item (California lien waivers) needs leginfo; it and the MI/MO/MS/GA/WY code hosts plus justia/findlaw all refused by the proxy",
+      "did": "claimed item 4 (SOV import from a PDF, part 2) instead",
+      "result": "merged as private PR 124"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Private repo CI never got a runner (no log, 1-3 s), same as merged PR #123",
+      "did": "merged on local verification: typecheck, biome, unit 451, worker 257, build",
+      "result": "merged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-the-text-a-spreadsheet-pdf-hides.md",
+    "docs/reports/ventures-2026-11-25-payapps-sov-pdf-ruled-cells.md"
+  ],
+  "goal": null,
+  "notes": "Bet #1 PayApps, private PR Duncan-Haywood/private-monorepo#124 (merged 71d5ac0): PDF text extractor keeps painted rules and honours rectangular clip paths; SOV PDF import takes column edges from vertical rules, falls back to text columns when partially ruled. 3 of 4 dense bordered test sheets failed before, 4 of 4 import after; bid-breakdown fixture unchanged (48 lines). New fixtures sov-ruled-chrome.pdf, sov-ruled-libreoffice.pdf with generators.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8027a597-1b5a-5d3e-947b-e55e411dff0e",
+    "transcripts": 1,
+    "first": "2026-11-25T16:19:52Z",
+    "last": "2026-11-25T16:40:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 99,
+        "input": 190,
+        "output": 60492,
+        "thinking": 15773,
+        "cache_read": 15381022,
+        "cache_write_5m": 0,
+        "cache_write_1h": 198680,
+        "api_equivalent_usd": 5.8762,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 99,
+      "input": 190,
+      "output": 60492,
+      "thinking": 15773,
+      "cache_read": 15381022,
+      "cache_write_5m": 0,
+      "cache_write_1h": 198680,
+      "api_equivalent_usd": 5.8762,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 103,
+    "tools": {
+      "Bash": 90,
+      "Read": 2,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__get_check_run": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.34,
+      "active_minutes": 20.34,
+      "model_minutes": 12.18,
+      "tool_minutes": 8.16,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior engineer: PDF clip/path semantics, rule-based column detection, two fixtures and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 170.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
