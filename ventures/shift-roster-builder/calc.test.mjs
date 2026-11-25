@@ -1408,6 +1408,30 @@ test("age: 15 applies the federal youth-hour limits as hard rules", () => {
   assert.equal(parseStaff("Name, Wage\nTy, 12, , , age: old").errors.length, 1);
 });
 
+test("age: 15 in a school week may work 8 h on Saturday and Sunday, 3 h Monday to Friday (29 CFR 570.35(a)(2))", () => {
+  const { staff, notes } = parseStaff("Name, Wage\nKit, 12, 40, , age: 15\nJo, 12, 40, , age: 15, daily: 5");
+  const [kit, jo] = staff;
+  assert.equal(kit.maxDaily, 3);
+  assert.equal(kit.weekendDaily, 8);
+  assert.equal(jo.weekendDaily, 5); // their own daily: cell is tighter than the federal 8 h
+  assert.match(notes[0], /Saturday and Sunday allow 8 h/);
+  const has = (r, day) => r.assignments.some((a) => a.person === "Kit" && a.slot.day === day);
+  // 6 h on Saturday and on Sunday: allowed (the audit's case, left open before the fix); 6 h on Monday: not
+  const r = buildRoster([kit], parseShifts("Sat, 9am, 3pm, 1\nSun, 10am, 4pm, 1\nMon, 9am, 3pm, 1").slots);
+  assert.ok(has(r, 5), "Saturday 6 h shift should be covered");
+  assert.ok(has(r, 6), "Sunday 6 h shift should be covered");
+  assert.ok(!has(r, 0), "Monday 6 h school-day shift must stay open");
+  // 9 h on Saturday is over the 8 h non-school-day cap
+  assert.ok(!has(buildRoster([kit], parseShifts("Sat, 9am, 6pm, 1").slots), 5));
+  // summer weeks: 8 h every day, no separate weekend figure
+  assert.equal(parseStaff("Name, Wage\nVic, 12, , , age: 15 summer").staff[0].weekendDaily, undefined);
+  // a non-summer school break: 8 h days and 40 h, but the evening limit stays 7pm (9pm only 1 June to Labor Day, 570.35(b))
+  const br = parseStaff("Name, Wage\nBo, 12, , , age: 15 break").staff[0];
+  assert.equal(br.maxDaily, 8);
+  assert.equal(br.maxHours, 40);
+  assert.deepEqual(br.days[2], [[420, 1140]]);
+});
+
 import { parseTimeOffRequest, addTimeOff } from "./calc.mjs";
 test("parseTimeOffRequest allows 60 calendar days inclusive, as its message says, and no more", () => {
   assert.deepEqual(parseTimeOffRequest("2026-01-01", "2026-03-01"), { entry: "2026-01-01..2026-03-01" }); // 60 days
