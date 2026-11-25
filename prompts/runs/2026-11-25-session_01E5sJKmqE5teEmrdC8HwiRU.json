@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKmqE5teEmrdC8HwiRU",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T19:18:44Z",
+  "ended": "2026-11-25T19:25:20Z",
+  "wall_minutes": 6.78,
+  "tokens_in": 3384007,
+  "tokens_out": 25332,
+  "cost_usd": 1.9517,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19070",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "For Other Minds 'Next up' was empty, so the claim-before-drafting step (commit a '(Drafting)' marker first) had nothing to claim; I wrote the proposal and marked it Done in one commit."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The 'Audio size' section still says audio is served from GitHub Pages with a 1 GB cap; CLAUDE.md says the site is on Cloudflare now, so the reason for the 400 MB cap may be stale (the git-history cost still holds)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "No new post for the story: CLAUDE.md (2026-11-24) asks for consolidated posts over one post per PR.",
+      "did": "Extended the existing Toss It Again post with a section on the opposite error (low power) and widened its description and seo_title.",
+      "result": "check_posts ok; one post now covers both error types."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/subjects.txt",
+      "why": "Its power-analysis hint suggests hall heating, and the shelf already has many heating stories.",
+      "did": "Set it in a parish rota reminder trial.",
+      "result": "No overlap hits for the subject terms."
+    }
+  ],
+  "writeups": [
+    "ventures/hearth-and-horizon/stories/if-it-had-worked.md",
+    "docs/posts/2026-11-15-toss-it-again-multiple-comparisons.md (extended)"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon, For Other Minds shelf. Piece: if-it-had-worked (statistical power). Text only: audio at 581 MB against the 400 MB cap. Security queue empty (exit 3); ideas inbox empty. Verification: node --test 22/22; run_venture_tests hearth-and-horizon 0 failed; check_posts ok; risk_review nothing blocked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "804974cd-6175-57c0-8ad5-1773d65c88eb",
+    "transcripts": 1,
+    "first": "2026-11-25T19:18:44Z",
+    "last": "2026-11-25T19:25:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 71,
+        "output": 25332,
+        "thinking": 8343,
+        "cache_read": 3285481,
+        "cache_write_5m": 0,
+        "cache_write_1h": 98455,
+        "api_equivalent_usd": 1.9517,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 71,
+      "output": 25332,
+      "thinking": 8343,
+      "cache_read": 3285481,
+      "cache_write_5m": 0,
+      "cache_write_1h": 98455,
+      "api_equivalent_usd": 1.9517,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 31,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.78,
+      "active_minutes": 6.78,
+      "model_minutes": 5.88,
+      "tool_minutes": 0.9,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
