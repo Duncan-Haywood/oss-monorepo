@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { checkInvoice } from "./checks.mjs";
-import { inspectPaymentTerms, parseTermsDays } from "./terms.mjs";
+import { inspectPaymentTerms, parseIsoDate, parseTermsDays } from "./terms.mjs";
 import { parseUblInvoice } from "./ubl.mjs";
 import { parseCiiInvoice } from "./cii.mjs";
 
@@ -98,6 +98,17 @@ test("parseTermsDays accepts int and text", () => {
   assert.equal(parseTermsDays(0), null);
   assert.equal(parseTermsDays(-1), null);
   assert.equal(parseTermsDays("Net 30"), null);
+  assert.equal(parseTermsDays("1"), 1);
+  assert.equal(parseTermsDays(1), 1);
+});
+
+test("terms parseIsoDate refuses a wrong length or dash position", () => {
+  assert.equal(parseIsoDate("2026-07-011"), null);
+  assert.equal(parseIsoDate("2026-07-0"), null);
+  assert.equal(parseIsoDate("2026x07-01"), null);
+  assert.equal(parseIsoDate("2026-07x01"), null);
+  assert.equal(parseIsoDate("2026-07- 1"), null);
+  assert.equal(parseIsoDate("2026-+7-01"), null);
 });
 
 test("omitted terms is not a finding", () => {

@@ -1,15 +1,18 @@
 // Offline invoice-period (BT-73 / BT-74) observations.
 // Date-shape check only — not a Peppol profile or contract match.
 
+// Strict YYYY-MM-DD (ASCII digits only), mirroring Python's date.fromisoformat
+// on 10-character input: Number() alone reads "+7", " 7" and "-001" as numbers.
+// Shared by checks.mjs and terms.mjs so the three date checks cannot drift.
 export function parseIsoDate(value) {
-  if (typeof value !== "string" || value.length !== 10 || value[4] !== "-" || value[7] !== "-") {
-    return null;
-  }
+  if (typeof value !== "string" || !/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(value)) return null;
   const year = Number(value.slice(0, 4));
   const month = Number(value.slice(5, 7));
   const day = Number(value.slice(8, 10));
-  if (![year, month, day].every((part) => Number.isInteger(part))) return null;
-  const date = new Date(Date.UTC(year, month - 1, day));
+  if (year < 1) return null;
+  // setUTCFullYear, not Date.UTC, which maps years 0-99 to 1900-1999.
+  const date = new Date(0);
+  date.setUTCFullYear(year, month - 1, day);
   if (
     date.getUTCFullYear() !== year ||
     date.getUTCMonth() !== month - 1 ||
