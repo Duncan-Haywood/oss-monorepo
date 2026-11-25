@@ -276,21 +276,28 @@
 </main>
 <script type="module">
   import { record, usageOptedOut, setUsageOptOut } from "./usage.mjs";
-  import { parseStep } from "./step.mjs";
   import { takeoff, boq, boqKey, boqCsv, rowsCsv, checkSummary, keyLabel, REASON_TEXT, AREA_REASON_TEXT, unitRepairNote } from "./qto.mjs";
   import { PRESETS, SECTIONS, ruleLabel } from "./measure.mjs";
   import { roomsCsv, roomTotals, ROOM_REASON_TEXT } from "./rooms.mjs";
   import { rebarSchedule, rebarCsv } from "./rebar.mjs";
-  import { diffTakeoffs, boqDelta, boqDeltaCsv, changesCsv, roomChangeText } from "./diff.mjs";
-  import { ModelView } from "./viewer.mjs";
-  import { modelOrigin, storeyList, meshRows } from "./view-mesh.mjs";
-  import { sectionPlane } from "./viewer.mjs";
 
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const fmt = (v, d = 3) => (v == null || v === 0 ? "" : Number(v).toLocaleString(undefined, { maximumFractionDigits: d, minimumFractionDigits: 0 }));
   let current = null, fileName = "model", earlier = null, earlierName = "earlier", diff = null;
   const rates = {};
+  // Modules only some visits need load on demand (memoised; a failed load
+  // clears the memo, so the next try fetches again): the 3D view (viewer.mjs,
+  // view-mesh.mjs) from the moment a file is chosen, so it downloads while the
+  // worker takes the model off; the revision comparison (diff.mjs) with the
+  // earlier revision; the STEP reader (step.mjs) only when the page has to
+  // take a model off itself, since view-worker.mjs reads it otherwise.
+  const onDemand = (load) => { let p = null; return () => (p ??= load().catch((e) => { p = null; throw e; })); };
+  const viewModules = onDemand(() => Promise.all([import("./viewer.mjs"), import("./view-mesh.mjs")]).then((ms) => Object.assign({}, ...ms)));
+  const diffModule = onDemand(() => import("./diff.mjs"));
+  const stepModule = onDemand(() => import("./step.mjs"));
+  let ModelView, sectionPlane, modelOrigin, storeyList, meshRows;
+  let diffTakeoffs, boqDelta, boqDeltaCsv, changesCsv, roomChangeText;
 
   $("optout").checked = usageOptedOut();
   $("optout").addEventListener("change", (e) => setUsageOptOut(e.target.checked));
@@ -310,7 +317,8 @@
   // the model itself, as it always did.
   let readGen = 0;
   const tick = (el, text, t0) => { const iv = setInterval(() => { el.textContent = `${text} ${Math.round((performance.now() - t0) / 1000)} s`; }, 1000); return () => clearInterval(iv); };
-  function takeoffOnPage(bytes) {
+  async function takeoffOnPage(bytes) {
+    const { parseStep } = await stepModule();
     const model = parseStep(bytes);
     if (!model.schema) throw new Error("no FILE_SCHEMA in the header: is this an IFC file?");
     return takeoff(model);
@@ -348,6 +356,7 @@
     fileName = name.replace(/\.ifc$/i, "");
     const label = `Reading ${name}...`;
     $("status").textContent = label;
+    viewModules().catch(() => {}); // buildView reports a failed load
     const t0 = performance.now();
     const stopTick = tick($("status"), label, t0);
     let res = await takeoffInWorker(bytes, true);
@@ -357,7 +366,7 @@
     if (!res) {
       by = "page";
       await new Promise((r) => setTimeout(r, 30));
-      try { res = { t: takeoffOnPage(bytes) }; } catch (err) { res = { error: err.message }; }
+      try { res = { t: await takeoffOnPage(bytes) }; } catch (err) { res = { error: err.message }; }
       if (gen !== readGen) return;
     }
     if (res.error) {
@@ -506,6 +515,12 @@
     selected = null; picked = null;
     byId.clear(); boxed.clear();
     for (const r of current.rows) byId.set(r.id, r);
+    try { ({ ModelView, sectionPlane, modelOrigin, storeyList, meshRows } = await viewModules()); } catch {
+      $("view-status").textContent = "No 3D view: the viewer could not be downloaded. Choose the file again to retry.";
+      stopMeshing();
+      return;
+    }
+    if (gen !== viewGen) return;
     if (!view) {
       try {
         view = new ModelView($("view"), { onPick(id) {
@@ -576,7 +591,7 @@
         await new Promise((r) => setTimeout(r, 30));
         if (gen !== viewGen) return;
         try {
-          const full = new Map(takeoffOnPage(meshBytes).rows.map((r) => [r.id, r]));
+          const full = new Map((await takeoffOnPage(meshBytes)).rows.map((r) => [r.id, r]));
           left = left.map((r) => full.get(r.id) || r);
         } catch { /* drawn as their boxes */ }
         if (gen !== viewGen) return;
@@ -802,13 +817,19 @@
     $("status").textContent = label;
     if (earlierWorker) earlierWorker.cancel?.();
     const stopTick = tick($("status"), label, performance.now());
+    const diffLoad = diffModule().then((m) => ({ diffTakeoffs, boqDelta, boqDeltaCsv, changesCsv, roomChangeText } = m), (err) => err);
     let res = await takeoffInWorker(bytes, false);
     stopTick();
     if (gen !== readGen || res?.cancelled) return;
     earlierWorker = null;
+    if ((await diffLoad) instanceof Error) {
+      $("status").textContent = `Could not compare with ${name}: the comparison could not be downloaded. Choose the file again to retry.`;
+      return;
+    }
+    if (gen !== readGen) return;
     if (!res) {
       await new Promise((r) => setTimeout(r, 30));
-      try { res = { t: takeoffOnPage(bytes) }; } catch (err) { res = { error: err.message }; }
+      try { res = { t: await takeoffOnPage(bytes) }; } catch (err) { res = { error: err.message }; }
       if (gen !== readGen) return;
     }
     if (res.error) {
