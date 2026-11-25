@@ -37,6 +37,22 @@
     {
       "what": "my shift-roster pg test left a database granting entitlement_writer, which broke the starter's own e2e on the same server",
       "fix": "the test now cleans up after itself"
+    },
+    {
+      "what": "migrate-hub.mjs set a query parameter with searchParams.set, which the share-location privacy lint rejects even for a server-to-server call",
+      "fix": "build the URL as a string"
+    },
+    {
+      "what": "copied saas-starter's provider locks (aws 6.73.0, HashiCorp-zip hashes) did not match what priv-aws-plan generates from the OpenTofu registry",
+      "fix": "committed the printed locks (aws 6.74.0) and checked them locally against the OpenTofu registry's own provider zips"
+    },
+    {
+      "what": "the Pages build copied ventures/*/aws/ (Lambda code, .sql migrations) onto the public site and failed on .sql",
+      "fix": "platform/pages/build.mjs skips aws/ directories"
+    },
+    {
+      "what": "pushing new heads repeatedly cancelled the in-flight Security gate runs, which then reported 'no verdict'",
+      "fix": "stopped pushing until the runs finished"
     }
   ],
   "integrity_issues": [],
@@ -68,11 +84,10 @@
     "docs/posts/2026-11-25-a-hosted-team-hub-from-a-self-hosted-one.md",
     "docs/posts/2026-11-25-private-docs-without-cloudflare-access.md",
     "docs/posts/2026-11-25-retail-pilot-docs-on-aws.md",
-    "docs/posts/2026-11-25-a-next-app-that-was-static-all-along.md",
     "docs/reports/2026-11-25-aws-move-products.md"
   ],
   "goal": "North star: shift-roster's hosted hub is the first paid-shaped product on the AWS starter (paid gate dark)",
-  "notes": "PRs (one per product, stacked in this order): 18787 shift-roster, 18792 listing-lens, 18794 retail-pilot-intel, 18795 ai-first-markets, 18796 local-site-studio exception + this record. Verified here (no AWS account; nothing applied): tofu 1.13.10 with hashicorp/aws 6.73.0 and archive 2.8.1 from a SHA256-checked filesystem mirror. tofu test: shift-roster 5, listing-lens 5, retail-pilot-intel 4, ai-first-markets 3, app-service 9, app-auth 2, dns 7, all pass; tofu fmt -check clean. saas-starter runtime node --test with Postgres 16: 15 pass (site.mjs gate, traversal, DB key). shift-roster: aws/app.test.mjs 7, aws/pg.test.mjs 1 (20 concurrent writes kept), console-browser.check.mjs in Chromium, run_venture_tests.py 794 tests 0 failed. site-browser.check.mjs in Chromium on the real listing-lens, retail-pilot-intel and ai-first-markets builds. ai-first-markets vitest 60 + tsc clean. Found and fixed: real-estate docs-site built every /docs/<slug>/ page as 'Page not found' (Next 16 params Promise). CI runners were queued most of the session.",
+  "notes": "PRs (one per product): 18787 shift-roster, 18792 listing-lens, 18794 retail-pilot-intel, 18795 ai-first-markets, 18796 local-site-studio exception + this record. The AI-First Markets write-up was folded into the private-docs post (consolidated posts, CLAUDE.md). Verified here (no AWS account; nothing applied): tofu 1.13.10 with hashicorp/aws 6.73.0 and archive 2.8.1 from a SHA256-checked filesystem mirror. tofu test: shift-roster 5, listing-lens 5, retail-pilot-intel 4, ai-first-markets 3, app-service 9, app-auth 2, dns 7, all pass; tofu fmt -check clean. saas-starter runtime node --test with Postgres 16: 15 pass (site.mjs gate, traversal, DB key). shift-roster: aws/app.test.mjs 7, aws/pg.test.mjs 1 (20 concurrent writes kept), console-browser.check.mjs in Chromium, run_venture_tests.py 794 tests 0 failed. site-browser.check.mjs in Chromium on the real listing-lens, retail-pilot-intel and ai-first-markets builds. ai-first-markets vitest 60 + tsc clean. Found and fixed: real-estate docs-site built every /docs/<slug>/ page as 'Page not found' (Next 16 params Promise). CI runners were queued most of the session.",
   "corrections": [],
   "redteam": null
 }
