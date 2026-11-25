@@ -477,7 +477,7 @@ Fix 2026-10-28: panel cut lists on a gable wall (HTML panel sheets, `panelParts`
 
 ## Plan sketch editor (2026-10-29)
 
-`sketch.mjs`, the page's "Draw the plan instead of typing it" card, `sketch.test.mjs` and `eval-sketch-click.mjs`.
+`sketch.mjs` (with `planFromSketch` in `sketchplan.mjs` since 2026-11-25, so the page loads the DXF reader only on "Use this sketch"), the page's "Draw the plan instead of typing it" card, `sketch.test.mjs` and `eval-sketch-click.mjs`.
 Draw wall centre lines on a snap grid (1 in, 6 in, 1 ft, 2 ft; walls kept square by default; ends snap to existing wall
 ends), type a length to fix the next wall while the mouse picks the direction, click a wall to drop a door or window of a
 typed width (slid to fit, refused when it overlaps or is wider than the wall), erase, undo, then "Use this sketch" fills

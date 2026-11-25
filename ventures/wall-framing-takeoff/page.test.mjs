@@ -57,13 +57,32 @@ test("every static control has a label, and generated rows label their inputs", 
 
 test("the module script imports only local files, its names exist, and it parses", async () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./bidletter.mjs", "./bidlevel.mjs", "./bidpackage.mjs", "./budget.mjs", "./compare.mjs", "./dxf.mjs", "./engine.mjs", "./headers.mjs", "./ifcwasm.mjs", "./licence.mjs", "./panels.mjs", "./schedule.mjs", "./sensitivity.mjs", "./sketch.mjs", "./stepwall.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./bidletter.mjs", "./bidlevel.mjs", "./bidpackage.mjs", "./budget.mjs", "./compare.mjs", "./engine.mjs", "./headers.mjs", "./ifcwasm.mjs", "./licence.mjs", "./panels.mjs", "./sensitivity.mjs", "./sketch.mjs", "./stepwall.mjs", "./usage.mjs"]);
   const names = html.match(/import \{([^}]+)\} from "\.\/engine\.mjs"/)[1].split(",").map((s) => s.trim());
   const engine = await import("./engine.mjs");
   for (const name of names) assert.ok(name in engine, name);
   const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
   assert.doesNotThrow(() => new Function(src.replace(/^\s*import .*$/gm, "")));
   assert.doesNotMatch(page("engine.mjs"), /^\s*import\s/m);
+});
+
+// The DXF reader (dxf.mjs, 46 kB), the sketch-to-plan step that uses it and the
+// schedule solver are not on the first screen's static graph: they load on the
+// file pick, "Use this sketch" and the schedule buttons. This keeps them off it
+// and checks each loaded module has the names the page reads from it.
+test("the DXF reader, sketch-to-plan and schedule modules load on use, not with the page", async () => {
+  const html = page("index.html");
+  const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
+  const statics = [...src.matchAll(/^\s*import [^;]*from "([^"]+)"/gm)].map((m) => m[1]);
+  for (const m of ["./dxf.mjs", "./schedule.mjs", "./sketchplan.mjs"]) assert.ok(!statics.includes(m), `${m} is a static import`);
+  assert.doesNotMatch(page("sketch.mjs"), /from "\.\/dxf\.mjs"/, "sketch.mjs must not pull the DXF reader onto the page's static graph");
+  const uses = { "./dxf.mjs": ["planFromDxf"], "./schedule.mjs": ["schedule", "scheduleText", "sampleSchedule", "resolveRates"], "./sketchplan.mjs": ["planFromSketch"] };
+  for (const [m, names] of Object.entries(uses)) {
+    assert.ok(src.includes(`await lib("${m}")`), `${m} is not loaded with lib()`);
+    const mod = await import(m);
+    for (const n of names) assert.equal(typeof mod[n], "function", `${m} ${n}`);
+  }
+  assert.equal((src.match(/await lib\("\.\/dxf\.mjs"\); if \(!dx\) return;/g) || []).length, 2);
 });
 
 test("plan-section modules load on the first run that needs them, and bind what they export", async () => {
@@ -227,7 +246,8 @@ test("the page offers a header table and the engine's auto header option", () =>
 
 test("the schedule card is wired to schedule.mjs and its events are declared", () => {
   const html = page("index.html");
-  assert.match(html, /from "\.\/schedule\.mjs"/);
+  assert.match(html, /\$\("#schedEx"\)\.addEventListener\("click", async \(\) => \{ const sm = await lib\("\.\/schedule\.mjs"\)/);
+  assert.match(html, /const sm = await lib\("\.\/schedule\.mjs"\); if \(!sm\) return;\n\s*const \{ schedule, scheduleText, resolveRates \} = sm;/);
   for (const id of ["schedIn", "schedEx", "schedRun", "schedOut", "schedHol", "schedWx"]) assert.match(html, new RegExp(`id="${id}"`));
   for (const ev of ["schedule_run", "schedule_example_loaded"]) assert.match(html, new RegExp(`<code>${ev}</code>`));
 });
@@ -651,7 +671,7 @@ test("every page links to every other page (internal linking for readers and cra
 
 test("the schedule card resolves per/rate durations from the takeoff before it runs", () => {
   const html = page("index.html");
-  assert.match(html, /import \{[^}]*resolveRates[^}]*\} from "\.\/schedule\.mjs"/);
+  assert.match(html, /const \{[^}]*resolveRates[^}]*\} = sm;/);
   assert.match(html, /resolveRates\(input, \{ \.\.\.last\.result/);
 });
 
