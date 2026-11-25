@@ -320,6 +320,44 @@ search impressions and from people who write in.
   [contractor WIP schedule](https://marisstella.app/contractor-wip-schedule/)
   for every open job at once, and the WIP tool now links back to it.
 
+### The sworn statement: who you owe, under oath
+
+- [Contractor's sworn statement](https://marisstella.app/pay-app-guides/sworn-statement.html)
+  (added 2026-11-25). In Illinois and Michigan, a pay request goes in with
+  a sworn list of every sub, supplier and (in Michigan) laborer owed wages,
+  with what each was contracted for, has been paid and is owed now. Title
+  companies and construction lenders ask for the same table elsewhere. The
+  page sets the two statutes side by side. Illinois
+  ([770 ILCS 60/5](https://www.ilga.gov/legislation/ilcs/fulltext.asp?DocName=077000600K5))
+  wants the statement before the owner pays, with names, addresses and,
+  since Public Act 103-0827 took effect on 1 January 2025, the amounts due
+  or to become due to each. Michigan
+  ([MCL 570.1110](https://www.legislature.mi.gov/Laws/MCL?objectName=mcl-570-1110))
+  wants it when payment is due or requested, on a statutory form with
+  columns for contract price, paid, owing and balance to complete, and a
+  contractor who has not given one is not entitled to payment until it
+  does. Both were read on 2026-11-25 through search results limited to the
+  legislatures' own sites; this session could not load them directly, so the
+  page says to check the linked text.
+
+  The builder takes the list as pasted from a spreadsheet and checks three
+  things a reviewer checks: each party's completed work less retainage
+  equals paid plus owing; all rows together equal your own contract sum
+  (so a missing own-forces row shows up as money nobody is listed for); and
+  the owing column equals what this pay application asks for. It then lists
+  the waivers to collect with it: unconditional through what each party has
+  been paid, conditional for what it is owed now. Its example, an
+  electrical sub's $480,000 contract with $85,000 paid and $32,900 owing,
+  ties out; asking for $30,000 instead is flagged, because in Michigan the
+  owner can withhold enough to pay the amounts shown. `sworn.test.mjs` reads
+  Michigan's and the usual Illinois column titles, including a "balance to
+  complete" column that must not be read as work completed.
+  ([source](../../ventures/pay-app-guides/sworn.mjs))
+
+  It builds the table, not the oath or the statutory wording. In the hosted
+  suite the subs, payments and waivers are already kept per job, which is
+  where this statement would come from without retyping.
+
 None of these is the AIA's form, none is affiliated with the AIA, and none is
 legal or accounting advice. Retainage, waiver and payment terms come from
 your contract and your state's law.
