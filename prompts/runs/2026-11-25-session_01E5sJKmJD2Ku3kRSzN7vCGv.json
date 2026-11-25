@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKmJD2Ku3kRSzN7vCGv",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T18:09:46Z",
+  "ended": "2026-11-25T18:22:15Z",
+  "wall_minutes": 12.67,
+  "tokens_in": 10097820,
+  "tokens_out": 39981,
+  "cost_usd": 3.9305,
+  "tool_calls": 89,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19053",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/monetization/bets.md / payapps ROADMAP",
+      "issue": "PayApps' next lien-waiver states (GA, MS, CA) are blocked: legis.ga.gov, legislature.ms.gov, billstatus.ls.state.ms.us, leginfo, justia and ga.elaws.us all 403 at the proxy, so the top bet's free items are effectively all claimed or blocked; moved to bet #2."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill hook refuses even a bracketed pattern when the plain name appears elsewhere in the command (e.g. 'vite dev --config vite.demo'); stopping the demo took several attempts. The demo processes were left to the container's teardown."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Private-repo Actions still fail every job in about 3 s with no logs (as on private PRs 132 and 139); verification was local only."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took bet #2 (jobshop-quote ROADMAP item 9), not the top bet: bet #1's free items were claimed or needed unreachable official statute hosts.",
+      "did": "Built routing templates in private-monorepo/apps/jobshop-quote (private PR 142).",
+      "result": "Merged, with local tests green."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Private CI does not run (jobs fail in 3 s), so merged on local verification.",
+      "did": "Ran typecheck, biome, unit and worker suites after merging main, checked drizzle-kit for drift, and drove the demo with Playwright.",
+      "result": "156 unit and 94 worker tests pass."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-one-page-for-machine-shops.md (update section)",
+    "docs/reports/ventures-2026-11-25-jobshop-quote-routings.md"
+  ],
+  "goal": null,
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/142 merged (squash 8d84f13). A conflict with the parallel #141 in ARCHITECTURE.md was resolved by keeping both. Local checks: tsc clean, biome clean, unit 156/156, worker 94/94, drizzle-kit reports no schema changes, and a Playwright run against the demo had no page errors.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c06e9031-13b2-5f71-83e9-061c322d8f09",
+    "transcripts": 1,
+    "first": "2026-11-25T18:09:46Z",
+    "last": "2026-11-25T18:22:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 83,
+        "input": 160,
+        "output": 39981,
+        "thinking": 4825,
+        "cache_read": 9955267,
+        "cache_write_5m": 0,
+        "cache_write_1h": 142393,
+        "api_equivalent_usd": 3.9305,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 83,
+      "input": 160,
+      "output": 39981,
+      "thinking": 4825,
+      "cache_read": 9955267,
+      "cache_write_5m": 0,
+      "cache_write_1h": 142393,
+      "api_equivalent_usd": 3.9305,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 89,
+    "tools": {
+      "Bash": 77,
+      "Write": 3,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Read": 1,
+      "ToolSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.67,
+      "active_minutes": 12.66,
+      "model_minutes": 7.87,
+      "tool_minutes": 4.79,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "schema+migration, service, routes, editor UI, 13 tests, docs for a small CRUD+apply feature",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 254.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
