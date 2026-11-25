@@ -57,3 +57,19 @@ re-read** and are the first thing a session with access should verify:
 No machining rate, material price, cycle time or markup appears anywhere in
 this venture. The quote calculator starts empty and uses only what the user
 types; the pricing guide describes a method.
+
+## NIST 800-171 SSP template (added 25 November 2026)
+
+| Fact | Source |
+|---|---|
+| What an SSP must describe: system boundaries, environments of operation, how requirements are implemented, relationships with or connections to other systems | NIST SP 800-171 Rev. 2, requirement 3.12.4 (wording as already used on `ssp-and-poam.html`, row above). The section layout of the generated plan is ours; NIST prescribes no format. |
+| No completed assessment without an SSP | DoD Assessment Methodology v1.2.1, row above |
+| N/A at requirement level scored as met, only when every objective is N/A | 32 CFR 170.24(b), row above (objective level); the requirement-level reading is ours and the page says to give the reason |
+| Date 110 will be achieved | DoD Assessment Methodology v1.2.1 Basic assessment fields, row above; the page derives it from the user's own milestone dates and leaves it unset if any gap has none |
+
+The building session could not reach `nvlpubs.nist.gov`, `csrc.nist.gov` or
+`ecfr.gov` (proxy 403), so the requirement titles in the plan are the same
+paraphrased labels as the SPRS calculator, and the plan says so. NIST
+publishes an OSCAL catalog for Rev. 3 only
+(`usnistgov/oscal-content`, `nist.gov/SP800-171/rev3`), and CMMC Level 2 is
+assessed against Rev. 2, so Rev. 3 text was not substituted.
