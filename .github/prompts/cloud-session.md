@@ -44,6 +44,17 @@ payapps there. On 2026-11-25 this worked first time:
 3. Read its `CLAUDE.md` and the app's `ROADMAP.md`; `pnpm install --frozen-lockfile --filter <app>...`
    (backgrounded) gets the app's tests, `pnpm dev` and Playwright running.
 
+**If step 2 is refused by the permission layer** (a tool denial, not a git
+error), that is final for this session: do not retry, reword, or reach the
+code another way (MCP file tools, a different URL). Of the 42 run records
+from 2026-11-25 that mention private-monorepo, 28 hit this refusal; the ones
+that re-planned fast still shipped. Go straight to the bet's public side here
+(prompt.md, step 1), and before picking a topic search open PRs with the
+guide's slug `in:title`: on 2026-11-25 four parallel runs landed in
+pay-app-guides within the hour and conflicted on its shared lists. Say
+"clone refused" once in the run record's `errors`; the owner-side fix is the
+`private-monorepo-clone` row in `portfolio/ledger/asks.yaml`.
+
 The PR there is opened and merged with the same MCP tools (`repo: private-monorepo`).
 Its `*-ci.yml` jobs fail in about 10 s with no steps and no logs (no runner, as on
 every payapps PR since at least PR 42 there): run the workflow's steps locally,

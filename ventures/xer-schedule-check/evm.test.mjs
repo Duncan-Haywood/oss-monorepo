@@ -77,6 +77,8 @@ test("one activity, ten working days, a quarter done after five: PV half, SPI 0.
   // the curve: planned ends at the budget; the forecast ends at AC + ETC
   assert.equal(r.curve.at(-1).pv, 1000);
   assert.equal(r.curve.at(-1).forecast, 1050);
+  // the curve starts from nothing, spent included, the day before the first planned day
+  assert.deepEqual(r.curve[0], { date: "2025-11-30", pv: 0, ac: 0, forecast: null });
   const dd = r.curve.find((p) => p.dataDate);
   assert.equal(dd.date, "2025-12-07");
   assert.equal(dd.pv, 500);
@@ -262,4 +264,48 @@ test("actuals on an actual start after the data date stay on the curve, drawn at
   assert.equal(r.totals.eac, 100);
   assert.equal(r.curve.at(-1).forecast, 100);
   assert.ok(r.notes.some((n) => /actual start after the data date/.test(n)));
+});
+
+test("a labour assignment with no hours loaded is not something to earn against", () => {
+  const r = earnedValue(base([task("1", "A", 8)], [asg("1", "1", { target_qty: 0, act_reg_qty: 0, remain_qty: 0 })]), { projId: "1" });
+  assert.equal(r.measure, null);
+  assert.equal(r.totals, null);
+  assert.match(r.notes[0], /no budgeted, actual or remaining cost and no labour hours/);
+});
+
+test("a file with no header currency takes its one currency's symbol, whatever its exchange rate is written as", () => {
+  const x = base(
+    [task("1", "A", 8)],
+    [asg("1", "1", { target_cost: 100, act_reg_cost: 0, remain_cost: 100 })],
+    { CURRTYPE: [{ curr_id: "1", curr_short_name: "GBP", base_exch_rate: "1.0" }] },
+  );
+  x.currency = null;
+  assert.equal(earnedValue(x, { projId: "1" }).currency, "GBP");
+});
+
+test("a running activity in hours with its last unearned hour given no remaining is named", () => {
+  // 8 h budget, 90% done (7.2 earned), nothing remaining: 0.8 h of work the forecast drops
+  const x = base(
+    [task("1", "A", 16, { status_code: "TK_Active", complete_pct_type: "CP_Phys", phys_complete_pct: "90", act_start_date: "2025-12-01 08:00", remain_drtn_hr_cnt: 2 })],
+    [asg("1", "1", { target_qty: 8, act_reg_qty: 7, remain_qty: 0 })],
+  );
+  const r = earnedValue(x, { projId: "1" });
+  assert.equal(r.measure, "hours");
+  assert.deepEqual(r.findings.find((f) => f.id === "eac-under-actual").items.map((a) => a.code), ["A"]);
+});
+
+test("the DCMA resources check and earned value's unloaded list name the same activities, expenses included", async () => {
+  // two reports on one file must not disagree about which work carries cost:
+  // DCMA 10 once read only TASKRSRC and named an expense-loaded activity as unloaded
+  const { assess } = await import("./dcma.mjs");
+  const x = parseXer(EXAMPLE_XER);
+  const both = () => [assess(x).checks.find((c) => c.id === 10).items.map((i) => i.code).sort(), earnedValue(x).findings.find((f) => f.id === "unloaded").items.map((i) => i.code).sort()];
+  let [dcma, ev] = both();
+  assert.deepEqual(dcma, ev);
+  assert.ok(dcma.length > 0);
+  const t = x.tables.TASK.find((r) => r.task_code === dcma[0]);
+  x.tables.PROJCOST = [{ cost_item_id: "1", task_id: t.task_id, proj_id: t.proj_id, cost_name: "Supply", target_cost: "5000", act_cost: "0", remain_cost: "5000" }];
+  [dcma, ev] = both();
+  assert.deepEqual(dcma, ev);
+  assert.ok(!dcma.includes(t.task_code));
 });

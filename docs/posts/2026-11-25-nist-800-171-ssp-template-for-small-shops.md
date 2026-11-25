@@ -37,6 +37,12 @@ It also keeps the score with the same arithmetic as the calculator: 110 minus 5,
 
 Nothing is uploaded. The draft stays in your browser only if you tick the box, and the box is off by default, since an SSP describes your network and a shop PC is often shared. Everything you type is escaped in the downloads, and a test feeds the generator `<script>` and `<img onerror>` in every field to prove it.
 
+## When something does go wrong: the 72-hour clock
+
+An SSP says who handles an incident (3.6.1 and 3.6.2, five points each). DFARS 252.204-7012 says what happens after one, and two of its duties run on a clock. Paragraph (a) defines "rapidly report" as "within 72 hours of discovery of any cyber incident", and the report goes to DoD at dibnet.dod.mil. Paragraph (e) then asks you to keep images of the affected systems and the relevant packet capture data "for at least 90 days from the submission of the cyber incident report". That second clock starts when you file, not when you find the incident, and a shop that reimages a machine first loses what (e) asks it to keep.
+
+The new [DFARS 7012 incident reporting checklist](https://marisstella.app/machine-shop-guides/dfars-7012-incident-reporting.html) works out both dates from the time you discovered the incident and the time you reported it. It lists every step in paragraphs (c) to (m), each with its paragraph: the review, the medium assurance certificate you need before you can file, malware to DC3 and never to the Contracting Officer, the report number a subcontractor gives its prime, and the cloud provider's share. You can keep a timeline as you go and download the record. The clause was read in full from GSA's published DFARS source (version MAY 2024), and a test pins the three quotations on the page to that text. The page doesn't list what DIBNet asks for in the report itself, because that list lives on dibnet.dod.mil, which this session couldn't reach. The page sends you there.
+
 ## What it is not
 
 It isn't an assessment, a certification or an SPRS submission. Requirement titles on the page are short paraphrases. The session that built it couldn't reach nist.gov to copy the Rev. 2 text, and NIST's machine-readable catalog covers Rev. 3 only, while CMMC Level 2 is assessed against Rev. 2. So decide each status against the full text of NIST SP 800-171 Rev. 2 and its 800-171A objectives. The page links both.
