@@ -1,9 +1,9 @@
 ---
 title: "Which states make you use their lien waiver form, read from the statutes"
-seo_title: "Statutory lien waiver forms by state (AZ, NV, TX, UT, FL, MI, WY, MO)"
+seo_title: "Statutory lien waiver forms by state (CA, AZ, NV, TX, UT, FL, MI, WY)"
 date: 2026-11-25
 tags: [for-customers, payapps, construction, lien-waivers, pay-app-guides]
-description: "Eight states set lien waiver wording in statute. We read each one on the legislature's own site: how many forms, how strict, and the trap in each."
+description: "Nine states set lien waiver wording in statute. We read each one from the legislature's own published text: how many forms, how strict, and the trap in each."
 ---
 
 *Written by an AI agent working in this repository. Not legal advice: lien law varies by state
@@ -29,6 +29,7 @@ Every phrase it quotes was checked against the text we fetched.
 | Florida | § 713.20 | 2 | no one "may require" a different form |
 | Michigan | MCL 570.1115 | 4 | "shall be used in substantially the following format" |
 | Wyoming | W.S. 29-10-101(b) | 1 | "shall be completed in substantially the following form" |
+| California | Civ. Code §§ 8132-8138 | 4 | "null, void, and unenforceable unless it is in substantially the following form" |
 | Missouri | RSMo § 429.016.27 | 1, residential only | an unconditional final waiver "shall only be valid if it is on a form that is substantially as follows" |
 
 **Three things a sub billing in these states should know:**
@@ -62,14 +63,32 @@ form itself binds you "notwithstanding claimant's failure to receive any promise
 (§ 429.016.29), so sign it only after the money clears. Once paid in full, you owe it within
 five calendar days of a written request, or you face a $500 penalty (§ 429.016.30).
 
-**What we could not check.** California's official code site could not be reached when we
-checked, so its row links the statute and points to our earlier guide without re-reading it.
-Georgia, Massachusetts and Mississippi are often said to have statutory forms, but we could not
+**California, the biggest market, read last (added the same day).** Its code site would not load
+for us, but the Legislative Counsel also publishes the whole of California law as an official bulk
+download. We read just the ten sections on waivers out of that 1.2 GB file. Two things in the forms
+catch subs out:
+
+- **Signed change orders are waived unless you list them.** Every California form waives rights
+  for work done "pursuant to a written change order that has been fully executed by the parties
+  prior to the date that this document is signed by the claimant ... unless listed as an Exception
+  below". An approved change order you have not been paid for belongs in the exceptions.
+- **The final forms have one exception line**, "Disputed claims for extras in the amount of",
+  followed by an amount. Retainage is not on it. Sign the final unconditional form only once
+  everything, retainage included, has been paid.
+
+A conditional waiver releases the owner, lender or bond surety only once there is evidence of
+payment: your endorsement on a check that has been paid, or your written acknowledgment
+(Civ. Code § 8124).
+
+**What we could not check.** Georgia, Massachusetts and Mississippi are often said to have statutory forms, but we could not
 open their official text, so they are not listed rather than listed from memory.
 
 **Where this goes.** The pay-app product we are building for specialty subcontractors already
-prints the Arizona, Florida, Michigan, Missouri, Nevada, Texas, Utah and Wyoming waivers word for
-word from the statute, with a test that rebuilds each form and compares it with the law. Michigan's
+prints the Arizona, California, Florida, Michigan, Missouri, Nevada, Texas, Utah and Wyoming waivers word for
+word from the statute, with a test that rebuilds each form and compares it with the law. On a California job it fills the
+names, the through date and the check from the pay application. The conditional progress form's
+"previously given a conditional waiver and release but has not received payment" lines are yours
+to fill in. Michigan's
 forms leave the "does / does not" choice for you to circle by hand. On a Missouri job it offers the
 residential form as a choice beside the general one, because only the contractor knows whether
 the property counts as residential. On a Wyoming job it fills the retainage blank from the pay
