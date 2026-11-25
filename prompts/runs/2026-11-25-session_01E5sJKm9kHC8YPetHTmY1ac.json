@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKm9kHC8YPetHTmY1ac",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T01:18:32Z",
+  "ended": "2026-11-25T01:35:30Z",
+  "wall_minutes": 17.16,
+  "tokens_in": 9757306,
+  "tokens_out": 38967,
+  "cost_usd": 3.7415,
+  "tool_calls": 89,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18797",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First compare harness wrote failure logs to a subdirectory I then looked for in the wrong place; a long-running xargs batch blocked on slow npm suites and was stopped (those ventures were left unchanged)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Says P063/P064-style items wait for the owner when they touch .github/; since 2026-11-24 only priv-* is owner-only, and the backlog rows still say owner: owner. P063 now has four stalled open PRs (#13748, #13868, #14240, #14251)."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "pkill hook rule: a bracketed pattern still fails when the same word appears elsewhere in the command line (e.g. in a script path); needs splitting into separate calls."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "Skipped the two open perf backlog items (both have stalled duplicate PRs) and took the pool reading's largest unclaimed consumer: checkout in per-venture workflows.",
+      "did": "Sparse checkout on 44 workflows, verified by a new full-vs-sparse comparison script.",
+      "result": "Landed; after number pending on CI readings."
+    },
+    {
+      "file": "prompt.md",
+      "why": "Perf runs rarely move a paid bet; the north-star preference was not applicable to a pool-wide CI cost.",
+      "did": "CI runner-pool work, which shortens every PR's queue including bet PRs.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-25-venture-workflow-sparse.md",
+    "docs/posts/2026-10-20-we-almost-rewrote-it-in-rust.md (new section)"
+  ],
+  "goal": null,
+  "notes": "Metric: median checkout seconds per job of the 44 changed per-venture workflows (ci_profile.py). Before: 43 s median (range 30-59 s), 33.8 of 40.3 job-minutes across 33 of them that ran in a 1000-run window (2026-11-25 00:49-01:23 UTC); pool total 806.2 job-min, checkout 374.1. After: not measurable locally (worktree shares the object store); read from ci_profile.py on later runs. Verification: sparse_checkout_verify-style comparison of exit codes and test counts for each workflow, 44 matched, 6 rejected, 16 unchecked; local run_workflow_locally on priv-ci-policy, workflow-self-audit, priv-control-plane-guard, agent-permission-harness-ci, secrets-inventory-ci, priv-conflict-markers-ci all exit 0; validate_workflows.py 137 valid.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "933cfe64-990a-5d43-ab3f-8f0bf922125a",
+    "transcripts": 1,
+    "first": "2026-11-25T01:18:32Z",
+    "last": "2026-11-25T01:35:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 88,
+        "input": 171,
+        "output": 38967,
+        "thinking": 10356,
+        "cache_read": 9627637,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129498,
+        "api_equivalent_usd": 3.7415,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 88,
+      "input": 171,
+      "output": 38967,
+      "thinking": 10356,
+      "cache_read": 9627637,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129498,
+      "api_equivalent_usd": 3.7415,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 89,
+    "tools": {
+      "Bash": 84,
+      "ToolSearch": 2,
+      "Write": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.16,
+      "active_minutes": 17.16,
+      "model_minutes": 8.67,
+      "tool_minutes": 8.5,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
