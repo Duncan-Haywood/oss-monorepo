@@ -46,7 +46,7 @@ export function toB64url(u) {
  */
 export function onSale(cfg) {
   if (!cfg || typeof cfg !== "object") return false;
-  const https = (u) => { try { const x = new URL(String(u)); return x.protocol === "https:" && !x.username && !x.password && x.search === ""; } catch { return false; } };
+  const https = (u) => { try { const x = new URL(String(u)); return x.protocol === "https:" && !x.username && !x.password && !x.search; } catch { return false; } };
   return /^[a-z0-9][a-z0-9-]{1,63}$/.test(String(cfg.product || ""))
     && /^pri_[a-z0-9]{10,40}$/.test(String(cfg.priceId || ""))
     && /^(live|test)_[A-Za-z0-9]{10,60}$/.test(String(cfg.clientToken || ""))
