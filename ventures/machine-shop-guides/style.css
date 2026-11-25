@@ -30,3 +30,8 @@ details.family .rows { padding: 0 12px 10px; }
 .cta { border-left: 4px solid var(--accent); }
 .sticky { position: sticky; top: 0; z-index: 2; }
 footer { margin-top: 32px; border-top: 1px solid var(--line); padding-top: 14px; }
+.obj { display: grid; grid-template-columns: 6.5em 1fr 9em; gap: 8px; align-items: center; padding: 6px 0; border-top: 1px solid var(--line); font-size: .92rem; }
+.obj .objtext { margin: 0; font-weight: 400; }
+@media (max-width: 620px) { .obj { grid-template-columns: 5.5em 1fr; } .obj select { grid-column: 1 / -1; } }
+@media (max-width: 620px) { .sticky { position: static; } } /* after .sticky, so it wins on phones */
+@media print { .sticky { position: static; } button, #early-access { display: none; } }

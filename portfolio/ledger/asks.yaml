@@ -285,3 +285,36 @@ decisions:
     Cloudflare is the registrar. The cloudflare-mail-and-ruleset row's
     Email Routing part becomes moot once SES receives mail; its ruleset
     part does not.
+
+- id: web-analytics-token
+  asks: []
+  prs: [18774]
+  gates: measurement
+  exposure: credential
+  opened: "2026-11-25"
+  action: >-
+    The site now ships Cloudflare Web Analytics (cookieless, free, on the
+    Cloudflare account the site already uses; platform/analytics/README.md)
+    and standard Privacy, Terms and Cookie pages. The deploy finds or creates
+    the Web Analytics site through the API, but the deploy token probably
+    cannot: on 2026-11-19 it could not even read zone analytics
+    (portfolio/usage/cloudflare-analytics.json). Do one of: (a) give
+    the deploy token (CLOUDFLARE_API_TOKEN) the account-level Account
+    Analytics / Web Analytics edit permission, and the next deploy
+    provisions itself; or (b) Cloudflare -> Analytics & Logs -> Web Analytics
+    -> Add a site -> marisstella.app, copy the site token (public by design)
+    into platform/analytics/site.json "token" (any session can commit it).
+    Until then the pages ship without the beacon and the legal pages say
+    analytics are off. Also confirm hello@marisstella.app receives mail: the
+    Privacy Policy names it as the contact for privacy requests, and the
+    2026-11-10 audit found the domain had no MX record.
+  unlocks:
+    - >-
+      Real visitor analytics (pages, referrers, countries, devices, Core Web
+      Vitals) for every page, the measurement the $10k MRR funnel work needs.
+  blocked_by: []
+  note: >-
+    Owner, 2026-11-25: "the privacy policies that are like no data gathered
+    kill those let's set up real analytics and standard privacy policies and
+    other legal docs." No money, no new account; the token permission is
+    reversible in the same page.

@@ -162,6 +162,8 @@ const RULES = [
 const classify = (h) => { for (const [k, f] of RULES) if (f(h)) return k; return null; };
 
 const LETTER_ROW = (row) => { const v = row.map(clean).filter(Boolean); return v.length >= 3 && v.every((x) => /^[A-Z]$/i.test(x)); };
+// A row holding a sentence (instructions, a note) is never part of a header.
+const NOTE_ROW = (row) => (row || []).some((x) => clean(x).length > 80);
 const blank = (row) => !row || row.every((x) => clean(x) === "");
 
 // The header block starting at row r, `depth` rows deep: each column's text joined top to bottom.
@@ -184,11 +186,14 @@ function findHeader(grid) {
   for (let r = 0; r < limit; r++) {
     if (blank(grid[r]) || LETTER_ROW(grid[r])) continue;
     for (let depth = 1; depth <= 3; depth++) {
-      if (depth > 1 && LETTER_ROW(grid[r + depth - 1] || [])) break;
+      if (depth > 1 && (LETTER_ROW(grid[r + depth - 1] || []) || blank(grid[r + depth - 1]))) break;
+      if (NOTE_ROW(grid[r + depth - 1])) break;
       const h = headerAt(grid, r, depth);
       const m = h.map;
       if (m.scheduled == null || (m.desc == null && m.item == null) || (m.previous == null && m.thisPeriod == null)) continue;
-      if (!best || h.hits > best.hits) best = { row: r, depth, map: m, hits: h.hits };
+      // On a tie the shallower block wins, so a title-block label above the header ("Retainage on stored materials, %")
+      // is never glued onto the Item column and read as a per-line retainage rate.
+      if (!best || h.hits > best.hits || (h.hits === best.hits && depth < best.depth)) best = { row: r, depth, map: m, hits: h.hits };
     }
   }
   return best;

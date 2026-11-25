@@ -9,6 +9,7 @@ shops: an RFQ-to-quote assistant and a CMMC Level 1/2 + ISO 9001 workspace
 
 | Page | What it is |
 |---|---|
+| `cmmc-level-1-self-assessment.html` | The 15 CMMC Level 1 requirements (FAR 52.204-21(b)(1), verbatim, hash-pinned in `l1.test.mjs`), each judged by its NIST SP 800-171A objectives (59 in all, FCI read for CUI, per 32 CFR 170.15(c)(1)) marked met / not met / N/A, with evidence notes; a requirement is met only when all its objectives are, and all 15 must be met (no score, no POA&M, 32 CFR 170.24); a worksheet CSV (one row per objective) with scope, CAGE codes and the next annual date. Logic: `l1-data.mjs`, `l1.mjs`. |
 | `sprs-score-calculator.html` | 110 NIST SP 800-171 requirements, met / not met / partial, scored by the DoD Assessment Methodology (110 minus 5/3/1). Partial credit for 3.5.3 and 3.13.11; no score without an SSP (3.12.4); the 88-point Conditional check from 32 CFR 170.21; gaps as a POA&M starter CSV. |
 | `job-shop-quote-calculator.html` | Material, setup, programming, cycle time, other ops and markup from the user's own rates, recomputed at each quantity break. No built-in rates. |
 | `cmmc-level-1-vs-level-2.html` | FCI vs CUI, the clauses to look for, Level 1 and Level 2 requirements, Phase 2 status (checked 24 Nov 2026). |

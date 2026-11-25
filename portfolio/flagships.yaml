@@ -85,15 +85,20 @@ flagships:
       app landed (private-monorepo PR #38: Crew+, AZ statutory forms verified word
       for word against azleg.gov, other statutory states tracked only); NV 108.2457
       added (private-monorepo PR #39: verbatim, whole-form test against the statute
-      for AZ and NV); next for waivers: encode TX 53.284 and UT 38-1a-802 (official
-      sites answer; TX is a JS app, UT text loads from a versioned sub-page), then
-      CA when leginfo stops 403ing; (4) QuickBooks Online invoice export with
+      for AZ and NV); TX 53.284 and UT 38-1a-802 added (PR #41); next for waivers:
+      CA when leginfo stops 403ing; SOV import from the contractor's own .xlsx/CSV
+      landed (private-monorepo PR #43); mid-job start landed (private-monorepo PR #45:
+      the last application made elsewhere carries its number, column D, line 6 and a
+      checked line 5a); next for onboarding: fill that opening from the imported
+      continuation sheet; (4) QuickBooks Online invoice export with
       retainage as its own line, finishing PR #16 (packages/qbo-sync, sandbox only;
       the owner opens the Intuit developer account); (5) the front door is
       ventures/pay-application-generator (reads a contractor's own .xlsx
-      continuation sheet and checks its totals, 2026-11-25) and pay-app-guides;
-      left: link them to the app and its pricing once checkout is live (the
-      marketing site is PR #18); (6) a payapps deploy workflow that runs the
+      continuation sheet and checks its totals; writes the workbook, with its own
+      template page pay-application-template.html and recalc.test.mjs, 2026-11-25)
+      and pay-app-guides (schedule-of-values template); left: link them to the app
+      and its pricing once checkout is live (the marketing site is PR #18); (6) a
+      payapps deploy workflow that runs the
       Paddle catalog sync. A run that lands a slice replaces its item here.
   # Bet 2 in portfolio/monetization/bets.md (2026-11-24 ranking).
   - venture: jobshop-quote
@@ -159,11 +164,14 @@ flagships:
       and their assessment objectives from NIST's public text, with a per-control
       status, evidence notes and the DoD assessment methodology's SPRS score
       (weights from the published method; unit tests on the scoring); (2) a System
-      Security Plan and POA&M generated from those answers as documents; (3) the 15
-      Level 1 requirements as a free self-assessment page in this repository (the
-      front door); (4) ISO 9001 / AS9100 clause checklist sharing the evidence
-      store. Never claim certification or C3PAO status, and tell users not to upload
-      CUI. A run that lands a slice replaces its item here.
+      Security Plan and POA&M generated from those answers as documents; (3) landed
+      2026-11-25: the free Level 1 self-assessment page,
+      ventures/machine-shop-guides/cmmc-level-1-self-assessment.html (FAR text
+      verified verbatim; judged by its 59 NIST SP 800-171A objectives with met/not
+      met/N/A, mapping read from eCFR; the app should import l1-data.mjs rather than
+      retype it); (4) ISO 9001 / AS9100 clause checklist sharing the evidence store.
+      Never claim certification or C3PAO status, and tell users not to upload CUI. A
+      run that lands a slice replaces its item here.
   # Bet 5 in portfolio/monetization/bets.md (2026-11-24 ranking).
   - venture: seller-books
     bet: 5

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { compute, toCsv, csvCell, summaryText, SAMPLE, fmt, toCents } from "./calc.mjs";
+import { compute, toCsv, csvCell, summaryText, SAMPLE, fmt, toCents, quickbooksLines, isChangeOrder } from "./calc.mjs";
 
 // Hand calculation of SAMPLE (10% retainage on work and on stored materials):
 //   line   C        D       E       F       G=D+E+F  H=C-G   retainage
@@ -81,4 +81,73 @@ test("CSV cells that look like formulas are neutralised, numbers are not", () =>
   assert.equal(csvCell("@sum"), "'@sum");
   assert.equal(csvCell("-1200.00"), "-1200.00");
   assert.equal(csvCell("a,b"), '"a,b"');
+});
+
+
+test("QuickBooks lines: retainage is a negative line, release a positive one", () => {
+  // Pay app 1 of the guide: $40,000 billed, 10% held -> invoice $36,000.
+  const a = quickbooksLines({ billed: "40,000", rate: "10" });
+  assert.deepEqual(a.lines.map((l) => l.amount), [4_000_000, -400_000]);
+  assert.equal(a.total, 3_600_000);
+  assert.equal(a.retainageChange, 400_000);
+  // Release invoice: nothing new billed, $15,000 released.
+  const c = quickbooksLines({ billed: "0", released: "15000" });
+  assert.deepEqual(c.lines.map((l) => l.amount), [1_500_000]);
+  assert.equal(c.total, 1_500_000);
+  assert.equal(c.retainageChange, -1_500_000);
+  // Held typed directly wins over the rate (e.g. stored materials at another rate).
+  assert.equal(quickbooksLines({ billed: "1000", rate: "10", held: "50" }).total, 95_000);
+  // Rounds to the cent.
+  assert.equal(quickbooksLines({ billed: "333.33", rate: "5" }).lines[1].amount, -1_667);
+  assert.ok(quickbooksLines({ billed: "x", rate: "150" }).errors.length === 2);
+});
+
+// Red team 2026-11-25: gaps the mutation campaign found, and two real defects.
+
+test("0% retainage on stored materials is valid (many contracts hold none on stored)", () => {
+  const { totals: t, findings } = compute(SAMPLE.lines, { ...SAMPLE.settings, storedRetainage: "0" });
+  assert.deepEqual(findings, []);
+  assert.equal(t.retainageOnStored, 0);
+});
+
+test("work billed on a line with no scheduled value is flagged", () => {
+  const { findings } = compute([{ item: "7", description: "Extra trenching", scheduled: "0", previous: "0", thisPeriod: "500" }]);
+  assert.ok(findings.some((f) => f.level === "high" && /Item 7: billed \$500\.00 against a scheduled value of \$0\.00/.test(f.msg)), JSON.stringify(findings));
+});
+
+test("an unreadable release is reported and counts as nothing released", () => {
+  const { totals: t, findings } = compute(SAMPLE.lines, { ...SAMPLE.settings, retainageReleased: "abc" });
+  assert.ok(findings.some((f) => /Retainage released/.test(f.msg)));
+  assert.equal(t.retainageReleased, 0);
+  assert.equal(t.retainageHeld, 798_500);
+});
+
+test("the CSV percent column is the line's percent complete", () => {
+  const csv = toCsv(compute(SAMPLE.lines, SAMPLE.settings)).split("\n");
+  assert.equal(csv[3].split(",")[7], "50.0", csv[3]); // item 3: 30,000 of 60,000
+});
+
+// Real defect: "CO1" and "C.O. 3" are common ways to number change orders;
+// read as base-contract lines they inflated the original contract sum and a
+// deductive one was flagged as an error.
+test("change orders numbered CO1, CO 2, C.O. 3 or CO#4 are change orders; other items are not", () => {
+  for (const item of ["CO-1", "CO1", "CO 2", "C.O. 3", "C.O.3", "CO#4", "co-5", "Change Order 6"]) assert.equal(isChangeOrder({ item }), true, item);
+  for (const item of ["1", "Concrete", "Conduit 2", "C", "12", "Cost"]) assert.equal(isChangeOrder({ item }), false, item);
+  const { totals: t, findings } = compute([
+    { item: "1", description: "Base work", scheduled: "10000", previous: "0", thisPeriod: "5000" },
+    { item: "CO1", description: "Deduct fixtures", scheduled: "-1500" },
+  ]);
+  assert.equal(t.originalContractSum, 1_000_000);
+  assert.equal(t.netChangeOrders, -150_000);
+  assert.deepEqual(findings, []);
+});
+
+// Real defect: the guide says to enter retainage in QuickBooks as a negative
+// number, so people typed "-4000" as the amount held; it became a positive
+// line and the invoice billed the retainage instead of holding it.
+test("QuickBooks lines: a negative retainage held is refused, not flipped into a charge", () => {
+  const r = quickbooksLines({ billed: "40000", held: "-4000" });
+  assert.equal(r.lines.length, 0);
+  assert.match(r.errors.join(" "), /positive amount/);
+  assert.equal(quickbooksLines({ billed: "40000", held: "4000" }).total, 3_600_000);
 });

@@ -42,6 +42,8 @@ const ICON_PATHS = {
   learning: '<path d="M2 9 12 4l10 5-10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5M22 9v6"/>',
   apps: '<path d="M7 18a5 5 0 1 1 1-9.9A6 6 0 0 1 19.5 10 4 4 0 0 1 18 18z"/><path d="M12 12v6M9.5 14.5 12 12l2.5 2.5"/>',
   cli: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="m7 9 3 3-3 3M13 15h4"/>',
+  // A factory with a saw-tooth roof and a chimney: job shops and manufacturers.
+  factory: '<path d="M3 21V10l5 3V10l5 3V10l5 3V4h3v17z"/><path d="M7 17h2M12 17h2M17 17h2"/>',
   more: '<rect x="4" y="4" width="6" height="6" rx="1.5"/><rect x="14" y="4" width="6" height="6" rx="1.5"/><rect x="4" y="14" width="6" height="6" rx="1.5"/><rect x="14" y="14" width="6" height="6" rx="1.5"/>',
   // The "how it works" and "also here" glyphs.
   browser: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M7 6.5h.01M10 6.5h.01"/><path d="m10 13 2 2 3-3"/>',
@@ -70,43 +72,175 @@ export function icon(name, { size = 24, className = 'ico' } = {}) {
 
 export const ICON_NAMES = Object.keys(ICON_PATHS);
 
-/** The three steps a visitor needs to know before anything else. */
-export function renderHowItWorks({ toolCount = 0, appCount = 0 } = {}) {
-  const steps = [
-    {
-      glyph: 'browser',
-      title: 'Open a tool and type your numbers',
-      body: `${toolCount ? `${formatCount(toolCount)} tools` : 'Every tool'} run entirely in your browser. No account, no upload: the arithmetic happens on your device, and works offline once opened.`,
-    },
-    {
-      glyph: 'code',
-      title: 'Check how the answer is worked out',
-      body: 'Every formula, test and research result is published: tools under FSL-1.1-MIT, research under MIT, so you can read exactly how a number was reached.',
-    },
-    {
-      glyph: 'deploy',
-      title: 'Run your own copy',
-      body: `${appCount ? `${appCount} self-hostable apps` : 'The apps'} deploy into your own cloud account with your own keys. Nothing of ours sits in between.`,
-      href: 'deploy/',
-      cta: 'Deploy your own',
-    },
+// An icon per industry on the finder (business.mjs INDUSTRIES).
+const INDUSTRY_ICONS = {
+  construction: 'trades',
+  manufacturing: 'factory',
+  'online-sellers': 'marketplace',
+  'eu-e-invoicing': 'imports',
+  nonprofits: 'household',
+};
+
+/**
+ * The front door (owner, 2026-11-25: "easy navigation to find your profession
+ * and your problem"; "not so much clutter ... target marketing sales pipeline
+ * not a catalog"). Step 1 picks the visitor's business, step 2 their hardest
+ * problem, and each problem goes to the product built for it: the live
+ * product itself, or the product's card on its industry page. "Something
+ * else" lists every trade's page, the assistant and the custom-build form.
+ *
+ * Plain radios and the sibling combinator, so it works without JavaScript and
+ * in every browser; the problem panels are links, so nothing is lost if the
+ * CSS never loads (every panel then simply shows). Each industry panel is a
+ * funnel `cta` block (platform/counter/FUNNEL.md): shown once picked, so its
+ * `cta_view` counts which businesses pick, and `cta_click` which problem.
+ *
+ * `industries` and `lines` come from business.mjs. A problem is only linked to
+ * a product, never to a claim: the status label says live or early access.
+ */
+/**
+ * The finder's step-1 choices: each industry with a software product (a card),
+ * then each industry that has free tools and listed problems but no product
+ * yet (a compact chip, `compact: true`), then "Something else".
+ */
+export function finderChoices(industries = [], lines = []) {
+  const hasProduct = (ind) => lines.some((l) => l.industry === ind.slug && l.kind === 'software');
+  const pick = (ind, compact) => ({ slug: ind.slug, name: ind.name, who: ind.who, glyph: INDUSTRY_ICONS[ind.slug] ?? 'more', compact });
+  return [
+    ...industries.filter(hasProduct).map((ind) => pick(ind, false)),
+    ...industries.filter((ind) => !hasProduct(ind) && ind.problems?.length).map((ind) => pick(ind, true)),
+    { slug: 'other', name: 'Something else', who: 'Another trade or business, or a problem not listed', glyph: 'more', compact: true },
   ];
-  return `    <section class="band how" id="how" aria-labelledby="how-h">
-      <p class="section-eyebrow">How it works</p>
-      <h2 id="how-h">Free tools you can use, check and own</h2>
-      <ol class="steps">
-${steps
-  .map(
-    (s, i) => `        <li class="step">
-          <span class="step-ico">${icon(s.glyph)}<b>${i + 1}</b></span>
-          <h3>${esc(s.title)}</h3>
-          <p>${esc(s.body)}${s.href ? ` <a href="${esc(s.href)}">${esc(s.cta)} →</a>` : ''}</p>
-        </li>`,
-  )
+}
+
+/** The finder's styles, with one show/selected rule per choice (sibling combinator, no :has). */
+export function finderCss(choices = []) {
+  const id = (slug) => `pro-${slug}`;
+  return `${FINDER_CSS}
+${choices
+  .map((c) => `    #${id(c.slug)}:checked ~ .panels #panel-${c.slug} { display: block; }
+    #${id(c.slug)}:checked ~ ${c.compact ? '.pros-more' : '.pros'} label[for="${id(c.slug)}"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent) inset; }
+    #${id(c.slug)}:focus-visible ~ ${c.compact ? '.pros-more' : '.pros'} label[for="${id(c.slug)}"] { outline: 2px solid var(--accent); outline-offset: 2px; }`)
   .join('\n')}
-      </ol>
+    .finder .pro-in:checked ~ .panels .panel-hint { display: none; }`;
+}
+
+export function renderFinder({
+  industries = [],
+  lines = [],
+  trades = [],
+  statusLabel = (status) => status,
+  industryHref = (slug) => `industries/${slug}/`,
+  askHref = 'ask/',
+  customHref = 'custom-development/',
+  toolsHref = 'c/',
+  buildFirstHref = (ind) => `mailto:?subject=${encodeURIComponent(`Build first for ${ind.name}`)}`,
+} = {}) {
+  const groups = industries
+    .map((ind) => ({ ind, lines: lines.filter((l) => l.industry === ind.slug && l.kind === 'software') }))
+    .filter((g) => g.lines.length);
+  const id = (slug) => `pro-${slug}`;
+  const choices = finderChoices(industries, lines);
+  const inputs = choices.map((c) => `      <input class="pro-in" type="radio" name="pro" id="${esc(id(c.slug))}" value="${esc(c.slug)}">`).join('\n');
+  const labels = choices
+    .filter((c) => !c.compact)
+    .map((c) => `        <label for="${esc(id(c.slug))}"><span class="pro-ico">${icon(c.glyph)}</span><span class="pro-name">${esc(c.name)}</span><span class="pro-who">${esc(c.who)}</span></label>`)
+    .join('\n');
+  const chips = choices
+    .filter((c) => c.compact)
+    .map((c) => `        <label for="${esc(id(c.slug))}" title="${esc(c.who)}">${esc(c.name)}</label>`)
+    .join('\n');
+  const problemLink = (l, problem) => {
+    const href = l.status === 'live' && l.href ? l.href : `${industryHref(l.industry)}#${l.id}`;
+    return `            <li><a href="${esc(href)}" data-funnel-product="${esc(l.id)}"><span class="pb-text">${esc(problem)}</span><span class="pb-to">${esc(l.name)} · ${esc(statusLabel(l.status))} →</span></a></li>`;
+  };
+  const more = `<a href="${esc(askHref)}">Ask the assistant</a> · <a href="${esc(customHref)}">Describe your problem and it may get built</a>`;
+  const panels = groups.map(({ ind, lines: ls }) => `        <div class="panel" id="panel-${esc(ind.slug)}" data-funnel="cta" data-funnel-industry="${esc(ind.slug)}">
+          <p class="finder-step"><b>2</b> What is hardest for you right now?</p>
+          <ul class="problems">
+${ls.flatMap((l) => l.problems.map((p) => problemLink(l, p))).join('\n')}
+          </ul>
+          <p class="panel-more"><a href="${esc(industryHref(ind.slug))}">Everything for ${esc(ind.name.toLowerCase())}</a> · ${more}</p>
+        </div>`);
+  // An industry with no product yet: its problems lead to its page and the free
+  // tools there, and the visitor is asked which job to build first. No product
+  // name, status or offer is shown, because there is none.
+  const bySlug = new Map(industries.map((ind) => [ind.slug, ind]));
+  for (const c of choices.filter((x) => x.compact && x.slug !== 'other')) {
+    const ind = bySlug.get(c.slug);
+    panels.push(`        <div class="panel" id="panel-${esc(ind.slug)}" data-funnel="cta" data-funnel-industry="${esc(ind.slug)}">
+          <p class="finder-step"><b>2</b> What is hardest for you right now?</p>
+          <ul class="problems">
+${ind.problems.map((p) => `            <li><a href="${esc(industryHref(ind.slug))}"><span class="pb-text">${esc(p)}</span><span class="pb-to">Free tools today →</span></a></li>`).join('\n')}
+          </ul>
+          <p class="panel-more">No paid product for ${esc(ind.name.toLowerCase())} yet. <a href="${esc(buildFirstHref(ind))}" data-funnel="outbound">Tell us which job to build first</a> · ${more}</p>
+        </div>`);
+  }
+  panels.push(`        <div class="panel" id="panel-other">
+          <p class="finder-step"><b>2</b> Find your trade, or tell us the problem</p>
+${trades.length ? `          <ul class="trades">\n${trades.map((t) => `            <li><a href="${esc(t.href)}" data-category="${esc(t.id)}">${esc(t.name)}</a></li>`).join('\n')}\n          </ul>\n` : ''}          <p class="panel-more">${more} · <a href="${esc(toolsHref)}">Browse every free tool</a></p>
+        </div>`);
+  return `    <section class="finder" id="find" aria-labelledby="find-h">
+      <h2 id="find-h" class="finder-step"><b>1</b> What kind of business do you run?</h2>
+${inputs}
+      <div class="pros">
+${labels}
+      </div>
+${chips ? `      <p class="pros-more-h">More businesses</p>\n      <div class="pros-more">\n${chips}\n      </div>\n` : ''}      <div class="panels">
+        <p class="panel-hint">Pick one above to see the problems we are building for.</p>
+${panels.join('\n')}
+      </div>
     </section>`;
 }
+
+const FINDER_CSS = `
+    /* ---- The finder (home.mjs renderFinder) -------------------------------- */
+    .finder { margin-top: 26px; }
+    .finder-step { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; font-size: 1.05rem; font-weight: 700; color: var(--ink); }
+    .finder-step b { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; font-size: .85rem;
+                     color: #fff; background: linear-gradient(135deg, #1f4e8c, #3a6ea5); }
+    .pro-in { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+    .pros { display: grid; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr)); }
+    .pros label { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 10px; align-items: center;
+                  padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); cursor: pointer;
+                  transition: border-color .2s, box-shadow .2s; }
+    .pros label:hover { border-color: var(--accent); }
+    .pro-ico { grid-row: span 2; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 11px;
+               color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--panel)); }
+    .pro-name { font-weight: 700; color: var(--ink); }
+    .pro-who { font-size: .8rem; line-height: 1.35; color: var(--muted); }
+    .pros-more-h { margin: 14px 0 8px; font-size: .85rem; color: var(--muted); }
+    .pros-more { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: .9rem; }
+    .pros-more label { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel);
+                       color: var(--ink); cursor: pointer; }
+    .pros-more label:hover { border-color: var(--accent); }
+    .panels { margin-top: 18px; }
+    .panel { display: none; padding: 18px 18px 14px; border: 1px solid var(--line); border-radius: 16px; background: var(--panel); }
+    .panel-hint { margin: 0; color: var(--muted); font-size: .92rem; }
+    .problems { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+    .problems a { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 14px; padding: 12px 14px; border-radius: 12px;
+                  border: 1px solid var(--line); color: var(--ink); text-decoration: none; background: var(--bg); }
+    .problems a:hover, .problems a:focus-visible { border-color: var(--accent); }
+    .pb-text { font-weight: 600; }
+    .pb-to { font-size: .85rem; color: var(--accent); white-space: nowrap; }
+    .trades { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+    .cat-links span { color: var(--soft, var(--muted)); font-size: .8em; }
+    .trades a { display: inline-block; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); }
+    .panel-more { margin: 14px 0 0; font-size: .9rem; color: var(--muted); }
+    @media (prefers-reduced-motion: reduce) { .pros label { transition: none; } }
+    @media (max-width: 640px) {
+      .pb-to { white-space: normal; }
+      /* Two short columns, so the problems are on screen right after a tap. */
+      .pros { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .pros label { padding: 10px; grid-template-rows: auto; }
+      .pro-ico { grid-row: auto; width: 32px; height: 32px; }
+      .pro-who { display: none; }
+      /* Fourteen businesses as a three-row strip that scrolls sideways, so the
+         problems are not a screen and a half below the tap. */
+      .pros-more { display: grid; grid-auto-flow: column; grid-template-rows: repeat(3, auto); justify-content: start;
+                   overflow-x: auto; padding-bottom: 6px; scrollbar-width: thin; }
+      .pros-more label { white-space: nowrap; }
+    }`;
 
 /**
  * A category tile: icon, name, count, what it is for, and a taste of what is
