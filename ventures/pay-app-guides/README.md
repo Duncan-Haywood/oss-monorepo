@@ -25,6 +25,7 @@ Live: <https://marisstella.app/pay-app-guides/>
 | `change-order-log.html` | Change order log (`colog.mjs`): paste or open a log; approved, pending, rejected and void totals, revised contract sum, pending aging against a flag, billing on unsigned or rejected changes and over-billing flagged, approved COs written as SOV lines the pay application generator reads (`colog.test.mjs` round-trips them through its `compute()`), log CSV, and exceptions wording for a progress lien waiver. Optional remember-in-this-browser. |
 | `pay-application-software-compared.html` | Buyer-intent comparison: spreadsheet, QuickBooks Online, Knowify, PayAppHub, Trimble Pay, Siteline with published prices (read 2026-11-25 through search results; aggregator prices marked as such), and what GC portals charge the sub (Textura, Procore Pay, Trimble Pay, from the vendors' help sites), with a portal fee calculator (`portals.mjs`, tested in `portals.test.mjs` against Oracle's own $50,000 → $110 example). |
 | `retainage-release.html` | Getting retainage released: the closeout documents usually asked for, where the release date comes from (subcontract or statute; statute rules are linked to `retainage-explained.html`, not restated), and a release date calculator that writes a request letter listing unticked closeout items (`retainageRelease`, `CLOSEOUT_ITEMS` in `calc.mjs`, tested in `release.test.mjs`). |
+| `overbilling-underbilling.html` | Overbilling and underbilling: the pay application's billed to date (gross of retainage) against cost-to-cost percent complete for one job; earned revenue, over/under, gross profit to date, certified less retainage against cost, the adjusting entry, and what to bill next period to finish even (`overUnder` in `billing.mjs`, tested in `billing.test.mjs`). Links the multi-job `contractor-wip-schedule` tool. |
 
 ## Spec sources
 
@@ -72,7 +73,7 @@ are marks of their owner.
 Everything runs in the browser. Nothing typed is uploaded; no accounts,
 cookies or analytics vendors. Anonymous feature counters (`sov_calculated`,
 `example_loaded`, `summary_copied`, `csv_downloaded`, one
-`guide_*_viewed` per guide, and `colog_*` on the change order log) are kept in the visitor's own local storage,
+`guide_*_viewed` per guide, `colog_*` on the change order log, and `overbilling_summary_copied`) are kept in the visitor's own local storage,
 switched off by Do Not Track or the opt-out button.
 
 ## Licence
