@@ -164,6 +164,21 @@ A short pay does not change the next pay application: line 7 on the summary subt
 
 **The follow-up email.** Knowing an application is late is half the job: someone still has to write to the GC. The cash report now drafts that email for each unpaid application from its own figures: the application number and date, the period billed, the amount owed, and the due date under the job's pay terms. A late application gets a reminder that asks when payment is coming and whether anything is holding it up. More than 30 days late, the draft becomes a second request that asks for a release date. An application paid short gets a note that thanks the GC for what came in, names the balance and asks what it is held for. The contractor edits the draft and sends it from their own email; the build sends nothing. The draft does not mention lien rights or interest and does not say a copy is attached, because the build cannot know whether those apply. (Added 2026-11-25; still in development.)
 
+**When the GC wants it notarized.** Some GCs and owners ask for the pay
+application to be signed in front of a notary, and the AIA's own
+application form has a notary section for it. Our PDF had no place for it, so a sub would print it and
+staple on a notary's certificate. Each job now has a "notary block"
+switch. With it on, the summary page carries a generic jurat under the
+contractor's signature: state and county, "subscribed and sworn to (or
+affirmed) before me on (date) by (name)", the notary's signature and
+commission expiry, and a box for the seal. All the blanks are left for
+the notary to fill in. It is our own wording, not any state's form. Some
+states prescribe the wording of a notary's certificate, so the block says a notary may attach their own certificate
+instead. To make room on page 1, the summary rows sit closer together
+when the block is on. A test checks every line and box against the
+footer in the tallest layout. With the switch off, the page is
+unchanged. (Added 2026-11-25; still in development.)
+
 The working price range in our notes is about $99 to $249 a month. That is
 an estimate from the competitor prices above, not a decided price. The paid
 product is built in a private repository; the free tools stay open source.
