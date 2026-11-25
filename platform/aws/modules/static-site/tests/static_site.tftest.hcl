@@ -216,7 +216,7 @@ run "publisher_role_is_least_privilege" {
   assert {
     condition = alltrue(flatten([
       for s in jsondecode(aws_iam_role_policy.publisher[0].policy).Statement : [
-        for a in(can(tolist(s.Action)) ? tolist(s.Action) : [s.Action]) : !strcontains(a, "*")
+        for a in flatten([s.Action]) : !strcontains(a, "*")
       ]
     ]))
     error_message = "The publisher policy must name every action (no wildcards)."
