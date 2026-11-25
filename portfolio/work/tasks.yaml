@@ -560,6 +560,12 @@ tasks:
     hours: 40
     status: open
     added: 2026-11-24
+    notes: >-
+      2026-11-25: stacks built and tested for shift-roster (hosted hub, PR 18787), listing-lens
+      docs (18792), retail-pilot-intel docs (18794), ai-first-markets (18795); local-site-studio's
+      Convex exception written down (never deployed; docs/reports/2026-11-25-aws-move-products.md).
+      Left: Grant Autopilot (private repo session), apply + cutover once the account exists, then
+      the wrangler/workflow removal PRs.
 
   - id: aws-client-accounts
     direction: aws-consolidation

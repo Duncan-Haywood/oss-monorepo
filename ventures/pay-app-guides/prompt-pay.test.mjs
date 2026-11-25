@@ -50,6 +50,32 @@ test("every preset links an official legislature site, and rates are only where 
   assert.equal(PROMPT_PAY.pa.rate, null);
 });
 
+// The calculator's presets and the page's table are written by hand in two places; a day count changed in one and not the
+// other tells a sub the wrong due date (red team 2026-11-25: Virginia's 7 days set to 8 in calc.mjs passed every test).
+test("each preset's statute link and day count match its row in the page's table", async () => {
+  const { readFileSync } = await import("node:fs");
+  const html = readFileSync(new URL("./prompt-payment-laws.html", import.meta.url), "utf8");
+  // Cells may carry attributes (the phone-card markup adds role and data-label), so split on any opening <td>.
+  const rows = [...html.matchAll(/<tr[^>]*>(.*?)<\/tr>/g)]
+    .map(([, inner]) => inner.split(/<td[^>]*>/).slice(1).map((c) => c.replace(/<\/td>\s*$/, "")))
+    .filter((c) => c.length >= 3)
+    .map(([state, ...cells]) => ({ state, cells }));
+  for (const [k, p] of Object.entries(PROMPT_PAY)) {
+    const row = rows.find((r) => p.state.startsWith(r.state));
+    assert.ok(row, `${k}: no row for ${p.state} in prompt-payment-laws.html`);
+    assert.ok(row.cells[0].includes(`href="${p.url.replace(/&/g, "&amp;")}"`), `${k}: the page links another statute`);
+    assert.equal(Number(/(\d+) (?:calendar )?days/.exec(row.cells[1])?.[1]), p.days, `${k}: days`);
+  }
+});
+
+test("a blank day count is an error, not 0 days (red team 2026-11-25: clearing the field moved the due date to the day the GC was paid)", () => {
+  for (const days of ["", "  ", undefined, null]) {
+    const r = promptPayInterest({ amount: "1000", received: "2026-01-01", paid: "2026-02-01", days, rate: "1" });
+    assert.deepEqual(r.errors, ["Days to pay must be a whole number from 0 to 365."], String(days));
+  }
+  assert.deepEqual(promptPayInterest({ amount: "1000", received: "2026-01-01", paid: "2026-02-01", days: "0", rate: "1" }).errors, []);
+});
+
 test("a blank rate is asked for, not read as 0% (the CA, PA and FL presets leave it blank)", () => {
   // Red team 2026-11-25: blank showed "Interest $0.00" for 45 days late, with no error.
   const base = { amount: "40000", received: "2026-03-01", paid: "2026-04-22", days: 7 };

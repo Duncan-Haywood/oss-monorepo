@@ -81,22 +81,20 @@ flagships:
       Landed: (1) jobs with a schedule of values and monthly pay apps with
       retainage, PDF and CSV in its own layout; (2) change orders; plans and Paddle
       billing, dark (private-monorepo PR #37: Free 1 active job, Solo $99, Crew
-      $179, Company $249, docs/BILLING.md). Open, in order: (3) lien waivers per pay
-      app landed (private-monorepo PR #38: Crew+, AZ statutory forms verified word
-      for word against azleg.gov, other statutory states tracked only); NV 108.2457
-      added (private-monorepo PR #39: verbatim, whole-form test against the statute
-      for AZ and NV); TX 53.284 and UT 38-1a-802 added (PR #41); next for waivers:
-      CA when leginfo stops 403ing; mid-job start landed (private-monorepo PR #45:
-      the last application made elsewhere carries its number, column D, line 6 and a
-      checked line 5a); next for onboarding: fill that opening from the imported
-      continuation sheet; account email landed (private-monorepo PR #46:
-      verification required on HTTPS, 1-hour single-use password reset,
-      existing-account notice, via Cloudflare Email Service; deploy sets EMAIL_FROM
-      and checks /api/health email:true); durable auth rate limits landed
-      (private-monorepo PR #49); next launch blocker: the deploy workflow (legal
-      pages landed, private-monorepo PR #50); (4) QuickBooks Online invoice export
-      with retainage as its own line, finishing PR #16 (packages/qbo-sync, sandbox
-      only; the owner opens the Intuit developer account); (5) the front door is
+      $179, Company $249, docs/BILLING.md). Open, in order: (3) lien waivers landed
+      (PRs #38-#41: AZ, NV, TX, UT statutory forms verbatim, others tracked only);
+      next for waivers: CA when leginfo stops 403ing; mid-job start landed
+      (private-monorepo PR #45: the last application made elsewhere carries its
+      number, column D, line 6 and a checked line 5a); next for onboarding: fill
+      that opening from the imported continuation sheet; account email landed
+      (private-monorepo PR #46: verification required on HTTPS, 1-hour single-use
+      password reset, existing-account notice, via Cloudflare Email Service; deploy
+      sets EMAIL_FROM and checks /api/health email:true); durable auth rate limits
+      (PR #49) and partial payments (PR #51: per-check payments, balance aged,
+      paid-short flag) landed; next launch blocker: the deploy workflow (legal pages
+      landed, private-monorepo PR #50); (4) QuickBooks Online invoice export with
+      retainage as its own line, finishing PR #16 (packages/qbo-sync, sandbox only;
+      the owner opens the Intuit developer account); (5) the front door is
       ventures/pay-application-generator (reads a contractor's own .xlsx
       continuation sheet and checks its totals; writes the workbook, with its own
       template page pay-application-template.html and recalc.test.mjs, 2026-11-25)

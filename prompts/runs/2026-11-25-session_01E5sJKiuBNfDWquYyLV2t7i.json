@@ -47,6 +47,10 @@
     {
       "file": "origin/security-alerts:QUEUE.md",
       "issue": "Every remaining unclaimed alert was a false positive already classed by rule family in docs/reports/2026-11-25-security-queue-false-positives.md, but the queue does not link that report, so each run re-reads the same code. Linking it from QUEUE.md (security_alerts.py, owner-only) would save a pass."
+    },
+    {
+      "file": "docs/reports/2026-11-25-security-queue-false-positives.md",
+      "issue": "Three or more sessions triaged the same alerts within an hour, because the claim branches were pushed only after reading the code. Pushing the claim branch before triaging, as alerts/<n>.md step 1 says, would have shown the overlap sooner."
     }
   ],
   "deviations": [
@@ -65,10 +69,10 @@
   ],
   "writeups": [
     "docs/history/ci-perf-2026-11-25-einvoice-sparse.md",
-    "docs/reports/2026-11-25-security-queue-false-positives.md (fourth pass)"
+    "docs/reports/2026-11-25-security-queue-false-positives.md (#1050 line)"
   ],
   "goal": "Free runner-pool time on the CI of bet 3 (e-invoice), the first subscription product",
-  "notes": "Security: queue at 5f857bb81c00; 26 unclaimed alerts (#1049, #1050 includes() of a placeholder origin; #1181-#1203 ReDoS-checker fixtures; #1208 vulnerable-repo fixture) are all false positives or used in tests; claimed and recorded for the owner to dismiss. Perf metric: einvoice-preflight CI checkout time per job. Before: ci_profile.py --runs 600 (03:48-04:21 UTC) median job 67 s, checkout median 57 s over 3 jobs. Verification: sparse_checkout_verify.py einvoice-preflight-ci.yml .github ventures/einvoice-preflight platform/billing exit 0, same:true (cli 440 OK; node 2332 tests/2315 pass/16 skip/1 fail in both trees, the fail is repair-facturx.test.mjs:115 because this container's pdfdetach wrapper has saving switched off). Pay-app-guides front door measured (Playwright, local gzip server): index 9 req ~37 kB gz, retainage guide 6 req ~29 kB; no change made. After (PR CI run 45546690166, step timestamps): checkout 2/3/4 s, median 3 s (was 57 s); jobs 8/9/51 s, median 9 s (was 67 s); all three green.",
+  "notes": "Security: queue at 5f857bb81c00; 26 unclaimed alerts (#1049, #1050 includes() of a placeholder origin; #1181-#1203 ReDoS-checker fixtures; #1208 vulnerable-repo fixture) are all false positives or used in tests; claimed and recorded for the owner to dismiss. Perf metric: einvoice-preflight CI checkout time per job. Before: ci_profile.py --runs 600 (03:48-04:21 UTC) median job 67 s, checkout median 57 s over 3 jobs. Verification: sparse_checkout_verify.py einvoice-preflight-ci.yml .github ventures/einvoice-preflight platform/billing exit 0, same:true (cli 440 OK; node 2332 tests/2315 pass/16 skip/1 fail in both trees, the fail is repair-facturx.test.mjs:115 because this container's pdfdetach wrapper has saving switched off). Pay-app-guides front door measured (Playwright, local gzip server): index 9 req ~37 kB gz, retainage guide 6 req ~29 kB; no change made. After (PR CI run 45546690166, step timestamps): checkout 2/3/4 s, median 3 s (was 57 s); jobs 8/9/51 s, median 9 s (was 67 s); all three green. Merge with main: sessions running in parallel had already triaged #1049, #1181-#1203 and #1208 into platform/security/codeql-triage.json (PR #18809 and later passes). My duplicate fourth-pass section was dropped in favour of main's text; the only net security addition is the #1050 entry, the last unchecked alert.",
   "corrections": [],
   "redteam": null,
   "usage": {

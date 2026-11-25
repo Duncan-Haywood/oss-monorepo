@@ -100,3 +100,20 @@ when this was written), the queue should drop to about these 54.
   fixed patterns with the host as the subject; `CDN_ORIGIN` is only
   concatenated). Without a local CodeQL run this is unconfirmed. Their claim
   branches could not be deleted through the session proxy and expire after 48 h.
+
+## Later the same day: `security_next.py`, and a claim race it still had
+
+Three run records that morning (prompt.md `doc_friction`) hit step 0 by hand: every alert already
+claimed, found only after an `ls-remote` diff; #1049/#1050 lost to a session that pushed between
+read and push; alerts re-triaged that an earlier pass had written up. Two sessions built the same
+fix in parallel; PR 18852 landed `platform/ci/security_next.py` first, and PR 18851 (this one)
+was folded into it.
+
+What 18851 adds is a test against a real bare remote, and it found a bug: `--claim` pushed
+`origin/main` itself with `--force-with-lease=<ref>:`. Two racing sessions push the *same* sha,
+so the loser's push is "Everything up-to-date", exits 0, and both think they hold the alert.
+The lease check only runs when git has something to send. Each claim now pushes its own empty
+commit on top of `origin/main` (`git commit-tree`, random nonce in the message), so the second
+push for an alert really is refused. The success line says to start work from that claim commit
+(`git checkout -B <branch> <sha>`), since a branch cut from `origin/main` would no longer
+fast-forward onto it.

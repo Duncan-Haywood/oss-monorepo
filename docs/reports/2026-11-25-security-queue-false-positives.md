@@ -72,22 +72,66 @@ Checked by reading `main` at `578f7f19a`; the flagged files are unchanged since 
   - `js/incomplete-sanitization` #741 (`shopify-to-woocommerce-converter/converter.mjs:69`): `esc` writes WooCommerce's `\,` list-separator escape. WooCommerce's importer has no backslash escape, so escaping backslashes would corrupt values instead of protecting them.
   - `js/incomplete-sanitization` #849 (`platform/agents/tools.mjs:170`): `name` is a JavaScript export identifier, and `$` is the only regex metacharacter an identifier can hold. That character is escaped.
 
-## Fourth pass, same day (queue scanned at `5f857bb81c00`)
+## Fourth pass, same day (overlaps the third; checked on main at `20071c007`)
 
-Checked by reading `main` at `51a74dabb`. Every alert in the queue now has a claim branch; the 26
-claimed in this pass need no code change, so their branches only stop the next run re-reading them.
+Run in parallel with the third pass and merged after it. This pass adds:
 
-- **False positives (dismiss as "false positive"):**
-  - `js/incomplete-url-substring-sanitization` #1049 (`platform/pages/check.mjs:1466`, line 1470 on
-    main) and #1050 (`platform/pages/custom-domain.test.mjs:151`): `text.includes(PLACEHOLDER_ORIGIN)`
-    asks whether a built file still contains the build's placeholder origin `https://example.invalid`,
-    a leftover-rewrite check that fails the build. No URL is being allowed or routed by host, so there is
-    no host to spoof.
-- **Used in tests (dismiss as "used in tests"):**
-  - `js/redos` #1181 to #1203 (`ventures/regex-redos-check/engine.test.mjs` and `cli.test.mjs:81`): the
-    product is a ReDoS checker, and these are the catastrophic patterns its tests must flag
-    (`(a+)+$`, `(a|aa)+$`, ...). They are strings handed to the analyser; the probe runs them on bounded input.
-  - `js/redos` #1208 (`ventures/devsec-toolkit/tests/fixtures/vulnerable-repo/src/validate.js:1`): a
-    deliberately vulnerable fixture repository the toolkit's scanner tests must catch; never served or run on input.
-- **A real reduction** for the next control-plane PR: exclude `**/tests/fixtures/**` and the ReDoS
-  checker's tests from `js/redos` in the CodeQL config, judged by the adversarial gate.
+- **Fixed (they close on the next completed scan):**
+  - #849 `js/incomplete-sanitization`, `platform/agents/tools.mjs:170`. The third pass is right that an identifier
+    can only carry `$`. The escape now covers every regex metacharacter anyway, so the rule is satisfied and
+    nothing depends on that assumption. Test added in `tools.test.mjs`.
+  - #65 `js/incomplete-sanitization`, `ventures/pay-app-guides/template.test.mjs:62`. The label escape in the test
+    now covers every metacharacter, not just `.`.
+- **False positives not covered above (dismiss):**
+  - #862 `js/incomplete-sanitization`, `research/marriage-divorce-evidence/report-app/src/use-data-app.js:315`.
+    `replace("..", " – ")` turns a range filter into display text that React renders escaped. It is formatting.
+  - #1049 `js/incomplete-url-substring-sanitization`, `platform/pages/check.mjs` (now ~line 1470).
+    `text.includes(PLACEHOLDER_ORIGIN)` is a build check that the placeholder origin never ships, not a URL allow-list.
+  - #1181 to #1203 `js/redos` in `regex-redos-check/*.test.mjs`, and #1208 in `devsec-toolkit/tests/fixtures/vulnerable-repo/`:
+    deliberately vulnerable patterns that a ReDoS checker's tests and fixtures exist to detect.
+- **Claimed elsewhere:** #274, #275, #574, #997 have `security-fix/` branches.
+
+## Fifth pass, same day (overlaps the third and fourth)
+
+This run took #65, #849 and #862 in parallel with the fourth pass. It kept main's fixes for #65 and #849 and adds:
+
+- **#862 fixed** (`use-data-app.js:315`): `replaceAll("..", " – ")`. The fourth pass is right that React escapes
+  the output, so it was never an XSS. A range label with a second `..` still showed it, and `replaceAll`
+  clears the alert without depending on that.
+- **`QUEUE.md` now names these notes** (`platform/ci/security_alerts.py`, header line, with a test). Three passes
+  re-read #7 to #43 the same day because nothing in the queue said this file existed.
+
+## Sixth pass: the verdicts are now a file the queue reads
+
+A sixth session read the top of the queue and re-checked #7, #12, #34, #38, #39, #42, #43 and
+#104–#106 from scratch before it found this note. The passes above were prose. The queue
+generator could not read them, so it kept offering the same alerts first. PR #18809 (another
+session's work, landed with this pass) added **`platform/security/codeql-triage.json`**.
+`platform/ci/security_alerts.py` moves an open alert that matches an entry on number, rule and
+path into a "Triaged, awaiting dismissal" section of `QUEUE.md`. The alert stays open and listed,
+and only the owner can dismiss it on GitHub. An entry stops applying if the finding moves, and
+the PR-level `codeql gate` jobs never read the file. This pass added 39 entries: every alert in the
+passes above that is still in the queue, plus the ones below. A verdict of "intended
+behaviour" starts its reason with those words.
+
+New in this pass, checked against `main` at `de2adc485`:
+
+| Alert | Rule | Where | Verdict |
+| --- | --- | --- | --- |
+| #741 | js/incomplete-sanitization | `shopify-to-woocommerce-converter/converter.mjs:69` | False positive. `esc()` writes `\,` for commas, which is WooCommerce's list-cell format. The importer has no backslash escape, so doubling backslashes would corrupt values. |
+| #960 | js/xss-through-dom | `quick-pick-survey/site/rank.html:461` | False positive. The sink is an `<img>.src`, which cannot run script. |
+| #968 | js/xss-through-dom | `shed-designer/hoa-page.mjs:59` | False positive. `packetHtml` escapes every string from the `#d=` design, and colours go through `hex()`. A probe with an `<img onerror>` payload in every string field found it only entity-escaped. |
+| #969 | js/xss-through-dom | `silence-cutter/index.html:258` | False positive. The href is the page's own `blob:` URL. |
+| #1086 | js/disabling-certificate-validation | `status-keeper/certs.mjs:12` | Intended. An expiry monitor has to read untrusted certificates to report them. Strict mode (the default) fails on `socket.authorized === false`, at line 33. |
+
+The verdicts from the first two passes for alerts no longer in the queue (#68–#91, #113, #114,
+#949–#952, #995, #996) are not in the file. Add them if they come back.
+
+The fourth pass's false positives that are still in the queue and unclaimed are in the file too:
+#1049, #1181–#1203 (the ReDoS checker's own test patterns) and #1208 (the devsec-toolkit
+fixture). I checked each pattern against its test line. #862 is left out, because PR #18840 fixed it.
+
+#1050 (`js/incomplete-url-substring-sanitization` in `platform/pages/custom-domain.test.mjs:151`),
+the last unchecked alert, was checked in a seventh pass (PR #18845) and added to the file: the test's
+`body.includes(PLACEHOLDER_ORIGIN)` records whether a built file still holds the placeholder origin,
+the same check as #1049, and authorises nothing.
