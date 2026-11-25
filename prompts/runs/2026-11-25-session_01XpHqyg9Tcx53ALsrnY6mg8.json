@@ -1,0 +1,513 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyg9Tcx53ALsrnY6mg8",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T10:38:59Z",
+  "ended": "2026-11-25T10:39:46Z",
+  "wall_minutes": 8.51,
+  "tokens_in": 4056259,
+  "tokens_out": 21326,
+  "cost_usd": 1.9612,
+  "tool_calls": 45,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18942",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`redteam.py targets` with no flags lists a random 20; no way to filter by venture slug, so finding never-mutated files of a chosen product took a manual grep over prompts/runs/*.json for previous targets."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: the 3 open defects are two control-plane workflow edits (owner-only) and one measured-and-deferred stemmer change; none safe here.",
+      "did": "left them open, seeded fewer-than-full-run time on them",
+      "result": "run time went to 3 campaigns and one real defect"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No new blog post: a parser fix and test guards tell a customer nothing new; recorded in the product HISTORY.md and README instead.",
+      "did": "HISTORY.md entry + README CSV-header note",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "ventures/xer-schedule-check/HISTORY.md (2026-11-25 red team 2 entry)",
+    "ventures/xer-schedule-check/README.md (rates CSV header note)"
+  ],
+  "goal": null,
+  "notes": "Targets crash.mjs, collapse.mjs, drag.mjs (never mutated before). Catch rate 11/23 -> 23/23. Real defect: crash rates CSV 'Crash cost' header read as room (patched). Venture suite: ok 586 tests. Guard class: header-to-column mapping now excludes the already-claimed cost column.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/xer-schedule-check/crash.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 436875821,
+        "commit": "225004b8a",
+        "sites": 423,
+        "baseline_seconds": 4.8,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/crash.mjs",
+            "line": 154,
+            "col": 35,
+            "operator": "ge-to-gt",
+            "before": "return Number.isFinite(v) && v >= 0 ? v : null;",
+            "after": "return Number.isFinite(v) && v > 0 ? v : null;",
+            "line_text": "    return Number.isFinite(v) && v >= 0 ? v : null;",
+            "caught": true,
+            "seconds": 4.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/crash.mjs",
+            "line": 176,
+            "col": 64,
+            "operator": "and-to-or",
+            "before": "const value = costPerDay !== null && costPerDay !== undefined && Number(costPerDay) > 0 ? Number(costPerDay) : null;",
+            "after": "const value = costPerDay !== null && costPerDay !== undefined || Number(costPerDay) > 0 ? Number(costPerDay) : null;",
+            "line_text": "  const value = costPerDay !== null && costPerDay !== undefined && Number(costPerDay) > 0 ? Number(costPerDay) : null;",
+            "caught": false,
+            "seconds": 5.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/crash.mjs",
+            "line": 210,
+            "col": 69,
+            "operator": "minus-to-plus",
+            "before": "for (const [id, u] of used) m.set(id, model.tasks.get(id).remain - u);",
+            "after": "for (const [id, u] of used) m.set(id, model.tasks.get(id).remain + u);",
+            "line_text": "    for (const [id, u] of used) m.set(id, model.tasks.get(id).remain - u);",
+            "caught": true,
+            "seconds": 4.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/crash.mjs",
+            "line": 289,
+            "col": 16,
+            "operator": "eq-flip",
+            "before": "if (mc.flow === Infinity) { stoppedBecause = \"no finite cut: a driving chain has nothing left to shorten\"; break; }",
+            "after": "if (mc.flow !== Infinity) { stoppedBecause = \"no finite cut: a driving chain has nothing left to shorten\"; break; }",
+            "line_text": "    if (mc.flow === Infinity) { stoppedBecause = \"no finite cut: a driving chain has nothing left to shorten\"; break; }",
+            "caught": true,
+            "seconds": 4.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/crash.mjs",
+            "line": 294,
+            "col": 41,
+            "operator": "plus-to-minus",
+            "before": "const rate = cut.reduce((a, id) => a + spec.get(id).perMin, 0) - back.reduce((a, id) => a + spec.get(id).perMin, 0);",
+            "after": "const rate = cut.reduce((a, id) => a - spec.get(id).perMin, 0) - back.reduce((a, id) => a + spec.get(id).perMin, 0);",
+            "line_text": "    const rate = cut.reduce((a, id) => a + spec.get(id).perMin, 0) - back.reduce((a, id) => a + spec.get(id).perMin, 0);",
+            "caught": true,
+            "seconds": 4.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/crash.mjs",
+            "line": 301,
+            "col": 85,
+            "operator": "const-plus-one",
+            "before": "const maxStep = Math.min(...cut.map((id) => spec.get(id).room - (used.get(id) || 0)), ...back.map((id) => used.get(id)));",
+            "after": "const maxStep = Math.min(...cut.map((id) => spec.get(id).room - (used.get(id) || 1)), ...back.map((id) => used.get(id)));",
+            "line_text": "    const maxStep = Math.min(...cut.map((id) => spec.get(id).room - (used.get(id) || 0)), ...back.map((id) => used.get(id)));",
+            "caught": false,
+            "seconds": 5.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/crash.mjs",
+            "line": 340,
+            "col": 70,
+            "operator": "const-plus-one",
+            "before": "return { code: t.code, name: t.name, remainingDays: r2(t.remain / 60 / (t.cal.hoursPerDay || hpd)), shortenMinutes: u, shortenHours: r1(u / 60), shortenDays: r2(u / 60 / (t.cal.hoursPerDay || hpd)), costPerDay: s.perDay, cost: r2(s.perMin * u), roomLeftHours: r1((s.room - u) / 60) };",
+            "after": "return { code: t.code, name: t.name, remainingDays: r2(t.remain / 61 / (t.cal.hoursPerDay || hpd)), shortenMinutes: u, shortenHours: r1(u / 60), shortenDays: r2(u / 60 / (t.cal.hoursPerDay || hpd)), costPerDay: s.perDay, cost: r2(s.perMin * u), roomLeftHours: r1((s.room - u) / 60) };",
+            "line_text": "    return { code: t.code, name: t.name, remainingDays: r2(t.remain / 60 / (t.cal.hoursPerDay || hpd)), shortenMinutes: u, shortenHours: r1(u / 60), shortenDays: r2(u / 60 / (t.cal.hoursPerDay || hpd)), costPerDay: s.perDay, cost: r2(s.perMin * u), roomLeftHours: r1((s.room - u) / 60) };",
+            "caught": false,
+            "seconds": 4.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/crash.mjs",
+            "line": 383,
+            "col": 318,
+            "operator": "minus-to-plus",
+            "before": "return `<table><thead><tr><th class=\"n\">Step</th><th>Shorten together</th><th class=\"n\">By (h each)</th><th class=\"n\">Won (d)</th><th class=\"n\">Total (d)</th><th class=\"n\">Cost per day won</th><th>New finish</th></tr></thead><tbody>${rows}</tbody></table>${r.steps.length > limit ? `<p class=\"note\">${r.steps.length - limit} more steps in the CSV.</p>` : \"\"}`;",
+            "after": "return `<table><thead><tr><th class=\"n\">Step</th><th>Shorten together</th><th class=\"n\">By (h each)</th><th class=\"n\">Won (d)</th><th class=\"n\">Total (d)</th><th class=\"n\">Cost per day won</th><th>New finish</th></tr></thead><tbody>${rows}</tbody></table>${r.steps.length > limit ? `<p class=\"note\">${r.steps.length + limit} more steps in the CSV.</p>` : \"\"}`;",
+            "line_text": "  return `<table><thead><tr><th class=\"n\">Step</th><th>Shorten together</th><th class=\"n\">By (h each)</th><th class=\"n\">Won (d)</th><th class=\"n\">Total (d)</th><th class=\"n\">Cost per day won</th><th>New finish</th></tr></thead><tbody>${rows}</tbody></table>${r.steps.length > limit ? `<p class=\"note\">${r.steps.length - limit} more steps in the CSV.</p>` : \"\"}`;",
+            "caught": false,
+            "seconds": 5.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/xer-schedule-check/collapse.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 540475011,
+        "commit": "225004b8a",
+        "sites": 282,
+        "baseline_seconds": 4.8,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/collapse.mjs",
+            "line": 89,
+            "col": 30,
+            "operator": "or-to-and",
+            "before": "const code = (r[col.code] || \"\").trim();",
+            "after": "const code = (r[col.code] && \"\").trim();",
+            "line_text": "    const code = (r[col.code] || \"\").trim();",
+            "caught": true,
+            "seconds": 5.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/collapse.mjs",
+            "line": 93,
+            "col": 16,
+            "operator": "neq-flip",
+            "before": "if (rawDays !== \"\") {",
+            "after": "if (rawDays === \"\") {",
+            "line_text": "    if (rawDays !== \"\") {",
+            "caught": true,
+            "seconds": 5.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/collapse.mjs",
+            "line": 233,
+            "col": 65,
+            "operator": "and-to-or",
+            "before": "if (t.orig > 0 && t.orig < d0 && tightAt([\"PR_FF\", \"PR_SF\"]) && tightAt([\"PR_FS\", \"PR_SS\"])) {",
+            "after": "if (t.orig > 0 && t.orig < d0 && tightAt([\"PR_FF\", \"PR_SF\"]) || tightAt([\"PR_FS\", \"PR_SS\"])) {",
+            "line_text": "    if (t.orig > 0 && t.orig < d0 && tightAt([\"PR_FF\", \"PR_SF\"]) && tightAt([\"PR_FS\", \"PR_SS\"])) {",
+            "caught": true,
+            "seconds": 5.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/collapse.mjs",
+            "line": 244,
+            "col": 90,
+            "operator": "and-to-or",
+            "before": "const held = extra > 0 && !alap.has(id) && t.cstr.some((c) => START_HOLDS.has(c.type) && c.date !== null && Math.abs(t.cal.nextStart(c.date) - t.cal.nextStart(w.s)) <= 1);",
+            "after": "const held = extra > 0 && !alap.has(id) && t.cstr.some((c) => START_HOLDS.has(c.type) || c.date !== null && Math.abs(t.cal.nextStart(c.date) - t.cal.nextStart(w.s)) <= 1);",
+            "line_text": "    const held = extra > 0 && !alap.has(id) && t.cstr.some((c) => START_HOLDS.has(c.type) && c.date !== null && Math.abs(t.cal.nextStart(c.date) - t.cal.nextStart(w.s)) <= 1);",
+            "caught": false,
+            "seconds": 4.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/collapse.mjs",
+            "line": 247,
+            "col": 35,
+            "operator": "or-to-and",
+            "before": "const hpd = (t.cal.hoursPerDay || 8) * 60;",
+            "after": "const hpd = (t.cal.hoursPerDay && 8) * 60;",
+            "line_text": "    const hpd = (t.cal.hoursPerDay || 8) * 60;",
+            "caught": false,
+            "seconds": 5.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/collapse.mjs",
+            "line": 345,
+            "col": 36,
+            "operator": "times-to-div",
+            "before": "if (d.days !== null && d.days * hpd > have + 1 && warnings) warnings.push(`row ${d.row}: ${d.code} took ${r1(have / hpd)} days as built, so ${r1(have / hpd)} were taken out, not ${d.days}`);",
+            "after": "if (d.days !== null && d.days / hpd > have + 1 && warnings) warnings.push(`row ${d.row}: ${d.code} took ${r1(have / hpd)} days as built, so ${r1(have / hpd)} were taken out, not ${d.days}`);",
+            "line_text": "      if (d.days !== null && d.days * hpd > have + 1 && warnings) warnings.push(`row ${d.row}: ${d.code} took ${r1(have / hpd)} days as built, so ${r1(have / hpd)} were taken out, not ${d.days}`);",
+            "caught": false,
+            "seconds": 5.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/collapse.mjs",
+            "line": 345,
+            "col": 49,
+            "operator": "plus-to-minus",
+            "before": "if (d.days !== null && d.days * hpd > have + 1 && warnings) warnings.push(`row ${d.row}: ${d.code} took ${r1(have / hpd)} days as built, so ${r1(have / hpd)} were taken out, not ${d.days}`);",
+            "after": "if (d.days !== null && d.days * hpd > have - 1 && warnings) warnings.push(`row ${d.row}: ${d.code} took ${r1(have / hpd)} days as built, so ${r1(have / hpd)} were taken out, not ${d.days}`);",
+            "line_text": "      if (d.days !== null && d.days * hpd > have + 1 && warnings) warnings.push(`row ${d.row}: ${d.code} took ${r1(have / hpd)} days as built, so ${r1(have / hpd)} were taken out, not ${d.days}`);",
+            "caught": false,
+            "seconds": 4.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/collapse.mjs",
+            "line": 360,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "const pday = (pcal.hoursPerDay || 8) * 60;",
+            "after": "const pday = (pcal.hoursPerDay || 8) * 61;",
+            "line_text": "  const pday = (pcal.hoursPerDay || 8) * 60;",
+            "caught": true,
+            "seconds": 4.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/xer-schedule-check/drag.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 583360785,
+        "commit": "225004b8a",
+        "sites": 152,
+        "baseline_seconds": 5.3,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/drag.mjs",
+            "line": 34,
+            "col": 31,
+            "operator": "times-to-div",
+            "before": "const r1 = (x) => Math.round(x * 10) / 10;",
+            "after": "const r1 = (x) => Math.round(x / 10) / 10;",
+            "line_text": "const r1 = (x) => Math.round(x * 10) / 10;",
+            "caught": true,
+            "seconds": 4.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/drag.mjs",
+            "line": 52,
+            "col": 63,
+            "operator": "and-to-or",
+            "before": "const cost = costPerDay !== null && costPerDay !== undefined && Number.isFinite(Number(costPerDay)) && Number(costPerDay) > 0 ? Number(costPerDay) : null;",
+            "after": "const cost = costPerDay !== null && costPerDay !== undefined || Number.isFinite(Number(costPerDay)) && Number(costPerDay) > 0 ? Number(costPerDay) : null;",
+            "line_text": "  const cost = costPerDay !== null && costPerDay !== undefined && Number.isFinite(Number(costPerDay)) && Number(costPerDay) > 0 ? Number(costPerDay) : null;",
+            "caught": false,
+            "seconds": 5.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/drag.mjs",
+            "line": 52,
+            "col": 102,
+            "operator": "and-to-or",
+            "before": "const cost = costPerDay !== null && costPerDay !== undefined && Number.isFinite(Number(costPerDay)) && Number(costPerDay) > 0 ? Number(costPerDay) : null;",
+            "after": "const cost = costPerDay !== null && costPerDay !== undefined && Number.isFinite(Number(costPerDay)) || Number(costPerDay) > 0 ? Number(costPerDay) : null;",
+            "line_text": "  const cost = costPerDay !== null && costPerDay !== undefined && Number.isFinite(Number(costPerDay)) && Number(costPerDay) > 0 ? Number(costPerDay) : null;",
+            "caught": false,
+            "seconds": 4.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/drag.mjs",
+            "line": 93,
+            "col": 60,
+            "operator": "true-to-false",
+            "before": "const res = schedule(null, { model, ...ex, forwardOnly: true, durations: new Map([[t.id, 0]]) });",
+            "after": "const res = schedule(null, { model, ...ex, forwardOnly: false, durations: new Map([[t.id, 0]]) });",
+            "line_text": "    const res = schedule(null, { model, ...ex, forwardOnly: true, durations: new Map([[t.id, 0]]) });",
+            "caught": false,
+            "seconds": 4.8,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "forwardOnly only skips the backward pass (cpm.mjs returns right after the forward pass); drag reads only the project finish from the forward pass, so the result is identical, only slower."
+          },
+          {
+            "file": "ventures/xer-schedule-check/drag.mjs",
+            "line": 105,
+            "col": 43,
+            "operator": "minus-to-plus",
+            "before": "else if (m.hours > 0 && m.hours < remH - 0.05) {",
+            "after": "else if (m.hours > 0 && m.hours < remH + 0.05) {",
+            "line_text": "    else if (m.hours > 0 && m.hours < remH - 0.05) {",
+            "caught": false,
+            "seconds": 4.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/drag.mjs",
+            "line": 121,
+            "col": 22,
+            "operator": "ge-to-gt",
+            "before": "if (gain(first) >= m.minutes) hi = first; else lo = first;",
+            "after": "if (gain(first) > m.minutes) hi = first; else lo = first;",
+            "line_text": "      if (gain(first) >= m.minutes) hi = first; else lo = first;",
+            "caught": true,
+            "seconds": 4.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/drag.mjs",
+            "line": 200,
+            "col": 26,
+            "operator": "eq-flip",
+            "before": "let s = v === null || v === undefined ? \"\" : String(v);",
+            "after": "let s = v === null || v !== undefined ? \"\" : String(v);",
+            "line_text": "  let s = v === null || v === undefined ? \"\" : String(v);",
+            "caught": true,
+            "seconds": 4.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/drag.mjs",
+            "line": 216,
+            "col": 60,
+            "operator": "const-plus-one",
+            "before": "const lg = r.lags.filter((l) => l.drag.hours !== 0).slice(0, 10);",
+            "after": "const lg = r.lags.filter((l) => l.drag.hours !== 0).slice(1, 10);",
+            "line_text": "  const lg = r.lags.filter((l) => l.drag.hours !== 0).slice(0, 10);",
+            "caught": false,
+            "seconds": 4.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/xer-schedule-check/crash.mjs",
+        "issue": "parseCrashData picked the room column with /max|room|shorten|crash/ before the cost column, so a 'Crash cost per day' (or 'Cost to shorten per day') header was read as the room too: 'Activity ID,Crash cost per day,Max days / A,1500,2' gave roomDays 1500 instead of 2, letting the crash analysis shorten an activity by 1,500 days. Fixed: cost column first, room looked for among the other columns, a bare 'Days' as the fallback; test 'acceleration data: a crash cost header is the cost column'.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18942"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8208a645-98f8-507f-bb64-812626c26212",
+    "transcripts": 1,
+    "first": "2026-11-25T10:38:59Z",
+    "last": "2026-11-25T10:47:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 86,
+        "output": 21326,
+        "thinking": 5840,
+        "cache_read": 3963471,
+        "cache_write_5m": 0,
+        "cache_write_1h": 92702,
+        "api_equivalent_usd": 1.9612,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 86,
+      "output": 21326,
+      "thinking": 5840,
+      "cache_read": 3963471,
+      "cache_write_5m": 0,
+      "cache_write_1h": 92702,
+      "api_equivalent_usd": 1.9612,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 43,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.51,
+      "active_minutes": 8.51,
+      "model_minutes": 3.43,
+      "tool_minutes": 5.08,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: 3 mutation triages + 9 tests + parser fix",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 204.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
