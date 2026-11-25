@@ -122,7 +122,8 @@ Still in development and not for sale. Built and tested so far:
 - schedule-of-values import from the contractor's own spreadsheet, and a start partway through a job;
 - lien waiver tracking, with the statutory form printed for the states encoded so far;
 - invitations for a team;
-- a cash and retainage report across jobs.
+- a cash and retainage report across jobs;
+- sending a pay application to QuickBooks Online as an invoice, with retainage kept in its own account (below).
 
 **Short pays.** The newest piece handles a GC that pays an application in pieces or short:
 
@@ -136,6 +137,37 @@ A short pay does not change the next pay application: line 7 on the summary subt
 The working price range in our notes is about $99 to $249 a month. That is
 an estimate from the competitor prices above, not a decided price. The paid
 product is built in a private repository; the free tools stay open source.
+
+### Getting retainage into QuickBooks (added 2026-11-25; still in development)
+
+Because QuickBooks has no retainage field in most companies, the build sends
+each pay application as an ordinary invoice built so the books still show
+what is held. Take a first application on a $100,000 job at 10% retainage
+that bills $20,000 of work and $5,000 of stored materials:
+
+| Invoice line | Item | Amount |
+| --- | --- | --- |
+| 1 Rough-in | Contract Billing (income) | $20,000.00 |
+| 2 Fixtures (materials stored) | Contract Billing (income) | $5,000.00 |
+| Retainage held, pay application #1 | Retainage (Retainage Receivable, an asset) | −$2,500.00 |
+| **Total: line 8, current payment due** | | **$22,500.00** |
+
+Income is booked in full as the work is billed. The GC owes $22,500 now,
+and the $2,500 sits in a Retainage Receivable account, so that account's
+balance is the retainage held across all jobs. When retainage comes back, the
+release is a positive line on the same item. Each work line is what the
+application adds to its schedule line (work this period plus the change in
+stored materials), so materials installed next month are not billed twice.
+
+Three rules keep it honest. The invoice total is always the application's
+own line 8: the retainage line is the difference, never a figure worked out
+again from a rate. Each application is sent once, under a number like
+`PA24-117-03`, and a retry looks that number up before creating anything.
+And nothing posts without the contractor pressing the button after seeing
+the lines. A test runs a job across three applications, with stored
+materials installed and a cut in the retainage rate, and checks that the
+invoices add up to the last application's line 6 (total earned less
+retainage). It has not yet run against a real QuickBooks company.
 
 ## What exists now, free
 
