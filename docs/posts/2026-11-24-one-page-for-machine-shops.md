@@ -575,6 +575,15 @@ now uses the shop's own quote log for this:
 Everything stays inside the shop's own account: no other shop's quotes are
 read, and nothing here estimates a price the shop has not set.
 
+Later the same day, pre-fill reached lines added by hand. Plenty of repeat work
+arrives as a phone call or a two-line email, not an RFQ. When the estimator
+clicks *Add line* and types a part number the shop has won before, the line
+now fills in the same way: the last won quote's material, operations and
+finishing, this line's quantities, today's rates, and the same "Pre-filled
+from" note. It fills only a line that is still empty, and only once, so it
+never writes over anything the estimator has typed. A line cleared on purpose
+stays empty.
+
 ## Update, 25 November 2026: quoting from a phone on the shop floor
 
 Estimators in small shops are often the owner or the lead machinist, and the

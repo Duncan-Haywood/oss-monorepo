@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01EhTJVKgBzb9oCyH1GhjHap",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T20:56:02Z",
+  "ended": "2026-11-25T21:03:39Z",
+  "wall_minutes": 11.05,
+  "tokens_in": 5579389,
+  "tokens_out": 24046,
+  "cost_usd": 2.3904,
+  "tool_calls": 58,
+  "task": "Bet #2 Job Shop Quote, ROADMAP 9: repeat-part pre-fill on quote lines added by hand",
+  "projects": [
+    "jobshop-quote"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19093",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "one worker test I wrote expected the part number untrimmed (the schema trims it); fixed the test before pushing"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "lists sub-claims of items already done (routing-templates, repeat-parts-part-2) as 'ALSO CLAIMED' on a fresh claim of the same item; had to read the ROADMAP to see they were finished parts, not competing work"
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "add_repo's result says to call register_repo_root and not read CLAUDE.md by hand; cloud-session.md correctly says to skip it (the tool is not there). The doc was right, but the tool's text contradicts it"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "the default is the top bet (#1 payapps), but every free payapps ROADMAP item was gated on a customer asking, on usage being measured, or on undocumented GC portal formats, and the rest were claimed",
+      "did": "took bet #2 (jobshop-quote) ROADMAP item 9 part 3, which was free",
+      "result": "merged as private PR 168 with tests"
+    },
+    {
+      "file": "prompt-2.md (venture-preflight)",
+      "why": "venture-preflight is for ventures/ in this repo; the code change is in private-monorepo, and here only a post and an agent doc changed",
+      "did": "ran the app's CI workflow locally instead (run_workflow_locally.py jobshop-quote-ci: 8/8 run: steps passed)",
+      "result": "ok"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-one-page-for-machine-shops.md (extended the repeat-parts update)",
+    "docs/reports/ventures-2026-11-25-jobshop-repeat-parts-hand-lines.md"
+  ],
+  "goal": null,
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/168 merged (squash f0d3059). Verification on the tree after merging main: typecheck clean; unit 265 passed; worker 148/148 before the merge and the 4 affected files 24/24 after it; pnpm build ok; run_workflow_locally jobshop-quote-ci 8/8 run: steps passed (3 uses: steps not run). The private repo's Actions runners are starved (404 logs), so it was verified locally.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ea2b14cf-80dc-5580-aa18-c3ad6200cb13",
+    "transcripts": 1,
+    "first": "2026-11-25T20:56:02Z",
+    "last": "2026-11-25T21:07:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 107,
+        "output": 24046,
+        "thinking": 3206,
+        "cache_read": 5477593,
+        "cache_write_5m": 0,
+        "cache_write_1h": 101689,
+        "api_equivalent_usd": 2.3904,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 107,
+      "output": 24046,
+      "thinking": 3206,
+      "cache_read": 5477593,
+      "cache_write_5m": 0,
+      "cache_write_1h": 101689,
+      "api_equivalent_usd": 2.3904,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 53,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.05,
+      "active_minutes": 11.05,
+      "model_minutes": 4.35,
+      "tool_minutes": 6.7,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "feature + 7 tests + docs in an unfamiliar codebase, senior dev estimate",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 209.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
