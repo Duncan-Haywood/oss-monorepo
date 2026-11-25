@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import router, { APP_DIRS, SHARD_DIRS, SITE_ORIGIN, WORKERS_DEV_HOST, appBinding, inShard } from './router.mjs';
-import { split, workersDevHeaders, securityHeaders, SECURITY_HEADERS } from './split.mjs';
+import { split, workersDevHeaders, securityHeaders, assetCacheHeaders, LONG_CACHE_CONTROL, SECURITY_HEADERS } from './split.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -89,7 +89,7 @@ test('split writes a _headers rule that sends only the workers.dev host to the d
   await fs.writeFile(path.join(site, '404.html'), '');
   await split(site, path.join(root, 'shard'));
   const h = await fs.readFile(path.join(site, '_headers'), 'utf8');
-  assert.equal(h, workersDevHeaders() + securityHeaders());
+  assert.equal(h, workersDevHeaders() + securityHeaders() + assetCacheHeaders());
   assert.match(h, new RegExp(`^https://${WORKERS_DEV_HOST.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/\\*\n  Refresh: 0; url=${SITE_ORIGIN}/:splat\n`));
   for (const line of h.split('\n')) assert.ok(line.length <= 2000);
 });
@@ -107,4 +107,27 @@ test('both Workers send the baseline security headers on every path, and nothing
     assert.doesNotMatch(h, /X-Frame-Options|frame-ancestors|includeSubDomains|preload/i, f);
   }
   assert.ok(Number(SECURITY_HEADERS['Strict-Transport-Security'].match(/max-age=(\d+)/)[1]) >= 15552000);
+});
+
+test('both Workers give images, fonts and media a day of cache, and leave pages, CSS and scripts revalidating', async () => {
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), 'split-cache-'));
+  const site = path.join(root, 'site');
+  await fs.mkdir(site);
+  await fs.writeFile(path.join(site, '404.html'), '');
+  await split(site, path.join(root, 'shard'));
+  for (const f of [path.join(site, '_headers'), path.join(root, 'shard', '_headers')]) {
+    const h = await fs.readFile(f, 'utf8');
+    for (const ext of ['png', 'PNG', 'JPG', 'webp', 'svg', 'woff2', 'ttf', 'mp3']) {
+      assert.ok(h.includes(`/*.${ext}\n  Cache-Control: ${LONG_CACHE_CONTROL}\n`), `${f}: ${ext}`);
+    }
+    for (const ext of ['html', 'css', 'js', 'mjs', 'json', 'xml', 'txt', 'webmanifest']) {
+      assert.ok(!h.includes(`/*.${ext}\n`), `${f}: ${ext} must keep revalidating until its URL carries a hash`);
+    }
+    // Cloudflare joins the values when two matching rules set one header, so
+    // the catch-all /* rule must never set Cache-Control itself.
+    const rules = h.split(/\n(?=\S)/);
+    assert.ok(rules.length <= 100, `${f}: ${rules.length} rules, over Cloudflare's 100`);
+    for (const r of rules.filter((r) => /^(https:\/\/[^/]+)?\/\*\n/.test(r))) assert.doesNotMatch(r, /Cache-Control/i, r);
+  }
+  assert.match(LONG_CACHE_CONTROL, /max-age=(8640\d|[1-9]\d{5,})/);
 });
