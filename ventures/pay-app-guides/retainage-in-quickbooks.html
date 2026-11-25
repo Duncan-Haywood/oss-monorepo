@@ -10,6 +10,7 @@
   <link rel="canonical" href="./retainage-in-quickbooks.html">
   <link rel="stylesheet" href="style.css">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "How to track retainage in QuickBooks Online", "datePublished": "2026-11-25", "dateModified": "2026-11-25"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does QuickBooks Online track retainage?", "acceptedAnswer": {"@type": "Answer", "text": "Not as a built-in field. The usual workaround is a Retainage Receivable account (Other Current Assets, detail type Retainage) and a Retainage item: a negative line holds the money back on each pay app invoice, and a positive line on a later invoice bills it when it is released."}}, {"@type": "Question", "name": "How do I bill released retainage in QuickBooks Online?", "acceptedAnswer": {"@type": "Answer", "text": "Add the Retainage item as a positive line for the amount released. No new income is booked, because it was booked when the work was billed: the amount moves from Retainage Receivable to accounts receivable, and the customer's payment clears it like any other invoice."}}, {"@type": "Question", "name": "Why is retainage missing from my A/R aging report?", "acceptedAnswer": {"@type": "Answer", "text": "Because retainage sits in an asset account rather than accounts receivable, the standard A/R aging report does not show it. Open Retainage Receivable from the chart of accounts, or run Transaction Detail by Account filtered to that account, and group by customer and project to see it per job."}}]}</script>
 </head>
 <body>
 <header>
@@ -106,6 +107,16 @@
 <section class="card">
   <h2>QuickBooks Desktop</h2>
   <p>Desktop uses the same idea: a retainage account and an item tied to it, entered as a negative amount on the progress invoice, with any percentage worked out by hand (<a href="https://quickbooks.intuit.com/learn-support/en-us/reports-and-accounting/does-anyone-know-how-to-include-retainage-on-an-invoice-or-for-a/00/218433" rel="noopener">Intuit community</a>). Progress invoicing is turned on under Edit → Preferences → Jobs &amp; Estimates → Company Preferences (<a href="https://quickbooks.intuit.com/community/other-questions-9/how-do-i-manage-project-contracts-and-projects-with-my-clients-in-premier-professional-services-97421" rel="noopener">Intuit community</a>, answered for a Premier edition).</p>
+</section>
+
+<section class="card" id="faq">
+  <h2>Common questions</h2>
+  <h3>Does QuickBooks Online track retainage?</h3>
+  <p>Not as a built-in field. The usual workaround is a Retainage Receivable account (Other Current Assets, detail type Retainage) and a Retainage item: a negative line holds the money back on each pay app invoice, and a positive line on a later invoice bills it when it is released.</p>
+  <h3>How do I bill released retainage in QuickBooks Online?</h3>
+  <p>Add the Retainage item as a positive line for the amount released. No new income is booked, because it was booked when the work was billed: the amount moves from Retainage Receivable to accounts receivable, and the customer's payment clears it like any other invoice.</p>
+  <h3>Why is retainage missing from my A/R aging report?</h3>
+  <p>Because retainage sits in an asset account rather than accounts receivable, the standard A/R aging report does not show it. Open Retainage Receivable from the chart of accounts, or run Transaction Detail by Account filtered to that account, and group by customer and project to see it per job.</p>
 </section>
 
 <section class="card cta" id="early-access">

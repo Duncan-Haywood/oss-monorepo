@@ -233,3 +233,21 @@ already says. Nothing was added that the old text did not say, and the 7shifts
 comparison still says what the tool does not replace (payroll). Titles,
 `og:description` and JSON-LD were left alone. The list of over-long
 descriptions fell from 2,898 pages to 2,836. No traffic change is claimed.
+
+## Update, 2026-11-25: every pay-app guide now has its questions answered
+
+The other twelve pay-app guides got the same treatment, so all 25 now end with
+three "Common questions" in `FAQPage` structured data. The questions are the
+ones a subcontractor types: "Can I bill a pending change order on my pay
+application?", "How much does Textura charge a subcontractor?", "Why is
+retainage missing from my A/R aging report?", "Who can make a Miller Act
+payment bond claim?", "Can I bill a T&M ticket on my pay application?".
+
+Each answer is worded from its own page and nothing else, sources and
+hedges included. The Textura answer gives the fee as Oracle's help pages
+state it (0.22% of the contract, at most $5,000) and calls it a cost to price
+into the bid; the joint check answer says the rule gives way to a written
+split; the sworn statement answer names the two statutes the page quotes and
+no others. A new test fails if any page in the guide folder is missing from
+the FAQ list, so the next guide ships with its questions answered. Guides with
+an FAQ: 13 of 25 before, 25 of 25 now. No traffic change is claimed.

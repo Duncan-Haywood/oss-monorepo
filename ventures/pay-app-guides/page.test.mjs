@@ -311,16 +311,23 @@ test("Miller Act page: inputs labelled, statute and FAR linked with a read date,
   for (const name of ["prompt-payment-laws.html", "joint-checks.html", "conditional-vs-unconditional-lien-waivers.html"]) assert.match(page(name), /href="miller-act-payment-bond-claims\.html"/, name);
 });
 
-// Guides that carry FAQPage markup (polish, 2026-11-25). The list may only
+// Guides that carry FAQPage markup (polish, 2026-11-25; every guide since the
+// second pass the same day). The list may only
 // grow: a guide that answers the question people search should keep saying
 // so in a form an answer engine can lift. Each question must also be an h3 in
 // the page's visible "Common questions" section.
 const FAQ_PAGES = [
-  "change-order-log.html", "conditional-vs-unconditional-lien-waivers.html",
+  "change-order-log.html", "change-orders-schedule-of-values.html",
+  "conditional-vs-unconditional-lien-waivers.html",
   "front-loading-schedule-of-values.html", "how-to-fill-out-a-pay-application.html",
-  "index.html", "lien-waiver-log.html", "pay-app-cash-forecast.html",
+  "index.html", "joint-checks.html", "lien-waiver-forms-by-state.html",
+  "lien-waiver-log.html", "miller-act-payment-bond-claims.html",
+  "overbilling-underbilling.html", "paid-short.html", "pay-app-cash-forecast.html",
+  "pay-application-checker.html", "pay-application-software-compared.html",
   "pay-if-paid-clauses.html", "prompt-payment-laws.html", "retainage-explained.html",
-  "retainage-tracker.html", "schedule-of-values-template.html", "stored-materials-billing.html",
+  "retainage-in-quickbooks.html", "retainage-release.html", "retainage-tracker.html",
+  "schedule-of-values-template.html", "stored-materials-billing.html",
+  "sworn-statement.html", "tm-tickets.html",
 ];
 
 test("guides with an FAQ keep FAQPage markup that matches visible questions", () => {
@@ -337,4 +344,10 @@ test("guides with an FAQ keep FAQPage markup that matches visible questions", ()
     const visible = [...faq[1].matchAll(/<h3>([\s\S]*?)<\/h3>/g)].map((m) => m[1].trim());
     for (const q of block.mainEntity) assert.ok(visible.includes(escape(q.name)), `${name}: "${q.name}" not shown on the page`);
   }
+});
+
+test("every guide page carries an FAQ (a new guide ships with one)", () => {
+  const all = readdirSync(new URL(".", import.meta.url)).filter((f) => f.endsWith(".html"));
+  const missing = all.filter((f) => !FAQ_PAGES.includes(f));
+  assert.deepEqual(missing, [], `add a "Common questions" section and FAQPage JSON-LD, then list the page in FAQ_PAGES: ${missing.join(", ")}`);
 });
