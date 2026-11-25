@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html"];
+const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html"];
 
 test("every page carries the no-warranty clause, sponsor link, opt-out and honest CTA", () => {
   for (const name of PAGES) {
@@ -54,6 +54,17 @@ test("robots and sitemap list every page", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   const sitemap = page("sitemap.xml");
   for (const name of PAGES) assert.match(sitemap, new RegExp(name.replace(".", "\\.")));
+});
+
+test("the waiver-forms table links each state to its official legislature site, with a read date", () => {
+  const html = page("lien-waiver-forms-by-state.html");
+  const start = html.indexOf('id="state-table"');
+  const table = html.slice(start, html.indexOf("</table>", start));
+  const rows = [...table.matchAll(/<tr><td>([A-Z][a-z]+)<\/td><td><a href="([^"]+)"/g)];
+  assert.ok(rows.length >= 7, `only ${rows.length} states`);
+  const official = /^https:\/\/(www\.azleg\.gov|www\.leg\.state\.nv\.us|statutes\.capitol\.texas\.gov|le\.utah\.gov|www\.flsenate\.gov|www\.legislature\.mi\.gov|wyoleg\.gov|leginfo\.legislature\.ca\.gov)\//;
+  for (const [, state, href] of rows) assert.match(href, official, state);
+  assert.match(html, /2026-11-25/);
 });
 
 test("the QuickBooks guide cites Intuit's own pages, says it is not Intuit, and its calculator is labelled", () => {

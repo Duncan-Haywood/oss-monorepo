@@ -10,6 +10,11 @@ serves a redirect page for every URL (`../redirect-stubs.mjs`), and since
 `split.mjs` writes (`Refresh: 0; url=https://marisstella.app/<path>` and
 `X-Robots-Tag: noindex`), because they never run code. Paths that do run
 the router (`/research`, `/writing`, `/dev`) answer with a 301 (`router.mjs`).
+The same `_headers` files (both Workers) give images, fonts and media a day
+of browser cache (`LONG_CACHE_EXTENSIONS` in `split.mjs`); every other file
+keeps Workers' default `max-age=0, must-revalidate`, because new HTML with an
+old cached module or stylesheet can break a page until URLs carry a content
+hash (task `site-perf-hashed-modules`).
 A 301 on every path would need `run_worker_first = true`, which would meter
 every file request against the free plan's 100,000 a day.
 

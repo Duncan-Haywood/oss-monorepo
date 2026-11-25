@@ -1,0 +1,488 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyfR7BLDyrKWCeHZQeq",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T02:38:57Z",
+  "ended": "2026-11-25T02:41:15Z",
+  "wall_minutes": 5.45,
+  "tokens_in": 5512104,
+  "tokens_out": 23083,
+  "cost_usd": 2.4706,
+  "tool_calls": 51,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18818",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 sent the run to security alert #1, but the queue was built from a scan older than PR 18676 and four open PRs (18806-18809) were already handling it; the alert file had no step to check staleness or open PRs first (PR 18808 adds one)."
+    },
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "Crashes with a CalledProcessError traceback on a shallow clone where merge-base with origin/main is unknown; needed a commit plus fetch before it would run (PR 18791 adds a stale --base warning, not this)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Step 0 says take the top security alert; alerts #1-#7 are triaged false positives in open PR 18809 and the queue is stale per PR 18808, so taking one would duplicate.",
+      "did": "Went to step 1 routing instead.",
+      "result": "Routed to redteam; shipped two real money-affecting fixes."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-retainage-in-quickbooks-online.md (extended: Fixed the same day)"
+  ],
+  "goal": null,
+  "notes": "Target pay-app-guides (front door to the payapps bet). Guard added: tests in the product suites (ventures-tests runs them on every PR); no new lint, since the CO-numbering class lives in two files only. Local: pay-app-guides 33 pass, pay-application-generator 60 pass, template --check ok, risk_review blocked nothing. Also fixed two reds on main that every venture PR hit: stale transition.json and the saas-starter unwired node suites (missing npm deps now skip, as missing Python packages do).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/pay-app-guides/calc.mjs",
+        "test": "node --test ventures/pay-app-guides/**/*.test.mjs  (in .)",
+        "seed": 310709015,
+        "commit": "c4775e81f",
+        "sites": 129,
+        "baseline_seconds": 0.8,
+        "mutants": [
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 32,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "return Math.round(n * 100);",
+            "after": "return Math.round(n * 101);",
+            "line_text": "  return Math.round(n * 100);",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 63,
+            "col": 19,
+            "operator": "ge-to-gt",
+            "before": "if (!(storedRate >= 0 && storedRate <= 1)) bad(\"Retainage on stored materials must be between 0% and 100%.\");",
+            "after": "if (!(storedRate > 0 && storedRate <= 1)) bad(\"Retainage on stored materials must be between 0% and 100%.\");",
+            "line_text": "  if (!(storedRate >= 0 && storedRate <= 1)) bad(\"Retainage on stored materials must be between 0% and 100%.\");",
+            "caught": false,
+            "seconds": 0.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "0% stored-materials retainage is common; test added: compute with storedRetainage '0' gives no finding"
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 85,
+            "col": 13,
+            "operator": "const-plus-one",
+            "before": "if (C >= 0 && G > C) bad(`${label}: billed ${fmt(G)} against a scheduled value of ${fmt(C)}. Over-billing a line is the first thing a reviewer marks down.`);",
+            "after": "if (C >= 1 && G > C) bad(`${label}: billed ${fmt(G)} against a scheduled value of ${fmt(C)}. Over-billing a line is the first thing a reviewer marks down.`);",
+            "line_text": "    if (C >= 0 && G > C) bad(`${label}: billed ${fmt(G)} against a scheduled value of ${fmt(C)}. Over-billing a line is the first thing a reviewer marks down.`);",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "work billed on a $0 line was not flagged with the mutant; test added"
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 95,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "const rel = Number.isNaN(released) ? 0 : released;",
+            "after": "const rel = Number.isNaN(released) ? 1 : released;",
+            "line_text": "  const rel = Number.isNaN(released) ? 0 : released;",
+            "caught": false,
+            "seconds": 0.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "an unreadable release must count as $0 released; test added"
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 115,
+            "col": 53,
+            "operator": "div-to-times",
+            "before": "percentComplete: contractSum ? completedStored / contractSum : null,",
+            "after": "percentComplete: contractSum ? completedStored * contractSum : null,",
+            "line_text": "      percentComplete: contractSum ? completedStored / contractSum : null,",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 136,
+            "col": 29,
+            "operator": "and-to-or",
+            "before": "if (/^[=+\\-@\\t\\r]/.test(s) && !/^-?\\d+(\\.\\d+)?$/.test(s)) s = `'${s}`;",
+            "after": "if (/^[=+\\-@\\t\\r]/.test(s) || !/^-?\\d+(\\.\\d+)?$/.test(s)) s = `'${s}`;",
+            "line_text": "  if (/^[=+\\-@\\t\\r]/.test(s) && !/^-?\\d+(\\.\\d+)?$/.test(s)) s = `'${s}`;",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 139,
+            "col": 26,
+            "operator": "const-plus-one",
+            "before": "const plain = (c) => (c / 100).toFixed(2);",
+            "after": "const plain = (c) => (c / 101).toFixed(2);",
+            "line_text": "const plain = (c) => (c / 100).toFixed(2);",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 143,
+            "col": 153,
+            "operator": "const-plus-one",
+            "before": "const body = result.rows.map((r) => [r.item, r.description, plain(r.C), plain(r.D), plain(r.E), plain(r.F), plain(r.G), r.pct === null ? \"\" : (r.pct * 100).toFixed(1), plain(r.H), plain(r.retainage)]);",
+            "after": "const body = result.rows.map((r) => [r.item, r.description, plain(r.C), plain(r.D), plain(r.E), plain(r.F), plain(r.G), r.pct === null ? \"\" : (r.pct * 101).toFixed(1), plain(r.H), plain(r.retainage)]);",
+            "line_text": "  const body = result.rows.map((r) => [r.item, r.description, plain(r.C), plain(r.D), plain(r.E), plain(r.F), plain(r.G), r.pct === null ? \"\" : (r.pct * 100).toFixed(1), plain(r.H), plain(r.retainage)]);",
+            "caught": false,
+            "seconds": 0.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "CSV percent column was untested; test added"
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 166,
+            "col": 15,
+            "operator": "plus-to-minus",
+            "before": "].join(\"\\n\") + \"\\n\";",
+            "after": "].join(\"\\n\") - \"\\n\";",
+            "line_text": "  ].join(\"\\n\") + \"\\n\";",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 193,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "if (Number.isNaN(r) || r < 0 || r > 1) errors.push(\"Retainage must be between 0% and 100%.\");",
+            "after": "if (Number.isNaN(r) || r < 0 || r > 2) errors.push(\"Retainage must be between 0% and 100%.\");",
+            "line_text": "  if (Number.isNaN(r) || r < 0 || r > 1) errors.push(\"Retainage must be between 0% and 100%.\");",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 194,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "if (Number.isNaN(rel) || rel < 0) errors.push(\"Retainage released must be zero or a positive amount.\");",
+            "after": "if (Number.isNaN(rel) || rel < 1) errors.push(\"Retainage released must be zero or a positive amount.\");",
+            "line_text": "  if (Number.isNaN(rel) || rel < 0) errors.push(\"Retainage released must be zero or a positive amount.\");",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 195,
+            "col": 37,
+            "operator": "eq-flip",
+            "before": "let h = held === undefined || held === \"\" ? null : toCents(held);",
+            "after": "let h = held === undefined || held !== \"\" ? null : toCents(held);",
+            "line_text": "  let h = held === undefined || held === \"\" ? null : toCents(held);",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/pay-app-guides/template.mjs",
+        "test": "node --test ventures/pay-app-guides/**/*.test.mjs  (in .)",
+        "seed": 978050856,
+        "commit": "c4775e81f",
+        "sites": 125,
+        "baseline_seconds": 0.9,
+        "mutants": [
+          {
+            "file": "ventures/pay-app-guides/template.mjs",
+            "line": 20,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "export const FIRST = 10;        // first schedule-of-values row",
+            "after": "export const FIRST = 11;        // first schedule-of-values row",
+            "line_text": "export const FIRST = 10;        // first schedule-of-values row",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/template.mjs",
+            "line": 32,
+            "col": 21,
+            "operator": "eq-flip",
+            "before": "if (v == null || v === \"\") return style ? `<c r=\"${ref}\" s=\"${style}\"/>` : \"\";",
+            "after": "if (v == null || v !== \"\") return style ? `<c r=\"${ref}\" s=\"${style}\"/>` : \"\";",
+            "line_text": "  if (v == null || v === \"\") return style ? `<c r=\"${ref}\" s=\"${style}\"/>` : \"\";",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/template.mjs",
+            "line": 49,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "rows.push(row(6, [cell(\"A6\", \"Retainage on stored materials, %\", S.bold), cell(\"C6\", num(settings.storedRetainage ?? \"10\"), S.inputPct)]));",
+            "after": "rows.push(row(7, [cell(\"A6\", \"Retainage on stored materials, %\", S.bold), cell(\"C6\", num(settings.storedRetainage ?? \"10\"), S.inputPct)]));",
+            "line_text": "  rows.push(row(6, [cell(\"A6\", \"Retainage on stored materials, %\", S.bold), cell(\"C6\", num(settings.storedRetainage ?? \"10\"), S.inputPct)]));",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/template.mjs",
+            "line": 52,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "rows.push(row(9, [...\"ABCDEFGHIJK\"].map((c) => cell(`${c}9`, c, S.head))));",
+            "after": "rows.push(row(10, [...\"ABCDEFGHIJK\"].map((c) => cell(`${c}9`, c, S.head))));",
+            "line_text": "  rows.push(row(9, [...\"ABCDEFGHIJK\"].map((c) => cell(`${c}9`, c, S.head))));",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/template.mjs",
+            "line": 102,
+            "col": 50,
+            "operator": "eq-flip",
+            "before": "const value = v === \"input\" ? cell(`C${r}`, i === 0 ? num(settings.originalContract) : num(settings.previousCertificates), S.inputMoney) : cell(`C${r}`, v, r === 11 ? S.totalMoney : S.money);",
+            "after": "const value = v === \"input\" ? cell(`C${r}`, i !== 0 ? num(settings.originalContract) : num(settings.previousCertificates), S.inputMoney) : cell(`C${r}`, v, r === 11 ? S.totalMoney : S.money);",
+            "line_text": "    const value = v === \"input\" ? cell(`C${r}`, i === 0 ? num(settings.originalContract) : num(settings.previousCertificates), S.inputMoney) : cell(`C${r}`, v, r === 11 ? S.totalMoney : S.money);",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/template.mjs",
+            "line": 108,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "const cols = [[1, 40], [2, 2], [3, 18], [4, 70]].map(([c, w]) => `<col min=\"${c}\" max=\"${c}\" width=\"${w}\" customWidth=\"1\"/>`).join(\"\");",
+            "after": "const cols = [[1, 40], [2, 2], [3, 18], [5, 70]].map(([c, w]) => `<col min=\"${c}\" max=\"${c}\" width=\"${w}\" customWidth=\"1\"/>`).join(\"\");",
+            "line_text": "  const cols = [[1, 40], [2, 2], [3, 18], [4, 70]].map(([c, w]) => `<col min=\"${c}\" max=\"${c}\" width=\"${w}\" customWidth=\"1\"/>`).join(\"\");",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/template.mjs",
+            "line": 108,
+            "col": 46,
+            "operator": "const-plus-one",
+            "before": "const cols = [[1, 40], [2, 2], [3, 18], [4, 70]].map(([c, w]) => `<col min=\"${c}\" max=\"${c}\" width=\"${w}\" customWidth=\"1\"/>`).join(\"\");",
+            "after": "const cols = [[1, 40], [2, 2], [3, 18], [4, 71]].map(([c, w]) => `<col min=\"${c}\" max=\"${c}\" width=\"${w}\" customWidth=\"1\"/>`).join(\"\");",
+            "line_text": "  const cols = [[1, 40], [2, 2], [3, 18], [4, 70]].map(([c, w]) => `<col min=\"${c}\" max=\"${c}\" width=\"${w}\" customWidth=\"1\"/>`).join(\"\");",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/template.mjs",
+            "line": 136,
+            "col": 107,
+            "operator": "const-plus-one",
+            "before": "h.writeUInt32LE(0x04034b50, 0); h.writeUInt16LE(20, 4); h.writeUInt16LE(0x0800, 6); h.writeUInt16LE(0, 8);",
+            "after": "h.writeUInt32LE(0x04034b50, 0); h.writeUInt16LE(20, 4); h.writeUInt16LE(0x0800, 6); h.writeUInt16LE(0, 9);",
+            "line_text": "    h.writeUInt32LE(0x04034b50, 0); h.writeUInt16LE(20, 4); h.writeUInt16LE(0x0800, 6); h.writeUInt16LE(0, 8);",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Buffer.alloc zero-fills, so writing 0 at offset 9 instead of 8 leaves bytes 8-9 zero and byte 10 is rewritten to 0 on the next line: identical bytes"
+          },
+          {
+            "file": "ventures/pay-app-guides/template.mjs",
+            "line": 148,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "end.writeUInt32LE(0x06054b50, 0); end.writeUInt16LE(files.length, 8); end.writeUInt16LE(files.length, 10);",
+            "after": "end.writeUInt32LE(0x06054b50, 1); end.writeUInt16LE(files.length, 8); end.writeUInt16LE(files.length, 10);",
+            "line_text": "  end.writeUInt32LE(0x06054b50, 0); end.writeUInt16LE(files.length, 8); end.writeUInt16LE(files.length, 10);",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/template.mjs",
+            "line": 177,
+            "col": 71,
+            "operator": "const-plus-one",
+            "before": "if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {",
+            "after": "if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[2]) {",
+            "line_text": "if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {",
+            "caught": false,
+            "seconds": 0.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "the CLI guard compared against argv[2], so `node template.mjs --check` silently did nothing and exited 0; test added that runs --check on a copy with no .xlsx and expects exit 1"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/pay-app-guides/calc.mjs",
+        "issue": "isChangeOrder read items numbered CO1, C.O. 3 or C.O.3 as base-contract lines: original contract sum inflated, net change orders understated, and a deductive 'CO1' line raised a false high finding ('negative scheduled value on a base-contract line'). Repro: compute([{item:'1',scheduled:'10000',thisPeriod:'5000'},{item:'CO1',scheduled:'-1500'}]) gave original $8,500, net CO $0. Fixed regex; failing-first test.",
+        "patched": true
+      },
+      {
+        "file": "ventures/pay-app-guides/calc.mjs",
+        "issue": "quickbooksLines accepted a negative 'retainage held' (the guide tells people to enter retainage in QuickBooks as a negative number, so typing -4000 is natural) and turned it into a +$4,000 Retainage line: the invoice billed the retainage instead of holding it (total $44,000 instead of $36,000 on $40,000). Now refused with a message; label says 'as a positive amount'. Failing-first test.",
+        "patched": true
+      },
+      {
+        "file": "platform/ci/unwired_checks.py",
+        "issue": "Since PR 18765 every venture PR's changed-ventures job was red: the unwired runner ran platform/aws/stacks/saas-starter/runtime/test/*.test.mjs, which import @aws-sdk/client-s3 and pg from the starter's package.json, and nothing runs npm ci there. Patched: a declared-but-uninstalled npm package is now a SKIP like the Python missing-module case (an undeclared import stays red), with a test. Remaining: a workflow step that runs npm ci in saas-starter/runtime and its tests (workflow change, own PR), so they run rather than skip.",
+        "patched": true
+      },
+      {
+        "file": "portfolio/monetization/transition.json",
+        "issue": "Stale since PR 18757 made photo-editing a subscription; test_committed_json_is_current red on main. Regenerated with transition.py --write.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c5c48057-958f-5e4d-95a6-f1df5f394a87",
+    "transcripts": 1,
+    "first": "2026-11-25T02:38:57Z",
+    "last": "2026-11-25T02:44:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 98,
+        "output": 23083,
+        "thinking": 8040,
+        "cache_read": 5395833,
+        "cache_write_5m": 0,
+        "cache_write_1h": 116173,
+        "api_equivalent_usd": 2.4706,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 98,
+      "output": 23083,
+      "thinking": 8040,
+      "cache_read": 5395833,
+      "cache_write_5m": 0,
+      "cache_write_1h": 116173,
+      "api_equivalent_usd": 2.4706,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 46,
+      "mcp__github__pull_request_read": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.45,
+      "active_minutes": 5.45,
+      "model_minutes": 3.83,
+      "tool_minutes": 1.62,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior dev: mutation triage, two defect repros, tests and fixes in two products",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 161.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

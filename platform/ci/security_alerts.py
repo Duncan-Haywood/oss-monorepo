@@ -46,13 +46,14 @@ Usage (in Actions; GITHUB_TOKEN and GITHUB_REPOSITORY come from the runner):
 from __future__ import annotations
 
 import argparse
-from collections import Counter
 import json
 import os
+import re
 import shutil
 import sys
 import urllib.error
 import urllib.request
+from collections import Counter
 from pathlib import Path
 
 API = "https://api.github.com"
@@ -62,6 +63,7 @@ RANK = {"critical": 0, "high": 1, "error": 1, "medium": 2, "warning": 2,
         "low": 3, "note": 4}
 MESSAGE_CHARS = 600
 TRIAGE = Path(__file__).resolve().parents[2] / "platform" / "security" / "codeql-triage.json"
+SAFE_PATH = re.compile(r"[\w./@+\[\]-]+")
 
 
 def severity(alert: dict) -> str:
@@ -85,7 +87,9 @@ def summarise(alert: dict) -> dict:
         "message": message[:MESSAGE_CHARS],
         "created": str(alert.get("created_at") or "")[:10],
         "url": str(alert.get("html_url") or ""),
-        "commit": str(inst.get("commit_sha") or "")[:12],
+        # The commit the alert was last seen on. An alert stays open until CodeQL
+        # finishes on a newer main, which can be hours after the fix merges.
+        "commit": sha if re.fullmatch(r"[0-9a-f]{40}", sha := str(inst.get("commit_sha") or "")) else "",
     }
 
 
@@ -106,6 +110,24 @@ def triage_reason(s: dict, triage: list[dict]) -> str | None:
                 and e.get("path") == s["path"] and str(e.get("reason") or "").strip()):
             return " ".join(str(e["reason"]).split())[:MESSAGE_CHARS]
     return None
+
+
+def stale_check(s: dict) -> list[str]:
+    """Step 0 of an alert file: is the finding still on main, or did a later merge fix it?"""
+    if not s["commit"]:
+        return []
+    # Sessions paste this into a shell, so the path goes in only when it cannot break out
+    # of the quotes (a file name is repository data, and anyone can propose one in a PR).
+    path = f" -- '{s['path']}'" if SAFE_PATH.fullmatch(s["path"]) else ""
+    return [
+        f"0. Check it is still there. CodeQL last saw it on `{s['commit'][:12]}`; queued CodeQL",
+        "   runs on main are replaced by newer pushes and one takes about an hour, so a fix",
+        "   merged since then stays listed here. Run",
+        f"   `git fetch -q --depth=1 origin {s['commit']} main && git diff --stat {s['commit'][:12]} origin/main{path}`",
+        "   (fetching main too: a session's origin/main is as old as its clone):",
+        "   no output means the file is unchanged and the finding stands; otherwise read the",
+        "   line on main first, and if an earlier fix removed it, take the next alert.",
+    ]
 
 
 def alert_file(s: dict, reason: str | None = None) -> str:
@@ -133,14 +155,12 @@ def alert_file(s: dict, reason: str | None = None) -> str:
         f"- Finding: {s['message']}",
         f"- Open since: {s['created']}",
         f"- Alert page (write access only): {s['url']}",
-        f"- Last seen at commit: `{s['commit'] or 'unknown'}`",
+        "",
+        f"- Last seen on commit: `{s['commit'] or 'unknown'}`",
         "",
         "## To fix",
         "",
-        *([f"0. Still there? `git log --oneline {s['commit']}..origin/main -- {s['path']}` lists the",
-           "   commits that changed the file since that scan. If one fixed it, the alert closes on the",
-           "   next completed analysis of main: take the next alert instead of redoing the fix.",
-           ] if s["commit"] else []),
+        *stale_check(s),
         f"1. Claim it: `git ls-remote origin refs/heads/{BRANCH_PREFIX}{n}` prints nothing,",
         f"   then `git checkout -b {BRANCH_PREFIX}{n} origin/main && git push -u origin HEAD`.",
         "   If the push is rejected or the branch exists, someone has it: take the next alert.",
@@ -177,15 +197,17 @@ def render(alerts: list[dict], triage: list[dict] | None = None) -> dict[str, st
         f"(`{BRANCH_PREFIX}<n>`) does not exist; its file says how.",
         "",
     ]
-    commits = Counter(s["commit"] for s in todo if s["commit"])
-    if commits:
-        # The alerts mirror the last *completed* analysis of main, which lags merges by about
-        # an hour (a full scan takes that long and newer pushes queue behind it). On
-        # 2026-11-25 the queue listed 1,244 alerts that PR 18676 had already fixed.
-        sha = commits.most_common(1)[0][0]
-        lines += [f"Scanned at commit `{sha}`. Before fixing, check what merged since: "
-                  f"`git log --oneline {sha}..origin/main`. A bulk fix there means most entries "
-                  "below are stale until the next analysis of main completes.", ""]
+    # The alerts mirror the last *completed* analysis of main, which lags merges by about
+    # an hour (a full scan takes that long and newer pushes queue behind it). On
+    # 2026-11-25 the queue listed 1,243 alerts, 1,189 in files PR 18676 had already changed
+    # (PR 18806 first named the commit; docs/reports/2026-11-25-security-queue-stale-scan.md).
+    seen = Counter(s["commit"] for s in todo if s["commit"])
+    if seen:
+        sha, _ = seen.most_common(1)[0]
+        lines += [f"Scanned commit: `{sha[:12]}` (the commit most open alerts were last seen on). "
+                  "Fixes merged after it are still listed until CodeQL finishes on a newer main: "
+                  f"`git diff --stat {sha[:12]} origin/main -- <path>` before fixing (each alert file says how).",
+                  ""]
     lines += [f"- [{s['severity']}] #{s['number']} `{s['rule']}` in `{s['path']}:{s['line']}`: "
               f"alerts/{s['number']}.md" for s in todo] or [
         "Empty: no open alerts awaiting a fix." if triaged else "Empty: no open alerts."]

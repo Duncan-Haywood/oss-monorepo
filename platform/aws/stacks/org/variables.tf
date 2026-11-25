@@ -32,3 +32,9 @@ variable "owner_identity_center_user_name" {
   type        = string
   default     = ""
 }
+
+variable "public_repository" {
+  description = "owner/name of the public repository whose GitHub Actions tokens the payments account must never accept (rcps.tf)."
+  type        = string
+  default     = "Duncan-Haywood/oss-monorepo"
+}

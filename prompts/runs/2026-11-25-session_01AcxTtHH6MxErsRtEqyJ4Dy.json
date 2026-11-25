@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtHH6MxErsRtEqyJ4Dy",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-25T01:13:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Bet 1 (payapps) public side: statutory lien waiver forms by state guide in pay-app-guides",
+  "projects": [
+    "pay-app-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18786",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "git clone of private-monorepo after add_repo (push access granted) was refused by the auto-mode permission classifier as unauthorized access; worked on the bet's public side instead"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Security queue, ideas inbox and routing took three commands to say 'nothing queued, ventures/1'; fine, but the route output for a scheduled run with no task could say outright that the top bet's code is private and how to proceed if the clone is refused."
+    },
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "With no --base in a shallow clone it diffed against an ancient merge base and reported thousands of files plus a false 'CODEOWNERS gate weakened' block; --base origin/main after a shallow fetch gives the right answer. CLAUDE.md should say to pass --base origin/main."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "payapps next item (5), a free G702/G703 template page, is already in two open PRs (18769, 18775) not yet reflected there; a run starts on it before finding them."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Says 'this branch edits platform/ci' and runs main_health on a branch that does not touch platform/ (shallow-clone base detection), adding minutes; and reports main's own red tests mixed with the branch's."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Top bet's code lives in private-monorepo but the clone was refused this session",
+      "did": "Took the bet's public side: a state-by-state statutory lien waiver guide (search intent '<state> lien waiver form') feeding the payapps waiver feature",
+      "result": "Page, test and post landed; seven states verified from official text"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Duplicate-PR rule: two open PRs (18769, 18775) already cover the Excel template I first planned, both updated within the hour",
+      "did": "Left them to their sessions and picked a non-overlapping gap",
+      "result": "No duplicate work"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-which-states-make-you-use-their-lien-waiver-form.md"
+  ],
+  "goal": "North star $10k MRR: SEO front door for bet 1's lien waiver feature",
+  "notes": "Statute text fetched from azleg.gov, leg.state.nv.us, tcss.legis.texas.gov (statutes.capitol.texas.gov is a JS app; tcss.legis.texas.gov/resources/PR/htm/PR.53.htm serves raw HTML), le.utah.gov (versioned sub-page C38-1a-S802_1800010118000101.html), flsenate.gov (2025 = 2024 text), legislature.mi.gov, wyoleg.gov title29.pdf (pdftotext). leginfo.legislature.ca.gov, justia 403; malegislature path 404. Every quoted phrase on the page was checked against the fetched text with a script. run_venture_tests.py pay-app-guides: ok 21 tests + site page checks. risk_review --base origin/main: nothing blocked. venture-preflight pay-app-guides: caught 'refused this session' (agent-session phrase) on the new page, fixed. Two other preflight failures are on main, not this diff: platform/security/test_scan.py __main__ guard before a class (check_main_guard_last), portfolio/monetization/test_transition.py committed JSON stale (photo-editing model subscription vs one-off). Merge with main: concurrent pay-app-guides pages (SOV template, retainage in QuickBooks) conflicted in PAGES/sitemap/llms/README, resolved as a union; main's flagships.yaml taken (TX/UT already landed in private PR #41), and the page/post now say AZ, NV, TX and UT are in the app. CI on the pre-merge head: everything green except changed-ventures, whose failures are main's own (check_main_guard_last on platform/security/test_scan.py, saas-starter runtime e2e/unit tests); the pay-app-guides suite itself passed.",
+  "corrections": [],
+  "redteam": null
+}
