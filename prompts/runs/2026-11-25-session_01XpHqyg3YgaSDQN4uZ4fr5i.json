@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyg3YgaSDQN4uZ4fr5i",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T22:38:52Z",
+  "ended": "2026-11-25T22:48:25Z",
+  "wall_minutes": 9.69,
+  "tokens_in": 6957092,
+  "tokens_out": 28257,
+  "cost_usd": 2.8098,
+  "tool_calls": 71,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19121",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "payapps Next list is mostly claimed or blocked on unreachable statutes/new deps (OCR); took a pass over bet #1 before falling to bet #2. Worth a 'free and actionable' hint."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "a foreground `sleep 60` is blocked by the harness; the wait idiom is an until-loop or wait_for.py, not documented next to the long-commands note."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "took bet #2 (jobshop-quote) rather than the top bet #1 (payapps): payapps' free Next items were blocked (statutes 403, OCR needs a new dependency) or crowded by parallel runs",
+      "did": "built ROADMAP item 5 drill-depth timing in jobshop-quote (private PR 186)",
+      "result": "merged with all 11 local CI steps green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-a-step-file-now-sizes-the-blank-in-the-job-shop-quoter.md (extended)",
+    "docs/reports/ventures-2026-11-25-jobshop-quote-drill-depth.md"
+  ],
+  "goal": null,
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/186 merged. run_workflow_locally jobshop-quote-ci: 11/11 run steps ok (unit 298, worker 170, Playwright e2e). Clone of private-monorepo worked first time via add_repo.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1939c1c6-c690-523a-9491-60289bb8ff38",
+    "transcripts": 1,
+    "first": "2026-11-25T22:38:52Z",
+    "last": "2026-11-25T22:48:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 124,
+        "output": 28257,
+        "thinking": 6039,
+        "cache_read": 6847634,
+        "cache_write_5m": 0,
+        "cache_write_1h": 109334,
+        "api_equivalent_usd": 2.8098,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 124,
+      "output": 28257,
+      "thinking": 6039,
+      "cache_read": 6847634,
+      "cache_write_5m": 0,
+      "cache_write_1h": 109334,
+      "api_equivalent_usd": 2.8098,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 64,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.69,
+      "active_minutes": 9.69,
+      "model_minutes": 4.27,
+      "tool_minutes": 5.41,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

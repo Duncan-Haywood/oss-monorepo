@@ -172,6 +172,25 @@ A counterbored test plate made for this check comes out at one location per hole
 still matches the hand calculation. The job-shop suites (254 unit and 143 Worker tests) and the
 parser's 36 tests pass.
 
+### Hole depth at the shop's drill feed
+
+Seconds per hole treats a 0.1 in hole in sheet the same as a 1.5 in hole in plate. Private-monorepo
+PR #186 adds a second, optional number per machine: the **drill feed** in inches per minute, how
+fast the drill goes down once it is in the cut. With it, each hole takes the seconds per hole
+(position, spot, retract) plus its depth at that feed. A plate with six Ø0.257 in holes 0.5 in deep
+and one counterbored Ø0.201 in hole 1 in deep, at 4 s per hole and 8 in/min, comes out at
+7 × 4 s + 4 in ÷ 8 in/min = 0.97 min, labelled "Drill from CAD: 7 holes × 4 s + 4 in deep at
+8 in/min (1 stepped, 1 deep, over 3×D)".
+
+It is one feed per machine, not a chart by drill size. Feed per revolution goes up roughly in
+step with drill diameter, and spindle speed goes down with it, so the rate at which the drill goes
+down changes much less than either. One measured rate is a fair first estimate, and the label shows
+it so the estimator can check. A hole deeper than three times its diameter is counted as "deep" in
+the label, since that is where a drill usually needs peck cycles to clear chips, and the feed alone
+does not time those. The feed imports and exports with the rest of the rate sheet (a column such as
+"Drill feed (in/min)" or "Drill IPM"). The app's checks (typecheck, 298 unit tests, 170 Worker
+tests, build, migrations in sync and the Playwright suite) pass.
+
 ## The sheet blank from a DXF
 
 The cut and bend minutes left one gap on a sheet-metal quote: the material. A DXF is a flat
@@ -344,8 +363,8 @@ spreadsheet-import panel by opening it on the rate card.
 
 The next item on the flagship list (milestone 3) is reading tolerances, material and finish from
 a PDF drawing. The extraction already handles the RFQ email and the drawing's text. On the CAD
-side, the next steps are tapping (once a shop can mark which holes are threaded), drilling
-time by diameter and depth, and reading IGES and STL files.
+side, the next steps are tapping (once a shop can mark which holes are threaded), peck time for
+deep holes, and reading IGES and STL files.
 
 The product isn't live yet. Deploy and billing are on its roadmap, and the paid path stays
 switched off until the owner sets it up.
