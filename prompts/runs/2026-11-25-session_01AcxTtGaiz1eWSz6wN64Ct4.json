@@ -1,0 +1,301 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtGaiz1eWSz6wN64Ct4",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T04:06:39Z",
+  "ended": "2026-11-25T04:10:51Z",
+  "wall_minutes": 7.24,
+  "tokens_in": 5329089,
+  "tokens_out": 20867,
+  "cost_usd": 2.3124,
+  "tool_calls": 54,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18841",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 sent this run to the security queue again: the top ~10 entries are false positives documented in docs/reports/2026-11-25-security-queue-false-positives.md, and the next real ones (#849, #65) already had two duplicate PRs (#18836, #18837) opened minutes earlier. The queue has no marker for triaged or in-PR alerts, so every concurrent run spends time on the same triage."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new post. The changes are test guards and two input-validation fixes on an existing calculator. A post about them would be thin, and the 2026-11-24 direction is to consolidate posts.",
+      "did": "Explained the fixes in code comments and the PR body.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Security queue: skipped. Top alerts are documented FPs, and #849/#65 are fixed in open PRs #18836/#18837. #1086 (status-keeper rejectUnauthorized:false) is by design: the probe reads expired certificates and reports socket.authorized. #968 (shed-designer hoa-page) is an FP: corner is only a key into CORNERS, and all text goes through esc(). Campaign: pay-app-guides/calc.mjs, 10 mutants, 7 caught before and 10 after. Guard added: preset vs page-table agreement test. Verification: run_venture_tests.py pay-app-guides ok; repair-flow.test.mjs 6/6; new tests fail on the old code (prompt-pay 2 fail, repair-flow 1 fail).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/pay-app-guides/calc.mjs",
+        "test": "node --test ventures/pay-app-guides/**/*.test.mjs  (in .)",
+        "seed": 1019776935,
+        "commit": "9c5cc9ec3",
+        "sites": 193,
+        "baseline_seconds": 1.9,
+        "mutants": [
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 32,
+            "col": 22,
+            "operator": "times-to-div",
+            "before": "return Math.round(n * 100);",
+            "after": "return Math.round(n / 100);",
+            "line_text": "  return Math.round(n * 100);",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 70,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "const wr = workRate >= 0 && workRate <= 1 ? workRate : 0;",
+            "after": "const wr = workRate >= 1 && workRate <= 1 ? workRate : 0;",
+            "line_text": "  const wr = workRate >= 0 && workRate <= 1 ? workRate : 0;",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 89,
+            "col": 20,
+            "operator": "gt-to-ge",
+            "before": "if (C >= 0 && G > C) bad(`${label}: billed ${fmt(G)} against a scheduled value of ${fmt(C)}. Over-billing a line is the first thing a reviewer marks down.`);",
+            "after": "if (C >= 0 && G >= C) bad(`${label}: billed ${fmt(G)} against a scheduled value of ${fmt(C)}. Over-billing a line is the first thing a reviewer marks down.`);",
+            "line_text": "    if (C >= 0 && G > C) bad(`${label}: billed ${fmt(G)} against a scheduled value of ${fmt(C)}. Over-billing a line is the first thing a reviewer marks down.`);",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Billing a line to exactly its scheduled value raised a false over-billing error; calc.test.mjs now pins a fully billed line (no finding) and one a cent over (finding)."
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 91,
+            "col": 12,
+            "operator": "const-plus-one",
+            "before": "if (D < 0 || F < 0) bad(`${label}: previous work and stored materials cannot be negative.`);",
+            "after": "if (D < 1 || F < 0) bad(`${label}: previous work and stored materials cannot be negative.`);",
+            "line_text": "    if (D < 0 || F < 0) bad(`${label}: previous work and stored materials cannot be negative.`);",
+            "caught": true,
+            "seconds": 1.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 99,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "const rel = Number.isNaN(released) ? 0 : released;",
+            "after": "const rel = Number.isNaN(released) ? 1 : released;",
+            "line_text": "  const rel = Number.isNaN(released) ? 0 : released;",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 147,
+            "col": 128,
+            "operator": "eq-flip",
+            "before": "const body = result.rows.map((r) => [r.item, r.description, plain(r.C), plain(r.D), plain(r.E), plain(r.F), plain(r.G), r.pct === null ? \"\" : (r.pct * 100).toFixed(1), plain(r.H), plain(r.retainage)]);",
+            "after": "const body = result.rows.map((r) => [r.item, r.description, plain(r.C), plain(r.D), plain(r.E), plain(r.F), plain(r.G), r.pct !== null ? \"\" : (r.pct * 100).toFixed(1), plain(r.H), plain(r.retainage)]);",
+            "line_text": "  const body = result.rows.map((r) => [r.item, r.description, plain(r.C), plain(r.D), plain(r.E), plain(r.F), plain(r.G), r.pct === null ? \"\" : (r.pct * 100).toFixed(1), plain(r.H), plain(r.retainage)]);",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 147,
+            "col": 166,
+            "operator": "const-plus-one",
+            "before": "const body = result.rows.map((r) => [r.item, r.description, plain(r.C), plain(r.D), plain(r.E), plain(r.F), plain(r.G), r.pct === null ? \"\" : (r.pct * 100).toFixed(1), plain(r.H), plain(r.retainage)]);",
+            "after": "const body = result.rows.map((r) => [r.item, r.description, plain(r.C), plain(r.D), plain(r.E), plain(r.F), plain(r.G), r.pct === null ? \"\" : (r.pct * 100).toFixed(2), plain(r.H), plain(r.retainage)]);",
+            "line_text": "  const body = result.rows.map((r) => [r.item, r.description, plain(r.C), plain(r.D), plain(r.E), plain(r.F), plain(r.G), r.pct === null ? \"\" : (r.pct * 100).toFixed(1), plain(r.H), plain(r.retainage)]);",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 197,
+            "col": 22,
+            "operator": "or-to-and",
+            "before": "if (Number.isNaN(r) || r < 0 || r > 1) errors.push(\"Retainage must be between 0% and 100%.\");",
+            "after": "if (Number.isNaN(r) && r < 0 || r > 1) errors.push(\"Retainage must be between 0% and 100%.\");",
+            "line_text": "  if (Number.isNaN(r) || r < 0 || r > 1) errors.push(\"Retainage must be between 0% and 100%.\");",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "With && the negative-rate check never fired; calc.test.mjs now checks -5% and 150% are refused and 0% accepted."
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 230,
+            "col": 82,
+            "operator": "const-plus-one",
+            "before": "va: { state: \"Virginia (public work)\", law: \"Code of Virginia \u00a72.2-4354\", days: 7, rate: 0.01, per: \"month\", method: \"prorata\",",
+            "after": "va: { state: \"Virginia (public work)\", law: \"Code of Virginia \u00a72.2-4354\", days: 8, rate: 0.01, per: \"month\", method: \"prorata\",",
+            "line_text": "  va: { state: \"Virginia (public work)\", law: \"Code of Virginia \u00a72.2-4354\", days: 7, rate: 0.01, per: \"month\", method: \"prorata\",",
+            "caught": false,
+            "seconds": 1.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Virginia's day count was pinned nowhere; prompt-pay.test.mjs now checks every preset's days and statute link against its row in prompt-payment-laws.html (a class guard: the two hand-written copies must agree)."
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 244,
+            "col": 58,
+            "operator": "const-plus-one",
+            "before": "const isoDate = (t) => new Date(t).toISOString().slice(0, 10);",
+            "after": "const isoDate = (t) => new Date(t).toISOString().slice(0, 11);",
+            "line_text": "const isoDate = (t) => new Date(t).toISOString().slice(0, 10);",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/pay-app-guides/calc.mjs",
+        "issue": "promptPayInterest read a blank day count as 0 (Number('') is 0): clearing the box moved the due date to the day the GC was paid, with no error. Now an error.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18841"
+      },
+      {
+        "file": "ventures/pay-app-guides/calc.mjs",
+        "issue": "A blank interest rate read as 0% (toRate('') is 0): the California and Pennsylvania presets leave the rate blank, so the page showed Interest $0.00. Now asks for a rate; an explicit 0 still works.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18841"
+      },
+      {
+        "file": "ventures/shift-roster-builder/calc.mjs",
+        "issue": "Step 0: optimality.coverRepairReserveMs was set only when the cover passes started, so the repair-flow test read null on a loaded runner. It is now computed up front from the week's size and the budget, and the test runs with coverPass:false (fails on the old code with actual null).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18841"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7c7eb36f-f8e9-5d02-a551-43ee651e3a95",
+    "transcripts": 1,
+    "first": "2026-11-25T04:06:39Z",
+    "last": "2026-11-25T04:13:54Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 104,
+        "output": 20867,
+        "thinking": 6251,
+        "cache_read": 5222727,
+        "cache_write_5m": 0,
+        "cache_write_1h": 106258,
+        "api_equivalent_usd": 2.3124,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 104,
+      "output": 20867,
+      "thinking": 6251,
+      "cache_read": 5222727,
+      "cache_write_5m": 0,
+      "cache_write_1h": 106258,
+      "api_equivalent_usd": 2.3124,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 51,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.24,
+      "active_minutes": 7.24,
+      "model_minutes": 5.13,
+      "tool_minutes": 2.12,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "triage of queue, one flaky-test fix, mutation campaign + 4 tests, two input fixes",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 129.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
