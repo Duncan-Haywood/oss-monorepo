@@ -118,6 +118,72 @@ def remote_audits(local: list[dict], ref: str = "origin/main") -> list[dict]:
         return []
 
 
+def refresh_main(timeout: int = 60) -> bool:
+    """`git fetch origin main` with no depth option, fail-soft, so origin/main reaches its tip.
+
+    A shallow clone keeps its boundary (the fetch stops at commits it already has), so this does not
+    mark the tip shallow the way `fetch_main`'s --depth=1 would, which made `changes_since` say
+    "unknown" for every row. Used by `queue`; `deepen_for` still reaches back to old audits."""
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        import shallow_repair
+        return shallow_repair.fetch(["-q", "origin", "main"], cwd=ROOT, timeout=timeout).returncode == 0
+    except Exception:
+        return False
+
+
+def with_main_marks(local: list[dict], ref: str = "origin/main") -> tuple[list[dict], int]:
+    """`local` audits with `ref`'s fix marks merged in, plus audits only `ref` has; and how many defects
+    gained a `fixed_by` that way.
+
+    `queue` read the checkout's own audit files, so a branch cut before another session's fix landed
+    listed that fix's rows as open: research/swe-cachecost defects 0-1 minutes after PR #19000 marked
+    them, and clothing-design-studio #0 two days after PR #18388 (run-record doc_friction on this file,
+    2026-11-25, three sessions). Marks are unioned per defect, so a mark this branch made itself and
+    main lacks is kept. A file whose defect list differs in length on `ref` is taken from `ref` whole.
+    Fail-soft: no git or no ref returns `local` unchanged."""
+    import subprocess
+    rel = AUDITS.relative_to(ROOT).as_posix()
+    try:
+        diff = subprocess.run(["git", "diff", "--name-only", "HEAD", ref, "--", rel + "/"],
+                              capture_output=True, text=True, timeout=20, cwd=ROOT)
+        if diff.returncode != 0:
+            return local, 0
+        changed = {Path(n).name for n in diff.stdout.split() if n.endswith(".json")}
+    except Exception:
+        return local, 0
+    out, gained = [], 0
+    for a in local:
+        if a.get("_file") not in changed:
+            out.append(a)
+            continue
+        try:
+            txt = subprocess.run(["git", "show", f"{ref}:{rel}/{a['_file']}"], capture_output=True,
+                                 text=True, timeout=20, cwd=ROOT)
+            theirs = json.loads(txt.stdout) if txt.returncode == 0 else None
+        except Exception:
+            theirs = None
+        if not isinstance(theirs, dict):
+            out.append(a)  # deleted on main, or unreadable: keep ours
+            continue
+        mine, main_d = a.get("defects") or [], theirs.get("defects") or []
+        if len(mine) != len(main_d):
+            theirs["_file"] = a["_file"]
+            gained += sum(1 for d in main_d if d.get("fixed_by")) - sum(1 for d in mine if d.get("fixed_by"))
+            out.append(theirs)
+            continue
+        merged = dict(a)
+        merged["defects"] = []
+        for d, m in zip(mine, main_d):
+            if not d.get("fixed_by") and m.get("fixed_by"):
+                d = dict(d, fixed_by=m["fixed_by"])
+                gained += 1
+            merged["defects"].append(d)
+        merged["fix_prs"] = list(dict.fromkeys((a.get("fix_prs") or []) + (theirs.get("fix_prs") or [])))
+        out.append(merged)
+    return out + remote_audits(local, ref), max(gained, 0)
+
+
 def free_seed(date: str, audits: list[dict]) -> str:
     """`date`, or `date-b`, `date-c`, ... : the first seed no audit has used.
 
@@ -652,6 +718,15 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "reaudit" and not args.seed:
         args.seed = claim_seed(dt.date.today().isoformat())
     if args.cmd == "queue":
+        if not args.no_fetch and not args.no_git:
+            fetched = refresh_main()
+            audits, gained = with_main_marks(audits)
+            if not fetched:
+                print("(fetch of origin/main failed: fixes merged since the last fetch may still show as open)",
+                      file=sys.stderr)
+            if gained:
+                print(f"({gained} defect(s) marked fixed on origin/main but not in this checkout: left out)",
+                      file=sys.stderr)
         # Two fix sessions took the same top row the same minute (doc_friction, 2026-11-16T16:41).
         args.seed = None if args.oldest_first else (args.seed or claim_seed(dt.date.today().isoformat()))
     if args.cmd in ("metrics", "coverage", "census", "queue", "mode", "reaudit"):

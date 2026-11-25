@@ -147,6 +147,48 @@ class QualityAuditTest(unittest.TestCase):
         extra = q.remote_audits(local, ref="HEAD")
         assert all(a["_file"] not in {l["_file"] for l in local} for a in extra)
 
+    def test_with_main_marks_takes_fixes_merged_on_main(self):
+        # queue read the checkout's audits, so a fix merged on main after the branch was cut stayed open
+        # (doc_friction 2026-11-25, PR #19000 and #18388). Build a repo where main marked defect 0 fixed.
+        import json, subprocess, tempfile
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            aud = root / "portfolio" / "quality" / "audits"
+            aud.mkdir(parents=True)
+            git = lambda *a: subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", *a], cwd=root,
+                                            check=True, capture_output=True)
+            git("init", "-q", "-b", "main")
+            base = audit(defects=[{"severity": "high", "what": "a"}, {"severity": "high", "what": "b"}])
+            base.pop("_file")
+            (aud / "x.json").write_text(json.dumps(base))
+            git("add", "."); git("commit", "-qm", "base")
+            git("branch", "work")
+            on_main = json.loads(json.dumps(base))
+            on_main["defects"][0]["fixed_by"] = "https://example.invalid/pr/1"
+            on_main["fix_prs"] = ["https://example.invalid/pr/1"]
+            (aud / "x.json").write_text(json.dumps(on_main))
+            (aud / "y.json").write_text(json.dumps(dict(base, subject="ventures/other")))
+            git("add", "."); git("commit", "-qm", "fix lands on main")
+            git("checkout", "-q", "work")
+            # this branch marked defect 1 itself; main does not have that mark
+            mine = json.loads(json.dumps(base))
+            mine["defects"][1]["fixed_by"] = "https://example.invalid/pr/2"
+            (aud / "x.json").write_text(json.dumps(mine))
+            git("commit", "-qam", "my mark")
+            old_root, old_aud = q.ROOT, q.AUDITS
+            q.ROOT, q.AUDITS = root, aud
+            try:
+                local = q.load_audits(aud)
+                got, gained = q.with_main_marks(local, ref="main")
+                assert gained == 1
+                x = next(a for a in got if a["_file"] == "x.json")
+                assert [bool(dd.get("fixed_by")) for dd in x["defects"]] == [True, True]  # main's and mine
+                assert x["fix_prs"] == ["https://example.invalid/pr/1"]
+                assert any(a["_file"] == "y.json" for a in got)  # main-only audit included
+                assert q.with_main_marks(local, ref="no-such-ref-xyz") == (local, 0)  # fail-soft
+            finally:
+                q.ROOT, q.AUDITS = old_root, old_aud
+
     def test_free_seed_skips_seeds_already_used(self):
         assert q.free_seed("2026-11-10", []) == "2026-11-10"
         used = [audit(seed="2026-11-10"), audit(seed="2026-11-10-b"), audit(seed="2026-11-09")]

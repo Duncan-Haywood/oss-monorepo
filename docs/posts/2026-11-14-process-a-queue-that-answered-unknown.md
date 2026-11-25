@@ -62,3 +62,22 @@ work on that product. The threshold sits well above any single-product
 commit, which touches a handful of directories. If a real fix lands inside a
 sweep, the queue misses it. That is the same blind spot the note had before
 these two commits, and the next audit of the subject would catch it.
+
+## Update, 2026-11-25 (later): the queue read its own stale copy
+
+A third failure had nothing to do with history. The queue read the audit
+files in the session's own checkout. A session whose branch was cut an hour
+earlier never saw a fix another session had just merged, so it listed the
+fixed defects as open. Three sessions reported this on 2026-11-25. One saw
+research/swe-cachecost defects as open minutes after PR #19000 marked them
+fixed. Another saw clothing-design-studio #0 two days after PR #18388.
+
+`queue` now runs a plain `git fetch origin main` first. In a shallow clone
+that fetch stops at commits the clone already has, so it adds no shallow
+boundary at the tip. Then, for each audit file that differs between the
+checkout and `origin/main`, it merges main's `fixed_by` marks into the local
+copy. A mark only the branch has is kept too. If main's copy has a
+different number of defects, main's copy wins outright. A stderr line
+counts the defects this left out. On the run that shipped this, the
+checkout predated one fix commit on main, and the queue dropped 3
+retail-pilot-intel defects that PR #19103 had already fixed.
