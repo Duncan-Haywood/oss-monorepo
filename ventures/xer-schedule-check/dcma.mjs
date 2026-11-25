@@ -217,12 +217,15 @@ export function assess(xer, opts = {}) {
   }
   // 10 Resources
   {
-    const withRes = new Set((xer.tables.TASKRSRC || []).map((r) => r.task_id));
-    const loaded = (xer.tables.TASKRSRC || []).length > 0;
+    // a resource assignment or an expense (PROJCOST) loads an activity, as
+    // earned value counts both (evm.mjs)
+    const loads = [...(xer.tables.TASKRSRC || []), ...(xer.tables.PROJCOST || [])];
+    const withRes = new Set(loads.map((r) => r.task_id));
+    const loaded = loads.length > 0;
     const bad = normal.filter((t) => (t.status === "TK_Active" ? t.remain : t.orig) > 0 && !withRes.has(t.id));
     add({ id: 10, name: "Resources", value: pct(bad.length, normal.length), unit: "%", threshold: "0%", pass: bad.length === 0, count: bad.length, total: normal.length,
-      items: bad.map((t) => ({ tid: t.id, code: t.code, name: t.name, why: "no resource or cost assignment" })),
-      note: loaded ? "Open activities with duration and no resource or cost assignment." : "The file has no resource assignments at all; skip this check if the schedule is not meant to be resource loaded." });
+      items: bad.map((t) => ({ tid: t.id, code: t.code, name: t.name, why: "no resource assignment or expense" })),
+      note: loaded ? "Open activities with duration and no resource assignment or expense." : "The file has no resource assignments or expenses at all; skip this check if the schedule is not meant to be resource or cost loaded." });
   }
   // 11 Missed tasks and 14 BEI: against the baseline file when one is given,
   // else the planned finish stands in (see the header)
