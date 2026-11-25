@@ -38,3 +38,26 @@ emails. `POLICY_VERSION` was not bumped: it is opt-in and adds no data or subpro
 steps): `pnpm typecheck` clean, unit 237 passed (244 after merging main), worker 171 passed (new
 `test/worker/digest.test.ts`, 5 tests), `pnpm build` ok, `drizzle-kit check` fine. `biome check
 apps/payapps` reports one error already on main (`services/billing.ts:162`).
+
+## Update: a link from each application to its own draft (private PR 105)
+
+Later the same day (Duncan-Haywood/private-monorepo#105). The email already said "N follow-up
+drafts are waiting" with one link to the whole list. Now, under each listed job, every past-due or
+paid-short application has its own line, "Draft email for application #3 (second request)",
+linking `/orgs/:orgId/cash#follow-up-<payAppId>`. The cash page opens that draft and scrolls to it.
+
+**Why.** The email is where a busy sub decides to act; one click from "#3 is 45 days late" to a
+written, addressed reminder removes the step where people drop off (find the job, find the
+application, open the draft).
+
+**Choices the next run should keep.**
+
+- The draft list per job comes from the same `followUpKind` rule as the cash page, so the email
+  never links a draft the page would not offer. Capped jobs keep only the count line.
+- A link that outlives its email is handled: an application no longer past due is still shown
+  (the "not yet due" list opens), and one paid since says so instead of opening nothing.
+- The anchor is `follow-up-` plus the URL-encoded id, HTML-escaped in the email; the page only
+  compares the decoded hash with its own ids.
+
+**Verification.** Local: `pnpm typecheck` clean, unit 362 passed, worker `digest.test.ts` 7
+passed (full worker suite in the run record), biome clean on the touched files.
