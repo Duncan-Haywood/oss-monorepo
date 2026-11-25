@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "CSV cell guard first defused plain negative numbers; platform/ci/check_csv_formula_guard.py (run by run_venture_tests) caught it locally, fixed before merge"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -53,7 +55,7 @@
     "docs/posts/2026-11-24-one-page-for-machine-shops.md (new section: read the RFQ before you quote)"
   ],
   "goal": null,
-  "notes": "Explore idea: deterministic RFQ intake reader (clauses with GSA-sourced titles, requirements, missing-info questions as an email, quantities into the quote calculator) as the free first step of bet #2. Verification: node --test *.test.mjs in machine-shop-guides 83/0; Playwright 390px no console errors, no horizontal scroll. Security queue: 5 alerts all claimed (exit 3). IDEAS and requests empty.",
+  "notes": "Explore idea: deterministic RFQ intake reader (clauses with GSA-sourced titles, requirements, missing-info questions as an email, quantities into the quote calculator) as the free first step of bet #2. Verification: node --test *.test.mjs in machine-shop-guides 83/0; Playwright 390px no console errors, no horizontal scroll. Security queue: 5 alerts all claimed (exit 3). IDEAS and requests empty. Local replay (run_workflow_locally --for-changes): 11/12 workflows passed; ventures-tests failed on the CSV guard, fixed; priv-codeql and priv-security-gate need the PR as data (no local verdict), left to CI.",
   "corrections": [],
   "redteam": null,
   "usage": {
