@@ -57,7 +57,7 @@ variables {
 run "platform_only" {
   command = apply
   assert {
-    condition     = output.platform.db_connect_arn_prefix == "arn:aws:rds-db:us-east-1:111111111111:dbuser:db-ABCDEFG" && output.platform.db_admin_function_name == "saas-db-admin"
+    condition     = output.platform.db_connect_arn_prefix == "arn:aws:rds-db:us-east-1:111111111111:dbuser:db-ABCDEFG" && output.platform.db_admin_function_name == "saas-starter-db-admin"
     error_message = "platform output wires database into products"
   }
   assert {

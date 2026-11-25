@@ -14,7 +14,7 @@ variable "payments_account_id" {
 variable "sender_role_name" {
   description = "Role name of the Paddle webhook Lambda in the payments account (app-paddle-webhook's role_name)."
   type        = string
-  default     = "saas-paddle-webhook"
+  default     = "saas-starter-payments-paddle-webhook"
 }
 
 variable "source_dir" {
@@ -56,4 +56,10 @@ variable "alarm_topic_arn" {
 variable "log_retention_days" {
   type    = number
   default = 365
+}
+
+variable "permissions_boundary_arn" {
+  description = "Permissions boundary attached to every IAM role this module creates (the account's workload-boundary from stacks/github-oidc). null = none."
+  type        = string
+  default     = null
 }

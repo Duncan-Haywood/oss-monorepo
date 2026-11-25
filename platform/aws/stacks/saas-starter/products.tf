@@ -3,7 +3,7 @@
 
 module "example" {
   count      = var.example_product.enabled ? 1 : 0
-  source     = "../modules/app-service"
+  source     = "../../modules/app-service"
   name       = "hello"
   source_dir = "${local.build_dir}/app-hello"
   platform   = local.platform
@@ -15,7 +15,7 @@ module "example" {
 }
 
 # module "grants" {
-#   source     = "../modules/app-service"
+#   source     = "../../modules/app-service"
 #   name       = "grants"
 #   source_dir = "${local.build_dir}/app-grants"
 #   platform   = local.platform

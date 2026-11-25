@@ -1,7 +1,7 @@
 variable "role_name" {
   description = "Lambda and IAM role name. Must equal the apps stack's sender_role_name."
   type        = string
-  default     = "saas-paddle-webhook"
+  default     = "saas-starter-payments-paddle-webhook"
 }
 
 variable "secret_name" {
@@ -44,4 +44,10 @@ variable "alarm_topic_arn" {
 variable "log_retention_days" {
   type    = number
   default = 365
+}
+
+variable "permissions_boundary_arn" {
+  description = "Permissions boundary attached to every IAM role this module creates (the account's workload-boundary from stacks/github-oidc). null = none."
+  type        = string
+  default     = null
 }

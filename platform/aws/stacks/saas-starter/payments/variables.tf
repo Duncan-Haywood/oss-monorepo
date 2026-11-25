@@ -42,3 +42,9 @@ variable "alarm_topic_arn" {
   type    = string
   default = null
 }
+
+variable "permissions_boundary_arn" {
+  description = "The payments account's workload-boundary policy (stacks/github-oidc output). null only in tests."
+  type        = string
+  default     = null
+}

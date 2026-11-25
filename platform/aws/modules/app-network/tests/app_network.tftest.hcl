@@ -70,3 +70,26 @@ run "rejects_single_az" {
   }
   expect_failures = [var.az_count]
 }
+
+run "no_internet_route_unless_asked" {
+  command = apply
+  assert {
+    condition     = length(aws_internet_gateway.this) == 0 && length(aws_nat_gateway.this) == 0 && length(aws_route.private_nat) == 0
+    error_message = "no internet gateway or NAT by default"
+  }
+}
+
+run "nat_allows_only_https_out" {
+  command = apply
+  variables {
+    enable_nat = true
+  }
+  assert {
+    condition     = aws_vpc_security_group_egress_rule.app_to_internet[0].from_port == 443 && aws_vpc_security_group_egress_rule.app_to_internet[0].to_port == 443
+    error_message = "only HTTPS leaves through the NAT"
+  }
+  assert {
+    condition     = !aws_subnet.public[0].map_public_ip_on_launch
+    error_message = "nothing gets a public IP except the NAT's EIP"
+  }
+}

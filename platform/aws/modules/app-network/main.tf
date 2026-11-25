@@ -136,7 +136,8 @@ resource "aws_cloudwatch_log_group" "flow" {
 }
 
 resource "aws_iam_role" "flow" {
-  name = "${var.name}-vpc-flow-logs"
+  name                 = "${var.name}-vpc-flow-logs"
+  permissions_boundary = var.permissions_boundary_arn
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -165,4 +166,65 @@ resource "aws_flow_log" "this" {
   traffic_type    = "ALL"
   log_destination = aws_cloudwatch_log_group.flow.arn
   iam_role_arn    = aws_iam_role.flow.arn
+}
+
+# --- optional outbound internet (one NAT gateway) ----------------------------------------------
+# Off by default: no route to the internet at all. On for products that call APIs outside AWS's
+# private network (Claude Platform on AWS, Paddle's API). Only HTTPS leaves the app group.
+resource "aws_internet_gateway" "this" {
+  count  = var.enable_nat ? 1 : 0
+  vpc_id = aws_vpc.this.id
+}
+
+resource "aws_subnet" "public" {
+  count                   = var.enable_nat ? 1 : 0
+  vpc_id                  = aws_vpc.this.id
+  availability_zone       = local.azs[0]
+  cidr_block              = cidrsubnet(var.cidr, 4, 15)
+  map_public_ip_on_launch = false
+  tags                    = { Name = "${var.name}-nat" }
+}
+
+resource "aws_route_table" "public" {
+  count  = var.enable_nat ? 1 : 0
+  vpc_id = aws_vpc.this.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.this[0].id
+  }
+}
+
+resource "aws_route_table_association" "public" {
+  count          = var.enable_nat ? 1 : 0
+  subnet_id      = aws_subnet.public[0].id
+  route_table_id = aws_route_table.public[0].id
+}
+
+resource "aws_eip" "nat" {
+  count  = var.enable_nat ? 1 : 0
+  domain = "vpc"
+}
+
+resource "aws_nat_gateway" "this" {
+  count         = var.enable_nat ? 1 : 0
+  allocation_id = aws_eip.nat[0].id
+  subnet_id     = aws_subnet.public[0].id
+  depends_on    = [aws_internet_gateway.this]
+}
+
+resource "aws_route" "private_nat" {
+  count                  = var.enable_nat ? 1 : 0
+  route_table_id         = aws_route_table.private.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.this[0].id
+}
+
+resource "aws_vpc_security_group_egress_rule" "app_to_internet" {
+  count             = var.enable_nat ? 1 : 0
+  security_group_id = aws_security_group.app.id
+  description       = "HTTPS to outside APIs through the NAT gateway"
+  ip_protocol       = "tcp"
+  from_port         = 443
+  to_port           = 443
+  cidr_ipv4         = "0.0.0.0/0"
 }

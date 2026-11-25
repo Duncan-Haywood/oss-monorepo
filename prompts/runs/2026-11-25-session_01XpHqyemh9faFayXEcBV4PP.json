@@ -3,7 +3,7 @@
   "session": "https://claude.ai/code/session_01XpHqyemh9faFayXEcBV4PP",
   "track": "ventures",
   "prompt_version": 0,
-  "input": "AWS consolidation, parallel agent: build the aws-saas-starter task (platform/aws/saas-starter)",
+  "input": "AWS consolidation, parallel agent: build the aws-saas-starter task (platform/aws/stacks/saas-starter)",
   "input_sha256": "cbcbbc52951788bd04021258606c5b24dab92b23d48aacec04707d83b18ee18f",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
@@ -17,7 +17,7 @@
   "tool_calls": null,
   "task": "aws-saas-starter",
   "projects": [
-    "platform/aws/saas-starter"
+    "platform/aws/stacks/saas-starter"
   ],
   "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18765",
   "repo": null,
@@ -35,7 +35,8 @@
     "first validate failed on a conditional with tuples of different lengths (app-service policy); rewritten as for-expressions",
     "first tofu test runs failed on mock ARNs (random strings rejected by provider ARN validation); suites now give mock ARNs",
     "push hook rejected the post: description 169 characters; shortened",
-    "risk_review flagged a PEM marker in a comment (format example, no key); reworded"
+    "risk_review flagged a PEM marker in a comment (format example, no key); reworded",
+    "checklist-coverage failed locally: the new runtime test directory was not named in .github/prompts/verify-and-merge.md; added"
   ],
   "integrity_issues": [
     "The task asked to read apps/grants/docs/ARCHITECTURE.md in the private repository; add_repo was refused in this session, so the Workers-to-AWS migration table is from the Workers side and says so in the README; the check moves to aws-move-products",
@@ -58,11 +59,17 @@
       "why": "Main merges are the default, but the payments stack cannot be applied from this repository by design (its role is unreachable from public Actions); its apply is written as an owner/private-CI step instead of CI",
       "did": "documented in README apply order",
       "result": "apply-ready for the owner"
+    },
+    {
+      "file": "system notification (task brief)",
+      "why": "The brief said platform/aws/<stack>/; the orchestrating session later asked for platform/aws/stacks/<stack>/ to match PR #18749, which another agent owns, so the newer convention was followed",
+      "did": "moved the stack, renamed IAM to saas-starter-*, added permissions_boundary_arn",
+      "result": "consistent with the foundation stacks"
     }
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Verification here: runtime node --test 9/9 (incl. Postgres 16 e2e); OpenTofu 1.10.7 fmt -check, validate and tofu test (mocked providers) in 10 directories, 26/26 runs; Checkov 3.4.10: 265 passed, 0 failed, 25 skipped with reasons; risk_review: owner review needed no. Nothing applied (no AWS account).",
+  "notes": "Verification here: runtime node --test 9/9 (incl. Postgres 16 e2e); OpenTofu 1.10.7 fmt -check, validate and tofu test (mocked providers) in 10 directories, 29/29 runs; Checkov 3.4.10: 271 passed, 0 failed, 25 skipped with reasons; checklist_coverage ok; risk_review: owner review needed no. Mid-run the orchestrating session asked (by message) to follow draft PR #18749's layout platform/aws/stacks/<stack>/, IAM names <stack>-*, a workload permissions boundary and reuse of stacks/llm; done before merge. Nothing applied (no AWS account).",
   "corrections": [],
   "redteam": null
 }

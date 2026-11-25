@@ -10,7 +10,7 @@ mock_provider "aws" {
     defaults = { secret_string = "{\"key_id\":\"K\",\"team_id\":\"T\",\"bundle_id\":\"app.example\",\"signing_key\":\"x\"}" }
   }
   mock_resource "aws_sns_platform_application" {
-    defaults = { arn = "arn:aws:sns:us-east-1:111111111111:app/APNS/app-hello-apns" }
+    defaults = { arn = "arn:aws:sns:us-east-1:111111111111:app/APNS/saas-starter-hello-apns" }
   }
   mock_resource "aws_iam_role" {
     defaults = { arn = "arn:aws:iam::111111111111:role/mock" }
@@ -46,13 +46,15 @@ variables {
   name       = "hello"
   source_dir = "./tests"
   platform = {
-    subnet_ids             = ["subnet-a", "subnet-b"]
-    app_security_group_id  = "sg-app"
-    db_host                = "saas.example.us-east-1.rds.amazonaws.com"
-    db_port                = 5432
-    db_connect_arn_prefix  = "arn:aws:rds-db:us-east-1:111111111111:dbuser:db-ABCDEFG"
-    db_admin_function_name = "saas-db-admin"
-    kms_key_arn            = "arn:aws:kms:us-east-1:111111111111:key/00000000-0000-0000-0000-000000000000"
+    subnet_ids               = ["subnet-a", "subnet-b"]
+    app_security_group_id    = "sg-app"
+    db_host                  = "saas.example.us-east-1.rds.amazonaws.com"
+    db_port                  = 5432
+    db_connect_arn_prefix    = "arn:aws:rds-db:us-east-1:111111111111:dbuser:db-ABCDEFG"
+    db_admin_function_name   = "saas-db-admin"
+    kms_key_arn              = "arn:aws:kms:us-east-1:111111111111:key/00000000-0000-0000-0000-000000000000"
+    name_prefix              = "saas-starter"
+    permissions_boundary_arn = "arn:aws:iam::111111111111:policy/workload-boundary"
   }
   auth = {
     domain_prefix        = "hello-test"
@@ -144,7 +146,7 @@ run "push_grants_only_its_platform_apps" {
     push = { apns_secret_name = "hello/apns" }
   }
   assert {
-    condition     = one([for s in output.policy.Statement : s.Resource if s.Sid == "PushSend"]) == ["arn:aws:sns:us-east-1:111111111111:endpoint/*/app-hello-apns/*"]
+    condition     = one([for s in output.policy.Statement : s.Resource if s.Sid == "PushSend"]) == ["arn:aws:sns:us-east-1:111111111111:endpoint/*/saas-starter-hello-apns/*"]
     error_message = "publish only to endpoints of this product's platform application"
   }
 }
@@ -169,5 +171,25 @@ run "cron_triggers_invoke_only_this_function" {
   assert {
     condition     = jsondecode(aws_scheduler_schedule.this["daily"].target[0].input).__scheduled == "cron(0 13 * * ? *)"
     error_message = "the app receives the cron expression"
+  }
+}
+
+run "names_boundary_and_llm_hooks" {
+  command = apply
+  variables {
+    extra_policy_arns = ["arn:aws:iam::111111111111:policy/llm-invoke"]
+    environment       = { LLM_PROVIDER = "aws", AWS_REGION = "us-east-1", ANTHROPIC_AWS_WORKSPACE_ID = "wrkspc_x" }
+  }
+  assert {
+    condition     = startswith(aws_iam_role.app.name, "saas-starter-") && aws_iam_role.app.permissions_boundary == "arn:aws:iam::111111111111:policy/workload-boundary"
+    error_message = "role named <stack>-* with the workload boundary"
+  }
+  assert {
+    condition     = aws_iam_role_policy_attachment.extra["arn:aws:iam::111111111111:policy/llm-invoke"].role == aws_iam_role.app.name
+    error_message = "stacks/llm invoke policy attached"
+  }
+  assert {
+    condition     = aws_lambda_function.app.environment[0].variables.LLM_PROVIDER == "aws" && !contains(keys(aws_lambda_function.app.environment[0].variables), "AWS_REGION")
+    error_message = "llm environment passed, reserved AWS_* dropped"
   }
 }

@@ -10,7 +10,7 @@ is in `docs/reports/2026-11-24-cloud-provider-comparison.md`, §7). The paid
 products run on Cloudflare Workers today, so the platform they move onto had
 one design goal above the others: **a product's handler should not change.**
 
-So the starter (`platform/aws/saas-starter/`) runs the Workers module shape
+So the starter (`platform/aws/stacks/saas-starter/`) runs the Workers module shape
 as is:
 
 ```js
@@ -66,14 +66,16 @@ NAT gateway (~$14.60), KMS keys and two secrets. Everything else is per
 request, and Cognito is free up to 10,000 monthly active users. Measured
 against the portfolio's 40% margin floor, the platform pays for itself at
 about $53 a month of revenue: three $19 subscriptions. RDS Proxy and
-Multi-AZ are one variable away, each with its price written beside it.
+Multi-AZ are one variable away, each with its price written beside it. So is
+outbound internet: a product that calls Claude through Claude Platform on AWS
+turns on one NAT gateway, which roughly doubles the fixed cost to ~$65.
 
 ## Status
 
 None of this is applied yet, because there is no AWS account. It is
 written to be applied by CI once the owner has done the steps AWS requires
-a person for. The OpenTofu passes `validate`, 26 `tofu test` runs with the
+a person for. The OpenTofu passes `validate`, 29 `tofu test` runs with the
 providers mocked (no public buckets, no wildcard IAM, encryption on, the
-database not reachable from the internet) and Checkov (265 passed, 0
+database not reachable from the internet) and Checkov (271 passed, 0
 failed, 25 baselined with a written reason each). Grant Autopilot is the
 first product to move.

@@ -1,5 +1,5 @@
 # DRAFT workflow for the owner (control plane): copy to .github/workflows/aws-saas-starter.yml
-# once the bootstrap stack has created the OIDC roles and the `aws-prod` environment exists.
+# once stacks/github-oidc has created this stack's roles and the `aws-prod` environment exists.
 # Agents do not add workflows to .github/workflows/ themselves (CLAUDE.md, CODEOWNERS).
 #
 # PRs: runtime tests against Postgres 16, bundle build, tofu fmt/validate/test (mocked, no AWS),
@@ -9,15 +9,16 @@
 # Repository variables (not secrets; none of these grant anything on their own):
 #   AWS_APPS_PLAN_ROLE_ARN   arn:aws:iam::<apps>:role/gha-oss-monorepo-saas-starter-plan
 #   AWS_APPS_APPLY_ROLE_ARN  arn:aws:iam::<apps>:role/gha-oss-monorepo-saas-starter-apply
-#   AWS_APPS_ACCOUNT_ID, AWS_PAYMENTS_ACCOUNT_ID, TF_STATE_BUCKET (bootstrap output)
+#   AWS_APPS_ACCOUNT_ID, AWS_PAYMENTS_ACCOUNT_ID, TF_STATE_BUCKET (apps state bucket),
+#   AWS_APPS_WORKLOAD_BOUNDARY_ARN (stacks/github-oidc output)
 name: aws-saas-starter
 
 on:
   pull_request:
-    paths: ["platform/aws/saas-starter/**", "platform/aws/modules/app-*/**"]
+    paths: ["platform/aws/stacks/saas-starter/**", "platform/aws/modules/app-*/**"]
   push:
     branches: [main]
-    paths: ["platform/aws/saas-starter/**", "platform/aws/modules/app-*/**"]
+    paths: ["platform/aws/stacks/saas-starter/**", "platform/aws/modules/app-*/**"]
 
 permissions:
   contents: read
@@ -28,7 +29,7 @@ concurrency:
 
 env:
   TOFU_VERSION: 1.10.7
-  RUNTIME: platform/aws/saas-starter/runtime
+  RUNTIME: platform/aws/stacks/saas-starter/runtime
 
 jobs:
   test:
@@ -60,8 +61,8 @@ jobs:
       - name: tofu fmt / validate / test (providers mocked)
         working-directory: platform/aws
         run: |
-          tofu fmt -check -recursive saas-starter modules
-          for d in saas-starter saas-starter/payments modules/app-*; do
+          tofu fmt -check -recursive stacks/saas-starter modules
+          for d in stacks/saas-starter stacks/saas-starter/payments modules/app-*; do
             (cd "$d" && tofu init -backend=false -input=false && tofu validate && tofu test)
           done
       - name: Checkov
@@ -95,11 +96,12 @@ jobs:
           role-to-assume: ${{ vars.AWS_APPS_PLAN_ROLE_ARN }}
           aws-region: us-east-1
       - name: tofu plan
-        working-directory: platform/aws/saas-starter
+        working-directory: platform/aws/stacks/saas-starter
         env:
           TF_VAR_deploy_role_arn: ${{ vars.AWS_APPS_PLAN_ROLE_ARN }}
           TF_VAR_allowed_account_ids: '["${{ vars.AWS_APPS_ACCOUNT_ID }}"]'
           TF_VAR_payments_account_id: ${{ vars.AWS_PAYMENTS_ACCOUNT_ID }}
+          TF_VAR_permissions_boundary_arn: ${{ vars.AWS_APPS_WORKLOAD_BOUNDARY_ARN }}
         run: |
           tofu init -input=false -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
             -backend-config="key=stacks/saas-starter/terraform.tfstate" -backend-config="region=us-east-1" \
@@ -126,7 +128,7 @@ jobs:
         run: |
           npm ci && node build.mjs platform
           # one line per product, e.g.:
-          # node build.mjs product grants ../../../../products/grants/app.mjs ../../../../products/grants/migrations
+          # node build.mjs product grants <path to grants app.mjs> <path to its migrations>
       - uses: opentofu/setup-opentofu@000eeb8522f0572907c393e8151076c205fdba1b # v1.0.6
         with:
           tofu_version: ${{ env.TOFU_VERSION }}
@@ -136,11 +138,12 @@ jobs:
           role-to-assume: ${{ vars.AWS_APPS_APPLY_ROLE_ARN }}
           aws-region: us-east-1
       - name: tofu apply
-        working-directory: platform/aws/saas-starter
+        working-directory: platform/aws/stacks/saas-starter
         env:
           TF_VAR_deploy_role_arn: ${{ vars.AWS_APPS_APPLY_ROLE_ARN }}
           TF_VAR_allowed_account_ids: '["${{ vars.AWS_APPS_ACCOUNT_ID }}"]'
           TF_VAR_payments_account_id: ${{ vars.AWS_PAYMENTS_ACCOUNT_ID }}
+          TF_VAR_permissions_boundary_arn: ${{ vars.AWS_APPS_WORKLOAD_BOUNDARY_ARN }}
         run: |
           tofu init -input=false -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
             -backend-config="key=stacks/saas-starter/terraform.tfstate" -backend-config="region=us-east-1" \

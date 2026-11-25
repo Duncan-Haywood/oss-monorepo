@@ -92,7 +92,8 @@ resource "aws_cloudwatch_log_group" "consumer" {
 }
 
 resource "aws_iam_role" "consumer" {
-  name = "${var.name}-entitlement-consumer"
+  name                 = "${var.name}-entitlement-consumer"
+  permissions_boundary = var.permissions_boundary_arn
   assume_role_policy = jsonencode({
     Version   = "2012-10-17"
     Statement = [{ Effect = "Allow", Principal = { Service = "lambda.amazonaws.com" }, Action = "sts:AssumeRole" }]

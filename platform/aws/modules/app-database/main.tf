@@ -84,8 +84,9 @@ resource "aws_db_instance" "this" {
 }
 
 resource "aws_iam_role" "monitoring" {
-  count = var.monitoring_interval > 0 ? 1 : 0
-  name  = "${var.name}-rds-monitoring"
+  count                = var.monitoring_interval > 0 ? 1 : 0
+  name                 = "${var.name}-rds-monitoring"
+  permissions_boundary = var.permissions_boundary_arn
   assume_role_policy = jsonencode({
     Version   = "2012-10-17"
     Statement = [{ Effect = "Allow", Principal = { Service = "monitoring.rds.amazonaws.com" }, Action = "sts:AssumeRole" }]
@@ -102,8 +103,9 @@ resource "aws_iam_role_policy_attachment" "monitoring" {
 # Off by default: on a 2-vCPU instance it bills the 2-vCPU minimum (about $22/month), more than
 # the database. Turn on when Lambda concurrency starts exhausting max_connections (~80 on micro).
 resource "aws_iam_role" "proxy" {
-  count = var.enable_proxy ? 1 : 0
-  name  = "${var.name}-rds-proxy"
+  count                = var.enable_proxy ? 1 : 0
+  name                 = "${var.name}-rds-proxy"
+  permissions_boundary = var.permissions_boundary_arn
   assume_role_policy = jsonencode({
     Version   = "2012-10-17"
     Statement = [{ Effect = "Allow", Principal = { Service = "rds.amazonaws.com" }, Action = "sts:AssumeRole" }]
@@ -165,7 +167,8 @@ resource "aws_cloudwatch_log_group" "admin" {
 }
 
 resource "aws_iam_role" "admin" {
-  name = "${var.name}-db-admin"
+  name                 = "${var.name}-db-admin"
+  permissions_boundary = var.permissions_boundary_arn
   assume_role_policy = jsonencode({
     Version   = "2012-10-17"
     Statement = [{ Effect = "Allow", Principal = { Service = "lambda.amazonaws.com" }, Action = "sts:AssumeRole" }]

@@ -66,3 +66,21 @@ variable "example_product" {
   })
   default = { enabled = false }
 }
+
+variable "permissions_boundary_arn" {
+  description = "The apps account's workload-boundary policy (stacks/github-oidc output). Attached to every role this stack creates. null only in tests or before that stack exists."
+  type        = string
+  default     = null
+}
+
+variable "payments_sender_role_name" {
+  description = "Role name of the Paddle receiver in the payments account (saas-starter/payments). Change both or neither."
+  type        = string
+  default     = "saas-starter-payments-paddle-webhook"
+}
+
+variable "enable_nat" {
+  description = "Give private subnets outbound internet through one NAT gateway (~$33/month + $0.045/GB). Needed for Claude Platform on AWS (stacks/llm) and any non-AWS API."
+  type        = bool
+  default     = false
+}

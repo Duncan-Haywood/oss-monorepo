@@ -17,7 +17,7 @@ locals {
   region     = data.aws_region.current.region
   account_id = data.aws_caller_identity.current.account_id
   db_user    = "app_${var.name}"
-  fn_name    = "app-${replace(var.name, "_", "-")}"
+  fn_name    = "${var.platform.name_prefix}-${replace(var.name, "_", "-")}" # IAM names must start with the stack name
   bucket     = "${local.fn_name}-${local.account_id}-${local.region}"
   secret_arns = [
     for n in var.secret_names : "arn:aws:secretsmanager:${local.region}:${local.account_id}:secret:${n}-??????"
@@ -152,7 +152,8 @@ resource "aws_cloudwatch_log_group" "app" {
 }
 
 resource "aws_iam_role" "app" {
-  name = local.fn_name
+  name                 = local.fn_name
+  permissions_boundary = var.platform.permissions_boundary_arn
   assume_role_policy = jsonencode({
     Version   = "2012-10-17"
     Statement = [{ Effect = "Allow", Principal = { Service = "lambda.amazonaws.com" }, Action = "sts:AssumeRole" }]
@@ -189,6 +190,13 @@ locals {
       }],
     )
   }
+}
+
+# Managed policies from other stacks, e.g. stacks/llm output invoke_policy_arn (Claude Platform on AWS).
+resource "aws_iam_role_policy_attachment" "extra" {
+  for_each   = toset(var.extra_policy_arns)
+  role       = aws_iam_role.app.name
+  policy_arn = each.value
 }
 
 resource "aws_iam_role_policy" "app" {
@@ -234,8 +242,11 @@ resource "aws_lambda_function" "app" {
       APP_VARS            = jsonencode(var.vars)
       NODE_EXTRA_CA_CERTS = "/var/runtime/ca-cert.pem"
       COGNITO_ISSUER      = module.auth.issuer
-      }, local.push_enabled ? {
-      PUSH_PLATFORM_APPS = jsonencode(module.push[0].platform_apps)
+      },
+      # Lambda reserves AWS_* names (AWS_REGION is already set), so they are dropped here.
+      { for k, v in var.environment : k => v if !startswith(k, "AWS_") },
+      local.push_enabled ? {
+        PUSH_PLATFORM_APPS = jsonencode(module.push[0].platform_apps)
     } : {})
   }
   depends_on = [aws_iam_role_policy.app, aws_iam_role_policy_attachment.vpc, aws_lambda_invocation.ensure_db]
@@ -346,8 +357,9 @@ resource "aws_apigatewayv2_api_mapping" "this" {
 
 # --- cron triggers (Workers `scheduled()`), via EventBridge Scheduler ---------------------------
 resource "aws_iam_role" "scheduler" {
-  count = length(var.schedules) == 0 ? 0 : 1
-  name  = "${local.fn_name}-scheduler"
+  count                = length(var.schedules) == 0 ? 0 : 1
+  name                 = "${local.fn_name}-scheduler"
+  permissions_boundary = var.platform.permissions_boundary_arn
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{

@@ -86,3 +86,9 @@ variable "log_retention_days" {
   type    = number
   default = 365
 }
+
+variable "permissions_boundary_arn" {
+  description = "Permissions boundary attached to every IAM role this module creates (the account's workload-boundary from stacks/github-oidc). null = none."
+  type        = string
+  default     = null
+}

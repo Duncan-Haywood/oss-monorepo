@@ -1,4 +1,4 @@
-# saas-starter: the AWS platform every paid product runs on
+# stacks/saas-starter: the AWS platform every paid product runs on
 
 Task `aws-saas-starter` (`portfolio/work/tasks.yaml`), direction `aws-consolidation`
 (`docs/reports/2026-11-24-cloud-provider-comparison.md`, §7). Nothing here has been applied:
@@ -30,7 +30,7 @@ the account steps AWS forces.
 
 | Piece | Where | Module |
 |---|---|---|
-| Private VPC, no internet gateway or NAT; S3 gateway endpoint; interface endpoints in 1 AZ; flow logs | apps | `modules/app-network` |
+| Private VPC, no internet route by default (optional single NAT, HTTPS only); S3 gateway endpoint; interface endpoints in 1 AZ; flow logs | apps | `modules/app-network` |
 | RDS Postgres 16, `db.t4g.micro`, KMS-encrypted, IAM auth, TLS forced, never public; RDS-managed master secret; optional RDS Proxy (IAM end to end); `db-admin` Lambda that creates a database + IAM-only role per product | apps | `modules/app-database` |
 | Product: Lambda (arm64, Node 22, in VPC, reserved concurrency), HTTP API with Cognito JWT authorizer, Cognito pool with web + native clients, private S3 bucket, optional SNS push, cron triggers, migrations on deploy | apps | `modules/app-service` (+ `app-auth`, `app-push`) |
 | Long jobs on Fargate (`RunTask`, image pinned by digest, read-only root, non-root) | apps | `modules/app-job` |
@@ -42,13 +42,19 @@ the account steps AWS forces.
 
 Owner, once (AWS forces these; nothing else needs a console):
 
-1. The foundation steps from the `bootstrap`/organization stacks: management account, root MFA,
-   card, IAM Identity Center; then `bootstrap` creates the state bucket and the GitHub OIDC roles
-   `gha-oss-monorepo-saas-starter-plan` / `-apply` in the **apps** account, and a deploy role in
-   the **payments** account that this public repository cannot assume. The apply role's trust
-   policy must allow the OIDC session to assume `deploy_role_arn` (or be that role).
+1. The foundation steps in `platform/aws/README.md` (org, baseline, spend stacks): management
+   account, root MFA, card, IAM Identity Center. `stacks/github-oidc` then gives this stack its own
+   CI roles `gha-oss-monorepo-saas-starter-plan` / `-apply` in the **apps** account (limited to IAM
+   names `saas-starter-*` and the account's `workload-boundary`), a state bucket per account, and
+   a payments-account role that trusts only the private repository.
 2. Copy `ci/saas-starter.yml` to `.github/workflows/aws-saas-starter.yml` and set the repository
-   variables it lists (account ids and role ARNs: not secrets).
+   variables it lists (account ids, role and boundary ARNs: not secrets). `deploy_role_arn` is the
+   role the provider assumes; the apply role must be allowed to assume it (or be it).
+
+Conventions this stack follows (from the foundation stacks): every IAM role and Lambda is named
+`saas-starter-*` (payments: `saas-starter-payments-*`); every role carries
+`permissions_boundary_arn`; the payments half is a sub-stack that only the private repository
+applies.
 
 Then, in order:
 
@@ -61,8 +67,8 @@ Then, in order:
 | 5. Check | anyone | Paddle's "send test notification" → the consumer log shows `outcome: ignored` (test events carry no `customData`); the DLQ stays empty. |
 | 6. Products | CI | add one module call per product (below); merge. |
 
-The role name `saas-paddle-webhook` is the contract between the two stacks
-(`app-entitlements.sender_role_name` = `app-paddle-webhook.role_name`); change both or neither.
+The role name `saas-starter-payments-paddle-webhook` is the contract between the two stacks
+(`payments_sender_role_name` here = `app-paddle-webhook.role_name` there); change both or neither.
 
 ## Adding a product (one module call + a handler)
 
@@ -88,7 +94,9 @@ The role name `saas-paddle-webhook` is the contract between the two stacks
      platform   = local.platform
      auth       = { domain_prefix = "grant-autopilot", web_callback_urls = ["https://grants.marisstella.app/auth/callback"] }
      schedules  = { daily = "cron(0 13 * * ? *)" }
-     secret_names = ["grants/anthropic-api-key"]
+     # Claude through stacks/llm (Claude Platform on AWS): role credentials, no API key.
+     extra_policy_arns = [data.terraform_remote_state.llm.outputs.invoke_policy_arn]
+     environment       = data.terraform_remote_state.llm.outputs.app_environment
    }
    ```
 
@@ -123,7 +131,8 @@ each row against that document and add any binding it uses that is not listed.
 | KV | a Postgres table (or DynamoDB if it is hot) | Not shimmed; usually small config/caches. |
 | Queues | SQS + a consumer Lambda | Not in the starter yet; `app-entitlements` is the pattern to copy. |
 | Durable Objects | Postgres rows with `SELECT … FOR UPDATE` | Not shimmed. |
-| Email (Resend / Cloudflare Email Service) | SES (task `aws-ses-email`) | Cognito can send through the same SES identity (`auth.ses_identity_arn`). |
+| Model calls (Anthropic API key) | `stacks/llm` (Claude Platform on AWS): `extra_policy_arns` + `environment` from its outputs, `enable_nat = true` | Role credentials replace the key. The grants LLM adapter already landed in the private repo (private-monorepo PR 33, per the orchestrating session). |
+| Email (Resend / Cloudflare Email Service) | SES (`stacks/email`) | Cognito can send through the same SES identity (`auth.ses_identity_arn`). |
 | Auth (whatever grants uses today) | Cognito per product | Users must re-verify by email unless a migration Lambda trigger is added; decide per product. |
 | Paddle webhook in the Worker | removed from the app | Paddle points at the payments-account receiver; the app only reads `env.entitlement()`. |
 | `*.workers.dev` / custom domain | `custom_domain` (regional ACM cert) + an alias record from the DNS stack (`api_domain_target`) | Run both; move DNS last (principle 5). |
@@ -153,13 +162,13 @@ database: turn on when Lambda concurrency nears `max_connections`, ~80 on micro)
 Insights, enhanced monitoring, Container Insights, interface endpoints in more AZs (+$7.30 each),
 and `ecr.api`/`ecr.dkr`/`logs` endpoints only when a product uses Fargate.
 
-Why not NAT: a NAT gateway is ~$33/month before data; endpoints are cheaper for the two
-services the apps call, and having no internet route is the stronger default. The product
-Lambdas therefore cannot reach the public internet. For models, Claude on Bedrock needs only a
-`bedrock-runtime` endpoint (+$7.30/month) and no API key. If a product must call another outside
-API (a direct model API, Paddle's API, a grants database), add a NAT gateway to `app-network`
-when that product moves, or make the call from a small non-VPC Lambda. Decide per product; the
-grants port will need one of the two.
+NAT is off by default: a NAT gateway is ~$33/month before data, endpoints are cheaper for the
+two AWS services the apps call, and no internet route is the stronger default. Products that
+call Claude through `stacks/llm` (Claude Platform on AWS, an `*.api.aws` HTTPS endpoint) or any
+other outside API need `enable_nat = true` (one NAT, HTTPS-only egress rule), which brings the
+fixed cost to ~$65/month and the margin-floor break-even to ~$108/month of revenue. The
+alternative is Bedrock via a `bedrock-runtime` endpoint (+$7.30/month, `stacks/llm`'s
+`enable_bedrock_alternative`). The grants port decides.
 
 ## Security properties (tested)
 
@@ -180,10 +189,10 @@ entitlements; an unknown product fails alone to the DLQ; the paid gate opens and
 ## Verify locally
 
 ```sh
-cd platform/aws/saas-starter/runtime && npm ci
+cd platform/aws/stacks/saas-starter/runtime && npm ci
 PG_SUPERUSER_URL=postgres://postgres:<pw>@localhost:5432/postgres node --test test/*.test.mjs
 node build.mjs platform && node build.mjs product hello ../examples/hello/app.mjs ../examples/hello/migrations
-cd ../.. && for d in saas-starter saas-starter/payments modules/app-*; do (cd $d && tofu init -backend=false && tofu validate && tofu test); done
+cd ../../.. && for d in stacks/saas-starter stacks/saas-starter/payments modules/app-*; do (cd $d && tofu init -backend=false && tofu validate && tofu test); done
 checkov -d . --framework terraform --compact --quiet --skip-download
 ```
 

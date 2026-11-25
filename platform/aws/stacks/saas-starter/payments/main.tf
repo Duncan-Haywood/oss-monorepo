@@ -2,12 +2,13 @@
 # the merchant of record (checkout, subscriptions, tax); only this receiver runs here.
 
 module "paddle_webhook" {
-  source            = "../../modules/app-paddle-webhook"
-  source_dir        = "${coalesce(var.build_dir, "${path.module}/../runtime/dist")}/paddle-webhook"
-  queue_url         = var.queue_url
-  queue_arn         = var.queue_arn
-  queue_kms_key_arn = var.queue_kms_key_arn
-  alarm_topic_arn   = var.alarm_topic_arn
+  source                   = "../../../modules/app-paddle-webhook"
+  source_dir               = "${coalesce(var.build_dir, "${path.module}/../runtime/dist")}/paddle-webhook"
+  queue_url                = var.queue_url
+  queue_arn                = var.queue_arn
+  queue_kms_key_arn        = var.queue_kms_key_arn
+  alarm_topic_arn          = var.alarm_topic_arn
+  permissions_boundary_arn = var.permissions_boundary_arn
 }
 
 output "webhook_url" {

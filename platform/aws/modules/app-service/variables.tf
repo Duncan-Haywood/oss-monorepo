@@ -15,13 +15,15 @@ variable "source_dir" {
 variable "platform" {
   description = "Shared platform outputs from the saas-starter stack (output `platform`)."
   type = object({
-    subnet_ids             = list(string)
-    app_security_group_id  = string
-    db_host                = string
-    db_port                = number
-    db_connect_arn_prefix  = string
-    db_admin_function_name = string
-    kms_key_arn            = string
+    subnet_ids               = list(string)
+    app_security_group_id    = string
+    db_host                  = string
+    db_port                  = number
+    db_connect_arn_prefix    = string
+    db_admin_function_name   = string
+    kms_key_arn              = string
+    name_prefix              = string
+    permissions_boundary_arn = optional(string)
   })
 }
 
@@ -59,6 +61,18 @@ variable "secret_names" {
   description = "Secrets Manager names this app may read with env.secret(name) (e.g. a model API key)."
   type        = list(string)
   default     = []
+}
+
+variable "extra_policy_arns" {
+  description = "Managed policies to attach to the app role, e.g. stacks/llm output invoke_policy_arn."
+  type        = list(string)
+  default     = []
+}
+
+variable "environment" {
+  description = "Extra non-secret environment variables, e.g. stacks/llm output app_environment. AWS_* keys are dropped (reserved by Lambda)."
+  type        = map(string)
+  default     = {}
 }
 
 variable "private_route_keys" {

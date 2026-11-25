@@ -462,7 +462,7 @@ tasks:
     direction: aws-consolidation
     title: Build the SaaS and native-app starter that every product moves onto
     done_when: >-
-      platform/aws/saas-starter/ holds a web-standard app on Lambda (or
+      platform/aws/stacks/saas-starter/ holds a web-standard app on Lambda (or
       Fargate for long jobs), RDS Postgres with IAM auth and encryption,
       Cognito sign-in usable from web and native apps, SNS mobile push, Paddle
       webhooks verified in the payments account, all as OpenTofu, scanned
@@ -471,7 +471,7 @@ tasks:
     status: done
     added: 2026-11-24
     notes: >-
-      Built 2026-11-25 (not applied: no account yet). platform/aws/saas-starter/README.md has the
+      Built 2026-11-25 (not applied: no account yet). platform/aws/stacks/saas-starter/README.md has the
       apply order, owner steps, cost (~$32/month fixed) and the Workers-to-AWS migration table.
       The grants ARCHITECTURE.md check against that table moves to aws-move-products
       (docs/reports/2026-11-25-aws-saas-starter.md).

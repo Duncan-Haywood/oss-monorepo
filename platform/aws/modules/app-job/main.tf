@@ -29,7 +29,8 @@ resource "aws_cloudwatch_log_group" "this" {
 }
 
 resource "aws_iam_role" "execution" {
-  name = "${var.name}-execution"
+  name                 = "${var.name}-execution"
+  permissions_boundary = var.permissions_boundary_arn
   assume_role_policy = jsonencode({
     Version   = "2012-10-17"
     Statement = [{ Effect = "Allow", Principal = { Service = "ecs-tasks.amazonaws.com" }, Action = "sts:AssumeRole" }]
@@ -55,7 +56,8 @@ resource "aws_iam_role_policy" "execution_secrets" {
 }
 
 resource "aws_iam_role" "task" {
-  name = "${var.name}-task"
+  name                 = "${var.name}-task"
+  permissions_boundary = var.permissions_boundary_arn
   assume_role_policy = jsonencode({
     Version   = "2012-10-17"
     Statement = [{ Effect = "Allow", Principal = { Service = "ecs-tasks.amazonaws.com" }, Action = "sts:AssumeRole" }]
