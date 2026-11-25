@@ -15,7 +15,10 @@ measurements to improve the sub-prompts and the documentation.
 Owner, 2026-10-30 and 2026-11-24: security findings are fixed "as soon as they arise",
 the backlog is cleared, and new ones are stopped "before they hit main". So, unless the
 starting message names a task, read the security queue first:
-`git fetch -q --depth=1 origin security-alerts && git show origin/security-alerts:QUEUE.md`.
+`python3 platform/ci/security_next.py` prints the top alert that no run has claimed and no
+triage note has cleared (exit 0), or says there is none (exit 3); `--claim` takes it with a
+push that fails if another run got there first. It reads
+`origin/security-alerts:QUEUE.md`, the claim branches and the triage notes for you.
 
 - It lists alerts: take the top one with no `security-fix/code-scanning-<n>` branch
   (`git ls-remote`); its `alerts/<n>.md` says how. This comes before ideas, website
@@ -28,7 +31,7 @@ starting message names a task, read the security queue first:
   `main`). Check the last `CodeQL` and `Security alert queue` runs on `main`, fix what
   is broken if it is outside the control plane, and otherwise note it in the run record's
   `doc_friction` and go to step 1.
-- It says `Empty`, or the branch does not exist yet: go to step 1.
+- It says none to take (empty, all claimed or triaged), or the branch does not exist yet: go to step 1.
 
 `priv-codeql.yml` analyses `main` on every merge; `priv-security-alert-queue.yml` regenerates the
 queue hourly. Your own PR must also pass the `codeql gate (...)` jobs: a finding on a line you
