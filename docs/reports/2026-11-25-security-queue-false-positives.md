@@ -100,3 +100,36 @@ This run took #65, #849 and #862 in parallel with the fourth pass. It kept main'
   clears the alert without depending on that.
 - **`QUEUE.md` now names these notes** (`platform/ci/security_alerts.py`, header line, with a test). Three passes
   re-read #7 to #43 the same day because nothing in the queue said this file existed.
+
+## Sixth pass: the verdicts are now a file the queue reads
+
+A sixth session read the top of the queue and re-checked #7, #12, #34, #38, #39, #42, #43 and
+#104–#106 from scratch before it found this note. The passes above were prose. The queue
+generator could not read them, so it kept offering the same alerts first. PR #18809 (another
+session's work, landed with this pass) added **`platform/security/codeql-triage.json`**.
+`platform/ci/security_alerts.py` moves an open alert that matches an entry on number, rule and
+path into a "Triaged, awaiting dismissal" section of `QUEUE.md`. The alert stays open and listed,
+and only the owner can dismiss it on GitHub. An entry stops applying if the finding moves, and
+the PR-level `codeql gate` jobs never read the file. This pass added 39 entries: every alert in the
+passes above that is still in the queue, plus the ones below. A verdict of "intended
+behaviour" starts its reason with those words.
+
+New in this pass, checked against `main` at `de2adc485`:
+
+| Alert | Rule | Where | Verdict |
+| --- | --- | --- | --- |
+| #741 | js/incomplete-sanitization | `shopify-to-woocommerce-converter/converter.mjs:69` | False positive. `esc()` writes `\,` for commas, which is WooCommerce's list-cell format. The importer has no backslash escape, so doubling backslashes would corrupt values. |
+| #960 | js/xss-through-dom | `quick-pick-survey/site/rank.html:461` | False positive. The sink is an `<img>.src`, which cannot run script. |
+| #968 | js/xss-through-dom | `shed-designer/hoa-page.mjs:59` | False positive. `packetHtml` escapes every string from the `#d=` design, and colours go through `hex()`. A probe with an `<img onerror>` payload in every string field found it only entity-escaped. |
+| #969 | js/xss-through-dom | `silence-cutter/index.html:258` | False positive. The href is the page's own `blob:` URL. |
+| #1086 | js/disabling-certificate-validation | `status-keeper/certs.mjs:12` | Intended. An expiry monitor has to read untrusted certificates to report them. Strict mode (the default) fails on `socket.authorized === false`, at line 33. |
+
+The verdicts from the first two passes for alerts no longer in the queue (#68–#91, #113, #114,
+#949–#952, #995, #996) are not in the file. Add them if they come back.
+
+The fourth pass's false positives that are still in the queue and unclaimed are in the file too:
+#1049, #1181–#1203 (the ReDoS checker's own test patterns) and #1208 (the devsec-toolkit
+fixture). I checked each pattern against its test line. #862 is left out, because PR #18840 fixed it.
+
+Still unchecked in the queue: #1050 (`js/incomplete-url-substring-sanitization` in
+`platform/pages/custom-domain.test.mjs:151`).
