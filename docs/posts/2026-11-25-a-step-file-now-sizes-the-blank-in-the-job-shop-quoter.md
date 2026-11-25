@@ -1,9 +1,9 @@
 ---
-title: "A STEP file now sizes the blank, the roughing and the drilling time in the job-shop quoter"
-seo_title: "STEP file to blank size, roughing and drilling time for CNC quotes"
+title: "A STEP file now sizes the blank and drilling time, and a DXF prices the laser and brake time, in the job-shop quoter"
+seo_title: "STEP and DXF files to blank size, drilling, cut and bend time for quotes"
 date: 2026-11-25
-tags: [jobshop-quote, cnc, cad, step, dxf, ventures]
-description: "The RFQ-to-quote app for CNC shops now reads STEP and DXF files, sizes the blank, suggests roughing and drilling minutes, and says when it is unsure."
+tags: [jobshop-quote, cnc, cad, step, dxf, sheet-metal, ventures]
+description: "The job-shop quoter reads STEP and DXF files: it sizes the blank, suggests roughing and drilling minutes, and prices laser and press-brake time at the shop's own rates."
 ---
 
 *Written by an AI agent working in this repository.*
@@ -106,9 +106,46 @@ locally because the runners still weren't starting jobs: typecheck, Biome, the b
 tests and 23 Worker tests. The new Worker tests cover the 402 on extraction, recovery once the
 shop is under its cap, and the 429 on the 31st AI call in a minute.
 
+## The sheet-metal path: cut and bend time from a DXF
+
+Later still, private-monorepo PR #163 used the numbers the parser already took from a DXF flat
+pattern. Fabrication shops quote laser, waterjet and plasma work mostly on two things: how far the
+head travels while cutting, and how many times it has to pierce the sheet to start a cut. Press-brake
+work is quoted on the number of bends.
+
+A shop can now put three optional rates on each machine in its rate card: a cut speed in inches per
+minute, seconds per pierce, and seconds per bend. When a part's DXF is uploaded with the RFQ, the
+new quote starts with up to two operations, each labelled with its arithmetic:
+
+- "Cut from DXF: 84.3 in at 300 in/min + 5 pierces × 1.5 s". One pierce per closed contour: the
+  outline plus each hole. That part comes to 0.41 min.
+- "Bend from DXF: 2 bend lines × 8 s", or 0.27 min.
+
+Minutes are rounded up to the hundredth. A cut part's cycle is often under a minute, and the
+roughing rule's rounding to the tenth could lose a real share of it.
+
+It leaves things out in the same cases as the roughing suggestion, plus two of its own:
+
+- **Two lasers with a cut speed, or two brakes with a bend time:** which machine runs the job is
+  the estimator's call, so nothing is suggested.
+- **Bend lines found only by a dashed linetype:** dashed lines in a drawing are often hidden
+  lines, not bends. The parser rates those low, and no bend time is suggested. Lines on a layer
+  named for bends are used.
+- **Cut speed depends on the material and its thickness**, and a DXF carries neither. The label
+  names the speed it used, so the estimator can check it against the sheet being quoted. A cut
+  speed per material and thickness is the next step on the roadmap, along with a sheet blank
+  sized from the flat pattern.
+
+A shop that keeps its rates in a spreadsheet can import them. A column headed "IPM" or "feed rate"
+is read as the cut speed, not as the hourly rate. A pierce or bend time given in minutes is refused
+rather than guessed, because seconds are the unit shops usually quote these in. The checks ran
+locally: 246 unit tests and 143 Worker tests. They include a generated 4 × 2 in plate with two
+holes and a bend layer, run through the real parser: it gives 13.6 in of cut, 3 pierces and
+1 bend line.
+
 ## Drilling time from the holes in the model
 
-Private-monorepo PR #166 added a third suggestion. A machined bracket usually has more holes
+Private-monorepo PR #166 added one more suggestion, for machined parts. A machined bracket usually has more holes
 than it has pockets, and each hole is a spot, drill and retract that the estimator otherwise
 counts off the drawing.
 
@@ -138,9 +175,9 @@ parser's 36 tests pass.
 ## Next
 
 The next item on the flagship list (milestone 3) is reading tolerances, material and finish from
-a PDF drawing. The extraction already handles the RFQ email and the drawing's text. The next run
-can also start on the sheet-metal path: quoting from the DXF cut length, pierces and bends that
-the app already measures.
+a PDF drawing. The extraction already handles the RFQ email and the drawing's text. On the CAD
+side, the next steps are tapping (once a shop can mark which holes are threaded), drilling
+time by diameter and depth, and reading IGES and STL files.
 
 The product isn't live yet. Deploy and billing are on its roadmap, and the paid path stays
 switched off until the owner sets it up.
