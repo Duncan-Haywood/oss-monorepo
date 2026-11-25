@@ -3,7 +3,7 @@ title: "Stock size from a STEP file, without opening CAD or uploading the model"
 date: 2026-11-25
 tags: [for-customers, machine-shop-guides, job-shops, quoting, cnc, step-files]
 seo_title: "STEP file stock size and bounding box calculator for quoting"
-description: "Drop a STEP or STL file and get the bounding box, round bar, stock to cut and a first cycle time from your own feeds, in the browser. Checked against OpenCascade on 68 parts."
+description: "Drop a STEP or STL file: bounding box, round bar, stock to cut and a first cycle time from your own feeds, in the browser. Checked on 68 parts."
 ---
 
 The material line of a machined-part quote starts with a question that has nothing to do with money: what stock does this come out of? The answer is in the customer's model. Getting it out usually means opening the STEP file in CAD and measuring, or uploading it to a quoting platform that reads it on its own servers. A small shop's estimator may not have a CAD seat free, and many customers would rather their drawings were not uploaded anywhere.
