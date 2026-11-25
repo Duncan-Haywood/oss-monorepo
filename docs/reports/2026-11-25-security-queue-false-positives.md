@@ -58,3 +58,44 @@ Checked by reading `main` at `f67c21c96`. No code change was needed.
   - `js/regex-injection` #104 and #105 (`platform/ci/copy_drift.mjs:189-190`). `--name` and `--skip` are regex flags typed by whoever runs the local CI script.
   - `js/regex-injection` #106 (`dxf-nesting/dxf.mjs:174`). "Ignore layers matching" is a regex the user types into their own browser tab or CLI, and no one else's input reaches it.
 - **Still unchecked:** the remaining `js/double-escaping` alerts, #119 onward. Most of them are in `*.test.mjs` files, and the same reasoning as the test-file note above applies.
+
+## Third pass, same day (queue scanned at `5f857bb81c00`, read on `main` at `578f7f19a`)
+
+Every flagged file below was unchanged between the scanned commit and `main`, so the line numbers hold.
+
+- **Fixed in this pass (they close on the next completed scan):**
+  - `js/incomplete-sanitization` #849 (`platform/agents/tools.mjs:170`). `commentFor` built a regex from an
+    export's name escaping only `$`. Names reach it from the tool index, which are JS identifiers, so no
+    other metacharacter could occur in practice, but the escape now covers every regex metacharacter and a
+    test pins that `a.b` and `a(b` match literally.
+  - `js/incomplete-sanitization` #65 (`ventures/pay-app-guides/template.test.mjs:62`). The test escaped only
+    `.` in fixed row labels; it now escapes every metacharacter. Same assertions, same result (the
+    LibreOffice recalculation test ran and passed).
+- **False positives, by design (dismiss as "won't fix" or "used in tests"):**
+  - `js/incomplete-sanitization` #741 (`shopify-to-woocommerce-converter/converter.mjs:69`). `\,` is
+    WooCommerce's own escape for a comma inside an attribute value list; its importer replaces `\,` before
+    splitting and has no backslash escape, so escaping `\` too would put stray backslashes into the store.
+    The only mis-split is an option value that itself ends in a backslash, which Shopify variants do not use.
+  - `js/xss-through-dom` #960 (`quick-pick-survey/site/rank.html:461`). The image `src` comes from
+    `picture()`, which returns only `blob:` URLs the viewer's own file picker made (line 271).
+  - `js/xss-through-dom` #968 (`shed-designer/hoa-page.mjs:59`). `packetHtml` passes the perspective image
+    through `esc` (`hoa.mjs:529`); the value is a canvas snapshot or a manifest path.
+  - `js/xss-through-dom` #969 (`silence-cutter/index.html:258`). `a.href` is `URL.createObjectURL` of a
+    Blob the page built; it is a download link.
+  - `js/incomplete-url-substring-sanitization` #1049 and #1050 (`platform/pages/check.mjs:1466`,
+    `custom-domain.test.mjs:151`). `includes('https://example.invalid')` looks for a leftover build
+    placeholder in our own output, not for a trusted host.
+  - `js/disabling-certificate-validation` #1086 (`status-keeper/certs.mjs:12`). The probe must read the
+    certificate of a server whose certificate is expired or broken, which is what it reports; it sends
+    nothing over the connection and records `socket.authorized` and the authorisation error.
+  - `js/redos` #1181 to #1203 (`regex-redos-check/*.test.mjs`) and #1208
+    (`devsec-toolkit/tests/fixtures/vulnerable-repo/src/validate.js`). These are the deliberately
+    vulnerable regexes the ReDoS checker and the devsec scanner are tested against; they never run on
+    untrusted input.
+  - `js/incomplete-sanitization` #862 (`research/marriage-divorce-evidence/.../use-data-app.js:315`).
+    Replaces the one `..` in a range filter value (`"1990..2000"`) for display. Paused research.
+- **Claimed by another session (not touched):** #274, #275, #574, #997 have `security-fix/` branches.
+
+With this pass every alert in the 48-alert queue has been read. What remains needs the owner to press
+"dismiss" on the code-scanning page, or a CodeQL config that excludes test fixtures from these rules
+(control-plane change, its own PR).

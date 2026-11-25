@@ -68,6 +68,13 @@ test('commentFor returns the comment above an export and the module header', () 
   assert.equal(commentFor(src, 'bare'), '');
 });
 
+test('commentFor matches a name literally, so regex characters in it never widen the match', () => {
+  const src = '// Dollar.\nexport function a$b() {}\n// Other.\nexport function aXb() {}\n';
+  assert.equal(commentFor(src, 'a$b'), 'Dollar.');
+  assert.equal(commentFor(src, 'a.b'), '');
+  assert.equal(commentFor(src, 'a(b'), '');
+});
+
 test('toJson keeps Maps, Sets, Infinity and BigInt readable', () => {
   assert.equal(toJson({ m: new Map([['a', 1]]), s: new Set([2]), i: Infinity, b: 3n, f: () => 1 }, 0), '{"m":{"a":1},"s":[2],"i":"Infinity","b":"3"}');
 });
