@@ -155,7 +155,8 @@
    "what": "Daily KPIs use the UTC calendar date (SQLite date() on UTC ISO strings) and never filter by store_id, so a multi-store database or an early-morning Europe/Rome sale moves purchases and revenue into the wrong store's or wrong day's conversion: pilot-leather-01 on 2026-08-19 reported 4 purchases / 112800 cents instead of 3 / 103800. The /api/kpis/today endpoint also picks the UTC day. Mixed currencies are summed into one revenue number",
    "where": "ventures/retail-pilot-intel/packages/analytics/src/report.ts:30",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18903"
   },
   {
    "severity": "medium",
@@ -230,6 +231,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17724"],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17724", "https://github.com/Duncan-Haywood/oss-monorepo/pull/18903"],
  "verdict": "A tidy, well-commented TypeScript prototype whose working core is a POS CSV importer, a SQLite store and a daily door-plus-till report: on the shipped fixture my independent recompute matches (3 baskets, 103800 cents, conversion 0.0638, 2209 per entrant) and the CSV parser equals Python's csv module. It misses the bar on correctness, claims and verification: days are UTC and stores are never separated, so a second store or a 00:30 Rome sale lands in the wrong store-day (4 purchases instead of 3); the README's live page is a 404 because the slug is excluded from the Pages build; the portal claims Europe/Rome hourly buckets that do not exist; bootstrap's report is all zeros; the sales maths overstates extra sales (1.5 vs 1.05 a week) and payback; and 6 of 11 seeded revenue bugs pass the tests. The camera ingest, SKU gap and experiments are demo data only. Not finished; a retail analytics consultant could use the portal as a sales demo but would not hand a pilot owner its numbers."
 }
