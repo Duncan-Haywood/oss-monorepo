@@ -16,6 +16,20 @@
       "heroWide": "pay-application-generator-hero-1200.webp"
     },
     {
+      "slug": "cnc-machining-quote-calculator",
+      "file": "cnc-machining-quote-calculator.webp",
+      "caption": "Costs a machined part from your own rates, then prices it at every lot size",
+      "hero": "cnc-machining-quote-calculator-hero.webp",
+      "heroWide": "cnc-machining-quote-calculator-hero-1200.webp"
+    },
+    {
+      "slug": "dxf-nesting",
+      "file": "dxf-nesting.webp",
+      "caption": "Nests DXF parts on sheets, holes filled, with cut length and pierces",
+      "hero": "dxf-nesting-hero.webp",
+      "heroWide": "dxf-nesting-hero-1200.webp"
+    },
+    {
       "slug": "container-load-planner",
       "file": "container-load-planner.webp",
       "caption": "Packs cartons and pallets into containers, drawn to scale",

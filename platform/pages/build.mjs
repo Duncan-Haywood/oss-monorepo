@@ -13945,6 +13945,8 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
       published: new Set(surfaces.map((s) => s.slug)),
       footer: `${disclaimerHtml('../../', surfaces)}\n      ${renderSiteFooterNav({ toRoot: '../../' })}`,
       tail: `  <script src="../../${CHROME_MODULE_FILE}" ${CHROME_SLUG_ATTR}="industry-manufacturing" defer></script>`,
+      // Real stills of its free tools (showcase/capture.mjs), already limited to published ones.
+      shots: showcase.shots,
     }),
   ];
   // The online sellers industry page (industry-online-sellers.mjs): resellers'

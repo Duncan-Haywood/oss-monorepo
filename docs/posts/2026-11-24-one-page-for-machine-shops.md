@@ -637,3 +637,26 @@ now suggests up to three routings above each quote line's picker:
   then priced from today's rate card like any other edit.
 
 As before, only the shop's own routings and quotes are read.
+
+## Update, 25 November 2026: the page now shows the tools working
+
+Until today the [manufacturing page](https://marisstella.app/industries/manufacturing/)
+was all text: 4,585 px of headings and lists on a phone, with no picture of
+anything a shop could use. It now shows two of the free tools with their own
+worked examples loaded, captured from the real pages rather than drawn for
+the occasion:
+
+- **Under the opening paragraph**, a sheet from the free
+  [DXF nesting](https://marisstella.app/dxf-nesting/) tool: 72 parts (base
+  plates, gussets, flanges, washers, brackets) on one 2500 × 1250 mm sheet,
+  small parts placed in the gaps, every pair checked at least 5 mm apart.
+- **In the job-shop quoting card**, the free
+  [CNC machining quote calculator](https://marisstella.app/cnc-machining-quote-calculator/)
+  on a 25-part lot: cost per part, break-even, price at the target margin,
+  and the checks it raises before the quote goes out (here, that setup is
+  40% of each part's cost at this lot size).
+
+Each picture links to its tool. The page grew to 5,181 px on a phone and
+still scrolls only up and down. The quoting product itself is still in
+development; the still in its card is the free calculator, and the caption
+says so.
