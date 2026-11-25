@@ -3715,7 +3715,8 @@ way, and there the reserve changed nothing in seeds 7-12; build time did not gro
 
 **What landed:** under a time budget, `coverRepairReserveMs` now defaults to a tenth of the budget, at most 2 s, on weeks of 300 or
 more shift copies, and to 0 below (where every bench build already reaches its floor, README "The repair reserve at 30-60
-people"). An explicit `coverRepairReserveMs` (0 turns it off) wins; `optimality.coverRepairReserveMs` reports the reserve used.
+people"). An explicit `coverRepairReserveMs` (0 turns it off) wins; `optimality.coverRepairReserveMs` reports the reserve the build applies to its cover passes, set from the week's size and the
+budget, so it reads the same whether or not a loaded machine reaches the passes (2026-11-25).
 
 Tests: `repair-flow.test.mjs` adds that a 348-copy bench week under a 3 s budget reserves 300 ms, a 149-copy week reserves none,
 and an explicit value is kept. Not claimed: generated weeks only, single runs on one cloud machine; the reserve's size (2 s) and

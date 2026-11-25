@@ -17,6 +17,13 @@ Built with Next.js 15, TypeScript, Tailwind CSS, and deployable to **Cloudflare 
 - **Whitelist-only access** for `duncan.andrew.haywood@gmail.com`
 - **Cloudflare deployment** ready with OpenNext adapter
 
+## On AWS (built 2026-11-25, not applied yet)
+
+`node aws/build.mjs` writes a static export to `aws/out/` (every page is static data; the build leaves out the
+middleware, the Google OAuth and session routes and the login pages, which static export cannot run). The AWS
+starter's site app serves it behind its own sign-in gate for the stack's `allowed_emails`
+(`platform/aws/stacks/ai-first-markets`, README there). The Cloudflare build below is unchanged until the cutover.
+
 ## Quick start (local)
 
 ```bash
