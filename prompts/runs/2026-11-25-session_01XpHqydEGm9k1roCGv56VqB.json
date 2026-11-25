@@ -1,0 +1,554 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqydEGm9k1roCGv56VqB",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T08:38:57Z",
+  "ended": "2026-11-25T08:41:30Z",
+  "wall_minutes": 5.94,
+  "tokens_in": 2779171,
+  "tokens_out": 17314,
+  "cost_usd": 1.5843,
+  "tool_calls": 33,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18909",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Says to triage a 'line changed' mutant by hand but not how to record caught_after_fix; set it true with the manual re-apply described in note."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "`targets --probe 20 | grep pay-app` printed nothing for ventures/pay-app-guides files though their suites run in ~0.1 s; aimed with --target after timing the suite by hand."
+    },
+    {
+      "file": "platform/ci/test_check_row_spread.py",
+      "issue": "Flaked once under run_workflow_locally.py --for-changes (FileNotFoundError on ventures/tmpXXXX: rglob over ventures/ met another parallel test's temp dir being deleted); passed 3/3 run alone. check_row_spread.py's rglob should tolerate vanished paths, or tests should make temp dirs outside ventures/."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0's three open entries all need owner-only workflow changes or a measured redesign (unchanged since filed); re-checked the list and did not attempt them.",
+      "did": "Spent the run on new targets near bet #1.",
+      "result": "7 defects found and fixed."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No post: a fix-and-guard run on input parsing tells a customer nothing new; the defects are written up in this record and the PR.",
+      "did": "No blog post",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Guard added: ventures/pay-app-guides/number-parse.test.mjs fails any Number( call in the venture's modules without a plain-number regex beside it; on the pre-fix tree it flagged colog.mjs:117 and waivers.mjs:67. Local verification: run_venture_tests.py pay-app-guides pay-application-generator -> 169 + 64 tests ok. run_workflow_locally.py --for-changes: ventures-tests node --test step red only from the unrelated test_check_row_spread flake above (pay-app-guides suite ok); priv-* deploy/review jobs not run locally (PR CI is their verdict).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/pay-app-guides/stored.mjs",
+        "test": "node --test ventures/pay-app-guides/**/*.test.mjs  (in .)",
+        "seed": 657870630,
+        "commit": "c08192fff",
+        "sites": 104,
+        "baseline_seconds": 1.6,
+        "mutants": [
+          {
+            "file": "ventures/pay-app-guides/stored.mjs",
+            "line": 54,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "if (grid.length < 2) { out.errors.push(\"Paste a header row and at least one line.\"); return out; }",
+            "after": "if (grid.length < 3) { out.errors.push(\"Paste a header row and at least one line.\"); return out; }",
+            "line_text": "  if (grid.length < 2) { out.errors.push(\"Paste a header row and at least one line.\"); return out; }",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/stored.mjs",
+            "line": 69,
+            "col": 14,
+            "operator": "false-to-true",
+            "before": "let bad = false;",
+            "after": "let bad = true;",
+            "line_text": "    let bad = false;",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/stored.mjs",
+            "line": 78,
+            "col": 17,
+            "operator": "and-to-or",
+            "before": "if (!offsite && !ONSITE.test(loc)) { out.errors.push(`Row ${r + 1} (${label}): location \"${loc}\" should be on site or off site.`); continue; }",
+            "after": "if (!offsite || !ONSITE.test(loc)) { out.errors.push(`Row ${r + 1} (${label}): location \"${loc}\" should be on site or off site.`); continue; }",
+            "line_text": "    if (!offsite && !ONSITE.test(loc)) { out.errors.push(`Row ${r + 1} (${label}): location \"${loc}\" should be on site or off site.`); continue; }",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/stored.mjs",
+            "line": 81,
+            "col": 32,
+            "operator": "minus-to-plus",
+            "before": "const storedNow = available - m.installed;",
+            "after": "const storedNow = available + m.installed;",
+            "line_text": "    const storedNow = available - m.installed;",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/stored.mjs",
+            "line": 89,
+            "col": 76,
+            "operator": "plus-to-minus",
+            "before": "const sum = (k, f = () => true) => out.lines.filter(f).reduce((a, x) => a + x[k], 0);",
+            "after": "const sum = (k, f = () => true) => out.lines.filter(f).reduce((a, x) => a - x[k], 0);",
+            "line_text": "  const sum = (k, f = () => true) => out.lines.filter(f).reduce((a, x) => a + x[k], 0);",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/stored.mjs",
+            "line": 104,
+            "col": 44,
+            "operator": "const-plus-one",
+            "before": "if (x.G > x.scheduled && x.scheduled >= 0) F(\"high\", `${x.label}: work completed plus stored (${dollars(x.G)}) is more than the scheduled value (${dollars(x.scheduled)}). Stored material counts against the line's value; bill the excess under a change order, not as stored.`);",
+            "after": "if (x.G > x.scheduled && x.scheduled >= 1) F(\"high\", `${x.label}: work completed plus stored (${dollars(x.G)}) is more than the scheduled value (${dollars(x.scheduled)}). Stored material counts against the line's value; bill the excess under a change order, not as stored.`);",
+            "line_text": "    if (x.G > x.scheduled && x.scheduled >= 0) F(\"high\", `${x.label}: work completed plus stored (${dollars(x.G)}) is more than the scheduled value (${dollars(x.scheduled)}). Stored material counts against the line's value; bill the excess under a change order, not as stored.`);",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "stored.test.mjs: $0 line with work billed must be flagged over its value"
+          },
+          {
+            "file": "ventures/pay-app-guides/stored.mjs",
+            "line": 109,
+            "col": 41,
+            "operator": "const-plus-one",
+            "before": "if (x.storedNow > 0 && x.scheduled > 0 && x.previous + x.E === 0 && x.storedNow * 2 > x.scheduled) F(\"info\", `${x.label}: stored material is ${((x.storedNow * 100) / x.scheduled).toFixed(0)}% of the line and no work is billed yet. Reviewers check that the line's value covers labour as well as material; split material and labour into separate lines if the SOV allows.`);",
+            "after": "if (x.storedNow > 0 && x.scheduled > 1 && x.previous + x.E === 0 && x.storedNow * 2 > x.scheduled) F(\"info\", `${x.label}: stored material is ${((x.storedNow * 100) / x.scheduled).toFixed(0)}% of the line and no work is billed yet. Reviewers check that the line's value covers labour as well as material; split material and labour into separate lines if the SOV allows.`);",
+            "line_text": "    if (x.storedNow > 0 && x.scheduled > 0 && x.previous + x.E === 0 && x.storedNow * 2 > x.scheduled) F(\"info\", `${x.label}: stored material is ${((x.storedNow * 100) / x.scheduled).toFixed(0)}% of the line and no work is billed yet. Reviewers check that the line's value covers labour as well as material; split material and labour into separate lines if the SOV allows.`);",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "stored.test.mjs: one-cent line, all stored, still gets the stored-share hint"
+          },
+          {
+            "file": "ventures/pay-app-guides/stored.mjs",
+            "line": 156,
+            "col": 93,
+            "operator": "false-to-true",
+            "before": "export const SAMPLE_SETTINGS = { workRetainage: \"10\", storedRetainage: \"10\", offsiteAllowed: false };",
+            "after": "export const SAMPLE_SETTINGS = { workRetainage: \"10\", storedRetainage: \"10\", offsiteAllowed: true };",
+            "line_text": "export const SAMPLE_SETTINGS = { workRetainage: \"10\", storedRetainage: \"10\", offsiteAllowed: false };",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/pay-app-guides/calc.mjs",
+        "test": "node --test ventures/pay-app-guides/**/*.test.mjs  (in .)",
+        "seed": 429875447,
+        "commit": "c08192fff",
+        "sites": 230,
+        "baseline_seconds": 1.2,
+        "mutants": [
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 24,
+            "col": 44,
+            "operator": "const-plus-one",
+            "before": "if (v === null || v === undefined) return 0;",
+            "after": "if (v === null || v === undefined) return 1;",
+            "line_text": "  if (v === null || v === undefined) return 0;",
+            "caught": true,
+            "seconds": 1.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 68,
+            "col": 38,
+            "operator": "le-to-lt",
+            "before": "if (!(storedRate >= 0 && storedRate <= 1)) bad(\"Retainage on stored materials must be between 0% and 100%.\");",
+            "after": "if (!(storedRate >= 0 && storedRate < 1)) bad(\"Retainage on stored materials must be between 0% and 100%.\");",
+            "line_text": "  if (!(storedRate >= 0 && storedRate <= 1)) bad(\"Retainage on stored materials must be between 0% and 100%.\");",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "calc.test.mjs: 100% stored retainage is in range"
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 129,
+            "col": 35,
+            "operator": "minus-to-plus",
+            "before": "balanceToFinish: contractSum - completedStored,",
+            "after": "balanceToFinish: contractSum + completedStored,",
+            "line_text": "      balanceToFinish: contractSum - completedStored,",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 150,
+            "col": 191,
+            "operator": "times-to-div",
+            "before": "body.push([\"\", \"Totals\", plain(t.contractSumToDate), plain(t.previous), plain(t.thisPeriod), plain(t.stored), plain(t.completedStored), t.percentComplete === null ? \"\" : (t.percentComplete * 100).toFixed(1), plain(t.balanceToFinish), plain(t.retainageGross)]);",
+            "after": "body.push([\"\", \"Totals\", plain(t.contractSumToDate), plain(t.previous), plain(t.thisPeriod), plain(t.stored), plain(t.completedStored), t.percentComplete === null ? \"\" : (t.percentComplete / 100).toFixed(1), plain(t.balanceToFinish), plain(t.retainageGross)]);",
+            "line_text": "  body.push([\"\", \"Totals\", plain(t.contractSumToDate), plain(t.previous), plain(t.thisPeriod), plain(t.stored), plain(t.completedStored), t.percentComplete === null ? \"\" : (t.percentComplete * 100).toFixed(1), plain(t.balanceToFinish), plain(t.retainageGross)]);",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 204,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "else if (h !== null && h < 0) errors.push(\"Enter the retainage held as a positive amount; the invoice line below is made negative for you.\");",
+            "after": "else if (h !== null && h < 1) errors.push(\"Enter the retainage held as a positive amount; the invoice line below is made negative for you.\");",
+            "line_text": "  else if (h !== null && h < 0) errors.push(\"Enter the retainage held as a positive amount; the invoice line below is made negative for you.\");",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "calc.test.mjs: held of 0 is accepted and adds no retainage line"
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 239,
+            "col": 26,
+            "operator": "const-plus-one",
+            "before": "const m = /^(\\d{4})-(\\d{2})-(\\d{2})$/.exec(String(v ?? \"\").trim());",
+            "after": "const m = /^(\\d{4})-(\\d{3})-(\\d{2})$/.exec(String(v ?? \"\").trim());",
+            "line_text": "  const m = /^(\\d{4})-(\\d{2})-(\\d{2})$/.exec(String(v ?? \"\").trim());",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 270,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "const late = Math.max(0, Math.round((pd - due) / DAY));",
+            "after": "const late = Math.max(1, Math.round((pd - due) / DAY));",
+            "line_text": "  const late = Math.max(0, Math.round((pd - due) / DAY));",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 319,
+            "col": 38,
+            "operator": "and-to-or",
+            "before": "!missing.includes(\"final-waiver\") && \"a conditional final lien waiver for that amount\",",
+            "after": "!missing.includes(\"final-waiver\") || \"a conditional final lien waiver for that amount\",",
+            "line_text": "    !missing.includes(\"final-waiver\") && \"a conditional final lien waiver for that amount\",",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/pay-app-guides/retlog.mjs",
+        "test": "node --test ventures/pay-app-guides/**/*.test.mjs  (in .)",
+        "seed": 890125017,
+        "commit": "c08192fff",
+        "sites": 159,
+        "baseline_seconds": 1.0,
+        "mutants": [
+          {
+            "file": "ventures/pay-app-guides/retlog.mjs",
+            "line": 81,
+            "col": 27,
+            "operator": "or-to-and",
+            "before": "const job = get(\"job\") || `Row ${r + 1}`, gc = get(\"gc\");",
+            "after": "const job = get(\"job\") && `Row ${r + 1}`, gc = get(\"gc\");",
+            "line_text": "    const job = get(\"job\") || `Row ${r + 1}`, gc = get(\"gc\");",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/retlog.mjs",
+            "line": 87,
+            "col": 17,
+            "operator": "or-to-and",
+            "before": "if (held < 0 || released < 0) { out.errors.push(`${where}: enter retainage held and released as positive amounts.`); continue; }",
+            "after": "if (held < 0 && released < 0) { out.errors.push(`${where}: enter retainage held and released as positive amounts.`); continue; }",
+            "line_text": "    if (held < 0 || released < 0) { out.errors.push(`${where}: enter retainage held and released as positive amounts.`); continue; }",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "retlog.test.mjs: negative held with positive released is refused"
+          },
+          {
+            "file": "ventures/pay-app-guides/retlog.mjs",
+            "line": 101,
+            "col": 31,
+            "operator": "and-to-or",
+            "before": "x.carrying = rate !== null && x.overdue > 0 && outstanding > 0 ? Math.round((outstanding * rate * x.overdue) / 36500) : 0;",
+            "after": "x.carrying = rate !== null || x.overdue > 0 && outstanding > 0 ? Math.round((outstanding * rate * x.overdue) / 36500) : 0;",
+            "line_text": "    x.carrying = rate !== null && x.overdue > 0 && outstanding > 0 ? Math.round((outstanding * rate * x.overdue) / 36500) : 0;",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "retlog.test.mjs: over-released overdue job has carrying 0, not negative"
+          },
+          {
+            "file": "ventures/pay-app-guides/retlog.mjs",
+            "line": 101,
+            "col": 124,
+            "operator": "const-plus-one",
+            "before": "x.carrying = rate !== null && x.overdue > 0 && outstanding > 0 ? Math.round((outstanding * rate * x.overdue) / 36500) : 0;",
+            "after": "x.carrying = rate !== null && x.overdue > 0 && outstanding > 0 ? Math.round((outstanding * rate * x.overdue) / 36500) : 1;",
+            "line_text": "    x.carrying = rate !== null && x.overdue > 0 && outstanding > 0 ? Math.round((outstanding * rate * x.overdue) / 36500) : 0;",
+            "caught": true,
+            "seconds": 1.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/retlog.mjs",
+            "line": 134,
+            "col": 19,
+            "operator": "or-to-and",
+            "before": "const k = x.gc || \"(no GC named)\";",
+            "after": "const k = x.gc && \"(no GC named)\";",
+            "line_text": "    const k = x.gc || \"(no GC named)\";",
+            "caught": true,
+            "seconds": 1.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/retlog.mjs",
+            "line": 139,
+            "col": 60,
+            "operator": "minus-to-plus",
+            "before": "out.byGc = [...gcs.values()].sort((a, b) => b.outstanding - a.outstanding || a.gc.localeCompare(b.gc));",
+            "after": "out.byGc = [...gcs.values()].sort((a, b) => b.outstanding + a.outstanding || a.gc.localeCompare(b.gc));",
+            "line_text": "  out.byGc = [...gcs.values()].sort((a, b) => b.outstanding - a.outstanding || a.gc.localeCompare(b.gc));",
+            "caught": true,
+            "seconds": 1.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/retlog.mjs",
+            "line": 139,
+            "col": 76,
+            "operator": "or-to-and",
+            "before": "out.byGc = [...gcs.values()].sort((a, b) => b.outstanding - a.outstanding || a.gc.localeCompare(b.gc));",
+            "after": "out.byGc = [...gcs.values()].sort((a, b) => b.outstanding - a.outstanding && a.gc.localeCompare(b.gc));",
+            "line_text": "  out.byGc = [...gcs.values()].sort((a, b) => b.outstanding - a.outstanding || a.gc.localeCompare(b.gc));",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "retlog.test.mjs: GCs with equal outstanding sort by name"
+          },
+          {
+            "file": "ventures/pay-app-guides/retlog.mjs",
+            "line": 155,
+            "col": 94,
+            "operator": "const-plus-one",
+            "before": "for (const x of out.jobs) names.set(x.job.toLowerCase(), (names.get(x.job.toLowerCase()) ?? 0) + 1);",
+            "after": "for (const x of out.jobs) names.set(x.job.toLowerCase(), (names.get(x.job.toLowerCase()) ?? 1) + 1);",
+            "line_text": "  for (const x of out.jobs) names.set(x.job.toLowerCase(), (names.get(x.job.toLowerCase()) ?? 0) + 1);",
+            "caught": false,
+            "seconds": 1.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "retlog.test.mjs: a job listed once is not reported as a duplicate [rerun: line changed; triage by hand] Re-applied by hand on the rewritten line ((seen?.c ?? 0) + 1 -> ?? 1): retlog.test.mjs fails 1 test, so caught."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/pay-app-guides/calc.mjs",
+        "issue": "retainageRelease wrote a release letter asking for '$0.00 ... past due' when the retainage released equalled the retainage held; now an error ('nothing left to release').",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18909"
+      },
+      {
+        "file": "ventures/pay-app-guides/calc.mjs",
+        "issue": "retainageRelease and promptPayInterest read day counts with Number(), so '1e1' was 10 days and '0x7' 7 days; now digits only.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18909"
+      },
+      {
+        "file": "ventures/pay-app-guides/retlog.mjs",
+        "issue": "Cost-of-money rate read with Number(): '1e1' became 10% and '0x8' 8%; now a plain decimal only.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18909"
+      },
+      {
+        "file": "ventures/pay-app-guides/retlog.mjs",
+        "issue": "Duplicate-job finding printed the job name lowercased ('Job \"maple st\" appears 2 times'); now the spelling first typed.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18909"
+      },
+      {
+        "file": "ventures/pay-app-guides/stored.mjs",
+        "issue": "Retainage typed '10 %' (space before the sign) was refused with 'must be percentages from 0 to 100', while calc.mjs on the sibling page accepts it; now read as 10%.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18909"
+      },
+      {
+        "file": "ventures/pay-app-guides/colog.mjs",
+        "issue": "Stale days read with Number(): '3e1' and '0x1e' became 30; now digits only.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18909"
+      },
+      {
+        "file": "ventures/pay-app-guides/waivers.mjs",
+        "issue": "Chase days read with Number(): ' ' (spaces) became 0 days and '1e1' 10; spaces now use the default, other non-digits are refused.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18909"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e268b6aa-2b20-5ed2-b4b7-8b29d1a58030",
+    "transcripts": 1,
+    "first": "2026-11-25T08:38:57Z",
+    "last": "2026-11-25T08:44:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 31,
+        "input": 63,
+        "output": 17314,
+        "thinking": 3901,
+        "cache_read": 2691675,
+        "cache_write_5m": 0,
+        "cache_write_1h": 87433,
+        "api_equivalent_usd": 1.5843,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 31,
+      "input": 63,
+      "output": 17314,
+      "thinking": 3901,
+      "cache_read": 2691675,
+      "cache_write_5m": 0,
+      "cache_write_1h": 87433,
+      "api_equivalent_usd": 1.5843,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 33,
+    "tools": {
+      "Bash": 31,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.94,
+      "active_minutes": 5.94,
+      "model_minutes": 2.67,
+      "tool_minutes": 3.27,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: read 3 modules, 24 mutants triaged, 7 fixes with tests, a lint",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 252.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
