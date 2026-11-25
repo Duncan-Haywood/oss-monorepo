@@ -58,6 +58,9 @@ jobs:
             lock="${dir}.terraform.lock.hcl"
             before="$(cat "$lock" 2>/dev/null || true)"
             rm -f "$lock"
+            # Local modules must be installed before `providers lock` can see
+            # their provider requirements.
+            tofu -chdir="$dir" get >/dev/null
             tofu -chdir="$dir" providers lock -platform=linux_amd64 >/dev/null
             if [[ "$(cat "$lock")" != "$before" ]]; then
               echo "::error file=${lock}::lock file differs from the registry; commit this content:"
