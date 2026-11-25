@@ -53,6 +53,10 @@
     {
       "file": "platform/ci/check_md_links.py",
       "issue": "Fails on main with 2 dead links in portfolio/monetization/hardware-bets.md, unrelated to research PRs; had to stash to confirm they were pre-existing."
+    },
+    {
+      "file": "prompts/promptctl.py route",
+      "issue": "Routed this run to the research track hours before research/CLAUDE.md paused it; the pause landed mid-run, so a router check could not have caught it."
     }
   ],
   "deviations": [
@@ -61,6 +65,12 @@
       "why": "North star says for-profit work first, but the router's weighted draw sent this run to the research track; followed the router, as prompt.md routes runs.",
       "did": "research milestone",
       "result": "one programme milestone landed"
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "why": "The owner paused the research track on 2026-11-25 (\"drop the research ... not as independent academic research\") while this run, routed to research by the 2026-11-24 router, was finishing. The milestone was already complete and verified, so it was landed for the record rather than discarded.",
+      "did": "merged main in and landed milestone 78; no further research started",
+      "result": "work landed; next runs should not continue the programme on the scheduled research track"
     }
   ],
   "writeups": [
