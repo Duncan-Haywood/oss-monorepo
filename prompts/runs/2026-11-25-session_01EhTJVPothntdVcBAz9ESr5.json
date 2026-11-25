@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01EhTJVPothntdVcBAz9ESr5",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T13:56:28Z",
+  "ended": "2026-11-25T14:01:07Z",
+  "wall_minutes": 4.83,
+  "tokens_in": 2996306,
+  "tokens_out": 20707,
+  "cost_usd": 1.6222,
+  "tool_calls": 38,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18989",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "scratch Playwright script failed to import 'playwright' by bare name from the scratchpad (ESM resolution); fixed by importing the require.resolve path"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both perf backlog items (P063, P064) have been owner-gated for many runs; every perf run re-discovers this. The heavy pages in module-weight.mjs have all had passes, so picking a target took a while; a 'bet front doors' list for perf would help."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Playwright is require()-able but not importable by bare name from an ESM script outside the repo; a one-line note would save a retry."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "Did not take the largest consumer in module-weight.mjs; those pages all had passes in the last 4 days. Picked the bet #1 front door per the north star instead.",
+      "did": "Lazy-loaded the .xlsx reader and writer on pay-application-generator",
+      "result": "-43% bytes at load, -15% throttled load time, outputs identical"
+    }
+  ],
+  "writeups": [
+    "docs/history/pay-application-page-perf-2026-11-25.md"
+  ],
+  "goal": null,
+  "notes": "Metric: static module graph gzip and throttled time to load on ventures/pay-application-generator/index.html. Before 30,961 B / 5 files, 32,074 wire bytes, median 540 ms; after 17,530 B / 3 files, 18,195 wire bytes, median 459 ms. Gzip per file by a scratch static-import walker; timing: Chromium via CDP, 150 ms latency, 1.6 Mbit/s, CPU 4x, gzip server, no-store, 7 runs median. Equivalence: Playwright old vs new, all states and download sha256 identical. Tests: run_venture_tests.py pay-application-generator 65 pass. No post: a 15% load win on one page is not reader news; the history doc carries it.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5f172db6-e28c-5a0d-890b-d1390b5545d6",
+    "transcripts": 1,
+    "first": "2026-11-25T13:56:28Z",
+    "last": "2026-11-25T14:01:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 36,
+        "input": 70,
+        "output": 20707,
+        "thinking": 3852,
+        "cache_read": 2918223,
+        "cache_write_5m": 0,
+        "cache_write_1h": 78013,
+        "api_equivalent_usd": 1.6222,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 36,
+      "input": 70,
+      "output": 20707,
+      "thinking": 3852,
+      "cache_read": 2918223,
+      "cache_write_5m": 0,
+      "cache_write_1h": 78013,
+      "api_equivalent_usd": 1.6222,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 35,
+      "ToolSearch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.83,
+      "active_minutes": 4.83,
+      "model_minutes": 3.83,
+      "tool_minutes": 1.0,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "measure, lazy-load refactor, equivalence harness, timing, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 184.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
