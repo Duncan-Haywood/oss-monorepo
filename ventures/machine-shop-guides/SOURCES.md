@@ -75,3 +75,12 @@ paraphrased labels as the SPRS calculator, and the plan says so. NIST
 publishes an OSCAL catalog for Rev. 3 only
 (`usnistgov/oscal-content`, `nist.gov/SP800-171/rev3`), and CMMC Level 2 is
 assessed against Rev. 2, so Rev. 3 text was not substituted.
+
+## DFARS 252.204-7012 incident reporting (added 25 November 2026)
+
+| Fact | Source |
+|---|---|
+| Clause version MAY 2024; "Rapidly report" = within 72 hours of discovery (paragraph (a)); review (c)(1)(i); report at dibnet.dod.mil (c)(1)(ii); report elements per DIBNet (c)(2); medium assurance certificate, public.cyber.mil/eca (c)(3); malware to DC3, not to the CO (d); images and monitoring/packet capture data kept at least 90 days from report submission (e); forensic access (f); damage assessment (g); marking attributional/proprietary information (h); other reporting not abrogated (l); flow-down and subcontractor report number to the higher tier (m); cloud providers meet (c)-(g) (b)(2)(ii)(D) | DFARS 252.204-7012 (MAY 2024), **read in full** from GSA's published DFARS source, <https://github.com/GSA/GSA-Acquisition-DFARS/blob/master/dita/252.204-7012.dita> (fetched 25 Nov 2026; file sha256 `99af021d6f34a1a2b8def660f9b7bd6d219c910c3dfd84a9db9591e5a73b18c1`). The three quotations on the page (`QUOTES` in `incident.mjs`) were checked as verbatim substrings of that file by script; `incident.test.mjs` pins their hashes. Official page: <https://www.acquisition.gov/dfars/252.204-7012-safeguarding-covered-defense-information-and-cyber-incident-reporting.>; `acquisition.gov`, `ecfr.gov` and `dibnet.dod.mil` were not reachable from the building session. |
+| The list of elements a DIBNet report must contain | **Not reproduced.** The clause points to dibnet.dod.mil for them and that host was not reachable, so the page sends the reader there rather than listing them. |
+| 3.6.1 and 3.6.2 are 5-point requirements, 3.6.3 is 1 point | `sprs-data.mjs` (Annex A transcription, rows above) |
+| The 72-hour and 90-day arithmetic | Ours: 72 elapsed hours from the typed discovery time; 90 × 24 elapsed hours from the typed report time, shown as a date. "At least" in (e) means the date is a floor. |
