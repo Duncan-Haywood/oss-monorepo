@@ -184,3 +184,24 @@ test("overbilling page: inputs labelled, entry and summary present, links the WI
   assert.match(html, /href="change-order-log\.html"/);
   assert.match(page("index.html"), /href="overbilling-underbilling\.html"/);
 });
+
+// nav.mjs: every page carries the same grouped list of every page, so no page is an orphan.
+// A new page fails here until it is added to GROUPS and `node nav.mjs` is run.
+test("every page is in the all-guides list and carries the current block", async () => {
+  const { readdirSync } = await import("node:fs");
+  const { GROUPS, block, listed } = await import("./nav.mjs");
+  const files = readdirSync(new URL("./", import.meta.url)).filter((f) => f.endsWith(".html")).sort();
+  assert.deepEqual([...listed()].sort(), files, "add the page to GROUPS in nav.mjs, then run node nav.mjs");
+  assert.equal(new Set(listed()).size, listed().length, "a page is listed twice");
+  assert.ok(GROUPS.every(([, links]) => links.length));
+  for (const name of files) {
+    const html = page(name);
+    assert.ok(html.includes(block(name)), `${name}: run node nav.mjs`);
+    assert.equal((html.match(/aria-current="page"/g) || []).length, 1, name);
+  }
+});
+
+test("the line-remove column has a header a screen reader can read and nothing clips", () => {
+  assert.match(page("index.html"), /<th scope="col"><span class="vh">Remove line<\/span><\/th>/);
+  assert.match(page("style.css"), /\.vh \{ position: absolute;/);
+});

@@ -320,6 +320,15 @@ search impressions and from people who write in.
   [contractor WIP schedule](https://marisstella.app/contractor-wip-schedule/)
   for every open job at once, and the WIP tool now links back to it.
 
+Every pay app guide page now ends with the same list of all fifteen
+(added 2026-11-25), grouped as tools, billing guides, and getting paid and
+lien waivers. Before that, each page linked a hand-picked four to eleven of
+the others, and the calculator page linked neither the pay-if-paid clause
+reader, the prompt payment table nor the waiver forms by state. One file
+(`nav.mjs`) writes the list into every page, and a test fails when a new
+page is left out of it.
+([source](../../ventures/pay-app-guides/nav.mjs))
+
 None of these is the AIA's form, none is affiliated with the AIA, and none is
 legal or accounting advice. Retainage, waiver and payment terms come from
 your contract and your state's law.
