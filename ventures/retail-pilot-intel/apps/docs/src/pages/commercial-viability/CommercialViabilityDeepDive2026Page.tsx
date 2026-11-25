@@ -66,7 +66,7 @@ export function CommercialViabilityDeepDive2026Page() {
     <section id="unit-economics">
       <h2>Unit economics &amp; path to profitability (modeled)</h2>
       <p>
-        Pricing anchors correctly to owner economics: Core €149–249/mo or Margin+ €299–449/mo pays for itself with 1 incremental sale/month at pilot AOV (€180–450). Setup fee €1.5k–3k covers install + DPIA + onboarding. Gross margin target 65–75% at scale is plausible for software + low-touch support, but realistic early margins are lower due to founder time on installs, hardware sourcing, and model tuning.
+        Pricing anchors correctly to owner economics: Core €149–249/mo or Margin+ €299–449/mo is covered by the gross profit of about 0.5 to 2.5 incremental sales/month at pilot AOV (€180–450) and 55–70% margin; Margin+ needs about 1 to 4.5. Setup fee €1.5k–3k covers install + DPIA + onboarding. Gross margin target 65–75% at scale is plausible for software + low-touch support, but realistic early margins are lower due to founder time on installs, hardware sourcing, and model tuning.
       </p>
 
       <h3>Conservative 24-month P&amp;L model (single founder + contractor support)</h3>

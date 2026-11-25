@@ -19,7 +19,8 @@ function parseFlag(name: string, fallback: string): string {
 function reportOptions(): ReportOptions {
   const storeId = parseFlag("--store", "");
   const timeZone = parseFlag("--tz", DEFAULT_TIME_ZONE);
-  return storeId ? { storeId, timeZone } : { timeZone };
+  const includeSynthetic = rest.includes("--include-synthetic");
+  return { ...(storeId ? { storeId } : {}), timeZone, ...(includeSynthetic ? { includeSynthetic } : {}) };
 }
 
 function parsePort(raw: string): number {
@@ -66,7 +67,7 @@ switch (command) {
       .split(",")
       .map((origin) => origin.trim())
       .filter((origin) => origin.length > 0);
-    const server = await startKpiServer({ dbPath, host, port, corsOrigins, report: reportOptions() });
+    const server = await startKpiServer({ dbPath, host, port, corsOrigins, report: { ...reportOptions(), includeSynthetic: false } });
     console.log(`KPI API listening on ${server.url}`);
     console.log("  GET /health");
     console.log("  GET /api/kpis/today");
@@ -77,7 +78,7 @@ switch (command) {
   }
   default:
     console.error(
-      "Usage: cli.ts init | sync | report [--date today|YYYY-MM-DD] [--store ID] [--tz Europe/Rome] | serve-kpis [--store ID] [--tz Europe/Rome] [--port 8787] [--host 127.0.0.1] [--db data/pilot.db] [--cors-origin http://localhost:5174]",
+      "Usage: cli.ts init | sync | report [--date today|YYYY-MM-DD] [--store ID] [--tz Europe/Rome] [--include-synthetic] | serve-kpis [--store ID] [--tz Europe/Rome] [--port 8787] [--host 127.0.0.1] [--db data/pilot.db] [--cors-origin http://localhost:5174]",
     );
     process.exit(1);
 }

@@ -54,7 +54,7 @@ export function GtmPage() {
           [
             "Economics",
             "AOV €150–€600; gross margin 55–70%",
-            "One incremental sale/month covers Core subscription",
+            "Under one to three incremental sales/month cover Core from gross profit",
           ],
           [
             "Traffic",
@@ -143,7 +143,7 @@ export function GtmPage() {
             "52, runs 12 m² leather atelier near Duomo; 1 part-time staff",
             "Z-report shows revenue, not conversion; slow belts tie cash",
             "Instagram DMs from peers, WhatsApp voice notes, portal on iPad",
-            "“One bag per month pays for this — see your conversion this week”",
+            "“About one bag a month pays for this — see your conversion this week”",
           ],
           [
             "Marco — Family successor",
@@ -454,8 +454,9 @@ assoc newsletter    /roi scoping           Core term sheet       documented € 
         ]}
       />
       <p>
-        Anchor pitch: <em>one incremental sale per month</em> at pilot AOV — not
-        sensor count. The <Link to="/roi">ROI matrix</Link> is the pricing
+        Anchor pitch: <em>a few incremental sales per month</em> at pilot AOV,
+        counted in gross profit (one €350 sale at 57%+ margin covers €199 Core) —
+        not sensor count. The <Link to="/roi">ROI matrix</Link> is the pricing
         justification page.
       </p>
 

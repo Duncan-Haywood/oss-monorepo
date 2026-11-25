@@ -234,3 +234,25 @@ test("latestDayWithActivity reports the Rome day of the last event, per store", 
     assert.equal(latestDayWithActivity(dbPath), "2026-08-25");
   });
 });
+
+// Quality audit 2026-11-19, defect 6: `pnpm bootstrap` wrote only stub events,
+// which the report rightly leaves out, so its smoke test printed all zeros.
+test("dailySummary counts stub sample events only when includeSynthetic is set", () => {
+  withTempDb((dbPath) => {
+    const db = openDb(dbPath);
+    insertAggregate(db, stubAggregateEvent({ value: 1, bucket_start: "2026-08-19T09:00:00Z" }));
+    insertSale(db, stubSaleEvent({ closed_at: "2026-08-19T09:30:00Z", total_cents: 28500 }));
+
+    const real = dailySummary(dbPath, "2026-08-19");
+    assert.equal(real.entries, 0);
+    assert.equal(real.purchases, 0);
+    assert.equal(real.revenue_cents, 0);
+
+    const smoke = dailySummary(dbPath, "2026-08-19", { includeSynthetic: true });
+    assert.equal(smoke.store_id, "store-1");
+    assert.equal(smoke.entries, 1);
+    assert.equal(smoke.purchases, 1);
+    assert.equal(smoke.revenue_cents, 28500);
+    assert.equal(smoke.conversion_rate, 1);
+  });
+});
