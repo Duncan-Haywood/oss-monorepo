@@ -1,0 +1,279 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKixSafWVWqHNbGNW9y",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T23:18:07Z",
+  "ended": "2026-11-25T23:19:16Z",
+  "wall_minutes": 12.95,
+  "tokens_in": 5086103,
+  "tokens_out": 26147,
+  "cost_usd": 2.411,
+  "tool_calls": 53,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19131",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`rerun` after a fix that broke an unrelated source-regex test (page.test.mjs) reports every gap as 'suite is red without the mutant' and appends that text to each note on every rerun; I had to find the red test by hand and strip the duplicated notes."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0's two open entries were left open: framerate needs a control-plane workflow PR, and the help-keeper stemmer is deferred until a help-center eval set exists (PR #19127 rechecked both today).",
+      "did": "Did not rework them",
+      "result": "The list stays at 2 open"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No customer post: input validation on a plan key is too thin for a post and the consolidated-posts direction argues against one; the README drywall entry carries the change.",
+      "did": "README note plus agent doc",
+      "result": "no new post"
+    }
+  ],
+  "writeups": [
+    "docs/reports/redteam-2026-11-25-drywall-nested-lists.md",
+    "ventures/wall-framing-takeoff/README.md (drywall entry extended)"
+  ],
+  "goal": null,
+  "notes": "Guard added: hostile-nested-lists.test.mjs sweeps every nested list in a sample plan with wrong shapes through main() and 25 report flags; fails on the pre-fix code (2 tests), found nothing else first run. Venture suite: 1236 tests, 0 failed (run_venture_tests.py wall-framing-takeoff, 17.5 s). Catch rate 50% before, 100% after.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/wall-framing-takeoff/drywall.mjs",
+        "test": "node --test ventures/wall-framing-takeoff/**/*.test.mjs  (in .)",
+        "seed": 867102001,
+        "commit": "81be5e160",
+        "sites": 386,
+        "baseline_seconds": 18.4,
+        "mutants": [
+          {
+            "file": "ventures/wall-framing-takeoff/drywall.mjs",
+            "line": 39,
+            "col": 70,
+            "operator": "const-plus-one",
+            "before": "if (d.tapeRollFt != null && !(d.tapeRollFt >= 50 && d.tapeRollFt <= 1000)) e.push(\"Tape roll length must be between 50 and 1000 ft.\");",
+            "after": "if (d.tapeRollFt != null && !(d.tapeRollFt >= 50 && d.tapeRollFt <= 1001)) e.push(\"Tape roll length must be between 50 and 1000 ft.\");",
+            "line_text": "  if (d.tapeRollFt != null && !(d.tapeRollFt >= 50 && d.tapeRollFt <= 1000)) e.push(\"Tape roll length must be between 50 and 1000 ft.\");",
+            "caught": false,
+            "seconds": 17.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test pinned the 1000 ft top of the tape roll range; test added in drywall.test.mjs (first rerun hit a page.test.mjs regex pinned to the old restore line, updated)"
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/drywall.mjs",
+            "line": 59,
+            "col": 12,
+            "operator": "const-plus-one",
+            "before": "if (k < 0) left.push(len - r); else left[k] -= r;",
+            "after": "if (k < 1) left.push(len - r); else left[k] -= r;",
+            "line_text": "    if (k < 0) left.push(len - r); else left[k] -= r;",
+            "caught": false,
+            "seconds": 17.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test packed two runs into the first sheet's offcut (k == 0); test added in drywall.test.mjs (first rerun hit a page.test.mjs regex pinned to the old restore line, updated)"
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/drywall.mjs",
+            "line": 109,
+            "col": 58,
+            "operator": "const-plus-one",
+            "before": "return { pieces, naiveOff, off, joints: pieces.length - 1 };",
+            "after": "return { pieces, naiveOff, off, joints: pieces.length - 2 };",
+            "line_text": "  return { pieces, naiveOff, off, joints: pieces.length - 1 };",
+            "caught": true,
+            "seconds": 19.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/drywall.mjs",
+            "line": 157,
+            "col": 68,
+            "operator": "times-to-div",
+            "before": "beadIn += Math.min(2, Math.max(0, Math.floor(w.freeEnds || 0))) * faces * height;",
+            "after": "beadIn += Math.min(2, Math.max(0, Math.floor(w.freeEnds || 0))) / faces * height;",
+            "line_text": "    beadIn += Math.min(2, Math.max(0, Math.floor(w.freeEnds || 0))) * faces * height;",
+            "caught": true,
+            "seconds": 18.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/drywall.mjs",
+            "line": 157,
+            "col": 76,
+            "operator": "times-to-div",
+            "before": "beadIn += Math.min(2, Math.max(0, Math.floor(w.freeEnds || 0))) * faces * height;",
+            "after": "beadIn += Math.min(2, Math.max(0, Math.floor(w.freeEnds || 0))) * faces / height;",
+            "line_text": "    beadIn += Math.min(2, Math.max(0, Math.floor(w.freeEnds || 0))) * faces * height;",
+            "caught": true,
+            "seconds": 18.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/drywall.mjs",
+            "line": 166,
+            "col": 63,
+            "operator": "const-plus-one",
+            "before": "butts = cuts.reduce((t, c) => t + c.joints * (y1 - y), 0);",
+            "after": "butts = cuts.reduce((t, c) => t + c.joints * (y1 - y), 1);",
+            "line_text": "        butts = cuts.reduce((t, c) => t + c.joints * (y1 - y), 0);",
+            "caught": false,
+            "seconds": 18.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test pinned the seam length when jointsOnStuds is set; test added in drywall.test.mjs (first rerun hit a page.test.mjs regex pinned to the old restore line, updated)"
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/drywall.mjs",
+            "line": 199,
+            "col": 23,
+            "operator": "times-to-div",
+            "before": "netSqIn += c.width * c.depth;",
+            "after": "netSqIn += c.width / c.depth;",
+            "line_text": "    netSqIn += c.width * c.depth;",
+            "caught": true,
+            "seconds": 18.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/drywall.mjs",
+            "line": 224,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "const rollFt = d.tapeRollFt ?? 250;",
+            "after": "const rollFt = d.tapeRollFt ?? 251;",
+            "line_text": "  const rollFt = d.tapeRollFt ?? 250;",
+            "caught": false,
+            "seconds": 19.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test pinned the 250 ft default tape roll; test added in drywall.test.mjs (first rerun hit a page.test.mjs regex pinned to the old restore line, updated)"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/wall-framing-takeoff/drywall.mjs",
+        "issue": "drywall.ceiling of {} / \"x\" / [null], or a ceiling's steps of the same, crashed cli.mjs (and the CLI length pre-parse in cli.mjs, and the page's saved-plan restore in index.html) with a raw TypeError. Repro: plan.json drywall: {ceiling: {}} with --drywall. Now refused with a message.",
+        "patched": true
+      },
+      {
+        "file": "ventures/wall-framing-takeoff/drywall.mjs",
+        "issue": "compoundPailGal unvalidated: -1 printed '-1 pails of -1 gal', 0 gave an Infinity pail count. Now (0, 10] gal.",
+        "patched": true
+      },
+      {
+        "file": "ventures/wall-framing-takeoff/drywall.mjs",
+        "issue": "price unvalidated (-5 gave a cost of -25, text gave a silent null); faces and openingBead accepted any value (openingBead: 'no' kept the bead on). Now validated.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f9afb64f-de33-5ca0-973e-1c0f0bd572e9",
+    "transcripts": 1,
+    "first": "2026-11-25T23:18:07Z",
+    "last": "2026-11-25T23:31:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 100,
+        "output": 26147,
+        "thinking": 4680,
+        "cache_read": 4974405,
+        "cache_write_5m": 0,
+        "cache_write_1h": 111598,
+        "api_equivalent_usd": 2.411,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 100,
+      "output": 26147,
+      "thinking": 4680,
+      "cache_read": 4974405,
+      "cache_write_5m": 0,
+      "cache_write_1h": 111598,
+      "api_equivalent_usd": 2.411,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 50,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.95,
+      "active_minutes": 12.95,
+      "model_minutes": 5.27,
+      "tool_minutes": 7.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 2.5,
+      "basis": "read drywall module, 6 tests, 3 validation fixes, nested-list sweep test, agent doc",
+      "rate_usd_per_hour": 100.0,
+      "usd": 250.0
+    },
+    "leverage": 103.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
