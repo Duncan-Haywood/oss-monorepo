@@ -18,10 +18,11 @@ test("sales, discounts, tax, tips, gift cards, refunds and fees are booked separ
   const by = (c) => ok().journals[0].lines.find((l) => l.category === c);
   assert.equal(by("sales").credit, 26000);
   assert.equal(by("discounts").debit, 500);
-  assert.equal(by("tax").credit, 2104);
+  // Row 4's $20 refund carries its share of the row's tax: 20.00 x 4.95 / 64.95 = 1.52.
+  assert.equal(by("tax").credit, 2104 - 152);
   assert.equal(by("tips").credit, 2000);
   assert.equal(by("giftcards").credit, 2500);
-  assert.equal(by("refunds").debit, 2000);
+  assert.equal(by("refunds").debit, 2000 - 152);
   assert.equal(by("fees").debit, 146 + 90 + 448 + 200 + 78);
   assert.equal(by("clearing").debit, septNet);
   assert.equal(by("uncategorised"), undefined);
@@ -156,4 +157,44 @@ test("when Collected + Fees disagrees with Net Total, the journal follows Net To
   const j = r.journals[0];
   assert.equal(line(j, "fees"), 100);
   assert.equal(line(j, "clearing"), 1900);
+});
+
+// A hand-written row, not buildReport: a $100 sale with $8 tax, $54 of it refunded ($50 goods + $4 tax).
+const partialRefund = (extra = "") => [
+  "Date,Gross Sales,Discounts,Net Sales,Tax,Tip,Partial Refunds,Total Collected,Fees,Net Total,Payment ID,Deposit ID",
+  "2026-09-10,$100.00,$0.00,$100.00,$8.00,$5.00,-$54.00,$59.00,-$1.90,$57.10,P1,D1",
+  extra,
+].filter(Boolean).join("\n") + "\n";
+
+test("a partial refund takes its sales tax out of Sales Tax Payable (audit 2026-11-22, defect 1)", () => {
+  const r = validate(partialRefund());
+  const by = (c) => r.journals[0].lines.find((l) => l.category === c);
+  assert.equal(by("tax").credit, 400); // 8.00 charged less 4.00 refunded
+  assert.equal(by("refunds").debit, 5000); // the goods only
+  assert.equal(by("tips").credit, 500); // tips are not apportioned
+  assert.equal(by("uncategorised"), undefined);
+  assert.equal(bal(r.journals[0]), 0);
+  assert.equal(by("clearing").debit, 5710);
+  assert.ok(r.findings.some((f) => f.severity === "info" && /Sales tax taken out of 1 partial refund/.test(f.title) && /4\.00 USD of a 54\.00 USD refund/.test(f.detail)));
+});
+
+test("refundTax: none keeps the refund as one amount", () => {
+  const by = (c) => validate(partialRefund(), { refundTax: "none" }).journals[0].lines.find((l) => l.category === c);
+  assert.equal(by("tax").credit, 800);
+  assert.equal(by("refunds").debit, 5400);
+});
+
+test("a refund on an untaxed row moves no tax", () => {
+  const csv = "Date,Gross Sales,Tax,Partial Refunds,Total Collected,Fees,Net Total\n2026-09-10,$100.00,$0.00,-$40.00,$60.00,-$1.00,$59.00\n";
+  const by = (c) => validate(csv).journals[0].lines.find((l) => l.category === c);
+  assert.equal(by("tax"), undefined);
+  assert.equal(by("refunds").debit, 4000);
+});
+
+test("a month that nets to zero writes no journal instead of a lone 0.00 line (audit 2026-11-22, defect 6)", () => {
+  const csv = "Date,Gross Sales,Tax,Total Collected,Fees,Net Total,Payment ID\n2026-08-01,$1234.56,$0.00,$1234.56,-$32.40,$1202.16,P1\n2026-08-02,-$1234.56,$0.00,-$1234.56,$32.40,-$1202.16,P2\n";
+  const r = validate(csv);
+  assert.equal(r.journals.length, 0);
+  assert.ok(r.findings.some((f) => /nets to zero: no journal written/.test(f.title)));
+  assert.equal(toIif(r.journals).includes("TRNS\t\t"), false);
 });

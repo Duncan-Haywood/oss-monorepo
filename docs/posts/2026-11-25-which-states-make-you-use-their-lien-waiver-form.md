@@ -76,7 +76,11 @@ the property counts as residential. On a Wyoming job it fills the retainage blan
 application's retainage held to date, leaves "has not been paid the sum of" for you to enter, and
 prints the notary acknowledgment blank for the notary. Because Wyoming's one form acknowledges
 that payment was received, PayApps prints it only as an unconditional waiver and tracks a
-conditional Wyoming waiver without printing wording the statute does not give. It is in
+conditional Wyoming waiver without printing wording the statute does not give. For a Wyoming
+job it also prints the preliminary notice of right to lien, the "NOTICE TO OWNER" of
+W.S. 29-10-101(a), with the blank waiver form the notice says is attached. It does not work out
+your deadline to send it: that is in W.S. 29-2-112, which we have not encoded, so read it or ask
+counsel. The product is in
 development with early access, and nothing is for sale yet:
 [construction tools and early access](https://marisstella.app/industries/construction/).
 To check a waiver you were sent for the common traps, the free

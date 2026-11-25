@@ -230,6 +230,70 @@ Mail goes out through Cloudflare Email Service once the app is deployed.
 Until then, the page says plainly that nothing leaves the server, and the
 PDF download still works.
 
+## Update, 25 November 2026: which quotes you win, and at what price
+
+Most shops already keep a won/lost column somewhere. What it rarely tells
+them is *why* the rate is what it is: which customers send RFQs they never
+award, which materials or machines they price out of, and whether the jobs
+they lose were quoted at a higher markup than the jobs they win.
+
+The RFQ-to-quote app (bet #2, still in private development, not yet on sale)
+now has a **Win/loss** page, built only from the shop's own decided quotes:
+
+- **Win rate by customer, material, machine and markup band**, over the last
+  90 days, 12 months or all time. Win rate is won ÷ (won + lost); quotes
+  that expired with no answer are shown but not counted, and customer-supplied
+  material gets its own row.
+- **Markup on won quotes next to markup on lost quotes.** Markup is read from
+  the price the shop actually sent (markup plus any minimum-charge top-up,
+  over cost, at the smallest quantity), never recomputed. If lost quotes
+  average 38% and won quotes 22%, that is worth knowing before the next one.
+- **"What price did we win at."** For every part that has been won or lost,
+  the quotes it appeared on, newest first, with every quantity break's unit
+  price and a link back to the quote. A repeat RFQ can be priced against
+  what the same buyer accepted, and refused, last time.
+- **Lost reasons tallied**, from the reason typed when a quote is marked lost.
+- **Small samples are labelled.** Any row with fewer than five decided quotes
+  says "few": two wins out of two is not a 100% win rate.
+
+Nothing on the page is a forecast or a benchmark against other shops. It is
+a count of the shop's own log, visible to its own members, and never shown
+on a quote PDF or email.
+
+## Update, 25 November 2026: routings you set up once per part family
+
+Most of a job shop's quotes are variations on parts it has made before:
+another bracket in 6061, another turned shaft, another plate that goes out
+for anodizing. Each part number differs, but the routing behind it is
+usually one the shop already knows. Two or three machine operations with
+familiar setup times, then the same outside finish. Typing those operations
+again for every line is slow, and a skipped deburr or a missing anodize lot
+charge turns into a quote that loses money.
+
+The RFQ-to-quote app (bet #2, still in private development, not yet on sale)
+now keeps routing templates:
+
+- **Save a line's operations as a routing.** That covers each machine, the
+  op label, setup minutes, cycle minutes per part and the finishing steps,
+  under a name like "6061 bracket, 2 ops", with an optional part family
+  ("Brackets").
+- **Apply it to the next part of the family.** *Use routing* replaces the
+  line's operations and finishing. *Add after* appends them to what is
+  already there, for a part with an extra step. The line's material, blank
+  size, extras and quantity breaks stay as they were.
+- **A routing holds minutes, not money.** The line is priced from today's
+  rate card the moment the routing is applied, as with any edit. A machine
+  retired since the routing was saved is flagged; an old rate is never
+  carried over. That matters because shop rates change, and a template that
+  froze last year's rate would underquote without anyone noticing.
+- **Each shop's routings stay in that shop.** A routing can only name
+  machines and finishing steps on that shop's own rate card. Viewers can
+  see the routings; only estimators can save or delete them.
+
+This is the first part of a larger item. Next comes editing a routing in
+place, then offering a part's quote history on the RFQ screen before a
+quote exists.
+
 ## Update, 25 November 2026: what changed between quote revisions
 
 A buyer comes back with "can you do 100 instead of 50?" or "what if we drop

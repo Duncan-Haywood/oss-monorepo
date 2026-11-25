@@ -99,8 +99,7 @@ export function parseDate(s, order = "mdy") {
 }
 
 
-const MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
-// Etsy prints amounts as "$25.00", "-$1.63", "--" or "€12,50"; strip the symbol and read the rest.
+// Square prints amounts as "$25.00", "-$1.63", "($3.00)" or "--"; strip the symbol and read the rest.
 export function parseMoney(s) {
   const t = String(s ?? "").trim();
   if (t === "" || /^-+$/.test(t)) return null;
@@ -109,14 +108,6 @@ export function parseMoney(s) {
   if (!core) return NaN;
   const v = parseAmount(core);
   return v === null || Number.isNaN(v) ? NaN : neg ? -Math.abs(v) : v;
-}
-// Etsy writes "September 28, 2026" or "28 September 2026" or numeric dates; return YYYY-MM-DD or null.
-export function parseStatementDate(s, order = "mdy") {
-  const t = String(s ?? "").trim();
-  let x;
-  if ((x = t.match(/^([A-Za-z]{3})[a-z]*\.? (\d{1,2}),? (\d{4})/))) { const m = MONTHS[x[1].toLowerCase()]; return m ? parseDate(`${x[3]}-${String(m).padStart(2, "0")}-${String(x[2]).padStart(2, "0")}`) : null; }
-  if ((x = t.match(/^(\d{1,2}) ([A-Za-z]{3})[a-z]*\.?,? (\d{4})/))) { const m = MONTHS[x[2].toLowerCase()]; return m ? parseDate(`${x[3]}-${String(m).padStart(2, "0")}-${String(x[1]).padStart(2, "0")}`) : null; }
-  return parseDate(t, order);
 }
 
 
@@ -151,6 +142,7 @@ export function parsePayouts(text, opts = {}) {
   const get = (cells, k) => (I[k] >= 0 ? (cells[I[k]] ?? "").trim() : "");
   const byId = new Map(), deps = new Map();
   let rows = 0, skipped = 0;
+  const refundTaxRows = [];
   for (let i = first + 1; i < lines.length; i++) {
     if (!lines[i].trim()) continue;
     const cells = splitLine(lines[i], d);
@@ -175,7 +167,16 @@ export function parsePayouts(text, opts = {}) {
     if (f.fees !== null && f.netTotal !== null && f.collected !== null && collected + fees !== netTotal) add("error", `Total Collected plus Fees does not equal Net Total on ${label}`, `${money(collected)} + ${money(fees)} = ${money(collected + fees)}, but the row says ${money(netTotal)}. The journal uses the Net Total; check the file was not edited.`, i + 1);
     const g = f.gross ?? 0, disc = f.discounts ?? 0, svc = f.service ?? 0, gc = f.giftcards ?? 0, tax = f.tax ?? 0, tip = f.tip ?? 0, ref = f.refunds ?? 0;
     // Discounts and refunds print as negatives on most exports; either sign is read as a reduction.
-    const parts = { sales: g, discounts: -Math.abs(disc), service: svc, giftcards: gc, tax, tips: tip, refunds: -Math.abs(ref) };
+    // A partial refund gives back the sales tax charged on the refunded part, so that tax comes out
+    // of Sales Tax Payable rather than sitting in Refunds. Square's export prints the refund as one
+    // amount, so the tax inside it is apportioned at the row's own rate: tax / (net sales + service
+    // charges + tax), tips left out (a refund of goods does not refund the tip). opts.refundTax
+    // "none" keeps the old single-amount booking.
+    const refund = Math.abs(ref);
+    const taxBase = g - Math.abs(disc) + svc + tax;
+    const refundTax = opts.refundTax === "none" || !refund || tax <= 0 || taxBase <= 0 ? 0 : Math.min(tax, Math.round((refund * tax) / taxBase));
+    if (refundTax) refundTaxRows.push({ label, line: i + 1, refund, refundTax });
+    const parts = { sales: g, discounts: -Math.abs(disc), service: svc, giftcards: gc, tax: tax - refundTax, tips: tip, refunds: -(refund - refundTax) };
     const explained = Object.values(parts).reduce((a, v) => a + v, 0);
     parts.uncategorised = collected - explained;
     // The journal follows Net Total (as the mismatch message says): the fee is what Net Total
@@ -201,6 +202,10 @@ export function parsePayouts(text, opts = {}) {
   if (opts.expected != null && Number.isFinite(opts.expected)) {
     if (payouts.length === 1) payouts[0].stated = opts.expected;
     else add("info", "Expected total ignored", "It can only be applied when the file holds exactly one month.");
+  }
+  if (refundTaxRows.length) {
+    const t = refundTaxRows.reduce((a, r) => a + r.refundTax, 0);
+    add("info", `Sales tax taken out of ${refundTaxRows.length} partial refund${refundTaxRows.length === 1 ? "" : "s"}`, `${money(t)} of the refunds is the sales tax that went back to customers, apportioned at each row's own tax rate (for example ${refundTaxRows[0].label}: ${money(refundTaxRows[0].refundTax)} of a ${money(refundTaxRows[0].refund)} refund). It reduces Sales Tax Payable instead of sitting in Refunds. Square's export does not split a refund, so check against Square's Sales Summary (Taxes) if an item was refunded at a different tax rate.`, refundTaxRows[0].line);
   }
   const noDeposit = payouts.reduce((a, s) => a + s.rows.filter((r) => !r.deposit).length, 0);
   if (rows && noDeposit) add("info", `${noDeposit} row${noDeposit === 1 ? " has" : "s have"} no Deposit ID`, "Square assigns a Deposit ID when a payment is paid out. Rows without one are recent or cash and are not yet in any bank deposit.", 0);
@@ -237,7 +242,13 @@ export function buildJournals(payouts, opts = {}) {
       lines.push({ category: k, account: mapping[k], debit: net < 0 ? -net : 0, credit: net > 0 ? net : 0, memo: `${CATEGORIES[k].label} (${count} row${count === 1 ? "" : "s"})` });
     }
     const net = lines.reduce((a, l) => a + l.credit - l.debit, 0);
-    if (net !== 0 || !lines.length) lines.push({ category: "clearing", account: mapping.clearing, debit: net > 0 ? net : 0, credit: net < 0 ? -net : 0, memo: `Square transactions ${s.id}` });
+    if (!lines.length) {
+      // Every category nets to zero (a sale and its full refund): there is nothing to post, and a
+      // journal holding one 0.00 line is refused by importers (an IIF TRNS with no SPL).
+      findings.push({ severity: "info", title: `Month ${s.id} nets to zero: no journal written`, detail: `Its ${s.rows.length} row${s.rows.length === 1 ? "" : "s"} cancel out in every account, so there is nothing to post.`, line: 0 });
+      continue;
+    }
+    if (net !== 0) lines.push({ category: "clearing", account: mapping.clearing, debit: net > 0 ? net : 0, credit: net < 0 ? -net : 0, memo: `Square transactions ${s.id}` });
     journals.push({ payoutId: s.id, period: s.id, date: lastDay(s.id), deposit: s.effective, currency: "USD", narration: `Square transactions ${s.id}`, lines, clearing: net });
     const unk = s.rows.filter((r) => r.parts.uncategorised);
     if (unk.length) findings.push({ severity: "warning", title: `Month ${s.id} has ${unk.length} row${unk.length === 1 ? "" : "s"} where Total Collected is not explained by the other columns`, detail: `${money(unk.reduce((a, r) => a + r.parts.uncategorised, 0))} in total (for example gift card redemptions, other tenders or a refund booked in an unusual column). It is journalled to "${mapping.uncategorised}" so the journal still equals the Net Total. Review those rows and reclassify by hand.`, line: unk[0].line });
@@ -327,7 +338,7 @@ export function buildReport(items) {
   const c = (v) => Math.round((v || 0) * 100);
   const out = [HEAD.join(",")];
   for (const it of items) {
-    const net = c(it.gross) - c(it.disc) + (it.gift ? 0 : 0);
+    const net = c(it.gross) - c(it.disc);
     const collected = net + c(it.tax) + c(it.tip) + (it.gift ? c(it.gift) : 0) - c(it.refund);
     const fee = -c(it.fee);
     const row = [it.date, "12:00:00", "Eastern Time (US & Canada)", usd(c(it.gross)), usd(-c(it.disc)), "$0.00", usd(net), usd(c(it.gift)), usd(c(it.tax)), usd(c(it.tip)), usd(-c(it.refund)), usd(collected), "Square Point of Sale", "Card", "Visa", "1111", usd(fee), usd(collected + fee), `T${it.id}`, `P${it.id}`, it.deposit || "", it.desc || ""];
