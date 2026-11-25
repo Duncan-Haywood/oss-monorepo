@@ -56,7 +56,7 @@ test("the hub and engines never touch the network", async () => {
   for (const f of files) assert.doesNotMatch(readFileSync(new URL(`./${f}`, import.meta.url), "utf8"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket/, f);
 });
 
-// Fixes that reached the single-platform tools but, until sync-engines.mjs, not the hub. The rows are
+// Fixes that reached the single-platform tools but, until copy-engines.mjs, not the hub. The rows are
 // the tools' own hand-checked fixtures (gumroad-sales-to-journal and square-sales-to-journal calc.test.mjs).
 const sumOf = (j, cat) => j.lines.filter((l) => l.category === cat).reduce((a, l) => a + (l.debit || 0) - (l.credit || 0), 0);
 

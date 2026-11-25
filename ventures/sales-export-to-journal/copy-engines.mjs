@@ -4,8 +4,8 @@
 // Gumroad's real exports, AdSense read an unquoted "1,842.17" as $1.00, Upwork's formula guard).
 // The single-platform tool is the source of truth; this copies every source over its engine.
 //
-//   node ventures/sales-export-to-journal/sync-engines.mjs          copy sources -> engines
-//   node ventures/sales-export-to-journal/sync-engines.mjs --check  exit 1 if any engine differs
+//   node ventures/sales-export-to-journal/copy-engines.mjs          copy sources -> engines
+//   node ventures/sales-export-to-journal/copy-engines.mjs --check  exit 1 if any engine differs
 //
 // engines.test.mjs runs the --check comparison with the venture tests, so a fix to one tool that
 // is not copied here fails CI instead of quietly leaving the hub behind.

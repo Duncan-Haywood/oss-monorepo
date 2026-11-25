@@ -23,7 +23,7 @@ One change went the other way: the hub had a speed-up (build the number formatte
 
 ## The fix
 
-`sync-engines.mjs` copies each source over its engine, and `--check` reports without copying. `engines.test.mjs` runs with the venture tests and fails while any engine differs from its source by a single byte, so the next fix to the Square tool turns CI red until the hub has it as well. Two hub-level tests feed the Square cash fixture and Gumroad's real payout layout through the hub's detector; against the old engines both fail, as does the drift test.
+`copy-engines.mjs` copies each source over its engine, and `--check` reports without copying. `engines.test.mjs` runs with the venture tests and fails while any engine differs from its source by a single byte, so the next fix to the Square tool turns CI red until the hub has it as well. Two hub-level tests feed the Square cash fixture and Gumroad's real payout layout through the hub's detector; against the old engines both fail, as does the drift test.
 
 What this still does not prove: the readers are checked against fixtures written from public documentation and, for Gumroad, from its source code, never against a real seller's export. A real file that is misread is still the most useful report anyone could send.
 

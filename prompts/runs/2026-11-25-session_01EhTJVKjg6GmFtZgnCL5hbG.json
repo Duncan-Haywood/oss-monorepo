@@ -39,6 +39,10 @@
     {
       "file": "platform/security/risk_review.py",
       "issue": "Flags browser-only CSV parsers as 'auth, session or payment code' because of the words payout/payment, and test fixtures as personal data; noisy for the journal tool family."
+    },
+    {
+      "file": "portfolio/monetization/transition.py",
+      "issue": "SUBSCRIPTION_FILE treats any file named *sync* as a server part, so a dev-only script (sync-engines.mjs) flipped a browser tool to 'subscription'; renamed it copy-engines.mjs. Also main was red: PR #18757 committed photo-editing as subscription in transition.json without an OVERRIDES entry, so test_transition failed for every venture PR; added the override."
     }
   ],
   "deviations": [],
@@ -46,7 +50,7 @@
     "docs/posts/2026-11-25-copied-code-drifts-four-of-seventeen.md"
   ],
   "goal": null,
-  "notes": "Explore idea: engine drift guard for the sales-export-to-journal hub. Found 4 of 17 engines stale vs their single-platform sources (Square cash tenders, Gumroad real export layout, AdSense thousands separator, Upwork guard); synced, added sync-engines.mjs and engines.test.mjs, hub tests that fail on old engines. Security queue empty, IDEAS and requests empty. Tests: 5 venture suites green locally.",
+  "notes": "Explore idea: engine drift guard for the sales-export-to-journal hub. Found 4 of 17 engines stale vs their single-platform sources (Square cash tenders, Gumroad real export layout, AdSense thousands separator, Upwork guard); synced, added copy-engines.mjs and engines.test.mjs, hub tests that fail on old engines. Security queue empty, IDEAS and requests empty. Tests: 5 venture suites green locally. Merged main; fixed main's stale transition.json (photo-editing override). Local run_workflow_locally: ventures-tests green after fix; priv-security-gate steps cannot run locally (PR fetch skipped).",
   "corrections": [],
   "redteam": null,
   "usage": {

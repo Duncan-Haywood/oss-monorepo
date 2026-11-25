@@ -8,8 +8,8 @@
     "proprietary": 20
   },
   "models": {
-    "subscription": 8,
-    "one-off": 12
+    "subscription": 9,
+    "one-off": 11
   },
   "proprietary": [
     {
@@ -82,7 +82,7 @@
     },
     {
       "venture": "photo-editing",
-      "source_lines": 77937,
+      "source_lines": 78142,
       "track": "proprietary",
       "why": "flagship #12: the depth people pay for",
       "model": "subscription",
@@ -242,7 +242,7 @@
     },
     {
       "venture": "sales-export-to-journal",
-      "source_lines": 6560,
+      "source_lines": 6694,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "one-off",
