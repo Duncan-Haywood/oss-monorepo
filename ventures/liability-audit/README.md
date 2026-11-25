@@ -107,7 +107,7 @@ node --test audit.test.mjs cli.test.mjs page.test.mjs
 
 ## Licence
 
-MIT. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.
+FSL-1.1-MIT. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.
 Roadmap: [`ROADMAP.md`](ROADMAP.md).
 
 ## Known gaps (quality audit 2026-11-20)

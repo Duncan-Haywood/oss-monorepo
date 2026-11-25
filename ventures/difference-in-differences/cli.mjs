@@ -37,7 +37,7 @@ Options:
 Citations:
 ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}.${p.doi ? ` doi:${p.doi}` : ""} ${p.url}`).join("\n")}
 
-Statistical output from your data, not legal, tax, financial, medical or policy advice. No warranty. MIT licence.
+Statistical output from your data, not legal, tax, financial, medical or policy advice. No warranty. FSL-1.1-MIT licence.
 Web version: https://marisstella.app/difference-in-differences/`;
 
 const FLAGS = { "--unit": "unit", "--time": "time", "--outcome": "outcome", "--cohort": "cohort", "--treatment": "treatment", "--control": "control", "--base": "base", "--anticipation": "anticipation", "--min-cohort": "minCohort", "--alpha": "alpha", "--bootstrap": "bootstrap", "--seed": "seed" };

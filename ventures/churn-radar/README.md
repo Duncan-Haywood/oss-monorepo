@@ -119,7 +119,7 @@ Fly.io: the steps are at the top of `fly.toml`.
 
 ## Disclaimer
 
-Free and MIT, provided as-is with no warranty and no uptime guarantee. Scores
+Free and FSL-1.1-MIT, provided as-is with no warranty and no uptime guarantee. Scores
 are statistical estimates and can be wrong. You run it, so you are responsible
 for how you contact customers, for backups and for your customers' privacy. Not
 legal, tax or financial advice. If it helps,

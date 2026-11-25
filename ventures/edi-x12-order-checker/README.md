@@ -46,4 +46,4 @@ retailer, EDI network and standards body.
 **Best-effort hosting, no SLA.** These tools are free, experimental, and may be slow, broken,
 moved, or taken offline without notice. Do not use this as a system of record.
 
-MIT licensed. Support is optional: https://github.com/sponsors/Duncan-Haywood
+FSL-1.1-MIT licensed. Support is optional: https://github.com/sponsors/Duncan-Haywood

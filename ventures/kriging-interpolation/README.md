@@ -123,4 +123,4 @@ in plain longitude-latitude (not equal-area).
 
 Free and as-is, without warranty of any kind. Not engineering, surveying,
 environmental or other professional advice; a regulator, standard or
-contract may require a different method. MIT licence.
+contract may require a different method. FSL-1.1-MIT licence.

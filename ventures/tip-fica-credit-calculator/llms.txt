@@ -2,7 +2,7 @@
 
 > Free FICA tip credit calculator for restaurants, bars and salons: estimate your Form 8846 credit per employee from cash wage, hours and tips, see the after-tax value and what unclaimed prior years may be worth. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tip-fica-credit-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tip-fica-credit-calculator): FSL-1.1-MIT licensed.

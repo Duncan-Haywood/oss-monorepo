@@ -102,4 +102,4 @@ Refusing to sponsor does not change the calculator.
 node --test
 ```
 
-MIT licensed; see [`LICENSE`](LICENSE).
+FSL-1.1-MIT licensed; see [`LICENSE`](LICENSE).

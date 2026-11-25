@@ -2,7 +2,7 @@
 
 > Free online HDBSCAN (Campello, Moulavi & Sander 2013) for density-based clustering of the rows of a table with numeric columns. Finds the number of clusters itself (no k to choose), labels rows in no dense group as noise, gives each clustered row a membership strength (lambda_p / lambda_max, McInnes & Healy 2017) and every row a GLOSH outlier score (Campello, Moulavi, Zimek & Sander 2015), and describes each cluster: the columns that set it apart and how text columns such as a category or region split across it. Excess-of-mass or leaf selection; z-score, robust or no scaling. Labels and membership agree row for row with scikit-learn 1.9.1's HDBSCAN (with its edge sort made stable) on 18 reference cases; GLOSH scores agree with the hdbscan package to 1e-10. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A cluster is a group of similar rows, not proof of a real category.
+Free to use and source available (FSL-1.1-MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A cluster is a group of similar rows, not proof of a real category.
 
 ## Pages
 
@@ -27,4 +27,4 @@ Free and open source (MIT). Results are statistical estimates from the data you 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hdbscan-clustering): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hdbscan-clustering): FSL-1.1-MIT licensed.

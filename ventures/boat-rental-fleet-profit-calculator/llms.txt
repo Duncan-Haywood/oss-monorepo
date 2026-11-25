@@ -2,7 +2,7 @@
 
 > Find out what a rental boat really earns after fuel, dock, insurance, a short season and weather cancellations, and whether a marketplace listing or a captained charter pays it better.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/boat-rental-fleet-profit-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/boat-rental-fleet-profit-calculator): FSL-1.1-MIT licensed.

@@ -1,6 +1,6 @@
 // Licence-key check for the branded results report. No secret is held anywhere: the
 // provider's validate endpoint takes the buyer's key and answers yes or no. The code
-// is MIT, so this is a convenience for honest buyers, not copy protection. Offline or
+// is source available (FSL-1.1-MIT), so this is a convenience for honest buyers, not copy protection. Offline or
 // malformed answers never unlock and never throw.
 
 /** A buy link is shown only if it is a plain https URL. */

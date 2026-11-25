@@ -133,7 +133,7 @@ test('carries the venture disclaimers and the sponsor line', () => {
   assert.match(html, /<strong>No warranty\.<\/strong>/);
   assert.match(html, /not legal, tax, financial, or business advice/);
   assert.match(html, /<strong>Best-effort hosting, no SLA\.<\/strong>/);
-  assert.match(html, /Free and open source/);
+  assert.match(html, /Free to use and source available/);
   assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
 });
 

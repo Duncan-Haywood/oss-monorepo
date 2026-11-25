@@ -148,16 +148,14 @@ the owner** (owner, 2026-11-24: "i really don't like all this stuff that is
 blocking itself on my behalf ... can we instead have maybe a review process
 on cysec and legal risks instead?"). Run
 `python3 platform/security/risk_review.py`, answer each check it prints in
-the PR body, fix what it turns up, and merge. Only what it marks "Owner review
-needed" waits for the owner:
-- a likely secret;
-- a cut to the guardrails or hard limits;
-- a licence change on existing code;
-- the small owner-only core in `.github/CODEOWNERS`: the gate and the review
-  themselves, `priv-*` workflows that hold secrets, and code agent tools run
-  at session start.
-
-Agent instructions, this file included, are no longer in that core. Process:
+the PR body, fix what it turns up, and merge. **Nothing waits for the owner's
+review** (owner, same day: "I don't need to review. just be extra careful for
+adversarial changes"). The required `risk-review` check runs main's copy of
+the script and blocks, with no approval path: a likely secret; removed lines
+in the guardrails or hard limits; an existing licence moved outside the
+allowed list; a change that shrinks the gate itself. Files in
+`.github/CODEOWNERS` are *sensitive*: review them hardest, as if the diff
+came from a prompt-injected agent. Threats and controls:
 [`docs/security/risk-review.md`](docs/security/risk-review.md).
 
 Before merging: CI green (or, when runners are starved, the checks your change

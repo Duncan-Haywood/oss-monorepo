@@ -14,7 +14,7 @@ sensors, electronics) and swap only the rear module:
 furniture, see what each robot reaches):
 https://marisstella.app/open-floor-robots/
 
-Everything is MIT-licensed. You can build it, change it, and sell it
+Everything is FSL-1.1-MIT-licensed. You can build it, change it, and sell it
 under your own brand; if you sell one, you are the manufacturer
 ([safety.md](hardware/safety.md), "No compliance claim").
 

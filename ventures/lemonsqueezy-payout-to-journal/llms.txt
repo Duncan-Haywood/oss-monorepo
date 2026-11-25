@@ -4,7 +4,7 @@
 
 Limits: fees are estimates proved only by the deposit check; one surcharge percentage per file; no real export was available when this was written (columns from Lemon Squeezy's exporting-orders help page).
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -12,4 +12,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/lemonsqueezy-payout-to-journal): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/lemonsqueezy-payout-to-journal): FSL-1.1-MIT licensed.

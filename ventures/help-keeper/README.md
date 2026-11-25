@@ -4,7 +4,7 @@ After using this, you can now **give customers a help center you host yourself, 
 
 **Live tool:** https://marisstella.app/help-keeper/
 
-Two parts, both free and MIT:
+Two parts, both free and FSL-1.1-MIT:
 
 - **`index.html`**: paste articles, type a search and a week of visitor searches, and see the ranked results and the content-gap list. Runs in the browser; nothing is uploaded.
 - **`server.mjs`**: one Node process, **zero dependencies**, state in one JSON file. Public help site, JSON search endpoint, admin, import and export.
@@ -45,4 +45,4 @@ Fork the repository, then open `https://render.com/deploy?repo=<your fork URL>`.
 
 ## Disclaimer
 
-No warranty; no uptime or delivery guarantee. You operate the help center and are responsible for its content, your privacy notice and data-protection rules. Search results and the content-gap report are heuristics and can be wrong. Not legal, tax or financial advice. MIT licensed. If it saves you a subscription, you can [sponsor the author](https://github.com/sponsors/Duncan-Haywood).
+No warranty; no uptime or delivery guarantee. You operate the help center and are responsible for its content, your privacy notice and data-protection rules. Search results and the content-gap report are heuristics and can be wrong. Not legal, tax or financial advice. FSL-1.1-MIT licensed. If it saves you a subscription, you can [sponsor the author](https://github.com/sponsors/Duncan-Haywood).

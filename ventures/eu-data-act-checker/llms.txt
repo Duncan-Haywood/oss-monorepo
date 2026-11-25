@@ -2,7 +2,7 @@
 
 > Free EU Data Act checker: pick your role and size to see whether Regulation (EU) 2023/2854 likely applies, whether the micro and small enterprise exemption covers you, the Article behind it, the dates and the main duties. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/eu-data-act-checker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/eu-data-act-checker): FSL-1.1-MIT licensed.

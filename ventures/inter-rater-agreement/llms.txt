@@ -2,7 +2,7 @@
 
 > Free online inter-rater reliability tool. Paste ratings from two or more raters, coders or annotators (a column per rater, subject-rater-rating rows, or a counts table) and it reports Krippendorff's alpha (nominal, ordinal, interval or ratio, missing ratings allowed) with a bootstrap interval, Cohen's kappa with linear and quadratic weights and its standard error, Fleiss' kappa and Gwet's AC1/AC2, pairwise and per-category kappa, alpha with each rater left out, the subjects raters split on, and the six intraclass correlations (Shrout & Fleiss 1979) with McGraw & Wong's intervals. Matches the krippendorff, irrCAC, statsmodels, scikit-learn and pingouin packages, and reproduces Krippendorff's (2011) and Shrout & Fleiss's published examples. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial, medical or professional advice. Agreement between raters is not proof that they are right.
+Free to use and source available (FSL-1.1-MIT). Results are statistical estimates from the data you supply, not legal, tax, financial, medical or professional advice. Agreement between raters is not proof that they are right.
 
 ## Pages
 
@@ -24,4 +24,4 @@ Free and open source (MIT). Results are statistical estimates from the data you 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/inter-rater-agreement): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/inter-rater-agreement): FSL-1.1-MIT licensed.

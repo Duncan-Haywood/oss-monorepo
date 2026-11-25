@@ -12,4 +12,4 @@ After using this, you can now **know what to ask the broker to reimburse before 
 2. Pure logic is in `calc.mjs` (`plan()`, `routeCost()`, `dockCost()`, `sensitivity()`); tests: `node --test`.
 
 Modelled: route fees (flat and percent), partial refunds and caps, the cost of money tied up until you are paid, detention past the free hours against the value of your time, the make-whole request amount, and a lumper-size sensitivity table. Not modelled: taxes, factoring fees on the invoice line, short-pays and non-payment, contract-specific lumper rules, state law.
-Not legal or financial advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
+Not legal or financial advice. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

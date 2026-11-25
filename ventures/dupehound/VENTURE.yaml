@@ -1,5 +1,5 @@
 name: dupehound
-description: Free, open-source (MIT) copy-paste (code clone) detector written in Rust. One engine runs as a native CLI (a CI gate with --threshold) and, compiled to WebAssembly, in a browser page that uploads nothing. Measured against jscpd 4.3.0 on 9,458 files of this repository - 1.2 s and 500 MB against 337 s and 6.2 GB, flagging the same lines to within about 5% (BENCHMARK.md).
+description: Free, source available (FSL-1.1-MIT) copy-paste (code clone) detector written in Rust. One engine runs as a native CLI (a CI gate with --threshold) and, compiled to WebAssembly, in a browser page that uploads nothing. Measured against jscpd 4.3.0 on 9,458 files of this repository - 1.2 s and 500 MB against 337 s and 6.2 GB, flagging the same lines to within about 5% (BENCHMARK.md).
 stage: prototype
 
 owner: duncan

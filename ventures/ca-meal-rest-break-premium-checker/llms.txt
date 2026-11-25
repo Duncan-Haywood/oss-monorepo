@@ -2,7 +2,7 @@
 
 > Free California meal and rest break premium pay checker for restaurants, retail and any hourly employer. Paste timecards, find late, short and missed meal periods and rest break shortfalls, and total the one-hour premium owed per workday. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ca-meal-rest-break-premium-checker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/ca-meal-rest-break-premium-checker): FSL-1.1-MIT licensed.

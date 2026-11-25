@@ -2,7 +2,7 @@
 
 > Free 401(k) loan vs withdrawal calculator: the true cost of each, with tax, penalty, lost growth and the job-loss risk, next to an outside loan. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/401k-loan-vs-withdrawal-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/401k-loan-vs-withdrawal-calculator): FSL-1.1-MIT licensed.

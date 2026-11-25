@@ -42,7 +42,7 @@ Slopes are per year for date columns, otherwise per unit of the time column.
 Citations:
 ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}.${p.doi ? ` doi:${p.doi}` : ` ${p.url}`}`).join("\n")}
 
-Statistical output from your data, not financial, legal, medical or professional advice. No warranty. MIT licence.
+Statistical output from your data, not financial, legal, medical or professional advice. No warranty. FSL-1.1-MIT licence.
 Web version: https://marisstella.app/mann-kendall-trend/`;
 
 const FLAGS = {
