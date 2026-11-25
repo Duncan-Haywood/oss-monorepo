@@ -108,3 +108,48 @@ No browser run. The card is rendered through the router in its component test.
 
 **Next.** An item per SOV line or per job. The weekly email could name the count of payments not
 yet in QuickBooks; that would need `cash-digest.ts` to take the list as input.
+
+## Update: a balance closed short sent to QuickBooks as a credit memo (private PR 114)
+
+Later the same day (Duncan-Haywood/private-monorepo#114), ROADMAP "Cash report, part 4". On the pay
+application's QuickBooks panel, an editor can now send a balance closed short (a backcharge, a
+dispute or a write-off) as **one credit memo to the GC, applied to that application's invoice**
+(`POST .../pay-apps/:id/quickbooks/short-credit`, `?already=1` to mark one entered by hand;
+`sendShortCredit`, the pure planner `src/shared/qbo-credit.ts`, table `qbo_credit_memo_syncs`,
+migration 0032). `packages/qbo-sync` gained `createCreditMemo`, `getCreditMemo`,
+`findCreditMemoByDocNumber` and `applyCreditMemo`.
+
+**Why it matters to a buyer.** Before this, a backcharged pay app was closed in PayApps but stayed
+open in QuickBooks, so the two A/R agings disagreed on every short-paid job until the bookkeeper
+keyed a credit memo by hand. Short pays and backcharges are routine for subs, so this was the last
+place the sync left the books wrong.
+
+**Choices to keep.**
+
+- Strict figures, no guessing. The send needs every payment on the application in QuickBooks
+  first. The invoice's open balance must equal its total less those payments, and the credit is
+  exactly that balance: the amount closed short, plus a second line when the GC certified below
+  line 8. Anything else returns 409 `quickbooks_balance_mismatch` and sends nothing.
+- Read back, don't assume. A company with "Automatically apply credits" on may apply a new memo by
+  itself, possibly to an older invoice. PayApps reads the invoice after creating the memo. If the
+  credit landed there, PayApps uses that. If it is still unapplied, PayApps applies it with a zero
+  payment linking both. If it went to another invoice, the row records `applied: false` and the
+  panel says to move it.
+- Idempotent. The number is `CR` + the invoice number's tail, and `requestid` keys come from the
+  org and application ids, so a retry records an existing memo instead of creating a second one.
+- Nothing is voided in QuickBooks. Reopening the balance, or deleting a payment on a closed-short
+  application, asks first (409 `credit_in_quickbooks`), like deleting a payment that is in
+  QuickBooks. `sendPayment`'s balance check now subtracts an applied credit.
+- The memo posts to the job's work item (the job's own item, else the company's, else
+  `Contract Billing`; PR 113 merged in between), so the income is reduced where it was booked.
+
+**Not yet verified.** The `CreditMemo` wire shape and the zero-payment application follow the PHP
+SDK schema and Intuit community guidance. Neither has run against a sandbox company. Both are listed
+in the package README under "Not yet verified".
+
+**Verification** (local; private CI has no runner): biome clean (one older warning), typecheck
+clean, unit 401/401 (5 new), worker 246/246 (8 new, cross-tenant included), qbo-sync 57/57 (6 new),
+payapps-site unit 21/21, build ok, drizzle in sync after rebasing onto PR 113.
+
+**Next.** An item per SOV line (the per-job item landed in PR 113). Record the QuickBooks responses
+from a sandbox company as fixtures once the owner's Intuit app exists.
