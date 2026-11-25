@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b51'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Overbilling and Underbilling in Construction</title>
+  <meta name="description" content="What overbilling and underbilling mean, how your pay apps cause them, the journal entry, and a calculator that checks one job's pay app against its costs.">
+  <meta property="og:title" content="Overbilling and underbilling: your pay application against your job costs">
+  <meta property="og:description" content="Why the percent complete on your pay app and on your WIP schedule disagree, what banks and sureties read into it, and a free calculator for one job. Runs in the browser.">
+  <link rel="canonical" href="./overbilling-underbilling.html">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Overbilling and underbilling: your pay application against your job costs", "datePublished": "2026-11-25", "dateModified": "2026-11-25"}</script>
+</head>
+<body>
+<header>
+  <p class="kicker">Pay app guides · <a href="./">schedule of values calculator</a></p>
+  <h1>Overbilling and underbilling: your pay app against your job costs</h1>
+  <p>Your pay application says how far along the job is by what you billed on each line of the schedule of values. Your books, and the work-in-progress (WIP) schedule your bank and bonding company ask for, usually say it by cost: how much of the job's estimated cost you have spent. When the two disagree, the difference is <strong>overbilling</strong> (billed ahead of the work) or <strong>underbilling</strong> (work done but not yet billed). This page explains both, shows the entry an accountant books, and checks one job's numbers.</p>
+  <nav class="guides" aria-label="Guides">
+    <a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a>
+    <a href="change-orders-schedule-of-values.html">Change orders and the SOV</a>
+    <a href="retainage-in-quickbooks.html">Retainage in QuickBooks</a>
+    <a href="https://marisstella.app/contractor-wip-schedule/">WIP schedule for all your jobs</a>
+  </nav>
+</header>
+<main>
+<section class="card">
+  <h2>The three numbers</h2>
+  <p>The cost-to-cost method, the one most small contractors' accountants use for a WIP schedule, needs three figures per job and one from the pay application:</p>
+  <div class="scroll"><table class="stack" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">Figure</th><th role="columnheader" scope="col">Where it comes from</th><th role="columnheader" scope="col">What to watch</th></tr></thead>
+    <tbody>
+      <tr role="row"><td role="cell" data-label="Figure">Contract sum</td><td role="cell" data-label="Where it comes from">The original contract plus approved change orders (the pay application's contract sum to date)</td><td role="cell" data-label="What to watch">Leave out pending changes until they are approved, or the job looks more profitable than it is.</td></tr>
+      <tr role="row"><td role="cell" data-label="Figure">Estimated total cost</td><td role="cell" data-label="Where it comes from">Cost to date plus your current estimate of the cost to finish</td><td role="cell" data-label="What to watch">The one figure that is a judgment. An estimate left at the bid number while costs run over overstates profit every month.</td></tr>
+      <tr role="row"><td role="cell" data-label="Figure">Cost to date</td><td role="cell" data-label="Where it comes from">Job cost report: labor, materials, subs and equipment charged to the job</td><td role="cell" data-label="What to watch">Materials bought but not yet installed can overstate progress; accountants often treat them separately.</td></tr>
+      <tr role="row"><td role="cell" data-label="Figure">Billed to date</td><td role="cell" data-label="Where it comes from">The pay application's total completed and stored to date, before retainage</td><td role="cell" data-label="What to watch">Use the gross figure. Retainage is billed, only not paid yet; netting it out would show a false underbilling.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Then: <strong>percent complete</strong> = cost to date ÷ estimated total cost. <strong>Earned revenue</strong> = percent complete × contract sum. <strong>Billed to date − earned revenue</strong> is overbilled when positive and underbilled when negative.</p>
+</section>
+
+<section class="card">
+  <h2>Why your pay app and your costs disagree</h2>
+  <ul>
+    <li><strong>A front-loaded schedule of values.</strong> Mobilization, bonds and early lines priced high so that the first pay apps bring in cash. Billing runs ahead of cost: overbilling.</li>
+    <li><strong>Stored materials.</strong> Billing for materials stored on site before they are installed can run ahead, or, if the materials are charged to the job before you bill them, behind.</li>
+    <li><strong>Work on an unapproved change order.</strong> The cost is in your job cost report; the billing waits for the signature. Underbilling, and the kind a surety looks at hardest, because nobody has agreed to pay it yet. The <a href="change-order-log.html">change order log</a> shows what is pending and for how long.</li>
+    <li><strong>A cost overrun.</strong> If the job costs more than estimated and the estimate is not updated, the cost method says you are further along than you are, and the job looks underbilled when really the profit is shrinking.</li>
+    <li><strong>A GC that cuts your percent.</strong> If the GC approves less than you asked for on a line, your billing falls behind your cost.</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2>What a bank or surety reads into it</h2>
+  <p><strong>Overbilling</strong> is a liability on the balance sheet (often called "billings in excess of costs and estimated earnings"): money collected for work you still owe. A moderate amount is normal and helps cash flow. A large one means the cash in the bank is partly borrowed from the end of the job, and that end will cost more than it brings in.</p>
+  <p><strong>Underbilling</strong> is an asset ("costs and estimated earnings in excess of billings"), but a soft one: it counts profit you have not billed and may never collect. Underwriters often discount it, and a pattern of underbillings across jobs is one of the signs they read as estimates going wrong. Either way the entries are called contract liabilities and contract assets in current revenue-recognition guidance; your CPA decides the presentation.</p>
+</section>
+
+<section class="card" id="calculator">
+  <h2>Check one job</h2>
+  <p>Type the job's figures. The worked example is filled in: a $480,000 subcontract estimated to cost $400,000, $150,000 spent, $210,000 billed and $21,000 held as retainage.</p>
+  <div class="grid">
+    <div><label for="ou-contract">Contract sum, with approved change orders ($)</label><input id="ou-contract" inputmode="decimal" value="480000"></div>
+    <div><label for="ou-est">Estimated total cost ($)</label><input id="ou-est" inputmode="decimal" value="400000"></div>
+    <div><label for="ou-cost">Cost to date ($)</label><input id="ou-cost" inputmode="decimal" value="150000"></div>
+    <div><label for="ou-billed">Billed to date, before retainage ($)</label><input id="ou-billed" inputmode="decimal" value="210000"></div>
+    <div><label for="ou-ret">Retainage held (optional, $)</label><input id="ou-ret" inputmode="decimal" value="21000"></div>
+    <div><label for="ou-next">Cost you expect next period (optional, $)</label><input id="ou-next" inputmode="decimal" value="60000"></div>
+  </div>
+  <div id="ou-errors" aria-live="polite"></div>
+  <div class="scroll"><table>
+    <tbody id="ou-rows"></tbody>
+  </table></div>
+  <h3>The adjusting entry</h3>
+  <p class="note">Shown for a business that records revenue as it bills, as most small contractors' books do between WIP updates. Your accountant may book it differently, reverse it each month, or work on a tax method that ignores it.</p>
+  <pre class="sum" id="ou-entry"></pre>
+  <pre class="sum" id="ou-summary"></pre>
+  <p><button type="button" id="ou-copy">Copy summary</button></p>
+  <p class="note">The example: 150,000 ÷ 400,000 = 37.5% complete; 37.5% of $480,000 = $180,000 earned; $210,000 billed − $180,000 = <strong>$30,000 overbilled</strong>. If $60,000 more is spent next month, the job is 52.5% complete and $252,000 earned, so billing about $42,000 would leave it even. Your numbers stay in this browser tab.</p>
+</section>
+
+<section class="card">
+  <h2>Keeping the gap small</h2>
+  <ul>
+    <li><strong>Update the estimate to complete every month</strong>, before the WIP schedule, not at year end. Every other figure on this page depends on it.</li>
+    <li><strong>Bill change orders as soon as they are signed</strong>, and chase the signature on pending ones; that is where most underbilling comes from.</li>
+    <li><strong>Front-load with care.</strong> Some is normal; a GC or owner that spots it may cut your next application, and a surety will see it on the WIP.</li>
+    <li><strong>Run every open job together.</strong> One job overbilled and another underbilled can hide each other in the totals. The free <a href="https://marisstella.app/contractor-wip-schedule/">contractor WIP schedule</a> takes your whole job list, books the full loss on a losing job, and stress-tests the estimates.</li>
+  </ul>
+</section>
+
+<section class="card cta" id="early-access">
+  <h2>Pay apps and job costs in one place</h2>
+  <p>We are building hosted pay-app billing for specialty subcontractors: schedule of values, pay applications, retainage and change orders kept per job, so billing can be compared with cost without retyping either. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
+</section>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, or financial advice, and it does not replace your accountant, your surety or your contract. Revenue recognition, loss provisions and tax methods depend on your business and your CPA. You are responsible for verifying anything you report or send. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Privacy.</strong> No accounts, cookies or analytics vendors. Anonymous counters (<code>guide_overbilling_viewed</code>, <code>overbilling_summary_copied</code>) are kept in local storage on your device only, and Do Not Track switches them off. <button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
+</footer>
+<script type="module">
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  import { overUnder } from "./billing.mjs";
+  import { fmt } from "./calc.mjs";
+  record("guide_overbilling_viewed");
+  const b = document.getElementById("optout");
+  b.addEventListener("click", () => { setUsageOptOut(true); b.textContent = "Usage counting is off"; b.disabled = true; });
+  if (usageOptedOut()) { b.textContent = "Usage counting is off"; b.disabled = true; }
+
+  const $ = (id) => document.getElementById(id);
+  const pct = (x) => `${(x * 100).toFixed(1)}%`;
+  function cell(text, cls) { const td = document.createElement("td"); td.textContent = text; if (cls) td.className = cls; return td; }
+  function row(label, value) { const tr = document.createElement("tr"); tr.append(cell(label), cell(value, "n")); return tr; }
+  const note = (text) => { const p = document.createElement("p"); p.className = "finding"; p.textContent = text; return p; };
+  function render() {
+    const r = overUnder({ contract: $("ou-contract").value, estCost: $("ou-est").value, costToDate: $("ou-cost").value, billed: $("ou-billed").value, retainage: $("ou-ret").value, nextCost: $("ou-next").value });
+    $("ou-errors").replaceChildren(...(r.errors.length ? r.errors : r.warnings).map(note));
+    const ok = !r.errors.length;
+    $("ou-rows").replaceChildren(...(ok ? [
+      row("Percent complete by cost", pct(r.costPct)),
+      row("Percent billed", pct(r.billedPct)),
+      row("Earned revenue", fmt(r.earned)),
+      row(r.status === "under" ? "Underbilled" : "Overbilled", fmt(Math.abs(r.over))),
+      row("Gross profit to date", fmt(r.profitToDate)),
+      row("Gross profit at completion (estimated)", fmt(r.grossProfit)),
+      row("Certified less retainage, against cost to date", fmt(r.cashOverCost)),
+      ...(r.nextBill === null ? [] : [row("Bill next period to finish it even", fmt(r.nextBill))]),
+    ] : []));
+    $("ou-entry").textContent = ok ? r.entry : "";
+    $("ou-summary").textContent = ok ? r.summary : "";
+    $("ou-copy").disabled = !ok;
+  }
+  for (const id of ["ou-contract", "ou-est", "ou-cost", "ou-billed", "ou-ret", "ou-next"]) $(id).addEventListener("input", render);
+  $("ou-copy").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText($("ou-summary").textContent); $("ou-copy").textContent = "Copied"; record("overbilling_summary_copied"); }
+    catch { $("ou-copy").textContent = "Select the summary and copy it"; }
+  });
+  render();
+</script>
+</body>
+</html>

@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const PAGES = ["index", "cmmc-level-1-self-assessment", "sprs-score-calculator", "nist-800-171-ssp-template", "dfars-7012-incident-reporting", "stock-size-from-step-file", "job-shop-quote-calculator", "cmmc-level-1-vs-level-2", "ssp-and-poam", "how-to-price-a-machined-part"];
+const PAGES = ["index", "cmmc-level-1-self-assessment", "sprs-score-calculator", "nist-800-171-ssp-template", "dfars-7012-incident-reporting", "stock-size-from-step-file", "job-shop-quote-calculator", "cmmc-level-1-vs-level-2", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual"];
 const read = (p) => readFileSync(new URL(`./${p}.html`, import.meta.url), "utf8");
 
 for (const p of PAGES) {
@@ -29,7 +29,7 @@ for (const p of PAGES) {
 
 test("the quote calculator ships no rates: every money field starts empty", () => {
   const html = read("job-shop-quote-calculator");
-  for (const name of ["materialPerPart", "scrapPct", "setupHours", "setupRate", "programHours", "programRate", "cycleMinutes", "machineRate", "markupPct"]) {
+  for (const name of ["materialPerPart", "scrapPct", "setupHours", "setupRate", "programHours", "programRate", "cycleMinutes", "machineRate", "markupPct", "setupFactor", "cycleFactor"]) {
     const m = html.match(new RegExp(`<input name="${name}"[^>]*>`));
     assert.ok(m, name);
     assert.doesNotMatch(m[0], /value=/, `${name} has a default value`);
@@ -58,6 +58,15 @@ test("the stock page ships no material price and keeps the file in the browser",
   }
   assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon/, "the page must not transmit the file");
   assert.match(html, /never uploaded/);
+});
+
+test("quote-vs-actual page ships no benchmark: no dollar or hour figure outside the invented example", () => {
+  let text = read("quote-vs-actual");
+  let prev;
+  do { prev = text; text = text.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ""); } while (text !== prev);
+  assert.doesNotMatch(text, /\$\s?\d/);
+  assert.match(text, /Load an invented example/);
+  assert.match(text, /href="job-shop-quote-calculator.html"/);
 });
 
 test("incident page builds the DOM from text, never innerHTML, and keeps nothing by default", () => {

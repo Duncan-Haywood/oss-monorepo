@@ -79,7 +79,7 @@ export function render() {
   const style = hub.match(/<style>[\s\S]*?<\/style>/)[0];
   const icon = hub.match(/<link rel="icon"[^>]*>/)[0];
   const title = "Which e-invoicing deadline applies to my business? Check by country and size";
-  const desc = "Type your country and yearly turnover and see the date your e-invoicing duty starts in Germany, Spain, the UAE, Poland, Oman, Malaysia or France. Runs in your browser; nothing is sent.";
+  const desc = "Enter your country and yearly turnover to see when your e-invoicing duty starts: Germany, Spain, UAE, Poland, Oman, Malaysia, France. Nothing is sent.";
   const data = Object.fromEntries(Object.entries(COUNTRIES).map(([k, c]) => [k, {
     name: c.name, input: c.input, prompt: c.prompt, always: c.always, note: c.note ?? null, page: c.page,
     waves: c.waves.map((w) => ({ date: w.date, what: w.what, test: w.when.toString() })) }]));
