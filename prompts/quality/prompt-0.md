@@ -31,8 +31,11 @@ The programme, the rubric and the procedure are in
 it; it is short. Then:
 
 1. `python3 platform/ci/quality_audit.py sample` draws today's subjects
-   (seeded by the date: one flagship in rotation, two ventures, two research
-   projects, one platform directory). Take the draw as it comes. If an open
+   (seeded by the date: one flagship in rotation, then uniform draws per
+   stratum, which the README's strata table lists). On another
+   mode's day (fix, re-audit, census, reflect) it prints that mode's command
+   instead: follow the README's "Five modes" row for it, not steps 1 to 5,
+   which describe a sample round. Take the draw as it comes. If an open
    `quality:` PR already audits a subject you drew, use `--seed <date>-b`
    (the README, "One round", explains why seeds and flagships repeat).
 2. Audit each subject against the seven dimensions. The audits are

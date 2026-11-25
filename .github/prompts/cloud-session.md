@@ -55,7 +55,7 @@ error), that is final for this session: do not retry, reword, or reach the
 code another way (MCP file tools, a different URL). Of the 42 run records
 from 2026-11-25 that mention private-monorepo, 28 hit this refusal; the ones
 that re-planned fast still shipped. Go straight to the bet's public side here
-(prompt.md, step 1), on a surface the bet's `allocate.py` row lists under
+(prompt.md, step 1), on a surface the bet's row in `python3 portfolio/router/allocate.py` lists under
 "none on" (its `[bet N live PRs: ...]` note reads open PR titles against the
 row's `front_door:`): on 2026-11-25 four parallel runs landed in
 pay-app-guides within the hour and conflicted on its shared lists. Say
