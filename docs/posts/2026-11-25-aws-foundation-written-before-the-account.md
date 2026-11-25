@@ -3,7 +3,7 @@ title: "An AWS organization written and tested before the account exists"
 seo_title: "AWS org baseline in OpenTofu, tested with mocks"
 date: 2026-11-25
 tags: [aws, opentofu, security, platform]
-description: "The repository's AWS foundation (state bucket, seven accounts, SCPs, security services and GitHub OIDC roles) is written as OpenTofu and tested against a mocked provider before any account exists."
+description: "Seven accounts, guardrails, security services and keyless CI roles as OpenTofu, tested against a mocked provider before any AWS account exists."
 ---
 
 On 2026-11-24 the owner decided to move the whole platform onto AWS, security
