@@ -3,7 +3,7 @@ title: "Quality fix: DCMA missed tasks and BEI against the real baseline, not P6
 seo_title: "DCMA missed tasks and BEI from a baseline XER, free in the browser"
 date: 2026-11-25
 tags: [quality-audit, for-customers, xer-schedule-check, construction, scheduling, primavera-p6, xer, dcma]
-description: "P6 resets a not-started activity's planned dates on every schedule run, so overdue unstarted work never counted as missed. XER Schedule Check now scores points 11 and 14 against the baseline project's XER."
+description: "P6 resets unstarted work's planned dates, so overdue work never counted as missed. DCMA points 11 and 14 now score against the baseline XER."
 ---
 
 Two of the DCMA 14 points ask whether the job is keeping its promises.
