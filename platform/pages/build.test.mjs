@@ -2174,8 +2174,9 @@ test('hub markup escapes venture copy', () => {
     [{ slug: 'x', title: '<script>alert(1)</script>', description: 'a & b', pageCount: 1, hasSitemap: false }],
     BASE,
   );
+  // Since 2026-11-25 the front door names products, not tools, so the title
+  // is not printed there at all; it must still never arrive unescaped.
   assert.ok(!hub.includes('<script>alert(1)</script>'));
-  assert.ok(hub.includes('&lt;script&gt;'));
 });
 
 // ---------------------------------------------------------------------------
@@ -6548,18 +6549,9 @@ test('clampMetaDescription cuts at a word with an ellipsis when no sentence fits
 
 // Ranking by page count alone put a day-count adder with ten explainer pages
 // at the front of the featured row (2026-10-21). Flagships lead it now.
-test('the featured row leads with the flagships, then fills by page count', () => {
-  const surfaces = [
-    { slug: 'state-residency-day-counter', title: 'State residency day counter', description: 'Days.', kind: 'browser', pageCount: 11 },
-    { slug: 'changepoint-detector', title: 'Changepoint detector', description: 'PELT.', kind: 'browser', pageCount: 2 },
-    { slug: 'einvoice-preflight', title: 'E-invoice preflight', description: 'EN 16931.', kind: 'browser', pageCount: 19 },
-  ];
-  const featuredRow = (hub) => hub.slice(hub.indexOf('id="featured"')).match(/data-tool="([^"]+)"/g).map((m) => m.slice(11, -1));
-  const hub = renderHub(surfaces, 'https://example.test/', { flagships: ['changepoint-detector', 'einvoice-preflight', 'not-a-surface'] });
-  const row = featuredRow(hub);
-  assert.deepEqual(row.slice(0, 2), ['changepoint-detector', 'einvoice-preflight']);
-  assert.equal(new Set(row).size, row.length, 'no tool twice');
-  assert.ok(row.includes('state-residency-day-counter'), 'room left is filled by page count');
+// The hub's featured row left on 2026-11-25 with the rest of the catalogue
+// (the front door is a business -> problem -> product finder now).
+test('the flagships file parses', () => {
   assert.ok(flagshipSlugs().includes('changepoint-detector'), 'the real file parses');
 });
 
