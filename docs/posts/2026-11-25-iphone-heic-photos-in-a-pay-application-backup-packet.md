@@ -3,7 +3,7 @@ title: "Getting iPhone HEIC photos into a pay application's PDF backup packet"
 seo_title: "iPhone HEIC photos in a PDF pay app backup packet"
 date: 2026-11-25
 tags: [ventures, construction, pay-applications, photos]
-description: "Why an iPhone's HEIC job photos fall out of a PDF backup packet, how PayApps converts HEIC and WebP to JPEG in the browser, and how it shrinks large job photos while keeping the time they were taken."
+description: "How PayApps gets iPhone HEIC job photos into a PDF backup packet, and shrinks large photos before upload while keeping the time they were taken."
 ---
 
 A subcontractor's monthly pay application often goes to the GC as one PDF:
