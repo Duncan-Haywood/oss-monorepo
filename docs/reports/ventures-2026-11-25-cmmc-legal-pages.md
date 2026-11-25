@@ -1,3 +1,8 @@
+---
+kind: note
+date: 2026-11-25
+tagged: auto
+---
 # CMMC Workspace: legal pages and acceptance gate (private PR 159)
 
 Bet #4 (`portfolio/monetization/bets.md`). `private-monorepo/apps/cmmc` ROADMAP "Billing, part 2",
