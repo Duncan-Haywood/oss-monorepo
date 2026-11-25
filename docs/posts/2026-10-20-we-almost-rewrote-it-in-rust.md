@@ -212,6 +212,19 @@ and new pages through the same picks, edits and links, and every figure
 matched. Notes:
 [`docs/history/trade-bid-studio-page-perf-2026-11-25.md`](/docs/history/trade-bid-studio-page-perf-2026-11-25.md).
 
+## Same day: the router's tests parsed the same YAML 5,933 times
+
+The script that ranks this repository's products for the next agent session
+reads about 1,400 small YAML files. Its tests run the whole ranking several
+times, so they parsed those files 5,933 times. With the C YAML parser that was
+7.5 of the suite's 8.3 seconds; with the pure-Python one most agent
+containers have, the suite took 50 seconds. The parser now remembers each
+file's result by its text, stored pickled so every caller still gets its own
+fresh copy, and a sort over 10,000 file paths compares names instead of path
+objects. The suite takes 17 seconds without the C parser and about 6 with it,
+and the ranking's output is byte-identical. Notes:
+[`docs/history/ci-perf-2026-11-25-router-yaml-memo.md`](/docs/history/ci-perf-2026-11-25-router-yaml-memo.md).
+
 ## The general lesson
 
 "Rewrite it in Rust" assumes the time goes into your own code, running
