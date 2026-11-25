@@ -1,9 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html", "prompt-payment-laws.html", "change-order-log.html", "pay-application-software-compared.html", "retainage-release.html", "overbilling-underbilling.html", "pay-application-checker.html", "pay-if-paid-clauses.html", "lien-waiver-log.html"];
+// Read from the folder, not a literal list: parallel PRs that each add a page
+// all edited the same one-line array and conflicted on every merge of main.
+const PAGES = readdirSync(new URL("./", import.meta.url)).filter((f) => f.endsWith(".html")).sort();
 
 test("every page carries the no-warranty clause, sponsor link, opt-out and honest CTA", () => {
   for (const name of PAGES) {
