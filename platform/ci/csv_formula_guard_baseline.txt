@@ -13,10 +13,6 @@ ventures/activecampaign-import-csv-check/calc.mjs
 ventures/ad-incrementality-test-analyzer/calc.mjs
 ventures/ai-bookkeeper/assets.mjs
 ventures/ai-bookkeeper/eval/synth.mjs
-ventures/ai-bookkeeper/projects.mjs
-ventures/ai-bookkeeper/rental.mjs
-ventures/ai-bookkeeper/taxdepr.mjs
-ventures/ai-bookkeeper/taxforms.mjs
 ventures/ai-bookkeeper/xls.mjs
 ventures/ai-bookkeeper/xlsx.mjs
 ventures/allergen-label-maker/calc.mjs

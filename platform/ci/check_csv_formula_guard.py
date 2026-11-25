@@ -13,7 +13,8 @@ name ends in `Csv` (`ratingsCsv`, `reportCsv`, `findingsCsv`...), leaving out
 readers and fixtures (`parse*`, `split*`, `read*`, `load*`, `import*`,
 `sample*`, `example*`). It counts as guarded when
 it contains a leading-formula-character test (`/^[=`, `/^[=+`, `^[=@]`) or
-names the risk ("formula injection", "CSV injection"). On 2026-11-12, 203 of
+names the risk ("formula injection", "CSV injection"), or imports and calls an
+exported guard function from a relative module (since 2026-11-25). On 2026-11-12, 203 of
 235 exporters had no guard. They are listed in
 `csv_formula_guard_baseline.txt`, a ratchet: a new unguarded exporter fails,
 and so does a listed file that is now guarded or gone, so the list only shrinks.
@@ -165,18 +166,81 @@ SHAPE_EXTS = (".mjs", ".js", ".html", ".ts", ".tsx")
 WEAK_EXTS = (".mjs", ".js", ".html")
 
 
+# `import { csvCell, q as cell } from "./csv.mjs"`: named imports from a relative specifier.
+NAMED_IMPORT = re.compile(r"""\bimport\s*\{([^}]*)\}\s*from\s*["'](\.{1,2}/[^"']+)["']""")
+# `export const csvCell = (s) =>` or `export function csvCell(`: the name a guard line can belong to.
+EXPORTED_NAME = re.compile(r"\bexport\s+(?:const|let|function)\s+([A-Za-z_$][\w$]*)")
+GUARD_REACH = 6  # lines a guard may sit below the export that owns it
+# A function defined without `export` (`const cell = (v) => {`, `function cell(`): a guard
+# under it belongs to that private helper, not to the export around it (greenbutton's espiToCsv).
+LOCAL_FUNCTION = re.compile(r"^\s*(?:(?:const|let)\s+[\w$]+\s*=\s*(?:async\s*)?(?:\([^)]*\)|[\w$]+)\s*=>|(?:async\s+)?function\s+[\w$]+\s*\()")
+
+
+def guard_exports(text):
+    """Names this module exports whose definition holds the formula guard (a test line within GUARD_REACH lines)."""
+    lines = text.splitlines()
+    names = set()
+    for n, line in enumerate(lines):
+        if not GUARD_TEST.search(line) or not DEFUSES.search(line):
+            continue
+        for back in range(n, max(-1, n - GUARD_REACH - 1), -1):
+            m = EXPORTED_NAME.search(lines[back])
+            if m:
+                names.add(m.group(1))
+                break
+            if LOCAL_FUNCTION.search(lines[back]):
+                break
+    return names
+
+
+def _imported_guards(rel, text, guards_by_module):
+    """True when the file imports a guard function from a relative module and calls it."""
+    base = rel.rsplit("/", 1)[0]
+    for names, spec in NAMED_IMPORT.findall(text):
+        target = os.path.normpath(f"{base}/{spec}").replace(os.sep, "/")
+        targets = [target] + ([target[:-3] + ".ts", target[:-3] + ".tsx"] if target.endswith(".js") else [])
+        guards = set().union(*(guards_by_module.get(t, set()) for t in targets))
+        for item in names.split(","):
+            parts = item.split()
+            if not parts or parts[0] not in guards:
+                continue
+            local = parts[-1] if len(parts) == 3 and parts[1] == "as" else parts[0]
+            if re.search(rf"(?<![\w$.]){re.escape(local)}\s*\(", text):
+                return True
+    return False
+
+
+def _unguarded(candidates, guards_by_module):
+    """Exporters with no guard of their own and none imported.
+
+    Since 2026-11-25 an exporter that imports and calls a guard function from
+    a sibling (`csvCell` from `./csv.mjs`) counts as guarded: four runs in
+    three days had to paste a comment into such a file to satisfy the check.
+    The imported name must be an export whose own definition defuses the cell
+    (`guard_exports`), so importing some other helper from a module that
+    happens to guard a private cell does not count, and the shape check still
+    reads the guard line where it lives.
+    """
+    return sorted(rel for rel, text in candidates
+                  if not _imported_guards(rel, text, guards_by_module))
+
+
 def scan_all(root):
     """One walk and one read per file: (scan(root), scan_weak(root), scan_shape(root))."""
-    found, weak, shape = [], [], []
+    candidates, guards_by_module, weak, shape = [], {}, [], []
     for rel, name, text in _sources(root, SHAPE_EXTS):
         if ".test." not in name:
             shape += _shape_entries(rel, text)
             if name.endswith(WEAK_EXTS):
                 weak += _weak_entries(rel, text)
+            if FORMULA_TEST in text:
+                names = guard_exports(text)
+                if names:
+                    guards_by_module[rel] = names
         if (name.endswith(".mjs") and not name.endswith(".test.mjs")
                 and is_exporter(text) and not is_guarded(text)):
-            found.append(rel)
-    return sorted(found), sorted(weak), sorted(shape)
+            candidates.append((rel, text))
+    return _unguarded(candidates, guards_by_module), sorted(weak), sorted(shape)
 
 
 def scan_shape(root):
@@ -199,8 +263,7 @@ def scan_weak(root):
 
 def scan(root):
     """Return sorted repo-relative paths of unguarded exporters under root/ventures."""
-    return sorted(rel for rel, name, text in _sources(root, (".mjs",))
-                  if not name.endswith(".test.mjs") and is_exporter(text) and not is_guarded(text))
+    return scan_all(root)[0]
 
 
 def read_baseline(path):

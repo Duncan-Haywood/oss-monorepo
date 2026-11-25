@@ -54,6 +54,29 @@ class CsvFormulaGuard(unittest.TestCase):
                       "# comment\nventures/a/calc.mjs\n")
         self.assertEqual(self.run_main(d)[0], 0)
 
+    def test_an_exporter_calling_an_imported_guard_counts_as_guarded(self):
+        # 2026-11-25: four runs had to paste a comment into exporters whose
+        # csvCell guard lived in an imported sibling module.
+        guard = GUARDED.replace("const q", "export const csvCell").replace(" ? \"'\"", " ? \"'\"")
+        use = UNGUARDED.replace("? `\"${c}\"` : c", "? `\"${csvCell(c)}\"` : csvCell(c)")
+        aliased = UNGUARDED.replace("? `\"${c}\"` : c", ": cell(c)")
+        d = self.tree({
+            "ventures/a/csv.mjs": guard,
+            "ventures/a/export.mjs": 'import { csvCell } from "./csv.mjs";\n' + use,
+            "ventures/a/alias.mjs": 'import { x, csvCell as cell } from "./csv.mjs";\n' + aliased,
+            "ventures/a/unused.mjs": 'import { csvCell } from "./csv.mjs";\n' + UNGUARDED,
+            "ventures/a/lib/q.ts": guard,
+            "ventures/c/export.mjs": 'import { csvCell } from "../a/lib/q.js";\n' + use,
+            # A module that guards only a private helper exports no guard.
+            "ventures/b/helpers.mjs": GUARDED.replace("export function toCsv", "export function espiToCsv"),
+            "ventures/b/export.mjs": 'import { espiToCsv } from "./helpers.mjs";\n' + UNGUARDED + "espiToCsv(x);\n",
+        })
+        self.assertEqual(g.guard_exports(guard), {"csvCell"})
+        self.assertEqual(g.guard_exports(GUARDED), set())
+        nested = "export function espiToCsv(t) {\n  const cell = (v) => (/^[=+\\-@\\t\\r]/.test(v) && !/^-?\\d+(\\.\\d+)?$/.test(v) ? \"'\" + v : v);\n}\n"
+        self.assertEqual(g.guard_exports(nested), set(), "a private helper's guard is not the export's")
+        self.assertEqual(g.scan(d), ["ventures/a/unused.mjs", "ventures/b/export.mjs"])
+
     def test_stale_baseline_entry_fails_so_the_list_shrinks(self):
         d = self.tree({"ventures/a/calc.mjs": GUARDED}, "ventures/a/calc.mjs\n")
         code, out = self.run_main(d)

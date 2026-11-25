@@ -209,9 +209,11 @@ is served, and which state readers are stale:
 
 ## Duplicate PRs
 
-Scheduled sessions overlap. Before opening a PR, search open PRs
-(`search_pull_requests`, `minimal_output`, a slug or keyword `in:title`) and
-recent commits on `main`, then extend or consolidate. Before closing a PR as
+Scheduled sessions overlap. When you pick the task and again before opening
+a PR, run `python3 platform/ci/slug_dupe.py <slug-or-keyword>` (it refreshes
+`origin/main`, which the clone leaves hours stale) and search open PRs
+(`search_pull_requests`, `minimal_output`, a slug or keyword `in:title`),
+then extend or consolidate. Before closing a PR as
 superseded, run `python3 portfolio/ledger/supersede_check.py <pr>` and check
 the survivor is still open. A conflict is not a reason to close: merge `main`
 in and resolve it. Steps and tools:

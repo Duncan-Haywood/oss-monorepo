@@ -147,3 +147,18 @@ class T(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+    def test_refreshes_stale_origin_main_first(self):
+        # A sibling merges after this clone last fetched: the local origin/main
+        # cannot see it, so only the refresh catches the duplicate.
+        import contextlib, io
+        sib = Path(self.tmp.name) / "sib"
+        run(Path(self.tmp.name), "clone", str(Path(self.tmp.name) / "o.git"), str(sib))
+        (sib / "ventures/late-tool").mkdir(parents=True)
+        (sib / "ventures/late-tool/a.txt").write_text("x")
+        run(sib, "add", "-A")
+        run(sib, "commit", "-m", "late-tool: sibling merged it")
+        run(sib, "push", "origin", "HEAD:main")
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(slug_dupe.main(["late-tool", "--no-fetch"]), 0)
+            self.assertEqual(slug_dupe.main(["late-tool"]), 1)
