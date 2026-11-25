@@ -1385,8 +1385,14 @@ project's updates for delay claims; a collapsed as-built or as-planned vs as-bui
   activities (not complete, not level of effort or WBS summary), durations and
   float in working days of each activity's own calendar. The critical path test
   delays an open activity on the driving path by 600 working days and
-  recomputes. Missed tasks and BEI use P6's planned dates as the baseline (a
-  single XER rarely carries the baseline project; the page says so). P6 resets
+  recomputes. Missed tasks and BEI are scored against a baseline project's XER
+  when one is given (`--baseline baseline.xer`, or the page's Baseline project
+  input): each activity's baseline finish (its actual finish there, else its
+  early finish, else its planned finish; `baselineFinishes`, the same rule
+  GAO practice 10 uses), matched by activity ID, with activities added since
+  the baseline left out (`dcma-baseline.test.mjs`). Without one they fall back
+  on P6's planned dates (a single XER rarely carries the baseline project;
+  the page and the CLI say which was used). P6 resets
   a not-started activity's planned dates to its early dates whenever it
   schedules (on the CCA sample all 11,775 not-started activities have planned
   finish equal to early finish), so overdue work that has not started is never
