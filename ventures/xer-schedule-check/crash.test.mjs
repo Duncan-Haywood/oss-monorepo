@@ -120,3 +120,48 @@ test("acceleration data: thousands commas and decimal commas read by shape; BOM 
   assert.deepEqual(m.get("A"), { roomDays: 2.5, costPerDay: 1800 });
   assert.deepEqual(m.get("B"), { roomDays: 1, costPerDay: 12500.5 });
 });
+
+test("a value of a finish day that is zero, negative or not a number is ignored; per-activity days use the activity's calendar", () => {
+  const x = project([task("A", 80), task("B", 80), task("E", 0)], [link("B", "A"), link("E", "B")]);
+  const data = parseCrashData("code,room,cost\nA,4,500\nB,4,2000\n");
+  const plain = crashAnalysis(x, { data });
+  for (const bad of [-5, "abc", 0]) {
+    const r = crashAnalysis(x, { data, costPerDay: bad });
+    assert.equal(r.costPerDay, null, `costPerDay ${bad}`);
+    assert.equal(r.steps.length, plain.steps.length, `costPerDay ${bad}`);
+    assert.equal(r.gainedDays, plain.gainedDays, `costPerDay ${bad}`);
+  }
+  const a = plain.activities.find((q) => q.code === "A");
+  assert.equal(a.remainingDays, 10);
+  assert.equal(a.shortenDays, 4);
+  assert.equal(a.roomLeftHours, 0);
+  // the page shows the first `limit` steps and says how many more the CSV holds
+  assert.ok(plain.steps.length >= 3, `steps: ${plain.steps.length}`);
+  const html = crashTableHtml(plain, { limit: 1 });
+  assert.match(html, new RegExp(`<p class="note">${plain.steps.length - 1} more steps in the CSV\\.</p>`));
+  assert.doesNotMatch(crashTableHtml(plain, { limit: plain.steps.length }), /more steps/);
+});
+
+test("a gain that only comes at the full room is still found (successor works Mondays only)", () => {
+  // A (5 d, Mon-Fri) -> B on a Mondays-only calendar. Any shortening short of
+  // all 40 h still lands B on the next Monday; all 40 h lands it a week earlier.
+  const MON = "(0||CalendarData()((0||DaysOfWeek()((0||1()())(0||2()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||3()())(0||4()())(0||5()())(0||6()())(0||7()())))(0||Exceptions()())))";
+  const x = parseXer(xerText({
+    PROJECT: [{ proj_id: "1", proj_short_name: "TEST", clndr_id: "C1", last_recalc_date: "2025-12-01 08:00", plan_start_date: "2025-12-01 08:00" }],
+    CALENDAR: [{ clndr_id: "C1", default_flag: "Y", clndr_name: "Standard", day_hr_cnt: 8, clndr_data: WEEK }, { clndr_id: "C2", default_flag: "N", clndr_name: "Mondays", day_hr_cnt: 8, clndr_data: MON }],
+    SCHEDOPTIONS: [{ schedoptions_id: "1", proj_id: "1", sched_float_type: "FT_FF", sched_calendar_on_relationship_lag: "rcal_Predecessor", sched_retained_logic: "Y", sched_progress_override: "N" }],
+    TASK: [task("A", 40), { ...task("B", 8), clndr_id: "C2" }], TASKPRED: [link("B", "A")],
+  }));
+  const r = crashAnalysis(x, { data: parseCrashData("code,room,cost\nA,5,100\n") });
+  assert.equal(r.finishBefore, "2025-12-08 17:00");
+  assert.equal(r.finishAfter, "2025-12-01 17:00");
+  assert.deepEqual(r.steps.map((s) => [s.shortenHours, s.calendarDays]), [[40, 7]]);
+});
+
+test("acceleration data: a 'crash cost' header is the cost column, not the room", () => {
+  // "crash cost" is the textbook name for the cost of shortening; the room
+  // column was read from it, giving 1,500 days of room
+  for (const t of ["Activity ID,Crash cost per day,Max days\nA,1500,2\n", "Task,Crash cost,Crash days\nA,1500,2\n", "Activity,Cost to shorten per day,Days\nA,1500,2\n", "Activity ID,Max days,Crash cost per day\nA,2,1500\n"]) {
+    assert.deepEqual(parseCrashData(t).get("A"), { roomDays: 2, costPerDay: 1500 }, t.split("\n")[0]);
+  }
+});

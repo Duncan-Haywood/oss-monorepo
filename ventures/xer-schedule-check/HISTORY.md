@@ -4,6 +4,8 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 
 ## Moved from flagships.yaml `next:`
 
+- (2026-11-25, red team 2) crash rates CSV: a "Crash cost per day" or "Cost to shorten per day" header was read as the room column too (room = 1,500 days for a $1,500/day row), so the joint acceleration could shorten an activity far past what the contractor offered. The cost column is now picked first and the room among the others. Mutation guards added for crash.mjs, collapse.mjs and drag.mjs: 12 of 23 non-equivalent mutants escaped, all caught after.
+
 - (2026-11-25, red team) DCMA 10 (and GAO best practice 3, which reuses it) counts an expense (PROJCOST) as loading an activity: it read only TASKRSRC, so an activity carrying a subcontract or material expense was listed as "no resource or cost assignment" while the earned value report on the same file counted its cost. A test now holds both reports to the same list. Mutation guards added for dcma.mjs and evm.mjs (8 escaped mutants, all caught after).
 
 - (2026-11-19, red team) levelling lower bound now integrates time-varying RSRCRATE limits (was the last row's limit: a bound a week after the levelled finish); over-limit hours in working hours, not elapsed; within-float leftovers out of the self-check; calendar times past 24:00 refused. Seeded property test in level.test.mjs. eval/level-check-2026-11-19.md not re-run (files not committed): hotel's bound 2019-02 to re-check.
