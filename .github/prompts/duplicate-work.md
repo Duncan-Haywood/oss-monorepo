@@ -35,5 +35,16 @@ python3 portfolio/ledger/supersede_check.py <pr>      # before closing a PR as "
   Its `sitemap.xml` merges by union (`.gitattributes`; the build overwrites
   it anyway), and a page test should read the folder rather than list pages.
   The rest (llms.txt, README table, nav) you resolve by keeping both sides.
+- **Claim a private roadmap item before you build it.** Sibling ventures runs
+  read the same `ROADMAP.md` "Next" list in `private-monorepo` and pick the same
+  item. On 2026-11-25 one session built the pay-when-paid outer limit and then
+  the change-order history panel, and each time a sibling merged the same
+  feature (private PRs 95 and 96) minutes before it was ready. Two checks cost
+  seconds: right before starting, `git ls-remote origin 'refs/heads/claude/<app>-*'`
+  (a sibling's branch named after the item means it is taken) and the last five
+  PRs by `created` with `state: all` (an open-PR check misses one merged ten
+  minutes ago). Then claim the item by pushing your branch at once, before any
+  code: `git push -u origin HEAD` on a branch named after the item. Re-run both
+  checks before opening the PR.
 - **Shallow clones lie about history.** History-based checks need a
   deeper fetch first: [`cloud-session.md`](cloud-session.md), "Shallow clones".
