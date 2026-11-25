@@ -462,3 +462,41 @@ decisions:
     and again 2026-11-19. Agents cannot fix it themselves: the code is
     CODEOWNERS-gated, and closing another session's review PRs discards
     proposals waiting for the owner, so that call is the owner's.
+
+- id: aws-turnover
+  asks: []
+  prs: [18755]
+  gates: deployment
+  exposure: legal-person
+  opened: "2026-11-24"
+  action: >-
+    The AWS move (owner decision 2026-11-24) needs ten steps only you can
+    take. They are written once, in order, in platform/aws/OWNER_RUNBOOK.md:
+    (1) open the AWS management account with your card, (2) root MFA,
+    (3) billing access and AWS's native spend limit if offered, (4)
+    Organizations and IAM Identity Center with an MFA admin user for you,
+    (5) one local bootstrap apply from your laptop, (6) the GitHub
+    `aws-prod` environment and the AWS_ALERT_EMAILS secret, (7) a
+    Cloudflare token with Zone Read for the Route 53 export, (8) the SES
+    production access request, (9) the nameserver change, and (10)
+    Cloudflare retirement. Steps 1-6 take about 1.5 hours and reach the
+    turnover point. After that, CI applies every stack and agents do the
+    rest. Steps 7-8 can be done any time after 6. Steps 9-10 wait until
+    the agents' PR says the AWS copy of the site matches Cloudflare. This
+    one row covers every AWS step; do not add others.
+  unlocks:
+    - >-
+      CI applies every platform/aws stack (organization and security
+      baseline, spend guards, site, DNS, API, email) with no further agent
+      work, so the consolidation onto one host can finish.
+    - >-
+      Spend guarded by code: per-account budgets alert at 50/80/100 %, deny
+      new spend at the hard line, and a kill switch stops what is running.
+  blocked_by: []
+  note: >-
+    Added 2026-11-24 by the aws-spend-guards run (PR 18755), the only
+    decision-queue row for the AWS move. It costs money: the account's
+    usage is billed to your card, and step 9 may need a paid domain
+    transfer if Cloudflare is the registrar. Nothing is applied until step 5.
+    The cloudflare-mail-and-ruleset row's Email Routing part becomes moot
+    once step 8 and the SES move land; its ruleset part does not.

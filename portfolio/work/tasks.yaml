@@ -401,8 +401,17 @@ tasks:
       offending resources, with unit tests; a README says what stops, what
       keeps running and how to resume.
     hours: 8
-    status: open
+    status: done
     added: 2026-11-24
+    pr: 18755
+    notes: >-
+      platform/aws/spend-guards (management account) and spend-guards/member
+      (one role per member account), modules/budget, and
+      platform/aws/OWNER_RUNBOOK.md (the owner's ten steps, one decision-queue
+      row `aws-turnover`). Written and tested against mocks, not applied. AWS's
+      native per-project spend limit has no API yet, so it is owner step 3.
+      Follow-ups in the stack README, "Not done yet" (Lambda code signing, a
+      weekly re-stop for RDS's 7-day restart).
 
   - id: aws-route53-zone
     direction: aws-consolidation
