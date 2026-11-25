@@ -71,3 +71,15 @@ Checked by reading `main` at `578f7f19a`; the flagged files are unchanged since 
   - `js/disabling-certificate-validation` #1086 (`status-keeper/certs.mjs:12`): an expiry checker has to read the certificate of a server whose certificate is expired or untrusted. It records `socket.authorized` and `authorizationError` and reports an untrusted certificate as not ok (strict mode, the default). No data is sent over the connection.
   - `js/incomplete-sanitization` #741 (`shopify-to-woocommerce-converter/converter.mjs:69`): `esc` writes WooCommerce's `\,` list-separator escape. WooCommerce's importer has no backslash escape, so escaping backslashes would corrupt values instead of protecting them.
   - `js/incomplete-sanitization` #849 (`platform/agents/tools.mjs:170`): `name` is a JavaScript export identifier, and `$` is the only regex metacharacter an identifier can hold. That character is escaped.
+
+## Fourth pass, same day (queue scanned at `5f857bb81c00`)
+
+Checked by reading `main` at `271d5c6ed`. These were the only alerts in the queue with no `security-fix/code-scanning-<n>` claim branch. None needs a code change.
+
+- **False positives (dismiss as "false positive"):**
+  - `js/incomplete-url-substring-sanitization` #1049 (`platform/pages/check.mjs`, now line 1470) and #1050 (`platform/pages/custom-domain.test.mjs:151`): `text.includes(PLACEHOLDER_ORIGIN)` asks whether a built page *still contains* the placeholder origin `https://example.invalid` anywhere, so that the build check can fail it. Matching anywhere is the point. Nothing is allowed through on the result, and no URL is being sanitised.
+- **Used in tests (dismiss as "used in tests"):**
+  - `js/redos` #1181 to #1203 (`ventures/regex-redos-check/engine.test.mjs`, `cli.test.mjs`): the tool detects catastrophic regexes, and these are the deliberately catastrophic patterns (`(a+)+$`, `(a|aa)+$` and so on) that its tests feed it. They are passed as strings to the analyser, and the probe runs them under a time limit.
+  - `js/redos` #1208 (`ventures/devsec-toolkit/tests/fixtures/vulnerable-repo/src/validate.js:1`): a fixture repository that exists to be vulnerable, so that the toolkit's scanner can be tested against it.
+
+With these, every alert in the queue is either claimed or recorded here as false, by design or already fixed. The next run that finds no unclaimed alert should go to step 1 of `prompt.md`.
