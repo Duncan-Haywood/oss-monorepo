@@ -15,14 +15,19 @@ import security_alerts  # noqa: E402
 from security_alerts import render, summarise, write_tree  # noqa: E402
 
 
-def alert(number, level=None, severity="warning", state="open", path="a.py"):
+SHA_A = "a" * 40
+SHA_B = "b" * 40
+
+
+def alert(number, level=None, severity="warning", state="open", path="a.py", commit=None):
     return {
         "number": number,
         "state": state,
         "rule": {"id": f"py/rule-{number}", "security_severity_level": level, "severity": severity},
         "tool": {"name": "CodeQL"},
         "most_recent_instance": {"location": {"path": path, "start_line": 7},
-                                 "message": {"text": "  spread\n over lines  "}},
+                                 "message": {"text": "  spread\n over lines  "},
+                                 **({"commit_sha": commit} if commit is not None else {})},
         "created_at": "2026-10-01T00:00:00Z",
         "html_url": f"https://example.test/{number}",
     }
@@ -58,6 +63,36 @@ class RenderTest(unittest.TestCase):
         text = render([alert(4, "high")])["alerts/4.md"]
         self.assertIn("security-fix/code-scanning-4", text)
         self.assertIn("`a.py:7`", text)
+
+    def test_alert_file_says_how_to_check_the_finding_is_still_on_main(self):
+        text = render([alert(4, "high", commit=SHA_A)])["alerts/4.md"]
+        self.assertIn(f"Last seen on commit: `{SHA_A}`", text)
+        self.assertIn(f"git fetch -q --depth=1 origin {SHA_A} main && git diff --stat {SHA_A[:12]} origin/main -- 'a.py'", text)
+        self.assertLess(text.index("0. Check it is still there"), text.index("1. Claim it"))
+
+    def test_no_commit_means_no_stale_check_and_no_header(self):
+        files = render([alert(4, "high")])
+        self.assertNotIn("Check it is still there", files["alerts/4.md"])
+        self.assertIn("Last seen on commit: `unknown`", files["alerts/4.md"])
+        self.assertNotIn("Scanned commit", files["QUEUE.md"])
+
+    def test_queue_names_the_commit_most_alerts_were_seen_on(self):
+        files = render([alert(1, "high", commit=SHA_B), alert(2, "high", commit=SHA_A),
+                        alert(3, "high", commit=SHA_A)])
+        self.assertIn(f"Scanned commit: `{SHA_A[:12]}`", files["QUEUE.md"])
+
+    def test_commit_and_path_cannot_inject_into_the_pasted_command(self):
+        # A sha that is not 40 hex characters is dropped, and a path that could leave the
+        # single quotes is left out of the command the session pastes into a shell.
+        bad_sha = render([alert(4, "high", commit="$(touch pwned)" + "a" * 26)])["alerts/4.md"]
+        self.assertNotIn("pwned", bad_sha)
+        self.assertNotIn("git fetch", bad_sha)
+        bad_path = render([alert(5, "high", commit=SHA_A, path="x';touch pwned;'.js")])["alerts/5.md"]
+        command = [ln for ln in bad_path.splitlines() if "git fetch" in ln][0]
+        self.assertNotIn("pwned", command)
+        self.assertTrue(command.rstrip().endswith("origin/main`"))
+        route = render([alert(6, "high", commit=SHA_A, path="app/api/[slug]/route.ts")])["alerts/6.md"]
+        self.assertIn("-- 'app/api/[slug]/route.ts'", route)
 
     def test_summary_flattens_and_normalises(self):
         s = summarise(alert(4, "HIGH"))
