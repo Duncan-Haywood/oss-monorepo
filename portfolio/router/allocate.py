@@ -39,6 +39,7 @@ import argparse
 import hashlib
 import json
 import os
+import pickle
 import re
 import subprocess
 import sys
@@ -202,6 +203,12 @@ class Venture:
         return self.later_stage and self.mrr == 0
 
 
+def _name(path: Path) -> str:
+    """Sort key for the entries of one directory: the same order as sorting the Paths, without
+    Path.__lt__ (835k calls, about 1 s of test_allocate, sorting 10k run records; 2026-11-25)."""
+    return path.name
+
+
 def count_ledger_entries(ledger_dir: Path = LEDGER_DIR) -> dict[str, int]:
     """Count ledger entries per venture name across portfolio/ledger/*.yaml.
 
@@ -216,7 +223,7 @@ def count_ledger_entries(ledger_dir: Path = LEDGER_DIR) -> dict[str, int]:
     counts: dict[str, int] = {}
     if not ledger_dir.is_dir():
         return counts
-    for ledger_path in sorted(ledger_dir.glob("*.yaml")):
+    for ledger_path in sorted(ledger_dir.glob("*.yaml"), key=_name):
         data = _load_yaml(ledger_path)
         for entry in data.get("entries") or []:
             name = entry.get("venture")
@@ -240,7 +247,19 @@ def _load_yaml(path: Path) -> dict:
                   "`pip install pyyaml`.)", file=sys.stderr)
         loader = yaml.SafeLoader
     text = _FLAGSHIPS_TEXT if _FLAGSHIPS_TEXT is not None and path == FLAGSHIPS_PATH else path.read_text()
-    return yaml.load(text, Loader=loader) or {}
+    blob = _PARSED.get(text)
+    if blob is None:
+        blob = _PARSED[text] = pickle.dumps(yaml.load(text, Loader=loader) or {}, pickle.HIGHEST_PROTOCOL)
+    return pickle.loads(blob)
+
+
+# Parsed YAML by file text, pickled. One table run parses every VENTURE.yaml, ledger and the
+# merit and flagship files once per loader, and the tests run the table several times: 5,933
+# parses in test_allocate, 7.5 s of its 8.3 s with libyaml and ~50 s without (perf track,
+# 2026-11-25). Keyed by the text, so an edited file parses afresh; unpickled per call, so every
+# caller still gets its own objects to mutate, as from a fresh parse (deepcopy cost as much as
+# the C parser).
+_PARSED: dict[str, bytes] = {}
 
 
 # portfolio/flagships.yaml as origin/main has it, when that is newer than this checkout's copy
@@ -282,7 +301,7 @@ def count_portfolio_mentions(
     }
     if not ledger_dir.is_dir():
         return counts
-    for ledger_path in sorted(ledger_dir.glob("*.yaml")):
+    for ledger_path in sorted(ledger_dir.glob("*.yaml"), key=_name):
         data = _load_yaml(ledger_path)
         for entry in data.get("entries") or []:
             if entry.get("venture") != "portfolio":
@@ -595,7 +614,7 @@ def load_ventures(
     hosts = load_flagship_hosts(flagships_path)
     not_before = load_not_before(flagships_path, today)
     apps = load_flagship_field("app", flagships_path)
-    venture_dirs = sorted(p for p in ventures_dir.iterdir() if p.is_dir())
+    venture_dirs = sorted((p for p in ventures_dir.iterdir() if p.is_dir()), key=_name)
     names = []
     parsed = []
     for venture_dir in venture_dirs:
@@ -1679,7 +1698,7 @@ def left_rows(names, runs_dir: Path = RUNS_DIR, now: Optional[datetime] = None,
     cutoff = (now - timedelta(days=days - 1)).date().isoformat()  # today and yesterday
     names = list(names)
     out: dict[str, list[tuple[str, str, str]]] = {}
-    for path in sorted(runs_dir.glob("*.json")):
+    for path in sorted(runs_dir.glob("*.json"), key=_name):
         date = path.name[:10]
         if date < cutoff:
             continue
@@ -1719,7 +1738,7 @@ def worked_rows(names, runs_dir: Path = RUNS_DIR, now: Optional[datetime] = None
     cutoff = (now - timedelta(days=days - 1)).date().isoformat()
     names = list(names)
     out: dict[str, int] = {}
-    for path in sorted(runs_dir.glob("*.json")):
+    for path in sorted(runs_dir.glob("*.json"), key=_name):
         if path.name[:10] < cutoff:
             continue
         try:
