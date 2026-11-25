@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKmZBRzd9WxCeDqgQTa",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T22:18:33Z",
+  "ended": "2026-11-25T22:29:48Z",
+  "wall_minutes": 11.43,
+  "tokens_in": 8338655,
+  "tokens_out": 41667,
+  "cost_usd": 3.4164,
+  "tool_calls": 79,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19116",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Ran `git stash` by mistake in private-monorepo mid-work; restored at once with `git stash pop`, nothing lost.",
+    "First ASCII85 test vector was from memory and wrong; replaced with a Python base64.a85encode vector."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "add_repo's result says to call register_repo_root, but no such tool exists in this session (ToolSearch finds nothing); read CLAUDE.md directly instead."
+    },
+    {
+      "file": "private-monorepo payapps-ci.yml",
+      "issue": "PR CI job again got no runner (3 s, 404 logs); every step was run locally. Known from earlier agent docs, still unfixed."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-25-the-text-a-spreadsheet-pdf-hides.md (update section)",
+    "docs/reports/ventures-2026-11-25-payapps-pdf-filters.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; ideas inbox empty. Routed ventures/1, bet #1 PayApps. Private PR Duncan-Haywood/private-monorepo#183 merged: PDF reader decodes LZW/ASCII85/ASCIIHex/RunLength + TIFF predictor. Local: biome ci ok, typecheck ok, unit 520 pass, worker 280 pass, build ok, provision test 4 pass. Five independent-encoder fixtures: poppler reads all; old reader no text from 4 and refused 1; new reader all 5, no recovery, packet pixel diff only in stamp rows.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2b7a190f-95e5-54b0-92e8-756ca98b4ec7",
+    "transcripts": 1,
+    "first": "2026-11-25T22:18:33Z",
+    "last": "2026-11-25T22:29:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 75,
+        "input": 143,
+        "output": 41667,
+        "thinking": 6414,
+        "cache_read": 8221235,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117277,
+        "api_equivalent_usd": 3.4164,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 75,
+      "input": 143,
+      "output": 41667,
+      "thinking": 6414,
+      "cache_read": 8221235,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117277,
+      "api_equivalent_usd": 3.4164,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 79,
+    "tools": {
+      "Bash": 68,
+      "ToolSearch": 3,
+      "mcp__github__list_pull_requests": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.43,
+      "active_minutes": 11.43,
+      "model_minutes": 8.45,
+      "tool_minutes": 2.99,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior engineer implementing and testing four PDF filters from the spec plus fixtures",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 292.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
