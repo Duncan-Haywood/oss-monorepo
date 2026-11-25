@@ -3,7 +3,7 @@ title: "Reading Mercari and Depop sales reports for your books: what counts as s
 seo_title: "Mercari and Depop sales reports: what counts as your sales"
 date: 2026-11-24
 tags: [resellers, mercari, depop, bookkeeping, schedule-c, reseller-books, for-customers]
-description: "Mercari's report has 20 fields, and six of them are money the buyer paid that never reaches you. Depop's has 34 and no payout column. How Reseller Books reads both beside eBay, Poshmark and Etsy."
+description: "Mercari's report has six fields of money the buyer paid; Depop's has 34 columns and no payout. How Reseller Books reads both for your books."
 ---
 
 [Reseller Books](../../ventures/reseller-books/) puts a reseller's

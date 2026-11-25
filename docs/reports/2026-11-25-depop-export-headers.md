@@ -1,3 +1,8 @@
+---
+kind: note
+date: 2026-11-25
+subjects: [reseller-books]
+---
 # Depop sales export headers (2026-11-25)
 
 For any run that builds or checks a Depop importer, in this repository or the paid
