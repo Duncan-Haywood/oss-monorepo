@@ -165,7 +165,7 @@ export function plan(want, remote, { force = false, allowMassDelete = false } = 
   const problems = [];
   if (remote.size > 0 && deletes.length > remote.size * MAX_DELETE_FRACTION && !allowMassDelete) {
     problems.push(
-      `would delete ${deletes.length} of ${remote.size} objects (over ${MAX_DELETE_FRACTION * 100}%); ` +
+      `would delete ${deletes.length} of ${remote.size} objects (over ${Math.round(MAX_DELETE_FRACTION * 100)}%); ` +
         'check the build, or pass --allow-mass-delete',
     );
   }
