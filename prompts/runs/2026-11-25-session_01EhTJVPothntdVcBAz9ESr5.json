@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "scratch Playwright script failed to import 'playwright' by bare name from the scratchpad (ESM resolution); fixed by importing the require.resolve path"
+    "scratch Playwright script failed to import 'playwright' by bare name from the scratchpad (ESM resolution); fixed by importing the require.resolve path",
+    "Pages 'test' job failed 2 front-doors tests (machine-shop-guides newly a paid product, stale front-doors.json); not from this diff; main had regenerated it in #18982, fixed by merging main"
   ],
   "integrity_issues": [],
   "doc_friction": [
