@@ -229,7 +229,37 @@ The app never fills in a speed itself. Published cut charts vary by machine powe
 nozzle, so the speed has to come from the shop. A speed on a retired machine is ignored, a mill
 cannot be given one, and only owners and admins can change them. The rows live in a new
 `cut_speeds` table (migration 0018). The tests include a check that one shop cannot read, set or
-delete another shop's speeds. Import and export of these speeds from a spreadsheet are next.
+delete another shop's speeds.
+
+### Paste the cut chart instead of typing it
+
+Typing a shop's speeds in one pair at a time is enough of a chore to leave the table empty.
+Private-monorepo PR #181 lets the rate-card import read them from a cut chart instead. You pick
+"Cut speeds by material (cut chart)" and choose a CSV or an .xlsx worksheet, or paste rows
+straight from Excel or Google Sheets. The sheet needs a machine column, a material column and a
+speed column. A pierce-time column is optional.
+
+- **Rows match by name.** Each row names a cutting machine and a material that are already on the
+  rate card. A pair that already has a speed is updated and a new pair is added. The import never
+  creates a machine or a material.
+- **Metric charts work, but only through exact conversions.** A speed in mm/min or m/min is
+  divided by 25.4 mm to the inch, ft/min is multiplied by 12, and a pierce time in milliseconds is
+  divided by 1000. The preview shows every conversion: "Cut speed 2794 read as 110 in/min".
+- **Some columns are left out, with the reason shown.** These are a thickness column (the material
+  row already holds the thickness), a pierce count (that comes from the DXF) and a speed per
+  second.
+- **One bad row means nothing is saved.** These all count as bad rows: an unknown machine or
+  material, a mill, a retired machine, a pair listed twice, a zero, or a new pair with no speed.
+  The server checks the rows again against the shop's own card.
+- **Export works the other way.** "Download the N speeds on the card now" writes a sheet sorted by
+  machine and thickness. Import that sheet again without edits and nothing changes. Names that
+  start like a spreadsheet formula get a leading apostrophe, so the spreadsheet shows them as text
+  and doesn't run them.
+
+The job-shop suite passes: 293 unit tests and 169 Worker tests, 15 of them new. The new tests
+check that the import is all or nothing, that an estimator is refused, and that one shop's names
+never match another shop's rows. The flow was also run in the offline demo: paste a chart in
+mm/min, check the preview, save it, and download it again.
 
 ## Big STEP files no longer slow the upload
 
