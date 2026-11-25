@@ -53,6 +53,8 @@ module "auth" {
   native_logout_urls   = var.auth.native_logout_urls
   ses_identity_arn     = var.auth.ses_identity_arn
   from_email           = var.auth.from_email
+  self_sign_up         = var.auth.self_sign_up
+  mfa                  = var.auth.mfa
   deletion_protection  = var.deletion_protection
 }
 
