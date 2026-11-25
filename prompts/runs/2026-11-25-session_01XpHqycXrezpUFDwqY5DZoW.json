@@ -1,0 +1,390 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqycXrezpUFDwqY5DZoW",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T06:39:36Z",
+  "ended": "2026-11-25T06:40:13Z",
+  "wall_minutes": 6.79,
+  "tokens_in": 5239729,
+  "tokens_out": 24936,
+  "cost_usd": 2.3622,
+  "tool_calls": 56,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18880",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam.py",
+      "issue": "`targets` with no flags printed only 21 random files, so finding a for-profit product's modules needed a separate grep over prompts/runs for past targets; a `--slug` filter would help"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0's 3 open defects are all control-plane workflow changes (own PR, owner approval) or a measured change that wasn't shipped; none could be fixed safely here",
+      "did": "left them open and unchanged",
+      "result": "time went to the new target instead"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "no new blog post: a red-team fix to one check doesn't make a reader-facing post",
+      "did": "extended the product's DCMA how-to page (the customer-facing guide) and HISTORY.md",
+      "result": "the guide now says expenses count as loading"
+    }
+  ],
+  "writeups": [
+    "ventures/xer-schedule-check/how-to-run-a-dcma-14-point-schedule-assessment.html (check 10 row)",
+    "ventures/xer-schedule-check/HISTORY.md"
+  ],
+  "goal": null,
+  "notes": "Targets dcma.mjs and evm.mjs (8 mutants each, ~40 s per campaign). Catch rate 0.429 -> 1.0 after the fix. Guard added (4b): an evm.test.mjs cross-module test that holds DCMA 10 and EV 'unloaded' to the same activities, so the next module that reads loading differently fails CI. Adversarial inputs (negative durations, NaN/huge lags, cycles, missing calendars, 200% progress, bad dates) all handled; a 1e9 h lag throws a clear 'ran past 1,000 years' error. Verification: run_venture_tests.py xer-schedule-check ok (577 tests) plus page checks.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/xer-schedule-check/dcma.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 353617241,
+        "commit": "d3ad66cda",
+        "sites": 492,
+        "baseline_seconds": 4.4,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/dcma.mjs",
+            "line": 57,
+            "col": 13,
+            "operator": "and-to-or",
+            "before": "if (projId && model.projects.has(projId)) return model.projects.get(projId);",
+            "after": "if (projId || model.projects.has(projId)) return model.projects.get(projId);",
+            "line_text": "  if (projId && model.projects.has(projId)) return model.projects.get(projId);",
+            "caught": false,
+            "seconds": 4.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "engine.test.mjs: an unknown projId falls back to the busiest project instead of throwing 'no PROJECT table'"
+          },
+          {
+            "file": "ventures/xer-schedule-check/dcma.mjs",
+            "line": 234,
+            "col": 60,
+            "operator": "and-to-or",
+            "before": "const counted = all.filter((t) => !t.span && !isMile(t) && (!useBl || bl.finish.has(t.code)));",
+            "after": "const counted = all.filter((t) => !t.span && !isMile(t) || (!useBl || bl.finish.has(t.code)));",
+            "line_text": "    const counted = all.filter((t) => !t.span && !isMile(t) && (!useBl || bl.finish.has(t.code)));",
+            "caught": true,
+            "seconds": 4.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/dcma.mjs",
+            "line": 282,
+            "col": 26,
+            "operator": "and-to-or",
+            "before": "if (p.finish !== null && dd !== null) {",
+            "after": "if (p.finish !== null || dd !== null) {",
+            "line_text": "    if (p.finish !== null && dd !== null) {",
+            "caught": false,
+            "seconds": 4.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "engine.test.mjs: a project with no activities (finish null) gets CPLI null; the data date is never null (cpm.mjs anchors it), so only the finish side is reachable"
+          },
+          {
+            "file": "ventures/xer-schedule-check/dcma.mjs",
+            "line": 376,
+            "col": 171,
+            "operator": "lt-to-le",
+            "before": "const ok = sameDate(t, parseDate(t.row.early_end_date), r.ef) && sameDate(t, parseDate(t.row.late_end_date), r.lf) && stored(t) !== null && Math.abs(stored(t) - r.tf) < 0.01;",
+            "after": "const ok = sameDate(t, parseDate(t.row.early_end_date), r.ef) && sameDate(t, parseDate(t.row.late_end_date), r.lf) && stored(t) !== null && Math.abs(stored(t) - r.tf) <= 0.01;",
+            "line_text": "    const ok = sameDate(t, parseDate(t.row.early_end_date), r.ef) && sameDate(t, parseDate(t.row.late_end_date), r.lf) && stored(t) !== null && Math.abs(stored(t) - r.tf) < 0.01;",
+            "caught": false,
+            "seconds": 4.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "tolerance boundary: float differences are whole minutes (multiples of 1/60 h = 0.0167 h) or zero, so a difference of exactly 0.01 h, the only input where < and <= differ, cannot come from P6's stored float in hours against a minute-grained recompute"
+          },
+          {
+            "file": "ventures/xer-schedule-check/dcma.mjs",
+            "line": 395,
+            "col": 26,
+            "operator": "eq-flip",
+            "before": "if (s === null || f === null || d === null || f < s) continue;",
+            "after": "if (s === null || f !== null || d === null || f < s) continue;",
+            "line_text": "      if (s === null || f === null || d === null || f < s) continue;",
+            "caught": true,
+            "seconds": 4.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/dcma.mjs",
+            "line": 454,
+            "col": 118,
+            "operator": "eq-flip",
+            "before": "const near = (t, a, b) => a === b || (a !== null && b !== null && t.cal.workBetween(Math.min(a, b), Math.max(a, b)) === 0);",
+            "after": "const near = (t, a, b) => a === b || (a !== null && b !== null && t.cal.workBetween(Math.min(a, b), Math.max(a, b)) !== 0);",
+            "line_text": "  const near = (t, a, b) => a === b || (a !== null && b !== null && t.cal.workBetween(Math.min(a, b), Math.max(a, b)) === 0);",
+            "caught": false,
+            "seconds": 4.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "edited-lags.test.mjs: a typed early finish a week off is not counted as 'near' (a gap with no working time)"
+          },
+          {
+            "file": "ventures/xer-schedule-check/dcma.mjs",
+            "line": 465,
+            "col": 136,
+            "operator": "and-to-or",
+            "before": "if (sameDate(t, parseDate(t.row.early_end_date), r.ef) && sameDate(t, parseDate(t.row.late_end_date), r.lf) && stored(t) !== null && Math.abs(stored(t) - r.tf) < 0.01) {",
+            "after": "if (sameDate(t, parseDate(t.row.early_end_date), r.ef) && sameDate(t, parseDate(t.row.late_end_date), r.lf) && stored(t) !== null || Math.abs(stored(t) - r.tf) < 0.01) {",
+            "line_text": "      if (sameDate(t, parseDate(t.row.early_end_date), r.ef) && sameDate(t, parseDate(t.row.late_end_date), r.lf) && stored(t) !== null && Math.abs(stored(t) - r.tf) < 0.01) {",
+            "caught": false,
+            "seconds": 4.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "edited-lags.test.mjs: a typed early finish with unchanged float is not counted as explained by the lags"
+          },
+          {
+            "file": "ventures/xer-schedule-check/dcma.mjs",
+            "line": 571,
+            "col": 43,
+            "operator": "div-to-times",
+            "before": "const round3 = (x) => Math.round(x * 1000) / 1000;",
+            "after": "const round3 = (x) => Math.round(x * 1000) * 1000;",
+            "line_text": "const round3 = (x) => Math.round(x * 1000) / 1000;",
+            "caught": true,
+            "seconds": 4.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/xer-schedule-check/evm.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 433017191,
+        "commit": "d3ad66cda",
+        "sites": 564,
+        "baseline_seconds": 4.0,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/evm.mjs",
+            "line": 77,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "let before = 0;",
+            "after": "let before = 1;",
+            "line_text": "  let before = 0;",
+            "caught": true,
+            "seconds": 3.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/evm.mjs",
+            "line": 166,
+            "col": 161,
+            "operator": "gt-to-ge",
+            "before": "const labour = assigns.filter((a) => rsrcType.get(a.rsrc_id) === \"RT_Labor\" && (num(a.target_qty) ?? 0) + (num(a.act_reg_qty) ?? 0) + (num(a.remain_qty) ?? 0) > 0);",
+            "after": "const labour = assigns.filter((a) => rsrcType.get(a.rsrc_id) === \"RT_Labor\" && (num(a.target_qty) ?? 0) + (num(a.act_reg_qty) ?? 0) + (num(a.remain_qty) ?? 0) >= 0);",
+            "line_text": "  const labour = assigns.filter((a) => rsrcType.get(a.rsrc_id) === \"RT_Labor\" && (num(a.target_qty) ?? 0) + (num(a.act_reg_qty) ?? 0) + (num(a.remain_qty) ?? 0) > 0);",
+            "caught": false,
+            "seconds": 4.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "evm.test.mjs: an RT_Labor assignment with zero quantities does not make the file 'hours loaded'"
+          },
+          {
+            "file": "ventures/xer-schedule-check/evm.mjs",
+            "line": 175,
+            "col": 69,
+            "operator": "or-to-and",
+            "before": "const currency = measure === \"cost\" ? (xer.currency || (T.CURRTYPE || []).length === 1 && T.CURRTYPE[0].curr_short_name || (T.CURRTYPE || []).find((c) => c.base_exch_rate === \"1\")?.curr_short_name || null) : \"h\";",
+            "after": "const currency = measure === \"cost\" ? (xer.currency || (T.CURRTYPE && []).length === 1 && T.CURRTYPE[0].curr_short_name || (T.CURRTYPE || []).find((c) => c.base_exch_rate === \"1\")?.curr_short_name || null) : \"h\";",
+            "line_text": "  const currency = measure === \"cost\" ? (xer.currency || (T.CURRTYPE || []).length === 1 && T.CURRTYPE[0].curr_short_name || (T.CURRTYPE || []).find((c) => c.base_exch_rate === \"1\")?.curr_short_name || null) : \"h\";",
+            "caught": false,
+            "seconds": 4.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "evm.test.mjs: one CURRTYPE row with base_exch_rate '1.0' and no header currency still names the currency"
+          },
+          {
+            "file": "ventures/xer-schedule-check/evm.mjs",
+            "line": 231,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "if (pvCuts) for (let k = 0; k < pvCuts.length; k++) pvAt[k] += it.curve ? curvePartBefore(cal, ps, pf, it.bac, it.curve, pvCuts[k]) : partBefore(cal, ps, pf, it.bac, pvCuts[k]);",
+            "after": "if (pvCuts) for (let k = 1; k < pvCuts.length; k++) pvAt[k] += it.curve ? curvePartBefore(cal, ps, pf, it.bac, it.curve, pvCuts[k]) : partBefore(cal, ps, pf, it.bac, pvCuts[k]);",
+            "line_text": "    if (pvCuts) for (let k = 0; k < pvCuts.length; k++) pvAt[k] += it.curve ? curvePartBefore(cal, ps, pf, it.bac, it.curve, pvCuts[k]) : partBefore(cal, ps, pf, it.bac, pvCuts[k]);",
+            "caught": true,
+            "seconds": 4.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/evm.mjs",
+            "line": 291,
+            "col": 41,
+            "operator": "ge-to-gt",
+            "before": "const endIdx = PV.findIndex((v) => v >= tot.bac * (1 - 1e-9));",
+            "after": "const endIdx = PV.findIndex((v) => v > tot.bac * (1 - 1e-9));",
+            "line_text": "    const endIdx = PV.findIndex((v) => v >= tot.bac * (1 - 1e-9));",
+            "caught": false,
+            "seconds": 4.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "PV is a cumulative sum ending at bac; bac*(1-1e-9) < bac for bac > 0 (guarded by tot.bac > 0), so v >= and v > that threshold differ only on a value exactly equal to it, which the float sum does not produce"
+          },
+          {
+            "file": "ventures/xer-schedule-check/evm.mjs",
+            "line": 316,
+            "col": 104,
+            "operator": "or-to-and",
+            "before": "curve.push({ date: new Date((d0 - 1) * 86400000).toISOString().slice(0, 10), pv: 0, ac: dd === null || d0 * DAY <= dd ? 0 : null, forecast: null });",
+            "after": "curve.push({ date: new Date((d0 - 1) * 86400000).toISOString().slice(0, 10), pv: 0, ac: dd === null && d0 * DAY <= dd ? 0 : null, forecast: null });",
+            "line_text": "    curve.push({ date: new Date((d0 - 1) * 86400000).toISOString().slice(0, 10), pv: 0, ac: dd === null || d0 * DAY <= dd ? 0 : null, forecast: null });",
+            "caught": false,
+            "seconds": 4.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "evm.test.mjs: the S-curve's first point carries ac 0 when the data date is after the first planned day"
+          },
+          {
+            "file": "ventures/xer-schedule-check/evm.mjs",
+            "line": 318,
+            "col": 44,
+            "operator": "times-to-div",
+            "before": "const day = d0 + i, dt = new Date(day * 86400000), next = new Date((day + 1) * 86400000);",
+            "after": "const day = d0 + i, dt = new Date(day / 86400000), next = new Date((day + 1) * 86400000);",
+            "line_text": "      const day = d0 + i, dt = new Date(day * 86400000), next = new Date((day + 1) * 86400000);",
+            "caught": true,
+            "seconds": 4.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/evm.mjs",
+            "line": 356,
+            "col": 316,
+            "operator": "const-plus-one",
+            "before": "add(\"eac-under-actual\", \"Estimate at completion below what is still to do\", \"Unstarted or running activities whose remaining is less than the budget not yet earned (by more than 25%): the forecast assumes the rest will cost much less than planned.\", acts.filter((a) => a.status !== \"TK_Complete\" && a.bac - a.ev > 0 && a.etc < 0.75 * (a.bac - a.ev) && big(a.bac - a.ev - a.etc)).map(pick));",
+            "after": "add(\"eac-under-actual\", \"Estimate at completion below what is still to do\", \"Unstarted or running activities whose remaining is less than the budget not yet earned (by more than 25%): the forecast assumes the rest will cost much less than planned.\", acts.filter((a) => a.status !== \"TK_Complete\" && a.bac - a.ev > 1 && a.etc < 0.75 * (a.bac - a.ev) && big(a.bac - a.ev - a.etc)).map(pick));",
+            "line_text": "  add(\"eac-under-actual\", \"Estimate at completion below what is still to do\", \"Unstarted or running activities whose remaining is less than the budget not yet earned (by more than 25%): the forecast assumes the rest will cost much less than planned.\", acts.filter((a) => a.status !== \"TK_Complete\" && a.bac - a.ev > 0 && a.etc < 0.75 * (a.bac - a.ev) && big(a.bac - a.ev - a.etc)).map(pick));",
+            "caught": false,
+            "seconds": 4.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "evm.test.mjs: a running hours-measured activity with 0.8 h unearned and no remaining is named under eac-under-actual"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/xer-schedule-check/dcma.mjs",
+        "issue": "DCMA check 10 (Resources) read only TASKRSRC, so an open activity loaded by an expense (PROJCOST: a subcontract or material line, and every Project fixed cost converted by p6xer.mjs) was listed as 'no resource or cost assignment', while earned value (evm.mjs) on the same file counted its cost; GAO best practice 3 inherited it. Repro: the bundled example plus a PROJCOST row on A1040 still listed A1040. Fixed: TASKRSRC and PROJCOST both count; engine.test.mjs pins it and evm.test.mjs holds DCMA 10 and EV's unloaded list equal.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d17af7eb-346b-5b04-850a-01bac7f1556c",
+    "transcripts": 1,
+    "first": "2026-11-25T06:39:36Z",
+    "last": "2026-11-25T06:46:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 106,
+        "output": 24936,
+        "thinking": 7124,
+        "cache_read": 5135118,
+        "cache_write_5m": 0,
+        "cache_write_1h": 104505,
+        "api_equivalent_usd": 2.3622,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 106,
+      "output": 24936,
+      "thinking": 7124,
+      "cache_read": 5135118,
+      "cache_write_5m": 0,
+      "cache_write_1h": 104505,
+      "api_equivalent_usd": 2.3622,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 54,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.79,
+      "active_minutes": 6.79,
+      "model_minutes": 3.86,
+      "tool_minutes": 2.93,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: two mutation campaigns, 9 tests, one cross-module fix",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 169.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

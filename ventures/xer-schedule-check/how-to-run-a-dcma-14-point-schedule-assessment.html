@@ -46,7 +46,7 @@
       <tr><td>7</td><td>Negative float</td><td>0%</td><td>A constraint or must-finish date the logic cannot meet: the schedule says the job is already late.</td></tr>
       <tr><td>8</td><td>High duration</td><td>&le; 5% over 44 days</td><td>Activities too coarse to status or manage month to month.</td></tr>
       <tr><td>9</td><td>Invalid dates</td><td>0</td><td>Actual dates after the data date, or forecast dates before it.</td></tr>
-      <tr><td>10</td><td>Resources</td><td>0% without resources or cost</td><td>The schedule cannot support resource or cost reports (only fails where the contract requires loading).</td></tr>
+      <tr><td>10</td><td>Resources</td><td>0% without resources or cost</td><td>The schedule cannot support resource or cost reports (only fails where the contract requires loading). A resource assignment or an expense (P6 PROJCOST, such as a subcontract or material line) both count as loading, the same as in the earned value report.</td></tr>
       <tr><td>11</td><td>Missed tasks</td><td>&le; 5%</td><td>Work planned to be done by now that finished late or not at all.</td></tr>
       <tr><td>12</td><td>Critical path test</td><td>Finish moves by the added delay</td><td>Something on the path (a constraint, lag or broken link) is absorbing delay, so the reported critical path cannot be trusted.</td></tr>
       <tr><td>13</td><td>Critical path length index (CPLI)</td><td>&ge; 0.95</td><td>The remaining path is longer than the time left to the required finish.</td></tr>

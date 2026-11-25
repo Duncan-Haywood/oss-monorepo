@@ -1,0 +1,25 @@
+{
+  "id": "P075",
+  "title": "risk_review.py stops with 'no merge base' on the default shallow clone, and reviews 0 files before the work is committed",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "CLAUDE.md tells every run to run `python3 platform/security/risk_review.py`. In a cloud session's shallow clone origin/main shares no commit with HEAD, so it exited 2 with a hint and each run then fetched deeper or guessed --base HEAD~<n> by hand. Run before committing, it diffed commits only and reported '0 changed file(s)' without saying why.",
+  "evidence": [
+    "grep -l risk_review prompts/runs/*.json | xargs grep -li 'merge base\\|merge-base\\|shallow' | wc -l: 24 run records on 2026-11-25",
+    "promptctl.py measure, 'Doc friction by file', 2026-11-25: platform/security/risk_review.py is third (10 of the last 60 records' friction entries), after CLAUDE.md and prompt.md, several of whose entries are the same complaint",
+    "prompts/runs/2026-11-25-session_01EhTJVPPRoLDes2JLJ9t*.json: '0 changed file(s) because it diffs committed work only'"
+  ],
+  "change": "find_merge_base(): when --base names a remote branch and the clone is shallow, run `git fetch --deepen=40/200/500 <remote> <branch>` until the histories meet (local mode only; --gate and --no-fetch never fetch). uncommitted_note(): say how many paths are uncommitted and not reviewed. Tests in ShallowCloneTests build a real depth-1 clone.",
+  "touches": [
+    "platform/security/risk_review.py",
+    "platform/security/test_risk_review.py"
+  ],
+  "metric": "run records dated after this PR whose doc_friction names risk_review.py and 'merge base', 'shallow' or '0 changed'",
+  "baseline": "24 records on 2026-11-25 (command above)",
+  "opened": "2026-11-25",
+  "source": "process critique, 2026-11-25 (doc friction by file)",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18884",
+  "result": null
+}

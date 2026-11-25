@@ -142,9 +142,9 @@ export function gao(xer, opts = {}) {
   // 3 Assigning resources
   {
     const c = check(10);
-    const loaded = (xer.tables.TASKRSRC || []).length > 0;
+    const loaded = (xer.tables.TASKRSRC || []).length + (xer.tables.PROJCOST || []).length > 0;
     if (c) add(3, { id: "dcma-10", name: "Open activities with duration and a resource or cost assignment (DCMA 10)", value: `${pct(c.total - c.count, c.total)}% (${c.count} of ${c.total} without)`, threshold: "100%", pass: c.pass, items: c.items, count: c.count,
-      note: loaded ? "" : "The file has no resource assignments at all." });
+      note: loaded ? "" : "The file has no resource assignments or expenses at all." });
     const rs = (xer.tables.RSRC || []).length;
     const limited = new Set((xer.tables.RSRCRATE || []).filter((r) => Number(r.max_qty_per_hr) > 0).map((r) => r.rsrc_id));
     const used = new Set((xer.tables.TASKRSRC || []).filter((a) => open.some((t) => t.id === a.task_id)).map((a) => a.rsrc_id));
