@@ -1,6 +1,6 @@
 # Are your lien deadlines still open?
 
-> Free calculator for the preliminary notice and lien filing deadlines a subcontractor or supplier faces in California, Texas, Florida, Arizona, Washington, Georgia and Colorado. Enter your first and last day on the job; see both dates, weekend flags, and days left. Entirely client-side, nothing uploaded.
+> Free calculator for the preliminary notice and lien filing deadlines a subcontractor or supplier faces in California, Texas, Florida, Arizona, Washington, Georgia, Colorado, North Carolina, New York and Ohio. Enter your first and last day on the job; see both dates, weekend flags, and days left. Entirely client-side, nothing uploaded.
 
 Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
@@ -8,11 +8,18 @@ Free to use and source available (FSL-1.1-MIT). Results are estimates from the n
 
 - Texas: one notice date per month of unpaid work (15th day of the 3rd month after it, 2nd on residential), lien affidavit 15th of the 4th (3rd) month; rules for original contracts from 2022-01-01, the same for every tier.
 - Georgia: Notice to Contractor shown only for second-tier claimants (hired by a subcontractor), as the statute requires it only without privity with the contractor.
-- California, Arizona, Florida, Washington, Colorado: the same clocks for first- and second-tier claimants.
+- Washington: a subcontractor hired by the prime contractor owes no notice of right to claim a lien (RCW 60.04.031(2)(c)), except on repair or remodel of an existing owner-occupied single-family home; second-tier claimants get the 60-day (10-day on a new single-family home) look-back.
+- Late notices: California and Arizona protect work from 20 days before a late notice, Washington 60 (10); Florida treats a late Notice to Owner as a complete defense to the lien (713.06(2)(a)). A passed date shows the earliest work a notice served today still covers.
+- Each result links the statute sections it uses; timing checked against the statute text on 2026-11-25 (California's sub lien clock is Civ. Code § 8414).
+- California, Arizona, Florida, Colorado, North Carolina, New York: the same clocks for first- and second-tier claimants.
+- North Carolina: Notice to Lien Agent 15 days after first furnishing (projects with a designated lien agent); claim of lien 120 days after last furnishing (G.S. 44A-11.2, 44A-12).
+- New York: no preliminary notice on private work; notice of lien 8 months after final furnishing, 4 months on a single family dwelling (Lien Law § 10).
+- Ohio: notice of furnishing 21 days after first furnishing where a notice of commencement was recorded; affidavit of lien 75 days after last furnishing, 60 on a one- or two-family dwelling (R.C. 1311.05, 1311.06).
+- Related: [pay application guides](https://marisstella.app/pay-app-guides/) (schedule of values, retainage, lien waivers).
 
 ## Pages
 
-- [The tool](https://duncan-haywood.github.io/oss-monorepo/mechanics-lien-deadline-calculator/)
+- [The tool](https://marisstella.app/mechanics-lien-deadline-calculator/)
 
 ## Source
 
