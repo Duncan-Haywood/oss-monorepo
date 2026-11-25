@@ -275,6 +275,32 @@ def run_suite(cmd: list[str], cwd: Path, timeout: int = TIMEOUT_SECONDS) -> tupl
     return passed, round(time.monotonic() - start, 1)
 
 
+def mutated_before(runs: Path | None = None) -> set[str]:
+    """Repo-relative files an earlier campaign in any run record already mutated.
+
+    `--fresh` drops them, so a run can aim at code no campaign has measured
+    (doc_friction 2026-11-25: finding a product's never-mutated files took a
+    hand grep over prompts/runs/*.json).
+    """
+    runs = runs or REPO / "prompts" / "runs"
+    seen: set[str] = set()
+    for path in runs.glob("*.json"):
+        try:
+            rec = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        rt = rec.get("redteam") if isinstance(rec, dict) else None
+        camps = rt.get("campaigns") if isinstance(rt, dict) else None
+        for camp in camps if isinstance(camps, list) else []:
+            if isinstance(camp, dict) and isinstance(camp.get("target"), str):
+                seen.add(camp["target"])
+    return seen
+
+
+def drop_mutated(targets: list[Path], seen: set[str], repo: Path = REPO) -> list[Path]:
+    return [t for t in targets if t.relative_to(repo).as_posix() not in seen]
+
+
 def draw_fast_target(pool: list[Path], seed: int, probe: int = PROBE_SECONDS,
                      tries: int = 6) -> Path:
     """The seeded random draw, redrawn (up to `tries`) past suites slower than `probe`
@@ -491,7 +517,10 @@ def main(argv: list[str] | None = None) -> int:
     p = sub.add_parser("targets", help="files a suite guards, sampled")
     p.add_argument("--limit", type=int, default=20)
     p.add_argument("--seed", type=int)
-    p.add_argument("--under", help="only files below this directory, e.g. platform")
+    p.add_argument("--under", help="only files below this directory, e.g. platform or "
+                   "ventures/<slug> for one product")
+    p.add_argument("--fresh", action="store_true",
+                   help="skip files an earlier run record's campaign already mutated")
     p.add_argument("--probe", type=int, metavar="SECONDS",
                    help="time each listed target's suite (cached per suite), giving up after "
                    "SECONDS, so a campaign is not started on a suite too slow to run")
@@ -499,6 +528,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--target", help="file to mutate; default a random guarded file")
     p.add_argument("--under", help="draw the random file from below this directory, "
                    "e.g. platform (3,500 of 3,670 guarded files are ventures)")
+    p.add_argument("--fresh", action="store_true",
+                   help="draw only files no earlier run record's campaign mutated")
     p.add_argument("--mutants", type=int, default=8)
     p.add_argument("--seed", type=int, help="default: random, printed in the result")
     p.add_argument("--timeout", type=int, default=TIMEOUT_SECONDS)
@@ -519,6 +550,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.cmd == "targets":
         targets = list_targets(under=args.under)
+        total = len(targets)
+        if args.fresh:
+            targets = drop_mutated(targets, mutated_before())
         rng = random.Random(args.seed)
         seen: dict[tuple[str, str], str] = {}
         for path in rng.sample(targets, min(args.limit, len(targets))):
@@ -532,7 +566,8 @@ def main(argv: list[str] | None = None) -> int:
                                  else f"{secs}s" + ("" if ok else " (red)"))
                 rel = f"{rel}\t{seen[key]}"
             print(rel)
-        print(f"({len(targets)} guarded files)", file=sys.stderr)
+        print(f"({len(targets)} guarded files" + (f", {total - len(targets)} already mutated "
+              "and skipped" if args.fresh else "") + ")", file=sys.stderr)
         return 0
     if args.cmd == "campaign":
         seed = args.seed if args.seed is not None else random.randrange(1 << 30)
@@ -543,8 +578,11 @@ def main(argv: list[str] | None = None) -> int:
             target = (REPO / args.target).resolve()
         else:
             pool = list_targets(under=args.under)
+            if args.fresh:
+                pool = drop_mutated(pool, mutated_before())
             if not pool:
-                raise SystemExit(f"no guarded files under {args.under}")
+                raise SystemExit(f"no guarded files under {args.under}"
+                                 + (" that no earlier campaign mutated" if args.fresh else ""))
             target = draw_fast_target(pool, seed, args.probe)
         print(f"red team: {target.relative_to(REPO)} seed {seed}", file=sys.stderr)
         camp = campaign(target, args.mutants, seed, timeout=args.timeout)
