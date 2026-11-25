@@ -64,3 +64,47 @@ directory, merge, and diff page renders.
 gained "Send the backup as one PDF". It covers the order a GC reviews, and the fixes for HEIC
 photos, locked PDFs and spreadsheets, without naming PayApps (publishing under the name is the
 owner's step).
+
+## Update: photos straight from the phone camera (private PR 117)
+
+Later the same day (Duncan-Haywood/private-monorepo#117), ROADMAP "Attachments, part 2". The
+attachments panel on a pay application and on each change order has a **Take a photo** button.
+
+What it does:
+
+- On a phone it opens the rear camera (`capture="environment"`).
+- It asks for JPEG or PNG, the two photo types the backup packet can place.
+- The shot is saved as a photo whatever the Kind list says.
+- It is renamed from the phone's `image.jpg` to its capture time, `Photo 2026-11-25 14.05.09.jpg`
+  (`cameraPhotoName` in `src/shared/attachments.ts`).
+
+No server change, no migration.
+
+**Why it matters to a buyer.** A GC asks for photos of the work and of stored materials as backup
+with a pay application. Those photos are taken on site, on a phone. Before this, the foreman took
+the picture, found it in the camera roll, then uploaded it; now it is one tap. And ten files all
+named `image.jpg` would make the packet's index useless.
+
+**Choices to keep.**
+
+- The name is set in the browser but still goes through `cleanFileName` on the Worker.
+- Times use dots, not colons, because `:` is stripped from names.
+- The camera is a second `<input>`, so "Add files" still takes any type and many files.
+
+**Not checked on a real phone.** No test shows whether iOS sends JPEG or HEIC for this `accept`
+list. A HEIC that still arrives gets the packet's existing "send separately" note.
+
+Shrinking large photos before upload is ROADMAP part 3. It is held back because a canvas re-encode
+drops the EXIF time and location, which a contractor may want as proof.
+
+**Duplicate-work note.** This run first built the reminder switch (ROADMAP "Getting started,
+part 4"). It dropped that work unopened when PR 116 merged the same feature 3 minutes before this
+run's push. Re-list the private repo's PRs (all states, newest first) right before pushing, not
+only at the start of the run.
+
+**Verified locally** (payapps CI has no runner):
+
+- typecheck and biome
+- unit tests: 406/406
+- worker tests for attachments, change-order attachments and the packet: 20/20
+- build
