@@ -2,7 +2,7 @@
 
 > Free calculator for independent delivery van contractors. Enter route pay, stops, packages, miles, fuel, van payment, insurance and tax set-aside; it shows true profit per route, per hour and per stop, break-even stops, the lowest route pay that hits your hourly target, and compares two route offers.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/courier-van-route-profit-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/courier-van-route-profit-calculator): FSL-1.1-MIT licensed.

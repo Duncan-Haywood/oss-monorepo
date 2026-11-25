@@ -2,7 +2,7 @@
 
 > Enter your monthly active users and see what Clerk, Auth0, AWS Cognito, Firebase, Supabase Auth and WorkOS charge, the 12-month spend under your growth rate, and the user count where the cheapest provider changes. Free, runs in your browser, nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/auth-mau-pricing-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/auth-mau-pricing-calculator): FSL-1.1-MIT licensed.

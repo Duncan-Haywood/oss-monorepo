@@ -2,7 +2,7 @@
 
 > Free EU Packaging and Packaging Waste Regulation (PPWR, 2025/40) checker for brand owners, importers and online sellers: which duties reach your packaging, when each applies (producer registration, PFAS limits, label, recyclability, recycled content, 50 percent empty-space rule), and what is still open.
 
-Free and open source (MIT). Results are a first read from the choices you make, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are a first read from the choices you make, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are a first read from the choices you make, 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/eu-packaging-regulation-checker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/eu-packaging-regulation-checker): FSL-1.1-MIT licensed.

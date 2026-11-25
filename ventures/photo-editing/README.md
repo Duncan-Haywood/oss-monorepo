@@ -3076,7 +3076,7 @@ whole plane between two banded passes.
 ## A phone's lossless-JPEG DNG, sensel for sensel, and its tiles on every CPU (2026-11-13)
 
 The first camera-written lossless-JPEG DNG ShootFlow has read: a Google Pixel 3 XL raw (4032 x
-3024, 192 lossless-JPEG tiles, four GainMaps, a WarpRectilinear; MIT-licensed, from the tinydng
+3024, 192 lossless-JPEG tiles, four GainMaps, a WarpRectilinear; FSL-1.1-MIT-licensed, from the tinydng
 repository, downloaded at check time). All 12,192,768 sensels equal LibRaw's `raw_image`, and the
 half-size render matches LibRaw's to a median 0.054 of an 8-bit step with opcodes off. With the
 phone's lens shading map on, the two lit corners come to 110% and 85% of the phone's own preview

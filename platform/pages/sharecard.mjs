@@ -747,7 +747,7 @@ export function renderSiteCard({ address = '', subtitle = '', footer = '', site 
     accent: '#d4ac58',
     headline: 'Free tools to price the job, check the fees and run your business.',
     highlight: 'price the job, check the fees',
-    kicker: 'Free · No sign-up · Open source',
+    kicker: 'Free · No sign-up · Source available',
     subtitle,
     footer,
     site,

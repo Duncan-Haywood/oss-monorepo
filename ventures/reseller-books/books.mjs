@@ -23,6 +23,7 @@ import * as etsy from "./engines/etsy.mjs";
 import * as poshmark from "./engines/poshmark.mjs";
 import * as whatnot from "./engines/whatnot.mjs";
 import * as shopify from "./engines/shopify.mjs";
+import * as mercari from "./engines/mercari.mjs";
 
 export const CHANNELS = {
   ebay: "eBay",
@@ -30,6 +31,7 @@ export const CHANNELS = {
   poshmark: "Poshmark",
   whatnot: "Whatnot",
   shopify: "Shopify",
+  mercari: "Mercari",
 };
 
 const r2 = (n) => Math.round(n * 100) / 100;
@@ -60,6 +62,8 @@ export function detectKind(text) {
   const head = String(text || "").split(/\r?\n/, 15).join("\n").toLowerCase();
   if (/net amount/.test(head) && /(order number|transaction creation date)/.test(head)) return "ebay";
   const h = headerTokens(text);
+  // Mercari's Gross Sales Report: field names from Mercari's help centre.
+  if (mercari.isMercariHeader(h)) return "mercari";
   const has = (...names) => names.every((n) => h.some((x) => x === n));
   // Shopify Payments "Transactions" export: a payout status and a type per money
   // movement. Checked before the item-per-row formats, none of which has these.
@@ -245,6 +249,50 @@ function shopifyChannel(txFiles, orderFiles, costText) {
   return { line: out, months, detail: r, skipped, costBad: costs.bad.length };
 }
 
+// Mercari books a sale when the order completes, at item price; what the buyer
+// paid on top (shipping, sales tax, buyer fees) never reaches the seller and is
+// reported beside the books, not in them. Overlapping downloads are
+// de-duplicated by Item ID.
+function mercariChannel(files, costText) {
+  const out = emptyLine("mercari");
+  const rows = [];
+  let skipped = 0;
+  for (const f of files) {
+    const n = mercari.normalizeReport(mercari.parseCsv(f.text, mercari.detectDelimiter(f.text)));
+    if (n.error) return { error: `${f.name}: ${n.error}` };
+    rows.push(...n.rows);
+    skipped += n.skipped.length;
+  }
+  const costs = costText ? mercari.parseCosts(costText) : { costs: {}, bad: [] };
+  const r = mercari.analyze(rows, { costs: costs.costs });
+  if (r.invalid) return { error: r.invalid };
+  const s = r.summary;
+  out.orders = s.orders;
+  out.sales = s.sales;
+  out.platformFees = s.fees;
+  out.labels = s.labels;
+  out.other = s.other;
+  out.net = s.net;
+  out.from = s.firstMonth;
+  out.to = s.lastMonth;
+  if (s.duplicates) out.notes.push(`${s.duplicates} Mercari row(s) repeated an Item ID from another download and were counted once.`);
+  if (s.inProgress) out.notes.push(`${s.inProgress} Mercari order(s) ($${s.inProgressPrice.toFixed(2)} at item price) were still in progress when the report was made; their fees are estimates, so they are left out until a later report shows them completed.`);
+  if (s.canceled) out.notes.push(`${s.canceled} canceled Mercari order(s) were left out: a canceled order pays nothing.`);
+  if (s.unreconciled) out.notes.push(`${s.unreconciled} Mercari row(s) have a Net Seller Proceeds that the listed fees do not explain; the difference is under other deductions.`);
+  const buyer = r2(s.buyerShipping + s.buyerTax + s.buyerFees);
+  if (buyer > 0) out.notes.push(`Buyers also paid $${buyer.toFixed(2)} on top of item prices on completed Mercari orders (shipping $${s.buyerShipping.toFixed(2)}, sales tax $${s.buyerTax.toFixed(2)}, buyer fees $${s.buyerFees.toFixed(2)}). None of it reached you, so it is not in sales, but a 1099-K can include some of it.`);
+  if (s.costed === s.orders) {
+    out.cogs = s.cogs;
+    out.costedShare = 1;
+    out.profit = r2(s.net - s.cogs);
+  } else if (s.costed > 0) {
+    out.costedShare = s.costed / s.orders;
+    out.notes.push(`${s.costed} of ${s.orders} Mercari sales have a cost, so Mercari profit is left blank rather than overstated.`);
+  }
+  const months = r.months.map((m) => ({ month: m.month, sales: m.sales, refunds: 0, deductions: r2(m.net - m.sales), net: m.net, cogs: m.costed === m.orders ? m.cogs : null }));
+  return { line: out, months, detail: r, skipped, costBad: costs.bad.length };
+}
+
 function itemChannel(channel, engine, files, costText, feeMode) {
   const out = emptyLine(channel);
   const items = [];
@@ -298,7 +346,7 @@ function itemChannel(channel, engine, files, costText, feeMode) {
  *   its own key (eBay item title or number, SKU on the others).
  */
 export function buildBooks(files, { costs = "", feeMode = "auto" } = {}) {
-  const groups = { ebay: [], etsy: [], "etsy-items": [], poshmark: [], whatnot: [], shopify: [], "shopify-orders": [] };
+  const groups = { ebay: [], etsy: [], "etsy-items": [], poshmark: [], whatnot: [], shopify: [], "shopify-orders": [], mercari: [] };
   const unread = [];
   for (const f of files) {
     const kind = detectKind(f.text);
@@ -329,6 +377,7 @@ export function buildBooks(files, { costs = "", feeMode = "auto" } = {}) {
   if (groups.etsy.length) add("etsy", etsyChannel(groups.etsy, groups["etsy-items"], costs));
   if (groups.poshmark.length) add("poshmark", itemChannel("poshmark", poshmark, groups.poshmark, costs, feeMode));
   if (groups.whatnot.length) add("whatnot", itemChannel("whatnot", whatnot, groups.whatnot, costs, feeMode));
+  if (groups.mercari.length) add("mercari", mercariChannel(groups.mercari, costs));
   if (groups.shopify.length) add("shopify", shopifyChannel(groups.shopify, groups["shopify-orders"], costs));
   if (groups["shopify-orders"].length && !groups.shopify.length) {
     problems.push("A Shopify Orders export was given without the Shopify Payments Transactions export. The transactions file is the one with the fees; add it.");
@@ -338,7 +387,7 @@ export function buildBooks(files, { costs = "", feeMode = "auto" } = {}) {
   }
 
   if (!channels.length) {
-    return { invalid: problems[0] || "No marketplace file could be recognised. Expected an eBay Transaction report, an Etsy Payment Account statement, a Poshmark My Sales Report, a Whatnot orders export or a Shopify Payments Transactions export.", unread, problems };
+    return { invalid: problems[0] || "No marketplace file could be recognised. Expected an eBay Transaction report, an Etsy Payment Account statement, a Poshmark My Sales Report, a Whatnot orders export, a Shopify Payments Transactions export or a Mercari Gross Sales Report.", unread, problems };
   }
 
   // Combined months, newest last. Every row reconciles: sales + refunds +
@@ -487,6 +536,7 @@ export function sampleFiles() {
       { name: "whatnot-orders.csv", text: whatnot.sampleCsv() },
       { name: "shopify-payments-transactions.csv", text: sh.transactions },
       { name: "shopify-orders.csv", text: sh.orders },
+      { name: "mercari-gross-sales-report.csv", text: mercari.sampleCsv() },
     ],
     costs: e.costs + "\n" + sh.costs.split("\n").slice(1).join("\n"),
   };

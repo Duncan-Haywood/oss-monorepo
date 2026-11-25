@@ -2,7 +2,7 @@
 
 > Free self-employed health insurance deduction calculator. Enter net profit and premiums to see the Schedule 1 deduction after the profit ceiling, employer-plan months and long-term-care caps, and the income tax it saves. Runs in your browser, nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/self-employed-health-insurance-deduction-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/self-employed-health-insurance-deduction-calculator): FSL-1.1-MIT licensed.

@@ -14,7 +14,7 @@ const listed = (slugs) => ({
 });
 
 const SHA = 'a'.repeat(64);
-const MIT = 'MIT License\n\nCopyright (c) x';
+const MIT = 'Functional Source License\n\nCopyright (c) x';
 
 async function fixture(slugs) {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'brewtest-'));

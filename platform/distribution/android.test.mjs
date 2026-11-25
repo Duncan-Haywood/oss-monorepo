@@ -28,7 +28,7 @@ async function fixture(files) {
 const PAGE = '<title>Demo Tool — x</title><meta name="description" content="Does a thing.">';
 
 test('buildAndroid writes a TWA manifest that points at the tool and requests nothing', async () => {
-  const dir = await fixture({ 'index.html': PAGE, LICENSE: 'MIT License\n' });
+  const dir = await fixture({ 'index.html': PAGE, LICENSE: 'Functional Source License\n' });
   const p = await buildAndroid({ slug: 'demo-tool', dir });
   const m = JSON.parse(p.files['twa-manifest.json']);
   assert.equal(m.packageId, 'io.github.duncanhaywood.demotool');
@@ -42,9 +42,9 @@ test('buildAndroid writes a TWA manifest that points at the tool and requests no
   assert.match(p.files['BUILD.md'], /origin root/);
 });
 
-test('buildAndroid skips a tool with no MIT licence or a remote file', async () => {
+test('buildAndroid skips a tool with no FSL-1.1-MIT licence or a remote file', async () => {
   assert.match((await buildAndroid({ slug: 'a', dir: await fixture({ 'index.html': PAGE, LICENSE: 'x' }) })).skip, /MIT/);
-  const remote = await fixture({ 'index.html': `${PAGE}<script src="https://cdn.example/x.js"></script>`, LICENSE: 'MIT License' });
+  const remote = await fixture({ 'index.html': `${PAGE}<script src="https://cdn.example/x.js"></script>`, LICENSE: 'Functional Source License' });
   assert.match((await buildAndroid({ slug: 'a', dir: remote })).skip, /another origin/);
   assert.match((await buildAndroid({ slug: 'a', dir: await fixture({}) })).skip, /index.html/);
 });

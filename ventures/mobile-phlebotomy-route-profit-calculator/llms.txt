@@ -2,7 +2,7 @@
 
 > Free mobile phlebotomy calculator: enter draws per week by type, fees, on-site and drive minutes, supplies, failed trips and fixed costs, and see profit per draw and per working hour, break-even draws per week, the fee for your target margin, what batching stops does, and solo versus agency contractor versus employed.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mobile-phlebotomy-route-profit-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mobile-phlebotomy-route-profit-calculator): FSL-1.1-MIT licensed.

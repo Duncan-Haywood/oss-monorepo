@@ -31,7 +31,7 @@ owner: duncan
 # support chatbot", "ai chatbot that doesn't hallucinate". Volume not
 # measured with an external tool.
 #
-# Path to revenue (payments stay off): free and MIT as the lead magnet;
+# Path to revenue (payments stay off): free and FSL-1.1-MIT as the lead magnet;
 # done-for-you setup (writing the articles and labelling past tickets is the
 # work that makes it good), a hosted copy under the deployer's own name, or
 # GitHub Sponsors. Hosting under the public name is owner-gated.

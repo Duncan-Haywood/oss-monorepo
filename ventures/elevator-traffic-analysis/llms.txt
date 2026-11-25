@@ -2,7 +2,7 @@
 
 > Free tool for architects, building services engineers, developers and students: type the floors above the lobby, their populations and the lifts, and get the up-peak round trip time, interval and five-minute handling capacity (Barney and dos Santos formulae with Peters 2000 corrections: jerk-limited flight times, unequal floor heights and populations, express zones), the smallest designs over 1-8 lifts, common loads and speeds that meet your targets, and a random-arrival simulation of waiting times. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates, not engineering advice; a qualified lift consultant checks a real design.
+Free to use and source available (FSL-1.1-MIT). Results are estimates, not engineering advice; a qualified lift consultant checks a real design.
 
 ## Pages
 
@@ -17,4 +17,4 @@ Free and open source (MIT). Results are estimates, not engineering advice; a qua
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/elevator-traffic-analysis): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/elevator-traffic-analysis): FSL-1.1-MIT licensed.

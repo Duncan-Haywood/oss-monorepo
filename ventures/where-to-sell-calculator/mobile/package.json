@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "Capacitor wrapper that packages Where to Sell Calculator as an Android and iOS app. Build it in your own developer accounts.",
-  "license": "MIT",
+  "license": "FSL-1.1-MIT",
   "scripts": {
     "sync-web": "node sync-web.mjs",
     "add:android": "npm run sync-web && npx cap add android && npx cap sync android",

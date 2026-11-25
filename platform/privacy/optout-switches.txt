@@ -838,6 +838,7 @@ ventures/patreon-members-churn-analyzer/usage.mjs
 ventures/patreon-payout-to-journal/usage.mjs
 ventures/paver-patio-bid-calculator/usage.mjs
 ventures/pawn-loan-profit-calculator/usage.mjs
+ventures/pay-app-guides/usage.mjs
 ventures/pay-application-generator/usage.mjs
 ventures/pay-transparency-directive-checker/usage.mjs
 ventures/payment-processor-fee-comparison-calculator/usage.mjs

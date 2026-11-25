@@ -2,7 +2,7 @@
 
 > Free group schedule optimizer for tutoring centres, music, swim and language schools. Paste your possible weekly sessions and student availability to get the most profitable timetable. Exact for up to 10 slots. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tutoring-group-schedule-optimizer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tutoring-group-schedule-optimizer): FSL-1.1-MIT licensed.

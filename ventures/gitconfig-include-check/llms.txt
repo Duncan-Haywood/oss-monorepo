@@ -2,7 +2,7 @@
 
 > Free git config include checker. From your config files (~/.gitconfig, ~/.config/git/config, /etc/gitconfig, a repository's .git/config and config.worktree, and every file they include) and a repository path, it says which [include] and [includeIf] lines git follows there, why each of the others does not, and which file and line set user.email, user.signingkey and every other value, resolved the way `git config --list --show-origin` does. It flags gitdir: patterns without a trailing slash or naming the work tree, includes placed above the setting they should override, unknown or miscased conditions (GitDir:, hasconfig:remote.origin.url:), spaces and backslashes in conditions, include targets that are missing or use $HOME, keys other than path, symlinked folders where the include works only sometimes, onbranch: on a detached HEAD, linked worktrees, and the lines that stop git with "bad config line". Runs in the browser; nothing is uploaded. A zero-dependency CLI reads your real files and can compare every value with your own git (`--verify`).
 
-Free and open source (MIT). Results come from this tool's reimplementation of git's config reading, checked against `git config --list --show-origin --show-scope` (git 2.43) on thousands of random config trees, linked worktrees and symlinked folders; it is not legal, security or professional advice, and your own git is the final word. Paths are Unix-style; Windows drive letters and ~user/ are not evaluated.
+Free to use and source available (FSL-1.1-MIT). Results come from this tool's reimplementation of git's config reading, checked against `git config --list --show-origin --show-scope` (git 2.43) on thousands of random config trees, linked worktrees and symlinked folders; it is not legal, security or professional advice, and your own git is the final word. Paths are Unix-style; Windows drive letters and ~user/ are not evaluated.
 
 ## Pages
 
@@ -16,4 +16,4 @@ Free and open source (MIT). Results come from this tool's reimplementation of gi
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gitconfig-include-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gitconfig-include-check): FSL-1.1-MIT licensed.

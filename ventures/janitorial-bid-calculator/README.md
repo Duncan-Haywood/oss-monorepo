@@ -203,7 +203,7 @@ uptime, backups of anything you type, or that a URL will keep working. Do not
 use this as a system of record. If a tool needs to survive, export your
 inputs and run it yourself.
 
-MIT licensed — see [`LICENSE`](LICENSE).
+FSL-1.1-MIT licensed — see [`LICENSE`](LICENSE).
 
 ## Saving and sharing a bid
 

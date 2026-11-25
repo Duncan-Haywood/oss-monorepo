@@ -4,7 +4,7 @@
 
 Built-in rates cover 2025/26 (from 6 April 2025) and 2026/27; the tool warns when a due date puts any paid week or the qualifying week outside those years.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -12,4 +12,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-shared-parental-pay-planner): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-shared-parental-pay-planner): FSL-1.1-MIT licensed.

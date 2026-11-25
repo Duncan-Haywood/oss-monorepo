@@ -2,7 +2,7 @@
 
 > Free Stripe churn and cohort analyzer: drop in your Stripe subscriptions CSV and get MRR, new vs churned MRR, monthly churn and a cohort retention table. Runs in your browser, the file is never uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/stripe-churn-cohort-analyzer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/stripe-churn-cohort-analyzer): FSL-1.1-MIT licensed.

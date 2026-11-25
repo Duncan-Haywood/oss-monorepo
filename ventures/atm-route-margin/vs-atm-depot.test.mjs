@@ -13,7 +13,7 @@ test('carries the no-warranty disclaimer', () => {
 
 test('carries the best-effort hosting and licence/support paragraphs', () => {
   assert.match(html, /Best-effort hosting, no SLA/);
-  assert.match(html, /Free and open source/);
+  assert.match(html, /Free to use and source available/);
   assert.match(html, /href="LICENSE"/);
 });
 

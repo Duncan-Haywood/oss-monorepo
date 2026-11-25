@@ -13,7 +13,7 @@
 // round trips (eol.git.test.mjs).
 //
 // The wildcard matcher below is the one in ../gitignore-explainer/gitignore.mjs
-// (same repository, same MIT licence), copied so each published page stays
+// (same repository, same FSL-1.1-MIT licence), copied so each published page stays
 // self-contained: attributes and ignore rules share git's dir.c matcher.
 //
 // Pure functions, no I/O, no dependencies.

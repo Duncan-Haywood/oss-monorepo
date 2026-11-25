@@ -4,7 +4,7 @@ After using this, you can now **collect customer testimonials with a link, appro
 
 **Live tool:** https://marisstella.app/testimonial-keeper/
 
-Two parts, both free and MIT:
+Two parts, both free and FSL-1.1-MIT:
 
 - **`index.html`**: the product page with a live demo of the embeddable wall (clearly labelled sample data). Runs in the browser; nothing is uploaded.
 - **`server.mjs`**: the service. One Node process, **zero dependencies**, state in one JSON file. It serves the collection form, an admin page, a JSON API and the embed script.

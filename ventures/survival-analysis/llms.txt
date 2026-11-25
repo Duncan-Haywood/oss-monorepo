@@ -2,7 +2,7 @@
 
 > Free Kaplan-Meier survival curve calculator with log-rank test and Cox proportional hazards regression. Paste a CSV of times and events, compare groups, and get median survival with confidence intervals, hazard ratios, a proportional-hazards check and concordance. Checked against lifelines and statsmodels. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are statistical estimates from the data you supply, not medical, legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are statistical estimates from the data you supply, not medical, legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -22,4 +22,4 @@ Free and open source (MIT). Results are statistical estimates from the data you 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/survival-analysis): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/survival-analysis): FSL-1.1-MIT licensed.

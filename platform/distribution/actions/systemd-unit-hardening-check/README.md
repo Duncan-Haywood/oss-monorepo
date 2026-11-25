@@ -11,4 +11,4 @@ Free, read-only checker that reads your own systemd .service files with their NA
 
 For a stable pin, replace `@main` with a full commit SHA, or with a `systemd-unit-hardening-check-v<version>` tag from this repository's Releases once one exists (portfolio/distribution/versions.json has the current version).
 
-Runs [`ventures/systemd-unit-hardening-check/check.py`](../../../../ventures/systemd-unit-hardening-check/check.py) (MIT, stdlib-only Python, no network calls). Docs: https://marisstella.app/systemd-unit-hardening-check/?ref=gh-action
+Runs [`ventures/systemd-unit-hardening-check/check.py`](../../../../ventures/systemd-unit-hardening-check/check.py) (FSL-1.1-MIT, stdlib-only Python, no network calls). Docs: https://marisstella.app/systemd-unit-hardening-check/?ref=gh-action

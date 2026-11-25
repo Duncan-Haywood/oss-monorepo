@@ -22,7 +22,7 @@ async function fixture(files) {
   }
   return root;
 }
-const MIT = 'MIT License\n\nCopyright (c) x';
+const MIT = 'Functional Source License\n\nCopyright (c) x';
 const cli = (extra = '') => `#!/usr/bin/env node\nimport { f } from "./lib.mjs";\n${extra}\nif (import.meta.url === \`file://\${process.argv[1]}\`) console.log(f());\n`;
 const venture = (name, over = {}) => ({
   [`ventures/${name}/cli.mjs`]: cli(),
@@ -77,7 +77,7 @@ test('--pack applies NPM_SCOPE from the environment', () => {
   assert.match(r.stderr, /invalid package name BAD\/nope-slug-xyz/);
 });
 
-test('buildPackage refuses a CLI without shebang or MIT license', async () => {
+test('buildPackage refuses a CLI without shebang or FSL-1.1-MIT license', async () => {
   const noShebang = await fixture(venture('a', { 'ventures/a/cli.mjs': 'console.log(1)\n' }));
   assert.match((await buildPackage({ slug: 'a', dir: path.join(noShebang, 'ventures/a') })).skip, /shebang/);
   const noLicense = await fixture(venture('a', { 'ventures/a/LICENSE': 'All rights reserved' }));
@@ -88,7 +88,7 @@ test('the generated package runs through a bin symlink, which the bare CLI does 
   const root = await fixture(venture('hello-check'));
   const pkg = await buildPackage({ slug: 'hello-check', dir: path.join(root, 'ventures/hello-check') });
   const manifest = JSON.parse(pkg.files['package.json']);
-  assert.equal(manifest.license, 'MIT');
+  assert.equal(manifest.license, 'FSL-1.1-MIT');
   assert.deepEqual(manifest.bin, { 'hello-check': 'bin.mjs' });
   assert.match(pkg.files['README.md'], /not legal, tax or professional advice/i);
   const out = await fs.mkdtemp(path.join(os.tmpdir(), 'npmpkg-'));
@@ -174,7 +174,7 @@ test('package.json keywords keep slug words of 3+ characters, drop shorter ones,
   const slug = 'ab-abc-abcd-w-x1-y22-z33-q44';
   const root = await fixture(venture(slug));
   const r = await buildPackage({ slug, dir: path.join(root, 'ventures', slug) });
-  assert.deepEqual(JSON.parse(r.files['package.json']).keywords, ['cli', 'free', 'open-source', 'abc', 'abcd', 'y22', 'z33']);
+  assert.deepEqual(JSON.parse(r.files['package.json']).keywords, ['cli', 'free', 'source-available', 'abc', 'abcd', 'y22', 'z33']);
 });
 
 test('authMode: a real token, else OIDC in GitHub Actions; the setup-node placeholder is not a token', () => {

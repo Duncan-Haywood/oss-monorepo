@@ -17,4 +17,4 @@ After using this, you can now **price a bottle knowing the federal tax inside it
 Modelled: $2.70/proof gal on the first 100,000 (domestic producers at 22.13 million or fewer, shared across a controlled group),
 $13.34 up to 22.13 million, $13.50 above; proof gallon = wine gallons x proof / 100.
 Not modelled: state and local spirits tax, importers and contract production, drawback, tax-free removals and losses, refunds,
-the actual TTB return. Not tax advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
+the actual TTB return. Not tax advice. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

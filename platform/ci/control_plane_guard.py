@@ -17,11 +17,13 @@ the owner's approval. This script backs that up in three ways:
                      starts owning the run-data paths agents write every run
                      (a weakened CODEOWNERS is the first thing a rogue edit
                      would try, and the ruleset cannot notice it);
-  --pr N             list the owned files a PR touches in the job summary, so
-                     the reason it is waiting for the owner is visible;
+  --pr N             list the owned (sensitive) files a PR touches in the job
+                     summary;
   --audit-commit SHA after a push to main, fail if the commit touched owned
-                     files without an owner's approving review (catches admin
-                     bypasses, and the time before the ruleset is applied).
+                     files without a passing risk review from main's
+                     priv-risk-review.yml (catches admin bypasses, faked
+                     same-name checks, and the time before the ruleset is
+                     applied). Since 2026-11-24 this replaces owner approval.
 
 Standard library only; --pr and --audit-commit read the GitHub API with
 GITHUB_TOKEN (read-only) and GITHUB_REPOSITORY. Setup and reasoning:
@@ -46,13 +48,12 @@ API = os.environ.get("GITHUB_API_URL", "https://api.github.com")
 
 # Sample paths, not patterns: each must resolve to an owner (or to none).
 MUST_BE_OWNED = [
-    "CLAUDE.md",
-    "AGENTS.md",
-    "prompt.md",
-    "ventures/CLAUDE.md",
-    "research/CLAUDE.md",
-    "prompts/goals.md",
+    # Agent instructions (CLAUDE.md, prompts/*.md) left this list on
+    # 2026-11-24: they go through the cyber and legal risk review instead
+    # (docs/security/risk-review.md). Code agents run at session start stays.
     "prompts/promptctl.py",
+    "prompts/ideas.py",
+    "platform/security/risk_review.py",
     ".claude/settings.json",
     ".claude/hooks/block_pkill_f.py",
     ".cursor/environment.json",
@@ -69,7 +70,6 @@ MUST_BE_OWNED = [
     ".github/workflows/priv-control-plane-guard.yml",
     ".github/workflows/priv-ci-policy.yml",
     ".github/workflows/priv-some-future-deploy.yml",
-    ".github/prompts/land-your-work.md",
     "platform/ci/agent_review/config.yaml",
     "platform/ci/agent_review/review.py",
     "platform/ci/control_plane_guard.py",
@@ -82,6 +82,15 @@ MUST_BE_OWNED = [
     "platform/ci/check_conflict_markers.py",
 ]
 MUST_BE_UNOWNED = [
+    # Agent instructions: reviewed by platform/security/risk_review.py, which
+    # still sends a cut to the guardrails or hard limits to the owner.
+    "CLAUDE.md",
+    "AGENTS.md",
+    "prompt.md",
+    "ventures/CLAUDE.md",
+    "research/CLAUDE.md",
+    "prompts/goals.md",
+    ".github/prompts/land-your-work.md",
     # Unprivileged workflows merge without review; ci-policy keeps them
     # read-only and secret-free.
     ".github/workflows/ventures-tests.yml",
@@ -189,13 +198,41 @@ def owned(files: list[str], rules) -> list[str]:
     return [f for f in files if owners_for(f, rules)]
 
 
-def audit_verdict(touched: list[str], pr: dict | None, reviews: list, logins: set[str]):
-    """Return (exit_code, message) for one commit on main."""
+RISK_REVIEW_WORKFLOW = ".github/workflows/priv-risk-review.yml"
+
+
+def risk_review_ok(check_runs: list, workflow_runs: dict) -> bool:
+    """True only if a successful `risk-review` check came from main's
+    priv-risk-review.yml on a pull_request_target run. A PR can add a job
+    with the same name to its own workflow; that run's path or event gives it
+    away. `workflow_runs` maps check_suite id -> the Actions run for it."""
+    for run in check_runs:
+        if run.get("name") != "risk-review" or run.get("conclusion") != "success":
+            continue
+        if (run.get("app") or {}).get("slug") != "github-actions":
+            continue
+        wf = workflow_runs.get((run.get("check_suite") or {}).get("id")) or {}
+        if wf.get("path", "").split("@")[0] == RISK_REVIEW_WORKFLOW and wf.get("event") == "pull_request_target":
+            return True
+    return False
+
+
+def audit_verdict(touched: list[str], pr: dict | None, reviews: list, logins: set[str],
+                  risk_review_passed: bool = False):
+    """Return (exit_code, message) for one commit on main.
+
+    Since 2026-11-24 the gate is the automated risk review, not the owner
+    (owner: "I don't need to review. just be extra careful for adversarial
+    changes"; docs/security/risk-review.md). A merged PR whose head passed
+    main's `risk-review` check is fine; an owner approval still counts for
+    PRs from before that check existed."""
     if not touched:
         return 0, "no control-plane files touched"
     listing = "\n".join(f"  - {f}" for f in touched)
     if pr is None:
         return 1, f"pushed to main without a pull request, touching:\n{listing}"
+    if risk_review_passed:
+        return 0, f"PR #{pr['number']}: main's risk review passed on {len(touched)} sensitive file(s)"
     approvers = {
         r["user"]["login"].lower()
         for r in reviews
@@ -213,7 +250,7 @@ def audit_verdict(touched: list[str], pr: dict | None, reviews: list, logins: se
             f"identity with no separate approval; if an agent used that identity this was "
             f"unreviewed:\n{listing}"
         )
-    return 1, f"PR #{pr['number']} by {author} merged control-plane changes without owner approval:\n{listing}"
+    return 1, f"PR #{pr['number']} by {author} merged control-plane changes without a passing risk review:\n{listing}"
 
 
 def summarize(text: str) -> None:
@@ -248,8 +285,9 @@ def main(argv: list[str] | None = None) -> int:
         touched = owned(files, rules)
         if touched:
             summarize(
-                "### Control-plane files in this PR\n\nThese need the code owner's approval "
-                "before `main` accepts them (.github/CODEOWNERS):\n\n"
+                "### Sensitive files in this PR\n\nListed in .github/CODEOWNERS. No owner "
+                "approval: the required `risk-review` check judges them with main's "
+                "reviewer (docs/security/risk-review.md):\n\n"
                 + "\n".join(f"- `{f}`" for f in touched)
             )
         else:
@@ -261,7 +299,19 @@ def main(argv: list[str] | None = None) -> int:
     prs = [p for p in gh_get(f"/repos/{repo}/commits/{sha}/pulls") if p.get("merged_at")]
     pr = prs[0] if prs else None
     reviews = gh_pages(f"/repos/{repo}/pulls/{pr['number']}/reviews") if pr else []
-    code, message = audit_verdict(owned(files, rules), pr, reviews, owner_logins(rules))
+    passed = False
+    head_sha = ((pr or {}).get("head") or {}).get("sha")
+    if head_sha:
+        runs = gh_get(f"/repos/{repo}/commits/{head_sha}/check-runs"
+                      "?check_name=risk-review&per_page=100").get("check_runs", [])
+        suites = {}
+        for r in runs:
+            sid = (r.get("check_suite") or {}).get("id")
+            if sid and sid not in suites:
+                wr = gh_get(f"/repos/{repo}/actions/runs?check_suite_id={sid}").get("workflow_runs", [])
+                suites[sid] = wr[0] if wr else {}
+        passed = risk_review_ok(runs, suites)
+    code, message = audit_verdict(owned(files, rules), pr, reviews, owner_logins(rules), passed)
     if code:
         print(f"::error::{message.splitlines()[0]}")
     summarize(message)

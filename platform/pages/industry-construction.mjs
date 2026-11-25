@@ -212,7 +212,7 @@ const jsonLd = (value) =>
 /** Plain-text answers, shown on the page and repeated as FAQPage data. */
 export const FAQ = [
   ['Can I buy the pay-app suite today?', 'Not yet. It is in development and taking early-access interest; no price is set. The free pay application generator, retainage calculator and lien waiver checker work today.'],
-  ['Are the free tools really free?', 'Yes. They run in your browser on this site with no account and no card, and their code is open source.'],
+  ['Are the free tools really free?', 'Yes. They run in your browser on this site with no account and no card, and their code is published (source available, FSL-1.1-MIT).'],
   ['Do the free tools replace an accountant, a lawyer or a scheduler?', 'No. They help you check numbers and documents before you send or sign them. Lien rights, contract terms and retainage rules depend on your state and your contract; check with a qualified professional.'],
   ['Is the construction research a product?', 'No. It is open research with code and results you can check. It may inform products later; nothing here sells it.'],
 ];

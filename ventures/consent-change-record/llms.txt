@@ -2,7 +2,7 @@
 
 > Compare before-and-after consent browser traces and create a local request and storage change record.
 
-Free and open source (MIT). It reports observed differences between two traces you supply; it is not a compliance determination or legal advice.
+Free to use and source available (FSL-1.1-MIT). It reports observed differences between two traces you supply; it is not a compliance determination or legal advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). It reports observed differences between two traces y
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/consent-change-record): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/consent-change-record): FSL-1.1-MIT licensed.

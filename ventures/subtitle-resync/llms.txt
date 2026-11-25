@@ -2,7 +2,7 @@
 
 > Free tool: fix SRT or WebVTT subtitles that are early, late or drifting. Shift them, convert frame rates (25 to 23.976 fps and others), sync on two lines, or auto-align to a correctly timed subtitle in any language. Runs in the browser with no upload, or as a zero-dependency Node CLI.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/subtitle-resync): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/subtitle-resync): FSL-1.1-MIT licensed.

@@ -2,7 +2,7 @@
 
 > Free Mercari seller fee calculator for the current schedule (10% on item price + buyer-paid shipping, effective Jan 6 2025) and the legacy pre-2025 schedule (10% on item price plus 2.9%+$0.50 processing). Real profit, price for a target profit, and which schedule pays more. Nothing leaves your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,7 +13,7 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mercari-fee-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mercari-fee-calculator): FSL-1.1-MIT licensed.
 
 ## Track true profit across every platform
 

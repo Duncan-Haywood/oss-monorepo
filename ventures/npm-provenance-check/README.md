@@ -87,7 +87,7 @@ thing that will still work if the hosted page ever doesn't.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+FSL-1.1-MIT — see [LICENSE](LICENSE).
 
-Free and open source. [Sponsor](https://github.com/sponsors/Duncan-Haywood)
+Free to use and source available. [Sponsor](https://github.com/sponsors/Duncan-Haywood)
 is entirely optional and never changes what the tool does.

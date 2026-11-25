@@ -954,4 +954,4 @@ software vendor.
 
 ## License
 
-MIT, see [LICENSE](LICENSE). Support the work: https://github.com/sponsors/Duncan-Haywood
+FSL-1.1-MIT, see [LICENSE](LICENSE). Support the work: https://github.com/sponsors/Duncan-Haywood

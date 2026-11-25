@@ -13,7 +13,7 @@ Who it is for: clinical laboratory scientists verifying a new analyser or assay
 against the current one; quality managers writing a method-comparison section;
 researchers comparing a cheap device with a reference instrument (cuffs,
 wearables, point-of-care tests); students learning why least squares is the
-wrong tool here. Free, MIT licensed, nothing uploaded.
+wrong tool here. Free, FSL-1.1-MIT licensed, nothing uploaded.
 
 ## What it computes
 
