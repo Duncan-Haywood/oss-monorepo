@@ -29,7 +29,10 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "First PR CI: site-builder test description-length failed. The new page's meta description was over 160 chars; the venture's own page.test only checks >=50. Shortened to 154.",
+    "check_dst_day_step flagged the 90-day hold computed in 24-hour blocks; switched to calendar days."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -53,7 +56,7 @@
     "docs/posts/2026-11-25-nist-800-171-ssp-template-for-small-shops.md (new section: the 72-hour clock)"
   ],
   "goal": null,
-  "notes": "Explore idea: a DFARS 252.204-7012 cyber incident clock and checklist as a bet #4 (CMMC workspace) front door on machine-shop-guides. The clause was read in full from GSA's DFARS DITA source; 3 verbatim quotes are hash-pinned. Venture tests: node --test *.test.mjs 84 pass / 0 fail; incident tests also pass in two other time zones; Playwright smoke at 390 px: no errors, no overflow, XSS text rendered as text, nothing stored by default. Security alert #1246 (js/bad-tag-filter, ssp.test.mjs:123) was claimed by another session; the new test avoids that pattern (case-insensitive, escape-aware).",
+  "notes": "Explore idea: a DFARS 252.204-7012 cyber incident clock and checklist as a bet #4 (CMMC workspace) front door on machine-shop-guides. The clause was read in full from GSA's DFARS DITA source; 3 verbatim quotes are hash-pinned. Venture tests: node --test *.test.mjs 84 pass / 0 fail; incident tests also pass in two other time zones; Playwright smoke at 390 px: no errors, no overflow, XSS text rendered as text, nothing stored by default. Security alert #1246 (js/bad-tag-filter, ssp.test.mjs:123) was claimed by another session; the new test avoids that pattern (case-insensitive, escape-aware). Merged main (stock-size page, PR 18855) into the branch; conflicts in 13 shared files were resolved by taking main and re-applying the new links.",
   "corrections": [],
   "redteam": null,
   "usage": {
