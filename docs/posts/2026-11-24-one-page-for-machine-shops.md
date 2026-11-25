@@ -365,6 +365,58 @@ The address only starts working once the app is deployed and the receiving
 domain is routed to it. Until then the RFQs page doesn't show the option at
 all.
 
+## Update, 25 November 2026: change a routing without starting over
+
+Routing templates were save-and-apply only: to change a cycle time or add a
+deburr step, an estimator deleted the routing and saved it again from a quote
+line. The RFQ-to-quote app (bet #2, still in private development, not yet on
+sale) now has a **Routings** page where a routing is edited in place.
+
+- **Everything on one screen.** Rename it, retag its part family, change any
+  operation's machine, label, setup or cycle minutes, add, remove or reorder
+  operations, and tick its finishing steps.
+- **Or update it from a quote.** When a line's operations have drifted from
+  the routing it started from, *Update routing from this line* writes the
+  line back into the routing. The button only appears when the two differ.
+- **Old quotes don't move.** A quote that already used the routing keeps its
+  own copy of the operations. An edit changes only the next line the routing
+  is applied to, and that line is still priced from today's rate card.
+- **Retired machines stay visible.** If a routing names a machine the shop
+  has since retired or deleted, the editor shows it and flags it rather than
+  quietly swapping in another machine. A deleted one must be replaced before
+  the edit can be saved.
+- **Two estimators can't overwrite each other.** If someone else saved the
+  routing after you opened it, your save is refused with a message to reload,
+  instead of silently undoing their change.
+
+## Update, 25 November 2026: the customer sees what changed, and nothing more
+
+The "what changed" view above was for the estimator. Buyers ask the same
+question when Rev 2 lands in their inbox: what is different from the quote I
+already have? The RFQ-to-quote app (bet #2, still in private development,
+not yet on sale) can now answer it on the PDF itself.
+
+- **One checkbox per revision.** Ticking "Print 'Changes from Q-1001' on the
+  customer PDF" adds a short section to the quote, such as
+  "BRK-1001 Rev B, qty 50: $19.00 to $17.50 each", "qty 100: added at $15.00
+  each" or "Lead time: 3 weeks ARO to 2 weeks ARO". It is off by default, and
+  the estimator sees the exact lines before sending.
+- **Customer-safe by construction.** The section is built only from what the
+  PDF already prints: part numbers and revisions, descriptions, quantity
+  breaks with unit prices, and lead time. Machines, setup and cycle minutes,
+  material and blank sizes, finishing and extras are the shop's cost basis
+  and never reach it. A change to those alone prints nothing; the new price
+  speaks for itself. A test checks that none of them appear in the PDF.
+- **Frozen with the quote.** The sent PDF, section included, is the one
+  stored with its checksum, so the customer and the shop keep the same
+  document.
+- **Compare with any revision.** Once a quote has reached Rev 3, a picker on
+  the quote page compares it with Rev 1 or any other earlier revision, not
+  only the last one.
+
+Still to come in this item: an email to the estimator the day before a sent
+quote expires, so they can follow up or revise.
+
 ## Update, 25 November: every free page answers its question first
 
 The free machine-shop pages
