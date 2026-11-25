@@ -51,6 +51,10 @@
 #               that repository with add_repo (push access). A bet with no
 #               ventures/<slug> directory still gets a Deepen row in
 #               allocate.py from `app:`.
+#   front_door: [<slug>, ...]  optional: the ventures/<slug> folders that are
+#               the bet's public side here (free tool, guides). allocate.py
+#               lists which of them a live open PR is on, so a run whose clone
+#               is refused picks a free one (validate.py: each must exist).
 # Every other row carries `demoted: <reason>` and sits below the bets; it keeps
 # its `next:` for runs that hold one of its inputs, but a free run takes a bet.
 # Change the order with evidence in bets.md, not here. Each bet's paid model is
@@ -67,6 +71,7 @@ flagships:
   # Bet 1 in portfolio/monetization/bets.md (2026-11-24 ranking).
   - venture: payapps
     bet: 1
+    front_door: [pay-application-generator, pay-app-guides, lien-waiver-checker, mechanics-lien-deadline-calculator]
     app: private-monorepo/apps/payapps
     why: >-
       Bet 1 (score 22): specialty subcontractors and small GCs prepare monthly AIA
@@ -105,6 +110,7 @@ flagships:
   # Bet 2 in portfolio/monetization/bets.md (2026-11-24 ranking).
   - venture: jobshop-quote
     bet: 2
+    front_door: [machine-shop-guides, cnc-machining-quote-calculator]
     app: private-monorepo/apps/jobshop-quote
     why: >-
       Bet 2 (score 19, ranked up for willingness to pay): CNC and fabrication job
@@ -128,6 +134,7 @@ flagships:
   # Bet 3 in portfolio/monetization/bets.md (2026-11-24 ranking).
   - venture: einvoice-preflight
     bet: 3
+    front_door: [einvoice-preflight]
     app: private-monorepo/apps/einvoice-preflight
     why: >-
       Bet 3 (score 21, hard legal deadlines): Germany requires issuing e-invoices
@@ -153,6 +160,7 @@ flagships:
   # Bet 4 in portfolio/monetization/bets.md (2026-11-24 ranking).
   - venture: cmmc
     bet: 4
+    front_door: [machine-shop-guides]
     app: private-monorepo/apps/cmmc
     why: >-
       Bet 4 (score 19): CMMC Phase 1 took effect 10 Nov 2025 and Level 1/2
@@ -177,6 +185,7 @@ flagships:
   # Bet 5 in portfolio/monetization/bets.md (2026-11-24 ranking).
   - venture: seller-books
     bet: 5
+    front_door: [reseller-books]
     app: private-monorepo/apps/seller-books
     why: >-
       Bet 5 (score 21, but a $10 to $20 wedge price): multi-platform resellers
@@ -207,6 +216,7 @@ flagships:
   # Bet 6 in portfolio/monetization/bets.md (2026-11-24 ranking).
   - venture: wall-framing-takeoff
     bet: 6
+    front_door: [wall-framing-takeoff, pdf-plan-takeoff]
     app: private-monorepo/apps/wall-framing-takeoff
     why: >-
       Bet 6 (score 18): remodelers, roofers and framers buy takeoff (Togal.AI

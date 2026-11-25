@@ -205,6 +205,16 @@ def check_flagships(errors, path=FLAGSHIPS_PATH):
                 f"flagships.yaml: {entry.get('venture')} `hosts:` must be a list of http(s) URLs "
                 f"(allocate.py --venture probes each one), got {hosts!r}."
             )
+        doors = entry.get("front_door")
+        if doors is not None:
+            if not isinstance(doors, list) or not all(isinstance(d, str) for d in doors):
+                errors.append(f"flagships.yaml: {entry.get('venture')} `front_door:` must be a list "
+                              f"of ventures/<slug> names, got {doors!r}.")
+            else:
+                for d in doors:
+                    if not (VENTURES_DIR / d).is_dir():
+                        errors.append(f"flagships.yaml: {entry.get('venture')} `front_door:` names "
+                                      f"{d}, which is not a folder under ventures/.")
         when = entry.get("not_before")
         if when is not None and not isinstance(when, date):
             errors.append(

@@ -12,7 +12,10 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from allocate import (
+    bet_side_note,
     claim_note,
+    load_bet_sides,
+    title_bets,
     claims_by_venture,
     deepen_to_window,
     recent_commits,
@@ -1008,6 +1011,38 @@ class StartHereTests(unittest.TestCase):
         self.assertEqual(start_here(queue, stalled, now=now), (1, "a"))
         self.assertIsNone(start_here(queue, live, now=now))
         self.assertIn("older open PRs: #17310", claim_note(stalled["a"], now=now))
+
+    def test_bet_side_note_groups_live_prs_by_surface(self):
+        # 2026-11-25: six open PRs worked bet 1's guides while its row (payapps)
+        # looked free, because none of their titles named "payapps".
+        from datetime import datetime, timezone
+        now = datetime(2026, 11, 25, 10, 0, tzinfo=timezone.utc)
+        sides = {"payapps": (1, ["pay-application-generator", "pay-app-guides"]),
+                 "jobshop-quote": (2, ["machine-shop-guides"]),
+                 "cmmc": (4, ["machine-shop-guides"])}
+        prs = [(18915, "pay-app-guides: cash forecast (bet #1 front door) + post", "2026-11-25T09:00:00Z"),
+               (18927, "docs: PayApps opening balance (private PRs 71, 72) agent doc (bet #1)", "2026-11-25T09:50:00Z"),
+               (18790, "pay-app-guides: Texas waivers", "2026-11-25T01:00:00Z"),
+               (18934, "machine-shop-guides: FAI checker (bets #2/#4 front door) + post", "2026-11-25T09:30:00Z"),
+               (18931, "quality fix: lawn-care-bid-calculator", "2026-11-25T09:40:00Z")]
+        note = bet_side_note("payapps", sides, prs, now=now)
+        self.assertIn("bet 1 live PRs", note)
+        self.assertIn("pay-app-guides #18915 (1h)", note)
+        self.assertIn("the app #18927 (0h)", note)
+        self.assertNotIn("18790", note)  # older than CLAIM_FRESH_HOURS
+        self.assertNotIn("18934", note)
+        self.assertIn("none on pay-application-generator", note)
+        self.assertIn("machine-shop-guides #18934", bet_side_note("cmmc", sides, prs, now=now))
+        self.assertEqual(bet_side_note("ai-bookkeeper", sides, prs, now=now), "")
+        self.assertEqual(bet_side_note("payapps", sides, None, now=now), "")
+        self.assertEqual(title_bets("x (bets #2/#4 front door)"), {2, 4})
+        self.assertEqual(title_bets("x (bet #1) and bets #3 and #5"), {1, 3, 5})
+        self.assertEqual(title_bets("alphabet #9"), set())
+
+    def test_every_bet_row_loads_its_front_doors(self):
+        sides = load_bet_sides()
+        self.assertIn("pay-app-guides", sides["payapps"][1])
+        self.assertEqual(sides["payapps"][0], 1)
 
     def test_session_spreads_concurrent_runs_over_free_rows(self):
         from datetime import datetime, timezone

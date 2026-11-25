@@ -72,6 +72,16 @@ def test_flagship_not_before_must_be_a_date(tmp_path):
     assert len(errors) == 1 and "x `not_before:`" in errors[0]
 
 
+def test_flagship_front_door_must_name_existing_ventures(tmp_path):
+    p = tmp_path / "flagships.yaml"
+    p.write_text("flagships:\n  - venture: x\n    front_door: [pay-app-guides, no-such-venture-zz]\n    next: ok\n"
+                 "  - venture: y\n    front_door: pay-app-guides\n    next: ok\n")
+    errors = []
+    validate.check_flagships(errors, p)
+    assert len(errors) == 2
+    assert "no-such-venture-zz" in errors[0] and "y `front_door:` must be a list" in errors[1]
+
+
 def test_bets_come_first_in_order_and_others_say_why(tmp_path):
     p = tmp_path / "flagships.yaml"
     good = ("flagships:\n"
