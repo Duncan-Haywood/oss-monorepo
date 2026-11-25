@@ -40,6 +40,10 @@
     {
       "what": "system Pillow broken (ImportError _imaging) so the e2e fixture JPEGs were drawn in Chromium instead",
       "impact": "minor"
+    },
+    {
+      "what": "venture-preflight caught a literal U+FEFF in proofing.mjs (check_hidden_unicode) and minmax(260px) in the gallery grid (grid-min-reflow); both fixed",
+      "impact": "two extra preflight passes (~15 min)"
     }
   ],
   "integrity_issues": [],
@@ -66,7 +70,7 @@
     "ventures/photo-editing/eval/cull-proofing-set-2026-11-25.md"
   ],
   "goal": "North star $10k MRR: a priced subscription offer (hosted proofing galleries) for a for-profit product that had none, with its free lead-in shipped",
-  "notes": "Comparables read from vendor pricing pages 2026-11-25 (Pixieset, ShootProof, Narrative); smugmug 403, camerabits 404. node --test site/proofing.test.mjs: 9/9; with rawpreview/iptc/usage 65/65. e2e (eval/cull-proofing-e2e.cjs): 3 proofs 2048x1365/1365x2048/2048x1365, gallery 3/3 loaded from file://, 2 hearts -> 2 Purple labels, 0 console errors. R2 price in the model row is from memory, flagged there.",
+  "notes": "Comparables read from vendor pricing pages 2026-11-25 (Pixieset, ShootProof, Narrative); smugmug 403, camerabits 404. node --test site/proofing.test.mjs: 9/9; with rawpreview/iptc/usage 65/65. e2e (eval/cull-proofing-e2e.cjs): 3 proofs 2048x1365/1365x2048/2048x1365, gallery 3/3 loaded from file://, 2 hearts -> 2 Purple labels, 0 console errors. R2 price in the model row is from memory, flagged there. run_venture_tests.py photo-editing: ok, 1635 tests (10 skipped). venture-preflight photo-editing: clean on the third pass.",
   "corrections": [],
   "redteam": null,
   "usage": {
