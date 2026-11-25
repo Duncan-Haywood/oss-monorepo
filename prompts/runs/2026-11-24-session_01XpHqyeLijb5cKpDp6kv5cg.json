@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01XpHqyeLijb5cKpDp6kv5cg",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "Consolidate providers onto Cloudflare (owner-approved 2026-11-24): Resend -> Cloudflare email sending in private apps/grants; Vercel -> Cloudflare for retail-pilot-intel docs; owner closing steps.",
+  "input_sha256": "885a25571e819e762b69f41c55c619238c1276afa912abb267e90e090a422381",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T21:39:50Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Consolidate providers onto Cloudflare (owner-approved 2026-11-24): Vercel -> Cloudflare Worker for retail-pilot-intel docs; Resend -> Cloudflare Email Service in private apps/grants; owner closing steps",
+  "projects": [
+    "retail-pilot-intel"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18672",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 2,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "Local sweep: new docs/reports file lacked `kind` front matter (doc_index), and `wrangler dev` left apps/docs/.wrangler/ which retail-pilot-intel's eslint linted. Fixed: front matter added; .wrangler/ gitignored and eslint-ignored.",
+    "Post description was 170 chars (limit 160)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/runs/README.md",
+      "issue": "run_workflow_locally refuses to sweep while the run record's outcome is null, but the record is meant to be filled after the PR exists; --no-record-check is the way through and could be named in the message."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Owner brief asked to move the Vercel deploy 'keeping its URL working or redirected'. The Vercel job never ran (VERCEL_DEPLOY unset; runs 45374351301 and earlier show it skipped), so there was no URL to keep; the new Cloudflare job is opt-in (manual run or RETAIL_PILOT_INTEL_DOCS_CLOUDFLARE=true) like the job it replaces, so nothing new publishes without the owner.",
+      "did": "Separate free-plan Worker, not a directory of marisstella.app (both site Workers near the 20k-file limit).",
+      "result": "Config verified by wrangler dry-run and wrangler dev; live verification is the owner's first manual run."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Brief step 1 said 'if it holds up' move Resend. Cloudflare Email Service holds up for transactional mail but its FAQ forbids marketing mail, so the newsletter sequence stays on Resend; Resend can only be closed if that sequence stays off.",
+      "did": "Category-routed sender with EMAIL_PROVIDER auto|cloudflare|resend in the private repo (PR private-monorepo#10).",
+      "result": "1565 grants tests pass locally; owner switches with EMAIL_PROVIDER=cloudflare after onboarding the domain."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Local verification (oss): wrangler@4.145.0 deploy --dry-run on apps/docs passes; wrangler dev serves / 200 with x-robots-tag noindex and x-frame-options DENY, unknown path 404, /_headers 404. run_workflow_locally --for-changes: all failures traced to the report front matter, the .wrangler/ dir and this record; after fixes re-run (see PR). Private repo: pnpm typecheck clean; test:unit+test:worker 142 files / 1565 tests pass; biome clean; e2e 04-draft-submit fails identically on main 8c3a592 (pre-existing, approve button disabled). Control-plane workflow change is separate PR oss-monorepo#18670 (needs owner approval).",
+  "corrections": [],
+  "redteam": null
+}

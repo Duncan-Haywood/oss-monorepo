@@ -17,10 +17,31 @@ test('sets critical when the flag byte is 128', () => {
   assert.equal(r.critical, true);
 });
 
-test('rejects a flag byte with a reserved bit set', () => {
+// RFC 8659 section 4.1: "Applications that interpret CAA records MUST ignore
+// the value of all reserved flag bits." Before 2026-11-24 this was rejected as
+// malformed, which dropped the record and turned a restrictive set into "any
+// CA may issue" (quality audit 2026-11-24).
+test('a flag byte with a reserved bit set is still a valid record, with the bits reported', () => {
   const r = parseCaaData('64 issue "letsencrypt.org"');
-  assert.equal(r.ok, false);
-  assert.match(r.error, /reserved bit/);
+  assert.equal(r.ok, true);
+  assert.equal(r.critical, false);
+  assert.equal(r.reservedFlagBits, 64);
+  assert.equal(r.value, 'letsencrypt.org');
+  const c = parseCaaData('129 tbs "x"');
+  assert.equal(c.critical, true);
+  assert.equal(c.reservedFlagBits, 1);
+});
+
+test('an unquoted presentation value is valid (RFC 8659 section 4.1.1)', () => {
+  const r = parseCaaData('0 issue letsencrypt.org');
+  assert.equal(r.ok, true);
+  assert.equal(r.tag, 'issue');
+  assert.equal(r.value, 'letsencrypt.org');
+  assert.equal(parseCaaData('0 issue ;').value, ';');
+});
+
+test('a tag with a character outside ASCII letters and digits is malformed (RFC 8659 section 4.1)', () => {
+  assert.equal(parseCaaData('0 issue-wild "letsencrypt.org"').ok, false);
 });
 
 test('unescapes a backslash-escaped quote inside the value', () => {

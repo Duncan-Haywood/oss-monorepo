@@ -17,6 +17,7 @@
 // Pure functions; no DOM, no network.
 
 /** @typedef {{page: number, text: string, indent: number, file?: string, filePage?: number}} Line */
+/** @typedef {{id: string, section: string, sectionTitle: string, article: string, part: number, para: string, type: string, sd: string, phase: string, text: string, when: string, coveredBy: string, page: number, file?: string, filePage?: number}} Buried */
 /** @typedef {{id: string, section: string, sectionTitle: string, article: string, para: string, label: string, type: string, sd: string, phase: string, description: string, approval: string, reviewer: string, flags: string[], page: number, file?: string, filePage?: number}} Item */
 
 // ---------------------------------------------------------------- input
@@ -309,6 +310,8 @@ function paragraphTree(lines) {
     if (!t) continue;
     let m = null, level = 0;
     for (const [re, lv] of /** @type {[RegExp, number][]} */ ([[P1, 1], [P2, 2], [P3, 3], [P4, 4]])) { m = t.match(re); if (m) { level = lv; break; } }
+    // "within three\n(3) days": a wrapped "(3)" after a spelled-out number is the same sentence, not a sub-paragraph.
+    if (m && level === 4 && last && /^\d+$/.test(m[1]) && /\b(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|fourteen|fifteen|twenty|thirty|forty|forty-five|sixty|ninety)$/i.test(last.text)) m = null;
     // "1." under no "A." paragraph is still a paragraph; "a." under "A." only after a "1.".
     if (m) {
       while (stack.length > 1 && stack[stack.length - 1].level >= level) stack.pop();
@@ -407,6 +410,133 @@ export function sectionItems(section) {
   return items;
 }
 
+// ------------------------------------------ requirements outside Part 1
+
+// A spec writer often puts a submittal in Part 3 ("Submit field test reports
+// within 24 hours") or in a Part 1 article that is not a submittal list
+// ("1.6 QUALITY ASSURANCE ... submit the installer's certificate"). Those are
+// where missed submittals start, so they are listed separately, each with the
+// Part 1 row that already seems to cover it (or none).
+
+// An obligation to submit, not a mention: "Submit ...", "..., submit ...",
+// "shall/must submit", "shall/must/will be submitted", "submit and have approved".
+const SUBMIT_VERB = /(?:^|[,;:]\s+|\b(?:shall|must|to|and|then|also)\s+)submit\b(?!tal)|\b(?:shall|must|will|are to|is to)\s+be\s+submitted\b/i;
+// "Furnish / provide / deliver ... to the Architect" also hands a document over.
+const HAND_OVER = /^(?:furnish|provide|deliver|send|forward)\b[^.]{0,160}?\bto the (?:Architect|Engineer|Owner(?:'s Representative)?|Contracting Officer|COR|Government|Construction Manager|Commissioning (?:Authority|Agent))\b/i;
+// A document word, so "deliver materials to the Owner" is not a submittal.
+const DOC_WORD = /\b(report|reports|certificate|certificates|certification|data|drawings?|samples?|schedules?|plans?|records?|logs?|calculations?|submittals?|warrant(?:y|ies)|manuals?|letters?|statements?|results|photographs|photos|copies|list|affidavit|documentation|literature|instructions|procedures|program|permits?|minutes)\b/i;
+// Sentences about the procedure, not a thing to submit.
+const PROCEDURE_ONLY = /^(?:submit(?:tals?)?\s+(?:in accordance with|according to|as specified in|under|per|comply with)|comply with|refer to|see)\b|^submittals?\b[^.]*\b(?:procedures|requirements)\b/i;
+const NOT_OBLIGATION = /\b(?:previously|already|as|was|were|been|approved|reviewed)\s+submitted\b|\bsubmitted\s+(?:and approved\s+)?(?:shop drawings|product data|samples)\b/i;
+const STOP = new Set("the and for with from each type that this shall must will into onto upon under over have been data submit submittal submittals report reports item items other".split(" "));
+const words = (t) => new Set(String(t).toLowerCase().match(/[a-z]{4,}/g)?.filter((w) => !STOP.has(w)).map((w) => w.replace(/(?:ations?|ies|ed|ing|es|s)$/, "")) || []);
+const WHEN = /\b(?:within\s+(?:\w+\s+)?\(?\d+\)?\s+(?:calendar\s+|working\s+|business\s+)?(?:days?|hours?|weeks?|months?)\s+(?:after|of|from|following|before|prior to)\s+[^,.;]{3,60}|(?:at least|not less than|minimum of|no later than)\s+(?:\w+\s+)?\(?\d+\)?\s+(?:calendar\s+|working\s+|business\s+)?(?:days?|hours?|weeks?|months?)\s+(?:before|prior to|after)\s+[^,.;]{3,60}|(?:prior to|before)\s+(?:[\w-]+\s+){1,3}(?:starts?|begins?|commences?|is (?:installed|delivered|ordered|fabricated))\b|(?:prior to|before|after|upon)\s+(?:the\s+)?(?:start|beginning|commencement|completion|installation|fabrication|delivery|substantial completion|final acceptance|ordering|each|testing|startup|start-up)\b[^,.;]{0,50})/i;
+
+/**
+ * Sentences of a paragraph. A run-in sub-article number ("... reports. 2.6.1
+ * General Perform tests ...") also ends a sentence, and is dropped.
+ */
+function sentences(text) {
+  return String(text).split(/(?<=[a-z0-9)\]"'])[.!?]\s+(?=[A-Z(])|\s+(?=\d{1,2}\.\d{1,2}\.\d{1,2}(?:\.\d{1,2})*\s+[A-Z])/)
+    .map((s) => s.replace(/^\d{1,2}\.\d{1,2}(?:\.\d{1,2})+\s+/, "").trim()).filter(Boolean);
+}
+
+/** Is this sentence an obligation to submit or hand over a document? */
+export function isSubmitSentence(s) {
+  if (PROCEDURE_ONLY.test(s) || NOT_OBLIGATION.test(s) && !/\b(?:shall|must)\s+submit\b|^submit\b/i.test(s)) return false;
+  if (SUBMIT_VERB.test(s)) return true;
+  return HAND_OVER.test(s) && DOC_WORD.test(s);
+}
+
+const GENERIC = words("products lists tests plans drawings certificates certification qualifications schedules records procedures instructions manuals samples materials systems equipment installation fields manufacturers details documents information results requirements work compliance");
+
+/** What is to be submitted: the dozen words after the verb (or before "be submitted"). */
+function submitObject(s) {
+  const m = s.match(/^(.*?)\bsubmit\b(?!tal)\s+(.*)/i);
+  if (m) {
+    // A short run-in heading before the verb names the subject too: "Roof Plan and Flashing Details Develop and submit ...".
+    const lead = m[1].split(/\s+/).filter(Boolean);
+    return [...(lead.length <= 8 ? lead : []), ...m[2].split(/\s+/).slice(0, 12)].join(" ");
+  }
+  const p = s.match(/(.*)\b(?:shall|must|will|are to|is to)\s+be\s+submitted\b/i);
+  if (p) return p[1].split(/\s+/).slice(-12).join(" ");
+  const h = s.match(/^(?:furnish|provide|deliver|send|forward)\s+(.*)/i);
+  return h ? h[1].split(/\s+/).slice(0, 12).join(" ") : s;
+}
+
+/**
+ * Part 1 row of the same section that this sentence seems to restate, or null:
+ * the row's label words (bar generic ones) must almost all appear in what the
+ * sentence asks to submit, not merely somewhere in the sentence.
+ */
+function coveringItem(sentence, sd, items, articleTitle = "") {
+  // The row's whole label as a phrase in what is asked for ("Submit product data for ...") settles it.
+  const phrase = (t) => " " + String(t).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim() + " ";
+  const obj = phrase(submitObject(sentence));
+  const exact = items.filter((it) => it.label.length >= 4 && obj.includes(phrase(it.label))).sort((a, b) => b.label.length - a.label.length)[0];
+  if (exact) return exact;
+  // The article's own title names the subject too ("3.6 LOAD TESTS ... Submit the test report").
+  const ow = new Set([...words(submitObject(sentence)), ...words(articleTitle.replace(/\b(?:GENERAL|REQUIREMENTS?|QUALITY|CONTROL|ASSURANCE|FIELD|INSTALLATION|EXECUTION|MATERIALS?|SYSTEM|DESCRIPTION|PROCEDURES?)\b/gi, " "))]);
+  let best = null, bestScore = 0;
+  for (const it of items) {
+    const lw = [...words(it.label.replace(/;\s*[GS]\b.*$/, ""))]; // "Fireproofing Material; G, NVFAC": the approval tail is not the subject
+    if (!lw.length) continue;
+    const hits = lw.filter((w) => ow.has(w));
+    const hit = hits.length;
+    // A match on generic words alone ("test", "plan") is no match: "Submit test results" is not "Slump Tests".
+    if (!hit || (!hits.some((w) => !GENERIC.has(w)) && (hit < lw.length || lw.length < 2))) continue;
+    let score = hit / lw.length;
+    if (sd && it.sd === sd && lw.length > 1) score += 0.25;
+    if (score > bestScore) { best = it; bestScore = score; }
+  }
+  return bestScore >= 0.75 ? best : null;
+}
+
+/**
+ * Submit-requirements written outside the section's Part 1 submittal articles.
+ * @param {{number: string, title: string, body: Line[]}} section
+ * @param {Item[]} items the section's Part 1 rows
+ */
+export function buriedRequirements(section, items) {
+  /** @type {Buried[]} */
+  const out = [];
+  for (const a of findArticles(section.body)) {
+    if (a.part <= 1 && isSubmittalHeading(a.title)) continue;
+    if (/\bSUBMITTAL PROCEDURES?\b|\bSUBMITTALS?\b/.test(a.title.toUpperCase()) && a.part <= 1 && /^01/.test(section.number)) continue;
+    const nodes = [];
+    const walk = (list, prefix) => { for (const n of list) { const para = prefix ? `${prefix}.${n.mark}` : n.mark; nodes.push({ n, para }); walk(n.kids, para); } };
+    const root = paragraphTree(a.lines);
+    if (root.text) nodes.push({ n: root, para: "" });
+    walk(root.kids, "");
+    for (const { n, para } of nodes) {
+      const text = clean(n.text);
+      for (const s of sentences(text).map((x) => x.replace(/\.$/, ""))) {
+        if (!isSubmitSentence(s)) continue;
+        const sd = classify("", s);
+        const cover = coveringItem(s, sd, items, a.title);
+        const when = (s.match(WHEN) || [""])[0].replace(/\s+/g, " ").trim();
+        out.push({
+          id: "",
+          section: section.number,
+          sectionTitle: section.title,
+          article: `${a.number} ${a.title}`,
+          part: a.part,
+          para,
+          type: sd ? SD[sd] : "Other",
+          sd,
+          phase: PHASE_OF_SD[sd] || "",
+          text: s.length > 400 ? s.slice(0, 400).replace(/\s+\S*$/, "") + "..." : s,
+          when,
+          coveredBy: cover ? cover.id : "",
+          page: n.page,
+        });
+      }
+    }
+  }
+  out.forEach((r, i) => { r.id = `${r.section.replace(/\s/g, "")}-P${String(i + 1).padStart(2, "0")}`; });
+  return out;
+}
+
 /**
  * The whole register.
  * @param {Line[]} lines
@@ -416,8 +546,11 @@ export function buildRegister(lines) {
   const sections = findSections(body);
   const out = [];
   const warnings = [];
+  /** @type {Buried[]} */
+  const buried = [];
   for (const s of sections) {
     const items = sectionItems(s);
+    for (const b of buriedRequirements(s, items)) buried.push(b);
     const hasPart1 = s.body.some((l) => PART.test(l.text));
     out.push({ number: s.number, title: s.title, page: s.page, count: items.length, hasPart1, items });
   }
@@ -428,8 +561,8 @@ export function buildRegister(lines) {
   // Several files read as one book: say which file and page each row came from.
   const where = new Map();
   for (const l of lines) if (l.file && !where.has(l.page)) where.set(l.page, { file: l.file, page: l.filePage ?? l.page });
-  for (const it of items) { const w = where.get(it.page); it.file = w ? w.file : ""; it.filePage = w ? w.page : it.page; }
-  return { sections: out, items, warnings, summary: summarize(items) };
+  for (const it of /** @type {(Item | Buried)[]} */ ([...items, ...buried])) { const w = where.get(it.page); it.file = w ? w.file : ""; it.filePage = w ? w.page : it.page; }
+  return { sections: out, items, buried, warnings, summary: summarize(items) };
 }
 
 export function summarize(items) {
@@ -460,6 +593,28 @@ export function toCsv(register) {
   return "\ufeff" + rows.map((r) => r.map(csvCell).join(",")).join("\r\n") + "\r\n";
 }
 
+export const BURIED_COLUMNS = ["Ref", "Spec Section", "Section Title", "Part", "Article", "Paragraph", "Submittal Type", "SD", "Phase", "Requirement", "When", "Covered By", "File", "Page"];
+
+/** Requirements written outside Part 1's submittal articles, as CSV; "Covered By" names the Part 1 row that seems to restate it. */
+export function buriedCsv(register) {
+  const rows = [BURIED_COLUMNS];
+  for (const b of register.buried || []) rows.push([b.id, b.section, b.sectionTitle, b.part, b.article, b.para, b.type, b.sd, b.phase, b.text, b.when, b.coveredBy, b.file || "", b.filePage ?? b.page]);
+  return "\ufeff" + rows.map((r) => r.map(csvCell).join(",")).join("\r\n") + "\r\n";
+}
+
+/**
+ * The register with the uncovered outside-Part-1 requirements added as rows
+ * (flag "outside-part-1"), so one import carries everything.
+ */
+export function withBuried(register) {
+  const extra = (register.buried || []).filter((b) => !b.coveredBy).map((b) => ({
+    id: b.id, section: b.section, sectionTitle: b.sectionTitle, article: b.article, para: b.para, label: shortTitle(b.text), type: b.type, sd: b.sd, phase: b.phase,
+    description: b.text, approval: "", reviewer: "", flags: ["outside-part-1"], page: b.page, file: b.file, filePage: b.filePage,
+  }));
+  const items = [...register.items, ...extra].sort((x, y) => x.section.localeCompare(y.section) || (x.id.includes("-P") ? 1 : 0) - (y.id.includes("-P") ? 1 : 0) || x.id.localeCompare(y.id));
+  return { ...register, items, summary: summarize(items) };
+}
+
 /** Plain-text summary for the CLI. */
 export function report(register) {
   const s = register.summary;
@@ -467,6 +622,8 @@ export function report(register) {
   lines.push("By type: " + Object.entries(s.byType).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(", "));
   if (Object.keys(s.byPhase).length) lines.push("By phase: " + Object.entries(s.byPhase).map(([k, v]) => `${k} ${v}`).join(", "));
   if (s.approval) lines.push(`Marked for Government approval (G): ${s.approval}`);
+  const b = register.buried || [];
+  if (b.length) lines.push(`Outside Part 1 submittal articles: ${b.length} submit requirement(s), ${b.filter((x) => !x.coveredBy).length} not matched to a Part 1 row (--buried-csv lists them)`);
   for (const w of register.warnings) lines.push("Note: " + w);
   return lines.join("\n");
 }

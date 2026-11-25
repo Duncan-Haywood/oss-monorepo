@@ -63,7 +63,7 @@ already current; check with `git rev-parse HEAD origin/main` after the fetch.
 6. **Confirm it landed.** The PR shows *merged*, and
    `python3 platform/ci/unlanded_work.py` exits 0, meaning nothing on your
    branch sits outside a PR or `main`.
-7. **Served surfaces publish themselves.** `portfolio-pages.yml` redeploys
+7. **Served surfaces publish themselves.** `priv-portfolio-pages.yml` redeploys
    the site on the merge. Avoid committing a reading after your merge: on its own
    it is a ledger-only change on a spent branch. Readings ride in a PR that
    ships work.
@@ -150,7 +150,7 @@ Merging is every agent's job, not only the author's:
     against today's `main`, credit the source branch in the PR body, and
     merge.
   - You will usually meet these as **adopted drafts** ("Adopt stranded
-    branch ...", opened by `adopt-stranded-branches.yml`). Treat one as an
+    branch ...", opened by `priv-adopt-stranded-branches.yml`). Treat one as an
     orphan draft (above): merge `main` in (that push also starts its CI),
     verify, and merge, or close it with the reason. Run
     `platform/ci/adopt_stranded.py` without `--apply` to see what it would adopt.

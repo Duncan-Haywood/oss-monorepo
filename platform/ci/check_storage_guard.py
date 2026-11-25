@@ -149,7 +149,7 @@ def bare_storage_args(src):
     return [code.count("\n", 0, c.start()) + 1 for c in call.finditer(code)]
 
 
-_SCRIPT = re.compile(r"<script\b([^>]*)>(.*?)</script\s*>", re.S | re.I)
+_SCRIPT = re.compile(r"<script\b([^>]*)>(.*?)</script\b[^>]*>", re.S | re.I)
 _TYPEOF = re.compile(r"\btypeof\s+(?:(?:window|globalThis|self)\.)?localStorage\b")
 
 

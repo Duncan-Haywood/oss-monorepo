@@ -6,7 +6,7 @@
 <meta name="description" content="Free calculator for makers selling 3D-printed parts: price one print from filament, electricity, printer depreciation, failed-print rate, and post-processing labor, then check whether your marketplace fee and target margin actually clear at the price you're charging.">
 <meta name="robots" content="index,follow">
 <meta property="og:title" content="3D Print Price Calculator">
-<meta property="og:description" content="A print priced at '3x the filament cost' skips electricity, printer wear, failed attempts, and the marketplace fee taken out of the price you charge. Find the real number before you list it.">
+<meta property="og:description" content="Price a 3D print with electricity, printer wear, failed attempts and the marketplace fee counted, not 3x the filament cost, and find the real number before you list it.">
 <meta property="og:type" content="website">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"3D Print Price Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that prices a 3D-printed part from filament cost, electricity, printer depreciation, failed-print rate, and post-processing labor, solves for a marketplace-fee-and-margin-clearing selling price, and checks a real listed price against the break-even."}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does the calculator inflate cost for a failure rate instead of just adding a flat buffer?","acceptedAnswer":{"@type":"Answer","text":"Because a failed print still burns filament, electricity, and printer hours before it gets scrapped, and the eventual successful print has to earn that back. On average, 1/(1 − failure rate) attempts are needed to land one sellable part, so material, electricity, and machine wear are multiplied by that factor rather than by a flat percentage guess."}},{"@type":"Question","name":"Why is the marketplace fee subtracted from the price instead of added to the cost?","acceptedAnswer":{"@type":"Answer","text":"Because the fee is a percentage of whatever you charge, not a fixed dollar amount, so it cannot be added as a cost line the way filament or electricity can. The calculator solves price×(1 − fee%) − cost = price×(margin%) for price directly, so the number you see already clears the fee at your target margin."}},{"@type":"Question","name":"Does post-processing labor or packaging get inflated by the failure rate too?","acceptedAnswer":{"@type":"Answer","text":"No. Post-processing time and packaging only ever happen once, on the part that actually sells — a failed print never reaches sanding or a shipping box. Only filament, electricity, and printer depreciation are multiplied, since those are what a failed attempt actually spends."}},{"@type":"Question","name":"Does anything I type get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere unless you choose to save it. Usage counting only tallies anonymous feature events, and you can turn it off with the button above. The Save button writes your scenario to this browser's own local storage on this device only, and Forget deletes it. Copy shareable link puts the same numbers in the page's URL fragment instead of a server — nothing about your scenario leaves your device either way, but whoever holds the link can read it."}}]}</script>
@@ -20,7 +20,7 @@
 <section><h2>Price one print</h2>
 <fieldset><legend>Print</legend>
 <p class="note"><label>Import grams and print time from your sliced G-code (optional)<input id="gcodeFile" type="file" accept=".gcode,.gco,.g,.txt"></label>
-Reads the slicer's own summary comments (PrusaSlicer, OrcaSlicer, Bambu Studio, Cura, Simplify3D) in this browser; the file is never uploaded.</p>
+Reads the slicer's own summary comments (PrusaSlicer, OrcaSlicer, Bambu Studio, Cura, Simplify3D) in this browser; a file without them is timed from its moves, and the file is never uploaded.</p>
 <p id="gcodeStatus" class="note" role="status" aria-live="polite"></p>
 <div class="fields">
 <label>Filament used (grams)<input id="filamentUsedGrams" type="number" min="0" step="1" value="45"></label>
@@ -84,7 +84,7 @@ Reads the slicer's own summary comments (PrusaSlicer, OrcaSlicer, Bambu Studio, 
 </dl>
 </section>
 
-<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your costs and prices are never uploaded, there is no account, and nothing is saved when you close the tab unless you choose to save it. We count only anonymous local feature events (<code>price-calculated</code>, <code>price-checked</code>, <code>gcode_imported</code>, <code>scenario_saved</code>, <code>link_copied</code>, <code>sponsor_link_clicked</code>) so we can tell whether the calculator gets used — no costs or prices are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p><p class="privacy">The Save button writes your scenario to this browser's own local storage on this device only, and Forget deletes it. Copy shareable link puts the same numbers in the page's URL fragment instead of a server — nothing about your scenario leaves your device either way, but whoever holds the link can read it.</p></section>
+<section><h2>Private by default</h2><p class="privacy">Everything on this page runs in your browser. Your costs and prices are never uploaded, there is no account, and nothing is saved when you close the tab unless you choose to save it. We count only anonymous local feature events (<code>price-calculated</code>, <code>price-checked</code>, <code>gcode_imported</code>, <code>gcode_moves_estimated</code>, <code>scenario_saved</code>, <code>link_copied</code>, <code>sponsor_link_clicked</code>) so we can tell whether the calculator gets used — no costs or prices are recorded, and Do Not Track / Global Privacy Control turn it off automatically. <button id="usage" type="button">Turn off local usage counting</button> <span id="usageStatus"></span></p><p class="privacy">The Save button writes your scenario to this browser's own local storage on this device only, and Forget deletes it. Copy shareable link puts the same numbers in the page's URL fragment instead of a server — nothing about your scenario leaves your device either way, but whoever holds the link can read it.</p></section>
 
 <section class="related-links" aria-labelledby="related-links">
   <h2 id="related-links">Related guides and tools</h2>
@@ -107,7 +107,7 @@ Reads the slicer's own summary comments (PrusaSlicer, OrcaSlicer, Bambu Studio, 
 <p>Building the electronics that go inside the print? The <a href="../ai-engineering-academy/">AI Engineering Academy's free electronics calculators</a> size an LED's series resistor, a voltage divider, an RC filter, and a 555 timer — browser-local, nothing uploaded.</p>
 <p>Running a fitness or dance studio and pricing your own hours? The <a href="../studio-class-slot-optimizer/">studio class slot optimizer</a> shows which timetable slots pay for their instructor — browser-local, nothing uploaded.</p>
 
-<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not audit your books, measure your printer's actual power draw, predict actual failure rates, or replace your own pricing judgment, accountant, or marketplace's fee schedule.</p><p>MIT licensed. If it helped you price a print, the <a href="LICENSE">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
+<footer><h2>Disclaimer</h2><p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not tax, financial, or business advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p><p>This calculator produces arithmetic observations from numbers you supply. It does not audit your books, measure your printer's actual power draw, predict actual failure rates, or replace your own pricing judgment, accountant, or marketplace's fee schedule.</p><p>FSL-1.1-MIT licensed. If it helped you price a print, the <a href="LICENSE">code is under the FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" id="sponsorLink">GitHub Sponsors</a> is optional and never changes what the tool does.</p></footer>
 
 <script type="module">
 import { calculatePrice } from './calc.mjs';
@@ -181,23 +181,31 @@ function updateActual(count = false) {
 FIELD_IDS.forEach(id => el(id).addEventListener('input', () => { updatePrice(true); updateActual(false); }));
 el('actualSellingPrice').addEventListener('input', () => updateActual(true));
 // Slicers write their summary at the head (Bambu, Cura) or the tail (Prusa,
-// Orca) of a file that can be hundreds of MB, so only both ends are read.
+// Orca) of a file that can be hundreds of MB, so both ends are read first.
+// Only a file with no summary is read whole, so its moves can be timed.
+const MOVES_MAX_BYTES = 400 * 1024 * 1024;
 el('gcodeFile').addEventListener('change', async (ev) => {
   const file = ev.target.files && ev.target.files[0];
   if (!file) return;
   const CHUNK = 262144;
   try {
     const [head, tail] = await Promise.all([file.slice(0, CHUNK).text(), file.slice(Math.max(0, file.size - CHUNK)).text()]);
-    const r = parseGcode(`${head}\n${tail}`);
+    let r = parseGcode(`${head}\n${tail}`, { readMoves: false });
+    if (!r.ok && file.size <= MOVES_MAX_BYTES) {
+      el('gcodeStatus').textContent = 'No slicer summary found; reading the moves to estimate it…';
+      r = parseGcode(await file.text());
+    }
     if (!r.ok) {
       el('gcodeStatus').textContent = `Could not find ${r.missing.join(' or ')} in this file. Type the figures from your slicer instead.`;
       return;
     }
     el('filamentUsedGrams').value = r.grams;
     el('printTimeHours').value = r.hours;
-    el('gcodeStatus').textContent = `Read ${r.grams} g and ${r.hours} h (${r.slicer}). ${r.derived.join(' ')} Check them against your slicer before relying on the price.`;
+    const how = r.motion ? 'No slicer summary, so these are estimated from the moves for a printer with typical limits (the M201–M205 settings in the file win). On 21 PrusaSlicer files this landed within 2% of the slicer; a printer tuned slower or faster differs more.' : '';
+    const notes = r.derived.length ? ` ${r.derived.join('; ')}.` : '';
+    el('gcodeStatus').textContent = `Read ${r.grams} g and ${r.hours} h (${r.slicer}).${notes} ${how ? how + ' ' : ''}Check them against your slicer before relying on the price.`;
     updatePrice(true); updateActual(false);
-    recordEvent('gcode_imported');
+    recordEvent(r.motion ? 'gcode_moves_estimated' : 'gcode_imported');
   } catch {
     el('gcodeStatus').textContent = 'This browser could not read that file. Type the figures from your slicer instead.';
   }

@@ -1,5 +1,5 @@
 # Watch a metric for changes, in your own GitHub repository, on GitHub's free runners.
-# Made by deploy/make-watch-repo.sh from https://marisstella.app/changepoint-detector/ (MIT).
+# Made by deploy/make-watch-repo.sh from https://marisstella.app/changepoint-detector/.
 #
 # Set in your repository (Settings > Secrets and variables > Actions); the README says more about each:
 #   variable METRIC_CSV      a CSV in this repository (data/metric.csv) or an https:// link to one, rows oldest first
@@ -19,7 +19,7 @@ on:
     - cron: '17 7 * * *'   # daily at 07:17 UTC; change to suit how often a row arrives
   workflow_dispatch:
 permissions:
-  contents: write          # to commit watch-state.json (and weekly-state.json), which remember what was already reported
+  contents: write          # to commit the *-state.json files, which remember what was already reported
 concurrency: watch-metric
 jobs:
   watch:
@@ -84,7 +84,7 @@ jobs:
           if [ -z "$GA4_SERVICE_ACCOUNT_JSON" ]; then exit 0; fi
           if [ -z "$GA4_PROPERTY" ]; then echo "Set the GA4_PROPERTY variable (the numeric ID in Admin > Property details)."; exit 2; fi
           # word-splitting of GA4_OPTIONS is intended
-          node ga4-metrics.mjs --property "$GA4_PROPERTY" --out data/ga4.csv $GA4_OPTIONS
+          node ga4-metrics.mjs --property "$GA4_PROPERTY" --out data/ga4.csv ${GA4_OPTIONS:---sections 5}
       - name: Fetch Plausible metrics
         env:
           PLAUSIBLE_API_KEY: ${{ secrets.PLAUSIBLE_API_KEY }}
@@ -207,10 +207,11 @@ jobs:
           if [ -z "$METRIC_CSV" ]; then echo "Set the METRIC_CSV variable, or the STRIPE_API_KEY, SHOPIFY_ACCESS_TOKEN, GSC_SERVICE_ACCOUNT_JSON, GA4_SERVICE_ACCOUNT_JSON, PLAUSIBLE_API_KEY, POSTHOG_API_KEY, UMAMI_API_KEY, MIXPANEL_SERVICE_ACCOUNT or MATOMO_TOKEN secret (see the top of this file)."; exit 2; fi
           HOOK=""; [ -n "$WATCH_WEBHOOK_URL" ] && HOOK="--webhook-env WATCH_WEBHOOK_URL"
           FAIL="--fail-on-alert"; [ -n "$HOOK" ] && FAIL=""
-          # Both watches run even if the first fails; the step fails if either did; the next step saves both records.
+          # Each check runs even if one fails; the step fails if any did; the next step commits state.
           DAILY=0; WEEKLY=0
           # word-splitting of WATCH_OPTIONS is intended
           node watch.mjs "$METRIC_CSV" --state watch-state.json $HOOK $WATCH_OPTIONS $FAIL | tee -a "$GITHUB_STEP_SUMMARY" || DAILY=$?
+          node dark-sections.mjs "$METRIC_CSV" --state dark-state.json $HOOK $FAIL | tee -a "$GITHUB_STEP_SUMMARY" || DAILY=$?
           if [ -n "$WATCH_WEEKLY" ]; then
             [ "$WATCH_WEEKLY" = "on" ] && WATCH_WEEKLY="$WEEKLY_DEFAULT"
             echo "" | tee -a "$GITHUB_STEP_SUMMARY"
@@ -222,10 +223,10 @@ jobs:
       - name: Save what was reported
         if: always()
         run: |
-          [ -f watch-state.json ] || [ -f weekly-state.json ] || exit 0
+          ls *-state.json >/dev/null 2>&1 || exit 0
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          for f in watch-state.json weekly-state.json; do if [ -f "$f" ]; then git add "$f"; fi; done
+          git add *-state.json
           git diff --cached --quiet && exit 0
           git commit -m "watch: state after $(date -u +%F)"
           # Another job (or you) may have pushed rows since the checkout; a plain push would then be refused, the

@@ -958,6 +958,74 @@ building a schedule. Drift swept; isotropic Brownian walk; statics.
 
 ![Re-zeros per 100 sheets under a random-walk bias: linear schedule against a 1% wall-risk schedule, G1 and H1](experiments/m73_randomwalk/figure.png)
 
+**Milestone 74: can allocating re-zero risk press by press get the G1 past its cliff?** No, and nothing can. Offline,
+on milestone 73's wall and drift models, an exact dynamic programme finds the fewest re-zeros for a per-press risk
+budget, and the same programme on each segment's largest marginal gives **a lower bound on any schedule with 1% wall
+risk**. On the G1's LAYOUT plan at D1 = 0.1 N that bound is **96 re-zeros per 100 sheets** (H295 held), and the
+simulation-calibrated allocation reaches it (96, against milestone 73's 99): the cliff is the wall's. Against the union
+bound's uniform level the allocation cuts re-zeros on 17 of 18 rows (H296 held), but against a calibrated uniform level it
+saves 0 to 9% and wins on only 9 of 20 rows (H297 refuted). On every row with 10 or more re-zeros it is **within 10% of
+the lower bound** (median 1.3%, H298 held), so the risk allocation is close to solved. The G1's banded plan now costs
+2.97% of the cycle (23 re-zeros, H299 held). The lever left is the pose plan's weakest allowance. Drift swept; isotropic
+Brownian walk; statics.
+
+![Re-zeros per 100 sheets at 1% wall risk: uniform level, per-press allocation and the lower bound, G1 and H1](experiments/m74_allocate/figure.png)
+**Milestone 75: is there a better way to spend a 1% wall risk?** (offline, `experiments/m75_riskopt/`,
+`src/buildbot_sheathing/riskdp.py`). Under a random walk the bias's norm is a 3-D Bessel process, a Markov chain on one
+variable, so the chance a stretch of presses all stay inside their allowances can be computed exactly rather than
+simulated. Re-zeros reset the walk, so the fewest re-zeros at a 1% wall risk is a dynamic programme over the wall (OPT).
+**The optimum saves at most 7% over one per-press risk level** calibrated with the same exact calculation (0 on 12 of 18
+rows; 142 against 149 at worst, G1 LAYOUT at 0.2 N/h), so splitting risk by pose is not worth the complexity (H303
+refuted). **The G1's cliff is structural**: OPT needs 96 re-zeros per 100 sheets against 99 (H302 held), because the
+1.2 m pose's deadline sits at the 116 s sheet period. The exact chain also shows that milestone 73's calibration on
+4,000 simulated walls overshot the 1% target on 5 of 18 rows, up to 1.31%: the H1 needs 10 re-zeros at 0.1 N, not 9.
+Milestone 74's lower bound (a separate code) sits at or below OPT on all 18 rows and is attained on 5, the G1's 96 among them; scored exactly, 3 of its simulation-calibrated schedules exceed 1% (up to 1.22%), so allocation's real gain is at most 149 to 142. Checked against Monte Carlo and a finer grid (H300, H301, H305 held). RW only, drift swept; statics.
+
+![Re-zeros per 100 sheets at 1% wall risk under a random-walk bias: optimal schedule against one per-press risk, G1 and H1](experiments/m75_riskopt/figure.png)
+
+**Milestone 76: can one free-air bias reading a sheet replace the force-sensor re-zeros?** Mostly, if the reading is
+good to 0.01 N. (offline, `experiments/m76_closedloop/`, `src/buildbot_sheathing/closedloop.py`). Once a sheet the tool
+hangs in free air, so its bias can be read through a gravity model, with noise s a axis (swept). A Kalman filter turns the
+readings into an estimate, and milestone 75's exact chain prices a sheet that skips its tare. **Subtracting the estimate
+from the sensor offset at every reading (TRACK) needs no tares at all on 16 of 18 cases at s = 0.01 N**, and 49 instead of
+the open-loop optimum's 96 on the G1's LAYOUT plan at 0.1 N (H310 held). Using the reading only to decide when to tare
+(READ) needs 38.4 there even with perfect readings (H308 held). At s = 0.02 N the G1's 1.2 m pose (0.044 N allowance) is
+back at its cliff, 95.7 at best (H309 held), and TRACK, whose tare rule is the same on every path, tares every sheet or
+never, so READ wins 4 of 90 comparisons (H311 refuted). A fixed 0.02 N gravity-model error unknown to the filter takes the
+wall's failure from 1% to 9.9 to 12.4% wherever a policy runs near its margin, READ as much as TRACK (H312 refuted). The
+reading pays for 3.45 s a sheet on the G1's banded plan at 15 s a tare (H313 held). Calibrated on 4,000 walls, the worst
+fresh failure was 1.56% (H307 refuted narrowly). RW only; drift and reading noise swept; statics.
+
+![Mean re-zeros per 100 sheets at 1% wall risk against free-air reading noise: tracking the offset, triggering tares, and the open-loop optimum, G1 and H1](experiments/m76_closedloop/figure.png)
+
+**Milestone 77: when the robot tracks its force bias, how should it schedule the tares it still needs?** Spread a wall
+risk budget over equal runs instead of capping each sheet's risk (offline, `experiments/m77_balance/`). The tracked
+filter's variance after j sheets does not depend on the readings, so each sheet's risk j sheets after a tare is a fixed
+table, and with it rising the fewest tares at a union-bound budget are equal runs (BALANCE). It is never worse than
+milestone 76's TRACK on 90 cases (H315 held) and needs no more tares than either closed-loop policy at 0.01 N on all 11
+large cases (H318 held), but saves a median of only 2.0% over TRACK (H317 refuted). It pays where a per-sheet level
+forced a tare every sheet: **G1 LAYOUT at 0.2 N with 0.05 N readings, 116 re-zeros against TRACK's 199 and the open-loop
+optimum's 142**. The G1's weak pose at 0.02 N stays at the open-loop optimum (97 against 96, H316 held), and a 0.02 N
+gravity-model error still fails 11.9% of walls (H319 held). Worst fresh failure 1.30% (H314 held). RW only; drift and
+reading noise swept; statics.
+
+![Re-zeros per 100 sheets at 1% wall risk against reading noise: a wall budget spread over the tracked residual's tares against one per-sheet risk level, G1 and H1 at 0.2 N](experiments/m77_balance/figure.png)
+
+**Milestone 78: can a force-sensing robot learn its own gravity-compensation error?** Yes, if it keeps the error in
+its filter and reads once right after every tare (offline, `experiments/m78_augfilter/`). The free-air bias reading
+passes through a gravity model whose error beta at the reading pose is fixed for the wall. A filter that ignores it,
+with beta drawn from N(0, 0.02&sup2;) N a axis, **fails 51.5% of walls on the G1's weak pose** at 0.01 N of reading noise
+(H321 held), and a tighter risk level rescues it only by taring every sheet, or not at all, because its own risk
+table says carried sheets are safe. Carrying
+beta in the state (AUG) and reading beta + noise right after each tare, when the bias is known to be zero (AUG+R),
+keeps every one of 72 cases calibrated (worst 1.09%, H320 held) for **67 re-zeros on that pose, against 48 with beta
+known to be zero and the open-loop optimum's 96**; the median excess over a known beta is 7.7% (H323 held), AUG+R
+needs no more re-zeros than the open-loop optimum on all 11 large cases and 0 on 9 of them (H324 held), and a fixed
+two-sigma error of 0.04 N fails 0.78% (H325 held). The post-tare reading saves 26% over AUG there, short of the 30%
+registered (H322 refuted). Beta fixed over the wall, its prior swept, not sourced; RW drift; statics.
+
+![Re-zeros per 100 sheets at 1% wall risk with an unknown gravity-model error: the naive filter recalibrated, the augmented filter, the augmented filter with a reading after each tare, and the open-loop optimum, on the 11 large cases](experiments/m78_augfilter/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

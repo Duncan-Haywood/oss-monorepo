@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01EhTJVPKiZ2CJtTG7J4ibmi",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T08:55:50Z",
+  "ended": "2026-11-25T08:59:44Z",
+  "wall_minutes": 4.08,
+  "tokens_in": 3665089,
+  "tokens_out": 15778,
+  "cost_usd": 1.7357,
+  "tool_calls": 40,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18913",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "private-monorepo clone was refused by the auto-mode classifier after add_repo succeeded; fell back to the public side per P075"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "says to clone with `git fetch --deepen=500` when a merge needs history; the 40-deep fetch of a stalled PR branch gave 'refusing to merge unrelated histories' until one --deepen=200 round of both refs, worth one line"
+    },
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "issue": "bets #1 and #2 front doors get most parallel runs (over 20 pay-app-guides PRs on 2026-11-25); nothing steers a run toward a bet that has fewer runs, so runs crowd and conflict"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Bet #1/#2 had 4+ open PRs from concurrent runs, so I took bet #3: landed its stalled PR #18805 and closed a quality-audit item, not a new pay-app page",
+      "did": "landed #18805 through this PR, plus a remainder-10 VAT cross-check",
+      "result": "bet #3 fix reaches main; no collisions"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No new or extended post: the VAT cross-check found no defect, which is test hardening rather than reader news. The landed #18805 already extends the consolidated e-invoice post",
+      "did": "report in eval/ only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "ventures/einvoice-preflight/eval/vat-remainder10-2026-11-25.md",
+    "docs/posts/2026-11-24-74-e-invoice-errors-explained-in-three-languages.md (extended by landed #18805)"
+  ],
+  "goal": null,
+  "notes": "Security queue: none workable. Ideas inbox empty. einvoice JS suite 2184 pass / 1 env fail (poppler) / 142 skipped; Python 442 OK; risk_review blocked nothing.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e1b2cdef-0bc2-5242-a8ad-07c646fcd906",
+    "transcripts": 1,
+    "first": "2026-11-25T08:55:50Z",
+    "last": "2026-11-25T08:59:55Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 76,
+        "output": 15778,
+        "thinking": 2256,
+        "cache_read": 3576961,
+        "cache_write_5m": 0,
+        "cache_write_1h": 88052,
+        "api_equivalent_usd": 1.7357,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 76,
+      "output": 15778,
+      "thinking": 2256,
+      "cache_read": 3576961,
+      "cache_write_5m": 0,
+      "cache_write_1h": 88052,
+      "api_equivalent_usd": 1.7357,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 31,
+      "mcp__github__pull_request_read": 3,
+      "ToolSearch": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.08,
+      "active_minutes": 4.08,
+      "model_minutes": 3.03,
+      "tool_minutes": 1.05,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "review and land a stalled PR (1h) plus write and run a three-way VAT differential with tests (2h)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 172.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

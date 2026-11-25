@@ -176,7 +176,7 @@ test("team names that are Object.prototype keys record, render and count like an
     assert.deepEqual(pr.errors, [], evil);
     assert.deepEqual(notAnswered(store, "f1", evil, pr.rosters), ["Dee"], evil);
     assert.deepEqual(notAnswered(JSON.parse(JSON.stringify(store)), "f1", evil, JSON.parse(JSON.stringify(pr.rosters))), ["Dee"], evil);
-    assert.match(availabilityCsv(store, games, {}), new RegExp(`,${evil.replace(/_/g, "_")},Owls,cy,in,`), evil);
+    assert.match(availabilityCsv(store, games, {}), new RegExp(`,${evil},Owls,cy,in,`), evil);
     const pc = parseContacts(`${evil}: cap@example.org, cap@example.org`, [evil, "Owls"]);
     assert.deepEqual([pc.errors, pc.contacts[evil]], [[], ["cap@example.org"]], evil);
     const due = remindersDue(store, games, { minPlayers: 3, today: 20000, contacts: {}, organiser: "org@example.org" });

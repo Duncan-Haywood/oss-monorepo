@@ -1,0 +1,85 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01EhTJVLT3k8CrNAqdNR2KyV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-25T00:12:09Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Rewire the seven built-dark paid packs from Lemon Squeezy's licence check to Paddle (backlog P072 agent step) through one shared platform/billing path",
+  "projects": [
+    "platform/billing",
+    "wall-framing-takeoff",
+    "league-schedule-generator",
+    "shift-roster-builder",
+    "shed-designer",
+    "einvoice-preflight",
+    "changepoint-detector",
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18756",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 19,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Cloning private-monorepo (allocate.py's row 2, jobshop-quote, and every for-profit app row) was refused by the session's permission classifier as unauthorized access",
+      "did": "Did not retry or work around it; took the top for-profit task buildable in this repository instead"
+    },
+    {
+      "what": "developer.paddle.com does not resolve from the session",
+      "did": "Built from memory of Paddle Billing's docs, cross-checked against ventures/webhook-relay/verify.mjs (same signature scheme); README lists what the sandbox purchase must confirm"
+    }
+  ],
+  "integrity_issues": [
+    {
+      "what": "My first draft mounted the billing routes, and so the Paddle webhook secret and signing key, on the public site's edge Worker, which goals.md's Payments guardrail forbids (no webhook secret in the public Cloudflare account)",
+      "did": "Caught at the risk-review step before merging; moved the routes to a standalone platform/billing/worker.mjs the owner deploys to a separate account, with tests that fail if the edge Worker imports it or a workflow deploys it"
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Rows 1-7 of the flagship table all send a run to private-monorepo; when a session cannot clone it (classifier refusal here), there is no 'buildable in oss-monorepo' fallback among for-profit rows, so the run has to hunt for MRR work itself."
+    },
+    {
+      "file": "portfolio/monetization/models.yaml",
+      "issue": "The P072 agent step pointed at private-monorepo's grants Paddle adapter as the reference, which a session without private access cannot read, and did not mention the guardrail that rules out hosting the webhook receiver on the public edge Worker; that cost a redesign."
+    },
+    {
+      "file": ".github/workflows/priv-edge-deploy.yml",
+      "issue": "Its paths filter covers only platform/edge/**, so code the edge Worker imports from elsewhere (e.g. platform/counter beyond core.mjs) does not redeploy it; noted, not changed (owner-only file)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The Deepen row picked (jobshop-quote) needs private-monorepo, whose clone was refused; the North star ranks 'a checkout path that ships dark' first",
+      "did": "Took models.yaml's queued agent step for the seven dark packs instead of a flagship row",
+      "result": "One shared, tested Paddle path landed; all seven packs rewired and still dark"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-selling-licence-keys-on-paddle-without-an-api-key.md",
+    "platform/billing/README.md"
+  ],
+  "goal": "North star tier 1: a checkout path that ships dark. Seven paid packs could never have gone on sale (their checkout called a provider the owner does not use); now each needs only the owner's Paddle values and a billing Worker deploy.",
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}

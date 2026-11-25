@@ -334,7 +334,7 @@ function parseCMap(t) {
         for (let c = lo; c <= hi && c - lo < items.length; c++) map.set(c, hexStr(items[c - lo][1].padEnd(4, "0")));
       } else {
         const base = parseInt(m[3].slice(1, -1), 16);
-        for (let c = lo; c <= hi && c - lo < 65536; c++) map.set(c, String.fromCodePoint(base + (c - lo)));
+        for (let c = lo; c <= hi && c - lo < 65536; c++) map.set(c, codePointOr(base + (c - lo)));
       }
     }
   }
@@ -510,3 +510,7 @@ export async function pdfToText(input) {
   return out.join("\n\f\n").trim();
 }
 void resolveRefsInText;
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }

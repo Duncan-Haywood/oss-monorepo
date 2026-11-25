@@ -55,7 +55,8 @@ def year_waves(pos):
     h = o["hourly"]
     rows = [(t, hs, tm) for t, hs, tm in zip(h["time"], h["wave_height"], h["wave_period"])
             if hs is not None and tm is not None and hs > 0 and tm > 0]
-    return o["latitude"], o["longitude"], rows
+    grid_cell = tuple(o[k] for k in ("latitude", "longitude"))  # the model grid point the API snapped to
+    return grid_cell[0], grid_cell[1], rows
 
 
 def point_waves(pos):

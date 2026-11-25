@@ -119,3 +119,18 @@ test('a malformed CAA record at the found name is still returned, not dropped', 
   assert.equal(r.ok, true);
   assert.equal(r.records[0].ok, false);
 });
+
+// Quality audit 2026-11-24: a pasted URL was queried verbatim, walking
+// "https://example.com/path" -> "com/path".
+test('normalizeHostname turns a pasted URL, port, wildcard or trailing dot into the DNS name', async () => {
+  const { normalizeHostname } = await import('./lookup.mjs');
+  assert.equal(normalizeHostname('https://Shop.Example.com:8443/cart?x=1'), 'shop.example.com');
+  assert.equal(normalizeHostname('  *.Example.COM. '), 'example.com');
+  assert.equal(normalizeHostname('user@mail.example.com'), 'mail.example.com');
+  assert.equal(normalizeHostname('example.com'), 'example.com');
+  const asked = [];
+  await resolveCaaSet('https://www.example.com/path', {
+    dohQueryFn: async (name) => { asked.push(name); return { ok: true, nxdomain: false, answers: [] }; },
+  });
+  assert.deepEqual([...new Set(asked)], ['www.example.com', 'example.com', 'com']);
+});

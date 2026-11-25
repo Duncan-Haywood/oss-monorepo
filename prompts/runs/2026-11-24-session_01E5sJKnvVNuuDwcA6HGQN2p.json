@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKnvVNuuDwcA6HGQN2p",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T06:18:20Z",
+  "ended": "2026-11-24T06:27:37Z",
+  "wall_minutes": 9.53,
+  "tokens_in": 4155847,
+  "tokens_out": 27707,
+  "cost_usd": 2.2352,
+  "tool_calls": 42,
+  "task": "Deepen (flagship 7) photo-editing: keyword trees and roster codes in the cull page; duplicated PR #18557 which merged first, so this PR took main's version and fixes a bug in it (a sidecar's own flat keywords parsed as paths)",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18558",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "eval script first clicked the IPTC panel after a page reload, where it is hidden with no files loaded; reordered so the load-from-xmp step runs before the reload",
+    "apt-get install libimage-exiftool-perl failed until apt-get update ran first",
+    "changed-ventures CI failed on check_hidden_unicode.py: a literal U+FEFF in eval/cull-iptc-tree-page.mjs (the roster file's BOM); replaced with the \\uFEFF escape. Running platform/ci/unwired_checks.py locally, as run_venture_tests.py suggested, would have caught it",
+    "duplicate work: PR #18557 (another session, same minute) landed keyword trees + codes + per-frame captions while this run built the same; found only at merge time via a conflict. Claim PR was opened first, but #18557's title also named the item, so claim_check would not have helped; this run did not run claim_check.py"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here said take item 2 of photo-editing's numbered list, but item 2 ('a 3-stop lift loses 0 of the screen codes...') is a finished result, not a task; the buildable: field's results are numbered as items"
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "run_venture_tests.py photo-editing outlasts the 120 s foreground timeout; the note names ai-bookkeeper as the one that did not, photo-editing should be listed as one that does"
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "two sessions drew photo-editing and both took the NEXT.md IPTC items; Start here's item rank does not cover items taken from NEXT.md, so the claim/item spreading did not prevent the collision"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "item 2 was a result, not work; items 5-7 need outside inputs or were tried and left (JPEG XL DNGs, no sample)",
+      "did": "took two open items from NEXT.md's IPTC section (hierarchical keywords, code replacements), both buildable and checkable with ExifTool",
+      "result": "landed and checked in Chromium + ExifTool"
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "why": "the duplicate's functionality was already on main and was a superset",
+      "did": "merged main into the branch, kept main's implementation, dropped this branch's code, eval and post, and shipped a bug fix found by running this branch's test cases against main's version",
+      "result": "one real bug fixed, with ExifTool output before and after; transition.json refreshed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-photo-culler-keeps-your-own-keywords-as-written.md",
+    "ventures/photo-editing/eval/cull-iptc-own-keywords-2026-11-24.md"
+  ],
+  "goal": null,
+  "notes": "Final diff vs main: site/iptc.mjs mergeIptc keeps existing dc:subject entries verbatim (not path-parsed) + 1 test; eval/cull-iptc-tree-page.mjs sidecar gains a 'Before > After' keyword; ExifTool before/after in eval/cull-iptc-own-keywords-2026-11-24.md; transition.json refreshed (was stale on main: source_lines for photo-editing, ids-model-check, xer-schedule-check). Checks: node --test site/*.test.mjs 69/0; Chromium eval, no page errors, exiftool -validate OK; check_posts ok; check_hidden_unicode ok. Earlier CI failure (U+FEFF literal in this branch's own eval script) is moot: that script was replaced by main's.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "cf48399a-999b-58f7-b5ec-9623de861e5b",
+    "transcripts": 1,
+    "first": "2026-11-24T06:18:20Z",
+    "last": "2026-11-24T06:27:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 75,
+        "output": 27707,
+        "thinking": 4419,
+        "cache_read": 4046851,
+        "cache_write_5m": 0,
+        "cache_write_1h": 108921,
+        "api_equivalent_usd": 2.2352,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 75,
+      "output": 27707,
+      "thinking": 4419,
+      "cache_read": 4046851,
+      "cache_write_5m": 0,
+      "cache_write_1h": 108921,
+      "api_equivalent_usd": 2.2352,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 40,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.53,
+      "active_minutes": 9.53,
+      "model_minutes": 5.15,
+      "tool_minutes": 4.38,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a front-end developer adding XMP keyword-tree writing, a code-replacement parser and a browser + ExifTool check",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 268.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

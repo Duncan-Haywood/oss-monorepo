@@ -1,0 +1,31 @@
+CCA_R03_dt_24Oct11SC.xer seed 1: windows with both sides 5/6, changes planted 11, split exact 6/6, named 11/11, adds up true, sorted true, 11871 ms
+CCA_R03_dt_24Oct11SC.xer seed 2: windows with both sides 3/6, changes planted 9, split exact 6/6, named 9/9, adds up true, sorted true, 11053 ms
+CCA_R03_dt_24Oct11SC.xer seed 3: windows with both sides 0/6, changes planted 6, split exact 6/6, named 6/6, adds up true, sorted true, 10777 ms
+Expressway_Project.xer seed 1: windows with both sides 3/6, changes planted 7, split exact 4/4, named 7/7, adds up true, sorted true, 936 ms
+Expressway_Project.xer seed 2: windows with both sides 1/6, changes planted 5, split exact 4/4, named 5/5, adds up true, sorted true, 1013 ms
+Expressway_Project.xer seed 3: windows with both sides 0/6, changes planted 5, split exact 5/5, named 5/5, adds up true, sorted true, 988 ms
+example_xer_file.xer seed 1: windows with both sides 1/6, changes planted 5, split exact 4/4, named 5/5, adds up true, sorted true, 204 ms
+example_xer_file.xer seed 2: windows with both sides 5/6, changes planted 10, split exact 5/5, named 10/10, adds up true, sorted true, 182 ms
+example_xer_file.xer seed 3: windows with both sides 1/6, changes planted 5, split exact 4/4, named 5/5, adds up true, sorted true, 192 ms
+hotel-project.xer seed 1: windows with both sides 0/6, changes planted 0, split exact 0/0, named 0/0, adds up true, sorted true, 1892 ms
+hotel-project.xer seed 2: windows with both sides 0/6, changes planted 0, split exact 0/0, named 0/0, adds up true, sorted true, 1798 ms
+hotel-project.xer seed 3: windows with both sides 0/6, changes planted 0, split exact 0/0, named 0/0, adds up true, sorted true, 1579 ms
+sample.xer seed 1: windows with both sides 0/6, changes planted 5, split exact 5/5, named 5/5, adds up true, sorted true, 10 ms
+sample.xer seed 2: windows with both sides 1/6, changes planted 6, split exact 5/5, named 6/6, adds up true, sorted true, 11 ms
+sample.xer seed 3: windows with both sides 2/6, changes planted 7, split exact 5/5, named 7/7, adds up true, sorted true, 13 ms
+terminal-building-airport.xer seed 1: windows with both sides 5/6, changes planted 11, split exact 6/6, named 11/11, adds up true, sorted true, 50 ms
+terminal-building-airport.xer seed 2: windows with both sides 4/6, changes planted 10, split exact 6/6, named 10/10, adds up true, sorted true, 20 ms
+terminal-building-airport.xer seed 3: windows with both sides 3/6, changes planted 9, split exact 6/6, named 9/9, adds up true, sorted true, 22 ms
+
+kind          planted  named  other-side
+late-start          9      9           0
+gain               17     17           0
+early-finish       19     19           0
+constraint         13     13           0
+added              10     10           0
+link-deleted       11     11           0
+calendar            5      5           0
+cut                12     12           0
+type               15     15           0
+windows with a plant 77, split exact 77; with both sides 34, split exact 34, both sides moved 22
+series 18, adding up 18, sorted 18, errors 0

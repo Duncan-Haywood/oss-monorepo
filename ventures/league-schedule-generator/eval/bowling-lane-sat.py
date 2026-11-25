@@ -35,7 +35,7 @@ lo, hi = W // P, -(-W // P)
 for t in range(n):
     for p in range(P):
         lits = [x(w, m, p) for w, wk in enumerate(rounds) for m, (a, b) in enumerate(wk) if t in (a, b)]
-        cnf.extend(CardEnc.atmost(lits, hi, vpool=pool, encoding=EncType.seqcounter).clauses)
+        cnf.extend(CardEnc.atmost(lits, hi, vpool=pool, encoding=EncType.pairwise if hi == 1 else EncType.seqcounter).clauses)  # pairwise at hi 1: 22x10 in 1.5 s, none in 420 s (2026-11-24)
         cnf.extend(CardEnc.atleast(lits, lo, vpool=pool, encoding=EncType.seqcounter).clauses)
 # Symmetry: pair labels are interchangeable, so fix week 1's matches to pairs 0..P-1.
 for m in range(P):

@@ -28,4 +28,4 @@ Optional: `BOOKING_LINK`, `OPEN_HOURS_JSON` (`{"mon":["08:00","17:00"],"sat":nul
 
 Whether you may text a given person (US TCPA and carrier registration, CASL, PECR/GDPR), and registering your number, are yours to settle with the carrier and a lawyer. Not legal advice.
 
-Free and open source under the MIT licence (`LICENSE`). No warranty. The page's usage counts stay in the visitor's browser. Support is optional: https://github.com/sponsors/Duncan-Haywood
+Free to use and source available under the FSL-1.1-MIT licence (`LICENSE`). No warranty. The page's usage counts stay in the visitor's browser. Support is optional: https://github.com/sponsors/Duncan-Haywood

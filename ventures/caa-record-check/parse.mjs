@@ -41,13 +41,18 @@ function decodeGenericHex(raw) {
   return { flag, tag, value };
 }
 
-/** Decode the RFC 8659 presentation format: `<flag> <tag> "<value>"`. */
+/**
+ * Decode the RFC 8659 presentation format: `<flag> <tag> <value>`, where the
+ * value is "either (1) a contiguous set of characters without interior
+ * spaces or (2) a quoted string" (RFC 8659 section 4.1.1), so both
+ * `0 issue "letsencrypt.org"` and `0 issue letsencrypt.org` are valid.
+ */
 function decodePresentation(raw) {
-  const m = /^(\d{1,3})\s+([A-Za-z0-9][A-Za-z0-9-]*)\s+"((?:[^"\\]|\\.)*)"\s*$/.exec(raw.trim());
+  const m = /^(\d{1,3})\s+([A-Za-z0-9][A-Za-z0-9-]*)\s+(?:"((?:[^"\\]|\\.)*)"|([^\s"]+))\s*$/.exec(raw.trim());
   if (!m) return null;
   const flag = Number(m[1]);
   const tag = m[2];
-  const value = m[3].replace(/\\(.)/g, '$1');
+  const value = (m[3] ?? m[4]).replace(/\\(.)/g, '$1');
   return { flag, tag, value };
 }
 
@@ -67,19 +72,24 @@ export function parseCaaData(raw) {
   if (!Number.isInteger(decoded.flag) || decoded.flag < 0 || decoded.flag > 255) {
     return { ok: false, error: `flag byte ${decoded.flag} is out of the valid 0-255 range`, raw };
   }
-  if ((decoded.flag & 0x7f) !== 0) {
-    // RFC 8659: bit 0 (0x80, the "Issuer Critical Flag") is the only defined
-    // bit; every other bit is reserved. A nonzero reserved bit is evidence
-    // of a hand-built or generated record that got the flags byte wrong --
-    // worth flagging rather than silently rounding down to "not critical".
-    return { ok: false, error: `flag byte ${decoded.flag} sets a reserved bit outside the defined critical flag (0x80)`, raw };
-  }
-  const knownTags = new Set(['issue', 'issuewild', 'iodef']);
-  const tagLower = decoded.tag.toLowerCase();
-  if (!knownTags.has(tagLower) && !/^[a-z0-9-]+$/i.test(decoded.tag)) {
+  if (!/^[a-z0-9]+$/i.test(decoded.tag)) {
+    // RFC 8659 section 4.1: a tag is one or more ASCII letters and digits.
     return { ok: false, error: `tag "${decoded.tag}" is not a valid CAA property-tag token`, raw };
   }
-  return { ok: true, flag: decoded.flag, critical: (decoded.flag & 0x80) !== 0, tag: tagLower, value: decoded.value };
+  // RFC 8659 section 4.1: bit 0 (0x80, the Issuer Critical Flag) is the only
+  // defined bit, and "Applications that interpret CAA records MUST ignore the
+  // value of all reserved flag bits." So a record with a reserved bit set is
+  // still a valid record that counts toward the verdict (dropping it would
+  // turn a restrictive set into "any CA may issue"); the set bits are kept in
+  // reservedFlagBits so the report can tell the zone owner to clear them.
+  return {
+    ok: true,
+    flag: decoded.flag,
+    critical: (decoded.flag & 0x80) !== 0,
+    reservedFlagBits: decoded.flag & 0x7f,
+    tag: decoded.tag.toLowerCase(),
+    value: decoded.value,
+  };
 }
 
 /**

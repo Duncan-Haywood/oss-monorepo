@@ -18,7 +18,7 @@ read-write on every scope -- it was GitHub's own default for repositories
 created before 2023-02-02, and organizations that never revisited it keep it.
 A workflow triggered by something an outside contributor can influence (a
 pull request, an issue comment) then runs with a token that can push
-commits, create releases, or modify repository settings, even though the job
+commits, create releases, or edit issues and pull requests, even though the job
 itself only needed to read the checkout. This is GitHub's own documented
 hardening guidance ("Use the minimum required permissions for the
 GITHUB_TOKEN" / "Automatic token permissions") and the same "Token-Permissions"
@@ -35,7 +35,8 @@ It is a static, read-only line scanner. It reads `.github/workflows/*.yml`
 and `*.yaml` files already on disk and looks for a `permissions:` key at the
 workflow level and on each job. It makes **no network calls of any kind** --
 it never fetches your repository's or organization's actual default token
-setting (there is no public API for that), so it cannot tell you whether an
+setting (GitHub serves it only from an authenticated REST endpoint,
+GET /repos/{owner}/{repo}/actions/permissions/workflow), so it cannot tell you whether an
 "unspecified" finding is actually dangerous on your account -- only that
 nothing in the workflow file itself makes the token's permissions explicit.
 
@@ -87,8 +88,16 @@ RISK_CLASSIFICATIONS = frozenset({WRITE_ALL, UNSPECIFIED})
 # pinned-actions-check's classify.mjs makes about `uses:` lines.
 _TOP_PERMISSIONS_RE = re.compile(r"^permissions:\s*(.*?)\s*(?:#.*)?$")
 _TOP_JOBS_RE = re.compile(r"^jobs:\s*(?:#.*)?$")
-_JOB_NAME_RE = re.compile(r"^([A-Za-z0-9_.-]+):\s*(?:#.*)?$")
+# A job id may be quoted (`"deploy":` or `'deploy':`); YAML gives the same key.
+_JOB_NAME_RE = re.compile(r"""^(?:"([A-Za-z0-9_.-]+)"|'([A-Za-z0-9_.-]+)'|([A-Za-z0-9_.-]+)):\s*(?:#.*)?$""")
 _PERMISSIONS_KEY_RE = re.compile(r"^(\s+)permissions:\s*(.*?)\s*(?:#.*)?$")
+
+
+def _unquote(value):
+    """YAML `"write-all"`, `'write-all'` and `write-all` are the same string."""
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+        return value[1:-1].strip()
+    return value
 
 
 def _line_indent(line):
@@ -100,7 +109,7 @@ def _classify_permissions_value(lines, key_idx, key_indent):
     (classification, detail) -- detail is a short human-readable string
     describing what was granted, for display only."""
     match = re.match(r"^\s*permissions:\s*(.*?)\s*(?:#.*)?$", lines[key_idx])
-    inline = match.group(1).strip() if match else ""
+    inline = _unquote(match.group(1).strip()) if match else ""
 
     if inline:
         if inline == WRITE_ALL:
@@ -162,7 +171,8 @@ def _find_jobs(lines, jobs_idx):
         if indent == job_indent:
             match = _JOB_NAME_RE.match(stripped)
             if match:
-                jobs.append([match.group(1), i, n])
+                job_id = match.group(1) or match.group(2) or match.group(3)
+                jobs.append([job_id, i, n])
         i += 1
     for j in range(len(jobs)):
         jobs[j][2] = jobs[j + 1][1] if j + 1 < len(jobs) else jobs_block_end
@@ -170,19 +180,25 @@ def _find_jobs(lines, jobs_idx):
 
 
 def _find_job_permissions(lines, start, end):
-    """The shallowest-indented `permissions:` line within [start, end) --
-    `permissions` is only a valid job-level key in the workflow schema, never
-    a step input, so the shallowest match within a job's own body is its
-    job-level grant."""
-    best = None
+    """The job's own `permissions:` key: a `permissions:` line at the job's
+    direct-child indent (the indent of the first key in the job body, which
+    starts at `start`). A deeper `permissions:` line is something else -- a
+    `strategy.matrix` key or an action's `with:` input -- and is not the
+    job's grant (round 105 audit). Returns (idx, indent) or None."""
+    child_indent = None
+    for idx in range(start, end):
+        stripped = lines[idx].strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        child_indent = _line_indent(lines[idx])
+        break
+    if child_indent is None:
+        return None
     for idx in range(start, end):
         match = _PERMISSIONS_KEY_RE.match(lines[idx])
-        if not match:
-            continue
-        indent = len(match.group(1))
-        if best is None or indent < best[1]:
-            best = (idx, indent)
-    return best
+        if match and len(match.group(1)) == child_indent:
+            return (idx, child_indent)
+    return None
 
 
 def scan_text(text, filename="<workflow>"):

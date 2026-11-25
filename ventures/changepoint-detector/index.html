@@ -4,7 +4,7 @@
   <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b39'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EC%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Changepoint Detector — find when a time series changed (PELT + Bayesian)</title>
-  <meta name="description" content="Free changepoint detection for any time series. Paste a CSV and see when the level or volatility changed, with exact PELT segmentation and Bayesian online changepoint probabilities (Adams &amp; MacKay 2007; Killick et al. 2012). Runs in your browser; nothing is uploaded.">
+  <meta name="description" content="Free changepoint detection: paste a time series CSV and see when its level or volatility changed, with exact PELT and Bayesian online changepoint probabilities.">
   <meta property="og:title" content="Changepoint Detector — when did your series change?">
   <meta property="og:description" content="PELT and Bayesian online changepoint detection on your own data, in your browser, with the papers cited.">
   <link rel="canonical" href="./index.html">
@@ -182,9 +182,31 @@
     <button type="button" class="secondary" id="multi-download">Download per-point results (CSV)</button>
   </section>
 
+  <section class="card" id="turns-card" aria-labelledby="turns-h">
+    <h2 id="turns-h">Peaks and troughs: when did the cycle turn?</h2>
+    <p>A changepoint asks where a level jumped. A turning point asks where a series stopped rising and started falling, and back: the dates of a business's good and bad stretches, or of a recession. This dates them by Bry and Boschan's rule, the one official business-cycle daters use: a peak is the highest point within 5 months either side (2 quarters for quarterly data), peaks and troughs alternate, and every phase lasts at least 6 months (2 quarters) and every cycle 15 months (5 quarters); a monthly composite of several columns allows phases of 3 months, which dated short business contractions better in simulations. It reads the data box above: the Value column in one-column mode, or with &ldquo;several columns&rdquo; chosen, a composite index of the Columns you list (orders, revenue, active customers, hours), so one noisy line does not decide the dates.</p>
+    <div class="grid">
+      <div><label for="turns-frequency">Rows are</label><select id="turns-frequency"><option value="monthly">Months</option><option value="quarterly">Quarters</option></select></div>
+      <div><label for="turns-minphase">Shortest phase in rows (blank = 3 months for several columns, 6 for one; 2 quarters)</label><input id="turns-minphase" type="number" min="1" max="24" step="1" placeholder="auto"></div>
+      <div><label for="turns-bigmove">Keep a phase shorter than that when it moves at least (%; blank = never; monthly only)</label><input id="turns-bigmove" type="number" min="0" step="any" value="5"></div>
+      <div><label for="turns-sduntil">Several columns: measure each column's volatility only up to this row (optional, e.g. 2019-12 to keep 2020 from setting the weights)</label><input id="turns-sduntil" type="text" placeholder="e.g. 2019-12"></div>
+    </div>
+    <button type="button" id="turns-run">Date peaks and troughs</button>
+    <button type="button" class="secondary" id="example-turns">Load example: US payrolls, real income, production and sales, 1967&ndash;2026</button>
+    <p class="error" id="turns-error" role="alert"></p>
+    <div id="turns-results" hidden>
+      <p class="summary" id="turns-summary"></p>
+      <div class="legend"><span>&mdash; series (log scale)</span><span style="color:#c0392b">&#9650; peak</span><span style="color:#1f5f86">&#9660; trough</span><span style="color:#888">&#9646; contraction</span></div>
+      <div id="turns-chart"></div>
+      <div id="turns-body" aria-live="polite"></div>
+      <p class="note">How far to trust it: on FRED's payrolls, real income less transfers, industrial production and real sales, 1967&ndash;2026, the composite dated all 16 of NBER's peaks and troughs within 3 months (with 6-month phases no false turn; with the composite default of 3, also the 2002&ndash;03 soft patch NBER did not date); any one of those series alone missed 2 to 6 (README, &ldquo;A composite of NBER's monthly indicators&rdquo;). The last turn can move as new data arrive: a peak needs months of decline after it before it is confirmed. Weekly or daily data: total it to months first. A dated turn is a description of the data, not a forecast.</p>
+      <button type="button" class="secondary" id="turns-download">Download the series with its turns (CSV)</button>
+    </div>
+  </section>
+
   <section class="card" id="report-card" aria-labelledby="report-h" hidden>
     <h2 id="report-h">Branded change report</h2>
-    <p class="note">The result above on your own letterhead: your name and logo, the chart, the plain-language reading, the change and segment tables and a statement of assumptions (with several columns: each column's chart and agreed changes and the one segmentation for all of them), as one page to print or save as PDF. Unlock it with a licence key. The code is MIT, so the key is an honest-buyer convenience, not copy protection; the detector, the CSV and everything else stay free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
+    <p class="note">The result above on your own letterhead: your name and logo, the chart, the plain-language reading, the change and segment tables and a statement of assumptions (with several columns: each column's chart and agreed changes and the one segmentation for all of them), as one page to print or save as PDF. Unlock it with a licence key. The code is FSL-1.1-MIT, so the key is an honest-buyer convenience, not copy protection; the detector, the CSV and everything else stay free. Refunds: within 30 days of purchase on request to the address on your receipt (the seller of record handles payment, tax and refunds). Nothing you type is uploaded; only the key is sent to the licence server.</p>
     <p id="report-buy-row" hidden><a id="report-buy" class="cta" rel="noopener" target="_blank">Buy a licence key</a></p>
     <p><label>Licence key <input id="report-key" aria-label="Licence key" style="width:18em" autocomplete="off"></label> <button type="button" class="secondary" id="report-check">Check key</button> <span id="report-state" role="status"></span></p>
     <div id="report-fields" hidden>
@@ -266,7 +288,7 @@
     <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>agreed_run</code>, <code>drift_run</code>, <code>watch_check</code>, <code>watch_replay</code>, <code>watch_eagerness</code>, <code>example_loaded</code>, <code>file_opened</code>, <code>report_downloaded</code>, <code>report_unlocked</code>, <code>report_opened</code>, and on the watch page <code>watch_repo_zip</code> and <code>watch_repo_link</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>More research algorithms on your own data: the <a href="../kalman-smoother/">Kalman smoother</a> for the level under a noisy series, with gaps filled and outliers told apart from level shifts; <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> and the <a href="../matrix-profile-explorer/">matrix profile explorer</a> for repeated patterns and anomalies. For time-to-event data (churn, failures, relapse), the <a href="../survival-analysis/">survival analysis tool</a> gives Kaplan-Meier curves, log-rank tests and Cox hazard ratios. Testing a change you made on purpose? The <a href="../ab-test-significance-calculator/">A/B test significance calculator</a>. To check which of many test results survive multiple-testing correction, use <a href="../fdr-multiple-testing/">Benjamini-Hochberg and q-values</a>. To separate a seasonal pattern from the trend before looking for a change, use <a href="../stl-decomposition/">STL decomposition</a>. For measurements from a production line or lab with subgroups, run rules and Cpk, use <a href="../spc-control-charts/">SPC control charts</a>.</p>
-    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free to use and source available. If this helped, the <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   <p class="more-pages">Also: <a href="how-do-you-know-if-a-time-series-really-changed.html">How Do You Know If a Time Series Really Changed? (Free Changepoint Detection)</a> · <a href="watch-a-metric-for-changes.html">Get alerted when a metric really shifts (free, self-hosted daily watch)</a> · <a href="change-report-for-analysts.html">A printable change report for analysts, with samples</a></p>
   </footer>
 
@@ -275,14 +297,15 @@
     import { PANEL, runSetting, mergeConsensus, agreedText, levelRunFromMain } from "./consensus.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     import { chartSvg, changeReportHtml, esc, fmt } from "./report.mjs";
-    import { buyLink, checkLicence } from "./licence.mjs";
-    import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
+    import { wireBuyButton, checkLicence } from "./licence.mjs";
     import { analyzeJob } from "./analyze-job.mjs";
     import { synthHtml, synthChartSvg, synthCsv } from "./synth-view.mjs";
     import { watchCheck, recordText, replayText, eagernessText, budgetFromPlain, suggestFor, HINT_BUDGET, COUNT_MIDDLE } from "./watch-core.mjs";
     import { multiChartSvg, agreedTableHtml, jointTableHtml, multiSummary, multiCsv } from "./multi-view.mjs";
     import { parseColumns } from "./multivariate.mjs";
     import { multiReportHtml } from "./multi-report.mjs";
+    import { turnsResult } from "./turns-cli.mjs";
+    import { turnsHtml, turnsChartSvg, turnsSummary, turnsCsv } from "./turns-view.mjs";
     import { driftReportHtml } from "./drift-report.mjs";
     import { driftPagePenalty, driftIgnored, driftSummary, driftNotes, driftChartSvg, driftTableHtml, driftSegmentsHtml, driftCsv } from "./drift-view.mjs";
 
@@ -670,6 +693,45 @@
     $("#eager-run").addEventListener("click", runEagerness);
     $("#eager-use").addEventListener("click", () => { $("#watch-detector").value = $("#eager-use").dataset.value; $("#watch-detector").focus(); });
     $("#run").addEventListener("click", run);
+    // Peaks and troughs (turns-cli.mjs, the CLI's --turns): Bry-Boschan dating on one column, or on a
+    // composite index of several. Fast (milliseconds on 700 months), so it runs here, not in the worker.
+    let lastTurns = null;
+    function runTurns() {
+      $("#turns-error").textContent = "";
+      const multi = $("#shape").value === "multi";
+      const cols = $("#columns").value.split(",").map((c) => c.trim()).filter(Boolean);
+      const bm = $("#turns-bigmove").value.trim();
+      const frequency = $("#turns-frequency").value;
+      try {
+        if (multi && cols.length < 2) throw new Error("A composite needs two or more names in the Columns box (or choose one column).");
+        const r = turnsResult({ csv: $("#csv").value, column: multi ? null : $("#column").value.trim() || null, columns: multi ? cols : null, frequency, bigMove: frequency === "monthly" ? (bm === "" ? "off" : Number(bm) / 100) : null, sdUntil: multi ? $("#turns-sduntil").value.trim() || null : null, minPhase: $("#turns-minphase").value.trim() || null, withSeries: true });
+        lastTurns = r;
+        $("#turns-summary").textContent = turnsSummary(r);
+        $("#turns-chart").innerHTML = turnsChartSvg(r);
+        $("#turns-body").innerHTML = turnsHtml(r);
+        $("#turns-results").hidden = false;
+        record("turns_run");
+      } catch (e) {
+        lastTurns = null; $("#turns-results").hidden = true;
+        $("#turns-error").textContent = String(e.message || e).replace(/--turns --columns/g, "A composite").replace(/--(columns|column)/g, "the Columns box").replace(/--sd-until/g, "The volatility row").replace(/--big-move/g, "The short-phase move").replace(/--min-phase/g, "The shortest phase").replace(/--turns/g, "Dating");
+      }
+    }
+    $("#turns-run").addEventListener("click", runTurns);
+    $("#example-turns").addEventListener("click", async () => {
+      const { TURNS_CSV, TURNS_COLUMNS, TURNS_SD_UNTIL } = await import("./example-turns.mjs");
+      $("#csv").value = TURNS_CSV; $("#shape").value = "multi"; $("#columns").value = TURNS_COLUMNS; $("#columns").disabled = false; $("#jointNoise").disabled = false; $("#column").disabled = true;
+      $("#turns-frequency").value = "monthly"; $("#turns-bigmove").value = "5"; $("#turns-minphase").value = ""; $("#turns-sduntil").value = TURNS_SD_UNTIL;
+      record("example_loaded"); runTurns();
+    });
+    $("#turns-download").addEventListener("click", () => {
+      if (!lastTurns) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([turnsCsv(lastTurns)], { type: "text/csv" }));
+      a.download = "turning-points.csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      record("report_downloaded");
+    });
     $("#example-prop99").addEventListener("click", async () => {
       const { PROP99_CSV, PROP99_COVARIATES, PROP99_DONORS } = await import("./example-prop99.mjs");
       $("#csv").value = PROP99_CSV; $("#shape").value = "one"; $("#columns").disabled = true; $("#column").disabled = false; $("#column").value = "CA"; $("#model").value = "mean";
@@ -765,14 +827,14 @@
       record("report_downloaded");
     });
     {
-      const buy = buyLink(CHECKOUT_URL);
+      const buy = wireBuyButton($("#report-buy"), { onKey: (k) => { $("#report-key").value = k; $("#report-check").click(); }, onStatus: (m) => { if (m) $("#report-state").textContent = m; } });
       let logo = "";
-      // Dark until a checkout link is set in checkout.mjs: no card, no Buy button.
-      if (buy) { $("#report-buy").href = buy; $("#report-buy-row").hidden = false; $("#report-card").hidden = false; }
+      // Dark until checkout.mjs carries a Paddle price id (platform/billing/catalogue.mjs): no card, no Buy button.
+      if (buy) { $("#report-buy-row").hidden = false; $("#report-card").hidden = false; }
       $("#report-logo").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) { logo = ""; return; } const r = new FileReader(); r.onload = () => { logo = String(r.result); }; r.readAsDataURL(f); });
       $("#report-check").addEventListener("click", async () => {
         $("#report-state").textContent = "Checking...";
-        const v = await checkLicence($("#report-key").value, { url: VALIDATE_URL });
+        const v = await checkLicence($("#report-key").value);
         $("#report-state").textContent = v.valid ? "Key accepted." : "Not unlocked: " + v.reason + (buy ? "" : " (the report is not on sale yet)");
         $("#report-fields").hidden = !v.valid;
         if (v.valid) record("report_unlocked");

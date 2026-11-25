@@ -1,0 +1,34 @@
+# NFL teams at their stadium's town (GeoNames cities1000 via the geonamescache 3.0.2 wheel on PyPI, CC BY 4.0;
+# town centre coordinates, not the stadium itself). Line: Team @ lat, lon | division (2025 season) | town, state | geonameid
+Bills @ 42.76756, -78.74392 | AFC East | Orchard Park, NY | 5129951
+Dolphins @ 25.94204, -80.2456 | AFC East | Miami Gardens, FL | 4164167
+Patriots @ 42.06538, -71.24783 | AFC East | Foxborough, MA | 4937222
+Jets @ 40.83399, -74.09709 | AFC East | East Rutherford, NJ | 5097459
+Ravens @ 39.29038, -76.61219 | AFC North | Baltimore, MD | 4347778
+Bengals @ 39.12711, -84.51439 | AFC North | Cincinnati, OH | 4508722
+Browns @ 41.4995, -81.69541 | AFC North | Cleveland, OH | 5150529
+Steelers @ 40.44062, -79.99589 | AFC North | Pittsburgh, PA | 5206379
+Texans @ 29.76328, -95.36327 | AFC South | Houston, TX | 4699066
+Colts @ 39.76838, -86.15804 | AFC South | Indianapolis, IN | 4259418
+Jaguars @ 30.33218, -81.65565 | AFC South | Jacksonville, FL | 4160021
+Titans @ 36.16589, -86.78444 | AFC South | Nashville, TN | 4644585
+Broncos @ 39.73915, -104.9847 | AFC West | Denver, CO | 5419384
+Chiefs @ 39.09973, -94.57857 | AFC West | Kansas City, MO | 4393217
+Raiders @ 36.09719, -115.14666 | AFC West | Paradise, NV | 5509952
+Chargers @ 33.96168, -118.35313 | AFC West | Inglewood, CA | 5359488
+Cowboys @ 32.73569, -97.10807 | NFC East | Arlington, TX | 4671240
+Giants @ 40.83399, -74.09709 | NFC East | East Rutherford, NJ | 5097459
+Eagles @ 39.95238, -75.16362 | NFC East | Philadelphia, PA | 4560349
+Commanders @ 38.934, -76.89664 | NFC East | Landover, MD | 4360287
+Bears @ 41.85003, -87.65005 | NFC North | Chicago, IL | 4887398
+Lions @ 42.33143, -83.04575 | NFC North | Detroit, MI | 4990729
+Packers @ 44.51916, -88.01983 | NFC North | Green Bay, WI | 5254962
+Vikings @ 44.97997, -93.26384 | NFC North | Minneapolis, MN | 5037649
+Falcons @ 33.749, -84.38798 | NFC South | Atlanta, GA | 4180439
+Panthers @ 35.22709, -80.84313 | NFC South | Charlotte, NC | 4460243
+Saints @ 29.95465, -90.07507 | NFC South | New Orleans, LA | 4335045
+Buccaneers @ 27.94752, -82.45843 | NFC South | Tampa, FL | 4174757
+Cardinals @ 33.53865, -112.18599 | NFC West | Glendale, AZ | 5295985
+Rams @ 33.96168, -118.35313 | NFC West | Inglewood, CA | 5359488
+49ers @ 37.35411, -121.95524 | NFC West | Santa Clara, CA | 5393015
+Seahawks @ 47.60621, -122.33207 | NFC West | Seattle, WA | 5809844

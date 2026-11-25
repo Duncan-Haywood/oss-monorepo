@@ -1,0 +1,77 @@
+$ near_clean_gate.py drawn --xtrans rows
+38 rows, 2 files; xopt fell back on 0
+arm            luma   colour losers  worst
+ship        +0.5695  +0.3661      1  -0.21
+xopt        +0.9842  +0.4868      2  -0.36
+true        +1.1382  +0.4574      2  -0.32
+   SNR    12 equal n=   6  xopt - ship: luma +0.0550  colour +0.0167
+   SNR    12 wb    n=   6  xopt - ship: luma +1.1550  colour +0.2617
+   SNR    25 equal n=   6  xopt - ship: luma +0.0833  colour +0.0383
+   SNR    25 wb    n=   6  xopt - ship: luma +0.9133  colour +0.3000
+   SNR    60 equal n=   4  xopt - ship: luma +0.1125  colour -0.0075
+   SNR    60 wb    n=   4  xopt - ship: luma +0.4800  colour +0.2250
+   SNR   200 equal n=   3  xopt - ship: luma +0.0133  colour +0.0000
+   SNR   200 wb    n=   3  xopt - ship: luma +0.0367  colour +0.0067
+PASS h1 means luma +0.4147 colour +0.1208 >= -0.005, worst cell -0.0075 >= -0.02
+FAIL h2 losers to D 1 -> 2, new 1: none new, no more
+PASS h3 mean luma +0.4147 >= +0.02
+FAIL h4o rows > 0.1 dB under ship where the oracle is not: 3 (all under: 4)
+   under: xtransIV.raf [276, 540] SNR 25 wb: luma -0.020 colour -0.290 reads ship 0.008389 xopt 0.009456 true 0.009549 (oracle also under)
+   under: xtransIV.raf [276, 540] SNR 25 equal: luma -0.060 colour -0.150 reads ship 0.007775 xopt 0.007046 true 0.0072
+   under: xtransIV.raf [0, 1080] SNR 60 wb: luma +0.060 colour -0.120 reads ship 0.002931 xopt 0.004223 true 0.003979
+   under: xtransIV.raf [0, 1080] SNR 60 equal: luma +0.300 colour -0.100 reads ship 0.001893 xopt 0.003815 true 0.003
+verdict: fail (xopt)
+
+$ ... --arm xoptr (a reading)
+38 rows, 2 files; xoptr fell back on 0
+arm            luma   colour losers  worst
+ship        +0.5695  +0.3661      1  -0.21
+xoptr       +0.9842  +0.6516      0  +0.00
+true        +1.1382  +0.4574      2  -0.32
+   SNR    12 equal n=   6  xoptr - ship: luma +0.0550  colour +0.0067
+   SNR    12 wb    n=   6  xoptr - ship: luma +1.1550  colour +0.8483
+   SNR    25 equal n=   6  xoptr - ship: luma +0.0833  colour +0.0650
+   SNR    25 wb    n=   6  xoptr - ship: luma +0.9133  colour +0.6533
+   SNR    60 equal n=   4  xoptr - ship: luma +0.1125  colour +0.0250
+   SNR    60 wb    n=   4  xoptr - ship: luma +0.4800  colour +0.3100
+   SNR   200 equal n=   3  xoptr - ship: luma +0.0133  colour +0.0100
+   SNR   200 wb    n=   3  xoptr - ship: luma +0.0367  colour +0.0133
+PASS h1 means luma +0.4147 colour +0.2855 >= -0.005, worst cell +0.0067 >= -0.02
+PASS h2 losers to D 1 -> 0, new 0: none new, no more
+PASS h3 mean luma +0.4147 >= +0.02
+FAIL h4o rows > 0.1 dB under ship where the oracle is not: 2 (all under: 2)
+   under: mire1-xtrans.raf [0, 0] SNR 12 equal: luma +0.030 colour -0.120 reads ship 0.008856 xoptr 0.008807 true 0.015
+   under: mire1-xtrans.raf [0, 1080] SNR 12 equal: luma +0.010 colour -0.120 reads ship 0.011317 xoptr 0.010941 true 0.015
+verdict: fail (xoptr)
+
+$ ... --all-truths (a reading)
+48 rows, 2 files; xopt fell back on 0
+arm            luma   colour losers  worst
+ship        +0.4540  +0.2606      5  -0.75
+xopt        +0.7371  +0.2669     12  -1.29
+true        +0.9152  +0.3581      3  -0.32
+   SNR    12 equal n=   6  xopt - ship: luma +0.0550  colour +0.0167
+   SNR    12 wb    n=   6  xopt - ship: luma +1.1550  colour +0.2617
+   SNR    25 equal n=   6  xopt - ship: luma +0.0833  colour +0.0383
+   SNR    25 wb    n=   6  xopt - ship: luma +0.9133  colour +0.3000
+   SNR    60 equal n=   6  xopt - ship: luma +0.0550  colour -0.0783
+   SNR    60 wb    n=   6  xopt - ship: luma +0.2483  colour +0.0150
+   SNR   200 equal n=   6  xopt - ship: luma -0.1350  colour -0.2600
+   SNR   200 wb    n=   6  xopt - ship: luma -0.1100  colour -0.2433
+FAIL h1 means luma +0.2831 colour +0.0062 >= -0.005, worst cell -0.2600 >= -0.02
+FAIL h2 losers to D 5 -> 12, new 7: none new, no more
+PASS h3 mean luma +0.2831 >= +0.02
+FAIL h4o rows > 0.1 dB under ship where the oracle is not: 13 (all under: 14)
+   under: xtransIV.raf [276, 540] SNR 200 equal: luma -1.090 colour -1.110 reads ship 0.005431 xopt 0.008468 true 0.0009
+   under: xtransIV.raf [276, 540] SNR 200 wb: luma -1.100 colour -1.090 reads ship 0.005624 xopt 0.007348 true 0.001194
+   under: xtransIV.raf [276, 540] SNR 60 wb: luma -0.550 colour -0.640 reads ship 0.007373 xopt 0.006845 true 0.003979
+   under: xtransIV.raf [276, 540] SNR 25 wb: luma -0.020 colour -0.290 reads ship 0.008389 xopt 0.009456 true 0.009549 (oracle also under)
+   under: xtransIV.raf [276, 540] SNR 60 equal: luma -0.250 colour -0.260 reads ship 0.006411 xopt 0.00831 true 0.003
+   under: xtransIV.raf [0, 0] SNR 200 equal: luma +0.010 colour -0.260 reads ship 0.003253 xopt 0.007005 true 0.0009
+   under: xtransIV.raf [0, 0] SNR 200 wb: luma +0.060 colour -0.220 reads ship 0.003238 xopt 0.006637 true 0.001194
+   under: xtransIV.raf [0, 1080] SNR 200 equal: luma +0.230 colour -0.190 reads ship 0.001371 xopt 0.00307 true 0.0009
+   under: xtransIV.raf [0, 0] SNR 60 equal: luma +0.130 colour -0.180 reads ship 0.004004 xopt 0.008114 true 0.003
+   under: xtransIV.raf [0, 0] SNR 60 wb: luma +0.120 colour -0.170 reads ship 0.004711 xopt 0.007895 true 0.003979
+   under: xtransIV.raf [0, 1080] SNR 200 wb: luma +0.270 colour -0.170 reads ship 0.001263 xopt 0.003106 true 0.001194
+   under: xtransIV.raf [276, 540] SNR 25 equal: luma -0.060 colour -0.150 reads ship 0.007775 xopt 0.007046 true 0.0072
+reading (all truths, decides nothing): not all four hold

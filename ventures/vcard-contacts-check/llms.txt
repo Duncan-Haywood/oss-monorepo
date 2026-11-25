@@ -2,7 +2,7 @@
 
 > Free vCard (.vcf) checker: finds cards with no FN or N, bad email and phone values, impossible birthdays, quoted-printable text, unclosed cards, identical duplicates and wrong line endings that make Google Contacts, Apple Contacts and Outlook skip or garble contacts, and writes the file back fixed.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/vcard-contacts-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/vcard-contacts-check): FSL-1.1-MIT licensed.

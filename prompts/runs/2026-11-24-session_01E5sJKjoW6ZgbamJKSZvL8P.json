@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKjoW6ZgbamJKSZvL8P",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T16:18:50Z",
+  "ended": "2026-11-24T16:26:42Z",
+  "wall_minutes": 8.09,
+  "tokens_in": 4008391,
+  "tokens_out": 30916,
+  "cost_usd": 2.3826,
+  "tool_calls": 40,
+  "task": "research/aerolog-scaling milestone 11bj: bursty (Gilbert) Remote ID message loss in the transit hold",
+  "projects": [
+    "research/aerolog-scaling"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18627",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "tests/test_burst_loss.py first compared ages to 11bi's exactly, but 11bi puts its 1e-6 tail on its last k; tolerance fixed before the results were computed"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Its CHAIN note says 62 sub-steps of milestone 11; it was clear without it that a one-knob step was due, but the note gives no way to tell whether a paper step is overdue other than counting by hand"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/aerolog-scaling/LOG.md (11bi Next)",
+      "why": "Re-priced only the fixed-radius rule (FR), not the age-scaled rule (AR), because FR's hold is stored per radius (no 15-minute rebuild) and AR's marked-Poisson hold assumes independent ages across tracks, which a receiver-side shadow breaks",
+      "did": "FR only, with the reason in the script docstring and the paper",
+      "result": "the whole step ran in about 6 min on one core; AR under correlated loss is left open"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-aerolog-remote-id-bursty-loss.md",
+    "research/aerolog-scaling/LOG.md (11bj entry)",
+    "research/aerolog-scaling/paper/airspace_layers.md 6.10(e), Q16"
+  ],
+  "goal": null,
+  "notes": "Predictions pushed in 462fb6c2b before any bursty-loss radius was computed; 2 of 6 held. Checks run here: aerolog-scaling pytest 359 passed; paper/check_airspace_numbers.py 394 of 394; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; check_posts ok. No measured Remote ID burst lengths found (one web search), so burst length was swept.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6d132c4c-a4c1-5464-85d4-f92a3b587617",
+    "transcripts": 1,
+    "first": "2026-11-24T16:18:50Z",
+    "last": "2026-11-24T16:26:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 74,
+        "output": 30916,
+        "thinking": 8126,
+        "cache_read": 3884947,
+        "cache_write_5m": 0,
+        "cache_write_1h": 123370,
+        "api_equivalent_usd": 2.3826,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 74,
+      "output": 30916,
+      "thinking": 8126,
+      "cache_read": 3884947,
+      "cache_write_5m": 0,
+      "cache_write_1h": 123370,
+      "api_equivalent_usd": 2.3826,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 33,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "WebSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.09,
+      "active_minutes": 8.09,
+      "model_minutes": 5.29,
+      "tool_minutes": 2.8,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a researcher deriving the Gilbert age law, writing the re-pricing script, tests, paper section and post, about 1.5 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 419.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

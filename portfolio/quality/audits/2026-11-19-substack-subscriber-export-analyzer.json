@@ -192,7 +192,8 @@
    "what": "Paid status ignores active_subscription: a reader is paid only via plan, first_payment_at or type. Ghost's Substack importer documents active_subscription='true' (with an expiry) as the subscription signal and blank for free readers, and lists no plan or first_payment_at; a file of that shape reports 0 paid, conversion 0 and $0 revenue with no warning",
    "where": "ventures/substack-subscriber-export-analyzer/calc.mjs:170",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18992"
   },
   {
    "severity": "medium",
@@ -243,7 +244,8 @@
    "what": "Substack type 'ios_app' (handled by Ghost's importer as a subscription) is counted as free",
    "where": "ventures/substack-subscriber-export-analyzer/calc.mjs:168",
    "category": "scope-gap",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18992"
   },
   {
    "severity": "low",
@@ -260,6 +262,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17758"],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17758", "https://github.com/Duncan-Haywood/oss-monorepo/pull/18992"],
  "verdict": "A clean, private, dependency-free analyzer whose arithmetic is right on the column shape it assumes: two independent scripts and the page in Chromium agree on counts, conversion, churn, MRR, fees, renewals and retention for a 61-row generated file and the 400-row example, and it handles BOM, CRLF, quoted commas and newlines, semicolons and US/European dates. It misses the bar on correctness, verification and claims: the only independent description of the export I could reach (Ghost's Substack importer) uses active_subscription as the paid signal, which the tool ignores, so a file of that shape shows 0 paid with no warning; a plan value 'free' is counted as paid; lapsed subscribers without an expiry vanish from retention; 7 of 8 seeded bugs survive the 25 tests; and the FAQ states as fact what the README calls unverified. A newsletter analyst would not sign off the paid count until it is checked against a real export."
 }

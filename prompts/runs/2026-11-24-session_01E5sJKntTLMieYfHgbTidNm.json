@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKntTLMieYfHgbTidNm",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T07:09:46Z",
+  "ended": "2026-11-24T07:23:19Z",
+  "wall_minutes": 13.89,
+  "tokens_in": 4289952,
+  "tokens_out": 45192,
+  "cost_usd": 2.657,
+  "tool_calls": 42,
+  "task": "Hearth & Horizon story from the BIBLE proposal 'The tray that froze first' (Mpemba effect)",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18561",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "check_posts.py rejected the post's description at 161 characters",
+      "fix": "shortened to 160"
+    },
+    {
+      "what": "first BIBLE insert script matched two '**For Other Minds**' headings (shelf summary and Next up) and aborted",
+      "fix": "anchored on the Next up heading pair"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The bible's Mpemba proposal suggested a 15 C cold tap; January mains in the Highlands is nearer 5 C, so the story uses 5 and says why. Proposals that fix a number before the setting is chosen can be off; minor."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/subjects.txt",
+      "issue": "overlap.mjs --unused reports 0 of 46 Hearth & Horizon candidates unused; added two (rolling resistance, Matthew effect) and a coupon-collector proposal so the next run has one."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "why": "Proposal said water at 60 and 15 C; used 55 (the hall's hot tap) and 5 (winter mains) because they are what a Braemar car park in January would have",
+      "did": "modelled 55/5 and stated it in the note",
+      "result": "cold freezes solid first in all ten fair pairs; result kept as the arithmetic gives it"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-the-tray-that-froze-first.md"
+  ],
+  "goal": null,
+  "notes": "Creative track, project hearth-and-horizon, piece the-tray-that-froze-first (Braemar, Jan 2054, ~5,100 words, text only: audio 581 MB of 400 MB cap). Lumped tray model (convection, sky radiation, evaporation via Lewis analogy, bottom loss pallet vs frozen ground, random nucleation) in scratchpad, figures in the closing note. Re-read against model caught two slips (pallet two's hot tray listed solid at the 21:00 check when it was 21:00:30; ice shown at the 17:10 check before any nucleation). Calendar: 2054 Epiphany (Scotland) Sun 4 Jan, Baptism of the Lord Sun 11 Jan, Year B Mark 1:7-11 (Douay 'Holy Ghost'). Verification: node --test in hearth-and-horizon 21/21; check_posts ok; run_workflow_locally --for-changes 9/9 selected workflows passed (agent-cross-review and portfolio-pages deploy jobs not runnable locally). No agent doc: the BIBLE timeline row, DONE entry and new proposal carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "018a90c8-5ef1-5f07-9f5b-72810d272108",
+    "transcripts": 1,
+    "first": "2026-11-24T07:09:46Z",
+    "last": "2026-11-24T07:23:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 82,
+        "output": 45192,
+        "thinking": 17684,
+        "cache_read": 4175144,
+        "cache_write_5m": 0,
+        "cache_write_1h": 114726,
+        "api_equivalent_usd": 2.657,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 82,
+      "output": 45192,
+      "thinking": 17684,
+      "cache_read": 4175144,
+      "cache_write_5m": 0,
+      "cache_write_1h": 114726,
+      "api_equivalent_usd": 2.657,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 38,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.89,
+      "active_minutes": 13.89,
+      "model_minutes": 9.29,
+      "tool_minutes": 4.6,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a 5,000-word researched short story with a worked heat-transfer model: about two working days for a writer with a physics background",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 376.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

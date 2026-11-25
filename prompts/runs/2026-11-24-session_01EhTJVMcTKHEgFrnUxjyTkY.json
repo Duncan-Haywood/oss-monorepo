@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVMcTKHEgFrnUxjyTkY",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T09:13:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ids-model-check: name the faults in IfcOpenShell's labelled broken files (test/fixtures/validate) as reader notes",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": 18574,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 30,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here named league-schedule-generator item 3 (wait-free nights for 47/49 teams on 8x9): an ~11 h SAT search with two stalled prior attempts, for league sizes the tool already schedules with waits; judged low user value per the row's own 'judge its worth'.",
+      "did": "took flagship ids-model-check's buildable item (validate fixtures' faults as notes) instead",
+      "result": "schema conformance pass shipped: 25/25 fail fixtures named, 0/13 pass; same files flagged as ifcopenshell.validate on 492 public files"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-ifc-file-breaks-its-own-schema.md",
+    "ventures/ids-model-check/eval/conformance-2026-11-24.md"
+  ],
+  "goal": null,
+  "notes": "conformance.mjs + CLI --conformance + model warning on page/CLI checks of STEP <=40 MB. gen-schema.mjs re-run on the same engine_web-ifc .exp files reproduced committed JSON exactly before adding aggregate 'min'. Local verification: run_venture_tests.py ids-model-check: 579 tests ok, 2 skipped; check_posts ok; venture-preflight run (see PR). Cross-check: ifcopenshell 0.9.0.post1 validate on IfcOpenShell 293, bSI 4.3 samples 46, Sample-Test-Files 35, opensourceBIM 8, web-ifc 108 readable: 0 files flagged by only one tool once inverse cardinalities and ids.mjs's own notes are set apart.",
+  "corrections": [
+    {
+      "what": "first draft called ifcbridge-model01.ifc an IFC4 file with IFC4X3 enumeration values",
+      "fix": "it declares IFC4X2 (draft); IfcOpenShell's refusal revealed it; the draft-schema note now covers IFC4X1/IFC4X2 and post/README/eval were corrected before merge"
+    }
+  ],
+  "redteam": null
+}

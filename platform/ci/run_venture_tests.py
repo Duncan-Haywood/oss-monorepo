@@ -87,7 +87,7 @@ SUITE_TIMEOUT = 1200
 TIMES_FILE = ROOT / "platform" / "ci" / "venture_suite_times.json"
 ON_ACTIONS = os.environ.get("GITHUB_ACTIONS") == "true"
 # Site-builder checks that read every venture's hand-written HTML. They run in
-# portfolio-pages.yml, not in a venture's own suite, so a session checking its
+# priv-portfolio-pages.yml, not in a venture's own suite, so a session checking its
 # venture locally never saw them: editing a visible FAQ answer without its
 # FAQPage JSON-LD twin passed `run_venture_tests.py <slug>` and went red in CI
 # (four run records 2026-11-17/18 name faq-visible.test.mjs as a CI-only
@@ -354,6 +354,19 @@ def since_slugs(base):
 
 def changed_slugs(base_ref="origin/main"):
     """Committed, staged, unstaged and untracked changes since the merge base."""
+    # Refresh the base first: a cloud clone's origin/main can sit behind the
+    # commit the session branch was cut from, and main's newer commits then
+    # count as this branch's (run_workflow_locally.refresh_remote_base has the
+    # measurement). A failed fetch leaves the old ref; RWL_NO_FETCH=1 skips it.
+    remote, _, branch = base_ref.partition("/")
+    if branch and not os.environ.get("RWL_NO_FETCH"):
+        import io
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        try:
+            import fetch_ref
+            fetch_ref.fetch_ref(branch, remote, cwd=ROOT, out=io.StringIO())
+        except Exception:
+            pass
     found = subprocess.run(["git", "merge-base", base_ref, "HEAD"], cwd=ROOT,
                            capture_output=True, text=True)
     if found.returncode != 0 or not found.stdout.strip():
@@ -488,8 +501,27 @@ PROGRESS = False
 def step_label(argv, cwd, slug, wf):
     if wf:
         return f"{argv[-1]} (from .github/workflows/{wf})"
+    if argv[0] == "sh":
+        return " ".join(argv)
     name = "node --test" if argv[0] == "node" else "python3 -m unittest"
     return f"{name} in {Path(cwd).relative_to(VENTURES / slug)}"
+
+
+# A venture whose tests need data it may not commit (a licence that forbids
+# redistribution, or sheer size) fetches it with this script, run from the
+# venture's directory before its suites. Before 2026-11-25 such tests skipped
+# in CI: ids-model-check's 334 buildingSMART IDS test pairs (CC BY-ND) and its
+# BCF 2.1 schema check never ran there, so engine faults they catch reached
+# main (red-team record 2026-11-16, defect 1). A failed fetch fails the
+# venture: a green run with those tests silently skipped is what this ends.
+FETCH_SCRIPT = "ci-fetch.sh"
+FETCH_TIMEOUT = 300
+
+
+def fetch_command(slug):
+    """[(argv, cwd, None, None)] for the venture's ci-fetch.sh, or []."""
+    venture = VENTURES / slug
+    return [(["sh", FETCH_SCRIPT], venture, None, None)] if (venture / FETCH_SCRIPT).is_file() else []
 
 
 def run(slug, elsewhere=False):
@@ -497,6 +529,8 @@ def run(slug, elsewhere=False):
     cmds = [(argv, cwd, None, None) for argv, cwd in commands(slug)]
     if elsewhere:
         cmds += elsewhere_commands(slug)
+    if cmds:
+        cmds = fetch_command(slug) + cmds
     ok, outs = True, []
     for i, (argv, cwd, env, wf) in enumerate(cmds, 1):
         left = max(1, SUITE_TIMEOUT - (time.monotonic() - start))
@@ -506,6 +540,9 @@ def run(slug, elsewhere=False):
         if wf:
             one_ok, out = run_elsewhere_step(argv, cwd, env, left)
             out = f"$ {argv[-1]} (in {Path(cwd).relative_to(ROOT)}, from .github/workflows/{wf})\n{out}"
+        elif argv == ["sh", FETCH_SCRIPT]:
+            one_ok, out = run_one(argv, cwd, min(left, FETCH_TIMEOUT))
+            out = f"$ sh {FETCH_SCRIPT} (fetches the data its tests need)\n{out}"
         else:
             one_ok, out = run_one(argv, cwd, left)
             if len(cmds) > 1:
@@ -815,7 +852,7 @@ def main(argv):
                 print(f"::error file={rel},line={line},title=inherited key::{lookup} needs Object.hasOwn")
     # Local runs that name ventures, including `--since` under
     # run_workflow_locally.py --for-changes (which skipped them on a venture
-    # FAQ edit, friction 2026-11-18). On Actions, portfolio-pages.yml runs them.
+    # FAQ edit, friction 2026-11-18). On Actions, priv-portfolio-pages.yml runs them.
     page_red = False
     if named and not ON_ACTIONS and not args.no_page_checks:
         ran, ok, out = page_checks(lint_slugs)

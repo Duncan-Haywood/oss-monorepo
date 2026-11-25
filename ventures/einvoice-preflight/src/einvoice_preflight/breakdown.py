@@ -41,10 +41,10 @@ def inspect_tax_breakdown(invoice: dict[str, Any]) -> list[dict[str, str]]:
             "Provide tax_breakdown as an array of objects with tax_percent, taxable, and tax.",
             "/tax_breakdown",
         )]
-    return _check_rows(supplied, expected, with_category, unattributed)
+    return _check_rows(supplied, expected, with_category, unattributed, cen_rules(invoice))
 
 
-def _check_rows(rows: list[Any], expected: dict[Any, dict[str, Decimal]], with_category: bool, unattributed: bool) -> list[dict[str, str]]:
+def _check_rows(rows: list[Any], expected: dict[Any, dict[str, Decimal]], with_category: bool, unattributed: bool, tolerant: bool = False) -> list[dict[str, str]]:
     findings: list[dict[str, str]] = []
     seen: dict[Any, int] = {}
     for index, row in enumerate(rows):
@@ -110,7 +110,7 @@ def _check_rows(rows: list[Any], expected: dict[Any, dict[str, Decimal]], with_c
         expected_tax = (taxable * percent / Decimal("100")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
         # PINT Oman: the row's tax may be the sum of its lines' own VAT amounts (linenet.py).
         line_tax = (expected.get(key) or {}).get("line_tax")
-        if tax != expected_tax and not (line_tax is not None and not unattributed and tax == line_tax):
+        if tax != expected_tax and not (line_tax is not None and not unattributed and tax == line_tax) and not (tolerant and br_co_17_tolerated(tax, expected_tax, percent)):
             findings.append(_finding(
                 "INV-038",
                 f"Tax breakdown row {index + 1} tax amount does not equal taxable times the percentage.",
@@ -150,6 +150,44 @@ def _check_rows(rows: list[Any], expected: dict[Any, dict[str, Decimal]], with_c
                 "/tax_breakdown",
             ))
     return findings
+
+
+def cen_rules(invoice: dict[str, Any]) -> bool:
+    """False for PINT and ZATCA files, which their own rule sets check (breakdown.mjs, cenRules)."""
+    spec = str(invoice.get("specification_id") or "")
+    profile = str(invoice.get("profile_id") or "").strip().lower()
+    return "pint" not in spec.lower() and not profile.startswith(("reporting:", "clearance:"))
+
+
+def br_co_17_tolerated(tax: Decimal | None, expected: Decimal | None, percent: Decimal | None) -> bool:
+    """EN 16931 BR-CO-17 as CEN's Schematron tests it (breakdown.mjs, brCo17Tolerated).
+
+    A row's VAT may differ from taxable x rate, rounded to cents, by less than one
+    currency unit; a rate that rounds to 0 needs a tax under 0.50. Opposite signs
+    stay blocking. The page reports a tolerated row as a warning; the CLI has no
+    warning severity, so it stays silent rather than fail a file CEN passes.
+    """
+    if tax is None or expected is None or percent is None or tax == expected:
+        return False
+    if (tax < 0 < expected) or (expected < 0 < tax):
+        return False
+    if percent.quantize(Decimal("1"), rounding=ROUND_HALF_UP) == 0:
+        return abs(tax) < Decimal("0.5")
+    return abs(tax - expected) < Decimal("1")
+
+
+def stated_breakdown_tax(invoice: dict[str, Any]) -> Decimal | None:
+    """Sum of the rows' tax when every row is exact or within BR-CO-17 (BR-CO-14), else None."""
+    rows = invoice.get("tax_breakdown")
+    if not isinstance(rows, list) or not rows or inspect_tax_breakdown(invoice):
+        return None
+    total = Decimal("0.00")
+    for row in rows:
+        tax = _money(row.get("tax")) if isinstance(row, dict) else None
+        if tax is None:
+            return None
+        total += tax
+    return total
 
 
 def _money(value: Any) -> Decimal | None:

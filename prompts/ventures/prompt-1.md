@@ -29,39 +29,46 @@ add value, iOS and Android apps, and real business potential. Measured on
 `*-calculator` (121 `*-bid-calculator`), there is no native mobile app, and
 no venture has a single measured visitor. That is not the brief. So:
 
-- **No new calculator work** (owner, 2026-10-21, walking back the 2026-10-16
-  "principle, not a ban"): the owner wants no new calculators and no new
-  features, pages or consolidation for the 650+ that exist. Fix one when
-  it is broken. This is about where a run's effort goes, not what may land:
-  already-built calculator work (an open PR, a stranded branch) is fine to
-  merge. Higher-value products are the work (`prompts/goals.md`,
-  "Direction: depth over calculators").
+- **No new free single-purpose tools** (owner, 2026-10-21 on calculators;
+  widened 2026-11-24: "demote some of this"). No new calculators or free
+  tools, and no new depth in the 1,400 that exist. One gets work only when it
+  is the front door to a ranked bet (a link into it, a page fix that keeps its
+  search traffic) or when it is broken. Already-built work (an open PR, a
+  stranded branch) is fine to merge (`prompts/goals.md`, "Where effort goes").
 - **A new venture should say why someone would use it.** Name the free or paid
   alternatives a user has today and what this does better, in the venture's
   README. If you can't, it is probably not worth building.
 - **Build something with depth:** a real workflow, data, an algorithm, an
   integration, AI/ML that clearly helps, or a mobile or desktop app. Land a
   first working version in one run and deepen it over later runs.
-- **Finish ventures as one-click, self-deployed businesses.** The owner,
-  2026-10-15: "the model I'm thinking is fully developing one click deploy actual businesses with a web page with some inputs for credentials so people can spin up their own copies of the venture. then I'm not hosting and not liable. it's someone else. but still with a donate to the creator button."
-  A venture is done when a stranger can open its page, enter their own
-  credentials, click Deploy, and end up running their own copy in their
-  own accounts, with the "donate to the creator" link still in it. Credentials
-  go straight to the deployer's cloud or fork and never pass through anything
-  the owner runs (`prompts/goals.md`, Mission). Taking an existing venture
-  all the way there counts as much as anything new.
-- **Deepen a flagship by default** (owner, 2026-10-20, quoted in
-  `prompts/goals.md`). Unless your brief names other work, take the top
-  "Deepen (flagship N)" row of `python3 portfolio/router/allocate.py` and
-  land a working slice of its milestone: a hard business or engineering
-  problem, not polish. When you land it, rewrite that venture's `next:` in
-  [`portfolio/flagships.yaml`](../../portfolio/flagships.yaml) to the next
-  milestone. Probe hosts before planning around them: from a cloud session
+- **Hosted SaaS, not self-deploy** (owner,
+  2026-11-24: "I think the hosted saas for them is better for business. I am happy to give away value but I'm not running a charity primarily. giving away value is good to do"). A product with depth is done when a stranger
+  can sign up, pay through Paddle (shipped dark until the owner sets the
+  product's config) and use it on the owner's hosting. Free tools are
+  hosted too. Self-deploy is built only when a specific request asks for it
+  ("i think the free tools and self host we can move away from. i think hosted saas generally simplifies and is actually better value for most customers unless there is a speciifc request otherwise"). This replaces the 2026-10-15 one-click
+  self-deploy finish line (`prompts/goals.md`, Mission).
+- **Advance the top ranked bet by default** (owner, 2026-11-24: "invest in
+  things that have most promise and most value"; replaces the 2026-10-20
+  "deepen a flagship" default). Unless your brief names other work, take the
+  highest bet in
+  [`portfolio/monetization/bets.md`](../../portfolio/monetization/bets.md)
+  you can move this run and land a working slice of what stands between it
+  and a paying small-business customer: its wedge feature, accounts and
+  saved data, an import or integration buyers need, the paid tier and a
+  checkout that ships dark, onboarding. A bet's product code lives in
+  `private-monorepo` (the table names where); when this session can clone
+  it, build there, and otherwise (a refused clone is final:
+  [`cloud-session.md`](../../.github/prompts/cloud-session.md)) do the bet's
+  public side here (its
+  front-door free tool, its marketing and SEO pages, a research engine it
+  uses). The flagships in
+  [`portfolio/flagships.yaml`](../../portfolio/flagships.yaml) get work only
+  where one is, or feeds, a ranked bet; size and sunk effort are not reasons
+  on their own. Probe hosts before planning around them: from a cloud session
   raw.githubusercontent.com and pypi.org usually answer, while directory
   listings on api.github.com, huggingface.co and hcb.hackclub.com often do not.
-  If every item needs a blocked host, land an item that needs no outside data,
-  or take the next flagship, rather than ending empty.  The small tools stay; fix them when they break, but they are
-  not where runs go.
+  To change the order, bring evidence in a PR to `bets.md`.
 - **Payments.** A product may include payment code, off by default and
   running only on the deployer's own keys from environment variables. The
   owner's own instances may link to the owner's merchant-of-record checkout;

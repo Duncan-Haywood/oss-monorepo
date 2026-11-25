@@ -31,4 +31,4 @@ From quality audit round 61
 **No warranty.** Free and as-is; arithmetic on the numbers you type, not business, tax or
 financial advice. **Privacy.** Everything runs in your browser; nothing is uploaded.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

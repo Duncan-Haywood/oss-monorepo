@@ -1,0 +1,2093 @@
+{
+ "probes": "danafitkowski/cpp-cpm-engine validation/p6-probes",
+ "totals": {
+  "all": {
+   "n": 5199,
+   "all": 3730,
+   "es": 4477,
+   "ef": 4439,
+   "ls": 4354,
+   "lf": 4562,
+   "tf": 4055,
+   "ff": 4442
+  },
+  "sf": {
+   "n": 300,
+   "all": 230,
+   "es": 272,
+   "ef": 271,
+   "ls": 258,
+   "lf": 277,
+   "tf": 264,
+   "ff": 266
+  },
+  "ssOther": {
+   "n": 131,
+   "all": 75,
+   "es": 90,
+   "ef": 90,
+   "ls": 105,
+   "lf": 108,
+   "tf": 87,
+   "ff": 104
+  },
+  "plain": {
+   "n": 4769,
+   "all": 3425,
+   "es": 4115,
+   "ef": 4078,
+   "ls": 3991,
+   "lf": 4177,
+   "tf": 3704,
+   "ff": 4073
+  },
+  "rsrcDep": {
+   "n": 936,
+   "all": 468,
+   "es": 647,
+   "ef": 608,
+   "ls": 564,
+   "lf": 713,
+   "tf": 565,
+   "ff": 795
+  },
+  "rsrcFiles": {
+   "n": 3424,
+   "all": 2418,
+   "es": 2913,
+   "ef": 2877,
+   "ls": 2729,
+   "lf": 2905,
+   "tf": 2597,
+   "ff": 2946
+  },
+  "noRsrcFiles": {
+   "n": 1775,
+   "all": 1312,
+   "es": 1564,
+   "ef": 1562,
+   "ls": 1625,
+   "lf": 1657,
+   "tf": 1458,
+   "ff": 1496
+  }
+ },
+ "perFolder": [
+  {
+   "folder": "alap-rd-2026-10-20",
+   "n": 40,
+   "all": 30,
+   "es": 32,
+   "ef": 31,
+   "ls": 33,
+   "lf": 38,
+   "tf": 30,
+   "ff": 40
+  },
+  {
+   "folder": "duration-types-2026-10-19",
+   "n": 108,
+   "all": 92,
+   "es": 104,
+   "ef": 108,
+   "ls": 96,
+   "lf": 104,
+   "tf": 104,
+   "ff": 108
+  },
+  {
+   "folder": "h1-situations-2026-10-13",
+   "n": 293,
+   "all": 268,
+   "es": 292,
+   "ef": 292,
+   "ls": 283,
+   "lf": 283,
+   "tf": 282,
+   "ff": 279
+  },
+  {
+   "folder": "h10-followups-2026-10-17",
+   "n": 55,
+   "all": 17,
+   "es": 44,
+   "ef": 44,
+   "ls": 18,
+   "lf": 21,
+   "tf": 29,
+   "ff": 31
+  },
+  {
+   "folder": "h11-followups-2026-10-17",
+   "n": 28,
+   "all": 18,
+   "es": 28,
+   "ef": 28,
+   "ls": 28,
+   "lf": 28,
+   "tf": 18,
+   "ff": 28
+  },
+  {
+   "folder": "h12-followups-2026-10-17",
+   "n": 74,
+   "all": 42,
+   "es": 71,
+   "ef": 67,
+   "ls": 52,
+   "lf": 51,
+   "tf": 50,
+   "ff": 62
+  },
+  {
+   "folder": "h13-followups-2026-10-17",
+   "n": 349,
+   "all": 273,
+   "es": 304,
+   "ef": 295,
+   "ls": 324,
+   "lf": 335,
+   "tf": 284,
+   "ff": 308
+  },
+  {
+   "folder": "h14-followups-2026-10-17",
+   "n": 144,
+   "all": 141,
+   "es": 141,
+   "ef": 141,
+   "ls": 144,
+   "lf": 144,
+   "tf": 141,
+   "ff": 141
+  },
+  {
+   "folder": "h15-followups-2026-10-18",
+   "n": 203,
+   "all": 175,
+   "es": 183,
+   "ef": 183,
+   "ls": 191,
+   "lf": 195,
+   "tf": 183,
+   "ff": 186
+  },
+  {
+   "folder": "h17-followups-2026-10-18",
+   "n": 168,
+   "all": 59,
+   "es": 126,
+   "ef": 125,
+   "ls": 72,
+   "lf": 78,
+   "tf": 71,
+   "ff": 114
+  },
+  {
+   "folder": "h2-situations-2026-10-13",
+   "n": 345,
+   "all": 249,
+   "es": 299,
+   "ef": 299,
+   "ls": 330,
+   "lf": 330,
+   "tf": 284,
+   "ff": 273
+  },
+  {
+   "folder": "h23-shapes-2026-10-19",
+   "n": 642,
+   "all": 455,
+   "es": 520,
+   "ef": 528,
+   "ls": 531,
+   "lf": 569,
+   "tf": 501,
+   "ff": 541
+  },
+  {
+   "folder": "h24-shapes-2026-10-19",
+   "n": 89,
+   "all": 58,
+   "es": 77,
+   "ef": 73,
+   "ls": 64,
+   "lf": 70,
+   "tf": 64,
+   "ff": 77
+  },
+  {
+   "folder": "h25-shapes-2026-10-19",
+   "n": 47,
+   "all": 26,
+   "es": 36,
+   "ef": 34,
+   "ls": 34,
+   "lf": 41,
+   "tf": 29,
+   "ff": 36
+  },
+  {
+   "folder": "h27-causes-2026-10-20",
+   "n": 109,
+   "all": 92,
+   "es": 101,
+   "ef": 98,
+   "ls": 103,
+   "lf": 105,
+   "tf": 98,
+   "ff": 105
+  },
+  {
+   "folder": "h28-causes-2026-10-20",
+   "n": 195,
+   "all": 149,
+   "es": 173,
+   "ef": 164,
+   "ls": 157,
+   "lf": 168,
+   "tf": 151,
+   "ff": 185
+  },
+  {
+   "folder": "h3-situations-2026-10-14",
+   "n": 537,
+   "all": 328,
+   "es": 444,
+   "ef": 443,
+   "ls": 455,
+   "lf": 481,
+   "tf": 395,
+   "ff": 425
+  },
+  {
+   "folder": "h4-situations-2026-10-14",
+   "n": 144,
+   "all": 126,
+   "es": 136,
+   "ef": 136,
+   "ls": 136,
+   "lf": 140,
+   "tf": 132,
+   "ff": 142
+  },
+  {
+   "folder": "h6-situations-2026-10-16",
+   "n": 152,
+   "all": 131,
+   "es": 133,
+   "ef": 133,
+   "ls": 146,
+   "lf": 146,
+   "tf": 131,
+   "ff": 137
+  },
+  {
+   "folder": "h9-followups-2026-10-17",
+   "n": 53,
+   "all": 42,
+   "es": 53,
+   "ef": 53,
+   "ls": 47,
+   "lf": 51,
+   "tf": 52,
+   "ff": 43
+  },
+  {
+   "folder": "key-activity-2026-10-20",
+   "n": 299,
+   "all": 184,
+   "es": 236,
+   "ef": 234,
+   "ls": 186,
+   "lf": 228,
+   "tf": 188,
+   "ff": 220
+  },
+  {
+   "folder": "oc-edges-xc-2026-10-18",
+   "n": 179,
+   "all": 135,
+   "es": 167,
+   "ef": 167,
+   "ls": 157,
+   "lf": 160,
+   "tf": 148,
+   "ff": 162
+  },
+  {
+   "folder": "oc-xa-2026-10-18",
+   "n": 149,
+   "all": 122,
+   "es": 139,
+   "ef": 129,
+   "ls": 132,
+   "lf": 142,
+   "tf": 122,
+   "ff": 139
+  },
+  {
+   "folder": "po-resume-2026-10-17",
+   "n": 13,
+   "all": 13,
+   "es": 13,
+   "ef": 13,
+   "ls": 13,
+   "lf": 13,
+   "tf": 13,
+   "ff": 13
+  },
+  {
+   "folder": "rd-underway-2026-10-17",
+   "n": 30,
+   "all": 20,
+   "es": 25,
+   "ef": 25,
+   "ls": 20,
+   "lf": 20,
+   "tf": 23,
+   "ff": 28
+  },
+  {
+   "folder": "round18-2026-10-20",
+   "n": 112,
+   "all": 84,
+   "es": 93,
+   "ef": 94,
+   "ls": 89,
+   "lf": 96,
+   "tf": 86,
+   "ff": 101
+  },
+  {
+   "folder": "round19-2026-10-20",
+   "n": 24,
+   "all": 18,
+   "es": 18,
+   "ef": 18,
+   "ls": 18,
+   "lf": 18,
+   "tf": 18,
+   "ff": 19
+  },
+  {
+   "folder": "round20-2026-10-21",
+   "n": 24,
+   "all": 18,
+   "es": 20,
+   "ef": 18,
+   "ls": 18,
+   "lf": 18,
+   "tf": 18,
+   "ff": 24
+  },
+  {
+   "folder": "round21-2026-10-21",
+   "n": 24,
+   "all": 18,
+   "es": 18,
+   "ef": 18,
+   "ls": 18,
+   "lf": 18,
+   "tf": 18,
+   "ff": 24
+  },
+  {
+   "folder": "round22-2026-10-21",
+   "n": 80,
+   "all": 65,
+   "es": 71,
+   "ef": 71,
+   "ls": 72,
+   "lf": 72,
+   "tf": 67,
+   "ff": 74
+  },
+  {
+   "folder": "round23-2026-10-21",
+   "n": 30,
+   "all": 20,
+   "es": 21,
+   "ef": 21,
+   "ls": 21,
+   "lf": 22,
+   "tf": 21,
+   "ff": 22
+  },
+  {
+   "folder": "susp-lag-rb-break-2026-10-18",
+   "n": 92,
+   "all": 55,
+   "es": 72,
+   "ef": 72,
+   "ls": 81,
+   "lf": 89,
+   "tf": 69,
+   "ff": 64
+  },
+  {
+   "folder": "xf-mandatory-2026-10-18",
+   "n": 307,
+   "all": 170,
+   "es": 238,
+   "ef": 231,
+   "ls": 233,
+   "lf": 233,
+   "tf": 187,
+   "ff": 242
+  },
+  {
+   "folder": "zero-units-2026-10-19",
+   "n": 61,
+   "all": 37,
+   "es": 49,
+   "ef": 53,
+   "ls": 52,
+   "lf": 55,
+   "tf": 48,
+   "ff": 49
+  }
+ ],
+ "missesSfOrSsOther": [
+  {
+   "folder": "alap-rd-2026-10-20",
+   "file": "kr1.xer",
+   "project": "ZZ-CPP-KR1",
+   "code": "F",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2027-03-04 13:00 vs P6 2027-03-05 08:00",
+    "ef 2027-03-05 09:30 vs P6 2027-03-05 16:00",
+    "ls 2027-03-31 15:00 vs P6 2027-03-31 11:30",
+    "tf 160.5 vs P6 159"
+   ]
+  },
+  {
+   "folder": "alap-rd-2026-10-20",
+   "file": "kr2.xer",
+   "project": "ZZ-CPP-KR2",
+   "code": "F",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2027-03-04 13:00 vs P6 2027-03-05 08:00",
+    "ef 2027-03-05 09:30 vs P6 2027-03-05 16:00",
+    "lf 2027-04-01 09:00 vs P6 2027-04-01 11:30",
+    "tf 158 vs P6 159"
+   ]
+  },
+  {
+   "folder": "alap-rd-2026-10-20",
+   "file": "kr3.xer",
+   "project": "ZZ-CPP-KR3",
+   "code": "F",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "ls 2027-03-31 16:30 vs P6 2027-04-01 08:00",
+    "lf 2027-04-01 09:00 vs P6 2027-04-01 11:00",
+    "tf 162 vs P6 164"
+   ]
+  },
+  {
+   "folder": "alap-rd-2026-10-20",
+   "file": "kr4.xer",
+   "project": "ZZ-CPP-KR4",
+   "code": "F",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2027-03-04 16:00 vs P6 2027-03-08 07:00",
+    "ef 2027-03-11 14:00 vs P6 2027-03-11 15:00",
+    "ls 2027-03-25 13:30 vs P6 2027-03-28 15:30",
+    "tf 117.5 vs P6 116.5"
+   ]
+  },
+  {
+   "folder": "alap-rd-2026-10-20",
+   "file": "kr5.xer",
+   "project": "ZZ-CPP-KR5",
+   "code": "F",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2027-03-04 16:00 vs P6 2027-03-08 07:00",
+    "ef 2027-03-09 08:00 vs P6 2027-03-09 09:00",
+    "tf 143.5 vs P6 142.5"
+   ]
+  },
+  {
+   "folder": "alap-rd-2026-10-20",
+   "file": "kr6.xer",
+   "project": "ZZ-CPP-KR6",
+   "code": "F",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2027-03-04 16:00 vs P6 2027-03-08 07:00",
+    "ef 2027-03-08 08:00 vs P6 2027-03-08 09:00",
+    "tf 151.5 vs P6 150.5"
+   ]
+  },
+  {
+   "folder": "alap-rd-2026-10-20",
+   "file": "kr9.xer",
+   "project": "ZZ-CPP-KR9",
+   "code": "F",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2027-03-08 07:00 vs P6 2027-03-08 08:00",
+    "ef 2027-03-08 15:00 vs P6 2027-03-08 16:00",
+    "ls 2027-03-31 15:00 vs P6 2027-03-31 11:30",
+    "tf 152 vs P6 151"
+   ]
+  },
+  {
+   "folder": "alap-rd-2026-10-20",
+   "file": "kr10.xer",
+   "project": "ZZ-CPP-KR10",
+   "code": "F",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2027-03-03 16:00 vs P6 2027-03-08 07:00",
+    "ef 2027-03-10 14:00 vs P6 2027-03-11 15:00",
+    "ls 2027-03-25 13:30 vs P6 2027-03-28 15:30",
+    "tf 127.5 vs P6 116.5"
+   ]
+  },
+  {
+   "folder": "h1-situations-2026-10-13",
+   "file": "h1s-fs.xer",
+   "project": "ZZ-CPP-H1S-FS",
+   "code": "F15A",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "ff 28 vs P6 29"
+   ]
+  },
+  {
+   "folder": "h1-situations-2026-10-13",
+   "file": "h1s-fj.xer",
+   "project": "ZZ-CPP-H1S-FJ",
+   "code": "F15A",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "ff 25 vs P6 24"
+   ]
+  },
+  {
+   "folder": "h10-followups-2026-10-17",
+   "file": "rd2f.xer",
+   "project": "ZZ-CPP-RD2F",
+   "code": "PD2",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ls 2026-12-01 16:00 vs P6 2026-12-02 12:00",
+    "lf 2026-12-01 20:00 vs P6 2026-12-02 16:00",
+    "tf -3 vs P6 17",
+    "ff 0 vs P6 13"
+   ]
+  },
+  {
+   "folder": "h10-followups-2026-10-17",
+   "file": "rd2f.xer",
+   "project": "ZZ-CPP-RD2F",
+   "code": "PD8",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ls 2026-12-01 16:00 vs P6 2026-12-02 12:00",
+    "lf 2026-12-01 20:00 vs P6 2026-12-02 16:00",
+    "tf -3 vs P6 17",
+    "ff 0 vs P6 13"
+   ]
+  },
+  {
+   "folder": "h10-followups-2026-10-17",
+   "file": "rd2f.xer",
+   "project": "ZZ-CPP-RD2F",
+   "code": "SD2",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2026-12-01 10:00 vs P6 2026-12-01 12:00",
+    "ef 2026-12-01 19:00 vs P6 2026-12-02 08:00",
+    "ls 2026-12-01 08:00 vs P6 2026-12-02 08:00",
+    "lf 2026-12-01 16:00 vs P6 2026-12-02 16:00",
+    "tf 0 vs P6 8",
+    "ff 0 vs P6 8"
+   ]
+  },
+  {
+   "folder": "h10-followups-2026-10-17",
+   "file": "rd2f.xer",
+   "project": "ZZ-CPP-RD2F",
+   "code": "SD8",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ef 2026-12-01 19:00 vs P6 2026-12-02 08:00",
+    "ls 2026-12-01 08:00 vs P6 2026-12-02 08:00",
+    "lf 2026-12-01 16:00 vs P6 2026-12-02 16:00",
+    "tf 0 vs P6 8",
+    "ff 0 vs P6 8"
+   ]
+  },
+  {
+   "folder": "h10-followups-2026-10-17",
+   "file": "rd2l.xer",
+   "project": "ZZ-CPP-RD2L",
+   "code": "L9",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ls 2026-11-17 17:00 vs P6 2026-11-17 08:00",
+    "lf 2026-11-20 02:00 vs P6 2026-11-19 17:00"
+   ]
+  },
+  {
+   "folder": "h12-followups-2026-10-17",
+   "file": "msnp.xer",
+   "project": "ZZ-CPP-MSNP",
+   "code": "M1",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "ls 2026-11-06 07:00 vs P6 2026-11-04 13:00",
+    "lf 2026-11-17 07:30 vs P6 2026-11-12 17:30",
+    "tf 0 vs P6 -14"
+   ]
+  },
+  {
+   "folder": "h12-followups-2026-10-17",
+   "file": "msnr.xer",
+   "project": "ZZ-CPP-MSNR",
+   "code": "M1",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "ls 2026-11-06 07:00 vs P6 2026-11-04 13:00",
+    "lf 2026-11-17 07:30 vs P6 2026-11-12 17:30",
+    "tf 0 vs P6 -14"
+   ]
+  },
+  {
+   "folder": "h12-followups-2026-10-17",
+   "file": "rd2s.xer",
+   "project": "ZZ-CPP-RD2S",
+   "code": "S4",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "lf 2026-10-29 16:00 vs P6 2026-10-29 17:30"
+   ]
+  },
+  {
+   "folder": "h13-followups-2026-10-17",
+   "file": "ssna.xer",
+   "project": "ZZ-CPP-SSNA",
+   "code": "A1200",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2026-05-21 14:30 vs P6 2026-05-21 10:30",
+    "ef 2026-05-28 14:30 vs P6 2026-05-28 10:30",
+    "tf -17.5 vs P6 -14",
+    "ff 15 vs P6 18.5"
+   ]
+  },
+  {
+   "folder": "h13-followups-2026-10-17",
+   "file": "ssnb.xer",
+   "project": "ZZ-CPP-SSNB",
+   "code": "A1200",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2026-05-21 14:30 vs P6 2026-05-21 10:30",
+    "ef 2026-05-28 14:30 vs P6 2026-05-28 10:30",
+    "tf -17.5 vs P6 -14",
+    "ff 15 vs P6 18.5"
+   ]
+  },
+  {
+   "folder": "h13-followups-2026-10-17",
+   "file": "ssnc.xer",
+   "project": "ZZ-CPP-SSNC",
+   "code": "A1200",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2026-05-21 14:30 vs P6 2026-05-21 10:30",
+    "ef 2026-05-28 14:30 vs P6 2026-05-28 10:30",
+    "tf -17.5 vs P6 -14",
+    "ff 15 vs P6 18.5"
+   ]
+  },
+  {
+   "folder": "h13-followups-2026-10-17",
+   "file": "ssnd.xer",
+   "project": "ZZ-CPP-SSND",
+   "code": "A1200",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2026-05-21 14:30 vs P6 2026-05-21 10:30",
+    "ef 2026-05-28 14:30 vs P6 2026-05-28 10:30",
+    "tf -17.5 vs P6 -14",
+    "ff 15 vs P6 18.5"
+   ]
+  },
+  {
+   "folder": "h13-followups-2026-10-17",
+   "file": "ssnf.xer",
+   "project": "ZZ-CPP-SSNF",
+   "code": "A1200",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2026-05-21 14:30 vs P6 2026-05-21 10:30",
+    "ef 2026-05-28 14:30 vs P6 2026-05-28 10:30",
+    "tf -17.5 vs P6 -14",
+    "ff 15 vs P6 18.5"
+   ]
+  },
+  {
+   "folder": "h13-followups-2026-10-17",
+   "file": "ssng.xer",
+   "project": "ZZ-CPP-SSNG",
+   "code": "A1200",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2026-05-21 14:30 vs P6 2026-05-21 10:30",
+    "ef 2026-05-28 14:30 vs P6 2026-05-28 10:30",
+    "tf -17.5 vs P6 -14",
+    "ff 15 vs P6 18.5"
+   ]
+  },
+  {
+   "folder": "h13-followups-2026-10-17",
+   "file": "ssnh.xer",
+   "project": "ZZ-CPP-SSNH",
+   "code": "A1200",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2026-05-21 14:30 vs P6 2026-05-21 10:30",
+    "ef 2026-05-28 14:30 vs P6 2026-05-28 10:30",
+    "tf -17.5 vs P6 -14",
+    "ff 15 vs P6 18.5"
+   ]
+  },
+  {
+   "folder": "h13-followups-2026-10-17",
+   "file": "ssni.xer",
+   "project": "ZZ-CPP-SSNI",
+   "code": "A1200",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2026-05-21 14:30 vs P6 2026-05-21 10:30",
+    "ef 2026-05-28 14:30 vs P6 2026-05-28 10:30",
+    "tf -17.5 vs P6 -14",
+    "ff 15 vs P6 18.5"
+   ]
+  },
+  {
+   "folder": "h15-followups-2026-10-18",
+   "file": "sbna.xer",
+   "project": "ZZ-CPP-SBNA",
+   "code": "A1200",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2026-08-17 07:00 vs P6 2026-08-27 14:00",
+    "ef 2026-08-18 13:00 vs P6 2026-08-31 10:00",
+    "tf 231.5 vs P6 144.5",
+    "ff 231.5 vs P6 144.5"
+   ]
+  },
+  {
+   "folder": "h15-followups-2026-10-18",
+   "file": "sbnb.xer",
+   "project": "ZZ-CPP-SBNB",
+   "code": "A1200",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2026-08-17 07:00 vs P6 2026-08-27 14:00",
+    "ef 2026-08-18 13:00 vs P6 2026-08-31 10:00",
+    "tf 231.5 vs P6 144.5",
+    "ff 231.5 vs P6 144.5"
+   ]
+  },
+  {
+   "folder": "h15-followups-2026-10-18",
+   "file": "sbnc.xer",
+   "project": "ZZ-CPP-SBNC",
+   "code": "A1200",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2026-08-17 07:00 vs P6 2026-08-27 14:00",
+    "ef 2026-08-18 13:00 vs P6 2026-08-31 10:00",
+    "tf 231.5 vs P6 144.5",
+    "ff 231.5 vs P6 144.5"
+   ]
+  },
+  {
+   "folder": "h15-followups-2026-10-18",
+   "file": "sbnd.xer",
+   "project": "ZZ-CPP-SBND",
+   "code": "A1200",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2026-08-17 07:00 vs P6 2026-08-27 14:00",
+    "ef 2026-08-18 13:00 vs P6 2026-08-31 10:00",
+    "tf 231.5 vs P6 144.5",
+    "ff 231.5 vs P6 144.5"
+   ]
+  },
+  {
+   "folder": "h15-followups-2026-10-18",
+   "file": "sbne.xer",
+   "project": "ZZ-CPP-SBNE",
+   "code": "A1200",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2026-08-17 07:00 vs P6 2026-08-27 14:00",
+    "ef 2026-08-18 13:00 vs P6 2026-08-31 10:00",
+    "tf 231.5 vs P6 144.5",
+    "ff 231.5 vs P6 144.5"
+   ]
+  },
+  {
+   "folder": "h15-followups-2026-10-18",
+   "file": "sbng.xer",
+   "project": "ZZ-CPP-SBNG",
+   "code": "A1150",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ff 0 vs P6 20"
+   ]
+  },
+  {
+   "folder": "h15-followups-2026-10-18",
+   "file": "sbni.xer",
+   "project": "ZZ-CPP-SBNI",
+   "code": "A1200",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2026-08-17 07:00 vs P6 2026-08-27 14:00",
+    "ef 2026-08-18 13:00 vs P6 2026-08-31 10:00",
+    "tf 231.5 vs P6 144.5",
+    "ff 231.5 vs P6 144.5"
+   ]
+  },
+  {
+   "folder": "h17-followups-2026-10-18",
+   "file": "rzfs.xer",
+   "project": "ZZ-CPP-RZFS",
+   "code": "A1070",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ls 2026-12-12 07:30 vs P6 2026-12-10 17:00"
+   ]
+  },
+  {
+   "folder": "h2-situations-2026-10-13",
+   "file": "h2s-rn.xer",
+   "project": "ZZ-CPP-H2S-RN",
+   "code": "R6A",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ff 28 vs P6 44"
+   ]
+  },
+  {
+   "folder": "h2-situations-2026-10-13",
+   "file": "h2s-ry.xer",
+   "project": "ZZ-CPP-H2S-RY",
+   "code": "R6A",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ff 28 vs P6 44"
+   ]
+  },
+  {
+   "folder": "h2-situations-2026-10-13",
+   "file": "h2s-ro.xer",
+   "project": "ZZ-CPP-H2S-RO",
+   "code": "R5A",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ff 48 vs P6 184"
+   ]
+  },
+  {
+   "folder": "h2-situations-2026-10-13",
+   "file": "h2s-ro.xer",
+   "project": "ZZ-CPP-H2S-RO",
+   "code": "R6A",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ff 32 vs P6 184"
+   ]
+  },
+  {
+   "folder": "h2-situations-2026-10-13",
+   "file": "h2s-ro.xer",
+   "project": "ZZ-CPP-H2S-RO",
+   "code": "R19A",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ff 8 vs P6 184"
+   ]
+  },
+  {
+   "folder": "h2-situations-2026-10-13",
+   "file": "h2s-rn2.xer",
+   "project": "ZZ-CPP-H2S-RN2",
+   "code": "R6A",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ff 28 vs P6 44"
+   ]
+  },
+  {
+   "folder": "h23-shapes-2026-10-19",
+   "file": "ssm.xer",
+   "project": "ZZ-CPP-SSM",
+   "code": "M8",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ef 2026-12-14 08:00 vs P6 2026-12-11 17:00"
+   ]
+  },
+  {
+   "folder": "h23-shapes-2026-10-19",
+   "file": "ssm.xer",
+   "project": "ZZ-CPP-SSM",
+   "code": "X8",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ls 2026-12-14 08:00 vs P6 2026-12-11 17:00"
+   ]
+  },
+  {
+   "folder": "h23-shapes-2026-10-19",
+   "file": "xfo.xer",
+   "project": "ZZ-CPP-XFO",
+   "code": "P6",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ls 2026-12-09 07:00 vs P6 2026-12-08 17:30"
+   ]
+  },
+  {
+   "folder": "h23-shapes-2026-10-19",
+   "file": "xfo.xer",
+   "project": "ZZ-CPP-XFO",
+   "code": "X6",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2026-11-10 13:00 vs P6 2026-11-12 13:30",
+    "ls 2026-12-04 08:30 vs P6 2026-12-08 15:30"
+   ]
+  },
+  {
+   "folder": "h23-shapes-2026-10-19",
+   "file": "xfr.xer",
+   "project": "ZZ-CPP-XFR",
+   "code": "P6",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ls 2026-12-09 07:00 vs P6 2026-12-08 17:30"
+   ]
+  },
+  {
+   "folder": "h23-shapes-2026-10-19",
+   "file": "xfr.xer",
+   "project": "ZZ-CPP-XFR",
+   "code": "X6",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2026-11-10 13:00 vs P6 2026-11-12 13:30",
+    "ls 2026-12-04 08:30 vs P6 2026-12-08 15:30"
+   ]
+  },
+  {
+   "folder": "h23-shapes-2026-10-19",
+   "file": "h12c.xer",
+   "project": "ZZ-CPP-H12C",
+   "code": "A1020",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2026-07-26 06:00 vs P6 2026-07-27 13:00",
+    "ef 2026-07-26 08:00 vs P6 2026-07-27 15:00",
+    "ls 2026-07-10 17:00 vs P6 2026-07-02 16:30",
+    "lf 2026-07-11 07:00 vs P6 2026-07-03 06:30",
+    "tf -169 vs P6 -284.5"
+   ]
+  },
+  {
+   "folder": "h23-shapes-2026-10-19",
+   "file": "h12c.xer",
+   "project": "ZZ-CPP-H12C",
+   "code": "A1100",
+   "sf": true,
+   "ssOther": true,
+   "off": [
+    "es 2026-07-26 08:00 vs P6 2026-07-27 15:00",
+    "ef 2026-07-26 13:00 vs P6 2026-07-28 08:00",
+    "ls 2026-07-11 07:00 vs P6 2026-07-03 06:30",
+    "lf 2026-07-11 12:00 vs P6 2026-07-03 11:30",
+    "tf -169 vs P6 -284.5"
+   ]
+  },
+  {
+   "folder": "h23-shapes-2026-10-19",
+   "file": "h12c.xer",
+   "project": "ZZ-CPP-H12C",
+   "code": "A1150",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ls 2026-07-26 14:00 vs P6 2026-07-20 11:00",
+    "lf 2026-07-27 18:00 vs P6 2026-07-21 15:00",
+    "tf 0 vs P6 -63"
+   ]
+  },
+  {
+   "folder": "h24-shapes-2026-10-19",
+   "file": "fpf.xer",
+   "project": "ZZ-CPP-FPF",
+   "code": "Q6",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ls 2026-12-25 08:00 vs P6 2026-12-24 17:00"
+   ]
+  },
+  {
+   "folder": "h27-causes-2026-10-20",
+   "file": "kc5.xer",
+   "project": "ZZ-CPP-KC5",
+   "code": "F",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ls 2027-03-24 15:30 vs P6 2027-03-24 14:30"
+   ]
+  },
+  {
+   "folder": "h27-causes-2026-10-20",
+   "file": "kc7.xer",
+   "project": "ZZ-CPP-KC7",
+   "code": "F",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2027-03-08 07:00 vs P6 2027-03-08 08:00",
+    "ef 2027-03-08 15:00 vs P6 2027-03-08 16:00",
+    "ls 2027-03-24 17:00 vs P6 2027-03-24 14:30",
+    "tf 112 vs P6 111"
+   ]
+  },
+  {
+   "folder": "h27-causes-2026-10-20",
+   "file": "kd2.xer",
+   "project": "ZZ-CPP-KD2",
+   "code": "R",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2027-04-08 12:00 vs P6 2027-04-07 12:00"
+   ]
+  },
+  {
+   "folder": "h27-causes-2026-10-20",
+   "file": "kd4.xer",
+   "project": "ZZ-CPP-KD4",
+   "code": "R",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2027-04-07 16:00 vs P6 2027-04-06 14:00"
+   ]
+  },
+  {
+   "folder": "h28-causes-2026-10-20",
+   "file": "qb7.xer",
+   "project": "ZZ-CPP-QB7",
+   "code": "F",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2027-03-04 14:15 vs P6 2027-03-04 14:00",
+    "ef 2027-03-04 16:15 vs P6 2027-03-04 16:00",
+    "ls 2027-03-26 15:00 vs P6 2027-03-26 14:00",
+    "lf 2027-03-26 17:00 vs P6 2027-03-26 16:00",
+    "tf 128.75 vs P6 128"
+   ]
+  },
+  {
+   "folder": "h28-causes-2026-10-20",
+   "file": "qb8.xer",
+   "project": "ZZ-CPP-QB8",
+   "code": "F",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ef 2027-03-05 08:15 vs P6 2027-03-05 09:15",
+    "ls 2027-03-26 14:00 vs P6 2027-03-26 13:00",
+    "lf 2027-03-26 17:00 vs P6 2027-03-26 16:00",
+    "tf 127.75 vs P6 125.75"
+   ]
+  },
+  {
+   "folder": "h28-causes-2026-10-20",
+   "file": "qg5.xer",
+   "project": "ZZ-CPP-QG5",
+   "code": "F",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2027-03-08 07:00 vs P6 2027-03-09 09:00",
+    "ef 2027-03-09 12:00 vs P6 2027-03-10 14:00",
+    "ls 2027-03-25 13:00 vs P6 2027-03-24 11:00",
+    "lf 2027-03-29 08:00 vs P6 2027-03-25 16:00",
+    "tf 136 vs P6 112"
+   ]
+  },
+  {
+   "folder": "h28-causes-2026-10-20",
+   "file": "qg6.xer",
+   "project": "ZZ-CPP-QG6",
+   "code": "F",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2027-03-08 07:00 vs P6 2027-03-09 09:00",
+    "ef 2027-03-09 12:00 vs P6 2027-03-10 14:00",
+    "ls 2027-03-25 13:00 vs P6 2027-03-24 11:00",
+    "lf 2027-03-29 08:00 vs P6 2027-03-25 16:00",
+    "tf 136 vs P6 124"
+   ]
+  },
+  {
+   "folder": "h28-causes-2026-10-20",
+   "file": "qg7.xer",
+   "project": "ZZ-CPP-QG7",
+   "code": "F",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2027-03-08 07:00 vs P6 2027-03-09 09:00",
+    "ef 2027-03-09 12:00 vs P6 2027-03-10 14:00",
+    "ls 2027-03-25 13:00 vs P6 2027-03-24 11:00",
+    "lf 2027-03-29 08:00 vs P6 2027-03-25 16:00",
+    "tf 136 vs P6 112"
+   ]
+  },
+  {
+   "folder": "h28-causes-2026-10-20",
+   "file": "qg8.xer",
+   "project": "ZZ-CPP-QG8",
+   "code": "F",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2027-03-08 07:00 vs P6 2027-03-08 09:00",
+    "ef 2027-03-09 12:00 vs P6 2027-03-09 14:00",
+    "ls 2027-03-25 13:00 vs P6 2027-03-25 11:00",
+    "lf 2027-03-29 08:00 vs P6 2027-03-26 16:00",
+    "tf 136 vs P6 132"
+   ]
+  },
+  {
+   "folder": "h3-situations-2026-10-14",
+   "file": "h3s-l.xer",
+   "project": "ZZ-CPP-H3S-L",
+   "code": "L7X",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ls 2026-03-24 13:00 vs P6 2026-03-24 12:00"
+   ]
+  },
+  {
+   "folder": "h3-situations-2026-10-14",
+   "file": "h3s-lo.xer",
+   "project": "ZZ-CPP-H3S-LO",
+   "code": "L7X",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ls 2026-03-24 13:00 vs P6 2026-03-24 12:00"
+   ]
+  },
+  {
+   "folder": "h3-situations-2026-10-14",
+   "file": "h3s-pa.xer",
+   "project": "ZZ-CPP-H3S-PA",
+   "code": "P5A",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ff 0 vs P6 384"
+   ]
+  },
+  {
+   "folder": "h3-situations-2026-10-14",
+   "file": "h3s-pe.xer",
+   "project": "ZZ-CPP-H3S-PE",
+   "code": "P5A",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ff 0 vs P6 384"
+   ]
+  },
+  {
+   "folder": "h3-situations-2026-10-14",
+   "file": "h3s-pe24.xer",
+   "project": "ZZ-CPP-H3S-PE24",
+   "code": "P1A",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "ff 0 vs P6 384"
+   ]
+  },
+  {
+   "folder": "h3-situations-2026-10-14",
+   "file": "h3s-pe24.xer",
+   "project": "ZZ-CPP-H3S-PE24",
+   "code": "P1B",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2026-03-16 08:00 vs P6 2026-03-13 17:00",
+    "ef 2026-03-16 16:00 vs P6 2026-03-14 01:00",
+    "tf 1609 vs P6 1672",
+    "ff 1609 vs P6 1672"
+   ]
+  },
+  {
+   "folder": "h3-situations-2026-10-14",
+   "file": "h3s-pe24.xer",
+   "project": "ZZ-CPP-H3S-PE24",
+   "code": "P2A",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "ff 0 vs P6 384"
+   ]
+  },
+  {
+   "folder": "h3-situations-2026-10-14",
+   "file": "h3s-pe24.xer",
+   "project": "ZZ-CPP-H3S-PE24",
+   "code": "P3A",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "ff 0 vs P6 384"
+   ]
+  },
+  {
+   "folder": "h3-situations-2026-10-14",
+   "file": "h3s-pe24.xer",
+   "project": "ZZ-CPP-H3S-PE24",
+   "code": "P3B",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2026-03-16 08:00 vs P6 2026-03-13 17:00",
+    "ef 2026-03-16 16:00 vs P6 2026-03-14 01:00",
+    "tf 1609 vs P6 1672",
+    "ff 1609 vs P6 1672"
+   ]
+  },
+  {
+   "folder": "h3-situations-2026-10-14",
+   "file": "h3s-pe24.xer",
+   "project": "ZZ-CPP-H3S-PE24",
+   "code": "P4A",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "ff 0 vs P6 384"
+   ]
+  },
+  {
+   "folder": "h3-situations-2026-10-14",
+   "file": "h3s-pe24.xer",
+   "project": "ZZ-CPP-H3S-PE24",
+   "code": "P4B",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2026-03-16 08:00 vs P6 2026-03-13 17:00",
+    "ef 2026-03-16 16:00 vs P6 2026-03-14 01:00",
+    "tf 1609 vs P6 1672",
+    "ff 1609 vs P6 1672"
+   ]
+  },
+  {
+   "folder": "h3-situations-2026-10-14",
+   "file": "h3s-pe24.xer",
+   "project": "ZZ-CPP-H3S-PE24",
+   "code": "P12A",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "ff 0 vs P6 384"
+   ]
+  },
+  {
+   "folder": "h3-situations-2026-10-14",
+   "file": "h3s-pe24.xer",
+   "project": "ZZ-CPP-H3S-PE24",
+   "code": "P12B",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2026-03-16 23:00 vs P6 2026-03-14 08:00",
+    "ef 2026-03-17 07:00 vs P6 2026-03-14 16:00",
+    "tf 1594 vs P6 1657",
+    "ff 1594 vs P6 1657"
+   ]
+  },
+  {
+   "folder": "h3-situations-2026-10-14",
+   "file": "h3s-pe24.xer",
+   "project": "ZZ-CPP-H3S-PE24",
+   "code": "P5A",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ff 0 vs P6 384"
+   ]
+  },
+  {
+   "folder": "h3-situations-2026-10-14",
+   "file": "h3s-pe24.xer",
+   "project": "ZZ-CPP-H3S-PE24",
+   "code": "P6A",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "ff 0 vs P6 384"
+   ]
+  },
+  {
+   "folder": "h3-situations-2026-10-14",
+   "file": "h3s-pe24.xer",
+   "project": "ZZ-CPP-H3S-PE24",
+   "code": "P6B",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2026-03-16 08:00 vs P6 2026-03-13 17:00",
+    "ef 2026-03-16 16:00 vs P6 2026-03-14 01:00",
+    "tf 1609 vs P6 1672",
+    "ff 1609 vs P6 1672"
+   ]
+  },
+  {
+   "folder": "h3-situations-2026-10-14",
+   "file": "h3s-pe24.xer",
+   "project": "ZZ-CPP-H3S-PE24",
+   "code": "P7A",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "ff 40 vs P6 384"
+   ]
+  },
+  {
+   "folder": "h3-situations-2026-10-14",
+   "file": "h3s-pe24.xer",
+   "project": "ZZ-CPP-H3S-PE24",
+   "code": "P8A",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "ff 0 vs P6 384"
+   ]
+  },
+  {
+   "folder": "h3-situations-2026-10-14",
+   "file": "h3s-pe24.xer",
+   "project": "ZZ-CPP-H3S-PE24",
+   "code": "P8B",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2026-03-16 07:00 vs P6 2026-03-13 17:00",
+    "ef 2026-03-16 15:00 vs P6 2026-03-14 01:00",
+    "tf 1610 vs P6 1672",
+    "ff 1610 vs P6 1672"
+   ]
+  },
+  {
+   "folder": "h3-situations-2026-10-14",
+   "file": "h3s-pe24.xer",
+   "project": "ZZ-CPP-H3S-PE24",
+   "code": "P9A",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "ls 2026-03-20 08:00 vs P6 2026-03-19 17:00",
+    "ff 0 vs P6 384"
+   ]
+  },
+  {
+   "folder": "h3-situations-2026-10-14",
+   "file": "h3s-pe24.xer",
+   "project": "ZZ-CPP-H3S-PE24",
+   "code": "P9B",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2026-03-16 08:00 vs P6 2026-03-13 17:00",
+    "ef 2026-03-16 16:00 vs P6 2026-03-14 01:00",
+    "tf 88 vs P6 151",
+    "ff 1609 vs P6 1672"
+   ]
+  },
+  {
+   "folder": "h3-situations-2026-10-14",
+   "file": "h3s-pw.xer",
+   "project": "ZZ-CPP-H3S-PW",
+   "code": "P5A",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ff 7 vs P6 384"
+   ]
+  },
+  {
+   "folder": "h3-situations-2026-10-14",
+   "file": "h3s-re.xer",
+   "project": "ZZ-CPP-H3S-RE",
+   "code": "P5B",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2026-03-13 17:00 vs P6 2026-03-16 00:00",
+    "ef 2026-03-14 01:00 vs P6 2026-03-16 08:00",
+    "tf 1672 vs P6 1617",
+    "ff 1672 vs P6 1617"
+   ]
+  },
+  {
+   "folder": "h6-situations-2026-10-16",
+   "file": "h6s-pn.xer",
+   "project": "ZZ-CPP-H6S-PN",
+   "code": "P8S",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2026-03-11 08:00 vs P6 2026-03-12 08:00",
+    "ef 2026-03-11 17:00 vs P6 2026-03-12 17:00",
+    "tf 392 vs P6 384",
+    "ff 392 vs P6 384"
+   ]
+  },
+  {
+   "folder": "h6-situations-2026-10-16",
+   "file": "h6s-py.xer",
+   "project": "ZZ-CPP-H6S-PY",
+   "code": "P8S",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2026-03-11 08:00 vs P6 2026-03-12 08:00",
+    "ef 2026-03-11 17:00 vs P6 2026-03-12 17:00",
+    "tf 392 vs P6 384",
+    "ff 392 vs P6 384"
+   ]
+  },
+  {
+   "folder": "h6-situations-2026-10-16",
+   "file": "h6s-ps.xer",
+   "project": "ZZ-CPP-H6S-PS",
+   "code": "P8S",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2026-03-11 08:00 vs P6 2026-03-12 08:00",
+    "ef 2026-03-11 17:00 vs P6 2026-03-12 17:00",
+    "tf 392 vs P6 384",
+    "ff 392 vs P6 384"
+   ]
+  },
+  {
+   "folder": "h6-situations-2026-10-16",
+   "file": "h6s-bn.xer",
+   "project": "ZZ-CPP-H6S-BN",
+   "code": "B2X",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2026-03-17 08:00 vs P6 2026-03-19 08:00",
+    "ef 2026-03-17 17:00 vs P6 2026-03-19 17:00",
+    "ls 2026-05-18 08:00 vs P6 2026-05-19 08:00",
+    "lf 2026-05-18 17:00 vs P6 2026-05-19 17:00",
+    "tf 352 vs P6 344"
+   ]
+  },
+  {
+   "folder": "h6-situations-2026-10-16",
+   "file": "h6s-bn.xer",
+   "project": "ZZ-CPP-H6S-BN",
+   "code": "B4X",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2026-03-11 08:00 vs P6 2026-03-18 08:00",
+    "ef 2026-03-11 17:00 vs P6 2026-03-18 17:00",
+    "ls 2026-05-08 08:00 vs P6 2026-05-19 08:00",
+    "lf 2026-05-08 17:00 vs P6 2026-05-19 17:00",
+    "tf 336 vs P6 352"
+   ]
+  },
+  {
+   "folder": "h6-situations-2026-10-16",
+   "file": "h6s-by.xer",
+   "project": "ZZ-CPP-H6S-BY",
+   "code": "B2X",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2026-03-17 08:00 vs P6 2026-03-19 08:00",
+    "ef 2026-03-17 17:00 vs P6 2026-03-19 17:00",
+    "ls 2026-05-18 08:00 vs P6 2026-05-19 08:00",
+    "lf 2026-05-18 17:00 vs P6 2026-05-19 17:00",
+    "tf 352 vs P6 344"
+   ]
+  },
+  {
+   "folder": "h6-situations-2026-10-16",
+   "file": "h6s-by.xer",
+   "project": "ZZ-CPP-H6S-BY",
+   "code": "B4X",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2026-03-11 08:00 vs P6 2026-03-18 08:00",
+    "ef 2026-03-11 17:00 vs P6 2026-03-18 17:00",
+    "ls 2026-05-08 08:00 vs P6 2026-05-19 08:00",
+    "lf 2026-05-08 17:00 vs P6 2026-05-19 17:00",
+    "tf 336 vs P6 352"
+   ]
+  },
+  {
+   "folder": "h9-followups-2026-10-17",
+   "file": "h9ff.xer",
+   "project": "ZZ-CPP-H9FF",
+   "code": "X4",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "ls 2026-06-05 06:00 vs P6 2026-06-04 18:00",
+    "ff 10 vs P6 0"
+   ]
+  },
+  {
+   "folder": "h9-followups-2026-10-17",
+   "file": "rdsf.xer",
+   "project": "ZZ-CPP-RDSF",
+   "code": "B1",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ls 2026-11-03 17:30 vs P6 2026-11-04 07:00",
+    "ff 12 vs P6 40"
+   ]
+  },
+  {
+   "folder": "h9-followups-2026-10-17",
+   "file": "rdsf.xer",
+   "project": "ZZ-CPP-RDSF",
+   "code": "B2",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ls 2026-11-03 17:30 vs P6 2026-11-03 23:00"
+   ]
+  },
+  {
+   "folder": "h9-followups-2026-10-17",
+   "file": "rdsf.xer",
+   "project": "ZZ-CPP-RDSF",
+   "code": "B3",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ls 2026-11-03 17:30 vs P6 2026-11-03 11:00",
+    "lf 2026-11-04 00:30 vs P6 2026-11-03 18:00",
+    "ff 12 vs P6 42"
+   ]
+  },
+  {
+   "folder": "h9-followups-2026-10-17",
+   "file": "rdsf.xer",
+   "project": "ZZ-CPP-RDSF",
+   "code": "B5",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ls 2026-11-03 17:30 vs P6 2026-11-04 02:00",
+    "ff 12 vs P6 42"
+   ]
+  },
+  {
+   "folder": "key-activity-2026-10-20",
+   "file": "kh2.xer",
+   "project": "ZZ-CPP-KH2",
+   "code": "FB0",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2027-03-04 13:00 vs P6 2027-03-05 08:00",
+    "ef 2027-03-05 09:30 vs P6 2027-03-05 16:00",
+    "lf 2027-03-25 11:00 vs P6 2027-03-25 14:30",
+    "tf 118 vs P6 119"
+   ]
+  },
+  {
+   "folder": "key-activity-2026-10-20",
+   "file": "kh2c.xer",
+   "project": "ZZ-CPP-KH2C",
+   "code": "FB0",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2027-03-04 13:00 vs P6 2027-03-05 08:00",
+    "ef 2027-03-05 09:30 vs P6 2027-03-05 16:00",
+    "lf 2027-03-25 11:00 vs P6 2027-03-25 14:30",
+    "tf 118 vs P6 119"
+   ]
+  },
+  {
+   "folder": "key-activity-2026-10-20",
+   "file": "kh4.xer",
+   "project": "ZZ-CPP-KH4",
+   "code": "FB0",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ef 2027-03-08 11:00 vs P6 2027-03-08 13:00",
+    "ls 2027-03-24 15:30 vs P6 2027-03-24 14:30",
+    "tf 106.5 vs P6 105.5"
+   ]
+  },
+  {
+   "folder": "key-activity-2026-10-20",
+   "file": "kh4c.xer",
+   "project": "ZZ-CPP-KH4C",
+   "code": "FB0",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ef 2027-03-08 11:00 vs P6 2027-03-08 13:00",
+    "ls 2027-03-24 15:30 vs P6 2027-03-24 14:30",
+    "tf 106.5 vs P6 105.5"
+   ]
+  },
+  {
+   "folder": "oc-edges-xc-2026-10-18",
+   "file": "oer.xer",
+   "project": "ZZ-CPP-OER",
+   "code": "E13",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ls 2026-12-16 08:00 vs P6 2026-12-15 17:00"
+   ]
+  },
+  {
+   "folder": "oc-edges-xc-2026-10-18",
+   "file": "oep.xer",
+   "project": "ZZ-CPP-OEP",
+   "code": "E13",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ls 2026-12-16 08:00 vs P6 2026-12-15 17:00"
+   ]
+  },
+  {
+   "folder": "oc-edges-xc-2026-10-18",
+   "file": "oel.xer",
+   "project": "ZZ-CPP-OEL",
+   "code": "E13",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ls 2026-12-16 08:00 vs P6 2026-12-15 17:00"
+   ]
+  },
+  {
+   "folder": "rd-underway-2026-10-17",
+   "file": "rdu2.xer",
+   "project": "ZZ-CPP-RDU2",
+   "code": "PR",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ls 2026-12-08 17:30 vs P6 2026-12-08 08:00",
+    "lf 2026-12-09 03:30 vs P6 2026-12-08 18:00",
+    "tf 105.5 vs P6 96"
+   ]
+  },
+  {
+   "folder": "rd-underway-2026-10-17",
+   "file": "rdu2.xer",
+   "project": "ZZ-CPP-RDU2",
+   "code": "QR",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ls 2026-12-08 17:30 vs P6 2026-12-08 08:00",
+    "lf 2026-12-09 03:30 vs P6 2026-12-08 18:00",
+    "tf 105.5 vs P6 96"
+   ]
+  },
+  {
+   "folder": "round18-2026-10-20",
+   "file": "rb2.xer",
+   "project": "ZZ-CPP-RB2",
+   "code": "F",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2027-03-08 06:00 vs P6 2027-03-10 13:00",
+    "ef 2027-03-09 09:00 vs P6 2027-03-11 16:00",
+    "ls 2027-03-27 17:00 vs P6 2027-03-24 13:00",
+    "lf 2027-03-29 08:00 vs P6 2027-03-25 16:00",
+    "tf 239 vs P6 168"
+   ]
+  },
+  {
+   "folder": "round18-2026-10-20",
+   "file": "rb5.xer",
+   "project": "ZZ-CPP-RB5",
+   "code": "F",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2027-03-04 11:00 vs P6 2027-03-04 15:00",
+    "ls 2027-03-24 16:00 vs P6 2027-03-24 12:30"
+   ]
+  },
+  {
+   "folder": "round18-2026-10-20",
+   "file": "rg1.xer",
+   "project": "ZZ-CPP-RG1",
+   "code": "F",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2027-03-08 07:00 vs P6 2027-03-09 09:00",
+    "ef 2027-03-09 12:00 vs P6 2027-03-10 14:00",
+    "ls 2027-03-25 13:00 vs P6 2027-03-24 11:00",
+    "lf 2027-03-29 08:00 vs P6 2027-03-25 16:00",
+    "tf 136 vs P6 124"
+   ]
+  },
+  {
+   "folder": "round18-2026-10-20",
+   "file": "rg2.xer",
+   "project": "ZZ-CPP-RG2",
+   "code": "F",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2027-03-08 07:00 vs P6 2027-03-09 09:00",
+    "ef 2027-03-09 12:00 vs P6 2027-03-10 14:00",
+    "ls 2027-03-25 13:00 vs P6 2027-03-24 11:00",
+    "lf 2027-03-29 08:00 vs P6 2027-03-25 16:00",
+    "tf 136 vs P6 124"
+   ]
+  },
+  {
+   "folder": "round18-2026-10-20",
+   "file": "rg3.xer",
+   "project": "ZZ-CPP-RG3",
+   "code": "F",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2027-03-08 07:00 vs P6 2027-03-08 09:00",
+    "ef 2027-03-09 12:00 vs P6 2027-03-09 14:00",
+    "ls 2027-03-25 13:00 vs P6 2027-03-25 11:00",
+    "lf 2027-03-29 08:00 vs P6 2027-03-26 16:00",
+    "tf 136 vs P6 134"
+   ]
+  },
+  {
+   "folder": "round18-2026-10-20",
+   "file": "rg4.xer",
+   "project": "ZZ-CPP-RG4",
+   "code": "F",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2027-03-08 07:00 vs P6 2027-03-09 09:00",
+    "ef 2027-03-09 12:00 vs P6 2027-03-10 14:00",
+    "ls 2027-03-25 13:00 vs P6 2027-03-24 11:00",
+    "lf 2027-03-29 08:00 vs P6 2027-03-25 16:00",
+    "tf 136 vs P6 112"
+   ]
+  },
+  {
+   "folder": "round19-2026-10-20",
+   "file": "sk4.xer",
+   "project": "ZZ-CPP-SK4",
+   "code": "F",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2027-03-04 14:15 vs P6 2027-03-04 14:00",
+    "ef 2027-03-04 16:15 vs P6 2027-03-04 16:00",
+    "ls 2027-03-26 15:00 vs P6 2027-03-26 14:00",
+    "lf 2027-03-26 17:00 vs P6 2027-03-26 16:00",
+    "tf 128.75 vs P6 128",
+    "ff 0 vs P6 0.25"
+   ]
+  },
+  {
+   "folder": "round19-2026-10-20",
+   "file": "sk5.xer",
+   "project": "ZZ-CPP-SK5",
+   "code": "F",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2027-03-04 14:15 vs P6 2027-03-04 14:00",
+    "ef 2027-03-04 16:15 vs P6 2027-03-04 16:00",
+    "ls 2027-03-26 15:00 vs P6 2027-03-26 14:00",
+    "lf 2027-03-26 17:00 vs P6 2027-03-26 16:00",
+    "tf 128.75 vs P6 128",
+    "ff 0 vs P6 0.25"
+   ]
+  },
+  {
+   "folder": "round20-2026-10-21",
+   "file": "lg6.xer",
+   "project": "ZZ-CPP-LG6",
+   "code": "F",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ef 2027-03-05 09:15 vs P6 2027-03-05 10:15",
+    "ls 2027-03-26 13:00 vs P6 2027-03-26 12:00",
+    "lf 2027-03-26 17:00 vs P6 2027-03-26 16:00",
+    "tf 126.75 vs P6 124.75"
+   ]
+  },
+  {
+   "folder": "round21-2026-10-21",
+   "file": "fa1.xer",
+   "project": "ZZ-CPP-FA1",
+   "code": "F",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2027-03-08 07:00 vs P6 2027-03-08 09:00",
+    "ef 2027-03-09 12:00 vs P6 2027-03-09 14:00",
+    "ls 2027-03-25 13:00 vs P6 2027-03-25 11:00",
+    "lf 2027-03-29 08:00 vs P6 2027-03-26 16:00",
+    "tf 136 vs P6 134"
+   ]
+  },
+  {
+   "folder": "round21-2026-10-21",
+   "file": "fa2.xer",
+   "project": "ZZ-CPP-FA2",
+   "code": "F",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2027-03-08 07:00 vs P6 2027-03-08 09:00",
+    "ef 2027-03-09 12:00 vs P6 2027-03-09 14:00",
+    "ls 2027-03-25 13:00 vs P6 2027-03-25 11:00",
+    "lf 2027-03-29 08:00 vs P6 2027-03-26 16:00",
+    "tf 136 vs P6 132"
+   ]
+  },
+  {
+   "folder": "round21-2026-10-21",
+   "file": "fa3.xer",
+   "project": "ZZ-CPP-FA3",
+   "code": "F",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2027-03-08 07:00 vs P6 2027-03-08 09:00",
+    "ef 2027-03-09 12:00 vs P6 2027-03-09 14:00",
+    "ls 2027-03-25 13:00 vs P6 2027-03-25 11:00",
+    "lf 2027-03-29 08:00 vs P6 2027-03-26 16:00",
+    "tf 136 vs P6 132"
+   ]
+  },
+  {
+   "folder": "round21-2026-10-21",
+   "file": "fa4.xer",
+   "project": "ZZ-CPP-FA4",
+   "code": "F",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2027-03-08 07:00 vs P6 2027-03-09 09:00",
+    "ef 2027-03-09 12:00 vs P6 2027-03-10 14:00",
+    "ls 2027-03-25 13:00 vs P6 2027-03-24 11:00",
+    "lf 2027-03-29 08:00 vs P6 2027-03-25 16:00",
+    "tf 136 vs P6 124"
+   ]
+  },
+  {
+   "folder": "round21-2026-10-21",
+   "file": "fa5.xer",
+   "project": "ZZ-CPP-FA5",
+   "code": "F",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2027-03-08 07:00 vs P6 2027-03-09 09:00",
+    "ef 2027-03-09 12:00 vs P6 2027-03-10 14:00",
+    "ls 2027-03-25 13:00 vs P6 2027-03-24 11:00",
+    "lf 2027-03-29 08:00 vs P6 2027-03-25 16:00",
+    "tf 136 vs P6 112"
+   ]
+  },
+  {
+   "folder": "round21-2026-10-21",
+   "file": "fa6.xer",
+   "project": "ZZ-CPP-FA6",
+   "code": "F",
+   "sf": false,
+   "ssOther": true,
+   "off": [
+    "es 2027-03-08 07:00 vs P6 2027-03-09 09:00",
+    "ef 2027-03-09 12:00 vs P6 2027-03-10 14:00",
+    "ls 2027-03-25 13:00 vs P6 2027-03-24 11:00",
+    "lf 2027-03-29 08:00 vs P6 2027-03-25 16:00",
+    "tf 136 vs P6 112"
+   ]
+  },
+  {
+   "folder": "susp-lag-rb-break-2026-10-18",
+   "file": "splr.xer",
+   "project": "ZZ-CPP-SPLR",
+   "code": "P5",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ls 2026-12-16 08:00 vs P6 2026-12-17 08:00",
+    "lf 2026-12-22 17:00 vs P6 2026-12-23 17:00",
+    "tf 16 vs P6 24"
+   ]
+  },
+  {
+   "folder": "susp-lag-rb-break-2026-10-18",
+   "file": "splr.xer",
+   "project": "ZZ-CPP-SPLR",
+   "code": "S5",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2026-12-09 08:00 vs P6 2026-12-15 08:00",
+    "ef 2026-12-09 17:00 vs P6 2026-12-15 17:00",
+    "tf 80 vs P6 48",
+    "ff 80 vs P6 48"
+   ]
+  },
+  {
+   "folder": "susp-lag-rb-break-2026-10-18",
+   "file": "splo.xer",
+   "project": "ZZ-CPP-SPLO",
+   "code": "P5",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ls 2026-12-16 08:00 vs P6 2026-12-17 08:00",
+    "lf 2026-12-22 17:00 vs P6 2026-12-23 17:00",
+    "tf 16 vs P6 24",
+    "ff 0 vs P6 24"
+   ]
+  },
+  {
+   "folder": "susp-lag-rb-break-2026-10-18",
+   "file": "splo.xer",
+   "project": "ZZ-CPP-SPLO",
+   "code": "S5",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2026-12-09 08:00 vs P6 2026-12-10 08:00",
+    "ef 2026-12-09 17:00 vs P6 2026-12-10 17:00",
+    "tf 80 vs P6 72",
+    "ff 80 vs P6 72"
+   ]
+  },
+  {
+   "folder": "susp-lag-rb-break-2026-10-18",
+   "file": "spln.xer",
+   "project": "ZZ-CPP-SPLN",
+   "code": "P5",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "ls 2026-12-16 08:00 vs P6 2026-12-17 08:00",
+    "lf 2026-12-22 17:00 vs P6 2026-12-23 17:00",
+    "tf 16 vs P6 24"
+   ]
+  },
+  {
+   "folder": "susp-lag-rb-break-2026-10-18",
+   "file": "spln.xer",
+   "project": "ZZ-CPP-SPLN",
+   "code": "S5",
+   "sf": true,
+   "ssOther": false,
+   "off": [
+    "es 2026-12-09 08:00 vs P6 2026-12-15 08:00",
+    "ef 2026-12-09 17:00 vs P6 2026-12-15 17:00",
+    "tf 80 vs P6 48",
+    "ff 80 vs P6 48"
+   ]
+  }
+ ],
+ "missesOther": 1344
+}

@@ -239,6 +239,7 @@ function transformSolid(s, m) {
   const shells = s.shells ? s.shells.map((sh) => ({ s: sh.s, loops: transformPoly(sh.loops, m) })) : null;
   const out = solid(s.terms.map((t) => ({ s: t.s, faces: transformPoly(t.faces, m) })), s.mesh * Math.abs(det(m)), s.notes, shells);
   if (s.loose) out.loose = transformPoly(s.loose, m);
+  if (s.lofted) out.lofted = true;
   if (s.axis) { out.axis = unit(applyDir(m, s.axis)); out.axisWeight = (s.axisWeight ?? 0) * Math.abs(det(m)); }
   if (s.sweepLength != null) out.sweepLength = s.sweepLength * Math.cbrt(Math.abs(det(m)));
   if (s.bars) {
@@ -726,33 +727,233 @@ export function surfaceArea(s) {
  * inner bounds that run against their face. null on the same terms as
  * surfaceArea. ArchiCAD stores some coverings' and walls' areas as one of
  * these (a sill's top, a coping's underside: eval/curved-and-faces-2026-11-22.md).
+ * `signed` reads a body of several signed terms too (a profile with arcs is
+ * built as a signed sum of pieces): each term's loops count with its sign,
+ * so the faces pieces share cancel plane by plane and what is left is the
+ * body's own boundary (eval/signed-faces-2026-11-24.md).
  */
-export function planeAreas(s) {
+export function planeAreas(s, signed = false) {
+  if (s.mesh && !s.shells) return null;
+  if (s.terms.length > 1 && !signed) return null;
+  // every loop with its term's or shell's sign, without a pair per loop
+  const each = (fn) => {
+    for (const t of s.terms) for (const f of t.faces) fn(t.s, f);
+    if (s.shells) for (const sh of s.shells) for (const l of sh.loops) fn(sh.s ?? 1, l);
+  };
+  let count = 0, scale = 0;
+  each((sg, l) => { count++; for (const p of l) scale = Math.max(scale, Math.abs(p[0]), Math.abs(p[1]), Math.abs(p[2])); });
+  if (!count) return null;
+  // planes keyed by their rounded normal and offset. The four rounded keys
+  // are compared as SameValueZero, which matches the `${a},${b},${c},${d}`
+  // strings this replaced (-0 and 0 one key, NaN one key), in an open
+  // addressed table of plane numbers rather than a Map of strings, and the
+  // vectors are worked in scalars with the same operations in the same
+  // order, so no string or array is made for a loop that adds to a plane
+  // already met (2.9 million loops, 2.1 million planes on Viadotto Acerno;
+  // docs/history/ifc-takeoff-perf-2026-11-24.md). Planes come out in the
+  // order first met, as before.
+  const sums = [], K0 = [], K1 = [], K2 = [], K3 = [];
+  let slots = new Int32Array(64), mask = 63;
+  const hashOf = (a, b, c, d) => {
+    let h = Math.imul(a | 0, 0x9e3779b1) ^ Math.imul(b | 0, 0x85ebca77) ^ Math.imul(c | 0, 0xc2b2ae3d) ^ Math.imul(d | 0, 0x27d4eb2f);
+    h ^= h >>> 15; h = Math.imul(h, 0x2c1b3c6d); h ^= h >>> 12;
+    return h;
+  };
+  const place = (j) => { let at = hashOf(K0[j], K1[j], K2[j], K3[j]) & mask; while (slots[at]) at = (at + 1) & mask; slots[at] = j + 1; };
+  const r = (x, q) => Math.round(x / q);
+  const same = (x, y) => x === y || (x !== x && y !== y);
+  const q3 = 1e-6 * (scale || 1);
+  each((sg, l) => {
+    if (l.length < 3) return;
+    // the loop's area vector: half its Newell normal (newell, mulS)
+    let x = 0, y = 0, z = 0;
+    for (let i = 0; i < l.length; i++) {
+      const p = l[i], q = l[(i + 1) % l.length];
+      x += (p[1] - q[1]) * (p[2] + q[2]);
+      y += (p[2] - q[2]) * (p[0] + q[0]);
+      z += (p[0] - q[0]) * (p[1] + q[1]);
+    }
+    const h = 0.5 * (signed ? sg : 1);
+    const ax = x * h, ay = y * h, az = z * h;
+    // its unit normal (unit), one key for both orientations of a plane
+    const len = Math.hypot(ax, ay, az);
+    if (!(len > 0)) return;
+    const inv = 1 / len;
+    let nx = ax * inv, ny = ay * inv, nz = az * inv;
+    const lead = Math.abs(nx) > 1e-9 ? nx : Math.abs(ny) > 1e-9 ? ny : nz;
+    if (lead < 0) { nx *= -1; ny *= -1; nz *= -1; }
+    const o = l[0];
+    const k0 = r(nx, 1e-6), k1 = r(ny, 1e-6), k2 = r(nz, 1e-6), k3 = r(nx * o[0] + ny * o[1] + nz * o[2], q3);
+    let at = hashOf(k0, k1, k2, k3) & mask, j;
+    while ((j = slots[at]) && !(same(K0[j - 1], k0) && same(K1[j - 1], k1) && same(K2[j - 1], k2) && same(K3[j - 1], k3))) at = (at + 1) & mask;
+    if (j) { const v = sums[j - 1]; v[0] += ax; v[1] += ay; v[2] += az; return; }
+    slots[at] = sums.length + 1;
+    K0.push(k0); K1.push(k1); K2.push(k2); K3.push(k3); sums.push([ax, ay, az]);
+    if (2 * sums.length > mask) {
+      slots = new Int32Array(2 * (mask + 1)); mask = 2 * mask + 1;
+      for (let i = 0; i < sums.length; i++) place(i);
+    }
+  });
+  const out = [];
+  for (const v of sums) { const area = norm(v); if (area > 0) out.push({ n: mulS(v, 1 / area), area }); }
+  return out;
+}
+
+/**
+ * The area of a body's boundary when it is a signed sum of pieces (an
+ * extrusion less faceted cut-outs: S_Office's coped beams), or null when it
+ * is a mesh or too large. planeAreas(s, true) sums each plane's loops as one
+ * area vector, which is exact only while the body faces one way on that
+ * plane. A cope's cut is flush with the flange: the flange's underside faces
+ * down and the web's top, left by the cope, faces up on the same plane, and
+ * the vector sum takes one from the other (SB-168, 0.0072 m2 short of
+ * IfcOpenShell's faces; eval/coped-coating-2026-11-24.md). Here each plane's
+ * loops are added as a winding function, each loop with its piece's sign and
+ * its side of the plane, and the face area is the integral of |winding|:
+ * pieces' shared faces cancel to 0, a face up and a face down on one plane
+ * both count. The integral is taken in slabs between every vertex and edge
+ * crossing, where the winding is constant between neighbouring edges, so it
+ * is exact for polygons. Planes are grouped within 1e-4 in the cosine of
+ * their normals and 2e-5 of the body's size in offset, as pieces clipped
+ * from different cutters do not meet to the last bit.
+ */
+export function boundaryArea(s, maxLoops = 40000) {
   if (s.mesh && !s.shells) return null;
   const loops = [];
-  if (s.terms.length > 1) return null;
-  for (const t of s.terms) loops.push(...t.faces);
-  if (s.shells) for (const sh of s.shells) loops.push(...sh.loops);
-  if (!loops.length) return null;
+  for (const t of s.terms) for (const f of t.faces) loops.push([t.s, f]);
+  if (s.shells) for (const sh of s.shells) for (const l of sh.loops) loops.push([sh.s ?? 1, l]);
+  if (!loops.length || loops.length > maxLoops) return null;
   let scale = 0;
-  for (const l of loops) for (const p of l) scale = Math.max(scale, Math.abs(p[0]), Math.abs(p[1]), Math.abs(p[2]));
-  const planes = new Map();
-  for (const l of loops) {
-    if (l.length < 3) continue;
-    const a = mulS(newell(l), 0.5);
-    const n = unit(a);
-    if (!n) continue;
-    // one key for both orientations of a plane
-    const i = Math.abs(n[0]) > 1e-9 ? 0 : Math.abs(n[1]) > 1e-9 ? 1 : 2;
-    const c = n[i] < 0 ? mulS(n, -1) : n;
-    const r = (x, q) => Math.round(x / q);
-    const key = `${r(c[0], 1e-6)},${r(c[1], 1e-6)},${r(c[2], 1e-6)},${r(dot(c, l[0]), 1e-6 * (scale || 1))}`;
-    const v = planes.get(key);
-    planes.set(key, v ? add(v, a) : a);
-  }
-  const out = [];
-  for (const v of planes.values()) { const area = norm(v); if (area > 0) out.push({ n: mulS(v, 1 / area), area }); }
+  for (const [, l] of loops) for (const p of l) scale = Math.max(scale, Math.abs(p[0]), Math.abs(p[1]), Math.abs(p[2]));
+  // planes in two passes. First loops whose planes agree to 1e-7 (a face two
+  // pieces share, read from the same points, lands here as a pair). Then
+  // whole groups within 1e-4 in the cosine of their normals and 2e-5 of the
+  // body's size in offset are joined, as pieces clipped by different cutters
+  // do not meet to the last bit (S_Office's cutters sit 0.001 mm off the
+  // flanges). Joining groups, never splitting one, keeps a shared face's two
+  // loops together: a filleted profile's fan of near-parallel diagonals
+  // (planes 1e-4 apart) split loop by loop would leave faces uncancelled.
+  const scaleOf = scale || 1;
+  const groups = cluster(loops.map(([sg, l]) => {
+    if (l.length < 3) return null;
+    const a = newell(l), len = norm(a);
+    if (!(len > 0)) return null;
+    // one sense per plane, led by its first component within 1e-6 of the
+    // largest (a leading component of -2e-9, or a 45-degree plane's two
+    // equal ones, must not split a plane in two)
+    let n = mulS(a, 1 / len);
+    const top = Math.max(Math.abs(n[0]), Math.abs(n[1]), Math.abs(n[2])) - 1e-6;
+    const big = Math.abs(n[0]) >= top ? 0 : Math.abs(n[1]) >= top ? 1 : 2;
+    if (n[big] < 0) n = mulS(n, -1);
+    let c = [0, 0, 0];
+    for (const p of l) c = add(c, p);
+    return { n, d: dot(n, c) / l.length, loops: [[sg, l]] };
+  }).filter(Boolean), 1e-7, 1e-7 * scaleOf);
+  const planes = cluster(groups, 1e-4, 2e-5 * scaleOf);
+  let A = 0;
+  for (const P of planes) A += planeWindingArea(P);
+  return A;
+}
+
+/**
+ * Planes joined when their normals agree within `nt` (1 - cosine) and their
+ * offsets within `dt`, transitively (union-find over neighbouring normal
+ * cells); each item keeps its loops, a joined plane takes the first's n, d.
+ */
+function cluster(items, nt, dt) {
+  // cells by rounded normal and offset, looked up with their neighbours
+  const cd = Math.max(dt, 1e-12);
+  const parent = items.map((_, i) => i);
+  const find = (i) => { while (parent[i] !== i) i = parent[i] = parent[parent[i]]; return i; };
+  const cells = new Map();
+  items.forEach((P, i) => {
+    for (const k of neighbourKeys(P.n, P.d, cd)) for (const j of cells.get(k) ?? []) {
+      const Q = items[j];
+      if (dot(P.n, Q.n) >= 1 - nt && Math.abs(P.d - Q.d) <= dt) { const a = find(i), b = find(j); if (a !== b) parent[Math.max(a, b)] = Math.min(a, b); }
+    }
+    const key = `${P.n.map((x) => Math.round(x * 1e2)).join(",")},${Math.round(P.d / cd)}`;
+    if (!cells.has(key)) cells.set(key, []);
+    cells.get(key).push(i);
+  });
+  const out = new Map();
+  items.forEach((P, i) => {
+    const r = find(i);
+    const o = out.get(r);
+    if (o) o.loops.push(...P.loops); else out.set(r, { n: items[r].n, d: items[r].d, loops: P.loops.slice() });
+  });
+  return [...out.values()];
+}
+
+function neighbourKeys(n, d, cd) {
+  const r = n.map((x) => Math.round(x * 1e2)), q = Math.round(d / cd), out = [];
+  for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) for (let k = -1; k <= 1; k++) for (let m = -1; m <= 1; m++) out.push(`${r[0] + i},${r[1] + j},${r[2] + k},${q + m}`);
   return out;
+}
+
+/** ∫|winding| over one plane's signed loops, in the plane's own units squared. */
+function planeWindingArea(P) {
+  const n = P.n;
+  const ax = Math.abs(n[0]) >= Math.abs(n[1]) && Math.abs(n[0]) >= Math.abs(n[2]) ? 0 : Math.abs(n[1]) >= Math.abs(n[2]) ? 1 : 2;
+  const iu = (ax + 1) % 3, iv = (ax + 2) % 3, side = Math.sign(n[ax]), stretch = 1 / Math.abs(n[ax]);
+  // a lone loop, or loops that all face one way: their summed area vector
+  // (planeAreas' figure) is exact and needs no sweep
+  let one = true, s0 = 0, vec = [0, 0, 0];
+  for (const [sg, l] of P.loops) {
+    const a = newell(l), w = sg * Math.sign(dot(a, n));
+    if (!s0) s0 = w; else if (w !== s0) one = false;
+    vec = add(vec, mulS(a, sg / 2));
+  }
+  if (one) return norm(vec);
+  // edges in (u, v), x0 < x1, each with the winding it adds crossing it upwards
+  const sums = new Map(), q = 1e-9 * (Math.abs(P.d) + 1);
+  for (const [sg, l] of P.loops) {
+    const c = sg * side;
+    for (let i = 0; i < l.length; i++) {
+      const p = l[i], r = l[(i + 1) % l.length];
+      let x0 = p[iu], y0 = p[iv], x1 = r[iu], y1 = r[iv], w = c;
+      if (x0 === x1) continue;
+      if (x0 > x1) { [x0, x1] = [x1, x0]; [y0, y1] = [y1, y0]; w = -w; }
+      // an edge two pieces share, run both ways, cancels here
+      const k = `${Math.round(x0 / q)},${Math.round(y0 / q)},${Math.round(x1 / q)},${Math.round(y1 / q)}`;
+      const e = sums.get(k);
+      if (e) e.w += w; else sums.set(k, { x0, y0, x1, y1, w });
+    }
+  }
+  const E = [...sums.values()].filter((e) => e.w !== 0);
+  if (!E.length) return 0;
+  const xs = [];
+  for (const e of E) xs.push(e.x0, e.x1);
+  // edges cross only where both span the same x: sweep them sorted by x0
+  E.sort((a, b) => a.x0 - b.x0);
+  for (let i = 0; i < E.length; i++) {
+    const a = E[i];
+    for (let j = i + 1; j < E.length && E[j].x0 < a.x1; j++) {
+      const b = E[j], lo = Math.max(a.x0, b.x0), hi = Math.min(a.x1, b.x1);
+      if (!(hi > lo)) continue;
+      const ya = (x) => a.y0 + ((a.y1 - a.y0) * (x - a.x0)) / (a.x1 - a.x0), yb = (x) => b.y0 + ((b.y1 - b.y0) * (x - b.x0)) / (b.x1 - b.x0);
+      const d0 = ya(lo) - yb(lo), d1 = ya(hi) - yb(hi);
+      if ((d0 < 0 && d1 > 0) || (d0 > 0 && d1 < 0)) xs.push(lo + ((hi - lo) * d0) / (d0 - d1));
+    }
+  }
+  xs.sort((a, b) => a - b);
+  let area = 0;
+  const at = [];
+  for (let s = 0; s + 1 < xs.length; s++) {
+    const xa = xs[s], xb = xs[s + 1];
+    if (!(xb > xa)) continue;
+    const xm = (xa + xb) / 2;
+    at.length = 0;
+    for (let i = 0; i < E.length && E[i].x0 < xb; i++) {
+      const e = E[i];
+      if (e.x0 <= xm && e.x1 >= xm) at.push([e.y0 + ((e.y1 - e.y0) * (xm - e.x0)) / (e.x1 - e.x0), e.w]);
+    }
+    if (at.length < 2) continue;
+    at.sort((a, b) => a[0] - b[0]);
+    let w = 0, len = 0;
+    for (let i = 0; i + 1 < at.length; i++) { w += at[i][1]; if (w) len += Math.abs(w) * (at[i + 1][0] - at[i][0]); }
+    area += len * (xb - xa);
+  }
+  return area * stretch;
 }
 
 /**
@@ -833,6 +1034,7 @@ function subtractCutters(a, cutters, what) {
   if (a.mesh) notes.push(`${what} not taken from a faceted part`);
   const out = solid(guard(terms), a.mesh, notes, a.mesh ? null : []);
   if (a.axis) { out.axis = a.axis; out.axisWeight = a.axisWeight; }
+  if (a.lofted) out.lofted = true;
   return out;
 }
 
@@ -1159,6 +1361,8 @@ export class Geometry {
     const a = e.args;
     const n = (i) => this.num(a[i]);
     const rad = (i) => (opts?.plain ? 0 : (n(i) ?? 0));
+    // toe (edge) radii: dropped with the fillets, or alone with opts.noToes
+    const toe = (i) => (opts?.noToes ? 0 : rad(i));
     const pos = () => (a[2] ? this.placement(a[2]) : IDENTITY);
     const place = (loops) => {
       const m = pos();
@@ -1202,28 +1406,32 @@ export class Geometry {
         return place([{ s: 1, pts: circle(n(3)).map((p) => [p[0], p[1] * b]) }]);
       }
       case "IFCISHAPEPROFILEDEF": {
-        const w = n(3), d = n(4), tw = n(5), tf = n(6), r = rad(7);
+        const w = n(3), d = n(4), tw = n(5), tf = n(6), r = rad(7), e = toe(8);
         if (n(9)) throw new Unresolved("sloped I flanges");
         const pts = [[-w / 2, -d / 2], [w / 2, -d / 2], [w / 2, -d / 2 + tf], [tw / 2, -d / 2 + tf], [tw / 2, d / 2 - tf], [w / 2, d / 2 - tf], [w / 2, d / 2], [-w / 2, d / 2], [-w / 2, d / 2 - tf], [-tw / 2, d / 2 - tf], [-tw / 2, -d / 2 + tf], [-w / 2, -d / 2 + tf]];
-        return place([{ s: 1, pts: r > 0 ? filletAll(pts, [3, 4, 9, 10], r) : pts }]);
+        // FlangeEdgeRadius (IFC4) rounds each flange tip's inner corner
+        return place([{ s: 1, pts: filletEach(pts, { 3: r, 4: r, 9: r, 10: r, 2: e, 5: e, 8: e, 11: e }) }]);
       }
       case "IFCLSHAPEPROFILEDEF": {
-        const d = n(3), w = n(4) ?? n(3), t = n(5), r = rad(6);
+        const d = n(3), w = n(4) ?? n(3), t = n(5), r = rad(6), e = toe(7);
         if (n(8)) throw new Unresolved("sloped L legs");
         const pts = [[-w / 2, -d / 2], [w / 2, -d / 2], [w / 2, -d / 2 + t], [-w / 2 + t, -d / 2 + t], [-w / 2 + t, d / 2], [-w / 2, d / 2]];
-        return place([{ s: 1, pts: r > 0 ? filletAll(pts, [3], r) : pts }]);
+        // EdgeRadius rounds each leg's toe on its inner side (eval/edge-radii-2026-11-24.md)
+        return place([{ s: 1, pts: filletEach(pts, { 3: r, 2: e, 4: e }) }]);
       }
       case "IFCTSHAPEPROFILEDEF": {
-        const d = n(3), w = n(4), tw = n(5), tf = n(6), r = rad(7);
+        const d = n(3), w = n(4), tw = n(5), tf = n(6), r = rad(7), fe = toe(8), we = toe(9);
         if (n(10) || n(11)) throw new Unresolved("sloped T");
         const pts = [[-tw / 2, -d / 2], [tw / 2, -d / 2], [tw / 2, d / 2 - tf], [w / 2, d / 2 - tf], [w / 2, d / 2], [-w / 2, d / 2], [-w / 2, d / 2 - tf], [-tw / 2, d / 2 - tf]];
-        return place([{ s: 1, pts: r > 0 ? filletAll(pts, [2, 7], r) : pts }]);
+        // FlangeEdgeRadius on the flange tips' inner corners, WebEdgeRadius on both corners of the web's foot
+        return place([{ s: 1, pts: filletEach(pts, { 2: r, 7: r, 3: fe, 6: fe, 0: we, 1: we }) }]);
       }
       case "IFCUSHAPEPROFILEDEF": {
-        const d = n(3), w = n(4), tw = n(5), tf = n(6), r = rad(7);
+        const d = n(3), w = n(4), tw = n(5), tf = n(6), r = rad(7), e = toe(8);
         if (n(9)) throw new Unresolved("sloped U flanges");
         const pts = [[-w / 2, -d / 2], [w / 2, -d / 2], [w / 2, -d / 2 + tf], [-w / 2 + tw, -d / 2 + tf], [-w / 2 + tw, d / 2 - tf], [w / 2, d / 2 - tf], [w / 2, d / 2], [-w / 2, d / 2]];
-        return place([{ s: 1, pts: r > 0 ? filletAll(pts, [3, 4], r) : pts }]);
+        // EdgeRadius on each flange toe's inner corner
+        return place([{ s: 1, pts: filletEach(pts, { 3: r, 4: r, 2: e, 5: e }) }]);
       }
       case "IFCCSHAPEPROFILEDEF": {
         const d = n(3), w = n(4), t = n(5), g = n(6);
@@ -1231,9 +1439,10 @@ export class Geometry {
         return place([{ s: 1, pts }]);
       }
       case "IFCZSHAPEPROFILEDEF": {
-        const d = n(3), w = n(4), tw = n(5), tf = n(6);
+        const d = n(3), w = n(4), tw = n(5), tf = n(6), r = rad(7), e = toe(8);
         const pts = [[-tw / 2, -d / 2], [w - tw / 2, -d / 2], [w - tw / 2, -d / 2 + tf], [tw / 2, -d / 2 + tf], [tw / 2, d / 2], [-w + tw / 2, d / 2], [-w + tw / 2, d / 2 - tf], [-tw / 2, d / 2 - tf]];
-        return place([{ s: 1, pts }]);
+        // FilletRadius at the two inner roots, EdgeRadius on each flange toe's inner corner
+        return place([{ s: 1, pts: filletEach(pts, { 3: r, 7: r, 2: e, 6: e }) }]);
       }
       case "IFCARBITRARYCLOSEDPROFILEDEF":
       case "IFCARBITRARYPROFILEDEFWITHVOIDS": {
@@ -1276,6 +1485,7 @@ export class Geometry {
       if (Math.abs(ratio - 1) > 0.001 && !out.some((o) => Math.abs(o.ratio - ratio) < 1e-6)) out.push({ label, ratio });
     };
     tryOne("no fillets", { plain: true });
+    tryOne("no edge radii", { noToes: true });
     for (const sides of SECTION_POLYGON_SIDES) {
       tryOne(`${sides}-gon circles`, { sides });
       tryOne(`no fillets, ${sides}-gon circles`, { plain: true, sides });
@@ -1377,7 +1587,9 @@ export class Geometry {
           if (err instanceof AlignmentError) throw new Unresolved(err.message);
           throw err;
         }
-        return orientedShells(loft.parts, loft.notes);
+        const out = orientedShells(loft.parts, loft.notes);
+        out.lofted = true; // no plane cut fits a deck that curves and climbs: computeAreas measures its top faces
+        return out;
       }
       case "IFCFIXEDREFERENCESWEPTAREASOLID": {
         // a profile swept along a curve with its x axis held toward one
@@ -2120,9 +2332,11 @@ export class Geometry {
     let joined = 0, unjoined = 0;
     let sweepLength = 0;
     let bars = [];
+    let lofted = true;
     const known = [], loose = [];
     for (const it of r.args[3]) {
       const s = this.item(it, depth + 1);
+      lofted = lofted && !!s.lofted;
       if (s.bars) bars.push(...s.bars);
       sweepLength = sweepLength != null && s.sweepLength != null ? sweepLength + s.sweepLength : null;
       // the body is the union of its items: where two overlap (a cabinet's
@@ -2149,6 +2363,7 @@ export class Geometry {
     if (axis) { out.axis = axis; out.axisWeight = axisWeight; }
     if (sweepLength) out.sweepLength = sweepLength;
     if (bars.length) out.bars = bars;
+    if (lofted && r.args[3].length) out.lofted = true;
     return out;
   }
 }
@@ -2296,8 +2511,26 @@ export function orientShell(faces0) {
   // undirected edge key -> slot; per slot, how many face sides use the edge
   // and the first two as face * 2 + forward (numbers, not objects: the
   // takeoff spent much of its time collecting garbage here, perf 2026-11-21)
-  const edges = new Map();
-  const uses = [], sideA = [], sideB = [];
+  // The edges sit in an open addressed table by their two point ids, not a
+  // Map keyed lo * 2^26 + hi: keys above 2^31 are heap numbers, and the Map
+  // was a third of the takeoff's own time on FM_ARC_DigitalHub
+  // (docs/history/ifc-takeoff-perf-2026-11-24.md). Slots are numbered in
+  // the order edges are first met, as before.
+  const uses = [], sideA = [], sideB = [], edgeLo = [], edgeHi = [];
+  let table = new Int32Array(256), mask = 255;
+  const hashOf = (lo, hi) => { let h = Math.imul(lo, 0x9e3779b1) ^ Math.imul(hi, 0x85ebca77); h ^= h >>> 15; return Math.imul(h, 0x2c1b3c6d) ^ (h >>> 13); };
+  const slotOf = (lo, hi) => {
+    let at = hashOf(lo, hi) & mask, k;
+    while ((k = table[at]) && !(edgeLo[k - 1] === lo && edgeHi[k - 1] === hi)) at = (at + 1) & mask;
+    if (k) return k - 1;
+    table[at] = uses.length + 1;
+    edgeLo.push(lo); edgeHi.push(hi);
+    if (2 * (uses.length + 1) > mask) {
+      table = new Int32Array(2 * (mask + 1)); mask = 2 * mask + 1;
+      for (let e = 0; e <= uses.length; e++) { let p = hashOf(edgeLo[e], edgeHi[e]) & mask; while (table[p]) p = (p + 1) & mask; table[p] = e + 1; }
+    }
+    return -1;
+  };
   // each point object keyed once: equal coordinates, one integer id. Keyed
   // by x, then y, then z: Map keys compare as SameValueZero, which matches
   // the `${x},${y},${z}` strings this replaced (0 and -0 one key, NaN one key)
@@ -2321,10 +2554,9 @@ export function orientShell(faces0) {
       const a = idOf(l[i]), b = idOf(l[(i + 1) % l.length]);
       if (a === b) continue;
       const fwd = a < b;
-      const key = fwd ? a * 67108864 + b : b * 67108864 + a;
       const side = fi * 2 + (fwd ? 1 : 0);
-      const k = edges.get(key);
-      if (k === undefined) { edges.set(key, uses.length); uses.push(1); sideA.push(side); sideB.push(-1); }
+      const k = fwd ? slotOf(a, b) : slotOf(b, a);
+      if (k < 0) { uses.push(1); sideA.push(side); sideB.push(-1); }
       else if (uses[k]++ === 1) sideB[k] = side;
     }
   }
@@ -2336,8 +2568,9 @@ export function orientShell(faces0) {
     if (pfi === qfi) continue;
     // same direction on both sides: one of the two must turn
     const mustFlip = (sideA[k] & 1) === (sideB[k] & 1);
-    adj[pfi].push([qfi, mustFlip]);
-    adj[qfi].push([pfi, mustFlip]);
+    // neighbour * 2 + must-flip, a number rather than a pair per edge
+    adj[pfi].push(qfi * 2 + (mustFlip ? 1 : 0));
+    adj[qfi].push(pfi * 2 + (mustFlip ? 1 : 0));
   }
   const turn = new Array(faces.length).fill(null);
   const piece = new Array(faces.length).fill(-1);
@@ -2350,7 +2583,8 @@ export function orientShell(faces0) {
     const stack = [s];
     while (stack.length) {
       const i = stack.pop();
-      for (const [j, mustFlip] of adj[i]) {
+      for (const e of adj[i]) {
+        const j = e >> 1, mustFlip = (e & 1) === 1;
         const want = turn[i] !== mustFlip;
         if (turn[j] === null) { turn[j] = want; piece[j] = pieces; stack.push(j); } else if (turn[j] !== want) closed = false;
       }
@@ -2413,12 +2647,17 @@ export function orientLoops(faces0) {
 }
 
 function newell(l) {
-  let n = [0, 0, 0];
+  // summed component by component in the same order as adding [x, y, z]
+  // terms, without two arrays per edge (planeAreas runs it on every loop of
+  // every body; docs/history/ifc-takeoff-perf-2026-11-24.md)
+  let x = 0, y = 0, z = 0;
   for (let i = 0; i < l.length; i++) {
     const a = l[i], b = l[(i + 1) % l.length];
-    n = add(n, [(a[1] - b[1]) * (a[2] + b[2]), (a[2] - b[2]) * (a[0] + b[0]), (a[0] - b[0]) * (a[1] + b[1])]);
+    x += (a[1] - b[1]) * (a[2] + b[2]);
+    y += (a[2] - b[2]) * (a[0] + b[0]);
+    z += (a[0] - b[0]) * (a[1] + b[1]);
   }
-  return n;
+  return [x, y, z];
 }
 
 /** A face's loops with every inner bound running against the outer (the largest). */
@@ -2525,6 +2764,34 @@ function faceted(parts, notes = []) {
  * alignment.mjs): only the sign is settled, by the enclosed volume, so the
  * neighbour search faceted() runs is skipped (Viadotto Acerno 30 s to 6 s).
  */
+/**
+ * The plan area of a solid's closed, outward-facing shells: each face's area
+ * projected along `up`, summed over the faces that look up (n . up > 0); a
+ * closed shell's projections sum to zero, so this is its top as seen from
+ * above. For lofted decks and courses, where a cut at one height catches only
+ * the part of a crowned, graded, curving deck that crosses it.
+ */
+export function shellPlanArea(s, up) {
+  if (!s.shells?.length) return null;
+  let a = 0;
+  for (const sh of s.shells) {
+    let top = 0;
+    for (const f of sh.loops) {
+      let nx = 0, ny = 0, nz = 0;
+      for (let i = 0; i < f.length; i++) {
+        const p = f[i], q = f[(i + 1) % f.length];
+        nx += (p[1] - q[1]) * (p[2] + q[2]);
+        ny += (p[2] - q[2]) * (p[0] + q[0]);
+        nz += (p[0] - q[0]) * (p[1] + q[1]);
+      }
+      const d = (nx * up[0] + ny * up[1] + nz * up[2]) / 2;
+      if (d > 0) top += d;
+    }
+    a += sh.s * top;
+  }
+  return a;
+}
+
 function orientedShells(parts, notes = []) {
   let v = 0;
   const shells = [];
@@ -2826,11 +3093,21 @@ export function prism(pts, v) {
 
 /** Rounds the corners at `idx` of a polygon with radius r (convex or concave corners). */
 export function filletAll(pts, idx, r) {
+  return filletEach(pts, Object.fromEntries(idx.map((i) => [i, r])));
+}
+
+/**
+ * Round the corners of a polygon, each by its own radius: radii maps a vertex
+ * index to a radius (absent or 0 leaves the corner sharp). Parametric steel
+ * sections round the root (FilletRadius) and the toes (EdgeRadius,
+ * FlangeEdgeRadius, WebEdgeRadius) by different radii.
+ */
+export function filletEach(pts, radii) {
   const out = [];
-  const set = new Set(idx);
   for (let i = 0; i < pts.length; i++) {
     const V = pts[i];
-    if (!set.has(i)) { out.push(V); continue; }
+    const r = radii[i];
+    if (!(r > 0)) { out.push(V); continue; }
     const A = pts[(i - 1 + pts.length) % pts.length], B = pts[(i + 1) % pts.length];
     const u = [A[0] - V[0], A[1] - V[1]], w = [B[0] - V[0], B[1] - V[1]];
     const lu = Math.hypot(u[0], u[1]), lw = Math.hypot(w[0], w[1]);

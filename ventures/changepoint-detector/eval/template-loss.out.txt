@@ -1,0 +1,27 @@
+seeds 40 per cell; heard = any watched column dated within 7 days of 2026-03-16; false = any date on a no-fault site; every arm runs --detector pelt --overdispersion nb --trend gated
+levels, 4 weeks after vs 4 weeks before, first 10 sites of each fault (weekends 0.5):
+  T1 (help dark): page views to 0.916, sessions to 0.960, activeUsers to 0.963, keyEvents to 0.987; a random loss of the same page-view share: sessions to 0.976, activeUsers to 0.978
+  T2 (blog dark): page views to 0.786, sessions to 0.888, activeUsers to 0.907, keyEvents to 1.001; a random loss of the same page-view share: sessions to 0.929, activeUsers to 0.943
+  T3 (checkout dark): page views to 0.932, sessions to 0.994, activeUsers to 0.994, keyEvents to 0.000; a random loss of the same page-view share: sessions to 0.989, activeUsers to 0.991
+-- arm A, weekends 0.5
+   T1: heard 6/40 (by column: sessions 4, activeUsers 4, screenPageViews 6, keyEvents 1); other dates on faulted sites 143
+   T2: heard 37/40 (by column: screenPageViews 37, sessions 13, activeUsers 7, keyEvents 1); other dates on faulted sites 127
+   T3: heard 40/40 (by column: keyEvents 40, sessions 2, activeUsers 2, screenPageViews 2); other dates on faulted sites 137
+   no fault: false dates 158 (sessions 47, activeUsers 48, screenPageViews 45, keyEvents 18)
+-- arm A, weekends 0.4
+   T1: heard 0/40 (by column: none); other dates on faulted sites 80
+   T2: heard 39/40 (by column: screenPageViews 38, sessions 5, keyEvents 2, activeUsers 4); other dates on faulted sites 59
+   T3: heard 40/40 (by column: keyEvents 40); other dates on faulted sites 83
+   no fault: false dates 62 (sessions 18, activeUsers 16, screenPageViews 21, keyEvents 7)
+-- arm B, weekends 0.5
+   T1: heard 10/40 (by column: sessions 4, activeUsers 4, screenPageViews 6, views_blog 9, keyEvents 1, views_checkout 3); other dates on faulted sites 316
+   T2: heard 40/40 (by column: screenPageViews 37, views_blog 40, sessions 13, activeUsers 7, keyEvents 1); other dates on faulted sites 238
+   T3: heard 40/40 (by column: keyEvents 40, sessions 2, activeUsers 2, screenPageViews 2, views_blog 6, views_category 1); other dates on faulted sites 280
+   no fault: false dates 322 (sessions 47, activeUsers 48, screenPageViews 45, views_blog 148, views_category 9, keyEvents 18, views_product 6, views_home 1)
+-- arm B, weekends 0.4
+   T1: heard 5/40 (by column: views_blog 5); other dates on faulted sites 214
+   T2: heard 40/40 (by column: screenPageViews 38, views_blog 40, sessions 5, keyEvents 2, activeUsers 4); other dates on faulted sites 151
+   T3: heard 40/40 (by column: keyEvents 40, views_blog 6); other dates on faulted sites 203
+   no fault: false dates 182 (views_blog 115, sessions 18, activeUsers 16, screenPageViews 21, keyEvents 7, views_product 1, views_category 3, views_help 1)
+==== verdict (pre-registered rule in the header)
+S1 fails, S2 passes, S3 fails -> nothing offered

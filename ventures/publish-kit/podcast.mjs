@@ -8,6 +8,14 @@
 import { xml, cdata, rfc822, podcastGuid } from './util.mjs';
 import { hhmmss } from './media.mjs';
 
+/** Plain text of an HTML fragment: removes tags repeatedly so nested leftovers like `<scr<x>ipt>` cannot survive. */
+function stripTags(html) {
+  let s = String(html);
+  let prev;
+  do { prev = s; s = s.replace(/<[^>]+>/g, ''); } while (s !== prev);
+  return s;
+}
+
 /**
  * @typedef {{
  *   title: string, description?: string, file?: string, url?: string,
@@ -201,14 +209,14 @@ export function buildShowPage(project) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${xml(show.title)} (podcast)</title>
-<meta name="description" content="${xml(String(show.description).replace(/<[^>]+>/g, '').slice(0, 155))}">
+<meta name="description" content="${xml(stripTags(show.description).slice(0, 155))}">
 <link rel="alternate" type="application/rss+xml" title="${xml(show.title)}" href="${xml(show.feedUrl)}">
 <meta property="og:title" content="${xml(show.title)}"><meta property="og:image" content="${xml(show.image)}"><meta property="og:type" content="website">
 <script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>
 <style>body{font:16px/1.55 system-ui,sans-serif;max-width:720px;margin:auto;padding:24px}img{max-width:180px;border-radius:12px}ul{list-style:none;padding:0}li{border-top:1px solid #ddd;padding:12px 0}audio{width:100%}</style>
 </head>
 <body>
-<header><img src="${xml(show.image)}" alt="${xml(show.title)} cover art"><h1>${xml(show.title)}</h1><p>${xml(String(show.description).replace(/<[^>]+>/g, ''))}</p>
+<header><img src="${xml(show.image)}" alt="${xml(show.title)} cover art"><h1>${xml(show.title)}</h1><p>${xml(stripTags(show.description))}</p>
 <p><a href="${xml(show.feedUrl)}">RSS feed</a> — paste it into any podcast app to subscribe.</p></header>
 <ul>
 ${items}

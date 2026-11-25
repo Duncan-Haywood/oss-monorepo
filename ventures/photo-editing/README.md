@@ -145,8 +145,34 @@ from 45.6 s, and takes 1.2 GB off the disk instead of 8.7 GB: `readRawFile`
 fetches only the byte ranges the parser asks for (2.1% of a raw; 65 of 65
 results identical to a whole read, `eval/cull-sparse-read.mjs`), the grid
 decodes a raw's ~1,620 px preview where it has one, and thumbnails are no
-longer copied on each redraw. Not done: BigTIFF DNGs, phone DNGs with no JPEG inside,
-the 640 px previews of 2000s Olympus compacts (only their 160 px thumbnail).
+longer copied on each redraw. Phone DNGs with no JPEG inside, BigTIFF DNGs and the
+2000s Olympus compacts that keep only a 160 px thumbnail are handled since 2026-11-24 (below).
+
+### Closed eyes (2026-11-24)
+
+Tick "Check for closed eyes" and the page runs MediaPipe Face Landmarker
+(Apache-2.0, a 3.6 MB model fetched once from public CDNs) in the browser on a
+1,024 px copy of each preview. A face is eyes-closed when the more-closed eye's
+blink score is over 0.5 (`site/eyes.mjs`), the CLI detector's rule since a
+second change on 2026-11-24: the first version asked for both eyes at 0.45 and,
+on 115 labelled photos, flagged 4 of 7 closed-eye photos, because the model
+often reads one shut lid low (0.79 / 0.43). With the CLI's rule the real page
+flags 6 of 7 and none of the other 108 (the miss is a half face at the frame
+edge); a deliberate wink now counts as a blink, and the widest open laugh read
+0.48 (`eval/blink-rule-agreement-2026-11-24.md`). Faces under 1% of the frame
+are ignored. Half faces cut by the frame edge (2026-11-24, later): after the
+first pass the page reflects each edge's 40% strip across the edge and runs the
+model on the pair, the CLI detector's search (`edgeLayout`, `drawEdgeView`,
+`edgeFacesFromResult` in `site/eyes.mjs`); frames already flagged skip it. The
+real page now flags 7 of 7 closed photos, still 0 of 108 others, and on 40 half
+faces cut from the set's own faces finds 20 (0 before) and flags 8 of 10 shut
+ones, 0 of 30 open (`eval/cull-edge-mirror-2026-11-24.md`; the CSV gains
+`faces_at_edge`; `cull.html?edges=0` turns it off). Frames get an "eyes closed" tag and filter, CSV columns, face
+boxes in the large view, and the burst pick leaves them out unless the whole
+burst blinks. The CSV's `blink_max` and `toDetectorJson`'s `eyes_open` are on
+the CLI's scale. First checks: `eval/cull-closed-eyes-2026-11-24.md` (65 public
+camera raws: 6 with faces, all open, none flagged; about 80 ms a frame). Seven
+closed photos are not an error rate.
 
 ### Existing sidecars and in-camera ratings (2026-11-23, later)
 
@@ -168,6 +194,192 @@ node eval/cull-page-previews.mjs mei OUT > report.tsv   # mei = the sample clone
 python3 eval/cull-page-previews-decode.py OUT           # needs Pillow
 ```
 
+### Phone DNGs with no preview (2026-11-24)
+
+A DNG with no JPEG inside (Nexus 5, 5X, 6, 6P, the first Pixels, Google's HDR+
+bursts) used to show "no embedded JPEG preview found". The page now develops one
+from the sensor data in a worker (`site/rawmosaic.mjs`): uncompressed or
+lossless-JPEG CFA, one pixel per 2 x 2 block, the file's levels, crop, lens-shading
+GainMaps, white balance and colour matrix, up to 2 stops of lift. On 32 public
+DNGs the sensels equal shootflow's own reader on all 32, and the colours are a
+median 0.41 dE from shootflow's half-size development (0.68 against its DNG colour
+model; worst 3.3, a Leica whose lens warp the page does not run); 26 HDR+ frames
+(529 MB) load in Chromium in 10.8 s, all with previews
+(`eval/cull-raw-data-previews-2026-11-24.md`).
+
+```bash
+node --test site/rawmosaic.test.mjs
+node eval/cull-raw-data-previews.mjs DIR... OUT > report.tsv
+python3 eval/cull-raw-data-previews-check.py OUT     # sensels vs shootflow
+python3 eval/cull-raw-data-previews-colour.py OUT    # colour vs shootflow
+```
+
+### BigTIFF DNGs and the Olympus compacts' ORFs (2026-11-24, later)
+
+BigTIFF files (magic 43, 8-byte offsets; DNG allows it past 4 GB) are read by
+both the preview parser and the raw-data developer. The four older Olympus
+compacts in the public samples (C-5050 Zoom, C-8080, SP-350, SP-500 UZ) hold
+one JPEG, a 160 x 120 thumbnail; there is no larger one to find. So the page
+now develops a preview from their sensor data whenever a DNG or ORF has none
+or only one under 640 px: the "IIRS" layout (12-bit packed, odd rows after
+a 2048-byte boundary, the extra row past the strips), the maker note's
+RedBalance/BlueBalance, and, since these files state no colour matrix, a typical
+sensor's matrix (the mean of five cameras' own DNG matrices). Sensels equal
+shootflow's reader (and so LibRaw) on all four; previews are 1288 x 963 to
+1640 x 1227. Against LibRaw's development the colours are a median 1.0 to
+3.2 CIEDE2000 (no matrix: 2.1 to 4.4); a fit to the camera's own thumbnail was
+tried and lost (eval/cull-orf-compacts-2026-11-24.md).
+
+```bash
+node --test site/bigtiff-orf.test.mjs
+node eval/cull-orf-compacts.mjs OUT FILE... > OUT/rows.jsonl
+python eval/cull-orf-compacts-check.py score OUT FILE...   # rawpy, numpy, Pillow
+```
+
+## Send the picks to the client: a proofing set from the cull page (2026-11-25)
+
+Under the download buttons, "Send the picks to your client (proofing set)"
+turns the rated frames (1 to 5 stars, or one colour label) into a zip:
+`photos/<stem>.jpg` at a 1,600, 2,048 or 3,000 px long edge (never larger than
+the camera's embedded preview), with an optional text watermark bottom right,
+and `index.html`, a gallery that needs no server or network. The client opens
+it from the unzipped folder, taps a heart on each photo (kept in their
+browser), and presses "Copy my list" or downloads `favourites.txt`. Pasting
+that reply into the cull page labels the matching frames (Purple by default),
+so Show › Colour labelled lists them and the XMP sidecars carry the label into
+Lightroom. The reader also takes what clients type instead: raw names, stems,
+`1. IMG_0412`, comma lists and bare frame numbers ("0412"); a number or stem
+that fits two frames is reported and left alone. Nothing is uploaded.
+
+Code: `site/proofing.mjs` (pure functions: which frames, proof names,
+size, watermark layout, the gallery page with every text escaped, the list
+reader), `site/proofing.test.mjs` (9 tests), wiring in `site/cull.html`.
+Checked end to end in Chromium (`eval/cull-proofing-set-2026-11-25.md`):
+three rated JPEGs became 2048x1365, 1365x2048 and 2048x1365 proofs, the gallery
+loaded all three from `file://`, two hearts came back as two Purple labels, no
+console errors. Not yet seen: a real client's reply, a real raw card through
+it, or Safari and iOS Files opening the gallery.
+
+This is the free half of the business model in
+`portfolio/monetization/models.yaml` (photo-editing): the planned paid tier is
+the same gallery hosted behind a share link, with favourites synced back
+instead of pasted.
+
+## Your Lightroom keyword list in the cull page (2026-11-24)
+
+Load the keyword list Lightroom Classic exports (Metadata › Export Keywords;
+Photo Mechanic's Structured Keywords use the same layout) and a typed keyword
+is written as its place in your tree: "Ice hockey", or its synonym "hockey",
+becomes `Sport|Ice hockey`, with the synonyms in `dc:subject` and
+`[bracketed]` keywords kept out of it as Lightroom keeps them. Names the list
+lacks, or holds under two parents, are written as typed and listed before you
+download, and a button writes the keywords the shoot used back out in the
+same layout for Metadata › Import Keywords. Checked
+(eval/cull-keyword-list-2026-11-24.md): 5 unit tests including a byte-for-byte
+round trip of a list; in Chromium, two NEFs' sidecars read back by ExifTool
+12.76 with the paths, synonyms and no unexported level in `dc:subject`,
+`-validate` OK. Not yet checked: Lightroom's own import.
+
+## Keyword trees, code replacements and per-frame captions (2026-11-24)
+
+The IPTC template below gained the three things a sports or event desk uses
+most. A keyword typed `Sport|Ice hockey` (or `Sport > Ice hockey`) is a path:
+each level goes into `dc:subject` and the path into `lr:hierarchicalSubject`,
+Lightroom's keyword tree, merged with any tree already in your sidecar.
+Keywords already in your sidecar's `dc:subject` are kept exactly as written
+and never read as paths, so a `Before > After` typed in Lightroom stays one
+keyword (fixed the same day, eval/cull-iptc-own-keywords-2026-11-24.md).
+Code replacements, as Photo Mechanic calls them: a list of `code<TAB>text`
+(or `code=text`) lines, typed or loaded from a .txt, so `\23\` in any box,
+keyword or caption becomes "Jane Roe (Northfield Owls, 23)" and `\23#2\` the
+second column. `C` gives a frame its own caption, which replaces the
+template's or fills `{caption}` in it. Checked (eval/cull-iptc-tree-codes-2026-11-24.md):
+12 unit tests; in Chromium, the zip read back by ExifTool 12.76 with the tree,
+every level, the codes and the frame caption as intended, an existing
+`Places|Yorkshire` tree and develop settings kept, `-validate` OK. Not yet
+checked: Lightroom's own import of the tree.
+
+## The cull page writes IPTC captions, keywords and copyright (2026-11-24)
+
+After picking, a photo desk captions: creator, copyright line, where, and
+keywords an archive can search. Photo Mechanic's "stationery pad" (a template
+with variables) is the tool most working photographers pay for to do it. The
+cull page now has one: "Captions, keywords and copyright (IPTC)" under the
+download button. `site/iptc.mjs` resolves the template per frame (`{date}`,
+`{year}`, `{monthname}`, `{day}`, `{time}`, `{camera}`, `{lens}`, `{file}`,
+`{stem}`, `{seq}`, `{iso}`, `{aperture}`, `{shutter}`, `{focal}`; an unknown
+`{name}` stays as typed so a typo shows), `K` adds keywords to one frame, and
+the fields go into the same sidecars as the IPTC standard's XMP properties:
+`photoshop:Headline`, `dc:title`, `dc:description`, `dc:subject` (Bag),
+`dc:creator` (Seq, `;` separates people), `dc:rights`, `photoshop:Credit`,
+`Source`, `City`, `State`, `Country`, `Instructions`, `Iptc4xmpCore:Location`.
+Into a sidecar you dropped with the raws, empty template boxes leave what is
+there, keywords are added to the existing bag (case-insensitive, no
+duplicates), a title's other languages are kept, and develop settings stay
+byte for byte. The template persists in the browser, saves to and opens from
+JSON, and loads from any captioned .xmp. The CSV gains a `keywords` column.
+
+Checked (eval/cull-iptc-2026-11-24.md): 9 unit tests (`node --test
+site/iptc.test.mjs`); in Chromium, three NEFs and a Lightroom-style sidecar
+through the page, the zip read back by ExifTool 12.76: every field as typed
+with variables filled ("Shot on NIKON D810 at f/3.5, May 13, 2015"), the old
+keyword kept beside the new ones, `Title-fr-FR` kept, `crs:Exposure2012` and
+`crs:CropTop` unchanged; all 13 fields on a fresh sidecar read back and
+`exiftool -validate` says OK on every file. Not yet checked: an import into
+Lightroom, Capture One or Photo Mechanic itself.
+
+## HEVC previews of Nikon HLG raws on the cull page (2026-11-24)
+
+A Nikon Z8 or Z9 shooting in the HLG tone mode stores its 1620 x 1080 and
+320 x 212 previews as HEVC frames (Compression 34713 on a reduced-resolution
+SubIFD, an Annex B stream opening with its VPS), not as JPEGs. The page used
+to find only the 160 x 120 IFD0 thumbnail and, looking for a bigger JPEG,
+read all of every 50 MB file. Now `site/rawpreview.mjs` lists those streams
+(`hevc`, largest first) with an RFC 6381 codec string read from the stream's
+own profile_tier_level (`hev1.2.4.L120.B0.10`: Main 10, level 4, one picture),
+stops reading once one is found, and `site/hevcpreview.mjs` decodes it with
+WebCodecs' `VideoDecoder` where the browser has an HEVC decoder (Safari;
+Chrome and Edge with hardware). Where there is none the thumbnail stays and
+the large view says why. No decoder is downloaded.
+
+Checked (`eval/cull-hevc-previews-2026-11-24.md`): on three CC0 Z8 HLG raws
+the page reads 1 MB of 143 MB (all 143 MB before; readRawFile 0.33 MB a file,
+4-13 ms, against 48-51 MB and about 500 ms), with the same metadata, AF points
+and JPEG list as before. Headless Chromium here has no HEVC decoder, so the
+decode itself was run with a stand-in that hands the chunk to ffmpeg: all
+three came back 1620 x 1080, into the grid, detail score, AF view and CSV, with
+no page errors. Ranking on the 1620 px preview instead of the thumbnail is
+what moved detail at the AF point from median rank 0.73 to 0.92 in
+`eval/cull-nikon-af-2026-11-24.md`. Not yet seen: a real Safari decode of
+these frames and how its HLG-to-sRGB mapping looks.
+
+## Nikon AF points on the cull page (2026-11-24)
+
+Nikon's maker note names the AF points it used by number and bit on a grid
+that differs by body (51, 39, 153, 105, 81 points on DSLRs and early Z
+bodies; 405, 299 or 231 in auto-area on the Z8/Z9, Z6III/Zf/Z5II and Z50II),
+with no coordinates. `site/rawpreview.mjs` (`nikonPhaseAf`) now reads AFInfo2
+versions 0100, 0101, 0300 and 04xx (ExifTool's layouts) and places the points
+from per-body maps measured by the Focus-Points Lightroom plugin's
+contributors (Apache-2.0, `THIRD_PARTY_NOTICES.md`), converted by
+`tools/nikon_af_grids.py` into `site/nikon-af-grids.mjs`: 29 maps covering 43
+models. Z bodies that write the AF area's position directly are read from it.
+The large view draws the body's whole grid faintly with the used points in
+red, and the status line names them (`C5`, or "16 points around H16"). Not
+placed: the 11-point bodies (D90, D3000-D3500, D5000, D5100) and bodies
+before 2007, which keep the busiest-cell score.
+
+Checked (`eval/cull-nikon-af-2026-11-24.md`): on 28 CC0 Nikon Z8 raws the page
+now places a point on 27 (5 before). On their 1620 x 1080 previews the detail
+at the point ranks at median 0.92 of the frame (22 of 27 in the top quarter),
+and beats the point turned through the centre on 19 of 23 off-centre frames
+(sign test p = 0.0013); grid-placed points rank as high as the camera's own
+coordinates (0.924 vs 0.932). The plugin's Z9 grid spacing (255 x 288 px)
+agrees with the spacing ExifTool measured independently (260 x 292 px) within
+2%. On the public D810 sample both AF fields name C5. Found on the way: these
+Z8 files (HLG tone mode) carry HEVC previews; the page decodes them where
+the browser can since the section above.
+
 ## The cull page reads where the camera focused (2026-11-24)
 
 The cull page's detail score looked at the busiest of 16 cells, so a soft
@@ -180,7 +392,8 @@ camera reports focus; `F` hides them), `Z` zooms to 100% at the AF point, a
 burst's "sharpest" is the frame with most detail at its AF point when every
 frame has one, there is a sort by that, and the CSV gains `af_x`, `af_y`,
 `af_detail`, `af_source` and `sharpest_by`. Nikon phase-detect points have no
-published coordinates, so Nikon files keep the busiest-cell score.
+published coordinates; since the same day they are placed from per-body maps
+(next section).
 
 Checked (`eval/cull-af-point-2026-11-24.md`) on the public sample raws: the
 point agrees with metadata-extractor's own decoding on all 22 files it
@@ -1834,6 +2047,23 @@ Bayer raws with no NoiseProfile. `--noise-read ship` gives the old bytes. The dr
 assumes, so the real-noise phone bursts' +0.08 / +0.12 dB is the better guide to the size.
 `eval/camera-drawn-mpcws-2026-11-23.md`.
 
+**X-Trans stays on Chen's read (2026-11-24).** The same drawn-noise check on two Fujifilm X-Trans raws no noise
+read had been scored on (darktable's test folder), with the rule committed first. `mpcws` with the X-Trans colour
+ramp gains +0.41 dB luma and +0.12 colour on average, but loses 0.10 to 0.15 dB of colour on three rows where the
+oracle does not and adds a loser to directional, so it fails and `shootflow develop` on X-Trans is unchanged. With
+Bayer's colour ramp the same read passes three of the four tests (+0.29 colour) and fails the last on two test-chart
+rows at the lowest SNR; that form is the candidate for a larger, blind X-Trans set. `eval/xtrans-drawn-mpcws-2026-11-24.md`.
+
+**Back to the shipped read on Bayer (2026-11-24, afternoon).** The 2026-11-23 check named its own follow-up: read
+the new default against `--noise-read ship` on the next camera files. Nine Bayer raws from immich's public test
+folder (Canon 30D, 70D and G12, Nikon D700 and D80, Panasonic GH4, Ricoh GR III, Sony A6300 and A7 II), none used
+here before, went through the same sweep and the same four tests, committed before any file was scored, with the rule
+that a fail on h1, h2 or h4o puts the default back. On 102 clean-truth rows `mpcws` gains +0.20 dB luma and +0.12
+colour (yesterday's set: +0.22 / +0.12) with no loser to directional, but one GH4 tile at SNR 60 loses 0.13 dB of
+luma where the true noise model does not: the read goes under the drawn noise at the level where it meets the scene's
+own grain. So `shootflow develop` reads Bayer noise the shipped way again, and `--noise-read mpcws` is opt-in.
+`eval/camera-drawn-mpcws-fresh-2026-11-24.md`.
+
 ## A directional demosaic for Bayer files (2026-11-15)
 
 Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,
@@ -2875,7 +3105,7 @@ whole plane between two banded passes.
 ## A phone's lossless-JPEG DNG, sensel for sensel, and its tiles on every CPU (2026-11-13)
 
 The first camera-written lossless-JPEG DNG ShootFlow has read: a Google Pixel 3 XL raw (4032 x
-3024, 192 lossless-JPEG tiles, four GainMaps, a WarpRectilinear; MIT-licensed, from the tinydng
+3024, 192 lossless-JPEG tiles, four GainMaps, a WarpRectilinear; FSL-1.1-MIT-licensed, from the tinydng
 repository, downloaded at check time). All 12,192,768 sensels equal LibRaw's `raw_image`, and the
 half-size render matches LibRaw's to a median 0.054 of an 8-bit step with opcodes off. With the
 phone's lens shading map on, the two lit corners come to 110% and 85% of the phone's own preview

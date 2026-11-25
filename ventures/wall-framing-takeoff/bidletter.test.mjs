@@ -75,3 +75,8 @@ test("proposal and proposalHtml refuse a missing or malformed budget with a reas
   }
   assert.match(proposalHtml(null), /Proposal not issued/);
 });
+
+test("the letter a buyer opens on a phone fits the phone: exactly one viewport meta", () => {
+  const html = proposalHtml(proposal(mk()));
+  assert.equal(html.match(/<meta name="viewport" content="width=device-width,initial-scale=1">/g)?.length, 1);
+});

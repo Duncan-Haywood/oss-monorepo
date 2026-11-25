@@ -42,6 +42,24 @@
 # Why depth, argued at more length (an opinion, not a rule):
 # portfolio/opinions/2026-10-20-build-what-an-agent-would-rather-call.md
 #
+# RE-RANKED 2026-11-24 to the paid bets (owner, that day: "we don't invest dev
+# effort in sunken ships. invest in things that have most promise and most
+# value"; north star $10k MRR). The top rows are the bets of
+# portfolio/monetization/bets.md, in its order, each with:
+#   bet: <N>    its rank in bets.md (validate.py: rows 1..N first, in order);
+#   app: private-monorepo/apps/<slug>  where its deepening work happens. Attach
+#               that repository with add_repo (push access). A bet with no
+#               ventures/<slug> directory still gets a Deepen row in
+#               allocate.py from `app:`.
+#   front_door: [<slug>, ...]  optional: the ventures/<slug> folders that are
+#               the bet's public side here (free tool, guides). allocate.py
+#               lists which of them a live open PR is on, so a run whose clone
+#               is refused picks a free one (validate.py: each must exist).
+# Every other row carries `demoted: <reason>` and sits below the bets; it keeps
+# its `next:` for runs that hold one of its inputs, but a free run takes a bet.
+# Change the order with evidence in bets.md, not here. Each bet's paid model is
+# its `app:` row in portfolio/monetization/models.yaml.
+#
 # Chosen 2026-10-20 from an audit of the largest ventures by source size,
 # keeping those whose code works today and whose next step is a hard business
 # or engineering problem. Passed over for now: local-site-studio (real
@@ -50,47 +68,199 @@
 # retail-pilot-intel, print-atelier and real-estate-agent-photo-app (mostly
 # plans and demo UI), workflow-audit and marketplace-fee-compare (thin).
 flagships:
-  # Added 2026-10-21 second, on the owner's direction that day: "I want to make
-  # tools that can automate part of the new home construction process in the
-  # us. to drop prices and increase efficiency this is a long standing project
-  # to work on continually." The program is ventures/wall-framing-takeoff/ROADMAP.md.
-  # Moved first on 2026-10-31, on the owner's direction that day to make "deep
-  # tech industrial, energy real estate dev and construction" the overarching
-  # directions (prompts/goals.md, "Direction: industrial, energy and construction").
-  - venture: wall-framing-takeoff
-    inputs_only: >-
-      a real builder's draw schedule, permitted deck plan, architect's DXF,
-      framer's takeoff, plumber's drain runs or sub's bids
+  # Bet 1 in portfolio/monetization/bets.md (2026-11-24 ranking).
+  - venture: payapps
+    bet: 1
+    front_door: [pay-application-generator, pay-app-guides, lien-waiver-checker, mechanics-lien-deadline-calculator]
+    app: private-monorepo/apps/payapps
     why: >-
-      Wall layout engine (studs on layout, kings, jacks, headers, cripples,
-      plate splices over studs) with a per-wall self-check, and a Gilmore-Gomory
-      cutting-stock order within 0.02% of its LP bound on whole houses; page,
-      CLI and agent engine. First tool of the new-home construction program.
+      Bet 1 (score 22): specialty subcontractors and small GCs prepare monthly AIA
+      G702/G703 pay applications, track retainage, chase lien waivers and change
+      orders, and QuickBooks has no native retainage. Comparables run $39.99 to
+      $199+ a month (PayAppHub, Trimble Pay, SubLien) and suites $49 to $332
+      (bets.md, with sources). The wedge grows into a contractor suite (job costing,
+      RFIs, estimating; bet 6 becomes its estimating module). The owner's favourite
+      vertical.
     next: >-
-      History, dates and how each slice was checked:
-      ventures/wall-framing-takeoff/README.md and ROADMAP.md (recent: whole-house
-      run on the Schultz IFC frames every wood wall on all three floors with
-      `--whole-house`; `--stack` 2026-11-08 orders several floors' plans together
-      (run on the Schultz floors 2026-11-08: 49 walls, 0.28% less than ordering
-      apart); stepped walls, door and window schedule, wall panels, schedule and
-      cash flow; deck ledger fastener check 2026-11-08; winder support boards
-      2026-11-08). Wanted, all needing real inputs: a real builder's activity list
-      and draw schedule for `--schedule` (payment lag, retainage); a real permitted
-      deck plan (deck framing, guards and stairs are hand arithmetic only); stair
-      stringer and landing post tables, winder radial supports, lateral-load
-      connector and anchor sizes; a real architect's DXF; a real US wood-framed IFC
-      and a framer's takeoff of the Schultz house to compare with (Window Wall
-      French door 39 in sill is in the model's placement, not the engine, ROADMAP
-      2026-11-09 later; open: 2nd Floor Int 1 and 3rd Floor Int 9 tees and
-      door-near-end cases, README); a plumber's real drain runs for `--drilling`; an
-      electrician's real cable-hole count against `cableHoles` (receptacle runs only); a
-      real foundation plan; ceiling steps against a real soffit; trim, drywall and
-      siding against real orders and hangs; bid leveling on real bids and a real
-      sub's labor rates; gable sheathing nested on real sheets; insulation against a
-      real order. Cutting-stock speed is settled for now (exact steepest-edge
-      weights measured, not worth building, ROADMAP 2026-11-09 later). When a slice
-      lands, replace its item here and put its history in the README.
+      Built in private-monorepo/apps/payapps (attach it with add_repo, push access).
+      Landed: (1) jobs with a schedule of values and monthly pay apps with
+      retainage, PDF and CSV in its own layout; (2) change orders; plans and Paddle
+      billing, dark (private-monorepo PR #37: Free 1 active job, Solo $99, Crew
+      $179, Company $249, docs/BILLING.md). Open, in order: (3) lien waivers landed
+      (PRs #38-#41: AZ, NV, TX, UT statutory forms verbatim, others tracked only);
+      next for waivers: CA when leginfo stops 403ing; mid-job start landed
+      (private-monorepo PR #45: the last application made elsewhere carries its
+      number, column D, line 6 and a checked line 5a); next for onboarding: fill
+      that opening from the imported continuation sheet; account email landed
+      (private-monorepo PR #46: verification required on HTTPS, 1-hour single-use
+      password reset, existing-account notice, via Cloudflare Email Service; deploy
+      sets EMAIL_FROM and checks /api/health email:true); durable auth rate limits
+      (PR #49) and partial payments (PR #51: per-check payments, balance aged,
+      paid-short flag) landed; next launch blocker: the deploy workflow (legal pages
+      landed, private-monorepo PR #50); (4) QuickBooks Online invoice export with
+      retainage as its own line, finishing PR #16 (packages/qbo-sync, sandbox only;
+      the owner opens the Intuit developer account); (5) the front door is
+      ventures/pay-application-generator (reads a contractor's own .xlsx
+      continuation sheet and checks its totals; writes the workbook, with its own
+      template page pay-application-template.html and recalc.test.mjs, 2026-11-25)
+      and pay-app-guides (schedule-of-values template); left: link them to the app
+      and its pricing once checkout is live (the marketing site is PR #18); (6) a
+      payapps deploy workflow that runs the Paddle catalog sync. A run that lands a
+      slice replaces its item here.
+  # Bet 2 in portfolio/monetization/bets.md (2026-11-24 ranking).
+  - venture: jobshop-quote
+    bet: 2
+    front_door: [machine-shop-guides, cnc-machining-quote-calculator]
+    app: private-monorepo/apps/jobshop-quote
+    why: >-
+      Bet 2 (score 19, ranked up for willingness to pay): CNC and fabrication job
+      shops turn RFQs (drawings, CAD, email) into priced quotes by hand, often hours
+      each. QuotedPart lists $199 a month a shop, ProShop $650 to $715; Forgepoint,
+      CloudNC and Uptool raised money for AI quoting in 2025-26 (bets.md, with
+      sources), so ship narrow and soon. Same buyers as bet 4 (CMMC). The public
+      cnc-machining-quote-calculator is a lead magnet for it. New app.
+    next: >-
+      Built in private-monorepo/apps/jobshop-quote (add_repo, push access). Landed: (1)
+      rate card and pure quote engine, RFQ intake, verified extraction, quote PDF, won/lost
+      log (private-monorepo PR #30, on Haiku); (2) STEP/DXF in through packages/cad-features
+      (PR #29, DXF expansion budget; PR #40): a solid's box sizes the blank, one measured
+      removal rate gives a "Rough from CAD" op, confidence and flags shown. Open, in order:
+      (3) RFQ PDF drawing in: title-block tolerances, material, finish and quantity into the
+      part form via rfq.extract with page images (Workers AI or BYO key, cost metered per
+      RFQ); (4) won/lost recalibration of rates and a sheet-metal path from the DXF cut
+      length, pierces and bends; (5) deploy, Paddle billing dark (packages/billing) and the
+      jobshop-site link to the app; (6) parse CAD in a queue consumer, not the upload
+      request. A run that lands a slice replaces its item here.
+  # Bet 3 in portfolio/monetization/bets.md (2026-11-24 ranking).
+  - venture: einvoice-preflight
+    bet: 3
+    front_door: [einvoice-preflight]
+    app: private-monorepo/apps/einvoice-preflight
+    why: >-
+      Bet 3 (score 21, hard legal deadlines): Germany requires issuing e-invoices
+      above EUR 800k turnover from 1 Jan 2027 and for everyone from 2028; France's
+      SMEs from 1 Sep 2027 (bets.md, with sources). Validation alone is a commodity;
+      the bet is fix-and-explain. The public engine (EN 16931, XRechnung, Peppol,
+      Factur-X, 60+ countries of rules, cross-checked against Saxon) is the base to
+      import (LICENSING_TRANSITION.md, "How one product moves"). Its public history
+      and open rule items: ventures/einvoice-preflight/README.md and NEXT.md.
+    next: >-
+      Import with private-monorepo/scripts/import-venture.mjs einvoice-preflight if
+      not yet done (record it in transition.py MOVED), then build there: (1) each
+      failed rule explained in plain German, French and Dutch (what is wrong, where,
+      how to fix), written once per rule, not generated per call; (2) a safe
+      auto-fix for the mechanical failures (rounding, missing codes with one valid
+      value, date formats) that returns a corrected file plus a list of exactly what
+      changed, and refuses to guess amounts or tax; (3) accounts with a client list
+      for accountants (one workspace per client, history of runs); (4) a metered API
+      key for small invoicing vendors; (5) Paddle dark per
+      portfolio/monetization/models.yaml (row app: einvoice-preflight). Keep the
+      rule set current in the app (Peppol BIS 3.1.0 rebuild once OpenPeppol tags it:
+      NEXT.md). A run that lands a slice replaces its item here.
+  # Bet 4 in portfolio/monetization/bets.md (2026-11-24 ranking).
+  - venture: cmmc
+    bet: 4
+    front_door: [machine-shop-guides]
+    app: private-monorepo/apps/cmmc
+    why: >-
+      Bet 4 (score 19): CMMC Phase 1 took effect 10 Nov 2025 and Level 1/2
+      self-assessments remain required after Phase 2's suspension; the DoD estimates
+      337,968 affected contractors, 229,818 small. FutureFeed lists $99 and $399 a
+      month, PreVeil Pass $450 for 3 users, consultants $3k to $25k for an SSP and
+      POA&M (bets.md, with sources). Same machine shops as bet 2. New app.
+    next: >-
+      Build in private-monorepo (add_repo, push access), scaffolded from apps/grants
+      with Paddle dark. Milestones: (1) the 110 NIST SP 800-171 Rev. 2 requirements
+      and their assessment objectives from NIST's public text, with a per-control
+      status, evidence notes and the DoD assessment methodology's SPRS score
+      (weights from the published method; unit tests on the scoring); (2) a System
+      Security Plan and POA&M generated from those answers as documents; (3) landed
+      2026-11-25: the free Level 1 self-assessment page,
+      ventures/machine-shop-guides/cmmc-level-1-self-assessment.html (FAR text
+      verified verbatim; judged by its 59 NIST SP 800-171A objectives with met/not
+      met/N/A, mapping read from eCFR; the app should import l1-data.mjs rather than
+      retype it); (4) ISO 9001 / AS9100 clause checklist sharing the evidence store.
+      Never claim certification or C3PAO status, and tell users not to upload CUI. A
+      run that lands a slice replaces its item here.
+  # Bet 5 in portfolio/monetization/bets.md (2026-11-24 ranking).
+  - venture: seller-books
+    bet: 5
+    front_door: [reseller-books]
+    app: private-monorepo/apps/seller-books
+    why: >-
+      Bet 5 (score 21, but a $10 to $20 wedge price): multi-platform resellers
+      (eBay, Poshmark, Mercari, Whatnot, Depop) need fees split out, cost of goods
+      and mileage tracked and a Schedule C-ready P&L. A2X lists $29 a month per
+      channel, Seller Ledger $10/$20/$50, Link My Books about $21 to $136 (bets.md,
+      with sources). No bank feed needed. The public reseller-books venture and the
+      payout calculators are its lead magnets and its engine's starting point.
+    next: >-
+      Build in private-monorepo (add_repo, push access), starting from
+      ventures/reseller-books' engines (import with import-venture.mjs, then rename
+      to seller-books), scaffolded from apps/grants with Paddle dark. Milestones:
+      (1) accounts and saved imports: payout and order CSVs from eBay, Poshmark,
+      Mercari, Whatnot and Depop parsed into one ledger with fees, shipping and
+      refunds split out, deduplicated across re-uploads (the public engines now
+      read Mercari's Gross Sales Report from its help-centre field list, deduped by
+      Item ID, 2026-11-24; Depop's CSV headers are unpublished, so it needs a real
+      file); (2) inventory with cost of goods matched to sales: the public engine
+      landed it 2026-11-25 (reseller-books/inventory.mjs: a sourcing-sheet CSV, FIFO
+      by SKU or title, Schedule C Part III lines 35-42 for one tax year), so the app
+      imports it and keeps the inventory per account across years (last year's line
+      41 becomes this year's line 35); (3) mileage: the public engine landed it 2026-11-24
+      (reseller-books/trips.mjs, Schedule C line 9 priced by trip date, PR #18743),
+      so the app imports it and adds a saved trip log per account; (4) a Schedule C line-mapped P&L export and a CSV for the
+      accountant; (5) a marketing page that does not sell on 1099-K fear (the
+      federal threshold is back at $20,000 and 200 transactions). A run that lands a
+      slice replaces its item here.
+  # Bet 6 in portfolio/monetization/bets.md (2026-11-24 ranking).
+  - venture: wall-framing-takeoff
+    bet: 6
+    front_door: [wall-framing-takeoff, pdf-plan-takeoff]
+    app: private-monorepo/apps/wall-framing-takeoff
+    why: >-
+      Bet 6 (score 18): remodelers, roofers and framers buy takeoff (Togal.AI
+      $249.99 to $299.99 a month, Handoff from $149, Buildxact about $199, roof
+      reports about $13 to $38 each; 128,187 remodeler establishments; bets.md with
+      sources). Imported to private-monorepo (PR #8 there). Its engine frames every
+      wall and orders lumber within 0.02% of the LP bound; it becomes the estimating
+      module of the bet 1 contractor suite. The free edition stays at
+      ventures/wall-framing-takeoff (its real-input items: ROADMAP.md and NEXT.md).
+    next: >-
+      Work in private-monorepo/apps/wall-framing-takeoff (add_repo, push access).
+      Milestones: (1) roofing and siding material lists from a PDF plan set: roof
+      planes, pitch, ridge, hip, valley and eave lengths to squares, underlayment,
+      drip edge and starter; wall areas less openings to siding squares and trim,
+      reusing the public pdf-plan-takeoff parser (MIT) for scale and measurement;
+      (2) accounts with saved jobs and a branded bid package across framing, roof
+      and siding; (3) Paddle dark per portfolio/monetization/models.yaml (row app:
+      wall-framing-takeoff); (4) an export the bet 1 app can read as a change order
+      or schedule of values line. A run that lands a slice replaces its item here.
+  # Bet 7 in portfolio/monetization/bets.md (2026-11-24 ranking).
+  - venture: grants
+    bet: 7
+    app: private-monorepo/apps/grants
+    why: >-
+      Bet 7 (score 16, live): Grant Autopilot for small nonprofits, live at
+      marisstella.app/grants, with a cost-plus pricing test and the reference Paddle
+      adapter (apps/grants/src/worker/ports/billing/paddle.ts). Instrumentl lists
+      $299 to $999 a month and reviewers call it pricey for small nonprofits
+      (bets.md, with sources). Finishing its paid path is cheap; no large new build.
+    next: >-
+      Work in private-monorepo/apps/grants (add_repo, push access). Milestones: (1)
+      the Paddle checkout end to end in Paddle's sandbox with webhook-driven plan
+      changes and a test that a lapsed subscription loses paid features; (2) the
+      Paddle catalogue (products, prices) as code with an apply step, so the owner
+      only pastes the API key (goals.md, "Minimise click ops"); (3) onboarding to a
+      first useful draft in one session; (4) a marketing page and llms.txt that say
+      exactly what it does. The owner sets live ids. A run that lands a slice
+      replaces its item here.
   - venture: ai-bookkeeper
+    demoted: >-
+      2026-11-24: no bet. Freelancer and small-business books ranked "not now" in
+      bets.md (QuickBooks Solopreneur $0 to $20, needs a bank feed, search owned by
+      incumbents). Its reconciliation and categorizer engines feed bet 5
+      (seller-books); deepen it only through that.
     why: >-
       A double-entry ledger in integer cents with a four-layer categorizer that
       learns from each filed line (rules, payee memory, naive Bayes, built-in
@@ -138,10 +308,12 @@ flagships:
       (eval/receipt-ocr-ru-page-*). SROIE (zzzDavid/ICDAR-2019-SROIE) merchants:
       eval/sroie-five-readings-2026-11-18
     hosts: [https://huggingface.co/, https://raw.githubusercontent.com/]
-
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
   - venture: sales-agent
+    demoted: >-
+      2026-11-24: no bet; it is the portfolio's own outbound tool (goals.md, the
+      pivot's point 7), worked on when the sales machine for the bets needs it.
     inputs_only: >-
       a strong second reader (a person or a hosted model of another family, which needs a key), real
       outreach replies and call notes, a real mailbox with a Google or Microsoft app, a HubSpot or
@@ -178,6 +350,8 @@ flagships:
   # algorithms as tools (prompts/goals.md). New tools of that kind follow
   # portfolio/research-tools/README.md; this entry deepens the first one.
   - venture: changepoint-detector
+    demoted: >-
+      2026-11-24: no bet; a research-derived tool with no SMB buyer in bets.md.
     why: >-
       PELT and Bayesian online changepoint detection from the papers, exact
       against brute force and a closed-form evidence check, reproducing the
@@ -198,63 +372,20 @@ flagships:
       robust z uncalibrated); --closed ships; a recent-days fill failed 2 rounds
       (README "A closure in the first week after a step": cost ~4/100, pooled); a
       closure 1-7 days before a step costs ~1/100 and the 2011-09-01 alert was the
-      holiday's zero (README "A closure in the week before a step")); next a live
-      property; Plausible, PostHog, Umami (README "Umami as a source"; UTC days cost
-      nothing), Mixpanel (README "Mixpanel as a source"), Matomo (README "Matomo as
-      a source"); Umami, Plausible, PostHog and GA4 people columns fall less than
-      views, middle default for all four, GA4 watches page views (README "Visitors
-      under a partial snippet loss", "PostHog users and GA4 activeUsers under a
-      snippet loss"); next a template-shaped loss (whole page types dark) and a live
-      site. joint drift (measured, not offered). Open: (0) BBQ dater (README "Dated
-      turning points"): GDP 0.781/0.80; next GDPC1 past 2009; t-walk. Curvature word
-      ships under --shape-word panel (README "A curvature word"): slope donors
-      straight 73% vs clean 37%, OR 4.74 vs 3.37. More open items: NEXT.md.
-  - venture: einvoice-preflight
-    hosts: [https://github.com/, https://pypi.org/, https://repo1.maven.org/]
-    # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,
-    # due after 2026-11-23; four runs left the row on 2026-11-17/18 for that.
-    not_before: 2026-11-24
-    why: >-
-      Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
-      XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
-      deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
-    next: >-
-      History: README and git (latest: Peppol BIS Self-Billing 3.0.2/3.1.0 rules in
-      place of Billing's (eval/peppol-self-billing-2026-11-18.md); Peppol BIS 3.1.0
-      preview, new findings marked, 1,138/1,138 unit asserts; fontoxpath
-      format-integer padding fixed, ZATCA BR-CO-17/BR-S-09
-      (eval/peppol-bis-3.1.0-2026-11-18.md); open: a real sender's files through
-      eval/peppol-next-diff.mjs; the browser's official rules read whitespace as
-      Saxon does, 161 of 528 to 0 vs SaxonC-HE, XML-VALUE-01 on 160 of 160 Saxon
-      aborts (eval/xml-whitespace-crosscheck-2026-11-17.md); INV-041 endpoint ids as
-      OpenPeppol's PEPPOL-COMMON rules check them, 0 of 21,264 off
-      (eval/endpoint-peppol-differential-2026-11-17.md); Peppol's warning-level
-      IT/NL id formats as INV-061 warnings, 0 of 23,999 off
-      (eval/endpoint-peppol-warnings-2026-11-17.md); INV-062/063: the same rules on
-      PartyIdentification/CompanyID, GlobalID/legal org ID
-      (eval/party-id-peppol-differential-2026-11-17.md); France Flux 10 e-reporting,
-      PPF Annexe 7 controls 147/147 vs Saxon (eval/flux10-crosscheck-2026-11-17.md);
-      open: a real Flux 10 file, a PPF rejection; BR-FR 264/264 vs Saxon, all 384
-      BR-FR/CDV messages in English (br-fr-error-codes.html); CDAR (BR-FR-CDV)
-      780/780 vs Saxon (eval/cdar-crosscheck-*); Extended-CTC-FR and Factur-X
-      EXTENDED bases 175/175 vs Saxon (eval/extended-base-crosscheck-2026-11-17.md);
-      open: a real PA extended file, CDAR _WARNING set (37/43 rules hit, 6 dead:
-      FR-CDV-105..107 cover them), a real PA rejection or status; VERI*FACTU
-      (README): open: a production SIF's records and replies). Open: a real HU
-      report with NAV's businessValidationMessages or SCHEMA_VIOLATION text; HU:
-      open: a real chain with NAV's replies. A run that lands a slice replaces its
-      item here. More open items: NEXT.md.
-    buildable: >-
-      Peppol BIS 3.1.0 (in force 2027-02-24) runs as an opt-in preview, from
-      OpenPeppol's branch 2026-Q4-QA2 at 90f078a, 1,138/1,138 unit asserts
-      (eval/peppol-bis-3.1.0-2026-11-18.md). After 2026-11-23: rebuild peppol-next-*
-      from the 3.1.0 tag on master (EINVOICE_PEPPOL_NEXT_BRANCH,
-      build-plain-rules.mjs) and diff; peppol-sb-next likewise (Self-Billing, branch
-      selfbilling-2026-Q4-QA2; eval/peppol-self-billing-2026-11-18.md). Every
-      plain-only set already matches SaxonC on whitespace and CASTABLE
-      (eval/datetime-leaves-2026-11-18.md). No network beyond PyPI, Maven and
-      GitHub.
+      holiday's zero (README "A closure in the week before a step")); dark sections
+      2026-11-24 (README "A template-shaped tracking loss") joint drift (measured,
+      not offered). Open: (0) BBQ dater (README "Dated turning points", "BBQ on FRED
+      GDPC1", "BBQ on monthly payrolls"): GDP 0.781, GDPC1 0.792, PAYEMS 0.654/0.731
+      (bigMove) of 0.80; second make 2026-11-24 (README "A second make":
+      Philadelphia Fed USPHCI 8 of 12, misses 1980, 2008-09 4 months late; 5 copies
+      stable; no state dating in reach); 3-month phases on Japan's CI 2026-11-24 add
+      false turns, no match (README "Japan's coincident index"; BBQ short-phase bug
+      fixed); next: a committee that dates short recessions (CEPR euro area);
+      t-walk. More open items: NEXT.md.
   - venture: shift-roster-builder
+    demoted: >-
+      2026-11-24: no bet; free tiers and plans from $2.50 a user a month anchor its
+      market (models.yaml), and it scored below the ranked bets.
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
       read, real 7shifts, When I Work, Square or Homebase accounts, dated
@@ -296,6 +427,9 @@ flagships:
       INFO and write role: cells in import-deputy-staff.mjs (time off landed
       2026-11-19, README "Deputy time off"). Homebase stays account-gated.
   - venture: photo-editing
+    demoted: >-
+      2026-11-24: no bet. AI photo culling ranked "not now" in bets.md (Aftershoot's
+      scale, prices falling to about $10 a month).
     hosts: [https://raw.pixls.us/, https://github.com/, https://storage.googleapis.com/]
     why: >-
       ShootFlow works end to end on real media: checksum-verified ingest,
@@ -314,31 +448,32 @@ flagships:
       masters; DNG developer with DNG-spec colour, DCP tables, tone curves; Canon
       CR2; camera DNGs match LibRaw to 0.02-0.11 steps; DNG opcodes compared with
       the 1.7.1.0 text, eval/opcode-spec-audit-2026-11-12.md; WarpRectilinear
-      matches the Leica T's preview to 0.18 px; WarpRectilinear2). S1R II 177 MP =
-      LibRaw snapshot 202611, every sensel (eval/panasonic-rw2-177mp-libraw-*).
-      Next: the H 25 IT8.7-2 card raw to judge the matrices; an iXU180 dark frame or
-      Capture One export to say if IIQ S offset tables apply (LibRaw skips them; the
-      iXU180's 5.2% blue gap is them, calibration = LibRaw on 13 more files,
+      matches the Leica T's preview to 0.18 px; WarpRectilinear2). Next: the H 25
+      IT8.7-2 card raw to judge the matrices; an iXU180 dark frame or Capture One
+      export to say if IIQ S offset tables apply (LibRaw skips them; the iXU180's
+      5.2% blue gap is them, calibration = LibRaw on 13 more files,
       eval/phaseone-iiq-calibration-newer-backs-*); Sony's vignetting table vs an
       evenly lit frame (its JPEG lifts none: eval/sony-vignetting-preview-*);
       Near-clean leak closed on Bayer 2026-11-19 (k 12,
-      eval/near-clean-gate-2026-11-19.md); X-Trans tuned on 51 fresh bodies the same
-      day: no loser to fix, stays off; Bayer's 15 there were a noisy ISO 1600
-      reference (--clean-truths: 0 left; eval/near-clean-gate-xtrans-tune-*);
-      D780/D600: 6 of 11 losers are real over-reads on clean truths
-      (eval/near-clean-truth-noise-2026-11-19.md); a lower-envelope line fit
-      (opt-in) rescued 3 of 6 K-1 II losers but failed h1 2026-11-22 (-0.2 dB luma
-      at SNR 12 wb: wb bins are not on one line; eval/noise-envelope-fit-*; next on
-      whitened bins); drawn noise on 11 fresh camera raws passed 2026-11-23
-      (+0.12/+0.22 dB, eval/camera-drawn-mpcws-*), so mpcws is the Bayer default;
-      next read it against --noise-read ship on new camera files. Browser cull page
+      eval/near-clean-gate-2026-11-19.md); X-Trans mpcws read: own ramp failed, Bayer ramp 3 of 4
+      (eval/xtrans-drawn-mpcws-*; next blind 6-body set, raw.pixls.us); D780/D600
+      over-reads (HISTORY.md): next a read kept off grain floors. Browser cull page
       2026-11-23 (site/cull.html; 520-file card 25.8 s; merges existing sidecars,
-      eval/cull-existing-sidecars-*); AF points from maker notes 2026-11-24 (22 of
-      22 = metadata-extractor, eval/cull-af-point-*): next Nikon AF grids, a real
-      card of 500+ raws with picks, a Lightroom read of merged sidecars. More open
-      items: NEXT.md.
-
+      eval/cull-existing-sidecars-*); DNGs with no JPEG developed in-page 2026-11-24
+      (32 of 32 = shootflow sensels, eval/cull-raw-data-previews-*; next JPEG XL
+      DNGs, raw.pixls.us; HLG Z8 HEVC previews via WebCodecs 2026-11-24, 1 of 143 MB
+      read, eval/cull-hevc-previews-*; BigTIFF and the 2000s Olympus compacts' ORFs
+      developed in-page 2026-11-24, eval/cull-orf-compacts-*); keyword trees, codes,
+      C captions, a loaded Lightroom/Photo Mechanic keyword list resolving names and
+      synonyms to paths 2026-11-24 (ExifTool, eval/cull-keyword-list-*; next
+      Lightroom's own import, needs Lightroom; K autocomplete from the list). Client
+      proofing set 2026-11-25 (zip + offline gallery, hearts pasted back as labels,
+      eval/cull-proofing-set-*); paid next, most valuable: that gallery hosted
+      behind a share link (models.yaml row). More open items: NEXT.md.
   - venture: quick-pick-survey
+    demoted: >-
+      2026-11-24: no bet; not among the candidates bets.md scored as SMB paid
+      products.
     inputs_only: >-
       a real survey's answers and answer times ((c), (d11), (bw), (h)) or
       search-traffic data for (r)
@@ -369,8 +504,10 @@ flagships:
       not), whether real people have warm-ups, blocks, slot runs or spread-out
       carelessness, and how noisy real pairwise answers are
       (scripts/coin-flip-gate-real.ts --honest-lapse). More open items: NEXT.md.
-
   - venture: league-schedule-generator
+    demoted: >-
+      2026-11-24: no bet; volunteer buyers with small budgets (models.yaml), not an
+      SMB bet.
     why: >-
       Circle-method round robins with minimal home/away breaks, court and slot
       assignment under rest constraints, blackouts, play-offs, ladders and
@@ -397,20 +534,24 @@ flagships:
       Box leagues 2026-11-21 (boxleague.mjs); next: a real club's month. ChessHouse
       r8 bye fixed 2026-11-23 (weighed in its bracket, byes 40/42); next: a real
       club's TRF (GitHub search 2026-11-23: only test fixtures). Bowling 22-28 teams
-      2026-11-23: 24x36 26 to 4 off, 2 seasons even (eval/bowling-lane-near.txt);
-      open in NEXT.md. Season import 2026-11-23 (importschedule.mjs, 819/819
-      round-trip, eval/import-roundtrip.txt); next: a real league's export. Clinch
-      watch, exact magic numbers, race supply cut, slow tables in a worker
-      2026-11-23 (race-worker.mjs, eval/race-budget.txt: 553 magic numbers lowered,
-      0 wrong); next: a real league's published numbers. More: NEXT.md.
+      2026-11-23: 24x36 26 to 4 off, 26x12, 26x38 even 2026-11-24
+      (eval/bowling-mirror-2026-11-24.txt); open in NEXT.md. Clinch watch, exact
+      magic numbers 2026-11-23 (README); next: a real league's published numbers.
+      Divisions by location 2026-11-24 (regions.mjs, eval/nfl-divisions.txt); next:
+      a real league's grounds. Club ratings 2026-11-24 (season-ratings.mjs, README);
+      next: a real club's box season. More: NEXT.md.
     buildable: >-
       Search work in NEXT.md, no outside input: 12 teams below 132 carry-over or
-      124-130 ruled out (eval/window-refill.c); bowling 22-28 team seasons 1 off the
-      bound (22x10, 22x21, 24x23, 26x38: an answer or a proof,
-      bowling-lane-near.mjs); 47/49 on 8x9 night designs (a split or resumable
-      search). Each is a hard combinatorial search; judge its worth before taking
-      it.
+      124-130 ruled out (eval/window-refill.c); bowling: proved lane minimums for 39
+      of 44 out-of-reach seasons 2026-11-24 (eval/bowling-lane-min-2026-11-24.txt);
+      left a proof for 22x11..30x15 (W=P, CP-SAT bounds weak), 24x11, 28x13 at 3
+      (odd W), 24x24, 26x26, 28x28 (mirror and hinted soft CP-SAT unmoved); 47/49 on
+      8x9 night designs (a split or resumable search). Each is a hard combinatorial
+      search; judge its worth before taking it.
   - venture: open-tennis-robots
+    demoted: >-
+      2026-11-24: no bet. Open hardware is a long-term track, not a ranked bet
+      (bets.md, "Hardware": paper-only first step).
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed
       CAD work and every check: cad/README.md (2026-11-21: switches, post wedges,
@@ -455,6 +596,8 @@ flagships:
   # "would be fun to make as a long term project. also being able to publish to
   # spotify etc." Placed last so it does not displace the construction programme.
   - venture: chant-forge
+    demoted: >-
+      2026-11-24: no bet; a commons project (MIT), not a paid product.
     hosts: [https://archive.org/]
     why: >-
       Long-term music production programme: public-domain chant (GABC) to MIDI
@@ -500,6 +643,9 @@ flagships:
   # checking of IFC models, in a browser tab or CI. Depth: a full IDS engine
   # scored on buildingSMART's 334 test pairs and cross-checked against IfcTester.
   - venture: ids-model-check
+    demoted: >-
+      2026-11-24: no bet. IFC/IDS model checking ranked "not now" in bets.md (free
+      ifctester and EUR 15 to 69 add-ins).
     why: >-
       Checks IFC2X3/IFC4/IFC4X3 models against IDS 1.0 in the browser with nothing
       uploaded, or in CI; BCF 2.1, CSV and JSON exports. 334/334 on buildingSMART's
@@ -508,12 +654,12 @@ flagships:
     buildable: >-
       Excel2IDS's tool runs here (venv: pip ifctester openpyxl tqdm;
       EXCEL2IDS_PYTHON=venv/bin/python node eval/excel2ids-sidebyside.mjs, 8 s):
-      rerun it after excel2ids.mjs changes. IFC4X3 ifcXML: none public (searched
-      2026-11-18); B-spline control points cut into rows from knot counts 2026-11-18
-      (eval/ifcxml-twins-2026-11-18.md); more real exports through
-      eval/model-inventory.mjs and eval/model-attr-ranges.mjs; STEP exports as
-      nested ifcXML (eval/ifc4-layout.mjs). IFC5: eval/ifcx-twins.mjs on new
-      IFC5-development files.
+      rerun it after excel2ids.mjs changes. IfcOpenShell's 294 files swept and set
+      beside IfcTester 2026-11-24 (eval/ifcopenshell-test-files-*); WHERE rules and
+      seeded faults 2026-11-24 (eval/where-rules-*); global RULEs seeded 2026-11-24
+      (eval/where-rules-global-seeds-*); cycles of wholes 2026-11-24
+      (eval/decomposition-cycles-*); next: IfcRelNests self-reference (NEXT.md);
+      IFC5: eval/ifcx-twins.mjs on new IFC5-development files.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked") and HISTORY.md.
@@ -549,6 +695,9 @@ flagships:
   # construction"): a P6 schedule engine is a hard, open-ended engineering
   # problem with a paid market (schedule analytics, update reviews, claims).
   - venture: xer-schedule-check
+    demoted: >-
+      2026-11-24: no bet. P6/XER checking ranked "not now" as a standalone bet
+      (about 2k P6 companies); fine later as a module of bet 1.
     why: >-
       Reads Primavera P6 XER files in the browser and recomputes the critical path
       with P6's calendar, link, constraint and progress rules: 19,820 of 19,822
@@ -559,12 +708,11 @@ flagships:
       Test files: bash eval/corpus-fetch.sh DIR [--mpxj] (the six public XERs to
       DIR/xer, 5 s; --mpxj adds MPXJ junit/data). Constraints log on more planted
       seeds or files: node eval/constraints-check.mjs (section 4,
-      eval/constraints-slack-2026-11-20.md); relationship dates: node
-      eval/relationship-dates.mjs; windows check (eval/windows-check.mjs, series
-      made by status.mjs); redundant: node eval/redundant-check.mjs DIR/xer;
-      converter/hand-made XERs: node eval/converter-corpus.mjs; MSPDI:
-      eval/cpm-vs-project.mjs on MPXJ files; XML out: eval/msproject-check.mjs,
-      msproject-mpxj.py (pip mpxj jpype1).
+      eval/constraints-slack-2026-11-20.md); P6 probes: eval/p6-probes.mjs
+      (NEXT.md); windows: leave-one-out revision naming (NEXT.md); redundant: node
+      eval/redundant-check.mjs DIR/xer; converter/hand-made XERs: node
+      eval/converter-corpus.mjs; MSPDI: eval/cpm-vs-project.mjs on MPXJ files; XML
+      out: eval/msproject-check.mjs, msproject-mpxj.py (pip mpxj jpype1).
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/. Next, most valuable first:
@@ -573,30 +721,34 @@ flagships:
       read 2026-11-21 (2,446 of 2,491 = Project's, eval/split-tasks-2026-11-21.md);
       next a Project open of those rows, a P6 import of a curve, timephased late
       dates. (13) XER to Project XML shipped 2026-11-21; next a Project check. Open
-      ends critical 2026-11-24 (eval/open-critical-2026-11-24.md); next a P6 file
-      with it on. (14) P6 XML read and to XER 2026-11-23 (pmxml.mjs,
-      eval/pmxml-2026-11-23.md: 21,441/21,441 same schedule); next a P6 import of
-      one, a large real P6 XML export. Expenses <-> cost resources and fixed costs
-      2026-11-21 next a P6-written XER with expenses, a P6 import (category by
-      name?). next: a P6 import of the result. next a real scheduler's read.
-      Levelling on P6 resource curves 2026-11-22 (--curves,
-      eval/level-curves-2026-11-22.md); next a P6-levelled file with a curve.
-      branches in TIA 2026-11-22, next a real TIA exhibit with alternatives. (15)
-      next a commercial drag run, real crash rates. (16) next a real schedule with
-      its GAO assessment. (17) Collapsed as-built, as-planned vs as-built 2026-11-23
-      (collapse.mjs, asplanned.mjs; eval/asplanned-check-2026-11-23.md); next a real
-      baseline + final update with a claim's delay list. (18) TIA by party, events
-      step by step in date order and newest first 2026-11-23
-      (eval/tia-party-check-2026-11-23.md, eval/tia-steps-check-2026-11-23.md); next
-      a real claim's parties and dated event list. (19) Redundant logic 2026-11-23
-      (redundant.mjs, --redundant; eval/redundant-logic-2026-11-23.md); next a real
-      P6 reschedule with holidays extended. (21) Progress review 2026-11-23
-      (progress.mjs, eval/progress-review-2026-11-23.md); next a real pay-app
-      review's list. More: NEXT.md. More open items: NEXT.md.
+      ends critical (eval/open-critical-2026-11-24.md); next a P6 file with it on.
+      (14) P6 XML read and to XER 2026-11-23 (pmxml.mjs, eval/pmxml-2026-11-23.md:
+      21,441/21,441 same schedule); next a P6 import of one, a large real P6 XML
+      export. Expenses <-> cost resources and fixed costs 2026-11-21 next a
+      P6-written XER with expenses, a P6 import (category by name?). next: a P6
+      import of the result. next a real scheduler's read. Levelling on P6 resource
+      curves (--curves, eval/level-curves-2026-11-22.md); next a P6-levelled file
+      with a curve. branches in TIA 2026-11-22, next a real TIA exhibit with
+      alternatives.. (16) next a real schedule with its GAO assessment. (17)
+      Collapsed as-built, as-planned vs as-built 2026-11-23 (collapse.mjs,
+      asplanned.mjs; eval/asplanned-check-2026-11-23.md); next a real baseline +
+      final update with a claim's delay list. (18) TIA by party, events step by step
+      in date order and newest first 2026-11-23 (eval/tia-party-check-2026-11-23.md,
+      eval/tia-steps-check-2026-11-23.md); next a real claim's parties and dated
+      event list. (19) Redundant logic 2026-11-23 (redundant.mjs, --redundant;
+      eval/redundant-logic-2026-11-23.md); next a real P6 reschedule with holidays
+      extended. (21) Progress review 2026-11-23 (progress.mjs,
+      eval/progress-review-2026-11-23.md); next a real pay-app review's list. (22)
+      Spec check 2026-11-24 (spec.mjs); next a real contract's spec section. (24)
+      probes: RD early pair next. (23) DCMA per WBS/code 2026-11-24 (ribbon.mjs);
+      next a sub's read. More: NEXT.md. More open items: NEXT.md.
   # Added 2026-11-19 (PR 17806): the construction direction's first 5D/cost
   # tool, and the first venture that measures IFC solids. Evidence of depth:
   # eval/stored-vs-computed-2026-11-19.md (13 public models).
   - venture: ifc-quantity-takeoff
+    demoted: >-
+      2026-11-24: no bet. IFC tooling ranked "not now" in bets.md; residential
+      takeoff (bet 6) works from PDF plan sets instead.
     why: >-
       Bill of quantities from an IFC model in the browser, every element's volume
       recomputed from its body (signed convex pieces: extrusions, clips incl.
@@ -611,20 +763,20 @@ flagships:
       The 8 public models in eval/areas-vs-stored-2026-11-19.md (sparse clones of
       opensourceBIM/IFC-files and ThatOpen/engine_web-ifc tests/ifcfiles/public): 14
       unexplained areas (eval/curved-and-faces-2026-11-22.md, The 14 left); figures
-      in doubt 2026-11-23 (eval/in-doubt-2026-11-23.md, node eval/in-doubt.mjs): HHS
-      construction #1405/#4407, M3D-CON-CD's 7 Tekla plates (#207997 settled: faces
-      vs circles, eval/off-edges-2026-11-23.md); revisions: EngiWorld's Archicad gui
-      and cross-software pairs (eval/engiworld-archicad-diff-2026-11-23.md, Left).
+      in doubt (node eval/in-doubt.mjs): 0 areas left 2026-11-24 (copings'
+      undersides, eval/signed-faces-2026-11-24.md); 1 volume, ARK_NUS #1167770,
+      needs a second Revit join case; revisions: EngiWorld's Archicad gui and
+      cross-software pairs (eval/engiworld-archicad-diff-2026-11-23.md, Left).
     hosts: [https://github.com]
     next: >-
       History and every measurement: README and eval/; search guides 2026-11-22. its
       misses traced 2026-11-21: overlapping body items joined (a cabinet had counted
       1.8x its box), 9,310 of 9,312 now enclose the computed volume
-      (eval/item-union-2026-11-21.md; next in NEXT.md). IFC4X3 bridges, rebar on
-      arcs, grid placements, fixed-reference sweeps 2026-11-22, cant 2026-11-23
-      (eval/linear-placement-*, eval/bsi-samples-*, eval/cant-*); next a 2nd bridge
-      (NEXT.md). Bar schedule (rebar.mjs, eval/rebar-*; hooks 2026-11-23, file
-      angles 45/45; drawn as tubes 2026-11-23); next Tekla's E rule (NEXT.md). Room
+      (eval/item-union-2026-11-21.md; next in NEXT.md). IFC4X3 bridges (Viadotto
+      2026-11-22, 3 PGSuper 2026-11-24: eval/pgsuper-bridges-*), cant 2026-11-23;
+      next a 3rd exporter's bridge (NEXT.md). Bar schedule (rebar.mjs, eval/rebar-*;
+      hooks 2026-11-23, file angles 45/45; drawn as tubes 2026-11-23); next Tekla's
+      E rule (NEXT.md). Coping coated, toe radii drawn 2026-11-24 (NEXT.md). Room
       schedule 2026-11-21 (eval/rooms-2026-11-21.md); next: HouseZ's 3 openings 0.51
       m under their room's floor, dental_clinic's 17 ROOF windows (NEXT.md). Next,
       most valuable first: (1) the covering up-cut rule tested on a second model,

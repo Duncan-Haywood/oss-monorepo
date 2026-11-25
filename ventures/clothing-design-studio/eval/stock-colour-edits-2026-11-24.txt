@@ -1,0 +1,105 @@
+112 edits (16 stock colours x 7 edits), fabric cotton-jersey, example sheet, 100 pieces
+catalogue stocked 11, dyed to order 98, no move 3, wrong way 0; dye cost summed over the moved edits 952.56 per garment
+stock     stocked 46, dyed to order 63, no move 3, wrong way 0; dye cost summed over the moved edits 612.36 per garment
+
+Dyed-to-order without the sheet, stocked with it (35):
+  white / make it darker: silver -> off white
+  white / make it more vivid: ivory -> off white
+  white / make it brighter: ivory -> off white
+  off white / make it darker: bone -> heather grey
+  off white / make it more vivid: cream -> sand
+  off white / make it brighter: cream -> sand
+  charcoal / make it more vivid: indigo -> navy
+  charcoal / make it brighter: indigo -> navy
+  heather grey / make it lighter: silver -> white
+  heather grey / make it more vivid: more vivid heather grey -> sky blue
+  heather grey / make it cooler: light blue -> sky blue
+  heather grey / make it brighter: light blue -> sky blue
+  navy / make it lighter: indigo -> royal blue
+  navy / make it brighter: brighter navy -> royal blue
+  royal blue / make it darker: darker royal blue -> navy
+  sky blue / tone it down: silver -> heather grey
+  burgundy / make it lighter: crimson -> red
+  burgundy / make it brighter: crimson -> red
+  red / make it darker: crimson -> burgundy
+  forest green / make it warmer: warmer forest green -> olive
+  olive / make it lighter: lighter olive -> sage
+  olive / tone it down: more muted olive -> charcoal
+  olive / make it cooler: cooler olive -> forest green
+  sage / make it darker: darker sage -> olive
+  sage / make it warmer: khaki -> sand
+  sand / make it darker: khaki -> mustard
+  sand / tone it down: bone -> off white
+  sand / make it more vivid: more vivid sand -> mustard
+  sand / make it warmer: warmer sand -> mustard
+  sand / make it cooler: ecru -> sage
+  sand / make it brighter: brighter sand -> mustard
+  brown / tone it down: chocolate -> charcoal
+  mustard / make it lighter: yellow -> sand
+  mustard / tone it down: gold -> sand
+  mustard / make it cooler: gold -> sand
+
+Still dyed to order with the sheet (63): no stocked colour within 20 of the exact move went the asked way
+  white / make it lighter: lighter white #fffffc (+9.72)
+  white / make it cooler: cooler white #ebf9ff (+9.72)
+  off white / make it warmer: warmer off white #ffe5ca (+9.72)
+  black / make it darker: darker black #000003 (+9.72)
+  black / make it warmer: warmer black #26180f (+9.72)
+  black / make it cooler: cooler black #051e2a (+9.72)
+  charcoal / make it lighter: lighter charcoal #56575a (+9.72)
+  charcoal / tone it down: more muted charcoal #3b3b3b (+9.72)
+  charcoal / make it warmer: warmer charcoal #473830 (+9.72)
+  charcoal / make it cooler: cooler charcoal #273e4c (+9.72)
+  heather grey / make it darker: darker heather grey #949598 (+9.72)
+  heather grey / make it warmer: warmer heather grey #c4b1a7 (+9.72)
+  navy / make it darker: darker navy #041129 (+9.72)
+  navy / make it more vivid: more vivid navy #072a55 (+9.72)
+  navy / make it warmer: warmer navy #322736 (+9.72)
+  navy / make it cooler: cooler navy #002c4e (+9.72)
+  royal blue / make it lighter: lighter royal blue #4f64c7 (+9.72)
+  royal blue / tone it down: more muted royal blue #394994 (+9.72)
+  royal blue / make it more vivid: more vivid royal blue #0047b3 (+9.72)
+  royal blue / make it warmer: warmer royal blue #4d4396 (+9.72)
+  royal blue / make it cooler: cooler royal blue #004aab (+9.72)
+  royal blue / make it brighter: brighter royal blue #1f55c9 (+9.72)
+  sky blue / make it darker: darker sky blue #7ba5c6 (+9.72)
+  sky blue / make it lighter: lighter sky blue #c9e6ff (+9.72)
+  sky blue / make it more vivid: more vivid sky blue #7fc9fd (+9.72)
+  sky blue / make it warmer: warmer sky blue #b3c2d6 (+9.72)
+  sky blue / make it cooler: cooler sky blue #7ec9fa (+9.72)
+  sky blue / make it brighter: brighter sky blue #96d2ff (+9.72)
+  burgundy / make it darker: darker burgundy #490014 (+9.72)
+  burgundy / tone it down: more muted burgundy #5d2b30 (+9.72)
+  burgundy / make it more vivid: more vivid burgundy #780328 (+9.72)
+  burgundy / make it warmer: warmer burgundy #72151e (+9.72)
+  burgundy / make it cooler: cooler burgundy #63253a (+9.72)
+  red / make it lighter: lighter red #d84a49 (+9.72)
+  red / tone it down: more muted red #a63837 (+9.72)
+  red / make it more vivid: more vivid red #bf0026 (+9.72)
+  red / make it warmer: warmer red #ba181e (+9.72)
+  red / make it cooler: cooler red #ac303d (+9.72)
+  red / make it brighter: brighter red #d32132 (+9.72)
+  forest green / make it darker: darker forest green #092616 (+9.72)
+  forest green / make it lighter: lighter forest green #3f5d4a (+9.72)
+  forest green / make it more vivid: more vivid forest green #084427 (+9.72)
+  forest green / make it cooler: cooler forest green #00433d (+9.72)
+  forest green / make it brighter: brighter forest green #1a5334 (+9.72)
+  olive / make it darker: darker olive #3e4219 (+9.72)
+  olive / make it more vivid: more vivid olive #595f1d (+9.72)
+  olive / make it warmer: warmer olive #665b22 (+9.72)
+  olive / make it brighter: brighter olive #686e2c (+9.72)
+  sage / make it lighter: lighter sage #c4ceaf (+9.72)
+  sage / make it more vivid: more vivid sage #9eb07c (+9.72)
+  sage / make it cooler: cooler sage #91b0a0 (+9.72)
+  sage / make it brighter: brighter sage #aec08c (+9.72)
+  sand / make it lighter: lighter sand #fae8c4 (+9.72)
+  brown / make it darker: darker brown #3e210c (+9.72)
+  brown / make it lighter: lighter brown #7b5741 (+9.72)
+  brown / make it more vivid: more vivid brown #663615 (+9.72)
+  brown / make it warmer: warmer brown #643716 (+9.72)
+  brown / make it cooler: cooler brown #523e35 (+9.72)
+  brown / make it brighter: brighter brown #764423 (+9.72)
+  mustard / make it darker: darker mustard #a47b00 (+9.72)
+  mustard / make it more vivid: more vivid mustard #ca9900 (+9.72)
+  mustard / make it warmer: warmer mustard #d09703 (+9.72)
+  mustard / make it brighter: brighter mustard #dda915 (+9.72)

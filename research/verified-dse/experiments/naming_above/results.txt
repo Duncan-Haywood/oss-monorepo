@@ -1,0 +1,47 @@
+# Milestone 167: two more namings of the 12 decided shifter designs at 32 gates or more (flow run)
+
+Yosys 0.70 (dzsihg5w), OpenROAD 26Q3 (p9p4), tt_025C_1v80, 40% utilisation; Y = each design's own milestone table; R2, R3 = fresh random renamings; A3 = geometric mean of the three; cells and tie-break seeds as each source milestone
+analysed designs (longest complete prefix of the order): 12 of 12: max3b5, sat1b9, max3b6, pmul4, cmp48, sat2b5, fib12, fib14, lzcnorm128, chainsh8, mul2w, mul3n
+control (a) (orig netlist re-placed reproduces arm Y on every OUTCOME field): 48 of 48
+control (b) (rung 1 equals arm Y): 4991 of 4991 runs
+control (c) (arm Y's d reproduces milestone 165 to 0.01): True
+
+design | milestone | gate depth | d Y | d R2 | d R3 | d A3 | SWC % Y R2 R3 A3 | random % Y R2 R3 A3 | class Y R2 R3 A3 | spread of d
+max3b5 | 124 | 33 | -5.24 | -7.19 | -8.36 | -6.92 | 0.00 0.00 0.00 0.00 | 5.24 7.19 8.36 6.92 | win win win win | 3.12
+sat1b9 | 124 | 35 | -4.97 | -8.15 | -5.12 | -5.67 | 0.00 0.00 0.00 0.00 | 4.97 8.15 5.12 5.67 | win win win win | 3.18
+max3b6 | 124 | 36 | -21.81 | -16.65 | -18.72 | -19.29 | 0.00 0.00 0.00 0.00 | 21.81 16.65 18.72 19.29 | win win win win | 5.16
+pmul4 | 125 | 36 | +19.17 | +13.17 | +11.86 | +16.05 | 23.10 14.07 15.84 19.17 | 3.93 0.91 3.98 3.12 | loss loss loss loss | 7.31
+cmp48 | 133 | 40 | -5.56 | -9.94 | -6.57 | -8.23 | 0.00 0.00 0.00 0.00 | 5.56 9.94 6.57 8.23 | win win win win | 4.38
+sat2b5 | 124 | 41 | -13.08 | -10.93 | -8.67 | -11.07 | 0.00 0.00 0.00 0.00 | 13.08 10.93 8.67 11.07 | win win win win | 4.41
+fib12 | 133 | 51 | -6.29 | -5.32 | -4.98 | -5.83 | 0.00 0.00 0.00 0.00 | 6.29 5.32 4.98 5.83 | win win win win | 1.31
+fib14 | 133 | 58 | -5.46 | -4.79 | -5.61 | -5.11 | 0.00 0.00 0.00 0.00 | 5.46 4.79 5.61 5.11 | win win win win | 0.82
+lzcnorm128 | 120 | 98 | -11.60 | -9.67 | -14.69 | -11.73 | 0.00 0.00 0.00 0.00 | 11.60 9.67 14.69 11.73 | win win win win | 5.02
+chainsh8 | 122 | 104 | -5.59 | -4.42 | -6.92 | -5.88 | 0.00 0.00 0.00 0.00 | 5.59 4.42 6.92 5.88 | win win win win | 2.50
+mul2w | 123 | 159 | -6.80 | -3.45 | -5.29 | -5.18 | 0.00 0.34 0.06 0.00 | 6.80 3.79 5.35 5.18 | win tie win win | 3.35
+mul3n | 123 | 166 | -8.90 | -7.59 | -3.29 | -6.82 | 0.00 0.00 0.00 0.00 | 8.90 7.59 3.29 6.82 | win win tie win | 5.61
+
+## Predictions
+
+(1) PRIMARY: sign(d(A3)) = sign(d(Y)) on 12 of 12 (needed >= 10): held
+(2) |d(A3)| >= 4 with Y's sign on 12 of 12 (needed >= 8): held
+(3) arm-Y wins with d(A3) <= -4: 11 of 11 (needed >= 8; none not): held
+(4) pmul4 d(A3) +16.05 (needed >= 4): held
+(5) median |d(Rj) - d(Y)| 2.05 points (needed <= 4; max 7.31): held
+(6) A3 decided wins / losses 11 / 1, sign p = 0.0063 (needed < 0.05): held
+(7) mean SWC % under A3 over the 11 arm-Y wins 0.00 (needed <= 2): held
+
+## Reported, not predicted
+
+mean |d(R2) - d(R3)| 2.34; mean |d(Rj) - d(Y)| 2.68
+arm Y: wins 11, losses 1, ties 0, mean d -6.34, sign p 0.0063, SWC % exactly 0 on 11
+arm R2: wins 10, losses 1, ties 1, mean d -6.24, sign p 0.0117, SWC % exactly 0 on 10
+arm R3: wins 10, losses 1, ties 1, mean d -6.36, sign p 0.0117, SWC % exactly 0 on 10
+arm A3: wins 11, losses 1, ties 0, mean d -6.31, sign p 0.0063, SWC % exactly 0 on 11
+R2 or R3 runs not ok: 1
+
+## Both sides under A3 (25 decided blind designs: milestone 166's 13 below 32, these 12)
+
+below 32: wins 5, losses 8, ties 0, sign p 0.5811, mean d +4.44
+32 or more: wins 11, losses 1, ties 0, sign p 0.0063, mean d -6.31
+misplaced decided designs by cut t (wins expected at >= t, losses below): 19:5, 20:5, 21:6, 22:6, 23:6, 24:6, 25:5, 26:6, 27:6, 28:5, 29:7, 30:7, 31:6, 32:6, 33:6, 34:7, 35:7, 36:8, 37:8, 38:8, 39:8, 40:8
+best cuts: [19, 20, 25, 28] (5 misplaced of 25)

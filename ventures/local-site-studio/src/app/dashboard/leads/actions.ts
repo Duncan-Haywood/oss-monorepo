@@ -1655,7 +1655,7 @@ export async function resendCommerceClientReceiptAction(stripeSessionId: string)
         await clearCommerceOrderClientReceiptSent(sessionId, clientReceiptEmailSentAt);
       } catch (clearError) {
         console.error(
-          `Failed to release commerce order client receipt sent-to-client reservation for ${sessionId} after a failed send:`,
+          "Failed to release commerce order client receipt sent-to-client reservation for %s after a failed send:", sessionId,
           clearError,
         );
       }
@@ -1811,7 +1811,7 @@ export async function resendBundleBuyerEmailAction(leadSlug: string) {
           await releaseBundleBuyerEmailNotes(slug, handoff.stripeSessionId, true, false);
         } catch (releaseError) {
           console.error(
-            `Failed to release bundle buyer receipt reservation for ${slug} after a failed send:`,
+            "Failed to release bundle buyer receipt reservation for %s after a failed send:", slug,
             releaseError,
           );
         }
@@ -1832,7 +1832,7 @@ export async function resendBundleBuyerEmailAction(leadSlug: string) {
           await releaseBundleBuyerEmailNotes(slug, handoff.stripeSessionId, false, true);
         } catch (releaseError) {
           console.error(
-            `Failed to release bundle buyer DNS-handoff reservation for ${slug} after a failed send:`,
+            "Failed to release bundle buyer DNS-handoff reservation for %s after a failed send:", slug,
             releaseError,
           );
         }
@@ -3793,7 +3793,7 @@ export async function checkStripeConnectAccountStatusAction(slug: string) {
       revalidatePath("/dashboard/leads");
     } catch (persistError) {
       console.warn(
-        `Failed to persist Stripe Connect status for ${slug}`,
+        "Failed to persist Stripe Connect status for %s", slug,
         persistError,
       );
       // Swallowed here so an already-successful live Stripe check never
@@ -4188,7 +4188,7 @@ export async function scheduleMarketingPackToBufferAction(slug: string) {
         // into a reported error. Worst case on failure: the next click can
         // re-post these same variants, no worse than before this guard shipped.
         console.error(
-          `Failed to persist Buffer posted-variant markers for ${slug}:`,
+          "Failed to persist Buffer posted-variant markers for %s:", slug,
           error,
         );
       }

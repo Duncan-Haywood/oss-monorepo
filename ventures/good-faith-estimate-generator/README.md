@@ -42,7 +42,7 @@ and drafting aid, not advice.
 
 ## License and privacy
 
-MIT. No warranty; not legal, tax, accounting or financial advice. Nothing leaves
+FSL-1.1-MIT. No warranty; not legal, tax, accounting or financial advice. Nothing leaves
 your browser; nothing is saved; usage counts are local, opt-out-able and honour
 Do Not Track.
 

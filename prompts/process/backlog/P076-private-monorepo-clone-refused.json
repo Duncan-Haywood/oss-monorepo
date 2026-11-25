@@ -1,0 +1,26 @@
+{
+  "id": "P076",
+  "title": "Scheduled sessions' private-monorepo clone is refused by the permission classifier about 2 times in 3; runs re-plan slowly and crowd one public guide",
+  "status": "done",
+  "owner": "agent",
+  "effect": 3,
+  "cost": 1,
+  "problem": "add_repo attaches private-monorepo, then the session's permission classifier refuses the git clone. Runs then retried, asked what 'can reach' meant, or picked the same public fallback (pay-app-guides), so four parallel PRs conflicted on its shared lists. Nothing said a refusal is final or what to do next, and the owner had no row asking for the one setting that removes the step.",
+  "evidence": [
+    "prompts/runs/2026-11-25-*.json: 42 records mention private-monorepo; 28 say the clone was refused, denied or blocked; 14 shipped a private PR",
+    "platform/ci/friction_rank.py --live --ungated --days 3 (2026-11-25): #3 prompts/ventures/prompt-1.md 7x, #9 portfolio/flagships.yaml 3x, both this cause"
+  ],
+  "change": "cloud-session.md: a refused clone is final, no retry or workaround, go to the public side and search open PRs on the guide's slug first. ventures/prompt-1.md 'can reach' -> 'can clone'. allocate.py's flagship hint says the same. asks.yaml row private-monorepo-clone asks the owner to add the repo as a source of the routine's environment.",
+  "touches": [
+    ".github/prompts/cloud-session.md",
+    "prompts/ventures/prompt-1.md",
+    "portfolio/router/allocate.py",
+    "portfolio/ledger/asks.yaml"
+  ],
+  "metric": "run records per day whose doc_friction asks what to do after a refused private-monorepo clone (friction_rank cluster size), and records with a refused clone that still retried",
+  "baseline": "7 distinct sessions on prompts/ventures/prompt-1.md + 3 on flagships.yaml in the 3 days to 2026-11-25 (friction_rank.py)",
+  "opened": "2026-11-25",
+  "source": "process critique, 2026-11-25 (friction_rank.py --live --ungated --days 3)",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18882",
+  "result": null
+}

@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKnrT3G4ZUmAfwo1mq6",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T21:18:26Z",
+  "ended": "2026-11-24T21:28:55Z",
+  "wall_minutes": 10.71,
+  "tokens_in": 3977555,
+  "tokens_out": 36988,
+  "cost_usd": 2.4184,
+  "tool_calls": 41,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18665",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First stop.py simulation crashed on est(i,0) division by zero at early checkpoints; guarded and re-ran.",
+    "First draft had three slips caught on the adversarial re-read: 'one out of one' was given as 2.8 (it is 9/11 = 0.82), 'three boxes in four between 2.5 and 4' (the 0.742 band reaches 4.09), and Zu Chongzhi 'fifteen hundred years ago' (about sixteen hundred from 2083)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/subjects.txt",
+      "issue": "overlap.mjs --unused reports 1 of 51 Hearth & Horizon subjects left (Arrow's theorem), and that one overlaps the finished 'Three Winners for One Hall' (Condorcet/Borda); the list needs refilling."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The proposal said 'Mario Lazzarini's reported 1901 trial'; secondary sources disagree on whether he described a machine, so the story drops the machine. The bible's proposals would be safer if they marked which facts were checked against a source and which were from memory."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio cap exceeded (581 MB > 400 MB), so no MP3 was rendered.",
+      "did": "Landed text, pages and feeds only, as the prompt directs.",
+      "result": "Story published text only; tests green."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-the-matches-on-the-vestry-floor.md"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon. Piece: the-matches-on-the-vestry-floor (Buffon's needle, Westport, Nov 2083, ~4,900 words of story plus note). Claimed the BIBLE proposal via draft PR before drafting. Lazzarini/Badger facts checked by web search (Badger, Math. Mag. 67 (1994) 83-91; 3408 = 16x213, 1808 = 16x113). All dialogue numbers from scratch scripts (exact binomial, seed-30 run, stopping simulations 64.9%/89.3%). Added a St Petersburg-game proposal to the emptied Hearth & Horizon Next up. Local verification: run_workflow_locally --for-changes 9/9 selected workflows passed (cross-review, pages deploy and portfolio-validate deferred to PR CI); node --test 21/21 in hearth-and-horizon; check_posts, check_post_links, post_similarity clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4159aa31-9562-515b-ae06-2da1b996d1ee",
+    "transcripts": 1,
+    "first": "2026-11-24T21:18:26Z",
+    "last": "2026-11-24T21:29:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 75,
+        "output": 36988,
+        "thinking": 12823,
+        "cache_read": 3864292,
+        "cache_write_5m": 0,
+        "cache_write_1h": 113188,
+        "api_equivalent_usd": 2.4184,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 75,
+      "output": 36988,
+      "thinking": 12823,
+      "cache_read": 3864292,
+      "cache_write_5m": 0,
+      "cache_write_1h": 113188,
+      "api_equivalent_usd": 2.4184,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 34,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "WebSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.71,
+      "active_minutes": 10.71,
+      "model_minutes": 7.23,
+      "tool_minutes": 3.48,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a writer researching Buffon/Lazzarini, working the sums and drafting a 5,000-word story with notes, plus a short post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 413.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

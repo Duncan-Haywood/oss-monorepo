@@ -207,7 +207,8 @@
    "what": "Missed tasks (11) and BEI (14) use P6 planned dates as the baseline, but P6 re-syncs a not-started activity's planned dates to its early dates on every schedule run, so overdue unstarted work is never 'due' and never 'missed' (CCA: 11,775 of 11,775 unstarted activities have planned finish = early finish). On a rescheduled update without a baseline the two points under-report slippage, and an unprogressed-looking file passes both. No way to load the baseline project/XER",
    "where": "ventures/xer-schedule-check/dcma.mjs:156",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18813"
   },
   {
    "severity": "medium",
@@ -269,6 +270,6 @@
    "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17622"
   }
  ],
- "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17622"],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17622", "https://github.com/Duncan-Haywood/oss-monorepo/pull/18813"],
  "verdict": "A strong P6 reader and CPM engine: on five public XER files my own counter reproduces every DCMA count for points 1-10 exactly, the progressed CCA file's missed tasks, BEI and invalid dates match my independent script, CPLI matches a hand count on and past the must-finish date, and the recomputed early/late dates and float equal P6's stored values on the documented 17,729 of 19,418 activities (100% on four files). The page handles a 30 MB file in 1.5 s with nothing uploaded. It misses the bar on claims, verification and domain: missed tasks and BEI use planned dates that P6 rewrites for every unstarted activity, so overdue unstarted work is invisible (0 of 11,775 on CCA) while the FAQ calls those dates the baseline; n/a points are scored as passes; 7 of 9 seeded threshold and CPM-branch bugs survive the tests; and the README credits unit tests for settings that have none. Finished for what it claims; a PSP would use the activity lists today but not sign the BEI/missed-task numbers."
 }

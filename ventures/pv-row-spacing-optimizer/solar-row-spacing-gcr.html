@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23b8860b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%E2%89%A1%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Solar Row Spacing: the 9-to-3 Rule Against the Money Answer</title>
+  <meta name="description" content="How far apart to put ground-mount solar rows. The winter-solstice 9-to-3 rule, what ground coverage ratio means, and what the rule and clear-sky design cost on two real typical-year weather files, with a worked example.">
+  <meta property="og:title" content="Solar row spacing: the 9-to-3 rule against the money answer">
+  <meta property="og:description" content="On real weather, the 9-to-3 rule added $0.26/MWh at 36° N and $7.21/MWh at 55° N over the cheapest spacing.">
+  <link rel="canonical" href="./solar-row-spacing-gcr.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What GCR should a fixed-tilt solar plant use?", "acceptedAnswer": {"@type": "Answer", "text": "There is no single number: it is where the energy the next step of spacing saves from shade is worth less than the land it takes. On the two real weather files tested here, the cheapest fixed layouts were GCR 0.40 at 36 degrees north and 0.24 at 55 degrees north, with the page's default costs."}}, {"@type": "Question", "name": "Does the 9-to-3 rule pack rows too tight or too loose?", "acceptedAnswer": {"@type": "Answer", "text": "Either, depending on the site. In the clear-sky Albuquerque example it packs rows slightly tighter than the best layout; at 55 degrees north it spreads them nearly three times farther apart than the cheapest layout."}}, {"@type": "Question", "name": "Why not design on clear-sky weather?", "acceptedAnswer": {"@type": "Answer", "text": "Clear sky has far more direct beam than any real climate, so it overstates the yield (by 41 percent at Greensboro and 94 percent at Sand Point here) and the shading loss. Use a typical-year file for the site."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1d18; background: #f6f4ee; }
+    body { max-width: 860px; margin: auto; padding: 28px; }
+    a { color: #6b4e00; }
+    h1 { font-size: clamp(1.7rem, 4.4vw, 2.5rem); line-height: 1.1; color: #4a3600; }
+    h2 { font-size: 1.2rem; color: #4a3600; margin-top: 28px; }
+    p, li { line-height: 1.6; }
+    .note, footer { font-size: .86rem; color: #5a5446; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: .92rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e2dccb; vertical-align: top; }
+    th { font-size: .76rem; text-transform: uppercase; letter-spacing: .03em; color: #5a5446; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    footer { margin-top: 28px; border-top: 1px solid #e2dccb; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+<main>
+  <p class="note"><a href="./">PV Row Spacing Optimizer</a> · Guide</p>
+  <h1>Solar row spacing: the 9-to-3 rule against the money answer</h1>
+  <p>Every ground-mount solar plant has to answer one question early: how far apart do the rows go? Too close and the rows shade each other on winter mornings; too far and you lease land, run cable and build fence for spacing that earns nothing. This guide explains the usual rule, what it leaves out, and what it cost on two real weather files.</p>
+
+  <h2>Ground coverage ratio in one line</h2>
+  <p><strong>GCR = table width / row pitch.</strong> The table width is the slant width of a row of modules (two modules in portrait is about 4 m); the pitch is the distance from one row to the same point on the next. A GCR of 0.4 with 4 m tables is a 10 m pitch. Fixed-tilt plants are commonly built between about 0.3 and 0.5, trackers between about 0.3 and 0.4.</p>
+
+  <h2>The 9-to-3 rule</h2>
+  <p>The usual starting point: space the rows so that no row shades the next between 9:00 and 15:00 solar time on the winter solstice, the day the sun is lowest. It is easy to compute and it is safe. But it ignores everything that decides whether a spacing pays: the price of land, the value of the energy, how much of the year's light is diffuse rather than direct, and the electrical effect of a shadow on a module's bypass-diode substrings. It also treats every latitude the same, and at high latitudes the winter sun at 9:00 is so low that the rule spreads rows very far apart.</p>
+
+  <h2>A worked example</h2>
+  <p>The tool's example site: 40 acres near Albuquerque, NM (35.0° N), a clear sky every day, 4 m fixed tables with 2 electrical bands, modules 21% efficient, installed at $1.00/W, energy worth $50/MWh, land leased at $800 per acre a year, 7% discount rate over 30 years. Searching every tilt from 0° to 40° and every GCR from 0.20 to 0.70:</p>
+  <ul>
+    <li>The best fixed layout is <strong>28° at GCR 0.46</strong>: a 8.7 m pitch, 5.2 m clear between rows, 2117 kWh/kWp a year with 0.74% lost to the rows, net present value <strong>$498,686</strong>.</li>
+    <li>The 9-to-3 rule at the same tilt gives GCR 0.51 (a 7.9 m pitch). It fits more capacity on the 40 acres, but loses 1.45% to the rows, and its net present value is <strong>$459,665</strong>, $39,021 less.</li>
+    <li>A backtracking single-axis tracker at GCR 0.39 (6.2 m pitch, $0.10/W more) is worth <strong>$2,109,066</strong> on the same land: at this sunny, clear-sky site trackers win by far.</li>
+  </ul>
+  <p>Here the rule packs rows tighter than the money answer; at a high-latitude site it does the opposite. Clear sky every day overstates the yield and the shading loss, which is why the tool takes a real weather file.</p>
+
+  <h2>On real weather</h2>
+  <p>We ran the same defaults on the two NREL TMY3 typical-year files that ship with the open-source pvlib library, and ranked layouts by cost per MWh over the life (the land is sunk at a fixed site, so this is the ranking that does not depend on the energy price; at these defaults neither site pays at $50/MWh). "Added" is how much more each MWh costs than at the cheapest spacing.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Site</th><th class="n">Cheapest fixed</th><th class="n">$/MWh</th><th class="n">9-to-3 GCR</th><th class="n">Added</th><th class="n">Clear-sky pick</th><th class="n">Added</th><th class="n">Clear-sky vs real yield</th><th class="n">Tracker GCR, $/MWh</th></tr></thead>
+    <tbody>
+      <tr><td>Greensboro, NC (36.1° N)</td><td class="n">26°, 0.40</td><td class="n">$74.15</td><td class="n">0.509</td><td class="n">+$0.26</td><td class="n">32°, 0.44</td><td class="n">+$0.31</td><td class="n">1958 vs 1391</td><td class="n">0.25, $71.69</td></tr>
+      <tr><td>Sand Point, AK (55.3° N)</td><td class="n">36°, 0.24</td><td class="n">$124.00</td><td class="n">0.088</td><td class="n">+$7.21</td><td class="n">40°, 0.23</td><td class="n">+$0.16</td><td class="n">1639 vs 847</td><td class="n">0.21, $126.32</td></tr>
+    </tbody>
+  </table></div>
+  <ul>
+    <li><strong>At 36° N the rule is close:</strong> it costs $0.26 more per MWh (0.35%). A design done on clear-sky weather picks a steeper tilt and costs $0.31 more, and promises 41% more energy than the typical year delivers.</li>
+    <li><strong>At 55° N the rule is expensive:</strong> GCR 0.088 against 0.24 for the cheapest layout, nearly three times the pitch, and $7.21 more per MWh (5.8%). The winter sun at 9:00 is about 2° above the horizon there; spacing rows for it buys almost nothing.</li>
+    <li>Trackers beat fixed tilt in Greensboro ($71.69 against $74.15) and lose in Sand Point ($126.32 against $124.00), where there is little direct sun to follow.</li>
+  </ul>
+  <p class="note">Two files are not a survey: they are the two that could be run from the build machine (the PVGIS and NSRDB services were not reachable). The script and its output are in the repository (<code>check/tmy3_measure.mjs</code>, <code>check/tmy3_results.json</code>). Try your own site with a free PVGIS or NSRDB file in <a href="./">the tool</a>.</p>
+
+  <h2>What the model leaves out</h2>
+  <p>Long rows on flat ground, no horizon, no bifacial rear-side gain, no snow, no inverter clipping, and racking and cable costs that do not change with spacing. It is a screening model for choosing a spacing and tilt to take into detailed design, not a replacement for it.</p>
+  <h2>Questions</h2>
+  <h3>What GCR should a fixed-tilt solar plant use?</h3>
+  <p>There is no single number: it is where the energy the next step of spacing saves from shade is worth less than the land it takes. On the two real weather files tested here, the cheapest fixed layouts were GCR 0.40 at 36 degrees north and 0.24 at 55 degrees north, with the page's default costs.</p>
+  <h3>Does the 9-to-3 rule pack rows too tight or too loose?</h3>
+  <p>Either, depending on the site. In the clear-sky Albuquerque example it packs rows slightly tighter than the best layout; at 55 degrees north it spreads them nearly three times farther apart than the cheapest layout.</p>
+  <h3>Why not design on clear-sky weather?</h3>
+  <p>Clear sky has far more direct beam than any real climate, so it overstates the yield (by 41 percent at Greensboro and 94 percent at Sand Point here) and the shading loss. Use a typical-year file for the site.</p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This guide and tool are provided free and as-is, without warranty of any kind. They are not engineering, electrical, financial, legal or code-compliance advice, and they do not replace a qualified professional, detailed design software or the module and racking makers' guidance. Results are estimates from a simplified model. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
+  <p><strong>Independent.</strong> Not affiliated with any module, racking or tracker manufacturer, software vendor, utility or data provider, and no product is named or ranked here.</p>
+  <p class="support">Free to use and source available. The <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
+</footer>
+</body>
+</html>

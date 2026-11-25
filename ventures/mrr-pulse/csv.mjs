@@ -22,6 +22,7 @@ export function parseCsv(text) {
 const norm = (h) => String(h).toLowerCase().replace(/\(.*?\)/g, "").replace(/[^a-z0-9]+/g, " ").trim();
 const ALIASES = {
   id: ["id", "subscription id", "subscription"],
+  customer: ["customer id", "customer", "customer email"],
   status: ["status"],
   amount: ["amount", "plan amount", "price", "unit amount"],
   interval: ["interval", "plan interval", "billing interval"],
@@ -102,7 +103,7 @@ export function subsFromCsv(text) {
     const status = rawStatus ? (rawStatus === "cancelled" ? "canceled" : rawStatus) : endedAt ? "canceled" : "active";
     if (!STATUSES.has(status)) return skipped.push({ line: i + 2, why: `unknown status "${get("status")}"` });
     if (status === "canceled" && endedAt === null) return skipped.push({ line: i + 2, why: "canceled with no end date" });
-    const sub = { id: get("id") || `row${i + 2}`, mrr, status, created, endedAt: status === "canceled" ? endedAt : null, trialEnd: toMs(get("trialEnd")), currency };
+    const sub = { id: get("id") || `row${i + 2}`, customer: get("customer") || null, mrr, status, created, endedAt: status === "canceled" ? endedAt : null, trialEnd: toMs(get("trialEnd")), currency };
     // A repeated id is another price line of the same subscription (an export
     // or a hand-made sheet with one row per item): add its MRR to the first
     // row's. Keyed maps downstream kept only the last line, so the headline
@@ -110,7 +111,7 @@ export function subsFromCsv(text) {
     // A repeat that disagrees on dates, status or currency cannot be merged.
     const first = byId.get(sub.id);
     if (first) {
-      if (["status", "created", "endedAt", "trialEnd", "currency"].some((k) => first[k] !== sub[k])) return skipped.push({ line: i + 2, why: `repeats subscription ${sub.id} with a different start, end, trial, status or currency` });
+      if (["status", "created", "endedAt", "trialEnd", "currency", "customer"].some((k) => first[k] !== sub[k])) return skipped.push({ line: i + 2, why: `repeats subscription ${sub.id} with a different start, end, trial, status, currency or customer` });
       first.mrr += sub.mrr;
       return;
     }

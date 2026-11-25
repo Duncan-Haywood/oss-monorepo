@@ -20,4 +20,4 @@ wage-and-hour, tax, insurance or Medicaid billing advice. It does not model
 minimum-shift rules, turnover, benefits or program rate floors. Unverified against a
 real agency's books: tested on hand-calculated examples.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

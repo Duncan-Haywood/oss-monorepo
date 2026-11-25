@@ -200,35 +200,40 @@
    "what": "The drafted pattern contradicts the measurement spec the tech pack sends the factory: tee sleeve length is 22 cm in every size (spec 19..24, graded +1 per size), across-shoulder is 1.1-2.4 cm wider than spec in S-XXL (tolerance 0.8), and neck width grades 15.1-22.3 cm while the spec holds 18 in every size (tolerance 0.5). A sample sewn from the DXF fails the studio's own spec in 5 of 6 sizes.",
    "where": "ventures/clothing-design-studio/pattern.mjs:188",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18388"
   },
   {
    "severity": "medium",
    "what": "Proportional grading: armhole depth (+1.88), shoulder point (+1.8 per half) and neck width (+0.72 per half) all scale with body chest per 8 cm step, about double common grade rules, so large sizes get armholes ~3 cm too deep and shoulders ~4 cm too wide; sleeve length is not graded.",
    "where": "ventures/clothing-design-studio/pattern.mjs:113",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18907"
   },
   {
    "severity": "medium",
    "what": "Garment dimensions are duplicated with different values across modules: sleeve length in pattern.mjs (tee 22, longsleeve 62, hoodie 63), marker.mjs (tee 22, hoodie 62) and tryon.mjs/spec.mjs (tee 21, longsleeve 63, hoodie 64); seam allowance 1.0 in pattern.mjs vs 1.5 in marker.mjs; shoulder and neck from separate ratios in spec.mjs.",
    "where": "ventures/clothing-design-studio/marker.mjs:28",
    "category": "code-craft",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18905"
   },
   {
    "severity": "medium",
    "what": "The tee, long-sleeve and crewneck pattern sets have no neckband or binding piece, although the neck edge carries a 0.6 cm band allowance and the rectangle marker lays a neck band.",
    "where": "ventures/clothing-design-studio/pattern.mjs:367",
    "category": "scope-gap",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18388"
   },
   {
    "severity": "medium",
    "what": "Tests do not pin core ratios: a neck-width change (0.09 -> 0.1), size-run boundaries moved off the midpoints, and dropping body length from the run-cost fabric factor all leave 734 tests green; pattern.test.mjs asserts the ungraded 22 cm sleeve in XS, M and XXL and its comment wrongly says spec.mjs and tryon.mjs agree.",
    "where": "ventures/clothing-design-studio/pattern.test.mjs:37",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18907"
   },
   {
    "severity": "low",
@@ -254,6 +259,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18165"],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/18165", "https://github.com/Duncan-Haywood/oss-monorepo/pull/18388", "https://github.com/Duncan-Haywood/oss-monorepo/pull/18905", "https://github.com/Duncan-Haywood/oss-monorepo/pull/18907"],
  "verdict": "A broad, honest studio whose arithmetic is right: every recomputed costing, fabric, shrinkage, size-run and run-cost number matches by hand, the sleeve cap walks to the armhole plus its 1 cm ease, and allowances sit where they should. 734 tests pass and five of eight seeded bugs are caught. It does not meet the bar because the pattern maker, the piece a technical designer checks first, contradicts the studio's own tech-pack spec: the tee sleeve is 22 cm in every size, and shoulder and neck width fall outside the spec's tolerance in 5 of 6 sizes. The root cause is that the same dimensions are typed separately in pattern.mjs, spec.mjs, tryon.mjs and marker.mjs. On top of that the grade is proportional (armhole and shoulder grow about twice standard increments), there is no neckband piece, and one test locks in the ungraded sleeve. Disclaimers are everywhere, and the unchecked ratios and the from-memory duty rates are disclosed."
 }

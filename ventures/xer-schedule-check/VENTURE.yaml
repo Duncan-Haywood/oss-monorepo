@@ -66,6 +66,15 @@ hypotheses:
     checked: null
     evidence: customer-contact
 
+  - claim: >-
+      Owners' reps and general contractors' schedulers will break the DCMA
+      result down by a responsibility or subcontractor code and download it,
+      because a per-party row is what they can send to the party that must fix
+      it; measured as the share of ribbon_run events among schedule_checked
+      events (local counters only, added 2026-11-24, no reading yet).
+    status: untested
+    checked: null
+    evidence: customer-contact
 economics:
   currency: USD
   mrr: null

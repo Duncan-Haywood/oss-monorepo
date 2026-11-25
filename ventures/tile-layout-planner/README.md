@@ -39,7 +39,7 @@ several tile sizes by box cost and searches brick-bond offsets.
 **Privacy.** Everything runs in your browser; your figures are never uploaded.
 Anonymous feature counts stay in local storage and can be switched off.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.
 
 ## Host your own copy
 

@@ -2,7 +2,7 @@
 
 > Free med spa treatment profit calculator: contribution margin per treatment after product, card fees, provider time and room overhead, ranked by profit per room hour, with the price that hits your target margin. Runs in your browser, nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/med-spa-treatment-profit-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/med-spa-treatment-profit-calculator): FSL-1.1-MIT licensed.

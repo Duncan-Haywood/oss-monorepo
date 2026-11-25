@@ -40,6 +40,6 @@ Open `index.html` through any static server. Tests: `node --test`.
 
 Found by quality audit round 84 ([`2026-11-19-substack-subscriber-export-analyzer.json`](../../portfolio/quality/audits/2026-11-19-substack-subscriber-export-analyzer.json)):
 
-- Paid status is read from `plan`, `first_payment_at` or `type`, never from `active_subscription`. Ghost's Substack importer reads an export with only `email, active_subscription, expiry, email_disabled, created_at`; on a file of that shape this tool shows 0 paid and $0 revenue with no warning. The real export's columns are unconfirmed here.
+- Fixed 2026-11-25: paid status was never read from `active_subscription`, so an export shaped like the one Ghost's Substack importer reads (`email, active_subscription, expiry, email_disabled, created_at`) showed 0 paid. When a file has no `plan` and no `first_payment_at` column, `active_subscription` true (or false with an expiry) now marks a paid or former subscriber, and type `ios_app` counts as paid. Where those columns exist they still decide. The real export's columns remain unconfirmed here.
 - Former subscribers with no expiry date drop out of the retention table, so retention can read 100% next to a 50% churn figure.
 - "Churn" is former over ever-paid across the file's whole life, not a monthly rate.

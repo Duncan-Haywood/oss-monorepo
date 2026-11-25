@@ -87,6 +87,11 @@ M70 = E + "m70_drift/results.txt"
 M71 = E + "m71_allowance/results.txt"
 M72 = E + "m72_rezero/results.txt"
 M73 = E + "m73_randomwalk/results.txt"
+M74 = E + "m74_allocate/results.txt"
+M75 = E + "m75_riskopt/results.txt"
+M76 = E + "m76_closedloop/results.txt"
+M77 = E + "m77_balance/results.txt"
+M78 = E + "m78_augfilter/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -384,6 +389,34 @@ CHECKS = [
     (M73, "LAYOUT 12.80%, BANDS 3.10%", "from 12.8% to 3.10% of the cycle"),
     (M73, "g1 | RW | 0.1 | 46 | 0.313", "at 0.313 s a move"),
     ("experiments/m73_randomwalk/scan.txt", "g1 LAYOUT 1.86e-03 66 0.10975", "the failure is 11.0%"),
+    (M74, "H295 (G1 LAYOUT RW 0.1: LB >= 95): LB 96, DPU 97, DPC 96, CAL 99", "1% wall risk: 96 re-zeros"),
+    (M74, "g1 | LAYOUT | RW | 0.2 | 134 | 145 (0.0098; 0.0097) | 136", "saves at most 149 to 136"),
+    (M74, "worst 0.100, median 0.013", "within 10% of the bound"),
+    (M74, "DPC 23 re-zeros, 2.97%", "it needs 23 (2.97% of the cycle)"),
+    (M75, "g1 | LAYOUT | 0.1 | 99 (0.0000) | 99 (0.0000; 0.0000) | 99 (0.0000; 1.61e-06, 1.61e-06) | 96", "it needs 96 against 99"),
+    (M75, "H305 (OPT fails <= 2% of 4000 fresh Monte Carlo walls): worst 1.20%", "(at most 1.20% failure)"),
+    ("experiments/m75_riskopt/compare_m74.txt", "LB <= OPT on 18 of 18 rows; LB = OPT on 5; DPC's exact failure over 1% on 3", "equal to it on 5"),
+    ("experiments/m75_riskopt/compare_m74.txt", "h1 | LAYOUT | 0.2 | 42 | 44 (44) | 43 (0.0127; 0.0122)", "(up to 1.22%)"),
+    (M75, "largest count change 1,", "(at most one\nre-zero)"),
+    ("experiments/m75_riskopt/scan.txt", "h1 | BEST | 0.1 | 2 (0.0013; 2.57e-04) | 2 | 2 (0.0131)", "up to 1.31%"),
+    ("experiments/m75_riskopt/scan.txt", "h1 | LAYOUT | 0.1 | 10 (0.0071; 4.54e-04) | 10 | 9 (0.0103)", "needs 10 re-zeros, not 9"),
+    (M76, "g1 | LAYOUT | 0.1 | 96 | TRACK | 0.0 (0.00) | 0.0 (0.00) | 49.0 (0.96)", "49 on the G1's LAYOUT plan at 0.1 N"),
+    (M76, "g1 | LAYOUT | 0.1 | 96 | READ | 38.4 (0.84)", "needs 38.4 there"),
+    (M76, "H309 (G1 LAYOUT D1 0.1, better policy at s = 0.02 saves < 20% of OPT): 0.3%", "(95.7 at best)"),
+    (M76, "g1 | BANDS k+0 | 0.1 | READ | 0.02 | 12.42 | 7.4", "9.9 to 12.4%"),
+    (M76, "g1 | LAYOUT | 0.1 | TRACK | 0.02 | 9.89 | 49.0", "9.9 to 12.4%"),
+    (M76, "3.45 s -> held", "worth 3.45 s a\nsheet"),
+    (M77, "H315 (BALANCE mean <= TRACK mean on every row and s): 0 violations", "never worse than TRACK on 90 cases"),
+    (M77, "H317 (median saving over TRACK on the 15 cells where TRACK needs >= 10 is >= 20%): 2.0%", "median of only 2.0%"),
+    (M77, "g1 | LAYOUT | 0.2 | 142 | 0.05 | 116.0 (1.30) | 199.0 (0.00)", "116 against 199"),
+    (M77, "g1 | LAYOUT | 0.1 | 96 | 0.02 | 97.0 (0.76)", "it needs 97"),
+    (M77, "g1 | LAYOUT | 0.1 | 0.02 | 11.89 | 48.0", "fails 11.9% of walls"),
+    (M78, "worst 1.09%, uncalibratable 0", "worst 1.09% on 10,000 fresh walls"),
+    (M78, "g1 | LAYOUT | 0.1 | 96 | 0.01 | 0.02 | 48.0 (1.06) | 48.0 (51.45) | - | 91.0 (1.00) | 67.0 (0.76)",
+     "fails 51.5% of walls there"),
+    (M78, "median excess of AUG+R over m77 BALANCE at beta 0, on the 6 cells where BALANCE needs >= 10, is <= 15%): 7.7%",
+     "learning the error is 7.7%"),
+    (M78, "g1 | LAYOUT | 0.1 | 0.04 | AUG+R | 0.78 | 67.0", "deviation fails 0.78%"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),

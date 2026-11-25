@@ -21,7 +21,7 @@ async function fixture(files) {
   }
   return root;
 }
-const MIT = 'MIT License\n\nCopyright (c) x';
+const MIT = 'Functional Source License\n\nCopyright (c) x';
 const SRC = '#!/usr/bin/env python3\nimport argparse, sys\nfrom pathlib import Path\n\ndef main(argv=None):\n    return 0\n\nif __name__ == "__main__":\n    sys.exit(main())\n';
 const venture = (name, over = {}) => ({
   [`ventures/${name}/check.py`]: SRC,
@@ -145,4 +145,20 @@ test('an unexpected registry status stops the run rather than guessing', async (
   const { files, slugs } = many(1);
   const root = await fixture(files);
   await assert.rejects(run({ env: {}, root, fetchImpl: async () => ({ status: 503 }), log() {}, ...listed(slugs) }), /HTTP 503/);
+});
+
+test('PYPI_DIST_DIR goes live without a token and builds into that directory (OIDC upload)', async () => {
+  const { files, slugs } = many(2);
+  const root = await fixture(files);
+  const dist = path.join(await fs.mkdtemp(path.join(os.tmpdir(), 'pypidist-')), 'dist');
+  const logs = [];
+  const done = [];
+  const publish = async (dir) => { done.push(dir); };
+  const r = await run({ env: { DISTRIBUTE_PYPI: 'true', PYPI_DIST_DIR: dist }, root, fetchImpl: async () => ({ status: 404 }), log: (l) => logs.push(l), publish, ...listed(slugs) });
+  assert.equal(r.published, 2);
+  assert.equal(done.length, 2);
+  assert.ok((await fs.stat(dist)).isDirectory());
+  assert.ok(logs.some((l) => /built t00-check==0\.1\.0 into .*dist for upload/.test(l)));
+  const off = await run({ env: { PYPI_DIST_DIR: dist }, root, fetchImpl: async () => ({ status: 404 }), log() {}, publish: async () => assert.fail('switch is off'), ...listed(slugs) });
+  assert.equal(off.published, 0);
 });

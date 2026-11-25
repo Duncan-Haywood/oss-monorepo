@@ -22,8 +22,8 @@ const NAMED_ENTITIES = { lt: '<', gt: '>', quot: '"', apos: "'" };
 
 function decodeEntities(value) {
   return String(value)
-    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
-    .replace(/&#(\d+);/g, (_, dec) => String.fromCodePoint(Number(dec)))
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => codePointOr(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, dec) => codePointOr(Number(dec)))
     .replace(/&(lt|gt|quot|apos);/g, (_, name) => NAMED_ENTITIES[name])
     .replace(/&amp;/g, '&');
 }
@@ -122,3 +122,7 @@ export function isAbsoluteHttpUrl(value) {
     return false;
   }
 }
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }

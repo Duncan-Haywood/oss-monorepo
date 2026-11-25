@@ -2,7 +2,7 @@
 
 > Free online item response theory (IRT) tool. Give right/wrong answers (or raw A-E answers with a key row) and get each question's difficulty and discrimination with standard errors from the 1PL (Rasch) and 2PL models fitted by marginal maximum likelihood (Bock & Aitkin 1981), a likelihood-ratio test and BIC to choose between them, S-X2 item fit (Orlando & Thissen 2000), a distractor table that flags wrong answers chosen by stronger students than the key, the test information curve, marginal reliability, EAP ability scores (Bock & Mislevy 1982) and a number-right to ability table (Lord & Wingersky 1984; Thissen et al. 1995). Reproduces the R package ltm's published LSAT estimates and standard errors to every printed digit; on mirt's SAT12 data it flags the question whose key mirt's documentation says is wrong. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). A statistical estimate, not a substitute for a psychometrician's review of a high-stakes test. Right/wrong items, one dimension, 20 to 20,000 people, up to 100 questions.
+Free to use and source available (FSL-1.1-MIT). A statistical estimate, not a substitute for a psychometrician's review of a high-stakes test. Right/wrong items, one dimension, 20 to 20,000 people, up to 100 questions.
 
 ## Pages
 
@@ -26,4 +26,4 @@ Free and open source (MIT). A statistical estimate, not a substitute for a psych
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/item-response-theory): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/item-response-theory): FSL-1.1-MIT licensed.

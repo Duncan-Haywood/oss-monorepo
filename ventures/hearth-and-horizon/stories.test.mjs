@@ -210,3 +210,14 @@ test('every story page title fits a search result, keeping the longest descripti
   assert.equal(storyTitle({ title: 'Kevin and the Blackbird' }, lamps, true), 'Kevin and the Blackbird: a Catholic bedtime story (text and audio)');
   assert.equal(storyTitle({ title: 'Isidore and the Angels Who Ploughed' }, lamps, true), 'Isidore and the Angels Who Ploughed: a Catholic bedtime story');
 });
+
+test('a story page meta description fits 160 characters, cut on a word with an ellipsis', async () => {
+  const { metaDescription } = await import('./stories.mjs');
+  assert.equal(metaDescription('Short.'), 'Short.');
+  const long = 'A seventeen-year-old runs a coin stall at a Flemish parish fête, €5 a go, the prize doubling with every toss until the king comes up, capped at the €128 in the float tin.';
+  const d = metaDescription(long);
+  assert.ok(d.length <= 160, `${d.length}`);
+  assert.ok(d.endsWith('…'));
+  assert.ok(long.startsWith(d.slice(0, -1)));
+  assert.ok(!/[ ,]…$/.test(d));
+});

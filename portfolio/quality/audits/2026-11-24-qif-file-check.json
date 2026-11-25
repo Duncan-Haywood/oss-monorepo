@@ -1,0 +1,268 @@
+{
+ "date": "2026-11-24",
+ "subject": "ventures/qif-file-check",
+ "stratum": "venture",
+ "seed": "2026-11-24-c816",
+ "drawn_by": "reaudit",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "prior_audit": "portfolio/quality/audits/2026-11-13-qif-file-check.json",
+ "professional": "a bookkeeper who migrates small-business clients off Quicken into QuickBooks/Xero and repairs bank QIF downloads; first checks: does a full Quicken export (account list, category list, AutoSwitch) pass clean, are investment records judged by investment rules, is the date order only ever proven never guessed, do splits balance to the cent, and is every repair disclosed by line",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 3,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Probe script (scratchpad chk.mjs, node) run on the code as found. A full Quicken export written by hand from the QIF layout (!Option:AutoSwitch, !Account list of two TBank accounts, !Clear:AutoSwitch, !Type:Cat with N/D/E/I records, !Account header, !Type:Bank with one transaction): 0 errors, 0 warnings, 1 transaction (was 10 errors, 5 warnings, 6 transactions on 2026-11-13). 02/30/2024 in a file proven month-first by 01/13/2024: 'Impossible date' error (2024 February has 29 days). Split -60.00 + -39.96 = -99.96 against T-100.00: 'Split amounts do not add up' (4 cents off; the prior audit had this passing under a dime-level comparison). Repair of 13/01/2024 and 14/01/2024 with convertDates mdy: both rewritten to 01/13/2024 and 01/14/2024 as computed by hand. Wrong on arrival: a !Type:Invst ShrsIn record with Q and I and no T gave 'Record has no amount (T)' (QIF investment layout: share movements carry no cash amount), and every Invst record warned 'No payee or memo' though the security was in Y. The bank and card path, the tool's main job, is right; the investment false errors are a medium defect on a type the page lists as accepted.",
+  "completeness": "Page claims checked end to end: !Type header check, missing ^ (found and added), mixed and unproven date order, non-plain amounts rewritten, split balance, repeat detection, OFX detection, CSV of findings, repair download. All worked in the 34 tests and the probe. AutoSwitch multi-account exports now parse (prior high defect closed). No stubs or TODOs in calc.mjs.",
+  "verification": "node --test '*.test.mjs' in ventures/qif-file-check: 34 pass, 0 fail on arrival. Six seeded mutations via platform/ci/quality_mutate.py: month-first proof threshold (d.a > 12 -> > 13) caught; calendar check (getUTCDate === da -> da <= 31) caught; Account dropped from LIST_TYPES caught; split comparison in dimes survived; two-digit-year pivot 70 -> 50 survived; payee dropped from the duplicate key survived. Three of the four survivors the 2026-11-13 audit named still survived. After this session's tests (41 pass) all three and a new Invst mutant are caught.",
+  "craft": "calc.mjs (276 lines) read in full: pure functions, list sections separated in parseQif with a named LIST_TYPES set, realDay() uses Date.UTC round-trip correctly, the CSV export guards formula injection. Minor: validate is one 90-line loop; the 'plain US thousands' regex is repeated in validate and repair.",
+  "claims": "index.html 'Never guessed: ... a garbled amount': now true ('l2.50' and 'DR12.50' return null). index.html FAQ and JSON-LD 'Every change is listed with the line it was made on': false for dates, repair() reported date rewrites as one count with no line numbers (prior defect 6, still open). llms.txt line 5 'Results are estimates from the numbers typed in': boilerplate that does not describe a file checker (still open). README known gaps listed calendar dates and split precision as open after both were fixed (stale). Served copy built with node platform/pages/served-copy.mjs qif-file-check: no placeholder or retired origin.",
+  "fitness": "Walked the bookkeeper's job: drop a client's full Quicken export, read the findings, download the repaired file, set the importer's date order from the proven order. Works for bank, card and cash accounts. A client with a brokerage account got false errors on every share transfer, which the user must learn to ignore.",
+  "domain": "Compared with the QIF layout Quicken documents (section headers, one-letter field codes, investment fields N action, Y security, I price, Q quantity, O commission, T amount). Bank rules and list-section handling match. Investment records were judged by bank rules (no action or security checks, T required on share movements). The /-year pivot at 70 departs from Quicken's own apostrophe-for-2000s convention but is disclosed now."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "full Quicken export with !Account and !Type:Cat lists, one bank transaction",
+   "method": "QIF layout as Quicken writes it (list sections, AutoSwitch), file written by hand",
+   "command": "node scratchpad/chk.mjs (D0)",
+   "expected": "0 errors, 1 transaction",
+   "observed": "0 errors, 0 warnings, 1 transaction",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "02/30/2024 in a month-first file",
+   "method": "Gregorian calendar: February 2024 has 29 days",
+   "command": "node scratchpad/chk.mjs (D4)",
+   "expected": "Impossible date error",
+   "observed": "error: Impossible date @ line 2",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "split -60.00 + -39.96 against T-100.00",
+   "method": "hand sum: -99.96, 4 cents short",
+   "command": "node scratchpad/chk.mjs (split4c)",
+   "expected": "split error",
+   "observed": "error: Split amounts do not add up to the total",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "repair 13/01/2024 and 14/01/2024 to MM/DD/YYYY",
+   "method": "by hand: day-first proven by day 13, so 01/13/2024 and 01/14/2024",
+   "command": "node scratchpad/chk.mjs (D6 repair)",
+   "expected": "2 dates rewritten as 01/13/2024, 01/14/2024",
+   "observed": "2 dates rewritten, proven by the file",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Invst ShrsIn with Q and I, no T",
+   "method": "QIF investment layout: ShrsIn moves shares, no cash",
+   "command": "node scratchpad/chk.mjs (D2)",
+   "expected": "no error",
+   "observed": "error: Record has no amount (T); warning: No payee or memo (x2)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "stray letters before an amount: 'l2.50', 'DR12.50'; real currency codes 'USD 12.50', '12.50 EUR'",
+   "method": "page claim 'a garbled amount is never guessed'; ISO 4217 codes",
+   "command": "node scratchpad/chk.mjs (D1)",
+   "expected": "null, null, 12.50, 12.50",
+   "observed": "null, null, 12.50, 12.50",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite on arrival",
+   "method": "run",
+   "command": "cd ventures/qif-file-check && node --test '*.test.mjs'",
+   "expected": "green",
+   "observed": "34 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Every change is listed with the line it was made on' (index.html FAQ, JSON-LD)",
+   "method": "repair() output read",
+   "command": "node scratchpad/chk.mjs (D6 repair)",
+   "expected": "a line number per rewritten date",
+   "observed": "'2 dates rewritten as MM/DD/YYYY ...' with no lines",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "llms.txt describes the tool",
+   "method": "read ventures/qif-file-check/llms.txt:5",
+   "command": "sed -n 5p ventures/qif-file-check/llms.txt",
+   "expected": "a description of a file checker",
+   "observed": "'Results are estimates from the numbers typed in'",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README test command",
+   "method": "run as written",
+   "command": "cd ventures/qif-file-check && node --test '*.test.mjs'",
+   "expected": "runs",
+   "observed": "34 pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "served copy has no stale origins",
+   "method": "deploy rewrite",
+   "command": "node platform/pages/served-copy.mjs qif-file-check",
+   "expected": "clean",
+   "observed": "no placeholder or retired origin",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:164",
+   "change": "cents(sum) !== cents(amt) -> compare in dimes",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs repair-fuzz.test.mjs"
+  },
+  {
+   "where": "calc.mjs:89",
+   "change": "d.a > 12 -> d.a > 13 (day-first proof)",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs repair-fuzz.test.mjs"
+  },
+  {
+   "where": "calc.mjs:77",
+   "change": "y < 70 -> y < 50 (two-digit-year pivot)",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs repair-fuzz.test.mjs"
+  },
+  {
+   "where": "calc.mjs:169",
+   "change": "payee dropped from the duplicate key",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs repair-fuzz.test.mjs"
+  },
+  {
+   "where": "calc.mjs:107",
+   "change": "calendar round-trip -> da <= 31",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs repair-fuzz.test.mjs"
+  },
+  {
+   "where": "calc.mjs:45",
+   "change": "\"account\" dropped from LIST_TYPES",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs page.test.mjs repair-fuzz.test.mjs"
+  }
+ ],
+ "prior_defects": [
+  {
+   "index": 0,
+   "severity": "high",
+   "basis": "assumed",
+   "status": "closed",
+   "what": "full Quicken export with list sections reported broken: now 0 errors, 1 transaction (parseQif LIST_TYPES)"
+  },
+  {
+   "index": 1,
+   "severity": "medium",
+   "basis": "assumed",
+   "status": "closed",
+   "what": "stray letters stripped from amounts: 'l2.50' and 'DR12.50' now return null"
+  },
+  {
+   "index": 2,
+   "severity": "medium",
+   "basis": "assumed",
+   "status": "open",
+   "what": "Invst records checked with bank rules: ShrsIn without T still an error, 'No payee or memo' on every Invst record",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18517"
+  },
+  {
+   "index": 3,
+   "severity": "medium",
+   "basis": "assumed",
+   "status": "partial",
+   "what": "seeded mutants survive: month-first threshold now caught, split precision, year pivot and payee key still survive; no Invst test",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18517"
+  },
+  {
+   "index": 4,
+   "severity": "low",
+   "basis": "assumed",
+   "status": "closed",
+   "what": "02/30/2024 now an Impossible date error (realDay)"
+  },
+  {
+   "index": 5,
+   "severity": "low",
+   "basis": "assumed",
+   "status": "closed",
+   "what": "README test command now cd ... && node --test '*.test.mjs', which runs"
+  },
+  {
+   "index": 6,
+   "severity": "low",
+   "basis": "assumed",
+   "status": "open",
+   "what": "date rewrites reported as one count with no lines; llms.txt boilerplate 'estimates from the numbers typed in'",
+   "closed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18517"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Investment records judged by bank rules: a ShrsIn/ShrsOut with no T is an error and every Invst record warns 'No payee or memo' though the security is in Y; no check of the N action or Y security (carried over from 2026-11-13 defect 2).",
+   "where": "ventures/qif-file-check/calc.mjs:150",
+   "category": "scope-gap",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18517"
+  },
+  {
+   "severity": "medium",
+   "what": "Three seeded mutants survive 34 tests: split comparison in dimes, two-digit-year pivot 70 -> 50, payee dropped from the duplicate key (carried over from 2026-11-13 defect 3; the threshold mutant is now caught).",
+   "where": "ventures/qif-file-check/calc.test.mjs:1",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18517"
+  },
+  {
+   "severity": "low",
+   "what": "Page and JSON-LD say 'Every change is listed with the line it was made on'; date rewrites were one count with no line numbers (carried over from 2026-11-13 defect 6).",
+   "where": "ventures/qif-file-check/calc.mjs:230",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18517"
+  },
+  {
+   "severity": "low",
+   "what": "llms.txt says 'Results are estimates from the numbers typed in', generator boilerplate that does not describe a file checker (carried over from 2026-11-13 defect 6).",
+   "where": "ventures/qif-file-check/llms.txt:5",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18517"
+  },
+  {
+   "severity": "low",
+   "what": "README known gaps listed calendar dates and split precision as open after both were fixed.",
+   "where": "ventures/qif-file-check/README.md:24",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18517"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/18517"
+ ],
+ "verdict": "Of the seven defects the 2026-11-13 audit recorded, four are closed (the high one among them: a full Quicken export with account and category lists now passes clean, 0 errors on one transaction where it gave 10), one is partly closed (one of four named surviving mutants is now caught) and two were still open on arrival: investment records judged by bank rules, and date rewrites reported without line numbers against the page's 'every change listed with its line'. All seven were counted fixed only by the blanket fix_prs reading. Bank, card and cash checks recomputed right on four of four hand checks. It does not meet the bar on arrival: verification 2 (three of six mutants survive) and claims 2. This session's PR adds investment rules (action, security, T only on cash actions), lists every rewritten date by line, rewrites llms.txt, and adds seven tests that kill all three survivors and an investment mutant; a later audit should re-score."
+}

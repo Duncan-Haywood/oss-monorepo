@@ -1,0 +1,38 @@
+Primary, manufacturer make, n 144, noise x1 (bars H1-H4): 500 draws; warning fires in 262 (52%)
+  on fired draws: full composite F1 0.847 (false 0.202 a draw), without the heavy column 0.926 (false 0.294); remedy - full +0.078, wins 139, losses 51, p 1.29e-10
+  all draws: full composite F1 0.883, followed 0.924 (+0.041)
+  fire rate by employees lag: 0: 4% of 73, 1: 21% of 73, 2: 67% of 67, 3: 92% of 86, 4: 93% of 68, 5: 95% of 59, -1: 1% of 74; lag >= 3 93%, lag <= 1 9%
+
+Guard, shop make (H4): 500 draws; warning fires in 329 (66%)
+  on fired draws: full composite F1 0.940 (false 0.058 a draw), without the heavy column 0.957 (false 0.119); remedy - full +0.017, wins 67, losses 41, p 1.57e-2
+  all draws: full composite F1 0.933, followed 0.944 (+0.011)
+Guard, saas make (H4): 500 draws; warning fires in 464 (93%)
+  on fired draws: full composite F1 0.848 (false 0.071 a draw), without the heavy column 0.909 (false 0.056); remedy - full +0.061, wins 170, losses 57, p 3.04e-14
+  all draws: full composite F1 0.832, followed 0.889 (+0.056)
+Guard, agency make (H4): 500 draws; warning fires in 473 (95%)
+  on fired draws: full composite F1 0.712 (false 0.148 a draw), without the heavy column 0.919 (false 0.209); remedy - full +0.206, wins 392, losses 28, p 2.93e-83
+  all draws: full composite F1 0.709, followed 0.904 (+0.195)
+
+FRED composite arm A (PAYEMS, W875RX1, INDPRO, CMRMTSPL) (H5): heaviest PAYEMS weight 0.541, relative lags 0, 0, 0, -1; warning quiet; full composite 16/16, false 0
+
+Bars:
+  H1 PASS, H2 PASS, H3 PASS, H4 PASS, H5 PASS
+Decision: the warning ships on --turns --columns.
+
+Printed, no bar:
+Manufacturer make, n 144, noise x0.5: 500 draws; warning fires in 280 (56%)
+  on fired draws: full composite F1 0.913 (false 0.111 a draw), without the heavy column 0.968 (false 0.093); remedy - full +0.055, wins 104, losses 24, p 4.58e-13
+  all draws: full composite F1 0.935, followed 0.965 (+0.031)
+  fire rate by employees lag: 0: 1% of 73, 1: 10% of 73, 2: 90% of 67, 3: 100% of 86, 4: 99% of 68, 5: 100% of 59, -1: 0% of 74; lag >= 3 100%, lag <= 1 4%
+Manufacturer make, n 144, noise x2: 500 draws; warning fires in 200 (40%)
+  on fired draws: full composite F1 0.737 (false 0.650 a draw), without the heavy column 0.785 (false 1.650); remedy - full +0.048, wins 107, losses 79, p 4.74e-2
+  all draws: full composite F1 0.783, followed 0.802 (+0.019)
+  fire rate by employees lag: 0: 8% of 73, 1: 26% of 73, 2: 43% of 67, 3: 63% of 86, 4: 71% of 68, 5: 73% of 59, -1: 1% of 74; lag >= 3 68%, lag <= 1 12%
+Manufacturer make, n 96, noise x1: 500 draws; warning fires in 255 (51%)
+  on fired draws: full composite F1 0.819 (false 0.149 a draw), without the heavy column 0.929 (false 0.165); remedy - full +0.110, wins 125, losses 24, p 1.13e-17
+  all draws: full composite F1 0.856, followed 0.912 (+0.056)
+  fire rate by employees lag: 0: 3% of 76, 1: 21% of 68, 2: 56% of 78, 3: 83% of 76, 4: 89% of 74, 5: 93% of 71, -1: 0% of 57; lag >= 3 88%, lag <= 1 8%
+Manufacturer make, n 240, noise x1: 500 draws; warning fires in 279 (56%)
+  on fired draws: full composite F1 0.835 (false 0.305 a draw), without the heavy column 0.929 (false 0.369); remedy - full +0.095, wins 181, losses 46, p 3.99e-20
+  all draws: full composite F1 0.877, followed 0.930 (+0.053)
+  fire rate by employees lag: 0: 1% of 91, 1: 21% of 66, 2: 88% of 67, 3: 96% of 72, 4: 99% of 69, 5: 100% of 68, -1: 0% of 67; lag >= 3 98%, lag <= 1 7%

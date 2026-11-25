@@ -38,5 +38,5 @@ test("the turned drawing shows the back artwork only when turned round", () => {
 test("artwork text is escaped in the turned view", () => {
   let d = newDesign({});
   d = applyOp(d, { op: "add", kind: "text", text: "<script>x</script>", area: "front", method: "screen" });
-  assert.doesNotMatch(renderTurntable(d, 0), /<script>/);
+  assert.doesNotMatch(renderTurntable(d, 0), /<script\b/i);
 });

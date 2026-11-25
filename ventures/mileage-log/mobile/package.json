@@ -2,7 +2,7 @@
   "name": "mileage-log-mobile",
   "version": "0.1.0",
   "private": true,
-  "license": "MIT",
+  "license": "FSL-1.1-MIT",
   "main": "index.js",
   "scripts": {
     "start": "expo start",

@@ -24,6 +24,7 @@ start, common in a fresh cloud clone) it refreshes origin/main once with
 `fetch_ref.py main` and lists again; `--no-fetch` skips that.
 """
 import argparse
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -59,6 +60,23 @@ def changed_files(root=ROOT, git=_git):
     return sorted(n for n in names if n.endswith(".md") and (Path(root) / n).is_file())
 
 
+SLUG = re.compile(r"^(\d{4}-\d{2}-\d{2})-(.+)\.md$")
+
+
+def slug_clashes(posts):
+    """(post, other file) for each post whose slug another file in its folder uses."""
+    out = []
+    for p in posts:
+        m = SLUG.match(Path(p).name)
+        if not m:
+            continue
+        for other in sorted(Path(p).parent.glob(f"*-{m.group(2)}.md")):
+            om = SLUG.match(other.name)
+            if om and om.group(2) == m.group(2) and other.name != Path(p).name:
+                out.append((p, other.name))
+    return out
+
+
 def run(files, root=ROOT, strict=False, out=print, fix=False):
     if not files:
         out("check_posts: no post or report differs from origin/main; nothing to check")
@@ -86,6 +104,17 @@ def run(files, root=ROOT, strict=False, out=print, fix=False):
             out(f"{Path(path).name}: broken link {target}")
         out(f"{len(broken)} broken relative link(s)")
         bad += bool(broken)
+
+        # Why: writing.mjs refuses two posts with one slug (the name after its
+        # date), and that surfaced only in portfolio-pages' build, as 173 test
+        # errors (2026-11-24 run record: a 2026-11-24 post reused a 2026-11-19
+        # slug, and this check had passed it).
+        out("== slugs (the name after the date; one URL per post)")
+        clash = slug_clashes(posts)
+        for path, other in clash:
+            out(f"{Path(path).name}: slug already used by {other}; rename the file")
+        out(f"{len(clash)} slug clash(es)")
+        bad += bool(clash)
 
         out("== near-copies of other posts (judge these; a series may share its frame)")
         args = ["--root", str(root), *posts] + (["--fail"] if strict else [])

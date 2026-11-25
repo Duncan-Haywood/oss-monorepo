@@ -733,7 +733,7 @@ def to_checker_invoice(document: dict[str, Any]) -> dict[str, Any]:
     if payment_src.get("account"):
         payment["iban"] = payment_src["account"]
     if payment_src.get("means_code"):
-        payment["means_code"] = payment_src["means_code"]
+        payment["means"] = payment_src["means_code"]
     if payment_src.get("remittance"):
         payment["remittance"] = payment_src["remittance"]
     if payment_src.get("terms_days"):

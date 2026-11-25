@@ -35,7 +35,7 @@ a proportional-hazards check per term, and Harrell's concordance.
 Citations:
 ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}.${p.doi ? ` doi:${p.doi}` : ""} ${p.url}`).join("\n")}
 
-Statistical output from your data, not medical, legal or financial advice. No warranty. MIT licence.
+Statistical output from your data, not medical, legal or financial advice. No warranty. FSL-1.1-MIT licence.
 Web version: https://marisstella.app/survival-analysis/`;
 
 const FLAGS = { "--time": "time", "--event": "event", "--event-value": "eventValue", "--group": "group", "--reference": "reference", "--covariates": "covariates", "--strata": "strata", "--test": "test", "--ties": "ties", "--confidence": "confidence", "--tau": "tau" };

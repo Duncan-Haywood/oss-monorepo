@@ -343,7 +343,7 @@
     <p>Pricing a lawn care route stop on the same property instead of a tree removal? The <a href="../lawn-care-bid-calculator/">lawn care bid calculator</a> prices turf, beds, edging, travel, and dump &mdash; nothing uploaded.</p>
     <p>Clearing the understory rather than taking down stems? The <a href="../forestry-mulching-bid-calculator/">forestry mulching bid calculator</a> prices a mulching job by acres per machine-hour instead of per tree &mdash; the other half of a lot that has both standing timber and brush.</p>
     <p>Left with stumps after the removal? The <a href="../stump-grinding-price-calculator/">stump grinding price calculator</a> turns stump diameter, wood hardness and grinder speed into a per-stump price and a minimum charge &mdash; nothing uploaded.</p>
-    <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free to use and source available. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">
@@ -407,8 +407,8 @@
         <div class="tree-grid">
           <label for="${id}-name">Label<input class="t-name" id="${id}-name" type="text" value="${escapeHtml(tree.name || '')}" placeholder="e.g. Backyard oak"></label>
           <label for="${id}-species">Species<select class="t-species" id="${id}-species">${optionHtml(SPECIES_PRESETS, tree.species || 'mixed')}</select></label>
-          <label for="${id}-dbh">DBH (inches)<input class="t-dbh" id="${id}-dbh" type="number" min="1" step="1" value="${tree.dbhInches ?? 18}"></label>
-          <label for="${id}-height">Height (feet)<input class="t-height" id="${id}-height" type="number" min="1" step="1" value="${tree.heightFeet ?? 50}"></label>
+          <label for="${id}-dbh">DBH (inches)<input class="t-dbh" id="${id}-dbh" type="number" min="1" step="1" value="${escapeHtml(tree.dbhInches ?? 18)}"></label>
+          <label for="${id}-height">Height (feet)<input class="t-height" id="${id}-height" type="number" min="1" step="1" value="${escapeHtml(tree.heightFeet ?? 50)}"></label>
           <label for="${id}-access">Access<select class="t-access" id="${id}-access">${optionHtml(ACCESS_PRESETS, tree.access || 'street')}</select></label>
           <label for="${id}-haul">Wood / chips<select class="t-haul" id="${id}-haul">${optionHtml(HAUL_PRESETS, tree.haul || 'chip_haul')}</select></label>
         </div>

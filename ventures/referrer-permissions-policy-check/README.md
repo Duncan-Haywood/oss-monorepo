@@ -109,6 +109,6 @@ notice. Do not use it as a system of record.
 
 ## Support
 
-Free and open source under an [MIT licence](LICENSE).
+Free to use and source available under the [FSL-1.1-MIT licence](LICENSE).
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) support is
 entirely optional and never changes what the tool does.

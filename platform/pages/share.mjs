@@ -29,6 +29,7 @@ import { Worker } from 'node:worker_threads';
 
 import { renderCard } from './sharecard.mjs';
 import { servedPath } from './served-path.mjs';
+import { retargetArticleImage } from './article-ld.mjs';
 
 export const PAGE_CARD_FILE = 'share-card.png';
 
@@ -111,7 +112,7 @@ const FOOTERS = {
   research: 'Open research · code, tests and results',
   writing: 'Essays from building in public',
 };
-const DEFAULT_FOOTER = 'Free · open source · MIT licensed';
+const DEFAULT_FOOTER = 'Free · source available · FSL-1.1-MIT';
 
 // Every entity below starts with `&`, so a string without one comes back as
 // it went in, without the fourteen passes; most meta values have none
@@ -121,8 +122,8 @@ const decode = (s) => {
   return str.includes('&') ? decodeEntities(str) : str;
 };
 const decodeEntities = (str) => str
-  .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
-  .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
+  .replace(/&#(\d+);/g, (_, n) => codePointOr(Number(n)))
+  .replace(/&#x([0-9a-f]+);/gi, (_, n) => codePointOr(parseInt(n, 16)))
   .replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>')
   .replace(/&nbsp;/g, ' ').replace(/&mdash;/g, '—').replace(/&ndash;/g, '–').replace(/&rsquo;/g, '’')
   .replace(/&lsquo;/g, '‘').replace(/&ldquo;/g, '“').replace(/&rdquo;/g, '”').replace(/&hellip;/g, '…')
@@ -153,7 +154,7 @@ function metaMatcher(attr, key) {
   const id = `${attr}\0${key}`;
   let test = metaMatchers.get(id);
   if (!test) {
-    test = new RegExp(`\\b${attr}\\s*=\\s*["']${key.replace(/[:]/g, '\\:')}["']`, 'i');
+    test = new RegExp(`\\b${attr}\\s*=\\s*["']${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}["']`, 'i');
     metaMatchers.set(id, test);
   }
   return test;
@@ -189,6 +190,13 @@ function headTitle(html) {
   return decode(/<title>([\s\S]*?)<\/title>/i.exec(head)?.[1] ?? '').replace(/\s+/g, ' ').trim();
 }
 
+// Drop every tag, repeating until none is left, so removing one cannot leave another behind.
+function stripTags(s) {
+  let prev;
+  do { prev = s; s = s.replace(/<[^>]+>/g, ''); } while (s !== prev);
+  return s;
+}
+
 /** The breadcrumb trail's labels, without "Home". */
 export function crumbsOf(html) {
   const start = html.search(/<(?:span|nav)\b[^>]*class="[^"]*\b(?:pfs-crumbs|crumbs)\b/i);
@@ -196,7 +204,7 @@ export function crumbsOf(html) {
   const close = html.indexOf('</nav>', start);
   const slice = html.slice(start, close > -1 ? Math.min(close, start + 4000) : start + 4000);
   return [...slice.matchAll(/<a\b[^>]*>([\s\S]*?)<\/a>/gi)]
-    .map((m) => decode(m[1].replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim())
+    .map((m) => decode(stripTags(m[1])).replace(/\s+/g, ' ').trim())
     .filter((t) => t && !/^home$/i.test(t));
 }
 
@@ -294,7 +302,10 @@ export function completeShareTags(html, { card = '', siteName = 'Maris Stella La
   };
 
   if (card) {
+    const previous = metaContent(next, 'property', 'og:image');
     if (!setContent('property', 'og:image', card)) next = next.replace(/<\/head>/i, `<meta property="og:image" content="${escapeAttr(card)}">\n</head>`);
+    // The Article JSON-LD named the old card (article-ld.mjs); it names this one now.
+    next = retargetArticleImage(next, previous, card);
     // A card drawn for this page has its own alt text.
     const title = metaContent(next, 'property', 'og:title');
     if (title) setContent('property', 'og:image:alt', `${cardTitle(title)} — ${siteName}`);
@@ -634,3 +645,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === new URL(import.meta.url
   });
   console.log(`Drew ${result.cards.length} share card(s); completed share tags on ${result.changed.length} page(s).`);
 }
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }

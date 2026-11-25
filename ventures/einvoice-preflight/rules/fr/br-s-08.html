@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="fr"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BR-S-08: Base imposable au taux normal incohérente avec les lignes</title>
+<meta name="description" content="BR-S-08: Pour chaque taux normal (catégorie S) de la ventilation de TVA, la base imposable (BT-116) doit être égale à la somme des montants nets des lignes à…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/fr/br-s-08">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/br-s-08">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/br-s-08">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/br-s-08">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/br-s-08">
+<meta property="og:title" content="BR-S-08: Base imposable au taux normal incohérente avec les lignes">
+<meta property="og:description" content="BR-S-08: Pour chaque taux normal (catégorie S) de la ventilation de TVA, la base imposable (BT-116) doit être égale à la somme des montants nets des lignes à…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Que signifie BR-S-08 ?","acceptedAnswer":{"@type":"Answer","text":"Pour chaque taux normal (catégorie S) de la ventilation de TVA, la base imposable (BT-116) doit être égale à la somme des montants nets des lignes à ce taux, plus les charges et moins les remises au niveau du document à ce taux. En UBL, la règle tolère un écart inférieur à 1,00 et échoue aussi si aucune ligne, remise ou charge n'utilise ce taux ; en CII, la comparaison est exacte après arrondi de chaque somme à deux décimales."}},{"@type":"Question","name":"Comment corriger BR-S-08 ?","acceptedAnswer":{"@type":"Answer","text":"Regroupez les lignes, remises et charges de catégorie S par taux exact. Pour chaque taux, additionnez les montants nets de ligne (BT-131), ajoutez les charges et retranchez les remises : c'est la base imposable. Créez une entrée de ventilation par taux, avec le même taux que sur les lignes, puis recalculez le montant de TVA et les totaux."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">Règle de facture électronique expliquée · EN 16931</p>
+<h1>BR-S-08: Base imposable au taux normal incohérente avec les lignes</h1>
+<nav class="langs" aria-label="Autres langues"><a href="../en/br-s-08.html" hreflang="en" lang="en">English</a><a href="../de/br-s-08.html" hreflang="de" lang="de">Deutsch</a><a href="index.html">Toutes les règles</a></nav>
+</header>
+<section>
+<h2>Message officiel</h2>
+<blockquote lang="en">For each different value of VAT category rate (BT-119) where the VAT category code (BT-118) is &quot;Standard rated&quot;, the VAT category taxable amount (BT-116) in a VAT breakdown (BG-23) shall equal the sum of Invoice line net amounts (BT-131) plus the sum of document level charge amounts (BT-99) minus the sum of document level allowance amounts (BT-92) where the VAT category code (BT-151, BT-102, BT-95) is &quot;Standard rated&quot; and the VAT rate (BT-152, BT-103, BT-96) equals the VAT category rate (BT-119).</blockquote>
+<dl>
+<dt>Gravité</dt><dd>Erreur (la facture est rejetée)</dd>
+<dt>Vérifiée en</dt><dd>UBL, CII</dd>
+<dt>Termes métier</dt><dd>BT-119, BT-118, BT-116, BG-23, BT-131, BT-99, BT-92, BT-151, BT-102, BT-95, BT-152, BT-103, BT-96</dd>
+</dl>
+</section>
+<section>
+<h2>Que signifie BR-S-08 ?</h2>
+<p>Pour chaque taux normal (catégorie S) de la ventilation de TVA, la base imposable (BT-116) doit être égale à la somme des montants nets des lignes à ce taux, plus les charges et moins les remises au niveau du document à ce taux. En UBL, la règle tolère un écart inférieur à 1,00 et échoue aussi si aucune ligne, remise ou charge n'utilise ce taux ; en CII, la comparaison est exacte après arrondi de chaque somme à deux décimales.</p>
+<h2>Causes fréquentes</h2>
+<ul>
+<li>Une remise ou une charge au niveau du document a été oubliée dans la base imposable, ou comptée deux fois.</li>
+<li>Le taux d'une ligne diffère de celui de la ventilation (par exemple 19 sur les lignes et 16 dans la ventilation), si bien que les lignes ne sont pas comptées.</li>
+<li>Des lignes à des taux normaux différents ont été regroupées dans une seule entrée de ventilation.</li>
+<li>La base a été calculée à partir de montants ou de prix non arrondis au lieu des montants nets de ligne arrondis.</li>
+</ul>
+</section>
+<section>
+<h2>Comment corriger BR-S-08 ?</h2>
+<ol>
+<li>Regroupez les lignes, remises et charges de catégorie S par taux exact.</li>
+<li>Pour chaque taux, additionnez les montants nets de ligne (BT-131), ajoutez les charges et retranchez les remises : c'est la base imposable.</li>
+<li>Créez une entrée de ventilation par taux, avec le même taux que sur les lignes, puis recalculez le montant de TVA et les totaux.</li>
+</ol>
+<h2>XML corrigé (exemple minimal rédigé par nous)</h2>
+<p><strong>UBL</strong></p>
+<pre><code>&lt;!-- Lines at S 19%: 100.00 + 50.00 = 150.00; 150.00 + 10.00 charge - 20.00 allowance = 140.00 --&gt;
+&lt;cac:AllowanceCharge&gt;
+  &lt;cbc:ChargeIndicator&gt;true&lt;/cbc:ChargeIndicator&gt;
+  &lt;cbc:AllowanceChargeReason&gt;Freight&lt;/cbc:AllowanceChargeReason&gt;
+  &lt;cbc:Amount currencyID=&quot;EUR&quot;&gt;10.00&lt;/cbc:Amount&gt;
+  &lt;cac:TaxCategory&gt;
+    &lt;cbc:ID&gt;S&lt;/cbc:ID&gt;
+    &lt;cbc:Percent&gt;19&lt;/cbc:Percent&gt;
+    &lt;cac:TaxScheme&gt;
+      &lt;cbc:ID&gt;VAT&lt;/cbc:ID&gt;
+    &lt;/cac:TaxScheme&gt;
+  &lt;/cac:TaxCategory&gt;
+&lt;/cac:AllowanceCharge&gt;
+&lt;cac:AllowanceCharge&gt;
+  &lt;cbc:ChargeIndicator&gt;false&lt;/cbc:ChargeIndicator&gt;
+  &lt;cbc:AllowanceChargeReason&gt;Discount&lt;/cbc:AllowanceChargeReason&gt;
+  &lt;cbc:Amount currencyID=&quot;EUR&quot;&gt;20.00&lt;/cbc:Amount&gt;
+  &lt;cac:TaxCategory&gt;
+    &lt;cbc:ID&gt;S&lt;/cbc:ID&gt;
+    &lt;cbc:Percent&gt;19&lt;/cbc:Percent&gt;
+    &lt;cac:TaxScheme&gt;
+      &lt;cbc:ID&gt;VAT&lt;/cbc:ID&gt;
+    &lt;/cac:TaxScheme&gt;
+  &lt;/cac:TaxCategory&gt;
+&lt;/cac:AllowanceCharge&gt;
+&lt;cac:TaxTotal&gt;
+  &lt;cbc:TaxAmount currencyID=&quot;EUR&quot;&gt;26.60&lt;/cbc:TaxAmount&gt;
+  &lt;cac:TaxSubtotal&gt;
+    &lt;cbc:TaxableAmount currencyID=&quot;EUR&quot;&gt;140.00&lt;/cbc:TaxableAmount&gt;
+    &lt;cbc:TaxAmount currencyID=&quot;EUR&quot;&gt;26.60&lt;/cbc:TaxAmount&gt;
+    &lt;cac:TaxCategory&gt;
+      &lt;cbc:ID&gt;S&lt;/cbc:ID&gt;
+      &lt;cbc:Percent&gt;19&lt;/cbc:Percent&gt;
+      &lt;cac:TaxScheme&gt;
+        &lt;cbc:ID&gt;VAT&lt;/cbc:ID&gt;
+      &lt;/cac:TaxScheme&gt;
+    &lt;/cac:TaxCategory&gt;
+  &lt;/cac:TaxSubtotal&gt;
+&lt;/cac:TaxTotal&gt;</code></pre>
+<p class="note">Valeurs d'exemple uniquement. Remplacez ou complétez les éléments de votre fichier ; l'ordre des éléments est imposé dans les deux syntaxes.</p>
+</section>
+<section>
+<h2>Vérifier votre fichier gratuitement</h2>
+<p>Le vérificateur gratuit exécute les règles officielles EN 16931, XRechnung et Peppol dans votre navigateur. Votre fichier n'est pas envoyé.</p>
+<p><a class="button" href="../../index.html">Ouvrir le vérificateur gratuit</a></p>
+</section>
+<section class="cta">
+<p><span class="state">En développement — accès anticipé</span></p>
+<h2>Corriger et expliquer, pour les experts-comptables et les équipes de facturation</h2>
+<p>Un service payant qui explique chaque règle en échec en français, en allemand ou en anglais clair et propose un fichier corrigé est en cours de développement. <a href="https://example.invalid/industries/eu-e-invoicing/">Accès anticipé</a></p>
+</section>
+<section>
+<h2>Source</h2>
+<p>Identifiant et message officiel de la règle : CEN/TC 434 EN 16931 validation artefacts, validation-1.3.17 (EUPL-1.2), compilés depuis le commit amont 6e35e0a. L'explication, les causes, la correction et le XML de cette page sont les nôtres, pas ceux de l'éditeur de la règle. <a href="https://github.com/ConnectingEurope/eInvoicing-EN16931/tree/validation-1.3.17" rel="noopener">CEN/TC 434 EN 16931 validation artefacts validation-1.3.17</a></p>
+</section>
+<footer>
+<p><strong>Ni conseil fiscal ni conseil juridique.</strong> Cette page explique ce que vérifie une règle de validation et comment faire passer un fichier. Elle ne dit pas quel régime de TVA s'applique à votre vente ; demandez à votre expert-comptable. <strong>Sans garantie (no warranty) :</strong> gratuit et fourni en l'état ; vérifiez le résultat avant de vous y fier.</p>
+<p>Notre code et nos explications sont sous licence MIT. Les messages officiels des règles sont cités sous la licence de leur éditeur (EUPL-1.2, Apache-2.0, MPL-2.0), indiquée sur chaque page.</p>
+</footer>
+</main></body></html>

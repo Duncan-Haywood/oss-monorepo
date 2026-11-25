@@ -6,6 +6,7 @@
 //   cat series.csv | node cli.mjs --json          # machine-readable
 //   node cli.mjs sensors.csv --columns temp,co2  # several columns at once
 //   node cli.mjs --example                        # Nile river flow, 1871-1970
+//   node cli.mjs indicators.csv --turns --columns jobs,income,output,sales   # business-cycle peaks and troughs
 //
 // Zero dependencies, no network. Same engine as the web page.
 
@@ -78,13 +79,14 @@ Options:
   --drift-noise ml|lags     with --model drift: how the wander is sized. ml (default) chooses it together with the changes, so one big step is not absorbed as wander; lags is the earlier estimate from lag differences alone
   --joint-ar1               with --columns and the level model: each column's sd raised to its AR(1) long-run sd
   --no-agreed               with the level model: skip the six-setting panel that leads the text output with the changes every setting agrees on (runs on worker threads; skipped anyway above 10000 points)
+  --turns                   date peaks and troughs (business-cycle style) by Bry-Boschan's rule on the logged series; with --columns a,b,c, on a composite index of those columns (Conference Board method), which on FRED's four coincident indicators dated all 16 NBER turns 1967-2026 within 3 months; takes --frequency monthly|quarterly (default monthly), --big-move <log move>|off (monthly default 0.05: keep a phase shorter than 6 months that moves that much, such as 2020) and --sd-until <label> (measure each column's volatility only up to that row, so one wild stretch does not set the weights); a monthly composite uses phases of at least 3 months (one column: 6), and --min-phase N sets it (6 restores the old composite rule); a monthly composite warns when its heaviest column is also its latest and dates the composite without it too
   --json                    print the full result as JSON
   -h, --help                this help
 
 Methods (please cite them if you use the results):
 ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}. ${p.url}`).join('\n')}
 
-Statistical analysis of data you supply, not advice. MIT licence.`;
+Statistical analysis of data you supply, not advice. FSL-1.1-MIT licence.`;
 
 // Measured 2026-11-10 on the tree-ring series: 1,000 points 1.6 s with the panel vs 0.6 s without,
 // 2,000 points 5.3 s vs 1.1 s, 7,980 points 32 s vs 5.7 s. The text output stays quick on long series.
@@ -96,7 +98,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
   let json = false;
   let example = false;
   let agreed = true;
-  const flags = { '--column': 'column', '--label-column': 'labelColumn', '--model': 'model', '--penalty': 'penalty', '--min-segment': 'minSegment', '--hazard': 'hazardLambda', '--threshold': 'threshold', '--period': 'period', '--knot-margin': 'knotMargin', '--holidays': 'holidays', '--known-date': 'knownDate', '--donors': 'donors', '--covariates': 'covariates', '--window': 'window', '--anticipation': 'anticipation', '--shape-word': 'shapeWord', '--events': 'events', '--event-slack': 'eventSlack' };
+  const flags = { '--column': 'column', '--label-column': 'labelColumn', '--model': 'model', '--penalty': 'penalty', '--min-segment': 'minSegment', '--hazard': 'hazardLambda', '--threshold': 'threshold', '--period': 'period', '--knot-margin': 'knotMargin', '--holidays': 'holidays', '--known-date': 'knownDate', '--donors': 'donors', '--covariates': 'covariates', '--window': 'window', '--anticipation': 'anticipation', '--shape-word': 'shapeWord', '--events': 'events', '--event-slack': 'eventSlack', '--frequency': 'frequency', '--big-move': 'bigMove', '--sd-until': 'sdUntil', '--min-phase': 'minPhase' };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '-h' || a === '--help') { out(USAGE + '\n'); return 0; }
@@ -109,6 +111,7 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     else if (a === '--drift-slope') opt.driftSlope = true;
     else if (a === '--drift-noise') { const v = argv[++i]; if (v !== 'ml' && v !== 'lags') throw new Error('--drift-noise takes ml or lags.'); opt.driftNoise = v; }
     else if (a === '--drift') opt.drift = true;
+    else if (a === '--turns') opt.turns = true;
     else if (a === '--log') opt.log = true;
     else if (a === '--spells') opt.spells = true;
     else if (a === '--multiplicative') opt.seasonMode = 'multiplicative';
@@ -166,6 +169,13 @@ export async function main(argv, { stdin = process.stdin, out = (s) => process.s
     }
   }
   if (typeof opt.holidays === 'string') opt.holidays = opt.holidays.split(',').map((h) => h.trim()).filter(Boolean);
+  if (opt.frequency != null || opt.bigMove != null || opt.sdUntil != null || opt.minPhase != null) { if (!opt.turns) throw new Error('--frequency, --big-move, --sd-until and --min-phase go with --turns.'); }
+  if (opt.turns) {
+    const { turnsResult, turnsText } = await import('./turns-cli.mjs');
+    const r = turnsResult({ csv: example ? NILE_CSV : opt.csv, column: opt.column, columns: opt.columns, labelColumn: opt.labelColumn, frequency: opt.frequency ?? 'monthly', bigMove: opt.bigMove, sdUntil: opt.sdUntil, minPhase: opt.minPhase });
+    out((json ? JSON.stringify(r, null, 2) : turnsText(r)) + '\n');
+    return 0;
+  }
   if (opt.model === 'drift') {
     const { driftText, driftResult } = await import('./drift-cli.mjs');
     const r = driftResult({ csv: example ? NILE_CSV : opt.csv, column: opt.column, labelColumn: opt.labelColumn, penalty: opt.penalty, minSegment: opt.minSegment, slope: opt.driftSlope, noise: opt.driftNoise });

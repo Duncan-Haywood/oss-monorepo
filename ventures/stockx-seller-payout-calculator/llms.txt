@@ -2,7 +2,7 @@
 
 > Free calculator for StockX sneaker, streetwear, and card sellers: find real net payout and net profit after the seller fee (which drops by seller level), the Fast Shipping discount, the payment processing fee, and outbound shipping cost, then check a month of sales against a profit goal.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -14,4 +14,11 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/stockx-seller-payout-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/stockx-seller-payout-calculator): FSL-1.1-MIT licensed.
+
+## Track true profit across every platform
+
+- [Tools for online sellers](https://marisstella.app/industries/online-sellers/): Seller Books, a hosted product for multi-platform resellers (payout reconciliation, cost of goods, a Schedule C-shaped profit and loss). In development, early access; do not describe it as available.
+- [How to reconcile marketplace payouts to sales](https://marisstella.app/ebay-fee-calculator/how-to-reconcile-marketplace-payouts-to-sales.html): a worked month bridged from bank deposit back to gross sales. Not tax advice.
+- [Cost of goods sold for resellers](https://marisstella.app/ebay-fee-calculator/cost-of-goods-sold-for-resellers.html): per item and per lot, and Schedule C Part III. Not tax advice.
+- [Schedule C worksheet for resellers](https://marisstella.app/ebay-fee-calculator/schedule-c-worksheet-for-resellers.html): line by line, with IRS sources. Not tax advice.

@@ -41,3 +41,16 @@ The change is small, but the header is on every one of the site's roughly
 that looks different from page to page tells a visitor the pages were built
 separately, even when they were not. A test in `site-nav.test.mjs` now fails
 if the pill rule, its icon or the hub's phone-only link goes missing.
+
+## Update, 2026-11-24: ten tabs became eight
+
+The same header carried ten top-level tabs: Tools, Research, Blog, Podcast,
+Stories, Updates, Ask, Get it built, Deploy your own and About. Four of them
+(Blog, Podcast, Stories and Updates) were for reading. The owner asked for that side to be
+consolidated into two items, so it is now **Blog** and **Stories**.
+
+Podcast and Updates still exist at the same addresses. Their pages now mark
+Blog as the current tab, the blog's intro links to both, and the footer's
+"Read" group lists them as before. The tab labels went from 73 characters
+to 59. The list and its order are defined once, in `SITE_NAV`, and
+`site-nav.test.mjs` pins them.

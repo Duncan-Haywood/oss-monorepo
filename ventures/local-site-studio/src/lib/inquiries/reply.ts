@@ -65,10 +65,16 @@ export function plainTextFromEmailHtml(html: string): string {
     /<a\s+[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi,
     (_match, href: string, text: string) => `${text} (${href})`,
   );
-  const withBreaks = withLinks
+  let withBreaks = withLinks
     .replace(/<(br|hr)\s*\/?>/gi, "\n")
-    .replace(/<\/(p|div|h[1-6]|li|tr)>/gi, "\n\n")
-    .replace(/<[^>]+>/g, "");
+    .replace(/<\/(p|div|h[1-6]|li|tr)>/gi, "\n\n");
+  // Strip remaining tags until stable, so a nested "<<b>script>" cannot
+  // reassemble into a tag after one pass.
+  let previous: string;
+  do {
+    previous = withBreaks;
+    withBreaks = withBreaks.replace(/<[^>]+>/g, "");
+  } while (withBreaks !== previous);
   const decoded = withBreaks
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")

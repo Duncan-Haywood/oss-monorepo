@@ -2,7 +2,7 @@
 
 > Free house hacking calculator for a duplex, triplex or fourplex: FHA or conventional payment with mortgage insurance, the rent you need to live free, the FHA self-sufficiency test, and the 10-year return versus renting. Runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/house-hack-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/house-hack-calculator): FSL-1.1-MIT licensed.

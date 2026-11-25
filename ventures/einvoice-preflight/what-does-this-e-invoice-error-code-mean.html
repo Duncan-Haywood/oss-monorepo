@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>What Does This E-invoice Error Code Mean? — INV Rule Reference</title>
-<meta name="description" content="Every rule code the e-invoice preflight reports, in one table: what INV-012, INV-018, INV-025, INV-045 and the rest actually mean, and the concrete fix for each. Structure, arithmetic, tax, dates, payment, and reference checks.">
+<meta name="description" content="Every rule code the e-invoice preflight reports (INV-012, INV-018, INV-025, INV-045 and more): what each means and the fix. Structure, sums, tax, dates.">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://example.invalid/einvoice-preflight/what-does-this-e-invoice-error-code-mean.html">
 <meta property="og:type" content="article">
@@ -44,6 +44,7 @@ footer p{margin:.6rem 0}
 <section>
 <h2>First, what these codes are not</h2>
 <p><code>INV-</code> codes are this tool's own identifiers for its own checks. They are <strong>not</strong> EN&nbsp;16931 <code>BR-</code> business rules, not Peppol validation artefact identifiers, and not the rejection codes a tax authority or submission network sends back. The preflight reads the file in front of it and reports arithmetic and structural observations before you submit; it never contacts a network, and it does not decide tax treatment or legal validity.</p>
+<p>Got an official code from a portal or access point instead, such as <code>BR-DE-15</code>, <code>BR-CO-15</code> or <code>PEPPOL-EN16931-R003</code>? Each has its own page with the official message, the usual causes, the fix and corrected XML, in <a href="rules/en/index.html">English</a>, <a href="rules/de/index.html" hreflang="de">Deutsch</a> and <a href="rules/fr/index.html" hreflang="fr">français</a> (<a href="rules/index.html">all languages</a>).</p>
 <p>That distinction matters in both directions. A network validator may reject a document this tool passes, because it applies country and scheme rules this tool does not implement. It may also accept one this tool flags, because some of these checks are stricter than a network requires — the remittance and reference checks in particular are about getting paid, not about passing validation. When you contact your network or service provider, quote <em>their</em> code, not this one.</p>
 </section>
 

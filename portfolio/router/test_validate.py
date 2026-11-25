@@ -70,3 +70,41 @@ def test_flagship_not_before_must_be_a_date(tmp_path):
     errors = []
     validate.check_flagships(errors, p)
     assert len(errors) == 1 and "x `not_before:`" in errors[0]
+
+
+def test_flagship_front_door_must_name_existing_ventures(tmp_path):
+    p = tmp_path / "flagships.yaml"
+    p.write_text("flagships:\n  - venture: x\n    front_door: [pay-app-guides, no-such-venture-zz]\n    next: ok\n"
+                 "  - venture: y\n    front_door: pay-app-guides\n    next: ok\n")
+    errors = []
+    validate.check_flagships(errors, p)
+    assert len(errors) == 2
+    assert "no-such-venture-zz" in errors[0] and "y `front_door:` must be a list" in errors[1]
+
+
+def test_bets_come_first_in_order_and_others_say_why(tmp_path):
+    p = tmp_path / "flagships.yaml"
+    good = ("flagships:\n"
+            "  - venture: a\n    bet: 1\n    app: private-monorepo/apps/a\n    next: ok\n"
+            "  - venture: b\n    bet: 2\n    app: private-monorepo/apps/b\n    next: ok\n"
+            "  - venture: c\n    demoted: no bet in bets.md\n    next: ok\n")
+    p.write_text(good)
+    errors = []
+    validate.check_flagships(errors, p)
+    assert errors == []
+    p.write_text("flagships:\n"
+                 "  - venture: c\n    next: ok\n"
+                 "  - venture: a\n    bet: 2\n    app: apps/a\n    next: ok\n")
+    errors = []
+    validate.check_flagships(errors, p)
+    text = "\n".join(errors)
+    assert "c is not a bet" in text and "sits below a demoted row" in text
+    assert "expected 1" in text and "needs `app: private-monorepo/apps/<slug>`" in text
+
+
+def test_file_without_bets_skips_the_bet_check(tmp_path):
+    p = tmp_path / "flagships.yaml"
+    p.write_text("flagships:\n  - venture: x\n    next: ok\n")
+    errors = []
+    validate.check_flagships(errors, p)
+    assert errors == []

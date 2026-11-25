@@ -1,0 +1,31 @@
+{
+ "tiles": [
+  "Nikon D300.nef",
+  "Nikon D810.nef"
+ ],
+ "listState": "Keyword list: 10 keywords from lightroom-keywords.txt, 3 synonyms, 1 not exported. Typed keywords are looked up in it.",
+ "preview": "keywords Sport|Ice hockey, Sport|Football|Final",
+ "after": "2 sidecars in the zip; 2 carry IPTC captions or keywords; keywords not in lightroom-keywords.txt: Gretzky; under two parents, written as typed (type the path to choose): Final (Sport|Ice hockey|Final or Sport|Football|Final).",
+ "zip": [
+  "Nikon D810.xmp",
+  "Nikon D300.xmp"
+ ],
+ "keywordsUsed": [
+  "Sport",
+  "\tIce hockey",
+  "\t\t{hockey}",
+  "\tFootball",
+  "\t\tFinal",
+  "[People]",
+  "\tJane Roe",
+  "\t\t{Jane}",
+  "Places",
+  "\tYorkshire",
+  "\t\tLeeds",
+  "\t\t\t{Leodis}",
+  "Gretzky",
+  ""
+ ],
+ "listAfterReload": "Keyword list: 10 keywords from lightroom-keywords.txt, 3 synonyms, 1 not exported. Typed keywords are looked up in it.",
+ "errors": []
+}

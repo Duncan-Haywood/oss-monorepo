@@ -1,0 +1,24 @@
+example sheet: 459 cases (catalogue colours x fabrics)
+  first alternative stocked: before 152/459, after 459/459
+  dye-to-order cost per garment at 100 pcs, mean over cases: before 9.73, after 0.00 (EUR)
+  worst ink/garment contrast ratio: before 11.29, after 9.36
+  e.g. black on cotton-jersey: cream -> off white
+  e.g. charcoal on cotton-jersey: cream -> off white
+  e.g. grey on cotton-jersey: cream -> off white
+  e.g. gray on cotton-jersey: cream -> off white
+dark-only sheet: 51 cases (catalogue colours x fabrics)
+  first alternative stocked: before 19/51, after 51/51
+  dye-to-order cost per garment at 100 pcs, mean over cases: before 6.10, after 0.00 (EUR)
+  worst ink/garment contrast ratio: before 11.29, after 6.63
+  e.g. black on cotton-jersey: cream -> bottle green
+  e.g. charcoal on cotton-jersey: cream -> bottle green
+  e.g. grey on cotton-jersey: cream -> black
+  e.g. gray on cotton-jersey: cream -> black
+white-only sheet: 51 cases (catalogue colours x fabrics)
+  first alternative stocked: before 0/51, after 50/51
+  dye-to-order cost per garment at 100 pcs, mean over cases: before 9.72, after 0.19 (EUR)
+  worst ink/garment contrast ratio: before 11.29, after 11.29
+  e.g. off white on cotton-jersey: black -> white
+  e.g. cream on cotton-jersey: black -> white
+  e.g. ivory on cotton-jersey: black -> white
+  e.g. bone on cotton-jersey: black -> white

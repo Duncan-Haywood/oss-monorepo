@@ -224,3 +224,10 @@ test("an interval count that is not a whole number of at least 1 is skipped, not
   assert.deepEqual(r.subs.map((s) => [s.id, s.mrr]), [["s4", 3000], ["s5", 9000]]);
   assert.deepEqual(r.skipped.map((s) => [s.line, s.why]), [[2, "interval count is not a whole number"], [3, "interval count is not a whole number"], [4, "interval count is not a whole number"]]);
 });
+
+test("a Customer ID column groups subscriptions into customers", () => {
+  const { subs } = subsFromCsv("id,Customer ID,status,amount,interval,created\nsub_1,cus_1,active,50,month,2026-01-05\nsub_2,cus_1,active,10,month,2026-01-05\nsub_3,cus_2,active,20,month,2026-01-05");
+  assert.deepEqual(subs.map((s) => s.customer), ["cus_1", "cus_1", "cus_2"]);
+  const s = summarize(backfill(subs, Date.UTC(2026, 3, 15), 3).months);
+  assert.equal(s.customers, 2); assert.equal(s.mrr, 8000);
+});

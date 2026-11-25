@@ -2,7 +2,7 @@
 
 > Free S corporation shareholder basis calculator. Enter each year's K-1 figures and get stock basis, debt basis and suspended losses carried forward in Form 7203 order, with taxable excess distributions flagged. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -15,4 +15,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/s-corp-basis-tracker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/s-corp-basis-tracker): FSL-1.1-MIT licensed.

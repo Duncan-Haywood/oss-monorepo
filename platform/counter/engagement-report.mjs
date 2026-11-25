@@ -182,7 +182,7 @@ function cloudflareSection(cf, days) {
   return lines.length ? `${lines.join('\n')}\n` : 'No Cloudflare data for these days.\n';
 }
 
-const UNIT_NOTE = 'Page loads are counted by the site\'s own cookieless beacon (`platform/edge/`): one per page opened by a browser that ran the page script and did not send DNT/GPC or opt out. They are not people or sessions. Crawler beacons are counted apart and never added to page loads.';
+const UNIT_NOTE = 'Page loads are counted by the site\'s own cookieless beacon (`platform/edge/`): one per page opened by a browser that ran the page script and did not use the site opt-out (browsers sending DNT/GPC are counted from 2026-11-24; before that they were not, so earlier days read lower). They are not people or sessions. Crawler beacons are counted apart and never added to page loads.';
 
 function breakdowns(agg) {
   const covered = sum(agg.devices);

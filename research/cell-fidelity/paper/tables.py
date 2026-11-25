@@ -1,6 +1,7 @@
 """Tables and interval statistics for the paper's results section (triage 7c to 7h; corrected forecast 7v to 7y).
 
-Stdlib only, no simulation: every number is read from a committed `experiments/*/summary.json`.
+Stdlib only, no simulation: every number is read from a committed `experiments/*/summary.json`. Float sums
+use `math.fsum`, so `tables.json` is byte-identical under Python 3.11 and 3.12+ (3.12 made `sum()` compensated).
 One command regenerates everything the results section quotes:
 
     python3 research/cell-fidelity/paper/tables.py        # writes paper/tables.txt and tables.json
@@ -23,6 +24,19 @@ Table 3, seventh column (added after 7za had reported; descriptive, no new hypot
 `Marquis2019` plating cell at f = 30 (five folds, every rule and gate from 7za's summary, its oracle
 pick from 7za), and the seven-set pooling (committed + both f = 30 cells + Marquis2019 at f = 30, 35
 folds) with the same paired statistics; 7za's stored seven-set pairs are the control.
+
+Table 3, eighth column (added after 7zc and 7zd had reported; descriptive, no new hypothesis): 7zc's
+plating-free SEI cell (`Marquis2019`, plating off, SEI film resistivity 0, solvent diffusivity x 1e5;
+five folds, every rule and gate from 7zc's `rules/summary.json`) and the eight-set pooling (seven +
+that cell, 40 folds), with 7zd's resistive rung (rho = 0.1, 20,000 Ohm m) swapped in as a sensitivity.
+The SEI cell is relabelled `Marquis2019-SEI` so the set bootstrap treats it as its own cluster, as
+7zc's own eight-set report does; 7zc's and 7zd's stored eight-set pairs are the control.
+
+Table 3, direction-aware gate row (added after 7ze had reported; descriptive, no new hypothesis): 7ze's
+thetaS (gS = the drift-size gate gD and a training-pool direction share s >= 0.80; 7x's thetaH where on,
+7h's theta where off) on every set-condition, read from `dirgate7ze/summary.json`'s fold rows; a per-set
+gate view (direction share, gD and gS decisions per fold, and whether gS's set decision matches the
+oracle); and the folds on which gS and gD decide differently. 7ze's stored pooled pairs are the control.
 """
 import json
 import math
@@ -129,7 +143,7 @@ def summarise(L):
         for rule in dict.fromkeys(r["rule"] for r in L if r["look"] == look):
             rs = [r for r in L if r["look"] == look and r["rule"] == rule]
             k, n = sum(r["met"] for r in rs), len(rs)
-            cyc = sum(r["cycles"] for r in rs) / n
+            cyc = math.fsum(r["cycles"] for r in rs) / n
             miss = [r["ratio"] for r in rs if not r["met"]]
             table.append(dict(look=look, rule=rule, met=k, n=n, wilson=wilson(k, n), cycles=cyc,
                               saved=1 - cyc / U50, worst_miss=max(miss) if miss else None))
@@ -141,7 +155,7 @@ def pooled_fresh(L):
     rs = [r for r in L if r["rule"] == "theta" and r["look"] in ("7g frozen 7f policies", "7h frozen 7f policies")]
     k, n = sum(r["met"] for r in rs), len(rs)
     rate = lambda xs: sum(x["met"] for x in xs) / len(xs)
-    cyc = lambda xs: sum(x["cycles"] for x in xs) / len(xs)
+    cyc = lambda xs: math.fsum(x["cycles"] for x in xs) / len(xs)
     key = lambda r: (r["look"], r["set"])
     return dict(met=k, n=n, rate=k / n, wilson=wilson(k, n),
                 boot_rate=cluster_boot(rs, key, rate), cycles=cyc(rs), boot_cycles=cluster_boot(rs, key, cyc),
@@ -158,7 +172,7 @@ def paired_lopo5(L, a="theta", b="U"):
             for k in keys]
     diffs = [r["d"] for r in rows]
     pos, neg, p = sign_test(diffs)
-    mean = lambda xs: sum(x["d"] for x in xs) / len(xs)
+    mean = lambda xs: math.fsum(x["d"] for x in xs) / len(xs)
     both = sum(1 for r in rows if r["met_a"] and r["met_b"])
     return dict(n=len(rows), mean_diff=mean(rows), boot=cluster_boot(rows, lambda r: r["set"], mean),
                 a_cheaper=neg, a_dearer=pos, ties=len(rows) - pos - neg, sign_p=p, both_met=both,
@@ -205,16 +219,22 @@ def fmt(table, ins, pool, pair):
 # ---------- Table 3: the corrected forecast and its gates (7w to 7y) ----------
 
 CONDS = (("four", "committed sets (20 folds)"), ("f30", "tuned f = 30 (10)"), ("f10", "tuned f = 10 (10)"),
-         ("m30", "Marquis2019 f = 30 (5; 7za)"))
+         ("m30", "Marquis2019 f = 30 (5; 7za)"), ("sei", "Marquis2019 SEI-only, rho 0 (5; 7zc)"),
+         ("sei1", "Marquis2019 SEI-only, rho 0.1 (5; 7zd)"))
 SEVEN = ("four", "f30", "m30")
+EIGHT = SEVEN + ("sei",)
+EIGHT_R = SEVEN + ("sei1",)  # 7zd's resistive rung in place of 7zc's cell
+SEI_SRC = {"sei": ("sei7zc/rules", "7zc"), "sei1": ("sei7zd/rho1e-01/rules", "7zd rho 0.1")}
 CRULES = (("U", "uniform run length (7h)"), ("theta", "straight forecast + triage (7h)"),
           ("thetaC", "corrected, no gate (7w)"), ("thetaH", "corrected, honest margin (7x)"),
           ("thetaN", "out-of-fold error gate (7x)"), ("thetaP", "plating-share gate (7y)"),
-          ("thetaD", "drift-size gate (7y)"), ("oracle", "post hoc per-set oracle (7y)"))
+          ("thetaD", "drift-size gate (7y)"), ("thetaS", "direction-aware drift gate (7ze)"),
+          ("oracle", "post hoc per-set oracle (7y)"))
 
 
 def corrected_folds():
-    """{cond: {rule: [fold rows]}}; thetaC from gate7x (its replay of 7w/7v), the rest from gate7y."""
+    """{cond: {rule: [fold rows]}}; thetaC from gate7x (its replay of 7w/7v), thetaS from dirgate7ze, the rest
+    from gate7y (or 7za / 7zc / 7zd for their cells)."""
     x, y, z = load("gate7x"), load("gate7y"), load("marq7za")
     F = {}
     for c, _ in CONDS:
@@ -222,11 +242,20 @@ def corrected_folds():
             F[c] = {r: z["folds"][r] for r in ("theta", "U", "thetaC", "thetaH", "thetaN", "thetaP", "thetaD")}
             F[c]["oracle"] = list(F[c][z["oracle"]])
             continue
+        if c in SEI_SRC:  # 7zc / 7zd: the same rules and gates on the plating-free SEI cell
+            w = load(SEI_SRC[c][0])
+            F[c] = {r: [dict(f, set="Marquis2019-SEI") for f in w["folds"][r]]
+                    for r in ("theta", "U", "thetaC", "thetaH", "thetaN", "thetaP", "thetaD")}
+            F[c]["oracle"] = list(F[c][w["oracle"]])
+            continue
         F[c] = {r: y[c]["folds"][r] for r in ("theta", "U", "thetaH", "thetaN", "thetaP", "thetaD")}
         F[c]["thetaC"] = x[c]["folds"]["thetaC"]
         pick = y["oracle"][c]  # per set: the rule (theta or thetaH) with the better held-out outcome
         F[c]["oracle"] = [f for f in F[c]["theta"] if pick[f["set"]] == "theta"] + \
                          [f for f in F[c]["thetaH"] if pick[f["set"]] == "thetaH"]
+    S = load("dirgate7ze")["folds"]  # 7ze: thetaS composed from the stored thetaH / theta folds
+    for c, _ in CONDS:
+        F[c]["thetaS"] = S[c]["thetaS"]
     return F
 
 
@@ -242,14 +271,14 @@ def paired(fa, fb):
 def pair_stats(fa, fb):
     pr = paired(fa, fb)
     pos, neg, p = sign_test([r["d"] for r in pr])
-    mean = lambda xs: sum(r["d"] for r in xs) / len(xs)
+    mean = lambda xs: math.fsum(r["d"] for r in xs) / len(xs)
     return dict(n=len(pr), mean=mean(pr), boot=cluster_boot(pr, lambda r: r["set"], mean),
                 cheaper=neg, dearer=pos, sign_p=p)
 
 
 def agg(fs):
     k, n = sum(bool(f["met"]) for f in fs), len(fs)
-    return dict(met=k, n=n, wilson=wilson(k, n), cycles=sum(f["cycles"] for f in fs) / n)
+    return dict(met=k, n=n, wilson=wilson(k, n), cycles=math.fsum(f["cycles"] for f in fs) / n)
 
 
 def corrected():
@@ -263,17 +292,59 @@ def corrected():
     pair7 = {r: pair_stats(seven[r], seven["theta"]) for r, _ in CRULES if r != "theta"}
     pair7u = {r: pair_stats(seven[r], seven["U"]) for r, _ in CRULES if r != "U"}
     pair4 = {r: pair_stats(F["four"][r], F["four"]["theta"]) for r, _ in CRULES if r != "theta"}
+    pair8, pair8u = {}, {}
+    for name, conds in (("eight", EIGHT), ("eight_r", EIGHT_R)):
+        e = {r: [f for c in conds for f in F[c][r]] for r, _ in CRULES}
+        tot[name] = {r: agg(e[r]) for r, _ in CRULES}
+        pair8[name] = {r: pair_stats(e[r], e["theta"]) for r, _ in CRULES if r != "theta"}
+        pair8u[name] = {r: pair_stats(e[r], e["U"]) for r, _ in CRULES if r != "U"}
     per = {}
     for c, _ in CONDS:
         for st in dict.fromkeys(f["set"] for f in F[c]["theta"]):
             per[f"{c}:{st}"] = {r: agg([f for f in F[c][r] if f["set"] == st]) for r, _ in CRULES}
     same = {}  # folds (of 40) where two rules stop at the same cycles with the same met flag
-    for a, b in (("thetaP", "thetaN"), ("thetaD", "thetaH"), ("thetaN", "thetaH"), ("thetaC", "thetaH")):
+    for a, b in (("thetaP", "thetaN"), ("thetaD", "thetaH"), ("thetaN", "thetaH"), ("thetaC", "thetaH"),
+                 ("thetaS", "thetaD"), ("thetaS", "thetaN")):
         same[f"{a}={b}"] = {c: sum(1 for r in paired(F[c][a], F[c][b]) if r["d"] == 0 and r["met_a"] == r["met_b"])
                             for c, _ in CONDS}
-    oracle = dict(load("gate7y")["oracle"], m30={"Marquis2019": load("marq7za")["oracle"]})
+    oracle = dict(load("gate7y")["oracle"], m30={"Marquis2019": load("marq7za")["oracle"]},
+                  **{c: {"Marquis2019-SEI": load(SEI_SRC[c][0])["oracle"]} for c in SEI_SRC})
     return dict(total=tot, pair_six=pair6, pair_seven=pair7, pair_seven_u=pair7u, pair_four=pair4, per=per,
-                same=same, oracle=oracle)
+                pair_eight=pair8, pair_eight_u=pair8u,
+                same=same, oracle=oracle, gates=direction_gates(oracle))
+
+
+def direction_gates(oracle):
+    """7ze's per-fold direction share s and gate decisions (gD, gS), and each set's gS decision against the oracle.
+
+    A set's decision is gS's majority over its five folds (on in at least 3 of 5), as 7ze's H377 grades it.
+    """
+    G = load("dirgate7ze")["gates"]
+    D = stored_gd()
+    out = {}
+    for c, _ in CONDS:
+        for st, pick in oracle[c].items():
+            ks = sorted(k for k in G[c]["S"] if k.split("|")[0] == st)
+            out[f"{c}:{st}"] = dict(share=[G[c]["share"][k] for k in ks], gD=[D[c][k] for k in ks],
+                                    gS=[G[c]["S"][k] for k in ks], oracle=pick, set_on=G[c]["set_on"][st],
+                                    agrees=G[c]["set_on"][st] == (pick == "thetaH"))
+    return out
+
+
+def stored_gd():
+    """{cond: {'set|pool': stored gD decision}}, read as 7ze's `stored()` reads them (fold order of theta's rows)."""
+    y = load("gate7y")
+    D = {}
+    for c in ("four", "f30", "f10"):
+        pools = {}
+        for f in y[c]["folds"]["theta"]:
+            pools.setdefault(f["set"], []).append(f["pool"])
+        D[c] = {f"{st}|{p}": bool(on) for st, gs in y[c]["gates"]["D"].items() for p, on in zip(pools[st], gs)}
+    for c, src in (("m30", "marq7za"),) + tuple((k, v[0]) for k, v in SEI_SRC.items()):
+        z = load(src)
+        st = "Marquis2019-SEI" if c in SEI_SRC else z["folds"]["theta"][0]["set"]
+        D[c] = {f"{st}|{f['pool']}": bool(on) for f, on in zip(z["folds"]["theta"], z["gates"]["D"])}
+    return D
 
 
 def fmt_corrected(C):
@@ -305,17 +376,20 @@ def fmt_corrected(C):
                  f"{q['cheaper']}/{q['dearer']}  p = {q['sign_p']:.3f}")
     o += ["", "Folds where two rules make the same decision (same cycles, same met flag), committed / f = 30 / f = 10:"]
     for k, v in C["same"].items():
-        o.append(f"  {k:15s} {v['four']:2d}/20  {v['f30']:2d}/10  {v['f10']:2d}/10  (Marquis2019 f = 30: {v['m30']}/5)")
+        o.append(f"  {k:15s} {v['four']:2d}/20  {v['f30']:2d}/10  {v['f10']:2d}/10  (Marquis2019 f = 30: {v['m30']}/5; "
+                 f"SEI rho 0: {v['sei']}/5, rho 0.1: {v['sei1']}/5)")
     o += ["",
           "Per set: target met / 5 and mean DFN cycles per design; oracle = the rule 7y's hindsight pick chose.",
-          f"{'condition:set':24s}" + "".join(f"{r:>12s}" for r in ("U", "theta", "thetaC", "thetaN", "thetaP", "thetaD"))
+          f"{'condition:set':24s}" + "".join(f"{r:>12s}" for r in ("U", "theta", "thetaC", "thetaN", "thetaP", "thetaD", "thetaS"))
           + f"{'oracle':>8s}"]
     for key, row in C["per"].items():
         c, st = key.split(":")
         cells = "".join(f"{row[r]['met']:>4d}/5 {row[r]['cycles']:5.1f}"
-                        for r in ("U", "theta", "thetaC", "thetaN", "thetaP", "thetaD"))
+                        for r in ("U", "theta", "thetaC", "thetaN", "thetaP", "thetaD", "thetaS"))
         o.append(f"{key:24s}{cells}{C['oracle'][c][st]:>8s}")
     o += fmt_seven(C)
+    o += fmt_eight(C)
+    o += fmt_direction(C)
     return "\n".join(o) + "\n"
 
 
@@ -339,6 +413,51 @@ def fmt_seven(C):
         u = cell(C["pair_seven_u"][r]) if r != "U" else f"{'(reference)':>8s}"
         o.append(f"{r:6s} {m['met']:6d}/{m['n']:<2d} {m['cycles']:5.1f} {s7['met']:3d}/{s7['n']:<2d} {w:>11s} "
                  f"{s7['cycles']:5.1f}  {t}  {u}")
+    return o
+
+
+def fmt_eight(C):
+    """Table 3's eighth column: 7zc's plating-free SEI cell, and the eight-set pooling (7zd's rho 0.1 rung as a swap)."""
+    T = C["total"]
+    o = ["",
+         "Table 3, eighth set-condition (7zc and 7zd, added after both reported): Marquis2019 with plating off and the",
+         "SEI film's resistivity at 0 (7zc) or 0.1 of Marquis2019's (7zd), and the eight set-conditions (seven + the",
+         "rho 0 cell; 40 folds). 'eight, rho 0.1' swaps 7zd's rung in. Paired difference against theta and U as above.",
+         f"{'rule':6s} {'SEI rho0':>9s} {'cyc':>5s} {'rho0.1':>6s} {'cyc':>5s} {'eight':>6s} {'Wilson 95%':>11s} {'cyc':>5s}  "
+         f"{'rule - theta':>12s} {'set boot 95%':>17s} {'ch/de':>6s} {'p':>6s}  {'rule - U':>8s} {'set boot 95%':>17s} {'ch/de':>6s} {'p':>7s}"]
+
+    def cell(q):
+        return (f"{q['mean']:+8.2f} {q['boot'][0]:+7.2f} to {q['boot'][1]:+6.2f} "
+                f"{q['cheaper']:>2d}/{q['dearer']:<3d} {q['sign_p']:6.3f}")
+    for name, label in (("eight", "eight set-conditions, 7zc's cell"), ("eight_r", "eight, 7zd's rho 0.1 cell swapped in")):
+        o.append(f"  {label}:")
+        for r, _ in CRULES:
+            a, b, e = T["sei"][r], T["sei1"][r], T[name][r]
+            w = f"{e['wilson'][0]:.2f}-{e['wilson'][1]:.2f}"
+            t = cell(C["pair_eight"][name][r]).rjust(51) if r != "theta" else f"{'(reference)':>12s}{'':39s}"
+            u = cell(C["pair_eight_u"][name][r]) if r != "U" else f"{'(reference)':>8s}"
+            o.append(f"{r:6s} {a['met']:6d}/{a['n']:<2d} {a['cycles']:5.1f} {b['met']:3d}/{b['n']:<2d} {b['cycles']:5.1f} "
+                     f"{e['met']:3d}/{e['n']:<2d} {w:>11s} {e['cycles']:5.1f}  {t}  {u}")
+    return o
+
+
+def fmt_direction(C):
+    """Table 3's direction-aware gate (7ze): per-fold direction share s, gD and gS decisions, gS against the oracle."""
+    o = ["",
+         "Table 3, direction-aware drift gate (7ze, added after it reported): per fold, the share s of training designs",
+         "whose drift multiplier m lies on the majority side of 1, the drift-size gate gD (median |m - 1| >= 0.10) and",
+         "gS = gD and s >= 0.80 (y on, n off); a set is on where gS is on in at least 3 of 5 folds. f = 10 and the",
+         "rho 0.1 rung are outside 7ze's eight verdict sets.",
+         f"{'condition:set':24s}{'oracle':>8s}  {'s per fold':30s}{'gD':>7s}{'gS':>7s}  gS vs oracle"]
+    yn = lambda xs: "".join("y" if x else "n" for x in xs)
+    for key, g in C["gates"].items():
+        verdict = ("agrees" if g["agrees"] else "DISAGREES") + ("" if key.split(":")[0] in ("four", "f30", "m30", "sei")
+                                                               else " (not a verdict set)")
+        o.append(f"{key:24s}{g['oracle']:>8s}  {' '.join('%.2f' % x for x in g['share']):30s}"
+                 f"{yn(g['gD']):>7s}{yn(g['gS']):>7s}  {verdict}")
+    v = [g for k, g in C["gates"].items() if k.split(":")[0] in ("four", "f30", "m30", "sei")]
+    o.append(f"  gS's set decision matches the oracle on {sum(g['agrees'] for g in v)} of {len(v)} verdict sets; "
+             f"folds where gS and gD differ: {sum(a != b for g in C['gates'].values() for a, b in zip(g['gD'], g['gS']))}")
     return o
 
 

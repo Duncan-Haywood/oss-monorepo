@@ -1,0 +1,50 @@
+{
+ "date": "2026-11-24",
+ "session": "https://claude.ai/code/session_01EhTJVLvchceN2RxjeD5Vsg",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support products; merge when done)",
+ "input_sha256": "3bacb6da1d6597aa438387432ba02aaf5ca117fccd8dc4fb52cfe978038d7aa0",
+ "follow_up_inputs": [],
+ "model": null,
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-24T21:02:40Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": "research/cell-fidelity milestone 7ze: direction-aware drift gate (gS) for the corrected ten-cycle forecast",
+ "projects": [
+  "cell-fidelity"
+ ],
+ "pr": 18659,
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": 10,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [],
+ "deviations": [
+  {
+   "file": "prompt.md",
+   "why": "scheduled prompt asked for revenue product work; the master prompt's router drew the research track (cell-fidelity), which this run followed",
+   "did": "advanced the drawn research programme",
+   "result": "one milestone landed"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-11-24-battery-fade-forecast-gate-tests-drift-direction.md"
+ ],
+ "goal": null,
+ "notes": "Plan (H377-H381) committed before any direction share was computed. Control: gD recomputed from rebuilt m matched 55/55 stored decisions; stored thetaH/theta recomposed under gD equals stored thetaD (0.0). Results: gS right on 7 of 8 sets (misses NCA_Kim2011); eight-condition thetaS - theta -15.42 (-28.03 to -3.21), 37/40 folds; seven-condition interval -25.07 to 0.00. H378, H379, H381 supported; H377, H380 inconclusive. Local checks: tests/test_dirgate7ze.py 10 passed; research/_homepage/build.py ok; check_md_links ok; check_posts ok; programme_check ok.",
+ "corrections": [],
+ "redteam": null
+}

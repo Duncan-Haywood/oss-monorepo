@@ -128,7 +128,8 @@ predecessor's (`arls` is not decoded there, `aref` alone does not list). A
 P6 export where a link and its activities were all edited together, which
 leaves both witnesses consistent with the new lag. Started activities: their
 `arls` depends on how much of an SS lag is spent, and the check leaves them
-out. The finished-predecessor path has no unit test of its own (the example
+out. (Done 2026-11-24: eval/relationship-dates-started-2026-11-24.md,
+11,610 of 11,610 links with a started end decode against the unspent lag.) The finished-predecessor path has no unit test of its own (the example
 schedule's only such link has its lag fully spent); it rests on the 1,894 real
 links above.
 

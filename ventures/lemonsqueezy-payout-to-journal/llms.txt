@@ -1,10 +1,10 @@
-# Turn a Lemon Squeezy earnings export into a Xero or QuickBooks journal
+# Turn a Lemon Squeezy Orders export into a Xero or QuickBooks journal
 
-> Free Lemon Squeezy payout to journal converter: proves the orders add up to your payout, splits product sales income, shipping, tax you collected, Lemon Squeezy platform and processing fees and refunds by month, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop.
+> Free Lemon Squeezy payout to journal converter: reads the Lemon Squeezy Orders export (amounts in USD cents), splits product sales, discounts, the Lemon Squeezy fee (estimated at the published 5% + 50c plus any surcharge you enter, since the export has no fee column) and refunds by month, books payout fees, leaves out tax Lemon Squeezy remits as merchant of record, checks the result against your bank deposit, and downloads a balanced journal for Xero, QuickBooks Online or QuickBooks Desktop.
 
-Known gap (quality audit, 2026-11-13): Lemon Squeezy's documented Orders export (amounts in cents, no fee or net columns) is not read yet; the tool needs a CSV with per-order subtotal, fee and net columns in dollars.
+Limits: fees are estimates proved only by the deposit check; one surcharge percentage per file; no real export was available when this was written (columns from Lemon Squeezy's exporting-orders help page).
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -12,4 +12,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/lemonsqueezy-payout-to-journal): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/lemonsqueezy-payout-to-journal): FSL-1.1-MIT licensed.

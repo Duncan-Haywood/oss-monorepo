@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyfdtNsqcZbYLpbejUG",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T14:51:45Z",
+  "ended": "2026-11-25T14:58:49Z",
+  "wall_minutes": 7.23,
+  "tokens_in": 5539543,
+  "tokens_out": 32791,
+  "cost_usd": 2.6843,
+  "tool_calls": 54,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19003",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "add_repo's result still names register_repo_root; skipping it as the doc says worked. The private-monorepo clone took under a minute, as documented."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Private-repo Actions jobs end in ~2 s with no log on every PR (also 118), so local checks stood in for CI before merging private PR 119",
+      "did": "ran typecheck, biome, build and the full unit suite (48 files, 416 tests) locally",
+      "result": "merged; no CI signal available"
+    },
+    {
+      "file": "prompt.md",
+      "why": "No customer blog post: this is a small slice of an in-app import, and nothing in it is new for the customer posts. The agent doc covers it.",
+      "did": "wrote docs/reports/ventures-2026-11-25-payapps-g702-summary.md",
+      "result": "agent doc only"
+    }
+  ],
+  "writeups": [
+    "docs/reports/ventures-2026-11-25-payapps-g702-summary.md"
+  ],
+  "goal": null,
+  "notes": "Bet #1 PayApps: mid-job start reads lines 4-8 from the workbook's G702 summary tab (private PR 119, merged). Local: unit 48 files/416 tests passed, typecheck clean, build ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "33ace064-2d5b-53c8-8a55-848e80684fb3",
+    "transcripts": 1,
+    "first": "2026-11-25T14:51:45Z",
+    "last": "2026-11-25T14:58:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 96,
+        "output": 32791,
+        "thinking": 10586,
+        "cache_read": 5421474,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117973,
+        "api_equivalent_usd": 2.6843,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 96,
+      "output": 32791,
+      "thinking": 10586,
+      "cache_read": 5421474,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117973,
+      "api_equivalent_usd": 2.6843,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 39,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.23,
+      "active_minutes": 7.23,
+      "model_minutes": 5.01,
+      "tool_minutes": 2.22,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "label-based G702 reader, opening-fill integration, 8 tests, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 223.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -9,7 +9,7 @@ from .xmlvalues import inspect_xml_values
 
 from .adjustment import header_adjustment_net_delta, inspect_header_adjustments
 from .bic import inspect_payment_bic
-from .breakdown import inspect_tax_breakdown
+from .breakdown import inspect_tax_breakdown, stated_breakdown_tax
 from .document import inspect_document_type
 from .endpoint import inspect_line_schemed_ids, inspect_party_endpoint, inspect_party_identifiers
 from .linenet import accepted_line_net, flat_tax_total, is_negative_invoice, expected_line_net, summed_line_net, tax_groups, tax_percent_of
@@ -203,7 +203,7 @@ def _check_invoice(invoice: Any) -> list[dict[str, str]]:
         pass
     elif tax_total is None or (tax_total < 0 and not negative_invoice):
         fail("INV-015", "Invoice tax total is missing or invalid.", "Provide a non-negative numeric tax total.", "/totals/tax")
-    elif not unattributed and flat_tax is not None and tax_total != expected_tax and tax_total != line_tax_total:
+    elif not unattributed and flat_tax is not None and tax_total != expected_tax and tax_total != line_tax_total and tax_total != stated_breakdown_tax(invoice):
         fail("INV-018", "Invoice tax total does not match its line tax percentages.", f"Set tax total to {expected_tax} or correct the line inputs.", "/totals/tax")
     if gross is None or (gross < 0 and not negative_invoice):
         fail("INV-016", "Invoice gross total is missing or invalid.", "Provide a non-negative numeric gross total.", "/totals/gross")

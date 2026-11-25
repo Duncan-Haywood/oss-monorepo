@@ -1,0 +1,647 @@
+{
+ "verdicts": {
+  "H358": "supported",
+  "H359": "supported",
+  "H360": "refuted",
+  "H361": "inconclusive"
+ },
+ "total": {
+  "theta": {
+   "met": 4,
+   "n": 5,
+   "cycles": 46.6
+  },
+  "U": {
+   "met": 5,
+   "n": 5,
+   "cycles": 50.0
+  },
+  "thetaC": {
+   "met": 5,
+   "n": 5,
+   "cycles": 10.0
+  },
+  "thetaH": {
+   "met": 5,
+   "n": 5,
+   "cycles": 10.0
+  },
+  "thetaN": {
+   "met": 5,
+   "n": 5,
+   "cycles": 10.0
+  },
+  "thetaP": {
+   "met": 4,
+   "n": 5,
+   "cycles": 46.6
+  },
+  "thetaD": {
+   "met": 5,
+   "n": 5,
+   "cycles": 10.0
+  }
+ },
+ "pair": {
+  "thetaC-U": {
+   "mean": -40.0,
+   "boot": [
+    -40.0,
+    -40.0
+   ],
+   "cheaper": 5,
+   "dearer": 0,
+   "sign_p": 0.0625
+  },
+  "thetaH-U": {
+   "mean": -40.0,
+   "boot": [
+    -40.0,
+    -40.0
+   ],
+   "cheaper": 5,
+   "dearer": 0,
+   "sign_p": 0.0625
+  },
+  "thetaP-U": {
+   "mean": -3.4,
+   "boot": [
+    -3.4,
+    -3.4
+   ],
+   "cheaper": 2,
+   "dearer": 0,
+   "sign_p": 0.5
+  },
+  "thetaP-theta": {
+   "mean": 0.0,
+   "boot": [
+    0.0,
+    0.0
+   ],
+   "cheaper": 0,
+   "dearer": 0,
+   "sign_p": 1.0
+  },
+  "thetaD-theta": {
+   "mean": -36.6,
+   "boot": [
+    -36.6,
+    -36.6
+   ],
+   "cheaper": 5,
+   "dearer": 0,
+   "sign_p": 0.0625
+  },
+  "thetaN-theta": {
+   "mean": -36.6,
+   "boot": [
+    -36.6,
+    -36.6
+   ],
+   "cheaper": 5,
+   "dearer": 0,
+   "sign_p": 0.0625
+  },
+  "theta-U": {
+   "mean": -3.4,
+   "boot": [
+    -3.4,
+    -3.4
+   ],
+   "cheaper": 2,
+   "dearer": 0,
+   "sign_p": 0.5
+  }
+ },
+ "seven": {
+  "pair": {
+   "thetaP-theta": {
+    "mean": -9.071428571428571,
+    "boot": [
+     -23.5,
+     2.0714285714285716
+    ],
+    "cheaper": 10,
+    "dearer": 5,
+    "sign_p": 0.3017578125
+   },
+   "thetaD-theta": {
+    "mean": -13.514285714285714,
+    "boot": [
+     -29.17142857142857,
+     -0.21428571428571427
+    ],
+    "cheaper": 15,
+    "dearer": 8,
+    "sign_p": 0.21003961563110352
+   },
+   "thetaN-theta": {
+    "mean": -14.3,
+    "boot": [
+     -29.17142857142857,
+     -1.5714285714285714
+    ],
+    "cheaper": 15,
+    "dearer": 5,
+    "sign_p": 0.04138946533203125
+   },
+   "thetaH-theta": {
+    "mean": -13.514285714285714,
+    "boot": [
+     -29.17142857142857,
+     -0.21428571428571427
+    ],
+    "cheaper": 15,
+    "dearer": 8,
+    "sign_p": 0.21003961563110352
+   },
+   "thetaP-U": {
+    "mean": -10.557142857142857,
+    "boot": [
+     -21.404761904761905,
+     -2.019047619047619
+    ],
+    "cheaper": 22,
+    "dearer": 4,
+    "sign_p": 0.0005335211753845215
+   }
+  },
+  "total": {
+   "theta": {
+    "met": 32,
+    "n": 35,
+    "cycles": 44.51428571428571
+   },
+   "U": {
+    "met": 34,
+    "n": 35,
+    "cycles": 46.0
+   },
+   "thetaH": {
+    "met": 32,
+    "n": 35,
+    "cycles": 31.0
+   },
+   "thetaN": {
+    "met": 32,
+    "n": 35,
+    "cycles": 30.214285714285715
+   },
+   "thetaP": {
+    "met": 31,
+    "n": 35,
+    "cycles": 35.44285714285714
+   },
+   "thetaD": {
+    "met": 32,
+    "n": 35,
+    "cycles": 31.0
+   }
+  }
+ },
+ "six": {
+  "thetaP-theta": {
+   "mean": -10.583333333333334,
+   "boot": [
+    -24.333333333333332,
+    2.5
+   ],
+   "cheaper": 10,
+   "dearer": 5,
+   "sign_p": 0.3017578125
+  }
+ },
+ "tuned": {
+  "thetaP-U": {
+   "mean": -21.133333333333333,
+   "boot": [
+    -30.0,
+    -3.4
+   ],
+   "cheaper": 12,
+   "dearer": 0,
+   "sign_p": 0.00048828125
+  },
+  "thetaP-theta": {
+   "mean": -23.666666666666668,
+   "boot": [
+    -37.5,
+    0.0
+   ],
+   "cheaper": 10,
+   "dearer": 0,
+   "sign_p": 0.001953125
+  },
+  "thetaH-theta": {
+   "mean": -35.86666666666667,
+   "boot": [
+    -37.5,
+    -33.5
+   ],
+   "cheaper": 15,
+   "dearer": 0,
+   "sign_p": 6.103515625e-05
+  }
+ },
+ "sens_f10": {
+  "mean": -2.6392857142857142,
+  "boot": [
+   -10.667857142857143,
+   2.8035714285714284
+  ],
+  "cheaper": 5,
+  "dearer": 6,
+  "sign_p": 1.0
+ },
+ "oracle": "thetaH",
+ "gates": {
+  "N": [
+   true,
+   true,
+   true,
+   true,
+   true
+  ],
+  "P": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "D": [
+   true,
+   true,
+   true,
+   true,
+   true
+  ]
+ },
+ "picks": [
+  "O3",
+  "O3",
+  "O3",
+  "O3",
+  "O3"
+ ],
+ "med": {
+  "phi10": [
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  "D": [
+   0.6578476767401082,
+   0.6568692851265685,
+   0.6579045324313177,
+   0.6576186588268133,
+   0.6569958432999513
+  ],
+  "dir": [
+   0.6578476767401082,
+   0.6568692851265685,
+   0.6579045324313177,
+   0.6576186588268133,
+   0.6569958432999513
+  ]
+ },
+ "control": {
+  "e10_ident": 2.220446049250313e-16,
+  "replay": 0.0,
+  "nested_ident": 0.0
+ },
+ "folds": {
+  "theta": [
+   {
+    "set": "Marquis2019",
+    "pool": "p1",
+    "cycles": 38.0,
+    "met": false,
+    "policy": "50>=0.570",
+    "q75": 0.46568857546452985,
+    "target": 0.3461214745523778
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p2",
+    "cycles": 50.0,
+    "met": true,
+    "policy": "50>=0.551",
+    "q75": 0.26028950050744404,
+    "target": 0.3253618756343051
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p3",
+    "cycles": 45.0,
+    "met": true,
+    "policy": "50>=0.551",
+    "q75": 0.29172614989288664,
+    "target": 0.3141888095237044
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p4",
+    "cycles": 50.0,
+    "met": true,
+    "policy": "50>=0.551",
+    "q75": 0.2849827685235472,
+    "target": 0.35622846065443403
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p5",
+    "cycles": 50.0,
+    "met": true,
+    "policy": "50>=0.559",
+    "q75": 0.2789873686277606,
+    "target": 0.34873421078470074
+   }
+  ],
+  "U": [
+   {
+    "set": "Marquis2019",
+    "pool": "p1",
+    "cycles": 50.0,
+    "met": true,
+    "policy": "U50",
+    "q75": 0.27689717964190225,
+    "target": 0.3461214745523778
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p2",
+    "cycles": 50.0,
+    "met": true,
+    "policy": "U50",
+    "q75": 0.26028950050744404,
+    "target": 0.3253618756343051
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p3",
+    "cycles": 50.0,
+    "met": true,
+    "policy": "U50",
+    "q75": 0.25135104761896354,
+    "target": 0.3141888095237044
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p4",
+    "cycles": 50.0,
+    "met": true,
+    "policy": "U50",
+    "q75": 0.2849827685235472,
+    "target": 0.35622846065443403
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p5",
+    "cycles": 50.0,
+    "met": true,
+    "policy": "U50",
+    "q75": 0.2789873686277606,
+    "target": 0.34873421078470074
+   }
+  ],
+  "thetaC": [
+   {
+    "set": "Marquis2019",
+    "pool": "p1",
+    "cycles": 10.0,
+    "met": true,
+    "policy": "15>=inf",
+    "q75": 0.0773942930424122,
+    "target": 0.3461214745523778
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p2",
+    "cycles": 10.0,
+    "met": true,
+    "policy": "15>=inf",
+    "q75": 0.16000109373831406,
+    "target": 0.3253618756343051
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p3",
+    "cycles": 10.0,
+    "met": true,
+    "policy": "15>=inf",
+    "q75": 0.1112796465400774,
+    "target": 0.3141888095237044
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p4",
+    "cycles": 10.0,
+    "met": true,
+    "policy": "15>=inf",
+    "q75": 0.06799617101684494,
+    "target": 0.35622846065443403
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p5",
+    "cycles": 10.0,
+    "met": true,
+    "policy": "15>=inf",
+    "q75": 0.11848299996578647,
+    "target": 0.34873421078470074
+   }
+  ],
+  "thetaH": [
+   {
+    "set": "Marquis2019",
+    "pool": "p1",
+    "cycles": 10.0,
+    "met": true,
+    "policy": "15>=inf",
+    "q75": 0.0773942930424122,
+    "target": 0.3461214745523778
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p2",
+    "cycles": 10.0,
+    "met": true,
+    "policy": "15>=inf",
+    "q75": 0.16000109373831406,
+    "target": 0.3253618756343051
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p3",
+    "cycles": 10.0,
+    "met": true,
+    "policy": "15>=inf",
+    "q75": 0.1112796465400774,
+    "target": 0.3141888095237044
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p4",
+    "cycles": 10.0,
+    "met": true,
+    "policy": "15>=inf",
+    "q75": 0.06799617101684494,
+    "target": 0.35622846065443403
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p5",
+    "cycles": 10.0,
+    "met": true,
+    "policy": "15>=inf",
+    "q75": 0.11848299996578647,
+    "target": 0.34873421078470074
+   }
+  ],
+  "thetaN": [
+   {
+    "set": "Marquis2019",
+    "pool": "p1",
+    "cycles": 10.0,
+    "met": true,
+    "policy": "15>=inf",
+    "q75": 0.0773942930424122,
+    "target": 0.3461214745523778
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p2",
+    "cycles": 10.0,
+    "met": true,
+    "policy": "15>=inf",
+    "q75": 0.16000109373831406,
+    "target": 0.3253618756343051
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p3",
+    "cycles": 10.0,
+    "met": true,
+    "policy": "15>=inf",
+    "q75": 0.1112796465400774,
+    "target": 0.3141888095237044
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p4",
+    "cycles": 10.0,
+    "met": true,
+    "policy": "15>=inf",
+    "q75": 0.06799617101684494,
+    "target": 0.35622846065443403
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p5",
+    "cycles": 10.0,
+    "met": true,
+    "policy": "15>=inf",
+    "q75": 0.11848299996578647,
+    "target": 0.34873421078470074
+   }
+  ],
+  "thetaP": [
+   {
+    "set": "Marquis2019",
+    "pool": "p1",
+    "cycles": 38.0,
+    "met": false,
+    "policy": "50>=0.570",
+    "q75": 0.46568857546452985,
+    "target": 0.3461214745523778
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p2",
+    "cycles": 50.0,
+    "met": true,
+    "policy": "50>=0.551",
+    "q75": 0.26028950050744404,
+    "target": 0.3253618756343051
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p3",
+    "cycles": 45.0,
+    "met": true,
+    "policy": "50>=0.551",
+    "q75": 0.29172614989288664,
+    "target": 0.3141888095237044
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p4",
+    "cycles": 50.0,
+    "met": true,
+    "policy": "50>=0.551",
+    "q75": 0.2849827685235472,
+    "target": 0.35622846065443403
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p5",
+    "cycles": 50.0,
+    "met": true,
+    "policy": "50>=0.559",
+    "q75": 0.2789873686277606,
+    "target": 0.34873421078470074
+   }
+  ],
+  "thetaD": [
+   {
+    "set": "Marquis2019",
+    "pool": "p1",
+    "cycles": 10.0,
+    "met": true,
+    "policy": "15>=inf",
+    "q75": 0.0773942930424122,
+    "target": 0.3461214745523778
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p2",
+    "cycles": 10.0,
+    "met": true,
+    "policy": "15>=inf",
+    "q75": 0.16000109373831406,
+    "target": 0.3253618756343051
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p3",
+    "cycles": 10.0,
+    "met": true,
+    "policy": "15>=inf",
+    "q75": 0.1112796465400774,
+    "target": 0.3141888095237044
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p4",
+    "cycles": 10.0,
+    "met": true,
+    "policy": "15>=inf",
+    "q75": 0.06799617101684494,
+    "target": 0.35622846065443403
+   },
+   {
+    "set": "Marquis2019",
+    "pool": "p5",
+    "cycles": 10.0,
+    "met": true,
+    "policy": "15>=inf",
+    "q75": 0.11848299996578647,
+    "target": 0.34873421078470074
+   }
+  ]
+ }
+}

@@ -15,23 +15,26 @@
 // a failure is a disagreement between what the editor offers and what a check
 // accepts.
 //
-//   node eval/model-values.mjs [--naive] DIR [DIR...]    (every .ifc/.ifcxml/.ifczip below)
+//   node eval/model-values.mjs [--naive] [--typed] DIR [DIR...]    (every .ifc/.ifcxml/.ifczip below)
 import { readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { Model } from "../ids.mjs";
 import { resources, readModel, check } from "../node.mjs";
 import { modelInventory } from "../inventory.mjs";
-import { setsFor, propertiesOf, modelSets, modelValueOffer, ownSetName, blankSpec, blankReq, stateToDoc, buildIds } from "../editor.mjs";
+import { setsFor, propertiesOf, modelSets, modelValueOffer, ownSetName, blankSpec, blankReq, stateToDoc, buildIds, mixedModelTypes, untypeOwnRow } from "../editor.mjs";
 
 const R = resources();
 // --naive: ranges from the bounds as displayed (12 significant digits), the
 // numbers an author would copy, to count how many of those fail their model.
 const naive = process.argv.includes("--naive");
-const walk = (d) => readdirSync(d).flatMap((f) => { const p = join(d, f); return statSync(p).isDirectory() ? walk(p) : /\.(ifc|ifcxml|ifczip)$/i.test(f) ? [p] : []; });
-const files = process.argv.slice(2).filter((a) => a !== "--naive").flatMap(walk).sort();
+// --typed: own properties written in several types keep the commonest dataType
+// (the page before 2026-11-24), to show the failures Accept any data type removes.
+const typedMixed = process.argv.includes("--typed");
+const walk = (d) => !statSync(d).isDirectory() ? [d] : readdirSync(d).flatMap((f) => { const p = join(d, f); return statSync(p).isDirectory() ? walk(p) : /\.(ifc|ifcxml|ifczip)$/i.test(f) ? [p] : []; });
+const files = process.argv.slice(2).filter((a) => !a.startsWith("--")).flatMap(walk).sort();
 const kindOf = (S, dt) => { const p = dt && S.types[dt] ? S.prim(dt) : null; return !p ? null : p === "double" || p === "integer" ? "number" : p === "boolean" || p === "logical" ? "bool" : "text"; };
 
-const tot = { rounded: 0, models: 0, props: 0, withValues: 0, complete: 0, oneOf: 0, range: 0, enumProps: 0, outside: 0, typeDiff: 0, checked: 0, passed: 0 };
+const tot = { rounded: 0, models: 0, props: 0, withValues: 0, complete: 0, oneOf: 0, range: 0, enumProps: 0, outside: 0, typeDiff: 0, checked: 0, passed: 0, mixed: 0, mixedPresence: 0 };
 const rows = [], outsideEx = [], fails = [];
 for (const f of files) {
   const text = (await readModel(f)).text;
@@ -59,10 +62,18 @@ for (const f of files) {
         m.withValues++;
         if (o.complete) m.complete++;
         if (o.outside.length) { m.outside++; if (outsideEx.length < 12) outsideEx.push(`${c.cls} ${set.name}.${p.name}: ${o.outside.slice(0, 3).map(([v, n]) => `${v} (${n})`).join(", ")}`); }
-        const req = { ...blankReq(), custom: !set.standard, set: set.name, name: p.name, dataType: set.standard ? "" : dataType, cardinality: "optional" };
+        let req = { ...blankReq(), custom: !set.standard, set: set.name, name: p.name, dataType: set.standard ? "" : dataType, cardinality: "optional" };
         if (o.oneOf) { m.oneOf++; Object.assign(req, { mode: "oneOf", oneOf: o.oneOf }); }
         else if (kind === "number" && o.min !== null) { m.range++; const n12 = (x) => String(Number(x.toPrecision(12))); if (o.rangeMin !== n12(o.min) || o.rangeMax !== n12(o.max)) tot.rounded++; Object.assign(req, naive ? { mode: "range", min: n12(o.min), max: n12(o.max) } : { mode: "range", min: o.rangeMin, max: o.rangeMax }); }
         else continue;
+        // An own property written in several types: the page warns and offers
+        // Accept any data type (untypeOwnRow); with --typed the row keeps the
+        // commonest type, as the page did before 2026-11-24.
+        if (!set.standard && mixedModelTypes(p)) {
+          tot.mixed++;
+          const u = !typedMixed && untypeOwnRow(S, req, p);
+          if (u) { req = u.row; if (u.dropped) tot.mixedPresence++; }
+        }
         m.specs.push({ ...blankSpec(), name: `${c.cls} ${set.name}.${p.name}`, cls: c.cls, withSub: false, reqs: [req] });
       }
     }
@@ -81,7 +92,7 @@ for (const f of files) {
 console.log("| Model | Schema | Props offered as rows | With values | Full list known | One-of offered | Range offered | Values outside the standard's list | Built from offers: pass |");
 console.log("| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |");
 console.log(rows.join("\n"));
-console.log(`\n${tot.models} models: ${tot.props} property rows, ${tot.withValues} with values, ${tot.complete} with the full list known; one-of offered ${tot.oneOf}, range offered ${tot.range}; standard enumerated properties carried ${tot.enumProps}, with values outside the list ${tot.outside}; skipped for another data type ${tot.typeDiff}.`);
+console.log(`\n${tot.models} models: ${tot.props} property rows, ${tot.withValues} with values, ${tot.complete} with the full list known; one-of offered ${tot.oneOf}, range offered ${tot.range}; standard enumerated properties carried ${tot.enumProps}, with values outside the list ${tot.outside}; skipped for another data type ${tot.typeDiff}; own properties written in several types ${tot.mixed}${typedMixed ? " (kept the commonest dataType, --typed)" : ` (written with no dataType, as Accept any data type does; ${tot.mixedPresence} of them presence only)`}.`);
 console.log(`ranges whose bound as displayed (12 digits) would fail an object, so the offer rounds outward: ${tot.rounded} of ${tot.range}`);
 console.log(`requirements built from offers: ${tot.passed} of ${tot.checked} pass on their own model`);
 if (outsideEx.length) console.log("\nValues outside the standard's list:\n  " + outsideEx.join("\n  "));

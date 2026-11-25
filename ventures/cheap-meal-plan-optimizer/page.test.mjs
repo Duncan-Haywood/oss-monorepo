@@ -101,7 +101,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
   assert.match(page("README.md"), /No warranty/);
-  assert.match(page("LICENSE"), /MIT License/);
+  assert.match(page("LICENSE"), /Functional Source License/);
   assert.match(page("VENTURE.yaml"), /^name: cheap-meal-plan-optimizer$/m);
 });
 
@@ -204,4 +204,10 @@ test("the vegan and budget guides carry the clauses, link both ways, and match t
   }
   const vb = budgetFrontier(vegan, [5])[0].protein;
   assert.ok(vb > 136 && vb < 138, "vegan ceiling quoted as near 137 g");
+});
+
+test('index links one hop to the photo-nutrition-agent sibling', () => {
+  const html = page("index.html");
+  assert.match(html, /href="\.\.\/photo-nutrition-agent\/"/, 'index must link ../photo-nutrition-agent/ so readers reach automatic meal logging in one hop');
+  assert.match(html, /photo nutrition agent/i);
 });

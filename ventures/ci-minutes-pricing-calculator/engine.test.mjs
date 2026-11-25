@@ -14,8 +14,10 @@ test("overage is priced per 1,000 on top of the plan fee", () => {
   assert.equal(providerCost(DEFAULT_PROVIDERS.circleci, 4000), 21);
   // gitlab 12k: 29 + 2*10 = 49
   assert.equal(providerCost(DEFAULT_PROVIDERS.gitlab, 12000), 49);
-  // buildkite is pure pay-as-you-go: 10k = 130
-  assert.equal(providerCost(DEFAULT_PROVIDERS.buildkite, 10000), 130);
+  // buildkite Pro: $30 for 1 user incl. 2,000 small-agent minutes, then $0.008/min: 10k = 30 + 8*8 = 94
+  assert.equal(providerCost(DEFAULT_PROVIDERS.buildkite, 10000), 94);
+  // bitbucket Standard: $3.65 incl. 2,500, then $10 per 1,000: 10k = 3.65 + 75 = 78.65
+  assert.equal(providerCost(DEFAULT_PROVIDERS.bitbucket, 10000), 78.65);
 });
 
 test("compare sorts cheapest first and reports the gap", () => {
@@ -23,7 +25,7 @@ test("compare sorts cheapest first and reports the gap", () => {
   assert.equal(rows[0].key, "gitlab");
   assert.equal(rows[0].monthly, 29);
   assert.equal(rows.at(-1).key, "buildkite");
-  assert.equal(rows.at(-1).extraVsCheapest, 101);
+  assert.equal(rows.at(-1).extraVsCheapest, 65);
 });
 
 test("project compounds volume and totals each provider", () => {
@@ -73,4 +75,15 @@ test("budget exactly equal to the cost is not over budget; annual is 12 x monthl
   assert.equal(summarize(rows, { budget: cheapest.monthly }).overBudget, false);
   assert.equal(summarize(rows, { budget: cheapest.monthly - 0.01 }).overBudget, true);
   for (const r of rows) assert.equal(r.annual, Math.round(r.monthly * 12 * 100) / 100);
+});
+
+test("rate card matches the vendor pages read 2026-11-25 (quality audit 2026-11-19, defect 0)", () => {
+  const P = DEFAULT_PROVIDERS;
+  assert.equal(P.github.overagePer1k, 6); // $0.006/min
+  assert.equal(P.bitbucket.plans[0].price, 3.65); // Standard per user
+  assert.deepEqual([P.buildkite.freeMinutes, P.buildkite.plans[0].minutes, P.buildkite.plans[0].price, P.buildkite.overagePer1k], [1000, 2000, 30, 8]);
+  assert.equal(providerCost(P.buildkite, 1000), 0); // Free plan: 2,000 vCPU-min on a 2-vCPU agent
+  assert.equal(providerCost(P.buildkite, 1001), 30); // the Pro platform fee is charged once you need it
+  // At 150,000 Linux minutes GitHub's $0.006 beats CircleCI's $6 per 1,000 plus $15.
+  assert.equal(compare(150000)[0].key, "github");
 });

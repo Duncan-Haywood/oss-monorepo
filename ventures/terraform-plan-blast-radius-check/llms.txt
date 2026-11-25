@@ -2,7 +2,7 @@
 
 > Paste a Terraform plan JSON to see what an apply destroys or replaces, with a loud flag when a database, bucket or DNS record is hit. Runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -12,4 +12,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/terraform-plan-blast-radius-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/terraform-plan-blast-radius-check): FSL-1.1-MIT licensed.

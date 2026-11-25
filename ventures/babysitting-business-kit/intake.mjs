@@ -394,7 +394,7 @@ ${flags}
 <p class="note">One red flag is a question to ask, not a verdict. Two, or one the family will not discuss, is a good reason to decline politely.</p>
 ${personal ? "" : `<p class="noprint"><a href="./index.html">Open the Babysitting Business Kit</a>: it sends each family a one-time info sheet (kids, allergies, medications, bedtimes, emergency contacts, doctor) that fills in their record, and shows which channel (church, school, Nextdoor, referrals, your website) brings the families who book.</p>`}
 </main>
-<footer><p>${NO_WARRANTY}</p><p>Not affiliated with any church, school, Nextdoor or the FTC. Free and open source under the MIT licence: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/babysitting-business-kit">source</a>. ${SPONSOR}</p></footer>
+<footer><p>${NO_WARRANTY}</p><p>Not affiliated with any church, school, Nextdoor or the FTC. Free to use and source available under the FSL-1.1-MIT licence: <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/babysitting-business-kit">source</a>. ${SPONSOR}</p></footer>
 </body>
 </html>
 `;

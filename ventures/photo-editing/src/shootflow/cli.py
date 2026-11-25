@@ -760,7 +760,7 @@ def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
         warp_kernel=args.warp_kernel,
         demosaic=args.demosaic,
         noise_from_frame=getattr(args, "noise_from_frame", True),
-        noise_read=getattr(args, "noise_read", "mpcws"),
+        noise_read=getattr(args, "noise_read", "ship"),
         lens_db=_load_lens_db(args.lens_db) if args.lens_db else None,
         lens_name=args.lens,
         lens_focal=args.lens_focal,
@@ -1360,12 +1360,13 @@ def _build_parser() -> argparse.ArgumentParser:
     develop.add_argument(
         "--noise-read",
         choices=("ship", "mpcws"),
-        default="mpcws",
+        default="ship",
         help=(
-            "With a noise model read from the frame (Bayer raws with no NoiseProfile): 'mpcws' (default since "
-            "2026-11-23), a read with an earlier colour ramp that falls back to 'ship' where it collapses, or 'ship', "
-            "the read before. On 111 real-noise phone bursts mpcws gained about 0.08 dB colour and 0.12 dB luma, and "
-            "on 11 camera raws with drawn noise 0.12 dB colour and 0.22 dB luma, none 0.1 dB worse."
+            "With a noise model read from the frame (Bayer raws with no NoiseProfile): 'ship' (the default) or "
+            "'mpcws', a read with an earlier colour ramp that falls back to 'ship' where it collapses. On 111 "
+            "real-noise phone bursts mpcws gained about 0.08 dB colour and 0.12 dB luma, on 11 camera raws with drawn "
+            "noise 0.12 dB colour and 0.22 dB luma, and on 9 more 0.12 dB colour and 0.20 dB luma, but on one tile of "
+            "those 9 it lost 0.13 dB luma where the true noise model did not, so it is opt-in."
         ),
     )
     develop.add_argument(

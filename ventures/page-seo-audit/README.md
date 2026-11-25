@@ -37,4 +37,4 @@ not a ranking guarantee. Relative canonical URLs are flagged because engines exp
 `analyze.mjs` (engine, shared by page and CLI), `cli.mjs`, `index.html`, `seo-checklist-for-a-single-page.html`,
 `usage.mjs` (opt-out local counters), tests: `node --test ventures/page-seo-audit/`.
 
-MIT licensed. Free; support via GitHub Sponsors is optional.
+FSL-1.1-MIT licensed. Free; support via GitHub Sponsors is optional.

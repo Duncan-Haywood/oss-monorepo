@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 163 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 167 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **The ladder's edge survives a tool upgrade; tuned recipes do not** (milestone 158): on 27 SKY130 ss designs under Yosys 0.70
   and 0.71, the clipped ladder beats equal-cost random routing by about 4 points under both (change -0.48, interval -3.05 to
@@ -25,6 +25,28 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   in which each routed point takes one of its three namings, a design's edge has a median sd of 1.02 points, the 27-design mean stays
   between -4.78 and -3.62, no design with an edge above 3 points flips sign, and the two that flip in over 20% of draws sit within a
   point of zero: [`experiments/naming_draws/`](experiments/naming_draws/results.txt).
+- **A whole-table renaming moves a near-zero design's edge up to 3.8 points; five namings leave those designs ties** (milestone 164,
+  flow run, the primary refuted): two fresh random namings of every mapped netlist of the six designs with edges under 3 points fall
+  outside two of milestone 163's per-point sd on 5 of 12, because a naming shared by a whole table moves its points together; averaged
+  over five namings all six stay within 2.1 points of zero with their sign unchanged, and averaging k namings shrinks the noise
+  12 to 21% slower than 1/sqrt(k): [`experiments/naming_more/`](experiments/naming_more/results.txt).
+- **Under the 4-point naming tie rule, the gate-depth guard's evidence holds above the cut and dissolves below it** (milestone 165,
+  replay, four of six predictions held, the primary among them): of 56 blind shifter designs from milestones 118 to 133, 31 are ties
+  (19 of the 44 whose edge is not exactly zero); at 32 gates or more the ladder still wins 11 decided designs and loses 1 (sign p 0.006),
+  but below 32 it wins 5 and loses 8 (p 0.58), so "the ladder loses on shallow amounts" is a few large losses, not a rule, and the
+  guard's random routing there is insurance: [`experiments/tie_rule/`](experiments/tie_rule/results.txt).
+- **The shallow-amount shifters' wins and losses are properties of the designs, not of one netlist naming** (milestone 166, flow run,
+  seven of seven predictions held): two fresh random namings of all 13 decided designs below 32 gates (5,408 place-and-route runs,
+  build A's Yosys 0.70 and OpenROAD 26Q3, controls exact) keep every sign and every class at 4 points averaged over three namings
+  (8 losses +4.55 to +22.48, 5 wins -4.38 to -15.52), though one naming moves a design's edge a median 3.51 points and the 128-bit
+  funnel shifter's by 24.7; below the cut they still split 5 to 8 (p 0.58), so gate depth does not separate them:
+  [`experiments/naming_shifters/`](experiments/naming_shifters/results.txt).
+- **The gate-depth guard's deep-side wins are properties of the designs too** (milestone 167, flow run, seven of seven
+  predictions held): two fresh random namings of all 12 decided designs at 32 gates or more (4,992 place-and-route runs, controls
+  exact) keep every sign and class averaged over three namings (11 wins -5.11 to -19.29, pmul4's loss +16.05; sign p 0.0063), and
+  the ladder still finds the routed-best sequence on all 11 wins under the average; with milestone 166 both sides of the cut are
+  measured under three namings, though decided designs still place the cut anywhere from 19 to 32 gates:
+  [`experiments/naming_above/`](experiments/naming_above/results.txt).
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
 - **Successive halving does not reliably beat random routed search** once budgets exceed a few

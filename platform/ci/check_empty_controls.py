@@ -14,8 +14,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-SCRIPT = re.compile(r"<script\b[^>]*>(.*?)</script>", re.S | re.I)
-STRIP = re.compile(r"<script\b.*?</script>|<style\b.*?</style>|<!--.*?-->", re.S | re.I)
+SCRIPT = re.compile(r"<script\b[^>]*>(.*?)</script\b[^>]*>", re.S | re.I)
+STRIP = re.compile(r"<script\b.*?</script\b[^>]*>|<style\b.*?</style\b[^>]*>|<!--.*?-->", re.S | re.I)
 EL = re.compile(r"<(a|button)\b([^>]*)>(.*?)</\1>", re.S | re.I)
 NAMED = re.compile(r'aria-label(?:ledby)?\s*=|\btitle="[^"]+"', re.I)
 ID = re.compile(r'\bid="([^"]+)"')

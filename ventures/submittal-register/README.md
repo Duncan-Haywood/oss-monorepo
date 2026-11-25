@@ -4,7 +4,7 @@ Drop a construction project manual (spec book) PDF and get a **submittal
 register**: every Part 1 submittal requirement, by specification section,
 typed (product data, shop drawings, samples, certificates, O&M data,
 warranties) and phased (action, informational, closeout), exported as CSV.
-Runs in the browser with no upload, or as a CLI. MIT licensed, no
+Runs in the browser with no upload, or as a CLI. FSL-1.1-MIT licensed, no
 dependencies.
 
 Live: https://marisstella.app/submittal-register/
@@ -56,6 +56,25 @@ the heading is just "SUBMITTALS". Flags: `engineer-sealed` (delegated design,
 "signed and sealed"), `sustainability` (LEED, VOC, recycled content, EPD) and
 `conditional` ("if requested").
 
+**Submit requirements outside Part 1** (2026-11-24). Spec writers also put
+submittals in Part 2 and Part 3 ("Submit field test reports within 24 hours")
+and in Part 1 articles that are not submittal lists (QUALITY ASSURANCE,
+WARRANTY). Every such sentence that obliges someone to submit something
+("Submit ...", "..., submit ...", "shall be submitted", "furnish ... reports to
+the Architect") is listed separately with its section, part, article,
+paragraph, type, any deadline it states ("within three (3) days after
+testing", "prior to installation") and the Part 1 row it seems to restate.
+Mentions are skipped ("as submitted and approved", "submit in accordance with
+Section 01 33 00"). The match compares the Part 1 label with what the sentence
+asks for (the words after the verb, a run-in heading, the article title);
+generic words such as "test" or "plan" never match on their own. A row no
+Part 1 row covers is a likely missed submittal: the page lists them first and
+can add them to the register, and the CLI writes them with `--buried-csv` or
+adds them with `--with-buried` (flag `outside-part-1`). How well it works:
+[`eval/buried-2026-11-24.md`](eval/buried-2026-11-24.md) (on two held-out
+samples of 40 from 690 UFGS sections, 79 of 80 were real submit
+requirements and 43 of 49 suggested Part 1 matches were right).
+
 Running headers and footers are removed (a line shape that recurs at the top
 or bottom of a fifth of the pages), a table of contents does not create empty
 sections (the copy of a section number with the most body wins), and a
@@ -75,6 +94,8 @@ CLI:
 node cli.mjs project-manual.pdf --csv register.csv     # summary + CSV
 node cli.mjs vol1.pdf vol2.pdf --json > register.json  # several volumes
 node cli.mjs book.txt                                  # pdftotext output (form feeds = pages)
+node cli.mjs book.pdf --buried-csv outside.csv         # also: submit requirements outside Part 1
+node cli.mjs book.pdf --with-buried --csv register.csv # register + the ones no Part 1 row covers
 ```
 
 Exit code 1 when no submittal was found. Tests: `node --test engine.test.mjs page.test.mjs schedule.test.mjs`.
@@ -169,9 +190,12 @@ section's activity before you send the schedule, and pin the wrong ones.
 
 ## Limits
 
-- Part 1 submittal articles only. A requirement written only in Part 3
-  ("submit test reports to the Architect") is not listed, and Division 01
-  general requirements apply on top.
+- The register is Part 1 submittal articles; submit sentences elsewhere are a
+  separate list whose Part 1 match is a word comparison, wrong about one time
+  in eight on UFGS (eval/buried-2026-11-24.md). Requirements that never use a
+  submit verb ("the Contracting Officer will review the installer's
+  certificate") are not found, and Division 01 general requirements apply on
+  top.
 - Needs a text layer. A scanned book needs OCR first (the page says so).
 - Article headings must be upper case and numbered (`1.3 ACTION SUBMITTALS`);
   books that use `ARTICLE 1.3` or unnumbered headings will under-read.
@@ -192,8 +216,11 @@ browser), `eval/`.
 
 1. Score one or more real public-agency SectionFormat project manuals against
    a hand-made register; fix what that shows.
-2. Submittals named in Part 2 and Part 3 ("submit ... for approval"), as a
-   separate, flagged list.
+2. Submittals named in Part 2 and Part 3: shipped 2026-11-24 (above). Next:
+   read the outside-Part-1 list on a real SectionFormat project manual; a
+   second reader for the 80 judgments; match on synonyms the misses showed
+   (lubricant/lubrication, employment records/qualification) and on the object
+   past 12 words when it names a section noun ("location of all cut CMU").
 3. Submittal schedule: shipped 2026-11-22 (above). Next: weigh material
    words (aluminium, steel, wood) so "door" stops taking the first door of any
    kind; score a real job's spec book against its own schedule; a second
@@ -223,5 +250,5 @@ inputs and run it yourself.
 
 ## License
 
-MIT (see `LICENSE`). Product and company names are used only to describe
+FSL-1.1-MIT (see `LICENSE`). Product and company names are used only to describe
 alternatives; this project is not affiliated with them.

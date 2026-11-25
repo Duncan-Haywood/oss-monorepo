@@ -2,7 +2,7 @@
 
 > Free tool for anyone with measurements or defect counts in time order: paste them and get an I-MR, X-bar R, X-bar S, p, np, c or u control chart with all eight Nelson run rules, trial limits you can revise, a check on whether your subgroups hide between-batch variation, and Cp, Cpk, Pp, Ppk. Nothing uploaded.
 
-Free and open source (MIT). Results are statistics on the data pasted in, not legal, tax, financial, engineering or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are statistics on the data pasted in, not legal, tax, financial, engineering or professional advice.
 
 ## Pages
 
@@ -15,4 +15,4 @@ Free and open source (MIT). Results are statistics on the data pasted in, not le
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/spc-control-charts): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/spc-control-charts): FSL-1.1-MIT licensed.

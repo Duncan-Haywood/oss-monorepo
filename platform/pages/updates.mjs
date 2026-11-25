@@ -393,7 +393,7 @@ ${body}
 <footer>
   <p>Generated on every publish from the <a href="${REPO_URL}">repository</a>: merge history, research logs, run records and the
   owner's goals file. Nothing on this page is typed by hand. Provided as-is, with no warranty of accuracy or completeness,
-  and not advice of any kind. MIT-licensed, like everything here.</p>
+  and not advice of any kind. FSL-1.1-MIT-licensed, like the tools.</p>
   ${renderSiteFooterNav({ toRoot })}
 </footer>
 </div>
@@ -479,7 +479,7 @@ ${KINDS.map((k) => `<button type="button" data-filter="${k.id}" aria-pressed="fa
     canonical,
     socialCard,
     toRoot,
-    current: 'updates',
+    current: 'writing',
     feedHref: 'feed.xml',
     script,
     jsonLd: {
@@ -686,7 +686,7 @@ and keeps what works. Experiments and their verdicts are on the <a href="../dev/
     canonical,
     socialCard,
     toRoot,
-    current: 'updates',
+    current: 'writing',
     feedHref: `../${CHANGELOG_PATH}feed.xml`,
     script,
     jsonLd: {

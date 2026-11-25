@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01EhTJVKddDAheHckTJdQcaV",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T13:57:08Z",
+  "ended": "2026-11-25T14:03:15Z",
+  "wall_minutes": 6.47,
+  "tokens_in": 4359192,
+  "tokens_out": 17628,
+  "cost_usd": 1.9824,
+  "tool_calls": 50,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18990",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam.py open (record 2026-11-16 defect 1)",
+      "issue": "The open entry said 'control plane, own PR, owner approval', but ventures-tests.yml is non-priv and run_venture_tests.py is unowned. Since 2026-11-24 nothing waits for the owner, so the entry sat open and every red-team run had to re-read it."
+    },
+    {
+      "file": "platform/ci/friction_rank.py --live",
+      "issue": "The top clusters (the process-kill hook, private-monorepo reach, quality_audit 'unknown') were already fixed in the files they name but still listed. Re-checking each one took about 10 minutes before I could find a live problem."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "Critique mode suggests fixing a doc_friction cluster. The live clusters were already resolved, so I fixed an open red-team defect: a CI test gap.",
+      "did": "Added a ci-fetch.sh hook to run_venture_tests.py and wired up ids-model-check's licensed conformance data",
+      "result": "626 tests, 0 skipped (2 were skipped before)"
+    },
+    {
+      "file": "prompt.md",
+      "why": "No new post. This is a CI test-gap fix with no customer-facing angle, and a run record plus PR body is enough for the next run.",
+      "did": "README line in ids-model-check only",
+      "result": null
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Backlog had no workable agent rows. main_health 325/325. Fixed red-team record 2026-11-16 defect 1. Generic hook: a venture's ci-fetch.sh runs before its suites, and a failed fetch fails the venture. Verified: test_run_venture_tests 50 OK; run_venture_tests.py ids-model-check from a clean tree: fetch 3 s, 626 tests ok, 0 skipped. Also noticed 41 run records (2026-11-16..25) report `git checkout -b` failing because the harness already created the work branch. No doc tells agents to run it (the habit comes from the harness default), so it can't be fixed with a doc line.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4fa15df0-37eb-5c45-ba2c-34c8d98eaa40",
+    "transcripts": 1,
+    "first": "2026-11-25T13:57:08Z",
+    "last": "2026-11-25T14:03:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 93,
+        "output": 17628,
+        "thinking": 5206,
+        "cache_read": 4261964,
+        "cache_write_5m": 0,
+        "cache_write_1h": 97135,
+        "api_equivalent_usd": 1.9824,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 93,
+      "output": 17628,
+      "thinking": 5206,
+      "cache_read": 4261964,
+      "cache_write_5m": 0,
+      "cache_write_1h": 97135,
+      "api_equivalent_usd": 1.9824,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 47,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.47,
+      "active_minutes": 6.47,
+      "model_minutes": 3.55,
+      "tool_minutes": 2.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "runner hook + test + verify CI data fetch",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 100.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

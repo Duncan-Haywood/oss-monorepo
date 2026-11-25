@@ -30,7 +30,9 @@ import { resources, check, parseModel } from "../node.mjs";
 const argv = process.argv.slice(2);
 const extAt = argv.indexOf("--ext");
 const EXT = extAt >= 0 ? argv.splice(extAt, 2)[1] : ".ifcxml";
-const extRe = new RegExp(EXT.replace(/\./g, "\\.") + "$", "i");
+// A plain case-insensitive suffix test: EXT comes from the command line, so it is never turned into a RegExp.
+const hasExt = (f) => f.toLowerCase().endsWith(EXT.toLowerCase());
+const stripExt = (f) => (hasExt(f) ? f.slice(0, f.length - EXT.length) : f);
 const idsAt = argv.indexOf("--ids-dir");
 const IDS_DIR = idsAt >= 0 ? argv.splice(idsAt, 2)[1] : null;
 const deepAt = argv.indexOf("--deep");
@@ -84,8 +86,8 @@ const isGuid = (s) => typeof s === "string" && /^[0-9A-Za-z_$]{22}$/.test(s);
 const pairs = [];
 for (const dir of dirs) {
   if (!existsSync(dir)) { console.error(`no files at ${dir}; run eval/fetch-ifcxml-twins.sh first`); process.exit(2); }
-  for (const f of readdirSync(dir).filter((f) => extRe.test(f)).sort()) {
-    const step = join(dir, f.replace(extRe, ".ifc"));
+  for (const f of readdirSync(dir).filter(hasExt).sort()) {
+    const step = join(dir, stripExt(f) + ".ifc");
     if (existsSync(step)) pairs.push([step, join(dir, f)]);
   }
 }
@@ -97,7 +99,7 @@ const diffKinds = new Map(), rootKinds = new Map(), rootSample = new Map();
 const totals = { orphans: 0, pairs: 0, clean: 0, attrsSame: 0, attrsDiff: 0, idsSame: 0, idsRuns: 0 };
 for (const [stepPath, xmlPath] of pairs) {
   totals.pairs++;
-  const name = basename(xmlPath).replace(extRe, "");
+  const name = stripExt(basename(xmlPath));
   let S, X;
   try {
     S = parseModel(readFileSync(stepPath, "utf8"));

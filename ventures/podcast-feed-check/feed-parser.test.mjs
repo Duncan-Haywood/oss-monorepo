@@ -114,3 +114,8 @@ test('parseFeed falls back to itunes:summary when <description> is absent', () =
   const { channel } = parseFeed(xml);
   assert.equal(channel.description, 'Summary text');
 });
+
+test('a character reference past U+10FFFF in a feed becomes U+FFFD instead of throwing', () => {
+  assert.equal(decodeText('A &#x110000; &#99999999; &#233;'), 'A \uFFFD \uFFFD é');
+  assert.doesNotThrow(() => parseFeed('<rss><channel><title>A &#x110000;</title></channel></rss>'));
+});

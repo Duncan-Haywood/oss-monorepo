@@ -42,6 +42,7 @@ else {
     const d = r.dates;
     console.log(`\nCOBRA election deadline ${d.electionDeadline} (60 days from ${d.electionNoticeBasis}); first premium due 45 days after you elect (${d.firstPremiumDue} at the latest)`);
     console.log(`Marketplace special enrollment ends ${d.marketplaceWindowEnds}; pick a plan by ${d.marketplaceNoGapPickBy} to start ${d.marketplaceStartsIfPickedByThen}`);
+    if (d.marketplaceGapFrom) console.log(`Your coverage ends mid-month, so a marketplace plan cannot cover ${d.marketplaceGapFrom} to ${d.marketplaceNoGapPickBy}; only COBRA can fill those days`);
   }
   console.log(`\n${RULES_AS_OF}. Not insurance or legal advice.`);
 }

@@ -1,0 +1,266 @@
+# eval/pgsuper-bridges-2026-11-24.txt: raw output for eval/pgsuper-bridges-2026-11-24.md
+# files: bash eval/pgsuper-bridges-fetch.sh DIR (sha256 below); DIR stands for that folder
+cf3e8087ca2b70b3b6e913b3d7cdab4f599157594c4ed82c08b159d9052c9340  I405-SR167.Flyover.ifc
+aed767fbd34a2c562c040738c6df57b66365d7606fd05d918e932a8e1a330170  IFC_Alignment4_Br1.ifc
+2ab4f079b201eebe0c638bfb1ed5a7cd26b6512b9c3fe20e37cf20b497cdc20b  PGSuperExport.ifc
+
+## BoQ on main before this change (node cli.mjs FILE, first 10 columns)
+== I405-SR167.Flyover.ifc
+Class,Type,Count,Volume m3,Area m2,Length m,Weight kg,Volume from model's stored quantities,Volume computed here,No volume
+IfcBeam,(no type),24,788.104584,0,1164.401145,0,0,24,0
+IfcRailing,(no type),2,0,0,0,0,0,0,2
+IfcSlab,(no type),1,0,0,0,0,0,0,1
+== IFC_Alignment4_Br1.ifc
+Class,Type,Count,Volume m3,Area m2,Length m,Weight kg,Volume from model's stored quantities,Volume computed here,No volume
+IfcBeam,(no type),5,110.043766,0,195.039547,0,0,5,0
+IfcRailing,(no type),2,0,0,0,0,0,0,2
+IfcSlab,(no type),1,0,0,0,0,0,0,1
+== PGSuperExport.ifc
+Class,Type,Count,Volume m3,Area m2,Length m,Weight kg,Volume from model's stored quantities,Volume computed here,No volume
+IfcBeam,(no type),5,110.062077,0,195.072,0,0,5,0
+IfcRailing,(no type),2,30.525331,0,0,0,0,2,0
+IfcSlab,(no type),1,76.216865,347.225206,0,0,0,1,0
+
+## why, on main (node cli.mjs FILE --rows, not-read reasons)
+== I405-SR167.Flyover.ifc
+      3 not read: alignment segment IFCPOLYNOMIALCURVE
+== IFC_Alignment4_Br1.ifc
+      3 not read: alignment segment IFCPOLYNOMIALCURVE
+== PGSuperExport.ifc
+
+## BoQ after (node cli.mjs FILE, first 10 columns)
+== I405-SR167.Flyover.ifc
+Class,Type,Count,Volume m3,Area m2,Length m,Weight kg,Volume from model's stored quantities,Volume computed here,No volume
+IfcBeam,(no type),24,788.104584,0,1164.401145,0,0,24,0
+IfcRailing,(no type),2,159.067286,0,0,0,0,2,0
+IfcSlab,(no type),1,797.123206,3382.75635,0,0,0,1,0
+== IFC_Alignment4_Br1.ifc
+Class,Type,Count,Volume m3,Area m2,Length m,Weight kg,Volume from model's stored quantities,Volume computed here,No volume
+IfcBeam,(no type),5,110.043766,0,195.039547,0,0,5,0
+IfcRailing,(no type),2,30.531824,0,0,0,0,2,0
+IfcSlab,(no type),1,79.046176,358.787742,0,0,0,1,0
+== PGSuperExport.ifc
+Class,Type,Count,Volume m3,Area m2,Length m,Weight kg,Volume from model's stored quantities,Volume computed here,No volume
+IfcBeam,(no type),5,110.062077,0,195.072,0,0,5,0
+IfcRailing,(no type),2,30.525331,0,0,0,0,2,0
+IfcSlab,(no type),1,76.216865,347.225112,0,0,0,1,0
+
+## notes on the lofted parts after (node cli.mjs FILE --json)
+I405-SR167.Flyover.ifc #628 IfcSlab volume 797.123206 plan 3382.756 | cross-sections drawn in absolute elevation (20.59 to 27.92 m) on a gradient curve that adds it again: moved down onto the curve
+I405-SR167.Flyover.ifc #745 IfcRailing volume 80.747420 plan - | cross-sections drawn in absolute elevation (20.59 to 27.92 m) on a gradient curve that adds it again: moved down onto the curve
+I405-SR167.Flyover.ifc #859 IfcRailing volume 78.319865 plan - | cross-sections drawn in absolute elevation (20.59 to 27.92 m) on a gradient curve that adds it again: moved down onto the curve
+IFC_Alignment4_Br1.ifc #631 IfcSlab volume 79.046176 plan 358.788 | cross-sections paired on their points as written (repeated points kept) | cross-sections drawn in absolute elevation (24.12 to 25.26 m) on a gradient curve that adds it again: moved down onto the curve
+IFC_Alignment4_Br1.ifc #748 IfcRailing volume 15.376263 plan - | cross-sections drawn in absolute elevation (24.12 to 25.26 m) on a gradient curve that adds it again: moved down onto the curve
+IFC_Alignment4_Br1.ifc #862 IfcRailing volume 15.155561 plan - | cross-sections drawn in absolute elevation (24.12 to 25.26 m) on a gradient curve that adds it again: moved down onto the curve
+PGSuperExport.ifc #486 IfcSlab volume 76.216865 plan 347.225 | 
+PGSuperExport.ifc #513 IfcRailing volume 15.262666 plan - | 
+PGSuperExport.ifc #537 IfcRailing volume 15.262666 plan - | 
+
+## joints (node eval/linear-placement.mjs FILE)
+== I405-SR167.Flyover.ifc (IFC4X3_ADD2)
+  #54 horizontal (3 polyline, 1 circle; 784.665 m to the last joint): worst joint gap 4.66e-10 m, turn 2.02e-11 deg
+  #107 vertical (2 polynomialcurve, 3 line; 785.234 m to the last joint): worst joint gap 1.84e-11 m, turn 4.19e-13 deg; 4 lengths read as horizontal runs; 2 parents kept level; closing segment placed at the last segment's start (not counted)
+  all 6 continuous joints: worst gap 4.66e-10 m, worst turn 2.02e-11 deg
+  IfcLinearPlacement: 1 placed, 0 not
+== IFC_Alignment4_Br1.ifc (IFC4X3_ADD2)
+  #97 horizontal (3 line, 2 circle, 2 clothoid; 2083.198 m to the last joint): worst joint gap 3.22e-3 m, turn 2.50e+0 deg
+  #180 vertical (5 line, 3 polynomialcurve; 2084.627 m to the last joint): worst joint gap 1.55e-10 m, turn 1.31e-12 deg; 7 lengths read as horizontal runs; 3 parents kept level; closing segment placed at the last segment's start (not counted)
+  all 12 continuous joints: worst gap 3.22e-3 m, worst turn 2.50e+0 deg
+  IfcLinearPlacement: 1 placed, 0 not
+== PGSuperExport.ifc (IFC4X3_ADD2)
+  #40 horizontal (2 line; 139.624 m to the last joint): worst joint gap 0.00e+0 m, turn 0.00e+0 deg
+  #63 vertical (2 line; 139.624 m to the last joint): worst joint gap 0.00e+0 m, turn 0.00e+0 deg; closing segment placed at the last segment's start (not counted)
+  all 1 continuous joints: worst gap 0.00e+0 m, worst turn 0.00e+0 deg
+  IfcLinearPlacement: 6 placed, 0 not
+
+## elevations against the semantic vertical alignment (node eval/vertical-semantic.mjs FILE), with Viadotto Acerno as the control
+== I405-SR167.Flyover.ifc
+  vertical #105 / gradient #107: 4 segments, worst elevation difference 1.78e-11 m
+    PARABOLICARC 0.000 + 41.148 m: worst 1.69e-11 m at 1.0
+    CONSTANTGRADIENT 41.148 + 260.430 m: worst 8.71e-12 m at 43.1
+    PARABOLICARC 301.578 + 198.120 m: worst 1.62e-11 m at 496.7
+    CONSTANTGRADIENT 499.698 + 284.967 m: worst 1.78e-11 m at 742.7
+== IFC_Alignment4_Br1.ifc
+  vertical #178 / gradient #180: 7 segments, worst elevation difference 2.83e-11 m
+    CONSTANTGRADIENT 0.000 + 274.320 m: worst 2.36e-11 m at 237.4
+    PARABOLICARC 274.320 + 304.800 m: worst -2.10e-11 m at 287.3
+    CONSTANTGRADIENT 579.120 + 182.880 m: worst -1.42e-11 m at 617.1
+    PARABOLICARC 762.000 + 609.600 m: worst 2.59e-11 m at 1341.6
+    CONSTANTGRADIENT 1371.600 + 167.640 m: worst -2.83e-11 m at 1413.5
+    PARABOLICARC 1539.240 + 457.200 m: worst 2.80e-11 m at 1545.2
+    CONSTANTGRADIENT 1996.440 + 86.758 m: worst 4.72e-12 m at 2005.4
+== PGSuperExport.ifc
+  vertical #61 / gradient #63: 1 segments, worst elevation difference 0.00e+0 m
+    CONSTANTGRADIENT 0.000 + 139.624 m: worst 0.00e+0 m at 0.0
+== Viadotto Acerno.ifc
+  vertical #159714 / gradient #159884: 5 segments, worst elevation difference 5.25e-6 m
+    CONSTANTGRADIENT 0.000 + 134.059 m: worst 5.93e-12 m at 26.8
+    CIRCULARARC 134.059 + 38.301 m: worst -5.25e-6 m at 172.4
+    CONSTANTGRADIENT 172.360 + 176.482 m: worst 2.33e-6 m at 172.4
+    CIRCULARARC 348.842 + 25.522 m: worst 1.98e-6 m at 374.4
+    CONSTANTGRADIENT 374.363 + 129.536 m: worst 6.37e-7 m at 374.4
+  vertical #192305 / gradient #192475: 5 segments, worst elevation difference 3.51e-2 m
+    CONSTANTGRADIENT 0.000 + 134.059 m: worst -5.90e-12 m at 12.9
+    CIRCULARARC 134.059 + 38.301 m: worst -5.25e-6 m at 172.4
+    CONSTANTGRADIENT 172.360 + 176.482 m: worst -3.51e-2 m at 348.8
+    CIRCULARARC 348.842 + 25.522 m: worst 1.83e-6 m at 373.4
+    CONSTANTGRADIENT 374.363 + 129.254 m: worst 5.22e-12 m at 503.6
+  vertical #252925 / gradient #253071: 1 segments, worst elevation difference 3.77e-12 m
+    CONSTANTGRADIENT 0.000 + 517.875 m: worst -3.77e-12 m at 258.9
+
+## volumes by an independent integral (python3 eval/loft-integral.py FILE)
+== I405-SR167.Flyover.ifc
+#625 on #107: 11 sections, stations 387.053 to 584.767: 797.014370 m3 plan-straight, 797.146332 m3 with plan curvature
+#742 on #107: 11 sections, stations 387.053 to 584.767: 79.529248 m3 plan-straight, 80.736527 m3 with plan curvature
+#856 on #107: 11 sections, stations 387.053 to 584.767: 79.530264 m3 plan-straight, 78.314649 m3 with plan curvature
+== IFC_Alignment4_Br1.ifc
+#628 on #180: 11 sections, stations 600.825 to 638.798: 79.065207 m3 plan-straight, 79.046284 m3 with plan curvature
+#745 on #180: 11 sections, stations 600.825 to 638.798: 15.269530 m3 plan-straight, 15.376381 m3 with plan curvature
+#859 on #180: 11 sections, stations 600.825 to 638.798: 15.269530 m3 plan-straight, 15.155480 m3 with plan curvature
+== PGSuperExport.ifc
+#483 on #63: 11 sections, stations 40.450 to 78.422: 76.216865 m3 plan-straight, 76.216865 m3 with plan curvature
+#510 on #63: 2 sections, stations 40.450 to 78.422: 15.262666 m3 plan-straight, 15.262666 m3 with plan curvature
+#534 on #63: 2 sections, stations 40.450 to 78.422: 15.262666 m3 plan-straight, 15.262666 m3 with plan curvature
+
+## deck on its girders (node eval/deck-seat.mjs FILE DECK GIRDERS...)
+== I405-SR167.Flyover.ifc
+girder #912 at station 411.28 y 6.85: top 27.738, deck underside 27.911, gap 0.173 m
+girder #985 at station 411.27 y 3.94: top 27.533, deck underside 27.707, gap 0.174 m
+girder #1058 at station 411.27 y 1.02: top 27.329, deck underside 27.503, gap 0.174 m
+girder #1131 at station 411.27 y -1.89: top 27.124, deck underside 27.299, gap 0.175 m
+girder #1204 at station 411.26 y -4.80: top 26.920, deck underside 27.095, gap 0.175 m
+girder #1277 at station 411.26 y -7.71: top 26.716, deck underside 26.918, gap 0.202 m
+girder #1350 at station 459.23 y 7.02: top 26.627, deck underside 26.777, gap 0.150 m
+girder #1423 at station 459.23 y 4.11: top 26.430, deck underside 26.573, gap 0.143 m
+girder #1496 at station 459.23 y 1.19: top 26.233, deck underside 26.369, gap 0.136 m
+girder #1569 at station 459.23 y -1.72: top 26.035, deck underside 26.165, gap 0.129 m
+girder #1642 at station 459.23 y -4.63: top 25.838, deck underside 25.961, gap 0.123 m
+girder #1715 at station 459.23 y -7.55: top 25.641, deck underside 25.779, gap 0.138 m
+girder #1788 at station 507.65 y 6.88: top 24.332, deck underside NaN, gap NaN m
+girder #1861 at station 507.72 y 4.16: top 24.222, deck underside NaN, gap NaN m
+girder #1934 at station 507.80 y 1.44: top 24.112, deck underside NaN, gap NaN m
+girder #2007 at station 507.87 y -1.27: top 23.999, deck underside NaN, gap NaN m
+girder #2080 at station 507.95 y -3.99: top 23.881, deck underside NaN, gap NaN m
+girder #2153 at station 508.02 y -6.70: top 23.764, deck underside NaN, gap NaN m
+girder #2226 at station 559.67 y 6.29: top 21.473, deck underside NaN, gap NaN m
+girder #2299 at station 559.68 y 3.77: top 21.483, deck underside NaN, gap NaN m
+girder #2372 at station 559.68 y 1.26: top 21.493, deck underside NaN, gap NaN m
+girder #2445 at station 559.68 y -1.26: top 21.472, deck underside NaN, gap NaN m
+girder #2518 at station 559.68 y -3.77: top 21.422, deck underside NaN, gap NaN m
+girder #2591 at station 559.68 y -6.29: top 21.372, deck underside NaN, gap NaN m
+12 girders under the deck: gap 0.123 to 0.202 m
+== IFC_Alignment4_Br1.ifc
+girder #915 at station 619.77 y 3.35: top 24.408, deck underside 24.478, gap 0.070 m
+girder #988 at station 619.77 y 1.52: top 24.408, deck underside 24.478, gap 0.070 m
+girder #1061 at station 619.77 y -0.30: top 24.408, deck underside 24.478, gap 0.070 m
+girder #1134 at station 619.78 y -2.13: top 24.408, deck underside 24.478, gap 0.070 m
+girder #1207 at station 619.78 y -3.96: top 24.408, deck underside 24.478, gap 0.070 m
+5 girders under the deck: gap 0.070 to 0.070 m
+== PGSuperExport.ifc
+girder #590 at station 59.13 y -3.66: top -0.356, deck underside NaN, gap NaN m
+girder #663 at station 59.13 y -1.83: top -0.320, deck underside NaN, gap NaN m
+girder #736 at station 59.13 y 0.00: top -0.283, deck underside NaN, gap NaN m
+girder #809 at station 59.13 y 1.83: top -0.320, deck underside NaN, gap NaN m
+girder #882 at station 59.13 y 3.66: top -0.356, deck underside NaN, gap NaN m
+0 girders under the deck: gap Infinity to -Infinity m
+
+## controls: Viadotto Acerno BoQ, main vs this change (diff of the first 7 columns; nothing else moved)
+36c36
+< IfcSlab,Reinforced Concrete Slab,19,1889.353514,5638.322208,0,0
+---
+> IfcSlab,Reinforced Concrete Slab,19,1889.353514,5961.636731,0,0
+## controls: buildingSMART IFC4.3.x-sample-models (node eval/bsi-samples.mjs models/): output identical to main's
+46 files, 140 of 141 elements read; not read: {"no body":1}
+
+## against IfcOpenShell 0.9.0.post1 (eval/pgsuper-bridges-ifcopenshell.py per file, then node eval/bsi-samples.mjs DIR ios.json)
+I405-SR167.Flyover.ifc: 27 of 27 read; vs IfcOpenShell 24 compared, volume 0, box 24; length 1164.401 m
+IFC_Alignment4_Br1.ifc: 8 of 8 read; vs IfcOpenShell 7 compared, volume 0, box 5; length 195.040 m
+PGSuperExport.ifc: 8 of 8 read; vs IfcOpenShell 8 compared, volume 0, box 8; length 195.072 m
+
+3 files, 43 of 43 elements read; not read: {}
+vs IfcOpenShell: 39 elements both read; volume within 1%: 0; world box within 2 mm: 37
+disagreements:
+  I405-SR167.Flyover.ifc #930 IfcBeam: volume 34.004451 vs 22.774671 m3 (49.308%), box off by 0.00 mm
+  I405-SR167.Flyover.ifc #1003 IfcBeam: volume 33.699894 vs 22.571576 m3 (49.302%), box off by 0.00 mm
+  I405-SR167.Flyover.ifc #1076 IfcBeam: volume 33.395291 vs 22.368483 m3 (49.296%), box off by 0.00 mm
+  I405-SR167.Flyover.ifc #1149 IfcBeam: volume 33.090733 vs 22.165391 m3 (49.290%), box off by 0.00 mm
+  I405-SR167.Flyover.ifc #1222 IfcBeam: volume 32.785919 vs 21.962299 m3 (49.283%), box off by 0.00 mm
+  I405-SR167.Flyover.ifc #1295 IfcBeam: volume 32.481107 vs 21.759209 m3 (49.275%), box off by 0.00 mm
+  I405-SR167.Flyover.ifc #1368 IfcBeam: volume 30.439401 vs 20.396235 m3 (49.240%), box off by 0.00 mm
+  I405-SR167.Flyover.ifc #1441 IfcBeam: volume 30.162431 vs 20.210622 m3 (49.240%), box off by 0.00 mm
+  I405-SR167.Flyover.ifc #1514 IfcBeam: volume 29.885526 vs 20.026252 m3 (49.232%), box off by 0.00 mm
+  I405-SR167.Flyover.ifc #1587 IfcBeam: volume 29.608570 vs 19.841888 m3 (49.223%), box off by 0.00 mm
+  I405-SR167.Flyover.ifc #1660 IfcBeam: volume 29.331838 vs 19.657528 m3 (49.214%), box off by 0.00 mm
+  I405-SR167.Flyover.ifc #1733 IfcBeam: volume 29.054962 vs 19.473174 m3 (49.205%), box off by 0.00 mm
+  I405-SR167.Flyover.ifc #1806 IfcBeam: volume 34.361972 vs 23.015505 m3 (49.299%), box off by 0.00 mm
+  I405-SR167.Flyover.ifc #1879 IfcBeam: volume 34.264148 vs 22.949588 m3 (49.302%), box off by 0.00 mm
+  I405-SR167.Flyover.ifc #1952 IfcBeam: volume 34.167945 vs 22.886142 m3 (49.295%), box off by 0.00 mm
+  I405-SR167.Flyover.ifc #2025 IfcBeam: volume 34.073903 vs 22.822962 m3 (49.297%), box off by 0.00 mm
+  I405-SR167.Flyover.ifc #2098 IfcBeam: volume 33.982190 vs 22.761168 m3 (49.299%), box off by 0.00 mm
+  I405-SR167.Flyover.ifc #2171 IfcBeam: volume 33.892396 vs 22.700773 m3 (49.301%), box off by 0.00 mm
+  I405-SR167.Flyover.ifc #2244 IfcBeam: volume 34.236912 vs 22.930954 m3 (49.304%), box off by 0.00 mm
+  I405-SR167.Flyover.ifc #2317 IfcBeam: volume 34.236934 vs 22.930982 m3 (49.304%), box off by 0.00 mm
+  I405-SR167.Flyover.ifc #2390 IfcBeam: volume 34.237115 vs 22.931011 m3 (49.305%), box off by 0.00 mm
+  I405-SR167.Flyover.ifc #2463 IfcBeam: volume 34.237053 vs 22.931025 m3 (49.305%), box off by 0.00 mm
+  I405-SR167.Flyover.ifc #2536 IfcBeam: volume 34.236987 vs 22.931025 m3 (49.304%), box off by 0.00 mm
+  I405-SR167.Flyover.ifc #2609 IfcBeam: volume 34.236904 vs 22.931025 m3 (49.304%), box off by 0.00 mm
+  IFC_Alignment4_Br1.ifc #748 IfcRailing: volume 15.376263 vs 10.321299 m3 (48.976%), box off by 25231.98 mm
+  IFC_Alignment4_Br1.ifc #862 IfcRailing: volume 15.155561 vs 10.175275 m3 (48.945%), box off by 25231.98 mm
+  IFC_Alignment4_Br1.ifc #933 IfcBeam: volume 22.135241 vs 14.841253 m3 (49.147%), box off by 0.00 mm
+  IFC_Alignment4_Br1.ifc #1006 IfcBeam: volume 22.071997 vs 14.798799 m3 (49.147%), box off by 0.00 mm
+  IFC_Alignment4_Br1.ifc #1079 IfcBeam: volume 22.008752 vs 14.756343 m3 (49.148%), box off by 0.00 mm
+  IFC_Alignment4_Br1.ifc #1152 IfcBeam: volume 21.945510 vs 14.715077 m3 (49.136%), box off by 0.00 mm
+  IFC_Alignment4_Br1.ifc #1225 IfcBeam: volume 21.882266 vs 14.672618 m3 (49.137%), box off by 0.00 mm
+  PGSuperExport.ifc #486 IfcSlab: volume 76.216865 vs 47.528539 m3 (60.360%), box off by 0.00 mm
+  PGSuperExport.ifc #513 IfcRailing: volume 15.262666 vs 10.242052 m3 (49.020%), box off by 0.00 mm
+  PGSuperExport.ifc #537 IfcRailing: volume 15.262666 vs 10.242052 m3 (49.020%), box off by 0.00 mm
+  PGSuperExport.ifc #608 IfcBeam: volume 22.012415 vs 14.767823 m3 (49.057%), box off by 0.00 mm
+  PGSuperExport.ifc #681 IfcBeam: volume 22.012415 vs 14.767823 m3 (49.057%), box off by 0.00 mm
+  PGSuperExport.ifc #754 IfcBeam: volume 22.012415 vs 14.767823 m3 (49.057%), box off by 0.00 mm
+  PGSuperExport.ifc #827 IfcBeam: volume 22.012415 vs 14.767823 m3 (49.057%), box off by 0.00 mm
+  PGSuperExport.ifc #900 IfcBeam: volume 22.012415 vs 14.767823 m3 (49.057%), box off by 0.00 mm
+
+## IfcOpenShell per element
+I405-SR167.Flyover IfcBeam 0ARQ49X357nwlFx9DXyrV8 volume about box centre 22.931025, open edges 97, get_volume 180006.413, z 17.762..22.685
+I405-SR167.Flyover IfcBeam 0BI59UBP53iR2kVNNfig$Z volume about box centre 20.026252, open edges 95, get_volume 178376.692, z 23.057..27.009
+I405-SR167.Flyover IfcBeam 0Ikrp1DGT4ff6shN4nzUwd volume about box centre 19.841888, open edges 97, get_volume 178376.609, z 22.868..26.804
+I405-SR167.Flyover IfcBeam 0RHcAXt2P3cPoZh9U8Q1QO volume about box centre 19.473174, open edges 97, get_volume 178376.431, z 22.488..26.395
+I405-SR167.Flyover IfcBeam 0UjA69pnv7jOBPUWkHJdRK volume about box centre 22.571576, open edges 97, get_volume 172856.992, z 24.779..27.887
+I405-SR167.Flyover IfcBeam 0fLBkkcwrB19lXbIy9mga6 volume about box centre 22.822962, open edges 93, get_volume 179980.887, z 20.345..25.255
+I405-SR167.Flyover IfcBeam 14nSEYs991QwzzPdQcGxyZ volume about box centre 22.931025, open edges 95, get_volume 180006.411, z 17.812..22.735
+I405-SR167.Flyover IfcBeam 1AonHCsYX1KRl8s5VMgyVp volume about box centre 22.700773, open edges 97, get_volume 179939.499, z 20.244..24.885
+I405-SR167.Flyover IfcBeam 1jfEe$dZHDHQEINX_1MaVv volume about box centre 22.930954, open edges 95, get_volume 179968.824, z 17.712..22.837
+I405-SR167.Flyover IfcBeam 1smH3MpfbCewdIs7wKtnAz volume about box centre 22.761168, open edges 97, get_volume 179966.349, z 20.294..25.070
+I405-SR167.Flyover IfcBeam 273vxMsgPAZvBEbUxXq86N volume about box centre 22.774671, open edges 97, get_volume 172857.498, z 24.984..28.091
+I405-SR167.Flyover IfcBeam 286WVdiNnCHQ9Be6taXpr1 volume about box centre 19.657528, open edges 97, get_volume 178376.523, z 22.678..26.600
+I405-SR167.Flyover IfcBeam 2JJ7YXZMP0Ug52bCkiL8W_ volume about box centre 22.931025, open edges 97, get_volume 180006.414, z 17.711..22.635
+I405-SR167.Flyover IfcBeam 2NE2yVfk91tgzc_nK$82xA volume about box centre 22.886142, open edges 95, get_volume 179981.829, z 20.388..25.440
+I405-SR167.Flyover IfcBeam 2VvGSJd1jEdwHuXD8HxeDa volume about box centre 22.949588, open edges 95, get_volume 179969.172, z 20.423..25.625
+I405-SR167.Flyover IfcBeam 36lDSPu_f7$ww$q$W8kdUs volume about box centre 20.396235, open edges 97, get_volume 178376.846, z 23.436..27.418
+I405-SR167.Flyover IfcBeam 39SVHn_7n7OfEY5u19yRH0 volume about box centre 22.368483, open edges 95, get_volume 172856.476, z 24.575..27.682
+I405-SR167.Flyover IfcBeam 3B78fp7dX6iOuLRaj0Ndk_ volume about box centre 22.165391, open edges 97, get_volume 172855.955, z 24.371..27.478
+I405-SR167.Flyover IfcBeam 3BTfipQ_X3OvFPmKUn4Nre volume about box centre 22.931011, open edges 97, get_volume 179999.124, z 17.812..22.776
+I405-SR167.Flyover IfcBeam 3St6dgmZzD2QYWCYKbXhsk volume about box centre 20.210622, open edges 95, get_volume 178376.770, z 23.247..27.214
+I405-SR167.Flyover IfcBeam 3ddjBjjw56rh3_vdEdmcyw volume about box centre 23.015505, open edges 93, get_volume 179944.532, z 20.458..25.810
+I405-SR167.Flyover IfcBeam 3e28mNElXFQ8GAHku_52W$ volume about box centre 21.962299, open edges 97, get_volume 172855.420, z 24.167..27.274
+I405-SR167.Flyover IfcBeam 3pNtw5RZjAEul4jw_bxp$Q volume about box centre 22.930982, open edges 97, get_volume 179984.204, z 17.762..22.806
+I405-SR167.Flyover IfcBeam 3reLrQi8rB5vxs_WlgqJq_ volume about box centre 21.759209, open edges 97, get_volume 172854.879, z 23.962..27.069
+I405-SR167.Flyover IfcRailing 1LbgE3d7n2XvLEo2sAAzZ7 error: crashed (exit code -11)
+I405-SR167.Flyover IfcRailing 1_zFrN7Gv1mR9_UeytB4l0 error: crashed (exit code -11)
+I405-SR167.Flyover IfcSlab 2GcYv0Oln4eh9zZjpP6Bgq error: crashed (exit code -11)
+IFC_Alignment4_Br1 IfcBeam 1cEKzjAuP39AMDKb02rP8L volume about box centre 14.841253, open edges 95, get_volume 49.921, z 22.147..24.993
+IFC_Alignment4_Br1 IfcBeam 2RqAI2zkX0Cw7zMjGoc2Vw volume about box centre 14.715077, open edges 77, get_volume 49.792, z 22.148..24.993
+IFC_Alignment4_Br1 IfcBeam 2oTCoouzvCa8rFcsTxl0w9 volume about box centre 14.756343, open edges 97, get_volume 49.842, z 22.147..24.993
+IFC_Alignment4_Br1 IfcBeam 3HmY_95VX8kO2Ho6DiJxSA volume about box centre 14.672618, open edges 95, get_volume 49.749, z 22.148..24.993
+IFC_Alignment4_Br1 IfcBeam 3Rq4oMPJHC2wABSZ2bzYXi volume about box centre 14.798799, open edges 95, get_volume 49.878, z 22.147..24.993
+IFC_Alignment4_Br1 IfcRailing 0GWpXwXpH56AFgUIxLvD9d volume about box centre 10.175275, open edges 27, get_volume 40.426, z 48.033..51.555
+IFC_Alignment4_Br1 IfcRailing 1ueKMtjE122erK8kdHj4II volume about box centre 10.321299, open edges 27, get_volume 40.647, z 48.033..51.555
+IFC_Alignment4_Br1 IfcSlab 0xeufDThr2PO0fMJfI0JJq error: Failed to process shape. Product: #631=IfcSlab('0xeufDThr2PO0fMJfI0JJq',$,$,'Deck slab ele
+PGSuperExport IfcBeam 0QwVf5w550v8VgDMJbsSPt volume about box centre 14.767823, open edges 57, get_volume 22.220, z -2.033..-0.356
+PGSuperExport IfcBeam 0rHNJ$Ys14Gxq_P0$H$jKc volume about box centre 14.767823, open edges 57, get_volume 22.220, z -1.996..-0.320
+PGSuperExport IfcBeam 1Au66eRNX4XhcLaV5mEBf3 volume about box centre 14.767823, open edges 57, get_volume 22.220, z -2.033..-0.356
+PGSuperExport IfcBeam 32imJ5SSDFqAPDo1qavlq$ volume about box centre 14.767823, open edges 57, get_volume 22.220, z -1.960..-0.283
+PGSuperExport IfcBeam 38J7bINZb77gbCP6jmCrqF volume about box centre 14.767823, open edges 57, get_volume 22.220, z -1.996..-0.320
+PGSuperExport IfcRailing 1F2nk9ySf0VQQTjcJcjC7b volume about box centre 10.242052, open edges 15, get_volume 15.551, z -0.272..0.978
+PGSuperExport IfcRailing 2QRXl9a$f7CR9xvRR1_IOP volume about box centre 10.242052, open edges 15, get_volume 15.551, z -0.272..0.978
+PGSuperExport IfcSlab 0ysbiE$ZrC6OeK8O5J4OoG volume about box centre 47.528539, open edges 90, get_volume 77.863, z -0.353..0.000

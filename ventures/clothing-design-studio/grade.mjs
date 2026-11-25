@@ -13,8 +13,12 @@
  *  - Other sizes move from M by a grade per cm of body chest. The old block
  *    scaled everything with the chest (neck +1.44 cm and across-shoulder
  *    +3.6 cm per 8 cm chest step, about twice a menswear chart's steps, as
- *    the audit noted). The defaults below are neck +0.64 cm (about 1/4 inch)
- *    and across-shoulder +1.76 cm per 8 cm step: typical knit-top grade
+ *    the audit noted). The defaults below are neck +0.64 cm (about 1/4 inch),
+ *    across-shoulder +1.76 cm and armhole depth +0.96 cm per 8 cm step (the
+ *    old block took armhole depth as 0.235 of each size's chest, +1.88 cm a
+ *    step, about twice a common knit grade) and the sleeve's bicep girth +2 cm
+ *    per step (it was 0.34 x chest, +2.72 cm; graded alone, the armhole fix
+ *    would have flattened the cap as the sizes grow; both added 2026-11-25): typical knit-top grade
  *    steps written from general knowledge, NOT any factory's or standard's
  *    grade rule. A factory's grade rule replaces them (`grade` option).
  *  - Thicker garments open the neck a little (crewneck +1 cm, hoodie +3 cm,
@@ -24,7 +28,7 @@
 import { BODY_CHEST_CM } from "./fit.mjs";
 
 /** Grade per cm of body chest (cm), the whole width, not the half. */
-export const GRADE_PER_CM_CHEST = Object.freeze({ neck: 0.08, shoulder: 0.22 });
+export const GRADE_PER_CM_CHEST = Object.freeze({ neck: 0.08, shoulder: 0.22, armhole: 0.12, bicep: 0.25 });
 
 /** Extra neck opening width by garment at every size (cm). */
 export const NECK_EXTRA_CM = Object.freeze({ tee: 0, longsleeve: 0, crewneck: 1, hoodie: 3 });
@@ -34,12 +38,12 @@ export const NECKBAND = Object.freeze({ widthCm: { tee: 2, longsleeve: 2, crewne
 
 /**
  * Validate a grade override; returns the merged rule or throws.
- * @param {{neck?:number, shoulder?:number}} [over] cm of neck width / across shoulder per cm of body chest
+ * @param {{neck?:number, shoulder?:number, armhole?:number, bicep?:number}} [over] cm of neck width / across shoulder / armhole depth / bicep girth per cm of body chest
  */
 export function gradeRule(over = {}) {
   const r = { ...GRADE_PER_CM_CHEST };
   for (const [k, v] of Object.entries(over || {})) {
-    if (!(k in r)) throw new Error(`Unknown grade "${k}" (neck or shoulder).`);
+    if (!(k in r)) throw new Error(`Unknown grade "${k}" (neck, shoulder, armhole or bicep).`);
     if (!(typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= 0.6)) throw new Error(`Grade for ${k} must be 0 to 0.6 cm per cm of chest.`);
     r[k] = v;
   }
@@ -56,7 +60,9 @@ export function anchorChest(sizeChart = BODY_CHEST_CM) {
 /**
  * Neck and shoulder for one size.
  * @param {{bodyChest:number, chest:number}} g one size from fit.mjs garmentMeasurements
- * @returns {{halfNeckCm:number, neckWidthCm:number, shoulderPointCm:number, acrossShoulderCm:number}}
+ * @returns {{halfNeckCm:number, neckWidthCm:number, shoulderPointCm:number, acrossShoulderCm:number, armholeDepthCm:number, flatBicepCm:number}}
+ *   flatBicepCm is the sleeve's bicep laid flat (M keeps 0.17 x body chest + 0.1 x ease)
+ *   armholeDepthCm is measured down from the high point (M keeps 0.235 x body chest + 0.1 x ease)
  *   shoulderPointCm is from the fold before any cap for a narrow armhole (pattern.mjs caps it at the half chest - 4)
  */
 export function neckAndShoulder(g, { garment = "tee", sizeChart = BODY_CHEST_CM, grade } = {}) {
@@ -64,5 +70,7 @@ export function neckAndShoulder(g, { garment = "tee", sizeChart = BODY_CHEST_CM,
   const m = anchorChest(sizeChart), d = g.bodyChest - m, ease = g.chest - g.bodyChest;
   const halfNeckCm = 0.09 * m + (NECK_EXTRA_CM[garment] ?? 0) / 2 + (r.neck / 2) * d;
   const shoulderPointCm = 0.225 * m + 0.1 * ease + (r.shoulder / 2) * d;
-  return { halfNeckCm, neckWidthCm: 2 * halfNeckCm, shoulderPointCm, acrossShoulderCm: 2 * shoulderPointCm };
+  const armholeDepthCm = 0.235 * m + 0.1 * ease + r.armhole * d;
+  const flatBicepCm = 0.17 * m + 0.1 * ease + (r.bicep / 2) * d; // laid flat: half the girth
+  return { halfNeckCm, neckWidthCm: 2 * halfNeckCm, shoulderPointCm, acrossShoulderCm: 2 * shoulderPointCm, armholeDepthCm, flatBicepCm };
 }

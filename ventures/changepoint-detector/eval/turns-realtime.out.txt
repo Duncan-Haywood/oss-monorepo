@@ -1,0 +1,87 @@
+Pseudo-real-time replay of `--turns --columns` (arm A composite, sds over every month to the cut-off, bigMove 0.05)
+cut-offs 1970-01 to 2026-07; release lag 2 months; call = first cut-off held at every later one
+
+NBER turn       kind    called on data to  call month  delay  NBER announced  NBER lag  call first?
+  1969-12       peak    1971-04            1971-06        18  -                      -  -
+  1970-11       trough  1971-04            1971-06         7  -                      -  -
+  1973-11       peak    1974-04            1974-06         7  -                      -  -
+  1975-03       trough  1975-09            1975-11         8  -                      -  -
+  1980-01       peak    1981-06            1981-08        19  1980-06                5  no
+  1980-07       trough  1981-06            1981-08        13  1981-07               12  no
+  1981-07       peak    1982-01            1982-03         8  1982-01                6  no
+  1982-11       trough  1983-04            1983-06         7  1983-07                8  yes
+  1990-07       peak    1990-12            1991-02         7  1991-04                9  yes
+  1991-03       trough  1991-08            1991-10         7  1992-12               21  yes
+  2001-03       peak    null               null         null  2001-11                8  -
+  2001-11       trough  2002-05            2002-07         8  2003-07               20  yes
+  2007-12       peak    2008-06            2008-08         8  2008-12               12  yes
+  2009-06       trough  2009-11            2010-01         7  2010-09               15  yes
+  2020-02       peak    2020-07            2020-09         7  2020-06                4  no
+  2020-04       trough  2020-09            2020-11         7  2021-07               15  yes
+
+median delay 7 months (peaks  7 7 7 8 8 18 19; troughs 7 7 7 7 7 8 8 13)
+NBER announcement lags on the 12: 4 5 6 8 8 9 12 12 15 15 20 21; called before NBER in 7 of 12
+
+retracted-alarm episodes (no NBER turn of the kind within 6 months): 5
+  trough 1970-04  shown on data to 1970-09..1970-09 (1 turn-cut-offs)
+  peak   1979-03  shown on data to 1979-08..1979-10 (3 turn-cut-offs)
+  peak   1980-12  shown on data to 1981-05..1981-05 (1 turn-cut-offs)
+  peak   2002-11  shown on data to 2003-04..2003-05 (2 turn-cut-offs)
+  peak   2012-12  shown on data to 2013-05..2013-07 (3 turn-cut-offs)
+
+survival of a dated turn by months of data after it (cut-offs to 24 months before the last):
+  age  0- 5  held   13 of   21  61.9%
+  age  6- 8  held   39 of   53  73.6%
+  age  9-11  held   40 of   47  85.1%
+  age 12-17  held   85 of   94  90.4%
+  age 18-    held 6150 of 6150  100.0%
+  age 12+ held 99.9%
+  by single month 0-18: 5:61.9%(21) 6:68.4%(19) 7:72.2%(18) 8:81.3%(16) 9:81.3%(16) 10:86.7%(15) 11:87.5%(16) 12:87.5%(16) 13:87.5%(16) 14:87.5%(16) 15:87.5%(16) 16:93.3%(15) 17:100.0%(15) 18:100.0%(16)
+
+R1 median delay <= 9: fails (7)
+R2 before NBER in >= 8 of 12: fails (7)
+R3 retracted episodes <= 6: passes (5)
+R4 survival non-decreasing by age group and 12+ >= 90%: passes (61.9%, 73.6%, 85.1%, 90.4%, 100.0%; 12+ 99.9%)
+decision: a bar fails; nothing ships
+
+
+=== printed, no bar: standard deviations fixed to 2019-12 for cut-offs after 2019-12 ===
+cut-offs 1970-01 to 2026-07; release lag 2 months; call = first cut-off held at every later one
+
+NBER turn       kind    called on data to  call month  delay  NBER announced  NBER lag  call first?
+  1969-12       peak    1971-04            1971-06        18  -                      -  -
+  1970-11       trough  1971-04            1971-06         7  -                      -  -
+  1973-11       peak    1974-04            1974-06         7  -                      -  -
+  1975-03       trough  1975-09            1975-11         8  -                      -  -
+  1980-01       peak    1981-06            1981-08        19  1980-06                5  no
+  1980-07       trough  1981-06            1981-08        13  1981-07               12  no
+  1981-07       peak    1982-01            1982-03         8  1982-01                6  no
+  1982-11       trough  1983-04            1983-06         7  1983-07                8  yes
+  1990-07       peak    1990-12            1991-02         7  1991-04                9  yes
+  1991-03       trough  1991-08            1991-10         7  1992-12               21  yes
+  2001-03       peak    2001-05            2001-07         4  2001-11                8  yes
+  2001-11       trough  2002-05            2002-07         8  2003-07               20  yes
+  2007-12       peak    2008-06            2008-08         8  2008-12               12  yes
+  2009-06       trough  2009-11            2010-01         7  2010-09               15  yes
+  2020-02       peak    2020-07            2020-09         7  2020-06                4  no
+  2020-04       trough  2020-09            2020-11         7  2021-07               15  yes
+
+median delay 7 months (peaks 4 7 7 7 8 8 18 19; troughs 7 7 7 7 7 8 8 13)
+NBER announcement lags on the 12: 4 5 6 8 8 9 12 12 15 15 20 21; called before NBER in 8 of 12
+
+retracted-alarm episodes (no NBER turn of the kind within 6 months): 6
+  trough 1970-04  shown on data to 1970-09..1970-09 (1 turn-cut-offs)
+  peak   1979-03  shown on data to 1979-08..1979-10 (3 turn-cut-offs)
+  peak   1980-12  shown on data to 1981-05..1981-05 (1 turn-cut-offs)
+  peak   2002-11  shown on data to 2003-04..2003-05 (2 turn-cut-offs)
+  peak   2012-12  shown on data to 2013-05..2013-07 (3 turn-cut-offs)
+  peak   2025-07  shown on data to 2025-12..2025-12 (1 turn-cut-offs)
+
+survival of a dated turn by months of data after it (cut-offs to 24 months before the last):
+  age  0- 5  held   13 of   21  61.9%
+  age  6- 8  held   39 of   53  73.6%
+  age  9-11  held   40 of   47  85.1%
+  age 12-17  held   85 of   94  90.4%
+  age 18-    held 6150 of 6150  100.0%
+  age 12+ held 99.9%
+  by single month 0-18: 5:61.9%(21) 6:68.4%(19) 7:72.2%(18) 8:81.3%(16) 9:81.3%(16) 10:86.7%(15) 11:87.5%(16) 12:87.5%(16) 13:87.5%(16) 14:87.5%(16) 15:87.5%(16) 16:93.3%(15) 17:100.0%(15) 18:100.0%(16)

@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKo6eZBupnqkXYLhBgb",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T11:18:36Z",
+  "ended": "2026-11-24T12:17:09Z",
+  "wall_minutes": 58.92,
+  "tokens_in": 8206741,
+  "tokens_out": 34427,
+  "cost_usd": 3.2647,
+  "tool_calls": 71,
+  "task": "Deepen (flagship 9) league-schedule-generator, buildable item 2: bowling 26x38 and limit-1 seasons 24x11, 26x12, 28x13",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18593",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "A background wait loop used `exit 1` inside `until for ...`, which exited the shell at once; rewritten as a while loop.",
+    "First --mirror run on 22x10 was INFEASIBLE because week 1 was still fixed alongside a fixed label swap; dropped the week-1 fix under --mirror."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The buildable item named 24x11, 26x12 and 28x13 as one family, but 24x12, 26x13 and 28x14 (P-week seasons) are already proved impossible in bowling-proofs.mjs, so the 'solve W=P and drop a week' shortcut is closed; noting the odd/even W split would have saved a run."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-bowling-lanes-mirror-symmetry.md",
+    "ventures/league-schedule-generator/eval/bowling-mirror-2026-11-24.txt",
+    "ventures/league-schedule-generator/README.md (new 2026-11-24 bowling mirror section)"
+  ],
+  "goal": null,
+  "notes": "Imposed the circle method's reflection t -> W-1-t (rounds r <-> W-1-r, pair labels swapped by p xor 1) in a new CP-SAT model, eval/bowling-mirror-cpsat.py. 26x12 solved at 0 in 24 s (was 3 off; pairwise CaDiCaL none in 900 s) and 26x38 at 0 in 478 s (was 1 off; kissat none in 2400 s); 22x10 20.3 s -> 0.4 s. Proved the mirror cannot apply for odd W (the fixed team gets even counts on all pairs but the middle week's), so 24x11 and 28x13 stay at 3; kissat without it none in 1500 s each. Mirror on 24x24, 24x36, 26x26, 28x28: none in 1500 s on 1 core each. Both answers re-checked by offBound and stored in bowling-lane-table.mjs; node --test bowling.test.mjs 36 pass 0 fail; eval/bowling-lane-near-check.mjs unchanged on seeds 1 and 2; check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b2af79f2-b248-56b4-943f-95bcfc73ab06",
+    "transcripts": 1,
+    "first": "2026-11-24T11:18:36Z",
+    "last": "2026-11-24T12:17:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 143,
+        "output": 34427,
+        "thinking": 12030,
+        "cache_read": 8086821,
+        "cache_write_5m": 0,
+        "cache_write_1h": 119777,
+        "api_equivalent_usd": 3.2647,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 143,
+      "output": 34427,
+      "thinking": 12030,
+      "cache_read": 8086821,
+      "cache_write_5m": 0,
+      "cache_write_1h": 119777,
+      "api_equivalent_usd": 3.2647,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 65,
+      "ToolSearch": 2,
+      "ReadNotifications": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 58.92,
+      "active_minutes": 14.22,
+      "model_minutes": 8.38,
+      "tool_minutes": 5.84,
+      "waiting_on_human_minutes": 44.7,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a combinatorics engineer finding, encoding and testing a symmetry reduction and storing two answers",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 183.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

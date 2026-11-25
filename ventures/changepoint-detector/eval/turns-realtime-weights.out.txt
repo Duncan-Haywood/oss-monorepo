@@ -1,0 +1,122 @@
+Composite weights set in real time: pseudo-real-time replay of `--turns --columns` (arm A, bigMove 0.05), cut-offs 1970-01 on, release lag 2
+
+=== minPhase 3 ===
+NBER turn  kind         M      S      T      F   (delay in months; - = never held)   announced
+  1969-12  peak         5     18     18     18   -
+  1970-11  trough       7      7      7      7   -
+  1973-11  peak         7      7      7      7   -
+  1975-03  trough       8      8      8      8   -
+  1980-01  peak        19     19     19     19   1980-06
+  1980-07  trough      13     13     13     13   1981-07
+  1981-07  peak         8      8      8      8   1982-01
+  1982-11  trough       7      7      7      7   1983-07
+  1990-07  peak         7      7      7      7   1991-04
+  1991-03  trough       7      7      7      7   1992-12
+  2001-03  peak         6      -      4      4   2001-11
+  2001-11  trough       8      8      8      8   2003-07
+  2007-12  peak         8      8      8      8   2008-12
+  2009-06  trough       7      7      7      7   2010-09
+  2020-02  peak         7      7      7      7   2020-06
+  2020-04  trough       7      7      7      7   2021-07
+
+M mad: called 16 of 16, median 7, before NBER 8 of 12, false episodes 8; survival 65.2%, 78.9%, 88.9%, 96.3%, 100.0%; 12+ 99.9%
+    trough 1970-04  shown on data to 1970-09..1970-09 (1 turn-cut-offs)
+    peak   1979-03  shown on data to 1979-08..1979-10 (3 turn-cut-offs)
+    peak   1980-12  shown on data to 1981-05..1981-05 (1 turn-cut-offs)
+    peak   1992-12  shown on data to 1993-05..1993-05 (1 turn-cut-offs)
+    peak   2002-11  shown on data to 2003-04..2026-07 (277 turn-cut-offs)
+    trough 2003-04  shown on data to 2003-09..2026-07 (275 turn-cut-offs)
+    peak   2012-12  shown on data to 2013-05..2013-10 (6 turn-cut-offs)
+    peak   2025-07  shown on data to 2025-12..2025-12 (1 turn-cut-offs)
+
+S sd (shipped): called 15 of 16, median 7, before NBER 7 of 12, false episodes 6; survival 59.1%, 69.6%, 76.9%, 80.2%, 94.2%; 12+ 94.0%
+    trough 1970-04  shown on data to 1970-09..1970-09 (1 turn-cut-offs)
+    peak   1979-03  shown on data to 1979-08..1979-10 (3 turn-cut-offs)
+    peak   1980-12  shown on data to 1981-05..1981-05 (1 turn-cut-offs)
+    peak   2002-11  shown on data to 2003-04..2020-03 (201 turn-cut-offs)
+    trough 2003-04  shown on data to 2003-09..2020-03 (199 turn-cut-offs)
+    peak   2012-12  shown on data to 2013-05..2013-07 (3 turn-cut-offs)
+
+T trim (no bar): called 16 of 16, median 7, before NBER 8 of 12, false episodes 8; survival 60.9%, 73.7%, 83.3%, 91.5%, 100.0%; 12+ 99.9%
+    trough 1970-04  shown on data to 1970-09..1970-09 (1 turn-cut-offs)
+    peak   1979-03  shown on data to 1979-08..1979-10 (3 turn-cut-offs)
+    peak   1980-12  shown on data to 1981-05..1981-05 (1 turn-cut-offs)
+    peak   1992-12  shown on data to 1993-05..1993-05 (1 turn-cut-offs)
+    peak   2002-11  shown on data to 2003-04..2026-07 (277 turn-cut-offs)
+    trough 2003-04  shown on data to 2003-09..2026-07 (275 turn-cut-offs)
+    peak   2012-12  shown on data to 2013-05..2013-10 (6 turn-cut-offs)
+    peak   2025-07  shown on data to 2025-12..2025-12 (1 turn-cut-offs)
+
+F sd to 2019-12 (hindsight, no bar): called 16 of 16, median 7, before NBER 8 of 12, false episodes 7; survival 63.6%, 75.0%, 86.5%, 91.5%, 100.0%; 12+ 99.9%
+    trough 1970-04  shown on data to 1970-09..1970-09 (1 turn-cut-offs)
+    peak   1979-03  shown on data to 1979-08..1979-10 (3 turn-cut-offs)
+    peak   1980-12  shown on data to 1981-05..1981-05 (1 turn-cut-offs)
+    peak   2002-11  shown on data to 2003-04..2026-07 (277 turn-cut-offs)
+    trough 2003-04  shown on data to 2003-09..2026-07 (275 turn-cut-offs)
+    peak   2012-12  shown on data to 2013-05..2013-07 (3 turn-cut-offs)
+    peak   2025-07  shown on data to 2025-12..2025-12 (1 turn-cut-offs)
+
+=== minPhase 6 ===
+NBER turn  kind         M      S      T      F   (delay in months; - = never held)   announced
+  1969-12  peak         5     18     18     18   -
+  1970-11  trough       7      7      7      7   -
+  1973-11  peak         7      7      7      7   -
+  1975-03  trough       8      8      8      8   -
+  1980-01  peak        19     19     19     19   1980-06
+  1980-07  trough      13     13     13     13   1981-07
+  1981-07  peak         8      8      8      8   1982-01
+  1982-11  trough       7      7      7      7   1983-07
+  1990-07  peak         7      7      7      7   1991-04
+  1991-03  trough       7      7      7      7   1992-12
+  2001-03  peak         6      -      4      4   2001-11
+  2001-11  trough       8      8      8      8   2003-07
+  2007-12  peak         8      8      8      8   2008-12
+  2009-06  trough       7      7      7      7   2010-09
+  2020-02  peak         7      7      7      7   2020-06
+  2020-04  trough       7      7      7      7   2021-07
+
+M mad: called 16 of 16, median 7, before NBER 8 of 12, false episodes 7; survival 63.6%, 77.8%, 87.8%, 95.8%, 100.0%; 12+ 99.9%
+    trough 1970-04  shown on data to 1970-09..1970-09 (1 turn-cut-offs)
+    peak   1979-03  shown on data to 1979-08..1979-10 (3 turn-cut-offs)
+    peak   1980-12  shown on data to 1981-05..1981-05 (1 turn-cut-offs)
+    peak   1992-12  shown on data to 1993-05..1993-05 (1 turn-cut-offs)
+    peak   2002-11  shown on data to 2003-04..2003-05 (2 turn-cut-offs)
+    peak   2012-12  shown on data to 2013-05..2013-10 (6 turn-cut-offs)
+    peak   2025-07  shown on data to 2025-12..2025-12 (1 turn-cut-offs)
+
+S sd (shipped): called 15 of 16, median 7, before NBER 7 of 12, false episodes 5; survival 61.9%, 73.6%, 85.1%, 90.4%, 100.0%; 12+ 99.9%
+    trough 1970-04  shown on data to 1970-09..1970-09 (1 turn-cut-offs)
+    peak   1979-03  shown on data to 1979-08..1979-10 (3 turn-cut-offs)
+    peak   1980-12  shown on data to 1981-05..1981-05 (1 turn-cut-offs)
+    peak   2002-11  shown on data to 2003-04..2003-05 (2 turn-cut-offs)
+    peak   2012-12  shown on data to 2013-05..2013-07 (3 turn-cut-offs)
+
+T trim (no bar): called 16 of 16, median 7, before NBER 8 of 12, false episodes 7; survival 59.1%, 72.2%, 81.6%, 90.4%, 100.0%; 12+ 99.9%
+    trough 1970-04  shown on data to 1970-09..1970-09 (1 turn-cut-offs)
+    peak   1979-03  shown on data to 1979-08..1979-10 (3 turn-cut-offs)
+    peak   1980-12  shown on data to 1981-05..1981-05 (1 turn-cut-offs)
+    peak   1992-12  shown on data to 1993-05..1993-05 (1 turn-cut-offs)
+    peak   2002-11  shown on data to 2003-04..2003-05 (2 turn-cut-offs)
+    peak   2012-12  shown on data to 2013-05..2013-10 (6 turn-cut-offs)
+    peak   2025-07  shown on data to 2025-12..2025-12 (1 turn-cut-offs)
+
+F sd to 2019-12 (hindsight, no bar): called 16 of 16, median 7, before NBER 8 of 12, false episodes 6; survival 61.9%, 73.6%, 85.1%, 90.4%, 100.0%; 12+ 99.9%
+    trough 1970-04  shown on data to 1970-09..1970-09 (1 turn-cut-offs)
+    peak   1979-03  shown on data to 1979-08..1979-10 (3 turn-cut-offs)
+    peak   1980-12  shown on data to 1981-05..1981-05 (1 turn-cut-offs)
+    peak   2002-11  shown on data to 2003-04..2003-05 (2 turn-cut-offs)
+    peak   2012-12  shown on data to 2013-05..2013-07 (3 turn-cut-offs)
+    peak   2025-07  shown on data to 2025-12..2025-12 (1 turn-cut-offs)
+
+=== full sample, data to 2026-07, weights over every month, minPhase 3 ===
+mad   weights 0.528/0.238/0.134/0.100  NBER matched 16 of 16, false 2
+sd    weights 0.320/0.306/0.203/0.171  NBER matched 15 of 16, false 0
+trim  weights 0.504/0.249/0.145/0.102  NBER matched 16 of 16, false 2
+  mad turns: p1969-10 t1970-11 p1973-11 t1975-04 p1980-01 t1980-07 p1981-08 t1982-11 p1990-06 t1991-03 p2000-12 t2001-12 p2002-11 t2003-04 p2008-01 t2009-06 p2020-02 t2020-04
+
+M1 >= 15 of 16 called, median <= 7: passes (P3 16/7, P6 16/7; P3 pass, P6 pass)
+M2 before NBER in >= 8 of 12: passes (P3 8, P6 8)
+M3 false episodes <= 6: fails (P3 8, P6 7)
+M4 survival non-decreasing, 12+ >= 90%: passes (P3 99.9%, P6 99.9%; P3 pass, P6 pass)
+M5 full sample 16 of 16, <= 2 false: passes (16 of 16, 2 false)
+decision: a bar fails; nothing ships beyond the module option

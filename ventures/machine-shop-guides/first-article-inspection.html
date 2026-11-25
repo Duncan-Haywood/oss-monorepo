@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>First Article Inspection Checker (AS9102 Form 3 Style, Free)</title>
+  <meta name="description" content="Free first article inspection checker: paste the ballooned characteristics and results, get each one judged against its limits, plus a Form 3 style CSV.">
+  <meta property="og:title" content="First Article Inspection Checker (AS9102 Form 3 Style, Free)">
+  <meta property="og:description" content="Free first article inspection checker: paste the ballooned characteristics and results, get each one judged against its limits, plus a Form 3 style CSV.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://marisstella.app/machine-shop-guides/first-article-inspection.html">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%232c4a3e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "First Article Inspection Checker", "description": "Free first article inspection checker: paste the ballooned characteristics and results, get each one judged against its limits, plus a Form 3 style CSV.", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+</head>
+<body data-page="first-article-inspection">
+<nav class="crumbs"><a href="./">Machine shop guides</a></nav>
+<main>
+<h1>First article inspection checker</h1>
+<p class="lede">Paste the characteristic table of a first article: balloon number, the requirement as it is written on the drawing, and what you measured. The page reads each requirement into its limits, judges every result against them, and lists what would get the report sent back: a result out of tolerance with no nonconformance number, a balloon with no result, a number skipped or used twice, a 4X feature with one reading. Then download it as a CSV with the columns of an AS9102 Form 3.</p>
+<p class="note">It reads requirements by pattern. Every limit it used is shown next to the requirement, so check them against the drawing; a requirement it cannot read is listed as not read, never passed. What you paste stays in this browser tab. It is not uploaded and not saved.</p>
+
+<form id="f" class="card" autocomplete="off">
+  <label for="fai">Characteristics and results<span class="hint">Copy the rows out of your spreadsheet (tab-separated) or paste CSV. A header row is read when it names the columns (Char No., Requirement, Result, Tooling, NCR...); several result columns are read as several parts. Up to 5,000 rows.</span></label>
+  <textarea id="fai" name="fai" rows="12" spellcheck="false"></textarea>
+  <fieldset class="grid">
+    <legend>Title block general tolerances (for dimensions with no tolerance of their own)</legend>
+    <label>X.X ±<input name="g1" type="number" min="0" step="any" inputmode="decimal"></label>
+    <label>X.XX ±<input name="g2" type="number" min="0" step="any" inputmode="decimal"></label>
+    <label>X.XXX ±<input name="g3" type="number" min="0" step="any" inputmode="decimal"></label>
+    <label>X.XXXX ±<input name="g4" type="number" min="0" step="any" inputmode="decimal"></label>
+    <label>Angles ± (degrees)<input name="ga" type="number" min="0" step="any" inputmode="decimal"></label>
+    <label>Flag results within this % of the band from a limit<input name="near" type="number" min="0" max="50" step="any" value="10" inputmode="decimal"></label>
+  </fieldset>
+  <button type="submit">Check it</button>
+  <button type="button" class="secondary" id="example">Load an invented example</button>
+  <button type="button" class="secondary" id="clear">Clear</button>
+</form>
+
+<section id="out" aria-live="polite" hidden>
+  <section class="card">
+    <h2>Result</h2>
+    <p id="summary"></p>
+    <ul id="warnings" class="note"></ul>
+    <button type="button" id="csv">Download Form 3 style CSV</button>
+    <button type="button" class="secondary" id="copy">Copy the summary</button>
+    <p class="note" id="copied" role="status"></p>
+  </section>
+  <section class="card">
+    <h2>Characteristics</h2>
+    <div class="scroller"><table>
+      <thead><tr><th>Char</th><th>Requirement</th><th>Limits read</th><th>Results</th><th>Status</th><th>Tol. used</th><th>Notes</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+  </section>
+</section>
+
+<section>
+<h2>What a first article inspection report is</h2>
+<p>A first article inspection (FAI) is the full inspection of one part made by the production process, done to show that the process can make the part to the drawing before the shop runs the lot. In aerospace and defense, customers usually ask for it in the format of <strong>AS9102</strong>, an SAE International standard (current revision C). The standard itself is sold by SAE; this page does not reproduce it. The report it describes has three forms:</p>
+<ul>
+  <li><strong>Form 1, part number accountability:</strong> the part, its drawing and revision, the organisation that made it, any sub-assemblies, and why this FAI was done (a full or partial FAI, and the reason).</li>
+  <li><strong>Form 2, product accountability:</strong> raw material, special processes (heat treat, plating, anodize, NDT) and functional tests, each with its specification, the supplier and the certificate of conformance.</li>
+  <li><strong>Form 3, characteristic accountability:</strong> every design characteristic, numbered to a balloon on the drawing, with its requirement, the measured result, the tooling used and a nonconformance number where it failed. This checker covers Form 3.</li>
+</ul>
+<h3>When one is due</h3>
+<p>A first article is normally due on a new part and again after a change that could affect the part: the design, the manufacturing process or source, the inspection method, the tooling or the location. A partial (delta) FAI covers only the characteristics a change touched. A lapse in production is a trigger too, but customers differ on it: Lockheed Martin's Q2A quality clause, for one, asks for a full FAI after a lapse of more than two years (<a href="https://www.lockheedmartin.com/content/dam/lockheed-martin/aero/documents/scm/Quality-Requirements/Clauses/q2a_rev12.pdf">Q2A rev 12</a>). Your customer's PO clauses and quality manual decide; read them, and the <a href="rfq-review.html">RFQ review checklist</a> · <a href="drawing-review.html">Drawing review</a> flags an FAI requirement when it is in the RFQ, so you can price the inspection time into the quote.</p>
+<h3>Ballooning the drawing</h3>
+<p>Number every characteristic once, in a sequence with no gaps: dimensions, geometric tolerances, notes, finishes, thread callouts, markings. A feature called out "4X" can carry one balloon with four results, or four balloons (4.1 to 4.4), depending on what your customer asks for; either way every place needs a result. Basic dimensions are not inspected on their own: their tolerance lives in the feature control frame that refers to them. Reference dimensions in parentheses are not inspected.</p>
+<h3>Why first article reports get sent back</h3>
+<p>Customers' supplier guides list the same handful of errors (for one, <a href="https://www.gknaerospace.com/media/mpibej0a/as9102-first-article-inspection-report-common-mistakes.pdf">GKN Aerospace's common FAIR mistakes</a>):</p>
+<ul>
+  <li>A characteristic on the drawing with no balloon, or a balloon with no result. The checker catches skipped and repeated numbers and blank results; it cannot see a feature you never ballooned.</li>
+  <li>"Accept" written where a value can be measured. Many customers want the actual value. The checker flags a pass mark on a dimension with numeric limits.</li>
+  <li>A result outside its limits with no nonconformance number, or a report submitted as complete with a reject on it.</li>
+  <li>Fewer results than places on a multi-place feature.</li>
+  <li>Material and special-process certificates missing from Form 2, or the drawing revision on Form 1 not matching the revision the parts were made to.</li>
+</ul>
+<h3>How the limits are read</h3>
+<p><code>.500 ±.005</code> and <code>.500 +/- .005</code> are bilateral; <code>.500 +.002/-.000</code> unequal; <code>1.005/1.000</code> and <code>12.00-12.05</code> are limit dimensions; <code>R.03 MAX</code> and <code>MIN .120</code> one-sided; <code>32 Ra</code> a maximum. A geometric tolerance such as <code>⌖ Ø.010 Ⓜ A B C</code> or <code>Flatness .002</code> is read as zero to the tolerance, with the result being the measured deviation; bonus tolerance from a material-condition modifier is <em>not</em> added, so a result this page rejects might still be acceptable once the bonus is worked out, never the other way round. A bare number with no tolerance takes the general tolerance you enter for its decimal places. Threads and notes are attribute checks: record ACC, GO or PASS, or REJ, NO-GO or FAIL.</p>
+<p>"Tolerance used" is how far the worst reading sits from the middle of the band, as a share of half the band (100% is on the limit), or as a share of the maximum for one-sided limits. A first article near the limit is legal, but it is worth a look at gauge capability before you run the lot.</p>
+</section>
+
+<script type="module">
+  import { checkFai, faiCsv, summaryText } from "./fai.mjs";
+  import { recordUsage } from "./usage.mjs";
+  const f = document.getElementById("f");
+  const ta = document.getElementById("fai");
+  const EXAMPLE = [
+    "Char No.\tLocation\tRequirement\tResult 1\tTooling\tNCR",
+    "1\tB2\tØ.750 ±.001\t.7504\tBore gauge\t",
+    "2\tB2\t32 Ra\t24\tProfilometer\t",
+    "3\tC3\t⌖ Ø.010 Ⓜ A B C\t.0062\tCMM\t",
+    "4\tC3\t4X Ø.201 +.003/-.000\t.2015 .2022 .2031 .2018\tPin gauges\t",
+    "5\tD1\t1/4-20 UNC-2B\tGO\tThread gauge\t",
+    "6\tD1\t2.500\t2.503\tCaliper\t",
+    "7\tD2\tFlatness .002\t.0019\tCMM\t",
+    "9\tA1\t.125 ±.005\t\tCaliper\t",
+  ].join("\n");
+  let last = null;
+  const el = (tag, text, cls) => { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; };
+  const fmt = (n) => (n == null ? "" : String(Number(n.toFixed(6))));
+  const LABEL = { accept: "accept", reject: "reject", missing: "no result", unread: "not read", reference: "reference" };
+  function opts() {
+    const v = (n) => { const x = Number(f.elements[n].value); return f.elements[n].value !== "" && Number.isFinite(x) && x > 0 ? x : undefined; };
+    return { nearPct: Number(f.elements.near.value) || 10, general: { linear: { 1: v("g1"), 2: v("g2"), 3: v("g3"), 4: v("g4") }, angular: v("ga") } };
+  }
+  function render(r) {
+    document.getElementById("summary").textContent = summaryText(r);
+    const w = document.getElementById("warnings"); w.replaceChildren();
+    for (const x of r.warnings) w.append(el("li", x));
+    const tb = document.getElementById("rows"); tb.replaceChildren();
+    for (const row of r.rows) {
+      const tr = el("tr");
+      const limits = row.req.kind === "variable" ? `${row.req.lower == null ? "—" : fmt(row.req.lower)} to ${row.req.upper == null ? "—" : fmt(row.req.upper)}` : row.req.kind === "attribute" ? "accept / reject" : row.req.kind === "reference" ? "not inspected" : "not read";
+      const st = el("td", LABEL[row.status] ?? row.status, row.status === "accept" ? "good" : row.status === "reference" ? null : "bad");
+      tr.append(el("td", row.char || "?"), el("td", row.requirement), el("td", limits), el("td", row.results), st, el("td", row.tolUsedPct == null ? "" : row.tolUsedPct + "%"), el("td", row.issues.join("; ")));
+      tb.append(tr);
+    }
+    document.getElementById("out").hidden = false;
+  }
+  f.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const text = ta.value.split(/\r?\n/).slice(0, 5001).join("\n");
+    last = checkFai(text, opts());
+    render(last);
+    recordUsage("fai-check");
+  });
+  document.getElementById("example").addEventListener("click", () => {
+    ta.value = EXAMPLE;
+    f.elements.g3.value = "0.005"; f.elements.g2.value = "0.01";
+    f.requestSubmit();
+  });
+  document.getElementById("clear").addEventListener("click", () => { f.reset(); ta.value = ""; last = null; document.getElementById("out").hidden = true; });
+  // Handed over from the drawing review page: general tolerances in the query
+  // (?g1=&g2=&g3=&g4=&ga=), the starter characteristic list in the # part,
+  // which the browser never sends to a server. Results are left for the user.
+  try {
+    const params = new URLSearchParams(location.search);
+    for (const k of ["g1", "g2", "g3", "g4", "ga"]) {
+      const v = Number(params.get(k));
+      if (params.has(k) && Number.isFinite(v) && v > 0 && v < 30) f.elements[k].value = String(v);
+    }
+    const chars = new URLSearchParams(location.hash.slice(1)).get("chars");
+    if (chars && !ta.value) {
+      ta.value = chars.slice(0, 200000);
+      history.replaceState(null, "", location.pathname + location.search);
+    }
+  } catch {}
+  document.getElementById("csv").addEventListener("click", () => {
+    if (!last) return;
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([faiCsv(last)], { type: "text/csv" }));
+    a.download = "first-article-form-3.csv"; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    recordUsage("fai-csv");
+  });
+  document.getElementById("copy").addEventListener("click", async () => {
+    if (!last) return;
+    const s = document.getElementById("copied");
+    try { await navigator.clipboard.writeText(summaryText(last)); s.textContent = "Copied."; }
+    catch { s.textContent = "Your browser blocked copying; select the summary above and copy it."; }
+  });
+</script>
+</main>
+<section class="card cta" id="early-access">
+  <h2>In development — early access</h2>
+  <p>We are building two paid products for small machine shops: an <strong>RFQ-to-quote assistant</strong> that turns a drawing and an email into a priced quote from your own rates, and a <strong>CMMC Level 1/2 and ISO 9001 workspace</strong> that keeps your SSP, POA&amp;M and SPRS score in one place. Neither is released yet. Read what is planned and how to get early access on the <a href="https://marisstella.app/industries/manufacturing/">manufacturing page</a>.</p>
+  <p class="note">Neither product certifies anyone. Only an authorized C3PAO (or the government) can issue a CMMC Level 2 certification; software can help you prepare, nothing more.</p>
+</section>
+<footer>
+  <p><a href="./">Machine shop guides</a> · <a href="cmmc-level-1-self-assessment.html">CMMC Level 1 self-assessment</a> · <a href="cmmc-scoping-worksheet.html">CMMC scoping worksheet</a> · <a href="sprs-score-calculator.html">SPRS score calculator</a> · <a href="nist-800-171-ssp-template.html">SSP template</a> · <a href="dfars-7012-incident-reporting.html">DFARS 7012 incident reporting</a> · <a href="stock-size-from-step-file.html">Stock size from a STEP file</a> · <a href="job-shop-quote-calculator.html">Job-shop quote calculator</a> · <a href="rfq-review.html">RFQ review checklist</a> · <a href="first-article-inspection.html">First article inspection checker</a> · <a href="quote-vs-actual.html">Quoted vs actual hours</a> · <a href="cmmc-level-1-vs-level-2.html">CMMC Level 1 vs Level 2</a> · <a href="ssp-and-poam.html">SSP and POA&amp;M</a> · <a href="how-to-price-a-machined-part.html">How to price a machined part</a> · <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/machine-shop-guides">Source (FSL-1.1-MIT)</a></p>
+  <p><strong>Not affiliated with or endorsed by the Department of Defense (Department of War), NIST, the Cyber AB or any C3PAO.</strong> A score you calculate here is a self-check, not a CMMC assessment, a certification or an SPRS submission. Regulations are summarised with dates in <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/machine-shop-guides/SOURCES.md">SOURCES.md</a>; read the official text before you rely on it, because the rules change.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, compliance, financial or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  <p>Privacy: nothing you type leaves your browser. This page keeps an anonymous visit count in your own browser's storage only. <button type="button" class="secondary" id="usage-toggle">Turn off counting</button></p>
+</footer>
+<script type="module">
+  import { recordUsage, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+  const btn = document.getElementById("usage-toggle");
+  const paint = () => { btn.textContent = usageOptedOut() ? "Turn counting back on" : "Turn off counting"; };
+  btn.addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); paint(); });
+  paint();
+  recordUsage("view:" + (document.body.dataset.page || "page"));
+</script>
+</body>
+</html>

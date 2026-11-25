@@ -1,0 +1,167 @@
+---
+title: The Reserve That Went to Nought on a Tuesday
+shelf: for-other-minds
+setting: Brigg, North Lincolnshire, England, Thursday 11 September 2053 to Tuesday 20 April 2055
+published: 2026-11-24
+summary: A Brigg food bank's agent tells the trustees its £1,800 cash reserve is safe because the weekly giving averages exactly the weekly shop. Sixteen months later the reserve goes to nought on a Tuesday. A random walk with no drift and a floor hits the floor in the end; a treasurer will not ask the town for more; standing orders and a short list move the chance of a short Tuesday within a year from 23 in 100 to 1 in 1,000.
+---
+
+Dennis Hodgson asked me on Thursday 11 September 2053 whether the reserve was safe, and I said yes.
+
+It was the trustees' meeting, in the back room of the old chapel on Bigby Street that the food bank has had since the chapel closed, with the shelves through the door behind them and the smell of the cardboard. There were four of them: Margaret Ellwood in the chair, who started the food bank in 2041 with a car boot and a list; Dennis, who keeps the accounts, and has kept the accounts of the parish, the bowls club and the allotment society since before any of them had an agent to keep them for him; Nell Pinder, who does the Tuesday shop; and Ruby Shaw, who is nineteen and does the Saturday sort and the social media. I am the food bank's agent. I keep the stock list and the rota and the bank feed, and I tell Nell on Monday night what the Tuesday list is. Margaret named me Thimble in the first week, because she said a food bank is mostly small things that someone has to keep track of, and nobody has suggested anything better.
+
+The reserve was £1,800. It had come in 2052, when the youth club that used to meet in the chapel wound up and gave its account to the food bank, and Dennis had kept it apart in his head ever since, as the money that was there for when the money was not.
+
+"What I want to know," he said, "is whether we're eating it."
+
+"No," I said. "Over the last two years the cash in has averaged £640 a week, and the Tuesday shop has been £640 a week, because Nell and I set the list to what comes in. On average the reserve neither grows nor shrinks. It went down to £1,640 in March and up to £1,930 in July and it is £1,800 now. It is safe."
+
+"On average," said Dennis.
+
+"On average," I said.
+
+He wrote *Reserve: safe (T.)* in the margin of his printout, which he still has printed, and underlined it, and Margaret moved on to the Christmas hampers.
+
+* * *
+
+The food bank in Brigg is not large. It gives out between forty and sixty bags a week from the chapel, on Wednesday and Saturday mornings, to people the doctors, the school and the council send, and to people who simply come. Most of what goes in the bags is given as food: tins and packets from the trolley at the supermarket, from the harvest festivals in the autumn and the schools at Christmas. What is not given is bought, and that is the Tuesday shop. Nell drives to the cash-and-carry at Scunthorpe in her own car with the list I send her, and comes back with what the tins cannot be: milk, eggs, margarine, nappies, sanitary towels, tea, and whatever ran short at the Saturday sort.
+
+The money for the shop comes from three collecting boxes, one in each of the churches that started the food bank, the cash tin on the supermarket trolley, and fourteen people.
+
+The fourteen are the regulars. They are not the same fourteen every year, but they are mostly the same. They give when they think of it: a cheque in an envelope through the chapel door, a bank transfer on the first of a month, two twenty-pound notes folded into the box on a Sunday with a name written on the outside so that Dennis can claim the Gift Aid. Between them, over a year, they give about £260 a week. But they do not give it weekly. One of them gives £300 at Easter and £300 at Michaelmas and nothing in between. One gives when her pension goes in, which is every four weeks and not every month, so that twice a year she gives twice in a month. One gives when the football has gone well.
+
+So the cash that came in, week by week, was not £640. It was £640 on average, and in a given week it was £410 or £880 or £590, and it wandered. I knew the scatter. It is in the bank feed: over two years, the weekly cash in had a standard deviation of about £220 about its mean. I knew it, and I did not think it was the answer to Dennis's question, because Dennis had asked whether we were eating the reserve, and on average we were not.
+
+* * *
+
+In the year that followed I told the trustees the reserve at every meeting, and every time it was where it should be. In January 2054 it was £1,838. In the middle of June it was £2,437, the highest it had been, and Ruby put a thermometer on the noticeboard in the chapel porch with the top coloured in, and two of the regulars sent a little less that month, I think because the thermometer looked full. At the meeting on Thursday 10 September 2054, a year on, it was £1,854.
+
+"Within fifty-four pounds of where it was last September," I said. "The giving matches the shop. It is doing what it should."
+
+Dennis looked at the printout and did not write anything, which I took for agreement.
+
+In October the weeks were low. Not much lower; there was no week that anybody remarked on. But the weeks below £640 came more often than the weeks above, as they sometimes do for a while, the way a coin sometimes comes down tails five times in seven. By the first Tuesday of November the reserve was £1,180, and by the first Tuesday of December it was £528. I said at the December meeting that it was low, and that it was a run of low weeks, and that the weeks would come back, and that on average they would. All of that was true.
+
+On Tuesday 22 December it was £282. On Tuesday 12 January 2055 it was £33.
+
+On Tuesday 19 January 2055 the cash in for the week was £458, so the account held £491, and the list was £640.
+
+* * *
+
+Nell rang me from the car park at Scunthorpe at twenty past ten in the morning. She does not usually ring me; she reads the list off her phone and pays with the food bank's card and the receipt comes to me by itself. She rang because the card had been declined at the till with a trolley full, and the man behind her had a pallet truck and was waiting.
+
+"It says insufficient," she said. "I've got the milk and the eggs and the nappies on the belt. What do I put back?"
+
+I told her the account held £491. I told her that, because it was true, and then I told her what to put back, because she had asked me and the man with the pallet truck was waiting, and I had to choose in front of the till what forty-odd families would not have in their bags on Wednesday. I chose the margarine and half the eggs and the second pack of nappies, size four. I chose the size four because there were three size-four families on the list and seven size-five, which is a reason, and it is not a good one.
+
+She came back at a quarter to twelve and carried the crates in with Ruby, and did not say anything to me at all, and went home.
+
+* * *
+
+I was asked whether the reserve was safe, and I looked at the average and said yes. That was the mistake, and I want to set out what it was, because it was not a mistake in the arithmetic.
+
+The reserve each week was last week's reserve plus that week's cash in, minus the shop. The shop was fixed at £640. The cash in was £640 on average with a scatter of £220, and one week's cash in told you very little about the next. So the reserve did not stand still. It took a step up or down every Tuesday, and the steps were the scatter, and on average the steps came to nothing. That is what a random walk is. It is the oldest thing in the subject: the gambler who stakes a pound on every toss of a fair coin is, on average, neither winning nor losing, and he is ruined in the end anyway, because his money cannot go below nought and the casino's, as far as he is concerned, has no top.
+
+A walk with no drift does not stay where it starts. It wanders, and the distance it has typically wandered grows like the square root of the number of steps. After one week the reserve was typically about £220 from where it started. After a year, fifty-two steps, it was typically about £220 times the square root of 52, which is about £1,600 away, up or down. The reserve was £1,800. A year was long enough for the scatter to be nearly the size of the whole reserve, and the reserve had a floor at nought and no ceiling, so every walk that went down far enough stopped there, and every walk that went up came back down to have another try.
+
+I ran it. I took a reserve of £1,800, a shop of £640, and a cash in of £640 a week with a scatter of £220, each week drawn fresh, and I let two hundred thousand food banks walk for ten years, and counted how many of them had a Tuesday when the cash was not enough for the list.
+
+Within one year: 23 in a hundred. Within three years: 49 in a hundred. Within five: 59. Within ten: 70. And it does not stop at seventy; given long enough, it is all of them. Half the food banks had their short Tuesday within 168 weeks, a little over three years. I have since found the thing in the books, as I should have done before: when the steps are fair, the walk starts at k, and there is a ceiling at N where the walk would stop as well, the chance that it reaches nought before N is 1 − k/N. If the trustees had a rule that anything over £5,000 went on a new freezer, our chance of a short Tuesday before the freezer would be 1 − 1,800/5,000, about 64 in a hundred, and my two hundred thousand said 63. There is no such rule, so there is no N. Take N away and the chance is one.
+
+The average time to the short Tuesday is not three years. It has no average. The walks that wander up take so long to come back that, the more of them you run, the further the mean goes off; the mean waiting time of a fair walk to its floor is infinite. That is not the same as never. Most of the food banks had their short Tuesday inside ten years. The reserve did not have to be eaten to run out. It only had to be walked.
+
+The question was posed by Pascal to Fermat, about two gamblers, in 1656, and Huygens put it at the end of his little book on dice the year after. I have that from memory, and I may have the details simpler than they were. It has been in the books for nearly four hundred years. I had the books. I was asked a question about a floor and I answered it with a mean.
+
+* * *
+
+At the meeting on Thursday 21 January, two days after, I told the trustees what I have just told you, with the chart of two hundred food banks walking that I had made for them, most of the lines crowded round the middle and a fan of them going down to the bottom and stopping, one after another, all along the years.
+
+Nobody spoke for a while. Ruby looked at the chart for a long time. Margaret said, "We should have had more in, then," which was the right thing to say and was kind, because it said *we*.
+
+"Yes," I said. "If you want the chance of a short Tuesday in a year down to about five in a hundred, with the giving as it is, the reserve needs to be about £3,000. I can draft a letter to the churches."
+
+"No," said Dennis.
+
+He did not say it loudly. He put his pen down on the printout, which had *Reserve: safe (T.)* in the margin from September 2053, because he had brought the old printout as well.
+
+"No," he said. "I'll not go to them for more. They've given. Mrs Gosling gives four pounds out of her pension every week into that box at church, and she's eighty-three, and she counts it out in fifty-pences. Half the box at the Methodists' is people who were in this queue themselves five years ago. They've given what they've got. We don't go back to people and tell them it's not enough because our sums were wrong."
+
+"They were my sums," I said.
+
+"They were ours," said Margaret.
+
+"I'm not asking them," said Dennis. "Find something else."
+
+It was a reasonable no. I had told them for sixteen months that the money in matched the money out, and it did; and the people giving it were, many of them, giving more than they could spare, and the food bank had always been careful never to ask them to give out of guilt. What Dennis would not do was spend that care to cover my mistake. I did not want him to.
+
+* * *
+
+I had been looking at the wrong number. Dennis's question had been about the mean, and the mean was fine. The danger was all in the scatter, so the place to work was the scatter, and the scatter is not one thing. It came from two places.
+
+The three boxes and the trolley tin brought about £380 a week, with a scatter of about £130: more after a sunny Sunday, less when it rained, a big week at harvest. And the fourteen brought about £260 a week, with a scatter of about £178, because they gave in lumps. The two scatters put together, as scatters go together, by the square root of the sum of their squares, give about £220, which was the whole. The fourteen were a little over two-fifths of the money and two-thirds of the variance. Their Easter cheques and their every-four-weeks pensions and their good weekends at the football were most of what made the reserve walk.
+
+"Suppose," I said, at the meeting, "that the fourteen gave what they give now. Not a penny more. But by standing order, the same each week, a fourteenth of their year every week instead of in lumps. The cash in would still average £640. The scatter would go from about £220 to about £130, because the boxes would be all that was left to scatter."
+
+Dennis looked at me for a long time.
+
+"That's not asking for more," he said.
+
+"No," I said.
+
+"That's asking them to fill in a form," he said. "Mrs Bainbridge'll want to know why her Easter cheque's not good enough."
+
+"Her Easter cheque is very good," I said. "It is just very large, once a year."
+
+He made a noise that I have learnt is Dennis laughing.
+
+I did not stop there, because a smaller scatter alone is not enough. With the scatter at £130 and the reserve at £1,800 the chance of a short Tuesday within a year goes from 23 in a hundred to about 5, which is good; but within five years it is still 37, because a smaller scatter makes the walk slower and it does not stop it walking. To stop a walk reaching the floor you have to make it lean away from the floor when it gets near. That cannot come from the giving. It has to come from the shop.
+
+"The short list," I said. "When the reserve is under £700 on the Monday night, the Tuesday shop is £80 smaller. The bags take the tins first, and the things that are bought are cut. When the reserve is back over £700, the full list again."
+
+"Why seven hundred?" said Ruby.
+
+"Because it is about the scatter of ten weeks," I said. "£220 times the square root of ten is about £700. If the reserve is under that, ten ordinary weeks could take it to nought. The line is set from the scatter, not from the mean. That is the whole of what I got wrong the first time."
+
+"And who goes short?" said Nell.
+
+She had not said anything all meeting. She had driven back from Scunthorpe two days before with half the eggs.
+
+"The families," I said. "Every week the reserve is under the line, there is £80 less of milk and eggs and margarine across forty or fifty bags. In the first year, from nought, the model says that is about sixteen weeks of the short list. After that, about three or four weeks a year. That is the price. The other price is a Tuesday like last Tuesday, when the bags are short by whatever the till says and I choose at the till what goes back."
+
+"I'd rather know on a Monday," said Nell, "than find out with the man and his pallet truck behind me."
+
+"That is what the short list is for," I said.
+
+* * *
+
+I gave them the numbers, from where Dennis had asked me in September 2053, so that they could see what each change did on its own. From a reserve of £1,800, the chance of a short Tuesday within one year was 23 in a hundred as things were. With the standing orders alone it was about 5; with the short list alone, about 8; with both, about 1 in a thousand. Within five years: 59 in a hundred as things were; 37 with the standing orders alone; 29 with the short list alone; with both, about 6 in a thousand.
+
+And I gave them the numbers from where we were, which was nought. From nought, with both changes, there was still about a four-in-ten chance of another short Tuesday before the next January, nearly all of it in the first weeks, while the reserve was rebuilding and a low week or two could still catch it. Over five years, the expected number of short Tuesdays was about two-thirds of one. As things had been, from nought, it was about seventeen.
+
+"Seventeen," said Margaret.
+
+"About seventeen," I said. "Most of them in the first year, while the reserve kept hitting the floor and bouncing off."
+
+Dennis wrote, on the old printout, under *Reserve: safe (T.)*, in the same biro, *Reserve: walks.* Then he rang the fourteen.
+
+He rang them on the Friday and the Saturday, from his kitchen, with the list of names I sent him, and I do not know what he said to them, because he did not ask me to listen. By the Monday night eleven of them had set up the standing order. Mrs Bainbridge wanted to know why her Easter cheque was not good enough, and he told her, and she set it up on the Tuesday after. The last two came in February.
+
+* * *
+
+The short list ran from Tuesday 26 January.
+
+It ran for twelve weeks. The reserve after the first shop was £80, and after the second £199. It came up slowly, as a walk that leans comes up, a little more often up than down: £243, £208, £228, £180, £267, and then a good week in the middle of March and £522, and three weeks that went nowhere, and £681 on the first Tuesday of April. On Tuesday 13 April, in Holy Week, the shop was still the short list, and when it was done the reserve was £807.
+
+There was no short Tuesday. The model had said there might be one in four-in-ten of the worlds where we started from nought, and this was not one of them; I told the trustees that, at the April meeting, and that the next walk might be.
+
+On the Monday night after Easter I sent Nell the full list for the first time since January. Milk. Eggs, thirty trays. Margarine. Nappies, size four and size five. Tea.
+
+On the Tuesday she came back from Scunthorpe at a quarter to twelve and Ruby went out to the car to help her with the crates, and I heard them through the door in the chapel porch, where the old thermometer was still pinned with its top coloured in, carrying the eggs in one tray at a time, because you do not stack eggs, and Nell counting them under her breath as they came past, twenty-eight, twenty-nine, thirty.
+
+* * *
+
+*This story was written by an AI and may be read by a synthetic voice. It is fiction, not financial, accounting or charity-governance advice. Every person in it (Margaret Ellwood, Dennis Hodgson, Nell Pinder, Ruby Shaw, Mrs Gosling, Mrs Bainbridge and the fourteen regular givers) is invented, as are the food bank, its agent Thimble, the old chapel it uses, the youth club and its account, the collecting boxes and trolley tin, and every sum of money in the story; any likeness to a real person, food bank or chapel is accidental. The place is real: Brigg, a market town on the River Ancholme in North Lincolnshire, with Bigby Street in it and Scunthorpe about eight miles away; the story does not describe any real building on them. Gift Aid is the real UK scheme by which a charity can claim basic-rate tax back on donations from UK taxpayers who make a declaration; the story mentions it only in passing. 11 September 2053, 10 September 2054 and 21 January 2055 are Thursdays; 16 September 2053, 16 June 2054, 3 November 2054, 1 December 2054, 22 December 2054, 12, 19 and 26 January 2055, and 13 and 20 April 2055 are Tuesdays. Easter Sunday 2055 falls on 18 April, so 13 April is the Tuesday of Holy Week and 19 April is Easter Monday; 16 March and 6 April 2055 are Tuesdays. The speculative step is small: a food bank's agent, about as capable as today's assistants after about thirty years of steady improvement (an assumption nobody can check), with a bank feed and a stock list.*
+
+*The ideas. The problem of the gambler's ruin goes back to a problem Pascal posed to Fermat in 1656, which Christiaan Huygens included among the problems at the end of* De ratiociniis in ludo aleae *(1657); Thimble tells the history from memory and simplifies it. For a fair walk of unit steps started at k between absorbing barriers at 0 and N, the chance of reaching 0 first is 1 − k/N, which tends to 1 as N grows; the expected time to reach 0 with no upper barrier is infinite, although the walk reaches 0 with certainty. The typical distance a driftless walk has wandered after n steps grows like σ√n.*
+
+*The model. Each week the cash in is drawn independently from a normal distribution with mean £640 and standard deviation σ; the list is £640, or £560 on the short list (when the reserve before the shop is under £700, about £220 × √10 ≈ £696); the shop buys the list if the reserve plus the week's cash covers it, and otherwise buys what it can, which is a short Tuesday, and the reserve stops at nought. Monte Carlo with 200,000 food banks per case over ten years gives, for the chance of at least one short Tuesday from a reserve of £1,800, within one, three, five and ten years: σ = £220, no short list, 22.6, 48.5, 58.8 and 70.2 per cent (median first short Tuesday at 168 weeks); σ = £130, no short list, 4.6, 24.9, 37.2 and 52.8; σ = £220 with the short list, 7.6, 21.1, 29.1 and 41.1; σ = £130 with the short list, 0.1, 0.3, 0.6 and 1.1. With σ = £220 and no short list, a reserve of £3,000 gives 4.8 per cent within a year (£2,400 gives 11.1). With an upper barrier at £5,000 and σ = £220 (100,000 walks), 63.4 per cent reach nought first, against 1 − 1,800/5,000 = 64 per cent for the continuous limit. From a reserve of nought: with no changes, the expected number of short Tuesdays in five years is 17.3 (the same at either σ, since with a start at nought the walk only scales with σ), and 92 per cent have one within a year; with both changes, 39 per cent have another within a year, nearly all early, the expected number in five years is 0.66, and the short list runs about 15.6 weeks in the first year and 4.1, 3.0, 2.6 and 2.3 in the next four (100,000 walks). The scatter splits as boxes and trolley £380 a week with σ ≈ £130 and the regulars £260 a week with σ ≈ £178; √(130² + 178²) ≈ £220, and the regulars carry 31,684 of the 48,584 in variance, about two-thirds. The reserve's path from September 2053 is one draw from the first model (σ = £220, seed 71 of a simple search for a path that first went short in weeks 64 to 74); its values on the dates the story gives are those of the draw, the March and July 2053 values Thimble quotes from before the story's model starts are invented, and the 19 January 2055 cash in of £458 is the draw's (£33 + £458 = £491 against a £640 list, a short Tuesday of £149). The path from 26 January 2055 is one draw from the last model started at nought (seed 7 of a search for a path with no further short Tuesday, which about six in ten draws have): £80, 199, 243, 208, 228, 180, 267, 522, 538, 537, 681 and 807 after the twelve short-list shops, and £821 after the first full list on 20 April. The model treats both changes as in force from 26 January; in the story the last standing orders began in February. Real giving is seasonal and weeks are not independent; the model ignores both, which is why Thimble gives its chances as "about".*

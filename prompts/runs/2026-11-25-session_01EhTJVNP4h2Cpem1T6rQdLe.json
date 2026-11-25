@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01EhTJVNP4h2Cpem1T6rQdLe",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T14:56:38Z",
+  "ended": "2026-11-25T15:08:46Z",
+  "wall_minutes": 13.19,
+  "tokens_in": 10942271,
+  "tokens_out": 51581,
+  "cost_usd": 4.496,
+  "tool_calls": 80,
+  "task": "PayApps (bet #1): decrypt owner-password-only PDFs for backup packets and the PDF SOV import",
+  "projects": [
+    "private-monorepo/apps/payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19006",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "private CI job for PR 121 finished in 3 s with no logs (no runner)",
+      "fix": "ran every payapps-ci.yml step locally"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "add_repo + one clone of private-monorepo worked first time (under a minute), as the 2026-11-25 note says; no friction"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "ci_starvation.py only classifies oss-monorepo runs; there is no equivalent for private-monorepo runs, whose job logs 404 when no runner picked them up"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "no customer-facing blog post: the change is a backend capability inside a product that is not launched yet, and a post about PDF decryption would be thin",
+      "did": "agent doc only in docs/reports",
+      "result": "agent doc landed with the private PR link"
+    }
+  ],
+  "writeups": [
+    "docs/reports/ventures-2026-11-25-payapps-restricted-pdfs.md"
+  ],
+  "goal": null,
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/121. Local verification after merging main: biome ci (1 pre-existing warning), typecheck, unit 432 passed, worker 250 passed pre-merge and 257 post-merge; private PR 121 merged, build, provision tests. Poppler renders of packets from 5 encrypted variants were pixel-identical to those from the unencrypted files.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5de4b181-f38a-570b-9c96-2608019d3743",
+    "transcripts": 1,
+    "first": "2026-11-25T14:56:38Z",
+    "last": "2026-11-25T15:09:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 76,
+        "input": 149,
+        "output": 51581,
+        "thinking": 12956,
+        "cache_read": 10778616,
+        "cache_write_5m": 0,
+        "cache_write_1h": 163506,
+        "api_equivalent_usd": 4.496,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 76,
+      "input": 149,
+      "output": 51581,
+      "thinking": 12956,
+      "cache_read": 10778616,
+      "cache_write_5m": 0,
+      "cache_write_1h": 163506,
+      "api_equivalent_usd": 4.496,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 80,
+    "tools": {
+      "Bash": 69,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.19,
+      "active_minutes": 13.19,
+      "model_minutes": 8.91,
+      "tool_minutes": 4.29,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "senior engineer implementing and testing a PDF Standard security handler (MD5/RC4/AES, R2-R6) with fixtures",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 355.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

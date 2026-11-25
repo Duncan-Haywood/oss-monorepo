@@ -231,7 +231,7 @@ node platform/distribution/hub.mjs kit [--slug <post>] [--out <dir>]  # every na
   honest copy templates (`TEMPLATES`, a deterministic pick per item and
   platform), and the scoreboard compares templates by engagement relative to
   each platform's own average.
-- **Workflow** [`distribute-hub.yml`](../../.github/workflows/distribute-hub.yml):
+- **Workflow** [`priv-distribute-hub.yml`](../../.github/workflows/priv-distribute-hub.yml):
   daily, dry run unless enabled, uploads the drafts pack and
   `scoreboard.json` as a run artifact. It pushes no commits.
 
@@ -308,7 +308,7 @@ node platform/distribution/setup.mjs --write    # regenerate SETUP.md
 node platform/distribution/setup.mjs --check    # exit 1 on drift
 ```
 
-`--check` fails when a `distribute-*.yml` workflow reads a secret or variable
+`--check` fails when a `priv-distribute-*.yml` workflow reads a secret or variable
 no account row asks for (a new channel nobody would be told to set up), when a
 row lists a name none of its workflows reads, or when an `unlocks` id, a
 workflow or the sign-up address does not exist.
@@ -402,7 +402,7 @@ the owner step is the account, two secrets and `DISTRIBUTE_BLUESKY=true`.
 
 `nix-flake` is at `artifact` (2026-10-17): the same linters are also packages and apps of a root `flake.nix`, so `nix run github:duncan-haywood/oss-monorepo#actions-timeout-check -- --fail-on-risk .` runs one with nothing installed. It needs no account, token or publish step. Dry run: `node platform/distribution/nixflake.mjs` (`--write` regenerates, `--check` exits 1 when stale).
 
-`desktop-apps` is at `artifact` (2026-10-20): any static venture page (1,213 of 1,285), or a catalogue section as a suite with a launcher, becomes an offline Tauri v2 desktop app for macOS, Windows and Linux. The CSP blocks the network, the page gets no native capability, and links that leave the bundle open in the browser. Dry run: `node platform/distribution/desktop.mjs` (`--suites` lists suites, `--build <slug|suite> <dir>` writes the project). `.github/workflows/distribute-desktop.yml` is manual only and needs `DISTRIBUTE_DESKTOP=true`. It builds unsigned .dmg, .msi/.exe, .AppImage and .deb installers and attaches them, with winget manifests, to a pre-release. Verified on Linux only: the generated project compiled and rendered offline. Owner steps: signing, notarisation and the winget submission. Flatpak and Snap are follow-ups described in the generated BUILD.md.
+`desktop-apps` is at `artifact` (2026-10-20): any static venture page (1,213 of 1,285), or a catalogue section as a suite with a launcher, becomes an offline Tauri v2 desktop app for macOS, Windows and Linux. The CSP blocks the network, the page gets no native capability, and links that leave the bundle open in the browser. Dry run: `node platform/distribution/desktop.mjs` (`--suites` lists suites, `--build <slug|suite> <dir>` writes the project). `.github/workflows/priv-distribute-desktop.yml` is manual only and needs `DISTRIBUTE_DESKTOP=true`. It builds unsigned .dmg, .msi/.exe, .AppImage and .deb installers and attaches them, with winget manifests, to a pre-release. Verified on Linux only: the generated project compiled and rendered offline. Owner steps: signing, notarisation and the winget submission. Flatpak and Snap are follow-ups described in the generated BUILD.md.
 
 `wordpress-plugin` is at `artifact` (2026-10-19): one plugin, "Free Tools Embed", whose `[free_tool slug="..."]` shortcode embeds any launched tool as a sandboxed iframe with a link back. Dry run: `node platform/distribution/wordpress.mjs` (`--build <dir>` writes the zip). Owner step: a wordpress.org account and a submission.
 

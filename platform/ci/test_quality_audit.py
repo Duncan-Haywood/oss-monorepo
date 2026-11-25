@@ -73,6 +73,11 @@ class QualityAuditTest(unittest.TestCase):
         assert all(p["subject"] not in POP["flagship"] for p in one if p["stratum"] == "venture")
         assert len({p["subject"] for p in one}) == len(one)
 
+    def test_draw_skips_research_when_k_research_is_zero(self):
+        # the CLI passes k_research=0 while standalone research is paused (2026-11-25)
+        picks = q.draw("2026-11-07", audits=[], pop=POP, today=dt.date(2026, 11, 7), k_research=0)
+        assert [p["stratum"] for p in picks] == ["flagship", "venture", "venture", "platform"]
+
 
     def test_draw_rotates_flagships_and_skips_recent(self):
         done = [audit(subject="ventures/a", stratum="flagship", date="2026-11-01")]

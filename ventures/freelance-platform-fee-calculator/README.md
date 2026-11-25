@@ -134,4 +134,4 @@ Not affiliated with, endorsed by, or sponsored by Upwork or Fiverr. Upwork is
 a trademark of Upwork Inc.; Fiverr is a trademark of Fiverr International
 Ltd. Both are named here only to describe what this calculator compares.
 
-MIT licensed — see [`LICENSE`](LICENSE).
+FSL-1.1-MIT licensed — see [`LICENSE`](LICENSE).

@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKkJNBSzTbbCaaf2WCg",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T04:17:57Z",
+  "ended": "2026-11-25T04:29:04Z",
+  "wall_minutes": 11.33,
+  "tokens_in": 9875110,
+  "tokens_out": 33593,
+  "cost_usd": 3.7487,
+  "tool_calls": 82,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18846",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0: between reading QUEUE.md and pushing a claim branch, another session claimed #1049 and #1050 (and the 1181-1208 batch). The claim is a race, so reading the list and running ls-remote is not enough; the push rejection is the real signal, and the alert file's step 1 already says so."
+    },
+    {
+      "file": "private-monorepo CI",
+      "issue": "The PR job 'lint, types, tests, build, migrations' failed in 7 s with no downloadable logs (runner starvation, as the previous payapps run recorded). Verification was done locally."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Merged private-monorepo PR 53 on local verification while its CI job had failed without a runner.",
+      "did": "Ran typecheck, unit (135), worker (102), build, drizzle check and biome locally and put the output in the PR body.",
+      "result": "merged"
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "No new post: the change extends the existing pay-applications post, following the owner's 2026-11-24 direction to consolidate posts.",
+      "did": "Added a section on due dates from pay terms",
+      "result": "merged with this PR"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (extended)"
+  ],
+  "goal": null,
+  "notes": "Security queue: every alert in QUEUE.md had a claim branch when this run tried to claim one; #1049/#1050 were claimed by another session seconds earlier. Bet 1 payapps: private-monorepo PR 53 merged (https://github.com/Duncan-Haywood/private-monorepo/pull/53). It adds projects.pay_terms_days (migration 0008), due dates per unpaid application, past due and next-30-days totals, follow-ups that name the most overdue application (with a paid-short variant), 3 CSV columns, a pay-terms editor on the job page and a field on the new-job form. A job without terms keeps the 30-day rule and its money is reported apart from the forecast. Local: typecheck clean; unit 13 files/135 passed; worker 13 files/102 passed; build OK; drizzle check fine; biome clean except the 1 warning already there. Not done: a browser screenshot of the new UI (covered by happy-dom render tests).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "225b1eb2-f03e-5252-ba29-87e2285b83ad",
+    "transcripts": 1,
+    "first": "2026-11-25T04:17:57Z",
+    "last": "2026-11-25T04:29:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 79,
+        "input": 152,
+        "output": 33593,
+        "thinking": 5558,
+        "cache_read": 9733774,
+        "cache_write_5m": 0,
+        "cache_write_1h": 141184,
+        "api_equivalent_usd": 3.7487,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 79,
+      "input": 152,
+      "output": 33593,
+      "thinking": 5558,
+      "cache_read": 9733774,
+      "cache_write_5m": 0,
+      "cache_write_1h": 141184,
+      "api_equivalent_usd": 3.7487,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 82,
+    "tools": {
+      "Bash": 73,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.33,
+      "active_minutes": 11.33,
+      "model_minutes": 8.16,
+      "tool_minutes": 3.17,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "schema+migration, report math, UI, tests for a small SaaS feature",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 160.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

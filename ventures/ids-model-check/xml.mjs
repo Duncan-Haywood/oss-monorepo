@@ -35,7 +35,7 @@ const ENT = { lt: "<", gt: ">", amp: "&", quot: '"', apos: "'" };
 
 export function decodeEntities(s) {
   return s.replace(/&(#x[0-9a-fA-F]+|#\d+|\w+);/g, (all, e) => {
-    if (e[0] === "#") return String.fromCodePoint(e[1] === "x" ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10));
+    if (e[0] === "#") return codePointOr(e[1] === "x" ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10));
     return ENT[e] ?? all;
   });
 }
@@ -249,3 +249,7 @@ export function parseXmlBytes(b, opts = {}) {
 
 export const kids = (node, local) => (node ? node.children.filter((c) => c.local === local) : []);
 export const kid = (node, local) => (node ? node.children.find((c) => c.local === local) : undefined);
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }

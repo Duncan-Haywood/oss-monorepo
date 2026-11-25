@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKnstMR2PatSaEDee94",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T04:18:22Z",
+  "ended": "2026-11-24T04:35:20Z",
+  "wall_minutes": 17.21,
+  "tokens_in": 3451790,
+  "tokens_out": 22947,
+  "cost_usd": 1.9648,
+  "tool_calls": 36,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18535",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes runs the whole verified-dse test suite, which passes its 600 s cap and reports TIMEOUT (exit 1); a one-milestone change only needs its own test file, so the local verdict is red for a reason unrelated to the diff."
+    },
+    {
+      "file": "research/verified-dse/experiments/*/results.txt",
+      "issue": "each milestone's blind table names its SWC column differently ('SWC %', 'SWC = SWD(1) %') and only some carry amount_gate_depth, so a cross-milestone replay must parse prose tables; a per-cell JSON per milestone would make re-reads like this one trivial."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The default is a flow-run step. I took milestone 164's 'Next' as a replay (no flow tools needed), because re-scoring existing blind tables answered the open question within this session.",
+      "did": "replay of 10 milestones' committed blind tables",
+      "result": "six predictions committed first, four held; paper and README updated"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-verified-dse-tie-rule-shifter-guard.md",
+    "research/verified-dse/LOG.md (milestone 165 entries)"
+  ],
+  "goal": null,
+  "notes": "Local checks: tests/test_tie_rule165.py 4 passed; research/_homepage/build.py ok; check_md_links ok; check_posts ok; programme_check ok; run_workflow_locally --for-changes: 7/7 selected workflows passed, research project tests TIMEOUT at 600 s for the whole verified-dse suite (not run to completion here, new tests pass). Post-hoc section in results.txt added after the first run and labelled as such.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "491ca4c6-cd24-5eae-9f79-8edd2d3a2d71",
+    "transcripts": 1,
+    "first": "2026-11-24T04:18:22Z",
+    "last": "2026-11-24T04:35:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 70,
+        "output": 22947,
+        "thinking": 5187,
+        "cache_read": 3347205,
+        "cache_write_5m": 0,
+        "cache_write_1h": 104515,
+        "api_equivalent_usd": 1.9648,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 70,
+      "output": 22947,
+      "thinking": 5187,
+      "cache_read": 3347205,
+      "cache_write_5m": 0,
+      "cache_write_1h": 104515,
+      "api_equivalent_usd": 1.9648,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 32,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.21,
+      "active_minutes": 17.21,
+      "model_minutes": 4.84,
+      "tool_minutes": 12.36,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a researcher parsing ten milestone tables, writing pre-registered replay, tests, paper paragraph and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 305.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

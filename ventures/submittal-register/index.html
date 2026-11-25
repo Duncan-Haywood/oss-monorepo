@@ -47,8 +47,8 @@ small{color:var(--mut)}
 b.late{color:var(--acc)}
 @media print{.noprint{display:none!important}body{background:#fff;color:#000}.tablewrap{border:0}th{position:static}}
 </style>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Submittal Register","url":"https://marisstella.app/submittal-register/","applicationCategory":"BusinessApplication","operatingSystem":"Any (runs in the browser)","description":"Reads a construction project manual (spec book) PDF in the browser and lists every Part 1 submittal requirement by specification section, typed (product data, shop drawings, samples, certificates, O&M, warranties) and phased (action, informational, closeout), with a CSV export. Nothing is uploaded.","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"license":"https://opensource.org/licenses/MIT"}</script>
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I make a submittal register from a spec book?", "acceptedAnswer": {"@type": "Answer", "text": "Choose the project manual PDF, or every volume at once. The tool finds each SECTION heading, reads the submittal articles in Part 1 (ACTION, INFORMATIONAL, CLOSEOUT and MAINTENANCE MATERIAL SUBMITTALS, or UFGS SD-01 to SD-11 lists) and lists one row per requirement. Download the CSV and open it in Excel, Google Sheets or your project-management tool's import."}}, {"@type": "Question", "name": "Is my project manual uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The PDF is read by code running in this tab; nothing is sent anywhere. A 2,000-page book takes about half a minute on a laptop."}}, {"@type": "Question", "name": "Which spec formats does it read?", "acceptedAnswer": {"@type": "Answer", "text": "CSI SectionFormat books with numbered articles and lettered paragraphs, which is how most commercial and public project manuals are laid out, and UFGS books with SD lists and the G Government-approval mark (kept in the Approval column, with any reviewer code after it). A scanned PDF with no text layer needs OCR first; the tool says so when it sees one."}}, {"@type": "Question", "name": "How accurate is it?", "acceptedAnswer": {"@type": "Answer", "text": "On 690 Unified Facilities Guide Specification sections whose XML tags each submittal, it found 99.3% of the 12,952 tagged items with 99.9% precision. Printed to PDF and read back the way this page reads a book, 98.8% to 99.1%. It has not yet been measured on a commercial (SectionFormat) project manual, so check every section by hand before relying on the list. How it was checked."}}, {"@type": "Question", "name": "Does it find submittals mentioned in Part 2 or Part 3?", "acceptedAnswer": {"@type": "Answer", "text": "Not yet. It reads the Part 1 submittal articles, which is where SectionFormat puts them. A requirement written only in Part 3 (\"submit test reports to the Architect\") is not listed, and Division 01 general requirements apply on top of every section."}}, {"@type": "Question", "name": "Can it tell me when each submittal is due?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Open \"Submittal schedule\" under the register and add the project schedule: a Primavera P6 .xer export, or a CSV with an activity name and a start column. Each spec section is matched to the first activity that installs its work, and Submit by = that start minus any lead time you enter, minus the review period times the review cycles. The review period comes from the book's Division 01 when it states one, else 14 calendar days. Closeout items are due one review period before the last finish. On 80 sections checked by hand against four public P6 schedules, the matched activity was right 72.5% of the time and wrong 25%, so each row shows the activity it used. Check it, and pin a section to the right activity ID where it is wrong."}}, {"@type": "Question", "name": "Can I run it on my own machine or server?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. It is MIT-licensed, has no dependencies and runs from a folder: node cli.mjs project-manual.pdf --csv register.csv. Source and instructions are on GitHub."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Submittal Register","url":"https://marisstella.app/submittal-register/","applicationCategory":"BusinessApplication","operatingSystem":"Any (runs in the browser)","description":"Reads a construction project manual (spec book) PDF in the browser and lists every Part 1 submittal requirement by specification section, typed (product data, shop drawings, samples, certificates, O&M, warranties) and phased (action, informational, closeout), with a CSV export. Nothing is uploaded.","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"license":"https://spdx.org/licenses/FSL-1.1-MIT.html"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I make a submittal register from a spec book?", "acceptedAnswer": {"@type": "Answer", "text": "Choose the project manual PDF, or every volume at once. The tool finds each SECTION heading, reads the submittal articles in Part 1 (ACTION, INFORMATIONAL, CLOSEOUT and MAINTENANCE MATERIAL SUBMITTALS, or UFGS SD-01 to SD-11 lists) and lists one row per requirement. Download the CSV and open it in Excel, Google Sheets or your project-management tool's import."}}, {"@type": "Question", "name": "Is my project manual uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The PDF is read by code running in this tab; nothing is sent anywhere. A 2,000-page book takes about half a minute on a laptop."}}, {"@type": "Question", "name": "Which spec formats does it read?", "acceptedAnswer": {"@type": "Answer", "text": "CSI SectionFormat books with numbered articles and lettered paragraphs, which is how most commercial and public project manuals are laid out, and UFGS books with SD lists and the G Government-approval mark (kept in the Approval column, with any reviewer code after it). A scanned PDF with no text layer needs OCR first; the tool says so when it sees one."}}, {"@type": "Question", "name": "How accurate is it?", "acceptedAnswer": {"@type": "Answer", "text": "On 690 Unified Facilities Guide Specification sections whose XML tags each submittal, it found 99.3% of the 12,952 tagged items with 99.9% precision. Printed to PDF and read back the way this page reads a book, 98.8% to 99.1%. It has not yet been measured on a commercial (SectionFormat) project manual, so check every section by hand before relying on the list. How it was checked."}}, {"@type": "Question", "name": "Does it find submittals mentioned in Part 2 or Part 3?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, as a separate list under the register. Every sentence outside the Part 1 submittal articles that obliges someone to submit something (in Part 2, Part 3, or a Part 1 article such as Quality Assurance) is listed with its section, article, paragraph, type and any deadline it states, and with the Part 1 row it seems to restate. The ones no Part 1 row covers are the likely missed submittals, and one click adds them to the register. Read by hand on two samples of 40 sentences from 690 UFGS sections, 79 of 80 were real submit requirements and 43 of 49 suggested Part 1 matches were right. Division 01 general requirements still apply on top of every section."}}, {"@type": "Question", "name": "Can it tell me when each submittal is due?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Open \"Submittal schedule\" under the register and add the project schedule: a Primavera P6 .xer export, or a CSV with an activity name and a start column. Each spec section is matched to the first activity that installs its work, and Submit by = that start minus any lead time you enter, minus the review period times the review cycles. The review period comes from the book's Division 01 when it states one, else 14 calendar days. Closeout items are due one review period before the last finish. On 80 sections checked by hand against four public P6 schedules, the matched activity was right 72.5% of the time and wrong 25%, so each row shows the activity it used. Check it, and pin a section to the right activity ID where it is wrong."}}, {"@type": "Question", "name": "Can I run it on my own machine or server?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. It is FSL-1.1-MIT-licensed, has no dependencies and runs from a folder: node cli.mjs project-manual.pdf --csv register.csv. Source and instructions are on GitHub."}}]}</script>
 </head>
 <body>
 <main>
@@ -88,6 +88,15 @@ b.late{color:var(--acc)}
     <p class="row"><button type="button" id="dateIt">Date the register</button></p>
     <p class="note" id="schedStatus" aria-live="polite"></p>
   </details>
+  <details class="noprint sched" id="buriedPanel" hidden>
+    <summary><b>Also required outside Part 1:</b> <span id="buriedSum"></span></summary>
+    <p class="note">Sentences in Part 2, Part 3 or other Part 1 articles that oblige someone to submit something. "Covered by" is the Part 1 row that seems to say the same thing; a blank one is a likely missed submittal. Read each one: the match is a word comparison, not a judgment.</p>
+    <p class="row"><label><input id="addBuried" type="checkbox"> Add the uncovered ones to the register</label> <button type="button" class="secondary" id="buriedCsv">Download this list (CSV)</button></p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Ref</th><th>Section</th><th>Where</th><th>Type</th><th>Requirement</th><th>When</th><th>Covered by</th></tr></thead>
+      <tbody id="buriedRows"></tbody>
+    </table></div>
+  </details>
   <p class="note" id="shown"></p>
   <div class="tablewrap"><table>
     <thead><tr><th>No.</th><th>Section</th><th>Type</th><th>Phase</th><th>Requirement</th><th>Page</th><th id="dueHead" hidden>Submit by</th></tr></thead>
@@ -109,18 +118,18 @@ b.late{color:var(--acc)}
 <h3>How accurate is it?</h3>
 <p>On 690 Unified Facilities Guide Specification sections whose XML tags each submittal, it found 99.3% of the 12,952 tagged items with 99.9% precision. Printed to PDF and read back the way this page reads a book, 98.8% to 99.1%. It has not yet been measured on a commercial (SectionFormat) project manual, so check every section by hand before relying on the list. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/submittal-register#how-it-was-checked">How it was checked</a>.</p>
 <h3>Does it find submittals mentioned in Part 2 or Part 3?</h3>
-<p>Not yet. It reads the Part 1 submittal articles, which is where SectionFormat puts them. A requirement written only in Part 3 ("submit test reports to the Architect") is not listed, and Division 01 general requirements apply on top of every section.</p>
+<p>Yes, as a separate list under the register. Every sentence outside the Part 1 submittal articles that obliges someone to submit something (in Part 2, Part 3, or a Part 1 article such as Quality Assurance) is listed with its section, article, paragraph, type and any deadline it states, and with the Part 1 row it seems to restate. The ones no Part 1 row covers are the likely missed submittals, and one click adds them to the register. Read by hand on two samples of 40 sentences from 690 UFGS sections, 79 of 80 were real submit requirements and 43 of 49 suggested Part 1 matches were right. Division 01 general requirements still apply on top of every section.</p>
 <h3>Can it tell me when each submittal is due?</h3>
 <p>Yes. Open "Submittal schedule" under the register and add the project schedule: a Primavera P6 <code>.xer</code> export, or a CSV with an activity name and a start column. Each spec section is matched to the first activity that installs its work, and Submit by = that start minus any lead time you enter, minus the review period times the review cycles. The review period comes from the book's Division 01 when it states one, else 14 calendar days. Closeout items are due one review period before the last finish. On 80 sections checked by hand against four public P6 schedules, the matched activity was right 72.5% of the time and wrong 25%, so each row shows the activity it used. Check it, and pin a section to the right activity ID where it is wrong.</p>
 <h3>Can I run it on my own machine or server?</h3>
-<p>Yes. It is MIT-licensed, has no dependencies and runs from a folder: <code>node cli.mjs project-manual.pdf --csv register.csv</code>. Source and instructions are on <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/submittal-register">GitHub</a>.</p>
+<p>Yes. It is FSL-1.1-MIT-licensed, has no dependencies and runs from a folder: <code>node cli.mjs project-manual.pdf --csv register.csv</code>. Source and instructions are on <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/submittal-register">GitHub</a>.</p>
 
 <p class="noprint">Related: the <a href="../drawing-set-index/">drawing set index</a> (sheet list and revision compare for the drawings), <a href="../ids-model-check/">IDS model check</a> for BIM deliverables, the <a href="../xer-schedule-check/">XER schedule check</a> (DCMA 14-point check of a P6 schedule), and the <a href="../wall-framing-takeoff/">wall framing takeoff</a>.</p>
 <p class="noprint"><small id="usage"></small> <button type="button" class="secondary" id="optout" style="font-size:.8rem;padding:.2rem .5rem">Turn usage counting off</button></p>
 <p><small><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, construction, engineering or professional advice, and it does not replace a qualified professional or the design team. It reads the text of the book you give it and can miss or misread requirements; the contract documents and the architect's and engineers' instructions govern. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</small></p>
 </main>
 <script type="module">
-import { buildRegister, linesFromText, toCsv } from "./engine.mjs";
+import { buildRegister, buriedCsv, linesFromText, toCsv, withBuried } from "./engine.mjs";
 import { SAMPLE_TEXT, SAMPLE_SCHEDULE_CSV } from "./sample.mjs";
 import { readReviewPeriod, readSchedule, scheduleCsv, scheduleRegister } from "./schedule.mjs";
 import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -128,6 +137,7 @@ import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 let reg = null;
+let baseReg = null;
 let bookLines = [];
 let sched = null;
 let schedText = "";
@@ -135,7 +145,10 @@ let schedIsSample = false;
 let bookName = "submittal-register";
 
 function show(r) {
-  reg = r;
+  baseReg = r;
+  reg = $("#addBuried").checked ? withBuried(r) : r;
+  showBuried(r);
+  r = reg;
   $("#result").hidden = false;
   const s = r.summary;
   $("#summary").innerHTML = [`<span class="chip"><b>${s.total}</b> submittals</span>`, `<span class="chip">${s.sections} of ${r.sections.length} sections</span>`]
@@ -156,6 +169,16 @@ function render() {
   const rows = reg.items.filter((i) => (!ph || i.phase === ph) && (!ty || i.type === ty) && (!q || `${i.section} ${i.sectionTitle} ${i.label} ${i.description}`.toLowerCase().includes(q)));
   $("#shown").textContent = rows.length === reg.items.length ? "" : `Showing ${rows.length} of ${reg.items.length}.`;
   $("#rows").innerHTML = rows.slice(0, 3000).map((i) => `<tr><td class="sec">${esc(i.id)}</td><td><span class="sec">${esc(i.section)}</span><br><small>${esc(i.sectionTitle)}</small></td><td>${esc(i.type)}${i.sd ? `<br><small>${esc(i.sd)}</small>` : ""}</td><td>${esc(i.phase)}${i.approval ? `<br><span class="tag">${esc(i.approval)}${i.reviewer ? ", " + esc(i.reviewer) : ""}</span>` : ""}</td><td class="desc"><b>${esc(i.label)}</b><br>${esc(i.description)}${i.flags.map((f) => `<span class="tag">${esc(f)}</span>`).join("")}<br><small>${esc(i.article)}${i.para ? " " + esc(i.para) : ""}</small></td><td class="sec">${i.file && reg.files > 1 ? esc(i.file) + " " : ""}p. ${esc(i.filePage ?? i.page)}</td>${by ? due(by.get(i.id)) : ""}</tr>`).join("") + (rows.length > 3000 ? `<tr><td colspan="${by ? 7 : 6}">First 3,000 rows shown; the CSV has all ${rows.length}.</td></tr>` : "");
+}
+
+function showBuried(r) {
+  const b = r.buried || [];
+  $("#buriedPanel").hidden = !b.length;
+  const open = b.filter((x) => !x.coveredBy).length;
+  $("#buriedSum").textContent = `${b.length} submit requirement${b.length === 1 ? "" : "s"}, ${open} not in the Part 1 lists`;
+  const label = new Map(r.items.map((i) => [i.id, i.label]));
+  const sorted = [...b].sort((x, y) => (x.coveredBy ? 1 : 0) - (y.coveredBy ? 1 : 0));
+  $("#buriedRows").innerHTML = sorted.slice(0, 2000).map((x) => `<tr><td class="sec">${esc(x.id)}</td><td><span class="sec">${esc(x.section)}</span><br><small>${esc(x.sectionTitle)}</small></td><td><small>Part ${x.part}<br>${esc(x.article)}${x.para ? " " + esc(x.para) : ""}<br>p. ${esc(x.filePage ?? x.page)}</small></td><td>${esc(x.type)}</td><td class="desc">${esc(x.text)}</td><td><small>${esc(x.when)}</small></td><td>${x.coveredBy ? `<small>${esc(x.coveredBy)}<br>${esc(label.get(x.coveredBy))}</small>` : '<span class="tag">not in Part 1</span>'}</td></tr>`).join("");
 }
 
 function due(r) {
@@ -235,6 +258,14 @@ $("#schedFile").addEventListener("change", async (e) => {
   dateRegister();
 });
 $("#dateIt").addEventListener("click", dateRegister);
+$("#addBuried").addEventListener("change", () => { if (!baseReg) return; if ($("#addBuried").checked) record("buried_added"); const keep = schedText; show(baseReg); sched = null; $("#dueHead").hidden = true; if (keep) dateRegister(); });
+$("#buriedCsv").addEventListener("click", () => {
+  if (!baseReg) return;
+  const blob = new Blob([buriedCsv(baseReg)], { type: "text/csv;charset=utf-8" });
+  const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: `${bookName}-outside-part-1.csv` });
+  document.body.append(a); a.click(); a.remove();
+  record("buried_csv_downloaded");
+});
 $("#print").addEventListener("click", () => { record("register_printed"); window.print(); });
 $("#optout").addEventListener("click", () => { setUsageOptOut(true); $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; });
 if (usageOptedOut()) { $("#optout").textContent = "Usage counting is off"; $("#optout").disabled = true; }

@@ -57,7 +57,7 @@ export function decodeStepString(s) {
     if (s.startsWith("\\X4\\", i)) {
       const end = s.indexOf("\\X0\\", i + 4);
       const hex = s.slice(i + 4, end < 0 ? s.length : end);
-      for (let k = 0; k + 8 <= hex.length; k += 8) out += String.fromCodePoint(parseInt(hex.slice(k, k + 8), 16));
+      for (let k = 0; k + 8 <= hex.length; k += 8) out += codePointOr(parseInt(hex.slice(k, k + 8), 16));
       i = (end < 0 ? s.length : end + 4) - 1;
       continue;
     }
@@ -131,7 +131,9 @@ export class Interner {
 class Reader {
   // b: where the text starts in the file, for error positions (a record read
   // from a file's bytes is read as a string of its own).
-  constructor(text, pos, intern = null, base = 0) { this.t = text; this.p = pos; this.i = intern; this.b = base; }
+  // lenient: set when a value was read in a form the standard does not allow
+  // (see value()), for the caller to record as a reader note.
+  constructor(text, pos, intern = null, base = 0) { this.t = text; this.p = pos; this.i = intern; this.b = base; this.lenient = null; }
   ws() {
     const t = this.t;
     for (;;) {
@@ -194,6 +196,24 @@ class Reader {
     const n = num.exec(t);
     if (n && n.index === this.p) {
       this.p = num.lastIndex;
+      // Microsoft C runtime spellings of infinity and NaN, written by
+      // exporters that printf a double without checking it: 1.#INF, -1.#INF,
+      // -1.#IND, 1.#QNAN, 1.#SNAN, sometimes with digits after (1.#INF00).
+      // ISO 10303-21 has no such token, so the record would otherwise be
+      // dropped whole (a property with an IFCREAL(1.#INF) went missing rather
+      // than failing on its value). Read leniently and noted
+      // (xBIM's FormallyIllegalFile.ifc, eval/xbim-test-files-2026-11-24.md).
+      if (t.charCodeAt(this.p) === 35 && t[this.p - 1] === ".") {
+        const w = /#(INF|IND|QNAN|SNAN)\d*/iy;
+        w.lastIndex = this.p;
+        const m = w.exec(t);
+        if (m) {
+          this.p = w.lastIndex;
+          const v = m[1].toUpperCase() === "INF" ? (n[0][0] === "-" ? -Infinity : Infinity) : NaN;
+          if (!this.lenient) this.lenient = `${n[0]}${m[0]} read as ${v} (a Microsoft C runtime spelling, not ISO 10303-21)`;
+          return v;
+        }
+      }
       return Number(n[0]);
     }
     const kw = /[A-Za-z_][A-Za-z0-9_]*/y;
@@ -279,6 +299,10 @@ class Reader {
     }
   }
 }
+
+// Reads one parenthesised argument list starting at text[pos] (a header
+// record's, for conformance.mjs). Throws on text ISO 10303-21 does not allow.
+export function readStepArgs(text, pos) { return new Reader(text, pos).list(); }
 
 // Where an entity record ends: the ";" after it, skipping strings ('' is an
 // escaped quote) and /* comments */. Returns -1 when the text ends first.
@@ -487,6 +511,7 @@ function parseStepBytes(input, opts) {
     try {
       const args = r.list();
       entities.set(id, { id, type, args });
+      if (r.lenient) errors.push(`#${id}: ${r.lenient}`);
     } catch (e) {
       errors.push(`#${id}: ${e.message}`);
     }
@@ -520,9 +545,13 @@ function entityClass(text, errors, policy, intern) {
   // From a file's bytes (parseStep(bytes)), a record is decoded to a string
   // of its own when it is read: the file is never one string on the heap.
   const reader = text instanceof Uint8Array ? bytesReader(text, intern) : (p) => new Reader(text, p, intern);
+  const noted = new Set();
   const read = (e, p) => {
     try {
-      return reader(p).list();
+      const r = reader(p);
+      const a = r.list();
+      if (r.lenient && !noted.has(e.id)) { noted.add(e.id); errors.push(`#${e.id}: ${r.lenient}`); }
+      return a;
     } catch (err) {
       errors.push(`#${e.id}: ${err.message}`);
       return [];
@@ -658,6 +687,7 @@ export function parseStep(text, opts = {}) {
     try {
       const args = r.list();
       entities.set(id, { id, type, args });
+      if (r.lenient) errors.push(`#${id}: ${r.lenient}`);
     } catch (e) {
       errors.push(`#${id}: ${e.message}`);
     }
@@ -668,3 +698,7 @@ export function parseStep(text, opts = {}) {
   }
   return { schema, entities: entities.trim(), errors, policy };
 }
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }

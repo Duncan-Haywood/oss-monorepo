@@ -1,7 +1,7 @@
 # Build and sell Open Tennis Robots
 
 **Yes, you may sell these.** Everything in this project (hardware designs,
-firmware, software, docs) is under the MIT licence. You can build the
+firmware, software, docs) is under the FSL-1.1-MIT licence. You can build the
 feeder or the collector, put your own brand on it, and sell it as a kit or
 assembled, with no royalty and no permission needed. The licence asks only
 that you keep the copyright and licence notice with the software and

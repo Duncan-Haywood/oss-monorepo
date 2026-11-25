@@ -1,0 +1,125 @@
+"""Tests for roadmap_claim.py: parsing, and create-only claims against a real local remote."""
+import contextlib
+import io
+import os
+import subprocess
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+from unittest import mock
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import roadmap_claim as rc  # noqa: E402
+
+ROADMAP = """# App: Roadmap
+
+## Done
+- Something shipped
+
+## Next (suite, by promise)
+
+- QuickBooks, part 5: an item per schedule-of-values line
+- Backup packets, part 2: PDFs encrypted with an empty user password;
+  HEIC and WebP photos
+- Notarization block / state-specific forms; GC portal export formats
+
+## Open questions
+- not an item
+"""
+
+NUMBERED = """## Next
+
+3. **launch** Deploy pipeline (`provision`, D1 migrations on deploy) and a
+   `docs/DEPLOY.md`.
+4. Billing, part 2: the 10-page cap per RFQ.
+"""
+
+
+def run(cwd, *args):
+    return subprocess.run(["git", *args], cwd=cwd, capture_output=True, text=True, check=True)
+
+
+class ParseTest(unittest.TestCase):
+    def test_next_items_bullets_joined(self):
+        items = rc.next_items(ROADMAP)
+        self.assertEqual([n for n, _ in items], [1, 2, 3])
+        self.assertIn("HEIC and WebP photos", items[1][1])
+
+    def test_numbered_keeps_roadmap_numbers(self):
+        items = rc.next_items(NUMBERED)
+        self.assertEqual([n for n, _ in items], [3, 4])
+        self.assertEqual(rc.slugify(items[1][1]), "billing-part-2")
+        self.assertTrue(rc.slugify(items[0][1]).startswith("launch-deploy-pipeline"))
+
+    def test_slug_before_colon(self):
+        self.assertEqual(rc.slugify("QuickBooks, part 5: an item per line"), "quickbooks-part-5")
+
+    def test_parse_claims_newest_generation(self):
+        ls = ("a\trefs/heads/claim/payapps/history-part-3\n"
+              "b\trefs/heads/claim/payapps/history-part-3--2\n"
+              "c\trefs/heads/claim/other/history-part-3\n")
+        self.assertEqual(rc.parse_claims(ls, "payapps"), {"history-part-3": (2, "b")})
+
+
+class ClaimRaceTest(unittest.TestCase):
+    """Two clones of one remote: the second claim of an item loses; a stale one is retaken."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        t = Path(self.tmp.name)
+        bare, self.a, self.b = t / "origin.git", t / "a", t / "b"
+        run(t, "init", "-q", "--bare", "-b", "main", str(bare))
+        run(t, "clone", "-q", str(bare), str(self.a))
+        (self.a / "apps" / "payapps").mkdir(parents=True)
+        (self.a / "apps" / "payapps" / "ROADMAP.md").write_text(ROADMAP)
+        run(self.a, "add", "-A")
+        run(self.a, "-c", "user.name=t", "-c", "user.email=t@example.invalid", "commit", "-q", "-m", "base")
+        run(self.a, "push", "-q", "origin", "HEAD:refs/heads/main")
+        run(t, "clone", "-q", str(bare), str(self.b))
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def main(self, repo, *argv, now=None):
+        buf = io.StringIO()
+        patch = mock.patch.object(rc.time, "time", lambda: now) if now else contextlib.nullcontext()
+        with patch, contextlib.redirect_stdout(buf):
+            code = rc.main(["payapps", "--repo", str(repo), *argv])
+        return code, buf.getvalue()
+
+    def test_second_claim_loses_and_list_shows_it(self):
+        self.assertEqual(self.main(self.a, "--claim", "2")[0], 0)
+        code, out = self.main(self.b, "--claim", "2")
+        self.assertEqual(code, 4, out)
+        self.assertIn("TAKEN", out)
+        self.assertEqual(self.main(self.b, "--claim", "1")[0], 0)
+        _, listing = self.main(self.b)
+        self.assertIn("[CLAIMED", listing)
+        self.assertIn("[free] notarization", listing)
+        # The claim branch carries no files, so no path-filtered CI runs on it.
+        tree = run(self.a, "ls-remote", "origin", "refs/heads/claim/payapps/backup-packets-part-2").stdout
+        sha = tree.split()[0]
+        run(self.a, "fetch", "-q", "origin", sha)
+        self.assertEqual(run(self.a, "ls-tree", sha).stdout, "")
+
+    def test_part_slug_and_stale_retake(self):
+        code, out = self.main(self.a, "--claim", "2", "--slug", "Backup packets part 2 HEIC", "--note", "HEIC only")
+        self.assertEqual(code, 0, out)
+        _, listing = self.main(self.b)
+        self.assertIn("backup-packets-part-2-heic", listing)
+        self.assertIn("HEIC only", listing)
+        code, out = self.main(self.b, "--claim", "2", "--slug", "Backup packets part 2 HEIC",
+                              now=rc.time.time() + 7 * 3600)
+        self.assertEqual(code, 0, out)
+        self.assertIn("backup-packets-part-2-heic--2", out)
+
+    def test_release(self):
+        self.main(self.a, "--claim", "3")
+        slug = rc.slugify(rc.next_items(ROADMAP)[2][1])
+        self.assertEqual(self.main(self.a, "--release", slug)[0], 0)
+        self.assertEqual(self.main(self.b, "--claim", "3")[0], 0)
+
+
+if __name__ == "__main__":
+    unittest.main()

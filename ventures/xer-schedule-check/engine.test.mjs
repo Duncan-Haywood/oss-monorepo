@@ -289,6 +289,71 @@ test("CPM: five more P6 rules from the CCA file (lag back into a finished node, 
   assert.equal(at(schedule(five, { variant: off(["activeSSLeft"]) }), five, "S").es, "2025-12-03 08:00");
 });
 
+test("CPM: an SF link into a started successor holds the predecessor by the SF lag left unspent (P6 23.12 probes h6s-an, h4s-a)", () => {
+  // X (as late as possible) and Y both started Mon 1 Dec; data date Wed 3 Dec
+  // 08:00, so 16 h of X's SF lag ran from X's actual start. Y finishes Fri 5
+  // Dec 17:00; the project runs to L's finish.
+  const off = (k) => Object.fromEntries(k.map((n) => [n, false]));
+  const shape = (lag, extra = {}, opt = {}) => project(
+    [task("1", "X", 8, { status_code: "TK_Active", act_start_date: "2025-12-01 08:00", target_drtn_hr_cnt: 24, cstr_type: "CS_ALAP", ...extra }),
+      task("2", "Y", 24, { status_code: "TK_Active", act_start_date: "2025-12-01 08:00", target_drtn_hr_cnt: 40 }), task("3", "L", 80)],
+    [link("1", "2", "1", "PR_SF", lag)],
+    { last_recalc_date: "2025-12-03 08:00" }, opt,
+  );
+  // lag 24 h, 8 h left: X's remaining start may slide to 8 h before Y's finish
+  const a = shape(24);
+  assert.equal(at(schedule(a), a, "X").es, "2025-12-05 08:00");
+  assert.equal(at(schedule(a), a, "X").ef, "2025-12-05 17:00");
+  // all of the lag spent: to Y's finish, the next working morning
+  const b = shape(16);
+  assert.equal(at(schedule(b), b, "X").es, "2025-12-08 08:00");
+  // before this rule the link held nothing and X slid to the project's end
+  assert.equal(at(schedule(a, { variant: off(["sfActiveSucc"]) }), a, "X").es, "2025-12-16 08:00");
+  // late dates: 24 h left of a 40 h lag hold X's late start 24 h before Y's late finish
+  const c = shape(40, { cstr_type: "" });
+  assert.equal(at(schedule(c), c, "X").ls, "2025-12-12 08:00");
+  assert.equal(at(schedule(c, { variant: off(["sfActiveSucc"]) }), c, "X").ls, "2025-12-16 08:00");
+  // under progress override an SF link out of started work is met: X slides past it
+  const d = shape(24, {}, { sched_progress_override: "Y", sched_retained_logic: "N" });
+  assert.equal(at(schedule(d), d, "X").es, "2025-12-16 08:00");
+});
+
+test("CPM: a zero-lag SF link into a started successor holds the predecessor's start to the successor's finish, not a minute before", () => {
+  // same shape as the SF-lag probes: X (as late as possible) and Y started
+  // Mon 1 Dec, data date Wed 08:00, Y finishes Fri 5 Dec 17:00. With no lag
+  // there is nothing to spend, so X's remaining start may reach Y's finish:
+  // the next working morning, exactly as when a 16 h lag is fully spent
+  const x = project(
+    [task("1", "X", 8, { status_code: "TK_Active", act_start_date: "2025-12-01 08:00", target_drtn_hr_cnt: 24, cstr_type: "CS_ALAP" }),
+      task("2", "Y", 24, { status_code: "TK_Active", act_start_date: "2025-12-01 08:00", target_drtn_hr_cnt: 40 }), task("3", "L", 80)],
+    [link("1", "2", "1", "PR_SF", 0)],
+    { last_recalc_date: "2025-12-03 08:00" },
+  );
+  const r = at(schedule(x), x, "X");
+  assert.equal(r.es, "2025-12-08 08:00");
+  assert.equal(r.ef, "2025-12-08 17:00");
+  // and its late dates run to the project's end, where Y's late finish is
+  assert.equal(r.ls, "2025-12-16 08:00");
+  assert.equal(r.ff, 0);
+});
+
+test("CPM: out of sequence, an FS link into a started successor bounds the unstarted predecessor's finish, not its start", () => {
+  // S started Mon 1 Dec ahead of its FS predecessor P (retained logic); data
+  // date Wed 3 Dec 08:00. L (80 h) runs the project to Tue 16 Dec. S's
+  // remaining 16 h may start as late as Mon 15 Dec 08:00, so P (8 h) must
+  // finish by then: late finish Fri 12 Dec 17:00, late start Fri 08:00.
+  const x = project(
+    [task("1", "P", 8),
+      task("2", "S", 16, { status_code: "TK_Active", act_start_date: "2025-12-01 08:00", target_drtn_hr_cnt: 32 }), task("3", "L", 80)],
+    [link("1", "2", "1")],
+    { last_recalc_date: "2025-12-03 08:00" },
+  );
+  const out = schedule(x);
+  assert.equal(at(out, x, "S").ls, "2025-12-15 08:00");
+  assert.equal(at(out, x, "P").lf, "2025-12-12 17:00");
+  assert.equal(at(out, x, "P").ls, "2025-12-12 08:00");
+});
+
 test("CPM: as late as possible takes up free float; loops are found and reported", () => {
   const x = project(
     [task("1", "A", 8), task("2", "B", 8, { cstr_type: "CS_ALAP" }), task("3", "C", 24), task("4", "End", 0, { task_type: "TT_FinMile" })],
@@ -301,6 +366,26 @@ test("CPM: as late as possible takes up free float; loops are found and reported
   const lo = schedule(loopy);
   assert.equal(lo.loops.length, 1);
   assert.equal(lo.loops[0].length, 3);
+  // an activity stuck only because it follows a loop is not a loop itself
+  const downstream = project([task("1", "A", 8), task("2", "B", 8), task("3", "C", 8), task("4", "D", 8)],
+    [link("1", "2", "1"), link("2", "3", "2"), link("3", "1", "3"), link("4", "4", "3")]);
+  const dl = schedule(downstream);
+  assert.equal(dl.loops.length, 1);
+  assert.deepEqual([...dl.loops[0]].sort(), ["1", "2", "3"]);
+});
+
+test("CPM: an ALAP milestone stays zero-length even when the file gives it a remaining duration", () => {
+  // P6 exports and converted files can carry hours on a milestone; the forward
+  // pass ignores them, so ALAP must too (red team 2026-11-24: the milestone test escaped)
+  for (const type of ["TT_FinMile", "TT_Mile"]) {
+    const x = project(
+      [task("1", "A", 8), task("2", "M", 8, { task_type: type, cstr_type: "CS_ALAP" }), task("3", "C", 24), task("4", "End", 0, { task_type: "TT_FinMile" })],
+      [link("1", "2", "1"), link("2", "4", "2"), link("3", "4", "3")],
+    );
+    const m = at(schedule(x), x, "M");
+    assert.equal(m.es, m.ef, type);
+    assert.equal(m.tf, 0, type);
+  }
 });
 
 test("DCMA: each point counts what it should on a small schedule", () => {
@@ -463,6 +548,9 @@ test("expected finish: sets the remaining duration, absorbs a predecessor's slip
   const slip = schedule(on, { delay: { taskId: "1", minutes: 3 * 8 * 60 } });
   assert.equal(at(slip, on, "B").ef, "2025-12-19 17:00");
   assert.equal(at(slip, on, "C").ef, at(base, on, "C").ef);
+  // the critical path test's delay on B itself goes on top of the expected
+  // finish: 10 d to 12-19, then 3 d more (12-24 a half day, 12-25 off)
+  assert.equal(at(schedule(on, { delay: { taskId: "2", minutes: 3 * 8 * 60 } }), on, "B").ef, "2025-12-26 12:00");
   // without the rule the slip reaches C
   assert.notEqual(at(schedule(on, { expectedFinish: false, delay: { taskId: "1", minutes: 3 * 8 * 60 } }), on, "C").ef, at(base, on, "C").ef);
   // expected finish before B can start: ignored, the stored 80 h stand
@@ -519,4 +607,72 @@ test("CPM: a finished node's unspent FS/FF lag comes back off its late date, to 
   assert.equal(formatDate(out.tasks.get("4").lf), "2025-12-09 17:00");
   const old = schedule(x, { variant: { bwDoneLagLeft: false } });
   assert.equal(formatDate(old.tasks.get("1").lf), "2025-12-09 08:00");
+});
+
+test("red team 2026-11-24: a started predecessor's SS lag does not pull its late start earlier", () => {
+  // A started Mon with 8 h left; SS lag 16 to B (not started) -> FS -> End, and
+  // a longer parallel C -> End gives B float. P6 (bwSSActivePred "rem"): A's
+  // remaining work may start as late as B does, because the part of the lag
+  // that ran is behind the data date.
+  const x = project(
+    [task("1", "A", 8, { status_code: "TK_Active", act_start_date: "2025-12-01 08:00", target_drtn_hr_cnt: 24 }), task("2", "B", 16), task("3", "End", 0, { task_type: "TT_FinMile" }), task("4", "C", 40)],
+    [link("1", "2", "1", "PR_SS", 16), link("2", "3", "2"), link("3", "3", "4")],
+    { last_recalc_date: "2025-12-03 08:00" },
+  );
+  const out = schedule(x);
+  assert.equal(at(out, x, "A").ls, at(out, x, "B").ls);
+  assert.notEqual(at(schedule(x, { variant: { bwSSActivePred: false } }), x, "A").ls, at(out, x, "B").ls, "the generic rule subtracts the lag");
+});
+
+test("red team 2026-11-24: the driving path starts from the finishing activity even when it has successors", () => {
+  // A (40 h) sets the project finish; its only successor B (8 h, SS) ends earlier,
+  // so the last activity to finish still has a successor.
+  const x = project([task("1", "A", 40), task("2", "B", 8)], [link("1", "2", "1", "PR_SS")]);
+  const out = schedule(x);
+  assert.deepEqual(drivingPath(out, "1").map((id) => out.model.tasks.get(id).code), ["A"]);
+});
+
+test("CPM: a negative duration is taken as 0 and reported, never scheduled to finish before it starts", () => {
+  // found by the red team, 2026-11-25: -80 h on a driving activity finished it
+  // two weeks before its start and pulled the project finish in, silently
+  const tasks = (bHours, bOrig = bHours) => [task("1", "A", 40), task("2", "B", bHours, { target_drtn_hr_cnt: bOrig }), task("3", "C", 40)];
+  const preds = [link("1", "2", "1"), link("2", "3", "2")];
+  const zero = project(tasks(0), preds);
+  const neg = project(tasks(-80, -80), preds);
+  const out = schedule(neg);
+  const b = at(out, neg, "B");
+  assert.ok(b.ef >= b.es, `${b.es} to ${b.ef}`);
+  assert.equal(at(out, neg, "C").ef, at(schedule(zero), zero, "C").ef);
+  assert.ok(out.warnings.some((w) => /1 remaining duration value is negative and was taken as 0: B \("-80"\)/.test(w)), JSON.stringify(out.warnings));
+  assert.ok(out.warnings.some((w) => /1 original duration value is negative/.test(w)));
+  // a negative lag is a lead, not an error
+  const lead = project(tasks(8), [link("1", "2", "1", "PR_FS", -8), link("2", "3", "2")]);
+  assert.ok(!schedule(lead).warnings.some((w) => /negative/.test(w)));
+});
+
+test("DCMA: a project with no activities has no critical path, so no CPLI", () => {
+  const x = project([], []);
+  const c13 = assess(x).checks.find((k) => k.id === 13);
+  assert.equal(c13.value, null);
+  assert.equal(c13.pass, false);
+  assert.equal(c13.note, "");
+});
+
+test("DCMA: a project id the file does not hold falls back to the project with the most open work", async () => {
+  const { EXAMPLE_XER } = await import("./example.mjs");
+  const x = parseXer(EXAMPLE_XER);
+  assert.equal(assess(x, { projId: "no-such-project" }).project.code, assess(x).project.code);
+});
+
+test("DCMA 10: an activity cost loaded by an expense (PROJCOST) has a cost assignment", async () => {
+  const { EXAMPLE_XER } = await import("./example.mjs");
+  const x = parseXer(EXAMPLE_XER);
+  const c10 = (a) => a.checks.find((c) => c.id === 10);
+  assert.deepEqual(c10(assess(x)).items.map((i) => i.code), ["A1040", "A1180"]);
+  const t = x.tables.TASK.find((r) => r.task_code === "A1040");
+  x.tables.PROJCOST = [{ cost_item_id: "1", task_id: t.task_id, proj_id: t.proj_id, cost_name: "Door supply", target_cost: "5000", act_cost: "0", remain_cost: "5000" }];
+  assert.deepEqual(c10(assess(x)).items.map((i) => i.code), ["A1180"]);
+  // expenses alone load a file: the note does not say it has nothing loaded
+  x.tables.TASKRSRC = [];
+  assert.equal(c10(assess(x)).note, "Open activities with duration and no resource assignment or expense.");
 });

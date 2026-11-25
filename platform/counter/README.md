@@ -32,11 +32,20 @@ which distribution work needs. It identifies no one and stores nothing on the
 device, so it needs no consent (`portfolio/usage/README.md`, rule 1). It
 stores no IP address, user agent, referring URL or host, cookie, identifier,
 or any time finer than the day. The page sends only its own `data-pf-slug`, and the server rejects
-anything that does not match `SLUG_RE`. Requests carrying `DNT: 1` or
-`Sec-GPC: 1`, self-declared crawlers, and the hub's "Don't count my visit"
-opt-out are not counted (the page stays silent for these too). Each slug is
+anything that does not match `SLUG_RE`. Self-declared crawlers and the hub's
+"Don't count my visit" opt-out are not counted. Browsers sending `DNT: 1` or
+`Sec-GPC: 1` are counted from 2026-11-24, like any other anonymous page load:
+DNT has no legal force and GPC opts out of selling or sharing data, which this
+tally is neither (`docs/legal/privacy-baseline.md`). Before that date they
+were dropped, so earlier days read lower. Each slug is
 capped per day, so scripted inflation shows up as an obviously absurd
 number.
+
+**Funnel events** (2026-11-24): pages that mark a product CTA, an
+industry page, `/products/` or an outbound product link with `data-funnel`
+also send one beacon per such event, tallied per day under
+`fn:<event>:<industry>:<product>:<page>` and never added to page totals.
+Markup, rules and the report: [`FUNNEL.md`](FUNNEL.md).
 
 **Unit: page loads by browsers that did not opt out. These are not people.**
 Never write them up as visitors or users without that qualifier.
@@ -47,6 +56,7 @@ Never write them up as visitors or users without that qualifier.
 |---|---|
 | `counter.mjs` | The server. `POST /hit` `{"p":"<slug>"}` adds one count. `GET /counts?since=YYYY-MM-DD` returns the aggregates. `GET /healthz` is a health check. |
 | `pull.mjs` | Copies `/counts` into `portfolio/usage/site-visits.json`. It merges by keeping the larger count per day and slug, so restoring an older backup never shrinks the record. |
+| `funnel-report.mjs` | Summarises the `fn:` funnel events in `site-visits.json` per industry, page and product ([`FUNNEL.md`](FUNNEL.md)). |
 | `site.json` | The counter's public origin. **Empty means off**: the built site then carries no beacon, and its privacy copy says the tally never leaves the browser. |
 | `../pages/build.mjs` | When `site.json` (or `--counter-url=`/`PAGES_COUNTER_URL`) names an origin, the shared `pf-site.js` adds one `sendBeacon` after every opt-out check. The About page, the hub's privacy note and `llms.txt` then describe the ping. The beacon and the copy switch on together, so they cannot disagree. |
 

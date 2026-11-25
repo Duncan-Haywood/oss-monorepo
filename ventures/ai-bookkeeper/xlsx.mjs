@@ -60,7 +60,7 @@ export function xlsxToCsvSync(bytes) {
 export const looksLikeXlsx = (bytes) => bytes.length > 4 && bytes[0] === 0x50 && bytes[1] === 0x4b && bytes[2] === 3 && bytes[3] === 4;
 
 const unesc = (s) => s.replace(/&(#x[0-9a-f]+|#\d+|amp|lt|gt|quot|apos);/gi, (m, k) => {
-  if (k[0] === "#") return String.fromCodePoint(k[1] === "x" || k[1] === "X" ? parseInt(k.slice(2), 16) : +k.slice(1));
+  if (k[0] === "#") return codePointOr(k[1] === "x" || k[1] === "X" ? parseInt(k.slice(2), 16) : +k.slice(1));
   return { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" }[k.toLowerCase()];
 });
 const textOf = (xml) => [...xml.matchAll(/<t(?:\s[^>]*)?>([\s\S]*?)<\/t>/g)].map((m) => unesc(m[1])).join("");
@@ -124,3 +124,7 @@ function partsToCsv(parts, z) {
   for (const r of best.rows) { if (!r) continue; lines.push(Array.from({ length: width }, (_, i) => csvCell(r[i] ?? "")).join(",")); }
   return lines.join("\n") + "\n";
 }
+
+// A character reference or escape past U+10FFFF (or not a number) becomes U+FFFD,
+// as HTML parsers do, instead of throwing a RangeError on a stranger's input.
+function codePointOr(n) { return Number.isInteger(n) && n >= 0 && n <= 0x10ffff ? String.fromCodePoint(n) : "\uFFFD"; }

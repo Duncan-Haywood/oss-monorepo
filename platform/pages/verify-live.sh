@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Checks that a freshly deployed copy of the site answers at its public URL.
-# Used by both deploy jobs in .github/workflows/portfolio-pages.yml.
+# Used by both deploy jobs in .github/workflows/priv-portfolio-pages.yml.
 #
 #   bash platform/pages/verify-live.sh <base-url>
 #

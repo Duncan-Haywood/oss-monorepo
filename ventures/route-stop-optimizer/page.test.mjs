@@ -95,7 +95,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
   assert.match(page("README.md"), /No warranty/);
-  assert.match(page("LICENSE"), /MIT License/);
+  assert.match(page("LICENSE"), /Functional Source License/);
   assert.match(page("VENTURE.yaml"), /^name: route-stop-optimizer$/m);
 });
 
@@ -105,4 +105,25 @@ test("the example loads, solves, and reports a saving against the pasted order",
   const r = calc.optimize({ depot: calc.parsePoint(calc.sampleDepot), stops: parsed.stops }, { mpg: 20, fuelPrice: 3.8, wage: 25, daysPerYear: 250 });
   assert.ok(!r.error);
   assert.ok(r.saveMin > 0, "the example is chosen so the pasted order is beatable");
+});
+
+test("weekly planner page: disclaimer, privacy, labels, SEO, FAQ and no network calls", () => {
+  const html = page("weekly.html");
+  assert.match(html, /No warranty/);
+  assert.match(html, /not legal, tax, or financial advice/);
+  assert.match(html, /never uploaded/);
+  assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
+  assert.match(html, /<title>Weekly Route Planner/);
+  assert.match(html, /<meta name="description" content="[^"]{80,}/);
+  assert.match(html, /<link rel="canonical" href="\.\/weekly\.html">/);
+  const blocks = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map((m) => JSON.parse(m[1]));
+  assert.equal(blocks[0].offers.price, "0");
+  for (const q of blocks[1].mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
+  for (const tag of [...html.matchAll(/<(input|select|textarea)\b[^>]*>/g)].map((m) => m[0])) {
+    const id = tag.match(/\sid="([^"]+)"/)?.[1];
+    assert.ok(/aria-label=/.test(tag) || (id && html.includes(`<label for="${id}">`)), `unlabelled: ${tag}`);
+  }
+  assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts/);
+  for (const f of ["week.mjs", "weekly.mjs"]) assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|import\(/);
+  assert.match(page("index.html"), /href="\.\/weekly\.html"/);
 });

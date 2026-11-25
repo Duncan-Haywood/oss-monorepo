@@ -1,0 +1,40 @@
+# North star: $10k MRR, stretch $10k MRP (owner, 2026-11-24).
+# Definition and how runs use it: prompts/goals.md, "North star: $10k MRR".
+#
+# - mrr_usd: recurring subscription revenue that month through the owner's
+#   merchant of record, net of refunds. One-off licences, donations and
+#   sponsorships go in `other_income_usd`, not here.
+# - costs_usd: monthly costs of earning it (merchant fees, model API, hosting,
+#   storage, domains, paid tools).
+# - mrp_usd: mrr_usd - costs_usd.
+#
+# Only the owner can read the merchant dashboard and the bills, so only the
+# owner adds readings. null means unmeasured, never zero. Agents never invent
+# or estimate a reading here (Hard limits, "Never fabricate").
+
+rail: paddle   # owner, 2026-11-24; readings come from the Paddle dashboard
+
+goal:
+  set: 2026-11-24
+  milestone_mrr_usd: 10000
+  stretch_mrp_usd: 10000
+  # Owner, 2026-11-24: "we want to aim for min 40-60% margins in the
+  # products"; "the 40-60 isn't a limit for how high the margins go but a
+  # sort of minimal goal". Floor and target below are minimums; there is no
+  # ceiling. Margin = 1 - cost of serving / price, per product. Enforced on
+  # the subscription apps by private-monorepo packages/billing (MIN_MARGIN,
+  # at full allowance) and on evaluations.json by evaluate.mjs --check.
+  product_margin_floor: 0.40
+  product_margin_target: 0.60
+  # Owner, same day: "use the cheapest model that does the job correctly ...
+  # no need to use opus for a haiku task" (PRODUCT_PLAYBOOK.md, section 4).
+
+readings:
+  # - month: 2026-12
+  #   mrr_usd: null
+  #   other_income_usd: null
+  #   costs_usd: null
+  #   mrp_usd: null
+  #   paying_subscribers: null
+  #   source: owner, Paddle dashboard
+  []

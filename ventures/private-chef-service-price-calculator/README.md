@@ -12,4 +12,4 @@ After using this, you can now **quote a small dinner at a price that covers the 
 2. Pure logic is in `calc.mjs` (`plan()`, `visitCost()`, `encodeShare()`); tests: `node --test`.
 
 Modelled: prep time from guests, courses and minutes per guest per course, a dietary-needs prep multiplier, shopping, cooking, cleanup and travel hours, assistants for the on-site hours, groceries with a markup, mileage, per-visit equipment and insurance, profit as a share of the price, a minimum charge, a current-quote check with a monthly gap, a guest-count table, a share link. Not modelled: sales tax, tips, rented equipment beyond overhead, permit or cottage-food fees, cancellation terms, income tax.
-Not legal, tax or financial advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
+Not legal, tax or financial advice. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

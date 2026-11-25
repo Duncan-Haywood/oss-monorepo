@@ -18,5 +18,5 @@ Not modelled: returns, markdown support, sales tax, unpaid invoices, brand effec
 
 ## Run
 
-Open `index.html` in a browser. Tests: `node --test`. MIT licensed; no secrets,
+Open `index.html` in a browser. Tests: `node --test`. FSL-1.1-MIT licensed; no secrets,
 no accounts, no network calls.

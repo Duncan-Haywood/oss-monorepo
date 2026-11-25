@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKmmT81hEUEX785zq3U",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T01:18:02Z",
+  "ended": "2026-11-24T01:42:49Z",
+  "wall_minutes": 25.11,
+  "tokens_in": 17058792,
+  "tokens_out": 78332,
+  "cost_usd": 6.6579,
+  "tool_calls": 108,
+  "task": "Deepen (flagship 7) photo-editing: browser cull page develops DNGs with no embedded JPEG (phone DNGs) from their sensor data",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18514",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    "My first in-page worker pool spliced one queued job from every worker's queue but ran only the first, so the card stuck at 'Reading 12 of 13' in Chromium; rewritten around one shared queue, with an onerror that fails queued jobs instead of hanging.",
+    "First previews: 3 of 32 came out magenta (CFA phase counted from the DefaultCrop corner rather than ActiveArea; white balance pushing clipped highlights pink); both fixed and pinned by unit tests."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace parked the row's whole trailing 'next' list (Nikon AF grids, real card, Lightroom read) to NEXT.md to make room for a 110-character edit; I had to put the next items back with a second edit."
+    },
+    {
+      "file": "ventures/photo-editing/eval/cull-closed-eyes.mjs",
+      "issue": "Playwright is only global here; eval scripts load it via createRequire with NODE_PATH=$(npm root -g), which nothing in the venture README says."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here's numbered items for photo-editing were noise-research sweeps that earlier runs judged spent; I took the user-facing gap the cull page's own docs listed (phone DNGs with no preview) instead.",
+      "did": "Built an in-browser DNG mosaic decoder and preview developer for the cull page.",
+      "result": "Landed; 26 of 26 phone DNGs that used to show nothing now have previews."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-photo-editing-cull-develops-phone-dngs.md",
+    "ventures/photo-editing/eval/cull-raw-data-previews-2026-11-24.md"
+  ],
+  "goal": null,
+  "notes": "Checks: node --test site/rawmosaic.test.mjs (11 pass; 56 with the other site tests). Sensels equal shootflow raw_develop.read_raw on 32 of 32 public DNGs (26 HDR+ bursts from storage.googleapis.com/hdrplusdata + 6 metadata-extractor DNGs). Colour median 0.41 dE vs shootflow dcraw-model half develop, 0.68 vs DNG model; worst 3.28 (Leica T WarpRectilinear, not run). Chromium: 26 HDR+ DNGs 529 MB in 10.8 s, 26/26 previews, no page errors. Agent doc: the eval note serves; no separate docs/reports entry needed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f4ad0570-6627-5411-93de-d3c3f27c129b",
+    "transcripts": 1,
+    "first": "2026-11-24T01:18:02Z",
+    "last": "2026-11-24T01:43:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 100,
+        "input": 191,
+        "output": 78332,
+        "thinking": 14373,
+        "cache_read": 16843368,
+        "cache_write_5m": 0,
+        "cache_write_1h": 215233,
+        "api_equivalent_usd": 6.6579,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 100,
+      "input": 191,
+      "output": 78332,
+      "thinking": 14373,
+      "cache_read": 16843368,
+      "cache_write_5m": 0,
+      "cache_write_1h": 215233,
+      "api_equivalent_usd": 6.6579,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 108,
+    "tools": {
+      "Bash": 97,
+      "Read": 5,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 25.11,
+      "active_minutes": 25.11,
+      "model_minutes": 12.13,
+      "tool_minutes": 12.98,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "an engineer writing a lossless-JPEG DNG decoder, GainMap and colour pipeline in JS, plus the sensel/colour/browser checks: about 3 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 360.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

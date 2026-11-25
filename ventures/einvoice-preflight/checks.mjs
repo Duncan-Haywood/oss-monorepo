@@ -1,6 +1,10 @@
-// Format-neutral invoice checks. Mirrors src/einvoice_preflight/checks.py so
-// the browser page and the CLI report the same rule IDs, messages, and
-// cent-rounded arithmetic. This is an observation, not a legal validity claim.
+// Format-neutral invoice checks. src/einvoice_preflight/checks.py mirrors the
+// core of this file for the Python CLI, which reads JSON, UBL, CII and Factur-X
+// only, has no warning or note severity (silent on INV-061/063/064), skips the
+// PDF envelope checks (PDF-001..006), Norway and Switzerland VAT and the
+// profile options, and some fix texts differ (README, NEXT.md).
+// eval/page-cli-parity.mjs measures where the two differ on the shipped files.
+// This is an observation, not a legal validity claim.
 
 import { headerAdjustmentNetDelta, inspectHeaderAdjustments } from "./adjustment.mjs";
 import { inspectPaymentBic } from "./bic.mjs";
@@ -60,6 +64,20 @@ function isoDate(value) {
     return null;
   }
   return date;
+}
+
+function statedBreakdownTax(invoice, breakdownFindings) {
+  const rows = invoice.tax_breakdown;
+  if (!Array.isArray(rows) || rows.length === 0) return null;
+  if (breakdownFindings.some((f) => f.rule === "INV-038" && !f.severity)) return null;
+  if (!breakdownFindings.some((f) => f.rule === "INV-038" && f.severity === "warning")) return null;
+  let sum = 0;
+  for (const row of rows) {
+    const tax = row && typeof row === "object" ? money(row.tax) : null;
+    if (tax === null) return null;
+    sum = roundHalfUpToCents(sum + tax);
+  }
+  return sum;
 }
 
 export function checkInvoice(invoice) {
@@ -214,8 +232,9 @@ export function checkInvoice(invoice) {
   // Factur-X / ZUGFeRD MINIMUM and BASIC WL carry totals and no lines, by design.
   const linesOptional = /[:#](minimum|basicwl)$/i.test(String(invoice.specification_id || "").trim());
   const noLines = !Array.isArray(invoice.lines) || invoice.lines.length === 0;
-  for (const finding of linesOptional && noLines ? [] : inspectTaxBreakdown(invoice)) {
-    fail(finding.rule, finding.message, finding.fix, finding.path);
+  const breakdownFindings = linesOptional && noLines ? [] : inspectTaxBreakdown(invoice);
+  for (const finding of breakdownFindings) {
+    fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
   }
   for (const finding of inspectInvoicePeriod(invoice)) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
@@ -309,6 +328,10 @@ export function checkInvoice(invoice) {
     : {};
   const net = money(totals.net);
   const taxTotal = money(totals.tax);
+  // BR-CO-14: BT-110 is the sum of the rows' BT-117. When the breakdown has no
+  // blocking finding (its rows are exact or within BR-CO-17's one unit), a tax
+  // total equal to that sum is what the official rules accept.
+  const statedRowTax = statedBreakdownTax(invoice, breakdownFindings);
   const gross = money(totals.gross);
 
   if (net === null || (net < 0 && !negativeInvoice)) {
@@ -326,7 +349,7 @@ export function checkInvoice(invoice) {
     // nothing to compare
   } else if (taxTotal === null || (taxTotal < 0 && !negativeInvoice)) {
     fail("INV-015", "Invoice tax total is missing or invalid.", "Provide a non-negative numeric tax total.", "/totals/tax");
-  } else if (!(linesOptional && noLines) && !perRate.unattributed && flatTax !== null && taxTotal !== expectedTax && taxTotal !== lineTaxTotal && !wholeUnitTaxAgrees(invoice.currency, taxTotal, expectedTax)) {
+  } else if (!(linesOptional && noLines) && !perRate.unattributed && flatTax !== null && taxTotal !== expectedTax && taxTotal !== lineTaxTotal && taxTotal !== statedRowTax && !wholeUnitTaxAgrees(invoice.currency, taxTotal, expectedTax)) {
     fail("INV-018", "Invoice tax total does not match its line tax percentages.", `Set tax total to ${formatMoney(expectedTax)} or correct the line inputs.`, "/totals/tax");
   }
   if (gross === null || (gross < 0 && !negativeInvoice)) {

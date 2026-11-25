@@ -45,7 +45,7 @@ It is a deterministic first pass, not a reading of the document. A sentence can 
 
 ### Alternatives, and why this one
 
-Loopio, Responsive (RFPIO), Qvidian and AutogenAI are seat-priced response-management suites, built around a content library and sold to large teams. A small contractor answering a few solicitations a quarter pays for none of that. They build the matrix by hand in Excel. This is free, open source, private by default, and does the three things such a team actually does on day one: shred the solicitation, scaffold the response, and check the draft for gaps.
+Loopio, Responsive (RFPIO), Qvidian and AutogenAI are seat-priced response-management suites, built around a content library and sold to large teams. A small contractor answering a few solicitations a quarter pays for none of that. They build the matrix by hand in Excel. This is free, source available, private by default, and does the three things such a team actually does on day one: shred the solicitation, scaffold the response, and check the draft for gaps.
 
 ## Roadmap (not built)
 
@@ -59,4 +59,4 @@ Everything runs in your browser or on your machine. Pasted text is never uploade
 
 **Best-effort hosting, no SLA.** These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.
 
-MIT licensed. Optional support: [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood).
+FSL-1.1-MIT licensed. Optional support: [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood).

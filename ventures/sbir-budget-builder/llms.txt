@@ -2,7 +2,7 @@
 
 > Free SBIR and STTR proposal budget builder: personnel, fringe, MTDC indirect, subawards and fee in SF424 R&R lines, with checks on the small-business share of work, the STTR research-institution share and the fee ceiling. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sbir-budget-builder): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sbir-budget-builder): FSL-1.1-MIT licensed.

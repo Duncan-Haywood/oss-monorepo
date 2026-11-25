@@ -108,7 +108,12 @@ export function parseIdeas(src) {
   const start = src.indexOf('## New');
   const end = src.indexOf('## Picked up', start);
   if (start < 0 || end < 0) return null;
-  const body = src.slice(start + '## New'.length, end).replace(/<!--[\s\S]*?-->/g, '');
+  let body = src.slice(start + '## New'.length, end);
+  let prev;
+  do {
+    prev = body;
+    body = body.replace(/<!--[\s\S]*?--!?>/g, '');
+  } while (body !== prev);
   return body
     .split(/\n\s*\n/)
     .map((para) =>
@@ -140,7 +145,9 @@ export function orderRequests(requests) {
 }
 
 /**
- * Flagships from `portfolio/flagships.yaml`, in file order: { venture, why, next }.
+ * Flagships from `portfolio/flagships.yaml`, in file order: { venture, why, next }
+ * plus `app` when the row has one: its `app: private-monorepo/apps/<slug>` (a paid bet built in the
+ * private repository, 2026-11-24).
  * The file is a flat list whose `why:` and `next:` are folded `>-` scalars,
  * so a line reader is enough (and keeps the site build free of a YAML parser).
  */
@@ -158,6 +165,12 @@ export function parseFlagships(src) {
       continue;
     }
     if (!cur) continue;
+    const app = line.match(/^    app: (\S+)\s*$/);
+    if (app) {
+      cur.app = app[1];
+      key = null;
+      continue;
+    }
     const field = line.match(/^    (why|next): ?(>-|>|\|)?\s*(.*)$/);
     if (field) {
       key = field[1];
@@ -393,7 +406,7 @@ export function renderQueue(data, { baseUrl = '', socialCard = '' } = {}) {
     const dir = requestDir(r);
     if (dir) rows.push({ lane: 'Request', anchor: 'requests', name: r.title || r.id || dir, dir, status: r.status });
   }
-  for (const f of data.flagships ?? []) rows.push({ lane: 'Flagship', anchor: 'flagships', name: f.venture, dir: `ventures/${f.venture}` });
+  for (const f of data.flagships ?? []) rows.push({ lane: 'Flagship', anchor: 'flagships', name: f.venture, dir: f.app ?? `ventures/${f.venture}` });
   for (const p of data.programmes ?? []) rows.push({ lane: 'Research', anchor: 'research', name: p.slug, dir: `research/${p.slug}` });
   const glance =
     data.merges === undefined || !rows.length
@@ -448,7 +461,7 @@ ${
       : `${
           req.outside.length
             ? `<ol class="q">${req.outside.map((r) => requestCard(r, toRoot, progress)).join('')}</ol>`
-            : `<p class="note">No outside requests are open right now. <a href="${toRoot}custom-development/">Ask for something to be built</a>: it is free, and the result stays open source.</p>`
+            : `<p class="note">No outside requests are open right now. <a href="${toRoot}custom-development/">Ask for something to be built</a>: it is free, and the result is published under the MIT licence.</p>`
         }${
           req.owner.length
             ? `<details${req.outside.length ? '' : ' open'}><summary>${req.owner.length} long-running project${req.owner.length === 1 ? '' : 's'} the owner asked for</summary><ol class="q">${req.owner.map((r) => requestCard(r, toRoot, progress)).join('')}</ol></details>`
@@ -471,7 +484,7 @@ ${
               return `<li><div class="card"><h3>${name}</h3>
 ${f.why ? `<p class="muted">${inline(clip(f.why, 240), '', { linkPrs: false })}</p>` : ''}
 ${f.next ? `<p><strong>Working towards:</strong> ${inline(clip(f.next, 300), '', { linkPrs: false })}</p>${f.next.length > 300 ? `<details><summary>Full milestone</summary><p>${inline(f.next, '', { linkPrs: false })}</p></details>` : ''}` : ''}
-<p class="meta"><a href="${REPO_URL}/tree/main/ventures/${esc(f.venture)}">Source</a></p>${progressHtml(progress(`ventures/${f.venture}`))}</div></li>`;
+${f.app ? `<p class="meta">Built in the private repository (<code>${esc(f.app)}</code>)</p>` : `<p class="meta"><a href="${REPO_URL}/tree/main/ventures/${esc(f.venture)}">Source</a></p>${progressHtml(progress(`ventures/${f.venture}`))}`}</div></li>`;
             })
             .join('')}</ol>`
         : '<p class="note">No flagships are listed.</p>',
@@ -600,14 +613,14 @@ For what already landed, see <a href="../updates/">updates</a> and the <a href="
 <footer>
   <p>Generated on every publish from files in the repository: the ideas inbox, the request queue, the flagship list, the
   research programme list, the owner's decision queue, the process backlog and the merge history on main. Nothing on this page is typed by hand. Provided
-  as-is, with no warranty of accuracy or completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+  as-is, with no warranty of accuracy or completeness, and not advice of any kind. FSL-1.1-MIT-licensed, like the tools.</p>
   ${renderSiteFooterNav({ toRoot })}
 </footer>
 </div>
 ${script}
 </body>
 </html>
-`, { toRoot, current: 'updates' });
+`, { toRoot, current: 'writing' });
 }
 
 /** Write `queue/index.html` into outDir. */

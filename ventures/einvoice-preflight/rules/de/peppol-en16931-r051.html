@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="de"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PEPPOL-EN16931-R051: Peppol BIS erklärt</title>
+<meta name="description" content="PEPPOL-EN16931-R051: Jeder Betrag in der Rechnung (Preise, Positionsbeträge, Zu- und Abschläge, Umsatzsteuerbeträge und Gesamtsummen) muss eine currencyID…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/de/peppol-en16931-r051">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/peppol-en16931-r051">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/peppol-en16931-r051">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/peppol-en16931-r051">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/peppol-en16931-r051">
+<meta property="og:title" content="PEPPOL-EN16931-R051: Peppol BIS erklärt">
+<meta property="og:description" content="PEPPOL-EN16931-R051: Jeder Betrag in der Rechnung (Preise, Positionsbeträge, Zu- und Abschläge, Umsatzsteuerbeträge und Gesamtsummen) muss eine currencyID…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Was bedeutet PEPPOL-EN16931-R051?","acceptedAnswer":{"@type":"Answer","text":"Jeder Betrag in der Rechnung (Preise, Positionsbeträge, Zu- und Abschläge, Umsatzsteuerbeträge und Gesamtsummen) muss eine currencyID tragen, die dem Code der Rechnungswährung (BT-5, cbc:DocumentCurrencyCode) entspricht. Einzige Ausnahme ist der Umsatzsteuer-Gesamtbetrag in Buchungswährung (BT-111): ein zweites cac:TaxTotal ohne Steueraufschlüsselung."}},{"@type":"Question","name":"Wie behebe ich PEPPOL-EN16931-R051?","acceptedAnswer":{"@type":"Answer","text":"Setzen Sie currencyID bei jedem Betrag auf den Wert von cbc:DocumentCurrencyCode, genau so geschrieben. Müssen Sie die Umsatzsteuer in Buchungswährung angeben, setzen Sie cbc:TaxCurrencyCode und fügen ein eigenes cac:TaxTotal nur mit cbc:TaxAmount in dieser Währung hinzu, ohne cac:TaxSubtotal. Durchsuchen Sie die Datei nach currencyID= und prüfen Sie jeden Wert."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-Rechnungs-Prüfregel erklärt · Peppol BIS</p>
+<h1>PEPPOL-EN16931-R051: Ein Betrag hat eine andere Währung als die Rechnungswährung</h1>
+<nav class="langs" aria-label="Andere Sprachen"><a href="../en/peppol-en16931-r051.html" hreflang="en" lang="en">English</a><a href="../fr/peppol-en16931-r051.html" hreflang="fr" lang="fr">Français</a><a href="index.html">Alle Regeln</a></nav>
+</header>
+<section>
+<h2>Offizielle Meldung</h2>
+<blockquote lang="en">All currencyID attributes must have the same value as the invoice currency code (BT-5), except for the invoice total VAT amount in accounting currency (BT-111).</blockquote>
+<dl>
+<dt>Schweregrad</dt><dd>Fehler (die Rechnung wird abgewiesen)</dd>
+<dt>Geprüft in</dt><dd>UBL</dd>
+<dt>Geschäftsbegriffe</dt><dd>BT-5, BT-111</dd>
+</dl>
+</section>
+<section>
+<h2>Was bedeutet PEPPOL-EN16931-R051?</h2>
+<p>Jeder Betrag in der Rechnung (Preise, Positionsbeträge, Zu- und Abschläge, Umsatzsteuerbeträge und Gesamtsummen) muss eine currencyID tragen, die dem Code der Rechnungswährung (BT-5, cbc:DocumentCurrencyCode) entspricht. Einzige Ausnahme ist der Umsatzsteuer-Gesamtbetrag in Buchungswährung (BT-111): ein zweites cac:TaxTotal ohne Steueraufschlüsselung.</p>
+<h2>Typische Ursachen</h2>
+<ul>
+<li>Die Rechnung lautet auf eine Währung, aber einige Beträge wurden in der Hauswährung geschrieben, etwa eine USD-Rechnung mit EUR bei den Steuerbeträgen.</li>
+<li>Der Steuerbetrag in Buchungswährung steht im Haupt-TaxTotal oder hat eine Steueraufschlüsselung und gilt deshalb nicht mehr als BT-111.</li>
+<li>Ein Tippfehler oder Kleinbuchstaben in einer currencyID, etwa eur oder EURO.</li>
+</ul>
+</section>
+<section>
+<h2>Wie behebe ich PEPPOL-EN16931-R051?</h2>
+<ol>
+<li>Setzen Sie currencyID bei jedem Betrag auf den Wert von cbc:DocumentCurrencyCode, genau so geschrieben.</li>
+<li>Müssen Sie die Umsatzsteuer in Buchungswährung angeben, setzen Sie cbc:TaxCurrencyCode und fügen ein eigenes cac:TaxTotal nur mit cbc:TaxAmount in dieser Währung hinzu, ohne cac:TaxSubtotal.</li>
+<li>Durchsuchen Sie die Datei nach currencyID= und prüfen Sie jeden Wert.</li>
+</ol>
+<h2>Korrigiertes XML (minimales Beispiel von uns)</h2>
+<p><strong>UBL</strong></p>
+<pre><code>&lt;cbc:DocumentCurrencyCode&gt;USD&lt;/cbc:DocumentCurrencyCode&gt;
+&lt;cbc:TaxCurrencyCode&gt;EUR&lt;/cbc:TaxCurrencyCode&gt;
+&lt;!-- parties, lines and other elements unchanged --&gt;
+&lt;cac:TaxTotal&gt;
+  &lt;cbc:TaxAmount currencyID=&quot;USD&quot;&gt;19.00&lt;/cbc:TaxAmount&gt;
+  &lt;cac:TaxSubtotal&gt;
+    &lt;cbc:TaxableAmount currencyID=&quot;USD&quot;&gt;100.00&lt;/cbc:TaxableAmount&gt;
+    &lt;cbc:TaxAmount currencyID=&quot;USD&quot;&gt;19.00&lt;/cbc:TaxAmount&gt;
+    &lt;cac:TaxCategory&gt;
+      &lt;cbc:ID&gt;S&lt;/cbc:ID&gt;
+      &lt;cbc:Percent&gt;19&lt;/cbc:Percent&gt;
+      &lt;cac:TaxScheme&gt;
+        &lt;cbc:ID&gt;VAT&lt;/cbc:ID&gt;
+      &lt;/cac:TaxScheme&gt;
+    &lt;/cac:TaxCategory&gt;
+  &lt;/cac:TaxSubtotal&gt;
+&lt;/cac:TaxTotal&gt;
+&lt;cac:TaxTotal&gt;
+  &lt;cbc:TaxAmount currencyID=&quot;EUR&quot;&gt;17.48&lt;/cbc:TaxAmount&gt;
+&lt;/cac:TaxTotal&gt;</code></pre>
+<p class="note">Nur Beispielwerte. Ersetzen oder ergänzen Sie die Elemente in Ihrer Datei; die Reihenfolge der Elemente ist in beiden Syntaxen vorgeschrieben.</p>
+</section>
+<section>
+<h2>Datei kostenlos prüfen</h2>
+<p>Der kostenlose Prüfer führt die offiziellen Regeln für EN 16931, XRechnung und Peppol in Ihrem Browser aus. Ihre Datei wird nicht hochgeladen.</p>
+<p><a class="button" href="../../index.html">Zum kostenlosen Prüfer</a></p>
+</section>
+<section class="cta">
+<p><span class="state">In Entwicklung — früher Zugang</span></p>
+<h2>Prüfen und erklären für Steuerberater und Rechnungsteams</h2>
+<p>Ein kostenpflichtiger Dienst, der jede verletzte Regel verständlich auf Deutsch, Französisch oder Englisch erklärt und eine korrigierte Datei vorschlägt, ist in Entwicklung. <a href="https://example.invalid/industries/eu-e-invoicing/">Frühen Zugang anfragen</a></p>
+</section>
+<section>
+<h2>Quelle</h2>
+<p>Regel-ID und offizielle Meldung aus: OpenPeppol BIS Billing 3 rules, 3.0.22 (MPL-2.0), kompiliert aus dem Upstream-Commit 38d693d. Erklärung, Ursachen, Lösung und XML auf dieser Seite stammen von uns, nicht vom Herausgeber der Regel. <a href="https://github.com/OpenPEPPOL/peppol-bis-invoice-3/tree/3.0.22" rel="noopener">OpenPeppol BIS Billing 3 rules 3.0.22</a></p>
+</section>
+<footer>
+<p><strong>Keine Steuer- oder Rechtsberatung.</strong> Diese Seite erklärt, was eine Prüfregel kontrolliert und wie eine Datei sie besteht. Sie sagt nicht, welche umsatzsteuerliche Behandlung für Ihren Umsatz gilt; fragen Sie dazu Ihre Steuerberatung. <strong>Ohne Gewähr (no warranty):</strong> kostenlos und wie besehen; prüfen Sie das Ergebnis, bevor Sie sich darauf verlassen.</p>
+<p>Unser Code und unsere Erklärungen stehen unter der MIT-Lizenz. Offizielle Regelmeldungen werden unter den Lizenzen ihrer Herausgeber zitiert (EUPL-1.2, Apache-2.0, MPL-2.0), die auf jeder Seite genannt sind.</p>
+</footer>
+</main></body></html>

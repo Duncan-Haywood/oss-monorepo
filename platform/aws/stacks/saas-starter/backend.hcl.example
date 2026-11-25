@@ -1,0 +1,6 @@
+# tofu init -backend-config=backend.hcl   (copy this file; values come from the bootstrap stack's outputs)
+bucket       = "<state bucket from bootstrap outputs>"
+key          = "stacks/saas-starter/terraform.tfstate"
+region       = "us-east-1"
+encrypt      = true
+use_lockfile = true

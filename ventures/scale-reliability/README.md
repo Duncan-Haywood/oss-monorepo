@@ -122,4 +122,4 @@ test-retest or inter-rater reliability (for raters, see
 verbatim), `coverage-data.mjs` (`eval/coverage.json` for the page), `usage.mjs` (local-only
 counters with an opt-out), `data/`, `eval/`.
 
-MIT licence.
+FSL-1.1-MIT licence.

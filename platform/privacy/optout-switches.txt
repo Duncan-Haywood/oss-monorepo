@@ -201,6 +201,7 @@ ventures/cd-treasury-ladder-planner/usage.mjs
 ventures/cdl-school-payback-calculator/usage.mjs
 ventures/cdn-bandwidth-pricing-calculator/usage.mjs
 ventures/cell-tower-lease-buyout-calculator/usage.mjs
+ventures/cert-chain-check/usage.mjs
 ventures/certified-payroll-calculator/usage.mjs
 ventures/change-order-margin-calculator/usage.mjs
 ventures/changelog-keeper/usage.mjs
@@ -709,6 +710,7 @@ ventures/lomb-scargle-periodogram/usage.mjs
 ventures/lot-split-calculator/usage.mjs
 ventures/ltl-freight-class-estimator/usage.mjs
 ventures/lumper-fee-reimbursement-calculator/usage.mjs
+ventures/machine-shop-guides/usage.mjs
 ventures/mailchimp-audience-csv-check/usage.mjs
 ventures/maintenance-planner/usage.mjs
 ventures/mann-kendall-trend/usage.mjs
@@ -836,6 +838,7 @@ ventures/patreon-members-churn-analyzer/usage.mjs
 ventures/patreon-payout-to-journal/usage.mjs
 ventures/paver-patio-bid-calculator/usage.mjs
 ventures/pawn-loan-profit-calculator/usage.mjs
+ventures/pay-app-guides/usage.mjs
 ventures/pay-application-generator/usage.mjs
 ventures/pay-transparency-directive-checker/usage.mjs
 ventures/payment-processor-fee-comparison-calculator/usage.mjs
@@ -925,6 +928,7 @@ ventures/pte-tax-election-calculator/usage.mjs
 ventures/pto-accrual-liability-calculator/usage.mjs
 ventures/public-record-watch/usage.js
 ventures/publish-kit/usage.mjs
+ventures/pv-row-spacing-optimizer/usage.mjs
 ventures/pv-string-sizer/usage.mjs
 ventures/pwa-installability-check/usage.mjs
 ventures/pypi-provenance-check/usage.mjs

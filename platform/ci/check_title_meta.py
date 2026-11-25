@@ -4,7 +4,8 @@
 Search results cut a title at about 60 characters (pixel width, really), so a
 title over `--title-max` (default 70) loses its tail. Length counts
 characters a reader sees (`&amp;` is one). A page with no
-`<meta name="description">` gets a snippet picked for it. Only real pages are
+`<meta name="description">` gets a snippet picked for it (unless it is
+`noindex`, which never shows in results). Only real pages are
 looked at (a file with an `<html` tag, not under node_modules).
 
     python3 platform/ci/check_title_meta.py [--root DIR] [--title-max N] [--strict]
@@ -21,6 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 TITLE = re.compile(r"<title[^>]*>(.*?)</title>", re.S | re.I)
 DESC = re.compile(r"<meta\b[^>]*\bname=[\"']description[\"']", re.I)
+NOINDEX = re.compile(r"<meta\b[^>]*\bname=[\"']robots[\"'][^>]*\bnoindex", re.I)
 
 
 def problems(text: str, title_max: int = 70):
@@ -31,7 +33,8 @@ def problems(text: str, title_max: int = 70):
         out.append("no-title")
     elif len(html.unescape(re.sub(r"\s+", " ", m.group(1).strip()))) > title_max:
         out.append("long-title")
-    if not DESC.search(text):
+    # A noindex page never gets a search snippet, so it needs no description.
+    if not DESC.search(text) and not NOINDEX.search(text):
         out.append("no-description")
     return out
 

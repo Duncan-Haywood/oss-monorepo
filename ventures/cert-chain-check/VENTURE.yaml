@@ -1,0 +1,52 @@
+name: cert-chain-check
+description: 'Free, read-only checker for X.509 certificate chains (PEM bundle, fullchain.pem, DER files or openssl s_client -showcerts output): puts the certificates in chain order by name and key identifier, verifies every signature with Web Crypto (RSA, RSA-PSS, ECDSA P-256/384/521, Ed25519), and names what TLS clients refuse: a missing, wrong or re-keyed intermediate, wrong order, strays and duplicates, a hostname the names do not cover (browser wildcard rules, the CN ignored), expiry and an intermediate that expires first, issuers that are not CAs or exceed pathlen, no serverAuth or digitalSignature, weak keys and SHA-1, precertificates, and validity beyond the CA/Browser Forum SC-081v3 schedule; prints the fixed fullchain.pem. Field-for-field parity with OpenSSL 3.0 on 37 generated certificates and the 120 roots of the Ubuntu CA bundle, and fault-for-fault with openssl verify on 30 chains; browser or zero-dependency Node CLI, nothing uploaded.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as the other
+# zero-dependency *-check tools (redis-conf-check, pg-hba-check,
+# sshd-config-check). Nothing in ventures/ read X.509 certificates before:
+# caa-record-check reads DNS CAA records, nginx-config-security-check reads
+# nginx's ssl_* directives, security-headers-check reads HTTP headers; none
+# opens a certificate. Not in screened-out.md.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# high -- a read-only parser of public certificates the user pastes, no
+# network calls from the page, private key blocks skipped unread and
+# flagged. Labelled not a security audit, with no warranty; a clean result
+# is never called secure.
+#
+# First visitor channel: search for "unable to get local issuer
+# certificate", "PKIX path building failed", "fullchain.pem order", "ssl
+# certificate chain incomplete", "wildcard certificate does not cover root
+# domain" (Stack Overflow and Server Fault answers with no in-browser
+# checker that works offline on pasted certificates), and teams that ship
+# certificates to load balancers, Kubernetes secrets or appliances from CI.
+hypotheses:
+  - claim: 'An operator will paste a chain here and find a missing or wrong intermediate, or the wrong order, that a browser test hid.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'A team will wire check.mjs --fail-on-risk into the pipeline that deploys certificates to a load balancer or Kubernetes secret.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using check.mjs or scan.mjs within 90 days.
+
+links:
+  production: https://marisstella.app/cert-chain-check/
+  analytics: null

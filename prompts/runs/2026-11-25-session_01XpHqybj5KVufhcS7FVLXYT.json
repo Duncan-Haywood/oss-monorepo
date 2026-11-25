@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqybj5KVufhcS7FVLXYT",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T00:38:48Z",
+  "ended": "2026-11-25T00:49:32Z",
+  "wall_minutes": 10.9,
+  "tokens_in": 12093374,
+  "tokens_out": 55535,
+  "cost_usd": 4.8369,
+  "tool_calls": 101,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18776",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The cloud-session add_repo result says to call register_repo_root, but ToolSearch finds no such tool; I read private-monorepo's CLAUDE.md by hand."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "platform/ci/ci_starvation.py covers only oss-monorepo. private-monorepo's payapps-ci jobs fail in 2-10 s with no downloadable logs (PR #37 merged in the same state), so I verified locally instead. Nothing documents that private-monorepo's runners seem unavailable."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "private-monorepo CLAUDE.md",
+      "why": "payapps-ci could not run (failed in seconds, logs 404, same as PR #37), so I merged PR #38 on local verification.",
+      "did": "Ran every payapps-ci step locally: biome ci, typecheck, unit 26/26, worker 43/43, build, drizzle-kit check/generate drift, and the lien-waivers package tests 203/203.",
+      "result": "merged; CI still unverified on GitHub"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-lien-waivers-printed-only-from-the-statute.md"
+  ],
+  "goal": null,
+  "notes": "Flagship 1 (payapps), milestone 3. private-monorepo PR #38 (merged ce3ad1c) brings packages/lien-waivers in from PR #14 (closed as included). It encodes Arizona's four \u00a7 33-1008(D) forms verbatim from azleg.gov (snapshot plus a word-for-word test; a mutation check confirmed the test fails on a one-word change), and wires waivers into payapps: lien_waivers table and migration 0002, routes, PDF, a Crew+ gate (readable after downgrade), and a UI panel. Statute host probe from the cloud session: azleg, statutes.capitol.texas.gov (JS app), le.utah.gov and leg.state.nv.us answered 200; leginfo.legislature.ca.gov and Justia returned 403. No agent doc in docs/reports: the package README and the flagship next carry the handoff.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b9de6374-fd62-5102-99b7-81d99b31e41e",
+    "transcripts": 1,
+    "first": "2026-11-25T00:38:48Z",
+    "last": "2026-11-25T00:49:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 90,
+        "input": 173,
+        "output": 55535,
+        "thinking": 8572,
+        "cache_read": 11925658,
+        "cache_write_5m": 0,
+        "cache_write_1h": 167543,
+        "api_equivalent_usd": 4.8369,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 90,
+      "input": 173,
+      "output": 55535,
+      "thinking": 8572,
+      "cache_read": 11925658,
+      "cache_write_5m": 0,
+      "cache_write_1h": 167543,
+      "api_equivalent_usd": 4.8369,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 101,
+    "tools": {
+      "Bash": 77,
+      "Write": 7,
+      "ToolSearch": 4,
+      "mcp__github__pull_request_read": 3,
+      "Read": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__update_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.9,
+      "active_minutes": 10.9,
+      "model_minutes": 8.1,
+      "tool_minutes": 2.8,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "senior TS dev: statute encoding+verbatim test ~3h, schema/routes/PDF/gating ~6h, UI ~3h, tests/docs ~2h",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 289.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

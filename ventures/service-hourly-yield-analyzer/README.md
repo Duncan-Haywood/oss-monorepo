@@ -45,4 +45,4 @@ No warranty. Not legal, tax or financial advice. Estimates depend on the file an
 typed; verify before relying on them. Independent of every scheduling vendor named. Nothing is
 uploaded; usage events are counted only in local storage and can be switched off.
 
-MIT licence.
+FSL-1.1-MIT licence.

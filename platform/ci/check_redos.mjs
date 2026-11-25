@@ -69,7 +69,11 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   if (args.includes("--json")) console.log(JSON.stringify(r, null, 1));
   else {
     for (const f of r.fresh) console.log(`${f.file}:${f.line}  ${f.rule}  /${f.pattern}/\n    ${f.message}`);
-    for (const k of r.stale) console.log(`stale allowlist entry (no longer found): ${k.replace("\t", "  ")}`);
+    for (const k of r.stale) {
+      // Keys are `${file}\t${pattern}`: split on the first tab only, the pattern itself may hold tabs.
+      const tab = k.indexOf("\t");
+      console.log(`stale allowlist entry (no longer found): ${tab < 0 ? k : `${k.slice(0, tab)}  ${k.slice(tab + 1)}`}`);
+    }
     console.log(`${r.files} files, ${r.patterns} regexes: ${r.fresh.length} new error-level ReDoS suspects, ${r.stale.length} stale allowlist entries.`);
   }
   process.exit(r.fresh.length || r.stale.length ? 1 : 0);

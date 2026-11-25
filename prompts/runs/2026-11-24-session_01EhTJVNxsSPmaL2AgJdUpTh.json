@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01EhTJVNxsSPmaL2AgJdUpTh",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T01:06:21Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 18511,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "einvoice-preflight's dated item assumed the Peppol 3.1.0 tag would exist after 2026-11-23; on 2026-11-24 git ls-remote showed none (newest 3.0.22), so not_before moved to 2026-11-27 and buildable says to check the tag first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here was photo-editing item 3 (HDR+ noise sweeps, judged spent by earlier runs); its one user-facing next item, Nikon AF grids, has no published coordinates and only 11 D-SLR samples here, and running the exiftool reference decoder from a fresh clone was refused by the sandbox. Took einvoice-preflight (flagship 5), whose dated 3.1.0 item was due.",
+      "did": "Checked for the 3.1.0 tag (absent), then built a batch readiness page + CLI and a generated 147-row rule diff for the February deadline.",
+      "result": "Shipped; 8 new tests pass; Chromium check clean."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Verification: node --test peppol-readiness.test.mjs peppol-next.test.mjs title-length.test.mjs -> 18 pass 0 fail (after npm i --no-save slimdom fontoxpath). CLI on OpenPeppol master examples + bundled examples: 17 Peppol files, 5 newly rejected (all R040), 4 fail both, 8 ready, matching eval/peppol-next-diff.mjs of 2026-11-18. Playwright Chromium: sample run '2 of 4 Peppol files pass 3.0.22 today and would be rejected under 3.1.0', no console errors, 390px no horizontal scroll. First venture-preflight flagged check_cli_entry, check_control_labels, check_csv_formula_guard; all three fixed and pass. Finding: CII NO-R-001/SE-R-001/SE-R-002 tested schemeID 'VAT' (CII uses 'VA') in 3.0.22, fixed in 3.1.0.",
+  "corrections": [],
+  "redteam": null
+}

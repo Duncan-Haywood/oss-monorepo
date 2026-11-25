@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Clothing Design Studio: Design a T-Shirt or Hoodie by Voice, Cost It, Get a Tech Pack</title>
-  <meta name="description" content="Free clothing design software for independent designers: say or click changes to a tee, sweatshirt or hoodie, compare three versions, cost every piece from your manufacturer's prices, and download a tech pack and quote request. Runs in your browser.">
+  <title>Clothing Design Studio: Design, Cost and Tech-Pack a T-Shirt by Voice</title>
+  <meta name="description" content="Free clothing design software: say or click changes to a tee, sweatshirt or hoodie, cost every piece from your manufacturer's prices, download a tech pack.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M11%207l-6%204%203%205%203-2v12h10V14l3%202%203-5-6-4q-5%204-10%200z'%20fill='%23efe4cc'/%3E%3C/svg%3E">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Clothing Design Studio: say what you want, see it on the garment, know what it costs">
-  <meta property="og:description" content="Design tees, sweatshirts and hoodies by voice or mouse, compare versions, cost them from your manufacturer's quote, and export a tech pack. Free and open source.">
+  <meta property="og:description" content="Design tees, sweatshirts and hoodies by voice or mouse, compare versions, cost them from your manufacturer's quote, and export a tech pack. Free to use and source available.">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -21,7 +21,7 @@
     "description": "A free browser studio for independent clothing designers: design a garment by speaking, typing or dragging, cost it from a manufacturer's prices, and export a tech pack. Runs on the visitor's device."
   }
   </script>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Do I need to pay or sign up?","acceptedAnswer":{"@type":"Answer","text":"No. The studio is free and open source (MIT) and runs in your browser. The command box understands a fixed set of design commands with no AI at all. If you want it to understand freer speech, you can add your own AI key or point it at a model running on your own computer; that is optional and never required."}},{"@type":"Question","name":"Where do the prices come from?","acceptedAnswer":{"@type":"Answer","text":"From your manufacturer. The studio ships an example sheet with round placeholder numbers so the page has something to show, and it says so next to every figure. Type your manufacturer's quote in, or import it as a CSV, and every cost on the page uses it."}},{"@type":"Question","name":"Can it print a 3D, raised design?","acceptedAnswer":{"@type":"Answer","text":"It lets you choose raised methods (high-density screen print, puff print and 3D puff embroidery) and draws them with a shadow so you can see the effect. It also notes where a raised method suits the artwork poorly, for example fine painted detail, which usually reproduces better flat with the raised ink on an outline or halo."}},{"@type":"Question","name":"Can I put a famous old painting on a shirt?","acceptedAnswer":{"@type":"Answer","text":"Often, if the painting is in the public domain and the photograph you use is released for reuse. Several museums publish open-access images; the studio lists some. Check each image's terms yourself: the studio does not check rights."}},{"@type":"Question","name":"Is my design uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Designs and uploaded images stay in your browser. A share link carries the design inside the link, without uploaded images. If you add an AI key, your command text and a short description of the design go to the provider you chose; with a local model, nothing leaves your computer."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Do I need to pay or sign up?","acceptedAnswer":{"@type":"Answer","text":"No. The studio is free to use and source available (FSL-1.1-MIT) and runs in your browser. The command box understands a fixed set of design commands with no AI at all. If you want it to understand freer speech, you can add your own AI key or point it at a model running on your own computer; that is optional and never required."}},{"@type":"Question","name":"Where do the prices come from?","acceptedAnswer":{"@type":"Answer","text":"From your manufacturer. The studio ships an example sheet with round placeholder numbers so the page has something to show, and it says so next to every figure. Type your manufacturer's quote in, or import it as a CSV, and every cost on the page uses it."}},{"@type":"Question","name":"Can it print a 3D, raised design?","acceptedAnswer":{"@type":"Answer","text":"It lets you choose raised methods (high-density screen print, puff print and 3D puff embroidery) and draws them with a shadow so you can see the effect. It also notes where a raised method suits the artwork poorly, for example fine painted detail, which usually reproduces better flat with the raised ink on an outline or halo."}},{"@type":"Question","name":"Can I put a famous old painting on a shirt?","acceptedAnswer":{"@type":"Answer","text":"Often, if the painting is in the public domain and the photograph you use is released for reuse. Several museums publish open-access images; the studio lists some. Check each image's terms yourself: the studio does not check rights."}},{"@type":"Question","name":"Is my design uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Designs and uploaded images stay in your browser. A share link carries the design inside the link, without uploaded images. If you add an AI key, your command text and a short description of the design go to the provider you chose; with a local model, nothing leaves your computer."}}]}</script>
   <style>
     :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; --accent2:#2a2320; --gold:#b98a2e; --ok:#24603a; --warn:#fbf0e1;
       font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: var(--paper); }
@@ -57,11 +57,12 @@
     .log { list-style: none; padding: 0; margin: 8px 0 0; max-height: 220px; overflow: auto; font-size: .9rem; }
     .log li { padding: 6px 0; border-top: 1px dashed var(--line); }
     .log .words { color: var(--muted); font-style: italic; }
-    .log .miss { color: #9a3412; }
+    .log .miss, .variant .miss { color: #9a3412; }
     .engine { font-size: .75rem; color: var(--muted); }
     .swatches { display: flex; flex-wrap: wrap; gap: 5px; }
     .swatch { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px var(--line); cursor: pointer; padding: 0; }
     .swatch[aria-pressed=true] { box-shadow: 0 0 0 2px var(--accent); }
+    .swatch.dyed { border-style: dashed; border-color: var(--line); opacity: .7; }
     .motifs { display: flex; flex-wrap: wrap; gap: 6px; }
     .motifs button { width: 54px; height: 54px; padding: 6px; border: 1px solid var(--line); border-radius: 10px; background: #fff; cursor: pointer; color: #3a2a12; }
     .motifs svg { width: 100%; height: 100%; }
@@ -325,6 +326,13 @@
             <div><label for="s-dest">Look it up for selling in</label><select id="s-dest"><option value="">Choose a market</option><option value="US">United States</option><option value="EU">European Union</option><option value="UK">United Kingdom</option></select></div>
             <div><label for="s-origin">Made in</label><select id="s-origin"><option value="">Other</option><option>Bangladesh</option><option>Cambodia</option><option>Nepal</option></select></div>
           </div>
+          <div><label for="s-colours">Stock colours for this fabric (names or name #RRGGBB, comma-separated)</label><textarea id="s-colours" rows="2"></textarea></div>
+          <div class="row3">
+            <div><label for="s-dye-setup">Custom colour: lab dip and dye set-up</label><input id="s-dye-setup" type="number" min="0" step="1"></div>
+            <div><label for="s-dye-min">Custom colour: minimum dye lot (metres)</label><input id="s-dye-min" type="number" min="0" step="10"></div>
+            <div><p class="muted" id="s-colour-note" aria-live="polite"></p></div>
+          </div>
+          <p class="muted">"Make it darker" and the other colour edits pick among these stock colours. Any other garment colour is dyed to order: the cost adds the set-up and the dye lot's unused metres. Leave the list empty to skip the check.</p>
           <p class="muted" id="s-duty-note">Fills the duty box from the tariff heading for this garment and fabric (rates typed from memory, unchecked: see <a href="duty.html">import duty</a>). Check the figure with your customs broker.</p>
           <div class="bar">
             <button class="btn small" type="button" id="sheet-export">Download sheet (CSV)</button>
@@ -529,7 +537,7 @@
   <section id="faq" aria-labelledby="faq-h">
     <h2 id="faq-h">Questions</h2>
     <h3>Do I need to pay or sign up?</h3>
-    <p>No. The studio is free and open source (MIT) and runs in your browser. The command box understands a fixed set of design commands with no AI at all. If you want it to understand freer speech, you can add your own AI key or point it at a model running on your own computer; that is optional and never required.</p>
+    <p>No. The studio is free to use and source available (FSL-1.1-MIT) and runs in your browser. The command box understands a fixed set of design commands with no AI at all. If you want it to understand freer speech, you can add your own AI key or point it at a model running on your own computer; that is optional and never required.</p>
     <h3>Where do the prices come from?</h3>
     <p>From your manufacturer. The studio ships an example sheet with round placeholder numbers so the page has something to show, and it says so next to every figure. Type your manufacturer&#x27;s quote in, or import it as a CSV, and every cost on the page uses it.</p>
     <h3>Can it print a 3D, raised design?</h3>
@@ -549,7 +557,7 @@
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, manufacturing or intellectual-property advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including the rights to any artwork you use, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Privacy.</strong> Everything runs in your browser. Your designs, images and prices are saved in this browser's local storage and never uploaded; we have no accounts, tracking cookies or analytics vendor. Speaking a command uses your browser's own speech recognition, which in Chrome and Edge sends the audio to the browser maker to be transcribed (the page asks first). If you add an AI key, your command text goes to the provider you chose. We count anonymous events in this browser only (which features get used, nothing you typed). <button class="btn small" type="button" id="optout">Turn usage counting off</button> <span id="optout-status"></span></p>
-    <p>Free and open source under the <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/LICENSE">MIT licence</a>. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Request a feature or give feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor the work (github.com/sponsors/Duncan-Haywood)</a></p>
+    <p>Free to use and source available under the <a href="https://github.com/duncan-haywood/oss-monorepo/blob/main/LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Request a feature or give feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor the work (github.com/sponsors/Duncan-Haywood)</a></p>
   </footer>
 
   <script type="module">
@@ -562,7 +570,7 @@
     import { interpret } from "./ai.mjs";
     import { renderDesign, placementBox, esc } from "./render.mjs";
     import { renderTurntable } from "./turntable.mjs";
-    import { EXAMPLE_SUPPLIER, supplierToCsv, supplierFromCsv } from "./suppliers.mjs";
+    import { EXAMPLE_SUPPLIER, supplierToCsv, supplierFromCsv, stockColours, colourStock, parseStockColours, setStockList } from "./suppliers.mjs";
     import { dutyPctFor } from "./duty.mjs";
     import { economics, quantityBreaks, money, DEFAULT_PLAN } from "./costing.mjs";
     import { loadBomExtras } from "./bom.mjs";
@@ -645,7 +653,7 @@
 
     async function runCommand(text, via = "typed") {
       if (!text.trim()) return;
-      const out = await interpret(text, d(), aiConfig(), { timeline: [...history.past, history.present] });
+      const out = await interpret(text, d(), aiConfig(), { timeline: [...history.past, history.present], sheet });
       recordUsage(via === "voice" ? "voice_command" : "command");
       const engine = out.source === "model" ? `model (${out.local ? "on your computer" : $("#ai-provider").value})` : "built-in";
       $("#engine-label").textContent = `Last command: ${engine}${out.error ? ` (model failed: ${out.error}; used built-in)` : ""}`;
@@ -661,7 +669,7 @@
           else if (u.ui === "upload") $("#upload").click();
         }
         if (step.ops.length) err = commit(step.ops, "command_op");
-        log(`${err ? `<span class="miss">Could not: ${esc(err)}</span>` : esc(step.did)} <span class="words">“${esc(step.words)}”</span> <span class="engine">${engine}</span>`);
+        log(`${err ? `<span class="miss">Could not: ${esc(err)}</span>` : esc(step.did)} <span class="words">“${esc(step.words)}”</span> <span class="engine">${esc(engine)}</span>`);
       }
       for (const q of out.result.questions || []) {
         recordUsage("question_answered");
@@ -854,6 +862,13 @@
     sheetNum("s-packaging", (s, v) => { s.packagingPerUnit = v; });
     sheetNum("s-freight", (s, v) => { s.freightPerUnit = v; });
     sheetNum("s-duty", (s, v) => { s.dutyPct = v; });
+    sheetNum("s-dye-setup", (s, v) => { s.customColour = { ...(s.customColour || { minMetres: 0 }), setup: v }; });
+    sheetNum("s-dye-min", (s, v) => { s.customColour = { ...(s.customColour || { setup: 0 }), minMetres: v }; });
+    $("#s-colours").addEventListener("change", e => {
+      const r = parseStockColours(e.target.value);
+      if (r.errors.length) { $("#s-colour-note").textContent = r.errors.join(" "); return; }
+      sheetEdited(s => setStockList(s, d().fabric, r.colours));
+    });
     {
       const e = loadBomExtras();
       if (e) {
@@ -1095,9 +1110,9 @@
 
     // variants
     function showVariants() {
-      currentVariants = variants(d());
+      currentVariants = variants(d(), { sheet });
       $("#compare").hidden = false;
-      $("#variants").innerHTML = currentVariants.map((v, i) => `<div class="variant"><strong>${i + 1}. ${esc(v.label)}</strong>${renderDesign(v.design, { uid: "v" + i, side: v.design.placements.find(p => p.id === v.design.selected)?.area === "back" ? "back" : v.design.side })}<div class="muted">${esc(v.why)}</div><button class="btn small" type="button" data-pick="${i}">Use this one</button></div>`).join("");
+      $("#variants").innerHTML = currentVariants.map((v, i) => `<div class="variant"><strong>${i + 1}. ${esc(v.label)}</strong>${renderDesign(v.design, { uid: "v" + i, side: v.design.placements.find(p => p.id === v.design.selected)?.area === "back" ? "back" : v.design.side })}<div class="muted">${esc(v.why)}</div>${v.stocked === false ? '<div class="miss">Dyed to order on your sheet</div>' : ""}<button class="btn small" type="button" data-pick="${i}">Use this one</button></div>`).join("");
       recordUsage("variants");
     }
     function pickVariant(i) {
@@ -1255,6 +1270,13 @@
       $("#s-packaging").value = sheet.packagingPerUnit ?? 0;
       $("#s-freight").value = sheet.freightPerUnit ?? 0;
       $("#s-duty").value = sheet.dutyPct ?? 0;
+      const stock = stockColours(sheet, design.fabric);
+      $("#s-colours").value = stock ? Object.entries(stock).map(([n, h]) => COLOURS[n] === h ? n : `${n} ${h}`).join(", ") : "";
+      $("#s-dye-setup").value = sheet.customColour?.setup ?? 0;
+      $("#s-dye-min").value = sheet.customColour?.minMetres ?? 0;
+      const cs = colourStock(sheet, design.fabric, design.colour);
+      $("#s-colour-note").textContent = !cs.listed ? "No stock list: colour not checked." : cs.stocked ? `${design.colourName ?? "This colour"} is stocked for ${design.fabric}.` : `${design.colourName ?? "This colour"} is not stocked for ${design.fabric}: dyed to order.`;
+      document.querySelectorAll(".swatch").forEach(b => { const ok = colourStock(sheet, design.fabric, COLOURS[b.dataset.colour]).stocked; b.classList.toggle("dyed", !ok); b.title = ok ? b.dataset.colour : `${b.dataset.colour} (dyed to order on this sheet)`; b.setAttribute("aria-label", b.title); });
       renderCost();
       renderMarketing(); renderClearance();
       $("#quote").textContent = quoteRequest(design);

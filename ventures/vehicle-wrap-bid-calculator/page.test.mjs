@@ -111,7 +111,7 @@ test('the featureList and FAQ answer describe the share/save feature that now ex
   assert.match(index, /shareable bid link/i, 'featureList does not mention the share link');
   assert.match(index, /saved quote that reopens/i, 'featureList does not mention the local draft save');
   assert.ok(index.includes('Does anything about my costs or roll usage get uploaded?'));
-  const jsonLdAnswer = /"Does anything about my costs or roll usage get uploaded\?","acceptedAnswer":\{"@type":"Answer","text":"([^"]*(?:\\.[^"]*)*)"\}/
+  const jsonLdAnswer = /"Does anything about my costs or roll usage get uploaded\?","acceptedAnswer":\{"@type":"Answer","text":"((?:[^"\\]|\\.)*)"\}/
     .exec(index);
   assert.ok(jsonLdAnswer, 'the FAQPage JSON-LD entry for this question is missing');
   assert.match(jsonLdAnswer[1], /Copy bid link/, 'the JSON-LD privacy answer does not mention the share link');

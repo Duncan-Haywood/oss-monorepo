@@ -72,7 +72,8 @@ test("text, CSV and HTML carry the path and the sum, and the CSV keeps formulas 
   assert.match(csv, /'=HYPERLINK/);
   assert.ok(csv.split("\r\n").some((l) => l.startsWith("path,A1090,")));
   assert.match(asPlannedTableHtml(r), /Where the delay grew/);
-  assert.doesNotMatch(asPlannedTableHtml(r), /<script|=HYPERLINK\(1\)<\/td>.*onerror/);
+  assert.doesNotMatch(asPlannedTableHtml(r), /<script\b/i);
+  assert.doesNotMatch(asPlannedTableHtml(r), /=HYPERLINK\(1\)<\/td>.*onerror/);
 });
 
 test("without a baseline, the file's own planned dates stand in, with a warning", () => {

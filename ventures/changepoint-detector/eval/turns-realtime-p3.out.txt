@@ -1,0 +1,85 @@
+Pseudo-real-time replay of `--turns --columns` under minPhase 3 (arm A composite, sds over every month to the cut-off, bigMove 0.05)
+cut-offs 1970-01 to 2026-07; release lag 2 months; call = first cut-off held at every later one; 6-month delay beside it
+
+NBER turn  kind    called on data to  call month  delay(P3)  delay(P6)  NBER announced  call first?
+  1969-12  peak    1971-04            1971-06            18         18  -               -
+  1970-11  trough  1971-04            1971-06             7          7  -               -
+  1973-11  peak    1974-04            1974-06             7          7  -               -
+  1975-03  trough  1975-09            1975-11             8          8  -               -
+  1980-01  peak    1981-06            1981-08            19         19  1980-06         no
+  1980-07  trough  1981-06            1981-08            13         13  1981-07         no
+  1981-07  peak    1982-01            1982-03             8          8  1982-01         no
+  1982-11  trough  1983-04            1983-06             7          7  1983-07         yes
+  1990-07  peak    1990-12            1991-02             7          7  1991-04         yes
+  1991-03  trough  1991-08            1991-10             7          7  1992-12         yes
+  2001-03  peak    null               null             null       null  2001-11         -
+  2001-11  trough  2002-05            2002-07             8          8  2003-07         yes
+  2007-12  peak    2008-06            2008-08             8          8  2008-12         yes
+  2009-06  trough  2009-11            2010-01             7          7  2010-09         yes
+  2020-02  peak    2020-07            2020-09             7          7  2020-06         no
+  2020-04  trough  2020-09            2020-11             7          7  2021-07         yes
+
+called 15 of 16; median delay 7 (6-month rule 7); before NBER in 7 of 12 (6-month rule 7)
+
+retracted-alarm episodes (no NBER turn of the kind within 6 months): 6 (6-month rule 5)
+  trough 1970-04  shown on data to 1970-09..1970-09 (1 turn-cut-offs)
+  peak   1979-03  shown on data to 1979-08..1979-10 (3 turn-cut-offs)
+  peak   1980-12  shown on data to 1981-05..1981-05 (1 turn-cut-offs)
+  peak   2002-11  shown on data to 2003-04..2020-03 (201 turn-cut-offs)
+  trough 2003-04  shown on data to 2003-09..2020-03 (199 turn-cut-offs)
+  peak   2012-12  shown on data to 2013-05..2013-07 (3 turn-cut-offs)
+
+survival of a dated turn by months of data after it (cut-offs to 24 months before the last):
+  age  0- 5  held   13 of   22  59.1%  (6-month rule 61.9%)
+  age  6- 8  held   39 of   56  69.6%  (6-month rule 73.6%)
+  age  9-11  held   40 of   52  76.9%  (6-month rule 85.1%)
+  age 12-17  held   85 of  106  80.2%  (6-month rule 90.4%)
+  age 18-    held 6150 of 6527  94.2%  (6-month rule 100.0%)
+  age 12+ held 94.0%
+
+Q1 >= 15 of 16 called and median delay <= 7: passes (15, 7)
+Q2 before NBER in >= 8 of 12: fails (7)
+Q3 retracted episodes <= 6: passes (6)
+Q4 survival non-decreasing by age group and 12+ >= 90%: passes (59.1%, 69.6%, 76.9%, 80.2%, 94.2%; 12+ 94.0%)
+decision: a bar fails; nothing ships
+
+
+=== printed, no bar: standard deviations fixed to 2019-12 for cut-offs after 2019-12 ===
+cut-offs 1970-01 to 2026-07; release lag 2 months; call = first cut-off held at every later one; 6-month delay beside it
+
+NBER turn  kind    called on data to  call month  delay(P3)  delay(P6)  NBER announced  call first?
+  1969-12  peak    1971-04            1971-06            18         18  -               -
+  1970-11  trough  1971-04            1971-06             7          7  -               -
+  1973-11  peak    1974-04            1974-06             7          7  -               -
+  1975-03  trough  1975-09            1975-11             8          8  -               -
+  1980-01  peak    1981-06            1981-08            19         19  1980-06         no
+  1980-07  trough  1981-06            1981-08            13         13  1981-07         no
+  1981-07  peak    1982-01            1982-03             8          8  1982-01         no
+  1982-11  trough  1983-04            1983-06             7          7  1983-07         yes
+  1990-07  peak    1990-12            1991-02             7          7  1991-04         yes
+  1991-03  trough  1991-08            1991-10             7          7  1992-12         yes
+  2001-03  peak    2001-05            2001-07             4          4  2001-11         yes
+  2001-11  trough  2002-05            2002-07             8          8  2003-07         yes
+  2007-12  peak    2008-06            2008-08             8          8  2008-12         yes
+  2009-06  trough  2009-11            2010-01             7          7  2010-09         yes
+  2020-02  peak    2020-07            2020-09             7          7  2020-06         no
+  2020-04  trough  2020-09            2020-11             7          7  2021-07         yes
+
+called 16 of 16; median delay 7 (6-month rule 7); before NBER in 8 of 12 (6-month rule 8)
+
+retracted-alarm episodes (no NBER turn of the kind within 6 months): 7 (6-month rule 6)
+  trough 1970-04  shown on data to 1970-09..1970-09 (1 turn-cut-offs)
+  peak   1979-03  shown on data to 1979-08..1979-10 (3 turn-cut-offs)
+  peak   1980-12  shown on data to 1981-05..1981-05 (1 turn-cut-offs)
+  peak   2002-11  shown on data to 2003-04..2026-07 (277 turn-cut-offs)
+  trough 2003-04  shown on data to 2003-09..2026-07 (275 turn-cut-offs)
+  peak   2012-12  shown on data to 2013-05..2013-07 (3 turn-cut-offs)
+  peak   2025-07  shown on data to 2025-12..2025-12 (1 turn-cut-offs)
+
+survival of a dated turn by months of data after it (cut-offs to 24 months before the last):
+  age  0- 5  held   14 of   22  63.6%  (6-month rule 61.9%)
+  age  6- 8  held   42 of   56  75.0%  (6-month rule 73.6%)
+  age  9-11  held   45 of   52  86.5%  (6-month rule 85.1%)
+  age 12-17  held   97 of  106  91.5%  (6-month rule 90.4%)
+  age 18-    held 6631 of 6631  100.0%  (6-month rule 100.0%)
+  age 12+ held 99.9%

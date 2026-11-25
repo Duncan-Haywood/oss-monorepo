@@ -1,0 +1,33 @@
+# Bowling lane-pair bound: the four seasons 1 off since 2026-11-23, and the limit-1 seasons, by encoding (2026-11-24).
+# Model: eval/bowling-lane-table.py (week permutations, week 1 fixed, every team on every pair floor..ceil(W/P)).
+# Runs: eval/bowling-encoding.py <n> <W> <enc> <solver>; python-sat 1.9.dev24; 4 cores shared by 4-7 runs at once,
+# so times are wall clock under load. Answers re-checked by offBound (bowling.mjs) = 0 before storing.
+#
+# teams weeks lo..hi | run                                           | result
+   22    10   0..1   | seqcounter limits, CaDiCaL 1.5.3 (2026-11-23)  | none in 420 s
+   22    10   0..1   | seqcounter, cadical153, eval/bowling-bound-proof.py before this change | none in 180 s
+   22    10   0..1   | team at-most-one pairwise, weeks seqcounter     | SAT 14.7 s
+   22    10   0..1   | team and week pairwise (bowling-encoding.py)    | SAT 1.5 s (1.2 s re-run)
+   22    10   0..1   | bowling-bound-proof.py --one after this change  | SAT 14.9 s
+   22    21   1..2   | totalizer, cadical153                           | no answer before it was stopped for cores
+   22    21   1..2   | totalizer, kissat404                            | SAT ~23 min
+   22    21   1..2   | direct (forbid triples, at-least-1 one clause), cadical153 | SAT ~4 min
+   24    23   1..2   | totalizer, cadical153                           | no answer before it was stopped for cores
+   24    23   1..2   | totalizer, kissat404                            | SAT ~21 min
+   24    23   1..2   | direct, cadical153                              | none in 11 min (still running at write-up)
+   26    38   2..3   | totalizer, kissat404                            | none in 2400 s
+   26    38   2..3   | totalizer, cadical195                           | no answer before it was stopped for cores
+   24    11   0..1   | pairwise, cadical153                            | none in 900 s
+   26    12   0..1   | pairwise, cadical153                            | none in 900 s
+   28    13   0..1   | pairwise, cadical153                            | none in 900 s
+#
+# Structured families (no answer means none of that shape, not none at all):
+#   pair = sigma(k) + c*round mod P, backtracking over sigma, every c: no answer for 22x10, 22x21, 24x23
+#     (26x38 not finished in 60 s).
+#   pair = sigma(k) + tau(round) mod P, eval/bowling-cyclic-family.py: 22x10 UNSAT; others no verdict in 400 s.
+#
+# Stored: 22,10 / 22,21 / 24,23 moved from bowling-lane-near.mjs (off 1) to bowling-lane-table.mjs (off 0).
+# Page season, seed 1 (eval/bowling-repeat-table.mjs), back-to-back repeats before -> after:
+#   22x10 0 -> 0 (off 1 -> 0); 22x21 20 -> 13 (off 1 -> 0); 24x23 19 -> 24 (off 1 -> 0).
+# node --test bowling.test.mjs: 34 pass, 0 fail (new test: 22 teams 10 weeks, laneReport atBound 22).
+# node eval/bowling-lane-near-check.mjs after: 14 rows, every remaining near entry unchanged (26x38 still 1).

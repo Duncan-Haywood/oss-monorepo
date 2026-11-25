@@ -770,7 +770,7 @@ investment share 1964-69, industry and agriculture shares 1961-69 (odd years onl
 WestGermany, NewZealand), 1960-2003. `oecd-covariates-1989.csv`: trade openness, inflation and industry share
 averaged 1981-89, schooling 1980 and 1985, investment 1980-84 and GDP per head 1981-89, one row per country.
 
-- **Retrieved:** 2026-11-18 from pysyncon (MIT licence), <https://raw.githubusercontent.com/sdfordham/pysyncon/main/data/basque.csv>
+- **Retrieved:** 2026-11-18 from pysyncon (FSL-1.1-MIT licence), <https://raw.githubusercontent.com/sdfordham/pysyncon/main/data/basque.csv>
   (sha256 `7f7f90d7a01984a33a2ea3efc311ce826c05b61234a52c27445adacc6f52bf70`) and `.../data/germany.csv` (sha256
   `c59ff635faaf43729eaefdf5e9a4584fc3112a56fdab84b9ac5f78e1b6302e83`): copies of the R Synth package's `basque` data
   and of the replication data of Abadie, Diamond and Hainmueller (2015). Reshaped by `node eval/few-donor-panels.mjs
@@ -875,3 +875,159 @@ Research Institute), as quarters. Check: the log of `level`, HP-filtered with la
 - **Licence:** BCDating is GPL-2; the figures are published national accounts and a published dating. Used as test
   fixtures only.
 - **Used by:** `eval/turns-iran.mjs`, `turns-iran.test.mjs`.
+
+# US real GDP, FRED GDPC1, 1947Q1 to 2026Q1 (and two other vintages)
+
+`us-gdpc1.csv`: real gross domestic product, billions of chained 2017 dollars, seasonally adjusted annual rate,
+quarterly 1947Q1 to 2026Q1 (317 rows), FRED series `GDPC1` (US Bureau of Economic Analysis).
+`us-gdpc1-vintage-2025.csv` (2000Q1 to 2024Q4, 100 rows) and `us-gdpc1-vintage-2026q2.csv` (2000Q1 to 2026Q2,
+106 rows) are an earlier and a later vintage of the same series; they differ from the main file from 2020 and
+2021 onward (BEA's annual revisions), and are used only for a printed vintage check.
+
+- **Retrieved:** 2026-11-24. fred.stlouisfed.org and apps.bea.gov refused this session's proxy, so the files are
+  unmodified FRED downloads (`observation_date,GDPC1`) committed in public GitHub repositories, read at pinned
+  commits through raw.githubusercontent.com. The main file is
+  `jalonso1979/puremacro@73030cf7:puremacro/datasets/data/GDPC1.csv`; three independent copies
+  (`charlescoverdale/nowcast@6b93b60b:paper/data/GDPC1.csv`, `GongJr0/Econometrics2025-Project@128ccac0:data/fred/GDPC1.csv`,
+  `mikkelpm/macro_econometrics@6db3b17a:code/data/GDPC1.csv`) agree with it on every shared quarter (316, 141 and
+  316 quarters; the last one differs only in 2025Q4, its own later estimate). The vintages are
+  `JackDamato/macro-regime-allocation@b76de9c8:MacroData/GDPC1.csv` and
+  `Nicholashsw/macro-desk@abd880ea:macro_desk/data/GDPC1.csv`. Quarter labels were made from the date column.
+- **Licence:** US government statistics, public domain. Only the numbers were taken.
+- **Used by:** `eval/turns-gdpc1.mjs`, `turns-gdpc1.test.mjs`.
+
+# US payroll employment and NBER monthly recession months (the monthly BBQ round)
+
+`us-payems.csv`: all employees, total nonfarm, thousands of persons, seasonally adjusted, monthly 1939-01 to
+2026-07 (1,051 rows), FRED series `PAYEMS` (US Bureau of Labor Statistics, Current Employment Statistics).
+`us-payems-vintage-2024.csv` (1939-01 to 2024-06) and `us-payems-vintage-2026-10.csv` (1939-01 to 2026-10) are an
+older and a newer vintage, used only for a printed vintage check; the older one differs from the main file from
+1990 on (BLS's annual benchmark revisions). `us-usrec.csv`: FRED's `USREC`, 1 in NBER recession months
+(1854-12 to 2026-06), from which the monthly peaks and troughs are read.
+
+- **Retrieved:** 2026-11-24. fred.stlouisfed.org, bls.gov and nber.org refused this session's proxy, so the
+  files are FRED downloads committed in public GitHub repositories, read through raw.githubusercontent.com and
+  pinned here by git blob id (the id GitHub's code search reports for that file). Main file:
+  `Gariyuuu/forecast-graveyard:data/raw/PAYEMS.csv` (blob d828b52e). Three independent copies,
+  `charlescoverdale/nowcast:paper/data/PAYEMS.csv` (81fb7f98), `shergin/malevich:demos/fred/data/payems.csv`
+  (c473df11) and `Sir-Teo/explainer-videos:explainer/economics/data/fred_PAYEMS.csv` (33a16a57), agree with it on
+  every shared month except each copy's last two (BLS's usual two monthly revisions). The newer vintage is that
+  last copy; the older is `ebbam/transition_abm:data/macro_vars/PAYEMS.csv` (59eddc67). USREC is
+  `jalonso1979/puremacro:curso/notebooks/data_curso/USREC.csv` (23231f92); two independent copies
+  (`atkrish0/regime-shift-forecasting:data/USREC.csv`, `zivmi/voc_reproduction:data/raw/USREC.csv`) give the
+  same peaks and troughs from 1980 on. Date columns were cut to `YYYY-MM`; values are unchanged.
+- **A slip in `nber-recessions.csv`:** its copy of tis (1.39) starts the 2020 recession in 2020-01, so the peak
+  it implies is 2019-12. NBER dated the peak February 2020 (announcement of 8 June 2020) and USREC agrees.
+  Every other turn since 1939 agrees. The quarterly rounds are unaffected in their matching (both months fall
+  within a quarter of 2019Q4, NBER's quarterly peak); the file is left as the unmodified tis copy and the
+  monthly round reads USREC instead.
+- **Licence:** US government statistics, public domain. Only the numbers were taken.
+- **Used by:** `eval/turns-payems.mjs`, `turns-payems.test.mjs`.
+
+## US coincident indicators (FRED W875RX1, INDPRO, CMRMTSPL, CE16OV)
+
+`us-w875rx1.csv`: real personal income excluding current transfer receipts, billions of chained 2017 dollars,
+seasonally adjusted annual rate, monthly 1959-01 to 2026-08 (BEA). `us-indpro.csv`: industrial production index,
+2017 = 100, seasonally adjusted, 1919-01 to 2026-09 (Federal Reserve Board). `us-cmrmtspl.csv`: real manufacturing
+and trade industries sales, millions of chained 2017 dollars, seasonally adjusted, 1967-01 to 2026-07 (FRED,
+from Census and BEA data). `us-ce16ov.csv`: employment level from the household survey, thousands of persons,
+seasonally adjusted, 1948-01 to 2026-09 (BLS CPS); 2025-10 is blank, as in FRED (no survey in the October 2025
+shutdown).
+
+- **Retrieved:** 2026-11-24. fred.stlouisfed.org refused this session's proxy (as on 2026-11-24 for PAYEMS), so
+  the files are FRED downloads committed in a public GitHub repository, read through raw.githubusercontent.com:
+  `rasmuspeterk-ctrl/recession:v5/data/raw/2026-10-27/` (W875RX1 blob 17abea62, CMRMTSPL ef8d5017, CE16OV
+  4873460e, INDPRO from the same folder). That folder's PAYEMS agrees with `us-payems.csv` on every month but its
+  last two. Independent copies: W875RX1 `fartbagxp/economics:data/raw/w875rx1.csv` (643ea041) and
+  `anthonythomashall3-rgb/bristow-hall-live:.../fred_latest/W875RX1.csv` (312c2375) agree on all 812 shared months
+  but the last two; CMRMTSPL from the second (5491dab7) agrees on 715 months but the last; CE16OV
+  `jalonso1979/puremacro:curso/notebooks/data_curso/CE16OV.csv` (3837a112) agrees on all 941; INDPRO
+  `bdecon/US-chartbook:chartbook/data/indpro.csv` (9f28b057, 1989 on) is within 0.2% on every month (a different
+  vintage of the Fed's annual revisions). An older CMRMTSPL copy (`someshrai/WQU_MScFE_data`, 2014-2020) differs
+  by up to 7%: a pre-benchmark vintage, not used. Date columns were cut to `YYYY-MM`; values are unchanged.
+- **Licence:** US government statistics, public domain. Only the numbers were taken.
+- **Used by:** `eval/turns-composite.mjs`, `turns-composite.test.mjs`.
+
+
+## FRED-MD vintages: PAYEMS, W875RX1, INDPRO as published, 1999-08 to 2021-10
+
+`fredmd-vintages/PAYEMS.csv`, `W875RX1.csv`, `INDPRO.csv`: every monthly vintage of three FRED-MD series (McCracken
+and Ng, "FRED-MD: A Monthly Database for Macroeconomic Research", Federal Reserve Bank of St. Louis), from the
+first vintage (1999-08) to 2021-10, each series as that vintage published it from 1959-01 (W875RX1's earliest
+vintages from 1967-01). Levels: payroll employment in thousands, real personal income less transfers in billions
+of chained dollars (each vintage's own base year), industrial production as an index (each vintage's base year).
+
+- **Retrieved:** 2026-11-24. stlouisfed.org (FRED-MD's home and ALFRED) refused this session's proxy, so the
+  vintages are read from AQLT/turningPointsDetection (github.com, commit 40a5d111bfd5f90be0562d449455a3a542f5d806),
+  `data/byseries_nber/<SERIES>.RDS` (git blobs PAYEMS ca33eb81, W875RX1 9e2f0a14, INDPRO 1c63fe43), made by that
+  repository's `R_fred_nber/0-download_files.R` from FRED-MD's `Historical_FRED-MD.zip` and `FRED_MD.zip`. Those
+  files store log levels per vintage, keyed by the last month, keeping the first vintage to reach each month.
+  `eval/fredmd-vintages.py` (pip `rdata`, `numpy`) converts them: exp() of every cell is within 1e-6 of a value at
+  the source's own precision (whole thousands, one decimal, four decimals), so the levels are recovered exactly.
+  The 2021-10 vintage's monthly growth agrees with today's files (`us-payems.csv`, `us-w875rx1.csv`,
+  `us-indpro.csv`) within a median 0.006, 0.016 and 0.027 percentage points from 1990 on: later revisions only.
+- **Format:** `last,first,from,values`, a row per kept vintage, values from `from` (the first month that differs
+  from the row before) to `last`; `eval/fredmd-vintages.mjs` rebuilds each vintage and says which one a user held
+  at a given month. One W875RX1 row (to 1999-10) starts at 1992-01 (R's `na.contiguous` after a gap in it).
+- **Licence:** US government statistics compiled by the St. Louis Fed; public domain numbers. The source
+  repository has no licence file; only the numbers were taken, not its code.
+- **Used by:** `eval/turns-vintages.mjs`, `turns-vintages.test.mjs`.
+
+
+## USPHCI: the Philadelphia Fed's US coincident index, five copies 1979-01 to 2021-12 ... 2026-07; CAPHCI to 2023-10
+
+`us-usphci.csv` (1979-01 to 2026-07), `us-usphci-vintage-2021-12.csv`, `-2023-05.csv`, `-2023-10.csv`,
+`-2024-10.csv` (each from 1979-01 to the month in its name) and `ca-caphci-vintage-2023-10.csv`: the Federal Reserve
+Bank of Philadelphia's coincident index for the United States and for California (FRED series USPHCI and
+CAPHCI, index 2007 = 100, seasonally adjusted, monthly), each copy as it was downloaded from FRED on a different
+date, so each holds that month's re-estimated history.
+
+- **Retrieved:** 2026-11-24. stlouisfed.org and philadelphiafed.org refused this session's proxy; the copies were
+  found by GitHub code search and read from raw.githubusercontent.com. Each file's git blob matches the search
+  hit's (checked with `git hash-object`):
+  - main, to 2026-07: kennethlarotyamat/kennethlarotyamat.github.io (commit 6a8762f2500f31e5a1fde30919b6460e4cd8074d),
+    `mba775/las vegas visitor data for lab assignment 1/USPHCI.csv`, blob 8ae99a1a;
+  - to 2024-10: Marianojgm86/Data-Warehouse (c92c285db7f45d73e00c2e4c0bbe1e88c993fb11), `raw/US/USPHCI.csv`, blob 05b72a2d;
+  - to 2023-10: open-datahub/unemployment (89be22bf4082fabd33c6ed0c89986dbf7bc2c837), `USPHCI.csv`, blob 65fe30f9,
+    and `CAPHCI.csv`, blob 71250e6e;
+  - to 2023-05: maxweinig/InflationNarratives (53f2d0756245790d130d175de0e9b2af8e11dc0d),
+    `data/localprojections/USPHCI.csv`, blob 38206285;
+  - to 2021-12: woomora/POS_replication (0c7cf8b7d3efb1266d23d80b1f0d8c4d9ba07569),
+    `data/source/Monthly Indexes/USA/USPHCI.csv`, blob fd5cce3c.
+- **Checks:** every copy is a contiguous monthly run from 1979-01 with no missing value. The four older copies'
+  monthly growth differs from the main copy's by a median 0.011 to 0.015 percentage points (largest 0.33 to 0.46),
+  and they share 0 to 6 identical values with it: different re-estimates, not one file copied. Date columns were
+  cut to `YYYY-MM` and headers renamed (`month,usphci`); values are unchanged.
+- **Licence:** statistics published by a Federal Reserve Bank through FRED; only the numbers were taken. The
+  source repositories' code was not used.
+- **Used by:** `eval/turns-usphci.mjs`, `turns-usphci.test.mjs`.
+
+## Japan CI: the Cabinet Office's coincident composite index, two copies 1985-01 to 2024-07 and 2026-08; ESRI's reference dates
+
+`jp-ci-coincident.csv` (1985-01 to 2026-08, 500 months) and `jp-ci-coincident-vintage-2024-07.csv` (1985-01 to
+2024-07, 475 months): the coincident composite index (CI 一致指数, 2020 = 100, monthly) of the Cabinet Office's
+Indexes of Business Conditions (景気動向指数), each as saved in a public repository on a different date, so each
+holds that release's re-estimated history.
+
+- **Retrieved:** 2026-11-24. esri.cao.go.jp and e-stat.go.jp refused this session's proxy; the copies were found by
+  GitHub code search and read from raw.githubusercontent.com (git blobs checked with `git hash-object`):
+  - main, to 2026-08: r-matsuzaka/boj-dashboard-data (commit 2a81c449acfe6a55f03dd6f857a212d96f90719c),
+    `data/景気動向指数.csv`, blob 54781038, column `CI_一致指数` (its CI columns are empty before 1985-01; those
+    60 rows were left out);
+  - to 2024-07: mitsuhir0/ogu-python-pandas (43260889f98d5b57cb6c06c9b97295655dcfe4ec), `pages/csv/keiki_ci.csv`,
+    blob ee86c6bd, column `一致指数`.
+- **Checks:** both are contiguous monthly runs from 1985-01 with no missing value. The older copy's monthly growth
+  differs from the main copy's by a median 0.105 percentage points (largest 2.20), and 8 of its 475 values are
+  identical to the main copy's: different releases (the CI is re-estimated as components and seasonal factors are
+  revised), not one file copied. Dates were cut to `YYYY-MM` and the header renamed (`month,ci_coincident`);
+  values are unchanged.
+- **Reference dates (景気基準日付):** ESRI's monthly peaks and troughs, typed into `eval/turns-jp-ci.mjs` from two
+  independent public transcriptions that agree on every date from 1985 on: Py4Macro/py4macro
+  (63fe7589d775b90c437aa11276bff70b0c92ea7f) `py4macro/data/cycle_dates.csv.bz2`, blob 67a48106 (cycles 1-15 as
+  trough, peak, trough, from https://www.esri.cao.go.jp/jp/stat/di/hiduke.html), and mitsuoxv/jp-suicide
+  (42b7946445182b4f8ea484dda51a76ca1ac43b03) `README.Rmd`, blob 26acc61d (recession start and end months). Neither
+  lists a turn after the 2020-05 trough.
+- **Licence:** official statistics published by the Cabinet Office of Japan (its terms of use follow the
+  government standard terms, compatible with CC BY 4.0: cite the source); only the numbers and dates were taken.
+  The source repositories' code was not used.
+- **Used by:** `eval/turns-jp-ci.mjs`, `turns-jp-ci.test.mjs`.

@@ -42,7 +42,15 @@ const STEPS = 90; // directions tried for the thinnest one (2 degrees apart)
 export function planRect(body, W, f = 1) {
   const pts = [];
   let z0 = Infinity, z1 = -Infinity;
+  // Faces share their corner points (the same arrays), and a point seen
+  // again cannot move an extent: each is read once. Viadotto Acerno's 805
+  // walls, members and railings yield 9.2 million corners, 2.0 million of
+  // them distinct, and the 113 directions below each scan every one
+  // (docs/history/ifc-takeoff-perf-2026-11-24.md)
+  const seen = new Set();
   for (const p of solidPoints(body)) {
+    if (seen.has(p)) continue;
+    seen.add(p);
     const q = apply(W, p);
     pts.push(q[0] * f, q[1] * f);
     if (q[2] * f < z0) z0 = q[2] * f;

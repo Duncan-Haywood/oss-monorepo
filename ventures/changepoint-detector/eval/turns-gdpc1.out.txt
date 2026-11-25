@@ -1,0 +1,18 @@
+BBQ (classical, log level, module defaults) on FRED GDPC1 vs NBER peaks and troughs
+
+FRED GDPC1: n 317 (1947Q1-2026Q1), NBER turns 24, BBQ turns 23, matched 19/24, false 2
+  F1 bbq 0.898 (random 0.311, excess +0.587, p 0.000)  shipped drift model 4 cuts F1 0.200
+  NBER  1948Q4p 1949Q4t 1953Q3p 1954Q2t 1957Q3p 1958Q2t 1960Q2p 1961Q1t 1969Q4p 1970Q4t 1973Q4p 1975Q1t 1980Q1p 1980Q3t 1981Q3p 1982Q4t 1990Q3p 1991Q1t 2001Q1p 2001Q4t 2007Q4p 2009Q2t 2019Q4p 2020Q2t
+  BBQ   1947Q3t 1948Q4p 1949Q2t 1953Q2p 1954Q1t 1957Q3p 1958Q1t 1960Q1p 1960Q4t 1969Q3p 1970Q4t 1973Q4p 1975Q1t 1980Q1p 1980Q3t 1981Q3p 1982Q1t 1990Q3p 1991Q1t 2008Q2p 2009Q2t 2019Q4p 2020Q2t
+  missed: 1949Q4t 1982Q4t 2001Q1p 2001Q4t 2007Q4p
+  growth mode (no bar): 60 turns
+
+Vintage check (no bar), 2000 onward:
+  FRED GDPC1 from 2000Q1: matched 3/6, false 0; BBQ 2008Q2p 2009Q2t 2019Q4p 2020Q2t
+  earlier vintage (to 2024Q4): matched 3/6, false 0; BBQ 2008Q2p 2009Q2t 2019Q4p 2020Q2t
+  later vintage (to 2026Q2): matched 3/6, false 0; BBQ 2008Q2p 2009Q2t 2019Q4p 2020Q2t
+
+D1g FAILS: matched share 0.792 (bar 0.80), false turns 2 (bar <= 2)
+D2g PASSES: excess over random +0.587 (bar +0.15), p 0.000 (bar 0.05)
+
+Ships: nothing.

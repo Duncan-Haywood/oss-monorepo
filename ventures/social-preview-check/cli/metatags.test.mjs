@@ -92,3 +92,7 @@ test('isAbsoluteHttpUrl accepts http/https and rejects everything else', () => {
   assert.equal(isAbsoluteHttpUrl(''), false);
   assert.equal(isAbsoluteHttpUrl(null), false);
 });
+
+test('a character reference past U+10FFFF becomes U+FFFD instead of throwing', () => {
+  assert.equal(parseMetaTags('<meta property="og:title" content="A &#99999999; &#x41;">').og.title, 'A \uFFFD A');
+});

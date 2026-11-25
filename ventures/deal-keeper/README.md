@@ -144,7 +144,7 @@ Fly.io: the steps are at the top of `fly.toml`.
 
 ## Disclaimer
 
-Free and MIT, provided as-is with no warranty and no uptime guarantee. Win
+Free and FSL-1.1-MIT, provided as-is with no warranty and no uptime guarantee. Win
 chances and forecasts are statistical estimates and can be wrong; they are not a
 promise of revenue. You run it, so you are responsible for how you contact
 buyers, for backups and for your customers' privacy. Not legal, tax or

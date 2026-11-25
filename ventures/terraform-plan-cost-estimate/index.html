@@ -6,7 +6,7 @@
   <title>Terraform Plan Cost Estimate — Free Infracost Alternative, Offline</title>
   <meta name="description" content="Paste a Terraform plan (terraform show -json) and get an approximate monthly AWS cost delta before you apply: top cost drivers, an honest list of what it could not price, and a budget threshold for CI. Free, no signup, runs entirely in your browser. An offline alternative to Infracost for the common AWS resources.">
   <meta property="og:title" content="What will this terraform apply add to the monthly AWS bill?">
-  <meta property="og:description" content="Paste the JSON from terraform show -json and see the approximate monthly cost change per resource, the biggest drivers, and what could not be priced. Free, no signup, nothing uploaded, with a CLI that fails CI over a budget.">
+  <meta property="og:description" content="Paste terraform show -json output and see the approximate monthly cost change per resource and the biggest drivers. Nothing uploaded.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">
   {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Terraform Plan Cost Estimate", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node.js 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste a Terraform structured plan (terraform show -json) and get an approximate monthly AWS cost delta for create, update and delete, top cost drivers, an honest list of unpriced resources, and a budget threshold usable as a CI gate. Runs entirely in the browser or as a zero-dependency Node CLI; uses a bundled approximate us-east-1 price table, not live pricing."}
@@ -165,7 +165,7 @@ node cli.mjs estimate plan.json --region eu-west-1 --json</pre>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get <a href="cli.mjs" rel="noopener">cli.mjs</a> and run it yourself.</p>
     <p>Everything runs in your browser. The plan you load is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>estimate_run</code>, <code>example_loaded</code>, <code>file_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
-    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free to use and source available. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">

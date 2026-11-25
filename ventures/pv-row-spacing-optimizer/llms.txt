@@ -1,0 +1,18 @@
+# PV Row Spacing Optimizer: how far apart should the solar rows be?
+
+> Free ground-mount solar layout screening tool. Simulates a year of sun (a PVGIS TMY, NSRDB, TMY3 or plain GHI/DNI/DHI CSV, or a clear sky) on every fixed tilt and ground coverage ratio and every single-axis tracker spacing, with row-to-row shading, the sky the rows hide, bypass-diode bands and backtracking, then ranks each layout by net present value or cost per MWh from the land, installed cost, O&M and energy value typed in. Land-limited or capacity-limited sites. Runs in the browser; nothing is uploaded.
+
+Free to use and source available (FSL-1.1-MIT). A screening model, not engineering, financial or code-compliance advice. Physics checked against pvlib-python 0.16.1 (sun position within 0.013 deg, shaded fraction and tracker angles identical, a year of row irradiance within 0.04% of infinite_sheds). Not modelled: sloped ground, horizon, row ends, bifacial gain, snow, clipping, spacing-dependent cable and racking cost.
+
+## Pages
+
+- [The tool](https://marisstella.app/pv-row-spacing-optimizer/)
+- [Solar row spacing: the 9-to-3 rule against the money answer](https://marisstella.app/pv-row-spacing-optimizer/solar-row-spacing-gcr.html): on two real typical-year files the rule added $0.26/MWh at 36 N and $7.21/MWh at 55 N.
+
+## For agents
+
+- Engine: `calc.mjs`, `analyze(input)`; `DEFAULTS` is the page's example (an invented 40-acre site near Albuquerque, clear sky). Pass a weather file's text as `weatherText`. Callable through `node platform/agents/tools.mjs call pv-row-spacing-optimizer analyze --input '{"lat":40,"lon":-105,"mode":"capacity","mwdc":20}'` or the repository's MCP server (`call_tool`).
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pv-row-spacing-optimizer): FSL-1.1-MIT licensed.

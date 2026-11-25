@@ -6,7 +6,7 @@
   <title>Slopsquatting Check — Did an AI Assistant Just Suggest a Package That Doesn't Exist?</title>
   <meta name="description" content="Paste your package.json and this offline check flags any dependency name that looks like a one- or two-letter typo of a famous npm package -- the same shape as a hallucinated name an AI coding assistant invents.">
   <meta property="og:title" content="Did an AI assistant just suggest a package that doesn't exist?">
-  <meta property="og:description" content="LLM code generators regularly suggest npm package names that were never published. Attackers pre-register those exact names -- slopsquatting -- so the next developer who copies the AI's suggestion installs their package instead. Free offline browser check plus a CLI that verifies against the live registry.">
+  <meta property="og:description" content="Check AI-suggested npm package names that were never published and could be registered by an attacker, offline in your browser or live with the CLI.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"SoftwareApplication","name":"Slopsquatting Check","applicationCategory":"DeveloperApplication","operatingSystem":"Any modern browser; CLI needs Node.js 18+, no dependencies","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Flags npm dependency names that look like a hallucinated or typosquatted variant of a well-known package. The browser page runs a fully offline heuristic with no network call of any kind; the companion CLI makes one read-only request per dependency to the public npm registry to check whether the name exists at all and, if so, whether it was published suspiciously recently."}
@@ -117,7 +117,7 @@ node cli.mjs --strict            # also fail CI on a suspiciously new (but real)
     <p>This page runs entirely in your browser. The text you paste is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Also worth a pass over your dependency tree: <a href="../dependency-confusion-check/">Dependency Confusion Check</a> flags <code>--extra-index-url</code> and unscoped-private-registry configuration mistakes behind the 2021 dependency-confusion attacks. And <a href="../npm-lifecycle-script-check/">npm Lifecycle Script Check</a> diffs two lockfile snapshots to name exactly which package just started running code at install time -- the mechanism behind Shai-Hulud.</p>
-    <p class="support">Free and open source. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free to use and source available. If this saved you some digging, the <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
   <script type="module">

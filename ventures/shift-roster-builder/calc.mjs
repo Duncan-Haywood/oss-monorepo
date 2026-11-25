@@ -3911,7 +3911,10 @@ function buildRosterOnce(staff, slots, options = {}) {
   mark("eject");
   // Still open: walk the coverage plateau (open hours only), then polish pay. Kept only if it covers more.
   // `coverGuided` says whether the cover passes ran and drew from the clique LP's values (reported as optimality.coverGuided).
-  let coverGuided = null, repairStats = null, repairReserveMs = null;
+  let coverGuided = null, repairStats = null;
+  // The reserve is fixed by the week's size and the budget, so it is reported whether or not the cover passes get to start
+  // (before, a loaded runner that spent the budget before them read null: red-team record 2026-11-25, PR #18785's CI).
+  const repairReserveMs = repairReserveFor(ctx.S, budgetMs, o.coverRepairReserveMs);
   const coverPasses = () => {
     if (o.coverPass !== false && scoreOwner(ctx, best.owner).unfilled > 0 && !over()) {
       coverGuided = o.coverGuide !== false && !!clique?.xs;
@@ -3921,8 +3924,7 @@ function buildRosterOnce(staff, slots, options = {}) {
       // copies, where a pre-registered test on 48 fresh builds found fewer open hours on 22 and more on 10; none below 300.
       // A 4 s reserve was worse (README "A 4 s repair reserve: measured and refused"): the repair stops on its node budget at
       // about 1.2 s, so the extra time only takes plateau walks away.
-      const reserve = repairReserveFor(ctx.S, budgetMs, o.coverRepairReserveMs);
-      repairReserveMs = reserve;
+      const reserve = repairReserveMs;
       const leftMs = () => budgetMs - (Date.now() - tStart);
       for (let k = 0; k < (o.coverPassRuns ?? 12) && !over() && !(reserve > 0 && k > 0 && leftMs() < reserve); k++) {
         // Each walk stops at the budget's end (less the repair reserve after the first walk), not only between walks: README

@@ -138,7 +138,7 @@ test('reportAsText names the format, states the self-assessment disclaimer, and 
   // Every one of the 50 criterion ids must appear, in order, so nothing was
   // silently dropped from the printed document.
   for (const c of WCAG21_AA_CRITERIA) {
-    assert.match(text, new RegExp(c.id.replace(/\./g, '\\.') + ' '));
+    assert.match(text, new RegExp(c.id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ' '));
   }
 });
 

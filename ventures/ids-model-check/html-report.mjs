@@ -133,7 +133,7 @@ export function htmlReport(r, opts = {}) {
   const title = r.title || idsName || "IDS";
   const h = [];
   h.push(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark">`);
-  h.push(`<title>${esc(`IDS check: ${modelName}`)}</title><meta name="generator" content="IDS Model Check (MIT), ${esc(toolUrl)}"><style>${CSS}</style></head><body><main>`);
+  h.push(`<title>${esc(`IDS check: ${modelName}`)}</title><meta name="generator" content="IDS Model Check (FSL-1.1-MIT), ${esc(toolUrl)}"><style>${CSS}</style></head><body><main>`);
   h.push(`<h1>IDS check: ${esc(modelName)}</h1><p class="muted">${esc(title)}</p>`);
   h.push(`<p class="verdict">${statusTag(r.pass ? "pass" : "fail")}${passed} of ${r.specs.length} specification${r.specs.length === 1 ? "" : "s"} pass${stats.total ? `; ${n(stats.total)} failing element result${stats.total === 1 ? "" : "s"}` : ""}${invalid ? `; ${invalid} invalid` : ""}</p>`);
   h.push(`<div class="meta"><span class="muted">Model</span><span>${esc(modelName)}: ${esc(r.schema)}, ${n(r.entityCount)} entities</span>`);
@@ -191,14 +191,14 @@ export function htmlReport(r, opts = {}) {
     if (s.failed.length) {
       const rows = s.failed.slice(0, maxRows);
       h.push(`<div class="tablewrap"><table><thead><tr><th>Element</th><th>Name</th><th>GlobalId</th><th>Why</th></tr></thead><tbody>`);
-      for (const f of rows) h.push(`<tr data-el="${elKey(f)}"><td>#${f.id} ${esc(f.type)}</td><td>${esc(f.name)}</td><td><code>${esc(f.globalId)}</code></td><td>${f.reasons.map(esc).join("<br>")}</td></tr>`);
+      for (const f of rows) h.push(`<tr data-el="${elKey(f)}"><td>#${f.id} ${esc(f.type)}</td><td>${esc(f.name)}</td><td><code>${esc(f.globalId)}</code></td><td>${f.reasons.map(esc).join("<br>")}${(f.modelRules || []).map((m) => `<br><em>${esc(m)}</em>`).join("")}</td></tr>`);
       h.push(`</tbody></table></div>`);
       if (fc > rows.length) h.push(`<p class="muted">Showing ${n(rows.length)} of ${n(fc)} failing elements.${s.failed.length > rows.length ? " The CSV and JSON downloads list all the check kept." : ""}</p>`);
     }
     h.push(`</div></details>`);
   });
 
-  h.push(`<footer>Made with IDS Model Check, free and MIT licensed: <a href="${esc(toolUrl)}">${esc(toolUrl)}</a>. Open the same model and IDS there to repeat this check in a browser; nothing is uploaded. The check follows buildingSMART's IDS 1.0 and scores 334 of 334 of its test pairs, but IFC exports differ between authoring tools: confirm a surprising result in your BIM tool before acting on it. Not professional, legal or contractual advice; the contract documents and the person who issued the IDS decide what a delivery must contain.</footer>`);
+  h.push(`<footer>Made with IDS Model Check, free and FSL-1.1-MIT licensed: <a href="${esc(toolUrl)}">${esc(toolUrl)}</a>. Open the same model and IDS there to repeat this check in a browser; nothing is uploaded. The check follows buildingSMART's IDS 1.0 and scores 334 of 334 of its test pairs, but IFC exports differ between authoring tools: confirm a surprising result in your BIM tool before acting on it. Not professional, legal or contractual advice; the contract documents and the person who issued the IDS decide what a delivery must contain.</footer>`);
   h.push(`</main><script>${SCRIPT}</script></body></html>\n`);
   return h.join("");
 }

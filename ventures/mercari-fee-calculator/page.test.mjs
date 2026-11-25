@@ -72,7 +72,7 @@ test('every .html file in the venture is reachable from the sitemap', () => {
       assert.match(sitemap, /mercari-fee-calculator\/<\/loc>/);
       continue;
     }
-    assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
+    assert.ok(sitemap.includes(name), `${name} is missing from sitemap.xml`);
   }
 });
 
