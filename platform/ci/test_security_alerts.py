@@ -59,6 +59,33 @@ class RenderTest(unittest.TestCase):
         self.assertIn("security-fix/code-scanning-4", text)
         self.assertIn("`a.py:7`", text)
 
+    def test_scan_commit_is_named_with_a_still_there_check(self):
+        a = alert(4, "high")
+        a["most_recent_instance"]["commit_sha"] = "e98ec5cbb0123456789abcdef0123456789abcde"
+        files = render([a, alert(5, "low")])
+        text = files["alerts/4.md"]
+        self.assertIn("- Scanned at commit: `e98ec5cbb012`", text)
+        self.assertIn("git fetch -q --depth=1 origin e98ec5cbb0123456789abcdef0123456789abcde && "
+                      "git diff --stat e98ec5cbb0123456789abcdef0123456789abcde origin/main -- a.py", text)
+        self.assertLess(text.index("0. Check it is still on main"), text.index("1. Claim it"))
+        self.assertIn("Scanned at: `e98ec5cbb012`.", files["QUEUE.md"])
+        # An alert without a commit gets no step 0 and no scan line.
+        self.assertNotIn("Scanned at", files["alerts/5.md"])
+        self.assertNotIn("0. Check", files["alerts/5.md"])
+
+    def test_queue_lists_at_most_five_scan_commits(self):
+        alerts = []
+        for n in range(1, 8):
+            a = alert(n, "high")
+            a["most_recent_instance"]["commit_sha"] = f"{n:040x}"
+            alerts.append(a)
+        line = next(ln for ln in render(alerts)["QUEUE.md"].splitlines() if ln.startswith("Scanned at:"))
+        self.assertEqual(line.count("`") // 2, 5)
+        self.assertIn("and 2 more", line)
+
+    def test_no_commits_no_scan_line(self):
+        self.assertNotIn("Scanned at", render([alert(1, "high")])["QUEUE.md"])
+
     def test_summary_flattens_and_normalises(self):
         s = summarise(alert(4, "HIGH"))
         self.assertEqual(s["severity"], "high")
