@@ -443,3 +443,23 @@ and each page says so. Here is what they commit to, in plain terms:
 
 The documents are public, so a shop owner can read them before creating an
 account.
+
+## Update, 25 November 2026: a heads-up before the month's RFQs run out
+
+Each plan of the RFQ-to-quote app (bet #2, still in private development, not
+yet on sale) includes a number of RFQs a month for the AI to read. Until now a
+shop found out it had used them only when the next read was refused. Now the
+shop's owners and admins get an email when the month's count reaches 80% of
+the plan's allowance (32 of the free plan's 40), and one more when it reaches
+100%:
+
+- **Once each, per month.** However many estimators read RFQs at the same
+  moment, each email goes out once.
+- **Only the people who can change the plan.** Owners and admins, not every
+  estimator.
+- **What still works.** Past the allowance, every RFQ, quote and PDF stays,
+  and parts can still be entered by hand, priced and sent; only the AI's read
+  of a new RFQ waits until the first of next month.
+- **No sales pitch while there is nothing to buy.** The email names the next
+  plan's allowance and price only once paid plans are on sale; until then it
+  says they are not on sale yet.
