@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtHW8SHbo14eAevboz4",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T20:07:03Z",
+  "ended": "2026-11-25T20:19:46Z",
+  "wall_minutes": 12.92,
+  "tokens_in": 11327840,
+  "tokens_out": 47890,
+  "cost_usd": 4.5455,
+  "tool_calls": 83,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19083",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "pnpm dev on a non-default port (5199) fails sign-up with 'Invalid origin' because APP_URL is http://localhost:5173; reran on 5173"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "private-monorepo/apps/cmmc/README.md",
+      "issue": "The offline dev recipe doesn't say Better Auth requires port 5173 (APP_URL); a different --port gives 403 'Invalid origin' on sign-up"
+    },
+    {
+      "file": "platform/ci/slug_dupe.py",
+      "issue": "Timed out (>60 s) refreshing origin/main in the shallow clone; I relied on roadmap_claim.py claims instead"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Bet #1 payapps had only gated items free ('once a customer asks', 'once usage is measured') or OCR needing a new dependency, and was crowded by parallel runs",
+      "did": "took bet #4 (CMMC) Next items: controls-page and annual-affirmation-record",
+      "result": "both shipped in private PR 161 with tests"
+    },
+    {
+      "file": "private-monorepo/apps/cmmc/ROADMAP.md",
+      "why": "The item asked for 'a reminder a year on', but the app sends no email and the privacy policy says so",
+      "did": "in-app reminders (dashboard card and Affirmations tab); emailed reminders and an .ics file added as a Next item",
+      "result": "no privacy or policy change needed beyond listing the new fields"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-cmmc-level-1-self-assessment-checklist.md (extended: affirmation dates and record)"
+  ],
+  "goal": null,
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/161 merged. cmmc-ci steps run locally: biome ci clean, typecheck clean, unit 196 passed, worker 41 passed, build ok, drizzle drift check clean. Playwright on pnpm dev at 1280 and 390 px: read-only Level 2 controls, upgrade button to Billing, Level 1 affirmation recorded with due dates, no horizontal scroll. Regulation text read on eCFR (versioner API with --compressed) for 170.15, 170.16 and 170.22.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bad425a7-b581-5efa-9f2d-34feb42a6d14",
+    "transcripts": 1,
+    "first": "2026-11-25T20:07:03Z",
+    "last": "2026-11-25T20:19:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 79,
+        "input": 150,
+        "output": 47890,
+        "thinking": 6470,
+        "cache_read": 11158260,
+        "cache_write_5m": 0,
+        "cache_write_1h": 169430,
+        "api_equivalent_usd": 4.5455,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 79,
+      "input": 150,
+      "output": 47890,
+      "thinking": 6470,
+      "cache_read": 11158260,
+      "cache_write_5m": 0,
+      "cache_write_1h": 169430,
+      "api_equivalent_usd": 4.5455,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 83,
+    "tools": {
+      "Bash": 70,
+      "Write": 5,
+      "Read": 3,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.92,
+      "active_minutes": 12.92,
+      "model_minutes": 8.13,
+      "tool_minutes": 4.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "senior full-stack dev: schema+API+UI+tests+regulation reading for two features",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 308.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
