@@ -40,6 +40,12 @@ Every phrase it quotes was checked against the text we fetched.
   statute protects you only if you read the form before you sign it.
 - **Utah and Nevada void a waiver paid by a bounced check.** In Utah, if the check "fails to clear
   ... for any reason", the waiver is void and your lien and bond rights stand.
+- **Michigan asks you to say whether you have been paid in full.** Its partial waivers say the
+  waiver, "together with all previous waivers, if any, (circle one) does does not cover all
+  amounts due" through the date. Circle "does not" when retainage or an unpaid change order is
+  still out. Once you are paid in full you "shall provide" a full unconditional waiver
+  (MCL 570.1115(2)). On a home, the owner "may not rely upon" a waiver they did not get directly
+  from you without first checking with you that it is authentic.
 
 Wyoming's single form is worth reading twice. It says the owner may rely on it even if a payment
 in uncertified funds is later dishonored, and then that it "shall not apply" if the owner's
@@ -52,8 +58,9 @@ Georgia, Massachusetts and Mississippi are often said to have statutory forms, b
 open their official text, so they are not listed rather than listed from memory.
 
 **Where this goes.** The pay-app product we are building for specialty subcontractors already
-prints Arizona's, Nevada's, Texas's and Utah's waivers word for word from the statute, with a test that rebuilds
-each form and compares it with the law. The other states in this guide are next. It is in
+prints the Arizona, Florida, Michigan, Nevada, Texas and Utah waivers word for word from the
+statute, with a test that rebuilds each form and compares it with the law. Michigan's forms
+leave the "does / does not" choice for you to circle by hand. Wyoming is next. It is in
 development with early access, and nothing is for sale yet:
 [construction tools and early access](https://marisstella.app/industries/construction/).
 To check a waiver you were sent for the common traps, the free
