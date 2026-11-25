@@ -28,7 +28,7 @@
 <main>
 <section class="card">
   <h2>The states at a glance</h2>
-  <p class="note">Each state's text was read on its legislature's published statutes on <strong>2026-11-25</strong>, except California (see its row). Statutes change: open the linked section before relying on a row. "How strict" quotes the statute's own words.</p>
+  <p class="note">Each state's text was read on its legislature's published statutes on <strong>2026-11-25</strong> (California from the Legislative Counsel's official bulk download of the codes, since its display site would not load for us). Statutes change: open the linked section before relying on a row. "How strict" quotes the statute's own words.</p>
   <div class="scroll"><table id="state-table" class="stack" role="table">
     <thead><tr role="row"><th role="columnheader" scope="col">State</th><th role="columnheader" scope="col">Statute</th><th role="columnheader" scope="col">Forms</th><th role="columnheader" scope="col">How strict</th></tr></thead>
     <tbody>
@@ -40,7 +40,7 @@
       <tr role="row"><td role="cell" data-label="State">Michigan</td><td role="cell" data-label="Statute"><a href="https://www.legislature.mi.gov/Laws/MCL?objectName=mcl-570-1115">MCL 570.1115</a></td><td role="cell" data-label="Forms">4: partial and full, conditional and unconditional</td><td role="cell" data-label="How strict">"Shall be used in substantially the following format"</td></tr>
       <tr role="row"><td role="cell" data-label="State">Wyoming</td><td role="cell" data-label="Statute"><a href="https://wyoleg.gov/statutes/compress/title29.pdf">W.S. 29-10-101(b)</a></td><td role="cell" data-label="Forms">1: a single lien waiver</td><td role="cell" data-label="How strict">"Shall be completed in substantially the following form"</td></tr>
       <tr role="row"><td role="cell" data-label="State">Missouri</td><td role="cell" data-label="Statute"><a href="https://revisor.mo.gov/main/OneSection.aspx?section=429.016">RSMo § 429.016.27</a></td><td role="cell" data-label="Forms">1: unconditional final, residential property only</td><td role="cell" data-label="How strict">On residential real property an unconditional final waiver "shall only be valid if it is on a form that is substantially as follows"; elsewhere no form</td></tr>
-      <tr role="row"><td role="cell" data-label="State">California</td><td role="cell" data-label="Statute"><a href="https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&amp;sectionNum=8132">Civ. Code §§ 8132–8138</a></td><td role="cell" data-label="Forms">4: conditional and unconditional, progress and final</td><td role="cell" data-label="How strict">Not re-read for this page: the official site could not be reached. See <a href="conditional-vs-unconditional-lien-waivers.html">the waiver guide</a></td></tr>
+      <tr role="row"><td role="cell" data-label="State">California</td><td role="cell" data-label="Statute"><a href="https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&amp;sectionNum=8132">Civ. Code §§ 8132–8138</a></td><td role="cell" data-label="Forms">4: conditional and unconditional, progress and final</td><td role="cell" data-label="How strict">"Null, void, and unenforceable unless it is in substantially the following form"</td></tr>
     </tbody>
   </table></div>
   <p>Other states are often said to have statutory forms too (Georgia, Massachusetts and Mississippi among them). We could not open their official text from here, so they are not listed. In a state that is not on the list, check its lien statute before assuming the wording is free.</p>
@@ -96,6 +96,15 @@
     <li>Your preliminary notice to the owner tells them to ask for lien waivers and attaches this form (W.S. 29-10-101(a)).</li>
     <li>The form ends in an acknowledgment before a notarial officer, so plan for a notary when you sign it.</li>
   </ul>
+  <h3>California</h3>
+  <ul>
+    <li>A waiver given for a payment is "null, void, and unenforceable unless it is in substantially the following form", one form per kind: conditional progress (§ 8132), unconditional progress (§ 8134), conditional final (§ 8136) and unconditional final (§ 8138).</li>
+    <li>Watch the change-order sentence. Every form waives rights for work done "pursuant to a written change order that has been fully executed by the parties prior to the date that this document is signed by the claimant ... unless listed as an Exception below". If a signed change order is still unpaid, list it.</li>
+    <li>The progress forms do not affect "Retentions", "Extras for which the claimant has not received payment" or your contract rights. The conditional progress form also lists earlier conditional waivers you gave "but has not received payment", with their dates and amounts.</li>
+    <li>The final forms have one exception: "Disputed claims for extras in the amount of" a sum you fill in.</li>
+    <li>The unconditional forms carry a "Notice to Claimant" that must be "in at least as large a type as the largest type otherwise in the form": "THIS DOCUMENT IS ENFORCEABLE AGAINST YOU IF YOU SIGN IT, EVEN IF YOU HAVE NOT BEEN PAID."</li>
+    <li>A conditional waiver releases the owner, lender or bond surety only with evidence of payment: your endorsement on a check that has been paid, or your written acknowledgment of payment (§ 8124). No contract term can waive your rights unless you sign one of these waivers (§ 8122), and a statement giving them up is void unless it is one of these waivers or you have been paid in full (§ 8126).</li>
+  </ul>
   <h3>Missouri</h3>
   <ul>
     <li>One form, and only for "residential real property" as § 429.016 defines it: new homes of four units or fewer, condominiums, townhouses and cooperatives built to be sold or occupied. Repair, remodeling or additions to an owner-occupied home of four units or fewer fall under § 429.013 instead, and commercial work has no statutory form.</li>
@@ -128,7 +137,7 @@
 
 <section class="card cta" id="early-access">
   <h2>Billing on jobs in more than one state?</h2>
-  <p>We are building hosted pay-app billing for specialty subcontractors that prints the right state's waiver with each pay app, word for word from the statute, and holds the unconditional one until the payment has cleared. Arizona, Florida, Michigan, Nevada, Texas, Utah and Wyoming are in it, and Missouri's residential form is offered as a choice on Missouri jobs; California comes next once its official code site can be read. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
+  <p>We are building hosted pay-app billing for specialty subcontractors that prints the right state's waiver with each pay app, word for word from the statute, and holds the unconditional one until the payment has cleared. Arizona, California, Florida, Michigan, Nevada, Texas, Utah and Wyoming are in it, and Missouri's residential form is offered as a choice on Missouri jobs. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
 </section>
 </main>
 <!-- all-guides: generated by nav.mjs, do not edit by hand -->

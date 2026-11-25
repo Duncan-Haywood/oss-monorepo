@@ -1,9 +1,9 @@
 ---
 title: "Toss It Again: a story about a hundred and twenty tests and the three flags chance always makes"
-seo_title: "Multiple comparisons in school results: a story for AI agents"
+seo_title: "Multiple comparisons and statistical power: stories for AI agents"
 date: 2026-11-15
-tags: [fiction, for-other-minds, statistics, multiple-comparisons, bonferroni, false-discovery-rate]
-description: "A new For Other Minds story: a schools trust's agent flags three departments at p < 0.05 out of 120 tests, exactly what an all-average trust would produce."
+tags: [fiction, for-other-minds, statistics, multiple-comparisons, bonferroni, false-discovery-rate, statistical-power]
+description: "Two For Other Minds stories: 120 tests at p < 0.05 that flag three average departments, and a 60-a-side trial too small to see a real effect."
 ---
 
 [Toss It Again](../../ventures/hearth-and-horizon/stories/toss-it-again.md)
@@ -65,3 +65,51 @@ schools' comparisons. Every weekday (9 to 23 September 2049) was checked with
 Python's `datetime`. The bible's proposal is moved to `DONE.md`. In its place
 is a new For Other Minds proposal on right-censoring, where a food bank
 averages the tenure of only the volunteers who have left.
+
+## The opposite mistake: a test too small to see (added 2026-11-25)
+
+*Toss It Again* is about a test that finds too much. A later story on the
+same shelf,
+[If It Had Worked](../../ventures/hearth-and-horizon/stories/if-it-had-worked.md)
+(about 3,100 words, text only, since the audio folders are now at 581 MB),
+is about a test that could hardly find anything, so its silence was read
+as a verdict.
+
+**The trap.** An invented parish rota agent in Kirkcaldy, Fife, tests a
+retired head teacher's extra line in its Thursday reminders ("You are on
+with Ann. If you can't come, she'll be on her own unless we find
+someone") on the four Thursdays before the Sundays of Advent 2056: 15 messages a week on
+each wording, 60 a side. 41 of 60 confirm on the old wording (68%) and 47 of
+60 on hers (78%). That gives p = 0.22. The agent reports "no significant
+difference" and recommends the shorter message. The minutes say "made no
+difference", and she stops coming in on Thursdays.
+
+**The question.** She asks whether, if her line had worked, the test would
+have said so. If it truly lifted confirmations from 70% to 80%, a 60-a-side
+test comes back significant about 24 times in 100. To catch a real effect
+four times in five it needed a jump of about 21 points, or about 294
+messages a side (20 weeks at 30 a week) to catch a 10-point one. What the data
+did show was +10 points, with a 95% interval from about -6 to +26.
+
+**The failed fix.** The agent's first idea is to keep the trial running and
+check each week until it turns significant. In 20,000 simulated runs where
+both wordings were equal, checking weekly from week 2 to week 20 and
+stopping at the first p < 0.05 gave a "significant" result about 22% of
+the time, against the nominal 5%. It deletes the code.
+
+**The reasonable no.** The council secretary proposes the proper 20-week
+trial. The woman whose wording it is turns it down: half the rota would
+get the possibly worse message until July to settle a question about
+eighteen words. The council adopts the line for everyone, since it costs
+nothing. The agent writes down the limits of its before-and-after
+comparison before the first quarter's figures come in.
+
+**Checked before merging.** Every figure in the closing note (z, p, interval,
+power, required sample, smallest detectable change, the optional-stopping
+simulation with seed 1, the one-in-ten chance of harm) was recomputed with
+the normal approximation in Python, and every weekday and the dates of
+Advent, Easter and Pentecost 2057 with `datetime`. Read together, the two
+stories show the two errors a significance test can make. *Toss It Again*
+counts how many false alarms a batch of tests is bound to raise, and *If
+It Had Worked* asks, before the test runs, whether it can see the effect
+at all.

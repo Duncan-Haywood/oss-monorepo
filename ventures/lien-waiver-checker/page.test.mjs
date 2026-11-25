@@ -38,3 +38,13 @@ test("robots and sitemap let crawlers find the page", () => {
   assert.match(page("robots.txt"), /Allow: \//);
   assert.match(page("sitemap.xml"), /index\.html/);
 });
+
+test("page links the pay-app waiver guides it pairs with, and each one exists", () => {
+  // polish 2026-11-25: the checker linked no pay-app guide, though its readers' next step is one.
+  const html = page("index.html");
+  for (const guide of ["conditional-vs-unconditional-lien-waivers", "lien-waiver-forms-by-state", "lien-waiver-log", "joint-checks", "paid-short"]) {
+    assert.match(html, new RegExp(`href="\\.\\./pay-app-guides/${guide}\\.html"`));
+    readFileSync(new URL(`../pay-app-guides/${guide}.html`, import.meta.url));
+  }
+  assert.match(html, /nothing is for sale yet/);
+});

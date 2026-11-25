@@ -56,6 +56,28 @@ that a separate product is being built for their visitors, while the tool
 itself stays free. That makes the page reachable from the rest of the site
 without a new menu item.
 
+## Update, 25 November: every free page answers its question first
+
+The free machine-shop pages
+([machine-shop-guides](https://marisstella.app/machine-shop-guides/))
+are the front door to both products above, and none of their 15 pages had a
+"Common questions" section. A shop owner who types "what is the minimum SPRS
+score for CMMC" or "when is a first article inspection required" was landing
+on a calculator that answered it somewhere halfway down, if at all.
+
+Each page now ends with three plain answers to the questions it is actually
+about (four on the index), with matching `FAQPage` structured data so search
+and AI answers can quote them. Every answer restates what the page already
+says and sources: the 88-of-110 Conditional floor and the six requirements
+that can never sit on a POA&M (32 CFR 170.21), the 72-hour DIBNet clock and
+the 90 days of images that start at the report, not at discovery (DFARS
+252.204-7012), why a 5-off costs more per part than a 100-off, and why the
+quote-vs-actual factor is a median. Nothing new was claimed to fill a slot.
+
+The questions live in one file, `faq.mjs`, which writes both the visible
+section and the JSON-LD; the venture's tests fail if a page has no FAQ or
+the two copies differ.
+
 ## Update, 25 November 2026: read the RFQ before you quote
 
 Many quoting losses are not arithmetic. They are a line
@@ -119,6 +141,13 @@ now handles this the way paper quoting systems always did:
 - **Expiry is automatic.** Each morning, sent quotes past their valid-until
   day are marked expired. A quote valid until the 25th is still good all of
   the 25th. An expired quote can still be revised when the buyer comes back.
+- **A heads-up the day before** (added later on 25 November). Each morning,
+  every estimator gets one email listing their own sent quotes that expire
+  today or tomorrow: the customer and contact, the total and a link to each.
+  That leaves a day to call the buyer or send a revision with a new date,
+  instead of finding out after the quote has lapsed. The email goes only to
+  the person who wrote the quote, never twice for the same quote, and each
+  estimator can turn it off under the quote log.
 
 This matters for more than tidiness. A quote is an offer, and a shop that
 cannot show which revision a PO accepted is in a weak position if there is a
@@ -365,6 +394,23 @@ The address only starts working once the app is deployed and the receiving
 domain is routed to it. Until then the RFQs page doesn't show the option at
 all.
 
+**Later the same day: an email when one arrives.** An RFQ sitting unseen in
+the inbox is a quote that goes out late. Each person in the shop can now tick
+"Email me when an RFQ arrives" on the RFQs page, for themselves only. When a
+new RFQ comes in, each of them gets a short notice: the subject, who the email
+says it is from, how many drawings were stored, and a link straight to it.
+
+- **A notice, not a copy.** The notice never carries the email's text or its
+  attachments, so the shop's address can't be used to pass a stranger's
+  message on under the app's name. The subject and sender came from outside,
+  so web addresses in them are broken up (`example[.]com`) and can't be
+  clicked. The only link in the notice goes to the RFQ in the app.
+- **Only the people who asked.** It is off until each person turns it on,
+  someone who has left the shop is never emailed, and a message the mail
+  system delivers twice sends one notice, not two.
+- **It never costs you the RFQ.** If the notice can't be sent, the RFQ is
+  still in the inbox.
+
 ## Update, 25 November 2026: change a routing without starting over
 
 Routing templates were save-and-apply only: to change a cycle time or add a
@@ -444,24 +490,22 @@ and each page says so. Here is what they commit to, in plain terms:
 The documents are public, so a shop owner can read them before creating an
 account.
 
-## Update, 25 November: every free page answers its question first
+## Update, 25 November 2026: a heads-up before the month's RFQs run out
 
-The free machine-shop pages
-([machine-shop-guides](https://marisstella.app/machine-shop-guides/))
-are the front door to both products above, and none of their 15 pages had a
-"Common questions" section. A shop owner who types "what is the minimum SPRS
-score for CMMC" or "when is a first article inspection required" was landing
-on a calculator that answered it somewhere halfway down, if at all.
+Each plan of the RFQ-to-quote app (bet #2, still in private development, not
+yet on sale) includes a number of RFQs a month for the AI to read. Until now a
+shop found out it had used them only when the next read was refused. Now the
+shop's owners and admins get an email when the month's count reaches 80% of
+the plan's allowance (32 of the free plan's 40), and one more when it reaches
+100%:
 
-Each page now ends with three plain answers to the questions it is actually
-about (four on the index), with matching `FAQPage` structured data so search
-and AI answers can quote them. Every answer restates what the page already
-says and sources: the 88-of-110 Conditional floor and the six requirements
-that can never sit on a POA&M (32 CFR 170.21), the 72-hour DIBNet clock and
-the 90 days of images that start at the report, not at discovery (DFARS
-252.204-7012), why a 5-off costs more per part than a 100-off, and why the
-quote-vs-actual factor is a median. Nothing new was claimed to fill a slot.
-
-The questions live in one file, `faq.mjs`, which writes both the visible
-section and the JSON-LD; the venture's tests fail if a page has no FAQ or
-the two copies differ.
+- **Once each, per month.** However many estimators read RFQs at the same
+  moment, each email goes out once.
+- **Only the people who can change the plan.** Owners and admins, not every
+  estimator.
+- **What still works.** Past the allowance, every RFQ, quote and PDF stays,
+  and parts can still be entered by hand, priced and sent; only the AI's read
+  of a new RFQ waits until the first of next month.
+- **No sales pitch while there is nothing to buy.** The email names the next
+  plan's allowance and price only once paid plans are on sale; until then it
+  says they are not on sale yet.
