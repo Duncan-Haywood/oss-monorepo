@@ -179,7 +179,8 @@
    "what": "Sales-material arithmetic is wrong: '+0.3 pp conversion ~1.5 extra sales/week at 50 entries' is 1.05 (50 x 7 x 0.003); 'one incremental sale per month pays back Core (EUR 149-249/mo)' fails at the page's own low AOV EUR 180 x 55% margin = EUR 99, and the EUR 199 break-even of '0.6 sales/month' is on revenue, not the gross profit the page's own formula uses",
    "where": "ventures/retail-pilot-intel/apps/docs/src/pages/BusinessPlanPage.tsx:768",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19103"
   },
   {
    "severity": "medium",
@@ -193,14 +194,16 @@
    "what": "A rejected line (negative discount or refund line) is skipped but the rest of its basket is still emitted at gross: R-4 with a -3000 discount line is stored at 30000 instead of 27000; refunds cannot be imported at all, so revenue is gross, not net sales",
    "where": "ventures/retail-pilot-intel/packages/pos/src/importer.ts:105",
    "category": "scope-gap",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19103"
   },
   {
    "severity": "medium",
    "what": "`pnpm bootstrap`, described in README and on the page as loading sample events and building a report, prints a report of all zeros because the sample events it writes are flagged synthetic and excluded",
    "where": "ventures/retail-pilot-intel/scripts/bootstrap.ts:20",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19103"
   },
   {
    "severity": "medium",
@@ -231,6 +234,6 @@
    "origin": "implementation"
   }
  ],
- "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17724", "https://github.com/Duncan-Haywood/oss-monorepo/pull/18894"],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17724", "https://github.com/Duncan-Haywood/oss-monorepo/pull/18894", "https://github.com/Duncan-Haywood/oss-monorepo/pull/19103"],
  "verdict": "A tidy, well-commented TypeScript prototype whose working core is a POS CSV importer, a SQLite store and a daily door-plus-till report: on the shipped fixture my independent recompute matches (3 baskets, 103800 cents, conversion 0.0638, 2209 per entrant) and the CSV parser equals Python's csv module. It misses the bar on correctness, claims and verification: days are UTC and stores are never separated, so a second store or a 00:30 Rome sale lands in the wrong store-day (4 purchases instead of 3); the README's live page is a 404 because the slug is excluded from the Pages build; the portal claims Europe/Rome hourly buckets that do not exist; bootstrap's report is all zeros; the sales maths overstates extra sales (1.5 vs 1.05 a week) and payback; and 6 of 11 seeded revenue bugs pass the tests. The camera ingest, SKU gap and experiments are demo data only. Not finished; a retail analytics consultant could use the portal as a sales demo but would not hand a pilot owner its numbers."
 }

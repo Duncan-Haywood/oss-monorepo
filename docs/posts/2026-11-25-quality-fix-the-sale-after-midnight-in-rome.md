@@ -3,7 +3,7 @@ title: "Quality fix: a sale at 00:30 in Rome belongs to Rome's day"
 seo_title: "Store conversion rate by local day and per store: door count vs POS"
 date: 2026-11-25
 tags: [quality-audit, retail-pilot-intel, retail, analytics]
-description: "Retail Pilot Intel's daily KPIs now use the store's own calendar day and one store at a time, net discounts into each basket, and its pricing pitch counts gross profit instead of revenue."
+description: "Retail Pilot Intel now reports by the store's local day, one store at a time, nets discounts into baskets, and prices its pitch on gross profit."
 ---
 
 A store's conversion rate is purchases divided by people through the door,
