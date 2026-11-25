@@ -31,7 +31,9 @@
   "review_findings": null,
   "tests_added": 10,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "venture-preflight inherited_keys: ROUND[settings.round] unguarded; fixed in the same PR"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -51,7 +53,7 @@
     "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (new section)"
   ],
   "goal": "$10k MRR: search front door (\"front loading schedule of values\", \"balanced SOV\") into the payapps early-access CTA",
-  "notes": "Security queue empty (1 claimed). IDEAS empty. Routed to ventures/1 by weighted draw. The private-monorepo clone was refused, so this run did bet #1's public side. Verification: node --test '*.test.mjs' in ventures/pay-app-guides gave 165 pass, 0 fail. Playwright at 390px loaded the example with no console errors and scrollWidth 390. risk_review: nothing blocked; innerHTML inputs are escaped or numeric. No agent doc: the README and post carry what the next run needs.",
+  "notes": "Security queue empty (1 claimed). IDEAS empty. Routed to ventures/1 by weighted draw. The private-monorepo clone was refused, so this run did bet #1's public side. Verification: node --test '*.test.mjs' in ventures/pay-app-guides gave 165 pass, 0 fail. Playwright at 390px loaded the example with no console errors and scrollWidth 390. risk_review: nothing blocked; innerHTML inputs are escaped or numeric. No agent doc: the README and post carry what the next run needs. venture-preflight first failed on an inherited-key lookup (ROUND[settings.round]); fixed with Object.hasOwn and the rerun was clean (build + check.mjs, 140 site tests).",
   "corrections": [],
   "redteam": null,
   "usage": {
