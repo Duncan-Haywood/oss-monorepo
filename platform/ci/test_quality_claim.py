@@ -78,19 +78,20 @@ class ClaimRaceTest(unittest.TestCase):
 
 class QueueMarksClaimsTest(unittest.TestCase):
     def test_claimed_row_goes_last_and_is_marked(self):
+        # ventures/, not research/: the queue drops paused research subjects (quality_metrics.PAUSED_PREFIXES).
         def audit(subject, f):
             return {"subject": subject, "date": "2026-11-20", "_file": f,
                     "defects": [{"severity": "high", "what": f"bug in {subject}", "where": "x"}]}
-        audits = [audit("research/aaa", "2026-11-20-aaa.json"), audit("research/bbb", "2026-11-20-bbb.json")]
+        audits = [audit("ventures/aaa", "2026-11-20-aaa.json"), audit("ventures/bbb", "2026-11-20-bbb.json")]
         args = argparse.Namespace(cmd="queue", severity="high", seed=None, limit=10, no_git=True,
                                   no_prs=False, no_fetch=True)
         buf = io.StringIO()
         with mock.patch.object(m, "open_pr_titles", lambda: []), \
-                mock.patch.object(qc, "live_claims", lambda: {"research-aaa": (int(time.time()) - 120, "claim x")}), \
+                mock.patch.object(qc, "live_claims", lambda: {"ventures-aaa": (int(time.time()) - 120, "claim x")}), \
                 contextlib.redirect_stdout(buf):
             m.main_metrics(args, audits, {}, None, None)
         out = buf.getvalue()
-        self.assertLess(out.index("research/bbb"), out.index("[high] research/aaa"))
+        self.assertLess(out.index("ventures/bbb"), out.index("[high] ventures/aaa"))
         self.assertIn("claimed 2 min ago by another session", out)
         self.assertIn("quality_audit.py claim <subject>", out)
 

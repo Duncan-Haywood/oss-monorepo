@@ -242,6 +242,18 @@ const exists = (target) => fs.access(target).then(() => true, () => false);
  * still takes `path.resolve`, as does one that climbs above the root. That work was ~3 s of a ~19 s run
  * (docs/history/ci-perf-2026-11-19-check-link-resolution.md).
  */
+/**
+ * A link that names the site's own origin (`https://marisstella.app/x/`),
+ * rewritten relative to the linking file's directory (`dir`, site-relative,
+ * '.' for the root) so it resolves like any other site link. Null when the
+ * link is to another origin, or when the base is unknown.
+ */
+export function siteRelativeLink(target, base, dir) {
+  if (!base || !target.startsWith(base)) return null;
+  const depth = dir === '.' || dir === '' ? 0 : dir.split(/[\\/]/).length;
+  return `${'../'.repeat(depth)}${target.slice(base.length)}` || './';
+}
+
 export function resolveUnder(root, dir, link) {
   const slow = () => {
     const resolved = path.resolve(root, dir, link);
@@ -1443,6 +1455,9 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
     else if (!path.extname(resolved)) {
       // A extension-less link is served as a directory if one is there.
       if (await present(path.join(resolved, 'index.html'))) resolved = path.join(resolved, 'index.html');
+      // The host serves `x.html` at `x` (Cloudflare's pretty URLs), which is
+      // how the einvoice-preflight rule pages link each other.
+      else if (isHtml && await present(`${resolved}.html`)) resolved += '.html';
       else if (!isHtml) {
         // A bundler-style import ('./App', './src/store') names a module
         // without its extension (React Native sources shipped as files).
@@ -1506,8 +1521,14 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
       // above -- has a literal `${...}` between the quotes, which can never
       // be a real static path: it is JS source, not the rendered page.
       if (target.includes('${')) continue;
-      if (isExternal(target)) continue;
-      const cleaned = decodeURIComponent(target.split('#')[0].split('?')[0]);
+      // An absolute link to this site's own origin is a site link written
+      // long-hand, and dead the same way. Until 2026-11-25 it was skipped as
+      // external, so the paid-edition link on 226 einvoice-preflight pages
+      // pointed at `industries/e-invoicing/` (the page is `eu-e-invoicing/`)
+      // and 404'd live with every check green.
+      const local = siteRelativeLink(target, siteBase?.href, dir);
+      if (local === null && isExternal(target)) continue;
+      const cleaned = decodeURIComponent((local ?? target).split('#')[0].split('?')[0]);
       if (!cleaned) continue;
       if (!cleaned.startsWith('/') && isWorkerServed(path.posix.normalize(path.posix.join(dir.split(path.sep).join('/'), cleaned)))) continue;
 

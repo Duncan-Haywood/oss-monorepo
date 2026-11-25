@@ -8,12 +8,21 @@ import {
 } from './front-doors.mjs';
 import { buildMap, industryForTool, INDUSTRIES, MAP_FILE, serialise } from './front-doors-map.mjs';
 import { heroTitle, injectChrome, renderCategoryPage } from './build.mjs';
+import { industriesWithProducts } from './business.mjs';
 
 const root = new URL('../../', import.meta.url);
-const INDUSTRY_SLUGS = ['construction', 'manufacturing', 'online-sellers', 'e-invoicing', 'nonprofits'];
+const INDUSTRY_SLUGS = ['construction', 'manufacturing', 'online-sellers', 'eu-e-invoicing', 'nonprofits'];
 
 test('front-doors.json is what front-doors-map.mjs writes today', async () => {
   assert.equal(readFileSync(MAP_FILE, 'utf8'), serialise(await buildMap()), 'run node platform/pages/front-doors-map.mjs');
+});
+
+// Keyed by the slugs business.mjs builds industries/<slug>/ from, not a list
+// of its own: until 2026-11-25 this file and the map both said `e-invoicing`
+// while the page was `eu-e-invoicing`, so the e-invoicing door never rendered.
+test('every industry in the map is a built industry page with a product', () => {
+  const built = new Set(industriesWithProducts().map((ind) => ind.slug));
+  for (const id of Object.keys(FRONT_DOORS.industries)) assert.ok(built.has(id), `front-doors-map.mjs industry ${id} is not an industry slug in business.mjs`);
 });
 
 test('every door points at one of the five industry pages, from a real venture', () => {
@@ -65,7 +74,7 @@ test('hand-reviewed top tools land where a person would put them', () => {
     'cnc-machining-quote-calculator': 'manufacturing',
     'ebay-fee-calculator': 'online-sellers',
     'etsy-profit-calculator': 'online-sellers',
-    'eu-einvoicing-mandate-checker': 'e-invoicing',
+    'eu-einvoicing-mandate-checker': 'eu-e-invoicing',
     'grant-deadline-tracker': 'nonprofits',
     'rmd-calculator': null,
   };

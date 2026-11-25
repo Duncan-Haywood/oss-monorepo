@@ -8,7 +8,7 @@ rule id or message a portal or access point sent back ("BR-DE-15",
 "PEPPOL-EN16931-R003"); each page answers what it means, the usual causes, how
 to fix it, a minimal corrected XML snippet, and links the free checker. A paid
 fix-and-explain service is linked as in development (early access) at
-`/industries/e-invoicing/`.
+`/industries/eu-e-invoicing/`.
 
 Covered: every BR-DE rule in the KoSIT XRechnung Schematron, and over 30 of the
 EN 16931 and Peppol BIS rules that guard the fields and sums invoices most often
