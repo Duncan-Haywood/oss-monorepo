@@ -12,15 +12,27 @@ on:
   pull_request:
     paths:
       - "ventures/**"
-      - "platform/ci/run_venture_tests.py"
-      - "platform/ci/test_run_venture_tests.py"
+      # The unwired checks (unwired_checks.py: platform/ci unit tests no other
+      # workflow runs, `doc_index.py check`) run here on every --since run, so a
+      # PR touching only these paths must start this job too (red team 2026-11-13:
+      # two reds reached main that way). With no venture changed it is ~20 s.
+      - "platform/ci/**"
+      - "platform/pages/*.mjs"
+      - "docs/reports/**"
+      - "docs/taxonomy.json"
       - ".github/workflows/ventures-tests.yml"
   push:
     branches: [main]
     paths:
       - "ventures/**"
-      - "platform/ci/run_venture_tests.py"
-      - "platform/ci/test_run_venture_tests.py"
+      # The unwired checks (unwired_checks.py: platform/ci unit tests no other
+      # workflow runs, `doc_index.py check`) run here on every --since run, so a
+      # PR touching only these paths must start this job too (red team 2026-11-13:
+      # two reds reached main that way). With no venture changed it is ~20 s.
+      - "platform/ci/**"
+      - "platform/pages/*.mjs"
+      - "docs/reports/**"
+      - "docs/taxonomy.json"
       - ".github/workflows/ventures-tests.yml"
   workflow_dispatch:
 
