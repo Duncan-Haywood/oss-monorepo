@@ -23,7 +23,7 @@ test("every page carries the no-warranty clause, sponsor link, opt-out and hones
 });
 
 test("no page sends anything anywhere or loads remote scripts", () => {
-  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "retlog.mjs", "billing.mjs", "check.mjs", "waivers.mjs", "sworn.mjs", "stored.mjs", "shortpay.mjs", "frontload.mjs", "usage.mjs"]) {
+  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "retlog.mjs", "billing.mjs", "check.mjs", "waivers.mjs", "sworn.mjs", "stored.mjs", "shortpay.mjs", "frontload.mjs", "joint.mjs", "usage.mjs"]) {
     const src = page(name);
     assert.doesNotMatch(src, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/, name);
     assert.doesNotMatch(src, /<script[^>]+src=["']https?:/, name);
@@ -195,6 +195,16 @@ test("overbilling page: inputs labelled, entry and summary present, links the WI
   assert.match(html, /href="https:\/\/marisstella\.app\/contractor-wip-schedule\/"/);
   assert.match(html, /href="change-order-log\.html"/);
   assert.match(page("index.html"), /href="overbilling-underbilling\.html"/);
+});
+
+test("joint checks page: inputs labelled, the secondary source said so, the California opinion linked, linked from the waiver guide", () => {
+  const html = page("joint-checks.html");
+  for (const id of ["jc-check", "jc-state", "jc-suppliers", "jc-project", "jc-payer", "jc-sub", "jc-no"]) assert.match(html, new RegExp(`<label for="${id}">`), id);
+  assert.match(html, /secondary source/);
+  assert.match(html, /agc\.org\/sites\/default\/files\/pdf\/Handout/);
+  assert.match(html, /scocal\.stanford\.edu\/opinion\/post-bros-constr-co-v-yoder-28055/);
+  assert.match(html, /2026-11-25/);
+  assert.match(page("conditional-vs-unconditional-lien-waivers.html"), /href="joint-checks\.html"/);
 });
 
 test("retainage tracker inputs are labelled, its script rows carry the column labels, and the retainage guides link to it", () => {
