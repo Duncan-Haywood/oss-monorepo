@@ -1,6 +1,6 @@
 ---
 title: "Quality fix: the pergola post spacing you type is now a maximum"
-seo_title: "Pergola post spacing: how many posts a pergola needs, and the beam length"
+seo_title: "Pergola post spacing: how many posts you need, and the beam length"
 date: 2026-11-25
 tags: [quality-audit, pergola-bid-calculator, for-customers, construction, estimating]
 description: "The pergola bid calculator now treats post spacing as the longest beam span between posts, and counts the beam tails past each end post."
