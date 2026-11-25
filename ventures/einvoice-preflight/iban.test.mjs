@@ -71,12 +71,17 @@ test("checksum failure does not echo the account", () => {
   assert.equal(findings[0].path, "/payment/iban");
   assert.equal(findings[0].message.includes("32013001"), false);
   assert.match(findings[0].message, /checksum/i);
+  // The message and fix name the country, so a reader knows which registry entry to check.
+  assert.match(findings[0].message, /published DE checksum/);
+  assert.match(findings[0].fix, /Correct the DE IBAN digits/);
 });
 
 test("wrong national length is format not checksum", () => {
   const findings = inspectPaymentIban(invoice("DE893704004405320130"));
   assert.deepEqual(findings.map((item) => item.rule), ["INV-024"]);
   assert.equal(findings[0].message.includes("DE893704"), false);
+  assert.match(findings[0].message, /published DE length/);
+  assert.match(findings[0].fix, /Correct the DE IBAN length/);
 });
 
 test("omitted payment stays silent", () => {

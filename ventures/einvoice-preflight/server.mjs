@@ -216,6 +216,7 @@ export function createApp(config = loadConfig()) {
       if (docs.length > config.maxBatch) throw new HttpError(413, `At most ${config.maxBatch} documents per batch.`);
       const inputs = docs.map((d, i) => {
         if (typeof d?.content !== "string") throw new HttpError(400, `documents[${i}].content must be a string.`);
+        if (d.name != null && typeof d.name !== "string") throw new HttpError(400, `documents[${i}].name must be a string.`);
         const name = nameFor("", d.name) || `invoice-${i}.json`;
         const source = d.encoding === "base64" ? new Uint8Array(Buffer.from(d.content, "base64")) : d.content;
         return { name: d.name ? name : `invoice-${i}.json`, source };
