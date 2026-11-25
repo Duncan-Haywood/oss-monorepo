@@ -57,6 +57,36 @@ test("reduction at a completion threshold lowers the rate on the whole applicati
   assert.equal(notYet.summary.retainage, 600000);
 });
 
+test("reduction only on work completed past the threshold keeps what was already held", () => {
+  // $100,000 contract, $70,000 completed, 10% reduced to 5% past 50%: $50,000 x 10% + $20,000 x 5% = $6,000.
+  const csv = "Description,Scheduled value,Previous,This period\nA,60000,30000,12000\nB,40000,20000,8000";
+  const r = compute(csv, S({ reduceAtPct: "50", reducedPct: "5", reduceMode: "remaining" }));
+  assert.equal(r.summary.reduceMode, "remaining");
+  assert.equal(r.summary.thresholdCents, 5000000);
+  assert.equal(r.summary.retainage, 600000);
+  // Spread in proportion: A did 42/70 of the work, so 30,000 x 10% + 12,000 x 5% = $3,600; B $2,400.
+  assert.equal(r.lines[0].ret, 360000);
+  assert.equal(r.lines[1].ret, 240000);
+  // The same job under the "all" reading holds 5% of everything: $3,500.
+  assert.equal(compute(csv, S({ reduceAtPct: "50", reducedPct: "5" })).summary.retainage, 350000);
+  // "No further retainage after 50%": held stays at 10% of $50,000.
+  assert.equal(compute(csv, S({ reduceAtPct: "50", reducedPct: "0", reduceMode: "remaining" })).summary.retainage, 500000);
+  // Below the point nothing changes.
+  assert.equal(compute(csv, S({ reduceAtPct: "75", reducedPct: "5", reduceMode: "remaining" })).summary.retainage, 700000);
+  assert.ok(r.findings.some((f) => /first 50\.00% of the contract sum/.test(f.title)));
+});
+
+test("remaining mode: the previous-certificates estimate uses the same split, and a rolled month with no new work is due $0", () => {
+  // Previous $50,000 is right at the point, so all of it was held at 10%: estimate = 50,000 - 5,000 = $45,000.
+  const r = compute("Description,Scheduled value,Previous,This period\nA,100000,50000,20000", S({ reduceAtPct: "50", reducedPct: "5", reduceMode: "remaining" }));
+  assert.equal(r.summary.previous, 4500000);
+  assert.equal(r.summary.due, 7000000 - 600000 - 4500000);
+  // Roll forward: next month's previous certificates are this month's line 6, and with no new work nothing is due.
+  const n = nextPeriod(r, S({ reduceAtPct: "50", reducedPct: "5", reduceMode: "remaining" }));
+  assert.equal(n.settings.reduceMode, "remaining");
+  assert.equal(compute(n.csv, n.settings).summary.due, 0);
+});
+
 test("a per-line retainage column overrides the global rate", () => {
   const r = compute("Description,Scheduled value,Previous,This period,Retainage\nA,100000,0,10000,0\nB,100000,0,10000,", S());
   assert.equal(r.lines[0].ret, 0);
