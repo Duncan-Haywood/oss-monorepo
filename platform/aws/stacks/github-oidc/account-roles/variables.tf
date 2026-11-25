@@ -10,7 +10,7 @@ variable "apply_environment" {
 }
 
 variable "create_oidc_provider" {
-  description = "False in the management account, where the CloudFormation seed created it."
+  description = "False where another stack already created the account's GitHub OIDC provider (apps: stacks/llm)."
   type        = bool
   default     = true
 }

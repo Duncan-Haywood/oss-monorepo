@@ -95,6 +95,10 @@ module "apps" {
   region       = var.region
   github_owner = var.github_owner
   stacks       = local.stacks_in["apps"]
+
+  # stacks/llm (applied earlier) already made the apps account's GitHub OIDC
+  # provider; AWS allows one per URL per account, so reuse it.
+  create_oidc_provider = false
 }
 
 module "payments" {

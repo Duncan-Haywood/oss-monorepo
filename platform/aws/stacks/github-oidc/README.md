@@ -11,7 +11,8 @@ another account's roles can read it.
 
 ## What it creates, in security, shared-infra, apps and payments
 
-- the GitHub OIDC provider;
+- the GitHub OIDC provider (in apps it reuses the one `stacks/llm` made:
+  AWS allows one per URL per account, so apply `llm` first);
 - a state bucket `<account>-tofu-state-<region>` (the bootstrap's naming)
   with its own rotating KMS key. It is versioned, private, TLS-only, and
   refuses every principal from another account;

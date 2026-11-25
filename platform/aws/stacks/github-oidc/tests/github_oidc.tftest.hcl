@@ -187,6 +187,15 @@ run "roles_cannot_escape_their_boundary" {
   }
 }
 
+run "apps_reuses_the_llm_stacks_oidc_provider" {
+  command = plan
+
+  assert {
+    condition     = module.apps.oidc_provider_arn == "arn:aws:iam::555555555555:oidc-provider/token.actions.githubusercontent.com"
+    error_message = "apps trusts the provider stacks/llm created, not a second one."
+  }
+}
+
 run "public_repo_cannot_target_payments" {
   command = plan
 
