@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Job Shop Quote Calculator: Price a Machined Part from Your Own Rates</title>
-  <meta name="description" content="Free job-shop quote calculator: material, setup, programming, cycle time, secondary ops and markup from your own rates, priced at every quantity break.">
+  <meta name="description" content="Free job-shop quote calculator: material, setup, programming, cycle time, secondary ops and markup from your own rates at every quantity break, then a customer quote to send.">
   <meta property="og:title" content="Job Shop Quote Calculator: Price a Machined Part from Your Own Rates">
   <meta property="og:description" content="Free job-shop quote calculator: material, setup, programming, cycle time, secondary ops and markup from your own rates, with price per part at every quantity break.">
   <meta property="og:type" content="website">
@@ -18,6 +18,7 @@
 <main>
 <h1>Job-shop quote calculator</h1>
 <p class="lede">Price a machined part from <em>your</em> numbers: material, setup, programming, cycle time, secondary operations and markup, with the price per part recomputed at every quantity break. The tool has no built-in rates. Every field starts empty because a rate we made up would be wrong for your shop.</p>
+<p class="note">Once it is priced, the <a href="#cq">customer quote</a> section turns the prices into the quote you send: price each and extended price at each quantity, part number and revision, lead time, validity and terms, without your cost lines.</p>
 <p class="note">How each line is worked out, and where to get the numbers from your own records: <a href="how-to-price-a-machined-part.html">how to price a machined part</a>.</p>
 
 <form id="f" class="card" autocomplete="off">
@@ -68,6 +69,18 @@
   <p class="note" id="explain"></p>
 </section>
 
+<section class="card" id="cq" hidden>
+  <h2>Customer quote</h2>
+  <p class="note">Turn the prices above into the quote you send the buyer: price each and extended price at each quantity, part number and revision, lead time, validity and terms. Your cost lines (material, setup, machining, markup) stay on this page and never go on the quote. Price each is rounded up to the cent and the extended price is price each times quantity, so the quote adds up line by line.</p>
+  <form id="cq-form" autocomplete="off"><div class="grid" id="cq-fields"></div>
+  <p class="note"><label style="display:inline;font-weight:400"><input type="checkbox" id="keep-cq" style="width:auto"> Keep my shop details and terms in this browser for the next quote</label> (off by default; customer and part details are never kept).</p></form>
+  <h3>Before you send it</h3>
+  <ul id="cq-review"></ul>
+  <button type="button" id="cq-html">Download quote (HTML, print to PDF)</button>
+  <button type="button" class="secondary" id="cq-text">Copy as email text</button>
+  <p class="note" id="cq-status" role="status"></p>
+</section>
+
 <section>
 <h2>What this calculator does and does not do</h2>
 <p>It adds up the lines you give it and spreads the once-per-lot costs (setup, programming, any flat lot charge) over the quantity. That spreading is why a 5-off costs more per part than a 100-off: the quantity breaks are arithmetic, not a discount schedule we invented. It does not estimate a cycle time from a drawing, look up a material price or tell you what the market will pay; those numbers are yours.</p>
@@ -77,6 +90,7 @@
 
 <script type="module">
   import { quoteBreaks, validate } from "./quote.mjs";
+  import { META_FIELDS, reviewQuote, quoteToHtml, quoteToText } from "./quote-doc.mjs";
   import { recordUsage, usageStorage } from "./usage.mjs";
   const KEY = "machine-shop-guides-quote-draft";
   const store = usageStorage();
@@ -136,7 +150,73 @@
       ? `Setup and programming add ${money(first.fixedShareEach)} to each part at ${first.quantity} and ${money(last.fixedShareEach)} at ${last.quantity}. That difference is the quantity break.`
       : "Add more quantities to see the break.";
     document.getElementById("out").hidden = false;
+    lastRows = rows;
+    document.getElementById("cq").hidden = false;
+    paintReview();
     recordUsage("quote");
+  });
+
+  // Customer quote. Customer and part details stay in memory unless the user ticks "keep".
+  const CQ_KEY = "machine-shop-guides-quote-meta";
+  let lastRows = [];
+  const cqFields = document.getElementById("cq-fields");
+  const keep = document.getElementById("keep-cq");
+  let savedMeta = {};
+  try { savedMeta = JSON.parse(store?.getItem(CQ_KEY) || "null") || {}; keep.checked = Object.keys(savedMeta).length > 0; } catch { savedMeta = {}; }
+  for (const fd of META_FIELDS) {
+    const label = document.createElement("label");
+    label.append(fd.label);
+    const i = document.createElement(fd.long ? "textarea" : "input");
+    i.name = fd.key; i.dataset.meta = "1";
+    if (fd.key === "date") i.type = "date";
+    else if (fd.key === "validDays") { i.type = "number"; i.min = "0"; i.step = "1"; i.inputMode = "numeric"; }
+    else if (!fd.long) i.type = fd.key === "shopEmail" ? "email" : "text";
+    if (fd.key === "notes") i.placeholder = "One per line, e.g. what is and is not included";
+    if (fd.long) i.rows = 3;
+    // Per-job fields never come back from a saved draft: only the shop's own details and terms do.
+    const perJob = ["customer", "customerContact", "rfqRef", "quoteNumber", "date", "partNumber", "revision", "description", "material", "finish"].includes(fd.key);
+    i.value = (!perJob && savedMeta[fd.key]) || "";
+    if (fd.key === "date") i.value = new Date().toISOString().slice(0, 10);
+    label.append(i);
+    cqFields.append(label);
+  }
+  const readMeta = () => Object.fromEntries([...cqFields.querySelectorAll("[data-meta]")].map((i) => [i.name, i.value]));
+  function persistMeta() {
+    try {
+      if (!keep.checked) { store?.removeItem(CQ_KEY); return; }
+      const m = readMeta();
+      const shopOnly = Object.fromEntries(["shopName", "shopAddress", "shopContact", "shopEmail", "shopPhone", "validDays", "leadTime", "paymentTerms", "shipping", "notes"].map((k) => [k, m[k]]));
+      store?.setItem(CQ_KEY, JSON.stringify(shopOnly));
+    } catch {}
+  }
+  function paintReview() {
+    const ul = document.getElementById("cq-review"); ul.replaceChildren();
+    const items = reviewQuote(readMeta(), lastRows);
+    if (!items.length) { const li = document.createElement("li"); li.textContent = "Nothing missing."; ul.append(li); return; }
+    for (const it of items) {
+      const li = document.createElement("li");
+      li.className = it.level === "missing" ? "bad" : "";
+      li.textContent = (it.level === "missing" ? "Missing: " : "Check: ") + it.text;
+      ul.append(li);
+    }
+  }
+  cqFields.addEventListener("input", () => { paintReview(); persistMeta(); });
+  keep.addEventListener("change", persistMeta);
+  const fileBase = () => (readMeta().quoteNumber || "quote").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60) || "quote";
+  document.getElementById("cq-html").addEventListener("click", () => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([quoteToHtml(readMeta(), lastRows)], { type: "text/html" }));
+    a.download = fileBase() + ".html";
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    document.getElementById("cq-status").textContent = "Downloaded. Open it and print to PDF to attach it.";
+    recordUsage("customer-quote-html");
+  });
+  document.getElementById("cq-text").addEventListener("click", async () => {
+    const status = document.getElementById("cq-status");
+    try { await navigator.clipboard.writeText(quoteToText(readMeta(), lastRows)); status.textContent = "Copied. Paste it into your reply to the buyer."; }
+    catch { status.textContent = "Your browser blocked the clipboard; use the HTML download instead."; }
+    recordUsage("customer-quote-text");
   });
 </script>
 </main>
