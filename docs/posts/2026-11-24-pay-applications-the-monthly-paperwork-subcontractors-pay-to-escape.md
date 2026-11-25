@@ -1,7 +1,7 @@
 ---
 title: "Pay applications: the monthly paperwork subcontractors pay to escape"
 date: 2026-11-24
-tags: [construction, subcontractors, billing, retainage, lien-waivers]
+tags: [construction, subcontractors, billing, retainage, lien-waivers, pay-app-guides, for-customers]
 description: "What a monthly pay application involves for a trade sub, what billing tools charge today (sourced), and the product we are building. In development."
 ---
 
@@ -246,6 +246,23 @@ are the starting point, not the product:
   in, and a filled-in copy of the worked example from the
   [step-by-step guide](https://marisstella.app/pay-app-guides/how-to-fill-out-a-pay-application.html).
   ([source](../../ventures/pay-app-guides/template.mjs))
+
+- [Pay application checker](https://marisstella.app/pay-app-guides/pay-application-checker.html)
+  (added 2026-11-25): most pay apps that come back for corrections are not
+  wrong inside themselves; they disagree with last month's approved one.
+  Paste last month's approved schedule of values and this month's draft (CSV,
+  cells copied from a spreadsheet, or the calculator's own CSV download) and
+  it matches every line by item number. It flags a "from previous
+  applications" figure that is not last month's previous plus this period, a
+  scheduled value edited without a change order, a line that disappeared, a
+  new line not numbered as a change order, stored materials that fell by more
+  than was billed as installed, a retainage rate change, and a previous
+  certificates figure that is not last month's total earned less retainage
+  (a common slip is typing last month's payment instead). The worked example
+  plants four of those mistakes and the tests check it finds those four and
+  nothing else. The hosted product starts each month's application from the
+  approved one, so these mistakes cannot be typed in the first place.
+  ([source](../../ventures/pay-app-guides/check.mjs))
 
 ### Why a spreadsheet, and how we know its formulas are right
 
