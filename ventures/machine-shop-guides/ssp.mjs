@@ -27,8 +27,8 @@
  * only when the shop says all of its objectives are, and the review asks for
  * the reason. For scoring, na counts as met.
  */
-import { REQUIREMENTS, FAMILIES, PARTIAL } from "./sprs-data.mjs";
-import { scoreSprs, compareIds } from "./sprs.mjs";
+import { REQUIREMENTS, FAMILIES, PARTIAL, POAM_PROHIBITED } from "./sprs-data.mjs";
+import { scoreSprs, compareIds, POAM_RULE_TEXT } from "./sprs.mjs";
 
 export const STATUSES = ["met", "not_met", "partial", "na"];
 export const STATUS_LABEL = { met: "Met", not_met: "Not met", partial: "Partially met", na: "Not applicable" };
@@ -186,6 +186,9 @@ export function reviewSsp(input, { today } = {}) {
     }
     if ((r.status === "not_met" || r.status === "partial") && (blank(r.plannedAction) || blank(r.milestone))) {
       add("warn", req.id, "A gap with no " + (blank(r.plannedAction) ? "planned action" : "milestone date") + ". The POA&M row needs both.");
+    }
+    if ((r.status === "not_met" || r.status === "partial") && POAM_PROHIBITED[req.id] && req.id !== "3.12.4") {
+      add("warn", req.id, "Open, but 32 CFR 170.21(a)(2)(iii) never allows this requirement on a POA&M. It must be met before a CMMC Level 2 assessment can end in Conditional status.");
     }
     if ((r.status === "not_met" || r.status === "partial") && r.milestone && today && r.milestone < today) {
       add("warn", req.id, `Milestone ${r.milestone} has passed and the requirement is still open.`);
@@ -416,10 +419,10 @@ function csvCell(v) {
 export function poamToCsv(input) {
   const doc = normaliseSsp(input);
   const { gaps } = scoreSprs(statusesForScore(doc));
-  const head = ["Requirement", "Short label", "Points deducted", "Status", "Weakness (implementation as it stands)", "Planned action", "Responsible", "Milestone date", "Provided or shared by"];
+  const head = ["Requirement", "Short label", "Points deducted", "Status", "POA&M allowed (32 CFR 170.21)", "Weakness (implementation as it stands)", "Planned action", "Responsible", "Milestone date", "Provided or shared by"];
   const rows = gaps.map((g) => {
     const r = doc.requirements[g.id] || {};
-    return [g.id, g.label, g.weight === null ? "" : g.deduct, statusText(g.id, r.status), r.implementation, r.plannedAction, r.responsible, r.milestone, r.provider];
+    return [g.id, g.label, g.weight === null ? "" : g.deduct, statusText(g.id, r.status), POAM_RULE_TEXT[g.poam], r.implementation, r.plannedAction, r.responsible, r.milestone, r.provider];
   });
   return [head, ...rows].map((row) => row.map(csvCell).join(",")).join("\n") + "\n";
 }

@@ -57,3 +57,8 @@ footer { margin-top: 28px; border-top: 1px solid var(--line); padding-top: 16px;
   table.stack td:empty, table.stack.compact td:empty { display: none; }
 }
 @media print { body { background: #fff; color: #000; padding: 0; } .card { border: 0; } button, nav, footer, .cta, #inputs { display: none; } }
+
+/* Closeout checklist on retainage-release.html */
+.checks { border: 1px solid var(--line); border-radius: 8px; margin: 14px 0; padding: 8px 14px; }
+.checks label { font-weight: 400; margin: 6px 0; display: flex; gap: 8px; align-items: baseline; }
+.checks input { width: auto; flex: none; margin: 0; }

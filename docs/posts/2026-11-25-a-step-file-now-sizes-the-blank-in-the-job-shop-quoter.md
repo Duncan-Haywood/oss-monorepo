@@ -85,6 +85,27 @@ A single flat part is far below 20,000 entities.
 - The repository's GitHub Actions runners were not starting jobs (`runner_id: 0`). So the
   checks ran locally: 49 unit tests, 19 Worker tests, the build and a migration-drift check.
 
+## A spend cap on the AI before it goes live
+
+Later the same day, private-monorepo PR #59 put a ceiling on AI cost. Before it, any signed-in
+estimator could have run extraction as often as they liked, and every call paid Claude. Now:
+
+- **Each shop gets a monthly AI budget**, $25 by default (`ORG_MONTHLY_LLM_CAP_USD`). The total
+  is summed from the cost logged for each call. Once a shop reaches it, extraction answers
+  "monthly AI usage limit reached", and the RFQ stays as it was. The cover note doesn't fail. It
+  falls back to the plain template it already used whenever the AI's text didn't match the
+  quote's numbers. Prices never depended on the AI, so quoting carries on.
+- **A daily limit across all shops**, $200 by default. Setting it to `0` turns off every AI call
+  at once without a redeploy.
+- **Rate limits**: 30 AI calls a minute per estimator and 20 uploads a minute per shop. They use
+  Cloudflare's rate-limiting bindings, and a request over the limit gets a `Retry-After` header.
+
+The guard is the same code Grant Autopilot already runs in production, copied so the two stay
+alike. The plan is for the paid tier to raise a shop's budget once billing lands. The checks ran
+locally because the runners still weren't starting jobs: typecheck, Biome, the build, 70 unit
+tests and 23 Worker tests. The new Worker tests cover the 402 on extraction, recovery once the
+shop is under its cap, and the 429 on the 31st AI call in a minute.
+
 ## Next
 
 The next item on the flagship list (milestone 3) is reading tolerances, material and finish from

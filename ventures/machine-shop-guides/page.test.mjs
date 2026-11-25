@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const PAGES = ["index", "cmmc-level-1-self-assessment", "sprs-score-calculator", "nist-800-171-ssp-template", "job-shop-quote-calculator", "cmmc-level-1-vs-level-2", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual"];
+const PAGES = ["index", "cmmc-level-1-self-assessment", "sprs-score-calculator", "nist-800-171-ssp-template", "stock-size-from-step-file", "job-shop-quote-calculator", "cmmc-level-1-vs-level-2", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual"];
 const read = (p) => readFileSync(new URL(`./${p}.html`, import.meta.url), "utf8");
 
 for (const p of PAGES) {
@@ -47,6 +47,17 @@ test("CMMC guide carries a dated status check", () => {
   const html = read("cmmc-level-1-vs-level-2");
   assert.match(html, /Status check, 24 November 2026/);
   assert.match(html, /suspended by the Department of War on 13 July 2026/);
+});
+
+test("the stock page ships no material price and keeps the file in the browser", () => {
+  const html = read("stock-size-from-step-file");
+  for (const name of ["price"]) {
+    const m = html.match(new RegExp(`<input name="${name}"[^>]*>`));
+    assert.ok(m, name);
+    assert.doesNotMatch(m[0], /value=/, `${name} has a default value`);
+  }
+  assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon/, "the page must not transmit the file");
+  assert.match(html, /never uploaded/);
 });
 
 test("quote-vs-actual page ships no benchmark: no dollar or hour figure outside the invented example", () => {

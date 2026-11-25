@@ -274,3 +274,66 @@ export function promptPayInterest({ amount, received, paid, days, rate, per = "m
   const interest = Math.round(a * r * periods);
   return { errors, due: isoDate(due), daysLate: late, interest, total: a + interest };
 }
+
+// Retainage release: when it falls due and the request that asks for it.
+// The trigger (substantial completion, final acceptance, the GC being paid)
+// and the number of days come from the subcontract or a statute the user
+// names; nothing here assumes a state's rule.
+export const CLOSEOUT_ITEMS = [
+  { id: "punch", label: "Punch list complete and signed off" },
+  { id: "final-app", label: "Final pay application at 100%, retainage shown as its own line" },
+  { id: "final-waiver", label: "Final conditional lien waiver for the retainage amount" },
+  { id: "lower-tier", label: "Final waivers or releases from lower-tier subs and suppliers" },
+  { id: "surety", label: "Consent of surety to final payment (bonded jobs)" },
+  { id: "warranty", label: "Warranty letters and manufacturer warranties" },
+  { id: "om", label: "Operation and maintenance manuals" },
+  { id: "asbuilt", label: "As-built or record drawings for the scope" },
+  { id: "inspections", label: "Final inspection sign-offs for the trade" },
+  { id: "stock", label: "Attic stock and spare parts delivered, with a signed receipt" },
+];
+
+export function retainageRelease({ held, released = "", trigger, days, today, project = "", to = "", from = "", basis = "", missing = [] } = {}) {
+  const errors = [];
+  const h = toCents(held);
+  const r = toCents(released);
+  const t = parseDate(trigger);
+  const now = parseDate(today);
+  const n = Number(String(days ?? "").trim());
+  if (Number.isNaN(h) || h <= 0) errors.push("Enter the retainage held on this job as a positive number.");
+  if (Number.isNaN(r) || r < 0) errors.push("Retainage already released must be 0 or a positive number.");
+  else if (!Number.isNaN(h) && r > h) errors.push("Retainage already released cannot be more than the retainage held.");
+  if (Number.isNaN(t)) errors.push("Enter the date the release clock started (for example substantial completion) as YYYY-MM-DD.");
+  if (Number.isNaN(now)) errors.push("Enter today's date as YYYY-MM-DD.");
+  if (String(days ?? "").trim() === "" || !Number.isInteger(n) || n < 0 || n > 730) errors.push("Days to release must be a whole number from 0 to 730, from your subcontract or the statute.");
+  if (errors.length) return { errors };
+  const owed = h - r;
+  const due = t + n * DAY;
+  const daysOverdue = Math.max(0, Math.round((now - due) / DAY));
+  const daysLeft = Math.max(0, Math.round((due - now) / DAY));
+  const clean = (s) => String(s ?? "").replace(/\s+/g, " ").trim();
+  const proj = clean(project) || "[project]";
+  const sender = clean(from) || "[your company]";
+  // Only what the user ticked is claimed as sent.
+  const sent = [
+    !missing.includes("final-app") && "our final pay application",
+    !missing.includes("final-waiver") && "a conditional final lien waiver for that amount",
+  ].filter(Boolean);
+  const lines = [
+    `To: ${clean(to) || "[general contractor]"}`,
+    `From: ${sender}`,
+    `Date: ${isoDate(now)}`,
+    `Re: Release of retainage, ${proj}`,
+    "",
+    `Our work on ${proj} reached the point that starts retainage release on ${isoDate(t)}. ` +
+      `${clean(basis) ? `Under ${clean(basis)}, the` : "The"} retainage of ${fmt(owed)} still held on our subcontract ` +
+      (daysOverdue > 0
+        ? `was due on ${isoDate(due)} and is now ${daysOverdue} day${daysOverdue === 1 ? "" : "s"} past due.`
+        : `is due on ${isoDate(due)}.`),
+    "",
+    `Please release ${fmt(owed)}.` + (sent.length ? ` Enclosed or already sent: ${sent.join(" and ")}.` : ""),
+  ];
+  const open = missing.map((id) => CLOSEOUT_ITEMS.find((i) => i.id === id)?.label).filter(Boolean);
+  if (open.length) lines.push("", "Still open on our side, and when we expect to deliver each:", ...open.map((l) => `- ${l}: [date]`));
+  lines.push("", "If anything else is holding up the release, please tell us in writing what it is so we can close it out.", "", "Thank you,", sender);
+  return { errors, owed, due: isoDate(due), daysOverdue, daysLeft, letter: lines.join("\n") };
+}
