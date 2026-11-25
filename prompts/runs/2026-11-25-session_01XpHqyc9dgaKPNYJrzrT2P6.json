@@ -1,0 +1,78 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyc9dgaKPNYJrzrT2P6",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "Parallel AWS agent: aws-spend-guards + owner turnover runbook",
+  "input_sha256": "1e7bf61ca3facfe23ec79ef9426ad3d9ae8ef85ecf1acd6291910318f9706660",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-25T01:04:53Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "aws-spend-guards",
+  "projects": [
+    "platform/aws/stacks/spend",
+    "platform/aws/modules/account-baseline",
+    "docs/runbooks/aws-cutover.md"
+  ],
+  "pr": 18802,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [
+    "First pass built a parallel platform/aws/spend-guards stack before seeing that draft PR 18749 had platform/aws/stacks/spend. Another session flagged it; PR 18755 was held, then rebuilt as a follow-up on main after 18749 merged. About half the session's build time went into the first pass; its tests and design carried over.",
+    "registry.opentofu.org is refused by the session proxy. Providers came from releases.hashicorp.com (SHA256SUMS verified), whose zips do not match the OpenTofu registry checksums in the committed lock file; validation ran in a scratch copy without the lock, and the lock file is unchanged.",
+    "Installing Trivy was refused by the auto-mode classifier; Checkov ran, Trivy config did not.",
+    "PR 18755's `-s ours` merge (used after a force-push was refused) made the adversarial gate diff against a pre-18749 base and flag 18749's workflows as new. Rebuilt as one commit on main in PR 18802 and closed 18755."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/2026-11-24-cloud-provider-comparison.md",
+      "issue": "Lists AWS 'native limits, Paid-plan accounts only' as a hard cap. Searching found a per-project spend limit for accounts in the 'new AWS experience', limited rollout since September 2026, console-only with no API. It is not an account cap. Corrected in stacks/spend/README.md and the runbook; the report is left to its owner."
+    },
+    {
+      "file": "the six-agent AWS brief (session system message)",
+      "issue": "Named platform/aws/<stack>/ and platform/aws/OWNER_RUNBOOK.md while PR 18749 was already building platform/aws/stacks/<stack>/ and docs/runbooks/aws-cutover.md. Searching open PR titles for the stack name found nothing (18749's title says aws-consolidation); grepping open PR file lists for platform/aws would have."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md, 'Every session lands its own work'",
+      "why": "Held PR 18755 unmerged for about 45 minutes instead of merging, because merging would have landed a second spend stack beside PR 18749's.",
+      "did": "held, then rebuilt on main as a follow-up",
+      "result": "one spend stack"
+    },
+    {
+      "file": "platform/aws/OWNER_RUNBOOK.md",
+      "why": "The brief asked for the owner's steps in this file; 18749's docs/runbooks/aws-cutover.md already held most of them and the coordinator asked to extend it. The file is a pointer so the steps are written once.",
+      "did": "pointer file, steps 8-9 and step 1/3 additions in aws-cutover.md",
+      "result": "one checklist"
+    },
+    {
+      "file": "prompts/promptctl.py route",
+      "why": "The draw picked quality/0; this was assigned platform work.",
+      "did": "--track process",
+      "result": "record validates"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-what-a-spend-kill-switch-should-not-stop.md"
+  ],
+  "goal": "Reach the AWS turnover point: spend guards apply-ready, the owner's steps written once.",
+  "notes": "Verification (run here, 2026-11-25, on main e98ec5cb + this diff):\n- python3 -m pytest platform/aws/stacks/spend/kill_switch -q: 17 passed (9 existing + 8 new: ASG, event sources, Aurora, spot/SageMaker reporting, resume, exempt, kill_on_budget, two regions with IAM once, never deletes).\n- python3 -m pytest platform/aws -q: 35 passed.\n- OpenTofu 1.10.7 + aws 6.72.0/archive 2.8.1 from releases.hashicorp.com (checksums verified), in a scratch copy without the lock file (registry blocked here): stacks/spend fmt -check, validate, tofu test 6/6 (spend_shape, per_account_kill_switch_and_alerts, freeze_scp_leaves_data_logs_and_dns_alone, anomaly_detection, unknown_kill_switch_account_is_refused, alert_emails_are_sensitive_but_subscribed). Mutation: kill_switch_accounts=[apps,sandbox,payments] fails per_account_kill_switch_and_alerts as intended.\n- stacks/baseline (consumes modules/account-baseline): validate + tofu test 1/1.\n- Checkov -d stacks/spend -d modules/account-baseline: 96 passed, 0 failed, 7 skipped (all pre-existing from PR 18749).\n- decision_queue.py --check OK (5 decisions); test_decision_queue.py 83 passed; workctl.py validate ok.\n- stacks/spend/.terraform.lock.hcl unchanged (no new providers); priv-aws-plan.yml regenerates and compares it.\nNothing applied; no AWS account exists.",
+  "corrections": [],
+  "redteam": null
+}
