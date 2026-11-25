@@ -46,6 +46,7 @@ export const NUMBER_FIELD_IDS = [
   'gutterPerFoot', 'profilePremiumPerFoot', 'downspoutOutletCost', 'downspoutPerFoot',
   'insideMiterCost', 'outsideMiterCost', 'fasciaPerFoot', 'tearOffDumpPerFoot',
   'hangerPerFoot', 'permitFee',
+  'wastePercent', 'sundriesPerFoot', 'crewSize',
   'hourlyWage', 'burdenRate', 'travelAndEquipment', 'overheadRate', 'targetMargin',
   'proposedPrice',
 ];

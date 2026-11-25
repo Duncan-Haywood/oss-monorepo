@@ -314,6 +314,21 @@ Nothing on the page is a forecast or a benchmark against other shops. It is
 a count of the shop's own log, visible to its own members, and never shown
 on a quote PDF or email.
 
+Later the same day the page gained three things shop owners ask for next:
+
+- **Win rate month by month.** One bar per calendar month of the decision
+  date, oldest first, with months that had no decisions shown as empty rather
+  than skipped, so a quiet August reads as a gap and not as a missing row.
+- **By estimator.** Each quote counts under the person who wrote it (the same
+  person who gets the day-before expiry reminder). Useful for spotting who
+  quotes the jobs that come back, not for ranking people on five quotes:
+  small rows still say "few".
+- **Download CSV.** One row per decided quote in the chosen period: quote
+  number, customer, estimator, won/lost/expired, date, quoted total, awarded
+  amount, markup on cost, lost reason and part numbers. It opens in Excel or
+  Google Sheets as numbers, ready for a pivot table, and a customer name that
+  starts with "=" is written as text so the sheet never runs it as a formula.
+
 ## Update, 25 November 2026: routings you set up once per part family
 
 Most of a job shop's quotes are variations on parts it has made before:
@@ -552,6 +567,31 @@ now uses the shop's own quote log for this:
 
 Everything stays inside the shop's own account: no other shop's quotes are
 read, and nothing here estimates a price the shop has not set.
+
+## Update, 25 November 2026: quoting from a phone on the shop floor
+
+Estimators in small shops are often the owner or the lead machinist, and the
+RFQ gets read on a phone between setups. The quote page of the RFQ-to-quote
+app (bet #2, still in private development, not yet on sale) was 509 pixels
+wide on a 390-pixel phone once a line had prices, so the whole page slid
+sideways under a thumb. Now:
+
+- **Nothing on the page slides sideways.** The price breakdown (quantity,
+  material, setup, run, finishing, extras, markup, unit price, total) scrolls
+  inside its own box, with the quantity column pinned so each row still
+  reads as "100 pieces: ...", and a hint to swipe for unit price and total.
+- **Operations fit a thumb.** Each machine operation (machine, op name, setup
+  minutes, cycle minutes per piece) stacks two fields to a row with a
+  labelled Remove button, instead of five fields squeezed into one line.
+- **The RFQ and team pages too.** Every signed-in page was checked at 390
+  pixels wide; the RFQ page (460) and the team page (406) also overflowed and
+  now fit.
+
+The cause was a browser default: a form section (`<fieldset>`) never gets
+narrower than its widest content, so one nine-column table stretched the
+whole page. A check that signs up, builds a priced quote and measures all
+eleven pages at phone width now runs against the offline demo, so the next
+change that breaks this is caught before it ships.
 
 ## Update, 25 November 2026: which routing fits this part, from your own history
 

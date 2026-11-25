@@ -17,6 +17,12 @@ Steps whose command or directory holds a `${{ }}` expression are reported as
 `expr` and not run. A step that fails in both trees for a missing local tool
 (no pytest, no swift) proves nothing: read the output before calling it
 verified. Exit 0 when every step matches, 1 otherwise.
+
+Same answers is not the same as faster. With `filter: blob:none`, checkout
+fetches the kept blobs at about 0.7 ms per file whatever their size, so a
+sparse set near the full tree (58k of 81k files) checks out no faster than a
+plain clone (docs/history/ci-perf-2026-11-25-validate-sparse.md). Keep it
+well under about 50k files, and time the CI checkout before calling it a win.
 docs/history/ci-perf-2026-11-25-venture-workflow-sparse.md has the run that
 made this.
 """
