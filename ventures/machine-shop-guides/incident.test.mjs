@@ -56,7 +56,7 @@ test("a report at exactly 72 hours is on time; one minute later is late", () => 
 test("preservation runs at least 90 days from report submission, not from discovery", () => {
   const r = { ...emptyIncident(), discoveredAt: "2026-11-01T10:00", reportedAt: "2026-11-03T16:00" };
   const d = deadlines(r);
-  assert.equal(d.preserveUntil.getTime() - d.reported.getTime(), 90 * 24 * 3600e3);
+  assert.equal(fmtLocal(d.preserveUntil), "2027-02-01 16:00"); // 90 calendar days, same wall clock
   assert.equal(deadlines({ ...emptyIncident(), discoveredAt: "2026-11-01T10:00" }).preserveUntil, null);
 });
 

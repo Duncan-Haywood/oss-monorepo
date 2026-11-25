@@ -26,7 +26,6 @@ import { mdText } from "./ssp.mjs";
 export const REPORT_HOURS = 72;
 export const PRESERVE_DAYS = 90;
 const HOUR = 3600 * 1000;
-const DAY = 24 * HOUR;
 
 export const CLAUSE = "DFARS 252.204-7012 (MAY 2024)";
 
@@ -162,7 +161,9 @@ export function deadlines(input, { now = new Date() } = {}) {
     }
   }
   if (reported) {
-    out.preserveUntil = new Date(reported.getTime() + PRESERVE_DAYS * DAY);
+    // Calendar days on the local clock, so a DST change inside the 90 days
+    // does not move the date by an hour into the previous day.
+    out.preserveUntil = new Date(reported.getFullYear(), reported.getMonth(), reported.getDate() + PRESERVE_DAYS, reported.getHours(), reported.getMinutes());
     out.preserveMsLeft = out.preserveUntil.getTime() - now.getTime();
     if (discovered) {
       out.reportedAfterMs = reported.getTime() - discovered.getTime();
