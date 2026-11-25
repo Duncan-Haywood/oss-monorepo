@@ -51,7 +51,10 @@ test("every input has a label and nothing is sent anywhere", () => {
 
 test("the module scripts import only local files, and the inline script parses", () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./checkout.mjs", "./import-7shifts.mjs", "./import-deputy-staff.mjs", "./import-deputy.mjs", "./import-shifts.mjs", "./import-square.mjs", "./import-staff.mjs", "./import-wheniwork.mjs", "./licence.mjs", "./staffpack.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./calc.mjs", "./checkout.mjs", "./licence.mjs", "./staffpack.mjs", "./usage.mjs"]);
+  // The export readers load on the first file pick (perf, 2026-11-25; page-lazy-imports.test.mjs), still only local files.
+  assert.deepEqual([...html.matchAll(/import\(\s*"([^"]+)"\s*\)/g)].map((m) => m[1]).sort(), ["./import-7shifts.mjs", "./import-deputy-staff.mjs", "./import-deputy.mjs", "./import-shifts.mjs", "./import-square.mjs", "./import-staff.mjs", "./import-wheniwork.mjs"]);
+  assert.doesNotMatch(html.replace(/import\(\s*"\.\/[\w-]+\.mjs"\s*\)/g, ""), /import\(/);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
   // calc.mjs may import its own sibling modules (bnp.mjs), never anything remote or bare.
   for (const m of page("calc.mjs").matchAll(/^\s*import\s.*?from\s+"([^"]+)"/gm)) assert.match(m[1], /^\.\/[\w-]+\.mjs$/, m[1]);
