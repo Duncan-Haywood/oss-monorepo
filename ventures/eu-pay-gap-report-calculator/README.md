@@ -17,4 +17,4 @@ is due (7 June 2027 for employers with 150 or more workers)**, which used to be 
 
 Modelled: gap = (men - women) / men on gross hourly pay; variable-pay gaps among recipients; quartiles by rank; category gaps
 with a |gap| >= 5% flag. Not modelled: equal-value job evaluation, benefits in kind, national transposition detail and filing
-formats, non-binary categories. Not legal advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
+formats, non-binary categories. Not legal advice. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

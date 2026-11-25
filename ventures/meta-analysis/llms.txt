@@ -2,7 +2,7 @@
 
 > Free meta-analysis tool. Paste one row per study (2x2 counts, events and totals, means and SDs, or an estimate with a standard error or confidence interval) and get the pooled effect with REML, DerSimonian-Laird or Paule-Mandel, Wald and Hartung-Knapp intervals, Q, I-squared and tau-squared with Q-profile intervals, a prediction interval for a new study, forest and funnel plots, Egger's test, leave-one-out and a meta-regression on a numeric moderator. Checked against statsmodels and metafor. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are statistical estimates from the study results you supply, not medical, legal, tax, financial or professional advice, and not a substitute for a systematic review.
+Free to use and source available (FSL-1.1-MIT). Results are statistical estimates from the study results you supply, not medical, legal, tax, financial or professional advice, and not a substitute for a systematic review.
 
 ## Pages
 
@@ -25,4 +25,4 @@ Free and open source (MIT). Results are statistical estimates from the study res
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/meta-analysis): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/meta-analysis): FSL-1.1-MIT licensed.

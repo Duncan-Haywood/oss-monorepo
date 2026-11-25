@@ -12,7 +12,7 @@ test("carries the no-warranty disclaimer", () => {
 });
 
 test("carries the licence and support paragraph", () => {
-  assert.match(html, /MIT licen[cs]e/i);
+  assert.match(html, /FSL-1.1-MIT licen[cs]e/i);
   assert.match(html, /href="LICENSE"/);
   assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
 });

@@ -15,7 +15,7 @@ owner: duncan
 # different times. Implemented from the papers' definitions; no third-party
 # code was ported. csdid 0.4.5 (MIT) and pyfixest 0.70.0 (MIT) were used only
 # to produce eval/reference.json, which the tests check against. Example data:
-# Cheng & Hoekstra's castle-doctrine panel from the MIT-licensed causaldata
+# Cheng & Hoekstra's castle-doctrine panel from the FSL-1.1-MIT-licensed causaldata
 # package; source in data/SOURCE.md.
 #
 # First visitor: searches such as "difference in differences calculator",

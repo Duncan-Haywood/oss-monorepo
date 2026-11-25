@@ -90,7 +90,7 @@ length, or replace your own contract, insurance, or accountant. It is not a
 safety or roofing-condition assessment tool — always follow manufacturer and
 OSHA fall-protection guidance for ladder and roof work.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.
 
 ## Known gaps
 

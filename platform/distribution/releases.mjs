@@ -43,7 +43,7 @@ export function composeRelease(items, today) {
     '',
     ...lines,
     '',
-    'Every tool is free and open source (MIT) and runs in your browser. The tools are not legal, tax or professional advice.',
+    'Every tool is free to use and source available (FSL-1.1-MIT) and runs in your browser. The tools are not legal, tax or professional advice.',
     'This release was created automatically from `platform/pages/launched.json`.',
   ].join('\n');
   return { tag: `launches-${week}`, name: `New tools, week of ${week}`, body };

@@ -2,7 +2,7 @@
 
 > Free online Wasserstein distance (earth mover's distance) calculator. Paste a CSV with a group column and numeric columns; per column it gives the exact W1 and W2 in your units, mass moved up and down, the W2 split into location, spread and shape, quantile shifts and a permutation p-value. Across several columns at once it solves optimal transport with log-stabilised Sinkhorn iterations (Cuturi 2013) and certifies a range for the exact distance: a rounded feasible plan (Altschuler, Weed & Rigollet 2017) above, a c-transformed dual below. Energy distance permutation test (Szekely & Rizzo 2013). Checked against POT 0.9.7 and SciPy 1.17.1. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A distance or a p-value is not proof of a cause.
+Free to use and source available (FSL-1.1-MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A distance or a p-value is not proof of a cause.
 
 ## Pages
 
@@ -24,4 +24,4 @@ Free and open source (MIT). Results are statistical estimates from the data you 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wasserstein-distance): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wasserstein-distance): FSL-1.1-MIT licensed.

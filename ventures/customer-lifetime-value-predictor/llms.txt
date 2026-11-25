@@ -2,7 +2,7 @@
 
 > Free customer lifetime value predictor for online shops. Upload an order list to get each customer's predicted value, the chance they are still active, at-risk big spenders, what a new customer is worth, and a back-test of the forecast. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/customer-lifetime-value-predictor): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/customer-lifetime-value-predictor): FSL-1.1-MIT licensed.

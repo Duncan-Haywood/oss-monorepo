@@ -109,5 +109,5 @@ footer checkbox turns it off and deletes it.
 
 ## Licence
 
-MIT (`LICENSE`). If it saved you an afternoon,
+FSL-1.1-MIT (`LICENSE`). If it saved you an afternoon,
 [sponsor the work](https://github.com/sponsors/Duncan-Haywood).

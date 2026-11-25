@@ -19,4 +19,4 @@ advice. It does not model depreciation, recapture, Schedule A effects, income
 limits or state rules. Unverified against a filed return: tested on
 hand-calculated examples.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

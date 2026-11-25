@@ -2,7 +2,7 @@
 
 > Free, open-source calculator for the design lateral pressure of fresh concrete on wall and column forms by the ACI 347R equations (rate of placement, concrete temperature, unit weight and chemistry coefficients, 600·Cw minimum, full liquid head cap), with the pressure envelope, the resultant force and its height, tie spacing from a tie's safe working load, and the fastest pour rate for a form's rated pressure. US or metric units. Runs in the browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates, not engineering advice; the formwork designer, the form supplier's data and the engineer of record govern.
+Free to use and source available (FSL-1.1-MIT). Results are estimates, not engineering advice; the formwork designer, the form supplier's data and the engineer of record govern.
 
 ## Pages
 
@@ -23,4 +23,4 @@ Free and open source (MIT). Results are estimates, not engineering advice; the f
 
 ## Source
 
-- [Source code, CLI and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/formwork-pressure): MIT licensed. `node cli.mjs --wall --height 10 --rate 5 --temp 70 --tie 3000 --tie-across 2`.
+- [Source code, CLI and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/formwork-pressure): FSL-1.1-MIT licensed. `node cli.mjs --wall --height 10 --rate 5 --temp 70 --tie 3000 --tie-across 2`.

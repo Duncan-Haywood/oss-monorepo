@@ -2,7 +2,7 @@
 
 > Free property management profit calculator: doors, fee percentage, leasing and renewal income, managers and admin in; monthly profit, break-even doors, the cost of your next hire, best fee and new-owner payback out. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/property-management-profit-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/property-management-profit-calculator): FSL-1.1-MIT licensed.

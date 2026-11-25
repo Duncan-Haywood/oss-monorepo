@@ -21,7 +21,7 @@ owner: duncan
 # News asking "stripe failed payment recovery", "dunning emails self hosted",
 # "churn buster alternative". Volume not measured with an external tool.
 #
-# Path to revenue (payments stay off): free and MIT as the lead magnet; a
+# Path to revenue (payments stay off): free and FSL-1.1-MIT as the lead magnet; a
 # hosted version, done-for-you setup or GitHub Sponsors are the paid steps --
 # hosting under the public name and billing are owner-gated.
 

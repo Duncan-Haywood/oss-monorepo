@@ -14,4 +14,4 @@ After using this, you can now **quote a custom cake from its real cost instead o
 2. Pure logic is in `calc.mjs` (`priceCake()`); tests: `node --test`.
 
 Modelled: materials, labor, delivery, overhead, fee and margin taken from the price, tiers, deposit, quoted-price check. Not modelled: cottage-food law, licences,
-insurance, sales tax, tasting costs, equipment wear. Not business or legal advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
+insurance, sales tax, tasting costs, equipment wear. Not business or legal advice. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

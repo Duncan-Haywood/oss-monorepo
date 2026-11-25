@@ -2,7 +2,7 @@
 
 > Free online fair cost sharing calculator. Split a shared cost by the Shapley value (Shapley 1953) and the nucleolus (Schmeidler 1969; sequential LPs of Maschler, Peleg & Shapley 1979), with SCRB and ENSC (Young, Okada & Hashimoto 1982), proportional and equal splits beside them, and a core check that names the subgroup each split overcharges most. Road mode: give each household's distance along a shared private road, pipe or runway and each stretch is split among those who use it (Littlechild & Owen 1973). Claims mode: divide an estate that cannot pay every claim by the Talmud rule (= nucleolus; Aumann & Maschler 1985), random arrival (= Shapley value; O'Neill 1982), proportional, constrained equal awards and losses. Checked against an independent scipy implementation on 40 games and against the Mishnah's three estate divisions. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Arithmetic on the numbers you supply, not legal, tax, financial or professional advice. A road agreement, deed, contract, statute or court may require a different split.
+Free to use and source available (FSL-1.1-MIT). Arithmetic on the numbers you supply, not legal, tax, financial or professional advice. A road agreement, deed, contract, statute or court may require a different split.
 
 ## Pages
 
@@ -27,4 +27,4 @@ Free and open source (MIT). Arithmetic on the numbers you supply, not legal, tax
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cost-sharing-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cost-sharing-calculator): FSL-1.1-MIT licensed.

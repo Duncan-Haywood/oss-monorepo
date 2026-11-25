@@ -2,7 +2,7 @@
 
 > Tire shop ticket margin calculator for owners and managers. Enter tires, alignments, road hazard coverage and fees with price, parts cost, labor minutes and attach rate to see net per ticket, what each upsell is worth, break-even tickets, bay capacity and what a discount must win back.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tire-shop-ticket-margin-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tire-shop-ticket-margin-calculator): FSL-1.1-MIT licensed.

@@ -3,7 +3,7 @@
 // Split out of calc.mjs on 2026-11-23 (quality audit round 87); calc.mjs re-exports every public name.
 
 import { CARRY_OVER_PICK, carryOver } from "./carryover-core.mjs";
-import { parseDateList, parseTime, parseDate, parseWeekdays, nextPlayDay, MAX_SCAN_DAYS, dayLabel, dayIso } from "./dates.mjs";
+import { parseDateList, dateOrder, MIXED_ORDER, parseTime, parseDate, parseWeekdays, nextPlayDay, MAX_SCAN_DAYS, dayLabel, dayIso } from "./dates.mjs";
 import { teamIndex, parseTeams, MAX_TEAMS } from "./names.mjs";
 import { roundRobin, countBreaks } from "./rounds.mjs";
 import { mulberry32 } from "./rng.mjs";
@@ -36,6 +36,8 @@ export function needsSeasonSearches(spec) {
 export function parseBlackouts(text, teams) {
   const blackouts = {};
   const errors = [];
+  const order = dateOrder(text);
+  if (order.mixed) errors.push(MIXED_ORDER);
   for (const [i, raw] of String(text ?? "").split(/\r?\n/).entries()) {
     const line = raw.trim();
     if (!line) continue;
@@ -43,7 +45,7 @@ export function parseBlackouts(text, teams) {
     if (!m) { errors.push(`Line ${i + 1}: write the team, a colon, then the dates (Hawks: 2026-11-05).`); continue; }
     const idx = teamIndex(teams, m[1]);
     if (idx < 0) { errors.push(`Line ${i + 1}: "${m[1].trim()}" is not one of the teams.`); continue; }
-    const { days, errors: e } = parseDateList(m[2]);
+    const { days, errors: e } = parseDateList(m[2], order.order ?? null);
     for (const x of e) errors.push(`Line ${i + 1}: ${x}`);
     blackouts[idx] = [...new Set([...(blackouts[idx] || []), ...days])].sort((a, b) => a - b);
   }

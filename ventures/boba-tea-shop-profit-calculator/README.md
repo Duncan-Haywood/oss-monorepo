@@ -16,4 +16,4 @@ which used to be a spreadsheet you built from a blog post.
 2. Pure logic is in `calc.mjs` (`analyze()`); tests: `node --test`.
 
 Not modelled: seasonality, tax, equipment replacement, lease terms beyond rent, multiple locations. Every figure is yours; none
-is a market claim. Not financial advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
+is a market claim. Not financial advice. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

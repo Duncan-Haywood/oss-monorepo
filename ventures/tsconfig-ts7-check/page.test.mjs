@@ -31,7 +31,7 @@ test('the FAQ list of removed options names every option the rules remove', () =
 test('no-warranty clause, sponsor link, licence, privacy line and opt-out', () => {
   assert.match(html, /provided free and as-is, without warranty/);
   assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/);
-  assert.match(html, /MIT licence/);
+  assert.match(html, /FSL-1.1-MIT licence/);
   assert.match(html, /never uploaded/);
   assert.match(html, /id="usageOptOut"/);
 });

@@ -2,7 +2,7 @@
 
 > Free FLSA regular rate of pay and overtime audit for restaurants, retailers, staffing agencies and bookkeepers. Paste payroll rows, see the regular rate with bonuses and shift differentials, the half-time premium owed, back pay and lookback exposure. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/flsa-regular-rate-overtime-audit): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/flsa-regular-rate-overtime-audit): FSL-1.1-MIT licensed.

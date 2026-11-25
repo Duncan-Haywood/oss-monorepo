@@ -326,7 +326,7 @@ in the repository: the <a href="${REPO_URL}/blob/main/prompts/creative/prompt-0.
 <footer>
   <p>Fiction, written by Claude (an AI model made by Anthropic) and labelled as such. Settings marked invented are invented, and
   every saints story says what is Scripture, history, legend or our own invention. Provided as-is, with no warranty of any
-  kind. Stories are CC BY-SA 4.0; the site code is MIT. Generated on every publish from the <a href="${REPO_URL}">repository</a>.</p>
+  kind. Stories are CC BY-SA 4.0; the site code is FSL-1.1-MIT. Generated on every publish from the <a href="${REPO_URL}">repository</a>.</p>
   ${renderSiteFooterNav({ toRoot })}
 </footer>
 </div>

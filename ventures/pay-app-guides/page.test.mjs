@@ -1,0 +1,57 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+
+const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
+const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html"];
+
+test("every page carries the no-warranty clause, sponsor link, opt-out and honest CTA", () => {
+  for (const name of PAGES) {
+    const html = page(name);
+    assert.match(html, /No warranty\./, name);
+    assert.match(html, /not legal/, name);
+    assert.match(html, /github\.com\/sponsors\/Duncan-Haywood/, name);
+    assert.match(html, /id="optout"/, name);
+    assert.match(html, /in development, with early access<\/strong>; nothing is for sale yet/, name);
+    assert.match(html, /href="https:\/\/marisstella\.app\/industries\/construction\/"/, name);
+    assert.match(html, /<title>[^<]{3,60}<\/title>/, name);
+    const desc = /<meta name="description" content="([^"]*)"/.exec(html);
+    assert.ok(desc && desc[1].length <= 160, `${name}: meta description must be 160 characters or fewer`);
+  }
+});
+
+test("no page sends anything anywhere or loads remote scripts", () => {
+  for (const name of [...PAGES, "calc.mjs", "usage.mjs"]) {
+    const src = page(name);
+    assert.doesNotMatch(src, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/, name);
+    assert.doesNotMatch(src, /<script[^>]+src=["']https?:/, name);
+  }
+});
+
+test("pages that mention the AIA say they are not the AIA form", () => {
+  for (const name of PAGES) {
+    const html = page(name);
+    if (/G702/.test(html)) assert.match(html, /Not affiliated with the American Institute of Architects/, name);
+  }
+});
+
+test("calculator inputs are labelled", () => {
+  const html = page("index.html");
+  for (const id of ["ret-work", "ret-stored", "released", "prev-cert"]) assert.match(html, new RegExp(`<label for="${id}">`));
+});
+
+test("the retainage table covers at least 10 states, each linked to an official legislature site, with a read date", () => {
+  const html = page("retainage-explained.html");
+  const table = html.slice(html.indexOf('id="state-table"'), html.indexOf("</table>", html.indexOf('id="state-table"')));
+  const rows = [...table.matchAll(/<tr><td>([A-Z][a-z]+(?: [A-Z][a-z]+)?)<\/td><td><a href="([^"]+)"/g)];
+  assert.ok(rows.length >= 10, `only ${rows.length} states`);
+  const official = /^https:\/\/(leginfo\.legislature\.ca\.gov|statutes\.capitol\.texas\.gov|www\.leg\.state\.fl\.us|www\.nysenate\.gov|www\.palegis\.us|www\.ilga\.gov|www\.ncleg\.gov|www\.legislature\.mi\.gov|law\.lis\.virginia\.gov|app\.leg\.wa\.gov|malegislature\.gov|www\.azleg\.gov)\//;
+  for (const [, state, href] of rows) assert.match(href, official, state);
+  assert.match(html, /2026-11-24/);
+});
+
+test("robots and sitemap list every page", () => {
+  assert.match(page("robots.txt"), /Allow: \//);
+  const sitemap = page("sitemap.xml");
+  for (const name of PAGES) assert.match(sitemap, new RegExp(name.replace(".", "\\.")));
+});

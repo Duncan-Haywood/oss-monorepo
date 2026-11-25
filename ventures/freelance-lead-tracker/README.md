@@ -26,4 +26,4 @@ loop: [Proposal Maker](../freelance-proposal-maker/) ->
 [Invoice Maker](../invoice-maker/), tied together by the
 [Freelance Dashboard](../freelance-dashboard/).
 
-A bookkeeping notebook, not advice; see the disclaimer on the page. MIT licensed.
+A bookkeeping notebook, not advice; see the disclaimer on the page. FSL-1.1-MIT licensed.

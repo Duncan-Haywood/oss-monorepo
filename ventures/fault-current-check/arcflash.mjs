@@ -1,6 +1,6 @@
 // Arc-flash incident energy and arc flash boundary by the IEEE 1584-2018 model.
 //
-// Ported to JavaScript from the MIT-licensed Python library `arcflash`
+// Ported to JavaScript from the FSL-1.1-MIT-licensed Python library `arcflash`
 // (Copyright 2022 Li-aung Yip, https://github.com/LiaungYip/arcflash, files
 // arcflash/ieee_1584/{tables,cubicle,equations,calculation}.py). That library
 // reproduces the worked examples of IEEE 1584-2018 Annex D.1 and D.2 and reports

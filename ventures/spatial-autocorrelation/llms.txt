@@ -2,7 +2,7 @@
 
 > Free online spatial autocorrelation tool. Paste a table with one row per place (an id, coordinates as lon/lat or x/y, and one or more numeric columns), or add a neighbour list of shared borders, and get global Moran's I with variances under normality and randomisation and a two-sided permutation p-value, Geary's C, Getis-Ord General G, local Moran's I (LISA) with conditional-permutation p-values and high-high / low-low clusters and high-low / low-high outliers, an optional Benjamini-Hochberg false-discovery-rate cut-off, Getis-Ord Gi* hot and cold spots, the Moran scatterplot and a distance correlogram. Weights: k nearest neighbours, distance band, inverse distance, or a neighbour list; row-standardised, binary or raw. Every numeric column is analysed at once (e.g. one column per year). Checked against PySAL (esda 2.9.0) to 1e-9 on nine weight set-ups. Example: per-capita income of the 48 US states, 1929 to 2009 (BEA). Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). A description of the pattern in the numbers, not proof of a cause, and not legal, tax, financial, public-health, planning or other professional advice.
+Free to use and source available (FSL-1.1-MIT). A description of the pattern in the numbers, not proof of a cause, and not legal, tax, financial, public-health, planning or other professional advice.
 
 ## Pages
 
@@ -24,4 +24,4 @@ Free and open source (MIT). A description of the pattern in the numbers, not pro
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/spatial-autocorrelation): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/spatial-autocorrelation): FSL-1.1-MIT licensed.

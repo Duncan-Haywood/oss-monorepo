@@ -78,4 +78,4 @@ status, does not determine what your state or governing Standards of
 Practice (InterNACHI, ASHI, or your state board) require you to inspect, and
 does not replace your own E&O policy, contract, or accountant.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.

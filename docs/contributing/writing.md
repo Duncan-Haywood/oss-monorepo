@@ -160,4 +160,4 @@ wrong. For anything with front matter, the checks above still apply, and the
 maintainer will run them if you could not.
 
 By contributing writing you agree that it is published under the repository's
-[MIT license](../../LICENSE), like the code.
+[FSL-1.1-MIT license](../../LICENSE), like the code.

@@ -2,7 +2,7 @@
 
 > Free staff scheduling calculator for restaurants, cafes, salons and shops. Paste the staff or demand each open hour needs to get the cheapest set of shifts that covers every hour, what it saves against fixed 8-hour shifts, and what a minimum shift length costs. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/shift-cover-optimizer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/shift-cover-optimizer): FSL-1.1-MIT licensed.

@@ -2,7 +2,7 @@
 
 > Free calculator comparing 100% bonus depreciation, a Section 179 election, and plain MACRS depreciation for a new equipment or asset purchase — with the 2025/2026 OBBBA dollar limits and phase-out, the net-operating-loss vs. carryforward distinction, and cash tax savings for each path.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/bonus-depreciation-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/bonus-depreciation-calculator): FSL-1.1-MIT licensed.

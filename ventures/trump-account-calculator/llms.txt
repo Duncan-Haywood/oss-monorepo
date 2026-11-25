@@ -2,7 +2,7 @@
 
 > Free calculator for the federal Trump Account child savings account (One Big Beautiful Bill Act, 26 U.S.C. 530A): projects the $1,000 federal seed deposit plus family and employer contributions to age 18 or later, and applies the IRA-style pro-rata withdrawal rule -- the mechanic every 529-plan comparison misses.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -12,4 +12,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/trump-account-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/trump-account-calculator): FSL-1.1-MIT licensed.

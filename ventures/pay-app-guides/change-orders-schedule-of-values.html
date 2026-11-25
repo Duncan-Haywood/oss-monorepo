@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b51'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Change Orders and the SOV</title>
+  <meta name="description" content="How change orders flow into the schedule of values and pay application: approved and deductive change orders, retainage, and a worked example.">
+  <meta property="og:title" content="How change orders flow into the schedule of values">
+  <meta property="og:description" content="Approved change orders get their own SOV lines, change the contract sum to date, and carry retainage like everything else. A worked example and the mistakes that get pay apps rejected.">
+  <link rel="canonical" href="./change-orders-schedule-of-values.html">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "How change orders flow into the schedule of values", "datePublished": "2026-11-24", "dateModified": "2026-11-24"}</script>
+</head>
+<body>
+<header>
+  <p class="kicker">Pay app guides · <a href="./">schedule of values calculator</a></p>
+  <h1>How change orders flow into the schedule of values</h1>
+  <p>Almost every job changes. The pay application has to show those changes without rewriting the original deal, so the owner can see what was bid and what was added. The convention is simple, and most rejected change-order billing breaks one of four rules below.</p>
+  <nav class="guides" aria-label="Guides">
+    <a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a>
+    <a href="retainage-explained.html">Retainage explained</a>
+    <a href="conditional-vs-unconditional-lien-waivers.html">Lien waivers</a>
+  </nav>
+</header>
+<main>
+<section class="card">
+  <h2>The four rules</h2>
+  <ol>
+    <li><strong>An approved change order gets its own SOV line.</strong> Add it as CO-1, CO-2 and so on, with its full value as the scheduled value. Do not raise the value of an original line: the original contract sum stays as it was bid.</li>
+    <li><strong>Only approved change orders go on the pay app.</strong> A change order request, a pending change order or a signed T&amp;M ticket with no executed change order is usually not billable yet. Track it separately and bill it the month it is signed. Check your subcontract: some allow billing approved-in-principle work.</li>
+    <li><strong>A deductive change order is a negative line.</strong> It reduces the contract sum to date. Bill it as "completed" in the period the credit applies, so the balance to finish on that line reaches zero.</li>
+    <li><strong>Retainage applies to change-order work too,</strong> unless the change order says otherwise.</li>
+  </ol>
+</section>
+
+<section class="card">
+  <h2>Worked example</h2>
+  <p>A $150,000 electrical subcontract adds CO-1, $8,500 of EV charger circuits, half done this month.</p>
+  <div class="scroll"><table>
+    <thead><tr><th scope="col">Summary line</th><th scope="col" class="n">Before CO-1</th><th scope="col" class="n">After CO-1</th></tr></thead>
+    <tbody>
+      <tr><td>Original contract sum</td><td class="n">$150,000.00</td><td class="n">$150,000.00</td></tr>
+      <tr><td>Net change by change orders</td><td class="n">$0.00</td><td class="n">$8,500.00</td></tr>
+      <tr><td>Contract sum to date</td><td class="n">$150,000.00</td><td class="n">$158,500.00</td></tr>
+      <tr><td>CO-1 completed this period</td><td class="n"></td><td class="n">$4,250.00</td></tr>
+      <tr><td>Retainage on CO-1 at 10%</td><td class="n"></td><td class="n">$425.00</td></tr>
+      <tr><td>Added to this month's payment due</td><td class="n"></td><td class="n">$3,825.00</td></tr>
+    </tbody>
+  </table></div>
+  <p>In the <a href="./">calculator</a>, any line whose item starts with "CO" is counted as a change order rather than part of the original contract sum. Press "Load an example" to see this one.</p>
+</section>
+
+<section class="card">
+  <h2>Keeping change orders from costing you money</h2>
+  <ul>
+    <li>Get the change order signed before the work if your contract requires it; many subcontracts waive payment for unapproved extra work.</li>
+    <li>Keep a log of every request, its status and its value. Unsigned changes are the easiest money to lose on a job.</li>
+    <li>When you sign a progress lien waiver, list unapproved change orders as an exception (see <a href="conditional-vs-unconditional-lien-waivers.html">lien waivers</a>).</li>
+    <li>Watch notice deadlines in your subcontract for claims and change requests; they can be short.</li>
+  </ul>
+</section>
+
+<section class="card cta" id="early-access">
+  <h2>Losing track of change orders across jobs?</h2>
+  <p>We are building hosted pay-app billing for specialty subcontractors that logs change orders from request to signature and adds them to the next pay app when approved. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
+</section>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, or financial advice, and it does not replace your contract, your accountant, or an attorney. You are responsible for verifying anything you bill. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Privacy.</strong> No accounts, cookies or analytics vendors. One anonymous counter (<code>guide_change_orders_viewed</code>) is kept in local storage on your device only, and Do Not Track switches it off. <button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
+</footer>
+<script type="module">
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  record("guide_change_orders_viewed");
+  const b = document.getElementById("optout");
+  b.addEventListener("click", () => { setUsageOptOut(true); b.textContent = "Usage counting is off"; b.disabled = true; });
+  if (usageOptedOut()) { b.textContent = "Usage counting is off"; b.disabled = true; }
+</script>
+</body>
+</html>

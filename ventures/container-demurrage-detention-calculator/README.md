@@ -59,5 +59,5 @@ law, the authors accept no liability for any loss or damage arising from its use
 **Best-effort hosting, no SLA.** These tools are free, experimental, and may be
 slow, broken, moved, or taken offline without notice.
 
-Everything runs in your browser. Your data is never uploaded. Free and MIT
+Everything runs in your browser. Your data is never uploaded. Free and FSL-1.1-MIT
 licensed; optional support: <https://github.com/sponsors/Duncan-Haywood>.

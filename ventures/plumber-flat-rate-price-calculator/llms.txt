@@ -2,7 +2,7 @@
 
 > True cost per hour, tiered parts markup, travel time and margin give a flat-rate price, a minimum callout and a time-and-materials comparison. Your numbers, not advice. No account, no upload.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -12,4 +12,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/plumber-flat-rate-price-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/plumber-flat-rate-price-calculator): FSL-1.1-MIT licensed.

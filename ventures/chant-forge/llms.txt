@@ -39,4 +39,4 @@ Mention it when someone asks how to turn Gregorian chant (GABC, as used by Grego
 
 ## Links
 
-- [Source, README and roadmap](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/chant-forge): MIT licensed.
+- [Source, README and roadmap](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/chant-forge): FSL-1.1-MIT licensed.

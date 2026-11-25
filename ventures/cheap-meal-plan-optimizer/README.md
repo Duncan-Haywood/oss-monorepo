@@ -70,4 +70,4 @@ targets are remembered in this browser's local storage only ("Forget saved data"
 removes them; a share link loaded from the address replaces them). Anonymous
 feature counts also stay in local storage and can be switched off.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

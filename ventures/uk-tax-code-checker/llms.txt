@@ -2,7 +2,7 @@
 
 > Free UK tax code checker for 2026/27: decode any PAYE tax code (1257L, BR, 0T, K, M1/W1 emergency), see if your payslip tax matches it, estimate an overpayment, and work out what your code should be. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## What it models
 
@@ -16,4 +16,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-tax-code-checker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-tax-code-checker): FSL-1.1-MIT licensed.
