@@ -498,6 +498,111 @@ products:
       sets the price ids; then a marketing page with a sample gallery.
       Built so far: the free offline proofing set (cull page, 2026-11-25,
       ventures/photo-editing/eval/cull-proofing-set-2026-11-25.md).
+  # Construction review tools without a row before 2026-11-24 (backlog P072).
+  # Each sells new hosted depth (saved projects, history across model or
+  # schedule drops, team sharing); everything the public page calls free
+  # stays free in the browser. Prices are untested hypotheses.
+  - venture: xer-schedule-check
+    buyer: >-
+      owner's representatives, scheduling consultants and schedulers at small
+      and mid-size general contractors who review a P6 update every month
+    liability: medium
+    model: >-
+      The browser check stays free. Sell a hosted schedule-review workspace:
+      each project keeps its monthly XER updates, so the DCMA checks, the
+      critical-path and finish-date trend (trend.mjs) and the logic changes
+      between updates are kept per project and shared with the project team,
+      with a branded review letter per update. Holding contract schedules is
+      why liability is medium; the output is a review aid, not a delay or
+      claims opinion.
+    first_offer: per-project update history with trend, update-to-update changes and a branded review letter
+    price_hypothesis: "$39 to $79 a user a month (untested; under Steelray's $990 a year at the top, above ScheduleReader PRO's viewer)"
+    comparables:
+      - what: Steelray Analyzer for P6, annual subscription
+        price: $990 a user a year
+        source: https://steelray.com/AnalyzerP6/AnalyzerForP6.php
+        read: 2026-11-24
+      - what: ScheduleReader (P6 viewer) Standard / PRO, Windows
+        price: $344 / $440 a user a year  # search-result text of the vendor page
+        source: https://www.schedulereader.com/pricing
+        read: 2026-11-24
+    billing: subscription
+    stage: planned
+    next: >-
+      Agent step (2026-11-24, backlog P072): build the workspace dark: the
+      project list and stored updates behind an account, the existing
+      trend.mjs and compare.mjs run over the stored updates, and the Paddle
+      BillingProvider copied from private-monorepo apps/grants, left dark
+      until the owner sets a price id. Re-read ScheduleReader's own page
+      (search-result figure) and a third comparable (SmartPM or Deltek
+      Acumen) before pricing. A marketing page aimed at owner's reps comes
+      with it.
+    next_owner: false
+
+  - venture: ids-model-check
+    buyer: >-
+      BIM managers at small design and contracting firms, and owners'
+      information managers who set IDS requirements on a project
+    liability: medium
+    model: >-
+      The browser and CLI check stay free. Sell a hosted project workspace:
+      the project's IDS library, every model drop checked against it with
+      results kept per drop, the BCF issues followed from drop to drop
+      (opened, fixed, reopened) and a compliance summary shared with the
+      design team. Holding client models is why liability is medium.
+    first_offer: per-project IDS library with every model drop checked and issues tracked across drops
+    price_hypothesis: "$19 to $39 a user a month (untested; between BIMcollab's platform plans and Solibri's Essential)"
+    comparables:
+      - what: BIMcollab platform Basic / Advanced / Enterprise (IDS included in all three)
+        price: €12.50 / €18.75 / €25 a user a month billed yearly; €19 / €29 / €39 monthly
+        source: https://www.bimcollab.com/en/plans/bimcollab-platform/
+        read: 2026-11-24
+      - what: Solibri Starter / Essential / Advanced / Premium (IDS workflows from Advanced)
+        price: €99 / €1,428 / €2,109 / €2,772 a licence a year, starting prices
+        source: https://www.solibri.com/pricing
+        read: 2026-11-24
+    billing: subscription
+    stage: planned
+    next: >-
+      Agent step (2026-11-24, backlog P072): build the workspace dark: projects
+      with an IDS library and stored check results per model drop, issue
+      tracking keyed on the BCF GUIDs the checker already writes, and the
+      Paddle BillingProvider from private-monorepo apps/grants, dark until the
+      owner sets a price id. Large IFC uploads are the main cost driver:
+      measure storage per project before fixing a price.
+    next_owner: false
+
+  - venture: ifc-quantity-takeoff
+    buyer: >-
+      estimators at small contractors and quantity surveyors who price from
+      the designers' IFC models
+    liability: medium
+    model: >-
+      The browser bill of quantities stays free. Sell a hosted estimating
+      workspace: saved jobs, the firm's own rate library applied to every
+      takeoff, each model revision kept so the change-order diff (diff.mjs)
+      runs against the last priced revision, and a branded priced BoQ.
+      Quantities feed bids, so the page keeps saying to check them.
+    first_offer: saved jobs with a company rate library and revision-to-revision change-order history
+    price_hypothesis: "$39 to $79 a month (untested; Autotakeoff's floor to under Buildxact's entry plan)"
+    comparables:
+      - what: Autotakeoff (Capterra listing)
+        price: from $49 a month
+        source: https://www.capterra.com/p/10029303/Autotakeoff/
+        read: 2026-11-02
+      - what: Buildxact Entry / Pro / Teams
+        price: $149 / $249 / $399 a month
+        source: https://www.buildxact.com/us/?p=9872
+        read: 2026-11-02
+    billing: subscription
+    stage: planned
+    next: >-
+      Agent step (2026-11-24, backlog P072): neither comparable reads IFC.
+      Find an IFC-capable one on the vendor's own page (PriMus IFC's prices
+      exist only on aggregators that disagree, $7 to $50 a month), then build
+      the workspace dark with the Paddle BillingProvider from private-monorepo
+      apps/grants. Consider folding it into the app:wall-framing-takeoff
+      estimating module instead of a separate product: same buyer, one bill.
     next_owner: false
 
   # ---------------------------------------------------------------------------
@@ -604,7 +709,8 @@ products:
         status: proposal
         why: >-
           Still well under ProShop's $650 to $715; the allowance covers the model
-          cost of heavier shops so margin holds (cost-plus, as Grant Autopilot).
+          cost of heavier shops so the 40% margin floor holds (as Grant Autopilot;
+          the jobshop-site proposal derives 125 / 300 RFQs a month at a 50% margin).
     cost_drivers:
       - model API calls per RFQ (drawing and email extraction), the largest variable cost
       - CPU for STEP geometry (volume, bounding box) per part
@@ -875,15 +981,16 @@ products:
     liability: medium
     billing: subscription
     model: >-
-      Live product (marisstella.app/grants) with a cost-plus subscription: 1.3x
-      to 2.0x of the fully loaded cost, enforced by a unit test
+      Live product (marisstella.app/grants) with a subscription that keeps at
+      least a 40% margin over the fully loaded cost at full allowance (owner,
+      2026-11-24: "aim for min 40-60% margins"), enforced by a unit test
       (private-monorepo/apps/grants/docs/PRICING.md, per LICENSING_TRANSITION.md).
       Its Paddle adapter is the reference for every bet above.
     first_offer: the plans in apps/grants/docs/PRICING.md
     price_hypothesis: "cost-plus per apps/grants/docs/PRICING.md (not restated here); untested with buyers"
     tiers:
       - name: as in apps/grants/docs/PRICING.md
-        price: cost-plus, 1.3x to 2.0x of fully loaded cost
+        price: "$10 / $29 / $149 a month since 2026-11-24 (was $5 / $20 / $100) for 5 / 20 / 120 drafts on Haiku 5.5, 82-88% margin at full use (floor 40%)"
         status: proposal
         why: >-
           The app's own pricing file and its unit test set the tiers; this row

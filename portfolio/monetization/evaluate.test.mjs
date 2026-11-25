@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { netPerSale, yearOne, scenarios, validate, measuredTraffic, loadEvaluations, flagshipSlugs, ventureSlugs } from './evaluate.mjs';
+import { netPerSale, margin, MARGIN_FLOOR, yearOne, scenarios, validate, measuredTraffic, loadEvaluations, flagshipSlugs, ventureSlugs } from './evaluate.mjs';
 
 test('merchant-of-record fee is 5% + 50c; donations carry none', () => {
   assert.equal(netPerSale(100, 'one-time'), 94.5);
@@ -70,4 +70,25 @@ test('the committed file covers every flagship and every mechanism has a basis',
 test('flagshipSlugs leaves out paid-bet rows (`app:`), which models.yaml evaluates', () => {
   const src = 'flagships:\n  - venture: payapps\n    bet: 1\n    app: private-monorepo/apps/payapps\n    why: >-\n      x\n  - venture: old-tool\n    demoted: >-\n      y\n';
   assert.deepEqual(flagshipSlugs(src), ['old-tool']);
+});
+
+test('margin floor: 40% after the merchant fee and the stated variable cost', () => {
+  assert.equal(MARGIN_FLOOR, 0.4);
+  // $29/month, $0 cost: (29 * 0.95 - 0.5) / 29 = 93.3%.
+  assert.ok(Math.abs(margin({ unit: 'monthly', price_usd: 29 }) - 0.9328) < 1e-3);
+  // $10/month with $3.83 of model and hosting cost: (9.5 - 0.5 - 3.83) / 10 = 51.7%.
+  assert.ok(Math.abs(margin({ unit: 'monthly', price_usd: 10, variable_cost_usd: 3.83 }) - 0.517) < 1e-9);
+  assert.equal(margin({ unit: 'donation', price_usd: 5 }), null);
+  assert.equal(margin({ unit: 'one-time', price_usd: 0 }), null);
+  const ev = (cost) => ({
+    evaluations: [{
+      id: 'x', kind: 'venture', evaluated: '2026-11-24', buyer: 'a buyer long enough', verdict: 'a verdict long enough',
+      next_measurement: 'a measurement long enough', gtm: ['a', 'b'], traffic_target_monthly: { value: 1, basis: 'b' },
+      mechanisms: [{ name: 'plan', unit: 'monthly', price_usd: 10, conversion: 0.01, gate: 'none', basis: 'assumed', variable_cost_usd: cost }],
+    }],
+  });
+  const ctx = { categories: new Set(), flagships: [], slugs: new Set(['x']) };
+  assert.deepEqual(validate(ev(3.83), ctx), []);
+  assert.match(validate(ev(6), ctx).join('\n'), /margin 30% .* below the 40% floor/);
+  assert.match(validate(ev(-1), ctx).join('\n'), /variable_cost_usd must be a non-negative number/);
 });

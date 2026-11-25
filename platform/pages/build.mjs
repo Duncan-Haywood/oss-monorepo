@@ -1717,6 +1717,7 @@ const CATEGORY_RULES = [
     // `water-damage-drying-estimate-calculator` joined 2026-10-11 on its first commit beside `grease-trap-pumping-price-calculator`: a restoration contractor turning wet area, equipment days and labour into a job invoice and margin.
     // `hoarding-cleanout-bid-calculator` joined 2026-10-11 on its first commit beside `dumpster-rental-margin-calculator`: a cleanout contractor pricing volume, crew days and containers.
     // `powder-coating-job-price-calculator` joined 2026-10-10 on its first commit beside `cnc-machining-quote-calculator`: a job shop turning labour, machine and material into a customer price.
+    // `machine-shop-guides` joined 2026-11-24 beside `cnc-machining-quote-calculator`: free guides and a quote calculator for the same small machine shops; it was the sixth tool in the catch-all.
     // `dxf-nesting` joined 2026-11-18 on its first commit beside `laser-cutting-engraving-job-price-calculator` and `cnc-machining-quote-calculator`: the same laser, plasma and CNC job shop, nesting the customer's DXF parts on sheets before it prices the cut.
     // `laser-cutting-engraving-job-price-calculator` joined 2026-10-10 on its first commit beside `cnc-machining-quote-calculator`: a laser shop turning sheet, machine time and labour into a customer price.
     // `therapy-8-minute-rule-calculator` joined 2026-10-10: a therapy practice turning timed minutes into billable units is a services-business job; the catch-all was at 6, over the bound of five (build.test.mjs).
