@@ -112,7 +112,7 @@ export function compute(text, settings = {}) {
   if (ret == null || ret > 100) { out.errors.push("Retainage must be a percentage from 0 to 100."); return out; }
   if (rate == null || rate > 100) { out.errors.push("Cost of money must be a yearly percentage from 0 to 100."); return out; }
   if (String(settings.mobilizationCap ?? "").trim() !== "" && (mobCap == null || mobCap > 100)) { out.errors.push("The mobilization cap must be a percentage from 0 to 100, or blank."); return out; }
-  const unit = ROUND[settings.round] ?? 1;
+  const unit = Object.hasOwn(ROUND, settings.round ?? "") ? ROUND[settings.round] : 1;
   const hasMonths = idx.start != null && idx.finish != null;
 
   for (let r = 1; r < grid.length; r++) {
