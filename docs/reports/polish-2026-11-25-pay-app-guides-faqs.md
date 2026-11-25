@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [aeo, seo]
+topics: [seo]
 date: 2026-11-25
 ---
 # Polish, 2026-11-25: visible FAQs + FAQPage on five pay-app guides (bet #1 front door)
