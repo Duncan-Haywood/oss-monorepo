@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "codeql gate (javascript-typescript) failed on the first push: js/incomplete-url-substring-sanitization on the moved looksLikeNfeEvent line, and js/incomplete-sanitization on a regex-escape in the new test. Fixed both: the event sniff now uses the NF-e xmlns-declaration regex, and the test uses String.includes. The 200-fixture comparison was still identical afterwards, and 2798 tests pass."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -39,6 +41,10 @@
     {
       "file": "platform/perf/module-exclusive.mjs",
       "issue": "It takes only an HTML page, so it could not split page-engine.mjs (a dynamic-import entry). I wrote a scratch walker for that. Accepting a .mjs root would save the next run the same step."
+    },
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "It flagged XML namespace URIs that were moved verbatim as 'new outbound hosts'. CodeQL then flagged the moved .includes(namespace) line, so moving old code counts as writing it for both gates."
     }
   ],
   "deviations": [

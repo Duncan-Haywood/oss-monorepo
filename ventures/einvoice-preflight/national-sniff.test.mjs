@@ -20,7 +20,7 @@ test("report.mjs keeps the Mexican and Brazilian checkers off its static imports
   const statics = [...src.matchAll(/^import\s[^;]*?from\s*"([^"]+)"/gm)].map((m) => m[1]);
   for (const mod of HEAVY) {
     assert.ok(!statics.includes(mod), `${mod} is a static import of report.mjs again`);
-    assert.match(src, new RegExp(`await import\\("${mod.replace(/[.\/]/g, "\\$&")}"\\)`), `${mod} is not loaded on demand`);
+    assert.ok(src.includes(`await import("${mod}")`), `${mod} is not loaded on demand`);
   }
   assert.ok(statics.includes("./national-sniff.mjs"));
 });

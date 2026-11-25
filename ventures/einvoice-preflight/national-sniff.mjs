@@ -26,7 +26,9 @@ export function looksLikeNfe(text) {
 
 export function looksLikeNfeEvent(text) {
   const head = String(text).slice(0, 4096);
-  return /<(?:[A-Za-z0-9_]+:)?(?:envEvento|evento|procEventoNFe)[\s>]/.test(head) && head.includes(NFE_NS);
+  // The head must declare the NF-e namespace (an xmlns attribute whose value is exactly NFE_NS),
+  // as looksLikeNfe requires, not merely contain the URL somewhere.
+  return /<(?:[A-Za-z0-9_]+:)?(?:envEvento|evento|procEventoNFe)[\s>]/.test(head) && NFE_NS_DECL.test(head);
 }
 
 export const NFSE_NS = "http://www.sped.fazenda.gov.br/nfse";

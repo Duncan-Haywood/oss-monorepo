@@ -29,7 +29,12 @@ way (the 2026-11-20 note guessed it would be "a bigger refactor"; it was not).
 
 - New `national-sniff.mjs`, no imports: the six `looksLike*` sniffers and the
   constants they need (`NFE_NS`, `NFSE_NS`, the ABRASF own-namespace pattern),
-  moved verbatim.
+  moved verbatim, with one change: CodeQL's PR gate flagged the moved
+  `looksLikeNfeEvent` line (`head.includes(NFE_NS)`,
+  `js/incomplete-url-substring-sanitization`), so it now requires an xmlns
+  declaration whose value is exactly the NF-e namespace, as `looksLikeNfe`
+  already did. Every event fixture declares it that way; the 200-file
+  comparison below was re-run after this change and is still identical.
 - The six checker modules import and re-export those, so every existing import
   (`brazil-nfe-e-invoice-mandate.html`, the evals, the tests) is unchanged.
 - `report.mjs` imports the sniffers from `national-sniff.mjs` and does
