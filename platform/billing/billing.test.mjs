@@ -136,6 +136,36 @@ test("webhook refusals: unsigned, unconfigured, oversized, bad JSON; other event
   assert.equal((await handleBilling(new Request("https://edge.test/billing/claim?c=../../x"), ENV, { store })).status, 400);
 });
 
+test("red-team 2026-11-25 (server.mjs): a forged signature is refused, the window is 300 s, only transaction.completed mints", async () => {
+  // A mismatch returning ok:true, a wider window and `||` turned to `&&` on the
+  // event check each passed the suite before these lines.
+  const raw = '{"event_type":"transaction.completed"}';
+  const forged = `ts=${NOW};h1=${createHmac("sha256", "not-the-secret").update(`${NOW}:${raw}`).digest("hex")}`;
+  assert.deepEqual(await verifyPaddleSignature(forged, raw, SECRET, NOW), { ok: false, reason: "signature mismatch" });
+  assert.equal((await verifyPaddleSignature(sign(raw), raw + " ", SECRET, NOW)).ok, false, "tampered body");
+  assert.equal(TOLERANCE_SEC, 300, "Paddle's replay window is five minutes");
+  assert.equal((await verifyPaddleSignature(sign(raw, NOW - 300), raw, SECRET, NOW)).ok, true);
+  assert.equal((await verifyPaddleSignature(sign(raw, NOW - 301), raw, SECRET, NOW)).ok, false);
+  assert.equal((await verifyPaddleSignature(sign(raw, NOW + 301), raw, SECRET, NOW)).ok, false);
+
+  const store = memStore();
+  const o = { store, catalogue: CAT, nowSec: NOW };
+  const claim = newClaim();
+  const body = JSON.stringify({ event_type: "transaction.completed", data: oneOffTx(claim) });
+  const wrong = `ts=${NOW};h1=${createHmac("sha256", "not-the-secret").update(`${NOW}:${body}`).digest("hex")}`;
+  assert.equal((await handleBilling(hook(body, wrong), ENV, o)).status, 401, "fresh timestamp, wrong secret");
+  assert.equal(store.claims.size, 0, "a forged webhook mints nothing");
+  // Paddle also sends transaction.paid (and .updated) with the same data shape:
+  // acknowledged, never a second key.
+  for (const event_type of ["transaction.paid", "transaction.updated"]) {
+    const r = await handleBilling(hook(JSON.stringify({ event_type, data: oneOffTx(claim) })), ENV, o);
+    assert.equal(r.status, 200);
+    assert.equal((await r.json()).ignored, event_type);
+  }
+  assert.equal(store.claims.size + store.subs.size, 0);
+  assert.equal((await handleBilling(hook("null"), ENV, o)).status, 200, "a JSON null body is acknowledged, not a 500");
+});
+
 test("a lapsed subscription key renews from the Worker; a one-off key cannot ask", async () => {
   const store = memStore();
   const claim = newClaim();

@@ -1,4 +1,5 @@
 import { test } from 'node:test';
+import { createHmac } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { maySend, suppressionFor, complianceParts, normalizeAddress } from './policy.mjs';
 import { consentStore, addressKey } from './consent-store.mjs';
@@ -119,6 +120,25 @@ test('unsubscribe tokens: tamper-proof', () => {
   assert.equal(readUnsubscribeToken(SECRET, `${p}.AAAAAAAAAAAAAAAAAAAAAA`), null);
   assert.equal(readUnsubscribeToken(SECRET, 'garbage'), null);
   assert.throws(() => unsubscribeToken('', 'a@b.co', 'cold'));
+});
+
+test('red-team 2026-11-25: tokens already sent keep working, an unset secret verifies nothing, both fields are required', () => {
+  // A link in an email sent before a deploy must still unsubscribe: pin one
+  // token byte for byte (a 23-character signature passed the suite before).
+  // (The signature half only: a whole base64url-JSON token trips the JWT secret scan.)
+  const [payload, signature] = unsubscribeToken(SECRET, 'a@b.co', 'cold').split('.');
+  assert.equal(Buffer.from(payload, 'base64url').toString('utf8'), '{"a":"a@b.co","s":"cold"}');
+  assert.equal(signature, 't3iwyLndhs1bFZfyrVlwh8');
+  const forge = (secret, obj) => {
+    const p = Buffer.from(JSON.stringify(obj)).toString('base64url');
+    return `${p}.${createHmac('sha256', secret).update(p).digest('base64url').slice(0, 22)}`;
+  };
+  // With the secret unset, a token signed with the empty key must not verify.
+  assert.equal(readUnsubscribeToken('', forge('', { a: 'a@b.co', s: 'cold' })), null);
+  // Validly signed but missing the stream or the address: refused.
+  assert.equal(readUnsubscribeToken(SECRET, forge(SECRET, { a: 'a@b.co' })), null);
+  assert.equal(readUnsubscribeToken(SECRET, forge(SECRET, { s: 'cold' })), null);
+  assert.deepEqual(readUnsubscribeToken(SECRET, forge(SECRET, { a: 'a@b.co', s: 'cold' })), { address: 'a@b.co', stream: 'cold' });
 });
 
 test('events: hard bounces and complaints suppress; GET shows a button, POST unsubscribes', async () => {
