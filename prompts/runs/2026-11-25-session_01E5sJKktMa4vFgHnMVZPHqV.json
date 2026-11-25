@@ -1,0 +1,67 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKktMa4vFgHnMVZPHqV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-25T09:21:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "PayApps (bet #1) onboarding: sample job; shipped the export-marking follow-up after a parallel session merged the same feature",
+  "projects": [
+    "payapps"
+  ],
+  "pr": 69,
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "partial",
+  "errors": [
+    "Built the full sample-job feature (about 600 lines with tests) at the same time as the session that merged private PR #68; the duplicate was thrown away and only the difference shipped (#69)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "'Duplicate PRs' covers open PRs and main commits but not work in flight with no PR yet. Two sessions took the same ROADMAP item within minutes because neither opened a draft PR before writing code. Suggest: open the draft PR, titled with the feature, before the first line of code, in private-monorepo too."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "private-monorepo Actions jobs fail in about 3 s with no downloadable log (HTTP 404), not 'queued' as the 2026-11-25 history doc says; ci_starvation.py cannot classify private-repo runs, so local checks are the only signal."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Opened the PR after building rather than right after the first push.",
+      "did": "Built locally first, then opened the PR.",
+      "result": "Lost the work to a parallel session that merged first; only a small follow-up shipped. The default was right."
+    },
+    {
+      "file": "prompt.md",
+      "why": "No new blog post. The change is a small internal hardening of an unlaunched product and has nothing new to tell a customer.",
+      "did": "Wrote an agent doc instead.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/reports/ventures-2026-11-25-payapps-sample-exports.md"
+  ],
+  "goal": "$10k MRR: onboarding for bet #1 (PayApps)",
+  "notes": "Security queue: none workable (1 claimed). Ideas inbox empty. Routed ventures/1. private-monorepo cloned. Private #69 checks run locally: biome ci clean (1 warning already there), typecheck clean, unit 212 passed, worker 157 passed, build ok; the private CI job failed with no runner/log, the same as #68's. No schema change.",
+  "corrections": [],
+  "redteam": null
+}
