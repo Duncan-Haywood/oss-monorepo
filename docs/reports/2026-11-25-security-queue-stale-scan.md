@@ -81,3 +81,22 @@ not list, for a later session to check:
 
 After the next completed main analysis (run 121 on `118c57189` was waiting
 when this was written), the queue should drop to about these 54.
+
+## Fixed after this report (PR 18819)
+
+- `emulate.mjs` `toQuerystring` (#997): real. `?__proto__=a&__proto__=b` wrote
+  `multiValue` onto `Object.prototype`, and a lone `?toString=1` was read as a
+  repeat. Now grouped in a `Map` and built with `Object.fromEntries`. Test added.
+- `webext.mjs` (#574, #274, #275): `</script >` (valid HTML) did not end a
+  script, so the packager's network and inline-handler checks read the wrong
+  span; the end tag now allows `\b[^>]*`. The inline-handler check strips
+  scripts until stable. The rewrite was never a sanitiser (it keeps `<script>`
+  elements on purpose). Once the edit moved it, GitHub's PR check reported it as
+  new, so it is now built from `matchAll` slices with the same output. Tests added.
+- `source-map-leak-check/probe.mjs:44` (#94): a false positive. The tool reads
+  a site the user names, `http://` included, and executes nothing it downloads.
+- The `js/incomplete-hostname-regexp` lines: reading the code found no flow into
+  a `RegExp` (`sshd-config-check` escapes globs; `subpath-robots-check` uses
+  fixed patterns with the host as the subject; `CDN_ORIGIN` is only
+  concatenated). Without a local CodeQL run this is unconfirmed. Their claim
+  branches could not be deleted through the session proxy and expire after 48 h.

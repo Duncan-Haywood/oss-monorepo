@@ -281,7 +281,8 @@
       {
         "file": "prompts/redteam.py",
         "issue": "run_suite's subprocess.run timeout killed only `node --test`; its per-file children running a looping mutant kept spinning 10+ minutes into later mutants (seen twice this run, killed by hand), which can time later mutants out as 'caught'. Fix with failing-first test in control-plane PR #15945 (own process group, killpg); waits for owner approval.",
-        "patched": false
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18834"
       }
     ]
   },
