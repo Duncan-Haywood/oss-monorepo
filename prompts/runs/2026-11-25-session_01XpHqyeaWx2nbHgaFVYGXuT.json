@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyeaWx2nbHgaFVYGXuT",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T02:39:07Z",
+  "ended": "2026-11-25T02:44:04Z",
+  "wall_minutes": 5.1,
+  "tokens_in": 4798206,
+  "tokens_out": 23094,
+  "cost_usd": 2.2096,
+  "tool_calls": 52,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18817",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 says take the top security alert, but QUEUE.md is from a stale scan: alerts #1, #113/#114, #952, #1087/#1088 were already fixed on main, and open PRs #18808/#18809 already handle the stale queue. Several minutes went to re-checking them."
+    },
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "'What visitors wait on' points at page weight, but warm tool-page visits are served entirely by the service worker (fromServiceWorker), so HTTP cache headers matter less than the prompt and the 2026-11-07 report imply."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Did not claim a security-fix branch: the queue was stale, the sampled alerts were already fixed, and other open PRs own the queue repair. The session is also limited to pushing one branch.",
+      "did": "Went on to routing (perf).",
+      "result": "No duplicate security work."
+    },
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "Both perf backlog items (P063, P064) are owner-only.",
+      "did": "Took the open site-performance task site-perf-asset-cache-headers.",
+      "result": "Landed with a test."
+    }
+  ],
+  "writeups": [
+    "docs/history/site-asset-cache-perf-2026-11-25.md"
+  ],
+  "goal": null,
+  "notes": "Metric: requests a warm visit sends to the network for image, font and media files. Before (live curl -I and Playwright, 2026-11-25): every file is max-age=0, must-revalidate, so each image or font revalidates on every view outside the service worker. After: one-day max-age for 15 extensions x 2 cases on both Workers; live curl -I to follow the deploy. Cold transfer readings: / 66.9 KB, /pay-app-guides/ 41.6 KB, /pay-application-generator/ 61.5 KB. Warm tool pages come entirely from the service worker. Tests: node --test platform/pages/cloudflare/split.test.mjs, 9 pass. No new post: this is an infrastructure header change with a small effect, recorded in the history doc.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e5cffee2-83fe-54fd-97ef-220ab21f96d9",
+    "transcripts": 1,
+    "first": "2026-11-25T02:39:07Z",
+    "last": "2026-11-25T02:44:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 97,
+        "output": 23094,
+        "thinking": 7187,
+        "cache_read": 4697123,
+        "cache_write_5m": 0,
+        "cache_write_1h": 100986,
+        "api_equivalent_usd": 2.2096,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 97,
+      "output": 23094,
+      "thinking": 7187,
+      "cache_read": 4697123,
+      "cache_write_5m": 0,
+      "cache_write_1h": 100986,
+      "api_equivalent_usd": 2.2096,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 47,
+      "mcp__github__pull_request_read": 2,
+      "ToolSearch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.1,
+      "active_minutes": 5.1,
+      "model_minutes": 3.78,
+      "tool_minutes": 1.32,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "task estimate in tasks.yaml (2 h)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 90.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

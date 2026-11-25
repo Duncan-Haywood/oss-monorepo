@@ -1,0 +1,57 @@
+# DRAFT for the owner: copy to .github/workflows/aws-findings-queue.yml once
+# stacks/findings and stacks/github-oidc are applied (control plane). Drains
+# HIGH/CRITICAL AWS findings from the SQS queue into Markdown files on the
+# security-alerts branch, beside the code-scanning queue. No secrets: OIDC
+# to gha-oss-monorepo-findings-read, which may only read and delete messages
+# on that one queue.
+name: AWS findings queue
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aws-findings-queue
+  cancel-in-progress: false
+
+jobs:
+  drain:
+    if: github.ref == 'refs/heads/main' && vars.AWS_SECURITY_ACCOUNT_ID != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write # commit findings to the security-alerts branch
+      id-token: write # OIDC to AWS
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: security-alerts
+      - uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
+        with:
+          role-to-assume: arn:aws:iam::${{ vars.AWS_SECURITY_ACCOUNT_ID }}:role/gha-oss-monorepo-findings-read
+          aws-region: us-east-1
+      - name: drain queue into files
+        env:
+          QUEUE_URL: https://sqs.us-east-1.amazonaws.com/${{ vars.AWS_SECURITY_ACCOUNT_ID }}/security-findings
+        run: |
+          set -euo pipefail
+          mkdir -p aws-findings
+          for _ in $(seq 1 20); do
+            msgs="$(aws sqs receive-message --queue-url "$QUEUE_URL" --max-number-of-messages 10 --wait-time-seconds 2 --output json)"
+            [ "$(jq '.Messages | length // 0' <<<"$msgs")" -eq 0 ] && break
+            jq -c '.Messages[]' <<<"$msgs" | while read -r m; do
+              body="$(jq -r '.Body' <<<"$m")"
+              jq -c '.detail.findings[]' <<<"$body" | while read -r f; do
+                id="$(jq -r '.Id' <<<"$f" | sha256sum | cut -c1-16)"
+                jq -r '"# " + .Title + "\n\n- severity: " + .Severity.Label + "\n- account: " + .AwsAccountId + "\n- region: " + .Region + "\n- product: " + .ProductName + "\n- resource: " + (.Resources[0].Id // "") + "\n- first seen: " + (.FirstObservedAt // .CreatedAt) + "\n\n" + (.Description // "") + "\n\nRemediation: " + (.Remediation.Recommendation.Text // "") + " " + (.Remediation.Recommendation.Url // "")' <<<"$f" > "aws-findings/$id.md"
+              done
+              aws sqs delete-message --queue-url "$QUEUE_URL" --receipt-handle "$(jq -r '.ReceiptHandle' <<<"$m")"
+            done
+          done
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add aws-findings
+          git diff --cached --quiet || { git commit -m "aws findings: $(date -u +%FT%TZ)"; git push origin HEAD:security-alerts; }
