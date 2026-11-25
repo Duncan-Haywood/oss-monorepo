@@ -264,8 +264,9 @@ function site() {
     // Started here so it runs beside the shared build, not after it: see
     // 'an identical build produces an identical cache name'.
     childSite().catch(() => {});
-    // The same for the two-venture fixture the /compare/ and /guides/ tests read.
-    hubFixtureSite().catch(() => {});
+    // The two-venture fixture the /compare/ and /guides/ end-to-end tests read
+    // is built by custom-domain.test.mjs, which builds the same kind of fixture
+    // anyway (docs/history/pages-test-perf-2026-11-25-one-fixture-build.md).
   }
   return built;
 }
@@ -6236,103 +6237,7 @@ test('the hub sitemap lists every product page the build writes', () => {
   assert.ok(xml.includes('<loc>https://example.test/compare/housecall-pro/</loc>'));
 });
 
-// One fixture build serves both the /compare/ and /guides/ end-to-end tests:
-// buildSite does the same fixed, expensive work whatever the ventures
-// directory holds (about 60 s and 28 s as two builds, 2026-11-04), so a second
-// build for a second assertion about the hub is pure cost.
-//
-// It builds in a child process started beside the shared build (site() starts
-// it), not in this process once the shared build is done: buildSite keeps
-// per-build state at module level, so an in-process build had to wait its turn,
-// and its 31 s (warm cards; 81 s cold) ran on the sequential tail with cores idle
-// (docs/history/pages-test-perf-2026-11-12-hub-fixture-child.md). The child
-// also keeps the fixture's module state out of this process.
-let hubFixture;
-function hubFixtureSite() {
-  hubFixture ??= (async () => {
-    const out = await fs.mkdtemp(path.join(os.tmpdir(), 'hub-fixture-'));
-    const ventures = path.join(out, 'ventures');
-    const mk = async (slug, files) => {
-      await fs.mkdir(path.join(ventures, slug), { recursive: true });
-      for (const [name, body] of Object.entries(files)) {
-        await fs.writeFile(path.join(ventures, slug, name), body);
-      }
-    };
-    const page = (title, body) =>
-      `<!doctype html><html lang="en"><head><meta charset="utf-8"><title>${title}</title>` +
-      `<meta name="description" content="A free calculator that does arithmetic in your browser."></head>` +
-      `<body>${body}<p>No warranty: this is an estimate, not advice.</p></body></html>`;
-    await mk('alpha-calculator', {
-      'index.html': page(
-        'Alpha Calculator',
-        '<h1>Alpha Calculator</h1><a href="how-much-to-charge.html">How much to charge</a>',
-      ),
-      'how-much-to-charge.html': page('How much to charge', '<h1>How much to charge</h1>'),
-      // A comparison page belongs to /compare/, not /guides/.
-      'vs-jobber.html': page('This calculator vs. Jobber', '<h1>This calculator vs. Jobber</h1>'),
-    });
-    await mk('beta-calculator', {
-      'index.html': page('Beta Calculator', '<h1>Beta Calculator</h1>'),
-      'vs-jobber.html': page('This calculator vs. Jobber', '<h1>This calculator vs. Jobber</h1>'),
-    });
-    const dist = path.join(out, 'dist');
-    const code = `import { buildSite } from ${JSON.stringify(BUILD_MODULE)};
-      const r = await buildSite({ venturesDir: ${JSON.stringify(ventures)}, outDir: ${JSON.stringify(dist)},
-        baseUrl: 'https://example.test/', log: () => {}, disableWorker: true, cards: false });
-      process.stdout.write(JSON.stringify({ comparisons: r.comparisons }));`;
-    const { stdout } = await promisify(execFile)(process.execPath, ['--input-type=module', '-e', code], {
-      maxBuffer: 1 << 28,
-    });
-    return { out, dist, result: JSON.parse(stdout.slice(stdout.lastIndexOf('{"comparisons"'))) };
-  })();
-  return hubFixture;
-}
-
-test('the built site publishes /compare/, links it, and lists it in the sitemap', async () => {
-  const { dist, result } = await hubFixtureSite();
-  assert.equal(result.comparisons.length, 1, 'both tools compare with one product');
-  assert.equal(result.comparisons[0].subject, 'Jobber');
-
-  const compare = await readText(path.join(dist, COMPARE_PATH, 'index.html'));
-  assert.ok(compare.includes('href="../alpha-calculator/vs-jobber.html"'));
-  assert.ok(compare.includes('href="../beta-calculator/vs-jobber.html"'));
-
-  const hub = await readText(path.join(dist, 'index.html'));
-  assert.ok(hub.includes(`href="${COMPARE_PATH}"`), 'the hub must link /compare/');
-
-  const hubSitemap = await readText(path.join(dist, 'sitemap-hub.xml'));
-  assert.ok(hubSitemap.includes(`<loc>https://example.test/${COMPARE_PATH}</loc>`));
-
-  const llms = await readText(path.join(dist, 'llms.txt'));
-  assert.ok(llms.includes(`https://example.test/${COMPARE_PATH}`), 'llms.txt must name /compare/');
-});
-
-test('the built site publishes /guides/, links it, and lists it in the sitemap', async () => {
-  // The end-to-end half of the guides index: the three places a page has to
-  // appear before anyone reaches it — a link a visitor can click, a sitemap
-  // entry a crawler follows, and an llms.txt line an assistant reads.
-  const { dist } = await hubFixtureSite();
-
-  const guides = await readText(path.join(dist, GUIDES_PATH, 'index.html'));
-  assert.ok(guides.includes('href="../alpha-calculator/how-much-to-charge.html"'));
-  assert.ok(guides.includes('How much to charge'), 'the page’s own heading is the entry');
-  assert.ok(
-    !guides.includes('vs-jobber.html'),
-    'a comparison page has /compare/ and must not be listed twice',
-  );
-
-  const hub = await readText(path.join(dist, 'index.html'));
-  assert.ok(hub.includes(`href="${GUIDES_PATH}"`), 'the hub must link /guides/');
-
-  const hubSitemap = await readText(path.join(dist, 'sitemap-hub.xml'));
-  assert.ok(hubSitemap.includes(`<loc>https://example.test/${GUIDES_PATH}</loc>`));
-
-  const llms = await readText(path.join(dist, 'llms.txt'));
-  assert.ok(llms.includes(`https://example.test/${GUIDES_PATH}`), 'llms.txt must name /guides/');
-});
-
 after(async () => {
-  if (hubFixture) await fs.rm((await hubFixture).out, { recursive: true, force: true });
   // The shared build is about 1.6 GB; left behind, every run of this file
   // filled the session's fixed disk allowance by that much
   // (docs/history/pages-test-perf-2026-11-18-temp-dirs-and-one-read.md).
