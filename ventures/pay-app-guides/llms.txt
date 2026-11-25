@@ -10,6 +10,7 @@ Free to use and source available (FSL-1.1-MIT). Not legal, tax, accounting or fi
 - [How to fill out a pay application](https://marisstella.app/pay-app-guides/how-to-fill-out-a-pay-application.html): every column and summary line with a worked example.
 - [Retainage explained](https://marisstella.app/pay-app-guides/retainage-explained.html): calculation, reduction, release, flow-down, and public retainage caps for CA, TX, FL, NY, PA, IL, NC, MI, VA, WA, MA, AZ, MN, NV, OR, UT with official statute links.
 - [Conditional vs unconditional lien waivers](https://marisstella.app/pay-app-guides/conditional-vs-unconditional-lien-waivers.html): the four waiver types, when to sign each, California and Florida statutory forms.
+- [Free schedule of values template (Excel)](https://marisstella.app/pay-app-guides/schedule-of-values-template.html): a blank .xlsx continuation sheet and summary with the formulas in (total completed and stored, percent, balance to finish, per-line retainage, payment due, an over-billing check), plus a filled-in example. No macros or external links; opens in Excel, Google Sheets and LibreOffice.
 - [Change orders and the schedule of values](https://marisstella.app/pay-app-guides/change-orders-schedule-of-values.html): approved and deductive change orders on the SOV and summary.
 
 ## Source

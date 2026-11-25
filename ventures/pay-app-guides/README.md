@@ -17,6 +17,7 @@ Live: <https://marisstella.app/pay-app-guides/>
 | `how-to-fill-out-a-pay-application.html` | The continuation sheet column by column and the summary page line by line, one worked example, what to attach. |
 | `retainage-explained.html` | How retainage is calculated, reduced, released and flowed down, and a table of public retainage caps for 16 states, each linked to the official statute. |
 | `conditional-vs-unconditional-lien-waivers.html` | The four waiver types, when to sign each, exceptions to write in, California and Florida statutory forms. |
+| `schedule-of-values-template.html` | Free Excel schedule of values / continuation sheet template and a filled-in example (`schedule-of-values-template.xlsx`, `schedule-of-values-example.xlsx`), built by `template.mjs` with no library; `template.test.mjs` checks the committed files match the code and, where LibreOffice is installed, recalculates the example against the guide's numbers. Rebuild with `node template.mjs`. |
 | `change-orders-schedule-of-values.html` | How approved and deductive change orders enter the SOV and the summary, with a worked example. |
 
 ## Spec sources
