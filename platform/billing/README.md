@@ -110,6 +110,11 @@ secret, so they are the owner's. Do them in the **sandbox** first.
    token, the live destination secret and the live price ids, and repeat once
    with a real card and a refund.
 
+8. Before a pack goes live, an agent updates that tool's privacy line: once
+   live, pressing Buy loads Paddle.js from `cdn.paddle.com` and Paddle collects
+   the buyer's payment details as merchant of record; the page itself still
+   sends nothing until then, and the billing Worker stores no personal data.
+
 Until all of steps 0 to 4 are done for a pack, `onSale` is false and the page
 shows no Buy button. Nothing is for sale and nothing changes for users.
 
