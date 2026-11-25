@@ -47,7 +47,9 @@ test('price stacks burden, fuel, overhead, then margin as a share of price', () 
   assert.ok(Math.abs(result.inSeasonMonthlyVisits - visits) < 1e-9);
   assert.ok(Math.abs(result.monthlyFuel - 8 * visits) < 1e-9);
 
-  const direct = result.monthlyLaborCost + result.monthlyFuel + result.monthlyDump + 40;
+  // $40 a calendar month, paid 12 months, billed over 32 weeks: 40 * 52 / 32 = 65.
+  assert.ok(Math.abs(result.equipmentInSeasonMonthly - 65) < 1e-9);
+  const direct = result.monthlyLaborCost + result.monthlyFuel + result.monthlyDump + 65;
   assert.ok(Math.abs(result.monthlyOverhead - direct * 0.12) < 1e-9);
   assert.ok(Math.abs(result.monthlyCost - direct * 1.12) < 1e-9);
   assert.ok(Math.abs(result.monthlyProfit / result.monthlyPrice * 100 - 25) < 1e-9);
@@ -103,12 +105,45 @@ test('acres convert to square feet before the rate is applied', () => {
   assert.ok(Math.abs(acres.turfAcres - 0.5) < 1e-9);
 });
 
-test('crew size shortens clock time but not billed labor hours', () => {
+test('crew size shortens clock time, keeps on-property hours, and pays everyone for the drive', () => {
   const one = calculateBid(suburban());
   const two = calculateBid({ ...suburban(), crewSize: 2 });
   assert.ok(Math.abs(two.onPropertyHoursPerVisit - one.onPropertyHoursPerVisit) < 1e-9);
   assert.ok(Math.abs(two.clockHoursOnSite * 2 - one.clockHoursOnSite) < 1e-9);
-  assert.ok(Math.abs(two.monthlyLaborCost - one.monthlyLaborCost) < 1e-9);
+  // 18 min each way = 0.6 h on the clock; two people in the truck = 1.2 paid hours.
+  assert.ok(Math.abs(one.travelHoursPerVisit - 0.6) < 1e-9);
+  assert.ok(Math.abs(two.travelHoursPerVisit - 1.2) < 1e-9);
+  assert.ok(Math.abs(two.travelClockHoursPerVisit - 0.6) < 1e-9);
+  const extra = 0.6 * WEEKS_PER_MONTH * 18 * 1.25;
+  assert.ok(Math.abs(two.monthlyLaborCost - one.monthlyLaborCost - extra) < 1e-9);
+});
+
+test('fixed monthly costs are recovered in full over a seasonal year (quality audit 2026-11-19)', () => {
+  // Annual price attributable to a $40/month equipment share must cover
+  // $480 a year, marked up by overhead (12%) and margin (25% of price).
+  const withEquip = calculateBid(suburban());
+  const without = calculateBid({ ...suburban(), equipmentMonthly: 0 });
+  const recovered = withEquip.annualPrice - without.annualPrice;
+  assert.ok(Math.abs(recovered - 480 * 1.12 / 0.75) < 1e-9, `recovered ${recovered}`);
+  // Same for other monthly cost, and a 52-week year leaves the figure unchanged.
+  const other = calculateBid({ ...suburban(), equipmentMonthly: 0, otherMonthly: 40 });
+  assert.ok(Math.abs(other.annualPrice - without.annualPrice - 480 * 1.12 / 0.75) < 1e-9);
+  const yearRound = calculateBid({ ...suburban(), serviceWeeksPerYear: 52 });
+  assert.ok(Math.abs(yearRound.equipmentInSeasonMonthly - 40) < 1e-9);
+});
+
+test('a blank cost or wage field is an error, not a silent zero (quality audit 2026-11-19)', () => {
+  for (const field of ['hourlyWage', 'burdenRate', 'fuelPerVisit', 'otherMonthly', 'equipmentMonthly']) {
+    assert.throws(() => calculateBid({ ...suburban(), [field]: '' }), /is blank/, field);
+    assert.throws(() => calculateBid({ ...suburban(), [field]: '  ' }), /is blank/, field);
+  }
+  assert.ok(calculateBid({ ...suburban(), hourlyWage: '18' }).loadedWage === 22.5);
+});
+
+test('a proposed price exactly at break-even is not flagged as a loss', () => {
+  const cost = calculateBid(suburban()).monthlyCost;
+  assert.equal(calculateBid({ ...suburban(), proposedPrice: cost }).proposed.belowBreakEven, false);
+  assert.equal(calculateBid({ ...suburban(), proposedPrice: cost - 0.01 }).proposed.belowBreakEven, true);
 });
 
 test('a stop with no visits still reports equipment and leaves ratios empty', () => {
