@@ -26,14 +26,19 @@ For the next session on `aws-site-cloudfront` / `aws-route53-zone`.
 - Every `.tf`/`.tftest.hcl` parses (python-hcl2).
 - Checkov 3: 45 passed, 0 failed, 12 skipped with inline reasons.
 
-## Not verified here, and why
+## OpenTofu, run elsewhere
 
-- **`tofu fmt -check`, `tofu init`, `tofu validate`, `tofu test` never ran.**
-  Downloading the OpenTofu release binary was refused by this session's
-  permission classifier (twice, even with the checksum verified). The first
-  session with `tofu` available should run them in each of the three
-  directories and commit `.terraform.lock.hcl`; expect small fixes (the
-  tests were written against the provider 6.x schema from memory).
+This session could not download OpenTofu (the permission classifier
+refused it twice). The orchestrating session ran it on the branch
+(OpenTofu 1.10.7, hashicorp/aws 6.74.0, `init -backend=false`): `fmt
+-check` and `validate` pass in all three directories, and `tofu test` is
+19/19 (static-site 8, site 4, dns 7) after five test-file fixes made from
+its reports: random mock ARNs, an over-nested `one()`, an override of a
+configuration argument, function calls in run variables, and a list/tuple
+conditional. No `.terraform.lock.hcl` is committed yet. A session that can
+run `tofu init` should commit one per stack.
+
+## Not verified here, and why
 - Trivy was not run (same binary-download question).
 - The Cloudflare export: no token.
 

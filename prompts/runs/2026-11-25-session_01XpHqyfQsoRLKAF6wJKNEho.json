@@ -32,7 +32,7 @@
   "tests_added": null,
   "outcome": "partial",
   "errors": [
-    "Downloading the OpenTofu 1.10.7 release binary (checksum-verified) was refused twice by the session's permission classifier, so tofu fmt/init/validate/test never ran and no .terraform.lock.hcl is committed; HCL was parse-checked with python-hcl2 and scanned with Checkov instead.",
+    "Downloading the OpenTofu release binary was refused twice by this session's permission classifier; the orchestrating session ran fmt/validate/test on the branch and reported results; four test-file bugs (random mock ARNs, an over-nested one(), a config-argument override, function calls in run variables, a list/tuple conditional) were fixed from its reports.",
     "First AWS SDK pin (3.913.0) had critical advisories in fast-xml-parser; re-pinned to 3.1165.0 (newest release older than two weeks), npm audit 0.",
     "run_workflow_locally --for-changes: checklist-coverage failed because the new Python test directory was not in verify-and-merge.md; added the lines."
   ],
@@ -54,8 +54,8 @@
     {
       "file": "CLAUDE.md",
       "why": "tofu validate/test could not run in this session (binary download refused).",
-      "did": "Parse-checked every .tf/.tftest.hcl with python-hcl2, Checkov 45/0/12, node and python tests for all scripts; listed the unrun checks in the PR and report.",
-      "result": "Merged with the tofu checks left for the first session that has tofu."
+      "did": "Asked the orchestrating session, which has tofu, to run fmt/validate/test on each push; fixed test-file errors from its output.",
+      "result": "tofu test 19/19, fmt -check and validate OK in modules/static-site, stacks/site, stacks/dns."
     }
   ],
   "writeups": [
@@ -65,7 +65,7 @@
     "platform/aws/stacks/dns/README.md"
   ],
   "goal": null,
-  "notes": "",
+  "notes": "OpenTofu checks, run by the orchestrating session (session_01XpHqyg67hsc8jwznhdKwsa) with OpenTofu 1.10.7 and hashicorp/aws 6.74.0, tofu init -backend=false, because this session could not download tofu: on 964fb638b fmt and validate OK in all three dirs, tests 9 pass / 3 fail / 3 skip; on 9735b59ba site 4/4, dns 5/5, static-site 4 pass 1 fail; on d8809c86a site 4/4, dns 7/7, static-site 4 pass 1 fail 3 skip; with the one-line flatten([s.Action]) fix (pushed as 832aab815) static-site 8/8: 19/19 total, fmt -check OK. Local here: node 21/21, python 12/12, Checkov 45/0/12, checklist_coverage ok.",
   "corrections": [],
   "redteam": null
 }
