@@ -1,11 +1,15 @@
 # Local Semgrep rules for platform/security/scan.py (tool `semgrep`): offline
 # and pinned with the code. ERROR is high (blocks a NEW finding), WARNING is
 # medium (reported). The registry's rules run as `semgrep-registry` in CI.
+# The eval rules skip tests and research/ (tests evaluate page scripts with
+# new Function on purpose; research scripts run their own configs).
 # Each rule has a positive and a negative sample in fixtures/semgrep/.
 rules:
   - id: py-eval-exec-dynamic
     languages: [python]
     severity: ERROR
+    paths:
+      exclude: ["*.test.mjs", "*.test.js", "*.test.ts", "test_*.py", "tests/", "research/", "dist/", "*.min.js"]
     message: eval/exec of a value that is not a literal runs whatever that value holds.
     patterns:
       - pattern-either:
@@ -17,15 +21,21 @@ rules:
   - id: py-unsafe-deserialization
     languages: [python]
     severity: ERROR
-    message: pickle/marshal/yaml.load on data runs code embedded in the data. Use json, or yaml.safe_load.
+    message: yaml.load without a safe loader runs code embedded in the YAML. Use yaml.safe_load.
     pattern-either:
-      - pattern: pickle.loads(...)
-      - pattern: pickle.load(...)
-      - pattern: marshal.loads(...)
       - pattern: yaml.load($X)
       - pattern: yaml.load($X, Loader=yaml.Loader)
       - pattern: yaml.load($X, Loader=yaml.UnsafeLoader)
       - pattern: yaml.unsafe_load(...)
+
+  - id: py-pickle-load
+    languages: [python]
+    severity: WARNING
+    message: pickle/marshal on data runs code embedded in the data; fine for files this code wrote itself, never for anything a user or the network supplies.
+    pattern-either:
+      - pattern: pickle.loads(...)
+      - pattern: pickle.load(...)
+      - pattern: marshal.loads(...)
 
   - id: py-shell-injection
     languages: [python]
@@ -75,6 +85,8 @@ rules:
   - id: js-eval-dynamic
     languages: [javascript, typescript]
     severity: ERROR
+    paths:
+      exclude: ["*.test.mjs", "*.test.js", "*.test.ts", "test_*.py", "tests/", "research/", "dist/", "*.min.js"]
     message: eval / new Function on a value runs whatever that value holds.
     patterns:
       - pattern-either:

@@ -80,6 +80,15 @@ jobs:
 """
 
 
+# Secret-shaped samples are assembled at run time, so no file in the tree
+# holds a literal a secret scanner (risk_review.py, gitleaks, this gate)
+# would flag.
+FAKE_AWS = "AKIA" + "QWERTYUIOPASDFGH"
+AWS_DOC_PLACEHOLDER = "AKIA" + "IOSFODNN7EXAMPLE"
+PEM_HEAD = "-----BEGIN RSA " + "PRIVATE KEY-----"
+PEM_TAIL = "-----END RSA " + "PRIVATE KEY-----"
+
+
 class Secrets(Case):
     def test_github_token_in_code_blocks(self):
         tok = "ghp_" + "a1B2c3D4e5F6g7H8i9J0k1L2m3N4o5P6q7R8"
@@ -87,17 +96,17 @@ class Secrets(Case):
         self.assertNotIn(tok, json.dumps(v), "the secret itself never reaches the verdict")
 
     def test_aws_key_in_workflow_blocks(self):
-        self.assertBlocks({}, {".github/workflows/a.yml": "env:\n  K: AKIAQWERTYUIOPASDFGH\n"}, "secret-in-diff")
+        self.assertBlocks({}, {".github/workflows/a.yml": f"env:\n  K: {FAKE_AWS}\n"}, "secret-in-diff")
 
     def test_private_key_blocks(self):
         body = "MIIEowIBAAKCAQEA" + "q" * 300
-        self.assertBlocks({}, {"deploy/key.pem": f"-----BEGIN RSA PRIVATE KEY-----\n{body}\n-----END RSA PRIVATE KEY-----\n"}, "secret-in-diff")
+        self.assertBlocks({}, {"deploy/key.pem": f"{PEM_HEAD}\n{body}\n{PEM_TAIL}\n"}, "secret-in-diff")
 
     def test_documented_placeholder_passes(self):
-        self.assertPasses({}, {"docs/a.md": "export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE\n"}, "secret-in-diff")
+        self.assertPasses({}, {"docs/a.md": f"export AWS_ACCESS_KEY_ID={AWS_DOC_PLACEHOLDER}\n"}, "secret-in-diff")
 
     def test_test_fixture_is_a_warning(self):
-        v = judge({}, {"platform/x/test_scan.py": "K = 'AKIAQWERTYUIOPASDFGH'\n"}, "secret-in-diff")
+        v = judge({}, {"platform/x/test_scan.py": f"K = '{FAKE_AWS}'\n"}, "secret-in-diff")
         self.assertFalse(blocks(v))
         self.assertTrue(warns(v, "secret-in-diff"))
 

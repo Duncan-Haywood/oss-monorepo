@@ -31,6 +31,7 @@
           { "context": "conflict-markers", "integration_id": 15368 },
           { "context": "control-plane", "integration_id": 15368 },
           { "context": "ci-policy", "integration_id": 15368 },
+          { "context": "risk-review", "integration_id": 15368 },
           { "context": "security-scan", "integration_id": 15368 },
           { "context": "adversarial-gate", "integration_id": 15368 }
         ]

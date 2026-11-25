@@ -25,6 +25,25 @@ heads, auto-merge runs the default-branch copy of `review.py`, and about thirty
 `actions-*` checks cover the usual workflow-injection mistakes. The gaps were
 in how much the repo trusts its own writers.
 
+
+**2026-11-24: agent instructions left the owner gate.** At the owner's request
+("i really don't like all this stuff that is blocking itself on my behalf ...
+can we instead have maybe a review process on cysec and legal risks
+instead?"), `CLAUDE.md`, `AGENTS.md`, `prompt.md`, `prompts/*.md` and
+`.github/prompts/` are no longer in `.github/CODEOWNERS`. Every PR gets a cyber
+and legal risk review instead ([`risk-review.md`](risk-review.md),
+`platform/security/risk_review.py`). The review escalates to the owner a cut
+to the guardrails or hard limits, a likely secret, a licence change and any
+owner-core file. What stays owned is the part a review cannot protect:
+- the gate and the review themselves;
+- `priv-*` workflows, which hold secrets;
+- code that runs at session start: hooks, MCP, `platform/agents/` and
+  `prompts/*.py`.
+
+The "Why each path is owned" list below predates this; read it with that
+change in mind.
+## What the repo does now
+
 ## The adversarial gate (2026-11-24)
 
 **Threat model.** Agents write almost all the code and merge it themselves;
@@ -42,12 +61,16 @@ guardrails; and liability (fabricated reviews and user counts, pages without
 a disclaimer).
 
 **Two required checks**, both in `.github/workflows/priv-security-gate.yml`
-and both in `.github/rulesets/main.json`:
+and both in `.github/rulesets/main.json`, beside `risk-review` (the cyber
+and legal checklist with its own blocks, [`risk-review.md`](risk-review.md);
+landed the same day from another session, and complementary: it reads the
+diff for secrets, guardrail cuts, licence changes and gate shrinkage, while
+this gate adds the scanners, the attack rules and the LLM review):
 
 | Check | What it runs | Blocks on |
 |---|---|---|
 | `security-scan` | `platform/security/scan.py`: gitleaks, Semgrep (local rules; the registry's when reachable), OSV-Scanner, Checkov, Trivy config, zizmor, and the portfolio's own `ventures/liability-audit`, each pinned by version and checksum (`platform/security/tools.yaml`) | a finding the PR **adds** at or above the tool's threshold: the merge base and the head are scanned the same way, so code already on main never blocks an unrelated PR; a required scanner that is missing or crashes |
-| `adversarial-gate` | `platform/ci/adversarial_gate/gate.py` (40 deterministic rules, `gate.py rules` lists them), then for control-plane and high-risk PRs `llm_review.py`, a red-team prompt ("assume this PR is malicious") | any blocking rule finding; an LLM `block` only when a high-severity finding quotes evidence found verbatim in the diff |
+| `adversarial-gate` | `platform/ci/adversarial_gate/gate.py` (33 deterministic rules, `gate.py rules` lists them), then for control-plane and high-risk PRs `llm_review.py`, a red-team prompt ("assume this PR is malicious") | any blocking rule finding; an LLM `block` only when a high-severity finding quotes evidence found verbatim in the diff |
 
 **Judged by main, never by the PR.** The workflow runs on
 `pull_request_target`, so GitHub takes it from the base branch; every
@@ -57,7 +80,7 @@ executed: no install, build, test or import, and git hooks are off. The
 scripts that run are main's, and all of them are control-plane paths.
 `control_plane_guard.py`, loaded from main by the gate, refuses a PR whose
 copy of CODEOWNERS, the ruleset or the gate workflow loses an invariant (the
-five required checks, no bypass actors, the gate on `pull_request_target`
+six required checks, no bypass actors, the gate on `pull_request_target`
 with its two jobs running these scripts). The CI-policy check is re-run from
 main against the PR's workflows (`ci-policy-head`), so editing
 `ci_policy_check.py` in a PR cannot pass that PR.
@@ -97,11 +120,13 @@ role (repository variables `ADVERSARIAL_REVIEW_AWS_ROLE_ARN`,
 account is not created yet), else the `ANTHROPIC_API_KEY` secret, else skip
 with a notice. Model `claude-opus-5-5`.
 
-**Measured against history.** Replayed over the 47 most recent commits on
-`main` before it existed (2026-11-24), the deterministic rules blocked 3:
-two workflows gaining secrets or `id-token: write` (owner-approved
-publishing and deploy changes that would now need an allowlist entry first)
-and the two-tier CI change that created `ci-policy.yaml`. 44 passed.
+**Measured against history.** Replayed over the 48 commits on `main` before
+`241c4092e` (2026-11-24, the last ones a shallow clone holds), the
+deterministic rules blocked 3 and passed 45. The 3: two PRs whose workflows
+gained secrets or `id-token: write` (owner-approved publishing and deploy
+changes that would now need an allowlist entry first), and the two-tier CI
+change that created `ci-policy.yaml` (new action owners and privileged-code
+exceptions, all at once).
 
 ### Residual risks of the gate
 

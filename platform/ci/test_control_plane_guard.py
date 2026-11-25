@@ -2,11 +2,9 @@
 """Tests for the control-plane guard.
 
 The pattern matcher has to agree with GitHub's on the lines this repo uses,
-or the guard reports a control-plane map CODEOWNERS does not actually give.
-The invariants have to notice a weakened ruleset or security-gate workflow
-(the adversarial gate runs these from main against a PR's files). The audit
-verdict has to fail a direct push and stay quiet on everything else, or main
-goes red on unrelated work and the check gets switched off.
+or the guard reports coverage CODEOWNERS does not actually give. The audit
+verdict has to fail an unreviewed agent merge and stay quiet on everything
+else, or main goes red on unrelated work and the check gets switched off.
 """
 
 import json
@@ -99,6 +97,10 @@ class RepoCodeowners(unittest.TestCase):
         self.assertIn(".claude/settings.json has no code owner", problems)
 
 
+def review(login, state="APPROVED"):
+    return {"user": {"login": login}, "state": state}
+
+
 class Star(unittest.TestCase):
     def test_star_consumes_one_token_then_literal_follows(self):
         rules = guard.parse_codeowners("*.pem @owner\n")
@@ -110,18 +112,47 @@ class Audit(unittest.TestCase):
     pr = {"number": 7, "user": {"login": "kilo-code-bot[bot]"}}
 
     def test_untouched_control_plane_passes(self):
-        self.assertEqual(guard.audit_verdict([], None)[0], 0)
+        self.assertEqual(guard.audit_verdict([], None, [], {"owner"})[0], 0)
 
-    def test_merged_pr_passes_without_owner_approval(self):
-        # Owner review was replaced by the adversarial gate (2026-11-24).
-        code, msg = guard.audit_verdict(["CLAUDE.md"], self.pr)
+    def test_passing_risk_review_passes_without_owner(self):
+        code, _ = guard.audit_verdict(["CLAUDE.md"], {"number": 1, "user": {"login": "bot"}}, [], {"owner"}, True)
         self.assertEqual(code, 0)
-        self.assertIn("adversarial-gate", msg)
+
+    def test_risk_review_must_come_from_mains_workflow(self):
+        run = {"name": "risk-review", "conclusion": "success", "app": {"slug": "github-actions"},
+               "check_suite": {"id": 7}}
+        good = {7: {"path": ".github/workflows/priv-risk-review.yml", "event": "pull_request_target"}}
+        self.assertTrue(guard.risk_review_ok([run], good))
+        faked = {7: {"path": ".github/workflows/some-ci.yml", "event": "pull_request"}}
+        self.assertFalse(guard.risk_review_ok([run], faked))
+        wrong_event = {7: {"path": ".github/workflows/priv-risk-review.yml", "event": "pull_request"}}
+        self.assertFalse(guard.risk_review_ok([run], wrong_event))
+        self.assertFalse(guard.risk_review_ok([dict(run, conclusion="failure")], good))
+
+    def test_owner_approval_passes(self):
+        code, _ = guard.audit_verdict(["CLAUDE.md"], self.pr, [review("Owner")], {"owner"})
+        self.assertEqual(code, 0)
+
+    def test_bot_approvals_alone_fail(self):
+        reviews = [review("cursor[bot]"), review("portfolio-reviewer-gh[bot]")]
+        code, msg = guard.audit_verdict(["CLAUDE.md"], self.pr, reviews, {"owner"})
+        self.assertEqual(code, 1)
+        self.assertIn("CLAUDE.md", msg)
+
+    def test_owner_comment_is_not_approval(self):
+        code, _ = guard.audit_verdict(
+            ["CLAUDE.md"], self.pr, [review("owner", "COMMENTED")], {"owner"}
+        )
+        self.assertEqual(code, 1)
 
     def test_direct_push_fails(self):
-        code, msg = guard.audit_verdict([".mcp.json"], None)
-        self.assertEqual(code, 1)
-        self.assertIn(".mcp.json", msg)
+        self.assertEqual(guard.audit_verdict([".mcp.json"], None, [], {"owner"})[0], 1)
+
+    def test_owner_identity_warns_without_failing(self):
+        pr = {"number": 8, "user": {"login": "owner"}}
+        code, msg = guard.audit_verdict(["CLAUDE.md"], pr, [], {"owner"})
+        self.assertEqual(code, 0)
+        self.assertTrue(msg.startswith("::warning::"))
 
 
 def ruleset(**over):
@@ -227,7 +258,7 @@ class PrSummary(unittest.TestCase):
         import os
         from unittest import mock
 
-        files = [{"filename": "CLAUDE.md"}, {"filename": "ventures/x/a.mjs"}]
+        files = [{"filename": ".mcp.json"}, {"filename": "ventures/x/a.mjs"}]
         out = []
         with mock.patch.dict(os.environ, {"GITHUB_REPOSITORY": "o/r"}), \
              mock.patch.object(guard, "gh_pages", return_value=files), \
@@ -235,12 +266,12 @@ class PrSummary(unittest.TestCase):
             code = guard.main(["--pr", "5"])
         self.assertEqual(code, 0)
         self.assertEqual(len(out), 1)
-        self.assertIn("- `CLAUDE.md`", out[0])
+        self.assertIn("- `.mcp.json`", out[0])
         self.assertNotIn("ventures/x/a.mjs", out[0])
 
 
 class AuditCommitPicksFirstMergedPr(unittest.TestCase):
-    def test_first_merged_pr_decides(self):
+    def test_reviews_are_read_for_the_first_merged_pr(self):
         import os
         from unittest import mock
 
@@ -252,25 +283,18 @@ class AuditCommitPicksFirstMergedPr(unittest.TestCase):
         def fake_get(path):
             return prs if path.endswith("/pulls") else {"files": [{"filename": "CLAUDE.md"}]}
 
-        out = []
-        with mock.patch.dict(os.environ, {"GITHUB_REPOSITORY": "o/r"}), \
-             mock.patch.object(guard, "gh_get", side_effect=fake_get), \
-             mock.patch.object(guard, "summarize", side_effect=out.append):
-            code = guard.main(["--audit-commit", "abc"])
-        self.assertEqual(code, 0)
-        self.assertIn("PR #1", out[0])
+        seen = []
 
-    def test_direct_push_fails_the_audit(self):
-        import os
-        from unittest import mock
-
-        def fake_get(path):
-            return [] if path.endswith("/pulls") else {"files": [{"filename": ".claude/settings.json"}]}
+        def fake_pages(path):
+            seen.append(path)
+            return []
 
         with mock.patch.dict(os.environ, {"GITHUB_REPOSITORY": "o/r"}), \
              mock.patch.object(guard, "gh_get", side_effect=fake_get), \
+             mock.patch.object(guard, "gh_pages", side_effect=fake_pages), \
              mock.patch.object(guard, "summarize"):
-            self.assertEqual(guard.main(["--audit-commit", "abc"]), 1)
+            guard.main(["--audit-commit", "abc"])
+        self.assertEqual(seen, ["/repos/o/r/pulls/1/reviews"])
 
 
 class PagingAndCli(unittest.TestCase):

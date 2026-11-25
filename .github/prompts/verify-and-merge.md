@@ -41,6 +41,7 @@ python3 -m unittest discover -s platform/ci/adversarial_gate -p 'test_*.py'   # 
 python3 -m unittest discover -s platform/security -p 'test_*.py'   # scanner runner: parsers, new-vs-base, baseline
 python3 -m pytest platform/aws/stacks/app-identity/rotator -q
 python3 -m pytest platform/aws/stacks/spend/kill_switch -q
+(cd platform/security && python3 -m unittest test_risk_review)  # the cyber and legal risk review (docs/security/risk-review.md)
 python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline -q  # >4 min in a shallow clone (router's real-portfolio tests; run reports 2026-10-19): run_in_background
 python3 -m pytest portfolio/work -q                      # directions and tasks registry (workctl.py), under 1 s
 python3 -m pytest portfolio/research/<probe> -q          # one at a time: 4 share a test_measure.py basename

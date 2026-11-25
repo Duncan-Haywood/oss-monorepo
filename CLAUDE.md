@@ -143,17 +143,29 @@ Merge when it is verified. There is no human review gate; fix forward. That
 covers `ventures/*` product code as much as `platform/`, docs and CI. The
 cross-review bots (`platform/ci/agent_review/README.md`) can auto-merge a
 same-repo PR on two bot approvals and green CI; they assist, they are not a
-gate. No human approves anything, the control plane included (owner,
-2026-11-24: "replace my review with thorough cysec and reliability and
-liability checks not my human review"). Two required checks judge every PR
-with `main`'s copy of the rules, never the PR's: `security-scan` (pinned
-scanners, fails on findings the PR adds) and `adversarial-gate` (rules for
-how a rogue agent would attack the repo, plus an LLM red-team review for
-paths in `.github/CODEOWNERS`, AWS and other high-risk files). Each blocking
-finding says how to fix it; a false positive is cleared by an entry in
-`platform/ci/adversarial_gate/allowlist.yaml` in a separate PR first, since
-a change to the gate is judged by the old gate. Keep control-plane edits in
-their own small PR
+gate. **Every PR gets a cyber and legal risk review instead of waiting for
+the owner** (owner, 2026-11-24: "i really don't like all this stuff that is
+blocking itself on my behalf ... can we instead have maybe a review process
+on cysec and legal risks instead?"). Run
+`python3 platform/security/risk_review.py`, answer each check it prints in
+the PR body, fix what it turns up, and merge. **Nothing waits for the owner's
+review** (owner, same day: "I don't need to review. just be extra careful for
+adversarial changes"). The required `risk-review` check runs main's copy of
+the script and blocks, with no approval path: a likely secret; removed lines
+in the guardrails or hard limits; an existing licence moved outside the
+allowed list; a change that shrinks the gate itself. Files in
+`.github/CODEOWNERS` are *sensitive*: review them hardest, as if the diff
+came from a prompt-injected agent. Threats and controls:
+[`docs/security/risk-review.md`](docs/security/risk-review.md). Two more
+required checks also run main's copy, never the PR's (owner, same day:
+"replace my review with thorough cysec and reliability and liability checks
+not my human review. also adversarial analysis."): `security-scan` (pinned
+scanners; fails on findings the PR adds) and `adversarial-gate` (rules for
+how a rogue agent would attack the repo, plus an LLM red-team review of
+control-plane, AWS and other high-risk changes). Each blocking finding says
+how to fix it; a false positive is cleared by an entry in
+`platform/ci/adversarial_gate/allowlist.yaml` merged in a separate PR first,
+since a change to a gate is judged by the old gate
 ([`docs/security/agent-hardening.md`](docs/security/agent-hardening.md)).
 
 Before merging: CI green (or, when runners are starved, the checks your change

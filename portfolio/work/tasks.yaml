@@ -358,9 +358,18 @@ tasks:
       workflow that runs them on PRs and makes them required is its own
       control-plane PR for the owner.
     hours: 16
-    status: open
+    status: done
     added: 2026-11-24
-    notes: CodeQL is a GitHub setting plus a workflow; include it in the control-plane PR.
+    notes: >-
+      platform/security/scan.py + tools.yaml + baseline.yaml (tests in
+      test_scan.py, parsers checked on real tool output); run on PRs as the
+      required `security-scan` check by .github/workflows/priv-security-gate.yml
+      (no owner step: the owner replaced his review with automated checks on
+      2026-11-24). It fails only on findings a PR adds (base and head scanned
+      alike). First numbers: docs/reports/2026-11-24-first-security-scan.md.
+      Not done: Trivy image scanning (no container image is built in CI yet;
+      add it with the first image) and CodeQL, which PR #18529 adds as its
+      own layer.
 
   - id: sec-codeowners-scan-gate
     direction: security-first
@@ -372,7 +381,13 @@ tasks:
     hours: 4
     status: open
     added: 2026-11-24
-    blocked_on: Control-plane paths; needs the owner's approval after sec-scan-pipeline lands.
+    notes: >-
+      Half done 2026-11-24: .github/rulesets/main.json requires
+      `security-scan` and `adversarial-gate` (and Code Owner review is off;
+      the adversarial gate replaced it, docs/security/agent-hardening.md).
+      The file takes effect only when an admin applies it (nothing in the
+      repo holds an admin token, on purpose). Left: a scheduled full-repo run
+      of scan.py whose findings go to the alert queue as files.
 
   - id: aws-org-baseline
     direction: security-first

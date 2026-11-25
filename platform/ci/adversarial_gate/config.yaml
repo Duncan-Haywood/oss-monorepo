@@ -27,6 +27,16 @@ scanner_config_files:
   - "**/osv-scanner.toml"
 
 control_plane_extra:
+  # Agent instructions. They left .github/CODEOWNERS on 2026-11-24 (no owner
+  # review; docs/security/risk-review.md), but a PR that rewrites what every
+  # later agent reads still gets this gate's strictest tier and the LLM review.
+  - "CLAUDE.md"
+  - "**/CLAUDE.md"
+  - "AGENTS.md"
+  - "**/AGENTS.md"
+  - "prompt.md"
+  - "prompts/*.md"
+  - ".github/prompts/*"
   # Files other agent tools load as instructions or run on their own.
   - "**/.cursorrules"
   - "**/.windsurfrules"

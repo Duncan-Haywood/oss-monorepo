@@ -2,27 +2,29 @@
 # is allowed to merge. This file is the map of those paths. Since 2026-11-24
 # the owner's review is no longer required for them ("replace my review with
 # thorough cysec and reliability and liability checks not my human review");
-# the `main` ruleset has "Require review from Code Owners" off. Instead the
-# `adversarial-gate` required check, running main's copy of
-# platform/ci/adversarial_gate/gate.py, puts a PR touching any path below in
-# the control-plane tier: the strictest rules plus an LLM red-team review.
-# Workflows not named priv-*.yml stay out of it (the `ci-policy` check keeps
-# those read-only and secret-free).
+# the `main` ruleset has "Require review from Code Owners" off. Instead
+# required checks run main's rules: `risk-review`
+# (platform/security/risk_review.py; docs/security/risk-review.md) treats a
+# path below as sensitive, and `adversarial-gate`
+# (platform/ci/adversarial_gate/gate.py) puts a PR touching one in its
+# control-plane tier: the strictest rules plus an LLM red-team review. Agent
+# instructions (CLAUDE.md, prompts/*.md) are not listed here since
+# 2026-11-24, but the gate's config keeps them in that tier. Workflows not
+# named priv-*.yml stay out of it (the `ci-policy` check keeps those
+# read-only and secret-free).
 #
 # Why each line is here: docs/security/agent-hardening.md. The guard in
 # platform/ci/control_plane_guard.py (run by the gate from main against the
 # PR's copy of this file) fails if a line it expects goes missing. The last
 # matching line wins, so the unowned exemptions sit at the bottom.
 
-# Instructions every agent session reads.
-/CLAUDE.md                        @Duncan-Haywood
-/AGENTS.md                        @Duncan-Haywood
-/prompt.md                        @Duncan-Haywood
-**/CLAUDE.md                      @Duncan-Haywood
-**/AGENTS.md                      @Duncan-Haywood
-/prompts/                         @Duncan-Haywood
-
 # Code that agent tools run on their own at session start (hooks, MCP servers).
+# Executable code in prompts/ (promptctl.py route runs at the start of every
+# session). The Markdown instructions beside it are not owned: since
+# 2026-11-24 they go through the cyber and legal risk review instead
+# (docs/security/risk-review.md).
+/prompts/*.py                     @Duncan-Haywood
+/prompts/**/*.py                  @Duncan-Haywood
 /.claude/                         @Duncan-Haywood
 /.cursor/                         @Duncan-Haywood
 /.mcp.json                        @Duncan-Haywood
@@ -37,9 +39,10 @@
 /.github/rulesets/                @Duncan-Haywood
 /.github/ci-policy.yaml           @Duncan-Haywood
 /.github/workflows/priv-*         @Duncan-Haywood
-/.github/prompts/                 @Duncan-Haywood
 /.github/FUNDING.yml              @Duncan-Haywood
 /platform/ci/agent_review/        @Duncan-Haywood
+/platform/security/risk_review.py      @Duncan-Haywood
+/platform/security/test_risk_review.py @Duncan-Haywood
 /platform/ci/control_plane_guard.py      @Duncan-Haywood
 /platform/ci/test_control_plane_guard.py @Duncan-Haywood
 /platform/ci/ci_policy_check.py          @Duncan-Haywood
