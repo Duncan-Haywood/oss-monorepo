@@ -89,6 +89,10 @@ test("CSV: header block, 15 rows, notes kept, formula injection neutralised", ()
   assert.match(csv, /Next annual self-assessment and affirmation due,2027-11-25/);
   assert.match(csv, /1 not met: Level 1 cannot be claimed until fixed/);
   assert.match(csv, /'=HYPERLINK/);
+  // A plain negative number stays a number; every formula lead character is defused.
+  const guard = l1ToCsv({}, { "AC.L1-b.1.ii": "-12.50", "AC.L1-b.1.iii": "+cmd", "AC.L1-b.1.iv": "@SUM(A1)", "IA.L1-b.1.v": "-x" });
+  assert.match(guard, /,-12\.50\n/);
+  for (const bad of ["'+cmd", "'@SUM(A1)", "'-x"]) assert.ok(guard.includes(bad), bad);
   assert.match(csv, /Named accounts, see list/);
   const rows = csv.trim().split("\n").filter((l) => /^(AC|IA|MP|PE|SC|SI)\.L1/.test(l));
   assert.equal(rows.length, 15);

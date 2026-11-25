@@ -28,7 +28,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 10,
   "outcome": "success",
@@ -39,6 +39,10 @@
     },
     {
       "what": "First post draft had seo_title 73 chars and tag 'lead-magnet' vs existing 'lead-magnets'; run_workflow_locally's post check caught both",
+      "fixed": true
+    },
+    {
+      "what": "First CSV escape defused plain negative numbers too (check_csv_formula_guard flagged l1.mjs in CI's changed-ventures job); fixed with the plain-number exemption sprs.mjs uses, plus a test",
       "fixed": true
     }
   ],
@@ -59,6 +63,10 @@
     {
       "file": "platform/security/risk_review.py",
       "issue": "Flags 'Auth, session or payment code changed' on l1-data.mjs, a data file whose requirement text contains the word 'authenticate'; a content keyword match, not code."
+    },
+    {
+      "file": ".github/workflows/ventures-tests.yml",
+      "issue": "changed-ventures fails on main-wide unwired checks this PR does not touch: check_main_guard_last (platform/security/test_scan.py) and platform/aws/stacks/saas-starter/runtime unit/e2e tests (fail on main too, from the AWS consolidation merge). That hides a PR's own real finding (here check_csv_formula_guard) among inherited ones."
     }
   ],
   "deviations": [],
@@ -66,7 +74,7 @@
     "docs/posts/2026-11-25-cmmc-level-1-self-assessment-checklist.md"
   ],
   "goal": "North star $10k MRR: front door (lead magnet) for flagship bet 4, the CMMC workspace",
-  "notes": "Idea: CMMC Level 1 self-assessment checklist in machine-shop-guides, the 'free self-assessment page (front door)' named as cmmc item 3 in flagships.yaml. Security queue empty; IDEAS.md and website requests empty; routed explore by weighted draw. The 15 FAR texts were verified 15/15 identical against GSA's FAR DITA source and hash-pinned. NIST cross-references: 2 of 15 confirmed via search excerpts, 13 transcribed (SOURCES.md says so). N/A handling deliberately not encoded. Verification: venture node tests 45/45; Playwright at 390px (all-met passes, one not-met fails, reload persists, CSV downloads, no overflow, no console errors); check_jsonld/dom_ids/empty_controls/fragment_links/local_assets/post_links/check_posts clean; run_workflow_locally --for-changes 11/14, the 3 failures being CI-only inputs (codeql SARIF, security-gate PR data) and the main-wide test_check_main_guard_last failure. No separate agent doc: SOURCES.md and the flagship row carry what the next run needs.",
+  "notes": "Idea: CMMC Level 1 self-assessment checklist in machine-shop-guides, the 'free self-assessment page (front door)' named as cmmc item 3 in flagships.yaml. Security queue empty; IDEAS.md and website requests empty; routed explore by weighted draw. The 15 FAR texts were verified 15/15 identical against GSA's FAR DITA source and hash-pinned. NIST cross-references: 2 of 15 confirmed via search excerpts, 13 transcribed (SOURCES.md says so). N/A handling deliberately not encoded. Verification: venture node tests 45/45; Playwright at 390px (all-met passes, one not-met fails, reload persists, CSV downloads, no overflow, no console errors); check_jsonld/dom_ids/empty_controls/fragment_links/local_assets/post_links/check_posts clean; run_workflow_locally --for-changes 11/14, the 3 failures being CI-only inputs (codeql SARIF, security-gate PR data) and the main-wide test_check_main_guard_last failure. No separate agent doc: SOURCES.md and the flagship row carry what the next run needs. CI: all required checks green except changed-ventures, whose only finding from this PR (CSV guard) is fixed; its remaining failures are inherited from main.",
   "corrections": [],
   "redteam": null,
   "usage": {
