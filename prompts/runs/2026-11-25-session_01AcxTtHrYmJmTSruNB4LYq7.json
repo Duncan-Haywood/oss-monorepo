@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtHrYmJmTSruNB4LYq7",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T16:08:55Z",
+  "ended": "2026-11-25T16:16:30Z",
+  "wall_minutes": 13.71,
+  "tokens_in": 10890019,
+  "tokens_out": 32708,
+  "cost_usd": 3.9037,
+  "tool_calls": 86,
+  "task": "Lead-magnet funnel: free tools' footers name the for-profit product (goals.md North star, step 2)",
+  "projects": [
+    "platform/pages",
+    "portfolio/monetization"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19021",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "partial",
+  "errors": [
+    "GitHub git credential service and GitHub MCP returned 503 for ~40 minutes at the start: the security queue and the open-PR duplicate check could not run, and the push was delayed.",
+    "Duplicate work: PR #18677 (same hand-curated funnel, 85 feeders) merged to main while this run built its own; found as a merge conflict on PR #19021. Reverted this run's build code, test and post; kept 2 feeders."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Says to deepen the top flagship row here, but LICENSING_TRANSITION.md (2026-11-24) says new depth for the 20 proprietary products happens in private-monorepo; the routed row (league-schedule-generator) is one of them, and allocate.py does not yet say which applies."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Flagship rows still point deepening at this repo for products transition.json marks proprietary; nothing flags the conflict."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "'Duplicate PRs' says search open PRs before opening one; when GitHub is down at the start there is no fallback, and a long run then collides with work that lands meanwhile. Suggest: re-fetch main before the main build and grep for the feature."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start-here row (league-schedule-generator: bowling lane-minimum proofs) is a hard combinatorial search with little MRR value, and the product is due to move to private-monorepo; goals.md North star ranks buyer-acquisition work above it.",
+      "did": "Built a hand-curated free-tool -> product funnel in the site footer instead.",
+      "result": "Built and verified (336/336 build tests, preview build), then superseded by PR #18677; 2 feeders kept."
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "'Write about the work': the post this run wrote described a feature PR #18677 already shipped with its own post.",
+      "did": "Dropped the post; added a dated section to the existing agent report instead.",
+      "result": "No duplicate post."
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-24-lead-magnet-funnel.md (2026-11-25 section)"
+  ],
+  "goal": "North star step 2. A concurrent session's PR #18677 shipped the same funnel first; this run's lasting contribution is 2 more vetted feeders (85 -> 87) and the comparison in docs/reports/2026-11-24-lead-magnet-funnel.md.",
+  "notes": "Verified before the duplicate was found: own funnel passed build.test.mjs 336/336, run_workflow_locally --for-changes 9/9, a preview build and a 390px screenshot. After rebasing on main: product-offer.test.mjs + funnel-wiring.test.mjs 15/15 with the 2 added feeders.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8e027110-cbec-5eff-9bee-e72be6dc8777",
+    "transcripts": 1,
+    "first": "2026-11-25T16:08:55Z",
+    "last": "2026-11-25T16:22:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 89,
+        "input": 181,
+        "output": 32708,
+        "thinking": 7320,
+        "cache_read": 10752551,
+        "cache_write_5m": 0,
+        "cache_write_1h": 137287,
+        "api_equivalent_usd": 3.9037,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 89,
+      "input": 181,
+      "output": 32708,
+      "thinking": 7320,
+      "cache_read": 10752551,
+      "cache_write_5m": 0,
+      "cache_write_1h": 137287,
+      "api_equivalent_usd": 3.9037,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 86,
+    "tools": {
+      "Bash": 78,
+      "ToolSearch": 3,
+      "Write": 1,
+      "Monitor": 1,
+      "Read": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.71,
+      "active_minutes": 13.27,
+      "model_minutes": 8.4,
+      "tool_minutes": 4.86,
+      "waiting_on_human_minutes": 0.44,
+      "human_prompts": 9,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "curating 63 pairs from page reads, build change, tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 153.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
