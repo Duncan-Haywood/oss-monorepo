@@ -27,6 +27,7 @@ table{width:100%;border-collapse:collapse;font-size:.95rem}
 caption{caption-side:bottom;color:#56646f;font-size:.85rem;text-align:left;padding-top:.6rem}
 th,td{border-bottom:1px solid #cbd8e2;padding:.5rem .45rem;text-align:left;vertical-align:top}
 code{background:#eef2f6;border-radius:4px;padding:.05rem .3rem;font-size:.92em;white-space:nowrap}
+@media(max-width:600px){table.stack td:not(:first-child) code{white-space:normal;overflow-wrap:anywhere}}
 th:first-child,td:first-child{white-space:nowrap}
 .fine{font-size:.88rem;color:#56646f}
 footer{color:#56646f;font-size:.86rem}
@@ -51,7 +52,7 @@ footer p{margin:.6rem 0}
 <section>
 <h2>Document structure and required fields</h2>
 <div class="table-wrap">
-<table>
+<table class="stack">
 <caption>The shape checks. These run first, because most later checks need these fields to exist before they can compare anything.</caption>
 <thead><tr><th scope="col">Code</th><th scope="col">What it means</th><th scope="col">Fix</th></tr></thead>
 <tbody>
@@ -69,7 +70,7 @@ footer p{margin:.6rem 0}
 <section>
 <h2>Parties: supplier, customer, VAT identifiers, electronic addresses</h2>
 <div class="table-wrap">
-<table>
+<table class="stack">
 <caption>Checks on who the invoice is from and to. The VAT and endpoint checks are typo catches computed from published checksum and format rules — never a registration or directory lookup, because nothing leaves your browser.</caption>
 <thead><tr><th scope="col">Code</th><th scope="col">What it means</th><th scope="col">Fix</th></tr></thead>
 <tbody>
@@ -89,7 +90,7 @@ footer p{margin:.6rem 0}
 <h2>Lines, totals, and arithmetic</h2>
 <p>These are the checks that catch the largest share of real defects, because they compare numbers that were produced at different times by different parts of an ERP export. Everything is rounded half-up to cents before comparison.</p>
 <div class="table-wrap">
-<table>
+<table class="stack">
 <caption>Arithmetic checks. Where a figure is wrong, the report names the value the checker computed, so you can paste it straight in if the lines are the side you trust.</caption>
 <thead><tr><th scope="col">Code</th><th scope="col">What it means</th><th scope="col">Fix</th></tr></thead>
 <tbody>
@@ -112,7 +113,7 @@ footer p{margin:.6rem 0}
 <section>
 <h2>Tax treatment, exemptions, and per-rate breakdown</h2>
 <div class="table-wrap">
-<table>
+<table class="stack">
 <caption>Tax checks. The tool reports structural facts about the tax you declared; it never decides what rate or exemption applies.</caption>
 <thead><tr><th scope="col">Code</th><th scope="col">What it means</th><th scope="col">Fix</th></tr></thead>
 <tbody>
@@ -128,7 +129,7 @@ footer p{margin:.6rem 0}
 <section>
 <h2>Dates, invoice periods, and payment terms</h2>
 <div class="table-wrap">
-<table>
+<table class="stack">
 <caption>Date checks. Impossible orderings are caught here — an end before a start, a due date before issue — because receiving systems commonly reject them outright.</caption>
 <thead><tr><th scope="col">Code</th><th scope="col">What it means</th><th scope="col">Fix</th></tr></thead>
 <tbody>
@@ -157,7 +158,7 @@ footer p{margin:.6rem 0}
 <h2>Payment: IBAN, BIC, means, and remittance</h2>
 <p>These checks are about getting paid rather than passing validation. A network may well accept an invoice that fails them; a buyer's accounts-payable system may still not be able to pay it.</p>
 <div class="table-wrap">
-<table>
+<table class="stack">
 <caption>Payment checks. The IBAN and BIC tests are computed locally from published checksum and country rules — no bank is contacted.</caption>
 <thead><tr><th scope="col">Code</th><th scope="col">What it means</th><th scope="col">Fix</th></tr></thead>
 <tbody>
@@ -178,7 +179,7 @@ footer p{margin:.6rem 0}
 <section>
 <h2>Settlement amounts, document type, and references</h2>
 <div class="table-wrap">
-<table>
+<table class="stack">
 <caption>Checks on what is still owed, what kind of document this is, and the references a buyer's accounts-payable system matches against.</caption>
 <thead><tr><th scope="col">Code</th><th scope="col">What it means</th><th scope="col">Fix</th></tr></thead>
 <tbody>
@@ -198,7 +199,7 @@ footer p{margin:.6rem 0}
 <section>
 <h2>Header allowances and charges</h2>
 <div class="table-wrap">
-<table>
+<table class="stack">
 <caption>Document-level discounts and surcharges — the ones applied after the lines are summed.</caption>
 <thead><tr><th scope="col">Code</th><th scope="col">What it means</th><th scope="col">Fix</th></tr></thead>
 <tbody>
@@ -213,7 +214,7 @@ footer p{margin:.6rem 0}
 <section>
 <h2>Read failures</h2>
 <div class="table-wrap">
-<table>
+<table class="stack">
 <caption>Reported when the file could not be parsed at all, so no other check could run against it.</caption>
 <thead><tr><th scope="col">Code</th><th scope="col">What it means</th><th scope="col">Fix</th></tr></thead>
 <tbody>

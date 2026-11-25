@@ -47,8 +47,10 @@ footer { margin-top: 28px; border-top: 1px solid var(--line); padding-top: 16px;
 @media (max-width: 720px) { body { padding: 16px; } }
 /* Guide tables on a phone: one card per row, the first cell as its title and the rest as
    label / value pairs (data-label is the column header). Same pattern as the site's
-   STACK_TABLE_CSS (platform/pages/site-nav.mjs), which venture pages do not load. At 390 px the
-   retainage caps table was 457 px wide in a 312 px scroller, with Notes off screen. */
+   STACK_TABLE_CSS (platform/pages/site-nav.mjs). At 390 px the retainage caps table was 457 px
+   wide in a 312 px scroller, with Notes off screen. Since 2026-11-25 pf-chrome.css carries a
+   zero-specificity copy of that layout (label beside value); the rules below win where they set
+   a property, and the td / ::before sizing is pinned so the label stays above its value. */
 @media (max-width: 600px) {
   table.stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   table.stack, table.stack tbody, table.stack tr, table.stack td, table.stack th[scope="row"] { display: block; }
@@ -56,8 +58,8 @@ footer { margin-top: 28px; border-top: 1px solid var(--line); padding-top: 16px;
   table.stack tr { border: 1px solid var(--line); border-radius: 10px; padding: 2px 12px; margin: 0 0 10px; background: var(--card); }
   /* Label above value, not a two-column grid: a grid makes every inline child (<strong>, <a>)
      its own grid item, which split the lien-waiver cells into fragments. */
-  table.stack td { border: 0; border-top: 1px solid var(--rule); padding: 7px 0; text-align: left; white-space: normal; }
-  table.stack td::before { content: attr(data-label); display: block; color: var(--muted); font-size: .78rem; font-weight: 600; line-height: 1.5; }
+  table.stack td { border: 0; border-top: 1px solid var(--rule); padding: 7px 0; text-align: left; white-space: normal; width: auto; table-layout: auto; overflow-wrap: normal; }
+  table.stack td::before { content: attr(data-label); display: block; color: var(--muted); font-size: .78rem; font-weight: 600; line-height: 1.5; width: auto; min-width: 0; padding-right: 0; vertical-align: baseline; }
   table.stack td:first-child, table.stack th[scope="row"] { display: block; border: 0; font-weight: 700; color: var(--head); padding: 9px 0 7px; font-size: 1rem; text-transform: none; letter-spacing: 0; }
   table.stack td:first-child::before { content: none; }
   table.stack.compact td:not(:first-child) { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }

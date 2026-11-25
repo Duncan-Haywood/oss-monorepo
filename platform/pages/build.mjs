@@ -141,6 +141,7 @@ import {
 } from './invalid.mjs';
 import { BACKUP_WIDGET_HTML, BACKUP_WIDGET_SCRIPT } from './backup.mjs';
 import { REFLOW_CSS, TABLE_SCROLL_CLASS, WRAP_TABLES_JS, injectReflow } from './reflow.mjs';
+import { labelStackTables } from './stack-labels.mjs';
 import { FIGURE_COLUMNS_CSS, FIGURE_COLUMNS_JS } from './figure-columns.mjs';
 import { PAPER_INK_JS } from './paper.mjs';
 import { STICKY_FIT_CSS, STICKY_FIT_JS } from './sticky-fit.mjs';
@@ -155,6 +156,7 @@ import {
   HEADER_MARKER,
   SITE_STYLE_FILE,
   VENTURE_CHROME_CSS,
+  STACK_TABLE_CHROME_CSS,
   VENTURE_CHROME_JS,
   VENTURE_CHROME_EARLY_JS,
   SEARCH_ANCHOR,
@@ -11044,8 +11046,9 @@ export function renderChromeStyle() {
   // "quick answer" look of an answer-first lead (answer-lead-style.mjs), and the
   // floor that keeps a select in a table cell readable (select-fit.mjs; it must
   // follow REFLOW_CSS, whose narrow-screen min-width:0 it overrides), and the
-  // right-aligned figure columns pf-site.js marks (figure-columns.mjs).
-  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${VENTURE_CHROME_CSS}${REFLOW_CSS}${ASSISTANT_VOICE_CSS}${STICKY_FIT_CSS}${JUMP_ROW_CSS}${ANSWER_LEAD_CSS}${SELECT_FIT_CSS}${FIGURE_COLUMNS_CSS}`;
+  // right-aligned figure columns pf-site.js marks (figure-columns.mjs), and the
+  // opt-in phone cards for a wide `table.stack` (site-nav.mjs, STACK_TABLE_CHROME_CSS).
+  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${VENTURE_CHROME_CSS}${REFLOW_CSS}${ASSISTANT_VOICE_CSS}${STICKY_FIT_CSS}${JUMP_ROW_CSS}${ANSWER_LEAD_CSS}${SELECT_FIT_CSS}${FIGURE_COLUMNS_CSS}${STACK_TABLE_CHROME_CSS}`;
 }
 
 // The same anonymous, local-only convention the hub uses: which tool slugs were
@@ -12594,8 +12597,11 @@ export async function addSiteChrome({ outDir, surfaces, baseUrl = DEFAULT_BASE_U
       // After every pass that adds markup of its own — the saved-bids band and
       // the share row both carry tables of their own on some pages, and they
       // are as capable of pushing the document sideways as a venture's.
-      const reflowed = injectReflow(marked);
-      if (reflowed !== marked) narrowed.push(relative);
+      // A `table.stack` gets its cells' labels and roles from its own header row, so a
+      // venture opts in to the phone cards with the class alone (stack-labels.mjs).
+      const labelled = labelStackTables(marked);
+      const reflowed = injectReflow(labelled);
+      if (reflowed !== labelled) narrowed.push(relative);
       if (reflowed === html) continue;
       await fs.writeFile(file, reflowed);
       wrapped.push(relative);

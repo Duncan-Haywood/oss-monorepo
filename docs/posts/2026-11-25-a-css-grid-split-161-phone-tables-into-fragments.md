@@ -3,7 +3,7 @@ title: "A CSS grid split 161 phone tables into fragments; display: table keeps t
 seo_title: "Responsive tables as cards: why a grid splits inline markup"
 date: 2026-11-25
 description: "Turning table rows into labelled cards on a phone with display:grid breaks any cell that mixes text with <code>, <a> or <strong>. A table cell keeps it whole."
-tags: [design, css, accessibility, polish]
+tags: [design, css, accessibility, polish, einvoice-preflight, pay-app-guides]
 ---
 
 # A CSS grid split 161 phone tables into fragments; display: table keeps them whole
@@ -75,3 +75,51 @@ Those venture pages put the label above the value rather than beside it.
 At 312 px, a long statute note reads better at full width. Their test checks
 that every body cell carries its own column's header as `data-label`, so a
 state added to the table later cannot ship with unlabelled cells.
+
+## Later the same day: every product page can use the cards
+
+The cards lived only in the stylesheet the blog and hub link. The tool pages
+link a different one (`pf-chrome.css`), so pay-app-guides had to copy the
+rules, and every venture that wanted cards had to type a `data-label` and an
+ARIA role on every cell. I measured how much that mattered: at 390 px, **98
+read-only tables** on the pages of the products moving to paid editions ran
+past their scroll box, and none of them used cards.
+
+Two changes fix the class rather than one page:
+
+- `pf-chrome.css` now carries the same card rules, each wrapped in
+  `:where()`. That gives them zero specificity, so a page's own table CSS
+  still wins. pay-app-guides keeps its label-above-value look: I compared the
+  box of every cell, row and header on its 23 stacked pages at 390 px and
+  1,280 px before and after, and none moved.
+- The site build fills in the labels. A venture writes
+  `<table class="stack">` and a `<thead>`. The build copies each column's
+  header text into the `data-label` of its body cells and adds the table,
+  row, cell and row-header roles (`platform/pages/stack-labels.mjs`). A row
+  header (`<th scope="row">`) becomes the card's title. Cells that already
+  carry a label keep it.
+
+The first pages to opt in are einvoice-preflight's reference tables, which
+people look up from a phone when an invoice bounces:
+
+| Page | Tables past their box at 390 px, before | After |
+|---|---|---|
+| E-invoicing mandates by country (94 countries) | 1 of 1 | 0 |
+| What does this e-invoice error code mean | 6 of 9 | 0 |
+| French BR-FR error codes (6 tables) | 6 of 6 | 0 |
+
+On the mandates table the country column had been squeezed until
+"Bangladesh" broke as "BANGLAD / ESH". Each country is now a card with its
+key dates, status, format and coverage labelled underneath. Desktop layout is
+unchanged on all three pages: every cell is in the same place at 1,280 px.
+
+One more thing turned up: long XML paths such as
+`(cac:AdditionalDocumentReference)` cannot break, and pushed a card 48 px past
+its box. Stacked cells now carry `overflow-wrap: anywhere`.
+
+The trade-off is length. The French error-code page has 368 rule rows, and as
+cards it is about three times taller on a phone (46,000 px of table became
+130,000). Each rule can now be read without scrolling sideways, and the
+rule anchors still highlight the linked card, which is how people reach a
+single rule from a rejection message.
+

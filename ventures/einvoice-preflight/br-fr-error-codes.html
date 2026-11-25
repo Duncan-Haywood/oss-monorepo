@@ -9,7 +9,7 @@
 <meta property="og:title" content="BR-FR error codes in English">
 <meta property="og:description" content="What each French e-invoicing rule (BR-FR, BR-FR-CDV) checks, in English, and a free offline checker that runs them.">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is a BR-FR error?","acceptedAnswer":{"@type":"Answer","text":"BR-FR rules are the French controls (AFNOR XP Z12-012, the \"Flux 2\" controls) that approved platforms (plateformes agréées, PA) apply to invoices exchanged under France's e-invoicing reform, on top of the EN 16931 rules. FNFE-MPE publishes them as Schematron files with French messages; a platform that rejects an invoice usually quotes the code, such as BR-FR-08/BT-23."}},{"@type":"Question","name":"Is this the official English text?","acceptedAnswer":{"@type":"Answer","text":"No. FNFE-MPE publishes the messages in French only. The English on this page was translated for this tool from FNFE-MPE's BR-FR Schematron and is shown beside the French original, which remains the reference. A platform may word its own rejection differently."}},{"@type":"Question","name":"Can I check an invoice against these rules before sending it?","acceptedAnswer":{"@type":"Answer","text":"Yes. Open the checker, tick \"Also apply the French rules\" and \"official Schematron\", and drop a UBL, CII or Factur-X file, or a CDAR status message. The BR-FR rules run in your browser, the file is not uploaded, and each finding is shown in English with FNFE-MPE's French under it."}}]}</script>
-<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:1100px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;max-width:28ch}.lede{font-size:1.05rem;max-width:66ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;min-width:760px;border-collapse:collapse;margin:.6rem 0;font-size:.88rem}th,td{text-align:left;padding:7px 9px;border-bottom:1px solid #d3dbe4;vertical-align:top}td:first-child{white-space:nowrap}td[lang=fr]{color:#3d4f5f}th{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}tr:target{background:#fff6d6}.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}</style>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{max-width:1100px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem}h1{font-size:clamp(1.7rem,5vw,2.5rem);line-height:1.08;margin:.3rem 0;max-width:28ch}.lede{font-size:1.05rem;max-width:66ch;color:#3d4f5f}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1.1rem 1.3rem;box-shadow:0 8px 24px #15202b10;margin:1rem 0}h2{margin-top:0}.table-wrap{overflow-x:auto}table{width:100%;min-width:760px;border-collapse:collapse;margin:.6rem 0;font-size:.88rem}th,td{text-align:left;padding:7px 9px;border-bottom:1px solid #d3dbe4;vertical-align:top}td:first-child{white-space:nowrap}@media(max-width:600px){table.stack{min-width:0}table.stack td:first-child{white-space:normal}}td[lang=fr]{color:#3d4f5f}th{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:#3d4f5f}tr:target{background:#fff6d6}.note{font-size:.88rem;color:#3d4f5f}footer{color:#3d4f5f;font-size:.86rem}</style>
 </head><body><main>
 <header>
 <p class="eyebrow">E-invoice Preflight · France</p>
@@ -19,7 +19,7 @@
 <section>
 <h2>Core invoice rules (BR-FR-01 to BR-FR-32)</h2>
 <p class="note">Invoice number format, dates, French document types and billing frameworks (BT-23), SIREN and SIRET, VAT categories and rates, electronic addresses and notes.</p>
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="stack">
 <thead><tr><th>Rule</th><th>What it checks (English)</th><th>FNFE-MPE text (French)</th><th>Applies to</th></tr></thead>
 <tbody>
 <tr id="r-BR-FR-01-BT-1"><td><strong>BR-FR-01/BT-1</strong></td><td>The invoice identifier (cbc:ID) contains disallowed characters. Only alphanumeric characters and the symbols + - _ / are allowed, without spaces.</td><td lang="fr">L'identifiant de facture (cbc:ID) contient des caractères non autorisés. Seuls les caractères alphanumériques et les symboles + - _ / sont autorisés, sans espaces.</td><td>UBL</td></tr>
@@ -198,7 +198,7 @@
 <section>
 <h2>Coherence rules (BR-FR-CO)</h2>
 <p class="note">Fields that must agree with each other: identifiers and their schemes, credit notes and the invoices they correct, the parties' roles.</p>
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="stack">
 <thead><tr><th>Rule</th><th>What it checks (English)</th><th>FNFE-MPE text (French)</th><th>Applies to</th></tr></thead>
 <tbody>
 <tr id="r-BR-FR-CO-03-BT-3"><td><strong>BR-FR-CO-03/BT-3</strong></td><td>If the invoice type code (BT-3) is equal to 262 (Global Allowance Credit Note), then: - The contract number (BT-12) must be present - The invoice period (BG-14) must be provided (start and end dates). Current values: BT-12=&quot;&quot;, period=&quot; to &quot;.</td><td lang="fr">Si le code type de la facture (BT-3) est égal à 262 (Avoir Remise Globale), alors : - Le numéro de contrat (BT-12) doit être présent - La période de facturation (BG-14) doit être renseignée (dates de début et de fin). Valeurs actuelles : BT-12=&quot;&quot;, période=&quot; à &quot;.</td><td>UBL</td></tr>
@@ -265,7 +265,7 @@
 <section>
 <h2>Amount format (BR-FR-DEC)</h2>
 <p class="note">How amounts are written: at most two decimals, a dot as separator, 19 characters.</p>
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="stack">
 <thead><tr><th>Rule</th><th>What it checks (English)</th><th>FNFE-MPE text (French)</th><th>Applies to</th></tr></thead>
 <tbody>
 <tr id="r-BR-FR-DEC-01-BT-92-BT-99"><td><strong>BR-FR-DEC-01/BT-92/BT-99</strong></td><td>The amount « » is invalid. It must have at most 2 decimals, be expressed with a point as separator, and not exceed 19 characters (excluding the separator). The sign « - » is allowed. Please correct this amount.</td><td lang="fr">Le montant « » est invalide. Il doit comporter au plus 2 décimales, être exprimé avec un point comme séparateur, et ne pas dépasser 19 caractères (hors séparateur). Le signe « - » est autorisé. Veuillez corriger ce montant.</td><td>UBL</td></tr>
@@ -323,7 +323,7 @@
 <section>
 <h2>Multi-vendor invoices (BR-FR-MV)</h2>
 <p class="note">Invoices whose GROUP lines carry their own seller (billing frameworks S8, B8, M8).</p>
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="stack">
 <thead><tr><th>Rule</th><th>What it checks (English)</th><th>FNFE-MPE text (French)</th><th>Applies to</th></tr></thead>
 <tbody>
 <tr id="r-BR-FR-MV-01-EXT-FR-FE-163"><td><strong>BR-FR-MV-01/EXT-FR-FE-163</strong></td><td>When the billing framework (BT-23) is S8, B8, M8 or S9, B9, M9, each line (BG-25) must contain a line subtype (ram:LineStatusReasonCode). Please check that the subtype is provided, Please check that the subtype is provided for all lines.</td><td lang="fr">Lorsque le cadre de facturation (BT-23) est S8, B8, M8 ou S9, B9, M9, chaque ligne (BG-25) doit contenir un sous-type de ligne (ram:LineStatusReasonCode). Veuillez vérifier que le sous-type est renseigné, Veuillez vérifier que le sous-type est renseigné pour toutes les lignes.</td><td>CII</td></tr>
@@ -368,7 +368,7 @@
 <section>
 <h2>Sub-lines and prior invoices (BR-FR-BD)</h2>
 <p class="note">GROUP lines with sub-lines, and the S9, B9, M9 frameworks that reference an earlier invoice.</p>
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="stack">
 <thead><tr><th>Rule</th><th>What it checks (English)</th><th>FNFE-MPE text (French)</th><th>Applies to</th></tr></thead>
 <tbody>
 <tr id="r-BR-FR-BD-02-BT-30"><td><strong>BR-FR-BD-02/BT-30</strong></td><td>When the billing framework (BT-23) is S9, B9 or M9, the invoice must contain exactly two lines (BG-25) with line subtype (ram:LineStatusReasonCode) equal to &quot;GROUP&quot; and without a parent line identifier (ram:ParentLineID), of which one has as line seller legal ID (EXT-FR-FE-167) the legal ID of the SELLER (BT-30). Please check that there is a GROUP line with line Seller ID = SELLER ID (BT-30).</td><td lang="fr">Lorsque le cadre de facturation (BT-23) est S9, B9 ou M9, la facture doit contenir exactement deux ligne (BG-25) avec le sous-type de ligne (ram:LineStatusReasonCode) égal à &quot;GROUP&quot; et sans identifiant de ligne parent (ram:ParentLineID), pour lesquelles l'une a pour ID legal Vendeur à la ligne (EXT-FR-FE-167) l'ID légal du VENDEUR (BT-30). Veuillez vérifier qu'il y a une ligne GROUP avec ID Vendeur de ligne = ID VENDEUR (BT-30).</td><td>UBL</td></tr>
@@ -385,7 +385,7 @@
 <section>
 <h2>Life-cycle status messages (BR-FR-CDV, CDAR)</h2>
 <p class="note">The status messages (CDAR, D22B) a platform sends back: deposited, rejected, refused, in dispute, approved, paid, and the reason codes each allows.</p>
-<div class="table-wrap"><table>
+<div class="table-wrap"><table class="stack">
 <thead><tr><th>Rule</th><th>What it checks (English)</th><th>FNFE-MPE text (French)</th><th>Applies to</th></tr></thead>
 <tbody>
 <tr id="r-BR-FR-CDV-01-MDG-3"><td><strong>BR-FR-CDV-01/MDG-3</strong></td><td>The context parameter MDG-3 is mandatory in the document. Please ensure that the element ram:GuidelineSpecifiedDocumentContextParameter is present and correctly filled in.</td><td lang="fr">Le paramètre de contexte MDG-3 est obligatoire dans le document. Veuillez vous assurer que l'élément ram:GuidelineSpecifiedDocumentContextParameter est bien présent et correctement renseigné.</td><td>CDAR</td></tr>
