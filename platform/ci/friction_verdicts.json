@@ -167,6 +167,14 @@
    "by": "PR #18661",
    "at": "2026-11-24T22:09:00Z",
    "note": "math.fsum in cost.py and tables.py; paper/*.json byte-identical on python 3.11, 3.12, 3.13 (re-checked 2026-11-24)"
+  },
+  {
+   "file": "ventures/machine-shop-guides/SOURCES.md",
+   "match": "acquisition.gov|ecfr",
+   "verdict": "fixed",
+   "by": "egress_probe.py",
+   "at": "2026-11-25T15:21:17Z",
+   "note": "platform/ci/egress_probe.py probes official hosts in parallel and prints the verified GSA FAR/DFARS fallback; cloud-session.md Outbound hosts points to it"
   }
  ]
 }

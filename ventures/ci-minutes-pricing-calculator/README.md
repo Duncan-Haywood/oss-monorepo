@@ -29,9 +29,8 @@ vendor named.
 
 From the quality audit of 2026-11-19 ([`portfolio/quality/audits/2026-11-19-ci-minutes-pricing-calculator.json`](../../portfolio/quality/audits/2026-11-19-ci-minutes-pricing-calculator.json)):
 
-- Rate cards were rechecked against each vendor's own pricing page: GitHub on 2026-11-19, the other four on 2026-11-25 (Bitbucket Standard $3.65 a user; Buildkite small Linux agents $0.008 a minute, with the Pro plan's $30-a-user fee and 4,000 included vCPU minutes now counted and the Free plan capped at 1,000 small-agent minutes). Each is a Linux list price for one seat.
+- Fixed after the audit: every default rate was re-read at the vendor's pricing page (GitHub 2026-11-19; CircleCI, GitLab, Bitbucket $3.65 a user, Buildkite $0.008 a minute plus its $30 per-user Pro fee with 2,000 small-agent minutes, on 2026-11-25); a malformed `--prices` file and an unknown flag now exit 2. Still open: no per-provider as-of field in the data, and macOS/Windows multipliers are not modelled.
 - Seats are fixed at 1, and GitLab Free's pay-per-pack minutes are not offered as an option.
-- A malformed `--prices` file exits 1, the over-budget code, instead of 2.
 
 ## Privacy
 

@@ -28,7 +28,7 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
@@ -39,6 +39,10 @@
     {
       "file": "platform/ci/run_workflow_locally.py",
       "issue": "--for-changes took about 25 minutes for a 6-file venture change plus a post, and the security-gate steps reached no verdict because the PyYAML hash-locked install fails in the cloud container."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "I searched open PRs for 'ci-minutes' in:title before opening #19007 and found none. A parallel quality-fix session opened and merged #19008 on the same audit row minutes later. The queue's 'open PR naming it' marker can't see a PR that hasn't been opened yet, so two fix sessions that start together can take the same row. Claiming the row on a branch (like security_next.py --claim) would close that race."
     }
   ],
   "deviations": [
@@ -47,13 +51,17 @@
       "why": "The north star prefers for-profit work. The high-severity queue had one venture row, a free tool that is not a bet's front door; the rest were paused research.",
       "did": "Took the venture row anyway. It was a wrong price on a live public page, so it was the most user-facing high defect in the queue.",
       "result": "Fixed two stale vendor prices and an overclaim that was off by one multiple, with tests that catch both."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "PR #19008 merged the same rate-card fix (same numbers, reached independently) before mine could merge.",
+      "did": "Took main's version of the venture and audit files and dropped my duplicate post. Kept the one thing #19008 lacked: the guide's false 'per-minute rate varies by more than a factor of two' ($6-$10 per 1,000 is 1.67x) is corrected, and a page test now pins the rate range and the $29-vs-$94 spread to the engine.",
+      "result": "Merged a smaller follow-up. The two sessions' prices agree, which independently confirms #19008."
     }
   ],
-  "writeups": [
-    "docs/posts/2026-11-25-quality-fix-the-ci-bill-at-ten-thousand-minutes.md"
-  ],
+  "writeups": [],
   "goal": null,
-  "notes": "Quality mode: fix (seeded by quality_audit.py mode). Subject: ventures/ci-minutes-pricing-calculator (audit 2026-11-19, defects 0 high and 1 medium). Fetched the vendor pricing pages with curl this session: Buildkite $0.004/vCPU-min (small $0.008), Free plan 2,000 vCPU-min, Pro $30/user with 4,000 vCPU-min; Bitbucket Standard $3.65/user with 2,500 min; CircleCI and GitLab matched. Recomputed crossover: GitHub is cheapest above 14,749 min, $888 at 150k, matching the audit's independent figure. The how-to spread claim changed from 4x to 3x ($29 vs $94) and is pinned by a page test. Tests 29/29 pass. Mutants Buildkite 8->13 and Bitbucket 3.65->3 were both caught. Local sweep: 13/13 selected workflows passed; codeql, portfolio-pages and security-gate reached no verdict locally, so the PR's CI decides those. Fix PR: #19007. Scores not raised; a later reaudit will rescore.",
+  "notes": "Quality mode: fix (seeded by quality_audit.py mode). Subject: ventures/ci-minutes-pricing-calculator (audit 2026-11-19, defects 0 high and 1 medium). Fetched the vendor pricing pages with curl this session: Buildkite $0.004/vCPU-min (small $0.008), Free plan 2,000 vCPU-min, Pro $30/user with 4,000 vCPU-min; Bitbucket Standard $3.65/user with 2,500 min; CircleCI and GitLab matched. Recomputed crossover: GitHub is cheapest above 14,749 min, $888 at 150k, matching the audit's independent figure. The how-to spread claim changed from 4x to 3x ($29 vs $94) and is pinned by a page test. Tests 29/29 pass. Mutants Buildkite 8->13 and Bitbucket 3.65->3 were both caught. Local sweep: 13/13 selected workflows passed; codeql, portfolio-pages and security-gate reached no verdict locally, so the PR's CI decides those. Fix PR: #19007. Scores not raised; a later reaudit will rescore. UPDATE: PR #19008 (a parallel session) merged an identical rate card first. This PR was reduced to the guide wording fix plus a page test (31/31 pass; mutant Bitbucket overage 10->13 caught by page.test.mjs). The post was dropped as a duplicate of 2026-11-25-quality-fix-the-ci-bill-that-changed-winner.md.",
   "corrections": [],
   "redteam": null,
   "usage": {

@@ -163,3 +163,22 @@ characters. Germany's card went from 223 characters to 156:
 The share-card list is down from 876 to 796. No e-invoicing page is left on
 it; the largest block is now saints-by-candlelight (178), which is not a paid
 product.
+
+## Update, 2026-11-25: five pay-app guides answer their question in a form assistants can lift
+
+Fitting a snippet is half of it; the other half is a page stating the answer
+plainly enough that a search engine's or assistant's summary can quote it
+without misreading it. On pay-app-guides, the free front door to the pay-app
+billing product, 17 of 25 pages had no question-and-answer section, including
+the five a subcontractor is most likely to search for: conditional versus
+unconditional lien waivers, retainage, how to fill out a pay application,
+prompt payment laws and pay-if-paid clauses.
+
+Each of those five now ends with three "Common questions", shown on the page
+and repeated in `FAQPage` structured data, word for word. The answers come from
+the page's own text and keep its hedges. The pay-if-paid answer, for example,
+names the states whose statutes or highest courts void the clause and then says
+whether it holds on your job "is a question for a construction attorney
+licensed in the project's state". The product's test suite now fails if a page
+on its FAQ list loses the markup, or if a marked-up question stops appearing on
+the page. That brings the guides with an FAQ from 8 of 25 to 13 of 25.

@@ -108,3 +108,29 @@ only at the start of the run.
 - unit tests: 406/406
 - worker tests for attachments, change-order attachments and the packet: 20/20
 - build
+
+## Update: order the packet by dragging rows (private PR 122)
+
+Later the same day (Duncan-Haywood/private-monorepo#122), the "order the pay-app packet by
+dragging rows" part of ROADMAP "Backup packets, part 2". Under the files table, the pay-app
+attachments panel now lists the files ticked "In packet" as **Packet order**. Drag a row on a
+desktop, or use the ↑/↓ buttons on a phone or keyboard (HTML5 drag does not work on touch).
+The download link's `?files=` follows that order. The server already built the index and the
+pages in `?files=` order, so this is a client-only change.
+
+Rules to keep (`packetIds(items, picked, order)` and `moveId` in
+`client/components/attachments.tsx`, tests in `test/unit/packet-order.test.tsx`):
+
+- Unticking a file drops it from the order. A newly ticked or uploaded file goes at the end.
+- Ids that are gone or can't go in the packet are ignored, and so are duplicates.
+- "Back to the usual order" restores backup, photos, other.
+
+**Why it matters to a buyer.** GCs often want backup in their own order, for example the lien
+waivers first, then certified payroll, then invoices. Before this, the only way to get that order
+was to upload the files in it.
+
+**Not done, on purpose.** The order is not saved: it lasts while the page is open. Saving it with
+the pay app would need a column and a migration. ROADMAP lists that as "if people ask".
+
+**Verified locally** (payapps CI has no runner), after merging main: typecheck, biome (1 warning,
+also on main), unit 437/437, build.

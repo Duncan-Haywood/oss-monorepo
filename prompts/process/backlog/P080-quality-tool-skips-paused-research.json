@@ -1,0 +1,31 @@
+{
+  "id": "P080",
+  "title": "quality_audit.py stops sending fix, re-audit and sample work to paused research",
+  "status": "done",
+  "owner": "agent",
+  "effect": 3,
+  "cost": 1,
+  "problem": "Standalone research was paused on 2026-11-25 (prompts/goals.md, pivot point 11), but quality_audit.py still drew two research projects per sample round, ranked research defects in the fix queue, listed research subjects for re-audit, and counted research highs toward doubling the fix-mode weight. Quality runs (about a fifth of all runs) kept spending on paused work.",
+  "evidence": [
+    "2026-11-25, `quality_audit.py queue --severity high --no-git`: 20 of 21 open high defects were research/ subjects; the one venture row already had open PRs #19007 and #19008",
+    "2026-11-25, `quality_audit.py reaudit --no-prs`: 225 of 512 subjects waiting for a re-audit were research/"
+  ],
+  "change": "sample, census, queue, reaudit and mode leave research/ subjects out unless --research (quality_metrics.PAUSED_PREFIXES); metrics and coverage still count them; portfolio/quality/README.md says so.",
+  "touches": [
+    "platform/ci/quality_audit.py",
+    "platform/ci/quality_metrics.py",
+    "portfolio/quality/README.md"
+  ],
+  "metric": "Quality fix and re-audit PRs merged that touch research/ per week",
+  "baseline": "Never measured as a weekly count; on 2026-11-25 the queue's high rows were 20/21 research",
+  "opened": "2026-11-25",
+  "source": "process run 2026-11-25 (critique: quality queue read against the 2026-11-25 research pause)",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19010",
+  "result": null,
+  "history": [
+    {
+      "date": "2026-11-25",
+      "note": "Shipped the --research gate in quality_audit.py/quality_metrics.py. Verify: over the next week count merged `quality fix:` and re-audit PRs whose files are under research/; expect near zero."
+    }
+  ]
+}

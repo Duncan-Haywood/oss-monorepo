@@ -9,7 +9,16 @@
 // add-ons (extra seats, larger runners, concurrency, caching and artifact storage), contracts and each vendor's own
 // minute multipliers (macOS and Windows runners bill at several times Linux), none of which this file reproduces.
 
-export const PRICES_AS_OF = "Checked against each vendor's own pricing page: GitHub Actions on 2026-11-19; CircleCI, GitLab, Bitbucket and Buildkite on 2026-11-25 (Linux list prices, one seat). Vendors change packaging often and bill macOS/Windows at multiples; verify each at its own pricing page";
+export const PRICES_AS_OF = "List prices checked at each vendor's pricing page: GitHub Actions 2026-11-19; CircleCI, GitLab, Bitbucket and Buildkite 2026-11-25 -- vendors change packaging often and bill macOS/Windows and larger runners at multiples; verify each at its own pricing page";
+
+// Where each default comes from (vendor pricing pages, read on the dates above):
+//   github    $0.006/min Linux 2-core; 2,000 free minutes (Free plan).
+//   circleci  30,000 free credits/month; Linux medium is 10 credits/min; $15 per 25,000 credits ($6 per 1,000 min).
+//   gitlab    Free 400 compute minutes; Premium $29/user/month with 10,000; extra packs $10 per 1,000.
+//   bitbucket Free 50 minutes; Standard $3.65/user/month with 2,500; extra $10 per 1,000.
+//   buildkite Free plan up to 2,000 Linux vCPU-min (1,000 min on the 2-vCPU small agent);
+//             Pro $30 per active user/month including 4,000 vCPU-min (2,000 small-agent min);
+//             small agent $0.008/min ($0.004 per vCPU-min).
 
 // Editable. For a provider: no charge at or below `freeMinutes` a month. Above it
 // the buyer picks the cheapest `plans` entry: `price` USD a month for `minutes`
@@ -20,10 +29,6 @@ export const DEFAULT_PROVIDERS = {
   circleci: { label: "CircleCI (Linux medium)", url: "https://circleci.com/pricing/", freeMinutes: 3000, plans: [{ minutes: 3000, price: 15 }], overagePer1k: 6 },
   gitlab: { label: "GitLab Premium (1 seat)", url: "https://about.gitlab.com/pricing/", freeMinutes: 400, plans: [{ minutes: 10000, price: 29 }], overagePer1k: 10 },
   bitbucket: { label: "Bitbucket Pipelines Standard (1 seat)", url: "https://www.atlassian.com/software/bitbucket/pricing", freeMinutes: 50, plans: [{ minutes: 2500, price: 3.65 }], overagePer1k: 10 },
-  // Buildkite (pricing page, 2026-11-25): Linux hosted agents bill $0.004 per vCPU minute, so the
-  // 2-vCPU small shape is $0.008 a minute. The Free plan caps at 2,000 vCPU minutes (1,000 small
-  // minutes) with no paid overage; above that the Pro plan is $30 per active user a month and
-  // includes 4,000 vCPU minutes (2,000 small minutes), then the per-minute rate.
   buildkite: { label: "Buildkite Pro hosted agents (Linux small, 1 user)", url: "https://buildkite.com/pricing/", freeMinutes: 1000, plans: [{ minutes: 2000, price: 30 }], overagePer1k: 8 },
 };
 

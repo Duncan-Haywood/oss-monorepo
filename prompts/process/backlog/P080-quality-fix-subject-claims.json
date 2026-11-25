@@ -1,0 +1,28 @@
+{
+  "id": "P080",
+  "title": "Claim a quality-audit subject before fixing it, so parallel fix sessions do not fix one defect twice",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "quality_audit.py queue shuffles subjects per session and sinks rows an open PR names, but a twin fix session that has not opened its PR yet is invisible to both, so two sessions fix the same defect and one PR is wasted.",
+  "evidence": [
+    "2026-11-25: two fix sessions took retail-pilot-intel #0 within minutes (PRs #18894 and #18903), per doc_friction in prompts/runs/2026-11-25-session_01AcxTtJmeNMaZCZx2XB4zcX.json and siblings",
+    "2026-11-25: a parallel fix session (PR #18905) rewrote the same marker.mjs the same way within an hour (same run records)",
+    "2026-11-16T16:41: two fix sessions took the top medium row the same minute (comment on quality_metrics.queue); the shuffle added then lowers the odds but does not stop it"
+  ],
+  "change": "quality_audit.py claim <subject> pushes a create-only branch claim/quality-fix/<subject-slug> (a child of origin/main with main's tree, so no path changes and no workflow runs), exit 4 if taken; queue reads live claims (6 h staleness) and shows those rows last, marked 'claimed N min ago'. Reuses roadmap_claim.py's push_claim (new base= argument).",
+  "touches": [
+    "platform/ci/quality_claim.py",
+    "platform/ci/quality_metrics.py",
+    "platform/ci/quality_audit.py",
+    "portfolio/quality/README.md"
+  ],
+  "metric": "Run records per week whose doc_friction reports two fix sessions on one quality subject (grep 'quality_audit' + 'twin|parallel|same row')",
+  "baseline": "2 reports on 2026-11-25, 1 on 2026-11-16",
+  "opened": "2026-11-25",
+  "source": "platform/ci/friction_rank.py --live --ungated --days 3 (cluster 12, platform/ci/quality_audit.py)",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19013",
+  "result": null,
+  "history": []
+}

@@ -22,6 +22,13 @@ function loadProviders(file) {
   const isObj = (x) => x !== null && typeof x === "object" && !Array.isArray(x);
   if (!isObj(over)) fail(`--prices ${file} must be a JSON object of provider overrides, keyed by provider`);
   for (const [k, v] of Object.entries(over)) if (!isObj(v)) fail(`--prices ${file}: "${k}" must be an object of rate fields`);
+  // A malformed rate card is bad input (exit 2), never the over-budget code 1 (quality audit 2026-11-19).
+  const nonNeg = (x) => typeof x === "number" && Number.isFinite(x) && x >= 0;
+  for (const [k, v] of Object.entries(over)) {
+    for (const f of ["freeMinutes", "overagePer1k"]) if (f in v && !nonNeg(v[f])) fail(`--prices ${file}: "${k}.${f}" must be a non-negative number`);
+    if ("plans" in v && (!Array.isArray(v.plans) || v.plans.length === 0 || !v.plans.every((t) => isObj(t) && nonNeg(t.minutes) && nonNeg(t.price))))
+      fail(`--prices ${file}: "${k}.plans" must be a non-empty array of {"minutes": n, "price": n} with non-negative numbers`);
+  }
   for (const [k, v] of Object.entries(over)) merged[k] = { ...(merged[k] || { label: k, url: "", freeMinutes: 0, plans: [{ minutes: 0, price: 0 }], overagePer1k: 0 }), ...v };
   return merged;
 }
@@ -30,10 +37,12 @@ const argv = process.argv.slice(2);
 const cmd = argv.shift();
 const opt = {};
 const flags = new Set(["json"]);
+const valued = new Set(["minutes", "growth", "months", "provider", "budget", "prices", "max"]);
 for (let i = 0; i < argv.length; i++) {
   const a = argv[i];
   if (!a.startsWith("--")) fail(`unexpected argument "${a}"\n${USAGE}`);
   const k = a.slice(2);
+  if (!flags.has(k) && !valued.has(k)) fail(`unknown option "${a}"\n${USAGE}`);
   if (flags.has(k)) opt[k] = true;
   else { if (argv[i + 1] === undefined) fail(`--${k} needs a value`); opt[k] = argv[++i]; }
 }
@@ -64,9 +73,9 @@ if (cmd === "providers") {
   if (opt.json) console.log(JSON.stringify({ minutes, rows, projection: proj, summary: s }, null, 2));
   else {
     console.log(`${minutes.toLocaleString("en-US")} build minutes a month\n`);
-    for (const r of rows) console.log(`${r.label.padEnd(40)} ${fmt(r.monthly).padStart(12)}/mo  ${fmt(r.annual).padStart(14)}/yr${r.extraVsCheapest ? `  (+${fmt(r.extraVsCheapest)})` : ""}`);
+    for (const r of rows) console.log(`${r.label.padEnd(50)} ${fmt(r.monthly).padStart(12)}/mo  ${fmt(r.annual).padStart(14)}/yr${r.extraVsCheapest ? `  (+${fmt(r.extraVsCheapest)})` : ""}`);
     console.log(`\n${monthsOpt()}-month spend at ${num("growth", 0)}%/mo growth (${minutes.toLocaleString("en-US")} -> ${proj.endVolume.toLocaleString("en-US")} build minutes a month):`);
-    for (const t of proj.totals) console.log(`${t.label.padEnd(40)} ${fmt(t.total).padStart(14)}`);
+    for (const t of proj.totals) console.log(`${t.label.padEnd(50)} ${fmt(t.total).padStart(14)}`);
     console.log(`\n${s.text}\n${PRICES_AS_OF}. Not a quote.`);
   }
   process.exit(s.overBudget ? 1 : 0);
