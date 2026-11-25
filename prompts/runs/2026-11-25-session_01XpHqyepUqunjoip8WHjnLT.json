@@ -29,12 +29,18 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "PR CI 'test' failed: platform/pages/description-length.test.mjs, new page's meta description was over 160 chars; shortened to 157 and re-pushed. run_workflow_locally --for-changes did not select that site test for a venture-only diff."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "ventures/machine-shop-guides/SOURCES.md",
       "issue": "Earlier rows say ecfr.gov was unreachable (proxy 403); this session reached it via the versioner API (https://www.ecfr.gov/api/versioner/v1/full/<date>/title-32.xml?part=170&section=170.19) once curl sent --compressed (without it the API answers 406). Worth a line in cloud-session.md 'Outbound hosts'."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "run_workflow_locally.py --for-changes passed but missed platform/pages/description-length.test.mjs (160-char meta description cap) that PR CI runs on venture pages; the page checklist does not mention the 160 cap (explore prompt mentions only 320)."
     }
   ],
   "deviations": [],
