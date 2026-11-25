@@ -1,7 +1,7 @@
 ---
 title: "Pay applications: the monthly paperwork subcontractors pay to escape"
 date: 2026-11-24
-tags: [construction, subcontractors, billing, retainage, lien-waivers, stored-materials, pay-app-guides, for-customers]
+tags: [construction, subcontractors, billing, retainage, lien-waivers, stored-materials, schedule-of-values, pay-app-guides, for-customers]
 description: "What a monthly pay application involves for a trade sub, what billing tools charge today (sourced), and the product we are building. In development."
 ---
 
@@ -259,6 +259,22 @@ are the starting point, not the product:
   "previous" was last month's total less only the stored material since
   installed; it is last month's total less all of last month's stored. Fixed.
   ([source](../../ventures/pay-app-guides/stored.mjs))
+- [Front-loading a schedule of values](https://marisstella.app/pay-app-guides/front-loading-schedule-of-values.html)
+  (added 2026-11-25): put your estimated cost next to each SOV line and the
+  check shows each line's markup against the job's, the value pulled onto
+  early lines, and the late lines (testing, closeout, punch list) priced
+  below cost, which is the part that hurts if the job stops or the final pay
+  app is held. It writes a balanced SOV (every line at the job's markup) and
+  the smallest cost-weighted change that keeps every line within a tolerance
+  you choose, both rounded so they add up to the contract to the cent. With
+  start and finish months it shows billing, over-billing and job cash by
+  month. On the page's 10-line example ($580,000 on $499,000 of cost),
+  $40,431 sits above balance on early lines, the lowest job cash point is
+  $23,000 as submitted against $1,582 balanced, and at a 9% cost of money
+  that early cash is worth about $2,066: the trade a sub is making against a
+  rejected SOV. It makes no claim about what a given contract allows; a
+  mobilization cap is entered from your own contract.
+  ([source](../../ventures/pay-app-guides/frontload.mjs))
 
 - [Free schedule of values template](https://marisstella.app/pay-app-guides/schedule-of-values-template.html)
   (added 2026-11-25): for subs who would rather keep the spreadsheet. A blank

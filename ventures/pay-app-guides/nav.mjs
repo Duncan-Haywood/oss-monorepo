@@ -14,6 +14,7 @@ export const GROUPS = [
     ["pay-application-checker.html", "Pay app checker (this month vs last)"],
     ["change-order-log.html", "Change order log"],
     ["schedule-of-values-template.html", "Free Excel SOV template"],
+    ["front-loading-schedule-of-values.html", "Front-loading check (balanced SOV)"],
     ["pay-if-paid-clauses.html", "Pay-if-paid clause reader"],
   ]],
   ["Billing guides", [
