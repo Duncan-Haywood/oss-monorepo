@@ -43,7 +43,7 @@ test("calculator inputs are labelled", () => {
 test("the retainage table covers at least 10 states, each linked to an official legislature site, with a read date", () => {
   const html = page("retainage-explained.html");
   const table = html.slice(html.indexOf('id="state-table"'), html.indexOf("</table>", html.indexOf('id="state-table"')));
-  const rows = [...table.matchAll(/<tr><td>([A-Z][a-z]+(?: [A-Z][a-z]+)?)<\/td><td><a href="([^"]+)"/g)];
+  const rows = [...table.matchAll(/<tr[^>]*><td[^>]*>([A-Z][a-z]+(?: [A-Z][a-z]+)?)<\/td><td[^>]*><a href="([^"]+)"/g)];
   assert.ok(rows.length >= 10, `only ${rows.length} states`);
   const official = /^https:\/\/(leginfo\.legislature\.ca\.gov|statutes\.capitol\.texas\.gov|www\.leg\.state\.fl\.us|www\.nysenate\.gov|www\.palegis\.us|www\.ilga\.gov|www\.ncleg\.gov|www\.legislature\.mi\.gov|law\.lis\.virginia\.gov|app\.leg\.wa\.gov|malegislature\.gov|www\.azleg\.gov)\//;
   for (const [, state, href] of rows) assert.match(href, official, state);
@@ -56,11 +56,41 @@ test("robots and sitemap list every page", () => {
   for (const name of PAGES) assert.match(sitemap, new RegExp(name.replace(".", "\\.")));
 });
 
+// Phone layout for the guide tables (style.css, "Guide tables on a phone"): each body row becomes a
+// card whose cells show their column header from data-label. A row added without labels would
+// show bare values on a phone, so every cell must carry its own column's header, in order.
+test("guide tables stack on a phone, every cell labelled with its column header", () => {
+  const guides = PAGES.filter((name) => name !== "index.html");
+  for (const name of guides) {
+    const html = page(name);
+    const at = html.indexOf("<main>");
+    const table = html.slice(html.indexOf("<table", at), html.indexOf("</table>", at));
+    assert.match(table, /^<table(?: id="[^"]*")? class="stack( compact)?" role="table">/, name);
+    // Headers are plain text (no markup), so the captured text is the label as written.
+    const thead = table.split("</thead>")[0];
+    const heads = [...thead.matchAll(/<th role="columnheader" scope="col"[^>]*>([^<]*)<\/th>/g)].map((m) => m[1].trim());
+    assert.equal(heads.length, (thead.match(/<th /g) || []).length, `${name}: a column header holds markup`);
+    const rows = table.split("</thead>")[1].match(/<tr[^>]*>[\s\S]*?<\/tr>/g);
+    assert.ok(rows.length >= 2, name);
+    for (const row of rows) {
+      const cells = [...row.matchAll(/<(td|th)([^>]*)>/g)];
+      assert.equal(cells.length, heads.length, `${name}: ${row.slice(0, 80)}`);
+      cells.forEach(([, tag, attrs], i) => {
+        if (tag === "th") return assert.match(attrs, /scope="row"/, name);
+        assert.equal(/data-label="([^"]*)"/.exec(attrs)?.[1], heads[i].replace(/"/g, "&quot;"), `${name}: ${row.slice(0, 80)}`);
+      });
+    }
+  }
+  const css = page("style.css");
+  assert.match(css, /@media \(max-width: 600px\) \{\s*table\.stack thead/, "stacking is phone-only");
+  assert.doesNotMatch(css, /table\.stack td \{[^}]*display: grid/, "a grid splits inline <strong>/<a> into separate items");
+});
+
 test("the waiver-forms table links each state to its official legislature site, with a read date", () => {
   const html = page("lien-waiver-forms-by-state.html");
   const start = html.indexOf('id="state-table"');
   const table = html.slice(start, html.indexOf("</table>", start));
-  const rows = [...table.matchAll(/<tr><td>([A-Z][a-z]+)<\/td><td><a href="([^"]+)"/g)];
+  const rows = [...table.matchAll(/<tr[^>]*><td[^>]*>([A-Z][a-z]+)<\/td><td[^>]*><a href="([^"]+)"/g)];
   assert.ok(rows.length >= 7, `only ${rows.length} states`);
   const official = /^https:\/\/(www\.azleg\.gov|www\.leg\.state\.nv\.us|statutes\.capitol\.texas\.gov|le\.utah\.gov|www\.flsenate\.gov|www\.legislature\.mi\.gov|wyoleg\.gov|leginfo\.legislature\.ca\.gov)\//;
   for (const [, state, href] of rows) assert.match(href, official, state);
@@ -77,11 +107,18 @@ test("the QuickBooks guide cites Intuit's own pages, says it is not Intuit, and 
   for (const id of ["qb-billed", "qb-rate", "qb-held", "qb-released"]) assert.match(html, new RegExp(`<label for="${id}">`));
 });
 
+test("the QuickBooks lines table, built in the browser, labels its cells for the phone layout", () => {
+  const html = page("retainage-in-quickbooks.html");
+  for (const label of ["QuickBooks item", "Posts to", "Amount"]) {
+    assert.equal(html.split(`, "${label}")`).length - 1, 2, `${label}: a line row and the total row`);
+  }
+});
+
 test("the prompt payment table links each state to its official legislature site, with a read date, and the calculator is labelled", () => {
   const html = page("prompt-payment-laws.html");
   const start = html.indexOf('id="state-table"');
   const table = html.slice(start, html.indexOf("</table>", start));
-  const rows = [...table.matchAll(/<tr><td>([A-Z][a-z]+(?: [A-Z][a-z]+)?)<\/td><td><a href="([^"]+)"/g)];
+  const rows = [...table.matchAll(/<tr[^>]*><td[^>]*>([A-Z][a-z]+(?: [A-Z][a-z]+)?)<\/td><td[^>]*><a href="([^"]+)"/g)];
   assert.ok(rows.length >= 7, `only ${rows.length} states`);
   const official = /^https:\/\/(statutes\.capitol\.texas\.gov|leginfo\.legislature\.ca\.gov|www\.ilga\.gov|www\.ncleg\.gov|www\.legis\.state\.pa\.us|law\.lis\.virginia\.gov|www\.leg\.state\.fl\.us)\//;
   for (const [, state, href] of rows) assert.match(href, official, state);

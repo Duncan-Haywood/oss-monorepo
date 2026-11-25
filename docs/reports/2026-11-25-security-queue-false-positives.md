@@ -90,3 +90,13 @@ Run in parallel with the third pass and merged after it. This pass adds:
   - #1181 to #1203 `js/redos` in `regex-redos-check/*.test.mjs`, and #1208 in `devsec-toolkit/tests/fixtures/vulnerable-repo/`:
     deliberately vulnerable patterns that a ReDoS checker's tests and fixtures exist to detect.
 - **Claimed elsewhere:** #274, #275, #574, #997 have `security-fix/` branches.
+
+## Fifth pass, same day (overlaps the third and fourth)
+
+This run took #65, #849 and #862 in parallel with the fourth pass. It kept main's fixes for #65 and #849 and adds:
+
+- **#862 fixed** (`use-data-app.js:315`): `replaceAll("..", " – ")`. The fourth pass is right that React escapes
+  the output, so it was never an XSS. A range label with a second `..` still showed it, and `replaceAll`
+  clears the alert without depending on that.
+- **`QUEUE.md` now names these notes** (`platform/ci/security_alerts.py`, header line, with a test). Three passes
+  re-read #7 to #43 the same day because nothing in the queue said this file existed.

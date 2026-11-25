@@ -1,38 +1,166 @@
 {
-  "_about": "Code-scanning alerts a session read and judged false positives. platform/ci/security_alerts.py moves an open alert listed here out of the 'take next' list of the security-alerts queue into a 'Triaged, awaiting dismissal' section, so later runs stop re-triaging it; the owner dismisses it on the alert page (sessions have no security-events scope). An entry applies only while number, rule and path all match the open alert, so a reused number or a moved finding comes back to the queue. Add an entry only after reading the flagged code; give the reason in a sentence a reviewer can check. Never list an alert to avoid fixing it.",
-  "false_positives": [
-    {"number": 1, "rule": "py/clear-text-storage-sensitive-data", "path": "research/cell-fidelity/experiments/solver/run.py",
-     "reason": "results.txt and summary.json hold solver statistics and hypothesis verdicts; the script reads no credential (its only environment read is WORKERS), the 'secret' source is a name heuristic.",
-     "triaged": "2026-11-25"},
-    {"number": 2, "rule": "py/clear-text-storage-sensitive-data", "path": "ventures/einvoice-preflight/tests/test_bic.py",
-     "reason": "A test writes a synthetic invoice with a public example BIC/IBAN to a TemporaryDirectory to check the CLI does not print them; no real account data exists.",
-     "triaged": "2026-11-25"},
-    {"number": 3, "rule": "py/clear-text-storage-sensitive-data", "path": "ventures/einvoice-preflight/tests/test_iban.py",
-     "reason": "Same as #2: synthetic test IBAN written to a temporary file so the test can assert the CLI redacts it.",
-     "triaged": "2026-11-25"},
-    {"number": 4, "rule": "py/clear-text-storage-sensitive-data", "path": "ventures/einvoice-preflight/tests/test_remittance.py",
-     "reason": "Same as #2: synthetic remittance reference and IBAN in a temporary file, for a redaction test.",
-     "triaged": "2026-11-25"},
-    {"number": 5, "rule": "py/clear-text-storage-sensitive-data", "path": "research/marriage-divorce-evidence/reproducibility/nlsy79_full/train_first_marriage.py",
-     "reason": "training_audit.json holds aggregate counts, shares and versions from the public NLSY79 release; no respondent-level row or identifier is written.",
-     "triaged": "2026-11-25"},
-    {"number": 6, "rule": "py/clear-text-storage-sensitive-data", "path": "research/marriage-divorce-evidence/reproducibility/newlywed_la_karney/train_models.py",
-     "reason": "The bundle is model coefficients, odds ratios and tercile aggregates; no couple-level record is written.",
-     "triaged": "2026-11-25"},
-    {"number": 7, "rule": "py/clear-text-storage-sensitive-data", "path": "platform/security/risk_review.py",
-     "reason": "The step summary gets the rendered review; find_secrets returns only (path, pattern name), never the matched text, so no secret value can reach the file.",
-     "triaged": "2026-11-25"},
-    {"number": 95, "rule": "js/biased-cryptographic-random", "path": "ventures/quick-pick-survey/src/lib/couples.ts",
-     "reason": "Invite codes use crypto.randomInt(ALPHABET.length), which is unbiased (rejection sampling); there is no modulo of random bytes.",
-     "triaged": "2026-11-25"},
-    {"number": 949, "rule": "js/xss", "path": "ventures/tree-service-bid-calculator/index.html",
-     "reason": "Every user value in the row's innerHTML goes through escapeHtml (& < > \" '); the select options come from constant presets, and the saved value is only compared, never interpolated.",
-     "triaged": "2026-11-25"},
-    {"number": 950, "rule": "js/xss", "path": "ventures/janitorial-bid-calculator/index.html",
-     "reason": "Every interpolated value in the periodic-service row goes through escapeHtml (& < > \" ').",
-     "triaged": "2026-11-25"},
-    {"number": 951, "rule": "js/reflected-xss", "path": "ventures/quick-pick-survey/src/app/api/admin/surveys/[slug]/ranking/route.ts",
-     "reason": "resultsReportHtml escapes name and note with esc(), accepts the logo only as https or an image data URI, and the colour only as 6-digit hex (src/lib/resultsReport.ts); the route also sits behind admin auth and the report key.",
-     "triaged": "2026-11-25"}
-  ]
+ "_about": "Code-scanning alerts a session read and judged false positives. platform/ci/security_alerts.py moves an open alert listed here out of the 'take next' list of the security-alerts queue into a 'Triaged, awaiting dismissal' section, so later runs stop re-triaging it; the owner dismisses it on the alert page (sessions have no security-events scope). An entry applies only while number, rule and path all match the open alert, so a reused number or a moved finding comes back to the queue. Add an entry only after reading the flagged code; give the reason in a sentence a reviewer can check. Never list an alert to avoid fixing it.",
+ "false_positives": [
+  {
+   "number": 1,
+   "rule": "py/clear-text-storage-sensitive-data",
+   "path": "research/cell-fidelity/experiments/solver/run.py",
+   "reason": "results.txt and summary.json hold solver statistics and hypothesis verdicts; the script reads no credential (its only environment read is WORKERS), the 'secret' source is a name heuristic.",
+   "triaged": "2026-11-25"
+  },
+  {
+   "number": 2,
+   "rule": "py/clear-text-storage-sensitive-data",
+   "path": "ventures/einvoice-preflight/tests/test_bic.py",
+   "reason": "A test writes a synthetic invoice with a public example BIC/IBAN to a TemporaryDirectory to check the CLI does not print them; no real account data exists.",
+   "triaged": "2026-11-25"
+  },
+  {
+   "number": 3,
+   "rule": "py/clear-text-storage-sensitive-data",
+   "path": "ventures/einvoice-preflight/tests/test_iban.py",
+   "reason": "Same as #2: synthetic test IBAN written to a temporary file so the test can assert the CLI redacts it.",
+   "triaged": "2026-11-25"
+  },
+  {
+   "number": 4,
+   "rule": "py/clear-text-storage-sensitive-data",
+   "path": "ventures/einvoice-preflight/tests/test_remittance.py",
+   "reason": "Same as #2: synthetic remittance reference and IBAN in a temporary file, for a redaction test.",
+   "triaged": "2026-11-25"
+  },
+  {
+   "number": 5,
+   "rule": "py/clear-text-storage-sensitive-data",
+   "path": "research/marriage-divorce-evidence/reproducibility/nlsy79_full/train_first_marriage.py",
+   "reason": "training_audit.json holds aggregate counts, shares and versions from the public NLSY79 release; no respondent-level row or identifier is written.",
+   "triaged": "2026-11-25"
+  },
+  {
+   "number": 6,
+   "rule": "py/clear-text-storage-sensitive-data",
+   "path": "research/marriage-divorce-evidence/reproducibility/newlywed_la_karney/train_models.py",
+   "reason": "The bundle is model coefficients, odds ratios and tercile aggregates; no couple-level record is written.",
+   "triaged": "2026-11-25"
+  },
+  {
+   "number": 7,
+   "rule": "py/clear-text-storage-sensitive-data",
+   "path": "platform/security/risk_review.py",
+   "reason": "The step summary gets the rendered review; find_secrets returns only (path, pattern name), never the matched text, so no secret value can reach the file.",
+   "triaged": "2026-11-25"
+  },
+  {
+   "number": 12,
+   "rule": "py/clear-text-logging-sensitive-data",
+   "path": "platform/ci/secrets_inventory.py",
+   "reason": "Prints the count of secret names that workflows read, plus problem descriptions: names, never values. (checked in docs/reports/2026-11-25-security-queue-false-positives.md)",
+   "triaged": "2026-11-25"
+  },
+  {
+   "number": 34,
+   "rule": "py/clear-text-logging-sensitive-data",
+   "path": "ventures/einvoice-preflight/src/einvoice_preflight/cli.py",
+   "reason": "Prints the invoice preflight report to stdout, which is the CLI's purpose; no credential flows into it. (checked in docs/reports/2026-11-25-security-queue-false-positives.md)",
+   "triaged": "2026-11-25"
+  },
+  {
+   "number": 38,
+   "rule": "py/clear-text-logging-sensitive-data",
+   "path": "portfolio/monetization/monetization.py",
+   "reason": "Prints validation errors and the model plan table from models.yaml; no keys. (checked in docs/reports/2026-11-25-security-queue-false-positives.md)",
+   "triaged": "2026-11-25"
+  },
+  {
+   "number": 39,
+   "rule": "py/clear-text-logging-sensitive-data",
+   "path": "portfolio/monetization/monetization.py",
+   "reason": "Prints validation errors and the model plan table from models.yaml; no keys. (checked in docs/reports/2026-11-25-security-queue-false-positives.md)",
+   "triaged": "2026-11-25"
+  },
+  {
+   "number": 42,
+   "rule": "py/clear-text-logging-sensitive-data",
+   "path": "platform/security/risk_review.py",
+   "reason": "result['secrets'] holds only {path, kind}; the matched text is never printed. (checked in docs/reports/2026-11-25-security-queue-false-positives.md)",
+   "triaged": "2026-11-25"
+  },
+  {
+   "number": 43,
+   "rule": "py/clear-text-logging-sensitive-data",
+   "path": "platform/security/risk_review.py",
+   "reason": "result['secrets'] holds only {path, kind}; the matched text is never printed. (checked in docs/reports/2026-11-25-security-queue-false-positives.md)",
+   "triaged": "2026-11-25"
+  },
+  {
+   "number": 95,
+   "rule": "js/biased-cryptographic-random",
+   "path": "ventures/quick-pick-survey/src/lib/couples.ts",
+   "reason": "Invite codes use crypto.randomInt(ALPHABET.length), which is unbiased (rejection sampling); there is no modulo of random bytes.",
+   "triaged": "2026-11-25"
+  },
+  {
+   "number": 104,
+   "rule": "js/regex-injection",
+   "path": "platform/ci/copy_drift.mjs",
+   "reason": "--name is a regex flag typed by whoever runs this local CI script; no one else's input reaches it. (checked in docs/reports/2026-11-25-security-queue-false-positives.md)",
+   "triaged": "2026-11-25"
+  },
+  {
+   "number": 105,
+   "rule": "js/regex-injection",
+   "path": "platform/ci/copy_drift.mjs",
+   "reason": "--skip is a regex flag typed by whoever runs this local CI script; no one else's input reaches it. (checked in docs/reports/2026-11-25-security-queue-false-positives.md)",
+   "triaged": "2026-11-25"
+  },
+  {
+   "number": 106,
+   "rule": "js/regex-injection",
+   "path": "ventures/dxf-nesting/dxf.mjs",
+   "reason": "'Ignore layers matching' is a regex the user types into their own browser tab or CLI; no one else's input reaches it. (checked in docs/reports/2026-11-25-security-queue-false-positives.md)",
+   "triaged": "2026-11-25"
+  },
+  {
+   "number": 949,
+   "rule": "js/xss",
+   "path": "ventures/tree-service-bid-calculator/index.html",
+   "reason": "Every user value in the row's innerHTML goes through escapeHtml (& < > \" '); the select options come from constant presets, and the saved value is only compared, never interpolated.",
+   "triaged": "2026-11-25"
+  },
+  {
+   "number": 950,
+   "rule": "js/xss",
+   "path": "ventures/janitorial-bid-calculator/index.html",
+   "reason": "Every interpolated value in the periodic-service row goes through escapeHtml (& < > \" ').",
+   "triaged": "2026-11-25"
+  },
+  {
+   "number": 951,
+   "rule": "js/reflected-xss",
+   "path": "ventures/quick-pick-survey/src/app/api/admin/surveys/[slug]/ranking/route.ts",
+   "reason": "resultsReportHtml escapes name and note with esc(), accepts the logo only as https or an image data URI, and the colour only as 6-digit hex (src/lib/resultsReport.ts); the route also sits behind admin auth and the report key.",
+   "triaged": "2026-11-25"
+  },
+  {
+   "number": 952,
+   "rule": "js/reflected-xss",
+   "path": "ventures/sales-agent/self-host/agent.mjs",
+   "reason": "The only reflected value is the admin's own token, passed to the page only after safeEq matches it, then encodeURIComponent-encoded in links. (checked in docs/reports/2026-11-25-security-queue-false-positives.md)",
+   "triaged": "2026-11-25"
+  },
+  {
+   "number": 995,
+   "rule": "js/prototype-polluting-assignment",
+   "path": "ventures/help-keeper/kb.mjs",
+   "reason": "The key is normalizeQuery(q), letters and digits only, so __proto__ becomes proto; reads also check Object.hasOwn. (checked in docs/reports/2026-11-25-security-queue-false-positives.md)",
+   "triaged": "2026-11-25"
+  },
+  {
+   "number": 996,
+   "rule": "js/prototype-polluting-assignment",
+   "path": "ventures/help-keeper/kb.mjs",
+   "reason": "Same line as #995: the key is letters and digits only, so __proto__ cannot be written. (checked in docs/reports/2026-11-25-security-queue-false-positives.md)",
+   "triaged": "2026-11-25"
+  }
+ ]
 }

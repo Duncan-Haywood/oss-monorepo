@@ -1,7 +1,7 @@
 {
  "note": "Venture pages whose meta description is over 160 characters. May only shrink: node platform/pages/description-length.mjs --write after shortening descriptions.",
  "max": 160,
- "count": 3000,
+ "count": 2999,
  "pages": [
   "ventures/1099-k-threshold-checker/index.html",
   "ventures/1099-k-threshold-checker/vs-checking-the-threshold-yourself.html",
@@ -1891,7 +1891,6 @@
   "ventures/paver-patio-bid-calculator/vs-a-flat-rate-per-square-foot.html",
   "ventures/paver-patio-bid-calculator/vs-aspire.html",
   "ventures/pawn-loan-profit-calculator/index.html",
-  "ventures/pay-application-generator/index.html",
   "ventures/pay-transparency-directive-checker/index.html",
   "ventures/payment-processor-fee-comparison-calculator/index.html",
   "ventures/payment-reconciliation-workbench/vs-reconciling-in-a-spreadsheet.html",

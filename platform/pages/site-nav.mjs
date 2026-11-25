@@ -721,6 +721,12 @@ html{overflow-x:clip}
  * 390 px, 108 of the blog's 202 tables with five or more columns ran past their scroller.
  * The page keeps a real table on wider screens and for crawlers; `thead` is only visually
  * hidden, and the ARIA roles keep row and cell semantics where `display:block` drops them.
+ *
+ * Each cell is `display:table` with its label as a `table-cell` ::before, not a grid or flex
+ * box (polish, 2026-11-25): a grid or flex container makes every inline child its own item, so
+ * a cell like "`CLAUDE.md`, `prompt.md`" or "**10%** of the bill" broke into fragments
+ * across rows. 161 of the blog's 500 stacked tables had such a cell. A table instead wraps
+ * the label's siblings (text, <code>, <a>, <strong>) in one anonymous cell, kept together.
  */
 export const STACK_TABLE_CSS = `
 @media (max-width:600px){
@@ -730,13 +736,15 @@ export const STACK_TABLE_CSS = `
   table.stack tr{border:1px solid var(--pfs-line,rgba(128,128,128,.34));border-radius:10px;
     background:var(--pfs-panel,transparent);padding:2px 12px;margin:0 0 10px}
   table.stack td{border:0;border-top:1px solid var(--pfs-line,rgba(128,128,128,.34));padding:7px 0;
-    display:grid;grid-template-columns:minmax(6.5em,34%) minmax(0,1fr);gap:10px;text-align:left}
-  table.stack td::before{content:attr(data-label);color:var(--pfs-muted,inherit);font-size:13px;font-weight:600;line-height:1.5}
-  table.stack td:first-child{display:block;border-top:0;font-weight:650;padding:9px 0 7px}
+    display:table;table-layout:fixed;width:100%;text-align:left}
+  table.stack td::before{content:attr(data-label);display:table-cell;width:34%;min-width:6.5em;padding-right:10px;
+    vertical-align:top;color:var(--pfs-muted,inherit);font-size:13px;font-weight:600;line-height:1.5}
+  table.stack td:first-child{display:block;width:auto;border-top:0;font-weight:650;padding:9px 0 7px}
   table.stack td:first-child::before{content:none}
   table.stack.compact tr{display:flex;flex-wrap:wrap;column-gap:18px}
-  table.stack.compact td{flex:1 1 9.5em;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-  table.stack.compact td:first-child{flex-basis:100%}
+  table.stack.compact td{flex:1 1 9.5em;width:auto;text-align:right}
+  table.stack.compact td::before{width:auto;text-align:left;vertical-align:baseline}
+  table.stack.compact td:first-child{flex-basis:100%;text-align:left}
 }
 `;
 
