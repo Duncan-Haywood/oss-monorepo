@@ -978,3 +978,19 @@ def test_lower_band_7bi_moves_only_the_lower_bound_inside_its_band():
         assert B.hull_interval(x, 200, lo, hi, l5)[2] == (5 <= x < 10)
     assert B.hull_interval(2, 200, 0.0, 1.0, l7)[:2] == V.wilson_labels(2, 200)
     assert B.hull_interval(5, 200, 0.02, 0.04, B.FALLBACKS["w3"]) == (0.02, 0.04, False)
+
+
+def test_lower_band_7bi_summary_matches_the_log_and_paper():
+    """7bi: the committed summary and diagnostic hold the numbers the log, README and paper quote."""
+    here = Path(__file__).resolve().parent
+    txt = (here / "experiments" / "h7bi_lower_band.txt").read_text()
+    assert "cells run: 52 (39 near-trigger, 13 cost); errors (cell with < 2 labels): 0" in txt
+    assert "P1 w3 under 93% in 0 of 39 near-trigger cells: no" in txt
+    assert "P2 l7 93%+ in every cell: yes" in txt and "P4a mean cost 0.0074" in txt and "P4b largest 0.0330" in txt
+    assert "Decision rule (c)" in txt
+    l7 = next(l for l in txt.splitlines() if l.startswith("l7: "))
+    assert "lowest coverage 93.9" in l7 and "near-trigger only +0.0044" in l7
+    byx = (here / "experiments" / "h7bi_lower_band_byx.txt").read_text()
+    assert "x 7: 7806 | 89.9 | 92.5" in byx and "replay check: pooled w3 and l7" in byx
+    paper = (here / "paper" / "paper.md").read_text()
+    assert "7bi" in paper and "0.0074 of pooled" in paper and "5 of 112" in paper

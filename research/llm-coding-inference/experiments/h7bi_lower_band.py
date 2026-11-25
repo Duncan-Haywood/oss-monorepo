@@ -216,7 +216,7 @@ def byx(reps):
     for x in sorted(tot):
         d, a, b = tot[x]
         out.append(f"x {x}: {d} | {100 * a / d:.1f} | {100 * b / d:.1f}")
-    out.append("replay check: pooled w3 and hm10 coverage equal the draws file in every cell")
+    out.append("replay check: pooled w3 and l7 coverage equal the draws file in every cell")
     text = "\n".join(out); print(text); BYX.write_text(text + "\n")
 
 
