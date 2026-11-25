@@ -52,15 +52,16 @@ function ignored(root) {
   }
 }
 
-// { 'ventures/x/page.html': length } for every venture page over MAX.
-export function scan(root = join(REPO, 'ventures'), max = MAX) {
+// { 'ventures/x/page.html': length } for every venture page over `max`, as
+// measured by `measure` (og-description-length.mjs passes its own).
+export function scan(root = join(REPO, 'ventures'), max = MAX, measure = descriptionLength) {
   const out = {};
   const skip = ignored(root);
   for (const f of pages(root)) {
     if (skip.has(f)) continue;
     const text = readFileSync(f, 'utf8');
     if (!/<html/i.test(text)) continue;
-    const n = descriptionLength(text);
+    const n = measure(text);
     if (n !== null && n > max) out[relative(REPO, f).split('\\').join('/')] = n;
   }
   return out;
