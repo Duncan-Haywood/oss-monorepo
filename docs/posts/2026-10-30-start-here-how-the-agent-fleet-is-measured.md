@@ -24,7 +24,7 @@ Each project asks one question, answers it from `prompts/runs/` (one JSON file p
 
 - **What a run costs.** `swe-runcost`: 355 priced runs from 14 to 18 October 2026 had a median of $0.68 and cost $337 together. The figure is an API-equivalent estimate, not a bill.
 - **Cost per merged pull request.** `swe-costpermerge`: of 366 priced runs, 273 name a pull request that is on `main`. Total spend over merged runs comes to $1.26 per merged run, against $0.94 per priced run. The README calls that an upper bound, because some runs with no PR on record may have landed.
-- **Where the dollars go.** `swe-cachecost`: in the median run, cache reads are 45% of the cost and one-hour cache writes 41%. Output, thinking included, is 13%. A large starting context, re-read on every request, explains most of the shape.
+- **Where the dollars go.** `swe-cachecost`: in the median run, one-hour cache writes are 52% of the cost and cache reads 29.5%. Output, thinking included, is 17%. (Corrected 2026-11-25: the first figures, reads 45% and writes 41%, used twice the list price for Sonnet 5.5 cache reads.) A large starting context, re-read on every request, explains most of the shape.
 - **A cheap predictor.** `swe-callcost`: tool-call count alone predicts a run's dollars with a median error of 9% on held-out runs. Cost per call sat near $0.03.
 - **Drift.** `swe-costdrift`: research runs got about 5% more expensive per day over six days, because they took more steps. Venture runs showed no drift.
 - **Model choice.** `swe-modelmix`: an Opus run cost about 8 to 9 times a Sonnet run in the same track. The ledger held too few Opus runs to say whether the extra cost bought more. Detecting a 50% difference in output would need about 129 runs per arm.
