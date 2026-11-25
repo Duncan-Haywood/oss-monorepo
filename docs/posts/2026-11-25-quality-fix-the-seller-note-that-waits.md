@@ -3,7 +3,7 @@ title: "Quality fix: a seller note on full standby waits the whole SBA loan"
 seo_title: "Seller note on full standby: SBA equity and cash flow"
 date: 2026-11-25
 tags: [quality-audit, small-business-acquisition-calculator, for-customers, business-acquisition, sba-loans]
-description: "The Small Business Acquisition Calculator now leaves a full-standby seller note out of year-one cash, checks the SBA 10% equity rule on project cost, and warns below a 1.25 DSCR."
+description: "A full-standby seller note now stays out of year-one cash, the SBA 10% equity check uses project cost, and a DSCR floor under 1.25 is flagged."
 ---
 
 Say you buy a business for $1.2 million. You put 10% down, the seller carries a
