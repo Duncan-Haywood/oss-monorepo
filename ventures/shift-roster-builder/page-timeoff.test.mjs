@@ -41,7 +41,7 @@ test("14-15 year old page's table is what the engine returns for the sample cafe
   const html = page("scheduling-14-and-15-year-olds.html");
   const cleo = "Cleo, 15, 30, 12, Mon-Fri 15-23; Sat-Sun 8-23", eli = "Eli, 14, 24, 8, Mon/Wed/Fri 16-23; Sat-Sun 8-23";
   const withAges = (c, e) => sampleStaff().replace(cleo, cleo + (c ? `, age: ${c}` : "")).replace(eli, eli + (e ? `, age: ${e}` : ""));
-  for (const [c, e, open, covered, pay, hrs] of [[0, 0, 5, 220, 3690, 36], ["15", 0, 6, 202, 3420, 18], ["15", "14", 7, 184, 3168, 0], ["15 summer", "14 summer", 3, 216, 3632, 32]]) {
+  for (const [c, e, open, covered, pay, hrs] of [[0, 0, 5, 220, 3690, 36], ["15", 0, 4, 218, 3660, 34], ["15", "14", 3, 216, 3632, 32], ["15 summer", "14 summer", 3, 216, 3632, 32]]) {
     const p = parseStaff(withAges(c, e));
     assert.deepEqual(p.errors, []);
     const r = buildRoster(p.staff, slots, {});

@@ -1,9 +1,9 @@
 ---
 title: "Quality fix: a 15-year-old's Saturday shift, and the 9pm that only applies in summer"
-seo_title: "Scheduling 14 and 15 year olds: 8 hours on Saturday, 7pm outside summer"
+seo_title: "Scheduling 14-15 year olds: 8 hours on Saturday, 7pm outside summer"
 date: 2026-11-25
 tags: [quality-audit, shift-roster-builder, for-customers, scheduling, labor-law]
-description: "Shift Roster Builder now lets a 14-15 year old work 8 hours on a weekend in a school week, as federal law allows, and stops a non-summer school break from scheduling them to 9pm."
+description: "Shift Roster Builder now gives a 14-15 year old 8 hours on a school-week weekend, as federal law allows, and ends a non-summer break week at 7pm, not 9pm."
 ---
 
 US federal law (29 CFR 570.35) lets a 14 or 15 year old work at most
@@ -54,8 +54,14 @@ code all 158 tests in the file pass.
 
 The [guide page on scheduling 14 and 15 year olds](../../ventures/shift-roster-builder/scheduling-14-and-15-year-olds.html)
 said the tool took "the cautious reading" for weekends. It now says what the
-tool does. The café example on that page has only 8-hour shifts, so none of
-its numbers moved.
+tool does, and its example table changed. That example is an invented
+seven-person café with 8am to 4pm opening shifts on Saturday and Sunday. It
+has a 15-year-old and a 14-year-old on staff, both in a school week. Before
+the fix the two of them got **no hours at all**, with 7 shifts left open and
+184 of 220 hours covered. Now each takes both weekend openings: 32 hours
+between them, 3 shifts open and 216 hours covered. That is the same roster
+as in summer. A test re-derives every row of that table from the engine
+(`page-timeoff.test.mjs`).
 
 ## Still open
 

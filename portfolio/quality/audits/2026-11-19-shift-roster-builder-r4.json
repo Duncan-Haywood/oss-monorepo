@@ -202,7 +202,8 @@
    "what": "Youth rule caps a 14-15 year old at 3 h on every day of a school week, weekends included; 29 CFR 570.35(a)(2) allows 8 h on a non-school day, so a 6 h Saturday shift is left open as 'at their daily hour limit'. The SEO page states the rule correctly ('3 hours on a school day').",
    "where": "ventures/shift-roster-builder/calc.mjs:480",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19113"
   },
   {
    "severity": "medium",
@@ -217,7 +218,8 @@
    "what": "Disclaimer says scheduling-notice and minor-labor rules are not modelled, but the product models 11 fair-workweek presets (notice.mjs) and the federal 14-15 limits; the line understates and confuses what is checked.",
    "where": "ventures/shift-roster-builder/cli.mjs:665",
    "category": "stale-docs",
-   "origin": "maintenance"
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19113"
   },
   {
    "severity": "low",
@@ -234,6 +236,6 @@
    "origin": "audit"
   }
  ],
- "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17758"],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17758", "https://github.com/Duncan-Haywood/oss-monorepo/pull/19113"],
  "verdict": "A deep, working scheduler and timesheet: 11 of 11 recomputed pay figures match statute-based hand or independent-script results (FLSA weekly OT $1,040, California daily/double time $480, meal plus burden $132, a California seven-day week $1,500, meal premiums $160 and $340, a two-rate regular rate $870.83, Nevada $165/$200, Kentucky $535, 15-minute rounding), 232 of 232 tests pass in the six core files, and 7 of 7 seeded pay-rule bugs are caught, including round 3's thinly guarded weekly-OT line. It meets the bar. Still open from round 3: overnight shifts priced on their start day in the planner (now inconsistent with the product's own timesheet), the silently dropped comma-less shift line, and a module and README that keep growing (6,076 lines, 541 KB). New: the youth rule refuses weekend shifts over 3 h in a school week that federal law allows. Not run: the browser page, the server end to end, --prove, and 76 of 82 test files. Draw note: an `--offline` replay of the seed names ventures/changepoint-detector, but the online draw skips subjects open round PRs claimed (round 82 holds changepoint-detector), so this subject is the round's flagship as drawn."
 }
