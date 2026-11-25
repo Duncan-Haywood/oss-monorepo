@@ -54,6 +54,8 @@ export function validateStair(s) {
   if (isNum(s.stringerSpacing) && s.stringerSpacing > 0 && s.stringerSpacing < 2) errors.push(`Stringer spacing ${s.stringerSpacing} in is under 2 in; it would need thousands of stringers.`);
   if (errors.length) return errors;
   if (!(s.totalRise >= 12)) errors.push("Total rise (finished floor to finished floor) must be at least 1 ft.");
+  // A typed riser limit at or above the rise left one riser and zero treads, laid out with ok: true (red-team 2026-11-25).
+  else if (Math.ceil(s.totalRise / L.maxRiser - 1e-9) < 2) errors.push(`A riser limit of ${L.maxRiser} in leaves one riser for ${formatLength(s.totalRise)}; a flight needs at least two risers (one tread).`);
   else if (s.totalRise > L.maxRise) errors.push(`A flight can rise at most ${formatLength(L.maxRise)} between landings; ${formatLength(s.totalRise)} needs a landing, so lay out each flight on its own.`);
   if (s.tread != null && !(s.tread >= L.minTread)) errors.push(`Tread ${s.tread} in is under the ${L.minTread} in minimum.`);
   if (s.stringer && !Object.hasOwn(DEPTH, s.stringer)) errors.push(`Unknown stringer size ${s.stringer}.`);
@@ -696,14 +698,23 @@ export const SPIRAL_LIMITS = { minClearWidth: 26, walkline: 12, minWalkDepth: 6.
 
 /** @param {{ totalRise: number, outerDiameter: number, poleDiameter?: number, treadsPerTurn?: number, handrailIntrusion?: number, limits?: Partial<typeof SPIRAL_LIMITS> }} s */
 export function checkSpiral(s) {
+  if (s == null || typeof s !== "object" || Array.isArray(s)) return { ok: false, errors: ["Spiral stair settings are an object."] };
   const L = { ...SPIRAL_LIMITS, ...(s.limits || {}) };
   const { totalRise, outerDiameter } = s, pole = s.poleDiameter ?? 4, per = s.treadsPerTurn ?? 12, rail = s.handrailIntrusion ?? 0;
   const errors = [];
-  for (const [k, v] of [["totalRise", totalRise], ["outerDiameter", outerDiameter]]) if (!(typeof v === "number" && Number.isFinite(v) && v > 0)) errors.push(`${k} is a positive number of inches.`);
-  if (!(typeof pole === "number" && pole >= 0)) errors.push("The pole diameter is zero or more.");
-  if (!Number.isInteger(per) || per < 3) errors.push("Treads per turn is a whole number of three or more.");
-  if (!(typeof rail === "number" && rail >= 0)) errors.push("The handrail intrusion is zero or more.");
+  const fin = (/** @type {any} */ v) => typeof v === "number" && Number.isFinite(v);
+  // Typed limits as in validateStair: a zero or text maxRiser gave Infinity or NaN risers and a "NaN in" headroom line (red-team 2026-11-25).
+  for (const k of ["minClearWidth", "minWalkDepth", "maxRiser", "headroom"]) if (!(fin(L[k]) && L[k] > 0)) errors.push(`Limit ${k} must be a number over 0.`);
+  if (!(fin(L.walkline) && L.walkline >= 0)) errors.push("Limit walkline must be a number of 0 or more.");
+  for (const [k, v, max] of [["totalRise", totalRise, 600], ["outerDiameter", outerDiameter, 240]]) {
+    if (!(fin(v) && v > 0)) errors.push(`${k} is a positive number of inches.`);
+    else if (v > max) errors.push(`${k} ${v} in is over ${max} in, outside what this check covers.`);
+  }
+  if (!(fin(pole) && pole >= 0)) errors.push("The pole diameter is zero or more.");
+  if (!Number.isInteger(per) || per < 3 || per > 60) errors.push("Treads per turn is a whole number from 3 to 60.");
+  if (!(fin(rail) && rail >= 0)) errors.push("The handrail intrusion is zero or more.");
   if (!errors.length && outerDiameter <= pole) errors.push("The outer diameter must exceed the pole diameter.");
+  if (!errors.length && Math.ceil(totalRise / L.maxRiser - 1e-9) < 2) errors.push(`A ${totalRise} in rise is one riser under the ${L.maxRiser} in limit; a stair needs at least two.`);
   if (errors.length) return { ok: false, errors };
   const theta = (2 * Math.PI) / per, rOut = outerDiameter / 2, rPole = pole / 2;
   const clearWidth = rOut - rPole - rail;
