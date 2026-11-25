@@ -1,3 +1,8 @@
+---
+kind: analysis
+date: 2026-11-24
+topics: [security-alerts, ci]
+---
 # First full-repository security scan (2026-11-24)
 
 The first reading of the scanners that `security-scan` now runs on every PR
