@@ -49,3 +49,32 @@ and the warning for an inactive item).
 **Next.** These are in the ROADMAP: an item per SOV line or per job, a payment for an application
 marked paid in full with no check recorded, and sending a payment automatically when it is
 recorded (opt-in).
+
+## Update: payments sent to QuickBooks as soon as they are recorded (private PR 111)
+
+Later the same day (Duncan-Haywood/private-monorepo#111), the second item of "QuickBooks, part 3".
+An admin can turn on **Send each payment to QuickBooks as soon as it is recorded** on the
+QuickBooks page (`PUT /api/orgs/:orgId/quickbooks/auto-payments`, `qbo_connections.auto_send_payments`,
+migration 0030, off by default). Each payment recorded on an application whose invoice is already in
+QuickBooks then goes straight through the existing `sendPayment`.
+
+**Why it matters to a buyer.** QuickBooks sync is the integration subs ask for first (bets.md, #1
+risks). Before this, every check meant two clicks on two screens, and a forgotten one left
+QuickBooks' A/R wrong. With it on, recording the check is the whole job.
+
+**Choices the next run should keep.**
+
+- One send path: the automatic send calls `sendPayment`, so the open-balance check (no double
+  counting a check the bookkeeper entered by hand), the realm check, the plan gate and the
+  `requestid` idempotency key all apply unchanged.
+- Recording never waits on QuickBooks: the payment is saved first; a refusal comes back as
+  `quickbooksAuto: {sent: false, message}` and shows under the payment form, and the payment waits
+  in the panel to be sent or marked. Only `AppError` messages reach the page.
+- Off by default and per company; a disconnect deletes the connection row, so it starts off again.
+
+**Next.** Re-send a refused payment from the cash report; an item per SOV line or per job.
+
+**Duplicate-work note.** This run first built "weekly email in the member's own time zone and hour"
+(private PR 107) and closed it unmerged: three runs built the same roadmap line within minutes
+(PRs 106, 107, 108; 106 merged). Check the private repo's open *and just-merged* PRs right before
+starting a roadmap item, not only at the start of the run.
