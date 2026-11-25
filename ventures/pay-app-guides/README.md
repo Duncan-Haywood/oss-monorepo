@@ -25,6 +25,7 @@ Live: <https://marisstella.app/pay-app-guides/>
 | `change-order-log.html` | Change order log (`colog.mjs`): paste or open a log; approved, pending, rejected and void totals, revised contract sum, pending aging against a flag, billing on unsigned or rejected changes and over-billing flagged, approved COs written as SOV lines the pay application generator reads (`colog.test.mjs` round-trips them through its `compute()`), log CSV, and exceptions wording for a progress lien waiver. Optional remember-in-this-browser. |
 | `pay-application-software-compared.html` | Buyer-intent comparison: spreadsheet, QuickBooks Online, Knowify, PayAppHub, Trimble Pay, Siteline with published prices (read 2026-11-25 through search results; aggregator prices marked as such), and what GC portals charge the sub (Textura, Procore Pay, Trimble Pay, from the vendors' help sites), with a portal fee calculator (`portals.mjs`, tested in `portals.test.mjs` against Oracle's own $50,000 → $110 example). |
 | `retainage-release.html` | Getting retainage released: the closeout documents usually asked for, where the release date comes from (subcontract or statute; statute rules are linked to `retainage-explained.html`, not restated), and a release date calculator that writes a request letter listing unticked closeout items (`retainageRelease`, `CLOSEOUT_ITEMS` in `calc.mjs`, tested in `release.test.mjs`). |
+| `pay-application-checker.html` | Why pay apps get sent back, and a checker (`check.mjs`, tested in `check.test.mjs`): paste last month's approved schedule of values and this month's draft (CSV or tab-separated; the calculator's own CSV export reads as it is). Lines are matched by item number; it flags a "from previous" figure that is not last month's previous plus this period, a changed scheduled value, a missing line, a new line not numbered as a change order, stored materials that fell by more than was billed as installed, a retainage rate change, and previous certificates that are not last month's earned less retainage. Copyable list. |
 
 ## Spec sources
 
@@ -72,7 +73,7 @@ are marks of their owner.
 Everything runs in the browser. Nothing typed is uploaded; no accounts,
 cookies or analytics vendors. Anonymous feature counters (`sov_calculated`,
 `example_loaded`, `summary_copied`, `csv_downloaded`, one
-`guide_*_viewed` per guide, and `colog_*` on the change order log) are kept in the visitor's own local storage,
+`guide_*_viewed` per guide, `colog_*` on the change order log, and `pay_app_checked` / `pay_app_check_copied` on the checker) are kept in the visitor's own local storage,
 switched off by Do Not Track or the opt-out button.
 
 ## Licence

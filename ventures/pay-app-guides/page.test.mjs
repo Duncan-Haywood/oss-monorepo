@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html", "prompt-payment-laws.html", "change-order-log.html", "pay-application-software-compared.html", "retainage-release.html"];
+const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html", "prompt-payment-laws.html", "change-order-log.html", "pay-application-software-compared.html", "retainage-release.html", "pay-application-checker.html"];
 
 test("every page carries the no-warranty clause, sponsor link, opt-out and honest CTA", () => {
   for (const name of PAGES) {
@@ -21,7 +21,7 @@ test("every page carries the no-warranty clause, sponsor link, opt-out and hones
 });
 
 test("no page sends anything anywhere or loads remote scripts", () => {
-  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "usage.mjs"]) {
+  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "check.mjs", "usage.mjs"]) {
     const src = page(name);
     assert.doesNotMatch(src, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/, name);
     assert.doesNotMatch(src, /<script[^>]+src=["']https?:/, name);
@@ -163,4 +163,12 @@ test("retainage release page: inputs labelled, letter output present, links the 
   assert.match(html, /id="rr-letter"/);
   assert.match(html, /href="retainage-explained\.html#state-table"/);
   assert.match(html, /not a legal notice/);
+});
+
+test("pay application checker: inputs labelled, linked from the how-to guide and the calculator", () => {
+  const html = page("pay-application-checker.html");
+  for (const id of ["last", "draft", "l-ret", "l-ret-stored", "l-released", "d-ret", "d-ret-stored", "d-released", "d-prev", "project"]) assert.match(html, new RegExp(`<label for="${id}">`), id);
+  assert.match(html, /id="findings"/);
+  assert.match(html, /not an approval/);
+  for (const name of ["index.html", "how-to-fill-out-a-pay-application.html"]) assert.match(page(name), /href="pay-application-checker\.html"/, name);
 });
