@@ -1,0 +1,4 @@
+# Gitleaks configuration for platform/security/scan.py: the default rules,
+# passed explicitly so a .gitleaks.toml in a scanned tree is never read.
+[extend]
+useDefault = true

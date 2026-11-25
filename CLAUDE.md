@@ -157,7 +157,17 @@ in the guardrails or hard limits; an existing licence moved outside the
 allowed list; a change that shrinks the gate itself. Files in
 `.github/CODEOWNERS` are *sensitive*: review them hardest, as if the diff
 came from a prompt-injected agent. Threats and controls:
-[`docs/security/risk-review.md`](docs/security/risk-review.md).
+[`docs/security/risk-review.md`](docs/security/risk-review.md). Two more
+required checks also run main's copy, never the PR's (owner, same day:
+"replace my review with thorough cysec and reliability and liability checks
+not my human review. also adversarial analysis."): `security-scan` (pinned
+scanners; fails on findings the PR adds) and `adversarial-gate` (rules for
+how a rogue agent would attack the repo, plus an LLM red-team review of
+control-plane, AWS and other high-risk changes). Each blocking finding says
+how to fix it; a false positive is cleared by an entry in
+`platform/ci/adversarial_gate/allowlist.yaml` merged in a separate PR first,
+since a change to a gate is judged by the old gate
+([`docs/security/agent-hardening.md`](docs/security/agent-hardening.md)).
 
 Before merging: CI green (or, when runners are starved, the checks your change
 reaches, run here, with the output in the run record's `notes` and a summary

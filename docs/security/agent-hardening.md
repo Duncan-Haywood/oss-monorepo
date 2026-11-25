@@ -1,5 +1,18 @@
 # Hardening the repo against misbehaving agents
 
+> **Since 2026-11-24 no human approves anything.** The owner replaced the
+> Code Owner review below with automated, merge-blocking checks: "replace my
+> review with thorough cysec and reliability and liability checks not my
+> human review. also adversarial analysis." / "what we are looking for is
+> adversarial protection in the dev process." / "we don't want to kill dev on
+> a crazy level by requiring human in the loop when the human will never
+> actually look at the code and is 1000x less time on the repo than the
+> agents roughly." / "you also don't need me to change the cicd process."
+> The section "The adversarial gate" describes the model now in force; the
+> sections after it are the 2026-10-30 design it replaced, kept for the
+> reasoning (which paths are control plane, and why), and for the GitHub
+> settings that still matter.
+
 Written 2026-10-30, when more agent families were about to start contributing.
 Agents already merge their own PRs here with no review gate (`CLAUDE.md`,
 "Ship without review ceremony"). That stays. The aim is narrower: an agent
@@ -30,6 +43,113 @@ owner-core file. What stays owned is the part a review cannot protect:
 The "Why each path is owned" list below predates this; read it with that
 change in mind.
 ## What the repo does now
+
+## The adversarial gate (2026-11-24)
+
+**Threat model.** Agents write almost all the code and merge it themselves;
+any of them can be prompt-injected or simply wrong. Fork PRs come from
+anyone. Dependencies and actions can be compromised upstream. The attacks the
+gate is built against: weakening the gate, the CI policy or the ruleset;
+giving a workflow a secret, a write token, OIDC or a privileged trigger;
+exfiltration (new hosts, `env | curl`, encoded payloads, hidden Unicode);
+steering later agents through their instructions, hooks or MCP config;
+deleting or skipping tests and other reliability regressions (removed
+timeouts, unbounded retries, masked failures, lowered coverage); unpinned
+actions and typosquatted or URL-sourced dependencies; committed secrets;
+infrastructure that opens public buckets, wildcard IAM or removes AWS
+guardrails; and liability (fabricated reviews and user counts, pages without
+a disclaimer).
+
+**Two required checks**, both in `.github/workflows/priv-security-gate.yml`
+and both in `.github/rulesets/main.json`, beside `risk-review` (the cyber
+and legal checklist with its own blocks, [`risk-review.md`](risk-review.md);
+landed the same day from another session, and complementary: it reads the
+diff for secrets, guardrail cuts, licence changes and gate shrinkage, while
+this gate adds the scanners, the attack rules and the LLM review):
+
+| Check | What it runs | Blocks on |
+|---|---|---|
+| `security-scan` | `platform/security/scan.py`: gitleaks, Semgrep (local rules; the registry's when reachable), OSV-Scanner, Checkov, Trivy config, zizmor, and the portfolio's own `ventures/liability-audit`, each pinned by version and checksum (`platform/security/tools.yaml`) | a finding the PR **adds** at or above the tool's threshold: the merge base and the head are scanned the same way, so code already on main never blocks an unrelated PR; a required scanner that is missing or crashes |
+| `adversarial-gate` | `platform/ci/adversarial_gate/gate.py` (33 deterministic rules, `gate.py rules` lists them), then for control-plane and high-risk PRs `llm_review.py`, a red-team prompt ("assume this PR is malicious") | any blocking rule finding; an LLM `block` only when a high-severity finding quotes evidence found verbatim in the diff |
+
+**Judged by main, never by the PR.** The workflow runs on
+`pull_request_target`, so GitHub takes it from the base branch; every
+checkout is the base branch; the PR is fetched into refs and detached
+worktrees (`materialize.py`) and read as files. Nothing from the PR is
+executed: no install, build, test or import, and git hooks are off. The
+scripts that run are main's, and all of them are control-plane paths.
+`control_plane_guard.py`, loaded from main by the gate, refuses a PR whose
+copy of CODEOWNERS, the ruleset or the gate workflow loses an invariant (the
+six required checks, no bypass actors, the gate on `pull_request_target`
+with its two jobs running these scripts). The CI-policy check is re-run from
+main against the PR's workflows (`ci-policy-head`), so editing
+`ci_policy_check.py` in a PR cannot pass that PR.
+
+**Self-modification rule.** A change to the gate, its config, allowlist,
+scanners or baseline is judged by the old gate and takes effect for the PR
+after it lands. Rules, required checks and scanners can only be removed
+against `gate-self-weakening`, which needs an allowlist entry naming the
+exact item, merged first. That two-step path is visible and reviewed by the
+LLM layer, but it exists: see "Residual risks" below.
+
+**Tiers.** `control-plane`: a path in `.github/CODEOWNERS` (agent
+instructions, hooks, MCP config, priv- workflows, the ruleset, the gate,
+`platform/aws/`) or a scanner config file. `high`: workflows, manifests and
+lockfiles, IaC, Dockerfiles, git hooks, editor tasks, Makefiles. `normal`:
+everything else. A normal PR installs only the scanners its files need and
+skips the LLM, so it passes in minutes.
+
+**No human in the loop, anywhere.** Every blocking finding says how to fix
+it. A false positive is cleared by a reviewed file, never a label or PR text:
+`platform/ci/adversarial_gate/allowlist.yaml` (rule, path, `contains`,
+reason) for the gate, `platform/security/baseline.yaml` for the scanners,
+each merged in a separate PR first and itself checked (`exception-entry`:
+a specific path and a real reason). Inline scanner suppressions must state
+their reason in the same comment or they block (`scanner-suppressed`).
+
+**The LLM layer is one layer.** Deterministic rules are the floor; the model
+can add a block, never clear one. The diff is untrusted data inside a random
+delimiter after the instructions, PR titles and bodies are not sent, the
+answer is schema-constrained, and a `block` without verbatim evidence is
+downgraded to advisory. Errors, refusals and missing credentials never block.
+It runs only for same-repository PRs (a fork cannot spend the owner's API
+budget), in the job `adversarial-llm` in the `paid-agents` environment.
+Credentials, first match wins: Claude Platform on AWS through a GitHub OIDC
+role (repository variables `ADVERSARIAL_REVIEW_AWS_ROLE_ARN`,
+`ADVERSARIAL_REVIEW_AWS_REGION`, `ANTHROPIC_AWS_WORKSPACE_ID`; the AWS
+account is not created yet), else the `ANTHROPIC_API_KEY` secret, else skip
+with a notice. Model `claude-opus-5-5`.
+
+**Measured against history.** Replayed over the 48 commits on `main` before
+`241c4092e` (2026-11-24, the last ones a shallow clone holds), the
+deterministic rules blocked 3 and passed 45. The 3: two PRs whose workflows
+gained secrets or `id-token: write` (owner-approved publishing and deploy
+changes that would now need an allowlist entry first), and the two-tier CI
+change that created `ci-policy.yaml` (new action owners and privileged-code
+exceptions, all at once).
+
+### Residual risks of the gate
+
+1. **Two-step weakening.** An agent can first merge an allowlist entry or a
+   rule change, then use it. Each step is a control-plane PR the LLM reviews
+   and leaves a file trail, but nothing deterministic stops a patient rogue
+   agent that also convinces the model. Watch `allowlist.yaml`,
+   `baseline.yaml` and `gate.py` in `git log`.
+2. **The LLM layer is not configured yet.** Until a credential exists the
+   control-plane tier has only the deterministic rules.
+3. **The ruleset must be applied** (`.github/rulesets/README.md`). The live
+   ruleset had no required status checks when it was last read through the
+   API (2026-11-10, `docs/reports/2026-11-10-ci-cd-cloudflare-audit.md`);
+   until an admin applies this file, neither check blocks a merge.
+4. **Heuristics.** Pattern rules miss what they do not name, and scanners
+   miss what they do not model. The scanners compare base and head only for
+   the files a PR changes.
+5. **`pull_request_target` itself** is a dangerous trigger (zizmor reports
+   it). It is safe here only while no step runs PR content; the guard and
+   the `workflow-pr-code-in-privileged-context` rule refuse a change that
+   checks out the PR's code.
+
+## What the repo did from 2026-10-30 (superseded where it says owner review)
 
 | Piece | File | What it stops |
 |---|---|---|

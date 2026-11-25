@@ -503,6 +503,13 @@ CHECKS = [
     ("log", "within **7.5 &times; 10<sup>&minus;13</sup> px** at all 710 corners", "7.5 &times; 10<sup>&minus;13</sup> px on all 179 calibrations"),
     ("json", "m3zi_check/summary.json", "hypotheses/H317/max_newton_iterations", 7, 0, None, "exact in at most 7 steps"),
     ("json", "m3zi_check/summary.json", "hypotheses/H320/refused_of_those", 6, 0, None, "refuses at the 6 that do"),
+    ("json", "m3zj_fisheye/summary.json", "distinct", 16, 0, None, "On the 16 fisheye calibrations"),
+    ("json", "m3zj_fisheye/summary.json", "totals/C_mirrored", 120121, 0, None, "120,121 of 120,125 such grid pixels"),
+    ("json", "m3zj_fisheye/summary.json", "totals/C_pixels", 120125, 0, None, "120,121 of 120,125 such grid pixels"),
+    ("json", "m3zj_fisheye/summary.json", "calibrations/0/share_C", 7.09, 2, pct, "7.09% of a TUM-VI image"),
+    ("json", "m3zj_fisheye/summary.json", "calibrations/1/share_C", 24.22, 2, pct, "24.22% of a RealSense T265 rectangle"),
+    ("json", "m3zj_fisheye/summary.json", "calibrations/0/label", "TUM-VI cam0", None, None, "7.09% of a TUM-VI image"),
+    ("json", "m3zj_fisheye/summary.json", "calibrations/1/label", "T265 ORB-SLAM3 Camera1", None, None, "24.22% of a RealSense T265 rectangle"),
 ]
 
 

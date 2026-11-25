@@ -81,13 +81,14 @@ flagships:
       Landed: (1) jobs with a schedule of values and monthly pay apps with
       retainage, PDF and CSV in its own layout; (2) change orders; plans and Paddle
       billing, dark (private-monorepo PR #37: Free 1 active job, Solo $99, Crew
-      $179, Company $249, docs/BILLING.md). Open, in order: (3) conditional and
-      unconditional lien waiver tracking per pay app, finishing private-monorepo PR
-      #14 (packages/lien-waivers), state-form text only where the statute text is
-      public, with a disclaimer, gated to Crew and up in services/billing.ts; (4)
-      QuickBooks Online invoice export with retainage as its own line, finishing PR
-      #16 (packages/qbo-sync, sandbox only; the owner opens the Intuit developer
-      account); (5) front door in this repository:
+      $179, Company $249, docs/BILLING.md). Open, in order: (3) lien waivers per pay
+      app landed (private-monorepo PR #38: Crew+, AZ statutory forms verified word
+      for word against azleg.gov, other statutory states tracked only); next for
+      waivers: encode TX 53.284, UT 38-1a-802, NV 108.2457 (their official sites
+      answer; TX is a JS app, UT text loads from a versioned sub-page), then CA when
+      leginfo stops 403ing; (4) QuickBooks Online invoice export with retainage as
+      its own line, finishing PR #16 (packages/qbo-sync, sandbox only; the owner
+      opens the Intuit developer account); (5) front door in this repository:
       ventures/pay-application-generator has a free blank .xlsx template and a
       live-formula workbook (2026-11-25); left: link it to the app and its pricing
       (the marketing site is PR #18); (6) a payapps deploy workflow that runs the

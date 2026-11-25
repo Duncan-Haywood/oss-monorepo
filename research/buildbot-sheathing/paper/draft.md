@@ -982,6 +982,13 @@ s = 0.01 N on all 11 cases with an open-loop optimum of at least 10, but saves a
 is where a per-sheet level forced a tare every sheet (G1 LAYOUT at 0.2 N, s = 0.05 N: 116 against 199 and the
 open-loop optimum's 142). On the G1's weak pose at s = 0.02 N it needs 97, the open-loop optimum and no better, and a
 0.02 N gravity-model error still fails 11.9% of walls.
+That gravity-model error can be learnt (milestone 78). It is fixed at the reading pose, and a tare is exact, so a
+reading taken just after a tare sees it almost alone. Carrying it in the filter state with a prior N(0, 0.02&sup2;) N a
+axis and reading once right after every tare keeps all 72 cases at the 1% target (worst 1.09% on 10,000 fresh walls)
+and needs 67 re-zeros on the G1's weak pose at s = 0.01 N, against 48 with the error known to be zero and the open-loop
+optimum's 96; a filter that ignores it fails 51.5% of walls there, and a stricter risk level helps only by taring every sheet,
+or not at all, because its risk table says a carried sheet is safe. Over the cases needing at least 10 tares the median cost of learning the error is 7.7%,
+and a fixed error of twice the prior's standard deviation fails 0.78%.
 
 ### 5.12 What the remedies cost (milestone 13)
 

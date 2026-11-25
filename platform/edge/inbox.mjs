@@ -21,6 +21,8 @@
 // (art. 17). The privacy copy states the same 90 days
 // (`platform/pages/build.mjs`, `disclaimerHtml`).
 
+import { storeOf } from './store.mjs';
+
 export const MAX_RAW = 256 * 1024;
 export const DEFAULT_DAILY_CAP = 200;
 export const RETENTION_DAYS = 90;
@@ -34,7 +36,7 @@ export function retentionCutoff(env, now = new Date()) {
 
 /** Delete every message older than the retention limit. */
 export async function purgeExpired(env, now = new Date()) {
-  await env.DB.prepare('DELETE FROM inbox WHERE received < ?1').bind(retentionCutoff(env, now)).run();
+  await storeOf(env).purgeInbox(retentionCutoff(env, now));
 }
 
 /** Read a stream into a string, giving up (null) once it passes `limit` bytes. */
@@ -73,10 +75,7 @@ export function inboxRecord({ from, to, headers, raw, received }) {
 
 async function underCap(env, day) {
   const cap = Number.parseInt(env.INBOX_DAILY_CAP || '', 10) || DEFAULT_DAILY_CAP;
-  const { meta } = await env.DB.prepare(
-    'INSERT INTO inbox_daily (day, n) VALUES (?1, 1) ON CONFLICT(day) DO UPDATE SET n = n + 1 WHERE n < ?2',
-  ).bind(day, cap).run();
-  return meta.changes > 0;
+  return storeOf(env).takeDaily('inbox', day, cap);
 }
 
 /** The Worker's `email` handler. */
@@ -91,9 +90,7 @@ export async function receiveEmail(message, env, now = new Date()) {
     return;
   }
   const r = inboxRecord({ from: message.from, to: message.to, headers: message.headers, raw, received: now.toISOString() });
-  await env.DB.prepare(
-    'INSERT INTO inbox (received, mail_from, rcpt_to, subject, message_id, raw) VALUES (?1, ?2, ?3, ?4, ?5, ?6)',
-  ).bind(r.received, r.mail_from, r.rcpt_to, r.subject, r.message_id, r.raw).run();
+  await storeOf(env).insertInbox(r);
   await purgeExpired(env, now);
 }
 
@@ -121,8 +118,8 @@ export async function deleteInboxMessage(request, env) {
   if (!authorized(request, env)) return notFound();
   const id = Number.parseInt(new URL(request.url).searchParams.get('id') || '', 10);
   if (!(id > 0)) return new Response('id required\n', { status: 400 });
-  const { meta } = await env.DB.prepare('DELETE FROM inbox WHERE id = ?1').bind(id).run();
-  return new Response(JSON.stringify({ deleted: meta?.changes || 0 }), {
+  const deleted = await storeOf(env).deleteInbox(id);
+  return new Response(JSON.stringify({ deleted }), {
     status: 200,
     headers: { 'content-type': 'application/json', 'cache-control': 'no-store' },
   });
@@ -134,9 +131,7 @@ export async function readInbox(request, env, now = new Date()) {
   await purgeExpired(env, now);
   const url = new URL(request.url);
   const after = Math.max(0, Number.parseInt(url.searchParams.get('after') || '0', 10) || 0);
-  const { results = [] } = await env.DB.prepare(
-    'SELECT id, received, mail_from, rcpt_to, subject, message_id, raw FROM inbox WHERE id > ?1 ORDER BY id LIMIT 100',
-  ).bind(after).all();
+  const results = await storeOf(env).readInbox(after);
   return new Response(JSON.stringify({ messages: results }), {
     status: 200,
     headers: { 'content-type': 'application/json', 'cache-control': 'no-store' },

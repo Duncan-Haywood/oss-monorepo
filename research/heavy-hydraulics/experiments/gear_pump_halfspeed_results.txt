@@ -1,0 +1,37 @@
+Milestone 7zc diagnostic: gear-pump idle power at half idle speed (n_r 0.5), read off working-speed curves (as the 7h to 7zc factorial does) and off the pump's own 1050 r/min curves (as 7zb does)
+P_idle (kW) at 64 / 79 / 85 L/min; b = P(79)/P(64); ratio = own-speed / factorial at 85 L/min
+
+PVG32, n_r 0.5:
+  casappa KP30     factorial  2.141  2.921  3.179 b 1.364 | own-speed  0.807  1.264  1.384 b 1.566 | ratio 0.436
+  danfoss SNP3     factorial  2.210  4.027  3.287 b 1.822 | own-speed  1.771  2.901  2.177 b 1.638 | ratio 0.662
+  marzocchi ALP3   factorial  2.295  2.973  2.997 b 1.296 | own-speed  0.661  0.830  0.924 b 1.255 | ratio 0.308
+  rexroth AZPG     factorial  1.574  2.030  2.239 b 1.290 | own-speed  0.638  0.849  0.956 b 1.330 | ratio 0.427
+  rexroth AZPU     factorial  1.495  1.965  2.103 b 1.315 | own-speed  0.612  0.765  0.813 b 1.250 | ratio 0.387
+  rexroth AZPN     factorial  1.583  1.983  2.157 b 1.253 | own-speed  0.685  0.837  0.912 b 1.221 | ratio 0.423
+  rexroth AZPF     factorial  1.644  2.085  2.268 b 1.268 | own-speed  0.691  0.880  0.959 b 1.275 | ratio 0.423
+  casappa PLP30    factorial  2.402  3.002  3.141 b 1.250 | own-speed  0.931  1.205  1.192 b 1.294 | ratio 0.380
+  argo GP3         factorial  1.225  1.487  1.609 b 1.213 | own-speed  0.561  0.652  0.705 b 1.161 | ratio 0.438
+
+Salami-text, n_r 0.5:
+  casappa KP30     factorial  0.934  1.537  1.722 b 1.645 | own-speed  0.217  0.600  0.684 b 2.763 | ratio 0.397
+  danfoss SNP3     factorial  1.124  2.874  1.985 b 2.558 | own-speed  1.252  2.390  1.571 b 1.909 | ratio 0.792
+  marzocchi ALP3   factorial  1.304  1.972  1.794 b 1.512 | own-speed  0.178  0.258  0.286 b 1.455 | ratio 0.160
+  rexroth AZPG     factorial  0.570  0.834  0.970 b 1.463 | own-speed  0.140  0.256  0.322 b 1.830 | ratio 0.331
+  rexroth AZPU     factorial  0.463  0.719  0.789 b 1.552 | own-speed  0.096  0.139  0.154 b 1.445 | ratio 0.196
+  rexroth AZPN     factorial  0.575  0.789  0.894 b 1.372 | own-speed  0.184  0.246  0.287 b 1.335 | ratio 0.321
+  rexroth AZPF     factorial  0.638  0.880  0.993 b 1.380 | own-speed  0.185  0.275  0.318 b 1.487 | ratio 0.321
+  casappa PLP30    factorial  1.105  1.481  1.524 b 1.341 | own-speed  0.290  0.457  0.392 b 1.579 | ratio 0.257
+  argo GP3         factorial  0.037  0.059  0.095 b 1.571 | own-speed -0.033 -0.050 -0.036 b 1.524 | ratio -0.374
+
+Salami-curve, n_r 0.5:
+  casappa KP30     factorial  0.952  1.568  1.761 b 1.648 | own-speed  0.226  0.615  0.703 b 2.725 | ratio 0.399
+  danfoss SNP3     factorial  1.140  2.901  2.020 b 2.545 | own-speed  1.260  2.402  1.588 b 1.907 | ratio 0.786
+  marzocchi ALP3   factorial  1.319  1.995  1.826 b 1.513 | own-speed  0.185  0.271  0.303 b 1.470 | ratio 0.166
+  rexroth AZPG     factorial  0.585  0.862  1.005 b 1.474 | own-speed  0.147  0.270  0.339 b 1.831 | ratio 0.337
+  rexroth AZPU     factorial  0.479  0.748  0.824 b 1.563 | own-speed  0.104  0.153  0.172 b 1.478 | ratio 0.209
+  rexroth AZPN     factorial  0.590  0.816  0.928 b 1.384 | own-speed  0.192  0.260  0.304 b 1.355 | ratio 0.328
+  rexroth AZPF     factorial  0.653  0.908  1.027 b 1.391 | own-speed  0.192  0.288  0.336 b 1.502 | ratio 0.327
+  casappa PLP30    factorial  1.124  1.516  1.567 b 1.349 | own-speed  0.299  0.475  0.414 b 1.587 | ratio 0.264
+  argo GP3         factorial  0.055  0.091  0.136 b 1.672 | own-speed -0.024 -0.034 -0.016 b 1.407 | ratio -0.114
+
+ratio own-speed / factorial at 85 L/min over the 27 family-readings: min -0.374, max 0.792

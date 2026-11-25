@@ -1,0 +1,8 @@
+# tofu init -backend-config=backend.hcl
+# Copy to backend.hcl (git-ignored values are not secret, but the bucket name
+# comes from the bootstrap stack's outputs).
+bucket       = "REPLACE-with-bootstrap-state-bucket"
+key          = "dns/terraform.tfstate"
+region       = "us-east-1"
+encrypt      = true
+use_lockfile = true

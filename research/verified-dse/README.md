@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 166 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 167 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **The ladder's edge survives a tool upgrade; tuned recipes do not** (milestone 158): on 27 SKY130 ss designs under Yosys 0.70
   and 0.71, the clipped ladder beats equal-cost random routing by about 4 points under both (change -0.48, interval -3.05 to
@@ -41,6 +41,12 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   (8 losses +4.55 to +22.48, 5 wins -4.38 to -15.52), though one naming moves a design's edge a median 3.51 points and the 128-bit
   funnel shifter's by 24.7; below the cut they still split 5 to 8 (p 0.58), so gate depth does not separate them:
   [`experiments/naming_shifters/`](experiments/naming_shifters/results.txt).
+- **The gate-depth guard's deep-side wins are properties of the designs too** (milestone 167, flow run, seven of seven
+  predictions held): two fresh random namings of all 12 decided designs at 32 gates or more (4,992 place-and-route runs, controls
+  exact) keep every sign and class averaged over three namings (11 wins -5.11 to -19.29, pmul4's loss +16.05; sign p 0.0063), and
+  the ladder still finds the routed-best sequence on all 11 wins under the average; with milestone 166 both sides of the cut are
+  measured under three namings, though decided designs still place the cut anywhere from 19 to 32 gates:
+  [`experiments/naming_above/`](experiments/naming_above/results.txt).
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
 - **Successive halving does not reliably beat random routed search** once budgets exceed a few
