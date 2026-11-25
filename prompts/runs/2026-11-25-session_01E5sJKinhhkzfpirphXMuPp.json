@@ -28,7 +28,7 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 2,
+  "tests_added": 3,
   "outcome": "success",
   "errors": [
     "risk_review.py crashed (git merge-base exit 1) in the shallow clone until `git fetch --depth=40 origin main`"
@@ -46,6 +46,10 @@
     {
       "file": "platform/pages/site-nav.mjs",
       "issue": "STACK_TABLE_CSS lives only in pf-site.css, so venture pages (pf-chrome.css) can't opt into .stack. I had to write a venture-local copy."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--history fails with 'No venture folder ventures/payapps' for a flagship whose code is private, so I used --replace to cut the clause instead. The tool's hint could say this."
     }
   ],
   "deviations": [
@@ -67,7 +71,7 @@
     "docs/reports/polish-2026-11-25-stacked-cells-and-pay-app-tables.md"
   ],
   "goal": "Front door to bet #1 (pay-app billing) reads on a phone",
-  "notes": "Security alert #1 (py/clear-text-storage-sensitive-data) was not fixed here. PR 18808's report says it was already fixed on main and the queue is stale. js/insecure-download in ventures/source-map-leak-check/probe.mjs:44 looks like a false positive: the probe fetches a URL the user typed and only reads it as text. Verification: pay-app-guides venture tests 25/25. Stack-table and related platform/pages tests 27/27. Full platform/pages suite: 2047/2047 pass. run_workflow_locally --for-changes: 12/15 workflows passed. The 3 not passing, none caused by this diff: (1) priv-codeql gate has no SARIF locally; (2) priv-security-gate's LLM step can't run locally; (3) ventures-tests failed on portfolio/monetization/test_transition.py::test_committed_json_is_current (transition.json says photo-editing is one-off, the live data says subscription) and platform/ci/test_check_main_guard_last.py (platform/security/test_scan.py), both already red on main (PR 18791 addresses the second).",
+  "notes": "Security alert #1 (py/clear-text-storage-sensitive-data) was not fixed here. PR 18808's report says it was already fixed on main and the queue is stale. js/insecure-download in ventures/source-map-leak-check/probe.mjs:44 looks like a false positive: the probe fetches a URL the user typed and only reads it as text. Verification: pay-app-guides venture tests 25/25. Stack-table and related platform/pages tests 27/27. Full platform/pages suite: 2047/2047 pass. run_workflow_locally --for-changes: 12/15 workflows passed. The 3 not passing, none caused by this diff: (1) priv-codeql gate has no SARIF locally; (2) priv-security-gate's LLM step can't run locally; (3) ventures-tests failed on portfolio/monetization/test_transition.py::test_committed_json_is_current (transition.json says photo-editing is one-off, the live data says subscription) and platform/ci/test_check_main_guard_last.py (platform/security/test_scan.py), both already red on main (PR 18791 addresses the second). After merging main: also stacked the two new guide tables (lien-waiver-forms-by-state, retainage-in-quickbooks; the latter's JS-built rows now set data-label). Fixed a CodeQL js/incomplete-multi-character-sanitization finding in my own test. Fixed main's red portfolio-validate by cutting the landed SOV-import clause from flagships.yaml payapps next: (2011 -> 1930 chars; it had been red since #18822).",
   "corrections": [],
   "redteam": null
 }
