@@ -34,3 +34,13 @@ as private PR 164 on 2026-11-25. Claim branch: `claim/cmmc/iso-9001-as9100-claus
   drift check. All passed here (unit 203, worker 49).
 - `pnpm install --filter cmmc` matches nothing; the package name is `cmmc-workspace`. The dev
   server must run on port 5173 (`APP_URL`), or sign-up fails with "Invalid origin".
+
+## Follow-up: clause owners and a dashboard card (private PR 171)
+- Owner picker on each clause (members only; `isMember` refuses others); `QualityReadiness.openWithoutOwner`
+  lists gaps and partly-in-place clauses with no owner; the gap report has an Owner column (names
+  from `listMembers` of this org only); `Dashboard.tsx` has an `IsoCard` (figures on Level 2 +
+  Quality, a pointer on other plans). No migration: `owner_user_id` was already in 0004.
+- Private CI fails in 3 s with no log on this and earlier PRs (166 too): runners are not starting.
+  Verify locally (`pnpm typecheck`, `test:unit`, `test:worker`, `build`) and say so in the PR.
+- Next on this item: the "mine" filter on the clause list, the headings check against a copy, AS9100D.
+
