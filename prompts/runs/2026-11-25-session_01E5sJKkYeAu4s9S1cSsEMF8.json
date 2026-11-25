@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKkYeAu4s9S1cSsEMF8",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T06:17:58Z",
+  "ended": "2026-11-25T06:27:25Z",
+  "wall_minutes": 9.67,
+  "tokens_in": 5452361,
+  "tokens_out": 31391,
+  "cost_usd": 2.8358,
+  "tool_calls": 56,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18877",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Statute hosts (azleg.gov, app.leg.wa.gov, flsenate.gov, leginfo) were blocked by the proxy and by WebFetch DNS this session, although a 2026-11-25 pay-app-guides run loaded them directly; domain-limited WebSearch was the only route. Worth noting that allowed hosts vary per session."
+    },
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "Flags 'auth, session or payment code' and 'new outbound hosts' on a client-side calculator whose diff only adds <a> statute links and the word 'payment'; both false positives."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "Picked a statute-accuracy fix to an existing free tool rather than new building, because pay-app-guides (the bet #1 front door) already had four open PRs and the lien tool gave wrong advice to Washington first-tier subs.",
+      "did": "Checked seven states against statute text, fixed WA, CA citation and late-notice handling, consolidated two thin posts.",
+      "result": "Merged with 57 passing tests."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-mechanics-lien-deadlines-seven-states-checked-against-the-statutes.md"
+  ],
+  "goal": null,
+  "notes": "Idea: statute-check the mechanics lien deadline calculator (bet #1 front door). TX, FL, AZ, GA, CO matched; WA first-tier exemption (RCW 60.04.031(2)(c)) added, CA citation 8412->8414, late-notice look-back for CA/AZ/WA and FL complete-defense note. Local: run_venture_tests 57 pass; run_workflow_locally --for-changes 11/11 passed, codeql and security-gate no verdict locally (need CI).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ad189ecb-4277-57c8-95df-2978bc7d1ca9",
+    "transcripts": 1,
+    "first": "2026-11-25T06:17:58Z",
+    "last": "2026-11-25T06:27:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 86,
+        "output": 31391,
+        "thinking": 7067,
+        "cache_read": 5309051,
+        "cache_write_5m": 0,
+        "cache_write_1h": 143224,
+        "api_equivalent_usd": 2.8358,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 86,
+      "output": 31391,
+      "thinking": 7067,
+      "cache_read": 5309051,
+      "cache_write_5m": 0,
+      "cache_write_1h": 143224,
+      "api_equivalent_usd": 2.8358,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 34,
+      "WebSearch": 13,
+      "WebFetch": 4,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.67,
+      "active_minutes": 9.67,
+      "model_minutes": 5.72,
+      "tool_minutes": 3.95,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "paralegal-level statute check of 7 states plus code, tests and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 176.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
