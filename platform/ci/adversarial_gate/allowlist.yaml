@@ -13,4 +13,14 @@
 # Entries for gate-self-weakening, control-plane-invariants and
 # secret-in-diff must also say `contains`.
 
-allow: []
+allow:
+  - rule: iac-exposure
+    path: platform/aws/stacks/org/identity.tf
+    contains: arn:aws:iam::aws:policy/AdministratorAccess
+    reason: the OwnerAdmin permission set is the owner's own console access through IAM Identity Center (MFA, 4-hour sessions); the owner is the administrator
+    added: 2026-11-24
+  - rule: iac-exposure
+    path: platform/aws/bootstrap/bootstrap.yaml
+    contains: iam::aws:policy/AdministratorAccess
+    reason: github-apply builds the Organization baseline (accounts, SCPs, org trail), which needs admin in the management account; assumable only from the aws-prod environment, with explicit denies beside it
+    added: 2026-11-24

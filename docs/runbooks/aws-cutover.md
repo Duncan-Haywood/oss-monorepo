@@ -30,8 +30,8 @@ rights on GitHub. Everything else is done by agents through pull requests.
    aws sts get-caller-identity --query Account --output text
    ```
    The last line prints the account ID.
-3. **Connect GitHub:** approve the control-plane PR that adds `/platform/aws/`
-   to `.github/CODEOWNERS`, then on your computer run
+3. **Connect GitHub:** (`/platform/aws/` is already in `.github/CODEOWNERS`,
+   so the adversarial gate reviews this tree at its strictest tier.) On your computer run
    `bash platform/aws/github/configure.sh <account-id>` (or, by hand: create
    environments `aws-prod` and `aws-llm` limited to the `main` branch and set
    the repository variable `AWS_ACCOUNT_ID`). The next merge under

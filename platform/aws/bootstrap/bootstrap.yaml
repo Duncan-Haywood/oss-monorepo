@@ -246,7 +246,7 @@ Resources:
       # management account. What keeps it in bounds: only `aws-prod` jobs
       # can assume it (limit that environment to `main`:
       # platform/aws/github/configure.sh), the explicit denies below, and
-      # owner review of platform/aws/ through CODEOWNERS.
+      # the adversarial gate's control-plane review of platform/aws/.
       ManagedPolicyArns:
         - !Sub arn:${AWS::Partition}:iam::aws:policy/AdministratorAccess
       Policies:

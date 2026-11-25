@@ -97,12 +97,14 @@ that returns a secret (`aws_iam_access_key`, a generated password, a
 `aws_secretsmanager_secret_version` with a value) does not belong in these
 stacks.
 
-### Owner review of this tree
+### Review of this tree
 
 `github-apply` applies whatever lands on `main` under `platform/aws/`, so
-these files are as sensitive as the workflows. `/platform/aws/` should be
-listed in `.github/CODEOWNERS` (a control-plane PR, owner approval) before
-`AWS_ACCOUNT_ID` is set. The privileged jobs run only `tofu` and inline
+these files are as sensitive as the workflows. `/platform/aws/` is listed in
+`.github/CODEOWNERS`, which since 2026-11-24 makes it control-plane tier for
+the `adversarial-gate` check (no human approval: main's rules, including
+`aws-guardrail-weakened` and `iac-exposure`, plus the LLM red-team review;
+docs/security/agent-hardening.md). The privileged jobs run only `tofu` and inline
 shell, so `python3 -I platform/ci/ci_policy_check.py` passes either way, but
 that check cannot see that `tofu` executes `.tf` files.
 
