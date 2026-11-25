@@ -1,0 +1,3 @@
+# Built by archive_file during plan/test
+.build/
+.terraform/

@@ -1,0 +1,352 @@
+AWSTemplateFormatVersion: "2010-09-09"
+# The ONE thing the owner runs by hand, once, in the new AWS account (which
+# becomes the Organization's management account). Everything after this is
+# OpenTofu applied from GitHub Actions with short-lived OIDC credentials.
+#
+# Run it from AWS CloudShell (signed in as the account's first admin user or
+# root, us-east-1):
+#
+#   curl -fsSLO https://raw.githubusercontent.com/Duncan-Haywood/oss-monorepo/main/platform/aws/bootstrap/bootstrap.yaml
+#   aws cloudformation deploy --stack-name github-bootstrap \
+#     --template-file bootstrap.yaml --capabilities CAPABILITY_NAMED_IAM
+#   aws cloudformation describe-stacks --stack-name github-bootstrap \
+#     --query 'Stacks[0].Outputs' --output table
+#
+# What it creates, and nothing else (platform/aws/README.md, "The bootstrap",
+# says what each role may do and why):
+#   * the GitHub Actions OIDC identity provider;
+#   * a KMS key and a versioned, encrypted, private S3 bucket for OpenTofu
+#     state (OpenTofu >= 1.10 locks with a lock object in the same bucket, so
+#     there is no DynamoDB table);
+#   * github-plan: read-only, assumable only by pull_request workflows of the
+#     one repository; cannot read data (objects, secrets, parameters, logs)
+#     except the state;
+#   * github-apply: assumable only by jobs that run in the `aws-prod` GitHub
+#     environment of the one repository; administers the management account
+#     except for the guardrails denied below.
+#
+# Re-running the same command updates the stack in place; deleting the stack
+# keeps the state bucket and key (DeletionPolicy: Retain).
+Description: GitHub OIDC trust, OpenTofu state and the two CI roles (platform/aws/bootstrap)
+
+Parameters:
+  GitHubRepository:
+    Type: String
+    Default: Duncan-Haywood/oss-monorepo
+    AllowedPattern: "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+    Description: owner/repo whose workflows may assume the roles
+  ApplyEnvironment:
+    Type: String
+    Default: aws-prod
+    AllowedPattern: "^[A-Za-z0-9_.-]+$"
+    Description: GitHub environment whose jobs may assume github-apply (limit it to the main branch)
+  StateRetentionDays:
+    Type: Number
+    Default: 365
+    MinValue: 30
+    Description: days to keep non-current state versions
+
+Resources:
+  GitHubOidcProvider:
+    Type: AWS::IAM::OIDCProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList:
+        - sts.amazonaws.com
+      # No ThumbprintList: IAM verifies token.actions.githubusercontent.com
+      # against its own trusted CA library, so the thumbprint is not used
+      # (AWS IAM User Guide, from memory: docs.aws.amazon.com was unreachable
+      # from the session that wrote this). cfn-lint 1.61.0's resource schema
+      # treats ThumbprintList as optional. If a deploy still rejects it, add
+      # the thumbprint IAM shows for the provider in the console.
+      Tags:
+        - Key: managed-by
+          Value: platform/aws/bootstrap
+
+  StateKey:
+    Type: AWS::KMS::Key
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      Description: OpenTofu state for platform/aws
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AccountAdmin
+            Effect: Allow
+            Principal:
+              AWS: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:root
+            Action: kms:*
+            Resource: "*"
+
+  StateKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/tofu-state
+      TargetKeyId: !Ref StateKey
+
+  StateBucket:
+    Type: AWS::S3::Bucket
+    Metadata:
+      checkov:
+        skip:
+          - id: CKV_AWS_18
+            comment: server access logs would need a second bucket; CloudTrail records management calls on this one
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub ${AWS::AccountId}-tofu-state-${AWS::Region}
+      VersioningConfiguration:
+        Status: Enabled
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - BucketKeyEnabled: true
+            ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: !GetAtt StateKey.Arn
+      LifecycleConfiguration:
+        Rules:
+          - Id: expire-old-state-versions
+            Status: Enabled
+            NoncurrentVersionExpiration:
+              NoncurrentDays: !Ref StateRetentionDays
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 7
+
+  StateBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref StateBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: TlsOnly
+            Effect: Deny
+            Principal: "*"
+            Action: s3:*
+            Resource:
+              - !GetAtt StateBucket.Arn
+              - !Sub ${StateBucket.Arn}/*
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+
+  GitHubPlanRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: github-plan
+      Path: /github/
+      Description: tofu plan from pull requests; read-only, no data reads except state
+      MaxSessionDuration: 3600
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Ref GitHubOidcProvider
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+                token.actions.githubusercontent.com:sub: !Sub repo:${GitHubRepository}:pull_request
+      ManagedPolicyArns:
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/ReadOnlyAccess
+      Policies:
+        - PolicyName: state-read-and-member-plan
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: ReadState
+                Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:ListBucket
+                Resource:
+                  - !GetAtt StateBucket.Arn
+                  - !Sub ${StateBucket.Arn}/*
+              - Sid: DecryptState
+                Effect: Allow
+                Action: kms:Decrypt
+                Resource: !GetAtt StateKey.Arn
+              - Sid: AssumeMemberPlanRoles
+                Effect: Allow
+                Action: sts:AssumeRole
+                Resource: !Sub arn:${AWS::Partition}:iam::*:role/github/github-plan-readonly
+        - PolicyName: deny-data-reads
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              # ReadOnlyAccess can read data. A pull request is agent- or
+              # stranger-authored code running with these credentials, so
+              # everything that returns contents rather than configuration
+              # is denied (the state bucket excepted, and it holds no
+              # secrets by design: see platform/aws/README.md).
+              - Sid: NoObjectReadsOutsideState
+                Effect: Deny
+                Action:
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                NotResource: !Sub ${StateBucket.Arn}/*
+              - Sid: NoDecryptOutsideState
+                Effect: Deny
+                Action: kms:Decrypt
+                NotResource: !GetAtt StateKey.Arn
+              - Sid: NoSecretOrDataReads
+                Effect: Deny
+                Action:
+                  - secretsmanager:GetSecretValue
+                  - ssm:GetParameter
+                  - ssm:GetParameters
+                  - ssm:GetParametersByPath
+                  - ssm:GetParameterHistory
+                  - dynamodb:GetItem
+                  - dynamodb:BatchGetItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                  - logs:GetLogEvents
+                  - logs:FilterLogEvents
+                  - logs:StartQuery
+                  - lambda:GetFunction
+                  - sqs:ReceiveMessage
+                  - athena:GetQueryResults
+                  - cloudtrail:LookupEvents
+                  - ses:GetEmailTemplate
+                  - rds-data:ExecuteStatement
+                Resource: "*"
+
+  GitHubApplyRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: github-apply
+      Path: /github/
+      Description: tofu apply from main via the aws-prod environment
+      MaxSessionDuration: 3600
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Ref GitHubOidcProvider
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+                token.actions.githubusercontent.com:sub: !Sub repo:${GitHubRepository}:environment:${ApplyEnvironment}
+      # Applying an Organization baseline (accounts, SCPs, the org trail,
+      # delegated administrators) needs administrator rights in the
+      # management account. What keeps it in bounds: only `aws-prod` jobs
+      # can assume it (limit that environment to `main`:
+      # platform/aws/github/configure.sh), the explicit denies below, and
+      # owner review of platform/aws/ through CODEOWNERS.
+      ManagedPolicyArns:
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AdministratorAccess
+      Policies:
+        - PolicyName: guardrails
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: KeepTheBootstrap
+                Effect: Deny
+                Action:
+                  - iam:AttachRolePolicy
+                  - iam:DeleteRole
+                  - iam:DeleteRolePolicy
+                  - iam:DetachRolePolicy
+                  - iam:PutRolePolicy
+                  - iam:PutRolePermissionsBoundary
+                  - iam:DeleteRolePermissionsBoundary
+                  - iam:UpdateAssumeRolePolicy
+                  - iam:UpdateRole
+                Resource: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:role/github/*
+              - Sid: KeepTheOidcProvider
+                Effect: Deny
+                Action:
+                  - iam:DeleteOpenIDConnectProvider
+                  - iam:UpdateOpenIDConnectProviderThumbprint
+                  - iam:AddClientIDToOpenIDConnectProvider
+                  - iam:RemoveClientIDFromOpenIDConnectProvider
+                Resource: !Ref GitHubOidcProvider
+              - Sid: KeepTheBootstrapStack
+                Effect: Deny
+                Action:
+                  - cloudformation:DeleteStack
+                  - cloudformation:UpdateStack
+                  - cloudformation:CreateChangeSet
+                  - cloudformation:ExecuteChangeSet
+                Resource: !Sub arn:${AWS::Partition}:cloudformation:*:${AWS::AccountId}:stack/${AWS::StackName}/*
+              - Sid: KeepTheState
+                Effect: Deny
+                Action:
+                  - s3:DeleteBucket
+                  - s3:DeleteBucketPolicy
+                  - s3:PutBucketPolicy
+                  - s3:PutBucketVersioning
+                  - s3:PutLifecycleConfiguration
+                  - s3:PutEncryptionConfiguration
+                  - s3:PutBucketPublicAccessBlock
+                  - s3:DeleteObjectVersion
+                Resource:
+                  - !GetAtt StateBucket.Arn
+                  - !Sub ${StateBucket.Arn}/*
+              - Sid: KeepTheStateKey
+                Effect: Deny
+                Action:
+                  - kms:ScheduleKeyDeletion
+                  - kms:DisableKey
+                  - kms:PutKeyPolicy
+                  - kms:DisableKeyRotation
+                Resource: !GetAtt StateKey.Arn
+              - Sid: OwnerOnlyMoneyAndExits
+                Effect: Deny
+                Action:
+                  - organizations:LeaveOrganization
+                  - organizations:DeleteOrganization
+                  - organizations:CloseAccount
+                  - organizations:RemoveAccountFromOrganization
+                  - account:CloseAccount
+                  - aws-portal:ModifyBilling
+                  - aws-portal:ModifyPaymentMethods
+                  - aws-portal:ModifyAccount
+                  - payments:*
+                  - tax:*
+                  - aws-marketplace:Subscribe
+                  - aws-marketplace:AcceptAgreementRequest
+                  - aws-marketplace:CreatePrivateMarketplaceRequests
+                  - savingsplans:CreateSavingsPlan
+                  - ec2:PurchaseReservedInstancesOffering
+                  - rds:PurchaseReservedDBInstancesOffering
+                  - route53domains:RegisterDomain
+                  - route53domains:TransferDomain
+                  - support:CreateCase
+                Resource: "*"
+              - Sid: NoLongLivedKeysInManagement
+                Effect: Deny
+                Action:
+                  - iam:CreateAccessKey
+                  - iam:CreateLoginProfile
+                  - iam:CreateUser
+                Resource: "*"
+
+Outputs:
+  AccountId:
+    Value: !Ref AWS::AccountId
+    Description: set this as the GitHub repository variable AWS_ACCOUNT_ID
+  Region:
+    Value: !Ref AWS::Region
+  StateBucket:
+    Value: !Ref StateBucket
+  StateKeyArn:
+    Value: !GetAtt StateKey.Arn
+  PlanRoleArn:
+    Value: !GetAtt GitHubPlanRole.Arn
+  ApplyRoleArn:
+    Value: !GetAtt GitHubApplyRole.Arn
