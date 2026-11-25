@@ -96,7 +96,7 @@ export function compute(text, settings = {}) {
     if ([c, d, e, f].some((v) => v == null)) { out.errors.push(`Row ${r + 1} (${label}): a money column is not a number.`); continue; }
     const own = get("retainage").trim() === "" ? null : parsePercent(get("retainage"));
     if (get("retainage").trim() !== "" && own == null) { out.errors.push(`Row ${r + 1} (${label}): retainage is not a percentage.`); continue; }
-    const isCo = /^(co|change|change order)$/i.test(get("type").trim()) || /^(co[-\s#]*\d+|change order)/i.test(get("item").trim()) || /^(co[-\s#]*\d+|change order)/i.test(label);
+    const isCo = /^(co|change|change order)$/i.test(get("type").trim()) || /^(c\.?\s?o\.?[-\s#]*\d+|change order)/i.test(get("item").trim()) || /^(c\.?\s?o\.?[-\s#]*\d+|change order)/i.test(label);
     raw.push({ item: get("item").trim(), desc: get("desc").trim() || label, c, d, e, f, own, isCo });
   }
   if (out.errors.length) return out;

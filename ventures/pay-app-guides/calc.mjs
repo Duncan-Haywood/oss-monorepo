@@ -40,7 +40,11 @@ export const toRate = (v) => {
   return Number.isFinite(n) ? n / 100 : NaN;
 };
 
-export const isChangeOrder = (line) => /^\s*co\b|change order/i.test(`${line.item ?? ""} ${line.type ?? ""}`);
+// A change order is an item numbered CO-1, CO1, CO 2, C.O. 3 or CO#4, or a
+// line typed "change order". "CO1" and "C.O. 3" used to read as base-contract
+// lines (red team 2026-11-25).
+export const isChangeOrder = (line) =>
+  /^\s*(c\.?\s?o\.?\s*[-#]?\s*\d|co\b)|change\s+order/i.test(`${line.item ?? ""} ${line.type ?? ""}`);
 
 export function fmt(cents) {
   const neg = cents < 0;
@@ -194,6 +198,9 @@ export function quickbooksLines({ billed, rate = "10", held, released } = {}) {
   if (Number.isNaN(rel) || rel < 0) errors.push("Retainage released must be zero or a positive amount.");
   let h = held === undefined || held === "" ? null : toCents(held);
   if (Number.isNaN(h)) errors.push("The retainage held could not be read.");
+  // QuickBooks wants the held line negative, so people type "-4000" here; the
+  // sign is ours to add, and a negative held used to bill the retainage.
+  else if (h !== null && h < 0) errors.push("Enter the retainage held as a positive amount; the invoice line below is made negative for you.");
   if (errors.length) return { errors, lines: [], total: 0 };
   if (h === null) h = Math.round(b * r);
   const lines = [];
