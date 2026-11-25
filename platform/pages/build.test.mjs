@@ -6472,7 +6472,7 @@ test('the hub is a home for everything: apps, CLIs, research and self-deploy hav
   const hub = renderHub(surfaces, 'https://example.test/', { researchCount: 461 });
   assert.match(hub, /<dl class="stats" id="overview">/);
   assert.match(hub, /<dt>Browser tools<\/dt><dd><a href="c\/">1<\/a>/);
-  assert.match(hub, /<dt>Self-hostable apps<\/dt><dd><a href="c\/apps\/">1<\/a>/);
+  assert.match(hub, /<dt>Web apps<\/dt><dd><a href="c\/apps\/">1<\/a>/);
   assert.match(hub, /<dt>Command-line tools<\/dt><dd><a href="c\/cli\/">1<\/a>/);
   assert.match(hub, /<dt>Research projects<\/dt><dd><a href="research\/">461<\/a>/);
   // A front door, in order: what it is and the search over everything, then
@@ -6484,7 +6484,13 @@ test('the hub is a home for everything: apps, CLIs, research and self-deploy hav
   assert.ok(at(/id="types"/) < at(/id="research"/));
   assert.match(hub, /href="c\/apps\/" data-category="apps"[\s\S]*Dunning engine/);
   assert.match(hub, /href="c\/cli\/" data-category="cli"[\s\S]*Pinned actions check/);
-  assert.match(hub, /href="deploy\/"/);
+  // Self-deploy was retired on 2026-11-24: the "Also here" band points at the
+  // company instead, and the how-it-works steps lead with the products.
+  const more = hub.slice(hub.indexOf('id="more"'));
+  assert.match(more, /href="about\/"/);
+  assert.doesNotMatch(more.slice(0, more.indexOf('</section>')), /href="deploy\//);
+  assert.ok(at(/id="products"/) < at(/id="how"/));
+  assert.ok(at(/id="how"/) < at(/id="free-tools"/));
   assert.ok(!/<h1>[^<]*Calculators/.test(hub), 'the headline names more than calculators');
   // The site header, with no second top bar.
   assert.equal(hub.match(/<nav\b[^>]*aria-label="Site"/g).length, 1);

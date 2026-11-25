@@ -6,7 +6,9 @@ import {
   cardName,
   icon,
   renderCategoryCard,
-  renderHowItWorks,
+  finderChoices,
+  finderCss,
+  renderFinder,
   renderLatestWriting,
   renderResearchBand,
   researchMotif,
@@ -45,12 +47,39 @@ test('a category card links its page by id, escapes its copy and carries its acc
   assert.match(html, /All 3 tools →/);
 });
 
-test('how it works names real counts when given them', () => {
-  const html = renderHowItWorks({ toolCount: 12, appCount: 3 });
-  assert.match(html, /12 tools run entirely in your browser/);
-  assert.match(html, /3 self-hostable apps/);
-  assert.equal((html.match(/<li class="step">/g) || []).length, 3);
-  assert.match(html, /<h2 id="how-h">/);
+test('the finder goes business -> problem -> product, and only says live of what is live', async () => {
+  const { INDUSTRIES, PRODUCT_LINES } = await import('./business.mjs');
+  const html = renderFinder({
+    industries: INDUSTRIES, lines: PRODUCT_LINES,
+    trades: [{ id: 'for-roofers', name: 'Roofers', href: 'c/for-roofers/' }],
+    statusLabel: (s) => (s === 'live' ? 'live' : 'early access'),
+  });
+  const choices = finderChoices(INDUSTRIES, PRODUCT_LINES);
+  assert.equal(choices.at(-1).slug, 'other');
+  for (const c of choices) {
+    assert.match(html, new RegExp(`id="pro-${c.slug}"`));
+    assert.match(html, new RegExp(`id="panel-${c.slug}"`));
+    assert.match(finderCss(choices), new RegExp(`#pro-${c.slug}:checked ~ \\.panels #panel-${c.slug}`));
+  }
+  // Every software problem is a link to its product.
+  for (const l of PRODUCT_LINES.filter((x) => x.kind === 'software' && x.industry)) {
+    const href = l.status === 'live' ? l.href : `industries/${l.industry}/#${l.id}`;
+    for (const p of l.problems) assert.ok(html.includes(`href="${href}" data-pf-to="${l.id}"`), `${l.id}: ${p}`);
+  }
+  const live = PRODUCT_LINES.filter((l) => l.status === 'live').length;
+  assert.equal((html.match(/· live →/g) || []).length, PRODUCT_LINES.filter((l) => l.status === 'live' && l.industry).reduce((n, l) => n + l.problems.length, 0));
+  assert.ok(live >= 0);
+  // Funnel markup the counter understands (platform/counter/FUNNEL.md).
+  assert.match(html, /id="panel-construction" data-funnel="cta" data-funnel-industry="construction"/);
+  assert.match(html, /data-funnel-product="contractor-billing"/);
+  for (const v of html.matchAll(/data-funnel="([^"]+)"/g)) assert.equal(v[1], 'cta');
+  // "Something else" leads to the trades, the assistant and a custom build.
+  const other = html.slice(html.indexOf('id="panel-other"'));
+  assert.match(other, /href="c\/for-roofers\/"/);
+  assert.match(other, /href="ask\/"/);
+  assert.match(other, /href="custom-development\/"/);
+  // Self-deploy was retired on 2026-11-24: the front door no longer sells it.
+  assert.doesNotMatch(html, /deploy\/|self-host/i);
 });
 
 test('the research band shows featured projects with their theme and summary', () => {
