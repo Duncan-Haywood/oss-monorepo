@@ -6,8 +6,11 @@
 #   - gha-oss-monorepo-foundation-plan: read-only, for pull-request plans of
 #     the management-account stacks (bootstrap, org, baseline, github-oidc);
 #   - gha-oss-monorepo-foundation-apply: administrator, for applying them,
-#     assumable only from a job in the `aws-prod` GitHub environment, which
-#     the owner restricts to the main branch.
+#     assumable only from a job in the `aws-foundation` GitHub environment,
+#     which the owner restricts to the main branch and gates with a required
+#     reviewer (themself). Through the management account this role can
+#     administer every account, so it is the one apply a person approves;
+#     workload stacks use their own roles and the unreviewed `aws-prod`.
 # No access keys exist anywhere; both roles issue one-hour sessions.
 # platform/aws/github-oidc reads the provider created here (it does not
 # manage it) and creates every other stack's roles.
@@ -25,7 +28,7 @@ Parameters:
     AllowedPattern: "^[A-Za-z0-9._-]+$"
   ApplyEnvironment:
     Type: String
-    Default: aws-prod
+    Default: aws-foundation
     AllowedPattern: "^[A-Za-z0-9_-]+$"
   StateKeyAlias:
     Type: String
@@ -91,7 +94,7 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       RoleName: !Sub "gha-${GitHubRepo}-foundation-apply"
-      Description: Applies the foundation stacks from main through the aws-prod environment
+      Description: Applies the foundation stacks from main through the aws-foundation environment
       MaxSessionDuration: 3600
       AssumeRolePolicyDocument:
         Version: "2012-10-17"

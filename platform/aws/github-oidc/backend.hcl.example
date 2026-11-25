@@ -1,0 +1,4 @@
+# ../bootstrap/backend-config.sh github-oidc > backend.hcl
+bucket = "oss-monorepo-tfstate-<management-account-id>-us-east-1"
+key    = "stacks/github-oidc/terraform.tfstate"
+region = "us-east-1"
