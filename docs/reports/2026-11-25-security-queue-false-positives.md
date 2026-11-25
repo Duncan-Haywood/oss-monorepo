@@ -59,17 +59,30 @@ Checked by reading `main` at `f67c21c96`. No code change was needed.
   - `js/regex-injection` #106 (`dxf-nesting/dxf.mjs:174`). "Ignore layers matching" is a regex the user types into their own browser tab or CLI, and no one else's input reaches it.
 - **Still unchecked:** the remaining `js/double-escaping` alerts, #119 onward. Most of them are in `*.test.mjs` files, and the same reasoning as the test-file note above applies.
 
-## Third pass: the verdicts are now a file the queue reads
+## Third pass, same day (queue scanned at `5f857bb81c00`)
 
-A third session read the top of the queue and re-checked #7, #12, #34, #38, #39, #42, #43 and
-#104–#106 from scratch before it found this note. The two passes above were prose. The queue
+Checked by reading `main` at `578f7f19a`; the flagged files are unchanged since the scan. No code change was needed.
+
+- **False positives (dismiss as "false positive"):**
+  - `js/xss-through-dom` #960 (`quick-pick-survey/site/rank.html:461`): the `src` comes from `picture(i)`, which returns only `blob:` URLs the page created itself (line 271), else `undefined`.
+  - `js/xss-through-dom` #968 (`shed-designer/hoa-page.mjs:59`): `href = ./#d=` plus `encodeDesign(design)`, which is base64url (`hoa.mjs:542`), so no markup or scheme can get in.
+  - `js/xss-through-dom` #969 (`silence-cutter/index.html:258`): `a.href = URL.createObjectURL(blob)` for a download; a blob URL from our own data.
+- **By design (dismiss as "won't fix"):**
+  - `js/disabling-certificate-validation` #1086 (`status-keeper/certs.mjs:12`): an expiry checker has to read the certificate of a server whose certificate is expired or untrusted. It records `socket.authorized` and `authorizationError` and reports an untrusted certificate as not ok (strict mode, the default). No data is sent over the connection.
+  - `js/incomplete-sanitization` #741 (`shopify-to-woocommerce-converter/converter.mjs:69`): `esc` writes WooCommerce's `\,` list-separator escape. WooCommerce's importer has no backslash escape, so escaping backslashes would corrupt values instead of protecting them.
+  - `js/incomplete-sanitization` #849 (`platform/agents/tools.mjs:170`): `name` is a JavaScript export identifier, and `$` is the only regex metacharacter an identifier can hold. That character is escaped.
+
+## Fourth pass: the verdicts are now a file the queue reads
+
+A fourth session read the top of the queue and re-checked #7, #12, #34, #38, #39, #42, #43 and
+#104–#106 from scratch before it found this note. The passes above were prose. The queue
 generator could not read them, so it kept offering the same alerts first. PR #18809 (another
 session's work, landed with this pass) added **`platform/security/codeql-triage.json`**.
 `platform/ci/security_alerts.py` moves an open alert that matches an entry on number, rule and
 path into a "Triaged, awaiting dismissal" section of `QUEUE.md`. The alert stays open and listed,
 and only the owner can dismiss it on GitHub. An entry stops applying if the finding moves, and
 the PR-level `codeql gate` jobs never read the file. This pass added 14 entries: every alert in the
-two passes above that is still in the queue, plus the ones below. A verdict of "intended
+passes above that is still in the queue, plus the ones below. A verdict of "intended
 behaviour" starts its reason with those words.
 
 New in this pass, checked against `main` at `de2adc485`:
