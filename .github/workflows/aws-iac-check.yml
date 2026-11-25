@@ -1,7 +1,6 @@
 # Validates every platform/aws stack on PRs: fmt, init without a backend,
 # validate, tests against a mocked provider, Checkov and cfn-lint. Needs no
 # AWS credentials and no secrets. Source of truth: platform/aws/bootstrap/ci/.
-# provider, and Checkov. Needs no AWS credentials and no secrets.
 name: AWS IaC check
 on:
   pull_request:
