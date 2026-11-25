@@ -4,7 +4,7 @@ date: 2026-11-25
 ---
 # PayApps (bet #1) keeps a history of the job, not only its pay applications
 
-2026-11-25, ventures run. Private PR: Duncan-Haywood/private-monorepo (job history, "History,
+2026-11-25, ventures run. Private PR: Duncan-Haywood/private-monorepo#84 (merged; "History,
 part 2" on the PayApps roadmap).
 
 **What landed.** The pay application history (private PR 66) covered each application and what
@@ -46,4 +46,4 @@ it makes PayApps the record the office trusts.
 **Verification.** Local runs in the private repo (its Actions have no runners): `pnpm typecheck`
 clean, new `test/worker/job-history.test.ts` (3 tests: every event's sentence across a full job,
 CSV, viewer read, refused changes, cross-company 404, sample job) and the full worker and unit
-suites; see the private PR for counts.
+suites (worker 180 passed, unit 273 passed), `pnpm build` ok.
