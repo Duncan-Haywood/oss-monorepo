@@ -16,7 +16,7 @@
 //
 // Staff and shift files are the same text as on the web page. Zero dependencies, no network: names and wages never
 // leave the machine. Same solver as the web page (calc.mjs); the search is seeded, so a rerun gives the same roster.
-// Planning aid: not legal advice, and local scheduling-notice, break and minor-labor rules are not modelled.
+// Planning aid: not legal advice. It checks the named fair-workweek presets (notice.mjs) and the federal 14-15 limits only; state and local minor-labor and break rules are not modelled.
 
 import { readFile, writeFile } from "node:fs/promises";
 import process from "node:process";
@@ -662,7 +662,7 @@ function reportText(r) {
   if (r.warnings.length) lines.push("", ...r.warnings.map((x) => `Note: ${x}`));
   if (r.optimality) lines.push("", optimalityText(r.optimality));
   if (r.savingVsListed > 0.5) lines.push("", `Versus filling shifts in the order listed: saves ${money(r.savingVsListed)}.`);
-  lines.push("", "Planning aid, not legal advice. Local scheduling-notice, break and minor-labor rules are not modelled.");
+  lines.push("", "Planning aid, not legal advice. Checks only the scheduling-notice presets it names and the US federal limits for ages 14-15; state and local minor-labor and break rules are not modelled.");
   return lines.join("\n") + "\n";
 }
 
@@ -697,7 +697,7 @@ export function runPlan(staffText, shiftsText, opts = {}) {
   const st = planStreaks(plan);
   const dayName = (d) => `week ${Math.floor(d / 7) + 1} ${DAYS[d % 7]}`;
   for (const x of st.flag) lines.push("", `${x.name} works ${x.longest} days in a row (${dayName(x.from)} to ${dayName(x.to)}). Check your state's consecutive-day rule; the search does not limit it.`);
-  lines.push("", "Planning aid, not legal advice. Local scheduling-notice, break and minor-labor rules are not modelled.");
+  lines.push("", "Planning aid, not legal advice. Checks only the scheduling-notice presets it names and the US federal limits for ages 14-15; state and local minor-labor and break rules are not modelled.");
   return { code, out: lines.join("\n") + "\n" };
 }
 

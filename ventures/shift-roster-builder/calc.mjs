@@ -463,7 +463,7 @@ export function parseStaff(text, { weekStart = null } = {}) {
     for (const cell of tail.filter((x) => OFF_CELL.test(x))) {
       applyTimeOff(av.days, cell.replace(OFF_CELL, ""), weekStart, notes).forEach((e) => errors.push(`${where} (${c[0]}): ${e}`));
     }
-    let age = null, maxHoursEff = maxH, maxDailyEff = maxDaily, youth = false;
+    let age = null, maxHoursEff = maxH, maxDailyEff = maxDaily, weekendDaily = 0, youth = false;
     const ageCell = tail.find((x) => AGE_CELL.test(x));
     if (ageCell) {
       const m = ageCell.replace(AGE_CELL, "").trim().match(/^(\d{1,2})(?:\s+(school|summer|break))?$/i);
@@ -473,18 +473,23 @@ export function parseStaff(text, { weekStart = null } = {}) {
         if (age < 14) errors.push(`${where} (${c[0]}): US federal law bars most non-farm work under 14, so this tool will not schedule an age-${age} worker`);
         else if (age < 16) {
           // FLSA youth rules for 14-15: 7am-7pm (9pm 1 Jun-Labor Day); school weeks 3 h on a school day and 18 h a week, otherwise 8 h a day and 40 h a week.
-          const summer = /^(summer|break)$/i.test(m[2] || "");
-          const [lo, hi] = [420, summer ? 1260 : 1140];
+          // `summer` and `break` are both non-school weeks (8 h a day, 40 h a week), but 29 CFR 570.35(b) allows work to 9pm only
+          // from 1 June to Labor Day, so a winter or spring `break` keeps 7pm.
+          const summer = /^(summer|break)$/i.test(m[2] || ""), lateOk = /^summer$/i.test(m[2] || "");
+          const [lo, hi] = [420, lateOk ? 1260 : 1140];
           for (let d = 0; d < 7; d++) av.days[d] = av.days[d].map(([x, y]) => [Math.max(x, lo), Math.min(y, hi)]).filter(([x, y]) => y > x);
           maxHoursEff = Math.min(maxH, summer ? 40 : 18);
           maxDailyEff = maxDaily ? Math.min(maxDaily, summer ? 8 : 3) : (summer ? 8 : 3);
+          // 29 CFR 570.35(a)(2): 8 h on a non-school day. Saturday and Sunday are taken as non-school days; a weekday holiday is not
+          // known here, so it keeps the 3 h school-day cap (stricter than the law, never looser).
+          if (!summer) weekendDaily = maxDaily ? Math.min(maxDaily, 8) : 8;
           youth = true;
-          notes.push(`${c[0]} (age ${age}): limited to 7am-${summer ? "9pm" : "7pm"}, ${maxDailyEff} h a day and ${maxHoursEff} h a week (US federal rules for 14-15). ${summer ? "" : "The 3 h day applies on school days; add off: for school hours. "}State and local rules can be stricter; check yours.`);
+          notes.push(`${c[0]} (age ${age}): limited to 7am-${lateOk ? "9pm" : "7pm"}, ${maxDailyEff} h a day and ${maxHoursEff} h a week (US federal rules for 14-15). ${summer ? "" : `The ${maxDailyEff} h day applies Monday to Friday (school days); Saturday and Sunday allow ${weekendDaily} h. Add off: for school hours. `}State and local rules can be stricter; check yours.`);
         }
       }
     }
     if (siteWages && sites && sites.length) for (const w of siteWages.values()) if (!sites.includes(w.site)) notes.push(`${c[0]}: "wage at ${w.label}" is not used, because their sites: cell does not list ${w.label}.`);
-    staff.push({ ...(siteWages ? { siteWages } : {}), sites: sites && sites.length ? sites : null, seniority, age, youth, name: c[0], wage, maxHours: maxHoursEff, minHours: Math.min(minH, maxHoursEff), roles, days: av.days, anyTime: av.any && !youth && !tail.some((x) => OFF_CELL.test(x)), prevEnd, streakBefore, maxDaily: maxDailyEff, avoid: avoidCells.length ? av2.avoid : null, prefer: preferCells.length ? pf2.avoid : null, toughBefore, supervised: tail.some((x) => SUPERVISED_CELL.test(x)) || (age !== null && age < 18) });
+    staff.push({ ...(siteWages ? { siteWages } : {}), sites: sites && sites.length ? sites : null, seniority, age, youth, name: c[0], wage, maxHours: maxHoursEff, minHours: Math.min(minH, maxHoursEff), roles, days: av.days, anyTime: av.any && !youth && !tail.some((x) => OFF_CELL.test(x)), prevEnd, streakBefore, maxDaily: maxDailyEff, avoid: avoidCells.length ? av2.avoid : null, prefer: preferCells.length ? pf2.avoid : null, ...(weekendDaily ? { weekendDaily } : {}), toughBefore, supervised: tail.some((x) => SUPERVISED_CELL.test(x)) || (age !== null && age < 18) });
   });
   if (!staff.length && !errors.length) errors.push("Add at least one person.");
   if (staff.length > MAX_STAFF) errors.push(`That is ${staff.length} people; this tool handles up to ${MAX_STAFF}.`);
@@ -644,19 +649,25 @@ export function differentialMinutes(o, slots) {
 }
 
 // Most minutes this person may work on one day: the tighter of their own `daily:` cell and the roster-wide limit (0 = none).
-function dailyCapMin(ctx, p) {
-  const caps = [ctx.staff[p].maxDaily, ctx.o.maxDailyHours].filter((x) => x > 0);
-  return caps.length ? Math.min(...caps) * 60 : Infinity;
+// A 14-15 year old in a school week has a 3 h cap Monday to Friday and `weekendDaily` (8 h) on Saturday and Sunday (day % 7 of
+// 5 and 6; day 0 is Monday), so the cap depends on the day; with no day given it is the weekday cap.
+function capMinOn(person, roster, day) {
+  const own = person.weekendDaily && day !== undefined && day % 7 >= 5 ? person.weekendDaily : person.maxDaily;
+  const a = own, b = roster;
+  return a > 0 && b > 0 ? Math.min(a, b) * 60 : a > 0 ? a * 60 : b > 0 ? b * 60 : Infinity;
+}
+function dailyCapMin(ctx, p, day) {
+  return capMinOn(ctx.staff[p], ctx.o.maxDailyHours, day);
 }
 function overDaily(ctx, p, list) {
-  const cap = dailyCapMin(ctx, p);
-  if (cap === Infinity) return false;
+  const st = ctx.staff[p];
+  if (!(st.maxDaily > 0) && !(ctx.o.maxDailyHours > 0)) return false;
   const byDay = new Map();
   for (const i of list) {
     const s = ctx.slots[i];
     byDay.set(s.day, (byDay.get(s.day) || 0) + s.end - s.start);
   }
-  return [...byDay.values()].some((m) => m > cap + 1e-9);
+  return [...byDay].some(([d, m]) => m > dailyCapMin(ctx, p, d) + 1e-9);
 }
 
 // Hard-rule check for one person's list of shifts (a list ordered by start time; see insertSorted). The pricing oracle calls this
@@ -675,12 +686,11 @@ function validList(ctx, p, list) {
     mask |= 1 << s.day;
   }
   if (minutes > staff[p].maxHours * 60 + 1e-9) return false;
-  const a = staff[p].maxDaily, b = o.maxDailyHours;
-  const cap = a > 0 && b > 0 ? Math.min(a, b) * 60 : a > 0 ? a * 60 : b > 0 ? b * 60 : Infinity;
+  const cap = capMinOn(staff[p], o.maxDailyHours), wk = staff[p].weekendDaily ? capMinOn(staff[p], o.maxDailyHours, 5) : cap;
   if (cap !== Infinity) {
     for (const i of list) DAY_MIN[slots[i].day] = 0;
     for (const i of list) { const s = slots[i]; DAY_MIN[s.day] += s.end - s.start; }
-    for (const i of list) if (DAY_MIN[slots[i].day] > cap + 1e-9) return false;
+    for (const i of list) { const d = slots[i].day; if (DAY_MIN[d] > (d % 7 >= 5 ? wk : cap) + 1e-9) return false; }
   }
   const before = staff[p].streakBefore || 0;
   let run = before, prev = before > 0 ? -1 : -9;
@@ -749,12 +759,11 @@ function validWith(ctx, p, list, i, skip = -1) {
     mask |= 1 << d;
   }
   if (minutes > staff[p].maxHours * 60 + 1e-9) return false;
-  const a = staff[p].maxDaily, b = o.maxDailyHours;
-  const cap = a > 0 && b > 0 ? Math.min(a, b) * 60 : a > 0 ? a * 60 : b > 0 ? b * 60 : Infinity;
+  const cap = capMinOn(staff[p], o.maxDailyHours), wk = staff[p].weekendDaily ? capMinOn(staff[p], o.maxDailyHours, 5) : cap;
   if (cap !== Infinity) {
     for (let k = 0; k < m; k++) DAY_MIN[dy[buf[k]]] = 0;
     for (let k = 0; k < m; k++) { const x = buf[k]; DAY_MIN[dy[x]] += en[x] - st[x]; }
-    for (let k = 0; k < m; k++) if (DAY_MIN[dy[buf[k]]] > cap + 1e-9) return false;
+    for (let k = 0; k < m; k++) { const d = dy[buf[k]]; if (DAY_MIN[d] > (d % 7 >= 5 ? wk : cap) + 1e-9) return false; }
   }
   const before = staff[p].streakBefore || 0;
   let run = before, prev = before > 0 ? -1 : -9;
@@ -1283,9 +1292,10 @@ function openHoursFloor(ctx, { wholeShifts = false } = {}) {
     const pn = n++;
     const capMin = Math.max(0, Math.floor(staff[p].maxHours * 60 + 1e-9));
     add(pn, 1, wholeShifts ? wholeShiftCap(slots.filter((_, i) => elig[p][i]).map((s) => s.end - s.start), capMin) : capMin);
-    const dcap = dailyCapMin(ctx, p), byDay = new Map();
+    const byDay = new Map();
     for (let i = 0; i < S; i++) if (elig[p][i]) (byDay.get(slots[i].day) || byDay.set(slots[i].day, []).get(slots[i].day)).push(i);
-    for (const list of byDay.values()) {
+    for (const [day, list] of byDay) {
+      const dcap = dailyCapMin(ctx, p, day);
       const iv = list.map((i) => [slots[i].start, slots[i].end + restMin, slots[i].end - slots[i].start]).sort((x, y) => x[1] - y[1]);
       const best = [0];
       for (let k = 0; k < iv.length; k++) {
@@ -1335,10 +1345,11 @@ function neighbourhoodFloor(ctx, people, free, lists, can) {
     const pn = n++;
     const held = lists[q].reduce((t, j) => t + slots[j].end - slots[j].start, 0);
     add(pn, 1, Math.max(0, Math.floor(staff[q].maxHours * 60 + 1e-9) - held));
-    const dcap = dailyCapMin(ctx, q), byDay = new Map(), heldDay = new Map();
+    const byDay = new Map(), heldDay = new Map();
     for (const j of lists[q]) heldDay.set(slots[j].day, (heldDay.get(slots[j].day) || 0) + slots[j].end - slots[j].start);
     for (let d = 0; d < F; d++) if (can[c][d]) { const dy = slots[free[d]].day; (byDay.get(dy) || byDay.set(dy, []).get(dy)).push(d); }
     for (const [dy, list] of byDay) {
+      const dcap = dailyCapMin(ctx, q, dy);
       const iv = list.map((d) => { const s = slots[free[d]]; return [s.start, s.end + restMin, s.end - s.start]; }).sort((x, y) => x[1] - y[1]);
       const best = [0];
       for (let k = 0; k < iv.length; k++) {
@@ -3348,11 +3359,10 @@ function cliqueLP(ctx, { maxPivots = 200000, priced = false, modelOnly = false, 
       for (const i of list) pending.push([ids.get(i), r, (slots[i].end - slots[i].start) / capMin]);
     };
     knap(ss, Math.max(1e-6, staff[p].maxHours * 60), `h${p}`);
-    const dcap = dailyCapMin(ctx, p);
-    if (dcap !== Infinity) {
+    if (dailyCapMin(ctx, p) !== Infinity) {
       const byDay = new Map();
       for (const i of ss) (byDay.get(slots[i].day) || byDay.set(slots[i].day, []).get(slots[i].day)).push(i);
-      for (const [day, list] of byDay) knap(list, dcap, `d${p}:${day}`);
+      for (const [day, list] of byDay) knap(list, dailyCapMin(ctx, p, day), `d${p}:${day}`);
     }
     // Maximal cliques of the intervals [start, end + rest): the set alive at each start point, kept when no later start point's
     // set contains it (sets alive at successive starts only gain members by starts, so a set is maximal iff the next start point
