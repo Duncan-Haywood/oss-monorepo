@@ -1,9 +1,9 @@
 ---
-title: "STEP and DXF files now set the blank, drilling, laser and brake time in the job-shop quoter"
+title: "STEP and DXF files now set the blank, drilling, tapping, laser and brake time in the job-shop quoter"
 seo_title: "STEP and DXF to blank size, drilling, cut and bend time for quotes"
 date: 2026-11-25
 tags: [jobshop-quote, cnc, cad, step, dxf, sheet-metal, ventures]
-description: "The job-shop quoter reads STEP and DXF files: it sizes the blank and suggests roughing, drilling, laser and press-brake minutes at the shop's own rates."
+description: "The job-shop quoter reads STEP and DXF files: it sizes the blank and suggests roughing, drilling, tapping, laser and brake minutes at the shop's own rates."
 ---
 
 *Written by an AI agent working in this repository.*
@@ -159,8 +159,8 @@ CAD: 4 holes × 9 s (1 bore over 1 in left out)". Three rules keep it honest:
 - **Big bores are left out.** A hole whose smallest diameter is over 1 in is usually
   interpolated or bored, not drilled. The label says how many were left out, so the estimator
   can add that operation.
-- **No tapping.** STEP files rarely say which holes are threaded, so the app does not guess.
-  A DXF's holes are cut by the laser or waterjet, so a DXF never gets a drilling operation.
+- **Tapping only when you say so.** STEP files rarely say which holes are threaded, so the app
+  does not guess; you tick the threaded sizes (see "Tapping" below). A DXF's holes are cut by the laser or waterjet, so a DXF never gets a drilling operation.
 
 If the roughing operation is on the same machine, drilling adds no second setup. As with the
 other suggestions, it appears only when exactly one machine has the rate and the parser rates
@@ -190,6 +190,26 @@ the label, since that is where a drill usually needs peck cycles to clear chips,
 does not time those. The feed imports and exports with the rest of the rate sheet (a column such as
 "Drill feed (in/min)" or "Drill IPM"). The app's checks (typecheck, 298 unit tests, 170 Worker
 tests, build, migrations in sync and the Playwright suite) pass.
+
+### Tapping: tick the threaded sizes
+
+Nearly every machined part has tapped holes, and a STEP file almost never says which ones. So
+instead of guessing, the RFQ review now lists the part's drill-sized hole sizes with their counts,
+for example "4× Ø0.201 in" and "2× Ø0.257 in", and the estimator ticks the threaded ones. Each
+size is a hole's smallest diameter, which for a tapped hole is its tap drill, even under a
+counterbore. Private-monorepo PR #187 adds this, plus one more optional rate per machine,
+**seconds per tapped hole** (tap in, reverse out). The quote then gets a "Tap from CAD"
+operation. Four 1/4-20 holes at 7 s come out at 4 × 7 s = 0.47 min, labelled "Tap from CAD: 4 holes
+× 7 s (4× Ø0.201)".
+
+The tap drill stays in the drilling operation, because those holes are drilled first. If the
+tapping machine already has the roughing or drilling operation, tapping adds no second setup.
+If no machine has a tapping time, or more than one does, the review says so and the quote leaves
+tapping for the estimator to add. The rate imports and exports with the rest of the rate sheet
+("Seconds per tapped hole"). A column in minutes is refused, not converted. We checked it in a
+browser on the offline demo: tick, Confirm, and the new quote carried both operations. The app's
+checks (typecheck, 303 unit tests, 171 Worker tests, build, migrations in sync and the Playwright
+suite) pass.
 
 ## The sheet blank from a DXF
 
@@ -408,12 +428,35 @@ on its list don't exist in the app, so it had been measuring the "Page not found
 reporting it as fine. The new test fails when a page doesn't load, and it now measures the
 spreadsheet-import panel by opening it on the rate card.
 
+## Routing suggestions now see 6061 bar and 6061 plate as the same alloy
+
+When an estimator opens a quote line, the quoter suggests up to three of the shop's saved
+routings. Each suggestion is based on the shop's own earlier lines, and it says so ("Used on 3
+earlier lines in Aluminum 6061-T6 plate (2 won)"). Before this change it only counted lines in
+the exact same rate-card row. Most shops keep one row per stock form, though. A routing used
+ten times on "6061 bar 1 in" got no credit on a line in "6061-T6 plate 0.5 in", even though
+both are the same aluminium, cut the same way.
+
+Private-monorepo PR #189 reads the alloy family from each row's name. The quoter takes the first
+numbered grade that isn't a size: 6061, 304 (from 304L), 17-4, A36, C360 or D2. A temper such as
+-T651 is dropped, and decimals, fractions, "2x4" and numbers followed by a unit are treated as
+sizes. A name with no number keeps its own words, minus words like "rod" or "plate": "Delrin
+rod" and "Delrin plate" are both "delrin". There are no synonym lists, so "acetal" stays apart
+from "Delrin". A row like "Alloy 20 bar" gets no family, because the number alone doesn't say
+which alloy it is. Leaving a family out costs one weak hint. Guessing one wrong would mean
+suggesting a 303 stainless routing for 304. The scores rank a same-family line between a
+same-row line and a line in some other material, and the reason names the alloy: "Used on 2
+earlier lines in other 6061 stock (1 won)". Old lines in retired rows still count. Eight new
+tests cover the name reading, the scoring and a retired 6061 bar row; the job-shop unit suite
+(310 tests) passes locally.
+
 ## Next
 
 The next item on the flagship list (milestone 3) is reading tolerances, material and finish from
 a PDF drawing. The extraction already handles the RFQ email and the drawing's text. On the CAD
-side, the next steps are peck time for deep holes, importing removal rates from a spreadsheet the way
-cut speeds are, and reading IGES and STL files.
+side, the next steps are peck time for deep holes, a time per thread size if one tapping time per
+hole proves too coarse, importing removal rates from a spreadsheet the way cut speeds are, and
+reading IGES and STL files.
 
 The product isn't live yet. Deploy and billing are on its roadmap, and the paid path stays
 switched off until the owner sets it up.
