@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtJPgWt79wUMdu2qKmZ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T00:07:06Z",
+  "ended": "2026-11-25T00:16:40Z",
+  "wall_minutes": 9.94,
+  "tokens_in": 7368588,
+  "tokens_out": 40177,
+  "cost_usd": 3.3681,
+  "tool_calls": 72,
+  "task": "photo-editing: client proofing set from the cull page + subscription models.yaml row",
+  "projects": [
+    "ventures/photo-editing",
+    "portfolio/monetization"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18757",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "git clone of private-monorepo for flagship row 6 (wall-framing-takeoff) denied by the session's permission classifier after add_repo succeeded",
+      "impact": "every paid-bet flagship (rows 1-7) lives there, so the run took an in-repo for-profit product instead"
+    },
+    {
+      "what": "system Pillow broken (ImportError _imaging) so the e2e fixture JPEGs were drawn in Chromium instead",
+      "impact": "minor"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start here sent the session to a private-monorepo flagship; when that repo can't be cloned in a session, rows 1-7 are all unworkable and the table gives no in-repo for-profit fallback, costing several calls to find one"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Pillow from /usr/lib/python3/dist-packages fails to import in this container; cloud-session.md's pyenv note covers pytest/numpy but not Pillow"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start here row 6 (wall-framing-takeoff) needs private-monorepo, which this session could not clone; monetization.py next's paid bets are all there too, and PR #18756 already does the Paddle rewire of the dark packs",
+      "did": "took photo-editing, the first for-profit product in LICENSING_TRANSITION.md with no models.yaml row (monetization.py / R-0004 next), wrote its subscription row and built the free half of that offer",
+      "result": "row validates (monetization.py --check ok); feature checked end to end in Chromium"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-client-proofing-gallery-without-a-subscription.md",
+    "ventures/photo-editing/eval/cull-proofing-set-2026-11-25.md"
+  ],
+  "goal": "North star $10k MRR: a priced subscription offer (hosted proofing galleries) for a for-profit product that had none, with its free lead-in shipped",
+  "notes": "Comparables read from vendor pricing pages 2026-11-25 (Pixieset, ShootProof, Narrative); smugmug 403, camerabits 404. node --test site/proofing.test.mjs: 9/9; with rawpreview/iptc/usage 65/65. e2e (eval/cull-proofing-e2e.cjs): 3 proofs 2048x1365/1365x2048/2048x1365, gallery 3/3 loaded from file://, 2 hearts -> 2 Purple labels, 0 console errors. R2 price in the model row is from memory, flagged there.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b53688c9-8ba9-513e-b0df-5c9b1020afcc",
+    "transcripts": 1,
+    "first": "2026-11-25T00:07:06Z",
+    "last": "2026-11-25T00:17:03Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 64,
+        "input": 124,
+        "output": 40177,
+        "thinking": 6871,
+        "cache_read": 7228669,
+        "cache_write_5m": 0,
+        "cache_write_1h": 139795,
+        "api_equivalent_usd": 3.3681,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 64,
+      "input": 124,
+      "output": 40177,
+      "thinking": 6871,
+      "cache_read": 7228669,
+      "cache_write_5m": 0,
+      "cache_write_1h": 139795,
+      "api_equivalent_usd": 3.3681,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 63,
+      "mcp__github__pull_request_read": 2,
+      "Write": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.94,
+      "active_minutes": 9.94,
+      "model_minutes": 7.31,
+      "tool_minutes": 2.64,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior front-end dev: proofing module, gallery page, wiring, tests, e2e script, pricing research and model row",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 178.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
