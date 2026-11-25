@@ -1,4 +1,6 @@
 ---
+kind: polish
+topics: [seo]
 date: 2026-11-25
 ---
 # Polish 2026-11-25: wall-framing-takeoff meta descriptions under 160
