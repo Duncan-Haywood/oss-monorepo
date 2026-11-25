@@ -42,6 +42,10 @@
     {
       "file": "ventures/pay-app-guides/page.test.mjs",
       "issue": "The phone-layout test takes the first <table> after <main> on every page, so a page whose tool emits a table must put a static stacked table first or avoid tables in the tool; not documented in the README."
+    },
+    {
+      "file": "prompts/process/backlog/",
+      "issue": "PRs #18884 and #18882 both merged backlog id P075, turning main's validate check red; renumbered the clone-refused item to P076 in this PR. Two runs picking the next free id at the same time collide; the id check only runs after merge."
     }
   ],
   "deviations": [
@@ -56,7 +60,7 @@
     "docs/posts/2026-11-25-prompt-payment-laws-for-subcontractors.md (new section on joint checks)"
   ],
   "goal": null,
-  "notes": "node --test *.test.mjs in ventures/pay-app-guides: 117 pass 0 fail. check_post_frontmatter and check_posts ok. risk_review: nothing blocked. Playwright at 390px: no errors, no horizontal scroll.",
+  "notes": "node --test *.test.mjs in ventures/pay-app-guides: 117 pass 0 fail. check_post_frontmatter and check_posts ok. risk_review: nothing blocked. Playwright at 390px: no errors, no horizontal scroll. Also fixed main's red validate (duplicate backlog id P075 -> P076).",
   "corrections": [],
   "redteam": null,
   "usage": {

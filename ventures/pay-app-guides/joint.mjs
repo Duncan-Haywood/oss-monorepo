@@ -153,7 +153,7 @@ export function splitJointCheck(input) {
 
 export function fmt(n) {
   const v = cents(n);
-  return (v < 0 ? "-$" : "$") + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return ((t) => (v < 0 && /[1-9]/.test(t) ? "-$" : "$") + t)(Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 }
 
 // A plain-text split letter the three parties can sign before the check is endorsed.
