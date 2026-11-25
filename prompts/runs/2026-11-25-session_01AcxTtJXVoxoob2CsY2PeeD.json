@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "CI validate: money() signed a negative inside the symbol (fixed with fix_money_sign.mjs); P075 duplicate inherited from main (renumbered)"
+    "CI validate: money() signed a negative inside the symbol (fixed with fix_money_sign.mjs); P075 duplicate inherited from main (renumbered)",
+    "Pages test: new meta description was 176 characters (limit 160, platform/pages/description-length.test.mjs). Two shortening attempts were pushed before the check passed, because a grep on '# fail' matched 'fail 1'."
   ],
   "integrity_issues": [],
   "doc_friction": [
