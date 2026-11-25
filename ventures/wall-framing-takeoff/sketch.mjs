@@ -4,9 +4,11 @@
 // the geometry is tested on its own (sketch.test.mjs).
 //
 // The sketch is written out as the ASCII DXF a CAD program would save (walls,
-// doors and windows on their own layers, inches) and read back by `planFromDxf`,
-// so corners, tees, the exterior loop and opening offsets come from the same
-// code that reads a real floor plan, not a second copy of it.
+// doors and windows on their own layers, inches) and read back by `planFromDxf`
+// in sketchplan.mjs, so corners, tees, the exterior loop and opening offsets
+// come from the same code that reads a real floor plan, not a second copy of
+// it. That reader lives in its own module so the page can draw and restore a
+// sketch without downloading the DXF reader (46 kB) until "Use this sketch".
 //
 // Coordinates are inches, x to the right, y down the screen (as drawn).
 
@@ -14,8 +16,6 @@
 /** @typedef {{ id: number, a: Pt, b: Pt }} SketchWall */
 /** @typedef {{ id: number, wall: number, kind: "door" | "window", offset: number, width: number }} SketchOpening */
 /** @typedef {{ walls: SketchWall[], openings: SketchOpening[], nextId: number }} Sketch */
-
-import { planFromDxf } from "./dxf.mjs";
 
 export const emptySketch = () => /** @type {Sketch} */ ({ walls: [], openings: [], nextId: 1 });
 
@@ -286,16 +286,6 @@ export function sketchToDxf(sk) {
   return s + g(0, "ENDSEC") + g(0, "EOF");
 }
 
-/**
- * The takeoff plan for a sketch: the same result shape as `planFromDxf`.
- * @param {Sketch} sk
- * @param {Parameters<typeof planFromDxf>[1]} [opt]
- */
-export function planFromSketch(sk, opt = {}) {
-  if (!sk || typeof sk !== "object" || !Array.isArray(sk.walls)) return { ok: false, errors: ["No sketch to read."], notes: [] };
-  if (!sk.walls.length) return { ok: false, errors: ["Draw at least one wall first."], notes: [] };
-  return planFromDxf(sketchToDxf(sk), { units: "in", ...opt });
-}
 
 /** Total centre-line length of the sketch's walls, inches. @param {Sketch} sk */
 export const totalLength = (sk) => sk.walls.reduce((t, w) => t + len(w), 0);

@@ -609,9 +609,8 @@
   <script type="module">
     import { takeoff, samplePlan, defaultStock, parseLength, formatLength, formatInches, toCsv, verifyWall, PRECUT, DEPTH } from "./engine.mjs";
     import { expandSteppedWalls } from "./stepwall.mjs";
-    import { planFromDxf } from "./dxf.mjs";
     import { loadIfcEngine, openingSizes } from "./ifcwasm.mjs";
-    import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, moveCorner, moveWall, moveOpening, resizeOpening, removeWall, removeOpening, openingEnds, planFromSketch, wallLength, restoreSketch, fitTrace, rescaleTrace, moveTrace, levelTrace, traceCorners } from "./sketch.mjs";
+    import { emptySketch, addWall, addOpening, snapPoint, pointAtLength, nearestWall, moveCorner, moveWall, moveOpening, resizeOpening, removeWall, removeOpening, openingEnds, wallLength, restoreSketch, fitTrace, rescaleTrace, moveTrace, levelTrace, traceCorners } from "./sketch.mjs";
     import { panelMaxError, panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
     import { budget, budgetCsv, priceSheet } from "./budget.mjs";
     import { proposal, proposalText, proposalHtml } from "./bidletter.mjs";
@@ -620,7 +619,6 @@
     import { levelBids } from "./bidlevel.mjs";
     import { budgetDiff } from "./compare.mjs";
     import { sensitivity } from "./sensitivity.mjs";
-    import { schedule, scheduleText, sampleSchedule, resolveRates } from "./schedule.mjs";
     import { resolveHeaders } from "./headers.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     // The plan sections below (sheathing, floor, roof, stair, deck, foundation, finishes) are
@@ -1704,6 +1702,8 @@
         let plan, dxfNote = "";
         $("#ifcStoreyWrap").hidden = true;
         if (/\.(dxf|ifc)$/i.test(file.name)) {
+          const dx = await lib("./dxf.mjs"); if (!dx) return;
+          const { planFromDxf } = dx;
           let dxfText, ifcSizes;
           if (/\.ifc$/i.test(file.name)) {
             ifcBytes = new Uint8Array(await file.arrayBuffer());
@@ -1734,8 +1734,9 @@
     });
     $("#ifcStorey").addEventListener("change", async () => {
       if (!ifcBytes) return;
+      const dx = await lib("./dxf.mjs"); if (!dx) return;
       const eng = await loadIfcEngine();
-      const r = planFromDxf(eng.dxf(ifcBytes, Number($("#ifcStorey").value)), { openingSize: openingSizes(eng.plan(ifcBytes, Number($("#ifcStorey").value))) });
+      const r = dx.planFromDxf(eng.dxf(ifcBytes, Number($("#ifcStorey").value)), { openingSize: openingSizes(eng.plan(ifcBytes, Number($("#ifcStorey").value))) });
       if (!r.ok) { $("#status").textContent = `Could not read that storey of ${ifcName}: ${r.errors.join(" ")}`; return; }
       const base = samplePlan(), plan = r.plan;
       for (const k of ["studSpacing", "studLength", "kerf", "topPlateLap", "cornerExtraStuds", "teeExtraStuds", "defaultHeaderHeight", "stock"]) if (!(k in plan)) plan[k] = base[k];
@@ -1759,8 +1760,10 @@
     $("#faOn").addEventListener("change", () => { $("#faFields").hidden = !$("#faOn").checked; if ($("#faOn").checked) record("fasteners_on"); });
     $("#dwOn").addEventListener("change", () => { $("#dwFields").hidden = !$("#dwOn").checked; if ($("#dwOn").checked) record("drywall_on"); });
     $("#fnOn").addEventListener("change", () => { $("#fnFields").hidden = !$("#fnOn").checked; if ($("#fnOn").checked) record("foundation_on"); });
-    $("#schedEx").addEventListener("click", () => { $("#schedIn").value = JSON.stringify(sampleSchedule(), null, 2); $("#schedOut").innerHTML = ""; record("schedule_example_loaded"); });
-    $("#schedRun").addEventListener("click", () => {
+    $("#schedEx").addEventListener("click", async () => { const sm = await lib("./schedule.mjs"); if (!sm) return; $("#schedIn").value = JSON.stringify(sm.sampleSchedule(), null, 2); $("#schedOut").innerHTML = ""; record("schedule_example_loaded"); });
+    $("#schedRun").addEventListener("click", async () => {
+      const sm = await lib("./schedule.mjs"); if (!sm) return;
+      const { schedule, scheduleText, resolveRates } = sm;
       let input;
       try { input = JSON.parse($("#schedIn").value); } catch (e) { $("#schedOut").innerHTML = `<div class="err">That is not valid JSON: ${esc(e.message)}</div>`; return; }
       if (!input || typeof input !== "object") input = {};
@@ -2005,8 +2008,9 @@
       $("#skImgOpacity").addEventListener("input", draw);
       $("#skUndo").addEventListener("click", () => { const h = history.pop(); if (h) { sk = JSON.parse(h); chain = null; hover = null; draw(); } });
       $("#skClear").addEventListener("click", () => { if (!sk.walls.length) return; snap(); sk = emptySketch(); chain = null; hover = null; draw(); });
-      $("#skUse").addEventListener("click", () => {
-        const r = planFromSketch(sk);
+      $("#skUse").addEventListener("click", async () => {
+        const sp = await lib("./sketchplan.mjs"); if (!sp) return;
+        const r = sp.planFromSketch(sk);
         if (!r.ok) { $("#skInfo").textContent = r.errors.join(" "); return; }
         const base = samplePlan(), plan = r.plan;
         for (const k of ["studSpacing", "studLength", "kerf", "topPlateLap", "cornerExtraStuds", "teeExtraStuds", "defaultHeaderHeight", "stock"]) if (!(k in plan)) plan[k] = base[k];
