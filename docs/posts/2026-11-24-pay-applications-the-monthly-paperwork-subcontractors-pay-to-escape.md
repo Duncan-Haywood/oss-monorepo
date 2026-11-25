@@ -100,7 +100,7 @@ product is built in a private repository; the free tools stay open source.
 
 ## What exists now, free
 
-Three parts of the job already have free browser tools on this site. They
+Parts of the job already have free tools on this site. They
 are the starting point, not the product:
 
 - [Pay Application Generator](https://marisstella.app/pay-application-generator/):
@@ -113,6 +113,39 @@ are the starting point, not the product:
 - [Construction Retainage Calculator](https://marisstella.app/retainage-cashflow-calculator/):
   the cash tied up in retainage and what waiting costs.
   ([source](../../ventures/retainage-cashflow-calculator/README.md))
+
+- [Free schedule of values template](https://marisstella.app/pay-app-guides/schedule-of-values-template.html)
+  (added 2026-11-25): for subs who would rather keep the spreadsheet. A blank
+  Excel workbook with the continuation sheet and the summary formulas already
+  in, and a filled-in copy of the worked example from the
+  [step-by-step guide](https://marisstella.app/pay-app-guides/how-to-fill-out-a-pay-application.html).
+  ([source](../../ventures/pay-app-guides/template.mjs))
+
+### Why a spreadsheet, and how we know its formulas are right
+
+A spreadsheet needs no account and no new habit, and "schedule of values
+template" is something people search for, so a free one with the arithmetic
+done is a reasonable front door. The template fills in total completed and stored,
+percent complete, balance to finish, retainage per line (work and stored
+materials at their own rates, rounded to the cent) and the nine summary
+lines down to current payment due. A check column marks any line billed
+over its scheduled value, or billed with no scheduled value, and the summary
+counts them. It has no macros, no links to other files and no add-ins, so it
+opens in Excel, Google Sheets and LibreOffice without a security prompt.
+
+The file is not drawn by hand. A short script writes it, about 200 lines with
+no spreadsheet library, so the same code always gives the same bytes, and a
+test fails if the committed file and the code drift apart. A second test
+opens the filled-in example in LibreOffice, recalculates every formula from
+scratch, and checks the result against the guide's hand-worked numbers:
+$79,850 completed and stored, $7,985 retainage, $40,365.00 due, $86,635
+balance to finish including retainage. A third test bills one line $5,000
+over its value and adds work to a line with no value, and checks that both
+are flagged.
+
+What it does not tell us is whether contractors use it. Its downloads are
+counted only in each visitor's own browser, so we will learn that from
+search impressions and from people who write in.
 
 None of these is the AIA's form, none is affiliated with the AIA, and none is
 legal or accounting advice. Retainage, waiver and payment terms come from
