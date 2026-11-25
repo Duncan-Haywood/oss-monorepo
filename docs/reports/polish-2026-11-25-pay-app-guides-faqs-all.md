@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-11-25
+---
 # Polish 2026-11-25: FAQ on every pay-app guide (bet #1's front door)
 
 Track: polish/0. Follows `polish-2026-11-25-pay-app-guides-faqs.md` (5 pages,
