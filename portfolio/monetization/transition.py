@@ -37,6 +37,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import subprocess
 import re
 import sys
 from pathlib import Path
@@ -157,7 +158,23 @@ def nested_licences(venture: Path) -> list[str]:
         for name in files:
             if THIRD_PARTY_LICENCE.match(name) and not name.endswith(SOURCE_EXT):
                 found.append(str(Path(root, name).relative_to(ROOT)))
-    return sorted(found)
+    return sorted(set(found) - git_ignored(found))
+
+
+def git_ignored(paths: list[str]) -> set[str]:
+    """The paths git ignores. Data a test fetches (a venture's ci-fetch.sh,
+    e.g. ids-model-check's CC BY-ND IDS pairs under eval/IDS/) is gitignored
+    and never ships, but its LICENSE sat in the tree and made the committed
+    transition.json look stale after a local or CI test run (2026-11-25).
+    Fail-soft: no git, nothing filtered."""
+    if not paths:
+        return set()
+    try:
+        proc = subprocess.run(["git", "check-ignore", "--stdin"], input="\n".join(paths),
+                              capture_output=True, text=True, cwd=ROOT, timeout=20)
+    except (OSError, subprocess.SubprocessError):
+        return set()
+    return set(proc.stdout.split())
 
 
 def read_list(path: Path, key: str) -> list[str]:
