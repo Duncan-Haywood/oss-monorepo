@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "CSV cell guard first defused plain negative numbers; platform/ci/check_csv_formula_guard.py (run by run_venture_tests) caught it locally, fixed before merge"
+    "CSV cell guard first defused plain negative numbers; platform/ci/check_csv_formula_guard.py (run by run_venture_tests) caught it locally, fixed before merge",
+    "rfq-review.html meta description was 166 chars; platform/pages description-length test (pages CI 'test' job) caught it; shortened to 155"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -41,6 +42,10 @@
     {
       "file": "ventures/machine-shop-guides/SOURCES.md",
       "issue": "acquisition.gov refused by proxy again; raw.githubusercontent.com/GSA/GSA-Acquisition-DFARS/master/dita/<clause>.dita works for DFARS clause text (the FAR route was already noted). Recorded in SOURCES.md."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes on a venture-only diff did not run the pages 'test' job (platform/pages *.test.mjs), which holds the 160-char description check for venture pages; CI caught it after merge-ready."
     }
   ],
   "deviations": [
