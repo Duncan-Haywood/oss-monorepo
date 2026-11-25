@@ -42,7 +42,7 @@ numbers may have moved. Wait for the next main scan rather than re-fixing it.
 | #997 `js/prototype-polluting-assignment` | `platform/aws/stacks/site/deploy/emulate.mjs` | Real. The CloudFront emulator built the query object with `qs[k]` on a plain `{}`: `?__proto__=a&__proto__=b` set `multiValue` on `Object.prototype` for the whole process, and a lone `?toString=1` was misread as a repeat. Now grouped in a `Map` and built with `Object.fromEntries` (own properties only). Test added. |
 | #574 `js/bad-tag-filter` | `platform/distribution/webext.mjs` | Real. `</script >` (valid HTML) did not end a script, so the packager's network and inline-handler checks read the wrong span. The end tag now allows `\b[^>]*`. Test added. |
 | #274 `js/incomplete-multi-character-sanitization` | same | The inline-handler check stripped scripts once; it now repeats until nothing changes. |
-| #275 same rule | same, the rewrite at line 59 | Probably a false positive: that `replace` is a transform that keeps `<script` tags on purpose, not a sanitiser, over our own built pages. If the next scan still reports it, dismiss it. |
+| #275 same rule | same, the rewrite at line 59 | Not a sanitiser: the `replace` swaps each inline script for a `<script src>` on purpose. Moving the line made GitHub's PR check report it as a new high alert, so the rewrite is now assembled from `matchAll` slices. Same output, and the packager's tests pass unchanged. This is a restructure, not a suppression: the code never claimed to remove `<script`. |
 
 ## Looked at, left for the next scan to confirm
 
