@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01EhTJVNigA4TiVjuF6aTaJK",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-25T11:01:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "pytest/numpy guidance irrelevant here; the private-monorepo add_repo + clone path in .github/prompts/cloud-session.md worked first time and was the useful part."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "line 53 names `allocate.py` without its path (portfolio/router/allocate.py); I guessed portfolio/monetization/ first and missed it, then checked open private PRs by hand."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new blog post: the change is an in-app feature of an unlaunched paid product with nothing new for a reader; wrote the agent doc instead.",
+      "did": "agent doc in docs/reports/",
+      "result": "shipped feature + doc"
+    }
+  ],
+  "writeups": [
+    "docs/reports/ventures-2026-11-25-payapps-gc-billing-contact.md"
+  ],
+  "goal": null,
+  "notes": "Private PR Duncan-Haywood/private-monorepo#80 merged: GC billing contact per job, follow-up drafts addressed. Local CI steps: biome ci, typecheck, unit 270/270, worker 176/176, build, provision 4/4, drizzle drift none.",
+  "corrections": [],
+  "redteam": null
+}
