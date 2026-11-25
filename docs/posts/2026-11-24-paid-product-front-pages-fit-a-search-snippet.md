@@ -169,7 +169,7 @@ product.
 Fitting a snippet is half of it; the other half is a page stating the answer
 plainly enough that a search engine's or assistant's summary can quote it
 without misreading it. On pay-app-guides, the free front door to the pay-app
-billing product, 16 of 25 pages had no question-and-answer section, including
+billing product, 17 of 25 pages had no question-and-answer section, including
 the five a subcontractor is most likely to search for: conditional versus
 unconditional lien waivers, retainage, how to fill out a pay application,
 prompt payment laws and pay-if-paid clauses.
