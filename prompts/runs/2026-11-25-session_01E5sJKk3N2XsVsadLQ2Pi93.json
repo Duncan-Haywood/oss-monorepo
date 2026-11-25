@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKk3N2XsVsadLQ2Pi93",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T06:18:36Z",
+  "ended": "2026-11-25T06:25:38Z",
+  "wall_minutes": 7.19,
+  "tokens_in": 4598813,
+  "tokens_out": 31690,
+  "cost_usd": 2.5386,
+  "tool_calls": 56,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18876",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "git clone of private-monorepo after add_repo was refused by the auto-mode permission classifier; did not retry or work around",
+    "WebFetch to ncleg.gov, docs.legis.wisconsin.gov and leg.state.nv.us failed DNS (outside allowed domains); statutes read through WebSearch limited to the official domains instead",
+    "WebSearch with casetext.com in allowed_domains errors 400 (not accessible to the crawler); dropped it"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Says to build bets in private-monorepo when reachable; add_repo succeeded but the clone was blocked by the permission classifier, so 'reachable' needs a definition (clone allowed), or the routine needs the permission pre-granted"
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Outbound hosts section could note that state legislature hosts (ncleg.gov, legis.wisconsin.gov, leg.state.nv.us) fail DNS for WebFetch and that casetext.com is refused by WebSearch; Justia and CourtListener work for opinions via search"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Top bet's product code lives in private-monorepo, which this session could not clone",
+      "did": "Took bet #1's public side: a new front-door guide and clause reader in pay-app-guides, picked to avoid the three open pay-app-guides PRs (#18864, #18871, #18872)",
+      "result": "Landed one page, a tested module and a post section"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-prompt-payment-laws-for-subcontractors.md (extended with a pay-if-paid section)"
+  ],
+  "goal": null,
+  "notes": "Local: node --test *.test.mjs in ventures/pay-app-guides 89 pass 0 fail; Playwright 390px no console errors, no horizontal scroll. risk_review: nothing blocked; three checks answered in the PR body.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c3d099d5-f34c-5b85-9a4e-cb01dd4d992c",
+    "transcripts": 1,
+    "first": "2026-11-25T06:18:36Z",
+    "last": "2026-11-25T06:25:47Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 88,
+        "output": 31690,
+        "thinking": 5162,
+        "cache_read": 4472475,
+        "cache_write_5m": 0,
+        "cache_write_1h": 126250,
+        "api_equivalent_usd": 2.5386,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 88,
+      "output": 31690,
+      "thinking": 5162,
+      "cache_read": 4472475,
+      "cache_write_5m": 0,
+      "cache_write_1h": 126250,
+      "api_equivalent_usd": 2.5386,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 28,
+      "WebSearch": 14,
+      "ToolSearch": 3,
+      "WebFetch": 3,
+      "Write": 3,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Read": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.19,
+      "active_minutes": 7.19,
+      "model_minutes": 5.78,
+      "tool_minutes": 1.41,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "statute and case research for 11 states, clause classifier with tests, guide page, post section",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 236.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
