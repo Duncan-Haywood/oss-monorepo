@@ -247,3 +247,9 @@ test("the portfolio's own free template: labels and a note above the header are 
   ]);
   assert.ok(!r.notes.some((n) => /per-line retainage/.test(n)), "no column is read as a per-line retainage rate");
 });
+
+// Red team 2026-11-25: the highest code point is a real character, not a replacement mark.
+test("xmlText keeps U+10FFFF and replaces anything above it", () => {
+  assert.equal(xmlText("&#x10FFFF;"), String.fromCodePoint(0x10ffff));
+  assert.equal(xmlText("&#x110000;"), "�");
+});
