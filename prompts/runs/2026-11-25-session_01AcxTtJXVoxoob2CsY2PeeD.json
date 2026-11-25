@@ -29,12 +29,18 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "CI validate: money() signed a negative inside the symbol (fixed with fix_money_sign.mjs); P075 duplicate inherited from main (renumbered)"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "platform/security/risk_review.py",
-      "issue": "Without --base it fails on the shallow clone ('no merge base'); --base HEAD~1 worked at once. CLAUDE.md could say to pass --base for a one-commit branch."
+      "issue": "Without --base it fails on the shallow clone ('no merge base'); --base HEAD~1 worked at once. CLAUDE.md could say to pass --base for a one-commit branch. (Already filed by another run, now P076-risk-review-shallow-base.json.)"
+    },
+    {
+      "file": "prompts/process/backlog/",
+      "issue": "Two runs both filed P075 and main's `promptctl validate` went red for every PR. Renumbered the risk-review one to P076 in this PR. Backlog ids collide whenever runs overlap, so a validator that hands out the next free id at filing time would stop this."
     }
   ],
   "deviations": [

@@ -104,7 +104,12 @@ export function reviewQuote(meta, rows) {
   return out;
 }
 
-const money = (n) => "$" + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+const money = (n) => {
+  const format = (n) => "$" + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  if (!(Number(n) < 0)) return format(n);
+  const text = format(Math.abs(n));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 
 export function esc(s) {
   return String(s ?? "")
