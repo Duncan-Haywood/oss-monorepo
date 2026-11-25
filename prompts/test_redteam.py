@@ -219,6 +219,25 @@ class CampaignTest(unittest.TestCase):
                 redteam.campaign(self.target, 2, seed=1, repo=self.repo, timeout=5)
 
 
+class FreshTest(unittest.TestCase):
+    def test_mutated_before_reads_campaign_targets_and_skips_bad_records(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            runs = Path(tmp)
+            (runs / "a.json").write_text(json.dumps({"redteam": {"campaigns": [
+                {"target": "ventures/x/a.mjs"}, {"target": 3}, "junk"]}}))
+            (runs / "b.json").write_text(json.dumps({"redteam": None, "track": "redteam"}))
+            (runs / "c.json").write_text(json.dumps({"redteam": {"campaigns": None}}))
+            (runs / "d.json").write_text("{not json")
+            (runs / "e.json").write_text(json.dumps([1, 2]))
+            self.assertEqual(redteam.mutated_before(runs), {"ventures/x/a.mjs"})
+
+    def test_drop_mutated_keeps_only_unseen_files(self):
+        repo = Path("/r")
+        files = [repo / "ventures/x/a.mjs", repo / "ventures/x/b.mjs"]
+        self.assertEqual(redteam.drop_mutated(files, {"ventures/x/a.mjs"}, repo),
+                         [repo / "ventures/x/b.mjs"])
+
+
 class RecordPathTest(unittest.TestCase):
     def test_missing_record_fails_before_the_campaign_runs(self):
         with mock.patch.object(redteam, "campaign") as camp:
