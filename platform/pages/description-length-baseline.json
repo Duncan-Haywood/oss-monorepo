@@ -1,7 +1,7 @@
 {
  "note": "Venture pages whose meta description is over 160 characters. May only shrink: node platform/pages/description-length.mjs --write after shortening descriptions.",
  "max": 160,
- "count": 2836,
+ "count": 2835,
  "pages": [
   "ventures/1099-k-threshold-checker/index.html",
   "ventures/1099-k-threshold-checker/vs-checking-the-threshold-yourself.html",
@@ -1484,7 +1484,6 @@
   "ventures/license-drift-check/vs-fossa.html",
   "ventures/license-drift-check/vs-manually-rechecking-licenses.html",
   "ventures/license-keeper/index.html",
-  "ventures/lien-waiver-checker/index.html",
   "ventures/like-kind-exchange-1031-calculator/index.html",
   "ventures/link-keeper/index.html",
   "ventures/liquidation-pallet-bid-calculator/index.html",

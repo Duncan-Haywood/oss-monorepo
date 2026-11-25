@@ -1,12 +1,21 @@
 # Read the lien waiver before you give up your lien.
 
-> Free lien waiver checker for contractors and suppliers: paste the waiver you were sent and see what to fix before you sign, such as an unconditional waiver before the check clears, a release of all claims or future work, a wrong amount or through-date, or retainage not excepted. Private, runs in your browser.
+> Free lien waiver checker for contractors, subcontractors and suppliers: paste the waiver you were sent and see what to fix before you sign, such as an unconditional waiver before the check clears, a release of all claims or future work, a wrong amount or through-date, or retainage not excepted. Private, runs in your browser.
 
 Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
-- [The tool](https://duncan-haywood.github.io/oss-monorepo/lien-waiver-checker/)
+- [Lien waiver checker](https://marisstella.app/lien-waiver-checker/): paste a waiver; findings ranked high, medium and info, each with the change to ask for; checklist and CSV download.
+
+## Related
+
+- [Conditional vs unconditional lien waivers](https://marisstella.app/pay-app-guides/conditional-vs-unconditional-lien-waivers.html): the four waiver types and when to sign each.
+- [Statutory lien waiver forms by state](https://marisstella.app/pay-app-guides/lien-waiver-forms-by-state.html): states that set the waiver wording by statute, linked to the law.
+- [Lien waiver log](https://marisstella.app/pay-app-guides/lien-waiver-log.html): track waivers given and collected.
+- [Mechanics lien deadline calculator](https://marisstella.app/mechanics-lien-deadline-calculator/): filing deadlines if the payment never arrives.
+
+Hosted pay-app billing for subcontractors (schedule of values, retainage, change orders and lien waivers) is in development, with early access; nothing is for sale yet: https://marisstella.app/industries/construction/
 
 ## Source
 

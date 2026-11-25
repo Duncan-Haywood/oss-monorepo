@@ -97,6 +97,13 @@ test("claimant and project names must appear; statutory states get an info note"
   assert.equal(r.findings.find((x) => x.id === "statutory-form").severity, "info");
 });
 
+test("Wyoming and Missouri get the statutory note; Missouri's names its narrow scope", () => {
+  assert.ok(ids(analyze(GOOD, { state: "WY" })).includes("statutory-form"));
+  const mo = analyze(GOOD, { state: "MO" }).findings.find((x) => x.id === "statutory-form");
+  assert.match(mo.why, /residential property only/);
+  assert.doesNotMatch(analyze(GOOD, { state: "CA" }).findings.find((x) => x.id === "statutory-form").why, /residential/);
+});
+
 test("bad numbers and empty text produce errors, not findings", () => {
   assert.equal(analyze("short").errors.length, 1);
   assert.match(analyze(GOOD, { expectedAmount: "abc" }).errors[0], /not a number/);
