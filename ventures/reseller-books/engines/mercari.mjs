@@ -214,6 +214,8 @@ export function analyze(rawRows, { costs: given = {} } = {}) {
   const sorted = done.map((r) => r.t).sort((a, b) => a - b);
   return {
     months: Object.keys(months).sort().map((k) => ({ month: k, ...round(months[k]) })),
+    // One entry per completed sale, for matching against an inventory log.
+    sold: done.map((r) => ({ id: r.id, title: r.title, month: r.month })),
     summary: {
       ...round(total),
       firstMonth: new Date(sorted[0]).toISOString().slice(0, 7),

@@ -1,12 +1,14 @@
 # Spend guarded in layers (docs/reports/2026-11-24-cloud-provider-comparison.md
 # §7, principle 4). What stops and what keeps running: README.md here.
 #
-#  1. A monthly cost budget per account, alerting at 80% actual and 100%
-#     forecast (alerts topic).
+#  0. Cost Anomaly Detection (anomaly.tf): the same-day signal.
+#  1. A monthly cost budget per account, alerting at 50% and 80% actual and
+#     100% forecast (alerts topic).
 #  2. At var.freeze_at_percent actual, an AWS Budgets action attaches the
 #     spend-freeze SCP to that account: nothing new can start.
-#  3. At the same point the budget notifies the kill topic, and the kill
-#     switch Lambda stops what is already running in that account.
+#  3. At the same point, for accounts in var.kill_switch_accounts, the budget
+#     notifies the kill topic and the kill switch Lambda stops what is
+#     already running in that account. Other accounts only alert.
 #
 # AWS offers no hard spending cap resource in provider 6.72.0 (its schema has
 # no spend-limit resource), and Budgets data lags by hours, so overshoot is
@@ -42,6 +44,16 @@ data "aws_iam_policy_document" "topic_key" {
     principals {
       type        = "Service"
       identifiers = ["budgets.amazonaws.com"]
+    }
+  }
+
+  statement {
+    sid       = "CostAnomalyPublish"
+    actions   = ["kms:GenerateDataKey*", "kms:Decrypt"]
+    resources = ["*"]
+    principals {
+      type        = "Service"
+      identifiers = ["costalerts.amazonaws.com"]
     }
   }
 
@@ -94,6 +106,25 @@ data "aws_iam_policy_document" "topic_publish" {
       values   = [local.mgmt_id]
     }
   }
+
+  # Cost Anomaly Detection alerts go to the alerts topic only.
+  dynamic "statement" {
+    for_each = each.key == "alerts" ? [each.value] : []
+    content {
+      sid       = "CostAnomalyPublish"
+      actions   = ["SNS:Publish"]
+      resources = [statement.value]
+      principals {
+        type        = "Service"
+        identifiers = ["costalerts.amazonaws.com"]
+      }
+      condition {
+        test     = "StringEquals"
+        variable = "aws:SourceAccount"
+        values   = [local.mgmt_id]
+      }
+    }
+  }
 }
 
 resource "aws_sns_topic_policy" "this" {
@@ -103,10 +134,12 @@ resource "aws_sns_topic_policy" "this" {
 }
 
 resource "aws_sns_topic_subscription" "alert_email" {
-  for_each  = toset(var.alert_emails)
+  # count, not for_each: the addresses are sensitive and must not become
+  # resource keys (which plans print). How many there are is not secret.
+  count     = nonsensitive(length(var.alert_emails))
   topic_arn = aws_sns_topic.alerts.arn
   protocol  = "email"
-  endpoint  = each.value
+  endpoint  = var.alert_emails[count.index]
 }
 
 resource "aws_budgets_budget" "account" {
@@ -120,6 +153,14 @@ resource "aws_budgets_budget" "account" {
   cost_filter {
     name   = "LinkedAccount"
     values = [each.value]
+  }
+
+  notification {
+    comparison_operator       = "GREATER_THAN"
+    threshold                 = 50
+    threshold_type            = "PERCENTAGE"
+    notification_type         = "ACTUAL"
+    subscriber_sns_topic_arns = [aws_sns_topic.alerts.arn]
   }
 
   notification {
@@ -139,11 +180,23 @@ resource "aws_budgets_budget" "account" {
   }
 
   notification {
-    comparison_operator       = "GREATER_THAN"
-    threshold                 = var.freeze_at_percent
-    threshold_type            = "PERCENTAGE"
-    notification_type         = "ACTUAL"
-    subscriber_sns_topic_arns = [aws_sns_topic.kill.arn, aws_sns_topic.alerts.arn]
+    comparison_operator = "GREATER_THAN"
+    threshold           = var.freeze_at_percent
+    threshold_type      = "PERCENTAGE"
+    notification_type   = "ACTUAL"
+    # Only kill-switch accounts wake the kill switch; the rest alert.
+    subscriber_sns_topic_arns = contains(var.kill_switch_accounts, each.key) ? [aws_sns_topic.kill.arn, aws_sns_topic.alerts.arn] : [aws_sns_topic.alerts.arn]
+  }
+
+  lifecycle {
+    precondition {
+      condition     = alltrue([for k in var.kill_switch_accounts : contains(keys(local.accounts), k)])
+      error_message = "kill_switch_accounts names an account the org stack does not have."
+    }
+    precondition {
+      condition     = !contains([50, 80], var.freeze_at_percent)
+      error_message = "freeze_at_percent must differ from the 50% and 80% alerts (AWS rejects two notifications at one threshold)."
+    }
   }
 
   depends_on = [aws_sns_topic_policy.this]
@@ -155,6 +208,14 @@ resource "aws_budgets_budget" "organization" {
   limit_amount = tostring(var.organization_limit_usd)
   limit_unit   = "USD"
   time_unit    = "MONTHLY"
+
+  notification {
+    comparison_operator       = "GREATER_THAN"
+    threshold                 = 50
+    threshold_type            = "PERCENTAGE"
+    notification_type         = "ACTUAL"
+    subscriber_sns_topic_arns = [aws_sns_topic.alerts.arn]
+  }
 
   notification {
     comparison_operator       = "GREATER_THAN"

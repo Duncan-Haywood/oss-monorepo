@@ -93,8 +93,9 @@ flagships:
       continuation sheet; account email landed (private-monorepo PR #46: verification
       required on HTTPS, 1-hour single-use password reset, existing-account notice, via
       Cloudflare Email Service; deploy sets EMAIL_FROM and checks /api/health email:true);
-      next launch blocker: invitations for people without an account, legal pages,
-      deploy workflow; (4) QuickBooks Online invoice export with
+      invitations landed (PR #47); durable auth rate limits landed (private-monorepo
+      PR #49: per IP on every auth POST and per account on failed sign-ins, in D1);
+      next launch blockers: legal pages, deploy workflow; (4) QuickBooks Online invoice export with
       retainage as its own line, finishing PR #16 (packages/qbo-sync, sandbox only;
       the owner opens the Intuit developer account); (5) the front door is
       ventures/pay-application-generator (reads a contractor's own .xlsx
@@ -196,8 +197,11 @@ flagships:
       refunds split out, deduplicated across re-uploads (the public engines now
       read Mercari's Gross Sales Report from its help-centre field list, deduped by
       Item ID, 2026-11-24; Depop's CSV headers are unpublished, so it needs a real
-      file); (2) inventory with cost of
-      goods matched to sales; (3) mileage: the public engine landed it 2026-11-24
+      file); (2) inventory with cost of goods matched to sales: the public engine
+      landed it 2026-11-25 (reseller-books/inventory.mjs: a sourcing-sheet CSV, FIFO
+      by SKU or title, Schedule C Part III lines 35-42 for one tax year), so the app
+      imports it and keeps the inventory per account across years (last year's line
+      41 becomes this year's line 35); (3) mileage: the public engine landed it 2026-11-24
       (reseller-books/trips.mjs, Schedule C line 9 priced by trip date, PR #18743),
       so the app imports it and adds a saved trip log per account; (4) a Schedule C line-mapped P&L export and a CSV for the
       accountant; (5) a marketing page that does not sell on 1099-K fear (the
