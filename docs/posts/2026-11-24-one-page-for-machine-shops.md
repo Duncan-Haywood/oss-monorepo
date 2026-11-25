@@ -125,3 +125,38 @@ cannot show which revision a PO accepted is in a weak position if there is a
 dispute. Keeping every sent revision unchanged, with a fingerprint, removes
 that doubt. (This is a description of the software, not legal advice about
 when an offer binds.)
+
+## Update, 25 November 2026: emailing the quote from the app
+
+Until now the app produced the quote PDF, and the estimator downloaded it,
+opened their mail program, attached it and wrote a note. That is a few
+minutes per quote, and it leaves a gap: the app cannot tell which version
+reached the buyer, or whether anything was sent at all.
+
+The RFQ-to-quote app (bet #2, still in private development, not yet on sale)
+now sends the quote itself, from the sent quote's page:
+
+- **The attachment is the exact PDF that was marked sent.** Before attaching
+  it, the app checks the stored file against the SHA-256 fingerprint
+  recorded when the quote was frozen. If the two disagree, the email is
+  refused. Nothing is re-rendered at send time, so the buyer gets the same
+  document the shop's records hold.
+- **Replies go to the estimator, not to a no-reply box.** The message comes
+  from "Your Shop via Job Shop Quote" with the estimator's own address as
+  Reply-To. The app requires that address to be confirmed first, so a
+  buyer's answer always reaches someone at the shop.
+- **The message is the estimator's.** It starts as the quote's cover note
+  (an AI draft whose every number was checked against the priced quote, or
+  the estimator's own text), and it is sent exactly as written, as plain
+  text. A short footer names the attached file, the revision it replaces
+  and the valid-until date.
+- **Every send is on the quote.** Who sent it, to whom, when, and whether it
+  went or failed. A failed send says that nothing reached the customer.
+- **Limits against misuse.** Up to five recipients a message, five emails a
+  quote a day and thirty a shop an hour. Only estimators can send, and
+  only open quotes (not drafts, and not quotes already won, lost or
+  replaced).
+
+Mail goes out through Cloudflare Email Service once the app is deployed.
+Until then, the page says plainly that nothing leaves the server, and the
+PDF download still works.
