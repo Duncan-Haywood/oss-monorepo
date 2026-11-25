@@ -88,6 +88,11 @@ const DRAWING_RE = /\b(drawings?|dwgs?|prints?|blueprints?|\.pdf|pdf|step|\.stp|
 
 const MAX_QTY = 10_000_000;
 
+/** Escape every regex metacharacter (backslash included) so a string matches literally. */
+export function escapeRegExp(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function snippet(text, index, len) {
   const start = Math.max(0, index - 30);
   const end = Math.min(text.length, index + len + 30);
@@ -181,7 +186,7 @@ function findClauses(text) {
     // Clause numbers are written "252.204-7012", "DFARS 7012", "252.204.7012"
     const [part, num] = c.id.split("-");
     const tail = num.length === 4 && c.id.startsWith("252") ? `|\\bDFARS\\s*(?:clause\\s*)?${num}\\b` : "";
-    const re = new RegExp(`(?<![\\d.])${part.replace(/\./g, "\\.")}[-.\\s]?${num}(?!\\d)${tail}`, "i");
+    const re = new RegExp(`(?<![\\d.])${escapeRegExp(part)}[-.\\s]?${num}(?!\\d)${tail}`, "i");
     const m = text.match(re);
     if (m) out.push({ ...c, evidence: snippet(text, m.index, m[0].length) });
   }

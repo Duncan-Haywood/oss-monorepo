@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01EhTJVPE7xKzDHcZZAU4cvD",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T09:56:20Z",
+  "ended": "2026-11-25T09:57:49Z",
+  "wall_minutes": 1.63,
+  "tokens_in": 1005243,
+  "tokens_out": 4962,
+  "cost_usd": 0.6056,
+  "tool_calls": 17,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18928",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First `git reset --hard origin/main` was refused by the auto-mode classifier; `git merge --ff-only` did the same job."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 / alerts/<n>.md say to work on the security-fix/code-scanning-<n> claim branch, but the cloud harness pins the session to its own claude/* branch; worked on the harness branch and left the claim branch as the claim only."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "alerts/1248.md",
+      "why": "Harness requires the session branch claude/ecstatic-volta-qphs2s",
+      "did": "Fixed on the session branch; claim branch pushed by security_next.py --claim holds the claim",
+      "result": "PR opened from the session branch; no conflict"
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "No post: a one-line regex escape fix has nothing for a customer or agent reader",
+      "did": "Recorded the fix in the PR body and this record only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Security queue step 0: alert #1248 (js/incomplete-sanitization, rfq.mjs:184). Input was a constant table, so not exploitable, but fixed properly with a full escapeRegExp plus test. node --test rfq.test.mjs page.test.mjs: 50 pass. Risk review: nothing blocked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e41daf61-25ab-52d2-b8e5-819676174772",
+    "transcripts": 1,
+    "first": "2026-11-25T09:56:20Z",
+    "last": "2026-11-25T09:57:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 16,
+        "input": 33,
+        "output": 4962,
+        "thinking": 467,
+        "cache_read": 966084,
+        "cache_write_5m": 0,
+        "cache_write_1h": 39126,
+        "api_equivalent_usd": 0.6056,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 16,
+      "input": 33,
+      "output": 4962,
+      "thinking": 467,
+      "cache_read": 966084,
+      "cache_write_5m": 0,
+      "cache_write_1h": 39126,
+      "api_equivalent_usd": 0.6056,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.961,
+    "tool_calls": 17,
+    "tools": {
+      "Bash": 15,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 1.63,
+      "active_minutes": 1.63,
+      "model_minutes": 1.03,
+      "tool_minutes": 0.6,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 0.5,
+      "basis": "read alert, write escape helper and test, open PR",
+      "rate_usd_per_hour": 100.0,
+      "usd": 50.0
+    },
+    "leverage": 82.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
