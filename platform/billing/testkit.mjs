@@ -39,7 +39,9 @@ export async function assertPackLicence(licence, paddle, product) {
   assert.match((await licence.checkLicence(other, { cfg })).reason, /another tool/);
   const [pre, body, sig] = key.split(".");
   assert.equal((await licence.checkLicence([pre, body, sig.slice(0, -2) + (sig.endsWith("AA") ? "BA" : "AA")].join("."), { cfg })).valid, false);
-  assert.equal((await licence.checkLicence(key, { cfg: { publicKey: "" } })).reason, "licence check unavailable");
+  // With no public key the check must refuse, not just say why: a mutant that returned
+  // valid: true here (any key unlocks a pack that is not on sale) passed (red-team 2026-11-25).
+  assert.deepEqual(await licence.checkLicence(key, { cfg: { publicKey: "" } }), { valid: false, reason: "licence check unavailable" });
   for (const junk of ["", "ABCD-1234-EFGH", null, "ms1.x.y", "<script>"]) {
     assert.equal((await licence.checkLicence(junk, { cfg })).valid, false, String(junk));
   }
