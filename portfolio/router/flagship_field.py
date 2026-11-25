@@ -729,11 +729,41 @@ def remove_span(value: str, start: int, end: int) -> str:
     return " ".join((before + v[end + after.end():]).split())
 
 
+# An open step inside a piece named for --history: after a separator
+# ("...md); next a commercial tool's run", "X passed. Open: Y") or an open
+# marker anywhere. Why: on 2026-11-23 (PR #18387's record) a run moved
+# xer-schedule-check's "Risk run levelled in every run 2026-11-22 (...); next a
+# commercial tool's levelled risk run to compare" whole to HISTORY.md, and the
+# open step had to be re-parked in NEXT.md by hand (HISTORY.md line 51, NEXT.md
+# line 7). The automatic movers already skip such pieces; a named one did not.
+HISTORY_OPEN_STEP = re.compile(r"(?:[;,.:)]\s+|\s+-+\s+)(?:then\s+)?(?:next|open|needs?|wanted|todo|to do"
+                       r"|not yet)\b(?!-)", re.I)  # not "open-source"
+
+
+def open_tail(piece: str) -> int:
+    """Index where `piece` turns to open work (HISTORY_OPEN_STEP, or an OPEN_MARK past
+    its start), or -1."""
+    p = " ".join(piece.split())
+    hits = [m.start() for m in HISTORY_OPEN_STEP.finditer(p)]
+    hits += [m.start() for m in OPEN_MARK.finditer(p) if m.start() > 0]
+    return min(hits) if hits else -1
+
+
 def remove_text(value: str, piece: str, field: str = "next") -> str:
     """`value` without `piece` (matched on whitespace-normalised text) and one
-    separator beside it, for --history. Raises ValueError when it is absent."""
+    separator beside it, for --history. Raises ValueError when it is absent,
+    or when it carries its own open step (`open_tail`): only the finished part
+    may go to HISTORY.md."""
     v = " ".join(value.split())
     want = " ".join(piece.split()).strip(" ;").rstrip(".")
+    cut = open_tail(want)
+    if cut > 0:
+        head = want[:cut].rstrip(" ;,.:-")
+        raise ValueError(
+            f"--history: {want[cut:].lstrip(' ;,.:-')[:80]!r} is open work, and HISTORY.md is for "
+            "finished results. Keep that step in the row with a subject (e.g. --replace "
+            f"{shlex.quote(want)} '<short label>: <the open step>') or park it (--park), and "
+            f"move only the result: --history {shlex.quote(head)}")
     i = v.find(want) if want else -1
     if i < 0:
         raise ValueError(f"--history: not found in `{field}:`: {piece!r} (copy it from "
