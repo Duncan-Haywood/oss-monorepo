@@ -4,7 +4,7 @@
   "counts": {
     "mit-commons": 5,
     "mit-deployer-run": 1,
-    "mit-lead-magnet": 1418,
+    "mit-lead-magnet": 1419,
     "proprietary": 20
   },
   "models": {
@@ -14,7 +14,7 @@
   "proprietary": [
     {
       "venture": "einvoice-preflight",
-      "source_lines": 35918,
+      "source_lines": 36477,
       "track": "proprietary",
       "why": "flagship #3: the depth people pay for",
       "model": "subscription",
@@ -33,7 +33,7 @@
     },
     {
       "venture": "wall-framing-takeoff",
-      "source_lines": 17913,
+      "source_lines": 18136,
       "track": "proprietary",
       "why": "flagship #6: the depth people pay for",
       "model": "one-off",
@@ -49,7 +49,7 @@
     },
     {
       "venture": "ai-bookkeeper",
-      "source_lines": 18183,
+      "source_lines": 18422,
       "track": "proprietary",
       "why": "flagship #8: the depth people pay for",
       "model": "subscription",
@@ -60,7 +60,7 @@
     },
     {
       "venture": "changepoint-detector",
-      "source_lines": 16187,
+      "source_lines": 16498,
       "track": "proprietary",
       "why": "flagship #10: the depth people pay for",
       "model": "one-off",
@@ -71,7 +71,7 @@
     },
     {
       "venture": "shift-roster-builder",
-      "source_lines": 13384,
+      "source_lines": 13606,
       "track": "proprietary",
       "why": "flagship #11: the depth people pay for",
       "model": "subscription",
@@ -82,7 +82,7 @@
     },
     {
       "venture": "photo-editing",
-      "source_lines": 77937,
+      "source_lines": 78142,
       "track": "proprietary",
       "why": "flagship #12: the depth people pay for",
       "model": "one-off",
@@ -104,7 +104,7 @@
     },
     {
       "venture": "league-schedule-generator",
-      "source_lines": 24627,
+      "source_lines": 24879,
       "track": "proprietary",
       "why": "flagship #14: the depth people pay for",
       "model": "subscription",
@@ -128,7 +128,7 @@
     },
     {
       "venture": "xer-schedule-check",
-      "source_lines": 16548,
+      "source_lines": 16567,
       "track": "proprietary",
       "why": "flagship #18: the depth people pay for",
       "model": "one-off",
@@ -172,7 +172,7 @@
     },
     {
       "venture": "shed-designer",
-      "source_lines": 20426,
+      "source_lines": 20647,
       "track": "proprietary",
       "why": "has a paid model in models.yaml",
       "model": "one-off",
@@ -264,5 +264,5 @@
       "sales-agent"
     ]
   },
-  "lead_magnets": 1418
+  "lead_magnets": 1419
 }

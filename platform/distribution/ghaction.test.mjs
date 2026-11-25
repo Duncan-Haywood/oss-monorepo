@@ -62,7 +62,7 @@ test('write creates the actions tree from nothing, and the result is current', a
   const dir = path.join(root, 'ventures', 'demo-check');
   await fs.mkdir(dir, { recursive: true });
   await fs.writeFile(path.join(dir, 'check.py'), `import argparse\np = argparse.ArgumentParser()\n${SRC}`);
-  await fs.writeFile(path.join(dir, 'LICENSE'), 'MIT License\n');
+  await fs.writeFile(path.join(dir, 'LICENSE'), 'Functional Source License\n');
   await fs.writeFile(path.join(dir, 'VENTURE.yaml'), 'description: Checks a demo thing.\n');
   const { ok } = await plan({ root, slugs: ['demo-check'] });
   assert.equal(ok.length, 1, 'fixture venture qualifies');

@@ -6,7 +6,8 @@
 //
 // A key is checked offline against the portfolio's Ed25519 public key: no
 // secret is held in the page, and no network call is made unless a lapsed
-// subscription key asks for its renewal. The code is MIT, so this is a
+// subscription key asks for its renewal. The code is source available
+// (FSL-1.1-MIT), so this is a
 // convenience for honest buyers, not copy protection; say so on the page.
 // Malformed keys never unlock and nothing here throws.
 import { PADDLE } from "./checkout.mjs";

@@ -31,7 +31,7 @@ page (Unlock) verifies the key offline against the public key in checkout.mjs
   the paid period ends. No email, name or address. A lapsed subscription key
   asks `POST /billing/renew` for the newest key its subscription earned.
 - **One-off keys never expire and cannot be revoked** after a refund. The code
-  is MIT; the key is a convenience for honest buyers, not copy protection, and
+  is source available (FSL-1.1-MIT); the key is a convenience for honest buyers, not copy protection, and
   the pages already say so.
 - Paddle retries a webhook until it gets a 2xx, so a retry keeps the first key
   and an event we do not act on is still answered 200.
@@ -69,7 +69,7 @@ Worker's secrets. So:
   reading the diff of `platform/billing/` since the last deploy first.
 
 Neither secret can move money or read customer data. A leaked one lets
-someone mint keys for MIT code they could already run, which is the same as
+someone mint keys for code they could already run, which is the same as
 the honest-buyer caveat above.
 
 ## Going live (owner, once for all seven packs)

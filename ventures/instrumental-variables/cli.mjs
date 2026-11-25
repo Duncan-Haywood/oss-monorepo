@@ -36,7 +36,7 @@ Options:
 Citations:
 ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}.${p.doi ? ` doi:${p.doi}` : ""} ${p.url}`).join("\n")}
 
-Statistical output from your data, not legal, tax, financial, medical or policy advice. No warranty. MIT licence.
+Statistical output from your data, not legal, tax, financial, medical or policy advice. No warranty. FSL-1.1-MIT licence.
 Web version: https://marisstella.app/instrumental-variables/`;
 
 const FLAGS = { "--outcome": "outcome", "--endogenous": "endogenous", "--instruments": "instruments", "--exogenous": "exogenous", "--estimator": "estimator", "--se": "se", "--cluster": "cluster", "--fuller": "fuller", "--alpha": "alpha" };

@@ -13,7 +13,7 @@
 // or the catalogue in the diff, visibly. It cannot read the secrets, because
 // nothing an agent can merge deploys to the account that holds them. The
 // secrets cannot move money or read customer data in any case: the worst a
-// leaked one allows is minting licence keys for MIT code.
+// leaked one allows is minting licence keys for source-available code anyone can already run.
 
 import { handleBilling, d1Store } from "./server.mjs";
 

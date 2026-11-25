@@ -88,4 +88,4 @@ at install time — the mechanism behind Shai-Hulud.
 
 ## License
 
-MIT — see [`LICENSE`](LICENSE).
+FSL-1.1-MIT — see [`LICENSE`](LICENSE).

@@ -189,6 +189,6 @@ in about 11 ms in Node.
 
 ## Disclaimer
 
-**No warranty.** Free and as-is, MIT licence. Statistical output from the data
+**No warranty.** Free and as-is, FSL-1.1-MIT licence. Statistical output from the data
 you supply, not legal, tax, financial, medical or professional advice; a lag
 or a distance is not proof of a cause. Data never leave the browser.

@@ -2,7 +2,7 @@
 
 > Price a bounce house or inflatable rental booking from the truck's two round trips, setup and teardown labor, a generator when there is no outlet, a wet-unit attendant, and insurance sized to your fleet's replacement value — not just a flat per-unit-per-day rate. Free, private, nothing leaves your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -14,4 +14,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/bounce-house-rental-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/bounce-house-rental-calculator): FSL-1.1-MIT licensed.

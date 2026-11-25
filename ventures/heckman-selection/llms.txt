@@ -2,7 +2,7 @@
 
 > Free Heckman sample-selection tool. Upload a CSV with one row per unit, where the outcome is seen only for selected rows (a wage only for people in work, a loss only for approved loans, a score only for students who sat the test), and get the selection probit, OLS on the selected rows, Heckman's two-step estimator with the Heckman-Greene corrected standard errors, and full maximum likelihood of the bivariate-normal selection model with conventional, robust or cluster-robust standard errors; rho, sigma and lambda with intervals; likelihood-ratio, Wald and two-step tests of rho = 0; and checks on the exclusion restriction and on collinearity of the inverse Mills ratio. Matches statsmodels 0.15 within 1e-12 (probit, OLS, two-step) and an independent scipy maximum-likelihood fit within 1e-7 (estimates) and 1e-5 (standard errors). Runs in the browser; nothing is uploaded.
 
-Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial, medical, policy or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are statistical estimates from the data you supply, not legal, tax, financial, medical, policy or professional advice.
 
 ## Pages
 
@@ -22,4 +22,4 @@ Free and open source (MIT). Results are statistical estimates from the data you 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/heckman-selection): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/heckman-selection): FSL-1.1-MIT licensed.

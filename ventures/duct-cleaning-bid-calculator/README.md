@@ -104,6 +104,6 @@ obligation it helps you prepare for. To the maximum extent permitted by
 law, the authors accept no liability for any loss or damage arising
 from its use.
 
-Free and open source. Support via the
+Free to use and source available. Support via the
 [project on GitHub](https://github.com/Duncan-Haywood/monorepo-projects)
 is entirely optional and never changes what the tool does.

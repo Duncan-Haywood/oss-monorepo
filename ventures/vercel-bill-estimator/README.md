@@ -41,7 +41,7 @@ No network call, no account, no analytics vendor. The browser page
 
 ## Licence
 
-MIT, no warranty. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.
+FSL-1.1-MIT, no warranty. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.
 
 > **No warranty.** This tool is provided free and as-is, without warranty of any
 > kind. It is not financial or engineering advice; verify its output before

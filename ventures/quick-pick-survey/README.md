@@ -93,7 +93,7 @@ statistical estimate, not a fact about a person; don't use it as the sole basis
 for a hiring, financial, medical or relationship decision. This software is
 provided free and as-is, without warranty of any kind. To the maximum extent
 permitted by law, the authors accept no liability for any loss or damage
-arising from its use. MIT licensed ([LICENSE](LICENSE)).
+arising from its use. FSL-1.1-MIT licensed ([LICENSE](LICENSE)).
 
 If this saves you money or time, you can
 [sponsor the creator](https://github.com/sponsors/Duncan-Haywood).

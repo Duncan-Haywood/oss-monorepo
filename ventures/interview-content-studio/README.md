@@ -89,4 +89,4 @@ them and turns counting off. Do Not Track and Global Privacy Control are honoure
 AI), `cli.mjs`, `index.html`, `how-often-to-post-on-each-platform.html` (guide; its tables are checked against the engine),
 `usage.mjs`. Tests: `cd ventures/interview-content-studio && node --test`.
 
-MIT licensed. Free; support via [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional.
+FSL-1.1-MIT licensed. Free; support via [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional.

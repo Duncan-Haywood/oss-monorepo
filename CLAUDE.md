@@ -31,9 +31,11 @@ summarised in `prompts/goals.md`, "The 2026-11-24 pivot, in one place". Definiti
 [`prompts/goals.md`](prompts/goals.md), "North star", and
 [`portfolio/monetization/mrr.yaml`](portfolio/monetization/mrr.yaml).
 
-This repository holds two peer portfolios: products in `ventures/` and open
-research in `research/`. Their job is to ship products people use and research
-people can build on. `README.md` ("Finding your way") says which guide covers
+This repository holds products in `ventures/` and a paused research portfolio
+in `research/`. **No standalone research** (owner, 2026-11-25: "drop the
+research if you have to do r and d you can but as part of actual paid
+projects. not as independent academic research"): R&D happens inside a paid
+product, for that product (`prompts/goals.md`, pivot point 11). `README.md` ("Finding your way") says which guide covers
 which work.
 
 - **Product work:** [`AGENTS.md`](AGENTS.md), then
@@ -42,9 +44,8 @@ which work.
   costs, the API-key switch, disclaimer text, SEO checklist, definition of
   done). [`portfolio/DIRECTION.md`](portfolio/DIRECTION.md) is a long
   reference: `grep -n '^## '` it and read only what your task touches.
-- **Research work:** [`research/CLAUDE.md`](research/CLAUDE.md). Its brief,
-  not the product rules, governs `research/`. The bar is PhD level: multi-session
-  programmes aimed at publishable papers ([`research/PROGRAMMES.md`](research/PROGRAMMES.md)).
+- **Research work:** paused (above). [`research/CLAUDE.md`](research/CLAUDE.md)
+  keeps the integrity bar that R&D inside a product still meets.
 - **[`prompt.md`](prompt.md) is the master prompt.** It routes a run to a
   sub-prompt with `python3 prompts/promptctl.py route` and asks for a run
   record before the merge ([`prompts/README.md`](prompts/README.md)).
@@ -148,16 +149,14 @@ the owner** (owner, 2026-11-24: "i really don't like all this stuff that is
 blocking itself on my behalf ... can we instead have maybe a review process
 on cysec and legal risks instead?"). Run
 `python3 platform/security/risk_review.py`, answer each check it prints in
-the PR body, fix what it turns up, and merge. Only what it marks "Owner review
-needed" waits for the owner:
-- a likely secret;
-- a cut to the guardrails or hard limits;
-- a licence change on existing code;
-- the small owner-only core in `.github/CODEOWNERS`: the gate and the review
-  themselves, `priv-*` workflows that hold secrets, and code agent tools run
-  at session start.
-
-Agent instructions, this file included, are no longer in that core. Process:
+the PR body, fix what it turns up, and merge. **Nothing waits for the owner's
+review** (owner, same day: "I don't need to review. just be extra careful for
+adversarial changes"). The required `risk-review` check runs main's copy of
+the script and blocks, with no approval path: a likely secret; removed lines
+in the guardrails or hard limits; an existing licence moved outside the
+allowed list; a change that shrinks the gate itself. Files in
+`.github/CODEOWNERS` are *sensitive*: review them hardest, as if the diff
+came from a prompt-injected agent. Threats and controls:
 [`docs/security/risk-review.md`](docs/security/risk-review.md).
 
 Before merging: CI green (or, when runners are starved, the checks your change

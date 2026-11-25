@@ -240,10 +240,15 @@ TASK_HINTS: list[tuple[str, tuple[str, ...]]] = [
 
 
 def infer_track(task: str, tracks: dict[str, Any]) -> str | None:
-    """The track a run's starting message asks for, or None when it names none."""
+    """The track a run's starting message asks for, or None when it names none.
+
+    A paused track (weight 0, e.g. research since 2026-11-25) is never
+    inferred from words: "paper" in a product task must not reopen it. An
+    explicit `--track` still reaches it."""
     low = task.lower()
     for track, words in TASK_HINTS:
-        if track in tracks and any(w in low for w in words):
+        if (track in tracks and float(tracks[track].get("weight", 0)) > 0
+                and any(w in low for w in words)):
             return track
     return None
 

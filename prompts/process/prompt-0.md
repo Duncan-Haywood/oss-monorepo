@@ -17,7 +17,7 @@ one input, not the only one.
 One study, one pull request, titled `process: study YYYY-MM-DD`. Open it as a
 draft within your first few minutes. If an open pull request with that title
 prefix exists, another run has claimed the study: route again with
-`--track ventures` or `--track research` instead.
+`--track ventures` instead.
 
 ## 1. Pick the window
 

@@ -37,7 +37,7 @@ Citations:
 ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}.${p.doi ? ` doi:${p.doi}` : ""}`).join("\n")}
 
 Arithmetic on the lists you give. Not legal or professional advice; a real
-admissions or hiring process has rules of its own. No warranty. MIT licence.
+admissions or hiring process has rules of its own. No warranty. FSL-1.1-MIT licence.
 Web version: https://marisstella.app/stable-matching/`;
 
 export function parseArgs(argv) {

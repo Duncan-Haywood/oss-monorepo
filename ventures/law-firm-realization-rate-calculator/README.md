@@ -39,7 +39,7 @@ From the [2026-11-13 quality audit](../../portfolio/quality/audits/2026-11-13-la
 
 ## License
 
-MIT. See `LICENSE`.
+FSL-1.1-MIT. See `LICENSE`.
 
 ## No warranty
 

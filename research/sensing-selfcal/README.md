@@ -31,6 +31,15 @@ k<sub>1</sub>, k<sub>2</sub>, k<sub>3</sub> model: `python3 src/foldcheck.py --f
 reports the Kinect's board fit folding at 380.8 px against a 415.7 px corner (exit 1). Run it before trusting a two-term
 calibration near the image edge; milestone 3zd found such a fit 14&ndash;17 px off there.
 
+**Milestone 3zi headline** (which pixels does my robot's undistortion get wrong, and how do I fix it without upgrading OpenCV?):
+[`src/undistcheck.py`](src/undistcheck.py), stdlib Python, reads a ROS `camera_info` YAML and runs the undamped loop that
+`cv2.undistortPoints` (default criterion, and any criterion before 4.13), Kornia, ORB-SLAM2/3 and ROS `image_geometry` run. On 179 real
+calibrations it predicts OpenCV 5.1.0's default corner error to 7.5 &times; 10<sup>&minus;13</sup> px (the same 164 of 169 Duckiebots over
+1 px) and its grid share exactly; its Newton inverse reprojects within 10<sup>&minus;12</sup> px in at most 7 steps at every corner of the 177
+that do not fold, and refuses at exactly the 6 corners past a fold. `python3 src/undistcheck.py camera_info.yaml --grid 4` (exit 1 if a
+corner is off by more than 1 px). Two of four predictions held; the other two missed tolerances set tighter than OpenCV's own converged
+answer, which is short of 10<sup>&minus;6</sup> px at 28 corners (LOG.md, milestone 3zi).
+
 **Milestone 3zh headline** (does `cv2.undistortPoints` converge at wide-lens image corners in the OpenCV a robot actually runs?): **not
 in any release before 4.13.0, whatever criterion you pass.** On the opencv-python-headless wheels for 4.5.5, 4.10.0 and 4.12.0 the loop has
 no damping at all (output equal to an undamped port, difference 0.0 at 179 calibrations &times; 13 criteria), so milestone 3zg's fix,
@@ -1281,6 +1290,7 @@ default: with the transferred factor the rule made a harmful adoption in 1.4% of
 pip install numpy scipy opencv-python-headless matplotlib pytest
 for each wheel: <venv>/bin/python experiments/m3zh_versions/probe.py --work /tmp/m3zh   # milestone 3zh, one venv per opencv-python-headless release
 python3 experiments/m3zh_versions/analyse.py --work /tmp/m3zh   # OpenCV 5.1.0 + kornia 0.9.2 + torch; ~100 s; summary.json, results.txt, versions.png
+python3 experiments/m3zi_check/analyse.py     # milestone 3zi, src/undistcheck.py against OpenCV 5.1.0 on 3zf's calibs.json, ~55 s; summary.json, results.txt
 python3 experiments/m3zg_loop/analyse.py      # milestone 3zg, the ported undistortPoints loop on 3zf's calibs.json, ~6 s; summary.json, results.txt, loop.png
 python3 experiments/m3zf_ros/fetch.py --work /tmp/m3zf   # milestone 3zf, 198 ROS camera_info files via git at pinned commits; calibs.json (committed)
 python3 experiments/m3zf_ros/analyse.py      # seconds; summary.json, results.txt, fleet.png

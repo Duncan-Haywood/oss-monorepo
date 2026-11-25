@@ -2,7 +2,7 @@
 
 > Free estimate and quote generator: good-better-best options, optional add-ons, tax, deposit, valid-until date, print to PDF, win-rate and follow-up tracking, one-click convert to invoice. No account, no watermark, works offline.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/estimate-maker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/estimate-maker): FSL-1.1-MIT licensed.

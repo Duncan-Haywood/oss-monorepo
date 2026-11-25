@@ -2,7 +2,7 @@
 
 > Free roof snow load calculator to ASCE/SEI 7-16 Chapter 7. From the ground snow load pg, the risk category, terrain, exposure and thermal condition, and the roof's shape, pitch and eave-to-ridge distance, it gives the flat roof load pf = 0.7 Ce Ct Is pg, the slope factor and sloped load, the minimum load, the rain-on-snow surcharge, the unbalanced gable load, the leeward and windward drift on a lower roof at a step (capped by the clear height, truncated at the far edge), the drift at a parapet or rooftop unit, sliding snow onto the lower roof and the eave ice-dam load, each with its section number, and draws the step drift to scale. Runs in the browser; nothing is uploaded.
 
-Free and open source (MIT). Arithmetic on the numbers typed in, not engineering advice; the ground snow load is the user's to look up. Not modelled: ASCE 7-22, partial loads, curved and sawtooth roofs, separated buildings, ponding, load combinations.
+Free to use and source available (FSL-1.1-MIT). Arithmetic on the numbers typed in, not engineering advice; the ground snow load is the user's to look up. Not modelled: ASCE 7-22, partial loads, curved and sawtooth roofs, separated buildings, ponding, load combinations.
 
 ## Pages
 
@@ -15,4 +15,4 @@ Free and open source (MIT). Arithmetic on the numbers typed in, not engineering 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/roof-snow-load-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/roof-snow-load-calculator): FSL-1.1-MIT licensed.

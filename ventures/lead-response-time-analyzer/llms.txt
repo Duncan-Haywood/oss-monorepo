@@ -2,7 +2,7 @@
 
 > Free tool for home-service and other lead-driven businesses. Paste your leads with minutes to first reply and won or lost to see win rate by response time and the jobs and revenue a faster reply would have won. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/lead-response-time-analyzer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/lead-response-time-analyzer): FSL-1.1-MIT licensed.

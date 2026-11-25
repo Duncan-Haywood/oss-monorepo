@@ -3,7 +3,7 @@
 Check an IFC building model against a buildingSMART **Information Delivery
 Specification (IDS 1.0)** file, in the browser or on the command line, and get
 every failing element with the reason, plus a BCF issue list your BIM tool can
-open. MIT licensed, no dependencies, nothing uploaded.
+open. FSL-1.1-MIT licensed, no dependencies, nothing uploaded.
 
 **Live tool:** https://marisstella.app/ids-model-check/
 
@@ -2379,4 +2379,4 @@ judgment of the architect, engineer or BIM manager responsible for the model.
 
 ## License
 
-MIT, see `LICENSE`.
+FSL-1.1-MIT, see `LICENSE`.

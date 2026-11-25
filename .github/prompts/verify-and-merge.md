@@ -18,6 +18,7 @@ node --test platform/agents/*.test.mjs        # imports every venture engine; ~1
 node --test platform/proposal/*.test.mjs
 node --test platform/devlog/*.test.mjs
 node --test platform/privacy/*.test.mjs platform/webcheck/*.test.mjs
+node --test platform/billing/*.test.mjs
 node --test platform/deploy/*.test.mjs
 node --test platform/distribution/*.test.mjs
 node --test platform/llm/*.test.mjs

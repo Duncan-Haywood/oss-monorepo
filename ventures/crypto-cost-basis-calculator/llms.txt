@@ -2,7 +2,7 @@
 
 > Free crypto cost basis calculator. Paste your buys, sales and income as a CSV; it matches every sale to your lots under FIFO, LIFO, HIFO, LOFO or a tax-aware rule, compares the methods side by side and exports Form 8949 style rows. Runs in your browser; your history is never uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -14,4 +14,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/crypto-cost-basis-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/crypto-cost-basis-calculator): FSL-1.1-MIT licensed.

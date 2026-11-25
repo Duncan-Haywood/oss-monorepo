@@ -1,8 +1,8 @@
 # Ask why they are leaving, then offer the one thing that might keep them
 
-> Keep subscribers who only needed a nudge. A cancellation flow for Stripe that asks why, offers a pause or a discount matched to the reason, and reports your save rate. Preview it in the browser, then run the open-source server in your own account. Free, MIT.
+> Keep subscribers who only needed a nudge. A cancellation flow for Stripe that asks why, offers a pause or a discount matched to the reason, and reports your save rate. Preview it in the browser, then run the source-available server in your own account. Free, FSL-1.1-MIT.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cancel-flow): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cancel-flow): FSL-1.1-MIT licensed.

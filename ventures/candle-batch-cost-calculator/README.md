@@ -20,7 +20,7 @@ commission (enter the net you receive), sales tax, insurance, testing and labell
 rules, shipping, returns, breakage or unsold stock. Unverified against a real
 maker's books: tested on hand-calculated examples.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.
 
 **Known gaps** (quality round 98, [`audit`](../../portfolio/quality/audits/2026-11-22-candle-batch-cost-calculator.json)):
 the built-in example enters jar size as wax weight (an 8 fl oz jar holds about 6.9 oz of soy wax); no fields yet for a

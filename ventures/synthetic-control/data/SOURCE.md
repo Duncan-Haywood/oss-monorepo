@@ -14,7 +14,7 @@ predictor cells are empty by design (schooling is reported every five years,
 investment once per decade); the engine averages over the cells present.
 
 - **Where the file was read:** `data/germany.csv` in the pysyncon repository
-  (https://github.com/sdfordham/pysyncon, MIT licence, commit
+  (https://github.com/sdfordham/pysyncon, FSL-1.1-MIT licence, commit
   `b77dc20e29b012ab03ca1d4caeef7b41861e86f5`), which redistributes the
   authors' replication data for its own parity tests against R's Synth.
 - **Not read directly:** the authors' replication archive (Harvard
@@ -27,7 +27,7 @@ investment once per decade); the engine averages over the cells present.
 - **SHA-256 of `germany.csv`:** `c59ff635faaf43729eaefdf5e9a4584fc3112a56fdab84b9ac5f78e1b6302e83`
 - **Licence:** published national-accounts statistics (facts) compiled by
   the authors from OECD and World Bank sources, reproduced with citation as
-  pysyncon does under its MIT licence. Cite Abadie, Diamond & Hainmueller
+  pysyncon does under its FSL-1.1-MIT licence. Cite Abadie, Diamond & Hainmueller
   (2015) when you use them.
 
 The data describe countries, not people.

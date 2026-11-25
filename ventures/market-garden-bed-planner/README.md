@@ -20,4 +20,4 @@ It plans capacity, not a calendar, and does not model planting windows, rotation
 or losses. Unverified on a working farm: tested against hand-solved examples and an
 exhaustive enumeration of the feasible corners.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

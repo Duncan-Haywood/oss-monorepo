@@ -147,7 +147,7 @@ Options:
   --json                    print the result as JSON
   -h, --help                this help
 
-Statistical analysis of data you supply, not advice. MIT licence.`;
+Statistical analysis of data you supply, not advice. FSL-1.1-MIT licence.`;
 
 export async function main(argv, { out = (s) => process.stdout.write(s), env = process.env, fetchImpl = globalThis.fetch } = {}) {
   const o = {};

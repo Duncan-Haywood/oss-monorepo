@@ -30,4 +30,4 @@ against exhaustive vertex enumeration on small lists, not against real farms.
 never uploaded and are not saved. Anonymous feature counts stay in local storage
 and can be switched off.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

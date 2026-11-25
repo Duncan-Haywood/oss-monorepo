@@ -21,4 +21,4 @@ Not modelled: water and fence development, gain- or price-indexed rent, rotation
 taxes, the lease contract. The tool holds no rates or forage data; the example numbers are made up.
 Not legal, tax or financial advice. No warranty; see the page footer.
 
-Tests: `node --test`. MIT licensed (`LICENSE`); no secrets, no private dependencies.
+Tests: `node --test`. FSL-1.1-MIT licensed (`LICENSE`); no secrets, no private dependencies.

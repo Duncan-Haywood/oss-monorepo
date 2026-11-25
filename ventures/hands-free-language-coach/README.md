@@ -108,4 +108,4 @@ and streak logic; `index.html` wires them to the Web Speech API.
 Related: [Listen & Learn Audio](../listen-and-learn-audio/), AI stories and
 podcasts you listen to in the language you're learning.
 
-MIT licensed. [Sponsor on GitHub](https://github.com/sponsors/Duncan-Haywood).
+FSL-1.1-MIT licensed. [Sponsor on GitHub](https://github.com/sponsors/Duncan-Haywood).

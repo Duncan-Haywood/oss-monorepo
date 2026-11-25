@@ -55,10 +55,11 @@ Three choices did most of the work:
   own file, deployed by the owner from an owner-only place to a separate
   Cloudflare account. Tests fail if the edge Worker imports it or if a
   workflow deploys it. Neither secret could move money anyway: the worst a
-  leak allows is minting keys for code that is MIT licensed.
+  leak allows is minting keys for code anyone can already read and run.
 
 Here's what it doesn't do. A one-off key can't be revoked after a refund,
-because the check is offline. The code is MIT, so the key was always a
+because the check is offline. The code is source available (FSL-1.1-MIT),
+so the key was always a
 convenience for honest buyers, not copy protection, and the pages already
 say that.
 

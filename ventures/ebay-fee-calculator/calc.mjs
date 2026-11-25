@@ -181,6 +181,11 @@ export const INPUT_FIELDS = [
   'monthlyLabelShipments',
 ];
 
+// The page passes each box's raw text, and `'' ?? default` keeps the '',
+// which Number() reads as 0: a cleared final value fee box silently computed
+// a 0% fee. A blank box with a non-zero default takes the default instead.
+const orDefault = (value, fallback) => (value === undefined || value === null || value === '' ? fallback : value);
+
 export function calculateOrder(input) {
   const number = (value, name) => {
     const result = Number(value);
@@ -189,8 +194,8 @@ export function calculateOrder(input) {
   };
   const price = number(input.price, 'Item price');
   const shippingCharged = number(input.shippingCharged ?? 0, 'Shipping charged');
-  const finalValueRate = number(input.finalValueRate ?? 13.6, 'Final value fee rate');
-  const fixedFee = number(input.fixedFee ?? 0.4, 'Per-order fixed fee');
+  const finalValueRate = number(orDefault(input.finalValueRate, 13.6), 'Final value fee rate');
+  const fixedFee = number(orDefault(input.fixedFee, 0.4), 'Per-order fixed fee');
   const promotedRate = number(input.promotedRate ?? 0, 'Promoted listings rate');
   const intlFeeRate = number(input.intlFeeRate ?? 0, 'International fee rate');
   const costOfGoods = number(input.costOfGoods ?? 0, 'Cost of goods');
@@ -200,8 +205,8 @@ export function calculateOrder(input) {
   const targetMargin = number(input.targetMargin ?? 0, 'Target margin');
   const returnRatePercent = number(input.returnRatePercent ?? 0, 'Expected return rate');
   const returnShippingCost = number(input.returnShippingCost ?? 0, 'Return shipping cost');
-  const feeRefundOnReturnPercent = number(input.feeRefundOnReturnPercent ?? 100, 'Fee refund on return');
-  const quantity = number(input.quantity ?? 1, 'Units');
+  const feeRefundOnReturnPercent = number(orDefault(input.feeRefundOnReturnPercent, 100), 'Fee refund on return');
+  const quantity = number(orDefault(input.quantity, 1), 'Units');
   if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Units must be a whole number of at least 1');
   if (targetMargin >= 100) throw new Error('Target margin must be less than 100%');
   if (returnRatePercent > 100) throw new Error('Expected return rate must be at most 100%');
@@ -346,11 +351,11 @@ export function priceToMatchProfit(input, targetProfit) {
     if (!Number.isFinite(result) || result < 0) throw new Error(`${name} must be a non-negative number`);
     return result;
   };
-  const quantity = number(input.quantity ?? 1, 'Units');
+  const quantity = number(orDefault(input.quantity, 1), 'Units');
   if (!Number.isInteger(quantity) || quantity < 1) throw new Error('Units must be a whole number of at least 1');
   const shippingCharged = number(input.shippingCharged ?? 0, 'Shipping charged');
-  const finalValueRate = number(input.finalValueRate ?? 13.6, 'Final value fee rate');
-  const fixedFee = number(input.fixedFee ?? 0.4, 'Per-order fixed fee');
+  const finalValueRate = number(orDefault(input.finalValueRate, 13.6), 'Final value fee rate');
+  const fixedFee = number(orDefault(input.fixedFee, 0.4), 'Per-order fixed fee');
   const promotedRate = number(input.promotedRate ?? 0, 'Promoted listings rate');
   const intlFeeRate = number(input.intlFeeRate ?? 0, 'International fee rate');
   const costOfGoods = number(input.costOfGoods ?? 0, 'Cost of goods');
@@ -359,7 +364,8 @@ export function priceToMatchProfit(input, targetProfit) {
   const otherCost = number(input.otherCost ?? 0, 'Other cost');
   const percentRate = (finalValueRate + promotedRate + intlFeeRate) / 100;
   if (percentRate >= 1) return Infinity;
-  const fixedPerUnit = fixedFee + costOfGoods + shippingCost + packagingCost + otherCost;
+  // The fixed fee is per order, so a batch pays it once (as calculateOrder does).
+  const fixedPerUnit = fixedFee / quantity + costOfGoods + shippingCost + packagingCost + otherCost;
   const price = (profit / quantity + fixedPerUnit) / (1 - percentRate) - shippingCharged;
   return Math.round(Math.max(0, price) * 100) / 100;
 }
@@ -424,9 +430,11 @@ export function calculateSourcingCeiling(input, targetRoi) {
   const target = Number(targetRoi);
   if (!Number.isFinite(target) || target < 0) throw new Error('Target ROI must be a non-negative number');
   // Validate the seller's actual inputs first so a bad cost of goods or
-  // quantity is not silently replaced by the zero-cost, one-unit baseline.
+  // quantity is not silently replaced by the zero-cost baseline.
   const current = calculateOrder(input);
-  const baseline = calculateOrder({ ...input, costOfGoods: 0, quantity: 1 });
+  // Same quantity, so the one per-order fixed fee is spread across the batch
+  // the way calculateOrder spreads it, rather than charged to every unit.
+  const baseline = calculateOrder({ ...input, costOfGoods: 0 });
   const otherCashPerUnit = Number(input.shippingCost ?? 0) + Number(input.packagingCost ?? 0) + Number(input.otherCost ?? 0);
   const targetRate = target / 100;
   const numerator = baseline.unitProfit - targetRate * otherCashPerUnit;

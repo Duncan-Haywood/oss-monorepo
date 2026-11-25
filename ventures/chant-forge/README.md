@@ -6,7 +6,7 @@ production project (owner, 2026-11-03: "very masculine stuff for the gym. all
 male choirs. would be fun to make as a long term project. also being able to
 publish to spotify etc."). The plan is in [`ROADMAP.md`](ROADMAP.md).
 
-The code is open source (MIT). The pipeline goes from public-domain chant to a
+The code is source available (FSL-1.1-MIT). The pipeline goes from public-domain chant to a
 released track:
 
 1. **Source:** chant in GABC (the notation Gregorio typesets), each piece

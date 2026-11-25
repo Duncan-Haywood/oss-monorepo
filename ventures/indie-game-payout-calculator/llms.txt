@@ -2,7 +2,7 @@
 
 > Free calculator for indie game developers: what a game actually pays you on Steam, Epic Games Store, itch.io and GOG after tax, refunds, the store cut and fees, and how many copies you need to sell to break even. Runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/indie-game-payout-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/indie-game-payout-calculator): FSL-1.1-MIT licensed.

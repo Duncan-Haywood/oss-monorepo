@@ -2,7 +2,7 @@
 
 > Free calculator for truck drivers and owner-operators: enter arrival and departure times, free time and the detention rate from your rate confirmation, and get the billable detention hours, the amount owed, your real hourly pay with and without it, and a claim email ready to send.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/truck-detention-pay-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/truck-detention-pay-calculator): FSL-1.1-MIT licensed.

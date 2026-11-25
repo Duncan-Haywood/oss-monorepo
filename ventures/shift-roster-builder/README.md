@@ -21,7 +21,7 @@ availability, which you merge into the staff list in one click. No accounts, no 
 zero dependencies, one JSON file on a disk you own.
 
 - **Alternatives today:** When I Work, Deputy, Homebase and 7shifts charge per user per month and hold your staff
-  data. This is the same publish-and-notify loop for a single small team, on your own server, MIT-licensed. It does
+  data. This is the same publish-and-notify loop for a single small team, on your own server, FSL-1.1-MIT-licensed. It does
   not do payroll, photo clock-ins or push notifications; if you need those, use one of them. Since
   2026-11-15 it has a simple time clock and timesheet (section "Time clock and timesheets" below).
 - **Secrets:** `ADMIN_KEY` unlocks `/admin?key=...` (edit, build, publish, merge). `TEAM_TOKEN` is the secret in the
@@ -1094,7 +1094,7 @@ Open `index.html`, or `node --test` to run the tests. No build step, no dependen
 
 ## No warranty
 
-Provided free and as-is, without warranty of any kind. Not legal, tax, or financial advice. MIT licensed.
+Provided free and as-is, without warranty of any kind. Not legal, tax, or financial advice. FSL-1.1-MIT licensed.
 
 **Split-shift and spread-of-hours premium, for scale (2026-10-29).** Give the page your local minimum wage and the notice prices one extra hour at that wage for every person-day with an unpaid gap over 1 hour or a first-to-last span over 10 hours (`splitShiftPay` in `calc.mjs`; `premiumHours`, `splitGap`, `spread` and a California-style wage `credit` are options). Tested on hand-built weeks only; which places owe it, for whom, is the employer's to check.
 

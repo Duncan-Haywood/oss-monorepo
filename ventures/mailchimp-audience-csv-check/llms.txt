@@ -2,7 +2,7 @@
 
 > Free Mailchimp audience import CSV checker: finds invalid and duplicate emails, rows with no email, unquoted commas in Tags, birthdays with a year or mixed DD/MM and MM/DD, mixed date formats, phones Excel damaged and near-miss column names, with line numbers, and applies formatting-only safe fixes.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mailchimp-audience-csv-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/mailchimp-audience-csv-check): FSL-1.1-MIT licensed.

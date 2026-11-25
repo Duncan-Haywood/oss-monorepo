@@ -2,7 +2,7 @@
 
 > Paste pg_hba.conf and the files it includes (include, include_dir, include_if_exists, @file): the tool reads them the way PostgreSQL 16 does and shows lines that make PostgreSQL refuse the whole file (a reload then silently keeps the old rules), rules that can never match because an earlier line always wins (PostgreSQL uses the first matching line, not the most specific), which line decides a given connection, and trust over TCP or on the socket, cleartext passwords (password, ldap, pam, radius) on lines that accept non-TLS connections, ident over TCP, md5, remote lines that do not require TLS, secrets stored in the file, unanchored regexes, quoted keywords ("all" is a name), IPv4 shorthand (010.0.0.1 is 8.0.0.1), invalid IPs read as host names, host bits in a CIDR and files include_dir skips. Each finding has its file, line and fix. Free, runs in your browser, nothing uploaded.
 
-Free and open source (MIT). A static read of the files you give it, not a security audit and not a connection test; a clean result is not proof a server is safe. The reading follows PostgreSQL 16's hba.c and the pg_hba.conf chapter of the PostgreSQL 16 manual, and agrees with a real PostgreSQL 16.15 server on every pg_hba_file_rules row of 600 generated files and on the deciding line for 5,760 real connections. Not affiliated with the PostgreSQL Global Development Group.
+Free to use and source available (FSL-1.1-MIT). A static read of the files you give it, not a security audit and not a connection test; a clean result is not proof a server is safe. The reading follows PostgreSQL 16's hba.c and the pg_hba.conf chapter of the PostgreSQL 16 manual, and agrees with a real PostgreSQL 16.15 server on every pg_hba_file_rules row of 600 generated files and on the deciding line for 5,760 real connections. Not affiliated with the PostgreSQL Global Development Group.
 
 ## Pages
 
@@ -15,5 +15,5 @@ Free and open source (MIT). A static read of the files you give it, not a securi
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pg-hba-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pg-hba-check): FSL-1.1-MIT licensed.
 - [Parity run against real PostgreSQL 16.15](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pg-hba-check/parity): generator, runner and recorded output.

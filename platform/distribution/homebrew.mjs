@@ -46,7 +46,7 @@ export function formula({ slug, description, sha256, name = slug, version = VERS
   homepage "${tagUrl(toolUrl(slug), 'homebrew')}"
   url "${tarballUrl(name, version)}"
   sha256 "${sha256}"
-  license "MIT"
+  license "FSL-1.1-MIT"
 
   depends_on "node"
 

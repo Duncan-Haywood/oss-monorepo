@@ -1,8 +1,8 @@
 # Know when your cron jobs silently stop
 
-> Know when a cron job silently stops. Paste your crontab to get next runs, the right grace period and a wrapped line that pings a heartbeat monitor you can self-host with zero dependencies. Free, open source, runs in your browser.
+> Know when a cron job silently stops. Paste your crontab to get next runs, the right grace period and a wrapped line that pings a heartbeat monitor you can self-host with zero dependencies. Free, source available, runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cron-heartbeat): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cron-heartbeat): FSL-1.1-MIT licensed.

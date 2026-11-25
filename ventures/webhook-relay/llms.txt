@@ -1,8 +1,8 @@
 # Your app was down for ten minutes. Did you lose the payment webhook?
 
-> Never lose a Stripe, GitHub or Shopify webhook because your app was down. Self-hosted relay that verifies signatures, saves events before answering, retries with backoff and replays on demand. Free, MIT, zero dependencies.
+> Never lose a Stripe, GitHub or Shopify webhook because your app was down. Self-hosted relay that verifies signatures, saves events before answering, retries with backoff and replays on demand. Free, FSL-1.1-MIT, zero dependencies.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/webhook-relay): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/webhook-relay): FSL-1.1-MIT licensed.
