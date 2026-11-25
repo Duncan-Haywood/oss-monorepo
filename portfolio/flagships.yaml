@@ -87,8 +87,10 @@ flagships:
       added (private-monorepo PR #39: verbatim, whole-form test against the statute
       for AZ and NV); TX 53.284 and UT 38-1a-802 added (PR #41); next for waivers:
       CA when leginfo stops 403ing; SOV import from the contractor's own .xlsx/CSV
-      landed (private-monorepo PR #43); next for onboarding: a mid-job start that
-      carries billed-to-date and retainage from pay apps made elsewhere; (4) QuickBooks Online invoice export with
+      landed (private-monorepo PR #43); mid-job start landed (private-monorepo PR #45:
+      the last application made elsewhere carries its number, column D, line 6 and a
+      checked line 5a); next for onboarding: fill that opening from the imported
+      continuation sheet; (4) QuickBooks Online invoice export with
       retainage as its own line, finishing PR #16 (packages/qbo-sync, sandbox only;
       the owner opens the Intuit developer account); (5) the front door is
       ventures/pay-application-generator (reads a contractor's own .xlsx
