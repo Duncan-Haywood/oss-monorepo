@@ -104,3 +104,14 @@ development with early access, and nothing is for sale yet:
 [construction tools and early access](https://marisstella.app/industries/construction/).
 To check a waiver you were sent for the common traps, the free
 [lien waiver checker](https://marisstella.app/lien-waiver-checker/) runs in your browser.
+
+## Update, 2026-11-25: the waiver checker now knows Wyoming and Missouri
+
+The free [lien waiver checker](https://marisstella.app/lien-waiver-checker/) gives an info note
+when you pick a state whose statute sets the waiver wording. Its list predated this guide and left
+out Wyoming and Missouri, two of the eight states read above. Both are now in it, and the Missouri
+note says what the statute says: its form covers unconditional final waivers on residential
+property only (RSMo § 429.016.27). The note's advice points at this guide for the statute itself.
+The checker also links the guides a reader needs before and after signing (which of the four
+waivers to sign, this state table, the waiver log, joint checks and short payments), which it did
+not before. It still does not decide whether a waiver is valid in your state.

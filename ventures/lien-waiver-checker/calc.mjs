@@ -11,7 +11,10 @@ export const WAIVER_TYPES = {
 };
 
 // States whose statutes are commonly cited as prescribing waiver form or wording. A pointer to go and check, not a list to rely on.
-export const FORM_STATES = { CA: "California", TX: "Texas", FL: "Florida", GA: "Georgia", MI: "Michigan", NV: "Nevada", AZ: "Arizona", UT: "Utah" };
+// WY and MO added 2026-11-25 from the statutes read for pay-app-guides/lien-waiver-forms-by-state.html.
+export const FORM_STATES = { CA: "California", TX: "Texas", FL: "Florida", GA: "Georgia", MI: "Michigan", NV: "Nevada", AZ: "Arizona", UT: "Utah", WY: "Wyoming", MO: "Missouri" };
+// Where a state's form covers only some waivers, say so (RSMo § 429.016.27).
+const FORM_SCOPE = { MO: " Missouri's statutory form covers unconditional final waivers on residential property only." };
 
 const norm = (s) => String(s || "").replace(/\s+/g, " ").trim();
 const iso = (y, m, d) => {
@@ -223,10 +226,10 @@ export function analyze(rawText, settings = {}) {
   if (settings.project && !low.includes(settings.project.trim().toLowerCase())) {
     findings.push(f("project-missing", "medium", `The project "${settings.project.trim()}" is not named in the waiver`, "A waiver should identify the job or property it releases.", "Ask for the project and property to be identified."));
   }
-  if (settings.state && FORM_STATES[settings.state]) {
+  if (settings.state && Object.hasOwn(FORM_STATES, settings.state)) {
     findings.push(f("statutory-form", "info", `${FORM_STATES[settings.state]} is a state that is commonly cited as prescribing waiver wording`,
-      "Where a statute prescribes the form, a waiver that does not follow it can be unenforceable, which can cut either way for you.",
-      "Check the current statute or ask your attorney whether this state's statutory form should be used instead."));
+      "Where a statute prescribes the form, a waiver that does not follow it can be unenforceable, which can cut either way for you." + (Object.hasOwn(FORM_SCOPE, settings.state) ? FORM_SCOPE[settings.state] : ""),
+      "Check the current statute (the statutory lien waiver forms by state guide links each one) or ask your attorney whether this state's statutory form should be used instead."));
   }
 
   const order = { high: 0, medium: 1, info: 2 };
