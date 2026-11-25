@@ -31,6 +31,7 @@ export const GROUPS = [
     ["conditional-vs-unconditional-lien-waivers.html", "Conditional vs unconditional lien waivers"],
     ["lien-waiver-forms-by-state.html", "Lien waiver forms by state"],
     ["lien-waiver-log.html", "Lien waiver log (given and collected)"],
+    ["sworn-statement.html", "Contractor's sworn statement builder"],
   ]],
 ];
 

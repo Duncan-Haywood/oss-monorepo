@@ -23,7 +23,7 @@ test("every page carries the no-warranty clause, sponsor link, opt-out and hones
 });
 
 test("no page sends anything anywhere or loads remote scripts", () => {
-  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "retlog.mjs", "billing.mjs", "check.mjs", "waivers.mjs", "usage.mjs"]) {
+  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "retlog.mjs", "billing.mjs", "check.mjs", "waivers.mjs", "sworn.mjs", "usage.mjs"]) {
     const src = page(name);
     assert.doesNotMatch(src, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/, name);
     assert.doesNotMatch(src, /<script[^>]+src=["']https?:/, name);
@@ -227,3 +227,16 @@ test("the line-remove column has a header a screen reader can read and nothing c
   assert.match(page("index.html"), /<th scope="col"><span class="vh">Remove line<\/span><\/th>/);
   assert.match(page("style.css"), /\.vh \{ position: absolute;/);
 });
+test("sworn statement page: inputs labelled, both statutes linked to the official sites with a read date, linked from the guides", () => {
+  const html = page("sworn-statement.html");
+  for (const id of ["list", "state", "contract-sum", "requested", "project", "through"]) assert.match(html, new RegExp(`<label for="${id}">`));
+  assert.match(html, /href="https:\/\/www\.ilga\.gov\/legislation\/ilcs\/fulltext\.asp\?DocName=077000600K5"/);
+  assert.match(html, /href="https:\/\/www\.legislature\.mi\.gov\/Laws\/MCL\?objectName=mcl-570-1110"/);
+  assert.match(html, /2026-11-25/);
+  assert.match(html, /does not supply the statutory wording or the oath/);
+  // Rows are built in script: their phone labels come from HEADS, which must match the header row.
+  const heads = [...html.slice(html.indexOf('id="builder"')).matchAll(/<th role="columnheader" scope="col">([^<]*)<\/th>/g)].slice(0, 7).map((m) => m[1]);
+  assert.ok(html.includes(`const HEADS = ${JSON.stringify(heads).replaceAll('","', '", "')};`), "HEADS matches the header row");
+  for (const name of ["index.html", "how-to-fill-out-a-pay-application.html", "conditional-vs-unconditional-lien-waivers.html"]) assert.match(page(name), /href="sworn-statement\.html"/, name);
+});
+
