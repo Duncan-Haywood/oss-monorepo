@@ -302,7 +302,8 @@ function checkKsefTransport(source, text, root, out) {
       "Write the file as UTF-8 and set encoding=\"UTF-8\" in the declaration, or drop the declaration.", "/"));
   }
   // Processing instructions other than the XML declaration (comments and CDATA removed first).
-  const bare = text.replace(/<!--[\s\S]*?-->/g, "").replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, "");
+  let bare = text, prev;
+  do { prev = bare; bare = bare.replace(/<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>/g, ""); } while (bare !== prev);
   const realPis = [...bare.matchAll(/<\?([A-Za-z_:][\w.:-]*)/g)].filter((m, i) => !(m[1] === "xml" && i === 0 && /^\uFEFF?\s*$/.test(bare.slice(0, m.index))));
   if (realPis.length) {
     const names = [...new Set(realPis.map((m) => m[1]))].join(", ");

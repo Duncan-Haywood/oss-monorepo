@@ -40,7 +40,10 @@ function decodeBody(body, enc, charset) {
 /** Header block to { lowercased name: first value }, folded lines joined. */
 export const headerMap = (block) => { const h = {}; for (const l of unfold(block).split(/\r?\n/)) { const m = l.match(/^([\w-]+):\s*(.*)$/); if (m && !(m[1].toLowerCase() in h)) h[m[1].toLowerCase()] = m[2]; } return h; };
 const param = (v, k) => (String(v || "").match(new RegExp(`${k}="?([^";]+)"?`, "i")) || [])[1] || "";
-const htmlToText = (h) => h.replace(/<(script|style)[\s\S]*?<\/\1>/gi, "").replace(/<br\s*\/?>|<\/(p|div|li|tr)>/gi, "\n").replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#39;|&apos;/g, "'").replace(/&quot;/g, '"').replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+/** Apply a removal regex until the string stops changing, so nested or overlapping matches cannot survive. */
+const removeAll = (s, re) => { let prev; do { prev = s; s = s.replace(re, ""); } while (s !== prev); return s; };
+// Tags are stripped until stable and &amp; is decoded last, so "&amp;lt;" stays "&lt;" instead of turning into "<".
+const htmlToText = (h) => removeAll(removeAll(h, /<(script|style)\b[^>]*>[\s\S]*?<\/\1\b[^>]*>/gi).replace(/<br\s*\/?>|<\/(p|div|li|tr)>/gi, "\n"), /<[^>]+>/g).replace(/&nbsp;/g, " ").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#39;|&apos;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
 export const splitHead = (s) => { const m = s.match(/\r?\n\r?\n/); return m ? [s.slice(0, m.index), s.slice(m.index + m[0].length)] : [s, ""]; };
 
 /** Parse a raw RFC 822 message into { headers, text, dsn }. Prefers text/plain, falls back to stripped text/html. */

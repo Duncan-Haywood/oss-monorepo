@@ -56,6 +56,6 @@ test("the IDS still comes back the same from a workbook with dropdowns", async (
 
 test("Excel's limits: prompt titles <= 32 and texts <= 255 characters", async () => {
   const s1 = await part(rowsToXlsx(idsToRows(ids)), "xl/worksheets/sheet1.xml");
-  const unesc = (s) => s.replace(/&quot;/g, '"').replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+  const unesc = (s) => s.replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   for (const [, k, v] of s1.matchAll(/ (promptTitle|errorTitle|prompt|error)="([^"]*)"/g)) assert.ok(unesc(v).length <= (/Title/.test(k) ? 32 : 255), `${k}: ${v}`);
 });

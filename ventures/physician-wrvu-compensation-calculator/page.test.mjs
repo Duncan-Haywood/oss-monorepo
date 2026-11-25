@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
+const stripScripts = (s) => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ""); } while (s !== p); return s; };
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const IDS = ["base", "cf", "threshold", "pureCf", "fixedSalary", "repayPct", "quality", "qualityEarned", "wrvus", "days", "patients", "wpv", "weeks", "fte", "hoursPerWeek", "signing", "clawbackMonths", "clawbackType", "leaveMonth", "retention", "yearsStay", "call", "cme", "tailCost", "tailPayer", "nonCompeteMonths", "structure"];
 
@@ -57,7 +58,7 @@ test("JSON-LD FAQ matches visible copy and the app is free", () => {
   const blocks = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
   const faq = blocks.find((p) => p["@type"] === "FAQPage");
   assert.ok(faq);
-  const visible = html.replace(/<script[\s\S]*?<\/script>/g, "").replace(/&amp;/g, "&");
+  const visible = stripScripts(html).replace(/&amp;/g, "&");
   for (const qa of faq.mainEntity) {
     assert.ok(visible.includes(qa.name), `visible question missing: ${qa.name}`);
     assert.ok(visible.includes(qa.acceptedAnswer.text), `visible answer missing for: ${qa.name}`);

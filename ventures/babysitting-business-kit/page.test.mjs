@@ -32,7 +32,7 @@ test("JSON-LD parses, and every FAQ question is answered on the page", () => {
   assert.equal(blocks[0].offers.price, "0");
   assert.equal(blocks[1]["@type"], "FAQPage");
   for (const q of blocks[1].mainEntity) {
-    assert.ok(html.includes(`<h3>${q.name.replace(/'/g, "'")}</h3>`), q.name);
+    assert.ok(html.includes(`<h3>${q.name}</h3>`), q.name);
     assert.ok(html.includes(q.acceptedAnswer.text), `answer on page: ${q.name}`);
   }
   for (const p of PAGES.slice(1)) for (const m of page(p).matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)) JSON.parse(m[1]);

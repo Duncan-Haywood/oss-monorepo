@@ -2,6 +2,17 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import fs from 'node:fs';
 
+// Drop every <script>...</script> block (any case, attributes, `</script >`),
+// repeating until stable so a nested fragment cannot reassemble a tag.
+const stripScripts = (s) => {
+  let prev;
+  do {
+    prev = s;
+    s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, '');
+  } while (s !== prev);
+  return s;
+};
+
 const html = fs.readFileSync(new URL('./vs-reading-the-workflow-yaml-by-hand.html', import.meta.url), 'utf8');
 const indexHtml = fs.readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const sitemap = fs.readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
@@ -72,7 +83,7 @@ test('the page never claims a clean scan means the workflow or repository is sec
   // vs-openssf-scorecard.test.mjs, which guard "secure" only -- the shared
   // footer boilerplate's "a guarantee that your CI is safe" sits too far
   // from its own "not a ... guarantee" to fit a short lookbehind window.
-  const prose = html.replace(/<script[\s\S]*?<\/script>/g, '');
+  const prose = stripScripts(html);
   const claims = /\b(?:is|are|was|were)\s+secure\b/gi;
   for (const match of prose.matchAll(claims)) {
     const preceding = prose.slice(Math.max(0, match.index - 60), match.index);

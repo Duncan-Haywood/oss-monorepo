@@ -1,10 +1,14 @@
 # Creative track, prompt 0
 
 The owner's standing creative projects, operated by the scheduled fleet. The
-master prompt (`prompt.md`) routes about 10% of runs here (`routing.json`
-weight 0.10; owner, 2026-10-21: "the scheduled agents are the throughput
+master prompt (`prompt.md`) routes about 3% of runs here (`routing.json`
+weight 0.03; owner, 2026-10-21: "the scheduled agents are the throughput
 power I have I want some portion of them going towards carrying out actually
-operating that goal"). The goals and guardrails in
+operating that goal"). Cut from 10% on 2026-11-25 (owner: "demote some of the
+passion projects and move more towards the paid product track with dev
+resource and website real estate"; the share went to ventures). Keep the
+shelves running, and spend a run on the piece readers are waiting for rather
+than on new shelves or new formats. The goals and guardrails in
 [`prompts/goals.md`](../goals.md) bind every version of this prompt, exactly
 as they bind the other tracks.
 
@@ -30,7 +34,7 @@ pushed branch is not done. Steps:
 | **Saints by Candlelight** (30 to 60 minute bedtime podcast of saints, angels and patriarchs) | `ventures/saints-by-candlelight/` | `PRODUCTION.md` (the series bible) |
 | **The writing podcast** (an episode per blog post) | `docs/podcast/`, `docs/posts/` | `goals.md`, "Direction: write about the work" |
 
-The site's **Stories** page (`stories/`, in the top navigation; built by
+The site's **Stories** page (`stories/`, linked from the footer since 2026-11-25; built by
 `platform/pages/stories.mjs`; owner, 2026-10-24: the fiction gets "its own
 page on the website") lists every shelf above from the stories' own front
 matter and audio manifests, so a merged piece appears there on the next

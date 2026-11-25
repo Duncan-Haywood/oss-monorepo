@@ -333,8 +333,7 @@
 
   <script type="module">
     import { staffPackHtml } from "./staffpack.mjs";
-    import { buyLink, checkLicence } from "./licence.mjs";
-    import { CHECKOUT_URL, VALIDATE_URL } from "./checkout.mjs";
+    import { wireBuyButton, checkLicence } from "./licence.mjs";
     import { planWeeks, planFairness, parseAvailability, placeBreaks, placeRestBreaks, scheduleChanges, carryOverStaff, scheduleFlags, seniorityClaims, unsupervisedStretches, loneStretches, shortShifts, seventhDayPay, parseStaff, parseShifts, buildRoster, steadyRoster, steadyText, coverSlackText, optimalityText, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, coverageGrid, fairnessReport, hoursThresholds, tipPool, siteSplit, trimOptions, coverOptions, coverChain, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, splitShiftPay, rosterMessages, openShiftPost, mergeAvailabilityReplies, sampleStaff, sampleShifts, TEMPLATES, keepFromCsv, pinStarted, fmtClock, money, money2, num, DAYS } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     // The seven importers (about 46 kB gzip, a quarter of the page's script) run only when a file is
@@ -660,14 +659,14 @@
       document.body.classList.remove("print-wall");
     });
     {
-      const buy = buyLink(CHECKOUT_URL);
+      const buy = wireBuyButton($("#pack-buy"), { onKey: (k) => { $("#pack-key").value = k; $("#pack-check").click(); }, onStatus: (m) => { if (m) $("#pack-state").textContent = m; } });
       let packLogo = "";
-      // Dark until a checkout link is set in checkout.mjs: no card, no Buy button.
-      if (buy) { $("#pack-buy").href = buy; $("#pack-buy-row").hidden = false; $("#pack-card").hidden = false; }
+      // Dark until checkout.mjs carries a Paddle price id (platform/billing/catalogue.mjs): no card, no Buy button.
+      if (buy) { $("#pack-buy-row").hidden = false; $("#pack-card").hidden = false; }
       $("#pack-logo").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) { packLogo = ""; return; } const r = new FileReader(); r.onload = () => { packLogo = String(r.result); }; r.readAsDataURL(f); });
       $("#pack-check").addEventListener("click", async () => {
         $("#pack-state").textContent = "Checking...";
-        const v = await checkLicence($("#pack-key").value, { url: VALIDATE_URL });
+        const v = await checkLicence($("#pack-key").value);
         $("#pack-state").textContent = v.valid ? "Key accepted." : "Not unlocked: " + v.reason + (buy ? "" : " (the staff pack is not on sale yet)");
         $("#pack-fields").hidden = !v.valid;
         if (v.valid) record("staff_pack_unlocked");

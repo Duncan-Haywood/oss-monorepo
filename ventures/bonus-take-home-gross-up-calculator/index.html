@@ -138,7 +138,8 @@
     const KEYS = Object.keys(DEFAULTS);
     // A blank or unreadable box stops the run with its name; it is never replaced by the example value.
     const opts = () => { const o = {}, bad = []; for (const k of KEYS) { const n = num($(k).value); if (Number.isFinite(n)) o[k] = n; else bad.push(k); } o.bad = bad; return o; };
-    const labelOf = (k) => document.querySelector(`label[for="${k}"]`).textContent;
+    const escHtml = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    const labelOf = (k) => escHtml(document.querySelector(`label[for="${k}"]`).textContent);
     const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
     const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
     function run() {

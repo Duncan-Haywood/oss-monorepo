@@ -3,6 +3,9 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { readdirSync } from 'node:fs';
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const stripScripts = (s) => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ''); } while (s !== p); return s; };
+const stripTags = (s) => { let p; do { p = s; s = s.replace(/<[^>]+>/g, ''); } while (s !== p); return s; };
 const index = await readFile(new URL('./index.html', import.meta.url), 'utf8');
 const comparison = await readFile(new URL('./vs-manually-reading-the-spec-diff.html', import.meta.url), 'utf8');
 const oasdiffComparison = await readFile(new URL('./vs-oasdiff.html', import.meta.url), 'utf8');
@@ -27,7 +30,7 @@ test('the page carries the portfolio disclaimers and stays local', () => {
 });
 
 test('the page never makes an unqualified compatibility or safety claim', () => {
-  const prose = index.replace(/<script[\s\S]*?<\/script>/g, '');
+  const prose = stripScripts(index);
   const claims = /\b(?:is|are|was|were)\s+(?:safe|compatible|secure)\b/gi;
   for (const match of prose.matchAll(claims)) {
     const preceding = prose.slice(Math.max(0, match.index - 60), match.index);
@@ -55,7 +58,7 @@ test('the JSON-LD FAQPage questions match the visible FAQ headings', () => {
   assert.ok(ldMatch, 'expected a FAQPage JSON-LD block');
   const ld = ldMatch[0];
   const headings = [...index.matchAll(/<h3>(.*?)<\/h3>/g)].map((m) =>
-    m[1].replace(/<[^>]+>/g, '').trim(),
+    stripTags(m[1]).trim(),
   );
   assert.ok(headings.length > 0, 'expected visible h3 FAQ headings');
   for (const heading of headings) {
@@ -159,7 +162,7 @@ test('every .html file in the venture is reachable from the sitemap', async () =
   const htmlFiles = readdirSync(dir).filter((name) => name.endsWith('.html'));
   for (const name of htmlFiles) {
     if (name === 'index.html') continue;
-    assert.match(sitemap, new RegExp(name.replace(/\./g, '\\.')), `${name} is missing from sitemap.xml`);
+    assert.match(sitemap, new RegExp(escapeRegExp(name)), `${name} is missing from sitemap.xml`);
   }
 });
 

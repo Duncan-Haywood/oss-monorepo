@@ -504,7 +504,7 @@ test("an eBay multi-item order's item-detail rows (no Type, no amounts) are not 
 });
 
 test("an eBay Payout row that disagrees with its rows is not split", () => {
-  const t = readFileSync(new URL("./fixtures/ebay-transactions.csv", import.meta.url), "utf8").replace("Bank,USD,--,--,--,--,--,--,--", "Bank,USD,--,--,--,--,--,--,--").replace("$111.70,USD", "$111.71,USD");
+  const t = readFileSync(new URL("./fixtures/ebay-transactions.csv", import.meta.url), "utf8").replace("$111.70,USD", "$111.71,USD");
   const r = readPayoutReport(t);
   assert.equal(r.payouts.length, 0);
   assert.match(r.problems[0], /PO-1001/);

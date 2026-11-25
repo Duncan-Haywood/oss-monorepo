@@ -181,7 +181,7 @@ test("first run records a baseline and exits 0; the same text next run is unchan
   const io = { argv: [url], out: () => {}, err: () => {}, ...store };
 
   assert.equal(await runWatch({ ...io, fetchImpl: fakeFetch({ [url]: "<p>we will share data</p>" }) }), 0);
-  assert.ok(store.state.data?.includes(url), "the baseline must be persisted");
+  assert.ok(store.state.data !== undefined && url in JSON.parse(store.state.data).baselines, "the baseline must be persisted");
 
   assert.equal(await runWatch({ ...io, fetchImpl: fakeFetch({ [url]: "<p>we will share data</p>" }) }), 0);
 });

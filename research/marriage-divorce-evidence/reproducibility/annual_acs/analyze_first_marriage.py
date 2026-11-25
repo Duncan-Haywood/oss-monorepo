@@ -32,8 +32,8 @@ d['duration']=pd.cut(d.duration_years,[1,5,10,20,np.inf],right=False,labels=['1-
 levels.pop('marriage_count')
 profiles=[(label,{k:v for k,v in settings.items() if k!='marriage_count'}) for label,settings in profiles if 'twice' not in label]
 for denominator in ['approx_current_married_separated_or_recent_divorce']:
- for sex in ['Men','Women']:
-  s=d[d.sex==sex].copy()
+ for group in ['Men','Women']:
+  s=d[d.sex==group].copy()
   if denominator.startswith('approx'):s=s[s.MAR.isin([1,4])|(s.MARHD==1)]
   variables=list(levels)
   den=s.groupby(variables,observed=True)[W].sum();num=s[s.MARHD==1].groupby(variables,observed=True)[W].sum().reindex(den.index,fill_value=0)
@@ -48,7 +48,7 @@ for denominator in ['approx_current_married_separated_or_recent_divorce']:
    b,it=fit(X,D[:,j],N[:,j]);B.append(b);its.append(it)
   B=np.array(B); ww=D/D.sum(axis=0)
   for i,name in enumerate(names):
-   se=np.sqrt(.05*((B[1:,i]-B[0,i])**2).sum());coef.append(dict(denominator=denominator,sex=sex,term=name,log_odds=B[0,i],se=se,odds_ratio=np.exp(B[0,i]),ci95_low=np.exp(B[0,i]-1.96*se),ci95_high=np.exp(B[0,i]+1.96*se)))
+   se=np.sqrt(.05*((B[1:,i]-B[0,i])**2).sum());coef.append(dict(denominator=denominator,sex=group,term=name,log_odds=B[0,i],se=se,odds_ratio=np.exp(B[0,i]),ci95_low=np.exp(B[0,i]-1.96*se),ci95_high=np.exp(B[0,i]+1.96*se)))
   def prediction(settings):
    # Replace specified dummies; retain all other empirical covariates.
    xp=X.copy()
@@ -61,20 +61,20 @@ for denominator in ['approx_current_married_separated_or_recent_divorce']:
    pred={}
    for lev in levels[v]:
     val=prediction({v:lev});pred[lev]=val
-    obs=s[s[v]==lev];r=dict(denominator=denominator,sex=sex,factor=v,level=lev,unweighted_n=len(obs),unweighted_events=int((obs.MARHD==1).sum()),weighted_n=int(obs.PWGTP.sum()),unit='percent');r.update(summarize(val,100));margins.append(r)
+    obs=s[s[v]==lev];r=dict(denominator=denominator,sex=group,factor=v,level=lev,unweighted_n=len(obs),unweighted_events=int((obs.MARHD==1).sum()),weighted_n=int(obs.PWGTP.sum()),unit='percent');r.update(summarize(val,100));margins.append(r)
    for lev in levels[v][1:]:
     if v!='race_ethnicity':
-     r=dict(denominator=denominator,sex=sex,factor=v,level=lev,reference=levels[v][0],unit='percentage_points');r.update(summarize(pred[lev]-pred[levels[v][0]],100));contrasts.append(r)
+     r=dict(denominator=denominator,sex=group,factor=v,level=lev,reference=levels[v][0],unit='percentage_points');r.update(summarize(pred[lev]-pred[levels[v][0]],100));contrasts.append(r)
    # Largest-minus-smallest descriptive adjusted marginal probabilities selected from point estimates.
    # Exclude armed forces from employment range because sparse, and race ranking not appropriate.
    eligible=[x for x in levels[v] if not(v=='employment' and x=='Armed forces')]
    if v!='race_ethnicity':
-    low=min(eligible,key=lambda x:pred[x][0]);high=max(eligible,key=lambda x:pred[x][0]);r=dict(denominator=denominator,sex=sex,factor=v,low_level=low,high_level=high,unit='percentage_points',selection_note='point-estimate extrema selected among observed categories; CI conditional on selected pair, not selection adjusted');r.update(summarize(pred[high]-pred[low],100));ranges.append(r)
+    low=min(eligible,key=lambda x:pred[x][0]);high=max(eligible,key=lambda x:pred[x][0]);r=dict(denominator=denominator,sex=group,factor=v,low_level=low,high_level=high,unit='percentage_points',selection_note='point-estimate extrema selected among observed categories; CI conditional on selected pair, not selection adjusted');r.update(summarize(pred[high]-pred[low],100));ranges.append(r)
   for label,settings in profiles:
    val=prediction(settings);obs=s
    for v,lev in settings.items():obs=obs[obs[v]==lev]
-   r=dict(denominator=denominator,sex=sex,profile=label,settings=json.dumps(settings),standardization='age at marriage, duration, race averaged over eligible first-married population within sex',unweighted_n=len(obs),unweighted_events=int((obs.MARHD==1).sum()),weighted_n=int(obs.PWGTP.sum()),weighted_observed_pct=100*(obs.PWGTP*(obs.MARHD==1)).sum()/obs.PWGTP.sum(),unit='percent');r.update(summarize(val,100));prof.append(r)
-  checks.append(dict(denominator=denominator,sex=sex,n=len(s),events=int((s.MARHD==1).sum()),weighted_n=int(s.PWGTP.sum()),weighted_events=int((s.PWGTP*(s.MARHD==1)).sum()),cells=len(tab),max_iterations=max(its),max_abs_normalized_score=float(np.abs(X.T@(N[:,0]-D[:,0]*expit(X@B[0]))).max()/D[:,0].sum())))
+   r=dict(denominator=denominator,sex=group,profile=label,settings=json.dumps(settings),standardization='age at marriage, duration, race averaged over eligible first-married population within sex',unweighted_n=len(obs),unweighted_events=int((obs.MARHD==1).sum()),weighted_n=int(obs.PWGTP.sum()),weighted_observed_pct=100*(obs.PWGTP*(obs.MARHD==1)).sum()/obs.PWGTP.sum(),unit='percent');r.update(summarize(val,100));prof.append(r)
+  checks.append(dict(denominator=denominator,sex=group,n=len(s),events=int((s.MARHD==1).sum()),weighted_n=int(s.PWGTP.sum()),weighted_events=int((s.PWGTP*(s.MARHD==1)).sum()),cells=len(tab),max_iterations=max(its),max_abs_normalized_score=float(np.abs(X.T@(N[:,0]-D[:,0]*expit(X@B[0]))).max()/D[:,0].sum())))
   print(checks[-1],flush=True)
 for name,rows in [('joint_coefficients',coef),('predictive_margins',margins),('profiles',prof),('factor_association_ranges',ranges),('marginal_contrasts',contrasts)]:pd.DataFrame(rows).to_csv(OUT/(name+'.csv'),index=False)
 (OUT/'checks.json').write_text(json.dumps(checks,indent=2))

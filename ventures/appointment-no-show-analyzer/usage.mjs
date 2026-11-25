@@ -38,15 +38,35 @@ function usageBlocked() {
   return false;
 }
 
+// What is stored under KEY: a whole-number count per event name, nothing
+// else. The event names are fixed strings in this venture's own pages
+// (record("example_loaded")), never anything a visitor typed, so no personal
+// data, token or password can reach storage through this file; only the
+// slug in the key's name sounds sensitive. countsOnly() rebuilds the counter
+// from what was read back, keeping each value only as a clamped whole number,
+// so text or objects written under the key by anything else are dropped
+// rather than written out again.
+function countsOnly(value) {
+  const counts = {};
+  if (!value || typeof value !== "object" || Array.isArray(value)) return counts;
+  for (const name of Object.keys(value)) {
+    const n = Math.min(Math.max(Math.floor(Number(value[name])) || 0, 0), Number.MAX_SAFE_INTEGER);
+    if (n > 0) counts[name] = n;
+  }
+  return counts;
+}
+
+function storedCounts() {
+  try {
+    return countsOnly(JSON.parse(localStorage.getItem(KEY) || "{}"));
+  } catch {
+    return {};
+  }
+}
+
 export function record(event) {
   if (noStorage() || usageBlocked()) return;
-  let current;
-  try {
-    current = JSON.parse(localStorage.getItem(KEY) || "{}");
-  } catch {
-    current = {};
-  }
-  if (!current || typeof current !== "object" || Array.isArray(current)) current = {};
+  const current = storedCounts();
   current[event] = (current[event] || 0) + 1;
   try {
     localStorage.setItem(KEY, JSON.stringify(current));
@@ -57,12 +77,7 @@ export function record(event) {
 
 export function readUsage() {
   if (noStorage()) return {};
-  try {
-    const parsed = JSON.parse(localStorage.getItem(KEY) || "{}");
-    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
-  } catch {
-    return {};
-  }
+  return storedCounts();
 }
 
 export function setUsageOptOut(value) {

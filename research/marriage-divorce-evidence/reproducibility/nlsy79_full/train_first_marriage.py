@@ -96,10 +96,10 @@ def people():
     m['education_pair'] = m.own_education + ' | ' + m.spouse_education
     m['age_pair'] = m.age_band + ' | ' + m.spouse_age_band
     m['sex_age_band'] = m.sex + ' | ' + m.age_band
-    m.attrs['excluded_spouse_roster'] = odd
+    m.attrs['excluded_roster_count'] = odd
     if SMOKE:
         m = m.sample(1500, random_state=1).reset_index(drop=True)
-        m.attrs['excluded_spouse_roster'] = odd
+        m.attrs['excluded_roster_count'] = odd
     return m
 
 
@@ -491,7 +491,7 @@ def main():
     audit = dict(marriages=len(m), divorces=int(d.sum()), widowed_censored=int(m.widowed.sum()), intervals=len(iv),
                  person_years=float(e.sum()), wedding_years=[int(m.wedding_year.min()), int(m.wedding_year.max())],
                  entry_years_median=float(np.median(a)), followup_years_max=float(t.max()),
-                 excluded_spouse_roster_unconfirmed_or_ambiguous=m.attrs['excluded_spouse_roster'],
+                 excluded_spouse_roster_unconfirmed_or_ambiguous=m.attrs['excluded_roster_count'],
                  missing_share={c: round(float(m[c].isna().mean()), 4) for c in FIXED_NUMERIC},
                  unknown_share={c: round(float((m[c] == 'Unknown').mean()), 4) for c in CATEGORICAL if (m[c] == 'Unknown').any()},
                  repeats=REPEATS, folds=FOLDS, bootstrap=BOOT, shipped_reference_model=shipped, python_sklearn=sklearn.__version__)

@@ -4674,10 +4674,10 @@ export const COMPARISON_FILE_PATTERN = /^vs-[a-z0-9][a-z0-9-]*\.html$/i;
 export function comparisonText(value) {
   return value
     .replace(/<[^>]*>/g, ' ')
-    .replace(/&amp;/g, '&')
     .replace(/&#0?39;|&apos;|&rsquo;|&#8217;/g, "'")
     .replace(/&quot;/g, '"')
     .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -11900,7 +11900,7 @@ export function injectDiscoveryTags(html, { canonical, baseUrl, title, descripti
   }
 
   const has = (attr, value) =>
-    new RegExp(`<meta\\b[^>]*\\b${attr}=["']${value.replace(/:/g, ':')}["']`, 'i').test(next);
+    new RegExp(`<meta\\b[^>]*\\b${attr}=["']${value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}["']`, 'i').test(next);
   const tags = [];
   const add = (attr, value, content) => {
     if (!content || has(attr, value)) return;
@@ -11956,6 +11956,20 @@ const decodeTextEntities = (value) =>
     .replace(/&#(\d+);/g, (_, code) => codePointOr(Number(code)))
     .replace(/&#x([0-9a-f]+);/gi, (_, code) => codePointOr(parseInt(code, 16)))
     .replace(/&([a-z][a-z0-9]*);/gi, (whole, name) => TEXT_ENTITIES[name.toLowerCase()] ?? whole);
+
+/**
+ * The page with every HTML comment removed, `--!>` endings included, repeated
+ * until nothing changes so a comment split around another cannot survive.
+ */
+function stripHtmlComments(html) {
+  let prev;
+  let out = html;
+  do {
+    prev = out;
+    out = out.replace(/<!--[\s\S]*?--!?>/g, '');
+  } while (out !== prev);
+  return out;
+}
 
 /** Visible text of an HTML fragment, with script/style content dropped. */
 const stripTags = (fragment) =>
@@ -12345,7 +12359,7 @@ export function injectChrome(html, { slug, toRoot, total, related = [], canonica
       })}</script>`;
     }
   }
-  if (isEntry && !html.replace(/<!--[\s\S]*?-->/g, '').includes('FAQPage')) {
+  if (isEntry && !stripHtmlComments(html).includes('FAQPage')) {
     // Only where the venture wrote none of its own: two FAQPage blocks on one
     // page describe the same page twice, and a crawler is free to believe
     // whichever it reads first. 37 ventures author their own — those are left

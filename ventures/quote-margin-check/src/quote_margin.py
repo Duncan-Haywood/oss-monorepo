@@ -205,7 +205,7 @@ def target_rate_ladder(
     return rows
 
 
-def compare_billing_models(
+def compare_pricing_models(
     quote: Quote,
     result: dict[str, float],
     percentages: tuple[float, ...] = (0, 10, 25, 50),
@@ -232,13 +232,13 @@ def compare_billing_models(
     return rows
 
 
-def billing_model_summary(quote: Quote, result: dict[str, float]) -> dict[str, float | bool]:
-    planned = compare_billing_models(quote, result, (0,))[0]
+def pricing_model_summary(quote: Quote, result: dict[str, float]) -> dict[str, float | bool]:
+    planned = compare_pricing_models(quote, result, (0,))[0]
     return {**planned, "fixed_is_below_hourly": planned["hourly_minus_fixed"] > 0}
 
 
-def billing_model_note(quote: Quote, result: dict[str, float]) -> str:
-    planned = billing_model_summary(quote, result)
+def pricing_model_note(quote: Quote, result: dict[str, float]) -> str:
+    planned = pricing_model_summary(quote, result)
     hourly = f"{quote.currency} {planned['hourly_total']:.2f}"
     if abs(planned["hourly_minus_fixed"]) < 1e-9:
         return (
@@ -251,6 +251,13 @@ def billing_model_note(quote: Quote, result: dict[str, float]) -> str:
         f"At planned hours, hourly at the supplied target would bill {hourly} — "
         f"{gap} {direction} this fixed quote. Comparison only, not a recommendation of which to send."
     )
+
+
+# The fixed-vs-hourly helpers compare two ways of pricing the quote; they hold
+# no billing details. The older names stay importable for existing callers.
+compare_billing_models = compare_pricing_models
+billing_model_summary = pricing_model_summary
+billing_model_note = pricing_model_note
 
 
 def sensitivity(quote: Quote, result: dict[str, float]) -> dict[str, list[dict[str, float | None]]]:
@@ -268,7 +275,7 @@ def sensitivity(quote: Quote, result: dict[str, float]) -> dict[str, list[dict[s
         "direct_cost_spikes": direct_cost_spike_scenarios(quote, result),
         "discount_asks": discount_ask_scenarios(quote, result),
         "target_rate_ladder": target_rate_ladder(quote, result),
-        "billing_models": compare_billing_models(quote, result),
+        "billing_models": compare_pricing_models(quote, result),
     }
 
 
@@ -293,7 +300,7 @@ def survives_overrun_percent(quote: Quote, result: dict[str, float]) -> float | 
 
 def markdown(quote: Quote, result: dict[str, float]) -> str:
     status = "above target" if result["gap_to_target"] >= 0 else "below target"
-    billing = compare_billing_models(quote, result)
+    model_rows = compare_pricing_models(quote, result)
     lines = [
         "# Quote Margin Check",
         "",
@@ -337,12 +344,12 @@ def markdown(quote: Quote, result: dict[str, float]) -> str:
         "",
         "## Fixed quote vs hourly at your target",
         "",
-        billing_model_note(quote, result),
+        pricing_model_note(quote, result),
         "",
         "| Extra time | Hours | Fixed effective rate | Hourly bill | Hourly minus fixed |",
         "|---|---:|---:|---:|---:|",
     ]
-    for row in billing:
+    for row in model_rows:
         extra = "planned" if row["percent"] == 0 else f"+{row['percent']:.0f}%"
         lines.append(
             f"| {extra} | {row['total_hours']:.2f} | {quote.currency} {row['fixed_effective_rate']:.2f}/hour | {quote.currency} {row['hourly_total']:.2f} | {quote.currency} {row['hourly_minus_fixed']:.2f} |"

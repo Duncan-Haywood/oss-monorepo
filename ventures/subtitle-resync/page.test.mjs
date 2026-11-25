@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
+const stripScripts = (s, sub = "") => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, sub); } while (s !== p); return s; };
+
 const PAGES = ['index.html', 'fix-subtitles-out-of-sync.html'];
 const read = (f) => readFile(new URL(`./${f}`, import.meta.url), 'utf8');
 
@@ -10,8 +12,7 @@ function jsonLd(html) {
 }
 // Text a visitor reads: JSON-LD and tags removed, entities decoded.
 function visibleText(html) {
-  return html
-    .replace(/<script[^>]*>[\s\S]*?<\/script>/g, ' ')
+  return stripScripts(html, ' ')
     .replace(/<[^>]*>/g, ' ')
     .replace(/&nbsp;/g, ' ').replace(/&rarr;/g, '→').replace(/&larr;/g, '←')
     .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&')

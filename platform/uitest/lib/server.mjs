@@ -5,7 +5,7 @@
 import { createServer } from 'node:http';
 import { spawn } from 'node:child_process';
 import { readFile, stat } from 'node:fs/promises';
-import { join, resolve, extname, sep } from 'node:path';
+import { join, resolve, extname, sep, relative, isAbsolute } from 'node:path';
 
 export const MIME = {
   '.html': 'text/html; charset=utf-8', '.htm': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
@@ -30,12 +30,22 @@ export async function serveStatic(dir, { port = 0 } = {}) {
   const root = resolve(dir);
   if (!(await stat(root).catch(() => null))?.isDirectory()) throw new Error(`--serve: ${dir} is not a directory`);
   const server = createServer(async (req, res) => {
-    let file = safePath(root, req.url || '/');
-    if (!file) { res.writeHead(403).end(); return; }
+    const full = safePath(root, req.url || '/');
+    if (!full) { res.writeHead(403).end(); return; }
+    // Checked again where the file is read: the resolved path must not climb out of root.
+    const rel = relative(root, full);
+    if (rel === '..' || rel.startsWith('..' + sep) || isAbsolute(rel)) { res.writeHead(403).end(); return; }
+    let file = full;
     try {
       const s = await stat(file).catch(() => null);
       if (s?.isDirectory()) {
-        if (!req.url.split('?')[0].endsWith('/')) { res.writeHead(301, { location: req.url.replace(/^([^?]*)/, '$1/') }).end(); return; }
+        const [pathname] = req.url.split('?');
+        if (!pathname.endsWith('/')) {
+          // Relative to the request (`./name/`), so the redirect stays on this server whatever the path holds.
+          const query = req.url.slice(pathname.length);
+          res.writeHead(301, { location: `./${pathname.slice(pathname.lastIndexOf('/') + 1)}/${query}` }).end();
+          return;
+        }
         file = join(file, 'index.html');
       } else if (!s && !extname(file)) {
         // Pretty URLs: /pricing -> /pricing.html when it exists.

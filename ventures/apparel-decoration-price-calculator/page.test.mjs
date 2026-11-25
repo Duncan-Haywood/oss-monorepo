@@ -4,6 +4,34 @@ import { readFileSync } from "node:fs";
 
 import { computeDecorationJob, METHODS } from "./calculator.mjs";
 
+// Remove <script> blocks (any case, attributes, whitespace in the end tag), repeating until stable.
+const stripScripts = (s, repl = "") => {
+  let p;
+  do {
+    p = s;
+    s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, repl);
+  } while (s !== p);
+  return s;
+};
+// Remove <style> blocks (any case), repeating until stable.
+const stripStyles = (s, repl = "") => {
+  let p;
+  do {
+    p = s;
+    s = s.replace(/<style\b[^>]*>[\s\S]*?<\/style\b[^>]*>/gi, repl);
+  } while (s !== p);
+  return s;
+};
+// Remove every tag, repeating until no tag is left.
+const stripTags = (s, repl = "") => {
+  let p;
+  do {
+    p = s;
+    s = s.replace(/<[^>]*>/g, repl);
+  } while (s !== p);
+  return s;
+};
+
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const html = page("index.html");
 
@@ -58,13 +86,10 @@ test("every FAQ answer in the JSON-LD is also visible copy on the page", () => {
     .map((m) => JSON.parse(m[1].trim()))
     .filter((block) => block["@type"] === "FAQPage");
   assert.equal(blocks.length, 1);
-  const visible = html
-    .replace(/<script[\s\S]*?<\/script>/g, " ")
-    .replace(/<style[\s\S]*?<\/style>/g, " ")
-    .replace(/<[^>]+>/g, " ")
+  const visible = stripTags(stripStyles(stripScripts(html, " "), " "), " ")
     .replace(/&mdash;/g, "—")
-    .replace(/&amp;/g, "&")
     .replace(/&#39;|&rsquo;/g, "'")
+    .replace(/&amp;/g, "&")
     .replace(/\s+/g, " ");
   assert.ok(blocks[0].mainEntity.length >= 4, "at least four questions answered");
   for (const entry of blocks[0].mainEntity) {

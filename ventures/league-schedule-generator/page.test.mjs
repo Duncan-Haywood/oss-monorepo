@@ -993,7 +993,7 @@ test("the sportsmanship guide's worked table matches spiritTable() and is linked
   const name = "how-to-run-sportsmanship-ratings-in-a-rec-league.html";
   const html = page(name);
   assert.match(html, /No warranty/);
-  assert.match(html, new RegExp(`<link rel="canonical" href="\\./${name.replace(/\./g, "\\.")}">`));
+  assert.ok(html.includes(`<link rel="canonical" href="./${name}">`), name);
   const ld = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
   for (const q of ld.mainEntity) assert.ok(html.includes(`<h3>${q.name}</h3>`) && html.includes(`<p>${q.acceptedAnswer.text}</p>`), q.name);
   const sched = { teams: ["Hawks", "Owls", "Wrens", "Kites"], rounds: [
@@ -1009,8 +1009,8 @@ test("the sportsmanship guide's worked table matches spiritTable() and is linked
     const tr = `<tr><td>${r.name}</td><td>${r.received}</td><td>${n(r.avg)}</td>${r.cats.map((c) => `<td>${n(c)}</td>`).join("")}<td>${r.low}</td><td>${n(r.avgGiven)}</td></tr>`;
     assert.ok(html.includes(tr), tr);
   }
-  assert.match(page("sitemap.xml"), new RegExp(name.replace(/\./g, "\\.")));
-  assert.match(page("index.html"), new RegExp(`href="\\./${name.replace(/\./g, "\\.")}"`));
+  assert.ok(page("sitemap.xml").includes(name), name);
+  assert.ok(page("index.html").includes(`href="./${name}"`), name);
 });
 
 test("balanced teams page: disclaimer, private, usage events named, FAQ matches its JSON-LD", () => {

@@ -37,7 +37,9 @@ test("the quote calculator ships no rates: every money field starts empty", () =
 });
 
 test("pricing guide contains no dollar figures", () => {
-  const text = read("how-to-price-a-machined-part").replace(/<script[\s\S]*?<\/script>/g, "");
+  let text = read("how-to-price-a-machined-part");
+  let prev;
+  do { prev = text; text = text.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ""); } while (text !== prev);
   assert.doesNotMatch(text, /\$\s?\d/);
 });
 
