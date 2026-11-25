@@ -101,7 +101,7 @@ test("32 CFR 170.21(a)(2)(iii): six requirements never go on a POA&M", async () 
   assert.deepEqual(Object.keys(POAM_PROHIBITED).sort(), ["3.1.20", "3.1.22", "3.10.3", "3.10.4", "3.10.5", "3.12.4"]);
   for (const id of Object.keys(POAM_PROHIBITED)) {
     assert.ok(REQUIREMENTS.some((r) => r.id === id), id);
-    assert.match(POAM_PROHIBITED[id], new RegExp("L2-" + id.replace(/\./g, "\\.") + " "));
+    assert.ok(POAM_PROHIBITED[id].includes(`L2-${id} `), id);
   }
   // Each is a 1-pointer (or 3.12.4), so the weight rule alone would let it through.
   for (const id of ["3.1.20", "3.1.22", "3.10.3", "3.10.4", "3.10.5"]) {
