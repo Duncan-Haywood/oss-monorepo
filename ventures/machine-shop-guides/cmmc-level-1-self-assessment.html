@@ -17,7 +17,7 @@
 <nav class="crumbs"><a href="./">Machine shop guides</a></nav>
 <main>
 <h1>CMMC Level 1 self-assessment checklist</h1>
-<p class="lede">If your contracts carry FAR 52.204-21 and you handle only Federal Contract Information (FCI), CMMC Level 1 is the 15 requirements below. Mark each one met or not met, write down how you meet it, and download the worksheet. Level 1 has no score and no plan of action: <strong>every one of the 15 has to be met</strong>.</p>
+<p class="lede">If your contracts carry FAR 52.204-21 and you handle only Federal Contract Information (FCI), CMMC Level 1 is the 15 requirements below. The rule says how to judge each one: against its <strong>assessment objectives from NIST SP 800-171A</strong>, 59 in all, reading FCI wherever an objective says CUI. Mark each objective met, not met or N/A, write down how you meet the requirement, and download the worksheet. Level 1 has no score and no plan of action: <strong>every one of the 15 has to be met</strong>.</p>
 <p class="note">The requirement text is FAR 52.204-21(b)(1), quoted word for word. This page is a self-check you do before the real thing: the self-assessment you enter in the Supplier Performance Risk System (SPRS) is affirmed by a senior official of your company, so mark a requirement met only when it is actually in place. Nothing you type leaves your browser; answers are kept in this browser so you can come back.</p>
 
 <section class="card">
@@ -36,8 +36,9 @@
     <div><span class="note">Met</span><div class="big" id="n-met">0</div></div>
     <div><span class="note">Not met</span><div class="big" id="n-not">0</div></div>
     <div><span class="note">Not yet answered</span><div class="big" id="n-open">15</div></div>
+    <div><span class="note">Objectives answered</span><div class="big"><span id="n-obj">0</span>/59</div></div>
   </div>
-  <p id="status">Answer all 15 requirements.</p>
+  <p id="status">Answer all 59 objectives.</p>
   <p class="note" id="next"></p>
 </section>
 
@@ -53,18 +54,20 @@
 <h2>What the rule says about Level 1</h2>
 <ul>
   <li><strong>The requirements.</strong> <a href="https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170/subpart-D/section-170.14">32 CFR 170.14(c)(2)</a> makes the 15 safeguarding requirements of <a href="https://www.acquisition.gov/far/52.204-21">FAR 52.204-21(b)(1)(i)–(xv)</a> the CMMC Level 1 requirements. Each identifier on this page (AC.L1-b.1.i and so on) is the domain plus the FAR paragraph.</li>
+  <li><strong>Judged by 59 objectives.</strong> <a href="https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170/subpart-D/section-170.15">32 CFR 170.15(c)(1)</a> says the self-assessment "must be performed using the objectives defined in NIST SP 800-171A" for the NIST requirement each Level 1 requirement maps to (its Table 2), and that "where an objective addresses CUI, FCI should be substituted for CUI". Requirement (ix) maps to three NIST requirements, one per phrase, so 15 requirements carry 17 NIST numbers and 59 objectives. The five objectives where we read FCI for CUI are marked.</li>
+  <li><strong>Met, not met or N/A.</strong> Under <a href="https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170/subpart-D/section-170.24">32 CFR 170.24(b)</a> an objective is met when evidence in final form shows it (drafts, working papers and unapproved policies do not count) and not met when any part is missing. An objective that does not apply is N/A, which "is equivalent to the same assessment objective being assessed as MET"; the rule's own example is separating public-facing systems (b.1.xi) when nothing in scope is publicly accessible. Write the reason in the evidence note. A requirement is met only when all its objectives are met or N/A, and the result is "MET or NOT MET in their entirety" (170.24(c)(1)).</li>
   <li><strong>All met, no POA&amp;M.</strong> Under <a href="https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170/subpart-D/section-170.15">32 CFR 170.15</a> you reach Final Level 1 (Self) status only with every requirement MET, and <a href="https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170/subpart-D/section-170.21">32 CFR 170.21</a> does not allow a plan of action and milestones at Level 1. A gap is fixed before you claim the level, not after.</li>
   <li><strong>Every year.</strong> The self-assessment is repeated annually and its result entered in SPRS; an Affirming Official affirms compliance at the end of each self-assessment and every year after (<a href="https://www.ecfr.gov/current/title-32/subtitle-A/chapter-I/subchapter-G/part-170/subpart-D/section-170.22">32 CFR 170.22</a>). The worksheet prints the date a year on.</li>
   <li><strong>What goes in SPRS.</strong> The entry records the CMMC level, the date, the assessment scope, the CAGE codes it covers and the result. That is why this page asks for those fields; it does not submit anything.</li>
   <li><strong>Flow-down.</strong> The clause's paragraph (c) makes you include its substance in subcontracts where the subcontractor may have FCI in its systems, including commercial items other than COTS. If you send government jobs to a heat treater or a plater with the drawing, check what you flow down.</li>
 </ul>
 <p>Handle any CUI, such as a drawing marked CUI? Then those systems are in Level 2 scope as well: see <a href="cmmc-level-1-vs-level-2.html">CMMC Level 1 vs Level 2</a> and the <a href="sprs-score-calculator.html">SPRS score calculator</a> for the 110 NIST SP 800-171 requirements.</p>
-<p class="note">The "examples of evidence" under each requirement are ours, written for a small shop. They are not text from any rule and not a list an assessor is bound by. The DoD's Level 1 assessment guide breaks each requirement into assessment objectives (all must be satisfied); read it on the <a href="https://dodcio.defense.gov/CMMC/">DoW CIO CMMC page</a> before you affirm. Sources and the dates they were checked are in SOURCES.md.</p>
+<p class="note">The "examples of evidence" under each requirement are ours, written for a small shop. They are not text from any rule and not a list an assessor is bound by. The objectives are NIST SP 800-171A's own "determine if" statements. The DoD's Level 1 assessment guide adds discussion and examples for each; read it on the <a href="https://dodcio.defense.gov/CMMC/">DoW CIO CMMC page</a> before you affirm. Sources and the dates they were checked are in SOURCES.md.</p>
 </section>
 
 <script type="module">
-  import { L1_REQUIREMENTS, DOMAINS } from "./l1-data.mjs";
-  import { assessL1, nextAnnualDate, l1ToCsv } from "./l1.mjs";
+  import { L1_REQUIREMENTS, L1_OBJECTIVES, DOMAINS } from "./l1-data.mjs";
+  import { assessL1, nextAnnualDate, l1ToCsv, objectiveAnswer } from "./l1.mjs";
   import { recordUsage, usageStorage } from "./usage.mjs";
   const KEY = "machine-shop-guides-l1";
   const store = usageStorage();
@@ -89,22 +92,43 @@
     q.append(b, document.createTextNode(r.text));
     const map = document.createElement("p"); map.className = "note";
     map.textContent = "NIST SP 800-171 Rev. 2: " + r.nist.join(", ") + ". Examples of evidence (ours): " + r.evidence;
+    // One select per objective; "Set all" fills a whole requirement at once.
+    const objs = document.createElement("div");
+    const lead = document.createElement("p"); lead.className = "note";
+    lead.textContent = L1_OBJECTIVES[r.id].length + " objective" + (L1_OBJECTIVES[r.id].length > 1 ? "s" : "") + " (NIST SP 800-171A). Determine if:";
+    objs.append(lead);
+    for (const o of L1_OBJECTIVES[r.id]) {
+      const row = document.createElement("div"); row.className = "obj";
+      const id = document.createElement("span"); id.textContent = o.id;
+      const lab = document.createElement("label"); lab.className = "objtext"; lab.htmlFor = "o-" + o.id;
+      lab.textContent = o.text + (o.fciSubstituted ? " (FCI read for CUI)" : "");
+      const sel = document.createElement("select"); sel.id = "o-" + o.id; sel.dataset.req = r.id; sel.dataset.obj = o.id;
+      for (const [v, t] of [["", "— choose —"], ["met", "Met"], ["not_met", "Not met"], ["na", "N/A"]]) { const op = document.createElement("option"); op.value = v; op.textContent = t; sel.append(op); }
+      sel.value = objectiveAnswer(state.answers, r, o) || "";
+      sel.addEventListener("change", () => { delete state.answers[r.id]; for (const x of L1_OBJECTIVES[r.id]) { const e = document.getElementById("o-" + x.id); if (e.value) state.answers[x.id] = e.value; else delete state.answers[x.id]; } save(); paint(); });
+      row.append(id, lab, sel);
+      objs.append(row);
+    }
     const grid = document.createElement("div"); grid.className = "grid";
     const c1 = document.createElement("div");
-    const l1 = document.createElement("label"); l1.htmlFor = "s-" + r.id; l1.textContent = "Status";
+    const l1 = document.createElement("label"); l1.htmlFor = "s-" + r.id; l1.textContent = "Set every objective above to";
     const sel = document.createElement("select"); sel.id = "s-" + r.id;
-    for (const [v, t] of [["", "— choose —"], ["met", "Met"], ["not_met", "Not met"]]) { const o = document.createElement("option"); o.value = v; o.textContent = t; sel.append(o); }
-    sel.value = state.answers[r.id] || "";
-    sel.addEventListener("change", () => { if (sel.value) state.answers[r.id] = sel.value; else delete state.answers[r.id]; save(); paint(); });
+    for (const [v, t] of [["", "— choose —"], ["met", "Met"], ["not_met", "Not met"], ["na", "N/A"]]) { const o = document.createElement("option"); o.value = v; o.textContent = t; sel.append(o); }
+    sel.addEventListener("change", () => {
+      delete state.answers[r.id];
+      for (const o of L1_OBJECTIVES[r.id]) { if (sel.value) state.answers[o.id] = sel.value; else delete state.answers[o.id]; document.getElementById("o-" + o.id).value = sel.value; }
+      sel.value = ""; save(); paint();
+    });
     c1.append(l1, sel);
     const c2 = document.createElement("div");
-    const l2 = document.createElement("label"); l2.htmlFor = "n-" + r.id; l2.textContent = "How we meet it (evidence)";
+    const l2 = document.createElement("label"); l2.htmlFor = "n-" + r.id; l2.textContent = "How we meet it (evidence), or why N/A";
     const inp = document.createElement("input"); inp.id = "n-" + r.id;
     inp.value = state.notes[r.id] || "";
     inp.addEventListener("input", () => { if (inp.value) state.notes[r.id] = inp.value; else delete state.notes[r.id]; save(); });
     c2.append(l2, inp);
     grid.append(c1, c2);
-    card.append(h, q, map, grid);
+    const verdict = document.createElement("p"); verdict.className = "note"; verdict.id = "v-" + r.id;
+    card.append(h, q, map, objs, grid, verdict);
     wrap.append(card);
   }
 
@@ -115,17 +139,26 @@
     document.getElementById("n-not").textContent = r.notMet.length;
     document.getElementById("n-not").className = "big" + (r.notMet.length ? " bad" : "");
     document.getElementById("n-open").textContent = r.unanswered.length;
+    document.getElementById("n-obj").textContent = r.answered;
+    for (const q of r.requirements) {
+      const v = document.getElementById("v-" + q.id);
+      v.textContent = q.status === "met" ? "Requirement met" + (q.na ? " (" + q.na + " objective(s) N/A)" : "") + "."
+        : q.status === "not_met" ? "Requirement not met: " + q.notMet.join(", ") + "."
+        : (q.objectives - q.unanswered) + " of " + q.objectives + " objectives answered.";
+      v.className = "note" + (q.status === "met" ? " good" : q.status === "not_met" ? " bad" : "");
+    }
     const st = document.getElementById("status");
     if (r.verdict === "all-met") { st.textContent = "All 15 marked met. If that holds up against your evidence, the next steps are entering the Level 1 (Self) result in SPRS and the affirmation by your Affirming Official."; st.className = "good"; }
     else if (r.verdict === "not-met") { st.textContent = r.notMet.length + " not met (" + r.notMet.join(", ") + "). Level 1 cannot be claimed until each is fixed: there is no POA&M at Level 1."; st.className = "bad"; }
-    else { st.textContent = r.unanswered.length + " of 15 not yet answered."; st.className = ""; }
+    else { st.textContent = r.unanswered.length + " of 15 requirements not fully answered (" + (r.objectives - r.answered) + " objectives left)."; st.className = ""; }
     const nd = nextAnnualDate(state.meta.date);
     document.getElementById("next").textContent = nd ? "Next annual self-assessment and affirmation: by " + nd + "." : "";
     if (r.complete && !counted) { counted = true; recordUsage("l1-complete"); }
   }
   document.getElementById("reset").addEventListener("click", () => {
+    if (!confirm("Clear every answer and evidence note on this page?")) return;
     state.answers = {}; state.notes = {};
-    for (const r of L1_REQUIREMENTS) { document.getElementById("s-" + r.id).value = ""; document.getElementById("n-" + r.id).value = ""; }
+    for (const r of L1_REQUIREMENTS) { document.getElementById("n-" + r.id).value = ""; for (const o of L1_OBJECTIVES[r.id]) document.getElementById("o-" + o.id).value = ""; }
     save(); paint();
   });
   document.getElementById("csv").addEventListener("click", () => {

@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { L1_REQUIREMENTS, DOMAINS } from "./l1-data.mjs";
+import { L1_REQUIREMENTS, L1_OBJECTIVES, DOMAINS } from "./l1-data.mjs";
 import { assessL1, nextAnnualDate, l1ToCsv } from "./l1.mjs";
 
 const ROMAN = ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix", "x", "xi", "xii", "xiii", "xiv", "xv"];
@@ -80,7 +80,7 @@ test("next annual date: a year on, 29 Feb rolls back, bad input is null", () => 
   assert.equal(nextAnnualDate("25/11/2026"), null);
 });
 
-test("CSV: header block, 15 rows, notes kept, formula injection neutralised", () => {
+test("CSV: header block, 59 objective rows, notes kept, formula injection neutralised", () => {
   const a = allMet();
   a["PE.L1-b.1.ix"] = "not_met";
   const csv = l1ToCsv(a, { "AC.L1-b.1.i": "=HYPERLINK(\"x\")", "IA.L1-b.1.v": "Named accounts, see list" }, { org: "Acme, Inc.", cage: "1ABC2", date: "2026-11-25", scope: "Office PCs" });
@@ -95,6 +95,67 @@ test("CSV: header block, 15 rows, notes kept, formula injection neutralised", ()
   for (const bad of ["'+cmd", "'@SUM(A1)", "'-x"]) assert.ok(guard.includes(bad), bad);
   assert.match(csv, /Named accounts, see list/);
   const rows = csv.trim().split("\n").filter((l) => /^(AC|IA|MP|PE|SC|SI)\.L1/.test(l));
-  assert.equal(rows.length, 15);
-  assert.match(rows[8], /,Not met,/);
+  assert.equal(rows.length, 59);
+  const ix = rows.filter((l) => l.startsWith("PE.L1-b.1.ix,"));
+  assert.equal(ix.length, 6);
+  for (const l of ix) assert.match(l, /,Not met,Not met,/);
+});
+
+test("Table 2 to 32 CFR 170.15(c)(1)(ii), read from eCFR 25 Nov 2026: all 15 mappings", () => {
+  assert.deepEqual(Object.fromEntries(L1_REQUIREMENTS.map((r) => [r.id, r.nist.join(" ")])), {
+    "AC.L1-b.1.i": "3.1.1", "AC.L1-b.1.ii": "3.1.2", "AC.L1-b.1.iii": "3.1.20", "AC.L1-b.1.iv": "3.1.22",
+    "IA.L1-b.1.v": "3.5.1", "IA.L1-b.1.vi": "3.5.2", "MP.L1-b.1.vii": "3.8.3", "PE.L1-b.1.viii": "3.10.1",
+    "PE.L1-b.1.ix": "3.10.3 3.10.4 3.10.5", "SC.L1-b.1.x": "3.13.1", "SC.L1-b.1.xi": "3.13.5",
+    "SI.L1-b.1.xii": "3.14.1", "SI.L1-b.1.xiii": "3.14.2", "SI.L1-b.1.xiv": "3.14.4", "SI.L1-b.1.xv": "3.14.5",
+  });
+});
+
+test("59 NIST SP 800-171A objectives, each under the NIST number its requirement maps to", () => {
+  const all = L1_REQUIREMENTS.flatMap((r) => L1_OBJECTIVES[r.id]);
+  assert.equal(all.length, 59);
+  assert.equal(new Set(all.map((o) => o.id)).size, 59);
+  assert.deepEqual(Object.keys(L1_OBJECTIVES), L1_REQUIREMENTS.map((r) => r.id));
+  for (const r of L1_REQUIREMENTS) {
+    for (const o of L1_OBJECTIVES[r.id]) assert.ok(r.nist.some((n) => o.id === n || o.id.startsWith(n + "[")), o.id);
+  }
+  assert.deepEqual(L1_REQUIREMENTS.map((r) => L1_OBJECTIVES[r.id].length), [6, 2, 6, 5, 3, 3, 2, 4, 6, 8, 2, 6, 2, 1, 3]);
+});
+
+test("objectives read FCI, never CUI (32 CFR 170.15(c)(1)(i)); the five substitutions are flagged", () => {
+  const all = Object.values(L1_OBJECTIVES).flat();
+  for (const o of all) assert.doesNotMatch(o.text, /\bCUI\b/, o.id);
+  assert.deepEqual(all.filter((o) => o.fciSubstituted).map((o) => o.id), ["3.1.22[b]", "3.1.22[d]", "3.1.22[e]", "3.8.3[a]", "3.8.3[b]"]);
+});
+
+const allObjectivesMet = () => Object.fromEntries(Object.values(L1_OBJECTIVES).flat().map((o) => [o.id, "met"]));
+
+test("one objective not met fails its requirement and the result", () => {
+  const a = allObjectivesMet();
+  a["3.10.4"] = "not_met";
+  const r = assessL1(a);
+  assert.equal(r.verdict, "not-met");
+  assert.deepEqual(r.notMet, ["PE.L1-b.1.ix"]);
+  assert.deepEqual(r.requirements[8].notMet, ["3.10.4"]);
+  assert.equal(r.met, 14);
+  assert.equal(r.answered, 59);
+});
+
+test("N/A counts as met (32 CFR 170.24(b)(3)); an unanswered objective keeps it incomplete", () => {
+  const a = allObjectivesMet();
+  a["3.13.5[a]"] = "na"; a["3.13.5[b]"] = "na";
+  const r = assessL1(a);
+  assert.equal(r.verdict, "all-met");
+  assert.equal(r.requirements[10].na, 2);
+  delete a["3.14.5[c]"];
+  const r2 = assessL1(a);
+  assert.equal(r2.verdict, "incomplete");
+  assert.deepEqual(r2.unanswered, ["SI.L1-b.1.xv"]);
+});
+
+test("an objective's own answer overrides its requirement's answer", () => {
+  const a = allMet();
+  a["3.1.1[c]"] = "not_met";
+  const r = assessL1(a);
+  assert.deepEqual(r.notMet, ["AC.L1-b.1.i"]);
+  assert.deepEqual(r.requirements[0].notMet, ["3.1.1[c]"]);
 });
