@@ -52,7 +52,9 @@ function drivers(c) {
   const progress = [], revisions = [];
   for (const r of c.progress.plannedNotFinished) if (onPrev.has(r.code)) progress.push({ code: r.code, name: r.name, what: `forecast to finish by ${r.forecastFinish.slice(0, 10)}, now ${r.status}` });
   for (const r of c.progress.plannedNotStarted) if (onPrev.has(r.code)) progress.push({ code: r.code, name: r.name, what: `forecast to start by ${r.forecastStart.slice(0, 10)}, not started` });
-  for (const r of c.progress.finished) if (onPrev.has(r.code) && r.daysLate) progress.push({ code: r.code, name: r.name, what: `finished ${r.actualFinish.slice(0, 10)}, ${r.daysLate > 0 ? "+" : ""}${r.daysLate} working days against the forecast` });
+  // an early finish is a gain, kept out of the `recurring` tally of lost time
+  // (red team 2026-11-25: it was counted there as a delay)
+  for (const r of c.progress.finished) if (onPrev.has(r.code) && r.daysLate) progress.push({ code: r.code, name: r.name, ...(r.daysLate < 0 ? { gain: true } : {}), what: `finished ${r.actualFinish.slice(0, 10)}, ${r.daysLate > 0 ? "+" : ""}${r.daysLate} working days against the forecast` });
   for (const r of c.progress.remainingUp) if (onPrev.has(r.code)) progress.push({ code: r.code, name: r.name, what: `remaining duration grew ${r.was} to ${r.now} days` });
   for (const r of c.progress.reversed) if (onPrev.has(r.code)) progress.push({ code: r.code, name: r.name, what: `progress reversed (${r.was} to ${r.now})` });
   for (const r of c.progress.actualsEdited) if (onPrev.has(r.code)) progress.push({ code: r.code, name: r.name, what: `${r.field} edited ${r.was.slice(0, 10)} to ${r.now.slice(0, 10)}` });

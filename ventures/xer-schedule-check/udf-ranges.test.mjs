@@ -127,3 +127,18 @@ test("negative UDF durations are not drawn: left on the default range with a war
   assert.ok(r.percentiles.every((q) => q.overDeterministic >= 0), JSON.stringify(r.percentiles));
   assert.ok(r.warnings.some((w) => /negative/.test(w) && /: A$/.test(w)), r.warnings.join(" | "));
 });
+
+test("udfSpec: no spec, true or auto means guess the fields", () => {
+  // red team 2026-11-25: the CLI passes true for a bare --udf-ranges flag
+  const x = build(three, vals);
+  for (const s of [undefined, null, "", true, "auto"]) assert.deepEqual(udfSpec(x, s), {}, String(s));
+});
+
+test("level-of-effort, WBS and both milestone kinds take no range from their UDFs", () => {
+  const x = build(three, vals);
+  for (const t of x.tables.TASK) if (t.task_code === "A") t.task_type = "TT_LOE";
+  for (const t of x.tables.TASK) if (t.task_code === "B") t.task_type = "TT_FinMile";
+  assert.deepEqual([...rangesFromUdf(x).ranges.keys()], []);
+  for (const t of x.tables.TASK) if (t.task_code === "A") t.task_type = "TT_WBS";
+  assert.deepEqual([...rangesFromUdf(x).ranges.keys()], []);
+});
