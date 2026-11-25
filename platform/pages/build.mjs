@@ -25,6 +25,7 @@ import { promises as fs, existsSync, readFileSync, statSync, writeFileSync } fro
 import { execFileSync, spawn } from 'node:child_process';
 import { loadLastChanged } from './lastmod.mjs';
 import { generateVenturePages } from './generated-pages.mjs';
+import { INDUSTRY_E_INVOICING_PATH, renderEInvoicingIndustryPage } from './industry-e-invoicing.mjs';
 import crypto from 'node:crypto';
 import os from 'node:os';
 import path from 'node:path';
@@ -9104,7 +9105,7 @@ export function renderCustomDevelopmentPage({ surfaces = [], baseUrl, requests =
       <ul>
         <li><strong>Quoting and pricing</strong> for your trade, built from your own rates, waste factors and margins.</li>
         <li><strong>A spreadsheet that has outgrown itself</strong>, turned into a tool that checks its inputs and explains its numbers.</li>
-        <li><strong>Checking documents against rules</strong>: an invoice, an order or a form tested before it goes out.</li>
+        <li><strong>Checking documents against rules</strong>: an invoice, an order or a form tested before it goes out (for example <a href="${escapeHtml(`${toRoot}${INDUSTRY_E_INVOICING_PATH}`)}">e-invoices in Germany, France, Belgium and Poland</a>).</li>
         <li><strong>Back-office chores</strong>: categorising transactions, reconciling, estimating, scheduling from a takeoff.</li>
         <li><strong>A replacement for a subscription</strong> that does one job, as an app you can host yourself.</li>
         <li><strong>A feature for a tool already here</strong>: every tool's footer links to this form with that tool chosen.</li>
@@ -13049,6 +13050,8 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
     `- [Open hardware designs for businesses](${baseUrl}${HARDWARE_PATH}): robots for tennis clubs (ball collection), cleaning companies (floor cleaning) and grounds crews (a wire-free mower), open house plans for builders, and construction robotics research, each with its honest stage. Every design is FSL-1.1-MIT licensed (MIT two years after release) and at the CAD and simulation stage: nothing has been built, nothing is for sale, and there are no prices or dates. Each card links the site's feedback form so a business can say it would use one.`,
     // Full file only: the short index sits at its 50,000-byte cap (build.test.mjs).
     ...(full ? [`- [Online sellers](${baseUrl}${ONLINE_SELLERS_PATH}): resellers on eBay, Etsy, Poshmark, Mercari, Whatnot, Depop: profit after fees, payouts, cost of goods, mileage, Schedule C; Seller Books (in development) and free tools.`] : []),
+    // Full file only, like the online sellers line (short index at its cap).
+    ...(full ? [`- [E-invoicing deadlines and fixes for SMEs and accountants](${baseUrl}${INDUSTRY_E_INVOICING_PATH}): when businesses in Germany, France, Belgium and Poland must send structured e-invoices, each date linked to the official government page with the day it was read; the common problems (rejected invoices, unreadable validation errors, XRechnung vs ZUGFeRD vs Factur-X, accountants with many clients); the free E-invoice Preflight checker, and the paid fix-and-explain product, which is in development (early access only). Not tax advice.`] : []),
     `- [Free custom software for your business](${baseUrl}${CUSTOM_DEV_PATH}): describe your problem and it gets built. How a business, or anyone, can ask the agents that build this site for a new tool, free and in public, the one condition (the result stays MIT licensed, held by the repository owner), and every request so far with its status. Each request has its own page (custom-development/R-0001/ and so on) showing its stage and what is still open, with a form for feedback on it.`,
     `- [Ask](${baseUrl}${ASK_PATH}): fill any calculator here by voice or a typed sentence, find a tool, or hear a result read back; in browsers with WebMCP every page also offers \`search_site_tools\`, \`read_page_results\` and (on calculators) \`fill_form\` to an agent. Runs in the browser; no model unless the visitor switches one on. The page states the measured accuracy and the limitations.`,
     `- [Updates and roadmap](${baseUrl}${UPDATES_PATH}): what shipped this week, what is in progress, the owner's direction for the project and how AI agents build it; and the [changelog](${baseUrl}${CHANGELOG_PATH}) of every change merged, by day.`,
@@ -13967,6 +13970,19 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     await fs.mkdir(dir, { recursive: true });
     await fs.writeFile(path.join(dir, 'index.html'), renderCustomRequestPage({ request, surfaces, baseUrl: base, requests: customRequests, directions: researchDirs, showcase }));
   }
+  // The e-invoicing industry page (industry-e-invoicing.mjs, bet #3).
+  // Written after buildProducts, so it replaces products.mjs's generic page at
+  // the same path (already in the hub sitemap via productSitemapPaths).
+  const eInvoicingDir = path.join(outDir, INDUSTRY_E_INVOICING_PATH);
+  await fs.mkdir(eInvoicingDir, { recursive: true });
+  await fs.writeFile(
+    path.join(eInvoicingDir, 'index.html'),
+    renderEInvoicingIndustryPage({
+      baseUrl: base,
+      disclaimer: disclaimerHtml('../../', surfaces),
+      chromeScript: `<script src="../../${CHROME_MODULE_FILE}" ${CHROME_SLUG_ATTR}="industries" defer></script>`,
+    }),
+  );
   // The request form's tool and research-direction pickers, fetched on demand.
   await fs.writeFile(path.join(outDir, REQUEST_OPTIONS_FILE), JSON.stringify(renderRequestFormOptions({ surfaces, directions: researchDirs })));
 

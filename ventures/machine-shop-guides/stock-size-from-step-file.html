@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Stock Size from a STEP or STL File: Bounding Box and Bar Size</title>
+  <meta name="description" content="Drop a STEP or STL file: bounding box, the round bar it turns from and the stock to cut with your allowance. Read in your browser, never uploaded.">
+  <meta property="og:title" content="Stock Size from a STEP or STL File: Bounding Box and Bar Size">
+  <meta property="og:description" content="Bounding box, round-bar diameter and stock size from a STEP or STL file, with your own allowance and rounding, read in your browser. Nothing is uploaded.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://marisstella.app/machine-shop-guides/stock-size-from-step-file.html">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%232c4a3e'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Stock Size from a STEP or STL File", "description": "Bounding box, round-bar diameter and stock size from a STEP or STL file, with your own allowance and rounding, read in your browser. Nothing is uploaded.", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+  <style>
+    .drop { border: 2px dashed var(--line); border-radius: 12px; padding: 22px; text-align: center; }
+    .drop.over { border-color: var(--accent); }
+    .warn { border-left: 4px solid var(--bad); padding-left: 10px; }
+    .dims { font-size: 1.6rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body data-page="stock-size-from-step-file">
+<nav class="crumbs"><a href="./">Machine shop guides</a></nav>
+<main>
+<h1>Stock size from a STEP or STL file</h1>
+<p class="lede">Drop the customer's model and get what you need for the material line of a quote: the part's bounding box, the round bar it would turn from, and the stock to cut with <em>your</em> allowance and rounding. The file is read in your browser and never uploaded, so a customer's confidential drawing stays on your machine.</p>
+
+<section class="card">
+  <div class="drop" id="drop">
+    <p><strong>Drop a .step, .stp or .stl file here</strong>, or choose one:</p>
+    <input type="file" id="file" aria-label="STEP or STL file" accept=".step,.stp,.p21,.stl,model/stl,application/step">
+    <p class="note" id="file-status">Nothing read yet.</p>
+  </div>
+  <h2>Your allowances</h2>
+  <form id="f" autocomplete="off">
+  <div class="grid">
+    <label>Show sizes in<select name="show"><option value="in">inches</option><option value="mm">millimetres</option></select></label>
+    <label>STL units<span class="hint">STL files carry no units; STEP files say theirs</span><select name="stlUnit"><option value="1">millimetres</option><option value="25.4">inches</option></select></label>
+    <label>Stock allowance per side<span class="hint">Added to each side of the cross-section, in the units above</span><input name="allowance" type="number" min="0" step="any" value="0" inputmode="decimal"></label>
+    <label>Facing + cut-off on length<span class="hint">Added once to the length (saw kerf, facing, part-off)</span><input name="lengthExtra" type="number" min="0" step="any" value="0" inputmode="decimal"></label>
+    <label>Round stock sizes up to<select name="increment"><option value="0">no rounding</option><option value="3.175">1/8 in</option><option value="1.5875">1/16 in</option><option value="6.35">1/4 in</option><option value="1">1 mm</option><option value="5">5 mm</option></select></label>
+  </div>
+  <h2>Material (optional, for a cost per part)</h2>
+  <div class="grid">
+    <label>Density (g/cm³)<span class="hint">Typical values; use your supplier's data sheet</span><input name="density" type="number" min="0" step="any" list="densities" inputmode="decimal"></label>
+    <label>Your price<span class="hint">From your supplier's invoice</span><input name="price" type="number" min="0" step="any" inputmode="decimal"></label>
+    <label>Price per<select name="per"><option value="lb">lb</option><option value="kg">kg</option><option value="ft">foot of bar</option><option value="m">metre of bar</option></select></label>
+  </div>
+  <datalist id="densities">
+    <option value="2.70">6061 aluminium</option>
+    <option value="2.81">7075 aluminium</option>
+    <option value="7.85">carbon steel (1018, 1045, A36)</option>
+    <option value="8.00">304 / 316 stainless</option>
+    <option value="8.50">C360 brass</option>
+    <option value="4.43">Ti-6Al-4V titanium</option>
+    <option value="1.41">acetal (POM)</option>
+  </datalist>
+  </form>
+</section>
+
+<section class="card" id="out" aria-live="polite" hidden>
+  <h2>The part</h2>
+  <p class="dims" id="dims"></p>
+  <p id="box-note" class="note"></p>
+  <div id="warnings"></div>
+  <h2>Round bar it turns from</h2>
+  <div class="scroller"><table><thead><tr><th>Turning along</th><th class="num">Smallest bar that holds it</th><th class="num">Length</th></tr></thead><tbody id="env"></tbody></table></div>
+  <h2>Stock options, smallest first</h2>
+  <div class="scroller"><table><thead><tr><th>Stock</th><th class="num">Size</th><th class="num">Length per part</th><th class="num">Weight</th><th class="num">Material $ / part</th></tr></thead><tbody id="stock"></tbody></table></div>
+  <p class="note" id="removal"></p>
+  <button type="button" id="to-quote" disabled>Use the first option's cost in the quote calculator</button>
+  <p class="note">The cost line is your price times the stock this calculator sized, before scrap; the quote calculator adds your scrap allowance.</p>
+</section>
+
+<section>
+<h2>How it measures the part</h2>
+<p><strong>STEP:</strong> it reads the solid's edges, not a mesh. Every corner is on the part. A circular or elliptical edge adds the extremes it actually reaches, following the arc from its start to its end the way the file says, so a concave scallop whose full circle would stick out of the part adds nothing. Faces on planes, cylinders and cones reach their extremes on their edges, so that is the exact box. Spheres, fillet tori and free-form (B-spline) surfaces can bulge past their edges; for those it adds a shape known to contain them and tells you the box may be larger than the part, and by up to how much.</p>
+<p><strong>STL:</strong> the box and the round bar come from the mesh's corners (exact for the mesh), and the volume from the triangles, so the page can also give the part's weight and how much of the bar becomes chips.</p>
+<p><strong>Orientation:</strong> a part modelled at an angle is boxed square to its own faces and hole axes, and the page says when it did that. The round bar is measured about the part's own turning axis when it has one.</p>
+<p>We checked it against OpenCascade's own measurements on 9 test parts and 59 generated ones (plates, shafts, ball ends, fillets, rotated brackets, inch files): it never gave a box smaller than the part, 60 of the 68 boxes were exact, and the rest were at most 2.8 mm too large and were flagged as such. The test files and the script that made them are in the source repository.</p>
+
+<h2>What it does not do</h2>
+<ul>
+  <li>It does not read drawings (PDF, DWG) or tolerances. Check the stock against the drawing: a thread, a flatness callout or a heat-treat allowance can change the size you need.</li>
+  <li>An assembly is measured part by part where each is modelled. Export the single part you are quoting.</li>
+  <li>It does not price material. The density presets are typical values; the price is yours.</li>
+</ul>
+<p>For the rest of the quote (setup, programming, cycle time, outside processes, markup), use the <a href="job-shop-quote-calculator.html">job-shop quote calculator</a>, and see <a href="how-to-price-a-machined-part.html">how to price a machined part</a>.</p>
+</section>
+
+<script type="module">
+  import { readPart, stockOptions, materialCost } from "./part-geometry.mjs";
+  import { recordUsage, usageStorage } from "./usage.mjs";
+  const QUOTE_KEY = "machine-shop-guides-quote-draft";
+  const f = document.getElementById("f");
+  const $ = (id) => document.getElementById(id);
+  let bytes = null, fileName = "", reading = null, firstCost = null;
+
+  const fmt = (mm) => {
+    const show = f.elements.show.value;
+    return show === "in" ? `${(mm / 25.4).toFixed(3)} in` : `${mm.toFixed(2)} mm`;
+  };
+  const toMm = (v) => (Number(v) || 0) * (f.elements.show.value === "in" ? 25.4 : 1);
+  const AXES = ["first", "second", "third"];
+
+  function cell(tr, text, num) {
+    const td = document.createElement("td");
+    if (num) td.className = "num";
+    td.textContent = text;
+    tr.append(td);
+  }
+
+  function render() {
+    if (!bytes) return;
+    try {
+      reading = readPart(bytes, fileName, { mmPerUnit: Number(f.elements.stlUnit.value) });
+    } catch (err) {
+      $("file-status").textContent = `Could not read ${fileName}: ${err.message}`;
+      $("out").hidden = true;
+      return;
+    }
+    const r = reading;
+    const unitNote = r.format === "step" ? `STEP file in ${r.units.name}${r.units.assumed ? " (assumed)" : ""}` : `STL mesh, ${r.counts.triangles.toLocaleString()} triangles, read as ${f.elements.stlUnit.value === "1" ? "mm" : "inches"}`;
+    $("file-status").textContent = `${fileName}: ${unitNote}.`;
+    const order = [0, 1, 2].sort((a, b) => r.size[b] - r.size[a]);
+    $("dims").textContent = order.map((i) => fmt(r.size[i])).join(" × ");
+    const notes = [];
+    notes.push(r.exact ? "Exact bounding box." : `Upper bound: the box may be up to ${fmt(r.maxOverstatement)} larger than the part, because a sphere, fillet or free-form surface can bulge past its edges. It is never smaller.`);
+    if (r.rotated) notes.push(`The part is modelled at an angle; this box is square to its own faces (the box square to the file's axes is ${[...r.worldBox.size].sort((a, b) => b - a).map(fmt).join(" × ")}).`);
+    $("box-note").textContent = notes.join(" ");
+    const w = $("warnings");
+    w.replaceChildren();
+    for (const msg of r.warnings) {
+      const p = document.createElement("p");
+      p.className = "warn note";
+      p.textContent = msg;
+      w.append(p);
+    }
+    const env = $("env");
+    env.replaceChildren();
+    for (const i of order) {
+      const tr = document.createElement("tr");
+      cell(tr, `the ${fmt(r.size[i])} side`);
+      cell(tr, `Ø ${fmt(r.envelopes[i])}`, true);
+      cell(tr, fmt(r.size[i]), true);
+      env.append(tr);
+    }
+    const opts = stockOptions(r, { allowance: toMm(f.elements.allowance.value), lengthExtra: toMm(f.elements.lengthExtra.value), increment: Number(f.elements.increment.value) });
+    const density = Number(f.elements.density.value) || 0;
+    const price = Number(f.elements.price.value) || 0;
+    const per = f.elements.per.value;
+    const tb = $("stock");
+    tb.replaceChildren();
+    firstCost = null;
+    opts.forEach((o, k) => {
+      const tr = document.createElement("tr");
+      cell(tr, o.shape === "rect" ? "Rectangular bar / plate" : `Round bar, turning along the ${fmt(r.size[o.axis])} side`);
+      cell(tr, o.shape === "rect" ? `${fmt(o.cross[0])} × ${fmt(o.cross[1])}` : `Ø ${fmt(o.cross[0])}`, true);
+      cell(tr, fmt(o.length), true);
+      const m = materialCost(o, { density, price, per });
+      cell(tr, density ? (f.elements.show.value === "in" ? `${m.lb.toFixed(2)} lb` : `${m.kg.toFixed(3)} kg`) : "add a density", true);
+      const needsDensity = per === "lb" || per === "kg";
+      const costKnown = price > 0 && (!needsDensity || density > 0);
+      cell(tr, costKnown ? m.cost.toLocaleString(undefined, { style: "currency", currency: "USD" }) : "add your price", true);
+      if (k === 0 && costKnown) firstCost = m.cost;
+      tb.append(tr);
+    });
+    $("to-quote").disabled = firstCost === null;
+    $("removal").textContent = r.volume && r.closed
+      ? `Part volume ${(r.volume / 1000).toFixed(1)} cm³ (${(r.volume / 16387.064).toFixed(2)} in³); in the first option ${Math.max(0, 100 * (1 - r.volume / opts[0].volume)).toFixed(0)}% of the stock becomes chips.`
+      : r.format === "step" ? "Part volume and chip share need an STL of the same part; the box and bar sizes do not." : "";
+    $("out").hidden = false;
+  }
+
+  async function take(file) {
+    if (!file) return;
+    fileName = file.name;
+    if (file.size > 200 * 1024 * 1024) { $("file-status").textContent = "That file is over 200 MB; export the single part."; return; }
+    $("file-status").textContent = `Reading ${file.name}…`;
+    bytes = new Uint8Array(await file.arrayBuffer());
+    render();
+    if (reading) recordUsage("stock-read:" + reading.format);
+  }
+
+  $("file").addEventListener("change", (e) => take(e.target.files[0]));
+  const drop = $("drop");
+  drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("over"); });
+  drop.addEventListener("dragleave", () => drop.classList.remove("over"));
+  drop.addEventListener("drop", (e) => { e.preventDefault(); drop.classList.remove("over"); take(e.dataTransfer.files[0]); });
+  f.addEventListener("input", render);
+  f.addEventListener("change", render);
+  f.addEventListener("submit", (e) => e.preventDefault());
+  $("to-quote").addEventListener("click", () => {
+    if (firstCost === null) return;
+    const value = firstCost.toFixed(2);
+    // handed over through this browser's storage, never the address bar
+    let saved = false;
+    try {
+      const store = usageStorage();
+      if (store) {
+        let d = {};
+        try { d = JSON.parse(store.getItem(QUOTE_KEY) || "{}") || {}; } catch {}
+        d.materialPerPart = value;
+        store.setItem(QUOTE_KEY, JSON.stringify(d));
+        saved = true;
+      }
+    } catch {}
+    if (!saved) { alert(`This browser blocks site storage, so type ${value} into the quote calculator's material field.`); return; }
+    recordUsage("stock-to-quote");
+    location.href = "job-shop-quote-calculator.html";
+  });
+</script>
+</main>
+<section class="card cta" id="early-access">
+  <h2>In development — early access</h2>
+  <p>We are building two paid products for small machine shops: an <strong>RFQ-to-quote assistant</strong> that turns a drawing and an email into a priced quote from your own rates (this stock reader is its first piece), and a <strong>CMMC Level 1/2 and ISO 9001 workspace</strong> that keeps your SSP, POA&amp;M and SPRS score in one place. Neither is released yet. Read what is planned and how to get early access on the <a href="https://marisstella.app/industries/manufacturing/">manufacturing page</a>.</p>
+  <p class="note">Neither product certifies anyone. Only an authorized C3PAO (or the government) can issue a CMMC Level 2 certification; software can help you prepare, nothing more.</p>
+</section>
+<footer>
+  <p><a href="./">Machine shop guides</a> · <a href="cmmc-level-1-self-assessment.html">CMMC Level 1 self-assessment</a> · <a href="sprs-score-calculator.html">SPRS score calculator</a> · <a href="nist-800-171-ssp-template.html">SSP template</a> · <a href="dfars-7012-incident-reporting.html">DFARS 7012 incident reporting</a> · <a href="stock-size-from-step-file.html">Stock size from a STEP file</a> · <a href="job-shop-quote-calculator.html">Job-shop quote calculator</a> · <a href="cmmc-level-1-vs-level-2.html">CMMC Level 1 vs Level 2</a> · <a href="ssp-and-poam.html">SSP and POA&amp;M</a> · <a href="how-to-price-a-machined-part.html">How to price a machined part</a> · <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/machine-shop-guides">Source (FSL-1.1-MIT)</a></p>
+  <p><strong>Not affiliated with or endorsed by the Department of Defense (Department of War), NIST, the Cyber AB or any C3PAO.</strong> Sizes here are measured from the file you give it; check them against the drawing before you order material.</p>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, compliance, financial or engineering advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, export your inputs and run it yourself.</p>
+  <p>Privacy: your file is read in your browser and never uploaded. This page keeps an anonymous visit count in your own browser's storage only. <button type="button" class="secondary" id="usage-toggle">Turn off counting</button></p>
+</footer>
+<script type="module">
+  import { recordUsage, usageOptedOut, setUsageOptOut } from "./usage.mjs";
+  const btn = document.getElementById("usage-toggle");
+  const paint = () => { btn.textContent = usageOptedOut() ? "Turn counting back on" : "Turn off counting"; };
+  btn.addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); paint(); });
+  paint();
+  recordUsage("view:" + (document.body.dataset.page || "page"));
+</script>
+</body>
+</html>

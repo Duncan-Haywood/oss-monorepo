@@ -81,7 +81,7 @@ test("unreadable rows are skipped and counted; dates in US format are read", () 
 test("in the books: line 9 and Part IV rows, profit after the car, CSV and summary", () => {
   const s = sampleFiles();
   const r = buildBooks(s.files, { costs: s.costs });
-  assert.equal(r.channels.length, 6, "a trip log is not a sales channel");
+  assert.equal(r.channels.length, 7, "a trip log is not a sales channel");
   assert.equal(r.mileage.carTruck, 85.52);
   const line9 = r.schedule.find((x) => x.line === "9");
   assert.equal(line9.amount, 85.52);

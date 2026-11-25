@@ -113,3 +113,15 @@ test("tab-separated paste from a spreadsheet works", () => {
   assert.deepEqual(r.errors, []);
   assert.equal(r.totals.revisedContract, 10100000);
 });
+
+test("edge cases the red team seeded (2026-11-25)", () => {
+  // A two-digit year is not 1950: Date.UTC maps years 0-99 into the 1900s, so the round trip must reject it.
+  assert.equal(parseDate("0050-01-01"), null);
+  // The 10% flag is for pending additions *above* 10% of the original contract, as the page says.
+  const flag = (amount) => compute(log(`1,a,Pending,${amount},,2026-11-20,,0`), S).findings.some((f) => /of the original contract/.test(f.title));
+  assert.equal(flag("10000"), false);
+  assert.equal(flag("10000.01"), true);
+  // Approved before it was submitted is a date mistake worth pointing out.
+  const all = compute(log("1,a,Approved,100,,2026-11-10,2026-11-01,0"), S).findings.map((f) => f.title).join("\n");
+  assert.match(all, /approved 2026-11-01, before it was submitted 2026-11-10/);
+});

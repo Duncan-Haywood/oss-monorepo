@@ -184,3 +184,9 @@ test("money and percent cells are decimal numbers only: hex and exponents are re
   assert.ok(findings.some((f) => /could not be read/.test(f.msg)));
   assert.ok(findings.some((f) => /between 0% and 100%/.test(f.msg)));
 });
+
+test("QuickBooks lines with an input error total nothing (red team 2026-11-25)", () => {
+  const r = quickbooksLines({ billed: "40000", rate: "150%" });
+  assert.ok(r.errors.length);
+  assert.equal(r.total, 0);
+});

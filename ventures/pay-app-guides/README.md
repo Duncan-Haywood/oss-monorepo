@@ -15,7 +15,7 @@ Live: <https://marisstella.app/pay-app-guides/>
 |---|---|
 | `index.html` | Schedule of values / continuation sheet calculator: work completed, stored materials, retainage held and released, balance to finish, current payment due, over-billed lines flagged; copy summary, CSV, print. Runs in the browser. |
 | `how-to-fill-out-a-pay-application.html` | The continuation sheet column by column and the summary page line by line, one worked example, what to attach. |
-| `retainage-explained.html` | How retainage is calculated, reduced, released and flowed down, and a table of public retainage caps for 12 states, each linked to the official statute. |
+| `retainage-explained.html` | How retainage is calculated, reduced, released and flowed down, and a table of public retainage caps for 16 states, each linked to the official statute. |
 | `conditional-vs-unconditional-lien-waivers.html` | The four waiver types, when to sign each, exceptions to write in, California and Florida statutory forms. |
 | `schedule-of-values-template.html` | Free Excel schedule of values / continuation sheet template and a filled-in example (`schedule-of-values-template.xlsx`, `schedule-of-values-example.xlsx`), built by `template.mjs` with no library; `template.test.mjs` checks the committed files match the code and, where LibreOffice is installed, recalculates the example against the guide's numbers. Rebuild with `node template.mjs`. |
 | `retainage-in-quickbooks.html` | QuickBooks Online has no retainage field: the Retainage Receivable account and item, negative holdback line, release invoice, how to see retainage the A/R aging report leaves out, the cash-basis caveat, Desktop notes, and an invoice-line calculator (`quickbooksLines` in `calc.mjs`). Sources are Intuit help and community pages, read 2026-11-25 through search results (the session could not load quickbooks.intuit.com directly). |
@@ -42,7 +42,11 @@ Live: <https://marisstella.app/pay-app-guides/>
   results limited to the official legislature domains. Where those results
   disagreed or showed a pending change (North Carolina's threshold, Florida's
   older 10% rule), the page says so. Ohio, Georgia and New Jersey were left
-  out because their current text could not be confirmed. **Re-check a row
+  out because their current text could not be confirmed. On 2026-11-25 the
+  statute pages loaded directly: nine of the twelve rows matched as written
+  (California, Pennsylvania and Illinois still refuse automated loads), and
+  Minnesota, Nevada, Oregon and Utah were added from the statute pages
+  themselves. **Re-check a row
   against the linked statute before changing it.**
 
 ## Run and test
