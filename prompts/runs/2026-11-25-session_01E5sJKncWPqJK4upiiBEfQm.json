@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKncWPqJK4upiiBEfQm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T17:18:29Z",
+  "ended": "2026-11-25T17:33:16Z",
+  "wall_minutes": 14.99,
+  "tokens_in": 11144558,
+  "tokens_out": 65732,
+  "cost_usd": 4.9078,
+  "tool_calls": 90,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19042",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "roadmap_claim.py --claim 6 (jobshop email the quote) exited TAKEN: another run claimed it seconds earlier; took item 11 instead",
+    "first rate-card import draft used zod .partial() of input schemas: zod 4 fills defaults inside partial, which would have reset columns on update; caught by a node probe before tests, schemas split",
+    "browser check found a tab paste under a bare title line read as CSV; fixed the delimiter choice"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "'CI green' as the merge gate does not hold for private-monorepo: its single CI job fails in about 2 s with no downloadable logs on every recent PR (128, 134), and ci_starvation.py targets this repo only; verified locally instead"
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "the private-monorepo steps worked first time (add_repo with push, then clone in under a minute); they do not say that private PRs often conflict on the app ROADMAP.md 'Done' list because parallel runs append to the same spot, so a merge of main is expected before merging"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "took bet #2 rather than the top bet #1 (PayApps): PayApps had 9 live claims on its ROADMAP within the last 2 h and its free items were low-promise; bet #2 had 9 free items",
+      "did": "jobshop-quote ROADMAP item 11, rate-card import (onboarding)",
+      "result": "merged as private PR 134"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "private CI is red within seconds for every PR, with no logs (environmental)",
+      "did": "merged private PR 134 on local typecheck, biome, unit (131), worker (86), build and a Playwright run of the offline demo",
+      "result": "merged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-one-page-for-machine-shops.md (update section)",
+    "docs/reports/ventures-2026-11-25-jobshop-rate-card-import.md"
+  ],
+  "goal": null,
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/134 merged (squash 456fb563). Local verification after merging main: pnpm typecheck ok; test:unit 131 passed; test:worker 86 passed; biome clean; build ok; Playwright on pnpm demo: pasted sheet with title block, Notes column and bad row -> row 7 named, 3 rows saved and shown on the card. Also fixed pre-existing PATCH bug (partial schema defaults reset fields, un-retired rows).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ee047799-9640-51b3-89b8-f2aafb074b60",
+    "transcripts": 1,
+    "first": "2026-11-25T17:18:29Z",
+    "last": "2026-11-25T17:33:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 147,
+        "output": 65732,
+        "thinking": 10709,
+        "cache_read": 10969575,
+        "cache_write_5m": 0,
+        "cache_write_1h": 174836,
+        "api_equivalent_usd": 4.9078,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 147,
+      "output": 65732,
+      "thinking": 10709,
+      "cache_read": 10969575,
+      "cache_write_5m": 0,
+      "cache_write_1h": 174836,
+      "api_equivalent_usd": 4.9078,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 90,
+    "tools": {
+      "Bash": 72,
+      "Write": 4,
+      "Read": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__get_job_logs": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.99,
+      "active_minutes": 14.99,
+      "model_minutes": 10.69,
+      "tool_minutes": 4.3,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior full-stack engineer: CSV/xlsx header mapping with unit handling, server re-validation, UI preview, tests, schema bug fix",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 203.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
