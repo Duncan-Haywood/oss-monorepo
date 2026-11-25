@@ -29,7 +29,7 @@ export function render(events) {
   const groups = new Map();
   for (const e of list) (groups.get(quarter(e.date)) ?? groups.set(quarter(e.date), []).get(quarter(e.date))).push(e);
   const title = "E-invoicing deadlines from November 2026 to the end of 2027, by date";
-  const desc = `${list.length} dated e-invoicing mandate milestones in ${countries.size} countries between ${human(FROM)} and the end of 2027, in date order with the status and a link to each country page. Free, generated from one table.`;
+  const desc = `${list.length} dated e-invoicing mandate milestones in ${countries.size} countries from ${human(FROM)} to the end of 2027, in date order, with status and a link to each country page.`;
   const sections = [...groups].map(([q, es]) => `<section>
 <h2>${q}</h2>
 <ul class="dl">

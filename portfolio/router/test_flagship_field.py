@@ -440,7 +440,8 @@ def test_cli_refused_write_says_not_written(tmp_path, capsys):
     f = tmp_path / "flagships.yaml"
     f.write_text(doc)
     old = "(3) item 3 " + "w" * 183
-    assert ff.main(["b", "--file", str(f), "--replace", old, old + " " + "z" * 300]) == 1
+    assert ff.main(["b", "--file", str(f), "--notes-dir", str(tmp_path / "notes"),
+                    "--no-make-room", "--replace", old, old + " " + "z" * 300]) == 1
     assert "NOT WRITTEN" in capsys.readouterr().err and f.read_text() == doc
     # a read or a --check that fails is not a write attempt
     assert ff.main(["nosuch", "--file", str(f), "--field", "next"]) == 1
@@ -1068,3 +1069,31 @@ def test_reads_result_on_readme_cited_work():
     assert not ff.reads_result("a real Mixpanel export (README \"Mixpanel as a source\")", readme)
     assert not ff.reads_result('(1) AI layer (README "Mixpanel as a source")', readme)
     assert ff.result_head("plain words: next a thing") == ""
+
+
+def test_park_and_history_for_a_private_flagship_go_to_the_notes_dir(tmp_path):
+    # Three 2026-11-25 run records: payapps lives in private-monorepo, so
+    # ventures/payapps/ does not exist and --park/--history refused with
+    # "no venture folder". The notes now go to portfolio/flagships/<v>/.
+    f = tmp_path / "flagships.yaml"
+    f.write_text(DOC)
+    notes = tmp_path / "flagships"
+    base = ["a", "--file", str(f), "--ventures-dir", str(tmp_path / "ventures"),
+            "--notes-dir", str(notes)]
+    assert ff.main(base + ["--park", "then a long tail of words that wraps."]) == 0
+    assert "then a long tail of words that wraps." in (notes / "a" / "NEXT.md").read_text()
+    assert not (tmp_path / "ventures").exists()
+    assert ff.main(base + ["--field", "buildable", "--replace", "Something here.",
+                           "Something here. A new open item.", "--history", "Something here."]) == 0
+    assert "Something here" in (notes / "a" / "HISTORY.md").read_text()
+
+
+def test_a_public_venture_folder_still_wins_over_the_notes_dir(tmp_path):
+    f = tmp_path / "flagships.yaml"
+    f.write_text(DOC)
+    (tmp_path / "ventures" / "a").mkdir(parents=True)
+    assert ff.main(["a", "--file", str(f), "--ventures-dir", str(tmp_path / "ventures"),
+                    "--notes-dir", str(tmp_path / "flagships"),
+                    "--park", "then a long tail of words that wraps."]) == 0
+    assert (tmp_path / "ventures" / "a" / "NEXT.md").exists()
+    assert not (tmp_path / "flagships").exists()
