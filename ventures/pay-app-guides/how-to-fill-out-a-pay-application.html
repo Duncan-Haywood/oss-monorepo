@@ -40,7 +40,7 @@
       <tr role="row"><td role="cell" data-label="Column">Item number</td><td role="cell" data-label="What goes in it">The SOV line number. Change orders get their own numbers (CO-1).</td><td role="cell" data-label="Switchgear line in the example">3</td></tr>
       <tr role="row"><td role="cell" data-label="Column">Description of work</td><td role="cell" data-label="What goes in it">The SOV line description, unchanged from the approved SOV.</td><td role="cell" data-label="Switchgear line in the example">Switchgear</td></tr>
       <tr role="row"><td role="cell" data-label="Column">Scheduled value</td><td role="cell" data-label="What goes in it">The dollar value of the line from the approved SOV.</td><td role="cell" data-label="Switchgear line in the example" class="n">$60,000</td></tr>
-      <tr role="row"><td role="cell" data-label="Column">Work completed: from previous application</td><td role="cell" data-label="What goes in it">The total billed on this line on all earlier applications. Copy it from last month's "total completed" for the line, minus any stored material that has since been installed and moved into work.</td><td role="cell" data-label="Switchgear line in the example" class="n">$9,000</td></tr>
+      <tr role="row"><td role="cell" data-label="Column">Work completed: from previous application</td><td role="cell" data-label="What goes in it">The total billed on this line on all earlier applications. It is last month's "total completed and stored" for the line minus last month's materials presently stored: stored material stays in its own column until it is installed, then it is billed as this period's work (<a href="stored-materials-billing.html">how stored materials roll forward</a>).</td><td role="cell" data-label="Switchgear line in the example" class="n">$9,000</td></tr>
       <tr role="row"><td role="cell" data-label="Column">Work completed: this period</td><td role="cell" data-label="What goes in it">Installed work this period, as a dollar value. Use the percent you can defend on a walk.</td><td role="cell" data-label="Switchgear line in the example" class="n">$6,000</td></tr>
       <tr role="row"><td role="cell" data-label="Column">Materials presently stored</td><td role="cell" data-label="What goes in it">Material delivered and stored (on site or, if the contract allows, off site) but not yet installed.</td><td role="cell" data-label="Switchgear line in the example" class="n">$15,000</td></tr>
       <tr role="row"><td role="cell" data-label="Column">Total completed and stored to date</td><td role="cell" data-label="What goes in it">Previous + this period + stored.</td><td role="cell" data-label="Switchgear line in the example" class="n">$30,000</td></tr>
@@ -72,7 +72,7 @@
   <ul>
     <li><strong>Lien waivers:</strong> usually a conditional waiver for this payment and an unconditional one for the last payment received, plus your suppliers' and sub-subs' waivers. See <a href="conditional-vs-unconditional-lien-waivers.html">conditional vs unconditional lien waivers</a>.</li>
     <li><strong>Sworn statement:</strong> in Illinois and Michigan, and on many lender- or title-company-funded jobs elsewhere, a sworn list of every sub and supplier with what each is paid and owed. The <a href="sworn-statement.html">sworn statement builder</a> totals it and checks it against your contract and this request.</li>
-    <li><strong>Stored materials backup:</strong> invoices, bills of sale, photos, and proof of insurance for off-site storage if the contract allows it at all.</li>
+    <li><strong>Stored materials backup:</strong> invoices, bills of sale, photos, and proof of insurance for off-site storage if the contract allows it at all. See <a href="stored-materials-billing.html">billing stored materials</a>.</li>
     <li><strong>Notarization</strong> where the GC, lender or form requires it.</li>
     <li><strong>The deadline:</strong> GCs collect sub pay apps several days before they bill the owner. Miss the cutoff and you wait a month.</li>
   </ul>
@@ -101,6 +101,7 @@
       <ul>
       <li><a href="how-to-fill-out-a-pay-application.html" aria-current="page">How to fill out a pay application</a></li>
       <li><a href="change-orders-schedule-of-values.html">Change orders and the SOV</a></li>
+      <li><a href="stored-materials-billing.html">Billing stored materials</a></li>
       <li><a href="overbilling-underbilling.html">Overbilling and underbilling</a></li>
       <li><a href="retainage-explained.html">Retainage explained, with state caps</a></li>
       <li><a href="retainage-release.html">Getting retainage released</a></li>

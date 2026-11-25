@@ -1,7 +1,7 @@
 ---
 title: "Pay applications: the monthly paperwork subcontractors pay to escape"
 date: 2026-11-24
-tags: [construction, subcontractors, billing, retainage, lien-waivers, pay-app-guides, for-customers]
+tags: [construction, subcontractors, billing, retainage, lien-waivers, stored-materials, pay-app-guides, for-customers]
 description: "What a monthly pay application involves for a trade sub, what billing tools charge today (sourced), and the product we are building. In development."
 ---
 
@@ -239,6 +239,24 @@ are the starting point, not the product:
   hosted product keeps one log per job and adds each change order to the
   next pay application the month it is signed.
   ([source](../../ventures/pay-app-guides/README.md))
+- [Billing stored materials](https://marisstella.app/pay-app-guides/stored-materials-billing.html)
+  (added 2026-11-25): the stored-materials column is a snapshot, not a
+  running total. Each month, stored now = stored on the last pay app +
+  delivered − installed, and the installed value is billed as this period's
+  work. Leave the stored column alone after installing, and the same
+  switchgear is billed twice: the guide's example shows $25,500 completed and
+  stored when it is right and $34,500 when it is not. The page's rollforward
+  tool does this line by line and flags installing more than was on hand, a
+  line over its value, off-site material without the contract's permission or
+  title papers, and stock that has sat a month. Its off-site rule quotes the
+  federal payment clause, [FAR 52.232-5](https://www.acquisition.gov/far/52.232-5)
+  (read 2026-11-25); private contracts set their own. A test feeds its lines
+  through both the calculator and the Pay Application Generator and checks
+  total completed and stored, and retainage on stored, match to the cent.
+  Writing it turned up an error in our own step-by-step guide, which said
+  "previous" was last month's total less only the stored material since
+  installed; it is last month's total less all of last month's stored. Fixed.
+  ([source](../../ventures/pay-app-guides/stored.mjs))
 
 - [Free schedule of values template](https://marisstella.app/pay-app-guides/schedule-of-values-template.html)
   (added 2026-11-25): for subs who would rather keep the spreadsheet. A blank
