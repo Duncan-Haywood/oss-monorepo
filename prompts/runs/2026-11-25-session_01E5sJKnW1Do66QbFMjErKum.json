@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKnW1Do66QbFMjErKum",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T07:09:42Z",
+  "ended": "2026-11-25T07:17:03Z",
+  "wall_minutes": 7.59,
+  "tokens_in": 5792168,
+  "tokens_out": 36977,
+  "cost_usd": 2.8591,
+  "tool_calls": 60,
+  "task": "Bet #1 public side: contractor's sworn statement guide and builder (IL 770 ILCS 60/5, MI MCL 570.1110) in pay-app-guides",
+  "projects": [
+    "pay-app-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18889",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 15,
+  "outcome": "success",
+  "errors": [
+    "Cloning private-monorepo after add_repo was refused by the auto-mode permission classifier, so the bet's private code could not be worked on this run."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Says to build in private-monorepo 'when this session can reach it'. add_repo succeeded but the clone was denied as unauthorized access. Nothing documents whether a scheduled run may clone it, so the run fell back to the public side."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The 'files first' note says statute hosts often 403. ilga.gov and legislature.mi.gov failed both through curl (proxy 403) and WebFetch (DNS). Only WebSearch with allowed_domains could read them, which earlier pay-app-guides runs also found; that is worth one line in cloud-session.md, 'Outbound hosts'."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The private-monorepo clone was refused, so the run took the bet's public side (a front-door guide and tool) as the prompt allows.",
+      "did": "Built sworn-statement.html with sworn.mjs and its tests in pay-app-guides, linked from three pages, and added a section to the consolidated pay-apps post.",
+      "result": "Landed in PR 18889."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (new section: The sworn statement)"
+  ],
+  "goal": "$10k MRR via bet #1 pay-app billing: a search front door for 'contractor sworn statement' (Illinois and Michigan) leading to the early-access CTA",
+  "notes": "Local: node --test *.test.mjs in ventures/pay-app-guides gives 121 pass, 0 fail. Playwright at 390px: the example ties out, a mismatched request is flagged, no console errors, no horizontal scroll. Statutes read through WebSearch limited to ilga.gov and legislature.mi.gov on 2026-11-25; the page says so. venture-preflight was started in the background; see the PR for its result.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7ff7f180-a479-52e8-8a5b-7ee00d88be0d",
+    "transcripts": 1,
+    "first": "2026-11-25T07:09:42Z",
+    "last": "2026-11-25T07:17:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 106,
+        "output": 36977,
+        "thinking": 5260,
+        "cache_read": 5668886,
+        "cache_write_5m": 0,
+        "cache_write_1h": 123176,
+        "api_equivalent_usd": 2.8591,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 106,
+      "output": 36977,
+      "thinking": 5260,
+      "cache_read": 5668886,
+      "cache_write_5m": 0,
+      "cache_write_1h": 123176,
+      "api_equivalent_usd": 2.8591,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 42,
+      "WebFetch": 4,
+      "WebSearch": 4,
+      "ToolSearch": 3,
+      "Write": 3,
+      "Read": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.59,
+      "active_minutes": 7.59,
+      "model_minutes": 6.42,
+      "tool_minutes": 1.17,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "statute reading, a tested parser and checker, page and post: about a day for a construction-billing developer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 209.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
