@@ -2949,5 +2949,62 @@ class UncommittedNote(unittest.TestCase):
             self.assertNotIn("docs/z.md", note)
 
 
+class RepoRoot(unittest.TestCase):
+    """--repo-root runs another checkout's named workflow (private-monorepo)."""
+
+    def setUp(self):
+        self.saved = (runner.REPO, runner.WORKFLOWS)
+        self.addCleanup(self._restore)
+        self.tmp = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+
+    def _restore(self):
+        runner.REPO, runner.WORKFLOWS = self.saved
+
+    def _workflow(self):
+        wf = os.path.join(self.tmp, ".github", "workflows")
+        os.makedirs(wf)
+        os.makedirs(os.path.join(self.tmp, "apps", "x"))
+        with open(os.path.join(wf, "x-ci.yml"), "w") as fh:
+            fh.write(textwrap.dedent("""\
+                name: x-ci
+                on: pull_request
+                permissions: {contents: read}
+                defaults: {run: {working-directory: apps/x}}
+                jobs:
+                  check:
+                    runs-on: ubuntu-latest
+                    steps:
+                      - uses: actions/checkout@v4
+                      - run: pwd > where.txt
+            """))
+
+    def test_named_workflow_runs_in_the_other_checkout(self):
+        self._workflow()
+        with contextlib.redirect_stdout(io.StringIO()):
+            code = runner.main(["--repo-root", self.tmp, "x-ci", "--foreground"])
+        self.assertEqual(code, 0)
+        with open(os.path.join(self.tmp, "apps", "x", "where.txt")) as fh:
+            self.assertEqual(os.path.realpath(fh.read().strip()),
+                             os.path.realpath(os.path.join(self.tmp, "apps", "x")))
+
+    def test_a_root_without_workflows_is_refused(self):
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            code = runner.main(["--repo-root", self.tmp, "x-ci"])
+        self.assertEqual(code, 2)
+        self.assertIn("no .github/workflows", err.getvalue())
+        self.assertEqual(runner.REPO, self.saved[0])
+
+    def test_sweeps_are_refused(self):
+        self._workflow()
+        for extra in (["--tree"], ["--for-changes"], ["--list"]):
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err):
+                code = runner.main(["--repo-root", self.tmp, *extra])
+            self.assertEqual(code, 2, extra)
+            self.assertIn("named workflows only", err.getvalue())
+
+
 if __name__ == "__main__":
     unittest.main()
