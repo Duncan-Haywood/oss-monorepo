@@ -75,3 +75,14 @@ paraphrased labels as the SPRS calculator, and the plan says so. NIST
 publishes an OSCAL catalog for Rev. 3 only
 (`usnistgov/oscal-content`, `nist.gov/SP800-171/rev3`), and CMMC Level 2 is
 assessed against Rev. 2, so Rev. 3 text was not substituted.
+
+## RFQ review checklist (added 25 November 2026)
+
+| Fact | Source |
+|---|---|
+| The 13 clause numbers and titles in `CLAUSES` (`rfq.mjs`) | GSA's published FAR and DFARS source, the `.dita` file per clause in <https://github.com/GSA/GSA-Acquisition-FAR/tree/master/dita> and <https://github.com/GSA/GSA-Acquisition-DFARS/tree/master/dita>, fetched 25 Nov 2026 through raw.githubusercontent.com (`acquisition.gov` refused by the session's proxy). A script compared each title in `rfq.mjs` with the `<title>` of its file: 13 of 13 identical apart from whitespace. `rfq.test.mjs` pins the list (sha256 of the "id title" lines, first 16 hex: `3dc38d8abfae03ba`). |
+| File hashes (sha256, first 16 hex) | 52.204-21 `5d9ff06ba3d51199` (same file as the Level 1 row above), 252.204-7012 `99af021d6f34a1a2`, 252.204-7019 `81ce994c4a52db16`, 252.204-7020 `9d410f5f46854f10`, 252.204-7021 `c5bcbb3f0836e8ef`, 252.225-7009 `f3b9821785f34dbb`, 252.225-7048 `04d84acec4fd7b5c`, 252.246-7007 `6b3a5a5899ebbbbc`, 252.246-7008 `c4c6081beea1072f`, 52.246-2 `1ab5bb386198b76d`, 52.246-11 `09573e4e085e39e2`, 52.246-15 `4992431fd3c44e62`, 52.211-15 `67ef6e27ab9e7cbe` |
+| "Rapidly report" means within 72 hours of discovery (7012); SPRS score not more than 3 years old unless the solicitation says less (7019); specialty metals melted or produced in the US, its outlying areas or a qualifying country (7009(b)); export-controlled means EAR (15 CFR 730-774) or ITAR (22 CFR 120-130) (7048); government right to inspect at all places and times, including during manufacture (52.246-2(c)); comply with the listed higher-level quality standards and flow them down (52.246-11(a)-(b)); C of C in place of source inspection when the CAO authorizes it in writing (52.246-15); "This is a rated order" and follow 15 CFR 700 (52.211-15) | Read in the same `.dita` files. The `why` lines in `rfq.mjs` are our plain-language summaries, not clause text. |
+| Manufacturing ITAR defense articles generally requires DDTC registration (22 CFR part 122) | Not re-read this session (`ecfr.gov` not reached); stated with "generally". Re-check against 22 CFR 122.1. |
+| What the other patterns look for (AS9102, NADCAP, PPAP, MIL-PRF-8625, MIL-DTL-5541, AMS 2700, ASTM A967, MIL-STD-130 for IUID marking) | Spec names only, used as search patterns and in questions to the buyer; no requirement from those specs is restated. |
+| ISO 9001:2015 and AS9100D clause 8.2.3, "review of the requirements for products and services" (named on `rfq-review.html`) | Not re-read: both standards are paywalled. Clause number and title from the published standards' tables of contents as commonly cited; re-check against a licensed copy. |

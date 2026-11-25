@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const PAGES = ["index", "cmmc-level-1-self-assessment", "sprs-score-calculator", "nist-800-171-ssp-template", "job-shop-quote-calculator", "cmmc-level-1-vs-level-2", "ssp-and-poam", "how-to-price-a-machined-part"];
+const PAGES = ["index", "cmmc-level-1-self-assessment", "sprs-score-calculator", "nist-800-171-ssp-template", "job-shop-quote-calculator", "rfq-review", "cmmc-level-1-vs-level-2", "ssp-and-poam", "how-to-price-a-machined-part"];
 const read = (p) => readFileSync(new URL(`./${p}.html`, import.meta.url), "utf8");
 
 for (const p of PAGES) {
@@ -47,4 +47,16 @@ test("CMMC guide carries a dated status check", () => {
   const html = read("cmmc-level-1-vs-level-2");
   assert.match(html, /Status check, 24 November 2026/);
   assert.match(html, /suspended by the Department of War on 13 July 2026/);
+});
+
+test("RFQ review page keeps pasted text out of storage and renders findings as text", () => {
+  const html = read("rfq-review");
+  assert.doesNotMatch(html, /localStorage|setItem\(/);
+  assert.doesNotMatch(html, /innerHTML|insertAdjacentHTML|document\.write/);
+  assert.match(html, /recordUsage\("rfq-review"\)/);
+});
+
+test("quote calculator accepts quantity breaks handed over from the RFQ review", () => {
+  assert.match(read("job-shop-quote-calculator"), /get\("breaks"\)/);
+  assert.match(read("rfq-review"), /job-shop-quote-calculator\.html\?breaks=/);
 });

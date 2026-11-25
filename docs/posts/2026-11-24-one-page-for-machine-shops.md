@@ -55,3 +55,40 @@ Ten free tool pages already carry a one-line front door to it: a small note
 that a separate product is being built for their visitors, while the tool
 itself stays free. That makes the page reachable from the rest of the site
 without a new menu item.
+
+## Update, 25 November 2026: read the RFQ before you quote
+
+Many quoting losses are not arithmetic. They are a line
+nobody read: a first article report on lot one, domestic-melt material, an
+approved-processor list for the anodize, a CUI marking on the drawing. The new
+[RFQ review checklist](https://marisstella.app/machine-shop-guides/rfq-review.html)
+takes the buyer's email or the RFQ terms, pasted in, and lists:
+
+- each part number with its revision, quantities and annual usage, material
+  and finish, and the tightest tolerance (millimetres converted; "tight" is
+  the shop's own line, 0.001 in to start);
+- the quote-due and delivery dates, and whether a drawing was mentioned;
+- 13 FAR and DFARS clauses by number, each with its official title and one
+  plain line on what it means for the shop: CUI and the 72-hour report
+  (252.204-7012), the SPRS score (-7019, -7020), a CMMC level (-7021),
+  specialty metals (252.225-7009), export control (-7048), a named quality
+  standard (52.246-11), DPAS-rated orders (52.211-15) and others;
+- CUI, ITAR/EAR, AS9102, certs, NADCAP and DPAS markers, and every spec named.
+
+What it could not find becomes a numbered list of questions for the buyer,
+copyable as one email, and the quantities carry over to the
+[job-shop quote calculator](https://marisstella.app/machine-shop-guides/job-shop-quote-calculator.html)
+as its breaks.
+
+Two honest limits. It is pattern matching, not reading: it misses things
+phrased in ways it doesn't expect, so every finding shows the text it came
+from. And the clause titles are only as current as their source: they were
+copied from GSA's published FAR and DFARS source files on 25 November 2026
+(acquisition.gov itself was unreachable from the building session), compared
+title by title (13 of 13 identical), and pinned by a test. Pasted text never
+leaves the browser tab and is never saved, because an RFQ is often someone
+else's confidential drawing.
+
+This is the first step of the paid RFQ-to-quote assistant (bet #2): the
+paid version reads the drawing and the model as well as the email, and
+prices the quote from the shop's own rates.

@@ -13,12 +13,13 @@ shops: an RFQ-to-quote assistant and a CMMC Level 1/2 + ISO 9001 workspace
 | `sprs-score-calculator.html` | 110 NIST SP 800-171 requirements, met / not met / partial, scored by the DoD Assessment Methodology (110 minus 5/3/1). Partial credit for 3.5.3 and 3.13.11; no score without an SSP (3.12.4); the Conditional check from 32 CFR 170.21 (88 points, only 1-point gaps or 3.13.11 partial, and none of the six requirements (a)(2)(iii) never allows on a POA&M); gaps as a POA&M starter CSV that marks each gap allowed or not. |
 | `nist-800-171-ssp-template.html` | System security plan builder: the 3.12.4 contents (boundary, environment, connections, plus purpose, CUI, inventory, data flow, users, contacts, review date) and, for each of the 110 requirements, status (met / not met / partial / N/A), implementation statement, responsible, evidence, provider, and for gaps the planned action and milestone. A review lists what an assessor would send back; the score and the "110 by" date come from the same statuses and milestones. Downloads: SSP as escaped standalone HTML and as Markdown, POA&M CSV, plan file JSON (re-opened through `normaliseSsp`). Can start from the SPRS calculator's saved answers. Draft kept in the browser only when the user ticks it. Logic: `ssp.mjs`. |
 | `job-shop-quote-calculator.html` | Material, setup, programming, cycle time, other ops and markup from the user's own rates, recomputed at each quantity break. No built-in rates. |
+| `rfq-review.html` | RFQ review checklist (`rfq.mjs`): paste an RFQ; part numbers, revisions, quantities and annual usage, material, finish, tolerances (mm converted; tight ones flagged against the shop's own line), dates, 13 FAR/DFARS clauses with their titles copied from GSA's published source (`rfq.test.mjs` pins them), CUI/ITAR/AS9102/certs/NADCAP/DPAS markers, specs named. Each finding shows the text it came from. Questions for the buyer as a copyable email, a review CSV (formula cells neutralised), and the quantities handed to the quote calculator (`?breaks=`). Pasted text is never stored. Pattern matching, not reading: the page says so. |
 | `cmmc-level-1-vs-level-2.html` | FCI vs CUI, the clauses to look for, Level 1 and Level 2 requirements, Phase 2 status (checked 24 Nov 2026). |
 | `ssp-and-poam.html` | What goes in an SSP and a POA&M, and CMMC POA&M limits. |
 | `how-to-price-a-machined-part.html` | The quoting method, from the shop's own records. |
 
 Logic lives in `sprs-data.mjs` (weights), `sprs.mjs` (scoring), `ssp.mjs` (SSP builder) and `quote.mjs`
-(quoting); tests: `node --test *.test.mjs`. Every regulatory claim and the date
+(quoting), `rfq.mjs` (RFQ review); tests: `node --test *.test.mjs`. Every regulatory claim and the date
 it was checked: [`SOURCES.md`](SOURCES.md), which also lists what could not be
 re-read from the official host in the building session.
 
