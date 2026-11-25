@@ -207,3 +207,29 @@ free tools whose readers are a paid product's customers. Because no page
 matched it, the EU e-invoicing mandate checker never showed its link to the
 e-invoicing product. It does now, and a test ties the map's names to the
 list the industry pages are built from, so the two can't drift apart again.
+
+## Update, 2026-11-25: the two scheduling products' guides
+
+The Shift Roster Builder and the League Schedule Generator are both on the
+subscription list, and their free guides are how a café owner or a rec league
+organiser finds them: "restaurant staff schedule", "how to avoid clopening",
+"pickleball league schedule", "how to run a Swiss tournament". All 22 of the
+roster builder's guides ran long (184 to 293 characters), and so did 40 of
+the league generator's (161 to 260).
+
+Each now fits in 160 (roster guides 148 to 160, league guides 143 to 160).
+Where a page answers a search, the snippet now opens with that search's words
+("Restaurant staff schedule for lunch, dinner and weekend brunch: ...") and
+keeps the measured number the page is built on. The restaurant guide (293)
+used to be cut before its result; after (159):
+
+> Restaurant staff schedule for lunch, dinner and weekend brunch: a worked
+> seven-person week covers 28 of 30 service-shifts, and the Monday gap is a
+> hiring call.
+
+What went first was the repeated tail ("Free, private roster builder
+included", "Then build yours free"), which the page's own call to action
+already says. Nothing was added that the old text did not say, and the 7shifts
+comparison still says what the tool does not replace (payroll). Titles,
+`og:description` and JSON-LD were left alone. The list of over-long
+descriptions fell from 2,898 pages to 2,836. No traffic change is claimed.
