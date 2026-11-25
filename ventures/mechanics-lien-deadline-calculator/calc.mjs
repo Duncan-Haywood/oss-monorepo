@@ -54,7 +54,8 @@
 // Claimant tier (added 2026-11-16, quality fix): first tier contracts with the
 // general contractor, second tier with a subcontractor or supplier. Of the
 // modeled states only Georgia's notice turns on it (required only without
-// privity with the contractor); California, Arizona, Florida, Washington and
+// privity with the contractor; Ohio's turns on privity with the owner and is
+// shown as a caveat); California, Arizona, Florida, Washington and
 // Colorado give the same clocks to both tiers, and Texas does too for
 // original contracts signed from 2022-01-01 (HB 2237 removed the old
 // second-tier 2nd-month notice). Texas notices are listed month by month.
@@ -157,6 +158,66 @@ STATE_RULES.CO = {
   lienLabel: "record a lien statement",
   prelimLabel: "notice of intent to lien",
   prelimExtra: "Colorado has no early preliminary notice on private work; the date shown is the last day to serve the notice of intent (10 days before the lien deadline). Sources conflict on a shorter 2-month window for one- and two-family homes sold to a bona fide purchaser and on notices extending the time, so a shorter or longer date may apply; confirm with the statute.",
+};
+
+// Added 2026-11-25. Each rule was read in the state legislature's own text,
+// through web-search results limited to the official site (the session's
+// network policy blocked direct page loads of ncleg.gov, nysenate.gov and
+// codes.ohio.gov):
+//   - North Carolina, G.S. 44A-12(b): claim of lien "not later than 120 days
+//     after the last furnishing of labor or materials at the site of the
+//     improvement by the person claiming the lien". G.S. 44A-11.2(l): on an
+//     improvement subject to G.S. 44A-11.1 (one with a designated lien agent),
+//     the claimant may perfect a lien only if the lien agent received a Notice
+//     to Lien Agent no later than 15 days after first furnishing, or before a
+//     later mortgage, deed of trust or sale was recorded.
+//   - New York, Lien Law § 10(1): notice of lien during the work or "within
+//     eight months after the completion of the contract, or the final
+//     performance of the work, or the final furnishing of the materials";
+//     four months where the improvement is a single family dwelling. New York
+//     has no preliminary notice on private work. A bill to lengthen both
+//     periods (A10348, 2026) was only in committee when read.
+//   - Ohio, R.C. 1311.06(B): affidavit within 60 days of the claimant's last
+//     labor or materials for a one- or two-family dwelling or a residential
+//     condominium unit, 75 days otherwise. R.C. 1311.05: a subcontractor or
+//     supplier without privity with the owner serves a notice of furnishing
+//     within 21 days of first furnishing where a notice of commencement was
+//     recorded; it does not apply under a home construction contract.
+STATE_RULES.NC = {
+  name: "North Carolina",
+  citation: "N.C. Gen. Stat. §§ 44A-11.2, 44A-12",
+  prelim: { type: "days_after_first", days: 15 },
+  lien: { type: "days_after_last", days: 120 },
+  lienLabel: "file a claim of lien on real property",
+  prelimLabel: "Notice to Lien Agent",
+  prelimExtra: "The 15-day Notice to Lien Agent is needed only on a project that has a designated lien agent (G.S. 44A-11.1). Notice after 15 days can still protect the lien if the lien agent receives it before a later mortgage, deed of trust or sale is recorded, so a late notice is worth sending, but the 15-day date is the safe one. Enforcement suit is due within 180 days after your last furnishing.",
+};
+
+STATE_RULES.NY = {
+  name: "New York",
+  citation: "N.Y. Lien Law § 10",
+  prelim: { type: "not_required", reason: "New York has no preliminary notice on private projects; the notice of lien below is the only filing deadline this tool shows." },
+  lienByProject: {
+    commercial: { type: "months_after_last", months: 8 },
+    residential: { type: "months_after_last", months: 4 },
+  },
+  lienLabel: "file a notice of lien",
+  prelimLabel: "preliminary notice",
+  residentialNote: "The 4-month period applies to an improvement to a single family dwelling (not a unit a developer still holds in a filed subdivision); other residential work, such as apartment buildings, has 8 months. The statute counts from completion of the contract or your final performance or furnishing; this tool uses your last furnishing date.",
+};
+
+STATE_RULES.OH = {
+  name: "Ohio",
+  citation: "Ohio Rev. Code §§ 1311.05, 1311.06",
+  prelim: { type: "days_after_first", days: 21 },
+  lienByProject: {
+    commercial: { type: "days_after_last", days: 75 },
+    residential: { type: "days_after_last", days: 60 },
+  },
+  lienLabel: "record an affidavit of lien",
+  prelimLabel: "notice of furnishing",
+  prelimExtra: "The notice of furnishing is required only where the owner recorded a notice of commencement, only from a subcontractor or supplier without a direct contract with the owner, and not under a home construction contract. If the notice of commencement was recorded or served late, the 21 days run from then. A late notice still protects work done from 21 days before it was served onward.",
+  residentialNote: "60 days applies to a one- or two-family dwelling or a residential condominium unit; other residential work, such as apartment buildings, has 75 days.",
 };
 
 export const PROJECT_TYPES = ["commercial", "residential"];
@@ -446,7 +507,8 @@ export function lienDeadlines({
       add("medium", `Schedule shows the first ${MAX_SCHEDULE_MONTHS} months only`, "Your first and last dates span more months than the schedule lists. Later months follow the same rule.");
     }
   }
-  if (prelimNotRequired) add("info", `${info.name}: no ${info.prelimLabel} for a first-tier claimant`, prelimNotRequired + " If you are actually hired by a subcontractor or supply one, choose the second-tier option.");
+  if (prelimNotRequired && info.prelimByTier) add("info", `${info.name}: no ${info.prelimLabel} for a first-tier claimant`, prelimNotRequired + " If you are actually hired by a subcontractor or supply one, choose the second-tier option.");
+  else if (prelimNotRequired) add("info", `${info.name}: no ${info.prelimLabel} required`, prelimNotRequired);
   if (info.prelimExtra && (!info.prelimExtraTier || info.prelimExtraTier === tr)) add("medium", `${info.name}: an earlier cutoff also applies`, info.prelimExtra);
   if (info.residentialNote && pt === "residential") add("medium", `${info.name}: confirm the residential category`, info.residentialNote);
   if (lien && lien.usedLastFurnishingAsCompletion) {
