@@ -314,6 +314,33 @@ def census_free(audits: list[dict], pop: dict[str, list[str]], n: int, seed: str
     return picks, skipped
 
 
+# --- paused strata ------------------------------------------------------------------
+
+# Standalone research is paused (owner, 2026-11-25: "drop the research if you have to do r and d you can but
+# as part of actual paid projects. not as independent academic research"; prompts/goals.md, pivot point 11).
+# On that day 20 of the queue's 21 open high defects were research/ ones, so fix sessions and the fix-mode
+# trigger kept spending on paused work. The CLI leaves these out unless --research; the functions below keep
+# every subject so the metrics and coverage still count them.
+PAUSED_PREFIXES = ("research/",)
+
+
+def is_paused(subject: str) -> bool:
+    return subject.startswith(PAUSED_PREFIXES)
+
+
+def drop_paused(rows: list[dict], include: bool = False) -> tuple[list[dict], int]:
+    """(rows without paused subjects, how many were dropped); `include` keeps them all."""
+    if include:
+        return rows, 0
+    kept = [r for r in rows if not is_paused(r["subject"])]
+    return kept, len(rows) - len(kept)
+
+
+def paused_note(n: int, what: str) -> str:
+    return (f"({n} {what} under research/ left out: standalone research is paused since 2026-11-25,"
+            " prompts/goals.md pivot point 11; --research shows them)")
+
+
 # --- the open-defect queue ---------------------------------------------------------
 
 SEV_RANK = {"high": 0, "medium": 1, "low": 2}
@@ -916,6 +943,8 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
         prs = None if getattr(args, "no_prs", False) else open_pr_titles()
         if prs is None and not getattr(args, "no_prs", False):
             print("(open-PR search failed: search open PRs by subject before auditing one)", file=sys.stderr)
+        if not getattr(args, "research", False):
+            pop = {k: [x for x in v if not is_paused(x)] for k, v in pop.items()}
         picks, skipped = census_free(audits, pop, args.n, args.seed, prs or [])
         print(f"seed {args.seed}  (--seed {args.seed} repeats this draw)")
         for p in picks:
@@ -924,7 +953,7 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
             print(f"  skipped   {subject}: open PR " + "; ".join(f"#{n} {t[:70]}" for n, t in naming[:2]))
     elif args.cmd == "queue":
         seed = getattr(args, "seed", None)
-        rows = queue(audits, args.severity, seed)
+        rows, n_paused = drop_paused(queue(audits, args.severity, seed), getattr(args, "research", False))
         seen: dict[tuple[str, str], dict] = {}
         changed = 0
         if rows and not getattr(args, "no_git", False) and not getattr(args, "no_fetch", False):
@@ -979,6 +1008,8 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
             elif c["status"] == "unknown":
                 print(f"    changed since audit: unknown ({c['why']})")
         print(f"{len(rows)} open defects at {args.severity} or worse (no fix PR recorded; source-only left out)")
+        if n_paused:
+            print(paused_note(n_paused, "open defects"))
         if in_flight:
             print(f"{in_flight} shown already have an open PR naming the subject or a live claim: extend or wait for"
                   " that PR, or pick another row (a fix PR that has not merged is not yet in fix_prs)")
@@ -994,11 +1025,12 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
                   " fixed and are not shown; when you fix some of an audit's defects, set fixed_by on each one you"
                   " fixed (portfolio/quality/README.md, 'Fix forward')")
     elif args.cmd == "mode":
-        open_high = len(queue(audits, "high"))
-        print(json.dumps(mode_for(args.date, args.seed, last_reflection(), open_high, len(reaudit_due(audits))), indent=1))
+        open_high = len(drop_paused(queue(audits, "high"), getattr(args, "research", False))[0])
+        due = len(drop_paused(reaudit_due(audits), getattr(args, "research", False))[0])
+        print(json.dumps(mode_for(args.date, args.seed, last_reflection(), open_high, due), indent=1))
     elif args.cmd == "reaudit":
         prs = None if getattr(args, "no_prs", False) else open_pr_titles()
-        rows = reaudit_due(audits, args.seed)
+        rows, n_paused = drop_paused(reaudit_due(audits, args.seed), getattr(args, "research", False))
         if prs:  # subjects an open PR already names go last
             rows.sort(key=lambda r: bool(prs_naming(r["subject"], prs)))
         print(f"seed {args.seed}  (--seed {args.seed} repeats this order)")
@@ -1013,4 +1045,6 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
         print(f"{len(rows)} subjects have a recorded fix no later audit has checked. Re-audit one in a new file with"
               ' "drawn_by": "reaudit": check every earlier defect (fixed or not) against the code as it is now and say'
               " which the fix closed (portfolio/quality/README.md, \"Five modes\").")
+        if n_paused:
+            print(paused_note(n_paused, "subjects"))
     return 0

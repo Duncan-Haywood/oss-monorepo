@@ -76,8 +76,12 @@ python3 platform/ci/quality_audit.py summary --md      # the same as Markdown, f
 |---|---|---|---|
 | `flagship` | `portfolio/flagships.yaml` | 1, the least recently audited, if not audited in the last 7 days | the work the owner most wants deep; every flagship gets audited in rotation |
 | `venture` | every `ventures/<name>/` | 2 by default, uniform | the typical product, not the best one |
-| `research` | every `research/<name>/` not starting `_` | 2 by default, uniform | the typical research project |
+| `research` | every `research/<name>/` not starting `_` | 0 while standalone research is paused (since 2026-11-25; `--research` draws 2) | the typical research project |
 | `platform` | every `platform/<name>/` | 1, uniform | the shared tooling everything else stands on |
+
+`sample`, `census`, `queue`, `reaudit` and `mode` leave `research/` subjects out unless `--research`: on
+2026-11-25, 20 of the queue's 21 open highs and 225 of 512 re-audits waiting were research, which the owner paused
+that day (`prompts/goals.md`, pivot point 11). Metrics and coverage still count them.
 
 A venture, research or platform subject audited in the last 90 days is skipped,
 so rounds spread over the population and re-running the same seed after
