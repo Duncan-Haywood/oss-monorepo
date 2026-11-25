@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01E5sJKmjCSpkKmYPM1kyLFz",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-24T23:18:11Z",
+  "ended": "2026-11-24T23:40:58Z",
+  "wall_minutes": 70.57,
+  "tokens_in": 9605264,
+  "tokens_out": 57747,
+  "cost_usd": 4.3806,
+  "tool_calls": 73,
+  "task": "buildbot-sheathing milestone 78: an augmented (e, beta) filter that learns the free-air reading's gravity-model error",
+  "projects": [
+    "research/buildbot-sheathing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18734",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First dry run of run.py was very slow: pee_sequence looped over every press of every sheet for every candidate tare count, and the q(0,P) table was rebuilt on each simulate call",
+      "fix": "closed-form in-sheet variance and a cached q table; same numbers, about 10x faster"
+    },
+    {
+      "what": "The container restarted mid-run (12 of 18 rows done) and killed the background experiment",
+      "fix": "run.py gained an optional M78_CACHE directory that keeps finished rows, so the rerun resumed; one ~25 min loss"
+    }
+  ],
+  "integrity_issues": [
+    "NAIVE-CAL 'uncalibratable' cells are uncalibratable only above the inherited 1e-5 bisection floor; a side check (not in results.txt) found the G1 LAYOUT 0.1 row meets 1% at 1e-7 by taring every sheet. Disclosed in LOG, README, paper, post rather than reported as 'cannot be recalibrated'.",
+    "H326 was refuted on ties (7 of 11 rows tie for every policy), a framing flaw in the registered hypothesis; reported as refuted, not reinterpreted."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Long experiments are told to run in the background, but nothing warns that a container restart kills them; a per-row result cache (as m78's M78_CACHE) would be a good default for multi-minute runs."
+    },
+    {
+      "file": "platform/ci/check_md_links.py",
+      "issue": "Fails on main with 2 dead links in portfolio/monetization/hardware-bets.md, unrelated to research PRs; had to stash to confirm they were pre-existing."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "North star says for-profit work first, but the router's weighted draw sent this run to the research track; followed the router, as prompt.md routes runs.",
+      "did": "research milestone",
+      "result": "one programme milestone landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-force-sensor-gravity-compensation-error-learning.md",
+    "research/buildbot-sheathing/LOG.md (milestone 78 planned + result)"
+  ],
+  "goal": null,
+  "notes": "Hypotheses H320-H326 registered and pushed before the full run. Local checks: research/_homepage/build.py ok; paper/check_numbers.py 521/521; check_posts ok; programme_check ok; project tests 258 passed, 8 skipped. augfilter.simulate reproduces milestone 77's BALANCE draw for draw at sb = 0 (test).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "17d1dba4-3eff-5eca-bc82-c61a2bed432a",
+    "transcripts": 1,
+    "first": "2026-11-24T23:18:11Z",
+    "last": "2026-11-25T00:28:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 135,
+        "output": 57747,
+        "thinking": 15222,
+        "cache_read": 9437934,
+        "cache_write_5m": 0,
+        "cache_write_1h": 167195,
+        "api_equivalent_usd": 4.3806,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 135,
+      "output": 57747,
+      "thinking": 15222,
+      "cache_read": 9437934,
+      "cache_write_5m": 0,
+      "cache_write_1h": 167195,
+      "api_equivalent_usd": 4.3806,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 62,
+      "Write": 5,
+      "ToolSearch": 2,
+      "Read": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 70.57,
+      "active_minutes": 70.39,
+      "model_minutes": 9.66,
+      "tool_minutes": 60.73,
+      "waiting_on_human_minutes": 0.18,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "design and code a 2-state filter + schedule, tests, a 50 min sweep, write-up and paper paragraph: about two working days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 365.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
