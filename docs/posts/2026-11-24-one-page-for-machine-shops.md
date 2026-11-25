@@ -92,3 +92,36 @@ else's confidential drawing.
 This is the first step of the paid RFQ-to-quote assistant (bet #2): the
 paid version reads the drawing and the model as well as the email, and
 prices the quote from the shop's own rates.
+
+## Update, 25 November 2026: revising a quote without losing the one you sent
+
+A buyer rarely accepts the first quote as sent. They change a quantity break,
+send a new drawing revision, or come back after the quote has expired. Many
+small shops then edit the original in a spreadsheet or word processor, and the
+price the customer actually saw is gone. When the PO arrives at the old price,
+nobody can show what was quoted.
+
+The RFQ-to-quote app (bet #2, still in private development, not yet on sale)
+now handles this the way paper quoting systems always did:
+
+- **A sent quote is never edited.** "Revise" opens Q-1001 Rev 2: the same
+  quote number, with every line copied as sent. That includes the prices and
+  the shop rates they were priced from. The estimator changes what the buyer
+  asked for, and "Re-price" brings in today's rates only on request.
+- **The original stays live until the revision goes out.** Sending Rev 2 marks
+  Rev 1 "superseded" in the same database write. The exact PDF of Rev 1, with
+  its SHA-256 fingerprint, is kept. The quote log counts the job once, so the
+  win rate is not diluted by a revision.
+- **The PDF says what it replaces.** The header reads "Quote Q-1001 Rev 2 ·
+  Replaces Q-1001", and the file downloads as `Q-1001-R2.pdf`.
+- **Won quotes are not revised.** A change after the PO is a new quote. A
+  revision cannot go out once the quote it replaces has been marked won.
+- **Expiry is automatic.** Each morning, sent quotes past their valid-until
+  day are marked expired. A quote valid until the 25th is still good all of
+  the 25th. An expired quote can still be revised when the buyer comes back.
+
+This matters for more than tidiness. A quote is an offer, and a shop that
+cannot show which revision a PO accepted is in a weak position if there is a
+dispute. Keeping every sent revision unchanged, with a fingerprint, removes
+that doubt. (This is a description of the software, not legal advice about
+when an offer binds.)
