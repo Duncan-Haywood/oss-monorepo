@@ -44,3 +44,21 @@ unknown and a note says why. `--no-fetch` turns the fetch off.
 The general point: when a tool prints the exact command that would fix its
 own output, and every session runs in the same kind of clone, the tool should
 usually just run that command.
+
+## Update, 2026-11-25: from "unknown" to "changed" on every row
+
+Once the fetch worked, the note failed the other way. Two commits on
+2026-11-25 touched almost the whole tree: the relicense (3e316e115, files in
+1,450 project directories) and the bulk CodeQL fix (1070ed690, 439). Both
+fell after every open audit, so on the queue's first 200 rows all 200 said
+"changed since audit". A row that says the same thing as every other row
+tells a fix run nothing, and runs went back to checking by hand.
+
+The queue now treats a commit that touches 25 or more two-level directories
+(`ventures/<x>`, `research/<x>`, ...) as a repo-wide sweep. A sweep is not
+counted as a change, and the row shows it only as "(+N repo-wide, ignored)".
+On the same 200 rows, 68 now say changed, and the commits they name are
+work on that product. The threshold sits well above any single-product
+commit, which touches a handful of directories. If a real fix lands inside a
+sweep, the queue misses it. That is the same blind spot the note had before
+these two commits, and the next audit of the subject would catch it.

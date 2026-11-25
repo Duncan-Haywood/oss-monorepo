@@ -606,6 +606,24 @@ def deepen_for(oldest: str, today: dt.date, git=_git, git_run=None) -> str:
     return f"(fetch of main since {oldest} failed or exceeded {FETCH_TIMEOUT_S}s; rows below may say unknown)"
 
 
+# A commit touching this many distinct two-level directories (ventures/<x>, research/<x>, ...) is a repo-wide
+# sweep, not a fix. On 2026-11-25 the relicense (3e316e115, 1,450 directories) and the CodeQL backlog fix
+# (1070ed690, 439) made nearly every queue row read "changed since audit", so the note no longer singled out
+# the rows a commit may have fixed. The largest single-product commit seen touches a handful.
+SWEEP_DIRS = 25
+_sweep_cache: dict[tuple[int, str], bool] = {}
+
+
+def is_sweep(sha: str, git=_git) -> bool:
+    """True when commit `sha` touches SWEEP_DIRS or more distinct two-level directories."""
+    key = (id(git), sha)
+    if key not in _sweep_cache:
+        names = git(["diff-tree", "--no-commit-id", "--name-only", "-r", sha]).split()
+        dirs = {"/".join(n.split("/")[:2]) for n in names if n.count("/") >= 2}
+        _sweep_cache[key] = len(dirs) >= SWEEP_DIRS
+    return _sweep_cache[key]
+
+
 def changes_since(subject: str, date: str, git=_git, audit_path: str | None = None) -> dict:
     """Commits under `subject` since its audit `date`, so a fix session can tell a defect that may already be fixed
     (with no fix_prs recorded) from one nobody touched. On 2026-11-11 a fix run found PR #14327 had fixed a queued
@@ -632,13 +650,13 @@ def changes_since(subject: str, date: str, git=_git, audit_path: str | None = No
     out = git(["log", *span, "--format=%H%x09%h%x09%s", "--", subject])
     if not out and not git(["rev-parse", "--verify", "-q", ref]).strip():
         return {"status": "unknown", "commits": [], "why": "no git history"}
-    commits = []
+    commits, sweeps = [], []
     for line in out.splitlines():
         full, short, title = (line.split("\t", 2) + ["", ""])[:3]
         if full in boundary:
             continue
-        commits.append({"sha": short, "title": title})
-    return {"status": "changed" if commits else "untouched", "commits": commits}
+        (sweeps if is_sweep(full, git) else commits).append({"sha": short, "title": title})
+    return {"status": "changed" if commits else "untouched", "commits": commits, "sweeps": sweeps}
 
 
 # --- open PRs that already name a queued subject -------------------------------------
@@ -1004,7 +1022,8 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
             if c["status"] == "changed":
                 changed += 1
                 last = c["commits"][0]
-                print(f"    changed since audit: {len(c['commits'])} commit(s), latest {last['sha']} {last['title'][:90]}")
+                extra = f" (+{len(c['sweeps'])} repo-wide, ignored)" if c.get("sweeps") else ""
+                print(f"    changed since audit: {len(c['commits'])} commit(s){extra}, latest {last['sha']} {last['title'][:90]}")
             elif c["status"] == "unknown":
                 print(f"    changed since audit: unknown ({c['why']})")
         print(f"{len(rows)} open defects at {args.severity} or worse (no fix PR recorded; source-only left out)")
