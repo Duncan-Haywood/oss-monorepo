@@ -39,6 +39,10 @@
     {
       "file": "prompts/redteam.py",
       "issue": "`targets --probe 20 | grep pay-app` printed nothing for ventures/pay-app-guides files though their suites run in ~0.1 s; aimed with --target after timing the suite by hand."
+    },
+    {
+      "file": "platform/ci/test_check_row_spread.py",
+      "issue": "Flaked once under run_workflow_locally.py --for-changes (FileNotFoundError on ventures/tmpXXXX: rglob over ventures/ met another parallel test's temp dir being deleted); passed 3/3 run alone. check_row_spread.py's rglob should tolerate vanished paths, or tests should make temp dirs outside ventures/."
     }
   ],
   "deviations": [
@@ -57,7 +61,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Guard added: ventures/pay-app-guides/number-parse.test.mjs fails any Number( call in the venture's modules without a plain-number regex beside it; on the pre-fix tree it flagged colog.mjs:117 and waivers.mjs:67. Local verification: run_venture_tests.py pay-app-guides pay-application-generator -> 169 + 64 tests ok.",
+  "notes": "Guard added: ventures/pay-app-guides/number-parse.test.mjs fails any Number( call in the venture's modules without a plain-number regex beside it; on the pre-fix tree it flagged colog.mjs:117 and waivers.mjs:67. Local verification: run_venture_tests.py pay-app-guides pay-application-generator -> 169 + 64 tests ok. run_workflow_locally.py --for-changes: ventures-tests node --test step red only from the unrelated test_check_row_spread flake above (pay-app-guides suite ok); priv-* deploy/review jobs not run locally (PR CI is their verdict).",
   "corrections": [],
   "redteam": {
     "campaigns": [
