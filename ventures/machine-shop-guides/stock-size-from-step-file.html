@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Stock Size from a STEP or STL File: Bounding Box and Bar Size</title>
-  <meta name="description" content="Drop a STEP or STL file: bounding box, the round bar it turns from and the stock to cut with your allowance. Read in your browser, never uploaded.">
+  <meta name="description" content="Drop a STEP or STL file: bounding box, round bar and stock size with your allowance, plus a cycle time from your own feeds. Read in-browser, never uploaded.">
   <meta property="og:title" content="Stock Size from a STEP or STL File: Bounding Box and Bar Size">
   <meta property="og:description" content="Bounding box, round-bar diameter and stock size from a STEP or STL file, with your own allowance and rounding, read in your browser. Nothing is uploaded.">
   <meta property="og:type" content="website">
@@ -46,6 +46,17 @@
     <label>Your price<span class="hint">From your supplier's invoice</span><input name="price" type="number" min="0" step="any" inputmode="decimal"></label>
     <label>Price per<select name="per"><option value="lb">lb</option><option value="kg">kg</option><option value="ft">foot of bar</option><option value="m">metre of bar</option></select></label>
   </div>
+  <h2>Cycle time (optional, from an STL)</h2>
+  <p class="note">Your own cutting data, in the units above per minute. The page has no feeds or speeds of its own: a number we made up would be wrong for your machine, tool and material.</p>
+  <div class="grid">
+    <label>Roughing width of cut<span class="hint">Radial engagement (stepover) of your roughing tool</span><input name="roughWidth" type="number" min="0" step="any" inputmode="decimal"></label>
+    <label>Roughing depth of cut<span class="hint">Axial depth per pass</span><input name="roughDepth" type="number" min="0" step="any" inputmode="decimal"></label>
+    <label>Roughing feed (per minute)<span class="hint">Table feed in in/min or mm/min</span><input name="roughFeed" type="number" min="0" step="any" inputmode="decimal"></label>
+    <label>Finishing stepover<span class="hint">Distance between finishing passes</span><input name="finishStepover" type="number" min="0" step="any" inputmode="decimal"></label>
+    <label>Finishing feed (per minute)<input name="finishFeed" type="number" min="0" step="any" inputmode="decimal"></label>
+    <label>Non-cutting allowance (%)<span class="hint">Rapids, tool changes, probing</span><input name="allowancePct" type="number" min="0" step="any" inputmode="decimal"></label>
+    <label>Load / unload (minutes per part)<input name="loadMinutes" type="number" min="0" step="any" inputmode="decimal"></label>
+  </div>
   <datalist id="densities">
     <option value="2.70">6061 aluminium</option>
     <option value="2.81">7075 aluminium</option>
@@ -68,8 +79,11 @@
   <h2>Stock options, smallest first</h2>
   <div class="scroller"><table><thead><tr><th>Stock</th><th class="num">Size</th><th class="num">Length per part</th><th class="num">Weight</th><th class="num">Material $ / part</th></tr></thead><tbody id="stock"></tbody></table></div>
   <p class="note" id="removal"></p>
-  <button type="button" id="to-quote" disabled>Use the first option's cost in the quote calculator</button>
-  <p class="note">The cost line is your price times the stock this calculator sized, before scrap; the quote calculator adds your scrap allowance.</p>
+  <h2>Cycle time estimate</h2>
+  <div class="scroller"><table><tbody id="cycle"></tbody></table></div>
+  <p class="note" id="cycle-note"></p>
+  <button type="button" id="to-quote" disabled>Use the first option's cost and the cycle time in the quote calculator</button>
+  <p class="note">The cost line is your price times the stock this calculator sized, before scrap; the quote calculator adds your scrap allowance. The cycle time goes into its cycle-time field, where the calibration factor from <a href="quote-vs-actual.html">quoted vs actual</a> corrects it.</p>
 </section>
 
 <section>
@@ -78,6 +92,10 @@
 <p><strong>STL:</strong> the box and the round bar come from the mesh's corners (exact for the mesh), and the volume from the triangles, so the page can also give the part's weight and how much of the bar becomes chips.</p>
 <p><strong>Orientation:</strong> a part modelled at an angle is boxed square to its own faces and hole axes, and the page says when it did that. The round bar is measured about the part's own turning axis when it has one.</p>
 <p>We checked it against OpenCascade's own measurements on 9 test parts and 59 generated ones (plates, shafts, ball ends, fillets, rotated brackets, inch files): it never gave a box smaller than the part, 60 of the 68 boxes were exact, and the rest were at most 2.8 mm too large and were flagged as such. The test files and the script that made them are in the source repository.</p>
+
+<h2>How it estimates the cycle time</h2>
+<p>This is the volumetric method an estimator uses for a first number before anyone opens CAM. Roughing time is the metal to remove (the first stock option's volume minus the part's volume, from the STL) divided by your removal rate, which is width of cut × depth of cut × feed. Finishing time is the part's surface area divided by your stepover × finishing feed. Your non-cutting allowance is added on top of both, then your load and unload time.</p>
+<p>It counts every face as finished, so it runs long on faces left as raw stock, and it knows nothing about holes, threads, setups or tool reach. Treat it as a starting line for the quote, then let your own jobs correct it: the <a href="quote-vs-actual.html">quoted vs actual</a> page turns your past quoted and actual cycle times into a factor the quote calculator applies.</p>
 
 <h2>What it does not do</h2>
 <ul>
@@ -90,11 +108,12 @@
 
 <script type="module">
   import { readPart, stockOptions, materialCost } from "./part-geometry.mjs";
+  import { cycleEstimate } from "./cycle.mjs";
   import { recordUsage, usageStorage } from "./usage.mjs";
   const QUOTE_KEY = "machine-shop-guides-quote-draft";
   const f = document.getElementById("f");
   const $ = (id) => document.getElementById(id);
-  let bytes = null, fileName = "", reading = null, firstCost = null;
+  let bytes = null, fileName = "", reading = null, firstCost = null, cycleMin = null;
 
   const fmt = (mm) => {
     const show = f.elements.show.value;
@@ -165,7 +184,26 @@
       if (k === 0 && costKnown) firstCost = m.cost;
       tb.append(tr);
     });
-    $("to-quote").disabled = firstCost === null;
+    const len = (n) => toMm(f.elements[n].value);
+    const ce = cycleEstimate(r, opts[0].volume, {
+      rough: { width: len("roughWidth"), depth: len("roughDepth"), feed: len("roughFeed") },
+      finish: { stepover: len("finishStepover"), feed: len("finishFeed") },
+      allowancePct: Number(f.elements.allowancePct.value) || 0,
+      loadMinutes: Number(f.elements.loadMinutes.value) || 0,
+    });
+    const mins = (m) => (m === null ? "—" : `${m.toFixed(1)} min`);
+    const vol = (mm3) => (f.elements.show.value === "in" ? `${(mm3 / 16387.064).toFixed(2)} in³` : `${(mm3 / 1000).toFixed(1)} cm³`);
+    const ct = $("cycle");
+    ct.replaceChildren();
+    for (const [label, v] of [["Metal to remove (first stock option)", ce.removed === null ? "—" : vol(ce.removed)], ["Roughing", mins(ce.roughMinutes)], ["Finishing", mins(ce.finishMinutes)], ["Cycle per part, with allowance and load/unload", mins(ce.cycleMinutes)]]) {
+      const tr = document.createElement("tr");
+      cell(tr, label);
+      cell(tr, v, true);
+      ct.append(tr);
+    }
+    cycleMin = ce.cycleMinutes;
+    $("cycle-note").textContent = ce.missing.length ? `For a cycle time, add ${ce.missing.join(" and ")}.` : "A first estimate from your own rates; check it against a prove-out or your CAM time.";
+    $("to-quote").disabled = firstCost === null && cycleMin === null;
     $("removal").textContent = r.volume && r.closed
       ? `Part volume ${(r.volume / 1000).toFixed(1)} cm³ (${(r.volume / 16387.064).toFixed(2)} in³); in the first option ${Math.max(0, 100 * (1 - r.volume / opts[0].volume)).toFixed(0)}% of the stock becomes chips.`
       : r.format === "step" ? "Part volume and chip share need an STL of the same part; the box and bar sizes do not." : "";
@@ -191,8 +229,9 @@
   f.addEventListener("change", render);
   f.addEventListener("submit", (e) => e.preventDefault());
   $("to-quote").addEventListener("click", () => {
-    if (firstCost === null) return;
-    const value = firstCost.toFixed(2);
+    if (firstCost === null && cycleMin === null) return;
+    const value = firstCost === null ? null : firstCost.toFixed(2);
+    const cyc = cycleMin === null ? null : String(Math.round(cycleMin * 100) / 100);
     // handed over through this browser's storage, never the address bar
     let saved = false;
     try {
@@ -200,12 +239,13 @@
       if (store) {
         let d = {};
         try { d = JSON.parse(store.getItem(QUOTE_KEY) || "{}") || {}; } catch {}
-        d.materialPerPart = value;
+        if (value !== null) d.materialPerPart = value;
+        if (cyc !== null) d.cycleMinutes = cyc;
         store.setItem(QUOTE_KEY, JSON.stringify(d));
         saved = true;
       }
     } catch {}
-    if (!saved) { alert(`This browser blocks site storage, so type ${value} into the quote calculator's material field.`); return; }
+    if (!saved) { alert(`This browser blocks site storage, so type ${[value && `${value} into the material field`, cyc && `${cyc} into the cycle-time field`].filter(Boolean).join(" and ")} of the quote calculator.`); return; }
     recordUsage("stock-to-quote");
     location.href = "job-shop-quote-calculator.html";
   });

@@ -975,6 +975,7 @@ export function readPart(bytes, name = "", { mmPerUnit = 1 } = {}) {
     counts: prims.counts,
     warnings: prims.warnings,
     volume: prims.volume ?? null,
+    area: prims.area ?? null,
     closed: prims.closed ?? null,
     worldBox: { min: worldBox.min, max: worldBox.max, size: dims(worldBox) },
     frame: oriented.frame,
