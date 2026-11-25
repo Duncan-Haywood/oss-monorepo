@@ -200,6 +200,12 @@ def main(cache):
             e = list(score[name][r].values())
             p(f"  {r:5s}  {g5.rms(e):.4f}  ({np.mean(e):+.4f})")
     p("")
+    full = [j for j in range(n_c) if j not in half]
+    p(f"Post hoc (not registered; gear_pump_halfspeed.py): the factorial reads the gear pump at working-speed curves "
+      f"in the half-speed conditions, so (A) RMS over the {len(full)} working-speed conditions only "
+      f"({sum(1 for e in score['A']['owh'] if e[0] in full)} diagonals): " +
+      ", ".join(f"{r} {g5.rms([v for (j, _), v in score['A'][r].items() if j in full]):.4f}" for r in RULES))
+    p("")
     p("Per variant, (A) error pooled over the 22 conditions (RMS): " + " / ".join(RULES))
     per = {}
     for k in keys:

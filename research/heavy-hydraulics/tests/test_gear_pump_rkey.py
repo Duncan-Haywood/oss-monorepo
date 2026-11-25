@@ -52,3 +52,15 @@ def test_committed_verdicts_match_the_scores():
     assert len(verdict) == 4
     assert verdict["PC1"] == ("held" if round(abs(a["owdr"] - a["owdb"]), 4) <= 0.0003 else "refuted")
     assert verdict["PC4"] == ("held" if a["owdc"] > a["owdb"] else "refuted")
+
+
+def test_factorial_build_reads_working_speed_curves_at_half_idle_speed():
+    """The 7h to 7zc factorial's gears are built at n_r = 1; at half speed the own-speed build absorbs far less."""
+    import gear_pump_halfspeed as hs
+    import gear_pump_floor as fl
+    rows, sz = fl.families()["casappa KP30"]
+    c = hs.compare(rows, sz, "PVG32")
+    assert c["factorial"][85.0] == pytest.approx(3.179, abs=5e-4)
+    assert c["own-speed"][85.0] / c["factorial"][85.0] < 0.5
+    # 7zb's half-speed table is the own-speed build
+    assert c["own-speed"][79.0] / c["own-speed"][64.0] == pytest.approx(1.220 * fl.floor("PVG32", 0.5), abs=2e-3)
