@@ -28,7 +28,7 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
@@ -50,20 +50,24 @@
       "file": "security-alerts alerts/<n>.md",
       "why": "Claim branches (security-fix/code-scanning-<n>) conflict with the session's harness rule to push only to its assigned branch.",
       "did": "Worked on the assigned branch; the PR title names the alerts so other sessions see the claim through PR search.",
-      "result": "No duplicate open PR found for these alerts."
+      "result": "Duplicated: PR #18837 (another session) fixed the same two alerts at the same time. No claim branch from either session, so neither could see the other. The claim-branch convention is what prevents this; a session barred from pushing other branches should search open PRs by alert number right before starting, and again before merging."
     },
     {
       "file": "prompts/ventures/prompt-2.md",
       "why": "prompt.md step 0 puts the security queue before routing; the run's budget went to it, not to the ventures focus.",
       "did": "Fixed two alerts and triaged the remaining queue.",
       "result": "Every alert in the 48-alert queue now has a reading on file."
+    },
+    {
+      "file": "prompt.md",
+      "why": "No new post or agent doc: the only surviving change is a test fix with no reader audience.",
+      "did": "Recorded the duplication lesson here.",
+      "result": null
     }
   ],
-  "writeups": [
-    "docs/reports/2026-11-25-security-queue-false-positives.md (third pass section)"
-  ],
+  "writeups": [],
   "goal": null,
-  "notes": "No new blog post: security fixes and triage have no customer audience. Tests: node --test platform/agents/tools.test.mjs 22/22; node --test ventures/pay-app-guides/template.test.mjs 5/5 (soffice present, recalc test ran). False positives for the owner to dismiss are listed with reasons in the report doc. CI validate (portfolio/router/validate.py) failed on main's flagships.yaml: payapps next: was 2126 chars (cap 2000); trimmed to 1874 by cutting landed clauses and marking legal pages landed (private PR #50, per commit 578f7f19a).",
+  "notes": "The security fixes (#849, #65) and the third-pass triage were duplicated by PR #18837, which merged while this PR's CI ran; the flagships payapps trim was also made on main. After merging main those changes dropped out (main's versions kept). What this PR still lands: platform/distribution/homebrew.test.mjs's command-line test preloads a fetch stub that answers 404, so it no longer calls registry.npmjs.org. That test failed this PR's changed-ventures job once (8 tests, 1 fail; passed locally and on rerun), and runHomebrew throws on any registry status other than 200/404, so an npm 429 or refused connection fails it. Verified: node --test platform/distribution/homebrew.test.mjs 8/8.",
   "corrections": [],
   "redteam": null,
   "usage": {
