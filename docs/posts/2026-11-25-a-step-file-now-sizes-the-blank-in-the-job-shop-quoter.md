@@ -332,6 +332,32 @@ more without them, and the customer still gets exactly one quote. The first real
 at launch is on the checklist. The suite passes: 279 unit tests and 162 Worker tests, five of
 them new for this.
 
+## A repeat part won at another revision says so
+
+Job shops quote the same part numbers again and again, and the quoter already lists a part's
+earlier quotes on each line. With "Pre-fill repeat parts" turned on, it also copies the inputs
+of the last *won* quote at the same revision. Two gaps were left, and private-monorepo PR
+#180 closes both.
+
+**A label that stopped being true.** A pre-filled line says "Pre-filled from Q-1001 for Acme,
+won 2026-11-02". If the estimator then changed the line's part number or revision, or used
+"Use these inputs" to copy a different earlier quote, the label stayed. The line went on naming
+a won quote it no longer came from. Now the label goes in each of those cases. The inputs stay,
+since the estimator may still want them; the line just stops claiming a source. A change of case
+or spacing ("brk-1001 " for "BRK-1001") is the same part and keeps the label.
+
+**Won before, but at Rev A.** The pre-fill skips a won quote at another revision on purpose,
+because a new revision often means a changed drawing. That left the estimator with no prompt at
+all. Now a line whose part was won only at a different revision shows a note: "Won before at
+Rev A, not Rev B: Q-1001 for Acme, PO 4471. Compare the drawings before reusing its inputs."
+Under it are links to the files on that earlier quote's RFQ ("Then: brk-1001-a.pdf") and to
+this quote's RFQ ("Now"), so comparing the two drawings takes two clicks rather than a search.
+A line with no revision against a won one with a revision counts as different too, by the same
+rule the pre-fill uses.
+
+The file list only ever shows the shop's own RFQ files. A test checks that another shop quoting
+the same part number sees nothing. The full job-shop check suite passes locally, with six new tests for these two changes.
+
 ## Every change now gets clicked through in a real browser
 
 Until today the quoter's tests called the pricing engine and the API directly. Nothing opened a
