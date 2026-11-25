@@ -41,3 +41,4 @@ textarea { resize: vertical; min-height: 4.5em; }
 .sspmore { padding-left: 4.5em; }
 @media (max-width: 620px) { .sspmore { padding-left: 0; } }
 @media print { #actions, .sspmore input[type=file] { display: none; } }
+.cols { columns: 3 11em; padding-left: 1.2em; }

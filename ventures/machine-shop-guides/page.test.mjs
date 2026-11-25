@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const PAGES = ["index", "cmmc-level-1-self-assessment", "cmmc-scoping-worksheet", "sprs-score-calculator", "nist-800-171-ssp-template", "dfars-7012-incident-reporting", "stock-size-from-step-file", "job-shop-quote-calculator", "rfq-review", "first-article-inspection", "cmmc-level-1-vs-level-2", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual"];
+const PAGES = ["index", "cmmc-level-1-self-assessment", "cmmc-scoping-worksheet", "sprs-score-calculator", "nist-800-171-ssp-template", "dfars-7012-incident-reporting", "stock-size-from-step-file", "job-shop-quote-calculator", "rfq-review", "drawing-review", "first-article-inspection", "cmmc-level-1-vs-level-2", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual"];
 const read = (p) => readFileSync(new URL(`./${p}.html`, import.meta.url), "utf8");
 
 for (const p of PAGES) {
@@ -119,4 +119,20 @@ test("first article page keeps pasted results out of storage and renders them as
   assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon/);
   assert.match(html, /recordUsage\("fai-check"\)/);
   assert.match(html, /does not reproduce it/);
+});
+
+test("drawing review page reads the file in the browser, keeps nothing and renders findings as text", () => {
+  const html = read("drawing-review");
+  assert.doesNotMatch(html, /localStorage|setItem\(/);
+  assert.doesNotMatch(html, /innerHTML|outerHTML|insertAdjacentHTML|document\.write/);
+  assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon/, "the page must not transmit the drawing");
+  assert.match(html, /never uploaded/);
+  assert.match(html, /recordUsage\("drawing-review"\)/);
+  assert.match(html, /import \{ readDrawing, FIELDS, NOTE_TAGS, faiLink, drawingCsv \} from "\.\/drawing\.mjs"/);
+});
+
+test("first article page takes the drawing review's hand-over: general tolerances and the # list", () => {
+  const html = read("first-article-inspection");
+  assert.match(html, /for \(const k of \["g1", "g2", "g3", "g4", "ga"\]\)/);
+  assert.match(html, /location\.hash\.slice\(1\)\)\.get\("chars"\)/);
 });
