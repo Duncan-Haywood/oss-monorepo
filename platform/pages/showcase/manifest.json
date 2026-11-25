@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-19",
+  "generated": "2026-11-25",
   "shots": [
     {
       "slug": "wall-framing-takeoff",
@@ -7,6 +7,13 @@
       "caption": "Draws every stud, header and cripple, then prices the lumber order",
       "hero": "wall-framing-takeoff-hero.webp",
       "heroWide": "wall-framing-takeoff-hero-1200.webp"
+    },
+    {
+      "slug": "pay-application-generator",
+      "file": "pay-application-generator.webp",
+      "caption": "Rolls a schedule of values into a G702-style pay application, retainage and all",
+      "hero": "pay-application-generator-hero.webp",
+      "heroWide": "pay-application-generator-hero-1200.webp"
     },
     {
       "slug": "container-load-planner",

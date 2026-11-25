@@ -270,6 +270,7 @@ export function renderConstructionPage({
   liveSlugs = null,
   researchSlugs = null,
   earlyAccessHref,
+  shots = [],
 } = {}) {
   // A tool is a venture slug (`pay-app-guides`) or a page inside one
   // (`pay-app-guides/retainage-tracker.html`); liveness is the venture's.
@@ -281,6 +282,23 @@ export function renderConstructionPage({
   const cta = earlyAccessHref ?? `${toRoot}feedback/?type=idea`;
   const byId = Object.fromEntries(PRODUCTS.map((p) => [p.id, p]));
   const toolName = new Map(PROBLEMS.flatMap((p) => p.tools.map(([slug, name]) => [slug, name])));
+  // Real stills of the free tools (showcase/capture.mjs, already filtered to
+  // published tools by loadShowcase), keyed by venture slug.
+  const still = new Map(shots.filter((s) => s && s.slug && s.file && live(s.slug)).map((s) => [s.slug, s]));
+  // The close crop (600 x 375, text about 1.8x larger than the full still) when
+  // there is one, with its 1,200 px twin for 2x and 3x screens.
+  const figure = (shot, cls, lazy, sizes) => {
+    const at = (file) => escapeHtml(`${toRoot}showcase/${file}`);
+    const img = shot.hero
+      ? `src="${at(shot.hero)}"${shot.heroWide ? ` srcset="${at(shot.hero)} 600w, ${at(shot.heroWide)} 1200w" sizes="${sizes}"` : ''} width="600" height="375"`
+      : `src="${at(shot.file)}" width="960" height="600"`;
+    return `
+        <figure class="${cls}">
+          <a href="${escapeHtml(toolHref(toRoot, shot.slug))}"><img ${img} alt="${escapeHtml(`${toolName.get(shot.slug) || shot.slug} with its worked example loaded: ${shot.caption}`)}" decoding="async"${lazy ? ' loading="lazy"' : ''}></a>
+          <figcaption>${escapeHtml(shot.caption)}. The free <a href="${escapeHtml(toolHref(toRoot, shot.slug))}">${escapeHtml(toolName.get(shot.slug) || shot.slug)}</a>, with its example loaded.</figcaption>
+        </figure>`;
+  };
+  const leadShot = still.get(byId['pay-apps'].freeToday.find((slug) => still.has(slug)));
   const toolLink = (slug) => `<a href="${escapeHtml(toolHref(toRoot, slug))}">${escapeHtml(toolName.get(slug) || slug)}</a>`;
 
   const problemHtml = PROBLEMS.map((p) => {
@@ -301,6 +319,7 @@ export function renderConstructionPage({
 
   const productHtml = PRODUCTS.map((p) => {
     const free = p.freeToday.filter(live);
+    const shot = free.map((slug) => still.get(slug)).find(Boolean);
     return `
       <article class="ic-product" id="product-${escapeHtml(p.id)}">
         <h3>${escapeHtml(p.name)}</h3>
@@ -308,7 +327,7 @@ export function renderConstructionPage({
         <p class="ic-who">${escapeHtml(p.for)}</p>
         <p>${escapeHtml(p.summary)}</p>${p.planned.length ? `
         <p class="ic-planned">Planned: ${escapeHtml(p.planned.join(', '))}.</p>` : ''}${free.length ? `
-        <p class="ic-free">Try the free version of part of it now: ${free.map(toolLink).join(', ')}.</p>` : ''}
+        <p class="ic-free">Try the free version of part of it now: ${free.map(toolLink).join(', ')}.</p>` : ''}${shot && shot !== leadShot ? figure(shot, 'ic-still', true, '(max-width: 640px) calc(100vw - 66px), 440px') : ''}
       </article>`;
   }).join('');
 
@@ -366,6 +385,11 @@ body{margin:0;background:var(--ic-bg);color:var(--ic-ink);font:16px/1.55 system-
 @media (prefers-color-scheme:dark){.ic-wrap .ic-cta a{color:#0b1622}}
 .ic-wrap a{overflow-wrap:anywhere;color:var(--ic-accent)}
 .ic-wrap .ic-cta a{color:#fff}
+.ic-still{margin:14px 0 0}
+.ic-still img{display:block;width:100%;height:auto;border:1px solid var(--ic-line);border-radius:8px;background:#fff}
+.ic-still figcaption{color:var(--ic-muted);font-size:.9rem;margin-top:6px}
+.ic-lead-still{max-width:720px;margin:24px 0 8px}
+.ic-lead-still img{box-shadow:0 6px 24px rgba(20,30,45,.12)}
 .ic-faq dt{font-weight:600;margin-top:1em}
 .ic-faq dd{margin:.3em 0 0}
 </style>
@@ -377,7 +401,7 @@ body{margin:0;background:var(--ic-bg);color:var(--ic-ink);font:16px/1.55 system-
       <p class="ic-lede">For specialty subcontractors, small general contractors, remodelers, roofers, framers, estimators and schedulers: software for the paperwork that decides whether a job gets paid on time.</p>
       <p class="ic-note">The paid products on this page are <strong>in development</strong>, taking early-access interest; none is on sale yet and no price is set. The free tools linked below work today, in your browser.</p>
       <p class="ic-cta"><a href="${escapeHtml(cta)}">Ask for early access</a></p>
-      <p class="ic-src">The early-access form is this site’s public feedback form: what you send is published in the project’s GitHub repository, so describe how you bill or estimate today and leave out names, prices and anything private.</p>
+      <p class="ic-src">The early-access form is this site’s public feedback form: what you send is published in the project’s GitHub repository, so describe how you bill or estimate today and leave out names, prices and anything private.</p>${leadShot ? figure(leadShot, 'ic-still ic-lead-still', false, '(max-width: 752px) calc(100vw - 32px), 720px') : ''}
 
       <h2>The jobs that eat the week</h2>
       <div class="ic-grid">${problemHtml}
