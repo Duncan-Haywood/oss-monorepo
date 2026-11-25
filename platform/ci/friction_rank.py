@@ -43,6 +43,9 @@ origin/main as well as HEAD, so a fix that landed after the session started
 counts too. Measured that day: `--live --ungated` hid 0 clusters before the
 fetch and 68 after.
 
+Entries that only confirm the docs held ("worked first time, as documented")
+are dropped before clustering (`is_confirmation`); one with a caveat word stays.
+
 A touch only counts when the fix edits a code file the reports name, so a
 fix that lands somewhere else never hides its cluster: on 2026-11-15 a
 process run checked the top five live ungated rows and all five were done
@@ -95,6 +98,23 @@ files""".split())
 SIMILAR = 0.25  # Jaccard overlap with any member that puts an issue in a cluster
 PROBE = 40  # members compared per cluster (single link), to keep this fast
 NO_FRICTION = re.compile(r"\s*(none|no friction|nothing)\b[^.;:]{0,20}([.;:]|$)", re.I)  # as promptctl.py
+# "add_repo + one clone worked first time, as documented; no friction": a
+# confirmation, not friction. Fourteen of these made cloud-session.md the top
+# live cluster on 2026-11-25 (22 sessions, three real reports among them). An
+# entry counts as one only with no caveat word, so "worked, but ..." stays.
+CONFIRMS = re.compile(r"\b(works? (first time|as (documented|described))|worked (first time|as (documented|described))"
+                      r"|as (documented|described)|as the (doc|section|guide|note)\b[^.;]{0,30}says"
+                      r"|(guide|guidance|doc|section|note) (was|is) (accurate|right|correct)|^\s*accurate\b"
+                      r"|no friction|nothing wrong)", re.I)
+CAVEAT = re.compile(r"n't\b|\b(but|however|though|although|could|worth|would|should|might|missing|not|no way"
+                    r"|no longer|needs?|has to|have to|fail\w*|refus\w*|block\w*|denied|stale|wrong|instead"
+                    r"|except|only|still|cost|seem\w*|suggest\w*|beyond|otherwise|skipped|slow|long|drift\w*"
+                    r"|exceed\w*|timeout)\b", re.I)
+
+
+def is_confirmation(issue):
+    """True for an entry that only says the docs held ("worked as documented")."""
+    return bool(CONFIRMS.search(issue)) and not CAVEAT.search(issue.replace("nothing wrong", ""))
 
 
 def norm_file(f):
@@ -117,7 +137,13 @@ def jaccard(a, b):
 
 def load(runs_dir=RUNS):
     """Yield (date, session, file, issue, when) for every friction entry;
-    `when` is the record's end (or start) time, else its date."""
+    `when` is the record's start (or end) time, else its date.
+
+    The start, because a session reads the docs it reports on from the clone
+    it starts with: a fix that lands while it works still answers its report.
+    Dating reports by their end kept clusters live that a mid-session fix had
+    settled (2026-11-25: the private-monorepo clone fix, #18882, merged at
+    07:10Z; sessions that began before it reported the old text until 08:09Z)."""
     for p in sorted(Path(runs_dir).glob("*.json")):
         try:
             rec = json.loads(p.read_text())
@@ -127,12 +153,13 @@ def load(runs_dir=RUNS):
             continue
         date = str(rec.get("date") or p.name[:10])
         session = str(rec.get("session") or p.stem)
-        when = str(rec.get("ended") or rec.get("started") or date)
+        when = str(rec.get("started") or rec.get("ended") or date)
         items = rec.get("doc_friction") or []
         if not isinstance(items, list):
             continue
         for it in items:
-            if isinstance(it, dict) and it.get("issue") and not NO_FRICTION.match(str(it["issue"])):
+            if (isinstance(it, dict) and it.get("issue") and not NO_FRICTION.match(str(it["issue"]))
+                    and not is_confirmation(str(it["issue"]))):
                 yield date, session, norm_file(it.get("file")), str(it["issue"]), when
 
 

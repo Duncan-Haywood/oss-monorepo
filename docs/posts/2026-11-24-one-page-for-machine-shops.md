@@ -126,6 +126,43 @@ dispute. Keeping every sent revision unchanged, with a fingerprint, removes
 that doubt. (This is a description of the software, not legal advice about
 when an offer binds.)
 
+## Update, 25 November 2026: your rate card from the spreadsheet you already have
+
+A quote is only as good as the rates behind it (problem 2 above), and most
+shops already keep those rates somewhere: a shop-rate sheet, a material price
+list from the last supplier quote, a list of the anodizer's and heat treater's
+charges. Typing that into new software one row at a time is the step where a
+trial stalls.
+
+The RFQ-to-quote app (bet #2, still in private development, not yet on sale)
+now imports the rate card from that sheet. Choose the .xlsx or CSV, or paste
+the rows from Excel or Google Sheets. The file is read in the browser and is
+never uploaded. Only the rows you confirm are sent.
+
+- **It reads the sheet as it is.** A title block above the table, extra
+  columns such as "Notes", and headers like "Shop rate ($/hr)", "Setup
+  (hrs)", "Price per lb", "Lot minimum", "In-house?" or "Lead time (weeks)"
+  are all fine. Hours become minutes and weeks become days. A unit written in
+  the cell ("1.5 hr", "2 weeks") wins over the column's.
+- **It refuses to guess a price.** A scrap rate written as a bare `0.05`
+  could mean 0.05% or 5%, so the import asks for the % sign. A column in $/kg
+  or g/cm³, a material "Price" column that doesn't say per pound or per bar, a
+  "Setup" column with no unit, and an amount like "call" are each named with
+  their row and column. Nothing is saved until every row reads.
+- **It updates rather than duplicates.** A name already on the card ("haas
+  vf-2" matches "Haas VF-2") updates only the columns the sheet has, so a
+  price-list refresh doesn't wipe the setup times entered by hand. New names
+  are added, and the preview shows each row as new, "updates Hourly rate",
+  "no change" or "un-retires".
+- **Quotes already priced stay as priced.** Each quote line keeps the rates
+  it was priced from until the estimator presses Re-price.
+
+Building it turned up a real bug in the rate editor. Changing a machine's
+hourly rate also reset its setup rate, setup minutes and roughing rate to
+blank, and brought a retired machine back. A schema library fills in default
+values even on a partial update, and that caused it. The bug is fixed and
+pinned by a test.
+
 ## Update, 25 November 2026: what one RFQ is, counted from the drawings
 
 The proposed pricing for the RFQ-to-quote app says a plan includes a number of
