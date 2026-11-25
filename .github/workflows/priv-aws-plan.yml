@@ -46,6 +46,26 @@ jobs:
           tofu_wrapper: false
       - name: tofu fmt -check
         run: tofu fmt -check -recursive platform/aws
+      - name: Provider lock files match the registry
+        # Each stack's .terraform.lock.hcl must hold the registry's hashes for
+        # linux_amd64 (what plan and apply install with -lockfile=readonly).
+        # On a mismatch or a missing file the job prints the correct file;
+        # commit it as printed.
+        run: |
+          set -euo pipefail
+          status=0
+          for dir in platform/aws/stacks/*/; do
+            lock="${dir}.terraform.lock.hcl"
+            before="$(cat "$lock" 2>/dev/null || true)"
+            rm -f "$lock"
+            tofu -chdir="$dir" providers lock -platform=linux_amd64 >/dev/null
+            if [[ "$(cat "$lock")" != "$before" ]]; then
+              echo "::error file=${lock}::lock file differs from the registry; commit this content:"
+              cat "$lock"
+              status=1
+            fi
+          done
+          exit "$status"
       - name: tofu validate and tofu test (mocked AWS)
         run: |
           set -euo pipefail
