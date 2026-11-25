@@ -111,7 +111,13 @@ import { mkdtempSync, writeFileSync, readFileSync as readFile } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const hasPoppler = spawnSync("pdfdetach", ["-v"]).error === undefined;
+// Real poppler answers -v with "pdfdetach version N". Some sandboxes ship a
+// stand-in pdfdetach that only lists attachments and refuses -save (saving
+// under a PDF-chosen name can overwrite any file before poppler 24.03); there
+// the save step cannot run, so the test skips instead of reading red.
+const pdfdetachV = spawnSync("pdfdetach", ["-v"], { encoding: "utf8" });
+const hasPoppler = pdfdetachV.error === undefined
+  && /pdfdetach version/i.test(`${pdfdetachV.stdout}${pdfdetachV.stderr}`);
 test("poppler opens the repaired PDF and extracts the corrected XML", { skip: !hasPoppler }, async () => {
   const src = readFile(new URL("./examples/factur-x-credit-note-with-defects.pdf", import.meta.url));
   const x = await repairFacturX(new Uint8Array(src));

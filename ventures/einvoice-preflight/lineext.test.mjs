@@ -136,3 +136,26 @@ test("the repair pass clears what INV-060 flags", () => {
   assert.equal(inv060(xml).length, 2);
   assert.deepEqual(inv060(repairUbl(xml).xml), []);
 });
+
+// Red-team gaps (2026-11-25): the guard clause and the "no VAT stated" branch.
+test("a missing or non-object invoice draws nothing and does not throw", () => {
+  for (const bad of [null, undefined, 0, "", "invoice", 42]) {
+    assert.deepEqual(inspectLineExtension(bad), [], String(bad));
+  }
+  assert.deepEqual(inspectLineExtension({ specification_id: AE }), []);
+  assert.deepEqual(inspectLineExtension({ specification_id: AE, lines: "nope" }), []);
+});
+
+test("a line stating VAT but no rate still has its amount checked against net + VAT", () => {
+  const doc = { specification_id: AE, lines: [{ net: "100.00", tax_amount: "5.00", amount_with_vat: "110.00" }] };
+  const findings = inspectLineExtension(doc);
+  assert.deepEqual(findings.map((f) => f.path), ["/lines/0/amount_with_vat"]);
+  assert.match(findings[0].message, /net plus its VAT is 105\.00/);
+  doc.lines[0].amount_with_vat = "105.00";
+  assert.deepEqual(inspectLineExtension(doc), []);
+});
+
+test("a taxable line with no VAT stated is not judged on its amount alone", () => {
+  const doc = { specification_id: AE, lines: [{ net: "100.00", tax_category: "S", tax_percent: "5", amount_with_vat: "105.00" }] };
+  assert.deepEqual(inspectLineExtension(doc), []);
+});

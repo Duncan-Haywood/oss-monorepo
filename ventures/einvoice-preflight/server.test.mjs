@@ -191,3 +191,55 @@ test("POST /v1/repair fixes totals and lists what is left", async () => {
   assert.equal(bad.status, 400);
   await s.close();
 });
+
+// Red-team defect (2026-11-25): a batch document whose `name` was not text (a number,
+// object, array or boolean) reached String#replace and answered 500 "Internal error."
+// A caller's bad field is a 400 that names the field.
+test("batch: a non-string document name is a 400 naming the field, not a 500", async () => {
+  const s = await start();
+  for (const name of [5, {}, ["a.json"], true]) {
+    const r = await fetch(`${s.base}/v1/validate/batch`, { method: "POST", body: JSON.stringify({ documents: [{ name, content: "{}" }] }) });
+    assert.equal(r.status, 400, JSON.stringify(name));
+    assert.match((await r.json()).error, /documents\[0\]\.name must be a string/);
+  }
+  // null and an absent name keep the default name, as before.
+  for (const doc of [{ name: null, content: "{}" }, { content: "{}" }]) {
+    const r = await fetch(`${s.base}/v1/validate/batch`, { method: "POST", body: JSON.stringify({ documents: [doc] }) });
+    assert.equal(r.status, 200);
+  }
+  await s.close();
+});
+
+// Class guard for the defect above: every endpoint answers a malformed body of
+// the right JSON shape with a 4xx or a report, never a 500. Each value is put in
+// each caller-supplied field the endpoints read, so a new field that trusts its
+// type fails here instead of waiting for a red-team run.
+test("no endpoint answers 500 to a wrong-typed field", async () => {
+  const s = await start({ EINVOICE_RATE_LIMIT_PER_MIN: "100000" });
+  const vals = [null, 0, -1, true, "", "x", [], [null], {}, "<x/>"];
+  const bodies = ["{", "\u0000", "%PDF-1.7\n junk", "<Invoice"];
+  for (const v of vals) {
+    bodies.push(
+      JSON.stringify(v),
+      JSON.stringify({ documents: v }),
+      JSON.stringify({ documents: [v] }),
+      JSON.stringify({ documents: [{ content: "{}", encoding: v }] }),
+      JSON.stringify({ documents: [{ content: "{}", name: v }] }),
+      JSON.stringify({ draft: v }),
+      JSON.stringify({ draft: {}, format: v, profile: v }),
+      JSON.stringify({ draft: {}, format: "facturx", profile: v }),
+      JSON.stringify({ draft: { lines: [v], seller: v, buyer: v, currency: v } }),
+      JSON.stringify({ lines: [v], totals: v, tax_breakdown: [v], payment: v }),
+    );
+  }
+  const bad = [];
+  for (const path of ["/v1/validate", "/v1/validate/batch", "/v1/repair", "/v1/generate"]) {
+    for (const body of bodies) {
+      const r = await fetch(`${s.base}${path}`, { method: "POST", headers: { "content-type": "application/json" }, body });
+      await r.arrayBuffer();
+      if (r.status >= 500) bad.push(`${r.status} ${path} ${body.slice(0, 80)}`);
+    }
+  }
+  assert.deepEqual(bad, []);
+  await s.close();
+});
