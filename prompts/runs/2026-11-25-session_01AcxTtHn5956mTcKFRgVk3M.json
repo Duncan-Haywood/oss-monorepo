@@ -49,6 +49,10 @@
     {
       "file": "ventures/einvoice-preflight/repair-facturx.test.mjs",
       "issue": "Fails in cloud containers whose pdfdetach wrapper refuses -save; not a code defect, but it makes the suite's baseline red locally so a campaign can't target einvoice-preflight here."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Main moved three times during this PR's ~45 min CI cycles and two other runs landed the same fixes (#18779, #18818); the duplicate-PR search at open time can't see work started minutes later, and each merge restarts the full CI wait."
     }
   ],
   "deviations": [
@@ -197,7 +201,7 @@
     "real_defects": [
       {
         "file": "portfolio/monetization/transition.json",
-        "issue": "PR #18757 hand-wrote photo-editing's subscription model into the generated file; transition.py never produced it, so test_committed_json_is_current (an unwired suite run on every venture PR) was red on main. Decision moved into transition.py OVERRIDES; --write now reproduces it plus the model counts the hand edit missed.",
+        "issue": "PR #18757 hand-wrote photo-editing's subscription model into the generated file; transition.py never produced it, so test_committed_json_is_current (an unwired suite run on every venture PR) was red on main. Decision moved into transition.py OVERRIDES; --write now reproduces it plus the model counts the hand edit missed. PR #18779 added the same OVERRIDES row in parallel; this PR's merge regenerated transition.json, which main still had stale.",
         "patched": true,
         "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18785"
       },
@@ -209,9 +213,9 @@
       },
       {
         "file": "platform/ci/unwired_checks.py",
-        "issue": "A node suite whose package.json dependency was not installed (platform/aws/stacks/saas-starter/runtime, #18765) counted as red, unlike a missing pip package, so every venture PR inherited two reds. Now a SKIP with an npm ci hint; undeclared packages stay red. The suites pass 8/8 with deps installed.",
+        "issue": "A node suite whose package.json dependency was not installed (platform/aws/stacks/saas-starter/runtime, #18765) counted as red, unlike a missing pip package, so every venture PR inherited two reds. Now a SKIP with an npm ci hint; undeclared packages stay red. The suites pass 8/8 with deps installed. Main's PR #18818 landed an equivalent fix while this PR waited on CI; this PR's copy was dropped in the merge in favour of main's.",
         "patched": true,
-        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18785"
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18818"
       },
       {
         "file": "platform/ci/test_wait_for.py",

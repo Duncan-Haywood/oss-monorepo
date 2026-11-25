@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKiW743zfcbPsntYv9R",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T01:17:50Z",
+  "ended": "2026-11-25T01:21:24Z",
+  "wall_minutes": 3.76,
+  "tokens_in": 2430689,
+  "tokens_out": 13249,
+  "cost_usd": 1.3327,
+  "tool_calls": 31,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18791",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "Three live friction reports; the rulesets-README one was already in open PR #18778, found only by searching open PRs for the file name. Took the stale-base report instead."
+    },
+    {
+      "file": "platform/security/test_scan.py",
+      "issue": "main_health.py on main: 2 of 323 red, both from a test class defined after the __main__ guard; fixed here. A parallel PR fixed it first; dropped from this PR on merge (main_health.py names red checks but not who is already fixing them, as an earlier record also said)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No post: a process fix to a CLI diagnostic gives a customer-facing or SEO post nothing to say, and the PR body plus this record carry what the next run needs.",
+      "did": "Shipped the code and tests only.",
+      "result": "Verified locally; no write-up owed beyond this record."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Security queue empty; IDEAS.md and requests empty; route drew process/1. Backlog has no agent-owned item, so Critique mode: measure --section 'doc friction' named risk_review.py (3 live reports). Added stale_base_warning() (merge with a parent the base lacks -> stderr warning naming the commit and fix; >150 files on a shallow clone -> softer warning; no merge base -> exit 2 with a hint; --gate unchanged). StaleBaseTests in a temp git repo. main_health: 321/323, both reds from test_scan.py guard order; moved the guard. Checks: test_risk_review 21 OK, test_scan 24 OK, check_main_guard_last 0 files, risk_review on branch nothing blocked. Skipped the fiction-page keyword noise report: it only adds checklist rows, never blocks, and narrowing the regexes would loosen the gate. Before merge, main had already moved test_scan.py's guard (a parallel PR adding ContainerImages tests); merge took main's file, so this PR ships only the risk_review change.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3e9eaf4e-73bd-5380-8e23-3286666c343a",
+    "transcripts": 1,
+    "first": "2026-11-25T01:17:50Z",
+    "last": "2026-11-25T01:21:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 29,
+        "input": 57,
+        "output": 13249,
+        "thinking": 4484,
+        "cache_read": 2356101,
+        "cache_write_5m": 0,
+        "cache_write_1h": 74531,
+        "api_equivalent_usd": 1.3327,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 29,
+      "input": 57,
+      "output": 13249,
+      "thinking": 4484,
+      "cache_read": 2356101,
+      "cache_write_5m": 0,
+      "cache_write_1h": 74531,
+      "api_equivalent_usd": 1.3327,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 31,
+    "tools": {
+      "Bash": 28,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.76,
+      "active_minutes": 3.76,
+      "model_minutes": 2.92,
+      "tool_minutes": 0.85,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "engineer reading the friction report, writing the detector and a git-fixture test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 150.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

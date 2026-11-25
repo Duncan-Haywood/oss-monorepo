@@ -349,32 +349,31 @@ def run_node_suite(path, timeout=NODE_TIMEOUT, root=ROOT):
     except FileNotFoundError:
         return name, 0, f"{SKIPPED} no node on this machine"
     out = (r.stdout + r.stderr).strip()
-    if r.returncode != 0 and (missing := missing_npm_package(out, path.parent, root)):
-        pkg, where = missing
-        return name, 0, f"{SKIPPED} needs {pkg}, not installed here (npm ci in {where})"
+    if r.returncode != 0 and (pkg := missing_npm_package(out, path.parent, root)):
+        return name, 0, f"{SKIPPED} needs npm package {pkg} (declared in its package.json, not installed here)"
     return name, r.returncode, out
 
 
 def missing_npm_package(out, here, root=ROOT):
-    """(package, package.json folder) when a node suite failed only because a
-    package its own package.json declares was never installed, else None; the
-    node twin of missing_module. An undeclared package is a real break."""
-    m = re.search(r"Cannot find package '((?:@[^/']+/)?[^/']+)[^']*'", out)
+    """The npm package a node suite failed to import, or None. Like
+    missing_module: only a package the suite's nearest package.json declares
+    and node_modules lacks counts as "not installed"; an undeclared import
+    is a real break (2026-11-25: saas-starter's @aws-sdk/client-s3)."""
+    m = re.search(r"Cannot find package '((?:@[\w.-]+/)?[\w.-]+)'", out)
     if not m:
         return None
-    here, root = Path(here).resolve(), Path(root).resolve()
-    for folder in (here, *here.parents):
-        manifest = folder / "package.json"
-        if manifest.exists():
+    pkg, here, root = m.group(1), Path(here).resolve(), Path(root).resolve()
+    for d in [here, *here.parents]:
+        manifest = d / "package.json"
+        if manifest.is_file():
             try:
                 data = json.loads(manifest.read_text(encoding="utf-8"))
             except ValueError:
                 return None
-            declared = {**data.get("dependencies", {}), **data.get("devDependencies", {})}
-            if m.group(1) in declared:
-                return m.group(1), folder.relative_to(root).as_posix() if folder.is_relative_to(root) else str(folder)
-            return None
-        if folder == root:
+            declared = {k for f in ("dependencies", "devDependencies", "optionalDependencies")
+                        for k in (data.get(f) or {})}
+            return pkg if pkg in declared and not (d / "node_modules" / pkg).exists() else None
+        if d == root:
             break
     return None
 

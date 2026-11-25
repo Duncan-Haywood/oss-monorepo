@@ -167,3 +167,11 @@ test("period end rolls month ends to month ends and clips other days", () => {
   assert.equal(nextPeriodEnd("Oct 31"), "");
   assert.equal(nextPeriodEnd(""), "");
 });
+
+// Red team 2026-11-25: "C.O. 3" is a common way to number a change order; it
+// was read as a base-contract line (the same defect was fixed in pay-app-guides).
+test("change orders numbered C.O. 3 or C.O.4 are change orders", () => {
+  const r = compute("Item,Description,Scheduled value,This period\n1,Framing,10000,5000\nC.O. 3,Deduct fixtures,-1500,0\nC.O.4,Added outlet,600,600\nCO5,Added door,400,0\nConduit 2,Conduit,2000,0\n");
+  assert.deepEqual(r.lines.map((l) => l.isCo), [false, true, true, true, false]);
+  assert.equal(r.summary.changes, -150_000 + 60_000 + 40_000);
+});
