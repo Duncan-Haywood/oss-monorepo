@@ -142,6 +142,29 @@ vendor's own or a review site's pricing page (source URL and date), a
 liability level, and a first offer that is new depth rather than a paywall on
 a free feature. Run `monetization.py --check`.
 
+## Funnels: which free tool points at which product
+
+[`funnels.json`](funnels.json) lists, for each for-profit product, the free
+tools whose visitors are doing a smaller piece of the same job. The site build
+(`loadProductFunnels` in `platform/pages/build.mjs`) puts one line at the top
+of each such tool's footer: "For the whole job: <product>: <pitch>." The click
+is counted on the visitor's device as `product_funnel_click` and
+`cross_tool_click:<product>`.
+
+- **Chosen by hand, not by shared words.** A word-overlap match (the footer's
+  related-tools score, threshold 2) was tried first on 2026-11-25. It paired
+  156 tools: the payout-to-journal tools with Sales Export to Journal were
+  right, but whole groups were wrong (agent-config checks sent to the
+  real-estate photo app because both say "agent", investor-update and SBIR
+  "builders" sent to the shift roster, studio-profit calculators sent to the
+  clothing design studio).
+- **The pitch is what the product's page does today**, read from that page,
+  with no price, no "free" and no claim about a paid edition that is not on
+  sale. `product-funnel.test.mjs` checks the shape.
+- **Add a feeder** when a free tool's user plainly needs the product next; one
+  product per tool. Products not yet on the site (local-site-studio,
+  ig-media-pipeline, retail-pilot-intel) get feeders once they are published.
+
 ## Going live (golive.py)
 
 When the owner has a hosted checkout link, `python3 portfolio/monetization/golive.py set <https-link>`

@@ -1,0 +1,138 @@
+{
+  "about": "Which free tool's footer points at which for-profit product (owner, 2026-11-24: free tools are lead magnets for the products people pay for). Chosen by hand: a feeder is listed only where its visitor is doing a smaller piece of the job the product does whole. The pitch is one plain line of what the product does, true of the page it links to today; no prices, no claims about a paid edition that is not on sale. Read by platform/pages/build.mjs (loadProductFunnels); checked by platform/pages/product-funnel.test.mjs. How to add one: README.md here, 'Funnels'.",
+  "products": {
+    "sales-export-to-journal": {
+      "pitch": "drop any platform's sales or payout export and get a balanced month-split journal for Xero or QuickBooks",
+      "feeders": [
+        "airbnb-payout-to-journal",
+        "amazon-settlement-to-journal",
+        "buymeacoffee-payout-to-journal",
+        "distrokid-royalty-to-journal",
+        "ebay-payout-to-journal",
+        "etsy-statement-to-journal",
+        "fiverr-earnings-to-journal",
+        "gumroad-sales-to-journal",
+        "kdp-royalty-to-journal",
+        "ko-fi-payout-to-journal",
+        "lemonsqueezy-payout-to-journal",
+        "paddle-payout-to-journal",
+        "patreon-payout-to-journal",
+        "paypal-activity-to-journal",
+        "shopify-payout-to-journal",
+        "square-sales-to-journal",
+        "stripe-payout-to-journal",
+        "teachable-payout-to-journal",
+        "upwork-earnings-to-journal",
+        "youtube-adsense-payout-to-journal"
+      ]
+    },
+    "ai-bookkeeper": {
+      "pitch": "double-entry books from your bank and card CSVs, with an account suggested for every line and learned from your corrections",
+      "feeders": [
+        "wise-statement-to-journal",
+        "revolut-business-statement-to-journal",
+        "payoneer-statement-to-journal",
+        "quickbooks-chart-of-accounts-csv-check",
+        "xero-bank-statement-csv-check",
+        "freelancer-schedule-c-categorizer",
+        "self-employed-schedule-c-categorizer",
+        "rental-property-schedule-e-categorizer",
+        "bookkeeping-client-fee-calculator",
+        "payment-reconciliation-workbench"
+      ]
+    },
+    "shift-roster-builder": {
+      "pitch": "a whole week's staff roster built from availability, hour limits and rest rules, covering every shift it can without overtime",
+      "feeders": [
+        "weekly-staff-schedule-maker",
+        "shift-cover-optimizer",
+        "shift-rotation-schedule-generator",
+        "fair-workweek-schedule-checker",
+        "restaurant-labor-cost-daypart-analyzer",
+        "support-staffing-planner",
+        "volunteer-shift-scheduler"
+      ]
+    },
+    "league-schedule-generator": {
+      "pitch": "a full season's round-robin schedule with real dates, courts and time slots shared evenly, blackout dates and play-offs",
+      "feeders": [
+        "tournament-pairing-manager",
+        "youth-lineup-rotator",
+        "sports-official-game-fee-calculator",
+        "padel-club-profit-calculator",
+        "pickleball-facility-pro-forma"
+      ]
+    },
+    "changepoint-detector": {
+      "pitch": "paste a time series and see when its level or volatility changed, with PELT segmentation and Bayesian changepoint probabilities",
+      "feeders": [
+        "mann-kendall-trend",
+        "demand-forecast-backtester",
+        "sales-seasonality-forecaster"
+      ]
+    },
+    "xer-schedule-check": {
+      "pitch": "read a Primavera P6 XER export, recompute its critical path and run the DCMA 14-point assessment",
+      "feeders": [
+        "construction-delay-claim-calculator",
+        "contractor-wip-schedule"
+      ]
+    },
+    "ifc-quantity-takeoff": {
+      "pitch": "a bill of quantities straight from an IFC building model, every volume recomputed from its geometry",
+      "feeders": [
+        "pdf-plan-takeoff"
+      ]
+    },
+    "wall-framing-takeoff": {
+      "pitch": "type a house's walls, doors and windows and get the stud layout, cut list and cheapest lumber order",
+      "feeders": [
+        "drywall-bid-calculator"
+      ]
+    },
+    "shed-designer": {
+      "pitch": "design a gable shed by dragging, then get drawings, a 3D view, a cut sheet and a priced shopping list",
+      "feeders": [
+        "shed-install-bid-calculator",
+        "pergola-bid-calculator",
+        "deck-bid-calculator"
+      ]
+    },
+    "photo-editing": {
+      "pitch": "copy a card with checksums, cull blurred and duplicate frames, develop the raws and grade the shoot on your Mac",
+      "feeders": [
+        "wedding-photographer-profit-calculator",
+        "commercial-photo-license-calculator",
+        "photo-addon-pricing-calculator",
+        "photos-import-tools"
+      ]
+    },
+    "real-estate-agent-photo-app": {
+      "pitch": "check a listing's photos against MLS resolution, size, format and aspect-ratio rules before you deliver",
+      "feeders": [
+        "real-estate-photographer-shoot-profit-calculator"
+      ]
+    },
+    "quick-pick-survey": {
+      "pitch": "a pairwise survey: people pick one of two options and it infers a ranked order with confidence intervals",
+      "feeders": [
+        "pairwise-ranking",
+        "survey-keeper",
+        "feedback-board"
+      ]
+    },
+    "print-atelier": {
+      "pitch": "check an artwork file's DPI at the print size you want before you pay for a proof",
+      "feeders": [
+        "print-on-demand-profit-calculator"
+      ]
+    },
+    "clothing-design-studio": {
+      "pitch": "design a tee or hoodie, cost it from your manufacturer's own prices and export a tech pack and quote request",
+      "feeders": [
+        "apparel-decoration-price-calculator",
+        "screen-print-job-quote-calculator"
+      ]
+    }
+  }
+}
