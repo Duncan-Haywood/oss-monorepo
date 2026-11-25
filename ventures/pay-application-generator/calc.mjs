@@ -42,7 +42,7 @@ export function parseMoney(s) {
 export function parsePercent(s) {
   const t = String(s ?? "").trim().replace(/%$/, "");
   if (t === "") return null;
-  const n = Number(t);
+  const n = /^\d+(\.\d+)?$|^\.\d+$/.test(t) ? Number(t) : NaN; // decimal only: "0x10" or "1e1" is not a percent
   return Number.isFinite(n) && n >= 0 && n <= 100 ? Math.round(n * 100) : null; // basis points
 }
 
@@ -70,6 +70,11 @@ function mapHeaders(header) {
   });
   return idx;
 }
+
+// A change order by its number. The Item column takes a compact "CO5"; a description needs a separator after the CO
+// ("CO-2", "CO 2", "C.O. 2") so a base-contract line like "CO2 sensors" is not read as change order 2.
+export const CO_ITEM = /^(c\.?\s?o\.?[-\s#]*\d+|change order)/i;
+export const CO_DESC = /^(c\.?\s?o(\.|[-\s#])[-\s#]*\d+|change order)/i;
 
 // settings: { retainagePct, storedRetainagePct, reduceAtPct, reducedPct, reduceMode ("all" | "remaining"),
 //             previousCertificates (dollars string or ""), project, applicationNo, periodTo, contractor, owner }
@@ -105,7 +110,7 @@ export function compute(text, settings = {}) {
     if ([c, d, e, f].some((v) => v == null)) { out.errors.push(`Row ${r + 1} (${label}): a money column is not a number.`); continue; }
     const own = get("retainage").trim() === "" ? null : parsePercent(get("retainage"));
     if (get("retainage").trim() !== "" && own == null) { out.errors.push(`Row ${r + 1} (${label}): retainage is not a percentage.`); continue; }
-    const isCo = /^(co|change|change order)$/i.test(get("type").trim()) || /^(c\.?\s?o\.?[-\s#]*\d+|change order)/i.test(get("item").trim()) || /^(c\.?\s?o\.?[-\s#]*\d+|change order)/i.test(label);
+    const isCo = /^(co|change|change order)$/i.test(get("type").trim()) || CO_ITEM.test(get("item").trim()) || CO_DESC.test(label);
     raw.push({ item: get("item").trim(), desc: get("desc").trim() || label, c, d, e, f, own, isCo });
   }
   if (out.errors.length) return out;

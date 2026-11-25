@@ -205,3 +205,34 @@ test("change orders numbered C.O. 3 or C.O.4 are change orders", () => {
   assert.deepEqual(r.lines.map((l) => l.isCo), [false, true, true, true, false]);
   assert.equal(r.summary.changes, -150_000 + 60_000 + 40_000);
 });
+
+// Red team 2026-11-25 (second run): "CO2 sensors" or "CO2 monitoring" is a base-contract HVAC line, but a description
+// starting "CO" + digit was read as change order 2, moving its value out of the original contract sum. A description
+// needs a separator ("CO-2", "CO 2", "C.O. 2") to count; a compact "CO2" in the Item column still does.
+test("a CO2 sensors line is base contract, not change order 2", () => {
+  const r = compute("Item,Description,Scheduled value,Previous,This period\n1,Framing,10000,0,0\n2,CO2 sensors,5000,0,1000\nCO2,Added door,400,0,0\n3,CO-3 added outlet,600,0,0\n4,C.O. 4 extra paint,300,0,0\n");
+  assert.deepEqual(r.lines.map((l) => l.isCo), [false, false, true, true, true]);
+  assert.equal(r.summary.original, 1_500_000);
+  assert.equal(r.summary.changes, 40_000 + 60_000 + 30_000);
+});
+
+// Guards for mutants that escaped the 2026-11-25 campaign.
+test("a line's label is its description, and falls back to the item number", () => {
+  const bad = compute("Item,Description,Scheduled value,This period\n7,Framing,ten,0\n");
+  assert.match(bad.errors[0], /\(Framing\)/);
+  const noDesc = compute("Item,Description,Scheduled value,This period\n7,,1000,0\n");
+  assert.equal(noDesc.lines[0].desc, "7");
+});
+
+test("next period does not count an empty zero-value line as fully billed", () => {
+  const r = compute("Item,Description,Scheduled value,Previous,This period\n1,Framing,1000,0,500\n2,Allowance,0,0,0\n");
+  const n = nextPeriod(r, {});
+  assert.ok(!n.notes.some((x) => /fully billed/.test(x)), n.notes.join(" | "));
+});
+
+test("a percent is a plain decimal: hex or exponent text is refused", () => {
+  assert.equal(parsePercent("0x10"), null);
+  assert.equal(parsePercent("1e1"), null);
+  assert.equal(parsePercent("7.5"), 750);
+  assert.equal(parsePercent(".5%"), 50);
+});

@@ -4,6 +4,8 @@
 // that no longer equals its parts, a SUM that misses a line), which is where hand-kept Excel pay apps go wrong.
 // Everything happens in the browser: the .xlsx is unzipped with the built-in DecompressionStream, no library, no upload.
 
+import { CO_ITEM, CO_DESC } from "./calc.mjs";
+
 // ---------- ZIP and XML ----------
 
 const u16 = (b, o) => b[o] | (b[o + 1] << 8);
@@ -263,7 +265,7 @@ export function findSchedule(grid, { sheet = null } = {}) {
     if (bad) continue;
     if (!label && vals.scheduled === 0 && !vals.previous && !vals.thisPeriod && !vals.stored) continue;
     const typeCell = at(row, "type");
-    const isCo = /^(co|change|change order)$/i.test(typeCell) || /^(co[-\s#]*\d+|change order)/i.test(item) || /^(co[-\s#]*\d+|change order)/i.test(label) || inCo;
+    const isCo = /^(co|change|change order)$/i.test(typeCell) || CO_ITEM.test(item) || CO_DESC.test(label) || inCo;
     const rateCell = at(row, "retRate");
     lines.push({ r, item, desc: desc || item || `Line ${r + 1}`, isCo, own: rateCell, c: vals.scheduled, d: vals.previous, e: vals.thisPeriod, f: vals.stored, g: vals.toDate, h: vals.balance, i: vals.retainage });
   }
