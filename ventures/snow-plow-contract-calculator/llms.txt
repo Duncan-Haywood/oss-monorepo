@@ -2,7 +2,7 @@
 
 > Compare per-push, seasonal flat, capped and hybrid snow plow contracts across low, normal and high snow years, with break-even storms and a walk-away price.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/snow-plow-contract-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/snow-plow-contract-calculator): FSL-1.1-MIT licensed.

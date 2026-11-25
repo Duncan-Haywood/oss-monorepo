@@ -107,6 +107,6 @@ they reach the DOM.
 
 ## Support
 
-Free and open source, with no gated features. If it saved you a trip to the lumber yard, [sponsoring its upkeep](https://github.com/sponsors/Duncan-Haywood) is welcome and entirely optional — declining changes nothing about what the tool does.
+Free to use and source available, with no gated features. If it saved you a trip to the lumber yard, [sponsoring its upkeep](https://github.com/sponsors/Duncan-Haywood) is welcome and entirely optional — declining changes nothing about what the tool does.
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, financial, or business advice, and it does not replace a qualified professional. **You are responsible for reviewing and verifying its output before relying on it**, including dimensions, tool setup, material, and prices, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.

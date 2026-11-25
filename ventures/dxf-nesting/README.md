@@ -63,4 +63,4 @@ Everything runs in the browser; drawings are never uploaded. Anonymous feature e
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, fabrication or financial advice, and it does not replace your CAM software's checks or a qualified operator. **You are responsible for reviewing and verifying its output before relying on it**, including every nest before you cut it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.
 
-MIT licensed (`LICENSE`).
+FSL-1.1-MIT licensed (`LICENSE`).

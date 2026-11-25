@@ -36,13 +36,15 @@ here. This repository links to a paid product only through its public product
 page; it does not link to or mirror the private code. Code already published
 here under MIT stays MIT
 ([`LICENSING_TRANSITION.md`](portfolio/monetization/LICENSING_TRANSITION.md)
-explains what moves and what cannot).
+explains what moves and what cannot). New work in this repository is
+source available under FSL-1.1-MIT (see [License](#license)).
 
 ## What the free tools are for now
 
 The 1,400 or so free browser calculators, CSV checkers and self-hosted apps in
-[`ventures/`](ventures/README.md) stay up, free and MIT licensed, and you can
-still use, fork or self-host any of them. They are now **front doors**: a free
+[`ventures/`](ventures/README.md) stay up and free, and you can still use,
+fork or self-host any of them for your own work (they are FSL-1.1-MIT since
+2026-11-24; see [License](#license)). They are now **front doors**: a free
 tool gets new work only when it leads to one of the paid products above (a
 free G702 template in front of pay-app billing, say). Others are kept running
 but not extended.
@@ -82,7 +84,7 @@ get and your first ten minutes.
   calculation engine with JSON inputs and no browser. The same commands run as
   a local MCP server (see [`.mcp.json`](.mcp.json)) for Claude Code, Cursor and
   other MCP clients.
-- **Self-hosted business apps**: open-source apps you run on your own server,
+- **Self-hosted business apps**: source-available apps you run on your own server,
   such as Stripe failed-payment recovery, cancellation flows, status pages,
   cookie-free analytics and license keys
   ([section](https://marisstella.app/c/self-hosted/)).
@@ -148,7 +150,7 @@ directory that inherits the platform automatically.
 ventures/     one directory per business; each has a VENTURE.yaml
 research/     one directory per research project (MIT); a peer of ventures/,
               its homepage is published at /research/ on the Pages site
-platform/     shared tooling: the Pages site build, CI guards, open-source tools (platform/README.md)
+platform/     shared tooling: the Pages site build, CI guards, source-available tools (platform/README.md)
 prompts/      the prompt system: prompt.md (the master prompt) routes each run to
               a sub-prompt here, run records measure it, and a review track
               improves the prompts and docs from the records (prompts/README.md)
@@ -234,7 +236,7 @@ CI, the usage counter, deploy bundles. If a procedure is being copy-pasted
 between ventures, it belongs here instead. [`platform/README.md`](platform/README.md)
 lists each directory.
 
-[`platform/uitest/`](platform/uitest/README.md) is an open-source tool that any
+[`platform/uitest/`](platform/uitest/README.md) is a source-available tool that any
 project can use: AI-agent end-to-end UI testing for any web app. It runs as a
 CLI or a GitHub Action, works with your own model key, and still runs its
 deterministic checks without one.
@@ -290,5 +292,27 @@ and were not deleted.
 
 ## License
 
-[MIT](LICENSE). Every venture under `ventures/` also carries its own MIT
-`LICENSE`.
+Since 2026-11-24, new work here is under the
+[Functional Source License 1.1, MIT future licence](LICENSE) (FSL-1.1-MIT),
+and every venture under `ventures/` carries the same text in its own
+`LICENSE`. In plain terms:
+
+- You may read, run, change and share the code, and use it inside your
+  business, for teaching, for research and for client work.
+- You may not offer it, or something substantially like it, as a competing
+  commercial product or service.
+- Every version becomes MIT on the second anniversary of its publication.
+
+Exceptions:
+
+- **Everything published before 2026-11-24 stays MIT.** Those grants cannot be
+  withdrawn: any commit up to the relicensing commit can be used under MIT.
+- **[`research/`](research/LICENSE) stays MIT**, so it can be cited, reproduced
+  and built on freely.
+- **Website requests from outside requesters are published under MIT**, as the
+  intake forms promise, with an MIT `LICENSE` in the tool's own directory.
+- Third-party code and data keep their own licences
+  ([`THIRD_PARTY.md`](THIRD_PARTY.md)).
+
+How and why: [`LICENSING_TRANSITION.md`](portfolio/monetization/LICENSING_TRANSITION.md).
+This is a summary, not legal advice; the `LICENSE` text governs.

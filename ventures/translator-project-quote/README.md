@@ -103,4 +103,4 @@ node --test calc.test.mjs
 node ../../platform/pages/clauses.mjs translator-project-quote
 ```
 
-MIT licensed; see [`LICENSE`](LICENSE).
+FSL-1.1-MIT licensed; see [`LICENSE`](LICENSE).

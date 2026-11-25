@@ -2,7 +2,7 @@
 
 > Free tool: paste an SRT or WebVTT caption file and check it against commonly-used caption style-guide thresholds -- reading speed (characters per second), line length, lines per cue, minimum/maximum duration, overlapping cues, and too-short gaps between cues.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -12,4 +12,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/caption-quality-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/caption-quality-check): FSL-1.1-MIT licensed.

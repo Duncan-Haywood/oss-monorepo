@@ -2,7 +2,7 @@
 
 > Paste a page's HTML and see whether its JSON-LD (FAQPage, HowTo, Article, Product, LocalBusiness/Organization, Review) actually says, word for word, what the page's own visible text says. Google requires FAQPage and HowTo content to be visible. Free, runs entirely in your browser, nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/structured-data-drift-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/structured-data-drift-check): FSL-1.1-MIT licensed.

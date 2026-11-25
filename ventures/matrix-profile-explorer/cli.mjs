@@ -40,7 +40,7 @@ ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}, ${p.pag
   Further reading: the UCR Matrix Profile page, https://www.cs.ucr.edu/~eamonn/MatrixProfile.html
 
 No warranty. Results are statistical descriptions of the data you supply, not
-legal, tax, or financial advice. MIT licensed.
+legal, tax, or financial advice. FSL-1.1-MIT licensed.
 `;
 
 function parseArgs(argv) {

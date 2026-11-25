@@ -2,7 +2,7 @@
 
 > Free online choice-based conjoint (CBC, discrete choice experiment) tool. Design a survey from an attribute list (balanced overlap, D-efficient, expected standard errors and respondents needed), then paste the answers (long format: respondent, task, concept, attributes, chosen; or wide answers merged with the design) and get an aggregate multinomial (conditional) logit by exact maximum likelihood: part-worth utilities with cluster-robust standard errors, attribute importance, willingness to pay against a numeric price attribute, a "none" constant, and a market share simulator, with respondent-bootstrap intervals. Coefficients match statsmodels ConditionalLogit to 1e-7; simulated 95% interval coverage 95.0% (model-based) and 94.8% (cluster-robust). Example: a simulated meal-kit study with known utilities. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). A statistical estimate from stated choices, not a sales forecast, financial or other professional advice. One segment (aggregate logit, IIA); no hierarchical Bayes or latent class yet.
+Free to use and source available (FSL-1.1-MIT). A statistical estimate from stated choices, not a sales forecast, financial or other professional advice. One segment (aggregate logit, IIA); no hierarchical Bayes or latent class yet.
 
 ## Pages
 
@@ -26,4 +26,4 @@ Free and open source (MIT). A statistical estimate from stated choices, not a sa
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/conjoint-analysis): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/conjoint-analysis): FSL-1.1-MIT licensed.

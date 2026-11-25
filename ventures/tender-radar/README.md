@@ -67,4 +67,4 @@ node --test calc.test.mjs draft.test.mjs
 node ../../../platform/pages/clauses.mjs tender-radar
 ```
 
-MIT licensed; see [`LICENSE`](LICENSE).
+FSL-1.1-MIT licensed; see [`LICENSE`](LICENSE).

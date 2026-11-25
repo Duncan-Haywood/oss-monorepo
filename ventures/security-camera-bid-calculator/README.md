@@ -106,5 +106,5 @@ yourself.
 
 ## Support
 
-Free and open source. [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood)
+Free to use and source available. [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood)
 is optional and never changes what the tool does.

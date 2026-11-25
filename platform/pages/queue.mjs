@@ -456,7 +456,7 @@ ${
       : `${
           req.outside.length
             ? `<ol class="q">${req.outside.map((r) => requestCard(r, toRoot, progress)).join('')}</ol>`
-            : `<p class="note">No outside requests are open right now. <a href="${toRoot}custom-development/">Ask for something to be built</a>: it is free, and the result stays open source.</p>`
+            : `<p class="note">No outside requests are open right now. <a href="${toRoot}custom-development/">Ask for something to be built</a>: it is free, and the result is published under the MIT licence.</p>`
         }${
           req.owner.length
             ? `<details${req.outside.length ? '' : ' open'}><summary>${req.owner.length} long-running project${req.owner.length === 1 ? '' : 's'} the owner asked for</summary><ol class="q">${req.owner.map((r) => requestCard(r, toRoot, progress)).join('')}</ol></details>`
@@ -608,7 +608,7 @@ For what already landed, see <a href="../updates/">updates</a> and the <a href="
 <footer>
   <p>Generated on every publish from files in the repository: the ideas inbox, the request queue, the flagship list, the
   research programme list, the owner's decision queue, the process backlog and the merge history on main. Nothing on this page is typed by hand. Provided
-  as-is, with no warranty of accuracy or completeness, and not advice of any kind. MIT-licensed, like everything here.</p>
+  as-is, with no warranty of accuracy or completeness, and not advice of any kind. FSL-1.1-MIT-licensed, like the tools.</p>
   ${renderSiteFooterNav({ toRoot })}
 </footer>
 </div>

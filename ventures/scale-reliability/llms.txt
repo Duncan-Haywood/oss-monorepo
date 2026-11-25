@@ -2,7 +2,7 @@
 
 > Free scale reliability tool for questionnaires and surveys. Paste one row per respondent and one column per item and get Cronbach's alpha with its Feldt confidence interval, McDonald's omega from a one-factor model with a BCa bootstrap interval, Guttman's lambda-2 and lambda-6, standardised alpha, corrected item-total correlations, alpha and omega if each item is deleted, loadings, a reverse-keyed item check, the standard error of measurement and the Spearman-Brown projection. Checked against pingouin and factor_analyzer. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are statistical estimates from the answers you supply, not medical, psychological, legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are statistical estimates from the answers you supply, not medical, psychological, legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -23,4 +23,4 @@ Free and open source (MIT). Results are statistical estimates from the answers y
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/scale-reliability): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/scale-reliability): FSL-1.1-MIT licensed.

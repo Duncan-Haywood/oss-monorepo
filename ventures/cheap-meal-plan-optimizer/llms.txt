@@ -2,7 +2,7 @@
 
 > Free cheapest meal plan optimizer. Enter foods with prices and nutrition, set calorie, protein, fat and fibre targets, and get the lowest-cost daily servings plus the cost of each extra target. A minimum-cost diet solver in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -14,4 +14,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cheap-meal-plan-optimizer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cheap-meal-plan-optimizer): FSL-1.1-MIT licensed.

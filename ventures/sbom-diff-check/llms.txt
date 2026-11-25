@@ -2,7 +2,7 @@
 
 > Paste two CycloneDX or SPDX SBOM JSON files and see exactly which packages were added, removed, or changed version between two builds. Free, runs in your browser, nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sbom-diff-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sbom-diff-check): FSL-1.1-MIT licensed.

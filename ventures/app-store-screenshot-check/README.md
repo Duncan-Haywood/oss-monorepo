@@ -3,7 +3,7 @@
 Check the images you are about to attach to an App Store Connect or Google Play
 listing, before the upload refuses them.
 
-Free, MIT-licensed, no dependencies, no account, no network. The CLI reads
+Free, FSL-1.1-MIT-licensed, no dependencies, no account, no network. The CLI reads
 local files and prints a report; the browser page reads a visitor's files with
 the File API and uploads nothing.
 
@@ -183,6 +183,6 @@ for any loss or damage arising from its use.
 
 ## Support
 
-Free and open source under the MIT licence.
+Free to use and source available under the FSL-1.1-MIT licence.
 [Sponsorship](https://github.com/sponsors/Duncan-Haywood) is entirely optional
 and never changes what the tool does.

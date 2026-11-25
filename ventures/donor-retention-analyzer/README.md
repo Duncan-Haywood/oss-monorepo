@@ -21,4 +21,4 @@ remain responsible for the privacy and solicitation rules that apply to your don
 Unverified against a published dataset: tested on simulated donors with known giving
 odds and hand-counted examples.
 
-MIT licence, see `LICENSE`.
+FSL-1.1-MIT licence, see `LICENSE`.

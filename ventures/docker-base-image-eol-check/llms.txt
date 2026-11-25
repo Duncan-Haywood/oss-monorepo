@@ -2,7 +2,7 @@
 
 > Paste your Dockerfile and find every FROM line whose base image release has passed its own end-of-life date. Free, runs in your browser, nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -13,4 +13,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/docker-base-image-eol-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/docker-base-image-eol-check): FSL-1.1-MIT licensed.

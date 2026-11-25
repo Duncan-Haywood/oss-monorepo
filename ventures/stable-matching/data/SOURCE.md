@@ -1,7 +1,7 @@
 # Example data
 
 All three examples are made up for illustration and are labelled so on the
-page. Made up, MIT licensed with the rest of this directory.
+page. Made up, FSL-1.1-MIT licensed with the rest of this directory.
 
 - `residency-example.txt`: 12 residents and 4 programmes (9 places). Seeded
   random lists in which each programme tends to favour the residents who

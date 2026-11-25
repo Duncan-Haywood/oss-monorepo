@@ -24,4 +24,4 @@ No network call, no account, no analytics vendor. Anonymous feature counts (`cal
 
 ## Licence
 
-MIT, no warranty. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.
+FSL-1.1-MIT, no warranty. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.

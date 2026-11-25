@@ -2,7 +2,7 @@
 
 > Free calculator for backyard beekeepers who sell honey: what a pound costs you, how many hours it takes, your profit per pound and per hour, the price per pound you need to earn a wage, and what a poor honey year and winter hive losses do to it. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/backyard-honey-profit-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/backyard-honey-profit-calculator): FSL-1.1-MIT licensed.

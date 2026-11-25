@@ -2,7 +2,7 @@
 
 > Free tool: drop your App Store Connect or Google Play listing images in and check them before you upload — app icon transparency (the classic "can't contain an alpha channel" rejection), wrong pixel dimensions, a HEIC renamed to .png, and a screenshot set whose members disagree about their own size.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -12,4 +12,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/app-store-screenshot-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/app-store-screenshot-check): FSL-1.1-MIT licensed.

@@ -46,7 +46,7 @@ ${PAPERS.map((p) => `  ${p.cite}${p.doi ? ` doi:${p.doi}` : ""}`).join("\n")}
 Aggregate logit treats all respondents as one segment; the README says what
 that means for heterogeneous markets. A statistical estimate from stated
 choices: not financial, legal or other professional advice, and not a
-forecast of sales. No warranty. MIT licence.
+forecast of sales. No warranty. FSL-1.1-MIT licence.
 Web version: https://marisstella.app/conjoint-analysis/`;
 
 const WITH_VALUE = {

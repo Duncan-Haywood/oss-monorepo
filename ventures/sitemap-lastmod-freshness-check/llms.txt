@@ -2,7 +2,7 @@
 
 > Paste a sitemap.xml and check its lastmod dates for the freshness-faking patterns Google warns about: bad formats, future dates and uniform dates. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -12,4 +12,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sitemap-lastmod-freshness-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sitemap-lastmod-freshness-check): FSL-1.1-MIT licensed.

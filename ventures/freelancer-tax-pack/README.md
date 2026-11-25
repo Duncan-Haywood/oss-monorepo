@@ -19,4 +19,4 @@ Free, no account, no watermark, works offline. Everything runs in your browser.
 
 Run the tests: `node --test`. Serve `index.html` from any static host.
 
-Not legal, tax or financial advice; see the disclaimer on the page. MIT licensed.
+Not legal, tax or financial advice; see the disclaimer on the page. FSL-1.1-MIT licensed.

@@ -2,7 +2,7 @@
 
 > Free calculator for indoor golf simulator lounges and bay-rental venues. Enter bays, peak and off-peak rates, utilization, members, food and drink, rent and staff; it shows monthly profit, margin, payback on the build, break-even utilization, the lowest rates for your target margin, and compares a second scenario.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/golf-simulator-bay-profit-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/golf-simulator-bay-profit-calculator): FSL-1.1-MIT licensed.

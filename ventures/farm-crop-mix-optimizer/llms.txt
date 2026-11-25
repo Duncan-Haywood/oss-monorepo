@@ -2,7 +2,7 @@
 
 > Free farm crop mix optimizer: enter yields, prices, costs, labor hours and operating capital per crop to find the acres that earn the most, and see what an extra acre, labor hour or dollar of capital is worth. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/farm-crop-mix-optimizer): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/farm-crop-mix-optimizer): FSL-1.1-MIT licensed.

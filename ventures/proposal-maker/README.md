@@ -37,4 +37,4 @@ Run the tests: `node --test`. Serve `index.html` from any static host.
 
 The clause wording is generic template text. It is not legal advice; have a
 lawyer review any contract. Not tax or financial advice either; see the
-disclaimer on the page. MIT licensed.
+disclaimer on the page. FSL-1.1-MIT licensed.

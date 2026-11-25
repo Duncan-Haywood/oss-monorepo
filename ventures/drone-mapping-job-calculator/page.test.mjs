@@ -285,11 +285,11 @@ test('the square-site assumption is disclosed on both pages rather than buried',
   assert.match(guide, /least perimeter|least-perimeter/i);
 });
 
-test('both pages keep the MIT licence and the optional sponsor link', () => {
+test('both pages keep the FSL-1.1-MIT licence and the optional sponsor link', () => {
   for (const [name, source] of [['index', html], ['guide', guide]]) {
     assert.match(source, /https:\/\/github\.com\/sponsors\/Duncan-Haywood/, `${name}`);
     assert.match(source, /href="LICENSE"/, `${name}`);
-    assert.match(source, /MIT licen[cs]e/, `${name}`);
+    assert.match(source, /FSL-1.1-MIT licen[cs]e/, `${name}`);
     assert.match(source, /entirely\s+optional and never changes what the tool does/, `${name}`);
   }
 });

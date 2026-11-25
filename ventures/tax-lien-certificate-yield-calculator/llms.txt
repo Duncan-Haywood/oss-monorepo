@@ -2,7 +2,7 @@
 
 > Free tax lien certificate calculator: enter your county's interest rule, fees, premium and subsequent taxes and see the return by redemption month, the annualized yield and the foreclosure break-even property value. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tax-lien-certificate-yield-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tax-lien-certificate-yield-calculator): FSL-1.1-MIT licensed.

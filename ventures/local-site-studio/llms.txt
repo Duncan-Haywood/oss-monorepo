@@ -1,6 +1,6 @@
 # Local Site Studio
 
-> Pre-built websites for local businesses (restaurants, salons, trades, retail, health, automotive, cleaning, fitness, legal): the studio builds a preview site first, the owner buys it as-is or asks for tweaks, no sales calls. Prototype stage: no public production deployment is recorded and checkout is not confirmed working end to end. Free and open source (MIT), operated by Maris Stella Labs.
+> Pre-built websites for local businesses (restaurants, salons, trades, retail, health, automotive, cleaning, fitness, legal): the studio builds a preview site first, the owner buys it as-is or asks for tweaks, no sales calls. Prototype stage: no public production deployment is recorded and checkout is not confirmed working end to end. Free to use and source available (FSL-1.1-MIT), operated by Maris Stella Labs.
 
 Nothing here is legal, tax, financial or professional advice. Prices below are the code's current defaults and can change.
 
@@ -31,5 +31,5 @@ Nothing here is legal, tax, financial or professional advice. Prices below are t
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/local-site-studio): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/local-site-studio): FSL-1.1-MIT licensed.
 - [Venture record](https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/local-site-studio/VENTURE.yaml): stage, hypotheses and kill criteria.

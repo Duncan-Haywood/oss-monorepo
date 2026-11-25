@@ -57,7 +57,7 @@ Everything runs in your browser. Your sale figures and month list are never uplo
 
 This calculator produces arithmetic observations from numbers you supply. It does not audit your books, confirm a payout amount, or replace your own accountant. StockX is a trademark of StockX LLC, named here only to describe what this tool calculates — this tool is not affiliated with, endorsed by, or sponsored by StockX, and its rates change over time; verify every rate against your own current seller dashboard.
 
-MIT licensed. See `LICENSE`.
+FSL-1.1-MIT licensed. See `LICENSE`.
 
 ## Host your own copy
 

@@ -33,7 +33,7 @@ function clip(s, max) {
 /** Status text for one tool. Counted the way Mastodon counts: links weigh 23. */
 export function composeStatus({ title, description }, url) {
   const head = `New free tool: ${title.split(/\s[—–|-]\s/)[0]}`;
-  const tail = `\n\n${url}\n\nFree and open source (MIT). Automated post.`;
+  const tail = `\n\n${url}\n\nFree to use and source available (FSL-1.1-MIT). Automated post.`;
   const tailLen = chars(tail) - chars(url) + URL_WEIGHT;
   const room = MAX_CHARS - chars(head) - tailLen - 2;
   const body = room > 20 ? `\n${clip(description.split(/(?<=\.)\s/)[0], room)}` : '';

@@ -35,7 +35,7 @@ The IBAN table carries all 89 SWIFT IBAN Registry countries, not only SEPA ones,
 
 ## License
 
-MIT. See `LICENSE`.
+FSL-1.1-MIT. See `LICENSE`.
 
 ## No warranty
 

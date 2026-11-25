@@ -2,7 +2,7 @@
 
 > Free proposal generator for freelancers, consultants and small agencies: scope with included and excluded lists, phases with dates, fixed, good-better-best, hourly-with-cap or retainer pricing, deposit and milestones, change-order wording, acceptance block, print to PDF. No account, no watermark, works offline.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/proposal-maker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/proposal-maker): FSL-1.1-MIT licensed.

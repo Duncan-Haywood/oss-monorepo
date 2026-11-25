@@ -2,7 +2,7 @@
 
 > Free grant budget calculator: find your modified total direct costs (MTDC) with the $50,000 subaward and $10,000 equipment rules applied, the indirect cost you can charge at 15% de minimis or your negotiated rate, and how much direct budget fits under a funder's total award cap.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/grant-indirect-cost-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/grant-indirect-cost-calculator): FSL-1.1-MIT licensed.

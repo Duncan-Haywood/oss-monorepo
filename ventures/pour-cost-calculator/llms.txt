@@ -2,7 +2,7 @@
 
 > Free pour cost calculator for bars and restaurants: price a cocktail from your own bottle costs and pour sizes, see the liquor cost percentage against your target, and find out what over-pouring is really costing you a year. Nothing leaves your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -14,4 +14,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pour-cost-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pour-cost-calculator): FSL-1.1-MIT licensed.

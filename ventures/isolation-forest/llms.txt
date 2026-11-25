@@ -2,7 +2,7 @@
 
 > Free online isolation forest (Liu, Ting & Zhou 2008; journal version 2012) for outlier and anomaly detection across several numeric columns at once. Paste or upload a CSV and get every row ranked by anomaly score s = 2^(-E[h]/c(psi)), the rows flagged as anomalies (score above 0.5, or a chosen top share), and for each top row the columns that stand out in robust standard deviations. Seeded and reproducible. Expected scores agree with scikit-learn 1.9.1's IsolationForest to within Monte Carlo noise on three public datasets. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A high score means rare in this data, not wrong.
+Free to use and source available (FSL-1.1-MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A high score means rare in this data, not wrong.
 
 ## Pages
 
@@ -23,4 +23,4 @@ Free and open source (MIT). Results are statistical estimates from the data you 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/isolation-forest): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/isolation-forest): FSL-1.1-MIT licensed.

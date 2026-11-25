@@ -47,7 +47,7 @@ An IBAN's BBAN is now matched against its country's structure from the SWIFT IBA
 
 ## License
 
-MIT. See `LICENSE`.
+FSL-1.1-MIT. See `LICENSE`.
 
 ## No warranty
 

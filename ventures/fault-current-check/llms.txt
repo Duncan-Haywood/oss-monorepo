@@ -2,7 +2,7 @@
 
 > Free available fault current (short-circuit current) calculator. From the service transformer's kVA, %Z and X/R (with an impedance tolerance allowance and an optional utility fault MVA) or a fault figure from the utility, plus motor contribution at the service, it solves a radial system of feeders (size, copper or aluminium, parallel sets, length, steel or non-steel conduit, optional reactance) and step-down transformers, branching from any panel. For every panel it gives the bolted three-phase (or single-phase line-to-line) symmetrical fault current, the same figure with impedances added as magnitudes (what point-to-point multipliers do) and how far that reads low, X/R, peak current (IEC 60909 kappa), a check against the panel's kA rating, and NEC 110.24 label text with a date. Where a panel's equipment type and protective-device clearing times are given, it also runs the IEEE 1584-2018 arc flash model on it: arcing current (full and reduced), incident energy at the working distance, arc flash boundary and label text. Runs in the browser; nothing is uploaded.
 
-Free and open source (MIT). Conductor resistance is computed from geometry and material constants with the IEC 60287 skin-effect factor, not copied from a code table; reactance defaults to 0.050 ohm per 1000 ft (x 1.25 in steel conduit) and can be entered per feeder. The arc flash engine (`arcflash.mjs`) is a port of the MIT-licensed `arcflash` Python library and reproduces every figure of IEEE 1584-2018 Annex D.1 and D.2 in its tests. Not modelled: ground and line-to-neutral faults, arc flash on single-phase, DC or above 15 kV, generators, inverters, series ratings and fuse let-through. Results are arithmetic on the numbers typed in, not engineering or code-compliance advice.
+Free to use and source available (FSL-1.1-MIT). Conductor resistance is computed from geometry and material constants with the IEC 60287 skin-effect factor, not copied from a code table; reactance defaults to 0.050 ohm per 1000 ft (x 1.25 in steel conduit) and can be entered per feeder. The arc flash engine (`arcflash.mjs`) is a port of the FSL-1.1-MIT-licensed `arcflash` Python library and reproduces every figure of IEEE 1584-2018 Annex D.1 and D.2 in its tests. Not modelled: ground and line-to-neutral faults, arc flash on single-phase, DC or above 15 kV, generators, inverters, series ratings and fuse let-through. Results are arithmetic on the numbers typed in, not engineering or code-compliance advice.
 
 ## Pages
 
@@ -16,4 +16,4 @@ Free and open source (MIT). Conductor resistance is computed from geometry and m
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fault-current-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fault-current-check): FSL-1.1-MIT licensed.

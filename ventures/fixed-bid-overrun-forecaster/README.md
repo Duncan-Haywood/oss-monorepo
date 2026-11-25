@@ -27,4 +27,4 @@ per project.
 Not modelled: change-order rights, retainage, payment timing, taxes, overhead, or whether the percent
 complete is right. No warranty; see the page footer.
 
-Tests: `node --test`. MIT licensed (`LICENSE`); no secrets, no private dependencies.
+Tests: `node --test`. FSL-1.1-MIT licensed (`LICENSE`); no secrets, no private dependencies.

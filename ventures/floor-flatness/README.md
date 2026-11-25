@@ -20,7 +20,7 @@ number before the testing agency's report, general contractors reading a
 failed report, and scanning/VDC people who hold a point cloud and no
 flatness plugin. Commercial tools in this space are survey-instrument
 software and paid point-cloud plugins; this one is free, runs offline in a
-browser and is MIT licensed.
+browser and is FSL-1.1-MIT licensed.
 
 ## Spec sources
 
@@ -107,7 +107,7 @@ not a measured floor.
 Nothing leaves the browser: readings are calculated on the device and never
 uploaded. An anonymous counter in local storage records which features were
 used and the day (never a reading, an F-number or a file name); the page's
-box turns it off. MIT licence ([LICENSE](LICENSE)).
+box turns it off. FSL-1.1-MIT licence ([LICENSE](LICENSE)).
 
 **No warranty.** Provided as-is, without warranty of any kind. Not
 engineering, construction, legal or financial advice, and not a test to ASTM

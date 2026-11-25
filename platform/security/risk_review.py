@@ -9,14 +9,26 @@ So most changes no longer wait for the owner. Instead every PR gets this
 review: the script reads the diff, works out which cyber and legal checks it
 triggers, and prints them as a checklist the merging agent answers in the PR
 (and, later, an AI reviewer answers in CI). It also says when a change must
-go to the owner after all. That happens only for real liability:
-  - a likely secret in an added line;
-  - an edit to the owner-only core (the files that define this review, the
-    code-owners gate, workflows that hold secrets, code agents run at session
-    start);
-  - a deletion or rewrite inside the guardrails and hard limits;
-  - a licence change on existing code;
-  - live payment settings.
+go to the owner after all: it never does. The owner, later the same day:
+"we want to avoid that generally unless it is really human dependent ... move
+to systems that remove human review as much as possible", and "any things
+that need human review on a general basis should generally not be the case
+... the threats and risks ... identified and ... a thorough assurance system
+to avoid those risks."
+
+So the liability-grade threats are blocked by rules, not routed to a person
+(threat model: docs/security/risk-review.md, "Threats and controls"):
+  - a likely secret in an added line: fails; remove it and rotate;
+  - lines removed inside the guardrails and hard limits: fails (append-only);
+  - a licence on existing code changed to one outside ALLOWED_LICENCES: fails;
+  - the gate weakened (GATE_PATHS): a change to the gate's own files may only
+    add to it (owned paths, required checks, secret patterns, checks,
+    protected sections); dropping anything fails.
+The sensitive core in .github/CODEOWNERS (privileged workflows, session-start
+code, the CI guards) is reported as "sensitive" for a harder look, nothing
+more. CI runs main's copy of this script on every PR
+(.github/workflows/priv-risk-review.yml, pull_request_target), so a PR is
+never judged by its own edited reviewer.
 
 Standard library only. Process and reasoning: docs/security/risk-review.md.
 
@@ -24,11 +36,14 @@ Standard library only. Process and reasoning: docs/security/risk-review.md.
     python3 platform/security/risk_review.py --base <ref>
     python3 platform/security/risk_review.py --json
     python3 platform/security/risk_review.py --strict        # exit 1 on a likely secret
+    python3 platform/security/risk_review.py --base B --head H --gate
+                                                             # CI: exit 1 on a secret or a block
 """
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -56,7 +71,39 @@ def in_owner_core(path: str, rules) -> bool:
     return bool(_guard.owners_for(path, rules))
 
 
-# Sections whose deletion or rewrite goes to the owner: (file, heading regex).
+# The files that define the automated gate. The review cannot vouch for its
+# own replacement, so a change here may only add to the gate
+# (gate_weakenings); main's copy of this script makes that call.
+GATE_PATHS = [
+    r"^\.github/workflows/priv-risk-review\.yml$",
+    r"^\.github/rulesets/",
+    r"^\.github/CODEOWNERS$",
+    r"^platform/security/risk_review\.py$",
+]
+
+
+def is_gate_path(path: str) -> bool:
+    return any(re.search(p, path) for p in GATE_PATHS)
+
+
+# Licences existing code may move to. MIT is the historic licence;
+# FSL-1.1-MIT is the owner's 2026-11-24 choice for original work (PRs
+# 18724/18728). Published versions keep the licence they shipped under.
+ALLOWED_LICENCES = [
+    ("MIT", r"Permission is hereby granted, free of charge"),
+    ("FSL-1.1-MIT", r"Functional Source License, Version 1\.1, MIT Future License"),
+]
+
+# Lines that must stay in the risk-review workflow: they are what make it
+# run main's reviewer over the PR's diff as a failing gate.
+WORKFLOW_ANCHORS = [
+    "pull_request_target:",
+    "ref: ${{ github.event.pull_request.base.sha }}",
+    "python3 -I platform/security/risk_review.py",
+    "--gate",
+]
+
+# Sections whose deletion or rewrite is blocked: (file, heading regex).
 # Additions inside them do not escalate on their own; they still get the
 # instruction-change check.
 PROTECTED_SECTIONS = [
@@ -217,7 +264,77 @@ def find_secrets(files: dict[str, FileDiff]) -> list[tuple[str, str]]:
     return hits
 
 
-def review(files: dict[str, FileDiff], base_text=lambda path: None, rules=None) -> dict:
+def licence_name(text: str) -> str | None:
+    for name, pat in ALLOWED_LICENCES:
+        if re.search(pat, text):
+            return name
+    return None
+
+
+def _owned_patterns(text: str) -> set[str]:
+    return {line.split()[0] for line in text.splitlines()
+            if line.strip() and not line.lstrip().startswith("#") and len(line.split()) > 1}
+
+
+def _ruleset_facts(text: str) -> tuple[set, set, str]:
+    doc = json.loads(text)
+    rules = doc.get("rules", [])
+    types = {r.get("type") for r in rules}
+    checks = {c.get("context") for r in rules if r.get("type") == "required_status_checks"
+              for c in r.get("parameters", {}).get("required_status_checks", [])}
+    return types, checks, doc.get("enforcement", "")
+
+
+def _reviewer_facts(text: str) -> dict[str, set]:
+    """Parse (never run) risk_review.py and pull out the lists the gate is made of."""
+    import ast
+    facts: dict[str, set] = {}
+    for node in ast.parse(text).body:
+        if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
+            name = node.targets[0].id
+            if name in ("SECRET_PATTERNS", "GATE_PATHS", "PROTECTED_SECTIONS", "WORKFLOW_ANCHORS"):
+                facts[name] = {ast.dump(e) for e in getattr(node.value, "elts", [])}
+            elif name == "CHECKS":
+                facts[name] = {e.args[0].value for e in getattr(node.value, "elts", [])
+                               if isinstance(e, ast.Call) and e.args and isinstance(e.args[0], ast.Constant)}
+    return facts
+
+
+def gate_weakenings(path: str, base: str | None, head: str | None) -> list[str]:
+    """What a change to one of the gate's own files drops. Adding is fine."""
+    if base is None:
+        return []  # a new file adds to the gate
+    if head is None:
+        return ["file deleted"]
+    try:
+        if path == ".github/CODEOWNERS":
+            gone = _owned_patterns(base) - _owned_patterns(head)
+            return [f"no longer owned: {', '.join(sorted(gone))}"] if gone else []
+        if path.startswith(".github/rulesets/"):
+            bt, bc, be = _ruleset_facts(base)
+            ht, hc, he = _ruleset_facts(head)
+            out = []
+            if bt - ht:
+                out.append(f"rules removed: {', '.join(sorted(map(str, bt - ht)))}")
+            if bc - hc:
+                out.append(f"required checks removed: {', '.join(sorted(map(str, bc - hc)))}")
+            if be == "active" and he != "active":
+                out.append(f"enforcement {he!r}")
+            return out
+        if path == "platform/security/risk_review.py":
+            bf, hf = _reviewer_facts(base), _reviewer_facts(head)
+            return [f"{k}: {len(bf[k] - hf.get(k, set()))} entr(y/ies) removed"
+                    for k in sorted(bf) if bf[k] - hf.get(k, set())]
+        if path.endswith("priv-risk-review.yml"):
+            gone = [a for a in WORKFLOW_ANCHORS if a in base and a not in head]
+            return [f"no longer contains {a!r}" for a in gone]
+    except (ValueError, SyntaxError) as e:
+        return [f"cannot be parsed ({e.__class__.__name__})"]
+    return []
+
+
+def review(files: dict[str, FileDiff], base_text=lambda path: None, rules=None,
+           head_text=lambda path: None) -> dict:
     if rules is None:
         rules = owner_core_rules()
     triggered = []
@@ -240,9 +357,10 @@ def review(files: dict[str, FileDiff], base_text=lambda path: None, rules=None) 
     secrets = find_secrets(files)
     for path, name in secrets:
         escalate.append(f"likely secret ({name}) added in {path}: remove it and rotate the credential")
-    core = sorted(p for p in files if in_owner_core(p, rules))
-    if core:
-        escalate.append("owner-only core changed: " + ", ".join(core))
+    for path in sorted(p for p in files if is_gate_path(p)):
+        for w in gate_weakenings(path, base_text(path), head_text(path)):
+            escalate.append(f"gate weakened in {path}: {w}")
+    sensitive = sorted(p for p in files if in_owner_core(p, rules) and not is_gate_path(p))
     for path, heading in PROTECTED_SECTIONS:
         f = files.get(path)
         if not f or not f.removed_old_lines:
@@ -252,22 +370,39 @@ def review(files: dict[str, FileDiff], base_text=lambda path: None, rules=None) 
             continue
         rng = section_range(text, heading)
         if rng and any(rng[0] <= n <= rng[1] for n in f.removed_old_lines):
-            escalate.append(f"lines removed or rewritten in a protected section of {path} ({heading.strip('^').strip()})")
+            escalate.append(f"lines removed or rewritten in a protected section of {path} ({heading.strip('^').strip()}); guardrails are append-only")
     for f in files.values():
         if re.search(r"(^|/)(LICEN[CS]E|COPYING)(\.[a-z]+)?$", f.path) and f.status != "A":
-            escalate.append(f"licence of existing code changed: {f.path}")
+            new = head_text(f.path) if f.status != "D" else ""
+            if not licence_name(new or ""):
+                escalate.append(f"licence of existing code changed to one outside ALLOWED_LICENCES: {f.path}")
 
     return {"files": len(files), "checks": triggered, "escalate": escalate,
+            "sensitive": sensitive,
             "secrets": [{"path": p, "kind": k} for p, k in secrets]}
+
+
+def gate_exit(result: dict) -> tuple[int, str]:
+    """The CI verdict. Anything in `escalate` is blocked outright: there is no
+    approval path, because the controls are rules, not a person. Everything
+    else passes: the checklist is for the merging agent and the AI reviewer,
+    not a reason to wait."""
+    if result["escalate"]:
+        return 1, "blocked: " + "; ".join(result["escalate"])
+    return 0, "nothing blocked; merge when CI is green and the checks are answered"
 
 
 def render(result: dict) -> str:
     out = ["## Risk review (cyber and legal)", ""]
     if result["escalate"]:
-        out.append("**Owner review needed:**")
+        out.append("**Blocked** (fix these; nobody can approve them through):")
         out += [f"- {e}" for e in result["escalate"]]
     else:
-        out.append("**Owner review needed:** no. Answer the checks below in the PR and merge when CI is green.")
+        out.append("**Blocked:** nothing. Answer the checks below in the PR and merge when CI is green.")
+    if result.get("sensitive"):
+        out.append("")
+        out.append("**Sensitive files** (review these hardest): "
+                   + ", ".join(f"`{p}`" for p in result["sensitive"]))
     out.append("")
     if not result["checks"]:
         out.append(f"No check triggered by the {result['files']} changed file(s).")
@@ -292,10 +427,12 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--base", default="origin/main")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--head", default="HEAD")
     ap.add_argument("--strict", action="store_true", help="exit 1 when a likely secret is added")
+    ap.add_argument("--gate", action="store_true", help="CI verdict: exit 1 on anything blocked")
     args = ap.parse_args(argv)
-    merge_base = git("merge-base", args.base, "HEAD").strip()
-    diff = git("diff", "-U0", "--no-color", "--no-renames", f"{merge_base}...HEAD")
+    merge_base = git("merge-base", args.base, args.head).strip()
+    diff = git("diff", "-U0", "--no-color", "--no-renames", f"{merge_base}...{args.head}")
 
     def base_text(path):
         try:
@@ -303,8 +440,23 @@ def main(argv=None) -> int:
         except subprocess.CalledProcessError:
             return None
 
-    result = review(parse_unified_diff(diff), base_text)
-    print(json.dumps(result, indent=2) if args.json else render(result), end="" if not args.json else "\n")
+    def head_text(path):
+        try:
+            return git("show", f"{args.head}:{path}")
+        except subprocess.CalledProcessError:
+            return None
+
+    result = review(parse_unified_diff(diff), base_text, head_text=head_text)
+    text = render(result)
+    print(json.dumps(result, indent=2) if args.json else text, end="" if not args.json else "\n")
+    if args.gate:
+        code, verdict = gate_exit(result)
+        summary = os.environ.get("GITHUB_STEP_SUMMARY")
+        if summary:
+            with open(summary, "a", encoding="utf-8") as fh:
+                fh.write(text + f"\n**Verdict:** {verdict}\n")
+        print(("::error::" if code else "") + verdict)
+        return code
     return 1 if args.strict and result["secrets"] else 0
 
 

@@ -4,7 +4,7 @@ After using this, you can now **run an affiliate or referral program on your own
 
 **Live tool:** https://marisstella.app/referral-keeper/
 
-Two parts, both free and MIT:
+Two parts, both free and FSL-1.1-MIT:
 
 - **`index.html`**: a programme planner. Type your price, commission, window, churn and referral volume and see what the programme costs month by month. Runs in the browser; nothing is uploaded.
 - **`server.mjs`**: one Node process, **zero dependencies**, state in one JSON file. It receives Stripe webhooks, keeps the ledger, serves the tracking script, a private dashboard per affiliate and an admin page. **It needs no Stripe API key and never calls Stripe or moves money.**
@@ -54,7 +54,7 @@ Fork the repository, then open `https://render.com/deploy?repo=<your fork URL>`.
 
 ## Disclaimer
 
-No warranty; no uptime or delivery guarantee. You operate the programme and are responsible for your Stripe account, your terms with affiliates and customers, affiliate-disclosure rules (affiliates generally must disclose the relationship), any tax reporting on what you pay them, and data-protection rules. Commission figures come from Stripe events the server received; a missed or rejected webhook means a missed commission, so check against Stripe before paying. Not legal, tax or financial advice. MIT licensed. If it saves you a subscription, you can [sponsor the author](https://github.com/sponsors/Duncan-Haywood).
+No warranty; no uptime or delivery guarantee. You operate the programme and are responsible for your Stripe account, your terms with affiliates and customers, affiliate-disclosure rules (affiliates generally must disclose the relationship), any tax reporting on what you pay them, and data-protection rules. Commission figures come from Stripe events the server received; a missed or rejected webhook means a missed commission, so check against Stripe before paying. Not legal, tax or financial advice. FSL-1.1-MIT licensed. If it saves you a subscription, you can [sponsor the author](https://github.com/sponsors/Duncan-Haywood).
 
 ## Other self-deploy paths
 

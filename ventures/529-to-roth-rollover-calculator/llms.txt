@@ -2,7 +2,7 @@
 
 > Free 529-to-Roth IRA rollover calculator: the 15-year rule, five-year contribution lock, $35,000 lifetime cap, annual limit and earned income, year by year. Nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/529-to-roth-rollover-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/529-to-roth-rollover-calculator): FSL-1.1-MIT licensed.

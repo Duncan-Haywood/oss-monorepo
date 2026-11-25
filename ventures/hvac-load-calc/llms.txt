@@ -2,7 +2,7 @@
 
 > Free, open-source heating and cooling load calculator for houses. Enter rooms with their outside walls (direction, length, window and door area), the attic, the floor (slab edge, crawl or basement below grade), skylights, insulation, window U and SHGC, blower-door ACH50 and ventilation; it returns each room's heating Btu/h, cooling Btu/h with its peak hour, latent load and airflow, and the whole-house heating load, cooling tons and design cfm. Cooling runs a 24-hour clear July design day from sun position, so the house peak is less than the sum of room peaks. Runs in the browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from an open first-principles method, not engineering advice and not an ACCA Manual J report; many permits need a report from approved software.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from an open first-principles method, not engineering advice and not an ACCA Manual J report; many permits need a report from approved software.
 
 ## Pages
 
@@ -18,4 +18,4 @@ Free and open source (MIT). Results are estimates from an open first-principles 
 
 ## Source
 
-- [Source code, CLI and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hvac-load-calc): MIT licensed. `node cli.mjs house.json` or `node cli.mjs --example --json`; add `--ducts` to size the ducts from the file's `ducts` block.
+- [Source code, CLI and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hvac-load-calc): FSL-1.1-MIT licensed. `node cli.mjs house.json` or `node cli.mjs --example --json`; add `--ducts` to size the ducts from the file's `ducts` block.

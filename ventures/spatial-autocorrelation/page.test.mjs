@@ -124,7 +124,7 @@ test("robots, sitemap, README, LICENSE, VENTURE.yaml and llms.txt exist", () => 
   assert.match(page("README.md"), /No warranty/);
   assert.match(page("README.md"), /https:\/\/marisstella\.app\/spatial-autocorrelation\//);
   assert.match(page("README.md"), /## Verification/);
-  assert.match(page("LICENSE"), /MIT License/);
+  assert.match(page("LICENSE"), /Functional Source License/);
   assert.match(page("VENTURE.yaml"), /^name: spatial-autocorrelation$/m);
   assert.match(page("llms.txt"), /Moran/);
 });

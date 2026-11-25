@@ -118,7 +118,7 @@ node --test ventures/security-txt-check/*.test.mjs
 The HTTP tests run against a throwaway server on loopback, so the suite needs no
 outbound network.
 
-MIT licensed. [Sponsorship](https://github.com/sponsors/Duncan-Haywood) is
+FSL-1.1-MIT licensed. [Sponsorship](https://github.com/sponsors/Duncan-Haywood) is
 optional and never changes what the tool does.
 
 **No warranty.** Provided free and as-is, without warranty of any kind. Not

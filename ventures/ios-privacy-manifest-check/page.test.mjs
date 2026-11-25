@@ -51,9 +51,9 @@ test('the sponsor link points at the correct GitHub Sponsors profile', () => {
   assert.match(html, /https:\/\/github\.com\/sponsors\/Duncan-Haywood/);
 });
 
-test('the MIT license is linked', () => {
+test('the FSL-1.1-MIT license is linked', () => {
   assert.match(html, /href="LICENSE"/);
-  assert.match(html, /MIT licence/);
+  assert.match(html, /FSL-1.1-MIT licence/);
 });
 
 test('a usage opt-out control exists', () => {

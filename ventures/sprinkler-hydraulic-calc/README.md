@@ -1,6 +1,6 @@
 # Sprinkler hydraulic calculator
 
-Free, open-source (MIT) hydraulic calculation for fire sprinkler systems laid
+Free, source available (FSL-1.1-MIT) hydraulic calculation for fire sprinkler systems laid
 out as a tree, a loop or a grid. Give it the water supply from a flow test,
 the design (density, area per head, minimum pressure, hose allowance) and the
 heads and pipes; it returns the pressure and flow needed at the source so
@@ -100,5 +100,5 @@ Track and Global Privacy Control, and has an opt-out on the page.
 
 ## Licence
 
-MIT. Built with AI assistance. If it saved you a calculation,
+FSL-1.1-MIT. Built with AI assistance. If it saved you a calculation,
 [sponsor the work](https://github.com/sponsors/Duncan-Haywood).

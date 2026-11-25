@@ -21,4 +21,4 @@ Not modelled: pesticide-exposure terms, post-contract honey flow, taxes, contrac
 The tool holds no prices; the example numbers are made up. Not business, legal or tax advice.
 No warranty; see the page footer.
 
-Tests: `node --test`. MIT licensed (`LICENSE`); no secrets, no private dependencies.
+Tests: `node --test`. FSL-1.1-MIT licensed (`LICENSE`); no secrets, no private dependencies.

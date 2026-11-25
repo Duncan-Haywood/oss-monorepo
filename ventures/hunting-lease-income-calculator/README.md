@@ -25,4 +25,4 @@ which used to mean guessing from a neighbour's per-acre number.
 Not modelled: liability and its legal limits, the lease contract, game law, income tax, crop damage.
 Not legal, tax or insurance advice. No warranty; see the page footer.
 
-Tests: `node --test`. MIT licensed (`LICENSE`).
+Tests: `node --test`. FSL-1.1-MIT licensed (`LICENSE`).

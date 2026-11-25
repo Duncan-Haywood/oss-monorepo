@@ -11,4 +11,4 @@ After using this, you can now **know the most you can bid per cwt at the sale ba
 1. Open `index.html`, fill in the pen, click Calculate margin.
 2. Pure logic is in `calc.mjs` (`plan()`, `slidePrice()`); tests: `node --test`.
 
-Modelled: purchase, hauling, health, feed, pasture or yardage, financed interest, death loss, shrink, price slide, commission, price and death-loss scenarios. Not modelled: hedging, weather, taxes, split sales. Not financial advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
+Modelled: purchase, hauling, health, feed, pasture or yardage, financed interest, death loss, shrink, price slide, commission, price and death-loss scenarios. Not modelled: hedging, weather, taxes, split sales. Not financial advice. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

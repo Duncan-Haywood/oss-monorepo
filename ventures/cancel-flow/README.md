@@ -9,7 +9,7 @@ your customer list.
 
 **Live tool:** https://marisstella.app/cancel-flow/
 
-Two parts, both free and MIT:
+Two parts, both free and FSL-1.1-MIT:
 
 - **`index.html`** — the customer's view of the flow for any reason, plan price
   and offer settings, plus a revenue estimate from your own numbers. Runs in the

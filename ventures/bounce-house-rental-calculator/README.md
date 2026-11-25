@@ -98,6 +98,6 @@ inputs and run it yourself.
 
 ## Support
 
-Free and open source under an MIT licence.
+Free to use and source available under the FSL-1.1-MIT licence.
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and
 never changes what the tool does.

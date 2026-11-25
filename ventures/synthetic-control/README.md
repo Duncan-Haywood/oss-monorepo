@@ -91,4 +91,4 @@ placebos, conformal intervals, non-numeric time.
 
 **No warranty.** Statistical output from data you supply, not legal, tax,
 financial, medical or policy advice. Not affiliated with the authors of the
-cited papers, pysyncon or Synth. MIT licence.
+cited papers, pysyncon or Synth. FSL-1.1-MIT licence.
