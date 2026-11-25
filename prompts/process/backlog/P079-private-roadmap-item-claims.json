@@ -18,7 +18,7 @@
   "baseline": "2 closed duplicates of one item on 2026-11-25 (PRs 107, 108)",
   "opened": "2026-11-25",
   "source": "prompts/runs/2026-11-25-session_01XpHqydVFvCareni32JhLEe.json",
-  "pr": "this",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19002",
   "result": null,
   "history": [
     {

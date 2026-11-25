@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqycWr95zZuKR288M2pT",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T14:38:17Z",
+  "ended": "2026-11-25T14:45:37Z",
+  "wall_minutes": 7.48,
+  "tokens_in": 2585832,
+  "tokens_out": 19576,
+  "cost_usd": 1.4917,
+  "tool_calls": 34,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19002",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "git mktree in the new tool blocked on stdin when run from the Bash tool (hung a test run past 120 s); fixed with input=\"\" in subprocess.run."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "`python3 -m unittest discover -s prompts` is named, but running a single platform/ci test as `python3 -m unittest platform/ci/test_x.py` from the repo root fails ('platform' shadows the stdlib module); cd platform/ci first."
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "validate rejects a done backlog item with pr null; the 'this' placeholder is documented only in the error message."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "No live claim pushed to private-monorepo (it would leave a junk branch); verified with a two-clone race test against a local bare remote instead.",
+      "did": "local race tests + read-only listing against the real clone",
+      "result": "claim path unexercised through the proxy; first ventures run that uses it is the live check"
+    },
+    {
+      "file": "prompt.md",
+      "why": "No blog post: this is agent process tooling with nothing for customers or search readers.",
+      "did": "documented the tool in cloud-session.md instead",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    ".github/prompts/cloud-session.md"
+  ],
+  "goal": null,
+  "notes": "Backlog P079 solved (status done). Tests: test_roadmap_claim 7 OK; promptctl validate ok; unittest discover -s prompts 144 OK; main_health 325/325. Security queue empty (security_next exit 3); ideas inbox empty.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "62b80807-4126-5030-bc0b-52134726204b",
+    "transcripts": 1,
+    "first": "2026-11-25T14:38:17Z",
+    "last": "2026-11-25T14:45:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 31,
+        "input": 60,
+        "output": 19576,
+        "thinking": 4337,
+        "cache_read": 2511061,
+        "cache_write_5m": 0,
+        "cache_write_1h": 74711,
+        "api_equivalent_usd": 1.4917,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 31,
+      "input": 60,
+      "output": 19576,
+      "thinking": 4337,
+      "cache_read": 2511061,
+      "cache_write_5m": 0,
+      "cache_write_1h": 74711,
+      "api_equivalent_usd": 1.4917,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 29,
+      "Write": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.48,
+      "active_minutes": 7.48,
+      "model_minutes": 2.99,
+      "tool_minutes": 4.49,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "engineer writing a git-claim CLI with race tests and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 201.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
