@@ -1,0 +1,25 @@
+{
+  "id": "P086",
+  "title": "perf: conflict-markers' blob-less sparse checkout keeps 99% of files and is slower than a plain checkout",
+  "status": "open",
+  "owner": "owner",
+  "effect": 1,
+  "cost": 1,
+  "problem": "priv-conflict-markers-ci.yml checks out with filter: blob:none and a pattern that keeps 79,616 of 80,681 files (it drops only binary formats). With blob:none, git checkout fetches the missing blobs in one batch at about 0.7 ms per file regardless of size, so the job pays more than a plain depth-1 checkout (about 43 s on the same runners). The edit is in a priv-* workflow, which CODEOWNERS holds for the owner.",
+  "evidence": [
+    "python3 platform/ci/ci_profile.py --runs 600, 2026-11-25 ~19:10 UTC: Conflict markers checkout median 48 s (n = 42) vs 43-44 s for full checkouts (Portfolio validate, Portfolio Pages, CodeQL)",
+    "PR 19072: Portfolio validate with blob:none and 58.7k files kept took 49 s and then 44 s to check out, vs 43 s full; 902 MB and 342 MB packs cost the same, so the time scales with the file count",
+    "docs/history/ci-perf-2026-11-25-validate-sparse.md (cost model table)"
+  ],
+  "change": "Drop `filter: blob:none` from the conflict-markers checkout: the sparse pattern can stay, or go too, since the plain fetch downloads every blob anyway. Verify with the job's own script that the scanned file count is unchanged.",
+  "touches": [
+    ".github/workflows/priv-conflict-markers-ci.yml"
+  ],
+  "metric": "Conflict markers checkout step seconds, median (ci_profile.py --save, then the checkout step durations)",
+  "baseline": "48 s median, n = 42, 2026-11-25",
+  "opened": "2026-11-25",
+  "source": "docs/history/ci-perf-2026-11-25-validate-sparse.md",
+  "pr": null,
+  "result": null,
+  "history": []
+}

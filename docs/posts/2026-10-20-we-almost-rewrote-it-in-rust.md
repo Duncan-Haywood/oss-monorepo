@@ -159,6 +159,25 @@ and were left alone.
 Notes and the ranked list of what is left:
 [`docs/history/ci-perf-2026-11-25-venture-workflow-sparse.md`](/docs/history/ci-perf-2026-11-25-venture-workflow-sparse.md).
 
+### The same trick, made slower
+
+Encouraged, we tried it on the biggest validation job: 106 checks, a
+198-second median, and a 43-second checkout. Tracing every file each check
+opened showed none of them read the 22,000 research files, so we skipped
+those (and later the audio files too). The checks gave the same answers in
+both trees. The checkout took 49 seconds, then 44.
+
+The reason is how a blob-less checkout gets its files. It downloads the
+missing ones in one batch, and on GitHub's runners that batch costs about
+0.7 ms per file no matter how large the files are. For the same 58,700
+files, downloading 900 MB or 340 MB took the same time. A
+plain checkout streams the whole pack for 80,700 files in about the same
+43 seconds. So the trick pays when you keep a few thousand files, and costs
+you when you keep most of them. One older job that keeps 99% of the tree
+this way is about 5 seconds slower than doing nothing. We reverted the change and
+wrote down the cost model:
+[`docs/history/ci-perf-2026-11-25-validate-sparse.md`](/docs/history/ci-perf-2026-11-25-validate-sparse.md).
+
 ## Same day: the blog's search box downloaded 18 MB
 
 The blog's search box searches whole posts, not just titles, so it fetches
