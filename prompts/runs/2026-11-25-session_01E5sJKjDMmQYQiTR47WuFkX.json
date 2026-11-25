@@ -52,7 +52,7 @@
     "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (extended)"
   ],
   "goal": null,
-  "notes": "Venture tests: 68 pass, 1 pre-existing fail (change-order-log stacking, also red on main). Rendered at 390px in Chromium: no console errors, no horizontal scroll. risk_review: no blocks; three checks answered in the PR body.",
+  "notes": "Venture tests after merging main (with PR #18853, which this run landed to clear main's red change-order-log test): 70 pass, 0 fail. Rendered at 390px in Chromium: no console errors, no horizontal scroll. Local run_workflow_locally --for-changes: only failure was that pre-existing test; security/adversarial steps had no verdict locally (need PR data). risk_review: no blocks; three checks answered in the PR body.",
   "corrections": [],
   "redteam": null,
   "usage": {
