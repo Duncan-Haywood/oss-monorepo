@@ -456,6 +456,15 @@ tasks:
     hours: 12
     status: open
     added: 2026-11-24
+    notes: >-
+      Apply-ready 2026-11-25: platform/aws/stacks/edge-api/ (Lambda + function URL
+      behind CloudFront with an origin secret, DynamoDB, inbox bucket, DLQ,
+      alarms; tofu test + Checkov clean), platform/edge/store.mjs port with
+      D1 and DynamoDB stores, aws/lambda.mjs adapter (Worker scenarios pass
+      through it), aws/migrate-d1.mjs, platform/counter/pull-aws.mjs. Left:
+      apply (after the foundation stacks), the site stack attaching the
+      origin, the migration run and the site.json cutover commit
+      (platform/aws/stacks/edge-api/README.md, "Apply order").
 
   - id: aws-ses-email
     direction: aws-consolidation
@@ -470,7 +479,18 @@ tasks:
     hours: 16
     status: open
     added: 2026-11-24
-    notes: SES production access (leaving the sandbox) is a request the owner submits.
+    notes: >-
+      SES production access (leaving the sandbox) is a request the owner
+      submits. Identities, DKIM, MAIL FROM, configuration sets and the SES ->
+      SNS -> SQS event feed are platform/aws/stacks/email (PR #18749; a cold
+      domain is one more entry in its `domains`). Apply-ready 2026-11-25 on
+      top of it: platform/aws/stacks/email-ops/ (inbound receipt rule from
+      email-routing.json into the edge-api inbox, MX cutover behind
+      receive_mail; the email-consent table fed from that queue; one-click
+      unsubscribe) and its sender/ (maySend policy, consent store, sesSender
+      behind the venture send() port, senderFromEnv switch). Owner: postal
+      address, the cold domain, production access. Left: apply, inbound
+      cutover, moving each venture (aws-move-products), retiring Resend.
 
   - id: aws-saas-starter
     direction: aws-consolidation

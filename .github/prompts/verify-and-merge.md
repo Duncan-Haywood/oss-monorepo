@@ -23,6 +23,7 @@ node --test platform/distribution/*.test.mjs
 node --test platform/llm/*.test.mjs
 node --test platform/devstats/*.test.mjs
 node --test platform/daily/*.test.mjs
+node --test platform/aws/stacks/email-ops/sender/*.test.mjs  # SES sender, consent store, unsubscribe
 (cd platform/audio && python3 -m unittest test_narrate)  # the narration engine; needs numpy, ffmpeg for the Master case
 node --test platform/counter/*.test.mjs
 node --test platform/edge/*.test.mjs           # the site's feedback/counts Worker (platform/edge)
