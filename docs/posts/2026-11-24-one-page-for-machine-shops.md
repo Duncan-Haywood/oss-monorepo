@@ -364,3 +364,27 @@ shop's RFQ inbox with its drawings attached.
 The address only starts working once the app is deployed and the receiving
 domain is routed to it. Until then the RFQs page doesn't show the option at
 all.
+
+## Update, 25 November 2026: change a routing without starting over
+
+Routing templates were save-and-apply only: to change a cycle time or add a
+deburr step, an estimator deleted the routing and saved it again from a quote
+line. The RFQ-to-quote app (bet #2, still in private development, not yet on
+sale) now has a **Routings** page where a routing is edited in place.
+
+- **Everything on one screen.** Rename it, retag its part family, change any
+  operation's machine, label, setup or cycle minutes, add, remove or reorder
+  operations, and tick its finishing steps.
+- **Or update it from a quote.** When a line's operations have drifted from
+  the routing it started from, *Update routing from this line* writes the
+  line back into the routing. The button only appears when the two differ.
+- **Old quotes don't move.** A quote that already used the routing keeps its
+  own copy of the operations. An edit changes only the next line the routing
+  is applied to, and that line is still priced from today's rate card.
+- **Retired machines stay visible.** If a routing names a machine the shop
+  has since retired or deleted, the editor shows it and flags it rather than
+  quietly swapping in another machine. A deleted one must be replaced before
+  the edit can be saved.
+- **Two estimators can't overwrite each other.** If someone else saved the
+  routing after you opened it, your save is refused with a message to reload,
+  instead of silently undoing their change.
