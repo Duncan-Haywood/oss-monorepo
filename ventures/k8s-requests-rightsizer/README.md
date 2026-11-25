@@ -47,4 +47,4 @@ pasted text locally and never uploads it.
 
 ## Licence
 
-MIT, no warranty. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.
+FSL-1.1-MIT, no warranty. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.

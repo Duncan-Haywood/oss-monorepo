@@ -2,7 +2,7 @@
 
 > Free online calibration check for yes/no probability forecasts: the CORP reliability diagram (Dimitriadis, Gneiting & Jordan 2021, isotonic regression by pool-adjacent-violators) with a resampling consistency band, the Brier and log scores split exactly into miscalibration, discrimination and uncertainty, a resampling test of calibration, the observed/expected count, Spiegelhalter's (1986) z test, Cox's (1958) calibration intercept and slope, binned expected calibration error and the Murphy (1973) decomposition, the AUC, and isotonic or Platt recalibration. Matches scikit-learn 1.9.1 and scipy 1.18.1. On 2,930 NFL games (FiveThirtyEight's Elo, 2010-2020) the curve passes the shape test (p = 0.289) while home wins fall short of the forecasts overall (56.5% against 58.4%, p = 0.025), most of it in 2019 and 2020. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A gap between forecast and outcome is not proof of an error or of a cause.
+Free to use and source available (FSL-1.1-MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A gap between forecast and outcome is not proof of an error or of a cause.
 
 ## Pages
 
@@ -24,4 +24,4 @@ Free and open source (MIT). Results are statistical estimates from the data you 
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/probability-calibration): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/probability-calibration): FSL-1.1-MIT licensed.

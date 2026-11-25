@@ -6,7 +6,7 @@ Rolls an application forward to next month: previous takes this period, this per
 
 A hosted pay-app suite (saved jobs, retainage until release, lien waivers, change orders) is in development; not on sale and no price yet.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -14,4 +14,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pay-application-generator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/pay-application-generator): FSL-1.1-MIT licensed.

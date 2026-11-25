@@ -2,7 +2,7 @@
 
 > Free EU VAT OSS calculator: EUR 10,000 threshold check and the quarterly OSS return by country and rate from a sales CSV.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## What it answers
 
@@ -14,4 +14,4 @@ An EU seller can charge its own country's VAT on digital services and distance s
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/eu-vat-oss-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/eu-vat-oss-calculator): FSL-1.1-MIT licensed.

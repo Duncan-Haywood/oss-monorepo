@@ -155,7 +155,7 @@
   volume  = {48}, number = {3}, pages = {821--854}, year = {2013},
   doi     = {10.3368/jhr.48.3.821}
 }</pre>
-    <p class="note">Example data: log homicides per 100,000 people for the 50 US states, 2000-2010, from the FBI Uniform Crime Reports, with the first full year each state's castle-doctrine law was in force, as compiled by Cheng &amp; Hoekstra (2013) and redistributed in the MIT-licensed <code>causaldata</code> Python package; provenance in <code>data/SOURCE.md</code>. States are numbered as in that file. The example uses no covariates, weights or region-by-year effects, so it is a teaching example, not a replication of the paper.</p>
+    <p class="note">Example data: log homicides per 100,000 people for the 50 US states, 2000-2010, from the FBI Uniform Crime Reports, with the first full year each state's castle-doctrine law was in force, as compiled by Cheng &amp; Hoekstra (2013) and redistributed in the FSL-1.1-MIT-licensed <code>causaldata</code> Python package; provenance in <code>data/SOURCE.md</code>. States are numbered as in that file. The example uses no covariates, weights or region-by-year effects, so it is a teaching example, not a replication of the paper.</p>
   </section>
 
   <section class="card">
@@ -185,7 +185,7 @@
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Free command line and agent access: <code>node cli.mjs panel.csv --unit state --time year --outcome y --cohort first_treated</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/difference-in-differences" rel="noopener">source</a>.</p>
     <p>More causal and research tools on your own data: <a href="../synthetic-control/">synthetic control</a> for a single treated unit, <a href="../regression-discontinuity/">regression discontinuity</a> for a cutoff, <a href="../propensity-score/">propensity score weighting and matching</a> when people chose the treatment, the <a href="../changepoint-detector/">changepoint detector</a> for when a series changed, <a href="../meta-analysis/">meta-analysis</a> to pool studies, and <a href="../fdr-multiple-testing/">multiple testing correction</a> for many results at once.</p>
-    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+    <p class="support">Free to use and source available. If this helped, the <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
   <script type="module">
     import { analyze, parseCsv } from "./engine.mjs";

@@ -16,7 +16,7 @@ there as the "anderson" data. The file does not label the `sex` codes, so
 this repository does not either.
 
 - **Source file:** `lifelines/datasets/anderson.csv` in the lifelines Python
-  package, version 0.30.3 (MIT licence), installed from PyPI. lifelines cites
+  package, version 0.30.3 (FSL-1.1-MIT licence), installed from PyPI. lifelines cites
   `http://web1.sph.emory.edu/dkleinb/allDatasets/surv2datasets/anderson.dat`
   as its origin; that host did not resolve from this session, so it was not
   read directly.
@@ -30,7 +30,7 @@ this repository does not either.
   relapses reported for the two arms). Row order kept. 42 rows plus a header.
 - **SHA-256 of `leukemia.csv`:** `5035084cedbd144b16c549e682a9a78ff0393d9e484fe39522b06ee6537ce053`
 - **Licence:** the data are measurements published in 1963; no licence is
-  attached to the file beyond the lifelines package's MIT licence, under which
+  attached to the file beyond the lifelines package's FSL-1.1-MIT licence, under which
   it is redistributed. Cite Freireich et al. (1963) when you use it.
 
 The data contain no names or identifiers.

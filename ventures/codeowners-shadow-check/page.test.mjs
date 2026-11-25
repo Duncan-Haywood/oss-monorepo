@@ -73,9 +73,9 @@ test('the no-warranty disclaimer is present on the doc page too', () => {
   assert.match(docHtml, /provided free and as-is, without warranty/);
 });
 
-test('the MIT license is linked on the doc page', () => {
+test('the FSL-1.1-MIT license is linked on the doc page', () => {
   assert.match(docHtml, /href="LICENSE"/);
-  assert.match(docHtml, /MIT licen[cs]e/);
+  assert.match(docHtml, /FSL-1.1-MIT licen[cs]e/);
 });
 
 test('index links to the doc page, and the doc page links back', () => {
@@ -102,9 +102,9 @@ test('the sponsor link points at the correct GitHub Sponsors profile', () => {
   assert.match(html, /https:\/\/github\.com\/sponsors\/Duncan-Haywood/);
 });
 
-test('the MIT license is linked', () => {
+test('the FSL-1.1-MIT license is linked', () => {
   assert.match(html, /href="LICENSE"/);
-  assert.match(html, /MIT licen[cs]e/);
+  assert.match(html, /FSL-1.1-MIT licen[cs]e/);
 });
 
 test('a usage opt-out control exists', () => {

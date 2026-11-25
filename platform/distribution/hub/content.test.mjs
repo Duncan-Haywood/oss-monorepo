@@ -91,7 +91,7 @@ test('longPost: drops findings before clipping, and the link survives any length
 test('redditBody, slides and videoScript carry the findings and the disclosure', () => {
   const c = { title: 'T', description: 'D.', ...extract(BODY) };
   const r = redditBody(c, { link: 'L', disclosure: DISCLOSURE });
-  assert.match(r, /^\*\*TL;DR:\*\* D\.[\s\S]*What we found[\s\S]*Limits[\s\S]*Disclosure: this is from my own open-source project/);
+  assert.match(r, /^\*\*TL;DR:\*\* D\.[\s\S]*What we found[\s\S]*Limits[\s\S]*Disclosure: this is from my own source-available project/);
   const s = slides(c, { close: 'Close.' });
   assert.equal(s[0].role, 'title');
   assert.equal(s.at(-1).text, 'Close.');

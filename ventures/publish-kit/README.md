@@ -171,4 +171,4 @@ be slow, broken, moved, or taken offline without notice. Do not use this as a
 system of record.
 
 Not affiliated with Apple, Spotify, Amazon, Audible, ACX, Kobo or Google.
-MIT licensed. [Sponsor the project on GitHub](https://github.com/sponsors/Duncan-Haywood).
+FSL-1.1-MIT licensed. [Sponsor the project on GitHub](https://github.com/sponsors/Duncan-Haywood).

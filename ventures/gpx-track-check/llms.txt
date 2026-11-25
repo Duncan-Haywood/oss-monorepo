@@ -2,7 +2,7 @@
 
 > Free GPX checker: finds why Strava, Garmin Connect or Komoot rejects a track file, with line numbers: missing creator, version and namespace, GPS jumps, points at 0,0, timestamps out of order, no times, bad elevations. Downloads a repaired copy. Runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gpx-track-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/gpx-track-check): FSL-1.1-MIT licensed.

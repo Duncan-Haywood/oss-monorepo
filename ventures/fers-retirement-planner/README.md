@@ -36,5 +36,5 @@ Track.
 **Best-effort hosting, no SLA.** These tools are free, experimental, and may be slow, broken, moved, or
 taken offline without notice. Do not use this as a system of record.
 
-Independent of OPM, the Thrift Savings Plan and any agency. Free and open source (MIT, see `LICENSE`). Optional support:
+Independent of OPM, the Thrift Savings Plan and any agency. Free to use and source available (FSL-1.1-MIT, see `LICENSE`). Optional support:
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood).

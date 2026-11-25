@@ -17,4 +17,4 @@ and an mpg assumption in a rate confirmation that nobody divided out.
 Modelled: price rounded down to the step above the peg, cents-per-mile (price over peg divided by the mpg basis) and percent-of-linehaul programs,
 loaded or all miles, the fuel burned at your real mpg and pump price against fuel at the peg, the gap, the surcharge per loaded mile that would
 break even, and a price sensitivity table. Not modelled: regional indexes, caps, minimums, index lag, per-contract mileage rules, taxes.
-Not legal or financial advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
+Not legal or financial advice. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

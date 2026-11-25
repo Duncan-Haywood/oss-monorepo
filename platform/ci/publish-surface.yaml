@@ -356,6 +356,9 @@ workflows:
     gates:
     - ${{ github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || vars.RETAIL_PILOT_INTEL_DOCS_CLOUDFLARE
       == 'true') }}
+- workflow: priv-risk-review.yml
+  classification: none
+  publishes: []
 - workflow: priv-security-alert-queue.yml
   classification: none
   publishes: []

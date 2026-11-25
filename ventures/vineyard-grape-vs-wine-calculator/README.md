@@ -22,4 +22,4 @@ interest on aging inventory, bulk-wine sales, state-specific excise tiers (you e
 taxes. The tool holds no price data; the example numbers are made up. Not legal, tax or financial advice.
 No warranty; see the page footer.
 
-Tests: `node --test`. MIT licensed (`LICENSE`); no secrets, no private dependencies.
+Tests: `node --test`. FSL-1.1-MIT licensed (`LICENSE`); no secrets, no private dependencies.

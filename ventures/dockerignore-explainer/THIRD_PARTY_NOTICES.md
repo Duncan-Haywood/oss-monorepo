@@ -1,6 +1,6 @@
 # Third-party notices
 
-The rest of this folder is original work under the MIT licence in `LICENSE`. `matcher.mjs` is a translation into
+The rest of this folder is original work under the FSL-1.1-MIT licence in `LICENSE`. `matcher.mjs` is a translation into
 JavaScript of parts of three Go projects. Those parts keep their original licences, reproduced in `licenses/`:
 
 | Upstream | Version | What `matcher.mjs` translates | Licence |

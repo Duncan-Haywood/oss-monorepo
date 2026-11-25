@@ -2,7 +2,7 @@
 
 > Free online method comparison for two measurement methods on the same samples (a new assay against the current one, an analyser against the reference lab, a cuff against mercury). Gives Passing-Bablok regression (Passing & Bablok 1983) with its rank-based confidence intervals and CUSUM linearity test, Deming regression (Cornbleet & Gochman 1979) and weighted Deming for proportional error (Linnet 1990) with jackknife intervals, Bland-Altman bias and limits of agreement with their intervals (Bland & Altman 1986, 1999), Kendall's tau-b, and the difference between the methods at decision levels. Passing-Bablok runs on up to 20,000 pairs by counting slopes with merge-sort inversions instead of listing them. On 4,212 NHANES 2017-2018 adults, the oscillometric cuff read systolic pressure 1.3 mmHg below mercury on average, least squares gave a slope of 0.87 and Passing-Bablok 1.023. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). A statistical estimate, not medical, laboratory accreditation or regulatory advice. One value per method per sample. Reads comma, tab, space and semicolon-separated text; a semicolon file (Excel's CSV in most of Europe) may use decimal commas (4,1;4,3). A missing reading is an error, not a zero.
+Free to use and source available (FSL-1.1-MIT). A statistical estimate, not medical, laboratory accreditation or regulatory advice. One value per method per sample. Reads comma, tab, space and semicolon-separated text; a semicolon file (Excel's CSV in most of Europe) may use decimal commas (4,1;4,3). A missing reading is an error, not a zero.
 
 ## Pages
 
@@ -26,4 +26,4 @@ Free and open source (MIT). A statistical estimate, not medical, laboratory accr
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/method-comparison): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/method-comparison): FSL-1.1-MIT licensed.

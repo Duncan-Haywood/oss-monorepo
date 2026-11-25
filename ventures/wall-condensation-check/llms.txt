@@ -2,7 +2,7 @@
 
 > Free wall, roof and floor assembly condensation check (Glaser method, month by month in the manner of ISO 13788). From the layers inside to outside (R-value and vapour permeance per layer, IP or SI) and twelve months of indoor and outdoor temperature and humidity, it gives the temperature, saturation and vapour pressure at every interface, where vapour condenses, how much accumulates month by month, whether it dries out within the year, the highest constant indoor RH with no condensation, and inside-surface RH. Runs in the browser; nothing is uploaded.
 
-Free and open source (MIT). Results are a vapour-diffusion screen on the numbers typed in, not engineering, architectural or code-compliance advice. Not modelled: air leakage, rain and wet cladding, solar-driven inward vapour, moisture storage, liquid transport, humidity-dependent permeance. The layer library holds typical rounded values; use product data.
+Free to use and source available (FSL-1.1-MIT). Results are a vapour-diffusion screen on the numbers typed in, not engineering, architectural or code-compliance advice. Not modelled: air leakage, rain and wet cladding, solar-driven inward vapour, moisture storage, liquid transport, humidity-dependent permeance. The layer library holds typical rounded values; use product data.
 
 ## Pages
 
@@ -15,4 +15,4 @@ Free and open source (MIT). Results are a vapour-diffusion screen on the numbers
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-condensation-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/wall-condensation-check): FSL-1.1-MIT licensed.

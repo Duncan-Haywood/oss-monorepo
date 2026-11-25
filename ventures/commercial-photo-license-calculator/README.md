@@ -24,4 +24,4 @@ The free product can later support paid hosted quote history, custom rate preset
 
 [GitHub Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and never changes what the tool does.
 
-MIT licensed.
+FSL-1.1-MIT licensed.

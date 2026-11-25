@@ -2,7 +2,7 @@
 
 > Free Xero bank statement CSV checker: finds why a statement will not import or imports with wrong dates (rows above the header, separate Debit/Credit columns, bad amounts, mixed date order, repeats), with line numbers, and writes a repaired CSV. Runs in your browser.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/xero-bank-statement-csv-check): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/xero-bank-statement-csv-check): FSL-1.1-MIT licensed.

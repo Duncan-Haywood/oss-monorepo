@@ -2,7 +2,7 @@
 
 > Price a tiled walk-in shower from tile, waterproofing, linear drain, curbless slope, glass — and whether Saturday still pays after overtime. See the walk-away number before you match a cheaper tile quote.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -16,4 +16,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/walk-in-shower-bid-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/walk-in-shower-bid-calculator): FSL-1.1-MIT licensed.

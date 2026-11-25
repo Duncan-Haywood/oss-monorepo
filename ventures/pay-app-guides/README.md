@@ -70,4 +70,4 @@ switched off by Do Not Track or the opt-out button.
 
 ## Licence
 
-MIT, see `LICENSE`.
+FSL-1.1-MIT, see `LICENSE`.

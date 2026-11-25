@@ -25,4 +25,4 @@ which used to mean a sales call with a compliance vendor or a consultant's gap a
 Not modelled: Processing Integrity, your auditor's own tests, tooling or audit cost. It is a planning aid, not an audit,
 and cannot issue or predict a report. No warranty; see the page footer.
 
-Tests: `node --test`. MIT licensed (`LICENSE`); no secrets, no private dependencies.
+Tests: `node --test`. FSL-1.1-MIT licensed (`LICENSE`); no secrets, no private dependencies.

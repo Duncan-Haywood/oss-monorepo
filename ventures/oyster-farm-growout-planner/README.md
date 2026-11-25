@@ -20,4 +20,4 @@ Not modelled: seed upsizing between gear types, harvest-closure days, price chan
 taxes, grants and regulations. The tool holds no prices; the example numbers are made up. Not
 business, legal or financial advice. No warranty; see the page footer.
 
-Tests: `node --test`. MIT licensed (`LICENSE`); no secrets, no private dependencies.
+Tests: `node --test`. FSL-1.1-MIT licensed (`LICENSE`); no secrets, no private dependencies.

@@ -49,4 +49,4 @@ Not checked: any built plant's metered output, sloped ground, horizon, row ends,
 
 `index.html` (the tool), `solar-row-spacing-gcr.html` (guide), `solar.mjs`, `weather.mjs`, `rows.mjs`, `calc.mjs` (engine; `analyze(input)`, `DEFAULTS`, `sampleInput()`), `usage.mjs` (local-only feature counts, off under Do Not Track), tests `*.test.mjs` (`node --test *.test.mjs`), `check/` (pvlib reference and the TMY3 measurement).
 
-MIT licensed.
+FSL-1.1-MIT licensed.

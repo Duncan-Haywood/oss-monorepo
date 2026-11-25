@@ -2,7 +2,7 @@
 
 > Free tool for contact lists, CRM exports, customer and donor files: paste or open a CSV and get groups of rows that are probably the same person or business (nicknames such as Bob and Robert, typos, accents, Gmail dots and +tags, Inc vs LLC, swapped first and last names), the reason each pair matched, a borderline list to check, and a merged CSV with one row per person. Fellegi-Sunter record linkage with weights learned from the file by EM, Jaro-Winkler string comparison and blocking. Up to 50,000 rows; nothing uploaded.
 
-Free and open source (MIT). Results are statistical matches, not legal, tax, financial or professional advice; check groups before deleting anything.
+Free to use and source available (FSL-1.1-MIT). Results are statistical matches, not legal, tax, financial or professional advice; check groups before deleting anything.
 
 ## Pages
 
@@ -16,4 +16,4 @@ Free and open source (MIT). Results are statistical matches, not legal, tax, fin
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fuzzy-dedupe): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/fuzzy-dedupe): FSL-1.1-MIT licensed.

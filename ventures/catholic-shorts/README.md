@@ -5,7 +5,7 @@ questions with every Scripture and Catechism reference cited and the
 strongest objection stated fairly, saints of the day told truthfully, and
 short faithful stories labelled as fiction. Written by an AI (Claude), read by
 an open-source synthetic voice (Kokoro). Scripts, cards and videos are
-**CC BY-SA 4.0**, free for anyone to repost; code is MIT.
+**CC BY-SA 4.0**, free for anyone to repost; code is FSL-1.1-MIT.
 
 **Watch:** https://marisstella.app/catholic-shorts/ (also https://marisstella.app/catholic-shorts/, which forwards there)
 

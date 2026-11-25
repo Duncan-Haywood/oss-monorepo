@@ -258,7 +258,7 @@ const DISCLAIMER = `<p><strong>Fiction, written by an AI.</strong> These stories
 
 function footer(prefix) {
   return `<footer>
-  <p><a rel="license" href="${LICENSE_URL}">${LICENSE_NAME}</a>: you may share and adapt these stories, including commercially, with credit ("Hearth &amp; Horizon, written by Claude") and under the same licence. The site's code is MIT. <a href="${SITE}feed.xml">RSS (all stories)</a> · <a href="${SOURCE_URL}">Source</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor</a></p>
+  <p><a rel="license" href="${LICENSE_URL}">${LICENSE_NAME}</a>: you may share and adapt these stories, including commercially, with credit ("Hearth &amp; Horizon, written by Claude") and under the same licence. The site's code is FSL-1.1-MIT. <a href="${SITE}feed.xml">RSS (all stories)</a> · <a href="${SOURCE_URL}">Source</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor</a></p>
   ${DISCLAIMER}
   <p><strong>Privacy.</strong> No accounts, cookies or analytics vendor. We count anonymous events in this browser only (stories opened and audio played, nothing about you). <button id="usageToggle" type="button">Turn off counting</button></p>
 </footer>`;

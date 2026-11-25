@@ -2,7 +2,7 @@
 
 > Free worker classification checker for small business owners. Screen a contractor against the IRS test, the DOL economic reality test and the ABC test, see which facts point to employee status and estimate back-tax and overtime exposure. Illustrative; nothing uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/worker-classification-checker): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/worker-classification-checker): FSL-1.1-MIT licensed.

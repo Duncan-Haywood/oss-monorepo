@@ -2,7 +2,7 @@
 
 > Free UK CIS calculator for subcontractors: see the 20% or 30% deduction on an invoice, estimate your Self Assessment bill and Class 4 NI, and find out how much CIS tax you can claim back. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -10,4 +10,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-cis-deduction-refund-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/uk-cis-deduction-refund-calculator): FSL-1.1-MIT licensed.

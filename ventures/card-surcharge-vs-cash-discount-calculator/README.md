@@ -61,4 +61,4 @@ counts live only in local storage and can be turned off on the page.
 ## Run
 
 Static ES modules, no build step: open `index.html`, or `node --test`.
-MIT licensed; support is optional via GitHub Sponsors.
+FSL-1.1-MIT licensed; support is optional via GitHub Sponsors.

@@ -86,7 +86,7 @@ does not determine what your service is worth in your market, does not read your
 utility bills, and does not assess whether any wage, employment, or
 environmental rule applies to your operation.
 
-MIT licensed. See `LICENSE`. If it helped, [GitHub
+FSL-1.1-MIT licensed. See `LICENSE`. If it helped, [GitHub
 Sponsors](https://github.com/sponsors/Duncan-Haywood) is optional and never
 changes what the tool does.
 

@@ -21,4 +21,4 @@ Run the tests: `node --test`. Serve `index.html` from any static host.
 Sibling of [Freelance Contract Checker](../freelance-contract-checker/) (for contracts a client sends you),
 [Estimate Maker](../estimate-maker/), [Time Tracker](../time-tracker/) and [Invoice Maker](../invoice-maker/).
 
-A template, not legal advice; see the disclaimer on the page. MIT licensed.
+A template, not legal advice; see the disclaimer on the page. FSL-1.1-MIT licensed.

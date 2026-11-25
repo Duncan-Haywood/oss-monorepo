@@ -125,7 +125,7 @@ export function compute(input) {
     findings.push({ severity: "medium", title: "A pure service with no product delivered is not a 'product' under the Directive, so this regime does not apply to the service itself. Fault-based national liability and your contracts still do. A service that is integrated into or interconnected with a product (a 'related service' that controls the product) is treated as a component: choose the component role instead." });
   } else if (soft && p.licence === "oss_free") {
     scope = "out";
-    findings.push({ severity: "medium", title: "Free and open-source software developed or supplied outside the course of a commercial activity is excluded. Donations that only cover costs do not make it commercial; paid support, a monetised distribution or embedding it in something you sell does, and then the embedding business is liable for it as a component." });
+    findings.push({ severity: "medium", title: "Free to use and source available software developed or supplied outside the course of a commercial activity is excluded. Donations that only cover costs do not make it commercial; paid support, a monetised distribution or embedding it in something you sell does, and then the embedding business is liable for it as a component." });
   } else if (p.placed === "before") {
     scope = "old";
     findings.push({ severity: "medium", title: "A product placed on the market before 9 December 2026 stays under the old 1985 Directive (and national law), where software's status as a 'product' is less clear. The new regime attaches to the date each unit is placed on the market, so each new release or version after that date is new exposure." });

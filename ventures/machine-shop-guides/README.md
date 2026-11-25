@@ -54,4 +54,4 @@ self-checks, CSV downloads and quotes, kept in `localStorage` only. Do Not
 Track and Global Privacy Control turn it off; every page has an opt-out button.
 Nothing is transmitted.
 
-MIT licensed.
+FSL-1.1-MIT licensed.

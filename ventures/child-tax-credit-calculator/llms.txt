@@ -2,7 +2,7 @@
 
 > Estimate the federal Child Tax Credit, Credit for Other Dependents, and refundable Additional Child Tax Credit, including the income phase-out and filer SSN requirement. Entirely client-side.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/child-tax-credit-calculator): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/child-tax-credit-calculator): FSL-1.1-MIT licensed.

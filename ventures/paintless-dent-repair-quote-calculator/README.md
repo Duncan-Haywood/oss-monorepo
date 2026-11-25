@@ -12,4 +12,4 @@ After using this, you can now **see where a flat per-dent matrix loses money and
 2. Pure logic is in `calc.mjs` (`plan()`, `jobCost()`, `encodeShare()`); tests: `node --test`.
 
 Modelled: dent counts by coin-size band with minutes per dent, aluminum and body-line time uplifts, remove-and-install hours, tech days from techs and productive hours, stall overhead, an expected comeback cost, margin as a share of the price, a minimum charge, the matrix price against cost-plus, a conventional body-shop comparison, a total-loss line, a hail-count sensitivity table, a share link. Not modelled: sales tax, insurance, deductible handling, rental cars, glue-pull or paint extras, travel, insurer estimating software.
-Not legal, tax or financial advice. No warranty; see the page footer. MIT licensed (`LICENSE`).
+Not legal, tax or financial advice. No warranty; see the page footer. FSL-1.1-MIT licensed (`LICENSE`).

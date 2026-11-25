@@ -2,7 +2,7 @@
 
 > Free Swiss pairing generator and bracket maker. Paste your players, get round-by-round Swiss pairings with colour balance, Buchholz and Sonneborn-Berger tiebreaks, or a single or double elimination bracket with byes, and see each player's Elo or Glicko-2 rating change from the event. Runs in your browser; nothing is uploaded.
 
-Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -11,4 +11,4 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tournament-pairing-manager): MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/tournament-pairing-manager): FSL-1.1-MIT licensed.

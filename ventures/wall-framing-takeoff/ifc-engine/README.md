@@ -5,7 +5,7 @@ architect's model into the wall plan a framing takeoff needs: centre lines
 that meet at their corners, wall thickness and material layers, and the
 doors, windows and bare openings in each wall, with rough-opening width,
 sill and height. Part of the new-home construction programme in
-[`../ROADMAP.md`](../ROADMAP.md); MIT licensed.
+[`../ROADMAP.md`](../ROADMAP.md); FSL-1.1-MIT licensed.
 
 ```
 cargo build --release
