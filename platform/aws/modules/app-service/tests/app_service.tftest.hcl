@@ -123,6 +123,10 @@ run "lambda_private_and_capped" {
     error_message = "IAM-auth DB user and RDS CA bundle are configured"
   }
   assert {
+    condition     = aws_lambda_function.app.environment[0].variables.COGNITO_WEB_CLIENT_ID == output.auth.web_client_id && startswith(aws_lambda_function.app.environment[0].variables.COGNITO_DOMAIN, "https://")
+    error_message = "the app gets the public sign-in values (client id, hosted domain) for its own sign-in page"
+  }
+  assert {
     condition     = jsondecode(aws_lambda_invocation.ensure_db.input).products == ["hello"]
     error_message = "db-admin is asked for exactly this product"
   }

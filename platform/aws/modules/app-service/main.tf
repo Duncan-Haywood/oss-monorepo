@@ -242,6 +242,9 @@ resource "aws_lambda_function" "app" {
       APP_VARS            = jsonencode(var.vars)
       NODE_EXTRA_CA_CERTS = "/var/runtime/ca-cert.pem"
       COGNITO_ISSUER      = module.auth.issuer
+      # Public values a sign-in page needs (hosted sign-in, code + PKCE; the web client has no secret).
+      COGNITO_DOMAIN        = module.auth.hosted_domain
+      COGNITO_WEB_CLIENT_ID = module.auth.web_client_id
       },
       # Lambda reserves AWS_* names (AWS_REGION is already set), so they are dropped here.
       { for k, v in var.environment : k => v if !startswith(k, "AWS_") },
