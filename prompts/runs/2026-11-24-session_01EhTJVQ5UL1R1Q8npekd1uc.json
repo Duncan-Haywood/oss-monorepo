@@ -39,6 +39,10 @@
     {
       "what": "first full test-suite run hit the 560 s tool timeout; reran in the background",
       "cost": "10 min"
+    },
+    {
+      "what": "full verified-dse suite: 10 test_designs_are_unseen tests failed; 8 were already red on main since milestone 166's rerun table (naming_shifters), 2 added by naming_above. Fixed forward: those tests now skip the two rerun directories. Suite after the fix: 285 passed, 1 skipped",
+      "cost": "15 min"
     }
   ],
   "integrity_issues": [],
@@ -50,6 +54,10 @@
     {
       "file": "prompt.md",
       "issue": "'For-profit products come first' reads as overriding every scheduled run, but the router still drew research (weight 0.27) and the rule is phrased for venture runs only; one sentence saying a research draw stands would save the hesitation."
+    },
+    {
+      "file": "research/verified-dse/tests/test_*.py (designs_are_unseen)",
+      "issue": "each blind-test file excludes only its own directory, so any later rerun of its designs turns it red; milestone 166 landed with 8 such failures. A shared RERUNS list in a helper would stop this recurring."
     }
   ],
   "deviations": [],
@@ -58,7 +66,7 @@
     "research/verified-dse/LOG.md (milestone 167 planned + result)"
   ],
   "goal": "research: PhD-level programme step (verified-dse)",
-  "notes": "Security queue empty; IDEAS.md and website requests empty; router drew research, pick_track drew verified-dse. Tools realised from cache.nixos.org by hash (Yosys 0.70 dzsihg5w, OpenROAD 26Q3 p9p47153), PDK via research/chip-pnr/fetch_pdk.sh (ORFS e5cc6e79). Predictions committed in dcd8e8107 before the flow; flow 106 min on 4 cores, 4,992 runs (4,991 ok). All 7 predictions held; controls (a) 48/48, (b) 4991/4991, (c) 12/12. One pipeline check of the analysis after the first design, disclosed in LOG. Local checks: tests/test_naming_above167.py + test_naming_shifters166.py pass (6), research/_homepage/build.py ok, check_posts ok, cite_check 0 ids. No agent doc in docs/reports: the LOG's Next line is the hand-off for this programme.",
+  "notes": "Security queue empty; IDEAS.md and website requests empty; router drew research, pick_track drew verified-dse. Tools realised from cache.nixos.org by hash (Yosys 0.70 dzsihg5w, OpenROAD 26Q3 p9p47153), PDK via research/chip-pnr/fetch_pdk.sh (ORFS e5cc6e79). Predictions committed in dcd8e8107 before the flow; flow 106 min on 4 cores, 4,992 runs (4,991 ok). All 7 predictions held; controls (a) 48/48, (b) 4991/4991, (c) 12/12. One pipeline check of the analysis after the first design, disclosed in LOG. Local checks: tests/test_naming_above167.py + test_naming_shifters166.py pass (6), research/_homepage/build.py ok, check_posts ok, cite_check 0 ids. No agent doc in docs/reports: the LOG's Next line is the hand-off for this programme. Fixed 8 pre-existing + 2 new 'designs_are_unseen' failures (rerun dirs excluded); full suite 285 passed, 1 skipped (670 s).",
   "corrections": [],
   "redteam": null,
   "usage": {
