@@ -56,6 +56,10 @@ or OR had been computed. Predictions (written and committed before any such hold
     traffic (both M): age-awareness only pays when bursts are long or speed reports poor.
 Reported without a prediction: every cell's FR, TC per A_max, TC*, ARc, OR and OR-W medians, the best A_max, the
 share of OR-W's decisions that wait, both traffic levels.
+Added after the first results had been read (no prediction): OR-W meets the mean target by letting the oldest
+tracks' decisions carry up to hundreds of times b, so the summary also reports OR-W's risk profile (the largest
+decision miss probability over b, the share of decisions over 10 b and the share of the residual they carry) and
+OR-C, OR-W with no decision's miss probability over 10 b.
 Reading fixed in advance: K1 held and K2 held say a maximum track age is a high-density rule, not today's; K3 held
 says a receiver should schedule its radius by age (an age-aware procedure is worth writing down); K1 held and K3
 refuted say 11bj's "bound the time since the last message" should be read as a receiver coverage requirement (keep
@@ -185,14 +189,15 @@ def tc_hold(L, H, n, q, B, acc, amax, f_i, b):
     return h + n * wt
 
 
-def or_solve(H, n, P, W, waits, b, allow_wait):
+def or_solve(H, n, P, W, waits, b, allow_wait, cap=None, diag=False):
     """Optimal age schedule. H: hold per flight on RGRID (inf past the grid); P: P_h rows x RGRID; waits: mean wait
     per row (inf where waiting makes no sense). Returns (hold per flight, share of decisions that wait) or None."""
     Hd = H / n
     fresh_row = 0                                   # k = 0, smallest U: the age of a just-received message ~ L
+    Pm = P if cap is None else np.where(P <= cap * b, P, np.inf)   # cap: no decision's miss over cap x b
 
-    def pick(mu):
-        cost = Hd[None, :] + mu * P
+    def pick(mu, want_rows=False):
+        cost = Hd[None, :] + mu * Pm
         j = np.argmin(cost, axis=1)
         c_r = cost[np.arange(len(j)), j]
         h_r = Hd[j]
@@ -204,6 +209,8 @@ def or_solve(H, n, P, W, waits, b, allow_wait):
             wait = c_w < c_r
             h_r = np.where(wait, waits + Hd[j0], h_r)
             p_r = np.where(wait, P[fresh_row, j0], p_r)
+        if want_rows:
+            return p_r
         return float(W @ h_r) * n, float(W @ p_r), float(W[wait].sum())
 
     lo, hi = -14.0, 14.0
@@ -217,6 +224,9 @@ def or_solve(H, n, P, W, waits, b, allow_wait):
             lo = mid
         else:
             hi = mid
+    if diag:
+        p_r = pick(10 ** hi, True)
+        return float(p_r.max() / b), float(W[p_r > 10 * b].sum()), float((W * p_r)[p_r > 10 * b].sum() / (W @ p_r))
     h, p, sw = pick(10 ** hi)
     return h, sw
 
@@ -253,6 +263,9 @@ def layout_cells(L, n):
                     d["ARc"] = arc_hold(L, c, q, B, acc, f_i)
                     d["OR"] = or_solve(H, n, P, W, waits, b, False)
                     d["ORW"] = or_solve(H, n, P, W, waits, b, True)
+                    d["ORC"] = or_solve(H, n, P, W, waits, b, True, cap=10.0)
+                    if acc == 1.0 and f_i == 0:
+                        d["risk"] = or_solve(H, n, P, W, waits, b, True, diag=True)
                     out[(acc, q, B, f_i)] = d
     return out
 
@@ -325,7 +338,7 @@ def summarise():
                 x = d["TC"][amax]
             elif rule == "TC*":
                 x = min(inf_none(v) for v in d["TC"].values())
-            elif rule in ("OR", "ORW"):
+            elif rule in ("OR", "ORW", "ORC"):
                 x = None if d[rule] is None else d[rule][0]
             else:
                 x = d[rule]
@@ -361,6 +374,22 @@ def summarise():
                             fmt(mh(m, acc, q, B, f_i, "OR")), fmt(mh(m, acc, q, B, f_i, "ORW")),
                             g(wait_share(m, acc, q, B, f_i))))
                     print("  acc %g q %g: %s" % (acc, q, "; ".join(cells)))
+        print("\nM = %d (added after the predictions, no prediction): OR-W's risk profile and OR-C, OR-W with no "
+              "decision's miss probability over 10 b; 1 m/s, today's traffic" % m)
+        for q in QS:
+            for B in BURSTS:
+                if not bl.valid(q, B):
+                    continue
+                rk = [cells[(1.0, q, B, 0)]["risk"] for k, cells in res.items() if k[0] == m]
+                rk = [x for x in rk if x is not None]
+                print("  q %g %s: OR-W max decision miss / b median %s; share of decisions over 10 b %s, carrying %s of "
+                      "the residual; hold FR %s, OR-W %s, OR-C %s" % (
+                          q, bl.bname(B), g(S.median(x[0] for x in rk)), g(S.median(x[1] for x in rk)),
+                          g(S.median(x[2] for x in rk)), fmt(mh(m, 1.0, q, B, 0, "FR")),
+                          fmt(mh(m, 1.0, q, B, 0, "ORW")), fmt(mh(m, 1.0, q, B, 0, "ORC"))))
+        for f_i, f in enumerate(st.TRAF):
+            print("  OR-C x%d, every speed band, q 0.5: %s" % (f, "; ".join(
+                "acc %g %s: %s" % (acc, bl.bname(B), fmt(mh(m, acc, 0.5, B, f_i, "ORC"))) for acc in ACCS for B in BURSTS)))
         print("\nM = %d: TC median hold per flight by A_max (s), 1 m/s, q 0.5:" % m)
         for f_i, f in enumerate(st.TRAF):
             for B in BURSTS:

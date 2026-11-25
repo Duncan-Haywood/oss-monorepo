@@ -440,6 +440,27 @@ CHECKS = [
     ('burst_loss_results.txt', 'G4 B 3 -> 30 s raises the hold more than q 0.5 -> 0.9: held', '**10.3** and **9.4** times'),
     ('burst_loss_results.txt', 'G1 1 m/s, q 0.5, B 10 s: hold > 2x independent: refuted', 'part (e) (11bj) 2 of 6'),
     ('burst_loss_results.txt', 'G6 coded q 0.12, B 10 s, 1 m/s: hold < 0.1 s: held', 'part (e) (11bj) 2 of 6'),
+    # 11bk track-age cut-off and age-scheduled radii
+    ('track_age_results.txt', '30 s: 0.773 | 0.77 (300 s) | 0.183 | 0.171 | 0.171 (0)', 'OR-W holds **0.171 s** and **0.148 s**'),
+    ('track_age_results.txt', '30 s: 0.635 | 0.633 (300 s) | 0.158 | 0.148 | 0.148 (0)', "against FR's 0.773 s and 0.635 s"),
+    ('track_age_results.txt', '100 s: 14.1 | 11.7 (300 s) | past grid | 1.29 | 1.29', '**1.29 s** and **1.05 s** against 14.1 s and 11.1 s'),
+    ('track_age_results.txt', '100 s: 11.1 | 10.2 (300 s) | past grid | 1.05 | 1.05', '**1.29 s** and **1.05 s** against 14.1 s and 11.1 s'),
+    ('track_age_results.txt', 'x1 30 s: 2: 46, 3: 44.5, 5: 41.6, 10: 35.1, 20: 25.1, 30: 17.9, 60: 6.68', 'a 60 s cut-off costs 6.68 s and 6.2 s'),
+    ('track_age_results.txt', 'x1 30 s: 2: 43.2, 3: 41.8, 5: 39.1, 10: 33, 20: 23.5, 30: 16.8, 60: 6.2,', 'a 60 s cut-off costs 6.68 s and 6.2 s'),
+    ('track_age_results.txt', '100 s: 1.1e+05 | 60.4 (120 s) | past grid | 7.03e+03 | 29.8 (0.0552)', 'to **29.8 s** and **22.4 s**'),
+    ('track_age_results.txt', '100 s: 2.04e+04 | 50.6 (120 s) | past grid | 1.82e+03 | 22.4 (0.0486)', 'brings it to 60.4 s and 50.6 s'),
+    ('track_age_results.txt', '30 s: 0.0548 | 0.0564 (300 s) | 0.0378 | 0.038 | 0.038 (0)', '(0.038 s and 0.0346 s against 0.0548 s and 0.049 s)'),
+    ('track_age_results.txt', '30 s: 0.049 | 0.0506 (300 s) | 0.0344 | 0.0346 | 0.0346 (0)', '(0.038 s and 0.0346 s against 0.0548 s and 0.049 s)'),
+    ('track_age_results.txt', 'q 0.5 30 s: OR-W max decision miss / b median 253; share of decisions over 10 b 0.00589, carrying 0.11 of the residual; hold FR 0.773, OR-W 0.171, OR-C 0.172', 'up to 253 times b, 0.59% of decisions exceed 10 b and carry 11%'),
+    ('track_age_results.txt', 'OR-W 0.148, OR-C 0.149', '0.172 s and 0.149 s at 30 s bursts'),
+    ('track_age_results.txt', 'OR-W 1.29, OR-C 1.43', '1.43 s and 1.17 s at 100 s'),
+    ('track_age_results.txt', 'OR-W 1.05, OR-C 1.17', '1.43 s and 1.17 s at 100 s'),
+    ('track_age_results.txt', '30 s: 2.44e+07 | 62.2 (10 s) | past grid | 4.77e+06 | 54.7 (0.281)', 'cost FR 2.44e+07 s per flight and OR-W 54.7 s'),
+    ('track_age_results.txt', 'M = 12: checked transits per flight n median 3.12', 'a median 3.12 and 2.93'),
+    ('track_age_results.txt', 'M = 16: checked transits per flight n median 2.93', 'a median 3.12 and 2.93'),
+    ('track_age_results.txt', 'K1 x1, 1 m/s, q 0.5, B 30 s: TC* > FR: refuted', 'part (f) (11bk) 4 of 6'),
+    ('track_age_results.txt', 'K6 0.3 m/s, B <= 30 s: OR-W saves < 20% of FR: refuted', 'part (f) (11bk) 4 of 6'),
+    ('track_age_results.txt', 'K3 x1, 1 m/s, q 0.5, B 30 s: OR-W <= FR / 2: held', '0.22 and 0.23 of the fixed radius'),
 ]
 
 

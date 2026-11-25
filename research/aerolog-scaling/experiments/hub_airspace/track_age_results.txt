@@ -1,0 +1,140 @@
+Milestone 11bk: track-age cut-off and age-scheduled radii against FR (predictions in track_age.py)
+sigma0 12.54 m, target 1e-07, common Gilbert channel per receiver; holds from 11bi's stored curves
+  M = 12: checked transits per flight n median 3.12 [1.46, 3.65]
+  M = 16: checked transits per flight n median 2.93 [1.87, 3.32]
+check: OR / FR - 1 max over every layout and cell +2.04e-02 (<= 0 up to the 400-point radius grid and binning)
+check: OR-W / OR - 1 max +2.70e-03 (<= 0: waiting is an extra option)
+
+M = 12, traffic x1: median hold per flight, s: FR | TC* (median best A_max) | ARc | OR | OR-W (median share of decisions that wait)
+  acc 0.3 q 0.12: indep: 0.0321 | 0.0321 (20 s) | 0.0321 | 0.0322 | 0.0322 (0); 3 s: 0.0322 | 0.0322 (60 s) | 0.0322 | 0.0322 | 0.0322 (0); 10 s: 0.0325 | 0.0325 (300 s) | 0.0324 | 0.0324 | 0.0324 (0); 30 s: 0.039 | 0.0394 (300 s) | 0.0334 | 0.0336 | 0.0336 (0); 100 s: 0.242 | 1.99 (300 s) | 0.0452 | 0.0427 | 0.0427 (0)
+  acc 0.3 q 0.5: indep: 0.0323 | 0.0323 (60 s) | 0.0323 | 0.0323 | 0.0323 (0); 3 s: 0.0324 | 0.0324 (60 s) | 0.0324 | 0.0324 | 0.0324 (0); 10 s: 0.0338 | 0.0338 (300 s) | 0.0333 | 0.0333 | 0.0333 (0); 30 s: 0.0548 | 0.0564 (300 s) | 0.0378 | 0.038 | 0.038 (0); 100 s: 0.497 | 7.96 (300 s) | 0.0869 | 0.0805 | 0.0805 (0)
+  acc 0.3 q 0.75: indep: 0.0327 | 0.0327 (120 s) | 0.0327 | 0.0327 | 0.0327 (0); 3 s: 0.0325 | 0.0325 (60 s) | 0.0325 | 0.0326 | 0.0326 (0); 10 s: 0.0345 | 0.0345 (300 s) | 0.0339 | 0.034 | 0.034 (0); 30 s: 0.0614 | 0.064 (300 s) | 0.0406 | 0.041 | 0.041 (0); 100 s: 0.592 | 11.9 (300 s) | 0.114 | 0.108 | 0.108 (0)
+  acc 0.3 q 0.9: indep: 0.035 | 0.035 (300 s) | 0.0342 | 0.0343 | 0.0343 (0); 10 s: 0.035 | 0.035 (300 s) | 0.0342 | 0.0343 | 0.0343 (0); 30 s: 0.0648 | 0.0678 (300 s) | 0.0423 | 0.0429 | 0.0429 (0); 100 s: 0.64 | 14.2 (300 s) | 0.131 | 0.125 | 0.125 (0)
+  acc 1 q 0.12: indep: 0.0688 | 0.0688 (20 s) | 0.0687 | 0.0689 | 0.0689 (0); 3 s: 0.0701 | 0.0701 (60 s) | 0.0694 | 0.0698 | 0.0698 (0); 10 s: 0.09 | 0.09 (300 s) | 0.073 | 0.073 | 0.073 (0); 30 s: 0.389 | 0.388 (300 s) | 0.0958 | 0.0908 | 0.0908 (0); 100 s: 5.87 | 4.1 (300 s) | past grid | 0.275 | 0.275 (0)
+  acc 1 q 0.5: indep: 0.072 | 0.072 (60 s) | 0.0714 | 0.0715 | 0.0715 (0); 3 s: 0.075 | 0.075 (60 s) | 0.073 | 0.073 | 0.073 (0); 10 s: 0.133 | 0.133 (300 s) | 0.0881 | 0.0877 | 0.0877 (0); 30 s: 0.773 | 0.77 (300 s) | 0.183 | 0.171 | 0.171 (0); 100 s: 14.1 | 11.7 (300 s) | past grid | 1.29 | 1.29 (1.32e-07)
+  acc 1 q 0.75: indep: 0.0829 | 0.0829 (120 s) | 0.078 | 0.0779 | 0.0779 (0); 3 s: 0.0778 | 0.0778 (60 s) | 0.0754 | 0.0753 | 0.0753 (0); 10 s: 0.148 | 0.148 (300 s) | 0.098 | 0.0977 | 0.0977 (0); 30 s: 0.936 | 0.93 (300 s) | 0.241 | 0.228 | 0.228 (0); 100 s: 17.5 | 16.6 (300 s) | past grid | 2.1 | 2.1 (1.38e-06)
+  acc 1 q 0.9: indep: 0.156 | 0.156 (300 s) | 0.104 | 0.104 | 0.104 (0); 10 s: 0.156 | 0.156 (300 s) | 0.104 | 0.104 | 0.104 (0); 30 s: 1.01 | 1 (300 s) | 0.275 | 0.265 | 0.265 (0); 100 s: 19.3 | 19.3 (300 s) | past grid | 2.61 | 2.61 (2.88e-06)
+  acc 3 q 0.12: indep: 1.14 | 1.14 (10 s) | 1.14 | 1.14 | 1.14 (1.07e-08); 3 s: 1.18 | 1.18 (20 s) | 1.16 | 1.17 | 1.17 (8.14e-09); 10 s: 1.88 | 1.67 (30 s) | past grid | 1.29 | 1.29 (3.94e-06); 30 s: 12.1 | 5.03 (60 s) | past grid | 1.98 | 1.97 (0.000329); 100 s: past grid | 23.3 (60 s) | past grid | past grid | 8.72 (0.0108)
+  acc 3 q 0.5: indep: 1.24 | 1.24 (20 s) | 1.22 | 1.22 | 1.22 (7.45e-09); 3 s: 1.34 | 1.34 (20 s) | 1.28 | 1.28 | 1.28 (3.54e-08); 10 s: 3.33 | 3.06 (30 s) | past grid | 1.84 | 1.84 (3.44e-05); 30 s: 29.5 | 12.8 (60 s) | past grid | 5.71 | 5.45 (0.0048); 100 s: past grid | 77.4 (120 s) | past grid | past grid | 41.5 (0.0715)
+  acc 3 q 0.75: indep: 1.62 | 1.61 (30 s) | 1.47 | 1.45 | 1.45 (7.38e-07); 3 s: 1.43 | 1.43 (20 s) | 1.36 | 1.36 | 1.36 (3.42e-07); 10 s: 3.98 | 3.67 (60 s) | past grid | 2.23 | 2.23 (9.68e-05); 30 s: 37.2 | 17.2 (60 s) | past grid | 8.73 | 8.15 (0.00884); 100 s: past grid | 109 (120 s) | past grid | past grid | 66.1 (0.13)
+  acc 3 q 0.9: indep: 4.31 | 4 (60 s) | past grid | 2.48 | 2.48 (0.000116); 10 s: 4.31 | 4 (60 s) | past grid | 2.48 | 2.48 (0.000116); 30 s: 41.2 | 19.7 (60 s) | past grid | 10.7 | 9.87 (0.0106); 100 s: past grid | 127 (120 s) | past grid | past grid | 81.3 (0.157)
+
+M = 12, traffic x10: median hold per flight, s: FR | TC* (median best A_max) | ARc | OR | OR-W (median share of decisions that wait)
+  acc 0.3 q 0.12: indep: 0.334 | 0.334 (20 s) | 0.334 | 0.335 | 0.335 (0); 3 s: 0.334 | 0.334 (60 s) | 0.334 | 0.335 | 0.335 (0); 10 s: 0.338 | 0.338 (300 s) | 0.336 | 0.337 | 0.337 (0); 30 s: 0.408 | 0.408 (300 s) | 0.348 | 0.35 | 0.35 (0); 100 s: 2.84 | 3.12 (300 s) | 17.7 | 0.46 | 0.46 (0)
+  acc 0.3 q 0.5: indep: 0.335 | 0.335 (60 s) | 0.335 | 0.336 | 0.336 (0); 3 s: 0.337 | 0.337 (60 s) | 0.337 | 0.337 | 0.337 (0); 10 s: 0.352 | 0.352 (300 s) | 0.346 | 0.347 | 0.347 (0); 30 s: 0.583 | 0.582 (300 s) | 0.396 | 0.397 | 0.397 (0); 100 s: 6.5 | 10.1 (300 s) | 295 | 0.966 | 0.966 (0)
+  acc 0.3 q 0.75: indep: 0.34 | 0.34 (120 s) | 0.34 | 0.34 | 0.34 (0); 3 s: 0.338 | 0.338 (60 s) | 0.338 | 0.339 | 0.339 (0); 10 s: 0.36 | 0.36 (300 s) | 0.353 | 0.354 | 0.354 (0); 30 s: 0.657 | 0.657 (300 s) | 0.427 | 0.431 | 0.431 (0); 100 s: 8.22 | 14.3 (300 s) | 745 | 1.37 | 1.37 (2.14e-08)
+  acc 0.3 q 0.9: indep: 0.364 | 0.364 (300 s) | 0.357 | 0.358 | 0.358 (0); 10 s: 0.364 | 0.364 (300 s) | 0.357 | 0.358 | 0.358 (0); 30 s: 0.695 | 0.694 (300 s) | 0.446 | 0.451 | 0.451 (0); 100 s: 9.07 | 16.8 (300 s) | 1.13e+03 | 1.62 | 1.62 (2.37e-07)
+  acc 1 q 0.12: indep: 0.738 | 0.738 (20 s) | 0.737 | 0.739 | 0.739 (0); 3 s: 0.753 | 0.753 (30 s) | 0.745 | 0.746 | 0.746 (0); 10 s: 0.98 | 0.967 (60 s) | 0.789 | 0.787 | 0.787 (2.18e-09); 30 s: 4.85 | 3.11 (60 s) | 3.72e+03 | 1.03 | 1.04 (1.41e-05); 100 s: 1.33e+03 | 17.2 (120 s) | past grid | 39.4 | 5.88 (0.0082)
+  acc 1 q 0.5: indep: 0.774 | 0.774 (30 s) | 0.767 | 0.769 | 0.769 (0); 3 s: 0.808 | 0.808 (30 s) | 0.786 | 0.786 | 0.786 (0); 10 s: 1.48 | 1.43 (60 s) | 0.968 | 0.962 | 0.962 (6.16e-08); 30 s: 11.5 | 7.08 (120 s) | 4.36e+04 | 2.27 | 2.26 (0.00046); 100 s: 1.1e+05 | 60.4 (120 s) | past grid | 7.03e+03 | 29.8 (0.0552)
+  acc 1 q 0.75: indep: 0.898 | 0.898 (60 s) | 0.843 | 0.843 | 0.843 (0); 3 s: 0.84 | 0.84 (30 s) | 0.813 | 0.813 | 0.813 (0); 10 s: 1.67 | 1.62 (60 s) | 1.09 | 1.08 | 1.08 (9.24e-08); 30 s: 14.7 | 8.72 (120 s) | 8.82e+04 | 3.2 | 3.16 (0.000824); 100 s: 4.31e+05 | 87.1 (120 s) | past grid | 3.7e+04 | 48.4 (0.0995)
+  acc 1 q 0.9: indep: 1.76 | 1.7 (60 s) | 1.16 | 1.15 | 1.15 (1.11e-07); 10 s: 1.76 | 1.7 (60 s) | 1.16 | 1.15 | 1.15 (1.11e-07); 30 s: 16.4 | 9.52 (120 s) | 1.23e+05 | 3.79 | 3.74 (0.000988); 100 s: 8.09e+05 | 103 (120 s) | past grid | 8.27e+04 | 58.9 (0.119)
+  acc 3 q 0.12: indep: 21.3 | 21.2 (2 s) | 21.3 | 21.4 | 21.4 (0.0936); 3 s: 22.6 | 21.7 (4 s) | 22.3 | 22.3 | 21.8 (0.0556); 10 s: 49.4 | 23.9 (7.5 s) | past grid | 29 | 23.5 (0.0504); 30 s: 5.03e+04 | 30.7 (10 s) | past grid | 2.74e+03 | 29.5 (0.0644); 100 s: past grid | 55.9 (20 s) | past grid | past grid | 52.2 (0.0861)
+  acc 3 q 0.5: indep: 24.5 | 23.1 (3 s) | 24.1 | 24 | 22.8 (0.281); 3 s: 27.8 | 24.4 (4 s) | 26.8 | 25.9 | 23.7 (0.231); 10 s: 181 | 34 (5 s) | past grid | 70.5 | 31.3 (0.219); 30 s: 2.44e+07 | 62.2 (10 s) | past grid | 4.77e+06 | 54.7 (0.281); 100 s: past grid | 174 (20 s) | past grid | past grid | 155 (0.377)
+  acc 3 q 0.75: indep: 37.8 | 28.3 (5 s) | 40 | 32.3 | 26.8 (0.323); 3 s: 30.8 | 26.5 (5 s) | 29.7 | 28.5 | 25 (0.347); 10 s: 282 | 41.3 (5 s) | past grid | 116 | 36.7 (0.341); 30 s: 2.27e+08 | 85.4 (10 s) | past grid | 6.99e+07 | 72.9 (0.432); 100 s: past grid | 254 (10 s) | past grid | past grid | 226 (0.566)
+  acc 3 q 0.9: indep: 352 | 44.9 (5 s) | past grid | 152 | 39.7 (0.409); 10 s: 352 | 44.9 (5 s) | past grid | 152 | 39.7 (0.409); 30 s: 6.58e+08 | 101 (10 s) | past grid | 2.44e+08 | 83.5 (0.523); 100 s: past grid | 305 (10 s) | past grid | past grid | 267 (0.683)
+
+M = 12 (added after the predictions, no prediction): OR-W's risk profile and OR-C, OR-W with no decision's miss probability over 10 b; 1 m/s, today's traffic
+  q 0.12 indep: OR-W max decision miss / b median 1.45; share of decisions over 10 b 0, carrying 0 of the residual; hold FR 0.0688, OR-W 0.0689, OR-C 0.0689
+  q 0.12 3 s: OR-W max decision miss / b median 5.19; share of decisions over 10 b 0, carrying 0 of the residual; hold FR 0.0701, OR-W 0.0698, OR-C 0.0698
+  q 0.12 10 s: OR-W max decision miss / b median 43.3; share of decisions over 10 b 5.48e-05, carrying 0.000671 of the residual; hold FR 0.09, OR-W 0.073, OR-C 0.073
+  q 0.12 30 s: OR-W max decision miss / b median 346; share of decisions over 10 b 0.00673, carrying 0.119 of the residual; hold FR 0.389, OR-W 0.0908, OR-C 0.0918
+  q 0.12 100 s: OR-W max decision miss / b median 1.15e+03; share of decisions over 10 b 0.0209, carrying 0.666 of the residual; hold FR 5.87, OR-W 0.275, OR-C 0.368
+  q 0.5 indep: OR-W max decision miss / b median 2.82; share of decisions over 10 b 0, carrying 0 of the residual; hold FR 0.072, OR-W 0.0715, OR-C 0.0715
+  q 0.5 3 s: OR-W max decision miss / b median 5.09; share of decisions over 10 b 0, carrying 0 of the residual; hold FR 0.075, OR-W 0.073, OR-C 0.073
+  q 0.5 10 s: OR-W max decision miss / b median 44.9; share of decisions over 10 b 6.45e-05, carrying 0.000855 of the residual; hold FR 0.133, OR-W 0.0877, OR-C 0.0877
+  q 0.5 30 s: OR-W max decision miss / b median 253; share of decisions over 10 b 0.00589, carrying 0.11 of the residual; hold FR 0.773, OR-W 0.171, OR-C 0.172
+  q 0.5 100 s: OR-W max decision miss / b median 425; share of decisions over 10 b 0.0226, carrying 0.461 of the residual; hold FR 14.1, OR-W 1.29, OR-C 1.43
+  q 0.75 indep: OR-W max decision miss / b median 8.69; share of decisions over 10 b 0, carrying 0 of the residual; hold FR 0.0829, OR-W 0.0779, OR-C 0.0779
+  q 0.75 3 s: OR-W max decision miss / b median 5.01; share of decisions over 10 b 0, carrying 0 of the residual; hold FR 0.0778, OR-W 0.0753, OR-C 0.0753
+  q 0.75 10 s: OR-W max decision miss / b median 43.1; share of decisions over 10 b 9.68e-05, carrying 0.00114 of the residual; hold FR 0.148, OR-W 0.0977, OR-C 0.0977
+  q 0.75 30 s: OR-W max decision miss / b median 204; share of decisions over 10 b 0.00884, carrying 0.125 of the residual; hold FR 0.936, OR-W 0.228, OR-C 0.23
+  q 0.75 100 s: OR-W max decision miss / b median 248; share of decisions over 10 b 0.02, carrying 0.374 of the residual; hold FR 17.5, OR-W 2.1, OR-C 2.24
+  q 0.9 indep: OR-W max decision miss / b median 41.6; share of decisions over 10 b 8.36e-05, carrying 0.000991 of the residual; hold FR 0.156, OR-W 0.104, OR-C 0.104
+  q 0.9 10 s: OR-W max decision miss / b median 41.6; share of decisions over 10 b 8.36e-05, carrying 0.000991 of the residual; hold FR 0.156, OR-W 0.104, OR-C 0.104
+  q 0.9 30 s: OR-W max decision miss / b median 184; share of decisions over 10 b 0.00538, carrying 0.0829 of the residual; hold FR 1.01, OR-W 0.265, OR-C 0.266
+  q 0.9 100 s: OR-W max decision miss / b median 170; share of decisions over 10 b 0.0148, carrying 0.306 of the residual; hold FR 19.3, OR-W 2.61, OR-C 2.75
+  OR-C x1, every speed band, q 0.5: acc 0.3 indep: 0.0323; acc 0.3 3 s: 0.0324; acc 0.3 10 s: 0.0333; acc 0.3 30 s: 0.038; acc 0.3 100 s: 0.0819; acc 1 indep: 0.0715; acc 1 3 s: 0.073; acc 1 10 s: 0.0877; acc 1 30 s: 0.172; acc 1 100 s: 1.43; acc 3 indep: 1.22; acc 3 3 s: 1.28; acc 3 10 s: 1.84; acc 3 30 s: 5.48; acc 3 100 s: 41.6
+  OR-C x10, every speed band, q 0.5: acc 0.3 indep: 0.336; acc 0.3 3 s: 0.337; acc 0.3 10 s: 0.347; acc 0.3 30 s: 0.398; acc 0.3 100 s: 1.09; acc 1 indep: 0.769; acc 1 3 s: 0.786; acc 1 10 s: 0.962; acc 1 30 s: 2.35; acc 1 100 s: 31.3; acc 3 indep: 22.8; acc 3 3 s: 23.7; acc 3 10 s: 31.3; acc 3 30 s: 54.7; acc 3 100 s: 155
+
+M = 12: TC median hold per flight by A_max (s), 1 m/s, q 0.5:
+  x1 indep: 2: 2.41, 3: 1.25, 5: 0.371, 10: 0.081, 20: 0.072, 30: 0.072, 60: 0.072, 120: 0.072, 300: 0.072
+  x1 3 s: 2: 3.97, 3: 2.67, 5: 1.24, 10: 0.232, 20: 0.0775, 30: 0.075, 60: 0.075, 120: 0.075, 300: 0.075
+  x1 10 s: 2: 14.9, 3: 13.4, 5: 10.9, 10: 6.45, 20: 2.32, 30: 0.888, 60: 0.159, 120: 0.133, 300: 0.133
+  x1 30 s: 2: 46, 3: 44.5, 5: 41.6, 10: 35.1, 20: 25.1, 30: 17.9, 60: 6.68, 120: 1.31, 300: 0.77
+  x1 100 s: 2: 155, 3: 154, 5: 150, 10: 143, 20: 129, 30: 117, 60: 86.8, 120: 48.1, 300: 11.7
+  x10 indep: 2: 3.16, 3: 1.94, 5: 1.06, 10: 0.782, 20: 0.774, 30: 0.774, 60: 0.774, 120: 0.774, 300: 0.774
+  x10 3 s: 2: 4.72, 3: 3.42, 5: 1.94, 10: 0.946, 20: 0.81, 30: 0.808, 60: 0.808, 120: 0.808, 300: 0.808
+  x10 10 s: 2: 15.7, 3: 14.2, 5: 11.7, 10: 7.29, 20: 3.29, 30: 1.88, 60: 1.43, 120: 1.48, 300: 1.48
+  x10 30 s: 2: 46.8, 3: 45.3, 5: 42.4, 10: 35.9, 20: 26.1, 30: 19.2, 60: 9.27, 120: 7.08, 300: 11.4
+  x10 100 s: 2: 156, 3: 154, 5: 151, 10: 144, 20: 130, 30: 118, 60: 89.9, 120: 60.4, 300: 294
+
+M = 16, traffic x1: median hold per flight, s: FR | TC* (median best A_max) | ARc | OR | OR-W (median share of decisions that wait)
+  acc 0.3 q 0.12: indep: 0.0293 | 0.0293 (20 s) | 0.0293 | 0.0295 | 0.0295 (0); 3 s: 0.0294 | 0.0294 (60 s) | 0.0293 | 0.0295 | 0.0295 (0); 10 s: 0.0297 | 0.0297 (300 s) | 0.0295 | 0.0297 | 0.0297 (0); 30 s: 0.0353 | 0.0357 (300 s) | 0.0305 | 0.0306 | 0.0306 (0); 100 s: 0.201 | 1.83 (300 s) | 0.0406 | 0.0385 | 0.0385 (0)
+  acc 0.3 q 0.5: indep: 0.0295 | 0.0295 (60 s) | 0.0295 | 0.0296 | 0.0296 (0); 3 s: 0.0296 | 0.0296 (60 s) | 0.0295 | 0.0296 | 0.0296 (0); 10 s: 0.0308 | 0.0308 (300 s) | 0.0304 | 0.0305 | 0.0305 (0); 30 s: 0.049 | 0.0506 (300 s) | 0.0344 | 0.0346 | 0.0346 (0); 100 s: 0.412 | 7.41 (300 s) | 0.0764 | 0.0714 | 0.0714 (0)
+  acc 0.3 q 0.75: indep: 0.0299 | 0.0299 (120 s) | 0.0298 | 0.0299 | 0.0299 (0); 3 s: 0.0297 | 0.0297 (60 s) | 0.0297 | 0.0297 | 0.0297 (0); 10 s: 0.0315 | 0.0315 (300 s) | 0.0309 | 0.031 | 0.031 (0); 30 s: 0.0548 | 0.0572 (300 s) | 0.0369 | 0.0373 | 0.0373 (0); 100 s: 0.491 | 11.1 (300 s) | 0.0999 | 0.095 | 0.095 (0)
+  acc 0.3 q 0.9: indep: 0.0318 | 0.0318 (300 s) | 0.0312 | 0.0313 | 0.0313 (0); 10 s: 0.0318 | 0.0318 (300 s) | 0.0312 | 0.0313 | 0.0313 (0); 30 s: 0.0577 | 0.0605 (300 s) | 0.0384 | 0.0389 | 0.0389 (0); 100 s: 0.53 | 13.3 (300 s) | 0.114 | 0.11 | 0.11 (0)
+  acc 1 q 0.12: indep: 0.0618 | 0.0618 (20 s) | 0.0617 | 0.062 | 0.062 (0); 3 s: 0.0629 | 0.0629 (60 s) | 0.0624 | 0.0625 | 0.0625 (0); 10 s: 0.0798 | 0.0798 (300 s) | 0.0655 | 0.0655 | 0.0655 (0); 30 s: 0.322 | 0.322 (300 s) | 0.0847 | 0.0808 | 0.0808 (0); 100 s: 4.63 | 3.4 (300 s) | past grid | 0.23 | 0.23 (0)
+  acc 1 q 0.5: indep: 0.0646 | 0.0646 (60 s) | 0.064 | 0.0641 | 0.0641 (0); 3 s: 0.0672 | 0.0672 (60 s) | 0.0655 | 0.0655 | 0.0655 (0); 10 s: 0.116 | 0.116 (300 s) | 0.0786 | 0.0784 | 0.0784 (0); 30 s: 0.635 | 0.633 (300 s) | 0.158 | 0.148 | 0.148 (0); 100 s: 11.1 | 10.2 (300 s) | past grid | 1.05 | 1.05 (1.43e-08)
+  acc 1 q 0.75: indep: 0.0743 | 0.0743 (120 s) | 0.0699 | 0.0698 | 0.0698 (0); 3 s: 0.0696 | 0.0696 (60 s) | 0.0676 | 0.0677 | 0.0677 (0); 10 s: 0.13 | 0.13 (300 s) | 0.0872 | 0.087 | 0.087 (0); 30 s: 0.765 | 0.761 (300 s) | 0.207 | 0.197 | 0.197 (0); 100 s: 13.8 | 14.3 (300 s) | past grid | 1.71 | 1.71 (3.55e-07)
+  acc 1 q 0.9: indep: 0.136 | 0.136 (300 s) | 0.0924 | 0.0923 | 0.0923 (0); 10 s: 0.136 | 0.136 (300 s) | 0.0924 | 0.0923 | 0.0923 (0); 30 s: 0.831 | 0.827 (300 s) | 0.236 | 0.227 | 0.227 (0); 100 s: 15.2 | 16.5 (300 s) | past grid | 2.14 | 2.14 (4.26e-07)
+  acc 3 q 0.12: indep: 0.95 | 0.95 (20 s) | 0.949 | 0.953 | 0.953 (1.07e-08); 3 s: 0.985 | 0.985 (20 s) | 0.97 | 0.969 | 0.969 (4.07e-09); 10 s: 1.53 | 1.39 (30 s) | past grid | 1.07 | 1.07 (1.98e-06); 30 s: 9.29 | 4.03 (60 s) | past grid | 1.61 | 1.61 (0.000304); 100 s: past grid | 20 (90 s) | past grid | past grid | 7.15 (0.00863)
+  acc 3 q 0.5: indep: 1.03 | 1.03 (20 s) | 1.02 | 1.02 | 1.02 (7.45e-09); 3 s: 1.11 | 1.11 (20 s) | 1.07 | 1.06 | 1.06 (3.49e-08); 10 s: 2.69 | 2.5 (30 s) | past grid | 1.51 | 1.51 (1.64e-05); 30 s: 23.2 | 10.6 (60 s) | past grid | 4.55 | 4.41 (0.00299); 100 s: past grid | 63.4 (120 s) | past grid | past grid | 34.6 (0.0663)
+  acc 3 q 0.75: indep: 1.34 | 1.33 (30 s) | 1.22 | 1.2 | 1.2 (4.36e-07); 3 s: 1.19 | 1.19 (20 s) | 1.13 | 1.13 | 1.13 (5.24e-08); 10 s: 3.2 | 3 (60 s) | past grid | 1.83 | 1.83 (4.26e-05); 30 s: 29.1 | 14.3 (60 s) | past grid | 6.93 | 6.62 (0.00829); 100 s: past grid | 90.7 (120 s) | past grid | past grid | 55.2 (0.115)
+  acc 3 q 0.9: indep: 3.46 | 3.24 (60 s) | past grid | 2.03 | 2.03 (7.28e-05); 10 s: 3.46 | 3.24 (60 s) | past grid | 2.03 | 2.03 (7.28e-05); 30 s: 32.2 | 16.4 (60 s) | past grid | 8.49 | 8.01 (0.0106); 100 s: past grid | 107 (120 s) | past grid | past grid | 67 (0.152)
+
+M = 16, traffic x10: median hold per flight, s: FR | TC* (median best A_max) | ARc | OR | OR-W (median share of decisions that wait)
+  acc 0.3 q 0.12: indep: 0.305 | 0.305 (20 s) | 0.305 | 0.307 | 0.307 (0); 3 s: 0.306 | 0.306 (60 s) | 0.306 | 0.307 | 0.307 (0); 10 s: 0.309 | 0.309 (300 s) | 0.308 | 0.31 | 0.31 (0); 30 s: 0.369 | 0.369 (300 s) | 0.318 | 0.32 | 0.32 (0); 100 s: 2.28 | 2.67 (300 s) | 10 | 0.41 | 0.41 (0)
+  acc 0.3 q 0.5: indep: 0.307 | 0.307 (60 s) | 0.307 | 0.307 | 0.307 (0); 3 s: 0.308 | 0.308 (60 s) | 0.308 | 0.308 | 0.308 (0); 10 s: 0.321 | 0.321 (300 s) | 0.316 | 0.318 | 0.318 (0); 30 s: 0.517 | 0.517 (300 s) | 0.36 | 0.362 | 0.362 (0); 100 s: 5.03 | 8.61 (300 s) | 127 | 0.805 | 0.805 (0)
+  acc 0.3 q 0.75: indep: 0.311 | 0.311 (120 s) | 0.311 | 0.311 | 0.311 (0); 3 s: 0.309 | 0.309 (60 s) | 0.309 | 0.309 | 0.309 (0); 10 s: 0.328 | 0.328 (300 s) | 0.322 | 0.323 | 0.323 (0); 30 s: 0.58 | 0.58 (300 s) | 0.387 | 0.391 | 0.391 (0); 100 s: 6.19 | 12.5 (300 s) | 267 | 1.1 | 1.1 (0)
+  acc 0.3 q 0.9: indep: 0.332 | 0.332 (300 s) | 0.326 | 0.326 | 0.326 (0); 10 s: 0.332 | 0.332 (300 s) | 0.326 | 0.326 | 0.326 (0); 30 s: 0.612 | 0.611 (300 s) | 0.404 | 0.408 | 0.408 (0); 100 s: 6.77 | 14.8 (300 s) | 371 | 1.29 | 1.29 (3.82e-09)
+  acc 1 q 0.12: indep: 0.656 | 0.656 (20 s) | 0.656 | 0.659 | 0.659 (0); 3 s: 0.669 | 0.669 (30 s) | 0.663 | 0.665 | 0.665 (0); 10 s: 0.855 | 0.845 (60 s) | 0.699 | 0.7 | 0.7 (0); 30 s: 3.82 | 2.6 (60 s) | 856 | 0.891 | 0.891 (7.46e-06); 100 s: 399 | 14.5 (120 s) | past grid | 13.7 | 4.23 (0.00543)
+  acc 1 q 0.5: indep: 0.687 | 0.687 (30 s) | 0.681 | 0.682 | 0.682 (0); 3 s: 0.715 | 0.715 (30 s) | 0.697 | 0.698 | 0.698 (0); 10 s: 1.26 | 1.22 (60 s) | 0.847 | 0.843 | 0.843 (5.46e-09); 30 s: 8.4 | 5.5 (120 s) | 1.55e+04 | 1.78 | 1.78 (0.000192); 100 s: 2.04e+04 | 50.6 (120 s) | past grid | 1.82e+03 | 22.4 (0.0486)
+  acc 1 q 0.75: indep: 0.793 | 0.793 (60 s) | 0.745 | 0.745 | 0.745 (0); 3 s: 0.742 | 0.742 (30 s) | 0.72 | 0.721 | 0.721 (0); 10 s: 1.42 | 1.38 (60 s) | 0.945 | 0.941 | 0.941 (3.98e-08); 30 s: 10.6 | 6.69 (120 s) | 3.55e+04 | 2.48 | 2.47 (0.000489); 100 s: 9.74e+04 | 73.8 (120 s) | past grid | 1.18e+04 | 36.5 (0.0762)
+  acc 1 q 0.9: indep: 1.49 | 1.45 (60 s) | 1 | 1 | 1 (4.77e-08); 10 s: 1.49 | 1.45 (60 s) | 1 | 1 | 1 (4.77e-08); 30 s: 11.8 | 7.29 (120 s) | 5.27e+04 | 2.92 | 2.91 (0.000988); 100 s: 2.04e+05 | 87.8 (120 s) | past grid | 2.81e+04 | 44.9 (0.0954)
+  acc 3 q 0.12: indep: 14.6 | 14.5 (2 s) | 14.6 | 14.7 | 14.5 (0.0804); 3 s: 15.3 | 14.9 (5 s) | 15.1 | 15 | 14.9 (0.0393); 10 s: 28.1 | 16.4 (10 s) | past grid | 18.3 | 16 (0.0409); 30 s: 8.25e+03 | 21.5 (10 s) | past grid | 535 | 20.1 (0.0609); 100 s: past grid | 43.6 (20 s) | past grid | past grid | 39.7 (0.0811)
+  acc 3 q 0.5: indep: 16.4 | 15.8 (3 s) | 16.2 | 16.1 | 15.5 (0.219); 3 s: 18.2 | 16.6 (5 s) | 17.5 | 17.2 | 16.2 (0.164); 10 s: 84 | 23.1 (10 s) | past grid | 38.1 | 21.4 (0.179); 30 s: 4.89e+06 | 48.4 (10 s) | past grid | 9.77e+05 | 41.2 (0.254); 100 s: past grid | 141 (20 s) | past grid | past grid | 123 (0.359)
+  acc 3 q 0.75: indep: 23.5 | 19.2 (5 s) | 23.5 | 20.6 | 18.1 (0.242); 3 s: 19.9 | 17.9 (5 s) | 19.1 | 18.6 | 17.1 (0.255); 10 s: 133 | 28.3 (10 s) | past grid | 57.2 | 24.8 (0.28); 30 s: 3.77e+07 | 66.7 (10 s) | past grid | 1.12e+07 | 55.1 (0.389); 100 s: past grid | 207 (20 s) | past grid | past grid | 181 (0.538)
+  acc 3 q 0.9: indep: 164 | 31.8 (10 s) | past grid | 75.3 | 27.3 (0.34); 10 s: 164 | 31.8 (10 s) | past grid | 75.3 | 27.3 (0.34); 30 s: 1.01e+08 | 78.7 (10 s) | past grid | 3.58e+07 | 63.3 (0.473); 100 s: past grid | 249 (15 s) | past grid | past grid | 216 (0.65)
+
+M = 16 (added after the predictions, no prediction): OR-W's risk profile and OR-C, OR-W with no decision's miss probability over 10 b; 1 m/s, today's traffic
+  q 0.12 indep: OR-W max decision miss / b median 1.45; share of decisions over 10 b 0, carrying 0 of the residual; hold FR 0.0618, OR-W 0.062, OR-C 0.062
+  q 0.12 3 s: OR-W max decision miss / b median 5.26; share of decisions over 10 b 0, carrying 0 of the residual; hold FR 0.0629, OR-W 0.0625, OR-C 0.0625
+  q 0.12 10 s: OR-W max decision miss / b median 42; share of decisions over 10 b 5.48e-05, carrying 0.000662 of the residual; hold FR 0.0798, OR-W 0.0655, OR-C 0.0655
+  q 0.12 30 s: OR-W max decision miss / b median 330; share of decisions over 10 b 0.00643, carrying 0.113 of the residual; hold FR 0.322, OR-W 0.0808, OR-C 0.0814
+  q 0.12 100 s: OR-W max decision miss / b median 1.17e+03; share of decisions over 10 b 0.0209, carrying 0.656 of the residual; hold FR 4.63, OR-W 0.23, OR-C 0.302
+  q 0.5 indep: OR-W max decision miss / b median 2.8; share of decisions over 10 b 0, carrying 0 of the residual; hold FR 0.0646, OR-W 0.0641, OR-C 0.0641
+  q 0.5 3 s: OR-W max decision miss / b median 5.13; share of decisions over 10 b 0, carrying 0 of the residual; hold FR 0.0672, OR-W 0.0655, OR-C 0.0655
+  q 0.5 10 s: OR-W max decision miss / b median 44.2; share of decisions over 10 b 6.45e-05, carrying 0.000839 of the residual; hold FR 0.116, OR-W 0.0784, OR-C 0.0784
+  q 0.5 30 s: OR-W max decision miss / b median 252; share of decisions over 10 b 0.00589, carrying 0.106 of the residual; hold FR 0.635, OR-W 0.148, OR-C 0.149
+  q 0.5 100 s: OR-W max decision miss / b median 475; share of decisions over 10 b 0.0226, carrying 0.452 of the residual; hold FR 11.1, OR-W 1.05, OR-C 1.17
+  q 0.75 indep: OR-W max decision miss / b median 8.55; share of decisions over 10 b 0, carrying 0 of the residual; hold FR 0.0743, OR-W 0.0698, OR-C 0.0698
+  q 0.75 3 s: OR-W max decision miss / b median 4.95; share of decisions over 10 b 0, carrying 0 of the residual; hold FR 0.0696, OR-W 0.0677, OR-C 0.0677
+  q 0.75 10 s: OR-W max decision miss / b median 41.7; share of decisions over 10 b 7.87e-05, carrying 0.00097 of the residual; hold FR 0.13, OR-W 0.087, OR-C 0.087
+  q 0.75 30 s: OR-W max decision miss / b median 198; share of decisions over 10 b 0.00775, carrying 0.112 of the residual; hold FR 0.765, OR-W 0.197, OR-C 0.198
+  q 0.75 100 s: OR-W max decision miss / b median 255; share of decisions over 10 b 0.0145, carrying 0.326 of the residual; hold FR 13.8, OR-W 1.71, OR-C 1.83
+  q 0.9 indep: OR-W max decision miss / b median 40.9; share of decisions over 10 b 7.28e-05, carrying 0.000876 of the residual; hold FR 0.136, OR-W 0.0923, OR-C 0.0923
+  q 0.9 10 s: OR-W max decision miss / b median 40.9; share of decisions over 10 b 7.28e-05, carrying 0.000876 of the residual; hold FR 0.136, OR-W 0.0923, OR-C 0.0923
+  q 0.9 30 s: OR-W max decision miss / b median 174; share of decisions over 10 b 0.00538, carrying 0.082 of the residual; hold FR 0.831, OR-W 0.227, OR-C 0.228
+  q 0.9 100 s: OR-W max decision miss / b median 232; share of decisions over 10 b 0.0148, carrying 0.305 of the residual; hold FR 15.2, OR-W 2.14, OR-C 2.26
+  OR-C x1, every speed band, q 0.5: acc 0.3 indep: 0.0296; acc 0.3 3 s: 0.0296; acc 0.3 10 s: 0.0305; acc 0.3 30 s: 0.0346; acc 0.3 100 s: 0.0723; acc 1 indep: 0.0641; acc 1 3 s: 0.0655; acc 1 10 s: 0.0784; acc 1 30 s: 0.149; acc 1 100 s: 1.17; acc 3 indep: 1.02; acc 3 3 s: 1.06; acc 3 10 s: 1.51; acc 3 30 s: 4.45; acc 3 100 s: 34.7
+  OR-C x10, every speed band, q 0.5: acc 0.3 indep: 0.307; acc 0.3 3 s: 0.308; acc 0.3 10 s: 0.318; acc 0.3 30 s: 0.362; acc 0.3 100 s: 0.857; acc 1 indep: 0.682; acc 1 3 s: 0.698; acc 1 10 s: 0.843; acc 1 30 s: 1.84; acc 1 100 s: 24; acc 3 indep: 15.5; acc 3 3 s: 16.2; acc 3 10 s: 21.4; acc 3 30 s: 41.2; acc 3 100 s: 123
+
+M = 16: TC median hold per flight by A_max (s), 1 m/s, q 0.5:
+  x1 indep: 2: 2.25, 3: 1.15, 5: 0.327, 10: 0.0727, 20: 0.0646, 30: 0.0646, 60: 0.0646, 120: 0.0646, 300: 0.0646
+  x1 3 s: 2: 3.71, 3: 2.49, 5: 1.14, 10: 0.199, 20: 0.0695, 30: 0.0672, 60: 0.0672, 120: 0.0672, 300: 0.0672
+  x1 10 s: 2: 14, 3: 12.6, 5: 10.2, 10: 6.04, 20: 2.15, 30: 0.801, 60: 0.138, 120: 0.116, 300: 0.116
+  x1 30 s: 2: 43.2, 3: 41.8, 5: 39.1, 10: 33, 20: 23.5, 30: 16.8, 60: 6.2, 120: 1.14, 300: 0.633
+  x1 100 s: 2: 146, 3: 144, 5: 141, 10: 134, 20: 122, 30: 110, 60: 81.5, 120: 45, 300: 10.2
+  x10 indep: 2: 2.7, 3: 1.69, 5: 0.92, 10: 0.694, 20: 0.687, 30: 0.687, 60: 0.687, 120: 0.687, 300: 0.687
+  x10 3 s: 2: 4.19, 3: 2.96, 5: 1.69, 10: 0.837, 20: 0.717, 30: 0.715, 60: 0.715, 120: 0.715, 300: 0.715
+  x10 10 s: 2: 14.4, 3: 13.1, 5: 10.7, 10: 6.57, 20: 2.77, 30: 1.59, 60: 1.22, 120: 1.26, 300: 1.26
+  x10 30 s: 2: 43.7, 3: 42.3, 5: 39.6, 10: 33.5, 20: 24.1, 30: 17.6, 60: 7.74, 120: 5.5, 300: 8.34
+  x10 100 s: 2: 146, 3: 145, 5: 142, 10: 135, 20: 122, 30: 111, 60: 83.1, 120: 51.4, 300: 151
+
+Predictions
+  K1 x1, 1 m/s, q 0.5, B 30 s: TC* > FR: refuted
+  K2 x10, 1 m/s, q 0.5, B 100 s: TC* < FR: held
+  K3 x1, 1 m/s, q 0.5, B 30 s: OR-W <= FR / 2: held
+  K4 independent loss, 1 m/s, q <= 0.75: ARc within 10% of OR: held
+  K5 x10, 1 m/s, q 0.5, B 100 s: OR-W < 100 s: held
+  K6 0.3 m/s, B <= 30 s: OR-W saves < 20% of FR: refuted
