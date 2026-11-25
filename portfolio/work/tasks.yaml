@@ -301,10 +301,13 @@ tasks:
       by a live `curl -I`; HTML, CSS and modules keep must-revalidate until
       their URLs carry a content hash (next task).
     hours: 2
-    status: open
+    status: done
     added: 2026-11-07
     notes: >-
-      Every file on the site, CSS and icons included, answers
+      Landed 2026-11-25: split.mjs writes one `/*.<ext>` rule per image, font
+      and media type into both Workers' _headers (`public, max-age=86400,
+      stale-while-revalidate=604800`); live check and reading in
+      docs/history/site-asset-cache-perf-2026-11-25.md. Before that, every file on the site, CSS and icons included, answers
       `cache-control: public, max-age=0, must-revalidate` (checked
       2026-11-07), so a repeat visit revalidates each one. Images and fonts
       are safe to cache: a stale one never breaks a page.
@@ -403,9 +406,19 @@ tasks:
       environment, with no long-lived keys. `tofu validate`, the scanners
       and `tofu plan` against a mocked provider pass.
     hours: 24
-    status: open
+    status: done
     added: 2026-11-24
     blocked_on: Applying needs the owner's AWS management account (root MFA, card, IAM Identity Center). Writing and testing it does not.
+    notes: >-
+      Written, not applied. PR #18749 (org, SCPs, baseline, CFN bootstrap with
+      the management CI roles) and PR #18768 (stacks/github-oidc: per-stack,
+      per-repository plan/apply roles and a state bucket in each workload
+      account, payments trusting only private-monorepo; stacks/findings:
+      HIGH/CRITICAL findings to files). Next: resource control policies on
+      stacks/org (data perimeter; Payments-OU deny of public-repo OIDC
+      tokens); narrow PowerUserAccess on workload apply roles as each stack
+      lists its needs; add github-oidc and findings to priv-aws-apply.yml
+      (control plane).
 
   - id: aws-spend-guards
     direction: aws-consolidation
@@ -416,8 +429,18 @@ tasks:
       offending resources, with unit tests; a README says what stops, what
       keeps running and how to resume.
     hours: 8
-    status: open
+    status: done
     added: 2026-11-24
+    pr: 18802
+    notes: >-
+      platform/aws/stacks/spend landed in PR 18749 (budgets, freeze SCP, kill
+      switch); PR 18802 added anomaly detection, 50% alerts, per-account
+      kill_switch_accounts (shared-infra, payments, log-archive and security
+      alert only), a two-region sweep, Auto Scaling, event sources, Aurora,
+      spot and SageMaker reporting, resume by reversing the budget action,
+      the alert address kept out of public logs, and the owner's missing
+      runbook steps. AWS's native spend limit is per project and has no API:
+      an owner step in docs/runbooks/aws-cutover.md.
 
   - id: aws-route53-zone
     direction: aws-consolidation

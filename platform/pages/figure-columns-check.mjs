@@ -14,7 +14,7 @@ import pw from '/opt/node-tools/node_modules/playwright/index.js';
 import fs from 'node:fs'; import path from 'node:path'; import http from 'node:http';
 const root=path.resolve('platform/pages/dist'); const pages=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
 const types={'.html':'text/html','.css':'text/css','.js':'text/javascript','.mjs':'text/javascript','.json':'application/json','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.woff2':'font/woff2'};
-const srv=http.createServer((q,r)=>{let p=decodeURIComponent(q.url.split('?')[0]);let f=path.join(root,p);if(fs.existsSync(f)&&fs.statSync(f).isDirectory())f=path.join(f,'index.html');if(!fs.existsSync(f)){r.writeHead(404);return r.end();}r.writeHead(200,{'content-type':types[path.extname(f)]||'application/octet-stream'});fs.createReadStream(f).pipe(r);}).listen(0);
+const srv=http.createServer((q,r)=>{let p;try{p=decodeURIComponent(q.url.split('?')[0]);}catch{r.writeHead(400);return r.end();}let f=path.resolve(root,'.'+path.posix.normalize('/'+p));if(f!==root&&!f.startsWith(root+path.sep)){r.writeHead(403);return r.end();}if(fs.existsSync(f)&&fs.statSync(f).isDirectory())f=path.join(f,'index.html');if(!fs.existsSync(f)){r.writeHead(404);return r.end();}r.writeHead(200,{'content-type':types[path.extname(f)]||'application/octet-stream'});fs.createReadStream(f).pipe(r);}).listen(0);
 const port=srv.address().port; const b=await pw.chromium.launch(); const W=+(process.env.W||1280); const ctx=await b.newContext({viewport:{width:W,height:900}});
 await ctx.route(u=>!u.href.startsWith(`http://localhost:${port}`),r=>r.abort());
 const out=[]; let i=0;

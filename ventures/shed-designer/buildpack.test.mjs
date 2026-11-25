@@ -4,8 +4,9 @@ import { buildShed, normalize, PRESETS } from './model.mjs';
 import { estimate } from './estimate.mjs';
 import { buildInstructions } from './instructions.mjs';
 import { buildPackHtml, safeColor, safeLogo } from './buildpack.mjs';
-import { buyLink, cleanKey, interpret, checkLicence } from './licence.mjs';
-import { CHECKOUT_URL } from './checkout.mjs';
+import * as licence from './licence.mjs';
+import { assertPackLicence } from '../../platform/billing/testkit.mjs';
+import { PADDLE } from './checkout.mjs';
 
 const shed = buildShed(normalize(PRESETS['8x12']()));
 const est = estimate(shed);
@@ -40,14 +41,6 @@ test('prices can be left off, so a seller shows quantities only', () => {
   assert.match(buildPackHtml(shed, est, sections, {}), /Materials total/);
 });
 
-test('licence: dark by default, only an explicit valid live key unlocks, offline never throws', async () => {
-  assert.equal(buyLink(CHECKOUT_URL), CHECKOUT_URL || null); // dark when empty, live when golive.py set a link
-  assert.equal(cleanKey('short'), null);
-  assert.equal(interpret({ valid: true, license_key: { status: 'active' } }).valid, true);
-  assert.equal(interpret({ valid: true, license_key: { status: 'disabled' } }).valid, false);
-  assert.equal(interpret(null).valid, false);
-  const off = await checkLicence('ABCD-1234-EFGH', { url: 'https://example.com/v', fetch: async () => { throw new Error('offline'); } });
-  assert.equal(off.valid, false);
-  const ok = await checkLicence('ABCD-1234-EFGH', { url: 'https://example.com/v', fetch: async () => ({ json: async () => ({ valid: true, license_key: { status: 'active' } }) }) });
-  assert.equal(ok.valid, true);
+test('licence: dark until the catalogue is set; only a key signed for this pack unlocks; never throws', async () => {
+  await assertPackLicence(licence, PADDLE, 'shed-designer');
 });

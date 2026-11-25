@@ -81,7 +81,7 @@ test("every .html file in the venture is reachable from the sitemap", () => {
   const htmlFiles = readdirSync(dir).filter((name) => name.endsWith(".html"));
   for (const name of htmlFiles) {
     if (name === "index.html") continue; // carried as the bare "./" entry
-    assert.match(sitemap, new RegExp(name.replace(/\./g, "\\.")), `${name} is missing from sitemap.xml`);
+    assert.match(sitemap, new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")), `${name} is missing from sitemap.xml`);
   }
 });
 
@@ -96,7 +96,7 @@ test("index links every secondary HTML page, including the Visualping comparison
     if (name === "index.html") continue;
     assert.match(
       page,
-      new RegExp(name.replace(/\./g, "\\.")),
+      new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
       `index.html must link ${name} so crawlers can reach it from the product`,
     );
   }

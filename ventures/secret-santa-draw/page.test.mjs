@@ -4,6 +4,9 @@ import { readFileSync } from "node:fs";
 import { buildAllowed, countDraws, draw, mulberry32 } from "./calc.mjs";
 import { table } from "./eval/elephant-length.mjs";
 
+// Escape every regular-expression metacharacter so the text matches literally.
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const GUIDE = "secret-santa-rules-for-couples-and-no-repeats.html";
 const GUIDES = [GUIDE, "how-many-people-do-you-need-for-secret-santa.html", "secret-santa-for-remote-teams-without-email.html", "white-elephant-rules-steal-limits.html", "white-elephant.html"];
@@ -95,8 +98,8 @@ test("group-size guide: every table row is recomputed from the engine", () => {
 
 test("new guides are linked from the index and listed in the sitemap, with the disclaimer", () => {
   for (const g of GUIDES.slice(1)) {
-    assert.match(page("index.html"), new RegExp(g.replace(/\./g, "\\.")));
-    assert.match(page("sitemap.xml"), new RegExp(g.replace(/\./g, "\\.")));
+    assert.match(page("index.html"), new RegExp(escapeRegExp(g)));
+    assert.match(page("sitemap.xml"), new RegExp(escapeRegExp(g)));
     assert.match(page(g), /No warranty/);
     assert.match(page(g), /<link rel="canonical" href="\.\/[^"]+">/);
   }

@@ -5,6 +5,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 
 import { findOrphans, outboundToolLinks, relatedness, surveyTools } from './siblings.mjs';
 
@@ -157,7 +158,7 @@ test('--json prints two-space-indented JSON of the survey', () => {
 });
 
 test('--check passes when the orphan count equals the committed budget', () => {
-  const budget = JSON.parse(execFileSync('cat', [fileURLToPath(new URL('./siblings-budget.json', import.meta.url))], { encoding: 'utf8' }));
+  const budget = JSON.parse(readFileSync(fileURLToPath(new URL('./siblings-budget.json', import.meta.url)), 'utf8'));
   const { orphans } = JSON.parse(execFileSync('node', [CLI, '--json'], { encoding: 'utf8' }));
   // Meeting the budget exactly is within it; only exceeding it fails.
   if (orphans.length === budget.orphanBudget) {

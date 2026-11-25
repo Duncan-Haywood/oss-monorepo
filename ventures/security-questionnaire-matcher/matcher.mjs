@@ -265,7 +265,7 @@ export function toCsv(result) {
   return lines.join("\r\n") + "\r\n";
 }
 
-const mdCell = (s) => String(s ?? "").replace(/\|/g, "\\|").replace(/\s*\n\s*/g, " ");
+const mdCell = (s) => String(s ?? "").replace(/[\\|]/g, "\\$&").replace(/\s*\n\s*/g, " ");
 export function toMarkdown(result) {
   const out = [`| ${COLUMNS.join(" | ")} |`, `| ${COLUMNS.map(() => "---").join(" | ")} |`];
   for (const r of result.rows) out.push(`| ${[r.id, r.question, r.category, r.kind, r.tier, r.score.toFixed(2), r.answer, r.source, r.flags.join("; "), r.status].map(mdCell).join(" | ")} |`);

@@ -2,7 +2,7 @@
 title: "Resellers: from marketplace payout to Schedule C in three steps"
 seo_title: "Reseller payouts, cost of goods and Schedule C"
 date: 2026-11-24
-tags: [resellers, ebay, schedule-c, bookkeeping, marketplace-fees]
+tags: [resellers, ebay, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
 description: "Three new guides for multi-platform resellers: bridge a payout back to sales, cost a mixed lot by resale value, and map the year onto Schedule C."
 ---
 
@@ -37,6 +37,41 @@ on line 8, mailers on line 22, labels to buyers in Part V. A worked year
 runs from $42,000 of gross receipts to $14,800 of net profit before mileage.
 [Schedule C worksheet for resellers](../../ventures/ebay-fee-calculator/schedule-c-worksheet-for-resellers.html).
 None of it is tax advice; every line cites the IRS page it comes from.
+
+## Opening and closing inventory, from your sourcing sheet (added 2026-11-25)
+
+Schedule C Part III is where a reseller's cost of goods actually lives, and
+it is not a sum of what the sold items cost. It is a balance: inventory at
+the start of the year (line 35), plus the year's purchases less anything you
+kept for yourself (line 36), less what is still on the shelves at December 31
+(line 41), gives cost of goods sold (line 42), which goes to line 4. Line
+numbers are from the 2026 form on irs.gov, read on 2026-11-25.
+
+The [Reseller Books tool](../../ventures/reseller-books/) now reads your
+sourcing spreadsheet as a CSV (item or SKU, quantity, cost, date bought, and
+a date sold or a status such as *personal* or *donated* if you keep them)
+next to one tax year of marketplace reports. Each unit a report says you
+sold takes the oldest matching purchase still on hand, by the SKU or title
+the marketplace shows; a returned unit goes back on the shelf. What the
+sheet still holds at December 31 is line 41.
+
+In the page's worked example (a made-up eBay shop, not a real seller), four
+film cameras bought in November 2025 at $135 make line 35 $540.00. The year's
+purchases are $9,774.00 after a $22.00 jacket kept for personal use. Three
+cameras at $142, one LEGO set, four jackets and twenty sleeve lots are left
+at year end, so line 41 is $1,186.00 and line 42 is $9,128.00. That equals
+the cost of the 167 units the reports sold plus a $40.00 card lot marked
+sold at a local show, and a test checks the two always agree.
+
+Three things the page says rather than hides. A sold unit with no purchase in
+the sheet is listed by name, because it makes line 42 too low. If you enter
+last year's line 41 and the sheet disagrees, the entered figure is used and
+the gap is explained, since the form asks for an explanation when line 35
+differs from last year's closing inventory. And Etsy sales can only be
+matched through Etsy's Sold Order Items file. Part III is also optional for
+some sellers: the Schedule C instructions let a small business taxpayer
+choose not to keep an inventory. That choice is yours and your preparer's,
+and none of this is tax advice.
 
 ## The fee figures, rechecked
 

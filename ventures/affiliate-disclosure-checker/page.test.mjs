@@ -9,7 +9,7 @@ test("index links to the docs page", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(
     page,
-    new RegExp(`href="${DOCS_PAGE.replace(/\./g, "\\.")}"`),
+    new RegExp(`href="${escapeRegExp(DOCS_PAGE)}"`),
     "index must link the secondary docs page so crawlers can reach it",
   );
 });
@@ -66,6 +66,9 @@ test("index's own worked example demonstrates a real missing-disclosure finding 
 });
 
 import { readFileSync as readIndexForSiblingCheck } from 'node:fs';
+
+// Escape every regex metacharacter so a literal string can sit inside a RegExp.
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 // Closest sibling: the same solo earner monetising work they already publish,
 // but sponsorship of an open-source project rather than affiliate links on a

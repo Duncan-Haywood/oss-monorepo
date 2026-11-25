@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
+const stripTags = (s) => { let p; do { p = s; s = s.replace(/<[^>]+>/g, ""); } while (s !== p); return s; };
+const stripScripts = (s) => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ""); } while (s !== p); return s; };
 
 const index = await readFile(new URL("./index.html", import.meta.url), "utf8");
 const sitemap = await readFile(new URL("./sitemap.xml", import.meta.url), "utf8");
@@ -27,7 +29,7 @@ test("the page carries the portfolio disclaimers and stays local", () => {
 });
 
 test("the page never claims a clean scan means the repository is secure", () => {
-  const prose = index.replace(/<script[\s\S]*?<\/script>/g, "");
+  const prose = stripScripts(index);
   for (const match of prose.matchAll(/\b(?:is|are|was|were)\s+secure\b/gi)) {
     const preceding = prose.slice(Math.max(0, match.index - 60), match.index);
     const following = prose.slice(match.index + match[0].length, match.index + match[0].length + 12);
@@ -42,7 +44,7 @@ test("the JSON-LD FAQ matches the visible questions and answers", () => {
   assert.ok(ld, "FAQPage block missing");
   const faq = JSON.parse(ld[1]);
   const visible = [...index.matchAll(/<h3>([^<]+)<\/h3>\s*<p>([\s\S]*?)<\/p>/g)].map((m) => [m[1], m[2]]);
-  const strip = (s) => s.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
+  const strip = (s) => stripTags(s).replace(/&amp;/g, "&").replace(/\s+/g, " ").trim();
   for (const q of faq.mainEntity) {
     const hit = visible.find(([h]) => strip(h) === q.name);
     assert.ok(hit, `FAQ question not visible on the page: ${q.name}`);

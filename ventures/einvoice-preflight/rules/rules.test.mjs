@@ -3,6 +3,14 @@ import test from "node:test";
 import fs from "node:fs";
 import { LANGS, SOURCES, loadRules, official, officialChecks, renderAll, slugOf } from "./build.mjs";
 
+/** XML with its comments removed, repeated until nothing changes. */
+function withoutComments(x) {
+  let out = x;
+  let prev;
+  do { prev = out; out = out.replace(/<!--[\s\S]*?--!?>/g, ""); } while (out !== prev);
+  return out;
+}
+
 const here = new URL("./", import.meta.url);
 const manifest = JSON.parse(fs.readFileSync(new URL("../plain/manifest.json", import.meta.url), "utf8"));
 const rules = loadRules();
@@ -69,7 +77,7 @@ test("every XML snippet is a well-formed fragment in the syntax it is labelled",
   assert.equal(wellFormed("<a>R&D</a>"), 'bare & in text "R&D"');
   for (const r of rules) {
     assert.ok(r.ubl || r.cii, `${r.id}: no snippet`);
-    for (const x of [r.ubl, r.cii].filter(Boolean)) assert.doesNotMatch(x.replace(/<!--[\s\S]*?-->/g, ""), /\.\.\.|…/, `${r.id}: an elision outside a comment would be copied into a file`);
+    for (const x of [r.ubl, r.cii].filter(Boolean)) assert.doesNotMatch(withoutComments(x), /\.\.\.|…/, `${r.id}: an elision outside a comment would be copied into a file`);
     if (r.ubl) {
       assert.equal(wellFormed(r.ubl), null, `${r.id} UBL`);
       assert.ok(/<(cbc|cac):/.test(r.ubl) && !/<(ram|rsm|udt):/.test(r.ubl), `${r.id}: UBL snippet uses CII prefixes`);
@@ -113,7 +121,7 @@ test("each page quotes the official message, cites and links its source, links t
 
 test("titles fit in 70 characters and FAQ markup matches the visible questions", () => {
   for (const [p, html] of pages) {
-    const title = html.match(/<title>([^<]*)<\/title>/)[1].replace(/&amp;/g, "&").replace(/&quot;/g, '"');
+    const title = html.match(/<title>([^<]*)<\/title>/)[1].replace(/&quot;/g, '"').replace(/&amp;/g, "&");
     assert.ok([...title].length <= 70, `${p}: ${title}`);
     const ld = html.match(/<script type="application\/ld\+json">(.*?)<\/script>/s);
     if (!ld) { assert.equal(p, "index.html"); continue; }

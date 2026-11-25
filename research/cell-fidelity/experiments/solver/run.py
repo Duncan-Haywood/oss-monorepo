@@ -299,8 +299,9 @@ def report():
             L.append(f"    {r['set']} {r['j']}: by {','.join(vs)}; SPMe@100 {sc:.1f} vs DFN@100 {r['dfn100']:.1f} Wh/kg, "
                      f"gap {gp:+.3f}, r_min {_f(run.get('r_min'))}")
         g["rescued"] = res
-        g["rescued_trusted"] = sum(1 for x in res if not x["untrusted"])
-        L.append(f"  rescued and trusted (within 25% of DFN@100): {g['rescued_trusted']} of {len(res)}")
+        n_within_gap = sum(1 for x in res if not x["untrusted"])
+        g["rescued_trusted"] = n_within_gap
+        L.append(f"  rescued and trusted (within 25% of DFN@100): {n_within_gap} of {len(res)}")
         L.append("")
         return g
 

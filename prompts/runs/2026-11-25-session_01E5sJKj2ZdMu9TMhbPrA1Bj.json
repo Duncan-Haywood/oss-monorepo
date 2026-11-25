@@ -1,0 +1,169 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKj2ZdMu9TMhbPrA1Bj",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T03:18:27Z",
+  "ended": "2026-11-25T03:27:41Z",
+  "wall_minutes": 9.8,
+  "tokens_in": 7513336,
+  "tokens_out": 49535,
+  "cost_usd": 3.7886,
+  "tool_calls": 61,
+  "task": "Bet #4 front door: NIST 800-171 SSP template (system security plan builder) in machine-shop-guides",
+  "projects": [
+    "machine-shop-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18831",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "git clone of private-monorepo after add_repo succeeded",
+      "result": "denied by the auto-mode permission classifier; did the bet's public side here instead"
+    },
+    {
+      "what": "curl nvlpubs.nist.gov / csrc.nist.gov / ecfr.gov",
+      "result": "proxy 403 / no connection; requirement titles stay the existing paraphrases, recorded in SOURCES.md"
+    },
+    {
+      "what": "venture-preflight first run",
+      "result": "check_control_labels: hidden file input had no label; added aria-label, rerun"
+    },
+    {
+      "what": "venture-preflight second run",
+      "result": "description-length.test: meta description over 160 characters; shortened, third run clean"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 says QUEUE.md names the scanned commit; the live QUEUE.md (02:44 run) has no scanned-commit line yet (PRs 18807/18808/18819 add it, still open), so staleness had to be judged by reading lines on main by hand (the 33 identity-replacement entries point at shifted or already-fixed lines)."
+    },
+    {
+      "file": "security-alerts:alerts/7.md",
+      "issue": "Top queue item #7 (and #42, #43) in platform/security/risk_review.py is a CODEOWNERS gate file and a name-heuristic false positive (result['secrets'] holds only path and pattern name, never the value); the alert text gives no hint. PR 18809 proposes moving triaged false positives off the work list."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Step 0 says take the top security alert first. The queue mirrors an analysis that predates the 2026-11-24 backlog fix; #7/#42/#43 are false positives in the risk_review gate, #12/#34/#38/#39 are already documented false positives in docs/reports/2026-11-24-codeql-backlog-cleared.md, and spot-checked lower entries are already fixed on main.",
+      "did": "Recorded the false positives in notes for the owner to dismiss and went to step 1.",
+      "result": "Time went to product work instead of re-fixing fixed lines."
+    },
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Top bet #1 (payapps) had six-plus concurrent sessions today (open PRs 18827, 18822, 18821, 18798, 18793, 18790), and the private repo clone was denied.",
+      "did": "Took bet #4's wedge (SSP + POA&M), whose front door lacked the SSP piece.",
+      "result": "Shipped the SSP builder with no overlap."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Writing guidance prefers extending existing posts; this targets a distinct search ('NIST 800-171 SSP template') that neither the SPRS nor the Level 1 post covers.",
+      "did": "New for-customers post rather than an extension.",
+      "result": null
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-nist-800-171-ssp-template-for-small-shops.md"
+  ],
+  "goal": "$10k MRR: front door for bet #4 (CMMC workspace); the SSP is the workspace's core document",
+  "notes": "Security queue false positives for owner dismissal: #7, #42, #43 (py/clear-text-* in platform/security/risk_review.py: find_secrets returns (path, pattern name) only; stdout and the step summary never contain the matched value). Verification: node --test *.test.mjs in ventures/machine-shop-guides 64 pass / 0 fail; Playwright e2e (SPRS answers -> import -> score 105, HTML download escapes markup, JSON download, no console errors, no horizontal scroll at 390px); check_control_labels.py OK after fix. venture-preflight.mjs machine-shop-guides: clean on the third run (build + check.mjs).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0fa81c9b-20f6-5689-a3d0-144dc38e6c04",
+    "transcripts": 1,
+    "first": "2026-11-25T03:18:27Z",
+    "last": "2026-11-25T03:28:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 58,
+        "input": 113,
+        "output": 49535,
+        "thinking": 6901,
+        "cache_read": 7347222,
+        "cache_write_5m": 0,
+        "cache_write_1h": 166001,
+        "api_equivalent_usd": 3.7886,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 58,
+      "input": 113,
+      "output": 49535,
+      "thinking": 6901,
+      "cache_read": 7347222,
+      "cache_write_5m": 0,
+      "cache_write_1h": 166001,
+      "api_equivalent_usd": 3.7886,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 48,
+      "Write": 4,
+      "mcp__github__actions_list": 3,
+      "ToolSearch": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.8,
+      "active_minutes": 9.8,
+      "model_minutes": 8.28,
+      "tool_minutes": 1.52,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "SSP builder logic, page, tests and post by a developer familiar with NIST 800-171",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 263.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

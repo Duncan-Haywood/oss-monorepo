@@ -143,6 +143,16 @@ class GateTests(unittest.TestCase):
         self.assertEqual(self.verdict(diff("prompts/goals.md", removed_at=[2]), base=lambda p: base), 1)
 
 
+    def test_ruleset_readme_is_prose_not_a_ruleset(self):
+        # Only *.json under .github/rulesets/ is parsed as a ruleset; editing the
+        # README there used to block as "cannot be parsed".
+        self.assertEqual(rr.gate_weakenings(".github/rulesets/README.md", "# Rulesets\n", "# Rulesets\nmore\n"), [])
+
+    def test_ruleset_json_losing_a_required_check_still_fails(self):
+        base = '{"enforcement": "active", "rules": [{"type": "required_status_checks", "parameters": {"required_status_checks": [{"context": "risk-review"}]}}]}'
+        head = '{"enforcement": "active", "rules": [{"type": "required_status_checks", "parameters": {"required_status_checks": []}}]}'
+        self.assertTrue(rr.gate_weakenings(".github/rulesets/main.json", base, head))
+
 class OwnerCoreTests(unittest.TestCase):
     """The owner-only core is read from .github/CODEOWNERS, not kept here."""
 
@@ -165,6 +175,50 @@ class RenderTests(unittest.TestCase):
         out = rr.render(rr.review(rr.parse_unified_diff(diff("CLAUDE.md", ["x"]))))
         self.assertIn("Blocked:** nothing", out)
         self.assertIn("- [ ] **Agent instructions changed**", out)
+
+
+class StaleBaseTests(unittest.TestCase):
+    """A branch that merged a newer main than the local base ref."""
+
+    def setUp(self):
+        import os, subprocess, tempfile
+        self.tmp = tempfile.TemporaryDirectory()
+        self.cwd = os.getcwd()
+        os.chdir(self.tmp.name)
+        env = {"GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@example.invalid",
+               "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@example.invalid"}
+        os.environ.update(env)
+
+        def g(*a):
+            subprocess.run(["git", *a], check=True, capture_output=True)
+        self.g = g
+        g("init", "-q", "-b", "main")
+        for name in ("a", "b"):
+            Path(name).write_text(name)
+            g("add", name)
+            g("commit", "-qm", name)
+        g("branch", "stale", "HEAD~1")      # the session's old view of main
+        g("checkout", "-qb", "work", "HEAD~1")
+        Path("mine").write_text("x")
+        g("add", "mine")
+        g("commit", "-qm", "mine")
+
+    def tearDown(self):
+        import os
+        os.chdir(self.cwd)
+        self.tmp.cleanup()
+
+    def mb(self, base):
+        return rr.git("merge-base", base, "HEAD").strip()
+
+    def test_no_warning_before_merging_main(self):
+        self.assertIsNone(rr.stale_base_warning("stale", "HEAD", self.mb("stale"), 1))
+
+    def test_warns_after_merging_a_newer_main(self):
+        self.g("merge", "-q", "--no-edit", "main")
+        w = rr.stale_base_warning("stale", "HEAD", self.mb("stale"), 2)
+        self.assertIn("does not contain", w)
+        self.assertIsNone(rr.stale_base_warning("main", "HEAD", self.mb("main"), 1))
 
 
 if __name__ == "__main__":

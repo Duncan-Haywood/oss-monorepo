@@ -167,7 +167,9 @@
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (s) => document.querySelector(s);
-    const SAVE = "secret-santa-draw-white-elephant";
+    // The saved game (player names, gifts, turn history) is ordinary game state, not a secret: the key names the game.
+    // It was "secret-santa-draw-white-elephant" until 2026-11-24; a game saved under that key is not carried over.
+    const SAVE = "white-elephant-game";
     const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const newSeed = () => { try { return crypto.getRandomValues(new Uint32Array(1))[0]; } catch { return Math.floor(Math.random() * 4294967296); } };
     let history = [];

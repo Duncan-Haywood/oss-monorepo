@@ -40,7 +40,11 @@ export const toRate = (v) => {
   return Number.isFinite(n) ? n / 100 : NaN;
 };
 
-export const isChangeOrder = (line) => /^\s*co\b|change order/i.test(`${line.item ?? ""} ${line.type ?? ""}`);
+// A change order is an item numbered CO-1, CO1, CO 2, C.O. 3 or CO#4, or a
+// line typed "change order". "CO1" and "C.O. 3" used to read as base-contract
+// lines (red team 2026-11-25).
+export const isChangeOrder = (line) =>
+  /^\s*(c\.?\s?o\.?\s*[-#]?\s*\d|co\b)|change\s+order/i.test(`${line.item ?? ""} ${line.type ?? ""}`);
 
 export function fmt(cents) {
   const neg = cents < 0;
@@ -176,3 +180,92 @@ export const SAMPLE = {
     { item: "CO-1", description: "Added EV charger circuits", scheduled: "8500", previous: "0", thisPeriod: "4250", stored: "0" },
   ],
 };
+
+// QuickBooks has no retainage field on an invoice, so the usual workaround is
+// a "Retainage" item mapped to a Retainage Receivable asset account: a
+// negative line holds it back, a positive line on a later invoice bills it.
+// Given one pay application's figures, return the invoice lines to type.
+//   billed: work completed this period plus stored materials this period
+//   rate: retainage percent ("10" or "10%"), or pass held directly
+//   released: retainage being billed (released) on this invoice
+export function quickbooksLines({ billed, rate = "10", held, released } = {}) {
+  const errors = [];
+  const b = toCents(billed);
+  const r = toRate(rate);
+  const rel = toCents(released);
+  if (Number.isNaN(b)) errors.push("The amount billed this period could not be read.");
+  if (Number.isNaN(r) || r < 0 || r > 1) errors.push("Retainage must be between 0% and 100%.");
+  if (Number.isNaN(rel) || rel < 0) errors.push("Retainage released must be zero or a positive amount.");
+  let h = held === undefined || held === "" ? null : toCents(held);
+  if (Number.isNaN(h)) errors.push("The retainage held could not be read.");
+  // QuickBooks wants the held line negative, so people type "-4000" here; the
+  // sign is ours to add, and a negative held used to bill the retainage.
+  else if (h !== null && h < 0) errors.push("Enter the retainage held as a positive amount; the invoice line below is made negative for you.");
+  if (errors.length) return { errors, lines: [], total: 0 };
+  if (h === null) h = Math.round(b * r);
+  const lines = [];
+  if (b) lines.push({ item: "Work billed this period", amount: b, account: "Income (your usual sales item)" });
+  if (h) lines.push({ item: "Retainage", amount: -h, account: "Retainage Receivable (Other Current Assets)" });
+  if (rel) lines.push({ item: "Retainage", amount: rel, account: "Retainage Receivable (Other Current Assets)" });
+  const total = lines.reduce((s, l) => s + l.amount, 0);
+  return { errors, lines, total, retainageChange: h - rel };
+}
+
+// Prompt payment: when a contractor must pass the owner's payment down to a
+// sub, and simple interest on what is late. Each row was read from the
+// legislature's own text through search results on 2026-11-25 (see
+// prompt-payment-laws.html). `rate` is null where the text we could read
+// did not confirm a figure: the page says so instead of guessing.
+export const PROMPT_PAY = {
+  tx: { state: "Texas", law: "Property Code §28.002(b), §28.004", days: 7, rate: 0.015, per: "month", method: "prorata",
+    url: "https://statutes.capitol.texas.gov/Docs/PR/htm/PR.28.htm" },
+  ca: { state: "California", law: "Business and Professions Code §7108.5", days: 7, rate: null, per: "month", method: "prorata",
+    url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=BPC&sectionNum=7108.5" },
+  il: { state: "Illinois", law: "Contractor Prompt Payment Act, 815 ILCS 603/10", days: 15, rate: 0.10, per: "year", method: "prorata",
+    url: "https://www.ilga.gov/legislation/ilcs/ilcs3.asp?ActID=2941&ChapterID=67" },
+  nc: { state: "North Carolina", law: "G.S. 22C-2, 22C-5", days: 7, rate: 0.01, per: "month", method: "fraction",
+    url: "https://www.ncleg.gov/EnactedLegislation/Statutes/HTML/ByChapter/Chapter_22C.html" },
+  pa: { state: "Pennsylvania", law: "Contractor and Subcontractor Payment Act (1994 Act 7, amended 2018 Act 27)", days: 14, rate: null, per: "month", method: "prorata",
+    url: "https://www.legis.state.pa.us/WU01/LI/LI/US/HTM/1994/0/0007..HTM" },
+  va: { state: "Virginia (public work)", law: "Code of Virginia §2.2-4354", days: 7, rate: 0.01, per: "month", method: "prorata",
+    url: "https://law.lis.virginia.gov/vacode/title2.2/chapter43/section2.2-4354/" },
+  fl: { state: "Florida (local government work)", law: "Florida Statutes §218.735(6)", days: 10, rate: null, per: "month", method: "prorata",
+    url: "https://www.leg.state.fl.us/Statutes/index.cfm?App_mode=Display_Statute&URL=0200-0299%2F0218%2FSections%2F0218.735.html" },
+};
+
+const DAY = 86400000;
+function parseDate(v) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(v ?? "").trim());
+  if (!m) return NaN;
+  const t = Date.UTC(+m[1], +m[2] - 1, +m[3]);
+  const d = new Date(t);
+  return d.getUTCMonth() === +m[2] - 1 && d.getUTCDate() === +m[3] ? t : NaN;
+}
+const isoDate = (t) => new Date(t).toISOString().slice(0, 10);
+
+// Simple interest, no compounding. A "month" is 30 days and a year 365:
+// the statutes read do not define either, so the page states the assumption.
+// method "fraction": each month or part of a month counts in full
+// (North Carolina's "per month or a fraction thereof").
+export function promptPayInterest({ amount, received, paid, days, rate, per = "month", method = "prorata" } = {}) {
+  const errors = [];
+  const a = toCents(amount);
+  const r = toRate(rate);
+  const rec = parseDate(received);
+  const pd = parseDate(paid);
+  const n = Number(String(days ?? "").trim());
+  if (Number.isNaN(a) || a <= 0) errors.push("Enter the amount owed to you as a positive number.");
+  if (Number.isNaN(rec)) errors.push("Enter the date the contractor was paid as YYYY-MM-DD.");
+  if (Number.isNaN(pd)) errors.push("Enter the date you were paid (or today) as YYYY-MM-DD.");
+  if (!Number.isInteger(n) || n < 0 || n > 365) errors.push("Days to pay must be a whole number from 0 to 365.");
+  if (Number.isNaN(r) || r < 0 || r > 1) errors.push("The interest rate must be between 0% and 100%.");
+  if (per !== "month" && per !== "year") errors.push("The rate must be per month or per year.");
+  if (errors.length) return { errors };
+  const due = rec + n * DAY;
+  const late = Math.max(0, Math.round((pd - due) / DAY));
+  let periods;
+  if (per === "year") periods = late / 365;
+  else periods = method === "fraction" ? Math.ceil(late / 30) : late / 30;
+  const interest = Math.round(a * r * periods);
+  return { errors, due: isoDate(due), daysLate: late, interest, total: a + interest };
+}

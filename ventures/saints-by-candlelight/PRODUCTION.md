@@ -185,7 +185,6 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 
 - Egeria and Lent with the bishop's catechesis (Travels, chapters 27-28 and 45-46; a sequel to episode 133).
 - Valerius of Bierzo and the letter in praise of the blessed Egeria, the seventh-century Spanish monk who gave her name back (Valerius's letter to the monks of the Bierzo; a coda to episodes 127-137).
-- Hiram king of Tyre and the cedars of Lebanon floated down the coast in rafts, the friend of David who sent Solomon timber for the temple (First Kings 5 and Second Chronicles 2; left by episode 156).
 - The ships of Tarshish and the throne of ivory with twelve lions on six steps, the years when silver was counted as nothing in Jerusalem, told as a quieter episode about trade and its dangers, with Deuteronomy 17:16-17 (First Kings 10:14-29; left by episode 156).
 - Saint Theognius or Saint Abraamius, Cyril of Scythopolis's other short desert lives.
 - Saint Cyriacus the Anchorite, whose Life Cyril also wrote.
@@ -229,11 +228,13 @@ sequels your episode leaves as new lines, so the list never runs down to one:
 - Joseph of Arimathea and the stone rolled against the door, the respected member of the council who took courage and went in to Pilate, told with all four Gospels side by side (Mark 15:42-47, Matthew 27:57-61, Luke 23:50-56, John 19:38-42; left by episode 177).
 - The last great day of the Feast of Booths, the water from Siloam and the lamps in the Court of the Women, and 'if anyone thirsts, let him come to me', told as a quieter episode about the feast (John 7:1-44, Leviticus 23:33-43 and the Mishnah, Sukkah 4-5; left by episode 177).
 - Gamaliel and the counsel in the council, 'if this is of God you will not be able to overthrow them', the teacher of Saul of Tarsus (Acts 5:33-42 and 22:3, with Lucian's letter of four hundred and fifteen told as legend; left by episode 177).
+- The Canaanite woman of the region of Tyre and Sidon, the crumbs under the table and her daughter healed, told with Mark and Matthew side by side and carefully (Mark 7:24-30, Matthew 15:21-28; left by episode 178).
+- Ezekiel's lament for the ship of Tyre, the mast of cedar and the sail of Egyptian linen and every trading people named on board, told as a quieter episode about trade and pride (Ezekiel 27; left by episode 178).
 
 ## Audio status
 
 <!-- audio-status: written by node generate.mjs from episodes/ and audio/manifest.json -->
-Audio: 29 of 177 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 177.
+Audio: 29 of 178 episodes, numbers 1 to 29 (27 to 53 minutes each). Text only: episodes 30 to 178.
 <!-- /audio-status -->
 
 Whether to add audio is the creative prompt's call, not this file's: `prompts/creative/prompt-0.md`, "Audio size", says text only while the `du` it names is over 400 MB (577 MB on 2026-11-18), and the higher layer wins. The case that the cap is stale (audio has been served from jsDelivr, outside the deploy artifact, since 2026-10-24, so the cost left is git history) is in [`docs/reports/2026-11-13-audio-cap-is-stale.md`](../../docs/reports/2026-11-13-audio-cap-is-stale.md); changing the rule is a `prompts/` edit, which waits on the owner's approval. This paragraph used to recommend voicing the backlog against the prompt, and five run records from 2026-11-16 to 2026-11-18 reported the two guides disagreeing. When the rule allows audio, voice the backlog in episode order, about 60 MB a run (episodes 20 to 24 took 7 to 11 minutes each on 4 cores, 2026-11-15). Read the episode for names first and add any the voice would trip on to `SAY` in `render_audio.py`. The line above is regenerated with the pages, so a new episode or render needs no edit here. If Hugging Face is blocked in a cloud session, the Kokoro model files are also on GitHub: `https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/` (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) into `~/.cache/kokoro`. Use `/usr/bin/python3` if `python3` lacks numpy. A render takes about 8 to 15 minutes.

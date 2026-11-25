@@ -146,7 +146,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
       const q = req.nextUrl.searchParams;
       const html = resultsReportHtml(survey.title, ranked, coverage(ranked, survey._count.participants, medianAnswers), survey._count.participants, {
         agreement: [leftOut.advice, agreement.advice, pace.advice].filter(Boolean).join(" ") || undefined,
-        name: q.get("name") ?? undefined, logo: q.get("logo") ?? undefined, colour: q.get("colour") ?? undefined, note: q.get("note") ?? undefined,
+        name: q.get("name") ?? undefined, logo: q.get("logo") ?? undefined, colour: hexColour(q.get("colour")), note: q.get("note") ?? undefined,
       });
       return new NextResponse(html, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
     }
@@ -155,4 +155,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
     console.error("admin/surveys ranking failed", err);
     return NextResponse.json({ error: "Could not compute the ranking" }, { status: 500 });
   }
+}
+
+/**
+ * The report's accent colour, rebuilt from its numeric value so only `#` and six hex digits can reach the
+ * page's CSS. Anything else is dropped and the report falls back to its default colour (resultsReport.ts, safeColour).
+ */
+function hexColour(raw: string | null): string | undefined {
+  const m = /^#([0-9a-fA-F]{6})$/.exec(raw ?? "");
+  return m ? `#${parseInt(m[1], 16).toString(16).padStart(6, "0")}` : undefined;
 }

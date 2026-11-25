@@ -113,22 +113,21 @@ test('buildProducts writes every page the sitemap lists, and the hub sitemap lis
   for (const p of productSitemapPaths()) assert.ok(sitemap.includes(`<loc>${BASE}${p}</loc>`), p);
 });
 
-test('the hub leads with the products, then frames the tools as free tools for the same businesses', () => {
+test('the hub leads with the finder and the products, then frames the tools as free tools for the same businesses', () => {
   const surfaces = [{ slug: 'roofing-bid-calculator', title: 'Roofing bid', description: 'Price a roof.', pageCount: 1 }];
   const html = renderHub(surfaces, BASE);
   const hero = html.slice(html.indexOf('<header class="hero">'), html.indexOf('</header>', html.indexOf('<header class="hero">')));
-  assert.match(hero, /Software &amp; hardware for small businesses/);
+  assert.match(hero, /Software for small businesses/);
   assert.match(hero, /Grant Autopilot is live/);
-  assert.match(hero, /href="products\/"[^>]*>See the products</);
-  assert.match(hero, /href="industries\/"[^>]*>Find your industry</);
-  assert.ok(hero.indexOf('See the products') < hero.indexOf('role="search"'), 'the calls to action come before the search');
+  assert.match(hero, /What kind of business do you run\?/);
+  assert.match(hero, /href="industries\/construction\/#contractor-billing"/);
+  assert.doesNotMatch(hero, /role="search"/, 'the search is not the front door any more');
   const at = (needle) => html.indexOf(needle);
   assert.ok(at('id="products"') > 0 && at('id="products"') < at('id="free-tools"'), 'products before the free tools');
-  assert.ok(at('id="free-tools"') < at('id="browse"'), 'the free-tools framing comes before the tool sections');
-  assert.match(html, /Free tools for the same businesses/);
   // The roofing tool is published, so the takeoff card links it; unpublished tools drop out.
   assert.match(html, /href="roofing-bid-calculator\/" data-pf-to="roofing-bid-calculator">Roofing bid</);
   assert.doesNotMatch(html.slice(at('id="products"'), at('id="free-tools"')), /href="wall-framing-takeoff\//);
   // Never "live" for anything else.
-  assert.doesNotMatch(html, /Job shop quoting is live|Contractor billing is live/);
+  assert.doesNotMatch(html, /Job shop quoting is live|Contractor billing is live|Contractor billing · live/);
 });
+

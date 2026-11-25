@@ -18,7 +18,7 @@ class El {
 }
 class Text { constructor(t) { this.textContent = String(t); } }
 
-const script = ADMIN_HTML.match(/<script>([\s\S]*?)<\/script>/)[1];
+const script = ADMIN_HTML.match(/<script\b[^>]*>([\s\S]*?)<\/script\b[^>]*>/i)[1];
 
 function page(routes, { stored = null } = {}) {
   const els = {};

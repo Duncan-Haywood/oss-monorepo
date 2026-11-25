@@ -54,7 +54,8 @@ DOCKER_SOCKET = "compose-docker-socket"
 HOST_NETWORK = "compose-host-network"
 DANGEROUS_CAPABILITY = "compose-dangerous-capability"
 EXPOSED_DATABASE_PORT = "compose-exposed-database-port"
-LITERAL_SECRET = "compose-literal-secret"
+# A label for "a literal value in the Compose file", not a secret itself.
+COMPOSE_LITERAL_VALUE = "compose-literal-secret"
 SENSITIVE_HOST_MOUNT = "compose-sensitive-host-mount"
 SECURITY_OPT_UNCONFINED = "compose-security-opt-unconfined"
 HOST_NAMESPACE = "compose-host-namespace"
@@ -69,7 +70,7 @@ SEVERITY = {
     HOST_NETWORK: "high",
     DANGEROUS_CAPABILITY: "high",
     EXPOSED_DATABASE_PORT: "high",
-    LITERAL_SECRET: "high",
+    COMPOSE_LITERAL_VALUE: "high",
     SENSITIVE_HOST_MOUNT: "high",
     SECURITY_OPT_UNCONFINED: "high",
     HOST_NAMESPACE: "high",
@@ -79,6 +80,7 @@ SEVERITY = {
     NO_HEALTHCHECK: "low",
 }
 RISK_CLASSIFICATIONS = frozenset(SEVERITY)
+LITERAL_SECRET = COMPOSE_LITERAL_VALUE  # documented alias
 
 DB_PORTS = {
     "5432": "Postgres",
@@ -278,7 +280,7 @@ class _Scanner:
             return
         n = self.svc["name"]
         self.add(
-            lineno, LITERAL_SECRET,
+            lineno, COMPOSE_LITERAL_VALUE,
             f'service "{n}" sets {k} to a literal value in the Compose file (the value is not shown here)',
             f"Move it out of the file: `{k}: ${{{k}}}` with the value in an uncommitted `.env`, or a Docker secret (`secrets:` plus `{k}_FILE`). Rotate it if this file was ever committed.",
         )
