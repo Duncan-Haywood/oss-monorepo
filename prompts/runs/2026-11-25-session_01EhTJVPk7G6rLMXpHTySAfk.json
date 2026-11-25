@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01EhTJVPk7G6rLMXpHTySAfk",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-25T23:09:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "private-monorepo CI is starved (all jobs red in 2-3 s, runner_id 0), so verification there is local only. ci_starvation.py says this clearly; noted again so nobody re-diagnoses it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "Item 3 lists run_venture_tests.py suites, which cover only public ventures. I timed the bets' private app unit suites instead, since every bet-building session waits on them (north star).",
+      "did": "Timed payapps, cmmc and grants unit suites in private-monorepo; private PR 188.",
+      "result": "Saves about 7.5 s per run of all three, and fixes two flaky tests."
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "No docs/posts post: a test-setup speed-up is agent-facing, not reader-facing.",
+      "did": "Wrote a docs/history agent doc only.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-25-private-unit-setup-dom-only.md"
+  ],
+  "goal": null,
+  "notes": "Metric: private app unit suite wall time (vitest run --config vitest.unit.config.ts), 4 CPUs, warm cache, median of 4-5 runs, before vs after: payapps 9.1->7.2 s (520 tests), cmmc 2.3->1.4 s (232), grants 35.3->30.6 s (1609). Same test counts both ways. Also fixed grants integrations.test.ts AES-GCM tamper flake (1/64: it checked the last char but swapped the second-to-last) and payapps sov-import waitFor overrun (asyncUtilTimeout 3 s). Private PR 188 (https://github.com/Duncan-Haywood/private-monorepo/pull/188) was merged after local verification (typecheck x3, biome, full unit suites x3); its CI was starved (ci_starvation exit 0: 4/4 jobs had no runner).",
+  "corrections": [],
+  "redteam": null
+}
