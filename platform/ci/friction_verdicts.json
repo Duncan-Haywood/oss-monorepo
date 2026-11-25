@@ -175,6 +175,30 @@
    "by": "egress_probe.py",
    "at": "2026-11-25T15:21:17Z",
    "note": "platform/ci/egress_probe.py probes official hosts in parallel and prints the verified GSA FAR/DFARS fallback; cloud-session.md Outbound hosts points to it"
+  },
+  {
+   "file": "prompts/ventures/prompt-1.md",
+   "match": "(clone|cloning).{0,80}(refused|denied|blocked|classifier)|classifier.{0,60}clone",
+   "verdict": "fixed",
+   "by": "PR #18882 (cloud-session.md \"If step 2 is refused\": final, go to the public side) + PR #19002",
+   "at": "2026-11-25T17:15:39Z",
+   "note": "Refusal is environmental; the doc now says what to do. Reports after 07:10Z came from sessions started earlier."
+  },
+  {
+   "file": "prompts/ventures/prompt-1.md",
+   "match": "(open PRs?|parallel|concurrent).{0,120}(pay-app-guides|top bet|PayApps|front door|collid|saturat)|saturat",
+   "verdict": "fixed",
+   "by": "PR #18936 (allocate.py [bet N live PRs: ...; none on ...] note from front_door:) + PR #19002 (roadmap_claim.py)",
+   "at": "2026-11-25T17:15:39Z",
+   "note": "allocate.py names the busy and free public-side surfaces per bet; private ROADMAP items have a claim branch."
+  },
+  {
+   "file": "portfolio/monetization/bets.md",
+   "match": "(open PRs?|concurrent|overlapping|parallel|sessions).{0,120}(surface|saturat|free|claimed|spread|one app)|which bet surfaces",
+   "verdict": "fixed",
+   "by": "PR #18936 (allocate.py bet note reads open PR titles against flagships.yaml front_door:)",
+   "at": "2026-11-25T17:15:40Z",
+   "note": "The busy/free split per bet surface is printed by portfolio/router/allocate.py."
   }
  ]
 }

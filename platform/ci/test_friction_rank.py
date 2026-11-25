@@ -70,6 +70,14 @@ def test_load_keeps_record_end_time(tmp_path):
     assert list(fr.load(tmp_path))[0][4] == "2026-11-13T10:00:00Z"
 
 
+def test_load_prefers_start_time(tmp_path):
+    # The session read the docs at its start; a fix merged mid-session answers it.
+    (tmp_path / "r.json").write_text(json.dumps({"date": "2026-11-25", "started": "2026-11-25T06:30:00Z",
+                                                 "ended": "2026-11-25T08:09:00Z",
+                                                 "doc_friction": [{"file": "a.py", "issue": "slow thing"}]}))
+    assert list(fr.load(tmp_path))[0][4] == "2026-11-25T06:30:00Z"
+
+
 def test_changes_drops_shallow_boundary(tmp_path):
     (tmp_path / ".git").mkdir()
     (tmp_path / ".git" / "shallow").write_text("b" * 40 + "\n")
@@ -378,3 +386,23 @@ def test_live_lists_hinted_rows_after_the_others(tmp_path, capsys, monkeypatch):
     assert [c["file"] for c in out] == ["b.md", "a.md"] and out[1]["fixes"][0][1] == "abc123"
     assert fr.main(base + ["--live"]) == 0
     assert "edited since by a fix commit: 2026-11-12 abc123 process: shorter done list" in capsys.readouterr().out
+
+
+def test_confirmations_are_not_friction():
+    for ok in ["add_repo + one clone of private-monorepo worked first time (under a minute); the guide was accurate.",
+               "bare python3 lacks numpy; pyenv.py returned /usr/bin/python3.13 at once, as documented.",
+               "Accurate: add_repo + one inline clone worked first time and register_repo_root was not needed."[:40]]:
+        assert fr.is_confirmation(ok), ok
+    for real in ["add_repo succeeded but the clone was refused by the classifier",
+                 "Worked as documented, but the note could name photo-editing too",
+                 "The 'clone refused' warning didn't apply; worth a line",
+                 "Asks for a site build (7-20 min); skipped it, no friction otherwise.",
+                 "slow test suite"]:
+        assert not fr.is_confirmation(real), real
+
+
+def test_load_skips_confirmations(tmp_path):
+    (tmp_path / "r.json").write_text(json.dumps({"date": "2026-11-25", "doc_friction": [
+        {"file": "a.md", "issue": "add_repo + one clone worked first time as documented; no friction"},
+        {"file": "a.md", "issue": "migration numbers collide between parallel runs"}]}))
+    assert [e[3] for e in fr.load(tmp_path)] == ["migration numbers collide between parallel runs"]
