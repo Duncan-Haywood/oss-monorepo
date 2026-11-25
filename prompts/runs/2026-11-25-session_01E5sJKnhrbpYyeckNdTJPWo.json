@@ -57,7 +57,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Security queue empty (security_next exit 3); ideas inbox empty; routed process/2. main_health 326/326 on main. Tests: python3 -m unittest discover -s prompts 147 OK; promptctl validate ok; risk_review --base origin/main nothing blocked. Manual: redteam.py targets --under ventures/pay-app-guides --fresh -> 11 guarded files, 8 already mutated skipped, 0.7 s; mutated_before() = 559 files. No backlog ids touched.",
+  "notes": "Security queue empty (security_next exit 3); ideas inbox empty; routed process/2. main_health 326/326 on main. Tests: python3 -m unittest discover -s prompts 147 OK; promptctl validate ok; risk_review --base origin/main nothing blocked. Manual: redteam.py targets --under ventures/pay-app-guides --fresh -> 11 guarded files, 8 already mutated skipped, 0.7 s; mutated_before() = 559 files. No backlog ids touched. The cloud-session.md allocate.py path fix collided with an identical fix a sibling merged first; main's wording kept, so this PR ships the redteam --fresh flag and the quality prompt pointer.",
   "corrections": [],
   "redteam": null,
   "usage": {

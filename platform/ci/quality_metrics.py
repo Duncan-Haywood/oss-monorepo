@@ -31,6 +31,7 @@ import json
 import random
 import re
 import statistics
+import time
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -936,18 +937,34 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
             import sys
             print("(open-PR search failed: rows below may already have a PR in flight; search open PRs by subject)",
                   file=sys.stderr)
-        if prs:  # rows an open PR already names go last, so the top row is one nobody has claimed
-            rows.sort(key=lambda r: (SEV_RANK[r["severity"]], bool(prs_naming(r["subject"], prs))))
+        claims: dict = {}
+        if not getattr(args, "no_prs", False):
+            import quality_claim
+            got = quality_claim.live_claims()
+            if got is None:
+                import sys
+                print("(claim-branch read failed: another session may hold a row below)", file=sys.stderr)
+            claims = got or {}
+
+        def held(r):
+            return quality_claim.subject_slug(r["subject"]) in claims if claims else False
+        if prs or claims:  # rows an open PR names or a session claimed go last, so the top row is free
+            rows.sort(key=lambda r: (SEV_RANK[r["severity"]], bool(prs_naming(r["subject"], prs or [])) or held(r)))
         if seed:
             print(f"seed {seed}  (subjects shuffled within a severity so parallel fix sessions spread out;"
                   f" --seed {seed} repeats this order, --oldest-first gives the fixed one)")
         in_flight = 0
+        now = time.time()
         for r in rows[: args.limit]:
             print(f"[{r['severity']}] {r['subject']} ({r['audit']}#{r['index']}, {r['category']}): {r['what'][:200]}")
             naming = prs_naming(r["subject"], prs or [])
             if naming:
                 in_flight += 1
                 print("    open PR naming it: " + "; ".join(f"#{n} {t[:80]}" for n, t in naming[:3]))
+            elif held(r):
+                in_flight += 1
+                ts, msg = claims[quality_claim.subject_slug(r["subject"])]
+                print(f"    claimed {max(0, int((now - ts) / 60))} min ago by another session: {msg[:90]}")
             if getattr(args, "no_git", False):
                 continue
             key = (r["subject"], r["audit"])
@@ -963,8 +980,10 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
                 print(f"    changed since audit: unknown ({c['why']})")
         print(f"{len(rows)} open defects at {args.severity} or worse (no fix PR recorded; source-only left out)")
         if in_flight:
-            print(f"{in_flight} shown already have an open PR naming the subject: extend or wait for that PR,"
-                  " or pick another row (a fix PR that has not merged is not yet in fix_prs)")
+            print(f"{in_flight} shown already have an open PR naming the subject or a live claim: extend or wait for"
+                  " that PR, or pick another row (a fix PR that has not merged is not yet in fix_prs)")
+        print("Before fixing a row: `python3 platform/ci/quality_audit.py claim <subject>` (exit 4: another session"
+              " has it, take the next row)")
         if changed:
             print(f"{changed} shown sit under a subject changed since its audit: check whether a commit already fixed"
                   " it, and if so record that PR in the audit's fix_prs (and the defect's fixed_by) instead of fixing"

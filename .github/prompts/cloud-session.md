@@ -55,7 +55,7 @@ error), that is final for this session: do not retry, reword, or reach the
 code another way (MCP file tools, a different URL). Of the 42 run records
 from 2026-11-25 that mention private-monorepo, 28 hit this refusal; the ones
 that re-planned fast still shipped. Go straight to the bet's public side here
-(prompt.md, step 1), on a surface the bet's row in `python3 portfolio/router/allocate.py` lists under
+(prompt.md, step 1), on a surface the bet's `portfolio/router/allocate.py` row lists under
 "none on" (its `[bet N live PRs: ...]` note reads open PR titles against the
 row's `front_door:`): on 2026-11-25 four parallel runs landed in
 pay-app-guides within the hour and conflicted on its shared lists. Say
@@ -123,10 +123,12 @@ the process list for the script's own name: it matches itself and never ends.
 
 ## Outbound hosts
 
-Egress is a per-environment allow-list (irs.gov, ssa.gov, OPSD/ENTSO-E,
-arxiv.org, sometimes huggingface.co 403). Probe once:
-`curl -sS -o /dev/null -m 15 -w '%{http_code}\n' https://<host>/`; a proxy 403
-is not the site's answer. Say in the PR or run record which figure could not be
+Egress is a per-environment allow-list: one session reaches ecfr.gov, the next
+gets a proxy 403 for every .gov host. Probe once, all at once:
+`python3 platform/ci/egress_probe.py [word|URL ...]` (under a second) says which
+hosts answer and, for a blocked one, the fallback another run verified (FAR and
+DFARS clauses: GSA's source files on raw.githubusercontent.com). Add a host you
+probed by hand to `platform/ci/egress_hosts.json`. A proxy 403 is not the site's answer. Say in the PR or run record which figure could not be
 checked, never cite from memory (`goals.md`). Proxy state:
 `curl -sS "$HTTPS_PROXY/__agentproxy/status"`.
 
