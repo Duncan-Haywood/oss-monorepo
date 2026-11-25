@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01EhTJVQ3CQUf11j8Gv1CkQq",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T17:56:35Z",
+  "ended": "2026-11-25T18:09:50Z",
+  "wall_minutes": 13.38,
+  "tokens_in": 13661678,
+  "tokens_out": 48170,
+  "cost_usd": 5.0197,
+  "tool_calls": 103,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19049",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Every legislature host (wyoleg.gov, leginfo, Justia) refused by the proxy with CONNECT 403, so all statute-fetch roadmap items were blocked",
+    "roadmap_claim --claim 5 (attachments-part-4) lost to a parallel run 0 min earlier; picked another item"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "apps/payapps/ROADMAP.md (private)",
+      "issue": "Wyoming entry said the preliminary notice is due 'within 30 days of first work' with no source in the repo; removed rather than repeated"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-25-which-states-make-you-use-their-lien-waiver-form.md (extended)",
+    "docs/reports/ventures-2026-11-25-payapps-wy-preliminary-notice.md"
+  ],
+  "goal": null,
+  "notes": "Private PR 138 merged: Wyoming preliminary notice (W.S. 29-10-101(a)) printed from the job page, verbatim from the snapshot, with the blank waiver attached; wrapText line-break fix. Local verification (private CI has no runner): lien-waivers 205/205, payapps unit 491/491, worker 269/269 (re-run after the wrapText fix), typecheck/build/biome clean; after merging private main (#137), typecheck clean and notices+waivers worker 24/24. PDF rendered with poppler and inspected.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d15c014a-136c-5d09-b1f1-f0153ba1bf6e",
+    "transcripts": 1,
+    "first": "2026-11-25T17:56:35Z",
+    "last": "2026-11-25T18:09:57Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 98,
+        "input": 189,
+        "output": 48170,
+        "thinking": 9249,
+        "cache_read": 13491837,
+        "cache_write_5m": 0,
+        "cache_write_1h": 169652,
+        "api_equivalent_usd": 5.0197,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 98,
+      "input": 189,
+      "output": 48170,
+      "thinking": 9249,
+      "cache_read": 13491837,
+      "cache_write_5m": 0,
+      "cache_write_1h": 169652,
+      "api_equivalent_usd": 5.0197,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 103,
+    "tools": {
+      "Bash": 93,
+      "Write": 3,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Read": 1,
+      "Monitor": 1,
+      "ToolSearch": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.38,
+      "active_minutes": 13.38,
+      "model_minutes": 8.07,
+      "tool_minutes": 5.3,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "statutory notice encoding with verbatim tests, API route, UI panel, PDF layout refactor",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 119.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
