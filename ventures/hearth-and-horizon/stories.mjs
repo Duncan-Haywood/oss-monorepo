@@ -351,7 +351,7 @@ ${markdownToHtml(story.body)}
 </section>`;
   return page({
     title: storyTitle(story, shelf, Boolean(a)),
-    description: metaDescription(story.summary),
+    description: metaDescription(story.description || story.summary), // optional short front-matter line wins
     canonical: storyUrl(story),
     image: `${SITE}${coverPath(shelf.id)}`,
     jsonLd,
