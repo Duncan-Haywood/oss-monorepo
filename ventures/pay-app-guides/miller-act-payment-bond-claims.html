@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b51'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Miller Act Payment Bond Claims and Deadlines</title>
+  <meta name="description" content="Not paid on a federal job? Who can claim on the Miller Act payment bond, the 90-day notice, the one-year suit limit, and a notice to the prime you can copy.">
+  <meta property="og:title" content="Miller Act payment bond claims: who can claim, the 90-day notice and the one-year limit">
+  <meta property="og:description" content="A free deadline calculator for subcontractors and suppliers on federal construction jobs, from the text of 40 U.S.C. 3133 and FAR 28.102-1, with a draft notice to the prime contractor. Runs in the browser.">
+  <link rel="canonical" href="./miller-act-payment-bond-claims.html">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    #letter { white-space: pre-wrap; }
+  </style>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Miller Act payment bond claims: who can claim, the 90-day notice and the one-year limit", "datePublished": "2026-11-25", "dateModified": "2026-11-25"}</script>
+</head>
+<body>
+<header>
+  <p class="kicker">Pay app guides · <a href="./">schedule of values calculator</a></p>
+  <h1>Miller Act payment bond claims: who can claim, the 90-day notice and the one-year limit</h1>
+  <p>On a federal construction job you cannot put a mechanic's lien on the building: it is government property. What protects subcontractors and suppliers instead is the <strong>payment bond</strong> the prime contractor must furnish under the Miller Act (now 40 U.S.C. 3131 to 3134). The bond pays if the prime or a subcontractor does not, but only for claimants in the right tier and only if two deadlines are met. This page works out both from the date you last worked or delivered, and drafts the notice a second-tier claimant has to send.</p>
+  <nav class="guides" aria-label="Guides">
+    <a href="prompt-payment-laws.html">Prompt payment laws by state</a>
+    <a href="paid-short.html">Paid short? Reconcile the check</a>
+    <a href="joint-checks.html">Joint checks</a>
+    <a href="conditional-vs-unconditional-lien-waivers.html">Conditional vs unconditional lien waivers</a>
+  </nav>
+</header>
+<main>
+<section class="card" id="calculator">
+  <h2>Your deadlines</h2>
+  <p>Enter the last day you performed labor or supplied material under your contract on this job. Your entries stay in this browser tab.</p>
+  <p><button type="button" class="secondary" id="sample">Load the example</button></p>
+  <div class="grid">
+    <div><label for="tier">Who did you contract with?</label><select id="tier">
+      <option value="second">One of the prime's subcontractors</option>
+      <option value="first">The prime contractor directly</option>
+      <option value="remote">A sub-subcontractor or further down</option>
+      <option value="prime">I am the prime contractor</option>
+    </select></div>
+    <div><label for="last-day">Last day of labor or material (YYYY-MM-DD)</label><input id="last-day" placeholder="2026-03-02"></div>
+    <div><label for="today">Today (YYYY-MM-DD)</label><input id="today"></div>
+    <div><label for="contract">Prime contract value ($, if known)</label><input id="contract" inputmode="decimal"></div>
+  </div>
+  <div id="errors" aria-live="polite"></div>
+  <div id="result" aria-live="polite"></div>
+
+  <h3>Notice to the prime contractor (second tier)</h3>
+  <p>The statute asks the notice to state the amount claimed "with substantial accuracy" and the name of the party you furnished material to or did the labor for. Fill these in for a draft.</p>
+  <div class="grid">
+    <div><label for="claimant">Your company</label><input id="claimant"></div>
+    <div><label for="furnished-to">Subcontractor you worked for</label><input id="furnished-to"></div>
+    <div><label for="prime">Prime contractor</label><input id="prime"></div>
+    <div><label for="amount">Amount unpaid ($)</label><input id="amount" inputmode="decimal"></div>
+    <div><label for="project">Project</label><input id="project"></div>
+    <div><label for="contract-no">Federal contract number</label><input id="contract-no"></div>
+  </div>
+  <p id="letter" class="note"></p>
+  <p><button type="button" id="copy" disabled>Copy the notice</button></p>
+  <p class="note">The example: a drywall sub-subcontractor (second tier) that last worked on 2 March 2026 on a $2.4M federal clinic contract. Its 90-day notice must reach the prime by 31 May 2026; it may sue from 1 June 2026 and must sue by 2 March 2027. This is a draft, not legal advice: have an attorney look at it before you rely on it, above all if a date is close.</p>
+</section>
+
+<section class="card">
+  <h2>Who can claim on the bond</h2>
+  <ul>
+    <li><strong>First tier: you contracted with the prime.</strong> A subcontractor or supplier to the prime may bring an action on the bond if it has not been paid in full within 90 days after its last labor or material (40 U.S.C. 3133(b)(1)). No notice is required by the statute.</li>
+    <li><strong>Second tier: you contracted with one of the prime's subcontractors.</strong> You may claim too, but only "on giving written notice to the contractor within 90 days" from your last labor or material (3133(b)(2)).</li>
+    <li><strong>Further down: you contracted with a sub-subcontractor.</strong> Not covered. In <a href="https://www.law.cornell.edu/supremecourt/text/434/586" rel="noopener">J.W. Bateson Co. v. United States ex rel. Board of Trustees, 434 U.S. 586 (1978)</a> the Supreme Court held that "subcontractor" in the Act means one who contracts with the prime, so a sub-subcontractor's own subs and employees have no bond claim.</li>
+    <li><strong>The prime.</strong> The bond protects people who work for the prime; the prime's own disputes with the government go through its contract.</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2>The two deadlines, in the statute's words</h2>
+  <ul>
+    <li><strong>90-day notice (second tier only).</strong> Written notice to the prime "within 90 days from the date on which the person did or performed the last of the labor or furnished or supplied the last of the material for which the claim is made." It is served "by any means that provides written, third-party verification of delivery" to any place the prime keeps an office or does business, or its residence, or as a U.S. marshal may serve a summons (3133(b)(2)). Certified mail with a return receipt or a courier that records a signature are the usual ways to get that verification.</li>
+    <li><strong>One-year limit (everyone).</strong> The action "must be brought no later than one year after the day on which the last of the labor was performed or material was supplied" (3133(b)(4)). It is filed in the name of the United States for your use, in the federal district court where the contract was performed, whatever the amount (3133(b)(3)).</li>
+    <li><strong>The earliest date.</strong> You may sue once you have "not been paid in full within 90 days after" your last day (3133(b)(1)), so the calculator shows day 91.</li>
+  </ul>
+  <p>How we count: 90 calendar days starting the day after your last day, and the one-year date as the same calendar date next year (29 February becomes 28 February, the earlier date). Courts have not all counted the same way, and the "last day" is often argued over: do not count on punch-list, warranty or correction work to move the date later. Send the notice and file well before either date.</p>
+</section>
+
+<section class="card">
+  <h2>Getting the bond, and keeping your rights</h2>
+  <ul>
+    <li><strong>Get a copy of the bond.</strong> The contracting agency must give a certified copy of the payment bond and the contract to anyone who submits an affidavit that it supplied labor or material and has not been paid (3133(a)). The bond names the surety, which is who pays the claim. Many claimants send the surety a copy of the notice and the backup at the same time.</li>
+    <li><strong>Which jobs have a bond.</strong> The statute sets the bond above $100,000 (40 U.S.C. 3131(b)); the FAR, as adjusted, requires performance and payment bonds on construction contracts above <strong>$150,000</strong>. Between $35,000 and $150,000 the contracting officer picks two or more payment protections (a payment bond, an irrevocable letter of credit, a tripartite escrow, certificates of deposit or other security) and the prime furnishes one (<a href="https://www.acquisition.gov/far/28.102-1" rel="noopener">FAR 28.102-1</a>, FAC 2026-01, effective 13 March 2026).</li>
+    <li><strong>Waivers signed in advance are void.</strong> A waiver of the right to sue on the bond counts only if it is in writing, signed by you, and signed <em>after</em> you furnished labor or material (3133(c)). A subcontract clause signed before you started does not take the right away. A lien waiver you sign later for a payment can still limit your claim for what it covers, so give one only for money that has cleared (<a href="conditional-vs-unconditional-lien-waivers.html">conditional vs unconditional</a>, <a href="paid-short.html">paid short</a>).</li>
+    <li><strong>State and local public jobs are different.</strong> States have their own bond laws ("little Miller Acts") with their own notice periods and limits. This page covers federal jobs only.</li>
+  </ul>
+  <p class="note">Sources, read 2026-11-25: <a href="https://www.law.cornell.edu/uscode/text/40/3133" rel="noopener">40 U.S.C. 3133</a> and <a href="https://www.law.cornell.edu/uscode/text/40/3131" rel="noopener">40 U.S.C. 3131</a> (Cornell LII, checked against the <a href="https://www.govinfo.gov/content/pkg/USCODE-2023-title40/html/USCODE-2023-title40-subtitleII-partA-chap31-subchapIII.htm" rel="noopener">govinfo.gov 2023 edition</a>; last amended 2006), <a href="https://www.acquisition.gov/far/28.102-1" rel="noopener">FAR 28.102-1</a> on acquisition.gov, and the Bateson opinion on Cornell LII.</p>
+</section>
+
+<section class="card cta" id="early-access">
+  <h2>Federal job deadlines tracked per job</h2>
+  <p>We are building hosted pay-app billing for specialty subcontractors. Each job keeps its pay applications, payments and lien waivers, and the cash report shows which money is late, so the last day of work and what is still unpaid are already on file when a bond notice is due. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
+</section>
+</main>
+<!-- all-guides: generated by nav.mjs, do not edit by hand -->
+<nav class="all-guides" aria-label="All pay app tools and guides">
+    <div>
+      <h2>Tools</h2>
+      <ul>
+      <li><a href="./">Schedule of values calculator</a></li>
+      <li><a href="pay-application-checker.html">Pay app checker (this month vs last)</a></li>
+      <li><a href="change-order-log.html">Change order log</a></li>
+      <li><a href="schedule-of-values-template.html">Free Excel SOV template</a></li>
+      <li><a href="front-loading-schedule-of-values.html">Front-loading check (balanced SOV)</a></li>
+      <li><a href="pay-if-paid-clauses.html">Pay-if-paid clause reader</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Billing guides</h2>
+      <ul>
+      <li><a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a></li>
+      <li><a href="change-orders-schedule-of-values.html">Change orders and the SOV</a></li>
+      <li><a href="stored-materials-billing.html">Billing stored materials</a></li>
+      <li><a href="overbilling-underbilling.html">Overbilling and underbilling</a></li>
+      <li><a href="retainage-explained.html">Retainage explained, with state caps</a></li>
+      <li><a href="retainage-release.html">Getting retainage released</a></li>
+      <li><a href="retainage-in-quickbooks.html">Retainage in QuickBooks</a></li>
+      <li><a href="retainage-tracker.html">Retainage tracker (every job)</a></li>
+      <li><a href="pay-application-software-compared.html">Pay app software compared</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Getting paid and lien waivers</h2>
+      <ul>
+      <li><a href="prompt-payment-laws.html">Prompt payment laws by state</a></li>
+      <li><a href="conditional-vs-unconditional-lien-waivers.html">Conditional vs unconditional lien waivers</a></li>
+      <li><a href="lien-waiver-forms-by-state.html">Lien waiver forms by state</a></li>
+      <li><a href="lien-waiver-log.html">Lien waiver log (given and collected)</a></li>
+      <li><a href="sworn-statement.html">Contractor's sworn statement builder</a></li>
+      <li><a href="paid-short.html">Paid short? Reconcile the check</a></li>
+      <li><a href="joint-checks.html">Joint check splitter and split letter</a></li>
+      <li><a href="miller-act-payment-bond-claims.html" aria-current="page">Miller Act bond claim deadlines (federal jobs)</a></li>
+      <li><a href="pay-app-cash-forecast.html">When will I get paid? Cash forecast</a></li>
+      </ul>
+    </div>
+</nav>
+<!-- /all-guides -->
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, or financial advice, and it does not replace your contract, your accountant, or an attorney. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Privacy.</strong> Everything runs in your browser; nothing you type is uploaded. No accounts, cookies or analytics vendors. Anonymous counters (<code>guide_miller_act_viewed</code>, <code>miller_act_dated</code>, <code>miller_act_notice_copied</code>) are kept in local storage on your device only, never with your entries, and Do Not Track switches them off. <button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
+</footer>
+<script type="module">
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  import { isoDate, millerDeadlines, noticeLetter } from "./millerbond.mjs";
+  record("guide_miller_act_viewed");
+  const b = document.getElementById("optout");
+  b.addEventListener("click", () => { setUsageOptOut(true); b.textContent = "Usage counting is off"; b.disabled = true; });
+  if (usageOptedOut()) { b.textContent = "Usage counting is off"; b.disabled = true; }
+
+  const $ = (id) => document.getElementById(id);
+  const now = new Date();
+  $("today").value = isoDate(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  let letter = "", counted = false;
+  const PILL = { past: ["high", "passed"], today: ["high", "today"], soon: ["high", "soon"], open: ["", "open"] };
+  const para = (text, cls = "finding") => { const p = document.createElement("p"); p.className = cls; p.textContent = text; return p; };
+  const when = (label, s) => {
+    const p = document.createElement("p"); p.className = "finding";
+    const [pill, word] = PILL[s.state];
+    const span = document.createElement("span"); span.className = `pill ${pill}`; span.textContent = word;
+    const left = s.daysLeft < 0 ? `${-s.daysLeft} days ago` : s.daysLeft === 0 ? "today" : `${s.daysLeft} days left`;
+    p.append(span, `${label}: ${s.date} (${left})`); return p;
+  };
+  function render() {
+    const r = millerDeadlines({ tier: $("tier").value, lastDay: $("last-day").value, today: $("today").value, contract: $("contract").value });
+    const out = [];
+    if (!$("last-day").value.trim()) { $("errors").replaceChildren(); $("result").replaceChildren(); }
+    else {
+      $("errors").replaceChildren(...r.errors.map((e) => para(e, "err")));
+      if (!r.errors.length) {
+        if (r.notice) out.push(when("Written notice must reach the prime by", r.notice));
+        if (r.covered) { out.push(para(`Earliest day to file suit on the bond: ${r.suitFrom}`)); out.push(when("Suit must be filed by", r.suitBy)); }
+        if (r.bond) out.push(para(r.bond, "note"));
+        for (const n of r.notes) out.push(para(n, "note"));
+        if (!counted) { record("miller_act_dated"); counted = true; }
+      }
+      $("result").replaceChildren(...out);
+    }
+    letter = $("tier").value === "second" ? noticeLetter({ claimant: $("claimant").value, prime: $("prime").value, furnishedTo: $("furnished-to").value, project: $("project").value, contractNo: $("contract-no").value, amount: $("amount").value, lastDay: $("last-day").value.trim(), today: $("today").value.trim() }) : "";
+    $("letter").textContent = letter || ($("tier").value === "second" ? "Fill in your company, the subcontractor, the prime, the amount and the last day for a draft." : "Only a second-tier claimant has to send this notice.");
+    $("copy").disabled = !letter;
+  }
+  for (const id of ["tier", "last-day", "today", "contract", "claimant", "furnished-to", "prime", "amount", "project", "contract-no"]) $(id).addEventListener("input", render);
+  $("sample").addEventListener("click", () => {
+    $("tier").value = "second"; $("last-day").value = "2026-03-02"; $("today").value = "2026-04-01"; $("contract").value = "2,400,000";
+    $("claimant").value = "Ridge Drywall LLC"; $("furnished-to").value = "Atlas Interiors"; $("prime").value = "Harbor Builders Inc."; $("amount").value = "18,450.00"; $("project").value = "VA outpatient clinic"; $("contract-no").value = "";
+    render();
+  });
+  $("copy").addEventListener("click", async () => {
+    if (!letter) return;
+    try { await navigator.clipboard.writeText(letter); $("copy").textContent = "Copied"; record("miller_act_notice_copied"); }
+    catch { $("copy").textContent = "Copy failed: select the text and copy it"; }
+  });
+  render();
+</script>
+</body>
+</html>
