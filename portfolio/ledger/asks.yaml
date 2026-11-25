@@ -92,6 +92,31 @@
 
 decisions:
 
+- id: private-actions-billing
+  asks: []
+  prs: []
+  gates: deployment
+  exposure: credential
+  opened: "2026-11-25"
+  action: >-
+    GitHub Actions in Duncan-Haywood/private-monorepo starts no jobs: every
+    run since at least 2026-11-24 23:52Z ends with no runner and GitHub's
+    annotation "The job was not started because recent account payments have
+    failed or your spending limit needs to be increased." Fix the payment
+    method or raise the Actions spending limit under GitHub Settings ->
+    Billing and plans. Private repositories use metered minutes; this public
+    repository does not. Remove this row once a private-monorepo run gets a
+    runner.
+  unlocks:
+    - >-
+      Every deploy of the paid apps (grants-deploy has not run), and with it
+      the Paddle catalog sync from private-monorepo#36; plus CI on every
+      private PR, which agents now verify locally instead.
+  blocked_by: []
+  note: >-
+    Found 2026-11-25 on Duncan-Haywood/private-monorepo#36: runner_id 0 and
+    zero steps on all jobs. Needs a card or billing setting, so it is the
+    owner's.
 - id: payout-rail
   asks: [2]
   prs: []
@@ -101,7 +126,7 @@ decisions:
   action: >-
     **Rail open 2026-11-24: Paddle** (owner: "we have payment rails thorugh
     paddle now"). Products and prices are code since 2026-11-25
-    (Duncan-Haywood/private-monorepo#36): each app commits a catalog file and
+    (Duncan-Haywood/private-monorepo#36, merged): each app commits a catalog file and
     its production deploy creates them in Paddle with the key already in
     Actions secrets, then reads the price ids back. What is left is yours,
     once per account, not per product: (1) Paddle account verification (the
