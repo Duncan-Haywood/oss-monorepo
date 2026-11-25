@@ -71,6 +71,27 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+          filter: blob:none
+          # Sparse and blob-less: the builder reads ventures/ and platform/;
+          # research/, docs/, prompts/ and media it never ships are not
+          # fetched (507 MB on disk instead of 2.3 GB). A venture link into a
+          # skipped path is still repointed at the repository, because
+          # build_pages_site.py asks git's index when the disk has no such
+          # file. Built site byte-identical to a full checkout
+          # (docs/history/ci-perf-2026-11-25-pages-site-build-sparse.md).
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/research/
+            !/docs/
+            !/prompts/
+            !*.mp3
+            !*.mp4
+            !*.gz
+            !*.zip
+            !*.step
+            !*.stl
+            !*.ttf
 
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
