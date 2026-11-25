@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "_comment": "Accepted findings for platform/security/scan/scan.py. Each entry needs a reason (scan.py refuses the file otherwise). Match by fingerprint (one finding) or by tool + rule (+ optional path glob). Secrets are accepted by fingerprint only. Review every entry when its tool is bumped; delete it once the finding is gone. How: README.md, 'Accepting a finding'.",
+  "accepted": [
+    {
+      "tool": "osv-scanner", "rule": "GHSA-84m7-p3x7-pcfv", "path": "platform/security/scan/requirements/semgrep.txt",
+      "reason": "mcp 1.29.0 is pinned exactly by semgrep 1.187.0 (no newer semgrep allows 1.30). The advisory is in the MCP StreamableHTTP server; `semgrep scan` never starts it. Recheck on the next semgrep bump.",
+      "added": "2026-11-25"
+    },
+    {
+      "tool": "osv-scanner", "rule": "GHSA-qx49-fqc8-xw99", "path": "platform/security/scan/requirements/semgrep.txt",
+      "reason": "mcp 1.29.0, pinned by semgrep; the OAuth client is part of `semgrep mcp`, which the scan does not run, and the scan holds no credentials.",
+      "added": "2026-11-25"
+    },
+    {
+      "tool": "osv-scanner", "rule": "GHSA-5h93-6whr-6q8j", "path": "platform/security/scan/requirements/semgrep.txt",
+      "reason": "mcp 1.29.0, pinned by semgrep; MCP HTTP client transports are not used by `semgrep scan`.",
+      "added": "2026-11-25"
+    },
+    {
+      "tool": "osv-scanner", "rule": "GHSA-rwrf-2pqf-9j8j", "path": "platform/security/scan/requirements/semgrep.txt",
+      "reason": "mcp 1.29.0, pinned by semgrep; MCP client schema validation is not used by `semgrep scan`.",
+      "added": "2026-11-25"
+    },
+    {
+      "tool": "osv-scanner", "rule": "GHSA-w4fh-qvv9-3v23", "path": "platform/security/scan/requirements/semgrep.txt",
+      "reason": "mcp 1.29.0, pinned by semgrep; MCP server bearer-token auth is not used by `semgrep scan`.",
+      "added": "2026-11-25"
+    },
+    {
+      "tool": "osv-scanner", "rule": "GHSA-mf5v-w3w3-f6cg", "path": "platform/security/scan/requirements/semgrep.txt",
+      "reason": "opentelemetry-api is held below 1.38 by semgrep 1.187.0. The scan runs with metrics and tracing off, and no outside traceparent header reaches it.",
+      "added": "2026-11-25"
+    },
+    {
+      "tool": "osv-scanner", "rule": "GHSA-xcq7-p3pf-p88h", "path": "platform/security/scan/requirements/semgrep.txt",
+      "reason": "opentelemetry-api, held below 1.38 by semgrep; no tracestate from outside reaches the scan.",
+      "added": "2026-11-25"
+    },
+    {
+      "tool": "osv-scanner", "rule": "GHSA-53pm-wgxf-c6qf", "path": "platform/security/scan/requirements/semgrep.txt",
+      "reason": "wcmatch is held below 9 by semgrep 1.187.0. The ReDoS needs untrusted names matched against multi-star patterns; the scan matches this repository's own paths against its own rules, and a slow match only slows CI (bounded by the job timeout).",
+      "added": "2026-11-25"
+    },
+    {
+      "tool": "osv-scanner", "rule": "GHSA-89v8-rhwq-hf77", "path": "platform/security/scan/requirements/checkov.txt",
+      "reason": "asteval 1.0.6 is pinned exactly by checkov 3.4.10. Checkov evaluates expressions from the IaC it scans; a sandbox escape needs a crafted file in a PR, and the scan job runs with read-only permissions and no secrets, so the worst case is a compromised throwaway runner. Recheck on the next checkov bump.",
+      "added": "2026-11-25"
+    },
+    {
+      "tool": "osv-scanner", "rule": "GHSA-9w56-46f6-3qhx", "path": "platform/security/scan/requirements/checkov.txt",
+      "reason": "asteval 1.0.6, pinned by checkov 3.4.10; same reasoning as GHSA-89v8-rhwq-hf77 (read-only, secret-free scan job).",
+      "added": "2026-11-25"
+    },
+    {
+      "tool": "osv-scanner", "rule": "GHSA-wj6h-64fc-37mp", "path": "platform/security/scan/requirements/checkov.txt",
+      "reason": "python-ecdsa Minerva timing attack: upstream has no fix and treats side channels as out of scope. Checkov does not sign anything with ECDSA during a scan, so no key is exposed.",
+      "added": "2026-11-25"
+    }
+  ],
+  "exclude_paths": []
+}

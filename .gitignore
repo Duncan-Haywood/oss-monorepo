@@ -69,3 +69,6 @@ ventures/shed-designer/shed-lumber-list-by-size.html
 ventures/shed-designer/.gallery-stamp
 .redteam/
 MUJOCO_LOG.TXT
+
+# platform/security/scan/scan.py output (findings JSON); CI uploads it as an artifact.
+.security-scan/

@@ -1,0 +1,164 @@
+# Local Semgrep rules for platform/security/scan (MIT, written for this repo).
+#
+# Why local rules and not `--config auto` / registry packs: the registry needs
+# network access the scan must not depend on (and cloud sessions cannot reach
+# semgrep.dev), registry rules change under us without a pin, and `auto` sends
+# metrics. CodeQL (.github/workflows/codeql.yml) covers the broad dataflow
+# queries; these rules catch the short, local patterns that review keeps
+# finding in this repository: shell injection, unsafe deserialisation, TLS
+# verification switched off, and code evaluation from strings.
+#
+# Severity: ERROR maps to high (blocks a PR), WARNING to medium, INFO to low.
+# Add a rule with a test case in test_scan.py's SemgrepRulesTest when you can.
+rules:
+  - id: py-subprocess-shell-true-dynamic
+    languages: [python]
+    severity: ERROR
+    message: >-
+      subprocess called with shell=True on a command built at runtime. Pass an
+      argument list and shell=False, or quote every value with shlex.quote.
+    patterns:
+      - pattern-either:
+          - pattern: subprocess.$F($CMD, ..., shell=True, ...)
+      - pattern-not: subprocess.$F("...", ..., shell=True, ...)
+      - pattern-not: subprocess.$F(["...", ...], ..., shell=True, ...)
+    metadata: {cwe: "CWE-78: OS command injection"}
+
+  - id: py-os-system-dynamic
+    languages: [python]
+    severity: ERROR
+    message: os.system / os.popen with a command built at runtime. Use subprocess with an argument list.
+    patterns:
+      - pattern-either:
+          - pattern: os.system($CMD)
+          - pattern: os.popen($CMD, ...)
+      - pattern-not: os.system("...")
+      - pattern-not: os.popen("...", ...)
+    metadata: {cwe: "CWE-78: OS command injection"}
+
+  - id: py-yaml-unsafe-load
+    languages: [python]
+    severity: ERROR
+    message: yaml.load without SafeLoader can build arbitrary objects. Use yaml.safe_load.
+    patterns:
+      - pattern-either:
+          - pattern: yaml.load($X)
+          - pattern: yaml.load($X, Loader=yaml.Loader)
+          - pattern: yaml.load($X, Loader=yaml.UnsafeLoader)
+          - pattern: yaml.load($X, Loader=yaml.FullLoader)
+          - pattern: yaml.unsafe_load(...)
+    metadata: {cwe: "CWE-502: Deserialization of untrusted data"}
+
+  - id: py-pickle-load
+    languages: [python]
+    severity: WARNING
+    message: >-
+      pickle/marshal/shelve load runs code from the data. Only load files this
+      repository wrote itself; use JSON for anything that crosses a trust boundary.
+    pattern-either:
+      - pattern: pickle.load(...)
+      - pattern: pickle.loads(...)
+      - pattern: marshal.loads(...)
+      - pattern: shelve.open(...)
+    metadata: {cwe: "CWE-502: Deserialization of untrusted data"}
+
+  - id: py-tls-verify-disabled
+    languages: [python]
+    severity: ERROR
+    message: TLS certificate verification is switched off. Point the client at a CA bundle instead.
+    pattern-either:
+      - pattern: requests.$M(..., verify=False, ...)
+      - pattern: httpx.$M(..., verify=False, ...)
+      - pattern: ssl._create_unverified_context(...)
+      - pattern: $CTX.check_hostname = False
+      - pattern: urllib3.disable_warnings(...)
+    metadata: {cwe: "CWE-295: Improper certificate validation"}
+
+  - id: py-eval-exec-dynamic
+    languages: [python]
+    severity: WARNING
+    message: eval/exec of a string built at runtime. Parse the data (json, ast.literal_eval) instead.
+    patterns:
+      - pattern-either:
+          - pattern: eval($X)
+          - pattern: exec($X)
+      - pattern-not: eval("...")
+      - pattern-not: exec("...")
+    metadata: {cwe: "CWE-95: Eval injection"}
+
+  - id: py-tempfile-mktemp
+    languages: [python]
+    severity: WARNING
+    message: tempfile.mktemp is race-prone. Use NamedTemporaryFile or mkstemp.
+    pattern: tempfile.mktemp(...)
+    metadata: {cwe: "CWE-377: Insecure temporary file"}
+
+  - id: py-jwt-no-verify
+    languages: [python]
+    severity: ERROR
+    message: JWT decoded without verifying its signature.
+    pattern-either:
+      - pattern: jwt.decode(..., verify=False, ...)
+      - pattern: 'jwt.decode(..., options={..., "verify_signature": False, ...}, ...)'
+    metadata: {cwe: "CWE-347: Improper verification of cryptographic signature"}
+
+  - id: js-eval-dynamic
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: eval / new Function on a string built at runtime runs arbitrary code.
+    patterns:
+      - pattern-either:
+          - pattern: eval($X)
+          - pattern: new Function(...)
+      - pattern-not: eval("...")
+    metadata: {cwe: "CWE-95: Eval injection"}
+
+  - id: js-child-process-exec-dynamic
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: >-
+      child_process exec/execSync runs its argument through a shell. With a
+      runtime-built command use execFile/spawn with an argument array.
+    patterns:
+      - pattern-either:
+          - pattern: $CP.exec($CMD, ...)
+          - pattern: $CP.execSync($CMD, ...)
+          - pattern: exec(`...${$X}...`, ...)
+          - pattern: execSync(`...${$X}...`, ...)
+      - pattern-not: $CP.exec("...", ...)
+      - pattern-not: $CP.execSync("...", ...)
+      - metavariable-regex:
+          metavariable: $CP
+          regex: ^(child_process|cp|childProcess|require\(['"](node:)?child_process['"]\))$
+    metadata: {cwe: "CWE-78: OS command injection"}
+
+  - id: js-tls-reject-unauthorized-off
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: TLS certificate verification is switched off.
+    pattern-either:
+      - pattern: '{..., rejectUnauthorized: false, ...}'
+      - pattern: process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
+    metadata: {cwe: "CWE-295: Improper certificate validation"}
+
+  - id: js-document-write
+    languages: [javascript, typescript]
+    severity: INFO
+    message: document.write with runtime data is an XSS sink. Build DOM nodes or use textContent.
+    patterns:
+      - pattern: document.write($X)
+      - pattern-not: document.write("...")
+    metadata: {cwe: "CWE-79: Cross-site scripting"}
+
+  - id: sh-curl-pipe-shell
+    languages: [bash]
+    severity: WARNING
+    message: >-
+      A script fetched over the network is piped straight into a shell, so
+      nothing pins or checks what runs. Download, verify a checksum, then run.
+    pattern-either:
+      - pattern: curl ... | bash
+      - pattern: curl ... | sh
+      - pattern: wget ... | bash
+      - pattern: wget ... | sh
+    metadata: {cwe: "CWE-494: Download of code without integrity check"}

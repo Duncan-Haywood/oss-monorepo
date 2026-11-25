@@ -1,0 +1,50 @@
+{
+  "_comment": "Pinned scanners for platform/security/scan. Go tools: the module zip is fetched from the Go module proxy and its h1: hash must equal `sum` (the value sum.golang.org's transparency log holds for that version), then built from that exact source; dependencies are verified by the module's own go.sum. Python tools: installed with pip --require-hashes from requirements/<tool>.txt. Bump a version only together with its sum or lock file (README.md, 'Bumping a scanner').",
+  "go": {
+    "gitleaks": {
+      "module": "github.com/zricethezav/gitleaks/v8",
+      "version": "v8.30.1",
+      "sum": "h1:PmEvCfVI7ti9dV3s5aMZUY7sS2GxRvG3yzih7E+cS3w=",
+      "package": ".",
+      "ldflags": "-X github.com/zricethezav/gitleaks/v8/version.Version=v8.30.1"
+    },
+    "osv-scanner": {
+      "module": "github.com/google/osv-scanner/v2",
+      "version": "v2.7.1",
+      "sum": "h1:U7tpL4Gjajxb/laKd9Is1YswSZVu/mbLhReVlUpi57g=",
+      "package": "./cmd/osv-scanner",
+      "ldflags": ""
+    },
+    "trivy": {
+      "module": "github.com/aquasecurity/trivy",
+      "version": "v0.76.2",
+      "sum": "h1:RYBcQklHCFOHg/sfYSfe8v4/W5H2rAZrP5THPWY5F+A=",
+      "package": "./cmd/trivy",
+      "ldflags": "-X github.com/aquasecurity/trivy/pkg/version/app.ver=0.76.2"
+    },
+    "tofu": {
+      "module": "github.com/opentofu/opentofu",
+      "version": "v1.13.10",
+      "sum": "h1:bL6SS+VB/fUHMNZxIpTGD7luuq3FiESbwXSH04R5TOk=",
+      "package": "./cmd/tofu",
+      "ldflags": "-X github.com/opentofu/opentofu/version.dev=no"
+    }
+  },
+  "python": {
+    "semgrep": {
+      "version": "1.187.0",
+      "requirements": "requirements/semgrep.txt",
+      "bin": "semgrep"
+    },
+    "checkov": {
+      "version": "3.4.10",
+      "requirements": "requirements/checkov.txt",
+      "bin": "checkov"
+    },
+    "zizmor": {
+      "version": "1.33.1",
+      "requirements": "requirements/zizmor.txt",
+      "bin": "zizmor"
+    }
+  }
+}
