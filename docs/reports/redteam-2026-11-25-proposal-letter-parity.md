@@ -1,3 +1,8 @@
+---
+kind: note
+topics: [redteam]
+date: 2026-11-25
+---
 # Red team 2026-11-25: framing proposal letter (bidletter.mjs)
 
 Target: `ventures/wall-framing-takeoff/bidletter.mjs` (bet: construction, the customer proposal and the paid branded bid package built on `proposalHtml`).
