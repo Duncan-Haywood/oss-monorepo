@@ -597,7 +597,7 @@ def backlog_files_added(root: Path = ROOT) -> set[str] | None:
     event = os.environ.get("GITHUB_EVENT_NAME", "")
     if event == "push" and os.environ.get("GITHUB_REF") == "refs/heads/main":
         return set()
-    if event in ("pull_request", "pull_request_target"):
+    if event == "pull_request":
         return _git_names(repo, "HEAD^1", "HEAD")
     if not (repo / ".git").exists():
         return None
