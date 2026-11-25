@@ -49,6 +49,7 @@ const wholeDays = (raw, max = 365) => {
 const percent = (raw) => {
   const t = String(raw ?? "").trim().replace(/%$/, "").trim();
   if (t === "") return 0;
+  if (!/^\d+(\.\d+)?$/.test(t)) return null;
   const n = Number(t);
   return Number.isFinite(n) && n >= 0 && n <= 50 ? n : null;
 };

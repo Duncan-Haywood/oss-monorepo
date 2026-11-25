@@ -101,3 +101,20 @@ test("CSV output defuses spreadsheet formulas in descriptions", () => {
   const r = compute(log('1,"=HYPERLINK(1)",100,0,0,50,0,0,on site,yes'), SAMPLE_SETTINGS);
   assert.match(sovCsv(r), /'=HYPERLINK/);
 });
+
+// Red team 2026-11-25 (escaped mutants): a $0 line with work billed is over its value, and the
+// mostly-stored hint uses the line's value even when it is a single cent.
+test("zero-value line with billing is flagged; one-cent line still gets the stored-share hint", () => {
+  const r = compute(log("1,Extra,0,0,0,0,0,500,on site,yes"), SAMPLE_SETTINGS);
+  assert.ok(r.findings.some((f) => f.severity === "high" && /more than the scheduled value/.test(f.title)));
+  const c = compute(log("1,Tiny,0.01,0,0,0.01,0,0,on site,yes"), SAMPLE_SETTINGS);
+  assert.ok(c.findings.some((f) => /no work is billed yet/.test(f.title)));
+});
+
+// Red team 2026-11-25: "10 %" (a space before the sign) was refused while calc.mjs accepts it.
+test("retainage typed with a space before % is read", () => {
+  const r = compute(sampleLog(), { workRetainage: "10 %", storedRetainage: " 5 % " });
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.totals.workRate, 0.1);
+  assert.equal(r.totals.storedRate, 0.05);
+});

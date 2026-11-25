@@ -23,7 +23,7 @@ test("every page carries the no-warranty clause, sponsor link, opt-out and hones
 });
 
 test("no page sends anything anywhere or loads remote scripts", () => {
-  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "retlog.mjs", "billing.mjs", "check.mjs", "waivers.mjs", "sworn.mjs", "stored.mjs", "shortpay.mjs", "forecast.mjs", "usage.mjs"]) {
+  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "retlog.mjs", "billing.mjs", "check.mjs", "waivers.mjs", "sworn.mjs", "stored.mjs", "shortpay.mjs", "frontload.mjs", "forecast.mjs", "usage.mjs"]) {
     const src = page(name);
     assert.doesNotMatch(src, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/, name);
     assert.doesNotMatch(src, /<script[^>]+src=["']https?:/, name);

@@ -39,7 +39,8 @@ function mapHeaders(row) {
 }
 
 const pct = (s, fallback) => {
-  const t = String(s ?? "").trim().replace(/%$/, "");
+  // "10", "10%" and "10 %" all read as 10% (calc.mjs toRate accepts the same).
+  const t = String(s ?? "").trim().replace(/\s*%$/, "");
   if (t === "") return fallback;
   return /^\d+(\.\d+)?$/.test(t) ? Number(t) / 100 : null;
 };
