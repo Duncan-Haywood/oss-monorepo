@@ -5,6 +5,7 @@
 //   env.push         { register(platform, token), send(userSub, message) } (SNS mobile push)
 //   env.secret(name) a Secrets Manager value, cached per container (name must be granted to the app)
 //   env.VARS         plain JSON config from the module's `vars` (no secrets)
+//   env.AUTH         { issuer, domain, webClientId }: public Cognito values for the app's sign-in page
 import { getPool } from "./pg.mjs";
 import { D1Shim } from "./d1.mjs";
 import { claimsOf } from "./adapter.mjs";
@@ -21,6 +22,8 @@ export async function makeEnv(event, deps = {}, procEnv = process.env) {
   const env = {
     PRODUCT: product,
     VARS: JSON.parse(procEnv.APP_VARS || "{}"),
+    // Public Cognito values for a sign-in page (hosted sign-in with code + PKCE; nothing secret).
+    AUTH: { issuer: procEnv.COGNITO_ISSUER || null, domain: procEnv.COGNITO_DOMAIN || null, webClientId: procEnv.COGNITO_WEB_CLIENT_ID || null },
     pg: pool,
     DB: new D1Shim(pool),
     user,
