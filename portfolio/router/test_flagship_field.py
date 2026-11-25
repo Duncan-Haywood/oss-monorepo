@@ -907,6 +907,33 @@ def test_history_on_buildable_not_found_names_the_field(tmp_path, capsys):
     assert not (tmp_path / "ventures" / "a" / "HISTORY.md").exists()
 
 
+def test_named_history_refuses_a_piece_with_its_own_open_step(tmp_path, capsys):
+    # 2026-11-23 (PR #18387's record): a named --history moved a result and
+    # its "; next ..." step to HISTORY.md, re-parked in NEXT.md by hand.
+    res = ("Risk run levelled 2026-11-22 (--levelled; eval/risk-levelled-2026-11-22.md)")
+    piece = res + "; next a commercial tool's levelled risk run to compare"
+    f, extra = _row(tmp_path, "History: README. Next: a; " + piece + "; b.")
+    before = f.read_text()
+    assert ff.main(["a", "--history", piece] + extra) == 1
+    err = capsys.readouterr().err
+    assert "is open work" in err and "--history " + ff.shlex.quote(res) in err
+    assert f.read_text() == before
+    assert not (tmp_path / "ventures" / "a" / "HISTORY.md").exists()
+    (tmp_path / "b").mkdir()
+    g, extra = _buildable(tmp_path / "b", "X passed 2026-11-20. Open: Y.")
+    assert ff.main(["a", "--field", "buildable", "--history", "X passed 2026-11-20. Open: Y"]
+                   + extra) == 1
+
+
+def test_open_tail_spares_finished_results():
+    for done in ("Kodak DCR 2026-11-18 = LibRaw (eval/kodak-dcr-*)", "R done",
+                 "next-gen reader shipped 2026-11-20 (a.mjs)",
+                 "SS/FF/SF oracle 2026-11-22 (2 faults fixed, open-source check)"):
+        assert ff.open_tail(done) == -1, done
+    assert ff.open_tail("Cards 2026-11-21 (discipline.mjs; next: a real league's cards)") > 0
+    assert ff.open_tail("officials 2026-11-20 (README), next a real league's referees") > 0
+
+
 def test_refusal_names_history_flags(tmp_path, capsys):
     # every item is a result or the run's own text, so nothing can be parked
     # undated results before the open marker: never parked, never auto-moved
