@@ -37,6 +37,7 @@ Usage (in Actions; GITHUB_TOKEN and GITHUB_REPOSITORY come from the runner):
 from __future__ import annotations
 
 import argparse
+from collections import Counter
 import json
 import os
 import shutil
@@ -74,6 +75,7 @@ def summarise(alert: dict) -> dict:
         "message": message[:MESSAGE_CHARS],
         "created": str(alert.get("created_at") or "")[:10],
         "url": str(alert.get("html_url") or ""),
+        "commit": str(inst.get("commit_sha") or "")[:12],
     }
 
 
@@ -89,9 +91,14 @@ def alert_file(s: dict) -> str:
         f"- Finding: {s['message']}",
         f"- Open since: {s['created']}",
         f"- Alert page (write access only): {s['url']}",
+        f"- Last seen at commit: `{s['commit'] or 'unknown'}`",
         "",
         "## To fix",
         "",
+        *([f"0. Still there? `git log --oneline {s['commit']}..origin/main -- {s['path']}` lists the",
+           "   commits that changed the file since that scan. If one fixed it, the alert closes on the",
+           "   next completed analysis of main: take the next alert instead of redoing the fix.",
+           ] if s["commit"] else []),
         f"1. Claim it: `git ls-remote origin refs/heads/{BRANCH_PREFIX}{n}` prints nothing,",
         f"   then `git checkout -b {BRANCH_PREFIX}{n} origin/main && git push -u origin HEAD`.",
         "   If the push is rejected or the branch exists, someone has it: take the next alert.",
@@ -124,6 +131,15 @@ def render(alerts: list[dict]) -> dict[str, str]:
         f"(`{BRANCH_PREFIX}<n>`) does not exist; its file says how.",
         "",
     ]
+    commits = Counter(s["commit"] for s in todo if s["commit"])
+    if commits:
+        # The alerts mirror the last *completed* analysis of main, which lags merges by about
+        # an hour (a full scan takes that long and newer pushes queue behind it). On
+        # 2026-11-25 the queue listed 1,244 alerts that PR 18676 had already fixed.
+        sha = commits.most_common(1)[0][0]
+        lines += [f"Scanned at commit `{sha}`. Before fixing, check what merged since: "
+                  f"`git log --oneline {sha}..origin/main`. A bulk fix there means most entries "
+                  "below are stale until the next analysis of main completes.", ""]
     lines += [f"- [{s['severity']}] #{s['number']} `{s['rule']}` in `{s['path']}:{s['line']}`: "
               f"alerts/{s['number']}.md" for s in todo] or ["Empty: no open alerts."]
     files["QUEUE.md"] = "\n".join(lines) + "\n"
