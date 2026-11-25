@@ -42,3 +42,26 @@ down the list.
 warning already on main, `services/billing.ts:162`), `pnpm typecheck`, worker 195 passed (`test/worker/digest.test.ts` 7, including the new weekday test), unit 282
 after rebasing onto PR 86, `pnpm build`, `drizzle-kit check` and drift generate clean, `node --test
 scripts/provision.test.mjs` 4 passed.
+
+## Part 3: the member's own hour and time zone (private PR 106, merged)
+
+Later the same day: the "13:00 UTC for everyone" gap above is closed. The card on the Cash and
+retainage page picks an hour (0-23) beside the weekday, read in the member's IANA time zone.
+Turning it on sends the browser's zone and 7:00 (before a sub's first calls of the day); a saved
+zone that differs from the device's offers a one-click switch. Migration 0029 adds `hour`
+(default 13) and `time_zone` (default `UTC`), so earlier opt-ins keep Monday 13:00 UTC.
+
+**Design the next run should keep.**
+
+- The cron is now hourly (`0 * * * *`). `digestDueDay` in `src/shared/cash-digest.ts` sends when it
+  is the member's weekday in their zone and *at or after* their hour, so a missed hourly run still
+  sends later that local day. `last_sent_on` and the 6-day guard count local days.
+- The SQL prefilter uses `digestCutoff(UTC today + 1)`: no zone's local day is later than tomorrow
+  in UTC, so nobody due is excluded; the exact test runs per row in JS.
+- Anything else on the cron that should run once a week must gate on the hour as well as the day:
+  the Monday getting-started reminders now run only on the 13:00 UTC run (`src/worker/index.ts`).
+- An unknown zone in a row (a runtime dropping a name) reads as UTC rather than throwing in the cron.
+
+**Verification.** Local: `pnpm typecheck`, unit 389 passed, worker 227 passed (new worker test:
+Denver 6:00 goes at 13:00Z, not 12:00Z, not again at 14:00Z; Auckland Wednesday 8:00 goes at
+Tuesday 19:00Z), `pnpm build`, biome on touched files.
