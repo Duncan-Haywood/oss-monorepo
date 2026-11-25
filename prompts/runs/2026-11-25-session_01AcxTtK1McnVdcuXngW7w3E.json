@@ -1,0 +1,455 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01AcxTtK1McnVdcuXngW7w3E",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T05:07:13Z",
+  "ended": "2026-11-25T05:09:19Z",
+  "wall_minutes": 6.96,
+  "tokens_in": 4806085,
+  "tokens_out": 19107,
+  "cost_usd": 2.289,
+  "tool_calls": 55,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18857",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says a control-plane fix goes in 'its own PR ... owner approval'; since 2026-11-24 nothing waits for the owner (CLAUDE.md), and the session may push only its one branch, so the 11-14 patch had sat unlanded for 11 days. Landed it here."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "A red baseline is reported without the failing test name; one node --test run was needed to find it. Printing the first 'not ok' line would save the step."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Duplicate-PR search is advised before opening a PR, but a red main is found at campaign time; searching open PRs for the failing venture before fixing would have saved writing a fix #18853 already had."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Control-plane fix not put in its own PR: the session may push one branch, and the owner-approval reason is retired.",
+      "did": "Landed it in the run's PR with the risk review answered; the change only makes the audit stricter.",
+      "result": "pending CI"
+    },
+    {
+      "file": "prompt.md",
+      "why": "No post: test guards and an audit tightening make a thin post, and posts are being consolidated (2026-11-24).",
+      "did": "Explained everything in the PR body and this record.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Security queue: every listed alert already has a claim branch, so went on to step 1. Step 0: control_plane_guard defects #0 and #1 from the 2026-11-14 record still reproduced on main; ported a36d7f92c onto main's risk-review path, adjusted one test (CLAUDE.md is no longer an owned file, so it uses control_plane_guard.py). The new tests fail on main's code (4 failures) and pass after (49/49). shift-roster (#4 of the open list) is fixed in open PR #18841. help-keeper stemming, ids-model-check fetch and the browser_checks framerate entry were left: each needs an eval set or a workflow change. Campaigns: pay-app-guides colog.mjs and calc.mjs. Main's suite was red (the #18812 and #18847 merge race); the campaigns ran with this run's local fix in place, then the fix was dropped for #18853. Guard: the 4 gap tests; no new CI lint. The class (two PRs merging the same night, each green alone) belongs to a merge queue, which is a control-plane or ruleset change and is not done here. Verification: node --test colog.test.mjs calc.test.mjs 28/28; python3 -m unittest test_control_plane_guard 49/49; risk_review.py: nothing blocked.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/pay-app-guides/colog.mjs",
+        "test": "node --test ventures/pay-app-guides/**/*.test.mjs  (in .)",
+        "seed": 21781073,
+        "commit": "06f4a2611",
+        "sites": 197,
+        "baseline_seconds": 0.9,
+        "mutants": [
+          {
+            "file": "ventures/pay-app-guides/colog.mjs",
+            "line": 41,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "if (/^\\d{1,3}(,\\d{3})+(\\.\\d{1,2})?$/.test(t)) t = t.split(\",\").join(\"\");",
+            "after": "if (/^\\d{1,3}(,\\d{4})+(\\.\\d{1,2})?$/.test(t)) t = t.split(\",\").join(\"\");",
+            "line_text": "  if (/^\\d{1,3}(,\\d{3})+(\\.\\d{1,2})?$/.test(t)) t = t.split(\",\").join(\"\");",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/colog.mjs",
+            "line": 55,
+            "col": 90,
+            "operator": "const-plus-one",
+            "before": "else if ((x = /^(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4})$/.exec(t))) [m, d, y] = [+x[1], +x[2], +x[3]];",
+            "after": "else if ((x = /^(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4})$/.exec(t))) [m, d, y] = [+x[1], +x[2], +x[4]];",
+            "line_text": "  else if ((x = /^(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4})$/.exec(t))) [m, d, y] = [+x[1], +x[2], +x[3]];",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/colog.mjs",
+            "line": 59,
+            "col": 34,
+            "operator": "or-to-and",
+            "before": "if (back.getUTCFullYear() !== y || back.getUTCMonth() !== m - 1 || back.getUTCDate() !== d) return null;",
+            "after": "if (back.getUTCFullYear() !== y && back.getUTCMonth() !== m - 1 || back.getUTCDate() !== d) return null;",
+            "line_text": "  if (back.getUTCFullYear() !== y || back.getUTCMonth() !== m - 1 || back.getUTCDate() !== d) return null;",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "parseDate('0050-01-01'): Date.UTC maps years 0-99 to 19xx; with && the year-only mismatch passed. Test added."
+          },
+          {
+            "file": "ventures/pay-app-guides/colog.mjs",
+            "line": 59,
+            "col": 66,
+            "operator": "or-to-and",
+            "before": "if (back.getUTCFullYear() !== y || back.getUTCMonth() !== m - 1 || back.getUTCDate() !== d) return null;",
+            "after": "if (back.getUTCFullYear() !== y || back.getUTCMonth() !== m - 1 && back.getUTCDate() !== d) return null;",
+            "line_text": "  if (back.getUTCFullYear() !== y || back.getUTCMonth() !== m - 1 || back.getUTCDate() !== d) return null;",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "m && d instead of m || d: a day overflow always changes the month too, and a month overflow always changes the year (caught by the first clause), so no input has month-or-day differ without both or the year differing."
+          },
+          {
+            "file": "ventures/pay-app-guides/colog.mjs",
+            "line": 115,
+            "col": 82,
+            "operator": "const-plus-one",
+            "before": "const asOf = settings.asOf ? parseDate(settings.asOf) : Math.floor(Date.now() / 86400000);",
+            "after": "const asOf = settings.asOf ? parseDate(settings.asOf) : Math.floor(Date.now() / 86400001);",
+            "line_text": "  const asOf = settings.asOf ? parseDate(settings.asOf) : Math.floor(Date.now() / 86400000);",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Default as-of day from Date.now()/86400001 differs from /86400000 only in the first ~21 seconds after midnight UTC (20,782 days x 1 ms); every test and every user who sets an as-of date is unaffected, and a test for it would depend on the clock."
+          },
+          {
+            "file": "ventures/pay-app-guides/colog.mjs",
+            "line": 129,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "if (status === undefined) { out.errors.push(`Row ${r + 1} (${label}): status \"${get(\"status\")}\" is not one of approved, pending, rejected or void.`); continue; }",
+            "after": "if (status !== undefined) { out.errors.push(`Row ${r + 1} (${label}): status \"${get(\"status\")}\" is not one of approved, pending, rejected or void.`); continue; }",
+            "line_text": "    if (status === undefined) { out.errors.push(`Row ${r + 1} (${label}): status \"${get(\"status\")}\" is not one of approved, pending, rejected or void.`); continue; }",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/colog.mjs",
+            "line": 137,
+            "col": 84,
+            "operator": "neq-flip",
+            "before": "const turnaround = status === \"approved\" && submitted !== undefined && approved !== undefined ? approved - submitted : null;",
+            "after": "const turnaround = status === \"approved\" && submitted !== undefined && approved === undefined ? approved - submitted : null;",
+            "line_text": "    const turnaround = status === \"approved\" && submitted !== undefined && approved !== undefined ? approved - submitted : null;",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/colog.mjs",
+            "line": 175,
+            "col": 45,
+            "operator": "gt-to-ge",
+            "before": "if (original > 0 && totals.pendingAdd * 10 > original) F(\"high\", `Pending additions of ${dollars(totals.pendingAdd)} are ${((totals.pendingAdd * 100) / original).toFixed(1)}% of the original contract. That is unsigned money at risk if the work goes ahead first.`);",
+            "after": "if (original > 0 && totals.pendingAdd * 10 >= original) F(\"high\", `Pending additions of ${dollars(totals.pendingAdd)} are ${((totals.pendingAdd * 100) / original).toFixed(1)}% of the original contract. That is unsigned money at risk if the work goes ahead first.`);",
+            "line_text": "  if (original > 0 && totals.pendingAdd * 10 > original) F(\"high\", `Pending additions of ${dollars(totals.pendingAdd)} are ${((totals.pendingAdd * 100) / original).toFixed(1)}% of the original contract. That is unsigned money at risk if the work goes ahead first.`);",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Pending additions of exactly 10% were flagged by >=; the page says 'above 10%'. Boundary test added."
+          },
+          {
+            "file": "ventures/pay-app-guides/colog.mjs",
+            "line": 180,
+            "col": 65,
+            "operator": "neq-flip",
+            "before": "for (const x of A) if (x.approved !== undefined && x.submitted !== undefined && x.approved < x.submitted) F(\"info\", `${x.label}: approved ${dayText(x.approved)}, before it was submitted ${dayText(x.submitted)}. Check the dates.`);",
+            "after": "for (const x of A) if (x.approved !== undefined && x.submitted === undefined && x.approved < x.submitted) F(\"info\", `${x.label}: approved ${dayText(x.approved)}, before it was submitted ${dayText(x.submitted)}. Check the dates.`);",
+            "line_text": "  for (const x of A) if (x.approved !== undefined && x.submitted !== undefined && x.approved < x.submitted) F(\"info\", `${x.label}: approved ${dayText(x.approved)}, before it was submitted ${dayText(x.submitted)}. Check the dates.`);",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "The approved-before-submitted note had no test; the mutant silenced it. Test added."
+          },
+          {
+            "file": "ventures/pay-app-guides/colog.mjs",
+            "line": 236,
+            "col": 62,
+            "operator": "and-to-or",
+            "before": "const P = result.lines.filter((x) => x.status === \"pending\" && x.amount !== 0);",
+            "after": "const P = result.lines.filter((x) => x.status === \"pending\" || x.amount !== 0);",
+            "line_text": "  const P = result.lines.filter((x) => x.status === \"pending\" && x.amount !== 0);",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/pay-app-guides/calc.mjs",
+        "test": "node --test ventures/pay-app-guides/**/*.test.mjs  (in .)",
+        "seed": 515247044,
+        "commit": "06f4a2611",
+        "sites": 194,
+        "baseline_seconds": 0.8,
+        "mutants": [
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 29,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "else if (/^-?(\\d+|\\d{1,3}(\\.\\d{3})+),\\d{1,2}$/.test(s)) s = s.split(\".\").join(\"\").replace(\",\", \".\");",
+            "after": "else if (/^-?(\\d+|\\d{2,3}(\\.\\d{3})+),\\d{1,2}$/.test(s)) s = s.split(\".\").join(\"\").replace(\",\", \".\");",
+            "line_text": "    else if (/^-?(\\d+|\\d{1,3}(\\.\\d{3})+),\\d{1,2}$/.test(s)) s = s.split(\".\").join(\"\").replace(\",\", \".\");",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 67,
+            "col": 20,
+            "operator": "const-plus-one",
+            "before": "if (!(workRate >= 0 && workRate <= 1)) bad(\"Retainage on completed work must be between 0% and 100%.\");",
+            "after": "if (!(workRate >= 1 && workRate <= 1)) bad(\"Retainage on completed work must be between 0% and 100%.\");",
+            "line_text": "  if (!(workRate >= 0 && workRate <= 1)) bad(\"Retainage on completed work must be between 0% and 100%.\");",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 76,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "let changes = 0;",
+            "after": "let changes = 1;",
+            "line_text": "  let changes = 0;",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 85,
+            "col": 19,
+            "operator": "plus-to-minus",
+            "before": "const G = work + F;",
+            "after": "const G = work - F;",
+            "line_text": "    const G = work + F;",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 88,
+            "col": 35,
+            "operator": "times-to-div",
+            "before": "const retStored = Math.round(F * sr);",
+            "after": "const retStored = Math.round(F / sr);",
+            "line_text": "    const retStored = Math.round(F * sr);",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 141,
+            "col": 29,
+            "operator": "and-to-or",
+            "before": "if (/^[=+\\-@\\t\\r]/.test(s) && !/^-?\\d+(\\.\\d+)?$/.test(s)) s = `'${s}`;",
+            "after": "if (/^[=+\\-@\\t\\r]/.test(s) || !/^-?\\d+(\\.\\d+)?$/.test(s)) s = `'${s}`;",
+            "line_text": "  if (/^[=+\\-@\\t\\r]/.test(s) && !/^-?\\d+(\\.\\d+)?$/.test(s)) s = `'${s}`;",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 205,
+            "col": 56,
+            "operator": "const-plus-one",
+            "before": "if (errors.length) return { errors, lines: [], total: 0 };",
+            "after": "if (errors.length) return { errors, lines: [], total: 1 };",
+            "line_text": "  if (errors.length) return { errors, lines: [], total: 0 };",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "quickbooksLines' total on an input error was unpinned. Test added."
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 239,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "const m = /^(\\d{4})-(\\d{2})-(\\d{2})$/.exec(String(v ?? \"\").trim());",
+            "after": "const m = /^(\\d{5})-(\\d{2})-(\\d{2})$/.exec(String(v ?? \"\").trim());",
+            "line_text": "  const m = /^(\\d{4})-(\\d{2})-(\\d{2})$/.exec(String(v ?? \"\").trim());",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 239,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "const m = /^(\\d{4})-(\\d{2})-(\\d{2})$/.exec(String(v ?? \"\").trim());",
+            "after": "const m = /^(\\d{4})-(\\d{2})-(\\d{3})$/.exec(String(v ?? \"\").trim());",
+            "line_text": "  const m = /^(\\d{4})-(\\d{2})-(\\d{2})$/.exec(String(v ?? \"\").trim());",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/calc.mjs",
+            "line": 272,
+            "col": 24,
+            "operator": "eq-flip",
+            "before": "else periods = method === \"fraction\" ? Math.ceil(late / 30) : late / 30;",
+            "after": "else periods = method !== \"fraction\" ? Math.ceil(late / 30) : late / 30;",
+            "line_text": "  else periods = method === \"fraction\" ? Math.ceil(late / 30) : late / 30;",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/pay-app-guides/change-order-log.html",
+        "issue": "main was red: PR #18812 (guide tables stack on phones, with a test over every guide page) and PR #18847 (new change-order-log.html with a plain table) merged the same night, so page.test.mjs failed on main and every pay-app-guides campaign refused its baseline. This run wrote a fix (stacked table, labelled row template, shared test reading script-filled tbody templates), then found PR #18853 from a concurrent session with the same fix and dropped its copy to avoid a conflict.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18853 (concurrent session; this run's identical fix dropped)"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c87f80c4-2602-5c2d-838d-965ae818d95c",
+    "transcripts": 1,
+    "first": "2026-11-25T05:07:13Z",
+    "last": "2026-11-25T05:14:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 102,
+        "output": 19107,
+        "thinking": 4349,
+        "cache_read": 4684800,
+        "cache_write_5m": 0,
+        "cache_write_1h": 121183,
+        "api_equivalent_usd": 2.289,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 102,
+      "output": 19107,
+      "thinking": 4349,
+      "cache_read": 4684800,
+      "cache_write_5m": 0,
+      "cache_write_1h": 121183,
+      "api_equivalent_usd": 2.289,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 55,
+    "tools": {
+      "Bash": 48,
+      "mcp__github__pull_request_read": 3,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.96,
+      "active_minutes": 6.96,
+      "model_minutes": 4.32,
+      "tool_minutes": 2.64,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "port and adapt control-plane patch with tests, two mutation campaigns, triage, four tests, diagnose red main",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 131.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
