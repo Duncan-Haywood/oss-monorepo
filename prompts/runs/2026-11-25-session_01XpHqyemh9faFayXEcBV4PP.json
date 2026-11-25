@@ -1,0 +1,68 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01XpHqyemh9faFayXEcBV4PP",
+  "track": "ventures",
+  "prompt_version": 0,
+  "input": "AWS consolidation, parallel agent: build the aws-saas-starter task (platform/aws/saas-starter)",
+  "input_sha256": "cbcbbc52951788bd04021258606c5b24dab92b23d48aacec04707d83b18ee18f",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-25T00:17:31Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "aws-saas-starter",
+  "projects": [
+    "platform/aws/saas-starter"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18765",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 35,
+  "outcome": "success",
+  "errors": [
+    "registry.opentofu.org is blocked by the session proxy; providers came from releases.hashicorp.com (SHA256SUMS checked) through a filesystem mirror, and lock files got zh: hashes for every platform from the same SHA256SUMS",
+    "Trivy release downloads returned 404 through the proxy for four versions; Trivy was not run",
+    "first validate failed on a conditional with tuples of different lengths (app-service policy); rewritten as for-expressions",
+    "first tofu test runs failed on mock ARNs (random strings rejected by provider ARN validation); suites now give mock ARNs",
+    "push hook rejected the post: description 169 characters; shortened",
+    "risk_review flagged a PEM marker in a comment (format example, no key); reworded"
+  ],
+  "integrity_issues": [
+    "The task asked to read apps/grants/docs/ARCHITECTURE.md in the private repository; add_repo was refused in this session, so the Workers-to-AWS migration table is from the Workers side and says so in the README; the check moves to aws-move-products",
+    "Cost figures in the README and post are AWS list prices from memory, labelled as such with a pointer to the Pricing Calculator; not fetched this session",
+    "NODE_EXTRA_CA_CERTS=/var/runtime/ca-cert.pem for the RDS CA in Node 22 Lambda is from AWS documentation as remembered, not verified against a live Lambda (no account)"
+  ],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The background notification for this run asked to read a private-repo file, but add_repo is refused by the auto-mode classifier; a task that depends on the private repo should say how a public-repo session gets read access"
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Outbound hosts does not mention that registry.opentofu.org is blocked and releases.hashicorp.com works (filesystem-mirror recipe), or that Trivy's GitHub release assets 404"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Main merges are the default, but the payments stack cannot be applied from this repository by design (its role is unreachable from public Actions); its apply is written as an owner/private-CI step instead of CI",
+      "did": "documented in README apply order",
+      "result": "apply-ready for the owner"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Verification here: runtime node --test 9/9 (incl. Postgres 16 e2e); OpenTofu 1.10.7 fmt -check, validate and tofu test (mocked providers) in 10 directories, 26/26 runs; Checkov 3.4.10: 265 passed, 0 failed, 25 skipped with reasons; risk_review: owner review needed no. Nothing applied (no AWS account).",
+  "corrections": [],
+  "redteam": null
+}
