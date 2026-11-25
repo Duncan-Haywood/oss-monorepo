@@ -3,7 +3,7 @@ title: "An SPRS score calculator whose weights sum to −203"
 seo_title: "Free SPRS score calculator for NIST SP 800-171"
 date: 2026-11-24
 tags: [for-customers, machine-shop-guides, manufacturing, cmmc, nist-800-171, sprs, machine-shops, quoting]
-description: "A free SPRS score calculator for small machine shops, every weight checked against the 5- and 3-point lists in 32 CFR 170.24, the FCI-for-CUI rule for Level 1, and where CMMC Phase 2 stands."
+description: "A free SPRS score calculator for machine shops, every weight checked against the 5- and 3-point lists in 32 CFR 170.24, and the FCI rule for Level 1."
 ---
 
 A small machine shop that takes defense work usually has to post a NIST SP

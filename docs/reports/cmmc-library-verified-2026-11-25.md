@@ -1,3 +1,8 @@
+---
+kind: milestone
+topics: [product-build, outbound-hosts]
+date: 2026-11-25
+---
 # CMMC control library verified against the official text (2026-11-25)
 
 For the next run on bet #4 (CMMC workspace) or the `machine-shop-guides` front door.
