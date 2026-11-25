@@ -35,6 +35,10 @@
     {
       "file": "prompts/process/prompt-1.md",
       "issue": "The top friction_rank cluster (private-monorepo clone refused) was already taken by open PR #18882, opened minutes earlier. Nothing in the tool marks a cluster as claimed by an open PR, so each run has to search for that itself."
+    },
+    {
+      "file": "prompts/process/backlog/README.md",
+      "issue": "Two concurrent process runs each took 'the next free number' (P075) and both merged, so main failed promptctl validate until a third run renumbered one. A backlog id is claimed only when it merges."
     }
   ],
   "deviations": [
@@ -47,7 +51,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Security queue: none workable. Ideas: none. Route: process/1, critique mode, since the backlog has no agent-owned item. main_health.py: 325/325 pass. Fixed friction_rank clusters #4 (process prompt now names friction_rank.py), #5 (creative prompt now names creative_due.py) and #17 (module-weight.mjs accepts a venture dir). Skipped #2, the pkill hook: its block message already tells you to split the command. Skipped #3/#6/#10/#20, private-monorepo: covered by open PR #18882. validate ok; prompts unittest 142 OK; check_md_links ok. No backlog ids touched.",
+  "notes": "Security queue: none workable. Ideas: none. Route: process/1, critique mode, since the backlog has no agent-owned item. main_health.py: 325/325 pass. Fixed friction_rank clusters #4 (process prompt now names friction_rank.py), #5 (creative prompt now names creative_due.py) and #17 (module-weight.mjs accepts a venture dir). Skipped #2, the pkill hook: its block message already tells you to split the command. Skipped #3/#6/#10/#20, private-monorepo: covered by open PR #18882. validate ok; prompts unittest 142 OK; check_md_links ok. No backlog ids touched. CI validate failed on the merge with main: PRs #18882 and #18884 both added backlog id P075. I renumbered the private-monorepo item to P076 (file, id, asks.yaml reference). Backlog ids touched: P076 (renumber only).",
   "corrections": [],
   "redteam": null,
   "usage": {
