@@ -15,20 +15,36 @@ import security_alerts  # noqa: E402
 from security_alerts import render, summarise, write_tree  # noqa: E402
 
 
-def alert(number, level=None, severity="warning", state="open", path="a.py"):
+def alert(number, level=None, severity="warning", state="open", path="a.py", commit=None):
     return {
         "number": number,
         "state": state,
         "rule": {"id": f"py/rule-{number}", "security_severity_level": level, "severity": severity},
         "tool": {"name": "CodeQL"},
         "most_recent_instance": {"location": {"path": path, "start_line": 7},
-                                 "message": {"text": "  spread\n over lines  "}},
+                                 "message": {"text": "  spread\n over lines  "},
+                                 **({"commit_sha": commit} if commit else {})},
         "created_at": "2026-10-01T00:00:00Z",
         "html_url": f"https://example.test/{number}",
     }
 
 
 class RenderTest(unittest.TestCase):
+    def test_queue_names_the_scanned_commit_so_stale_entries_are_visible(self):
+        sha = "1070ed69048f8cfa31ba9d19"
+        files = render([alert(1, "high", commit=sha), alert(2, "high", commit=sha),
+                        alert(3, "high", commit="aaaaaaaaaaaaaaaa")])
+        self.assertIn("Scanned at commit `1070ed69048f`", files["QUEUE.md"])
+        self.assertIn("git log --oneline 1070ed69048f..origin/main`", files["QUEUE.md"])
+        self.assertIn("- Last seen at commit: `1070ed69048f`", files["alerts/1.md"])
+        self.assertIn("git log --oneline 1070ed69048f..origin/main -- a.py", files["alerts/1.md"])
+
+    def test_no_commit_means_no_staleness_hint(self):
+        files = render([alert(1, "high")])
+        self.assertNotIn("Scanned at commit", files["QUEUE.md"])
+        self.assertIn("- Last seen at commit: `unknown`", files["alerts/1.md"])
+        self.assertNotIn("Still there?", files["alerts/1.md"])
+
     def test_queue_is_most_severe_first_then_oldest(self):
         files = render([alert(5, "medium"), alert(9, "critical"), alert(2, "medium"), alert(3, None, "note")])
         order = [line.split("#")[1].split(" ")[0] for line in files["QUEUE.md"].splitlines()

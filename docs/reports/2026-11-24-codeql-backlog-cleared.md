@@ -92,3 +92,13 @@ lands. The 2/14/45/90-day table in PR 18529's draft
 `docs/security/policies/vulnerability-management.md` is superseded by this and should be replaced
 when that PR merges. The fastest path to keep main clean is merging PR 18529, which turns on
 CodeQL for every PR and main and fills the `security-alerts` queue.
+
+## Follow-up, 2026-11-25: the queue lags this PR
+
+The first analysis of `main` to complete (run 11, commit e98ec5cbb) started before this PR merged,
+so at 01:58 UTC the `security-alerts` queue listed 1,244 open alerts, nearly all already fixed
+here (checked by hand: tree-service-bid-calculator, quick-pick-survey report, photo-nutrition-agent
+hashing). A push-to-main analysis takes about an hour and newer pushes queue behind it, so the
+queue always trails merges. `platform/ci/security_alerts.py` now writes the scanned commit at the
+top of QUEUE.md and in each alert file, with the `git log <sha>..origin/main -- <path>` check, so a
+session can see that an entry is stale instead of redoing a fix.
