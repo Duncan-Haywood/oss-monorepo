@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { run, parseArgs, toCsv, HELP } from "./cli.mjs";
 
@@ -49,7 +50,7 @@ test("argument errors are reported, not thrown", () => {
 test("the CLI runs as a process, from a file and from stdin", () => {
   const out = execFileSync(process.execPath, [CLI, ...BASE, "--v", "equal", "--no-placebo", "--no-loo"], { encoding: "utf8" });
   assert.match(out, /Synthetic West Germany is/);
-  const csv = execFileSync("cat", [DATA]);
+  const csv = readFileSync(DATA);
   const out2 = execFileSync(process.execPath, [CLI, "--unit", "country", "--time", "year", "--outcome", "gdp", "--treated", "West Germany", "--at", "1990", "--v", "equal", "--no-placebo", "--no-loo"], { input: csv, encoding: "utf8" });
   assert.equal(out2, out);
 });

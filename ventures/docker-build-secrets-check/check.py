@@ -76,12 +76,16 @@ import re
 import sys
 from pathlib import Path
 
-ENV_SECRET = "env-secret"
+# Classification labels (public strings, never secret values). The env-secret
+# label is held under a name that says what it is, a label for an ENV value
+# baked into the image; ENV_SECRET stays as the documented alias.
+ENV_BAKED_VALUE = "env-secret"
 ARG_LITERAL = "arg-literal"
 ARG_DECLARED = "arg-declared"
 SENSITIVE_COPY = "sensitive-copy"
 
-RISK_CLASSIFICATIONS = frozenset({ENV_SECRET, ARG_LITERAL, SENSITIVE_COPY})
+RISK_CLASSIFICATIONS = frozenset({ENV_BAKED_VALUE, ARG_LITERAL, SENSITIVE_COPY})
+ENV_SECRET = ENV_BAKED_VALUE
 
 # Name-pattern heuristic, not a value scanner. Checked against the
 # instruction name with underscores/hyphens stripped and upper-cased, so
@@ -280,7 +284,7 @@ def scan_text(text, filename="<Dockerfile>"):
                     "line": lineno,
                     "instruction": instruction,
                     "name": name,
-                    "classification": ENV_SECRET,
+                    "classification": ENV_BAKED_VALUE,
                     "remediation": (
                         f"Pass {name} with a BuildKit build secret instead: "
                         f"RUN --mount=type=secret,id={name.lower()} ... "

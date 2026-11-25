@@ -45,7 +45,7 @@ test("email: reason-specific, plain text, unsubscribe and address always present
   const base = { reason: "too_expensive", company: "Acme", url: "https://a.example/pricing", address: "1 Main St, Town", unsubUrl: "https://c.example/u/x", code: "COMEBACK" };
   const first = buildWinback({ ...base, step: { last: false } });
   assert.match(first.text, /price was the reason/);
-  assert.ok(first.text.includes("https://c.example/u/x") && first.text.includes("1 Main St, Town") && first.text.includes(base.url));
+  assert.ok(first.text.split("\n").includes(`Do not want these? ${base.unsubUrl}`) && first.text.includes("1 Main St, Town") && first.text.includes(base.url));
   assert.ok(!first.text.includes("COMEBACK"));
   const last = buildWinback({ ...base, step: { last: true } });
   assert.match(last.text, /COMEBACK/);

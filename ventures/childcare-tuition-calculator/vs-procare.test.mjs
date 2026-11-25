@@ -2,6 +2,8 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
+const stripScripts = (s, sub = '') => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, sub); } while (s !== p); return s; };
+
 const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
 const procareSeo = readFileSync(new URL('./vs-procare.html', import.meta.url), 'utf8');
 const sitemap = readFileSync(new URL('./sitemap.xml', import.meta.url), 'utf8');
@@ -48,7 +50,7 @@ test('every FAQPage schema question on the vs-Procare page has a matching visibl
 test('the FAQPage JSON-LD answers are verbatim on the visible page, not only inside the script tag', () => {
   const match = procareSeo.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?\})<\/script>/s);
   const schema = JSON.parse(match[1]);
-  const visible = procareSeo.replace(/<script[\s\S]*?<\/script>/g, '');
+  const visible = stripScripts(procareSeo);
   for (const { acceptedAnswer } of schema.mainEntity) {
     assert.ok(visible.includes(acceptedAnswer.text), `answer not found verbatim outside the JSON-LD script tag: ${acceptedAnswer.text.slice(0, 60)}...`);
   }

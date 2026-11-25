@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { nextRuns, summarizeRuns, utcOffsetDrift } from "./engine.mjs";
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const DOCS_PAGE = "why-cron-jobs-break-across-dst.html";
 
@@ -9,7 +10,7 @@ test("index links to the docs page", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
   assert.match(
     page,
-    new RegExp(`href="${DOCS_PAGE.replace(/\./g, "\\.")}"`),
+    new RegExp(`href="${escapeRegExp(DOCS_PAGE)}"`),
     "index must link the secondary docs page so crawlers can reach it",
   );
 });
@@ -99,7 +100,7 @@ const VS_PAGE = "vs-checking-a-dst-calendar-by-hand.html";
 
 test("index links to the comparison page", async () => {
   const page = await readFile(new URL("./index.html", import.meta.url), "utf8");
-  assert.match(page, new RegExp(`href="${VS_PAGE.replace(/\./g, "\\.")}"`));
+  assert.match(page, new RegExp(`href="${escapeRegExp(VS_PAGE)}"`));
 });
 
 test("the comparison page links back to the checker and its FAQPage JSON-LD matches the visible text", async () => {
@@ -124,7 +125,7 @@ test("the comparison page carries the disclaimers and is listed in the venture s
   assert.match(vs, /Nothing leaves your browser/);
   assert.match(vs, /names no specific product/i);
   const sitemap = await readFile(new URL("./sitemap.xml", import.meta.url), "utf8");
-  assert.match(sitemap, new RegExp(VS_PAGE.replace(/\./g, "\\.")));
+  assert.match(sitemap, new RegExp(escapeRegExp(VS_PAGE)));
 });
 
 test("the comparison page does not repeat a question the index page already answers", async () => {

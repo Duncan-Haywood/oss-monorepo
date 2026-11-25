@@ -1,0 +1,159 @@
+{
+  "date": "2026-11-25",
+  "session": "https://claude.ai/code/session_01E5sJKjcTaufXZkVj7CFoxy",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-25T01:09:22Z",
+  "ended": "2026-11-25T01:16:01Z",
+  "wall_minutes": 6.92,
+  "tokens_in": 4699540,
+  "tokens_out": 35506,
+  "cost_usd": 2.5844,
+  "tool_calls": 49,
+  "task": "Bet 1 (payapps) front door: free schedule of values / continuation sheet Excel template in pay-app-guides",
+  "projects": [
+    "pay-app-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18788",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "git clone of private-monorepo refused by the session's auto-mode permission classifier after add_repo succeeded",
+      "impact": "could not work on payapps itself; took the bet's public side"
+    },
+    {
+      "what": "statute hosts (azleg.gov, leg.state.nv.us, capitol.texas.gov, le.utah.gov and others) 403 through the proxy and do not resolve for WebFetch",
+      "impact": "could not verify statutes for a lien-waiver-by-state page, so did not write one"
+    },
+    {
+      "what": "risk_review.py crashed with CalledProcessError on git merge-base in the shallow clone",
+      "impact": "fixed by git fetch --depth=40 origin main first"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "Crashes with a traceback when origin/main has no merge base in a shallow clone; it could print 'run git fetch --depth=40 origin main' instead."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "payapps next: says 'attach it with add_repo, push access' but in this session the clone after add_repo was denied by the permission classifier; worth saying what to do then (the public side)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Default is to build the top bet in private-monorepo; the clone was refused.",
+      "did": "Took bet 1's public side: an Excel template front door in pay-app-guides, avoiding pay-application-generator, which open PR #18775 edits.",
+      "result": "Template, page and tests landed; payapps item (5) partly served (the template links to early access, not pricing, because pricing is dark)."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "Did not update payapps next: because open PR #18775 rewrites the same field and would conflict.",
+      "did": "Recorded the template here and in the post instead.",
+      "result": null
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (extended: free template section)"
+  ],
+  "goal": null,
+  "notes": "Local verification: run_venture_tests.py pay-app-guides ok (24 tests, plus site page checks); template.test.mjs recalculates the example in LibreOffice and matches the guide's 79,850 / 7,985 / 71,865 / 40,365 / 86,635. Rendered the example to PDF and looked at it. Security queue was Empty; ideas inbox empty.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "56cc3b4b-c198-56c6-8982-e45569e034bf",
+    "transcripts": 1,
+    "first": "2026-11-25T01:09:22Z",
+    "last": "2026-11-25T01:16:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 88,
+        "output": 35506,
+        "thinking": 7044,
+        "cache_read": 4579701,
+        "cache_write_5m": 0,
+        "cache_write_1h": 119751,
+        "api_equivalent_usd": 2.5844,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 88,
+      "output": 35506,
+      "thinking": 7044,
+      "cache_read": 4579701,
+      "cache_write_5m": 0,
+      "cache_write_1h": 119751,
+      "api_equivalent_usd": 2.5844,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 38,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "WebFetch": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.92,
+      "active_minutes": 6.92,
+      "model_minutes": 6.07,
+      "tool_minutes": 0.84,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "spreadsheet template with formulas, verification, landing page and post by a construction-billing-savvy developer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 232.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

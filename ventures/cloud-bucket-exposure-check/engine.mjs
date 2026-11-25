@@ -181,11 +181,11 @@ const MAX_SAMPLE_KEYS = 5;
 
 function decodeXmlEntities(s) {
   return String(s)
-    .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'");
+    .replace(/&apos;/g, "'")
+    .replace(/&amp;/g, '&');
 }
 
 function extractKeys(bodySample, re) {

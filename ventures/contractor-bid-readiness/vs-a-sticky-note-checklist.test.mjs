@@ -46,7 +46,11 @@ test('the FAQPage schema is valid JSON and matches the visible FAQ headings', ()
 test('the FAQPage JSON-LD answers are verbatim on the visible page (word for word, not just inside the script tag)', () => {
   const match = html.match(/<script type="application\/ld\+json">(\{"@context":"https:\/\/schema\.org","@type":"FAQPage".*?\})<\/script>/s);
   const schema = JSON.parse(match[1]);
-  const visible = html.replace(/<script[\s\S]*?<\/script>/g, '');
+  let visible = html;
+  for (let prev; prev !== visible;) {
+    prev = visible;
+    visible = visible.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, '');
+  }
   for (const { acceptedAnswer } of schema.mainEntity) {
     assert.ok(visible.includes(acceptedAnswer.text), `answer not found verbatim outside the JSON-LD script tag: ${acceptedAnswer.text.slice(0, 60)}...`);
   }

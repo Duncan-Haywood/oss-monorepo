@@ -2,8 +2,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { analyze, DEFAULTS } from "./engine.mjs";
 import { changeReportHtml, chartSvg, safeColor, safeLogo } from "./report.mjs";
-import { CHECKOUT_URL } from "./checkout.mjs";
-import { buyLink, cleanKey, interpret, checkLicence } from "./licence.mjs";
+import { PADDLE } from "./checkout.mjs";
+import * as licence from "./licence.mjs";
+import { assertPackLicence } from "../../platform/billing/testkit.mjs";
 
 const r = analyze({ csv: DEFAULTS.csv });
 
@@ -35,18 +36,8 @@ test("a flat series says no change was found instead of an empty table", () => {
   assert.match(h, /<h1>Change report<\/h1>/);
 });
 
-test("the report stays dark until a checkout link is set, and unlock never throws", async () => {
-  assert.equal(buyLink(CHECKOUT_URL), CHECKOUT_URL || null); // dark when empty, live when golive.py set a link
-  assert.equal(buyLink("http://x.test"), null);
-  assert.equal(cleanKey("short"), null);
-  assert.equal(interpret({ valid: true, license_key: { status: "active" } }).valid, true);
-  assert.equal(interpret({ valid: true, license_key: { status: "disabled" } }).valid, false);
-  assert.equal(interpret(null).valid, false);
-  assert.equal((await checkLicence("ABCD-1234-EFGH", { url: "" })).valid, false);
-  const boom = async () => { throw new Error("offline"); };
-  assert.equal((await checkLicence("ABCD-1234-EFGH", { url: "https://x.test/v", fetch: boom })).valid, false);
-  const ok = async () => ({ json: async () => ({ valid: true, license_key: { status: "active" } }) });
-  assert.equal((await checkLicence("ABCD-1234-EFGH", { url: "https://x.test/v", fetch: ok })).valid, true);
+test("licence: dark until the catalogue is set; only a key signed for this pack unlocks; never throws", async () => {
+  await assertPackLicence(licence, PADDLE, "changepoint-detector");
 });
 
 test("sample report is what the real report code produces, and the marketing page says it is not on sale", async () => {

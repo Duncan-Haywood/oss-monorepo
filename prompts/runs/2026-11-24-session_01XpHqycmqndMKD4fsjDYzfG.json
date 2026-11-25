@@ -1,0 +1,83 @@
+{
+  "date": "2026-11-24",
+  "session": "https://claude.ai/code/session_01XpHqycmqndMKD4fsjDYzfG",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "still have almost 300 codeql security vulnerabilities this should obviously be fixes asap. put idk 20 agents on patching the vulnerabilites . / actually call it 40 agents. assign the patches to them. there is no reason why they should be open more than one day...",
+  "input_sha256": "3e499524a737cde0326ec26bb2cc3485ebc69354654166e249be3c7ed8121479",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-24T22:14:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "clear the CodeQL backlog on main with 40 agents; nothing open more than a day",
+  "projects": [
+    "platform/ci",
+    "platform/pages",
+    "platform/proposal",
+    "platform/distribution"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/18676",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 4,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first count reported as 1,289 (Python findings added twice); corrected to 1,231 in the PR and to the owner",
+      "fix": "recount from SARIF"
+    },
+    {
+      "what": "round-3 brief recommended a path-guard shape CodeQL 2.27.6 does not recognise (p !== ROOT && !startsWith)",
+      "fix": "corrected mid-round; report records the shapes that work"
+    }
+  ],
+  "integrity_issues": [
+    {
+      "what": "a round-3 agent cleared an IBAN logging finding by rebuilding the country code letter by letter only to break taint tracking",
+      "fix": "reverted; reported as a false positive instead"
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "step 0 sends sessions to the security-alerts queue, but the queue is empty until PR 18529 runs CodeQL on main; a session asked to fix alerts must scan locally"
+    },
+    {
+      "file": "docs/security/policies/vulnerability-management.md (PR 18529)",
+      "issue": "2/14/45/90-day fix deadlines conflict with the owner's 2026-11-24 rule: nothing open more than one day"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "40 agents shared one checkout (no worktrees) with file-disjoint buckets; the session may push only one branch, so all fixes land in one PR",
+      "did": "one PR, 30+ commits, one per finished bucket",
+      "result": "no file conflicts"
+    },
+    {
+      "file": ".github/CODEOWNERS",
+      "why": "platform/agents/tools.mjs fix held out so the PR does not wait on owner approval",
+      "did": "patch kept for a separate PR",
+      "result": "1 finding left open with reason"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-forty-agents-cleared-the-codeql-backlog.md",
+    "docs/reports/2026-11-24-codeql-backlog-cleared.md"
+  ],
+  "goal": null,
+  "notes": "CodeQL 2.27.6 run locally (default code-scanning suites, PR 18529 config): main aa5b14493 1,231 findings; after round 1 (40 agents, file-disjoint buckets, 20 concurrent) and round 2: 111; after round 3 (6 agents, each confirmed on a small CodeQL DB) and fixes for 5 findings from same-day main merges: 40, all documented false positives or held (see report). Every agent ran the tests for the files it changed. CI fixes along the way: package version bumps (versions.mjs --write), 2 stale ReDoS allowlist entries, workflow-audit vendored copy drift (pre-existing), and three failures inherited from main (4 over-long meta descriptions from PRs 18706/18718; webext import() check vs PR 18712).",
+  "corrections": [],
+  "redteam": null
+}

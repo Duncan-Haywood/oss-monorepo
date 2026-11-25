@@ -35,7 +35,8 @@ def main(bm_pdf, cp_pdf):
         pat = re.escape(re.sub(r'\s+', '', r['label']).replace('’', "'")) + r'\d?\.{2,}' + re.escape(''.join(vals)) + r'(?![\d(])'
         hit = next((i + 1 for i, pg in enumerate(txt[t['source']]) if t['table'].replace(' ', '') + '.' in pg and re.search(pat, pg)), None)
         ok += bool(hit)
-        print('OK  ' if hit else 'MISS', t['table'], r.get('sex', ''), '|', r['section'], '|', r['label'], '|', ' '.join(vals), '| pypdf page', hit)
+        row_group, section, label = (r.get(k, '') for k in ('sex', 'section', 'label'))
+        print('OK  ' if hit else 'MISS', t['table'], row_group, '|', section, '|', label, '|', ' '.join(vals), '| pypdf page', hit)
     print(ok, 'of 30 matched mechanically; read any MISS rows by hand')
 
 

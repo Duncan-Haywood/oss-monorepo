@@ -27,7 +27,7 @@ for (const a of args.filter((x) => !x.startsWith("--"))) {
   for (const f of r.findings) {
     const e = f.examples[0];
     const ex = e ? `${e.line ? `line ${e.line}` : ""}${e.line && e.detail ? ": " : ""}${e.detail ?? ""}` : "";
-    console.log(`| ${f.severity} | \`${f.code}\` | ${f.file} | ${f.count.toLocaleString("en")} | ${ex.replace(/\|/g, "\\|")} |`);
+    console.log(`| ${f.severity} | \`${f.code}\` | ${f.file} | ${f.count.toLocaleString("en")} | ${ex.replace(/\\/g, "\\\\").replace(/\|/g, "\\|")} |`);
   }
   console.log("");
 }

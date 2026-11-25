@@ -236,7 +236,7 @@ export function toCsv(result) {
   return rows.join('\r\n') + '\r\n';
 }
 
-const mdCell = (s) => String(s ?? '').replace(/\|/g, '\\|').replace(/\n/g, ' ');
+const mdCell = (s) => String(s ?? '').replace(/[\\|]/g, '\\$&').replace(/\n/g, ' ');
 
 export function toMarkdown(result) {
   const out = ['| ID | Section | Requirement | Strength | Category | Owner | Status |', '|---|---|---|---|---|---|---|'];

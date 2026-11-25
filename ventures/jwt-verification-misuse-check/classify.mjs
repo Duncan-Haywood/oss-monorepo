@@ -132,13 +132,13 @@ const SECRET_LINE_RULES = [
     true
   ],
   [
-    "\\b(?:Algorithm\\.HMAC(?:256|384|512)|hmacShaKeyFor|setSigningKey)\\(\\s*\\\"((?:\\\\.|[^\\\"])*)\\\"",
+    "\\b(?:Algorithm\\.HMAC(?:256|384|512)|hmacShaKeyFor|setSigningKey)\\(\\s*\\\"((?:\\\\[\\s\\S]|[^\\\"\\\\])*\\\\?)\\\"",
     1,
     "HMAC key literal",
     true
   ],
   [
-    "\\bsignWith\\(\\s*SignatureAlgorithm\\.\\w+\\s*,\\s*\\\"((?:\\\\.|[^\\\"])*)\\\"",
+    "\\bsignWith\\(\\s*SignatureAlgorithm\\.\\w+\\s*,\\s*\\\"((?:\\\\[\\s\\S]|[^\\\"\\\\])*\\\\?)\\\"",
     1,
     "signWith key literal",
     true
@@ -189,7 +189,7 @@ const GO_CALLS = /\bjwt\.(?:Parse|ParseWithClaims)\s*\(/g;
 // A backslash is either an escape (\\.) or, only right before the closing quote, a lone
 // character (\\?). The old form `(?:\\.|(?!\1).)*` let a backslash match both ways, so a
 // run of backslashes with no closing quote split 2^n ways (ReDoS: 38 took 1.2 s).
-const STRING_ARG = /^[bBuU]?(["'`])((?:\\.|(?![\\]|\1).)*\\?)\1$/;
+const STRING_ARG = /^[bBuU]?(["'`])((?:\\.|(?!\1)[^\\\n\r\u2028\u2029])*\\?)\1$/;
 const KEYWORD_ARG = /^([A-Za-z_]\w*)\s*=(?!=)\s*(.*)$/;
 const USER_KEY = /\b(?:req|request|ctx|event)\s*[.\[]|\bheaders?\b|\b(?:params|query|body)\b/;
 // A keyfunc that checks token.Method (type assertion, .Alg(), or == jwt.SigningMethod*).

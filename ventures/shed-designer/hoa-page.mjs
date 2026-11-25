@@ -20,7 +20,9 @@ const optedOut = () => { try { return storage?.getItem('shed-designer-usage-pref
 function current() {
   const pm = /#preset=([^&]*)/.exec(location.hash);
   const key = pm ? decodeURIComponent(pm[1]) : '';
-  if (key && PRESETS[key]) { const raw = PRESETS[key](); return { design: normalize(raw), raw, preset: key, note: '' }; }
+  // Only the presets' own entries: a hash like #preset=constructor must not reach Object.prototype.
+  const make = key && Object.hasOwn(PRESETS, key) ? PRESETS[key] : null;
+  if (typeof make === 'function') { const raw = make(); return { design: normalize(raw), raw, preset: key, note: '' }; }
   const gm = /#gallery=([^&]*)/.exec(location.hash);
   const g = gm ? GALLERY_DESIGNS.find((x) => x.id === decodeURIComponent(gm[1])) : null;
   if (g) return { design: normalize(/** @type {any} */ (g.design)), raw: g.design, preset: `gallery:${g.id}`, note: '' };

@@ -12,6 +12,8 @@ import { synthHtml, PANEL_SHAPE } from './synth-view.mjs';
 import { analyzeJob } from './analyze-job.mjs';
 import { main } from './cli.mjs';
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const q = (early, late) => ({ shape: gapShape([early, early, early, early, 1, 1, 1, 1, late, late, late, late]).shape, early, late });
 
 test('panelShapes: below a centre of 6 the plain word stands; at or above it, words read against the median', () => {
@@ -57,7 +59,7 @@ test('bar 1 failed, so the CLI keeps the plain word (West Germany: 12 of 16 grew
 
 test('the confirmatory file: bars 2 to 6 hold, bar 1 fails on one line (wandering big slope, 1.9 points)', () => {
   const txt = readFileSync(new URL('./eval/synth-shape-trend-confirm.out.txt', import.meta.url), 'utf8');
-  const line = (name) => { const m = txt.match(new RegExp(`  ${name.replace(/[()]/g, '\\$&')}: (\\d+) of (\\d+)`)); assert.ok(m, name); return 100 * Number(m[1]) / Number(m[2]); };
+  const line = (name) => { const m = txt.match(new RegExp(`  ${escapeRegExp(name)}: (\\d+) of (\\d+)`)); assert.ok(m, name); return 100 * Number(m[1]) / Number(m[2]); };
   const kinds = ['pulse faded', 'step held', 'big slope grew', 'slope 1.0 grew', 'clean above shaped', 'all placebos grew', 'all placebos faded'];
   const diffs = [];
   for (const fam of ['trendless', 'wander']) for (const k of kinds) diffs.push([`${fam} ${k}`, Math.abs(line(`${fam} ${k} hybrid`) - line(`${fam} ${k} plain`))]);

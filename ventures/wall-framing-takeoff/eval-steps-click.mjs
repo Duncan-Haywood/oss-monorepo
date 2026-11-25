@@ -4,9 +4,10 @@ import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { existsSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { extname, join } from "node:path";
+import { extname, join, resolve, sep } from "node:path";
 
 const root = fileURLToPath(new URL(".", import.meta.url));
+const serveRoot = resolve(root);
 let chromium;
 const candidates = ["playwright", process.env.PLAYWRIGHT_PATH, "/opt/node-tools/node_modules/playwright", "playwright-core"].filter(Boolean).map((c) =>
   !c.startsWith("/") || !existsSync(c) ? c : statSync(c).isDirectory() ? join(c, "index.mjs") : c);
@@ -17,7 +18,8 @@ if (!chromium) { console.log("skipped: playwright not installed"); process.exit(
 const types = { ".html": "text/html", ".mjs": "text/javascript" };
 const server = createServer(async (req, res) => {
   try {
-    const p = join(root, decodeURIComponent(req.url.split("?")[0]));
+    const p = resolve(join(root, decodeURIComponent(req.url.split("?")[0])));
+    if (!p.startsWith(serveRoot + sep)) throw new Error("outside root");
     res.writeHead(200, { "content-type": types[extname(p)] || "text/plain" }).end(await readFile(p));
   } catch { res.writeHead(404).end(); }
 });

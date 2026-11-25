@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { solve, sampleInput, MAX_OFFERS, money, times } from "./calc.mjs";
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
 const GUIDE = "how-to-value-a-laundromat-before-you-make-an-offer.html";
 
@@ -40,7 +42,7 @@ test("SEO basics", () => {
   assert.match(html, /<link rel="canonical" href="\.\/index\.html">/);
   assert.match(html, /<h1>/);
   assert.match(html, /<html lang="en">/);
-  assert.match(page("sitemap.xml"), new RegExp(GUIDE.replace(/\./g, "\\.")));
+  assert.match(page("sitemap.xml"), new RegExp(escapeRegExp(GUIDE)));
 });
 
 test("nothing is sent anywhere and static inputs are labelled", () => {

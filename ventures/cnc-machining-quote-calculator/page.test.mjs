@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 
 import { BREAK_QUANTITIES, STOCK_FORMS, computeMachiningJob } from "./calculator.mjs";
+const stripScripts = (s) => { let p; do { p = s; s = s.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ""); } while (s !== p); return s; };
+const stripTags = (s, r = "") => { let p; do { p = s; s = s.replace(/<[^>]*>/g, r); } while (s !== p); return s; };
 
 const INDEX = readFileSync(new URL("./index.html", import.meta.url), "utf8");
 const GUIDE = readFileSync(
@@ -363,7 +365,7 @@ test("the guide page's questions are visible on it, matching its JSON-LD exactly
   const faq = [...GUIDE.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
     .map((m) => JSON.parse(m[1]))
     .find((b) => b["@type"] === "FAQPage");
-  const text = GUIDE.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<[^>]+>/g, " ");
+  const text = stripTags(stripScripts(GUIDE), " ");
   const squash = (s) => s.replace(/\s+/g, " ").trim();
   const visible = squash(text);
   for (const entry of faq.mainEntity) {

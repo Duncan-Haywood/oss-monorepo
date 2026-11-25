@@ -95,7 +95,11 @@ export function isAppUrlPlaceholder(trimmed: string): boolean {
     const host = new URL(withScheme).hostname.toLowerCase();
     return host === "example.com" || host.endsWith(".example.com");
   } catch {
-    return lower.includes("example.com");
+    // Unparseable value: look at each hostname-shaped token instead of a raw
+    // substring search, so "example.com" must be a whole host or a parent domain.
+    return lower
+      .split(/[^a-z0-9.-]+/)
+      .some((token) => token === "example.com" || token.endsWith(".example.com"));
   }
 }
 

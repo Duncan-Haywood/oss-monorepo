@@ -108,7 +108,7 @@ test("Markdown is rendered with everything escaped and only safe links", () => {
   assert.match(html, /<h2>Hi &lt;b&gt;<\/h2>/);
   assert.match(html, /<strong>bold<\/strong> and <em>soft<\/em> <a href="https:\/\/example.com">link<\/a>/);
   assert.doesNotMatch(html, /href="javascript/);
-  assert.doesNotMatch(html, /<script>/);
+  assert.doesNotMatch(html, /<script\b/i);
   assert.match(html, /<ul><li>one<\/li><li>two<\/li><\/ul>/);
 });
 

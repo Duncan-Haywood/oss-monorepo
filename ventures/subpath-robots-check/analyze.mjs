@@ -32,7 +32,7 @@ const KNOWN_HOSTS = [
   {
     id: "github-pages",
     // `<user>.github.io` -- personal or organization account.
-    match: (host) => /^[a-z0-9-]+\.github\.io$/i.test(host),
+    matchesHost: (host) => /^[a-z0-9-]+\.github\.io$/i.test(host),
     rootOwner: (host) => {
       const account = host.replace(/\.github\.io$/i, "");
       return {
@@ -50,7 +50,7 @@ const KNOWN_HOSTS = [
   },
   {
     id: "gitlab-pages",
-    match: (host) => /^[a-z0-9-]+\.gitlab\.io$/i.test(host),
+    matchesHost: (host) => /^[a-z0-9-]+\.gitlab\.io$/i.test(host),
     rootOwner: (host) => {
       const group = host.replace(/\.gitlab\.io$/i, "");
       return {
@@ -220,7 +220,7 @@ function matchesRobotsPattern(pattern, path) {
 /** Which named host, if any, this URL is published on. */
 export function identifyHost(host) {
   for (const known of KNOWN_HOSTS) {
-    if (known.match(host)) return { id: known.id, ...known.rootOwner(host) };
+    if (known.matchesHost(host)) return { id: known.id, ...known.rootOwner(host) };
   }
   return null;
 }

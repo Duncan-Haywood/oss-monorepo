@@ -52,7 +52,7 @@ Georgia, Massachusetts and Mississippi are often said to have statutory forms, b
 open their official text, so they are not listed rather than listed from memory.
 
 **Where this goes.** The pay-app product we are building for specialty subcontractors already
-prints Arizona's and Nevada's waivers word for word from the statute, with a test that rebuilds
+prints Arizona's, Nevada's, Texas's and Utah's waivers word for word from the statute, with a test that rebuilds
 each form and compares it with the law. The other states in this guide are next. It is in
 development with early access, and nothing is for sale yet:
 [construction tools and early access](https://marisstella.app/industries/construction/).

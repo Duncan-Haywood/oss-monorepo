@@ -41,7 +41,7 @@ test("Markdown keeps backticks and table pipes in values; HTML escapes markup", 
   assert.match(md, /``a`b\|<script>``/);
   const html = docToHtml(d);
   assert.match(html, /<code>a`b\|&lt;script&gt;<\/code>/);
-  assert.doesNotMatch(html, /<script>/);
+  assert.doesNotMatch(html, /<script\b/i);
   assert.match(html, /^<!doctype html>/);
   assert.match(html, /Not a design review, a code-compliance check or professional advice/);
   assert.match(md, /Not a design review/);
