@@ -518,10 +518,26 @@ def _shallow_boundary(git=_git) -> set[str]:
         return set()
 
 
+def _ref(git=_git) -> str:
+    return "origin/main" if git(["rev-parse", "--verify", "-q", "origin/main"]).strip() else "HEAD"
+
+
+def _boundary_dates(git=_git, ref: str | None = None, boundary: set[str] | None = None) -> list[str]:
+    """Commit dates of the shallow boundaries `ref` can reach. .git/shallow also lists the boundaries of
+    other shallow fetches: prompt.md step 0 fetches the security-alerts branch, whose boundary is a commit
+    from the same morning, so before 2026-11-25 every queue row read "history starts <today>" and
+    "unknown" even right after a successful deepen to the oldest audit (run-record doc_friction on
+    quality_audit.py, 2026-11-25, twice; friction_rank.py had the same fix)."""
+    ref = ref or _ref(git)
+    boundary = _shallow_boundary(git) if boundary is None else boundary
+    dates = [git(["log", "-1", "--format=%cs", b]).strip() for b in sorted(boundary)
+             if git(["merge-base", b, ref]).strip() == b]
+    return [d for d in dates if d]
+
+
 def history_start(git=_git) -> str | None:
-    """Commit date (YYYY-MM-DD) where a shallow clone's history begins, or None when it is complete."""
-    dates = [git(["log", "-1", "--format=%cs", b]).strip() for b in _shallow_boundary(git)]
-    dates = [d for d in dates if d]
+    """Commit date (YYYY-MM-DD) where a shallow clone's history of main begins, or None when it is complete."""
+    dates = _boundary_dates(git)
     return max(dates) if dates else None
 
 
@@ -573,11 +589,10 @@ def changes_since(subject: str, date: str, git=_git, audit_path: str | None = No
     The audit's own commit is not a change since the audit: given `audit_path`, the log starts after the commit that
     added that file. Before this, every queued row of a census day pointed at the census commit itself, which edits
     the subject's README (process run 2026-11-18T18:52 and #17455: 14 of 15 shown rows were that commit)."""
-    ref = "origin/main" if git(["rev-parse", "--verify", "-q", "origin/main"]).strip() else "HEAD"
+    ref = _ref(git)
     boundary = _shallow_boundary(git)
     if boundary:
-        dates = [git(["log", "-1", "--format=%cs", b]).strip() for b in boundary]
-        dates = [d for d in dates if d]
+        dates = _boundary_dates(git, ref, boundary)
         if dates and max(dates) > date:
             return {"status": "unknown", "commits": [],
                     "why": f"history starts {max(dates)}; git fetch --shallow-since={date} origin main"}
