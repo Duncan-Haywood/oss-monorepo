@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html", "prompt-payment-laws.html", "change-order-log.html"];
+const PAGES = ["index.html", "how-to-fill-out-a-pay-application.html", "retainage-explained.html", "conditional-vs-unconditional-lien-waivers.html", "change-orders-schedule-of-values.html", "schedule-of-values-template.html", "retainage-in-quickbooks.html", "lien-waiver-forms-by-state.html", "prompt-payment-laws.html", "change-order-log.html", "pay-application-software-compared.html"];
 
 test("every page carries the no-warranty clause, sponsor link, opt-out and honest CTA", () => {
   for (const name of PAGES) {
@@ -124,4 +124,21 @@ test("the prompt payment table links each state to its official legislature site
   for (const [, state, href] of rows) assert.match(href, official, state);
   assert.match(html, /2026-11-25/);
   for (const id of ["pp-state", "pp-amount", "pp-received", "pp-paid", "pp-days", "pp-rate", "pp-per", "pp-method"]) assert.match(html, new RegExp(`<label for="${id}">`));
+});
+
+test("the software comparison dates its prices, marks aggregator prices, and links each portal fee to the vendor's help site", () => {
+  const html = page("pay-application-software-compared.html");
+  assert.match(html, /2026-11-25/);
+  const opts = html.slice(html.indexOf('id="options"'), html.indexOf("</table>", html.indexOf('id="options"')));
+  // A review-site price must say so in its own row.
+  for (const row of opts.match(/<tr role="row">[\s\S]*?<\/tr>/g)) {
+    if (/toolradar\.com|capterra\.com|g2\.com|getapp\.com|softwareadvice\.com/.test(row)) assert.match(row, /aggregator/, row.slice(0, 80));
+  }
+  const start = html.indexOf('id="portals"');
+  const portals = html.slice(start, html.indexOf("</table>", start));
+  const rows = [...portals.matchAll(/<tr role="row"><td[^>]*>([^<]+)<\/td><td[^>]*>[^]*?<a href="([^"]+)"/g)];
+  assert.equal(rows.length, 3);
+  for (const [, name, href] of rows) assert.match(href, /^https:\/\/(docs\.oracle\.com|support\.procore\.com|help\.trimble\.com)\//, name);
+  assert.match(html, /not affiliated with any company named here/);
+  for (const id of ["pf-portal", "pf-contract", "pf-jobs", "pf-before", "pf-subtier", "pf-gcpays"]) assert.match(html, new RegExp(`<label for="${id}">`));
 });
