@@ -246,7 +246,6 @@
   </footer>
   <script type="module">
     import { runInbox, checkDraft, csv, CATEGORIES, SAMPLE_REPLIES, SAMPLE_PROSPECTS, SAMPLE_OFFER, iso } from "./engine.mjs";
-    import { runInboxWithModel } from "./ai.mjs";
     import { runDaily, csvQueue, csvLeftOut, callMarks, callLog, addCall } from "./daily.mjs";
     import { holidayChecker } from "./holidays.mjs";
     import { runResearch, csvAccounts, csvLeftOutResearch, SAMPLE_CRM } from "./research.mjs";
@@ -254,7 +253,12 @@
     import { runFollowUp } from "./followup.mjs";
     import { appendDictation, speakable } from "./voice.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
-    import { createCollector, MboxSplitter, isMbox, describe } from "./mailfile.mjs";
+    // The model client (ai.mjs, byok.mjs) and the mail-file reader (mailfile.mjs, mime.mjs), about 18 kB gzip of the
+    // page's 134 kB, load when first used: with your own model key set, or on a mail-file pick (perf, 2026-11-25;
+    // docs/history/sales-agent-page-perf-2026-11-25.md). A failed fetch is forgotten, so the next try fetches again.
+    const onDemand = (load) => { let p = null; return () => (p ??= load().catch((e) => { p = null; throw e; })); };
+    const aiModule = onDemand(() => import("./ai.mjs"));
+    const mailModule = onDemand(() => import("./mailfile.mjs"));
     const $ = (s) => document.querySelector(s);
     const SAVE = "sales-agent:setup", AIKEY = "sales-agent:ai";
     const OFFER = { sender: "sender", company: "company", address: "address", product: "product", booking_link: "booking", value: "value" };
@@ -323,14 +327,16 @@
       approved.clear();
       $("#go").disabled = true;
       try {
-        if (cfg.provider) {
+        // The model client is fetched on first use; if that fetch fails, the built-in rules read the replies instead.
+        const ai = cfg.provider ? await aiModule().catch(() => null) : null;
+        if (ai) {
           $("#status").textContent = "Asking your model to read each reply…";
-          result = await runInboxWithModel(cfg, input);
+          result = await ai.runInboxWithModel(cfg, input);
           $("#status").textContent = "Read " + result.items.length + " replies with your model" + (result.errors.length ? " (" + result.errors.length + " fell back to the rules: " + result.errors[0] + ")" : "") + ". Nothing was sent.";
           record("ai_run");
         } else {
           result = runInbox(input);
-          $("#status").textContent = "Read " + result.items.length + " replies with the built-in rules. Nothing was sent.";
+          $("#status").textContent = (cfg.provider ? "Your model's client could not be loaded (check the connection). " : "") + "Read " + result.items.length + " replies with the built-in rules. Nothing was sent.";
         }
         if (!result.items.length) { $("#status").textContent = "No replies found. Start each with From: or separate them with ---."; return; }
         render();
@@ -347,6 +353,9 @@
     async function readMail(files) {
       if (!files || !files.length) return;
       const own = $("#mail-own").value.split(/[,;\s]+/).filter(Boolean);
+      let mf;
+      try { mf = await mailModule(); } catch { $("#mail-status").textContent = "The mail-file reader could not be loaded. Check the connection and choose the file again."; return; }
+      const { createCollector, MboxSplitter, isMbox, describe } = mf;
       const c = createCollector({ own });
       let cut = 0;
       $("#mail-status").textContent = "Reading " + files.length + " file" + (files.length === 1 ? "" : "s") + "…";
