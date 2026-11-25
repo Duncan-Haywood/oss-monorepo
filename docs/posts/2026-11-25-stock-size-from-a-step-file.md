@@ -3,7 +3,7 @@ title: "Stock size from a STEP file, without opening CAD or uploading the model"
 date: 2026-11-25
 tags: [for-customers, machine-shop-guides, job-shops, quoting, cnc, step-files]
 seo_title: "STEP file stock size and bounding box calculator for quoting"
-description: "Drop a STEP or STL file and get the bounding box, round bar and stock to cut, with your allowances, in the browser. Checked against OpenCascade on 68 parts."
+description: "Drop a STEP or STL file: bounding box, round bar, stock to cut and a first cycle time from your own feeds, in the browser. Checked on 68 parts."
 ---
 
 The material line of a machined-part quote starts with a question that has nothing to do with money: what stock does this come out of? The answer is in the customer's model. Getting it out usually means opening the STEP file in CAD and measuring, or uploading it to a quoting platform that reads it on its own servers. A small shop's estimator may not have a CAD seat free, and many customers would rather their drawings were not uploaded anywhere.
@@ -16,6 +16,18 @@ The new [stock size page](https://marisstella.app/machine-shop-guides/stock-size
 - **weight and material cost**, if you give a density and your own price per pound, kilogram, foot or metre. One button carries that cost into the [job-shop quote calculator](https://marisstella.app/machine-shop-guides/job-shop-quote-calculator.html), which adds setup, programming, cycle time, outside processes and markup at each quantity break.
 
 An STL file also gives the part's volume, so the page tells you how much of the bar becomes chips.
+
+## A cycle time from your own feeds
+
+Added the same day: give the page your roughing width of cut, depth of cut and feed, and your finishing stepover and feed, and it turns an STL into a first cycle time. This is the volumetric method estimators use before anyone opens CAM:
+
+- **roughing** = the metal to remove (the first stock option's volume minus the part's volume) ÷ (width × depth × feed);
+- **finishing** = the part's surface area ÷ (stepover × finishing feed);
+- **cycle** = (roughing + finishing) × (1 + your allowance for rapids and tool changes) + your load and unload time.
+
+A worked check from the tests: a 10 mm cube cut from 12 mm stock removes 728 mm³. At 2 mm × 4 mm × 91 mm/min that is 1.0 minute of roughing; its 600 mm² of surface at a 0.5 mm stepover and 120 mm/min is 10 minutes of finishing; with a 25% allowance and 1.5 minutes to load, 15.25 minutes a part. Those feeds are test inputs, not advice: every cutting field on the page starts empty, because a feed we chose would be wrong for your machine, tool and material.
+
+The estimate counts every face as finished, so it runs long on faces left as raw stock, and it knows nothing about holes, threads or setups. The same button that carries the material cost now carries the cycle time into the quote calculator, where the factor from [quoted vs actual](https://marisstella.app/machine-shop-guides/quote-vs-actual.html) corrects it from your own past jobs. STEP files give no volume or surface area on this page yet, so the cycle time needs an STL of the same part.
 
 ## How it measures
 

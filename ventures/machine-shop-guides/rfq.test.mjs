@@ -152,9 +152,10 @@ test("long digit and comma runs stay linear (no regex backtracking blow-up)", ()
   }
 });
 
-test("escapeRegExp escapes backslashes and every metacharacter", () => {
-  const raw = String.raw`a\b.c*d+e?f(g)h[i]j{k}l|m^n$o/p-q`;
-  assert.ok(new RegExp(`^${escapeRegExp(raw)}$`).test(raw));
-  assert.equal(escapeRegExp("252.204"), String.raw`252\.204`);
-  assert.equal(escapeRegExp("\\"), "\\\\");
+test("escapeRegExp makes every metacharacter literal, backslash included", () => {
+  for (const s of ["252.204", "a\\.b", "(x)[y]{z}", "^$|?*+", "c:\\path\\"]) {
+    assert.ok(new RegExp(`^${escapeRegExp(s)}$`).test(s), s);
+  }
+  assert.equal(new RegExp(escapeRegExp("252.204")).test("252x204"), false);
+  assert.equal(new RegExp(escapeRegExp("a\\.b")).test("a\\xb"), false);
 });

@@ -28,26 +28,21 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
-  "errors": [],
+  "outcome": "failed",
+  "errors": [
+    "Misread `security_next.py --claim` exit 3 ('None to take') as my own claim being counted; it meant another session had claimed #1248 first. That session's PR #18928 landed the same fix while this PR waited on CI, so this PR's code change was dropped at merge and only this record lands."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "platform/ci/security_next.py",
-      "issue": "--claim printed 'None to take' (exit 3) after successfully pushing the claim branch, because the recount sees its own claim; had to confirm via git ls-remote that the branch parent was my HEAD."
+      "issue": "When --claim loses the race it prints the generic 'None to take: go to step 1' rather than 'claim rejected: alert #N already claimed by another run', which is easy to misread as success."
     }
   ],
-  "deviations": [
-    {
-      "file": "prompt.md",
-      "why": "Step 0 security alert took the run; did not also do bet work or write a post, since a one-line regex hardening merits no post.",
-      "did": "Fixed alert #1248 with a test only.",
-      "result": "Small, verified PR."
-    }
-  ],
+  "deviations": [],
   "writeups": [],
   "goal": null,
-  "notes": "node --test ventures/machine-shop-guides/rfq.test.mjs: 14/14 pass. risk_review: nothing blocked.",
+  "notes": "Duplicate of PR #18928 (same alert #1248). Took main's rfq.mjs/rfq.test.mjs at merge; node --test rfq.test.mjs passes on main's version. Lesson: if --claim exits non-zero, don't fix the alert.",
   "corrections": [],
   "redteam": null,
   "usage": {

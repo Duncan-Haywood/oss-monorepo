@@ -88,6 +88,11 @@ const DRAWING_RE = /\b(drawings?|dwgs?|prints?|blueprints?|\.pdf|pdf|step|\.stp|
 
 const MAX_QTY = 10_000_000;
 
+/** Escape every regex metacharacter (backslash included) so a string matches literally. */
+export function escapeRegExp(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function snippet(text, index, len) {
   const start = Math.max(0, index - 30);
   const end = Math.min(text.length, index + len + 30);
@@ -173,11 +178,6 @@ function findSpecs(text) {
     if (!seen.has(key)) seen.set(key, snippet(text, m.index, m[0].length));
   }
   return [...seen].map(([spec, evidence]) => ({ spec, evidence }));
-}
-
-// Escape every regex metacharacter (backslash included), not just dots.
-export function escapeRegExp(s) {
-  return String(s).replace(/[\\^$.*+?()[\]{}|\/-]/g, "\\$&");
 }
 
 function findClauses(text) {

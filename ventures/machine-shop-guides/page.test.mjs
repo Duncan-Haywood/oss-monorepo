@@ -51,7 +51,7 @@ test("CMMC guide carries a dated status check", () => {
 
 test("the stock page ships no material price and keeps the file in the browser", () => {
   const html = read("stock-size-from-step-file");
-  for (const name of ["price"]) {
+  for (const name of ["price", "roughWidth", "roughDepth", "roughFeed", "finishStepover", "finishFeed", "allowancePct", "loadMinutes"]) {
     const m = html.match(new RegExp(`<input name="${name}"[^>]*>`));
     assert.ok(m, name);
     assert.doesNotMatch(m[0], /value=/, `${name} has a default value`);
