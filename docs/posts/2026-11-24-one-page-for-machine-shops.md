@@ -365,6 +365,23 @@ The address only starts working once the app is deployed and the receiving
 domain is routed to it. Until then the RFQs page doesn't show the option at
 all.
 
+**Later the same day: an email when one arrives.** An RFQ sitting unseen in
+the inbox is a quote that goes out late. Each person in the shop can now tick
+"Email me when an RFQ arrives" on the RFQs page, for themselves only. When a
+new RFQ comes in, each of them gets a short notice: the subject, who the email
+says it is from, how many drawings were stored, and a link straight to it.
+
+- **A notice, not a copy.** The notice never carries the email's text or its
+  attachments, so the shop's address can't be used to pass a stranger's
+  message on under the app's name. The subject and sender came from outside,
+  so web addresses in them are broken up (`example[.]com`) and can't be
+  clicked. The only link in the notice goes to the RFQ in the app.
+- **Only the people who asked.** It is off until each person turns it on,
+  someone who has left the shop is never emailed, and a message the mail
+  system delivers twice sends one notice, not two.
+- **It never costs you the RFQ.** If the notice can't be sent, the RFQ is
+  still in the inbox.
+
 ## Update, 25 November 2026: change a routing without starting over
 
 Routing templates were save-and-apply only: to change a cycle time or add a
