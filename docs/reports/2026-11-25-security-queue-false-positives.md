@@ -58,3 +58,26 @@ Checked by reading `main` at `f67c21c96`. No code change was needed.
   - `js/regex-injection` #104 and #105 (`platform/ci/copy_drift.mjs:189-190`). `--name` and `--skip` are regex flags typed by whoever runs the local CI script.
   - `js/regex-injection` #106 (`dxf-nesting/dxf.mjs:174`). "Ignore layers matching" is a regex the user types into their own browser tab or CLI, and no one else's input reaches it.
 - **Still unchecked:** the remaining `js/double-escaping` alerts, #119 onward. Most of them are in `*.test.mjs` files, and the same reasoning as the test-file note above applies.
+
+## Third pass, same day: fixed in code (queue scanned at `5f857bb81c00`)
+
+The top Python alerts (#7, #12, #34, #38, #39, #42, #43) were still listed. They are the false positives
+in the table above, unchanged on `main` at `9c5cc9ec3`. The next unclaimed fixable alerts were fixed:
+
+- **#65** `js/incomplete-sanitization` in `ventures/pay-app-guides/template.test.mjs:62`. The test escaped
+  only `.` in a label before building a regex. It now uses a full `escapeRegExp`. The labels are unchanged.
+- **#849** `js/incomplete-sanitization` in `platform/agents/tools.mjs:170`. `commentFor` escaped only `$` in
+  an export name. It now escapes every regex metacharacter, and a test checks that `.el` no longer matches `xel`.
+- **#862** `js/incomplete-sanitization` in `research/.../report-app/src/use-data-app.js:315`. It replaced
+  only the first `..` in a range filter label. It now uses `replaceAll`.
+
+Left alone, by design:
+
+- **#741** `js/incomplete-sanitization` in `ventures/shopify-to-woocommerce-converter/converter.mjs:69`.
+  `esc` writes `\,` for a literal comma in an attribute value, which is the escape WooCommerce's CSV importer
+  reads (`explode_values` swaps `\,` for a placeholder before it splits on commas). That importer never
+  unescapes `\\`, so escaping backslashes too would put doubled backslashes into the shop's product data.
+  The only miss is a value that ends in a backslash, and the fix for that is not the one CodeQL suggests.
+
+`QUEUE.md` now points to these notes (`platform/ci/security_alerts.py`). This run re-read #7 to #43
+before it found this file.

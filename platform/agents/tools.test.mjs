@@ -68,6 +68,12 @@ test('commentFor returns the comment above an export and the module header', () 
   assert.equal(commentFor(src, 'bare'), '');
 });
 
+test('commentFor matches names with regex metacharacters literally', () => {
+  const src = '// Dollar.\nexport const $el = 1;\n// Other.\nexport const xel = 2;\n';
+  assert.equal(commentFor(src, '$el'), 'Dollar.');
+  assert.equal(commentFor(src, '.el'), '');
+});
+
 test('toJson keeps Maps, Sets, Infinity and BigInt readable', () => {
   assert.equal(toJson({ m: new Map([['a', 1]]), s: new Set([2]), i: Infinity, b: 3n, f: () => 1 }, 0), '{"m":{"a":1},"s":[2],"i":"Infinity","b":"3"}');
 });

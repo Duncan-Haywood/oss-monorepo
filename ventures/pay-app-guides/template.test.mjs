@@ -6,6 +6,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { OUTPUTS, buildWorkbook, EXAMPLE, FIRST, LAST, TOTAL } from "./template.mjs";
 
+const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 // Read the stored entries back out of our own zip.
 function unzip(buf) {
   const out = {};
@@ -59,7 +61,7 @@ function recalc(buf) {
 test("recalculated, the example matches the worked example in the guides", { skip: !soffice() && "soffice not installed" }, () => {
   const { cs, summary } = recalc(buildWorkbook(EXAMPLE));
   for (const [label, value] of [["3. Contract sum to date", "158500"], ["4. Total completed and stored to date", "79850"], ["5. Retainage", "7985"], ["6. Total earned less retainage", "71865"], ["8. Current payment due", "40365"]]) {
-    assert.match(summary, new RegExp(`^"?${label.replace(/\./g, "\\.")}"?,,${value},`, "m"), label);
+    assert.match(summary, new RegExp(`^"?${escapeRegExp(label)}"?,,${value},`, "m"), label);
   }
   assert.match(summary, /^"9\. Balance to finish, including retainage",,86635,/m);
   assert.match(cs, /^3,Switchgear \(stored on site\),60000,9000,6000,15000,30000,[^,]*,30000,3000,$/m);
