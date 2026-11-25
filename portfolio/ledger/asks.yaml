@@ -94,7 +94,7 @@ decisions:
 
 - id: private-actions-billing
   asks: []
-  prs: []
+  prs: [18753]
   gates: deployment
   exposure: credential
   opened: "2026-11-25"
