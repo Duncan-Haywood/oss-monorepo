@@ -28,7 +28,10 @@ and `--direction security-first`.
 - **Identity.** No long-lived keys anywhere. CI authenticates with GitHub
   OIDC to `gha-<repo>-<stack>-plan` (pull requests, read-only, run with
   `-lock=false`) or `gha-<repo>-<stack>-apply` (main only, GitHub environment
-  `aws-prod`). Each role lives in the account its stack changes. Providers
+  `aws-prod`). The foundation stacks (bootstrap, org, baseline,
+  baseline/account, github-oidc) share `gha-oss-monorepo-foundation-plan` /
+  `-apply` from the CloudFormation seed, environment `aws-foundation`
+  (owner-approved). Each role lives in the account its stack changes. Providers
   take `var.deploy_role_arn` (default `null`) and assume it through a
   `dynamic "assume_role"` block: CI, already holding the stack's role, leaves
   it null; a human session or a role chain sets it. Never hardcode an account
@@ -110,8 +113,11 @@ Every step is one AWS forces on a human or that only the owner may decide.
 2. **Launch the seed** in that account, region us-east-1: CloudFormation,
    Create stack, upload `bootstrap/cfn/github-oidc-seed.yaml`, accept the
    defaults. It creates the GitHub OIDC provider and the two foundation roles.
-3. **In GitHub** (repository settings): create the environment `aws-prod`,
-   limited to the `main` branch (a required reviewer is optional); add the
+3. **In GitHub** (repository settings): create two environments, both limited
+   to the `main` branch: `aws-foundation` with yourself as required reviewer
+   (its role administers the whole organization, so each foundation apply
+   waits for your click), and `aws-prod` without a reviewer (workload stacks,
+   each bounded to its own account and role prefix). Add the
    Actions variables `AWS_MANAGEMENT_ACCOUNT_ID` and
    `AWS_ACCOUNT_EMAIL_TEMPLATE` (for example `aws+%s@<your domain>`, one
    address per member account; it is personal data, so a variable, not a

@@ -2,18 +2,169 @@
 # Plan only: the log bucket has prevent_destroy, and every asserted value is
 # computed from inputs.
 
-mock_provider "aws" {}
+mock_provider "aws" {
+  mock_resource "aws_kms_key" {
+    defaults = { arn = "arn:aws:kms:us-east-1:111111111111:key/11111111-2222-3333-4444-555555555555", key_id = "11111111-2222-3333-4444-555555555555" }
+  }
+  mock_resource "aws_sqs_queue" {
+    defaults = { arn = "arn:aws:sqs:us-east-1:111111111111:mock-queue", id = "https://sqs.us-east-1.amazonaws.com/111111111111/mock-queue" }
+  }
+  mock_resource "aws_iam_role" {
+    defaults = { arn = "arn:aws:iam::111111111111:role/mock-role" }
+  }
+  mock_resource "aws_iam_policy" {
+    defaults = { arn = "arn:aws:iam::111111111111:policy/mock-policy" }
+  }
+  mock_resource "aws_iam_openid_connect_provider" {
+    defaults = { arn = "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com" }
+  }
+  mock_resource "aws_cloudwatch_event_rule" {
+    defaults = { arn = "arn:aws:events:us-east-1:111111111111:rule/mock-rule" }
+  }
+  mock_resource "aws_s3_bucket" {
+    defaults = { arn = "arn:aws:s3:::mock-bucket" }
+  }
+  mock_resource "aws_securityhub_configuration_policy" {
+    defaults = { id = "11111111-2222-3333-4444-555555555555", arn = "arn:aws:securityhub:us-east-1:111111111111:configuration-policy/11111111-2222-3333-4444-555555555555" }
+  }
+  mock_resource "aws_cloudtrail" {
+    defaults = { arn = "arn:aws:cloudtrail:us-east-1:111111111111:trail/mock" }
+  }
+  mock_resource "aws_accessanalyzer_analyzer" {
+    defaults = { arn = "arn:aws:access-analyzer:us-east-1:111111111111:analyzer/mock" }
+  }
+}
 mock_provider "aws" {
   alias = "management_west"
+  mock_resource "aws_kms_key" {
+    defaults = { arn = "arn:aws:kms:us-east-1:111111111111:key/11111111-2222-3333-4444-555555555555", key_id = "11111111-2222-3333-4444-555555555555" }
+  }
+  mock_resource "aws_sqs_queue" {
+    defaults = { arn = "arn:aws:sqs:us-east-1:111111111111:mock-queue", id = "https://sqs.us-east-1.amazonaws.com/111111111111/mock-queue" }
+  }
+  mock_resource "aws_iam_role" {
+    defaults = { arn = "arn:aws:iam::111111111111:role/mock-role" }
+  }
+  mock_resource "aws_iam_policy" {
+    defaults = { arn = "arn:aws:iam::111111111111:policy/mock-policy" }
+  }
+  mock_resource "aws_iam_openid_connect_provider" {
+    defaults = { arn = "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com" }
+  }
+  mock_resource "aws_cloudwatch_event_rule" {
+    defaults = { arn = "arn:aws:events:us-east-1:111111111111:rule/mock-rule" }
+  }
+  mock_resource "aws_s3_bucket" {
+    defaults = { arn = "arn:aws:s3:::mock-bucket" }
+  }
+  mock_resource "aws_securityhub_configuration_policy" {
+    defaults = { id = "11111111-2222-3333-4444-555555555555", arn = "arn:aws:securityhub:us-east-1:111111111111:configuration-policy/11111111-2222-3333-4444-555555555555" }
+  }
+  mock_resource "aws_cloudtrail" {
+    defaults = { arn = "arn:aws:cloudtrail:us-east-1:111111111111:trail/mock" }
+  }
+  mock_resource "aws_accessanalyzer_analyzer" {
+    defaults = { arn = "arn:aws:access-analyzer:us-east-1:111111111111:analyzer/mock" }
+  }
 }
 mock_provider "aws" {
   alias = "log_archive"
+  mock_resource "aws_kms_key" {
+    defaults = { arn = "arn:aws:kms:us-east-1:111111111111:key/11111111-2222-3333-4444-555555555555", key_id = "11111111-2222-3333-4444-555555555555" }
+  }
+  mock_resource "aws_sqs_queue" {
+    defaults = { arn = "arn:aws:sqs:us-east-1:111111111111:mock-queue", id = "https://sqs.us-east-1.amazonaws.com/111111111111/mock-queue" }
+  }
+  mock_resource "aws_iam_role" {
+    defaults = { arn = "arn:aws:iam::111111111111:role/mock-role" }
+  }
+  mock_resource "aws_iam_policy" {
+    defaults = { arn = "arn:aws:iam::111111111111:policy/mock-policy" }
+  }
+  mock_resource "aws_iam_openid_connect_provider" {
+    defaults = { arn = "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com" }
+  }
+  mock_resource "aws_cloudwatch_event_rule" {
+    defaults = { arn = "arn:aws:events:us-east-1:111111111111:rule/mock-rule" }
+  }
+  mock_resource "aws_s3_bucket" {
+    defaults = { arn = "arn:aws:s3:::mock-bucket" }
+  }
+  mock_resource "aws_securityhub_configuration_policy" {
+    defaults = { id = "11111111-2222-3333-4444-555555555555", arn = "arn:aws:securityhub:us-east-1:111111111111:configuration-policy/11111111-2222-3333-4444-555555555555" }
+  }
+  mock_resource "aws_cloudtrail" {
+    defaults = { arn = "arn:aws:cloudtrail:us-east-1:111111111111:trail/mock" }
+  }
+  mock_resource "aws_accessanalyzer_analyzer" {
+    defaults = { arn = "arn:aws:access-analyzer:us-east-1:111111111111:analyzer/mock" }
+  }
 }
 mock_provider "aws" {
   alias = "security"
+  mock_resource "aws_kms_key" {
+    defaults = { arn = "arn:aws:kms:us-east-1:111111111111:key/11111111-2222-3333-4444-555555555555", key_id = "11111111-2222-3333-4444-555555555555" }
+  }
+  mock_resource "aws_sqs_queue" {
+    defaults = { arn = "arn:aws:sqs:us-east-1:111111111111:mock-queue", id = "https://sqs.us-east-1.amazonaws.com/111111111111/mock-queue" }
+  }
+  mock_resource "aws_iam_role" {
+    defaults = { arn = "arn:aws:iam::111111111111:role/mock-role" }
+  }
+  mock_resource "aws_iam_policy" {
+    defaults = { arn = "arn:aws:iam::111111111111:policy/mock-policy" }
+  }
+  mock_resource "aws_iam_openid_connect_provider" {
+    defaults = { arn = "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com" }
+  }
+  mock_resource "aws_cloudwatch_event_rule" {
+    defaults = { arn = "arn:aws:events:us-east-1:111111111111:rule/mock-rule" }
+  }
+  mock_resource "aws_s3_bucket" {
+    defaults = { arn = "arn:aws:s3:::mock-bucket" }
+  }
+  mock_resource "aws_securityhub_configuration_policy" {
+    defaults = { id = "11111111-2222-3333-4444-555555555555", arn = "arn:aws:securityhub:us-east-1:111111111111:configuration-policy/11111111-2222-3333-4444-555555555555" }
+  }
+  mock_resource "aws_cloudtrail" {
+    defaults = { arn = "arn:aws:cloudtrail:us-east-1:111111111111:trail/mock" }
+  }
+  mock_resource "aws_accessanalyzer_analyzer" {
+    defaults = { arn = "arn:aws:access-analyzer:us-east-1:111111111111:analyzer/mock" }
+  }
 }
 mock_provider "aws" {
   alias = "security_west"
+  mock_resource "aws_kms_key" {
+    defaults = { arn = "arn:aws:kms:us-east-1:111111111111:key/11111111-2222-3333-4444-555555555555", key_id = "11111111-2222-3333-4444-555555555555" }
+  }
+  mock_resource "aws_sqs_queue" {
+    defaults = { arn = "arn:aws:sqs:us-east-1:111111111111:mock-queue", id = "https://sqs.us-east-1.amazonaws.com/111111111111/mock-queue" }
+  }
+  mock_resource "aws_iam_role" {
+    defaults = { arn = "arn:aws:iam::111111111111:role/mock-role" }
+  }
+  mock_resource "aws_iam_policy" {
+    defaults = { arn = "arn:aws:iam::111111111111:policy/mock-policy" }
+  }
+  mock_resource "aws_iam_openid_connect_provider" {
+    defaults = { arn = "arn:aws:iam::111111111111:oidc-provider/token.actions.githubusercontent.com" }
+  }
+  mock_resource "aws_cloudwatch_event_rule" {
+    defaults = { arn = "arn:aws:events:us-east-1:111111111111:rule/mock-rule" }
+  }
+  mock_resource "aws_s3_bucket" {
+    defaults = { arn = "arn:aws:s3:::mock-bucket" }
+  }
+  mock_resource "aws_securityhub_configuration_policy" {
+    defaults = { id = "11111111-2222-3333-4444-555555555555", arn = "arn:aws:securityhub:us-east-1:111111111111:configuration-policy/11111111-2222-3333-4444-555555555555" }
+  }
+  mock_resource "aws_cloudtrail" {
+    defaults = { arn = "arn:aws:cloudtrail:us-east-1:111111111111:trail/mock" }
+  }
+  mock_resource "aws_accessanalyzer_analyzer" {
+    defaults = { arn = "arn:aws:access-analyzer:us-east-1:111111111111:analyzer/mock" }
+  }
 }
 
 variables {

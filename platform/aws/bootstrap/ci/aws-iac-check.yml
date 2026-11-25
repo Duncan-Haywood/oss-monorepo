@@ -31,12 +31,14 @@ jobs:
           tofu_wrapper: false
       - name: validate and test every stack and module
         run: |
-          set -euo pipefail
+          set -uo pipefail
+          failed=()
           for dir in $(find platform/aws -name '*.tf' -not -path '*/.terraform/*' -exec dirname {} \; | sort -u); do
             echo "::group::$dir"
-            (cd "$dir" && tofu init -backend=false -input=false && tofu validate && { [ ! -d tests ] || tofu test; })
+            (cd "$dir" && tofu init -backend=false -input=false && tofu validate && { [ ! -d tests ] || tofu test; }) || failed+=("$dir")
             echo "::endgroup::"
           done
+          if [ ${#failed[@]} -gt 0 ]; then printf '::error::failed: %s\n' "${failed[@]}"; exit 1; fi
       - name: tofu fmt -check (prints the diff)
         if: always()
         run: tofu fmt -check -diff -recursive platform/aws
