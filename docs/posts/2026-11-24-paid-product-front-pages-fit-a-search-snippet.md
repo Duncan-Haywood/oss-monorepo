@@ -2,7 +2,7 @@
 title: "Eighteen product pages whose search snippet stopped mid-sentence"
 seo_title: "Rewriting 18 meta descriptions to fit a 160-character snippet"
 date: 2026-11-24
-tags: [polish, seo, meta-description, wall-framing-takeoff]
+tags: [polish, seo, meta-description, wall-framing-takeoff, structured-data, pay-app-guides]
 description: "The front pages of the tools moving to paid editions had meta descriptions of 178 to 355 characters. Each now fits in 160, and a ratchet stops new long ones."
 ---
 
@@ -78,3 +78,22 @@ was cut after "the shorter first riser, stringer length, strin…". After (139):
 Nothing was added that the old text did not say. Titles, `og:description` and
 the pages' JSON-LD were left alone; the share-card text is the next thing to
 shorten.
+
+## Update, 2026-11-25: the structured data behind the snippet
+
+The pay application guides are the free front door to the pay-app billing
+product, and each carries a small block of Article structured data. Every
+block had a headline and dates but no picture, publisher, author or
+address. Across the catalogue, 97 hand-written Article blocks had
+the same gap, and so did every post on this blog.
+
+The site build now fills in what a page left out: its own address, the share
+card picture it already shows on social sites, and the site's organisation as
+author and publisher. A value the page sets itself always wins. When a later
+step draws a page its own share card, the structured data moves to that card
+too, so the two never name different pictures. The pay application
+generator's description was also cut from 312 characters to 156, so its
+search snippet no longer stops at "the contract sum…".
+
+As before, no traffic change is claimed. Search engines read these fields,
+but whether they show them is their decision, and usage here is unmeasured.

@@ -72,6 +72,13 @@ test('commentFor returns the comment above an export and the module header', () 
   assert.equal(commentFor(s2, 'a.'), '');
 });
 
+test('commentFor matches the export name literally, not as a pattern', () => {
+  const src = '// Dollar.\nexport const $q = 1;\n// Other.\nexport const axb = 2;\n';
+  assert.equal(commentFor(src, '$q'), 'Dollar.');
+  // A name with pattern characters must not match a different export ('a.b' is not 'axb').
+  assert.equal(commentFor(src + '// Dot.\nexport const a = {};\n', 'a.b'), '');
+});
+
 test('toJson keeps Maps, Sets, Infinity and BigInt readable', () => {
   assert.equal(toJson({ m: new Map([['a', 1]]), s: new Set([2]), i: Infinity, b: 3n, f: () => 1 }, 0), '{"m":{"a":1},"s":[2],"i":"Infinity","b":"3"}');
 });
