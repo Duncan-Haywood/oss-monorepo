@@ -66,7 +66,10 @@ test("guide tables stack on a phone, every cell labelled with its column header"
     const at = html.indexOf("<main>");
     const table = html.slice(html.indexOf("<table", at), html.indexOf("</table>", at));
     assert.match(table, /^<table(?: id="[^"]*")? class="stack( compact)?" role="table">/, name);
-    const heads = [...table.split("</thead>")[0].matchAll(/<th role="columnheader" scope="col"[^>]*>(.*?)<\/th>/g)].map((m) => m[1].replace(/<[^>]+>/g, "").trim());
+    // Headers are plain text (no markup), so the captured text is the label as written.
+    const thead = table.split("</thead>")[0];
+    const heads = [...thead.matchAll(/<th role="columnheader" scope="col"[^>]*>([^<]*)<\/th>/g)].map((m) => m[1].trim());
+    assert.equal(heads.length, (thead.match(/<th /g) || []).length, `${name}: a column header holds markup`);
     const rows = table.split("</thead>")[1].match(/<tr[^>]*>[\s\S]*?<\/tr>/g);
     assert.ok(rows.length >= 2, name);
     for (const row of rows) {
