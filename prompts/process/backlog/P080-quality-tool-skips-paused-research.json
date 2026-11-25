@@ -20,7 +20,7 @@
   "baseline": "Never measured as a weekly count; on 2026-11-25 the queue's high rows were 20/21 research",
   "opened": "2026-11-25",
   "source": "process run 2026-11-25 (critique: quality queue read against the 2026-11-25 research pause)",
-  "pr": "this",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19010",
   "result": null,
   "history": [
     {
