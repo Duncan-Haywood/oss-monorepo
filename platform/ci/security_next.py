@@ -173,6 +173,11 @@ def main(argv: list[str] | None = None) -> int:
           f"{len((listed - claimed) & triaged)} more triaged ({TRIAGE_JSON}, {TRIAGE_GLOB}); "
           f"{len(todo)} workable.")
     if not todo:
+        if args.claim:
+            # The usual way here: a plain read listed an alert, another run claimed it
+            # before this --claim. Say so plainly so nobody starts on an alert they lost.
+            print("Nothing claimed by this run: any alert an earlier read listed now belongs "
+                  "to another run's claim branch, so do not start on it.")
         print("None to take: go to step 1 (route).")
         return 3
     if scanned:

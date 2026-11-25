@@ -133,5 +133,37 @@ class ClaimRaceTest(unittest.TestCase):
                 self.assertIn(f"refs/heads/{security_next.BRANCH_PREFIX}{n}", refs)
 
 
+class LostClaimMessageTest(unittest.TestCase):
+    """--claim with nothing workable says this run claimed nothing (a lost race reads as one)."""
+
+    def _main(self, argv):
+        import contextlib
+        import io
+        from unittest import mock
+
+        ls = "\n".join(f"0\trefs/heads/{security_next.BRANCH_PREFIX}{n}" for n in (7, 65, 120, 200))
+
+        def fake_git(*args, check=True):
+            out = {"show": QUEUE, "ls-remote": ls}.get(args[0], "")
+            return subprocess.CompletedProcess(args, 0, out, "")
+
+        buf = io.StringIO()
+        with mock.patch.object(security_next, "git", fake_git), \
+                mock.patch.object(security_next, "triaged_on_main", lambda: set()), \
+                contextlib.redirect_stdout(buf):
+            code = security_next.main(argv)
+        return code, buf.getvalue()
+
+    def test_claim_with_nothing_workable(self):
+        code, out = self._main(["--claim"])
+        self.assertEqual(code, 3)
+        self.assertIn("Nothing claimed by this run", out)
+
+    def test_plain_read_keeps_short_message(self):
+        code, out = self._main([])
+        self.assertEqual(code, 3)
+        self.assertNotIn("Nothing claimed", out)
+
+
 if __name__ == "__main__":
     unittest.main()
