@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseXer, parseDate } from "./xer.mjs";
+import { parseXer, parseDate, formatDate } from "./xer.mjs";
 import { EXAMPLE_XER, EXAMPLE_PREV_XER } from "./example.mjs";
 import { exampleSeries } from "./example-series.mjs";
 import { statusAsPlanned } from "./status.mjs";
@@ -44,6 +44,9 @@ test("windows sort by data date, split each window and add up", () => {
   const c = compare(series[0].xer, series[1].xer);
   assert.equal(w1.moved, c.finish.moved);
   assert.equal(w1.progressEffect, c.finish.progressEffect);
+  // the driving path at the start, first activities first
+  assert.deepEqual(w1.pathAtStart, c.criticalPath.previous.slice(0, 8));
+  assert.equal(w1.pathLength, c.criticalPath.previous.length);
   // May: paint re-estimated 8 -> 11 days, a revision of +3
   assert.deepEqual([w2.moved, w2.progressEffect, w2.revisionEffect], [3, 0, 3]);
   assert.ok(w2.drivers.revisions.some((d) => d.code === "A1150"));
@@ -117,6 +120,9 @@ test("work under way on the driving path that slipped one day is named", () => {
   const jul = statusAsPlanned(apr, "77", parseDate("2026-07-01 07:00"));
   const path = new Set(compare(apr, jul).criticalPath.previous);
   const row = jul.tables.TASK.find((r) => r.proj_id === "77" && r.status_code === "TK_Active" && path.has(r.task_code) && +r.remain_drtn_hr_cnt >= 16);
+  // statused as planned: under way, forecast finish unchanged, so not named
+  const [w0] = windows([{ xer: apr, label: "April" }, { xer: jul, label: "July" }]).windows;
+  assert.ok(!w0.drivers.progress.some((x) => x.code === row.task_code), JSON.stringify(w0.drivers.progress));
   const slow = structuredClone(jul);
   const g = slow.tables.TASK.find((r) => r.task_id === row.task_id);
   g.remain_drtn_hr_cnt = String(+g.remain_drtn_hr_cnt + 8);
@@ -125,4 +131,34 @@ test("work under way on the driving path that slipped one day is named", () => {
   const d = w.drivers.progress.find((x) => x.code === row.task_code);
   assert.ok(d, JSON.stringify(w.drivers.progress));
   assert.match(d.what, /in progress, forecast finish .*\(\+1 working days\)/);
+});
+
+test("driving-path work statused as planned is not named; work that finished early is a gain, not lost time", () => {
+  // red team 2026-11-25: a path activity that finished a day early was tallied
+  // in `recurring`, the list of where the job lost its time
+  const apr = parseXer(EXAMPLE_XER);
+  const jun = statusAsPlanned(apr, "77", parseDate("2026-06-01 07:00"));
+  const path = new Set(compare(apr, jun).criticalPath.previous);
+  const asPlanned = windows([{ xer: apr, label: "April" }, { xer: jun, label: "June" }]);
+  assert.deepEqual(asPlanned.windows[0].drivers.progress, []);
+  assert.deepEqual(asPlanned.recurring, []);
+  const early = structuredClone(jun);
+  const t = early.tables.TASK.find((r) => r.task_code === "A1120");
+  assert.ok(path.has("A1120") && t.status_code === "TK_Complete");
+  t.act_end_date = formatDate(parseDate(t.act_end_date) - 24 * 60);
+  const rep = windows([{ xer: apr, label: "April" }, { xer: early, label: "June" }]);
+  const d = rep.windows[0].drivers.progress.find((x) => x.code === "A1120");
+  assert.ok(d && d.gain, JSON.stringify(rep.windows[0].drivers.progress));
+  assert.match(d.what, /-1 working days against the forecast/);
+  assert.ok(!rep.recurring.some((r) => r.code === "A1120"), JSON.stringify(rep.recurring));
+  // (a late finish still counts: A1120 in "windows sort by data date" above)
+});
+
+test("an update with no open work has no forecast finish: the series total is unknown, not a number", () => {
+  const apr = parseXer(EXAMPLE_XER);
+  const done = structuredClone(apr);
+  for (const t of done.tables.TASK) { t.status_code = "TK_Complete"; t.act_start_date ||= "2026-03-02 07:00"; t.act_end_date ||= "2026-04-01 15:30"; t.remain_drtn_hr_cnt = "0"; }
+  const rep = windows([{ xer: apr, label: "A" }, { xer: done, label: "B" }]);
+  assert.equal(rep.total.moved, null);
+  assert.equal(rep.total.lastFinish, "");
 });
