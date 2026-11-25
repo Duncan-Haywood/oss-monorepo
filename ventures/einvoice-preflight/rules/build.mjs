@@ -189,7 +189,7 @@ const ctas = (t, up) => `<section>
 <section class="cta">
 <p><span class="state">${esc(t.paidState)}</span></p>
 <h2>${esc(t.paid)}</h2>
-<p>${esc(t.paidText)} <a href="https://example.invalid/industries/e-invoicing/">${esc(t.paidLink)}</a></p>
+<p>${esc(t.paidText)} <a href="https://example.invalid/industries/eu-e-invoicing/">${esc(t.paidLink)}</a></p>
 </section>`;
 
 const footer = (t) => `<footer>

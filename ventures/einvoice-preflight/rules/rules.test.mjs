@@ -109,7 +109,7 @@ test("each page quotes the official message, cites and links its source, links t
       for (const m of off.messages) assert.ok(html.includes(esc(m)), `${r.id}/${lang}: official message`);
       assert.ok(html.includes(SOURCES[r.source].url) && html.includes(SOURCES[r.source].version), `${r.id}/${lang}: source`);
       assert.ok(html.includes('href="../../index.html"'), `${r.id}/${lang}: checker link`);
-      assert.ok(html.includes("industries/e-invoicing/"), `${r.id}/${lang}: early access link`);
+      assert.ok(html.includes("industries/eu-e-invoicing/"), `${r.id}/${lang}: early access link`);
       assert.match(html, /(Not tax or legal advice|Keine Steuer- oder Rechtsberatung|Ni conseil fiscal)/);
       assert.match(html, /(early access|früher Zugang|accès anticipé)/i);
       assert.match(html, new RegExp(`<html lang="${lang}">`));

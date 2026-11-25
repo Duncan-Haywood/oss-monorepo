@@ -13,7 +13,7 @@ It stays MIT, public and working; from now on it gets lead-magnet maintenance
 only (fixes, rule-page polish), not new depth. A paid edition that fixes and
 explains rejected e-invoices is **in development** in the owner's private
 repository and not for sale yet:
-[early access](https://marisstella.app/industries/e-invoicing/). Why and how:
+[early access](https://marisstella.app/industries/eu-e-invoicing/). Why and how:
 `portfolio/monetization/LICENSING_TRANSITION.md`.
 
 This free local CLI also checks a small, transparent JSON, UBL XML,

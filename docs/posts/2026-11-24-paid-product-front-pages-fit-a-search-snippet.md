@@ -182,3 +182,28 @@ whether it holds on your job "is a question for a construction attorney
 licensed in the project's state". The product's test suite now fails if a page
 on its FAQ list loses the markup, or if a marked-up question stops appearing on
 the page. That brings the guides with an FAQ from 8 of 25 to 13 of 25.
+
+## Update, 2026-11-25: the early-access link on 226 e-invoicing pages was a 404
+
+A tidy snippet only helps if the page it leads to works. The free
+e-invoice checker's front page and all 225 of its rule pages (the ones that
+explain a rejection such as BR-DE-21 or BR-63 in German, French and English)
+end with one call to action: early access to the paid fix-and-explain
+edition. That link went to `/industries/e-invoicing/`. The page is
+`/industries/eu-e-invoicing/`. On the live site the first returned 404, the
+second 200, so every reader who clicked through from a rule page to the paid
+product landed on a "not found" page.
+
+The site check did not see it because it skipped every link that starts with
+`https://` as external, including links to the site's own address. It now
+treats those as the site links they are, and also accepts `/x` for a file
+`x.html`, which is how the host serves pages and how the rule pages link each
+other. Run against the build from before the fix, it reported exactly the 226
+broken links and nothing else, out of 17,297 links written with the site's
+own address.
+
+The same wrong name was in the map that puts a "for your business" link on
+free tools whose readers are a paid product's customers. Because no page
+matched it, the EU e-invoicing mandate checker never showed its link to the
+e-invoicing product. It does now, and a test ties the map's names to the
+list the industry pages are built from, so the two can't drift apart again.
