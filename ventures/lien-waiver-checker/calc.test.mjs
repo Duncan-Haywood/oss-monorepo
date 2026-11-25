@@ -97,6 +97,18 @@ test("claimant and project names must appear; statutory states get an info note"
   assert.equal(r.findings.find((x) => x.id === "statutory-form").severity, "info");
 });
 
+test("the four checked states name their statute; Utah says it has no unconditional form", () => {
+  for (const [state, cite] of [["AZ", "§ 33-1008"], ["NV", "§ 108.2457"], ["TX", "§ 53.284"], ["UT", "§ 38-1a-802"]]) {
+    const g = analyze(GOOD, { state }).findings.find((x) => x.id === "statutory-form");
+    assert.ok(g, state);
+    assert.equal(g.severity, "info");
+    assert.ok(g.title.includes(cite), `${state}: ${g.title}`);
+  }
+  assert.match(analyze(GOOD, { state: "UT" }).findings.find((x) => x.id === "statutory-form").why, /no unconditional Utah form/);
+  // A listed state not yet checked keeps the hedged pointer.
+  assert.match(analyze(GOOD, { state: "CA" }).findings.find((x) => x.id === "statutory-form").title, /commonly cited/);
+});
+
 test("bad numbers and empty text produce errors, not findings", () => {
   assert.equal(analyze("short").errors.length, 1);
   assert.match(analyze(GOOD, { expectedAmount: "abc" }).errors[0], /not a number/);

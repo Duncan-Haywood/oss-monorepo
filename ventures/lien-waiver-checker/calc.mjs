@@ -13,6 +13,15 @@ export const WAIVER_TYPES = {
 // States whose statutes are commonly cited as prescribing waiver form or wording. A pointer to go and check, not a list to rely on.
 export const FORM_STATES = { CA: "California", TX: "Texas", FL: "Florida", GA: "Georgia", MI: "Michigan", NV: "Nevada", AZ: "Arizona", UT: "Utah" };
 
+// The four states whose statutory form text was read on the legislature's own site (2026-11-25) and is
+// printed word for word by PayApps. Each entry quotes the statute's own enforceability rule.
+export const VERIFIED_FORM_RULES = {
+  AZ: { cite: "Ariz. Rev. Stat. § 33-1008", rule: "a waiver is effective only if it \"follows substantially one of the forms set forth in this section\"" },
+  NV: { cite: "Nev. Rev. Stat. § 108.2457", rule: "a waiver is unenforceable \"unless it is in the following forms\", so the wording has to be the statute's" },
+  TX: { cite: "Tex. Prop. Code § 53.284", rule: "a waiver is unenforceable \"unless it substantially complies with the applicable form\"; the two unconditional forms must open with a bold notice" },
+  UT: { cite: "Utah Code § 38-1a-802", rule: "a waiver meets the statute if it is \"in substantially the form\" of Subsection (4). Utah sets only two forms, progress and final, and both take effect once the check is paid; there is no unconditional Utah form" },
+};
+
 const norm = (s) => String(s || "").replace(/\s+/g, " ").trim();
 const iso = (y, m, d) => {
   if (m < 1 || m > 12 || d < 1 || d > 31) return null;
@@ -223,7 +232,12 @@ export function analyze(rawText, settings = {}) {
   if (settings.project && !low.includes(settings.project.trim().toLowerCase())) {
     findings.push(f("project-missing", "medium", `The project "${settings.project.trim()}" is not named in the waiver`, "A waiver should identify the job or property it releases.", "Ask for the project and property to be identified."));
   }
-  if (settings.state && FORM_STATES[settings.state]) {
+  const verified = settings.state && Object.hasOwn(VERIFIED_FORM_RULES, settings.state) ? VERIFIED_FORM_RULES[settings.state] : null;
+  if (verified) {
+    findings.push(f("statutory-form", "info", `${FORM_STATES[settings.state]} sets the waiver wording by statute (${verified.cite})`,
+      `Under ${verified.cite}, ${verified.rule}.`,
+      "Compare the waiver with the statute's form for this kind of payment, clause by clause, and ask for the statutory form if it differs."));
+  } else if (settings.state && FORM_STATES[settings.state]) {
     findings.push(f("statutory-form", "info", `${FORM_STATES[settings.state]} is a state that is commonly cited as prescribing waiver wording`,
       "Where a statute prescribes the form, a waiver that does not follow it can be unenforceable, which can cut either way for you.",
       "Check the current statute or ask your attorney whether this state's statutory form should be used instead."));

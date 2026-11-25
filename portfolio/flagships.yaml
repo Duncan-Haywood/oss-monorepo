@@ -85,9 +85,11 @@ flagships:
       app landed (private-monorepo PR #38: Crew+, AZ statutory forms verified word
       for word against azleg.gov, other statutory states tracked only); NV 108.2457
       added (private-monorepo PR #39: verbatim, whole-form test against the statute
-      for AZ and NV); next for waivers: encode TX 53.284 and UT 38-1a-802 (official
-      sites answer; TX is a JS app, UT text loads from a versioned sub-page), then
-      CA when leginfo stops 403ing; (4) QuickBooks Online invoice export with
+      for AZ and NV); TX 53.284 and UT 38-1a-802 added (private-monorepo PR #41, merged; TX
+      text from tcss.legis.texas.gov/resources/PR/htm/PR.53.htm, UT from the
+      section's XML; Utah has two forms and no unconditional one, marked absent);
+      next for waivers: CA when leginfo stops 403ing (still 403 on 2026-11-25), then
+      FL 713.20; (4) QuickBooks Online invoice export with
       retainage as its own line, finishing PR #16 (packages/qbo-sync, sandbox only;
       the owner opens the Intuit developer account); (5) the front door is
       ventures/pay-application-generator (reads a contractor's own .xlsx
