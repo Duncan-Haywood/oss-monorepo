@@ -1,6 +1,6 @@
 ---
 title: "We replaced our 'we collect nothing' footer with real analytics and a real privacy policy"
-seo_title: "Cookieless analytics and a standard privacy policy, replacing 'nothing'"
+seo_title: "Cookieless analytics and a standard privacy policy for our site"
 date: 2026-11-25
 tags: [privacy, analytics, legal, cloudflare, marisstella]
 description: "Every page now loads cookieless Cloudflare Web Analytics, and a Privacy Policy, Terms of Use and Cookie Policy replace a footer that said nothing was collected."

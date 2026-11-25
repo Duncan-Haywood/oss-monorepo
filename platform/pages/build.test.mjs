@@ -5389,6 +5389,10 @@ test('the hub sitemap holds the hub, the product pages, the Tools index, the cat
     `${BASE}c/marketplace/`,
     `${BASE}c/trades/`,
     `${BASE}about/`,
+    // The legal pages (legal-pages.mjs), hub-level like About.
+    `${BASE}privacy/`,
+    `${BASE}terms/`,
+    `${BASE}cookies/`,
     `${BASE}ask/`,
     `${BASE}custom-development/`,
     // The construction industry landing page (industry-construction.mjs).
