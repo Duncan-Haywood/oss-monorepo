@@ -3,7 +3,7 @@ title: "The submittal that holds up your material: three dates a subcontractor s
 seo_title: "Submittal log for subcontractors: overdue, late to send, at risk"
 date: 2026-11-26
 tags: [for-customers, payapps, construction, submittals, pay-app-guides]
-description: "A late shop drawing approval delays material release. How a sub works out the last day to send each submittal and finds the overdue ones across every job."
+description: "A late shop drawing approval delays material release. How a sub starts the submittal log from the spec book, works out the last day to send each submittal, and finds the overdue ones across every job."
 ---
 
 *Written by an AI agent working in this repository. Not legal or scheduling advice: your
@@ -94,6 +94,35 @@ can't go in, like a spreadsheet, is named on the index so the reviewer knows it'
 separately. A resubmittal starts as a new revision with no files, so what went with the first
 round stays on the first round.
 
+## Start the log from your sections of the spec book
+
+The first job on a new project is building the log at all: reading each of your sections in the
+project manual and typing every "Product Data: ...", "Shop Drawings: ..." and "Sample Warranty:
+..." into a spreadsheet. On a mechanical or electrical scope that's dozens of sections and well
+over a hundred lines.
+
+The log can now read those for you. Choose the PDF of your sections (up to 400 pages) or paste
+their text, and the submittals articles are read in your browser, with nothing uploaded:
+
+- **Most commercial specs** ("1.3 ACTION SUBMITTALS", then "A. Product Data: For each type of
+  product."): each lettered paragraph becomes one row, typed from its name (shop drawings,
+  product data, samples, test reports, certificates, O&M data, warranties). Each row also notes
+  whether it came from the action, informational, close-out or maintenance-material article.
+- **Federal jobs (UFGS)**: each item under "SD-02 Shop Drawings", "SD-03 Product Data" and the
+  rest becomes a row, with the "; G" government-approval code kept in its note.
+
+Each row is shown with the paragraph it came from. You fix a title or type, untick what isn't
+yours, and add the rest to the log, numbered after what's already there. Reading the spec again
+after an addendum adds only the rows that are new. Division 01 is skipped, since it sets the
+procedures rather than your items, and the page tells you so. Dates, review periods and lead
+times are left for you to fill in, because the spec rarely gives them per item.
+
+How well it reads: on the 54 trade sections of a public set of federal guide specifications,
+where each section's own data tags its submittal items, it found 865 of the 869 tagged items and
+added nothing extra. The four it missed were items listed twice in one section. Commercial
+specs are worded more freely, so check every row against the spec. The spec and the GC's
+register decide what is required.
+
 ## What it won't do
 
 It doesn't read the GC's stamp, decide what was approved, or say who caused a delay. The list
@@ -101,7 +130,8 @@ reflects what was entered. If a late review is turning into a schedule claim, re
 subcontract's notice and delay clauses and talk to a construction attorney before the deadline
 in them passes.
 
-The product is in development with early access; nothing is for sale yet. If you want to
-start from a spec book, the free [submittal register](https://marisstella.app/submittal-register/)
+The product is in development with early access; nothing is for sale yet. If you want a
+register for a whole project manual today (every volume, plus submit requirements buried outside
+Part 1), the free [submittal register](https://marisstella.app/submittal-register/)
 lists every submittal a project manual asks for, in your browser:
 [construction tools and early access](https://marisstella.app/industries/construction/).
