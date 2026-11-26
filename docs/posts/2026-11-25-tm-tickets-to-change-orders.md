@@ -124,6 +124,35 @@ send-by date from the dates and lead times you type in, flags submittals that ar
 overdue back or putting delivery at risk, and prints a one-page transmittal per submittal with
 those dates on it. It is in development, like the RFI log.
 
+## Signed on the phone, not in the truck
+
+The free log above starts from tickets you already have. The pay-app billing we are building
+now writes them up too, for each job, the day the work is done. A ticket holds the work, where
+on site it was done, who directed it and the GC's directive or RFI number. Then come the labor
+lines (trade, how many workers, hours each), the material (quantity and unit) and the equipment
+hours. Rates can stay blank until the office prices the ticket.
+
+Then hand the phone to the superintendent. They sign on the screen, and the signature is
+printed on the ticket's PDF with their name, title and the date. If they sign the paper copy
+instead, the ticket is marked as signed on paper and you keep the original. The page also
+prints a field copy with no prices and blank signature lines for that.
+
+What they sign for is the work and the quantities, not your prices, and the ticket keeps that
+apart. Once it is signed, the date, the work and every quantity are locked. To change an hour,
+you take the signature off and get it signed again. Rates and the labor, material and equipment
+markups can still be filled in afterwards. Each markup applies to its own subtotal, a new ticket
+starts with the last ticket's markups, and one click fills blank rates from those already used
+on the job.
+
+That leaves the step this post is about: getting signed tickets onto a change order. Tick the
+signed, priced tickets (one, or a month of them) and they become one pending change order. It
+goes on an existing schedule-of-values line or a new one and is described by the ticket numbers.
+Like any change order, it counts in pay applications once the GC approves it. Every ticket on it
+downloads as one PDF to send as backup. The job's T&M page leads with the figure that matters:
+how many signed tickets are on no change order, what they add up to, and the date of the oldest
+one, because most subcontracts set a deadline for submitting extra work. Like the RFI and
+submittal logs, it is in development and not yet open to the public.
+
 ## What the T&M log will not do
 
 It does not tell you whether work is extra, whether a signed ticket counts as notice under
