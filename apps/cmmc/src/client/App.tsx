@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { ApiError, api } from "./lib/api";
+import { membershipId } from "./lib/orgs";
 import type { Me, OrgInfo } from "./lib/types";
 import { btnCls, btnGhostCls, Card, Disclaimer, ErrorText, Field, inputCls } from "./ui";
 import { AccountPageView, accountPageFromPath, ResendVerification } from "./views/Account";
@@ -281,7 +282,11 @@ function Workspace({ me }: { me: Me }) {
             <select
               className="rounded border border-stone-300 px-2 py-1 text-sm"
               value={orgId ?? ""}
-              onChange={(e) => setOrgId(e.target.value)}
+              onChange={(e) => {
+                // Keep the id from the user's memberships, not the <option>'s DOM text.
+                const id = membershipId(me.memberships, e.target.value);
+                if (id) setOrgId(id);
+              }}
               aria-label="Organization"
             >
               {me.memberships.map((m) => (

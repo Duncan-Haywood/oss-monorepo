@@ -1,5 +1,12 @@
 // The SEO/AEO contract (same checks as apps/grants' scripts/check-seo.mjs) plus the copy rules.
-import { AI_CRAWLERS, buildSite, fileFor, mainText, resolveBuildOptions } from "@site/build";
+import {
+  AI_CRAWLERS,
+  buildSite,
+  fileFor,
+  mainText,
+  removeAll,
+  resolveBuildOptions,
+} from "@site/build";
 import { CMMC_SITE_URL } from "@site/config";
 import { esc } from "@site/html";
 import { PUBLIC_ROUTES } from "@site/routes";
@@ -87,6 +94,21 @@ describe("prerendered pages", () => {
     expect(thanks).toContain('<meta name="robots" content="noindex">');
     expect(files.get("sitemap.xml")).not.toContain("/early-access/thanks");
     expect(files.get("llms.txt")).not.toContain("/early-access/thanks");
+  });
+});
+
+describe("mainText (llms-full.txt)", () => {
+  it("strips tags to a fixpoint, so a nested tag cannot reassemble into <script>", () => {
+    expect(removeAll("<<b>script>x", /<[^>]+>/g)).toBe("script>x");
+    const text = mainText("<main><p>a <<b>script>alert(1)<</b>/script> b</p></main>");
+    expect(text).not.toContain("<");
+    expect(mainText("<main><FORM><fo<form></form>rm></FORM >after</main>")).toBe("rm>after");
+  });
+
+  it("decodes &amp; last, so an escaped entity stays text", () => {
+    expect(mainText("<main><p>&amp;lt;script&amp;gt; R&amp;D</p></main>")).toBe(
+      "&lt;script&gt; R&D",
+    );
   });
 });
 

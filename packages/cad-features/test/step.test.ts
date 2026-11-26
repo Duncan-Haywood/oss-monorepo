@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { detectFormat, extractFeatures, extractStep, parseStep } from "../src/index.ts";
+import { dataSectionStart } from "../src/step-parse.ts";
 import { plate, rod, StepWriter } from "./helpers/step-writer.ts";
 
 const rel = (actual: number | null | undefined, expected: number, tol = 1e-6): void => {
@@ -41,6 +42,51 @@ describe("STEP physical file parser", () => {
     assert.deepEqual(f.instances.get(4)?.args[1], [0.001, -2.5, 3]);
     assert.equal(f.errors, 1);
     assert.ok(f.instances.has(6), "parsing resumes after a bad statement");
+  });
+
+  it("finds the DATA header exactly where the old regex did", () => {
+    const old = /\bDATA\s*(\([^)]*\))?\s*;/;
+    const cases = [
+      "DATA;",
+      "HEADER; ENDSEC;\nDATA ;",
+      "DATA\t\n ( 'x' , 1 )\n ;",
+      "XDATA; DATA;",
+      "_DATA; DATA ( ;",
+      "DATA(a)b; DATA();",
+      "DATA(DATA(x);",
+      "DATA(no close; DATA;",
+      "DATAX; nothing",
+      "",
+    ];
+    // Plus random strings over the characters that matter.
+    let seed = 7;
+    const rnd = (n: number) => {
+      seed = (seed * 1103515245 + 12345) % 2 ** 31;
+      return seed % n;
+    };
+    const alphabet = ["DATA", " ", "\t", "(", ")", ";", "x", "_"];
+    for (let k = 0; k < 3000; k++) {
+      let s = "";
+      for (let j = rnd(12); j > 0; j--) s += alphabet[rnd(alphabet.length)];
+      cases.push(s);
+    }
+    for (const s of cases) assert.equal(dataSectionStart(s), s.search(old), JSON.stringify(s));
+  });
+
+  it("finds the DATA header in linear time on adversarial whitespace", () => {
+    const n = 200_000;
+    const inputs = [
+      `DATA${"\t".repeat(n)}`,
+      "DATA\t".repeat(n / 5),
+      `${"DATA(".repeat(n / 5)})${"\t".repeat(n)}x`,
+      "DATA(".repeat(n / 5),
+    ];
+    for (const s of inputs) {
+      const t0 = performance.now();
+      assert.equal(dataSectionStart(s), -1);
+      assert.equal(parseStep(s).errors, 1);
+      assert.ok(performance.now() - t0 < 500, `took ${performance.now() - t0} ms`);
+    }
   });
 
   it("detects formats by name and by content", () => {

@@ -4,7 +4,7 @@ import { PLANS } from "@shared/plans";
 import { NOT_AIA_NOTE, PAGE_LIST, PAGES } from "@shared/site";
 import { buildSite } from "@site/build";
 import { esc, html } from "@site/html";
-import { htmlToMarkdown } from "@site/seo";
+import { htmlToMarkdown, removeAll } from "@site/seo";
 import { describe, expect, it } from "vitest";
 
 const SITE = "https://marisstella.app/payapps";
@@ -116,5 +116,14 @@ describe("html helpers", () => {
         '<h2>Hi</h2><p>A <a href="/x">link</a> &amp; <strong>bold</strong></p><ul><li>one</li></ul>',
       ),
     ).toBe("## Hi\n\nA [link](/x) & **bold**\n\n- one");
+  });
+
+  it("strips tags and script blocks to a fixpoint, then decodes &amp; last", () => {
+    expect(removeAll("<<b>script>x", /<[^>]+>/g)).toBe("script>x");
+    // One pass over a split <script> block would leave a working one behind.
+    const md = htmlToMarkdown("<p>a</p><scr<script></script>ipt>alert(1)</SCRIPT >b<<i>script>");
+    expect(md).not.toMatch(/<script/i);
+    expect(md).not.toContain("<");
+    expect(htmlToMarkdown("<p>&amp;lt;b&amp;gt; R&amp;D</p>")).toBe("&lt;b&gt; R&D");
   });
 });

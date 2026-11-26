@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { ApiError, api } from "../lib/api";
+import { safeNext } from "../lib/safe-next";
 import { LegalFooter } from "./legal";
 
 export const MIN_PASSWORD_LENGTH = 10;
@@ -23,7 +24,8 @@ const NEXT_KEY = "seller-books.after-verify";
 
 export function rememberNext(next: string | null) {
   try {
-    if (next?.startsWith("/") && !next.startsWith("//")) sessionStorage.setItem(NEXT_KEY, next);
+    const path = safeNext(next, "");
+    if (path) sessionStorage.setItem(NEXT_KEY, path);
     else sessionStorage.removeItem(NEXT_KEY);
   } catch {
     // Storage blocked: the user lands on their shops instead.
@@ -34,7 +36,8 @@ function takeNext(): string {
   try {
     const next = sessionStorage.getItem(NEXT_KEY);
     sessionStorage.removeItem(NEXT_KEY);
-    if (next?.startsWith("/") && !next.startsWith("//")) return next;
+    // Storage is untrusted too: re-check that the saved value still resolves to this origin.
+    return safeNext(next);
   } catch {
     // ignore
   }

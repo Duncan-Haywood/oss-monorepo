@@ -105,10 +105,23 @@ function planPrices(): string {
   ).join("; ");
 }
 
+/**
+ * Replace every match of `pattern` until none is left. One pass is not enough when removing a
+ * match splices a new one together ("<scr<b>ipt>" leaves "ipt>", "<<b>script>" leaves "<script>").
+ */
+export function removeAll(input: string, pattern: RegExp, replacement = ""): string {
+  let out = input;
+  let prev: string;
+  do {
+    prev = out;
+    out = out.replace(pattern, replacement);
+  } while (out !== prev);
+  return out;
+}
+
 /** The pages' <main> as Markdown, for llms-full.txt. Deliberately small: our own markup only. */
 export function htmlToMarkdown(input: string): string {
-  return input
-    .replace(/<(script|style|form|nav)\b[\s\S]*?<\/\1>/gi, "")
+  const md = removeAll(input, /<(script|style|form|nav)\b[\s\S]*?<\/\1\s*>/gi)
     .replace(/<h1[^>]*>([\s\S]*?)<\/h1>/gi, "\n# $1\n\n")
     .replace(/<h2[^>]*>([\s\S]*?)<\/h2>/gi, "\n## $1\n\n")
     .replace(/<h3[^>]*>([\s\S]*?)<\/h3>/gi, "\n### $1\n\n")
@@ -116,8 +129,9 @@ export function htmlToMarkdown(input: string): string {
     .replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, "\n- $1")
     .replace(/<a [^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi, "[$2]($1)")
     .replace(/<(strong|b)>([\s\S]*?)<\/\1>/gi, "**$2**")
-    .replace(/<\/(p|ul|ol|div|section|article|details)>/gi, "\n\n")
-    .replace(/<[^>]+>/g, "")
+    .replace(/<\/(p|ul|ol|div|section|article|details)>/gi, "\n\n");
+  // Entities decode after every tag is gone, &amp; last, so "&amp;lt;" stays the text "&lt;".
+  return removeAll(md, /<[^>]+>/g)
     .replace(/&#39;/g, "'")
     .replace(/&quot;/g, '"')
     .replace(/&lt;/g, "<")

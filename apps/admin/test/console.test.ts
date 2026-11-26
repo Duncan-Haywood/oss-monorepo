@@ -125,11 +125,13 @@ function fakeFetch(seen: string[] = []): typeof fetch {
       return Response.json({ keys: [{ ...jwk, kid: "k1", alg: "RS256" }] });
     }
     seen.push(`${url} ${new Headers(init?.headers).get("Authorization")}`);
-    if (url.startsWith("https://jobshop.test")) return new Response("boom", { status: 500 });
-    if (url.startsWith("https://payapps.test/api/admin/metrics"))
-      return Response.json(appMetrics());
-    if (url.startsWith("https://payapps.test/api/admin/accounts")) {
-      const list = new URL(url).searchParams.get("list");
+    // Route on the parsed origin and path, never a string prefix.
+    const parsed = new URL(url);
+    const route = `${parsed.origin}${parsed.pathname}`;
+    if (parsed.origin === "https://jobshop.test") return new Response("boom", { status: 500 });
+    if (route === "https://payapps.test/api/admin/metrics") return Response.json(appMetrics());
+    if (route === "https://payapps.test/api/admin/accounts") {
+      const list = parsed.searchParams.get("list");
       const items =
         list === "churn"
           ? [
@@ -150,8 +152,8 @@ function fakeFetch(seen: string[] = []): typeof fetch {
         limit: 50,
       });
     }
-    if (url.startsWith("https://site.test/api/admin/metrics")) return Response.json(earlyAccess);
-    if (url.startsWith("https://site.test/api/admin/accounts")) {
+    if (route === "https://site.test/api/admin/metrics") return Response.json(earlyAccess);
+    if (route === "https://site.test/api/admin/accounts") {
       return Response.json({
         contractVersion: 1,
         kind: "early_access",

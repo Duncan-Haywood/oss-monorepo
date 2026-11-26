@@ -155,13 +155,46 @@ class Cursor {
   }
 }
 
+const isSpace = (c: string | undefined) => c !== undefined && /\s/.test(c);
+const isWordChar = (c: string | undefined) => c !== undefined && /\w/.test(c);
+
+/**
+ * Index of the `DATA;` (or `DATA(...);`) section header, or -1: the first match of
+ * /\bDATA\s*(\([^)]*\))?\s*;/, found in linear time. The regex backtracks over whitespace once
+ * per "DATA" (a file of "DATA" and a long run of tabs takes quadratic time); this scan reads each
+ * whitespace run once and remembers the next ")" so every candidate shares one forward search.
+ */
+export function dataSectionStart(text: string): number {
+  let close = -1; // the first ")" at or after the last "(" looked at; -2 once none is left
+  let afterClose = -1; // the first non-space after `close`
+  for (let at = text.indexOf("DATA"); at >= 0; at = text.indexOf("DATA", at + 1)) {
+    if (isWordChar(text[at - 1])) continue;
+    let i = at + 4;
+    while (isSpace(text[i])) i++;
+    if (text[i] === "(" && close !== -2) {
+      if (close < i) {
+        close = text.indexOf(")", i);
+        if (close < 0) {
+          close = -2;
+        } else {
+          afterClose = close + 1;
+          while (isSpace(text[afterClose])) afterClose++;
+        }
+      }
+      if (close >= 0) i = afterClose;
+    }
+    if (text[i] === ";") return at;
+  }
+  return -1;
+}
+
 /** Parse a STEP file. Instances that fail to parse are skipped and counted in `errors`. */
 export function parseStep(text: string): StepFile {
   const schemaMatch = /FILE_SCHEMA\s*\(\s*\(\s*'([^']*)'/i.exec(text);
   const schema = schemaMatch ? (schemaMatch[1] as string).trim() : "";
   const instances = new Map<number, Instance>();
   let errors = 0;
-  const dataStart = text.search(/\bDATA\s*(\([^)]*\))?\s*;/);
+  const dataStart = dataSectionStart(text);
   if (dataStart < 0) return { schema, instances, errors: 1 };
   const cur = new Cursor(text);
   cur.i = text.indexOf(";", dataStart) + 1;

@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { type FormEvent, useState } from "react";
 import { ApiError, api } from "../lib/api";
+import { safeNext } from "../lib/safe-next";
 import { ResendVerification, rememberNext } from "./account";
 import { LegalFooter, LegalGate, LegalLinks } from "./legal";
 
@@ -54,8 +55,7 @@ function useAfterAuth() {
   const navigate = useNavigate();
   return async () => {
     await qc.invalidateQueries({ queryKey: ["me"] });
-    const next = new URLSearchParams(window.location.search).get("next");
-    await navigate({ to: next?.startsWith("/") ? next : "/orgs" });
+    await navigate({ to: safeNext(new URLSearchParams(window.location.search).get("next")) });
   };
 }
 
