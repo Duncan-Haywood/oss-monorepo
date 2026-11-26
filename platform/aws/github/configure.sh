@@ -57,14 +57,14 @@ set -euo pipefail
 OIDC_SUB_KEYS='["repo","context"]'
 
 pin_oidc_sub() {
-  local r="$1" owner_id repo_id name_form id_form got default keys immutable prefix
+  local r="$1" owner="${1%%/*}" name="${1#*/}" owner_id repo_id name_form id_form got default keys immutable prefix
   gh api -X PUT "repos/${r}/actions/oidc/customization/sub" --input - >/dev/null <<JSON
 {"use_default":false,"include_claim_keys":${OIDC_SUB_KEYS}}
 JSON
-  owner_id="$(gh api "users/${r%%/*}" --jq .id)"
+  owner_id="$(gh api "users/${owner}" --jq .id)"
   repo_id="$(gh api "repos/${r}" --jq .id)"
   name_form="repo:${r}"
-  id_form="repo:${r%%/*}@${owner_id}/${r#*/}@${repo_id}"
+  id_form="repo:${owner}@${owner_id}/${name}@${repo_id}"
   got="$(gh api "repos/${r}/actions/oidc/customization/sub" \
     --jq '"\(.use_default) \(.include_claim_keys // [] | tojson) \(.use_immutable_subject // false) \(.sub_claim_prefix // "")"')"
   read -r default keys immutable prefix <<<"$got"
