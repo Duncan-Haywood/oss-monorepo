@@ -254,10 +254,10 @@ run "apply_roles_cover_the_names_their_stacks_create" {
         ["shift-roster", "shift-roster-roster-hub"],
         ["retail-pilot-intel", "retail-pilot-intel-rpi-docs"],
         ["ai-first-markets", "ai-first-markets-ai-first-markets"],
-      ] : anytrue(flatten([
-        for s in module.apps.apply_policies[pair[0]].Statement : [
-          for p in flatten([s.Resource]) : can(regex("^${replace(p, "*", ".*")}$", "arn:aws:iam::555555555555:role/${pair[1]}"))
-        ] if s.Sid == "ManageOwnRolesWithinBoundary"
+        ] : anytrue(flatten([
+          for s in module.apps.apply_policies[pair[0]].Statement : [
+            for p in flatten([s.Resource]) : can(regex("^${replace(p, "*", ".*")}$", "arn:aws:iam::555555555555:role/${pair[1]}"))
+          ] if s.Sid == "ManageOwnRolesWithinBoundary"
       ]))
     ])
     error_message = "Every apps stack can create the roles it names."
