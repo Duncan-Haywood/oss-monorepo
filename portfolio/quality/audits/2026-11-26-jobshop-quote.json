@@ -236,6 +236,6 @@
       "origin": "maintenance"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/private-monorepo/pull/336"],
   "verdict": "Meets the bar (correctness 3, claims 3, verification 3, median 3); finished (completeness 3). The costing engine is exact: three quotes (seven breaks) worked by hand from a typical rate card match its output to the cent, setup and lot minimums amortise correctly over quantity, outside services carry their own markup, per-stock bars are bought whole, markup is never confused with margin, and six kinds of missing input block the price. Tests are strong (421 unit, 217 worker, all pass; 7 of 8 seeded mutants caught, the survivor being unit-price rounding). The worst defect is that a blank cycle time becomes 0 and prices as free machine time instead of blocking, against the app's own 'missing data blocks pricing' rule. Fitness is 2: the app is not deployed, and an estimator quoting a production lot will miss scrap/yield starts and a per-lot programming/FAI line, both of which the free front-door calculator already models."
 }

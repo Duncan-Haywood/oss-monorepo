@@ -47,7 +47,7 @@ export const PRODUCTS = Object.freeze([
     status: 'In development (early access)',
     for: 'CNC machine shops and fabricators who quote from drawings, CAD files and emails.',
     does: [
-      'Reads an RFQ (the email, the drawings, the CAD) and drafts a priced quote.',
+      'Reads an RFQ (the email, the text of PDF drawings, STEP and DXF files) and drafts a priced quote.',
       'Prices from your own shop rates, setup times and material costs, not a generic table.',
       'Keeps every quote and its assumptions, so you can see why a job was priced the way it was.',
     ],
