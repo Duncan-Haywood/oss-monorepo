@@ -5,7 +5,11 @@ import os from 'node:os';
 import path from 'node:path';
 import vm from 'node:vm';
 import { spawnSync } from 'node:child_process';
-import { AGENT_BLOG, autoSeoTitle, BLOG, bodyMatcher, buildWriting, PAGE_SIZE as WRITING_PAGE_SIZE, TOPICS, loadPosts, parseFrontMatter, postPageTitle, rankRelated, rankRelatedBySort, relatedPosts, renderFeed, renderIndex, renderPost, renderSearchIndex, searchText, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
+import { AGENT_BLOG, autoSeoTitle, BLOG, bodyMatcher, buildWriting, PAGE_SIZE as WRITING_PAGE_SIZE, TOPICS, loadPosts, parseFrontMatter, postPageTitle, rankRelated, rankRelatedBySort, relatedPosts, renderFeed, renderIndex, renderPost, renderSearchIndex, searchText, TITLE_BUDGET, WRITING_PATH, ENGINEERING_BLOG_PATH } from './writing.mjs';
+
+// The fixture posts below are tagged as engineering posts, so they land on the engineering blog
+// (the blog split, 2026-11-26); the marketing blog has its own tests at the end.
+const ENG = ENGINEERING_BLOG_PATH;
 
 const BASE = 'https://example.test/site/';
 
@@ -66,10 +70,12 @@ test('no posts directory means no posts, not an error', () => {
 test('build writes an index, one page per post and a feed, each with a disclaimer', async () => {
   const root = repoWith({ '2026-10-16-hello.md': post('Hello <world>', '2026-10-16') });
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-out-'));
-  assert.deepEqual(await buildWriting(out, BASE, { root }), ['hello', 'topic/tools', 'podcast']);
-  const index = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
-  const page = await fs.readFile(path.join(out, WRITING_PATH, 'hello/index.html'), 'utf8');
-  const feed = await fs.readFile(path.join(out, WRITING_PATH, 'feed.xml'), 'utf8');
+  // Paths from the site root for the sitemap: the marketing blog's front page is always written
+  // (its product sections stand without guides), then the engineering blog and its pages.
+  assert.deepEqual(await buildWriting(out, BASE, { root }), ['blog/', 'engineering/', 'engineering/hello/', 'engineering/topic/tools/', 'writing/podcast/']);
+  const index = await fs.readFile(path.join(out, ENG, 'index.html'), 'utf8');
+  const page = await fs.readFile(path.join(out, ENG, 'hello/index.html'), 'utf8');
+  const feed = await fs.readFile(path.join(out, ENG, 'feed.xml'), 'utf8');
   for (const html of [index, page]) {
     assert.match(html, /no warranty/i);
     assert.match(html, /<meta name="viewport"/);
@@ -79,24 +85,30 @@ test('build writes an index, one page per post and a feed, each with a disclaime
   assert.ok(page.includes('Hello &lt;world&gt;'));
   assert.ok(!page.includes('<world>'));
   assert.equal(page.match(/<h1>/g).length, 1);
-  assert.match(page, new RegExp(`<link rel="canonical" href="${BASE}writing/hello/">`));
+  assert.match(page, new RegExp(`<link rel="canonical" href="${BASE}engineering/hello/">`));
   assert.match(page, /"@type":"BlogPosting"/);
   // The visible "Home › Blog" trail, declared for search results too.
   const crumb = [...page.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
     .map((m) => JSON.parse(m[1]))
     .find((b) => b['@type'] === 'BreadcrumbList');
-  assert.deepEqual(crumb.itemListElement.map((i) => i.item), [BASE, `${BASE}writing/`, `${BASE}writing/hello/`]);
+  assert.deepEqual(crumb.itemListElement.map((i) => i.item), [BASE, `${BASE}engineering/`, `${BASE}engineering/hello/`]);
   assert.equal(crumb.itemListElement.at(-1).name, 'Hello <world>');
   // The post's own structured data names its URL, publisher and author (article-ld.mjs).
   const posting = [...page.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
     .map((m) => JSON.parse(m[1]))
     .find((b) => b['@type'] === 'BlogPosting');
-  assert.equal(posting.mainEntityOfPage['@id'], `${BASE}writing/hello/`);
+  assert.equal(posting.mainEntityOfPage['@id'], `${BASE}engineering/hello/`);
   assert.equal(posting.publisher['@id'], `${BASE}#organization`);
   assert.equal(posting.author['@type'], 'Organization');
   // Repository-relative links become GitHub links.
   assert.match(page, /href="https:\/\/github\.com\/Duncan-Haywood\/oss-monorepo\/blob\/main\/README\.md"/);
-  assert.match(feed, new RegExp(`<id>${BASE}writing/hello/</id>`));
+  assert.match(feed, new RegExp(`<id>${BASE}engineering/hello/</id>`));
+  // The single blog's old feed keeps serving every post at its new URL, with its old entry id.
+  const legacy = await fs.readFile(path.join(out, 'writing', 'feed.xml'), 'utf8');
+  assert.match(legacy, new RegExp(`<link href="${BASE}engineering/hello/"/>`));
+  assert.match(legacy, new RegExp(`<id>${BASE}writing/hello/</id>`));
+  // Nothing else is written under writing/ but the podcast: the router 301s the rest.
+  assert.deepEqual((await fs.readdir(path.join(out, 'writing'))).sort(), ['feed.xml', 'podcast']);
 });
 
 test('a link to a sibling post file becomes a link to its page', async () => {
@@ -106,7 +118,7 @@ test('a link to a sibling post file becomes a link to its page', async () => {
   });
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-sib-'));
   await buildWriting(out, BASE, { root });
-  const page = await fs.readFile(path.join(out, WRITING_PATH, 'second/index.html'), 'utf8');
+  const page = await fs.readFile(path.join(out, ENG, 'second/index.html'), 'utf8');
   assert.match(page, /<a href="\.\.\/first\/">the first<\/a>/);
   assert.match(page, /data-pf-to="hub"/);
 });
@@ -118,13 +130,13 @@ test('a full link to the default origin follows the address the site is built fo
   });
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-origin-'));
   await buildWriting(out, BASE, { root, originAlias: alias });
-  const page = await fs.readFile(path.join(out, WRITING_PATH, 'first/index.html'), 'utf8');
+  const page = await fs.readFile(path.join(out, ENG, 'first/index.html'), 'utf8');
   assert.match(page, new RegExp(`<a href="${BASE.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}some-tool/">the tool</a>`));
   assert.doesNotMatch(page, /default\.test\/site\//, 'the default origin must not survive a build under another address');
 
   const same = mkdtempSync(path.join(os.tmpdir(), 'writing-origin-same-'));
   await buildWriting(same, alias, { root, originAlias: alias });
-  assert.match(await fs.readFile(path.join(same, WRITING_PATH, 'first/index.html'), 'utf8'), /default\.test\/site\/some-tool\//);
+  assert.match(await fs.readFile(path.join(same, ENG, 'first/index.html'), 'utf8'), /default\.test\/site\/some-tool\//);
 });
 
 test('feed is valid-shaped with no posts', () => {
@@ -226,7 +238,7 @@ test('the index can be searched and filtered: finder, card data, full-text index
   });
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-find-'));
   await buildWriting(out, BASE, { root });
-  const w = path.join(out, WRITING_PATH);
+  const w = path.join(out, ENG);
   const index = await fs.readFile(path.join(w, 'index.html'), 'utf8');
   assert.match(index, /<form id="finder" class="finder" role="search" hidden/);
   assert.match(index, /data-topic-chip="research"/);
@@ -258,8 +270,8 @@ test('the agent-to-agent blog publishes pages, raw Markdown with absolute links,
   mkdirSync(path.join(root, 'docs/agent-posts'), { recursive: true });
   writeFileSync(path.join(root, 'docs/agent-posts/2026-10-21-for-you.md'), post('For you, agent', '2026-10-21').replace('[link](../../README.md)', '[link](../reports/x.md)'));
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-agents-'));
-  assert.deepEqual(await buildWriting(out, BASE, { root }), ['hello', 'topic/tools', 'podcast', 'agents', 'agents/for-you']);
-  const a = path.join(out, WRITING_PATH, 'agents');
+  assert.deepEqual(await buildWriting(out, BASE, { root }), ['blog/', 'engineering/', 'engineering/hello/', 'engineering/topic/tools/', 'writing/podcast/', 'engineering/agents/', 'engineering/agents/for-you/']);
+  const a = path.join(out, ENG, 'agents');
   const index = await fs.readFile(path.join(a, 'index.html'), 'utf8');
   const page = await fs.readFile(path.join(a, 'for-you/index.html'), 'utf8');
   const md = await fs.readFile(path.join(a, 'for-you.txt'), 'utf8');
@@ -267,13 +279,13 @@ test('the agent-to-agent blog publishes pages, raw Markdown with absolute links,
   const full = await fs.readFile(path.join(a, 'llms-full.txt'), 'utf8');
   for (const html of [index, page]) assert.match(html, /no warranty/i);
   assert.match(index, /href="llms\.txt"/);
-  assert.match(page, new RegExp(`<link rel="canonical" href="${BASE}writing/agents/for-you/">`));
+  assert.match(page, new RegExp(`<link rel="canonical" href="${BASE}engineering/agents/for-you/">`));
   assert.match(page, /href="\.\.\/for-you\.txt" type="text\/plain">Markdown \(plain text\)</);
   assert.match(page, /data-pf-to="hub"/);
   assert.match(md, /\]\(https:\/\/github\.com\/Duncan-Haywood\/oss-monorepo\/blob\/main\/docs\/reports\/x\.md\)/);
-  assert.match(llms, new RegExp(`- \\[For you, agent\\]\\(${BASE}writing/agents/for-you\\.txt\\): About For you, agent\\.`));
+  assert.match(llms, new RegExp(`- \\[For you, agent\\]\\(${BASE}engineering/agents/for-you\\.txt\\): About For you, agent\\.`));
   assert.match(full, /# For you, agent/);
-  assert.match(await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8'), /href="agents\/">agent-to-agent blog</);
+  assert.match(await fs.readFile(path.join(out, ENG, 'index.html'), 'utf8'), /href="agents\/">agent-to-agent blog</);
 });
 
 test('post page titles keep the site name only when the whole title fits a search result', () => {
@@ -304,7 +316,7 @@ test('the index tag filter keeps a post whose tag is the first in its list', asy
   const root = repoWith({ '2026-10-16-hello.md': post('Hello', '2026-10-16') });
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-tagfilter-'));
   await buildWriting(out, BASE, { root });
-  const index = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
+  const index = await fs.readFile(path.join(out, ENG, 'index.html'), 'utf8');
   // indexOf() is 0 for the first tag: ">= 1" would hide every post filtered by its first tag.
   assert.match(index, /data-tags="[^"]*"/);
   assert.match(index, /split\(' '\)\.indexOf\(tag\.value\) >= 0/);
@@ -423,7 +435,7 @@ async function runFinder(search, { selectedIndex = 0, full = null } = {}) {
   const root = repoWith({ '2026-10-16-hello.md': post('Hello', '2026-10-16') });
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-finder-'));
   await buildWriting(out, BASE, { root });
-  const index = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
+  const index = await fs.readFile(path.join(out, ENG, 'index.html'), 'utf8');
   const script = [...index.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\b[^>]*>/gi)].map((m) => m[1]).find((s) => s.includes("getElementById('posts')"));
   assert.ok(script, 'finder script present');
   const li = (slug, text) => ({ dataset: { slug, text, tags: 'a b', topic: 't', date: '2026-01-01', mins: '1' }, hidden: false });
@@ -432,7 +444,7 @@ async function runFinder(search, { selectedIndex = 0, full = null } = {}) {
   const els = { posts: { children: items, appendChild() {} }, q: el(), tag: { ...el(), selectedIndex }, sort: el(), count: el(), none: el(), clear: el(), finder: el() };
   const ctx = {
     document: { getElementById: (id) => els[id], querySelectorAll: () => [] },
-    location: { search, pathname: '/writing/' },
+    location: { search, pathname: '/engineering/' },
     history: { replaceState() {} },
     fetch: (url) => Promise.resolve(full && url === 'search.json' ? { ok: true, json: () => Promise.resolve(full) } : { ok: false }),
     URLSearchParams, Array, String,
@@ -482,7 +494,7 @@ test('finder: menus share the search box height and Clear sits beside the count,
   const root = repoWith({ '2026-10-01-one.md': post('One', '2026-10-01') });
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-finder-row-'));
   await buildWriting(out, BASE, { root });
-  const html = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
+  const html = await fs.readFile(path.join(out, ENG, 'index.html'), 'utf8');
   const h = (sel) => html.match(new RegExp(sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ' \\{[^}]*?height:(\\d+px)'))?.[1];
   assert.equal(h('.finder input[type=search]'), '42px');
   assert.equal(h('.finder select'), '42px');
@@ -550,7 +562,7 @@ test('an index over PAGE_SIZE posts lists the newest page, pages the rest, and e
   const root = manyPosts(n);
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-paged-'));
   await buildWriting(out, BASE, { root });
-  const dir = path.join(out, WRITING_PATH);
+  const dir = path.join(out, ENG);
   const seen = new Map();
   const read = async (rel) => fs.readFile(path.join(dir, rel, 'index.html'), 'utf8');
   for (const [rel, up] of [['', ''], ['page/2', '../../'], ['page/3', '../../']]) {
@@ -568,7 +580,7 @@ test('an index over PAGE_SIZE posts lists the newest page, pages the rest, and e
   assert.match(first, /id="finder"/);
   const second = await read('page/2');
   assert.match(second, /<meta name="robots" content="noindex">/);
-  assert.match(second, /<link rel="canonical" href="https:\/\/[^"]*writing\/page\/2\/">/);
+  assert.match(second, /<link rel="canonical" href="https:\/\/[^"]*engineering\/page\/2\/">/);
   assert.doesNotMatch(second, /id="finder"/);
   assert.match(second, /rel="prev" href="\.\.\/\.\.\/"/);
   assert.match(second, /rel="next" href="\.\.\/\.\.\/page\/3\/"/);
@@ -582,10 +594,10 @@ test('an index of one page of posts has no pager, no posts.json and no page dire
   const root = manyPosts(PAGE_SIZE);
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-onepage-'));
   await buildWriting(out, BASE, { root });
-  const html = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
+  const html = await fs.readFile(path.join(out, ENG, 'index.html'), 'utf8');
   assert.doesNotMatch(html, /class="pager"|data-all=/);
-  await assert.rejects(fs.stat(path.join(out, WRITING_PATH, 'posts.json')));
-  await assert.rejects(fs.stat(path.join(out, WRITING_PATH, 'page')));
+  await assert.rejects(fs.stat(path.join(out, ENG, 'posts.json')));
+  await assert.rejects(fs.stat(path.join(out, ENG, 'page')));
 });
 
 test('a post may not take the slug "page", which holds the numbered index pages', () => {
@@ -617,7 +629,7 @@ test('buildWriting creates a missing nested output directory', async () => {
   const root = repoWith({ '2026-10-01-hello.md': post('Hello', '2026-10-01') });
   const out = path.join(mkdtempSync(path.join(os.tmpdir(), 'wout-')), 'a', 'b');
   await buildWriting(out, BASE, { root });
-  assert.ok((await fs.stat(path.join(out, 'writing', 'index.html'))).isFile());
+  assert.ok((await fs.stat(path.join(out, 'engineering', 'index.html'))).isFile());
 });
 
 // Ten topic chips wrapped to six rows (275 px) on a 390 px phone, above the first post (polish 2026-11-15).
@@ -627,7 +639,7 @@ test('finder: topic chips are one sideways row on a phone, faded at the end that
   const root = repoWith({ '2026-10-01-one.md': post('One', '2026-10-01') });
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-finder-chips-'));
   await buildWriting(out, BASE, { root });
-  const html = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
+  const html = await fs.readFile(path.join(out, ENG, 'index.html'), 'utf8');
   const phone = html.match(/@media \(max-width:639px\) \{([\s\S]*?)\n  \}/)?.[1] || '';
   assert.match(phone, /\.chips \{ flex-wrap:nowrap; overflow-x:auto;/);
   assert.match(phone, /\.chips > \* \{ flex:none; white-space:nowrap;/, 'every chip, buttons and the podcast index\'s links alike, keeps its width in the row');
@@ -644,7 +656,7 @@ test('finder: topic chips are one sideways row on a phone, faded at the end that
     const els = { posts: { children: [], appendChild() {} }, q: el(), tag: { ...el(), selectedIndex: 0 }, sort: el(), count: el(), none: el(), clear: el(), finder: el() };
     vm.runInNewContext(script, {
       document: { getElementById: (id) => els[id], querySelectorAll: (s) => (s === '[data-topic-chip]' ? chips : []) },
-      location: { search, pathname: '/writing/' }, history: { replaceState() {} }, addEventListener() {},
+      location: { search, pathname: '/engineering/' }, history: { replaceState() {} }, addEventListener() {},
       fetch: () => Promise.resolve({ ok: false }), URLSearchParams, Array, String,
     });
   };
@@ -672,16 +684,16 @@ test('each topic has its own crawlable page: title, description, list, pager, si
   const root = repoWith(files);
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-topic-'));
   const slugs = await buildWriting(out, BASE, { root });
-  const w = path.join(out, WRITING_PATH);
+  const w = path.join(out, ENG);
   // In the sitemap: each topic with a post, page 1 only; no page for an empty topic.
-  assert.ok(slugs.includes('topic/research') && slugs.includes('topic/agents'));
-  assert.ok(!slugs.includes('topic/stories') && !slugs.some((s) => s.startsWith('topic/agents/page')));
+  assert.ok(slugs.includes('engineering/topic/research/') && slugs.includes('engineering/topic/agents/'));
+  assert.ok(!slugs.includes('engineering/topic/stories/') && !slugs.some((s) => s.startsWith('engineering/topic/agents/page')));
   await assert.rejects(fs.access(path.join(w, 'topic/stories')));
   const research = await fs.readFile(path.join(w, 'topic/research/index.html'), 'utf8');
   const seo = TOPICS.find((t) => t.id === 'research').seo;
   assert.match(research, new RegExp(`<title>${seo}`));
   assert.match(research, /<h1>Research findings<\/h1>/);
-  assert.match(research, /<link rel="canonical" href="https:\/\/example\.test\/site\/writing\/topic\/research\/">/);
+  assert.match(research, /<link rel="canonical" href="https:\/\/example\.test\/site\/engineering\/topic\/research\/">/);
   assert.match(research, /"@type":"CollectionPage"/);
   assert.match(research, /"@type":"BreadcrumbList"/);
   assert.match(research, /<a href="\.\.\/\.\.\/a-finding\/">A finding<\/a>/);
@@ -693,7 +705,7 @@ test('each topic has its own crawlable page: title, description, list, pager, si
   // Page 2 of a long topic: noindex, its own canonical, links back up.
   const agents2 = await fs.readFile(path.join(w, 'topic/agents/page/2/index.html'), 'utf8');
   assert.match(agents2, /<meta name="robots" content="noindex">/);
-  assert.match(agents2, /href="https:\/\/example\.test\/site\/writing\/topic\/agents\/page\/2\/"/);
+  assert.match(agents2, /href="https:\/\/example\.test\/site\/engineering\/topic\/agents\/page\/2\/"/);
   assert.match(agents2, /<a href="\.\.\/\.\.\/\.\.\/\.\.\/note-\d+\/">/);
   // The blog index links every topic page, outside the script-only finder.
   const index = await fs.readFile(path.join(w, 'index.html'), 'utf8');
@@ -759,24 +771,24 @@ test('Tools and projects: a project with three posts gets its own page, linked f
   assert.equal(projectOf(['framer'], 'research', { research: new Set(), ventures: new Set(['framer']) }), undefined, 'only Tools and projects posts group by project');
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-out-'));
   const pages = await buildWriting(out, BASE, { root, published: new Set(['framer']) });
-  assert.ok(pages.includes('topic/tools/framer'), 'the project page is in the sitemap');
+  assert.ok(pages.includes('engineering/topic/tools/framer/'), 'the project page is in the sitemap');
   assert.ok(!pages.some((p) => p.includes('topic/tools/small')), 'one post is not enough for a page');
-  const topic = await fs.readFile(path.join(out, 'writing/topic/tools/index.html'), 'utf8');
+  const topic = await fs.readFile(path.join(out, 'engineering/topic/tools/index.html'), 'utf8');
   assert.match(topic, /<nav class="topic-nav project-nav lead"[^>]*><h2 id="project-nav-h">By project<\/h2><ul><li><a href="framer\/">Framer Pro <span class="n">3<\/span><\/a><\/li><\/ul>/);
   assert.match(topic, /3 of 5 posts are about these 1 projects; all 5 are listed below/);
   assert.ok(topic.indexOf('project-nav') < topic.indexOf('id="posts"'), 'the project links come before the date list');
-  const page = await fs.readFile(path.join(out, 'writing/topic/tools/framer/index.html'), 'utf8');
+  const page = await fs.readFile(path.join(out, 'engineering/topic/tools/framer/index.html'), 'utf8');
   assert.equal((page.match(/<h1/g) || []).length, 1);
   assert.match(page, /<title>Framer Pro: how it was built, post by post/);
-  assert.match(page, /<link rel="canonical" href="https:\/\/example\.test\/site\/writing\/topic\/tools\/framer\/">/);
+  assert.match(page, /<link rel="canonical" href="https:\/\/example\.test\/site\/engineering\/topic\/tools\/framer\/">/);
   assert.match(page, /href="\.\.\/\.\.\/\.\.\/\.\.\/framer\/">Open Framer Pro<\/a>/, 'the tool is linked from the site root');
   for (const slug of ['a1', 'a2', 'a3']) assert.ok(page.includes(`href="../../../${slug}/"`), `${slug} is listed`);
   assert.ok(!page.includes('href="../../../c1/"'), 'a post about no project is not');
   assert.match(page, /"@type":"CollectionPage"/);
-  assert.match(page, /"name":"Framer Pro","item":"https:\/\/example\.test\/site\/writing\/topic\/tools\/framer\/"/);
-  const a1 = await fs.readFile(path.join(out, 'writing/a1/index.html'), 'utf8');
+  assert.match(page, /"name":"Framer Pro","item":"https:\/\/example\.test\/site\/engineering\/topic\/tools\/framer\/"/);
+  const a1 = await fs.readFile(path.join(out, 'engineering/a1/index.html'), 'utf8');
   assert.match(a1, /<a href="\.\.\/topic\/tools\/framer\/">More on Framer Pro<\/a>/);
-  const b1 = await fs.readFile(path.join(out, 'writing/b1/index.html'), 'utf8');
+  const b1 = await fs.readFile(path.join(out, 'engineering/b1/index.html'), 'utf8');
   assert.ok(!b1.includes('More on'), 'no link to a page that does not exist');
 });
 
@@ -809,15 +821,15 @@ test('Research findings: a programme with three posts gets a page that leads wit
   assert.equal(projectOf(['hull-study'], 'tools', sets), undefined, 'a research slug does not group a tools post');
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-out-'));
   const pages = await buildWriting(out, BASE, { root, published: new Set(['framer']) });
-  assert.ok(pages.includes('topic/research/hull-study'), 'the programme page is in the sitemap');
-  assert.ok(pages.includes('topic/tools/framer'), 'tool projects keep their pages');
-  const topic = await fs.readFile(path.join(out, 'writing/topic/research/index.html'), 'utf8');
+  assert.ok(pages.includes('engineering/topic/research/hull-study/'), 'the programme page is in the sitemap');
+  assert.ok(pages.includes('engineering/topic/tools/framer/'), 'tool projects keep their pages');
+  const topic = await fs.readFile(path.join(out, 'engineering/topic/research/index.html'), 'utf8');
   assert.match(topic, /<h2 id="project-nav-h">By programme<\/h2><ul><li><a href="hull-study\/" title="Which hull goes furthest per kWh\?">hull-study <span class="n">3<\/span><\/a><\/li><\/ul>/);
   assert.match(topic, /3 of 4 posts are about these 1 programmes/);
   assert.ok(!topic.includes('framer/'), 'tool projects stay off the research topic page');
-  const tools = await fs.readFile(path.join(out, 'writing/topic/tools/index.html'), 'utf8');
+  const tools = await fs.readFile(path.join(out, 'engineering/topic/tools/index.html'), 'utf8');
   assert.ok(!tools.includes('hull-study'), 'and research programmes off the tools page');
-  const page = await fs.readFile(path.join(out, 'writing/topic/research/hull-study/index.html'), 'utf8');
+  const page = await fs.readFile(path.join(out, 'engineering/topic/research/hull-study/index.html'), 'utf8');
   assert.equal((page.match(/<h1/g) || []).length, 1);
   assert.match(page, /<h1>Which hull goes furthest per kWh\?<\/h1>/, 'the question, tags stripped, is the heading');
   assert.match(page, /<title>hull-study findings: Which hull goes furthest per kWh\?/);
@@ -831,9 +843,9 @@ test('Research findings: a programme with three posts gets a page that leads wit
   assert.match(page, /<h2 id="project-nav-h">Other programmes<\/h2>/);
   for (const slug of ['r1', 'r2', 'r3']) assert.ok(page.includes(`href="../../../${slug}/"`), `${slug} is listed`);
   assert.ok(!page.includes('href="../../../r4/"'));
-  const r1 = await fs.readFile(path.join(out, 'writing/r1/index.html'), 'utf8');
+  const r1 = await fs.readFile(path.join(out, 'engineering/r1/index.html'), 'utf8');
   assert.match(r1, /<a href="\.\.\/topic\/research\/hull-study\/">More on hull-study<\/a>/);
-  const t1 = await fs.readFile(path.join(out, 'writing/t1/index.html'), 'utf8');
+  const t1 = await fs.readFile(path.join(out, 'engineering/t1/index.html'), 'utf8');
   assert.match(t1, /<a href="\.\.\/topic\/tools\/framer\/">More on Framer Pro<\/a>/);
 });
 
@@ -861,7 +873,7 @@ test('Research findings: a programme with a registry summary gets it as the dek 
   writeFileSync(path.join(root, 'research', '_homepage', 'projects.json'), JSON.stringify({ themes: [{ id: 'm', projects: [{ slug: 'hull-study', title: 'Which hull?', summary }] }] }));
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-out-'));
   await buildWriting(out, BASE, { root });
-  const page = await fs.readFile(path.join(out, 'writing/topic/research/hull-study/index.html'), 'utf8');
+  const page = await fs.readFile(path.join(out, 'engineering/topic/research/hull-study/index.html'), 'utf8');
   assert.match(page, /<p class="dek">A catamaran carries 200 kg furthest per kWh at 2 m\/s\. Milestone 2 adds drag uncertainty\.<\/p>\n<p class="meta">3 posts, newest first\./);
   assert.ok(!page.includes('class="dek">Every blog post'), 'the generic line gives way');
   assert.match(page, /<meta name="description" content="A catamaran carries 200 kg furthest per kWh at 2 m\/s\. Milestone 2 adds drag uncertainty\.">/);
@@ -916,7 +928,7 @@ test('finder: a search over posts.json renders each card with its date and readi
   const root = repoWith({ '2026-10-16-hello.md': post('Hello', '2026-10-16') });
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-finder-cards-'));
   await buildWriting(out, BASE, { root });
-  const index = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
+  const index = await fs.readFile(path.join(out, ENG, 'index.html'), 'utf8');
   const script = [...index.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\b[^>]*>/gi)].map((m) => m[1]).find((s) => s.includes("getElementById('posts')"));
   const rows = JSON.parse(renderPostRows([{ slug: 'deep', title: 'Deep', description: 'D', date: '2026-03-05', minutes: 7, topic: 'agents', tags: ['a'] }]));
   const node = (tag) => ({ tag, dataset: {}, children: [], textContent: '', hidden: false, appendChild(c) { this.children.push(c); } });
@@ -930,7 +942,7 @@ test('finder: a search over posts.json renders each card with its date and readi
       getElementById: (id) => els[id], querySelectorAll: () => [],
       createElement: node, createTextNode: (t) => ({ tag: '#text', textContent: t }),
     },
-    location: { search: '?q=deep', pathname: '/writing/' }, history: { replaceState() {} },
+    location: { search: '?q=deep', pathname: '/engineering/' }, history: { replaceState() {} },
     fetch: (url) => Promise.resolve({ ok: true, json: () => (url === 'posts.json' ? rows : {}) }),
     URLSearchParams, Array, String, Number, Date, Boolean,
   });
@@ -949,7 +961,7 @@ async function finderCards(rows, query) {
   const root = repoWith({ '2026-10-16-hello.md': post('Hello', '2026-10-16') });
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-finder-rows-'));
   await buildWriting(out, BASE, { root });
-  const index = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
+  const index = await fs.readFile(path.join(out, ENG, 'index.html'), 'utf8');
   const script = [...index.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\b[^>]*>/gi)].map((m) => m[1]).find((s) => s.includes("getElementById('posts')"));
   const node = (tag) => ({ tag, dataset: {}, children: [], textContent: '', hidden: false, appendChild(c) { this.children.push(c); } });
   const el = () => ({ value: '', hidden: true, textContent: '', dataset: {}, addEventListener() {}, setAttribute() {}, focus() {} });
@@ -958,7 +970,7 @@ async function finderCards(rows, query) {
   const els = { posts: list, q: el(), tag: { ...el(), selectedIndex: 0 }, sort: el(), count: el(), none: el(), clear: el(), finder: el(), pager: el() };
   vm.runInNewContext(script, {
     document: { getElementById: (id) => els[id], querySelectorAll: () => [], createElement: node, createTextNode: (t) => ({ tag: '#text', textContent: t }) },
-    location: { search: `?q=${encodeURIComponent(query)}`, pathname: '/writing/' }, history: { replaceState() {} },
+    location: { search: `?q=${encodeURIComponent(query)}`, pathname: '/engineering/' }, history: { replaceState() {} },
     fetch: (url) => Promise.resolve({ ok: true, json: () => (url === 'posts.json' ? rows : {}) }),
     URLSearchParams, Array, String, Number, Date, Boolean, Object,
   });
@@ -993,8 +1005,8 @@ test('finder: a nine-column row from an older posts.json still renders its card'
   assert.equal(card.children[2].children[0].textContent, 'Agents label');
 });
 
-test('posts for a paid product line\'s customers lead the blog as "For your business" (2026-11-25)', async () => {
-  const { topicOf, renderCustomerLead, CUSTOMER_TAGS } = await import('./writing.mjs');
+test('posts for a paid product line\'s customers are filed "For your business" (2026-11-25)', async () => {
+  const { topicOf, CUSTOMER_TAGS } = await import('./writing.mjs');
   assert.equal(TOPICS[0].id, 'business');
   assert.ok(CUSTOMER_TAGS.has('pay-application-generator') && CUSTOMER_TAGS.has('einvoice-preflight'));
   assert.equal(topicOf(['einvoice-preflight', 'peppol']), 'business');
@@ -1002,15 +1014,129 @@ test('posts for a paid product line\'s customers lead the blog as "For your busi
   // How it was built stays in the build log, even about a product line's tool.
   assert.equal(topicOf(['einvoice-preflight', 'mutation-testing']), 'testing');
   assert.equal(topicOf(['reseller-books', 'perf']), 'tools');
+  // Crash and bug write-ups too, since the blog split (2026-11-26).
+  assert.equal(topicOf(['wall-framing-takeoff', 'bugs', 'validation']), 'tools');
+  assert.equal(topicOf(['wall-framing-takeoff', 'robustness']), 'tools');
   // Not a paid line's tool: unchanged.
   assert.equal(topicOf(['hearth-and-horizon', 'fiction']), 'stories');
-  const post = (slug, date, topic) => ({ slug, date, topic, title: slug, description: 'd', tags: [], minutes: 2 });
-  const posts = [post('a', '2026-11-01', 'business'), post('b', '2026-11-03', 'business'), post('c', '2026-11-04', 'agents')];
-  const html = renderCustomerLead(posts, { n: 1 });
-  assert.match(html, /href="b\/"/);
-  assert.doesNotMatch(html, /href="a\/"|href="c\/"/);
-  assert.match(html, /All 2 guides for your business/);
-  assert.equal(renderCustomerLead([post('c', '2026-11-04', 'agents')]), '');
-  const index = renderIndex(posts, {});
-  assert.ok(index.indexOf('customer-lead') < index.indexOf('id="posts"'), 'pinned above the full list');
+});
+
+// ---- The blog split (owner, 2026-11-26: "i think the move is to split the blogs for sure") ----
+
+const custPost = (title, date, tags) =>
+  `---\ntitle: "${title}"\ndate: ${date}\ndescription: "About ${title}."\ntags: [${tags.join(', ')}]\n---\n\n# ${title}\n\nBody.\n`;
+
+test('one classifier: every topic is on exactly one blog, and only "For your business" is on the marketing blog', async () => {
+  const { blogOf, blogPathOf, MARKETING_PATH } = await import('./writing.mjs');
+  for (const t of TOPICS) {
+    assert.equal(blogOf(t.id), t.id === 'business' ? 'blog' : 'engineering', t.id);
+    assert.equal(blogPathOf(t.id), t.id === 'business' ? MARKETING_PATH : ENG);
+  }
+});
+
+test('the real posts: each is on exactly one blog, at the URL its topic gives, and every post has a page', async () => {
+  const { blogOf } = await import('./writing.mjs');
+  const posts = loadPosts();
+  assert.ok(posts.length > 100);
+  for (const p of posts) {
+    assert.equal(p.blog, blogOf(p.topic), p.slug);
+    assert.equal(p.href, `${p.blog === 'blog' ? 'blog/' : ENG}${p.slug}/`, p.slug);
+    if (p.blog === 'blog') assert.ok(p.section, `${p.slug} has a marketing section`);
+  }
+  assert.ok(posts.some((p) => p.blog === 'blog') && posts.some((p) => p.blog === 'engineering'));
+});
+
+test('build: a customer post is on the marketing blog only, a dev post on the engineering blog only', async () => {
+  const root = repoWith({
+    '2026-11-20-pay-app-retainage.md': custPost('How retainage works on a pay app', '2026-11-20', ['pay-application-generator', 'construction']),
+    '2026-11-21-xrechnung-errors.md': custPost('What an XRechnung error means', '2026-11-21', ['einvoice-preflight', 'e-invoicing']),
+    '2026-11-22-ci-cache.md': custPost('A faster CI cache', '2026-11-22', ['ci', 'build']),
+  });
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-split-'));
+  const pages = await buildWriting(out, BASE, { root, published: new Set(['pay-application-generator']) });
+  const exists = async (p) => !!(await fs.stat(path.join(out, p)).catch(() => null));
+  // Exactly one home per post.
+  assert.ok(await exists('blog/pay-app-retainage/index.html'));
+  assert.ok(!(await exists('engineering/pay-app-retainage/index.html')));
+  assert.ok(await exists('engineering/ci-cache/index.html'));
+  assert.ok(!(await exists('blog/ci-cache/index.html')));
+  for (const p of ['blog/pay-app-retainage/', 'blog/xrechnung-errors/', 'engineering/ci-cache/', 'blog/construction/', 'blog/eu-e-invoicing/']) assert.ok(pages.includes(p), p);
+  assert.ok(!pages.some((p) => p.startsWith('writing/') && p !== 'writing/podcast/'), 'no page left at writing/');
+  // Each blog's feed holds only its own posts; the old feed holds both.
+  const mfeed = await fs.readFile(path.join(out, 'blog/feed.xml'), 'utf8');
+  const efeed = await fs.readFile(path.join(out, ENG, 'feed.xml'), 'utf8');
+  assert.match(mfeed, /blog\/pay-app-retainage\//);
+  assert.doesNotMatch(mfeed, /ci-cache/);
+  assert.match(efeed, /engineering\/ci-cache\//);
+  assert.doesNotMatch(efeed, /pay-app-retainage/);
+  const legacy = await fs.readFile(path.join(out, 'writing/feed.xml'), 'utf8');
+  assert.match(legacy, /blog\/pay-app-retainage\//);
+  assert.match(legacy, /engineering\/ci-cache\//);
+  // The engineering index has no customer post, and points to the marketing blog.
+  const eindex = await fs.readFile(path.join(out, ENG, 'index.html'), 'utf8');
+  assert.doesNotMatch(eindex, /pay-app-retainage/);
+  assert.match(eindex, /href="\.\.\/blog\/">the blog</);
+  assert.match(eindex, /href="status\/">engineering status</);
+});
+
+test('the marketing blog: product-line sections with product cards, a Blog JSON-LD, its own feed and a "How we build it" foot', async () => {
+  const root = repoWith({
+    '2026-11-20-pay-app-retainage.md': custPost('How retainage works on a pay app', '2026-11-20', ['pay-application-generator', 'construction']),
+    '2026-11-21-xrechnung-errors.md': custPost('What an XRechnung error means', '2026-11-21', ['einvoice-preflight', 'e-invoicing']),
+  });
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-mk-'));
+  await buildWriting(out, BASE, { root, published: new Set(['pay-application-generator', 'einvoice-preflight']) });
+  const index = await fs.readFile(path.join(out, 'blog/index.html'), 'utf8');
+  assert.match(index, /no warranty/i);
+  assert.match(index, /<link rel="canonical" href="https:\/\/example\.test\/site\/blog\/">/);
+  const ld = [...index.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1]));
+  const blog = ld.find((b) => b['@type'] === 'Blog');
+  assert.equal(blog.url, `${BASE}blog/`);
+  assert.equal(blog.blogPost.length, 2);
+  // A section per industry with a paid line, in business.mjs order; empty ones say so honestly.
+  const order = ['construction', 'manufacturing', 'online-sellers', 'eu-e-invoicing', 'nonprofits'].map((id) => index.indexOf(`id="${id}"`));
+  assert.ok(order.every((i) => i > 0), 'every product-line section is there');
+  assert.deepEqual([...order].sort((a, b) => a - b), order, 'in business.mjs order');
+  assert.match(index, /<h2 id="construction-h"><a href="construction\/">Construction<\/a><\/h2>/);
+  assert.match(index, /<h2 id="nonprofits-h">Nonprofits<\/h2>[\s\S]*?No guides here yet\./);
+  // Product CTAs come from products.mjs, as on /products/: early access by mail, a live line opened.
+  assert.match(index, /class="pl-card" id="contractor-billing"/);
+  assert.match(index, /Ask for early access/);
+  assert.match(index, /<a class="pl-go" data-status="live" href="\.\.\/grants\/"/);
+  // Only published tools are linked from a card.
+  assert.match(index, /href="\.\.\/pay-application-generator\/"/);
+  assert.doesNotMatch(index, /href="\.\.\/lien-waiver-checker\/"/);
+  assert.match(index, /How we build it: the <a href="\.\.\/engineering\/">engineering blog<\/a>/);
+  // The header marks Blog current, at blog/.
+  assert.match(index, /<a data-pfs-nav="writing" href="\.\.\/blog\/" aria-current="page">Blog<\/a>/);
+  // A section page and a post page.
+  const sec = await fs.readFile(path.join(out, 'blog/construction/index.html'), 'utf8');
+  assert.match(sec, /<h1>Construction guides<\/h1>/);
+  assert.match(sec, /href="\.\.\/pay-app-retainage\/"/);
+  assert.doesNotMatch(sec, /xrechnung-errors/);
+  const page = await fs.readFile(path.join(out, 'blog/pay-app-retainage/index.html'), 'utf8');
+  assert.match(page, /<link rel="canonical" href="https:\/\/example\.test\/site\/blog\/pay-app-retainage\/">/);
+  assert.match(page, /<a class="topic" href="\.\.\/construction\/">Construction<\/a>/);
+  assert.match(page, /What we are building for construction/);
+  assert.match(page, /How we build it/);
+  assert.doesNotMatch(page, /\?tag=/, 'no finder on the marketing blog, so tags are labels');
+  const crumb = [...page.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => JSON.parse(m[1])).find((b) => b['@type'] === 'BreadcrumbList');
+  assert.deepEqual(crumb.itemListElement.map((i) => i.item), [BASE, `${BASE}blog/`, `${BASE}blog/construction/`, `${BASE}blog/pay-app-retainage/`]);
+});
+
+test('links between posts follow each post to its blog, and old writing/ links are rewritten', async () => {
+  const root = repoWith({
+    '2026-11-20-pay-app-retainage.md': custPost('How retainage works', '2026-11-20', ['pay-application-generator']),
+    '2026-11-22-ci-cache.md': `---\ntitle: "CI cache"\ndate: 2026-11-22\ndescription: "d"\ntags: [ci]\n---\n\n# CI cache\n\nSee [the guide](2026-11-20-pay-app-retainage.md), [the old URL](https://marisstella.app/writing/pay-app-retainage/), [a topic](https://marisstella.app/writing/topic/research/), [the old blog](https://marisstella.app/writing/), [the podcast](https://marisstella.app/writing/podcast/) and [a hash](https://marisstella.app/writing/ci-cache/#x).\n`,
+  });
+  const out = mkdtempSync(path.join(os.tmpdir(), 'writing-xlink-'));
+  await buildWriting(out, BASE, { root });
+  const page = await fs.readFile(path.join(out, ENG, 'ci-cache/index.html'), 'utf8');
+  assert.match(page, /<a href="\.\.\/\.\.\/blog\/pay-app-retainage\/">the guide<\/a>/);
+  assert.match(page, /<a href="\.\.\/\.\.\/blog\/pay-app-retainage\/">the old URL<\/a>/);
+  assert.match(page, /<a href="\.\.\/\.\.\/engineering\/topic\/research\/">a topic<\/a>/);
+  assert.match(page, /<a href="\.\.\/\.\.\/blog\/">the old blog<\/a>/);
+  assert.match(page, /<a href="\.\.\/\.\.\/writing\/podcast\/">the podcast<\/a>/);
+  assert.match(page, /<a href="\.\.\/\.\.\/engineering\/ci-cache\/#x">a hash<\/a>/);
+  assert.doesNotMatch(page, /href="[^"]*writing\/(?!podcast|feed)/);
 });

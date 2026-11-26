@@ -43,7 +43,7 @@ import { buildNonprofitsPage } from './industry-nonprofits.mjs';
 import { renderHardwarePage, HARDWARE_PATH } from './hardware-page.mjs';
 import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES } from '../../portfolio/requests/requests.mjs';
 import { moveAudioToCdn } from './audio-cdn.mjs';
-import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, descriptionHtml, loadPosts, WRITING_PATH } from './writing.mjs';
+import { AGENT_POSTS_DIR, AGENTS_PATH, buildWriting, descriptionHtml, ENGINEERING_BLOG_PATH, loadPosts, MARKETING_PATH, marketingSections } from './writing.mjs';
 import { loadPages, resolvePostTitleClashes } from './page-identity.mjs';
 import { addModulePreloads } from './preload.mjs';
 import { COOKIES_PATH, legalDocuments, legalFooterHtml, PRIVACY_PATH, TERMS_PATH } from './legal-pages.mjs';
@@ -9499,7 +9499,7 @@ export function renderSearchIndex(surfaces, research = [], { guides = [], sectio
   for (const post of posts) {
     items.push({
       s: post.slug,
-      u: `${WRITING_PATH}${post.slug}/`,
+      u: post.href ?? `${MARKETING_PATH}${post.slug}/`,
       t: post.title,
       d: snippetize(post.description, 160),
       c: POST_CATEGORY,
@@ -9978,7 +9978,7 @@ ${renderProductGrid(softwareLines(), { toRoot: '', published: publishedTools, an
 
     <section class="band" id="more" aria-labelledby="more-h">
       <h2 id="more-h" class="section-eyebrow">Also here</h2>
-      <p class="more-links"><a href="${ABOUT_PATH}">About the company</a> · <a href="${GUIDES_PATH}">Guides and comparisons</a> · <a href="${WRITING_PATH}">Writing</a> · <a href="${UPDATES_PATH}">Updates and roadmap</a> · <a href="${RESEARCH_PATH}">Research archive</a></p>
+      <p class="more-links"><a href="${ABOUT_PATH}">About the company</a> · <a href="${GUIDES_PATH}">Guides and comparisons</a> · <a href="${MARKETING_PATH}">Blog</a> · <a href="${ENGINEERING_BLOG_PATH}">Engineering blog</a> · <a href="${UPDATES_PATH}">Updates and roadmap</a> · <a href="${RESEARCH_PATH}">Research archive</a></p>
     </section>
 
 <!-- With the other "your data on this device" panel rather than at the top:
@@ -12757,7 +12757,7 @@ ${entries.join('\n')}
  * own — they are the same kind of page (this build's, not a venture's) and a
  * crawler following `robots.txt` reaches them through the same index.
  */
-export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys = [], researchSlugs = [], writingSlugs = [], extraPaths = []) {
+export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys = [], researchSlugs = [], writingPaths = [], extraPaths = []) {
   const urls = [`  <url><loc>${baseUrl}</loc></url>`]
     // The company's product pages (products.mjs), always written.
     .concat(productSitemapPaths().map((p) => `  <url><loc>${baseUrl}${p}</loc></url>`))
@@ -12785,9 +12785,10 @@ export function renderHubSitemap(baseUrl, categoryIds = [], compareProductKeys =
     .concat([`  <url><loc>${baseUrl}${RESEARCH_PATH}</loc></url>`])
     // Each research project's own home page, written by the research builder.
     .concat(researchSlugs.map((slug) => `  <url><loc>${baseUrl}${RESEARCH_PATH}${slug}/</loc></url>`))
-    // The writing index and each post, only when the build wrote them.
-    .concat(writingSlugs.length ? [`  <url><loc>${baseUrl}${WRITING_PATH}</loc></url>`] : [])
-    .concat(writingSlugs.map((slug) => `  <url><loc>${baseUrl}${WRITING_PATH}${slug}/</loc></url>`))
+    // Both blogs' indexable pages (writing.mjs, buildWriting), as paths from the
+    // site root, only when the build wrote them: blog/ and its sections and
+    // posts, engineering/ and its topic, project and post pages, the podcast.
+    .concat(writingPaths.map((p) => `  <url><loc>${baseUrl}${p}</loc></url>`))
     // The fiction section, a hub-level page this build always writes.
     .concat([`  <url><loc>${baseUrl}${STORIES_PATH}</loc></url>`])
     // Hub-level pages written by their own modules (industries/nonprofits/ ...).
@@ -12992,7 +12993,7 @@ const LLMS_INDEX_DESC_MAX = 140;
 // headline. Every tool is still in llms-full.txt and on its category page.
 const LLMS_INDEX_TOOLS_PER_CATEGORY = 3;
 
-export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guideGroups = [], { audiences = [], research = { themes: [] }, agentPostCount = 0, full = false, updated = '' } = {}) {
+export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guideGroups = [], { audiences = [], research = { themes: [] }, agentPostCount = 0, blog = { sections: [], engineering: 0 }, full = false, updated = '' } = {}) {
   const oneLine = (value) => String(value ?? '').replace(/\s+/g, ' ').trim();
   // The index (`llms.txt`) keeps each tool to its first sentence, capped, so
   // the file fits one fetch (539 KB did not: backlog P052); `llms-full.txt`
@@ -13093,6 +13094,19 @@ export function renderLlmsTxt(surfaces, baseUrl, compareProductGroups = [], guid
             0,
           )} plain-English pages the tools' own authors wrote beside the calculators — how a price is built up, when one option beats another, what a fee schedule does to a payout — grouped by trade and by tool. Useful for answering "how much should I charge for X" with a page that shows the arithmetic, and a calculator on the same site that runs it on the reader's own numbers.`,
         ]
+      : []),
+    // The two blogs (writing.mjs; split 2026-11-26): the marketing blog's
+    // customer guides by product line, one line each, then the engineering
+    // blog in one line, so an assistant asked about pay applications or
+    // e-invoices finds the guide section without fetching an index.
+    ...(blog.sections.length
+      ? [
+          `- [Blog: guides for small businesses](${baseUrl}${MARKETING_PATH}): plain-English guides for the businesses the paid products serve, from the team building them; Atom feed at ${baseUrl}${MARKETING_PATH}feed.xml.`,
+          ...blog.sections.map((sec) => `  - [${sec.label} guides](${baseUrl}${MARKETING_PATH}${sec.id}/): ${formatCount(sec.count)} guide${sec.count === 1 ? '' : 's'}${sec.lines.length ? `, beside ${sec.lines.join(' and ')}` : ''}.`),
+        ]
+      : []),
+    ...(blog.engineering
+      ? [`- [Engineering blog](${baseUrl}${ENGINEERING_BLOG_PATH}): ${formatCount(blog.engineering)} posts on how the products are built and tested by AI coding agents, the research, quality audits and hosting, by topic.`]
       : []),
     // The agent-to-agent blog (writing.mjs, AGENT_BLOG): posts written for a
     // model reader, each as raw Markdown, with its own llms.txt.
@@ -13246,7 +13260,7 @@ export function renderNotFound(baseUrl) {
     <li><a href="${escapeHtml(`${baseUrl}${CATEGORY_PATH_PREFIX}/`)}"><strong>Tools by category →</strong><span>Every free calculator and checker, grouped by job.</span></a></li>
     <li><a href="${escapeHtml(`${baseUrl}guides/`)}"><strong>Guides →</strong><span>How a price is built up, and when one option beats another.</span></a></li>
     <li><a href="${escapeHtml(`${baseUrl}research/`)}"><strong>Research →</strong><span>Open projects with their code, tests and limitations.</span></a></li>
-    <li><a href="${escapeHtml(`${baseUrl}writing/`)}"><strong>Blog →</strong><span>What building this with AI agents has taught us.</span></a></li>
+    <li><a href="${escapeHtml(`${baseUrl}${MARKETING_PATH}`)}"><strong>Blog →</strong><span>Guides for contractors, machine shops, sellers and nonprofits.</span></a></li>
   </ul>
   </main>
   <script>
@@ -14041,7 +14055,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     .map((entry) => `${RESEARCH_TOPICS_DIR}/${entry.name}`)
     .sort();
 
-  // The engineering status page: what the agent fleet shipped, is working on,
+  // The engineering status page (engineering/status/): what the agent fleet shipped, is working on,
   // spent and is blocked on, read from the committed run records and history.
   // `noindex` and in no sitemap; see `engineering.mjs`.
   await buildEngineeringPage(outDir, base);
@@ -14060,7 +14074,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
 
   // Essays and write-ups from `docs/posts/` (see `writing.mjs`). Indexed, so
   // each post is listed in the hub sitemap below.
-  // Page slugs under writing/: each post, and `podcast`.
+  // Every indexable page of both blogs, as paths from the site root.
   const writingPages = await buildWriting(outDir, base, { socialCard: `${base}${SOCIAL_CARD_FILE}`, originAlias: [...RETIRED_BASE_URLS, DEFAULT_BASE_URL], published: new Set(surfaces.map((s) => s.slug)) });
 
   // The fiction the creative track writes, one page linking into its ventures (see `stories.mjs`).
@@ -14155,7 +14169,12 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     ),
   );
   await fs.writeFile(path.join(outDir, 'catalog.json'), renderCatalog(surfaces, base, launched));
-  const llmsOptions = { audiences: audiencePages, research, agentPostCount: loadPosts(undefined, AGENT_POSTS_DIR).length, updated: [...sourceDates.values()].filter((d) => /^\d{4}-/.test(d)).sort().pop() ?? '' };
+  const allPosts = loadPosts();
+  const blogSummary = {
+    sections: marketingSections(allPosts.filter((p) => p.blog === 'blog')).filter((sec) => sec.posts.length).map((sec) => ({ id: sec.id, label: sec.label, count: sec.posts.length, lines: sec.lines.map((l) => l.name) })),
+    engineering: allPosts.filter((p) => p.blog !== 'blog').length,
+  };
+  const llmsOptions = { audiences: audiencePages, research, agentPostCount: loadPosts(undefined, AGENT_POSTS_DIR).length, blog: blogSummary, updated: [...sourceDates.values()].filter((d) => /^\d{4}-/.test(d)).sort().pop() ?? '' };
   await fs.writeFile(path.join(outDir, 'llms.txt'), renderLlmsTxt(surfaces, base, compareProducts, guides, llmsOptions));
   await fs.writeFile(path.join(outDir, 'llms-full.txt'), renderLlmsTxt(surfaces, base, compareProducts, guides, { ...llmsOptions, full: true }));
   // Read from the committed file, not from `git log`: the in-cluster build

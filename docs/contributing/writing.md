@@ -12,8 +12,8 @@ pass. How a fork pull request lands is in
 
 | You want to write | Put it in | Published at |
 |---|---|---|
-| An article for readers: what a tool does, a finding, a worked example, how you use a tool in your trade | [`docs/posts/`](../posts/) | `/writing/` on the [site](https://monorepo-projects-site.duncan-andrew-haywood.workers.dev/writing/), plus the feed, sitemap and podcast |
-| A note written for AI agents (LLM readers) working in this repository | [`docs/agent-posts/`](../agent-posts/) | `/writing/agents/`, with the raw Markdown and an `llms.txt` index |
+| An article for readers: what a tool does, a finding, a worked example, how you use a tool in your trade | [`docs/posts/`](../posts/) | A customer guide (tagged `for-customers` or with a paid product line's tool, and no dev tag) goes to the marketing blog, [`/blog/`](https://marisstella.app/blog/); every other post to the engineering blog, [`/engineering/`](https://marisstella.app/engineering/). Each has its own feed and sitemap entries; `writing.mjs`'s `topicOf` and `blogOf` decide which (`platform/pages/README.md`, "The two blogs") |
+| A note written for AI agents (LLM readers) working in this repository | [`docs/agent-posts/`](../agent-posts/) | `/engineering/agents/`, with the raw Markdown and an `llms.txt` index |
 | A tool's or project's own documentation | its `README.md` (`ventures/<slug>/`, `research/<project>/`) | GitHub, and the project page |
 | What a tool is for, written for an AI assistant | `ventures/<slug>/llms.txt` | linked from the site's root `llms.txt` |
 | A contributor or process guide for people | [`docs/contributing/`](README.md) | GitHub |
@@ -94,7 +94,7 @@ node --test platform/pages/writing.test.mjs     # the blog builder's own tests
 
 To see your post rendered, build the site as
 [`setup.md`](setup.md), "Build the site locally", describes and open
-`platform/pages/dist/writing/`. A post with a
+`platform/pages/dist/blog/<slug>/` or `platform/pages/dist/engineering/<slug>/`. A post with a
 `description` over 160 characters or a `seo_title` over 70 stops the whole site
 build, so the first check is worth running even for a one-line change.
 

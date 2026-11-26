@@ -15,7 +15,7 @@ JSON line per path to a history file.
 `probe` prints each result and appends it to FILE when given; it exits 0
 even when the site is down, since a probe's job is to record that. `report`
 prints availability and p50/p95/max per path over the window. The paths
-cover both Workers: `/writing/` and `/research/` run `router.mjs` and the
+cover both Workers: `/blog/`, `/engineering/` and `/research/` run `router.mjs` and the
 shard Worker (`platform/pages/cloudflare/README.md`), the rest are plain
 static assets, so a failure that hits only one group points at the Worker
 request budget (`site-perf-worker-budget` in `portfolio/work/tasks.yaml`).
@@ -47,8 +47,8 @@ PATHS = [
     ("/wall-framing-takeoff/", "static"),
     ("/pf-site.css", "static"),
     ("/version.json", "static"),
-    ("/writing/", "shard"),
-    ("/writing/what-a-tack-costs/", "shard"),
+    ("/blog/", "shard"),
+    ("/engineering/what-a-tack-costs/", "shard"),
     ("/research/", "shard"),
     ("/research/marine-hull/", "shard"),
 ]

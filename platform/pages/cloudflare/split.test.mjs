@@ -5,7 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import router, { APP_DIRS, SHARD_DIRS, SITE_ORIGIN, WORKERS_DEV_HOST, appBinding, inShard } from './router.mjs';
+import router, { APP_DIRS, SHARD_DIRS, SITE_ORIGIN, WORKERS_DEV_HOST, appBinding, inShard, writingRedirect } from './router.mjs';
 import { split, workersDevHeaders, securityHeaders, assetCacheHeaders, LONG_CACHE_CONTROL, SECURITY_HEADERS } from './split.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -43,7 +43,10 @@ test('the router sends shard paths to the shard and everything else to its own a
   };
   const get = async (p) => (await router.fetch(new Request(`https://x.dev${p}`), env)).text();
   assert.equal(await get('/research/'), 'shard');
-  assert.equal(await get('/writing/a-post/'), 'shard');
+  assert.equal(await get('/writing/feed.xml'), 'shard');
+  assert.equal(await get('/writing/podcast/'), 'shard');
+  assert.equal(await get('/blog/a-guide/'), 'shard');
+  assert.equal(await get('/engineering/a-post/'), 'shard');
   assert.equal(await get('/dev'), 'shard');
   assert.equal(await get('/'), 'site');
   assert.equal(await get('/research-notes-tool/'), 'site');
@@ -130,4 +133,45 @@ test('both Workers give images, fonts and media a day of cache, and leave pages,
     for (const r of rules.filter((r) => /^(https:\/\/[^/]+)?\/\*\n/.test(r))) assert.doesNotMatch(r, /Cache-Control/i, r);
   }
   assert.match(LONG_CACHE_CONTROL, /max-age=(8640\d|[1-9]\d{5,})/);
+});
+
+// The blog split (2026-11-26, writing-moves.mjs): every old writing/ URL but the
+// feed and the podcast answers with a real 301 to its new home.
+test('old writing/ URLs 301 to the blog that now holds the post', async () => {
+  const customer = new Set(['/blog/a-guide/']);
+  const asked = [];
+  const env = {
+    ASSETS: { fetch: async () => new Response('site') },
+    SHARD: {
+      fetch: async (req) => {
+        const p = new URL(req.url).pathname;
+        if (req.method === 'HEAD') {
+          asked.push(p);
+          return new Response(null, { status: customer.has(p) ? 200 : 404 });
+        }
+        return new Response('shard');
+      },
+    },
+  };
+  const go = async (p) => router.fetch(new Request(`https://marisstella.app${p}`), env);
+  const loc = async (p) => {
+    const res = await go(p);
+    assert.equal(res.status, 301, p);
+    return res.headers.get('location');
+  };
+  assert.equal(await loc('/writing/a-guide/'), 'https://marisstella.app/blog/a-guide/');
+  assert.equal(await loc('/writing/a-dev-post/?x=1'), 'https://marisstella.app/engineering/a-dev-post/?x=1');
+  assert.equal(await loc('/writing/'), 'https://marisstella.app/blog/');
+  assert.equal(await loc('/writing'), 'https://marisstella.app/blog/');
+  assert.equal(await loc('/writing/topic/business/'), 'https://marisstella.app/blog/');
+  assert.equal(await loc('/writing/topic/research/page/2/'), 'https://marisstella.app/engineering/topic/research/page/2/');
+  assert.equal(await loc('/writing/page/7/'), 'https://marisstella.app/engineering/');
+  assert.equal(await loc('/writing/agents/a/'), 'https://marisstella.app/engineering/agents/a/');
+  assert.equal(await loc('/writing/search.json'), 'https://marisstella.app/engineering/search.json');
+  // Only post URLs pay the lookup.
+  assert.deepEqual(asked, ['/blog/a-guide/', '/blog/a-dev-post/']);
+  // Still served: the combined feed and the podcast (its apps poll the URL).
+  assert.equal(await (await go('/writing/feed.xml')).text(), 'shard');
+  assert.equal(await (await go('/writing/podcast/feed.xml')).text(), 'shard');
+  assert.equal(await writingRedirect('/writings/', async () => true), null);
 });

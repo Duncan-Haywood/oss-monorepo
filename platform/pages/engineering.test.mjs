@@ -124,7 +124,7 @@ test('the page escapes what run records say and carries noindex and the disclaim
   assert.match(html, /&lt;script&gt;alert\(1\)&lt;\/script&gt; fix <code>x<\/code>/);
   assert.match(html, /<meta name="robots" content="noindex">/);
   assert.match(html, /no warranty/i);
-  assert.match(html, /<link rel="canonical" href="https:\/\/example\.invalid\/site\/engineering\/">/);
+  assert.match(html, /<link rel="canonical" href="https:\/\/example\.invalid\/site\/engineering\/status\/">/);
   assert.match(html, /<meta property="og:image" content="https:\/\/example\.invalid\/site\/social-card\.png">/);
   assert.equal(esc('"&'), '&quot;&amp;');
 });
@@ -149,7 +149,7 @@ test('decisions carry their age, and the backlog lists open items best effect-fo
 test('the real repository builds a page', async () => {
   const out = await fs.mkdtemp(path.join(os.tmpdir(), 'engineering-'));
   const model = await buildEngineeringPage(out, '', { today: TODAY });
-  const html = await fs.readFile(path.join(out, 'engineering', 'index.html'), 'utf8');
+  const html = await fs.readFile(path.join(out, 'engineering', 'status', 'index.html'), 'utf8');
   assert.match(html, /<h1>Engineering status<\/h1>/);
   assert.ok(model.ventures.total > 0);
   assert.ok(model.recentRuns.length > 0);

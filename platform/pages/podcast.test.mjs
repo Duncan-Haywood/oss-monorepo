@@ -63,14 +63,17 @@ test('the build puts a player on the post, a podcast page and an RSS feed with e
   });
   const out = mkdtempSync(path.join(os.tmpdir(), 'podcast-out-'));
   const pages = await buildWriting(out, BASE, { root });
-  assert.deepEqual(pages, ['a', 'b', 'topic/tools', 'podcast']);
+  assert.deepEqual(pages, ['blog/', 'engineering/', 'engineering/a/', 'engineering/b/', 'engineering/topic/tools/', 'writing/podcast/']);
+  // The podcast stays at writing/podcast/ (apps poll its feed by URL); the posts moved to the
+  // engineering blog in the blog split (2026-11-26).
   const w = path.join(out, WRITING_PATH);
-  const postA = await fs.readFile(path.join(w, 'a/index.html'), 'utf8');
-  const postB = await fs.readFile(path.join(w, 'b/index.html'), 'utf8');
+  const e = path.join(out, 'engineering');
+  const postA = await fs.readFile(path.join(e, 'a/index.html'), 'utf8');
+  const postB = await fs.readFile(path.join(e, 'b/index.html'), 'utf8');
   const pod = await fs.readFile(path.join(w, 'podcast/index.html'), 'utf8');
   const feed = await fs.readFile(path.join(w, 'podcast/feed.xml'), 'utf8');
-  const index = await fs.readFile(path.join(w, 'index.html'), 'utf8');
-  assert.match(postA, /<audio controls preload="none" src="\.\.\/podcast\/audio\/2026-10-20-a\.mp3">/);
+  const index = await fs.readFile(path.join(e, 'index.html'), 'utf8');
+  assert.match(postA, /<audio controls preload="none" src="\.\.\/\.\.\/writing\/podcast\/audio\/2026-10-20-a\.mp3">/);
   assert.match(postA, /"@type":"AudioObject"/);
   assert.doesNotMatch(postB, /<audio/);
   assert.match(pod, /no warranty/i);
@@ -78,10 +81,13 @@ test('the build puts a player on the post, a podcast page and an RSS feed with e
   assert.match(pod, /Episode &lt;A&gt;/);
   assert.match(pod, /<details><summary>Transcript<\/summary>/);
   assert.match(pod, /"@type":"PodcastSeries"/);
-  assert.match(index, /href="podcast\/"/);
+  assert.match(index, /href="\.\.\/writing\/podcast\/"/);
+  // An episode links its post at its new home, on the page and in the feed.
+  assert.match(pod, /<h3><a href="\.\.\/\.\.\/engineering\/a\/">/);
   assert.match(feed, /xmlns:itunes=/);
   assert.match(feed, new RegExp(`<enclosure url="${BASE}writing/podcast/audio/2026-10-20-a.mp3" length="7" type="audio/mpeg"/>`));
   assert.match(feed, /<itunes:duration>125<\/itunes:duration>/);
+  assert.match(feed, new RegExp(`<link>${BASE}engineering/a/</link>`));
   // Grouped by the post's topic, with a feed per topic.
   assert.match(pod, /<section id="topic-tools"/);
   assert.match(pod, /href="tools\/feed\.xml">RSS for this topic only</);
@@ -95,10 +101,11 @@ test('the build puts a player on the post, a podcast page and an RSS feed with e
 test('no episodes: the podcast page still exists (the blog links it), with no feed', async () => {
   const root = repo({ posts: { '2026-10-20-a.md': post('A', '2026-10-20') } });
   const out = mkdtempSync(path.join(os.tmpdir(), 'podcast-none-'));
-  assert.deepEqual(await buildWriting(out, BASE, { root }), ['a', 'topic/tools', 'podcast']);
+  assert.deepEqual(await buildWriting(out, BASE, { root }), ['blog/', 'engineering/', 'engineering/a/', 'engineering/topic/tools/', 'writing/podcast/']);
   const page = await fs.readFile(path.join(out, WRITING_PATH, 'podcast/index.html'), 'utf8');
   assert.match(page, /No episodes yet/);
-  assert.match(page, /data-pfs-nav="writing" href="[^"]*" aria-current="page"/);
+  // Under the engineering blog since the split (2026-11-26); its URL stays where podcast apps poll it.
+  assert.match(page, /<a href="\.\.\/\.\.\/engineering\/">Engineering blog<\/a> › Podcast/);
   await assert.rejects(fs.access(path.join(out, WRITING_PATH, 'podcast/feed.xml')));
 });
 

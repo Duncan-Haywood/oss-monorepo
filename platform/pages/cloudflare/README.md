@@ -28,7 +28,13 @@ Until someone decides to pay, the site is split in two:
 | Worker | Serves | Config |
 |---|---|---|
 | `monorepo-projects-site` | everything except the directories below; has the public address | `wrangler.toml`, `router.mjs` |
-| `monorepo-projects-site-shard` | `router.mjs`'s `SHARD_DIRS`: `research/`, `writing/`, `dev/`, `changepoint-detector/`, `hearth-and-horizon/`; no public address | `shard/wrangler.toml` |
+| `monorepo-projects-site-shard` | `router.mjs`'s `SHARD_DIRS`: `research/`, `writing/`, `blog/`, `engineering/`, `dev/` and the story and open-hardware directories it lists; no public address | `shard/wrangler.toml` |
+
+Since the blog split (2026-11-26) the router also answers every old
+`/writing/...` URL except `writing/feed.xml` and `writing/podcast/` with a 301
+to the post's new home on `blog/` or `engineering/` (`writingRedirect`,
+`../writing-moves.mjs`), asking the shard with one HEAD request whether
+`/blog/<slug>/` exists. A redirect page per post would have cost 7,386 files.
 
 Requests for static files are free and unmetered. Only requests under
 `SHARD_DIRS` run `router.mjs`, which forwards them over a service binding.

@@ -36,7 +36,7 @@ echo "Catalog lists ${tools} tool(s)"
 [ "$tools" -ge 20 ] || { echo "::error::catalog.json lists only ${tools} tools"; exit 1; }
 slug=$(jq -r '.tools[0].slug' "$RUNNER_TEMP/catalog.json")
 
-for path in "/" "/research/" "/writing/" "/sitemap.xml" "/sitemap-hub.xml" "/robots.txt" "/catalog.json" "/llms.txt" "/llms-full.txt" "/feed.xml" "/${slug}/"; do
+for path in "/" "/research/" "/blog/" "/engineering/" "/writing/feed.xml" "/sitemap.xml" "/sitemap-hub.xml" "/robots.txt" "/catalog.json" "/llms.txt" "/llms-full.txt" "/feed.xml" "/${slug}/"; do
   code=$(curl -sS -o /dev/null -w '%{http_code}' --retry 5 --retry-delay 5 \
            --retry-all-errors "${base}${path}")
   echo "${code}  ${base}${path}"

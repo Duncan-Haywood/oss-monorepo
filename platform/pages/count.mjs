@@ -68,9 +68,10 @@ export function ungroupedCounts(html) {
 export const SITE_COUNT_PAGES = Object.freeze([
   'index.html',
   'research/index.html',
-  'writing/index.html',
+  'blog/index.html',
   'guides/index.html',
   'about/index.html',
   'engineering/index.html',
+  'engineering/status/index.html',
   'c/index.html',
 ]);

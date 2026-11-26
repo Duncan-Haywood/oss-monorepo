@@ -5,7 +5,7 @@
 //
 //   npm i --prefix "$SCRATCH/lh" lighthouse@12.8.2      # once; not a repo dependency
 //   LIGHTHOUSE="$SCRATCH/lh/node_modules/.bin/lighthouse" node platform/pages/lighthouse.mjs
-//   ... --pages=research/,writing/        # just these paths
+//   ... --pages=research/,blog/           # just these paths
 //   ... --min-a11y=95                     # exit 1 if any page scores lower
 //   ... --throttling=devtools             # real throttling, not Lantern's simulation
 //   ... --runs=3                          # each page 3 times, median of every number
@@ -88,11 +88,12 @@ export function mergeRuns(rows) {
 }
 
 export function defaultPages(dist = DIST) {
-  const pages = ['', 'research/', 'writing/', 'stories/'];
-  const posts = fs.existsSync(path.join(dist, 'writing'))
-    ? fs.readdirSync(path.join(dist, 'writing')).filter((d) => /^[0-9a-z]/.test(d) && fs.existsSync(path.join(dist, 'writing', d, 'index.html'))).sort()
+  const pages = ['', 'research/', 'blog/', 'engineering/', 'stories/'];
+  // One post page: the marketing blog's first, by name (the blogs replaced writing/ on 2026-11-26).
+  const posts = fs.existsSync(path.join(dist, 'blog'))
+    ? fs.readdirSync(path.join(dist, 'blog')).filter((d) => /^[0-9a-z]/.test(d) && fs.existsSync(path.join(dist, 'blog', d, 'index.html')) && /min read/.test(fs.readFileSync(path.join(dist, 'blog', d, 'index.html'), 'utf8'))).sort()
     : [];
-  if (posts.length) pages.push(`writing/${posts[0]}/`);
+  if (posts.length) pages.push(`blog/${posts[0]}/`);
   const flagships = fs.readFileSync(path.join(repo, 'portfolio/flagships.yaml'), 'utf8')
     .split('\n').map((l) => l.match(/^\s*-\s*venture:\s*(\S+)/)?.[1]).filter(Boolean);
   for (const f of flagships) if (fs.existsSync(path.join(dist, f, 'index.html'))) pages.push(`${f}/`);

@@ -174,8 +174,10 @@ test('the latest writing prefers posts for customers when there are any (2026-11
     { slug: 'guide', date: '2026-10-01', title: 'Guide', description: 'd', minutes: 3, topic: 'business' },
     { slug: 'devlog', date: '2026-10-20', title: 'Devlog', description: 'd', minutes: 5, topic: 'agents' },
   ];
-  const html = renderLatestWriting(posts, { writingPath: 'writing/', limit: 1 });
-  assert.match(html, /href="writing\/guide\/"/);
+  const html = renderLatestWriting(posts, { limit: 1 });
+  assert.match(html, /href="blog\/guide\/"/);
   assert.match(html, /Guides for the businesses we build for/);
-  assert.match(renderLatestWriting([posts[1]], { limit: 1 }), /href="writing\/devlog\/"/);
+  assert.match(html, /<a href="blog\/">Read all 1 guides →<\/a>/);
+  // A post's own page (writing.mjs sets `href` since the blog split, 2026-11-26) wins.
+  assert.match(renderLatestWriting([{ ...posts[1], href: 'engineering/devlog/' }], { limit: 1 }), /href="engineering\/devlog\/"/);
 });

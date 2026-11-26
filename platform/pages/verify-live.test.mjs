@@ -16,7 +16,9 @@ function site(versionSha) {
   const files = {
     '/': '<html>hub</html>',
     '/research/': 'r',
-    '/writing/': 'w',
+    '/blog/': 'b',
+    '/engineering/': 'e',
+    '/writing/feed.xml': '<feed></feed>',
     '/sitemap.xml': '<sitemapindex></sitemapindex>',
     '/sitemap-hub.xml': '<urlset></urlset>',
     '/robots.txt': 'User-agent: *',

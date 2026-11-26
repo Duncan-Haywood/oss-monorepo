@@ -127,10 +127,15 @@ export const GUIDES_DIR = 'guides';
 // The research portfolio's homepage (`research/_homepage/build.py`). Same
 // shape again: a page about the repository, not a venture.
 export const RESEARCH_DIR = 'research';
-// The engineering status page (`engineering.mjs`): about how the repository is
-// worked on, not a tool. `noindex`, so it is exempt from the sitemap checks.
+// The engineering blog (`writing.mjs`): every post that is not a customer guide.
+// Its status page (`engineering.mjs`, `engineering/status/`) is about how the
+// repository is worked on, not a tool: `noindex`, so exempt from the sitemap checks.
 export const ENGINEERING_DIR = 'engineering';
-// Essays from `docs/posts/` (`writing.mjs`): indexed pages about the repository.
+export const ENGINEERING_STATUS = 'engineering/status';
+// The marketing blog (`writing.mjs`): customer guides, the "Blog" tab.
+export const BLOG_DIR = 'blog';
+// The single blog's old home: since the split (2026-11-26) only its feed and
+// the podcast are written here; the rest 301s (cloudflare/router.mjs).
 export const WRITING_DIR = 'writing';
 // The open book (`updates.mjs`): indexed pages about what the repository ships.
 export const UPDATES_DIR = 'updates';
@@ -187,7 +192,7 @@ export const HARDWARE_DIR = 'hardware';
 // about the site, linked from every footer, not tools.
 export const LEGAL_DIRS = ['privacy', 'terms', 'cookies'];
 
-export const SITE_OWN_DIRS = new Set([...LEGAL_DIRS, HARDWARE_DIR, CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, LAB_DIR, SHOWCASE_DIR, FEEDBACK_DIR, CUSTOM_DEV_DIR, ASK_DIR, STORIES_DIR, INDUSTRIES_DIR, PRODUCTS_DIR]);
+export const SITE_OWN_DIRS = new Set([...LEGAL_DIRS, HARDWARE_DIR, CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, BLOG_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, LAB_DIR, SHOWCASE_DIR, FEEDBACK_DIR, CUSTOM_DEV_DIR, ASK_DIR, STORIES_DIR, INDUSTRIES_DIR, PRODUCTS_DIR]);
 
 // Every user-facing surface here carries a liability disclaimer
 // (PRODUCT_PLAYBOOK.md §5b). This is the marker phrase they share. A product
@@ -853,24 +858,26 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
     }
   }
 
-  {
-    // Optional: a fixture build has no posts directory. Every page under it
-    // (the index and each post) carries the disclaimer, and the hub links it.
-    const dir = path.join(site, WRITING_DIR);
+  // Both blogs and what is left of writing/ (the podcast page). Optional: a fixture build has no
+  // posts directory. Every page under each carries the disclaimer, and the hub links each blog: the
+  // marketing blog from the header, the engineering blog from the footer.
+  for (const [blogDir, linkRe] of [[BLOG_DIR, /href="blog\/"/], [ENGINEERING_DIR, /href="engineering\/"/], [WRITING_DIR, null]]) {
+    const dir = path.join(site, blogDir);
     const pages = await fs
       .readdir(dir, { recursive: true })
       .then((names) => names.filter((n) => n.endsWith('index.html')))
       .catch(() => null);
-    if (pages !== null) {
-      for (const name of pages) {
-        const html = await fs.readFile(path.join(dir, name), 'utf8');
-        if (!DISCLAIMER_MARKER.test(html)) {
-          problems.push(`${path.join(WRITING_DIR, name)}: carries no disclaimer, so it must not ship`);
-        }
+    if (pages === null) continue;
+    for (const name of pages) {
+      const html = await fs.readFile(path.join(dir, name), 'utf8');
+      if (!DISCLAIMER_MARKER.test(html)) {
+        problems.push(`${path.join(blogDir, name)}: carries no disclaimer, so it must not ship`);
       }
-      if (hubHtml !== null && !/href="writing\/"/.test(hubHtml)) {
-        problems.push(`${WRITING_DIR}/: shipped but the hub does not link it, so nobody can reach it`);
-      }
+    }
+    // The engineering directory may hold only the status page (a build without posts).
+    const hasIndex = pages.includes('index.html');
+    if (linkRe && hasIndex && hubHtml !== null && !linkRe.test(hubHtml)) {
+      problems.push(`${blogDir}/: shipped but the hub does not link it, so nobody can reach it`);
     }
   }
 
@@ -912,7 +919,7 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
   }
 
   {
-    const relative = path.join(ENGINEERING_DIR, 'index.html');
+    const relative = path.join(ENGINEERING_STATUS, 'index.html');
     const html = await fs.readFile(path.join(site, relative), 'utf8').catch(() => null);
     // Optional, like research: a fixture build has none.
     if (html !== null) {
@@ -922,8 +929,8 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
       if (!NOINDEX_RE.test(html)) {
         problems.push(`${relative}: must be noindex -- it is a status page, not a search landing`);
       }
-      if (hubHtml !== null && !/href="engineering\/"/.test(hubHtml)) {
-        problems.push(`${ENGINEERING_DIR}/: shipped but the hub does not link it, so nobody can reach it`);
+      if (hubHtml !== null && !/href="engineering\/status\/"/.test(hubHtml)) {
+        problems.push(`${ENGINEERING_STATUS}/: shipped but the hub does not link it, so nobody can reach it`);
       }
     }
   }
@@ -1239,9 +1246,9 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
   //
   // `code`, *emphasis* or [text](path) in a page's visible text means a renderer missed it:
   // 40 pages did until 2026-11-14 (raw-markdown.mjs says which renderers). The engineering
-  // page is exempt: it lists commit titles as GitHub shows them, asterisks and all.
+  // status page is exempt: it lists commit titles as GitHub shows them, asterisks and all.
   for (const relative of servedPages) {
-    if (relative.startsWith('engineering/')) continue;
+    if (relative.startsWith(`${ENGINEERING_STATUS}/`)) continue;
     const html = await readPage(relative);
     if (!/[`*[]/.test(html)) continue;
     const found = rawMarkdownLeaks(html);
