@@ -22,6 +22,7 @@
 // on main, move PRODUCT below onto its record and link the index from the
 // breadcrumb; until then this module carries its own data.
 
+import { labelStackTables } from './stack-labels.mjs';
 import { renderSiteHeader, renderSiteFooterNav, siteStyleLink, siteTitle, SITE_NAME } from './site-nav.mjs';
 
 export const INDUSTRY_E_INVOICING_PATH = 'industries/eu-e-invoicing/';
@@ -161,7 +162,14 @@ export const FAQ = Object.freeze([
   ['Where do these deadlines come from?', `From the official government pages linked in each row, last read on ${longDate(SOURCES_CHECKED)}. Rules change: check the linked page, or ask your adviser, before relying on a date.`],
 ]);
 
+// Base type, colours and measure: pf-site.css draws the header, hero and footer
+// but sets no body font, so without these the page fell back to Times New Roman
+// at the window's full width (polish-2026-11-26-industry-base-type.md).
 const PAGE_STYLE = `
+  body{margin:0;background:#f6f7f9;color:var(--pfs-ink,#1d2530);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  @media (prefers-color-scheme:dark){body{background:#12171d}}
+  .wrap{max-width:52rem;margin:0 auto;padding:24px 16px 48px;--pf-hero-pull:24px}
+  .prose h2{margin-top:2.2rem;line-height:1.25}
   .ei-table{width:100%;border-collapse:collapse;margin:1rem 0}
   .ei-table th,.ei-table td{text-align:left;vertical-align:top;padding:.5rem .6rem;border-bottom:1px solid color-mix(in srgb,currentColor 18%,transparent)}
   .ei-table td.ei-date{white-space:nowrap;font-weight:600}
@@ -175,20 +183,37 @@ const PAGE_STYLE = `
   .ei-alt{border:1px solid currentColor}
   .ei-badge{display:inline-block;font-size:.8em;padding:.1rem .45rem;border-radius:999px;border:1px solid currentColor;margin-left:.35rem;vertical-align:middle}
   .ei-summary{border-left:3px solid color-mix(in srgb,currentColor 35%,transparent);padding-left:1rem}
+  .ei-still{margin:1.25rem 0;max-width:720px}
+  .ei-still img{display:block;width:100%;height:auto;border:1px solid rgba(127,127,127,.4);border-radius:8px;background:#fff;box-shadow:0 6px 24px rgba(20,30,45,.12)}
+  .ei-still figcaption{font-size:.9rem;margin-top:6px;opacity:.85}
+  .ei-faq dt{font-weight:600;margin-top:1.1rem}
+  .ei-faq dd{margin:.3rem 0 0;padding-left:.9rem;border-left:3px solid color-mix(in srgb,currentColor 20%,transparent)}
 `;
 
 /**
  * The page. `disclaimer` is build.mjs's shared footer block (it carries the
  * "No warranty" text check.mjs requires); `chromeScript` is the site chrome
  * and usage counter tag. Both default to empty so tests can render the page
- * on its own.
+ * on its own. `shots` is the showcase manifest's stills (showcase/capture.mjs,
+ * already limited to published tools by loadShowcase); the checker's still,
+ * when there is one, shows under the free checker's section.
  */
-export function renderEInvoicingIndustryPage({ baseUrl, disclaimer = '', chromeScript = '' } = {}) {
+export function renderEInvoicingIndustryPage({ baseUrl, disclaimer = '', chromeScript = '', shots = [] } = {}) {
   const toRoot = '../../';
   const url = `${baseUrl}${INDUSTRY_E_INVOICING_PATH}`;
   const checker = `${toRoot}${CHECKER}`;
   const title = 'E-invoicing deadlines and fixes for SMEs and accountants: Germany, France, Belgium, Poland';
   const description = DESCRIPTION;
+  const shot = shots.find((s) => s && s.slug === CHECKER.replace(/\/$/, '') && s.file);
+  const at = (file) => escapeHtml(`${toRoot}showcase/${file}`);
+  // The close crop (600 x 375) with its 1,200 px twin when there is one, else the full still.
+  const still = !shot ? '' : `
+      <figure class="ei-still">
+        <a href="${escapeHtml(checker)}"><img ${shot.hero
+    ? `src="${at(shot.hero)}"${shot.heroWide ? ` srcset="${at(shot.hero)} 600w, ${at(shot.heroWide)} 1200w" sizes="(max-width: 752px) calc(100vw - 32px), 720px"` : ''} width="600" height="375"`
+    : `src="${at(shot.file)}" width="960" height="600"`} alt="${escapeHtml(`E-invoice Preflight with its broken example checked: ${shot.caption}`)}" decoding="async" loading="lazy"></a>
+        <figcaption>${escapeHtml(shot.caption)}. The free <a href="${escapeHtml(checker)}">E-invoice Preflight</a>, with its broken example checked.</figcaption>
+      </figure>`;
   const earlyAccess = `mailto:${EARLY_ACCESS_MAIL}?subject=${encodeURIComponent(`${PRODUCT.name}: early access`)}`;
 
   const rows = DEADLINES.map((r) => `
@@ -217,7 +242,10 @@ export function renderEInvoicingIndustryPage({ baseUrl, disclaimer = '', chromeS
     mainEntity: FAQ.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })),
   };
 
-  return `<!doctype html>
+  // `stack`: on a phone each deadline becomes a labelled card (pf-site.css,
+  // labels and ARIA roles from stack-labels.mjs); the three-column table left
+  // "What changes" about 100 px wide in a sideways-scrolling box at 390 px.
+  return labelStackTables(`<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -252,7 +280,7 @@ export function renderEInvoicingIndustryPage({ baseUrl, disclaimer = '', chromeS
     <main class="prose">
       <h2 id="deadlines">The deadlines</h2>
       <p>Domestic business-to-business invoices. Each row links the official page it rests on and the day we last read it. Those pages were not reachable from our build host on ${escapeHtml(longDate(SOURCES_CHECKED))}, so the rows rest on a search excerpt of each official page, read that day; follow the link to read the page itself. Exceptions exist in every country (sales to consumers, some exempt activities, small tickets). This is a summary, not tax advice.</p>
-      <table class="ei-table">
+      <table class="ei-table stack">
         <thead><tr><th scope="col">Country</th><th scope="col">From</th><th scope="col">What changes</th></tr></thead>
         <tbody>${rows}
         </tbody>
@@ -264,7 +292,7 @@ export function renderEInvoicingIndustryPage({ baseUrl, disclaimer = '', chromeS
       </ul>
 
       <h2 id="checker">The free checker: E-invoice Preflight <span class="ei-badge">live</span></h2>
-      <p><a href="${escapeHtml(checker)}">E-invoice Preflight</a> checks UBL and CII XML, XRechnung, ZUGFeRD and Factur-X PDFs, Peppol BIS Billing 3.0 and Poland's FA(3) against the published EN 16931 rules and the German, French, Peppol and Polish rule sets you switch on. It runs in your browser: nothing is uploaded and no account is needed. It tests the technical rules only, not whether your VAT treatment is right.</p>
+      <p><a href="${escapeHtml(checker)}">E-invoice Preflight</a> checks UBL and CII XML, XRechnung, ZUGFeRD and Factur-X PDFs, Peppol BIS Billing 3.0 and Poland's FA(3) against the published EN 16931 rules and the German, French, Peppol and Polish rule sets you switch on. It runs in your browser: nothing is uploaded and no account is needed. It tests the technical rules only, not whether your VAT treatment is right.</p>${still}
 
       <h2 id="product">${escapeHtml(PRODUCT.name)} <span class="ei-badge">in development</span></h2>
       <p>${escapeHtml(PRODUCT.pitch)} It is ${escapeHtml(PRODUCT.status)}: there is no price or launch date to promise yet. If you want it, or want to tell us what it must do for your clients, <a href="${escapeHtml(earlyAccess)}">write to ${escapeHtml(EARLY_ACCESS_MAIL)}</a> and we will tell you when early access opens. A corrected file will always list every change it made, and the final say on any invoice stays with you and your adviser.</p>
@@ -282,7 +310,7 @@ export function renderEInvoicingIndustryPage({ baseUrl, disclaimer = '', chromeS
       </section>
 
       <h2 id="faq">Questions</h2>
-      <dl>${FAQ.map(([q, a]) => `
+      <dl class="ei-faq">${FAQ.map(([q, a]) => `
         <dt>${escapeHtml(q)}</dt>
         <dd>${escapeHtml(a)}</dd>`).join('')}
       </dl>
@@ -297,5 +325,5 @@ export function renderEInvoicingIndustryPage({ baseUrl, disclaimer = '', chromeS
   ${chromeScript}
 </body>
 </html>
-`;
+`);
 }

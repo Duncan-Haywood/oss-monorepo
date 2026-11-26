@@ -65,4 +65,26 @@ every change it made. It also gives accountants one workspace for all their
 clients. It is in development and not on sale. To be told when early access
 opens, write to hello@marisstella.app.
 
+## Update, 26 November: the page now reads like the rest of the site
+
+Two days after it went up, the page still rendered in the browser's default
+Times New Roman, with lines running the full width of the window (1,264 px
+on a 1280 px screen, about 200 characters a line). The site's shared
+stylesheet draws the header, the dark hero band and the footer, but leaves
+the body font to each page, and this page set none. The manufacturing page
+had the same gap. Both now use the site's sans-serif type, a column of
+about 830 px and the same light and dark backgrounds as the construction page.
+
+On a phone the deadline table was also cramped: three columns at 390 px left
+"What changes" about 100 px wide, in a box you had to scroll sideways. Each
+deadline now becomes a small card on a phone (country, then the date, then what
+changes and its source), using the layout the blog's wide tables already use.
+The page is 12,405 px tall on a phone, against 8,812 before. That is the cost
+of readable lines in place of the scroll box.
+
+The free checker's section now shows the checker itself: a screenshot of
+E-invoice Preflight with its broken example checked, two arithmetic errors
+found, each with the fix it suggests ("Set gross total to 238.00"). It is the
+real tool on a local build of the site, not a mock-up.
+
 This is not tax advice.
