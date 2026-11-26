@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKj8CxNLHd4kgvW89dx",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T00:18:06Z",
+  "ended": "2026-11-26T00:24:47Z",
+  "wall_minutes": 7.05,
+  "tokens_in": 7262877,
+  "tokens_out": 28076,
+  "cost_usd": 2.9373,
+  "tool_calls": 68,
+  "task": "jobshop-quote ROADMAP item 5: peck time for deep CAD holes (bet #2)",
+  "projects": [
+    "jobshop-quote"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19144",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Re-running --claim right after a successful claim prints 'TAKEN ... Pick another item.' for your own claim; the first call's output was hidden by tail, so it read as if another run held it until git ls-remote showed the branch."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Private-monorepo CI jobs again ended red in 3 s with no runner; ci_starvation.py confirmed it and run_workflow_locally.py --repo-root covered verification, as documented."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "apps/jobshop-quote/ROADMAP.md",
+      "why": "The ROADMAP item said 'peck time' without a model; I chose seconds per peck plus peck depth in xD rather than a rapid traverse rate, because short retracts are acceleration-bound and it matches the rate card's other per-event times.",
+      "did": "Two optional machine fields; no peck time unless both are set.",
+      "result": "Tests pass; the decision is recorded in the ROADMAP and the agent doc."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-a-step-file-now-sizes-the-blank-in-the-job-shop-quoter.md (new section)",
+    "docs/reports/ventures-2026-11-26-jobshop-peck-time.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (exit 3); IDEAS inbox empty; routed ventures/2. private-monorepo attached via add_repo and cloned. Claimed claim/jobshop-quote/geometry-peck-time. Private PR #200: migration 0025 (peck_depth_diameters, seconds_per_peck), extraPecks in costing.ts, rate-card form/import/export, quote service select. Verified locally: pnpm typecheck clean; unit 20 files/297 tests; worker 29 files/196 tests; biome; risk_review nothing triggered. Private CI starved (ci_starvation exit 1, 3 s jobs); also ran run_workflow_locally.py --repo-root private-monorepo jobshop-quote-ci.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a1debd3a-d500-5655-9200-3d67fd6cdd8d",
+    "transcripts": 1,
+    "first": "2026-11-26T00:18:06Z",
+    "last": "2026-11-26T00:25:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 66,
+        "input": 126,
+        "output": 28076,
+        "thinking": 5316,
+        "cache_read": 7144450,
+        "cache_write_5m": 0,
+        "cache_write_1h": 118301,
+        "api_equivalent_usd": 2.9373,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 66,
+      "input": 126,
+      "output": 28076,
+      "thinking": 5316,
+      "cache_read": 7144450,
+      "cache_write_5m": 0,
+      "cache_write_1h": 118301,
+      "api_equivalent_usd": 2.9373,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 63,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.05,
+      "active_minutes": 7.05,
+      "model_minutes": 5.56,
+      "tool_minutes": 1.49,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: schema+migration, costing model, import rules, UI, unit+worker tests, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 204.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

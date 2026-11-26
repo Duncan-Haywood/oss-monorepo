@@ -602,11 +602,40 @@ updates by name, one bad row saving nothing, a laser refused, an estimator refus
 shop unable to match the first shop's machines. The app's typecheck, full unit and Worker suites,
 build and the three browser tests were also run.
 
+## Deep holes now get their peck time
+
+A hole more than three times as deep as it is wide usually can't be drilled in one plunge. The
+drill has to back out every so often to clear chips (a peck cycle, G83 on most controls). Until
+now the quoter only flagged those holes in the "Drill from CAD" line. A 1/4 in hole 1.5 in deep was
+timed as one straight plunge, and the estimator had to add the retracts by hand.
+
+Each machine on the rate card now takes two optional numbers:
+
+- **Peck depth, in drill diameters.** This is how far each peck goes, as a multiple of D (the Q
+  word in your G83 cycle divided by the drill size). 1×D is a common starting point for steel.
+- **Seconds per peck.** This is one retract to clear chips and back down to depth. Short moves like
+  these are limited by how fast the machine accelerates more than by its rapid rate, so one
+  measured cycle time is a better input than a rapid traverse figure.
+
+With both set, every deep hole adds one peck for each plunge after the first. A 1.5 in hole at
+Ø0.257 is 5.8×D, so at 1×D that's six plunges and five extra pecks. At 2 s each, the quote line
+reads "+ 5 pecks × 2 s (1 deep, pecked every 1×D)". Holes at or under 3×D are still drilled in one
+plunge, and a machine without both numbers is timed exactly as before. Both columns also come in
+and go out with the rate-card spreadsheet. The import reads "Peck depth (xD)", "Peck (×D)",
+"Seconds per peck" and "Peck time (s)". A peck depth in inches or a time in minutes is refused
+with the reason rather than converted.
+
+How it was checked (private-monorepo PR #200, jobshop-quote): new unit tests on the peck count
+(exact multiples, a hole exactly at 3×D, a peck deeper than the hole), on the drilling line for
+deep, shallow and mixed parts, and on the import, its refusals and the export round trip. A new
+Worker test runs in workerd: the rate card stores both values, refuses a zero, and the quote gets
+the peck time. The app's typecheck and full unit (297) and Worker (196) suites also passed.
+
 ## Next
 
 The next item on the flagship list (milestone 3) is reading tolerances, material and finish from
 a PDF drawing. The extraction already handles the RFQ email and the drawing's text. On the CAD
-side, the next steps are peck time for deep holes, a time per thread size if one tapping time per
+side, the next steps are a time per thread size if one tapping time per
 hole proves too coarse, a drill feed split by hole diameter if one feed per material proves too
 coarse, and reading IGES and STL files.
 
