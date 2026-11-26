@@ -188,6 +188,29 @@ revenue by $1,904.76 and projected profit by $5,000, although that $5,000 was
 gone the day the subcontract was signed. (Added 2026-11-26; in
 development, not for sale.)
 
+Labor is usually a trade sub's largest cost, and the hardest to get onto a
+job. It sits in the payroll service, not in the bookkeeping, and gross wages
+alone understate it: employer payroll taxes come on top, and so do costs no
+payroll report carries, such as workers' comp and liability insurance. So the
+job-cost page can now read the payroll service's own payroll-by-job export
+(a CSV with a pay date, employee, job, cost code, hours, gross pay and
+employer taxes). It finds the header under the report's title lines, matches
+the columns by name and picks out this job's rows. Each pay date becomes one
+labor cost per schedule-of-values line: wages, plus employer taxes and
+contributions, plus a burden percent on wages if the contractor types one.
+The burden is the contractor's own number. The build never assumes one, and
+left blank it counts only what the report says. The file is read in the
+browser and only the per-date totals are saved, with no employee names.
+Importing the same report again adds nothing, because each cost is labelled
+by its pay date and line and a label the job already has is skipped.
+
+The tests check one week by hand: $1,000 of wages on line 1 with $76.50 of
+employer taxes and a 20% burden is a $1,276.50 labor cost, and $500 on line 2
+with $38.25 of taxes is $638.25. Costed at gross wages, the same week would
+show $1,500 instead of $1,914.75, so labor would be understated by about 22%.
+The percent-complete figures driven by that cost would be off by about the
+same share. (Added 2026-11-26; in development, not for sale.)
+
 ### Where it stands (updated 2026-11-25)
 
 Still in development and not for sale. Built and tested so far:
