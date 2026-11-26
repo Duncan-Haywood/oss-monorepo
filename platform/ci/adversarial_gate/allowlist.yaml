@@ -34,14 +34,6 @@ allow:
     contains: 'Condition.StringLike["token.actions.githubusercontent.'
     reason: the test asserts the payments RCP's Deny names every subject of the public repository (repo:Duncan-Haywood/oss-monorepo:*); it reads the policy, it grants nothing (PR #18780)
     added: 2026-11-25
-  # Temporary: the next PR teaches the bootstrap trusts GitHub's immutable OIDC
-  # subject (repo:OWNER@ID/REPO@ID:...). Remove this entry once it merges, so
-  # every later bootstrap change is blocked again.
-  - rule: aws-guardrail-weakened
-    path: platform/aws/bootstrap/bootstrap.yaml
-    contains: the bootstrap stack (the GitHub OIDC trust anchor and the apply role) changed
-    reason: 'the first AWS apply (run 45905276526, 2026-11-26) was refused because GitHub now issues this repository''s OIDC subject as repo:Duncan-Haywood@49566815/oss-monorepo@1315497858:... (CloudTrail); github-plan and github-apply add that exact subject beside the name form, with the same pull_request / environment:aws-prod contexts and no wildcard'
-    added: 2026-11-26
   - rule: aws-guardrail-weakened
     path: platform/aws/stacks/org/rcps.tf
     contains: '[for r in local.public_subject_repos : "repo:${r}:*"]'
