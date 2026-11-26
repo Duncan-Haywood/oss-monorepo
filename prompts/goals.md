@@ -396,7 +396,7 @@ endorsement). Customer-facing text names Maris Stella Labs LLC, a Colorado
 limited liability company, never a person. Still the owner's: payment
 methods and spending limits, identity and bank verification, and accounts
 that need a card or ID. Operator record and open legal checks:
-`private-monorepo` `docs/legal/OPERATOR.md` (private-monorepo#240).
+docs/legal/OPERATOR.md in private-monorepo (private-monorepo#240).
 
 ## Mission
 
