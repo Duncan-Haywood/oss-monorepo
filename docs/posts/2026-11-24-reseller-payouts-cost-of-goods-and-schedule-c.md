@@ -459,6 +459,38 @@ against a real export. If a column is renamed, the import names the columns
 it expected instead of guessing. If a row's columns don't add up to its
 `total`, the import still brings it in and warns you, naming the line.
 
+## Three lists your preparer will ask for (added 2026-11-26)
+
+Three worksheet figures come up most often when a preparer asks you to back
+something up: closing inventory (Part III line 41), business miles (line 9,
+car and truck expenses, at the standard mileage rate) and the expenses you
+typed in yourself. Seller Books now has a download for each one on the
+Schedule C page, and each file adds up to its own worksheet figure.
+
+- **Closing inventory.** This lists every item you still had at the end of 31
+  December, at cost: the SKU, the lot it came from, and whether its cost was
+  typed in or is a share of the lot's cost. An item that sold in January of
+  the next year is still on the list, marked with the day it left. An item you
+  marked sold or written off without a date is counted as still on hand, and
+  the file tells you how many there are, because each one makes line 41
+  bigger. The list and the worksheet use the same rule for "on hand", so the
+  total *is* line 41. In the app's test a lot cost $30.00 and was split over
+  three items. One item was written off in September, which left $20.00 on the
+  list and $20.00 on line 41.
+- **Mileage log.** Each trip shows its date, purpose, start, destination and
+  miles. A round trip counts twice. IRS Publication 463 expects a record like
+  this for business use of a car: when you went, where you went, why, and how
+  far. The total is the business miles on the worksheet. With the rate you
+  chose, the file also gives line 9: 25.0 miles at 70 cents is $17.50.
+- **Expenses.** Every expense for the year, with its vendor, category and the
+  Schedule C line it goes on. Meals are listed at the full amount you paid,
+  with a note that line 24b counts half. Marketplace fees and labels that
+  came in the platforms' own reports stay in the sales ledger above, so
+  nothing is counted twice.
+
+These are your own records, in a form you can file away or send on. They are
+not a return and not tax advice.
+
 ## What comes next
 
 Each of the ten tool pages now ends with a short "track true profit across
