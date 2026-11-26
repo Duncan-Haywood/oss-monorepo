@@ -1,0 +1,394 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtGRxdH6C1MC4X1JkBN",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T02:06:43Z",
+  "ended": "2026-11-26T02:08:25Z",
+  "wall_minutes": 5.42,
+  "tokens_in": 3294068,
+  "tokens_out": 16660,
+  "cost_usd": 1.6049,
+  "tool_calls": 39,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19171",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First rerun reported every gap as 'suite is red without the mutant': my clause.mjs fix tripped number-parse.test.mjs (a bare Number( on input). Fixed by routing digits through wordNumber; rerun then set caught_after_fix."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam.py",
+      "issue": "rerun appends '[rerun: suite is red ...]' to the note on every escaped mutant each time it runs, so two reruns doubled the text; I stripped it by hand."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 asks to fix the open entries first. Both need what this run cannot give: framerate in browser_checks is control plane and needs owner approval in its own PR, and the help-keeper stemmer needs a help-centre eval set.",
+      "did": "Left both open and unchanged, and seeded 16 mutants on bet #1's front door.",
+      "result": "Found 2 real defects and patched both."
+    },
+    {
+      "file": "prompt.md",
+      "why": "No new post. Two small fixes to input handling do not give a customer post anything new, and the pages' claims stay accurate.",
+      "did": "Fixes, tests and record only.",
+      "result": "null"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Targets: ventures/pay-app-guides/waivers.mjs (changed on main in the last 4 days) and clause.mjs (never mutated before), both front door to bet #1. Guards: 6 new tests across clause.test.mjs and waivers.test.mjs. Local: node --test ventures/pay-app-guides/*.test.mjs, 243 pass. Catch rate 0.60 before, 1.00 after.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/pay-app-guides/waivers.mjs",
+        "test": "node --test ventures/pay-app-guides/**/*.test.mjs  (in .)",
+        "seed": 539932748,
+        "commit": "f43f7bc54",
+        "sites": 134,
+        "baseline_seconds": 1.6,
+        "mutants": [
+          {
+            "file": "ventures/pay-app-guides/waivers.mjs",
+            "line": 112,
+            "col": 21,
+            "operator": "neq-flip",
+            "before": "if (x.paidAmount !== undefined && x.paidAmount < x.amount) F(\"high\", `${what}, but only ${dollars(x.paidAmount)} was paid. The waiver gives up ${dollars(x.amount - x.paidAmount)} you have not received.`);",
+            "after": "if (x.paidAmount === undefined && x.paidAmount < x.amount) F(\"high\", `${what}, but only ${dollars(x.paidAmount)} was paid. The waiver gives up ${dollars(x.amount - x.paidAmount)} you have not received.`);",
+            "line_text": "    if (x.paidAmount !== undefined && x.paidAmount < x.amount) F(\"high\", `${what}, but only ${dollars(x.paidAmount)} was paid. The waiver gives up ${dollars(x.amount - x.paidAmount)} you have not received.`);",
+            "caught": true,
+            "seconds": 1.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/waivers.mjs",
+            "line": 116,
+            "col": 16,
+            "operator": "and-to-or",
+            "before": "if (x.match && x.match.amount !== x.amount) F(\"info\", `${x.label}: the unconditional waiver for this period is ${dollars(x.match.amount)} against ${dollars(x.amount)} on the conditional. An unconditional should state the amount actually paid; check which is right.`);",
+            "after": "if (x.match || x.match.amount !== x.amount) F(\"info\", `${x.label}: the unconditional waiver for this period is ${dollars(x.match.amount)} against ${dollars(x.amount)} on the conditional. An unconditional should state the amount actually paid; check which is right.`);",
+            "line_text": "    if (x.match && x.match.amount !== x.amount) F(\"info\", `${x.label}: the unconditional waiver for this period is ${dollars(x.match.amount)} against ${dollars(x.amount)} on the conditional. An unconditional should state the amount actually paid; check which is right.`);",
+            "caught": true,
+            "seconds": 1.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/waivers.mjs",
+            "line": 127,
+            "col": 46,
+            "operator": "eq-flip",
+            "before": "for (const x of R.filter((x) => x.condition === \"unconditional\" && x.paid === undefined)) F(\"info\", `${x.label}: you hold their unconditional ${x.stage} waiver but no date you paid it. Record the payment so the log shows what it covers.`);",
+            "after": "for (const x of R.filter((x) => x.condition !== \"unconditional\" && x.paid === undefined)) F(\"info\", `${x.label}: you hold their unconditional ${x.stage} waiver but no date you paid it. Record the payment so the log shows what it covers.`);",
+            "line_text": "  for (const x of R.filter((x) => x.condition === \"unconditional\" && x.paid === undefined)) F(\"info\", `${x.label}: you hold their unconditional ${x.stage} waiver but no date you paid it. Record the payment so the log shows what it covers.`);",
+            "caught": false,
+            "seconds": 1.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "waivers.test.mjs: only an unconditional received with no payment date asks for the payment to be recorded"
+          },
+          {
+            "file": "ventures/pay-app-guides/waivers.mjs",
+            "line": 140,
+            "col": 22,
+            "operator": "neq-flip",
+            "before": "if (f && f.signed !== undefined && x.signed !== undefined && x.signed > f.signed) F(\"info\", `${x.label}: progress waiver signed after a final waiver (row ${f.row}). A final waiver normally ends the waivers for that job; check whether work or retainage is still owed.`);",
+            "after": "if (f && f.signed === undefined && x.signed !== undefined && x.signed > f.signed) F(\"info\", `${x.label}: progress waiver signed after a final waiver (row ${f.row}). A final waiver normally ends the waivers for that job; check whether work or retainage is still owed.`);",
+            "line_text": "    if (f && f.signed !== undefined && x.signed !== undefined && x.signed > f.signed) F(\"info\", `${x.label}: progress waiver signed after a final waiver (row ${f.row}). A final waiver normally ends the waivers for that job; check whether work or retainage is still owed.`);",
+            "caught": true,
+            "seconds": 1.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/waivers.mjs",
+            "line": 140,
+            "col": 74,
+            "operator": "gt-to-ge",
+            "before": "if (f && f.signed !== undefined && x.signed !== undefined && x.signed > f.signed) F(\"info\", `${x.label}: progress waiver signed after a final waiver (row ${f.row}). A final waiver normally ends the waivers for that job; check whether work or retainage is still owed.`);",
+            "after": "if (f && f.signed !== undefined && x.signed !== undefined && x.signed >= f.signed) F(\"info\", `${x.label}: progress waiver signed after a final waiver (row ${f.row}). A final waiver normally ends the waivers for that job; check whether work or retainage is still owed.`);",
+            "line_text": "    if (f && f.signed !== undefined && x.signed !== undefined && x.signed > f.signed) F(\"info\", `${x.label}: progress waiver signed after a final waiver (row ${f.row}). A final waiver normally ends the waivers for that job; check whether work or retainage is still owed.`);",
+            "caught": false,
+            "seconds": 1.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "waivers.test.mjs: same-day progress and final is not flagged, a day later is"
+          },
+          {
+            "file": "ventures/pay-app-guides/waivers.mjs",
+            "line": 144,
+            "col": 18,
+            "operator": "neq-flip",
+            "before": "if (nextThrough !== undefined) {",
+            "after": "if (nextThrough === undefined) {",
+            "line_text": "  if (nextThrough !== undefined) {",
+            "caught": true,
+            "seconds": 1.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/waivers.mjs",
+            "line": 155,
+            "col": 190,
+            "operator": "lt-to-le",
+            "before": "const riskyGiven = G.filter((x) => x.condition === \"unconditional\" && (x.paid === undefined || (x.signed !== undefined && x.signed < x.paid) || (x.paidAmount !== undefined && x.paidAmount < x.amount)));",
+            "after": "const riskyGiven = G.filter((x) => x.condition === \"unconditional\" && (x.paid === undefined || (x.signed !== undefined && x.signed < x.paid) || (x.paidAmount !== undefined && x.paidAmount <= x.amount)));",
+            "line_text": "  const riskyGiven = G.filter((x) => x.condition === \"unconditional\" && (x.paid === undefined || (x.signed !== undefined && x.signed < x.paid) || (x.paidAmount !== undefined && x.paidAmount < x.amount)));",
+            "caught": true,
+            "seconds": 1.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/waivers.mjs",
+            "line": 165,
+            "col": 88,
+            "operator": "eq-flip",
+            "before": "unpaidConditionalGiven: sum(G.filter((x) => x.condition === \"conditional\" && x.paid === undefined)),",
+            "after": "unpaidConditionalGiven: sum(G.filter((x) => x.condition === \"conditional\" && x.paid !== undefined)),",
+            "line_text": "    unpaidConditionalGiven: sum(G.filter((x) => x.condition === \"conditional\" && x.paid === undefined)),",
+            "caught": false,
+            "seconds": 1.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "waivers.test.mjs: unpaidConditionalGiven totals only unpaid conditionals given"
+          }
+        ]
+      },
+      {
+        "target": "ventures/pay-app-guides/clause.mjs",
+        "test": "node --test ventures/pay-app-guides/**/*.test.mjs  (in .)",
+        "seed": 491949600,
+        "commit": "f43f7bc54",
+        "sites": 65,
+        "baseline_seconds": 1.8,
+        "mutants": [
+          {
+            "file": "ventures/pay-app-guides/clause.mjs",
+            "line": 43,
+            "col": 62,
+            "operator": "const-plus-one",
+            "before": "const NUM_WORDS = { one: 1, two: 2, three: 3, five: 5, seven: 7, ten: 10, fifteen: 15, twenty: 20, thirty: 30, \"forty-five\": 45, sixty: 60, ninety: 90 };",
+            "after": "const NUM_WORDS = { one: 1, two: 2, three: 3, five: 5, seven: 8, ten: 10, fifteen: 15, twenty: 20, thirty: 30, \"forty-five\": 45, sixty: 60, ninety: 90 };",
+            "line_text": "const NUM_WORDS = { one: 1, two: 2, three: 3, five: 5, seven: 7, ten: 10, fifteen: 15, twenty: 20, thirty: 30, \"forty-five\": 45, sixty: 60, ninety: 90 };",
+            "caught": false,
+            "seconds": 1.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "clause.test.mjs: every written-out count in the old table is checked. NUM_WORDS was replaced by wordNumber(), so rerun reported 'line changed'; re-applied by hand as the same fault on the new code (seven read as 8, fifteen as 16, by swapping neighbours in UNITS): the new test fails on each."
+          },
+          {
+            "file": "ventures/pay-app-guides/clause.mjs",
+            "line": 43,
+            "col": 83,
+            "operator": "const-plus-one",
+            "before": "const NUM_WORDS = { one: 1, two: 2, three: 3, five: 5, seven: 7, ten: 10, fifteen: 15, twenty: 20, thirty: 30, \"forty-five\": 45, sixty: 60, ninety: 90 };",
+            "after": "const NUM_WORDS = { one: 1, two: 2, three: 3, five: 5, seven: 7, ten: 10, fifteen: 16, twenty: 20, thirty: 30, \"forty-five\": 45, sixty: 60, ninety: 90 };",
+            "line_text": "const NUM_WORDS = { one: 1, two: 2, three: 3, five: 5, seven: 7, ten: 10, fifteen: 15, twenty: 20, thirty: 30, \"forty-five\": 45, sixty: 60, ninety: 90 };",
+            "caught": false,
+            "seconds": 1.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "clause.test.mjs: every written-out count in the old table is checked. NUM_WORDS was replaced by wordNumber(), so rerun reported 'line changed'; re-applied by hand as the same fault on the new code (seven read as 8, fifteen as 16, by swapping neighbours in UNITS): the new test fails on each."
+          },
+          {
+            "file": "ventures/pay-app-guides/clause.mjs",
+            "line": 49,
+            "col": 43,
+            "operator": "minus-to-plus",
+            "before": "while (start > 0 && /\\S/.test(text[start - 1])) start--;",
+            "after": "while (start > 0 && /\\S/.test(text[start + 1])) start--;",
+            "line_text": "  while (start > 0 && /\\S/.test(text[start - 1])) start--;",
+            "caught": false,
+            "seconds": 1.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "clause.test.mjs: quote starts on a whole word"
+          },
+          {
+            "file": "ventures/pay-app-guides/clause.mjs",
+            "line": 50,
+            "col": 13,
+            "operator": "lt-to-le",
+            "before": "while (end < text.length && /\\S/.test(text[end])) end++;",
+            "after": "while (end <= text.length && /\\S/.test(text[end])) end++;",
+            "line_text": "  while (end < text.length && /\\S/.test(text[end])) end++;",
+            "caught": false,
+            "seconds": 1.6,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "end <= text.length only adds one step when end already equals text.length (text[length] is undefined, which /\\S/ matches as the string 'undefined'); slice and the trailing-ellipsis test give the same result"
+          },
+          {
+            "file": "ventures/pay-app-guides/clause.mjs",
+            "line": 51,
+            "col": 81,
+            "operator": "plus-to-minus",
+            "before": "return (start ? \"\u2026\" : \"\") + text.slice(start, end).replace(/\\s+/g, \" \").trim() + (end < text.length ? \"\u2026\" : \"\");",
+            "after": "return (start ? \"\u2026\" : \"\") + text.slice(start, end).replace(/\\s+/g, \" \").trim() - (end < text.length ? \"\u2026\" : \"\");",
+            "line_text": "  return (start ? \"\u2026\" : \"\") + text.slice(start, end).replace(/\\s+/g, \" \").trim() + (end < text.length ? \"\u2026\" : \"\");",
+            "caught": true,
+            "seconds": 1.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/clause.mjs",
+            "line": 58,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "if (m) out.push({ words: m[0], context: quote(text, m), means: r.means });",
+            "after": "if (m) out.push({ words: m[1], context: quote(text, m), means: r.means });",
+            "line_text": "    if (m) out.push({ words: m[0], context: quote(text, m), means: r.means });",
+            "caught": true,
+            "seconds": 1.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/clause.mjs",
+            "line": 137,
+            "col": 16,
+            "operator": "eq-flip",
+            "before": "else if (kind === \"pay-when-paid\") text = s.effect === \"timing\" ? EFFECT.timing : \"A pay-when-paid clause sets the time for payment; it does not by itself excuse the GC if the owner never pays. \" + (s.effect === \"delay-ok\" ? \"Wisconsin's statute expressly allows such a delay.\" : \"Your state's rule below is about clauses that go further.\");",
+            "after": "else if (kind !== \"pay-when-paid\") text = s.effect === \"timing\" ? EFFECT.timing : \"A pay-when-paid clause sets the time for payment; it does not by itself excuse the GC if the owner never pays. \" + (s.effect === \"delay-ok\" ? \"Wisconsin's statute expressly allows such a delay.\" : \"Your state's rule below is about clauses that go further.\");",
+            "line_text": "  else if (kind === \"pay-when-paid\") text = s.effect === \"timing\" ? EFFECT.timing : \"A pay-when-paid clause sets the time for payment; it does not by itself excuse the GC if the owner never pays. \" + (s.effect === \"delay-ok\" ? \"Wisconsin's statute expressly allows such a delay.\" : \"Your state's rule below is about clauses that go further.\");",
+            "caught": true,
+            "seconds": 1.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/clause.mjs",
+            "line": 150,
+            "col": 18,
+            "operator": "neq-flip",
+            "before": "if (result.kind !== \"empty\") {",
+            "after": "if (result.kind === \"empty\") {",
+            "line_text": "  if (result.kind !== \"empty\") {",
+            "caught": true,
+            "seconds": 1.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/pay-app-guides/clause.mjs",
+        "issue": "Written-out day counts outside a 12-word table ('fourteen', 'four', 'twenty-one', 'forty five') gave days null, so the pay-if-paid clause reader told the sub 'The clause names no number of days: ask for one' about a clause that names one. Replaced NUM_WORDS with wordNumber() (0-99, hyphen or space compounds) and let both 'within N days' regexes take a space-joined compound.",
+        "patched": true
+      },
+      {
+        "file": "ventures/pay-app-guides/waivers.mjs",
+        "issue": "Lien waiver log accepted a negative paid amount (-500 on a $10,000 unconditional waiver) and reported 'the waiver gives up $10,500.00 you have not received'. Paid amount must now be zero or more, like amount.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "30083f39-ade9-596c-a703-d59f1ae5bb8e",
+    "transcripts": 1,
+    "first": "2026-11-26T02:06:43Z",
+    "last": "2026-11-26T02:12:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 76,
+        "output": 16660,
+        "thinking": 3665,
+        "cache_read": 3215458,
+        "cache_write_5m": 0,
+        "cache_write_1h": 78534,
+        "api_equivalent_usd": 1.6049,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 76,
+      "output": 16660,
+      "thinking": 3665,
+      "cache_read": 3215458,
+      "cache_write_5m": 0,
+      "cache_write_1h": 78534,
+      "api_equivalent_usd": 1.6049,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 37,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.42,
+      "active_minutes": 5.42,
+      "model_minutes": 3.14,
+      "tool_minutes": 2.28,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer: mutation triage, two input-handling fixes with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 186.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
