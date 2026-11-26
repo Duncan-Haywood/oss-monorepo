@@ -82,6 +82,26 @@ fail. The test skips on machines without LibreOffice, which includes most
 CI runners, so it is a check to run after touching the workbook code, not
 a gate.
 
+### 2026-11-26: a cent on deductive change orders
+
+A red-team pass on the workbook code found one case the three
+applications missed: half a cent of retainage on a negative amount. Ten
+percent of a $1,234.55 deductive change order is $123.455. The page used
+JavaScript's `Math.round`, which rounds halves up, toward positive, so it
+credited back $123.45 while the same amount billed held $123.46. The
+workbook's `ROUND` formulas, like Excel's and LibreOffice's, round halves
+away from zero and gave $123.46 both ways. On a job with that change
+order, the page and the downloaded file disagreed on retainage, and on
+payment due, by one cent.
+
+The page now rounds the way the spreadsheet does, so a deduction is the
+mirror image of the same amount billed. A fourth application in
+`recalc.test.mjs` covers it, and because that test skips where
+LibreOffice is not installed, `calc.test.mjs` gained one that runs
+everywhere: 300 seeded amounts ending in five cents at 10%, 5%, 2.5% and
+random rates, each checked that negating the line negates its retainage.
+Both fail on the old rounding.
+
 The template also has its own page now,
 [free pay application template for Excel](https://marisstella.app/pay-application-generator/pay-application-template.html),
 with what each lettered column's formula does and how to roll it to next
