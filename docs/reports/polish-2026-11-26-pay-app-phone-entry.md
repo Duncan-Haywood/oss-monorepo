@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [design]
+date: 2026-11-26
+---
 # Polish: the pay-app calculator on a phone (2026-11-26)
 
 Track: polish/0. Surface: `ventures/pay-app-guides/`, the free front door for
