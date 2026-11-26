@@ -381,6 +381,23 @@ to promote next: `docs/reports/2026-11-25-industries-for-most-smbs.md`.
 Point 9 still holds: each paid product is niched to one specific user. This
 direction widens which users we pick from, not how broad each product is.
 
+### 2026-11-26: agents approve launch, as Maris Stella Labs LLC
+
+The owner, 2026-11-26: "as long as the code is profitable at scale based on
+pricing or trivial cost you don't need my approval. do very thorough reviews
+but you can do it. it is maris stella labs llc", then "not me personally",
+and, for the filing, "Maris Stella Labs LLC, CO". So agents publish the
+legal pages, deploy a product, open sign-ups and turn on live checkout
+without asking, when every paid plan clears the margin floor at full
+allowance (or the cost of serving is trivial) and the PR records a thorough
+review: `risk_review.py`, every legal page read against what the product
+does, and no claim a file cannot back (no attorney review, certification or
+endorsement). Customer-facing text names Maris Stella Labs LLC, a Colorado
+limited liability company, never a person. Still the owner's: payment
+methods and spending limits, identity and bank verification, and accounts
+that need a card or ID. Operator record and open legal checks:
+docs/legal/OPERATOR.md in private-monorepo (private-monorepo#240).
+
 ## Mission
 
 One public repository for the owner's open-source work, with two portfolios
