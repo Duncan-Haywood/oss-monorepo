@@ -1,6 +1,7 @@
 ---
 title: "Pay applications: the monthly paperwork subcontractors pay to escape"
 date: 2026-11-24
+updated: 2026-11-26
 tags: [construction, subcontractors, billing, retainage, lien-waivers, stored-materials, schedule-of-values, pay-app-guides, for-customers]
 description: "What a monthly pay application involves for a trade sub, what billing tools charge today (sourced), and the product we are building. In development."
 ---
@@ -178,6 +179,22 @@ instead. To make room on page 1, the summary rows sit closer together
 when the block is on. A test checks every line and box against the
 footer in the tallest layout. With the switch off, the page is
 unchanged. (Added 2026-11-25; still in development.)
+
+**An expired insurance certificate.** Subcontracts usually require the
+sub to keep certificates of insurance on file with the GC: general
+liability, auto and workers' compensation at least. When a policy renews
+and nobody sends the new certificate, the GC's compliance check can hold
+the payment, and the sub hears about it only when the check doesn't
+come. The build now keeps the company's own certificates: the coverage,
+insurer, policy number and policy dates typed from each one. A
+certificate counts as expiring 30 days before its expiry date and as
+expired from that day on. The projects page shows a one-line note while
+one is expiring or expired. A draft pay application dated on or after an
+expiry, or less than 30 days before it, lists that certificate with its
+date, so the renewal can go out with the application. When a policy
+renews, the old certificate is archived and no longer flagged. The build
+reads only the dates typed in. It does not check coverage, limits or
+what a subcontract requires. (Added 2026-11-26; still in development.)
 
 The working price range in our notes is about $99 to $249 a month. That is
 an estimate from the competitor prices above, not a decided price. The paid
