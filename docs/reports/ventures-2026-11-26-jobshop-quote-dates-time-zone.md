@@ -43,4 +43,5 @@ valid days counted from that day.
   revision, Kiritimati (UTC+14), Pago Pago (UTC-11) and UTC expiry, and the Kiritimati reminder.
   All three failed with the old `src/worker` stashed.
 - Private CI ended red in 2-3 s with no runner (starved), so `run_workflow_locally.py
-  jobshop-quote-ci` ran from the clone. Its result is in the run record's notes.
+  jobshop-quote-ci` ran from the clone: 11/11 run steps passed, including Playwright e2e (8 `uses:`
+  steps not run). PR 220 merged.
