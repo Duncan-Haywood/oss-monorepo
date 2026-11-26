@@ -403,6 +403,20 @@ more without them, and the customer still gets exactly one quote. The first real
 at launch is on the checklist. The suite passes: 279 unit tests and 162 Worker tests, five of
 them new for this.
 
+**Update, 2026-11-26: the whole thread, not just the last message.** An RFQ is often a reply
+itself: the buyer answers last month's quote with a revised drawing, or forwards a thread from
+their own engineers. The quote above named only that last message. A mail client that sorts
+threads by the full `References` chain could then file the quote on its own. Private-monorepo
+PR #197 fixes this. When the RFQ email arrives, the app stores its own `References` header. If it
+has none but its `In-Reply-To` names exactly one message, the app stores that instead. This is
+how RFC 5322 § 3.6.4 says a reply's `References` is built. The quote's `References` is that chain
+followed by the RFQ's Message-ID. Every id gets the same `<left@right>` check as above, and a
+test plants a line break and a `Bcc:` inside a stored chain to prove it cannot get through. A long
+chain is cut to 20 ids and 900 characters. The cut keeps the first id, which is the thread's
+root, and the newest ones, so the header stays well under the standard's 998-character line
+limit. RFQs that arrived before this change still thread on their Message-ID alone. The suite
+passes: 358 unit tests and 195 Worker tests, eight of them new or extended for this.
+
 ## Only the senders a shop lists can email RFQs in
 
 A shop's RFQ address works like a phone number. Once it's on a quote footer or a website, anyone
