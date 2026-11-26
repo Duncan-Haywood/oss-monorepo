@@ -261,3 +261,60 @@ test("retainage is odd-symmetric: negating every amount on a line negates its re
     assert.equal(neg.lines[0].ret, -pos.lines[0].ret, `${amt} + ${stored} stored at ${rate}%`);
   }
 });
+
+test("a 'Retainage %' header is the per-line rate column, however the percent sign is written", () => {
+  for (const h of ["Retainage %", "Retainage%", "retainage_%", "Retainage percent"]) {
+    const r = compute(`Description,Scheduled value,Previous,This period,${h}\nA,1000,0,1000,5\nB,1000,0,1000,`, S({ previousCertificates: "0" }));
+    assert.deepEqual(r.errors, [], h);
+    assert.equal(r.lines[0].own, 500, h);
+    assert.equal(r.summary.retainage, 5000 + 10000, h);
+  }
+});
+
+test("a pasted range that includes its totals row is not counted twice", () => {
+  const r = compute("Description,Scheduled value,Previous,This period\nA,1000,0,500\nB,1000,0,0\nTotal,2000,0,500", S({ previousCertificates: "0" }));
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.lines.length, 2);
+  assert.equal(r.summary.contractToDate, 200000);
+  assert.equal(r.summary.due, 45000);
+  assert.ok(r.findings.some((f) => /totals row/i.test(f.title)));
+  for (const label of ["TOTAL", "Totals", "Grand total", "total:"]) {
+    assert.equal(compute(`Description,Scheduled value,Previous,This period\nA,1000,0,500\n${label},1000,0,500`, S()).lines.length, 1, label);
+  }
+  // A real line whose description only starts with the word is still a line.
+  assert.equal(compute("Description,Scheduled value,Previous,This period\nA,1000,0,500\nTotal station survey,1000,0,500", S()).lines.length, 2);
+});
+
+test("the schedule CSV this page downloads pastes back in to the same application", () => {
+  const a = compute(sampleList(), SAMPLE_SETTINGS);
+  const csv = scheduleCsv(a);
+  const b = compute(csv, SAMPLE_SETTINGS);
+  assert.deepEqual(b.errors, []);
+  assert.equal(b.lines.length, a.lines.length);
+  for (const k of ["original", "changes", "contractToDate", "completed", "retainage", "previous", "due"]) assert.equal(b.summary[k], a.summary[k], k);
+  // Small lines too: a retainage amount under $100 must not be read back as a per-line rate.
+  const small = compute("Description,Scheduled value,Previous,This period\nA,500,0,500", S());
+  const back = compute(scheduleCsv(small), S());
+  assert.equal(back.lines[0].own, null);
+  assert.equal(back.summary.retainage, small.summary.retainage);
+});
+
+test("findings: a one-cent line billed in full and an empty zero line are not 'no scheduled value'", () => {
+  const r = compute("Description,Scheduled value,Previous,This period\nPenny,0.01,0,0.01\nPlaceholder,0,0,0\nA,1000,0,100", S());
+  assert.ok(!r.findings.some((f) => /no scheduled value/.test(f.title)), r.findings.map((f) => f.title).join("\n"));
+  const z = compute("Description,Scheduled value,Previous,This period\nExtra,0,0,50\nA,1000,0,100", S());
+  assert.ok(z.findings.some((f) => /Extra: work is billed on a line with no scheduled value/.test(f.title)));
+});
+
+test("front-loading: only lines 90%+ billed count, and exactly 30% complete is past the flag", () => {
+  // Job 20% complete, no line near done: no flag, even though every line has work this period.
+  const none = compute("Description,Scheduled value,Previous,This period\nA,1000,0,500\nB,1500,0,0\nC,2500,0,500", S());
+  assert.equal(none.summary.completeBp, 2000);
+  assert.ok(!none.findings.some((f) => /Front-loading/.test(f.title)));
+  // Exactly 30.00% complete with a 100% line: not flagged (the flag is for under 30%).
+  const at = compute("Description,Scheduled value,Previous,This period\nA,1000,0,1000\nB,9000,0,2000", S());
+  assert.equal(at.summary.completeBp, 3000);
+  assert.ok(!at.findings.some((f) => /Front-loading/.test(f.title)));
+  const under = compute("Description,Scheduled value,Previous,This period\nA,1000,0,1000\nB,9000,0,1999", S());
+  assert.ok(under.findings.some((f) => /Front-loading flag: A is 90%\+ billed/.test(f.title)));
+});

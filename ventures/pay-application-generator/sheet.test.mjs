@@ -33,20 +33,20 @@ async function zip(entries, { store = false } = {}) {
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
 // rows: { rowNumber: [cell, ...] } where a cell is a string (shared string), a number, { f, v } (formula with cached
 // value), { pct: 0.1 } (percent-formatted number), or { inline: "text" }.
-async function workbook(sheets, { store = false } = {}) {
+async function workbook(sheets, { store = false, refs = true } = {}) {
   const shared = [], si = (s) => { let i = shared.indexOf(s); if (i < 0) { i = shared.length; shared.push(s); } return i; };
   const files = {};
   const names = Object.keys(sheets);
   names.forEach((name, n) => {
     const rows = Object.entries(sheets[name]).map(([r, cells]) => `<row r="${r}">${cells.map((v, c) => {
-      const ref = `${colName(c)}${r}`;
+      const ref = refs ? `${colName(c)}${r}` : null;
       if (v === null || v === undefined || v === "") return "";
-      if (typeof v === "number") return `<c r="${ref}"><v>${v}</v></c>`;
-      if (v.pct !== undefined) return `<c r="${ref}" s="1"><v>${v.pct}</v></c>`;
-      if (v.f !== undefined) return `<c r="${ref}"><f>${esc(v.f)}</f>${v.v === undefined ? "" : `<v>${v.v}</v>`}</c>`;
-      if (v.err !== undefined) return `<c r="${ref}" t="e"><v>${esc(v.err)}</v></c>`;
-      if (v.inline !== undefined) return `<c r="${ref}" t="inlineStr"><is><t>${esc(v.inline)}</t></is></c>`;
-      return `<c r="${ref}" t="s"><v>${si(v)}</v></c>`;
+      if (typeof v === "number") return `<c${ref ? ` r="${ref}"` : ""}><v>${v}</v></c>`;
+      if (v.pct !== undefined) return `<c${ref ? ` r="${ref}"` : ""} s="1"><v>${v.pct}</v></c>`;
+      if (v.f !== undefined) return `<c${ref ? ` r="${ref}"` : ""}><f>${esc(v.f)}</f>${v.v === undefined ? "" : `<v>${v.v}</v>`}</c>`;
+      if (v.err !== undefined) return `<c${ref ? ` r="${ref}"` : ""} t="e"><v>${esc(v.err)}</v></c>`;
+      if (v.inline !== undefined) return `<c${ref ? ` r="${ref}"` : ""} t="inlineStr"><is><t>${esc(v.inline)}</t></is></c>`;
+      return `<c${ref ? ` r="${ref}"` : ""} t="s"><v>${si(v)}</v></c>`;
     }).join("")}</row>`).join("");
     files[`xl/worksheets/sheet${n + 1}.xml`] = `<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${rows}</sheetData></worksheet>`;
   });
@@ -252,4 +252,28 @@ test("the portfolio's own free template: labels and a note above the header are 
 test("xmlText keeps U+10FFFF and replaces anything above it", () => {
   assert.equal(xmlText("&#x10FFFF;"), String.fromCodePoint(0x10ffff));
   assert.equal(xmlText("&#x110000;"), "�");
+});
+
+test("cells written without an r attribute (some exporters omit it) fill columns from A", async () => {
+  const sheet = { 1: ["Item", "Description", "Scheduled value", "Previous", "This period"], 2: [1, "Concrete", 1000, 0, 250] };
+  const sheets = await readXlsx(await workbook({ "Sheet1": sheet }, { refs: false }));
+  assert.deepEqual(sheets[0].grid[0], ["Item", "Description", "Scheduled value", "Previous", "This period"]);
+  const r = pickSheet(sheets);
+  assert.ok(!r.error, r.error);
+  assert.equal(r.lines[0].desc, "Concrete");
+  assert.equal(r.lines[0].c, 100000);
+});
+
+test("a three-column table's A B C letter row under the header is skipped, not read as a line", () => {
+  const r = findSchedule(parseCsv("Description,Scheduled value,Previous\nA,B,C\nFraming,1000,400"));
+  assert.ok(!r.error, r.error);
+  assert.deepEqual(r.lines.map((l) => l.desc), ["Framing"]);
+});
+
+test("a typed-over to-date total two cents off is caught; one cent of rounding is not", () => {
+  const head = "Description,Scheduled value,Previous,This period,Stored,Total completed and stored\n";
+  const two = findSchedule(parseCsv(head + "Framing,1000,400,100,0,500.02"));
+  assert.ok(two.checks.some((c) => /Framing.*total completed and stored is \$500\.02/.test(c.title)), JSON.stringify(two.checks));
+  const one = findSchedule(parseCsv(head + "Framing,1000,400,100,0,500.01"));
+  assert.ok(!one.checks.some((c) => /total completed and stored is/.test(c.title)), JSON.stringify(one.checks));
 });
