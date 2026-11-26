@@ -52,8 +52,9 @@ surface a visitor is most likely to see (a paid bet's pages first), not the
 easiest fix, and search open PRs (`search_pull_requests`, `polish in:title`,
 plus the page's slug) first.
 
-- **The last polish note names a next item** (`ls docs/reports/polish-* | tail -1`: the name carries the date; `ls -t` is meaningless in a fresh clone,
-  its "Still weakest" list): usually the quickest good start. Measure just that
+- **The last polish note names a next item** (`python3 prompts/polish_next.py`
+  prints the newest note by commit, not by name, its "Still weakest" list and
+  the items later notes say they took): usually the quickest good start. Measure just that
   surface: the check script that covers it, or a Playwright shot of one page
   served straight from its folder (`python3 -m http.server` in `ventures/<slug>`).
   26 of 49 polish runs from 2026-11-20 to 26 skipped the full survey this way,
