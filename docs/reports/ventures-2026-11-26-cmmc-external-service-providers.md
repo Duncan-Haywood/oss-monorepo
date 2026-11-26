@@ -1,3 +1,7 @@
+---
+kind: milestone
+date: 2026-11-26
+---
 # CMMC workspace: external service providers (private PR 299)
 
 Bet #4 (`portfolio/monetization/bets.md`). In `private-monorepo/apps/cmmc` there is now a Providers tab (migration 0009,
