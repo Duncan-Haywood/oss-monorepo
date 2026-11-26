@@ -75,7 +75,7 @@ Usage:
   node cli.mjs 1st.json --stack=2nd.json,3rd.json      (a drawing takes its heights: 2nd.dxf+2nd-plan.json) order several floors' plan files together (ids get the file name in front; one lumber list, one cutting-stock order)
   node cli.mjs plan.json --add-board=2x4:20ft[:price]  add a longer board to the lumber list (repeatable; a DXF or IFC read has the 16 ft default only; unpriced boards cost per foot like the longest of that size)
   node cli.mjs plan.json --whole-house  shorthand for --doors-to-floor --shallow-headers --trim-openings --skip-refused: frame a whole-house read through the model's own height conflicts, each change noted (placeholders, check them against the source model)
-  node cli.mjs plan.json --doors-to-floor  a door whose bottom is more than 2 in above the floor in the model (a 39 in sill on a French door) is framed down to the floor, leaf height kept, with a note
+  node cli.mjs plan.json --doors-to-floor  a door whose bottom is more than 2 in above the floor in the model (a 39 in sill on a French door) is framed down to the floor, leaf height kept; one only a threshold (2 in or less) above it is framed taller to reach the floor; each with a note
   node cli.mjs plan.json --shallow-headers --trim-openings  with --shallow-headers, an opening taller than the room under the plates for even a 2x4 header is framed shorter by the excess, with a note
   node cli.mjs plan.json --shallow-headers  where a header is deeper than the room under the top plates, use the deepest listed header that fits (2x10 to 2x8 to 2x6 to 2x4) and note it for your engineer; the span is not checked
   node cli.mjs plan.json --whole-house --fixed-plan  print the plan after the fixes above, as JSON, and stop (feeds allowance-bench.mjs)

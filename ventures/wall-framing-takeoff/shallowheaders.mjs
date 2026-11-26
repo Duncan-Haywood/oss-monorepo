@@ -15,17 +15,12 @@ export function shallowHeaders(plan) {
   const notes = [];
   if (plan == null || typeof plan !== "object") return notes;
   const sizes = new Set(stockSizes(plan));
-  for (const wall of plan.walls || []) {
+  for (const wall of listOf(plan.walls)) {
     if (!wall || wall.gable) continue;
-    for (const op of wall.openings || []) {
+    for (const op of listOf(wall.openings)) {
       if (!op || typeof op !== "object" || !Object.hasOwn(DEPTH, op.header)) continue;
       const g = openingGeometry(plan, wall, op);
-      if (op.kind === "door" && g.roBottom > THICK + 1e-9 && g.roBottom <= THICK + DOOR_THRESHOLD_MAX) {
-        // A door whose bottom sits a threshold's height above the plate (Revit sill 1-5/8 in): extend it down to the floor.
-        const drop = g.roBottom - THICK;
-        op.height += drop;
-        notes.push(`Wall ${wall.id}, ${op.label || op.kind}: the door bottom is ${drop.toFixed(2)} in above the floor in the model (a threshold or finish floor), so it was framed ${drop.toFixed(2)} in taller to reach the floor.`);
-      }
+      extendThreshold(wall, op, g, notes);
       if (!(g.topCripple < -1e-9)) continue;
       const room = DEPTH[op.header] + g.topCripple;
       const fit = Object.entries(DEPTH).filter(([k, d]) => d <= room + 1e-9 && sizes.has(k)).sort((a, b) => b[1] - a[1])[0];
@@ -45,6 +40,31 @@ function stockSizes(/** @type {any} */ plan) {
 
 const DOOR_THRESHOLD_MAX = 2; // in: a door bottom this far above the plate is a threshold, not a raised opening
 
+/** A list, or none: a hostile plan's non-list "walls" or "openings" is skipped instead of throwing (the CLI refuses it later). */
+function listOf(/** @type {any} */ v) {
+  return Array.isArray(v) ? v : [];
+}
+
+/**
+ * A door whose bottom sits a threshold's height above the plate (Revit sill
+ * 1-5/8 in): extend it down to the floor and note it. Shared by
+ * --shallow-headers and --doors-to-floor, so either flag frames such a door
+ * (until 2026-11-26 --doors-to-floor alone left it refused with "a door
+ * opening should reach the floor").
+ * @param {any} wall
+ * @param {any} op
+ * @param {any} g  openingGeometry(plan, wall, op)
+ * @param {string[]} notes
+ * @returns {boolean} whether the door was extended
+ */
+function extendThreshold(wall, op, g, notes) {
+  if (!(op.kind === "door" && g.roBottom > THICK + 1e-9 && g.roBottom <= THICK + DOOR_THRESHOLD_MAX)) return false;
+  const drop = g.roBottom - THICK;
+  op.height += drop;
+  notes.push(`Wall ${wall.id}, ${op.label || op.kind}: the door bottom is ${drop.toFixed(2)} in above the floor in the model (a threshold or finish floor), so it was framed ${drop.toFixed(2)} in taller to reach the floor.`);
+  return true;
+}
+
 /**
  * --trim-openings: where no listed header fits under the plates even after a
  * swap (a model door taller than the room), lower the opening's top to the
@@ -62,9 +82,9 @@ export function trimOpenings(plan) {
   const sizes = stockSizes(plan).filter((/** @type {string} */ k) => Object.hasOwn(DEPTH, k));
   if (!sizes.length) return notes;
   const minSize = sizes.sort((a, b) => DEPTH[a] - DEPTH[b])[0];
-  for (const wall of plan.walls || []) {
+  for (const wall of listOf(plan.walls)) {
     if (!wall || wall.gable) continue;
-    for (const op of wall.openings || []) {
+    for (const op of listOf(wall.openings)) {
       if (!op || typeof op !== "object" || !Object.hasOwn(DEPTH, op.header)) continue;
       const g = openingGeometry(plan, wall, op);
       if (!(g.topCripple < -1e-9)) continue;
@@ -87,18 +107,21 @@ export function trimOpenings(plan) {
  * plate (a Revit sill of 39 in on a French door whose leaf is 79.5 in) is
  * almost always a modelling error, not a raised door. Frame it with the leaf
  * height kept and the bottom on the floor, header lowered with it, and say by
- * how much. A placeholder for fixing the sill in the source model.
+ * how much. A placeholder for fixing the sill in the source model. A door
+ * only a threshold above the plate (2 in or less) is framed taller to reach
+ * the floor instead, as --shallow-headers does.
  * @param {any} plan  a plan object; walls are changed in place
  * @returns {string[]} one note per door lowered
  */
 export function doorsToFloor(plan) {
   const notes = [];
   if (plan == null || typeof plan !== "object") return notes;
-  for (const wall of plan.walls || []) {
+  for (const wall of listOf(plan.walls)) {
     if (!wall || wall.gable) continue;
-    for (const op of wall.openings || []) {
+    for (const op of listOf(wall.openings)) {
       if (!op || typeof op !== "object" || op.kind !== "door") continue;
       const g = openingGeometry(plan, wall, op);
+      if (extendThreshold(wall, op, g, notes)) continue;
       const raise = g.roBottom - THICK;
       if (!(raise > DOOR_THRESHOLD_MAX + 1e-9)) continue;
       op.headerHeight = g.headerHeight - raise;
