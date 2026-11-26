@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01EhTJVPcDVFn5hYrxbBxC1p",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T08:56:20Z",
+  "ended": "2026-11-26T09:08:39Z",
+  "wall_minutes": 17.17,
+  "tokens_in": 10992125,
+  "tokens_out": 43472,
+  "cost_usd": 4.2951,
+  "tool_calls": 89,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19295",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First local jobshop-quote-ci run failed Typecheck on the new test fixture (Uint8Array<ArrayBufferLike> as BlobPart): tsc had been run before the fixture was written; fixed in 0a85bf3 and re-run green."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--claim 0 for an item not in the Next list fails; the slug-only form (--slug/--note without --claim) works but is only described for apps without a ROADMAP."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "apps/jobshop-quote/ROADMAP.md (Open questions for the owner)",
+      "why": "The shop logo was listed as an owner question, but it is a low-risk, opt-in product choice that every quoting competitor offers; waiting blocks nothing the owner needs to decide.",
+      "did": "Built it opt-in (no logo = identical PDF) and removed the question.",
+      "result": "Merged as private PR 294."
+    },
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Payapps (bet #1) had ~10 parallel claims in the last hours and its free items are 'if people ask'.",
+      "did": "Took bet #2 (jobshop-quote) instead to avoid collisions.",
+      "result": "No conflicts."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-a-step-file-now-sizes-the-blank-in-the-job-shop-quoter.md (section 'Your logo on the quote')",
+    "docs/reports/ventures-2026-11-26-jobshop-quote-pdf-logo.md"
+  ],
+  "goal": null,
+  "notes": "private-monorepo PR 294 merged (squash aa9677f). jobshop-quote-ci run locally: 11/11 run: steps passed (biome, typecheck, unit, worker, build, provisioning, migrations sync, Playwright e2e); 8 uses: steps not run. Visual check of rendered PDFs with pdftoppm.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1e1e6388-6b9f-5839-9fbc-59d4b7b9560e",
+    "transcripts": 1,
+    "first": "2026-11-26T08:56:20Z",
+    "last": "2026-11-26T09:13:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 83,
+        "input": 163,
+        "output": 43472,
+        "thinking": 5403,
+        "cache_read": 10834709,
+        "cache_write_5m": 0,
+        "cache_write_1h": 157253,
+        "api_equivalent_usd": 4.2951,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 83,
+      "input": 163,
+      "output": 43472,
+      "thinking": 5403,
+      "cache_read": 10834709,
+      "cache_write_5m": 0,
+      "cache_write_1h": 157253,
+      "api_equivalent_usd": 4.2951,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 89,
+    "tools": {
+      "Bash": 79,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Write": 1,
+      "Read": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.17,
+      "active_minutes": 17.17,
+      "model_minutes": 7.15,
+      "tool_minutes": 10.01,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior dev: PNG/JPEG embed in a hand-written PDF writer, upload route, UI, migration, tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 139.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

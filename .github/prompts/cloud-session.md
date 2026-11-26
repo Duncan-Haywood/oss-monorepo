@@ -52,7 +52,8 @@ payapps there. On 2026-11-25 this worked first time:
    python3 /home/user/oss-monorepo/platform/security/risk_review.py`; its
    "sensitive files" check reads *this* repo's CODEOWNERS, so check the private one by hand.
 4. **Claim the item before building it:** `python3 platform/ci/roadmap_claim.py <app>`
-   lists the ROADMAP's Next items as free or claimed; `--claim N` (with `--slug`/`--note`
+   lists the ROADMAP's Next items as free or claimed (marking ones whose text waits on
+   demand, an unreachable source or the owner, and ending with the free, ungated ones); `--claim N` (with `--slug`/`--note`
    for one part of an item) pushes a create-only `claim/<app>/<slug>` branch there and
    exits 4 if another run got it first, so pick another (re-running on your own claim
    prints YOURS; an app with no ROADMAP.md takes `--slug` claims; `--release` usually
