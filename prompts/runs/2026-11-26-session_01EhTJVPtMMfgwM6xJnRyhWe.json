@@ -31,7 +31,9 @@
   "review_findings": null,
   "tests_added": 3,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "PR CI `test` red on first run from a pre-existing main failure (shallow-boundary-lint on prompts/polish_next.py), fixed in this PR"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -61,7 +63,7 @@
     "docs/posts/2026-11-26-hip-and-valley-length-on-an-l-shaped-hip-roof.md (extended: section 'End joints on the rafters, courses staggered')"
   ],
   "goal": "Move bet #6 (residential takeoff, feeds the contractor suite) toward a sellable estimating module: sheathing layouts a framer can follow.",
-  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/409 merged (squash 0bf4021c). outlinesheathing.mjs gains layRunOnRafters and an o.frame option; CLI and page pass hipframe's framing. Measured: 40x28 hip at 6:12/16in 50/50 joints on rafters, 54 vs 53 sheets; 30x30 stair-step 35 vs 34; 80 random outlines +2.9% sheets; 622 of 2,922 joints sit behind valley-corner fills and are listed to block; 1 other joint off a rafter. Verification: node --test '*.test.mjs' in the app 1300 tests, 1298 pass, 2 skipped, 0 fail; node eval-roof-plan-click.mjs all ok, no page errors; risk_review.py: nothing triggered. The private app has no CI workflow, so local runs are the check.",
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/409 merged (squash 0bf4021c). outlinesheathing.mjs gains layRunOnRafters and an o.frame option; CLI and page pass hipframe's framing. Measured: 40x28 hip at 6:12/16in 50/50 joints on rafters, 54 vs 53 sheets; 30x30 stair-step 35 vs 34; 80 random outlines +2.9% sheets; 622 of 2,922 joints sit behind valley-corner fills and are listed to block; 1 other joint off a rafter. Verification: node --test '*.test.mjs' in the app 1300 tests, 1298 pass, 2 skipped, 0 fail; node eval-roof-plan-click.mjs all ok, no page errors; risk_review.py: nothing triggered. The private app has no CI workflow, so local runs are the check. Also fixed main's red pages `test` job: shallow-boundary-lint flagged prompts/polish_next.py (from #19469), whose git log --diff-filter=A counted a shallow boundary commit as adding every polish note; it now skips boundary commits (rev-parse --git-path shallow), with a unit test.",
   "corrections": [],
   "redteam": null,
   "usage": {
