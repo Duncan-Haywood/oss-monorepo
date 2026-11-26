@@ -1,3 +1,7 @@
+---
+kind: milestone
+date: 2026-11-26
+---
 # PayApps: certified payroll hours from a time report, a duplicate and a double-time fix
 
 - Private PR 289 (another run, claim `certified-payroll-part-2-saved-crew`) built "hours from a time
