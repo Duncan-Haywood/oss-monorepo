@@ -22,7 +22,8 @@ Open [`index.html`](index.html) and click **Project my plantation**.
 `harvestAge` years later and leaves the model (one rotation, no replant).
 Sellable trees = planted x survival x (1 - culls). Costs: seedlings, planting,
 site prep, early and mature upkeep per acre, land, selling cost per tree, fixed
-costs and year-one equipment. NPV uses your discount rate; break-even price scales
+costs, and equipment bought in year one and replaced each time its life
+runs out. NPV uses your discount rate; break-even price scales
 both prices until NPV is zero.
 
 ## What this does not cover
