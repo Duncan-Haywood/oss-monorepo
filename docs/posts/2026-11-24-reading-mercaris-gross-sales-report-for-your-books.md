@@ -2,7 +2,7 @@
 title: "Reading Mercari, Depop and Whatnot sales reports for your books: what counts as sales and what doesn't"
 seo_title: "Mercari, Depop and Whatnot sales reports: what counts as sales"
 date: 2026-11-24
-tags: [resellers, mercari, depop, whatnot, bookkeeping, schedule-c, reseller-books, for-customers]
+tags: [resellers, mercari, depop, whatnot, square, bookkeeping, schedule-c, reseller-books, for-customers]
 description: "Mercari's report has six fields the buyer paid, Depop's no payout, Whatnot's refunds on their own rows. How Reseller Books reads all three for your books."
 ---
 
@@ -215,6 +215,37 @@ the column list is Whatnot's own, but no real Whatnot file has been read
 here yet. The timestamp format and the spelling of the type values are
 still unconfirmed, so the reader ignores case and punctuation in both.
 
+## Square, for the sales at your booth, added 2026-11-26
+
+Many resellers also sell in person: a flea market table, a craft fair, a
+booth in an antique mall. The card reader there is often Square, and until
+today Seller Books, the paid edition, only took those sales typed in one at
+a time. It now reads Square's Transactions CSV (Dashboard > Transactions >
+Export). Cash you ring up in the Square app is in the same file, with no fee.
+Three things in it change your books:
+
+- **`Net Total` includes the sales tax you collected.** Square's glossary
+  defines it as "Total collected minus fees minus other withholdings"
+  ([Square glossary](https://squareup.com/help/us/en/article/5200-square-glossary),
+  read 2026-11-26). At a market you collect the tax yourself and owe it to
+  the state, so it is not income. Seller Books books `Net Sales` (after your
+  discounts) as the sale, keeps `Tax` apart, and takes the fee from `Fees`.
+- **Tips count, gift cards don't yet.** A tip is part of what you earned and
+  is counted as a sale. Money for a gift card is owed to whoever holds it
+  until the card is spent, so `Gift Card Sales` is left out of income and the
+  sale is counted when the card is used. The fee Square took on the gift card
+  is still a cost.
+- **A refund is its own row.** Each `Refund` row is booked on its own date,
+  for the goods given back, not the tax. A payment that shows a partial
+  refund is flagged, so you know to export a date range that includes the
+  refund row.
+
+The column names come from a full header row a seller posted on the Square
+Community in 2023 and from Square's glossary. No real Square file has been
+read here yet, and how Square signs a refund row's amounts isn't documented,
+so the reader works out the sign convention from the file itself and names
+any payment whose parts don't add up to `Net Total`.
+
 ## Why this matters for the paid product
 
 Reseller Books is the free edition of a planned subscription, Seller Books,
@@ -222,6 +253,6 @@ whose first milestone is exactly this: payout files from eBay, Poshmark,
 Mercari, Whatnot and Depop in one ledger, de-duplicated across re-uploads.
 With Depop in, the free edition now reads every marketplace on that list.
 
-*Arithmetic on your files, not tax advice. Mercari, Depop and Whatnot are
+*Arithmetic on your files, not tax advice. Mercari, Depop, Whatnot and Square are
 trademarks of their owners; this tool is independent and not affiliated with
 any of them.*
