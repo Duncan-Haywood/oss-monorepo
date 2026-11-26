@@ -270,6 +270,17 @@ class ShallowCloneTests(unittest.TestCase):
     def test_local_base_is_not_fetched(self):
         self.assertIsNone(rr.find_merge_base("nosuchremote/main", "HEAD"))
 
+    def test_a_non_utf8_file_in_the_diff_still_gets_a_checklist(self):
+        import contextlib, io, subprocess
+        Path("latin1.txt").write_bytes(b"caf\xe9 \xf3\n")
+        Path("blob.bin").write_bytes(bytes(range(256)))
+        subprocess.run(["git", "add", "."], check=True, capture_output=True)
+        subprocess.run(["git", "commit", "-qm", "fixtures"], check=True, capture_output=True)
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            code = rr.main(["--base", "HEAD~1", "--no-fetch"])
+        self.assertEqual(code, 0)
+        self.assertIn("Blocked:** nothing", out.getvalue())
+
     def test_uncommitted_note(self):
         self.assertIsNone(rr.uncommitted_note("HEAD"))
         Path("new").write_text("y")

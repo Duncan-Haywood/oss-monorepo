@@ -1,7 +1,7 @@
 {
   "id": "P089",
   "title": "risk_review.py crashes on a diff with non-UTF-8 bytes",
-  "status": "open",
+  "status": "done",
   "owner": "agent",
   "problem": "platform/security/risk_review.py's git() helper runs subprocess with text=True and no errors= handler, so a diff that adds binary or Latin-1 fixtures raises UnicodeDecodeError and the review prints no checklist.",
   "evidence": [
@@ -9,14 +9,22 @@
     "The same run got a full checklist, nothing blocked, from a copy with errors=\"replace\" (docs/reports/ventures-2026-11-26-einvoice-landed.md)"
   ],
   "change": "Pass errors=\"replace\" (or decode bytes with surrogateescape) in git(), and add a test with a binary file in the diff. This is a gate file, so land it in its own PR, judged by the old gate.",
-  "touches": ["platform/security/risk_review.py"],
+  "touches": [
+    "platform/security/risk_review.py"
+  ],
   "metric": "risk_review.py exits normally on a diff that adds a non-UTF-8 file",
   "baseline": "crash (1 of 1 such diffs on 2026-11-26)",
   "effect": 2,
   "cost": 1,
   "opened": "2026-11-26",
   "source": "ventures run 2026-11-26, session_01E5sJKkVkHQqUshVfPHALZ2",
-  "pr": null,
-  "result": null,
-  "history": []
+  "pr": "this",
+  "result": "helped: main() exits 0 with a full checklist on a diff adding a Latin-1 file and a binary file (test_risk_review.py); was UnicodeDecodeError (1 of 1)",
+  "history": [
+    {
+      "date": "2026-11-26",
+      "status": "done",
+      "note": "git() decodes with errors=\"replace\"; test_a_non_utf8_file_in_the_diff_still_gets_a_checklist (Latin-1 + 256-byte binary) errors on the old code, passes on the new"
+    }
+  ]
 }
