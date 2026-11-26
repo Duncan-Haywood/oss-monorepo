@@ -22,3 +22,11 @@ or financial advice. Not affiliated with any permit service, carrier or state ag
 **Privacy.** Everything runs in your browser; nothing is uploaded.
 
 FSL-1.1-MIT licence, see `LICENSE`.
+
+## Known gaps
+
+From quality audit round 114 ([`2026-11-26-pilot-car-escort-run-profit-calculator.json`](../../portfolio/quality/audits/2026-11-26-pilot-car-escort-run-profit-calculator.json)):
+
+- Vehicle depreciation and yearly overhead are charged per run, whatever the miles or days, which flatters long runs in the two-run comparison.
+- Revenue is a per-loaded-mile or flat price with one minimum. Operators also bill deadhead, height-pole premiums, layover, wait time, no-go fees and per-day rates on multi-day moves; none are modelled.
+- The copied summary's cost lines leave out card fees, vehicle cost and overhead share, so they do not sum to the total.

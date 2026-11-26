@@ -15,7 +15,9 @@ export const MAX_HOURS_YEAR = 8784; // 366 days of 24 hours, an upper sanity bou
 
 const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("GBP " + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0"));
 const r2 = (n) => Math.round(n * 100) / 100;
-const roundUpHalf = (n) => Math.ceil(r2(n) * 2 - 1e-9) / 2;
+// Round up to the next half day from the exact figure, never from a 2-decimal
+// copy of it: r2 first turned 1.00493 into 1.00 and rounded a part-year down.
+const roundUpHalf = (n) => Math.ceil(n * 2 - 1e-9) / 2;
 
 function dateParts(s) {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s || ""));
@@ -87,7 +89,7 @@ export function compute(input) {
     const fullDays = Math.min(MAX_DAYS, r2(WEEKS * p.daysPerWeek));
     const capped = WEEKS * p.daysPerWeek > MAX_DAYS;
     const accrued = r2(fullDays * fraction);
-    const entitled = roundUpHalf(accrued);
+    const entitled = roundUpHalf(fullDays * fraction);
     const afterBank = r2(Math.max(0, entitled - p.bankHolidays));
     const remaining = r2(entitled - p.taken);
     const dailyPay = p.weeklyPay > 0 ? r2(p.weeklyPay / p.daysPerWeek) : 0;
@@ -120,7 +122,13 @@ export function compute(input) {
     findings.push({ severity: "high", title: `You accrue holiday at 12.07% of hours worked: ${hoursYear} hours worked gives ${accruedHours} hours of paid holiday.` });
     if (p.hourlyRate > 0) findings.push({ severity: "high", title: `That holiday is worth about ${money(holidayPay)} gross at ${money(p.hourlyRate)} an hour.` });
     if (p.takenHours > 0) findings.push({ severity: p.takenHours > accruedHours ? "medium" : "info", title: p.takenHours > accruedHours ? `You have taken ${r2(p.takenHours - accruedHours)} hours more than accrued so far.` : `You have ${remaining} hours of holiday left${p.hourlyRate > 0 ? `, worth about ${money(remainingPay)}` : ""}.` });
-    findings.push({ severity: "medium", title: `If your employer uses rolled-up holiday pay, it is paid as 12.07% on top of each payslip (about ${money(uplift)} on these hours) and shown as a separate line. Check that the pay rate it is added to excludes the holiday element.` });
+    // The 12.07% accrual and rolled-up pay apply only to leave years starting on
+    // or after 1 April 2024 (Employment Rights (Amendment, Revocation and
+    // Transitional Provision) Regulations 2023; GOV.UK "Holiday entitlement").
+    const preReform = yearStart.t < Date.UTC(2024, 3, 1);
+    res.preReform = preReform;
+    if (preReform) findings.push({ severity: "high", title: `This leave year starts on ${iso(yearStart.t)}, before 1 April 2024. The 12.07% accrual and rolled-up holiday pay do not apply to it: the older rules (5.6 weeks, with a 52-week average for pay) do, so use GOV.UK's calculator for this year instead.` });
+    else findings.push({ severity: "medium", title: `If your employer uses rolled-up holiday pay, it is paid as 12.07% on top of each payslip (about ${money(uplift)} on these hours) and shown as a separate line. Check that the pay rate it is added to excludes the holiday element.` });
     if (leave && remaining > 0) {
       findings.push({ severity: "high", title: `You are leaving with ${remaining} unused hours, which your employer must pay for${p.hourlyRate > 0 ? ` (about ${money(remainingPay)} gross)` : ""}.` });
       obligations.push({ ref: "Final pay", title: "Check the payslip", why: "Unused statutory holiday must be paid in the final pay. Ask for the calculation if the number differs from this result." });
