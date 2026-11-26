@@ -188,6 +188,23 @@ revenue by $1,904.76 and projected profit by $5,000, although that $5,000 was
 gone the day the subcontract was signed. (Added 2026-11-26; in
 development, not for sale.)
 
+None of that helps if the costs have to be typed twice. In most subcontracting
+companies the bookkeeper already enters every supplier bill, check and card
+charge in QuickBooks Online and tags it to a customer or job, because that is
+how QuickBooks' own job reports work. So a job in PayApps can now be linked to
+that QuickBooks customer or job, and PayApps reads the bills, checks, card
+charges and vendor credits tagged to it over the dates you pick. You tick the
+lines that belong to the job, put each on a schedule-of-values line, check the
+suggested category ("Job Materials" reads as material, "Equipment Rental" as
+equipment), and import them as costs. Nothing is written back to QuickBooks.
+Bill payments are not read, so a bill paid by check is counted once. A line can
+only be imported once, even if two people press the button at the same time,
+and if a bill is edited in QuickBooks afterwards, the list shows both amounts
+so the cost can be corrected. Payroll run through QuickBooks Payroll is not in
+QuickBooks' accounting data that apps can read, so labor comes in from the
+payroll report instead (below). (Added 2026-11-26; in development, not
+for sale, and not yet tried against a live QuickBooks company.)
+
 Labor is usually a trade sub's largest cost, and the hardest to get onto a
 job. It sits in the payroll service, not in the bookkeeping, and gross wages
 alone understate it: employer payroll taxes come on top, and so do costs no
@@ -277,6 +294,16 @@ as the archived one it replaces, the weekly email names the GCs on each
 renewal line, and a draft pay application names any certificate not
 recorded as sent to that job's GC. (Added 2026-11-26; still in
 development.)
+
+Knowing who needs the renewal still leaves the emails to write. So a
+current certificate now has "Email GCs": one draft per GC, listing that
+GC's jobs, the insurer, policy number, new policy period, limits and
+wording as typed, and the date the old certificate expires. It goes to
+the GC's project manager when the job has one. It never says a file is
+attached: the sub attaches the PDF and sends it from their own mail.
+After sending, "Record as sent today" marks that GC's jobs as holding
+the new certificate, so their pay applications show it on file.
+(Added 2026-11-26; still in development.)
 
 Dates are only half of it. A subcontract's insurance exhibit also sets
 minimum limits (for example, a stated amount for each occurrence and in

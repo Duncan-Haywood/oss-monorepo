@@ -66,6 +66,46 @@ footer { margin-top: 28px; border-top: 1px solid var(--line); padding-top: 16px;
   table.stack.compact td::before { display: inline; }
   table.stack td:empty, table.stack.compact td:empty { display: none; }
 }
+/* Summaries on a phone: sumview.mjs draws each padded "label ..... amount" line of a
+   generated <pre class="sum"> as a row, since the monospace lines wrap at 390 px and the
+   amounts lose their column. The <pre> stays the copy source and shows from 601 px up. */
+.sum-view { display: none; }
+@media (max-width: 600px) {
+  pre.sum.has-view { display: none; }
+  .sum-view:not([hidden]) { display: block; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; font-size: .9rem; }
+  .sum-view .sv-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 5px 0; border-top: 1px solid var(--rule); }
+  .sum-view .sv-row:first-child, .sum-view .sv-gap + .sv-row, .sum-view .sv-text + .sv-row { border-top: 0; }
+  .sum-view .sv-v { font-variant-numeric: tabular-nums; font-weight: 700; text-align: right; color: var(--head); }
+  .sum-view .sv-v span { display: block; white-space: nowrap; }
+  .sum-view .sv-text { padding: 6px 0 4px; }
+  .sum-view .sv-head { font-weight: 700; color: var(--head); }
+  .sum-view .sv-item { position: relative; padding: 4px 0 4px 1em; }
+  .sum-view .sv-item::before { content: "•"; position: absolute; left: 0; color: var(--muted); }
+  .sum-view .sv-gap { height: 8px; }
+}
+/* The calculator's schedule-of-values entry on a phone: each line a card, item and
+   description on top, the four amounts two by two, each with its column name. The fixed
+   820 px table it replaces hid every amount column behind a sideways scroll at 390 px. */
+@media (max-width: 600px) {
+  table.sov-input { min-width: 0; table-layout: auto; }
+  table.sov-input thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  table.sov-input, table.sov-input tbody { display: block; }
+  table.sov-input tr { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px 10px; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px 12px; margin: 0 0 10px; background: var(--card); }
+  table.sov-input td { display: block; padding: 0; border: 0; min-width: 0; }
+  table.sov-input td::before { content: attr(data-label); display: block; color: var(--muted); font-size: .78rem; font-weight: 600; line-height: 1.5; margin-bottom: 2px; }
+  table.sov-input td:nth-child(2) { grid-column: span 3; }
+  table.sov-input td:nth-child(n+3):nth-child(-n+6) { grid-column: span 2; }
+  table.sov-input td:last-child { grid-column: 1 / -1; display: flex; justify-content: end; }
+  table.sov-input td:last-child::before { content: none; }
+  table.sov-input button.x::after { content: " Remove line"; font-size: .85rem; font-weight: 600; }
+  table.sov-input td input { font-size: 16px; padding: 8px 9px; } /* under 16 px, iOS zooms the page on focus */
+  /* Result cards: "1 Mobilization and general conditions" as one title line. */
+  table.stack.compact.sov-out tr { padding-top: 10px; }
+  table.stack.compact.sov-out td:first-child { display: inline; margin-right: .45em; padding: 0; font-size: inherit; }
+  table.stack.compact.sov-out td:nth-child(3) { margin-top: 7px; }
+  table.stack.compact.sov-out td:nth-child(2) { display: inline; border: 0; padding: 0; font-weight: 700; color: var(--head); }
+  table.stack.compact.sov-out td:nth-child(2)::before { content: none; }
+}
 @media print { body { background: #fff; color: #000; padding: 0; } .card { border: 0; } button, nav, footer, .cta, #inputs { display: none; } }
 
 /* Closeout checklist on retainage-release.html */
