@@ -68,3 +68,22 @@ is less critical than it looks.
 This finishes the item left open by this morning's
 [calendar-slack check](2026-11-20-the-friday-p6-float-forgets.md). That
 check had one activity whose delay ran into exactly this kind of milestone.
+
+## Update, 26 November: work already under way
+
+The first version left out one case. It only named a milestone when the
+activity after it had not started. Take an activity that is already in
+progress and has a finish-to-start link from the milestone. Under retained
+logic, P6 holds that activity's remaining work until the milestone. So the
+milestone's calendar costs it time in the same way. The panel counted that
+activity among the ones that "could finish earlier", but it said no milestone
+was holding work back. You could see the time being lost, but not where it
+came from.
+
+The check now lists that milestone too. It measures the activity's remaining
+start ("B's remaining work, Monday 08:00, could start Friday 08:00, 8 h"). A
+started activity reached by a start-to-start link is still left out, because
+its start has already happened. Links into a milestone by finish-to-finish or
+start-to-finish are left out as well. A red-team test found the gap. It is
+written up with the other checks in the
+[eval note](../../ventures/xer-schedule-check/eval/milestone-calendars-2026-11-20.md).

@@ -83,5 +83,9 @@ is a judgment the tool cannot make; the panel says what moving them gives,
 and P6's dates stay the default. The what-ifs check the option against the
 same engine's forward pass, which matches P6's stored early dates
 everywhere; P6 itself was not run with the milestones moved. Milestones
-driving a successor by FF or SF, or an already-started successor, are counted
-in the float and early-date totals but not listed as holding work.
+driving a successor by FF or SF, or an already-started successor by SS, are
+counted in the float and early-date totals but not listed as holding work.
+(Since 2026-11-26 an already-started successor by FS is listed, by its
+remaining start: retained logic holds its remaining work for the link. A
+red-team test found the panel reporting no milestone while listing the
+in-progress activity that milestone held back.)
