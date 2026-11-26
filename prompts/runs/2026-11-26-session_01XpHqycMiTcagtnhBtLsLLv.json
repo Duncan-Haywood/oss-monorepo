@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqycMiTcagtnhBtLsLLv",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T18:39:15Z",
+  "ended": "2026-11-26T18:45:03Z",
+  "wall_minutes": 6.07,
+  "tokens_in": 6108187,
+  "tokens_out": 26526,
+  "cost_usd": 2.7285,
+  "tool_calls": 57,
+  "task": "bet #3 einvoice-preflight ROADMAP Next #5: Polish KSeF part 2, the einvoice-site Poland page (polish-ksef-site-page)",
+  "projects": [
+    "einvoice-site",
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/390",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "private-monorepo CI job 'lint, build, tests' ended red in 2 s with no runner (ci_starvation.py: starved); verified locally instead"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "apps/einvoice-preflight/ROADMAP.md (private)",
+      "issue": "Next #5's text was garbled by an earlier partial edit ('(part 1 done ...): the workspace page in Polish done 2026-11-26):'), which made it unclear what part 2 still needed; rewritten as part 3."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The ROADMAP item asked for 'a Polish KSeF page'. I built it as a Poland country page in the site's three existing languages (DE/FR/EN), not a Polish-language site, because the site has no PL locale and the item itself makes a Polish site conditional on Polish accountants being a proven market.",
+      "did": "Added a Poland page in DE/FR/EN and left the Polish-language site as a conditional part 3.",
+      "result": "Shipped; the early-access form's PL checkbox now measures whether there is demand for it."
+    },
+    {
+      "file": "prompt.md",
+      "why": "No blog post: this is product-site marketing copy (an SEO page aimed at 'KSeF deadlines' searches) in the private repo, not a dev write-up; the agent doc is the ROADMAP/README update.",
+      "did": "Wrote the SEO page itself, with notes in the app README and ROADMAP.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "private-monorepo apps/einvoice-site: /en/deadlines/poland/ (+ de, fr) marketing/SEO page",
+    "apps/einvoice-site/README.md 'Poland (added 2026-11-26)'",
+    "apps/einvoice-preflight/ROADMAP.md Done entry"
+  ],
+  "goal": "North star $10k MRR: bet #3 front door; SEO page for KSeF deadline searches from DE/FR businesses selling into Poland",
+  "notes": "Clone of private-monorepo worked first time via add_repo (push). roadmap_claim.py --bets named einvoice #5 as the only free ungated item. Sources fetched directly from ksef.podatki.gov.pl (etapy-wdrozenia-ksef, od-kiedy-trzeba-wystawiac-faktury-w-ksef, pytania-i-odpowiedzi-ksef-20; page modified dates 29.05.2026, 30.04.2026, 10.11.2026). Verification: apps/einvoice-site node --test 35/35 (34 before); biome clean; run_workflow_locally.py einvoice-site-ci 4/4 run: steps ok (3 uses: steps not run); einvoice-preflight pro tests 216/216 (ROADMAP-only change there); Chromium 390px and 1280px, no horizontal scroll. Also fixed: deadline tables clipped the 'What changes' column on phones on every country page; they now stack under 640px. Not done: native-speaker read of Polish text.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "05e7af17-7075-570c-b56e-2c7aa6c7d63d",
+    "transcripts": 1,
+    "first": "2026-11-26T18:39:15Z",
+    "last": "2026-11-26T18:45:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 105,
+        "output": 26526,
+        "thinking": 4285,
+        "cache_read": 5982963,
+        "cache_write_5m": 0,
+        "cache_write_1h": 125119,
+        "api_equivalent_usd": 2.7285,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 105,
+      "output": 26526,
+      "thinking": 4285,
+      "cache_read": 5982963,
+      "cache_write_5m": 0,
+      "cache_write_1h": 125119,
+      "api_equivalent_usd": 2.7285,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 49,
+      "Read": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.07,
+      "active_minutes": 6.06,
+      "model_minutes": 4.01,
+      "tool_minutes": 2.05,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "read three Polish ministry pages, write trilingual page + test + CSS fix",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 146.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
