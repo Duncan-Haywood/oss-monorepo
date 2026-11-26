@@ -2960,6 +2960,20 @@ def wants_handoff(argv, environ=None, isatty=None) -> bool:
         return False
 
 
+def checkout_of(argv) -> str:
+    """The checkout a run on `argv` reads: its --repo-root, else this one.
+
+    The hand-off note said "do not change tracked files here" with no path, so
+    two runs pointing --repo-root at private-monorepo (2026-11-26) could not
+    tell whether their oss-monorepo edits were safe (they are)."""
+    for i, arg in enumerate(argv):
+        if arg.startswith("--repo-root="):
+            return os.path.abspath(os.path.expanduser(arg.split("=", 1)[1]))
+        if arg == "--repo-root" and i + 1 < len(argv):
+            return os.path.abspath(os.path.expanduser(argv[i + 1]))
+    return REPO
+
+
 def handoff(argv, window=HANDOFF_S, out=None, clock=time.monotonic,
             nap=time.sleep, cmd=None) -> int:
     """Run this script on `argv` as a detached child and relay its log.
@@ -3004,7 +3018,9 @@ def handoff(argv, window=HANDOFF_S, out=None, clock=time.monotonic,
                 f"  Wait: python3 platform/ci/wait_for.py {log} --timeout 110 "
                 "(repeat until it exits 0, or start it with run_in_background "
                 "--timeout 3600); the last line reads 'DONE exit <code>'.\n"
-                "  Until then, do not change tracked files here: an edit voids "
+                f"  Until then, do not change tracked files in {checkout_of(argv)} "
+                "(the checkout its steps read; edits in any other checkout are "
+                "safe): an edit there voids "
                 "every workflow still to finish. Committing files that were "
                 "already written when this started is fine (it changes no byte "
                 "a step reads); committing one created since, such as a new run "
