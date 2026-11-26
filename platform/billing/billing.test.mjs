@@ -370,6 +370,25 @@ test("the billing Worker: 503 until its secrets are set, CORS on reads, prefligh
   assert.equal((await worker.fetch(new Request("https://b.test/"), env)).status, 404);
 });
 
+test("the billing Worker reflects only an allowed origin, and a store failure is a bare 500 with CORS", async () => {
+  const env = { DB: null, ALLOWED_ORIGIN: "https://marisstella.app, https://www.marisstella.app" };
+  const claim = (origin) => worker.fetch(new Request("https://b.test/billing/claim?c=nope", { headers: origin ? { origin } : {} }), env);
+  const acao = async (origin) => (await claim(origin)).headers.get("access-control-allow-origin");
+  assert.equal(await acao("https://www.marisstella.app"), "https://www.marisstella.app", "the second allowed origin is reflected");
+  assert.equal(await acao("https://evil.example"), "https://marisstella.app", "an unknown origin gets the first allowed one, never its own");
+  assert.equal(await acao(""), "https://marisstella.app");
+  assert.equal((await claim("https://evil.example")).headers.get("vary"), "origin");
+  // DB null: the store throws inside handleBilling; the Worker must not leak the error.
+  const res = await worker.fetch(new Request("https://b.test/billing/claim?c=" + "A".repeat(22), { headers: { origin: "https://marisstella.app" } }), env);
+  assert.equal(res.status, 500);
+  assert.deepEqual(await res.json(), { error: "internal" });
+  assert.equal(res.headers.get("access-control-allow-origin"), "https://marisstella.app");
+});
+
+test("productConfig names the missing product in its error", () => {
+  assert.throws(() => productConfig("no-such-tool", CAT), /^Error: not in the catalogue: no-such-tool$/);
+});
+
 test("the billing secrets stay out of the public site: the edge Worker does not mount /billing and nothing in Actions deploys this Worker", () => {
   const edge = fs.readFileSync(new URL("../edge/worker.mjs", import.meta.url), "utf8");
   assert.doesNotMatch(edge, /\/billing\/|\.\.\/billing|PADDLE_WEBHOOK_SECRET|LICENCE_SIGNING_KEY/);

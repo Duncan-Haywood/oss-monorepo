@@ -21,10 +21,16 @@ test("a lapsed subscription key renews once from the billing Worker, and a faile
   assert.deepEqual(await licence.checkLicence(old, { cfg, now }), { valid: true, reason: "" });
   let calls = 0;
   const ok = async () => { calls++; return new Response(JSON.stringify({ key: fresh }), { status: 200 }); };
-  assert.equal((await licence.checkLicence(old, { cfg, now: now + 20, fetch: ok })).valid, true);
+  assert.deepEqual(await licence.checkLicence(old, { cfg, now: now + 20, fetch: ok }), { valid: true, reason: "", renewed: fresh });
   assert.equal(calls, 1);
   const none = async () => new Response("{}", { status: 404 });
   assert.match((await licence.checkLicence(old, { cfg, now: now + 20, fetch: none })).reason, /expired/);
   const down = async () => { throw new Error("offline"); };
   assert.match((await licence.checkLicence(old, { cfg, now: now + 20, fetch: down })).reason, /expired/);
+});
+
+test("the page shows a renewed key in place of the expired one", async () => {
+  const fs = await import("node:fs");
+  const html = fs.readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /if \(v\.renewed\) \$\("#pkgKey"\)\.value = v\.renewed;/);
 });

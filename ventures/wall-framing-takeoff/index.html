@@ -1676,7 +1676,8 @@
       $("#pkgCheck").addEventListener("click", async () => {
         $("#pkgState").textContent = "Checking...";
         const v = await checkLicence($("#pkgKey").value);
-        $("#pkgState").textContent = v.valid ? "Key accepted." : "Not unlocked: " + v.reason + (buy ? "" : " (no licence is on sale yet)");
+        if (v.renewed) $("#pkgKey").value = v.renewed;
+        $("#pkgState").textContent = v.renewed ? "Subscription renewed: the key above is your new one. Keep a copy; the old key has expired." : v.valid ? "Key accepted." : "Not unlocked: " + v.reason + (buy ? "" : " (no licence is on sale yet)");
         $("#pkgFields").hidden = !v.valid;
         if (v.valid) record("bid_package_unlocked");
       });
