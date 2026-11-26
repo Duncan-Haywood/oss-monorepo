@@ -22,10 +22,21 @@ const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', 
 // A malformed reference past U+10FFFF stays as written instead of throwing.
 const codePoint = (n, raw) => (n <= 0x10ffff ? String.fromCodePoint(n) : raw);
 
+// Tags come off until nothing changes, so no `<...>` pair can survive, nested
+// fragments such as `<scr<b>ipt>` included (CodeQL
+// js/incomplete-multi-character-sanitization).
+function stripTags(html) {
+  let prev;
+  let out = html;
+  do {
+    prev = out;
+    out = out.replace(/<[^>]*>/g, '');
+  } while (out !== prev);
+  return out;
+}
+
 export function plainText(html) {
-  return html
-    .replace(/<\/?(p|li|ul|ol|br|div|tr|td|th|table)\b[^>]*>/gi, ' ')
-    .replace(/<[^>]*>/g, '')
+  return stripTags(html.replace(/<\/?(p|li|ul|ol|br|div|tr|td|th|table)\b[^>]*>/gi, ' '))
     .replace(/&#x([0-9a-f]+);/gi, (m, h) => codePoint(parseInt(h, 16), m))
     .replace(/&#(\d+);/g, (m, d) => codePoint(Number(d), m))
     .replace(/&([a-z]+);/gi, (m, n) => ENTITIES[n.toLowerCase()] ?? m)
@@ -47,10 +58,14 @@ export function extractFaq(html) {
     .filter((x) => x.q && x.a);
 }
 
+// A slug is matched literally: regex metacharacters in a directory name are
+// escaped rather than read as a pattern (CodeQL js/regex-injection).
+const escapeRegExp = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 // The product's public base URL, read from the llms.txt itself so a product
 // served under another path keeps it.
 export function baseUrl(llms, slug) {
-  const m = llms.match(new RegExp(`https://[^\\s)]+/${slug}/`));
+  const m = llms.match(new RegExp(`https://[^\\s)]+/${escapeRegExp(slug)}/`));
   return m ? m[0] : `https://marisstella.app/${slug}/`;
 }
 
