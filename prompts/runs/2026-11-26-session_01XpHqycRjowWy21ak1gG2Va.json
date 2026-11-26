@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqycRjowWy21ak1gG2Va",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T21:39:23Z",
+  "ended": "2026-11-26T21:47:36Z",
+  "wall_minutes": 8.39,
+  "tokens_in": 6002952,
+  "tokens_out": 28728,
+  "cost_usd": 2.6316,
+  "tool_calls": 58,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19486",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Private PR #415 hit merge conflicts with #414 (the parallel suppliers calendar/dashboard claim on the same ROADMAP item) in README, ROADMAP and the suppliers test imports; resolved by keeping both sides."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "apps/cmmc/src/shared/suppliers.ts (private) and docs/SOURCES.md",
+      "issue": "Said eCFR 'refused' this environment; it answers 406 'requires response compression' without Accept-Encoding. curl --compressed works. Recorded in SOURCES.md so later runs don't skip eCFR-gated items."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Marked the Suppliers item 'free' but its remaining ask said 'once eCFR answers'; the waits-on-a-source detector did not tag it, which was luckily right this time since eCFR does answer with compression."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-25-cmmc-level-1-self-assessment-checklist.md (flow-down section extended with 32 CFR 170.23 quotes)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (exit 3); ideas inbox empty. Router: ventures/1. roadmap_claim --bets pointed at cmmc. Claimed claim/cmmc/suppliers-part-3-level-suggestion. Private PR #415 merged (squash bdb27ca9): suggestFlowdownLevel applying 32 CFR 170.23(a)(1)-(4), 6 verbatim quotes hash-pinned, form suggestion + Use button, gap names the minimum. Private CI starved (ci_starvation: 1 of 1 job never got a runner); local: biome clean, tsc clean, test:unit 38 files/451 tests after merging main, test:worker 19 files/142 tests (before merge) and suppliers worker test 7/7 after merge, vite build ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8fac3841-9cd5-5a2e-8e0c-48081a9ade51",
+    "transcripts": 1,
+    "first": "2026-11-26T21:39:23Z",
+    "last": "2026-11-26T21:47:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 106,
+        "output": 28728,
+        "thinking": 5133,
+        "cache_read": 5893099,
+        "cache_write_5m": 0,
+        "cache_write_1h": 109747,
+        "api_equivalent_usd": 2.6316,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 106,
+      "output": 28728,
+      "thinking": 5133,
+      "cache_read": 5893099,
+      "cache_write_5m": 0,
+      "cache_write_1h": 109747,
+      "api_equivalent_usd": 2.6316,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 50,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.39,
+      "active_minutes": 8.39,
+      "model_minutes": 5.05,
+      "tool_minutes": 3.34,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "reading 32 CFR 170.23, rule function + tests, form UI, merge with parallel work, post section",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 190.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
