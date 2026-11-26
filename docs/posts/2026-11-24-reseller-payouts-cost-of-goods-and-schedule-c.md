@@ -2,7 +2,7 @@
 title: "Resellers: from marketplace payout to Schedule C in three steps"
 seo_title: "Reseller payouts, cost of goods and Schedule C"
 date: 2026-11-24
-tags: [resellers, ebay, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
+tags: [resellers, ebay, amazon, schedule-c, bookkeeping, marketplace-fees, reseller-books, for-customers]
 description: "Three new guides for multi-platform resellers: bridge a payout back to sales, cost a mixed lot by resale value, and map the year onto Schedule C."
 ---
 
@@ -402,6 +402,62 @@ worksheet doesn't decide that for you.
 Line 31, net profit, now appears below line 30. A test in the app checks
 each figure above. The quarterly estimates page still works from line 29,
 so for now it leaves the home office out.
+
+## Amazon sellers: the Date Range Report, line by line (added 2026-11-26)
+
+A lot of resellers send part of their stock to Amazon: books, sealed toys,
+retail and online arbitrage, often through Fulfillment by Amazon (FBA).
+Seller Books now reads Amazon's **Date Range Report**, transaction kind
+(Seller Central > Payments > Reports Repository > Transaction). One row is
+one transaction, and every money column on that row adds up to its
+`total`:
+
+> product sales + shipping credits + gift wrap credits + promotional
+> rebates + the tax columns + marketplace withheld tax + selling fees +
+> fba fees + other transaction fees + Regulatory Fee + other = total
+
+Charges are negative and credits are positive, so each fee comes from its
+own column with its own sign, and no rate is ever applied. Three things
+trip people up:
+
+- **The tax is there, and then it isn't.** Amazon collects sales tax for
+  every US state that requires it. Each order line shows that tax and then
+  takes it back out as `marketplace withheld tax`. Add up the tax column
+  alone and you overstate your income. The ledger keeps the tax out of
+  gross receipts.
+- **Refunds don't give all the fees back.** On a refund Amazon credits the
+  referral fee but keeps a refund administration fee, and the report
+  shows only the net. In our test file, a $25.00 FBA sale with a $3.75
+  referral fee was refunded, and $3.00 of the fee came back. Seller Books
+  books the $3.00 that was actually credited, not the $3.75.
+- **The account costs come on their own rows.** The selling plan and
+  advertising arrive as `Service Fee` rows, FBA storage as `FBA Inventory
+  Fee`, labels you buy through Amazon as `Shipping Services`, and payouts
+  as `Transfer`. Seller Books puts the plan under Part V software and
+  subscriptions, advertising on line 8, storage and fulfillment on line
+  10, and labels under postage. It skips the payouts, because a payout is
+  your money moving, not income.
+
+One row needs your judgment: an `Adjustment` that reimburses you for stock
+Amazon lost or damaged. Seller Books books it as a credit against fees, so
+your profit comes out right. It also tells you how many such credits there
+were, because a preparer may want a stock reimbursement on line 6 (other
+income), with the lost item marked as written off.
+
+In our test month, two orders came to $69.99 of goods and shipping: a $25.00
+FBA sale, and a $40.00 book shipped by the seller with $5.99 of buyer-paid
+shipping and a $1.00 promotion. There was one $25.00 refund. The worksheet:
+line 1 $69.99, line 2 $25.00, line 8 $12.34 of advertising, line 10 $9.75
+of fees after the credits, and Part V $46.09 for the plan and one label.
+Importing the same file again added nothing. A test in the app checks each
+of those figures.
+
+One caveat: the test file is ours, written to the column names Amazon's
+report is widely known to use. Amazon's help pages could not be reached
+from where we built this, so the column names have not yet been checked
+against a real export. If a column is renamed, the import names the columns
+it expected instead of guessing. If a row's columns don't add up to its
+`total`, the import still brings it in and warns you, naming the line.
 
 ## What comes next
 
