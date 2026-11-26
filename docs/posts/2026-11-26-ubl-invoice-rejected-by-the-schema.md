@@ -3,7 +3,7 @@ title: "Your UBL invoice passed the rules and was still rejected: the schema com
 seo_title: "UBL 2.1 invoice schema validation errors, explained"
 date: 2026-11-26
 tags: [einvoice-preflight, for-customers]
-description: "Peppol and XRechnung validators check the UBL 2.1 XSD before any business rule. The seven ways a file fails it, and a checker that now matches xmllint on 21,719 of 21,726 test files."
+description: "Peppol and XRechnung validators run the UBL 2.1 XSD before any rule. The seven ways a file fails it, checked to match xmllint on 21,719 of 21,726 files."
 ---
 
 A UBL invoice goes through two gates when you send it to a Peppol access point or to Germany's XRechnung validator. The second gate is the business rules everyone talks about: EN 16931's BR-… rules, and the national ones on top. The first gate gets less attention. Before any rule runs, the file is checked against the **UBL 2.1 XML schema** (the XSD) published by OASIS. A file that fails the schema is refused, and no business rule ever looks at it.
