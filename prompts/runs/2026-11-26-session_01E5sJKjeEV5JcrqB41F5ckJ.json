@@ -1,0 +1,269 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKjeEV5JcrqB41F5ckJ",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T03:18:13Z",
+  "ended": "2026-11-26T03:19:00Z",
+  "wall_minutes": 7.83,
+  "tokens_in": 2699350,
+  "tokens_out": 16614,
+  "cost_usd": 1.4393,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19194",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "Blocked from `sleep 60` while waiting for the campaign; waited on the task notification instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 asks to fix every open entry first, but both open entries say they need a control-plane PR with owner approval or a help-center eval set; a run can only restate them, which counts for nothing."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: did not attempt the two open defects (browser_checks framerate: control plane, owner approval; help-keeper stem: measured as mixed, needs a new eval set).",
+      "did": "Left them open and went straight to a campaign on a construction bet file.",
+      "result": "Run time went to 2 new real defects, both patched."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-04-a-negative-bid-that-won-the-leveling.md (extended with a 2026-11-26 section)",
+    "docs/posts/2026-10-31-bid-leveling-page.md (pricing rule corrected)"
+  ],
+  "goal": null,
+  "notes": "Target ventures/wall-framing-takeoff/bidlevel.mjs (construction bet #2 front door). Guard added: bidlevel-fuzz.test.mjs now generates lump-sum lines and asserts a priced gap always adds and lump sums are never flagged short/over; 16 failures on the old module, 0 on the fix. Local verification: run_venture_tests.py wall-framing-takeoff ok, 1247 tests; risk_review.py nothing blocked.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/wall-framing-takeoff/bidlevel.mjs",
+        "test": "node --test ventures/wall-framing-takeoff/**/*.test.mjs  (in .)",
+        "seed": 489853496,
+        "commit": "527d7be32",
+        "sites": 91,
+        "baseline_seconds": 22.6,
+        "mutants": [
+          {
+            "file": "ventures/wall-framing-takeoff/bidlevel.mjs",
+            "line": 13,
+            "col": 53,
+            "operator": "times-to-div",
+            "before": "const r2 = (/** @type {number} */ n) => Math.round(n * 100) / 100;",
+            "after": "const r2 = (/** @type {number} */ n) => Math.round(n / 100) / 100;",
+            "line_text": "const r2 = (/** @type {number} */ n) => Math.round(n * 100) / 100;",
+            "caught": true,
+            "seconds": 22.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/bidlevel.mjs",
+            "line": 14,
+            "col": 82,
+            "operator": "const-plus-one",
+            "before": "const norm = (/** @type {string} */ s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, \" \").trim();",
+            "after": "const norm = (/** @type {string} */ s) => String(s).toLowerCase().replace(/[^a-z0-10]+/g, \" \").trim();",
+            "line_text": "const norm = (/** @type {string} */ s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, \" \").trim();",
+            "caught": true,
+            "seconds": 22.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/bidlevel.mjs",
+            "line": 27,
+            "col": 81,
+            "operator": "false-to-true",
+            "before": "if (!bud || typeof bud !== \"object\" || !Array.isArray(bud.lines)) return { ok: false, errors: [\"Bid leveling needs a budget with a list of lines.\"], bidders: [], lines: [] };",
+            "after": "if (!bud || typeof bud !== \"object\" || !Array.isArray(bud.lines)) return { ok: true, errors: [\"Bid leveling needs a budget with a list of lines.\"], bidders: [], lines: [] };",
+            "line_text": "  if (!bud || typeof bud !== \"object\" || !Array.isArray(bud.lines)) return { ok: false, errors: [\"Bid leveling needs a budget with a list of lines.\"], bidders: [], lines: [] };",
+            "caught": true,
+            "seconds": 22.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/bidlevel.mjs",
+            "line": 38,
+            "col": 55,
+            "operator": "neq-flip",
+            "before": "if (!b || typeof b !== \"object\" || typeof b.bidder !== \"string\" || !b.bidder.trim()) { errors.push(`bid ${i + 1}: needs a bidder name; ignored`); return false; }",
+            "after": "if (!b || typeof b !== \"object\" || typeof b.bidder === \"string\" || !b.bidder.trim()) { errors.push(`bid ${i + 1}: needs a bidder name; ignored`); return false; }",
+            "line_text": "    if (!b || typeof b !== \"object\" || typeof b.bidder !== \"string\" || !b.bidder.trim()) { errors.push(`bid ${i + 1}: needs a bidder name; ignored`); return false; }",
+            "caught": true,
+            "seconds": 22.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/bidlevel.mjs",
+            "line": 49,
+            "col": 38,
+            "operator": "or-to-and",
+            "before": "if (!l || typeof l !== \"object\" || typeof l.item !== \"string\") { errors.push(`${b.bidder}: a line without an item name is ignored`); continue; }",
+            "after": "if (!l || typeof l !== \"object\" && typeof l.item !== \"string\") { errors.push(`${b.bidder}: a line without an item name is ignored`); continue; }",
+            "line_text": "      if (!l || typeof l !== \"object\" || typeof l.item !== \"string\") { errors.push(`${b.bidder}: a line without an item name is ignored`); continue; }",
+            "caught": false,
+            "seconds": 21.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "A line without an item name fell through to the \"matches no takeoff line\" error (norm(undefined) = \"undefined\"). New test: a line with no item name is reported as such."
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/bidlevel.mjs",
+            "line": 83,
+            "col": 34,
+            "operator": "times-to-div",
+            "before": "const add = r2(r.modelQty * r.refUnitPrice);",
+            "after": "const add = r2(r.modelQty / r.refUnitPrice);",
+            "line_text": "        const add = r2(r.modelQty * r.refUnitPrice);",
+            "caught": true,
+            "seconds": 21.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/bidlevel.mjs",
+            "line": 89,
+            "col": 24,
+            "operator": "and-to-or",
+            "before": "if (g.qty != null && r.modelQty > 0) {",
+            "after": "if (g.qty != null || r.modelQty > 0) {",
+            "line_text": "      if (g.qty != null && r.modelQty > 0) {",
+            "caught": false,
+            "seconds": 22.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "With || a lump-sum line (amount, no qty) computed d = -1 and was flagged 100% short with the whole model quantity added again. New test: a lump-sum line is taken as the full line, not flagged short."
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/bidlevel.mjs",
+            "line": 95,
+            "col": 47,
+            "operator": "const-plus-one",
+            "before": "flags.push({ item: r.item, kind: d < 0 ? \"short\" : \"over\", note: `bid ${g.qty} ${r.unit} vs model ${r.modelQty} (${(d * 100).toFixed(1)}%)${adj ? `; the shortfall at the bid's own price adds ${adj}` : d > 0 ? \"; extra quantity left in, not removed\" : \"\"}` });",
+            "after": "flags.push({ item: r.item, kind: d < 1 ? \"short\" : \"over\", note: `bid ${g.qty} ${r.unit} vs model ${r.modelQty} (${(d * 100).toFixed(1)}%)${adj ? `; the shortfall at the bid's own price adds ${adj}` : d > 0 ? \"; extra quantity left in, not removed\" : \"\"}` });",
+            "line_text": "          flags.push({ item: r.item, kind: d < 0 ? \"short\" : \"over\", note: `bid ${g.qty} ${r.unit} vs model ${r.modelQty} (${(d * 100).toFixed(1)}%)${adj ? `; the shortfall at the bid's own price adds ${adj}` : d > 0 ? \"; extra quantity left in, not removed\" : \"\"}` });",
+            "caught": true,
+            "seconds": 22.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/wall-framing-takeoff/bidlevel.mjs",
+        "issue": "A line a rival priced only as a lump sum (amount, no qty) gave no unit price, so a bidder who left it out was 'unleveled', had nothing added, and could be named lowest leveled. Repro: Studs 100 + Vapor barrier 1000 sq ft, no plan prices; A bids studs 100 at 4 and vapor barrier amount 900; B bids studs 100 at 4.5 only. Before: B lowestLeveled at 450 vs A 1300. After: B leveled 1350, A lowest. Fix: median of peer lump sums prices the gap (refAmount, refSource 'median of lump-sum bids').",
+        "patched": true
+      },
+      {
+        "file": "ventures/wall-framing-takeoff/bidlevel.mjs",
+        "issue": "tolerance was used unchecked: -1 flagged every exact quantity as 'over'; NaN or a string turned all quantity checks off silently. Now refused with an error and 0.05 used.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d78769fb-29ef-5c76-a2c8-78f69adf52bd",
+    "transcripts": 1,
+    "first": "2026-11-26T03:18:13Z",
+    "last": "2026-11-26T03:26:03Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 68,
+        "output": 16614,
+        "thinking": 3616,
+        "cache_read": 2626608,
+        "cache_write_5m": 0,
+        "cache_write_1h": 72674,
+        "api_equivalent_usd": 1.4393,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 68,
+      "output": 16614,
+      "thinking": 3616,
+      "cache_read": 2626608,
+      "cache_write_5m": 0,
+      "cache_write_1h": 72674,
+      "api_equivalent_usd": 1.4393,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 32,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.83,
+      "active_minutes": 7.83,
+      "model_minutes": 3.26,
+      "tool_minutes": 4.57,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "engineer: reproduce, fix, tests, fuzz, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 208.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

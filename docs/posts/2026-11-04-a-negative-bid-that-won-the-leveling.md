@@ -3,7 +3,7 @@ title: "A negative quantity, and a left-out line, won the bid leveling"
 seo_title: "Bid leveling bug: a negative quantity ranked as the lowest bid"
 date: 2026-11-04
 tags: [construction, wall-framing-takeoff, bid-leveling, bugs]
-description: "Probing our bid-leveling code found that a negative quantity, a repeated bidder name, or leaving out a line a rival priced as a lump sum could change who looked cheapest."
+description: "Probing our bid-leveling code: a negative quantity, a repeated bidder, or leaving out a line a rival priced as a lump sum could change who looked cheapest."
 ---
 
 Bid leveling lines up each subcontractor's bid against the quantities in a
