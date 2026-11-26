@@ -2,7 +2,7 @@
 title: "T&M tickets and RFI answers: the extra work subcontractors do for free, and how to find it"
 seo_title: "T&M ticket and RFI log: chase extra work into change orders"
 date: 2026-11-25
-tags: [for-customers, payapps, construction, change-orders, tm-tickets, rfi, pay-app-guides]
+tags: [for-customers, payapps, construction, change-orders, tm-tickets, rfi, submittals, pay-app-guides]
 description: "A signed T&M ticket or an RFI answer that adds scope is not money until it is on an executed change order. How to log both and find the ones at risk."
 ---
 
@@ -85,6 +85,26 @@ logs to find the one holding up a crew. An RFI with no response date is never ca
 the date you entered is the only test. Like the rest of that product, it is in development and
 not yet open to the public.
 
+## Time you give away: a submittal that comes back late
+
+Some of what a sub gives away for free is time, not work. Shop drawings, product data and
+samples have to come back approved before you can release material. If the review runs long,
+the lead time still runs from the approval date, so a late review leaves you short of time to
+get material on site. Two habits help, whatever tool you use:
+
+- **Work back the last day to send each submittal**: the date the material is needed on site,
+  minus the lead time, minus the review period in the spec. Send it before that date, and you
+  know which ones are already late.
+- **Send every submittal under a transmittal that states the dates**: what is enclosed, the
+  action you are asking for, when you need it back, and when the material is needed on site
+  with its lead time. That puts the schedule in front of the reviewer, in writing, on the day
+  you send it. Whether it counts as notice of a delay is a question for your subcontract.
+
+The submittal log in the pay-app billing we are building does both. It works back the
+send-by date from the dates and lead times you type in, flags submittals that are late to send,
+overdue back or putting delivery at risk, and prints a one-page transmittal per submittal with
+those dates on it. It is in development, like the RFI log.
+
 ## What the T&M log will not do
 
 It does not tell you whether work is extra, whether a signed ticket counts as notice under
@@ -94,5 +114,5 @@ construction attorney before the deadline in them passes.
 
 Everything runs in the browser; nothing is uploaded. We are building hosted pay-app billing for
 specialty subcontractors that keeps change orders, pay applications, retainage and lien waivers
-per job, with the RFI log above. It is in development, with early access; nothing is for sale yet:
+per job, with the RFI and submittal logs above. It is in development, with early access; nothing is for sale yet:
 [construction tools and early access](https://marisstella.app/industries/construction/).
