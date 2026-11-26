@@ -29,7 +29,8 @@ summed up in one line each (--all lists them with notes). A refused claim push s
 (a rival holds the branch, exit 4) or PUSH FAILED (no one does; retry, exit 2). Exit codes: 0 ok, 2 usage or git error, 4 the item is already
 claimed (pick another). When no bet has a free, ungated item, --bets lists each bet's
 `**Growth path:**` topics from bets.md with the live and merged claims on each, and names
-the least-crowded bet's first topic with no live claim.
+the least-crowded bet's first topic with no live claim. Both picks (the free item and the
+untouched topic) rotate per session among the first three, so parallel runs spread out.
 """
 from __future__ import annotations
 
@@ -60,6 +61,25 @@ def run_tag() -> str | None:
     sid = (os.environ.get("ROADMAP_CLAIM_RUN") or os.environ.get("CLAUDE_CODE_REMOTE_SESSION_ID")
            or os.environ.get("CLAUDE_CODE_SESSION_ID"))
     return hashlib.sha256(sid.encode()).hexdigest()[:10] if sid else None
+
+
+SPREAD = 3  # how many of the top free choices a run's pick is spread over
+
+
+def spread(options: list, tag: str | None, width: int = SPREAD) -> list:
+    """The first `width` options rotated by this session's tag, then the rest in order.
+
+    "Start here" named the same first item to every run, so runs started minutes apart
+    built the same slice: four records (2026-11-26) lost a claim race by 0 to 60 s
+    (einvoice #5 by ~10 s, payapps item 3, two job-costing part 3 slices), one asking for
+    "a jittered or per-run ordering". A stable per-session rotation keeps a re-run's pick
+    the same and keeps the pick among the top few, so ranking still matters.
+    """
+    head, rest = options[:width], options[width:]
+    if not tag or len(head) < 2:
+        return list(options)
+    k = int(tag, 16) % len(head)
+    return head[k:] + head[:k] + rest
 
 
 def is_mine(msg: str, tag: str | None) -> bool:
@@ -573,7 +593,7 @@ def topic_claims(topic: str, info: dict[str, tuple[int, str]], merged: dict[str,
 
 
 def growth_topics(rank: int, app: str, topics: list[str], claims: tuple[dict, dict] | None,
-                  now: float, stale_s: float) -> None:
+                  now: float, stale_s: float, tag: str | None = None) -> None:
     """Print a bet's growth topics with the claims already on each, and the first untouched one.
 
     Picking the bet was not enough: inside it runs still invented the same item (three payapps
@@ -583,13 +603,15 @@ def growth_topics(rank: int, app: str, topics: list[str], claims: tuple[dict, di
         print(f"  (bets.md has no **Growth path:** line for bet #{rank}: add one in your PR)")
         return
     info, merged = claims or ({}, {})
-    pick, cells = None, []
+    untouched, cells = [], []
     for t in topics:
         live, done = topic_claims(t, info, merged, now, stale_s)
         note = (f"{len(live)} live: {', '.join(live[:2])}" if live else "no live claim")
         note += f"; {len(done)} merged" if done else ""
         cells.append(f"{t} ({note})")
-        pick = pick or (None if live else t)
+        if not live:
+            untouched.append(t)
+    pick = (spread(untouched, tag) or [None])[0]
     print("  Growth path (bets.md), claims whose slug names each topic: " + "; ".join(cells))
     if pick:
         slug = "-".join(sorted(topic_words(pick), key=pick.lower().find))[:40] or "item"
@@ -644,8 +666,11 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None) -> 
         growth[app] = (info, merged)
     if start:
         rank, app, nums = start
-        print(f"Start here: bet #{rank} {app}, item #{nums[0]} "
-              f"(`roadmap_claim.py {app}` for the list, then `--claim {nums[0]}`).")
+        order = spread(nums, tag)
+        alt = f"; if it is taken, #{', #'.join(map(str, order[1:SPREAD]))}" if len(order) > 1 else ""
+        print(f"Start here: bet #{rank} {app}, item #{order[0]} "
+              f"(`roadmap_claim.py {app}` for the list, then `--claim {order[0]}`{alt}). "
+              f"The pick rotates per session among the first {SPREAD} free items, so parallel runs spread out.")
     elif present:
         # Three runs opened new payapps items within 15 minutes (2026-11-26) while other bets
         # sat with no live claims: send the next run to the least-crowded bet, with its wedge.
@@ -656,7 +681,7 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None) -> 
               f"<short-name> --note ...` (check its ROADMAP's Done list first).")
         print(f"  Wedge (bets.md): {wedge}" if wedge else
               f"  (bets.md has no **Wedge:** line for bet #{rank}: read its evidence section)")
-        growth_topics(rank, app, paths.get(rank, []), growth.get(app), now, stale_s)
+        growth_topics(rank, app, paths.get(rank, []), growth.get(app), now, stale_s, tag)
     else:
         print("Start here: no ranked bet's app is in this clone.")
     return 0
