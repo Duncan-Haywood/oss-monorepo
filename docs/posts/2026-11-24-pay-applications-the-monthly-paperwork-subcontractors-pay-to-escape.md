@@ -254,6 +254,20 @@ show $1,500 instead of $1,914.75, so labor would be understated by about 22%.
 The percent-complete figures driven by that cost would be off by about the
 same share. (Added 2026-11-26; in development, not for sale.)
 
+Some payroll services skip the export step. Each payroll run is posted to
+QuickBooks as a journal entry, with the wages and employer taxes debited to
+labor accounts and each line tagged to the customer or job the hours were
+worked on. Those lines now appear in the same QuickBooks list as the bills
+and checks, marked "Journal entry", and they import the same way. Only lines
+on expense accounts count: Expense, Cost of Goods Sold and Other Expense. A
+debit is a cost. A credit, such as a bookkeeper moving hours to the right job,
+counts as a negative cost. The cash side of the entry is skipped. So is a
+receivables write-off, even though QuickBooks puts the customer's name on it,
+because it is not a cost of doing the work. The QuickBooks list and the
+payroll report would both cover the same weeks, so take labor from one of
+them and not both. (Added 2026-11-26; in development, not for sale, and
+not yet tried against a live QuickBooks company.)
+
 ### Where it stands (updated 2026-11-25)
 
 Still in development and not for sale. Built and tested so far:
