@@ -23,6 +23,10 @@
 export const JOB_KEYS = ["mode", "price", "loadedMiles", "minCharge", "deadheadMiles", "driverHours", "days", "nights", "tolls"];
 export const MODES = ["flat", "mile"];
 
+// A form field's number. A cleared field is NaN, so validation rejects it,
+// rather than Number("") = 0 silently billing a $0 minimum or $0 driver pay.
+export const fieldNumber = (t) => (String(t ?? "").trim() === "" ? NaN : Number(t));
+
 export function validateInput(i) {
   const e = [];
   const nonneg = (v, max) => Number.isFinite(v) && v >= 0 && v <= max;

@@ -91,3 +91,21 @@ test("summary names the source and carries the disclaimer", () => {
   assert.match(t, /No warranty/);
   assert.match(summaryText(run({ pattern: "irregular" })), /12\.07%/);
 });
+
+// Quality round 114 (portfolio/quality/audits/2026-11-26-uk-holiday-pay-calculator.json).
+test("part-year entitlement rounds up from the exact figure, never down", () => {
+  // 0.5 day a week, 131 of 365 days: 2.8 x 131/365 = 1.00493, so 1.5, not 1.
+  const r = compute({ ...SAMPLE, yearStart: "2026-01-01", join: "2026-08-23", leave: "", daysPerWeek: 0.5, contractDays: "", bankHolidays: 0, taken: 0 });
+  assert.equal(r.employedDays, 131);
+  assert.equal(r.entitled, 1.5);
+});
+
+test("a leave year before 1 April 2024 is flagged, and gets no rolled-up pay finding", () => {
+  const old = compute({ ...SAMPLE, pattern: "irregular", yearStart: "2023-04-01", join: "", hoursWorked: 1000 });
+  assert.equal(old.preReform, true);
+  assert.ok(old.findings.some((f) => f.severity === "high" && /before 1 April 2024/.test(f.title)));
+  assert.ok(!old.findings.some((f) => /rolled-up holiday pay, it is paid/.test(f.title)));
+  const now = compute({ ...SAMPLE, pattern: "irregular", yearStart: "2024-04-01", join: "", hoursWorked: 1000 });
+  assert.equal(now.preReform, false);
+  assert.ok(now.findings.some((f) => /rolled-up holiday pay, it is paid/.test(f.title)));
+});

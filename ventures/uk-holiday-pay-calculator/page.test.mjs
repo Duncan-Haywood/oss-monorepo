@@ -70,3 +70,9 @@ test("the pattern switch shows only the fields that apply", () => {
 test("links to the minimum wage checker", () => {
   assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/uk-minimum-wage-checker\/"/);
 });
+
+test("the page does not say employers should round up a full-year entitlement (quality round 114)", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.ok(!/should round up/.test(html));
+  assert.match(html, /must not round down/);
+});
