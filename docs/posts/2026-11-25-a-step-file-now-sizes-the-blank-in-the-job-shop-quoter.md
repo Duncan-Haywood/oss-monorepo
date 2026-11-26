@@ -510,6 +510,39 @@ on its list don't exist in the app, so it had been measuring the "Page not found
 reporting it as fine. The new test fails when a page doesn't load, and it now measures the
 spreadsheet-import panel by opening it on the rate card.
 
+On 2026-11-26 the suite grew from three tests to five, and the two new ones found two bugs on
+their first run:
+
+- **A STEP file, the email, a revision.** The test writes a 4 × 3 × 0.5 in plate with two
+  Ø0.25 in through holes as a STEP file, attaches it to the RFQ and checks what the parser
+  reports next to the file: the box and "Holes: 2× Ø0.25". On the quote, the blank comes out as
+  4.25 × 3.25 × 0.75 in, which is 1/8 in of stock a side rounded up to the next 1/8 in. Then it
+  marks the quote sent, emails it to the buyer named in the RFQ, revises it with the cycle time
+  cut from 10 to 8 minutes, and checks the "What changed" panel. That panel should show the
+  operation "setup 30 min, cycle 10 min/part → setup 30 min, cycle 8 min/part" and a unit price
+  about $3.17 lower at 10 pieces (2 minutes a part less at $95/h).
+- **A spreadsheet and a new estimator.** The test pastes two machines from a spreadsheet,
+  pastes the same sheet again with one rate changed, then invites an estimator. The estimator
+  signs up from the invitation link in a separate browser. They can see the rate card and the
+  team but can't change either one. The server also refuses those changes when they're sent
+  straight to the API. The estimator can still bring in an RFQ.
+
+The two bugs:
+
+1. **The offline demo couldn't email a quote.** Sending a quote needs a confirmed email
+   address, because the customer's reply goes to it. But the demo skips the confirmation step
+   at sign-up, since its mail goes nowhere. So no demo account could ever send. Quote email now
+   needs a confirmed address exactly where sign-up asks for one: always on the real service,
+   and never in the demo, which only records the message.
+2. **The import overcounted.** The preview labeled the unchanged machine "no change", but after
+   saving the page said "2 updated". Rows that change nothing are now neither written nor
+   counted, the same as the cut-speed and drill-feed imports already did. The page now says
+   "0 added, 1 updated".
+
+To make the STEP test possible, the offline server now runs the real CAD parser rather than a
+stand-in. The parser is local code with no outside service, so the demo also measures any STEP
+or DXF file you give it. Only the server's own automated tests still use the stand-in.
+
 ## Routing suggestions now see 6061 bar and 6061 plate as the same alloy
 
 When an estimator opens a quote line, the quoter suggests up to three of the shop's saved
