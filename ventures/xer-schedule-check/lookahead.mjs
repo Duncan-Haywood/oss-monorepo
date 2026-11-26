@@ -280,7 +280,7 @@ export function lookaheadCsv(la) {
     if (v === null || v === undefined) return "";
     let s = String(v);
     if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
-    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   const head = ["wbs", "activity", "name", "status", "start", "finish", "remaining (h)", "total float (h)", "free float (h)", "critical", "make-ready", "driven by", "waits on", "resources", "constraints", "open log constraints", "start if the log holds", "note", ...la.days.map((d) => d.date)];
   const lines = [head.map(q).join(",")];

@@ -81,7 +81,7 @@ export function calendarSlackCsv(r) {
     if (v === null || v === undefined) return "";
     let s = String(v);
     if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
-    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   const rows = [["Activity ID", "Activity name", "Calendar", "Total float P6 (h)", "Total float with calendar slack (h)", "Gain (h)", "Late finish P6", "Late finish"]];
   for (const a of r.activities) rows.push([a.code, a.name, a.calendar, a.tfP6, a.tf, a.gain, a.lateFinishP6, a.lateFinish]);

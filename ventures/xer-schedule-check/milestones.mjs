@@ -118,7 +118,7 @@ export function milestoneCalendarsCsv(r) {
     if (v === null || v === undefined) return "";
     let s = String(v);
     if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
-    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   const rows = [["Milestone ID", "Milestone name", "Type", "Milestone calendar", "Sits at", "On a 24-hour calendar", "Successor ID", "Successor calendar", "Successor start", "Could start", "Hours lost (successor calendar)"]];
   for (const m of r.milestones) for (const s of m.successors) rows.push([m.code, m.name, m.type, m.calendar, m.sits, m.logicGives, s.code, s.calendar, s.start, s.couldStart, s.hours]);

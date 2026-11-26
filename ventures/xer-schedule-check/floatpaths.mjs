@@ -251,7 +251,7 @@ export function floatPathsCsv(fp) {
     if (v === null || v === undefined) return "";
     let s = String(v);
     if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
-    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   const lines = [["path", "path float (h)", "activity", "name", "start", "finish", "relative float (h)", "total float (h)", "link to next", "link float (h)"].join(",")];
   for (const p of fp.paths) for (const a of p.activities) {

@@ -1,0 +1,504 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqydZCoKeYm2t6xeUV5t",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T17:38:24Z",
+  "ended": "2026-11-26T17:40:53Z",
+  "wall_minutes": 8.7,
+  "tokens_in": 3136819,
+  "tokens_out": 17957,
+  "cost_usd": 1.66,
+  "tool_calls": 38,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19424",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "wall-framing-takeoff (rank 2 bet, construction) has every guarded file over the 20 s probe because the whole venture suite runs per mutant; no way to aim a campaign at one test file, so the construction bet with the most code cannot be red-teamed. Took xer-schedule-check instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "No new blog post: a red-team run fixing CSV quoting and adding tests has nothing a customer would read",
+      "did": "Wrote the defect and guards into the PR and this record",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Guards added: csv-cr.test.mjs (lint: every CSV 'needs quoting' regex in xer-schedule-check includes \\r; failed on 13 sites on first run, now green), random-network oracle in redundant.test.mjs. Lead for a later run, not verified: about 220 files across ventures/ use the same LF-only CSV quoting regex; it is a defect only where input can carry a lone CR, so check per product before sweeping. Verification: run_venture_tests.py xer-schedule-check ok, 618 tests.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/xer-schedule-check/progress.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 917494065,
+        "commit": "934e80fd6",
+        "sites": 180,
+        "baseline_seconds": 4.3,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/progress.mjs",
+            "line": 86,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "const rem = (num(row.remain_work_qty) ?? 0) + (num(row.remain_equip_qty) ?? 0);",
+            "after": "const rem = (num(row.remain_work_qty) ?? 1) + (num(row.remain_equip_qty) ?? 0);",
+            "line_text": "    const rem = (num(row.remain_work_qty) ?? 0) + (num(row.remain_equip_qty) ?? 0);",
+            "caught": false,
+            "seconds": 4.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/progress.mjs",
+            "line": 92,
+            "col": 33,
+            "operator": "max-to-min",
+            "before": "return od > 0 && rd !== null ? Math.max(0, Math.min(100, 100 * (1 - rd / od))) : null;",
+            "after": "return od > 0 && rd !== null ? Math.min(0, Math.min(100, 100 * (1 - rd / od))) : null;",
+            "line_text": "  return od > 0 && rd !== null ? Math.max(0, Math.min(100, 100 * (1 - rd / od))) : null;",
+            "caught": true,
+            "seconds": 4.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/progress.mjs",
+            "line": 121,
+            "col": 44,
+            "operator": "and-to-or",
+            "before": "if (type === \"CP_Phys\" && pp !== null && pp < 100) push(\"finished-short\", `finished${t.actEnd !== null ? ` ${formatDate(t.actEnd)}` : \"\"} with physical ${r1(pp)}%: P6 reads a finished activity as 100% in earned value, so the field was left behind`);",
+            "after": "if (type === \"CP_Phys\" && pp !== null || pp < 100) push(\"finished-short\", `finished${t.actEnd !== null ? ` ${formatDate(t.actEnd)}` : \"\"} with physical ${r1(pp)}%: P6 reads a finished activity as 100% in earned value, so the field was left behind`);",
+            "line_text": "      if (type === \"CP_Phys\" && pp !== null && pp < 100) push(\"finished-short\", `finished${t.actEnd !== null ? ` ${formatDate(t.actEnd)}` : \"\"} with physical ${r1(pp)}%: P6 reads a finished activity as 100% in earned value, so the field was left behind`);",
+            "caught": true,
+            "seconds": 4.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/progress.mjs",
+            "line": 134,
+            "col": 21,
+            "operator": "gt-to-ge",
+            "before": "const spent = dd > t.actStart ? t.cal.workBetween(t.actStart, dd) / hpd : 0;",
+            "after": "const spent = dd >= t.actStart ? t.cal.workBetween(t.actStart, dd) / hpd : 0;",
+            "line_text": "    const spent = dd > t.actStart ? t.cal.workBetween(t.actStart, dd) / hpd : 0;",
+            "caught": false,
+            "seconds": 4.8,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "dd === actStart: workBetween(x, x) is 0, the same as the else branch"
+          },
+          {
+            "file": "ventures/xer-schedule-check/progress.mjs",
+            "line": 134,
+            "col": 78,
+            "operator": "const-plus-one",
+            "before": "const spent = dd > t.actStart ? t.cal.workBetween(t.actStart, dd) / hpd : 0;",
+            "after": "const spent = dd > t.actStart ? t.cal.workBetween(t.actStart, dd) / hpd : 1;",
+            "line_text": "    const spent = dd > t.actStart ? t.cal.workBetween(t.actStart, dd) / hpd : 0;",
+            "caught": false,
+            "seconds": 4.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/progress.mjs",
+            "line": 135,
+            "col": 26,
+            "operator": "div-to-times",
+            "before": "const left = t.remain / hpd;",
+            "after": "const left = t.remain * hpd;",
+            "line_text": "    const left = t.remain / hpd;",
+            "caught": true,
+            "seconds": 4.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/progress.mjs",
+            "line": 136,
+            "col": 24,
+            "operator": "div-to-times",
+            "before": "const orig = t.orig / hpd;",
+            "after": "const orig = t.orig * hpd;",
+            "line_text": "    const orig = t.orig / hpd;",
+            "caught": true,
+            "seconds": 4.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/progress.mjs",
+            "line": 154,
+            "col": 20,
+            "operator": "and-to-or",
+            "before": "if (independent && (claimed === null || claimed === 0) && spent >= o.stalledDays) {",
+            "after": "if (independent || (claimed === null || claimed === 0) && spent >= o.stalledDays) {",
+            "line_text": "    if (independent && (claimed === null || claimed === 0) && spent >= o.stalledDays) {",
+            "caught": true,
+            "seconds": 4.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/xer-schedule-check/calslack.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 108186171,
+        "commit": "934e80fd6",
+        "sites": 61,
+        "baseline_seconds": 4.5,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/calslack.mjs",
+            "line": 18,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "const r2 = (x) => Math.round(x * 100) / 100;",
+            "after": "const r2 = (x) => Math.round(x * 101) / 100;",
+            "line_text": "const r2 = (x) => Math.round(x * 100) / 100;",
+            "caught": true,
+            "seconds": 4.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/calslack.mjs",
+            "line": 23,
+            "col": 51,
+            "operator": "true-to-false",
+            "before": "const cs = schedule(xer, { model, calendarSlack: true });",
+            "after": "const cs = schedule(xer, { model, calendarSlack: false });",
+            "line_text": "  const cs = schedule(xer, { model, calendarSlack: true });",
+            "caught": true,
+            "seconds": 4.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/calslack.mjs",
+            "line": 25,
+            "col": 88,
+            "operator": "neq-flip",
+            "before": "const open = [...model.tasks.values()].filter((t) => inProj(t) && !t.span && t.status !== \"TK_Complete\" && base.tasks.get(t.id)?.lf !== undefined);",
+            "after": "const open = [...model.tasks.values()].filter((t) => inProj(t) && !t.span && t.status === \"TK_Complete\" && base.tasks.get(t.id)?.lf !== undefined);",
+            "line_text": "  const open = [...model.tasks.values()].filter((t) => inProj(t) && !t.span && t.status !== \"TK_Complete\" && base.tasks.get(t.id)?.lf !== undefined);",
+            "caught": true,
+            "seconds": 4.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/calslack.mjs",
+            "line": 30,
+            "col": 13,
+            "operator": "gt-to-ge",
+            "before": "if (gain > 0) activities.push({ code: t.code, name: t.name, calendar: t.cal.name, tfP6: r2(b.tf), tf: r2(c.tf), gain, lateFinishP6: formatDate(b.lf), lateFinish: formatDate(c.lf) });",
+            "after": "if (gain >= 0) activities.push({ code: t.code, name: t.name, calendar: t.cal.name, tfP6: r2(b.tf), tf: r2(c.tf), gain, lateFinishP6: formatDate(b.lf), lateFinish: formatDate(c.lf) });",
+            "line_text": "    if (gain > 0) activities.push({ code: t.code, name: t.name, calendar: t.cal.name, tfP6: r2(b.tf), tf: r2(c.tf), gain, lateFinishP6: formatDate(b.lf), lateFinish: formatDate(c.lf) });",
+            "caught": true,
+            "seconds": 4.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/calslack.mjs",
+            "line": 30,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "if (gain > 0) activities.push({ code: t.code, name: t.name, calendar: t.cal.name, tfP6: r2(b.tf), tf: r2(c.tf), gain, lateFinishP6: formatDate(b.lf), lateFinish: formatDate(c.lf) });",
+            "after": "if (gain > 1) activities.push({ code: t.code, name: t.name, calendar: t.cal.name, tfP6: r2(b.tf), tf: r2(c.tf), gain, lateFinishP6: formatDate(b.lf), lateFinish: formatDate(c.lf) });",
+            "line_text": "    if (gain > 0) activities.push({ code: t.code, name: t.name, calendar: t.cal.name, tfP6: r2(b.tf), tf: r2(c.tf), gain, lateFinishP6: formatDate(b.lf), lateFinish: formatDate(c.lf) });",
+            "caught": false,
+            "seconds": 4.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/calslack.mjs",
+            "line": 64,
+            "col": 26,
+            "operator": "plus-to-minus",
+            "before": "return out.join(\"\\n\") + \"\\n\";",
+            "after": "return out.join(\"\\n\") - \"\\n\";",
+            "line_text": "    return out.join(\"\\n\") + \"\\n\";",
+            "caught": true,
+            "seconds": 4.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/calslack.mjs",
+            "line": 69,
+            "col": 21,
+            "operator": "gt-to-ge",
+            "before": "if (r.links.length > 20) out.push(`  ... ${r.links.length - 20} more (--csv)`);",
+            "after": "if (r.links.length >= 20) out.push(`  ... ${r.links.length - 20} more (--csv)`);",
+            "line_text": "  if (r.links.length > 20) out.push(`  ... ${r.links.length - 20} more (--csv)`);",
+            "caught": false,
+            "seconds": 4.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/calslack.mjs",
+            "line": 71,
+            "col": 37,
+            "operator": "const-plus-one",
+            "before": "for (const a of r.activities.slice(0, 25)) out.push(`  ${a.code.padEnd(16)} TF ${String(a.tfP6).padStart(7)} -> ${String(a.tf).padStart(7)}  (+${a.gain})  ${a.name}`);",
+            "after": "for (const a of r.activities.slice(1, 25)) out.push(`  ${a.code.padEnd(16)} TF ${String(a.tfP6).padStart(7)} -> ${String(a.tf).padStart(7)}  (+${a.gain})  ${a.name}`);",
+            "line_text": "  for (const a of r.activities.slice(0, 25)) out.push(`  ${a.code.padEnd(16)} TF ${String(a.tfP6).padStart(7)} -> ${String(a.tf).padStart(7)}  (+${a.gain})  ${a.name}`);",
+            "caught": false,
+            "seconds": 4.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/xer-schedule-check/redundant.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 671279491,
+        "commit": "934e80fd6",
+        "sites": 213,
+        "baseline_seconds": 4.6,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/redundant.mjs",
+            "line": 75,
+            "col": 63,
+            "operator": "plus-to-minus",
+            "before": "const from = 2 * p + (ends[0] === \"F\" ? 1 : 0), to = 2 * s + (ends[1] === \"F\" ? 1 : 0);",
+            "after": "const from = 2 * p + (ends[0] === \"F\" ? 1 : 0), to = 2 * s - (ends[1] === \"F\" ? 1 : 0);",
+            "line_text": "    const from = 2 * p + (ends[0] === \"F\" ? 1 : 0), to = 2 * s + (ends[1] === \"F\" ? 1 : 0);",
+            "caught": true,
+            "seconds": 4.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/redundant.mjs",
+            "line": 107,
+            "col": 20,
+            "operator": "lt-to-le",
+            "before": "if (pos[e.from] < 0 || pos[e.to] < 0) continue;",
+            "after": "if (pos[e.from] <= 0 || pos[e.to] < 0) continue;",
+            "line_text": "    if (pos[e.from] < 0 || pos[e.to] < 0) continue;",
+            "caught": true,
+            "seconds": 4.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/redundant.mjs",
+            "line": 121,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "let visits = 0, truncated = false;",
+            "after": "let visits = 1, truncated = false;",
+            "line_text": "  let visits = 0, truncated = false;",
+            "caught": false,
+            "seconds": 4.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/redundant.mjs",
+            "line": 127,
+            "col": 148,
+            "operator": "const-plus-one",
+            "before": "const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let i = 0; for (;;) { const l = 2 * i + 1, r = l + 1; let m = i; if (l < heap.length && heap[l] < heap[m]) m = l; if (r < heap.length && heap[r] < heap[m]) m = r; if (m === i) break; [heap[m], heap[i]] = [heap[i], heap[m]]; i = m; } } return top; };",
+            "after": "const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let i = 0; for (;;) { const l = 2 * i + 1, r = l + 2; let m = i; if (l < heap.length && heap[l] < heap[m]) m = l; if (r < heap.length && heap[r] < heap[m]) m = r; if (m === i) break; [heap[m], heap[i]] = [heap[i], heap[m]]; i = m; } } return top; };",
+            "line_text": "  const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let i = 0; for (;;) { const l = 2 * i + 1, r = l + 1; let m = i; if (l < heap.length && heap[l] < heap[m]) m = l; if (r < heap.length && heap[r] < heap[m]) m = r; if (m === i) break; [heap[m], heap[i]] = [heap[i], heap[m]]; i = m; } } return top; };",
+            "caught": false,
+            "seconds": 4.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/redundant.mjs",
+            "line": 127,
+            "col": 182,
+            "operator": "and-to-or",
+            "before": "const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let i = 0; for (;;) { const l = 2 * i + 1, r = l + 1; let m = i; if (l < heap.length && heap[l] < heap[m]) m = l; if (r < heap.length && heap[r] < heap[m]) m = r; if (m === i) break; [heap[m], heap[i]] = [heap[i], heap[m]]; i = m; } } return top; };",
+            "after": "const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let i = 0; for (;;) { const l = 2 * i + 1, r = l + 1; let m = i; if (l < heap.length || heap[l] < heap[m]) m = l; if (r < heap.length && heap[r] < heap[m]) m = r; if (m === i) break; [heap[m], heap[i]] = [heap[i], heap[m]]; i = m; } } return top; };",
+            "line_text": "  const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let i = 0; for (;;) { const l = 2 * i + 1, r = l + 1; let m = i; if (l < heap.length && heap[l] < heap[m]) m = l; if (r < heap.length && heap[r] < heap[m]) m = r; if (m === i) break; [heap[m], heap[i]] = [heap[i], heap[m]]; i = m; } } return top; };",
+            "caught": false,
+            "seconds": 4.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/redundant.mjs",
+            "line": 127,
+            "col": 231,
+            "operator": "and-to-or",
+            "before": "const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let i = 0; for (;;) { const l = 2 * i + 1, r = l + 1; let m = i; if (l < heap.length && heap[l] < heap[m]) m = l; if (r < heap.length && heap[r] < heap[m]) m = r; if (m === i) break; [heap[m], heap[i]] = [heap[i], heap[m]]; i = m; } } return top; };",
+            "after": "const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let i = 0; for (;;) { const l = 2 * i + 1, r = l + 1; let m = i; if (l < heap.length && heap[l] < heap[m]) m = l; if (r < heap.length || heap[r] < heap[m]) m = r; if (m === i) break; [heap[m], heap[i]] = [heap[i], heap[m]]; i = m; } } return top; };",
+            "line_text": "  const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let i = 0; for (;;) { const l = 2 * i + 1, r = l + 1; let m = i; if (l < heap.length && heap[l] < heap[m]) m = l; if (r < heap.length && heap[r] < heap[m]) m = r; if (m === i) break; [heap[m], heap[i]] = [heap[i], heap[m]]; i = m; } } return top; };",
+            "caught": false,
+            "seconds": 4.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/redundant.mjs",
+            "line": 158,
+            "col": 14,
+            "operator": "gt-to-ge",
+            "before": "if (p > limit) continue;",
+            "after": "if (p >= limit) continue;",
+            "line_text": "        if (p > limit) continue;",
+            "caught": true,
+            "seconds": 4.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/redundant.mjs",
+            "line": 214,
+            "col": 58,
+            "operator": "div-to-times",
+            "before": "type: rel.type.replace(\"PR_\", \"\"), lagHours: r1(e.w / 60),",
+            "after": "type: rel.type.replace(\"PR_\", \"\"), lagHours: r1(e.w * 60),",
+            "line_text": "      type: rel.type.replace(\"PR_\", \"\"), lagHours: r1(e.w / 60),",
+            "caught": false,
+            "seconds": 4.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/xer-schedule-check/calslack.mjs",
+        "issue": "13 CSV writers in 12 xer-schedule-check modules (calslack, constraints, dcma x2, evm, floatpaths, gantt, gao, level, lookahead, milestones, ribbon, risk) quoted a cell only for a quote, comma or LF. parseXer splits rows on \\r?\\n, so a lone CR in an activity or calendar name reaches the CSV unquoted and ends the spreadsheet row early (reproduced: calendarSlackCsv with name 'Pour\\rslab' wrote it bare). Fixed to quote CR too, guarded by csv-cr.test.mjs, a lint over every module in the venture.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19424"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f4570d1c-eed3-5000-b5ac-2250816686b1",
+    "transcripts": 1,
+    "first": "2026-11-26T17:38:24Z",
+    "last": "2026-11-26T17:47:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 36,
+        "input": 72,
+        "output": 17957,
+        "thinking": 5297,
+        "cache_read": 3050435,
+        "cache_write_5m": 0,
+        "cache_write_1h": 86312,
+        "api_equivalent_usd": 1.66,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 36,
+      "input": 72,
+      "output": 17957,
+      "thinking": 5297,
+      "cache_read": 3050435,
+      "cache_write_5m": 0,
+      "cache_write_1h": 86312,
+      "api_equivalent_usd": 1.66,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 36,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.7,
+      "active_minutes": 8.7,
+      "model_minutes": 2.92,
+      "tool_minutes": 5.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: three mutation triages, oracle test, 13-site CSV fix and lint",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 241.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

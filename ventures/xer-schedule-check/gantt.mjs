@@ -592,7 +592,7 @@ export function ganttCsv(g) {
     if (v === null || v === undefined) return "";
     let s = String(v);
     if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
-    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   const F = (m) => (fin(m) ? formatDate(m) : "");
   const head = ["level", "kind", "code", "name", "status", "start", "finish", "remaining start", "total float (h)", "critical", "longest path", "type", "baseline start", "baseline finish", "finish variance (working days)", "activities"];
