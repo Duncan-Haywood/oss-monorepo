@@ -3,7 +3,7 @@
 // A single-shareholder S-corp that also performs services for the business
 // must pay itself "reasonable compensation" as W-2 wages before taking any
 // profit out as a distribution (IRC 1366, Rev. Rul. 74-44; the leading
-// litigated case is Watson v. Commissioner, 668 F.3d 1008 (8th Cir. 2012),
+// litigated case is Watson v. United States, 668 F.3d 1008 (8th Cir. 2012),
 // where a $24,000 salary against ~$200k-274k of annual profit was
 // recharacterized to $91,044). Paying too little salary and too much
 // distribution understates employment tax; paying more salary than the

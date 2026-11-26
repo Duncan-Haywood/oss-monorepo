@@ -1,0 +1,177 @@
+{
+  "date": "2026-11-26",
+  "stratum": "venture",
+  "seed": "2026-11-26-l-ae8a",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "subject": "ventures/job-application-tracker",
+  "professional": "a career coach who runs job-search programmes (follow-up cadence, tracking response rate by channel), with a senior web engineer's eye on CSV import/export (RFC 4180, OWASP CSV injection) and calendar export (RFC 5545)",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 3,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "node -e on tracker.mjs: applied 2026-11-01 -> follow-up 2026-11-08 (7-day rule); screen on 2026-11-10 -> follow-up 2026-11-13 and first response 9 days; quiet flag at exactly 30 days (12-01) and not at 29 (11-30); 2028-02-28 + 1 = 2028-02-29 and 2026-02-29 rejected (Gregorian calendar by hand); funnel of 2 apps, 1 reply = 50%, median 9 days; CSV export prefixes '=HYPERLINK' and '-2+3' with a quote and round-trips '=SUM(A1)' and '@x'.",
+    "completeness": "README features checked: follow-up defaults and override, quiet-after-30-days suggestion, reply rate by source, CSV export with formula guard, CSV/JSON import with duplicate skipping (index.html:235-242), .ics download. All present and working. No stubs.",
+    "verification": "node --test '*.test.mjs': 37 pass. quality_mutate.py: 5 mutants, 2 survived: the nextActions horizon boundary (>= -> >) and dropping '-' from the CSV-injection prefix set, the second a security rule.",
+    "craft": "tracker.mjs (253 lines) read in full: pure functions, dates passed in, RFC 4180 quoting in parseCsv handles CRLF, BOM and doubled quotes. Defects: .ics lines are not folded at 75 octets (a long company+role SUMMARY reached 159 characters; RFC 5545 3.1); DTSTAMP defaults to a fixed 20260101T000000Z and index.html:228-230 never passes a real stamp; Number('120,000') silently drops a comma-formatted salary on import.",
+    "claims": "README claims (7/3-day defaults, 30-day quiet, rejection counts as a reply, formula guard on = + - @, import column names, local-only storage) each match tracker.mjs. The vs-a-spreadsheet page states 'dates as YYYY-MM-DD'. Disclaimer present on the page (index.html, footer) and README.",
+    "fitness": "Walked a week of a job search: add 6 applications from 3 sources, move two to screen, export .ics, export CSV, re-import. Works, but a sheet re-saved by a spreadsheet turns dates into 11/20/2026 and the import blanks them with no message, so a user moving from a spreadsheet loses every date without being told.",
+    "domain": "Follow-up gaps (about a week after applying, a few days after an interview) match common career-coaching guidance, and the guide calls them conventions. The CSV formula guard follows OWASP's CSV Injection list (= + - @ tab CR). The departure is RFC 5545 line folding and DTSTAMP."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "default follow-up 7 days after applying",
+      "method": "hand date arithmetic",
+      "command": "node -e nextFollowUp(normalizeApp({applied:'2026-11-01'}))",
+      "expected": "2026-11-08",
+      "observed": "2026-11-08",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "follow-up 3 days after a screen, first response in days",
+      "method": "hand",
+      "command": "node -e setStatus(a,'screen','2026-11-10')",
+      "expected": "2026-11-13 / 9",
+      "observed": "2026-11-13 / 9",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "quiet flag at 30 days, not 29",
+      "method": "hand: 2026-11-01 + 30 = 2026-12-01",
+      "command": "node -e ghostCandidates",
+      "expected": "1 / 0",
+      "observed": "1 / 0",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "leap-year date handling",
+      "method": "Gregorian rule by hand",
+      "command": "node -e addDays('2028-02-28',1); isIsoDate('2026-02-29')",
+      "expected": "2028-02-29 / false",
+      "observed": "2028-02-29 / false",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "CSV formula guard on export and strip on import",
+      "method": "OWASP CSV Injection",
+      "command": "node -e toCsv / fromCsv round trip",
+      "expected": "quoted on export, restored on import",
+      "observed": "'=HYPERLINK, '-2+3 on export; =SUM(A1), @x restored",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "import a spreadsheet-formatted row",
+      "method": "what Excel re-saves",
+      "command": "node -e fromCsv('company,role,salary,applied,status\\r\\nAcme,Eng,\"120,000\",11/20/2026,interview')",
+      "expected": "salary 120000, a warning about the date",
+      "observed": "salary null, applied blank, no warning",
+      "result": "fail"
+    },
+    {
+      "dimension": "craft",
+      "what": ".ics line length",
+      "method": "RFC 5545 3.1, 75 octets",
+      "command": "node -e toIcs([long company and role])",
+      "expected": "<= 75",
+      "observed": "159",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "node --test '*.test.mjs'",
+      "expected": "green",
+      "observed": "37 pass",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "disclaimer on page and README",
+      "method": "read",
+      "command": "grep -n 'No warranty' index.html README.md",
+      "expected": "present",
+      "observed": "present",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "tracker.mjs:92",
+      "change": ">= GHOST_AFTER_DAYS -> > GHOST_AFTER_DAYS",
+      "caught": true,
+      "test_cmd": "node --test tracker.test.mjs page.test.mjs"
+    },
+    {
+      "where": "tracker.mjs:7",
+      "change": "drop 'rejected' from RESPONDED",
+      "caught": true,
+      "test_cmd": "node --test tracker.test.mjs page.test.mjs"
+    },
+    {
+      "where": "tracker.mjs:102",
+      "change": "late >= -horizonDays -> late > -horizonDays",
+      "caught": false,
+      "test_cmd": "node --test tracker.test.mjs page.test.mjs"
+    },
+    {
+      "where": "tracker.mjs:118",
+      "change": "median -> s[m]",
+      "caught": true,
+      "test_cmd": "node --test tracker.test.mjs page.test.mjs"
+    },
+    {
+      "where": "tracker.mjs:178",
+      "change": "drop '-' from the CSV-injection prefix set",
+      "caught": false,
+      "test_cmd": "node --test tracker.test.mjs page.test.mjs"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Dropping '-' from the CSV-injection guard leaves every test green: the security rule the README advertises is untested for one of its four characters. The horizon boundary in nextActions also survives.",
+      "where": "ventures/job-application-tracker/tracker.test.mjs:1",
+      "category": "untested-core",
+      "origin": "tests",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19450"
+    },
+    {
+      "severity": "medium",
+      "what": "CSV import blanks dates not in YYYY-MM-DD (what a spreadsheet re-save produces) and drops '120,000' or '$120,000' salaries, with no message, so a spreadsheet migration silently loses data.",
+      "where": "ventures/job-application-tracker/tracker.mjs:53",
+      "category": "input-handling",
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19450"
+    },
+    {
+      "severity": "low",
+      "what": ".ics content lines are not folded at 75 octets (RFC 5545 3.1); a long company and role made a 159-character SUMMARY line.",
+      "where": "ventures/job-application-tracker/tracker.mjs:253",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "DTSTAMP is a fixed 20260101T000000Z because the page never passes a stamp; RFC 5545 expects the time the object was created.",
+      "where": "ventures/job-application-tracker/index.html:230",
+      "category": "domain-rule",
+      "origin": "spec"
+    }
+  ],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19450"],
+  "verdict": "A careful little tracker: nine outputs recomputed by hand all pass, the README matches the code claim by claim, and the CSV formula guard follows OWASP. It misses the bar only on verification: 2 of 5 seeded mutants survived, one of them in the CSV-injection rule. The worst user-facing gap is a spreadsheet re-import that silently blanks dates and comma-formatted salaries. This round adds tests that kill both mutants, reads '$120,000' salaries and reports how many rows had dates it could not read. .ics folding and DTSTAMP are still open."
+}

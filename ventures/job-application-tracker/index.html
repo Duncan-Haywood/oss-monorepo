@@ -232,14 +232,14 @@
     $("#export-json").addEventListener("click", () => download("job-applications-backup.json", JSON.stringify(apps, null, 2), "application/json"));
     $("#import").addEventListener("change", async (e) => {
       const file = e.target.files[0]; if (!file) return;
-      const text = await file.text(); let incoming = [], skipped = 0;
+      const text = await file.text(); let incoming = [], skipped = 0, undatedRows = 0;
       if (/\.json$/i.test(file.name)) { try { const raw = JSON.parse(text); incoming = (Array.isArray(raw) ? raw : []).map(normalizeApp).filter(Boolean); skipped = (Array.isArray(raw) ? raw.length : 0) - incoming.length; } catch { /* reported below */ } }
-      else ({ apps: incoming, skipped } = fromCsv(text));
+      else ({ apps: incoming, skipped, undatedRows } = fromCsv(text));
       if (!incoming.length) { $("#io-status").innerHTML = '<span class="error">Nothing importable found. A CSV needs a header row with at least a company or role column.</span>'; return; }
       const have = new Set(apps.map((a) => `${a.company}|${a.role}|${a.applied}`.toLowerCase()));
       const fresh = incoming.filter((a) => !have.has(`${a.company}|${a.role}|${a.applied}`.toLowerCase()));
       apps = apps.concat(fresh.map((a) => ({ ...a, id: newId() }))); persist(); record("import_run"); render();
-      $("#io-status").textContent = `Imported ${fresh.length} application${fresh.length === 1 ? "" : "s"}${incoming.length - fresh.length ? `, ${incoming.length - fresh.length} already present` : ""}${skipped ? `, ${skipped} row${skipped === 1 ? "" : "s"} skipped` : ""}.`;
+      $("#io-status").textContent = `Imported ${fresh.length} application${fresh.length === 1 ? "" : "s"}${incoming.length - fresh.length ? `, ${incoming.length - fresh.length} already present` : ""}${skipped ? `, ${skipped} row${skipped === 1 ? "" : "s"} skipped` : ""}${undatedRows ? `; ${undatedRows} row${undatedRows === 1 ? " had a date" : "s had dates"} not in YYYY-MM-DD form, left blank` : ""}.`;
       e.target.value = "";
     });
 

@@ -23,7 +23,7 @@ A shareholder of an S-corp who also performs services for the business has
 to be paid reasonable compensation as W-2 wages before any profit is
 distributed to them (IRC 1366, Rev. Rul. 74-44). Get the split wrong and the
 IRS can recharacterize distributions as wages — the leading case,
-*Watson v. Commissioner*, 668 F.3d 1008 (8th Cir. 2012), recharacterized
+*David E. Watson, P.C. v. United States*, 668 F.3d 1008 (8th Cir. 2012), recharacterized
 $67,044 of each year's distributions to wages against a $24,000 salary paid
 next to roughly $200,000–274,000 of annual profit. There is no IRS-published
 safe-harbor percentage; the "60/40 rule" seen on forums is not an IRS rule.

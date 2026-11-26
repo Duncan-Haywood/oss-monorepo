@@ -1,5 +1,5 @@
 name: s-corp-reasonable-compensation-calculator
-description: Free browser calculator for single-shareholder S-corp owners that compares a planned or current W-2 salary against a comparable-wage figure the owner supplies, using the IRS's actual multi-factor reasonable-compensation test (not a percentage safe-harbor, which does not exist), reports the FICA-tax cost of closing any gap using the 2026 Social Security wage base, and prints a nine-factor documentation checklist drawn from Rev. Rul. 74-44 and Watson v. Commissioner. Entirely client-side; nothing is uploaded.
+description: Free browser calculator for single-shareholder S-corp owners that compares a planned or current W-2 salary against a comparable-wage figure the owner supplies, using the IRS's actual multi-factor reasonable-compensation test (not a percentage safe-harbor, which does not exist), reports the FICA-tax cost of closing any gap using the 2026 Social Security wage base, and prints a nine-factor documentation checklist drawn from Rev. Rul. 74-44 and Watson v. United States. Entirely client-side; nothing is uploaded.
 
 stage: prototype
 
@@ -40,7 +40,7 @@ owner: duncan
 #     biztaxcalc.com, sdocpa.com, unclekam.com, and
 #     financial-advisors-for-business-owners.com -- all CPA-firm or
 #     advisor-marketing pages built specifically to rank for this phrase.
-#   What it costs them: Watson v. Commissioner (668 F.3d 1008, 8th Cir.
+#   What it costs them: Watson v. United States (668 F.3d 1008, 8th Cir.
 #     2012) recharacterized $67,044/year of distributions to wages against
 #     a $24,000 salary on ~$200k-274k of annual profit -- real back
 #     payroll tax, penalties, and interest, not a hypothetical.
@@ -59,7 +59,7 @@ owner: duncan
 # and Paycor's 2026 payroll guide (all independently reporting the same
 # figure). The Additional Medicare Tax thresholds ($200k single/HOH,
 # $250k MFJ, $125k MFS) are fixed statutory amounts under IRC 3101(b)(2),
-# not inflation-indexed since enactment in 2013. Watson v. Commissioner's
+# not inflation-indexed since enactment in 2013. Watson v. United States's
 # facts (the $24,000 salary, the $67,044/year recharacterization, the
 # 2012 Eighth Circuit affirmance) are drawn from the same WebSearch pass
 # and are consistent across independent summaries. The comparable-wage

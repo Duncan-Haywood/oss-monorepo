@@ -137,3 +137,23 @@ test('loadState parses a saved object and never throws on malformed JSON', () =>
   assert.deepEqual(loadState('[1,2,3]'), [1, 2, 3]);
   assert.deepEqual(loadState('{"plannedSalary":50000}'), { plannedSalary: 50000 });
 });
+
+// Added by quality round 118 (portfolio/quality/audits/2026-11-26-ventures-s-corp-reasonable-compensation-calculator.json):
+// three seeded mutants survived the suite above.
+test('additional Medicare starts at $125,000 for married filing separately (IRC 3101(b)(2))', () => {
+  assert.equal(ficaCost(125000, 'mfs').additionalMedicare, 0);
+  assert.ok(Math.abs(ficaCost(140000, 'mfs').additionalMedicare - 135) < 1e-9);
+  assert.equal(ADDITIONAL_MEDICARE_THRESHOLDS.hoh, 200000);
+});
+
+test('a planned salary exactly equal to the comparable-wage floor is the ok position', () => {
+  const r = assess({ plannedSalary: 80000, compensationPool: 150000, marketWageFullTime: 80000, hoursPerWeek: 40 });
+  assert.equal(r.flagLevel, 'ok');
+  assert.equal(r.extraFicaToReachFloor, 0);
+});
+
+test('a salary larger than the compensation pool leaves a zero distribution, never a negative one', () => {
+  const r = assess({ plannedSalary: 50000, compensationPool: 40000, marketWageFullTime: 60000, hoursPerWeek: 40 });
+  assert.equal(r.distribution, 0);
+  assert.equal(r.flagLevel, 'caution');
+});
