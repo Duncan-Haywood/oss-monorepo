@@ -142,6 +142,12 @@ drawn with leaf and swing) it gives 120.5 SF. So: trace rooms with the Area
 tool on raster or annotation-heavy sheets; Fill is for outlines the line work
 truly closes.
 
+**Reading speed** (2026-11-26): the same 14 sets, before and after one
+perf pass, outputs hashed identical. The densest, a 19-sheet set with 28 MB
+of drawing instructions, reads in 1.4 s in Chromium, down from 2.1 s; a
+25-sheet set in 0.8 s, down from 1.25 s. Notes:
+`docs/history/pdf-plan-takeoff-perf-2026-11-26.md`.
+
 ## Limits
 
 - The scale check needs feet-and-inches dimension strings: metric dimensions
@@ -175,6 +181,8 @@ truly closes.
 - `rooms.mjs` fill area.
 - `index.html` the page; `usage.mjs` anonymous local counters.
 - `cli.mjs` scale report.
+- `read-once.test.mjs` pins the 2026-11-26 reading speed-ups to the code
+  they replaced.
 - `sample.mjs` the sample plan PDF.
 - `pdf-parser.mjs`, `inflate-browser.mjs` vendored byte for byte from the
   sibling PDF ventures (`pdf-parser-sync.test.mjs` keeps the five copies

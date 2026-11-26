@@ -20,12 +20,26 @@
 // byte-oriented lexer, and any substring can be converted back to exact
 // original bytes with binaryStringToBytes(). pdf.js and pdf-lib use the
 // same trick internally.
+//
+// A 32 KB chunk with no byte above 0x7F (most of an inflated content stream:
+// a drawing's is megabytes of ASCII numbers) is decoded as UTF-8, which for
+// ASCII is the same string, about 5 times quicker than
+// String.fromCharCode.apply and still a compact one-byte string (30 MB: 300 ms
+// to 60 ms; perf note docs/history/pdf-plan-takeoff-perf-2026-11-26.md).
+// Other chunks keep fromCharCode. Not TextDecoder('latin1'): that label is
+// windows-1252 and remaps 0x80-0x9F. Not UTF-16 of widened bytes: quick, but
+// the result is a two-byte string, twice the memory for a 50 MB drawing set.
+const ASCII = typeof TextDecoder === 'function' ? new TextDecoder('utf-8') : null;
 
 export function bytesToBinaryString(bytes) {
   let s = '';
   const CHUNK = 0x8000;
   for (let i = 0; i < bytes.length; i += CHUNK) {
-    s += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK));
+    const end = Math.min(i + CHUNK, bytes.length);
+    const sub = bytes.subarray(i, end);
+    let ascii = ASCII !== null;
+    if (ascii) for (let k = i; k < end; k++) if (bytes[k] > 0x7f) { ascii = false; break; }
+    s += ascii ? ASCII.decode(sub) : String.fromCharCode.apply(null, sub);
   }
   return s;
 }

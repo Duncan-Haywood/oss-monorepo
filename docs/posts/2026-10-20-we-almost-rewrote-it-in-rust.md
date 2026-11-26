@@ -283,6 +283,21 @@ output is byte-identical to before, and a test holds the new count to the old
 day walk on 12,000 random spans across four calendars, holidays included.
 Notes: [`docs/history/xer-schedule-check-cpm-perf-2026-11-26.md`](/docs/history/xer-schedule-check-cpm-perf-2026-11-26.md).
 
+## Same day: a drawing set was read twice, page by page
+
+The free [PDF plan takeoff](/ventures/pdf-plan-takeoff/) reads every sheet of
+a drawing set for its line work, so clicks snap to walls, and for its text,
+to find the printed scale. It did that by reading each page's drawing
+instructions twice, and on a real 19-sheet set that is 5 million numbers and
+operators each time. Keeping the first reading in a few compact arrays, so
+the second pass is a cheap walk, took a third off. Our first try saved
+nothing: keeping a million small objects alive between passes just moved the
+time into the garbage collector. Storing each point as two plain numbers
+instead of a tiny array, and decoding the plain-text parts of the file with
+the browser's built-in decoder, did the rest. That set now reads in 1.4 s in
+the browser instead of 2.1 s, with every segment and text run identical.
+Notes: [`docs/history/pdf-plan-takeoff-perf-2026-11-26.md`](/docs/history/pdf-plan-takeoff-perf-2026-11-26.md).
+
 ## The general lesson
 
 "Rewrite it in Rust" assumes the time goes into your own code, running
