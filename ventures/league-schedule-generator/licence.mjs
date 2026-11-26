@@ -31,11 +31,14 @@ export function wireBuyButton(el, h) {
 /**
  * @param {string} key
  * @param {{ cfg?: Partial<typeof PADDLE>, fetch?: typeof fetch, now?: number }} [o]
- * @returns {Promise<{ valid: boolean, reason: string }>}
+ * @returns {Promise<{ valid: boolean, reason: string, renewed?: string }>}
+ *   `renewed` is set when a lapsed subscription key was swapped for its renewal:
+ *   the page shows it in place of the old key so the buyer keeps the current one.
  */
 export async function checkLicence(key, o = {}) {
   const cfg = { ...PADDLE, ...(o.cfg || {}) };
   if (!cfg.publicKey) return { valid: false, reason: "licence check unavailable" };
-  const v = await checkKey(key, cfg, { fetch: o.fetch, now: o.now });
-  return { valid: v.valid, reason: v.reason };
+  let renewed = "";
+  const v = await checkKey(key, cfg, { fetch: o.fetch, now: o.now, onRenewed: (k) => { renewed = k; } });
+  return renewed ? { valid: v.valid, reason: v.reason, renewed } : { valid: v.valid, reason: v.reason };
 }

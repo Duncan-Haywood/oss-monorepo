@@ -1,0 +1,333 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01EhTJVMj3Syfm6EEXQHLuEA",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T09:56:04Z",
+  "ended": "2026-11-26T09:57:31Z",
+  "wall_minutes": 4.86,
+  "tokens_in": 3133032,
+  "tokens_out": 15906,
+  "cost_usd": 1.5587,
+  "tool_calls": 37,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19308",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "'Licence text changed' fires on any file named licence.mjs (licence-key check code), a false positive on every billing change"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "wrote the licence.mjs fix before the failing test in the same edit pass",
+      "did": "stashed the fix and confirmed the new testkit assertion fails 3 suites on the old code, then restored",
+      "result": "test-first property verified after the fact"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "no customer blog post: an internal fix to a dark (not yet on sale) paid path has no reader-facing story",
+      "did": "agent doc in docs/reports instead",
+      "result": "next run has the context"
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-26-redteam-billing-renewed-key.md"
+  ],
+  "goal": null,
+  "notes": "Guard added: platform/billing/testkit.mjs assertPackLicence now requires a renewed subscription key to come back as `renewed` for every pack (caught the defect in all 7 licence.mjs on first run). Catch rate 7/12 -> 12/12. Local verification: billing + wall-framing licence suites 25/25, 14 licence-importing venture suites 0 fail, sync --check clean.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/billing/worker.mjs",
+        "test": "node --test platform/billing/billing.test.mjs  (in .)",
+        "seed": 668011117,
+        "commit": "8f5cd9817",
+        "sites": 9,
+        "baseline_seconds": 0.6,
+        "mutants": [
+          {
+            "file": "platform/billing/worker.mjs",
+            "line": 23,
+            "col": 49,
+            "operator": "or-to-and",
+            "before": "const origin = request.headers.get(\"origin\") || \"\";",
+            "after": "const origin = request.headers.get(\"origin\") && \"\";",
+            "line_text": "    const origin = request.headers.get(\"origin\") || \"\";",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test sent a request from an allowed origin other than the first, so dropping the request's origin went unseen; new Worker CORS test"
+          },
+          {
+            "file": "platform/billing/worker.mjs",
+            "line": 24,
+            "col": 94,
+            "operator": "const-plus-one",
+            "before": "const cors = { \"access-control-allow-origin\": origins.includes(origin) ? origin : origins[0] || \"\", vary: \"origin\" };",
+            "after": "const cors = { \"access-control-allow-origin\": origins.includes(origin) ? origin : origins[1] || \"\", vary: \"origin\" };",
+            "line_text": "    const cors = { \"access-control-allow-origin\": origins.includes(origin) ? origin : origins[0] || \"\", vary: \"origin\" };",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test sent a disallowed origin with two allowed ones; new Worker CORS test pins the fallback to the first allowed origin"
+          },
+          {
+            "file": "platform/billing/worker.mjs",
+            "line": 24,
+            "col": 97,
+            "operator": "or-to-and",
+            "before": "const cors = { \"access-control-allow-origin\": origins.includes(origin) ? origin : origins[0] || \"\", vary: \"origin\" };",
+            "after": "const cors = { \"access-control-allow-origin\": origins.includes(origin) ? origin : origins[0] && \"\", vary: \"origin\" };",
+            "line_text": "    const cors = { \"access-control-allow-origin\": origins.includes(origin) ? origin : origins[0] || \"\", vary: \"origin\" };",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test sent a disallowed origin with two allowed ones; new Worker CORS test pins the fallback to the first allowed origin"
+          },
+          {
+            "file": "platform/billing/worker.mjs",
+            "line": 25,
+            "col": 23,
+            "operator": "eq-flip",
+            "before": "if (request.method === \"OPTIONS\") {",
+            "after": "if (request.method !== \"OPTIONS\") {",
+            "line_text": "    if (request.method === \"OPTIONS\") {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/billing/worker.mjs",
+            "line": 26,
+            "col": 42,
+            "operator": "const-plus-one",
+            "before": "return new Response(null, { status: 204, headers: { ...cors, \"access-control-allow-methods\": \"GET, POST\", \"access-control-allow-headers\": \"content-type\", \"access-control-max-age\": \"86400\" } });",
+            "after": "return new Response(null, { status: 205, headers: { ...cors, \"access-control-allow-methods\": \"GET, POST\", \"access-control-allow-headers\": \"content-type\", \"access-control-max-age\": \"86400\" } });",
+            "line_text": "      return new Response(null, { status: 204, headers: { ...cors, \"access-control-allow-methods\": \"GET, POST\", \"access-control-allow-headers\": \"content-type\", \"access-control-max-age\": \"86400\" } });",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/billing/worker.mjs",
+            "line": 30,
+            "col": 15,
+            "operator": "or-to-and",
+            "before": "return r || new Response(\"not found\\n\", { status: 404, headers: cors });",
+            "after": "return r && new Response(\"not found\\n\", { status: 404, headers: cors });",
+            "line_text": "      return r || new Response(\"not found\\n\", { status: 404, headers: cors });",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/billing/worker.mjs",
+            "line": 30,
+            "col": 56,
+            "operator": "const-plus-one",
+            "before": "return r || new Response(\"not found\\n\", { status: 404, headers: cors });",
+            "after": "return r || new Response(\"not found\\n\", { status: 405, headers: cors });",
+            "line_text": "      return r || new Response(\"not found\\n\", { status: 404, headers: cors });",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/billing/worker.mjs",
+            "line": 32,
+            "col": 75,
+            "operator": "const-plus-one",
+            "before": "return new Response(JSON.stringify({ error: \"internal\" }), { status: 500, headers: { \"content-type\": \"application/json\", ...cors } });",
+            "after": "return new Response(JSON.stringify({ error: \"internal\" }), { status: 501, headers: { \"content-type\": \"application/json\", ...cors } });",
+            "line_text": "      return new Response(JSON.stringify({ error: \"internal\" }), { status: 500, headers: { \"content-type\": \"application/json\", ...cors } });",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "the Worker's catch-all 500 was never exercised; new test makes the store throw and checks status, body and CORS"
+          }
+        ]
+      },
+      {
+        "target": "platform/billing/catalogue.mjs",
+        "test": "node --test platform/billing/billing.test.mjs  (in .)",
+        "seed": 984339241,
+        "commit": "8f5cd9817",
+        "sites": 4,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "platform/billing/catalogue.mjs",
+            "line": 13,
+            "col": 26,
+            "operator": "const-plus-one",
+            "before": "export const GRACE_DAYS = 7;",
+            "after": "export const GRACE_DAYS = 8;",
+            "line_text": "export const GRACE_DAYS = 7;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/billing/catalogue.mjs",
+            "line": 43,
+            "col": 51,
+            "operator": "plus-to-minus",
+            "before": "if (!p) throw new Error(\"not in the catalogue: \" + product);",
+            "after": "if (!p) throw new Error(\"not in the catalogue: \" - product);",
+            "line_text": "  if (!p) throw new Error(\"not in the catalogue: \" + product);",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test read productConfig's error text; new test asserts it names the product"
+          },
+          {
+            "file": "platform/billing/catalogue.mjs",
+            "line": 57,
+            "col": 70,
+            "operator": "and-to-or",
+            "before": "for (const [slug, p] of Object.entries(cat.products)) if (p.priceId && p.priceId === priceId) return { slug, ...p };",
+            "after": "for (const [slug, p] of Object.entries(cat.products)) if (p.priceId || p.priceId === priceId) return { slug, ...p };",
+            "line_text": "  for (const [slug, p] of Object.entries(cat.products)) if (p.priceId && p.priceId === priceId) return { slug, ...p };",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/billing/catalogue.mjs",
+            "line": 57,
+            "col": 83,
+            "operator": "eq-flip",
+            "before": "for (const [slug, p] of Object.entries(cat.products)) if (p.priceId && p.priceId === priceId) return { slug, ...p };",
+            "after": "for (const [slug, p] of Object.entries(cat.products)) if (p.priceId && p.priceId !== priceId) return { slug, ...p };",
+            "line_text": "  for (const [slug, p] of Object.entries(cat.products)) if (p.priceId && p.priceId === priceId) return { slug, ...p };",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/wall-framing-takeoff/licence.mjs",
+        "issue": "checkLicence (all 7 ventures/*/licence.mjs) called checkKey without onRenewed and returned only {valid, reason}, so when a lapsed subscription key was renewed from the billing Worker the new key was thrown away: the buyer kept the expired key, which then unlocked only while online and while the Worker answered, contrary to client.mjs's 'keep a copy: it unlocks this pack on any device'. Hits wall-framing-takeoff, the catalogue's one subscription product. Reproduced: platform/billing/testkit.mjs renewal assertion fails 3 suites on the old code.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "386ff5ef-9ed7-5fcf-954c-1319bdedb057",
+    "transcripts": 1,
+    "first": "2026-11-26T09:56:04Z",
+    "last": "2026-11-26T10:00:55Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 72,
+        "output": 15906,
+        "thinking": 4952,
+        "cache_read": 3054280,
+        "cache_write_5m": 0,
+        "cache_write_1h": 78680,
+        "api_equivalent_usd": 1.5587,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 72,
+      "output": 15906,
+      "thinking": 4952,
+      "cache_read": 3054280,
+      "cache_write_5m": 0,
+      "cache_write_1h": 78680,
+      "api_equivalent_usd": 1.5587,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 37,
+    "tools": {
+      "Bash": 35,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.86,
+      "active_minutes": 4.86,
+      "model_minutes": 3.11,
+      "tool_minutes": 1.74,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer: read billing code, find and fix renewal bug across 7 modules, write 4 tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 192.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

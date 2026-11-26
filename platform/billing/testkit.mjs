@@ -46,4 +46,15 @@ export async function assertPackLicence(licence, paddle, product) {
     assert.equal((await licence.checkLicence(junk, { cfg })).valid, false, String(junk));
   }
   assert.equal(licence.cleanKey(" " + key + "\n"), key);
+
+  // A lapsed subscription key that renews must hand the page the new key, or the
+  // buyer keeps an expired one that unlocks only while the billing Worker answers
+  // (red-team 2026-11-26: every licence.mjs dropped it). Product-agnostic, so a
+  // pack that moves to a subscription in catalogue.mjs is covered already.
+  const lapsed = await signLicence({ v: 1, p: product, t: "subscription", s: "sub_testkit0000", iat: now, exp: now + 10 }, priv);
+  const fresh = await signLicence({ v: 1, p: product, t: "subscription", s: "sub_testkit0000", iat: now, exp: now + 1000 }, priv);
+  const renewFetch = async () => new Response(JSON.stringify({ key: fresh }), { status: 200 });
+  const sub = { publicKey, edge: "https://billing.example" };
+  assert.deepEqual(await licence.checkLicence(lapsed, { cfg: sub, now: now + 20, fetch: renewFetch }), { valid: true, reason: "", renewed: fresh });
+  assert.deepEqual(await licence.checkLicence(lapsed, { cfg: sub, now }), { valid: true, reason: "" }, "no renewal, no renewed field");
 }
