@@ -222,3 +222,20 @@ test('a flat-tier sale under $16 gets no "just over the line" note', () => {
   assert.equal(result.tier, 'flat');
   assert.ok(!result.notes.some(n => /just over/.test(n)));
 });
+
+test('crossing below $15 never costs more than the discount, for every cent from $15.00 to $30.00 (quality round 116)', () => {
+  for (let listedCents = 1500; listedCents <= 3000; listedCents += 1) {
+    for (const offerCents of [1499, 1450, 1200, 500]) {
+      const r = compareOffer({ listedPrice: listedCents / 100, offerPrice: offerCents / 100, itemCost: 0, otherCost: 0 });
+      assert.ok(r.payoutDrop < r.priceDrop, `listed ${listedCents / 100}, offer ${offerCents / 100}`);
+    }
+  }
+});
+
+test('the payout solver is exact at the tier edges: $12.04, $12.05 and $12.06 (quality round 116)', () => {
+  for (const target of [12.04, 12.05, 12.06]) {
+    const price = priceForTargetPayout(target);
+    const payout = price - commissionFor(price).commission;
+    assert.ok(Math.abs(payout - target) < 1e-9, `target ${target} -> price ${price} -> payout ${payout}`);
+  }
+});
