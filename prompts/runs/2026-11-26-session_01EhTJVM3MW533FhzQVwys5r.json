@@ -1,0 +1,124 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01EhTJVM3MW533FhzQVwys5r",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T13:56:16Z",
+  "ended": "2026-11-26T14:01:11Z",
+  "wall_minutes": 5.12,
+  "tokens_in": 2530666,
+  "tokens_out": 23341,
+  "cost_usd": 1.6705,
+  "tool_calls": 29,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19368",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Step 2 suggests one agent per subject; with two small calculators (about 110 lines of core each) I audited both inline, which kept every recomputation and mutation under my own eyes instead of spot-checking an agent's file.",
+      "did": "audited both subjects directly",
+      "result": "two audit files, 0 validate problems, 7 mutations, 20 checks"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-quality-audit-round-112.md"
+  ],
+  "goal": null,
+  "notes": "Mode sample, seed 2026-11-26-f-9914, round 112. Subjects: ventures/uk-cis-deduction-refund-calculator, ventures/christmas-tree-farm-profit-planner (no flagship or platform due; research paused). Share meeting the bar: 0 of 2 (corpus 39 of 441, Wilson 6% to 12%). Fix PR: #19368 (same PR): CIS refund now credits statement deductions (high defect; sample with 7,000 deducted 2,048.20 -> 648.20), tests pin 45% band and 1,000 POA line (both survived mutants now caught); tree planner equipment-life input now replaces equipment, NPV pinned to hand value. Checks run: node --test in both ventures (28/28 and 24/24 after fixes), quality_audit.py validate (691 files, 0 problems), check_posts.py ok, risk_review.py no checks triggered.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2aab7bd9-8048-5a62-abb8-451f43915c9b",
+    "transcripts": 1,
+    "first": "2026-11-26T13:56:16Z",
+    "last": "2026-11-26T14:01:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 28,
+        "input": 55,
+        "output": 23341,
+        "thinking": 6341,
+        "cache_read": 2441211,
+        "cache_write_5m": 0,
+        "cache_write_1h": 89400,
+        "api_equivalent_usd": 1.6705,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 28,
+      "input": 55,
+      "output": 23341,
+      "thinking": 6341,
+      "cache_read": 2441211,
+      "cache_write_5m": 0,
+      "cache_write_1h": 89400,
+      "api_equivalent_usd": 1.6705,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.965,
+    "tool_calls": 29,
+    "tools": {
+      "Bash": 27,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.12,
+      "active_minutes": 5.12,
+      "model_minutes": 4.48,
+      "tool_minutes": 0.64,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "two calculator audits with hand recomputation against HMRC rates and an extension budget, two small fixes with tests, one post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 299.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
