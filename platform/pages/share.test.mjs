@@ -412,3 +412,15 @@ test('an og:image with a scheme that contains a digit is absolute and left byte 
   const out = completeShareTags(page({ image }), { url: `${BASE}ventures/shed-designer/` });
   assert.ok(out.includes(`property="og:image" content="${image}"`));
 });
+
+test('siteCardFooter states product status, not research counts', async () => {
+  const { siteCardFooter } = await import('./build.mjs');
+  const lines = [
+    { name: 'A', status: 'live' },
+    { name: 'B', status: 'early-access' },
+    { name: 'C', status: 'early-access' },
+    { name: 'Robot', status: 'long-term' },
+  ];
+  assert.equal(siteCardFooter(lines, 1312), 'A live · 2 in early access · 1,312 free tools');
+  assert.equal(siteCardFooter([], 3), '3 free tools');
+});

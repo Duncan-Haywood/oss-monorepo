@@ -740,14 +740,17 @@ export function renderCard({
 
 /**
  * The site's own card, for the hub and pages that belong to no section: the
- * homepage headline with the hero's gradient words, and the counts.
+ * homepage headline with the hero's gradient words, and the product status.
  */
 export function renderSiteCard({ address = '', subtitle = '', footer = '', site } = {}) {
   return renderCard({
     accent: '#d4ac58',
-    headline: 'Free tools to price the job, check the fees and run your business.',
-    highlight: 'price the job, check the fees',
-    kicker: 'Free · No sign-up · Source available',
+    // Mirrors the homepage hero (build.mjs, renderHub), so a shared link
+    // previews what the page now says: software for one kind of business,
+    // not a catalogue of free tools.
+    headline: 'Software built for your kind of business and the jobs it finds hardest.',
+    highlight: 'your kind of business',
+    kicker: 'Software for small businesses',
     subtitle,
     footer,
     site,
