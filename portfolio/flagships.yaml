@@ -212,10 +212,11 @@ flagships:
       import the public engine's trip log; (3) mileage: the public engine landed it
       2026-11-24 (reseller-books/trips.mjs, Schedule C line 9 priced by trip date,
       PR #18743), so the app imports it and adds a saved trip log per account; (4) a
-      Schedule C line-mapped P&L export and a CSV for the accountant; (5) a
-      marketing page that does not sell on 1099-K fear (the federal threshold is
-      back at $20,000 and 200 transactions). A run that lands a slice replaces its
-      item here.
+      Schedule C line-mapped P&L export and a CSV for the accountant; a stock report
+      (aging, sell-through, days to sell by platform, lot payback) landed 2026-11-26
+      (private PR 291); (5) a marketing page that does not sell on 1099-K fear (the
+      federal threshold is back at $20,000 and 200 transactions). A run that lands a
+      slice replaces its item here.
   # Bet 6 in portfolio/monetization/bets.md (2026-11-24 ranking).
   - venture: wall-framing-takeoff
     bet: 6

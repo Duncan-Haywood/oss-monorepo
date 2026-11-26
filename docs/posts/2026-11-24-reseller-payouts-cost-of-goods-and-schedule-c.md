@@ -95,6 +95,28 @@ It is a list to act on (relist, reprice, bundle), valued at cost. Whether
 any of it should be valued lower is a question for your preparer, and none
 of this is tax advice.
 
+## Has each lot paid for itself? (added 2026-11-26)
+
+The free tool ages what is left at December 31. Seller Books, the hosted
+product in development, now has a stock report that works on any day and
+goes one step further, to the lot. A bin, pallet or estate-sale haul is
+bought as one price and sold as many items, so it is hard to tell whether
+it was a good buy. For each lot the report adds up the proceeds of every
+sale linked to its items. Proceeds are the item price plus shipping
+charged, less refunds, the fees in the marketplace's own report and the
+postage on that order, with sales tax left out. It then compares that sum
+with what the lot cost and shows the cost still sitting in its unsold items.
+
+The app's test example: an estate-sale lot of three items cost $30.00, and
+one item, a vase, sold on Etsy for $34.20 plus $6.50 shipping. That one sale
+has earned back $40.70, 136% of the lot's cost, with $20.00 of cost still on
+the shelf in the other two items. The same report gives sell-through for a
+period (items sold over what you had to sell), median days to sell on each
+platform, and the 25 items you have held longest. Proceeds come before
+expenses that are not tied to one sale, such as ads bought separately,
+subscriptions and supplies, so a lot can show as paid back and still have
+lost money once those are counted. The page says so.
+
 ## The fee figures, rechecked
 
 Each of the ten tools states its marketplace's current fee in a sourced lead,
