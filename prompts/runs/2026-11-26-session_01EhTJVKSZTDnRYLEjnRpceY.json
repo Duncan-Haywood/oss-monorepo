@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01EhTJVKSZTDnRYLEjnRpceY",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T02:56:32Z",
+  "ended": "2026-11-26T03:03:07Z",
+  "wall_minutes": 7.01,
+  "tokens_in": 4843568,
+  "tokens_out": 27080,
+  "cost_usd": 2.3372,
+  "tool_calls": 49,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19185",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "payapps and jobshop-quote Next lists are nearly all 'if shops ask' items or owner steps; the tool shows them as [free], so finding real work took a scan of five apps' roadmaps."
+    },
+    {
+      "file": "apps/seller-books (private)",
+      "issue": "seller-books, grants and wall-framing-takeoff have no ROADMAP.md, so their gaps live only in ARCHITECTURE.md 'Gaps / next' and BILLING.md, where roadmap_claim.py cannot see them."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/monetization/bets.md",
+      "why": "Took bet #5, not #1/#2: their free roadmap items were conditional on customer asks and a dozen parallel runs worked them on 2026-11-26; bet #5 had a hard paid-launch blocker (no deploy workflow).",
+      "did": "Built seller-books-deploy.yml, provisioning script and DEPLOY.md (private PR 225).",
+      "result": "Merged; seller-books is now deployable by the owner in one by-hand run."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No new or extended post: the change is deploy infrastructure with nothing a customer sees yet.",
+      "did": "Agent doc in docs/reports only.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/reports/ventures-2026-11-26-seller-books-deploy-workflow.md"
+  ],
+  "goal": null,
+  "notes": "Private PR 225 merged. run_workflow_locally seller-books-ci 8/8 run: steps passed (3 uses: steps not run); GitHub job starved (ci_starvation.py run 45746225026: no runner). Provision dry run checked against real build output. The deploy workflow has not run against Cloudflare.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "45a75136-c3bb-5efd-b4b5-78b07f70f747",
+    "transcripts": 1,
+    "first": "2026-11-26T02:56:32Z",
+    "last": "2026-11-26T03:03:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 93,
+        "output": 27080,
+        "thinking": 2226,
+        "cache_read": 4737511,
+        "cache_write_5m": 0,
+        "cache_write_1h": 105964,
+        "api_equivalent_usd": 2.3372,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 93,
+      "output": 27080,
+      "thinking": 2226,
+      "cache_read": 4737511,
+      "cache_write_5m": 0,
+      "cache_write_1h": 105964,
+      "api_equivalent_usd": 2.3372,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 42,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.01,
+      "active_minutes": 7.01,
+      "model_minutes": 4.29,
+      "tool_minutes": 2.72,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "port of a sibling deploy workflow + provisioning script, tests and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 171.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
