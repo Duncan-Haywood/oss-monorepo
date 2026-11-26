@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtLTFdx2xhZQJhUdEEp",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T11:07:06Z",
+  "ended": "2026-11-26T11:13:52Z",
+  "wall_minutes": 7.1,
+  "tokens_in": 3170054,
+  "tokens_out": 30544,
+  "cost_usd": 2.0614,
+  "tool_calls": 32,
+  "task": "Creative track: For Other Minds story on Cromwell's rule (proposal written and claimed this run, since the shelf's Next up list was empty).",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19327",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The North star paragraph asks creative runs to prefer work that brings a paying subscriber closer, but no creative deliverable listed below it does; the guidance reads as a contradiction for this track. I set the story in a small building firm (the construction bet's customer) as the nearest honest fit, without any marketing in the fiction."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "For Other Minds' Next up list was empty, so the run had to write, check and claim a proposal before drafting; overlap.mjs --unused made this quick."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "'Write about the work': no blog post. The story itself is the run's published writing, and the consolidated-posts rule argues against a thin per-story post.",
+      "did": "Shipped the story, its pages, feeds and llms.txt entry only.",
+      "result": "Story lands on the Stories page and in the For Other Minds feed on the next build."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio cap exceeded (581 MB of 400 MB).",
+      "did": "Text only, as the prompt directs.",
+      "result": "Page lists the story as text only."
+    }
+  ],
+  "writeups": [
+    "ventures/hearth-and-horizon/stories/the-drain-that-was-not-on-the-drawings.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon, shelf for-other-minds, piece the-drain-that-was-not-on-the-drawings (4,000 words of story plus closing notes). Security queue empty (security_next exit 3); IDEAS inbox and requests empty; route drew creative/0; creative_due named for-other-minds. Checks run: every weekday in the note with datetime; Easter 2055 (18 April) by the Gregorian computus; lectionary year C for Advent 2054 (Luke 3:1-6 on Advent 2); Bayes posteriors and marginal likelihoods recomputed by script for priors 0, 0.001, 0.01 and every number in dialogue matched to the note; Tam's birth year (1973) against 1998, 1999 and 2054. Cromwell's letter (Musselburgh, 3 August 1650) and Lindley's naming of Cromwell's rule in Making Decisions confirmed by web search. node --test in ventures/hearth-and-horizon: 22 pass, 0 fail. risk_review: nothing blocked; the only prompt is the generated story page, which carries the same scripts as existing story pages (no new data collection).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "36d49501-ee0d-52c8-afba-143548307946",
+    "transcripts": 1,
+    "first": "2026-11-26T11:07:06Z",
+    "last": "2026-11-26T11:14:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 32,
+        "input": 67,
+        "output": 30544,
+        "thinking": 12766,
+        "cache_read": 3065333,
+        "cache_write_5m": 0,
+        "cache_write_1h": 104654,
+        "api_equivalent_usd": 2.0614,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 32,
+      "input": 67,
+      "output": 30544,
+      "thinking": 12766,
+      "cache_read": 3065333,
+      "cache_write_5m": 0,
+      "cache_write_1h": 104654,
+      "api_equivalent_usd": 2.0614,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.967,
+    "tool_calls": 32,
+    "tools": {
+      "Bash": 26,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.1,
+      "active_minutes": 7.1,
+      "model_minutes": 6.22,
+      "tool_minutes": 0.89,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a writer researching, drafting and checking a 4,000-word technical short story",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 291.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
