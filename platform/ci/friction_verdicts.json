@@ -359,6 +359,22 @@
    "by": "PR #19473",
    "at": "2026-11-26T20:59:17Z",
    "note": "deepen skipped when GitHub PR-title search answers; 34 s -> 4 s"
+  },
+  {
+   "file": "CLAUDE.md",
+   "match": "wait_for",
+   "verdict": "fixed",
+   "by": "this PR",
+   "at": "2026-11-26T22:41:13Z",
+   "note": "wait_for reads a missing --until command given with a log as --marker; CLAUDE.md names --marker"
+  },
+  {
+   "file": "platform/ci/wait_for.py",
+   "match": "until",
+   "verdict": "fixed",
+   "by": "this PR",
+   "at": "2026-11-26T22:41:13Z",
+   "note": "multi-word --until pattern with a log is read as --marker"
   }
  ]
 }
