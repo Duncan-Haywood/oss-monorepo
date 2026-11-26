@@ -1,7 +1,13 @@
 // Per-sale, per-show and per-category profit analysis from a Whatnot seller
-// orders/sales CSV. Column names are matched by alias from memory of Whatnot's
-// seller export; no real export was available when this was written. Pure
-// functions, no DOM, no network.
+// orders/sales CSV. Column names are matched by alias. The Seller Weekly
+// Orders Report's names, types and meanings come from Whatnot's own help
+// article 36772664621837 ("Metric Definitions", read 2026-11-26); the older
+// aliases are from memory of other exports. Pure functions, no DOM, no network.
+//
+// The weekly report has one row per transaction: "Order Earnings" rows are
+// sales; an "Order Refund" or a "Shipping Charge" row is a cost that belongs
+// to an earlier sale (same Order ID, or same Shipment ID), applied to it as a
+// deduction by applyAdjustments(); "Tips" are not sales and are skipped.
 //
 // Fee model (same published shape as ../whatnot-seller-payout/calc.mjs, a test
 // asserts the constants stay equal): commission is a percentage of the item
@@ -20,19 +26,25 @@ export function scheduleFee(price, buyerShipping = 0, tax = 0, { commissionRate 
 }
 
 const ALIASES = {
+  type: ["transaction type"],
+  format: ["buy format"],
+  shipment: ["shipment id"],
+  buyerPaid: ["buyer paid"],
+  feeTax: ["tax on commission", "tax on commission fee"],
+  processingTax: ["tax on payment processing fee"],
   id: ["order id", "order #", "order number", "order no", "order", "id", "sale id", "transaction id"],
-  date: ["order date", "sale date", "date sold", "sold date", "date of sale", "sold on", "order placed", "date", "order date/time", "sold at", "created at", "created"],
+  date: ["transaction completed at utc", "order placed at utc", "order date", "sale date", "date sold", "sold date", "date of sale", "sold on", "order placed", "date", "order date/time", "sold at", "created at", "created"],
   title: ["product name", "item name", "item title", "title", "listing title", "item", "product", "description", "listing", "name"],
-  show: ["show", "show name", "stream", "stream title", "livestream", "live stream", "show title", "show id"],
+  show: ["show", "show name", "stream", "stream title", "livestream", "live stream", "show title", "livestream title", "show id"],
   category: ["category", "product category", "item category", "sub category", "subcategory"],
   sku: ["sku", "custom sku", "item sku", "seller sku", "custom label"],
-  price: ["sold price", "sale price", "item price", "price", "hammer", "hammer price", "item subtotal", "subtotal", "gross", "sales", "amount sold", "sold for"],
+  price: ["post coupon price", "original item price", "sold price", "sale price", "item price", "price", "hammer", "hammer price", "item subtotal", "subtotal", "gross", "sales", "amount sold", "sold for"],
   buyerShip: ["shipping charged", "buyer shipping", "shipping paid by buyer", "shipping fee", "shipping price", "shipping"],
   tax: ["sales tax", "tax", "tax collected", "buyer tax"],
   commission: ["commission", "commission fee", "whatnot commission", "selling fee", "seller fee", "marketplace fee"],
   processing: ["processing fee", "payment processing fee", "payment processing", "processing", "payment fee"],
   fee: ["total fees", "fees", "fee", "whatnot fee", "whatnot fees", "total fee"],
-  net: ["net earnings", "earnings", "net payout", "payout", "seller payout", "net proceeds", "proceeds", "net", "your earnings", "seller earnings"],
+  net: ["transaction amount", "net earnings", "earnings", "net payout", "payout", "seller payout", "net proceeds", "proceeds", "net", "your earnings", "seller earnings"],
   cost: ["cost", "item cost", "cost basis", "purchase price", "cogs", "my cost", "cost of goods", "cost of goods sold", "sourcing cost", "cost price", "buy price", "paid"],
   status: ["order status", "status", "state", "sale status"],
   currency: ["currency"],
@@ -166,13 +178,17 @@ export function normalizeRows(table, { decimalComma = false, feeMode = "auto", c
   }
   if (h < 0) return { ...empty, error: "No header row found. Expected columns like “Order Date” and “Sold Price” (or “Sale Price”), plus ideally “Product Name”, “Show”, “Category”, “Commission”, “Processing Fee”, “Net Earnings” and a cost column. Download your orders from Whatnot Seller Hub or make a sheet with those headers." };
   const cols = findColumns(table[h]);
+  // In the weekly report "Shipping Fee" is what the seller paid, not what the
+  // buyer paid, and "Buyer Paid" holds the buyer's shipping and tax.
+  const weekly = cols.type !== undefined && cols.buyerPaid !== undefined;
+  if (weekly) { delete cols.buyerShip; delete cols.tax; }
   const get = (line, f) => (cols[f] === undefined ? "" : (line[cols[f]] ?? "").trim());
   const dmy = detectDmy(table.slice(h + 1).map((l) => get(l, "date")));
   const hasFeeCols = cols.fee !== undefined || cols.commission !== undefined || cols.processing !== undefined;
   const feeSource = feeMode !== "schedule" && hasFeeCols ? "column" : "schedule";
   const rates = { commissionRate, paymentRate, paymentFixed };
 
-  const items = [], skipped = [];
+  const items = [], skipped = [], adjustments = [];
   let currency = "", excludedCount = 0;
   for (let i = h + 1; i < table.length; i++) {
     const line = table[i];
@@ -182,9 +198,24 @@ export function normalizeRows(table, { decimalComma = false, feeMode = "auto", c
     if (/^(total|totals|subtotal|grand total|summary)\b/.test(first)) { skipped.push({ line: lineNo, reason: "total row" }); continue; }
     const when = parseWhen(get(line, "date"), dmy);
     if (!when) { skipped.push({ line: lineNo, reason: "date not readable" }); continue; }
+    const type = norm(get(line, "type"));
+    if (cols.type !== undefined && type !== "order earnings" && type !== "order_earnings") {
+      const amount = parseNumber(get(line, "net"), decimalComma);
+      if (/refund/.test(type) && Number.isFinite(amount) && amount < 0) {
+        adjustments.push({ line: lineNo, id: get(line, "id"), shipment: "", amount: -amount, kind: "refund" });
+      } else if (/shipping/.test(type) && Number.isFinite(amount) && amount < 0) {
+        adjustments.push({ line: lineNo, id: "", shipment: get(line, "shipment"), amount: -amount, kind: "shipping charge" });
+      } else {
+        skipped.push({ line: lineNo, reason: /tip/.test(type) ? "tip (not a sale)" : `${get(line, "type") || "blank"} row (not a sale)` });
+      }
+      continue;
+    }
     const price = parseNumber(get(line, "price"), decimalComma);
     if (!Number.isFinite(price)) { skipped.push({ line: lineNo, reason: "price not readable" }); continue; }
-    if (!(price > 0)) { skipped.push({ line: lineNo, reason: "no sale price" }); continue; }
+    // A giveaway sells for nothing and costs its shipping: kept, so the show's
+    // payout is right.
+    const giveaway = /giveaway/i.test(get(line, "format"));
+    if (!(price > 0) && !(giveaway && price === 0)) { skipped.push({ line: lineNo, reason: "no sale price" }); continue; }
     if (/cancel|return|refund|declin|fail/i.test(get(line, "status"))) { excludedCount++; continue; }
     const money = (f) => {
       const raw = get(line, f);
@@ -192,11 +223,13 @@ export function normalizeRows(table, { decimalComma = false, feeMode = "auto", c
       const v = parseNumber(raw, decimalComma);
       return Number.isFinite(v) ? v : null;
     };
-    const sched = r2(scheduleFee(price, Math.abs(money("buyerShip") ?? 0), Math.abs(money("tax") ?? 0), rates).fee);
+    const buyerExtra = weekly ? Math.max(0, (money("buyerPaid") ?? price) - price) : Math.abs(money("buyerShip") ?? 0);
+    const sched = giveaway && price === 0 ? 0 : r2(scheduleFee(price, buyerExtra, weekly ? 0 : Math.abs(money("tax") ?? 0), rates).fee);
     let fee = sched;
     if (feeSource === "column") {
       const total = money("fee"), c = money("commission"), p = money("processing");
-      if (c !== null || p !== null) fee = r2(Math.abs(c ?? 0) + Math.abs(p ?? 0));
+      // Whatnot charges sales tax on its fees in some places; it is part of what it takes.
+      if (c !== null || p !== null) fee = r2(Math.abs(c ?? 0) + Math.abs(p ?? 0) + Math.abs(money("feeTax") ?? 0) + Math.abs(money("processingTax") ?? 0));
       else if (total !== null) fee = r2(Math.abs(total));
     }
     const netFile = money("net");
@@ -216,12 +249,29 @@ export function normalizeRows(table, { decimalComma = false, feeMode = "auto", c
     if (cur && !currency) currency = cur;
     const cost = money("cost");
     items.push({
-      line: lineNo, id: get(line, "id"), title: get(line, "title"), show: get(line, "show"), category: get(line, "category"), sku: get(line, "sku"),
+      line: lineNo, id: get(line, "id"), shipment: get(line, "shipment"), title: get(line, "title"), show: get(line, "show"), category: get(line, "category"), sku: get(line, "sku"),
       t: when.t, price: r2(price), fee, scheduleFee: sched, payout: r2(payout), deductions: r2(deductions), cost: cost === null ? null : r2(cost),
     });
   }
-  if (!items.length) return { ...empty, skipped, excludedCount, currency, columns: cols, dmy, feeSource, error: "No sales could be read from the file. " + (skipped.length ? `${skipped.length} row(s) were skipped (first: line ${skipped[0].line}, ${skipped[0].reason}).` : "Every order was cancelled, returned or refunded.") };
-  return { items, skipped, excludedCount, currency, columns: cols, dmy, feeSource };
+  const unmatched = applyAdjustments(items, adjustments);
+  if (!items.length) return { ...empty, skipped, excludedCount, currency, columns: cols, dmy, feeSource, adjustments: unmatched, error: "No sales could be read from the file. " + (skipped.length ? `${skipped.length} row(s) were skipped (first: line ${skipped[0].line}, ${skipped[0].reason}).` : "Every order was cancelled, returned or refunded.") };
+  return { items, skipped, excludedCount, currency, columns: cols, dmy, feeSource, adjustments: unmatched };
+}
+
+// Refunds (by Order ID) and shipping charges (by Shipment ID, to the first sale
+// in that shipment) taken off the sale they belong to, as a deduction from its
+// payout. Mutates the matched items; returns the adjustments with no sale in
+// `items` (a refund in a later week's file than its sale), so a caller holding
+// several files can apply them across files.
+export function applyAdjustments(items, adjustments) {
+  const unmatched = [];
+  for (const a of adjustments || []) {
+    const x = items.find((it) => (a.id ? it.id === a.id : a.shipment && it.shipment === a.shipment));
+    if (!x) { unmatched.push(a); continue; }
+    x.payout = r2(x.payout - a.amount);
+    x.deductions = r2(x.deductions + a.amount);
+  }
+  return unmatched;
 }
 
 // Pasted cost basis: one "SKU, cost" pair per line (comma, tab or semicolon; the

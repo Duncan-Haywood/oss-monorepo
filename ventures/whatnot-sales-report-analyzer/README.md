@@ -14,13 +14,25 @@ payout total alone.
 
 ## Input
 
-Any CSV with an `Order Date` (or `Sale Date`) and a sold price (`Sold Price` or `Sale
-Price`). `Product Name`, `Show`, `Category`, `SKU`, `Order ID`, `Shipping Charged`, `Sales
+**Whatnot's Seller Weekly Orders Report** (Seller Hub > Financials > Statements, one CSV per
+week) is read by the column names, transaction types and meanings in Whatnot's own help
+article ([36772664621837](https://help.whatnot.com/hc/en-us/articles/36772664621837-Seller-Weekly-Orders-Report),
+"Metric Definitions", read 2026-11-26): an `Order Earnings` row is a sale, dated by
+`Transaction Completed at UTC`, priced at `Post Coupon Price`, with `Commission Fee`,
+`Payment Processing Fee` and the two taxes on fees as its fee, `Transaction Amount` as its
+payout and `Cost of Goods` as its cost; a giveaway (price 0) is kept so its shipping counts.
+An `Order Refund` row (by `Order ID`) or a `Shipping Charge` row (by `Shipment ID`) is taken
+off the sale it belongs to as a deduction; one whose sale is in another week's file is named
+on the page. `Tips` are skipped. In this report `Shipping Fee` is what the seller paid, and
+the buyer's shipping and tax are `Buyer Paid` minus the price. The rows in the tests are
+authored, not from a real file.
+
+Any other CSV with an `Order Date` (or `Sale Date`) and a sold price (`Sold Price` or `Sale
+Price`) also works. `Product Name`, `Show`, `Category`, `SKU`, `Order ID`, `Shipping Charged`, `Sales
 Tax`, `Commission`, `Processing Fee` (or a single `Fees` column), `Net Earnings`, a `Cost`
-column and `Status` are used when present. **Column names are matched by alias from memory of Whatnot's export; no
-real export was available.** If a real export is not read, the page
-lists the rows it skipped and why, and a sheet with the headers above always works; that
-report is the priority fix. Comma/tab/semicolon files, quoted fields, US and day-first
+column and `Status` are used when present; those names are matched by alias from memory of
+other exports. If a file is not read, the page lists the rows it skipped and why, and a
+sheet with the headers above always works. Comma/tab/semicolon files, quoted fields, US and day-first
 dates and UTF-16 exports are read.
 
 ## Model

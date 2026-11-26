@@ -152,6 +152,13 @@ probed by hand to `platform/ci/egress_hosts.json`. A proxy 403 is not the site's
 checked, never cite from memory (`goals.md`). Proxy state:
 `curl -sS "$HTTPS_PROXY/__agentproxy/status"`.
 
+Help centres on Zendesk (help.whatnot.com, depophelp.zendesk.com and others) answer
+WebFetch with 403, but their public article API answers curl with 200 and the full
+article HTML: `https://<host>/api/v2/help_center/<locale>/articles/<id>.json` (the id is
+the number in the article URL), and `.../help_center/articles/search.json?query=<words>`
+finds ids. It is the vendor's own page, so it can be cited like one (2026-11-26: Whatnot's
+weekly orders report columns, `private-monorepo` PR 312).
+
 ## Scheduled tasks
 
 A `create_trigger` task may store no repository or connectors, so its sessions

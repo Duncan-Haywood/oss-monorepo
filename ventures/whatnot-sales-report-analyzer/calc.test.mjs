@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseCsv, parseNumber, parseWhen, detectDelimiter, decodeBuffer, normalizeRows, parseCostList, analyze, summaryText, sampleCsv, scheduleFee, DEFAULT_COMMISSION_RATE, DEFAULT_PAYMENT_RATE, DEFAULT_PAYMENT_FIXED } from "./calc.mjs";
+import { parseCsv, parseNumber, parseWhen, detectDelimiter, decodeBuffer, normalizeRows, applyAdjustments, parseCostList, analyze, summaryText, sampleCsv, scheduleFee, DEFAULT_COMMISSION_RATE, DEFAULT_PAYMENT_RATE, DEFAULT_PAYMENT_FIXED } from "./calc.mjs";
 import * as payout from "../whatnot-seller-payout/calc.mjs";
 
 const HEAD = "Order ID,Order Date,Product Name,Show,Category,SKU,Sold Price,Commission,Processing Fee,Net Earnings\n";
@@ -171,4 +171,44 @@ test("200,000 items are analysed without a stack overflow", () => {
   const items = Array.from({ length: 200000 }, (_, i) => ({ ...base[i % base.length] }));
   const r = analyze(items);
   assert.equal(r.summary.from, Math.min(...base.map((x) => x.t)));
+});
+
+// Header row in the order of Whatnot's "Metric Definitions" for the Seller
+// Weekly Orders Report (help article 36772664621837, read 2026-11-26). Rows authored.
+const WEEKLY_HEAD = "Report Start Date,Week Number,Order Placed At UTC,Transaction Completed at UTC,Transaction Type,Transaction Message,Order ID,Listing Title,Listing Description,Product Category,Buy Format,Sale Type,Quantity Sold,SKU,Cost of Goods,Livestream ID,Livestream Title,Buyer Name,Buyer State,Buyer Country,Shipment ID,Transaction Currency,Transaction Amount,Buyer Paid,Original Item Price,Coupon Cost,Post Coupon Price,Shipping Fee,Commission Fee,Payment Processing Fee,Tax on Commission,Tax on Payment Processing Fee,Ledger Transaction ID,Order Refund Shipping Costs,Appealed Order Refund,Appealed Shipping Refund\n";
+const WEEKLY = [
+  "2026-03-02,10,2026-02-28 19:04:11,2026-03-03 14:00:00,Order Earnings,Earnings,wn-9001,Pokemon booster pack,,Pokemon Cards,Auction,,1,PKM-1,3.10,ls-501,Friday rips,b1,OH,US,sh-71,USD,21.77,32.05,25.00,0.00,25.00,0.00,2.00,1.23,0.00,0.00,led-1001,,,",
+  "2026-03-02,10,2026-03-03 20:10:45,2026-03-04 09:12:00,Order Earnings,Earnings,wn-9002,Vintage Starter jacket,,Men's Jackets,Buy-it-Now,FLASH,1,JKT-7,18.00,,,b2,PA,US,sh-72,USD,65.93,91.18,80.00,5.00,75.00,0.00,6.00,2.94,0.13,0.00,led-1002,,,",
+  "2026-03-02,10,,2026-03-08 10:00:00,Order Refund,Partial refund,wn-9002,Vintage Starter jacket,,,,,1,JKT-7,,,,b2,PA,US,sh-72,USD,-40.00,,,,,,,,,,led-1003,,,",
+  "2026-03-02,10,,2026-03-03 21:30:00,Tips,Tip,,,,,,,,,,ls-501,Friday rips,b1,,,,USD,4.55,,,,,,,0.45,,,led-1004,,,",
+  "2026-03-02,10,2026-03-03 21:45:00,2026-03-05 16:20:00,Order Earnings,Earnings,wn-9004,Sticker pack,,Stickers,Giveaway,,1,,,ls-501,Friday rips,b3,TX,US,sh-73,USD,-4.99,0.00,0.00,0.00,0.00,4.99,0.00,0.00,0.00,0.00,led-1005,,,",
+  "2026-03-02,10,,2026-03-06 08:00:00,Shipping Charge,Shipping label adjustment,,,,,,,,,,,,,,,sh-72,USD,-1.25,,,,,,,,,,led-1006,,,",
+  "2026-03-02,10,,2026-03-07 08:00:00,Order Refund,Refund,wn-8000,Older sale,,,,,1,,,,,b9,OH,US,sh-60,USD,-12.00,,,,,,,,,,led-1007,,,",
+].join("\n");
+
+test("Seller Weekly Orders Report: official columns, completion date, post-coupon price, seller-paid shipping", () => {
+  const n = load(WEEKLY, WEEKLY_HEAD);
+  assert.equal(n.error, undefined);
+  assert.equal(n.feeSource, "column");
+  assert.deepEqual(n.items.map((x) => [x.id, new Date(x.t).toISOString().slice(0, 10)]), [["wn-9001", "2026-03-03"], ["wn-9002", "2026-03-04"], ["wn-9004", "2026-03-05"]]);
+  const [a, b, g] = n.items;
+  assert.equal(a.price, 25); near(a.fee, 3.23); near(a.payout, 21.77); assert.equal(a.deductions, 0);
+  assert.equal(a.show, "Friday rips"); assert.equal(a.category, "Pokemon Cards"); assert.equal(a.cost, 3.1);
+  // 75.00 after the 5.00 coupon; the 40.00 refund and the 1.25 label charge on its shipment come off its payout.
+  assert.equal(b.price, 75); near(b.fee, 9.07); near(b.payout, 65.93 - 40 - 1.25); near(b.deductions, 41.25);
+  // Buyer Paid less the price is what processing is charged on besides the price.
+  near(b.scheduleFee, 75 * 0.08 + 91.18 * 0.029 + 0.3);
+  // A giveaway: nothing sold, its seller-paid shipping is the loss.
+  assert.equal(g.price, 0); near(g.payout, -4.99); near(g.deductions, 4.99);
+  assert.deepEqual(n.skipped.map((x) => x.reason), ["tip (not a sale)"]);
+  assert.deepEqual(n.adjustments.map((x) => [x.line, x.kind, x.amount]), [[8, "refund", 12]]);
+});
+
+test("applyAdjustments takes a later week's refund off the sale from an earlier file", () => {
+  const week1 = load("2026-02-23,9,2026-02-25 10:00:00,2026-02-26 10:00:00,Order Earnings,Earnings,wn-8000,Older sale,,,Auction,,1,,,,,b9,OH,US,sh-60,USD,18.00,24.00,20.00,0.00,20.00,0.00,1.60,0.40,0.00,0.00,led-0999,,,", WEEKLY_HEAD);
+  const week2 = load(WEEKLY, WEEKLY_HEAD);
+  const left = applyAdjustments(week1.items, week2.adjustments);
+  assert.deepEqual(left, []);
+  near(week1.items[0].payout, 6);
+  near(week1.items[0].deductions, 12);
 });
