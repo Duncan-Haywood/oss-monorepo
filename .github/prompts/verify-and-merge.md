@@ -39,6 +39,9 @@ node --test research/marriage-divorce-evidence/app/tests/*.test.mjs
 node --test research/civ-levers/app/tests/*.test.mjs
 node --test platform/aws/stacks/site/deploy/*.test.mjs platform/aws/modules/static-site/functions/*.test.mjs  # the AWS site: publisher, CloudFront Functions, verify-live.sh against an emulator
 python3 platform/ci/run_venture_tests.py --changed   # every venture your branch touches, in parallel (no args: all ~1,300, minutes not hours)
+pnpm install --frozen-lockfile && pnpm --filter "{./apps/<dir>}..." test   # a paid app and its packages/ deps (apps/README.md); covers apps/<dir>/**/*.test.mjs and packages/<dir>/**/*.test.mjs; all of them: pnpm -r typecheck && pnpm -r test && pnpm -r build (minutes: run_in_background)
+node --test apps/admin/test/*.test.mjs apps/cmmc-site/test/*.test.mjs apps/cmmc/scripts/*.test.mjs apps/einvoice-preflight/*.test.mjs apps/einvoice-preflight/pro/*.test.mjs apps/einvoice-site/test/*.test.mjs apps/jobshop-quote/scripts/*.test.mjs apps/payapps/scripts/*.test.mjs apps/seller-books-site/test/*.test.mjs apps/seller-books/scripts/*.test.mjs apps/wall-framing-takeoff/*.test.mjs   # the apps' plain node tests, from the root after pnpm install (~3 min); poppler's test needs a pdfdetach that can save
+(cd apps/einvoice-preflight && PYTHONPATH=src python3 -m pytest tests -q)   # its own pyproject.toml (the private CI never ran these); the Python half of the e-invoice checker
 # No pytest/numpy? PY=$(python3 platform/ci/pyenv.py pytest numpy), then "$PY" -m pytest: some images split python3 from what pip/apt install into.
 (cd platform/ci && rc=0; for m in test_*.py; do python3 -m unittest "${m%.py}" || { echo "FAILED $m"; rc=1; }; done; exit $rc)  # runs every module, lists each failure
 (cd platform/ci/agent_review && python3 -m unittest test_review)

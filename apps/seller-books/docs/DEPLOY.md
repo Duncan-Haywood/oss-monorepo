@@ -3,7 +3,7 @@
 One Cloudflare Worker (`seller-books`) serves the SPA and the API, with a D1 database (`seller-books`)
 and Cloudflare Email Service for account mail. There is no R2 bucket: report files are parsed in the
 request and only the rows are kept. The workflow
-[`.github/workflows/seller-books-deploy.yml`](../../../.github/workflows/seller-books-deploy.yml) does
+`seller-books-deploy.yml` in the private repository (not ported: these apps are moving off Cloudflare to AWS; see [`docs/runbooks/paid-apps-secrets.md`](../../../docs/runbooks/paid-apps-secrets.md)) does
 the whole deploy; there are no dashboard steps beyond the settings below. It was ported from
 `jobshop-quote-deploy.yml` on 2026-11-26 and has not run yet.
 

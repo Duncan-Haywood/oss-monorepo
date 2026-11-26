@@ -2,7 +2,7 @@
 
 One Cloudflare Worker (`payapps`) serves the SPA and the API, with a D1 database (`payapps`), an R2
 bucket for attachments (`payapps-files`) and Cloudflare Email Service for account mail. The workflow
-[`.github/workflows/payapps-deploy.yml`](../../../.github/workflows/payapps-deploy.yml) does the whole
+`payapps-deploy.yml` in the private repository (not ported: these apps are moving off Cloudflare to AWS; see [`docs/runbooks/paid-apps-secrets.md`](../../../docs/runbooks/paid-apps-secrets.md)) does the whole
 deploy; there are no dashboard steps beyond the secrets below.
 
 **It runs by hand only** (Actions -> payapps-deploy -> Run workflow). The legal pages are drafts until
