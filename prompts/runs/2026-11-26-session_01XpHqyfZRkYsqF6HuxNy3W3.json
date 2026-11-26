@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqyfZRkYsqF6HuxNy3W3",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T23:39:16Z",
+  "ended": "2026-11-26T23:43:57Z",
+  "wall_minutes": 4.83,
+  "tokens_in": 5638804,
+  "tokens_out": 16270,
+  "cost_usd": 2.256,
+  "tool_calls": 58,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/431",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets named cmmc #1 as the free item, but `roadmap_claim.py cmmc` a few seconds later showed it CLAIMED 0 min ago; every bet's Next list was then gated or claimed, so the run had to look for stale copy instead."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--repo-root <private clone> --list printed nothing for payapps-site-ci; I ran the workflow's five steps by hand from .github/workflows/payapps-site-ci.yml."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No new post: the change corrects the bet #1 marketing site's own features page and llms.txt, which already have recent posts on GC portals and waivers in docs/posts.",
+      "did": "Shipped the site accuracy fix only",
+      "result": "merged"
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "why": "private-monorepo CI was starved (red in 2 s, no runner)",
+      "did": "Ran payapps-site-ci's steps locally: biome ci, typecheck, test:unit 21/21, test:worker 10/10, build",
+      "result": "all green; merged"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Bet #1 public site (apps/payapps-site): gc-portals card moved from Next to Built (Procore SSOV/invoice sheet, Textura This Period/To Date, GCPay SOV, billing cutoff, all in apps/payapps ROADMAP Done), Also next made accurate, sworn statement and OCR scan import bullets added, llms.txt not-built list corrected (Mississippi; OCR scans). Claim: claim/payapps-site/features-page-gc-portals. Risk review: nothing blocked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "37311c70-5461-524a-a51b-eab7544b0e6f",
+    "transcripts": 1,
+    "first": "2026-11-26T23:39:16Z",
+    "last": "2026-11-26T23:44:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 110,
+        "output": 16270,
+        "thinking": 3864,
+        "cache_read": 5535818,
+        "cache_write_5m": 0,
+        "cache_write_1h": 102876,
+        "api_equivalent_usd": 2.256,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 110,
+      "output": 16270,
+      "thinking": 3864,
+      "cache_read": 5535818,
+      "cache_write_5m": 0,
+      "cache_write_1h": 102876,
+      "api_equivalent_usd": 2.256,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 51,
+      "mcp__github__pull_request_read": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.83,
+      "active_minutes": 4.83,
+      "model_minutes": 3.44,
+      "tool_minutes": 1.39,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
