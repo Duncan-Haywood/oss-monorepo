@@ -2,7 +2,7 @@
 title: "Eighteen product pages whose search snippet stopped mid-sentence"
 seo_title: "Rewriting 18 meta descriptions to fit a 160-character snippet"
 date: 2026-11-24
-tags: [polish, seo, meta-description, open-graph, wall-framing-takeoff, structured-data, pay-app-guides, einvoice-preflight]
+tags: [polish, seo, meta-description, open-graph, wall-framing-takeoff, structured-data, pay-app-guides, einvoice-preflight, clothing-design-studio]
 description: "The front pages of the tools moving to paid editions had meta descriptions of 178 to 355 characters. Each now fits in 160, and a ratchet stops new long ones."
 ---
 
@@ -268,3 +268,20 @@ product's section no longer matches its pages, so the next edited answer
 cannot leave a stale copy behind. Any other product can opt in by running the
 script once. Checked: all 46 machine-shop answers match the FAQ source word for
 word. No traffic or citation change is claimed; none is measured.
+
+## Update, 2026-11-26: the clothing studio's 51 tool pages
+
+The clothing design studio had the most pages left on the overlong list of
+any product with a paid edition: 51 tool and guide pages, with descriptions
+of 172 to 310 characters (the cloth simulation's was the longest). Each now
+fits in 160 characters, between 144 and 160. Every fact comes from the old
+text; what was dropped is the second half of each list ("and the price that
+holds your profit") and the repeated "Runs in your browser". Where the old
+text carried a hedge ("rates are unchecked defaults", "editable examples"),
+the new one keeps it.
+
+The same pass took the last five pages of other paid products off the list:
+three IDS and COBie tools for BIM models, the camera RAW formats page of the
+photo-editing product and the print studio's Printful comparison. The
+overlong list went from 2,835 pages to 2,779. The paid products still on it
+are the babysitting kit (7 pages) and the survey tool (17). No ranking or click change is claimed; none is measured.
