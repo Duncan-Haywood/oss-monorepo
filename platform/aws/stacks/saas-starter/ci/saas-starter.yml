@@ -104,7 +104,7 @@ jobs:
           TF_VAR_permissions_boundary_arn: ${{ vars.AWS_APPS_WORKLOAD_BOUNDARY_ARN }}
         run: |
           tofu init -input=false -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
-            -backend-config="key=stacks/saas-starter/terraform.tfstate" -backend-config="region=us-east-1" \
+            -backend-config="key=saas-starter/terraform.tfstate" -backend-config="region=us-east-1" \
             -backend-config="use_lockfile=true" -backend-config="encrypt=true"
           tofu plan -input=false -lock=false -no-color -out=plan.bin | tee plan.txt
 
@@ -146,6 +146,6 @@ jobs:
           TF_VAR_permissions_boundary_arn: ${{ vars.AWS_APPS_WORKLOAD_BOUNDARY_ARN }}
         run: |
           tofu init -input=false -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
-            -backend-config="key=stacks/saas-starter/terraform.tfstate" -backend-config="region=us-east-1" \
+            -backend-config="key=saas-starter/terraform.tfstate" -backend-config="region=us-east-1" \
             -backend-config="use_lockfile=true" -backend-config="encrypt=true"
           tofu apply -input=false -auto-approve -no-color

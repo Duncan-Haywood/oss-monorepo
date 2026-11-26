@@ -19,6 +19,7 @@ locals {
       repo             = s.repo
       managed_policies = s.managed_policies
       extra_statements = s.extra_statements
+      iam_prefixes     = s.iam_prefixes
     } if s.account == acct }
   }
 
@@ -87,6 +88,8 @@ module "shared_infra" {
   region       = var.region
   github_owner = var.github_owner
   stacks       = local.stacks_in["shared-infra"]
+
+  shared_state_stacks = ["dns"] # read by site
 }
 
 module "apps" {
@@ -95,6 +98,9 @@ module "apps" {
   region       = var.region
   github_owner = var.github_owner
   stacks       = local.stacks_in["apps"]
+
+  # The product stacks read saas-starter's state; email-ops reads edge-api's.
+  shared_state_stacks = ["saas-starter", "edge-api"]
 
   # stacks/llm (applied earlier) already made the apps account's GitHub OIDC
   # provider; AWS allows one per URL per account, so reuse it.

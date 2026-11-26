@@ -40,8 +40,10 @@ Apply order (the apply workflow follows it): `org`, `baseline`, `spend`,
 with the management credentials, not yet in the workflow). After those come
 the workload stacks, each applied by its own `gha-<repo>-<stack>-apply` role
 against its own account's state bucket: `dns` (shared-infra), then `site`
-and `edge` (shared-infra), then `saas-starter` (apps), then `products`
-(apps). `payments` is applied from the private repository. Each stack has its own state key
+(shared-infra), then `saas-starter` (apps), then the product stacks
+(`listing-lens`, `shift-roster`, `retail-pilot-intel`, `ai-first-markets`,
+apps). `edge-api` and `email-ops` (apps) have CI roles but still apply with
+the management credentials (`stacks/github-oidc/README.md`, "Not yet CI-ready"). `payments` is applied from the private repository. Each stack has its own state key
 (`<stack>/terraform.tfstate`) and reads the ones before it through
 `terraform_remote_state`.
 
