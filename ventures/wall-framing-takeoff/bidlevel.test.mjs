@@ -84,3 +84,46 @@ test("hostile bids are refused with a reason, never thrown or summed", () => {
     assert.doesNotThrow(() => levelBids(b, /** @type {any} */ (bad)));
   }
 });
+
+test("a lump-sum line (amount, no qty) is taken as the full line, not flagged short", () => {
+  const r = levelBids(bud, [{ bidder: "A", lines: [{ item: "Vapor barrier", amount: 900 }] }]);
+  const A = r.bidders[0];
+  assert.ok(!A.flags.some((f) => f.item === "Vapor barrier"), JSON.stringify(A.flags));
+  assert.equal(A.bidTotal, 900);
+  assert.equal(A.additions, 100); // anchor bolts at the plan price only
+});
+
+test("a rival's lump sum levels a gap, so leaving scope out never wins", () => {
+  // Red team 2026-11-26: A priced the vapor barrier as a 900 lump sum, B left
+  // it out. With no unit price anywhere, B was left "unleveled" and named
+  // lowest leveled at 450 against A's 1300, when B's scope really costs 1350.
+  const b2 = { lines: [{ item: "Studs", qty: 100, unit: "ea", unitPrice: null }, { item: "Vapor barrier", qty: 1000, unit: "sq ft", unitPrice: null }] };
+  const r = levelBids(b2, [
+    { bidder: "A", lines: [{ item: "Studs", qty: 100, unitPrice: 4 }, { item: "Vapor barrier", amount: 900 }] },
+    { bidder: "B", lines: [{ item: "Studs", qty: 100, unitPrice: 4.5 }] },
+  ]);
+  const B = r.bidders[1];
+  assert.deepEqual(B.unleveled, []);
+  assert.equal(B.additions, 900);
+  assert.equal(B.leveledTotal, 1350);
+  assert.equal(r.lowestLeveled, "A");
+  assert.match(B.flags.find((f) => f.item === "Vapor barrier").note, /lump sum/);
+  assert.equal(r.rows.find((x) => x.item === "Vapor barrier").refAmount, 900);
+});
+
+test("a line with no item name is reported as such", () => {
+  for (const line of [{ qty: 5, amount: 10 }, { item: 5, amount: 10 }]) {
+    const r = levelBids(bud, [{ bidder: "A", lines: [/** @type {any} */ (line)] }]);
+    assert.deepEqual(r.errors, ["A: a line without an item name is ignored"], JSON.stringify(line));
+  }
+});
+
+test("a negative or non-number tolerance is refused and the default used", () => {
+  for (const tolerance of [-1, NaN, Infinity, "0.1", null]) {
+    const r = levelBids(bud, [{ bidder: "A", lines: [{ item: "Wall sheathing sheets", qty: 100, unitPrice: 30 }] }], /** @type {any} */ ({ tolerance }));
+    assert.equal(r.tolerance, 0.05, String(tolerance));
+    assert.ok(!r.bidders[0].flags.some((f) => f.item === "Wall sheathing sheets"), String(tolerance));
+    if (tolerance !== null) assert.ok(r.errors.some((e) => /tolerance/.test(e)), String(tolerance));
+  }
+  assert.equal(levelBids(bud, [], { tolerance: 0 }).tolerance, 0);
+});
