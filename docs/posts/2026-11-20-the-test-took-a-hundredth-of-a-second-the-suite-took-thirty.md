@@ -56,5 +56,29 @@ Both bugs are easy to miss because the test itself looks fast. If a suite's
 wall time is much longer than its tests add up to, check what is still
 holding its output after it finishes.
 
+## Six days later: the same scan, twice (2026-11-26)
+
+By 2026-11-26 the set had grown to 299 items and the step took 131 seconds
+on CI again. This time no single item was slow. Run one at a time, they add
+up to 243 seconds on four cores, and the pool already finished in 64, close
+to the 61-second floor. The only way to go faster was to do less work.
+
+Some of the work was done twice. Many checks come with a test file, and in
+21 of those the test file ends with "run the check on the whole repository
+and expect a pass", which is exactly what the pool's own run of the check
+does. Now the pool waits for that test. If it passes, the check is reported
+as covered. If the test fails, times out or is skipped (on the CI runner,
+a suite that needs pytest is skipped), the check runs on its own as before,
+so a skipped test can never hide a check. Before each of the 21 went in, I
+confirmed it gives the same answer from the test's folder as from the
+repository root.
+
+Two runs on the same container: 64.4 and 65.4 seconds before, 58.2 and 60.2
+after, with the same 299 results. That's a small gain. The general lesson is
+that when a pool is already near its floor, the next win comes from finding
+duplicate work, not from tuning the scheduler.
+
 The full reading, the profile and the ranked list of what is left are in
-[`docs/history/ci-perf-2026-11-20-unwired-orphans-and-fetch.md`](https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/history/ci-perf-2026-11-20-unwired-orphans-and-fetch.md).
+[`docs/history/ci-perf-2026-11-20-unwired-orphans-and-fetch.md`](https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/history/ci-perf-2026-11-20-unwired-orphans-and-fetch.md)
+and, for the second pass,
+[`docs/history/ci-perf-2026-11-26-unwired-tree-scan-once.md`](https://github.com/Duncan-Haywood/oss-monorepo/blob/main/docs/history/ci-perf-2026-11-26-unwired-tree-scan-once.md).
