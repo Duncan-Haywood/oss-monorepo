@@ -27,7 +27,9 @@ refused as NEAR (exit 4) unless --distinct; claims are read again after the push
 that landed first in the same seconds releases yours (exit 4) and a same-item part shows as ALSO CLAIMED. Merged and stale claims not under an item are
 summed up in one line each (--all lists them with notes). A refused claim push says TAKEN
 (a rival holds the branch, exit 4) or PUSH FAILED (no one does; retry, exit 2). Exit codes: 0 ok, 2 usage or git error, 4 the item is already
-claimed (pick another).
+claimed (pick another). When no bet has a free, ungated item, --bets lists each bet's
+`**Growth path:**` topics from bets.md with the live and merged claims on each, and names
+the least-crowded bet's first topic with no live claim.
 """
 from __future__ import annotations
 
@@ -476,6 +478,32 @@ def bet_apps(bets_md: str) -> list[tuple[int, str, str]]:
     return out
 
 
+def growth_paths(bets_md: str) -> dict[int, list[str]]:
+    """{rank: [topic, ...]} from each `### N.` bet section's `**Growth path:**` bullet.
+
+    "Open a new item from the bet's growth path" pointed at bets.md, where only bet #1 had
+    one (inside its Wedge line), so runs read ROADMAPs by hand to invent an item and three
+    picked the same payapps idea within 15 minutes (six friction reports, 2026-11-26).
+    """
+    out: dict[int, list[str]] = {}
+    rank, buf = None, None
+    for line in bets_md.splitlines() + [""]:
+        head = re.match(r"^###\s+(\d+)\.", line)
+        if buf is not None and (not line.startswith("  ") or head):
+            text = re.sub(r"\([^)]*\)", "", " ".join(buf))
+            topics = [t.strip(" .") for t in re.split(r"[;,]|\band\b", text)]
+            out[rank] = [t for t in topics if t]
+            buf = None
+        if head:
+            rank = int(head.group(1))
+        m = re.match(r"^- \*\*Growth path:\*\*\s*(.*)", line)
+        if m and rank is not None:
+            buf = [m.group(1)]
+        elif buf is not None:
+            buf.append(line.strip())
+    return out
+
+
 def bet_wedges(bets_md: str) -> dict[int, str]:
     """{rank: the bet's "**Wedge:**" bullet, one line} from bets.md's evidence sections.
 
@@ -502,6 +530,53 @@ def bet_wedges(bets_md: str) -> dict[int, str]:
     return out
 
 
+def topic_words(text: str) -> set[str]:
+    """Content words of a growth topic or a claim slug, with -ing folded (costing -> cost)."""
+    words = slug_words("-".join(re.findall(r"[a-z0-9]+", text.lower())))
+    return {w[:-3] if len(w) > 5 and w.endswith("ing") else w for w in words}
+
+
+def topic_claims(topic: str, info: dict[str, tuple[int, str]], merged: dict[str, str], now: float,
+                 stale_s: float) -> tuple[list[str], list[str]]:
+    """(live, merged) claim slugs sharing the topic's words (all of them, at most two needed)."""
+    want = topic_words(topic)
+    live, done = [], []
+    for s, (ts, _) in info.items():
+        if not want or len(want & topic_words(GEN.sub(r"\g<base>", s))) < min(len(want), 2):
+            continue
+        if s in merged:
+            done.append(s)
+        elif ts and now - ts < stale_s:
+            live.append(s)
+    return sorted(live), sorted(done)
+
+
+def growth_topics(rank: int, app: str, topics: list[str], claims: tuple[dict, dict] | None,
+                  now: float, stale_s: float) -> None:
+    """Print a bet's growth topics with the claims already on each, and the first untouched one.
+
+    Picking the bet was not enough: inside it runs still invented the same item (three payapps
+    runs within 15 minutes, 2026-11-26), so say which topic nobody holds yet.
+    """
+    if not topics:
+        print(f"  (bets.md has no **Growth path:** line for bet #{rank}: add one in your PR)")
+        return
+    info, merged = claims or ({}, {})
+    pick, cells = None, []
+    for t in topics:
+        live, done = topic_claims(t, info, merged, now, stale_s)
+        note = (f"{len(live)} live: {', '.join(live[:2])}" if live else "no live claim")
+        note += f"; {len(done)} merged" if done else ""
+        cells.append(f"{t} ({note})")
+        pick = pick or (None if live else t)
+    print("  Growth path (bets.md), claims whose slug names each topic: " + "; ".join(cells))
+    if pick:
+        slug = "-".join(sorted(topic_words(pick), key=pick.lower().find))[:40] or "item"
+        print(f"  Untouched topic: '{pick}': `roadmap_claim.py {app} --slug {slug}-<part> --note ...`")
+    else:
+        print(f"  Every topic has a live claim: take a part none names (`roadmap_claim.py {app} --all`).")
+
+
 def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None) -> int:
     """One line per bet: free ungated items and live claims, then the first bet with work free.
 
@@ -511,6 +586,8 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None) -> 
     """
     text = bets_md.read_text(encoding="utf-8") if bets_md.is_file() else ""
     bets = bet_apps(text)
+    paths = growth_paths(text)
+    growth: dict[str, tuple[dict, dict]] = {}
     if not bets:
         print(f"no ranking rows with an app path in {bets_md}")
         return 2
@@ -534,6 +611,7 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None) -> 
         present.append((live, rank, app))
         if not roadmap.is_file():
             print(f"{rank:>3}. {app}: no ROADMAP.md, {live} live claim(s); claim with --slug ({name})")
+            growth[app] = (info, merged)
             continue
         items = next_items(roadmap.read_text(encoding="utf-8"))
         _, open_now = item_marks(app, items, claims, info, merged, now, stale_s, tag)
@@ -542,6 +620,7 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None) -> 
               f"{live} live claim(s) ({name})")
         if open_now and start is None:
             start = (rank, app, open_now)
+        growth[app] = (info, merged)
     if start:
         rank, app, nums = start
         print(f"Start here: bet #{rank} {app}, item #{nums[0]} "
@@ -556,6 +635,7 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None) -> 
               f"<short-name> --note ...` (check its ROADMAP's Done list first).")
         print(f"  Wedge (bets.md): {wedge}" if wedge else
               f"  (bets.md has no **Wedge:** line for bet #{rank}: read its evidence section)")
+        growth_topics(rank, app, paths.get(rank, []), growth.get(app), now, stale_s)
     else:
         print("Start here: no ranked bet's app is in this clone.")
     return 0
@@ -716,9 +796,9 @@ def main(argv: list[str] | None = None) -> int:
     if items:
         # The one line twenty runs asked for: is there anything here to build right now?
         print(f"Free and not gated: {', '.join(f'#{n}' for n in open_now)}" if open_now else
-              "Free and not gated: none. Take the next bet (`--bets` names the least-crowded one), "
-              "or open a new item from the bet's **Wedge:** line in portfolio/monetization/bets.md "
-              "with --slug <short-name> --note ...")
+              "Free and not gated: none. Take the next bet (`--bets` names the least-crowded one "
+              "and its untouched growth topics), or open a new item from the bet's **Growth path:** "
+              "line in portfolio/monetization/bets.md with --slug <short-name> --note ...")
     others = sorted(set(claims) - seen)
     # Merged and stale claims are history, one line each kind: payapps listed ~40 of them before
     # anything live, and two runs (2026-11-26) grep -v'd them away. --all lists them in full.

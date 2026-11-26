@@ -48,6 +48,10 @@ SMBs; revisit as a research-derived product).
 
 ## The evidence
 
+Each bet's **Growth path** is a plan, not evidence: the topics a run opens
+with `roadmap_claim.py <app> --slug` when the ROADMAP's Next list has nothing
+free. `roadmap_claim.py --bets` lists them with the claims already on each.
+
 ### 1. Pay-app billing for subcontractors, the wedge into a contractor suite
 
 - **Job:** trade subs (electrical, mechanical, drywall, concrete) prepare
@@ -74,6 +78,8 @@ SMBs; revisit as a research-derived product).
   [no new CoConstruct projects after 31 Mar 2027](https://coconstruct.com/migration).
 - **Wedge:** pay apps + retainage + lien waivers + change orders at about
   $99–249/mo (estimate), growing into job costing, RFIs and estimating.
+- **Growth path:** job costing, RFIs, estimating, subcontractor compliance
+  documents, GC portal exports.
 - **Risks:** Procore and Trimble hold the GC side and its portals; formats vary
   by GC; QuickBooks sync is needed from day one.
 
@@ -95,6 +101,8 @@ SMBs; revisit as a research-derived product).
   Machinist, r/Machinists, ERP integrations.
 - **Wedge:** email or drawing in, priced quote out, learning each shop's rates,
   at about $199/mo. Ship narrow and soon: funded rivals are arriving.
+- **Growth path:** quote follow-up and win rates, won quote to job traveler,
+  QuickBooks invoicing, material price lists.
 
 ### 3. E-invoice fix-and-explain
 
@@ -111,6 +119,8 @@ SMBs; revisit as a research-derived product).
   German, French or Dutch, with a safely corrected file; a per-client plan for
   accountants at about €19–49/mo (estimate) and a metered API for small
   invoicing vendors.
+- **Growth path:** accountant client dashboard, metered validation API,
+  PDF to ZUGFeRD conversion, Polish KSeF.
 - **Risks:** accounting software building it in; liability if a passed invoice
   is wrong (say exactly what was checked).
 
@@ -125,6 +135,8 @@ SMBs; revisit as a research-derived product).
   [$3k–25k for the SSP and POA&M](https://secureframe.com/hub/cmmc/certification-cost).
 - **Wedge:** SSP + POA&M + SPRS score for the 110 NIST SP 800-171 controls,
   for the same machine shops as #2.
+- **Growth path:** evidence per control, policy templates, ISO 9001 document
+  control, AS9100 additions, supplier flow-down.
 - **Risks:** policy swings; never claim certification (not a C3PAO); customers
   expect strong handling of their documents.
 
@@ -138,6 +150,8 @@ SMBs; revisit as a research-derived product).
 - **Wedge:** payout CSVs from eBay, Poshmark, Mercari, Whatnot and Depop in;
   fees split out, cost of goods and mileage tracked, a Schedule C-ready P&L out.
   No bank feed needed, so no Plaid minimum.
+- **Growth path:** inventory and cost of goods, mileage log, quarterly
+  estimated tax, more sales platforms.
 - **Do not market on 1099-K fear:** the federal threshold is back at
   [$20,000 and 200 transactions](https://irs.gov/newsroom/irs-issues-faqs-on-form-1099-k-threshold-under-the-one-big-beautiful-bill-dollar-limit-reverts-to-20000)
   (some states are lower).
@@ -151,6 +165,8 @@ SMBs; revisit as a research-derived product).
 - **Size:** [128,187 residential remodeler establishments (2022)](https://eyeonhousing.org/2025/07/residential-remodelers-outnumber-single-family-builders-in-the-u-s/).
 - **Wedge:** a roofing/siding or framing material list from a PDF plan set.
   Crowded and well funded; becomes the estimating module of #1.
+- **Growth path:** waste factors, supplier price lists, siding lists,
+  hand-off to estimating in #1.
 
 ### 7. Grant Autopilot
 
@@ -158,6 +174,8 @@ SMBs; revisit as a research-derived product).
   reviewers call it "pricey, especially for small nonprofits"
   ([Capterra](https://www.capterra.com/p/233384/Instrumentl/reviews/)). Low end crowded
   ($29–89 AI writers). Finish the paid path; no large new build.
+- **Growth path:** checkout and plan limits, deadline reminders, report
+  drafting.
 
 ### Evidence for "not now" (short)
 

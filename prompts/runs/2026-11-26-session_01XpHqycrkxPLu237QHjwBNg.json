@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqycrkxPLu237QHjwBNg",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T16:39:17Z",
+  "ended": "2026-11-26T16:44:47Z",
+  "wall_minutes": 5.65,
+  "tokens_in": 3080004,
+  "tokens_out": 15088,
+  "cost_usd": 1.5776,
+  "tool_calls": 36,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19409",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "roadmap_claim's 'open a new item from the bet's growth path' pointed here, but only bet #1 had a growth path (inside its Wedge line); fixed in this PR with a Growth path line per bet."
+    },
+    {
+      "file": "prompts/promptctl.py route",
+      "issue": "route printed '6607/40 runs toward the next review' yet did not route to review; the counter reads as overdue by 6567 runs (PR #18741 says stale 'prompts: review' PRs block it). Not investigated this run."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "slug_dupe and the open-PR search came back clean at the start, but PR #19411 on the same friction cluster opened and merged while this run built. Two process runs drew the same friction_rank top cluster within the hour; friction_rank could mark a cluster that has an open process PR."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new blog post: a process-tool fix with no reader-facing story; CLAUDE.md asks for consolidated customer posts, not one per PR.",
+      "did": "Wrote the reason in the PR and this record.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Security queue empty (security_next exit 3); IDEAS empty; routed process/1 by weighted draw. Backlog has no agent-owned workable item, so Critique mode: friction_rank --live --ungated --days 3 clusters 2 and 13 (6+2 sessions, 2026-11-26). Added a Growth path line to each of the 7 bets and made roadmap_claim --bets list topics with their live/merged claims when nothing is free. Verified: test_roadmap_claim 26 OK; real private-monorepo run (248 claim branches) with the free list forced empty; promptctl validate ok; main_health 329/329. Merge conflict with PR #19411 (a parallel process run on the same friction: least-crowded bet plus its Wedge line). Combined the two: #19411 picks the bet, this PR adds the per-bet Growth path topics with live and merged claims and names an untouched topic inside that bet. 27 tests OK after the merge; real-claims check named jobshop-quote 'quote follow-up'.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "54b7eb0f-3fb4-52bf-a482-5c3acf968767",
+    "transcripts": 1,
+    "first": "2026-11-26T16:39:17Z",
+    "last": "2026-11-26T16:44:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 64,
+        "output": 15088,
+        "thinking": 3857,
+        "cache_read": 2995379,
+        "cache_write_5m": 0,
+        "cache_write_1h": 84561,
+        "api_equivalent_usd": 1.5776,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 64,
+      "output": 15088,
+      "thinking": 3857,
+      "cache_read": 2995379,
+      "cache_write_5m": 0,
+      "cache_write_1h": 84561,
+      "api_equivalent_usd": 1.5776,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 32,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.65,
+      "active_minutes": 5.65,
+      "model_minutes": 3.5,
+      "tool_minutes": 2.15,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "a senior engineer reading the friction, writing the parser, tests and bet growth lines",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 126.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
