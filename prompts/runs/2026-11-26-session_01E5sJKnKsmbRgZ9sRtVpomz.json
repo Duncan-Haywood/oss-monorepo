@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKnKsmbRgZ9sRtVpomz",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T08:09:54Z",
+  "ended": "2026-11-26T08:26:48Z",
+  "wall_minutes": 18.92,
+  "tokens_in": 14650635,
+  "tokens_out": 80703,
+  "cost_usd": 6.2104,
+  "tool_calls": 92,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19285",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "first ray test misread holes: ellipsePoints returned arc samples out of order (fixed: sorted)",
+    "3-point circle fit used both ends of a closed B-spline domain (fixed)",
+    "STEP's 350\u00b0 wrap rule rejected sampled IGES circles (330\u00b0 used)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "add_repo result says to call register_repo_root; the doc already says to skip it, which was right"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-25-a-step-file-now-sizes-the-blank-in-the-job-shop-quoter.md (extended section)",
+    "docs/reports/ventures-2026-11-26-jobshop-quote-iges-holes.md"
+  ],
+  "goal": null,
+  "notes": "Bet #2 jobshop-quote, private PR Duncan-Haywood/private-monorepo#285: IGES holes. Payapps (bet #1) roadmap items were all claimed or 'if people ask'. Fixtures: OCCT 8.0 (cadquery-ocp from PyPI) exports of parts designed in packages/cad-features/scripts/make-iges-fixtures.py. Private CI starved (ci_starvation exit 0, 2 of 2 jobs no runner); verified with run_workflow_locally.py jobshop-quote-ci (results appended below) plus cad-features node --test 73/73, unit 473/473. Local CI: jobshop-quote-ci 11/11 run steps ok, 8 uses:/non-PR steps not run. Rebased on private #286 (ARCHITECTURE.md row conflict only); unit 483/483 and tsc clean after the rebase. Merged private PR 285 at 37c9d26.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bdf010a2-39ec-5c2a-9c12-6c78c907c5a3",
+    "transcripts": 1,
+    "first": "2026-11-26T08:09:54Z",
+    "last": "2026-11-26T08:28:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 89,
+        "input": 169,
+        "output": 80703,
+        "thinking": 28412,
+        "cache_read": 14436926,
+        "cache_write_5m": 0,
+        "cache_write_1h": 213540,
+        "api_equivalent_usd": 6.2104,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 89,
+      "input": 169,
+      "output": 80703,
+      "thinking": 28412,
+      "cache_read": 14436926,
+      "cache_write_5m": 0,
+      "cache_write_1h": 213540,
+      "api_equivalent_usd": 6.2104,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 92,
+    "tools": {
+      "Bash": 85,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.92,
+      "active_minutes": 18.92,
+      "model_minutes": 15.58,
+      "tool_minutes": 3.34,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "senior CAD/geometry engineer: IGES cylinder recognition, ray-parity classification, OCCT fixture generation, tests and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 257.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
