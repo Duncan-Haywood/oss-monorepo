@@ -53,7 +53,7 @@
     <p>Current payment due</p>
     <p class="due" id="due">$0.00</p>
     <div id="findings"></div>
-    <div class="scroll"><table>
+    <div class="scroll"><table class="stack compact sov-out">
       <thead><tr><th scope="col">Item</th><th scope="col">Description</th><th scope="col" class="n">Scheduled</th><th scope="col" class="n">Completed and stored</th><th scope="col" class="n">%</th><th scope="col" class="n">Balance to finish</th><th scope="col" class="n">Retainage</th></tr></thead>
       <tbody id="rows"></tbody>
     </table></div>
@@ -145,20 +145,23 @@
   <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
   <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
 </footer>
+<script type="module" src="sumview.mjs"></script>
 <script type="module">
   import { compute, toCsv, summaryText, SAMPLE, fmt, pctText } from "./calc.mjs";
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
   const $ = (s) => document.querySelector(s);
   const FIELDS = ["item", "description", "scheduled", "previous", "thisPeriod", "stored"];
+  // Visible on a phone (style.css, td::before) and read out by screen readers; same order as the header row.
+  const LABELS = ["Item", "Description", "Scheduled value", "From previous apps", "This period", "Stored now"];
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   let counted = false;
 
   function addLine(line = {}) {
     const tr = document.createElement("tr");
-    tr.innerHTML = FIELDS.map((f) => {
+    tr.innerHTML = FIELDS.map((f, i) => {
       const cls = f === "item" ? "item" : f === "description" ? "desc" : "";
       const mode = ["item", "description"].includes(f) ? "" : ' inputmode="decimal"';
-      return `<td><input class="${cls}" data-f="${f}" aria-label="${f}"${mode} value="${esc(line[f] ?? "")}"></td>`;
+      return `<td data-label="${LABELS[i]}"><input class="${cls}" data-f="${f}" aria-label="${LABELS[i]}"${mode} value="${esc(line[f] ?? "")}"></td>`;
     }).join("") + '<td><button type="button" class="x" aria-label="Remove line">×</button></td>';
     tr.querySelector("button").addEventListener("click", () => { tr.remove(); update(); });
     $("#lines").append(tr);
@@ -175,8 +178,8 @@
     const t = last.totals;
     $("#due").textContent = fmt(t.currentPaymentDue);
     $("#findings").innerHTML = last.findings.map((f) => `<p class="finding"><span class="pill ${f.level}">${f.level === "high" ? "check" : "note"}</span>${esc(f.msg)}</p>`).join("");
-    $("#rows").innerHTML = last.rows.map((r) => `<tr><td>${esc(r.item)}</td><td>${esc(r.description)}</td><td class="n">${fmt(r.C)}</td><td class="n">${fmt(r.G)}</td><td class="n">${pctText(r.pct)}</td><td class="n">${fmt(r.H)}</td><td class="n">${fmt(r.retainage)}</td></tr>`).join("") +
-      `<tr class="total"><td></td><td>Totals</td><td class="n">${fmt(t.contractSumToDate)}</td><td class="n">${fmt(t.completedStored)}</td><td class="n">${pctText(t.percentComplete)}</td><td class="n">${fmt(t.balanceToFinish)}</td><td class="n">${fmt(t.retainageGross)}</td></tr>`;
+    $("#rows").innerHTML = last.rows.map((r) => `<tr><td data-label="Item">${esc(r.item)}</td><td data-label="Description">${esc(r.description)}</td><td data-label="Scheduled" class="n">${fmt(r.C)}</td><td data-label="Completed and stored" class="n">${fmt(r.G)}</td><td data-label="%" class="n">${pctText(r.pct)}</td><td data-label="Balance to finish" class="n">${fmt(r.H)}</td><td data-label="Retainage" class="n">${fmt(r.retainage)}</td></tr>`).join("") +
+      `<tr class="total"><td data-label="Item"></td><td data-label="Description">Totals</td><td data-label="Scheduled" class="n">${fmt(t.contractSumToDate)}</td><td data-label="Completed and stored" class="n">${fmt(t.completedStored)}</td><td data-label="%" class="n">${pctText(t.percentComplete)}</td><td data-label="Balance to finish" class="n">${fmt(t.balanceToFinish)}</td><td data-label="Retainage" class="n">${fmt(t.retainageGross)}</td></tr>`;
     $("#summary").textContent = summaryText(last);
     if (!counted && last.rows.length) { counted = true; record("sov_calculated"); }
   }
