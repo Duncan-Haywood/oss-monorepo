@@ -104,3 +104,25 @@ test("a correct line whose record this checker flags is reported, so a too-stric
   assert.ok(recordFindings(sent[0]).some((x) => x.rule === "VF-004"));
   assert.equal(looksLikeAeatResponse("<RegistroAlta/>"), false);
 });
+
+test("a chain finding on F10 is not pinned on F1: records are matched by their whole IDFactura, not a number prefix", () => {
+  const opts = { issuer: "A39200019", date: "13-09-2025", generated: "2025-09-13T10:00:00+02:00" };
+  const buyer = (x) => x.replace("<sum1:NIF>A39200019</sum1:NIF>", "<sum1:NIF>12345678Z</sum1:NIF>");
+  const [f1] = readVerifactu(buyer(record({ ...opts, number: "F1" })));
+  const [f10] = readVerifactu(buyer(record({ ...opts, number: "F10", generated: "2025-09-13T10:01:00+02:00" })));
+  // F10 names F1 as its predecessor with a wrong fingerprint: VF-005 on F10, nothing on F1.
+  f10.prev = { issuer: "A39200019", number: "F1", date: "13-09-2025", huella: "0".repeat(64) };
+  assert.deepEqual(recordFindings(f1).filter((x) => x.severity !== "warning" && x.severity !== "information"), []);
+  const batch = [f1, f10].map((record) => ({ record, file: "s.xml" }));
+  const f = responseFindings(readAeatResponse(reply([["F1", "Correcto"], ["F10", "Correcto"]], "Correcto")), batch);
+  const passed = f.filter((x) => x.rule === "AEAT-PASSED");
+  assert.equal(passed.length, 1, "only F10 carries a chain finding");
+  assert.match(passed[0].message, /F10 of 13-09-2025.*VF-005/);
+});
+
+test("an eight-digit run in the AEAT's reply (a NIF's digits) is withheld", () => {
+  const t = reply([["1", "Incorrecto", "1109"]]).replace("x 123456789012", "NIF B12345678 no identificado");
+  const [f] = responseFindings(readAeatResponse(t));
+  assert.ok(!/12345678/.test(f.message), f.message);
+  assert.match(f.message, /\[number withheld\]/);
+});

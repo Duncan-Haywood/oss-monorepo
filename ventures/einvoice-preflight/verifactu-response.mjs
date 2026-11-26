@@ -16,7 +16,7 @@
 // in the AEAT's text are withheld from the findings.
 import { parseXmlTree } from "./ubl.mjs";
 import { AEAT_ERRORS } from "./verifactu-errors-data.mjs";
-import { chainFindings, recordFindings } from "./verifactu.mjs";
+import { chainFindings, idText as recordLabel, recordFindings } from "./verifactu.mjs";
 
 const local = (name) => String(name || "").replace(/^[^:]*:/, "");
 const kids = (node, name) => (node?.children || []).filter((c) => local(c.name) === name);
@@ -279,8 +279,10 @@ export function responseFindings(resp, batch = []) {
   const chain = batch.length ? chainFindings(batch) : [];
   for (const l of resp.lines) {
     const pair = pairLine(l, batch);
+    // A chain finding names its record as "(number of date (issuer ...))": match all of it,
+    // since the number alone also matches a longer one (F1 in "(F10 of ...").
     let local = null;
-    if (pair) local = [...recordFindings(pair.record), ...chain.filter((f) => f.file === pair.file && f.message.includes(`(${pair.record.id?.number}`))];
+    if (pair) local = [...recordFindings(pair.record), ...chain.filter((f) => f.file === pair.file && f.message.includes(`(${recordLabel(pair.record.id)})`))];
     if (l.status === "Correcto" && !l.code) {
       const blocking = (local || []).filter((f) => f.severity !== "warning" && f.severity !== "information");
       if (blocking.length) {
