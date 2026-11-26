@@ -145,3 +145,36 @@ test("CLI: a long look-ahead reaches a pipe whole (no cut at 64 KB)", async () =
   assert.ok(out.length > 65536, `${out.length} bytes`);
   assert.equal(JSON.parse(out).activities.length > 100, true);
 });
+
+test("another project's link gates only its own successor", () => {
+  // redteam 2026-11-26: an external link was once a candidate for every
+  // activity's predecessors, not just the one it points at
+  const x = project([task("1", "A", 8), task("2", "B", 8)], [{ task_pred_id: "1", task_id: "1", pred_task_id: "999", proj_id: "1", pred_proj_id: "2", pred_type: "PR_FS", lag_hr_cnt: 0 }]);
+  const a = by(lookahead(x, { weeks: 1 }));
+  assert.equal(a.A.ready, "waits outside");
+  assert.equal(a.B.ready, "no predecessor");
+  assert.deepEqual(a.B.waitsOn, []);
+});
+
+test("a driving SS link names the start ahead of a driving FF tie", () => {
+  // P1 FF -> T and P2 SS -> T both have zero relationship float; the SS
+  // link sets the start, so it is the one named even when listed second
+  const x = project([task("1", "P1", 8), task("2", "P2", 8), task("3", "T", 8)],
+    [link("1", "3", "1", "PR_FF"), link("2", "3", "2", "PR_SS")]);
+  const a = by(lookahead(x, { weeks: 1 }));
+  assert.equal(a.T.waitsOn.filter((w) => w.driving).length, 2);
+  assert.equal(a.T.drivenBy, "SS from P2");
+});
+
+test("a finish constraint is not named as what drives the start", () => {
+  const x = project([task("1", "F", 8, { cstr_type: "CS_MEOB", cstr_date: "2025-12-01 17:00" })], []);
+  const a = by(lookahead(x, { weeks: 1 }));
+  assert.equal(a.F.drivenBy, "data date");
+  assert.deepEqual(a.F.constraints, ["finish on or before 2025-12-01 17:00"]);
+});
+
+test("the printed page fits the sheet: no width over 100%", () => {
+  const html = lookaheadHtml(lookahead(parseXer(EXAMPLE_XER)));
+  for (const m of html.matchAll(/width:\s*(\d+(?:\.\d+)?)%/g)) assert.ok(Number(m[1]) <= 100, m[0]);
+  assert.match(html, /table\{[^}]*width:100%/);
+});

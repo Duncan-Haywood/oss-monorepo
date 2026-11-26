@@ -1,0 +1,254 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKmoiJmu7FionaaXcfQ",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T05:18:12Z",
+  "ended": "2026-11-26T05:19:09Z",
+  "wall_minutes": 4.93,
+  "tokens_in": 1766221,
+  "tokens_out": 10193,
+  "cost_usd": 1.0659,
+  "tool_calls": 24,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19233",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "step 0's two open entries (framerate nightly, help-keeper stemmer) still need control-plane approval or a help-center eval set, and neither fits this run",
+      "did": "rechecked both and left them open",
+      "result": "the run's time went to the campaign and its guards"
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "no post: a test-only red-team run has nothing to tell a customer, and the owner asks for fewer, consolidated posts",
+      "did": "recorded the result here and in the PR",
+      "result": "none"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Campaign on ventures/xer-schedule-check/lookahead.mjs: 8 mutants, 3 caught, 1 equivalent, 4 gaps, each now caught (rerun). No real defects found in the look-ahead after probing weeks, from-date, external-link and constraint paths. The only minor finding: weeks=0 falls back to 3 rather than clamping to 1, which is not worth fixing. No class-level guard (step 4b) was added, because the escapes were four unrelated logic branches. Venture suite: 597/597 pass.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/xer-schedule-check/lookahead.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 138908091,
+        "commit": "37ac8fd86",
+        "sites": 247,
+        "baseline_seconds": 4.6,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/lookahead.mjs",
+            "line": 127,
+            "col": 74,
+            "operator": "minus-to-plus",
+            "before": "const to = (firstDay + weeks * 7) * DAY, lastDay = firstDay + weeks * 7 - 1;",
+            "after": "const to = (firstDay + weeks * 7) * DAY, lastDay = firstDay + weeks * 7 + 1;",
+            "line_text": "  const to = (firstDay + weeks * 7) * DAY, lastDay = firstDay + weeks * 7 - 1;",
+            "caught": true,
+            "seconds": 5.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/lookahead.mjs",
+            "line": 131,
+            "col": 31,
+            "operator": "eq-flip",
+            "before": "const isMile = (t) => t.type === \"TT_Mile\" || t.type === \"TT_FinMile\";",
+            "after": "const isMile = (t) => t.type !== \"TT_Mile\" || t.type === \"TT_FinMile\";",
+            "line_text": "  const isMile = (t) => t.type === \"TT_Mile\" || t.type === \"TT_FinMile\";",
+            "caught": true,
+            "seconds": 5.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/lookahead.mjs",
+            "line": 155,
+            "col": 19,
+            "operator": "gt-to-ge",
+            "before": "bars += hi > lo && t.cal.workBetween(lo, hi) > 0 ? \"#\" : t.cal.workBetween(a, b) > 0 ? \".\" : \" \";",
+            "after": "bars += hi >= lo && t.cal.workBetween(lo, hi) > 0 ? \"#\" : t.cal.workBetween(a, b) > 0 ? \".\" : \" \";",
+            "line_text": "        bars += hi > lo && t.cal.workBetween(lo, hi) > 0 ? \"#\" : t.cal.workBetween(a, b) > 0 ? \".\" : \" \";",
+            "caught": false,
+            "seconds": 6.1,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "hi === lo gives workBetween(lo, lo) = 0, so the '#' branch is false either way; >= and > pick the same cell."
+          },
+          {
+            "file": "ventures/xer-schedule-check/lookahead.mjs",
+            "line": 163,
+            "col": 74,
+            "operator": "and-to-or",
+            "before": "const preds = [...t.preds, ...model.rels.filter((rel) => rel.external && rel.succId === t.id)];",
+            "after": "const preds = [...t.preds, ...model.rels.filter((rel) => rel.external || rel.succId === t.id)];",
+            "line_text": "    const preds = [...t.preds, ...model.rels.filter((rel) => rel.external && rel.succId === t.id)];",
+            "caught": false,
+            "seconds": 5.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "external || succId: an external link to activity A became a predecessor of every activity; test 'another project's link gates only its own successor'."
+          },
+          {
+            "file": "ventures/xer-schedule-check/lookahead.mjs",
+            "line": 192,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "const rank = (k) => ({ FS: 0, SS: 1, FF: 2, SF: 3 }[k] ?? 4);",
+            "after": "const rank = (k) => ({ FS: 0, SS: 2, FF: 2, SF: 3 }[k] ?? 4);",
+            "line_text": "      const rank = (k) => ({ FS: 0, SS: 1, FF: 2, SF: 3 }[k] ?? 4);",
+            "caught": false,
+            "seconds": 5.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "SS rank 2 ties FF, so a driving FF listed first kept the name; test 'a driving SS link names the start ahead of a driving FF tie'."
+          },
+          {
+            "file": "ventures/xer-schedule-check/lookahead.mjs",
+            "line": 198,
+            "col": 45,
+            "operator": "eq-flip",
+            "before": "const gates = waitsOn.some((w) => w.type === \"FS\" || w.type === \"SS\" || w.state === \"external\");",
+            "after": "const gates = waitsOn.some((w) => w.type !== \"FS\" || w.type === \"SS\" || w.state === \"external\");",
+            "line_text": "    const gates = waitsOn.some((w) => w.type === \"FS\" || w.type === \"SS\" || w.state === \"external\");",
+            "caught": true,
+            "seconds": 5.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/lookahead.mjs",
+            "line": 209,
+            "col": 59,
+            "operator": "and-to-or",
+            "before": "const sc = t.cstr.find((c) => START_CSTR.has(c.type) && c.date !== null && Math.abs(c.date - s) < 1 + DAY);",
+            "after": "const sc = t.cstr.find((c) => START_CSTR.has(c.type) || c.date !== null && Math.abs(c.date - s) < 1 + DAY);",
+            "line_text": "      const sc = t.cstr.find((c) => START_CSTR.has(c.type) && c.date !== null && Math.abs(c.date - s) < 1 + DAY);",
+            "caught": false,
+            "seconds": 5.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "a finish constraint dated within a day of the start was named as the start driver; test 'a finish constraint is not named as what drives the start'."
+          },
+          {
+            "file": "ventures/xer-schedule-check/lookahead.mjs",
+            "line": 312,
+            "col": 37,
+            "operator": "const-plus-one",
+            "before": "table{border-collapse:collapse;width:100%;margin-top:10px}th,td{border:1px solid #c9ced6;padding:3px 4px;vertical-align:top;text-align:left}",
+            "after": "table{border-collapse:collapse;width:101%;margin-top:10px}th,td{border:1px solid #c9ced6;padding:3px 4px;vertical-align:top;text-align:left}",
+            "line_text": "table{border-collapse:collapse;width:100%;margin-top:10px}th,td{border:1px solid #c9ced6;padding:3px 4px;vertical-align:top;text-align:left}",
+            "caught": false,
+            "seconds": 5.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "table width 101% overflows the printed landscape sheet; test 'the printed page fits the sheet'."
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "267cb334-7786-56b1-8bce-fb66f64469df",
+    "transcripts": 1,
+    "first": "2026-11-26T05:18:12Z",
+    "last": "2026-11-26T05:23:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 24,
+        "input": 48,
+        "output": 10193,
+        "thinking": 4143,
+        "cache_read": 1700966,
+        "cache_write_5m": 0,
+        "cache_write_1h": 65207,
+        "api_equivalent_usd": 1.0659,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 24,
+      "input": 48,
+      "output": 10193,
+      "thinking": 4143,
+      "cache_read": 1700966,
+      "cache_write_5m": 0,
+      "cache_write_1h": 65207,
+      "api_equivalent_usd": 1.0659,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.963,
+    "tool_calls": 24,
+    "tools": {
+      "Bash": 22,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.93,
+      "active_minutes": 4.93,
+      "model_minutes": 2.42,
+      "tool_minutes": 2.51,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "triage 5 mutants and write 4 tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 140.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
