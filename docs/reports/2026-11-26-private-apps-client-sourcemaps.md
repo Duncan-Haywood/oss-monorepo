@@ -1,6 +1,6 @@
 ---
 kind: note
-subjects: [grants, payapps, cmmc, jobshop-quote, seller-books]
+subjects: [pay-app-guides, machine-shop-guides]
 ---
 # Private apps were publishing their source through client source maps (fixed 2026-11-26)
 
