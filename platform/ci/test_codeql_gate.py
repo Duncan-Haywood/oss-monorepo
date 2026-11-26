@@ -150,6 +150,34 @@ class MainTest(unittest.TestCase):
             self.assertIn("::error file=a.py,line=2,title=CodeQL py/sql-injection::a: b, c", printed)
 
 
+    def test_a_non_utf8_byte_in_the_diff_does_not_crash_the_gate(self):
+        # PR 19220: a moved Latin-1 fixture made the strict decode raise before any finding was read.
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            git = lambda *a: subprocess.run(["git", "-C", tmp, *a], check=True, capture_output=True)  # noqa: E731
+            git("init", "-q")
+            git("config", "user.email", "t@example.test")
+            git("config", "user.name", "t")
+            (repo / "a.py").write_text("ok\n")
+            git("add", "-A")
+            git("commit", "-qm", "base")
+            (repo / "latin1.txt").write_bytes(b"caf\xe9 \xf3\n")
+            (repo / "a.py").write_text("ok\nquery = 'x' + y\n")
+            git("add", "-A")
+            git("commit", "-qm", "change")
+            out = repo / "s.sarif"
+            out.write_text(json.dumps(sarif([result("py/sql-injection", "a.py", 2, "m")],
+                                            [rule("py/sql-injection", 8.8)])))
+            cwd = os.getcwd()
+            os.chdir(tmp)
+            try:
+                with unittest.mock.patch.dict(os.environ, {"GITHUB_STEP_SUMMARY": ""}), \
+                        unittest.mock.patch("sys.stdout"):
+                    code = codeql_gate.main(["--sarif", str(repo), "--base", "HEAD^1"])
+            finally:
+                os.chdir(cwd)
+            self.assertEqual(code, 1)  # still fails on the real finding, instead of crashing
+
 import unittest.mock  # noqa: E402
 
 if __name__ == "__main__":
