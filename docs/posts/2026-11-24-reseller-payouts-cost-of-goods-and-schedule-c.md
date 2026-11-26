@@ -491,6 +491,42 @@ Schedule C page, and each file adds up to its own worksheet figure.
 These are your own records, in a form you can file away or send on. They are
 not a return and not tax advice.
 
+## Two of the same thing in one order (added 2026-11-26)
+
+A buyer takes two of the bowls you listed under one SKU. eBay reports that as
+one order with a quantity of 2. Until today, Seller Books linked that order to
+only one of your two bowls. The second one stayed "in stock", so its cost was
+never counted: profit came out too high, and closing inventory (line 41) was
+too big by one bowl. Our own quality audit found this on the same day, along
+with a second problem. A sale could be linked to an item you bought *after*
+the sale, which you can't have shipped. Both errors would have reached
+numbers you file.
+
+Both are fixed now:
+
+- **One item for each unit sold.** A quantity-2 order now takes two items
+  with that SKU, the oldest first, and the cost of both goes into the
+  order's cost of goods. If you only have one item on record, the order is
+  flagged as missing cost until you add the other, either on the Sales page
+  or from your sourcing sheet.
+- **Never an item bought after the sale.** Matching only looks at items you
+  held on the sale date. Linking by hand refuses a later item and gives both
+  dates. Under specific identification, the method Schedule C Part III uses
+  for one-of-a-kind stock, the item that sold has to be one you owned at the
+  time.
+
+In the app's test, an eBay report sells two $10.00 bowls in one January
+order and a pair of jeans you only bought in March. Both bowls now leave
+stock, so cost of goods is $20.00 and not $10.00. The jeans stay on hand at
+$7.00, and that is the whole of line 41. Unlinking the order, or deleting
+the import, puts both bowls back.
+
+Two gaps from the same audit are still open, and we would rather say so. A
+returned item is not put back in stock automatically, because a refund row
+doesn't say whether the item came back. And the worksheet doesn't yet warn
+on Part III when unlinked orders leave line 41 too high. The P&L page does
+flag those orders.
+
 ## What comes next
 
 Each of the ten tool pages now ends with a short "track true profit across
