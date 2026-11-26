@@ -121,7 +121,9 @@ function inspectRow(row, index, negative = false) {
   let percent = null;
   if ("base" in row && row.base !== null && row.base !== "") {
     base = money(row.base);
-    if (base === null || base < 0) {
+    // A negative invoice may carry its sign on the base instead of the
+    // percentage (-1500 x 10% = -150.00); the arithmetic check still applies.
+    if (base === null || (base < 0 && !negative)) {
       findings.push(finding(
         "INV-051",
         "Header allowance or charge base is missing or invalid.",

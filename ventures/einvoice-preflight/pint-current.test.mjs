@@ -113,3 +113,14 @@ test("a negative invoice may state a header percentage with its sign; it must st
   const positive = { totals: { net: 100, gross: 110 }, adjustments: [{ kind: "charge", amount: 10, base: 100, percent: -10, reason: "x" }] };
   assert.ok(inspectHeaderAdjustments(positive).some((f) => f.rule === "INV-051"));
 });
+
+test("a negative invoice may carry its sign on the header base instead (red team 2026-11-26)", () => {
+  const invoice = (base, amount) => ({
+    totals: { net: -1627.4, gross: -1780.14 },
+    adjustments: [{ kind: "charge", amount, base, percent: 10, reason: "Refund shipping" }],
+  });
+  assert.deepEqual(inspectHeaderAdjustments(invoice(-1500, -150)).map((f) => f.rule), []);
+  assert.deepEqual(inspectHeaderAdjustments(invoice(-1500, -140)).map((f) => f.rule), ["INV-051"]);
+  const positive = { totals: { net: 100, gross: 110 }, adjustments: [{ kind: "charge", amount: 10, base: -100, percent: 10, reason: "x" }] };
+  assert.ok(inspectHeaderAdjustments(positive).some((f) => f.rule === "INV-051"));
+});
