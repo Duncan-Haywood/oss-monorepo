@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b51'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Billing in Procore, Textura and GCPay</title>
+  <meta name="description" content="How subs set up the SOV and bill each month in a GC's portal: Procore's SSOV import and invoice, Textura's billing upload, GCPay's SOV upload.">
+  <meta property="og:title" content="Billing through a GC's portal: Procore, Textura and GCPay">
+  <meta property="og:description" content="Where your continuation-sheet numbers go in each portal, the upload rules the vendors publish, a line converter and a GCPay schedule-of-values check.">
+  <link rel="canonical" href="./gc-portal-billing.html">
+  <link rel="stylesheet" href="style.css">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Billing through a GC's portal: Procore, Textura and GCPay", "datePublished": "2026-11-26", "dateModified": "2026-11-26"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Can I upload my pay application to Procore?", "acceptedAnswer": {"@type": "Answer", "text": "Not the monthly invoice, as far as Procore's help pages go: they cover exporting an invoice to CSV and importing only the Subcontractor Schedule of Values. The invoice contact types each line's Work Completed This Period and stored materials into the invoice by hand. The SOV detail can be imported from the CSV template the GC downloads from the commitment."}}, {"@type": "Question", "name": "How do I upload billing amounts to Textura?", "acceptedAnswer": {"@type": "Answer", "text": "In the billing workflow, open the Progress tab, choose More, then Upload Billing Amounts. Pick This Period Billing Amounts or To Date Billing Amounts, download the template, fill in the billing and retention values, save it as CSV and upload it. Oracle says that if the retention amounts do not meet the draw's retention settings, the system overrides the amounts in the file."}}, {"@type": "Question", "name": "Why won't GCPay let me submit my schedule of values?", "acceptedAnswer": {"@type": "Answer", "text": "GCPay's subcontractor guide says the values must add up to the Original Contract Value the general contractor entered, or you cannot submit. Leave change orders out: the GC adds them after the base schedule is approved. The upload takes the GCPay Excel template with three columns: Item Number, Description and Value."}}, {"@type": "Question", "name": "What goes in Procore's New Materials Stored column?", "acceptedAnswer": {"@type": "Answer", "text": "Procore asks for the amount of any new materials stored in the current billing period, excluding anything already entered as Work Completed This Period. It only appears when the GC has turned on billing stored materials separately. If your stored balance only rose, the new amount is the rise; if it fell because material was installed, take the new deliveries from your delivery tickets."}}]}</script>
+</head>
+<body>
+<header>
+  <p class="kicker">Pay app guides · <a href="./">schedule of values calculator</a></p>
+  <h1>Billing through a GC's portal: Procore, Textura and GCPay</h1>
+  <p>More general contractors now ask subs to bill inside their payment portal instead of emailing a pay application. The numbers are the same ones on your continuation sheet (the G703-style page: scheduled value, work from previous applications, this period, materials stored), but each portal wants them in its own place and its own file. This page puts the three portals side by side, quotes the rules their vendors publish, and turns one line's figures into what each one asks for.</p>
+  <nav class="guides" aria-label="Guides">
+    <a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a>
+    <a href="stored-materials-billing.html">Billing stored materials</a>
+    <a href="schedule-of-values-template.html">Free Excel SOV template</a>
+    <a href="pay-application-software-compared.html">What the portals charge subs</a>
+  </nav>
+</header>
+<main>
+<section class="card">
+  <h2>The three portals at a glance</h2>
+  <div class="scroll"><table class="stack" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">Portal</th><th role="columnheader" scope="col">Setting up the schedule of values</th><th role="columnheader" scope="col">Each month</th></tr></thead>
+    <tbody>
+      <tr role="row"><td role="cell" data-label="Portal">Procore</td><td role="cell" data-label="Setting up the schedule of values">The GC downloads the Subcontractor SOV CSV template from the commitment; you add detail rows under each SOV position and it is imported</td><td role="cell" data-label="Each month">Typed into the invoice by hand: Work Completed This Period, plus stored materials</td></tr>
+      <tr role="row"><td role="cell" data-label="Portal">Oracle Textura</td><td role="cell" data-label="Setting up the schedule of values">Usually set up with the GC's budget lines (phase codes) in the contract</td><td role="cell" data-label="Each month">Typed in, or uploaded: This Period or To Date billing amounts from the template on the Progress tab</td></tr>
+      <tr role="row"><td role="cell" data-label="Portal">GCPay</td><td role="cell" data-label="Setting up the schedule of values">The GC enters the contract amount; you enter the breakdown by hand or upload the GCPay Excel template</td><td role="cell" data-label="Each month">Typed into $ This Period or % Work to Date; the guide describes no billing upload</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">Sources are the vendors' own help pages and one GCPay training guide, named under each portal below, read on 2026-11-25 and 2026-11-26 (some through search results, as the hosts could not be opened directly). They were not re-read for this page. Portals change their screens and a GC can configure them differently, so check each label against your own project. What a portal charges you is on <a href="pay-application-software-compared.html">the software comparison</a>.</p>
+</section>
+
+<section class="card" id="procore">
+  <h2>Procore</h2>
+  <h3>The schedule of values (SSOV)</h3>
+  <p>A GC's Procore commitment has its own schedule of values, the <em>SOV positions</em>. Your detailed schedule, the Subcontractor SOV, hangs underneath them. The GC downloads a template from the commitment (Edit SSOV, then Import CSV, then Download CSV Template) with one row per SOV position, and the detail rows go under each position. Procore's help page "Import a Subcontractor Schedule of Values from a CSV" (read 2026-11-25) sets the rules:</p>
+  <ul>
+    <li>Do not add, move or rename columns.</li>
+    <li>Every row needs the SOV Position Number and the SOV Amount.</li>
+    <li>The Subcontractor SOV Amount is a plain number such as 15000: no commas or dollar signs, and 0.00 rather than a blank cell.</li>
+  </ul>
+  <h3>Each month's invoice</h3>
+  <p>The invoice is typed in by hand. The invoice contact opens the commitment, clicks Create Invoice and enters, line by line, an amount for the current billing period in <strong>Work Completed This Period</strong>. Procore's help pages cover exporting an invoice to CSV and importing only the Subcontractor SOV; we found no import for the invoice itself. Stored materials go in one of two ways (Procore, "Create a New Subcontractor Invoice as an Invoice Contact", searched 2026-11-26):</p>
+  <ul>
+    <li>The older form's <strong>Materials Presently Stored</strong>: "the amount of the materials being stored during the current billing period".</li>
+    <li>The newer form's <strong>New Materials Stored</strong>: "the amount of any new materials being stored for the current billing period. Your entry should exclude any costs entered in the 'Work Completed this Period' column". It appears only when the GC turned on "Enable Billing Separately for Stored Materials".</li>
+  </ul>
+  <p>Approved commitment change orders are listed as their own invoice lines, apart from the SOV positions.</p>
+</section>
+
+<section class="card" id="textura">
+  <h2>Oracle Textura Payment Management</h2>
+  <p>A subcontractor's invoice can be filled from a file. In the billing workflow, the Progress tab's More menu has <strong>Upload Billing Amounts</strong>. The dialog offers <strong>This Period Billing Amounts</strong> or <strong>To Date Billing Amounts</strong> and a Download Template button, which Oracle describes as "a pre-formatted Excel spreadsheet for uploading. The template includes phase codes, description, budget amounts, and the current billing amounts for the line items in your contract." You "update the file with desired billing and retention values", save it as CSV and upload it. And: "If your retention amounts do not meet the retention settings, the system will override the amounts in the file." (Oracle, "Importing a Payment Application from a File for Subcontractors" and the Subcontractor Billing Workflow Guide, North America; read 2026-11-26.)</p>
+  <ul>
+    <li><strong>This Period</strong> upload: your column E goes in <em>Work This Period</em>, and materials newly stored this month in <em>Material Stored This Period</em>.</li>
+    <li><strong>To Date</strong> upload: <em>Completed to Date</em> is, in Oracle's words, "the total monetary value ... for the current and previous periods", so it takes your column G (work completed plus materials presently stored). Where the template has a stored-to-date column, it takes column F. (Oracle, "Progress and Retention Tab Fields Overview" and "Recording Progress Billing for Subcontractors", read 2026-11-26.)</li>
+    <li>Oracle does not publish the template's column headings, so work in the file the GC's project gives you: keep its header rows, columns and their order, and change only the billing cells. Typing amounts as plain numbers (1234.56, no commas or $) is the safe choice for a CSV.</li>
+  </ul>
+</section>
+
+<section class="card" id="gcpay">
+  <h2>GCPay</h2>
+  <p>When the GC has entered your contract amount (a "constrained" schedule of values), you enter the breakdown by hand or with the Line Items section's Upload button. From GCPay's Subcontractor Training Guide (Rev. 12/19, "Creating a Schedule of Values" and "Uploading a Schedule of Values via Excel Upload", as published by a GC for its subs; read 2026-11-26):</p>
+  <ul>
+    <li>"A standard Schedule of Values will be 3 columns: Item Number, Description, Value while a Unit Price Schedule of Values will be 5 Columns: Item Number, Description, Units, Unit Description, Unit Value".</li>
+    <li>Use the GCPay Excel template: "the system will not upload a document saved as any other file format", and remove "any and all information outside of the following: item number, description, &amp; value."</li>
+    <li>"The sum of values entered should equal your Original Contract Value. You will not be able to submit if you contract totals do not match the amount entered by your General Contractor."</li>
+    <li>"Change orders will be added by your General Contractor AFTER your base contract value has been approved in GCPay."</li>
+  </ul>
+  <p>Billing is typed into the <strong>$ This Period</strong> (or <strong>% Work to Date</strong>) column; the guide describes no billing upload, and it does not say where stored materials go, so ask the GC how they want them shown. The <a href="#sov-check">check below</a> catches the usual reasons an upload is refused.</p>
+</section>
+
+<section class="card" id="convert">
+  <h2>One line, three portals</h2>
+  <p>Type one schedule-of-values line from this month's continuation sheet. The table shows what goes in each portal's box.</p>
+  <div class="grid">
+    <div><label for="gp-c">Scheduled value, column C ($)</label><input id="gp-c" inputmode="decimal" value="50000"></div>
+    <div><label for="gp-d">From previous applications, column D ($)</label><input id="gp-d" inputmode="decimal" value="20000"></div>
+    <div><label for="gp-e">This period, column E ($)</label><input id="gp-e" inputmode="decimal" value="8000"></div>
+    <div><label for="gp-f">Materials presently stored, column F ($)</label><input id="gp-f" inputmode="decimal" value="3000"></div>
+    <div><label for="gp-fb">Column F on last month's application ($, blank if this is the first)</label><input id="gp-fb" inputmode="decimal" value="1000"></div>
+  </div>
+  <div id="gp-errors" aria-live="polite"></div>
+  <div class="scroll"><table class="stack" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">Portal</th><th role="columnheader" scope="col">Box</th><th role="columnheader" scope="col" class="n">Enter</th></tr></thead>
+    <tbody id="gp-rows"></tbody>
+  </table></div>
+  <p class="note">Your numbers stay in this browser tab. Retainage is not in these boxes. Textura applies the draw's retention settings and overrides retention amounts in an upload that do not meet them; ask your GC how retainage is set up on their Procore or GCPay project.</p>
+</section>
+
+<section class="card" id="sov-check">
+  <h2>GCPay schedule-of-values check</h2>
+  <p>Paste your lines as <em>item number, description, value</em>, one per line (commas or tabs; a spreadsheet copy pastes as tabs). The check adds them up against the contract value the GC entered and flags rows GCPay's guide says to leave out.</p>
+  <div class="grid">
+    <div><label for="gs-contract">Original contract value in GCPay ($)</label><input id="gs-contract" inputmode="decimal" value="100000"></div>
+  </div>
+  <label for="gs-lines">Schedule of values lines</label>
+  <textarea id="gs-lines" rows="7">1, Mobilization, 5000
+2, Rough-in, 60000
+3, Trim and fixtures, 35000
+4, CO #1 added circuits, 1200</textarea>
+  <div id="gs-out" aria-live="polite"></div>
+  <p class="note">This checks the rules quoted above, not the GC's own setup. Your lines stay in this browser tab.</p>
+</section>
+
+<section class="card">
+  <h2>Other portals</h2>
+  <p>Trimble Pay (formerly Flashtract) and Siteline are also used to bill GCs; this page does not cover their screens yet. If a GC sends you to a portal not listed here, ask for its subcontractor guide and the template it uses before your first billing date, since a schedule of values that is refused usually holds up the first payment.</p>
+</section>
+
+<section class="card" id="faq">
+  <h2>Common questions</h2>
+  <h3>Can I upload my pay application to Procore?</h3>
+  <p>Not the monthly invoice, as far as Procore's help pages go: they cover exporting an invoice to CSV and importing only the Subcontractor Schedule of Values. The invoice contact types each line's Work Completed This Period and stored materials into the invoice by hand. The SOV detail can be imported from the CSV template the GC downloads from the commitment.</p>
+  <h3>How do I upload billing amounts to Textura?</h3>
+  <p>In the billing workflow, open the Progress tab, choose More, then Upload Billing Amounts. Pick This Period Billing Amounts or To Date Billing Amounts, download the template, fill in the billing and retention values, save it as CSV and upload it. Oracle says that if the retention amounts do not meet the draw's retention settings, the system overrides the amounts in the file.</p>
+  <h3>Why won't GCPay let me submit my schedule of values?</h3>
+  <p>GCPay's subcontractor guide says the values must add up to the Original Contract Value the general contractor entered, or you cannot submit. Leave change orders out: the GC adds them after the base schedule is approved. The upload takes the GCPay Excel template with three columns: Item Number, Description and Value.</p>
+  <h3>What goes in Procore's New Materials Stored column?</h3>
+  <p>Procore asks for the amount of any new materials stored in the current billing period, excluding anything already entered as Work Completed This Period. It only appears when the GC has turned on billing stored materials separately. If your stored balance only rose, the new amount is the rise; if it fell because material was installed, take the new deliveries from your delivery tickets.</p>
+</section>
+
+<section class="card cta" id="early-access">
+  <h2>Bill once, fill every portal</h2>
+  <p>We are building hosted pay-app billing for specialty subcontractors: you keep one schedule of values per job, and the pay app it makes also fills the Procore SSOV template and invoice sheet, Textura's billing uploads and the GCPay SOV upload from the same numbers. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
+</section>
+</main>
+<!-- all-guides: generated by nav.mjs, do not edit by hand -->
+<nav class="all-guides" id="all-guides" aria-label="All pay app tools and guides">
+    <div>
+      <h2>Tools</h2>
+      <ul>
+      <li><a href="./">Schedule of values calculator</a></li>
+      <li><a href="pay-application-checker.html">Pay app checker (this month vs last)</a></li>
+      <li><a href="change-order-log.html">Change order log</a></li>
+      <li><a href="tm-tickets.html">T&amp;M ticket log and CO request</a></li>
+      <li><a href="schedule-of-values-template.html">Free Excel SOV template</a></li>
+      <li><a href="front-loading-schedule-of-values.html">Front-loading check (balanced SOV)</a></li>
+      <li><a href="pay-if-paid-clauses.html">Pay-if-paid clause reader</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Billing guides</h2>
+      <ul>
+      <li><a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a></li>
+      <li><a href="change-orders-schedule-of-values.html">Change orders and the SOV</a></li>
+      <li><a href="stored-materials-billing.html">Billing stored materials</a></li>
+      <li><a href="overbilling-underbilling.html">Overbilling and underbilling</a></li>
+      <li><a href="retainage-explained.html">Retainage explained, with state caps</a></li>
+      <li><a href="retainage-release.html">Getting retainage released</a></li>
+      <li><a href="retainage-in-quickbooks.html">Retainage in QuickBooks</a></li>
+      <li><a href="retainage-tracker.html">Retainage tracker (every job)</a></li>
+      <li><a href="gc-portal-billing.html" aria-current="page">Billing in Procore, Textura and GCPay</a></li>
+      <li><a href="pay-application-software-compared.html">Pay app software compared</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Getting paid and lien waivers</h2>
+      <ul>
+      <li><a href="prompt-payment-laws.html">Prompt payment laws by state</a></li>
+      <li><a href="conditional-vs-unconditional-lien-waivers.html">Conditional vs unconditional lien waivers</a></li>
+      <li><a href="lien-waiver-forms-by-state.html">Lien waiver forms by state</a></li>
+      <li><a href="california-preliminary-notice.html">California 20-day preliminary notice</a></li>
+      <li><a href="lien-waiver-log.html">Lien waiver log (given and collected)</a></li>
+      <li><a href="sworn-statement.html">Contractor's sworn statement builder</a></li>
+      <li><a href="paid-short.html">Paid short? Reconcile the check</a></li>
+      <li><a href="joint-checks.html">Joint check splitter and split letter</a></li>
+      <li><a href="miller-act-payment-bond-claims.html">Miller Act bond claim deadlines (federal jobs)</a></li>
+      <li><a href="pay-app-cash-forecast.html">When will I get paid? Cash forecast</a></li>
+      </ul>
+    </div>
+</nav>
+<!-- /all-guides -->
+<footer>
+  <p><strong>No warranty.</strong> This guide is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, or financial advice, and it does not replace your contract, your GC's instructions, your accountant, or an attorney. You are responsible for verifying anything you bill or record. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Not affiliated with Procore, Oracle, GCPay or Trimble.</strong> Procore, Oracle Textura, GCPay, Trimble Pay and Siteline are marks of their owners. This guide quotes their published help material; it is not their documentation.</p>
+  <p><strong>Not affiliated with the American Institute of Architects.</strong> AIA, G702 and G703 are marks of their owner. This page does not reproduce the AIA forms.</p>
+  <p><strong>Privacy.</strong> No accounts, cookies or analytics vendors. One anonymous counter (<code>guide_gc_portal_billing_viewed</code>) is kept in local storage on your device only, and Do Not Track switches it off. <button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
+</footer>
+<script type="module">
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  import { fmt, pctText } from "./calc.mjs";
+  import { portalLine, gcpaySovCheck } from "./gcportal.mjs";
+  record("guide_gc_portal_billing_viewed");
+  const b = document.getElementById("optout");
+  b.addEventListener("click", () => { setUsageOptOut(true); b.textContent = "Usage counting is off"; b.disabled = true; });
+  if (usageOptedOut()) { b.textContent = "Usage counting is off"; b.disabled = true; }
+
+  const $ = (id) => document.getElementById(id);
+  const para = (text, cls) => { const p = document.createElement("p"); p.className = cls; p.textContent = text; return p; };
+  function cell(text, cls, label) { const td = document.createElement("td"); td.textContent = text; if (cls) td.className = cls; td.dataset.label = label; td.setAttribute("role", "cell"); return td; }
+  const money = (c) => (c === null ? "from delivery tickets" : fmt(c));
+  function renderLine() {
+    const r = portalLine({ scheduled: $("gp-c").value, previous: $("gp-d").value, thisPeriod: $("gp-e").value, storedNow: $("gp-f").value, storedBefore: $("gp-fb").value });
+    $("gp-errors").replaceChildren(...r.errors.map((e) => para(e, "finding")), ...r.warnings.map((w) => para(w, "finding")));
+    if (r.errors.length) { $("gp-rows").replaceChildren(); return; }
+    const rows = [
+      ["Procore", "Work Completed This Period", money(r.procore.workThisPeriod)],
+      ["Procore (older form)", "Materials Presently Stored", money(r.procore.materialsPresentlyStored)],
+      ["Procore (stored billed separately)", "New Materials Stored", money(r.procore.newMaterialsStored)],
+      ["Textura, This Period upload", "Work This Period", money(r.textura.thisPeriod.workThisPeriod)],
+      ["Textura, This Period upload", "Material Stored This Period", money(r.textura.thisPeriod.materialStoredThisPeriod)],
+      ["Textura, To Date upload", "Completed to Date", money(r.textura.toDate.completedToDate)],
+      ["Textura, To Date upload", "Stored to date (if the template has it)", money(r.textura.toDate.storedToDate)],
+      ["GCPay", "$ This Period (work)", money(r.gcpay.thisPeriod)],
+      ["GCPay", "% Work to Date (work, without stored)", pctText(r.gcpay.workToDatePercent)],
+    ];
+    $("gp-rows").replaceChildren(...rows.map(([p, box, v]) => { const tr = document.createElement("tr"); tr.setAttribute("role", "row"); tr.append(cell(p, "", "Portal"), cell(box, "", "Box"), cell(v, "n", "Enter")); return tr; }));
+  }
+  function renderSov() {
+    const r = gcpaySovCheck({ contract: $("gs-contract").value, lines: $("gs-lines").value });
+    const out = [...r.errors.map((e) => para(e, "finding")), ...r.findings.map((f) => para(f, "finding"))];
+    if (r.difference !== null) {
+      out.push(r.difference === 0
+        ? para(`Lines add up to ${fmt(r.total)}, the contract value.`, "finding")
+        : para(`Lines add up to ${fmt(r.total)}: ${fmt(Math.abs(r.difference))} ${r.difference > 0 ? "over" : "short of"} the contract value of ${fmt(r.target)}. GCPay will not let you submit until they match.`, "finding"));
+    }
+    $("gs-out").replaceChildren(...out);
+  }
+  for (const id of ["gp-c", "gp-d", "gp-e", "gp-f", "gp-fb"]) $(id).addEventListener("input", renderLine);
+  for (const id of ["gs-contract", "gs-lines"]) $(id).addEventListener("input", renderSov);
+  renderLine();
+  renderSov();
+</script>
+</body>
+</html>

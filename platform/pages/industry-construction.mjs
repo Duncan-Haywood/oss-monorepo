@@ -110,6 +110,7 @@ export const PROBLEMS = [
       ['pay-app-guides/retainage-tracker.html', 'Retainage tracker', 'Retainage receivable across jobs: aging from your release terms, unbilled releases, totals by GC and a chase list.'],
       ['pay-app-guides/retainage-release.html', 'Retainage release', 'The closeout documents usually asked for, a release date, and a request letter.'],
       ['pay-app-guides/retainage-in-quickbooks.html', 'Retainage in QuickBooks Online', 'The account, item and invoice lines QuickBooks needs, since it has no retainage field.'],
+      ['pay-app-guides/gc-portal-billing.html', 'Billing in Procore, Textura and GCPay', 'Where your pay app numbers go in each GC portal, and why a GCPay SOV upload is refused.'],
       ['pay-app-guides/overbilling-underbilling.html', 'Overbilling and underbilling', 'Billed to date against cost-to-cost percent complete for one job, with the adjusting entry.'],
       ['retainage-cashflow-calculator', 'Retainage cash-flow calculator', 'How much retainage is held, what carrying it costs, and a follow-up draft.'],
       ['subcontractor-cashflow-planner', 'Subcontractor cash-flow planner', 'The funding gap that payment terms and retention open, and what closes it.'],
