@@ -18,10 +18,11 @@
 - Every episode is written by an AI (Claude) and read by a synthetic voice, and says so at the start.
 - Each script ends with spoken "notes for the curious" naming its sources and what was invented; each page front matter also carries `history`, `legend` and `fiction` lines.
 - Catholic and Orthodox in scope; it stays off ground where the two traditions differ. It is not catechesis and has not been reviewed by any Church authority.
-- 180 episodes; audio for episodes 1 to 29, the rest text only for now.
+- 181 episodes; audio for episodes 1 to 29, the rest text only for now.
 
 ## Episodes, newest first
 
+- [181. The Voice from the Whirlwind and the Storehouses of the Snow](https://example.invalid/saints-by-candlelight/the-voice-from-the-whirlwind-and-the-storehouses-of-the-snow.html): God answers Job from the storm with questions: the snow, the stars, the raven's chicks, the wild ass and the horse. Job 38 to 40.
 - [180. Othniel and Achsah and the Upper and Lower Springs](https://example.invalid/saints-by-candlelight/othniel-and-achsah-and-the-upper-and-lower-springs.html): Caleb's daughter Achsah gets down from her donkey and asks for springs of water; her husband Othniel becomes Israel's first judge.
 - [179. Job's Three Daughters, Jemimah, Keziah and Keren-happuch](https://example.invalid/saints-by-candlelight/jobs-three-daughters-jemimah-keziah-and-keren-happuch.html): After the whirlwind, Job prays for his friends and names three daughters for a dove, a spice and a horn of eye paint. Job 42.
 - [178. Hiram King of Tyre and the Towns Called Cabul](https://example.invalid/saints-by-candlelight/hiram-king-of-tyre-and-the-towns-called-cabul.html): Hiram, the king of Tyre, sends cedar and carpenters to build King David a house, blesses the Lord when David's son comes to the throne, trades timber for wheat with Solomon for twenty years, rides out to see the twenty towns in Galilee he is given in return and says, what are these towns you have given me, my brother, and still sends his sailors down to the Red Sea with Solomon's ships. Told from the Second Book of Samuel, the First Book of Kings and the Second Book of Chronicles, with what Scripture later says about Tyre, down to a farewell on the beach in the Acts of the Apostles.

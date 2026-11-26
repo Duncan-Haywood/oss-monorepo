@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKieS7d4A6q39RHCvQZ",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T23:18:00Z",
+  "ended": "2026-11-26T23:23:37Z",
+  "wall_minutes": 5.79,
+  "tokens_in": 2291663,
+  "tokens_out": 27053,
+  "cost_usd": 1.6573,
+  "tool_calls": 26,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19517",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "Flags regenerated static episode pages as 'personal data, tracking or forms changed' on every creative run, though only story text changed; the check has to be answered by hand each time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "'Write about the work' asks most PRs to carry a post, but the 2026-11-24 consolidation direction says no new short post per PR and the saints shelf already has about 91 per-episode posts. No existing post fits Job.",
+      "did": "No post. The episode's spoken 'Notes for the curious' and the PR body carry the hedges.",
+      "result": "Avoided adding a thin post."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Security queue: 0 workable. Ideas inbox empty. Routed to creative; creative_due drew saints-by-candlelight. Piece: episode 181, the-voice-from-the-whirlwind-and-the-storehouses-of-the-snow (Job 38:1-40:5), 7851 words, text only (audio 581 MB > 400 MB cap). Checks: --check-script ok, venture node --test 21/21, og-description-length 4/4. Adversarial re-read checked verse references, the Vulgate gallo/rinoceros readings, Gregory's lamb-and-elephant line (letter to Leander), and ostrich incubation.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b2e31856-d1b7-57cf-8d12-8fbfc7501936",
+    "transcripts": 1,
+    "first": "2026-11-26T23:18:00Z",
+    "last": "2026-11-26T23:23:47Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 26,
+        "input": 52,
+        "output": 27053,
+        "thinking": 7358,
+        "cache_read": 2207284,
+        "cache_write_5m": 0,
+        "cache_write_1h": 84327,
+        "api_equivalent_usd": 1.6573,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 26,
+      "input": 52,
+      "output": 27053,
+      "thinking": 7358,
+      "cache_read": 2207284,
+      "cache_write_5m": 0,
+      "cache_write_1h": 84327,
+      "api_equivalent_usd": 1.6573,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.963,
+    "tool_calls": 26,
+    "tools": {
+      "Bash": 23,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.79,
+      "active_minutes": 5.79,
+      "model_minutes": 5.19,
+      "tool_minutes": 0.6,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a researched 7,800-word scripted episode, about a writer's working day",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 362.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
