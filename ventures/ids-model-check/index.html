@@ -166,7 +166,9 @@
   // parser and four model readers among them, which the worker loads for
   // itself) before the page could respond; now 3 kB
   // (docs/history/ids-model-check-page-perf-2026-11-25.md).
-  const lazy = (load) => { let p; return () => (p ||= load()); };
+  // A failed load (a dropped connection) is forgotten, so the next press
+  // fetches again instead of failing until the page is reloaded.
+  const lazy = (load) => { let p; return () => (p ||= load().catch((e) => { p = null; throw e; })); };
   const reportMod = lazy(() => import("./report.mjs"));
   const htmlReportMod = lazy(() => import("./html-report.mjs"));
   const bcfMod = lazy(() => import("./bcf.mjs"));
@@ -328,11 +330,15 @@
     $("out").innerHTML = "";
     worker ||= new Worker(new URL("./worker.mjs", import.meta.url), { type: "module" });
     const req = ++reqNo;
+    // Fetched while the worker audits, not after its reply, so on a slow
+    // connection the result does not wait one more round trip.
+    const mods = Promise.all([fixMod(), sheetMod()]);
+    mods.catch(() => {}); // handled below, once the reply comes
     worker.onmessage = async (ev) => {
       if (ev.data.req !== req) return;
       ready();
       if (ev.data.error) { $("status").textContent = "Could not audit: " + ev.data.error; record("check_error"); return; }
-      const [{ fixStructure }, { sheetFromIds, rowsToXlsx, rowsToCsv, sheetLists, sheetVersions }] = await Promise.all([fixMod(), sheetMod()])
+      const [{ fixStructure }, { sheetFromIds, rowsToXlsx, rowsToCsv, sheetLists, sheetVersions }] = await mods
         .catch((e) => { $("status").textContent = "Could not load the audit's report code: " + e.message; throw e; });
       // A newer check or audit started while these loaded: its reply owns the page.
       if (req !== reqNo) return;
