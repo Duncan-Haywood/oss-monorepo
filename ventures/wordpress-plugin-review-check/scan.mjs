@@ -216,9 +216,11 @@ export function buildReport({ readme, pluginHeader, unescapedOutput, missingNonc
   const version = pluginHeader.headers.version;
   if (stable && version) {
     if (stable.trim().toLowerCase() === 'trunk') {
-      // A deliberate, if discouraged, choice some plugins make: "Stable tag:
-      // trunk" tells the directory to always serve the latest commit rather
-      // than a tagged release. Not itself a mismatch.
+      // "Stable tag: trunk" serves the SVN trunk instead of a tagged release.
+      // Plugin Check reports it as an error (trunk_stable_tag in
+      // Plugin_Readme_Check::check_stable_tag) and the readme docs ask for a
+      // tagged version, so it fails `ok` like a mismatch does (quality audit
+      // 2026-11-26-wordpress-plugin-review-check, defect 1).
       stableTagStatus = 'trunk';
     } else if (stable.trim() !== version.trim()) {
       stableTagStatus = 'mismatch';
@@ -245,6 +247,7 @@ export function buildReport({ readme, pluginHeader, unescapedOutput, missingNonc
     readme.found &&
     pluginHeader.found &&
     stableTagStatus !== 'mismatch' &&
+    stableTagStatus !== 'trunk' &&
     missingRequiredReadme.length === 0 &&
     missingRequiredHeader.length === 0 &&
     unescapedOutput.length === 0 &&

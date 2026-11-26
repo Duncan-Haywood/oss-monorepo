@@ -15,7 +15,7 @@
   "step": [
     { "@type": "HowToStep", "name": "Open your readme.txt and find the Stable tag line", "text": "Near the top of readme.txt, in the header block above the == Description == section, find the line reading 'Stable tag: X.Y.Z'. This is the version the Plugin Directory actually serves to users -- not your most recent commit, and not whatever your main plugin file says, unless the two happen to agree." },
     { "@type": "HowToStep", "name": "Open your main plugin file and find the Version line", "text": "In the PHP comment block at the top of your plugin's main file (the one with 'Plugin Name:'), find the 'Version:' line. WordPress reads this to detect available updates and to display the installed version in the Plugins screen." },
-    { "@type": "HowToStep", "name": "Compare the two, exactly", "text": "The two must read identically (or Stable tag may deliberately say 'trunk', which tells the directory to always serve the latest commit instead of a tagged release). A stale Stable tag after a new release means the directory keeps serving the old version -- and it means a mismatch note the moment a reviewer looks." },
+    { "@type": "HowToStep", "name": "Compare the two, exactly", "text": "The two must read identically. Stable tag 'trunk' is reported as an error by Plugin Check, so name the tagged release instead. A stale Stable tag after a new release means the directory keeps serving the old version -- and it means a mismatch note the moment a reviewer looks." },
     { "@type": "HowToStep", "name": "Update whichever one is behind, and re-check before resubmitting", "text": "Bump Stable tag to match your new release's Version, or vice versa if the plugin header is what's behind. Re-scan both files to confirm they agree before you tag the release or resubmit." }
   ]
 }
@@ -56,10 +56,10 @@
 </tbody>
 </table>
 <p>
-  The two values should read identically at every release -- or <code>Stable tag</code> may
-  deliberately read <code>trunk</code>, which tells the directory to always serve whatever is in
-  the SVN trunk rather than a tagged release. That's a valid, if less common, choice; it just
-  isn't a version to compare against.
+  The two values should read identically at every release. Older plugins sometimes set
+  <code>Stable tag: trunk</code> so the directory serves the SVN trunk instead of a tagged
+  release; Plugin Check now reports that as an error (<code>trunk_stable_tag</code>), so set it
+  to the tagged version that matches <code>Version</code>.
 </p>
 
 <h2>Find it automatically</h2>

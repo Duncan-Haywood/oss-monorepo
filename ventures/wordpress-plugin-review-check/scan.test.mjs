@@ -174,12 +174,13 @@ test('buildReport: Stable tag / Version mismatch fails ok and is reported precis
   assert.deepEqual(report.stableTagMismatch, { stableTag: '0.9.0', pluginVersion: '1.0.0' });
 });
 
-test('buildReport: Stable tag "trunk" is not treated as a mismatch', () => {
+test('buildReport: Stable tag "trunk" fails ok, as Plugin Check errors on it', () => {
   const readme = parseReadme(GOOD_README.replace('Stable tag: 1.0.0', 'Stable tag: trunk'));
   const pluginHeader = parsePluginHeader({ path: 'example.php', content: GOOD_HEADER });
   const report = buildReport({ readme, pluginHeader, unescapedOutput: [], missingNonceChecks: [] });
   assert.equal(report.stableTagStatus, 'trunk');
   assert.equal(report.stableTagMismatch, null);
+  assert.equal(report.ok, false);
 });
 
 test('buildReport: missing readme.txt fails ok even if everything else is clean', () => {

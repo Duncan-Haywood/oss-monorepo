@@ -1,0 +1,241 @@
+{
+  "date": "2026-11-26",
+  "subject": "ventures/wordpress-plugin-review-check",
+  "stratum": "venture",
+  "seed": "2026-11-26-g-3a69",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality round 113, see run record",
+  "status": "audited",
+  "professional": "a senior WordPress.org Plugin Review Team member / experienced plugin developer who ships to the directory; they check first that the Stable tag rule matches what Plugin Check (PCP) and the readme docs say (including Stable tag: trunk), that 'escaped' means what WPCS EscapeOutput accepts, that the plugin header is parsed the way core's get_file_data() parses it, and that a GPL-compatible licence is actually validated rather than merely present",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Sources the author did not write, fetched this session: WordPress/plugin-check trunk includes/Checker/Checks/Plugin_Repo/Plugin_Readme_Check.php (check_stable_tag, check_license), WordPress-Coding-Standards develop WordPress/Helpers/EscapingFunctionsTrait.php and Sniffs/Security/NonceVerificationSniff.php, wordpress-develop trunk src/wp-includes/functions.php get_file_data() (raw.githubusercontent.com, HTTP 200), plus developer.wordpress.org 'How your readme.txt works', 'Header requirements' and 'Detailed Plugin Guidelines' (WebFetch). Probe: node /tmp/claude-0/wp-audit/probe.mjs builds 19 fixture plugins under /tmp/claude-0/wp-audit/cases and runs the shipped runCheck(). Pass: Stable tag 1.0.0 vs Version 1.0.1 -> mismatch, ok false (PCP stable_tag_mismatch); matching 1.0.0/1.0.0 -> match, ok true; 'Stable Tag' capitalised read correctly; 'v1.0.0' vs '1.0.0' -> mismatch (PCP compares with !==, same). Fail: (1) 'Stable tag: trunk' -> ok true, status 'trunk' (PCP raises error trunk_stable_tag; readme docs: trunk 'neither supported nor recommended', 'prohibiting its use for new plugins'); (2) 'License: Proprietary' -> ok true (PCP invalid_license / license_mismatch; Guideline 1 requires GPL-compatible); (3) echo sanitize_text_field( $_GET['q'] ) -> clean, though sanitize_text_field, sanitize_email, sanitize_file_name and boolval are not in WPCS's escapingFunctions list; (4) '<?php' + '# Plugin Name: My Plugin' / '# Version: 1.0.0', and '<?php /* Plugin Name: My Plugin */' -> 'Plugin header: none found', ok false, though core's get_file_data regex '^(?:[ \\t]*<\\?(?:php)?)?[ \\t\\/*#@]*Name:' accepts both; (5) a plugin with admin/legacy.php carrying a stray 'Plugin Name:' comment -> header taken from admin/legacy.php and a false mismatch against Version '0.1 */' (core reads the main file from the plugin's top level and strips '*/' with _cleanup_header_comment); (6) a header that starts after 9,000 bytes is found, though get_file_data reads only the first 8 KB; (7) <?= $_GET['q'] ?> and echo esc_html( $title ) . $_GET['q'] -> clean (WPCS targets T_OPEN_TAG_WITH_ECHO and per-argument escaping). The core version compare is right; the surrounding rules diverge from the official tooling in both directions, so 2.",
+    "completeness": "Each feature README.md, VENTURE.yaml, llms.txt and index.html name was run: Stable tag vs Version cross-check (match, mismatch, trunk), required readme fields (Stable tag, License, License URI) and header fields (Plugin Name, Version), recommended fields reported but not failing, line-level unescaped-superglobal check, file-level missing-nonce check, CLI with --readme, --plugin-file, --json and exit codes 0/1/2, browser page with the worked example, local usage counter with opt-out, three SEO pages. All work end to end as described (probe and the 72 tests); no stubs, TODOs or dead links found. served-copy: 'no placeholder or retired origin left'. It does what it says; what it says is narrow and partly wrong, scored under correctness, claims and domain.",
+    "verification": "cd ventures/wordpress-plugin-review-check && node --test '*.test.mjs': tests 72, pass 72, fail 0 (also 'node --test' as the README says: 72 pass). Seven mutants via platform/ci/quality_mutate.py on scan.mjs: dropping the mismatch gate from ok (scan.mjs:247) caught; dropping the missing-required-header gate (scan.mjs:249) SURVIVED; deleting the nonce-function skip (scan.mjs:183) caught; nonce finding line off by one (scan.mjs:188) SURVIVED; removing sanitize_text_field from the escaping list (scan.mjs:138) caught, because scan.test.mjs:126 pins sanitize_text_field as an escaping function, i.e. the suite locks in the WPCS departure; disabling the trunk branch (scan.mjs:218) caught, likewise pinning the trunk-is-fine rule PCP rejects; dropping 'print' from OUTPUT_STATEMENT (scan.mjs:139) SURVIVED. 3 of 7 survive; no fixture uses a '#'-style or one-line header or a nested file with 'Plugin Name:'.",
+    "craft": "Read scan.mjs (267 lines), check.mjs (232), index.html script, scan.test.mjs, check.test.mjs, page.test.mjs. One pure, dependency-free module shared by CLI and browser, clear doc comments stating the heuristic limits, sensible CLI exit codes. Defects: the header parser re-implements get_file_data with a narrower prefix class ([*/] instead of core's <?php + [ \\t/*#@]), no '*/' cleanup and no 8 KB window (scan.mjs:77-88); header search walks every subdirectory and takes the first readdir hit (scan.mjs:98, check.mjs:39-66), where core reads top-level files only; readme field regexes match anywhere in the file, not only the header block before the first '==' section; nonce detection matches function names inside comments ('// TODO wp_verify_nonce( ) later' clears a file). A senior JS reviewer would accept the style; the parsing fidelity gaps are logged as defects.",
+    "claims": "Backed: no-upload (page.test.mjs checks no network call; index.html reads files with File API), CLI makes no network call (check.mjs imports only node:fs/node:path/node:url), not-affiliated and trademark notice and no-warranty text on all four pages (index.html:345, :356; vs-plugin-check.html footer; stable-tag-mismatch.html footer), 'evidence, not a determination' and line/file-level heuristic limits stated in README and pages, vs-plugin-check.html's description of Plugin Check (needs a WordPress install, runs from Tools or 'wp plugin check') matches its wordpress.org listing. Unbacked or contradicted: README.md:19 and check.mjs:159 call License URI a 'hard requirement', but the readme docs mark License URI '(OPTIONAL)' and PCP does not check it; stable-tag-mismatch.html:60-61 says Stable tag: trunk is 'a valid, if less common, choice' while the docs say it is discouraged and prohibited for new plugins and PCP errors on it; index.html:50/:323 and README.md:30 say plugin review 'looks for a nonce check anywhere in a file', but WPCS NonceVerification checks the enclosing function scope; README.md:19 says a GPL-compatible licence 'must be declared' but the tool accepts any value; llms.txt:5 'Results are estimates from the numbers typed in' is calculator boilerplate on a file checker. 2.",
+    "fitness": "Walked the job as a developer preparing a first submission: on a conventional /** */ header the tool gives a fast, correct Stable tag/Version answer with no WordPress install, and works as a CI gate (exit 1 on mismatch). But the official Plugin Check is free, is what the review team runs, and covers these checks with closer rules, and this tool would pass a submission PCP rejects (trunk stable tag, non-GPL licence, sanitize_text_field used as output escaping), while missing PCP readme errors a reviewer hits in the first hour: more than 5 tags (too_many_tags), short description over 150 characters (trimmed_short_description), outdated Tested up to, readme/header plugin-name mismatch, readme vs header licence mismatch, Requires at least/Requires PHP read from the header. VENTURE.yaml stage prototype, mrr null; it links to no paid product, so under the 2026-11-24 direction it is a demoted free tool with no front door role.",
+    "domain": "Compared against PCP's Plugin_Readme_Check (trunk), WPCS 3.x EscapeOutput/NonceVerification, core get_file_data(), and developer.wordpress.org readme and header docs. Matches: Stable tag must equal Version exactly (PCP stable_tag_mismatch, !==); Plugin Name is the only required header (Header requirements page); escaping list mostly mirrors WPCS (esc_*, wp_kses*, absint, intval, floatval, rawurlencode, wp_json_encode, number_format). Departs: trunk Stable tag treated as fine (PCP error); License presence, not validity, checked (PCP SPDX/GPL validation); License URI made required (docs: optional); Version made required (not required by the Header requirements page, though needed for the cross-check); readme 'Requires at least' reported as recommended though since WP 5.8 the directory reads it from the plugin header; sanitize_* accepted as escaping (not in WPCS list); $_GET/$_REQUEST/$_FILES not considered for nonce (WPCS warns on $_GET/$_REQUEST and errors on $_FILES); file-level instead of scope-level nonce check; core header syntax ('#', '<?php /* ... */', 8 KB window, top-level main file) not followed. A senior reviewer would sign off on the Stable tag compare only."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Stable tag 1.0.0 vs Version 1.0.1, and 1.0.0 vs 1.0.0",
+      "method": "WordPress/plugin-check Plugin_Readme_Check.php check_stable_tag(): error stable_tag_mismatch when $stable_tag !== $plugin_data['Version']",
+      "command": "node /tmp/claude-0/wp-audit/probe.mjs (cases 'mismatch', 'clean')",
+      "expected": "mismatch -> fail; equal -> pass",
+      "observed": "mismatch: st 'mismatch' 1.0.0/1.0.1, ok false; clean: st 'match', ok true",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Stable tag: trunk",
+      "method": "Plugin_Readme_Check.php check_stable_tag(): error trunk_stable_tag; developer.wordpress.org 'How your readme.txt works': trunk 'neither supported nor recommended', prohibited for new plugins",
+      "command": "node /tmp/claude-0/wp-audit/probe.mjs (case 'trunk')",
+      "expected": "flagged as an error",
+      "observed": "st 'trunk', ok true ('[i] ... no version to compare')",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "readme License: Proprietary",
+      "method": "Plugin_Readme_Check.php check_license(): invalid_license unless a valid SPDX GPL-compatible identifier; Detailed Plugin Guidelines 1",
+      "command": "node /tmp/claude-0/wp-audit/probe.mjs (case 'proprietary')",
+      "expected": "flagged",
+      "observed": "ok true, no finding",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "echo sanitize_text_field( $_GET['q'] )",
+      "method": "WordPress-Coding-Standards EscapingFunctionsTrait.php $escapingFunctions (sanitize_text_field absent; sanitize_key, sanitize_html_class present)",
+      "command": "node /tmp/claude-0/wp-audit/probe.mjs (case 'sanitize-echo')",
+      "expected": "unescaped-output finding",
+      "observed": "no finding, ok true",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "'# Plugin Name:' header and one-line '<?php /* Plugin Name: ... */' header",
+      "method": "wordpress-develop src/wp-includes/functions.php get_file_data(): regex '^(?:[ \\t]*<\\?(?:php)?)?[ \\t\\/*#@]*' . field . ':(.*)$', then _cleanup_header_comment strips '*/'",
+      "command": "node /tmp/claude-0/wp-audit/probe.mjs (cases 'hash-header', 'oneline-header')",
+      "expected": "header found, Version 1.0.0, match",
+      "observed": "'Plugin header: none found', st 'not-checked', ok false",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "stray 'Plugin Name:' comment in admin/legacy.php plus the real my-plugin.php",
+      "method": "core get_plugins(): main file is a top-level PHP file of the plugin folder; _cleanup_header_comment strips '*/'",
+      "command": "node /tmp/claude-0/wp-audit/probe.mjs (case 'nested-header-first')",
+      "expected": "header from my-plugin.php, match",
+      "observed": "header from admin/legacy.php, false mismatch vs Version '0.1 */', ok false",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "<?= $_GET['q'] ?> and echo esc_html( $title ) . $_GET['q']",
+      "method": "WPCS EscapeOutputSniff.php: targets T_OPEN_TAG_WITH_ECHO and checks each echoed expression",
+      "command": "node /tmp/claude-0/wp-audit/probe.mjs (cases 'short-echo', 'esc-other-var')",
+      "expected": "both flagged (the second is disclosed as a known limit)",
+      "observed": "both clean, ok true",
+      "result": "partial"
+    },
+    {
+      "dimension": "domain",
+      "what": "nonce check in another function; nonce name only in a comment; $_GET-driven delete with no nonce",
+      "method": "WPCS NonceVerificationSniff.php: scope-based search; $_POST/$_FILES error, $_GET/$_REQUEST warning",
+      "command": "node /tmp/claude-0/wp-audit/probe.mjs (cases 'nonce-in-other-fn', 'nonce-in-comment', 'get-no-nonce')",
+      "expected": "all three flagged",
+      "observed": "all three clean, ok true",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "7 tags and a 200-character short description",
+      "method": "readme docs: tags '1 to 5', short description 'no more than 150 characters'; PCP too_many_tags, trimmed_short_description",
+      "command": "node /tmp/claude-0/wp-audit/probe.mjs (case '6-tags-200char')",
+      "expected": "both noted",
+      "observed": "no finding, ok true",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "cd ventures/wordpress-plugin-review-check && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "tests 72, pass 72, fail 0",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'License URI ... hard requirement' (README.md:19, check.mjs:159)",
+      "method": "developer.wordpress.org 'How your readme.txt works': License URI '(OPTIONAL)'; PCP has no License URI check",
+      "command": "node /tmp/claude-0/wp-audit/probe.mjs (case 'no-licenseuri')",
+      "expected": "not a failure",
+      "observed": "reqR ['License URI'], ok false",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "'Stable tag ... trunk ... a valid, if less common, choice' (stable-tag-mismatch.html:60-61)",
+      "method": "readme docs and PCP trunk_stable_tag",
+      "command": "grep -n trunk ventures/wordpress-plugin-review-check/stable-tag-mismatch.html",
+      "expected": "discouraged / prohibited for new plugins",
+      "observed": "called valid",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "no upload, no network call, disclaimer, not-affiliated, trademark notice",
+      "method": "page.test.mjs, read of index.html and the three SEO pages, check.mjs imports",
+      "command": "cd ventures/wordpress-plugin-review-check && node --test page.test.mjs; grep -n -i 'warranty\\|affiliat' index.html",
+      "expected": "present on every page",
+      "observed": "present (index.html:345, :356 and each SEO page footer); check.mjs imports only node:fs, node:path, node:url",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "served llms.txt, sitemap and canonicals",
+      "method": "deploy rewrite",
+      "command": "node platform/pages/served-copy.mjs wordpress-plugin-review-check",
+      "expected": "no placeholder origin; accurate summary",
+      "observed": "no placeholder or retired origin left; llms.txt:5 carries 'estimates from the numbers typed in' boilerplate",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {"where": "scan.mjs:247", "change": "stableTagStatus !== 'mismatch' && -> (removed)", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "scan.mjs:249", "change": "missingRequiredHeader.length === 0 && -> (removed)", "caught": false, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "scan.mjs:183", "change": "if (NONCE_CHECK_FUNCTIONS.test(file.content)) continue; -> (removed)", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "scan.mjs:188", "change": "line: firstLine + 1, -> line: firstLine,", "caught": false, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "scan.mjs:138", "change": "|sanitize_text_field| -> |", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "scan.mjs:218", "change": "if (stable.trim().toLowerCase() === 'trunk') { -> if (false) {", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "scan.mjs:139", "change": "(?:echo|print|printf) -> (?:echo|printf)", "caught": false, "test_cmd": "node --test '*.test.mjs'"}
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "'Stable tag: trunk' passes (ok true, '[i]' note) and the page calls it 'a valid, if less common, choice'. Plugin Check raises error trunk_stable_tag and the readme docs say trunk is neither supported nor recommended and prohibited for new plugins, so a developer gated on this tool submits a readme PCP rejects.",
+      "where": "ventures/wordpress-plugin-review-check/scan.mjs:218",
+      "category": "domain-rule",
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19370"
+    },
+    {
+      "severity": "high",
+      "what": "Any License value passes (License: Proprietary -> ok true), though README.md:19 says a GPL-compatible licence must be declared and PCP raises invalid_license / license_mismatch; Guideline 1 is the directory's first hard rule.",
+      "where": "ventures/wordpress-plugin-review-check/scan.mjs:30",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "sanitize_text_field, sanitize_email, sanitize_file_name and boolval count as output escaping; WPCS EscapeOutput (what PCP runs) does not accept them, so 'echo sanitize_text_field( $_GET[...] )' reports clean. scan.test.mjs:126 pins the departure.",
+      "where": "ventures/wordpress-plugin-review-check/scan.mjs:138",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Plugin header parsing departs from core get_file_data(): '#'-prefixed and '<?php /* Plugin Name: ... */' headers are not found (false 'none found', exit 1); '*/' is not stripped (Version '0.1 */'); no 8 KB window; the header file is the first readdir hit in any subdirectory, so a nested file with 'Plugin Name:' wins and yields a false mismatch.",
+      "where": "ventures/wordpress-plugin-review-check/scan.mjs:88",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "License URI is treated as a required readme field and missing it fails the check with 'hard requirement' text, but the readme docs mark License URI optional and PCP does not check it.",
+      "where": "ventures/wordpress-plugin-review-check/scan.mjs:32",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Nonce check is file-level and textual: a nonce call in another function, or only in a comment, clears a $_POST read; $_GET/$_REQUEST/$_FILES are not considered. WPCS NonceVerification is scope-based and covers those superglobals. Disclosed as a heuristic, but index.html:323 and README.md:30 say this is how plugin review itself checks.",
+      "where": "ventures/wordpress-plugin-review-check/scan.mjs:166",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Readme rules PCP errors or warns on in the first hour are not checked: more than 5 tags, short description over 150 characters, outdated Tested up to, readme/header plugin-name mismatch, readme/header licence mismatch; readme 'Requires at least' is suggested though the directory reads it from the header since WP 5.8.",
+      "where": "ventures/wordpress-plugin-review-check/scan.mjs:35",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "3 of 7 seeded mutants survive (dropping the missing-required-header gate from ok, nonce line off by one, dropping 'print' from output statements); no fixture covers '#'/one-line headers, nested header files, trunk-as-error or licence validity, and two tests pin rules that depart from PCP/WPCS.",
+      "where": "ventures/wordpress-plugin-review-check/scan.test.mjs:126",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "Claims: 'Plugin review looks for a nonce check anywhere in a file' (WPCS checks function scope) and 'License URI ... hard requirement' are not backed by WordPress.org sources.",
+      "where": "ventures/wordpress-plugin-review-check/index.html:323",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "llms.txt says 'Results are estimates from the numbers typed in', calculator boilerplate that does not describe a file checker.",
+      "where": "ventures/wordpress-plugin-review-check/llms.txt:5",
+      "category": "stale-docs",
+      "origin": "maintenance",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19370"
+    }
+  ],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19370"],
+  "verdict": "Does not meet the bar (correctness 2, claims 2, verification 2, median 2); finished (completeness 3). Every feature it lists runs end to end, the 72 tests pass, and the core Stable tag vs Version compare agrees with Plugin Check's stable_tag_mismatch rule. Against Plugin Check's own source, WPCS and core get_file_data(), all fetched this session, the surrounding rules go wrong both ways. It passes plugins Plugin Check rejects: Stable tag trunk, a proprietary licence, echo sanitize_text_field($_GET[...]), a nonce call only in a comment. It fails plugins WordPress accepts: '#' or one-line headers, a missing License URI (optional per the readme docs), a stray header in a subdirectory. It also skips readme checks a reviewer hits early (5-tag limit, 150-character short description). 3 of 7 seeded mutants survive, and two tests lock in the departures. Disclaimers, the no-upload claim and the Plugin Check comparison are honest. Two page claims (trunk is valid, file-level nonce is how review checks) contradict the sources. It is a demoted free tool that does not lead to any paid product."
+}
