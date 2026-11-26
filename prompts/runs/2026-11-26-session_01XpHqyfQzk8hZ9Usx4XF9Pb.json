@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqyfQzk8hZ9Usx4XF9Pb",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T08:39:08Z",
+  "ended": "2026-11-26T08:48:52Z",
+  "wall_minutes": 9.92,
+  "tokens_in": 6993659,
+  "tokens_out": 39429,
+  "cost_usd": 3.1752,
+  "tool_calls": 66,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19289",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "tsc TS2352 on HTMLElement->HTMLSelectElement casts in the new component test; fixed with `as unknown as`"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Next item 9 bundles several sub-features; I claimed it with a slug naming one half (saved-crew) and then built the other half, so the claim slug doesn't describe the work. Claims could name the item part after the design pass."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "apps/payapps/ROADMAP.md (private)",
+      "why": "The claim was for 'save the crew with the job on the server'. Reading part 1 showed the page promises that workers' names and IDs are not stored, and the item is 'if people ask'.",
+      "did": "Built the item's other half instead: filling the week's hours from a by-day time report, read in the browser. Server storage stays on the ROADMAP.",
+      "result": "Shipped and merged as private PR 289 with the privacy promise kept."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Private CI had no runners (ci_starvation exit 0, run 45786033853).",
+      "did": "Verified locally and merged.",
+      "result": "Local checks green."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (extended)",
+    "docs/reports/ventures-2026-11-26-payapps-certified-payroll.md (extended)"
+  ],
+  "goal": null,
+  "notes": "Bet #1 PayApps. Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/289 merged (squash 2c6989d). Local verification: biome ci apps/payapps apps/payapps-site (one pre-existing warning, billing.ts:165), typecheck payapps + payapps-site, payapps unit 93 files/832 tests (14 new), payapps-site unit 21, build ok, documents.test after legal sync 10/10. Worker tests not rerun (no worker code changed). No browser smoke run.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ef90a1da-09c3-5b1b-acc6-4811dbf74aaa",
+    "transcripts": 1,
+    "first": "2026-11-26T08:39:08Z",
+    "last": "2026-11-26T08:49:03Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 115,
+        "output": 39429,
+        "thinking": 6046,
+        "cache_read": 6866950,
+        "cache_write_5m": 0,
+        "cache_write_1h": 126594,
+        "api_equivalent_usd": 3.1752,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 115,
+      "output": 39429,
+      "thinking": 6046,
+      "cache_read": 6866950,
+      "cache_write_5m": 0,
+      "cache_write_1h": 126594,
+      "api_equivalent_usd": 3.1752,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 48,
+      "Edit": 5,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Read": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.92,
+      "active_minutes": 9.92,
+      "model_minutes": 7.62,
+      "tool_minutes": 2.3,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "parser + matching + UI + tests for a CSV import feature, senior engineer estimate",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 189.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
