@@ -136,6 +136,39 @@ export has been read by this repository. Four projects agreeing on a header
 is good evidence, but it is not Depop's documentation. If your file doesn't
 load, the page names it and says why.
 
+## Seller Books reads Mercari the same way, 2026-11-26
+
+Seller Books, the hosted paid edition, had its own Mercari reader, written
+on 2026-11-24 from search excerpts because the help centre would not open
+from the build machine. On 2026-11-26 the same two help pages opened in a
+browser, and the reader was checked against them. It had one real flaw:
+it booked **In Progress** orders.
+
+That matters more than it looks. Mercari says the costs it shows for an
+order in progress are estimates, and the order can still be cancelled.
+Seller Books never overwrites a sale it has already booked (that is what
+lets you drop overlapping reports in safely). So an in-progress order
+booked once would keep its estimated fees for good. If the order was later
+cancelled, the cancelled row would be skipped as cancelled, and the sale
+would stay on your books and in your Schedule C worksheet.
+
+Now Seller Books books only completed orders, on their completion date,
+which is the rule the free edition above already used. The completion date
+is also the one Mercari's 1099-K FAQ points to: "Only completed transactions
+are reported on the 1099-K"
+([1099-K Related FAQs](https://www.mercari.com/us/help_center/article/163/),
+read 2026-11-26). So an item sold on 30 December and completed on 3 January
+is booked in the same year Mercari reports it. The fee page
+([Fees on Mercari](https://www.mercari.com/us/help_center/article/169/))
+gives the current selling fee as "A 10% selling fee of the combined amount
+of item price and buyer-paid shipping will be charged to the seller."
+Seller Books keeps that sentence as a reference, but it still takes every
+fee from the report's own columns and never works one out from a rate.
+
+eBay's help pages answered the same check with a bot challenge, so eBay's
+columns in Seller Books are still unconfirmed. The way to settle them is one
+real export, not a workaround.
+
 ## Why this matters for the paid product
 
 Reseller Books is the free edition of a planned subscription, Seller Books,
