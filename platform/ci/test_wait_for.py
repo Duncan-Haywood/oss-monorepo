@@ -1,7 +1,7 @@
 import os, sys, tempfile, unittest
 import contextlib, io
 import signal, subprocess
-from wait_for import main, stale_marker, wait, wait_until, wait_pid, pid_alive, matching, wait_gone, ancestors
+from wait_for import until_is_a_marker, main, stale_marker, wait, wait_until, wait_pid, pid_alive, matching, wait_gone, ancestors
 
 
 class WaitFor(unittest.TestCase):
@@ -362,6 +362,25 @@ class WaitFor(unittest.TestCase):
         # on) with an argparse error. Pin the boundary at 1, not 0 or 2.
         with contextlib.redirect_stderr(io.StringIO()):
             self.assertEqual(main(["--pid", "1", "--timeout", "0"]), 1)
+
+
+class UntilMarker(unittest.TestCase):
+    # run records 2026-11-26: `--until EXIT` with a log ran `EXIT` as a command and waited 540 s
+    def test_bare_word_the_shell_cannot_run_is_a_marker(self):
+        self.assertEqual(until_is_a_marker("EXIT"), "marker")
+        self.assertEqual(until_is_a_marker("no-such-cmd-xyz --flag"), "missing")
+        self.assertIsNone(until_is_a_marker("true"))
+        self.assertIsNone(until_is_a_marker("false"))
+        self.assertIsNone(until_is_a_marker("grep -q EXIT /nonexistent"))
+
+    def test_until_exit_with_a_log_reads_its_marker(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("work\nEXIT 0\n")
+            err = io.StringIO()
+            with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
+                self.assertEqual(main([p, "--until", "EXIT", "--timeout", "3", "--ignore-restart"]), 0)
+            self.assertIn("--marker EXIT", err.getvalue())
 
 
 class PidProbe(unittest.TestCase):

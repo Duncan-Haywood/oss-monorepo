@@ -14,7 +14,9 @@ last line, and which process still has it open (none: the job exited without
 its marker), so a live job is told apart from a quiet, stuck or dead one.
 
 A job that prints no marker (a `pip install`, a writer of a jsonl) can be waited on by
-a condition instead: `--until "python3 -c 'import torch'"` returns 0 once that command exits 0.
+a condition instead: `--until "python3 -c 'import torch'"` returns 0 once that command exits 0. It is a
+command, not a log pattern: a bare word no shell can run (`--until EXIT` with a log) is
+read as `--marker EXIT`, since two runs waited 540 s each on logs already ending EXIT 0.
 Given a log too, it waits for the condition, then for the log's marker or for no process to
 have the log open any more (whichever comes first), and prints the log's tail; a log path that still does not exist 10 s after the condition holds ends the wait (exit 0, with a note).
 
@@ -158,6 +160,16 @@ def wait_until(cmd, timeout=100.0, interval=2.0, clock=time.monotonic, nap=time.
         if clock() >= end:
             return False
         nap(interval)
+
+
+def until_is_a_marker(cmd, run=subprocess.call):
+    """'marker' when `cmd` is one bare word the shell cannot find (exit 127), so it
+    reads as a log marker someone passed to --until; 'missing' for a longer command
+    that exits 127; None otherwise (it runs, whatever its exit code)."""
+    if run(cmd, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) != 127:
+        return None
+    word = cmd.strip()
+    return "marker" if word and not any(c.isspace() or c in "|&;<>()$`'\"*?[]=/" for c in word) else "missing"
 
 
 LOG_GRACE = 10.0
@@ -398,6 +410,18 @@ def main(argv=None):
         print(f"{TIMED_OUT} pid {a.pid} still running after {a.timeout:.0f}s; call again{longer(a.timeout)}", file=sys.stderr)
         return 1
     timeout = a.timeout
+    note = until_is_a_marker(a.until) if a.until else None
+    if note == "marker" and a.log and a.marker is None:
+        # `--until EXIT` with a log meant "the log's EXIT line", but ran `EXIT` as a shell
+        # command, which fails forever: two 540 s waits on logs already ending EXIT 0
+        # (run records 2026-11-26). A bare word no shell can run is a marker here.
+        print(f"wait_for: --until {a.until!r} is not a command (the shell answers 127), so it is "
+              f"read as the log's marker: --marker {a.until}", file=sys.stderr)
+        a.marker, a.until = a.until, None
+    elif note:
+        print(f"wait_for: warning: --until {a.until!r} is not a command the shell can find (exit 127); "
+              "it is a shell command that must exit 0, not a log pattern (use a log with --marker); "
+              "waiting anyway in case it gets installed", file=sys.stderr)
     if a.until:
         started = time.monotonic()
         if not wait_until(a.until, a.timeout):
