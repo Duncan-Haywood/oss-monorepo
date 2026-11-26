@@ -357,19 +357,6 @@ class Http:
         except (urllib.error.URLError, TimeoutError, OSError):
             return 0
 
-    def doh_cname(self, name: str) -> str | None:
-        url = "https://cloudflare-dns.com/dns-query?" + urllib.parse.urlencode({"name": name, "type": "CNAME"})
-        req = urllib.request.Request(url, headers={"Accept": "application/dns-json"})
-        try:
-            with urllib.request.urlopen(req, timeout=10) as r:
-                ans = json.loads(r.read()).get("Answer") or []
-        except (urllib.error.URLError, ValueError, OSError):
-            return None
-        for a in ans:
-            if a.get("type") == 5:
-                return a["data"].rstrip(".")
-        return None
-
 
 class Tofu:
     """OpenTofu on the Cloudflare stack. The token reaches it only through
@@ -1076,14 +1063,13 @@ def wait_served(ctx: Ctx, app: dict, minutes: int = 10) -> None:
     deadline = ctx.clock.now() + dt.timedelta(minutes=minutes)
     for h in app["hosts"]:
         while True:
-            # The apex is flattened (it answers A records, never a CNAME), so the
-            # test is what answers, not what the CNAME says.
+            # What answers decides, not what a resolver says: the apex is
+            # flattened (A records, never a CNAME), and caches lag either way.
             st, hdr, _ = ctx.http.get(f"https://{h}{app['health']}")
             if st == 200 and aws_served(hdr):
                 break
-            cname = ctx.http.doh_cname(h)
             if ctx.clock.now() > deadline:
-                raise CutoverError(f"{h}: not served from AWS after {minutes} min (CNAME {cname}, HTTP {st})")
+                raise CutoverError(f"{h}: not served from AWS after {minutes} min (HTTP {st})")
             ctx.clock.sleep(15)
 
 

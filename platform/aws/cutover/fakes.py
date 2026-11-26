@@ -259,8 +259,6 @@ class FakeHttp:
     def post(self, url, body):
         return 401 if ".on.aws/" in url else 0
 
-    def doh_cname(self, name):
-        return self.w.endpoint_hosts().get(name)
 
 
 class FakeTofu:
