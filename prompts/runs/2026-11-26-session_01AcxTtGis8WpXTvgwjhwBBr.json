@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtGis8WpXTvgwjhwBBr",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T16:07:24Z",
+  "ended": "2026-11-26T16:26:48Z",
+  "wall_minutes": 19.6,
+  "tokens_in": 21979275,
+  "tokens_out": 73005,
+  "cost_usd": 7.7205,
+  "tool_calls": 127,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19405",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "roadmap_claim.py --bets reported no free ungated item on any bet (every Next item waits on demand), so the run had to invent a new item from the bet's growth path; the docs do not say how to pick one, so time went into reading ROADMAPs to find an unbuilt integration."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "private-monorepo CI was starved again (every job red in 2-4 s); ci_starvation.py confirmed it quickly and full local runs replaced CI, as documented."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "No bet had a free Next item; opened a new one (QuickBooks Online invoice from a won quote) for jobshop-quote rather than taking a demand-gated item.",
+      "did": "claimed claim/jobshop-quote/quickbooks-invoice-from-won-quote with --slug and built it",
+      "result": "merged as private PR 368"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-won-machine-shop-quote-to-quickbooks-invoice.md",
+    "private: apps/jobshop-quote/docs/QUICKBOOKS.md"
+  ],
+  "goal": null,
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/368 merged (fae4ed12). Verified locally because CI was starved (ci_starvation.py run 45858292734: 2 of 2 jobs never got a runner): qbo-sync pnpm test 92 pass + typecheck; jobshop-quote typecheck, test:unit 552 pass, test:worker 249 pass (new quickbooks.test.ts 8), build ok, test:e2e 11 passed; payapps typecheck and its 11 QBO worker test files (79 tests) pass against the changed package. Risk review: nothing blocked; deploy workflow change only adds env, --var flags and S_QBO_* secrets. Privacy policy updated for the QuickBooks data flow (POLICY_VERSION 2026-11-26.5).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6f598860-5a26-5355-9218-c58a9e95594f",
+    "transcripts": 1,
+    "first": "2026-11-26T16:07:24Z",
+    "last": "2026-11-26T16:27:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 124,
+        "input": 237,
+        "output": 73005,
+        "thinking": 11373,
+        "cache_read": 21740107,
+        "cache_write_5m": 0,
+        "cache_write_1h": 238931,
+        "api_equivalent_usd": 7.7205,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 124,
+      "input": 237,
+      "output": 73005,
+      "thinking": 11373,
+      "cache_read": 21740107,
+      "cache_write_5m": 0,
+      "cache_write_1h": 238931,
+      "api_equivalent_usd": 7.7205,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 127,
+    "tools": {
+      "Bash": 115,
+      "Write": 6,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.6,
+      "active_minutes": 19.6,
+      "model_minutes": 13.69,
+      "tool_minutes": 5.91,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "OAuth integration, invoice planner, routes, UI, migration, tests and docs, judged against payapps' similar QBO work",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 310.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
