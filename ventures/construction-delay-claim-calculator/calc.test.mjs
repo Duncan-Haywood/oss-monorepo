@@ -87,3 +87,11 @@ test("a quoted event name with a comma stays one field (redteam 2026-11-17)", ()
   assert.deepEqual(r.errors, []);
   assert.deepEqual(r.delays.map((d) => [d.name, d.days, d.cause]), [["RFI 12, late drawings", 14, "owner"]]);
 });
+
+test('advice money carries thousands separators, like the results table', async () => {
+  const { usd, plan, sampleInput } = await import('./calc.mjs');
+  assert.equal(usd(12500), '$12,500.00');
+  assert.equal(usd(-0.001), '$0.00');
+  const text = plan(sampleInput()).advice.join(' ');
+  assert.doesNotMatch(text, /\$\d{4,}/, text);
+});

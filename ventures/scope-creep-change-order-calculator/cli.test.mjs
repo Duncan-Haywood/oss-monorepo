@@ -7,7 +7,7 @@ const run = (args, input) => spawnSync(process.execPath, [new URL("./cli.mjs", i
 test("prints a change order from stdin", () => {
   const r = run(["--price", "6000", "--hours", "60", "--client", "Acme"], "SSO | 6\nDark mode | 4\n");
   assert.equal(r.status, 0);
-  assert.match(r.stdout, /Change order total: \$1000\.00/);
+  assert.match(r.stdout, /Change order total: \$1,000\.00/);
 });
 
 test("gate exits 1 when creep is over the cap", () => {

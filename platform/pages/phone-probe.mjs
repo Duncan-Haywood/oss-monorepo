@@ -20,7 +20,10 @@
 //
 // plus a fourth the cards fix can overshoot: a stacked table row (one card
 // per row on a phone) taller than the screen, so a visitor cannot see one
-// line item whole.
+// line item whole; and a fifth that is not about width at all: a money
+// amount printed without thousands separators (`$111111.11` in notes and a
+// follow-up draft beside a table showing `$111,111.11`, retainage, polish
+// 2026-11-26), which reads as unfinished and is easy to misread by a digit.
 //
 // Results tables usually appear only after the form is worked out, so the
 // runner also loads the page's example and submits it (`EXAMPLE_RE`,
@@ -40,6 +43,18 @@ export const EXAMPLE_RE = /\b(load|try|use|fill( in)?|show)\b[^.]{0,20}\b(an? |t
 
 /** Buttons that work a filled form out. */
 export const SUBMIT_RE = /^\s*(calculate|work (it )?out|check|generate|compute|estimate|run|build|price|analy[sz]e|create|make)\b/i;
+
+/**
+ * A currency symbol, then 4 or more digits with no separator: `$12345.67`,
+ * `€2500`, `-$1000.00`. Not `$1,234`, `$999.99` or `£1 234` (a space-grouped
+ * style is a separator too). A year after a symbol is not money in practice.
+ */
+export const RAW_AMOUNT_RE = /[$£€]\s?\d{4,}(?:\.\d+)?(?![\d,])/g;
+
+/** Unseparated amounts in `text`, unique, in order (pure: tested without a browser). */
+export function rawAmounts(text) {
+  return [...new Set(String(text || '').match(RAW_AMOUNT_RE) || [])];
+}
 
 /** Marks a scroller its page means to scroll sideways (a long code sample, a timeline). */
 export const SCROLL_OK_ATTR = 'data-phone-scroll-ok';
@@ -73,7 +88,35 @@ export function measurePhone({ scrollOkAttr = SCROLL_OK_ATTR } = {}) {
     swipes: [],
     smallFields: [],
     tallRows: [],
+    rawAmounts: [],
   };
+  // Amounts a visitor reads: visible text, plus the values of read-only
+  // outputs (a summary or follow-up draft in a textarea) they will copy out.
+  // RAW_AMOUNT_RE is inlined: this function runs in the page, without imports.
+  const rawRe = /[$£€]\s?\d{4,}(?:\.\d+)?(?![\d,])/g;
+  const seenAmt = new Set();
+  const noteAmounts = (text, where) => {
+    for (const a of String(text || '').match(rawRe) || []) {
+      if (seenAmt.has(a) || out.rawAmounts.length >= 20) continue;
+      seenAmt.add(a);
+      out.rawAmounts.push({ el: where, text: a });
+    }
+  };
+  if (document.body) {
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      const host = n.parentElement;
+      if (!host || /^(SCRIPT|STYLE|NOSCRIPT|CODE|PRE|TEMPLATE)$/.test(host.tagName) || host.closest('code, pre, [data-raw-amount-ok]')) continue;
+      if (!rawRe.test(n.nodeValue)) { rawRe.lastIndex = 0; continue; }
+      rawRe.lastIndex = 0;
+      if (!visible(host)) continue;
+      noteAmounts(n.nodeValue, describe(host));
+    }
+  }
+  for (const el of document.querySelectorAll('textarea, output')) {
+    if (!visible(el) || el.closest('[data-raw-amount-ok]')) continue;
+    noteAmounts(el.value, describe(el));
+  }
   for (const el of document.querySelectorAll('body *')) {
     if (/^(INPUT|SELECT|TEXTAREA|OPTION|SCRIPT|STYLE|SVG|CANVAS|IFRAME|VIDEO|IMG)$/i.test(el.tagName)) continue;
     // A site or section nav strip that scrolls sideways is a designed pattern
@@ -128,6 +171,11 @@ export function phoneFailures(m, { page, state = 'at load', minField = MIN_FIELD
     const worst = tall.reduce((a, b) => (b.px > a.px ? b : a));
     out.push(`${at}: ${tall.length} stacked table row(s) taller than the ${m.height}px screen (worst ${Math.ceil(worst.px)}px in ${worst.el})`);
   }
+  const raw = m.rawAmounts || [];
+  if (raw.length) {
+    const shown = raw.slice(0, 3).map((r) => r.text).join(', ');
+    out.push(`${at}: ${raw.length} money amount(s) without thousands separators (${shown}), first in ${raw[0].el}; format with toLocaleString('en-US', { minimumFractionDigits: 2 }) or mark the element data-raw-amount-ok`);
+  }
   return out;
 }
 
@@ -153,5 +201,5 @@ export const PRODUCT_PAGES = {
 export function probeRow(m, { page, state }) {
   const small = (m.smallFields || []).filter((f) => f.px < MIN_FIELD_PX).length;
   const tall = (m.tallRows || []).filter((r) => r.px > m.height + SLACK_PX).length;
-  return `${page.padEnd(60)} ${String(m.viewport).padStart(4)} ${state.padEnd(10)} width ${String(m.scrollWidth).padStart(4)}  swipes ${(m.swipes || []).length}  small fields ${small}/${(m.smallFields || []).length}  tall rows ${tall}`;
+  return `${page.padEnd(60)} ${String(m.viewport).padStart(4)} ${state.padEnd(10)} width ${String(m.scrollWidth).padStart(4)}  swipes ${(m.swipes || []).length}  small fields ${small}/${(m.smallFields || []).length}  tall rows ${tall}  raw amounts ${(m.rawAmounts || []).length}`;
 }

@@ -60,6 +60,17 @@ export function eichleay({ contractBillings, totalBillings, homeOverhead, actual
   return { allocated: round2(allocated), daily: round2(daily), claim: round2(daily * delayDays), share: round4(contractBillings / totalBillings) };
 }
 
+/**
+ * Dollars for the advice lines a contractor copies into a notice letter:
+ * thousands separators and two decimals, as the results table already shows
+ * them (`$12500.00` beside `$12,500.00` reads as a typo). The CSV keeps plain
+ * numbers for spreadsheets.
+ */
+export function usd(x) {
+  const cents = Math.round(Math.abs(Number(x) || 0) * 100);
+  return `${cents !== 0 && x < 0 ? "-" : ""}$${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
 export function plan(input) {
   const { delays, errors } = parseDelays(input.delays);
   if (errors.length) return { error: errors[0], errors };
@@ -98,15 +109,15 @@ export function plan(input) {
 
   const advice = [];
   advice.push(`Time: ${extensionDays} of the ${delays.reduce((a, d) => a + d.days, 0)} delay days earn an extension, moving the completion date from ${contractDays} to ${adjustedDays} days. The job took ${actualDays}.`);
-  if (lateDays > 0) advice.push(`That leaves ${lateDays} day${lateDays === 1 ? "" : "s"} late: ${ldPerDay > 0 ? "liquidated damages of $" + ld.toFixed(2) + (ldCap !== null && rawLd > ldCap ? " (held to the cap)" : "") : "no liquidated damages rate entered"}.`);
+  if (lateDays > 0) advice.push(`That leaves ${lateDays} day${lateDays === 1 ? "" : "s"} late: ${ldPerDay > 0 ? "liquidated damages of " + usd(ld) + (ldCap !== null && rawLd > ldCap ? " (held to the cap)" : "") : "no liquidated damages rate entered"}.`);
   else advice.push("After the extensions the job finished on time, so no liquidated damages should apply.");
-  if (ldAvoided > 0) advice.push(`The extensions are worth $${ldAvoided.toFixed(2)} of liquidated damages, which is why the notice and the dates matter more than the cost claim.`);
-  if (compensableDays > 0) advice.push(`Money: ${compensableDays} owner-caused day${compensableDays === 1 ? "" : "s"} with no concurrent contractor delay. Field overhead $${field.toFixed(2)}${e.claim > 0 ? `, home-office overhead $${e.claim.toFixed(2)} (Eichleay, $${e.daily.toFixed(2)} a day)` : ""}${profit > 0 ? `, profit $${profit.toFixed(2)}` : ""}: claim $${claim.toFixed(2)}.`);
+  if (ldAvoided > 0) advice.push(`The extensions are worth ${usd(ldAvoided)} of liquidated damages, which is why the notice and the dates matter more than the cost claim.`);
+  if (compensableDays > 0) advice.push(`Money: ${compensableDays} owner-caused day${compensableDays === 1 ? "" : "s"} with no concurrent contractor delay. Field overhead ${usd(field)}${e.claim > 0 ? `, home-office overhead ${usd(e.claim)} (Eichleay, ${usd(e.daily)} a day)` : ""}${profit > 0 ? `, profit ${usd(profit)}` : ""}: claim ${usd(claim)}.`);
   else advice.push("No delay days qualify for money: only owner-caused delay that did not run concurrently with a contractor delay is compensable on most contracts.");
   if (ownerConcurrent > 0) advice.push(`${ownerConcurrent} owner-caused day${ownerConcurrent === 1 ? " is" : "s are"} concurrent with your own delay: typically time but no money. Documentation that separates the two is what moves days from this bucket to the compensable one.`);
   if (contractorDays > 0) advice.push(`${contractorDays} day${contractorDays === 1 ? "" : "s"} of contractor-caused delay earn neither time nor money.`);
   if (homeOverhead > 0 && compensableDays > 0) advice.push("Eichleay is usually only allowed when the delay was uncertain in length, the crew was kept on standby, and other work could not be taken on. Check that your facts fit before claiming it, and read your contract for any waiver of delay damages (a no-damages-for-delay clause) or a required notice period.");
-  advice.push(`Net position: claim $${claim.toFixed(2)} against liquidated damages $${ld.toFixed(2)} = ${net >= 0 ? "+" : "-"}$${Math.abs(net).toFixed(2)}.`);
+  advice.push(`Net position: claim ${usd(claim)} against liquidated damages ${usd(ld)} = ${net >= 0 ? "+" : "-"}${usd(Math.abs(net))}.`);
   advice.push("This sorts the days and does the arithmetic on your inputs. Whether a day is excusable or compensable turns on your contract, the notice you gave and the proof you hold. It is not legal advice; have a construction attorney read the contract before a claim is sent.");
 
   return {

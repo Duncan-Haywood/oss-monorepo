@@ -66,7 +66,8 @@ export function calculate(items, opts = {}) {
   };
 }
 
-const money = (n, cur) => `${cur}${n.toFixed(2)}`;
+// Thousands separators: the markdown is pasted into a client email, where "$8100.00" reads as unfinished.
+export const money = (n, cur = "") => `${n < 0 && Math.round(Math.abs(n) * 100) ? "-" : ""}${cur}${Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 export function toMarkdown(r, { client = "", project = "", currency = "$" } = {}) {
   const L = [`# Change order${project ? ` — ${project}` : ""}`, ""];
@@ -90,6 +91,6 @@ export function toCsv(r) {
 export function gate(r, { maxCreepPct, maxAbsorbed } = {}) {
   const problems = [];
   if (maxCreepPct != null && r.creepPct != null && r.creepPct > maxCreepPct) problems.push(`scope creep ${r.creepPct}% exceeds ${maxCreepPct}%`);
-  if (maxAbsorbed != null && r.absorbedCost > maxAbsorbed) problems.push(`absorbing it would cost ${r.absorbedCost.toFixed(2)}, over ${maxAbsorbed}`);
+  if (maxAbsorbed != null && r.absorbedCost > maxAbsorbed) problems.push(`absorbing it would cost ${money(r.absorbedCost)}, over ${maxAbsorbed}`);
   return problems;
 }

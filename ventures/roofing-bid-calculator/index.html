@@ -487,7 +487,7 @@
       el('cost').textContent = money(result.jobCost);
       el('profit').textContent = money(result.jobProfit);
       el('perSquare').textContent = result.pricePerSquare === null ? 'n/a' : money(result.pricePerSquare);
-      el('perFootprint').textContent = result.pricePerFootprintSqFt === null ? 'n/a' : `$${result.pricePerFootprintSqFt.toFixed(2)}`;
+      el('perFootprint').textContent = result.pricePerFootprintSqFt === null ? 'n/a' : money(result.pricePerFootprintSqFt);
       el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
       el('breakEven').textContent = money(result.breakEvenPrice);
 
