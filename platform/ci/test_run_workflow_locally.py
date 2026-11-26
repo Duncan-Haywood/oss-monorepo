@@ -21,6 +21,17 @@ import run_workflow_locally as runner
 import yaml
 
 
+def fixed_fingerprint():
+    """Stub the before/after checkout reading for a test about something else.
+
+    A real one hashes every tracked path of this checkout (0.2-0.5 s each, two
+    per sweep): 3 s of the suite went on four tests that never look at it.
+    The drift check has its own tests (CheckoutStability, and the stubs at
+    the sweep tests that feed it sequences)."""
+    return mock.patch.object(runner, "checkout_fingerprint",
+                             lambda **_: runner.Fingerprint("a" * 40, "d1"))
+
+
 def workflow(body: str) -> dict:
     return yaml.safe_load(textwrap.dedent(body))
 
@@ -409,12 +420,17 @@ class Screen(unittest.TestCase):
         self.assertEqual(step.seconds, 0.0)
 
 
+# A budget that must cut a `sleep 5` step: half a second, not one, since four
+# tests wait it out (the bug pinned by the short-budget test below needs 1 s).
+CUT = 0.5
+
+
 class WorkflowBudget(unittest.TestCase):
     def test_budget_reports_timeout_instead_of_hanging(self):
         steps = [runner.Step("j", "slow", "sleep 5", "."),
                  runner.Step("j", "after", "true", ".")]
         with contextlib.redirect_stdout(io.StringIO()):
-            runner.run_steps(steps, 900, budget=1)
+            runner.run_steps(steps, 900, budget=CUT)
         # UNRUN, not FAILED: a budget cut is no verdict on the check.
         self.assertEqual([s.status for s in steps], ["unrun", "unrun"])
         self.assertEqual({s.missing_kind for s in steps}, {"budget"})
@@ -426,7 +442,7 @@ class WorkflowBudget(unittest.TestCase):
         # the same (doc friction, 2026-11-16).
         step = runner.Step("j", "slow", "echo 'not ok 3 - faq is visible'; "
                            "echo 'error: boom' >&2; sleep 5", ".")
-        runner.execute(step, timeout=1)
+        runner.execute(step, timeout=CUT)
         self.assertEqual(step.status, "failed")
         self.assertTrue(step.reason.startswith("timed out after"))
         self.assertIn("not ok 3 - faq is visible", step.tail)
@@ -437,7 +453,7 @@ class WorkflowBudget(unittest.TestCase):
         steps = [runner.Step("j", "slow", "echo building page 4021; sleep 5", ".")]
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
-            runner.run_steps(steps, 900, budget=1)
+            runner.run_steps(steps, 900, budget=CUT)
             runner.report("wf.yml", steps, [], False)
         self.assertEqual(steps[0].status, "unrun")
         self.assertIn("last output before the cut:", out.getvalue())
@@ -456,7 +472,7 @@ class WorkflowBudget(unittest.TestCase):
                  runner.Step("j", "slow", "sleep 5", ".")]
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
-            runner.run_steps(steps, 900, budget=1)
+            runner.run_steps(steps, 900, budget=CUT)
             code = runner.report("wf.yml", steps, [], False)
         self.assertEqual(code, runner.BUDGET_SPENT)
         self.assertNotIn("FAILED", out.getvalue())
@@ -1588,7 +1604,7 @@ class Tree(unittest.TestCase):
         # repository is worst at noticing, and an unattended sweep is
         # where it would do the most damage.
         out = io.StringIO()
-        with contextlib.redirect_stdout(out):
+        with fixed_fingerprint(), contextlib.redirect_stdout(out):
             code = runner._run_selected(
                 argparse.Namespace(list=False, timeout=1), [], [])
         self.assertEqual(code, 1)
@@ -1635,7 +1651,7 @@ class Tree(unittest.TestCase):
         real_execute = runner.execute
         runner.execute = fake_execute
         try:
-            with contextlib.redirect_stdout(out):
+            with fixed_fingerprint(), contextlib.redirect_stdout(out):
                 runner._run_selected(
                     argparse.Namespace(list=False, timeout=1),
                     [("w.yml", wf, {"j"})], [])
@@ -1693,7 +1709,7 @@ class Tree(unittest.TestCase):
         real_execute = runner.execute
         runner.execute = fake_execute
         try:
-            with contextlib.redirect_stdout(out):
+            with fixed_fingerprint(), contextlib.redirect_stdout(out):
                 runner._run_selected(
                     argparse.Namespace(list=False, timeout=1),
                     [("w.yml", wf, {"j"})], [])
@@ -2366,6 +2382,22 @@ class LocalCostHint(unittest.TestCase):
 class Handoff(unittest.TestCase):
     """A long run under an agent harness detaches instead of being cut off."""
 
+    # The long-run tests' children wait for a file the fake nap writes,
+    # instead of sleeping a fixed 5 s and 1.5 s: the fake clock already
+    # passes the window on the first poll, so the note is printed while the
+    # child is certainly still running, and the child ends on the next nap.
+    # Same assertions; 6.8 s of the suite's 22 s was those sleeps
+    # (docs/history/ci-perf-2026-11-26-workflow-runner-test-waits.md).
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+
+    @staticmethod
+    def release(path):
+        open(path, "w").close()
+        time.sleep(0.02)
+
+
     def test_only_an_agent_harness_without_a_terminal_hands_off(self):
         agent = {"CLAUDECODE": "1"}
         no_tty = lambda: False
@@ -2388,12 +2420,14 @@ class Handoff(unittest.TestCase):
 
     def test_a_long_run_prints_its_log_and_how_to_wait(self):
         out = io.StringIO()
+        go = os.path.join(self.tmp, "go")
         cmd = [sys.executable, "-c",
-               "import time; print('started', flush=True); time.sleep(5); "
-               f"print('{runner.DONE_PREFIX}0')"]
+               "import os, sys, time; print('started', flush=True)\n"
+               "while not os.path.exists(sys.argv[1]): time.sleep(0.01)\n"
+               f"print('{runner.DONE_PREFIX}0')", go]
         ticks = iter(range(1000))
         code = runner.handoff([], window=1, out=out, clock=lambda: next(ticks),
-                              nap=lambda _s: time.sleep(0.2), cmd=cmd)
+                              nap=lambda _s: self.release(go), cmd=cmd)
         text = out.getvalue()
         self.assertIn("[handed off]", text)
         self.assertEqual(text.count("[handed off]"), 1)
@@ -2411,12 +2445,14 @@ class Handoff(unittest.TestCase):
         # before the verdict (friction, two sessions on 2026-11-26): the call
         # now keeps relaying and returns the child's code, after the note.
         out = io.StringIO()
+        go = os.path.join(self.tmp, "go")
         cmd = [sys.executable, "-c",
-               "import sys, time; time.sleep(1.5); print('late line', flush=True); "
-               "sys.exit(1)"]
+               "import os, sys, time\n"
+               "while not os.path.exists(sys.argv[1]): time.sleep(0.01)\n"
+               "print('late line', flush=True); sys.exit(1)", go]
         ticks = iter(range(1000))
         code = runner.handoff([], window=1, out=out, clock=lambda: next(ticks),
-                              nap=lambda _s: time.sleep(0.2), cmd=cmd)
+                              nap=lambda _s: self.release(go), cmd=cmd)
         self.assertEqual(code, 1)
         text = out.getvalue()
         self.assertIn("[handed off]", text)
@@ -2542,7 +2578,7 @@ class FailureCauses(unittest.TestCase):
         wfs = [(n, {"jobs": {"j": {"steps": [{"run": bad}]}}}, {"j"})
                for n in ("a.yml", "b.yml")]
         out = io.StringIO()
-        with contextlib.redirect_stdout(out):
+        with fixed_fingerprint(), contextlib.redirect_stdout(out):
             code = runner._run_selected(
                 argparse.Namespace(list=False, timeout=30), wfs, [],
                 changed=[post, "ventures/z/x.py"])

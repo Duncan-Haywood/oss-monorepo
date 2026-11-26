@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtKUS3BnMEd9tcvwxdY",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T12:07:42Z",
+  "ended": "2026-11-26T12:16:10Z",
+  "wall_minutes": 8.63,
+  "tokens_in": 3051514,
+  "tokens_out": 15585,
+  "cost_usd": 1.5227,
+  "tool_calls": 38,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19340",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "Flags platform/ci/test_run_workflow_locally.py as 'Auth, session or payment code changed'; a test-timing diff had to be answered as a false positive."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "Item 4 (for-profit front doors) checked first per the prompt's hint, but pay-app-guides, lien-waiver-checker, retainage, cnc-quote and machine-shop-guides are all under 10 kB gz, so no visitor wait to cut; took item 2's largest non-priv step instead.",
+      "did": "Sped up the workflow-runner unit tests every agent session and Portfolio validate job runs.",
+      "result": "22.0 s -> 9.2 s, same 273 tests."
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-26-workflow-runner-test-waits.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall time of `python3 -m unittest test_run_workflow_locally` (platform/ci), local. Before: Ran 273 tests in 22.026s. After (3 runs): 9.869s, 9.045s, 9.200s. CI step median was 17 s over 35 jobs (ci_profile --runs 600 --steps 30); expect ~7 s saved per job. Profile via cProfile + per-test timer. No post: an internal test-suite speed-up interests no customer reader; history doc carries it. Mutation check: 2 handoff mutants caught; 20 reruns OK.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c0137d6e-6054-5ec1-b542-9b616160621d",
+    "transcripts": 1,
+    "first": "2026-11-26T12:07:42Z",
+    "last": "2026-11-26T12:16:20Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 74,
+        "output": 15585,
+        "thinking": 3265,
+        "cache_read": 2974466,
+        "cache_write_5m": 0,
+        "cache_write_1h": 76974,
+        "api_equivalent_usd": 1.5227,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 74,
+      "output": 15585,
+      "thinking": 3265,
+      "cache_read": 2974466,
+      "cache_write_5m": 0,
+      "cache_write_1h": 76974,
+      "api_equivalent_usd": 1.5227,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 35,
+      "ToolSearch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.63,
+      "active_minutes": 8.63,
+      "model_minutes": 3.03,
+      "tool_minutes": 5.6,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "profile, three test fixes, mutation check and write-up for a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 131.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
