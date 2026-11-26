@@ -716,20 +716,78 @@ export function parseStl(input) {
   return Float64Array.from(nums);
 }
 
+/**
+ * Weld a triangle soup: an id per distinct vertex. Two corners are the same
+ * vertex when their coordinates compare equal as numbers (0 and -0 are one
+ * vertex, every NaN is one value), the rule the old `${x},${y},${z}` string keys
+ * gave, found with an open-addressing table on the float bits instead of
+ * building a string per corner (a 500k-triangle part spent 3.5 s there).
+ * `distinct` lists one corner index per distinct coordinate triple by
+ * Object.is, so 0 and -0 copies of a vertex are both kept as points.
+ */
+function weldVertices(tris) {
+  const corners = tris.length / 3;
+  let cap = 16;
+  while (cap < corners * 2) cap *= 2;
+  const mask = cap - 1;
+  const table = new Int32Array(cap).fill(-1); // slot -> vertex id
+  const first = []; // vertex id -> first corner index
+  const ids = new Int32Array(corners);
+  const distinct = [];
+  const variants = new Map(); // vertex id -> other corners spelling it with a different zero sign
+  const f = new Float64Array(3), w = new Uint32Array(f.buffer);
+  for (let c = 0; c < corners; c++) {
+    const o = c * 3;
+    for (let j = 0; j < 3; j++) {
+      const x = tris[o + j];
+      f[j] = x === 0 ? 0 : x !== x ? NaN : x; // canonical 0 and NaN for the key
+    }
+    let h = 0x811c9dc5;
+    for (let j = 0; j < 6; j++) h = Math.imul(h ^ w[j], 0x01000193);
+    h ^= h >>> 15;
+    let slot = h & mask, id = -1;
+    for (;;) {
+      const v = table[slot];
+      if (v < 0) break;
+      const q = first[v] * 3;
+      const a = tris[q], b = tris[q + 1], d = tris[q + 2];
+      if ((a === f[0] || (a !== a && f[0] !== f[0])) && (b === f[1] || (b !== b && f[1] !== f[1])) && (d === f[2] || (d !== d && f[2] !== f[2]))) { id = v; break; }
+      slot = (slot + 1) & mask;
+    }
+    if (id < 0) {
+      id = first.length;
+      first.push(c);
+      table[slot] = id;
+      distinct.push(c);
+    } else {
+      const same = (r) => Object.is(tris[r * 3], tris[o]) && Object.is(tris[r * 3 + 1], tris[o + 1]) && Object.is(tris[r * 3 + 2], tris[o + 2]);
+      if (!same(first[id])) {
+        // same vertex, other sign of zero (at most 8 spellings): keep each as a point once
+        const vs = variants.get(id);
+        if (!vs) { variants.set(id, [c]); distinct.push(c); }
+        else if (!vs.some(same)) { vs.push(c); distinct.push(c); }
+      }
+    }
+    ids[c] = id;
+  }
+  return { ids, count: first.length, distinct };
+}
+
 /** Volume, area, closed check and primitives for a mesh. STL has no units: `mmPerUnit` is the user's answer. */
 export function stlPrimitives(tris, mmPerUnit = 1) {
   const n = tris.length / 9;
-  const points = [];
   let vol = 0, area = 0;
   const normals = new Map();
-  const edgeUse = new Map();
-  const key = (i) => `${tris[i]},${tris[i + 1]},${tris[i + 2]}`;
+  const { ids, count: nv, distinct } = weldVertices(tris);
+  // a box or envelope is a max or min over points, so each distinct vertex once
+  // gives the same answer as all three corners of every triangle
+  const points = distinct.map((c) => ({ p: [tris[c * 3] * mmPerUnit, tris[c * 3 + 1] * mmPerUnit, tris[c * 3 + 2] * mmPerUnit], exact: true }));
+  const edges = new Float64Array(n * 3);
   for (let t = 0; t < n; t++) {
     const o = t * 9;
     const a = [tris[o], tris[o + 1], tris[o + 2]].map((x) => x * mmPerUnit);
     const b = [tris[o + 3], tris[o + 4], tris[o + 5]].map((x) => x * mmPerUnit);
     const c = [tris[o + 6], tris[o + 7], tris[o + 8]].map((x) => x * mmPerUnit);
-    points.push({ p: a, exact: true }, { p: b, exact: true }, { p: c, exact: true });
     vol += dot(a, cross(b, c)) / 6;
     const nn = cross(sub(b, a), sub(c, a));
     const ar = norm(nn) / 2;
@@ -742,14 +800,20 @@ export function stlPrimitives(tris, mmPerUnit = 1) {
       const cur = normals.get(kk);
       if (cur) cur.w += ar; else normals.set(kk, { d, w: ar });
     }
-    const ks = [key(o), key(o + 3), key(o + 6)];
-    for (const [i, j] of [[0, 1], [1, 2], [2, 0]]) {
-      const e = ks[i] < ks[j] ? ks[i] + "|" + ks[j] : ks[j] + "|" + ks[i];
-      edgeUse.set(e, (edgeUse.get(e) || 0) + 1);
-    }
+    const v0 = ids[t * 3], v1 = ids[t * 3 + 1], v2 = ids[t * 3 + 2];
+    edges[t * 3] = v0 < v1 ? v0 * nv + v1 : v1 * nv + v0;
+    edges[t * 3 + 1] = v1 < v2 ? v1 * nv + v2 : v2 * nv + v1;
+    edges[t * 3 + 2] = v2 < v0 ? v2 * nv + v0 : v0 * nv + v2;
   }
+  // an edge is closed when exactly two triangle sides use it
+  edges.sort();
   let open = 0;
-  for (const v of edgeUse.values()) if (v !== 2) open++;
+  for (let i = 0; i < edges.length;) {
+    let j = i + 1;
+    while (j < edges.length && edges[j] === edges[i]) j++;
+    if (j - i !== 2) open++;
+    i = j;
+  }
   const planeNormals = [...normals.values()].sort((x, y) => y.w - x.w).slice(0, 24).map((x) => x.d);
   const warnings = [];
   if (open) warnings.push(`The mesh has ${open} edge${open === 1 ? "" : "s"} not shared by exactly two triangles, so it is not closed; the volume and weight may be wrong.`);

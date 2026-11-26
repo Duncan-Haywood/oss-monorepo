@@ -145,3 +145,21 @@ test("material cost uses only the user's density and price", () => {
   assert.equal(materialCost(o, { density: 2.7, price: 12, per: "ft" }).cost, 12);
   assert.equal(materialCost(o, {}).cost, 0);
 });
+
+test("STL welding: 0 and -0 are one vertex, and a big mesh reads the same box", () => {
+  // the unit tetrahedron again, with some zeros written as -0: still one closed mesh
+  const tri = [[0, 0, 0, 1, 0, 0, 0, 1, 0], [-0, 0, 0, 0, 0, 1, 1, 0, -0], [0, -0, 0, 0, 1, 0, 0, 0, 1], [1, 0, 0, 0, 0, 1, 0, 1, 0]];
+  const ascii = "solid t\n" + tri.map((v) => `facet normal 0 0 0\nouter loop\n${[0, 3, 6].map((i) => `vertex ${v.slice(i, i + 3).map((x) => (Object.is(x, -0) ? "-0" : x)).join(" ")}`).join("\n")}\nendloop\nendfacet`).join("\n") + "\nendsolid t\n";
+  const m = stlPrimitives(parseStl(ascii));
+  assert.equal(m.closed, true);
+  assert.ok(m.points.length >= 4 && m.points.length < 12, "corners shared by triangles are welded into one point each");
+  // a closed 60x60 torus grid: every edge used twice, box from welded vertices
+  const N = 60, R = 40, r = 12, out = [];
+  const P = (i, j) => { const a = ((i % N) / N) * 2 * Math.PI, b = ((j % N) / N) * 2 * Math.PI; return [(R + r * Math.cos(b)) * Math.cos(a), (R + r * Math.cos(b)) * Math.sin(a), r * Math.sin(b)]; };
+  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) out.push(...P(i, j), ...P(i + 1, j), ...P(i + 1, j + 1), ...P(i, j), ...P(i + 1, j + 1), ...P(i, j + 1));
+  const t = stlPrimitives(Float64Array.from(out));
+  assert.equal(t.closed, true);
+  assert.equal(t.points.length, N * N);
+  const b = boxInFrame(t);
+  assert.ok(Math.abs(b.max[0] - b.min[0] - 104) < 1e-9 && Math.abs(b.max[2] - b.min[2] - 24) < 1e-9);
+});
