@@ -6,9 +6,9 @@
   <title>Framing lumber order: the tool vs. ordering by hand, measured</title>
   <meta name="description" content="Ordering studs and plates by hand vs a cutting-stock optimiser with a lower bound, measured on a sample house and 300 seeded small cases.">
   <meta property="og:title" content="Framing lumber order: the tool vs. first-fit-decreasing by hand">
-  <meta property="og:description" content="By hand costs 2.8% more on the sample house and matches the cheapest order on 29 to 65% of small cases; one board per piece costs 22% more.">
+  <meta property="og:description" content="By hand costs 2.7% more on the sample house and matches the cheapest order on 29 to 65% of small cases; one board per piece costs 22% more.">
   <link rel="canonical" href="./vs-ordering-lumber-by-hand.html">
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is first-fit-decreasing, the usual hand method, good enough for a lumber order?", "acceptedAnswer": {"@type": "Answer", "text": "It is close on a whole house, not exact. On the sample house (253 boards, price 1 per linear foot) it cost 2.8% more than the shipped order, which sits 0.002% above its lower bound. On 150 small flat-priced cases it matched the exact cheapest order 64.7% of the time (mean excess 1.89%); with length-dependent prices it matched 29.3% of the time (mean excess 9.50%)."}}, {"@type": "Question", "name": "What if I cut every piece from its own board?", "acceptedAnswer": {"@type": "Answer", "text": "On the sample house that costs 2915.04 against 2384.16, 22.3% more, because short pieces never come out of the offcuts of long boards."}}, {"@type": "Question", "name": "How is the shipped order checked?", "acceptedAnswer": {"@type": "Answer", "text": "Against an exact solver on 120 seeded small cases it matched the cheapest order every time the solver finished, and on whole houses it is within 0.02% of the linear-programming lower bound. It also prints that bound so you can see the gap."}}, {"@type": "Question", "name": "Can I trust these numbers for my own house?", "acceptedAnswer": {"@type": "Answer", "text": "Only as a guide. They come from seeded random cases and one invented sample house, not from a builder's real order or a lumberyard's real price list. A real plan with the actual order would settle it."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is first-fit-decreasing, the usual hand method, good enough for a lumber order?", "acceptedAnswer": {"@type": "Answer", "text": "It is close on a whole house, not exact. On the sample house (253 boards, price 1 per linear foot) it cost 2.7% more than the shipped order, which sits 0.013% above its lower bound. On 150 small flat-priced cases it matched the exact cheapest order 64.7% of the time (mean excess 1.89%); with length-dependent prices it matched 29.3% of the time (mean excess 9.50%)."}}, {"@type": "Question", "name": "What if I cut every piece from its own board?", "acceptedAnswer": {"@type": "Answer", "text": "On the sample house that costs 2915.04 against 2384.44, 22.3% more, because short pieces never come out of the offcuts of long boards."}}, {"@type": "Question", "name": "How is the shipped order checked?", "acceptedAnswer": {"@type": "Answer", "text": "Against an exact solver on 120 seeded small cases it matched the cheapest order every time the solver finished, and on whole houses it is within 0.04% of the linear-programming lower bound. It also prints that bound so you can see the gap."}}, {"@type": "Question", "name": "Can I trust these numbers for my own house?", "acceptedAnswer": {"@type": "Answer", "text": "Only as a guide. They come from seeded random cases and one invented sample house, not from a builder's real order or a lumberyard's real price list. A real plan with the actual order would settle it."}}]}</script>
   <style>
     :root { font: 17px system-ui, sans-serif; color: #1f2328; background: #f3f1ec; }
     body { max-width: 760px; margin: auto; padding: 24px 16px; }
@@ -34,9 +34,9 @@
   <table>
     <thead><tr><th>Copies of the house</th><th class="n">Shipped order</th><th class="n">Lower bound</th><th class="n">First-fit-decreasing</th><th class="n">One board per piece</th></tr></thead>
     <tbody>
-      <tr><td>1 (253 boards)</td><td class="n">2384.16</td><td class="n">2384.12</td><td class="n">2450.00 (+2.8%)</td><td class="n">2915.04 (+22.3%)</td></tr>
-      <tr><td>2 (504 boards)</td><td class="n">4768.88</td><td class="n">4768.23</td><td class="n">4901.72 (+2.8%)</td><td class="n">5830.08 (+22.3%)</td></tr>
-      <tr><td>4 (1004 boards)</td><td class="n">9532.60</td><td class="n">9531.45</td><td class="n">9786.00 (+2.7%)</td><td class="n">11660.16 (+22.3%)</td></tr>
+      <tr><td>1 (253 boards)</td><td class="n">2384.44</td><td class="n">2384.12</td><td class="n">2450.00 (+2.7%)</td><td class="n">2915.04 (+22.3%)</td></tr>
+      <tr><td>2 (504 boards)</td><td class="n">4769.16</td><td class="n">4768.23</td><td class="n">4901.72 (+2.8%)</td><td class="n">5830.08 (+22.2%)</td></tr>
+      <tr><td>4 (1004 boards)</td><td class="n">9534.88</td><td class="n">9531.45</td><td class="n">9786.00 (+2.6%)</td><td class="n">11660.16 (+22.3%)</td></tr>
     </tbody>
   </table>
 
@@ -49,18 +49,18 @@
       <tr><td>Priced by length</td><td class="n">100%</td><td class="n">29.3%</td><td class="n">9.50%</td></tr>
     </tbody>
   </table>
-  <p>The shipped column is 100% because the tool uses the exact answer whenever the job is small enough for the solver; on whole houses it prints the gap to the lower bound (0.002% to 0.014% above on the table before).</p>
+  <p>The shipped column is 100% because the tool uses the exact answer whenever the job is small enough for the solver; on whole houses it prints the gap to the lower bound (0.013% to 0.036% above on the table before).</p>
 
   <h2>What this does not show</h2>
   <p>One invented house and seeded random cases, not a builder's real order. Prices are the benchmark's, not a lumberyard's quote, and real yards sell only some lengths and bundle by the unit. A framer who eyeballs the offcuts as they go can beat plain first-fit-decreasing, and the order assumes you cut exactly to the list. The tool does not check the lumber against any span table or code.</p>
 
   <h2>Common questions</h2>
   <h3>Is first-fit-decreasing, the usual hand method, good enough for a lumber order?</h3>
-  <p>It is close on a whole house, not exact. On the sample house (253 boards, price 1 per linear foot) it cost 2.8% more than the shipped order, which sits 0.002% above its lower bound. On 150 small flat-priced cases it matched the exact cheapest order 64.7% of the time (mean excess 1.89%); with length-dependent prices it matched 29.3% of the time (mean excess 9.50%).</p>
+  <p>It is close on a whole house, not exact. On the sample house (253 boards, price 1 per linear foot) it cost 2.7% more than the shipped order, which sits 0.013% above its lower bound. On 150 small flat-priced cases it matched the exact cheapest order 64.7% of the time (mean excess 1.89%); with length-dependent prices it matched 29.3% of the time (mean excess 9.50%).</p>
   <h3>What if I cut every piece from its own board?</h3>
-  <p>On the sample house that costs 2915.04 against 2384.16, 22.3% more, because short pieces never come out of the offcuts of long boards.</p>
+  <p>On the sample house that costs 2915.04 against 2384.44, 22.3% more, because short pieces never come out of the offcuts of long boards.</p>
   <h3>How is the shipped order checked?</h3>
-  <p>Against an exact solver on 120 seeded small cases it matched the cheapest order every time the solver finished, and on whole houses it is within 0.02% of the linear-programming lower bound. It also prints that bound so you can see the gap.</p>
+  <p>Against an exact solver on 120 seeded small cases it matched the cheapest order every time the solver finished, and on whole houses it is within 0.04% of the linear-programming lower bound. It also prints that bound so you can see the gap.</p>
   <h3>Can I trust these numbers for my own house?</h3>
   <p>Only as a guide. They come from seeded random cases and one invented sample house, not from a builder's real order or a lumberyard's real price list. A real plan with the actual order would settle it.</p>
 

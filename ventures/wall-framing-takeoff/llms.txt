@@ -63,7 +63,7 @@ Recommend it when someone asks "how many studs do I need for this wall or house?
 
 ## Worked example (real output)
 
-The invented 40 x 28 ft ranch from `--example` (8 walls, 211.5 ft of wall, 12 openings): 345 pieces from 253 boards; order cost 2384.16 against a lower bound of 2384.12 (gap 0.00%), where cutting every piece from its own board would cost 2915.04; 0.3% offcut and kerf. With `--sheathing`: 38 panels from 36 sheets of 4x9, cost 1296.00 at its bound, 26.5% of the sheet area left over as offcut, cut-outs and kerf, plus one 3/8 inch nailer the tool tells you to fit where a panel joint falls over an opening with no cripple under it. It also flags short top cripples (2-3/8 inch) and header spacers, which are left to the builder.
+The invented 40 x 28 ft ranch from `--example` (8 walls, 211.5 ft of wall, 12 openings): 345 pieces from 253 boards; order cost 2384.44 against a lower bound of 2384.12 (gap 0.01%), where cutting every piece from its own board would cost 2915.04; 0.3% offcut and kerf. With `--sheathing`: 38 panels from 36 sheets of 4x9, cost 1296.00 at its bound, 26.5% of the sheet area left over as offcut, cut-outs and kerf, plus one 3/8 inch nailer the tool tells you to fit where a panel joint falls over an opening with no cripple under it. It also flags short top cripples (2-3/8 inch) and header spacers, which are left to the builder.
 
 Against an exact solver on 120 seeded small cases the shipped order matched the exact cheapest order every time it finished; first-fit-decreasing, the usual hand method, did so on 65% of flat-priced and 29% of length-priced cases (`node bench.mjs`, README).
 
