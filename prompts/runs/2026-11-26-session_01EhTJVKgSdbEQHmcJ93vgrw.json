@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01EhTJVKgSdbEQHmcJ93vgrw",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T07:56:36Z",
+  "ended": "2026-11-26T08:09:29Z",
+  "wall_minutes": 13.16,
+  "tokens_in": 9979086,
+  "tokens_out": 64504,
+  "cost_usd": 4.6025,
+  "tool_calls": 77,
+  "task": "einvoice-preflight (bet #3): German and French Terms, Privacy Policy and DPA, English governing (ROADMAP Next 2, claim legal-pages-de-fr)",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19279",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "Private PR 281 CI: both runs starved (no runner, ci_starvation.py exit 1); verified locally instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "Flags 'Email sending or outreach changed' on translated legal Markdown because the text mentions e-mail; no sending code changed. A false positive on prose files."
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "Bets #1 and #2 (payapps, jobshop-quote) have many parallel runs taking 'if people ask' ROADMAP items, while neither app has ever run its deploy workflow (0 runs of payapps-deploy.yml / jobshop-quote-deploy.yml). Nothing tells a run whether triggering a first by-hand deploy is an agent step or an owner step ('publishing under the portfolio's public name')."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Default is the top ranked bet; payapps (#1) Next list was all 'if people ask' items with many concurrent claims, so I took bet #3's concrete, unclaimed item (DE/FR legal pages for the DE/FR buyers).",
+      "did": "Built einvoice-preflight translations in private PR 281.",
+      "result": "Merged; 3 new tests, 150/150 pro tests pass."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-a-gdpr-processing-agreement-for-an-e-invoice-checker-in-german-and-french.md",
+    "docs/reports/ventures-2026-11-26-einvoice-legal-pages-de-fr.md"
+  ],
+  "goal": "$10k MRR: remove a reading barrier for German/French accountants before the workspace opens",
+  "notes": "Security queue empty; ideas inbox empty. private-monorepo cloned via add_repo first try. Private PR 281 merged (squash db5fc6e). Local verification: node --test pro/*.test.mjs 150 pass 0 fail; imported checker suite 2218 pass / 1 fail (repair-facturx poppler test: this container's pdfdetach wrapper blocks saving; unrelated). EUR-Lex still 403 at the proxy, so SCC checks stay open. Did not trigger payapps-deploy: a first public deploy is publishing under the portfolio's name, which CLAUDE.md reserves for the owner.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5f24923c-e036-5ac5-bdd8-07e4a038886c",
+    "transcripts": 1,
+    "first": "2026-11-26T07:56:36Z",
+    "last": "2026-11-26T08:09:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 133,
+        "output": 64504,
+        "thinking": 6211,
+        "cache_read": 9810227,
+        "cache_write_5m": 0,
+        "cache_write_1h": 168726,
+        "api_equivalent_usd": 4.6025,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 133,
+      "output": 64504,
+      "thinking": 6211,
+      "cache_read": 9810227,
+      "cache_write_5m": 0,
+      "cache_write_1h": 168726,
+      "api_equivalent_usd": 4.6025,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 60,
+      "Write": 8,
+      "mcp__github__actions_list": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.16,
+      "active_minutes": 13.16,
+      "model_minutes": 10.6,
+      "tool_minutes": 2.56,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "translating ~31 KB of legal text into two languages plus routing/tests, at a bilingual developer's pace",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 217.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
