@@ -33,15 +33,16 @@ const removeAll = (s, re) => {
   return out;
 };
 const ENTITIES = { "&amp;": "&", "&#39;": "'", "&quot;": '"' };
-/** Visible text: script blocks (any case, `</script >` too), then tags, then one-pass entity decode. */
+/** Visible text: script blocks (any case; the end tag may carry whitespace or junk before `>`), then tags, then one-pass entity decode. */
 const text = (html) =>
-  removeAll(removeAll(html, /<script\b[\s\S]*?<\/script\s*>/gi), /<[^>]+>/g).replace(
+  removeAll(removeAll(html, /<script\b[\s\S]*?<\/script\b[^>]*>/gi), /<[^>]+>/g).replace(
     /&(?:amp|#39|quot);/g,
     (m) => ENTITIES[m],
   );
 
 test("the text() helper strips script blocks in any case and decodes entities once", () => {
   assert.equal(text("a<SCRIPT>x()</SCRIPT >b").replace(/\s+/g, " "), "a b");
+  assert.equal(text("a<script>x()</script\t\n bar>b").replace(/\s+/g, " "), "a b");
   assert.ok(!/<script/i.test(text("<scr<script></script>ipt>alert(1)</script>")));
   assert.equal(text("&amp;quot; R&amp;D &quot;q&quot;"), '&quot; R&D "q"');
 });
