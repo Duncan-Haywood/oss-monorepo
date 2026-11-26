@@ -128,7 +128,7 @@ nobody opens a PR for is invisible to every check and every later session.
 
 1. push, and open the PR right away (draft while you work);
 2. verify (CI, or the local checks your change reaches);
-3. merge it yourself;
+3. mark it ready (`update_pull_request`, `draft: false`: a draft merge returns 405) and merge it yourself;
 4. confirm `python3 platform/ci/unlanded_work.py` exits 0;
 5. end your reply with the merged PR's link.
 

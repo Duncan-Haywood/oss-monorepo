@@ -45,7 +45,8 @@ already current; check with `git rev-parse HEAD origin/main` after the fetch.
    `python3 platform/ci/ci_starvation.py --run <id>` says runners are starved,
    run the local checklist in `CLAUDE.md` ("Ship without review ceremony")
    instead and paste its results into the PR.
-5. **Merge it yourself.** Mark the draft ready and squash-merge. A research
+5. **Merge it yourself.** Mark the draft ready (`update_pull_request` with `draft: false`;
+   `merge_pull_request` answers 405 on a draft) and squash-merge. A research
    mirror PR is the one exception: it merges with a merge commit, not a
    squash (`prompt.md`). No need to wait for a human or for bot approvals.
    If the merge won't go:

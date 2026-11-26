@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKjtD83p6g84sLSnCub",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T16:10:38Z",
+  "ended": "2026-11-26T16:23:53Z",
+  "wall_minutes": 13.43,
+  "tokens_in": 9942179,
+  "tokens_out": 39367,
+  "cost_usd": 3.8105,
+  "tool_calls": 85,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19403",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets reported no free ungated item on any bet; the most valuable open work (two COGS bugs from today's seller-books quality audit) was in portfolio/quality/audits, which the claim tool does not read. Audit findings could be surfaced as claimable items."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "wait_for.py --until takes a shell command, not a log pattern; --marker is the pattern flag. Cost one 110 s timed-out wait."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "No bet had a free roadmap item, so I opened a new seller-books item (bet #5) from the quality audit's correctness findings instead of extending crowded payapps.",
+      "did": "claimed claim/seller-books/cogs-matching and fixed the multi-unit and date-order COGS bugs",
+      "result": "merged private PR 367 with all CI steps verified locally"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-reseller-payouts-cost-of-goods-and-schedule-c.md (new section: Two of the same thing in one order)"
+  ],
+  "goal": null,
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/367 merged. Its CI jobs were starved (ci_starvation.py: runner_id 0, exit 0 reported starved). Every seller-books-ci step was run locally in the clone: biome ci clean; typecheck clean; unit 22 files/234 tests; worker 16 files/102 tests (new cogs-matching.test.ts reproduces the audit probe); provision tests 4 pass; build ok; drizzle-kit check + generate clean; e2e 13 passed. Migration 0006 backfill exercised on in-memory SQLite. Still open from the audit: returns not restocked, no Part III warning for unlinked orders, single mileage rate per year.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1e1dfa7b-cf60-57a6-9ba3-1f7b06e217c4",
+    "transcripts": 1,
+    "first": "2026-11-26T16:10:38Z",
+    "last": "2026-11-26T16:24:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 83,
+        "input": 158,
+        "output": 39367,
+        "thinking": 7022,
+        "cache_read": 9809441,
+        "cache_write_5m": 0,
+        "cache_write_1h": 132580,
+        "api_equivalent_usd": 3.8105,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 83,
+      "input": 158,
+      "output": 39367,
+      "thinking": 7022,
+      "cache_read": 9809441,
+      "cache_write_5m": 0,
+      "cache_write_1h": 132580,
+      "api_equivalent_usd": 3.8105,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 85,
+    "tools": {
+      "Bash": 76,
+      "Write": 3,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.43,
+      "active_minutes": 13.43,
+      "model_minutes": 8.63,
+      "tool_minutes": 4.8,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior dev: schema change, migration, five call sites, tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 157.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

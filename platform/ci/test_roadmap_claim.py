@@ -400,12 +400,11 @@ class ClaimRaceTest(unittest.TestCase):
         bets = Path(self.tmp.name) / "bets.md"
         bets.write_text("| # | Bet | Where |\n|---|---|---|\n"
                         "| 1 | **Pay apps** | new `private-monorepo/apps/payapps` |\n"
-                        "| 2 | **Books** | new `private-monorepo/apps/seller-books` |\n\n"
+                        "\n"
                         "### 1. Pay apps\n\n- **Wedge:** pay apps.\n"
                         "- **Growth path:** job costing, RFIs (from\n  the GC side) and estimating.\n"
-                        "- **Risks:** none\n\n### 2. Books\n\n- **Wedge:** books.\n")
+                        "- **Risks:** none\n")
         self.assertEqual(rc.growth_paths(bets.read_text()), {1: ["job costing", "RFIs", "estimating"]})
-        (self.a / "apps" / "seller-books").mkdir()
         for n in ("1", "2", "3"):
             self.assertEqual(self.main(self.b, "--claim", n)[0], 0)
         self.assertEqual(self.main(self.b, "--claim", "0", "--slug", "job-cost-codes-part-1")[0], 0)
@@ -413,9 +412,36 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertEqual(code, 0, out)
         self.assertIn("job costing (1 live: job-cost-codes-part-1)", out)
         self.assertIn("RFIs (no live claim)", out)
-        self.assertIn("seller-books: no **Growth path:** line", out)
-        self.assertIn("Start here: bet #1 payapps, growth topic 'RFIs'", out)
+        self.assertIn("Fewest live claims: bet #1 payapps (4)", out)
+        self.assertIn("Untouched topic: 'RFIs'", out)
         self.assertIn("--slug rfi-<part>", out)
+
+    def test_bets_overview_sends_a_run_to_the_least_crowded_wedge(self):
+        # 2026-11-26 friction (6 runs): every bet's Next items waited, the fallback named a
+        # "growth path" bets.md does not have, and three runs piled onto payapps.
+        bets = Path(self.tmp.name) / "bets.md"
+        bets.write_text("| # | Bet | Where |\n|---|---|---|\n"
+                        "| 1 | **Pay apps** | new `private-monorepo/apps/payapps` |\n"
+                        "| 2 | **Quotes** | `private-monorepo/apps/jobshop-quote` |\n\n"
+                        "## The evidence\n\n### 1. Pay apps\n\n- **Job:** bill.\n"
+                        "- **Wedge:** pay apps + retainage at about\n  $99/mo, growing into job costing.\n"
+                        "- **Risks:** many.\n\n### 2. Quotes\n\n- **Wedge:** email in, quote out.\n")
+        self.assertEqual(rc.bet_wedges(bets.read_text()),
+                         {1: "pay apps + retainage at about $99/mo, growing into job costing.",
+                          2: "email in, quote out."})
+        quotes = self.a / "apps" / "jobshop-quote"
+        quotes.mkdir()
+        (quotes / "ROADMAP.md").write_text(NUMBERED)
+        for n in ("1", "2", "3"):
+            self.assertEqual(self.main(self.b, "--claim", n)[0], 0)
+        for n in ("3", "4"):
+            self.assertEqual(self.main(self.a, "--claim", n, app="jobshop-quote")[0], 0)
+        self.assertEqual(self.main(self.b, "--slug", "extra", app="payapps")[0], 0)
+        code, out = self.main(self.a, "--bets", "--bets-md", str(bets), app=None)
+        self.assertEqual(code, 0, out)
+        self.assertIn("Fewest live claims: bet #2 jobshop-quote (2)", out)
+        self.assertIn("Wedge (bets.md): email in, quote out.", out)
+        self.assertNotIn("growth path", out)
 
     def test_release(self):
         self.main(self.a, "--claim", "3")

@@ -2,7 +2,7 @@
 title: "QuickBooks has no retainage field: how subcontractors track it anyway"
 seo_title: "How to track retainage in QuickBooks Online (step by step)"
 date: 2026-11-25
-tags: [construction, subcontractors, retainage, retainage-release, retainage-tracking, punch-list, quickbooks, pay-applications, pay-app-guides, for-customers]
+tags: [construction, subcontractors, retainage, retainage-release, retainage-tracking, punch-list, closeout, quickbooks, pay-applications, pay-app-guides, for-customers]
 description: "QuickBooks Online cannot hold back retainage on an invoice. The Retainage Receivable account and item, the release invoice, and the report that hides it."
 ---
 
@@ -113,6 +113,49 @@ not the GC's sign-off. The PDF says both. The rules (status, overdue days,
 dates in order, the paste reader) are covered by unit tests, and every
 route has a test that another company's job answers "not found".
 
+Each document on the checklist now also keeps its files: the PDF as sent,
+photos of attic stock delivered, and the GC's receipt when it comes back.
+One close-out binder PDF puts a transmittal listing every document and its
+dates in front of the required documents' files, with the GC's receipts
+left out. What a subcontract usually asks for at close-out, and how to
+deliver it as one package, is in
+[close-out documents: what a subcontractor sends to get retainage released](2026-11-26-subcontractor-closeout-documents-and-retainage.md).
+
+## The closeout documents beside it
+
+The punch list is half of what the release waits on; the warranty letter,
+the O&M manuals, the as-builts, attic stock with a signed receipt, the
+final inspection and the final waiver are the other half, and they tend to
+live in an email thread nobody can find in March. Later on 2026-11-26 the
+same job page got a closeout checklist. One button adds that standard
+list, with consent of surety added only when you tick that the job is
+bonded; it skips any kind the job already has, so pressing it twice, or
+after you typed your own "two-year warranty per Exhibit D", adds nothing
+twice. Anything else the subcontract or the spec's closeout section asks
+for is typed in, with where the requirement comes from. Each document
+goes from "to send" (or overdue, once the due date you typed has passed)
+to sent, then to accepted; one the job does not need is marked "not
+required" with the reason, and stays on the list but out of the count.
+
+The page then reads three things together: the checklist, the punch list,
+and the retainage on the latest pay application you sent, including
+whether that application bills the whole contract. It lists, in plain
+words, what still stands between the job and its retainage: "the latest
+pay application sent (#6) does not bill the whole contract yet", "2 punch
+list items are not accepted yet (1 to fix, 1 awaiting the GC's
+back-check)", "1 closeout document is still to send (1 overdue)". When
+the list is empty it drafts the email to the GC's project manager: the
+amount held on that application, the punch list accepted, each document
+with the dates you entered, and the ones marked not required with their
+reasons.
+
+The email says what was delivered. It does not say the subcontract's
+conditions are met, because the app only knows what you entered; your
+subcontract may ask for more (a final application, lower-tier waivers),
+and the job page says to check it. The status rules, the readiness list
+and the email are covered by unit tests, and every route has a test that
+another company's job answers "not found".
+
 ## Then every job at once
 
 One job's retainage is easy to remember. Six jobs across three GCs, some
@@ -142,8 +185,8 @@ tests.
 
 This is the gap the pay-app suite we are building is meant to close:
 retainage worked out per line on every pay application, a running balance
-per job, a reminder when it is due for release, the punch list that gates
-it, and a QuickBooks sync. It
+per job, a reminder when it is due for release, the punch list and closeout
+documents that gate it, and a QuickBooks sync. It
 is in development with early access at
 [marisstella.app/industries/construction](https://marisstella.app/industries/construction/).
 Nothing is for sale yet.

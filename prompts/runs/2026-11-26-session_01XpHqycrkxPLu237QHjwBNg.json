@@ -39,6 +39,10 @@
     {
       "file": "prompts/promptctl.py route",
       "issue": "route printed '6607/40 runs toward the next review' yet did not route to review; the counter reads as overdue by 6567 runs (PR #18741 says stale 'prompts: review' PRs block it). Not investigated this run."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "slug_dupe and the open-PR search came back clean at the start, but PR #19411 on the same friction cluster opened and merged while this run built. Two process runs drew the same friction_rank top cluster within the hour; friction_rank could mark a cluster that has an open process PR."
     }
   ],
   "deviations": [
@@ -51,7 +55,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Security queue empty (security_next exit 3); IDEAS empty; routed process/1 by weighted draw. Backlog has no agent-owned workable item, so Critique mode: friction_rank --live --ungated --days 3 clusters 2 and 13 (6+2 sessions, 2026-11-26). Added a Growth path line to each of the 7 bets and made roadmap_claim --bets list topics with their live/merged claims when nothing is free. Verified: test_roadmap_claim 26 OK; real private-monorepo run (248 claim branches) with the free list forced empty; promptctl validate ok; main_health 329/329.",
+  "notes": "Security queue empty (security_next exit 3); IDEAS empty; routed process/1 by weighted draw. Backlog has no agent-owned workable item, so Critique mode: friction_rank --live --ungated --days 3 clusters 2 and 13 (6+2 sessions, 2026-11-26). Added a Growth path line to each of the 7 bets and made roadmap_claim --bets list topics with their live/merged claims when nothing is free. Verified: test_roadmap_claim 26 OK; real private-monorepo run (248 claim branches) with the free list forced empty; promptctl validate ok; main_health 329/329. Merge conflict with PR #19411 (a parallel process run on the same friction: least-crowded bet plus its Wedge line). Combined the two: #19411 picks the bet, this PR adds the per-bet Growth path topics with live and merged claims and names an untouched topic inside that bet. 27 tests OK after the merge; real-claims check named jobshop-quote 'quote follow-up'.",
   "corrections": [],
   "redteam": null,
   "usage": {
