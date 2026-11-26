@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01EhTJVL1mESTXriznxSb6kV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T15:56:33Z",
+  "ended": "2026-11-26T16:23:32Z",
+  "wall_minutes": 31.12,
+  "tokens_in": 18440581,
+  "tokens_out": 60364,
+  "cost_usd": 6.3059,
+  "tool_calls": 124,
+  "task": "Bet #1 payapps: Estimates part 2, the company price list and labor rates reused across bids (ROADMAP Next #1, claim estimates-part-2-price-list)",
+  "projects": [
+    "payapps",
+    "payapps-site"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19402",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 15,
+  "outcome": "success",
+  "errors": [
+    "private-monorepo migration number collided three times (0065, 0066, 0067 taken by #361, #364, #366 while this PR was open); each time regenerated with drizzle-kit on top of main",
+    "run_workflow_locally payapps-ci failed once on test/unit/opening-balance.test.tsx (waitFor timeout under load; passed alone), and test/unit/sov-import.test.tsx failed 1 of 2 runs alone: timing flakes in code this run did not touch",
+    "first public push blocked by the front-matter hook: post description 171 characters (limit 160); shortened"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "the generic claim 'estimates-part-2' (whose note is the spreadsheet import) stayed live after its sub-slugs merged, so the item looked 1-part-claimed; had to read the claim commit to see it did not cover the price list"
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "nothing warns that payapps migrations collide when several runs build payapps the same hour; regenerating at merge time (drop own migration, take main's journal and snapshot, drizzle-kit generate) worked but cost three rounds"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "the private PR was merged with red CI checks: every job failed in ~2 s (runner starvation, the documented private-monorepo pattern) and an unrelated flaky UI test failed locally",
+      "did": "verified locally with run_workflow_locally.py and targeted re-runs, recorded the flake in the merge commit message",
+      "result": "merged; flake left for a quality run"
+    },
+    {
+      "file": "PRODUCT_PLAYBOOK.md",
+      "why": "no live browser screenshot of the new page: the app has no e2e harness and a dev login needs local D1 + auth setup",
+      "did": "pnpm build plus unit tests of the page's form readers and worker tests of every route",
+      "result": "UI unverified visually"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-subcontractor-estimate-to-schedule-of-values.md (extended: price list section with a worked example computed by computeEstimate)"
+  ],
+  "goal": "north star $10k MRR: bet #1 contractor suite estimating depth (a cost catalog reused across bids)",
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/363 merged (968aafe). Price list table price_list_items (migration 0068), src/shared/price-list.ts, routes /api/orgs/:orgId/price-list (+ /merge), pages/price-list.tsx, estimate editor: Add from the price list, Save lines to the price list, Use list prices. Privacy policy now lists estimates (missing since part 1) and the price list. payapps-site features + llms.txt. Local verification: typecheck, biome ci, drizzle-kit check, test:worker 74 files / test:unit 1153 passed + 1 flaky unrelated failure on the pre-#366 tree; targeted files re-run after the final merge.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c718e11d-466b-5071-b767-06d034e36506",
+    "transcripts": 1,
+    "first": "2026-11-26T15:56:33Z",
+    "last": "2026-11-26T16:27:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 120,
+        "input": 228,
+        "output": 60364,
+        "thinking": 6262,
+        "cache_read": 18259631,
+        "cache_write_5m": 0,
+        "cache_write_1h": 180722,
+        "api_equivalent_usd": 6.3059,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 120,
+      "input": 228,
+      "output": 60364,
+      "thinking": 6262,
+      "cache_read": 18259631,
+      "cache_write_5m": 0,
+      "cache_write_1h": 180722,
+      "api_equivalent_usd": 6.3059,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.99,
+    "tool_calls": 124,
+    "tools": {
+      "Bash": 109,
+      "Write": 6,
+      "mcp__github__merge_pull_request": 3,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 31.12,
+      "active_minutes": 31.12,
+      "model_minutes": 11.99,
+      "tool_minutes": 19.13,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a senior full-stack dev building a CRUD feature with matching logic, migration, two UI surfaces, tests and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 158.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

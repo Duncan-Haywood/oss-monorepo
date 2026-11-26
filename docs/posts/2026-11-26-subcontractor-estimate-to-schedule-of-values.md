@@ -2,8 +2,8 @@
 title: "Subcontractor estimating: price the bid from your costs, then bill from the same numbers"
 seo_title: "Subcontractor estimate to proposal to schedule of values"
 date: 2026-11-26
-tags: [for-customers, payapps, construction, estimating, bid-alternates, schedule-of-values, job-costing, pay-app-guides]
-description: "Price a bid from your costs, typed or imported from your bid sheet, add alternates, send prices only, and start the won job's schedule of values."
+tags: [for-customers, payapps, construction, estimating, bid-alternates, price-list, schedule-of-values, job-costing, pay-app-guides]
+description: "Price a bid from your costs and a reusable price list, add alternates, send the GC prices only, and start the won job's schedule of values."
 ---
 
 *Written by an AI agent working in this repository. The example below is invented, and the
@@ -130,10 +130,47 @@ Ductwork at $17,811.80, line 2 is Controls at $1,500.00, and the **contract sum 
 which is $21,171.80 + $1,500.00 − $3,360.00. The estimate keeps the record of which alternates
 were accepted.
 
+## A price list you keep once and reuse on every bid
+
+Most estimators price the same few hundred things on every bid: the crew rates, the duct by the
+pound, the lift by the day, the crane sub's lump sum. Retyping them is slow, and copying last
+month's estimate brings last month's prices with it. So the company keeps a **price list**: each
+item is a category, a description, a unit and a unit cost, with a code (a part number) and a note
+on where the price came from ("supplier quote 11/20") if you want them. Labor rates are labor
+items by the hour.
+
+The list fills three ways: typed on the price list page, read from a supplier's price sheet with
+the same spreadsheet import as above (in your browser, never uploaded), or from an estimate with
+**Save lines to the price list**. On an estimate, **Add from the price list** searches by any word
+in the description, code or note, and adds the line under the current bid item with the quantity
+left for you to type.
+
+An item and a line are the same price when the category, the description and the unit match,
+ignoring capitals and extra spaces: "galvanized  DUCT" by the "lb" is "Galvanized duct" by the
+"LB". Saving lines updates the price of items already on the list and adds the rest. If the same
+item appears twice at different costs, the last one is kept and the page names it so you can
+check.
+
+A line **copies** the cost. Changing the list never changes an estimate you already saved. That
+matters for a bid that is out with the GC: its proposal has to match what you sent. For a bid
+still being priced, the estimate shows **Use list prices** when some lines differ from the list,
+and sets them to it for you to check and save.
+
+Back to the example. The supplier's new quote puts galvanized duct at $5.125 a pound instead of
+$4.875. You change it once on the price list. On the clinic estimate, "Use list prices (1 differ)"
+sets that line to $5.125:
+
+- **Ductwork:** material is now 1,450 × $5.125 = $7,431.25, so cost is $15,651.25. Tax is 7.5% of
+  $7,431.25, which is $557.34. Markup is $1,233.00 on labor plus 10% of ($7,431.25 + $557.34),
+  which is $798.86. **Price: $18,240.45.**
+- **Bid: $21,600.45**, up $428.65. Equipment setting is unchanged at $3,360.00.
+
+The next estimate that picks galvanized duct from the list starts at $5.125.
+
 ## What it does not do yet
 
-It does not keep a price list or labor rates to reuse across bids yet; that is next. It does not
-read a PDF quote: export it as a spreadsheet first. An alternate here is a whole bid item: a
+It does not track price history: the list holds today's price and the date it was last changed.
+It does not read a PDF quote: export it as a spreadsheet first. An alternate here is a whole bid item: a
 deduct that is only part of an item has to be set up as its own bid item. It does not check your
 quantities or tell you what markup the market will bear. It does not send anything to the GC:
 you download the PDF and send it yourself.
