@@ -1,0 +1,385 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKmVnYhYeD2p3szPrrh",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T09:18:44Z",
+  "ended": "2026-11-26T09:19:59Z",
+  "wall_minutes": 9.57,
+  "tokens_in": 3408991,
+  "tokens_out": 24703,
+  "cost_usd": 1.8504,
+  "tool_calls": 39,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19301",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/xer-schedule-check/eval/milestone-calendars-2026-11-20.md",
+      "issue": "the Limits section documented the in-progress-successor omission as a limit; the module comment did not, so the omission looked deliberate in one place and was invisible in the other"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "step 4b asks for a new automated guard; the escapes were product-specific test gaps with no shared cause, so I wrote tests in the existing suites instead of a lint",
+      "did": "8 targeted tests in the suites CI already runs",
+      "result": "all 7 gaps caught on rerun"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-20-p6-milestone-calendars-lose-a-day.md (extended)",
+    "ventures/xer-schedule-check/eval/milestone-calendars-2026-11-20.md (Limits updated)"
+  ],
+  "goal": null,
+  "notes": "Targets chosen with --probe 20 (4.6 s suites), and neither had been mutated by an earlier campaign. Catch rate 6/16 before; after triage 3 equivalent, 7 gaps, all caught_after_fix. Venture suite: 603 tests ok. The public P6 corpus for eval/milestone-calendars.mjs is not committed, so the eval counts were not rerun; the fix only adds listings for FS successors that are TK_Active.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/xer-schedule-check/reldates.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 620136572,
+        "commit": "9e85ab5ba",
+        "sites": 135,
+        "baseline_seconds": 4.8,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/reldates.mjs",
+            "line": 72,
+            "col": 14,
+            "operator": "or-to-and",
+            "before": "if (!pred || !succ || pred.span || succ.span) continue;",
+            "after": "if (!pred && !succ || pred.span || succ.span) continue;",
+            "line_text": "    if (!pred || !succ || pred.span || succ.span) continue;",
+            "caught": false,
+            "seconds": 4.9,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "pred and succ come from model.tasks, the same lookup buildModel uses to set rel.external; external links are skipped one line up, so both are always defined here and the second operand of || is never reached with either missing"
+          },
+          {
+            "file": "ventures/xer-schedule-check/reldates.mjs",
+            "line": 85,
+            "col": 25,
+            "operator": "neq-flip",
+            "before": "const off = (v) => v !== null && Math.abs(v - rel.lag) > TOL;",
+            "after": "const off = (v) => v === null && Math.abs(v - rel.lag) > TOL;",
+            "line_text": "    const off = (v) => v !== null && Math.abs(v - rel.lag) > TOL;",
+            "caught": true,
+            "seconds": 4.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/reldates.mjs",
+            "line": 87,
+            "col": 23,
+            "operator": "and-to-or",
+            "before": "if (fromL !== null && fromA !== null && Math.abs(fromL - fromA) <= TOL) {",
+            "after": "if (fromL !== null || fromA !== null && Math.abs(fromL - fromA) <= TOL) {",
+            "line_text": "    if (fromL !== null && fromA !== null && Math.abs(fromL - fromA) <= TOL) {",
+            "caught": false,
+            "seconds": 4.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test: aref empty, arls alone names the old lag with witnesses ['arls']; the mutant labels it aref+arls"
+          },
+          {
+            "file": "ventures/xer-schedule-check/reldates.mjs",
+            "line": 119,
+            "col": 22,
+            "operator": "and-to-or",
+            "before": "if (arls !== null && lc === pred.cal) fromL = span(arls, sLS) - pred.remain;",
+            "after": "if (arls !== null || lc === pred.cal) fromL = span(arls, sLS) - pred.remain;",
+            "line_text": "    if (arls !== null && lc === pred.cal) fromL = span(arls, sLS) - pred.remain;",
+            "caught": false,
+            "seconds": 5.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test: an SS link with arls empty and its lag edited lists nothing (aref alone never names a lag, per the module header); the mutant reads a lag from the empty date (workBetween from epoch) and lists a garbage 'was'"
+          },
+          {
+            "file": "ventures/xer-schedule-check/reldates.mjs",
+            "line": 122,
+            "col": 13,
+            "operator": "neq-flip",
+            "before": "if (aref !== null) fromA = span(pEF, succ.cal.addWork(aref, succ.remain));",
+            "after": "if (aref === null) fromA = span(pEF, succ.cal.addWork(aref, succ.remain));",
+            "line_text": "    if (aref !== null) fromA = span(pEF, succ.cal.addWork(aref, succ.remain));",
+            "caught": false,
+            "seconds": 4.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test: an FF link (none in the example file) decodes, and an edited FF lag reads back on aref+arls"
+          },
+          {
+            "file": "ventures/xer-schedule-check/reldates.mjs",
+            "line": 129,
+            "col": 13,
+            "operator": "neq-flip",
+            "before": "if (arls !== null && lc === pred.cal) fromL = span(arls, sLF) - pred.remain;",
+            "after": "if (arls === null && lc === pred.cal) fromL = span(arls, sLF) - pred.remain;",
+            "line_text": "    if (arls !== null && lc === pred.cal) fromL = span(arls, sLF) - pred.remain;",
+            "caught": true,
+            "seconds": 4.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/reldates.mjs",
+            "line": 144,
+            "col": 18,
+            "operator": "neq-flip",
+            "before": ": pred.status !== \"TK_NotStart\" && fromStart ? pred.actStart : undefined;",
+            "after": ": pred.status === \"TK_NotStart\" && fromStart ? pred.actStart : undefined;",
+            "line_text": "    : pred.status !== \"TK_NotStart\" && fromStart ? pred.actStart : undefined;",
+            "caught": true,
+            "seconds": 4.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/reldates.mjs",
+            "line": 173,
+            "col": 13,
+            "operator": "neq-flip",
+            "before": "if (arls !== null && sLF !== null && lc === pred.cal) fromL = span(arls, sLF) - (pred.status === \"TK_Complete\" ? 0 : pred.remain);",
+            "after": "if (arls === null && sLF !== null && lc === pred.cal) fromL = span(arls, sLF) - (pred.status === \"TK_Complete\" ? 0 : pred.remain);",
+            "line_text": "    if (arls !== null && sLF !== null && lc === pred.cal) fromL = span(arls, sLF) - (pred.status === \"TK_Complete\" ? 0 : pred.remain);",
+            "caught": false,
+            "seconds": 5.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test: an SF link from a started predecessor with aref empty is checked on arls and agrees"
+          }
+        ]
+      },
+      {
+        "target": "ventures/xer-schedule-check/milestones.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 638022628,
+        "commit": "9e85ab5ba",
+        "sites": 101,
+        "baseline_seconds": 4.9,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/milestones.mjs",
+            "line": 21,
+            "col": 31,
+            "operator": "times-to-div",
+            "before": "const r2 = (x) => Math.round(x * 100) / 100;",
+            "after": "const r2 = (x) => Math.round(x / 100) / 100;",
+            "line_text": "const r2 = (x) => Math.round(x * 100) / 100;",
+            "caught": true,
+            "seconds": 4.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/milestones.mjs",
+            "line": 25,
+            "col": 31,
+            "operator": "or-to-and",
+            "before": "model = model || base?.model || buildModel(xer);",
+            "after": "model = model || base?.model && buildModel(xer);",
+            "line_text": "  model = model || base?.model || buildModel(xer);",
+            "caught": true,
+            "seconds": 4.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/milestones.mjs",
+            "line": 46,
+            "col": 25,
+            "operator": "lt-to-le",
+            "before": "const finishH = a.ef < b.ef ? r2(t.cal.workBetween(a.ef, b.ef) / 60) : 0;",
+            "after": "const finishH = a.ef <= b.ef ? r2(t.cal.workBetween(a.ef, b.ef) / 60) : 0;",
+            "line_text": "    const finishH = a.ef < b.ef ? r2(t.cal.workBetween(a.ef, b.ef) / 60) : 0;",
+            "caught": false,
+            "seconds": 4.8,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "when a.ef === b.ef, workBetween(x, x) is 0, so finishH is 0 either way"
+          },
+          {
+            "file": "ventures/xer-schedule-check/milestones.mjs",
+            "line": 46,
+            "col": 69,
+            "operator": "const-plus-one",
+            "before": "const finishH = a.ef < b.ef ? r2(t.cal.workBetween(a.ef, b.ef) / 60) : 0;",
+            "after": "const finishH = a.ef < b.ef ? r2(t.cal.workBetween(a.ef, b.ef) / 61) : 0;",
+            "line_text": "    const finishH = a.ef < b.ef ? r2(t.cal.workBetween(a.ef, b.ef) / 60) : 0;",
+            "caught": false,
+            "seconds": 5.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test: an in-progress activity has a fixed start, so its hours are the finish's (8, not 7.87)"
+          },
+          {
+            "file": "ventures/xer-schedule-check/milestones.mjs",
+            "line": 47,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "if (startH > 0 || finishH > 0) activities.push({ code: t.code, name: t.name, calendar: t.cal.name, start: formatDate(b.es), couldStart: formatDate(a.es), hours: Math.max(startH, finishH), tf: r2(b.tf), tf24: r2(a.tf) });",
+            "after": "if (startH > 1 || finishH > 0) activities.push({ code: t.code, name: t.name, calendar: t.cal.name, start: formatDate(b.es), couldStart: formatDate(a.es), hours: Math.max(startH, finishH), tf: r2(b.tf), tf24: r2(a.tf) });",
+            "line_text": "    if (startH > 0 || finishH > 0) activities.push({ code: t.code, name: t.name, calendar: t.cal.name, start: formatDate(b.es), couldStart: formatDate(a.es), hours: Math.max(startH, finishH), tf: r2(b.tf), tf24: r2(a.tf) });",
+            "caught": false,
+            "seconds": 4.8,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "an activity is listed whenever finishH > 0; for a not-started activity finishH equals startH (the same remaining work on its own calendar from the moved start), for a started one startH is 0, and an FF-driven start moves with its finish, so startH in (0, 1] with finishH 0 cannot arise"
+          },
+          {
+            "file": "ventures/xer-schedule-check/milestones.mjs",
+            "line": 47,
+            "col": 165,
+            "operator": "max-to-min",
+            "before": "if (startH > 0 || finishH > 0) activities.push({ code: t.code, name: t.name, calendar: t.cal.name, start: formatDate(b.es), couldStart: formatDate(a.es), hours: Math.max(startH, finishH), tf: r2(b.tf), tf24: r2(a.tf) });",
+            "after": "if (startH > 0 || finishH > 0) activities.push({ code: t.code, name: t.name, calendar: t.cal.name, start: formatDate(b.es), couldStart: formatDate(a.es), hours: Math.min(startH, finishH), tf: r2(b.tf), tf24: r2(a.tf) });",
+            "line_text": "    if (startH > 0 || finishH > 0) activities.push({ code: t.code, name: t.name, calendar: t.cal.name, start: formatDate(b.es), couldStart: formatDate(a.es), hours: Math.max(startH, finishH), tf: r2(b.tf), tf24: r2(a.tf) });",
+            "caught": false,
+            "seconds": 4.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test: the in-progress activity's hours are max(0, 8) = 8; min gave 0"
+          },
+          {
+            "file": "ventures/xer-schedule-check/milestones.mjs",
+            "line": 75,
+            "col": 63,
+            "operator": "const-plus-one",
+            "before": "hours: successors.reduce((m, s) => Math.max(m, s.hours), 0), successors,",
+            "after": "hours: successors.reduce((m, s) => Math.max(m, s.hours), 1), successors,",
+            "line_text": "      hours: successors.reduce((m, s) => Math.max(m, s.hours), 0), successors,",
+            "caught": false,
+            "seconds": 4.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test: a milestone on an 08:30 calendar holds B back half an hour; the initial value 1 reported 1 h"
+          },
+          {
+            "file": "ventures/xer-schedule-check/milestones.mjs",
+            "line": 119,
+            "col": 56,
+            "operator": "plus-to-minus",
+            "before": "return rows.map((x) => x.map(q).join(\",\")).join(\"\\n\") + \"\\n\";",
+            "after": "return rows.map((x) => x.map(q).join(\",\")).join(\"\\n\") - \"\\n\";",
+            "line_text": "  return rows.map((x) => x.map(q).join(\",\")).join(\"\\n\") + \"\\n\";",
+            "caught": true,
+            "seconds": 5.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/xer-schedule-check/milestones.mjs",
+        "issue": "a milestone holding an in-progress successor's remaining work by an FS link (retained logic) was never listed; the panel counted the activity as able to finish earlier yet said no milestone held work back",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19301"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "db3aa6a8-7495-5d28-9f54-ca79ffed9203",
+    "transcripts": 1,
+    "first": "2026-11-26T09:18:44Z",
+    "last": "2026-11-26T09:28:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 76,
+        "output": 24703,
+        "thinking": 9015,
+        "cache_read": 3322468,
+        "cache_write_5m": 0,
+        "cache_write_1h": 86447,
+        "api_equivalent_usd": 1.8504,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 76,
+      "output": 24703,
+      "thinking": 9015,
+      "cache_read": 3322468,
+      "cache_write_5m": 0,
+      "cache_write_1h": 86447,
+      "api_equivalent_usd": 1.8504,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 37,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.57,
+      "active_minutes": 9.57,
+      "model_minutes": 5.29,
+      "tool_minutes": 4.28,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: read two modules, write 8 CPM fixture tests, one fix",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 216.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
