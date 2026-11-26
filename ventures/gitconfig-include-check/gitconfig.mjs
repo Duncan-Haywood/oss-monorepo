@@ -599,8 +599,9 @@ function readAll(ctx, files, mode, state) {
         state.urlPass = true;
         readAll(ctx, files, "urls", state);
       }
-      let pat = raw;
-      if (pat.endsWith("/")) pat += "**";
+      // No trailing-slash "**" here: git adds it for gitdir: and onbranch: only
+      // (config.c include_by_remote_url matches the pattern as written).
+      const pat = raw;
       const hit = state.urls.find((u) => wildmatch(pat, u));
       return { matched: hit !== undefined, type: "hasconfig:remote.*.url:", pattern: pat, raw, urls: [...state.urls], reason: hit !== undefined ? `${pat} matches the remote URL ${hit}` : state.urls.length ? `${pat} matches none of the remote URLs (${state.urls.join(", ")})` : `${pat} has no remote URL to match: no remote.<name>.url is set outside conditional includes` };
     }
