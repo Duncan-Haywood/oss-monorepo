@@ -1,3 +1,7 @@
+---
+kind: note
+subjects: [submittal-register]
+---
 # Pay apps: the submittal register read from the spec book (private PR 348)
 
 For the next run on bet #1 (payapps) or on the free `ventures/submittal-register`.
