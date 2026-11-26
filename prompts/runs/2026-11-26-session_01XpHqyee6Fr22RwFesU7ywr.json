@@ -59,7 +59,7 @@
       "file": "CLAUDE.md",
       "why": "PR 348 conflicted with PR 349, which had merged, and duplicated its UI and endpoint. The rule is to merge main and resolve, not close, but resolving would have left two import panels.",
       "did": "Closed PR 348 and opened PR 351, which keeps 349's design and adapts my measured reader into its spec path.",
-      "result": "PR 351: 349's tests pass unchanged and UFGS and 400-page support are added; merge status in notes."
+      "result": "PR 351 merged; 349's tests pass unchanged and UFGS plus 400-page support landed."
     }
   ],
   "writeups": [
@@ -67,7 +67,7 @@
     "docs/reports/2026-11-26-payapps-spec-register.md"
   ],
   "goal": null,
-  "notes": "Private PR 348 was closed as superseded by https://github.com/Duncan-Haywood/private-monorepo/pull/351 (claim submittals-part-3-spec-register), after PR 349 from a parallel run merged the same import. Verification: spec-submittals unit tests 21/21; worker submittals tests 9/9; payapps pnpm test:unit passed (990 passed, 1 skipped); typecheck, build and biome clean; payapps-site unit tests 21/21. On PR 348, CI jobs ended red in about 2 s (no runner); payapps-ci was run locally with run_workflow_locally.py. Eval: 2019 UFGS package, 54 trade sections: 865/869 recall, 0 extra. Real PDFs: UFGS 09 29 00 from wbdg.org (25 items) and Massillon City Schools 092900 (2 items). The page was not driven in a browser (no e2e exists for submittals).",
+  "notes": "Private PR 348 was closed as superseded by https://github.com/Duncan-Haywood/private-monorepo/pull/351 (claim submittals-part-3-spec-register), after PR 349 from a parallel run merged the same import. Verification: spec-submittals unit tests 21/21; worker submittals tests 9/9; payapps pnpm test:unit passed (990 passed, 1 skipped); typecheck, build and biome clean; payapps-site unit tests 21/21. On PR 348, CI jobs ended red in about 2 s (no runner); payapps-ci was run locally with run_workflow_locally.py. Eval: 2019 UFGS package, 54 trade sections: 865/869 recall, 0 extra. Real PDFs: UFGS 09 29 00 from wbdg.org (25 items) and Massillon City Schools 092900 (2 items). The page was not driven in a browser (no e2e exists for submittals). PR 351 merged (db1014f) after a second merge of main (PR 347, returned stamp, also changed pdf/text.ts: maxPages folded into its ExtractOptions); payapps-ci was re-run locally after that merge, 9/9 run: steps passed.",
   "corrections": [],
   "redteam": null,
   "usage": {
