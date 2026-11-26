@@ -59,8 +59,11 @@ export function ControlImport({
   // A workbook's preview says "Row 14" (the Excel row); a CSV's says "Line 14".
   const rowWord = workbook ? "Row" : "Line";
   const sheetNote = workbook ? ` (${workbook.sheets[sheetIdx]?.name ?? "sheet"})` : "";
+  // The CSV travels with each call. A mutationFn that read `csv` from this render's closure
+  // could send the previous render's value (null) when Preview is clicked right after a file
+  // is read, before react-query has picked up the new options.
   const run = useMutation({
-    mutationFn: (apply: boolean) =>
+    mutationFn: ({ apply, csv }: { apply: boolean; csv: string }) =>
       api<Preview>(`/api/orgs/${orgId}/controls/import`, {
         method: "POST",
         json: { level, csv, apply },
@@ -156,7 +159,7 @@ export function ControlImport({
             type="button"
             className={btnCls}
             disabled={!csv || run.isPending}
-            onClick={() => run.mutate(false)}
+            onClick={() => csv && run.mutate({ apply: false, csv })}
           >
             Preview
           </button>
@@ -165,7 +168,7 @@ export function ControlImport({
               type="button"
               className={btnCls}
               disabled={run.isPending}
-              onClick={() => run.mutate(true)}
+              onClick={() => csv && run.mutate({ apply: true, csv })}
             >
               Import {preview.changes.length} requirement{preview.changes.length === 1 ? "" : "s"}
             </button>
