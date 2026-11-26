@@ -4,7 +4,7 @@ seo_title: "Reseller mileage on Schedule C line 9: the 2026 rate change"
 date: 2026-11-24
 tags: [resellers, mileage, bookkeeping, schedule-c, reseller-books, for-customers]
 updated: 2026-11-26
-description: "Thrift runs go on Schedule C line 9, and the IRS rate changed mid-year in 2022 and 2026, so trips are priced by date. Both Reseller Books tools now do it."
+description: "Thrift runs go on Schedule C line 9, and the IRS rate changed mid-year in 2022 and 2026, so trips are priced by date. Reseller Books and Seller Books now do."
 ---
 
 A reseller's marketplace reports carry sales, fees, postage and ads. They do
