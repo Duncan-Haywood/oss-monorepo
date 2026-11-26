@@ -307,6 +307,64 @@ function* tokens(str) {
   }
 }
 
+// --- A content stream read once, for readers that walk it twice ---------
+//
+// geometry.mjs reads every page for its line work and again for its text. A
+// drawing's stream is megabytes of numbers (5 million tokens on one 19-sheet
+// set), so tokenizing it twice was a third of reading the set. A TokenList
+// keeps the tokens compactly: numbers in a Float64Array, common operators as a
+// byte code, and only other operators and values (names, strings, arrays,
+// dicts) as objects, so keeping a page's tokens between the two passes leaves
+// almost nothing for the garbage collector. run() hands the same values and
+// operators, in the same order, as iterating tokens(str).
+const OP_NAMES = ['q', 'Q', 'cm', 'w', 'J', 'j', 'M', 'd', 'ri', 'i', 'gs', 'm', 'l', 'c', 'v', 'y', 'h', 're',
+  'S', 's', 'f', 'F', 'f*', 'B', 'B*', 'b', 'b*', 'n', 'W', 'W*', 'BT', 'ET', 'Tc', 'Tw', 'Tz', 'TL', 'Tf', 'Tr', 'Ts',
+  'Td', 'TD', 'Tm', 'T*', 'Tj', 'TJ', "'", '"', 'd0', 'd1', 'CS', 'cs', 'SC', 'SCN', 'sc', 'scn', 'G', 'g', 'RG', 'rg',
+  'K', 'k', 'sh', 'Do', 'MP', 'DP', 'BMC', 'BDC', 'EMC', 'BX', 'EX'];
+const OP_CODE = new Map(OP_NAMES.map((name, i) => [name, i + 3])); // 0 number, 1 other operator, 2 other value
+
+export class TokenList {
+  constructor(str) {
+    let cap = 1024, n = 0;
+    let kind = new Uint8Array(cap), num = new Float64Array(cap);
+    const other = [];
+    for (const t of tokens(str)) {
+      if (n === cap) {
+        cap *= 2;
+        const k2 = new Uint8Array(cap); k2.set(kind); kind = k2;
+        const n2 = new Float64Array(cap); n2.set(num); num = n2;
+      }
+      if ('op' in t) {
+        const code = OP_CODE.get(t.op);
+        if (code !== undefined) kind[n] = code;
+        else { kind[n] = 1; other.push(t.op); }
+      } else if (typeof t.v === 'number') num[n] = t.v; // kind 0
+      else { kind[n] = 2; other.push(t.v); }
+      n++;
+    }
+    this.n = n; this.kind = kind; this.num = num; this.other = other;
+  }
+  /** Call value(v) for each operand and op(name) for each operator, in order. */
+  run(value, op) {
+    const { n, kind, num, other } = this;
+    for (let i = 0, j = 0; i < n; i++) {
+      const k = kind[i];
+      if (k === 0) value(num[i]);
+      else if (k === 1) op(other[j++]);
+      else if (k === 2) value(other[j++]);
+      else op(OP_NAMES[k - 3]);
+    }
+  }
+}
+
+/** Walk a content stream (a string, or a TokenList of one). */
+export function runTokens(content, value, op) {
+  if (typeof content !== 'string') { content.run(value, op); return; }
+  for (const t of tokens(content)) {
+    if ('op' in t) op(t.op); else value(t.v);
+  }
+}
+
 function mul(m, n) { // m then n  (row-vector convention used by PDF)
   return [
     m[0] * n[0] + m[1] * n[2], m[0] * n[1] + m[1] * n[3],
@@ -355,9 +413,9 @@ export function textRuns(content, fonts, forms = null, startCtm = null, depth = 
     else if (font && font.unreadable && str.length) runs.push({ text: '', x: trm[4], y: trm[5], size, flip: false, unreadable: true });
     tm = mul([1, 0, 0, 1, tx, 0], tm);
   };
-  for (const t of tokens(content)) {
-    if (!('op' in t)) { operands.push(t.v); if (operands.length > 64) operands.shift(); continue; }
-    const op = t.op;
+  const value = (v) => { operands.push(v); if (operands.length > 64) operands.shift(); };
+  // `content` is a stream or its TokenList (geometry.mjs reads both passes from one).
+  const step = (op) => {
     const num = (k) => (typeof operands[k] === 'number' ? operands[k] : 0);
     switch (op) {
       case 'q': stack.push(ctm.slice()); break;
@@ -393,7 +451,7 @@ export function textRuns(content, fonts, forms = null, startCtm = null, depth = 
         const nameOp = operands.find((x) => x instanceof PName);
         const form = forms && nameOp ? forms.get(nameOp.name) : null;
         if (form && depth < 8) {
-          const inner = textRuns(form.content, form.fonts, form.forms, mul(form.matrix, ctm), depth + 1, rules);
+          const inner = textRuns(form.toks || form.content, form.fonts, form.forms, mul(form.matrix, ctm), depth + 1, rules);
           for (const r of inner) runs.push(r);
         }
         break;
@@ -438,7 +496,8 @@ export function textRuns(content, fonts, forms = null, startCtm = null, depth = 
       default: break;
     }
     operands = [];
-  }
+  };
+  runTokens(content, value, step);
   return runs;
 }
 

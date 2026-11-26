@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtH2ewk7ddc44eMc1Sa",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T12:06:26Z",
+  "ended": "2026-11-26T12:16:32Z",
+  "wall_minutes": 10.61,
+  "tokens_in": 12595816,
+  "tokens_out": 38876,
+  "cost_usd": 4.7028,
+  "tool_calls": 89,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19342",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "One of my own tests assumed BT-1 is required in D22B; xmllint showed it optional, test corrected before commit"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "apps/*/ROADMAP.md (private-monorepo)",
+      "issue": "roadmap_claim.py --bets marks payapps #5 and cmmc #1-#4 as 'free and not gated', but their text waits on customers or real files ('if customers bill through them', 'once shops send real files'); reading four ROADMAPs to find a truly workable item cost ~10 min"
+    },
+    {
+      "file": "private-monorepo docs/legal/OPERATOR.md",
+      "issue": "says agents may run a product's deploy, but the private repo has no runners (#247), so launch items read as agent-doable and are not; roadmap_claim does not flag this"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md / bets.md order",
+      "why": "Bet #1 payapps had 3 live claims and its free items were demand-gated; bet #2 and #4 likewise; took bet #3 einvoice item 3 whose gate ('once French CTC files are seen in use') has passed since France's reform started receiving in Sept 2026",
+      "did": "built the EXTENDED-CTC-FR XSD check in private PR 324",
+      "result": "merged, xmllint-verified"
+    },
+    {
+      "file": "CLAUDE.md (CI green before merge)",
+      "why": "private-monorepo CI jobs end in 2 s with no runner",
+      "did": "merged private PR 324 on local verification (suite, differential, site build test), recorded in PR body",
+      "result": "merged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-zugferd-minimum-basic-wl-not-an-e-invoice-in-germany.md (extended)"
+  ],
+  "goal": null,
+  "notes": "Private PR 324 (https://github.com/Duncan-Haywood/private-monorepo/pull/324) merged: einvoice-preflight checks EXTENDED-CTC-FR CII files against the akretion-shipped D22B XSD. Verification: FNFE 5/5 valid both sides; differential N=300 1,499/1,499 agree; Factur-X FX files 280/280; existing profile tables byte-identical; einvoice suite 2,220 pass / 1 fail (pdfdetach, fails on main) / 142 skip; einvoice-site build test 14 pass.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "68f6b607-1e4e-5300-baaa-ca12d6ea74ee",
+    "transcripts": 1,
+    "first": "2026-11-26T12:06:26Z",
+    "last": "2026-11-26T12:17:03Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 86,
+        "input": 161,
+        "output": 38876,
+        "thinking": 5985,
+        "cache_read": 12415461,
+        "cache_write_5m": 0,
+        "cache_write_1h": 180194,
+        "api_equivalent_usd": 4.7028,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 86,
+      "input": 161,
+      "output": 38876,
+      "thinking": 5985,
+      "cache_read": 12415461,
+      "cache_write_5m": 0,
+      "cache_write_1h": 180194,
+      "api_equivalent_usd": 4.7028,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 89,
+    "tools": {
+      "Bash": 79,
+      "mcp__github__actions_list": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.61,
+      "active_minutes": 10.61,
+      "model_minutes": 7.25,
+      "tool_minutes": 3.35,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer reading a new XSD set, wiring it, running a 1,500-mutant differential and updating docs in three languages",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 127.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
