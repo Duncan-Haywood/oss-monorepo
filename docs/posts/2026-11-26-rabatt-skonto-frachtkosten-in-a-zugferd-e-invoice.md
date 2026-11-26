@@ -3,7 +3,7 @@ title: "Rabatt, Skonto and Frachtkosten: where a discount goes when your PDF inv
 seo_title: "Rabatt, Skonto and freight in a ZUGFeRD or XRechnung e-invoice"
 date: 2026-11-26
 tags: [for-customers, einvoice-preflight, e-invoicing, zugferd, factur-x, xrechnung, germany, france, accountants]
-description: "A discount below the item table is not a line, a Rabatt column is a line allowance, Skonto is not a discount, and a discount across two VAT rates needs splitting. How our PDF converter reads them."
+description: "Where a discount, a Rabatt column, Skonto and freight go in a ZUGFeRD or XRechnung e-invoice, and how our PDF converter reads each one."
 ---
 
 Most small firms in Germany and France still send invoices as a PDF from Word,
