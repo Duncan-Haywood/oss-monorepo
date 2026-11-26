@@ -115,3 +115,13 @@ test("CSV has one row per activity, cells guarded; HTML escapes names", () => {
   assert.ok(!html.includes("<b>"));
   assert.match(html, /&lt;b&gt;/);
 });
+
+// Guard added by the 2026-11-26 red-team run: several missing years read as one range.
+test("consecutive missing holiday years are named as a range", () => {
+  const r = calendarReview(net({ hours: 8000 }));
+  const f = r.findings.find((x) => x.kind === "holidays-run-out");
+  assert.ok(f, calendarText(r));
+  assert.deepEqual(f.years, [2027, 2028, 2029]);
+  assert.match(f.text, /none in 2027-2029,/);
+  assert.match(calendarText(r), /TEST: the finish moves from /);
+});

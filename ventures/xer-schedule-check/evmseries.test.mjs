@@ -104,3 +104,60 @@ test("CSV cells that would read as formulas are written as text", () => {
   assert.match(csv, /'=HYPERLINK\(1\)/);
   assert.match(csv, /,-?\d/); // plain negative numbers stay numbers
 });
+
+// Guards added by the 2026-11-26 red-team run (prompts/runs/2026-11-26-*.json).
+test("series totals run first update to last, not second to last", () => {
+  const r = earnedValueSeries(exampleSeries());
+  const first = r.updates[0], last = r.updates[r.updates.length - 1];
+  // the paint budget cut lands in the first window, so first-to-last is -3,800 and second-to-last would be 0
+  assert.equal(r.total.budgetChange, -3800);
+  assert.equal(r.total.budgetChange, Math.round((last.bac - first.bac) * 100) / 100);
+  assert.equal(r.total.eacChange, Math.round((last.eac - first.eac) * 100) / 100);
+});
+
+test("the project named is the latest update's", () => {
+  const x = apr();
+  const may = statusAsPlanned(x, "77", MAY);
+  for (const p of may.tables.PROJECT) p.proj_short_name = "OFFICE-FITOUT-R1";
+  const r = earnedValueSeries([{ xer: x, label: "Apr" }, { xer: may, label: "May" }]);
+  assert.equal(r.project, "OFFICE-FITOUT-R1");
+  assert.ok(r.warnings.some((w) => w.startsWith("Apr:")), r.warnings.join("\n"));
+});
+
+test("as planned on duration percent: promised matches earned to the cent", () => {
+  const x = apr();
+  const r = earnedValueSeries([{ xer: x, label: "Apr" }, { xer: statusAsPlanned(x, "77", MAY), label: "May" }]);
+  const w = r.windows[0];
+  // performance rounds to 3 places; the amounts must agree exactly
+  assert.ok(Math.abs(w.promised - w.earnedOnPromised) < 0.05, `${w.promised} vs ${w.earnedOnPromised}`);
+});
+
+test("physical percent: the forecast advances physical percent with the work", () => {
+  const x = apr();
+  const may = statusAsPlanned(x, "77", MAY);
+  for (const t of x.tables.TASK) t.complete_pct_type = "CP_Phys";
+  for (const t of may.tables.TASK) {
+    t.complete_pct_type = "CP_Phys";
+    if (t.status_code === "TK_Active") t.phys_complete_pct = String(100 * (1 - Number(t.remain_drtn_hr_cnt) / Number(t.target_drtn_hr_cnt)));
+  }
+  const w = earnedValueSeries([{ xer: x, label: "Apr" }, { xer: may, label: "May" }]).windows[0];
+  assert.equal(w.performance, 1);
+  assert.deepEqual(w.ahead.map((a) => a.code), []);
+  assert.deepEqual(w.behind.map((a) => a.code), []);
+  // judged on each activity's unrounded percent, so earned-on-promised equals the summed earned value
+  assert.ok(Math.abs(w.promised - w.earnedOnPromised) < 0.05, `${w.promised} vs ${w.earnedOnPromised}`);
+});
+
+test("an activity is named only when its gap is more than the tolerance", () => {
+  const x = apr();
+  const next = parseXer(xerText(x));
+  for (const p of next.tables.PROJECT) p.last_recalc_date = "2026-04-07 07:00";
+  // punch list is forecast for July, so nothing was promised for it this week
+  const set = (code, pct) => { for (const t of next.tables.TASK) if (t.task_code === code) { t.status_code = "TK_Active"; t.complete_pct_type = "CP_Phys"; t.phys_complete_pct = String(pct); } };
+  set("A1200", 100 / 3800); // earns exactly 1.00, the cost tolerance
+  set("A1190", 200 / 1520); // earns 2.00
+  const w = earnedValueSeries([{ xer: x, label: "Apr 6" }, { xer: next, label: "Apr 7" }]).windows[0];
+  const named = w.ahead.map((a) => a.code);
+  assert.ok(named.includes("A1190"), JSON.stringify(w.ahead));
+  assert.ok(!named.includes("A1200"), JSON.stringify(w.ahead));
+});

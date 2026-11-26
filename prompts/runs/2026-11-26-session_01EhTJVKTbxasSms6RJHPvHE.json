@@ -1,0 +1,392 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01EhTJVKTbxasSms6RJHPvHE",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T20:56:29Z",
+  "ended": "2026-11-26T20:57:17Z",
+  "wall_minutes": 6.66,
+  "tokens_in": 3281744,
+  "tokens_out": 18427,
+  "cost_usd": 1.75,
+  "tool_calls": 36,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19474",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/slug_dupe.py",
+      "issue": "Passing the PR-title form 'redteam: xer-schedule-check' gives 'not a venture slug'. The bare slug works, but the CLAUDE.md wording ('<slug-or-keyword>') suggests a keyword would too."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "A red test on main was fixed by two sessions at once: nothing marks a red main check as claimed, so the duplicate effort only showed up as a merge conflict."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for an automated class guard. The 8 escapes were coverage gaps in a single file with no shared cause that a lint could catch.",
+      "did": "Added targeted tests and wrote down the pattern instead: a ratio rounded to 3 places (performance) hid a 12.46 money error, so the new tests assert the amounts, not the ratio.",
+      "result": "All 8 gaps caught on rerun."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No new post: a test-only red-team run gives a reader of the marketing blog nothing new.",
+      "did": "Recorded the findings in this record and the PR body.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Targets: ventures/xer-schedule-check/evmseries.mjs and calreview.mjs (redteam.py targets --fresh, suite 4.6 s). Real-bug hunt: input given out of order, a renamed project, the same data date twice. Choosing the project name from the last update given matches windows.mjs's documented intent, so it is not a defect. The venture suite (624 tests) passes. CI's pages test job was red on main because of prompts/polish_next.py (shallow-boundary lint). PR #19475 fixed it on main while this run was fixing it too. After merging main, this PR keeps main's code and adds a test against a real --depth=2 clone, alongside main's mocked one. The existing lint is what caught it, so no new guard was needed.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/xer-schedule-check/evmseries.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 366603550,
+        "commit": "7b4693935",
+        "sites": 170,
+        "baseline_seconds": 4.6,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/evmseries.mjs",
+            "line": 43,
+            "col": 55,
+            "operator": "const-plus-one",
+            "before": "const r3 = (x) => (Number.isFinite(x) ? Math.round(x * 1000) / 1000 : null);",
+            "after": "const r3 = (x) => (Number.isFinite(x) ? Math.round(x * 1001) / 1000 : null);",
+            "line_text": "const r3 = (x) => (Number.isFinite(x) ? Math.round(x * 1000) / 1000 : null);",
+            "caught": true,
+            "seconds": 4.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/evmseries.mjs",
+            "line": 67,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "const g = rem > 0 ? worked / rem : 0;",
+            "after": "const g = rem > 1 ? worked / rem : 0;",
+            "line_text": "  const g = rem > 0 ? worked / rem : 0;",
+            "caught": false,
+            "seconds": 4.5,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "rem and worked are whole working minutes (dates parse to the minute) and es < to < ef; rem <= 1 forces worked = 0, so g is 0 either way."
+          },
+          {
+            "file": "ventures/xer-schedule-check/evmseries.mjs",
+            "line": 68,
+            "col": 92,
+            "operator": "const-plus-one",
+            "before": "const f = { ...row, status_code: \"TK_Active\", remain_drtn_hr_cnt: String((rem - worked) / 60) };",
+            "after": "const f = { ...row, status_code: \"TK_Active\", remain_drtn_hr_cnt: String((rem - worked) / 61) };",
+            "line_text": "  const f = { ...row, status_code: \"TK_Active\", remain_drtn_hr_cnt: String((rem - worked) / 60) };",
+            "caught": false,
+            "seconds": 4.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "duration percent: as-planned window must promise exactly what it earned (evmseries.test.mjs)"
+          },
+          {
+            "file": "ventures/xer-schedule-check/evmseries.mjs",
+            "line": 75,
+            "col": 33,
+            "operator": "plus-to-minus",
+            "before": "f.phys_complete_pct = String(p + (100 - p) * g);",
+            "after": "f.phys_complete_pct = String(p - (100 - p) * g);",
+            "line_text": "  f.phys_complete_pct = String(p + (100 - p) * g);",
+            "caught": false,
+            "seconds": 4.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "physical percent forecast: new CP_Phys as-planned test"
+          },
+          {
+            "file": "ventures/xer-schedule-check/evmseries.mjs",
+            "line": 82,
+            "col": 67,
+            "operator": "const-plus-one",
+            "before": "const name = opts.projectName || header(updates[updates.length - 1].xer).name;",
+            "after": "const name = opts.projectName || header(updates[updates.length - 2].xer).name;",
+            "line_text": "  const name = opts.projectName || header(updates[updates.length - 1].xer).name;",
+            "caught": false,
+            "seconds": 4.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "project name from the latest update: renamed-project test"
+          },
+          {
+            "file": "ventures/xer-schedule-check/evmseries.mjs",
+            "line": 135,
+            "col": 40,
+            "operator": "or-to-and",
+            "before": "const rowByCodeB = new Map((TB.TASK || []).filter((r) => r.proj_id === B.projId).map((r) => [r.task_code, r]));",
+            "after": "const rowByCodeB = new Map((TB.TASK && []).filter((r) => r.proj_id === B.projId).map((r) => [r.task_code, r]));",
+            "line_text": "    const rowByCodeB = new Map((TB.TASK || []).filter((r) => r.proj_id === B.projId).map((r) => [r.task_code, r]));",
+            "caught": false,
+            "seconds": 4.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "per-activity pct read unrounded from row B: CP_Phys test compares promised with earned on promised to the cent"
+          },
+          {
+            "file": "ventures/xer-schedule-check/evmseries.mjs",
+            "line": 161,
+            "col": 24,
+            "operator": "gt-to-ge",
+            "before": "if (Math.abs(gap) > Math.max(tol, 0.01 * Math.abs(p))) {",
+            "after": "if (Math.abs(gap) >= Math.max(tol, 0.01 * Math.abs(p))) {",
+            "line_text": "      if (Math.abs(gap) > Math.max(tol, 0.01 * Math.abs(p))) {",
+            "caught": false,
+            "seconds": 4.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "boundary test: an activity earning exactly the tolerance is not named"
+          },
+          {
+            "file": "ventures/xer-schedule-check/evmseries.mjs",
+            "line": 182,
+            "col": 28,
+            "operator": "const-plus-one",
+            "before": "const first = out.updates[0], last = out.updates[out.updates.length - 1];",
+            "after": "const first = out.updates[1], last = out.updates[out.updates.length - 1];",
+            "line_text": "  const first = out.updates[0], last = out.updates[out.updates.length - 1];",
+            "caught": false,
+            "seconds": 4.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "total budget/EAC change first-to-last test"
+          }
+        ]
+      },
+      {
+        "target": "ventures/xer-schedule-check/calreview.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 1022985685,
+        "commit": "7b4693935",
+        "sites": 279,
+        "baseline_seconds": 4.5,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/calreview.mjs",
+            "line": 54,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "const r2 = (x) => Math.round(x * 100) / 100;",
+            "after": "const r2 = (x) => Math.round(x * 100) / 101;",
+            "line_text": "const r2 = (x) => Math.round(x * 100) / 100;",
+            "caught": true,
+            "seconds": 4.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/calreview.mjs",
+            "line": 137,
+            "col": 33,
+            "operator": "or-to-and",
+            "before": "id: cal.id, name: cal.name || `calendar ${cal.id}`, type, isDefault: row.default_flag === \"Y\", projectCalendar: projCals.has(cal),",
+            "after": "id: cal.id, name: cal.name && `calendar ${cal.id}`, type, isDefault: row.default_flag === \"Y\", projectCalendar: projCals.has(cal),",
+            "line_text": "      id: cal.id, name: cal.name || `calendar ${cal.id}`, type, isDefault: row.default_flag === \"Y\", projectCalendar: projCals.has(cal),",
+            "caught": true,
+            "seconds": 4.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/calreview.mjs",
+            "line": 185,
+            "col": 355,
+            "operator": "const-plus-one",
+            "before": "add(\"name-days\", c, `${c.name} is named for ${named[1]} days a week but its pattern works ${d.workDays} (${d.dayMin.map((m, i) => (m ? \"SMTWTFS\"[i] : \"-\")).join(\"\")}); the ${x.open.length} open activit${x.open.length === 1 ? \"y\" : \"ies\"} on it work ${d.workDays > +named[1] ? \"more\" : \"fewer\"} days than the name says.`, x.openWork, { named: +named[1], works: d.workDays });",
+            "after": "add(\"name-days\", c, `${c.name} is named for ${named[1]} days a week but its pattern works ${d.workDays} (${d.dayMin.map((m, i) => (m ? \"SMTWTFS\"[i] : \"-\")).join(\"\")}); the ${x.open.length} open activit${x.open.length === 1 ? \"y\" : \"ies\"} on it work ${d.workDays > +named[1] ? \"more\" : \"fewer\"} days than the name says.`, x.openWork, { named: +named[2], works: d.workDays });",
+            "line_text": "      add(\"name-days\", c, `${c.name} is named for ${named[1]} days a week but its pattern works ${d.workDays} (${d.dayMin.map((m, i) => (m ? \"SMTWTFS\"[i] : \"-\")).join(\"\")}); the ${x.open.length} open activit${x.open.length === 1 ? \"y\" : \"ies\"} on it work ${d.workDays > +named[1] ? \"more\" : \"fewer\"} days than the name says.`, x.openWork, { named: +named[1], works: d.workDays });",
+            "caught": true,
+            "seconds": 4.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/calreview.mjs",
+            "line": 195,
+            "col": 15,
+            "operator": "and-to-or",
+            "before": "if (!x.all && !projCals.has(cal) && type !== \"CA_Rsrc\") add(\"unused\", c, `${c.name} is not used by any activity or project in the file.`);",
+            "after": "if (!x.all || !projCals.has(cal) && type !== \"CA_Rsrc\") add(\"unused\", c, `${c.name} is not used by any activity or project in the file.`);",
+            "line_text": "    if (!x.all && !projCals.has(cal) && type !== \"CA_Rsrc\") add(\"unused\", c, `${c.name} is not used by any activity or project in the file.`);",
+            "caught": true,
+            "seconds": 4.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/calreview.mjs",
+            "line": 271,
+            "col": 26,
+            "operator": "const-plus-one",
+            "before": "const last = runs.at(-1);",
+            "after": "const last = runs.at(-2);",
+            "line_text": "    const last = runs.at(-1);",
+            "caught": false,
+            "seconds": 4.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "listYears range merge: new test with 2027-2029 missing (calreview.test.mjs)"
+          },
+          {
+            "file": "ventures/xer-schedule-check/calreview.mjs",
+            "line": 272,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "if (last && y === last[1] + 1) last[1] = y; else runs.push([y, y]);",
+            "after": "if (last && y === last[1] + 2) last[1] = y; else runs.push([y, y]);",
+            "line_text": "    if (last && y === last[1] + 1) last[1] = y; else runs.push([y, y]);",
+            "caught": false,
+            "seconds": 4.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "listYears range merge: new test with 2027-2029 missing (calreview.test.mjs)"
+          },
+          {
+            "file": "ventures/xer-schedule-check/calreview.mjs",
+            "line": 283,
+            "col": 59,
+            "operator": "or-to-and",
+            "before": "return [head, ...w.projects.map((p) => p.workingDays > 0 || p.calendarDays > 0 ? `${p.project}: the finish moves from ${p.finish} to ${p.finishWithHolidays}, ${p.workingDays} working days (${p.calendarDays} calendar days) later.` : `${p.project}: the finish stays ${p.finish}.`)].join(\"\\n\");",
+            "after": "return [head, ...w.projects.map((p) => p.workingDays > 0 && p.calendarDays > 0 ? `${p.project}: the finish moves from ${p.finish} to ${p.finishWithHolidays}, ${p.workingDays} working days (${p.calendarDays} calendar days) later.` : `${p.project}: the finish stays ${p.finish}.`)].join(\"\\n\");",
+            "line_text": "  return [head, ...w.projects.map((p) => p.workingDays > 0 || p.calendarDays > 0 ? `${p.project}: the finish moves from ${p.finish} to ${p.finishWithHolidays}, ${p.workingDays} working days (${p.calendarDays} calendar days) later.` : `${p.project}: the finish stays ${p.finish}.`)].join(\"\\n\");",
+            "caught": false,
+            "seconds": 4.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "holidays remove whole working days, so a finish that moves has workingDays > 0 and calendarDays > 0 together; one positive without the other does not occur."
+          },
+          {
+            "file": "ventures/xer-schedule-check/calreview.mjs",
+            "line": 303,
+            "col": 26,
+            "operator": "eq-flip",
+            "before": "let s = v === null || v === undefined ? \"\" : String(v);",
+            "after": "let s = v === null || v !== undefined ? \"\" : String(v);",
+            "line_text": "  let s = v === null || v === undefined ? \"\" : String(v);",
+            "caught": true,
+            "seconds": 4.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "prompts/polish_next.py",
+        "issue": "PR #19469 added a `git log --diff-filter=A` reader that never skipped shallow boundary commits. In a shallow clone the boundary commit 'adds' every polish note, so notes older than the clone's horizon were ranked as if newly added, in path order. This also turned main's `platform/pages/shallow-boundary-lint.test.mjs` red, failing the pages 'test' job on every PR.",
+        "patched": true,
+        "patched_in": "already fixed on main: PR #19475 landed the same boundary skip at the same time (found on merging main into this branch); this PR keeps main's code and adds a test against a real --depth=2 clone"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8dc4d372-b2d0-58bd-9238-33fa465c98c2",
+    "transcripts": 1,
+    "first": "2026-11-26T20:56:29Z",
+    "last": "2026-11-26T21:03:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 36,
+        "input": 70,
+        "output": 18427,
+        "thinking": 6879,
+        "cache_read": 3188744,
+        "cache_write_5m": 0,
+        "cache_write_1h": 92930,
+        "api_equivalent_usd": 1.75,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 36,
+      "input": 70,
+      "output": 18427,
+      "thinking": 6879,
+      "cache_read": 3188744,
+      "cache_write_5m": 0,
+      "cache_write_1h": 92930,
+      "api_equivalent_usd": 1.75,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 34,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.66,
+      "active_minutes": 6.66,
+      "model_minutes": 3.43,
+      "tool_minutes": 3.24,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer triaging 16 mutants and writing 6 tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 171.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

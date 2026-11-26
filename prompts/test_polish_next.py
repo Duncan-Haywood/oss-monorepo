@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -58,6 +59,29 @@ class PolishNextTest(unittest.TestCase):
         with mock.patch.object(pn, "shallow_boundary", return_value={"bbb"}), \
                 mock.patch.object(pn.subprocess, "run", run):
             self.assertEqual(pn.commit_order(self.dir), ["polish-b.md"])
+
+
+class ShallowBoundaryTest(unittest.TestCase):
+    """A shallow clone's boundary commit "adds" every note; those are not dated by it."""
+
+    def test_boundary_commit_does_not_date_notes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            src, clone = Path(tmp) / "src", Path(tmp) / "clone"
+            env = ["-c", "user.name=t", "-c", "user.email=t@example.invalid", "-c", "commit.gpgsign=false"]
+            git = lambda cwd, *a: subprocess.run(["git", *env, *a], cwd=cwd, check=True, capture_output=True, text=True)
+            src.mkdir()
+            git(src, "init", "-q", "-b", "main")
+            (src / "docs" / "reports").mkdir(parents=True)
+            for name in ("polish-2026-11-01-a.md", "polish-2026-11-02-b.md", "polish-2026-11-03-c.md"):
+                (src / "docs" / "reports" / name).write_text("x\n")
+                git(src, "add", ".")
+                git(src, "commit", "-q", "-m", name)
+            git(Path(tmp), "clone", "-q", "--depth=2", f"file://{src}", str(clone))
+            self.assertTrue(pn.shallow_boundary(clone))
+            # c and b are real adds; the boundary commit (b) would otherwise also "add" a
+            self.assertEqual(pn.commit_order(clone), ["polish-2026-11-03-c.md"])
+            self.assertEqual(pn.shallow_boundary(src), set())
+            self.assertEqual(pn.commit_order(src), ["polish-2026-11-03-c.md", "polish-2026-11-02-b.md", "polish-2026-11-01-a.md"])
 
 
 if __name__ == "__main__":
