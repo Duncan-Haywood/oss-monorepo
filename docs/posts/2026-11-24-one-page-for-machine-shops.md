@@ -660,3 +660,32 @@ Each picture links to its tool. The page grew to 5,181 px on a phone and
 still scrolls only up and down. The quoting product itself is still in
 development; the still in its card is the free calculator, and the caption
 says so.
+
+## Update, 26 November 2026: quotes in your own currency
+
+Until today the RFQ-to-quote app (bet #2, still in private development, not
+yet on sale) printed every price with a US dollar sign. A shop in Ontario,
+Birmingham or Stuttgart could not send its customers a quote at all. Now:
+
+- **One currency per shop, picked on the rate card.** The list is US, Canadian,
+  Australian and New Zealand dollars, the Mexican peso, the pound, the euro,
+  the Swiss franc, the Swedish, Norwegian and Danish kroner and the Polish
+  zloty. Each of them has two decimal places, which is how the app stores
+  amounts.
+- **Every amount follows it.** That covers the rate card's labels ("€/hour",
+  "CA$/lb"), the price breakdown on each quote line, the quote PDF, the cover
+  note facts, the "what changed" lines on a revision and the quote-expiry
+  email. A shop that picks a currency gets "Prices in EUR" (or CAD, GBP...) on
+  every quote, so the customer never has to guess which dollar is meant.
+- **It labels amounts; it does not convert them.** Switching from USD to CAD
+  turns $95.00 an hour into CA$95.00 an hour. No exchange rate is applied.
+  A PDF that was already sent stays exactly as it was sent.
+- **The cover-note check covers every currency.** The AI-written note that
+  goes with a quote may not state a price. It used to catch only "$", and
+  now it refuses "€45", "45 EUR", "CHF 450" and "450 kronor" as well, so a
+  price can only reach the customer through the PDF.
+
+A shop that never picks a currency sees no change. Its quotes print in US
+dollars as before, with no currency line. Next, the rate-card spreadsheet
+import will read "€85.00" and "CA$85" cells. Today it accepts "$" and "USD"
+only.
