@@ -129,6 +129,20 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertEqual(code, 0, out)
         self.assertNotIn("ALSO CLAIMED", out)
 
+    def test_listing_shows_part_claims_under_their_item(self):
+        code, _ = self.main(self.a, "--claim", "3", "--slug", "state forms texas", "--note", "TX notary block")
+        self.assertEqual(code, 0)
+        _, listing = self.main(self.b)
+        line = next(x for x in listing.splitlines() if x.strip().startswith("3."))
+        self.assertIn("1 part(s) claimed", line)
+        self.assertNotIn("[free]", line)
+        self.assertIn("part state-forms-texas", listing)
+        self.assertIn("TX notary block", listing)
+        self.assertNotIn("Other claims", listing)
+        # A stale part claim leaves the item free again.
+        _, later = self.main(self.b, now=rc.time.time() + 7 * 3600)
+        self.assertIn("[free] notarization", later)
+
     def merge(self, subject, ago=0):
         """A squash merge on origin/main whose subject is the PR title, `ago` seconds old."""
         when = f"@{int(rc.time.time()) - ago} +0000"

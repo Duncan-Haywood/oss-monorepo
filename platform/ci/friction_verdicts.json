@@ -263,6 +263,70 @@
    "by": "5d247184e (P078): a duplicate id from parallel merges warns, main stays green",
    "at": "2026-11-25T22:43:18Z",
    "note": "Collisions still happen but cost a rename, not a red main (checked 2026-11-25)."
+  },
+  {
+   "file": ".github/prompts/cloud-session.md",
+   "match": "register_repo_root",
+   "verdict": "by-design",
+   "by": "cloud-session.md step 3 (line 46)",
+   "at": "2026-11-26T05:58:48Z",
+   "note": "Re-checked 2026-11-26: the doc says to skip register_repo_root; the stale text is in add_repo's tool result, outside this repo."
+  },
+  {
+   "file": "CLAUDE.md",
+   "match": "reset --hard",
+   "verdict": "fixed",
+   "by": "CLAUDE.md shallow-clone note (this PR)",
+   "at": "2026-11-26T05:59:35Z",
+   "note": "Names git merge --ff-only origin/main for refreshing the branch, next to checkout -B for starting it."
+  },
+  {
+   "file": "CLAUDE.md",
+   "match": "foreground .{0,3}sleep|sleep.{0,40}blocked",
+   "verdict": "fixed",
+   "by": "CLAUDE.md cloud-quirks parenthetical (this PR)",
+   "at": "2026-11-26T05:59:36Z",
+   "note": "Names wait_for.py and that a foreground sleep is blocked, beside run_in_background."
+  },
+  {
+   "file": "prompt.md",
+   "match": "allocate\\.py",
+   "verdict": "fixed",
+   "by": "cloud-session.md names portfolio/router/allocate.py",
+   "at": "2026-11-26T06:00:40Z",
+   "note": "The script exists at portfolio/router/allocate.py; the reports looked under portfolio/monetization/ (checked 2026-11-26)."
+  },
+  {
+   "file": ".github/prompts/cloud-session.md",
+   "match": "payapps-site",
+   "verdict": "fixed",
+   "by": "cloud-session.md step 3 (this PR)",
+   "at": "2026-11-26T06:00:41Z",
+   "note": "Step 3 now says to run the filtered pnpm install once per app the change touches."
+  },
+  {
+   "file": "platform/ci/friction_rank.py",
+   "match": "allocate",
+   "verdict": "fixed",
+   "by": "friction_verdicts.json prompt.md allocate.py verdict (this PR)",
+   "at": "2026-11-26T06:00:46Z",
+   "note": "The stale prompt.md cluster these reports point at is now settled with a verdict."
+  },
+  {
+   "file": "private-monorepo/CLAUDE.md",
+   "match": "pre-?installed",
+   "verdict": "fixed",
+   "by": "private PR 265",
+   "at": "2026-11-26T06:14:23Z",
+   "note": "CLAUDE.md now says a fresh clone has no node_modules and gives the pnpm install line (checked 2026-11-26)."
+  },
+  {
+   "file": "apps/einvoice-site",
+   "match": "biome",
+   "verdict": "fixed",
+   "by": "private PR 264 (root biome ci . clean)",
+   "at": "2026-11-26T06:14:24Z",
+   "note": "biome ci apps/einvoice-site and biome ci . both pass on private main after PR 264 (checked 2026-11-26)."
   }
  ]
 }

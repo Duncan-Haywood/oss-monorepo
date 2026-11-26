@@ -43,8 +43,9 @@ origin/main as well as HEAD, so a fix that landed after the session started
 counts too. Measured that day: `--live --ungated` hid 0 clusters before the
 fetch and 68 after.
 
-Entries that only confirm the docs held ("worked first time, as documented")
-are dropped before clustering (`is_confirmation`); one with a caveat word stays.
+Entries that only confirm the docs held ("worked first time, as documented",
+"the doc already says to skip it") are dropped before clustering
+(`is_confirmation`); one with a caveat word stays.
 
 A touch only counts when the fix edits a code file the reports name, so a
 fix that lands somewhere else never hides its cluster: on 2026-11-15 a
@@ -112,8 +113,25 @@ CAVEAT = re.compile(r"n't\b|\b(but|however|though|although|could|worth|would|sho
                     r"|exceed\w*|timeout)\b", re.I)
 
 
+# "add_repo's result names register_repo_root, which isn't available; the doc
+# already says to skip it, which worked": the entry says the doc was right, so
+# the "isn't"/"still"/"not" it uses about something else is not a caveat on the
+# doc. Seventeen such entries kept cloud-session.md the top live cluster on
+# 2026-11-26 (19 sessions, one real report). Only a complaint word overrides.
+AFFIRMS = re.compile(r"(\b(already|correctly) (says|said|notes)\b"
+                     r"|\bas the (\S+ )?(doc|docs|guide|section|note) (already )?says"
+                     r"|\b(doc|docs|guide|section|note)('s?)?\b[^.;]{0,30}\b(was|is|were|held) (still )?"
+                     r"(right|correct|accurate)|^\s*accurate\b|\bno friction\b|\bthat held\b)", re.I)
+COMPLAINT = re.compile(r"\b(but|however|though|although|worth|should|could|would|might|missing|wrong|stale"
+                       r"|instead|suggest\w*|otherwise|skipped|fail\w*|refus\w*|block\w*|denied|except|cost"
+                       r"|slow|timeout|beyond|no longer|only covers|not (mentioned|covered|enough|the))\b"
+                       r"|\b(does|did)(n't| not) (say|mention|cover|name|list)", re.I)
+
+
 def is_confirmation(issue):
     """True for an entry that only says the docs held ("worked as documented")."""
+    if AFFIRMS.search(issue):
+        return not COMPLAINT.search(issue)
     return bool(CONFIRMS.search(issue)) and not CAVEAT.search(issue.replace("nothing wrong", ""))
 
 
