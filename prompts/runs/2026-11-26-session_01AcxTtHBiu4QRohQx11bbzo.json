@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtHBiu4QRohQx11bbzo",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T08:07:10Z",
+  "ended": "2026-11-26T08:11:56Z",
+  "wall_minutes": 5.22,
+  "tokens_in": 5008981,
+  "tokens_out": 15566,
+  "cost_usd": 2.1161,
+  "tool_calls": 51,
+  "task": "einvoice-preflight ROADMAP Next #3 (scripts-import-venture-mjs): import-venture.mjs flags NOTICE and bundler-extracted *.LICENSE.txt files",
+  "projects": [
+    "private-monorepo/scripts/import-venture.mjs",
+    "private-monorepo/apps/einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/283",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [
+    "e7baac63fc2d04cd22377822b2ecc3b6cfcfd022"
+  ],
+  "lines_added": 63,
+  "lines_removed": 7,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First commit carried a wrong Claude-Session trailer (copied from a grants commit seen in an Actions listing); amended before push."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "apps/payapps/ROADMAP.md (private)",
+      "issue": "'Must do before a public launch' says run payapps-deploy by hand, and docs/legal/OPERATOR.md lets agents do it, but payapps-deploy has 0 runs and private PR 249 reports the repo gets no runners (#247); the launch list does not say the runner gap blocks the deploy, so a run can spend time planning a deploy it cannot start."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Most payapps/jobshop Next items are 'if people ask'; the free list does not separate demand-gated items from buildable ones, so picking one takes reading the full ROADMAP."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Top bet (payapps) is gated on launch: deploy never run, no runners, remaining Next items 'if people ask' or claimed. Took a small free item on bet #3 instead (licence hygiene before einvoice's paid build).",
+      "did": "einvoice ROADMAP #3 in private-monorepo",
+      "result": "merged, private PR 283"
+    },
+    {
+      "file": "prompt.md",
+      "why": "No new blog post: a script-level licence check has no customer-facing story, and the 2026-11-24 direction is to consolidate posts, not add thin ones.",
+      "did": "no post",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Security queue empty (exit 3); ideas inbox and website requests empty. add_repo + one clone of private-monorepo worked first time. payapps-deploy.yml never run (actions list: 0 runs). Private PR 249 (legal review of every app's launch pages, draft, 254 files) is still open and says it waits for an owner/orchestrator go-ahead; left alone. Local verification: node --test scripts/import-venture.test.mjs 9/9 pass; biome clean; risk_review.py's only trigger (personal data, on the test file) is a false positive, answered in the PR body. Running the new check over the imported apps: einvoice-preflight shows plain/NOTICE.txt and 3 plain/*.LICENSE.txt (already hand-covered in PROVENANCE.md, all MIT), wall-framing-takeoff none.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "cdeff9e5-019a-5e0e-a7c7-2a1469c50ce5",
+    "transcripts": 1,
+    "first": "2026-11-26T08:07:10Z",
+    "last": "2026-11-26T08:12:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 96,
+        "output": 15566,
+        "thinking": 3509,
+        "cache_read": 4905991,
+        "cache_write_5m": 0,
+        "cache_write_1h": 102894,
+        "api_equivalent_usd": 2.1161,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 96,
+      "output": 15566,
+      "thinking": 3509,
+      "cache_read": 4905991,
+      "cache_write_5m": 0,
+      "cache_write_1h": 102894,
+      "api_equivalent_usd": 2.1161,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 43,
+      "mcp__github__actions_list": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.22,
+      "active_minutes": 5.22,
+      "model_minutes": 4.06,
+      "tool_minutes": 1.16,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "regex change, two tests, audit of two imported apps, ROADMAP edit",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 70.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
