@@ -1,6 +1,6 @@
 ---
 kind: note
-subjects: [payapps]
+topics: [payapps]
 ---
 # Pay apps: daily reports, part 1 (private PR 353)
 
