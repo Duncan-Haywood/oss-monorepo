@@ -49,3 +49,15 @@ provisioning, build, and migration drift (the drift check fails until the migrat
 Import the public worksheet's saved file and existing asset lists. External service providers by
 table 4 (CUI, SPD or neither, with the customer responsibility matrix as evidence). A
 network-diagram evidence slot.
+
+## Part 2, the worksheet's saved file (later run, 2026-11-26)
+The worksheet's JSON holds answers, not categories, so its Level 2 `normaliseScope`/`classify` are
+ported to the private app's `src/shared/scope-worksheet.ts` (category only, no wording). A cross-repo
+test is still not possible, so the original's output is the fixture: every combination of answers
+per kind (456 cases) was run through `ventures/machine-shop-guides/scope.mjs` and saved as
+`apps/cmmc/test/fixtures/scoping-worksheet-classify.json`; the port must agree on all of them.
+**If you change the questions or their order in `scope.mjs`, regenerate that fixture and the
+`scoping-worksheet-example.json` one** (the generating loop is in that app's fixtures README). The
+`planAssetImport` entry point detects JSON by a leading `{`, so the route, the 1 MB cap and the
+preview/apply flow are unchanged; the preview carries `format` so the page says "Asset 12" rather
+than "Line 12".
