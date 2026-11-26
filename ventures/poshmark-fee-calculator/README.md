@@ -47,6 +47,23 @@ Poshmark takes no commission on it — that fee funds a prepaid label and
 never touches seller payout. Verify every figure against your own Poshmark
 payout statement before you price a listing.
 
+### Known gaps
+
+From the quality audit of 2026-11-26
+([`portfolio/quality/audits/2026-11-26-poshmark-fee-calculator.json`](../../portfolio/quality/audits/2026-11-26-poshmark-fee-calculator.json)):
+
+- Buyer-paid shipping does not reduce payout, but **seller-offered shipping
+  discounts** and heavier-label upgrades are deducted from earnings. There is
+  no input for them, so payout is overstated on those sales.
+- The **Texas seller fee tax** (from 2025-10-01) and the **USPS hazmat
+  charge** sellers have paid in full since 2026-10-19 are mentioned or
+  absent, not computed.
+
+Fixed in the same round: the spreadsheet comparison page said an offer that
+crosses below $15.00 "can cost more ... than the discount itself". It
+cannot: the fee falls from at least $3.00 to $2.95, so payout always drops by
+less than the discount. A test now checks every cent from $15.00 to $30.00.
+
 ## First visitor
 
 r/poshmark and r/Reseller, where "how much does Poshmark actually take" and

@@ -5,6 +5,7 @@
 // and requireable under `node --test`.
 
 const REQUIRED = ["url", "captured_at", "fetch_status", "text"];
+const HAS_ZONE = /T.*(Z|[+-]\d{2}:?\d{2})$/i;
 
 /** Parses and validates one snapshot object. Throws a visitor-facing message. */
 function parseSnapshot(text, label) {
@@ -27,6 +28,11 @@ function parseSnapshot(text, label) {
   }
   if (Number.isNaN(Date.parse(value.captured_at))) {
     throw new Error(`The ${label} snapshot's "captured_at" must be an ISO 8601 timestamp.`);
+  }
+  // A timestamp with no zone would be read as the viewer's local time, so the
+  // capture-order verdict would depend on where the page is opened. Require one.
+  if (!HAS_ZONE.test(value.captured_at.trim())) {
+    throw new Error(`The ${label} snapshot's "captured_at" needs a time zone (end it with Z or an offset such as +02:00).`);
   }
   return value;
 }

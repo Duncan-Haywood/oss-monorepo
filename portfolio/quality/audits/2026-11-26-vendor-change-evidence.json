@@ -1,0 +1,241 @@
+{
+  "date": "2026-11-26",
+  "subject": "ventures/vendor-change-evidence",
+  "stratum": "venture",
+  "seed": "2026-11-26-j-9d92",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality round 116, see run record",
+  "status": "audited",
+  "professional": "a third-party risk management (TPRM) / vendor-risk analyst who runs recurring reviews of SaaS vendors' subprocessor lists, privacy notices, DPAs and trust pages; they check first that a change report shows WHAT changed (the added subprocessor, the altered clause), that it pins which two snapshots were compared (source URL, capture times, a content hash) so it stands up as audit evidence, that a failed capture never reads as 'no change', and that formatting noise does not drown real changes",
+  "scores": {
+    "correctness": 2,
+    "completeness": 2,
+    "verification": 2,
+    "craft": 2,
+    "claims": 1,
+    "fitness": 1,
+    "domain": 1
+  },
+  "evidence": {
+    "correctness": "Ran both engines (evidence.js for the page, src/vendor_change.py for the CLI) on the shipped example and on probe snapshots in /tmp/claude-0/qa-vce/. Pass: shipped pair -> status changed, content_changed, lengths 47 -> 57, matching a hand count ('We process account data to provide the service.' is 47 characters; inserting 'and usage ' adds 10); identical texts -> unchanged; a non-ok fetch on either side -> inconclusive; after earlier than before -> inconclusive with capture_order_invalid. Fail: (1) the CLI crashes with an uncaught TypeError ('can't compare offset-naive and offset-aware datetimes', exit 1) when one captured_at has no offset and the other ends in Z, while the browser reports 'unchanged' for the same pair; (2) the browser parses a naive timestamp as viewer-local time, so the same pair (08:00Z before, 05:00 naive after) is 'unchanged' with TZ=America/New_York and 'inconclusive' with TZ=Asia/Kolkata; (3) 'Aug 23, 2026' is rejected by the CLI as non-ISO but accepted by the browser; (4) before_length/after_length differ between engines for non-BMP text (flag emoji: CLI 10, browser 12). The core equality and inconclusive logic is right; the two engines the page says share 'the same comparison logic' disagree on edge inputs, so 2.",
+    "completeness": "Claimed and working: paste-two-snapshots compare in the browser, changed/unchanged/inconclusive verdict, review_required, Markdown and JSON download (toMarkdown/toJson), worked example loader, local usage counter with opt-out and DNT/GPC (usage.js:14-25), Python CLI with text/json/markdown and --output, opt-in --usage-log. Claimed and missing: the 'source-linked diff' (vs-upguard.html:79) and 'Read the diff yourself' (how-do-i-track-vendor-policy-changes.html:51) - the report lists only change kinds and two lengths, never the changed text; the README's 'dated, portable review record' from the CLI - its markdown and text formats print no URL and no capture time (grep -c 2026 on the example markdown output: 0); only --format json carries the metadata. No TODOs or dead links; sibling link ../vendor-change-watch/ exists.",
+    "verification": "node --test evidence.test.js usage.test.js page.test.mjs vs-eyeballing-two-page-loads-side-by-side.test.mjs vs-upguard.test.mjs: 40 pass, 0 fail. python3 -m unittest discover -s tests: 4 pass. Five mutants via platform/ci/quality_mutate.py: evidence.js:56 '<' -> '<=' SURVIVED; vendor_change.py:44 '<' -> '<=' SURVIVED; vendor_change.py:38 source_changed check disabled SURVIVED (the Python suite never tests a URL change); evidence.js:54 swapped lengths caught (the vs-eyeballing page test pins 47/57); evidence.js:50 '||' -> '&&' caught. 3 of 5 survive. No test runs the two engines against each other, none covers mixed or naive timestamps, and none renders a hostile snapshot through app.js.",
+    "craft": "Read evidence.js (111 lines), app.js (135), usage.js (48), src/vendor_change.py (87), all test files. Clean, dependency-free and small, but: (1) app.js:21-38 interpolates url, fetch_status and captured_at straight into innerHTML; a snapshot whose url is '<img src=x onerror=alert(document.domain)>' puts the raw tag into the DOM (probe xss.js: 'RAW TAG IN innerHTML'), and index.html sets no Content-Security-Policy - script injection from a snapshot a colleague or capture job hands over; (2) the engine is written twice (evidence.js header says it 'Ports the same rules') with no parity test, and they already diverge (timestamps, lengths, markdown content); (3) vendor_change.py:44 raises a TypeError that escapes main(), which catches only ValueError, so the user gets a traceback; (4) toMarkdown does not escape backticks in URLs.",
+    "claims": "Backed: no upload / never contacts the vendor (no fetch in evidence.js; app.js fetches only its own examples/), inconclusive on failed fetch (evidence.js:50, tested), no-warranty and no-SLA text on every page, not-affiliated with UpGuard, UpGuard pricing not invented, usage counting honours DNT/GPC (usage.js:16). Unbacked or wrong: 'get a source-linked diff' (vs-upguard.html:79) - no diff is produced; 'Read the diff yourself' and 'show the two versions' (how-do-i-track-vendor-policy-changes.html:51, :57) - the report holds neither text; 'Ten words added' (vs-eyeballing...html:7, :12, :40, :143) - the shipped example adds two words / ten characters; 'the same comparison logic ships as a local Python CLI' (index.html:91) - it diverges on timestamps and lengths and its markdown drops the dated metadata; README:4 'dated, portable review record' false for the CLI's markdown/text. llms.txt:5 says 'Results are estimates from the numbers typed in' - calculator boilerplate. Served copy clean (served-copy.mjs: no placeholder origin). The central value claim, a diff, is not delivered, so 1.",
+    "fitness": "Walked the analyst's job: capture this month's and last month's subprocessor page, paste both, file the report. The tool says 'changed', review required, and two character counts - and the analyst must still diff the two pages by hand to find the new subprocessor, which is the actual job. A CRLF or trailing-space difference alone also reports content_changed (probe e.json/f.json), so any re-capture through a different tool flags a change. The record carries no hash of either snapshot, so it does not prove which texts were compared. VENTURE.yaml stage prototype, both hypotheses untested, no paid product behind it, and two sibling ventures (vendor-change-watch, which does a section diff, and vendor-watch) cover the same ground. A TPRM analyst could not finish a review with this alone.",
+    "domain": "Against practice for vendor change monitoring: GDPR Art. 28(2) and typical DPAs give the controller notice of intended subprocessor changes and a right to object, so the analyst needs the added/removed entities and the date first seen; audit evidence practice (e.g. SOC 2 / ISO 27001 vendor-review controls) wants the reviewed versions retained or fingerprinted and the review dated. Matches: dated captures, explicit failed-capture handling (inconclusive, not stable), and an evidence-only boundary statement. Departs: no textual or line/section diff, no content hash, no normalisation of whitespace/line endings or dynamic boilerplate, no subprocessor-list (table/entity) awareness, no reviewer/review-date field in the record. A vendor-risk lead would accept the inconclusive rule and little else."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "shipped example pair: verdict and before/after lengths",
+      "method": "hand count of examples/before.json and after.json text ('We process account data to provide the service.' = 47 chars; 'and usage ' adds 10 -> 57)",
+      "command": "cd ventures/vendor-change-evidence && python3 src/vendor_change.py examples/before.json examples/after.json --format json",
+      "expected": "changed, content_changed, before_length 47, after_length 57",
+      "observed": "status changed, content_changed 47 -> 57, review_required true",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "failed fetch and out-of-order capture never read as stable",
+      "method": "by hand from the page's stated rule (any non-ok fetch_status, or after earlier than before, is inconclusive)",
+      "command": "node --test evidence.test.js; probe snapshots with fetch_status 'OK' (h.json) and swapped capture times",
+      "expected": "inconclusive in each case",
+      "observed": "inconclusive in each case; capture_order_invalid listed",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "one snapshot with a naive captured_at, the other with Z",
+      "method": "Python datetime docs: comparing offset-naive and offset-aware datetimes raises TypeError; ISO 8601 allows both forms",
+      "command": "python3 ventures/vendor-change-evidence/src/vendor_change.py /tmp/claude-0/qa-vce/a.json /tmp/claude-0/qa-vce/b.json",
+      "expected": "a verdict (or a clear validation error) matching the browser",
+      "observed": "TypeError: can't compare offset-naive and offset-aware datetimes, exit 1; browser engine says 'unchanged'",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "same snapshot pair, browser engine, two viewer time zones",
+      "method": "ECMAScript Date.parse: a date-time form without offset is local time, so the verdict should not depend on the viewer's zone",
+      "command": "TZ=America/New_York vs TZ=Asia/Kolkata node -e buildReport(tz1.json, tz2.json)",
+      "expected": "same status in both zones",
+      "observed": "America/New_York unchanged; Asia/Kolkata inconclusive",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "content lengths on non-BMP text agree between CLI and browser",
+      "method": "Unicode: a flag emoji is 2 code points / 4 UTF-16 units; the page says both engines share the same logic",
+      "command": "python3 src/vendor_change.py c.json d.json --format json vs node buildReport(c.json, d.json)",
+      "expected": "same lengths from both engines",
+      "observed": "CLI 10/10, browser 12/12",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "line-ending / trailing-space only re-capture",
+      "method": "by hand: identical wording captured with CRLF and a trailing space",
+      "command": "python3 src/vendor_change.py /tmp/claude-0/qa-vce/e.json /tmp/claude-0/qa-vce/f.json",
+      "expected": "unchanged, or a note that only whitespace differs",
+      "observed": "Status: changed, content_changed",
+      "result": "partial"
+    },
+    {
+      "dimension": "craft",
+      "what": "hostile url field rendered by the page",
+      "method": "OWASP XSS prevention: untrusted strings must be encoded before innerHTML",
+      "command": "node /tmp/claude-0/qa-vce/xss.js ventures/vendor-change-evidence",
+      "expected": "escaped",
+      "observed": "RAW TAG IN innerHTML (app.js:37); no CSP meta in index.html",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suites",
+      "method": "run",
+      "command": "cd ventures/vendor-change-evidence && node --test evidence.test.js usage.test.js page.test.mjs vs-eyeballing-two-page-loads-side-by-side.test.mjs vs-upguard.test.mjs && python3 -m unittest discover -s tests",
+      "expected": "all pass",
+      "observed": "node 40 pass 0 fail; python 4 OK",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'paste both, get a source-linked diff' / 'Read the diff yourself'",
+      "method": "compare with renderReport and toMarkdown output on the shipped example",
+      "command": "node -e buildReport(examples) + toMarkdown; read vs-upguard.html:79, how-do-i-track-vendor-policy-changes.html:51",
+      "expected": "changed text shown",
+      "observed": "only '- `content_changed`' and lengths; no changed text anywhere in the report",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "CLI gives a 'dated, portable review record' (README:4)",
+      "method": "inspect CLI markdown output",
+      "command": "python3 src/vendor_change.py examples/before.json examples/after.json --format markdown | grep -c 2026",
+      "expected": "capture dates and URLs present",
+      "observed": "0 - no URL, no capture time, no fetch status; only --format json carries metadata",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "'Ten words added' on the vs-eyeballing page",
+      "method": "count words in the shipped example diff",
+      "command": "diff of examples/before.json vs after.json text",
+      "expected": "ten words",
+      "observed": "two words ('and usage'), ten characters",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "disclaimers, no upload, not-affiliated, DNT/GPC, served llms.txt origin",
+      "method": "page tests, usage.js read, served-copy rewrite",
+      "command": "node --test page.test.mjs vs-upguard.test.mjs; node platform/pages/served-copy.mjs vendor-change-evidence",
+      "expected": "present; no placeholder origin",
+      "observed": "present (usage.js:16 checks doNotTrack and globalPrivacyControl); served copy clean; llms.txt:5 carries calculator boilerplate 'estimates from the numbers typed in'",
+      "result": "partial"
+    },
+    {
+      "dimension": "fitness",
+      "what": "analyst finds the added subprocessor from the report alone",
+      "method": "walk the job with a one-line subprocessor addition",
+      "command": "python3 src/vendor_change.py examples/before.json examples/after.json --format markdown (a two-word clause addition, standing in for a one-line subprocessor addition)",
+      "expected": "the added line named",
+      "observed": "content_changed only; the analyst must diff by hand; no snapshot hash in the record",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "evidence.js:56",
+      "change": "if (afterTime < beforeTime) -> if (afterTime <= beforeTime)",
+      "caught": false,
+      "test_cmd": "node --test evidence.test.js usage.test.js page.test.mjs vs-eyeballing-two-page-loads-side-by-side.test.mjs vs-upguard.test.mjs"
+    },
+    {
+      "where": "src/vendor_change.py:44",
+      "change": "if after_time < before_time: -> if after_time <= before_time:",
+      "caught": false,
+      "test_cmd": "python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "src/vendor_change.py:38",
+      "change": "if before[\"url\"] != after[\"url\"]: -> if False:",
+      "caught": false,
+      "test_cmd": "python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "evidence.js:54",
+      "change": "before_length: before.text.length, after_length: after.text.length -> swapped",
+      "caught": true,
+      "test_cmd": "node --test evidence.test.js usage.test.js page.test.mjs vs-eyeballing-two-page-loads-side-by-side.test.mjs vs-upguard.test.mjs"
+    },
+    {
+      "where": "evidence.js:50",
+      "change": "before.fetch_status !== \"ok\" || after.fetch_status !== \"ok\" -> &&",
+      "caught": true,
+      "test_cmd": "node --test evidence.test.js usage.test.js page.test.mjs vs-eyeballing-two-page-loads-side-by-side.test.mjs vs-upguard.test.mjs"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Pages promise a diff ('paste both, get a source-linked diff'; 'Read the diff yourself'; 'show the two versions') but the report contains only change kinds and two lengths, never the changed text; the analyst still has to diff by hand, which is the job.",
+      "where": "ventures/vendor-change-evidence/vs-upguard.html:79",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "Snapshot url, fetch_status and captured_at are interpolated into innerHTML unescaped; a url of '<img src=x onerror=...>' injects script into the page (no CSP). Snapshots come from capture jobs or colleagues, so this is not only self-XSS.",
+      "where": "ventures/vendor-change-evidence/app.js:37",
+      "category": "input-handling",
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19416"
+    },
+    {
+      "severity": "medium",
+      "what": "CLI crashes with an uncaught TypeError (exit 1, traceback) when one captured_at has an offset and the other does not; main() catches only ValueError. The browser accepts the same pair and parses the naive one as viewer-local time, so its verdict changes with the viewer's time zone (unchanged in New York, inconclusive in Kolkata).",
+      "where": "ventures/vendor-change-evidence/src/vendor_change.py:44",
+      "category": "input-handling",
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19416"
+    },
+    {
+      "severity": "medium",
+      "what": "No content diff, no SHA-256 (or other hash) of either snapshot, no whitespace/line-ending normalisation and no subprocessor-entity awareness: a CRLF-only re-capture reports content_changed, and the record cannot prove which texts were compared.",
+      "where": "ventures/vendor-change-evidence/evidence.js:53",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Two engines (evidence.js and vendor_change.py) with no parity test; they already disagree on timestamp parsing, non-BMP lengths and markdown content. 3 of 5 seeded mutants survive (capture-order '<' -> '<=' in both engines; source_changed disabled in the CLI).",
+      "where": "ventures/vendor-change-evidence/tests/test_vendor_change.py:9",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "CLI markdown and text formats print no source URL, capture time or fetch status, contradicting the README's 'dated, portable review record'; the browser's toMarkdown includes them.",
+      "where": "ventures/vendor-change-evidence/src/vendor_change.py:74",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "'Ten words added' on the comparison page; the shipped example adds two words (ten characters).",
+      "where": "ventures/vendor-change-evidence/vs-eyeballing-two-page-loads-side-by-side.html:40",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "llms.txt says 'Results are estimates from the numbers typed in', calculator boilerplate that does not describe a snapshot comparison.",
+      "where": "ventures/vendor-change-evidence/llms.txt:5",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    }
+  ],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19416"],
+  "verdict": "Does not meet the bar (correctness 2, claims 1, verification 2, median 2); not finished (completeness 2). What it does, it mostly does right: the shipped pair comes out changed with lengths 47 -> 57, as a hand count gives, and a failed or out-of-order capture is always inconclusive, never stable, which is the one rule a vendor-risk analyst would sign off. The gap is that the product stops at 'something changed': the pages promise a source-linked diff the report never contains, there is no snapshot hash, and whitespace-only re-captures flag as changes, so a TPRM analyst still diffs the pages by hand. The browser and CLI engines diverge (the CLI crashes on a naive-plus-Z timestamp pair; the browser's verdict on that pair depends on the viewer's time zone), the page renders snapshot fields through innerHTML unescaped, and 3 of 5 seeded mutants survive. It is a free prototype with no paid product behind it, overlapping two sibling ventures (vendor-change-watch, vendor-watch)."
+}

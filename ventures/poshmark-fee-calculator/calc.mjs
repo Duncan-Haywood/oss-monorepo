@@ -11,7 +11,7 @@
 // tool exists to make visible:
 //
 // 1. The flat $2.95 fee is a *worse* deal than 20% would be on almost every
-//    item it applies to. 20% of $2.95 is $14.75 — call it the break-even
+//    item it applies to. $2.95 is 20% of $14.75 — call it the break-even
 //    price. Above $14.75 (and below $15, where the flat fee still applies),
 //    $2.95 is a bargain against what 20% would have charged. Below $14.75 the
 //    flat fee costs more than 20% would, and the gap widens fast as price
@@ -19,11 +19,12 @@
 //    for cost is common in a Poshmark closet clearing out low-value pieces —
 //    this is the arithmetic that says whether that price is worth listing at
 //    all.
-// 2. Because the switch happens at exactly $15.00, negotiating an offer or a
-//    bundle discount that drops the final price from $15+ to under $15 can
-//    cost the seller more than the discount itself: the fee jumps from 20% of
-//    the higher price to a flat $2.95, and near the boundary $2.95 can be
-//    close to — or even more than — the discount just given away.
+// 2. Because the switch happens at exactly $15.00, an offer or bundle
+//    discount that drops the final price from $15+ to under $15 moves the fee
+//    from 20% of the higher price (at least $3.00) to a flat $2.95. The fee
+//    always falls, so the seller never loses more than the discount; but the
+//    saving is small, so nearly all of the discount comes out of payout (and
+//    a cut from exactly $15.00 to $14.99 raises payout by four cents).
 //
 // Every rate is a constant lifted from Poshmark's own published US seller
 // fee schedule (poshmark.com "Selling — How Poshmark Works"), not a live
@@ -82,9 +83,10 @@ export function commissionFor(salePrice) {
  * most one solution: solve the flat tier first (payout = price - 2.95, valid
  * for price < $15, i.e. payout < $15 - $2.95), and fall back to the percent
  * tier (payout = 0.8 × price, valid for price >= $15, i.e. payout >= $12)
- * otherwise. A target in the narrow overlap ($12.00-$12.05) is achievable in
- * either tier; the flat-tier price (just under $15) is returned because it is
- * the lower of the two and therefore the easier sale.
+ * otherwise. A target in the narrow overlap ($12.00 up to, not including,
+ * $12.05) is achievable in either tier; the flat-tier price (just under $15)
+ * is returned because it is the lower of the two and therefore the easier
+ * sale.
  */
 export function priceForTargetPayout(targetPayout) {
   if (!Number.isFinite(targetPayout)) return null;

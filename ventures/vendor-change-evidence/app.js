@@ -13,15 +13,25 @@ function statusLabel(status) {
   return "unchanged";
 }
 
+// Snapshot fields are user-supplied JSON: escape them before they reach innerHTML.
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function renderReport(container, report) {
   const changeRows = report.changes
-    .map((change) => `<li><code>${change.kind}</code></li>`)
+    .map((change) => `<li><code>${escapeHtml(change.kind)}</code></li>`)
     .join("");
 
   container.innerHTML = `
     <div class="summary-card">
       <div class="summary-stat">
-        <span class="summary-number ${statusLabel(report.status)}">${report.status}</span>
+        <span class="summary-number ${statusLabel(report.status)}">${escapeHtml(report.status)}</span>
         <span class="summary-label">status</span>
       </div>
       <div class="summary-stat">
@@ -34,8 +44,8 @@ function renderReport(container, report) {
       <button type="button" id="download-json">Download JSON</button>
     </div>
     <div class="table-wrap">
-      <p><strong>Before:</strong> ${report.metadata.url_before} — captured ${report.metadata.captured_before} (fetch: ${report.metadata.fetch_status_before})</p>
-      <p><strong>After:</strong> ${report.metadata.url_after} — captured ${report.metadata.captured_after} (fetch: ${report.metadata.fetch_status_after})</p>
+      <p><strong>Before:</strong> ${escapeHtml(report.metadata.url_before)} — captured ${escapeHtml(report.metadata.captured_before)} (fetch: ${escapeHtml(report.metadata.fetch_status_before)})</p>
+      <p><strong>After:</strong> ${escapeHtml(report.metadata.url_after)} — captured ${escapeHtml(report.metadata.captured_after)} (fetch: ${escapeHtml(report.metadata.fetch_status_after)})</p>
       <h3>Changes</h3>
       <ul class="change-list">${changeRows || "<li>none observed</li>"}</ul>
       <p class="reason">${report.evidence_boundary}</p>
@@ -131,5 +141,5 @@ if (typeof window !== "undefined") {
 }
 
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { renderReport, statusLabel };
+  module.exports = { renderReport, statusLabel, escapeHtml };
 }
