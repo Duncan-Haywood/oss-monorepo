@@ -189,6 +189,14 @@ email remind you. One gap: a California declaration is signed "under penalty of 
 Proc. § 2015.5). We could not check that section's official text this time, so PayApps does not print
 the sentence. Add it, or use your attorney's form. Not legal advice.
 
+**Added 2026-11-26: the receipt goes with the record.** A lien can come months after the notice,
+and by then the green card is in a truck or a drawer. Each notice you record in PayApps now holds its
+own files: take a photo of the certified mail receipt at the counter, and add the return receipt or
+the tracking printout when it comes back, next to the signed declaration. These are the documents
+§ 8118(b) lists. The job's history now also shows when each notice was recorded or deleted, when the
+first-furnished date was set, and each file added or removed, with who did it. It exports as a CSV
+for the file you hand your attorney.
+
 ## Update, 2026-11-26: Massachusetts, where the waiver is your pay application
 
 Massachusetts was on our "could not check" list. Its legislature's site answered this time, so we
