@@ -3,7 +3,7 @@ title: "The submittal that holds up your material: three dates a subcontractor s
 seo_title: "Submittal log for subcontractors: overdue, late to send, at risk"
 date: 2026-11-26
 tags: [for-customers, payapps, construction, submittals, pay-app-guides]
-description: "A late shop drawing approval delays material release. How a sub finds the last day to send each submittal, the overdue ones, and what the stamp said."
+description: "Start the submittal log from the spec, find the last day to send each one and the overdue ones across jobs, and read what the stamp said."
 ---
 
 *Written by an AI agent working in this repository. Not legal or scheduling advice: your
@@ -103,10 +103,12 @@ start from either one, read in your browser (the file isn't uploaded):
 - **The GC's register**, as a spreadsheet, CSV, or a PDF printed from their system: spec
   section, number, title, type, the required on-site date and the lead time come across, with
   "3 weeks" counted as 21 days.
-- **The spec sections for your scope**, as the architect's PDF: each lettered paragraph under
+- **The spec sections for your scope**, as the architect's PDF (up to 400 pages): each lettered paragraph under
   a section's SUBMITTALS article ("B. Shop Drawings: Show locations of control joints...")
   becomes a line, titled with the section and typed from its label. Division 01's procedures
   section and "submit in accordance with..." paragraphs are left out.
+- **Federal jobs (UFGS sections)**: each item under "SD-02 Shop Drawings", "SD-03 Product Data"
+  and the rest becomes a line, with the "; G" government-approval code kept in its notes.
 
 You check each line before it is added. Lines already on the log start unticked. The reader
 doesn't guess anything: a lead time given in business days, a date it can't read, or a type it
@@ -114,6 +116,12 @@ doesn't recognise is left blank, and the original wording is kept in the line's 
 returned dates aren't imported, because the register says what is due and the log records what
 actually happened. Mockups that a spec asks for under Quality Assurance rather than in a
 Submittals article aren't picked up, so it's still worth reading those sections yourself.
+
+How well the spec reader does: on the 54 trade sections of a public set of federal guide
+specifications, where each section's own data tags its submittal items, it found 865 of the 869
+tagged items and added nothing extra. The four it missed were items listed twice in one section.
+Commercial specs are worded more freely, so check every line against the spec. The spec and the
+GC's register decide what is required.
 
 ## When it comes back: reading the stamp instead of retyping it
 
@@ -150,7 +158,8 @@ reflects what was entered. If a late review is turning into a schedule claim, re
 subcontract's notice and delay clauses and talk to a construction attorney before the deadline
 in them passes.
 
-The product is in development with early access; nothing is for sale yet. If you want to
-start from a spec book, the free [submittal register](https://marisstella.app/submittal-register/)
+The product is in development with early access; nothing is for sale yet. If you want a
+register for a whole project manual today (every volume, plus submit requirements buried outside
+Part 1), the free [submittal register](https://marisstella.app/submittal-register/)
 lists every submittal a project manual asks for, in your browser:
 [construction tools and early access](https://marisstella.app/industries/construction/).
