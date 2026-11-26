@@ -14,27 +14,40 @@ import {
   bytesToBinaryString, scanObjects, findTrailer, expandObjectStreams, decodeStream,
   resolve, isDict, isName, PRef, PName, binaryStringToBytes,
 } from './pdf-parser.mjs';
-import { tokens, mul, pageList, inherited, loadFonts, loadForms, textRuns } from './pdf-text.mjs';
+import { TokenList, runTokens, mul, pageList, inherited, loadFonts, loadForms, textRuns } from './pdf-text.mjs';
 
 const MAX_SEGMENTS = 600000; // per page; a dense site plan stays far below this
 
-/** Flatten a cubic Bezier from p0 with controls p1, p2 to p3 into n chords. */
-function cubic(p0, p1, p2, p3, out, flags) {
-  const len = Math.hypot(p1[0] - p0[0], p1[1] - p0[1]) + Math.hypot(p2[0] - p1[0], p2[1] - p1[1]) + Math.hypot(p3[0] - p2[0], p3[1] - p2[1]);
+/**
+ * Flatten a cubic Bezier from (x0, y0) with controls (x1, y1), (x2, y2) to
+ * (x3, y3) into n chords, appended to the flat path as x1, y1, x2, y2 per
+ * chord, each flagged as a curve chord.
+ */
+function cubic(x0, y0, x1, y1, x2, y2, x3, y3, path, curved) {
+  const len = Math.hypot(x1 - x0, y1 - y0) + Math.hypot(x2 - x1, y2 - y1) + Math.hypot(x3 - x2, y3 - y2);
   const n = Math.max(2, Math.min(24, Math.ceil(len / 6)));
-  let prev = p0;
+  let px = x0, py = y0;
   for (let i = 1; i <= n; i++) {
     const t = i / n, u = 1 - t;
     const a = u * u * u, b = 3 * u * u * t, c = 3 * u * t * t, d = t * t * t;
-    const p = [a * p0[0] + b * p1[0] + c * p2[0] + d * p3[0], a * p0[1] + b * p1[1] + c * p2[1] + d * p3[1]];
-    out.push(prev, p);
-    if (flags) flags[out.length / 2 - 1] = 1;
-    prev = p;
+    const qx = a * x0 + b * x1 + c * x2 + d * x3, qy = a * y0 + b * y1 + c * y2 + d * y3;
+    curved[path.length / 4] = 1;
+    path.push(px, py, qx, qy);
+    px = qx; py = qy;
   }
 }
 
+/** A Form XObject's tokens, listed on first use and kept on the form: a CAD
+ * block placed many times is read once, and textRuns reads `form.toks` too.
+ * Forms are loaded per page, so the list goes with the page. */
+function formTokens(form) {
+  if (!form.toks) form.toks = new TokenList(form.content);
+  return form.toks;
+}
+
 /**
- * Segments of every painted path in a content stream.
+ * Segments of every painted path in a content stream (a string, or a
+ * TokenList of one).
  * @returns {{segs: number[], paint: number[], widths: number[]}} segs is flat
  *   [x1, y1, x2, y2, ...] in page space; paint[i] is 1 for a stroke, 2 for the
  *   edge of a fill only; widths[i] the stroke width in page units.
@@ -45,59 +58,81 @@ export function pathSegments(content, forms = null, startCtm = null, depth = 0, 
   let lw = 1;
   const stack = [];
   let operands = [];
-  let path = []; // pairs of points in user space (already through ctm)
-  let curved = []; // per pair: 1 when it is a chord of a flattened curve
-  let cur = null, start = null;
-  const pt = (x, y) => [x * ctm[0] + y * ctm[2] + ctm[4], x * ctm[1] + y * ctm[3] + ctm[5]];
-  const nums = (k) => operands.slice(-k).map((v) => (typeof v === 'number' ? v : 0));
+  // The path being built, flat: x1, y1, x2, y2 per segment, already through
+  // the ctm. A drawing is hundreds of thousands of short segments, so points
+  // are plain numbers rather than a small array each (perf note
+  // docs/history/pdf-plan-takeoff-perf-2026-11-26.md).
+  let path = [];
+  let curved = []; // per segment: 1 when it is a chord of a flattened curve
+  let has = false, cx = 0, cy = 0, sx = 0, sy = 0; // current point and subpath start
+  // Operand i of the last k, as a number (anything else reads as 0).
+  const arg = (k, i) => { const v = operands[operands.length - k + i]; return typeof v === 'number' ? v : 0; };
+  const X = (x, y) => x * ctm[0] + y * ctm[2] + ctm[4];
+  const Y = (x, y) => x * ctm[1] + y * ctm[3] + ctm[5];
+  const line = (x, y) => { path.push(cx, cy, x, y); cx = x; cy = y; };
   const paint = (kind) => {
     const scale = Math.sqrt(Math.abs(ctm[0] * ctm[3] - ctm[1] * ctm[2])) || 1;
-    for (let i = 0; i + 1 < path.length; i += 2) {
+    const w = lw * scale;
+    for (let i = 0; i + 3 < path.length; i += 4) {
       if (out.paint.length >= MAX_SEGMENTS) { out.truncated = true; break; }
-      const a = path[i], b = path[i + 1];
-      if (a[0] === b[0] && a[1] === b[1]) continue;
-      out.segs.push(a[0], a[1], b[0], b[1]);
+      const ax = path[i], ay = path[i + 1], bx = path[i + 2], by = path[i + 3];
+      if (ax === bx && ay === by) continue;
+      out.segs.push(ax, ay, bx, by);
       out.paint.push(kind);
-      out.widths.push(lw * scale);
-      out.curve.push(curved[i / 2] || 0);
+      out.widths.push(w);
+      out.curve.push(curved[i / 4] || 0);
     }
-    path = []; curved = []; cur = start = null;
+    path = []; curved = []; has = false;
   };
-  for (const t of tokens(content)) {
-    if (!('op' in t)) { operands.push(t.v); if (operands.length > 64) operands.shift(); continue; }
-    switch (t.op) {
+  const value = (v) => { operands.push(v); if (operands.length > 64) operands.shift(); };
+  const step = (op) => {
+    switch (op) {
       case 'q': stack.push([ctm.slice(), lw]); break;
       case 'Q': if (stack.length) [ctm, lw] = stack.pop(); break;
-      case 'cm': if (operands.length >= 6) ctm = mul(nums(6), ctm); break;
-      case 'w': if (operands.length) lw = nums(1)[0]; break;
-      case 'm': if (operands.length >= 2) { const [x, y] = nums(2); cur = start = pt(x, y); } break;
-      case 'l': if (operands.length >= 2 && cur) { const [x, y] = nums(2); const p = pt(x, y); path.push(cur, p); cur = p; } break;
-      case 'c': if (operands.length >= 6 && cur) { const v = nums(6); const p3 = pt(v[4], v[5]); cubic(cur, pt(v[0], v[1]), pt(v[2], v[3]), p3, path, curved); cur = p3; } break;
-      case 'v': if (operands.length >= 4 && cur) { const v = nums(4); const p3 = pt(v[2], v[3]); cubic(cur, cur, pt(v[0], v[1]), p3, path, curved); cur = p3; } break;
-      case 'y': if (operands.length >= 4 && cur) { const v = nums(4); const p3 = pt(v[2], v[3]); cubic(cur, pt(v[0], v[1]), p3, p3, path, curved); cur = p3; } break;
-      case 'h': if (cur && start) { path.push(cur, start); cur = start; } break;
+      case 'cm': if (operands.length >= 6) ctm = mul([arg(6, 0), arg(6, 1), arg(6, 2), arg(6, 3), arg(6, 4), arg(6, 5)], ctm); break;
+      case 'w': if (operands.length) lw = arg(1, 0); break;
+      case 'm': if (operands.length >= 2) { const x = arg(2, 0), y = arg(2, 1); cx = sx = X(x, y); cy = sy = Y(x, y); has = true; } break;
+      case 'l': if (operands.length >= 2 && has) { const x = arg(2, 0), y = arg(2, 1); line(X(x, y), Y(x, y)); } break;
+      case 'c': if (operands.length >= 6 && has) {
+        const x1 = arg(6, 0), y1 = arg(6, 1), x2 = arg(6, 2), y2 = arg(6, 3), x3 = arg(6, 4), y3 = arg(6, 5);
+        const px = X(x3, y3), py = Y(x3, y3);
+        cubic(cx, cy, X(x1, y1), Y(x1, y1), X(x2, y2), Y(x2, y2), px, py, path, curved); cx = px; cy = py;
+      } break;
+      case 'v': if (operands.length >= 4 && has) {
+        const x2 = arg(4, 0), y2 = arg(4, 1), x3 = arg(4, 2), y3 = arg(4, 3);
+        const px = X(x3, y3), py = Y(x3, y3);
+        cubic(cx, cy, cx, cy, X(x2, y2), Y(x2, y2), px, py, path, curved); cx = px; cy = py;
+      } break;
+      case 'y': if (operands.length >= 4 && has) {
+        const x1 = arg(4, 0), y1 = arg(4, 1), x3 = arg(4, 2), y3 = arg(4, 3);
+        const px = X(x3, y3), py = Y(x3, y3);
+        cubic(cx, cy, X(x1, y1), Y(x1, y1), px, py, px, py, path, curved); cx = px; cy = py;
+      } break;
+      case 'h': if (has) line(sx, sy); break;
       case 're': if (operands.length >= 4) {
-        const [x, y, w, h] = nums(4);
-        const a = pt(x, y), b = pt(x + w, y), c = pt(x + w, y + h), d = pt(x, y + h);
-        path.push(a, b, b, c, c, d, d, a);
-        cur = start = a;
+        const x = arg(4, 0), y = arg(4, 1), w = arg(4, 2), h = arg(4, 3);
+        const ax = X(x, y), ay = Y(x, y), bx = X(x + w, y), by = Y(x + w, y);
+        const ccx = X(x + w, y + h), ccy = Y(x + w, y + h), dx = X(x, y + h), dy = Y(x, y + h);
+        path.push(ax, ay, bx, by, bx, by, ccx, ccy, ccx, ccy, dx, dy, dx, dy, ax, ay);
+        cx = sx = ax; cy = sy = ay; has = true;
       } break;
       case 'S': case 's': case 'B': case 'B*': case 'b': case 'b*':
-        if ((t.op === 's' || t.op === 'b' || t.op === 'b*') && cur && start) path.push(cur, start);
+        if ((op === 's' || op === 'b' || op === 'b*') && has) line(sx, sy);
         paint(1); break;
       case 'f': case 'F': case 'f*': paint(2); break;
-      case 'n': path = []; curved = []; cur = start = null; break;
+      case 'n': path = []; curved = []; has = false; break;
       case 'Do': {
         const nameOp = operands.find((x) => x instanceof PName);
         const form = forms && nameOp ? forms.get(nameOp.name) : null;
-        if (form && depth < 8) pathSegments(form.content, form.forms, mul(form.matrix, ctm), depth + 1, out, form.images || null);
+        if (form && depth < 8) pathSegments(formTokens(form), form.forms, mul(form.matrix, ctm), depth + 1, out, form.images || null);
         else if (nameOp && images && images.has(nameOp.name)) out.images.push({ num: images.get(nameOp.name), ctm: ctm.slice() });
         break;
       }
       default: break;
     }
     operands = [];
-  }
+  };
+  runTokens(content, value, step);
   return out;
 }
 
@@ -138,8 +173,10 @@ export async function readSheets(bytes, inflate, opts = {}) {
     const b = (Array.isArray(box0) && box0.length === 4 ? box0 : [0, 0, 612, 792]).map((v) => (typeof v === 'number' ? v : 0));
     const box = [Math.min(b[0], b[2]), Math.min(b[1], b[3]), Math.max(b[0], b[2]), Math.max(b[1], b[3])];
     const rot = resolve(inherited(page, 'Rotate', objects), objects);
-    const g = pathSegments(content, forms, null, 0, null, imageNames(res, objects));
-    const runs = textRuns(content, fonts, forms).filter((r) => r.text && r.text.trim());
+    // One tokenizing pass serves both readers (pdf-text.mjs, TokenList).
+    const toks = new TokenList(content);
+    const g = pathSegments(toks, forms, null, 0, null, imageNames(res, objects));
+    const runs = textRuns(toks, fonts, forms).filter((r) => r.text && r.text.trim());
     pages.push({
       page: i + 1, box, rotate: (((typeof rot === 'number' ? rot : 0) % 360) + 360) % 360,
       segs: Float64Array.from(g.segs), paint: Uint8Array.from(g.paint), widths: Float32Array.from(g.widths), curve: Uint8Array.from(g.curve),
