@@ -396,6 +396,27 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertIn("nowhere: not in this clone", out)
         self.assertIn("Start here: bet #3 jobshop-quote, item #3", out)
 
+    def test_bets_overview_lists_growth_topics_when_nothing_is_free(self):
+        bets = Path(self.tmp.name) / "bets.md"
+        bets.write_text("| # | Bet | Where |\n|---|---|---|\n"
+                        "| 1 | **Pay apps** | new `private-monorepo/apps/payapps` |\n"
+                        "| 2 | **Books** | new `private-monorepo/apps/seller-books` |\n\n"
+                        "### 1. Pay apps\n\n- **Wedge:** pay apps.\n"
+                        "- **Growth path:** job costing, RFIs (from\n  the GC side) and estimating.\n"
+                        "- **Risks:** none\n\n### 2. Books\n\n- **Wedge:** books.\n")
+        self.assertEqual(rc.growth_paths(bets.read_text()), {1: ["job costing", "RFIs", "estimating"]})
+        (self.a / "apps" / "seller-books").mkdir()
+        for n in ("1", "2", "3"):
+            self.assertEqual(self.main(self.b, "--claim", n)[0], 0)
+        self.assertEqual(self.main(self.b, "--claim", "0", "--slug", "job-cost-codes-part-1")[0], 0)
+        code, out = self.main(self.a, "--bets", "--bets-md", str(bets), app=None)
+        self.assertEqual(code, 0, out)
+        self.assertIn("job costing (1 live: job-cost-codes-part-1)", out)
+        self.assertIn("RFIs (no live claim)", out)
+        self.assertIn("seller-books: no **Growth path:** line", out)
+        self.assertIn("Start here: bet #1 payapps, growth topic 'RFIs'", out)
+        self.assertIn("--slug rfi-<part>", out)
+
     def test_release(self):
         self.main(self.a, "--claim", "3")
         slug = rc.slugify(rc.next_items(ROADMAP)[2][1])
