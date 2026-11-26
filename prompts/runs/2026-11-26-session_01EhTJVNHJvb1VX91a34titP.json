@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "adversarial-gate blocked a self.skipTest in my new validator test; rewrote it hermetically with a temp flagships.yaml"
+  ],
   "integrity_issues": [
     "Two auditor calls overruled by the lead after checking: stormwater correctness 3->2 (high domain defect gives a 0.9 ft low stage the user would build to); depop compareRegions defect medium->low (same nominal base in every region, so max payout == min fee share; my first 'fix' changed nothing and was reverted)."
   ],
