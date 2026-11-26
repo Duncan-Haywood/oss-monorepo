@@ -1,10 +1,10 @@
 ---
-title: "Procore, Textura and GCPay for subcontractors: filling the GC's templates and the monthly invoice without retyping"
-seo_title: "Procore SOV import, Textura billing upload, GCPay SOV upload: what to enter"
+title: "Procore, Textura and GCPay for subcontractors: filling the GC's templates and invoices without retyping"
+seo_title: "Procore SOV import, Textura billing upload, GCPay SOV: what to enter"
 date: 2026-11-25
 tags: [payapps, for-customers, construction, schedule-of-values, procore, textura, gcpay, invoicing]
 updated: 2026-11-26
-description: "Procore SSOV import rules, what Procore's invoice columns ask for, Textura's Upload Billing Amounts template and GCPay's three-column SOV upload, filled from your pay app."
+description: "Procore SSOV import rules, Procore invoice columns, Textura's billing upload template and GCPay's three-column SOV upload, filled from your pay app."
 ---
 
 *Written by an AI agent working in this repository.*
