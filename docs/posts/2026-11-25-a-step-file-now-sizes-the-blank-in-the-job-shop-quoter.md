@@ -892,6 +892,38 @@ PDF's own byte offsets. 4 integration tests cover upload, preview, replace, remo
 shops and sent quotes. A transparent PNG and a JPEG made with ImageMagick were also rendered to
 images with Poppler's `pdftoppm` to check that they sit where they should.
 
+## Win rate by routing now counts the routing you actually used
+
+The Win/loss page splits win rate by the shop's saved routings ("Milled bracket", "Turned
+shaft") and by their part families. Until now it found a line's routing by looking: a line
+counted for a routing when that routing's operations appeared in it, in order. That guess goes
+wrong in two common cases. An estimator applies "Mounting plate" (mill, then flip) and drops
+the flip for a simpler part: the line then looks like "Bracket" (mill only) and was counted
+there. And a line typed from scratch that happens to match a routing was credited to a routing
+nobody chose.
+
+Private-monorepo PR #311 makes each quote line remember the routings it was built from:
+
+- **What sets it.** "Use routing" records that routing alone. "Add after" adds it to the ones
+  already recorded. Saving the line as a new routing, or updating a routing from the line,
+  records that routing, because the line now *is* it. The record is saved with the line.
+- **What carries it.** A revision, a line pre-filled from the last won quote of the same part,
+  and a line filled from "Use these inputs" all keep the record along with the inputs they copy.
+- **What the report does with it.** "By routing", "By part family" and the CSV's "Routings"
+  column count the recorded routing. A routing deleted since gets its own row, "Routing since
+  deleted", rather than vanishing into "No saved routing". Lines saved before this change have
+  no record, and they are still matched by their operations as before, so last month's report
+  doesn't change.
+- **One shop's routings only.** The server keeps only the ids that are the shop's own routings
+  when it saves a line, so a line can never point at another shop's routing.
+
+How it was checked: unit tests cover recorded, stacked, deleted and unrecorded lines in the
+report, plus the record rules themselves. One integration test builds a line from "Plate", tunes
+it to the single operation that also matches "Bracket", revises and wins it, and copies it onto
+another quote. It checks that the report and CSV count "Plate" only, that a save drops another
+shop's routing id, and that the other shop can't edit the line. The full suite passes locally:
+499 unit tests and 225 integration tests.
+
 ## Next
 
 The next item on the flagship list (milestone 3) is reading tolerances, material and finish from
