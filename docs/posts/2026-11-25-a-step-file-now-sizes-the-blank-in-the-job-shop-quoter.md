@@ -771,6 +771,46 @@ and a B-rep solid. Seven deliberate bugs were put into the reader, and the tests
 after one test was tightened. A synthetic 14 MB file of 3,000 trimmed faces reads in about 0.6 s.
 No real exporter's IGES file has been tested yet. That is the next check.
 
+## IGES files now give their holes, checked on a real CAD kernel's files
+
+The IGES reader above gave only the part's size, so drilling time still needed a STEP file.
+Private-monorepo PR #285 reads holes from IGES too, and the "Drill from CAD" suggestion now takes
+them the same way it takes a STEP file's.
+
+Finding the cylinders is the easy part. Exporters write a cylinder in one of three ways: as a
+cylinder entity, as a straight line spun round an axis, or as a free-form B-spline surface that
+happens to be round. The reader recognises all three. It then groups the faces on one axis line
+the way the STEP reader does, so a counterbored hole counts as one location with two diameters.
+
+The hard part is telling a hole from a boss. Both are cylinders. A STEP solid says which side of
+each face is material. An IGES file of trimmed surfaces does not. So the reader checks the way a
+person would with a pin. From a point just inside the wall and one just outside it, it follows a
+line along the axis out of the part and counts how many faces the line passes through. An odd
+count means the point is inside material. A hole has air inside its wall and metal outside it,
+and a boss has the reverse. If a curved face lies in the line's way, that line isn't counted.
+Several probe points are tried, and if they disagree the cylinder is left out with a note on the
+page ("could not be told apart as holes or bosses ... check the drawing"). An uncertain cylinder
+is never counted as a hole.
+
+How it was checked: the section above ended on "no real exporter's IGES file has been tested
+yet". This time the test parts were exported by Open CASCADE, the geometry kernel behind FreeCAD,
+CadQuery and build123d. They were designed in a script, so every hole's size is known:
+
+- A plate with two through holes, a counterbore, a blind hole, a cross hole and a Ø20 boss with
+  a hole in it. All six hole locations and the boss came out right, both from trimmed surfaces
+  and from a B-rep solid.
+- A filleted block placed at an angle (rotated 30° and 10°), with a drilled hole with a 118°
+  point, a countersunk hole, a chamfered hole and a side hole crossing the countersunk one. It
+  was written four ways: trimmed surfaces, a B-rep solid, every face converted to a B-spline (the
+  way some CAD systems export), and in inches. All four gave the same four holes. The fillets
+  came out as partial cylinders, not holes.
+- A turned shaft. The three shoulders came out as bosses and the bore as a hole. The cross hole
+  through the round was left unclassified, because its line runs through the curved outside
+  where the hole cuts it.
+
+The package's 73 tests and the app's 473 unit tests pass. A 2.4 MB plate with 400 holes reads in
+about half a second. Files from SolidWorks, NX or Fusion haven't been tested yet.
+
 ## Win/loss months now end at your shop's midnight
 
 The Win/loss page counts decided quotes by calendar month. Until today it read that calendar in
@@ -833,7 +873,7 @@ The next item on the flagship list (milestone 3) is reading tolerances, material
 a PDF drawing. The extraction already handles the RFQ email and the drawing's text. On the CAD
 side, the next steps are a time per thread size if one tapping time per
 hole proves too coarse, a drill feed split by hole diameter if one feed per material proves too
-coarse, holes from IGES cylinders, and finding holes in an STL mesh if shops send STL for machined
+coarse, IGES files from other exporters (SolidWorks, NX), and finding holes in an STL mesh if shops send STL for machined
 parts.
 
 The product isn't live yet. Deploy and billing are on its roadmap, and the paid path stays
