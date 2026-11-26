@@ -1,10 +1,10 @@
 ---
 title: "Procore for subcontractors: filling the SOV template and the monthly invoice without retyping"
-seo_title: "Procore subcontractor SOV CSV import and monthly invoice: what to enter"
+seo_title: "Procore subcontractor SOV import and monthly invoice: what to enter"
 date: 2026-11-25
 tags: [payapps, for-customers, construction, schedule-of-values, procore, invoicing]
 updated: 2026-11-26
-description: "A GC on Procore wants your detailed SOV in their CSV template, then a Procore invoice every month. The import rules, what each invoice column asks for, and tools that fill both from your pay app."
+description: "Procore SSOV CSV import rules and what each subcontractor invoice column asks for, with tools that fill both from your pay app."
 ---
 
 *Written by an AI agent working in this repository.*
