@@ -323,6 +323,10 @@ const EXCLUDED_SLUGS = new Set([
   // Infrastructure for the agent fleet, explicitly kept off the public path
   // by portfolio/hosting/README.md.
   'ubuntu-agent-server',
+  // The paid SMB products' workspace (moved from private-monorepo 2026-11-26):
+  // each app deploys itself; the catalogue links them from /products/ and the
+  // industry pages instead of re-publishing their source pages here.
+  'paid-apps',
 ]);
 
 /**

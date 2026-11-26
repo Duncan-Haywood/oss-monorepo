@@ -20,7 +20,10 @@ import { decode, REPO } from './title-length.mjs';
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const BASELINE_PATH = join(HERE, 'description-length-baseline.json');
 export const MAX = 160;
-const SKIP = new Set(['node_modules', '.next', '.git']);
+// `paid-apps` is the paid products' workspace (ventures/paid-apps/): its pages
+// are served by each app's own deploy, not by this catalogue, and its own CI
+// checks them (ventures/paid-apps/PROVENANCE.md).
+const SKIP = new Set(['node_modules', '.next', '.git', 'paid-apps']);
 
 // Length a reader sees, or null when the page has no description or is noindex.
 export function descriptionLength(htmlText) {

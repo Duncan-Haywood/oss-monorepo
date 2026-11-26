@@ -52,7 +52,7 @@ test('no venture, research or site page sets an auto-fit grid minimum wider than
     maxBuffer: 64 * 1024 * 1024,
   })
     .split('\0')
-    .filter((f) => /\.(html|css|mjs|js)$/.test(f) && !/(^|\/)(node_modules|dist)\//.test(f) && !f.endsWith('grid-min-reflow.test.mjs'));
+    .filter((f) => /\.(html|css|mjs|js)$/.test(f) && !/(^|\/)(node_modules|dist)\//.test(f) && !f.endsWith('grid-min-reflow.test.mjs') && !f.startsWith('ventures/paid-apps/')); // paid apps: own deploy and CI, not catalogue pages
   const bad = [];
   for (const f of files) {
     let text;
