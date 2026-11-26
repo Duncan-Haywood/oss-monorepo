@@ -1,3 +1,7 @@
+---
+kind: milestone
+date: 2026-11-26
+---
 # Job Shop Quote: removal rates and drill feeds from a spreadsheet (2026-11-26)
 
 Bet #2 (`portfolio/monetization/bets.md`). Private-monorepo PR #196, merged.
