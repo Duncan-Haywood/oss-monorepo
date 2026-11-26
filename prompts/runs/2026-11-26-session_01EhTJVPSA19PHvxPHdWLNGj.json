@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01EhTJVPSA19PHvxPHdWLNGj",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T17:55:45Z",
+  "ended": "2026-11-26T18:13:28Z",
+  "wall_minutes": 18.11,
+  "tokens_in": 17086858,
+  "tokens_out": 94798,
+  "cost_usd": 7.0387,
+  "tool_calls": 99,
+  "task": "Bet #3 e-invoice fix-and-explain: PDF to ZUGFeRD, part 1 (POST /v1/convert, the creator's draft from a plain PDF invoice)",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/383",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 15,
+  "outcome": "success",
+  "errors": [
+    "First claim attempt (accountant-client-dashboard-part-1, the topic roadmap_claim.py --bets suggested) was TAKEN by a parallel run 0 min earlier; claimed pdf-to-zugferd-part-1-draft-from-text instead.",
+    "A Chromium-printed fixture clipped the last IBAN digit at the page edge; the reader correctly refused the truncated IBAN (mod-97). Fixed the fixture's footer CSS.",
+    "Synthetic FR VAT ID first chosen passed vat.mjs's key check but failed the checker's FR SIREN checksum (INV-023); regenerated with a Luhn-valid SIREN.",
+    "Imported checker suite locally: 2220 pass / 1 fail, repair-facturx.test.mjs needs pdfdetach saving, which this container image switches off (environment, untouched file)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets names one 'untouched topic' for the least-crowded bet, so parallel runs all try the same slug (accountant-client-dashboard-part-1 was claimed 0 min before this run asked); listing two or three untouched topics, or picking one at random, would spread runs."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "add_repo's result asks for a register_repo_root tool; the doc already says to skip it, which saved time. Clone of private-monorepo worked first time via add_repo access=push."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No customer post this run: the conversion is an API with no workspace screen yet, so a 'PDF in, e-invoice out' post would promise a screen that does not exist. The post and the einvoice-site copy are on the ROADMAP for part 2, when a stranger can use it.",
+      "did": "Documented the feature in pro/README.md ('PDF to ZUGFeRD') and the ROADMAP instead.",
+      "result": "No marketing claim ahead of the product."
+    },
+    {
+      "file": "prompt.md",
+      "why": "Bet #1 (payapps) had no free, ungated item; took bet #3 as roadmap_claim.py --bets recommended, then a different growth topic of it after the suggested one was claimed.",
+      "did": "PDF to ZUGFeRD conversion (bets.md growth path, untouched).",
+      "result": "Merged as private PR 383."
+    }
+  ],
+  "writeups": [],
+  "goal": "Move bet #3 toward a paying accountant: the most common real input (a plain PDF) becomes an e-invoice draft.",
+  "notes": "Built in private-monorepo apps/einvoice-preflight: pro/pdf-text.mjs (layout-aware PDF text reader, port of jobshop-quote's plus positions/widths/cells), pro/pdf-draft.mjs (DE/FR/EN field finder; IBAN mod-97 at registered length, VAT IDs via vat.mjs, rows only when qty x price = amount, printed totals as cross-check, 13b/19/293B/intra-EU wording to VAT category, check:true for judgment calls, INV-005 buyer identifier surfaced as missing), POST /v1/convert (auth, 5 MB cap, unmetered). Fixtures: Chromium DE/FR/13b and LibreOffice DE PDFs from pro/testdata/*.html plus the creator's own Factur-X; every draft reads back complete and the Factur-X written from it passes the checker. Local CI (run_workflow_locally einvoice-preflight-ci): pro 173/173 before merging main, 193/193 after; worker pass; imported 2220/1 env failure (pdfdetach). Merged main (dashboard + Polish workspace landed in parallel): server.mjs and ROADMAP conflicts resolved keeping both. Private repo CI runners are starved (known), hence local verification.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "36066bf0-5353-547c-b730-edb0c7c1edb4",
+    "transcripts": 1,
+    "first": "2026-11-26T17:55:45Z",
+    "last": "2026-11-26T18:13:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 98,
+        "input": 188,
+        "output": 94798,
+        "thinking": 22062,
+        "cache_read": 16865555,
+        "cache_write_5m": 0,
+        "cache_write_1h": 221115,
+        "api_equivalent_usd": 7.0387,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 98,
+      "input": 188,
+      "output": 94798,
+      "thinking": 22062,
+      "cache_read": 16865555,
+      "cache_write_5m": 0,
+      "cache_write_1h": 221115,
+      "api_equivalent_usd": 7.0387,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 99,
+    "tools": {
+      "Bash": 89,
+      "Write": 3,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.11,
+      "active_minutes": 18.11,
+      "model_minutes": 15.51,
+      "tool_minutes": 2.6,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "senior engineer: PDF text/layout reader port + DE/FR invoice field extraction with cross-checks, fixtures and tests, about two days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 198.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
