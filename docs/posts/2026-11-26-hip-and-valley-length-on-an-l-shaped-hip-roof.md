@@ -1,6 +1,7 @@
 ---
 title: "How long are the hips and valleys on an L-shaped hip roof?"
 date: 2026-11-26
+updated: 2026-11-26
 tags: [wall-framing-takeoff, for-customers, construction]
 description: Hip, valley and ridge lengths for an L-shaped hip roof, worked by hand at 4, 6, 8 and 12 in 12, and how the takeoff finds them for any square-cornered plan.
 ---
@@ -52,6 +53,16 @@ How it was checked:
 - with deliberate bugs planted in the code, which the checks caught.
 
 It has **not** been compared against a roofer's measured roof yet. It also assumes one pitch on every plane and level eaves: no gables, no dormers and no mixed pitches.
+
+## Fascia and soffit under the same roof (added 2026-11-26)
+
+The same plan gives you the fascia and soffit order. On a hip roof every side of the house has an eave, and there are no rakes. Each side's eave is the wall plus one overhang at every outside corner, minus one overhang at every inside corner. A square-cornered plan always has four more outside corners than inside ones. So, however stepped the plan is:
+
+**eave length = wall perimeter + 8 × overhang**
+
+Take the stepped 30 × 30 ft plan from the checks above: six outside corners, two inside, 120 ft of wall, and a 12 in overhang. The eave line is 120 + 8 × 1 = 128 ft. Side by side, that is 32, 12, four sides of 10, 12 and 32 ft. With 12 in soffit panels in 12 ft lengths, one course runs under each side. Each 32 ft side takes two whole panels plus an 8 ft piece, and each 12 ft side takes one panel. That leaves four 10 ft pieces and two 8 ft pieces, and no two of them fit in one 12 ft panel. So the total is 12 panels before waste. Fascia is the same 128 ft.
+
+The takeoff now counts this for a plan outline the framing model can't split. It uses the same soffit, fascia, J-channel and frieze rules as the framed roofs. For a plain rectangle it gives exactly what the framed hip roof gives. It doesn't count corner mitres, drip edge, nails or caulk. It also doesn't split vented and solid panels under an outline-only roof yet, because the ventilation sizing reads a framed roof.
 
 ## Where to use it
 
