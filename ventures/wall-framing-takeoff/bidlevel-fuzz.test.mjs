@@ -32,7 +32,10 @@ test("fuzz: bid leveling adds up, never lowers a bid and never guesses a price",
         if (rand() < 0.25) continue;
         const qty = Math.round(l.qty * (0.7 + rand() * 0.6));
         const unitPrice = r2(1 + rand() * 20);
-        lines.push(rand() < 0.3 ? { item: l.item.toUpperCase(), qty, amount: r2(qty * unitPrice) } : { item: l.item, qty, unitPrice });
+        // A tenth are lump sums (amount, no qty): a gap a rival priced only that
+        // way was once left unleveled and could win (red team 2026-11-26).
+        const shape = rand();
+        lines.push(shape < 0.1 ? { item: l.item, amount: r2(qty * unitPrice) } : shape < 0.3 ? { item: l.item.toUpperCase(), qty, amount: r2(qty * unitPrice) } : { item: l.item, qty, unitPrice });
       }
       bids.push({ bidder: `B${b}`, lines });
     }
@@ -50,12 +53,17 @@ test("fuzz: bid leveling adds up, never lowers a bid and never guesses a price",
       const given = new Set(bid.lines.map((l) => l.item.toLowerCase()));
       const missing = bud.lines.filter((l) => !given.has(l.item.toLowerCase()));
       gaps += missing.length;
+      for (const l of bid.lines.filter((x) => x.qty == null)) {
+        if (o.flags.some((f) => f.item.toLowerCase() === l.item.toLowerCase() && f.kind !== "missing")) failures.push(`${tag} ${o.bidder}: lump sum ${l.item} flagged short/over`);
+      }
       for (const l of missing) {
         const priced = l.unitPrice != null || bids.some((x) => x.lines.some((y) => y.item.toLowerCase() === l.item.toLowerCase()));
         const isUnlev = o.unleveled.includes(l.item);
         if (!priced && !isUnlev) failures.push(`${tag} ${o.bidder}: ${l.item} had no price but was not listed unleveled`);
         if (priced && isUnlev) failures.push(`${tag} ${o.bidder}: ${l.item} priceable but listed unleveled`);
         if (isUnlev) unlev++;
+        // leaving a priced line out never makes a bid cheaper than its own total
+        if (priced && !o.flags.some((f) => f.item === l.item && /adds \d/.test(f.note)) && !o.unleveled.includes(l.item)) failures.push(`${tag} ${o.bidder}: ${l.item} gap added nothing`);
         if (!o.flags.some((f) => f.item === l.item && f.kind === "missing")) failures.push(`${tag} ${o.bidder}: ${l.item} gap not flagged`);
       }
     }

@@ -1,0 +1,430 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtKERg5jFUdenkF7zb1",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T03:07:06Z",
+  "ended": "2026-11-26T03:08:34Z",
+  "wall_minutes": 7.62,
+  "tokens_in": 3575742,
+  "tokens_out": 32320,
+  "cost_usd": 2.1125,
+  "tool_calls": 41,
+  "task": "redteam: machine-shop-guides part-geometry.mjs + quote.mjs",
+  "projects": [
+    "ventures/machine-shop-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19188",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 asks to fix every open entry first, but both open entries need either an owner-gated control-plane PR or a missing eval set; the open list could mark entries as blocked so runs don't re-check them each time."
+    },
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "'Marketing or trust claims added' fired on a test-only file with no claims."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 open entries (framerate nightly, help-keeper stemmer) were not fixed: one is control-plane (owner PR), the other needs a help-center eval set that does not exist",
+      "did": "left patched:false, seeded and hunted on the jobshop-quote front door instead",
+      "result": "2 new real defects patched, 6 gaps closed"
+    },
+    {
+      "file": "prompt.md",
+      "why": "No customer blog post: the fixes are input-hardening in the reader, not news a shop owner would search for",
+      "did": "agent doc in docs/reports only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/reports/redteam-2026-11-26-part-geometry-torus.md"
+  ],
+  "goal": null,
+  "notes": "Campaigns: part-geometry.mjs 10 mutants 6 caught; quote.mjs 8 mutants 5 caught. After fix 17/17 non-equivalent caught. Guard added: page-vs-module default-breaks sync test; hand-built STEP torus/revolution tests (no OCP fixture held a torus). Verification: node --test *.test.mjs in ventures/machine-shop-guides: 231 pass 0 fail. risk_review: nothing blocked.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/machine-shop-guides/part-geometry.mjs",
+        "test": "node --test ventures/machine-shop-guides/**/*.test.mjs  (in .)",
+        "seed": 707453053,
+        "commit": "ff48e1a1e",
+        "sites": 1297,
+        "baseline_seconds": 0.5,
+        "mutants": [
+          {
+            "file": "ventures/machine-shop-guides/part-geometry.mjs",
+            "line": 37,
+            "col": 52,
+            "operator": "const-plus-one",
+            "before": "const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];",
+            "after": "const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[3] * b[2];",
+            "line_text": "const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/machine-shop-guides/part-geometry.mjs",
+            "line": 56,
+            "col": 16,
+            "operator": "plus-to-minus",
+            "before": "let j = i + 1;",
+            "after": "let j = i - 1;",
+            "line_text": "      let j = i + 1;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/machine-shop-guides/part-geometry.mjs",
+            "line": 188,
+            "col": 53,
+            "operator": "and-to-or",
+            "before": "const isLength = \"LENGTH_UNIT\" in parts || (e.type && /LENGTH_UNIT/.test(e.type));",
+            "after": "const isLength = \"LENGTH_UNIT\" in parts || (e.type || /LENGTH_UNIT/.test(e.type));",
+            "line_text": "  const isLength = \"LENGTH_UNIT\" in parts || (e.type && /LENGTH_UNIT/.test(e.type));",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Only differs when a unit in GLOBAL_UNIT_ASSIGNED_CONTEXT is a simple (non-complex) instance. AP203/214/242 require the length unit to be typed LENGTH_UNIT, which exporters write as a complex instance; a well-formed simple SI_UNIT/CONVERSION_BASED_UNIT then yields null on both sides (non-METRE name, or args shifted by the NAMED_UNIT dimensions attribute). Only a malformed 2-argument simple CONVERSION_BASED_UNIT('INCH',#f) would read differently."
+          },
+          {
+            "file": "ventures/machine-shop-guides/part-geometry.mjs",
+            "line": 335,
+            "col": 121,
+            "operator": "and-to-or",
+            "before": "const active = ranges.some(([a, b]) => K[i + p + 1] > a && K[i] < b) || ranges.some(([a, b]) => a === b && K[i] <= a && K[i + p + 1] >= a);",
+            "after": "const active = ranges.some(([a, b]) => K[i + p + 1] > a && K[i] < b) || ranges.some(([a, b]) => a === b && K[i] <= a || K[i + p + 1] >= a);",
+            "line_text": "    const active = ranges.some(([a, b]) => K[i + p + 1] > a && K[i] < b) || ranges.some(([a, b]) => a === b && K[i] <= a && K[i + p + 1] >= a);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/machine-shop-guides/part-geometry.mjs",
+            "line": 378,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "const c = point(a[1]);",
+            "after": "const c = point(a[2]);",
+            "line_text": "    const c = point(a[1]);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/machine-shop-guides/part-geometry.mjs",
+            "line": 567,
+            "col": 57,
+            "operator": "const-plus-one",
+            "before": "for (const sx of [-1, 1]) for (const sy of [-1, 1]) pts.push(add(p.c, add(scale(p.u, sx * R), scale(p.v, sy * R))));",
+            "after": "for (const sx of [-1, 1]) for (const sy of [-2, 1]) pts.push(add(p.c, add(scale(p.u, sx * R), scale(p.v, sy * R))));",
+            "line_text": "            for (const sx of [-1, 1]) for (const sy of [-1, 1]) pts.push(add(p.c, add(scale(p.u, sx * R), scale(p.v, sy * R))));",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No fixture revolved a circle profile (spline-revolve's profile is a B-spline). New test 'a circle revolved about an axis...' builds one and pins the box to +-25 x +-25 x +-5."
+          },
+          {
+            "file": "ventures/machine-shop-guides/part-geometry.mjs",
+            "line": 660,
+            "col": 17,
+            "operator": "eq-flip",
+            "before": "let t1 = (at === 0 ? ang[ang.length - 1] : ang[at - 1] + TAU) + step;",
+            "after": "let t1 = (at !== 0 ? ang[ang.length - 1] : ang[at - 1] + TAU) + step;",
+            "line_text": "    let t1 = (at === 0 ? ang[ang.length - 1] : ang[at - 1] + TAU) + step;",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No fixture had a TOROIDAL_SURFACE, so the spine-arc code for torus fillet faces was untested. New test 'torus fillet face...' hand-builds faces whose spine samples do and do not wrap past 0 and checks the box against a sampled closed form."
+          },
+          {
+            "file": "ventures/machine-shop-guides/part-geometry.mjs",
+            "line": 739,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "for (let j = 0; j < 3; j++) {",
+            "after": "for (let j = 1; j < 3; j++) {",
+            "line_text": "    for (let j = 0; j < 3; j++) {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/machine-shop-guides/part-geometry.mjs",
+            "line": 851,
+            "col": 15,
+            "operator": "minus-to-plus",
+            "before": "return [lo - b.r, hi + b.r];",
+            "after": "return [lo + b.r, hi + b.r];",
+            "line_text": "    return [lo - b.r, hi + b.r];",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Same missing torus fixture; the new torus test checks the box reaches interior extremes in turned frames."
+          },
+          {
+            "file": "ventures/machine-shop-guides/part-geometry.mjs",
+            "line": 975,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "if (b.kind === \"sphere\") r = Math.max(r, radial(b.c) + b.r);",
+            "after": "if (b.kind !== \"sphere\") r = Math.max(r, radial(b.c) + b.r);",
+            "line_text": "    if (b.kind === \"sphere\") r = Math.max(r, radial(b.c) + b.r);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/machine-shop-guides/quote.mjs",
+        "test": "node --test ventures/machine-shop-guides/**/*.test.mjs  (in .)",
+        "seed": 759789597,
+        "commit": "ff48e1a1e",
+        "sites": 79,
+        "baseline_seconds": 0.5,
+        "mutants": [
+          {
+            "file": "ventures/machine-shop-guides/quote.mjs",
+            "line": 29,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "const n = num(v, 1);",
+            "after": "const n = num(v, 2);",
+            "line_text": "  const n = num(v, 1);",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/machine-shop-guides/quote.mjs",
+            "line": 40,
+            "col": 40,
+            "operator": "lt-to-le",
+            "before": "if (num(input.lotsOverProgramLife, 1) < 1) errors.push(\"lotsOverProgramLife must be at least 1\");",
+            "after": "if (num(input.lotsOverProgramLife, 1) <= 1) errors.push(\"lotsOverProgramLife must be at least 1\");",
+            "line_text": "  if (num(input.lotsOverProgramLife, 1) < 1) errors.push(\"lotsOverProgramLife must be at least 1\");",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/machine-shop-guides/quote.mjs",
+            "line": 52,
+            "col": 38,
+            "operator": "times-to-div",
+            "before": "const setup = num(input.setupHours) * setupFactor * num(input.setupRate);",
+            "after": "const setup = num(input.setupHours) / setupFactor * num(input.setupRate);",
+            "line_text": "  const setup = num(input.setupHours) * setupFactor * num(input.setupRate);",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/machine-shop-guides/quote.mjs",
+            "line": 53,
+            "col": 84,
+            "operator": "const-plus-one",
+            "before": "const programming = (num(input.programHours) * num(input.programRate)) / Math.max(1, num(input.lotsOverProgramLife, 1));",
+            "after": "const programming = (num(input.programHours) * num(input.programRate)) / Math.max(2, num(input.lotsOverProgramLife, 1));",
+            "line_text": "  const programming = (num(input.programHours) * num(input.programRate)) / Math.max(1, num(input.lotsOverProgramLife, 1));",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/machine-shop-guides/quote.mjs",
+            "line": 53,
+            "col": 118,
+            "operator": "const-plus-one",
+            "before": "const programming = (num(input.programHours) * num(input.programRate)) / Math.max(1, num(input.lotsOverProgramLife, 1));",
+            "after": "const programming = (num(input.programHours) * num(input.programRate)) / Math.max(1, num(input.lotsOverProgramLife, 2));",
+            "line_text": "  const programming = (num(input.programHours) * num(input.programRate)) / Math.max(1, num(input.lotsOverProgramLife, 1));",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Blank lotsOverProgramLife defaulting to 1 was untested; new test checks undefined, '' and 'abc' charge all programming to the lot."
+          },
+          {
+            "file": "ventures/machine-shop-guides/quote.mjs",
+            "line": 60,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "const price = cost * (1 + num(input.markupPct) / 100);",
+            "after": "const price = cost * (2 + num(input.markupPct) / 100);",
+            "line_text": "  const price = cost * (1 + num(input.markupPct) / 100);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/machine-shop-guides/quote.mjs",
+            "line": 72,
+            "col": 34,
+            "operator": "const-plus-one",
+            "before": "export const DEFAULT_BREAKS = [1, 5, 10, 25, 50, 100];",
+            "after": "export const DEFAULT_BREAKS = [1, 6, 10, 25, 50, 100];",
+            "line_text": "export const DEFAULT_BREAKS = [1, 5, 10, 25, 50, 100];",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "DEFAULT_BREAKS was untested and duplicated as the page's pre-filled breaks input; new test pins the module default to the page's value so they cannot drift."
+          },
+          {
+            "file": "ventures/machine-shop-guides/quote.mjs",
+            "line": 72,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "export const DEFAULT_BREAKS = [1, 5, 10, 25, 50, 100];",
+            "after": "export const DEFAULT_BREAKS = [1, 5, 10, 25, 51, 100];",
+            "line_text": "export const DEFAULT_BREAKS = [1, 5, 10, 25, 50, 100];",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Same as the other DEFAULT_BREAKS mutant."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/machine-shop-guides/part-geometry.mjs",
+        "issue": "A binary STL with 0 triangles (any >=84-byte file whose count bytes are 0) read as a NaN size with no error; the stock page printed 'NaN mm' and handed NaN to the quote page. parseStl now throws, as the empty ASCII STL already did.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19188"
+      },
+      {
+        "file": "ventures/machine-shop-guides/part-geometry.mjs",
+        "issue": "A NaN STL corner was silently dropped by min/max (damaged file reads as a smaller part); an infinite corner or a STEP coordinate past the double range (1.E400) gave a NaN size. parseStl refuses non-finite coordinates and readPart refuses a non-finite size or envelope.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19188"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d0dcc188-15dc-52c3-b3bf-fbfadb93a34d",
+    "transcripts": 1,
+    "first": "2026-11-26T03:07:06Z",
+    "last": "2026-11-26T03:14:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 75,
+        "output": 32320,
+        "thinking": 14651,
+        "cache_read": 3479429,
+        "cache_write_5m": 0,
+        "cache_write_1h": 96238,
+        "api_equivalent_usd": 2.1125,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 75,
+      "output": 32320,
+      "thinking": 14651,
+      "cache_read": 3479429,
+      "cache_write_5m": 0,
+      "cache_write_1h": 96238,
+      "api_equivalent_usd": 2.1125,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 39,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.62,
+      "active_minutes": 7.62,
+      "model_minutes": 5.52,
+      "tool_minutes": 2.1,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "senior dev: two mutation campaigns, two hand-built STEP geometry tests, two parser fixes",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 236.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

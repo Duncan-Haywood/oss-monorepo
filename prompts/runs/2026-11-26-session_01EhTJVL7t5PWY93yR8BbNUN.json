@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01EhTJVL7t5PWY93yR8BbNUN",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T02:55:55Z",
+  "ended": "2026-11-26T02:58:03Z",
+  "wall_minutes": 2.3,
+  "tokens_in": 1153547,
+  "tokens_out": 7284,
+  "cost_usd": 0.7305,
+  "tool_calls": 17,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19184",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/security_next.py",
+      "issue": "It lists both alerts in the same file but suggests claiming only the top one with --claim. Batching means pushing the second claim branch by hand."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "Step 0 runs before routing, so a security-only run still gets a weighted-draw track (ventures here) whose focus it does not follow. There is no 'security' track to record against."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "prompt.md step 0 made the two queued high-severity CodeQL alerts the run's work, ahead of the routed ventures bet.",
+      "did": "Fixed both alerts in one PR and did no bet work.",
+      "result": "Security queue cleared. Tests pass and the generated llms.txt output is unchanged."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No post or agent doc. A two-line security fix gives readers nothing new, and the PR body plus this record carry the verification.",
+      "did": "Recorded the verification in this record and the PR body.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "node --test platform/pages/llms-answers.test.mjs: 6/6 pass. llms-answers --check over every optedIn('ventures') dir: all current. risk_review.py: nothing blocked; the 'new outbound host' flag is a test fixture string.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1e2cf6c1-1390-58db-a341-d0857d4ba46e",
+    "transcripts": 1,
+    "first": "2026-11-26T02:55:55Z",
+    "last": "2026-11-26T02:58:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 17,
+        "input": 35,
+        "output": 7284,
+        "thinking": 1287,
+        "cache_read": 1108132,
+        "cache_write_5m": 0,
+        "cache_write_1h": 45380,
+        "api_equivalent_usd": 0.7305,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 17,
+      "input": 35,
+      "output": 7284,
+      "thinking": 1287,
+      "cache_read": 1108132,
+      "cache_write_5m": 0,
+      "cache_write_1h": 45380,
+      "api_equivalent_usd": 0.7305,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.961,
+    "tool_calls": 17,
+    "tools": {
+      "Bash": 15,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 2.3,
+      "active_minutes": 2.3,
+      "model_minutes": 1.37,
+      "tool_minutes": 0.93,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

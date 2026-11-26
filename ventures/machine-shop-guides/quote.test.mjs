@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { costLot, quoteBreaks, validate } from "./quote.mjs";
+import { readFileSync } from "node:fs";
+import { costLot, quoteBreaks, validate, DEFAULT_BREAKS } from "./quote.mjs";
 
 const base = {
   materialPerPart: 10, scrapPct: 0, setupHours: 2, setupRate: 50,
@@ -55,4 +56,20 @@ test("calibration factors scale setup hours and cycle time; blank means 1", () =
   assert.ok(validate({ ...base, cycleFactor: 0 }).length);
   assert.ok(validate({ ...base, setupFactor: -1 }).length);
   assert.deepEqual(validate({ ...base, setupFactor: "", cycleFactor: "1.1" }), []);
+});
+
+test("a blank program-life field charges all programming to this lot", () => {
+  // the page sends "" when the field is cleared; blank means 1 lot, not some other default
+  for (const v of [undefined, "", "abc"]) {
+    assert.equal(costLot({ ...base, lotsOverProgramLife: v }, 10).lines.programming, 100, `lotsOverProgramLife ${JSON.stringify(v)}`);
+  }
+});
+
+test("default quantity breaks match the calculator page's pre-filled breaks", () => {
+  const html = readFileSync(new URL("./job-shop-quote-calculator.html", import.meta.url), "utf8");
+  const m = html.match(/name="breaks"[^>]*value="([^"]*)"/);
+  assert.ok(m, "breaks input with a value on the page");
+  const page = m[1].split(/[ ,;]+/).map(Number);
+  assert.deepEqual(DEFAULT_BREAKS, page);
+  assert.deepEqual(quoteBreaks(base).map((r) => r.quantity), page);
 });

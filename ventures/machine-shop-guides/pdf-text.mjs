@@ -250,28 +250,59 @@ function skipInlineImage(str, i) {
   return e ? e.index + 3 : str.length;
 }
 
+// Character classes by char code, so the scan below compares integers
+// instead of running a regex and a string search per character (a CAD
+// drawing's content stream is megabytes of line-art numbers; perf note
+// docs/history/drawing-review-perf-2026-11-26.md).
+const TOK_WS = new Uint8Array(256), TOK_DELIM = new Uint8Array(256);
+for (const c of [0, 9, 10, 12, 13, 32]) TOK_WS[c] = TOK_DELIM[c] = 1;
+for (const ch of '()<>[]{}/%') TOK_DELIM[ch.charCodeAt(0)] = 1;
+
+const POW10 = [1, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9, 1e10, 1e11, 1e12, 1e13, 1e14, 1e15];
+
+// The value of str[i, j) when it matches /^[+-]?(\d+\.?\d*|\.\d+)$/, else
+// undefined. Up to 15 digits it is mantissa / 10^k, two exact doubles and
+// one correctly rounded division, so the same double parseFloat returns;
+// longer numbers go to parseFloat itself.
+function numberWord(str, i, j) {
+  let k = i, c = str.charCodeAt(k), neg = false;
+  if (c === 43 || c === 45) { neg = c === 45; k++; if (k === j) return undefined; }
+  let m = 0, digits = 0, frac = 0;
+  while (k < j && (c = str.charCodeAt(k)) >= 48 && c <= 57) { m = m * 10 + (c - 48); k++; digits++; }
+  if (k < j) {
+    if (c !== 46) return undefined;
+    k++;
+    while (k < j && (c = str.charCodeAt(k)) >= 48 && c <= 57) { m = m * 10 + (c - 48); k++; frac++; }
+    if (k !== j) return undefined;
+  }
+  if (digits + frac === 0) return undefined;
+  if (digits + frac > 15) return parseFloat(str.slice(i, j));
+  const v = frac ? m / POW10[frac] : m;
+  return neg ? -v : v;
+}
+
 function* tokens(str) {
   let i = 0;
   const n = str.length;
-  const WS = /[\0\t\n\f\r ]/;
   while (i < n) {
-    const c = str[i];
-    if (WS.test(c)) { i++; continue; }
-    if (c === '%') { while (i < n && str[i] !== '\n' && str[i] !== '\r') i++; continue; }
-    if (c === '(' || c === '<' || c === '[' || c === '/') {
-      if (c === '<' && str[i + 1] === '<') { const [v, next] = parseValue(str, i); yield { v }; i = Math.max(next, i + 1); continue; }
+    const c = str.charCodeAt(i);
+    if (c < 256 && TOK_WS[c]) { i++; continue; }
+    if (c === 37) { while (i < n && str.charCodeAt(i) !== 10 && str.charCodeAt(i) !== 13) i++; continue; } // %
+    if (c === 40 || c === 60 || c === 91 || c === 47) { // ( < [ /
       const [v, next] = parseValue(str, i);
-      yield { v: c === '(' || c === '<' ? v : v };
+      yield { v };
       i = Math.max(next, i + 1);
       continue;
     }
     let j = i;
-    while (j < n && !WS.test(str[j]) && !'()<>[]{}/%'.includes(str[j])) j++;
+    let d;
+    while (j < n && ((d = str.charCodeAt(j)) >= 256 || !TOK_DELIM[d])) j++;
     if (j === i) { i++; continue; }
+    const num = numberWord(str, i, j);
+    if (num !== undefined) { yield { v: num }; i = j; continue; }
     const word = str.slice(i, j);
     i = j;
-    if (/^[+-]?(\d+\.?\d*|\.\d+)$/.test(word)) yield { v: parseFloat(word) };
-    else if (word === 'BI') i = skipInlineImage(str, i);
+    if (word === 'BI') i = skipInlineImage(str, i);
     else yield { op: word };
   }
 }
