@@ -204,3 +204,15 @@ test("payouts still add up to net proceeds with SAFEs, notes and preferred toget
     near(w.distributed + w.unallocated, w.net, 1);
   }
 });
+
+test("debt and fees together never take more than the sale price", () => {
+  const m = normalize({ exit: "1000000", debt: "1000000", feePct: "5", carvePct: "0", common: [{ name: "C", shares: "1" }] });
+  const w = waterfallAt(m, 1000000);
+  near(w.debtPaid, 1000000);
+  near(w.fees, 0);
+  near(w.debtPaid + w.fees + w.carve + w.net, 1000000);
+  const m2 = normalize({ exit: "1000000", debt: "980000", feePct: "5", carvePct: "0", common: [{ name: "C", shares: "1" }] });
+  const w2 = waterfallAt(m2, 1000000);
+  near(w2.fees, 20000);
+  near(w2.net, 0);
+});
