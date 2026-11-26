@@ -2,8 +2,8 @@
 title: "Subcontractor estimating: price the bid from your costs, then bill from the same numbers"
 seo_title: "Subcontractor estimate to proposal to schedule of values"
 date: 2026-11-26
-tags: [for-customers, payapps, construction, estimating, bid-alternates, price-list, schedule-of-values, job-costing, pay-app-guides]
-description: "Price a bid from your costs and a reusable price list, add alternates, send the GC prices only, and start the won job's schedule of values."
+tags: [for-customers, payapps, construction, estimating, bid-alternates, price-list, bid-follow-up, schedule-of-values, job-costing, pay-app-guides]
+description: "Price a bid from your costs and a reusable price list, add alternates, send the GC prices only, follow up on the bid, and start the won job's schedule of values."
 ---
 
 *Written by an AI agent working in this repository. The example below is invented, and the
@@ -27,7 +27,8 @@ one item on the proposal.
 
 **Markup is set per category**, because most shops mark up labor differently from material,
 and a lower-tier sub differently again. If you pay **sales tax on material**, the tax goes on
-material cost first, and the markup applies to material plus tax.
+material cost first, and the markup applies to material plus tax. Markup can go over 100%, up to 500%, for
+the small service line that carries a trip charge.
 
 The rounding is done once per bid item and category. The proposal total is then always exactly
 the sum of its items, and each item is exactly cost + tax + markup. That is the check a GC's
@@ -167,13 +168,46 @@ sets that line to $5.125:
 
 The next estimate that picks galvanized duct from the list starts at $5.125.
 
+## Sending the bid, and following up on it
+
+On an open estimate,
+**Email the proposal** drafts the email that goes with the PDF, and once the estimate is marked
+sent, **Follow up by email** drafts the chase. Both are written from the saved estimate only. With
+the clinic bid above (Equipment setting as deduct alternate No. 1, Controls as add alternate No. 2)
+and the GC estimator entered on the estimate, the bid-day draft reads:
+
+> Hello Dana Ruiz,
+>
+> We are pleased to submit our proposal EST-0007 for Riverside Clinic, mechanical (Riverside),
+> for the bid due 2026-12-03.
+>
+> Base bid: $21,600.45.<br>
+> Alternates:<br>
+> \- Alternate No. 1 (deduct): Equipment setting, deduct $3,360.00<br>
+> \- Alternate No. 2 (add): Controls, add $1,500.00
+>
+> The proposal lists what is included and excluded, and is open for acceptance until 2026-12-31.
+
+The open date is the one the PDF prints: 30 days from the day it is sent. The draft does not say
+a file is attached, because you attach the PDF yourself, and nothing is sent from the app: you edit
+it, then copy it or open it in your own email. After you use it, the page offers **Mark sent
+today**, so the PDF keeps that date and the next draft is the follow-up.
+
+A week later, the follow-up says when the proposal went out ("sent on 2026-12-01 (7 days ago)"),
+repeats the base bid and alternates, and asks where the bid stands, whether anything is needed
+from you, and, if the work went to someone else, for the result and any feedback on the number.
+Past the open date it says the offer was open until then and offers to confirm the pricing or send
+an updated proposal, rather than holding you to a number that has lapsed. Won and lost estimates
+get no draft.
+
 ## What it does not do yet
 
 It does not track price history: the list holds today's price and the date it was last changed.
 It does not read a PDF quote: export it as a spreadsheet first. An alternate here is a whole bid item: a
 deduct that is only part of an item has to be set up as its own bid item. It does not check your
 quantities or tell you what markup the market will bear. It does not send anything to the GC:
-you download the PDF and send it yourself.
+it drafts the email, and you attach the PDF and send it yourself. It does not yet remember when you
+last followed up on a bid.
 
 We are building hosted pay-app billing for specialty subcontractors. It covers estimates,
 schedules of values, change orders, pay applications, retainage, lien waivers, RFIs,
