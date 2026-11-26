@@ -1,3 +1,7 @@
+---
+kind: note
+subjects: [email]
+---
 # Agent-managed inboxes (2026-11-26)
 
 For the next session that touches mail. The owner asked for "agent managed

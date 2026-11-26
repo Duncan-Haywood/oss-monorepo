@@ -318,7 +318,7 @@ decisions:
 
 - id: agent-inboxes-secrets
   asks: []
-  prs: []
+  prs: [19197]
   gates: revenue
   exposure: credential
   opened: "2026-11-26"
