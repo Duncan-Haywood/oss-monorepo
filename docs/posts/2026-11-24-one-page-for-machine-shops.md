@@ -723,3 +723,83 @@ gather for each clause are our wording, not ISO's. The tab is for your own
 check before a registrar's audit. Only an accredited certification body
 certifies. AS9100D's aerospace additions come next, once we have a source
 we can cite.
+
+## Update, 26 November 2026: the customer accepts the quote with one click
+
+The quote goes out, and then the shop waits. The buyer replies "we'll take
+50, PO to follow". Days later a PO arrives, and an estimator types it into
+the quote log by hand. If nobody types it in, the win/loss report never
+learns about the win. Quoting portals in this market let the buyer accept
+online for that reason.
+
+The RFQ-to-quote app (bet #2, still in private development, not yet on sale)
+now does the same:
+
+- **A link in the quote email.** A box on the email form, on by default, adds
+  "Accept or decline this quote online" with a link under the message. An
+  estimator who sends from their own mail program can copy a link from the
+  quote page instead.
+- **No account for the buyer.** The link opens the quote as it was sent:
+  the parts, the quoted quantities and prices, the lead time, the notes and
+  terms, and the exact PDF, checked against the fingerprint recorded when
+  the quote was frozen. It never shows the shop's rates, costs or markups.
+- **Pick a quoted quantity, add a PO, accept.** For each part the buyer picks
+  one of the quoted quantity breaks, or "not ordering this part". They can
+  only pick a quantity the shop quoted. Any other quantity is a new quote,
+  and the page says to reply for one. Accepting marks the quote won at the
+  total of the breaks chosen, with the PO number.
+- **Or decline, with a reason.** The quote is marked lost with "Declined
+  online" and the buyer's reason, so the win/loss report shows lead time or
+  price losses in the buyer's own words.
+- **The estimator hears at once.** Whoever made or emailed the quote gets an
+  email with the parts, quantities, total and PO. The quote page shows the
+  answer, plus when each link was last opened.
+- **One answer, then the link is done.** A quote takes one answer only.
+  After its valid-until date, or once a newer revision replaces it, the
+  link shows that and takes no answer. The shop can turn a quote's links
+  off at any time, and they stop working immediately.
+
+What it does not do: it is not a signed contract. The page tells the buyer
+the shop will confirm the order, and it tells the shop to check the PO
+before starting work, because anyone holding the link could have typed it.
+The link only records what the buyer said. Next, if shops ask: a signature
+line on acceptance, and a reminder for a buyer who opened the quote but has
+not answered.
+
+## Update, 26 November 2026: from the won quote to a traveler for the floor
+
+When a quote is won, the job goes to the floor. Someone retypes the part,
+the quantity, the material and the operation list onto a traveler (the
+router sheet that goes with the parts from machine to machine), often from
+the same estimate that priced the job. Shop ERPs print one from a work
+order. The quoting app stopped at "won", so that retyping was still a hand
+step.
+
+The RFQ-to-quote app (bet #2, still in private development, not yet on sale)
+now prints the traveler from the won quote:
+
+- **One sheet per part.** Customer, quote number, PO and due date. The
+  quantity ordered, and the parts to start once the line's expected fallout
+  is added, using the same rule the price used. At 4% fallout, 50 good parts
+  means 53 started.
+- **Material and stock.** The material, the stock description from the rate
+  card, the blank size, and how many bars or sheets to pull when the estimate
+  says how many parts come from one piece. There is also a box for the heat or
+  lot number.
+- **Operations in order.** Numbered 10, 20, 30 in the estimate's order, each
+  with its work center, setup, cycle time per part and run time for the parts
+  started. Finishing comes next, with outside services marked, then final
+  inspection. Each step has a sign-off line.
+- **No prices.** Rates, costs and markup never appear on the floor's copy.
+- **The quantity the customer chose.** If the buyer accepted online, each part
+  prints at the quantity break they picked, and a part they did not order is
+  left off. The estimator can type another quantity from the PO. A part quoted
+  at several quantities, with no online acceptance, waits for the PO quantity
+  rather than having one guessed.
+
+What it does not do: the times are the estimate's, not a time standard, and
+the sheet says so. A cycle time the estimate never had prints as "not set",
+with no total. A machine or finish since removed from the rate card is
+printed as removed, not silently dropped. Next, if shops ask: a saved job
+with its own number and status, and a barcode on each operation so time on
+the floor can be checked against the quote.

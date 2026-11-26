@@ -30,3 +30,7 @@ more share the factor). skolebygg's slab volume in the BoQ: 134,776 m3 to
 - (moved 2026-11-22) openings cut at the room's floor and ceiling 2026-11-21 (eval/opening-height-cut-2026-11-21.md: 151 deductions, 47.2 m2)
 - (moved 2026-11-22) Storeys, sections, worker, thinned outlines 2026-11-21 (eval/storeys-and-*, eval/*-worker-*, eval/display-thinning-*: Mini Project 1.82M to 416k triangles)
 - (moved 2026-11-22) Member length, steel weight 2026-11-22 (eval/member-length-weight-*)
+
+## 2026-11-26: red team on the revision change report
+
+Eight seeded faults in diff.mjs, five caught. Three had no test: a class change under one GlobalId, the merged/split volume tolerance at its boundary (it is inclusive), and a removed room property's wording. All three are covered now. A real defect, fixed: elements with an unset GlobalId (`$`) were counted as "GlobalIds repeated within a file", so any model with two such elements showed a duplicate that wasn't there. (prompts/runs/2026-11-26-session_01AcxTtGeBbSEYwSFRWnjaup.json)

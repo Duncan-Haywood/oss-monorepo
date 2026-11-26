@@ -4,6 +4,7 @@
 // An observation, not a legal validity claim.
 
 import { normalizeDocumentType } from "./document.mjs";
+import { parseDecimal } from "./numbers.mjs";
 
 function finding(rule, message, fix) {
   return { rule, message, fix, path: "/original_invoice" };
@@ -32,7 +33,9 @@ function kindOf(invoice) {
 
 function cents(invoice) {
   const gross = invoice.totals && invoice.totals.gross;
-  const n = typeof gross === "string" && gross.trim() !== "" ? Number(gross) : gross;
+  // parseDecimal, as creditlink.py's parse_decimal: Number() alone read "0x64" as 100
+  // and "1e20" as an amount, so the page flagged INV-057 where the CLI saw nothing.
+  const n = parseDecimal(gross);
   return typeof n === "number" && Number.isFinite(n) ? Math.round(Number((Math.abs(n) * 100).toPrecision(15))) : null;
 }
 
