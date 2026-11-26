@@ -829,7 +829,7 @@ export function sheathingText(s) {
  * `windows` of 36 x 48 in and `doors` of 36 x 82.5 in spread evenly along the
  * walls (doors on the front first, then the back; windows round robin from the
  * front). Wall height is a precut stud length plus the plates. Openings are
- * centred on equal divisions of their wall; one that would not fit is refused.
+ * spaced with equal gaps (at least 12 in) along their wall; ones that would not fit are refused.
  * @param {{length:number,width:number,height:"8ft"|"9ft"|"10ft",windows:number,doors:number,orientation?:string,sheetLength?:number}} o inches except counts
  */
 export function houseSheathingPlan(o) {
@@ -857,9 +857,11 @@ export function houseSheathingPlan(o) {
   for (let i = 0; i < o.doors; i++) place[i % 2 ? 2 : 0].push("door");
   for (let i = 0; i < o.windows; i++) place[i % 4].push("window");
   place.forEach((kinds, wi) => {
+    // Equal gaps, floored, so the 12 in promised above holds: centring on equal
+    // divisions left 0 in between two windows on a 108 in wall (kings overlapped).
+    const width = 36, gap = (walls[wi].length - kinds.length * width) / (kinds.length + 1);
     kinds.forEach((kind, k) => {
-      const width = 36, centre = (walls[wi].length * (k + 1)) / (kinds.length + 1);
-      walls[wi].openings.push({ kind, label: `${kind} ${wi + 1}.${k + 1}`, offset: Math.round(centre - width / 2), width, height: kind === "door" ? 82.5 : 48, header: "2x10" });
+      walls[wi].openings.push({ kind, label: `${kind} ${wi + 1}.${k + 1}`, offset: Math.floor(gap * (k + 1) + width * k), width, height: kind === "door" ? 82.5 : 48, header: "2x10" });
     });
   });
   plan.walls = /** @type {any} */ (walls);

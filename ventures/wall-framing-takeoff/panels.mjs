@@ -271,7 +271,11 @@ export function wallPanelReport(o) {
   const doors = kinds.filter((k) => k === "door"), wins = kinds.filter((k) => k === "window"), order = [];
   while (doors.length || wins.length) { if (wins.length) order.push(wins.shift()); if (doors.length) order.push(doors.shift()); }
   if (order.length * 36 + (order.length + 1) * 12 > o.length) return { ok: false, errors: [`${order.length} openings of 36 in with 12 in between and at the ends do not fit a ${o.length} in wall.`] };
-  const openings = /** @type {any[]} */ (order).map((kind, k) => ({ kind, label: `${kind} ${k + 1}`, offset: Math.round((o.length * (k + 1)) / (order.length + 1) - 18), width: 36, height: kind === "door" ? 82.5 : 48, header: "2x10" }));
+  // Equal gaps, not equal centre spacing: spacing centres at length/(n+1) left
+  // 0 in between two windows on a 108 in wall that passed the 12 in check above.
+  // Flooring each offset keeps every gap at least floor(gap) >= 12 in.
+  const gap = (o.length - order.length * 36) / (order.length + 1);
+  const openings = /** @type {any[]} */ (order).map((kind, k) => ({ kind, label: `${kind} ${k + 1}`, offset: Math.floor(gap * (k + 1) + 36 * k), width: 36, height: kind === "door" ? 82.5 : 48, header: "2x10" }));
   const plan = samplePlan();
   plan.studLength = pre;
   plan.stock = defaultStock(pre);

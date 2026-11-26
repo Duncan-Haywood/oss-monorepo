@@ -25,3 +25,14 @@ test("refuses bad input", () => {
     assert.equal(wallPanelReport(o).ok, false);
   }
 });
+test("openings that pass the fit check (36 in each, 12 in between and at the ends) lay out: a 108 in wall with 2 windows failed with kings overlapping", () => {
+  // The page takes only counts, so an engine error telling the user to move an opening is one they cannot act on.
+  for (let n = 1; n <= 8; n++) {
+    for (let length = 48 * n + 12; length <= 48 * n + 60; length++) {
+      const r = wallPanelReport({ length, height: "8ft", windows: n, doors: 0, panelMax: 144 });
+      assert.ok(r.ok, `${n} windows on a ${length} in wall: ${r.errors?.join("; ")}`);
+    }
+  }
+  assert.ok(wallPanelReport({ ...base, length: 108, windows: 1, doors: 1 }).ok);
+  assert.equal(wallPanelReport({ ...base, length: 107, windows: 1, doors: 1 }).ok, false);
+});
