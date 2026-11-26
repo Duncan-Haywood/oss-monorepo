@@ -215,6 +215,29 @@ class CampaignTest(unittest.TestCase):
         self.assertTrue(all("red without the mutant" in m["note"] for m in escaped))
         self.assertEqual(self.target.read_text(), CALC)
 
+    def test_rerun_tags_do_not_pile_up(self):
+        # doc_friction 2026-11-26: two reruns on a red suite doubled every escaped
+        # mutant's note; a rerun that then runs the mutant drops the stale tag.
+        camp = redteam.campaign(self.target, 10, seed=1, repo=self.repo)
+        for m in camp["mutants"]:
+            m["note"] = "blue team: boundary"
+        record = self.repo / "run.json"
+        record.write_text(json.dumps({"redteam": None}))
+        redteam.add_to_record(record, camp)
+        test_file = self.venture / "calc.test.mjs"
+        green = test_file.read_text()
+        test_file.write_text(green + "test('always red', () => { throw new Error('x'); });\n")
+        redteam.rerun(record, repo=self.repo)
+        rec = redteam.rerun(record, repo=self.repo)
+        escaped = [m for m in rec["redteam"]["campaigns"][0]["mutants"] if not m["caught"]]
+        self.assertEqual([m["note"].count("[rerun:") for m in escaped], [1, 1])
+        self.assertTrue(all(m["note"].startswith("blue team: boundary [rerun:") for m in escaped))
+        test_file.write_text(green + HIGH_TEST)
+        rec = redteam.rerun(record, repo=self.repo)
+        escaped = [m for m in rec["redteam"]["campaigns"][0]["mutants"] if not m["caught"]]
+        self.assertEqual([m["note"] for m in escaped], ["blue team: boundary"] * 2)
+        self.assertEqual([m["caught_after_fix"] for m in escaped], [True, True])
+
     def test_timeout_kills_the_suites_children_too(self):
         # A looping mutant's per-file child outlived `node --test` when only the
         # parent was killed (red team 2026-11-14): the whole group must go.

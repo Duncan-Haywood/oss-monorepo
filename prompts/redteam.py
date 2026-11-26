@@ -401,6 +401,20 @@ def campaign(target: Path, mutants: int, seed: int, repo: Path = REPO,
     }
 
 
+def _rerun_note(m: dict[str, Any], why: str | None) -> None:
+    """Set the mutant's one `[rerun: ...]` tag (or drop it, with None), keeping the rest of its note.
+
+    Each rerun used to append its tag, so two reruns on a red suite doubled the text and the
+    note had to be cleaned by hand (doc_friction 2026-11-26). A later rerun that runs the
+    mutant drops the stale tag, since it no longer describes the record.
+    """
+    base = _RERUN_TAG.sub("", m.get("note") or "").rstrip()
+    m["note"] = f"{base} [rerun: {why}]".lstrip() if why else base
+
+
+_RERUN_TAG = re.compile(r"\s*\[rerun: [^\]]*\]")
+
+
 def rerun(record_path: Path, repo: Path = REPO, timeout: int = TIMEOUT_SECONDS) -> dict[str, Any]:
     """Re-apply every escaped, non-equivalent mutant and set `caught_after_fix`."""
     rec = json.loads(record_path.read_text())
@@ -415,14 +429,14 @@ def rerun(record_path: Path, repo: Path = REPO, timeout: int = TIMEOUT_SECONDS) 
             found = suite_for(target, repo)
             if found is None or not target.is_file():
                 m["caught_after_fix"] = None
-                m["note"] = (m.get("note") or "") + " [rerun: target or suite gone]"
+                _rerun_note(m, "target or suite gone")
                 continue
             key = (str(found[1]), *found[0])
             if key not in clean:
                 clean[key] = run_suite(*found, timeout=timeout)[0]
             if not clean[key]:
                 m["caught_after_fix"] = None
-                m["note"] = (m.get("note") or "") + " [rerun: suite is red without the mutant; fix it first]"
+                _rerun_note(m, "suite is red without the mutant; fix it first")
                 continue
             original = target.read_bytes()
             lines = original.decode().split("\n")
@@ -431,7 +445,7 @@ def rerun(record_path: Path, repo: Path = REPO, timeout: int = TIMEOUT_SECONDS) 
             hits = [i for i, l in enumerate(lines, 1) if l == m["line_text"]]
             if not hits:
                 m["caught_after_fix"] = None
-                m["note"] = (m.get("note") or "") + " [rerun: line changed; triage by hand]"
+                _rerun_note(m, "line changed; triage by hand")
                 continue
             line = min(hits, key=lambda i: abs(i - m["line"]))
             site = next((s for s in sites(original.decode(), lang_of(target) or "")
@@ -439,7 +453,7 @@ def rerun(record_path: Path, repo: Path = REPO, timeout: int = TIMEOUT_SECONDS) 
                          and s.operator == m["operator"]), None)
             if site is None:
                 m["caught_after_fix"] = None
-                m["note"] = (m.get("note") or "") + " [rerun: mutation no longer applies]"
+                _rerun_note(m, "mutation no longer applies")
                 continue
             try:
                 target.write_text(apply(original.decode(), site))
@@ -447,6 +461,7 @@ def rerun(record_path: Path, repo: Path = REPO, timeout: int = TIMEOUT_SECONDS) 
             finally:
                 target.write_bytes(original)
             m["caught_after_fix"] = not passed
+            _rerun_note(m, None)
     record_path.write_text(json.dumps(rec, indent=2) + "\n")
     return rec
 
