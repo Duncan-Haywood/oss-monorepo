@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-11-26
+---
 # Polish, 2026-11-26: clothing-design-studio meta descriptions
 
 Picked item 1 of "Still weakest" in
