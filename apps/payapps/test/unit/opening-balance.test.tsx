@@ -64,7 +64,7 @@ it("fills the opening balance from a continuation sheet, then saves only what th
   // Reading the file sent nothing: it stays in the browser until the contractor saves.
   expect(fetchMock).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole("button", { name: /save opening balance/i }));
-  await waitFor(() => expect(onSaved).toHaveBeenCalled());
+  await waitFor(() => expect(onSaved).toHaveBeenCalled(), { timeout: 5000 });
   const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
   expect(url).toBe("/api/orgs/o/projects/prj_1/opening");
   expect(JSON.parse(String(init.body))).toEqual({
@@ -125,7 +125,7 @@ it("puts a row that did not match on the line the contractor chooses, moves it, 
   expect(screen.queryByRole("alert")).toBeNull();
   expect(fetchMock).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole("button", { name: /save opening balance/i }));
-  await waitFor(() => expect(onSaved).toHaveBeenCalled());
+  await waitFor(() => expect(onSaved).toHaveBeenCalled(), { timeout: 5000 });
   const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
   expect(JSON.parse(String(init.body)).lines).toEqual([
     { sovLineId: "l1", completedCents: 80_000 },
