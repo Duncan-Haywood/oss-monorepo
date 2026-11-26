@@ -60,7 +60,8 @@ One job's log is easy to read. A sub running ten jobs has ten logs, and the late
 usually on the job nobody opened this week. The pay-app billing we are building now keeps a
 submittal log per job, with the needed-on-site date, lead time and review days on each line,
 resubmittals kept as the next revision, and a transmittal cover sheet that prints the
-needed-on-site date so the reviewer sees why the date matters.
+needed-on-site date so the reviewer sees why the date matters (and, below, the files it
+encloses).
 
 As of today it also lists, across all of a company's active jobs, the submittals waiting on
 someone:
@@ -75,6 +76,23 @@ appear in a box on the projects page and in the opt-in weekly email, next to the
 Each line links to that job's log. Only the dates you typed decide anything. A submittal with no
 required-back date is never "overdue", and the product doesn't assume a review period or a lead
 time for you.
+
+## One PDF to send: the transmittal with what it encloses
+
+A reviewer who gets the transmittal in one email and the drawings in another, or a drawing set
+with no cover sheet, has a reason to set it aside. The usual fix is a cover sheet that lists
+what is enclosed, with the drawings and data sheets right behind it in one file. Then the
+reviewer can see at once whether everything arrived, and there's a record of exactly what was
+sent on the date it was sent.
+
+So each submittal revision in the log now keeps its own files: product data sheets, shop
+drawings, calculations, photos of a sample or mock-up, and the stamped copy that comes back.
+The transmittal names every file under "Files enclosed", apart from the returned stamped copy,
+which is the reviewer's to send. "With files" makes one PDF of the transmittal, an index page
+and those files: PDFs page for page, photos one to a page, every page numbered. A file that
+can't go in, like a spreadsheet, is named on the index so the reviewer knows it's coming
+separately. A resubmittal starts as a new revision with no files, so what went with the first
+round stays on the first round.
 
 ## What it won't do
 
