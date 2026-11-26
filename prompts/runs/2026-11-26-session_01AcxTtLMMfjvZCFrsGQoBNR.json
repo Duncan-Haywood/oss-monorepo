@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtLMMfjvZCFrsGQoBNR",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T16:07:22Z",
+  "ended": "2026-11-26T16:18:48Z",
+  "wall_minutes": 11.6,
+  "tokens_in": 8441051,
+  "tokens_out": 37785,
+  "cost_usd": 3.5474,
+  "tool_calls": 77,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19401",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets reported no bet with a free, ungated item (all 7 claimed or owner/demand-gated); picking a new slice for a no-ROADMAP app (seller-books) took reading README/ARCHITECTURE by hand."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Backgrounding with '( ... ) &' inside a Bash call silently did not run (shell reset); only the tool's run_in_background worked. cloud-session.md 'Long commands' could say so explicitly."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Considered a TikTok Shop importer for seller-books but no official column source was reachable (export is an undocumented XLSX workbook); built the QuickBooks Online journal export instead, whose columns come from Intuit's own help article.",
+      "did": "Shipped private PR 365 (seller-books quickbooks-journal-export).",
+      "result": "Merged with unit 238/238, worker 98/98, build ok."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-reseller-payouts-cost-of-goods-and-schedule-c.md (extended: QuickBooks Online section)"
+  ],
+  "goal": null,
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/365 merged (df62c2be). Verified locally: seller-books typecheck clean, test:unit 22 files 238 passed, test:worker 15 files 98 passed, build ok; seller-books-site node --test 37 passed. Private *-ci runners starved per cloud-session.md. Claim branch claim/seller-books/quickbooks-journal-export.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "737fac47-55e2-5cc6-bcad-0ec95316a8fa",
+    "transcripts": 1,
+    "first": "2026-11-26T16:07:22Z",
+    "last": "2026-11-26T16:18:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 136,
+        "output": 37785,
+        "thinking": 7723,
+        "cache_read": 8299510,
+        "cache_write_5m": 0,
+        "cache_write_1h": 141405,
+        "api_equivalent_usd": 3.5474,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 136,
+      "output": 37785,
+      "thinking": 7723,
+      "cache_read": 8299510,
+      "cache_write_5m": 0,
+      "cache_write_1h": 141405,
+      "api_equivalent_usd": 3.5474,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 59,
+      "WebSearch": 5,
+      "WebFetch": 3,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Edit": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.6,
+      "active_minutes": 11.6,
+      "model_minutes": 7.54,
+      "tool_minutes": 4.06,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

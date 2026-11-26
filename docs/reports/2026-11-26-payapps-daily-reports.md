@@ -2,7 +2,7 @@
 kind: note
 topics: [product-build]
 ---
-# Pay apps: daily reports, part 1 (private PR 353)
+# Pay apps: daily reports, parts 1 and 2 (private PRs 353 and 361)
 
 For the next run on bet #1 (payapps).
 
@@ -16,6 +16,20 @@ one for a range (up to 92 days), plus a CSV of the log. Rules are in `src/shared
 `docs/DAILY-REPORTS.md`. The privacy policy lists daily reports (`POLICY_VERSION` 2026-11-26.16).
 Customer post: `docs/posts/2026-11-26-construction-daily-reports-for-subcontractors.md`.
 
+## Part 2 (private PR 361)
+
+Photos and files per report: table `daily_report_files` (migration **0065**), service
+`services/payapps/daily-report-files.ts` (a copy of the RFI files service), the shared
+`AttachmentsPanel` with `holder="dailyReport"` (photo is the default kind), and
+`GET .../daily-reports/:reportId/packet.pdf` (report, index, files, not the signed copy). Job history
+rows come from `dailyReportEvents` in `src/shared/job-history.ts`: entered, changed (the fields are named, and a moved
+date shows both dates), deleted, file attached, file removed. Privacy policy `POLICY_VERSION` 2026-11-26.19.
+
+Migration numbers raced twice in one hour. `tm-tickets` (#358) took 0063 and `estimates-part-2-alternates`
+(#359) took 0064, both while this PR was open. The fix each time: restore main's `_journal.json` and its
+snapshot, delete your `.sql`, and rerun `pnpm exec drizzle-kit generate --name <name>`. Run
+`drizzle-kit check` afterwards. `POLICY_VERSION` raced the same way. Fetch main again just before you merge.
+
 ## How it was picked
 
 `roadmap_claim.py --bets` offered cmmc #6. Another run claimed it nine seconds before this one (two
@@ -25,6 +39,5 @@ costing, RFIs and estimating") with `--slug daily-reports-part-1`.
 
 ## Next (the app's ROADMAP)
 
-Part 2: photos and files per report (reuse the attachments panel and camera path), job-history rows,
-and a "weekdays without a report" line in the weekly email. Linking a report to a change order or RFI
+Part 3: a "weekdays without a report" line in the weekly email (`cash-digest.ts`). Linking a report to a change order or RFI
 it backs waits until contractors ask for it. Estimating is the other suite module the bet names, and nobody has started it.

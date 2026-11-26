@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqyfZFpXBzJAkCGvSjEq",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T15:39:04Z",
+  "ended": "2026-11-26T16:01:04Z",
+  "wall_minutes": 22.22,
+  "tokens_in": 14113711,
+  "tokens_out": 50145,
+  "cost_usd": 5.1017,
+  "tool_calls": 103,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19397",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First post-merge payapps unit run had 1 failed test; the immediate rerun passed 1128/1128 (likely a flaky test, not identified)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Migration numbers and POLICY_VERSION raced twice in one hour on payapps (0063 tm-tickets, 0064 estimates alternates). The 'regenerate after merging main' recipe isn't written down there; I added it to docs/reports/2026-11-26-payapps-daily-reports.md."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Backgrounding with `cd X && (...) &` backgrounds the cd too, so the next foreground command in the same call ran in the old cwd. Minor, but it cost one retry."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-26-construction-daily-reports-for-subcontractors.md (extended)",
+    "docs/reports/2026-11-26-payapps-daily-reports.md (extended)"
+  ],
+  "goal": null,
+  "notes": "Bet #1 payapps, ROADMAP Next #15: daily reports part 2, merged as private PR 361 (https://github.com/Duncan-Haywood/private-monorepo/pull/361). Photos and files per daily report, a PDF+photos packet, job history rows, migration 0065, privacy policy 2026-11-26.19, marketing page and llms.txt. Private CI was starved (ci_starvation: no runner), so it was verified locally. Before the merges: unit 1072 and worker 460. After merging #358/#360: unit 1123 and worker 467. After merging #359: unit 1128, targeted worker tests 22, tsc, vite build and drizzle-kit check, all clean. Public PR doc-refs-ci ran locally: 3/3 run steps passed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "42f3e201-6a20-557d-80ab-adcf2eeefdfe",
+    "transcripts": 1,
+    "first": "2026-11-26T15:39:04Z",
+    "last": "2026-11-26T16:01:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 98,
+        "input": 189,
+        "output": 50145,
+        "thinking": 5280,
+        "cache_read": 13950015,
+        "cache_write_5m": 0,
+        "cache_write_1h": 163507,
+        "api_equivalent_usd": 5.1017,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 98,
+      "input": 189,
+      "output": 50145,
+      "thinking": 5280,
+      "cache_read": 13950015,
+      "cache_write_5m": 0,
+      "cache_write_1h": 163507,
+      "api_equivalent_usd": 5.1017,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 103,
+    "tools": {
+      "Bash": 95,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.22,
+      "active_minutes": 22.22,
+      "model_minutes": 10.26,
+      "tool_minutes": 11.95,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a senior engineer adding attachments, packet and history to an existing module with tests, plus docs and the post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 196.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -491,6 +491,42 @@ Schedule C page, and each file adds up to its own worksheet figure.
 These are your own records, in a form you can file away or send on. They are
 not a return and not tax advice.
 
+## Marketplace sales into QuickBooks Online, one entry a month (added 2026-11-26)
+
+If you or your bookkeeper already keep the books in QuickBooks Online, you
+don't need a row for every order there. Accountants who work with
+marketplace sellers usually post one summary journal entry per payout period
+instead, which is what paid connectors such as A2X do for each channel.
+Seller Books now writes that file from the same sales ledger: one entry per
+platform per month, in the columns QuickBooks' own journal-entry import
+asks for (Journal No., Journal Date, Account Name, Journal/Description,
+Debits, Credits, from Intuit's help article). You import it under Settings,
+Import data, Journal entries.
+
+Each entry puts item sales and the shipping buyers paid on income accounts,
+and refunds, fees, ads, postage and platform subscriptions on their own
+accounts. Ads are kept apart from other fees, as they are on Schedule C
+(line 8 against line 10). The net goes on a clearing account for that
+platform. Here is one month on eBay from the app's tests: $50.00 of item
+sales and $8.00 of shipping charged are credits. A $15.00 refund, $5.50 of
+ads, $5.65 of fees (after a $2.00 fee credit on the refund), $6.50 of postage
+and a $21.95 store subscription are debits. That leaves $3.40 as a debit to
+"eBay Clearing", and the entry balances. When eBay pays out, you record the
+deposit as a transfer from eBay Clearing to your bank. Whatever is left in
+the clearing account is money the platform is still holding, or a difference
+worth checking.
+
+You choose the account names, and they must already exist in QuickBooks. Two
+things stay out on purpose. Sales tax the marketplace collected is not your
+income and never reached you, so it isn't posted. Expenses you typed in
+yourself usually reach QuickBooks from your bank feed already. Cost of goods
+is off by default too. Turn it on only if your purchases go to an inventory
+account in QuickBooks; if you expense stock when you buy it, posting the cost
+again would count it twice. The journal numbers repeat for the same platform
+and month (for example SB-EBAY-2026-03), so QuickBooks can warn you before a
+month is imported twice. The file hasn't yet been tried in a real
+QuickBooks company. It is a bookkeeping export, not tax advice.
+
 ## What comes next
 
 Each of the ten tool pages now ends with a short "track true profit across
