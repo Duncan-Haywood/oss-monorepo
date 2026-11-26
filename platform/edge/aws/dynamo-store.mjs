@@ -17,6 +17,8 @@
 //   SEQ              feedback | inbox      n (last id handed out)
 //   FEEDBACK         <id, 12 digits>       id, day, type, tool, page, message
 //   INBOX            <id, 12 digits>       id, received, mail_from, rcpt_to, subject, message_id, raw, expires_at
+//   DAILY#early_access <day>               n
+//   EARLY            <product>#<email>     id, received, product, email, role, note, page, consent, expires_at
 //   RL               <hmac(sender)>#<win>  n, expires_at (rate-limit window)
 //
 // COUNT is one partition. A partition takes 1,000 writes a second; the site's
@@ -48,7 +50,7 @@ const conditionFailed = (e) => e?.code === 'ConditionalCheckFailedException';
  * `sigv4.mjs`, or a fake in tests). `retentionDays` sets the inbox TTL, a
  * backstop behind the explicit purge in `inbox.mjs`.
  */
-export function dynamoStore({ call, table, retentionDays = 90 }) {
+export function dynamoStore({ call, table, retentionDays = 90, earlyAccessRetentionDays = 365 }) {
   // +1 on a counter item unless it already holds `cap`. True if it changed.
   async function bump(key, cap, extra = {}) {
     const names = { '#n': 'n' };
@@ -110,6 +112,11 @@ export function dynamoStore({ call, table, retentionDays = 90 }) {
   const strip = (row, keys) => Object.fromEntries(keys.map((k) => [k, row[k] ?? (k === 'id' ? 0 : '')]));
   const FEEDBACK_COLS = ['id', 'day', 'type', 'tool', 'page', 'message'];
   const INBOX_COLS = ['id', 'received', 'mail_from', 'rcpt_to', 'subject', 'message_id', 'raw'];
+  const EARLY_COLS = ['id', 'received', 'product', 'email', 'role', 'note', 'page', 'consent'];
+  // The early-access list is small (a sign-up form, capped per day), so its
+  // reads take the whole partition and sort here.
+  // Every sk is <product slug>#<email>; a slug starts with a letter, so '!' (0x21) is below all of them (DynamoDB refuses an empty key value).
+  const earlyRows = async () => (await query('EARLY', '>', '!')).sort((a, b) => a.id - b.id);
 
   return {
     addCount(day, slug, cap) {
@@ -120,7 +127,7 @@ export function dynamoStore({ call, table, retentionDays = 90 }) {
       return rows.map(({ day, slug, n }) => ({ day, slug, n }));
     },
     async takeDaily(kind, day, cap) {
-      if (kind !== 'feedback' && kind !== 'inbox') throw new Error(`unknown daily counter: ${kind}`);
+      if (!['feedback', 'inbox', 'early_access'].includes(kind)) throw new Error(`unknown daily counter: ${kind}`);
       return bump({ pk: `DAILY#${kind}`, sk: day }, cap);
     },
     async insertFeedback(row) {
@@ -150,6 +157,43 @@ export function dynamoStore({ call, table, retentionDays = 90 }) {
       const out = await call('DeleteItem', { TableName: table, Key: marshal({ pk: 'INBOX', sk: pad(id) }), ReturnValues: 'ALL_OLD' });
       return out.Attributes ? 1 : 0;
     },
+    async insertEarlyAccess(row) {
+      const id = await nextId('early_access');
+      const expires = Math.floor(Date.parse(row.received) / 1000) + earlyAccessRetentionDays * 86400;
+      try {
+        await call('PutItem', {
+          TableName: table,
+          Item: marshal({ pk: 'EARLY', sk: `${row.product}#${row.email}`, id, ...row, expires_at: expires }),
+          ConditionExpression: 'attribute_not_exists(pk)',
+        });
+        return true;
+      } catch (e) {
+        if (conditionFailed(e)) return false;
+        throw e;
+      }
+    },
+    async countEarlyAccess() {
+      const n = new Map();
+      for (const r of await earlyRows()) n.set(r.product, (n.get(r.product) || 0) + 1);
+      return [...n].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)).map(([product, count]) => ({ product, n: count }));
+    },
+    async readEarlyAccess(after) {
+      return (await earlyRows()).filter((r) => r.id > after).slice(0, 500).map((r) => strip(r, EARLY_COLS));
+    },
+    async purgeEarlyAccess(cutoff) {
+      for (const r of await earlyRows()) {
+        if (r.received < cutoff) await call('DeleteItem', { TableName: table, Key: marshal({ pk: 'EARLY', sk: `${r.product}#${r.email}` }) });
+      }
+    },
+    async deleteEarlyAccess(email) {
+      let deleted = 0;
+      for (const r of await earlyRows()) {
+        if (r.email !== email) continue;
+        await call('DeleteItem', { TableName: table, Key: marshal({ pk: 'EARLY', sk: `${r.product}#${r.email}` }) });
+        deleted++;
+      }
+      return deleted;
+    },
     // Migration only (`migrate-d1.mjs`): write rows with their D1 values and
     // ids, idempotently, then move the id sequence past them.
     async importCount({ day, slug, n }) {
@@ -161,6 +205,10 @@ export function dynamoStore({ call, table, retentionDays = 90 }) {
     async importInbox(row) {
       const expires = Math.floor(Date.parse(row.received) / 1000) + retentionDays * 86400;
       await call('PutItem', { TableName: table, Item: marshal({ pk: 'INBOX', sk: pad(row.id), ...row, expires_at: expires }) });
+    },
+    async importEarlyAccess(row) {
+      const expires = Math.floor(Date.parse(row.received) / 1000) + earlyAccessRetentionDays * 86400;
+      await call('PutItem', { TableName: table, Item: marshal({ pk: 'EARLY', sk: `${row.product}#${row.email}`, ...row, expires_at: expires }) });
     },
     async raiseSequence(kind, atLeast) {
       try {

@@ -14054,6 +14054,9 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     footer: renderSiteFooterNav({ toRoot: '../../' }),
     liveSlugs: new Set(surfaces.map((surface) => surface.slug)),
     researchSlugs: new Set(researchSlugs),
+    // The early-access form posts to the edge Worker (platform/edge/early-access.mjs);
+    // off (a private mailto instead) when the build has no edge origin.
+    earlyAccessUrl: SITE_FEEDBACK_URL,
     // Real stills of its free tools (showcase/capture.mjs), already limited to published ones.
     shots: showcase.shots,
   });

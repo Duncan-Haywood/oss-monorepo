@@ -15,15 +15,21 @@
 //
 //   addCount(day, key, cap)       +1 unless the key already holds `cap` that day; true if it changed
 //   readCounts(since)             [{day, slug, n}] for days >= since, ordered by day then slug
-//   takeDaily(kind, day, cap)     +1 on a per-day counter ('feedback' | 'inbox') unless at cap; true if taken
+//   takeDaily(kind, day, cap)     +1 on a per-day counter ('feedback' | 'inbox' | 'early_access') unless at cap; true if taken
 //   insertFeedback(row)           store {day, type, tool, page, message} under the next id
 //   readFeedback(after)           up to 1000 rows with id > after, by id
 //   insertInbox(row)              store {received, mail_from, rcpt_to, subject, message_id, raw} under the next id
 //   purgeInbox(cutoffIso)         delete inbox rows received before the cutoff
 //   readInbox(after)              up to 100 inbox rows with id > after, by id
 //   deleteInbox(id)               delete one inbox row; the number deleted (0 or 1)
+//   insertEarlyAccess(row)        store {received, product, email, role, note, page, consent} once per (product, email);
+//                                 true if new, false if that address was already on that product's list
+//   countEarlyAccess()            [{product, n}] ordered by product
+//   readEarlyAccess(after)        up to 500 early-access rows with id > after, by id
+//   purgeEarlyAccess(cutoffIso)   delete early-access rows received before the cutoff
+//   deleteEarlyAccess(email)      delete that address from every product; the number deleted
 
-const DAILY_TABLE = { feedback: 'feedback_daily', inbox: 'inbox_daily' };
+const DAILY_TABLE = { feedback: 'feedback_daily', inbox: 'inbox_daily', early_access: 'early_access_daily' };
 
 /** The store a handler should use for this environment. */
 export function storeOf(env) {
@@ -78,6 +84,29 @@ export function d1Store(db) {
     },
     async deleteInbox(id) {
       const { meta } = await db.prepare('DELETE FROM inbox WHERE id = ?1').bind(id).run();
+      return meta?.changes || 0;
+    },
+    async insertEarlyAccess(r) {
+      return changed(await db.prepare(
+        'INSERT INTO early_access (received, product, email, role, note, page, consent) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7) ON CONFLICT (product, email) DO NOTHING',
+      ).bind(r.received, r.product, r.email, r.role, r.note, r.page, r.consent).run());
+    },
+    async countEarlyAccess() {
+      const { results = [] } = await db.prepare('SELECT product, COUNT(*) AS n FROM early_access GROUP BY product ORDER BY product')
+        .bind().all();
+      return results.map(({ product, n }) => ({ product, n: Number(n) }));
+    },
+    async readEarlyAccess(after) {
+      const { results = [] } = await db.prepare(
+        'SELECT id, received, product, email, role, note, page, consent FROM early_access WHERE id > ?1 ORDER BY id LIMIT 500',
+      ).bind(after).all();
+      return results;
+    },
+    async purgeEarlyAccess(cutoff) {
+      await db.prepare('DELETE FROM early_access WHERE received < ?1').bind(cutoff).run();
+    },
+    async deleteEarlyAccess(email) {
+      const { meta } = await db.prepare('DELETE FROM early_access WHERE email = ?1').bind(email).run();
       return meta?.changes || 0;
     },
   };

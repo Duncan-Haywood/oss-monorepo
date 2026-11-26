@@ -26,6 +26,10 @@
 //                   never committed. Messages older than 90 days are
 //                   deleted (`inbox.mjs`, "Retention").
 //   DELETE /inbox?id=<n>  erase one message sooner, same token.
+//   POST /early-access         a paid product's early-access form (`early-access.mjs`):
+//                              stored privately in D1, one row per product and address.
+//   GET  /early-access/counts  sign-ups per product, numbers only, public.
+//   GET  /early-access         the rows, INBOX_TOKEN only; DELETE ?email= erases one person.
 //   email()         Cloudflare Email Routing delivers that mail here.
 //   GET  /healthz   a health check.
 //
@@ -40,6 +44,7 @@ import {
 import { feedbackRecord } from './feedback.mjs';
 import { receiveEmail, readInbox, deleteInboxMessage } from './inbox.mjs';
 import { storeOf } from './store.mjs';
+import { handleEarlyAccess, earlyAccessCounts, readEarlyAccess, deleteEarlyAccess } from './early-access.mjs';
 
 const FEEDBACK_MAX_BODY = 6000;
 
@@ -156,6 +161,12 @@ export default {
         return new Response(null, { status: 204, headers: cors });
       }
       if (request.method === 'POST' && url.pathname === '/feedback') return await handleFeedback(request, env, headers, cors);
+      if (request.method === 'POST' && url.pathname === '/early-access') {
+        return await handleEarlyAccess(request, env, { headers, origins, cors, utcDay: utcDay() });
+      }
+      if (request.method === 'GET' && url.pathname === '/early-access/counts') return await earlyAccessCounts(env);
+      if (request.method === 'GET' && url.pathname === '/early-access') return await readEarlyAccess(request, env);
+      if (request.method === 'DELETE' && url.pathname === '/early-access') return await deleteEarlyAccess(request, env);
       return new Response('not found\n', { status: 404, headers: cors });
     } catch {
       return json(500, { error: 'internal' }, cors);

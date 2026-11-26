@@ -42,3 +42,13 @@ test('the Privacy Policy follows the switches it is given', () => {
   assert.doesNotMatch(text(off.cookies.body), /Cloudflare Web Analytics/);
   assert.match(text(on.terms.body), /governed by the laws of the State of New Mexico/);
 });
+
+test('the privacy policy covers early-access sign-ups when the edge Worker is on, and only then', () => {
+  const on = legalDocuments({ feedback: true }).privacy.body;
+  const off = legalDocuments({}).privacy.body;
+  assert.match(on, /Early-access sign-ups\.<\/strong>/);
+  assert.match(on, /art\. 6\(1\)\(a\)/, 'consent is the basis');
+  assert.match(on, /at most one year from the sign-up/);
+  assert.match(on, /only the number of sign-ups per product is public/);
+  assert.ok(!/Early-access/.test(off));
+});
