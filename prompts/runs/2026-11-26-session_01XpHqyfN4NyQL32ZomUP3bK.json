@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqyfN4NyQL32ZomUP3bK",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T00:39:00Z",
+  "ended": "2026-11-26T00:48:15Z",
+  "wall_minutes": 9.4,
+  "tokens_in": 5516538,
+  "tokens_out": 35064,
+  "cost_usd": 2.6444,
+  "tool_calls": 59,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19149",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md / .github/prompts/cloud-session.md",
+      "issue": "git reset --hard origin/main on a clean tree was refused by the auto-mode classifier; git merge --ff-only origin/main does the same job without the prompt. Worth suggesting ff-only in the docs."
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "issue": "The private PR was opened as a draft (harness default); merge_pull_request returns 405 on a draft, so it has to be marked ready first. One more call."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-25-the-text-a-spreadsheet-pdf-hides.md (update section)",
+    "docs/reports/ventures-2026-11-26-payapps-sov-pdf-balance-pct.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty, no ideas. Routed to ventures/1, bet #1 PayApps. The private clone worked first time (add_repo push). Claimed payapps #3 as sov-pdf-balance-pct. Private PR Duncan-Haywood/private-monorepo#204 is merged: H and % columns read leniently as cross-checks, misreadsInRow keeps only swaps that satisfy every row relation, opening flags C-G!=H, totals pointer pinned by row H/%. Verification: pnpm typecheck clean; pnpm test:unit exit 0 (sov-import 87 -> 100 tests); private CI jobs red in 2-3 s (no runner, starvation), so ran payapps-ci locally with run_workflow_locally.py: 9/9 run: steps passed, the 3 uses: steps (checkout, pnpm/action-setup, setup-node) not run; risk_review: nothing triggered.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4812f3d6-9cc2-5a6b-8fe1-488abaa6789c",
+    "transcripts": 1,
+    "first": "2026-11-26T00:39:00Z",
+    "last": "2026-11-26T00:48:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 106,
+        "output": 35064,
+        "thinking": 12961,
+        "cache_read": 5408810,
+        "cache_write_5m": 0,
+        "cache_write_1h": 107622,
+        "api_equivalent_usd": 2.6444,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 106,
+      "output": 35064,
+      "thinking": 12961,
+      "cache_read": 5408810,
+      "cache_write_5m": 0,
+      "cache_write_1h": 107622,
+      "api_equivalent_usd": 2.6444,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 49,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Write": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.4,
+      "active_minutes": 9.4,
+      "model_minutes": 5.48,
+      "tool_minutes": 3.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "engineer reading the SOV import, designing the row relations, writing 13 tests, doc updates",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 151.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
