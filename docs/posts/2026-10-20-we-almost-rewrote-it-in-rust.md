@@ -256,6 +256,20 @@ old tokenizer stays in the tests as the reference: same tokens and the same
 floating-point values, down to the sign of a zero.
 Notes: [`docs/history/drawing-review-perf-2026-11-26.md`](/docs/history/drawing-review-perf-2026-11-26.md).
 
+## Same day: a big P6 schedule counted its working days one at a time
+
+The free [XER schedule check](/ventures/xer-schedule-check/) recomputes every
+activity's dates and float from a Primavera P6 export. Asking "how many working
+minutes between these two dates" walked the calendar a day at a time, and the
+scheduler asks that for every activity and link, often across the whole job.
+So the run grew with the square of the schedule: an invented 8,800-activity
+schedule took 3.2 s, 17,600 activities took 12 s, almost all of it in that one
+loop. Counting whole weeks at once and looking up the holidays in between by
+binary search brought them to 0.48 s and 0.88 s. Every report, CSV and JSON
+output is byte-identical to before, and a test holds the new count to the old
+day walk on 12,000 random spans across four calendars, holidays included.
+Notes: [`docs/history/xer-schedule-check-cpm-perf-2026-11-26.md`](/docs/history/xer-schedule-check-cpm-perf-2026-11-26.md).
+
 ## The general lesson
 
 "Rewrite it in Rust" assumes the time goes into your own code, running
