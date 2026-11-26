@@ -379,6 +379,20 @@ is listed with the sentence it came from, and nothing is saved until you
 check it and press Save. The file stays in your browser. (Added
 2026-11-26; still in development.)
 
+Larger GCs often scale the limits to the size of the subcontract: one
+umbrella limit for subcontracts up to a set amount, a higher one above
+it, sometimes three or four bands. Earlier, the reader kept the first
+figure and flagged the conflict. Now it reads the bands: a heading such
+as "Subcontracts over $1,000,000 and up to $5,000,000:", a clause such
+as "$5,000,000 for subcontracts of $1,000,000 or more", or a range such
+as "$0 - $500,000". The job's contract sum picks the band. Limits from
+the other bands are set aside, and each one is listed with the band it
+belongs to. A figure from the job's band replaces one the exhibit gave
+without a band. If no band holds the contract sum, the reader says so.
+It uses the original contract sum, so a change order that moves the job
+into a higher band is for you to catch. (Added 2026-11-26; still in
+development.)
+
 Many GCs also want the current certificate itself in the backup of every
 pay application, not only on file. So each certificate in the build now
 keeps its files: the certificate PDF from the agent, usually an ACORD 25,
