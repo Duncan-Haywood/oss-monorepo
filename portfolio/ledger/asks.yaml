@@ -162,8 +162,11 @@ decisions:
     once per account, not per product: (1) Paddle account verification (the
     domain review wants a live pricing page, terms, privacy and refund
     policy); (2) give the API key product and price read and write
-    permissions, plus an expiry; (3) switch on live checkout when you want to
-    take money. Webhook destinations can be automated the same way next.
+    permissions, plus an expiry. Switching on live checkout is no longer
+    yours: owner, 2026-11-26, agents may do it once a product's plans clear
+    the margin floor and its PR records a thorough review (`prompts/goals.md`,
+    "2026-11-26: agents approve launch"). Operator: Maris Stella Labs LLC,
+    Colorado. Webhook destinations can be automated the same way next.
   unlocks:
     - >-
       The only thing that moves the revenue ceiling off $0. Every other item in
