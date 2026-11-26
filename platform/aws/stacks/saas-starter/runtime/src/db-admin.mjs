@@ -8,6 +8,7 @@
 // Idempotent; never drops anything.
 import pg from "pg";
 import { migrate, PLATFORM_SQL } from "./migrate.mjs";
+import { dispatch } from "./data-copy.mjs";
 
 export const NAME = /^[a-z][a-z0-9_]{1,40}$/;
 const ident = (s) => { if (!NAME.test(s)) throw new Error(`bad identifier: ${s}`); return `"${s}"`; };
@@ -45,10 +46,24 @@ export async function ensureProducts({ connect, products, writer = "entitlement_
   return done;
 }
 
-// Lambda entry. Event: { "products": ["grants", ...] }. Env: DB_HOST, DB_PORT, MASTER_SECRET_ARN.
+// Lambda entry. Env: DB_HOST, DB_PORT, MASTER_SECRET_ARN. Events:
+//   { "products": ["grants", ...] }                       ensure databases (tofu apply)
+//   { "action": "inspect"|"import"|"finish"|"checksum", "product": "grants", ... }
+//                                                         the cutover's D1 copy (data-copy.mjs)
 export async function handler(event) {
+  if (event?.action) {
+    // Only a product's own database: never the maintenance or RDS-internal ones.
+    if (!NAME.test(event.product || "") || /^(postgres|template\d*|rdsadmin)$/.test(event.product)) throw new Error("bad product name");
+    const connect = await masterConnect();
+    const db = await connect(event.product);
+    try { return await dispatch(db, event); } finally { await db.end(); }
+  }
   const products = event?.products || [];
   for (const p of products) if (!NAME.test(p)) throw new Error(`bad product name: ${p}`);
+  return { ensured: await ensureProducts({ connect: await masterConnect(), products }) };
+}
+
+async function masterConnect() {
   const { SecretsManagerClient, GetSecretValueCommand } = await import("@aws-sdk/client-secrets-manager");
   const s = await new SecretsManagerClient({}).send(new GetSecretValueCommand({ SecretId: process.env.MASTER_SECRET_ARN }));
   const { username, password } = JSON.parse(s.SecretString);
@@ -57,5 +72,5 @@ export async function handler(event) {
     await c.connect();
     return c;
   };
-  return { ensured: await ensureProducts({ connect, products }) };
+  return connect;
 }

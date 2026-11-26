@@ -1,0 +1,150 @@
+{
+  "about": "Shared test vectors for the D1 -> Postgres copy checksum. Generated from platform/aws/stacks/saas-starter/runtime/src/data-copy.mjs; asserted by its tests and by platform/aws/cutover/test_cutover.py, so the two implementations cannot drift apart.",
+  "numbers": [
+    [
+      0,
+      "0"
+    ],
+    [
+      1,
+      "1"
+    ],
+    [
+      -1,
+      "-1"
+    ],
+    [
+      1.5,
+      "1.5"
+    ],
+    [
+      0.1,
+      "0.1"
+    ],
+    [
+      123.456,
+      "123.456"
+    ],
+    [
+      1e+21,
+      "1e+21"
+    ],
+    [
+      100000000000000000000,
+      "100000000000000000000"
+    ],
+    [
+      1e-7,
+      "1e-7"
+    ],
+    [
+      0.000001,
+      "0.000001"
+    ],
+    [
+      1.5e+300,
+      "1.5e+300"
+    ],
+    [
+      5e-324,
+      "5e-324"
+    ],
+    [
+      9007199254740992,
+      "9007199254740992"
+    ],
+    [
+      123456789012345680000,
+      "123456789012345680000"
+    ],
+    [
+      -2.5e-8,
+      "-2.5e-8"
+    ],
+    [
+      4.35,
+      "4.35"
+    ],
+    [
+      100,
+      "100"
+    ],
+    [
+      1000000,
+      "1000000"
+    ]
+  ],
+  "rows": [
+    {
+      "row": {
+        "id": 1,
+        "email": "a@example.com",
+        "note": null,
+        "paid": 1,
+        "ratio": 0.25,
+        "blob": [
+          0,
+          255,
+          16
+        ]
+      },
+      "digest": "44808d1812130d80014040c2065891c356f4bebb2932cd000c9298b91d0de1fe"
+    },
+    {
+      "row": {
+        "id": 2,
+        "email": "b@example.com",
+        "note": "x\u001fy",
+        "paid": 0,
+        "ratio": 1e+21,
+        "blob": null
+      },
+      "digest": "bd40c13cc156ed92c0b7f8a2ef1af9e03a8bae1b1a11e978c3d960504ab8c7d2"
+    },
+    {
+      "row": {
+        "id": 3,
+        "email": "cé@example.com",
+        "note": "",
+        "paid": 1,
+        "ratio": -0.5,
+        "blob": []
+      },
+      "digest": "274a02fb4ca98ebc9a7be7a8f618f79cde22afbe191855f6226ed6d84139dc9d"
+    }
+  ],
+  "table": {
+    "rows": [
+      {
+        "id": 1,
+        "email": "a@example.com",
+        "note": null,
+        "paid": 1,
+        "ratio": 0.25,
+        "blob": [
+          0,
+          255,
+          16
+        ]
+      },
+      {
+        "id": 2,
+        "email": "b@example.com",
+        "note": "x\u001fy",
+        "paid": 0,
+        "ratio": 1e+21,
+        "blob": null
+      },
+      {
+        "id": 3,
+        "email": "cé@example.com",
+        "note": "",
+        "paid": 1,
+        "ratio": -0.5,
+        "blob": []
+      }
+    ],
+    "count": 3,
+    "sha256": "81bd1209e6714c4d742ad339a3cacba3bc03f00315ba1147fa92a4981942b681"
+  }
+}

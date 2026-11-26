@@ -1,0 +1,254 @@
+{
+  "account_id": "0a1b2c3d4e5f60718293a4b5c6d7e8f9",
+  "d1_databases": [
+    {
+      "name": "demo-paid",
+      "uuid": "d1demo-uuid-0000"
+    }
+  ],
+  "email_routing": {
+    "enabled": true,
+    "name": "marisstella.app",
+    "status": "ready"
+  },
+  "email_routing_catch_all": {
+    "actions": [
+      {
+        "type": "drop"
+      }
+    ],
+    "enabled": true,
+    "id": "catchall",
+    "matchers": [
+      {
+        "type": "all"
+      }
+    ]
+  },
+  "email_routing_rules": [
+    {
+      "actions": [
+        {
+          "type": "forward",
+          "value": [
+            "owner@example.com"
+          ]
+        }
+      ],
+      "enabled": true,
+      "id": "er0000001",
+      "matchers": [
+        {
+          "field": "to",
+          "type": "literal",
+          "value": "support@marisstella.app"
+        }
+      ],
+      "name": "support"
+    }
+  ],
+  "exported": true,
+  "exported_at": "2026-12-01T15:00:00Z",
+  "hosts": {
+    "app.demo.marisstella.app": {
+      "comment": "demo paid app origin",
+      "content": "192.0.2.50",
+      "id": "rec00003cccc",
+      "kind": "record",
+      "proxied": false,
+      "ttl": 3600,
+      "type": "A"
+    },
+    "grants.marisstella.app": {
+      "environment": "production",
+      "id": "cd000grant",
+      "kind": "worker_custom_domain",
+      "service": "grant-autopilot"
+    },
+    "hub.marisstella.app": {
+      "kind": "absent"
+    },
+    "listing-docs.marisstella.app": {
+      "kind": "absent"
+    },
+    "marisstella.app": {
+      "environment": "production",
+      "id": "cd0000site",
+      "kind": "worker_custom_domain",
+      "service": "monorepo-projects-site"
+    },
+    "markets.marisstella.app": {
+      "kind": "absent"
+    },
+    "pilot-docs.marisstella.app": {
+      "kind": "absent"
+    },
+    "www.marisstella.app": {
+      "kind": "absent"
+    }
+  },
+  "not_imported": {
+    "api_tokens": "values are never exported; scopes are documented in platform/aws/cutover/README.md",
+    "pages_projects": "deployment configs can hold secret environment variables",
+    "workers_scripts": "secret bindings and code would enter state, which github-plan reads; inventoried by name and binding type, deleted by retire",
+    "zone_settings": "dozens of defaults; nothing the move changes"
+  },
+  "pages_projects": [
+    {
+      "domains": [
+        "listing-docs.pages.dev"
+      ],
+      "name": "listing-docs"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "jurisdiction": "default",
+      "location": "ENAM",
+      "name": "site-assets"
+    }
+  ],
+  "records": [
+    {
+      "comment": null,
+      "content": "100::",
+      "id": "rec00001aaaa",
+      "name": "marisstella.app",
+      "priority": null,
+      "proxied": true,
+      "ttl": 1,
+      "type": "AAAA"
+    },
+    {
+      "comment": null,
+      "content": "100::",
+      "id": "rec00002bbbb",
+      "name": "grants.marisstella.app",
+      "priority": null,
+      "proxied": true,
+      "ttl": 1,
+      "type": "AAAA"
+    },
+    {
+      "comment": "demo paid app origin",
+      "content": "192.0.2.50",
+      "id": "rec00003cccc",
+      "name": "app.demo.marisstella.app",
+      "priority": null,
+      "proxied": false,
+      "ttl": 3600,
+      "type": "A"
+    },
+    {
+      "comment": null,
+      "content": "route1.mx.cloudflare.net",
+      "id": "rec00004dddd",
+      "name": "marisstella.app",
+      "priority": 13,
+      "proxied": false,
+      "ttl": 1,
+      "type": "MX"
+    },
+    {
+      "comment": null,
+      "content": "\"v=spf1 include:_spf.mx.cloudflare.net ~all\"",
+      "id": "rec00005eeee",
+      "name": "marisstella.app",
+      "priority": null,
+      "proxied": false,
+      "ttl": 1,
+      "type": "TXT"
+    },
+    {
+      "comment": null,
+      "content": "\"v=DMARC1; p=none\"",
+      "id": "rec00006ffff",
+      "name": "_dmarc.marisstella.app",
+      "priority": null,
+      "proxied": false,
+      "ttl": 1,
+      "type": "TXT"
+    }
+  ],
+  "rulesets": [
+    {
+      "id": "rs0000redir",
+      "kind": "zone",
+      "name": "redirects",
+      "phase": "http_request_dynamic_redirect"
+    }
+  ],
+  "unreadable": [],
+  "web_analytics_sites": [
+    {
+      "host": "marisstella.app",
+      "site_tag": "wa0000000001"
+    }
+  ],
+  "workers_custom_domains": [
+    {
+      "environment": "production",
+      "hostname": "marisstella.app",
+      "id": "cd0000site",
+      "service": "monorepo-projects-site"
+    },
+    {
+      "environment": "production",
+      "hostname": "grants.marisstella.app",
+      "id": "cd000grant",
+      "service": "grant-autopilot"
+    }
+  ],
+  "workers_routes": [
+    {
+      "id": "route0001",
+      "pattern": "marisstella.app/legacy/*",
+      "script": "legacy-redirects"
+    }
+  ],
+  "workers_scripts": [
+    {
+      "bindings": [
+        {
+          "name": "ASSETS",
+          "type": "assets"
+        }
+      ],
+      "name": "monorepo-projects-site"
+    },
+    {
+      "bindings": [
+        {
+          "name": "DB",
+          "type": "d1"
+        },
+        {
+          "name": "PADDLE_WEBHOOK_SECRET",
+          "type": "secret_text"
+        }
+      ],
+      "name": "grant-autopilot"
+    },
+    {
+      "bindings": [],
+      "name": "legacy-redirects"
+    },
+    {
+      "bindings": [
+        {
+          "name": "DB",
+          "type": "d1"
+        }
+      ],
+      "name": "demo-paid"
+    }
+  ],
+  "zone": {
+    "id": "f1e2d3c4b5a69788f1e2d3c4b5a69788",
+    "name": "marisstella.app",
+    "name_servers": [
+      "ada.ns.cloudflare.com",
+      "bob.ns.cloudflare.com"
+    ]
+  }
+}
