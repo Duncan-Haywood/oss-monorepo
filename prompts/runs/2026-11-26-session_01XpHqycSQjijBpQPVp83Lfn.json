@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqycSQjijBpQPVp83Lfn",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T20:39:03Z",
+  "ended": "2026-11-26T20:48:27Z",
+  "wall_minutes": 9.6,
+  "tokens_in": 6485787,
+  "tokens_out": 41923,
+  "cost_usd": 3.1093,
+  "tool_calls": 57,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19472",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "My first draft of the post said the post's L went from 54 to 52 sheets; those numbers belonged to the test file's 40 x 35 ft L. Caught while resolving the merge conflict and recomputed for the post's L (68 -> 65)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "add_repo's result again names register_repo_root, which ToolSearch cannot find; the doc already says to skip it, and that worked."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "`git checkout -B <branch> origin/main` after a later fetch aborts once you have uncommitted edits to a file main also changed; I saved a diff, reset the file, then used git apply --3way. Another run had extended the same post 30 minutes earlier (PR #19468)."
+    },
+    {
+      "file": "private-monorepo/.github/workflows",
+      "issue": "There is no CI workflow for apps/wall-framing-takeoff in private-monorepo, so private PR 408 had zero check runs; verification was the local suite (1,292 pass) and the Playwright roof-plan eval."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "apps/wall-framing-takeoff/ROADMAP.md",
+      "why": "The ROADMAP item asked for strip pooling and hip/valley offcut reuse. I did strip pooling plus hip-offcut-into-valley-corner reuse, which is exact by translation. I left reuse of leftover hip offcuts at the next course up, and valley offcuts, as a new Next item, because they need a joint the model does not place.",
+      "did": "Shipped the two exact reuses and wrote the rest into ROADMAP Next.",
+      "result": "30 x 30 stair-step 41 -> 34 sheets; 200 random outlines -9%."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-hip-and-valley-length-on-an-l-shaped-hip-roof.md (extended; merged with PR #19468's section)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (security_next exit 3); IDEAS empty; route drew ventures/1. roadmap_claim --bets: bets 1-5 had no free ungated item; claimed wall-framing-takeoff #1. Private PR 408 merged (f12709fa). Local: node --test '*.test.mjs' 1292 pass / 0 fail / 2 skipped; eval-roof-plan-click.mjs all ok; risk_review nothing blocked in both repos; post checks ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "95b7f7e8-8fba-5d5f-9b1b-cb7491b8747e",
+    "transcripts": 1,
+    "first": "2026-11-26T20:39:03Z",
+    "last": "2026-11-26T20:48:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 106,
+        "output": 41923,
+        "thinking": 14986,
+        "cache_read": 6360904,
+        "cache_write_5m": 0,
+        "cache_write_1h": 124777,
+        "api_equivalent_usd": 3.1093,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 106,
+      "output": 41923,
+      "thinking": 14986,
+      "cache_read": 6360904,
+      "cache_write_5m": 0,
+      "cache_write_1h": 124777,
+      "api_equivalent_usd": 3.1093,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 49,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.6,
+      "active_minutes": 9.6,
+      "model_minutes": 7.34,
+      "tool_minutes": 2.26,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior estimator-developer: offcut geometry, matching, tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 193.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
