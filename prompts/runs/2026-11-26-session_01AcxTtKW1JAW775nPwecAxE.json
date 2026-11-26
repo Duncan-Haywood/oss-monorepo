@@ -1,0 +1,270 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtKW1JAW775nPwecAxE",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T12:07:15Z",
+  "ended": "2026-11-26T12:08:23Z",
+  "wall_minutes": 9.69,
+  "tokens_in": 4276814,
+  "tokens_out": 21167,
+  "cost_usd": 1.9581,
+  "tool_calls": 51,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19341",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 2 hunting is aimed at the target file; the real defect here sat in a page helper of the target (wallPanelReport) and its copy in sheathing.mjs, found by a grep for the same formula. A hint to grep for the defect's formula across the venture would save time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Ran one campaign, not two or three; the hunt found a real defect and its sibling, and fixing both (plus a FAQ figure the fix changed) was worth more than more mutants.",
+      "did": "one 8-mutant campaign plus defect fixes",
+      "result": "2 real defects patched, catch rate 0.6 -> 1.0"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-02-fuzzing-the-shop-panel-cuts.md (extended)",
+    "docs/posts/2026-11-07-is-a-4x8-sheet-long-enough-for-an-8-ft-wall.md (figure corrected)"
+  ],
+  "goal": null,
+  "notes": "Guards added: sweep tests over every accepted opening count/length on both counts-only pages (panels-page.test.mjs, sheathing-fuzz.test.mjs), failing before the fix. Verification: run_venture_tests.py wall-framing-takeoff open-house-plans -> 2 suites, 0 failed.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/wall-framing-takeoff/panels.mjs",
+        "test": "node --test ventures/wall-framing-takeoff/**/*.test.mjs  (in .)",
+        "seed": 1049939179,
+        "commit": "c6b69405b",
+        "sites": 282,
+        "baseline_seconds": 18.4,
+        "mutants": [
+          {
+            "file": "ventures/wall-framing-takeoff/panels.mjs",
+            "line": 22,
+            "col": 28,
+            "operator": "or-to-and",
+            "before": "if (typeof v !== \"number\" || !Number.isFinite(v)) return \"the longest panel must be a number of inches\";",
+            "after": "if (typeof v !== \"number\" && !Number.isFinite(v)) return \"the longest panel must be a number of inches\";",
+            "line_text": "  if (typeof v !== \"number\" || !Number.isFinite(v)) return \"the longest panel must be a number of inches\";",
+            "caught": true,
+            "seconds": 18.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/panels.mjs",
+            "line": 55,
+            "col": 28,
+            "operator": "const-plus-one",
+            "before": "const c = m.x + m.w / 2;",
+            "after": "const c = m.x + m.w / 3;",
+            "line_text": "      const c = m.x + m.w / 2;",
+            "caught": false,
+            "seconds": 18.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Framing members never straddle a cut (cuts sit only on clear edges), so any point inside a member (w/3 or w/2) picks the same panel. Plates may move to another panel's list, but no output reads plate membership: panelParts and pdf.panelWall both trim plates by span and skip them in p.members."
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/panels.mjs",
+            "line": 56,
+            "col": 21,
+            "operator": "minus-to-plus",
+            "before": "return c >= x0 - EPS && (c < x1 - EPS || (k === bounds.length - 2 && c <= x1 + EPS));",
+            "after": "return c >= x0 + EPS && (c < x1 - EPS || (k === bounds.length - 2 && c <= x1 + EPS));",
+            "line_text": "      return c >= x0 - EPS && (c < x1 - EPS || (k === bounds.length - 2 && c <= x1 + EPS));",
+            "caught": false,
+            "seconds": 18.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "A plate piece centred exactly on a cut falls in no panel under the mutant, breaking the every-member-once invariant panels.test asserts; sample plans never put a plate centre on a cut. New test builds that wall."
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/panels.mjs",
+            "line": 58,
+            "col": 139,
+            "operator": "minus-to-plus",
+            "before": "return { name: String.fromCharCode(65 + (k % 26)) + (k >= 26 ? Math.floor(k / 26) : \"\"), x0, x1, width: r3(x1 - x0), members, over: x1 - x0 > maxWidth + EPS };",
+            "after": "return { name: String.fromCharCode(65 + (k % 26)) + (k >= 26 ? Math.floor(k / 26) : \"\"), x0, x1, width: r3(x1 - x0), members, over: x1 + x0 > maxWidth + EPS };",
+            "line_text": "    return { name: String.fromCharCode(65 + (k % 26)) + (k >= 26 ? Math.floor(k / 26) : \"\"), x0, x1, width: r3(x1 - x0), members, over: x1 - x0 > maxWidth + EPS };",
+            "caught": true,
+            "seconds": 18.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/panels.mjs",
+            "line": 113,
+            "col": 16,
+            "operator": "gt-to-ge",
+            "before": "if (b - a > EPS) add(m, m.sloped && m.w > 0 ? (b - a) * m.length / m.w : b - a);",
+            "after": "if (b - a >= EPS) add(m, m.sloped && m.w > 0 ? (b - a) * m.length / m.w : b - a);",
+            "line_text": "      if (b - a > EPS) add(m, m.sloped && m.w > 0 ? (b - a) * m.length / m.w : b - a);",
+            "caught": false,
+            "seconds": 17.7,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Differs only when b - a is exactly 1e-6; plate spans and cuts are r3-rounded edges, so overlap is 0, float noise far below 1e-6, or at least 0.001."
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/panels.mjs",
+            "line": 113,
+            "col": 39,
+            "operator": "and-to-or",
+            "before": "if (b - a > EPS) add(m, m.sloped && m.w > 0 ? (b - a) * m.length / m.w : b - a);",
+            "after": "if (b - a > EPS) add(m, m.sloped || m.w > 0 ? (b - a) * m.length / m.w : b - a);",
+            "line_text": "      if (b - a > EPS) add(m, m.sloped && m.w > 0 ? (b - a) * m.length / m.w : b - a);",
+            "caught": false,
+            "seconds": 17.7,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "The mutant also applies length/w to non-sloped plates. Only bottom plates are non-sloped (engine.mjs:684 marks every other horizontal plate sloped), and they take length = w (the default at engine.mjs:684), so the factor is 1. A sloped plate with w = 0 cannot have b - a > EPS."
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/panels.mjs",
+            "line": 113,
+            "col": 55,
+            "operator": "minus-to-plus",
+            "before": "if (b - a > EPS) add(m, m.sloped && m.w > 0 ? (b - a) * m.length / m.w : b - a);",
+            "after": "if (b - a > EPS) add(m, m.sloped && m.w > 0 ? (b + a) * m.length / m.w : b - a);",
+            "line_text": "      if (b - a > EPS) add(m, m.sloped && m.w > 0 ? (b - a) * m.length / m.w : b - a);",
+            "caught": true,
+            "seconds": 19.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/panels.mjs",
+            "line": 134,
+            "col": 98,
+            "operator": "const-plus-one",
+            "before": "return { name: p.name, width: p.width, pieces, pieceCount: pieces.reduce((t, x) => t + x.qty, 0), lb: r1(lb), sheathLb: r1(sheathLb), totalLb: r1(lb + sheathLb) };",
+            "after": "return { name: p.name, width: p.width, pieces, pieceCount: pieces.reduce((t, x) => t + x.qty, 1), lb: r1(lb), sheathLb: r1(sheathLb), totalLb: r1(lb + sheathLb) };",
+            "line_text": "    return { name: p.name, width: p.width, pieces, pieceCount: pieces.reduce((t, x) => t + x.qty, 0), lb: r1(lb), sheathLb: r1(sheathLb), totalLb: r1(lb + sheathLb) };",
+            "caught": false,
+            "seconds": 18.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "pieceCount was printed on the panel sheets (drawings.mjs) but no test checked its value. New test: sum of qty per panel, and a hand count of 3."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/wall-framing-takeoff/panels.mjs",
+        "issue": "wallPanelReport (panel-calculator.html) checked that n 36 in openings fit with 12 in between and at the ends, then spread their centres at length/(n+1), which leaves less than 12 in: 2 windows on a 108 in wall passed the check and failed with 'king studs overlap ... move them' though the page takes only counts. 3 windows fit 156-191 in, 4 fit 204-239 in all failed the same way. Fixed by spreading with equal gaps and flooring offsets (every gap >= 12 in); swept test over 1-8 openings.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19341"
+      },
+      {
+        "file": "ventures/wall-framing-takeoff/sheathing.mjs",
+        "issue": "houseSheathingPlan had the same check/spread mismatch as wallPanelReport: 22 of 843 accepted house sizes (sides 96-400 in, 4/8/12 windows) failed takeoff with king studs overlapping. Same fix; sweep test in sheathing-fuzz.test.mjs.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19341"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "84c53fa1-9245-50a3-bb93-3ae75885decc",
+    "transcripts": 1,
+    "first": "2026-11-26T12:07:15Z",
+    "last": "2026-11-26T12:16:57Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 92,
+        "output": 21167,
+        "thinking": 5981,
+        "cache_read": 4189669,
+        "cache_write_5m": 0,
+        "cache_write_1h": 87053,
+        "api_equivalent_usd": 1.9581,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 92,
+      "output": 21167,
+      "thinking": 5981,
+      "cache_read": 4189669,
+      "cache_write_5m": 0,
+      "cache_write_1h": 87053,
+      "api_equivalent_usd": 1.9581,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 48,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.69,
+      "active_minutes": 9.69,
+      "model_minutes": 4.09,
+      "tool_minutes": 5.61,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "triage 5 mutants, find and fix two layout bugs with sweep tests, update FAQ and posts",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 204.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
