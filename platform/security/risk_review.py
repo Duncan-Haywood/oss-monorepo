@@ -420,9 +420,8 @@ def render(result: dict) -> str:
 
 
 def git(*args: str) -> str:
-    # errors="replace": a diff that adds a Latin-1 or binary-ish fixture must
-    # still get a checklist (P089: UnicodeDecodeError on such a diff). Only the
-    # undecodable bytes change, so ASCII secret patterns still match.
+    # errors="replace": a diff adding Latin-1 or binary fixtures must still get a
+    # checklist (P089); ASCII secret patterns match the same either way.
     return subprocess.run(["git", *args], capture_output=True, text=True,
                           encoding="utf-8", errors="replace", check=True).stdout
 

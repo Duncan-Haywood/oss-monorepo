@@ -716,6 +716,51 @@ export function parseStl(input) {
   return Float64Array.from(nums);
 }
 
+/**
+ * Weld a triangle soup: an id per distinct vertex. Two corners are one vertex
+ * when their coordinates compare equal as numbers (0 and -0 are one vertex,
+ * every NaN is one value): the rule the `${x},${y},${z}` string key gave,
+ * found with an open-addressing table on the float bits instead of building
+ * a string per corner (239 ms of a 180k-triangle read, 2026-11-26).
+ * Returns the vertex id of each corner and the first corner of each vertex.
+ */
+function weldVertices(tris) {
+  const corners = tris.length / 3;
+  let cap = 16;
+  while (cap < corners * 2) cap *= 2;
+  const mask = cap - 1;
+  const table = new Int32Array(cap).fill(-1); // slot -> vertex id
+  const first = []; // vertex id -> first corner index
+  const ids = new Int32Array(corners);
+  const f = new Float64Array(3), w = new Uint32Array(f.buffer);
+  const eq = (a, b) => a === b || (a !== a && b !== b);
+  for (let c = 0; c < corners; c++) {
+    const o = c * 3;
+    for (let j = 0; j < 3; j++) {
+      const x = tris[o + j];
+      f[j] = x === 0 ? 0 : x !== x ? NaN : x; // one bit pattern for 0 and for NaN
+    }
+    let h = 0x811c9dc5;
+    for (let j = 0; j < 6; j++) h = Math.imul(h ^ w[j], 0x01000193);
+    h ^= h >>> 15;
+    let slot = h & mask, id = -1;
+    for (;;) {
+      const v = table[slot];
+      if (v < 0) break;
+      const q = first[v] * 3;
+      if (eq(tris[q], f[0]) && eq(tris[q + 1], f[1]) && eq(tris[q + 2], f[2])) { id = v; break; }
+      slot = (slot + 1) & mask;
+    }
+    if (id < 0) {
+      id = first.length;
+      first.push(c);
+      table[slot] = id;
+    }
+    ids[c] = id;
+  }
+  return { ids, first };
+}
+
 /** Volume, area, closed check and primitives for a mesh. STL has no units: `mmPerUnit` is the user's answer. */
 export function stlPrimitives(tris, mmPerUnit = 1) {
   const n = tris.length / 9;
@@ -723,26 +768,15 @@ export function stlPrimitives(tris, mmPerUnit = 1) {
   // envelope are a min and a max over points, so each distinct vertex is kept
   // once (same answer, about a sixth of the work in every frame tried), and
   // edges are counted by vertex id rather than by a joined coordinate string.
-  const points = [];
+  // Vertex ids come from weldVertices (float-bit hash, same equality as the
+  // old string key).
   let vol = 0, area = 0;
   const normals = new Map();
-  const vertexId = new Map();
-  const edgeUse = new Map();
-  const id = (o) => {
-    const k = `${tris[o]},${tris[o + 1]},${tris[o + 2]}`;
-    let v = vertexId.get(k);
-    if (v === undefined) {
-      v = vertexId.size;
-      vertexId.set(k, v);
-      points.push({ p: [tris[o] * mmPerUnit, tris[o + 1] * mmPerUnit, tris[o + 2] * mmPerUnit], exact: true });
-    }
-    return v;
-  };
-  // ids stay below 2^26 for any mesh a browser can hold (3 per triangle at most)
-  const edge = (i, j) => {
-    const e = i < j ? i * 67108864 + j : j * 67108864 + i;
-    edgeUse.set(e, (edgeUse.get(e) || 0) + 1);
-  };
+  const { ids, first } = weldVertices(tris);
+  const points = first.map((c) => ({ p: [tris[c * 3] * mmPerUnit, tris[c * 3 + 1] * mmPerUnit, tris[c * 3 + 2] * mmPerUnit], exact: true }));
+  // each triangle side as lo * V + hi (exact below 2^53), sorted and counted in runs
+  const nv = first.length;
+  const edges = new Float64Array(n * 3);
   for (let t = 0; t < n; t++) {
     const o = t * 9;
     const ax = tris[o] * mmPerUnit, ay = tris[o + 1] * mmPerUnit, az = tris[o + 2] * mmPerUnit;
@@ -763,11 +797,19 @@ export function stlPrimitives(tris, mmPerUnit = 1) {
       const cur = normals.get(kk);
       if (cur) cur.w += ar; else normals.set(kk, { d, w: ar });
     }
-    const ia = id(o), ib = id(o + 3), ic = id(o + 6);
-    edge(ia, ib); edge(ib, ic); edge(ic, ia);
+    const ia = ids[t * 3], ib = ids[t * 3 + 1], ic = ids[t * 3 + 2];
+    edges[t * 3] = ia < ib ? ia * nv + ib : ib * nv + ia;
+    edges[t * 3 + 1] = ib < ic ? ib * nv + ic : ic * nv + ib;
+    edges[t * 3 + 2] = ic < ia ? ic * nv + ia : ia * nv + ic;
   }
+  edges.sort();
   let open = 0;
-  for (const v of edgeUse.values()) if (v !== 2) open++;
+  for (let i = 0; i < edges.length;) {
+    let j = i + 1;
+    while (j < edges.length && edges[j] === edges[i]) j++;
+    if (j - i !== 2) open++; // an edge is closed when exactly two triangle sides use it
+    i = j;
+  }
   const planeNormals = [...normals.values()].sort((x, y) => y.w - x.w).slice(0, 24).map((x) => x.d);
   const warnings = [];
   if (open) warnings.push(`The mesh has ${open} edge${open === 1 ? "" : "s"} not shared by exactly two triangles, so it is not closed; the volume and weight may be wrong.`);
