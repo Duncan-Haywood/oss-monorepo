@@ -222,6 +222,8 @@ in and resolve it. Steps and tools:
 Clones are shallow: fetch a branch with `git fetch --depth=40 origin <branch>` (without `--depth` it pulls the full ~5 GB history). Content reads (`git show origin/main:<path>`) are fine;
 when you need history for a merge, `git fetch --deepen=500 origin main` until
 `git merge-base HEAD origin/main` answers.
+To start your branch from current main, `git checkout -B <branch> origin/main`
+after the fetch (auto mode refuses `git reset --hard`; five sessions, 2026-11-24 to 26).
 
 ## Reading CI
 

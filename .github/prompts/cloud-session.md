@@ -25,7 +25,8 @@ of commits. Content reads (`git show origin/main:<path>`) are unaffected: trust
 them over history. To merge `main`, repeat `git fetch --deepen=500 origin main`
 until `git merge-base HEAD origin/main` answers. To date changes,
 `git fetch --shallow-since=<7 days ago> origin main && git merge --ff-only origin/main`
-(about 16 s). `git fetch --unshallow origin main` takes 2-15 min and ~5 GB:
+(about 16 s). To put the work branch on current main, `git checkout -B <branch> origin/main`:
+the auto-mode classifier refuses `git reset --hard origin/main`. `git fetch --unshallow origin main` takes 2-15 min and ~5 GB:
 background it, only if you need it all.
 
 ## Reaching `private-monorepo` (the bets' code)
