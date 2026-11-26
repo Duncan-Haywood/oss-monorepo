@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqydUeTXMy5obmwqhrJy",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-26T01:43:21Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "first smoke test hit a stale server from an earlier attempt on the same port; killed it and reran on a fresh port"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md (private-monorepo)",
+      "issue": "says to run biome on touched files, but biome is not installed in a fresh cloud clone (npx refuses without network install); einvoice CI does not run it either"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "bet #1 (payapps) Next list is mostly gated parts ('once a customer asks') with many runs on it today; took bet #3, whose free items (store, hosting) stood between it and a paying accountant",
+      "did": "SQLite/D1 store + hosting decision for einvoice-preflight",
+      "result": "merged as private PR 213"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "no new blog post: the change is storage infrastructure a customer does not read about; wrote an agent doc instead",
+      "did": "docs/reports/ventures-2026-11-26-einvoice-sql-store.md",
+      "result": "agent doc"
+    }
+  ],
+  "writeups": [
+    "docs/reports/ventures-2026-11-26-einvoice-sql-store.md"
+  ],
+  "goal": null,
+  "notes": "private PR https://github.com/Duncan-Haywood/private-monorepo/pull/213: CI starved (ci_starvation.py exit 1, runner_id 0). Local: node --test pro/*.test.mjs 62/62 pass; node --test --test-concurrency=4 *.test.mjs 2179 pass, 142 skipped, 1 fail (repair-facturx poppler test, sandbox pdfdetach saving disabled). Smoke: PRO_DB_FILE server created an account; row read back from the SQLite file.",
+  "corrections": [],
+  "redteam": null
+}
