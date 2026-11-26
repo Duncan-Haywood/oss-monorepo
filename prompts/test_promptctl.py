@@ -820,6 +820,32 @@ class LastChangeIndexTest(unittest.TestCase):
                                                cwd=promptctl.ROOT.parent, capture_output=True, text=True).stdout.split()
                 self.assertEqual(list(idx[path]), one)
 
+    def test_lookups_without_a_git_call_match_the_per_file_call(self):
+        # Directories, free text in a `file` field, a shallow root's files and bare names are
+        # answered from the one `git log` and one `git ls-files` (2026-11-26: 438 + 1230 + 270
+        # subprocesses); each answer must be the one git gives for that path alone.
+        # Other tests leave mocked answers in the memo; keep only a real index (5 s to rebuild).
+        kept = promptctl._GIT_MEMO.get("indexes")
+        promptctl._GIT_MEMO.clear()
+        if kept and kept[0]:
+            promptctl._GIT_MEMO["indexes"] = kept
+        edge = promptctl._edge_change_index()
+        # One case per branch of `_index_hit`: a directory, free text, a glob, a shallow root's
+        # file. A glob that matches nothing makes git walk all history (5 s), so that case is
+        # only asserted; the 2026-11-26 pass compared all 1822 friction paths with git.
+        paths = ["prompts/", "prompt.md / CLAUDE.md", "prompts/runs/*.json"]
+        paths += [p for p in list(edge)[:1] if p not in promptctl._last_change_index()]
+        self.assertEqual(promptctl._changed_note("prompts/*.zz (x)"), ("", ""))
+        for path in paths:
+            with self.subTest(path=path):
+                self.assertEqual(promptctl._changed_note(path), promptctl._changed_note_uncached(path))
+        for name in ("CLAUDE.md", "no-such-name.zz"):
+            out = promptctl.subprocess.run(["git", "ls-files", f"*{name}"], cwd=promptctl.ROOT.parent,
+                                           capture_output=True, text=True).stdout.split()
+            with self.subTest(name=name):
+                self.assertEqual(promptctl._tracked_by_name().get(name, []),
+                                 [h for h in out if h.rsplit("/", 1)[-1] == name])
+
 
 if __name__ == "__main__":
     unittest.main()
