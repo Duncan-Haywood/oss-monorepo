@@ -821,6 +821,8 @@ ventures/package-exports-drift-check/usage.mjs
 ventures/paddle-payout-to-journal/usage.mjs
 ventures/padel-club-profit-calculator/usage.mjs
 ventures/page-seo-audit/usage.mjs
+ventures/paid-apps/apps/einvoice-preflight/usage.mjs
+ventures/paid-apps/apps/wall-framing-takeoff/usage.mjs
 ventures/paid-sick-leave-accrual-calculator/usage.mjs
 ventures/painting-bid-calculator/usage.mjs
 ventures/paintless-dent-repair-quote-calculator/usage.mjs
