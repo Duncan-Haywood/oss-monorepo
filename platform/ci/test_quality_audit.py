@@ -60,14 +60,20 @@ class QualityAuditTest(unittest.TestCase):
 
 
     def test_private_flagship_subject_needs_no_public_path(self):
-        # jobshop-quote is a flagship whose app lives in private-monorepo (round 108).
-        name = q.flagships()[0]
-        if (q.ROOT / "ventures" / name).exists():
-            name = next((n for n in q.flagships() if not (q.ROOT / "ventures" / n).exists()), None)
-        if name is None:
-            self.skipTest("every flagship has a public path")
-        errs = q.validate_audit(audit(subject=f"ventures/{name}", stratum="flagship", _file=f"2026-11-07-{name}.json"))
-        assert not any("not a path" in e for e in errs), errs
+        # jobshop-quote is a flagship whose app lives in private-monorepo (round 108):
+        # `sample` draws it as ventures/<name>, so validate must accept that path.
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            fy = Path(d) / "flagships.yaml"
+            fy.write_text("flagships:\n  - venture: private-only-app-xyz\n    app: private-monorepo/apps/x\n")
+            saved, q.FLAGSHIPS = q.FLAGSHIPS, fy
+            try:
+                ok = q.validate_audit(audit(subject="ventures/private-only-app-xyz", stratum="flagship", _file="2026-11-07-private-only-app-xyz.json"))
+                bad = q.validate_audit(audit(subject="ventures/not-a-flagship-xyz", _file="2026-11-07-not-a-flagship-xyz.json"))
+            finally:
+                q.FLAGSHIPS = saved
+        assert not any("not a path" in e for e in ok), ok
+        assert any("not a path" in e for e in bad), bad
 
     def test_unauditable_needs_no_scores(self):
         assert q.validate_audit(audit(status="unauditable", scores={}, evidence={}, professional="")) == []
