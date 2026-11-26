@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqyf1PRVNBpekkBEdMQq",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T18:39:14Z",
+  "ended": "2026-11-26T18:46:12Z",
+  "wall_minutes": 7.26,
+  "tokens_in": 9344868,
+  "tokens_out": 29531,
+  "cost_usd": 3.7149,
+  "tool_calls": 72,
+  "task": "bet #6 residential takeoff: gable-end siding from the framed roof's pitch (gable-siding-from-roof-pitch)",
+  "projects": [
+    "private-monorepo/apps/wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/392",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "sed rename in eval-browser-click.mjs also renamed an existing sv5/saved5 pair, then a SyntaxError on the duplicate declaration",
+      "fix": "restored the original names; eval re-run 71 ok"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets named einvoice-preflight #5 as free, but a claim with a different slug (polish-ksef-site-page) landed between the listing and my --claim seconds later; the NEAR check caught it, so it worked, but bets 1-4 had no free ungated item at all and the next bet with room (#6) was only found by reading its ROADMAP's 'Next here' lines by hand, since its Next list is empty."
+    },
+    {
+      "file": "private-monorepo/apps/wall-framing-takeoff/page.test.mjs",
+      "issue": "the footer link-back test read ../cut-list-optimizer/index.html, which exists only in oss-monorepo, so the suite failed on private main; now skipped with the reason when the sibling is absent."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "no new or extended blog post: the slice is an engine and page option for an existing paid takeoff report; a post on one siding option would be the thin per-PR post the 2026-11-24 consolidation direction asks to avoid",
+      "did": "documented in the app's README and ROADMAP instead",
+      "result": "none measurable"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Security queue empty (exit 3); IDEAS and requests empty; routed ventures/1. Clone of private-monorepo worked first time. Bets 1-4 all gated or claimed; claimed wall-framing-takeoff/gable-siding-from-roof-pitch. siding.gables:'roof' derives gable triangles from the roof (width-matched walls or roof.gableWalls / wing.gableWall), hip/outline add none, typed gable wins; page select, CLI, material-list note. Sample house siding area 939.83 -> 1070.50 sq ft (hand check of two 4:12 triangles). Verification (no CI for this app in private): node --test '*.test.mjs' 1272 tests, 1270 pass, 0 fail, 2 skipped; eval-browser-click.mjs 71 ok in Chromium; risk_review: blocked nothing. Private PR 392 had no check runs; merged after local verification.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1d091ca5-56fd-5968-af1b-36824f434588",
+    "transcripts": 1,
+    "first": "2026-11-26T18:39:14Z",
+    "last": "2026-11-26T18:46:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 68,
+        "input": 130,
+        "output": 29531,
+        "thinking": 6132,
+        "cache_read": 9183871,
+        "cache_write_5m": 0,
+        "cache_write_1h": 160867,
+        "api_equivalent_usd": 3.7149,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 68,
+      "input": 130,
+      "output": 29531,
+      "thinking": 6132,
+      "cache_read": 9183871,
+      "cache_write_5m": 0,
+      "cache_write_1h": 160867,
+      "api_equivalent_usd": 3.7149,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 66,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.26,
+      "active_minutes": 7.26,
+      "model_minutes": 4.74,
+      "tool_minutes": 2.52,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "engine option + page control + tests + browser check for a takeoff tool, senior dev estimate",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 134.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
