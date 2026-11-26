@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqyg5Rniaatjh39fkXAw",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T20:38:25Z",
+  "ended": "2026-11-26T20:45:09Z",
+  "wall_minutes": 7.04,
+  "tokens_in": 6752675,
+  "tokens_out": 23471,
+  "cost_usd": 2.7763,
+  "tool_calls": 61,
+  "task": "bets.md #6 residential takeoff: ROADMAP item 'vented soffit panels under an outline roof' (claim/wall-framing-takeoff/vented-soffit-panels-under-an-outline-roof-the)",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19470",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": 94,
+  "lines_removed": 13,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets listed seller-books (#5) and grants (#7) as 'no ROADMAP.md, claim with --slug' yet still sent me to #6; seller-books' own ARCHITECTURE 'Gaps / next' has only demand-gated items, so #6 was right, but the output does not say why #5 was skipped."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "'verify (CI, ...)' assumes the app has CI; private-monorepo has no workflow for apps/wall-framing-takeoff, so its PR merged on 0 check runs and the local node --test run is the only gate."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "venture-preflight.mjs is for a venture in this repo; the code changed lives in private-monorepo and the public change is a post only",
+      "did": "ran check_posts, front-matter and link checks on the post instead",
+      "result": "all green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-04-vented-soffit-panels-from-the-attic-vent-sizing.md (extended, for-customers)"
+  ],
+  "goal": null,
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/407 merged (squash 5d95e85f). layoutVentilation takes outlineRoof's all-hip roof (footprint, every ridge less end gaps, whole eave line, baffles only with a spacing); CLI passes it to --ventilation and --eaves when no framed roof exists. Verification: node --test ventilation.test.mjs 9/9 (the 3 new tests fail on the old code); full app suite node --test '*.test.mjs' 1294 tests, 1292 pass, 0 fail, 2 skipped. risk_review.py: nothing blocked in both repos. No CI workflow covers this app in private-monorepo. Biome/tsc not run (no node_modules installed for this app).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0ca3deb7-7c52-5856-9f03-6a5dba1e701b",
+    "transcripts": 1,
+    "first": "2026-11-26T20:38:25Z",
+    "last": "2026-11-26T20:45:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 113,
+        "output": 23471,
+        "thinking": 3947,
+        "cache_read": 6630010,
+        "cache_write_5m": 0,
+        "cache_write_1h": 122552,
+        "api_equivalent_usd": 2.7763,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 113,
+      "output": 23471,
+      "thinking": 3947,
+      "cache_read": 6630010,
+      "cache_write_5m": 0,
+      "cache_write_1h": 122552,
+      "api_equivalent_usd": 2.7763,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 53,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.04,
+      "active_minutes": 7.04,
+      "model_minutes": 4.54,
+      "tool_minutes": 2.5,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "engineer: read the ventilation/outline-roof models, wire the outline path, hand-check a Z plan, write tests and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 144.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
