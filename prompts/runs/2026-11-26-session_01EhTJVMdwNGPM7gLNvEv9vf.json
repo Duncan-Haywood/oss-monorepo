@@ -1,0 +1,396 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01EhTJVMdwNGPM7gLNvEv9vf",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T09:56:09Z",
+  "ended": "2026-11-26T09:56:47Z",
+  "wall_minutes": 19.16,
+  "tokens_in": 3980931,
+  "tokens_out": 18213,
+  "cost_usd": 1.796,
+  "tool_calls": 48,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19312",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`targets --probe 20` lists every wall-framing-takeoff file as '>20s (too slow)' although the whole suite ran in 20.5 s; the cutoff sits right at this venture's suite time, so the probe hid a fine target."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "campaign on a generated config file (checkout.mjs, 0 mutation sites) still records an empty campaign and spends a 20 s baseline; `targets` could skip files with no sites."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "no new blog post: a red-team fix to CLI behaviour gives customers nothing new to read",
+      "did": "README changelog entry in ventures/wall-framing-takeoff instead",
+      "result": "fix documented where the product's users read about features"
+    }
+  ],
+  "writeups": [
+    "ventures/wall-framing-takeoff/README.md (changelog entry)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; redteam open list empty (1 blocked). Campaigns: checkout.mjs (0 sites), headers.mjs 6/8, floor.mjs 5/8; all 5 gaps closed (rerun caught_after_fix true). Guard added: planKeys.test.mjs scans plan.<key> reads; first run caught `paver`. Venture suite 1250 pass / 0 fail locally.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/wall-framing-takeoff/checkout.mjs",
+        "test": "node --test ventures/wall-framing-takeoff/**/*.test.mjs  (in .)",
+        "seed": 776519429,
+        "commit": "8f5cd9817",
+        "sites": 0,
+        "baseline_seconds": 20.5,
+        "mutants": []
+      },
+      {
+        "target": "ventures/wall-framing-takeoff/headers.mjs",
+        "test": "node --test ventures/wall-framing-takeoff/**/*.test.mjs  (in .)",
+        "seed": 717570891,
+        "commit": "8f5cd9817",
+        "sites": 92,
+        "baseline_seconds": 19.8,
+        "mutants": [
+          {
+            "file": "ventures/wall-framing-takeoff/headers.mjs",
+            "line": 27,
+            "col": 69,
+            "operator": "and-to-or",
+            "before": "if (!(r && typeof r.upTo === \"number\" && Number.isFinite(r.upTo) && r.upTo > 0 && r.upTo <= 12000)) errors.push(`${at}: upTo (the longest clear span, inches) must be more than zero.`);",
+            "after": "if (!(r && typeof r.upTo === \"number\" && Number.isFinite(r.upTo) || r.upTo > 0 && r.upTo <= 12000)) errors.push(`${at}: upTo (the longest clear span, inches) must be more than zero.`);",
+            "line_text": "    if (!(r && typeof r.upTo === \"number\" && Number.isFinite(r.upTo) && r.upTo > 0 && r.upTo <= 12000)) errors.push(`${at}: upTo (the longest clear span, inches) must be more than zero.`);",
+            "caught": true,
+            "seconds": 20.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/headers.mjs",
+            "line": 35,
+            "col": 68,
+            "operator": "eq-flip",
+            "before": "if (DEPTH[q.header] < DEPTH[p.header] - EPS || (DEPTH[q.header] === DEPTH[p.header] && (q.plies ?? 0) < (p.plies ?? 0))) {",
+            "after": "if (DEPTH[q.header] < DEPTH[p.header] - EPS || (DEPTH[q.header] !== DEPTH[p.header] && (q.plies ?? 0) < (p.plies ?? 0))) {",
+            "line_text": "    if (DEPTH[q.header] < DEPTH[p.header] - EPS || (DEPTH[q.header] === DEPTH[p.header] && (q.plies ?? 0) < (p.plies ?? 0))) {",
+            "caught": true,
+            "seconds": 20.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/headers.mjs",
+            "line": 51,
+            "col": 40,
+            "operator": "or-to-and",
+            "before": "if (!plan || typeof plan !== \"object\" || (plan.walls != null && !Array.isArray(plan.walls)) || (plan.walls || []).some((w) => !w || typeof w !== \"object\" || (w.openings != null && !Array.isArray(w.openings)) || (w.openings || []).some((o) => !o || typeof o !== \"object\"))) {",
+            "after": "if (!plan || typeof plan !== \"object\" && (plan.walls != null && !Array.isArray(plan.walls)) || (plan.walls || []).some((w) => !w || typeof w !== \"object\" || (w.openings != null && !Array.isArray(w.openings)) || (w.openings || []).some((o) => !o || typeof o !== \"object\"))) {",
+            "line_text": "  if (!plan || typeof plan !== \"object\" || (plan.walls != null && !Array.isArray(plan.walls)) || (plan.walls || []).some((w) => !w || typeof w !== \"object\" || (w.openings != null && !Array.isArray(w.openings)) || (w.openings || []).some((o) => !o || typeof o !== \"object\"))) {",
+            "caught": true,
+            "seconds": 20.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/headers.mjs",
+            "line": 52,
+            "col": 17,
+            "operator": "false-to-true",
+            "before": "return { ok: false, plan, errors: [\"plan must be an object whose walls are objects with openings that are objects.\"], rows: [], notes: [] };",
+            "after": "return { ok: true, plan, errors: [\"plan must be an object whose walls are objects with openings that are objects.\"], rows: [], notes: [] };",
+            "line_text": "    return { ok: false, plan, errors: [\"plan must be an object whose walls are objects with openings that are objects.\"], rows: [], notes: [] };",
+            "caught": true,
+            "seconds": 19.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/headers.mjs",
+            "line": 56,
+            "col": 36,
+            "operator": "or-to-and",
+            "before": "const anyTable = plan.headerTable || Object.keys(byStud).length || (plan.walls || []).some((w) => w.headerTable);",
+            "after": "const anyTable = plan.headerTable && Object.keys(byStud).length || (plan.walls || []).some((w) => w.headerTable);",
+            "line_text": "  const anyTable = plan.headerTable || Object.keys(byStud).length || (plan.walls || []).some((w) => w.headerTable);",
+            "caught": true,
+            "seconds": 20.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/headers.mjs",
+            "line": 79,
+            "col": 69,
+            "operator": "or-to-and",
+            "before": "if (typeof op.width !== \"number\" || !Number.isFinite(op.width) || op.width <= 0) {",
+            "after": "if (typeof op.width !== \"number\" || !Number.isFinite(op.width) && op.width <= 0) {",
+            "line_text": "      if (typeof op.width !== \"number\" || !Number.isFinite(op.width) || op.width <= 0) {",
+            "caught": false,
+            "seconds": 22.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test fed a zero/negative/non-finite width; added one in headers.test.mjs"
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/headers.mjs",
+            "line": 79,
+            "col": 84,
+            "operator": "const-plus-one",
+            "before": "if (typeof op.width !== \"number\" || !Number.isFinite(op.width) || op.width <= 0) {",
+            "after": "if (typeof op.width !== \"number\" || !Number.isFinite(op.width) || op.width <= 1) {",
+            "line_text": "      if (typeof op.width !== \"number\" || !Number.isFinite(op.width) || op.width <= 0) {",
+            "caught": false,
+            "seconds": 21.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test sized a sub-2-inch positive width; added width 1 in headers.test.mjs"
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/headers.mjs",
+            "line": 99,
+            "col": 39,
+            "operator": "eq-flip",
+            "before": "const under = !(typeof op.header === \"string\" && Object.hasOwn(DEPTH, op.header)) ? false : DEPTH[op.header] < DEPTH[row.header] - EPS || have < plies;",
+            "after": "const under = !(typeof op.header !== \"string\" && Object.hasOwn(DEPTH, op.header)) ? false : DEPTH[op.header] < DEPTH[row.header] - EPS || have < plies;",
+            "line_text": "      const under = !(typeof op.header === \"string\" && Object.hasOwn(DEPTH, op.header)) ? false : DEPTH[op.header] < DEPTH[row.header] - EPS || have < plies;",
+            "caught": true,
+            "seconds": 21.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/wall-framing-takeoff/floor.mjs",
+        "test": "node --test ventures/wall-framing-takeoff/**/*.test.mjs  (in .)",
+        "seed": 773266386,
+        "commit": "8f5cd9817",
+        "sites": 1116,
+        "baseline_seconds": 19.7,
+        "mutants": [
+          {
+            "file": "ventures/wall-framing-takeoff/floor.mjs",
+            "line": 36,
+            "col": 67,
+            "operator": "and-to-or",
+            "before": "if (f.blockingRows != null && !(Number.isInteger(f.blockingRows) && f.blockingRows >= 0 && f.blockingRows <= 20)) errors.push(\"blockingRows must be a whole number from 0 to 20.\");",
+            "after": "if (f.blockingRows != null && !(Number.isInteger(f.blockingRows) || f.blockingRows >= 0 && f.blockingRows <= 20)) errors.push(\"blockingRows must be a whole number from 0 to 20.\");",
+            "line_text": "  if (f.blockingRows != null && !(Number.isInteger(f.blockingRows) && f.blockingRows >= 0 && f.blockingRows <= 20)) errors.push(\"blockingRows must be a whole number from 0 to 20.\");",
+            "caught": true,
+            "seconds": 21.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/floor.mjs",
+            "line": 38,
+            "col": 81,
+            "operator": "le-to-lt",
+            "before": "if (f.fastenerSpacing != null && !(f.fastenerSpacing >= 4 && f.fastenerSpacing <= 16)) errors.push(\"Fastener spacing must be between 4 and 16 inches.\");",
+            "after": "if (f.fastenerSpacing != null && !(f.fastenerSpacing >= 4 && f.fastenerSpacing < 16)) errors.push(\"Fastener spacing must be between 4 and 16 inches.\");",
+            "line_text": "  if (f.fastenerSpacing != null && !(f.fastenerSpacing >= 4 && f.fastenerSpacing <= 16)) errors.push(\"Fastener spacing must be between 4 and 16 inches.\");",
+            "caught": false,
+            "seconds": 21.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "fastenerSpacing 16 (the upper bound) was never tested as accepted; added"
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/floor.mjs",
+            "line": 55,
+            "col": 89,
+            "operator": "le-to-lt",
+            "before": "else if (!(o.x > 0 && o.x + o.width < f.width && o.y >= 12 + DOUBLE && o.y + o.depth <= f.depth - 12 - DOUBLE)) errors.push(`${n} must sit inside the floor, at least 1 ft and a header from each edge.`);",
+            "after": "else if (!(o.x > 0 && o.x + o.width < f.width && o.y >= 12 + DOUBLE && o.y + o.depth < f.depth - 12 - DOUBLE)) errors.push(`${n} must sit inside the floor, at least 1 ft and a header from each edge.`);",
+            "line_text": "    else if (!(o.x > 0 && o.x + o.width < f.width && o.y >= 12 + DOUBLE && o.y + o.depth <= f.depth - 12 - DOUBLE)) errors.push(`${n} must sit inside the floor, at least 1 ft and a header from each edge.`);",
+            "caught": false,
+            "seconds": 19.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "an opening ending exactly 1 ft + doubled header from the far edge was never tested; added"
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/floor.mjs",
+            "line": 66,
+            "col": 30,
+            "operator": "or-to-and",
+            "before": "const boxes = (f.openings || []).map(box);",
+            "after": "const boxes = (f.openings && []).map(box);",
+            "line_text": "    const boxes = (f.openings || []).map(box);",
+            "caught": true,
+            "seconds": 20.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/floor.mjs",
+            "line": 69,
+            "col": 85,
+            "operator": "minus-to-plus",
+            "before": "if (a.x0 < b.x1 - EPS && b.x0 < a.x1 - EPS && a.y0 < b.y1 - EPS && b.y0 < a.y1 - EPS) errors.push(`Opening ${i + 1} and opening ${j + 1} are too close: they would share a trimmer joist or a header. Leave a joist bay or a header's width between them.`);",
+            "after": "if (a.x0 < b.x1 - EPS && b.x0 < a.x1 - EPS && a.y0 < b.y1 - EPS && b.y0 < a.y1 + EPS) errors.push(`Opening ${i + 1} and opening ${j + 1} are too close: they would share a trimmer joist or a header. Leave a joist bay or a header's width between them.`);",
+            "line_text": "      if (a.x0 < b.x1 - EPS && b.x0 < a.x1 - EPS && a.y0 < b.y1 - EPS && b.y0 < a.y1 - EPS) errors.push(`Opening ${i + 1} and opening ${j + 1} are too close: they would share a trimmer joist or a header. Leave a joist bay or a header's width between them.`);",
+            "caught": false,
+            "seconds": 20.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "two openings whose header zones just touch were never tested as accepted; added, plus 1 in closer refused"
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/floor.mjs",
+            "line": 303,
+            "col": 103,
+            "operator": "plus-to-minus",
+            "before": "return { ...o, left: cl, right: cr, clearWidth: cr - cl - THICK, cut: [o.y - DOUBLE, o.y + o.depth + DOUBLE] };",
+            "after": "return { ...o, left: cl, right: cr, clearWidth: cr - cl - THICK, cut: [o.y - DOUBLE, o.y + o.depth - DOUBLE] };",
+            "line_text": "    return { ...o, left: cl, right: cr, clearWidth: cr - cl - THICK, cut: [o.y - DOUBLE, o.y + o.depth + DOUBLE] };",
+            "caught": true,
+            "seconds": 20.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/floor.mjs",
+            "line": 353,
+            "col": 20,
+            "operator": "lt-to-le",
+            "before": "for (let k = 0; k < nFull + (rest > EPS ? 1 : 0); k++) courses.push({ y: k * sheet.width, width: k < nFull ? sheet.width : rest });",
+            "after": "for (let k = 0; k <= nFull + (rest > EPS ? 1 : 0); k++) courses.push({ y: k * sheet.width, width: k < nFull ? sheet.width : rest });",
+            "line_text": "  for (let k = 0; k < nFull + (rest > EPS ? 1 : 0); k++) courses.push({ y: k * sheet.width, width: k < nFull ? sheet.width : rest });",
+            "caught": true,
+            "seconds": 19.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/floor.mjs",
+            "line": 411,
+            "col": 193,
+            "operator": "or-to-and",
+            "before": "const hangers = { tail: tailEnds, singles: tailEnds, doubles: headerEnds, count: tailEnds + headerEnds, size: f.joist, ...(hn ? { nails: tailEnds * (hn.single || 0) + headerEnds * (hn.double || 0), nailsPerSingle: hn.single || 0, nailsPerDouble: hn.double || 0 } : {}) };",
+            "after": "const hangers = { tail: tailEnds, singles: tailEnds, doubles: headerEnds, count: tailEnds + headerEnds, size: f.joist, ...(hn ? { nails: tailEnds * (hn.single || 0) + headerEnds * (hn.double && 0), nailsPerSingle: hn.single || 0, nailsPerDouble: hn.double || 0 } : {}) };",
+            "line_text": "  const hangers = { tail: tailEnds, singles: tailEnds, doubles: headerEnds, count: tailEnds + headerEnds, size: f.joist, ...(hn ? { nails: tailEnds * (hn.single || 0) + headerEnds * (hn.double || 0), nailsPerSingle: hn.single || 0, nailsPerDouble: hn.double || 0 } : {}) };",
+            "caught": true,
+            "seconds": 19.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/wall-framing-takeoff/cli.mjs",
+        "issue": "CLI ran resolveHeaders only when plan.headerTable was set, so a plan with only headerTables (per stud) or a wall's own headerTable framed a hand-picked header lighter than the user's span table with no UNDER warning; --headers refused it with code 2, and planKeys flagged headerTables as a misspelling of headerTable. Repro: headerTables {2x4: [36->2x6, 72->2x12]}, a 60 in window with header 2x6.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c16d16da-ff56-557f-a41d-0c46b5d24406",
+    "transcripts": 1,
+    "first": "2026-11-26T09:56:09Z",
+    "last": "2026-11-26T10:15:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 92,
+        "output": 18213,
+        "thinking": 3825,
+        "cache_read": 3899404,
+        "cache_write_5m": 0,
+        "cache_write_1h": 81435,
+        "api_equivalent_usd": 1.796,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 92,
+      "output": 18213,
+      "thinking": 3825,
+      "cache_read": 3899404,
+      "cache_write_5m": 0,
+      "cache_write_1h": 81435,
+      "api_equivalent_usd": 1.796,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 46,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.16,
+      "active_minutes": 19.16,
+      "model_minutes": 4.1,
+      "tool_minutes": 15.06,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "find, reproduce and fix two CLI defects plus 5 boundary tests and a scan guard",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 222.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

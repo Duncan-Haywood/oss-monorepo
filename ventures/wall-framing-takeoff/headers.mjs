@@ -40,6 +40,18 @@ export function validateHeaderTable(table) {
 }
 
 /**
+ * Whether the plan carries any header table: the plan's `headerTable`, `headerTables` keyed by stud size, or a
+ * wall's own `headerTable`. Callers (the CLI) use this, not `plan.headerTable` alone, so a per-stud or per-wall
+ * table is never skipped.
+ * @param {any} plan
+ */
+export function hasHeaderTable(plan) {
+  if (!plan || typeof plan !== "object") return false;
+  const byStud = plan.headerTables && typeof plan.headerTables === "object" ? plan.headerTables : {};
+  return Boolean(plan.headerTable || Object.keys(byStud).length || (Array.isArray(plan.walls) && plan.walls.some((w) => w && w.headerTable)));
+}
+
+/**
  * Fill each opening's header from the table and compare the ones already chosen.
  * An opening with `header: "auto"` (or none) gets the first row that covers its
  * width. An opening with a header keeps it, and is reported when it is shallower
@@ -53,8 +65,7 @@ export function resolveHeaders(plan) {
   }
   const out = structuredClone(plan);
   const byStud = plan.headerTables && typeof plan.headerTables === "object" ? plan.headerTables : {};
-  const anyTable = plan.headerTable || Object.keys(byStud).length || (plan.walls || []).some((w) => w.headerTable);
-  if (!anyTable) return { ok: true, plan: out, errors: [], rows: [], notes: [] };
+  if (!hasHeaderTable(plan)) return { ok: true, plan: out, errors: [], rows: [], notes: [] };
   const errors = [];
   /** Table for a wall: its own `headerTable`, else `headerTables[stud]`, else the plan's `headerTable`. */
   const tableFor = (wall) => {

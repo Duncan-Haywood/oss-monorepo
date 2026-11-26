@@ -203,6 +203,29 @@ payment, once paid plans open. Seller Books is still in development; the
 [online sellers page](https://marisstella.app/industries/online-sellers/)
 has early access.
 
+## The sale-by-sale backup behind the worksheet (added 2026-11-26)
+
+A Schedule C line is a single total. If your tax preparer asks where line 1
+came from, or how the cost of goods on line 4 was worked out, a total doesn't
+answer them. Seller Books now writes a **sales ledger** as a CSV file for any
+date range. It has one row for each sale, refund and marketplace charge you
+imported. Each row shows the item sales, the shipping the buyer paid, any
+refund, the fees (itemised, for example "Final value fee 8.00; Per-order fee
+0.40"), postage, the linked item's cost, gross profit, the sales tax the
+marketplace collected (which is not your income) and the net the report
+itself gave.
+
+The file adds up. Each row uses the same arithmetic as the profit-and-loss
+page, so the ledger's gross-profit total equals the P&L's for the same dates.
+The app's tests check this on a worked year of Etsy sales: $92.70 of revenue,
+less $8.62 of fees, $5.10 of postage and $10.00 of cost of goods, gives $68.98
+of gross profit in both places. Store subscriptions get a column of their
+own, because they are an expense rather than a cost of each sale. A sale with
+no inventory item linked is flagged on its row, and a count at the foot of
+the file tells you how many sales still need a cost before the cost of goods
+is complete. The file is a bookkeeping record, not a tax return and not tax
+advice.
+
 ## What comes next
 
 Each of the ten tool pages now ends with a short "track true profit across
