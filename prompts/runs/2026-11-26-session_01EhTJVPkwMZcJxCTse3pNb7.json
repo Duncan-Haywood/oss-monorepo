@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01EhTJVPkwMZcJxCTse3pNb7",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T10:56:13Z",
+  "ended": "2026-11-26T11:07:02Z",
+  "wall_minutes": 11.09,
+  "tokens_in": 9643457,
+  "tokens_out": 45724,
+  "cost_usd": 4.1496,
+  "tool_calls": 79,
+  "task": "bet #4 (CMMC workspace) public front door: CMMC affirmation and assessment due dates page with .ics",
+  "projects": [
+    "machine-shop-guides",
+    "cmmc"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19323",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 15,
+  "outcome": "success",
+  "errors": [
+    "ecfr.gov, govinfo.gov, federalregister.gov and law.cornell.edu refused by the proxy (curl 403 / WebFetch ENOTFOUND); quotes taken from the cmmc workspace's recorded eCFR reading of 2026-11-25, C3PAO paragraph paraphrased from search excerpts"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets reported free, ungated items for bets 1-4, but every one read on its ROADMAP waits on real customer files, the owner's deploy, or a blocked host (e.g. payapps #5 'if customers bill through them', cmmc #1-4 'once shops send real files'); the gate heuristic misses 'once ... ', 'if customers ...' phrasing. Cost ~10 min reading four ROADMAPs."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "payapps row's numbered items (CA waivers, mid-job opening, deploy workflow) are all done per the app's ROADMAP; allocate.py --venture payapps still offers them as Start here."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Default is to build the top bet in private-monorepo; the clone worked, but bets 1-4's free Next items all wait on customers, the owner's deploy or blocked hosts, and payapps had 4 live claims.",
+      "did": "Took bet #4's public side: a front-door page reproducing the workspace's affirmation schedule for free, with a CTA to the workspace.",
+      "result": "Page, tests and post landed in one PR; no conflicts with parallel runs."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "'No new free tools' except as a bet's front door",
+      "did": "Added one page to the existing bet #2/#4 front door (machine-shop-guides), not a new venture",
+      "result": "in scope of the exception"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-cmmc-level-1-self-assessment-checklist.md (extended: free affirmation dates page)"
+  ],
+  "goal": "traffic and leads to the CMMC workspace (bet #4) from searches like 'CMMC annual affirmation', 'CMMC POA&M 180 days'",
+  "notes": "Verification: run_venture_tests.py machine-shop-guides ok (250 tests), site page checks ok; check_posts ok; Playwright smoke at 390px (dates, .ics download, no console errors, no horizontal scroll). Risk review: auth flag on affirm.mjs is a false match (pure date module); form data stays in browser.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "221f0561-09f0-5505-9783-c5053127ba64",
+    "transcripts": 1,
+    "first": "2026-11-26T10:56:13Z",
+    "last": "2026-11-26T11:07:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 75,
+        "input": 148,
+        "output": 45724,
+        "thinking": 6022,
+        "cache_read": 9475885,
+        "cache_write_5m": 0,
+        "cache_write_1h": 167424,
+        "api_equivalent_usd": 4.1496,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 75,
+      "input": 148,
+      "output": 45724,
+      "thinking": 6022,
+      "cache_read": 9475885,
+      "cache_write_5m": 0,
+      "cache_write_1h": 167424,
+      "api_equivalent_usd": 4.1496,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 79,
+    "tools": {
+      "Bash": 66,
+      "Write": 3,
+      "ToolSearch": 2,
+      "WebFetch": 2,
+      "WebSearch": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.09,
+      "active_minutes": 11.09,
+      "model_minutes": 7.72,
+      "tool_minutes": 3.37,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "page + logic + tests + sources + post, a senior dev's day",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 144.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

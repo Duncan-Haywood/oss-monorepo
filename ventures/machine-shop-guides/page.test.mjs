@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const PAGES = ["index", "cmmc-level-1-self-assessment", "cmmc-scoping-worksheet", "sprs-score-calculator", "nist-800-171-ssp-template", "dfars-7012-incident-reporting", "stock-size-from-step-file", "job-shop-quote-calculator", "rfq-review", "drawing-review", "first-article-inspection", "cmmc-level-1-vs-level-2", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual"];
+const PAGES = ["index", "cmmc-level-1-self-assessment", "cmmc-scoping-worksheet", "sprs-score-calculator", "nist-800-171-ssp-template", "dfars-7012-incident-reporting", "cmmc-affirmation-dates", "stock-size-from-step-file", "job-shop-quote-calculator", "rfq-review", "drawing-review", "first-article-inspection", "cmmc-level-1-vs-level-2", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual"];
 const read = (p) => readFileSync(new URL(`./${p}.html`, import.meta.url), "utf8");
 
 for (const p of PAGES) {
@@ -161,4 +161,16 @@ test("index footer links every page", () => {
   const html = read("index");
   const foot = html.slice(html.indexOf("<footer>"));
   for (const p of PAGES.filter((p) => p !== "index")) assert.match(foot, new RegExp(`href="${p}\\.html"`), p);
+});
+
+test("affirmation page: every <q> is a recorded quote, DOM from text, keeps nothing by default", async () => {
+  const { QUOTES } = await import("./affirm.mjs");
+  const html = read("cmmc-affirmation-dates");
+  const known = new Set(Object.values(QUOTES));
+  const qs = [...html.matchAll(/<q>([\s\S]*?)<\/q>/g)].map((m) => m[1].replace(/&amp;/g, "&"));
+  assert.ok(qs.length >= 4);
+  for (const q of qs) assert.ok(known.has(q), `not a recorded quote: ${q}`);
+  assert.doesNotMatch(html, /innerHTML|outerHTML|insertAdjacentHTML|document\.write/);
+  assert.match(html, /id="keep-draft"(?![^>]*checked)/);
+  assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon/);
 });

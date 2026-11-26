@@ -73,6 +73,14 @@ export const FAQ = {
     ["What goes in a POA&M row?",
       "The requirement, the weakness as you found it, the planned action, who is responsible, the resources needed, milestone dates and the current status. NIST does not prescribe a format."],
   ],
+  "cmmc-affirmation-dates.html": [
+    ["How often does a CMMC affirmation have to be made?",
+      "After every assessment, including a POA&M closeout, and annually thereafter (32 CFR 170.22(a)). The Affirming Official enters each one in SPRS. This page counts the year from the latest affirmation you enter."],
+    ["How long do I have to close out a Conditional CMMC Level 2 status?",
+      "180 days from the Conditional CMMC Status Date. For Level 2 (Self) the closeout self-assessment is posted to SPRS within that time; for Level 2 (C3PAO) a C3PAO performs the closeout assessment. If the 180 days pass without a closeout, the Conditional status expires."],
+    ["When is the next CMMC assessment due?",
+      "A year after the CMMC Status Date for Level 1 (Self), and three years after it for Level 2, by yourself or by a C3PAO. A POA&M closeout does not restart the three years: they count from the original status date."],
+  ],
   "dfars-7012-incident-reporting.html": [
     ["How long do I have to report a cyber incident under DFARS 252.204-7012?",
       "72 hours from discovery. The clause defines \"rapidly report\" as within 72 hours of discovery of any cyber incident, and the report is filed at dibnet.dod.mil. The clock starts at discovery, not when your review ends."],
