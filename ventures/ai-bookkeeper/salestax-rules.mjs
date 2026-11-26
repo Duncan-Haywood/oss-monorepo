@@ -436,7 +436,16 @@ export function nextBusinessDay(date) {
 // Every return due in a calendar year for a state and filing frequency:
 // [{ period, due }], due moved to the next business day. Uses the same period
 // and due-day rules as `salesTaxReturn`, so a calendar and a worksheet agree.
+// A frequency, period end or state it does not know throws (red team 2026-11-26: "weekly" and "ZZ" used to get quarterly
+// 20th dates), and a state with no general sales tax gets no dates: there is no return to file.
 export function salesTaxDueDates(year, { state = null, frequency = "quarterly", endMonth = undefined, dueDay = undefined } = {}) {
+  if (!["monthly", "quarterly", "semiannual", "annual"].includes(frequency)) throw new Error("frequency must be monthly, quarterly, semiannual or annual");
+  if (endMonth != null && !(Number.isInteger(endMonth) && endMonth >= 1 && endMonth <= (frequency === "annual" ? 12 : LEN[frequency] ?? 1))) throw new Error("endMonth must be a month within the first period of the year");
+  if (state != null && state !== "") {
+    const s = String(state).toUpperCase();
+    if (NO_STATE_SALES_TAX[s]) return [];
+    if (!(s in STATE_DUE_DAYS)) throw new Error(`"${state}" is not a US state or DC this calendar knows; use a two-letter code such as TX`);
+  }
   const em = endMonth === undefined ? stateEndMonth(state, frequency) : endMonth;
   const dd = dueDay === undefined ? stateDueDay(state, frequency) : dueDay;
   const periods = new Set();

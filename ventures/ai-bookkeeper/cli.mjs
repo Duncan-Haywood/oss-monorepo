@@ -1005,7 +1005,12 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   const plannedArg = flag("--planned");
   const planned = plannedArg ? plannedArg.split(",").map((v) => Math.round(parseFloat(v.replace(/[$\s]/g, "")) * 100)) : null;
   if (planned && (planned.length !== 4 || planned.some((n) => !Number.isFinite(n) || n < 0))) { console.error("--planned needs four dollar amounts, e.g. --planned 1200,1200,1200,1500"); process.exit(2); }
-  const ev = taxCalendar(year, { state, frequency: flag("--freq") ?? "quarterly", payroll: has("--payroll"), contractors: has("--contractors"), estimates: planned });
+  const freq = flag("--freq") ?? "quarterly";
+  let ev;
+  try { ev = taxCalendar(year, { state, frequency: freq, payroll: has("--payroll"), contractors: has("--contractors"), estimates: planned }); } catch (e) { console.error(e.message); process.exit(2); }
+  // a state with no general sales tax has no returns to list; say so rather than leave the reader guessing
+  const stNote = state ? stateFilingNote(state, freq) : null;
+  if (stNote) console.error(`  ! ${stNote}`);
   const out = flag("--ics");
   if (out) { writeFileSync(out, toIcs(ev, { name: `${year} tax calendar` })); console.log(`wrote ${ev.length} events to ${out}; import or subscribe to it in your calendar app.`); }
   else if (json) console.log(JSON.stringify(ev, null, 2));
