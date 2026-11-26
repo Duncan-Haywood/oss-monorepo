@@ -1,0 +1,11 @@
+A workspace that holds several ventures, not one venture.
+
+`ventures/paid-apps/` is the pnpm workspace for the paid SMB products moved
+from `private-monorepo` on 2026-11-26 (`PROVENANCE.md`). Each product inside
+`apps/` (payapps, jobshop-quote, einvoice-preflight, seller-books, cmmc,
+grants, wall-framing-takeoff and their marketing sites) is a business with
+its own README, ROADMAP and pricing; `packages/` holds shared libraries.
+The ranked bets that route work to them are in
+`portfolio/monetization/bets.md`. Giving each product its own router entry
+(VENTURE.yaml under `apps/<app>/`, or teaching the router about nested
+workspaces) is a follow-up for the migration PR.
