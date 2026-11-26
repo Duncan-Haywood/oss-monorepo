@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01EhTJVMffobHeJbjteXMkkB",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T07:56:31Z",
+  "ended": "2026-11-26T08:07:35Z",
+  "wall_minutes": 11.68,
+  "tokens_in": 12011211,
+  "tokens_out": 37721,
+  "cost_usd": 4.5349,
+  "tool_calls": 93,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19278",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First e2e assertion of the by-platform row was wrong (expected $55.99; the all-platform expense is not in Etsy's row, so $68.98): my error, corrected before commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "For an app with no ROADMAP.md, '--claim 0 --slug x' prints the no-ROADMAP hint and exits 0 without claiming; only '--slug x' alone claims. The exit 0 reads like success."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "The routing focus says take the top bet, but bets #1 and #2 were saturated (a claim about every 30 min, nearly every free item 'if people ask'). An earlier run record mentions an allocate.py that spreads runs across bets, but prompt.md and the ventures prompt never name it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took bet #5 (seller-books) rather than the top bet: #1 and #2 had only 'if asked' items left and owner-gated launches; #3's paid host needs a card.",
+      "did": "Playwright e2e suite for seller-books with CI job, plus a phone-width fix it found",
+      "result": "private PR 282 merged; 4/4 e2e, 126 unit, 56 worker tests pass locally"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No new blog post: the work is test infrastructure plus a one-line layout fix, nothing a reseller would search for; the agent doc carries what the next run needs.",
+      "did": "agent doc only",
+      "result": "docs/reports/ventures-2026-11-26-seller-books-e2e.md"
+    }
+  ],
+  "writeups": [
+    "docs/reports/ventures-2026-11-26-seller-books-e2e.md"
+  ],
+  "goal": null,
+  "notes": "Private CI starved (ci_starvation.py run 45780341337: runner_id 0 on all jobs). Verified locally in apps/seller-books: biome ci . clean; pnpm typecheck clean; test:unit 9 files 126 tests passed; test:worker 7 files 56 tests passed; scripts/e2e-run.sh 4 passed (19.1s). Private PR: https://github.com/Duncan-Haywood/private-monorepo/pull/282 (merged ddf76a3).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c692a93c-4c44-5a5c-974c-dcd50534bbe3",
+    "transcripts": 1,
+    "first": "2026-11-26T07:56:31Z",
+    "last": "2026-11-26T08:08:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 85,
+        "input": 162,
+        "output": 37721,
+        "thinking": 7524,
+        "cache_read": 11834425,
+        "cache_write_5m": 0,
+        "cache_write_1h": 176624,
+        "api_equivalent_usd": 4.5349,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 85,
+      "input": 162,
+      "output": 37721,
+      "thinking": 7524,
+      "cache_read": 11834425,
+      "cache_write_5m": 0,
+      "cache_write_1h": 176624,
+      "api_equivalent_usd": 4.5349,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 93,
+    "tools": {
+      "Bash": 79,
+      "Write": 6,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__actions_list": 1,
+      "Edit": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.68,
+      "active_minutes": 11.68,
+      "model_minutes": 7.88,
+      "tool_minutes": 3.81,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "e2e harness and four specs for an existing app, CI job and one layout fix, like jobshop-quote's first e2e PR",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 220.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
