@@ -205,6 +205,18 @@ QuickBooks' accounting data that apps can read, so labor comes in from the
 payroll report instead (below). (Added 2026-11-26; in development, not
 for sale, and not yet tried against a live QuickBooks company.)
 
+Not every company tags costs to a customer. Plenty of electrical and
+mechanical subs on QuickBooks Online Plus or Advanced keep one customer per GC
+and track each job as a class instead ("Jobs:Mesa Clinic"), so every bill line
+carries the job's class and the profit-and-loss by class is their job report.
+For them the link can now be a class: choose "Costs tagged by: Class" and pick
+it. If the job's invoices already carry a class (set on the QuickBooks page),
+that class is offered first. PayApps then reads the bills, checks, card
+charges, vendor credits, payroll journal entries and purchase orders whose
+lines carry that class, and nothing tagged only to a parent class such as
+"Jobs". (Added 2026-11-26; in development, not for sale, and not yet tried
+against a live QuickBooks company.)
+
 Purchase orders count too. A switchgear order placed in September for $18,000 is
 cost on its way, and if the job report only shows the $9,000 billed so far, the
 job looks more profitable than it is. So PayApps now also reads the purchase
