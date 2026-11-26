@@ -86,6 +86,24 @@ test("STL: binary and ASCII meshes give the kernel's box and volume", () => {
   assert.equal(m.closed, true);
 });
 
+test("STL: each shared vertex is kept once, and the box and envelopes match every-corner points", () => {
+  const tris = parseStl(readFileSync(new URL("bracket-rotated.stl", FX)));
+  const m = stlPrimitives(tris, 25.4);
+  const distinct = new Set();
+  for (let o = 0; o < tris.length; o += 3) distinct.add(`${tris[o]},${tris[o + 1]},${tris[o + 2]}`);
+  assert.equal(m.points.length, distinct.size);
+  assert.ok(m.points.length < tris.length / 3, "a closed mesh shares its vertices");
+  // the reading before deduplication: three points per triangle
+  const every = { ...m, points: [] };
+  for (let o = 0; o < tris.length; o += 3) every.points.push({ p: [tris[o] * 25.4, tris[o + 1] * 25.4, tris[o + 2] * 25.4], exact: true });
+  const frame = [[0.6, 0.8, 0], [-0.8, 0.6, 0], [0, 0, 1]];
+  for (const f of [WORLD, frame]) {
+    const a = boxInFrame(m, f), b = boxInFrame(every, f);
+    assert.deepEqual(a, b);
+    assert.deepEqual(roundEnvelopes(m, f, a), roundEnvelopes(every, f, b));
+  }
+});
+
 test("an open mesh is reported", () => {
   const ascii = "solid t\nfacet normal 0 0 1\nouter loop\nvertex 0 0 0\nvertex 1 0 0\nvertex 0 1 0\nendloop\nendfacet\nendsolid t\n";
   const m = stlPrimitives(parseStl(ascii));
