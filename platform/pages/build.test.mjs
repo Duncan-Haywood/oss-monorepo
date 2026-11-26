@@ -5513,11 +5513,10 @@ test('the hub sitemap holds the hub, the product pages, the Tools index, the cat
   // And each research topic page, which the build passes in the same list.
   assert.ok(renderHubSitemap(BASE, [], [], ['topics/accel']).includes(`<loc>${BASE}${RESEARCH_PATH}topics/accel/</loc>`));
 
-  // The writing index and each post, and neither when there are no posts.
-  const withPosts = renderHubSitemap(BASE, [], [], [], ['a-post']);
-  assert.ok(withPosts.includes(`<loc>${BASE}writing/</loc>`));
-  assert.ok(withPosts.includes(`<loc>${BASE}writing/a-post/</loc>`));
-  assert.ok(!renderHubSitemap(BASE).includes('writing/'));
+  // Both blogs' pages, as paths from the site root (writing.mjs, buildWriting), and none when there are no posts.
+  const withPosts = renderHubSitemap(BASE, [], [], [], ['blog/', 'blog/a-guide/', 'engineering/', 'engineering/a-post/']);
+  for (const p of ['blog/', 'blog/a-guide/', 'engineering/', 'engineering/a-post/']) assert.ok(withPosts.includes(`<loc>${BASE}${p}</loc>`), p);
+  assert.ok(!renderHubSitemap(BASE).includes('blog/') && !renderHubSitemap(BASE).includes('writing/'));
 });
 
 test('tools whose audience browses a section are filed in it', async () => {

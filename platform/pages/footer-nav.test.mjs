@@ -10,9 +10,9 @@ const html = renderSiteFooterNav({ toRoot: '../' });
 
 test('the footer nav keeps every destination it had before grouping', () => {
   const hrefs = [...html.matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
-  const expected = ['c/', 'research/', 'writing/', 'writing/podcast/', 'stories/', 'updates/', 'changelog/',
+  const expected = ['c/', 'research/', 'blog/', 'writing/podcast/', 'stories/', 'updates/', 'changelog/',
     'queue/', 'guides/', 'compare/', 'deploy/', 'about/', 'lab/', 'feedback/', 'custom-development/',
-    'engineering/', 'dev/', 'dev/daily/', 'catalog.json', 'llms.txt', 'sitemap.xml', 'feed.xml',
+    'engineering/', 'engineering/status/', 'dev/', 'dev/daily/', 'catalog.json', 'llms.txt', 'sitemap.xml', 'feed.xml',
     'changelog/feed.xml'].map((h) => `../${h}`);
   for (const h of [...expected, REPO_URL]) assert.ok(hrefs.includes(h), `lost ${h}`);
   assert.equal(new Set(hrefs).size, hrefs.length, 'a destination is listed twice');

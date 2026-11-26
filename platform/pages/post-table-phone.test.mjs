@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { buildWriting, PHONE_TABLE_CSS, WRITING_PATH } from './writing.mjs';
+import { buildWriting, ENGINEERING_BLOG_PATH, PHONE_TABLE_CSS } from './writing.mjs';
 
 const POST = '---\ntitle: "T"\ndate: 2026-11-19\ndescription: "D."\ntags: [notes]\n---\n\n# T\n\n| a | b | c | d |\n|---|---|---|---|\n| 1 | 2 | 3 | 4 |\n';
 
@@ -16,7 +16,7 @@ async function builtPost() {
   writeFileSync(path.join(root, 'docs/posts/2026-11-19-t.md'), POST);
   const out = mkdtempSync(path.join(os.tmpdir(), 'ptp-out-'));
   await buildWriting(out, 'https://example.test/', { root });
-  return readFileSync(path.join(out, WRITING_PATH, 't/index.html'), 'utf8');
+  return readFileSync(path.join(out, ENGINEERING_BLOG_PATH, 't/index.html'), 'utf8');
 }
 
 test('the rule is phone-only, so desktop tables keep their layout', () => {
