@@ -88,12 +88,13 @@ def next_items(roadmap: str) -> list[tuple[int, str]]:
     bullets are numbered from 1.
     """
     items: list[tuple[int, str]] = []
-    inside = False
+    inside = found = False
     for line in roadmap.splitlines():
         if line.startswith("## "):
             if inside:
                 break
             inside = line[3:].strip().lower().startswith("next")
+            found = found or inside
             continue
         if not inside:
             continue
@@ -102,7 +103,20 @@ def next_items(roadmap: str) -> list[tuple[int, str]]:
             items.append((int(m.group(1)) if m.group(1) else len(items) + 1, m.group(2).strip()))
         elif items and line.startswith((" ", "\t")) and line.strip():
             items[-1] = (items[-1][0], items[-1][1] + " " + line.strip())
-    return items
+    return items if found else inline_next(roadmap)
+
+
+# wall-framing-takeoff (bet #6) keeps its open work as "Next here: ..." sentences inside its
+# milestone list and has no `## Next` heading, so this tool listed 0 items and two runs on
+# 2026-11-26 read the bet as exhausted. With no heading, those sentences are the items.
+_INLINE = re.compile(r"\bNext here:\s*(.+?)(?:[.;](?=\s+[A-Z(*`])|[.;]?\s*$|\n\s*\n|\n\s*(?:[-*]|\d+\.)\s)",
+                     re.S)
+
+
+def inline_next(roadmap: str) -> list[tuple[int, str]]:
+    """(number, text) of each "Next here: ..." sentence, for a ROADMAP with no `## Next` list."""
+    return [(i, re.sub(r"\s+", " ", m.group(1)).strip().rstrip(";,."))
+            for i, m in enumerate(_INLINE.finditer(roadmap), 1)]
 
 
 # Items whose own text says they wait on something a session cannot supply. Twenty-odd run

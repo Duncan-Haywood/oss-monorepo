@@ -655,7 +655,7 @@ def main(argv=None):
         print(f"       {c['example']}")
         if c.get("prs"):
             print(f"       open PRs naming it (last {FRESH_HOURS} h): "
-                  + ", ".join(f"#{n}" for n in c["prs"][:6]) + " (check before taking it: claim_check.py)")
+                  + ", ".join(f"#{n}" for n in c["prs"][:6]) + " (check before taking it: portfolio/router/claim_check.py)")
         t = c.get("touched")
         if t:
             print(f"       touched since: {t[3]} {t[0]} {t[1]} {t[2][:90]}")

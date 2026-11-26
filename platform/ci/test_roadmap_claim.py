@@ -52,6 +52,20 @@ class ParseTest(unittest.TestCase):
         self.assertEqual(rc.slugify(items[1][1]), "billing-part-2")
         self.assertTrue(rc.slugify(items[0][1]).startswith("launch-deploy-pipeline"))
 
+    def test_inline_next_here_when_no_next_heading(self):
+        text = ("## Milestones\n\n6. **Roof.** In order:\n"
+                "   - hips: **done** (`hiproof.mjs`). Next here: draw the lines on the plan view\n"
+                "     (no outline yet), and courses;\n"
+                "   - angled sides, refused today;\n"
+                "   - siding: **done**. Next here: the band under the rake, and vented soffit\n"
+                "     panels (sizing reads the framed roof).\n"
+                "7. **Proof.** Compare one list.\n")
+        self.assertEqual(rc.next_items(text), [
+            (1, "draw the lines on the plan view (no outline yet), and courses"),
+            (2, "the band under the rake, and vented soffit panels (sizing reads the framed roof)")])
+        # A `## Next` heading wins, even an empty one: inline notes are then history.
+        self.assertEqual(rc.next_items("## Next\n\n## Done\n- x. Next here: old\n"), [])
+
     def test_slug_before_colon(self):
         self.assertEqual(rc.slugify("QuickBooks, part 5: an item per line"), "quickbooks-part-5")
 
