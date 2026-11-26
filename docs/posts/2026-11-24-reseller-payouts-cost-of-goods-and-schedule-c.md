@@ -325,6 +325,49 @@ Nothing typed into the check is saved. It is a comparison of your records
 with the form, not tax advice, and it does not tell you what to report:
 your income is what the books show, whether or not the form agrees.
 
+## Your own Shopify store, in the same books (added 2026-11-26)
+
+Plenty of resellers run a Shopify store beside the marketplaces, for repeat
+buyers and for items they'd rather not pay a marketplace fee on. Seller
+Books now reads Shopify, and Shopify is the first platform where every
+column we read is one Shopify documents itself, on its
+[order export](https://help.shopify.com/en/manual/fulfillment/managing-orders/exporting-orders)
+and
+[payout transactions](https://help.shopify.com/en/manual/payments/shopify-payments/payouts/view-details)
+help pages (read 2026-11-26). For the other six platforms we had to piece
+the headers together from excerpts and seller posts.
+
+Two things make Shopify harder than its tidy column list suggests:
+
+- **The sales and the fees are in two different files.** The orders export
+  (Orders > Export) has what each buyer paid, one row per line item, with
+  the order's totals filled in on its first row only. The processing fee
+  is not in it. That fee is in the Shopify Payments transactions export
+  (Finance > Payouts > View transactions > Export), on each `charge` row,
+  next to the same charge's amount. Import both and add up every amount,
+  and each sale is counted twice. Seller Books takes the sales from the
+  orders file and only the fees from the transactions file.
+- **One type covers very different things.** The transactions file uses
+  `adjustment` for a chargeback fee, a refunded fee and a Shopify Capital
+  repayment alike. The first two are business costs or credits. A loan
+  repayment is not a cost at all. Seller Books books adjustments as other
+  fees and lists their line numbers, so you can match them against the
+  Payouts page.
+
+In our test files, three paid orders came to $169.00 of goods and shipping,
+with a $20.00 refund. The transactions file added $4.75 of processing fees
+and a $15.00 chargeback fee. It also had a $94.40 chargeback that was later
+won, which nets to nothing on Schedule C line 2. Importing the
+transactions file a second time added nothing. The worksheet: line 1
+$169.00, line 2 $20.00, line 10 $19.75. A test in the app checks those
+figures.
+
+Two costs are in neither file: your Shopify plan and Shopify Shipping
+labels, which go on your Shopify bill. Add them as expenses, or bring them
+in from the card statement that paid the bill. If your store takes payments
+through PayPal or another processor instead of Shopify Payments, those fees
+come from that processor's statement.
+
 ## What comes next
 
 Each of the ten tool pages now ends with a short "track true profit across
