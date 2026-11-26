@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKntDCReBaeX4WACPE6",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T10:18:35Z",
+  "ended": "2026-11-26T10:31:49Z",
+  "wall_minutes": 13.83,
+  "tokens_in": 11918082,
+  "tokens_out": 37358,
+  "cost_usd": 4.3539,
+  "tool_calls": 93,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19318",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First worker-test draft posted line inputs without material (400); fixed the test fixture."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets named payapps #5 as 'free', but its remaining parts (Siteline / Trimble Pay formats) have no public spec. Free-but-source-gated items read as workable and cost a read each."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "www.dir.ca.gov (CA eCPR spec, payapps #9) is refused by the proxy (403); not in the 'Outbound hosts' list."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Bet #1 payapps had 5 live claims, and its two free items were source-gated in practice, so I took bet #2 jobshop-quote #10 instead.",
+      "did": "Claimed jobshop-quote #10 winloss-line-routing",
+      "result": "Merged as private PR 311"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-a-step-file-now-sizes-the-blank-in-the-job-shop-quoter.md (extended)",
+    "docs/reports/ventures-2026-11-26-jobshop-winloss-line-routing.md"
+  ],
+  "goal": null,
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/311 merged (squash c3c0cee). Private CI was runner-starved (ci_starvation.py run 45801619604: 2 of 2 jobs got no runner), so checks ran locally: typecheck clean; build ok; biome clean; unit 499/499 in 36 files; worker 225/225 in 36 files; e2e 8/9 on the full run, and the failing 05-team-and-import (invite email not visible, 15 s timeout, unrelated to routings) passed on a rerun, so it is flaky. risk_review: nothing blocked; personal-data check on the test file answered (synthetic tenants, no new data collected).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0f7bec67-d8cb-5630-b82f-9a8c32845e4e",
+    "transcripts": 1,
+    "first": "2026-11-26T10:18:35Z",
+    "last": "2026-11-26T10:32:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 88,
+        "input": 168,
+        "output": 37358,
+        "thinking": 5438,
+        "cache_read": 11761182,
+        "cache_write_5m": 0,
+        "cache_write_1h": 156732,
+        "api_equivalent_usd": 4.3539,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 88,
+      "input": 168,
+      "output": 37358,
+      "thinking": 5438,
+      "cache_read": 11761182,
+      "cache_write_5m": 0,
+      "cache_write_1h": 156732,
+      "api_equivalent_usd": 4.3539,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 93,
+    "tools": {
+      "Bash": 87,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.83,
+      "active_minutes": 13.83,
+      "model_minutes": 8.34,
+      "tool_minutes": 5.49,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "schema+migration, API, client, report, tests, docs for one feature slice",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 137.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
