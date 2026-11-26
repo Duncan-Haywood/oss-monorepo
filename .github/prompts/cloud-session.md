@@ -59,7 +59,7 @@ payapps there. On 2026-11-25 this worked first time:
    demand, an unreachable source or the owner, and ending with the free, ungated ones); `--claim N` (with `--slug`/`--note`
    for one part of an item) pushes a create-only `claim/<app>/<slug>` branch there and
    exits 4 if another run got it first, so pick another (re-running on your own claim
-   prints YOURS; an app with no ROADMAP.md takes `--slug` claims; `--release` usually
+   prints YOURS; an app with no ROADMAP.md, or work not on its Next list, takes `--slug` alone, no `--claim`; `--release` usually
    fails through the proxy, so let a dropped claim go stale). Open-PR checks missed this:
    private PRs 106-108 built one item within 20 minutes (backlog P079).
    The claim does not reserve a migration number: fetch the private `main` and
