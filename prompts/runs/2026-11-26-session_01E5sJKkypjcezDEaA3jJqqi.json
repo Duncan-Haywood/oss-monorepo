@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKkypjcezDEaA3jJqqi",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T12:18:28Z",
+  "ended": "2026-11-26T12:28:23Z",
+  "wall_minutes": 10.21,
+  "tokens_in": 7370415,
+  "tokens_out": 34672,
+  "cost_usd": 3.2037,
+  "tool_calls": 73,
+  "task": "Bet #1 (payapps) public front door: guide to billing through Procore, Textura and GCPay portals, with a line converter and GCPay SOV check",
+  "projects": [
+    "pay-app-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19346",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "First draft of gcportal.mjs assumed toCents returns null on bad input (it returns NaN, and 0 for blank); caught by its own tests before commit.",
+    "A test expectation for the GCPay check was wrong (contract error suppresses the 'paste a line' error by design); fixed the test."
+  ],
+  "integrity_issues": [
+    "Vendor rules (Procore, Oracle Textura, GCPay) are quoted from the payapps exporters' source comments, read 2026-11-25/26 by earlier sessions; no vendor host was reachable from this session, so the page says they were not re-read. An early draft gave GCPay '$ This Period' as work plus new stored materials and said all portals apply contract retainage; neither is in the sources, both removed before commit."
+  ],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets said 'Start here: payapps #7', but #7 (getting-started part 6) waits on real companies being counted, and #10 is 'if those ever exist': the free-and-not-gated filter misses conditional wording like 'once real companies are counted'."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Every outside host tried (developers.cloudflare.com, law.justia.com, docs.oracle.com, support.procore.com, gcpay.com) failed DNS in this session; the 'Outbound hosts' advice to probe first was right, but the bets' remaining items mostly need exactly these hosts, so most of a run's options vanish. Worth naming in roadmap_claim (gate items that need an unreachable source)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Default is to build the bet's private product when the clone works. The clone worked, but every free item on payapps, jobshop-quote, einvoice and cmmc Next lists waits on the owner's launch steps, real customer files, or hosts this session cannot reach.",
+      "did": "Built the bet's public front door instead: a search-aimed guide plus tested tools in pay-app-guides, sourced from the private exporters' dated quotes.",
+      "result": "Landed one new SEO/lead page for bet #1; no private PR."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No new docs/posts entry: owner asks for consolidated posts, and the guide page itself is the customer-facing SEO piece; a post announcing it would be thin.",
+      "did": "Listed the page in llms.txt, llms answers, nav, sitemap and the construction industry page.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "ventures/pay-app-guides/gc-portal-billing.html (customer guide, no separate post)"
+  ],
+  "goal": "$10k MRR: traffic to bet #1 (payapps)",
+  "notes": "Security queue empty (exit 3). Ideas inbox empty. Routed ventures/2 by draw. Private clone succeeded; also scanned payapps worker queries for tenant filters (no leaks found among the flagged global-table queries). Tests: pay-app-guides node --test 264 pass 0 fail; run_venture_tests.py pay-app-guides 0 failed with site page checks; Playwright 390/1200 px no console errors, no horizontal scroll.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e3c5a0fb-2641-5697-9f99-3e574d5e98ea",
+    "transcripts": 1,
+    "first": "2026-11-26T12:18:28Z",
+    "last": "2026-11-26T12:28:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 68,
+        "input": 134,
+        "output": 34672,
+        "thinking": 6445,
+        "cache_read": 7237506,
+        "cache_write_5m": 0,
+        "cache_write_1h": 132775,
+        "api_equivalent_usd": 3.2037,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 68,
+      "input": 134,
+      "output": 34672,
+      "thinking": 6445,
+      "cache_read": 7237506,
+      "cache_write_5m": 0,
+      "cache_write_1h": 132775,
+      "api_equivalent_usd": 3.2037,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 73,
+    "tools": {
+      "Bash": 66,
+      "ToolSearch": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "WebFetch": 1,
+      "Write": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.21,
+      "active_minutes": 10.21,
+      "model_minutes": 7.54,
+      "tool_minutes": 2.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "researching three portals' billing docs, writing a sourced guide and two small tested calculators",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 156.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
