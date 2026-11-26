@@ -318,6 +318,20 @@ page it turned. Tested on the black-and-white scan above with one page
 turned each way: all 48 lines and the $1,120,223.00 total came through.
 (Added 2026-11-26; still in development.)
 
+**The WIP schedule, as a PDF for the surety.** A bonded subcontractor
+sends a work-in-progress schedule to its surety, and often its bank, every
+quarter or at year end. The build already works one out from each job's cost
+budgets, its costs and its latest sent pay application (cost-to-cost percent
+complete). It now prints that schedule as a one-file PDF: for each active
+job the contract, the estimated cost and gross profit, cost to date, percent
+complete, earned revenue, billed to date, over and under billing, cost to
+complete and the revenue still to earn, with totals and a line for the
+company to sign. A job still missing a budget line is listed but left out of
+the totals, and the page says so. The PDF says what it is: a working
+schedule, not financial statements, an audit or a review, to check with the
+company's accountant before it goes to the surety. (Added 2026-11-26; still
+in development.)
+
 The working price range in our notes is about $99 to $249 a month. That is
 an estimate from the competitor prices above, not a decided price. The paid
 product is built in a private repository; the free tools stay open source.
