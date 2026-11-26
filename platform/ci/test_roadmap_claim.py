@@ -420,7 +420,7 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertIn("payapps: 3 Next, free and not gated: none; 3 live claim(s)", out)
         self.assertIn("seller-books: no ROADMAP.md", out)
         self.assertIn("nowhere: not in this clone", out)
-        self.assertIn("Start here: bet #3 jobshop-quote, item #3", out)
+        self.assertRegex(out, r"Start here: bet #3 jobshop-quote, item #[34] ")
 
     def test_spread_rotates_the_top_choices_per_session(self):
         # 2026-11-26 friction (4 runs): every run got the same "Start here" item and lost the
