@@ -42,7 +42,37 @@
     textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
     pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
     .scroll { overflow-x: auto; }
-    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, #suite, #template, #next, header { display: none; } }
+    /* Phone (measured 2026-11-26 at 390 px): the 10-column results table was 1,004 px wide in a
+       sideways scroller, with every amount after Scheduled off screen, and the padded summary
+       wrapped each amount under its label. Below 600 px each line is a card ("1 General
+       conditions", then one row per amount, named), and sumview.mjs draws the summary as
+       label/amount rows. The <pre> stays the download source and shows from 601 px up. */
+    .sum-view { display: none; }
+    @media (max-width: 600px) {
+      input, select { font-size: 16px; } /* under 16 px, iOS zooms the page on focus */
+      table.stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+      table.stack, table.stack tbody, table.stack tr { display: block; }
+      table.stack tr { border: 1px solid #dad6c8; border-radius: 10px; padding: 10px 12px 4px; margin: 0 0 10px; background: #fff; }
+      table.stack td { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; border: 0; border-top: 1px solid #e8e4d6; padding: 6px 0; text-align: right; }
+      table.stack td::before { content: attr(data-label); color: #54503f; font-size: .8rem; font-weight: 600; text-align: left; }
+      table.stack td:first-child, table.stack td:nth-child(2) { display: inline; border: 0; padding: 0; font-weight: 700; color: #3b2a14; }
+      table.stack td:first-child { margin-right: .45em; }
+      table.stack td:nth-child(3) { margin-top: 8px; }
+      table.stack td:empty { display: none; }
+      pre.sum.has-view { display: none; }
+      .sum-view:not([hidden]) { display: block; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 6px 12px; font-size: .9rem; }
+      .sum-view .sv-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 5px 0; border-top: 1px solid #e8e4d6; }
+      .sum-view .sv-row:first-child, .sum-view .sv-gap + .sv-row, .sum-view .sv-text + .sv-row { border-top: 0; }
+      .sum-view .sv-v { font-variant-numeric: tabular-nums; font-weight: 700; text-align: right; color: #3b2a14; }
+      .sum-view .sv-v span { display: block; white-space: nowrap; }
+      .sum-view .sv-text { padding: 3px 0; }
+      .sum-view .sv-head { font-weight: 700; color: #3b2a14; }
+      .sum-view .sv-text:not(.sv-head) { color: #54503f; font-size: .85rem; }
+      .sum-view .sv-item { position: relative; padding: 4px 0 4px 1em; }
+      .sum-view .sv-item::before { content: "•"; position: absolute; left: 0; color: #54503f; }
+      .sum-view .sv-gap { height: 8px; }
+    }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } .sum-view { display: none !important; } pre.sum { display: block !important; } button, #inputs, footer, #rules, #faq, #suite, #template, #next, header { display: none; } }
   </style>
 </head>
 <body>
@@ -90,7 +120,7 @@
     <pre class="sum" id="summary"></pre>
     <div id="report-findings"></div>
     <div id="import-notes" hidden><h3>From your spreadsheet</h3><ul class="note" id="import-list"></ul></div>
-    <div class="scroll"><table><thead><tr><th scope="col">Item</th><th scope="col">Description</th><th scope="col" class="n">Scheduled</th><th scope="col" class="n">Previous</th><th scope="col" class="n">This period</th><th scope="col" class="n">Stored</th><th scope="col" class="n">Completed</th><th scope="col" class="n">%</th><th scope="col" class="n">Balance</th><th scope="col" class="n">Retainage</th></tr></thead><tbody id="rows"></tbody></table></div>
+    <div class="scroll"><table class="stack sov-out"><thead><tr><th scope="col">Item</th><th scope="col">Description</th><th scope="col" class="n">Scheduled</th><th scope="col" class="n">Previous</th><th scope="col" class="n">This period</th><th scope="col" class="n">Stored</th><th scope="col" class="n">Completed</th><th scope="col" class="n">%</th><th scope="col" class="n">Balance</th><th scope="col" class="n">Retainage</th></tr></thead><tbody id="rows"></tbody></table></div>
     <p><button type="button" id="dl-summary">Download summary (text)</button> <button type="button" class="secondary" id="dl-csv">Download schedule (CSV)</button> <button type="button" class="secondary" id="dl-xlsx">Download as Excel (live formulas)</button> <button type="button" class="secondary" id="print">Print</button></p>
     <p class="note">The Excel file has two sheets in this tool's own layout, an application summary and a lettered continuation sheet, with every total as a formula and ten spare rows the totals already cover. It is a standard .xlsx file, checked in LibreOffice.</p>
     <div id="next">
@@ -160,6 +190,7 @@
       <p>Related: <a href="../construction-delay-claim-calculator/">construction delay claim calculator</a>, for sizing a delay claim against liquidated damages.</p>
   </footer>
 
+  <script type="module" src="sumview.mjs"></script>
   <script type="module">
     import { compute, parseCsv, sampleList, SAMPLE_SETTINGS, summaryText, scheduleCsv, dollars, pctText, nextPeriod } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
@@ -211,7 +242,7 @@
       $("#due").textContent = dollars(r.summary.due);
       $("#summary").textContent = summaryText(r, s);
       $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
-      $("#rows").innerHTML = r.lines.map((l) => `<tr><td>${esc(l.item)}</td><td>${esc(l.desc)}</td><td class="n">${dollars(l.c)}</td><td class="n">${dollars(l.d)}</td><td class="n">${dollars(l.e)}</td><td class="n">${dollars(l.f)}</td><td class="n">${dollars(l.g)}</td><td class="n">${l.pct == null ? "" : pctText(l.pct)}</td><td class="n">${dollars(l.balance)}</td><td class="n">${dollars(l.ret)}</td></tr>`).join("");
+      $("#rows").innerHTML = r.lines.map((l) => `<tr><td>${esc(l.item)}</td><td>${esc(l.desc)}</td><td class="n" data-label="Scheduled">${dollars(l.c)}</td><td class="n" data-label="Previous">${dollars(l.d)}</td><td class="n" data-label="This period">${dollars(l.e)}</td><td class="n" data-label="Stored">${dollars(l.f)}</td><td class="n" data-label="Completed">${dollars(l.g)}</td><td class="n" data-label="Percent complete">${l.pct == null ? "" : pctText(l.pct)}</td><td class="n" data-label="Balance to finish">${dollars(l.balance)}</td><td class="n" data-label="Retainage">${dollars(l.ret)}</td></tr>`).join("");
       report.hidden = false;
       loadWorkbook().catch(() => {}); // warm the .xlsx writer for the download button below
       status.textContent = `${r.lines.length} lines read${imported ? ` from ${imported.header}` : ""}; ${r.findings.filter((f) => f.severity !== "info").length} finding(s) to look at.`;
