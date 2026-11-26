@@ -86,6 +86,30 @@ class ParseTest(unittest.TestCase):
                      "Ask-for-payment email when an invoice is overdue"):
             self.assertIsNone(rc.gate(free), free)
 
+    def test_gate_reads_each_open_ask(self):
+        # Wordings ten run records (2026-11-26) saw listed as free though they wait on customers.
+        for gated in ("Portal formats, part 4: other portals (Siteline) if customers bill through them",
+                      "Getting started, part 6: once real companies are counted, change the step",
+                      "History, part 3: history for waivers outside a pay app, if those ever exist",
+                      "Win/loss, part 4 (by month done 2026-11-25). Next: whatever the first shops ask.",
+                      "Import, part 4 (dates done 2026-11-26): check the headers once shops send real files",
+                      "Hosting, part 3: the owner runs the workflow once; then point the site's CTA at /app"):
+            self.assertIsNotNone(rc.gate(gated), gated)
+        # Gated only when every open ask waits: one free ask leaves the item free, and the
+        # history in the item (done notes, "X is done") is not an ask.
+        mixed = ("Policies, part 2 (calendar done 2026-11-26): an import of an existing policy binder "
+                 "from .docx files; the manual as a PDF if shops ask for one")
+        self.assertIsNone(rc.gate(mixed))
+        self.assertEqual([h and h[0] for _, h in rc.ask_gates(mixed)], [None, "waits on demand"])
+        history = ("Job costing, part 3 is done (2026-11-26): lines picked by class when a company "
+                   "tracks jobs by class. Next, if people ask: a class and its sub-classes together. "
+                   "Purchase orders read as commitments are done (2026-11-26)")
+        self.assertEqual(rc.gate(history), "waits on demand")
+        self.assertEqual(len(rc.open_asks(history)), 1)
+        # Statute abbreviations are not sentence ends.
+        self.assertEqual(len(rc.open_asks("Waivers, if asked: move the day once Miss. Code Ann. "
+                                          "§ 1-3-67 is read")), 1)
+
     def test_parse_claims_newest_generation(self):
         ls = ("a\trefs/heads/claim/payapps/history-part-3\n"
               "b\trefs/heads/claim/payapps/history-part-3--2\n"
@@ -138,7 +162,8 @@ class ClaimRaceTest(unittest.TestCase):
 
     def test_listing_marks_gated_items_and_sums_up(self):
         roadmap = self.a / "apps" / "payapps" / "ROADMAP.md"
-        roadmap.write_text(ROADMAP.replace("GC portal export formats", "GC portal formats, if people ask"))
+        roadmap.write_text(ROADMAP.replace("Notarization block / state-specific forms; GC portal export formats",
+                                           "Notarization block, if people ask; GC portal formats, if people ask"))
         _, listing = self.main(self.a)
         self.assertIn('[free, waits on demand: "if people ask"] notarization', listing)
         self.assertIn("Free and not gated: #1, #2", listing)

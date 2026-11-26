@@ -20,7 +20,8 @@ shown as stale, and --claim on it takes a fresh generation (`<slug>--2`), since 
 that made it has ended. A claim whose slug a later commit subject on origin/main names
 (the PR title, punctuation ignored) is shown as MERGED and is no sibling. A claim records a hash of the session id, so re-running --claim on
 your own claim prints YOURS (exit 0), not TAKEN. An app with no ROADMAP.md, or work not on its Next list, takes --slug alone (`--claim 0 --slug X` means the same). A free item whose text says it waits ("if people ask", "once real companies are counted", "once ... reachable", "the owner runs", "if those ever exist")
-is listed as gated with the phrase quoted, and the listing ends with the free, ungated item numbers. A --slug whose
+is listed as gated with the phrase quoted (an item that mixes asks is gated only when every
+open ask waits; the listing names the open one), and the listing ends with the free, ungated item numbers. A --slug whose
 words match a fresh rival claim's (pages-shop-time-zone vs page-dates-shop-time-zone) is
 refused as NEAR (exit 4) unless --distinct. Merged and stale claims not under an item are
 summed up in one line each (--all lists them with notes). A refused claim push says TAKEN
@@ -121,18 +122,106 @@ GATES = (
         r"\bwhatever\b[^.;()]{0,30}\b(?:asks?|wants?|needs?)\b", re.I)),
     ("waits on a source", re.compile(
         r"\bonce\b[^.;()]{0,60}\b(?:reachable|published|available|in hand|is live|goes live|"
-        r"answers)\b|\b403\b|\bno public (?:spec|format|columns?|schema|docs?)\b", re.I)),
+        r"answers|(?:is|can be) read|has run)\b|\b403\b|\bwhen\b[^.;]{0,60}\bchanges?\b|\bno public (?:spec|format|columns?|schema|docs?)\b", re.I)),
     ("owner step", re.compile(
         r"\bowner[- ](?:only|steps?|actions?)\b|\bneeds the owner\b|"
         r"\b(?:once|until|after|when)\s+the owner\b|\bthe owner (?:runs|onboards|sets|adds)\b|"
-        r"\bonboard(?:s|ing)? the sender domain\b|(?:^|[.;(]\s*)owner:", re.I)),
+        r"\bonboard(?:s|ing)? the sender domain\b|(?:^|[.;(]\s*)owner:|"
+        r"\b[A-Z][A-Z_]*_(?:TOKEN|SECRET|API_KEY)\b", re.I)),
     ("waits on evidence", re.compile(
-        r"\bif\b[^.;()]{0,60}?\b(?:ever|turns? up|shows? up|proves?|turns? out)\b", re.I)),
+        r"\bif\b[^.;()]{0,60}?\b(?:ever|turns? up|shows? up|proves?|turns? out)\b|"
+        r"\bif (?:the )?(?:counts?|numbers|data)\b", re.I)),
 )
 
 
+_DONE = re.compile(r"\bdone(?: \d{4}-\d\d-\d\d)?\b", re.I)
+# A clause that reports state rather than asks for work: "X is done", "the host is named",
+# "the container stays the alternative".
+_DONE_CLAUSE = re.compile(r"\b(?:is|are|was|were) (?:now )?(?:done|filled in|in place|named|recorded)\b|"
+                          r"^\W*done\b|\b(?:stays|remains)\b|\bsays so\b", re.I)
+_NEXT = re.compile(r"\bnext\b\s*[:,]", re.I)
+
+
+def _split(text: str) -> list[str]:
+    """Clauses at bracket depth 0, cut at ';' and at '. ' before a capital or a bracket."""
+    out, buf, depth = [], [], 0
+    for i, ch in enumerate(text):
+        depth += ch in "([" and 1 or (ch in ")]" and depth > 0 and -1 or 0)
+        rest = text[i + 1:i + 3]
+        # "Miss. Code Ann." and "Code Civ. Proc." are abbreviations, not sentence ends.
+        abbrev = re.search(r"(?:^|\W)[A-Z][a-z]{0,3}$", text[:i])
+        if depth == 0 and (ch == ";" or (ch == "." and not abbrev and re.match(r"\s[A-Z(`*]", rest))):
+            out.append("".join(buf))
+            buf = []
+        else:
+            buf.append(ch)
+    return [c.strip() for c in out + ["".join(buf)] if c.strip()]
+
+
+def _parens(clause: str) -> list[tuple[int, int]]:
+    """(start, end) of each depth-0 bracket group in a clause."""
+    spans, depth, start = [], 0, 0
+    for i, ch in enumerate(clause):
+        if ch in "([":
+            start = i if depth == 0 else start
+            depth += 1
+        elif ch in ")]" and depth:
+            depth -= 1
+            if depth == 0:
+                spans.append((start, i + 1))
+    return spans
+
+
+def open_asks(text: str) -> list[str]:
+    """The parts of a Next item still to build: the history ("part 2 done ...") taken out.
+
+    ROADMAP items mix what shipped with several open asks, each with its own condition. Text
+    after the last "Next:" is the open part when there is one; bracketed notes that say "done"
+    are dropped (a note that starts with "done" marks its clause done), keeping any "next, ..."
+    inside them; a clause that says "is done" goes; and a clause with "done <date>" keeps only
+    what follows it. Fragments under five words (a bare heading) go when anything else is left.
+    """
+    nexts = [m.end() for m in _NEXT.finditer(text)]
+    text = text[nexts[-1]:] if nexts and not any(a < nexts[-1] < b for a, b in _parens(text)) else text
+    asks: list[str] = []
+    for clause in _split(text):
+        kept, last, whole_done = [], 0, False
+        for a, b in _parens(clause):
+            inner = clause[a + 1:b - 1]
+            if _DONE.search(inner):
+                kept.append(clause[last:a])
+                last = b
+                # "(done ...)" up front, or a done note that ends the clause, closes the clause.
+                whole_done |= bool(re.match(r"\W*done\b", inner, re.I)) or not clause[b:].strip(" .,")
+                n = [m.end() for m in _NEXT.finditer(inner)] or [m.end() for m in
+                                                                re.finditer(r"\bnext\b,?", inner, re.I)]
+                if n:
+                    asks.extend(open_asks(inner[n[-1]:]) or [inner[n[-1]:].strip()])
+        clause = " ".join("".join(kept + [clause[last:]]).split())
+        if whole_done or _DONE_CLAUSE.search(clause):
+            continue
+        dones = list(_DONE.finditer(clause))
+        if dones:
+            clause = clause[dones[-1].end():].strip(" :,.")
+        if clause:
+            asks.append(clause)
+    long = [a for a in asks if len(a.split()) >= 5]
+    return long or asks
+
+
 def gate_match(text: str) -> tuple[str, str] | None:
-    """(why, the phrase that says so) for an item that waits, or None.
+    """(why, the phrase that says so) for an item whose every open ask waits, or None.
+
+    Items mix done history with several open asks, each with its own condition (open_asks).
+    One ask free leaves the item free: ten records (2026-11-26) found items gated by a tail
+    clause alone ("the manual as a PDF if shops ask") or freed by history text.
+    """
+    gates = ask_gates(text)
+    return None if any(hit is None for _, hit in gates) else gates[0][1]
+
+
+def _match(text: str) -> tuple[str, str] | None:
+    """(why, the phrase that says so) for the first gate phrase in one ask, or None.
 
     The phrase is shown in the listing so a run can judge the gate without opening the
     ROADMAP: three records (2026-11-26) found only a tail clause gated ("PDF if shops ask").
@@ -144,6 +233,17 @@ def gate_match(text: str) -> tuple[str, str] | None:
             phrase = text[m.start():m.end() + (end.start() if end else 40)].strip(" ,:")
             return label, phrase[:60]
     return None
+
+
+def ask_gates(text: str) -> list[tuple[str, tuple[str, str] | None]]:
+    """(ask, (why, phrase) or None) for each open ask; a "then ..." ask waits on the one before."""
+    out: list[tuple[str, tuple[str, str] | None]] = []
+    for ask in open_asks(text) or [text]:
+        hit = _match(ask)
+        if hit is None and out and re.match(r"\W*then\b", ask, re.I):
+            hit = out[-1][1]
+        out.append((ask, hit))
+    return out
 
 
 def gate(text: str) -> str | None:
@@ -533,6 +633,12 @@ def main(argv: list[str] | None = None) -> int:
         if slug in claims:
             seen.add(slug)
         print(f"{i:>3}. [{mark}] {slug}: {text[:90]}")
+        gates = ask_gates(text)
+        free_asks = [ask for ask, hit in gates if hit is None]
+        if mark.startswith("free") and len(gates) > 1:
+            # The item's heading is history; say which ask is the open one (or that none is).
+            print(f"       open ask: {free_asks[0][:140]}" if free_asks else
+                  f"       all {len(gates)} open asks wait ({', '.join(sorted({h[0] for _, h in gates}))})")
         for s, (ts, m) in parts:
             seen.add(s)
             mine = " (yours)" if is_mine(m, tag) else ""
