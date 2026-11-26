@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { preflightDocuments } from "./report.mjs";
+import { inspectCreditLinks } from "./creditlink.mjs";
 
 const SELLER = { id: "S1", name: "Supplier GmbH", vat_id: "DE136695976" };
 const invoice = (over = {}) => ({
@@ -62,4 +63,32 @@ test("findings carry no invoice number or amount", async () => {
   const result = await preflightDocuments([invoice(), credit("CN-1", 300)].map((d, i) => ({ name: `f${i}.json`, source: JSON.stringify(d) })));
   const text = JSON.stringify(result.reports[1].errors);
   assert.doesNotMatch(text, /INV-1001|CN-1|338|357/);
+});
+
+// Red-team guards, 2026-11-26 (prompts/runs/2026-11-26-session_01AcxTtHBXFeeEm4gswfK2oR.json).
+const S1 = { id: "S1" };
+const doc = (over) => ({ invoice_number: "I1", currency: "EUR", supplier: S1, ...over });
+const cn = (number, gross) => doc({ invoice_number: number, document_type: "credit_note", original_invoice: "I1", totals: { gross } });
+const rules = (docs) => {
+  const out = inspectCreditLinks(docs.map((invoice, i) => ({ name: `f${i}`, invoice })));
+  return docs.map((_, i) => (out.get(`f${i}`) || []).map((f) => f.rule));
+};
+
+test("a credit with an unreadable gross is skipped, not allowed to hide another credit's excess", () => {
+  assert.deepEqual(rules([doc({ totals: { gross: 50 } }), cn("C1", "n/a"), cn("C2", 60)]), [[], [], ["INV-057"]]);
+});
+
+test("a half cent rounds up as the CLI's ROUND_HALF_UP does (0.565 is 57 cents, over 0.56)", () => {
+  assert.deepEqual(rules([doc({ totals: { gross: 0.56 } }), cn("C1", 0.565)]), [[], ["INV-057"]]);
+});
+
+test("two invoices with the same number leave the credit to INV-019, not INV-056 or INV-057", () => {
+  const twin = doc({ totals: { gross: 10 } });
+  assert.deepEqual(rules([twin, { ...twin }, { ...cn("C1", 99), currency: "USD" }]), [[], [], []]);
+});
+
+test("a gross the CLI does not read as a number (hex, binary, 1e15 or more) adds nothing, as in creditlink.py", () => {
+  for (const gross of ["0x64", "0b1111111", "1e20"]) {
+    assert.deepEqual(rules([doc({ totals: { gross: 50 } }), cn("C1", gross)]), [[], []], gross);
+  }
 });

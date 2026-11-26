@@ -93,3 +93,51 @@ test("an EXTENDED SpecifiedLogisticsServiceCharge counts as a header charge", ()
   const without = source.replace(charge, "");
   assert.ok(checkInvoice(parseCiiInvoice(without)).length > 0, "dropping the charge must break the totals");
 });
+
+// Red-team guards, 2026-11-26: each of these reads was untested, so a mutant that
+// dropped it passed the whole suite (prompts/runs/2026-11-26-session_01AcxTtHBXFeeEm4gswfK2oR.json).
+test("a CrossIndustryInvoice in another namespace version is still routed to the CII reader", () => {
+  const source = example("cii-invoice.xml").replaceAll("CrossIndustryInvoice:100", "CrossIndustryInvoice:99");
+  assert.equal(looksLikeCii(source), true);
+});
+
+test("a seller endpoint with no schemeID is kept, so the missing scheme can be reported", () => {
+  const source = example("cii-invoice.xml").replace(
+    '<ram:SpecifiedTaxRegistration><ram:ID schemeID="VA">DE136695976',
+    '<ram:URIUniversalCommunication><ram:URIID>seller@example.com</ram:URIID></ram:URIUniversalCommunication><ram:SpecifiedTaxRegistration><ram:ID schemeID="VA">DE136695976',
+  );
+  assert.deepEqual(parseCiiInvoice(source).supplier.endpoint, { id: "seller@example.com", scheme: "" });
+});
+
+test("a header tax row that carries only a category code is still a breakdown row", () => {
+  const source = example("cii-invoice.xml").replace(
+    "<ram:SpecifiedTradePaymentTerms>",
+    "<ram:ApplicableTradeTax><ram:CategoryCode>S</ram:CategoryCode></ram:ApplicableTradeTax><ram:SpecifiedTradePaymentTerms>",
+  );
+  const rows = parseCiiInvoice(source).tax_breakdown;
+  assert.equal(rows.length, 2);
+  assert.equal(rows[1].tax_category, "S");
+});
+
+test("the tax total is the TaxTotalAmount in the invoice currency, not the first one", () => {
+  const xml = example("cii-invoice.xml");
+  const before = parseCiiInvoice(xml.replace(
+    '<ram:TaxTotalAmount currencyID="EUR">0.00</ram:TaxTotalAmount>',
+    '<ram:TaxTotalAmount currencyID="USD">9.99</ram:TaxTotalAmount><ram:TaxTotalAmount currencyID="EUR">0.00</ram:TaxTotalAmount>',
+  ));
+  assert.equal(before.totals.tax, "0.00");
+  // With none in the invoice currency, the first one is read rather than nothing.
+  const only = parseCiiInvoice(xml.replace(
+    '<ram:TaxTotalAmount currencyID="EUR">0.00</ram:TaxTotalAmount>',
+    '<ram:TaxTotalAmount currencyID="USD">9.99</ram:TaxTotalAmount>',
+  ));
+  assert.equal(only.totals.tax, "9.99");
+});
+
+test("document notes (BT-22) are read alongside the payment terms", () => {
+  const source = example("cii-invoice.xml").replace(
+    "<ram:TypeCode>380</ram:TypeCode>",
+    "<ram:TypeCode>380</ram:TypeCode><ram:IncludedNote><ram:Content>Thanks</ram:Content></ram:IncludedNote>",
+  );
+  assert.deepEqual(parseCiiInvoice(source).notes, ["Thanks", "Reverse charge — VAT to be accounted for by the recipient"]);
+});
