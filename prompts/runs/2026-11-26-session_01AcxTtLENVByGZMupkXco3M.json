@@ -1,0 +1,390 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtLENVByGZMupkXco3M",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T02:07:03Z",
+  "ended": "2026-11-26T02:07:45Z",
+  "wall_minutes": 7.06,
+  "tokens_in": 2132426,
+  "tokens_out": 11581,
+  "cost_usd": 1.1382,
+  "tool_calls": 29,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19173",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "rerun cannot follow a mutated line once the fix wraps it in a try block; the hand-triage path worked, but a fix that changes the line's text is common for CLI code."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "step 0 open list: both entries are deferred with documented reasons (control-plane workflow needing its own PR; stemmer change measured as mixed), not safe to fix here",
+      "did": "left both patched:false",
+      "result": "run time went to the bet's front-door page"
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "no customer post: a CLI input fix on a free front-door page is not news for customers",
+      "did": "agent doc in docs/reports only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/reports/redteam-2026-11-26-whichapplies-cli.md"
+  ],
+  "goal": null,
+  "notes": "Guard added: CLI and --check tests in whichapplies.test.mjs (run in the venture suite on every PR); they failed on the pre-fix code (blank turnover) and catch all 4 escaped mutants. Local verification: node --test whichapplies.test.mjs 13/13 pass; node whichapplies.mjs --check exit 0.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/einvoice-preflight/ibge-municipios-data.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 962390406,
+        "commit": "ae1d5af82",
+        "sites": 10,
+        "baseline_seconds": 9.2,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/ibge-municipios-data.mjs",
+            "line": 2,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "export const COUNT = 5571;",
+            "after": "export const COUNT = 5572;",
+            "line_text": "export const COUNT = 5571;",
+            "caught": true,
+            "seconds": 9.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/ibge-municipios-data.mjs",
+            "line": 4,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "export const CHECK_DIGIT_EXCEPTIONS = [2201919,2201988,2202251,2611533,3117836,3152131,4305871,5203939,5203962];",
+            "after": "export const CHECK_DIGIT_EXCEPTIONS = [2201920,2201988,2202251,2611533,3117836,3152131,4305871,5203939,5203962];",
+            "line_text": "export const CHECK_DIGIT_EXCEPTIONS = [2201919,2201988,2202251,2611533,3117836,3152131,4305871,5203939,5203962];",
+            "caught": true,
+            "seconds": 10.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/ibge-municipios-data.mjs",
+            "line": 4,
+            "col": 47,
+            "operator": "const-plus-one",
+            "before": "export const CHECK_DIGIT_EXCEPTIONS = [2201919,2201988,2202251,2611533,3117836,3152131,4305871,5203939,5203962];",
+            "after": "export const CHECK_DIGIT_EXCEPTIONS = [2201919,2201989,2202251,2611533,3117836,3152131,4305871,5203939,5203962];",
+            "line_text": "export const CHECK_DIGIT_EXCEPTIONS = [2201919,2201988,2202251,2611533,3117836,3152131,4305871,5203939,5203962];",
+            "caught": true,
+            "seconds": 9.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/ibge-municipios-data.mjs",
+            "line": 4,
+            "col": 55,
+            "operator": "const-plus-one",
+            "before": "export const CHECK_DIGIT_EXCEPTIONS = [2201919,2201988,2202251,2611533,3117836,3152131,4305871,5203939,5203962];",
+            "after": "export const CHECK_DIGIT_EXCEPTIONS = [2201919,2201988,2202252,2611533,3117836,3152131,4305871,5203939,5203962];",
+            "line_text": "export const CHECK_DIGIT_EXCEPTIONS = [2201919,2201988,2202251,2611533,3117836,3152131,4305871,5203939,5203962];",
+            "caught": true,
+            "seconds": 9.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/ibge-municipios-data.mjs",
+            "line": 4,
+            "col": 63,
+            "operator": "const-plus-one",
+            "before": "export const CHECK_DIGIT_EXCEPTIONS = [2201919,2201988,2202251,2611533,3117836,3152131,4305871,5203939,5203962];",
+            "after": "export const CHECK_DIGIT_EXCEPTIONS = [2201919,2201988,2202251,2611534,3117836,3152131,4305871,5203939,5203962];",
+            "line_text": "export const CHECK_DIGIT_EXCEPTIONS = [2201919,2201988,2202251,2611533,3117836,3152131,4305871,5203939,5203962];",
+            "caught": true,
+            "seconds": 9.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/ibge-municipios-data.mjs",
+            "line": 4,
+            "col": 71,
+            "operator": "const-plus-one",
+            "before": "export const CHECK_DIGIT_EXCEPTIONS = [2201919,2201988,2202251,2611533,3117836,3152131,4305871,5203939,5203962];",
+            "after": "export const CHECK_DIGIT_EXCEPTIONS = [2201919,2201988,2202251,2611533,3117837,3152131,4305871,5203939,5203962];",
+            "line_text": "export const CHECK_DIGIT_EXCEPTIONS = [2201919,2201988,2202251,2611533,3117836,3152131,4305871,5203939,5203962];",
+            "caught": true,
+            "seconds": 9.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/ibge-municipios-data.mjs",
+            "line": 4,
+            "col": 87,
+            "operator": "const-plus-one",
+            "before": "export const CHECK_DIGIT_EXCEPTIONS = [2201919,2201988,2202251,2611533,3117836,3152131,4305871,5203939,5203962];",
+            "after": "export const CHECK_DIGIT_EXCEPTIONS = [2201919,2201988,2202251,2611533,3117836,3152131,4305872,5203939,5203962];",
+            "line_text": "export const CHECK_DIGIT_EXCEPTIONS = [2201919,2201988,2202251,2611533,3117836,3152131,4305871,5203939,5203962];",
+            "caught": true,
+            "seconds": 9.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/ibge-municipios-data.mjs",
+            "line": 4,
+            "col": 95,
+            "operator": "const-plus-one",
+            "before": "export const CHECK_DIGIT_EXCEPTIONS = [2201919,2201988,2202251,2611533,3117836,3152131,4305871,5203939,5203962];",
+            "after": "export const CHECK_DIGIT_EXCEPTIONS = [2201919,2201988,2202251,2611533,3117836,3152131,4305871,5203940,5203962];",
+            "line_text": "export const CHECK_DIGIT_EXCEPTIONS = [2201919,2201988,2202251,2611533,3117836,3152131,4305871,5203939,5203962];",
+            "caught": true,
+            "seconds": 9.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/einvoice-preflight/whichapplies.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 59944467,
+        "commit": "ae1d5af82",
+        "sites": 62,
+        "baseline_seconds": 9.4,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/whichapplies.mjs",
+            "line": 34,
+            "col": 23,
+            "operator": "ge-to-gt",
+            "before": "{ when: (x) => x >= 50000000, date: \"2027-01-01\", what: \"E-invoicing is mandatory (revenue of AED 50 million or more).\" },",
+            "after": "{ when: (x) => x > 50000000, date: \"2027-01-01\", what: \"E-invoicing is mandatory (revenue of AED 50 million or more).\" },",
+            "line_text": "      { when: (x) => x >= 50000000, date: \"2027-01-01\", what: \"E-invoicing is mandatory (revenue of AED 50 million or more).\" },",
+            "caught": true,
+            "seconds": 9.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/whichapplies.mjs",
+            "line": 46,
+            "col": 20,
+            "operator": "true-to-false",
+            "before": "{ when: () => true, date: \"2027-10-01\", what: \"Electronic tax invoices are compulsory for you from 1 October 2027 (annual supplies of OMR 5 million or less), Decision 189/2026 Article 3.\" } ] },",
+            "after": "{ when: () => false, date: \"2027-10-01\", what: \"Electronic tax invoices are compulsory for you from 1 October 2027 (annual supplies of OMR 5 million or less), Decision 189/2026 Article 3.\" } ] },",
+            "line_text": "      { when: () => true, date: \"2027-10-01\", what: \"Electronic tax invoices are compulsory for you from 1 October 2027 (annual supplies of OMR 5 million or less), Decision 189/2026 Article 3.\" } ] },",
+            "caught": true,
+            "seconds": 9.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/whichapplies.mjs",
+            "line": 80,
+            "col": 51,
+            "operator": "const-plus-one",
+            "before": "const icon = hub.match(/<link rel=\"icon\"[^>]*>/)[0];",
+            "after": "const icon = hub.match(/<link rel=\"icon\"[^>]*>/)[1];",
+            "line_text": "  const icon = hub.match(/<link rel=\"icon\"[^>]*>/)[0];",
+            "caught": true,
+            "seconds": 9.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/whichapplies.mjs",
+            "line": 126,
+            "col": 108,
+            "operator": "const-plus-one",
+            "before": "<p>Open the <a href=\"./\">checker</a>, drop your JSON, UBL, CII or Factur-X file and it runs the official EN 16931 rules in your browser, with a rule ID and a plain fix for each finding. Nothing is uploaded.</p>",
+            "after": "<p>Open the <a href=\"./\">checker</a>, drop your JSON, UBL, CII or Factur-X file and it runs the official EN 16932 rules in your browser, with a rule ID and a plain fix for each finding. Nothing is uploaded.</p>",
+            "line_text": "<p>Open the <a href=\"./\">checker</a>, drop your JSON, UBL, CII or Factur-X file and it runs the official EN 16931 rules in your browser, with a rule ID and a plain fix for each finding. Nothing is uploaded.</p>",
+            "caught": true,
+            "seconds": 9.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/whichapplies.mjs",
+            "line": 157,
+            "col": 11,
+            "operator": "eq-flip",
+            "before": "if (a[0] === \"--check\") {",
+            "after": "if (a[0] !== \"--check\") {",
+            "line_text": "  if (a[0] === \"--check\") {",
+            "caught": false,
+            "seconds": 9.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "--check fell through to the write branch; new test runs --check and asserts it writes nothing and exits 0."
+          },
+          {
+            "file": "ventures/einvoice-preflight/whichapplies.mjs",
+            "line": 159,
+            "col": 35,
+            "operator": "or-to-and",
+            "before": "if (!fs.existsSync(here(PAGE)) || fs.readFileSync(here(PAGE), \"utf8\") !== h) { console.error(`${PAGE} is stale: run node whichapplies.mjs`); process.exit(1); }",
+            "after": "if (!fs.existsSync(here(PAGE)) && fs.readFileSync(here(PAGE), \"utf8\") !== h) { console.error(`${PAGE} is stale: run node whichapplies.mjs`); process.exit(1); }",
+            "line_text": "    if (!fs.existsSync(here(PAGE)) || fs.readFileSync(here(PAGE), \"utf8\") !== h) { console.error(`${PAGE} is stale: run node whichapplies.mjs`); process.exit(1); }",
+            "caught": false,
+            "seconds": 10.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "stale page passed --check; new test runs --check on a temp copy with a stale and a missing page."
+          },
+          {
+            "file": "ventures/einvoice-preflight/whichapplies.mjs",
+            "line": 161,
+            "col": 23,
+            "operator": "const-plus-one",
+            "before": "const r = answer(a[0].toUpperCase(), COUNTRIES[a[0].toUpperCase()]?.input === \"class\" ? a[1] : Number(a[1]));",
+            "after": "const r = answer(a[1].toUpperCase(), COUNTRIES[a[0].toUpperCase()]?.input === \"class\" ? a[1] : Number(a[1]));",
+            "line_text": "    const r = answer(a[0].toUpperCase(), COUNTRIES[a[0].toUpperCase()]?.input === \"class\" ? a[1] : Number(a[1]));",
+            "caught": false,
+            "seconds": 10.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "[rerun: line changed; triaged by hand] the fix moved this call inside a try block; re-applied the same mutant to the new line with sed and the new CLI tests failed (2 and 1 failures), then restored the file byte for byte."
+          },
+          {
+            "file": "ventures/einvoice-preflight/whichapplies.mjs",
+            "line": 161,
+            "col": 108,
+            "operator": "const-plus-one",
+            "before": "const r = answer(a[0].toUpperCase(), COUNTRIES[a[0].toUpperCase()]?.input === \"class\" ? a[1] : Number(a[1]));",
+            "after": "const r = answer(a[0].toUpperCase(), COUNTRIES[a[0].toUpperCase()]?.input === \"class\" ? a[1] : Number(a[2]));",
+            "line_text": "    const r = answer(a[0].toUpperCase(), COUNTRIES[a[0].toUpperCase()]?.input === \"class\" ? a[1] : Number(a[1]));",
+            "caught": false,
+            "seconds": 9.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "[rerun: line changed; triaged by hand] the fix moved this call inside a try block; re-applied the same mutant to the new line with sed and the new CLI tests failed (2 and 1 failures), then restored the file byte for byte."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/einvoice-preflight/whichapplies.mjs",
+        "issue": "CLI read a blank turnover as 0 (Number(\"\") is 0): `node whichapplies.mjs DE \"\"` printed Germany 2028-01-01 with exit 0, while the page refuses a blank field. Also `FR LARGE` was refused though country codes are case-insensitive, and bad input died with a stack trace. Now: trimmed, blank refused, size lowercased, message on stderr with exit 2.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19173"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "68ebd5f6-50b3-5d31-adb2-5c004796e4d8",
+    "transcripts": 1,
+    "first": "2026-11-26T02:07:03Z",
+    "last": "2026-11-26T02:14:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 29,
+        "input": 57,
+        "output": 11581,
+        "thinking": 2722,
+        "cache_read": 2070842,
+        "cache_write_5m": 0,
+        "cache_write_1h": 61527,
+        "api_equivalent_usd": 1.1382,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 29,
+      "input": 57,
+      "output": 11581,
+      "thinking": 2722,
+      "cache_read": 2070842,
+      "cache_write_5m": 0,
+      "cache_write_1h": 61527,
+      "api_equivalent_usd": 1.1382,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 29,
+    "tools": {
+      "Bash": 27,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.06,
+      "active_minutes": 7.06,
+      "model_minutes": 2.27,
+      "tool_minutes": 4.79,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "seed/triage two campaigns, write 3 CLI tests and a small fix",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 175.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
