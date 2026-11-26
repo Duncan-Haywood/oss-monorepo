@@ -29,6 +29,7 @@ export const GROUPS = [
     ["retainage-release.html", "Getting retainage released"],
     ["retainage-in-quickbooks.html", "Retainage in QuickBooks"],
     ["retainage-tracker.html", "Retainage tracker (every job)"],
+    ["gc-portal-billing.html", "Billing in Procore, Textura and GCPay"],
     ["pay-application-software-compared.html", "Pay app software compared"],
   ]],
   ["Getting paid and lien waivers", [
