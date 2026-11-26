@@ -3,7 +3,7 @@ title: "How much siding for a gable end? The triangle and the band under the rak
 date: 2026-10-29
 updated: 2026-11-26
 tags: [wall-framing-takeoff, for-customers, construction]
-description: "Gable-end siding area worked by hand at 4, 6, 8 and 12 in 12, plus the strip between the top plate and the rake that square-foot estimates often miss, and how the framing takeoff counts both."
+description: "Gable-end siding area by hand at 4 to 12 in 12, plus the band between the top plate and the rake that square-foot estimates miss."
 ---
 
 A gable end has more siding on it than the wall below. A quick estimate takes wall length times wall height and stops there. Real siding runs up to the rake, though, and that adds two pieces. One is the **triangle** above the eave line. The other is the **band** between the top plate and the underside of the rake. On a raised-heel truss that band can be a foot tall.
