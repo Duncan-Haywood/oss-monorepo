@@ -1,0 +1,154 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqyfUHRvYsNZum6nrBbH",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T11:39:20Z",
+  "ended": "2026-11-26T11:51:14Z",
+  "wall_minutes": 13.04,
+  "tokens_in": 12237262,
+  "tokens_out": 34116,
+  "cost_usd": 4.3798,
+  "tool_calls": 97,
+  "task": "seller-books e2e: invitations, account-email pages, sourcing-sheet import (claim seller-books/e2e-invites-email-sourcing)",
+  "projects": [
+    "seller-books"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19336",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First invitations run failed: an invitee who joins by link sees the terms card on first opening the shop, so the books were hidden; the spec now waits for either the card or the page heading"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets put bet #1 payapps first with 40+ claims today; jobshop-quote, cmmc and einvoice items listed as 'free' were in substance waiting on a deploy or on customer files, which took several ROADMAP reads to find"
+    },
+    {
+      "file": "apps/jobshop-quote/docs/DEPLOY.md (private)",
+      "issue": "'Before strangers sign up' still labels running the deploy 'Owner:', while docs/legal/OPERATOR.md (2026-11-26) lets agents run it; neither says that private Actions currently get no runner, so the deploy cannot run at all"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "'Every session lands its own work' step 5 asks for unlanded_work.py; in a two-repo run it is not clear whether the private PR alone counts as the landed work"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md (Write about the work)",
+      "why": "No blog post: this run's work is test coverage for an app that is not yet deployed, and a customer post about it would advertise a product nobody can sign up for",
+      "did": "Wrote an agent report in docs/reports instead",
+      "result": "Next run gets the terms-acceptance finding and the confirmCheckout helper"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md (advance the top bet)",
+      "why": "Bets 1-4: payapps was crowded, and the free items on jobshop-quote, einvoice and cmmc were blocked on a deploy that private Actions cannot run (no runners) or on real customer files",
+      "did": "Took bet #5, seller-books (no claims): e2e coverage of the launch gaps in its ARCHITECTURE.md",
+      "result": "Merged as private PR 320"
+    }
+  ],
+  "writeups": [
+    "docs/reports/ventures-2026-11-26-seller-books-e2e-invites-email.md"
+  ],
+  "goal": "$10k MRR: launch readiness of bet #5 (Seller Books)",
+  "notes": "Product work: Duncan-Haywood/private-monorepo PR 320. private-monorepo PR 320 merged (b281a85). Private CI is starved: ci_starvation.py --run 45814077271 reported 2/2 jobs with no runner. Local checks: e2e 8/8 twice (38-40 s), unit 177/177, tsc clean, biome clean. Finding: terms acceptance is enforced in the browser only (written in the app's ARCHITECTURE.md). Security queue empty; ideas inbox empty.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3f259406-c65e-598e-9475-8b93e3f06552",
+    "transcripts": 1,
+    "first": "2026-11-26T11:39:20Z",
+    "last": "2026-11-26T11:52:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 93,
+        "input": 179,
+        "output": 34116,
+        "thinking": 7155,
+        "cache_read": 12076907,
+        "cache_write_5m": 0,
+        "cache_write_1h": 160176,
+        "api_equivalent_usd": 4.3798,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 93,
+      "input": 179,
+      "output": 34116,
+      "thinking": 7155,
+      "cache_read": 12076907,
+      "cache_write_5m": 0,
+      "cache_write_1h": 160176,
+      "api_equivalent_usd": 4.3798,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 97,
+    "tools": {
+      "Bash": 82,
+      "mcp__github__actions_list": 3,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Read": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.04,
+      "active_minutes": 13.04,
+      "model_minutes": 7.92,
+      "tool_minutes": 5.11,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "three Playwright specs across two browsers plus helper refactor and docs, senior QA engineer estimate",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 91.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
