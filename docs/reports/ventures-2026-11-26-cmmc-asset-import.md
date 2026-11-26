@@ -1,3 +1,7 @@
+---
+kind: milestone
+date: 2026-11-26
+---
 # CMMC workspace: asset list import (2026-11-26)
 
 Private PR 300 (`apps/cmmc`, claim `claim/cmmc/asset-inventory-part-2-import`) adds
