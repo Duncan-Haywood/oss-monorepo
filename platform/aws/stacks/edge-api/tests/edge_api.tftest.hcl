@@ -191,3 +191,32 @@ run "deploy_role_must_be_a_role_arn" {
   }
   expect_failures = [var.deploy_role_arn]
 }
+
+# Account modes: in single-account mode with no CI role the provider assumes
+# nothing; otherwise the CI role, else the member role.
+run "single_account_without_a_ci_role" {
+  command = plan
+
+  variables {
+    account_mode    = "single"
+    deploy_role_arn = null
+  }
+
+  assert {
+    condition     = local.deploy_role_arn == null
+    error_message = "single-account mode with no CI role uses the caller's own credentials"
+  }
+}
+
+run "organization_without_a_ci_role" {
+  command = plan
+
+  variables {
+    deploy_role_arn = null
+  }
+
+  assert {
+    condition     = endswith(local.deploy_role_arn, ":role/OrganizationAccountAccessRole")
+    error_message = "organization mode falls back to the member role"
+  }
+}

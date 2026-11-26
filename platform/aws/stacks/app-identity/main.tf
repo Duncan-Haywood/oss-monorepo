@@ -15,7 +15,10 @@
 #
 # The SCP `guardrails` (stacks/org) denies IAM users and keys to everyone
 # except OrganizationAccountAccessRole (which creates this user) and roles
-# under /transitional/ (the rotator).
+# under /transitional/ (the rotator). Single-account mode has no SCPs: the
+# bootstrap lets github-apply create users under /transitional/ only, never
+# keys or passwords, and the workload boundary on every other role denies
+# users and keys outright (bootstrap.yaml, AccountMode=single).
 
 locals {
   email          = data.terraform_remote_state.email.outputs
@@ -26,8 +29,9 @@ locals {
 
 resource "aws_iam_user" "worker" {
   #checkov:skip=CKV_AWS_273:transitional by design (Cloudflare Workers cannot assume roles); deleted at aws-move-products
-  name = "transitional-worker"
-  path = "/transitional/"
+  name                 = "transitional-worker"
+  path                 = "/transitional/"
+  permissions_boundary = local.boundary
   tags = {
     spend-guard  = "deny-on-budget"
     transitional = "delete when products run on AWS (aws-move-products)"
@@ -129,8 +133,10 @@ data "aws_iam_policy_document" "lambda_trust" {
 }
 
 resource "aws_iam_role" "rotator" {
-  name               = "worker-key-rotator"
-  path               = "/transitional/"
+  name = "worker-key-rotator"
+  path = "/transitional/"
+  # The boundary denies iam:CreateAccessKey, which the rotator exists to call,
+  # so the rotator alone goes without it (its own policy names the one user).
   assume_role_policy = data.aws_iam_policy_document.lambda_trust.json
 }
 
@@ -246,8 +252,11 @@ data "aws_iam_policy_document" "sync_trust" {
 }
 
 resource "aws_iam_role" "sync" {
-  name                 = "github-worker-secret-sync"
-  path                 = "/github/"
+  name = "github-worker-secret-sync"
+  # Single-account mode: /ci/, because the bootstrap denies github-apply any
+  # change to roles under /github/ in its own account.
+  path                 = local.single ? "/ci/" : "/github/"
+  permissions_boundary = local.boundary
   description          = "Reads the transitional key so CI can put it into Worker secrets"
   assume_role_policy   = data.aws_iam_policy_document.sync_trust.json
   max_session_duration = 3600

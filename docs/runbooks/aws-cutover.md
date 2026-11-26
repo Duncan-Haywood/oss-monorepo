@@ -22,7 +22,12 @@ undone by flipping a variable back.
 Only the steps that need a card, an identity, a legal acceptance or admin
 rights on GitHub. Everything else is done by agents through pull requests.
 
-1. **Create the AWS account** (card, phone, root MFA). Region: us-east-1.
+1. **Create the AWS account** (card, phone, root MFA). Region: us-east-2
+   (the home region; us-east-1 is used only where AWS requires it, see
+   [`cutover-run-day.md`](cutover-run-day.md), "Step 0"). If the account
+   came from AWS's project-based sign-up and cannot use AWS Organizations,
+   the stacks run in single-account mode: step 0 there says how to tell and
+   which variable to set.
    If sign-up offers a Free or a Paid plan, pick Paid: the Organization and
    budget actions need the full set of services. Then, still as root
    (about 5 minutes; both are root-only, so they cannot be code):
@@ -34,10 +39,11 @@ rights on GitHub. Everything else is done by agents through pull requests.
      `platform/aws/stacks/spend/variables.tf`. If it is not offered, skip
      it: `stacks/spend` (anomaly alerts, budgets, the freeze SCP, the kill
      switch) does not depend on it.
-2. **Open AWS CloudShell** in that account (us-east-1) and paste:
+2. **Open AWS CloudShell** in that account (us-east-2) and paste (with
+   `AccountMode=single` instead for a single-account mode account):
    ```sh
    curl -fsSLO https://raw.githubusercontent.com/Duncan-Haywood/oss-monorepo/main/platform/aws/bootstrap/bootstrap.yaml
-   aws cloudformation deploy --stack-name github-bootstrap --template-file bootstrap.yaml --capabilities CAPABILITY_NAMED_IAM
+   aws cloudformation deploy --stack-name github-bootstrap --template-file bootstrap.yaml --capabilities CAPABILITY_NAMED_IAM --parameter-overrides AccountMode=organization
    aws sts get-caller-identity --query Account --output text
    ```
    The last line prints the account ID.
@@ -45,7 +51,8 @@ rights on GitHub. Everything else is done by agents through pull requests.
    so the adversarial gate reviews this tree at its strictest tier.) On your computer run
    `bash platform/aws/github/configure.sh <account-id>` (or, by hand: create
    environments `aws-prod` and `aws-llm` limited to the `main` branch and set
-   the repository variable `AWS_ACCOUNT_ID`). Also set the repository
+   the repository variable `AWS_ACCOUNT_ID`; in single-account mode also
+   `AWS_ACCOUNT_MODE=single`). Also set the repository
    variable `AWS_BUDGET_ALERT_EMAIL` to where spend alerts should go, then
    click the confirmation link AWS emails after the first apply: without it
    budget and anomaly alerts reach only the SNS topic. (The stack marks the
@@ -64,7 +71,8 @@ rights on GitHub. Everything else is done by agents through pull requests.
 5. **Claude Platform on AWS** (this accepts Anthropic's Commercial Terms and
    starts AWS Marketplace billing): from the Identity Center portal open the
    **apps** account, open *Claude Platform on AWS*, sign up, create a
-   workspace in **us-east-1**, and set the repository variable
+   workspace in **us-east-2** (the home region; single-account mode: in the
+   one account), and set the repository variable
    `CLAUDE_AWS_WORKSPACE_ID` to its `wrkspc_...` ID. In the Claude Console
    set a monthly workspace spend limit. After the next apply, turn on the
    adversarial gate's LLM review on AWS billing (no Anthropic API key):
@@ -159,7 +167,7 @@ cue.
    left). If a name differs in the dashboard, pick the closest: the export
    lists anything it could not read rather than failing.
 2. **Put it in AWS, not GitHub** (AWS CloudShell, management account,
-   us-east-1; `read -rs` keeps it out of the screen and the history):
+   us-east-2; `read -rs` keeps it out of the screen and the history):
    ```sh
    read -rs CF && aws secretsmanager create-secret --name cutover/cloudflare-api-token --secret-string "$CF" >/dev/null && unset CF && echo stored
    ```
@@ -238,6 +246,13 @@ Security Hub FSBP and CIS, Config, Access Analyzer, per-account baseline),
 New accounts can take minutes to accept `OrganizationAccountAccessRole`; if
 `baseline` fails on the first run with an assume-role error, re-run the job.
 
+Single-account mode: `org` makes no Organization, only the account's
+`workload-boundary`; `baseline` makes the account's own trail, detector,
+standards and analyzer; `spend` (applied last) one budget and the IAM-policy
+freeze. Nothing is assumed, so the retry above does not apply. Identity
+Center (step 4) is an account instance or is skipped: there are no member
+accounts to assign.
+
 **Checks (an agent runs them with the apply role and records the output in
 the PR):**
 - `aws organizations list-accounts` lists seven accounts.
@@ -281,7 +296,7 @@ Accounts are `prevent_destroy` and are never closed by CI.
   workspace. Outbound web identity federation is already on (`stacks/llm`).
 - **Check:** a job assuming `github-llm-gate` (environment `aws-llm`)
   sends one Messages request with `model: claude-opus-5-5` to
-  `https://aws-external-anthropic.us-east-1.api.aws/v1/messages` with the
+  `https://aws-external-anthropic.us-east-2.api.aws/v1/messages` with the
   `anthropic-workspace-id` header and gets HTTP 200. A 403 names the
   missing IAM action or a wrong workspace ID.
 - Agents add the `aws` provider to the products' LLM clients

@@ -1,13 +1,24 @@
+variable "account_mode" {
+  description = "organization: an AWS Organization with member accounts and SCPs. single: one account, no Organization (for an account that cannot use AWS Organizations); permissions boundaries and explicit denies stand in for the SCPs. docs/runbooks/cutover-run-day.md, step 0, says how to tell which an account supports."
+  type        = string
+  default     = "organization"
+
+  validation {
+    condition     = contains(["organization", "single"], var.account_mode)
+    error_message = "account_mode must be organization or single."
+  }
+}
+
 variable "region" {
   description = "Home region. Claude Platform on AWS supports all commercial regions (platform.claude.com docs, read 2026-11-24)."
   type        = string
-  default     = "us-east-1"
+  default     = "us-east-2"
 }
 
 variable "allowed_regions" {
-  description = "Regions the region-deny SCP leaves open. Everything else is denied for non-global services."
+  description = "Regions the region-deny SCP (single-account mode: the boundary) leaves open. Everything else is denied for non-global services. us-east-1 stays because AWS requires it for CloudFront's ACM certificate, WAF and their logs (modules/static-site); global services are exempt by name in scps.tf."
   type        = list(string)
-  default     = ["us-east-1"]
+  default     = ["us-east-2", "us-east-1"]
 }
 
 variable "account_email_template" {

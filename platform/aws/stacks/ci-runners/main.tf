@@ -104,7 +104,7 @@ resource "aws_iam_role" "ci" {
   name                 = "codebuild-${var.project_name}"
   description          = "CodeBuild runners for ${var.github_repository}: logs, the GitHub connection and the stack's KMS key, nothing else"
   assume_role_policy   = data.aws_iam_policy_document.assume.json
-  permissions_boundary = var.permissions_boundary_arn
+  permissions_boundary = local.boundary
   max_session_duration = 3600
 }
 

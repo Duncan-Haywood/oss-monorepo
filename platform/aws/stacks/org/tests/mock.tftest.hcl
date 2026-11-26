@@ -28,6 +28,18 @@ mock_provider "aws" {
     }
   }
 
+  mock_data "aws_caller_identity" {
+    defaults = {
+      account_id = "123456789012"
+    }
+  }
+
+  mock_resource "aws_iam_policy" {
+    defaults = {
+      arn = "arn:aws:iam::123456789012:policy/workload-boundary"
+    }
+  }
+
   mock_data "aws_ssoadmin_instances" {
     defaults = {
       arns               = []
@@ -63,13 +75,23 @@ run "baseline_shape" {
     condition     = length(aws_ssoadmin_account_assignment.owner) == 0
     error_message = "no Identity Center assignments until the owner's user name is set"
   }
+
+  assert {
+    condition     = length(module.boundary) == 0 && output.permissions_boundary_arn == null
+    error_message = "organization mode makes no single-account boundary (the SCPs guard the accounts)"
+  }
+
+  assert {
+    condition     = var.region == "us-east-2" && jsondecode(aws_organizations_policy.scp["region-deny"].content).Statement[0].Condition.StringNotEquals["aws:RequestedRegion"] == ["us-east-2", "us-east-1"]
+    error_message = "home region us-east-2; us-east-1 stays open for CloudFront's certificate and WAF"
+  }
 }
 
 run "resource_control_policies" {
   command = plan
 
   assert {
-    condition     = contains(aws_organizations_organization.this.enabled_policy_types, "RESOURCE_CONTROL_POLICY")
+    condition     = contains(aws_organizations_organization.this[0].enabled_policy_types, "RESOURCE_CONTROL_POLICY")
     error_message = "RCPs must be enabled on the organization."
   }
 
@@ -101,5 +123,67 @@ run "resource_control_policies" {
   assert {
     condition     = alltrue([for p in aws_organizations_policy.rcp : p.type == "RESOURCE_CONTROL_POLICY" && length(p.content) <= 5120])
     error_message = "RCPs are typed and within AWS's 5,120-character limit."
+  }
+}
+
+# Single-account mode: an account that cannot use AWS Organizations.
+run "single_account" {
+  command = plan
+
+  variables {
+    account_mode = "single"
+  }
+
+  assert {
+    condition = (
+      length(aws_organizations_organization.this) == 0
+      && length(aws_organizations_organizational_unit.this) == 0
+      && length(aws_organizations_account.this) == 0
+      && length(aws_organizations_policy.scp) == 0
+      && length(aws_organizations_policy_attachment.scp) == 0
+      && length(aws_organizations_policy.rcp) == 0
+      && length(aws_organizations_policy_attachment.rcp) == 0
+      && length(aws_iam_organizations_features.root_access) == 0
+      && length(aws_ssoadmin_permission_set.owner_admin) == 0
+    )
+    error_message = "single-account mode creates no aws_organizations_* resource, no root-access feature and no Identity Center permission set"
+  }
+
+  assert {
+    condition     = jsonencode(output.account_ids) == jsonencode({ for k in ["log-archive", "security", "shared-infra", "apps", "payments", "sandbox"] : k => "123456789012" })
+    error_message = "every account name maps to the one account, so remote_state readers keep working"
+  }
+
+  assert {
+    condition     = output.management_account_id == "123456789012" && output.organization_id == null && output.account_mode == "single"
+    error_message = "the one account is the management account; there is no organization"
+  }
+
+  assert {
+    condition     = output.permissions_boundary_arn == "arn:aws:iam::123456789012:policy/workload-boundary"
+    error_message = "single-account mode makes the workload boundary"
+  }
+
+  assert {
+    condition = alltrue([
+      for sid in ["DenyIdentityAndOrgChanges", "DenyTouchingCIRolesAndBoundary", "KeepAuditAndDetection", "DenyUnapprovedRegions", "NoCommitments", "KeepManagementState"] :
+      contains([for s in module.boundary[0].policy.Statement : s.Sid if s.Effect == "Deny"], sid)
+    ])
+    error_message = "the boundary carries what the SCPs denied"
+  }
+
+  assert {
+    condition     = jsonencode([for s in module.boundary[0].policy.Statement : s.NotAction if s.Sid == "DenyUnapprovedRegions"][0]) == jsonencode(local.global_service_actions)
+    error_message = "the boundary exempts the same global services as the region-deny SCP"
+  }
+
+  assert {
+    condition     = contains([for s in module.boundary[0].policy.Statement : s.Resource if s.Sid == "KeepManagementState"][0], "arn:aws:s3:::123456789012-tofu-state-us-east-2/org/*")
+    error_message = "no boundaried role may rewrite the management stacks' state"
+  }
+
+  assert {
+    condition     = length(replace(jsonencode(module.boundary[0].policy), "/\\s/", "")) <= 6144
+    error_message = "the boundary fits IAM's 6,144-character managed-policy limit"
   }
 }

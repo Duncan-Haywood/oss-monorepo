@@ -24,7 +24,9 @@ Bedrock is the documented alternative (`stacks/llm/bedrock.tf`, off).
 bootstrap/bootstrap.yaml   the one thing the owner runs (CloudFormation, from CloudShell)
 github/configure.sh        GitHub environments and variables, as code (run once by a repo admin)
 modules/account-baseline   what every account gets
+modules/workload-boundary  the permissions boundary (single-account mode: also what the SCPs denied)
 stacks/org                 Organization, OUs, six member accounts, SCPs, Identity Center for the owner
+                           (single-account mode: only the account's workload-boundary)
 stacks/baseline            org CloudTrail to an object-locked bucket; GuardDuty, Security Hub
                            (FSBP + CIS), Config, Access Analyzer org-wide; per-account baseline
 stacks/spend               budgets per account, budget actions (freeze SCP), kill-switch Lambda
@@ -38,8 +40,9 @@ stacks/cloudflare          the Cloudflare account as OpenTofu (export + switch.t
 cutover/                   the cutover orchestrator, app list, fakes and tests (cutover/README.md)
 ```
 
-Apply order (the apply workflow follows it): `org`, `baseline`, `spend`,
-`llm`, `email`, `app-identity`, `cutover-access`; then `github-oidc` and `findings` (both
+Apply order (the apply workflow follows it): `org`, `baseline`, `llm`,
+`email`, `app-identity`, `cutover-access`, `spend` (last, so its
+single-account freeze sees every role); then `github-oidc` and `findings` (both
 with the management credentials, not yet in the workflow). After those come
 the workload stacks, each applied by its own `gha-<repo>-<stack>-apply` role
 against its own account's state bucket: `dns` (shared-infra), then `site`
@@ -75,6 +78,69 @@ perimeter, so a mistaken bucket or key policy grants an outsider nothing;
 serve public content through CloudFront, never a public bucket). On the
 Payments OU: no GitHub Actions token whose subject is this public repository
 is accepted, whatever a role's trust policy says.
+
+## Single-account mode
+
+For an AWS account that cannot run AWS Organizations (for example one made
+through AWS's project-based sign-up). One variable, `account_mode =
+"organization" | "single"` (default `organization`), is read by every stack;
+the workflows set it from the repository variable `AWS_ACCOUNT_MODE`, and the
+bootstrap takes the same value as `AccountMode`. How to tell which one an
+account supports: [`docs/runbooks/cutover-run-day.md`](../../docs/runbooks/cutover-run-day.md), "Step 0".
+
+| | organization | single |
+|---|---|---|
+| `org` | Organization, OUs, six accounts, SCPs, RCPs, root-access feature, Identity Center assignments | none of those; the account's `workload-boundary` (`modules/workload-boundary`). `account_ids` maps every name to this account, so `terraform_remote_state` readers work unchanged |
+| providers | member-account aliases assume `OrganizationAccountAccessRole` (plan: `github-plan-readonly`) | `dynamic "assume_role"` with no block: the workflow's own credentials |
+| guardrails | SCPs on every OU | the boundary on every role the stacks create, and explicit denies on `github-apply` (`bootstrap.yaml`, `Single*` statements), which cannot carry a boundary it applies |
+| `baseline` | org trail, delegated admins, org-wide GuardDuty, Security Hub central configuration, Config aggregator, org Access Analyzer | the account's multi-region trail, GuardDuty detector, Security Hub with FSBP and CIS subscribed, Config recorder, account Access Analyzer |
+| `spend` | a budget per account, the freeze SCP attached by an `APPLY_SCP_POLICY` action | one budget (`organization_limit_usd`), an IAM policy `spend-freeze` attached by an `APPLY_IAM_POLICY` action to the account's roles (applied last, so it sees them) |
+| `github-oidc` | roles and a state bucket per workload account | one set in the account, a `-workloads-` state bucket, the boundary on the CI roles too; no payments roles |
+| `cutover-access` | member roles `cutover-read` / `cutover-operate` | the same policies on `github-cutover-plan` / `github-cutover`; `CUTOVER_SINGLE_ACCOUNT=true` |
+
+What the boundary carries in single mode, in place of the SCPs: no IAM users,
+keys, OIDC/SAML providers, account, Organizations or SSO changes; no changes
+to the `gha-*` roles, the bootstrap's `/github/` roles or the boundary
+itself; CloudTrail, GuardDuty, Config, Security Hub, Access Analyzer, account
+Block Public Access and default EBS encryption left alone; only
+`allowed_regions` for regional services (the SCP's global-service list,
+shared in `stacks/org/scps.tf`); no purchases, commitments or Marketplace
+subscriptions; no writes to the management stacks' state. `github-apply`
+gets the same denies except that it may set up (never stop or delete) audit
+and detection, and may create IAM users only under `/transitional/` (the
+Worker identity, as the SCP's `OrganizationAccountAccessRole` exemption
+allowed in a member account), never keys or passwords.
+
+What single mode gives up, and why it is still acceptable for a start:
+
+- **Blast radius.** Workloads share an account with the management stacks.
+  The boundary keeps workload roles from rewriting management state or CI
+  roles, but a compromised `github-apply` reaches everything, as it does the
+  management account in organization mode.
+- **No RCP data perimeter.** Bucket, key and queue policies are the only
+  guard against granting an outsider; Access Analyzer reports external
+  access.
+- **No payments account.** The payments stack is not given roles: its
+  isolation from this public repository needs a separate account and an RCP.
+  It waits for an Organization (or a second, separate account).
+- **The rotator role carries no boundary**: the boundary denies
+  `iam:CreateAccessKey`, which is the rotator's whole job; its own policy
+  names the one transitional user.
+- **Moving to an Organization later** is a migration (new member accounts,
+  state moves), not a variable flip; plan it in a PR first.
+
+Region: everything defaults to `us-east-2`. `us-east-1` stays where AWS
+requires it: CloudFront's ACM certificate, WAF and their logs
+(`stacks/site`'s pinned provider, `modules/static-site`), Route 53 query logs
+(`stacks/dns`), and the global services exempted by name in the region rule.
+`allowed_regions` is therefore `["us-east-2", "us-east-1"]`.
+
+Provider note (checked 2026-11-26 with OpenTofu 1.13.10 and
+`hashicorp/aws` 6.72.0, `tofu plan` with dummy credentials): a `dynamic
+"assume_role"` block with no instances plans cleanly and assumes nothing; one
+instance assumes the role. An `assume_role { role_arn = "" }` also skips the
+assume but warns that it "will be an error in a future release", so the
+stacks use the dynamic form.
 
 ## The bootstrap: what the owner runs, and what each role can do
 

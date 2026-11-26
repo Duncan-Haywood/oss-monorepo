@@ -26,7 +26,7 @@ mock_provider "aws" {
 
   mock_resource "aws_sesv2_email_identity" {
     defaults = {
-      arn = "arn:aws:ses:us-east-1:000000000000:identity/mock"
+      arn = "arn:aws:ses:us-east-2:000000000000:identity/mock"
     }
   }
 
@@ -157,7 +157,7 @@ override_data {
   target = data.terraform_remote_state.email
   values = {
     outputs = {
-      identities         = { transactional = { arn = "arn:aws:ses:us-east-1:444444444444:identity/marisstella.app", domain = "marisstella.app", verified = false } }
+      identities         = { transactional = { arn = "arn:aws:ses:us-east-2:444444444444:identity/marisstella.app", domain = "marisstella.app", verified = false } }
       configuration_sets = { transactional = "transactional" }
       events_queue_arn   = "arn:aws:sqs:us-east-1:444444444444:ses-events"
       events_kms_key_arn = "arn:aws:kms:us-east-1:444444444444:key/00000000-0000-0000-0000-000000000000"
@@ -181,5 +181,50 @@ run "transitional_identity" {
   assert {
     condition     = aws_iam_user.worker.tags["spend-guard"] == "deny-on-budget"
     error_message = "the kill switch can cut the Worker"
+  }
+}
+
+# Single-account mode: the same identities in the one account, the sync role
+# off /github/, and stacks/org's boundary on everything but the rotator.
+run "single_account" {
+  command = plan
+
+  variables {
+    account_mode = "single"
+  }
+
+  override_data {
+    target = data.terraform_remote_state.org
+    values = {
+      outputs = {
+        organization_id          = null
+        management_account_id    = "444444444444"
+        account_ids              = { for k in ["log-archive", "security", "shared-infra", "apps", "payments", "sandbox"] : k => "444444444444" }
+        permissions_boundary_arn = "arn:aws:iam::444444444444:policy/workload-boundary"
+      }
+    }
+  }
+
+  assert {
+    condition     = aws_iam_role.sync.path == "/ci/"
+    error_message = "the sync role stays out of /github/, which the bootstrap closes to github-apply"
+  }
+
+  assert {
+    condition = (
+      aws_iam_user.worker.permissions_boundary == "arn:aws:iam::444444444444:policy/workload-boundary"
+      && aws_iam_role.sync.permissions_boundary == "arn:aws:iam::444444444444:policy/workload-boundary"
+      && aws_iam_role.rotator.permissions_boundary == null
+    )
+    error_message = "the boundary is on the user and the sync role; the rotator, which must mint keys, goes without"
+  }
+}
+
+run "organization_mode_unchanged" {
+  command = plan
+
+  assert {
+    condition     = aws_iam_role.sync.path == "/github/" && aws_iam_user.worker.permissions_boundary == null
+    error_message = "organization mode keeps /github/ and no boundary"
   }
 }

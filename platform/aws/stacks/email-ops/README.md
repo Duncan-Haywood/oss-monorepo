@@ -3,7 +3,7 @@
 The half of the email move that `stacks/email` (PR #18749, `platform/aws/stacks/email/`) does
 not cover. That stack owns the SES identities, Easy DKIM, MAIL FROM, DMARC,
 one configuration set per purpose and the SES → SNS → SQS event feed. This
-one adds, in the same **apps** account and **us-east-1**:
+one adds, in the same **apps** account and the home region (**us-east-2**; check that SES offers email receiving there, `docs/runbooks/cutover-run-day.md`, step 0):
 
 - **inbound receiving** for support@, hello@ and accounts@, replacing
   Cloudflare Email Routing;

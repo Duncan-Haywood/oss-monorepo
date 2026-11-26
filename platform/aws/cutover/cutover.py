@@ -287,7 +287,10 @@ class Aws:
         self.single_account = os.environ.get("CUTOVER_SINGLE_ACCOUNT") == "true"
 
     def _run(self, args: list[str], env=None, check=True):
-        p = subprocess.run(["aws", *args, "--region", self.region, "--output", "json"], capture_output=True, text=True, env=env, timeout=300)
+        # A call may name its own region (an ACM certificate lives where its
+        # ARN says: CloudFront's in us-east-1 whatever the home region).
+        region = [] if "--region" in args else ["--region", self.region]
+        p = subprocess.run(["aws", *args, *region, "--output", "json"], capture_output=True, text=True, env=env, timeout=300)
         if check and p.returncode != 0:
             raise CutoverError(f"aws {' '.join(args[:2])}: {p.stderr.strip()[:400]}")
         return p
@@ -739,7 +742,11 @@ def find_endpoint(ctx: Ctx, app: dict, host: str) -> dict:
 def cert_status(ctx: Ctx, ep: dict) -> tuple[str, list[dict]]:
     if not ep.get("cert"):
         raise CutoverError(f"{ep['target']}: no ACM certificate attached")
-    c = ctx.aws.call(ep["cert_role"], ["acm", "describe-certificate", "--certificate-arn", ep["cert"]])["Certificate"]
+    # arn:aws:acm:<region>:<account>:certificate/<id>: CloudFront's are in
+    # us-east-1, API Gateway's in the home region.
+    parts = ep["cert"].split(":")
+    region = ["--region", parts[3]] if len(parts) > 3 and parts[3] else []
+    c = ctx.aws.call(ep["cert_role"], ["acm", "describe-certificate", "--certificate-arn", ep["cert"], *region])["Certificate"]
     recs = [{"name": o["ResourceRecord"]["Name"], "value": o["ResourceRecord"]["Value"]}
             for o in c.get("DomainValidationOptions", []) if o.get("ResourceRecord")]
     return c["Status"], recs
@@ -1362,7 +1369,7 @@ FLAG_STAGES = {"apply": ["switch", "verify"], "verify": ["verify"], "rollback": 
 
 
 def build_real(args, cfg) -> Ctx:
-    region = os.environ.get("AWS_DEFAULT_REGION", "us-east-1")
+    region = os.environ.get("AWS_DEFAULT_REGION", "us-east-2")
     run_id = os.environ.get("GITHUB_RUN_ID", "local")
     aws = Aws(region, args.plan, run_id)
     needs_cf = any(s != "delete-secrets" for s in args.stages)

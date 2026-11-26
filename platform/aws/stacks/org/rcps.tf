@@ -29,7 +29,7 @@ locals {
           Action    = ["s3:*", "kms:*", "secretsmanager:*", "sqs:*"]
           Resource  = "*"
           Condition = {
-            StringNotEqualsIfExists = { "aws:PrincipalOrgID" = aws_organizations_organization.this.id }
+            StringNotEqualsIfExists = { "aws:PrincipalOrgID" = try(aws_organizations_organization.this[0].id, "") }
             BoolIfExists            = { "aws:PrincipalIsAWSService" = "false" }
           }
         }]
@@ -57,7 +57,7 @@ locals {
 }
 
 resource "aws_organizations_policy" "rcp" {
-  for_each    = local.rcps
+  for_each    = { for k, v in local.rcps : k => v if local.org }
   name        = each.key
   description = each.value.description
   type        = "RESOURCE_CONTROL_POLICY"
@@ -67,9 +67,9 @@ resource "aws_organizations_policy" "rcp" {
 }
 
 resource "aws_organizations_policy_attachment" "rcp" {
-  for_each = merge([
+  for_each = local.org ? merge([
     for name, rcp in local.rcps : { for ou in rcp.ous : "${name}/${ou}" => { policy = name, ou = ou } }
-  ]...)
+  ]...) : {}
   policy_id = aws_organizations_policy.rcp[each.value.policy].id
   target_id = aws_organizations_organizational_unit.this[each.value.ou].id
 }

@@ -99,6 +99,10 @@ locals {
     }]
   }
 
+  # The same global-service list exempts the single-account boundary's region
+  # rule (single.tf), so both modes exempt the same services.
+  global_service_actions = local.region_deny.Statement[0].NotAction
+
   # Commitments and purchases are the owner's decisions (CLAUDE.md, "Flag the
   # owner only when ... moving money"). Marketplace subscriptions include the
   # Claude Platform on AWS sign-up, so only the owner's SSO role may make them.
@@ -143,7 +147,7 @@ locals {
 }
 
 resource "aws_organizations_policy" "scp" {
-  for_each    = local.scps
+  for_each    = { for k, v in local.scps : k => v if local.org }
   name        = each.key
   description = each.value.description
   type        = "SERVICE_CONTROL_POLICY"
@@ -152,7 +156,7 @@ resource "aws_organizations_policy" "scp" {
 
 resource "aws_organizations_policy_attachment" "scp" {
   for_each = {
-    for pair in setproduct(keys(local.scps), tolist(local.ous)) :
+    for pair in setproduct(keys(local.scps), tolist(local.org_ous)) :
     "${pair[0]}/${pair[1]}" => { policy = pair[0], ou = pair[1] }
   }
   policy_id = aws_organizations_policy.scp[each.value.policy].id

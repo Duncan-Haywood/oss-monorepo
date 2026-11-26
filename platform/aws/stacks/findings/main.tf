@@ -8,9 +8,20 @@
 # as a file on the security-alerts branch, beside the code-scanning queue
 # that .github/workflows/priv-security-alert-queue.yml keeps.
 
+variable "account_mode" {
+  description = "organization or single (stacks/org's variable of the same name). In single mode the queue is in the one account and nothing is assumed."
+  type        = string
+  default     = "organization"
+
+  validation {
+    condition     = contains(["organization", "single"], var.account_mode)
+    error_message = "account_mode must be organization or single."
+  }
+}
+
 variable "region" {
   type    = string
-  default = "us-east-1"
+  default = "us-east-2"
 }
 
 variable "state_bucket" {
@@ -59,7 +70,10 @@ locals {
 provider "aws" {
   region              = var.region
   allowed_account_ids = [local.security_id]
-  assume_role { role_arn = "arn:aws:iam::${local.security_id}:role/${var.member_role_name}" }
+  dynamic "assume_role" {
+    for_each = var.account_mode == "single" ? [] : ["arn:aws:iam::${local.security_id}:role/${var.member_role_name}"]
+    content { role_arn = assume_role.value }
+  }
   default_tags {
     tags = {
       managed-by = "platform/aws/stacks/findings"
