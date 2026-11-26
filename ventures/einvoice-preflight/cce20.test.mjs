@@ -189,3 +189,11 @@ test("a transfer's Cantidad may have one, two or three decimals, not four (CCE15
   for (const q of ["12", "12.5", "12.50", "12.500"]) assert.ok(!rules(t.replace('Cantidad="12.000"', `Cantidad="${q}"`)).includes("MX-067"), q);
   assert.ok(rules(t.replace('Cantidad="12.000"', 'Cantidad="12.5000"')).includes("MX-067"));
 });
+
+test("a long c_Colonia list is cut to its first five codes in the message (red team 2026-11-26)", async () => {
+  const { addressProblems } = await import("./mx-address.mjs");
+  // 01650 (CMX 010) lists 7 colonias: 0277-0281, 2844, 2848.
+  const { problems } = addressProblems({ CodigoPostal: "01650", Colonia: "9999" });
+  assert.equal(problems.length, 1);
+  assert.equal(problems[0].message, "Colonia 9999 is not a c_Colonia code of postal code 01650, which lists 7 (0277, 0278, 0279, 0280, 0281, ...).");
+});

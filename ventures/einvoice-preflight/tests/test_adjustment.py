@@ -213,6 +213,17 @@ class NegativeInvoiceSigns(unittest.TestCase):
                     "adjustments": [{"kind": "charge", "amount": 10, "base": 100, "percent": -10, "reason": "x"}]}
         self.assertIn("INV-051", [f["rule"] for f in inspect_header_adjustments(positive)])
 
+    def test_negative_base_on_a_negative_invoice(self):
+        """The sign may sit on the base instead: -1500 x 10% = -150.00 (red team 2026-11-26)."""
+        def invoice(base, amount):
+            return {"totals": {"net": -1627.4, "gross": -1780.14},
+                    "adjustments": [{"kind": "charge", "amount": amount, "base": base, "percent": 10, "reason": "Refund shipping"}]}
+        self.assertEqual([f["rule"] for f in inspect_header_adjustments(invoice(-1500, -150))], [])
+        self.assertEqual([f["rule"] for f in inspect_header_adjustments(invoice(-1500, -140))], ["INV-051"])
+        positive = {"totals": {"net": 100, "gross": 110},
+                    "adjustments": [{"kind": "charge", "amount": 10, "base": -100, "percent": 10, "reason": "x"}]}
+        self.assertIn("INV-051", [f["rule"] for f in inspect_header_adjustments(positive)])
+
     def test_line_adjustments_keep_their_sign(self):
         from einvoice_preflight.linenet import expected_line_net
         line = {"quantity": -4, "unit_price": 400, "price_base_quantity": 2,
