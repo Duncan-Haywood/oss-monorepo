@@ -205,6 +205,20 @@ QuickBooks' accounting data that apps can read, so labor still goes in as weekly
 totals pasted from the payroll report. (Added 2026-11-26; in development, not
 for sale, and not yet tried against a live QuickBooks company.)
 
+Purchase orders count too. A switchgear order placed in September for $18,000 is
+cost on its way, and if the job report only shows the $9,000 billed so far, the
+job looks more profitable than it is. So PayApps now also reads the purchase
+orders tagged to the job in QuickBooks and imports the ones you tick as
+commitments. Open orders start ticked and closed ones don't, because QuickBooks
+closes an order once it is billed in full or someone closes it by hand. The
+other half matters as much. When the bookkeeper turns that order into a bill in
+QuickBooks, the bill remembers which order it came from, and PayApps uses that
+link to count the $9,000 bill against the $18,000 order. The job then shows
+$9,000 spent and $9,000 still to come, not $9,000 spent and $18,000 to come. The
+link holds whichever of the two you import first, and if you move a bill off its
+order by hand, it stays where you put it. (Added 2026-11-26; in development, not
+for sale, and not yet tried against a live QuickBooks company.)
+
 ### Where it stands (updated 2026-11-25)
 
 Still in development and not for sale. Built and tested so far:
