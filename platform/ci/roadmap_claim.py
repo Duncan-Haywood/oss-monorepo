@@ -19,8 +19,8 @@ second run's push fails and it picks another item. No files, so no CI runs on it
 shown as stale, and --claim on it takes a fresh generation (`<slug>--2`), since the run
 that made it has ended. A claim whose slug a later commit subject on origin/main names
 (the PR title, punctuation ignored) is shown as MERGED and is no sibling. A claim records a hash of the session id, so re-running --claim on
-your own claim prints YOURS (exit 0), not TAKEN. An app with no ROADMAP.md, or work not on its Next list, takes --slug alone (`--claim 0 --slug X` means the same). A free item whose text says it waits ("if people ask", "once ... reachable", "owner step")
-is listed as gated, and the listing ends with the free, ungated item numbers. A --slug whose
+your own claim prints YOURS (exit 0), not TAKEN. An app with no ROADMAP.md, or work not on its Next list, takes --slug alone (`--claim 0 --slug X` means the same). A free item whose text says it waits ("if people ask", "once real companies are counted", "once ... reachable", "the owner runs", "if those ever exist")
+is listed as gated with the phrase quoted, and the listing ends with the free, ungated item numbers. A --slug whose
 words match a fresh rival claim's (pages-shop-time-zone vs page-dates-shop-time-zone) is
 refused as NEAR (exit 4) unless --distinct. Merged and stale claims not under an item are
 summed up in one line each (--all lists them with notes). A refused claim push says TAKEN
@@ -104,26 +104,53 @@ def next_items(roadmap: str) -> list[tuple[int, str]]:
 # Items whose own text says they wait on something a session cannot supply. Twenty-odd run
 # records (2026-11-25..26) found bet #1's [free] items were "if people ask", "once an official
 # copy is reachable" or owner steps, and spent about ten minutes per run re-deriving that before
-# dropping a bet. Phrases are matched in the item's text only; a miss just leaves it [free].
+# dropping a bet. Twenty more (2026-11-26) found the first phrase list too narrow: "once real
+# companies are counted", "if customers bill through them", "whatever the first shops ask",
+# "once a source is in hand", "the owner runs the workflow once", "if those ever exist".
+# Phrases are matched in the item's text only; a miss just leaves it [free]. Bare "when" is not
+# a condition word here: done-history text uses it descriptively ("when a company tracks ...").
+_WHO = (r"(?:people|shops?|customers?|users?|GCs?|PMs?|admins?|companies|contractors?|subs?|"
+        r"buyers?|sellers?|firms?|clients?|estimators?|someone|anyone|demand|usage|traffic)")
 GATES = (
     ("waits on demand", re.compile(
         r"\b(?:if|once|when|until)\s+(?:a |an |the |any |more )?(?:people|shops?|customers?|users?|"
         r"contractors?|subs?|buyers?|sellers?|firms?|clients?|someone|anyone|demand)\s+"
         r"(?:asks?|requests?|wants?|needs?|shows?)\b|\bif asked\b|\bon request\b|"
-        r"\bonce (?:usage|traffic)\b|\bonce [^.;()]{0,25}\bmeasured\b", re.I)),
+        r"\bonce (?:usage|traffic)\b|\bonce [^.;()]{0,25}\bmeasured\b|"
+        r"\b(?:if|once|until)\s+(?:[\w'-]+\s+){0,3}?" + _WHO + r"\b|"
+        r"\bwhatever\b[^.;()]{0,30}\b(?:asks?|wants?|needs?)\b", re.I)),
     ("waits on a source", re.compile(
-        r"\bonce\b[^.;()]{0,60}\b(?:reachable|published|available)\b|\b403\b|"
-        r"\bno public (?:spec|format|columns?|schema|docs?)\b", re.I)),
-    ("owner step", re.compile(r"\bowner[- ](?:only|steps?|actions?)\b|\bneeds the owner\b", re.I)),
+        r"\bonce\b[^.;()]{0,60}\b(?:reachable|published|available|in hand|is live|goes live|"
+        r"answers)\b|\b403\b|\bno public (?:spec|format|columns?|schema|docs?)\b", re.I)),
+    ("owner step", re.compile(
+        r"\bowner[- ](?:only|steps?|actions?)\b|\bneeds the owner\b|"
+        r"\b(?:once|until|after|when)\s+the owner\b|\bthe owner (?:runs|onboards|sets|adds)\b|"
+        r"\bonboard(?:s|ing)? the sender domain\b|(?:^|[.;(]\s*)owner:", re.I)),
+    ("waits on evidence", re.compile(
+        r"\bif\b[^.;()]{0,60}?\b(?:ever|turns? up|shows? up|proves?|turns? out)\b", re.I)),
 )
 
 
-def gate(text: str) -> str | None:
-    """Why an item waits ("waits on demand", "waits on a source", "owner step"), or None."""
+def gate_match(text: str) -> tuple[str, str] | None:
+    """(why, the phrase that says so) for an item that waits, or None.
+
+    The phrase is shown in the listing so a run can judge the gate without opening the
+    ROADMAP: three records (2026-11-26) found only a tail clause gated ("PDF if shops ask").
+    """
     for label, rx in GATES:
-        if rx.search(text):
-            return label
+        m = rx.search(text)
+        if m:
+            end = re.search(r"[.;()]", text[m.end():])
+            phrase = text[m.start():m.end() + (end.start() if end else 40)].strip(" ,:")
+            return label, phrase[:60]
     return None
+
+
+def gate(text: str) -> str | None:
+    """Why an item waits ("waits on demand", "waits on a source", "owner step",
+    "waits on evidence"), or None."""
+    hit = gate_match(text)
+    return hit[0] if hit else None
 
 
 def parse_claims(ls_remote: str, app: str) -> dict[str, tuple[int, str]]:
@@ -318,10 +345,10 @@ def item_marks(app: str, items: list[tuple[int, str]], claims: dict[str, tuple[i
             mark = f"{len(parts)} part(s) claimed: read the notes below before claiming another"
         elif any(c.startswith(slug + "-") and c not in merged for c in claims):
             mark = "a part is claimed: see below"
-        why = gate(text)
+        hit = gate_match(text)
         if mark == "free":
-            if why:
-                mark = f"free, {why}"
+            if hit:
+                mark = f'free, {hit[0]}: "{hit[1]}"'
             else:
                 open_now.append(i)
         rows.append((i, slug, text, mark, parts))
@@ -481,10 +508,10 @@ def main(argv: list[str] | None = None) -> int:
             return lost_or_failed(a.repo, a.app, slug, ref, tag, now)
         print(f"CLAIMED {ref.removeprefix('refs/heads/')}. Name the slug in your PR title; "
               f"`--release {slug}` if you drop it.")
-        why = gate(by_num.get(a.claim, "")) if a.claim is not None else None
-        if why:
-            print(f"NOTE: item {a.claim}'s text reads as gated ({why}); build it only if that "
-                  f"condition now holds, else `--release {slug}` and pick another.")
+        hit = gate_match(by_num.get(a.claim, "")) if a.claim is not None else None
+        if hit:
+            print(f"NOTE: item {a.claim}'s text reads as gated ({hit[0]}: \"{hit[1]}\"); build it "
+                  f"only if your part is not the gated one or the condition now holds, else `--release {slug}` and pick another.")
         # Different part slugs of one item never collide on the branch name, so two runs can
         # claim the same work under two names (2026-11-25: inbound-rfq-email-notify and
         # inbound-rfq-email-part-2-notify, minutes apart; the second was built and discarded).
