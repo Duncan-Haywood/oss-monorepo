@@ -125,9 +125,11 @@ function scaleOf(faces) {
 }
 
 /** Keeps the part of a convex polyhedron where n.x <= k. */
-export function clipPoly(faces, n, k) {
+export function clipPoly(faces, n, k, scale) {
   if (!faces.length) return faces;
-  const eps = EPS_REL * (scaleOf(faces) * norm(n) + Math.abs(k) + 1);
+  // scale, when given, is scaleOf(faces): clipByPlanes passes it on while
+  // the planes before left the faces untouched
+  const eps = EPS_REL * ((scale ?? scaleOf(faces)) * norm(n) + Math.abs(k) + 1);
   // Most planes miss the polyhedron (every point inside: the faces come back
   // as they are) or leave nothing of it (every point beyond: none). Telling
   // so from the points alone saves building a copy that would be thrown
@@ -200,11 +202,103 @@ export function polyPlanes(faces) {
   return planes;
 }
 
-export const clipByPlanes = (faces, planes) => {
-  let f = faces;
-  for (const [n, k] of planes) { f = clipPoly(f, n, k); if (!f.length) break; }
+export const clipByPlanes = (faces, planes, from = 0, scale = scaleOf(faces)) => {
+  let f = faces, s = scale;
+  for (let i = from; i < planes.length; i++) {
+    const [n, k] = planes[i];
+    const g = clipPoly(f, n, k, s);
+    if (!g.length) return g;
+    if (g !== f) { f = g; s = scaleOf(g); }
+  }
   return f;
 };
+
+/**
+ * What clipByPlanesBoxed needs of some faces, worked once per body piece:
+ * the box [xmin, ymin, zmin, xmax, ymax, zmax] of their points (null when
+ * there are none or one is not finite), scaleOf(faces) and the distinct
+ * point arrays' coordinates (faces share their corners).
+ */
+export function clipBounds(faces) {
+  const b = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity];
+  const seen = new Set();
+  for (const f of faces) for (const p of f) {
+    if (seen.has(p)) continue;
+    seen.add(p);
+    for (let j = 0; j < 3; j++) {
+      if (p[j] < b[j]) b[j] = p[j];
+      if (p[j] > b[j + 3]) b[j + 3] = p[j];
+    }
+  }
+  if (!b.every(Number.isFinite)) return null;
+  const xyz = new Float64Array(3 * seen.size);
+  let i = 0;
+  for (const p of seen) { xyz[i++] = p[0]; xyz[i++] = p[1]; xyz[i++] = p[2]; }
+  return { box: b, scale: Math.max(0, -b[0], b[3], -b[1], b[4], -b[2], b[5]), xyz };
+}
+
+/**
+ * clipByPlanes(faces, planes), the same answer, with the faces'
+ * clipBounds known. clipPoly returns its faces untouched when every point
+ * is within eps of the inside (hi <= eps) and nothing when every point is
+ * more than eps beyond (lo > eps). Per plane the box bounds n.p - k first,
+ * and settles it when the bound clears eps by far more than rounding; else
+ * lo and hi are taken as clipPoly takes them (dot(n, p) - k, the same
+ * operations in the same order) over the distinct points, which give the
+ * same minimum and maximum as every corner of every face. Only a plane
+ * that really cuts hands over to clipByPlanes from that plane on, with the
+ * faces as they are (every plane before left them untouched). scaleOf's
+ * largest |coordinate| is the box's, so eps is clipPoly's own.
+ * subtractCutters met 5.3 million (body piece, opening) pairs on
+ * ISSUE_098_R8, 93% of them disjoint (docs/history/ifc-takeoff-perf-2026-11-26.md).
+ */
+export function clipByPlanesBoxed(faces, bounds, planes) {
+  if (!bounds) return clipByPlanes(faces, planes);
+  const { box, scale: s, xyz } = bounds;
+  for (let i = 0; i < planes.length; i++) {
+    const [n, k] = planes[i];
+    const eps = EPS_REL * (s * norm(n) + Math.abs(k) + 1);
+    // rounding in dot(n, p) - k and in these sums is far below 1e-12 of this
+    const slack = 1e-12 * (s * (Math.abs(n[0]) + Math.abs(n[1]) + Math.abs(n[2])) + Math.abs(k));
+    let lo = -k, hi = -k;
+    for (let j = 0; j < 3; j++) {
+      if (n[j] >= 0) { lo += n[j] * box[j]; hi += n[j] * box[j + 3]; } else { lo += n[j] * box[j + 3]; hi += n[j] * box[j]; }
+    }
+    if (lo - slack > eps) return [];
+    if (hi + slack <= eps) continue;
+    const n0 = n[0], n1 = n[1], n2 = n[2];
+    lo = Infinity; hi = -Infinity;
+    for (let p = 0; p < xyz.length; p += 3) {
+      const d = n0 * xyz[p] + n1 * xyz[p + 1] + n2 * xyz[p + 2] - k;
+      if (d < lo) lo = d;
+      if (d > hi) hi = d;
+    }
+    if (hi <= eps) continue;
+    if (lo > eps) return [];
+    // This plane cuts. If a later plane has every point beyond it, nothing
+    // is left: each point a cut makes lies between two points before it,
+    // so it stays beyond that plane too (the slack covers the rounding of
+    // a few cuts), and its scale, hence its eps, is no larger.
+    for (let j = i + 1; j < planes.length; j++) if (allBeyond(planes[j], box, s, xyz)) return [];
+    return clipByPlanes(faces, planes, i, s);
+  }
+  return faces;
+}
+
+/** Whether every point is more than clipPoly's eps, and the rounding slack, beyond the plane. */
+function allBeyond([n, k], box, s, xyz) {
+  const eps = EPS_REL * (s * norm(n) + Math.abs(k) + 1);
+  const slack = 1e-12 * (s * (Math.abs(n[0]) + Math.abs(n[1]) + Math.abs(n[2])) + Math.abs(k));
+  let lo = -k, hi = -k;
+  for (let j = 0; j < 3; j++) {
+    if (n[j] >= 0) { lo += n[j] * box[j]; hi += n[j] * box[j + 3]; } else { lo += n[j] * box[j + 3]; hi += n[j] * box[j]; }
+  }
+  if (lo - slack > eps) return true;
+  if (hi - slack <= eps) return false;
+  const n0 = n[0], n1 = n[1], n2 = n[2];
+  for (let p = 0; p < xyz.length; p += 3) if (n0 * xyz[p] + n1 * xyz[p + 1] + n2 * xyz[p + 2] - k - slack <= eps) return false;
+  return true;
+}
 
 function transformPoly(faces, m) {
   const flip = det(m) < 0;
@@ -1025,8 +1119,9 @@ function guard(terms) {
 function subtractCutters(a, cutters, what) {
   const terms = a.terms.slice();
   for (const t of a.terms) {
+    const bounds = clipBounds(t.faces);
     for (const c of cutters) {
-      const f = clipByPlanes(t.faces, c.planes);
+      const f = clipByPlanesBoxed(t.faces, bounds, c.planes);
       if (f.length) terms.push({ s: -t.s * c.s, faces: f });
     }
   }
