@@ -125,3 +125,39 @@ test("hostile header tables and plans are refused with a reason, never thrown", 
   const r = resolveHeaders({ walls: [{ id: "a", openings: [{ kind: "door", offset: 10, width: "36", height: 80 }] }], headerTable: table });
   assert.equal(r.ok, false);
 });
+
+test("an opening width of zero, below zero or not finite is refused; a small positive one is sized", () => {
+  for (const width of [0, -10, Infinity, NaN]) {
+    const plan = planWith();
+    plan.walls[0].openings = [{ kind: "window", label: "W", offset: 48, width, height: 48, header: "auto" }];
+    const r = resolveHeaders(plan);
+    assert.equal(r.ok, false, `width ${width}`);
+    assert.match(r.errors[0], /width must be a number of inches above zero/, `width ${width}`);
+  }
+  const plan = planWith();
+  plan.walls[0].openings = [{ kind: "window", label: "W", offset: 48, width: 1, height: 48, header: "auto" }];
+  const r = resolveHeaders(plan);
+  assert.ok(r.ok, JSON.stringify(r.errors));
+  assert.equal(r.rows[0].status, "set");
+});
+
+// Red team 2026-11-26: the CLI ran resolveHeaders only when the plan had a top-level `headerTable`, so a plan with
+// only `headerTables` (per stud) or a wall's own table framed a hand-picked header lighter than the user's table
+// with no UNDER line, `--headers` refused it, and `headerTables` was flagged as a misspelling of `headerTable`.
+test("the CLI checks headers from a per-stud or per-wall table, not only the plan's headerTable", () => {
+  const light = [{ kind: "window", label: "L", offset: 48, width: 60, height: 48, header: "2x6" }];
+  const byStud = planWith({ headerTable: undefined, headerTables: { "2x4": table, "2x6": table } });
+  delete byStud.headerTable;
+  byStud.walls = [{ ...byStud.walls[0], openings: light }];
+  const byWall = planWith();
+  delete byWall.headerTable;
+  byWall.walls = [{ ...byWall.walls[0], headerTable: table, openings: light }];
+  for (const [name, plan] of [["headerTables", byStud], ["wall headerTable", byWall]]) {
+    for (const argv of [["p.json", "--headers"], ["p.json"]]) {
+      const res = main(argv, () => JSON.stringify(plan));
+      assert.equal(res.code, 0, `${name} ${argv}: ${res.out}`);
+      assert.match(res.out, /UNDER/, `${name} ${argv}`);
+      assert.doesNotMatch(res.out, /look misspelt/, `${name} ${argv}`);
+    }
+  }
+});

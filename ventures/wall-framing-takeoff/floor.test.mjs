@@ -503,3 +503,18 @@ test("floor refuses a plan with no stock list, a bad opening entry and a null la
   assert.deepEqual(floorCuts(null), []);
   assert.deepEqual(floorCuts(undefined), []);
 });
+
+// Red team 2026-11-26: the limits below were each only tested from the far side, so moving a bound by one step passed.
+test("floor limits accept their own boundary values", () => {
+  assert.ok(layoutFloor({ ...sampleFloor(), fastenerSpacing: 16 }, plan()).ok);
+  assert.ok(layoutFloor({ ...sampleFloor(), fastenerSpacing: 4 }, plan()).ok);
+  // an opening may end exactly a foot and a doubled header short of the far edge (336 - 12 - 3 = 321)
+  const edge = layoutFloor({ ...sampleFloor(), openings: [{ x: 100, y: 200, width: 36, depth: 121 }] }, plan());
+  assert.ok(edge.ok, JSON.stringify(edge.errors));
+  // two openings whose header zones just touch (3 in of doubled header each side) do not share a header
+  const a = { x: 100, y: 15, width: 36, depth: 60 }, b = { x: 100, y: 15 + 60 + 6, width: 36, depth: 60 };
+  const touch = layoutFloor({ ...sampleFloor(), openings: [a, b] }, plan());
+  assert.ok(touch.ok, JSON.stringify(touch.errors));
+  const over = layoutFloor({ ...sampleFloor(), openings: [a, { ...b, y: b.y - 1 }] }, plan());
+  assert.match(over.errors.join(" "), /too close/);
+});
