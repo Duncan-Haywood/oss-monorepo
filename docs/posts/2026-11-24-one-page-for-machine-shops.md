@@ -765,3 +765,41 @@ before starting work, because anyone holding the link could have typed it.
 The link only records what the buyer said. Next, if shops ask: a signature
 line on acceptance, and a reminder for a buyer who opened the quote but has
 not answered.
+
+## Update, 26 November 2026: from the won quote to a traveler for the floor
+
+When a quote is won, the job goes to the floor. Someone retypes the part,
+the quantity, the material and the operation list onto a traveler (the
+router sheet that goes with the parts from machine to machine), often from
+the same estimate that priced the job. Shop ERPs print one from a work
+order. The quoting app stopped at "won", so that retyping was still a hand
+step.
+
+The RFQ-to-quote app (bet #2, still in private development, not yet on sale)
+now prints the traveler from the won quote:
+
+- **One sheet per part.** Customer, quote number, PO and due date. The
+  quantity ordered, and the parts to start once the line's expected fallout
+  is added, using the same rule the price used. At 4% fallout, 50 good parts
+  means 53 started.
+- **Material and stock.** The material, the stock description from the rate
+  card, the blank size, and how many bars or sheets to pull when the estimate
+  says how many parts come from one piece. There is also a box for the heat or
+  lot number.
+- **Operations in order.** Numbered 10, 20, 30 in the estimate's order, each
+  with its work center, setup, cycle time per part and run time for the parts
+  started. Finishing comes next, with outside services marked, then final
+  inspection. Each step has a sign-off line.
+- **No prices.** Rates, costs and markup never appear on the floor's copy.
+- **The quantity the customer chose.** If the buyer accepted online, each part
+  prints at the quantity break they picked, and a part they did not order is
+  left off. The estimator can type another quantity from the PO. A part quoted
+  at several quantities, with no online acceptance, waits for the PO quantity
+  rather than having one guessed.
+
+What it does not do: the times are the estimate's, not a time standard, and
+the sheet says so. A cycle time the estimate never had prints as "not set",
+with no total. A machine or finish since removed from the rate card is
+printed as removed, not silently dropped. Next, if shops ask: a saved job
+with its own number and status, and a barcode on each operation so time on
+the floor can be checked against the quote.
