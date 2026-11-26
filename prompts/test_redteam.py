@@ -244,10 +244,12 @@ class CampaignTest(unittest.TestCase):
         import os, signal
         pidfile = self.repo / "child.pid"
         cmd = ["sh", "-c", f"sh -c 'echo $$ > {pidfile}; while :; do sleep 1; done' & wait"]
-        passed, _ = redteam.run_suite(cmd, self.repo, timeout=2)
+        passed, _ = redteam.run_suite(cmd, self.repo, timeout=1)
         self.assertFalse(passed)
         child = int(pidfile.read_text())
-        time.sleep(0.5)
+        deadline = time.monotonic() + 2  # SIGKILL lands at once; a fixed 0.5 s sleep only waited
+        while _running(child) and time.monotonic() < deadline:
+            time.sleep(0.02)
         self.assertFalse(_running(child))
 
     def test_red_baseline_and_dirty_file_are_refused(self):

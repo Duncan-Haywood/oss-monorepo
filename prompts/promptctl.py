@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+import fnmatch
 import hashlib
 import io
 import json
@@ -982,7 +983,8 @@ def measure(root: Path = ROOT) -> dict[str, Any]:
     from derive import load_measured  # prompts/derive.py, alongside this file
     routing = load_routing(root)
     measured = load_measured(root)
-    runs = [{**rec, "_measured": measured.get(path.name)} for path, rec in load_runs(root)]
+    loaded = load_runs(root)
+    runs = [{**rec, "_measured": measured.get(path.name)} for path, rec in loaded]
     by_version: dict[tuple[str, int], list[dict[str, Any]]] = defaultdict(list)
     by_model: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
     by_input: dict[str, list[dict[str, Any]]] = defaultdict(list)
@@ -1034,7 +1036,7 @@ def measure(root: Path = ROOT) -> dict[str, Any]:
         "runs": len(runs),
         "redteam": {**tally(runs), "routed_share": redteam_share(routing["tracks"]),
                     "recorded_share_last_100": round(share, 3) if share is not None else None},
-        "since_review": runs_since_review(load_runs(root)),
+        "since_review": runs_since_review(loaded),
         "review_every": routing["review_every"],
         "by_version": {f"{t}/{v}": summarise(r) for (t, v), r in sorted(by_version.items())},
         "by_model": {f"{t} {m}": summarise(r) for (t, m), r in sorted(by_model.items())},
@@ -1284,31 +1286,101 @@ def _last_change_index() -> dict[str, tuple[str, str]]:
     """path -> (sha, committer date) of the newest commit touching it, from ONE `git log` pass
     (1.6 s on a shallow clone) instead of one `git log -1 -- path` per file (50 ms each, 25 s for
     the ~490 files `measure` asks about). {} on any failure: callers fall back to the per-file call."""
+    return _memo("indexes", _last_change_indexes)[0]
+
+
+def _edge_change_index() -> dict[str, tuple[str, str]]:
+    """path -> (sha, date) of the newest shallow-root commit listing it, for paths no other commit
+    touches. Same `git log` pass as `_last_change_index`; asked only after that index misses, so it
+    stands in for the per-file call, which answers a shallow root for such paths (2026-11-26: 1668
+    per-file calls, 114 of 137 s, once the run records outgrew a 40-commit clone)."""
+    return _memo("indexes", _last_change_indexes)[1]
+
+
+def _last_change_indexes() -> tuple[dict[str, tuple[str, str]], dict[str, tuple[str, str]]]:
     idx: dict[str, tuple[str, str]] = {}
+    edge_idx: dict[str, tuple[str, str]] = {}
     try:
-        out = subprocess.run(["git", "log", "--format=@%H %cI", "--name-only"], cwd=ROOT.parent,
-                             capture_output=True, text=True, timeout=120).stdout
+        # As `git log -1 -- path` sees it (2026-11-26: 5 of 1822 friction paths were dated by an
+        # older commit): `--diff-merges=c` lists the files a merge changed against every parent,
+        # which a plain log lists for no merge, and `--no-renames` lists a rename's old name too.
+        out = subprocess.run(["git", "log", "--format=@%H %cI", "--name-only", "--diff-merges=c",
+                              "--no-renames"],
+                             cwd=ROOT.parent, capture_output=True, text=True, timeout=120).stdout
     except (OSError, subprocess.SubprocessError):
-        return {}
+        return {}, {}
+    into: dict[str, tuple[str, str]] = idx
     cur: tuple[str, str] | None = None
     edge = _shallow_boundary()
     for line in out.splitlines():
         if line.startswith("@"):
             sha, _, when = line[1:].partition(" ")
-            # A shallow root "adds" every file; leave those to the per-file call, which dates them.
-            cur = None if sha in edge else (sha, when)
+            # A shallow root "adds" every file: it dates a path only when no real commit does.
+            cur = (sha, when)
+            into = edge_idx if sha in edge else idx
         elif line and cur:
-            idx.setdefault(line, cur)
-    return idx
+            into.setdefault(line, cur)
+    return idx, edge_idx
 
 
 def _changed_note(path: str) -> tuple[str, str]:
     def lookup() -> tuple[str, str]:
-        hit = _memo("index", _last_change_index).get(path)
+        hit = _index_hit(path)
+        if hit is _NO_COMMIT:
+            return "", ""
         if hit is None:
             return _changed_note_uncached(path)
         return _changed_note_uncached(path, hit)
     return _memo(("changed", path), lookup)
+
+
+_NO_COMMIT = ("", "")  # the index can tell that git would name no commit for the path
+_GIT_MAGIC = re.compile(r"[\[\\]|^:")  # pathspec rules fnmatch does not share: left to git itself
+_WILDCARDS = re.compile(r"[*?]")
+
+
+def _index_hit(path: str) -> tuple[str, str] | None:
+    """What `git log -1 -- <path>` would answer, from the one `git log` pass: a (sha, date), or
+    _NO_COMMIT, or None when only git can say. 2026-11-26: the per-file calls this replaces were
+    1668 of 1980 lookups and 114 of 137 s: files only a shallow root lists, free text in a `file`
+    field ("prompt.md / CLAUDE.md", "apps/x (private)"), directories and globs."""
+    hit = _last_change_index().get(path) or _edge_change_index().get(path)
+    if hit is not None or not _last_change_index() or _GIT_MAGIC.search(path):
+        return hit
+    full = ROOT.parent / path
+    if _WILDCARDS.search(path):
+        return _glob_hit(path) or _NO_COMMIT
+    if full.is_dir():
+        return _dir_hit(path)
+    if not full.exists():
+        return _NO_COMMIT  # no visible commit names it, so git names none either
+    return None  # an untracked file: git has the last word
+
+
+def _glob_hit(path: str) -> tuple[str, str] | None:
+    """The newest commit touching a path a `*`/`?` pathspec matches, as `git log -1 -- <glob>`
+    answers: git's pathspec `*` crosses `/`, as `fnmatch` does (`[`, `\\` and a leading `:`
+    never get here)."""
+    def build() -> tuple[str, str] | None:
+        pattern = re.compile(fnmatch.translate(path))
+        for index in (_last_change_index(), _edge_change_index()):
+            for name, hit in index.items():
+                if pattern.match(name):
+                    return hit
+        return None
+    return _memo(("glob", path), build)
+
+
+def _dir_hit(path: str) -> tuple[str, str] | None:
+    """The newest commit touching anything under a directory, as `git log -1 -- <dir>` answers.
+    The indexes keep git's log order (a path is inserted at the first commit naming it), so the
+    first entry under the prefix is the newest; a real commit is preferred over a shallow root."""
+    prefix = path.rstrip("/") + "/"
+    for index in (_last_change_index(), _edge_change_index()):
+        for name, hit in index.items():
+            if name.startswith(prefix):
+                return hit
+    return None
 
 
 def _changed_note_uncached(path: str, hit: tuple[str, str] | None = None) -> tuple[str, str]:
@@ -1335,6 +1407,22 @@ _FILE_LIKE_RE = re.compile(r"[\w.-]+(?:/[\w.-]+)*\.\w+")
 _PATH_RE = re.compile(r"[\w./-]+\.(?:py|sh|mjs|md|json|yaml)\b")
 
 
+def _tracked_by_name() -> dict[str, list[str]]:
+    """Tracked files by base name, from ONE `git ls-files` (2026-11-26: one `git ls-files '*name'`
+    per bare name a report used cost 270 processes, 4.6 s)."""
+    def build() -> dict[str, list[str]]:
+        by_name: dict[str, list[str]] = defaultdict(list)
+        try:
+            out = subprocess.run(["git", "ls-files"], cwd=ROOT.parent, capture_output=True,
+                                 text=True, timeout=60).stdout
+        except (OSError, subprocess.SubprocessError):
+            return {}
+        for line in out.splitlines():
+            by_name[line.rsplit("/", 1)[-1]].append(line)
+        return dict(by_name)
+    return _memo("ls-files", build)
+
+
 def _named_files_changed(report: str) -> str:
     """Latest commit time of the repo files a report names (a complaint about pyenv.py is stale once
     pyenv.py changes, even when the file whose list it sits under did not). '' if none resolve.
@@ -1343,10 +1431,7 @@ def _named_files_changed(report: str) -> str:
     for token in dict.fromkeys(_PATH_RE.findall(report)):
         path = token
         if "/" not in token:
-            hits = _memo(("ls", token), lambda t=token: subprocess.run(
-                ["git", "ls-files", f"*{t}"], cwd=ROOT.parent,
-                capture_output=True, text=True, timeout=20).stdout.split())
-            hits = [h for h in hits if h.rsplit("/", 1)[-1] == token]
+            hits = _tracked_by_name().get(token, [])
             if len(hits) != 1:
                 continue
             path = hits[0]
