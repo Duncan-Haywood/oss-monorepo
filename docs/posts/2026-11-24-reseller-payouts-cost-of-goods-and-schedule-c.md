@@ -527,6 +527,27 @@ and month (for example SB-EBAY-2026-03), so QuickBooks can warn you before a
 month is imported twice. The file hasn't yet been tried in a real
 QuickBooks company. It is a bookkeeping export, not tax advice.
 
+## Line 35 should match last year's return (added 2026-11-26)
+
+Inventory at the start of the year (Part III line 35) should be the closing
+inventory (line 41) of the return you filed for the year before. If you've
+kept every item in Seller Books since you started, the two agree on their
+own. Most sellers start partway, though, or kept last year's count in a
+spreadsheet, and then the books' December 31 count and the filed figure can
+differ without you noticing. The gap goes straight into cost of goods sold.
+
+The Schedule C page now asks for the line 41 from last year's return. Once
+you enter it, the worksheet uses it as line 35, shows the books' own count
+next to it, and says how far apart they are and which way that moves line 42.
+In the app's test, one $35.00 coat was on hand at the end of 2025 but the
+return said $1,234.56. Line 35 became $1,234.56, and the worksheet showed a
+$1,199.56 gap that raises cost of goods sold. Seller Books (private PR 369) never changes your
+items to make the numbers match. Either some stock bought before this year
+is missing (or marked sold too early), and you fix the items, or last year's
+return was wrong, and that's a question for your preparer. Either way the
+figure and the warning go into the CSV for your preparer. This is a
+worksheet, not tax advice.
+
 ## What comes next
 
 Each of the ten tool pages now ends with a short "track true profit across

@@ -209,9 +209,9 @@ flagships:
       2026-11-25 (reseller-books/inventory.mjs: a sourcing-sheet CSV, FIFO by SKU or
       title, Schedule C Part III lines 35-42 for one tax year), and the app imports
       the sourcing sheet since 2026-11-26 (private PR 238: preview, re-import adds
-      only new rows, earlier orders linked by SKU); next, carry closing inventory
-      across years explicitly (last year's line 41 as this year's line 35) and
-      import the public engine's trip log; (3) mileage: the public engine landed it
+      only new rows, earlier orders linked by SKU); last year's filed line 41
+      is line 35, checked against the books, since 2026-11-26 (private PR 369);
+      next, import the public engine's trip log; (3) mileage: the public engine landed it
       2026-11-24 (reseller-books/trips.mjs, Schedule C line 9 priced by trip date,
       PR #18743), so the app imports it and adds a saved trip log per account; (4) a
       Schedule C line-mapped P&L export and a CSV for the accountant; a stock report
