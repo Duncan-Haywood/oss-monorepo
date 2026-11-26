@@ -22,7 +22,7 @@
   "baseline": "2 sessions reported the cut window on 2026-11-26 (friction_rank cluster 10)",
   "opened": "2026-11-26",
   "source": "process critique, friction_rank.py --live cluster on platform/ci/slug_dupe.py (2026-11-26)",
-  "pr": "this",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19431",
   "result": null,
   "history": []
 }
