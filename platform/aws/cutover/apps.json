@@ -1,0 +1,31 @@
+{
+  "comment": "What the cutover moves, in order. One entry per app; more in apps.d/*.json (one file per product line). Fields: README.md, 'The app list'.",
+  "zone": "marisstella.app",
+  "cooloff_days": 7,
+  "route53_track": false,
+  "email_from": "cutover-check@marisstella.app",
+  "apps": [
+    {
+      "name": "site",
+      "hosts": ["marisstella.app", "www.marisstella.app"],
+      "aws": { "kind": "cloudfront", "account": "shared-infra" },
+      "health": "/version.json",
+      "freeze": false,
+      "data": null,
+      "paddle": null,
+      "crawl": true,
+      "comment": "The catalogue: today the monorepo-projects-site Worker; on AWS the site stack's CloudFront distribution (stacks/site). Static, so no freeze and no data."
+    },
+    {
+      "name": "grants-redirect",
+      "hosts": ["grants.marisstella.app"],
+      "aws": { "kind": "cloudfront", "account": "shared-infra" },
+      "health": "/",
+      "freeze": false,
+      "data": null,
+      "paddle": null,
+      "crawl": false,
+      "comment": "Today the grant-autopilot Worker's custom domain answers 301 to /grants/; the site stack's CloudFront alias and host redirect replace it. Grant Autopilot itself moves with the paid apps (apps.d)."
+    }
+  ]
+}

@@ -12,8 +12,14 @@
   },
   "email-routing": {
     "used_by": ["oss-monorepo .github/workflows/priv-cloudflare-email.yml email-routing"],
-    "zone": ["Zone Read", "Email Routing Rules Write", "Zone Settings Write"],
+    "account": ["Email Routing Addresses Write"],
+    "zone": ["Zone Read", "Email Routing Rules Write", "Zone Settings Write", "DNS Write"],
     "ttl_minutes": 15
+  },
+  "email-deploy": {
+    "used_by": ["oss-monorepo .github/workflows/priv-email-deploy.yml deploy"],
+    "account": ["Workers Scripts Write", "D1 Write", "Workers R2 Storage Write", "Account Settings Read"],
+    "ttl_minutes": 30
   },
   "usage-analytics": {
     "used_by": ["oss-monorepo .github/workflows/priv-site-usage-pull.yml pull"],

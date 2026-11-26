@@ -29,7 +29,7 @@ export const LEGAL_OPERATOR = Object.freeze({
 });
 
 /** The date the text of these documents last changed. Bump with any edit. */
-export const LEGAL_UPDATED = '2026-11-25';
+export const LEGAL_UPDATED = '2026-11-26';
 
 const esc = (s) => String(s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -87,8 +87,10 @@ export function legalDocuments({ toRoot = '../', analytics = false, counter = fa
       do not include anything you would not want published.</li>`
       : '',
     `<li><strong>Email you send us.</strong> If you write to one of this site's addresses, we keep your
-      message and address to answer you, for up to 90 days unless we need it longer to deal with your
-      request or a legal claim. Ask and we delete it sooner.</li>`,
+      message and address to answer you. An AI assistant reads and sorts the mail and drafts replies;
+      anything about a legal matter, a refund, security, your personal data, or asking for a person goes
+      to a person instead, and a reply the AI wrote says so. How long we keep it is under "How long we
+      keep it" below. Ask and we delete it sooner, unless the law requires us to keep it.</li>`,
   ].filter(Boolean).join('\n      ');
 
   const privacy = `
@@ -127,6 +129,8 @@ export function legalDocuments({ toRoot = '../', analytics = false, counter = fa
       <ul>
         <li><strong>Cloudflare, Inc.</strong> hosts the site${analytics ? ', provides the analytics' : ''}
         and stores email sent to us, as our processor, under its data processing addendum.</li>
+        <li><strong>Anthropic, PBC</strong> provides the AI assistant that reads, sorts and drafts
+        replies to email sent to us, as our processor under its commercial terms.</li>
         <li><strong>GitHub, Inc.</strong> hosts our public repository, where aggregate
         counts${feedback ? ' and published feedback' : ''} are committed.</li>
         <li>Authorities or others where the law requires it, or to protect our rights.</li>
@@ -143,7 +147,9 @@ export function legalDocuments({ toRoot = '../', analytics = false, counter = fa
       <ul>
         <li>Analytics and request statistics: kept by Cloudflare under its retention schedule; we
         copy only aggregate daily totals into our repository, where they stay.</li>
-        <li>Email: up to 90 days, as above.</li>
+        <li>Email: up to 90 days for most addresses; security reports up to 1 year; privacy and data
+        requests up to 3 years, to show how we handled them; billing and payment mail up to 7 years,
+        for tax and accounting records. Longer only where we need it for a legal claim.</li>
         <li>Local storage on your device: until you clear it; we never receive it.</li>
       </ul>
 

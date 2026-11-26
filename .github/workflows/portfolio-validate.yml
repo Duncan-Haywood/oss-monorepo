@@ -68,6 +68,7 @@ on:
       - "platform/pages/**"
       - "platform/agents/**"
       - "platform/edge/**"
+      - "platform/email/**"
       - "platform/counter/**"
       - "platform/analytics/**"
       - "portfolio/router/**"
@@ -109,6 +110,7 @@ on:
       - "platform/pages/**"
       - "platform/agents/**"
       - "platform/edge/**"
+      - "platform/email/**"
       - "platform/counter/**"
       - "platform/analytics/**"
       - "portfolio/router/**"
@@ -195,6 +197,13 @@ jobs:
       # and page-view counts; it shares platform/counter's rules (core.mjs).
       - name: Site feedback Worker and visit counter
         run: node --test "platform/edge/*.test.mjs" "platform/counter/*.test.mjs" "platform/analytics/*.test.mjs"
+
+      # platform/email is the agent-managed inboxes' Worker. inboxes.yaml
+      # generates inboxes.json and the Email Routing file; --check fails on drift.
+      - name: Agent inboxes (config, guardrails, store contract, CLI)
+        run: |
+          python3 platform/email/gen_config.py --check
+          node --test "platform/email/*.test.mjs" "platform/email/aws/*.test.mjs" "platform/pages/cloudflare/email-routing.test.mjs"
 
       - name: Check candidate scores agree across yaml, write-ups, and README
         run: python3 portfolio/pipeline/validate_doc_consistency.py

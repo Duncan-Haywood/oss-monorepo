@@ -86,16 +86,20 @@ locals {
     }
   }
 
+  # IAM names each apply role may manage: the stack's own name unless the
+  # stack lists exact prefixes.
+  iam_prefixes = { for stack, cfg in var.stacks : stack => coalesce(cfg.iam_prefixes, [stack]) }
+
   apply_iam = {
     for stack, cfg in var.stacks : stack => [
       {
         Sid    = "ManageOwnRolesWithinBoundary"
         Effect = "Allow"
         Action = ["iam:CreateRole", "iam:PutRolePermissionsBoundary"]
-        Resource = [
-          "arn:aws:iam::${local.account_id}:role/${stack}-*",
-          "arn:aws:iam::${local.account_id}:role/service-role/${stack}-*",
-        ]
+        Resource = flatten([for p in local.iam_prefixes[stack] : [
+          "arn:aws:iam::${local.account_id}:role/${p}-*",
+          "arn:aws:iam::${local.account_id}:role/service-role/${p}-*",
+        ]])
         Condition = { StringEquals = { "iam:PermissionsBoundary" = local.boundary_arn } }
       },
       {
@@ -109,11 +113,11 @@ locals {
           "iam:UntagPolicy", "iam:UntagRole", "iam:UpdateAssumeRolePolicy",
           "iam:UpdateRole", "iam:UpdateRoleDescription",
         ]
-        Resource = [
-          "arn:aws:iam::${local.account_id}:role/${stack}-*",
-          "arn:aws:iam::${local.account_id}:role/service-role/${stack}-*",
-          "arn:aws:iam::${local.account_id}:policy/${stack}-*",
-        ]
+        Resource = flatten([for p in local.iam_prefixes[stack] : [
+          "arn:aws:iam::${local.account_id}:role/${p}-*",
+          "arn:aws:iam::${local.account_id}:role/service-role/${p}-*",
+          "arn:aws:iam::${local.account_id}:policy/${p}-*",
+        ]])
       },
       {
         Sid      = "ServiceLinkedRoles"

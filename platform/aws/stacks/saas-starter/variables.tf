@@ -76,7 +76,7 @@ variable "permissions_boundary_arn" {
 variable "payments_sender_role_name" {
   description = "Role name of the Paddle receiver in the payments account (saas-starter/payments). Change both or neither."
   type        = string
-  default     = "saas-starter-payments-paddle-webhook"
+  default     = "payments-paddle-webhook"
 }
 
 variable "enable_nat" {

@@ -70,7 +70,7 @@
 </p>
 <p class="fine">This tool needs no account and no sign-in: it is a static page, the checks run in your browser (or locally via the CLI), and once the page has loaded it keeps working with the connection off.</p>
 </section>
-<section>
+<section id="faq">
 <h2>Common questions</h2>
 <h3>Should I use this checker or Avalara?</h3>
 <p>They do different jobs, and a business that files real returns will likely end up using something like Avalara alongside a tool like this one, not instead of it. Avalara is a cloud tax-compliance platform founded in 2004, covering sales and use tax calculation, returns filing, exemption certificate management, VAT/GST, and e-invoicing across many countries, sold as an ongoing subscription account and integrated into ERP, accounting, and ecommerce systems. This checker does one narrower thing: it reads a single JSON, UBL, CII (XRechnung), or Factur-X/ZUGFeRD PDF invoice you drop into the browser or pipe through the CLI, and reports which specific fields, totals, VAT arithmetic, or payment instructions would fail — with a rule ID and a plain-language fix — before you submit it anywhere. It runs free, keeps no account, submits nothing to a tax authority or exchange network, and uploads nothing you drop. A business that needs to calculate tax across jurisdictions, file returns, manage exemption certificates, or route e-invoices through a compliance network needs Avalara or a comparable platform; a developer, bookkeeper, or ERP integrator who wants an instant, local answer to "would this specific invoice file pass" before it reaches that network is in the right place here.</p>

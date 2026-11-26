@@ -700,12 +700,13 @@ export function parseStl(input) {
     const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
     const n = dv.getUint32(80, true);
     if (84 + n * 50 > bytes.length) throw new Error(`binary STL says ${n} triangles but the file is too short`);
+    if (!n) throw new Error("binary STL has no triangles (or this is not an STL file)");
     const out = new Float64Array(n * 9);
     for (let t = 0; t < n; t++) {
       const o = 84 + t * 50 + 12;
       for (let j = 0; j < 9; j++) out[t * 9 + j] = dv.getFloat32(o + j * 4, true);
     }
-    return out;
+    return finiteCorners(out);
   }
   const text = new TextDecoder().decode(bytes);
   const nums = [];
@@ -713,7 +714,16 @@ export function parseStl(input) {
   let m;
   while ((m = re.exec(text))) nums.push(+m[1], +m[2], +m[3]);
   if (!nums.length || nums.length % 9) throw new Error("ASCII STL has no complete triangles");
-  return Float64Array.from(nums);
+  return finiteCorners(Float64Array.from(nums));
+}
+
+// A NaN corner slips past every min and max, and an infinite one turns the size
+// into NaN: either way the page would print a size the file does not hold.
+function finiteCorners(tris) {
+  for (let i = 0; i < tris.length; i++) {
+    if (!Number.isFinite(tris[i])) throw new Error(`STL triangle ${Math.floor(i / 9) + 1} has a coordinate that is not a finite number; the file is damaged`);
+  }
+  return tris;
 }
 
 /**
@@ -1027,6 +1037,7 @@ export function readPart(bytes, name = "", { mmPerUnit = 1 } = {}) {
   const oriented = orientedBox(prims);
   const env = roundEnvelopes(prims, oriented.frame, oriented.box);
   const size = dims(oriented.box);
+  if (!size.every(Number.isFinite) || !env.every(Number.isFinite)) throw new Error("The file has a coordinate that is not a finite number, so no size can be read from it.");
   const edgeSize = oriented.box.edgeMax.map((x, i) => x - oriented.box.edgeMin[i]);
   const gap = Math.max(...size.map((s, i) => s - edgeSize[i]));
   return {

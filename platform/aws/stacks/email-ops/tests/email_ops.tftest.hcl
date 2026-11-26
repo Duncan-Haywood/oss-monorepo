@@ -80,7 +80,7 @@ run "inbound_matches_the_routing_file_and_mx_is_off" {
   command = apply
 
   assert {
-    condition     = toset(aws_ses_receipt_rule.support.recipients) == toset(["accounts@marisstella.app", "hello@marisstella.app", "support@marisstella.app"])
+    condition     = toset(aws_ses_receipt_rule.support.recipients) == toset(["accounts@marisstella.app", "billing@marisstella.app", "dmarc@marisstella.app", "grants@marisstella.app", "hello@marisstella.app", "payapps@marisstella.app", "privacy@marisstella.app", "sales@marisstella.app", "security@marisstella.app", "seller-books@marisstella.app", "support@marisstella.app"])
     error_message = "SES receives exactly the addresses in email-routing.json."
   }
   assert {

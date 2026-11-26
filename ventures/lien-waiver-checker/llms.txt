@@ -17,6 +17,17 @@ Free to use and source available (FSL-1.1-MIT). Results are estimates from the n
 
 Hosted pay-app billing for subcontractors (schedule of values, retainage, change orders and lien waivers) is in development, with early access; nothing is for sale yet: https://marisstella.app/industries/construction/
 
+## Answers
+
+The questions each page answers in its "Common questions" section, with the answer as the page states it. Each link opens that section; the page has the sources.
+
+- [What is a lien waiver?](https://marisstella.app/lien-waiver-checker/#faq): A lien waiver is a document a contractor, subcontractor or supplier signs to give up the right to file a mechanics lien, usually for work paid for through a stated date. Owners, lenders and general contractors ask for one with every payment.
+- [What is the difference between a conditional and an unconditional lien waiver?](https://marisstella.app/lien-waiver-checker/#faq): A conditional waiver only takes effect once the payment it names has been received. An unconditional waiver takes effect the moment it is signed, whether or not the money ever arrives. The usual safe order is to sign a conditional waiver to get the check and an unconditional one only after the funds have cleared.
+- [What is the difference between a progress and a final lien waiver?](https://marisstella.app/lien-waiver-checker/#faq): A progress waiver releases lien rights for the work and materials through a stated date. A final waiver releases everything on the job, so it is where retainage, pending change orders and disputed items need to be listed as exceptions.
+- [What should I look for before signing a lien waiver?](https://marisstella.app/lien-waiver-checker/#faq): Whether it is conditional or unconditional, the through-date, the dollar amount, whether it releases anything beyond lien rights (all claims, future work, bonds, indemnity), and whether retainage and pending claims are excepted. This page checks the text for each of those.
+- [Does this tell me whether the waiver is valid in my state?](https://marisstella.app/lien-waiver-checker/#faq): No. Some states prescribe the form or wording of a lien waiver by statute, and a waiver that does not follow it may be unenforceable. This page can point at a short list of states commonly cited for that, but it does not decide validity. Check the statute or ask an attorney; the statutory lien waiver forms by state guide links each state's law.
+- [Is the waiver text uploaded anywhere?](https://marisstella.app/lien-waiver-checker/#faq): No. The text is read in your browser and nothing is sent; a test in the code asserts there are no network calls.
+
 ## Source
 
 - [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/lien-waiver-checker): FSL-1.1-MIT licensed.

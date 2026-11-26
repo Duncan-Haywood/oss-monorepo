@@ -232,9 +232,23 @@ export class Calendar {
   // Working minutes from t1 to t2 (negative when t2 < t1).
   workBetween(t1, t2) {
     if (t2 < t1) return -this.workBetween(t2, t1);
-    let total = 0;
     const d1 = Math.floor(t1 / DAY);
     const d2 = Math.floor(t2 / DAY);
+    // A long span counts its whole days from week sums and the exception
+    // days inside it (binary search), not one day at a time: CPM calls this
+    // per activity and link, and a day walk made an 8,800-activity schedule
+    // spend 2.6 s here (docs/history/xer-schedule-check-cpm-perf-2026-11-26.md).
+    // Only the two end days are clamped to t1 and t2, as in the walk below.
+    if (d2 - d1 > 16 && Number.isFinite(t1) && Number.isFinite(t2)) {
+      const sums = this._daySums();
+      if (sums) return this._edgeWork(d1, t1, t2) + this._edgeWork(d2, t1, t2) + sums.whole(d1 + 1, d2 - 1);
+    }
+    return this._walkWork(d1, d2, t1, t2);
+  }
+
+  // working minutes of days d1..d2 clamped to [t1, t2], one day at a time
+  _walkWork(d1, d2, t1, t2) {
+    let total = 0;
     for (let d = d1; d <= d2; d++) {
       const base = d * DAY;
       for (const [a, b] of this.day(d)) {
@@ -244,5 +258,55 @@ export class Calendar {
       }
     }
     return total;
+  }
+
+  _edgeWork(d, t1, t2) {
+    return this._walkWork(d, d, t1, t2);
+  }
+
+  // Whole-day sums for workBetween, rebuilt when the week or the exceptions
+  // change (calreview.mjs adds exception days to a copy of a model's
+  // calendar). null when a period lies outside 0..24:00 or runs backwards,
+  // where a whole day is not simply the sum of its periods: those take the walk.
+  _daySums() {
+    const c = this._sums;
+    if (c && c.week === this.week && c.exc === this.exceptions && c.size === this.exceptions.size) return c.value;
+    const mins = (ps) => {
+      let m = 0;
+      for (const [a, b] of ps) {
+        if (!(a >= 0 && b <= DAY && b >= a)) return null;
+        m += b - a;
+      }
+      return m;
+    };
+    let value = null;
+    const wk = this.week.map((ps) => mins(ps || []));
+    if (this.week.length === 7 && wk.every((m) => m !== null)) {
+      const days = [...this.exceptions.keys()].filter((d) => Number.isInteger(d)).sort((a, b) => a - b);
+      const delta = [0]; // delta[k]: exception minus normal minutes over days[0..k-1]
+      let ok = days.length === this.exceptions.size;
+      for (const d of days) {
+        const m = mins(this.exceptions.get(d) || []);
+        if (m === null) { ok = false; break; }
+        delta.push(delta[delta.length - 1] + m - wk[(((d + 4) % 7) + 7) % 7]);
+      }
+      if (ok) {
+        const cum = [0]; // cum[k]: minutes of weekday indices 0..k-1, twice round
+        for (let k = 0; k < 14; k++) cum.push(cum[k] + wk[k % 7]);
+        const weekMin = cum[7];
+        const firstAt = (x) => { let lo = 0, hi = days.length; while (lo < hi) { const m = (lo + hi) >> 1; if (days[m] < x) lo = m + 1; else hi = m; } return lo; };
+        value = {
+          whole(lo, hi) {
+            if (hi < lo) return 0;
+            const n = hi - lo + 1;
+            const w = (((lo + 4) % 7) + 7) % 7;
+            const r = n % 7;
+            return Math.floor(n / 7) * weekMin + cum[w + r] - cum[w] + delta[firstAt(hi + 1)] - delta[firstAt(lo)];
+          },
+        };
+      }
+    }
+    this._sums = { week: this.week, exc: this.exceptions, size: this.exceptions.size, value };
+    return value;
   }
 }

@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKjnLecT5W7C4W3h3be",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T04:17:51Z",
+  "ended": "2026-11-26T04:25:27Z",
+  "wall_minutes": 7.79,
+  "tokens_in": 5779419,
+  "tokens_out": 21116,
+  "cost_usd": 2.4283,
+  "tool_calls": 57,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19217",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "apps/*/ROADMAP.md (private-monorepo)",
+      "issue": "Nearly every Next item on payapps, jobshop-quote and cmmc is 'if asked', and all three are blocked on owner-only launch steps (deploy, Paddle and the sender domain). Picking work meant reading three roadmaps to find one item that was not speculative."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/monetization/bets.md",
+      "why": "Bet #1 (payapps) had about 40 claims in the last 13 h and no free item that was not 'if a customer asks' or needed a new dependency, so I took bet #4 (cmmc) ROADMAP item 3 instead.",
+      "did": "Shipped the CMMC overdue affirmation notice (private PR 245)",
+      "result": "merged"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "private-monorepo CI runners were queued. I verified locally (typecheck, 258 unit and 81 worker tests, build) and merged instead of waiting.",
+      "did": "Merged on local verification",
+      "result": "merged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-cmmc-level-1-self-assessment-checklist.md (extended)"
+  ],
+  "goal": null,
+  "notes": "private PR https://github.com/Duncan-Haywood/private-monorepo/pull/245 merged. Claim claim/cmmc/affirmation-overdue-notice. Local: pnpm typecheck clean; test:unit 18 files, 258 passed; test:worker 10 files, 81 passed; pnpm build ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "722db631-fe51-5f19-8127-84ca41fbce02",
+    "transcripts": 1,
+    "first": "2026-11-26T04:17:51Z",
+    "last": "2026-11-26T04:25:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 106,
+        "output": 21116,
+        "thinking": 4115,
+        "cache_read": 5670378,
+        "cache_write_5m": 0,
+        "cache_write_1h": 108935,
+        "api_equivalent_usd": 2.4283,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 106,
+      "output": 21116,
+      "thinking": 4115,
+      "cache_read": 5670378,
+      "cache_write_5m": 0,
+      "cache_write_1h": 108935,
+      "api_equivalent_usd": 2.4283,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 51,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.79,
+      "active_minutes": 7.79,
+      "model_minutes": 4.81,
+      "tool_minutes": 2.98,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "small feature + tests + docs in an existing app",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 164.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -58,7 +58,7 @@ ${rows(test)}
 <p>A receipt's <code>Hash</code> is the SHA-256 of the file SdI received. The checker compares it with the invoice you drop beside it, so you know whether you are looking at exactly the file SdI saw.</p>
 <p class="note">Rule ids such as IT-003 are this tool's own, listed in the <a href="italy-sdi-e-invoice-mandate.html">Italy page</a> and the <a href="what-does-this-e-invoice-error-code-mean.html">rule reference</a>. Tested on 33 public SdI receipts and notices: the Agenzia's example messages and the receipts AgID's EeISI project received in 2019, including a real 00305 rejection that the checker reproduces on the rejected file.</p>
 </section>
-<section>
+<section id="faq">
 <h2>Common questions</h2>
 ${FAQ.map(([q, a]) => `<h3>${q}</h3>\n<p>${a}</p>`).join("\n")}
 </section>

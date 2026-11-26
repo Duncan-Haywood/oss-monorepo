@@ -1,0 +1,67 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqycXyc3vs5fpAcckMGB",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "Owner direction 2026-11-26 (relayed): build the Cloudflare -> AWS cutover as one pipeline (everything Cloudflare holds as OpenTofu, AWS via OIDC, priv-cutover.yml with owner approval, short-lived tokens deleted after, external clocks scheduled), on top of platform/aws.",
+  "input_sha256": "a5383e25b3c4b58c2ee9f353ed96891defcfb4e85b1ec56eff46926387116f15",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-26T04:05:05Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19204",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/aws/README.md",
+      "issue": "'Checks' says providers came from releases.hashicorp.com through a filesystem mirror, but the OpenTofu registry's h1 hashes for hashicorp/aws 6.72.0 differ from that mirror's, so -lockfile=readonly fails locally; and hashicorp's mirror has no cloudflare/cloudflare v5 (GitHub release downloads do). Local tests need the lock file moved aside."
+    },
+    {
+      "file": "platform/ci/adversarial_gate/config.yaml",
+      "issue": "aws-guardrail-weakened warns 'StringLike on an OIDC condition' for an s3:prefix condition; the rule matches any StringLike in a file with an OIDC trust."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "system brief (owner design, 2026-11-26)",
+      "why": "Cutover secrets in AWS Secrets Manager read through OIDC, not GitHub environment secrets; DNS kept on Cloudflare by default with Route 53 as an optional track; email sender unchanged until SES production access. Relayed owner refinements from the orchestrating session, each narrowing risk.",
+      "did": "Built the default path that way and documented the full-exit calendar",
+      "result": "one approved run on the day, no registrar or nameserver step"
+    },
+    {
+      "file": "system brief, point 3 (prepare: provision AWS)",
+      "why": "A second applier of AWS stacks would duplicate the reviewed apply pipeline and widen the cutover role to administrator",
+      "did": "prepare checks that each app's AWS stack is applied and healthy instead",
+      "result": "cutover roles stay read-mostly"
+    },
+    {
+      "file": "system brief, point 3 (site crawl with check.mjs)",
+      "why": "platform/pages/check.mjs checks a built artifact, not a live site, and the deploy pipeline already runs it",
+      "did": "verify crawls the live sitemap (100 URLs per host) and requires 200 from AWS",
+      "result": "tested against the fakes"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Verification run here: python3 -m pytest platform/aws -q 74 passed (39 new); tofu test stacks/cloudflare 8 passed, stacks/cutover-access 4 passed (OpenTofu 1.13.10, mocked providers); saas-starter runtime npm test 17 passed; data-copy.test.mjs against a real Postgres 16, 5 passed; checkov 3.4.10 stacks/cutover-access 93 passed 0 failed; ci_policy_check passes; adversarial gate rules locally: only the Paddle hosts block, cleared by PR #19203 (merge first). Nothing run against real Cloudflare, AWS or Paddle.",
+  "corrections": [],
+  "redteam": null
+}

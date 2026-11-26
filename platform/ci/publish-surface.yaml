@@ -293,6 +293,9 @@ workflows:
 - workflow: priv-control-plane-guard.yml
   classification: none
   publishes: []
+- workflow: priv-cutover.yml
+  classification: none
+  publishes: []
 - workflow: priv-direction-report.yml
   classification: none
   publishes: []
@@ -351,6 +354,13 @@ workflows:
   classification: none
   publishes: []
 - workflow: priv-edge-deploy.yml
+  classification: gated
+  publishes:
+  - job: deploy
+    step: runs 'wrangler deploy'
+    gates:
+    - ${{ needs.gate.outputs.ready == 'true' }}
+- workflow: priv-email-deploy.yml
   classification: gated
   publishes:
   - job: deploy

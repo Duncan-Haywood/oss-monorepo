@@ -77,6 +77,10 @@
 /platform/counter/core.mjs        @Duncan-Haywood
 /platform/counter/counter.mjs     @Duncan-Haywood
 /platform/pages/cloudflare/email-routing.mjs      @Duncan-Haywood
+# The agent inboxes' Worker: it holds send capability and private mail, and
+# priv-email-deploy.yml deploys it with Cloudflare credentials.
+/platform/email/                  @Duncan-Haywood
+/platform/pages/cloudflare/email-routing.json     @Duncan-Haywood
 /platform/pages/cloudflare/email-routing.test.mjs @Duncan-Haywood
 /ventures/real-estate-agent-photo-app/docs-site/scripts/setup-cloudflare-access.sh @Duncan-Haywood
 

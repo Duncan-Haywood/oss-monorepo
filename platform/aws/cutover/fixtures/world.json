@@ -1,0 +1,476 @@
+{
+ "about": "A fake Cloudflare account, AWS organization and Paddle for dry runs of cutover.py (fakes.py). Every ID and value is made up; the tokens are not tokens.",
+ "now": "2026-12-01T15:00:00Z",
+ "cloudflare": {
+  "token": {
+   "id": "tok-fake-1",
+   "status": "active",
+   "expires_on": "2026-12-02T21:00:00Z"
+  },
+  "zone": {
+   "id": "f1e2d3c4b5a69788f1e2d3c4b5a69788",
+   "name": "marisstella.app",
+   "account": {
+    "id": "0a1b2c3d4e5f60718293a4b5c6d7e8f9"
+   },
+   "name_servers": [
+    "ada.ns.cloudflare.com",
+    "bob.ns.cloudflare.com"
+   ]
+  },
+  "records": [
+   {
+    "id": "rec00001aaaa",
+    "name": "marisstella.app",
+    "type": "AAAA",
+    "content": "100::",
+    "proxied": true,
+    "ttl": 1,
+    "comment": null
+   },
+   {
+    "id": "rec00002bbbb",
+    "name": "grants.marisstella.app",
+    "type": "AAAA",
+    "content": "100::",
+    "proxied": true,
+    "ttl": 1,
+    "comment": null
+   },
+   {
+    "id": "rec00003cccc",
+    "name": "app.demo.marisstella.app",
+    "type": "A",
+    "content": "192.0.2.50",
+    "proxied": false,
+    "ttl": 3600,
+    "comment": "demo paid app origin"
+   },
+   {
+    "id": "rec00004dddd",
+    "name": "marisstella.app",
+    "type": "MX",
+    "content": "route1.mx.cloudflare.net",
+    "proxied": false,
+    "ttl": 1,
+    "priority": 13,
+    "comment": null
+   },
+   {
+    "id": "rec00005eeee",
+    "name": "marisstella.app",
+    "type": "TXT",
+    "content": "\"v=spf1 include:_spf.mx.cloudflare.net ~all\"",
+    "proxied": false,
+    "ttl": 1,
+    "comment": null
+   },
+   {
+    "id": "rec00006ffff",
+    "name": "_dmarc.marisstella.app",
+    "type": "TXT",
+    "content": "\"v=DMARC1; p=none\"",
+    "proxied": false,
+    "ttl": 1,
+    "comment": null
+   }
+  ],
+  "domains": [
+   {
+    "id": "cd0000site",
+    "hostname": "marisstella.app",
+    "service": "monorepo-projects-site",
+    "environment": "production",
+    "zone_id": "f1e2d3c4b5a69788f1e2d3c4b5a69788"
+   },
+   {
+    "id": "cd000grant",
+    "hostname": "grants.marisstella.app",
+    "service": "grant-autopilot",
+    "environment": "production",
+    "zone_id": "f1e2d3c4b5a69788f1e2d3c4b5a69788"
+   }
+  ],
+  "routes": [
+   {
+    "id": "route0001",
+    "pattern": "marisstella.app/legacy/*",
+    "script": "legacy-redirects"
+   }
+  ],
+  "scripts": [
+   {
+    "name": "monorepo-projects-site",
+    "settings": {
+     "bindings": [
+      {
+       "name": "ASSETS",
+       "type": "assets"
+      }
+     ]
+    }
+   },
+   {
+    "name": "grant-autopilot",
+    "settings": {
+     "bindings": [
+      {
+       "name": "PADDLE_WEBHOOK_SECRET",
+       "type": "secret_text",
+       "text": "supersecret-value-never-exported"
+      },
+      {
+       "name": "DB",
+       "type": "d1",
+       "id": "d1demo-uuid"
+      }
+     ]
+    }
+   },
+   {
+    "name": "legacy-redirects",
+    "settings": {
+     "bindings": []
+    }
+   },
+   {
+    "name": "demo-paid",
+    "settings": {
+     "bindings": [
+      {
+       "name": "DB",
+       "type": "d1"
+      }
+     ]
+    }
+   }
+  ],
+  "email_routing": {
+   "enabled": true,
+   "status": "ready",
+   "name": "marisstella.app",
+   "tag": "x"
+  },
+  "email_rules": [
+   {
+    "id": "er0000001",
+    "name": "support",
+    "enabled": true,
+    "matchers": [
+     {
+      "type": "literal",
+      "field": "to",
+      "value": "support@marisstella.app"
+     }
+    ],
+    "actions": [
+     {
+      "type": "forward",
+      "value": [
+       "owner@example.com"
+      ]
+     }
+    ]
+   }
+  ],
+  "catch_all": {
+   "id": "catchall",
+   "enabled": true,
+   "matchers": [
+    {
+     "type": "all"
+    }
+   ],
+   "actions": [
+    {
+     "type": "drop"
+    }
+   ]
+  },
+  "r2": [
+   {
+    "name": "site-assets",
+    "location": "ENAM",
+    "jurisdiction": "default"
+   }
+  ],
+  "d1": [
+   {
+    "uuid": "d1demo-uuid-0000",
+    "name": "demo-paid",
+    "tables": {
+     "customers": {
+      "columns": [
+       "id",
+       "email",
+       "name",
+       "created_at"
+      ],
+      "rows": [
+       {
+        "id": 1,
+        "email": "a@example.com",
+        "name": "Ada",
+        "created_at": "2026-11-30T10:00:00Z"
+       },
+       {
+        "id": 2,
+        "email": "b@example.com",
+        "name": null,
+        "created_at": "2026-11-30T11:00:00Z"
+       },
+       {
+        "id": 3,
+        "email": "c\u00e9@example.com",
+        "name": "C\u00e9line",
+        "created_at": "2026-12-01T09:00:00Z"
+       }
+      ]
+     },
+     "invoices": {
+      "columns": [
+       "id",
+       "customer_id",
+       "amount_cents",
+       "paid",
+       "ratio",
+       "pdf"
+      ],
+      "rows": [
+       {
+        "id": 1,
+        "customer_id": 2,
+        "amount_cents": 1000,
+        "paid": 1,
+        "ratio": 0.125,
+        "pdf": [
+         37,
+         80,
+         68,
+         70,
+         1
+        ]
+       },
+       {
+        "id": 2,
+        "customer_id": 3,
+        "amount_cents": 2000,
+        "paid": 0,
+        "ratio": 0.25,
+        "pdf": [
+         37,
+         80,
+         68,
+         70,
+         2
+        ]
+       },
+       {
+        "id": 3,
+        "customer_id": 1,
+        "amount_cents": 3000,
+        "paid": 1,
+        "ratio": 0.375,
+        "pdf": [
+         37,
+         80,
+         68,
+         70,
+         3
+        ]
+       },
+       {
+        "id": 4,
+        "customer_id": 2,
+        "amount_cents": 4000,
+        "paid": 0,
+        "ratio": 0.5,
+        "pdf": [
+         37,
+         80,
+         68,
+         70,
+         4
+        ]
+       },
+       {
+        "id": 5,
+        "customer_id": 3,
+        "amount_cents": 5000,
+        "paid": 1,
+        "ratio": 0.625,
+        "pdf": [
+         37,
+         80,
+         68,
+         70,
+         5
+        ]
+       },
+       {
+        "id": 6,
+        "customer_id": 1,
+        "amount_cents": 6000,
+        "paid": 0,
+        "ratio": 0.75,
+        "pdf": [
+         37,
+         80,
+         68,
+         70,
+         6
+        ]
+       },
+       {
+        "id": 7,
+        "customer_id": 2,
+        "amount_cents": 7000,
+        "paid": 1,
+        "ratio": 0.875,
+        "pdf": [
+         37,
+         80,
+         68,
+         70,
+         7
+        ]
+       }
+      ]
+     }
+    }
+   }
+  ],
+  "pages": [
+   {
+    "name": "listing-docs",
+    "domains": [
+     "listing-docs.pages.dev"
+    ]
+   }
+  ],
+  "analytics": [
+   {
+    "site_tag": "wa0000000001",
+    "host": "marisstella.app"
+   }
+  ],
+  "rulesets": [
+   {
+    "id": "rs0000redir",
+    "name": "redirects",
+    "phase": "http_request_dynamic_redirect",
+    "kind": "zone",
+    "rules": []
+   }
+  ]
+ },
+ "aws": {
+  "cloudfront": [
+   {
+    "domain": "d111111abcdef8.cloudfront.net",
+    "aliases": [
+     "marisstella.app",
+     "www.marisstella.app",
+     "grants.marisstella.app"
+    ],
+    "cert": "arn:aws:acm:us-east-1:111111111111:certificate/site"
+   }
+  ],
+  "apigateway": {
+   "hub.marisstella.app": {
+    "target": "d-hub0000001.execute-api.us-east-1.amazonaws.com",
+    "api": "hub0001",
+    "cert": "arn:aws:acm:us-east-1:222222222222:certificate/hub"
+   },
+   "listing-docs.marisstella.app": {
+    "target": "d-lst0000001.execute-api.us-east-1.amazonaws.com",
+    "api": "lst0001",
+    "cert": "arn:aws:acm:us-east-1:222222222222:certificate/lst"
+   },
+   "pilot-docs.marisstella.app": {
+    "target": "d-plt0000001.execute-api.us-east-1.amazonaws.com",
+    "api": "plt0001",
+    "cert": "arn:aws:acm:us-east-1:222222222222:certificate/plt"
+   },
+   "markets.marisstella.app": {
+    "target": "d-mkt0000001.execute-api.us-east-1.amazonaws.com",
+    "api": "mkt0001",
+    "cert": "arn:aws:acm:us-east-1:222222222222:certificate/mkt"
+   },
+   "app.demo.marisstella.app": {
+    "target": "d-dmo0000001.execute-api.us-east-1.amazonaws.com",
+    "api": "dmo0001",
+    "cert": "arn:aws:acm:us-east-1:222222222222:certificate/dmo"
+   }
+  },
+  "certs": {
+   "arn:aws:acm:us-east-1:111111111111:certificate/site": {
+    "status": "ISSUED"
+   },
+   "arn:aws:acm:us-east-1:222222222222:certificate/hub": {
+    "status": "PENDING_VALIDATION",
+    "records": [
+     {
+      "name": "_h1a2.hub.marisstella.app.",
+      "value": "_v9z8.xyz.acm-validations.aws."
+     }
+    ]
+   },
+   "arn:aws:acm:us-east-1:222222222222:certificate/lst": {
+    "status": "ISSUED"
+   },
+   "arn:aws:acm:us-east-1:222222222222:certificate/plt": {
+    "status": "ISSUED"
+   },
+   "arn:aws:acm:us-east-1:222222222222:certificate/mkt": {
+    "status": "ISSUED"
+   },
+   "arn:aws:acm:us-east-1:222222222222:certificate/dmo": {
+    "status": "ISSUED"
+   }
+  },
+  "ses_verified": true,
+  "secrets": {
+   "cutover/cloudflare-api-token": "cf-FAKE-token-0123456789abcdef",
+   "cutover/paddle-api-key": "{\"api_key\":\"pdl_FAKE_sdbx_apikey_0123456789\",\"environment\":\"sandbox\"}"
+  },
+  "app_secrets": [
+   "paid-apps/demo-paid/paddle-webhook"
+  ],
+  "pg": {
+   "demo_paid": {
+    "tables": {
+     "customers": {
+      "columns": [
+       "id",
+       "email",
+       "name",
+       "created_at"
+      ],
+      "rows": []
+     },
+     "invoices": {
+      "columns": [
+       "id",
+       "customer_id",
+       "amount_cents",
+       "paid",
+       "ratio",
+       "pdf"
+      ],
+      "rows": []
+     }
+    }
+   }
+  }
+ },
+ "paddle": {
+  "settings": {
+   "ntfset_01demo": {
+    "id": "ntfset_01demo",
+    "destination": "https://demo-paid.example.workers.dev/webhooks/paddle"
+   }
+  }
+ },
+ "fail": {}
+}

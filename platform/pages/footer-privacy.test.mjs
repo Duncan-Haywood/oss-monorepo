@@ -32,7 +32,7 @@ test('the Privacy Policy follows the switches it is given', () => {
   const p = text(on.privacy.body);
   for (const must of ['Mary Stella Labs, LLC', 'hello@marisstella.app', 'Cloudflare Web Analytics', 'legitimate interest',
     'Data Privacy Framework', 'complain to your local data-protection authority', 'do not sell or share', 'dns.google',
-    'feedback form', 'children under 16', '90 days']) {
+    'feedback form', 'children under 16', '90 days', 'up to 7 years', 'Anthropic, PBC', 'An AI assistant reads']) {
     assert.ok(p.includes(must), `privacy policy lacks "${must}"`);
   }
   const q = text(off.privacy.body);

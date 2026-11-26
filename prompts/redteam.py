@@ -5,7 +5,7 @@
     python3 prompts/redteam.py campaign [--target FILE | --under DIR] [--mutants 8] [--seed S] [--record RUN.json]
     python3 prompts/redteam.py rerun RUN.json          # blue team: re-run escaped mutants
     python3 prompts/redteam.py tally [RUN.json ...]    # catch rate from run records
-    python3 prompts/redteam.py open [RUN.json ...]     # real defects nobody has patched yet
+    python3 prompts/redteam.py open [RUN.json ...]     # real defects nobody has patched yet (blocked ones on one line each)
 
 A *mutant* is one small, deliberate defect in a source file: a flipped
 comparison, `+` for `-`, `true` for `false`, a constant off by one. The
@@ -495,18 +495,31 @@ def tally(records: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
-def open_defects(records: list[tuple[str, dict[str, Any]]]) -> list[dict[str, Any]]:
+def open_defects(records: list[tuple[str, dict[str, Any]]],
+                 blocked: bool = False) -> list[dict[str, Any]]:
     """Real defects still `patched: false`, oldest record first. A later run
     that fixes one sets `patched: true` and `patched_in` (its PR) on the entry
-    in the record that found it, so the list only ever shrinks by a fix."""
+    in the record that found it, so the list only ever shrinks by a fix.
+
+    An entry whose fix waits on something a red-team run cannot do (an eval
+    set that does not exist yet, say) carries `blocked: "<what it needs>"`.
+    Those are left out unless `blocked` is true, when only they are listed,
+    so step 0 stops re-reading them every run (eight runs, 2026-11-25..26)."""
     out = []
     for name, rec in sorted(records, key=lambda r: r[0]):
         rt = rec.get("redteam")
         if not isinstance(rt, dict):
             continue
         for i, d in enumerate(rt.get("real_defects", [])):
-            if isinstance(d, dict) and not d.get("patched"):
-                out.append({"record": name, "index": i, "file": d.get("file"), "issue": d.get("issue")})
+            if not isinstance(d, dict) or d.get("patched"):
+                continue
+            why = d.get("blocked")
+            if bool(isinstance(why, str) and why.strip()) != blocked:
+                continue
+            row = {"record": name, "index": i, "file": d.get("file"), "issue": d.get("issue")}
+            if blocked:
+                row["blocked"] = why.strip()
+            out.append(row)
     return out
 
 
@@ -618,11 +631,16 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     paths = args.records or sorted((REPO / "prompts" / "runs").glob("*.json"))
     if args.cmd == "open":
-        found = open_defects([(p.name, json.loads(p.read_text())) for p in paths])
+        recs = [(p.name, json.loads(p.read_text())) for p in paths]
+        found = open_defects(recs)
+        parked = open_defects(recs, blocked=True)
         for d in found:
             print(f"{d['record']} #{d['index']}  {d['file']}\n    {d['issue']}")
+        for d in parked:
+            print(f"blocked: {d['record']} #{d['index']}  {d['file']}: needs {d['blocked']}")
         print(f"({len(found)} open: fix them first, then set patched: true and "
-              "patched_in on the entry)", file=sys.stderr)
+              f"patched_in on the entry; {len(parked)} blocked, skip unless you can "
+              "supply what it needs)", file=sys.stderr)
         return 0
     print(json.dumps(tally([json.loads(p.read_text()) for p in paths]), indent=2))
     return 0

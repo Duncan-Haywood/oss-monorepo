@@ -93,7 +93,7 @@ ${body}
 <p>A code such as <code>BR-FR-08/BT-23</code> names the rule (<code>BR-FR-08</code>) and the EN 16931 business term it checks (<code>BT-23</code>, the business process, which France uses for its billing frameworks B1, S1, M1 and so on). <code>EXT-FR-FE-</code> terms are France's extensions to EN 16931, and <code>MDT-</code> and <code>MDG-</code> terms belong to the CDAR status message. A platform may quote the code with its own wording; the code is what to look up here.</p>
 <p class="note">The empty <code>""</code> in some messages is where FNFE's Schematron prints the value from your file; the checker's report names the element's path instead. See also the <a href="france-e-invoice-mandate.html">France mandate page</a> and the <a href="what-does-this-e-invoice-error-code-mean.html">EN 16931 rule reference</a>.</p>
 </section>
-<section>
+<section id="faq">
 <h2>Common questions</h2>
 ${FAQ.map(([q, a]) => `<h3>${esc(q)}</h3>\n<p>${esc(a)}</p>`).join("\n")}
 </section>

@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqye72U6dBFPsAY5meBz",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T03:39:10Z",
+  "ended": "2026-11-26T03:53:31Z",
+  "wall_minutes": 14.52,
+  "tokens_in": 11646798,
+  "tokens_out": 40037,
+  "cost_usd": 4.3284,
+  "tool_calls": 92,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19200",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First claim (lien-waivers-georgia-part-5-noc) collided with another run's claim made the same minute; released (the push hung up) and picked CA notice part 3.",
+    "Migration 0041 taken by private PR 231 mid-run; regenerated as 0042 with drizzle-kit after merging main."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "roadmap_claim.py --release failed through the proxy (send-pack disconnect), as documented; the stale claim lingers on payapps item 1 for 6 h."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "'renumber your new migrations/ file just before merging' is lossy for drizzle: the snapshot chain must be regenerated (drop the file, merge main, re-run drizzle-kit generate), not renamed."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "venture-preflight.mjs targets oss-monorepo ventures; this run changed only private-monorepo payapps and a public post",
+      "did": "skipped preflight; ran the app's full unit/worker/build and the payapps-site tests instead",
+      "result": "all green"
+    }
+  ],
+  "writeups": [
+    "docs/reports/ventures-2026-11-26-payapps-ca-notice-history-receipt.md",
+    "docs/posts/2026-11-25-which-states-make-you-use-their-lien-waiver-form.md (extended)"
+  ],
+  "goal": null,
+  "notes": "Private PR Duncan-Haywood/private-monorepo#234 merged (a48820a). Local: typecheck, biome, unit 626/626, worker 305/305 after merging main, build ok, payapps-site unit 21/21. Private Actions jobs starved (ci_starvation.py exit 0, run 45751564622).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "45e6a83b-1b5e-5c4c-ad25-e5f2ee7f8a87",
+    "transcripts": 1,
+    "first": "2026-11-26T03:39:10Z",
+    "last": "2026-11-26T03:53:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 89,
+        "input": 172,
+        "output": 40037,
+        "thinking": 4970,
+        "cache_read": 11493079,
+        "cache_write_5m": 0,
+        "cache_write_1h": 153547,
+        "api_equivalent_usd": 4.3284,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 89,
+      "input": 172,
+      "output": 40037,
+      "thinking": 4970,
+      "cache_read": 11493079,
+      "cache_write_5m": 0,
+      "cache_write_1h": 153547,
+      "api_equivalent_usd": 4.3284,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 92,
+    "tools": {
+      "Bash": 84,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.52,
+      "active_minutes": 14.52,
+      "model_minutes": 7.08,
+      "tool_minutes": 7.44,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior full-stack dev: schema+migration, service, routes, UI, 6 worker tests, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 231.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

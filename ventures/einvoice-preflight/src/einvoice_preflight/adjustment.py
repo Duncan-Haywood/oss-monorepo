@@ -143,7 +143,9 @@ def _inspect_row(row: Any, index: int, negative: bool = False) -> list[dict[str,
     percent = None
     if "base" in row and row.get("base") not in (None, ""):
         base = _money(row.get("base"))
-        if base is None or base < 0:
+        # A negative invoice may carry its sign on the base instead of the
+        # percentage (-1500 x 10% = -150.00); the arithmetic check still applies.
+        if base is None or (base < 0 and not negative):
             findings.append(_finding(
                 "INV-051",
                 "Header allowance or charge base is missing or invalid.",
