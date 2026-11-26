@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "First PR CI run: 2 platform/pages tests failed (construction page link, llms.txt Answers out of date); fixed in a follow-up commit."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -43,6 +45,10 @@
     {
       "file": "ventures/pay-app-guides/page.test.mjs",
       "issue": "The 'no page sends anything' test lists each .mjs by hand, unlike PAGES which reads the folder; a new module is silently unchecked unless added."
+    },
+    {
+      "file": "ventures/pay-app-guides/nav.mjs",
+      "issue": "Its 'Add a page' comment omits two steps that CI (platform/pages tests) enforces: listing the page in platform/pages/industry-construction.mjs and regenerating llms.txt Answers with node platform/pages/llms-answers.mjs ventures/pay-app-guides. The venture's own tests pass without them; the first PR CI run failed on both."
     }
   ],
   "deviations": [
