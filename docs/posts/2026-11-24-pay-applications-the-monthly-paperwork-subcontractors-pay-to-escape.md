@@ -192,7 +192,10 @@ expired from that day on. The projects page shows a one-line note while
 one is expiring or expired. A draft pay application dated on or after an
 expiry, or less than 30 days before it, lists that certificate with its
 date, so the renewal can go out with the application. When a policy
-renews, the old certificate is archived and no longer flagged. The build
+renews, the old certificate is archived and no longer flagged. The
+optional weekly "money to chase" email lists every certificate that has
+expired or will expire within 30 days, so a company with no pay
+application due that week still hears about it. The build
 reads only the dates typed in. It does not check coverage, limits or
 what a subcontract requires. (Added 2026-11-26; still in development.)
 
