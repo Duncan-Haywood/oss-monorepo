@@ -1,0 +1,394 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtLAN8tkrHrcg5i9wYf",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T08:07:08Z",
+  "ended": "2026-11-26T08:08:11Z",
+  "wall_minutes": 6.57,
+  "tokens_in": 2959879,
+  "tokens_out": 18909,
+  "cost_usd": 1.647,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19281",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Campaign without --fresh drew a venture a red-team run hit the day before (#19257); slug_dupe only surfaced it at PR time. Worth suggesting --fresh or a slug_dupe check at target choice."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No blog post: a bug-fix run on a free front-door tool with no new data a reader needs; the page note was updated instead.",
+      "did": "Added a one-line note to the paste instructions on index.html",
+      "result": "Fix shipped; no thin post added (CLAUDE.md: consolidate posts)"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Guard added (4b): download-then-paste round-trip test for the schedule CSV catches any future export/import header collision; aliases now normalised once so no alias can drift from norm(). Sibling ventures grepped for the same norm/alias pattern: none. Suite: run_venture_tests.py pay-application-generator ok (82 tests).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/pay-application-generator/calc.mjs",
+        "test": "node --test ventures/pay-application-generator/**/*.test.mjs  (in .)",
+        "seed": 90527600,
+        "commit": "e96e1f78d",
+        "sites": 222,
+        "baseline_seconds": 2.4,
+        "mutants": [
+          {
+            "file": "ventures/pay-application-generator/calc.mjs",
+            "line": 15,
+            "col": 12,
+            "operator": "eq-flip",
+            "before": "if (c === '\"' && src[i + 1] === '\"') { field += '\"'; i++; }",
+            "after": "if (c !== '\"' && src[i + 1] === '\"') { field += '\"'; i++; }",
+            "line_text": "      if (c === '\"' && src[i + 1] === '\"') { field += '\"'; i++; }",
+            "caught": true,
+            "seconds": 2.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-application-generator/calc.mjs",
+            "line": 98,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "const idx = mapHeaders(grid[0]);",
+            "after": "const idx = mapHeaders(grid[1]);",
+            "line_text": "  const idx = mapHeaders(grid[0]);",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-application-generator/calc.mjs",
+            "line": 125,
+            "col": 37,
+            "operator": "plus-to-minus",
+            "before": "const totalG = sum(\"d\") + sum(\"e\") + sum(\"f\");",
+            "after": "const totalG = sum(\"d\") + sum(\"e\") - sum(\"f\");",
+            "line_text": "  const totalG = sum(\"d\") + sum(\"e\") + sum(\"f\");",
+            "caught": true,
+            "seconds": 2.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-application-generator/calc.mjs",
+            "line": 148,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "if (x.c <= 0 && g > 0 && !x.isCo) findings.push({ severity: \"high\", title: `${x.desc}: work is billed on a line with no scheduled value.` });",
+            "after": "if (x.c <= 1 && g > 0 && !x.isCo) findings.push({ severity: \"high\", title: `${x.desc}: work is billed on a line with no scheduled value.` });",
+            "line_text": "    if (x.c <= 0 && g > 0 && !x.isCo) findings.push({ severity: \"high\", title: `${x.desc}: work is billed on a line with no scheduled value.` });",
+            "caught": false,
+            "seconds": 2.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: one-cent line billed in full flagged as 'no scheduled value'; new calc test"
+          },
+          {
+            "file": "ventures/pay-application-generator/calc.mjs",
+            "line": 148,
+            "col": 17,
+            "operator": "and-to-or",
+            "before": "if (x.c <= 0 && g > 0 && !x.isCo) findings.push({ severity: \"high\", title: `${x.desc}: work is billed on a line with no scheduled value.` });",
+            "after": "if (x.c <= 0 || g > 0 && !x.isCo) findings.push({ severity: \"high\", title: `${x.desc}: work is billed on a line with no scheduled value.` });",
+            "line_text": "    if (x.c <= 0 && g > 0 && !x.isCo) findings.push({ severity: \"high\", title: `${x.desc}: work is billed on a line with no scheduled value.` });",
+            "caught": false,
+            "seconds": 2.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: empty zero-value placeholder line flagged; new calc test"
+          },
+          {
+            "file": "ventures/pay-application-generator/calc.mjs",
+            "line": 171,
+            "col": 48,
+            "operator": "and-to-or",
+            "before": "const early = out.lines.filter((l) => l.c > 0 && l.pct != null && l.pct >= 9000 && l.pct <= 10000 && l.e > 0);",
+            "after": "const early = out.lines.filter((l) => l.c > 0 || l.pct != null && l.pct >= 9000 && l.pct <= 10000 && l.e > 0);",
+            "line_text": "  const early = out.lines.filter((l) => l.c > 0 && l.pct != null && l.pct >= 9000 && l.pct <= 10000 && l.e > 0);",
+            "caught": false,
+            "seconds": 2.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: precedence made every positive line 'early'; new front-loading test at 20% complete"
+          },
+          {
+            "file": "ventures/pay-application-generator/calc.mjs",
+            "line": 172,
+            "col": 17,
+            "operator": "lt-to-le",
+            "before": "if (completeBp < 3000 && early.length) findings.push({ severity: \"medium\", title: `Front-loading flag: ${early.map((l) => l.desc).join(\", \")} ${early.length === 1 ? \"is\" : \"are\"} 90%+ billed while the whole job is only ${pctText(completeBp)} done. Owners' reviewers look for this.` });",
+            "after": "if (completeBp <= 3000 && early.length) findings.push({ severity: \"medium\", title: `Front-loading flag: ${early.map((l) => l.desc).join(\", \")} ${early.length === 1 ? \"is\" : \"are\"} 90%+ billed while the whole job is only ${pctText(completeBp)} done. Owners' reviewers look for this.` });",
+            "line_text": "  if (completeBp < 3000 && early.length) findings.push({ severity: \"medium\", title: `Front-loading flag: ${early.map((l) => l.desc).join(\", \")} ${early.length === 1 ? \"is\" : \"are\"} 90%+ billed while the whole job is only ${pctText(completeBp)} done. Owners' reviewers look for this.` });",
+            "caught": false,
+            "seconds": 2.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: boundary at exactly 30.00% complete; new test"
+          },
+          {
+            "file": "ventures/pay-application-generator/calc.mjs",
+            "line": 246,
+            "col": 52,
+            "operator": "const-plus-one",
+            "before": "const stored = result.lines.filter((l) => l.f !== 0);",
+            "after": "const stored = result.lines.filter((l) => l.f !== 1);",
+            "line_text": "  const stored = result.lines.filter((l) => l.f !== 0);",
+            "caught": true,
+            "seconds": 2.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/pay-application-generator/sheet.mjs",
+        "test": "node --test ventures/pay-application-generator/**/*.test.mjs  (in .)",
+        "seed": 727052820,
+        "commit": "e96e1f78d",
+        "sites": 314,
+        "baseline_seconds": 2.3,
+        "mutants": [
+          {
+            "file": "ventures/pay-application-generator/sheet.mjs",
+            "line": 11,
+            "col": 34,
+            "operator": "plus-to-minus",
+            "before": "const u16 = (b, o) => b[o] | (b[o + 1] << 8);",
+            "after": "const u16 = (b, o) => b[o] | (b[o - 1] << 8);",
+            "line_text": "const u16 = (b, o) => b[o] | (b[o + 1] << 8);",
+            "caught": true,
+            "seconds": 2.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-application-generator/sheet.mjs",
+            "line": 28,
+            "col": 11,
+            "operator": "lt-to-le",
+            "before": "if (eocd < 0) throw new Error(\"The workbook looks cut off (no ZIP directory). Save it again and retry.\");",
+            "after": "if (eocd <= 0) throw new Error(\"The workbook looks cut off (no ZIP directory). Save it again and retry.\");",
+            "line_text": "  if (eocd < 0) throw new Error(\"The workbook looks cut off (no ZIP directory). Save it again and retry.\");",
+            "caught": false,
+            "seconds": 2.3,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "unzip() already refused any file whose first 4 bytes are not the local-header signature 0x04034b50, so the EOCD signature 0x06054b50 can never be found at offset 0: eocd is -1 or > 0, and < 0 vs <= 0 cannot differ."
+          },
+          {
+            "file": "ventures/pay-application-generator/sheet.mjs",
+            "line": 96,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "let colSeq = -1;",
+            "after": "let colSeq = -2;",
+            "line_text": "    let colSeq = -1;",
+            "caught": false,
+            "seconds": 2.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: cells with no r attribute lost column A; test workbook helper gained refs:false"
+          },
+          {
+            "file": "ventures/pay-application-generator/sheet.mjs",
+            "line": 107,
+            "col": 17,
+            "operator": "eq-flip",
+            "before": "else if (t === \"b\") out = v ? (v[1] === \"1\" ? \"TRUE\" : \"FALSE\") : \"\";",
+            "after": "else if (t !== \"b\") out = v ? (v[1] === \"1\" ? \"TRUE\" : \"FALSE\") : \"\";",
+            "line_text": "      else if (t === \"b\") out = v ? (v[1] === \"1\" ? \"TRUE\" : \"FALSE\") : \"\";",
+            "caught": true,
+            "seconds": 2.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-application-generator/sheet.mjs",
+            "line": 126,
+            "col": 57,
+            "operator": "or-to-and",
+            "before": "const rels = (await get(\"xl/_rels/workbook.xml.rels\")) || \"\";",
+            "after": "const rels = (await get(\"xl/_rels/workbook.xml.rels\")) && \"\";",
+            "line_text": "  const rels = (await get(\"xl/_rels/workbook.xml.rels\")) || \"\";",
+            "caught": true,
+            "seconds": 2.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-application-generator/sheet.mjs",
+            "line": 166,
+            "col": 88,
+            "operator": "ge-to-gt",
+            "before": "const LETTER_ROW = (row) => { const v = row.map(clean).filter(Boolean); return v.length >= 3 && v.every((x) => /^[A-Z]$/i.test(x)); };",
+            "after": "const LETTER_ROW = (row) => { const v = row.map(clean).filter(Boolean); return v.length > 3 && v.every((x) => /^[A-Z]$/i.test(x)); };",
+            "line_text": "const LETTER_ROW = (row) => { const v = row.map(clean).filter(Boolean); return v.length >= 3 && v.every((x) => /^[A-Z]$/i.test(x)); };",
+            "caught": false,
+            "seconds": 2.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: a three-letter A B C row under a three-column header was read as a line; new findSchedule test"
+          },
+          {
+            "file": "ventures/pay-application-generator/sheet.mjs",
+            "line": 177,
+            "col": 34,
+            "operator": "plus-to-minus",
+            "before": "const h = low(grid.slice(r, r + depth).map((x) => (x || [])[c] ?? \"\").filter((x) => !/^[A-Z]$/i.test(clean(x))).join(\" \"));",
+            "after": "const h = low(grid.slice(r, r - depth).map((x) => (x || [])[c] ?? \"\").filter((x) => !/^[A-Z]$/i.test(clean(x))).join(\" \"));",
+            "line_text": "    const h = low(grid.slice(r, r + depth).map((x) => (x || [])[c] ?? \"\").filter((x) => !/^[A-Z]$/i.test(clean(x))).join(\" \"));",
+            "caught": true,
+            "seconds": 2.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-application-generator/sheet.mjs",
+            "line": 278,
+            "col": 63,
+            "operator": "const-plus-one",
+            "before": "if (m.toDate != null && l.g != null && Math.abs(l.g - g) > 1) checks.push({ severity: \"high\", title: `${l.desc} (${where(l.r, \"toDate\")}): the sheet's total completed and stored is ${usd(l.g)}, but previous + this period + stored is ${usd(g)}. A formula may have been typed over.` });",
+            "after": "if (m.toDate != null && l.g != null && Math.abs(l.g - g) > 2) checks.push({ severity: \"high\", title: `${l.desc} (${where(l.r, \"toDate\")}): the sheet's total completed and stored is ${usd(l.g)}, but previous + this period + stored is ${usd(g)}. A formula may have been typed over.` });",
+            "line_text": "    if (m.toDate != null && l.g != null && Math.abs(l.g - g) > 1) checks.push({ severity: \"high\", title: `${l.desc} (${where(l.r, \"toDate\")}): the sheet's total completed and stored is ${usd(l.g)}, but previous + this period + stored is ${usd(g)}. A formula may have been typed over.` });",
+            "caught": false,
+            "seconds": 2.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: two-cent typed-over to-date total; new tolerance test both sides"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/pay-application-generator/calc.mjs",
+        "issue": "A pasted schedule with a 'Retainage %' header (a listed alias) had its per-line rates silently ignored: norm() turns the header into 'retainage%' but the alias list held 'retainage %', so the column never mapped and every line used the global rate, giving a wrong retainage and payment due with no finding. Fixed by normalising the aliases with the same norm(); test covers four spellings.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19281"
+      },
+      {
+        "file": "ventures/pay-application-generator/calc.mjs",
+        "issue": "A pasted range that included its TOTAL row (the usual copy from a G703-style sheet, and this page's own schedule CSV) was read as one more line, doubling the contract sum, completed work and the current payment due ($900 due instead of $450 in the repro) with no finding, because percent complete was unchanged. Fixed: a row labelled Total/Totals/Grand total is left out with an info finding.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19281"
+      },
+      {
+        "file": "ventures/pay-application-generator/calc.mjs",
+        "issue": "The downloaded schedule CSV wrote retainage dollar amounts under a 'Retainage' header, which the paste reader takes as each line's own retainage percent: pasted back, it either failed ('retainage is not a percentage') or, on lines whose retainage was under $100, silently became a per-line rate (e.g. $50.00 held read as 50%). Fixed: the export header is 'Retainage amount'; a round-trip test asserts download-then-paste reproduces the summary.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19281"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "972aa8ca-9677-5d95-82b2-83fdc8d76b1a",
+    "transcripts": 1,
+    "first": "2026-11-26T08:07:08Z",
+    "last": "2026-11-26T08:13:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 69,
+        "output": 18909,
+        "thinking": 6848,
+        "cache_read": 2873072,
+        "cache_write_5m": 0,
+        "cache_write_1h": 86738,
+        "api_equivalent_usd": 1.647,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 69,
+      "output": 18909,
+      "thinking": 6848,
+      "cache_read": 2873072,
+      "cache_write_5m": 0,
+      "cache_write_1h": 86738,
+      "api_equivalent_usd": 1.647,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 33,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.57,
+      "active_minutes": 6.57,
+      "model_minutes": 4.2,
+      "tool_minutes": 2.36,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior dev: triage 16 mutants, reproduce and fix 3 defects, 10 tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 182.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

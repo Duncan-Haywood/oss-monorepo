@@ -57,7 +57,7 @@
   <section class="card" id="inputs">
     <h2>1. Your schedule of values</h2>
     <p class="note"><strong>Already keep it in Excel?</strong> Choose the .xlsx workbook as it is: title block, two-row headers, column letters, division headings, subtotals and a totals row are all fine. The page finds the continuation sheet, reads the lines, and checks the sheet's own arithmetic: a total completed that no longer equals its parts, a SUM range that misses a line, a retainage cell that disagrees with your rate. The workbook is opened in this tab and never uploaded.</p>
-    <p class="note">Or a CSV or a range pasted from a spreadsheet, with a header row. Required: description and scheduled value. Then: previous (billed in earlier applications), this period, stored (materials presently stored). Put CO in the item column for change orders; a deductive change order is a negative value. Optional: a retainage column for a line with its own rate.</p>
+    <p class="note">Or a CSV or a range pasted from a spreadsheet, with a header row. Required: description and scheduled value. Then: previous (billed in earlier applications), this period, stored (materials presently stored). Put CO in the item column for change orders; a deductive change order is a negative value. Optional: a retainage column (or Retainage %) for a line with its own rate. A totals row in the paste is left out, not counted twice.</p>
     <label for="file">Choose an Excel workbook (.xlsx) or a CSV file</label>
     <input type="file" id="file" accept=".xlsx,.xlsm,.csv,.tsv,.txt,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
     <label for="paste">…or paste the schedule</label>

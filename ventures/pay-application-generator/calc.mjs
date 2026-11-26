@@ -66,11 +66,14 @@ const ALIASES = {
 };
 const norm = (h) => String(h).trim().toLowerCase().replace(/[_%]/g, (m) => (m === "%" ? " %" : " ")).replace(/\s+/g, " ").replace(/ %$/, "%").trim();
 
+// The aliases go through the same norm() as the header, so "Retainage %" matches however the sign is spaced
+// (norm turns "retainage %" into "retainage%"; comparing against the raw alias missed it and dropped the column).
+const ALIAS_NORM = Object.fromEntries(Object.entries(ALIASES).map(([k, names]) => [k, names.map(norm)]));
 function mapHeaders(header) {
   const idx = {};
   header.forEach((h, i) => {
     const n = norm(h);
-    for (const [k, names] of Object.entries(ALIASES)) if (idx[k] == null && names.includes(n)) idx[k] = i;
+    for (const [k, names] of Object.entries(ALIAS_NORM)) if (idx[k] == null && names.includes(n)) idx[k] = i;
   });
   return idx;
 }
@@ -78,6 +81,7 @@ function mapHeaders(header) {
 // A change order by its number. The Item column takes a compact "CO5"; a description needs a separator after the CO
 // ("CO-2", "CO 2", "C.O. 2") so a base-contract line like "CO2 sensors" is not read as change order 2.
 export const CO_ITEM = /^(c\.?\s?o\.?[-\s#]*\d+|change order)/i;
+const TOTALS_LABEL = /^(grand\s+)?totals?:?$/i;
 export const CO_DESC = /^(c\.?\s?o(\.|[-\s#])[-\s#]*\d+|change order)/i;
 
 // settings: { retainagePct, storedRetainagePct, reduceAtPct, reducedPct, reduceMode ("all" | "remaining"),
@@ -107,9 +111,13 @@ export function compute(text, settings = {}) {
   const mode = settings.reduceMode === "remaining" ? "remaining" : "all";
 
   const raw = [];
+  let totalsRow = null;
   for (let r = 1; r < grid.length; r++) {
     const row = grid[r], get = (k) => (idx[k] == null ? "" : (row[idx[k]] ?? ""));
     const label = (get("desc") || get("item")).trim() || `Line ${r}`;
+    // A range pasted with its totals row (and this page's own schedule CSV) ends in a TOTAL line; reading it as a line
+    // doubles the contract sum and the payment due with no finding, since the percent complete is unchanged.
+    if (TOTALS_LABEL.test(label)) { totalsRow = r + 1; continue; }
     const c = parseMoney(get("scheduled")), d = parseMoney(get("previous")), e = parseMoney(get("thisPeriod")), f = parseMoney(get("stored"));
     if ([c, d, e, f].some((v) => v == null)) { out.errors.push(`Row ${r + 1} (${label}): a money column is not a number.`); continue; }
     const own = get("retainage").trim() === "" ? null : parsePercent(get("retainage"));
@@ -119,6 +127,7 @@ export function compute(text, settings = {}) {
   }
   if (out.errors.length) return out;
   if (!raw.length) { out.errors.push("No lines found."); return out; }
+  if (totalsRow) findings.push({ severity: "info", title: `Row ${totalsRow} reads as a totals row, so it was left out of the lines rather than counted twice.` });
 
   const sum = (k, filter = () => true) => raw.filter(filter).reduce((a, x) => a + x[k], 0);
   const totalC = sum("c");
@@ -202,7 +211,7 @@ export function summaryText(result, s = {}) {
 const q = (v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
 const plain = (c) => (c / 100).toFixed(2);
 export function scheduleCsv(result) {
-  const head = ["Item", "Description", "Scheduled value", "Previous", "This period", "Stored", "Total completed and stored", "Percent", "Balance to finish", "Retainage"];
+  const head = ["Item", "Description", "Scheduled value", "Previous", "This period", "Stored", "Total completed and stored", "Percent", "Balance to finish", "Retainage amount"];
   const rows = result.lines.map((l) => [l.item, l.desc, plain(l.c), plain(l.d), plain(l.e), plain(l.f), plain(l.g), l.pct == null ? "" : (l.pct / 100).toFixed(2), plain(l.balance), plain(l.ret)]);
   const m = result.summary;
   rows.push(["", "TOTAL", plain(m.contractToDate), plain(result.lines.reduce((a, l) => a + l.d, 0)), plain(result.lines.reduce((a, l) => a + l.e, 0)), plain(result.lines.reduce((a, l) => a + l.f, 0)), plain(m.completed), (m.completeBp / 100).toFixed(2), plain(m.contractToDate - m.completed), plain(m.retainage)]);
