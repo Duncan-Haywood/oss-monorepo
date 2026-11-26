@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const PAGES = ["index", "cmmc-level-1-self-assessment", "cmmc-scoping-worksheet", "sprs-score-calculator", "nist-800-171-ssp-template", "dfars-7012-incident-reporting", "cmmc-affirmation-dates", "stock-size-from-step-file", "job-shop-quote-calculator", "rfq-review", "drawing-review", "first-article-inspection", "cmmc-level-1-vs-level-2", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual"];
+const PAGES = ["index", "cmmc-level-1-self-assessment", "cmmc-scoping-worksheet", "sprs-score-calculator", "nist-800-171-ssp-template", "dfars-7012-incident-reporting", "cmmc-affirmation-dates", "stock-size-from-step-file", "job-shop-quote-calculator", "rfq-review", "drawing-review", "first-article-inspection", "cmmc-level-1-vs-level-2", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual", "machine-shop-quoting-software"];
 const read = (p) => readFileSync(new URL(`./${p}.html`, import.meta.url), "utf8");
 
 for (const p of PAGES) {
@@ -173,4 +173,24 @@ test("affirmation page: every <q> is a recorded quote, DOM from text, keeps noth
   assert.doesNotMatch(html, /innerHTML|outerHTML|insertAdjacentHTML|document\.write/);
   assert.match(html, /id="keep-draft"(?![^>]*checked)/);
   assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon/);
+});
+
+// The comparison page names other vendors' products and prices (2026-11-26). Every price row
+// links the listing it came from, the page says no vendor page was read, and our own product
+// shows no price until one is set (platform/pages/industry-manufacturing.mjs keeps the same rule).
+test("quoting software comparison: every listed price has its source, ours has none", () => {
+  const html = read("machine-shop-quoting-software");
+  assert.match(html, /No vendor's own pricing page could be read/);
+  assert.match(html, /as that listing showed it on 24 November 2026/);
+  const table = html.slice(html.indexOf("<h2>Listed prices"), html.indexOf("<h2>Questions"));
+  const rows = [...table.matchAll(/<tr><td>[\s\S]*?<\/tr>/g)].map((m) => m[0]);
+  assert.ok(rows.length >= 4);
+  for (const r of rows) {
+    if (/\$\d/.test(r.replace(/Series B/, ""))) assert.match(r, /<a href="https:\/\/[^"]+" rel="nofollow">/, r);
+  }
+  const ours = html.slice(html.indexOf("<h2>What we are building"));
+  let text = ours; let prev;
+  do { prev = text; text = text.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ""); } while (text !== prev);
+  assert.doesNotMatch(text.slice(0, text.indexOf('id="faq"') > 0 ? text.indexOf('id="faq"') : text.length), /\$\s?\d/);
+  assert.match(html, /none paid to be listed/);
 });
