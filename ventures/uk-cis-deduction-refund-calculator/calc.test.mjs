@@ -36,14 +36,14 @@ test("single invoice: deduction on labour only, materials and VAT paid in full",
 });
 
 test("unregistered costs 10% of labour more and says so", () => {
-  const r = run({ status: "unregistered" });
+  const r = run({ status: "unregistered", deducted: "" });
   assert.equal(r.deducted, 12600);
   assert.equal(r.heldBack30, 4200);
   assert.ok(r.findings.some((f) => /Registering with HMRC/.test(f.title)));
 });
 
 test("balance to pay when deductions fall short", () => {
-  const r = run({ status: "gross", labour: 60000, materials: 0, costs: 5000, invLabour: "" });
+  const r = run({ status: "gross", labour: 60000, materials: 0, costs: 5000, deducted: "", invLabour: "" });
   assert.equal(r.deducted, 0);
   assert.ok(r.due > 0);
   assert.equal(r.refund, 0);
@@ -72,4 +72,23 @@ test("summary names the source and carries the disclaimer", () => {
   const s = summaryText(run({}));
   assert.ok(s.includes(VERIFY));
   assert.match(s, /Not tax advice/);
+});
+
+test("refund credits the deductions the statements show, not labour x rate (quality round 112)", () => {
+  // Sample bill is 6,351.80. Statements showing 7,000 leave 648.20 to reclaim, not 2,048.20.
+  const r = run({ deducted: 7000 });
+  assert.equal(r.deducted, 7000);
+  assert.equal(r.expectedDeduction, 8400);
+  assert.equal(r.statementGap, -1400);
+  assert.equal(r.refund, 648.2);
+  // Blank statements fall back to the expected 20% of labour.
+  assert.equal(run({ deducted: "" }).refund, 2048.2);
+});
+
+test("additional rate and payments-on-account threshold (quality round 112)", () => {
+  // 150,000 profit, allowance fully tapered: 37,700 x 20% + 87,440 x 40% + 24,860 x 45% = 53,703.
+  assert.equal(incomeTax(150000), 53703);
+  const r = run({ status: "gross", labour: 25000, materials: 0, costs: 0, deducted: "", invLabour: "" });
+  assert.ok(r.net >= 1000 && r.net < 10000, String(r.net));
+  assert.ok(r.findings.some((f) => /£1,000 or more/.test(f.title)));
 });

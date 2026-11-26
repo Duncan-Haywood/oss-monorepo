@@ -1,0 +1,180 @@
+{
+ "date": "2026-11-26",
+ "subject": "ventures/christmas-tree-farm-profit-planner",
+ "stratum": "venture",
+ "seed": "2026-11-26-f-9914",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), quality round 112, see run record",
+ "status": "audited",
+ "professional": "an agricultural extension farm-management specialist who writes Christmas tree enterprise budgets (as Penn State, Michigan State and NC State extension do); they check first the per-acre cycle budget, then the harvest pattern, equipment replacement and discounting",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed by hand from DEFAULTS: sellable 1,400 x 0.75 x 0.9 = 945/acre; blended 0.4 x 65 + 0.6 x 28 = 42.80; steady-acre cycle 945 x 38.80 - 3,200 - 4,800 - 1,200 = 27,466 (matches); year 1 cash -6,400 - 600 - 300 - 10,500 = -17,800 (matches); year 9 revenue 1,890 x 42.80 = 80,892, upkeep 2 x 300 + 12 x 700 = 9,000 (matches). Wrong: equipment life was ignored (equipPerYear computed and never used), so a 20-year plan with a 12-year life never bought a second set: project({...DEFAULTS, equipLifeYears:5}).totalCash equalled the default.",
+  "completeness": "Year-by-year table, payback, peak outlay, NPV, break-even price, price, survival and channel sensitivity all render from calc.mjs (node --test 22/22). The equipment-life field did nothing.",
+  "verification": "node --test: 22 pass. Mutants: land cost removed caught; early-years < -> <= caught; sell cost removed caught; NPV exponent year -> year-1 survived (no test pinned NPV to a hand value).",
+  "craft": "calc.mjs 130 lines, pure, NaN-safe; dead variable equipPerYear; blank or non-numeric fields silently replaced with the default (index.html:129, it writes the default back into the field, so it is visible); negative prices accepted.",
+  "claims": "Disclaimer present; README states one rotation, no replant, and what is out of scope. The 'Equipment life (years, for the per-acre figure)' label was false twice: the per-acre figure says 'before equipment and fixed costs', and the value affected nothing.",
+  "fitness": "A prospective grower can see the cash hole and the payback year, the decision it promises. A grower would hit within the hour: whole block cut in one season (real blocks are cut over 2 to 4 seasons), no replanting after harvest so the 20-year horizon winds down with no terminal value, no equipment replacement.",
+  "domain": "Extension enterprise budgets (e.g. Penn State Extension Christmas tree budget) spread harvest of a planting over several years and carry machinery replacement or depreciation; this model cuts each block at once and, before this round's fix, bought equipment only once. Land cost is not charged in a block's harvest year (calc.mjs:55 uses growing acres)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "steady-acre cycle profit from defaults",
+   "method": "by hand from DEFAULTS",
+   "command": "node -e steadyAcre(DEFAULTS)",
+   "expected": "27,466",
+   "observed": "27466",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "year 1 cash",
+   "method": "by hand: planting 2 x (1,400 x 2.00 + 400), upkeep 600, land 300, fixed 1,500 + equipment 9,000",
+   "command": "node -e project(DEFAULTS).rows[0]",
+   "expected": "-17,800",
+   "observed": "-17800",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "year 9 harvest revenue and upkeep",
+   "method": "by hand: 2 acres x 945 trees x 42.80; 2 early + 12 mature acres",
+   "command": "node -e project(DEFAULTS).rows[8]",
+   "expected": "80,892 and 9,000",
+   "observed": "80892, 9000",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "equipment replaced at end of its life",
+   "method": "enterprise-budget practice: machinery replaced or depreciated over its life",
+   "command": "node -e project({...DEFAULTS, equipLifeYears:5}).totalCash === project(DEFAULTS).totalCash",
+   "expected": "false (more cost)",
+   "observed": "true (input ignored)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "break-even price sets NPV to zero",
+   "method": "re-run project at the returned multiplier",
+   "command": "node --test",
+   "expected": "|NPV| < 1",
+   "observed": "pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "sensitivity tables move the right way",
+   "method": "run",
+   "command": "node --test",
+   "expected": "NPV rises with survival and price",
+   "observed": "pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "node --test",
+   "expected": "green",
+   "observed": "22/22",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "equipment life label",
+   "method": "read index.html:88 vs calc.mjs",
+   "command": "read",
+   "expected": "value used for the per-acre figure",
+   "observed": "unused anywhere",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer and scope",
+   "method": "read index.html footer and README",
+   "command": "read",
+   "expected": "present",
+   "observed": "present",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "harvest pattern",
+   "method": "extension budgets harvest a planting over several seasons",
+   "command": "read calc.mjs:47",
+   "expected": "multi-year harvest",
+   "observed": "whole block cut in one year",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:55",
+   "change": "const land = growing * o.landCostPerAcre; -> const land = 0;",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs"
+  },
+  {
+   "where": "calc.mjs:49",
+   "change": "if (a < o.earlyYears) early -> if (a <= o.earlyYears) early",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs"
+  },
+  {
+   "where": "calc.mjs:65",
+   "change": "Math.pow(1 + r, row.year) -> Math.pow(1 + r, row.year - 1)",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs"
+  },
+  {
+   "where": "calc.mjs:56",
+   "change": "const sell = trees * o.sellCostPerTree; -> const sell = 0;",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The 'Equipment life' input had no effect (equipPerYear computed and never used), so equipment was bought once in year 1 and never replaced in a 20-year plan; totals and NPV overstate by a second set (9,000 on defaults), and the label claimed it fed the per-acre figure, which excludes equipment.",
+   "where": "ventures/christmas-tree-farm-profit-planner/calc.mjs:40",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19368"
+  },
+  {
+   "severity": "medium",
+   "what": "Each block is cut entirely in its harvest year and never replanted; growers cut a planting over 2 to 4 seasons and replant, so the cash timing and the late-horizon wind-down depart from practice.",
+   "where": "ventures/christmas-tree-farm-profit-planner/calc.mjs:48",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "NPV was not pinned to a hand value: shifting the discount exponent by a year left every test green.",
+   "where": "ventures/christmas-tree-farm-profit-planner/calc.test.mjs:35",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19368"
+  },
+  {
+   "severity": "low",
+   "what": "Land cost is charged on growing acres only, so a block's harvest year carries no land cost.",
+   "where": "ventures/christmas-tree-farm-profit-planner/calc.mjs:55",
+   "category": "domain-rule",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19368"],
+ "verdict": "The cash-flow arithmetic recomputes exactly by hand, and three of four seeded mutants were caught. But an input on the page did nothing (equipment life), its label said otherwise, and the model cuts each block in one season with no replanting, which an extension farm-management specialist would flag first. Does not meet the bar; the equipment fix and an NPV test are in this round's PR, the harvest pattern goes to Known gaps."
+}

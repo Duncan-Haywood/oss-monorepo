@@ -64,3 +64,18 @@ test("num and money", () => {
   assert.ok(Number.isNaN(num("abc")));
   assert.equal(money(-1234.4), "-$1,234");
 });
+
+test("equipment is replaced when its life runs out inside the horizon (quality round 112)", () => {
+  // 20 years, 12-year life: bought in year 1 and again in year 13, nowhere else.
+  const p = project({ ...base, years: 20, equipLifeYears: 12, startupEquip: 9000, fixedYear: 1500 });
+  const bought = p.rows.filter((r) => r.fixed > 1500).map((r) => r.year);
+  assert.deepEqual(bought, [1, 13]);
+  assert.ok(project({ ...base, equipLifeYears: 5 }).totalCash < project({ ...base, equipLifeYears: 30 }).totalCash);
+});
+
+test("NPV discounts year-end cash from year 1 (quality round 112)", () => {
+  const o = { ...base, years: 2, plantYears: 1, discountPct: 10 };
+  const p = project(o);
+  const hand = p.rows[0].cash / 1.1 + p.rows[1].cash / 1.21;
+  assert.ok(Math.abs(p.npv - hand) < 1e-6, `${p.npv} vs ${hand}`);
+});

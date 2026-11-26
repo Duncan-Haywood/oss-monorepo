@@ -37,7 +37,8 @@ export function project(o) {
   const plantYears = Math.max(1, Math.round(o.plantYears));
   const perAcre = sellableTreesPerAcre(o);
   const price = blendedPrice(o);
-  const equipPerYear = o.startupEquip / Math.max(1, o.equipLifeYears);
+  // Equipment is bought in year 1 and replaced each time its life runs out inside the horizon.
+  const equipLife = Math.max(1, Math.round(Number.isFinite(o.equipLifeYears) ? o.equipLifeYears : years));
   const rows = [];
   let cumulative = 0, paybackYear = null, trough = 0, troughYear = 1;
   for (let y = 1; y <= years; y++) {
@@ -54,7 +55,7 @@ export function project(o) {
     const upkeep = early * o.earlyCostPerAcre + (growing - early) * o.matureCostPerAcre;
     const land = growing * o.landCostPerAcre;
     const sell = trees * o.sellCostPerTree;
-    const fixed = o.fixedYear + (y === 1 ? o.startupEquip : 0);
+    const fixed = o.fixedYear + ((y - 1) % equipLife === 0 ? o.startupEquip : 0);
     const cash = revenue - plantCost - upkeep - land - sell - fixed;
     cumulative += cash;
     if (cumulative < trough) { trough = cumulative; troughYear = y; }

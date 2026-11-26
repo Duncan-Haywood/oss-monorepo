@@ -69,14 +69,17 @@ export function compute(input) {
   if (p.labour > 0) {
     const turnover = p.labour + p.materials;
     const profit = Math.max(0, turnover - p.costs);
-    const deducted = r2(p.labour * rate);
+    // What HMRC credits on the return is what the statements show; labour x rate is only the expected figure.
+    const expected = r2(p.labour * rate);
+    const deducted = p.hasDeducted ? r2(p.deducted) : expected;
     const tax = incomeTax(profit), ni = class4(profit);
     const bill = r2(tax + ni);
     const net = r2(bill - deducted);
     const refund = net < 0 ? -net : 0;
     Object.assign(out, { turnover, profit, deducted, tax, ni, bill, net, refund, due: net > 0 ? net : 0, effective: profit > 0 ? bill / profit : 0 });
     out.heldBack30 = p.status === "unregistered" ? r2(p.labour * 0.1) : 0;
-    out.statementGap = p.hasDeducted ? r2(p.deducted - deducted) : null;
+    out.expectedDeduction = expected;
+    out.statementGap = p.hasDeducted ? r2(p.deducted - expected) : null;
 
     if (refund > 0) findings.push({ severity: "info", title: `CIS held back ${gbp(deducted)} but your estimated tax and Class 4 NI come to ${gbp(bill)}, so about ${gbp(refund)} is yours back. You claim it after the tax year ends, through your Self Assessment return.` });
     else if (net > 0) findings.push({ severity: "medium", title: `CIS held back ${gbp(deducted)} but your estimated bill is ${gbp(bill)}, so about ${gbp(net)} is still to pay. Set it aside: CIS is a payment on account, not the final tax.` });
@@ -84,7 +87,7 @@ export function compute(input) {
     if (p.status === "unregistered") findings.push({ severity: "high", title: `Unregistered subcontractors have 30% held back. Registering with HMRC as a CIS subcontractor drops it to 20%, which on ${gbp(p.labour)} of labour is ${gbp(out.heldBack30)} more in your pocket through the year.` });
     if (p.status === "registered" && p.labour >= GROSS_TURNOVER_TEST) findings.push({ severity: "info", title: `Gross payment status means contractors pay you in full and you settle tax yourself. Your labour is above the ${gbp(GROSS_TURNOVER_TEST)} turnover test for a sole trader (before materials and VAT); HMRC also applies a business test and a compliance test, which this tool cannot judge.` });
     if (p.status === "registered" && p.labour < GROSS_TURNOVER_TEST) findings.push({ severity: "info", title: `Gross payment status needs construction turnover of at least ${gbp(GROSS_TURNOVER_TEST)} a year for a sole trader (before materials and VAT). Your labour is ${gbp(p.labour)}.` });
-    if (out.statementGap !== null && Math.abs(out.statementGap) >= 1) findings.push({ severity: "medium", title: `Your statements show ${gbp(p.deducted)} deducted, ${gbp(Math.abs(out.statementGap))} ${out.statementGap > 0 ? "more" : "less"} than ${(rate * 100).toFixed(0)}% of the labour you entered. Check for materials wrongly included in the deduction, a contractor that used the wrong rate, or missing statements; claim on what the statements show.` });
+    if (out.statementGap !== null && Math.abs(out.statementGap) >= 1) findings.push({ severity: "medium", title: `Your statements show ${gbp(p.deducted)} deducted, ${gbp(Math.abs(out.statementGap))} ${out.statementGap > 0 ? "more" : "less"} than ${(rate * 100).toFixed(0)}% of the labour you entered (${gbp(expected)}). Check for materials wrongly included in the deduction, a contractor that used the wrong rate, or missing statements. The refund above uses the statements' figure, because that is what you claim.` });
     if (net >= 1000) findings.push({ severity: "medium", title: "A balance of £1,000 or more normally brings payments on account for the next year. Check the rules." });
     if (profit <= PERSONAL_ALLOWANCE && p.status !== "gross") findings.push({ severity: "info", title: "Profit is within your personal allowance, so none of the CIS held back was needed as tax. File a return to reclaim it." });
   }

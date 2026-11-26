@@ -1,0 +1,167 @@
+{
+ "date": "2026-11-26",
+ "subject": "ventures/uk-cis-deduction-refund-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-26-f-9914",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), quality round 112, see run record",
+ "status": "audited",
+ "professional": "a UK accountant (ACCA/CTA) who files Self Assessment returns for CIS subcontractors; they check first that the refund is worked from the deductions on the CIS statements, then the 2025/26 bands, Class 4 rates and the gross payment turnover test",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed by hand against HMRC 2025/26 rates (PA 12,570, basic band 37,700, 45% over 125,140, taper 1 per 2 over 100,000; Class 4 6% 12,570-50,270, 2% above): incomeTax(110000)=33,432, class4(110000)=3,456.60, incomeTax(150000)=53,703, sample bill 6,351.80 and refund 2,048.20 all match (node -e on calc.mjs). But compute() credited labour x rate against the bill and ignored the 'CIS deducted per your statements' figure: sample with deducted 7,000 still showed a 2,048.20 refund; the reclaim is 6,351.80 - 7,000 = 648.20. A wrong headline number on the tool's main job caps this at 2.",
+  "completeness": "Invoice deduction, yearly bill, refund/balance, unregistered 30% cost, gross payment turnover test, statement mismatch flag, summary download and print all work (node --test 26/26; UI code read). The statement figure is collected but only used for a warning, not for the result.",
+  "verification": "node --test '*.test.mjs': 26 pass. Mutants: POA threshold 1000->10000 survived; 45% additional rate ->40% survived; Class 4 2%->3% caught. 2 of 3 survived.",
+  "craft": "calc.mjs (108 lines) is pure, rejects bad input instead of clamping, names its source. Dense one-line findings and a cryptic gbp() formatter; '1,200' is rejected rather than parsed (message is clear). Acceptable.",
+  "claims": "Page says rules were written without a live lookup and lists what is not decided; disclaimer and 'Not tax advice' in footer and summary (page.test.mjs checks). Minor: 'payments on account' is listed as not decided yet a finding states the 1,000 rule without the 80%-deducted-at-source exemption. llms.txt github.io links are rewritten at deploy (source-only, not filed).",
+  "fitness": "Walked a registered subcontractor with real statements: they type the statements' total, the tool warns of a gap, but the refund shown is still from labour x 20%, so the number they would plan around is wrong whenever a contractor deducted a different amount, which is the case the field exists for.",
+  "domain": "Rates and thresholds match 2025/26 (frozen into 2026/27). The departure: HMRC credits CIS deductions as shown on the contractor statements (CIS340, 'claim on what the statements show', which the tool itself says), not a recomputed 20% of labour. POA: TMA 1970 s59A and SI 1996/1654 also exempt where 80% or more is deducted at source; not modelled."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "income tax and Class 4 at 110,000 profit (taper)",
+   "method": "HMRC 2025/26 income tax rates and Class 4 rates, by hand",
+   "command": "node -e incomeTax(110000), class4(110000)",
+   "expected": "33,432 and 3,456.60",
+   "observed": "33432, 3456.6",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "income tax at 150,000 (PA nil, 45% band)",
+   "method": "HMRC 2025/26 additional rate over 125,140, by hand",
+   "command": "node -e incomeTax(150000)",
+   "expected": "53,703",
+   "observed": "53703",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "sample bill and refund",
+   "method": "by hand: (37,000-12,570) x 20% + x 6% = 6,351.80; 8,400 - 6,351.80",
+   "command": "node -e compute(SAMPLE)",
+   "expected": "bill 6,351.80, refund 2,048.20",
+   "observed": "6351.8, 2048.2",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "refund with statements showing 7,000 deducted",
+   "method": "CIS340: the credit is the deduction on the statements; 6,351.80 - 7,000",
+   "command": "node -e compute({...SAMPLE, deducted:7000})",
+   "expected": "refund 648.20",
+   "observed": "refund 2048.2 (statements ignored)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "single-invoice deduction on labour only",
+   "method": "CIS340: deduction excludes VAT and materials",
+   "command": "node --test (single invoice test)",
+   "expected": "1,500 labour -> 300 deducted, 1,600 paid",
+   "observed": "deepEqual passes",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "invoice-only mode and input rejection",
+   "method": "run",
+   "command": "node --test",
+   "expected": "no errors for invoice-only; errors for blank status and negative labour",
+   "observed": "pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "node --test '*.test.mjs'",
+   "expected": "green",
+   "observed": "26/26 pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer, source and scope list on page and summary",
+   "method": "read index.html, summaryText",
+   "command": "node --test page.test.mjs",
+   "expected": "present",
+   "observed": "present",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'payments on account' listed as not decided",
+   "method": "read index.html vs calc.mjs:88",
+   "command": "read",
+   "expected": "consistent",
+   "observed": "finding states a 1,000 POA rule anyway, without the 80% test",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "gross payment turnover test 30,000 for a sole trader",
+   "method": "HMRC 'CIS: gross payment status' (net of materials and VAT)",
+   "command": "read calc.mjs:17 and findings",
+   "expected": "30,000 on labour",
+   "observed": "30,000 on labour",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:88",
+   "change": "if (net >= 1000) -> if (net >= 10000)",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs"
+  },
+  {
+   "where": "calc.mjs:39",
+   "change": "top * 0.02 -> top * 0.03",
+   "caught": true,
+   "test_cmd": "node --test calc.test.mjs"
+  },
+  {
+   "where": "calc.mjs:33",
+   "change": "additional * 0.45 -> additional * 0.4",
+   "caught": false,
+   "test_cmd": "node --test calc.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The refund (headline and table) credits labour x rate against the bill and ignores the CIS deducted the user enters from their statements; with statements of 7,000 on the sample, it shows 2,048.20 back instead of 648.20.",
+   "where": "ventures/uk-cis-deduction-refund-calculator/calc.mjs:72",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19368"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests did not pin the 45% additional rate or the 1,000 payments-on-account line: both seeded mutants survived.",
+   "where": "ventures/uk-cis-deduction-refund-calculator/calc.test.mjs:14",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19368"
+  },
+  {
+   "severity": "low",
+   "what": "The payments-on-account finding states the 1,000 rule without the exemption where 80% or more of the tax was deducted at source, while the page lists payments on account as not decided.",
+   "where": "ventures/uk-cis-deduction-refund-calculator/calc.mjs:88",
+   "category": "domain-rule",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19368"],
+ "verdict": "Rates, bands and Class 4 recompute exactly, but the one number a subcontractor comes for, the refund, ignored the deductions on their own CIS statements and used 20% of labour instead, so anyone whose contractors deducted a different amount saw the wrong refund. Two of three seeded mutants survived. Does not meet the bar; the refund fix and tests that catch both mutants are in this round's PR."
+}
