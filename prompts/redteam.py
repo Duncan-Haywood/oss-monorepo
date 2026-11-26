@@ -443,13 +443,26 @@ def rerun(record_path: Path, repo: Path = REPO, timeout: int = TIMEOUT_SECONDS) 
             # The blue team may have edited the file, so find the line by its
             # text, nearest the original line number.
             hits = [i for i, l in enumerate(lines, 1) if l == m["line_text"]]
+            col, moved = m["col"], None
             if not hits:
-                m["caught_after_fix"] = None
-                _rerun_note(m, "line changed; triage by hand")
-                continue
+                # A fix that wraps the line in a try block or moves it into a helper
+                # re-indents it (four red-team records, 2026-11-25 to 26, triaged
+                # those by hand). One line with the same text, indentation aside, is
+                # that line; the column shifts by the change in indentation.
+                text = m["line_text"].strip()
+                same = [i for i, l in enumerate(lines, 1) if l.strip() == text] if text else []
+                if len(same) != 1:
+                    m["caught_after_fix"] = None
+                    _rerun_note(m, "line changed; triage by hand" + (
+                        f" ({len(same)} lines match it ignoring indentation)" if same else ""))
+                    continue
+                hits = same
+                indent = lambda s: len(s) - len(s.lstrip())  # noqa: E731
+                col += indent(lines[same[0] - 1]) - indent(m["line_text"])
+                moved = same[0]
             line = min(hits, key=lambda i: abs(i - m["line"]))
             site = next((s for s in sites(original.decode(), lang_of(target) or "")
-                         if s.line == line and s.col == m["col"]
+                         if s.line == line and s.col == col
                          and s.operator == m["operator"]), None)
             if site is None:
                 m["caught_after_fix"] = None
@@ -461,7 +474,7 @@ def rerun(record_path: Path, repo: Path = REPO, timeout: int = TIMEOUT_SECONDS) 
             finally:
                 target.write_bytes(original)
             m["caught_after_fix"] = not passed
-            _rerun_note(m, None)
+            _rerun_note(m, f"re-indented line found at {moved}" if moved else None)
     record_path.write_text(json.dumps(rec, indent=2) + "\n")
     return rec
 
