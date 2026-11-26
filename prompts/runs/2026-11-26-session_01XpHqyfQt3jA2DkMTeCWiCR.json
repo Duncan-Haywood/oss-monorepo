@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqyfQt3jA2DkMTeCWiCR",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T15:39:43Z",
+  "ended": "2026-11-26T15:50:08Z",
+  "wall_minutes": 15.84,
+  "tokens_in": 9301949,
+  "tokens_out": 42649,
+  "cost_usd": 3.7802,
+  "tool_calls": 76,
+  "task": "payapps (bet #1) estimates part 2: add and deduct alternates on the estimate, proposal PDF and won job",
+  "projects": [
+    "payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19396",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "roadmap_claim.py --release estimates-part-2 failed through the proxy (send-pack unexpected disconnect), as cloud-session.md predicts; the generic claim was left to go stale",
+    "first merge of private PR 359 refused (405 merge conflicts): private PR 360 (spreadsheet import, same estimate page and ROADMAP) landed minutes earlier; merged main in, resolved, merged"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "roadmap_claim --bets pointed at payapps #1 as free, but --claim 1 showed two fresh claims on the same item at once (estimates-part-2 and estimates-part-2-spreadsheet-import); a broad item needs a --slug claim straight away, and the doc could say: for a multi-part item, claim a part with --slug, not the whole item"
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "the migration-number warning was right: tm_tickets took 0063 while this run was building; deleting the generated SQL, taking main's meta files and re-running drizzle-kit generate gave a clean 0064 with no drift"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "no browser walk-through of the estimate page; covered by typecheck, the page's unit test, and worker tests on the API the page calls",
+      "did": "relied on tests",
+      "result": "merged; UI not seen rendered"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-subcontractor-estimate-to-schedule-of-values.md (extended: alternates section, worked example)"
+  ],
+  "goal": null,
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/359 merged (squash c169798). Local payapps-ci before the main merge: 9/9 run: steps passed (3 uses: steps not run). After the main merges: tsc clean, unit 35/35 (estimate, estimate-import, estimates-page), worker estimates 8/8 and tm-tickets with estimates 15/15, drizzle-kit check and the drift generate clean. risk_review: nothing blocked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "631ae255-52e4-5897-8768-03d2222e6134",
+    "transcripts": 1,
+    "first": "2026-11-26T15:39:43Z",
+    "last": "2026-11-26T15:55:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 74,
+        "input": 139,
+        "output": 42649,
+        "thinking": 7627,
+        "cache_read": 9165103,
+        "cache_write_5m": 0,
+        "cache_write_1h": 136707,
+        "api_equivalent_usd": 3.7802,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 74,
+      "input": 139,
+      "output": 42649,
+      "thinking": 7627,
+      "cache_read": 9165103,
+      "cache_write_5m": 0,
+      "cache_write_1h": 136707,
+      "api_equivalent_usd": 3.7802,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 76,
+    "tools": {
+      "Bash": 69,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.84,
+      "active_minutes": 15.84,
+      "model_minutes": 8.48,
+      "tool_minutes": 7.36,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a senior full-stack dev: schema+migration, pure math with tests, API, page, PDF section, two merges",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 211.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
