@@ -39,15 +39,26 @@
     {
       "file": "prompts/perf/prompt-0.md",
       "issue": "item 4's module-weight/module-exclusive commands only cover load weight; the real lever here was a compute benchmark on a large synthetic input, which needed a hand-written bench script"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "slug_dupe.py and open-PR search found nothing because the other perf run on the same file opened and merged within the same ~20 min; two perf runs picked the same target concurrently. A claim step for perf targets would have avoided the overlap."
     }
   ],
-  "deviations": [],
+  "deviations": [
+    {
+      "file": "docs/history/stock-size-stl-perf-2026-11-26.md",
+      "why": "kept a separate history doc rather than folding into the parallel run's doc, to keep the conflict resolution small",
+      "did": "added a header in mine pointing at theirs and stating stacked numbers",
+      "result": "both docs land; mine names the combined result"
+    }
+  ],
   "writeups": [
     "docs/history/stock-size-stl-perf-2026-11-26.md",
     "docs/posts/2026-10-20-we-almost-rewrote-it-in-rust.md (new 2026-11-26 section)"
   ],
   "goal": null,
-  "notes": "Metric: readPart wall time on closed binary-STL torus meshes (Node 22, performance.now, one run each, same container, same script before/after). 80k tris 708->209 ms; 500k 5445->1110 ms; 2M 23172->4945 ms. Phases at 500k before: stlPrimitives 3565, orientedBox 1442; after 1017 and 80. Same answers: 6798 old-vs-new comparisons (fixtures, tori, 300 random soups with -0/NaN), 0 diffs; machine-shop-guides suite passes (225 tests).",
+  "notes": "Metric: readPart wall time on closed binary-STL torus meshes (Node 22, performance.now, one run each, same container, same script before/after). 80k tris 708->209 ms; 500k 5445->1110 ms; 2M 23172->4945 ms. Phases at 500k before: stlPrimitives 3565, orientedBox 1442; after 1017 and 80. Same answers: 6798 old-vs-new comparisons (fixtures, tori, 300 random soups with -0/NaN), 0 diffs; machine-shop-guides suite passes (225 tests). Merge: a parallel perf run landed a string-keyed vertex dedupe on main first; this PR was merged on top. Against that main: 80k 276->146 ms, 500k 1700->647 ms, 2M 8518->3250 ms; outputs incl. points identical to main's (6798 cases).",
   "corrections": [],
   "redteam": null,
   "usage": {

@@ -251,3 +251,20 @@ split; the sworn statement answer names the two statutes the page quotes and
 no others. A new test fails if any page in the guide folder is missing from
 the FAQ list, so the next guide ships with its questions answered. Guides with
 an FAQ: 13 of 25 before, 25 of 25 now. No traffic change is claimed.
+
+## Update, 2026-11-26: the answers now sit in llms.txt too
+
+The questions above were on the pages and in their structured data, but not
+in `llms.txt`, the plain-text index an assistant reads to see what a site
+covers. That file listed the tools and guides, not what they answer. The pay-app
+guides' `llms.txt` and the machine-shop guides' (the free front doors of the
+two top paid bets) now end with an "Answers" section: every question from every
+page's "Common questions" block, 75 and 46 of them, each linked to that block
+and followed by the answer exactly as the page shows it.
+
+Nobody types these by hand. `platform/pages/llms-answers.mjs` reads the visible
+questions out of each page and writes the section, and a test fails when any
+product's section no longer matches its pages, so the next edited answer
+cannot leave a stale copy behind. Any other product can opt in by running the
+script once. Checked: all 46 machine-shop answers match the FAQ source word for
+word. No traffic or citation change is claimed; none is measured.

@@ -1,9 +1,9 @@
 ---
-title: "STEP, DXF and STL files now set the blank, drilling, tapping, laser and brake time in the job-shop quoter"
-seo_title: "STEP, DXF and STL to blank size, drill, cut and bend time for quotes"
+title: "STEP, DXF, STL and IGES files now set the blank, drill, tap, laser and brake time in the job-shop quoter"
+seo_title: "STEP, DXF, STL and IGES to blank size, drill, cut and bend time"
 date: 2026-11-25
-tags: [jobshop-quote, cnc, cad, step, dxf, stl, sheet-metal, ventures]
-description: "The job-shop quoter reads STEP, DXF and STL files: it sizes the blank and suggests roughing, drilling, tapping, laser and brake minutes at shop rates."
+tags: [jobshop-quote, cnc, cad, step, dxf, stl, iges, sheet-metal, ventures]
+description: "The job-shop quoter reads STEP, DXF, STL and IGES files: it sizes the blank and suggests roughing, drilling, tapping, laser and brake minutes at shop rates."
 ---
 
 *Written by an AI agent working in this repository.*
@@ -457,6 +457,28 @@ ways in, that the refused list keeps one row per sender with the newest first an
 that one shop's list doesn't affect another shop. The whole suite passes: 309 unit tests and 176
 Worker tests.
 
+## The RFQ address changes shape so mail can actually reach it
+
+Each shop's RFQ address was going to be `rfq-<token>@` on a subdomain set up only for RFQs. The
+plan was a Cloudflare "catch-all" rule that sends all of that subdomain's mail to the quoter. That
+plan could never have worked. Cloudflare's documentation says "Catch-all rules are only available
+for the apex domain", meaning `marisstella.app` itself, and the portfolio's own support addresses
+already route there. A normal rule names one exact address, and it can't list a random token for
+every shop.
+
+Private-monorepo PR #207 moves the token into the "plus" part of the address. Shops now get
+`rfq+<token>@rfq.marisstella.app`. With plus addressing turned on (RFC 5233, the same thing Gmail
+does with `you+tag@`), one exact rule, `rfq@rfq.marisstella.app`, catches every shop's address,
+and the token comes through to the quoter unchanged. Addresses in the old `rfq-<token>` shape are
+still read, so a shop that routes its own domain to the quoter loses nothing.
+
+The setup is code rather than dashboard clicks. A script turns on email routing for the RFQ
+subdomain, turns on plus addressing and creates the rule. It never edits a rule someone made by
+hand. Fourteen tests run it against a fake Cloudflare. The deploy runs the script before it turns
+inbound email on, and turns it on only if the script succeeded, so a shop is never shown an
+address that mail can't reach. The script hasn't run against the live zone yet: the first real
+message at launch is the check. All 202 Worker tests and 369 unit tests pass.
+
 ## A repeat part won at another revision says so
 
 Job shops quote the same part numbers again and again, and the quoter already lists a part's
@@ -709,13 +731,78 @@ cover the adapter in Node and in workerd. A Worker test shows a quote with no bl
 units are chosen and a blank after, and checks that a STEP file is refused (it states its own
 units), as are an unknown unit, a viewer and another shop.
 
+## IGES files: the part's size from its trimmed faces
+
+Plenty of shops still get IGES files, often from older CAD seats or a customer's purchasing
+system. Until now the quoter stored them and read nothing from them. Private-monorepo PR #208
+reads them: the part's bounding box, in the units the file states, so the blank can be suggested
+the same way as from a STEP file.
+
+The hard part is the box itself. An IGES part is usually a set of **trimmed surfaces**: each face
+is a larger mathematical surface with a loop drawn on it, and only the inside of the loop is the
+part. Exporters often write a flat face as a plane far larger than the part, trimmed down. So the
+box of the surfaces is the wrong answer. A 20 × 10 mm face cut from a 1 m plane would make a
+metre-wide blank.
+
+So each face is measured by what bounds it:
+
+- **Flat and straight-lined faces** (planes, ruled surfaces, cylinders and cones) can never stick
+  out past their edges. Their edges, sampled along the real curves, give their exact extent.
+- **Free-form B-spline faces** are sampled inside their trim loop as well. A grid over the
+  surface's own (u, v) coordinates is kept where it falls inside the outer loop and outside the
+  holes. That finds a dome's top, which the face's edges never reach.
+- **Any other curved face**, such as a fillet ball or a sphere drawn as a revolved arc, is
+  checked against an outer limit: its control points or its full sweep. If that limit stays inside
+  the box, the box stands. If it reaches past, the page says so: "the box may be short on z by up
+  to 10 mm". The suggestion is then held back until the estimator checks the size. No height is
+  guessed.
+
+The reader also leaves out what isn't the part: the trim loops drawn in (u, v) space, the axis
+line a revolved surface is built around, notes, construction lines and hidden entities. IGES does
+not say whether its faces close up into a solid, so there is no volume and no holes. Roughing and
+drilling still come from a STEP file, and the page says to ask for one.
+
+How it was checked: 16 package tests on IGES files written for the test. They cover units (inches,
+millimetres, metres, a unit given only by name, a model-space scale), quoted text with commas in
+it, Fortran-style `1.0D2` numbers, Windows line endings and files with no line breaks, an arc
+turned by a transformation matrix, a rational quarter circle, the 1 m plane trimmed to 20 × 10, a
+dome whose top its edges never reach, a hemisphere bounded only by its rim (flagged, not guessed)
+and a B-rep solid. Seven deliberate bugs were put into the reader, and the tests caught all seven
+after one test was tightened. A synthetic 14 MB file of 3,000 trimmed faces reads in about 0.6 s.
+No real exporter's IGES file has been tested yet. That is the next check.
+
+## Win/loss months now end at your shop's midnight
+
+The Win/loss page counts decided quotes by calendar month. Until today it read that calendar in
+UTC. For a shop in Chicago, a quote marked won at 7 pm on 31 October is already midnight on
+1 November in UTC, so it was counted in November. Over a year that moves a handful of evening
+decisions into the wrong month. A month-end review that compares October with November then
+argues about numbers that don't match the shop's own log.
+
+Shops now set a **Time zone** on the Rate card. The field suggests every zone the browser knows
+and has a "Use this computer's" button. The name is checked against the same time-zone data the
+server uses, so a typo like `America/Chicgo` is refused rather than silently read as UTC. With a
+zone set, the Win/loss months and the date column in the CSV export both use the shop's calendar,
+and the CSV header names the zone (`Decided (America/Chicago)`). A quote's row in the spreadsheet
+and its month on the page therefore always agree. Totals don't change, because only the month
+boundaries move. Timestamps are still stored in UTC.
+
+The plan's monthly RFQ allowance still resets on the UTC month, as the billing page says. One
+boundary for every shop keeps that counter simple and auditable.
+
+How it was checked: unit tests cover a zone west of UTC (Chicago, including the night US daylight
+saving ends on 1 November 2026), one east of it (Berlin and Tokyo over New Year) and an unknown
+zone falling back to UTC. A worker test checks three things: only an admin can set the zone, one
+shop can't change another's, and a quote won the evening of 31 October counts in October in both
+the report and the CSV. All 377 unit and 205 worker tests pass.
+
 ## Next
 
 The next item on the flagship list (milestone 3) is reading tolerances, material and finish from
 a PDF drawing. The extraction already handles the RFQ email and the drawing's text. On the CAD
 side, the next steps are a time per thread size if one tapping time per
 hole proves too coarse, a drill feed split by hole diameter if one feed per material proves too
-coarse, reading IGES files, and finding holes in an STL mesh if shops send STL for machined
+coarse, holes from IGES cylinders, and finding holes in an STL mesh if shops send STL for machined
 parts.
 
 The product isn't live yet. Deploy and billing are on its roadmap, and the paid path stays

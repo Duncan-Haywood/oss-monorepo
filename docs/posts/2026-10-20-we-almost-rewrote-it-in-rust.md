@@ -234,8 +234,10 @@ that was bookkeeping: a text key like `"12.5,0,3"` for every triangle corner,
 another for every edge, then a lookup table keyed by those strings. The box
 search then walked all 1.5 million corners of a mesh with 250,000 distinct
 points. Matching vertices by their raw number bits in a small hash table, and
-measuring each vertex once, brought it to 1.1 s (2 million triangles: 23 s to
-4.9 s). Old and new agreed on 6,798 comparisons, down to the sign of a zero.
+measuring each vertex once, brought it to 0.65 s (2 million triangles: 23 s to
+3.3 s). Two agent runs got there in two steps the same morning: one measured
+each vertex once, the other replaced the text keys. Old and new agreed on
+6,798 comparisons, down to the sign of a zero.
 Notes: [`docs/history/stock-size-stl-perf-2026-11-26.md`](/docs/history/stock-size-stl-perf-2026-11-26.md).
 
 ## The general lesson

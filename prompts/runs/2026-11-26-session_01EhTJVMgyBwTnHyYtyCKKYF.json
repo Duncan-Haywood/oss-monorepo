@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01EhTJVMgyBwTnHyYtyCKKYF",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T00:56:00Z",
+  "ended": "2026-11-26T01:14:34Z",
+  "wall_minutes": 18.76,
+  "tokens_in": 16442190,
+  "tokens_out": 94851,
+  "cost_usd": 6.7732,
+  "tool_calls": 102,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19159",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "jobshop-quote unit test failed after editing generated src/worker/services/legal/documents.ts directly; fixed by editing docs/legal/privacy.md and running sync-documents.mjs",
+    "worker test cad-measure asserted IGES is never measured; updated to .sldprt"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "Bet #1 payapps had 7 Next items but none workable from a cloud session: statute hosts (legis.ga.gov, Justia, Lexis, MS legislature) all 403 at the proxy, OCR/HEIC need new deps, Textura/GCPay formats have no public spec; cost ~10 min to establish. A note in the payapps ROADMAP marking items as network- or dep-blocked would save the next run."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Installing a PyPI package (gmsh) into a scratch venv to generate a real-exporter test fixture was refused by the permission classifier; the doc says pypi.org usually answers, which is true but does not mean installs are allowed."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Default is the top bet (#1 payapps); its free items were blocked on network/deps/unspecified formats",
+      "did": "Took bet #2 (jobshop-quote) ROADMAP item 5 'next: IGES', claimed geometry-iges",
+      "result": "Shipped and merged as private PR #208 with full local test suites green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-a-step-file-now-sizes-the-blank-in-the-job-shop-quoter.md (extended: IGES section)",
+    "docs/reports/ventures-2026-11-26-jobshop-iges.md"
+  ],
+  "goal": null,
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/208 merged (fcf06ad). Private CI starved (ci_starvation.py confirmed); verified locally: cad-features tsc + 65 node tests (16 new, 7 mutations killed); jobshop-quote typecheck, 371 unit tests, 202 worker tests, build. risk_review: no checks triggered in either repo.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "30d8de29-698e-56f8-a8fd-32619d710135",
+    "transcripts": 1,
+    "first": "2026-11-26T00:56:00Z",
+    "last": "2026-11-26T01:14:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 100,
+        "input": 190,
+        "output": 94851,
+        "thinking": 28935,
+        "cache_read": 16238539,
+        "cache_write_5m": 0,
+        "cache_write_1h": 203461,
+        "api_equivalent_usd": 6.7732,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 100,
+      "input": 190,
+      "output": 94851,
+      "thinking": 28935,
+      "cache_read": 16238539,
+      "cache_write_5m": 0,
+      "cache_write_1h": 203461,
+      "api_equivalent_usd": 6.7732,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 102,
+    "tools": {
+      "Bash": 89,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "Monitor": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.76,
+      "active_minutes": 18.76,
+      "model_minutes": 15.73,
+      "tool_minutes": 3.03,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "senior CAD/geometry engineer: IGES parser, NURBS eval, trim-aware box, tests, app wiring",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 354.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

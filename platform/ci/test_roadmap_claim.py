@@ -81,11 +81,13 @@ class ClaimRaceTest(unittest.TestCase):
     def tearDown(self):
         self.tmp.cleanup()
 
-    def main(self, repo, *argv, now=None):
+    def main(self, repo, *argv, now=None, run=None, app="payapps"):
+        """Each clone stands for one session (run tag = its path) unless `run` says otherwise."""
         buf = io.StringIO()
         patch = mock.patch.object(rc.time, "time", lambda: now) if now else contextlib.nullcontext()
-        with patch, contextlib.redirect_stdout(buf):
-            code = rc.main(["payapps", "--repo", str(repo), *argv])
+        env = mock.patch.dict(os.environ, {"ROADMAP_CLAIM_RUN": run or str(repo)})
+        with patch, env, contextlib.redirect_stdout(buf):
+            code = rc.main([app, "--repo", str(repo), *argv])
         return code, buf.getvalue()
 
     def test_second_claim_loses_and_list_shows_it(self):
@@ -167,6 +169,32 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertEqual(self.main(self.a, "--claim", "1")[0], 0)
         _, listing = self.main(self.b)
         self.assertNotIn("MERGED", listing)
+
+    def test_rerun_of_own_claim_says_yours_not_taken(self):
+        self.assertEqual(self.main(self.a, "--claim", "1")[0], 0)
+        code, out = self.main(self.a, "--claim", "1")
+        self.assertEqual(code, 0, out)
+        self.assertIn("YOURS", out)
+        self.assertIn("(yours)", self.main(self.a)[1])
+        # The same session in another clone is still the same claimant.
+        self.assertIn("YOURS", self.main(self.b, "--claim", "1", run=str(self.a))[1])
+        code, out = self.main(self.b, "--claim", "1")
+        self.assertEqual(code, 4, out)
+        self.assertIn("TAKEN", out)
+        self.assertNotIn("(yours)", self.main(self.b)[1])
+
+    def test_app_without_roadmap_takes_slug_claims(self):
+        def other(repo, *argv):
+            return self.main(repo, *argv, app="seller-books")
+        code, out = other(self.a, "--slug", "legal pages", "--note", "terms and privacy")
+        self.assertEqual(code, 0, out)
+        self.assertIn("CLAIMED claim/seller-books/legal-pages", out)
+        self.assertEqual(other(self.b, "--slug", "legal pages")[0], 4)
+        code, listing = other(self.b)
+        self.assertEqual(code, 0, listing)
+        self.assertIn("has no ROADMAP.md", listing)
+        self.assertIn("legal-pages", listing)
+        self.assertEqual(other(self.b, "--claim", "1")[0], 2)
 
     def test_release(self):
         self.main(self.a, "--claim", "3")

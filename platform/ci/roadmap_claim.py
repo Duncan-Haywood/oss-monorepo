@@ -17,12 +17,14 @@ second run's push fails and it picks another item. No files, so no CI runs on it
 --repo defaults to /home/user/private-monorepo. A claim older than --stale-hours (6) is
 shown as stale, and --claim on it takes a fresh generation (`<slug>--2`), since the run
 that made it has ended. A claim whose slug a later commit subject on origin/main names
-(the PR title, punctuation ignored) is shown as MERGED and is no sibling. Exit codes: 0 ok, 2 usage or git error, 4 the item is already
+(the PR title, punctuation ignored) is shown as MERGED and is no sibling. A claim records a hash of the session id, so re-running --claim on
+your own claim prints YOURS (exit 0), not TAKEN. An app with no ROADMAP.md takes --slug claims. Exit codes: 0 ok, 2 usage or git error, 4 the item is already
 claimed (pick another).
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
 import os
 import re
 import secrets
@@ -35,6 +37,23 @@ PREFIX = "claim/"
 DEFAULT_REPO = "/home/user/private-monorepo"
 CACHE = "refs/roadmap-claims/"
 GEN = re.compile(r"^(?P<base>.+?)--(?P<n>\d+)$")
+RUN = re.compile(r"\{run ([0-9a-f]{10})\}")
+
+
+def run_tag() -> str | None:
+    """Short hash of this session's id, so a re-run can tell its own claim from a rival's.
+
+    Six run records (2026-11-25..26) re-ran --claim to confirm a claim, got "TAKEN 0 min ago"
+    for their own branch and read it as a lost race. Hashed: the id itself never leaves.
+    """
+    sid = (os.environ.get("ROADMAP_CLAIM_RUN") or os.environ.get("CLAUDE_CODE_REMOTE_SESSION_ID")
+           or os.environ.get("CLAUDE_CODE_SESSION_ID"))
+    return hashlib.sha256(sid.encode()).hexdigest()[:10] if sid else None
+
+
+def is_mine(msg: str, tag: str | None) -> bool:
+    m = RUN.search(msg)
+    return bool(tag and m and m.group(1) == tag)
 
 
 def git(repo: str, *args: str, check: bool = False, env: dict | None = None) -> subprocess.CompletedProcess:
@@ -197,10 +216,16 @@ def main(argv: list[str] | None = None) -> int:
     a = ap.parse_args(argv)
 
     roadmap = Path(a.repo) / "apps" / a.app / "ROADMAP.md"
-    if not roadmap.is_file():
-        print(f"no {roadmap}: clone private-monorepo first (.github/prompts/cloud-session.md)")
+    if not (Path(a.repo) / ".git").exists():
+        print(f"no git clone at {a.repo}: clone private-monorepo first (.github/prompts/cloud-session.md)")
         return 2
-    items = next_items(roadmap.read_text(encoding="utf-8"))
+    # An app with no ROADMAP.md (seller-books, grants, cmmc on 2026-11-25..26) still takes
+    # --slug claims; three runs pushed claim branches by hand because this used to exit 2.
+    items = next_items(roadmap.read_text(encoding="utf-8")) if roadmap.is_file() else []
+    if not roadmap.is_file() and a.claim is not None:
+        print(f"no {roadmap}, so no numbered items: claim with --slug <short-name> --note ...")
+        return 2
+    tag = run_tag()
     ls = git(a.repo, "ls-remote", "origin", f"refs/heads/{PREFIX}{a.app}/*")
     if ls.returncode != 0:
         print(f"git ls-remote failed: {ls.stderr.strip()}")
@@ -236,11 +261,16 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"DONE: {slug} already merged ({merged[slug][:100]}). Pick another item, "
                       f"or claim a new part with --slug.")
                 return 4
+            if is_mine(msg, tag):
+                print(f"YOURS: {slug} was claimed by this session {age(ts, now)}; nothing to do.")
+                return 0
             if ts and now - ts < stale_s:
-                print(f"TAKEN: {slug} claimed {age(ts, now)}: {msg}\nPick another item.")
+                print(f"TAKEN: {slug} claimed {age(ts, now)}: {RUN.sub('', msg).rstrip()}\nPick another item.")
                 return 4
             gen = claims[slug][0] + 1
         msg = f"claim {a.app} #{a.claim or '-'} {slug}" + (f" [{a.note}]" if a.note else "") + f": {title}"
+        if tag:
+            msg += f" {{run {tag}}}"
         ref = ref_name(a.app, slug, gen)
         if not push_claim(a.repo, ref, msg):
             print(f"TAKEN: another run pushed {ref} first (or the push failed). Pick another item.")
@@ -258,7 +288,8 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"  - {s} ({age(ts, now)}): {m[:140]}")
         return 0
 
-    print(f"{a.app} ROADMAP Next ({len(items)} items; claims older than {a.stale_hours:g} h are stale):")
+    head = "ROADMAP Next" if roadmap.is_file() else "has no ROADMAP.md"
+    print(f"{a.app} {head} ({len(items)} items; claims older than {a.stale_hours:g} h are stale):")
     seen = set()
     if not items:
         print("  (no `## Next` list: claim what you build with --slug <short-name> --note ...)")
@@ -272,6 +303,7 @@ def main(argv: list[str] | None = None) -> int:
                 mark = "MERGED"
             else:
                 mark = ("STALE " if ts and now - ts >= stale_s else "CLAIMED ") + age(ts, now)
+                mark += " (yours)" if is_mine(msg, tag) else ""
         elif any(c.startswith(slug + "-") and c not in merged for c in claims):
             mark = "a part is claimed: see below"
         print(f"{i:>3}. [{mark}] {slug}: {text[:90]}")
@@ -281,7 +313,8 @@ def main(argv: list[str] | None = None) -> int:
         for slug in others:
             ts, msg = info.get(slug, (0, ""))
             stale = "MERGED " if slug in merged else ("STALE " if ts and now - ts >= stale_s else "")
-            print(f"  - {stale}{slug} ({age(ts, now)}): {msg[:110]}")
+            mine = " (yours)" if is_mine(msg, tag) else ""
+            print(f"  - {stale}{slug}{mine} ({age(ts, now)}): {RUN.sub('', msg)[:110].rstrip()}")
     return 0
 
 

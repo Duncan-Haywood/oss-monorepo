@@ -1,5 +1,19 @@
 # Stock size from a STEP or STL file: STL meshes weld by float bits, not strings (2026-11-26)
 
+**Merged on top of a parallel pass.** While this PR was in CI, another perf run
+landed `stock-size-page-perf-2026-11-26-stl-vertices-once.md`: distinct
+vertices kept once, but still keyed by a `${x},${y},${z}` string, and edges in
+a numeric `Map`. Its "not changed" item 1 was this change (a float-bit key
+that keeps `0 == -0` and NaN collapsing). The merge keeps that run's inlined
+volume and normal arithmetic and its first-occurrence points, and swaps in
+`weldVertices` plus sorted edge keys. Against main after that run (same bench,
+same container): **80k 276 → 146 ms, 500k 1,700 → 647 ms, 2M 8,518 →
+3,250 ms**; `readPart` and `stlPrimitives` output, `points` included,
+identical to main's on the 6,798-case comparison below. From the original
+code: 500k 5,445 → 647 ms (8.4×). The sections below describe this PR's first
+version, before the merge; the points list now has one entry per welded
+vertex (main's rule) instead of keeping `-0` spellings separately.
+
 Perf track, version 0, item 4 ("what visitors wait on"). The perf backlog had
 no agent-workable item (P063, P064, P086 are owner rows). Target:
 `ventures/machine-shop-guides/stock-size-from-step-file.html`, a free front
