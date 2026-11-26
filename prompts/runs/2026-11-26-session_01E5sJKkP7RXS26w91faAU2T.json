@@ -62,7 +62,7 @@
     "docs/reports/ventures-2026-11-26-jobshop-intake-allowance-note.md"
   ],
   "goal": "bet #2 paid path: tell a shop at its plan's limit, where it types, that reads are used (conversion point)",
-  "notes": "Local CI: Biome, typecheck, unit, workerd integration, build, Playwright e2e all ok (8 uses: steps not run). The UI was not checked by hand in a browser: no test seeds a shop at 100%.",
+  "notes": "Local CI: Biome, typecheck, unit, workerd integration, build, Playwright e2e all ok (8 uses: steps not run). The UI was not checked by hand in a browser: no test seeds a shop at 100%. Agent doc + record: oss-monorepo PR 19191.",
   "corrections": [],
   "redteam": null,
   "usage": {
