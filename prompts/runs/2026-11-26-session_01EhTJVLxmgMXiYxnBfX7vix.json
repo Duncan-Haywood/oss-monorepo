@@ -22,6 +22,7 @@
     "private-monorepo/apps/jobshop-quote"
   ],
   "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/235",
+  "record_pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19202",
   "repo": "Duncan-Haywood/private-monorepo",
   "commits": [
     "487ebe66e68621cecd9226dfba1fccd6184e9afa"
