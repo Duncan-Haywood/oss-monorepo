@@ -32,6 +32,15 @@ class VendorChangeTests(unittest.TestCase):
         self.assertEqual(report["status"], "changed")
         self.assertEqual(report["changes"][0]["kind"], "content_changed")
 
+    def test_zone_less_timestamp_is_rejected_not_a_crash(self):
+        # Quality round 116: a naive time against a Z time raised TypeError.
+        import json, tempfile
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "a.json"
+            path.write_text(json.dumps({"url": "https://x/p", "captured_at": "2026-08-23T09:00:00", "fetch_status": "ok", "text": "a"}))
+            with self.assertRaisesRegex(ValueError, "time zone"):
+                load_snapshot(path)
+
 
 if __name__ == "__main__":
     unittest.main()

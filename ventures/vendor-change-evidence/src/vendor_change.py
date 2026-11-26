@@ -20,9 +20,13 @@ def load_snapshot(path: Path) -> dict:
     if not all(isinstance(value[key], str) and value[key].strip() for key in REQUIRED):
         raise ValueError("snapshot fields must be non-empty strings")
     try:
-        datetime.fromisoformat(value["captured_at"].replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(value["captured_at"].replace("Z", "+00:00"))
     except ValueError as exc:
         raise ValueError("captured_at must be an ISO 8601 timestamp") from exc
+    if parsed.tzinfo is None:
+        # Comparing a zone-less time with a zoned one raises TypeError, and
+        # guessing a zone would change the capture-order verdict. Require one.
+        raise ValueError("captured_at needs a time zone (end it with Z or an offset such as +02:00)")
     return value
 
 
