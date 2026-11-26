@@ -719,19 +719,40 @@ export function parseStl(input) {
 /** Volume, area, closed check and primitives for a mesh. STL has no units: `mmPerUnit` is the user's answer. */
 export function stlPrimitives(tris, mmPerUnit = 1) {
   const n = tris.length / 9;
+  // A closed mesh lists each vertex about six times. The box and the round
+  // envelope are a min and a max over points, so each distinct vertex is kept
+  // once (same answer, about a sixth of the work in every frame tried), and
+  // edges are counted by vertex id rather than by a joined coordinate string.
   const points = [];
   let vol = 0, area = 0;
   const normals = new Map();
+  const vertexId = new Map();
   const edgeUse = new Map();
-  const key = (i) => `${tris[i]},${tris[i + 1]},${tris[i + 2]}`;
+  const id = (o) => {
+    const k = `${tris[o]},${tris[o + 1]},${tris[o + 2]}`;
+    let v = vertexId.get(k);
+    if (v === undefined) {
+      v = vertexId.size;
+      vertexId.set(k, v);
+      points.push({ p: [tris[o] * mmPerUnit, tris[o + 1] * mmPerUnit, tris[o + 2] * mmPerUnit], exact: true });
+    }
+    return v;
+  };
+  // ids stay below 2^26 for any mesh a browser can hold (3 per triangle at most)
+  const edge = (i, j) => {
+    const e = i < j ? i * 67108864 + j : j * 67108864 + i;
+    edgeUse.set(e, (edgeUse.get(e) || 0) + 1);
+  };
   for (let t = 0; t < n; t++) {
     const o = t * 9;
-    const a = [tris[o], tris[o + 1], tris[o + 2]].map((x) => x * mmPerUnit);
-    const b = [tris[o + 3], tris[o + 4], tris[o + 5]].map((x) => x * mmPerUnit);
-    const c = [tris[o + 6], tris[o + 7], tris[o + 8]].map((x) => x * mmPerUnit);
-    points.push({ p: a, exact: true }, { p: b, exact: true }, { p: c, exact: true });
-    vol += dot(a, cross(b, c)) / 6;
-    const nn = cross(sub(b, a), sub(c, a));
+    const ax = tris[o] * mmPerUnit, ay = tris[o + 1] * mmPerUnit, az = tris[o + 2] * mmPerUnit;
+    const bx = tris[o + 3] * mmPerUnit, by = tris[o + 4] * mmPerUnit, bz = tris[o + 5] * mmPerUnit;
+    const cx = tris[o + 6] * mmPerUnit, cy = tris[o + 7] * mmPerUnit, cz = tris[o + 8] * mmPerUnit;
+    // dot(a, cross(b, c)) / 6, term for term
+    vol += (ax * (by * cz - bz * cy) + ay * (bz * cx - bx * cz) + az * (bx * cy - by * cx)) / 6;
+    // cross(sub(b, a), sub(c, a))
+    const ux = bx - ax, uy = by - ay, uz = bz - az, vx = cx - ax, vy = cy - ay, vz = cz - az;
+    const nn = [uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx];
     const ar = norm(nn) / 2;
     area += ar;
     const un = unit(nn);
@@ -742,11 +763,8 @@ export function stlPrimitives(tris, mmPerUnit = 1) {
       const cur = normals.get(kk);
       if (cur) cur.w += ar; else normals.set(kk, { d, w: ar });
     }
-    const ks = [key(o), key(o + 3), key(o + 6)];
-    for (const [i, j] of [[0, 1], [1, 2], [2, 0]]) {
-      const e = ks[i] < ks[j] ? ks[i] + "|" + ks[j] : ks[j] + "|" + ks[i];
-      edgeUse.set(e, (edgeUse.get(e) || 0) + 1);
-    }
+    const ia = id(o), ib = id(o + 3), ic = id(o + 6);
+    edge(ia, ib); edge(ib, ic); edge(ic, ia);
   }
   let open = 0;
   for (const v of edgeUse.values()) if (v !== 2) open++;
