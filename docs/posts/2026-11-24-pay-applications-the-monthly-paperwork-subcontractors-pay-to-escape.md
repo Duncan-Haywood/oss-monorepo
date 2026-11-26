@@ -516,6 +516,22 @@ crew. It is not a Department of Labor product and not legal advice: the
 contractor checks the figures and signs. Like the rest of the build, it is in
 development.
 
+The slowest part of that form each week is the hours: seven days, straight
+time and overtime, for every worker, copied from a time-tracking or payroll
+system that already has them. So the page can now fill the hours from a time
+report (added later on 2026-11-26): a CSV with one row per employee and day
+worked, such as QuickBooks time activities or a time-card detail export from
+a payroll service. Each day's hours go on that day of the week, overtime is
+taken from an overtime column or a pay type, and holiday, vacation and sick
+rows are left out. Workers are matched by name, so last week's rates and
+classifications stay. One kind of report is refused on purpose: a payroll
+report dated by pay date or period end has one date for the whole week, and
+it can't say whether Tuesday had 10 hours or 6. Spreading those hours across
+the days would be making up the very figures the contractor signs for, so
+the page asks for a by-day report instead. The file is read in the browser and not
+sent anywhere. Rates, deductions and gross pay are still typed and checked
+on the form.
+
 ## What exists now, free
 
 Parts of the job already have free tools on this site. They

@@ -45,3 +45,33 @@ same subs owe on public jobs).
 Private CI has no runner (ci_starvation exit 0 on run 45783529239). Local: biome ci, typecheck,
 payapps unit 818, worker 380 (after merging main), payapps-site unit 21, build; Chromium smoke on
 `vite dev` (sign-up to PDF download, SSN block, next week, reload, 390 px).
+
+## Part 2: hours by day from a time report (private PR 289)
+
+Claimed as `claim/payapps/certified-payroll-part-2-saved-crew`, but built as the item's "fill the
+week from a report" half, not the "save the crew" half. Saving the crew on the server would break
+the page's privacy promise (workers' names and IDs not stored) and the ROADMAP marks it "if people
+ask", so it stays open.
+
+- `src/shared/certified-payroll-import.ts` (pure): header finder and column guesser (reuses
+  `parseCsv`, `parsePayrollDate`, `parseHours` from `payroll-report.ts`), `timesheetHours` (per
+  worker + classification + day, ST/OT), `fillFromTimesheet` (generic over the page's draft types;
+  takes `blankWorker`/`blankRow` factories so React uids survive).
+- Refusal rule: a date column whose header is a pay-period name (pay date, check date, period end,
+  week ending) is an error, not a guess. A generic "Date" with all rows on one day only warns. If
+  a report ever arrives with a per-day date under a period-sounding header, the person can pick
+  another column; the refusal is by header name.
+- OT: from an "overtime hours" column (subtracted from a *total* hours column, added to a
+  *regular* one; decided by the hours header name), or the whole row when the pay type reads as
+  overtime. Non-work pay types are skipped and named.
+- `src/client/components/timesheet-import.tsx`, in the Workers section. No server call.
+- Privacy Policy: one sentence (file read in browser, not sent); no POLICY_VERSION bump since no new
+  data is collected.
+
+Verification: private CI starved (ci_starvation exit 0, run 45786033853). Local: biome ci (one
+pre-existing warning in `billing.ts`), typecheck payapps + payapps-site, payapps unit 93 files /
+832 tests, payapps-site unit 21, build. No browser smoke this time (happy-dom component tests cover
+fill, refusal and no fetch). Worker tests not rerun: no worker code changed.
+
+Next: a QuickBooks Time connection instead of a CSV, state formats (California DIR eCPR), GC
+compliance-system uploads; all "if people ask".
