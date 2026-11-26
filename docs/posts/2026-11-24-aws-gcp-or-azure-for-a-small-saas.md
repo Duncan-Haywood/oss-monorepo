@@ -76,3 +76,31 @@ own line on the statement: what they buy is not having to run it themselves.
 The queue is in `portfolio/work/tasks.yaml`, under `security-first` and
 `aws-consolidation`. The reasoning is in §7 of
 [the report](../reports/2026-11-24-cloud-provider-comparison.md).
+
+## Update, 26 November: if building is nearly free, what's left to choose on?
+
+Two days later we came back to the question with one change of premise.
+Agents write the infrastructure, so moving a product between AWS and Azure
+is a few sessions of work in either direction. That removes switching cost
+as an argument. What still costs real money or the owner's time:
+
+- **A hard spend cap.** AWS has a native one (still rolling out). Azure
+  pay-as-you-go has budgets and alerts but no cap. For a business with no
+  investor money, a runaway bill is the mistake that hurts.
+- **Credits.** Both start near $1,000 for a self-funded company. AWS
+  Activate's Founders tier can reach $5,000. Guides say Microsoft's startup
+  programme can go much higher without a VC, but we could not confirm that
+  on an official page.
+- **Logins and data.** Data transfer out is free when you leave either
+  cloud (AWS since March 2024, Azure since March 2024 with conditions). What
+  is not free is a login system that won't export password hashes: leaving
+  Cognito, or Azure's equivalent, means every customer resets their
+  password. So auth and customer data stay portable: our own auth in
+  Postgres, and Postgres rather than DynamoDB or Cosmos DB.
+
+The first-principles starting point follows from where we are. Revenue is
+$0 and the paid products are built on Cloudflare Workers. So the cheapest
+place to take a first payment is where they already run. AWS earns its fixed
+monthly floor once a product needs SES at volume or Textract, or once
+revenue covers it. The full write-up, with sources, is
+[the 26 November report](../reports/2026-11-26-cloud-choice-first-principles.md).

@@ -240,6 +240,22 @@ each vertex once, the other replaced the text keys. Old and new agreed on
 6,798 comparisons, down to the sign of a zero.
 Notes: [`docs/history/stock-size-stl-perf-2026-11-26.md`](/docs/history/stock-size-stl-perf-2026-11-26.md).
 
+## Same day: a drawing's line art went through a regex per character
+
+The free [drawing review page](/ventures/machine-shop-guides/drawing-review.html)
+reads a part drawing's title block, revisions and notes from the PDF. A
+drawing exported from CAD is mostly line art: hundreds of thousands of short
+line segments, megabytes of numbers to step over to reach a few dozen lines of
+text. The reader tested every character against a regular expression to find
+the spaces between them, then ran another one on every word to see whether it
+was a number. A 3.6 MB drawing took 630 ms on our build machine, which is a
+couple of seconds on a phone. Comparing character codes against a 256-entry
+table and reading each number in the same pass brought it to 318 ms, and the
+plan takeoff tool, which keeps every segment, went from 1.28 s to 0.61 s. The
+old tokenizer stays in the tests as the reference: same tokens and the same
+floating-point values, down to the sign of a zero.
+Notes: [`docs/history/drawing-review-perf-2026-11-26.md`](/docs/history/drawing-review-perf-2026-11-26.md).
+
 ## The general lesson
 
 "Rewrite it in Rust" assumes the time goes into your own code, running

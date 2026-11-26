@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqyeVGgsTVT16bkJPheX",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T03:39:14Z",
+  "ended": "2026-11-26T03:50:22Z",
+  "wall_minutes": 11.3,
+  "tokens_in": 12503503,
+  "tokens_out": 54472,
+  "cost_usd": 4.918,
+  "tool_calls": 93,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19199",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "apps/einvoice-site/content/i18n/*.mjs (private-monorepo)",
+      "issue": "The site's 'What is checked' list was labelled planned scope and drifted from the code: three claims had no implementation and two (XSD validation, fixing totals) contradicted it. No test ties site claims to rule ids."
+    },
+    {
+      "file": "private-monorepo apps/einvoice-preflight/repair-facturx.test.mjs",
+      "issue": "Fails in cloud containers because pdfdetach is a sandboxed wrapper that refuses to save; looks like a regression on first sight."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "Explore is free choice; I used the slot for a ranked bet's ROADMAP item (einvoice Next 3) rather than a new idea, because it closed honest-marketing gaps on a paid product.",
+      "did": "Claimed the roadmap item, built three missing checks and rewrote the site copy",
+      "result": "merged as private PR #232"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "private-monorepo CI was starved (ci_starvation.py exit 1)",
+      "did": "verified locally and merged",
+      "result": "pro 113/113, root 2179 pass with 1 environmental failure, site 30/30, biome ci clean"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-zugferd-minimum-basic-wl-not-an-e-invoice-in-germany.md",
+    "docs/reports/ventures-2026-11-26-einvoice-site-checks-aligned.md"
+  ],
+  "goal": null,
+  "notes": "Idea: align the e-invoice marketing site's checked/not-checked lists with the app (bet #3). Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/232 merged 978e361e: PRO-DE-001, profile=auto, workspace schematron=1 plus a rules-ran line, site DE/FR/EN copy, API sample from a real response. Private CI starved; verified locally.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c7172e52-5b51-5d22-add6-2b2eae7adc7a",
+    "transcripts": 1,
+    "first": "2026-11-26T03:39:14Z",
+    "last": "2026-11-26T03:50:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 91,
+        "input": 175,
+        "output": 54472,
+        "thinking": 14756,
+        "cache_read": 12333178,
+        "cache_write_5m": 0,
+        "cache_write_1h": 170150,
+        "api_equivalent_usd": 4.918,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 91,
+      "input": 175,
+      "output": 54472,
+      "thinking": 14756,
+      "cache_read": 12333178,
+      "cache_write_5m": 0,
+      "cache_write_1h": 170150,
+      "api_equivalent_usd": 4.918,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 93,
+    "tools": {
+      "Bash": 83,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Read": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.3,
+      "active_minutes": 11.3,
+      "model_minutes": 9.37,
+      "tool_minutes": 1.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "audit of site vs checker, one rule, profile detection, trilingual copy, tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 122.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
