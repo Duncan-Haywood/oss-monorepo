@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtLkVDKEtQq4JhqpQSM",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T20:06:56Z",
+  "ended": "2026-11-26T20:23:19Z",
+  "wall_minutes": 16.55,
+  "tokens_in": 5416135,
+  "tokens_out": 27735,
+  "cost_usd": 2.422,
+  "tool_calls": 61,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19464",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "serve-dir.mjs returns {srv, base}, not {url, close}; first script run navigated to 'undefined/...' (fixed)",
+    "A '&' background launch inside a foreground Bash call survived but gave no completion notice; polled the log instead"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "'ls docs/reports/polish-* | tail -1' picks the alphabetically last note of the day (retainage-cards-and-money), not the newest; the phone-probe note of the same date held the live 'Still weakest' list"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "The prompt says to write a short new post; CLAUDE.md (2026-11-24) says to consolidate posts",
+      "did": "Added an update section to the existing post 2026-11-19-wide-tables-become-cards-on-a-phone.md instead of writing a new one",
+      "result": "one consolidated post"
+    },
+    {
+      "file": "docs/reports/polish-2026-11-26-phone-probe.md",
+      "why": "The note said to fix the widest swipe first. The largest group (56 static guide tables) shared one fix, and a scripted pass moved more of the count",
+      "did": "Stacked 42 static tables with a new script and left the widest (script-filled, WH-347) for the next run",
+      "result": "construction swipes went from 128 to 84"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-wide-tables-become-cards-on-a-phone.md (extended)",
+    "docs/reports/polish-2026-11-26-flat-rate-tables-stack.md"
+  ],
+  "goal": null,
+  "notes": "Phone probe at 390 px over 495 construction pages: 128 -> 84 swipes; 0 sideways pages / small fields / tall rows before and after. Venture tests for 39 slugs: 39 suites, 0 failed. node --test 'platform/pages/*.test.mjs': 2129 pass, 0 fail. risk_review: nothing blocked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e057249e-25c8-5374-a02a-5daee5940055",
+    "transcripts": 1,
+    "first": "2026-11-26T20:06:56Z",
+    "last": "2026-11-26T20:23:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 109,
+        "output": 27735,
+        "thinking": 4475,
+        "cache_read": 5315561,
+        "cache_write_5m": 0,
+        "cache_write_1h": 100465,
+        "api_equivalent_usd": 2.422,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 109,
+      "output": 27735,
+      "thinking": 4475,
+      "cache_read": 5315561,
+      "cache_write_5m": 0,
+      "cache_write_1h": 100465,
+      "api_equivalent_usd": 2.422,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 49,
+      "Write": 5,
+      "Read": 4,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.55,
+      "active_minutes": 16.55,
+      "model_minutes": 5.31,
+      "tool_minutes": 11.24,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "measure 128 swipes, edit 42 pages by hand, verify, write notes",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 165.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

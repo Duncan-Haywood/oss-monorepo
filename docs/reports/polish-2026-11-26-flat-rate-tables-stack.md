@@ -1,7 +1,7 @@
 ---
-title: "Polish: 42 construction guide tables become phone cards (swipes 128 to 84)"
+kind: polish
+topics: [design, software-for-routine]
 date: 2026-11-26
-tags: [polish, mobile, construction]
 ---
 
 # Polish: 42 construction guide tables become phone cards
