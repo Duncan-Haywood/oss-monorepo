@@ -1,0 +1,28 @@
+{
+  "id": "P092",
+  "title": "slug_dupe.py's duplicate search is cut to a few hours of main when the shallow deepen runs out of budget, and open PRs need a second, manual search",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "P088 bounded the 14-day deepen at 30 s, so in a fresh cloud clone the commit search often covers only back to the clone's original depth (2026-11-22 here, 4 days of 14) and prints a note to rerun in the background, which runs skip. CLAUDE.md then asks for a separate search_pull_requests call for open PRs. Duplicate builds still land (PR #19427 records one).",
+  "evidence": [
+    "friction_rank.py --live --ungated --days 3, cluster 10: platform/ci/slug_dupe.py 'deepening to 14 days took over 30 s, so the duplicate search only covered the last few hours of main' (2 sessions, 2026-11-26)",
+    "this session: slug_dupe.py follow-up-weekdays took 33.7 s and searched commits back to 2026-11-22 18:09 UTC only",
+    "slug_dupe.py xer-schedule-check --budget 2 after the fix: 31 merged PRs from 2026-11-19..22 and open PR #19136 found by the search, none of them visible to the cut git window"
+  ],
+  "change": "slug_dupe.py also asks GitHub search (gh api search/issues, ~1 s, no token for this public repo) for PRs with the slug in their title, updated within --days: merged ones count as landed (exit 1, deduped against commit subjects), open ones are listed as notices. When the deepen runs out, the note says PR titles covered the whole window. gh unavailable: a note, the git checks stand. CLAUDE.md drops the manual open-PR search except for keywords titles would not carry.",
+  "touches": [
+    "platform/ci/slug_dupe.py",
+    "platform/ci/test_slug_dupe.py",
+    "CLAUDE.md",
+    ".github/prompts/duplicate-work.md"
+  ],
+  "metric": "Run records per 7 days after merge whose doc_friction or errors name slug_dupe.py's cut window, or report a duplicate build that slug_dupe.py did not flag",
+  "baseline": "2 sessions reported the cut window on 2026-11-26 (friction_rank cluster 10)",
+  "opened": "2026-11-26",
+  "source": "process critique, friction_rank.py --live cluster on platform/ci/slug_dupe.py (2026-11-26)",
+  "pr": "this",
+  "result": null,
+  "history": []
+}
