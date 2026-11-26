@@ -51,7 +51,10 @@ payapps there. On 2026-11-25 this worked first time:
    The risk review runs there from this clone's copy: `cd /home/user/private-monorepo &&
    python3 /home/user/oss-monorepo/platform/security/risk_review.py`; its
    "sensitive files" check reads *this* repo's CODEOWNERS, so check the private one by hand.
-4. **Claim the item before building it:** `python3 platform/ci/roadmap_claim.py <app>`
+4. **Claim the item before building it.** `python3 platform/ci/roadmap_claim.py --bets`
+   (about 15 s) goes through every bet in bets.md order and names the first one that has a free, ungated item.
+   Six runs on 2026-11-25..26 took a crowded bet #1 and then read the ROADMAPs one by one.
+   `python3 platform/ci/roadmap_claim.py <app>`
    lists the ROADMAP's Next items as free or claimed (marking ones whose text waits on
    demand, an unreachable source or the owner, and ending with the free, ungated ones); `--claim N` (with `--slug`/`--note`
    for one part of an item) pushes a create-only `claim/<app>/<slug>` branch there and

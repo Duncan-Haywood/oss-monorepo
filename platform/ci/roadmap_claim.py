@@ -13,6 +13,7 @@ second run's push fails and it picks another item. No files, so no CI runs on it
     python3 platform/ci/roadmap_claim.py payapps --claim 3 --slug backup-packets-part-2-heic \\
         --note "HEIC and WebP photos only"                     # claim one part of an item
     python3 platform/ci/roadmap_claim.py payapps --release <slug>   # give up your own claim
+    python3 platform/ci/roadmap_claim.py --bets                # every bet's app: where to start
 
 --repo defaults to /home/user/private-monorepo. A claim older than --stale-hours (6) is
 shown as stale, and --claim on it takes a fresh generation (`<slug>--2`), since the run
@@ -36,6 +37,7 @@ from pathlib import Path
 
 PREFIX = "claim/"
 DEFAULT_REPO = "/home/user/private-monorepo"
+BETS_MD = Path(__file__).resolve().parents[2] / "portfolio" / "monetization" / "bets.md"
 CACHE = "refs/roadmap-claims/"
 GEN = re.compile(r"^(?P<base>.+?)--(?P<n>\d+)$")
 RUN = re.compile(r"\{run ([0-9a-f]{10})\}")
@@ -229,9 +231,100 @@ def age(ts: int, now: float) -> str:
     return "age unknown" if mins < 0 else (f"{mins} min ago" if mins < 120 else f"{mins // 60} h ago")
 
 
+def item_marks(app: str, items: list[tuple[int, str]], claims: dict[str, tuple[int, str]],
+               info: dict[str, tuple[int, str]], merged: dict[str, str], now: float, stale_s: float,
+               tag: str | None) -> tuple[list[tuple[int, str, str, str, list]], list[int]]:
+    """([(number, slug, text, mark, part claims)], free-and-ungated numbers) for a Next list."""
+    rows, open_now = [], []
+    for i, text in items:
+        slug = slugify(text)
+        mark = "free"
+        # Part claims (--claim N --slug X) rarely start with the item's slug, so match them by
+        # the item number their message records. Two runs (2026-11-26) saw item 11 listed as
+        # [free] beside a fresh part claim and claimed the same scope under a second slug.
+        parts = [] if slug in merged else sibling_claims(app, i, slug, info, now, stale_s, merged)
+        if slug in claims:
+            ts, msg = info.get(slug, (0, ""))
+            if slug in merged:
+                mark = "MERGED"
+            else:
+                mark = ("STALE " if ts and now - ts >= stale_s else "CLAIMED ") + age(ts, now)
+                mark += " (yours)" if is_mine(msg, tag) else ""
+        elif parts:
+            mark = f"{len(parts)} part(s) claimed: read the notes below before claiming another"
+        elif any(c.startswith(slug + "-") and c not in merged for c in claims):
+            mark = "a part is claimed: see below"
+        why = gate(text)
+        if mark == "free":
+            if why:
+                mark = f"free, {why}"
+            else:
+                open_now.append(i)
+        rows.append((i, slug, text, mark, parts))
+    return rows, open_now
+
+
+def bet_apps(bets_md: str) -> list[tuple[int, str, str]]:
+    """(rank, bet name, app dir) from bets.md's ranking table; the app is the last cell's path."""
+    out = []
+    for line in bets_md.splitlines():
+        m = re.match(r"^\|\s*(\d+)\s*\|\s*\*\*(.+?)\*\*", line)
+        where = re.findall(r"`([^`]+)`", line.rsplit("|", 2)[-2]) if m and line.count("|") > 3 else []
+        if m and where:
+            out.append((int(m.group(1)), m.group(2), where[-1].rstrip("/").rsplit("/", 1)[-1]))
+    return out
+
+
+def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None) -> int:
+    """One line per bet: free ungated items and live claims, then the first bet with work free.
+
+    Six run records (2026-11-25..26) took "the top bet" into payapps while it held 20 to 30
+    live claims and no free, ungated item, then read bet #2's and #3's ROADMAPs by hand to
+    find work. This reads them all in one call, in bets.md's order.
+    """
+    bets = bet_apps(bets_md.read_text(encoding="utf-8")) if bets_md.is_file() else []
+    if not bets:
+        print(f"no ranking rows with an app path in {bets_md}")
+        return 2
+    ls = git(repo, "ls-remote", "origin", f"refs/heads/{PREFIX}*")
+    if ls.returncode != 0:
+        print(f"git ls-remote failed: {ls.stderr.strip()}")
+        return 2
+    now = time.time()
+    start = None
+    print(f"Bets in bets.md order (claims older than {stale_s / 3600:g} h are stale):")
+    for rank, name, app in bets:
+        roadmap = Path(repo) / "apps" / app / "ROADMAP.md"
+        if not (Path(repo) / "apps" / app).is_dir():
+            print(f"{rank:>3}. {app}: not in this clone ({name})")
+            continue
+        claims = parse_claims(ls.stdout, app)
+        info = claim_info(repo, app, claims)
+        merged = merged_claims(repo, info)
+        live = sum(1 for s, (ts, _) in info.items() if s not in merged and ts and now - ts < stale_s)
+        if not roadmap.is_file():
+            print(f"{rank:>3}. {app}: no ROADMAP.md, {live} live claim(s); claim with --slug ({name})")
+            continue
+        items = next_items(roadmap.read_text(encoding="utf-8"))
+        _, open_now = item_marks(app, items, claims, info, merged, now, stale_s, tag)
+        free = ", ".join(f"#{n}" for n in open_now) or "none"
+        print(f"{rank:>3}. {app}: {len(items)} Next, free and not gated: {free}; "
+              f"{live} live claim(s) ({name})")
+        if open_now and start is None:
+            start = (rank, app, open_now)
+    if start:
+        rank, app, nums = start
+        print(f"Start here: bet #{rank} {app}, item #{nums[0]} "
+              f"(`roadmap_claim.py {app}` for the list, then `--claim {nums[0]}`).")
+    else:
+        print("Start here: no bet has a free, ungated item. Open a new item from a bet's growth "
+              "path (portfolio/monetization/bets.md) with `<app> --slug <short-name> --note ...`.")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
-    ap.add_argument("app", help="app directory under apps/, e.g. payapps")
+    ap.add_argument("app", nargs="?", help="app directory under apps/, e.g. payapps")
     ap.add_argument("--repo", default=DEFAULT_REPO)
     ap.add_argument("--claim", type=int, metavar="N", help="claim Next item N (as listed)")
     ap.add_argument("--slug", help="claim under this slug instead (one part of an item, or an "
@@ -239,12 +332,19 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--note", default="", help="what exactly this run builds")
     ap.add_argument("--release", metavar="SLUG", help="delete your own claim on SLUG")
     ap.add_argument("--stale-hours", type=float, default=6.0)
+    ap.add_argument("--bets", action="store_true",
+                    help="list every ranked bet's app with its free, ungated items and live claims")
+    ap.add_argument("--bets-md", type=Path, default=BETS_MD, help=argparse.SUPPRESS)
     a = ap.parse_args(argv)
+    if not a.bets and not a.app:
+        ap.error("name an app, or pass --bets")
 
-    roadmap = Path(a.repo) / "apps" / a.app / "ROADMAP.md"
     if not (Path(a.repo) / ".git").exists():
         print(f"no git clone at {a.repo}: clone private-monorepo first (.github/prompts/cloud-session.md)")
         return 2
+    if a.bets:
+        return bets_overview(a.repo, a.bets_md, a.stale_hours * 3600, run_tag())
+    roadmap = Path(a.repo) / "apps" / a.app / "ROADMAP.md"
     # An app with no ROADMAP.md (seller-books, grants, cmmc on 2026-11-25..26) still takes
     # --slug claims; three runs pushed claim branches by hand because this used to exit 2.
     items = next_items(roadmap.read_text(encoding="utf-8")) if roadmap.is_file() else []
@@ -321,34 +421,12 @@ def main(argv: list[str] | None = None) -> int:
     head = "ROADMAP Next" if roadmap.is_file() else "has no ROADMAP.md"
     print(f"{a.app} {head} ({len(items)} items; claims older than {a.stale_hours:g} h are stale):")
     seen = set()
-    open_now: list[int] = []
     if not items:
         print("  (no `## Next` list: claim what you build with --slug <short-name> --note ...)")
-    for i, text in items:
-        slug = slugify(text)
-        mark = "free"
-        # Part claims (--claim N --slug X) rarely start with the item's slug, so match them by
-        # the item number their message records. Two runs (2026-11-26) saw item 11 listed as
-        # [free] beside a fresh part claim and claimed the same scope under a second slug.
-        parts = [] if slug in merged else sibling_claims(a.app, i, slug, info, now, stale_s, merged)
+    rows, open_now = item_marks(a.app, items, claims, info, merged, now, stale_s, tag)
+    for i, slug, text, mark, parts in rows:
         if slug in claims:
             seen.add(slug)
-            ts, msg = info.get(slug, (0, ""))
-            if slug in merged:
-                mark = "MERGED"
-            else:
-                mark = ("STALE " if ts and now - ts >= stale_s else "CLAIMED ") + age(ts, now)
-                mark += " (yours)" if is_mine(msg, tag) else ""
-        elif parts:
-            mark = f"{len(parts)} part(s) claimed: read the notes below before claiming another"
-        elif any(c.startswith(slug + "-") and c not in merged for c in claims):
-            mark = "a part is claimed: see below"
-        why = gate(text)
-        if mark == "free":
-            if why:
-                mark = f"free, {why}"
-            else:
-                open_now.append(i)
         print(f"{i:>3}. [{mark}] {slug}: {text[:90]}")
         for s, (ts, m) in parts:
             seen.add(s)
