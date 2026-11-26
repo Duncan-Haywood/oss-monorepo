@@ -94,6 +94,27 @@ can't go in, like a spreadsheet, is named on the index so the reviewer knows it'
 separately. A resubmittal starts as a new revision with no files, so what went with the first
 round stays on the first round.
 
+## Starting the log from the register or the spec
+
+The first hour on a new job usually goes on typing the submittal list into a log by hand,
+though the GC's register or the spec sections already list every item. So the log can now
+start from either one, read in your browser (the file isn't uploaded):
+
+- **The GC's register**, as a spreadsheet, CSV, or a PDF printed from their system: spec
+  section, number, title, type, the required on-site date and the lead time come across, with
+  "3 weeks" counted as 21 days.
+- **The spec sections for your scope**, as the architect's PDF: each lettered paragraph under
+  a section's SUBMITTALS article ("B. Shop Drawings: Show locations of control joints...")
+  becomes a line, titled with the section and typed from its label. Division 01's procedures
+  section and "submit in accordance with..." paragraphs are left out.
+
+You check each line before it is added. Lines already on the log start unticked. The reader
+doesn't guess anything: a lead time given in business days, a date it can't read, or a type it
+doesn't recognise is left blank, and the original wording is kept in the line's notes. Sent and
+returned dates aren't imported, because the register says what is due and the log records what
+actually happened. Mockups that a spec asks for under Quality Assurance rather than in a
+Submittals article aren't picked up, so it's still worth reading those sections yourself.
+
 ## When it comes back: reading the stamp instead of retyping it
 
 The stamped copy is the record of what was decided. Someone still has to type its action and

@@ -71,6 +71,15 @@ answers take. Each RFI prints as a form with a blank response box and has an ema
 GC's project manager. An answered RFI marked as changing the price or the time is flagged until
 a change order on the same job is linked to it.
 
+The step that gets skipped is the one between "answered" and "change order written", so the log
+makes it one click. On an answered RFI with no change order, "Start a change order" opens the
+change order form with the RFI's number and subject as the description ("RFI 004: Ceiling height
+at corridor 2"). You pick the schedule-of-values line and enter the amount and the days yourself,
+because only you know what the extra work costs. Saving it links the change order to the RFI.
+The RFI then shows the change order number and stops counting as "answered with no change
+order", and the job history records both. A change order request that names the RFI it came
+from also tells the GC where the scope came from.
+
 A log shows the dates as they stand today. In a dispute over extra work, the question is often
 when a date was written down: was the RFI marked sent on the day it went out, or filled in
 weeks later? So every change to an RFI also goes into the job's history, with who made it and
