@@ -45,3 +45,25 @@ CREATE TABLE IF NOT EXISTS inbox_daily (
   day TEXT    PRIMARY KEY,
   n   INTEGER NOT NULL DEFAULT 0
 );
+
+-- Early-access sign-ups for the paid products (early-access.mjs). Private:
+-- read only through GET /early-access with INBOX_TOKEN, never committed; only
+-- the per-product counts are public. One row per (product, email); kept 365
+-- days from `received`, then purged.
+CREATE TABLE IF NOT EXISTS early_access (
+  id       INTEGER PRIMARY KEY AUTOINCREMENT,
+  received TEXT NOT NULL,
+  product  TEXT NOT NULL,
+  email    TEXT NOT NULL,
+  role     TEXT NOT NULL DEFAULT '',
+  note     TEXT NOT NULL DEFAULT '',
+  page     TEXT NOT NULL DEFAULT '',
+  consent  TEXT NOT NULL,
+  UNIQUE (product, email)
+);
+
+-- Sign-ups accepted each day, for the early-access daily cap.
+CREATE TABLE IF NOT EXISTS early_access_daily (
+  day TEXT    PRIMARY KEY,
+  n   INTEGER NOT NULL DEFAULT 0
+);

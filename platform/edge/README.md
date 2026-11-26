@@ -27,6 +27,10 @@ it never creates a charge, and no card is needed.
 | `GET /feedback?after=<id>` | Stored messages after an id, which `pull-feedback.mjs` reads. Public, because the same text is committed to the public repository. |
 | `POST /hit` | The page-view ping. Unknown slugs are not counted. Browsers sending DNT or Global Privacy Control are counted from 2026-11-24 (before that they were dropped; see `docs/legal/privacy-baseline.md` for why that is lawful). A counted load also adds one to `geo:<country>` and `dev:<mobile/tablet/desktop>`; a crawler's beacon adds to `bot:<class>` and `botpage:<slug>` instead of the page. |
 | `GET /counts?since=YYYY-MM-DD` | The daily aggregates, which `platform/counter/pull.mjs` reads. |
+| `POST /early-access` | A paid product's early-access form (`early-access.mjs`): `{product, email, role?, note?, consent: true, page?, website}`. Only the site's origin may post; same 3-a-minute limiter as feedback; 200 a day site-wide (`EARLY_ACCESS_DAILY_CAP`). Stored **privately** in D1, one row per product and address; a repeat or a honeypot gets the same 201. |
+| `GET /early-access/counts` | Sign-ups per product, numbers only. Public: the demand reading agents use. |
+| `GET /early-access?after=<id>` | The rows, for a holder of `INBOX_TOKEN`; a 404 for everyone else. Never committed. |
+| `DELETE /early-access?email=<address>` | Erase one person from every product, same token. |
 | `GET /healthz` | `ok`. |
 
 ## What the counts hold
@@ -241,3 +245,35 @@ node --test platform/edge/*.test.mjs platform/counter/*.test.mjs
 `aws-lambda.test.mjs` runs the Worker's route scenarios through the Lambda
 adapter; `aws-store-contract.test.mjs` runs one set of storage checks against
 D1's SQL on a real SQLite (`node:sqlite`) and against the DynamoDB store.
+
+## Early-access list (2026-11-26)
+
+The paid products (`portfolio/monetization/bets.md`) are built but not yet
+open. Their marketing pages used to send "Ask for early access" to the public
+feedback form, whose text is committed to this public repository, or to a
+mailto link. `early-access.mjs` gives them a private list instead; the form
+is `platform/pages/early-access-form.mjs`, on the construction page first.
+
+- **What is kept:** address (lower-cased), product, optional trade/size and
+  note, the page, the time, and the consent version (`CONSENT_VERSION`; the
+  page shows `CONSENT_TEXT` from the same module). One row per product and
+  address. 365 days, purged on every write and read (`EARLY_ACCESS_RETENTION_DAYS`
+  overrides). The site Privacy Policy (`platform/pages/legal-pages.mjs`) says
+  the same, with consent (GDPR art. 6(1)(a)) as the basis.
+- **What it is not:** a marketing opt-in. It is consent to one email when that
+  product opens. Nothing here sends mail, and the list never feeds the mail
+  Worker's opt-in store (`platform/email`), which records opt-ins only with
+  the owner's token. The launch email should say why the person is getting it
+  and offer removal in one click, since the form cannot prove the address
+  belongs to whoever typed it.
+- **Reading demand:** `curl $U/early-access/counts` (public, numbers only).
+- **Reading the rows:** `curl -H "Authorization: Bearer $INBOX_TOKEN" "$U/early-access?after=0"`,
+  or the D1 console in the Cloudflare dashboard (`SELECT * FROM early_access`).
+- **Erasing one person:** `curl -X DELETE -H "Authorization: Bearer $INBOX_TOKEN" "$U/early-access?email=<address>"`.
+- **AWS cutover:** `aws/dynamo-store.mjs` implements the same operations
+  (partition `EARLY`, TTL backstop) and `aws/migrate-d1.mjs` copies the rows
+  when `INBOX_TOKEN` is set. `aws-store-contract.test.mjs` runs one set of
+  checks against both stores.
+
+The table is created by `schema.sql`, which `priv-edge-deploy.yml` applies on
+every deploy, so the merge that adds it also creates it.

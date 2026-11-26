@@ -54,6 +54,8 @@ for (const [name, make] of impls) {
     assert.equal(await s.takeDaily('feedback', '2026-11-01', 1), true);
     assert.equal(await s.takeDaily('feedback', '2026-11-01', 1), false);
     assert.equal(await s.takeDaily('inbox', '2026-11-01', 1), true);
+    assert.equal(await s.takeDaily('early_access', '2026-11-01', 1), true);
+    assert.equal(await s.takeDaily('early_access', '2026-11-01', 1), false);
     assert.equal(await s.takeDaily('feedback', '2026-11-02', 1), true);
     await assert.rejects(s.takeDaily('nope', '2026-11-01', 1));
   });
@@ -81,6 +83,26 @@ for (const [name, make] of impls) {
     assert.equal(await s.deleteInbox(3), 1);
     assert.equal(await s.deleteInbox(3), 0);
     assert.deepEqual((await s.readInbox(2)).map((r) => r.id), [4]);
+  });
+
+  test(`${name}: early access is one row per product and address, counted, purged and erased`, async () => {
+    const s = make();
+    const row = (received, product, email) => ({ received, product, email, role: 'electrical sub', note: '', page: '/industries/construction/', consent: '2026-11-26' });
+    assert.equal(await s.insertEarlyAccess(row('2026-01-01T00:00:00.000Z', 'payapps', 'old@x.test')), true);
+    assert.equal(await s.insertEarlyAccess(row('2026-11-01T00:00:00.000Z', 'payapps', 'a@x.test')), true);
+    assert.equal(await s.insertEarlyAccess(row('2026-11-02T00:00:00.000Z', 'payapps', 'a@x.test')), false, 'same product and address again');
+    assert.equal(await s.insertEarlyAccess(row('2026-11-02T00:00:00.000Z', 'cmmc', 'a@x.test')), true, 'another product');
+    assert.equal(await s.insertEarlyAccess(row('2026-11-03T00:00:00.000Z', 'payapps', 'b@x.test')), true);
+    assert.deepEqual(await s.countEarlyAccess(), [{ product: 'cmmc', n: 1 }, { product: 'payapps', n: 3 }]);
+    await s.purgeEarlyAccess('2026-06-01T00:00:00.000Z');
+    const left = await s.readEarlyAccess(0);
+    assert.deepEqual(left.map((r) => r.email), ['a@x.test', 'a@x.test', 'b@x.test']);
+    assert.deepEqual(Object.keys(left[0]).sort(), ['consent', 'email', 'id', 'note', 'page', 'product', 'received', 'role']);
+    assert.equal(left[0].received, '2026-11-01T00:00:00.000Z', 'the first sign-up is kept, not the repeat');
+    assert.deepEqual((await s.readEarlyAccess(left[0].id)).map((r) => r.product), ['cmmc', 'payapps']);
+    assert.equal(await s.deleteEarlyAccess('a@x.test'), 2, 'erased from every product');
+    assert.equal(await s.deleteEarlyAccess('a@x.test'), 0);
+    assert.deepEqual(await s.countEarlyAccess(), [{ product: 'payapps', n: 1 }]);
   });
 }
 
