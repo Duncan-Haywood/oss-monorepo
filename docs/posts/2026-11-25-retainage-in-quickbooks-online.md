@@ -2,7 +2,7 @@
 title: "QuickBooks has no retainage field: how subcontractors track it anyway"
 seo_title: "How to track retainage in QuickBooks Online (step by step)"
 date: 2026-11-25
-tags: [construction, subcontractors, retainage, retainage-release, retainage-tracking, quickbooks, pay-applications, pay-app-guides, for-customers]
+tags: [construction, subcontractors, retainage, retainage-release, retainage-tracking, punch-list, quickbooks, pay-applications, pay-app-guides, for-customers]
 description: "QuickBooks Online cannot hold back retainage on an invoice. The Retainage Receivable account and item, the release invoice, and the report that hides it."
 ---
 
@@ -82,6 +82,37 @@ The page does not restate any state's release rule; it links the
 where each row links the statute. The letter is a starting point, not a
 legal notice.
 
+## The punch list in front of the release
+
+The first item on that closeout list is usually the one that drags. Near
+the end of a job the GC walks it and emails a list (a missing cover plate
+in room 104, touch-up paint at a door frame, a panel to label), and the
+sub's foreman fixes items over a week or two in whatever order the crew
+gets to them. The GC has to come back and accept each one, and only
+accepts what they know is done. Your retainage waits until they have.
+
+On 2026-11-26 the pay-app suite we are building got a punch list for each
+job. You paste the GC's list in, one item per line: the leading numbers
+are dropped and the room or area before " - " or ": " becomes the
+location. Nothing else is guessed. Each item then goes from open (or
+overdue, once the due date you typed has passed) to fixed, then to
+accepted. An item that is another trade's work, or was built as drawn, is
+marked "not ours" with the reason and stays out of the count until it is
+settled. One button writes the email that asks the GC's project manager
+for a back-check of every fixed item and says how many are still open,
+so the GC can walk them all in one visit. The list prints as a PDF to
+carry on the walk (all items, or only what is left), with a column for
+the GC's initials, and downloads as CSV. Once every item that is yours is
+accepted, the job page says so, next to the reminder that many
+subcontracts also want the closeout documents above before they release
+retainage.
+
+What it does not do: it does not decide that your subcontract's closeout
+terms are met, and marking an item accepted in the app is your record,
+not the GC's sign-off. The PDF says both. The rules (status, overdue days,
+dates in order, the paste reader) are covered by unit tests, and every
+route has a test that another company's job answers "not found".
+
 ## Then every job at once
 
 One job's retainage is easy to remember. Six jobs across three GCs, some
@@ -111,7 +142,8 @@ tests.
 
 This is the gap the pay-app suite we are building is meant to close:
 retainage worked out per line on every pay application, a running balance
-per job, a reminder when it is due for release, and a QuickBooks sync. It
+per job, a reminder when it is due for release, the punch list that gates
+it, and a QuickBooks sync. It
 is in development with early access at
 [marisstella.app/industries/construction](https://marisstella.app/industries/construction/).
 Nothing is for sale yet.
