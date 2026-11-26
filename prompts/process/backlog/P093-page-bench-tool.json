@@ -1,0 +1,28 @@
+{
+  "id": "P093",
+  "title": "Every page-perf run writes its own Playwright + CDP throttle script before it can take a before number",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "prompts/perf/prompt-0.md item 4 points page-perf runs at module-weight.mjs, module-exclusive.mjs and revalidate-serve.mjs, but none of them times a page load. Each run since 2026-11-24 rebuilt a throttled-load bench in /tmp (load.cjs and the like), and the history notes say 'Neither is in the tree; the descriptions are enough to rebuild them'. Two methods drifted apart (CDP network emulation 150 ms / 1.6 Mbit/s vs revalidate-serve 60 ms/request), so before and after numbers from different runs are not comparable, and one run's first 'after' (197 ms) was its own server's path-guard bug, not a win.",
+  "evidence": [
+    "run record 2026-11-26-session_01EhTJVPy57jz3az2EFqa5EW.json (PR #19461) doc_friction: 'Item 4 has no ready page-load bench; each page-perf run rewrites its own Playwright+CDP throttle script (this run did too). A platform/perf/page-bench.mjs would save the step.'",
+    "docs/history/wall-framing-takeoff-page-perf-2026-11-25.md, 'Bench scripts': load.cjs and equiv.cjs 'Neither is in the tree'; the 197 ms false 'after' reading",
+    "docs/history/shift-roster-page-perf-2026-11-24.md and ai-bookkeeper-page-perf-2026-11-24.md describe the same hand-written load.cjs; shed-designer-page-perf-2026-11-26-first-design-stored.md a third, revalidate-serve-based one"
+  ],
+  "change": "platform/pages/page-bench.mjs: serves a built site through revalidate-serve.mjs (now exporting revalidateServer()), aborts other hosts, CPU-throttles via CDP, optional CDP network emulation (--latency/--down) so both earlier methods can be reproduced, interleaves pages run by run, and prints a Markdown table of medians (first byte, FCP, DCL, load, LCP, blocking, requests, KB) or --json rows. A 404 page is an error, not a fast reading. Tested in page-bench.test.mjs (runs in the site-builder test step). Perf prompt item 4 names it.",
+  "touches": [
+    "platform/pages/page-bench.mjs",
+    "platform/pages/page-bench.test.mjs",
+    "platform/perf/revalidate-serve.mjs",
+    "prompts/perf/prompt-0.md"
+  ],
+  "metric": "Perf run records in the 14 days after merge whose doc_friction or notes say they wrote their own page-load bench, against those whose notes cite page-bench.mjs",
+  "baseline": "4 page-perf passes on 2026-11-24..26 (shift-roster, ai-bookkeeper, wall-framing-takeoff, shed-designer), each with its own script; 0 shared",
+  "opened": "2026-11-26",
+  "source": "process critique, measure 'Doc friction by file' on prompts/perf/prompt-0.md (2026-11-26)",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19478",
+  "result": null,
+  "history": []
+}

@@ -67,7 +67,9 @@ day before.
    trusting a 4x-throttled profile's self time, which inflates one-off set-up),
    and `platform/perf/revalidate-serve.mjs` for request chains the live
    site's `max-age=0` makes slow (a Web Worker's module graph is not covered
-   by the page's modulepreload links).
+   by the page's modulepreload links). `node platform/pages/page-bench.mjs
+   --pages=<a>,<b>` takes the before and after on a built site (median
+   DOMContentLoaded, LCP, blocking, requests; header has its options).
 
 ## How to work
 
