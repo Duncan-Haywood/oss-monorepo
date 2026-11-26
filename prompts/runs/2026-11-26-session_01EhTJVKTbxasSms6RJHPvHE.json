@@ -53,7 +53,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Targets: ventures/xer-schedule-check/evmseries.mjs and calreview.mjs (redteam.py targets --fresh, suite 4.6 s). Real-bug hunt: input given out of order, a renamed project, the same data date twice. Choosing the project name from the last update given matches windows.mjs's documented intent, so it is not a defect. The venture suite (624 tests) passes.",
+  "notes": "Targets: ventures/xer-schedule-check/evmseries.mjs and calreview.mjs (redteam.py targets --fresh, suite 4.6 s). Real-bug hunt: input given out of order, a renamed project, the same data date twice. Choosing the project name from the last update given matches windows.mjs's documented intent, so it is not a defect. The venture suite (624 tests) passes. CI's pages test job was red on main because of prompts/polish_next.py (shallow-boundary lint). Fixed in this PR: boundary commits are now skipped, with a test against a real --depth=2 clone. The existing lint is what caught it, so no new guard was needed.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -302,7 +302,14 @@
         ]
       }
     ],
-    "real_defects": []
+    "real_defects": [
+      {
+        "file": "prompts/polish_next.py",
+        "issue": "PR #19469 added a `git log --diff-filter=A` reader that never skipped shallow boundary commits. In a shallow clone the boundary commit 'adds' every polish note, so notes older than the clone's horizon were ranked as if newly added, in path order. This also turned main's `platform/pages/shallow-boundary-lint.test.mjs` red, failing the pages 'test' job on every PR.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19474"
+      }
+    ]
   },
   "usage": {
     "measured_by": "prompts/runcost.py v1",

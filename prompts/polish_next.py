@@ -32,20 +32,41 @@ CITE = re.compile(
     r"(?:\s+list)?[^`]{0,40}?\bin\s+`(?:docs/reports/)?(polish-[^`]+?\.md)`")
 
 
+def shallow_commits(root: Path = ROOT) -> set[str]:
+    """The shallow clone's boundary commits (empty for a full clone)."""
+    try:
+        rel = subprocess.run(["git", "rev-parse", "--git-path", "shallow"], cwd=root,
+                             capture_output=True, text=True, timeout=30).stdout.strip()
+    except (OSError, subprocess.TimeoutExpired):
+        return set()
+    f = (root / rel) if rel else None
+    if not f or not f.is_file():
+        return set()
+    return {ln.strip() for ln in f.read_text().splitlines() if ln.strip()}
+
+
 def commit_order(root: Path = ROOT) -> list[str]:
     """Polish note names, newest add first, from git history (empty if none)."""
     names: list[str] = []
+    boundary = shallow_commits(root)
     for ref in ("origin/main", "HEAD"):
         try:
             out = subprocess.run(
-                ["git", "log", ref, "--format=", "--name-only", "--diff-filter=A",
+                ["git", "log", ref, "--format=@%H", "--name-only", "--diff-filter=A",
                  "--", "docs/reports/polish-*.md"],
                 cwd=root, capture_output=True, text=True, timeout=60).stdout
         except (OSError, subprocess.TimeoutExpired):
             continue
+        skip = False
         for line in out.splitlines():
-            name = Path(line.strip()).name
-            if name and name not in names:
+            line = line.strip()
+            if line.startswith("@"):
+                # a shallow clone's boundary commit diffs against nothing, so it
+                # "adds" every note: its notes are undated, not newest
+                skip = line[1:] in boundary
+                continue
+            name = Path(line).name
+            if name and not skip and name not in names:
                 names.append(name)
         if names:
             break
