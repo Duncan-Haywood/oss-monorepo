@@ -170,7 +170,7 @@ export function supplementShare(o) {
   return orig === 0 ? null : supplement(o).rcv / orig;
 }
 
-// Yearly-free grid: net recovered across acceptance and fee.
+// Sensitivity grid: net recovered across acceptance and fee.
 export function sensitivity(o, accepts = [25, 50, 75, 100], fees = [0, 10, 15, 20]) {
   return accepts.map((a) => ({ acceptPct: a, cells: fees.map((f) => ({ feePct: f, net: netAfterFee(o, a, f) })) }));
 }

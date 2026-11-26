@@ -240,6 +240,25 @@ test("dark until every public value is set and well formed", () => {
   assert.equal(el.hidden, true);
 });
 
+test("the claim is stored before checkout opens, so a tab closed after paying can still collect its key", async () => {
+  const live = { ...productConfig("shed-designer", CAT) };
+  const mem = new Map();
+  const storage = { getItem: (k) => mem.get(k) ?? null, setItem: (k, v) => mem.set(k, v), removeItem: (k) => mem.delete(k) };
+  let opened = null, handler = null;
+  const Paddle = { Environment: { set() {} }, Initialize() {}, Checkout: { open: (o) => { opened = o; } } };
+  const el = { hidden: true, tagName: "BUTTON", getAttribute() { return null; }, setAttribute() {}, addEventListener: (_n, f) => { handler = f; } };
+  assert.equal(wireBuy(el, live, { onKey() {}, window: { Paddle }, storage }), true);
+  await handler({ preventDefault() {} });
+  assert.ok(opened, "checkout opened");
+  // No checkout.completed event: the tab closed right after paying.
+  assert.equal(storage.getItem("ms-billing-claim:shed-designer"), opened.customData.claim);
+});
+
+test("keygen.mjs never sends the signing key to the public site's Worker", () => {
+  const src = fs.readFileSync(new URL("./keygen.mjs", import.meta.url), "utf8");
+  assert.doesNotMatch(src, /LICENCE_SIGNING_KEY\s+\(in platform\/edge/);
+});
+
 test("the committed catalogue holds no secret, and is dark as committed or fully set", () => {
   const src = fs.readFileSync(new URL("./catalogue.mjs", import.meta.url), "utf8");
   assert.doesNotMatch(src, /pdl_(sk|apikey|ntfset)_|sk_live|-----BEGIN|apikey_/i, "only public values belong here");

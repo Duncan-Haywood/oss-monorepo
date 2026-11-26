@@ -55,6 +55,15 @@ test("every page states the privacy promise the catalogue makes for it", () => {
   }
 });
 
+test("no page promises zero network requests: the deploy adds cookieless analytics", () => {
+  // Audit 2026-11-26: the served page loads the site's analytics beacon, so a
+  // promise of "no network request" or "no analytics" was false where it ships.
+  for (const f of [...PAGES, "README.md"]) {
+    const text = read(f);
+    assert.doesNotMatch(text, /no network request|no[^.]{0,60}analytics service/i, `${f} promises no network use`);
+  }
+});
+
 test("no page loads anything over the network", () => {
   // The promise above has to be true, not merely stated. A remote script, font,
   // stylesheet, image or beacon would each break it.
