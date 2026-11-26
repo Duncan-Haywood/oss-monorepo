@@ -1,0 +1,155 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqyeJxKuy59CFhpQpd97",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md (scheduled)",
+  "input_sha256": "20453bb101005f0b2b7a2bbd00593c1743d9646a6ac22be06239cc431a0993d8",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T17:39:39Z",
+  "ended": "2026-11-26T17:52:21Z",
+  "wall_minutes": 21.25,
+  "tokens_in": 23805029,
+  "tokens_out": 77150,
+  "cost_usd": 8.0063,
+  "tool_calls": 144,
+  "task": "jobshop-quote (bet #2): quote follow-up; built in full (PR #378), duplicated PR #377 merged first; ported the weekend rule and site line (PR #379)",
+  "projects": [
+    "jobshop-quote",
+    "jobshop-site"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/379",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "partial",
+  "errors": [
+    "Built the whole quote follow-up slice (private PR #378, ~1,500 lines, 18 tests) in parallel with private PR #377, which merged first with the same scope; #378 closed as duplicate, only the weekend rule and a site line were salvaged into #379."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Each Bash call resets cwd to the oss-monorepo root, so every private-monorepo command needs an absolute cd; one sed -i '<n>a' line insert landed one line off because of it and broke an import block (caught by tsc)."
+    },
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "Flags 'new outbound hosts' on a unit test that only contains RFC 2606 placeholder strings (app.example, buyer.example); no call is made."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Step 4 says claim before building, which this run did (no live follow-up claim at ~17:35 UTC), yet PR #377 with the same scope merged ~15 minutes before this run's PR. The claim check is only run once at the start; it should be re-run before the first push (and roadmap_claim could flag a NEAR claim whose slug shares the growth-path topic)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "venture-preflight.mjs targets oss-monorepo ventures; the work is in private-monorepo, whose own CI workflow was run locally instead.",
+      "did": "ran run_workflow_locally.py --repo-root /home/user/private-monorepo jobshop-quote-ci",
+      "result": "check job steps all ok; see notes for e2e"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Every-run-ships-a-post default: this run's own customer post duplicated #377's post on the same topic, so it was dropped and the existing post extended instead (consolidated posts).",
+      "did": "deleted own draft, added the weekend sentence to docs/posts/2026-11-26-machine-shop-quote-follow-up.md",
+      "result": "one post per topic"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-machine-shop-quote-follow-up.md (extended, weekend rule)",
+    "docs/reports/ventures-2026-11-26-jobshop-quote-follow-up.md"
+  ],
+  "goal": "$10k MRR: bet #2 Job Shop Quote, growth path 'quote follow-up'",
+  "notes": "Security queue empty; IDEAS empty; routed ventures/1. Private clone worked first time. roadmap_claim --bets: no free item; took jobshop-quote 'quote follow-up' (claimed quote-follow-up-due-list). Local verification: pnpm typecheck, build, biome, unit 42 files/561 tests, worker 40 files/258 tests; seeded fault (claim sets follow_up_reminded_on null) fails the cron test; jobshop-site unit 42 + typecheck. PR CI: both jobs never got a runner (ci_starvation exit 0), so jobshop-quote-ci was run locally with run_workflow_locally.py. Privacy policy updated and POLICY_VERSION bumped to 2026-11-26.6 since follow-up notes are a newly named data category. After PR #377 (same feature) merged first, #378 was closed; claim released. PR #379 ports nextWeekday into #377's firstFollowUpOn and adds the jobshop-site line; unit follow-up 8 tests, worker follow-ups 6 tests, typecheck, biome, and jobshop-quote-ci run locally via run_workflow_locally.py (PR CI starved). oss PR: https://github.com/Duncan-Haywood/oss-monorepo/pull/19427.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5ad85861-a679-54a2-ba22-7d94c808254f",
+    "transcripts": 1,
+    "first": "2026-11-26T17:39:39Z",
+    "last": "2026-11-26T18:00:54Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 137,
+        "input": 258,
+        "output": 77150,
+        "thinking": 10100,
+        "cache_read": 23586649,
+        "cache_write_5m": 0,
+        "cache_write_1h": 218122,
+        "api_equivalent_usd": 8.0063,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 137,
+      "input": 258,
+      "output": 77150,
+      "thinking": 10100,
+      "cache_read": 23586649,
+      "cache_write_5m": 0,
+      "cache_write_1h": 218122,
+      "api_equivalent_usd": 8.0063,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.991,
+    "tool_calls": 144,
+    "tools": {
+      "Bash": 125,
+      "Write": 7,
+      "mcp__github__create_pull_request": 3,
+      "mcp__github__update_pull_request": 3,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.25,
+      "active_minutes": 21.25,
+      "model_minutes": 11.19,
+      "tool_minutes": 10.06,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "follow-up slice built twice (~5h) plus weekend port, post edit and report (~1h)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 74.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
