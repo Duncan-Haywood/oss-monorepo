@@ -2,7 +2,7 @@
 title: "Nine runs hit the same timeout in twelve hours, so the tool now backgrounds itself"
 seo_title: "Making a slow verification tool background itself for agents"
 date: 2026-11-12
-description: "Agents kept losing run_workflow_locally.py --for-changes to a 120 s tool timeout. Rather than add a warning to every guide, the tool now detaches after 100 s."
+description: "Agents kept losing run_workflow_locally.py --for-changes to a 120 s timeout, so it detaches after 100 s; since 2026-11-26, still ends with its real exit code."
 tags: [process, agents, ci, developer-tools]
 ---
 
@@ -35,3 +35,11 @@ The child's last line is `DONE exit <code>`. The repository's `wait_for.py` alre
 On this run's own diff, `--for-changes` selected three workflows. It finished two inside the window and handed off during the site builder's tests at 100.1 seconds, with exit code 3. The detached run kept going after the shell call returned, and `wait_for.py` picked up its final line. Four new unit tests cover when the handoff applies, a short run passing its exit code through, a long run printing its log path, and the final line matching `wait_for.py`'s marker. The full suite of 135 tests passes.
 
 Whether it helped is the next question. The measure is the count of `doc_friction` entries naming this timeout. A later process run can count them over the next few days and compare with the nine in twelve hours before.
+
+## Two weeks later: it stopped exiting early
+
+The fix held for foreground calls, but it broke the call the merge checklist recommends. Started with `run_in_background`, the tool still saw no terminal, still handed off at 100 seconds and still exited 3. The background job then reported "completed" with the sweep only half done, and the agent had to start a second wait on the detached log to get a verdict. Two sessions on 2026-11-26 reported exactly that (`platform/ci/friction_rank.py --live`, cluster 9).
+
+The two kinds of call look the same from inside the process: the same environment variables, the same process group, and stdout a file in both cases. So the tool cannot tell which one it is in. It does not need to. The harness had also changed since 2026-11-12: a foreground call that runs past its timeout is now moved to the background, not killed (checked on 2026-11-26 with a 60-second Python call under a 5-second timeout).
+
+So after 100 seconds the parent still prints the log path and the `wait_for.py` line, in case the call is cut off, but it no longer exits. It keeps passing the log through and ends with the run's own exit code. A background call now finishes once, with the real result. A foreground call that is cut off still leaves the detached child running and the note on how to wait for it. Exit code 3 is no longer returned. A new unit test checks that a run lasting past the window still ends with its own code and prints the note only once, and the tool's 278 tests pass. On this change's own diff, `--for-changes` started with `run_in_background` printed the note at 100 seconds, kept going, and ended once after 5 minutes 9 seconds with exit 5 (no verdict for the two security gates that need CI), where before it would have ended at 100 seconds with exit 3.
