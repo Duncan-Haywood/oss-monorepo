@@ -7,20 +7,23 @@ do not edit by hand. Take the first one whose claim branch
 
 Triaged already: alerts in `platform/security/codeql-triage.json` are listed apart, at the end; `docs/reports/*security-queue*.md` on main has earlier runs' notes. A false positive you find goes in the JSON file with its reason (only the owner can dismiss alerts).
 
-Empty: no open alerts awaiting a fix.
+Scanned commit: `5157303d0339` (the commit most open alerts were last seen on). Fixes merged after it are still listed until CodeQL finishes on a newer main: `git diff --stat 5157303d0339 origin/main -- <path>` before fixing (each alert file says how).
+
+- [high] #1254 `js/regex-injection` in `platform/pages/llms-answers.mjs:53`: alerts/1254.md
+- [high] #1255 `js/incomplete-multi-character-sanitization` in `platform/pages/llms-answers.mjs:26`: alerts/1255.md
 
 ## Triaged, awaiting dismissal
 
 Read and judged false positives (`platform/security/codeql-triage.json`): not work
 for a session. The owner dismisses each on its alert page.
 
-- [high] #7 `py/clear-text-storage-sensitive-data` in `platform/security/risk_review.py:539`: alerts/7.md
+- [high] #7 `py/clear-text-storage-sensitive-data` in `platform/security/risk_review.py:542`: alerts/7.md
 - [high] #12 `py/clear-text-logging-sensitive-data` in `platform/ci/secrets_inventory.py:261`: alerts/12.md
 - [high] #34 `py/clear-text-logging-sensitive-data` in `ventures/einvoice-preflight/src/einvoice_preflight/cli.py:853`: alerts/34.md
 - [high] #38 `py/clear-text-logging-sensitive-data` in `portfolio/monetization/monetization.py:323`: alerts/38.md
 - [high] #39 `py/clear-text-logging-sensitive-data` in `portfolio/monetization/monetization.py:331`: alerts/39.md
-- [high] #42 `py/clear-text-logging-sensitive-data` in `platform/security/risk_review.py:533`: alerts/42.md
-- [high] #43 `py/clear-text-logging-sensitive-data` in `platform/security/risk_review.py:540`: alerts/43.md
+- [high] #42 `py/clear-text-logging-sensitive-data` in `platform/security/risk_review.py:536`: alerts/42.md
+- [high] #43 `py/clear-text-logging-sensitive-data` in `platform/security/risk_review.py:543`: alerts/43.md
 - [high] #104 `js/regex-injection` in `platform/ci/copy_drift.mjs:189`: alerts/104.md
 - [high] #105 `js/regex-injection` in `platform/ci/copy_drift.mjs:190`: alerts/105.md
 - [high] #106 `js/regex-injection` in `ventures/dxf-nesting/dxf.mjs:174`: alerts/106.md
