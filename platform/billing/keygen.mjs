@@ -4,8 +4,9 @@
 //   node platform/billing/keygen.mjs
 //
 // It prints two lines. The public key goes in catalogue.mjs (`publicKey`) and
-// is committed. The private key is a secret: paste it straight into
-//   npx wrangler secret put LICENCE_SIGNING_KEY   (in platform/edge/)
+// is committed. The private key is a secret: paste it straight into the
+// billing Worker (its own account, wrangler.example.toml; never platform/edge/):
+//   npx wrangler secret put LICENCE_SIGNING_KEY
 // and nowhere else. Losing it only means issuing keys under a new pair; keys
 // already sold stop verifying, so keep a copy in the password manager.
 

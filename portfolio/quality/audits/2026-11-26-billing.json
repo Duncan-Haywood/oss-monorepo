@@ -1,0 +1,225 @@
+{
+  "date": "2026-11-26",
+  "subject": "platform/billing",
+  "stratum": "platform",
+  "seed": "2026-11-26-c-40a7",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality round 109, see run record",
+  "status": "audited",
+  "professional": "a payments/billing engineer who has integrated Paddle Billing webhooks and offline licence keys; they check first that the webhook signature matches the provider's documented scheme with a constant-time compare and a replay window, that duplicate and out-of-order deliveries are idempotent, that the product granted comes from what was paid rather than client-chosen data, how refunds and cancellations end entitlement, and that no secret sits in the repository or within reach of unreviewed deploys",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "Recomputed against Paddle's own docs (developer.paddle.com, fetched this session: webhooks/about/signature-verification and the transaction.completed example payload) and openssl, none written by the author. (1) HMAC: openssl dgst -sha256 -hmac over '1712917130:'+<Paddle's example transaction.completed body> gives a72fdef8...aa6bf19; verifyPaddleSignature accepts it, also with '; h1=' and upper-case hex; a re-serialised body and a 32-char truncated h1 are refused. (2) Ed25519: a key from signLicence verifies with `openssl pkeyutl -verify -rawin` ('Signature Verified Successfully'), and a key signed by openssl verifies in verifyLicence, valid at exp and expired one second after. (3) Paddle's example payload (sub_01hv8x29kz0t586xy6zn1a62ny, billing_period.ends_at 2024-05-12T10:18:47.635628Z): exp by hand 1715509127 + 7 x 86400 = 1716113927, observed 1716113927. (4) Claim hash = SHA-256('ms-billing-claim:'+claim) recomputed with openssl equals the stored row. (5) Three signed deliveries of one transaction into node:sqlite loaded with schema.sql: 200/200/200, one row, first key kept. No currency amounts are handled at all: the product comes from the price id, so minor-unit arithmetic does not arise.",
+    "completeness": "Every README feature checked works in code and tests: webhook verify, key signing, claim pickup by hash, renewal route, refusals (401/503/413/400), sync and --check (ran: 'billing copies in sync'), testkit used by 7 ventures' tests (shed-designer 4/4, wall-framing-takeoff licence 2/2, ai-bookkeeper 3/3 run here), worker CORS/preflight, secret-isolation tests. Nothing is on sale: every priceId, clientToken, publicKey and edge is empty, which the README states as owner steps 0-7; no sandbox purchase has run. 'Next' items (catalogue-as-code script, quick-pick-survey) are listed as not done.",
+    "verification": "node --test billing.test.mjs: 19 tests, 19 pass, 0.44 s. Five seeded mutants via quality_mutate.py: 3 caught (one-sided tolerance, expiry boundary moved a day, putSub losing its 'WHERE exp < ?3' guard), 2 survived: deleting the length check in sameString (server.mjs:29), which makes a 1-character h1 compared only against want[0], i.e. a webhook forgeable in about 16 tries; and removing the first-match break in the item loop (server.mjs:96). The suite is otherwise strong and adversarial (forged secret, tampered body, both window edges, event-type confusion, real schema via node:sqlite).",
+    "craft": "Read all 11 files. Small, WebCrypto-only, JSDoc-typed, no imports in client.mjs so it can be copied, copies enforced byte-for-byte by sync --check and testkit. Minor: the 256 KiB webhook cap is checked on raw.length (UTF-16 units) after request.text() has already read the whole body (server.mjs:162-163); the 'licences.created' date comes from the wall clock, not nowSec; the README files table has a blank line that splits the worker.mjs row out of the table (README.md:51).",
+    "claims": "Checked: product from price not custom_data (server.mjs:96, tested); claim stored only as hash (tested, recomputed); no personal data in key (decoded payload has v,p,t,s,iat[,exp] only); one-off keys not revocable (stated, README.md:33); secrets kept off the public edge Worker and Actions (tested). Wrong or stale: keygen.mjs:8 tells the owner to `wrangler secret put LICENCE_SIGNING_KEY (in platform/edge/)`, the public edge Worker the README and worker.mjs say must never hold it; billing.test.mjs:149 asserts 'Paddle's replay window is five minutes' while Paddle's docs say its SDKs default to five seconds; README.md:121-130 says Paddle's docs could not be checked, but they load now and every field it lists matches.",
+    "fitness": "The job is: the owner sells seven packs through Paddle and buyers unlock them. The code path is sound but nothing is deployed or priced, no sandbox purchase has run, so no revenue can flow yet; that is owner-gated and stated. Gaps the billing engineer hits: no handling of adjustment (refund/chargeback) or subscription.canceled events, so a refunded subscription keeps unlocking until its period end plus 7 days; a transaction with two catalogue prices issues one key only (first match). Scored 2: works on the path a single honest buyer takes, not yet usable.",
+    "domain": "Compared against Paddle's signature-verification page: ts:rawBody HMAC-SHA256, multiple h1 during rotation, timing-safe compare, all matched. Departure: a 300 s window against Paddle's 5 s SDK default; defensible (Stripe uses 300 s) because replays are idempotent (claim insert DO NOTHING, subscription upsert only moves exp forward), but the test's justification is wrong. Ed25519 offline keys with a public key in the page and expiry plus grace for subscriptions is standard practice. Entitlement revocation on refund is deliberately absent for one-offs (documented) and silently absent for subscriptions."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Paddle webhook HMAC over ts:rawBody on Paddle's documented example transaction.completed payload",
+      "method": "Paddle docs, webhooks/about/signature-verification (HMAC-SHA256 of ts + ':' + raw body, hex in h1), recomputed with openssl dgst -sha256 -hmac using an auditor-only dummy secret",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/aba16568-333e-59c2-9c78-15e24d2a1a6d/scratchpad/rc/recompute.mjs /tmp/claude-0/-home-user-oss-monorepo/aba16568-333e-59c2-9c78-15e24d2a1a6d/scratchpad (auditor's scratch script; imports platform/billing/server.mjs, client.mjs)",
+      "expected": "openssl h1 a72fdef8fa7c24fd3fc8a1f09cb8bc5632b4b6b4d3b80b8de046f6711aa6bf19 accepted; re-serialised body and 32-char truncated h1 refused",
+      "observed": "ok:true; also ok with '; h1=' and upper-case hex; re-serialised and truncated: 'signature mismatch'",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Licence key produced by signLicence verifies under an independent Ed25519 implementation",
+      "method": "openssl pkeyutl -verify -pubin -rawin over 'ms1.<payload>' with the SPKI-wrapped raw public key",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/aba16568-333e-59c2-9c78-15e24d2a1a6d/scratchpad/rc/recompute.mjs /tmp/claude-0/-home-user-oss-monorepo/aba16568-333e-59c2-9c78-15e24d2a1a6d/scratchpad (auditor's scratch script; imports platform/billing/server.mjs, client.mjs)",
+      "expected": "Signature Verified Successfully; payload {v,p,t,s,iat} only",
+      "observed": "Signature Verified Successfully; payload {v:1,p:shed-designer,t:one-off,s:txn_01hv8wptq8987qeep44cyrewp9,iat:1712917130}",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "A key signed by openssl (not the repo) verifies in verifyLicence, and expires at exp",
+      "method": "openssl pkeyutl -sign -rawin with the PKCS#8 key; exp set to 1716113927",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/aba16568-333e-59c2-9c78-15e24d2a1a6d/scratchpad/rc/recompute.mjs /tmp/claude-0/-home-user-oss-monorepo/aba16568-333e-59c2-9c78-15e24d2a1a6d/scratchpad (auditor's scratch script; imports platform/billing/server.mjs, client.mjs)",
+      "expected": "valid at now=1716113927, expired at 1716113928",
+      "observed": "valid:true at exp; 'this key has expired; renew it from the Buy button' one second later",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Subscription key expiry from Paddle's example payload billing_period.ends_at",
+      "method": "by hand: 2024-05-12T10:18:47Z = 1715509127 (python datetime), + GRACE_DAYS 7 x 86400 = 1716113927",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/aba16568-333e-59c2-9c78-15e24d2a1a6d/scratchpad/rc/recompute.mjs /tmp/claude-0/-home-user-oss-monorepo/aba16568-333e-59c2-9c78-15e24d2a1a6d/scratchpad (auditor's scratch script; imports platform/billing/server.mjs, client.mjs)",
+      "expected": "exp 1716113927, s = sub_01hv8x29kz0t586xy6zn1a62ny, claim null (renewal path)",
+      "observed": "exp 1716113927, s sub_01hv8x29kz0t586xy6zn1a62ny, claim null, subscription set",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Claim stored as SHA-256('ms-billing-claim:'+claim), never the claim itself",
+      "method": "openssl dgst -sha256 of the prefixed claim vs the claim_hash row in node:sqlite",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/aba16568-333e-59c2-9c78-15e24d2a1a6d/scratchpad/rc/recompute.mjs /tmp/claude-0/-home-user-oss-monorepo/aba16568-333e-59c2-9c78-15e24d2a1a6d/scratchpad (auditor's scratch script; imports platform/billing/server.mjs, client.mjs)",
+      "expected": "equal",
+      "observed": "equal (claim_hash_hand: true)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Duplicate deliveries of one transaction.completed are idempotent against the real schema",
+      "method": "three separately openssl-signed deliveries (ts, ts+60, ts+3600) through handleBilling into d1Store over node:sqlite with schema.sql applied twice",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/aba16568-333e-59c2-9c78-15e24d2a1a6d/scratchpad/rc/recompute.mjs /tmp/claude-0/-home-user-oss-monorepo/aba16568-333e-59c2-9c78-15e24d2a1a6d/scratchpad (auditor's scratch script; imports platform/billing/server.mjs, client.mjs)",
+      "expected": "200 each, one licences row, the first key still served and valid",
+      "observed": "[200,200,200], 1 row, claim key valid; re-applying schema.sql harmless",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "Shipped test suite",
+      "method": "run",
+      "command": "cd platform/billing && node --test billing.test.mjs",
+      "expected": "all pass",
+      "observed": "19 tests, 19 pass, 0 fail, 0 skipped (node:sqlite test ran), 0.44 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Venture copies in sync and testkit contract passes in consuming ventures",
+      "method": "run",
+      "command": "node platform/billing/sync.mjs --check; node --test buildpack.test.mjs / licence.test.mjs / closepack.test.mjs in shed-designer, wall-framing-takeoff, ai-bookkeeper",
+      "expected": "in sync; venture tests pass",
+      "observed": "'billing copies in sync'; 4/4, 2/2, 3/3 pass",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "Replay window against Paddle's documented tolerance",
+      "method": "Paddle docs: 'Our SDKs have a default tolerance of five seconds'",
+      "command": "grep -n TOLERANCE_SEC platform/billing/server.mjs; grep -n 'five minutes' platform/billing/billing.test.mjs",
+      "expected": "5 s, or a documented reason for more",
+      "observed": "300 s (server.mjs:23), justified in billing.test.mjs:149 as \"Paddle's replay window is five minutes\"; replay harmless given idempotency",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "keygen.mjs tells the owner where the signing key goes",
+      "method": "compare with README.md 'Where the billing Worker runs' and worker.mjs header",
+      "command": "grep -n platform/edge platform/billing/keygen.mjs",
+      "expected": "the separate billing Worker account",
+      "observed": "keygen.mjs:8 says '(in platform/edge/)', the public edge Worker that must never hold it",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "Paddle field names and Paddle.js calls listed under 'What is not verified'",
+      "method": "Paddle docs transaction.completed example and paddle-js checkout-open / client-side-tokens pages",
+      "command": "curl https://developer.paddle.com/webhooks/transactions/transaction-completed.md (and paddle-js pages)",
+      "expected": "id, status, items[].price.id, custom_data, subscription_id, billing_period.ends_at; Checkout.open({items:[{priceId,quantity}], customData}); tokens test_/live_",
+      "observed": "all match; the README's 'docs host does not resolve' is stale",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "Refund / cancellation ends entitlement",
+      "method": "read handleBilling: only transaction.completed acts",
+      "command": "grep -n event_type platform/billing/server.mjs",
+      "expected": "adjustment or subscription.canceled shortens a subscription key, or a documented limit",
+      "observed": "ignored (200); subscription keys run to period end + 7 days after a refund; only the one-off case is documented",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "server.mjs:29",
+      "change": "  if (a.length !== b.length) return false;\\n -> (deleted)",
+      "caught": false,
+      "test_cmd": "node --test billing.test.mjs"
+    },
+    {
+      "where": "server.mjs:52",
+      "change": "Math.abs(nowSec - Number(ts)) > TOLERANCE_SEC -> (nowSec - Number(ts)) > TOLERANCE_SEC",
+      "caught": true,
+      "test_cmd": "node --test billing.test.mjs"
+    },
+    {
+      "where": "client.mjs:88",
+      "change": "now > c.exp -> now >= c.exp + 86400",
+      "caught": true,
+      "test_cmd": "node --test billing.test.mjs"
+    },
+    {
+      "where": "server.mjs:137",
+      "change": "ON CONFLICT (sub_id) DO UPDATE SET licence = ?2, exp = ?3 WHERE exp < ?3 -> ... SET licence = ?2, exp = ?3",
+      "caught": true,
+      "test_cmd": "node --test billing.test.mjs"
+    },
+    {
+      "where": "server.mjs:96",
+      "change": "if (prod) break; -> (deleted)",
+      "caught": false,
+      "test_cmd": "node --test billing.test.mjs"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "The length check in the constant-time compare is untested: deleting it leaves all 19 tests green, and the mutant accepts a 1-character h1 matched only against the first hex digit, so a forged webhook mints a key in about 16 tries. The shipped code is correct; a refactor would not be caught. Add a test with a truncated or 1-char h1.",
+      "where": "platform/billing/server.mjs:29",
+      "category": "untested-core",
+      "origin": "tests",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19247"
+    },
+    {
+      "severity": "medium",
+      "what": "keygen.mjs tells the owner to put LICENCE_SIGNING_KEY on platform/edge/, the public site's edge Worker, which README.md and worker.mjs say must never hold a billing secret (Payments guardrail). The owner runs this file in step 1.",
+      "where": "platform/billing/keygen.mjs:8",
+      "category": "stale-docs",
+      "origin": "maintenance",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19247"
+    },
+    {
+      "severity": "low",
+      "what": "Refunds, chargebacks and immediate cancellations are not handled (adjustment.* and subscription.canceled are acknowledged and ignored), so a refunded subscription key keeps unlocking until the paid period's end plus 7 days; the README documents non-revocation only for one-off keys.",
+      "where": "platform/billing/server.mjs:169",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "The test justifies the 300 s window as \"Paddle's replay window is five minutes\"; Paddle's docs say its SDKs default to five seconds. 300 s is defensible because replays are idempotent, but the stated source is wrong.",
+      "where": "platform/billing/billing.test.mjs:149",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "'What is not verified' says Paddle's docs cannot be reached; they load now, and every field and Paddle.js call listed matches them, so the section can be closed.",
+      "where": "platform/billing/README.md:121",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    },
+    {
+      "severity": "low",
+      "what": "A transaction with two catalogue prices issues one key (first match, and that break is untested); unreachable from wireBuy, which opens one item, but a multi-item or API-created transaction would underdeliver.",
+      "where": "platform/billing/server.mjs:96",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "The webhook size cap compares raw.length (UTF-16 code units) after request.text() has read the whole body, so it neither bounds memory nor counts bytes.",
+      "where": "platform/billing/server.mjs:163",
+      "category": "input-handling",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19247"],
+  "verdict": "Meets the bar (correctness 3, claims 3, verification 3, median 3); finished (completeness 3). Against Paddle's own documentation and openssl, the webhook check is right (HMAC-SHA256 over ts:rawBody, rotated h1, timing-safe compare), keys round-trip through an independent Ed25519 implementation both ways, the subscription expiry on Paddle's example payload is exactly ends_at + 7 days (1716113927), the claim is stored only as its hash, and three deliveries of one transaction into the real schema leave one row and the first key. The product comes from the paid price id, so no currency arithmetic arises. Tests are strong (19/19; 3 of 5 seeded mutants caught), but the survivor that matters is the length check in the signature compare: deleting it makes webhooks forgeable and no test notices. The worst documentation defect is keygen.mjs telling the owner to set the signing key on the public edge Worker, against the README and the guardrail. Fitness is 2: nothing is priced or deployed yet (owner steps 0-7), and refunds or cancellations never shorten a subscription key."
+}

@@ -1,0 +1,254 @@
+{
+  "date": "2026-11-26",
+  "subject": "ventures/cmmc",
+  "stratum": "flagship",
+  "seed": "2026-11-26-c-40a7",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality round 109, see run record",
+  "status": "audited",
+  "professional": "a CMMC Registered Practitioner (or a C3PAO Certified CMMC Assessor) who prepares small contractors for Level 1/2 self-assessments; they check first that every requirement and 800-171A objective matches NIST's text, that the SPRS score uses the 32 CFR 170.24 / DoD Assessment Methodology 5/3/1 values with only the 3.5.3 and 3.13.11 partial credits and no score without an SSP, that a requirement is MET only when all its objectives are, that the Conditional-status POA&M rules (>= 88, 1-point items only bar 3.13.11 not-FIPS, the excluded six, 180 days) are applied, and that nothing promises certification or invites CUI uploads",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "Recomputed against sources the author did not write, fetched by the auditor and parsed with the auditor's own scripts (not scripts/extract_official_text.py): (1) the auditor's own 110-entry DoD Assessment Methodology v1.2.1 Annex A weight table (44x5, 14x3, 51x1, 3.12.4 unscored, sum 313, min -203) matches level2.ts 110/110; (2) the 5- and 3-point lists in 32 CFR 170.24(c)(2)(i)(B) read from eCFR today give 0 mismatches; (3) all 110 requirement statements equal NIST's sp800-171r2-security-reqs.xlsx (only diff: footnote markers [24][25] on 3.5.3); (4) all 320 objectives found verbatim in the SP 800-171A PDF text (5 split only by the PDF page footer, checked by eye); (5) 15/15 FAR 52.204-21(b)(1) texts and the 15->17 mapping of 170.15 Table 2 match the free page's l1-data.mjs, and its 59 objectives equal 800-171A with FCI read for CUI in exactly 3.1.22[b,d,e] and 3.8.3[a,b]. Scoring scenarios run through the shipped scoreLevel2/conditionalReadiness (esbuild bundle of src/shared/controls/scoring.ts): mixed gaps incl. both partial credits -> 94 (hand 94); SSP missing -> null; all unmet bar SSP -> -203; 88 from 1-pointers + 3.13.11 not-FIPS -> meets POA&M rules; 87 -> blocked; lone 3.10.3 gap -> 109 but blocked (excluded six); closeout 2026-01-15 + 180 d = 2026-07-14. All match. Correct given the statuses entered; the gap is that a requirement's status is not tied to its objective results (see domain).",
+    "completeness": "README feature table checked by running both suites: control library, per-control status and partial credit, spreadsheet import, evidence with the no-CUI attestation, score, POA&M eligibility and CSV, affirmation records and reminders, ISO 9001 checklist, SSP Markdown, AI drafting with FakeLlm, billing dark, legal acceptance, tenancy: pnpm test:unit 18 files / 258 tests pass; pnpm test:worker 10 files / 81 tests pass (workerd); pnpm typecheck clean. Deploy is not claimed (README: 'It has not run yet'); checkout ships dark and says so. UI not driven in a browser. No stubs found in src/shared/controls. portfolio/flagships.yaml 'next' still lists milestones (1), (2) and (4) as to build though the README records them done.",
+    "verification": "pnpm test:unit 258 pass, pnpm test:worker 81 pass. Nine non-equivalent mutants in src/shared/controls/scoring.ts via platform/ci/quality_mutate.py (private copy): partial-credit min dropped, SSP gate removed, 3.10.5 dropped from the excluded six, N/A not satisfied, closeout 179 days, partial key not tied to its requirement - 6 CAUGHT; score < 88 -> <= 88, POA&M weight === 1 -> <= 3, allMet hard-wired true - 3 SURVIVED both the unit and the worker suites. So a bug that let any 3-point requirement (3.1.5, 3.3.2, 3.8.8 ...) onto a Conditional-status POA&M, or that rejected a score of exactly 88, would ship green; those are the two rules the readiness card exists to apply. Tests are hand-derived and good on the score arithmetic itself.",
+    "craft": "Read scoring.ts (260 lines), level2.ts (header, build(), rows), level1.ts, sources.ts, docs/SOURCES.md, services/controls/index.ts (updateControl), client/views/Controls.tsx and Dashboard.tsx. Scoring is pure, cited line by line, typed (weight: 0|1|3|5), with the partial-credit key validated server-side against the requirement and cleared when the status leaves partial; official-text.test.ts pins the library to an extracted copy of the sources. Concerns: the requirement status and objectiveResults are stored and edited independently with no consistency check; the objective select cannot be cleared back to unanswered (Controls.tsx:316 'e.target.value &&'); the Level 1 library is retyped in level1.ts rather than imported from l1-data.mjs as flagships.yaml asks (the copies agree today); single-objective requirements are labelled [a] where 800-171A gives none (cosmetic).",
+    "claims": "README 'Not a certification, not a C3PAO, not government-endorsed', 'never submits anything' - backed: SCOPE_DISCLAIMER (enums.ts:14) is in the SSP, the dashboard calls it 'SPRS score (self-assessed)', conditionalReadiness says it is a planning aid. 'Not a CUI enclave... uploads require the uploader to attest' - backed and enforced server-side (routes/org/index.ts:292 rejects without noCui=true), repeated in terms.md and the SSP disclaimer. 'Checked word for word ... on 2026-11-25' - reproduced independently by this audit. Free page: '15 requirements', '59 objectives', 'five objectives where we read FCI', 'no score, no POA&M', 'every year ... 170.22', mapping per 170.15 - all verified against eCFR/800-171A; footer 'not a CMMC assessment, a certification or an SPRS submission', 'Neither product certifies anyone', 'Neither is released yet' - accurate. Served copy at https://marisstella.app/machine-shop-guides/cmmc-level-1-self-assessment loads (200) with the same text. Minor: the POA&M reason strings cite 32 CFR 170.21(a)(2)(iv) and (iii) where eCFR numbers them (iii) and (ii); flagships.yaml 'next' is stale.",
+    "fitness": "Walked a small shop's Level 2 job: enter statuses for 110 requirements (or import a workbook), record per-objective results, get the score and Conditional-status blockers, generate SSP and POA&M, record the SPRS affirmation and get reminders. The arithmetic is what an RP would compute. Gaps in the first hour: a requirement can be marked Implemented while one of its objectives is Not met and it scores full points, which overstates the SPRS figure the affirming official enters; there is no way to record an enduring exception (in the SSP) or a temporary deficiency under an operational plan of action, which 170.24(b)(1)(i)-(ii) assesses as MET, so users must mark them Implemented without a trace or lose the points. And no contractor can use it today: the app is not deployed and billing is dark.",
+    "domain": "Compared with 32 CFR 170.24 and 170.21 (read on eCFR today) and the DoD Assessment Methodology v1.2.1: values, the two partial credits (3 for MFA only on remote/privileged users; 3 for non-FIPS encryption, 5 when none), SSP-absent -> no score, N/A = MET, the 0.8 threshold, 1-point-only POA&M with the 3.13.11 exception, the six excluded requirements and the 180-day closeout are all right, and Level 1 is pass/fail with no POA&M. Departures: 170.24(b)(1) defines MET as 'all applicable objectives ... satisfied', but the app scores the requirement status the user picks, not its objectives; enduring exceptions and temporary deficiencies with an operational plan of action are not modelled. An RP would sign off on the scoring engine with those two limits stated, which the README does not state."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "DoD point values for all 110 requirements and the -203 minimum",
+      "method": "auditor's own DoD Assessment Methodology v1.2.1 Annex A table, and the 5/3-point lists parsed from 32 CFR 170.24(c)(2)(i)(B) on eCFR (fetched 2026-11-26)",
+      "command": "node weights.bundle.mjs (auditor's esbuild bundle of a probe importing private-monorepo/apps/cmmc/src/shared/controls/level2.ts and scoring.ts); python3 -I compare of eCFR 170.24 lists with level2 weights",
+      "expected": "110 of 110 equal; 44x5, 14x3, 51x1, 3.12.4 unscored; MIN_SCORE -203",
+      "observed": "0 mismatches against both; MIN_SCORE -203; 320 objectives",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Scenario A: 3.1.1 not implemented, 3.5.3 MFA remote+privileged only, 3.13.11 encryption not FIPS, 3.1.3 partial (no credit), 3.4.9 and 3.8.8 not implemented, 3.10.6 N/A, rest implemented",
+      "method": "by hand from 170.24(c)(2): 110 - 5 - 3 - 3 - 1 - 1 - 3 - 0 = 94; POA&M blockers 3.1.1 (5), 3.5.3 (3), 3.8.8 (3); 3.13.11 at 3 allowed",
+      "command": "node weights.bundle.mjs (scoreLevel2 / conditionalReadiness)",
+      "expected": "score 94; blockers 3.1.1, 3.5.3, 3.8.8 only",
+      "observed": "score 94; blockers 3.1.1, 3.5.3, 3.8.8",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "88 threshold: 3.13.11 not-FIPS (3) + 19 one-point gaps = 88; one more 1-point gap = 87",
+      "method": "32 CFR 170.21(a)(2)(i)-(ii): score/110 >= 0.8, 1-point items plus 3.13.11 not-FIPS",
+      "command": "node weights.bundle.mjs (scenarios H2, H3)",
+      "expected": "88 meets the POA&M rules; 87 blocked on the threshold",
+      "observed": "88 meetsPoamRules true, no blockers; 87 blocked 'Score 87 is below 88'",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "SSP missing, excluded-six, all-unmet and closeout",
+      "method": "170.24(c)(2)(i)(B)(5) (no SSP -> assessment cannot be completed); 170.21(a)(2)(iii) list; 170.21(b) 180 days; calendar count",
+      "command": "node weights.bundle.mjs (scenarios C, D, E, F, closeout)",
+      "expected": "3.12.4 unmet -> score null; lone 3.10.3 gap -> 109 but POA&M-blocked; all unmet but SSP -> -203; 2026-01-15 + 180 d = 2026-07-14",
+      "observed": "null (provisional 110); 109 blocked by 3.10.3; -203; 2026-07-14",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "110 requirement statements and 320 SP 800-171A objectives",
+      "method": "NIST sp800-171r2-security-reqs.xlsx parsed by the auditor's own zip/XML reader; NIST.SP.800-171A.pdf through pdftotext, whitespace-normalised substring search",
+      "command": "python3 -I xl2.py reqs.xlsx; python3 -I compare against app_reqs.json dumped from level2.ts",
+      "expected": "all equal",
+      "observed": "110/110 statements equal (only footnote markers on 3.5.3 differ); 315/320 objectives found verbatim, the other 5 (3.1.5[d], 3.1.13[a,b], 3.4.1[b], 3.13.9[c]) split by the PDF page footer and equal by eye",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "free page: 15 FAR requirements verbatim, 17 NIST numbers per 170.15 Table 2, 59 objectives, 5 FCI-for-CUI substitutions",
+      "method": "FAR 52.204-21 and 32 CFR 170.15 fetched from eCFR; objectives compared with the 800-171A-verified set",
+      "command": "node l1.mjs dump of ventures/machine-shop-guides/l1-data.mjs; python3 -I compare",
+      "expected": "15/15 texts, mapping equal, 59 objectives, substitutions flagged",
+      "observed": "15/15 texts (eCFR's '( i.e.' spacing aside), mapping equal, 59/59 objectives equal, FCI read in 3.1.22[b,d,e] and 3.8.3[a,b], all flagged; app level1.ts agrees with the page",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "no certification overclaim; do-not-upload-CUI guidance present and enforced",
+      "method": "read README, SCOPE_DISCLAIMER, terms.md, the page footer; check the upload route",
+      "command": "grep -rn -i 'not upload\\|no CUI' private-monorepo/apps/cmmc/src README.md docs; curl -sSL https://marisstella.app/machine-shop-guides/cmmc-level-1-self-assessment.html",
+      "expected": "no claim of certification/C3PAO/DoD endorsement; CUI warning in UI, docs and server check",
+      "observed": "disclaimer in SSP, dashboard and page footer; routes/org/index.ts:292 rejects uploads without noCui=true; served page 200 with 'Neither product certifies anyone'",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "regulation citations in the POA&M reason strings",
+      "method": "32 CFR 170.21 on eCFR: (a)(2)(ii) is the 1-point rule, (a)(2)(iii) the excluded six",
+      "command": "grep -n '170.21(a)(2)' private-monorepo/apps/cmmc/src/shared/controls/scoring.ts",
+      "expected": "(a)(2)(iii) for the excluded six, (a)(2)(ii) for 1-point only",
+      "observed": "scoring.ts:178 says (a)(2)(iv), scoring.ts:189 says (a)(2)(iii)",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "requirement MET only when all its objectives are met",
+      "method": "32 CFR 170.24(b)(1)-(2)",
+      "command": "sed -n 69,130p private-monorepo/apps/cmmc/src/worker/services/controls/index.ts; sed -n 160,175p same file",
+      "expected": "an objective marked Not met blocks Implemented, or at least warns",
+      "observed": "status and objectiveResults saved independently; scoring reads status only (index.ts:170), so Implemented with a Not met objective scores full points",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "enduring exceptions and temporary deficiencies under an operational plan of action",
+      "method": "32 CFR 170.24(b)(1)(i)-(ii): assessed as MET",
+      "command": "grep -rn -i 'operational plan\\|enduring exception\\|temporary deficien' private-monorepo/apps/cmmc/src",
+      "expected": "a status or flag that scores MET and records the plan",
+      "observed": "no match: not modelled",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "unit and worker suites, typecheck",
+      "method": "run",
+      "command": "pnpm test:unit; pnpm test:worker; pnpm typecheck (in private-monorepo/apps/cmmc after pnpm install --frozen-lockfile)",
+      "expected": "all pass",
+      "observed": "18 files / 258 unit tests pass; 10 files / 81 worker tests pass; tsc clean",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "flagships.yaml 'next' matches the README",
+      "method": "compare",
+      "command": "sed -n 161,184p portfolio/flagships.yaml",
+      "expected": "only open milestones listed",
+      "observed": "milestones (1) library+score, (2) SSP/POA&M and (4) ISO 9001 checklist still listed though README and ROADMAP record them done",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "private-monorepo/apps/cmmc/src/shared/controls/scoring.ts:93",
+      "change": "if (rule) return Math.min(rule.deduction, req.weight); -> if (rule) return req.weight;",
+      "caught": true,
+      "test_cmd": "npx vitest run --config vitest.unit.config.ts src/shared/controls"
+    },
+    {
+      "where": "private-monorepo/apps/cmmc/src/shared/controls/scoring.ts:155",
+      "change": "score: sspImplemented ? provisionalScore : null -> score: provisionalScore",
+      "caught": true,
+      "test_cmd": "npx vitest run --config vitest.unit.config.ts src/shared/controls"
+    },
+    {
+      "where": "private-monorepo/apps/cmmc/src/shared/controls/scoring.ts:73",
+      "change": "drop \"3.10.5\" from POAM_EXCLUDED_NIST_IDS",
+      "caught": true,
+      "test_cmd": "npx vitest run --config vitest.unit.config.ts src/shared/controls"
+    },
+    {
+      "where": "private-monorepo/apps/cmmc/src/shared/controls/scoring.ts:84",
+      "change": "s === \"implemented\" || s === \"not_applicable\" -> s === \"implemented\"",
+      "caught": true,
+      "test_cmd": "npx vitest run --config vitest.unit.config.ts src/shared/controls"
+    },
+    {
+      "where": "private-monorepo/apps/cmmc/src/shared/controls/scoring.ts:258",
+      "change": "+ POAM_CLOSEOUT_DAYS -> + POAM_CLOSEOUT_DAYS - 1",
+      "caught": true,
+      "test_cmd": "npx vitest run --config vitest.unit.config.ts src/shared/controls"
+    },
+    {
+      "where": "private-monorepo/apps/cmmc/src/shared/controls/scoring.ts:91",
+      "change": "r.nistId === req.nistId && r.key === state.partialCredit -> r.key === state.partialCredit",
+      "caught": true,
+      "test_cmd": "npx vitest run --config vitest.unit.config.ts src/shared/controls"
+    },
+    {
+      "where": "private-monorepo/apps/cmmc/src/shared/controls/scoring.ts:217",
+      "change": "s.score < CONDITIONAL_MIN_SCORE -> s.score <= CONDITIONAL_MIN_SCORE",
+      "caught": false,
+      "test_cmd": "npx vitest run --config vitest.unit.config.ts; npx vitest run --config vitest.worker.config.ts"
+    },
+    {
+      "where": "private-monorepo/apps/cmmc/src/shared/controls/scoring.ts:183",
+      "change": "if (req.weight === 1) return -> if (req.weight <= 3) return",
+      "caught": false,
+      "test_cmd": "npx vitest run --config vitest.unit.config.ts; npx vitest run --config vitest.worker.config.ts"
+    },
+    {
+      "where": "private-monorepo/apps/cmmc/src/shared/controls/scoring.ts:229",
+      "change": "allMet: s.deductions.length === 0 -> allMet: true",
+      "caught": false,
+      "test_cmd": "npx vitest run --config vitest.unit.config.ts"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "A requirement's status is stored and scored independently of its 800-171A objective results: Implemented with an objective marked Not met scores full points, though 32 CFR 170.24(b)(1) makes a requirement MET only when all applicable objectives are satisfied. The SPRS figure the affirming official enters can be overstated with no warning.",
+      "where": "private-monorepo/apps/cmmc/src/worker/services/controls/index.ts:104",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "POA&M eligibility is untested for a 3-point requirement other than 3.13.11 and for a score of exactly 88: mutants 'weight === 1 -> weight <= 3' and '< 88 -> <= 88' survive both the unit and worker suites, so a regression that lets 3.1.5 or 3.8.8 onto a Conditional-status POA&M, or rejects 88, would ship green.",
+      "where": "private-monorepo/apps/cmmc/src/shared/controls/scoring.ts:183",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "Enduring exceptions (described in the SSP) and temporary deficiencies under an operational plan of action, which 32 CFR 170.24(b)(1)(i)-(ii) assesses as MET, cannot be recorded; users must mark them Implemented without a trace or take the deduction.",
+      "where": "private-monorepo/apps/cmmc/src/shared/controls/scoring.ts:25",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "POA&M reason strings cite 32 CFR 170.21(a)(2)(iv) for the excluded six and (a)(2)(iii) for the 1-point rule; eCFR numbers them (a)(2)(iii) and (a)(2)(ii).",
+      "where": "private-monorepo/apps/cmmc/src/shared/controls/scoring.ts:178",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "conditionalReadiness().allMet is untested (hard-wiring it true survives the unit suite).",
+      "where": "private-monorepo/apps/cmmc/src/shared/controls/scoring.ts:229",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "An objective result, once set, cannot be cleared back to unanswered: the select ignores the empty option.",
+      "where": "private-monorepo/apps/cmmc/src/client/views/Controls.tsx:316",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "The Level 1 library is retyped in level1.ts instead of imported from ventures/machine-shop-guides/l1-data.mjs as flagships.yaml asks; the two copies agree today but nothing keeps them equal.",
+      "where": "private-monorepo/apps/cmmc/src/shared/controls/level1.ts:1",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "flagships.yaml 'next' for cmmc still lists milestones (1) library and score, (2) SSP and POA&M and (4) the ISO 9001 checklist as to build; README and ROADMAP record them done 2026-11-25.",
+      "where": "portfolio/flagships.yaml:171",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Misses the bar on verification (correctness 3, claims 3, verification 2, median 3); finished (completeness 3). The scoring engine is right: point values agree 110/110 with an independent DoD Methodology table and with 32 CFR 170.24's lists read from eCFR today, all 110 requirement statements match NIST's spreadsheet and all 320 objectives the 800-171A PDF, and seven scoring scenarios (partial credits for 3.5.3 and 3.13.11, no SSP -> no score, -203 floor, the 88 threshold both sides, the excluded six, 180-day closeout) match hand arithmetic. The free Level 1 page is accurate to FAR 52.204-21 and 170.15, and no surface claims certification; the no-CUI rule is enforced on upload. Tests pass (258 unit, 81 worker) but 3 of 9 seeded mutants survive, two of them in the Conditional-status POA&M gate. The worst domain gap is that a requirement's status is not tied to its objectives, so Implemented with a Not-met objective scores full points; enduring exceptions and operational plans of action are not modelled, and the app is not deployed."
+}

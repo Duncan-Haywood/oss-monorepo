@@ -1,0 +1,216 @@
+{
+  "date": "2026-11-26",
+  "subject": "ventures/portable-restroom-event-quote",
+  "stratum": "venture",
+  "seed": "2026-11-26-c-40a7",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality round 109, see run record",
+  "status": "audited",
+  "professional": "a portable sanitation operator's event planner / estimator; they check first that the unit count for the crowd and hours matches the PSAI Special Event Chart (and the local health code), that accessible units are at least 5% and not less than one per cluster, that handwash stations are sized, that rent runs drop day to pickup day, that every truck trip (delivery, each service run, pickup) carries its mileage, and that margin is taken on price, not as a markup on cost",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Pricing arithmetic is exact: the shipped weekend example (4 standard at $18/day + $28 service, 1 ADA at $40 + $38, 3 days, 1 extra service, $85 + $85 haul fees, 18 mi at $3.50 x 4 legs, $8/unit consumables, 12% overhead, 25% margin) recomputed by hand gives rental 336, service 150, haul 422, consumables 40, direct 948, total cost 1061.76, price 1061.76 / 0.75 = 1415.68, and a $750 flat quote $311.76 under cost; calculateQuote returns the same to the cent (node -e probe). Proposal deposit 33% of 1415.68 = 467.17 + balance 948.51 = 1415.68, and price-held date 2026-11-26 + 30 = 2026-12-26, both match. The fleet estimate is wrong against the industry source: the PSAI Special Event Chart (Extended Breakdown, 'units required when no pumping service is provided', via the henniker.org copy of the PSAI sheet) gives 5 units for 500 people x 4 h, 9 for 500 x 8 h, 8 for 1,000 x 4 h, 12 for 1,000 x 8 h, 50 for 10,000 x 4 h and 100 for 10,000 x 8 h; suggestFleet returns 10, 17, 20, 34, 200 and 334 (2x to 4x), so the light-fleet flag fires on a fleet sized to the PSAI chart. ADA split (max(1, ceil(5%))) matches the 5%-not-less-than-one cluster rule. Service visits add no truck mileage (3 visits on an 18-mile job: mileageCost still 252).",
+    "completeness": "README and JSON-LD featureList checked against code and tests: days-on-site rental, pump-outs, 4-leg mileage, weekend haul premium, consumables, overhead, margin-on-price, walk-away price, price per unit-day and per attendee, proposed-price check, fleet estimate with alcohol and food adjustments, saved quote, share link (share.mjs, 468-line test), printable proposal with deposit split, price-held date and signature line (proposal.mjs), usage tally with DNT/GPC skip: all present, node --test '*.test.mjs' 140/140 pass. No TODOs or dead links in the four pages. README privacy section and event list are stale (it says the usage tally is the only thing stored, but the quote and company details are also saved; events proposal_printed, link_copied and company_forgotten are not listed).",
+    "verification": "node --test '*.test.mjs' in the subject dir: 140 pass, 0 fail (0.26 s). Seven seeded mutants via quality_mutate.py: alcohol 0.8 -> 0.9, mileage 4 -> 2 legs, handwash /4 -> /5, 8-hour row 30 -> 32, weekend premium on rent too: all CAUGHT; ADA Math.max(1, ...) dropped SURVIVED but is an equivalent mutant (ceil(n x 0.05) >= 1 for any n >= 1); overhead excluding otherCost SURVIVED (no test combines other cost with overhead). Tests check the author's own table, so they would not catch the table itself being off the PSAI chart.",
+    "craft": "Read calc.mjs (217 lines), proposal.mjs (deposit/addDays), index.html inline script (unit rows, verdict, fleet apply), usage.mjs. calc.mjs is pure, validates every number, takes margin on price and guards margin >= 100. Defects: restrooms vs non-restrooms are classified by a regex on the user-typed row name (calc.mjs:171), so a 'Restroom trailer' counts as zero restrooms and trips the light flag, while a row typed 'Hand wash' counts as a restroom; index.html re-hardcodes the preset rents (lines 314, 665-678) instead of reading UNIT_PRESETS; an 897-line single-file page.",
+    "claims": "vs-a-flat-saturday-special-price: every number ($1,061.76 cost, $1,415.68 price, $750, $311.76, $665.68) recomputed and backed by calc.mjs. README '$125 special on five units is $625, below cost on an 18-mile two-day job before overhead': direct cost 836 > 625, backed. vs-servicecore: no price claimed (test enforces no '$'); 'founded in 2017' and 'the company states it hires more people out of the portable sanitation and dumpster industries than any other software company' match ServiceCore's own FAQ on the web, but no file in the repo backs them and vs-servicecore.test.mjs says the vendor site could not be reached when written; non-affiliation line present. index FAQ 'a mid-event service run ... is an additional round trip the pump-out count should reflect' is false: pump-out count adds no mileage. how-many.html says 'about 20% more restrooms when alcohol is served' but the 0.8 factor gives 25% more; it calls its table 'a common event-planning pattern' while it is 2-4x the PSAI chart, with no citation. Disclaimer present on all four pages and the proposal; usage tracking present with opt-out, DNT and GPC. llms.txt github.io URLs are rewritten at deploy (served-copy.mjs: no placeholder or retired origin left), so source-only.",
+    "fitness": "Walked an estimator's weekend wedding job: entering units, days, one service visit, miles and margin gives a defensible price and walk-away floor in a minute, and the printed proposal hides costs. First-hour gaps: the mid-event service truck's mileage must be baked into 'service each' by hand; a festival with several restroom clusters needs one accessible unit per cluster, not 5% of the total; the starting fleet suggestion over-counts 2-4x vs PSAI and flags a correctly sized fleet as light, which an estimator would learn to ignore or which would push a bid high against competitors who size from the PSAI chart; restroom trailers break the light-fleet comparison. No construction/monthly-rental mode (OSHA 1926.51 Table D-1), which is out of the stated event scope.",
+    "domain": "Pricing method matches operator practice: rent per day on site, drop and pickup as two round trips, weekend premium on haul, margin on price (not markup). Sizing departs from the PSAI Special Event Chart, the standard reference (one unit ~200 uses, crowd x hours), by 2-4x, and the people-per-unit table (50/40/30/25/20/16 by hours) and handwash 1-per-4-with-food split have no cited source. Alcohol +25% sits inside the 10-25% range local rules use (e.g. a Georgia rule adds 25%). Accessible units at max(1, ceil(5%)) match ADA 2010 Standards 213.2 Exception 4 / 1991 ADAAG 4.1.2(6) ('at least 5%, not less than one, at each cluster'), but only for a single cluster. Service visits are priced as a per-unit fee with no truck trip."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "fleet for 500 / 1,000 / 10,000 attendees at 4 h and 8 h, no alcohol",
+      "method": "PSAI Special Event Chart, Extended Breakdown (PSAI sheet, copy at henniker.org/.../portable_sanitation_chart.pdf): 500x4h 5, 500x8h 9, 1,000x4h 8, 1,000x8h 12, 10,000x4h 50, 10,000x8h 100",
+      "command": "node -e \"import('./calc.mjs').then(({suggestFleet})=>...suggestFleet({attendees:a,eventHours:h}))\"",
+      "expected": "5 / 9 / 8 / 12 / 50 / 100",
+      "observed": "10 / 17 / 20 / 34 / 200 / 334",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "shipped weekend example price and break-even",
+      "method": "by hand: rental 4x18x3 + 40x3 = 336; service 4x28 + 38 = 150; haul 85 + 85 + 4x18x3.50 = 422; consumables 5x8 = 40; direct 948; overhead 12% = 113.76; cost 1061.76; price 1061.76 / (1 - 0.25) = 1415.68; $750 proposed -> profit -311.76",
+      "command": "node -e \"import('./calc.mjs').then(({calculateQuote})=>calculateQuote({...shipped fleet, daysOnSite:3, serviceVisits:1, proposedPrice:750}))\"",
+      "expected": "direct 948, cost 1061.76, price 1415.68, proposed profit -311.76",
+      "observed": "336 150 422 40 948 1061.76 1415.68 profit -311.76 belowBreakEven true",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "accessible-unit share",
+      "method": "ADA 2010 Standards 213.2 Exception 4 and 1991 ADAAG 4.1.2(6): at least 5%, not less than one, per cluster of single-user portable units",
+      "command": "suggestFleet for 200x4h, 1,000x8h, 10,000x8h",
+      "expected": "1 of 4, 2 of 34, 17 of 334",
+      "observed": "ada 1, 2, 17",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "proposal deposit split and price-held date",
+      "method": "by hand: 33% x 1415.68 = 467.1744 -> 467.17; balance 948.51; sum 1415.68; 2026-11-26 + 30 days = 2026-12-26",
+      "command": "node -e \"import('./proposal.mjs').then(m=>m.buildProposal({companyName:'Yard',clientName:'C',price:1415.68,depositPercent:33,validDays:30,issuedOn:'2026-11-26'}))\"",
+      "expected": "467.17 / 948.51 / 2026-12-26",
+      "observed": "467.17 / 948.51 / 2026-12-26",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "mid-event service visits carry truck mileage",
+      "method": "operator practice: each service run is another round trip (2 x one-way miles); index.html FAQ says the pump-out count should reflect it",
+      "command": "calculateQuote shipped fleet, 18 mi, serviceVisits 3",
+      "expected": "mileage 4x18x3.5 + 3x2x18x3.5 = 630",
+      "observed": "mileageCost 252 (unchanged by visits)",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "alcohol adjustment",
+      "method": "local-rule range 10-25% more units (Georgia rule +25%, Auburn AL 10-20%)",
+      "command": "suggestFleet 200x8h alcohol true vs false",
+      "expected": "+10-25%",
+      "observed": "7 -> 9 units (ppu 30 -> 24, i.e. +25%)",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "restroom classification for the light-fleet flag",
+      "method": "a restroom trailer is restrooms; a handwash row is not",
+      "command": "calculateQuote({units:[{name:'Restroom trailer',...}],attendees:200,eventHours:4}); same with name 'Hand wash station'",
+      "expected": "trailer counts; hand wash does not",
+      "observed": "trailer: quotedRestrooms 0, restroomsLookLight true; 'Hand wash station' x4: quotedRestrooms 4, light false",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "node --test '*.test.mjs' (in ventures/portable-restroom-event-quote)",
+      "expected": "all pass",
+      "observed": "140 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "vs-a-flat-saturday-special-price worked example figures",
+      "method": "recompute against calc.mjs (check 2)",
+      "command": "sed -e 's/<[^>]*>//g' vs-a-flat-saturday-special-price.html | grep 1,061",
+      "expected": "$1,061.76 / $1,415.68 / $750 / $311.76 / $665.68",
+      "observed": "all five match",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "vs-servicecore competitor facts ('founded in 2017', 'hires more people out of the portable sanitation and dumpster industries'), no price",
+      "method": "look for a file in the repo backing them; web check of servicecore.com FAQ",
+      "command": "grep -rli servicecore --include=*.md --include=*.yaml --include=*.json .; sed -n 15,28p vs-servicecore.test.mjs",
+      "expected": "a source file or citation",
+      "observed": "no source file; the test says the vendor site was not reachable when written; both facts match ServiceCore's own FAQ on the web (third-party profiles say 2015); no '$' figure on the page",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "how-many.html alcohol claim and table source",
+      "method": "compare with calc.mjs and the PSAI chart",
+      "command": "grep -n '20% more' how-many.html",
+      "expected": "factor stated matches code; table cited",
+      "observed": "'about 20% more restrooms' vs code's 1/0.8 = +25%; table called 'a common event-planning pattern', uncited and 2-4x PSAI",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "disclaimer and usage tracking on every surface",
+      "method": "grep",
+      "command": "grep -l 'No warranty' *.html; grep -n 'doNotTrack\\|globalPrivacyControl' usage.mjs",
+      "expected": "all four pages; DNT/GPC respected; opt-out",
+      "observed": "present on index, how-many, both vs pages and the proposal; usage.mjs:21 skips on DNT/GPC; footer opt-out",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {"where": "calc.mjs:55", "change": "return alcohol ? base * 0.8 : base; -> return alcohol ? base * 0.9 : base;", "caught": true, "test_cmd": "sh -c node --test *.test.mjs"},
+    {"where": "calc.mjs:144", "change": "const mileageCost = 4 * milesOneWay -> const mileageCost = 2 * milesOneWay", "caught": true, "test_cmd": "sh -c node --test *.test.mjs"},
+    {"where": "calc.mjs:72", "change": "Math.max(1, Math.ceil(restroomUnits * 0.05)) -> Math.ceil(restroomUnits * 0.05) (equivalent mutant: ceil of a positive count x 0.05 is already >= 1)", "caught": false, "test_cmd": "sh -c node --test *.test.mjs"},
+    {"where": "calc.mjs:74", "change": "Math.ceil(restroomUnits / 4) -> Math.ceil(restroomUnits / 5)", "caught": true, "test_cmd": "sh -c node --test *.test.mjs"},
+    {"where": "calc.mjs:32", "change": "{ maxHours: 8, peoplePerUnit: 30 } -> { maxHours: 8, peoplePerUnit: 32 }", "caught": true, "test_cmd": "sh -c node --test *.test.mjs"},
+    {"where": "calc.mjs:146", "change": "const weekendPremium = haulBase * weekendPremiumPct / 100; -> const weekendPremium = (haulBase + rentalCost) * weekendPremiumPct / 100;", "caught": true, "test_cmd": "sh -c node --test *.test.mjs"},
+    {"where": "calc.mjs:151", "change": "const overhead = directCost * overheadRate / 100; -> const overhead = (directCost - otherCost) * overheadRate / 100;", "caught": false, "test_cmd": "sh -c node --test *.test.mjs"}
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "The people-per-unit table (50/40/30/25/20/16 by event hours) is uncited and suggests 2x to 4x the units of the PSAI Special Event Chart (500 people x 4 h: 10 vs 5; 1,000 x 8 h: 34 vs 12; 10,000 x 8 h: 334 vs 100), even though the PSAI chart is the no-pumping case. The light-fleet flag therefore tells an operator whose fleet is sized to the PSAI chart that it is below the starting estimate, and the 'How many porta potties for 200 people?' SEO page headlines these figures as 'a common planning starting point'.",
+      "where": "ventures/portable-restroom-event-quote/calc.mjs:29",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Extra service visits are priced only as a per-unit pump-out fee; the service truck's round trip adds no mileage (3 visits on an 18-mile job leaves mileage at 252), while the index FAQ says a mid-event service run 'is an additional round trip the pump-out count should reflect'.",
+      "where": "ventures/portable-restroom-event-quote/calc.mjs:144",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "FAQ claim that the pump-out count reflects the service run's round trip is false against calc.mjs (pump-outs add no haul).",
+      "where": "ventures/portable-restroom-event-quote/index.html:238",
+      "category": "overclaim",
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19247"
+    },
+    {
+      "severity": "low",
+      "what": "Restrooms are told apart from other rows by a regex on the user-typed name: a 'Restroom trailer' counts as zero restrooms and trips the light-fleet flag; a row typed 'Hand wash station' (with a space) counts as four restrooms.",
+      "where": "ventures/portable-restroom-event-quote/calc.mjs:171",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "how-many.html says alcohol means 'about 20% more restrooms'; the code's 0.8 people-per-unit factor gives 25% more (7 -> 9 at 8 h for 200).",
+      "where": "ventures/portable-restroom-event-quote/how-many.html:33",
+      "category": "overclaim",
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19247"
+    },
+    {
+      "severity": "low",
+      "what": "vs-servicecore states 'founded in 2017' and that ServiceCore 'hires more people out of the portable sanitation and dumpster industries than any other software company' with no file or citation backing them (its test says the vendor site was not reachable); they match ServiceCore's own FAQ, but other profiles give 2015.",
+      "where": "ventures/portable-restroom-event-quote/vs-servicecore.html:42",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "Accessible units are 5% of the whole fleet; the ADA rule is at least 5%, not less than one, at each cluster, so a multi-cluster festival site is under-counted. Handwash 1-per-4-restrooms-with-food has no cited source.",
+      "where": "ventures/portable-restroom-event-quote/calc.mjs:72",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Overhead applied to other cost is untested: a mutant that leaves otherCost out of the overhead base survives the 140 tests.",
+      "where": "ventures/portable-restroom-event-quote/calc.mjs:151",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "README privacy section says the usage tally is the only thing stored, but the page also saves the quote and company details in localStorage; its event list omits proposal_printed, link_copied and company_forgotten.",
+      "where": "ventures/portable-restroom-event-quote/README.md:89",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    }
+  ],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19247"],
+  "verdict": "Does not meet the bar (correctness 2, claims 2, median 2); finished (completeness 3). The pricing engine is exact: the shipped weekend example, recomputed by hand, matches calculateQuote to the cent ($1,061.76 cost, $1,415.68 price, $750 flat quote $311.76 under water), margin is taken on price, the proposal's deposit split and held-until date are right, and 140 tests pass with 5 of 6 non-equivalent seeded mutants caught. What fails a portable sanitation estimator is the sizing: the uncited people-per-unit table suggests 2-4x the units in the PSAI Special Event Chart, so the light-fleet flag misfires on a correctly sized fleet and the 'how many for 200 people' SEO page leads with inflated counts. Service visits also carry no truck mileage while the FAQ says they should. Citing and adopting the PSAI chart (and pricing a round trip per service visit) would likely lift correctness, claims and domain to 3."
+}

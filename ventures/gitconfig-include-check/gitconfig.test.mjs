@@ -75,6 +75,15 @@ test("hasconfig: reads remote URLs from the local config and flags a scheme mism
   assert.equal(ok.effective["user.email"].value, "a@acme");
 });
 
+test("quality round 109: hasconfig takes no trailing-slash ** (git 2.43: acme/ misses, acme/** matches)", () => {
+  const f = (pat) => `[user]\nemail = me@home\n[includeIf "hasconfig:remote.*.url:${pat}"]\n\tpath = x\n==> ~/x <==\n[user]\nemail = me@acme\n`;
+  const remotes = ["https://github.com/acme/api.git"];
+  const slash = run(f("https://github.com/acme/"), { remotes });
+  assert.equal(slash.directives[0].matched, false);
+  assert.equal(slash.effective["user.email"].value, "me@home");
+  assert.equal(run(f("https://github.com/acme/**"), { remotes }).effective["user.email"].value, "me@acme");
+});
+
 test("a remote URL inside a conditional include stops git once hasconfig is used", () => {
   const r = run("[includeIf \"gitdir:~/work/\"]\n\tpath = x\n[includeIf \"hasconfig:remote.*.url:*\"]\n\tpath = y\n==> ~/x <==\n[remote \"o\"]\n\turl = u\n");
   assert.match(r.fatal.message, /remote URLs cannot be configured/);

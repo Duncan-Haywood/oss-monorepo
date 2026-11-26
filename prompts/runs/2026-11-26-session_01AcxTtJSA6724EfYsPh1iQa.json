@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtJSA6724EfYsPh1iQa",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T06:07:24Z",
+  "ended": "2026-11-26T06:19:11Z",
+  "wall_minutes": 11.97,
+  "tokens_in": 17851870,
+  "tokens_out": 136720,
+  "cost_usd": 9.539,
+  "tool_calls": 196,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19247",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "My first gitconfig fix used str.replace, which replaced both identical 'pat += **' blocks (onbranch and hasconfig); 3 tests went red, caught and corrected before commit.",
+    "The restroom FAQ edit replaced only the first copy of the sentence (the FAQPage JSON-LD), leaving the visible text unchanged; CI's platform/pages faq-visible test caught it and the visible copy was fixed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/quality_mutate.py",
+      "issue": "Works only on files inside oss-monorepo; the cmmc auditor had to build a scratch copy with symlinks to mutate private-monorepo code. Also a quoted glob test command ran zero tests in the baseline (needs sh -c)."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "cmmc 'next' still lists milestones 1, 2 and 4 as to do though the audit found them done."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Step 4 asks for a test with each small fix; the two restroom FAQ wording fixes and the gitconfig --verify folder fix landed without automated tests.",
+      "did": "verified by hand (page tests green; --verify from a subfolder reports matches git)",
+      "result": "recorded in the post"
+    },
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "cmmc defects are in private-monorepo; fixing them needs a separate private PR, out of a sample round's scope.",
+      "did": "listed them in the audit and post for the next private-repo run",
+      "result": "open"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-quality-audit-round-109.md"
+  ],
+  "goal": null,
+  "notes": "seed 2026-11-26-c-40a7, round 109. Subjects: ventures/cmmc (flagship, private-monorepo/apps/cmmc), ventures/gitconfig-include-check, ventures/portable-restroom-event-quote, platform/billing. Sampled share meeting the bar: 1 of 3 (billing); cumulative 39 of 433 (Wilson 7-12%). Flagship cmmc: no (verification 2). Lead overruled gitconfig correctness 3->2 after rerunning case c12. Seeded mutations caught 16 of 25. Fix PR: #19247 (gitconfig hasconfig rule + --verify top; billing length-check test + keygen comment; restroom FAQ/alcohol wording). Tests: gitconfig 33/33 + cli 2/2 + diff 300 trials; billing 20/20; restroom 140/140. risk_review: nothing blocked; flags were test strings (github URL, emails) and audit/post wording.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "aba16568-333e-59c2-9c78-15e24d2a1a6d",
+    "transcripts": 5,
+    "first": "2026-11-26T06:07:24Z",
+    "last": "2026-11-26T06:19:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 184,
+        "input": 378,
+        "output": 136720,
+        "thinking": 32743,
+        "cache_read": 17242568,
+        "cache_write_5m": 505591,
+        "cache_write_1h": 103333,
+        "api_equivalent_usd": 9.539,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 184,
+      "input": 378,
+      "output": 136720,
+      "thinking": 32743,
+      "cache_read": 17242568,
+      "cache_write_5m": 505591,
+      "cache_write_1h": 103333,
+      "api_equivalent_usd": 9.539,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.966,
+    "tool_calls": 196,
+    "tools": {
+      "Bash": 168,
+      "Read": 7,
+      "Agent": 4,
+      "Write": 4,
+      "SubagentHandback": 4,
+      "WebSearch": 3,
+      "ToolSearch": 2,
+      "WebFetch": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.97,
+      "active_minutes": 5.31,
+      "model_minutes": 4.19,
+      "tool_minutes": 1.12,
+      "waiting_on_human_minutes": 6.65,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 23.17
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "four expert audits at ~4 h each",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 167.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
