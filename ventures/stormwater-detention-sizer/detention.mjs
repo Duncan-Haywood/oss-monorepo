@@ -332,9 +332,10 @@ export function size(p) {
     }
     s2.routed = runWith(outlet, s2);
   }
-  // the small storm with the final outlet (the weir crest is at its peak stage, so it is unchanged)
-  const last = storms[storms.length - 1].routed;
-  const requiredDepth = last.peakStage + p.freeboard;
+  // depth from the highest routed stage of any storm, not the last one: with
+  // the storms out of order the last can peak lower (quality round 108)
+  const maxStage = Math.max(...storms.map((st) => st.routed.peakStage));
+  const requiredDepth = maxStage + p.freeboard;
   const topArea = pondArea(requiredDepth, pond);
   for (const st of storms) {
     const r = st.routed;
