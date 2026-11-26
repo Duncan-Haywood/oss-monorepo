@@ -272,6 +272,8 @@ class Registry(unittest.TestCase):
             "lighthouse": "needs a separately installed Lighthouse binary "
                           "(LIGHTHOUSE=...) and reports scores; polish runs "
                           "read the numbers, a nightly pass/fail would not",
+            "page-bench": "a before/after timing bench for perf runs; it prints "
+                          "medians for a chosen page and has no budget to fail",
         }
         stale = sorted(set(pending) & registered)
         self.assertFalse(stale, f"{stale} is in CHECKS now: delete it from `pending`.")

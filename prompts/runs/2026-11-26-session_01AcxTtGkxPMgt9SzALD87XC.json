@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "First --repeat reading moved 425 KB: page.route() disables Playwright's HTTP cache, so revalidation never ran; switched the off-site block to --host-resolver-rules and added a test (repeat moves 18 KB)."
+    "First --repeat reading moved 425 KB: page.route() disables Playwright's HTTP cache, so revalidation never ran; switched the off-site block to --host-resolver-rules and added a test (repeat moves 18 KB).",
+    "changed-ventures CI failed: platform/ci/test_browser_checks.py requires every BASE_URL+browser script to be registered; listed page-bench in by_hand (a bench, no budget) and reran it locally: OK."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -41,6 +42,10 @@
     {
       "file": "platform/security/risk_review.py",
       "issue": "Flagged 'personal data, tracking or forms' and 'new outbound hosts' on a local dev bench because of the words data/form and a test's example.invalid URL; same keyword false-positive class other runs report."
+    },
+    {
+      "file": "platform/ci/test_browser_checks.py",
+      "issue": "The registration rule for browser scripts is found only in CI (no PR workflow for platform/pages runs it locally via main_health's listing); a new platform/pages tool should be told to check it."
     }
   ],
   "deviations": [
