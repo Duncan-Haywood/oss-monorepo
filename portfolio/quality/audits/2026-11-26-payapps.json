@@ -1,0 +1,228 @@
+{
+ "date": "2026-11-26",
+ "subject": "ventures/payapps",
+ "stratum": "flagship",
+ "seed": "2026-11-26-518f",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a construction accountant / AR manager at a specialty subcontractor who prepares AIA G702/G703-style pay applications every month; first checks: do lines 1-9 tie out from the continuation sheet across consecutive applications, is stored material carried as a balance and not double-counted when installed, is retainage held per line and released to the cent, do change orders count from their approval date, can a job started elsewhere be picked up mid-stream, and are the statutory lien waiver forms the statute's own words",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Probe script in the auditor's scratchpad (g702.mjs, node --experimental-strip-types) imported the shipped computeApplications from private-monorepo apps/payapps/src/shared/payapp-math.ts and ran eight applications whose G702 lines were worked by hand from the G702/G703 line definitions (3 = 1 + 2; 4 = sum of column G = D + E + F; 5a/5b = rate x completed work / stored material; 6 = 4 - 5; 7 = prior line 6; 8 = 6 - 7; 9 = 3 - 6). Three sequential applications on a $100,000 two-line contract with a +$10,000 change order and 10% retainage: #1 L3 110,000.00, L4 35,000.00, L5 3,500.00 (3,000 + 500), L6 31,500.00, L8 31,500.00, L9 78,500.00; #2 (stored $5,000 installed, $2,000 newly stored) L4 57,000.00, L5 5,700.00, L6 51,300.00, L7 31,500.00, L8 19,800.00, L9 58,700.00; #3 at 5% L4 67,000.00, L5 3,350.00, L6 63,650.00, L8 12,350.00, L9 46,350.00. Mid-job start (opening app #4, line 6 $45,000, 5a $5,000, deduct CO -$5,000 approved before the opening period): app #5 L3 95,000.00, L4 60,000.00, L6 54,000.00, L7 45,000.00, L8 9,000.00, L9 41,000.00, CO as previous deduction, no false opening warning. Rounding: 10% of $3,333.35 = $333.34 (half away from zero), 5% of $10.05 stored = $0.50. Release of exactly the retainage held gives L5 0 and L8 = contract less previous; a release beyond it raises the blocking retainage_release_exceeds_held warning. A change order approved the day after the period end is not counted and the line is flagged billed_on_unapproved_change_order. All matched. Not 4: line 7 is always the contractor's own prior line 6 (a GC-certified reduction never feeds it) and a retainage-rate cut recomputes on all work to date; both are method choices a practitioner would dispute on some jobs (domain).",
+  "completeness": "ROADMAP 'Done' features checked end to end in tests or the probe: schedule of values and change orders (probe, payapp-math.test.ts), monthly applications with stored materials, retainage held and released and rate changes (probe), opening balance for a mid-job start (probe), draft to paid workflow and partial payments (worker suite, payments.test.ts), retainage release planner (retainage-release.test.ts), lien waiver forms (packages/lien-waivers, Arizona compared to the live statute below), PDF and CSV exports (worker suite). npx vitest unit 624/624 and worker 297/297 pass; tsc --noEmit clean; 0 TODO/FIXME in non-test src. ROADMAP states plainly 'Not deployed, no customers, not for sale' and the deploy workflow is still open in flagships.yaml, so nothing was loaded as a served page.",
+  "verification": "pnpm install --frozen-lockfile --filter payapps... succeeded through the proxy (4.7 s). npx vitest run -c vitest.unit.config.ts: 68 files, 624 tests pass in 8.4 s. npx vitest run -c vitest.worker.config.ts: 47 files, 297 tests pass. Eight hand-seeded mutants in payapp-math.ts, each reverted with git checkout: rounding Math.round -> Math.floor caught (1 test); line 7 carry from line 6 -> line 4 less 5a only caught (6 tests); approval date <= -> < caught (2); stored materials carried into work to date caught (7); release from work first -> from stored only caught (2); stored-material retainage rate replaced by the work rate SURVIVED both unit and worker suites (every test with stored material uses equal rates); opening-retainage warning given a $1 tolerance SURVIVED; CO addition test >= 0 -> > 0 survived but is equivalent (a zero-sum change order adds 0 either way). 5 of 7 non-equivalent caught.",
+  "craft": "Read src/shared/payapp-math.ts (601 lines) in full: pure functions on integer cents and basis points, documented column/line mapping, explicit warning codes with a blocking set, no floating money. tsc strict clean. Large modules: src/worker/services/quickbooks.ts 1,302 lines, src/shared/sov-import/pdf.ts 949, src/client/pages/project.tsx 847. Minor: an over-release is netted against line 5b, so 5b can print negative on a blocked draft (ROUND3 probe: 5b -100.00).",
+  "claims": "README says 'Not an AIA document' and the PDF labels its lines with their formulas (application-pdf.ts:138, :144). Arizona statutory forms 'verbatim': fetched https://www.azleg.gov/ars/33/01008.htm (200) and checked every literal span of the four AZ bodies in packages/lien-waivers/src/az.ts against the live statute text after dropping the statute's blank captions: 37 of 37 found. Texas: statutes.capitol.texas.gov returned 200 but only a JavaScript app shell with no statute text, so TX was not compared live. Package README carries a not-legal-advice notice. Stale: oss-monorepo portfolio/flagships.yaml payapps 'next' still says 'AZ, NV, TX, UT statutory forms verbatim, others tracked only' while the package now encodes nine states plus MO and MA alternatives.",
+  "fitness": "Walked the AR manager's month in code and tests: set up the job and SOV (or import the .xlsx/PDF), enter work and stored material, print the summary and continuation sheet, record the GC certification and checks, prepare the conditional then unconditional waiver, release retainage at closeout. The flow is there. But the product is not deployed (ROADMAP: 'Not deployed, no customers, not for sale'; deploy workflow open), so the user cannot do this job today, and two common situations are not modelled: a GC that certifies less than applied cannot carry its certified figure into next month's line 7, and a contract that stops withholding at 50% complete (keeping what is held) cannot be entered without releasing retainage already held.",
+  "domain": "Compared against the AIA G702/G703 line definitions and common subcontract retainage practice. Matches: G = D + E + F with F a balance, per-line column I, separate 5a/5b rates, line 7 = prior line 6, line 9 includes retainage, change orders split previous/this period by approval date, stored material installed moves to E without double counting. Departures: (1) line 7 ignores a GC-certified amount; the certified-below-billed gap is handled only as a cash-report/QuickBooks credit, not re-billable; (2) a rate change is applied to all work to date (ARCHITECTURE.md: 'a reduction to 5% carries forward'), which implicitly releases retainage on earlier work; contracts that reduce prospectively are not supported."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Application #1: $100,000 contract, +$10,000 CO, $30,000 work, $5,000 stored, 10%/10%",
+   "method": "by hand from G702/G703 line definitions (L3 = 1 + 2, L4 = sum G, L5 = rate x D+E and x F, L6 = 4 - 5, L8 = 6 - 7, L9 = 3 - 6)",
+   "command": "node --experimental-strip-types scratchpad/g702.mjs (APP1)",
+   "expected": "L3 110,000.00; L4 35,000.00; L5 3,500.00; L6 31,500.00; L8 31,500.00; L9 78,500.00",
+   "observed": "L3 11000000c; L4 3500000c; L5 350000c; L6 3150000c; L8 3150000c; L9 7850000c",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Application #2: stored $5,000 installed, $2,000 newly stored, $20,000 more work on line 1",
+   "method": "by hand: G = 50,000 + 7,000; F is a balance, not cumulative",
+   "command": "node --experimental-strip-types scratchpad/g702.mjs (APP2)",
+   "expected": "L4 57,000.00; L5 5,700.00; L6 51,300.00; L7 31,500.00; L8 19,800.00; L9 58,700.00",
+   "observed": "L4 5700000c; L5 570000c; L6 5130000c; L7 3150000c; L8 1980000c; L9 5870000c",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Application #3: rate reduced to 5%, work to date $67,000",
+   "method": "by hand: 5% of 67,000 = 3,350; L8 = 63,650 - 51,300",
+   "command": "node --experimental-strip-types scratchpad/g702.mjs (APP3)",
+   "expected": "L5 3,350.00; L6 63,650.00; L8 12,350.00; L9 46,350.00",
+   "observed": "L5 335000c; L6 6365000c; L8 1235000c; L9 4635000c",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Mid-job start: opening app #4 (L6 $45,000, 5a $5,000, $50,000 done on line 1), deduct CO -$5,000 before the opening period, app #5 bills $10,000 on line 2",
+   "method": "by hand from G702 definitions; line 7 = opening line 6",
+   "command": "node --experimental-strip-types scratchpad/g702.mjs (MIDJOB5)",
+   "expected": "L3 95,000.00; L4 60,000.00; L5 6,000.00; L6 54,000.00; L7 45,000.00; L8 9,000.00; L9 41,000.00; CO previous deduction 5,000; no opening warning",
+   "observed": "L3 9500000c; L4 6000000c; L5 600000c; L6 5400000c; L7 4500000c; L8 900000c; L9 4100000c; previousDeductions 500000c; warnings []",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Rounding: 10% of $3,333.35 work, 5% of $10.05 stored",
+   "method": "by hand: 333.335 rounds half away from zero to 333.34; 0.5025 to 0.50",
+   "command": "node --experimental-strip-types scratchpad/g702.mjs (ROUND1)",
+   "expected": "5a 333.34; 5b 0.50; L6 3,009.56",
+   "observed": "5a 33334c; 5b 50c; L6 300956c",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Retainage release equal to held, then a release beyond held",
+   "method": "by hand: release of all $500.00 held gives L5 0 and L8 = 5,000.00 - 3,009.56; an over-release must be refused",
+   "command": "node --experimental-strip-types scratchpad/g702.mjs (ROUND2, ROUND3)",
+   "expected": "L5 0, L8 1,990.44; then a blocking warning",
+   "observed": "L5 0, L8 199044c; then retainage_release_exceeds_held (blocking), 5b -10000c on the draft",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Change order approved 2026-02-01 on an application ending 2026-01-31",
+   "method": "G702 practice: a change order counts only once approved; line billed over its approved value",
+   "command": "node --experimental-strip-types scratchpad/g702.mjs (LATECO)",
+   "expected": "L2 0; line flagged as billed on a change order not yet counted",
+   "observed": "L2 0; warning billed_on_unapproved_change_order",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "unit and worker test suites",
+   "method": "run as the README says after pnpm install",
+   "command": "npx vitest run -c vitest.unit.config.ts; npx vitest run -c vitest.worker.config.ts",
+   "expected": "all pass",
+   "observed": "unit 68 files 624 tests pass (8.4 s); worker 47 files 297 tests pass",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "typecheck",
+   "method": "strict TypeScript",
+   "command": "npx tsc -p tsconfig.json --noEmit",
+   "expected": "exit 0",
+   "observed": "exit 0",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Arizona statutory waiver forms printed verbatim (A.R.S. 33-1008(D)(1)-(4))",
+   "method": "live statute https://www.azleg.gov/ars/33/01008.htm (HTTP 200), every literal span of the four AZ bodies searched in the normalized statute text",
+   "command": "node --experimental-strip-types scratchpad/azcmp.mjs az.htm packages/lien-waivers/src/az.ts",
+   "expected": "every span found",
+   "observed": "37 of 37 spans found",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Texas statutory forms verbatim (Prop. Code 53.284)",
+   "method": "live statute at statutes.capitol.texas.gov",
+   "command": "curl https://statutes.capitol.texas.gov/Docs/PR/htm/PR.53.htm",
+   "expected": "statute text to compare",
+   "observed": "HTTP 200 but a JavaScript app shell with no statute text; not compared",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "flagships.yaml status of lien waiver states",
+   "method": "compare with packages/lien-waivers/README.md current status",
+   "command": "grep -n 'AZ, NV, TX, UT' portfolio/flagships.yaml",
+   "expected": "same state list",
+   "observed": "flagships.yaml says AZ, NV, TX, UT; package encodes nine states plus MO and MA alternatives",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "not-an-AIA-document disclaimer and labelled line formulas on the PDF",
+   "method": "read README.md and services/export/application-pdf.ts",
+   "command": "grep -n 'Less previous\\|Balance to finish' src/worker/services/export/application-pdf.ts",
+   "expected": "disclaimer and line formulas present",
+   "observed": "README 'Not an AIA document'; PDF line 7 '(line 6 of prior application)', line 9 '(line 3 - 6)'",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "GC certifies less than applied: does next month's line 7 use the certified figure",
+   "method": "G702 practice: line 7 is the total of prior certificates; read computeApplications and the certifiedAmountCents uses",
+   "command": "grep -rn certifiedAmountCents src/shared src/worker/services/payapps",
+   "expected": "certified amount available to line 7, or a documented re-bill path",
+   "observed": "line 7 is always the computed prior line 6; certified amount feeds only cash report, payments and a QuickBooks credit",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "can the user use the product today",
+   "method": "ROADMAP status line and flagships.yaml 'next'",
+   "command": "head -5 apps/payapps/ROADMAP.md",
+   "expected": "a deployed app",
+   "observed": "'Not deployed, no customers, not for sale'; deploy workflow still open",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {"where": "apps/payapps/src/shared/payapp-math.ts:26", "change": "Math.round(Math.abs(raw)) -> Math.floor(Math.abs(raw))", "caught": true, "test_cmd": "npx vitest run -c vitest.unit.config.ts"},
+  {"where": "apps/payapps/src/shared/payapp-math.ts:432", "change": "previousEarnedLessRetainage = earnedLessRetainage -> totals.completedAndStoredCents - retainageOnWork", "caught": true, "test_cmd": "npx vitest run -c vitest.unit.config.ts"},
+  {"where": "apps/payapps/src/shared/payapp-math.ts:201", "change": "co.approvedOn <= date -> co.approvedOn < date", "caught": true, "test_cmd": "npx vitest run -c vitest.unit.config.ts"},
+  {"where": "apps/payapps/src/shared/payapp-math.ts:426", "change": "carry workThisPeriod -> workThisPeriod + storedMaterials into work to date", "caught": true, "test_cmd": "npx vitest run -c vitest.unit.config.ts"},
+  {"where": "apps/payapps/src/shared/payapp-math.ts:344", "change": "releaseFromWork = min(released, grossWork) -> 0", "caught": true, "test_cmd": "npx vitest run -c vitest.unit.config.ts"},
+  {"where": "apps/payapps/src/shared/payapp-math.ts:315", "change": "stored retainage rate period.storedRetainagePctBps -> period.retainagePctBps", "caught": false, "test_cmd": "npx vitest run -c vitest.unit.config.ts; npx vitest run -c vitest.worker.config.ts"},
+  {"where": "apps/payapps/src/shared/payapp-math.ts:561", "change": "recomputed === held -> Math.abs(recomputed - held) <= 100", "caught": false, "test_cmd": "npx vitest run -c vitest.unit.config.ts"},
+  {"where": "apps/payapps/src/shared/payapp-math.ts:235", "change": "amount >= 0 -> amount > 0 (equivalent: a zero-sum change order adds 0 either way)", "caught": false, "test_cmd": "npx vitest run -c vitest.unit.config.ts"}
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Retainage on stored materials at its own rate (line 5b) is untested: replacing the stored-material rate with the work rate leaves all 624 unit and 297 worker tests green, because every test with stored material uses equal rates. A regression would misstate 5b, 6 and 8 on any job with a different stored-material rate.",
+   "where": "private-monorepo apps/payapps/src/shared/payapp-math.ts:315",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Line 7 is always the contractor's own prior line 6. When the GC certifies less than applied (work percentage cut), the certified figure never reaches next month's line 7, so the cut amount cannot reappear in line 8; the app only offers to close it short or credit it in QuickBooks.",
+   "where": "private-monorepo apps/payapps/src/shared/payapp-math.ts:432",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "A retainage-rate change applies to all work to date, implicitly releasing retainage already held on earlier work. Subcontracts that stop or reduce withholding prospectively (for example none withheld after 50% complete, earlier retainage kept) cannot be entered without misstating line 5.",
+   "where": "private-monorepo apps/payapps/src/shared/payapp-math.ts:314",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "The opening-balance retainage check is exact-match only by convention: a $1 tolerance mutant survives every test, so a regression that hides small 5a mismatches would ship.",
+   "where": "private-monorepo apps/payapps/src/shared/payapp-math.ts:561",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "An over-release is netted against line 5b, so a blocked draft shows a negative stored-material retainage instead of naming the over-release on 5a.",
+   "where": "private-monorepo apps/payapps/src/shared/payapp-math.ts:346",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "flagships.yaml says the statutory waiver forms are AZ, NV, TX, UT with others tracked only; the package now encodes nine states plus MO and MA alternatives.",
+   "where": "portfolio/flagships.yaml:90",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "Large modules a reviewer would ask to split: quickbooks.ts 1,302 lines, sov-import/pdf.ts 949, client project page 847.",
+   "where": "private-monorepo apps/payapps/src/worker/services/quickbooks.ts:1",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "The pay-application engine is right: eight applications recomputed by hand from the G702/G703 line definitions match the shipped computeApplications to the cent. They cover three sequential applications with stored material installed, a retainage cut and a change order, a mid-job start with a deductive change order, half-cent rounding, retainage release and a late-approved change order. Both suites pass (624 unit, 297 worker), tsc is clean, and 5 of 7 non-equivalent seeded mutants were caught. The Arizona statutory waiver forms match the live azleg.gov text (37 of 37 spans). Texas could not be compared because its statute site served only a script shell. It meets the bar on correctness, claims and verification. Fitness is 2 because the app is not deployed, so no subcontractor can use it yet. Two retainage situations an AR manager meets often are also not modelled: a GC-certified reduction carried into next month's line 7, and a retainage reduction that applies only to work going forward. The stored-material retainage rate has no test that would catch a regression."
+}

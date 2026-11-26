@@ -13,8 +13,8 @@ because from inside each run nothing did.
 Free, no sign-in, no account. Two ways to use it:
 
 - **In the browser** — [open the tool](./index.html), paste a workflow. The scan
-  runs on your device; nothing is uploaded and the page makes no network request
-  at all once loaded.
+  runs on your device; nothing you paste is uploaded; the only request after
+  load is the site's cookieless page analytics.
 - **In your CI** — `check.py`, Python standard library only, no dependencies, no
   network access, no GitHub token.
 
@@ -63,6 +63,25 @@ It also only reads the files you point it at. A pipeline where something outside
 this repository writes to the same target is outside what any workflow scan can
 see.
 
+### Known gaps
+
+From the 2026-11-26 quality audit
+([`portfolio/quality/audits/2026-11-26-deploy-concurrency-check.json`](../../portfolio/quality/audits/2026-11-26-deploy-concurrency-check.json)),
+not yet fixed:
+
+- A job-level `concurrency` is treated as replacing the workflow-level one
+  (`classify.mjs`, `effective = job.concurrency || workflowConcurrency`, and the
+  same in `check.py`). GitHub applies both, so a stable workflow-level group with a
+  per-commit job-level group gets a false HIGH.
+- Group names are compared as raw strings; GitHub treats them as case-insensitive,
+  so `deploy-Prod` and `deploy-prod` are reported as a split. Two workflows both
+  using `${{ github.workflow }}-prod` resolve to different groups and are not flagged.
+- Not parsed: inline `concurrency: { group: ..., cancel-in-progress: true }`,
+  `cancel-in-progress` as an expression, `queue: max`, and
+  `github.event.workflow_run.head_sha` as a group key.
+- Any `environment:` counts as a deploy, and an accepted finding cannot be
+  suppressed, so environments used only to hold secrets raise noise.
+
 ## How the two implementations stay honest
 
 `classify.mjs` holds the logic and `check.py` is a line-for-line port of it.
@@ -82,7 +101,7 @@ harder to hold identical than one scan implemented twice.
 node --test 'ventures/deploy-concurrency-check/**/*.test.mjs'
 ```
 
-35 assertions. Roughly half of them assert the checker stays **quiet** — on a
+44 assertions. Roughly half of them assert the checker stays **quiet** — on a
 correctly serialized deploy, on a test workflow that legitimately cancels in
 progress, on a build job sitting beside a deploy job, on `github.ref` as a group
 key, on job names that merely contain the substring "deploy". A scanner that
@@ -91,14 +110,14 @@ more than the findings are worth.
 
 ## Privacy
 
-Nothing you paste leaves your device. No cookie, no third-party script, font or
-analytics service, and no network request after load. The page keeps a local
+Nothing you paste leaves your device. No cookie and no font or CDN; the served
+site loads its own cookieless page analytics, which never see what you paste. The page keeps a local
 count of how often the scan button is used, on your device only, and offers a
 switch to turn that off which persists across visits.
 
 ## Licence and disclaimer
 
-MIT (see `LICENSE`). Free and provided **as is, with no warranty** of any kind,
+FSL-1.1-MIT (see `LICENSE`). Free and provided **as is, with no warranty** of any kind,
 express or implied. Not a security audit, a compliance control, or professional
 advice; no liability is accepted for any loss arising from its use or from a
 deployment made after reading its output.

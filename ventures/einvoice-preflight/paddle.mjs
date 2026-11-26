@@ -167,6 +167,10 @@ export function wireBuy(el, cfg, h) {
     try { P = await loadPaddle(w); } catch { say("Checkout could not load. Check your connection or ad blocker and try again."); return; }
     const claim = newClaim();
     current = claim;
+    // Saved before the charge, not after it: a tab closed between payment and
+    // `checkout.completed` would otherwise leave a paid claim nobody can collect.
+    // An abandoned checkout's claim is polled quietly on later visits and never mints.
+    try { store && store.setItem(pendingKey, claim); } catch { /* optional */ }
     if (!started) {
       // Paddle.js is initialised once per page; later clicks reuse it and only change the claim.
       started = true;

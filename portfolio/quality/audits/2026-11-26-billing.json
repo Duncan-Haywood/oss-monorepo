@@ -1,0 +1,258 @@
+{
+ "date": "2026-11-26",
+ "subject": "platform/billing",
+ "stratum": "platform",
+ "seed": "2026-11-26-518f",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior payments engineer who has integrated Stripe and Paddle Billing webhooks and shipped signed licence keys; first checks: is Paddle-Signature verified over the raw body with a constant-time compare and a timestamp window, are replayed and out-of-order deliveries idempotent, does the product come from the paid price not client data, do subscription keys follow the paid period, is the signing scheme sound, and what happens when a buyer pays and does not get or loses the key",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Recomputed against sources the author did not write. (1) Took Paddle's own transaction.completed example payload from developer.paddle.com/webhooks/transactions/transaction-completed (reachable today), set custom_data.claim, pretty-printed it as the raw body, computed h1 with `openssl dgst -sha256 -hmac <secret>` over `ts:body` per Paddle's 'Verify webhook signatures' page, and posted it to handleBilling (scratch recompute.mjs): 200 and a key stored; one-byte tamper 401; the same JSON re-serialised compactly 401 (raw body is what is signed); uppercase hex 200; two h1 (rotation) 200; ts+301 401. (2) The key's exp for that payload: billing_period.ends_at 2024-05-12T10:18:47.635628Z floored + 7*86400, computed in Python datetime = 1716113927; observed claims.exp 1716113927, s = the payload's sub_01hv8x29kz0t586xy6zn1a62ny, p from the price id (items[].price.id; Paddle's webhook items carry price.id, not price_id, and the code reads both). (3) The Ed25519 signature on the minted key verified with `openssl pkeyutl -verify -rawin` over `ms1.<payload>`: 'Signature Verified Successfully'; 64-byte signature, 32-byte public key. (4) d1Store's SQL run against schema.sql in node:sqlite: out-of-order renewal (exp 200 then 100) keeps 200, newer 300 replaces, a replayed claim keeps the first key. One departure: tolerance 300 s where Paddle's SDKs and docs use 5 s (a ts+6 delivery is accepted here, refused by @paddle/paddle-node-sdk 3.12.0 WebhooksValidator); harmless in effect because every write is idempotent.",
+  "completeness": "README claims checked: Paddle-Signature check (works, above); Ed25519 ms1 key (works); stored under SHA-256(claim), not the code (claimHash prefixes 'ms-billing-claim:'; works); product from price, never custom_data (test 'the product comes from the paid price' and my run: custom_data.product ignored); retry keeps the first key and ignored events answer 200 (works); subscription expiry a week after the period and POST /billing/renew (works, billing.test.mjs renew test and sqlite store); sync.mjs copies client.mjs to 7 ventures (`node platform/billing/sync.mjs --check`: 'billing copies in sync'); edge Worker does not mount /billing and no Actions deploy (tested). Dark by design until the owner's Going-live steps; nothing is a stub. Not done and said so: Paddle catalogue as code, quick-pick-survey pack.",
+  "verification": "`node --test billing.test.mjs` (Node 22.23.5): 19 tests, 19 pass, 0.43 s; ventures/wall-framing-takeoff licence.test.mjs + checkout.test.mjs 3 pass. CI: ventures-tests.yml triggers on platform/** and runs this suite. Seeded 9 mutants with quality_mutate.py: tolerance x1000, grace removed, renew <= -> <, D1 upsert WHERE dropped, claim DO NOTHING -> DO UPDATE, status check removed, expiry +1 day, size cap removed all caught (8/9); worker.mjs CORS reflecting any origin survived. Tests run the real SQL against the real schema. No test of the browser wireBuy persistence ordering (defect 2).",
+  "craft": "Read worker.mjs, server.mjs, client.mjs, catalogue.mjs, sync.mjs, keygen.mjs, schema.sql, testkit.mjs, billing.test.mjs whole. Small, dependency-free WebCrypto code; ids validated by pattern; constant-time compare equivalent to Paddle's SDK; JSON responses no-store. Minor: MAX_WEBHOOK_BYTES compares raw.length (UTF-16 units) after the whole body is read, so it bounds nothing on the wire; worker CORS falls back to origins[0] for a foreign origin (harmless, untested); sameString leaks length only (fine, fixed-length hex).",
+  "claims": "README 'How a sale works', 'Files', guardrail section and the honest 'What is not verified' section are backed by files and tests. Two drifts: keygen.mjs:8 tells the owner to `wrangler secret put LICENCE_SIGNING_KEY (in platform/edge/)`, which contradicts README step 1 and worker.mjs (billing account, never the public edge Worker) on the one step that places a secret; README:123 says Paddle's docs host does not resolve and the field names are from memory: today it resolves and every field used matches the docs example (status, items[].price.id, custom_data, subscription_id, billing_period.ends_at), so the caveat is stale in the safe direction.",
+  "fitness": "Walked the job end to end in simulation: webhook from Paddle's example payload -> key minted -> GET /billing/claim returns it -> key verifies offline -> lapsed subscription key renews. The owner can go live with the README's steps. What a payments engineer would hit in the first week of support: (a) the claim code is persisted to localStorage only when Paddle.js fires checkout.completed (client.mjs:180), so a tab closed or crashed between payment and that event leaves a paid buyer with no way to collect the key; (b) after a key is fetched the claim is deleted (client.mjs:153) and the DB is keyed only by claim hash, with no index by Paddle transaction or subscription id, so a buyer who loses the key and writes in with their Paddle receipt cannot be reissued one without hand-decoding every row; there is no reissue tool.",
+  "domain": "Compared with Paddle Billing's 'Verify webhook signatures' docs and @paddle/paddle-node-sdk 3.12.0 (dist/cjs/notifications/helpers/webhooks-validator.js): same HMAC-SHA256 over `ts:rawBody`, same constant-time compare, abs time difference; this code additionally accepts several h1 during secret rotation, which the SDK does not. Departure: 300 s window (Stripe's default) vs Paddle's 5 s; mitigated because claim writes are DO NOTHING and sub writes keep the max exp. Idempotency, out-of-order handling, price-derived entitlement and offline Ed25519 keys are what a practitioner would do. Refunds/chargebacks do not revoke (documented for one-off; for subscriptions the key runs to period end + 7 days, not stated)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Paddle's own transaction.completed example, signed independently, is accepted and mints a key",
+   "method": "Paddle docs example payload (developer.paddle.com) + HMAC by openssl dgst per Paddle's signature-verification page",
+   "command": "node scratch/recompute.mjs (h1 from `openssl dgst -sha256 -hmac`)",
+   "expected": "200, key stored",
+   "observed": "200 {\"ok\":true}, key stored under claim hash",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "tampered body and re-serialised body are refused",
+   "method": "same openssl h1, body changed by one byte / JSON.stringify without whitespace",
+   "command": "node scratch/recompute.mjs",
+   "expected": "401 both",
+   "observed": "401 signature mismatch both",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "subscription key expiry for the docs payload",
+   "method": "Python datetime: floor(2024-05-12T10:18:47.635628Z) + 7*86400",
+   "command": "python3 -c datetime...",
+   "expected": "1716113927",
+   "observed": "1716113927",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "minted key's Ed25519 signature over 'ms1.<payload>'",
+   "method": "openssl pkeyutl -verify -rawin with the SPKI public key",
+   "command": "openssl pkeyutl -verify -pubin -inkey pub.der -keyform DER -rawin -in msg.bin -sigfile sig.bin",
+   "expected": "Signature Verified Successfully",
+   "observed": "Signature Verified Successfully",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "timestamp tolerance vs Paddle's documented default",
+   "method": "Paddle docs ('default tolerance ... five seconds') and paddle-node-sdk 3.12.0 MAX_VALID_TIME_DIFFERENCE = 5",
+   "command": "node scratch/recompute.mjs (ts+6)",
+   "expected": "refused at ts+6 under Paddle's default",
+   "observed": "accepted (window 300 s); ts+301 refused",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "D1 upsert semantics: out-of-order renewals and replayed claims",
+   "method": "schema.sql applied twice in node:sqlite, d1Store over a D1-shaped adapter",
+   "command": "node --no-warnings scratch/d1.mjs",
+   "expected": "keeps exp 200 over late 100; 300 replaces; claim keeps first key",
+   "observed": "{key:K2,exp:200}; {key:K3,exp:300}; A",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "replayed webhook within the window keeps the first key",
+   "method": "same signed delivery posted twice",
+   "command": "node scratch/recompute.mjs",
+   "expected": "one stored key, unchanged",
+   "observed": "200, same key, 1 row",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "venture copies equal client.mjs and checkout.mjs match catalogue",
+   "method": "sync.mjs --check",
+   "command": "node platform/billing/sync.mjs --check",
+   "expected": "in sync",
+   "observed": "billing copies in sync",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "suite runs green",
+   "method": "node test runner",
+   "command": "cd platform/billing && node --test billing.test.mjs",
+   "expected": "all pass",
+   "observed": "19 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "keygen.mjs header says where the signing key goes",
+   "method": "compare with README step 1 and worker.mjs header",
+   "command": "grep -n platform/edge platform/billing/keygen.mjs",
+   "expected": "billing account's Worker, never platform/edge",
+   "observed": "'(in platform/edge/)'",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README 'What is not verified': field names from memory",
+   "method": "Paddle docs transaction.completed example",
+   "command": "python3 extract of docs example",
+   "expected": "fields used exist",
+   "observed": "status=completed, items[].price.id, custom_data, subscription_id, billing_period.ends_at all present; caveat stale",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "a buyer whose tab closes between payment and checkout.completed can still collect the key",
+   "method": "read client.mjs wireBuy",
+   "command": "grep -n setItem platform/billing/client.mjs",
+   "expected": "claim persisted before Checkout.open",
+   "observed": "persisted only in the checkout.completed callback (client.mjs:180)",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "used by the products it claims",
+   "method": "grep for paddle.mjs imports",
+   "command": "grep -rl 'platform/billing|paddle.mjs' ventures",
+   "expected": "7 ventures",
+   "observed": "wall-framing-takeoff, shed-designer, einvoice-preflight, changepoint-detector, ai-bookkeeper, shift-roster-builder, league-schedule-generator (via sync plan)",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "server.mjs:52",
+   "change": "Math.abs(nowSec - Number(ts)) > TOLERANCE_SEC -> > TOLERANCE_SEC * 1000",
+   "caught": true,
+   "test_cmd": "node --test billing.test.mjs"
+  },
+  {
+   "where": "server.mjs:110",
+   "change": "exp = floor(ends/1000) + GRACE_DAYS*86400 -> floor(ends/1000)",
+   "caught": true,
+   "test_cmd": "node --test billing.test.mjs"
+  },
+  {
+   "where": "server.mjs:194",
+   "change": "latest.exp <= (v.claims.exp || 0) -> <",
+   "caught": true,
+   "test_cmd": "node --test billing.test.mjs"
+  },
+  {
+   "where": "server.mjs:137",
+   "change": "DO UPDATE SET licence = ?2, exp = ?3 WHERE exp < ?3 -> without WHERE",
+   "caught": true,
+   "test_cmd": "node --test billing.test.mjs"
+  },
+  {
+   "where": "server.mjs:129",
+   "change": "ON CONFLICT (claim_hash) DO NOTHING -> DO UPDATE SET licence = ?3",
+   "caught": true,
+   "test_cmd": "node --test billing.test.mjs"
+  },
+  {
+   "where": "server.mjs:93",
+   "change": "status completed/paid check -> if (false)",
+   "caught": true,
+   "test_cmd": "node --test billing.test.mjs"
+  },
+  {
+   "where": "client.mjs:88",
+   "change": "now > c.exp -> now > c.exp + 86400",
+   "caught": true,
+   "test_cmd": "node --test billing.test.mjs"
+  },
+  {
+   "where": "server.mjs:163",
+   "change": "raw.length > MAX_WEBHOOK_BYTES -> false",
+   "caught": true,
+   "test_cmd": "node --test billing.test.mjs"
+  },
+  {
+   "where": "worker.mjs:24",
+   "change": "origins.includes(origin) ? origin : origins[0] -> origin || '*'",
+   "caught": false,
+   "test_cmd": "node --test billing.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The claim code is written to localStorage only inside the checkout.completed callback, after payment; a tab closed, crashed or navigated away between Paddle charging and that event leaves a paid buyer with no claim and no way to collect the key (the server has it, nobody can ask). Persist the claim before Checkout.open.",
+   "where": "platform/billing/client.mjs:180",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19187"
+  },
+  {
+   "severity": "medium",
+   "what": "No lost-key recovery: the claim is deleted once the key is fetched and licences are keyed only by claim hash, with no column or index by Paddle transaction/subscription id, so support cannot reissue a key from the buyer's Paddle receipt; no reissue script exists.",
+   "where": "platform/billing/schema.sql:10",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "keygen.mjs tells the owner to set LICENCE_SIGNING_KEY '(in platform/edge/)', the public site's Worker, contradicting README step 1, worker.mjs and the Payments guardrail on the one step that places the signing secret.",
+   "where": "platform/billing/keygen.mjs:8",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19187"
+  },
+  {
+   "severity": "low",
+   "what": "Timestamp tolerance is 300 s; Paddle's docs and SDKs use 5 s. Replays inside the window are harmless because writes are idempotent, but it departs from the provider's documented default without saying why.",
+   "where": "platform/billing/server.mjs:23",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "README 'What is not verified' says Paddle's docs host does not resolve and field names are from memory; it resolves now and the fields match the docs example payload, so the caveat is stale.",
+   "where": "platform/billing/README.md:123",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "MAX_WEBHOOK_BYTES is checked as raw.length (UTF-16 code units) after the full body is read, so it neither counts bytes nor bounds what is read.",
+   "where": "platform/billing/server.mjs:163",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Worker CORS behaviour is untested: a mutant reflecting any Origin survived the suite (low impact, reads need a 128-bit claim).",
+   "where": "platform/billing/worker.mjs:24",
+   "category": "untested-core",
+   "origin": "tests"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19187"],
+ "verdict": "A sound, small Paddle licence path. Recomputed with Paddle's own example payload signed by openssl, Python date arithmetic and openssl Ed25519 verification, every output matched: raw-body HMAC, rotation, tamper and window refusals, price-derived product, expiry = period end + 7 days, idempotent and order-safe D1 writes. Tests are strong (19 pass, 8 of 9 seeded mutants caught, real SQL against the real schema). It meets the bar on correctness, claims and verification. What keeps fitness at 2 is the support path a payments engineer worries about first: a buyer who loses the tab before checkout.completed, or later loses the key, has no recovery, and the store cannot look a key up by Paddle transaction id. One wrong instruction on the secret path (keygen.mjs says platform/edge) should be fixed before the owner runs keygen."
+}
