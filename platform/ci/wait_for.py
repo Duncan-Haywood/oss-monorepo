@@ -15,8 +15,8 @@ its marker), so a live job is told apart from a quiet, stuck or dead one.
 
 A job that prints no marker (a `pip install`, a writer of a jsonl) can be waited on by
 a condition instead: `--until "python3 -c 'import torch'"` returns 0 once that command exits 0. It is a
-command, not a log pattern: a bare word no shell can run (`--until EXIT` with a log) is
-read as `--marker EXIT` (with a note), and without a log it is refused, since two runs
+command, not a log pattern: with a log and no --marker, a command no shell can find
+(`--until EXIT`, `--until "pass 5"`) is read as the marker (with a note), and without a log it is refused, since two runs
 waited 540 s each on logs already ending EXIT 0. Given a log too, it waits for the condition, then for the log's marker or for no process to
 have the log open any more (whichever comes first), and prints the log's tail; a log path that still does not exist 10 s after the condition holds ends the wait (exit 0, with a note).
 
@@ -456,6 +456,15 @@ def main(argv=None):
     timeout = a.timeout
     # Two runs fixed `--until EXIT` the same day (2026-11-26) with two checks; not_a_command
     # above catches the bare word, so only the longer missing command is left to warn about.
+    # A longer pattern (`--until "pass 5"`) slipped past not_a_command, so with a log it
+    # still waited out 110 to 580 s on a shell that answers 127 forever (four run records,
+    # 2026-11-26, after the bare-word fix). With a log and no --marker, a command the shell
+    # cannot find is the log pattern the caller meant: read it as the marker.
+    if a.until and a.log and a.marker is None and until_missing(a.until):
+        print(f"wait_for: --until {a.until!r} is not a command the shell can find (exit 127), so it is "
+              f"read as the log's marker (--marker {a.until!r}); --until takes a shell command",
+              file=sys.stderr)
+        a.marker, a.until = a.until, None
     if a.until and until_missing(a.until):
         print(f"wait_for: warning: --until {a.until!r} is not a command the shell can find (exit 127); "
               "it is a shell command that must exit 0, not a log pattern (use a log with --marker); "

@@ -62,3 +62,20 @@ until its writer closed the log, and the helper returned 0 with the tail.
 Each of these timeouts cost a run 100 to 540 seconds, and about sixteen runs
 an hour use the helper. That makes it one of the cheaper places in the
 repository to save time.
+
+## Update, 2026-11-26: a pattern is not a command
+
+The same flag drew a different mistake five days later. Runs passed a log and
+the text they hoped to see in it, `wait_for.py job.log --until "pass 5"`. The
+helper ran `pass 5` as a shell command, the shell answered 127 ("not found")
+on every poll, and the wait ran to its timeout: four run records on
+2026-11-26 report waits of 110 to 580 seconds. An earlier fix that day caught
+a single bare word (`--until EXIT`) but let anything with a space through,
+with only a warning.
+
+Now, when a log is given, no `--marker` is set and the `--until` command
+cannot be found, the helper reads the text as the log's marker and says so.
+With an explicit `--marker`, or with no log, `--until` stays a command, so a
+wait for a tool that is still being installed works as before. CLAUDE.md's
+one line on waiting now names `--marker` for a custom last line. The helper's
+61 unit tests pass.

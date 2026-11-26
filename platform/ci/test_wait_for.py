@@ -435,6 +435,22 @@ class UntilMarker(unittest.TestCase):
             self.assertEqual(main(["--until", "no-such-cmd-xyz --flag", "--timeout", "0"]), 1)
         self.assertIn("exit 127", err.getvalue())
 
+    def test_a_longer_pattern_with_a_log_is_read_as_the_marker(self):
+        # four run records 2026-11-26: `<log> --until "pass 5"` waited out 110 to 580 s
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("work\npass 5 of 5\n")
+            err = io.StringIO()
+            with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
+                self.assertEqual(main([p, "--until", "pass 5", "--timeout", "3", "--ignore-restart"]), 0)
+            self.assertIn("read as the log's marker", err.getvalue())
+            # an explicit --marker keeps --until a command (warns, then times out)
+            err = io.StringIO()
+            with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
+                self.assertEqual(main([p, "--until", "pass 5", "--marker", "pass", "--timeout", "0",
+                                       "--ignore-restart"]), 1)
+            self.assertIn("exit 127", err.getvalue())
+
     def test_until_exit_with_a_log_reads_its_marker(self):
         with tempfile.TemporaryDirectory() as d:
             p = os.path.join(d, "o.log")
