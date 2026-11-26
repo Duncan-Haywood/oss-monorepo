@@ -26,14 +26,14 @@
 </head>
 <body>
   <h1>Wall framing takeoff vs. a stud-per-foot rule of thumb</h1>
-  <p>Two common ways to size a framing order are one stud per linear foot of wall plus plates, and a spreadsheet formula that adds studs at the spacing plus an allowance per opening. This page sets both against a counted order, in lineal feet of 2x4 and 2x6 with 10% waste on every column, from <code>allowance-bench.mjs</code> in the tool's repository (measured 2026-10-28 to 2026-11-02).</p>
+  <p>Two common ways to size a framing order are one stud per linear foot of wall plus plates, and a spreadsheet formula that adds studs at the spacing plus an allowance per opening. This page sets both against a counted order, in lineal feet of 2x4 and 2x6 with 10% waste on every column, from <code>allowance-bench.mjs</code> in the tool's repository (measured 2026-10-28 to 2026-11-02; rerun 2026-11-26, and a test now fails if a figure here drifts from it).</p>
   <p><a class="cta" href="index.html">Lay out your walls in the free takeoff tool</a></p>
 
   <h2>At 16 inches on center the per-foot rule is close, and high</h2>
   <table>
     <thead><tr><th>House</th><th class="n">Counted order, ft</th><th class="n">Per-foot rule</th><th class="n">On-centre formula</th></tr></thead>
     <tbody>
-      <tr><td>Example house (invented, 212 ft of wall)</td><td class="n">2316</td><td class="n">2494 (+7.7%)</td><td class="n">2727 (+17.8%)</td></tr>
+      <tr><td>Example house (invented, 212 ft of wall)</td><td class="n">2316</td><td class="n">2494 (+7.7%)</td><td class="n">2727 (+17.7%)</td></tr>
       <tr><td>Open House Plans 1 (CC0, generated)</td><td class="n">2545</td><td class="n">2594 (+1.9%)</td><td class="n">3171 (+24.6%)</td></tr>
       <tr><td>Open House Plans 2 (CC0, generated, windows ganged, 24 ft headers)</td><td class="n">4269</td><td class="n">4704 (+10.2%)</td><td class="n">5494 (+28.7%)</td></tr>
     </tbody>
@@ -44,8 +44,8 @@
     <thead><tr><th>Example house</th><th class="n">Counted order, ft</th><th class="n">Per-foot rule</th><th class="n">On-centre formula</th></tr></thead>
     <tbody>
       <tr><td>12 in on center</td><td class="n">2623</td><td class="n">2494 (-4.9%)</td><td class="n">3186 (+21.5%)</td></tr>
-      <tr><td>16 in</td><td class="n">2316</td><td class="n">2494 (+7.7%)</td><td class="n">2727 (+17.8%)</td></tr>
-      <tr><td>19.2 in</td><td class="n">2176</td><td class="n">2494 (+14.6%)</td><td class="n">2532 (+16.3%)</td></tr>
+      <tr><td>16 in</td><td class="n">2316</td><td class="n">2494 (+7.7%)</td><td class="n">2727 (+17.7%)</td></tr>
+      <tr><td>19.2 in</td><td class="n">2177</td><td class="n">2494 (+14.5%)</td><td class="n">2532 (+16.3%)</td></tr>
       <tr><td>24 in</td><td class="n">1972</td><td class="n">2494 (+26.5%)</td><td class="n">2286 (+15.9%)</td></tr>
     </tbody>
   </table>
@@ -55,7 +55,7 @@
   <ul>
     <li>Counts every king, jack, header, rough sill and cripple from the opening sizes you type, and refuses openings that do not fit.</li>
     <li>Adds corner and tee backing from how the walls meet, and puts plate splices over studs.</li>
-    <li>Orders boards with a cutting-stock solution (within 0.02% of its linear-programming bound on whole houses) so short pieces come out of long boards.</li>
+    <li>Orders boards with a cutting-stock solution (within 0.04% of its linear-programming bound on whole houses) so short pieces come out of long boards.</li>
     <li>Prints the cut list and shop drawings, and checks each wall against its own layout.</li>
   </ul>
 

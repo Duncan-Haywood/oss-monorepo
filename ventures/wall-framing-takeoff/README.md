@@ -187,20 +187,20 @@ A plan is JSON (optional `blocking: {rows: 1, fire: true}` adds blocking rows; `
 Small instances (exact solver finishes): share where each method equals the exact cheapest order
 prices        n   LP rounding   first fit decr.   shipped (exact used)    mean excess LP / FFD
 flat        150    84.7%         64.7%            100.0%               0.92% / 1.89%
-priced      150    84.7%         29.3%            100.0%               0.53% / 9.50%
+priced      150    84.7%         29.3%            100.0%               0.52% / 9.50%
 
 Sample house, n copies: cost against the LP lower bound (price 1 per linear foot)
 copies  pieces  boards     cost    bound    gap    FFD cost   each piece alone   ms
-     1     345     253  2384.16  2384.12  0.002%    2450.00            2915.04   117
-     2     690     504  4768.88  4768.23  0.014%    4901.72            5830.08   148
-     4    1380    1004  9532.60  9531.45  0.012%    9786.00           11660.16   180
+     1     345     253  2384.44  2384.12  0.013%    2450.00            2915.04    26
+     2     690     504  4769.16  4768.23  0.020%    4901.72            5830.08    17
+     4    1380    1004  9534.88  9531.45  0.036%    9786.00           11660.16    25
 ```
 
 "Flat" prices are proportional to length; "priced" ones rise per foot with
 length, as longer boards often do. Rounding the LP finds the exact cheapest
 order on 85% of small cases; first-fit-decreasing on 65% with flat prices and
 29% with priced ones, where its habit of starting every board on the longest
-length costs 9.5% on average. On whole houses the order is within 0.014% of the
+length costs 9.5% on average. On whole houses the order is within 0.036% of the
 LP bound, so there is almost nothing left for a better integer method to find
 there; the gap that matters is against planning by hand (the "each piece alone"
 column is the extreme case: 22% more board).
@@ -223,20 +223,19 @@ Plan `"advanced": { "twoStudCorners": true, "ladderTees": true, "singleTopPlate"
   lists where (ties are not in the takeoff). It needs roof or floor framing
   within 1 in of the stud centres (the IRC R602.3.2 exception; check your
   edition), which this tool cannot see. On the example house it takes 345 pieces
-  / 253 boards / $2,384.16 down to 329 / 238 / $2,173.88 (-8.8%, 20 ties).
+  / 253 boards / $2,384.44 down to 329 / 238 / $2,173.88 (-8.8%, 20 ties).
 
 Measured on the built-in example house (`samplePlan`, 8 walls, priced stock;
-`takeoff().summary`):
+`takeoff().summary`; rerun 2026-11-26, checked by `published-figures.test.mjs`):
 
 | option | pieces | boards | full-height members | order cost |
 |---|---|---|---|---|
-| standard | 345 | 253 | 179 | $2,384.16 |
-| two-stud corners | 341 | 249 | 175 | $2,353.28 |
-| ladder tees | 352 | 250 | 165 | $2,307.52 |
-| both | 348 | 246 | 161 | $2,276.64 |
+| standard | 345 | 253 | 179 | $2,384.44 |
+| two-stud corners | 341 | 249 | 175 | $2,353.56 |
+| ladder tees | 353 | 248 | 163 | $2,291.80 |
+| both | 349 | 244 | 159 | $2,260.92 |
 
-Both: $107.52 (4.5%) less lumber on that house (one tee fell back to standard
-backing). This counts lumber only. Whether a given wall may use either detail
+Both: $123.52 (5.2%) less lumber on that house. This counts lumber only. Whether a given wall may use either detail
 is a code and engineer's call (clip stiffness, nailing for the partition), not
 something this tool checks; the options are off by default.
 
@@ -247,12 +246,12 @@ something this tool checks; the options are off by default.
 | option | example house (invented) | Open House Plans 1 (CC0, generated) | Open House Plans 2 (CC0, generated; ganged, long boards) |
 |---|---|---|---|
 | 24 in stud spacing | -14.4% | -12.0% | -12.3% |
-| two-stud corners + ladder tees | -5.2% | -6.6% | -5.9% |
+| two-stud corners + ladder tees | -5.2% | -6.6% | -6.0% |
 | single top plate | -8.8% | -8.2% | -8.8% |
-| all three details, 16 in | -14.1% | -14.9% | -14.9% |
-| all three details + 24 in | -28.0% | -26.1% | -26.6% |
+| all three details, 16 in | -14.1% | -14.9% | -14.8% |
+| all three details + 24 in | -28.0% | -26.3% | -26.6% |
 
-Standard totals: $2,384.16 (253 boards), $2,678.80 (276 boards) and $4,502.16 (435 boards); the earlier table had drifted from the engine and was rerun on 2026-11-06. Open House Plans 2 does not lay out as drawn (two windows 3 in apart). 2026-11-06: the bench now retries a plan that fails with the opt-in `--gang` step (`measure(plan, {gang: true})`); Open House Plans 2 still failed after that, because the ganged Window 4 + 5 header is 195 in and the bench's longest 2x10 is 192 in. 2026-11-06 (later): the bench now retries with 20 and 24 ft boards added in every size at 1 per foot (`measure(plan, {gang: true, longBoards: true})`, the same for every variant), and Open House Plans 2 is measured: 687 pieces and 435 boards ($4,502.16) standard; 24 in spacing -12.3%, corners + ladder tees -5.9%, single top plate -8.8%, all three details 16 in -14.9%, all three details + 24 in -26.6% ($3,304.12), in line with the other two houses. Three window pairs 3 in apart are ganged as 75 in openings with a 3 in mullion; whether a 195 in header or a mullion is sound is the unit maker's or an engineer's call. Hand-made test in `advanced-bench.test.mjs`. The savings are in lumber only: 24 in spacing needs a stress check on the studs and sheathing, single top plate needs framing in line, and both need the engineer's say; the tool does not check either. Two generated or invented houses, no permit set, no builder's real order. `advanced-bench.test.mjs` checks ordering and a hand-counted 20 ft wall (5 fewer studs at 24 in).
+Standard totals: $2,384.44 (253 boards), $2,678.80 (276 boards) and $4,503.88 (435 boards; rerun 2026-11-26); the earlier table had drifted from the engine and was rerun on 2026-11-06. Open House Plans 2 does not lay out as drawn (two windows 3 in apart). 2026-11-06: the bench now retries a plan that fails with the opt-in `--gang` step (`measure(plan, {gang: true})`); Open House Plans 2 still failed after that, because the ganged Window 4 + 5 header is 195 in and the bench's longest 2x10 is 192 in. 2026-11-06 (later): the bench now retries with 20 and 24 ft boards added in every size at 1 per foot (`measure(plan, {gang: true, longBoards: true})`, the same for every variant), and Open House Plans 2 is measured: 687 pieces and 435 boards ($4,503.88) standard; 24 in spacing -12.3%, corners + ladder tees -6.0%, single top plate -8.8%, all three details 16 in -14.8%, all three details + 24 in -26.6% ($3,303.84), in line with the other two houses. Three window pairs 3 in apart are ganged as 75 in openings with a 3 in mullion; whether a 195 in header or a mullion is sound is the unit maker's or an engineer's call. Hand-made test in `advanced-bench.test.mjs`. The savings are in lumber only: 24 in spacing needs a stress check on the studs and sheathing, single top plate needs framing in line, and both need the engineer's say; the tool does not check either. Two generated or invented houses, no permit set, no builder's real order. `advanced-bench.test.mjs` checks ordering and a hand-counted 20 ft wall (5 fewer studs at 24 in).
 
 **A real house (2026-11-08, `advanced-bench.mjs FLOOR.json ...`):** the bench had only invented and generated houses. It now takes plan files like `allowance-bench.mjs`, so the Schultz Residence (OpeningDesign, CC BY-ND, not committed; fetched from `opensourceBIM/IFC-files`) was measured: floors read with `ifc-engine dxf|plan --storey "1st Floor"|"2nd Floor"|"3rd Floor" --wood-only --drop-frame-stubs`, then `node cli.mjs FLOOR.dxf --ifc-json=FLOOR.json --add-board=2x4:20ft --whole-house --fixed-plan > FLOOR.fixed.json`, then `node advanced-bench.mjs 1st.fixed.json 2nd.fixed.json 3rd.fixed.json` (about 50 s). Order cost against the standard 16 in layout, 1st / 2nd / 3rd floor: 24 in spacing -8.6% / -13.7% / -13.1%; corners + ladder tees -2.2% / -6.9% / -7.0%; single top plate -12.1% / -8.0% / -7.8%; all three at 16 in -14.8% / -14.9% / -14.7%; all three + 24 in -23.5% / -27.8% / -26.9% (standard $930.00, $2,415.96, $2,847.16). That matches the -24 to -27% on the invented houses. Same caveats: lumber only, the 20 ft price is a per-foot guess, the model's placeholders (lowered and cut-down doors, swapped headers) are in the plans, 24 in spacing and a single top plate need an engineer, and no framer's order was compared.
 
@@ -280,7 +279,7 @@ corner and tee end, plus three plates.
 
 | plan | wall ft | counted order ft | per-foot rule | on-centre rule |
 |---|---|---|---|---|
-| example house (invented) | 212 | 2321 | 2494 (+7.4%) | 2727 (+17.5%) |
+| example house (invented) | 212 | 2316 | 2494 (+7.7%) | 2727 (+17.7%) |
 | Open House Plans 1 (CC0, generated) | 220 | 2545 | 2594 (+1.9%) | 3171 (+24.6%) |
 | Open House Plans 2 (CC0, generated), 3 pairs of windows ganged, 24 ft header stock added | 399 | 4269 | 4704 (+10.2%) | 5494 (+28.7%) |
 
@@ -304,7 +303,7 @@ Reading: on a real house the per-foot rule lands within 1.6 to 8% of the count, 
 
 | plan | spacing | counted order ft | per-foot rule | on-centre rule |
 |---|---|---|---|---|
-| example house (invented) | 16 in | 2316 | 2494 (+7.7%) | 2727 (+17.8%) |
+| example house (invented) | 16 in | 2316 | 2494 (+7.7%) | 2727 (+17.7%) |
 | example house (invented) | 24 in | 1972 | 2494 (+26.5%) | 2286 (+15.9%) |
 | Open House Plans 1 (CC0, generated) | 16 in | 2545 | 2594 (+1.9%) | 3171 (+24.6%) |
 | Open House Plans 1 (CC0, generated) | 24 in | 2222 | 2594 (+16.7%) | 2679 (+20.6%) |
@@ -318,7 +317,7 @@ The per-foot rule looks close at 16 in because it implicitly assumes that spacin
 | plan | spacing | counted order ft | per-foot rule | on-centre rule |
 |---|---|---|---|---|
 | example house (invented) | 12 in | 2623 | 2494 (-4.9%) | 3186 (+21.5%) |
-| example house (invented) | 19.2 in | 2176 | 2494 (+14.6%) | 2532 (+16.3%) |
+| example house (invented) | 19.2 in | 2177 | 2494 (+14.5%) | 2532 (+16.3%) |
 | Open House Plans 1 (CC0, generated) | 12 in | 2822 | 2594 (-8.1%) | 3604 (+27.7%) |
 | Open House Plans 1 (CC0, generated) | 19.2 in | 2366 | 2594 (+9.7%) | 2968 (+25.4%) |
 

@@ -51,7 +51,7 @@ export function compare(plan, { gang = false } = {}) {
   }
   perFoot *= 1.1; onCentre *= 1.1;
   return {
-    ok: true, ganged, longHeaders, wallFeet: r.summary.wallFeet, counted, perFoot, onCentre,
+    ok: true, ganged, longHeaders, wallFeet: r.summary.wallFeet, counted, perFoot, onCentre, laidOut: plan, // laidOut: the plan as framed (ganged openings, added 24 ft stock)
     perFootOff: (perFoot - counted) / counted, onCentreOff: (onCentre - counted) / counted,
   };
 }
