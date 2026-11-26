@@ -2,6 +2,7 @@
 import contextlib
 import io
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -97,7 +98,11 @@ class ParseTest(unittest.TestCase):
                            "are a market worth the site's space", "waits on a person"),
                           ("a Polish site, only if Polish accountants are a market", "waits on evidence"),
                           ("a native German reviewer for the templates", "waits on a person"),
-                          ("the lien waiver text after a lawyer's review", "waits on a person")):
+                          ("the lien waiver text after a lawyer's review", "waits on a person"),
+                          # cmmc #6 (2026-11-26): --bets called it free; the asker is no _WHO word.
+                          ("C3PAO evidence binder export, if assessors ask for them there",
+                           "waits on demand"),
+                          ("a Procore sync once a prime requests one", "waits on demand")):
             self.assertEqual(rc.gate(text), why, text)
         self.assertEqual(rc.gate_match("Saved crews; if shops ask for it (part 2)"),
                          ("waits on demand", "if shops ask for it"))
@@ -108,6 +113,8 @@ class ParseTest(unittest.TestCase):
                      "Ask-for-payment email when an invoice is overdue",
                      "Native app wrapper for the reader (Capacitor)",
                      "Show the total only if the rows add up",
+                     "Retry the upload if it asks for a new token",
+                     "Ask-for-quote form that emails the shop",
                      "Waiver text, agent-approved (no attorney review; open checks listed there)"):
             self.assertIsNone(rc.gate(free), free)
 
@@ -437,7 +444,7 @@ class ClaimRaceTest(unittest.TestCase):
                          ["payapps", "seller-books", "jobshop-quote", "nowhere"])
         _, out = self.main(self.a, "--bets", "--bets-md", str(bets), app=None)
         self.assertIn("payapps: 3 Next, free and not gated: #1, #2, #3; 0 live claim(s)", out)
-        self.assertIn("Start here: bet #1 payapps, item #1", out)
+        self.assertRegex(out, r"Start here: bet #1 payapps, item #[123] ")
         for n in ("1", "2", "3"):
             self.assertEqual(self.main(self.b, "--claim", n)[0], 0)
         code, out = self.main(self.a, "--bets", "--bets-md", str(bets), app=None)
@@ -445,7 +452,34 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertIn("payapps: 3 Next, free and not gated: none; 3 live claim(s)", out)
         self.assertIn("seller-books: no ROADMAP.md", out)
         self.assertIn("nowhere: not in this clone", out)
-        self.assertIn("Start here: bet #3 jobshop-quote, item #3", out)
+        self.assertRegex(out, r"Start here: bet #3 jobshop-quote, item #[34] ")
+
+    def test_spread_rotates_the_top_choices_per_session(self):
+        # 2026-11-26 friction (4 runs): every run got the same "Start here" item and lost the
+        # claim race by seconds.
+        opts = [1, 2, 3, 4, 5]
+        self.assertEqual(rc.spread(opts, None), opts)
+        self.assertEqual(rc.spread([7], "ab"), [7])
+        picks = {rc.spread(opts, f"{i:010x}")[0] for i in range(9)}
+        self.assertEqual(picks, {1, 2, 3})
+        for i in range(9):
+            out = rc.spread(opts, f"{i:010x}")
+            self.assertEqual(sorted(out), opts)
+            self.assertEqual(out[3:], [4, 5])
+        self.assertEqual(rc.spread(opts, "0000000004"), rc.spread(opts, "0000000004"))
+
+    def test_bets_overview_spreads_parallel_runs(self):
+        bets = Path(self.tmp.name) / "bets.md"
+        bets.write_text("| # | Bet | Where |\n|---|---|---|\n"
+                        "| 1 | **Pay apps** | new `private-monorepo/apps/payapps` |\n")
+        firsts = set()
+        for run in ("s0", "s1", "s2", "s3", "s4", "s5"):
+            _, out = self.main(self.a, "--bets", "--bets-md", str(bets), app=None, run=run)
+            m = re.search(r"Start here: bet #1 payapps, item #(\d)", out)
+            self.assertTrue(m, out)
+            self.assertIn("if it is taken", out)
+            firsts.add(m.group(1))
+        self.assertGreater(len(firsts), 1)
 
     def test_bets_overview_lists_growth_topics_when_nothing_is_free(self):
         bets = Path(self.tmp.name) / "bets.md"
@@ -464,8 +498,11 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertIn("job costing (1 live: job-cost-codes-part-1)", out)
         self.assertIn("RFIs (no live claim)", out)
         self.assertIn("Fewest live claims: bet #1 payapps (4)", out)
-        self.assertIn("Untouched topic: 'RFIs'", out)
-        self.assertIn("--slug rfi-<part>", out)
+        self.assertRegex(out, r"Untouched topic: '(RFIs|estimating)'")
+        self.assertIn("RFIs", out)
+        _, out = self.main(self.a, "--bets", "--bets-md", str(bets), app=None, run="r1")
+        want = rc.spread(["RFIs", "estimating"], rc.hashlib.sha256(b"r1").hexdigest()[:10])[0]
+        self.assertIn(f"Untouched topic: '{want}'", out)
 
     def test_bets_overview_sends_a_run_to_the_least_crowded_wedge(self):
         # 2026-11-26 friction (6 runs): every bet's Next items waited, the fallback named a

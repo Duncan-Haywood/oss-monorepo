@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01EhTJVLCNCrQhoDgY8SDguB",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T21:56:03Z",
+  "ended": "2026-11-26T21:58:22Z",
+  "wall_minutes": 2.46,
+  "tokens_in": 1481859,
+  "tokens_out": 7881,
+  "cost_usd": 0.9009,
+  "tool_calls": 20,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19488",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "'Auth, session or payment code changed' still fires on roadmap_claim.py (the word 'claim'), as an earlier record reported; answered as a false positive again."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "`python3 -m unittest platform/ci/test_roadmap_claim.py` from the repo root errors (path import); the test has to run from platform/ci as a module."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No post written: a process-track tool fix with no reader-facing story.",
+      "did": "Shipped the tool fix and tests only.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Critique mode: friction_rank cluster 1 (roadmap_claim.py, 13x). Collision theme (4 records, 2026-11-26) was unfixed; others already fixed. Tests: test_roadmap_claim 30 OK; promptctl validate ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "031e0658-6d3d-5667-9993-a9f9b862607e",
+    "transcripts": 1,
+    "first": "2026-11-26T21:56:03Z",
+    "last": "2026-11-26T21:58:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 20,
+        "input": 38,
+        "output": 7881,
+        "thinking": 1218,
+        "cache_read": 1424548,
+        "cache_write_5m": 0,
+        "cache_write_1h": 57273,
+        "api_equivalent_usd": 0.9009,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 20,
+      "input": 38,
+      "output": 7881,
+      "thinking": 1218,
+      "cache_read": 1424548,
+      "cache_write_5m": 0,
+      "cache_write_1h": 57273,
+      "api_equivalent_usd": 0.9009,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.961,
+    "tool_calls": 20,
+    "tools": {
+      "Bash": 18,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 2.46,
+      "active_minutes": 2.46,
+      "model_minutes": 1.44,
+      "tool_minutes": 1.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "read friction, small tool change plus tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 166.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

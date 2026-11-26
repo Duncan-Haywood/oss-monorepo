@@ -29,7 +29,9 @@ summed up in one line each (--all lists them with notes). A refused claim push s
 (a rival holds the branch, exit 4) or PUSH FAILED (no one does; retry, exit 2). Exit codes: 0 ok, 2 usage or git error, 4 the item is already
 claimed (pick another). When no bet has a free, ungated item, --bets lists each bet's
 `**Growth path:**` topics from bets.md with the live and merged claims on each, and names
-the least-crowded bet's first topic with no live claim. Hosts an item names (wyoleg.gov,
+the least-crowded bet's first topic with no live claim. Both picks (the free item and the
+untouched topic) rotate per session among the first three, so parallel runs spread out.
+Hosts an item names (wyoleg.gov,
 ksef.podatki.gov.pl) are probed through this session's proxy (egress_probe.py, a few seconds,
 --no-probe skips): the listing shows each one's state, and an ask whose named hosts all refuse
 is gated "waits on a source" for this session only, since egress differs per environment.
@@ -63,6 +65,25 @@ def run_tag() -> str | None:
     sid = (os.environ.get("ROADMAP_CLAIM_RUN") or os.environ.get("CLAUDE_CODE_REMOTE_SESSION_ID")
            or os.environ.get("CLAUDE_CODE_SESSION_ID"))
     return hashlib.sha256(sid.encode()).hexdigest()[:10] if sid else None
+
+
+SPREAD = 3  # how many of the top free choices a run's pick is spread over
+
+
+def spread(options: list, tag: str | None, width: int = SPREAD) -> list:
+    """The first `width` options rotated by this session's tag, then the rest in order.
+
+    "Start here" named the same first item to every run, so runs started minutes apart
+    built the same slice: four records (2026-11-26) lost a claim race by 0 to 60 s
+    (einvoice #5 by ~10 s, payapps item 3, two job-costing part 3 slices), one asking for
+    "a jittered or per-run ordering". A stable per-session rotation keeps a re-run's pick
+    the same and keeps the pick among the top few, so ranking still matters.
+    """
+    head, rest = options[:width], options[width:]
+    if not tag or len(head) < 2:
+        return list(options)
+    k = int(tag, 16) % len(head)
+    return head[k:] + head[:k] + rest
 
 
 def is_mine(msg: str, tag: str | None) -> bool:
@@ -128,7 +149,8 @@ def inline_next(roadmap: str) -> list[tuple[int, str]]:
 # dropping a bet. Twenty more (2026-11-26) found the first phrase list too narrow: "once real
 # companies are counted", "if customers bill through them", "whatever the first shops ask",
 # "once a source is in hand", "the owner runs the workflow once", "if those ever exist".
-# Phrases are matched in the item's text only; a miss just leaves it [free]. Bare "when" is not
+# "if assessors ask" (2026-11-26) was missed for want of the role in _WHO, so any subject
+# followed by ask/request now counts. Phrases are matched in the item's text only; a miss just leaves it [free]. Bare "when" is not
 # a condition word here: done-history text uses it descriptively ("when a company tracks ...").
 _WHO = (r"(?:people|shops?|customers?|users?|GCs?|PMs?|admins?|companies|contractors?|subs?|"
         r"buyers?|sellers?|firms?|clients?|estimators?|someone|anyone|demand|usage|traffic)")
@@ -139,7 +161,9 @@ GATES = (
         r"(?:asks?|requests?|wants?|needs?|shows?)\b|\bif asked\b|\bon request\b|"
         r"\bonce (?:usage|traffic)\b|\bonce [^.;()]{0,25}\bmeasured\b|"
         r"\b(?:if|once|until)\s+(?:[\w'-]+\s+){0,3}?" + _WHO + r"\b|"
-        r"\bwhatever\b[^.;()]{0,30}\b(?:asks?|wants?|needs?)\b", re.I)),
+        r"\bwhatever\b[^.;()]{0,30}\b(?:asks?|wants?|needs?)\b|"
+        # Any asker: "if assessors ask for them there" (2026-11-26) named a role no list held.
+        r"\b(?:if|once|until)\s+(?!it\b|this\b|that\b)(?:[\w'-]+\s+){0,3}?(?:asks?|requests?)\b", re.I)),
     ("waits on a source", re.compile(
         r"\bonce\b[^.;()]{0,60}\b(?:reachable|published|available|in hand|is live|goes live|"
         r"answers|(?:is|can be) read|has run)\b|\b403\b|\bwhen\b[^.;]{0,60}\bchanges?\b|\bno public (?:spec|format|columns?|schema|docs?)\b", re.I)),
@@ -636,7 +660,7 @@ def topic_claims(topic: str, info: dict[str, tuple[int, str]], merged: dict[str,
 
 
 def growth_topics(rank: int, app: str, topics: list[str], claims: tuple[dict, dict] | None,
-                  now: float, stale_s: float) -> None:
+                  now: float, stale_s: float, tag: str | None = None) -> None:
     """Print a bet's growth topics with the claims already on each, and the first untouched one.
 
     Picking the bet was not enough: inside it runs still invented the same item (three payapps
@@ -646,13 +670,15 @@ def growth_topics(rank: int, app: str, topics: list[str], claims: tuple[dict, di
         print(f"  (bets.md has no **Growth path:** line for bet #{rank}: add one in your PR)")
         return
     info, merged = claims or ({}, {})
-    pick, cells = None, []
+    untouched, cells = [], []
     for t in topics:
         live, done = topic_claims(t, info, merged, now, stale_s)
         note = (f"{len(live)} live: {', '.join(live[:2])}" if live else "no live claim")
         note += f"; {len(done)} merged" if done else ""
         cells.append(f"{t} ({note})")
-        pick = pick or (None if live else t)
+        if not live:
+            untouched.append(t)
+    pick = (spread(untouched, tag) or [None])[0]
     print("  Growth path (bets.md), claims whose slug names each topic: " + "; ".join(cells))
     if pick:
         slug = "-".join(sorted(topic_words(pick), key=pick.lower().find))[:40] or "item"
@@ -708,8 +734,11 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None, pro
         growth[app] = (info, merged)
     if start:
         rank, app, nums = start
-        print(f"Start here: bet #{rank} {app}, item #{nums[0]} "
-              f"(`roadmap_claim.py {app}` for the list, then `--claim {nums[0]}`).")
+        order = spread(nums, tag)
+        alt = f"; if it is taken, #{', #'.join(map(str, order[1:SPREAD]))}" if len(order) > 1 else ""
+        print(f"Start here: bet #{rank} {app}, item #{order[0]} "
+              f"(`roadmap_claim.py {app}` for the list, then `--claim {order[0]}`{alt}). "
+              f"The pick rotates per session among the first {SPREAD} free items, so parallel runs spread out.")
     elif present:
         # Three runs opened new payapps items within 15 minutes (2026-11-26) while other bets
         # sat with no live claims: send the next run to the least-crowded bet, with its wedge.
@@ -720,7 +749,7 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None, pro
               f"<short-name> --note ...` (check its ROADMAP's Done list first).")
         print(f"  Wedge (bets.md): {wedge}" if wedge else
               f"  (bets.md has no **Wedge:** line for bet #{rank}: read its evidence section)")
-        growth_topics(rank, app, paths.get(rank, []), growth.get(app), now, stale_s)
+        growth_topics(rank, app, paths.get(rank, []), growth.get(app), now, stale_s, tag)
     else:
         print("Start here: no ranked bet's app is in this clone.")
     return 0
@@ -730,7 +759,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     ap.add_argument("app", nargs="?", help="app directory under apps/, e.g. payapps")
     ap.add_argument("--repo", default=DEFAULT_REPO)
-    ap.add_argument("--claim", type=int, metavar="N", help="claim Next item N (as listed)")
+    ap.add_argument("--claim", type=int, metavar="N", help="claim Next item N (as listed); a slug-only claim passes --slug alone")
     ap.add_argument("--slug", help="claim under this slug instead (one part of an item, or an "
                                    "app whose ROADMAP has no Next list); works without --claim")
     ap.add_argument("--note", default="", help="what exactly this run builds")

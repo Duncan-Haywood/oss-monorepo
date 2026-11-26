@@ -7460,7 +7460,7 @@ ${group.items.map(renderCard).join('\n')}
   <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — free, private, in your browser`)}">
+  <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — software for small businesses`)}">
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">${jsonLd(itemList)}</script>
   <style>${CATEGORY_STYLE}${COMPARE_STYLE}  </style>
@@ -7671,7 +7671,7 @@ export function renderCompareProductPage({
   <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — free, private, in your browser`)}">
+  <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — software for small businesses`)}">
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">${jsonLd(structured)}</script>
   <style>${CATEGORY_STYLE}${COMPARE_STYLE}  </style>
@@ -7950,7 +7950,7 @@ ${tools.map(renderTool).join('\n')}
   <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — free, private, in your browser`)}">
+  <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — software for small businesses`)}">
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">${jsonLd(itemList)}</script>
   <style>${CATEGORY_STYLE}${COMPARE_STYLE}${GUIDES_STYLE}  </style>
@@ -8161,7 +8161,7 @@ ${exceptions.map((x) => `        <li><a href="${escapeHtml(`${toRoot}${x.slug}/`
   <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — free, private, in your browser`)}">
+  <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — software for small businesses`)}">
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">${jsonLd(aboutLd)}</script>
   <style>${CATEGORY_STYLE}${ABOUT_STYLE}  </style>
@@ -8942,7 +8942,7 @@ function customDevHead({ title, description, url, toRoot, baseUrl, extraHead = '
   <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — free, private, in your browser`)}">
+  <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — software for small businesses`)}">
   <meta name="twitter:card" content="summary_large_image">${extraHead ? `\n  ${extraHead}` : ''}
   <style>${CATEGORY_STYLE}${ABOUT_STYLE}${FEEDBACK_STYLE.replace(/#fb\b/g, '#cdf')}${CUSTOM_DEV_STYLE}  </style>
   ${siteStyleLink(toRoot)}
@@ -9587,7 +9587,7 @@ export function renderHub(
   <meta property="og:image" content="${escapeHtml(`${baseUrl}${SOCIAL_CARD_FILE}`)}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — free, private, in your browser`)}">
+  <meta property="og:image:alt" content="${escapeHtml(`${SITE_NAME} — software for small businesses`)}">
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">${jsonLd(itemList)}</script>
   <script type="application/ld+json">${jsonLd(siteStructuredData({
@@ -11698,6 +11698,21 @@ export function relatedToolsTable(surfaces, limit = 4) {
 // no content images either.
 export const SOCIAL_CARD_FILE = 'social-card.png';
 
+/**
+ * The site card's footer line: the live product lines by name, how many
+ * software lines are in early access, and the free tool count. Hardware
+ * ("long-term") is left off; it is not something a reader can use yet.
+ */
+export function siteCardFooter(lines, toolCount) {
+  const live = lines.filter((l) => l.status === 'live').map((l) => l.name);
+  const early = lines.filter((l) => l.status === 'early-access').length;
+  const parts = [];
+  if (live.length) parts.push(`${live.join(' and ')} live`);
+  if (early) parts.push(`${formatCount(early)} in early access`);
+  parts.push(`${formatCount(toolCount)} free tools`);
+  return parts.join(' · ');
+}
+
 /** The Atom feed's path. See `renderFeed`. */
 export const FEED_FILE = 'feed.xml';
 export { SITE_NAME };
@@ -11824,7 +11839,7 @@ export function injectDiscoveryTags(html, { canonical, baseUrl, title, descripti
     add(
       'property',
       'og:image:alt',
-      cardFile && title ? `${title} — ${SITE_NAME}` : `${SITE_NAME} — free, private, in your browser`,
+      cardFile && title ? `${title} — ${SITE_NAME}` : `${SITE_NAME} — software for small businesses`,
     );
     // Without a card type X renders a link as plain text. `summary_large_image`
     // is the wide form, which is what a 1200×630 card is drawn for.
@@ -14180,7 +14195,10 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     path.join(outDir, SOCIAL_CARD_FILE),
     renderSiteCard({
       address: siteAddress(base),
-      footer: `${formatCount(surfaces.length)} free tools · ${formatCount(researchProjectCount())} research projects`,
+      // Status from business.mjs, as the hero states it: what is live, what
+      // is in early access, and the free tools. Research is paused (owner,
+      // 2026-11-25), so it is no longer counted on the card.
+      footer: siteCardFooter(PRODUCT_LINES, surfaces.length),
     }),
   );
   // One card per category, tinted and headlined with the section's own name.
