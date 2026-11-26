@@ -155,7 +155,7 @@ test('real stills of the free tools: the pay-app one leads, others sit in their 
 });
 
 test('early access goes somewhere private: the edge form, or the inbox by email; never the public feedback form', async () => {
-  const { CONSENT_TEXT } = await import('../edge/early-access.mjs');
+  const { CONSENT_TEXT } = await import('./early-access-consent.mjs');
   const on = renderConstructionPage({ baseUrl: BASE, earlyAccessUrl: 'https://edge.example' });
   assert.match(on, /<form class="ea-form"/);
   assert.ok(on.includes('"https://edge.example/early-access"'), 'posts to the Worker route');

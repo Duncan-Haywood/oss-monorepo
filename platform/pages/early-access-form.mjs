@@ -8,12 +8,12 @@
  * agent-managed inbox, which is also private. Either way nothing a visitor
  * sends here is published, unlike the site's feedback form.
  *
- * The consent wording is the Worker's own `CONSENT_TEXT`, so what is stored
- * (`CONSENT_VERSION`) is what was shown.
+ * The consent wording comes from `early-access-consent.mjs`, which the Worker
+ * imports too, so what is stored (`CONSENT_VERSION`) is what was shown.
  *
  * Pure: returns HTML (with its inline script and styles) for a page to place.
  */
-import { CONSENT_TEXT, EARLY_ACCESS_PRODUCTS } from '../edge/early-access.mjs';
+import { CONSENT_TEXT, EARLY_ACCESS_PRODUCTS } from './early-access-consent.mjs';
 
 const esc = (s) =>
   String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);

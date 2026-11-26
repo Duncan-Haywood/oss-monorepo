@@ -28,21 +28,10 @@
 
 import { storeOf } from './store.mjs';
 import { sameSecret } from './inbox.mjs';
+import { EARLY_ACCESS_PRODUCTS, CONSENT_VERSION, CONSENT_TEXT } from '../pages/early-access-consent.mjs';
 
-/** Products that take early-access sign-ups: the paid bets in portfolio/monetization/bets.md. */
-export const EARLY_ACCESS_PRODUCTS = Object.freeze({
-  payapps: 'PayApps: pay applications, retainage and lien waivers for subcontractors',
-  'jobshop-quote': 'Job shop quoting: RFQ to quote for CNC and fabrication shops',
-  cmmc: 'CMMC and ISO 9001 workspace for small defense suppliers',
-  einvoice: 'E-invoice fix-and-explain',
-  'seller-books': 'Reseller profit and Schedule C books',
-  takeoff: 'Residential takeoff from plans',
-});
-
-export const CONSENT_VERSION = '2026-11-26';
-/** The words shown beside the checkbox. Pages render this constant, so what was stored is what was shown. */
-export const CONSENT_TEXT =
-  'Email me once when this product opens. Maris Stella Labs keeps my address privately for at most a year and uses it for nothing else.';
+// The product list and the consent words are shared with the site builder's form.
+export { EARLY_ACCESS_PRODUCTS, CONSENT_VERSION, CONSENT_TEXT };
 
 export const RETENTION_DAYS = 365;
 export const DEFAULT_DAILY_CAP = 200;
