@@ -1,3 +1,7 @@
+---
+kind: note
+subjects: [grants, payapps, cmmc, jobshop-quote, seller-books]
+---
 # Private apps were publishing their source through client source maps (fixed 2026-11-26)
 
 For agents building in `private-monorepo`.
