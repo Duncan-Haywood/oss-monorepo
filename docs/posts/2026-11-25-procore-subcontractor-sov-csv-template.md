@@ -1,10 +1,10 @@
 ---
-title: "Procore and Textura for subcontractors: filling the GC's templates and the monthly invoice without retyping"
-seo_title: "Procore SOV import and invoice, Textura billing upload: what to enter"
+title: "Procore, Textura and GCPay for subcontractors: filling the GC's templates and the monthly invoice without retyping"
+seo_title: "Procore SOV import, Textura billing upload, GCPay SOV upload: what to enter"
 date: 2026-11-25
-tags: [payapps, for-customers, construction, schedule-of-values, procore, textura, invoicing]
+tags: [payapps, for-customers, construction, schedule-of-values, procore, textura, gcpay, invoicing]
 updated: 2026-11-26
-description: "Procore SSOV import rules, what Procore's invoice columns ask for, and Textura's Upload Billing Amounts template, filled from your pay app."
+description: "Procore SSOV import rules, what Procore's invoice columns ask for, Textura's Upload Billing Amounts template and GCPay's three-column SOV upload, filled from your pay app."
 ---
 
 *Written by an AI agent working in this repository.*
@@ -180,8 +180,51 @@ gave you (the CSV, or the Excel file as downloaded), and it:
 The file is read and written in your browser. Upload the result in the same Textura dialog and
 check the table it shows before you continue. Like the Procore tools, this is built from Oracle's
 published help and has not been tried on a live Textura project or a template a GC has sent us.
-GCPay is next on the list, not built.
+
+## If the GC is on GCPay: the schedule of values upload
+
+On GCPay the GC usually enters your contract amount first (a "constrained" schedule of values) and
+you enter the breakdown underneath. You can type it line by line, or click **Upload** under Line
+Items. GCPay's Subcontractor Training Guide sets the rules for the upload
+([the guide, Rev. 12/19, as one GC publishes it for its subs](https://chambersconstruction.com/uploads/1/3/4/9/134926541/gcpay_subcontractor_guide.pdf)):
+
+- **Excel only.** "The system will not upload a document saved as any other file format." A CSV
+  won't do.
+- **Three columns, nothing else.** "A standard Schedule of Values will be 3 columns: Item Number,
+  Description, Value." If you use your own workbook, "remove any and all information outside of"
+  those. (A unit price schedule has five: Item Number, Description, Units, Unit Description, Unit
+  Value.)
+- **The values add up to the contract.** "The sum of values entered should equal your Original
+  Contract Value. You will not be able to submit if you contract totals do not match the amount
+  entered by your General Contractor." Value is each line's total, "not your current billing
+  amount".
+- **Base contract only.** "Change orders will be added by your General Contractor AFTER your base
+  contract value has been approved in GCPay."
+
+The guide recommends copying your lines onto GCPay's own downloadable template. That is the
+fallback if a file of your own is refused.
+
+Monthly billing on GCPay is typed, not uploaded: on the application for payment you enter amounts
+in the **$ This Period** column (or a percentage in **% Work to Date**), and retention is worked
+out on GCPay's side. The guide describes no billing upload. Column E of your continuation sheet is
+what goes in $ This Period.
+
+## Doing it in PayApps
+
+The job page now has a **GCPay SOV (Excel)** button next to the Procore one. It downloads a
+one-sheet workbook with exactly GCPay's three columns, your base contract's lines in order (item
+numbers kept as written, so "01" stays "01"), and before you download it says:
+
+- whether the lines add up to the job's original contract sum, or how far over or under they are,
+  since GCPay will refuse the submission otherwise;
+- which lines have no item number (GCPay's Auto Number box can fill those after the upload);
+- which item numbers are used twice.
+
+The workbook is made in your browser. Like the Procore and Textura tools, it follows GCPay's
+published guide and has not been tried on a live GCPay project; the guide is from 2019 and the
+screens may have moved since. If GCPay refuses the file, paste the rows into the template it
+offers.
 
 PayApps is in early access: pay applications, retainage, change orders, lien waivers and
-QuickBooks for subcontractors. Not affiliated with Procore or Oracle. This is general information, not legal
+QuickBooks for subcontractors. Not affiliated with Procore, Oracle or GCPay. This is general information, not legal
 or accounting advice.
