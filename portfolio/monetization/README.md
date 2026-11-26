@@ -12,7 +12,7 @@ This directory is where that work lives between sessions:
   bets.md's order, each pointing its deepening work at
   `apps/<slug>` in this repository (`app:`; the paid apps moved here from
   private-monorepo on 2026-11-26, and only `private-monorepo/apps/grants`
-  stays there, for a client under an NDA); every other flagship row is
+  stays there, it holds client-confidential material); every other flagship row is
   `demoted:` below them with its reason.
 - **[`models.yaml`](models.yaml)**: one row per product with its buyer, model,
   first paid offer, a price hypothesis, competitors' list prices (with source

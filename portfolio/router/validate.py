@@ -134,7 +134,7 @@ def check(venture_dir, data, errors):
 
 # A bet's `app:` is `apps/<slug>` in this repository (the paid apps moved here
 # from private-monorepo on 2026-11-26), or `private-monorepo/apps/grants`, the
-# one app that stays private because it names a client under an NDA.
+# one app that stays private because it holds client-confidential material.
 APP_PREFIX = "apps/"
 PRIVATE_APP_PREFIX = "private-monorepo/apps/"
 PRIVATE_APPS = frozenset({"grants"})

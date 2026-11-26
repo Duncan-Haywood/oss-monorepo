@@ -118,7 +118,7 @@ class Venture:
     # flagships.yaml `app: apps/<slug>`: where a paid bet's deepening work
     # happens (2026-11-24 ranking, portfolio/monetization/bets.md). The paid apps
     # moved here from private-monorepo on 2026-11-26; grants stays there
-    # (`private-monorepo/apps/grants`, a client under an NDA).
+    # (`private-monorepo/apps/grants`, client-confidential).
     # A bet with no ventures/<slug> directory is listed from this field alone.
     flagship_app: Optional[str] = None
 

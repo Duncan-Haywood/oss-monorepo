@@ -42,7 +42,7 @@ NO_AGENT_STEP = re.compile(r"\bnothing agent-doable is left\b|\bagent steps (?:a
 # A paid bet (portfolio/monetization/bets.md, 2026-11-24) is named by `app:`
 # instead of `venture:`: `apps/<slug>` in this repository, where the paid apps
 # moved from private-monorepo on 2026-11-26, or `private-monorepo/apps/<slug>`
-# for the one app that stays private (grants names a client under an NDA).
+# for the one app that stays private (grants holds client-confidential material).
 # Its row adds:
 APP_PREFIX = "apps/"
 PRIVATE_APP_PREFIX = "private-monorepo/apps/"

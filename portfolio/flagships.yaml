@@ -50,7 +50,7 @@
 #   app: apps/<slug>  where its deepening work happens, in this repository
 #               (the paid apps moved here from private-monorepo on 2026-11-26).
 #               Only grants stays private: `private-monorepo/apps/grants`
-#               (it names a client under an NDA; attach that repository with
+#               (it holds client-confidential material; attach that repository with
 #               add_repo, push access). A bet with no ventures/<slug> directory
 #               still gets a Deepen row in allocate.py from `app:`.
 #   front_door: [<slug>, ...]  optional: the ventures/<slug> folders that are
@@ -251,7 +251,7 @@ flagships:
       adapter (apps/grants/src/worker/ports/billing/paddle.ts). Instrumentl lists
       $299 to $999 a month and reviewers call it pricey for small nonprofits
       (bets.md, with sources). Finishing its paid path is cheap; no large new build.
-      The one app left in private-monorepo (it names a client under an NDA).
+      The one app left in private-monorepo (it holds client-confidential material).
     next: >-
       Work in private-monorepo/apps/grants (add_repo, push access). Milestones: (1)
       the Paddle checkout end to end in Paddle's sandbox with webhook-driven plan

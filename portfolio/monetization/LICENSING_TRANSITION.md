@@ -42,7 +42,7 @@ On 2026-11-26 the paid apps moved from `Duncan-Haywood/private-monorepo` to
 `apps/` and `packages/` here (PR #19220), because the private repository's
 Actions started no jobs. Their licence is now the root `LICENSE`
 (FSL-1.1-MIT), with the per-app exceptions in [`apps/README.md`](../../apps/README.md),
-"Licence". Only `apps/grants` stays private: it names a client under an NDA.
+"Licence". Only `apps/grants` stays private: it holds client-confidential material.
 "The private app" below means `apps/<slug>` here for every app but grants.
 
 Of the 20 products, **8 are subscriptions** (a model call, a server, storage or

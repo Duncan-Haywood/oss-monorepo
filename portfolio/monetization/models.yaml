@@ -617,7 +617,7 @@ products:
   # The paid bets (portfolio/monetization/bets.md, ranked 2026-11-24), one row
   # each, named by `app:` instead of `venture:`: `apps/<slug>` in this repository
   # (moved from private-monorepo 2026-11-26), or private-monorepo/apps/grants,
-  # the one app that stays private (it names a client under an NDA).
+  # the one app that stays private (it holds client-confidential material).
   # Every tier price below is a PROPOSAL (`status: proposal`, with its `why`),
   # not a measured price: no sale has happened. Comparables are copied from
   # bets.md's sources, read 2026-11-24, many via aggregators (Capterra, G2,

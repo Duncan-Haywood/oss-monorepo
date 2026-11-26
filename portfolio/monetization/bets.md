@@ -28,7 +28,7 @@ without a sales team, Margin, Time = time to first dollar.
 | 4 | **CMMC L1/L2 + ISO 9001 workspace** | small defense/aerospace shops | 4 | 5 | 3 | 4 | 3 | 19 | `apps/cmmc` |
 | 5 | **Reseller profit and Schedule C books** | multi-platform resellers | 4 | 4 | 5 | 4 | 4 | 21 | `apps/seller-books` |
 | 6 | **Residential takeoff (roof, siding, framing lists from PDFs)** | remodelers, roofers, framers | 4 | 4 | 3 | 3 | 4 | 18 | `apps/wall-framing-takeoff` |
-| 7 | **Grant Autopilot** (live) | small nonprofits | 4 | 3 | 3 | 3 | 3 | 16 | `private-monorepo/apps/grants` (stays private: it names a client under an NDA) |
+| 7 | **Grant Autopilot** (live) | small nonprofits | 4 | 3 | 3 | 3 | 3 | 16 | `private-monorepo/apps/grants` (stays private: it holds client-confidential material) |
 
 The apps were built in `Duncan-Haywood/private-monorepo` from 2026-11-24 and
 moved to `apps/` and `packages/` in this repository on 2026-11-26 (PR #19220,

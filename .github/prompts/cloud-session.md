@@ -57,8 +57,9 @@ to them. Build, test and merge them like any other change here:
 3. Verify with the app's workflow, or locally with
    `python3 platform/ci/run_workflow_locally.py apps-<name>-ci`.
 
-**Grants is the one exception.** `apps/grants` stays in `private-monorepo`
-because it names a client under an NDA. For grants work only:
+**Grants is the one exception.** Grant Autopilot (`private-monorepo`'s
+`apps/grants`) stays private because it holds client-confidential material.
+For grants work only:
 
 1. `mcp__claude-code-remote__add_repo` with `owner: Duncan-Haywood`,
    `repo: private-monorepo`, `access: push` (push lets you open and merge
@@ -66,7 +67,7 @@ because it names a client under an NDA. For grants work only:
 2. One clone, inline, timeout about 10 min:
    `git clone --depth 1 https://github.com/Duncan-Haywood/private-monorepo /home/user/private-monorepo`
    (it took under a minute on 2026-11-25). Push with `git -c push.negotiate=true push -u origin <branch>`.
-3. Read its `CLAUDE.md` and `apps/grants/ROADMAP.md` by hand (add_repo's result
+3. Read its `CLAUDE.md` and `private-monorepo`'s `apps/grants/ROADMAP.md` by hand (add_repo's result
    names a `register_repo_root` tool that ToolSearch may not find; skip it).
    `python3 platform/ci/roadmap_claim.py grants` claims there (its `--repo`
    defaults to that clone for grants). The risk review runs there from this
