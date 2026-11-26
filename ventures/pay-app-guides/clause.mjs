@@ -31,7 +31,7 @@ const IF_PAID = [
 
 // Wording that only sets the time for payment.
 const WHEN_PAID = [
-  { re: /\bwithin\s+(\w+(?:-\w+)?|\d+)\s*(?:\(\d+\)\s*)?(?:calendar |business |working )?days?\s+(?:after|of|following|from)\b/i, means: "Sets a number of days for payment: timing wording." },
+  { re: /\bwithin\s+(\w+(?:[- ]\w+)?|\d+)\s*(?:\(\d+\)\s*)?(?:calendar |business |working )?days?\s+(?:after|of|following|from)\b/i, means: "Sets a number of days for payment: timing wording." },
   { re: /\b(?:after|upon|following|on)\s+(?:the\s+)?(?:contractor'?s?\s+|general contractor'?s?\s+)?receipt\s+of\s+(?:\w+\s+){0,3}payment\b/i, means: "Ties the payment date to the GC's receipt of payment: on its own this reads as pay-when-paid." },
   { re: /\bwhen\s+(?:and\s+if\s+)?(?:the\s+)?(?:contractor|general contractor|gc)\s+(?:is|has been)\s+paid\b/i, means: "\"When the contractor is paid\" is timing wording, unless the clause adds a condition." },
   { re: /\breasonable (?:time|period)\b/i, means: "A reasonable time for payment: the reading courts give a pay-when-paid clause." },
@@ -40,7 +40,21 @@ const WHEN_PAID = [
 const WHEN_AND_IF = /\bwhen\s+and\s+if\b|\bif\s+and\s+when\b/i;
 const OWNER_LINK = /\bowner\b|\breceipt of (?:\w+\s+){0,3}payment\b|\bpaid by\b|\bhigher[- ]tier/i;
 
-const NUM_WORDS = { one: 1, two: 2, three: 3, five: 5, seven: 7, ten: 10, fifteen: 15, twenty: 20, thirty: 30, "forty-five": 45, sixty: 60, ninety: 90 };
+// Written-out day counts, zero to ninety-nine: "fourteen", "twenty-one", "forty five".
+// The table once held only a dozen words, so "within fourteen days" read as no
+// number at all and the page told the sub to ask for one (red team 2026-11-26).
+const UNITS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+const TENS = { twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90 };
+export function wordNumber(s) {
+  const t = String(s ?? "").trim().toLowerCase();
+  if (/^\d+$/.test(t)) return Number(t);
+  const m = /^([a-z]+)(?:[- ]([a-z]+))?$/.exec(t);
+  if (!m) return null;
+  const [, a, b] = m;
+  if (!b) { const u = UNITS.indexOf(a); return u >= 0 ? u : Object.hasOwn(TENS, a) ? TENS[a] : null; }
+  const u = UNITS.indexOf(b);
+  return Object.hasOwn(TENS, a) && u >= 1 && u <= 9 ? TENS[a] + u : null;
+}
 
 function quote(text, m) {
   let start = Math.max(0, m.index - 30);
@@ -71,8 +85,8 @@ export function readClause(text) {
   if (both) ifPaid.push({ words: both[0], context: quote(t, both), means: "\"When and if\" joins timing and a condition; courts split on it, so it is not plain timing wording." });
   const linked = OWNER_LINK.test(t);
   let days = null;
-  const d = /\bwithin\s+(\w+(?:-\w+)?|\d+)\s*(?:\((\d+)\)\s*)?(?:calendar |business |working )?days?/i.exec(t);
-  if (d) days = d[2] ? Number(d[2]) : /^\d+$/.test(d[1]) ? Number(d[1]) : NUM_WORDS[d[1].toLowerCase()] ?? null;
+  const d = /\bwithin\s+(\w+(?:[- ]\w+)?|\d+)\s*(?:\((\d+)\)\s*)?(?:calendar |business |working )?days?/i.exec(t);
+  if (d) days = wordNumber(d[2] ?? d[1]);
 
   let kind;
   let summary;

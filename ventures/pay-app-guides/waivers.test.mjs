@@ -118,3 +118,34 @@ test("chase days must be plain digits; blank or spaces use the default", () => {
   assert.deepEqual(spaces.errors, []);
   assert.deepEqual(spaces.findings, compute(sampleLog(), SAMPLE_SETTINGS).findings);
 });
+
+test("a negative paid amount is an error, not a bigger shortfall (red team 2026-11-26)", () => {
+  const r = run(["Given,GC,Unconditional progress,2026-10-31,10000,2026-11-12,2026-11-10,-500"]);
+  assert.equal(r.errors.length, 1);
+  assert.match(r.errors[0], /paid amount is not a dollar figure of zero or more/);
+  assert.equal(run(["Given,GC,Unconditional progress,2026-10-31,10000,2026-11-12,2026-11-10,0"]).errors.length, 0);
+});
+
+test("only an unconditional waiver received with no payment date asks for the payment to be recorded", () => {
+  const t = (rows) => run(rows).findings.map((f) => f.title).join("\n");
+  assert.match(t(["Received,Acme Supply,Unconditional progress,2026-10-31,500,2026-11-01,,"]), /you hold their unconditional progress waiver but no date you paid it/);
+  assert.doesNotMatch(t(["Received,Acme Supply,Conditional progress,2026-10-31,500,2026-10-30,,"]), /no date you paid it/);
+});
+
+test("a progress waiver signed the same day as the final is not flagged; one signed a day later is", () => {
+  const t = (signed) => run([
+    "Given,GC,UF,2026-11-01,10,2026-11-02,2026-11-02,10",
+    `Given,GC,UP,2026-10-31,10,${signed},2026-10-31,10`,
+  ]).findings.map((f) => f.title).join("\n");
+  assert.doesNotMatch(t("2026-11-02"), /signed after a final waiver/);
+  assert.match(t("2026-11-03"), /signed after a final waiver/);
+});
+
+test("conditional waivers given and still unpaid are totalled; paid ones are not", () => {
+  const r = run([
+    "Given,GC,Conditional progress,2026-10-31,10000,2026-10-30,,",
+    "Given,GC,Conditional progress,2026-09-30,2500,2026-09-29,2026-10-10,2500",
+    "Given,GC,Unconditional progress,2026-09-30,2500,2026-10-12,2026-10-10,2500",
+  ]);
+  assert.equal(r.totals.unpaidConditionalGiven, 1000000);
+});
