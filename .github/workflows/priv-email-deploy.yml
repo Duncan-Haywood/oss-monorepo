@@ -1,0 +1,111 @@
+# Deploys platform/email, the agent-managed inboxes' Worker (D1 for parsed
+# mail, R2 for raw MIME, send_email for replies and owner alerts, a daily
+# cron for retention and the digest). Free plan: past a free limit requests
+# fail, nothing bills. Skipped, not failed, until the Cloudflare secrets exist.
+#
+# Worker secrets are pushed from repository secrets when they are set, so
+# the owner sets each value once, here (platform/email/README.md, "Owner
+# steps"): MAIL_AGENT_TOKEN, MAIL_READ_TOKEN, MAIL_OWNER_TOKEN,
+# EMAIL_FORWARD_TO (the owner's address; never in the tree), and
+# MAIL_UNSUBSCRIBE_SECRET. Values never reach the log: they go to wrangler
+# as a JSON file on stdin-equivalent disk in the runner's temp directory,
+# which is deleted in the same step.
+name: email-deploy
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'platform/email/**'
+      - '!platform/email/README.md'
+      - 'platform/aws/stacks/email-ops/sender/policy.mjs'
+      - '.github/workflows/priv-email-deploy.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: email-deploy
+  cancel-in-progress: false
+jobs:
+  gate:
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 2
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    steps:
+      - id: check
+        env:
+          CONFIGURED: ${{ (secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN || secrets.CLOUDFLARERESTRICTEDAPIKEY) != '' && (secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID) != '' }}
+        run: |
+          if [ "$CONFIGURED" = true ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Cloudflare secrets are not set; skipping the deploy."
+          fi
+  deploy:
+    needs: gate
+    if: ${{ needs.gate.outputs.ready == 'true' }}
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN || secrets.CLOUDFLARERESTRICTEDAPIKEY }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID }}
+      DB_NAME: marisstella-mail
+      BUCKET: marisstella-mail-raw
+      PUBLIC_URL: ${{ vars.MAIL_PUBLIC_URL }}
+    defaults:
+      run:
+        working-directory: platform/email
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Install wrangler (pinned)
+        run: npm install --global wrangler@4.145.0
+      - name: Find or create the D1 database
+        run: |
+          find_id() { wrangler d1 list --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const db=JSON.parse(s).find(d=>d.name===process.env.DB_NAME);process.stdout.write(db?db.uuid:"")})'; }
+          id=$(find_id)
+          if [ -z "$id" ]; then wrangler d1 create "$DB_NAME"; id=$(find_id); fi
+          test -n "$id"
+          sed -i "s/^database_id = .*/database_id = \"$id\"/" wrangler.toml
+      # R2 needs a payment method on the account (the owner's call). Without
+      # it the Worker keeps raw MIME in D1 (store.mjs d1Bucket), so mail is
+      # still received; the R2 binding is dropped from this deploy only.
+      - name: Find or create the R2 bucket, or fall back to D1
+        run: |
+          if wrangler r2 bucket info "$BUCKET" >/dev/null 2>&1 || wrangler r2 bucket create "$BUCKET"; then
+            echo "R2 bucket ready."
+          else
+            echo "::warning::R2 is not available on this account; raw mail is kept in D1 (platform/email/README.md, Owner steps)."
+            node -e 'const fs=require("fs");const t=fs.readFileSync("wrangler.toml","utf8");fs.writeFileSync("wrangler.toml",t.replace(/\[\[r2_buckets\]\][^\[]*/,""))'
+            if grep -q r2_buckets wrangler.toml; then echo "could not drop the R2 binding"; exit 1; fi
+          fi
+      - name: Apply the schema (idempotent)
+        run: wrangler d1 execute "$DB_NAME" --remote --file schema.sql
+      - name: Deploy
+        run: |
+          if [ -n "$PUBLIC_URL" ]; then wrangler deploy --var "PUBLIC_URL:$PUBLIC_URL"; else wrangler deploy; fi
+      - name: Push Worker secrets that are set
+        env:
+          AGENT_TOKEN: ${{ secrets.MAIL_AGENT_TOKEN }}
+          READ_TOKEN: ${{ secrets.MAIL_READ_TOKEN }}
+          OWNER_TOKEN: ${{ secrets.MAIL_OWNER_TOKEN }}
+          OWNER_FORWARD_TO: ${{ secrets.EMAIL_FORWARD_TO }}
+          UNSUBSCRIBE_SECRET: ${{ secrets.MAIL_UNSUBSCRIBE_SECRET }}
+        run: |
+          f="$(mktemp)"
+          trap 'rm -f "$f"' EXIT
+          node -e '
+            const names = ["AGENT_TOKEN", "READ_TOKEN", "OWNER_TOKEN", "OWNER_FORWARD_TO", "UNSUBSCRIBE_SECRET"];
+            const set = Object.fromEntries(names.filter((n) => process.env[n]).map((n) => [n, process.env[n]]));
+            for (const n of ["AGENT_TOKEN", "READ_TOKEN", "OWNER_TOKEN", "UNSUBSCRIBE_SECRET"]) {
+              if (set[n] && set[n].length < 24) { console.error(`${n} is shorter than 24 characters; the Worker would ignore it`); process.exit(1); }
+            }
+            require("fs").writeFileSync(process.argv[1], JSON.stringify(set));
+            console.log(`secrets to push: ${Object.keys(set).join(", ") || "none"}`);
+          ' "$f"
+          if [ "$(cat "$f")" != "{}" ]; then wrangler secret bulk "$f"; fi
