@@ -1,3 +1,9 @@
+---
+kind: polish
+topics: [design, software-for-routine]
+date: 2026-11-26
+---
+
 # Polish 2026-11-26: phone cards for results tables a calculator writes after load
 
 Track: polish/0. Item 1 of "Still weakest" in
