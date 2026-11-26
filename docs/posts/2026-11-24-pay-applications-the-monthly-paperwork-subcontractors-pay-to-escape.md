@@ -362,6 +362,23 @@ before it goes out. The build checks what was typed from the
 certificate, not the policy itself. The insurance broker still confirms
 the coverage. (Added 2026-11-26; still in development.)
 
+Typing those requirements in from a ten-page exhibit is its own chore, so
+the form can now read them from the exhibit itself: the PDF (a scan is
+read by text recognition in the browser) or pasted text. Exhibits come
+in two shapes, a table ("Each Occurrence $1,000,000") and prose
+("limits of not less than $1,000,000 per occurrence and $2,000,000
+general aggregate"), and the reader handles both. It knows which amounts
+are not one of the two limits a certificate check needs (the
+products-completed operations aggregate, personal and advertising
+injury, medical expense, a "for subcontracts over $500,000" threshold),
+that "all policies except Workers' Compensation shall name the
+Contractor as additional insured" leaves workers' comp out, and that
+"may be satisfied by a combination of primary and umbrella" lets the
+umbrella count. No AI model reads the exhibit. Every value it fills in
+is listed with the sentence it came from, and nothing is saved until you
+check it and press Save. The file stays in your browser. (Added
+2026-11-26; still in development.)
+
 Many GCs also want the current certificate itself in the backup of every
 pay application, not only on file. So each certificate in the build now
 keeps its files: the certificate PDF from the agent, usually an ACORD 25,
