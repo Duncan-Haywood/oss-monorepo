@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01EhTJVL3KVFUpagTZfJ125X",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T03:56:19Z",
+  "ended": "2026-11-26T04:06:35Z",
+  "wall_minutes": 10.45,
+  "tokens_in": 11062086,
+  "tokens_out": 47849,
+  "cost_usd": 4.7057,
+  "tool_calls": 74,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19205",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/pay-app-guides/lien-waiver-forms-by-state.html",
+      "issue": "The public guide and post still said Mississippi 'could not be checked' after packages/lien-waivers verified its text the same day; product and front-door pages drift apart when a private run adds a state without updating the public page."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "ci_starvation.py printed 'never got a runner' but the shell showed exit 0 through a pipe; harmless, but the doc's exit-code reading (0 = real failure) is easy to misread when piped."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "apps/payapps (private) naming",
+      "why": "Generalised the Georgia clock, service, endpoints and columns to Mississippi instead of renaming them nonpayment-*; a rename across ~15 files and a DB migration was risk without user value.",
+      "did": "Kept ga_* names, added NONPAYMENT_RULES and a state field, documented the naming in the code.",
+      "result": "No migration; Georgia tests unchanged; MS tests pass."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-which-states-make-you-use-their-lien-waiver-form.md (Mississippi update section)",
+    "apps/payapps/ROADMAP.md in private-monorepo (Done entry)"
+  ],
+  "goal": null,
+  "notes": "Explore run, idea: bring bet #1 (PayApps) lien waivers Mississippi part 2 into the app and the free front-door guide. Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/236 merged after local verification (CI starved: run 45752971810, runner_id 0): payapps typecheck clean, test:unit exit 0, test:worker exit 0, build ok, biome ci clean. Public: pay-app-guides node --test 243/243, check_jsonld/check_dom_ids/check_llms_txt_links 0 problems. Security queue empty (2 claimed); ideas inbox empty.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "880e247c-d108-58c8-b114-d08cd54806f8",
+    "transcripts": 1,
+    "first": "2026-11-26T03:56:19Z",
+    "last": "2026-11-26T04:06:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 133,
+        "output": 47849,
+        "thinking": 6118,
+        "cache_read": 10865059,
+        "cache_write_5m": 0,
+        "cache_write_1h": 196894,
+        "api_equivalent_usd": 4.7057,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 133,
+      "output": 47849,
+      "thinking": 6118,
+      "cache_read": 10865059,
+      "cache_write_5m": 0,
+      "cache_write_1h": 196894,
+      "api_equivalent_usd": 4.7057,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 74,
+    "tools": {
+      "Bash": 67,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.45,
+      "active_minutes": 10.45,
+      "model_minutes": 7.77,
+      "tool_minutes": 2.68,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a senior engineer porting a state legal workflow with tests plus a sourced guide section",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 212.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
