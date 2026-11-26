@@ -369,6 +369,19 @@ is already in QuickBooks asks first, because the build never deletes anything
 in the contractor's books. Like the invoices, this is tested against a
 simulated QuickBooks company, not yet a real one.
 
+**Class and location per job** (added 2026-11-26). Many electrical and
+mechanical subs on QuickBooks Online Plus or Advanced split their profit and
+loss with classes ("New work", "Service", "Tenant improvements") or
+locations (a branch or division). An invoice sent without them lands in
+"unclassified", and someone fixes it by hand every month. In the build, each
+job gets a class and a location, picked from the company's own lists. Every
+invoice and credit memo for that job carries them: the class goes on each
+line or on the invoice, whichever way the company has class tracking set,
+and the location goes on the invoice. If someone later makes that class
+inactive in QuickBooks, the job's next invoice is held back with a message
+naming it. PayApps does not post it to no class. This is also tested
+against a simulated QuickBooks company only.
+
 ## What exists now, free
 
 Parts of the job already have free tools on this site. They
