@@ -125,3 +125,14 @@ test("exports, state round trip", () => {
   assert.equal(money(-1234.4), "-$1,234");
   assert.equal(cents(1.5), "$1.50");
 });
+
+test("a cleared field is rejected, not read as 0 (quality round 114)", async () => {
+  const { fieldNumber } = await import("./calc.mjs");
+  assert.ok(Number.isNaN(fieldNumber("")) && Number.isNaN(fieldNumber("  ")));
+  assert.equal(fieldNumber("450"), 450);
+  assert.equal(fieldNumber("0"), 0);
+  for (const k of ["minCharge", "wage"]) {
+    const r = solve({ ...sampleInput(), [k]: fieldNumber("") });
+    assert.equal(r.ok, false, `${k} blank should not solve`);
+  }
+});

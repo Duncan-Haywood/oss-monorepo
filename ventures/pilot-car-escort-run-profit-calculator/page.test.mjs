@@ -101,3 +101,9 @@ test("the page links its sibling tool, and the sibling links back", () => {
   const tow = readFileSync(new URL("../tow-truck-rate-calculator/index.html", import.meta.url), "utf8");
   assert.match(tow, /href="\.\.\/pilot-car-escort-run-profit-calculator\/"/);
 });
+
+test("the page reads numbers with fieldNumber, so a cleared field is rejected (quality round 114)", () => {
+  const html = page("index.html");
+  const line = html.split("\n").find((l) => l.includes("const readMap"));
+  assert.ok(line && line.includes("fieldNumber(") && !/\bNumber\(\$/.test(line), line);
+});

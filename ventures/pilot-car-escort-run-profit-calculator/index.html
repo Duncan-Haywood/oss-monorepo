@@ -157,7 +157,7 @@
     <p class="support">Free to use and source available. If this helped, the <a href="LICENSE" rel="noopener">code is under the FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
   </footer>
   <script type="module">
-    import { solve, compareJobs, money, cents, pct, resultText, resultCsv, serializeState, parseState, sampleInput, sampleJob } from "./calc.mjs";
+    import { solve, compareJobs, fieldNumber, money, cents, pct, resultText, resultCsv, serializeState, parseState, sampleInput, sampleJob } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
     const status = $("#form-status");
@@ -165,7 +165,7 @@
     const A = {"mode":"md","price":"pr","loadedMiles":"lm","minCharge":"mc","deadheadMiles":"dm","driverHours":"dh","days":"dy","nights":"nt","tolls":"tl","wage":"wg","mpg":"mg","fuelPrice":"fp","wearPerMile":"tw","perDiemRate":"pd","hotelRate":"hr","processPct":"pc","vehicleCost":"vc","lifeRuns":"lr","annualInsurance":"ai","annualCerts":"ac","annualEquipment":"ae","runsPerYear":"ry","targetMargin":"tm"};
     const B = {"mode":"bmd","price":"bpr","loadedMiles":"blm","minCharge":"bmc","deadheadMiles":"bdm","driverHours":"bdh","days":"bdy","nights":"bnt","tolls":"btl"};
     let R = null;
-    const readMap = (m) => Object.fromEntries(Object.entries(m).map(([k, id]) => [k, k === "mode" ? $("#" + id).value : Number($("#" + id).value)]));
+    const readMap = (m) => Object.fromEntries(Object.entries(m).map(([k, id]) => [k, k === "mode" ? $("#" + id).value : fieldNumber($("#" + id).value)]));
     const fillMap = (m, s) => { for (const [k, id] of Object.entries(m)) if (s[k] !== undefined) $("#" + id).value = s[k]; };
     function run() {
       const res = solve(readMap(A));
