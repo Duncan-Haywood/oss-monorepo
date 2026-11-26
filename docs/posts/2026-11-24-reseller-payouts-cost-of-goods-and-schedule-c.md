@@ -293,6 +293,38 @@ The same rule as above applies: nothing a member imports is hidden when a
 plan lapses. Removing a member takes away their access, not the work they
 did.
 
+## Why your 1099-K doesn't match your sales (added 2026-11-26)
+
+A platform's Form 1099-K usually shows more than the seller thinks they
+made, and the gap is rarely a mistake. The IRS instructions define box 1a,
+the gross amount, "without regard to any adjustments for credits": refunds,
+fees and shipping adjustments are not taken off. So a seller who refunded
+$50 and paid $200 in fees still sees the full amount buyers paid. Whether a
+marketplace's box 1a also includes the sales tax it collected on your
+behalf is something we could not find stated on a page we could check, so
+Seller Books does not assume it.
+
+Seller Books' 1099-K page now has a check for this. Type one platform's box
+1a, and the books' sales for that platform and year are added up three
+ways: item sales, then with the shipping buyers paid, then with the sales
+tax the platform collected. The closest of the three is shown as the
+closest, not as what the platform includes. Type the monthly boxes (5a to
+5l) as well and it names what usually explains the rest:
+
+- **A month with an amount on the form and no orders in the books.** Most
+  often that month's report was never imported.
+- **Two months off by the same amount in opposite directions.** A sale on
+  the 31st that you date by the order and the platform dates by the day it
+  paid out. The year's total is unaffected.
+- **Monthly boxes that don't add to box 1a.** Usually a typing slip; check
+  both against the form before reading further.
+- **Books higher than the form.** The same sale imported from two reports,
+  cancelled orders kept, or a second account counted.
+
+Nothing typed into the check is saved. It is a comparison of your records
+with the form, not tax advice, and it does not tell you what to report:
+your income is what the books show, whether or not the form agrees.
+
 ## What comes next
 
 Each of the ten tool pages now ends with a short "track true profit across
