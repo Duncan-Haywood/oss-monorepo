@@ -1,6 +1,6 @@
 ---
 title: "Which states make you use their lien waiver form, read from the statutes"
-seo_title: "Statutory lien waiver forms by state (CA, AZ, NV, TX, UT, FL, MI, WY)"
+seo_title: "Statutory lien waiver forms by state: 10 states read from the law"
 date: 2026-11-25
 tags: [for-customers, payapps, construction, lien-waivers, pay-app-guides]
 description: "Nine states set lien waiver wording in statute. We read each one from the legislature's own published text: how many forms, how strict, and the trap in each."
@@ -80,8 +80,9 @@ A conditional waiver releases the owner, lender or bond surety only once there i
 payment: your endorsement on a check that has been paid, or your written acknowledgment
 (Civ. Code § 8124).
 
-**What we could not check.** Georgia, Massachusetts and Mississippi are often said to have statutory forms, but we could not
-open their official text, so they are not listed rather than listed from memory.
+**What we could not check.** Georgia and Mississippi are often said to have statutory forms, but we could not
+open their official text, so they are not listed rather than listed from memory. Massachusetts was read the
+next day (update below).
 
 **Where this goes.** The pay-app product we are building for specialty subcontractors already
 prints the Arizona, California, Florida, Michigan, Missouri, Nevada, Texas, Utah and Wyoming waivers word for
@@ -187,3 +188,39 @@ documents to attach. Until the owner and the GC each have a notice recorded, the
 email remind you. One gap: a California declaration is signed "under penalty of perjury" (Code Civ.
 Proc. § 2015.5). We could not check that section's official text this time, so PayApps does not print
 the sentence. Add it, or use your attorney's form. Not legal advice.
+
+## Update, 2026-11-26: Massachusetts, where the waiver is your pay application
+
+Massachusetts was on our "could not check" list. Its legislature's site answered this time, so we
+read Mass. Gen. Laws c. 254, § 32 from the
+[General Court's published text](https://malegislature.gov/Laws/GeneralLaws/PartIII/TitleIV/Chapter254/Section32).
+It works differently from the other states:
+
+- **The rule comes before the form.** An agreement connected with a construction contract
+  "purporting to bar the filing of a notice of contract or the taking of any steps to enforce a
+  lien", or to subordinate those rights, "is against public policy and is void and unenforceable".
+  The section then lists four exceptions.
+- **The one form is a partial waiver**, for "persons who have filed or recorded notices of contract
+  under section two", and it must be "substantially in the following form with no material
+  deviation therefrom". The statute gives no final or unconditional form.
+- **Its header is your G702.** Lines 1 to 10 are original contract amount, approved change orders,
+  adjusted contract amount, completed to date, less retainage, total payable to date, less previous
+  payments, current amount due, pending change orders and disputed claims. Retyping those numbers
+  by hand is where a mistake gets in.
+- **What it keeps back:** "retainage, unpaid agreed or pending change orders, and disputed claims as
+  stated above". An amount you leave off lines 5, 9 and 10 is not kept back.
+- **It is more than a waiver.** Part (b) also subordinates your lien for work done through "the
+  twenty-fifth day after the end of the above payment period", to the extent the lender actually
+  advances funds by then. And it is "Signed under the penalties of perjury".
+
+PayApps, the pay-app product we are building, now offers this form on a Massachusetts job, next to
+the general conditional progress waiver. It does not choose between them for you, because it
+cannot know whether you recorded a notice of contract. It fills lines 1 to 8 from the pay
+application's own summary, line 9 from your pending change orders, and the application number and
+date and the job. The payment goes in words and figures. If you change the figures, the words
+change with them, unless you typed your own. You fill in the county, the town, any disputed claims
+and the lender. The day, month and year on the perjury line are left blank for you to write when
+you sign. The free guide,
+[statutory lien waiver forms by state](https://marisstella.app/pay-app-guides/lien-waiver-forms-by-state.html),
+now has a Massachusetts row and section. Whether a general-form waiver is enforceable on a
+Massachusetts job is a question for a Massachusetts lawyer. Not legal advice.

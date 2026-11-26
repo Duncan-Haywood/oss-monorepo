@@ -132,3 +132,29 @@ still read in the browser and never uploaded.
 
 Still not handled: a scan with no text layer at all. The import says to save it again as a
 searchable PDF.
+
+## Update: which figure the scan misread
+
+A total check can say a scanned sheet is wrong, but not where. "The lines add up to $35,950.50,
+the sheet says $30,950.50" leaves a contractor checking 48 amounts against the paper. OCR misreads
+are rarely random, though. The usual mistake is one digit read as another that looks like it: an 8
+as a 3, a 6 as a 5, a 7 as a 1. The figure still reads as a dollar amount, so nothing else flags it.
+
+So when a scanned schedule of values misses its own total, the import now tries every amount on it,
+and the total itself, with one digit swapped for a look-alike. If a swap makes the lines add up, that
+figure is the likely misread, and the import names it:
+
+> The scan probably misread one figure: 2 Drywall hang and tape (page 1, line 3) reads $8,500.00;
+> $3,500.00 if an 8 there is a 3 on the paper, which makes the lines add up to the sheet's total.
+
+The same idea works on a single row. A continuation sheet (the G703 a subcontractor sends each
+month) prints work from the previous application, work this period, stored materials and the total
+to date, and the first three should add up to the fourth. When a scanned row does not add up, the
+import names the cell where one look-alike digit would fix it.
+
+It never changes a figure. Our list of look-alike digits comes from how the glyphs look in common
+table fonts; we have not measured it against real OCR errors. A round gap ($50, $500) can fit
+several lines, so when more than three figures could explain it, the import names none and leaves
+the plain total check. Printed PDFs and spreadsheets are not touched: a figure printed by the program
+that made it is what the sheet says, not a misread. As before, everything runs in the browser and
+the file is never uploaded.

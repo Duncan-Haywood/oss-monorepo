@@ -16,7 +16,8 @@ second run's push fails and it picks another item. No files, so no CI runs on it
 
 --repo defaults to /home/user/private-monorepo. A claim older than --stale-hours (6) is
 shown as stale, and --claim on it takes a fresh generation (`<slug>--2`), since the run
-that made it has ended. Exit codes: 0 ok, 2 usage or git error, 4 the item is already
+that made it has ended. A claim whose slug a later commit subject on origin/main names
+(the PR title, punctuation ignored) is shown as MERGED and is no sibling. Exit codes: 0 ok, 2 usage or git error, 4 the item is already
 claimed (pick another).
 """
 from __future__ import annotations
@@ -108,6 +109,42 @@ def claim_info(repo: str, app: str, claims: dict[str, tuple[int, str]]) -> dict[
     return info
 
 
+def merged_claims(repo: str, info: dict[str, tuple[int, str]], branch: str = "main") -> dict[str, str]:
+    """{slug: subject} for claims whose slug a commit on origin/<branch> names since the claim.
+
+    A claim branch outlives the work: nobody releases it after the PR merges, so for six
+    hours every later claim on the same item listed the finished parts as ALSO CLAIMED, and
+    runs read each one to see it was done (run records 2026-11-25). The CLAIMED line asks
+    for the slug in the PR title, so a merge (squash) subject naming it marks the part done.
+    Matching ignores case and punctuation: "Billing, part 2" names billing-part-2.
+    Best effort: with no reachable main, nothing is marked merged.
+    """
+    stamps = [ts for ts, _ in info.values() if ts]
+    if not stamps:
+        return {}
+    shallow = git(repo, "rev-parse", "--is-shallow-repository").stdout.strip() == "true"
+    git(repo, "fetch", "-q", "--no-tags", *(["--depth=200"] if shallow else []), "origin",
+        f"+refs/heads/{branch}:refs/remotes/origin/{branch}")
+    log = git(repo, "log", f"refs/remotes/origin/{branch}", f"--since={min(stamps) - 3600}",
+              "--format=%ct%x09%s")
+    if log.returncode != 0:
+        return {}
+    commits = []
+    for line in log.stdout.splitlines():
+        ts, _, subject = line.partition("\t")
+        if ts.isdigit():
+            commits.append((int(ts), subject, "-" + re.sub(r"[^a-z0-9]+", "-", subject.lower()) + "-"))
+    out = {}
+    for ts, subject, norm in reversed(commits):  # oldest first, so the first merge names it
+        hits = {s for s, (claimed, _) in info.items() if ts >= claimed - 60 and f"-{s}-" in norm}
+        # A merged part (packets-heic-convert) also contains its item's slug (packets-heic);
+        # credit only the longest claimed slug it names.
+        for s in hits:
+            if s not in out and not any(o != s and f"-{s}-" in f"-{o}-" for o in hits):
+                out[s] = subject
+    return out
+
+
 def push_claim(repo: str, ref: str, message: str, base: str | None = None) -> bool:
     """Create-only push of a fresh claim commit; False if the ref already exists.
 
@@ -131,13 +168,14 @@ def push_claim(repo: str, ref: str, message: str, base: str | None = None) -> bo
 
 
 def sibling_claims(app: str, num: int | None, slug: str, info: dict[str, tuple[int, str]],
-                   now: float, stale_s: float) -> list[tuple[str, tuple[int, str]]]:
-    """Fresh claims on the same Next item number under another slug, newest first."""
+                   now: float, stale_s: float,
+                   merged: dict[str, str] | None = None) -> list[tuple[str, tuple[int, str]]]:
+    """Fresh, unmerged claims on the same Next item number under another slug, newest first."""
     if num is None:
         return []
     lead = f"claim {app} #{num} "
     out = [(s, (ts, m)) for s, (ts, m) in info.items()
-           if s != slug and m.startswith(lead) and ts and now - ts < stale_s]
+           if s != slug and s not in (merged or {}) and m.startswith(lead) and ts and now - ts < stale_s]
     return sorted(out, key=lambda x: -x[1][0])
 
 
@@ -182,6 +220,7 @@ def main(argv: list[str] | None = None) -> int:
         return 0 if r.returncode == 0 else 2
 
     info = claim_info(a.repo, a.app, claims)
+    merged = merged_claims(a.repo, info)
 
     if a.claim is not None or a.slug:
         by_num = dict(items)
@@ -193,6 +232,10 @@ def main(argv: list[str] | None = None) -> int:
         gen = 1
         if slug in claims:
             ts, msg = info.get(slug, (0, ""))
+            if slug in merged:
+                print(f"DONE: {slug} already merged ({merged[slug][:100]}). Pick another item, "
+                      f"or claim a new part with --slug.")
+                return 4
             if ts and now - ts < stale_s:
                 print(f"TAKEN: {slug} claimed {age(ts, now)}: {msg}\nPick another item.")
                 return 4
@@ -207,7 +250,7 @@ def main(argv: list[str] | None = None) -> int:
         # Different part slugs of one item never collide on the branch name, so two runs can
         # claim the same work under two names (2026-11-25: inbound-rfq-email-notify and
         # inbound-rfq-email-part-2-notify, minutes apart; the second was built and discarded).
-        siblings = sibling_claims(a.app, a.claim, slug, info, now, stale_s)
+        siblings = sibling_claims(a.app, a.claim, slug, info, now, stale_s, merged)
         if siblings:
             print(f"ALSO CLAIMED on item {a.claim} (fresh, other slugs). If one covers what you "
                   f"are building, `--release {slug}` and pick another:")
@@ -225,8 +268,11 @@ def main(argv: list[str] | None = None) -> int:
         if slug in claims:
             seen.add(slug)
             ts, msg = info.get(slug, (0, ""))
-            mark = ("STALE " if ts and now - ts >= stale_s else "CLAIMED ") + age(ts, now)
-        elif any(c.startswith(slug + "-") for c in claims):
+            if slug in merged:
+                mark = "MERGED"
+            else:
+                mark = ("STALE " if ts and now - ts >= stale_s else "CLAIMED ") + age(ts, now)
+        elif any(c.startswith(slug + "-") and c not in merged for c in claims):
             mark = "a part is claimed: see below"
         print(f"{i:>3}. [{mark}] {slug}: {text[:90]}")
     others = sorted(set(claims) - seen)
@@ -234,7 +280,7 @@ def main(argv: list[str] | None = None) -> int:
         print("Other claims on this app (parts of items, or items already done):")
         for slug in others:
             ts, msg = info.get(slug, (0, ""))
-            stale = "STALE " if ts and now - ts >= stale_s else ""
+            stale = "MERGED " if slug in merged else ("STALE " if ts and now - ts >= stale_s else "")
             print(f"  - {stale}{slug} ({age(ts, now)}): {msg[:110]}")
     return 0
 

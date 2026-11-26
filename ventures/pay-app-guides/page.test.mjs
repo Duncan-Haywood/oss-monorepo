@@ -109,7 +109,7 @@ test("the waiver-forms table links each state to its official legislature site, 
   const table = html.slice(start, html.indexOf("</table>", start));
   const rows = [...table.matchAll(/<tr[^>]*><td[^>]*>([A-Z][a-z]+)<\/td><td[^>]*><a href="([^"]+)"/g)];
   assert.ok(rows.length >= 7, `only ${rows.length} states`);
-  const official = /^https:\/\/(www\.azleg\.gov|www\.leg\.state\.nv\.us|statutes\.capitol\.texas\.gov|le\.utah\.gov|www\.flsenate\.gov|www\.legislature\.mi\.gov|wyoleg\.gov|revisor\.mo\.gov|leginfo\.legislature\.ca\.gov)\//;
+  const official = /^https:\/\/(www\.azleg\.gov|www\.leg\.state\.nv\.us|statutes\.capitol\.texas\.gov|le\.utah\.gov|www\.flsenate\.gov|www\.legislature\.mi\.gov|wyoleg\.gov|revisor\.mo\.gov|malegislature\.gov|leginfo\.legislature\.ca\.gov)\//;
   for (const [, state, href] of rows) assert.match(href, official, state);
   assert.match(html, /2026-11-25/);
 });

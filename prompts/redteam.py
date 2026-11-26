@@ -239,13 +239,15 @@ def suite_for(path: Path, repo: Path = REPO) -> tuple[list[str], Path] | None:
 
 
 def list_targets(repo: Path = REPO, under: str | None = None) -> list[Path]:
-    """Guarded files; `under` keeps those below a repo-relative directory prefix."""
+    """Guarded files; `under` keeps those below a repo-relative directory, or that one
+    file when it names a file (doc_friction 2026-11-25: a file path printed 0 targets)."""
     out = []
     tracked = subprocess.run(["git", "ls-files", "*.mjs", "*.js", "*.py"], cwd=repo,
                              capture_output=True, text=True, check=True).stdout.split()
-    prefix = under.strip("/") + "/" if under else ""
+    under = under.strip("/") if under else ""
+    prefix = under + "/" if under else ""
     for rel in tracked:
-        if not rel.startswith(prefix):
+        if not (rel.startswith(prefix) or rel == under):
             continue
         path = repo / rel
         if path.is_file() and suite_for(path, repo) is not None:
@@ -527,7 +529,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--limit", type=int, default=20)
     p.add_argument("--seed", type=int)
     p.add_argument("--under", help="only files below this directory, e.g. platform or "
-                   "ventures/<slug> for one product")
+                   "ventures/<slug> for one product, or one file")
     p.add_argument("--fresh", action="store_true",
                    help="skip files an earlier run record's campaign already mutated")
     p.add_argument("--probe", type=int, metavar="SECONDS",
@@ -577,6 +579,9 @@ def main(argv: list[str] | None = None) -> int:
             print(rel)
         print(f"({len(targets)} guarded files" + (f", {total - len(targets)} already mutated "
               "and skipped" if args.fresh else "") + ")", file=sys.stderr)
+        if not total and args.under and (REPO / args.under).is_file():
+            print(f"{args.under}: no test suite guards this file (suite_for found none)",
+                  file=sys.stderr)
         return 0
     if args.cmd == "campaign":
         seed = args.seed if args.seed is not None else random.randrange(1 << 30)
