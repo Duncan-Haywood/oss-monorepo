@@ -541,7 +541,7 @@ you enter it, the worksheet uses it as line 35, shows the books' own count
 next to it, and says how far apart they are and which way that moves line 42.
 In the app's test, one $35.00 coat was on hand at the end of 2025 but the
 return said $1,234.56. Line 35 became $1,234.56, and the worksheet showed a
-$1,199.56 gap that raises cost of goods sold. Seller Books (private PR 369) never changes your
+$1,199.56 gap that raises cost of goods sold. Seller Books never changes your
 items to make the numbers match. Either some stock bought before this year
 is missing (or marked sold too early), and you fix the items, or last year's
 return was wrong, and that's a question for your preparer. Either way the
