@@ -1,3 +1,8 @@
+---
+kind: note
+topics: [redteam]
+date: 2026-11-26
+---
 # Red team 2026-11-26: e-invoice header allowance sign on the base
 
 Target: `ventures/einvoice-preflight` (for-profit #1 in `portfolio/monetization/transition.py`),
