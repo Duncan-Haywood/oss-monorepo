@@ -52,10 +52,11 @@ export const ONLINE_SELLERS_PRODUCT = Object.freeze({
   status: 'In development (early access)',
   pitch: 'One set of books for everywhere you sell. Drop in the payout and sales reports from each marketplace; get fees split out, cost of goods and mileage tracked, and a profit and loss grouped the way Schedule C asks for it.',
   does: [
-    'Reads payout and sales reports from eBay, Etsy, Poshmark, Whatnot and Shopify, with Mercari and Depop planned. No bank link and no marketplace login needed.',
+    'Reads the sales and payout reports you download from eBay, Etsy, Poshmark, Mercari, Whatnot and Depop. No bank link and no marketplace login needed.',
     'Splits each sale into what the buyer paid, platform fees, payment processing, shipping labels, ads and refunds, so the payout reconciles to the sales.',
     'Tracks what you paid for each item, so profit is real profit, by item, by channel and by month.',
     'Logs business miles for sourcing runs and post office trips.',
+    'Reads your card or bank statement CSV for expenses: postage and packaging start ticked, thrift buys and fuel are left out with the reason, and it remembers how you filed each merchant, including the personal ones you leave out.',
     'Groups the year under Schedule C lines for you or your preparer, and says where a line is a judgment call.',
   ],
   freeSlug: 'reseller-books',
