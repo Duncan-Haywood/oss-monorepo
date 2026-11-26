@@ -65,3 +65,14 @@ test('the comparison page links back to the calculator and to the pricing walkth
   assert.match(html, /<a href="\.\/">/);
   assert.match(html, /href="how-much-to-charge\.html"/);
 });
+
+test('Bitumio facts name their sources and claim no disputed free tier', () => {
+  // Quality round 117: listings disagree on a free plan versus a free trial.
+  assert.doesNotMatch(html, /free tier/i);
+  assert.doesNotMatch(html, /its own marketing/i);
+  assert.match(html, /href="https:\/\/www\.capterra\.com\/p\/10009942\/Bitumio\/"/);
+});
+
+test('does not claim this calculator takes a waste input it does not have', () => {
+  assert.doesNotMatch(html, /coverage rate and waste, loaded wage/);
+});

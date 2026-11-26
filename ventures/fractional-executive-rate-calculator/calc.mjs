@@ -45,7 +45,10 @@ export function rateFor(i) {
   const available = Math.max(workingDays - timeOff, 0);
   const nonBillable = Math.min(nn(i.nonBillablePct), 90) / 100;
   const capacityDays = available * (1 - nonBillable);
-  const sold = Math.min(nn(i.soldPct) || 100, 100) / 100;
+  // Only a missing value defaults to 100%: an explicit 0 (or a cleared page
+  // field, which the page reads as 0) means nothing sold, not everything sold.
+  const soldRaw = i.soldPct === undefined || i.soldPct === null || i.soldPct === "" ? 100 : nn(i.soldPct);
+  const sold = Math.min(soldRaw, 100) / 100;
   const soldDays = capacityDays * sold;
   const dayRate = soldDays > 0 ? revenueNeeded / soldDays : null;
   const hoursPerDay = nn(i.hoursPerDay) || 8;

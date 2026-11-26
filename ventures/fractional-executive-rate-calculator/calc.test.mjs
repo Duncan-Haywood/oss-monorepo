@@ -81,3 +81,25 @@ test("money and pct format", () => {
   assert.equal(pct(0.4281), "42.8%");
   assert.equal(pct(null), "n/a");
 });
+
+// Quality round 117 (portfolio/quality/audits/2026-11-26-fractional-executive-rate-calculator.json).
+test("an explicit 0% sold leaves no billable days; only a missing value means 100%", () => {
+  assert.equal(rateFor({ ...base, soldPct: 0 }).dayRate, null);
+  const a = analyse({ ...base, soldPct: 0, clientText: "" });
+  assert.equal(a.result, null);
+  assert.ok(a.findings.some((f) => f.title === "No billable days left"));
+  const { soldPct, ...missing } = base;
+  near(rateFor(missing).soldDays, 184);
+});
+
+test("employee daily pay divides by the working days entered", () => {
+  near(rateFor({ ...base, workingDays: 250 }).fteDayPay, 800);
+});
+
+test("the multiple finding is info at 2.7x and medium under 1.5x", () => {
+  const ok = analyse({ ...base, clientText: "" }).findings.find((f) => /daily pay/.test(f.title));
+  assert.equal(ok.severity, "info");
+  const low = analyse({ ...base, benefits: 0, businessCosts: 0, seTaxPct: 0, nonBillablePct: 0, timeOffDays: 0, soldPct: 100, clientText: "" })
+    .findings.find((f) => /daily pay/.test(f.title));
+  assert.equal(low.severity, "medium");
+});

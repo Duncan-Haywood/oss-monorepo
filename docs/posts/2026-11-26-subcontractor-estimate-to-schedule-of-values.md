@@ -2,8 +2,8 @@
 title: "Subcontractor estimating: price the bid from your costs, then bill from the same numbers"
 seo_title: "Subcontractor estimate to proposal to schedule of values"
 date: 2026-11-26
-tags: [for-customers, payapps, construction, estimating, bid-alternates, price-list, bid-follow-up, schedule-of-values, job-costing, pay-app-guides]
-description: "Price a bid from your costs and a reusable price list, add alternates, send the GC prices only, follow up, and start the won job's schedule of values."
+tags: [for-customers, payapps, construction, estimating, bid-alternates, price-list, bid-follow-up, schedule-of-values, job-costing, budget-by-cost-type, pay-app-guides]
+description: "Price a bid from costs and a price list, add alternates, send prices only, follow up, then start the job's schedule of values and labor and material budgets."
 ---
 
 *Written by an AI agent working in this repository. The example below is invented, and the
@@ -64,6 +64,37 @@ line 1 is Ductwork at $17,811.80 and line 2 is Equipment setting at $3,360.00. W
 costing, each line's **cost budget** is the item's cost with tax ($15,818.91 and $3,200.00).
 From then on, costs posted to the job are measured against what you bid, and the first pay
 application bills against the numbers the GC already accepted.
+
+### The budget keeps the bid's labor and material apart
+
+A line's budget is not one number. Each line's budget is **split by cost type** the way you bid
+it: labor, material (with its sales tax), equipment, subcontract and other. In the example:
+
+| Line | Labor | Material with tax | Subcontract | Budget |
+|---|---|---|---|---|
+| 1 Ductwork | $8,220.00 | $7,068.75 + $530.16 = $7,598.91 | | $15,818.91 |
+| 2 Equipment setting | | | $3,200.00 | $3,200.00 |
+
+Costs are entered with a cost type already (a week's payroll is labor, a supplier invoice is
+material), so the job-cost page sets each type against its own budget. Say that by the second pay
+application, ductwork has $9,100.00 of payroll and $6,400.00 of duct posted to it:
+
+- **The line as a whole:** $15,500.00 against $15,818.91. That is $318.91 under budget, and it
+  looks fine.
+- **Labor:** $9,100.00 against $8,220.00. That is **$880.00 over**, at 110.7% of its budget. The
+  row turns red, and the page lists it as an issue.
+- **Material:** $6,400.00 against $7,598.91, with $1,198.91 left.
+
+The line total hides the labor overrun because material came in under. The question for the
+foreman is how many hours are left, and the split shows that while the hours can still be
+recovered. A cost in a type the line was bid with none of, such as a lift rental on the ductwork
+line, shows as over a $0 budget instead of disappearing into the total.
+
+You can split any line by hand, including on jobs that did not start from an estimate. Saving a
+split sets the line's budget to its total. If you change the line's budget alone later, the page
+shows the difference as "not split" and does not spread it over the types by a guess. The line's
+budget, not the split, still drives the estimate at completion and the WIP schedule. The job-cost
+CSV lists the split lines type by type for your accountant.
 
 After a win, the estimate's lines are locked as the record of what was bid. Changes to the
 contract go through change orders, as they do on site.
@@ -207,7 +238,9 @@ It does not read a PDF quote: export it as a spreadsheet first. An alternate her
 deduct that is only part of an item has to be set up as its own bid item. It does not check your
 quantities or tell you what markup the market will bear. It does not send anything to the GC:
 it drafts the email, and you attach the PDF and send it yourself. It does not yet remember when you
-last followed up on a bid.
+last followed up on a bid. The budget split goes down to the five cost types, not to your own cost
+codes, and a sub quote on the estimate does not yet become a subcontract commitment on the job,
+because the estimate does not keep the sub's name.
 
 We are building hosted pay-app billing for specialty subcontractors. It covers estimates,
 schedules of values, change orders, pay applications, retainage, lien waivers, RFIs,

@@ -68,3 +68,10 @@ test("toMarkdown and toJson render the report without throwing", () => {
   assert.match(toMarkdown(report), /No warranty/);
   assert.deepEqual(JSON.parse(toJson(report)).status, "changed");
 });
+
+test("a captured_at with no time zone is rejected, so the verdict never depends on the viewer's zone (quality round 116)", () => {
+  const naive = JSON.stringify({ ...BEFORE, captured_at: "2026-08-23T09:00:00" });
+  assert.throws(() => parseSnapshot(naive, "before"), /time zone/);
+  const offset = JSON.stringify({ ...BEFORE, captured_at: "2026-08-23T09:00:00+02:00" });
+  assert.equal(parseSnapshot(offset, "before").captured_at, "2026-08-23T09:00:00+02:00");
+});

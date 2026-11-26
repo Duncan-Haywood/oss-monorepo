@@ -39,6 +39,10 @@
     {
       "file": ".github/prompts/cloud-session.md",
       "issue": "seven reports on 2026-11-25/26 described a manual drizzle migration-renumber recipe in three rounds; replaced with migration_rebase.py in this PR"
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "slug_dupe.py 'migration' showed no hit and no open PR named it when I started; #19418 was opened in parallel minutes later, so the duplicate only showed up at merge as a conflict. Process runs that take the same top friction cluster race each other"
     }
   ],
   "deviations": [
@@ -47,13 +51,19 @@
       "why": "no new blog post: process-track tool change with no reader-facing finding; the cloud-session.md pointer is the write-up next runs read",
       "did": "documented in cloud-session.md and the PR",
       "result": "n/a"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Duplicate PRs: kept my PR open instead of closing it as superseded, and shrank it to the one improvement main lacked",
+      "did": "merged main, dropped my tool, ported its pre-merge guard and a test into migration_regen.py",
+      "result": "7/7 tests pass"
     }
   ],
   "writeups": [
-    ".github/prompts/cloud-session.md (migration renumber pointer)"
+    "platform/ci/migration_regen.py docstring (pre-merge guard)"
   ],
   "goal": null,
-  "notes": "Critique mode (backlog had only owner rows). friction_rank --live --ungated --days 3: migration collisions were clusters 3, 9, 10 and 13 (7 reports). Shipped platform/ci/migration_rebase.py + 9 unit tests; end-to-end test in a private-monorepo clone (payapps 0071 collision regenerated as 0072, same SQL, snapshot prevId chain intact; clone cleaned, nothing pushed to private). main_health.py: 329/329 pass. Backlog ids touched: none.",
+  "notes": "Critique mode (backlog had only owner rows). friction_rank --live --ungated --days 3: migration collisions were clusters 3, 9, 10, 13. Built platform/ci/migration_rebase.py, but PR #19418 (P091, migration_regen.py) landed the same tool in parallel while CI ran. Consolidated at merge: dropped migration_rebase.py and kept main's cloud-session.md text. Ported the one safeguard theirs lacked: --fix refuses until main is merged (or mid-merge with base as MERGE_HEAD), since generating from the unmerged schema against main's snapshot would emit DROPs for main's new tables. Added a test for it (7/7 pass). End to end in a private-monorepo payapps clone, the same recipe turned a 0071 collision into 0072 with the same SQL and an intact prevId chain. main_health.py: 329/329. Backlog ids touched: P091 (guard added).",
   "corrections": [],
   "redteam": null,
   "usage": {

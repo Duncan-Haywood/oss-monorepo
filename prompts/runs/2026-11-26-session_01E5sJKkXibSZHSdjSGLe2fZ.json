@@ -1,0 +1,271 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKkXibSZHSdjSGLe2fZ",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T17:10:27Z",
+  "ended": "2026-11-26T17:11:24Z",
+  "wall_minutes": 7.01,
+  "tokens_in": 1694472,
+  "tokens_out": 8514,
+  "cost_usd": 0.9334,
+  "tool_calls": 24,
+  "task": "redteam campaign on ventures/wall-framing-takeoff/bidpackage.mjs (paid branded bid package)",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19419",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "record prints the whole prompts/runs listing (125 KB) after writing the record; only the first line is needed."
+    },
+    {
+      "file": "platform/ci/slug_dupe.py",
+      "issue": "deepening history took over 30 s, which cut the duplicate search to one hour of commits."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "instruction": "most PRs carry a post",
+      "what": "no post",
+      "why": "a red-team fix to a paid feature has no reader-facing story; CLAUDE.md asks for consolidated posts, not one per PR"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "instruction": "4b: leave a lasting guard",
+      "what": "per-file tests only, no repository-wide lint",
+      "why": "\"sanitised input dropped silently\" has no shape a lint can match reliably; the new tests run in CI on every PR"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "8 mutants seeded, 5 caught (62.5%); 3 gaps guarded, 100% after fix. 1 real defect patched: oversized or refused logos were silently dropped from the paid bid package; the page now says why. Verification: node --test bidpackage.test.mjs 7/7 passed; the suites that read index.html passed 202/202. Risk review: nothing blocked; the only flag was an outbound host, x.test, which is a reserved TLD used only in test strings.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/wall-framing-takeoff/bidpackage.mjs",
+        "test": "node --test ventures/wall-framing-takeoff/**/*.test.mjs  (in .)",
+        "seed": 459483339,
+        "commit": "8e7a302d6",
+        "sites": 21,
+        "baseline_seconds": 19.0,
+        "mutants": [
+          {
+            "file": "ventures/wall-framing-takeoff/bidpackage.mjs",
+            "line": 7,
+            "col": 155,
+            "operator": "or-to-and",
+            "before": "const esc = (/** @type {string} */ s) => String(s).replace(/[&<>\"']/g, (c) => ({ \"&\": \"&amp;\", \"<\": \"&lt;\", \">\": \"&gt;\", '\"': \"&quot;\", \"'\": \"&#39;\" })[c] || c);",
+            "after": "const esc = (/** @type {string} */ s) => String(s).replace(/[&<>\"']/g, (c) => ({ \"&\": \"&amp;\", \"<\": \"&lt;\", \">\": \"&gt;\", '\"': \"&quot;\", \"'\": \"&#39;\" })[c] && c);",
+            "line_text": "const esc = (/** @type {string} */ s) => String(s).replace(/[&<>\"']/g, (c) => ({ \"&\": \"&amp;\", \"<\": \"&lt;\", \">\": \"&gt;\", '\"': \"&quot;\", \"'\": \"&#39;\" })[c] || c);",
+            "caught": true,
+            "seconds": 17.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/bidpackage.mjs",
+            "line": 12,
+            "col": 56,
+            "operator": "const-plus-one",
+            "before": "if (/^data:image\\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(s) && s.length < 400000) return s;",
+            "after": "if (/^data:image\\/(png|jpeg|webp|gif);base64,[A-Za-z0-10+/=]+$/.test(s) && s.length < 400000) return s;",
+            "line_text": "  if (/^data:image\\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(s) && s.length < 400000) return s;",
+            "caught": false,
+            "seconds": 17.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: tests only used base64 payloads with digits 0 and 1; added one carrying every digit 0-9."
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/bidpackage.mjs",
+            "line": 12,
+            "col": 85,
+            "operator": "lt-to-le",
+            "before": "if (/^data:image\\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(s) && s.length < 400000) return s;",
+            "after": "if (/^data:image\\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(s) && s.length <= 400000) return s;",
+            "line_text": "  if (/^data:image\\/(png|jpeg|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(s) && s.length < 400000) return s;",
+            "caught": false,
+            "seconds": 17.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: the 400000-character cap had no boundary test; added 399999 kept, 400000 dropped."
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/bidpackage.mjs",
+            "line": 13,
+            "col": 61,
+            "operator": "and-to-or",
+            "before": "try { const u = new URL(s); return u.protocol === \"https:\" && !u.username && !u.password ? u.href : \"\"; } catch { return \"\"; }",
+            "after": "try { const u = new URL(s); return u.protocol === \"https:\" || !u.username && !u.password ? u.href : \"\"; } catch { return \"\"; }",
+            "line_text": "  try { const u = new URL(s); return u.protocol === \"https:\" && !u.username && !u.password ? u.href : \"\"; } catch { return \"\"; }",
+            "caught": true,
+            "seconds": 17.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/bidpackage.mjs",
+            "line": 16,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "export const cleanAccent = (v) => (/^#[0-9a-fA-F]{6}$/.test(String(v || \"\").trim()) ? String(v).trim() : \"#1f3a5f\");",
+            "after": "export const cleanAccent = (v) => (/^#[1-9a-fA-F]{6}$/.test(String(v || \"\").trim()) ? String(v).trim() : \"#1f3a5f\");",
+            "line_text": "export const cleanAccent = (v) => (/^#[0-9a-fA-F]{6}$/.test(String(v || \"\").trim()) ? String(v).trim() : \"#1f3a5f\");",
+            "caught": true,
+            "seconds": 17.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/bidpackage.mjs",
+            "line": 16,
+            "col": 50,
+            "operator": "const-plus-one",
+            "before": "export const cleanAccent = (v) => (/^#[0-9a-fA-F]{6}$/.test(String(v || \"\").trim()) ? String(v).trim() : \"#1f3a5f\");",
+            "after": "export const cleanAccent = (v) => (/^#[0-9a-fA-F]{7}$/.test(String(v || \"\").trim()) ? String(v).trim() : \"#1f3a5f\");",
+            "line_text": "export const cleanAccent = (v) => (/^#[0-9a-fA-F]{6}$/.test(String(v || \"\").trim()) ? String(v).trim() : \"#1f3a5f\");",
+            "caught": true,
+            "seconds": 18.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/bidpackage.mjs",
+            "line": 26,
+            "col": 36,
+            "operator": "or-to-and",
+            "before": "const logo = cleanLogo(brand.logo || \"\");",
+            "after": "const logo = cleanLogo(brand.logo && \"\");",
+            "line_text": "  const logo = cleanLogo(brand.logo || \"\");",
+            "caught": false,
+            "seconds": 17.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test checked that a clean logo actually reaches the package; added one (https logo renders as <img>, javascript: logo does not)."
+          },
+          {
+            "file": "ventures/wall-framing-takeoff/bidpackage.mjs",
+            "line": 27,
+            "col": 89,
+            "operator": "plus-to-minus",
+            "before": "const contact = [brand.address, brand.phone, brand.email, brand.licenseNo ? \"Licence \" + brand.licenseNo : \"\"].filter(Boolean).map((x) => esc(String(x))).join(\" &middot; \");",
+            "after": "const contact = [brand.address, brand.phone, brand.email, brand.licenseNo ? \"Licence \" - brand.licenseNo : \"\"].filter(Boolean).map((x) => esc(String(x))).join(\" &middot; \");",
+            "line_text": "  const contact = [brand.address, brand.phone, brand.email, brand.licenseNo ? \"Licence \" + brand.licenseNo : \"\"].filter(Boolean).map((x) => esc(String(x))).join(\" &middot; \");",
+            "caught": true,
+            "seconds": 17.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/wall-framing-takeoff/index.html",
+        "issue": "Paid bid package: a logo over about 290 KB (data URL of 400000 characters or more) or of a type cleanLogo refuses (e.g. SVG chosen via 'All files') was silently dropped from the branded package, with no message to the paying user. Reproduced: cleanLogo('data:image/png;base64,'+'A'.repeat(400000)) returns '' and the #pkgLogo change handler never checked it. Fix: the handler runs cleanLogo on the file and says in #pkgState whether the logo was added or why not; static test in bidpackage.test.mjs.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2dc4647d-de0e-522f-890e-72e86c73e1d5",
+    "transcripts": 1,
+    "first": "2026-11-26T17:10:27Z",
+    "last": "2026-11-26T17:17:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 24,
+        "input": 48,
+        "output": 8514,
+        "thinking": 1645,
+        "cache_read": 1640060,
+        "cache_write_5m": 0,
+        "cache_write_1h": 54364,
+        "api_equivalent_usd": 0.9334,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 24,
+      "input": 48,
+      "output": 8514,
+      "thinking": 1645,
+      "cache_read": 1640060,
+      "cache_write_5m": 0,
+      "cache_write_1h": 54364,
+      "api_equivalent_usd": 0.9334,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 24,
+    "tools": {
+      "Bash": 22,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.01,
+      "active_minutes": 7.01,
+      "model_minutes": 2.13,
+      "tool_minutes": 4.88,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "seed and triage 8 mutants, write tests and a small UI fix",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 160.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -396,6 +396,26 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertIn("nowhere: not in this clone", out)
         self.assertIn("Start here: bet #3 jobshop-quote, item #3", out)
 
+    def test_bets_overview_lists_growth_topics_when_nothing_is_free(self):
+        bets = Path(self.tmp.name) / "bets.md"
+        bets.write_text("| # | Bet | Where |\n|---|---|---|\n"
+                        "| 1 | **Pay apps** | new `private-monorepo/apps/payapps` |\n"
+                        "\n"
+                        "### 1. Pay apps\n\n- **Wedge:** pay apps.\n"
+                        "- **Growth path:** job costing, RFIs (from\n  the GC side) and estimating.\n"
+                        "- **Risks:** none\n")
+        self.assertEqual(rc.growth_paths(bets.read_text()), {1: ["job costing", "RFIs", "estimating"]})
+        for n in ("1", "2", "3"):
+            self.assertEqual(self.main(self.b, "--claim", n)[0], 0)
+        self.assertEqual(self.main(self.b, "--claim", "0", "--slug", "job-cost-codes-part-1")[0], 0)
+        code, out = self.main(self.a, "--bets", "--bets-md", str(bets), app=None)
+        self.assertEqual(code, 0, out)
+        self.assertIn("job costing (1 live: job-cost-codes-part-1)", out)
+        self.assertIn("RFIs (no live claim)", out)
+        self.assertIn("Fewest live claims: bet #1 payapps (4)", out)
+        self.assertIn("Untouched topic: 'RFIs'", out)
+        self.assertIn("--slug rfi-<part>", out)
+
     def test_bets_overview_sends_a_run_to_the_least_crowded_wedge(self):
         # 2026-11-26 friction (6 runs): every bet's Next items waited, the fallback named a
         # "growth path" bets.md does not have, and three runs piled onto payapps.

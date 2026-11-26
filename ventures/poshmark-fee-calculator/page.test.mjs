@@ -266,3 +266,10 @@ test('the generic-method comparison page names no product and its figures match 
   assert.match(html, /Nothing leaves your browser/);
   assert.doesNotMatch(html, /not affiliated with/i);
 });
+
+test('no page claims an offer across $15 can cost more than the discount (quality round 116)', () => {
+  // Crossing down moves the fee from >= $3.00 to $2.95, so payout always falls by less than the discount.
+  for (const name of readdirSync(new URL('./', import.meta.url)).filter(f => f.endsWith('.html'))) {
+    assert.doesNotMatch(page(name), /cost more[^.]{0,80}than the discount|losing more of it to fees/i, name);
+  }
+});

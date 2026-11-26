@@ -58,10 +58,31 @@ A few guardrails come with it:
 - **Currencies must match.** If your shop prices in euros and your QuickBooks company keeps its
   books in dollars, the send is refused before anything is written.
 
-Lines go in under one item, "Machined parts". The app creates it the first time if your company
-does not have it. Sales tax follows your customer's settings in QuickBooks, as it does for any
-invoice you create there. Choosing your own item and income account, and class or location for
-QuickBooks Plus and Advanced, is the next step.
+## Which item, and which income account
+
+In QuickBooks Online, every invoice line has a product or service item, and the item decides which
+income account the sale is booked to. If won quotes land under the wrong item, your profit and loss
+report splits your machining revenue in two, and your accountant has to reclassify it at year end.
+
+By default, lines go in under one item, "Machined parts", which posts to Sales of Product Income
+(QuickBooks' own default account for product sales). The app creates both the first time if your
+company does not have them. Many shops already book their work their own way, for example a
+"CNC machining" service item posting to a "Machining Income" account. For those shops, an owner or
+admin presses **Choose the invoice item** on the QuickBooks card. The app lists your company's
+active Service and Non-inventory items, each with the income account it posts to, and every won
+quote after that is invoiced with the item you pick. Nothing is created in your books.
+
+- The list is read from QuickBooks when you open it, so an item you added there a minute ago
+  shows up.
+- Inventory items are not offered, because invoicing one would draw down stock you never tracked
+  for made-to-order parts.
+- If the item you chose is later made inactive in QuickBooks, the next send is refused and the
+  card asks for a new item. Invoices are never quietly sent under some other item.
+- Connecting a different QuickBooks company resets the choice to the default, so an item from one
+  company is never used in another.
+
+Sales tax follows your customer's settings in QuickBooks, as it does for any invoice you create
+there. Class and location for QuickBooks Plus and Advanced are the next step.
 
 ## Status
 

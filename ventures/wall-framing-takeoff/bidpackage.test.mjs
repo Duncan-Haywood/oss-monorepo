@@ -37,6 +37,24 @@ test("logo and accent are sanitised", () => {
   assert.match(cleanLogo("data:image/png;base64,iVBOR=="), /^data:image\/png/);
   assert.equal(cleanAccent("red;}</style>"), "#1f3a5f");
 });
+test("logo: every base64 digit passes, the size cap is exact, and a clean logo reaches the page", () => {
+  const digits = "data:image/png;base64,0123456789AZaz+/=";
+  assert.equal(cleanLogo(digits), digits);
+  const head = "data:image/png;base64,";
+  const at = (n) => head + "A".repeat(n - head.length);
+  assert.equal(cleanLogo(at(399999)), at(399999));
+  assert.equal(cleanLogo(at(400000)), "");
+  const h = bidPackageHtml(q, b, { company: "Ace", logo: "https://x.test/logo.png" });
+  assert.match(h, /<img src="https:\/\/x\.test\/logo\.png"/);
+  assert.doesNotMatch(bidPackageHtml(q, b, { company: "Ace", logo: "javascript:alert(1)" }), /<img/);
+});
+test("the page tells the buyer when a logo is too big or the wrong type, instead of dropping it silently", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  const handler = html.split('$("#pkgLogo").addEventListener("change"')[1]?.split("\n")[0] || "";
+  assert.match(handler, /cleanLogo\(/, "the logo handler checks the file with cleanLogo");
+  assert.match(handler, /#pkgState/, "and says so in the package status line");
+  assert.match(html, /import \{[^}]*\bcleanLogo\b[^}]*\} from "\.\/bidpackage\.mjs"/);
+});
 test("licence: dark until the catalogue is set; only a key signed for this pack unlocks; never throws", async () => {
   await assertPackLicence(licence, PADDLE, "wall-framing-takeoff");
 });

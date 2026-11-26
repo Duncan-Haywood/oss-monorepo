@@ -48,3 +48,23 @@ before acting.
 does not change what the tool does.
 
 FSL-1.1-MIT licensed; see `LICENSE`.
+
+## Known gaps
+
+From the quality audit of 2026-11-26
+([`portfolio/quality/audits/2026-11-26-vendor-change-evidence.json`](../../portfolio/quality/audits/2026-11-26-vendor-change-evidence.json)):
+
+- **No diff text.** The report gives the kind of change and the two lengths,
+  not the changed lines, so a reviewer still has to compare the snapshots by
+  hand. The comparison pages promise "a source-linked diff" until this ships.
+- **No normalisation or hashes.** A re-capture that differs only in line
+  endings or trailing spaces reports `content_changed`, and neither snapshot
+  is pinned by a content hash.
+- **Two engines.** `evidence.js` (page) and `src/vendor_change.py` (CLI) are
+  separate copies, with no test that they agree; they already count lengths
+  differently for emoji text, and the CLI's text and Markdown output leave out
+  the URL, capture time and fetch status.
+
+Fixed in the same round: snapshot fields are now escaped before they reach
+the page, and a `captured_at` with no time zone is rejected by both engines
+(the CLI used to crash, and the page's verdict depended on the viewer's zone).
