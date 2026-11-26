@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKnuhVJSfZSbvGHzpjC",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T13:11:29Z",
+  "ended": "2026-11-26T13:25:46Z",
+  "wall_minutes": 18.75,
+  "tokens_in": 13048026,
+  "tokens_out": 54295,
+  "cost_usd": 5.0219,
+  "tool_calls": 96,
+  "task": "payapps (bet #1): submittal log per job, part 1 (claim payapps/submittal-log)",
+  "projects": [
+    "private-monorepo/apps/payapps",
+    "private-monorepo/apps/payapps-site"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/334",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [
+    "d6615079e4034cd36a555f72628378a8e445a43a"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 27,
+  "outcome": "success",
+  "errors": [
+    "Merge with private main conflicted: the parallel rfi-log run (private PR 335) merged migration 0056 and edited the same shared files (schemas.ts, types.ts, app.ts, schema index, ids.ts, ROADMAP Next) while this run was in CI; kept both sides, regenerated mine as 0057, bumped POLICY_VERSION again for the privacy-policy line."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py --bets",
+      "issue": "Reports bets #1-#4 as having 'free and not gated' items, but on reading each item's text most wait on the owner (launch, sender domain), a live inbound domain or production data (jobshop #3/#8/#12, einvoice #1/#3, payapps #7/#10). The gate detector misses phrasing like 'once the owner runs', 'once real companies are counted', 'if those ever exist'. Cost ~5 min reading ROADMAPs; picked an off-list suite module instead."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "The 'renumber your migration just before merging' advice held exactly: a parallel payapps run took 0056 during this run's CI. A mention that the privacy policy and POLICY_VERSION are a second shared hotspot when two runs add record types would help."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Every 'free' Next item in bets #1-#4 was in practice gated on the owner, production or customer demand; building one would be speculative or impossible.",
+      "did": "Claimed an off-list slug (submittal-log) for bet #1's contractor-suite growth path, a core subcontractor workflow no app here had.",
+      "result": "Shipped and merged a working slice in one run."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No customer blog post this run: the product is not launched and its marketing lives on payapps-site, not the oss blog.",
+      "did": "Updated the payapps-site features page and llms.txt instead.",
+      "result": "Marketing copy matches the shipped feature."
+    }
+  ],
+  "writeups": [
+    "private-monorepo apps/payapps/docs/SUBMITTALS.md (agent and user doc)",
+    "payapps-site features page section 'submittals' and llms.txt line"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (security_next exit 3); IDEAS.md empty. Routed ventures/1. private-monorepo clone worked first time via add_repo. Built: src/shared/submittals.ts (status, submit-by from needed-on-site minus lead time minus review days, overdue-back, delivery-at-risk), table + migration 0057, service, routes (CRUD, resubmit as next revision, CSV with ?today=), page with summary cards, project-page link, privacy line + POLICY_VERSION bump, ROADMAP Done/Next. Verification: run_workflow_locally payapps-ci 9/9 run steps passed and payapps-site-ci 6/6 (3 uses: steps not run each), before merging main; after it, the drift check failed only because the merge was uncommitted (drizzle-kit: 'No schema changes'), clean once committed; payapps-site-ci 6/6 after the merge. Private CI is runner-starved (404 logs), so local runs are the evidence. Risk review: no blocks; one legal prompt (personal data) answered: no personal data beyond job-document metadata, privacy policy updated. Private PR 334 merged as d661507.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0db456f6-7e25-5a4d-b601-14ea49f5a83a",
+    "transcripts": 1,
+    "first": "2026-11-26T13:11:29Z",
+    "last": "2026-11-26T13:30:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 94,
+        "input": 180,
+        "output": 54295,
+        "thinking": 6934,
+        "cache_read": 12877877,
+        "cache_write_5m": 0,
+        "cache_write_1h": 169969,
+        "api_equivalent_usd": 5.0219,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 94,
+      "input": 180,
+      "output": 54295,
+      "thinking": 6934,
+      "cache_read": 12877877,
+      "cache_write_5m": 0,
+      "cache_write_1h": 169969,
+      "api_equivalent_usd": 5.0219,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 96,
+    "tools": {
+      "Bash": 86,
+      "Write": 5,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.75,
+      "active_minutes": 18.75,
+      "model_minutes": 10.22,
+      "tool_minutes": 8.53,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a senior full-stack engineer adding a tested CRUD module with schedule math, migration, page, CSV and docs to an existing app",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 318.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
