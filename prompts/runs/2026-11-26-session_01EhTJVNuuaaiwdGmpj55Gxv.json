@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01EhTJVNuuaaiwdGmpj55Gxv",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T13:56:44Z",
+  "ended": "2026-11-26T14:01:55Z",
+  "wall_minutes": 5.41,
+  "tokens_in": 4682384,
+  "tokens_out": 21031,
+  "cost_usd": 2.1255,
+  "tool_calls": 56,
+  "task": "polish: retainage-cashflow-calculator rate and partial-release tables as phone cards, full-width rate table on desktop, thousands separators in prose money",
+  "projects": [
+    "retainage-cashflow-calculator"
+  ],
+  "pr": 19369,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "Inline python heredoc refused by the rm-safety parser (it deletes nothing); moved the script to a scratchpad file.",
+    "First 'before' element screenshots were taken after the edit; recaptured from origin/main's files served on a second port."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/polish-2026-11-26-pay-application-generator-phone.md",
+      "issue": "Its 'Still weakest' item 3 (pre summaries in three construction front doors) was stale; PR #19350 had already found that and written a newer note. ls docs/reports/polish-* | tail -1 sorts by name, so a same-day note with an earlier letter (construction-...) is skipped. The newest note is the one with the latest commit, not the last name."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "No docs/posts/ post: one page's table layout and number formatting is not worth a reader's time on its own, and the 2026-11-24 direction is to consolidate posts. The report in docs/reports/ carries the before/after numbers.",
+      "did": "report only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/reports/polish-2026-11-26-retainage-cards-and-money.md"
+  ],
+  "goal": null,
+  "notes": "Measured at 390x844 and 1280x900 with Playwright, served from the folder, before (origin/main 1b4ce3d36) and after. Rate table 527->321 px at 390 (cards), 578-in-432 -> 920 full width at 1280; partial table 397->321 px; scrollWidth unchanged 390/1280; no page errors. run_venture_tests.py retainage-cashflow-calculator: 80 pass plus the site page checks. Risk review: nothing blocked; one sink note answered in the PR (pre-existing innerHTML, numeric/validated inputs).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "279450e0-6f1d-5147-82ab-35b323d0d3d1",
+    "transcripts": 1,
+    "first": "2026-11-26T13:56:44Z",
+    "last": "2026-11-26T14:02:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 94,
+        "output": 21031,
+        "thinking": 3484,
+        "cache_read": 4583819,
+        "cache_write_5m": 0,
+        "cache_write_1h": 98471,
+        "api_equivalent_usd": 2.1255,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 94,
+      "output": 21031,
+      "thinking": 3484,
+      "cache_read": 4583819,
+      "cache_write_5m": 0,
+      "cache_write_1h": 98471,
+      "api_equivalent_usd": 2.1255,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 40,
+      "Read": 8,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.41,
+      "active_minutes": 5.41,
+      "model_minutes": 3.69,
+      "tool_minutes": 1.72,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "front-end dev: measure two widths, card CSS, formatter refactor across 43 sites and tests, report",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 141.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,3 +1,14 @@
+/**
+ * Money as the result cards show it: thousands separators, two decimals, the
+ * sign before the symbol ("-$4,802.74"), and no "-$0.00" from rounding.
+ * Used by every note, draft and download so prose matches the tables.
+ */
+export function formatMoney(amount, currency = '$') {
+  const rounded = Math.round(Math.abs(amount) * 100) / 100;
+  const text = rounded.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return `${amount < 0 && rounded > 0 ? '-' : ''}${currency}${text}`;
+}
+
 const RELEASE_DEFAULTS = {
   percentComplete: 75,
   reductionAtPct: 50,
@@ -148,7 +159,7 @@ export function releaseSchedule(values) {
 }
 
 export function releaseNote(schedule, currency = '$') {
-  const money = amount => `${currency}${amount.toFixed(2)}`;
+  const money = amount => `${formatMoney(amount, currency)}`;
   if (!schedule.pastReduction) {
     return `At ${schedule.percentComplete}% complete, retainage has not yet reached the ${schedule.reductionAtPct}% reduction point. The modeled proper hold is ${money(schedule.properHold)} — the full rate on completed work. This is a planning model, not a contract reading.`;
   }
@@ -211,7 +222,7 @@ export function compareRetainageRates(values, percents = [0, 5, 10]) {
 export function rateComparisonNote(rows, currency = '$') {
   if (!Array.isArray(rows) || rows.length === 0) return '';
   const current = rows.find((row) => row.current) || rows[rows.length - 1];
-  const money = (value) => (value == null ? 'not modelable at 100% retainage' : `${currency}${value.toFixed(2)}`);
+  const money = (value) => (value == null ? 'not modelable at 100% retainage' : `${formatMoney(value, currency)}`);
   return `At ${current.retainagePct.toFixed(1)}% retainage, keeping the same progress-payment cash as a no-retainage job means bidding ${money(current.bidToKeepProgress)} — ${money(current.extraToKeepProgress)} more. The modeled carrying cost of a ${current.holdDays}-day hold is ${money(current.carryingCost)}; matching that economic net only needs ${money(current.extraToKeepEconomic)} extra. Most contractors price the cash-now gap, not the interest. This is a planning model, not a contract reading.`;
 }
 
@@ -319,7 +330,7 @@ export function partialReleaseNote(comparison) {
     throw new Error('Partial-release comparison is missing rows');
   }
   const money = (value) => {
-    const format = (value) => `$${value.toFixed(2)}`;
+    const format = (value) => `${formatMoney(value)}`;
     const text = format(Math.abs(value));
     return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
   };
@@ -343,14 +354,14 @@ export function followUpDraft({ projectName, payerName, invoiceReference, dueDat
   const due = dueDate?.trim() || '[due date]';
   const retainage = result.retainageStillUnpaid ?? result.retainageWithheld;
   const delayLine = Number.isFinite(result.dailyCarryingCost) && Number.isFinite(result.thirtyDayDelayCost)
-    ? `Using my carrying-cost assumption, each additional day represents approximately ${currency}${result.dailyCarryingCost.toFixed(2)} in modeled carrying cost; a 30-day delay would model approximately ${currency}${result.thirtyDayDelayCost.toFixed(2)}.`
+    ? `Using my carrying-cost assumption, each additional day represents approximately ${formatMoney(result.dailyCarryingCost, currency)} in modeled carrying cost; a 30-day delay would model approximately ${formatMoney(result.thirtyDayDelayCost, currency)}.`
     : null;
   return [
     `Subject: Payment status request — ${project}`,
     '',
     `Hello ${payer},`,
     '',
-    `I am checking the payment status for ${invoice}, due ${due}. My records show ${currency}${result.earnedUnpaid.toFixed(2)} remains unpaid, including approximately ${currency}${retainage.toFixed(2)} in retainage based on the figures in my worksheet.`,
+    `I am checking the payment status for ${invoice}, due ${due}. My records show ${formatMoney(result.earnedUnpaid, currency)} remains unpaid, including approximately ${formatMoney(retainage, currency)} in retainage based on the figures in my worksheet.`,
     ...(delayLine ? [delayLine] : []),
     '',
     'Please confirm the expected payment date and let me know if any documentation is still needed from me. This is a factual account-record request, not a waiver of any rights or a demand for a particular legal remedy.',
@@ -372,33 +383,33 @@ export function worksheetSummary({ projectName, payerName, invoiceReference, due
     field('Invoice / pay application', invoiceReference),
     field('Due date', dueDate),
     '',
-    `Contract value: $${values.contractValue.toFixed(2)}`,
-    `Retainage withheld (${values.retainagePct.toFixed(1)}%): $${result.retainageWithheld.toFixed(2)}`,
-    `Retainage still unpaid: $${(result.retainageStillUnpaid ?? result.retainageWithheld).toFixed(2)}`,
-    `Paid to date: $${values.paidToDate.toFixed(2)}`,
-    `Earned but unpaid: $${result.earnedUnpaid.toFixed(2)}`,
+    `Contract value: ${formatMoney(values.contractValue)}`,
+    `Retainage withheld (${values.retainagePct.toFixed(1)}%): ${formatMoney(result.retainageWithheld)}`,
+    `Retainage still unpaid: ${formatMoney((result.retainageStillUnpaid ?? result.retainageWithheld))}`,
+    `Paid to date: ${formatMoney(values.paidToDate)}`,
+    `Earned but unpaid: ${formatMoney(result.earnedUnpaid)}`,
     `Days since payment was due: ${values.daysOutstanding}`,
     `Annual carrying-cost assumption: ${values.annualCarryingRatePct.toFixed(1)}%`,
-    ...(Number.isFinite(result.dailyCarryingCost) ? [`Modeled cost per additional day: $${result.dailyCarryingCost.toFixed(2)}`] : []),
-    ...(Number.isFinite(result.thirtyDayDelayCost) ? [`Modeled cost of another 30 days: $${result.thirtyDayDelayCost.toFixed(2)}`] : []),
-    `Modeled carrying cost: $${result.carryingCost.toFixed(2)}`,
-    `Total modeled cash outstanding: $${result.totalCashOutstanding.toFixed(2)}`,
-    ...(scenarios.length ? ['', 'Further-delay scenarios (modeled):', ...scenarios.map(s => `+${s.days} days: $${s.totalCashOutstanding.toFixed(2)} outstanding; $${s.additionalCarryingCost.toFixed(2)} added carrying cost`)] : []),
+    ...(Number.isFinite(result.dailyCarryingCost) ? [`Modeled cost per additional day: ${formatMoney(result.dailyCarryingCost)}`] : []),
+    ...(Number.isFinite(result.thirtyDayDelayCost) ? [`Modeled cost of another 30 days: ${formatMoney(result.thirtyDayDelayCost)}`] : []),
+    `Modeled carrying cost: ${formatMoney(result.carryingCost)}`,
+    `Total modeled cash outstanding: ${formatMoney(result.totalCashOutstanding)}`,
+    ...(scenarios.length ? ['', 'Further-delay scenarios (modeled):', ...scenarios.map(s => `+${s.days} days: ${formatMoney(s.totalCashOutstanding)} outstanding; ${formatMoney(s.additionalCarryingCost)} added carrying cost`)] : []),
     ...(release ? [
       '',
       'Retainage reduction (modeled):',
       `Percent complete: ${release.percentComplete}%`,
       `Reduction point: ${release.reductionAtPct}% complete, then ${release.reducedRetainagePct}% retainage`,
-      `Proper hold at this percent complete: $${release.properHold.toFixed(2)}`,
-      `Retainage withheld to date: $${release.retainageHeldToDate.toFixed(2)}`,
-      `Typically already releasable: $${release.shouldHaveReleased.toFixed(2)}`,
-      `Still held above the reduced rate: $${release.overheld.toFixed(2)}`,
+      `Proper hold at this percent complete: ${formatMoney(release.properHold)}`,
+      `Retainage withheld to date: ${formatMoney(release.retainageHeldToDate)}`,
+      `Typically already releasable: ${formatMoney(release.shouldHaveReleased)}`,
+      `Still held above the reduced rate: ${formatMoney(release.overheld)}`,
     ] : []),
-    ...(partialRelease ? ['', 'Partial retainage offer (modeled):', `Typed check today: $${partialRelease.partialOffer.toFixed(2)}`, `Days until full retainage: ${partialRelease.waitDays}`, ...partialRelease.rows.map(row => `${row.label}: cash $${row.cash.toFixed(2)}; added carrying $${row.additionalCarrying.toFixed(2)}; net $${row.net.toFixed(2)}`), `Break-even check that matches waiting: $${partialRelease.breakEvenPartialOffer.toFixed(2)}`, partialReleaseNote(partialRelease)] : []),
+    ...(partialRelease ? ['', 'Partial retainage offer (modeled):', `Typed check today: ${formatMoney(partialRelease.partialOffer)}`, `Days until full retainage: ${partialRelease.waitDays}`, ...partialRelease.rows.map(row => `${row.label}: cash ${formatMoney(row.cash)}; added carrying ${formatMoney(row.additionalCarrying)}; net ${formatMoney(row.net)}`), `Break-even check that matches waiting: ${formatMoney(partialRelease.breakEvenPartialOffer)}`, partialReleaseNote(partialRelease)] : []),
     ...(rateRows.length ? ['', `Retainage rate comparison (modeled on a ${rateRows[0].holdDays}-day hold):`, ...rateRows.map((row) => {
-      const bid = row.bidToKeepProgress == null ? 'not modelable' : `$${row.bidToKeepProgress.toFixed(2)}`;
-      const extra = row.extraToKeepProgress == null ? 'n/a' : `$${row.extraToKeepProgress.toFixed(2)}`;
-      return `${row.retainagePct.toFixed(1)}%${row.current ? ' (this worksheet)' : ''}: withheld $${row.withheld.toFixed(2)}; progress cash $${row.progressCash.toFixed(2)}; bid to keep progress cash ${bid} (${extra} extra)`;
+      const bid = row.bidToKeepProgress == null ? 'not modelable' : `${formatMoney(row.bidToKeepProgress)}`;
+      const extra = row.extraToKeepProgress == null ? 'n/a' : `${formatMoney(row.extraToKeepProgress)}`;
+      return `${row.retainagePct.toFixed(1)}%${row.current ? ' (this worksheet)' : ''}: withheld ${formatMoney(row.withheld)}; progress cash ${formatMoney(row.progressCash)}; bid to keep progress cash ${bid} (${extra} extra)`;
     }), rateComparisonNote(rateRows)] : []),
     '',
     'This is a private worksheet export, not advice or evidence of entitlement. Verify the figures, contract, payment terms, and local requirements before relying on it.'
@@ -424,7 +435,7 @@ export function paymentScheduleSummary(rows, currency = '$') {
     const billed = Number(row.billed) || 0;
     const paid = Number(row.paid) || 0;
     const outstanding = Math.max(0, billed - paid);
-    return `${index + 1}. ${String(row.label || '').trim() || `Milestone ${index + 1}`} | billed ${currency}${billed.toFixed(2)} | paid ${currency}${paid.toFixed(2)} | outstanding ${currency}${outstanding.toFixed(2)}`;
+    return `${index + 1}. ${String(row.label || '').trim() || `Milestone ${index + 1}`} | billed ${formatMoney(billed, currency)} | paid ${formatMoney(paid, currency)} | outstanding ${formatMoney(outstanding, currency)}`;
   });
   return ['Payment milestone schedule', '=========================', ...lines, '', 'Review this schedule against invoices, payment applications, and bank records before relying on it.'].join('\n');
 }
@@ -434,11 +445,11 @@ export function summaryText({ projectName, result, currency = '$' }) {
   const stillUnpaid = result.retainageStillUnpaid ?? result.retainageWithheld;
   return [
     `Retainage cash-flow summary: ${project}`,
-    `Retainage withheld: ${currency}${result.retainageWithheld.toFixed(2)}`,
-    `Retainage still unpaid: ${currency}${stillUnpaid.toFixed(2)}`,
-    `Earned but unpaid: ${currency}${result.earnedUnpaid.toFixed(2)}`,
-    `Modeled carrying cost: ${currency}${result.carryingCost.toFixed(2)}`,
-    `Total modeled cash outstanding: ${currency}${result.totalCashOutstanding.toFixed(2)}`,
+    `Retainage withheld: ${formatMoney(result.retainageWithheld, currency)}`,
+    `Retainage still unpaid: ${formatMoney(stillUnpaid, currency)}`,
+    `Earned but unpaid: ${formatMoney(result.earnedUnpaid, currency)}`,
+    `Modeled carrying cost: ${formatMoney(result.carryingCost, currency)}`,
+    `Total modeled cash outstanding: ${formatMoney(result.totalCashOutstanding, currency)}`,
     '',
     'Numbers-only snapshot for a bookkeeper. The full worksheet export includes delay scenarios, release math, and the follow-up draft. Scenario only. Review the contract, payment terms, and local requirements. Not legal, tax, financial, or engineering advice.',
   ].join('\n');
@@ -455,10 +466,10 @@ export function cashFlowRecordText({ projectName, invoiceReference, dueDate, res
     `Invoice / pay application: ${invoice}`,
     `Payment due: ${due}`,
     '',
-    `Retainage withheld: ${currency}${result.retainageWithheld.toFixed(2)}`,
-    `Earned but unpaid: ${currency}${result.earnedUnpaid.toFixed(2)}`,
-    `Modeled carrying cost: ${currency}${result.carryingCost.toFixed(2)}`,
-    `Total modeled cash outstanding: ${currency}${result.totalCashOutstanding.toFixed(2)}`,
+    `Retainage withheld: ${formatMoney(result.retainageWithheld, currency)}`,
+    `Earned but unpaid: ${formatMoney(result.earnedUnpaid, currency)}`,
+    `Modeled carrying cost: ${formatMoney(result.carryingCost, currency)}`,
+    `Total modeled cash outstanding: ${formatMoney(result.totalCashOutstanding, currency)}`,
     '',
     'This is a user-entered scenario and account-record aid, not a determination of interest, payment deadline, lien right, entitlement, or legal remedy.',
     'Review the figures and supporting records before relying on or sharing this record.'
