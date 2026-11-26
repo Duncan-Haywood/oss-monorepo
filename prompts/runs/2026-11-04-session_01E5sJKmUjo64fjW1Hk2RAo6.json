@@ -175,7 +175,8 @@
       {
         "file": "platform/ci/browser_checks.py",
         "issue": "framerate.mjs is still not run by the nightly: add 'framerate' to CHECKS in browser_checks.py and browser_state.py and to both lists in .github/workflows/browser-checks-ci.yml (control plane, own PR, owner approval), then delete the `pending` entry in test_browser_checks.py (the test fails when it goes stale). Check first that software-rendered fps is stable enough for a nightly budget.",
-        "patched": false
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19241"
       }
     ]
   }
