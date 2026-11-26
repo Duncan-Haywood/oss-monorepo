@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKicotGBrJx8NTW1t7w",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T13:18:09Z",
+  "ended": "2026-11-26T13:30:24Z",
+  "wall_minutes": 12.46,
+  "tokens_in": 10564445,
+  "tokens_out": 36061,
+  "cost_usd": 4.0039,
+  "tool_calls": 88,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19362",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets marks items 'free and not gated' that still wait on the owner's deploy or on real shops' files (jobshop-quote #8/#10/#12, cmmc #1-#4, einvoice #1); reading each item's text was needed to see that every Next item on bets 2-4 was effectively gated. The fresh quality audit with empty fix_prs was the real free work."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Nothing points runs at portfolio/quality/audits/*.json with empty fix_prs as a work source for a bet's app; found it only by grepping for the slug."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Bet #1 payapps had 4 live claims and its free items wait on data; took bet #2 jobshop-quote instead, and there worked the quality audit's defects rather than a ROADMAP Next item (all gated).",
+      "did": "Claimed slug costing-audit-fixes-zero-time-yield-starts and fixed the two medium defects plus the untested rounding.",
+      "result": "Private PR #336 with unit, worker and e2e suites green locally."
+    },
+    {
+      "file": "goals.md",
+      "why": "No new post: extended the bet's existing front-door guide (how-to-price-a-machined-part) with a fallout section, per the consolidate-posts direction.",
+      "did": "One paragraph plus dateModified.",
+      "result": "machine-shop-guides tests pass."
+    }
+  ],
+  "writeups": [
+    "ventures/machine-shop-guides/how-to-price-a-machined-part.html (extended: 'Price the starts, not just the order')"
+  ],
+  "goal": null,
+  "notes": "Private: https://github.com/Duncan-Haywood/private-monorepo/pull/336. Local checks: typecheck, biome, test:unit 522 pass, test:worker 226 pass, e2e 10/10, pnpm build ok; ceil->round mutant on unit price now caught. Private CI was queued (runners usually starved). Public: machine-shop-guides 250 tests, industry-manufacturing.test 11 pass.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3480fd91-5aec-5a57-8b06-675b4a5882e5",
+    "transcripts": 1,
+    "first": "2026-11-26T13:18:09Z",
+    "last": "2026-11-26T13:30:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 85,
+        "input": 163,
+        "output": 36061,
+        "thinking": 8283,
+        "cache_read": 10414382,
+        "cache_write_5m": 0,
+        "cache_write_1h": 149900,
+        "api_equivalent_usd": 4.0039,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 85,
+      "input": 163,
+      "output": 36061,
+      "thinking": 8283,
+      "cache_read": 10414382,
+      "cache_write_5m": 0,
+      "cache_write_1h": 149900,
+      "api_equivalent_usd": 4.0039,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 88,
+    "tools": {
+      "Bash": 83,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.46,
+      "active_minutes": 12.46,
+      "model_minutes": 8.01,
+      "tool_minutes": 4.46,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior dev: engine schema change across editor, routings, diff, tests and docs, plus guide edit",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 149.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
