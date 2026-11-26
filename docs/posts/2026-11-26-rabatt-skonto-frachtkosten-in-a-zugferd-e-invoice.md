@@ -3,7 +3,7 @@ title: "Rabatt, Skonto and Frachtkosten: where a discount goes when your PDF inv
 seo_title: "Rabatt, Skonto and freight in a ZUGFeRD or XRechnung e-invoice"
 date: 2026-11-26
 tags: [for-customers, einvoice-preflight, e-invoicing, zugferd, factur-x, xrechnung, germany, france, accountants]
-description: "Where a discount, a Rabatt column, Skonto and freight go in a ZUGFeRD or XRechnung e-invoice, and how our PDF converter reads each one."
+description: "Where a row discount, a discount on the whole invoice, Skonto and freight go in a ZUGFeRD or XRechnung e-invoice, and how our PDF converter reads them."
 ---
 
 Most small firms in Germany and France still send invoices as a PDF from Word,
@@ -127,8 +127,47 @@ the line net, so if the result no longer matches the totals printed on your PDF,
 the screen names the net, VAT and total that differ and keeps the download
 locked until they agree.
 
-**Not done yet:** a discount printed on its own line under a row, a
-description that breaks across a page, and scanned PDFs (no text layer).
+## A discount on its own line under the row
+
+Many invoicing programs have no Rabatt column. They print the row's discount
+on a line of its own, right under the row:
+
+```
+1  LED-Panel 60 x 60, 4000 K   12 Stk   89,00 €   1.068,00 €
+   abzgl. 8 % Rabatt                                -85,44 €
+2  Mantelleitung NYM-J 3 x 1,5  100 m    0,92 €      92,00 €
+```
+
+This is still a line allowance on row 1 (BG-27), not a discount on the whole
+invoice. Until 26 November our converter got this wrong, and it was worse than a
+misplaced discount. It took the first such line for a discount on the whole
+invoice and stopped reading the table there, so rows 2, 3 and 4 were lost. The
+totals check caught it and kept the download locked, but the invoice could not
+be converted.
+
+Now a discount line (or a surcharge line such as "zzgl. Eilzuschlag") counts as
+the row's own when only that row's description stands between them and another
+row follows before the totals. A line directly under the **last** row is less
+clear, because a discount on the whole invoice can sit in the same place. The
+converter takes it as the row's own only in two cases. One is when its printed
+percent of that row's amount is its amount, to the cent. The other is when the
+rows above already put their discounts on their own lines, and then the row is
+marked for you to confirm. Otherwise it stays a discount on the whole invoice,
+as before. If the printed percent does not fit the row (10 % of 500,00 printed
+as 45,00), the converter keeps the amount, says what the percent would have
+given, and marks the row to confirm. The rows' nets after their own discounts
+still have to add up to your Nettobetrag, so the totals check applies here too.
+
+We tested this on one electrician's invoice of our own, with discounts under
+rows 1 and 4, printed by Chromium and by LibreOffice. LibreOffice spaces the
+rows almost twice as far apart, so the converter measures the gap against each
+table's own row spacing rather than a fixed distance. Both PDFs read all four
+rows, and the Factur-X built from each passes the checker. As before, these are
+our own test files. We have not measured how often it works on real firms'
+invoices.
+
+**Not done yet:** a description that breaks across a page, and scanned PDFs
+(no text layer).
 
 The free [e-invoice preflight](https://marisstella.app/einvoice-preflight/)
 checks an XRechnung, ZUGFeRD or Factur-X file you already have, including its
