@@ -75,12 +75,21 @@ export function calculateChangeOrder(input) {
   };
 }
 
+/**
+ * Dollars for the page and the summary: thousands separators, two decimals,
+ * sign before the symbol, and no "-$0.00" for a sub-cent residual. The
+ * summary is pasted into an email to the customer, where `$12500.00` reads as
+ * unfinished beside a quote showing `$12,500.00` (same rule as
+ * `proposal.mjs` `money`, kept here so the calculator has no proposal import).
+ */
+export function formatMoney(value) {
+  const cents = Math.round(Math.abs(Number(value) || 0) * 100);
+  const sign = cents !== 0 && value < 0 ? '-' : '';
+  return `${sign}$${(cents / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
 export function summaryText(input, result) {
-  const money = (value) => {
-    const format = (value) => `$${value.toFixed(2)}`;
-    const text = format(Math.abs(value));
-    return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
-  };
+  const money = formatMoney;
   const label = input.title?.trim() || 'Scope change';
   return `${label}\nAdded work: ${result.hours.toFixed(2)} labor hours\n` +
     `Estimated added cost (labor, materials, subcontractor, schedule): ${money(result.directCost)}\n` +

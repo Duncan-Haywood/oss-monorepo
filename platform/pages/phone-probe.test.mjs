@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 
 import {
   PHONE, MIN_FIELD_PX, EXAMPLE_RE, SUBMIT_RE, SCROLL_OK_ATTR, PRODUCT_PAGES,
-  phoneFailures, probeSlugs, probeRow,
+  phoneFailures, probeSlugs, probeRow, rawAmounts, RAW_AMOUNT_RE,
 } from './phone-probe.mjs';
 
 const clean = { viewport: 390, height: 844, scrollWidth: 390, swipes: [], smallFields: [{ el: 'input#a', px: 16 }], tallRows: [{ el: 'table', px: 300 }] };
@@ -61,4 +61,21 @@ test('a row for --all carries the numbers a before/after table needs', () => {
   const r = probeRow({ ...clean, swipes: [{}] }, { page: 'x/', state: 'load' });
   assert.match(r, /width  390  swipes 1  small fields 0\/1  tall rows 0/);
   assert.equal(PHONE.width, 390);
+});
+
+test('rawAmounts finds unseparated money and leaves formatted amounts alone', () => {
+  assert.deepEqual(rawAmounts('Release $111111.11 now; hold $2500.00; -$1000 net; €12000 and £4500'), ['$111111.11', '$2500.00', '$1000', '€12000', '£4500']);
+  assert.deepEqual(rawAmounts('$111,111.11, $999.99, $2,500, 1234 hours, $ 12, $1,234,567'), []);
+  assert.deepEqual(rawAmounts('$2500 then $2500 again'), ['$2500'], 'unique');
+  assert.deepEqual(rawAmounts(''), []);
+  assert.ok(RAW_AMOUNT_RE.global);
+});
+
+test('unseparated amounts are one failure naming the first three and the fix', () => {
+  const m = { ...clean, rawAmounts: [{ el: 'textarea#summary', text: '$2500.00' }, { el: 'p', text: '$12000' }, { el: 'p', text: '$1000' }, { el: 'p', text: '$9999' }] };
+  const out = phoneFailures(m, { page: 'change-order-margin-calculator/', state: 'with the example worked out' });
+  assert.equal(out.length, 1);
+  assert.match(out[0], /4 money amount\(s\) without thousands separators \(\$2500\.00, \$12000, \$1000\), first in textarea#summary/);
+  assert.match(out[0], /data-raw-amount-ok/);
+  assert.match(probeRow(m, { page: 'x/', state: 'worked' }), /raw amounts 4$/);
 });
