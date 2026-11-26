@@ -15,8 +15,15 @@ Private PR 262 (`claim/jobshop-quote/shop-currency`, ROADMAP item 11).
   a currency whose sign is outside WinAnsi.
 - The cover-note guard (`coverNoteProblem`) refused only `$` prices before; it now refuses signs,
   codes and names for every listed currency.
-- Not done (next run): the rate-card import's `readMoneyCell` still takes only `$`/"USD"; a EUR
-  shop's "€85" cell is refused. Plan prices (Paddle) stay USD by design.
+- Import, done later the same day (private PR 275, `claim/jobshop-quote/rate-card-import-currency-cells`):
+  `splitCurrencyMark` and `headerCurrencyMark` in `currency.ts`. `readMoneyCell(s, currency)`,
+  `readRateSheet(kind, grid, currency)` and `readSettingsSheet(grid, currency)` read `€85`,
+  `85,00 €`, `CA$95`, `450 kr` and headers like "Rate (€/hr)" in the shop's currency. They refuse
+  a cell or a money column marked in another currency, naming both, and never convert. A bare `$`
+  fits any dollar or peso shop. `normHeader` rewrites the header's mark to `$` so the existing
+  `\$` header rules match any currency, which means a new money rule should key on `$`, not on
+  `usd` or `€`. The currency parameters default to null (USD), so old callers behave as before.
+  Plan prices (Paddle) stay USD by design.
 - Picking work: payapps and jobshop-quote Next lists are mostly "if a customer asks" items, and a
   parallel run claimed payapps item 7 seconds before this run did (roadmap_claim printed it as
   ALSO CLAIMED; release then pick again worked, though `--release` hit a proxy disconnect).
