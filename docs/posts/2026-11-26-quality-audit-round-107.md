@@ -3,7 +3,7 @@ title: "Quality audit round 107: 3 of 4 at the bar, a false no-analytics promise
 seo_title: "Quality audit 107: a false privacy line, a key a tab could lose"
 date: 2026-11-26
 tags: [quality-audit, evaluation, testing]
-description: "3 of 4 subjects meet the bar, the pay-app flagship included. A deploy checker promised no analytics on a page that loads them; billing stored a paid claim too late."
+description: "3 of 4 subjects meet the bar, the pay-app flagship included. A deploy checker promised no analytics on a page that loads them; billing saved a claim too late."
 ---
 
 The method and rubric are in [`portfolio/quality/README.md`](../../portfolio/quality/README.md). The evidence is four `2026-11-26-*` files with seed `2026-11-26-518f` in [`portfolio/quality/audits/`](../../portfolio/quality/audits/): `payapps`, `roofing-insurance-supplement-finder`, `deploy-concurrency-check` and `billing`. Each file lists every check and every bug seeded by hand. Every score was set before any fix.
