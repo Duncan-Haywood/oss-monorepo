@@ -151,21 +151,43 @@ data "aws_iam_policy_document" "member_trust" {
 }
 
 # What the cutover needs to find each AWS endpoint and its certificate. Reads
-# configuration only: no object, secret, log or message reads.
+# configuration only: no object, secret, log or message reads. List calls
+# have no resource-level scoping in IAM; everything else is this account's.
+locals {
+  member_accounts = { shared_infra = local.shared_infra_account_id, apps = local.apps_account_id }
+}
+
 data "aws_iam_policy_document" "read" {
+  for_each = local.member_accounts
+
   statement {
-    sid = "FindEndpoints"
+    sid = "ListEndpoints"
     actions = [
       "cloudfront:ListDistributions",
-      "cloudfront:GetDistribution",
       "acm:ListCertificates",
-      "acm:DescribeCertificate",
       "route53:ListHostedZonesByName",
-      "route53:GetHostedZone",
-      "route53:ListResourceRecordSets",
-      "ses:GetEmailIdentity",
     ]
     resources = ["*"]
+  }
+  statement {
+    sid       = "ReadDistributions"
+    actions   = ["cloudfront:GetDistribution"]
+    resources = ["arn:aws:cloudfront::${each.value}:distribution/*"]
+  }
+  statement {
+    sid       = "ReadCertificates"
+    actions   = ["acm:DescribeCertificate"]
+    resources = ["arn:aws:acm:${var.region}:${each.value}:certificate/*"]
+  }
+  statement {
+    sid       = "ReadHostedZones"
+    actions   = ["route53:GetHostedZone", "route53:ListResourceRecordSets"]
+    resources = ["arn:aws:route53:::hostedzone/*"]
+  }
+  statement {
+    sid       = "ReadEmailIdentity"
+    actions   = ["ses:GetEmailIdentity"]
+    resources = ["arn:aws:ses:${var.region}:${each.value}:identity/*"]
   }
   statement {
     sid       = "FindApiDomains"
@@ -188,7 +210,7 @@ resource "aws_iam_role_policy" "shared_infra_read" {
 
   name   = "cutover-read"
   role   = aws_iam_role.shared_infra_read.id
-  policy = data.aws_iam_policy_document.read.json
+  policy = data.aws_iam_policy_document.read["shared_infra"].json
 }
 
 resource "aws_iam_role" "apps_read" {
@@ -205,11 +227,11 @@ resource "aws_iam_role_policy" "apps_read" {
 
   name   = "cutover-read"
   role   = aws_iam_role.apps_read.id
-  policy = data.aws_iam_policy_document.read.json
+  policy = data.aws_iam_policy_document.read["apps"].json
 }
 
 data "aws_iam_policy_document" "operate" {
-  source_policy_documents = [data.aws_iam_policy_document.read.json]
+  source_policy_documents = [data.aws_iam_policy_document.read["apps"].json]
 
   statement {
     sid       = "CopyThroughDbAdmin"
@@ -219,9 +241,12 @@ data "aws_iam_policy_document" "operate" {
 
   # Only SES's mailbox simulator, so the send check cannot mail a person.
   statement {
-    sid       = "SendToTheSimulatorOnly"
-    actions   = ["ses:SendEmail"]
-    resources = ["*"]
+    sid     = "SendToTheSimulatorOnly"
+    actions = ["ses:SendEmail"]
+    resources = [
+      "arn:aws:ses:${var.region}:${local.apps_account_id}:identity/*",
+      "arn:aws:ses:${var.region}:${local.apps_account_id}:configuration-set/*",
+    ]
     condition {
       test     = "ForAllValues:StringLike"
       variable = "ses:Recipients"
