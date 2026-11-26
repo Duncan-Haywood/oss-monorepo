@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKjy45HafTxoR2vTyzq",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T03:17:58Z",
+  "ended": "2026-11-26T03:22:17Z",
+  "wall_minutes": 4.51,
+  "tokens_in": 2657864,
+  "tokens_out": 13240,
+  "cost_usd": 1.4633,
+  "tool_calls": 36,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19192",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "WebFetch of en.wikipedia.org, vaticannews.va and franciscanmedia.org failed (hosts outside the session's network allowlist); facts were checked through WebSearch result summaries instead"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The Little Lamps proposal asked for the source of the 'showed me the door' saying; the primary reference pages could not be fetched from this session, and search found only varying secondary wordings, so the story tells it as remembered. A note in the bible naming which hosts are reachable for saint research would save the probing."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio cap exceeded (581 MB of 400 MB), so the piece is text only, as the prompt directs",
+      "did": "landed text, pages and feeds without audio",
+      "result": "tests green; audio left for when enclosures move off Pages"
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "'Write about the work': no blog post. A single bedtime story is the creative deliverable itself and the 2026-11-24 direction is to consolidate posts rather than add one per PR",
+      "did": "no new post; the story carries its own sourced grown-ups note",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon, Little Lamps shelf. Piece: andre-and-the-door-at-notre-dame-college (Saint Andr\u00e9 Bessette), 1,251 words, text only. Shelf drawn by creative_due.py. Claimed the BIBLE.md proposal with a Drafting marker before writing; moved it to DONE.md with bible_done.mjs; added the next Little Lamps proposal (Leo the Great and Attila, 452). Checks: node --test in ventures/hearth-and-horizon 22/22 pass; run_venture_tests.py hearth-and-horizon ok; platform/pages/stories.test.mjs 16/16 pass; risk_review.py blocks nothing (the one legal prompt is for the generated story page, which carries the same usage beacon and privacy line as every other story page).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fe2e807e-56a8-5f18-9a5b-5dbe2a7eb2f6",
+    "transcripts": 1,
+    "first": "2026-11-26T03:17:58Z",
+    "last": "2026-11-26T03:22:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 62,
+        "output": 13240,
+        "thinking": 1825,
+        "cache_read": 2572333,
+        "cache_write_5m": 0,
+        "cache_write_1h": 85469,
+        "api_equivalent_usd": 1.4633,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 62,
+      "output": 13240,
+      "thinking": 1825,
+      "cache_read": 2572333,
+      "cache_write_5m": 0,
+      "cache_write_1h": 85469,
+      "api_equivalent_usd": 1.4633,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 24,
+      "WebSearch": 5,
+      "WebFetch": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.51,
+      "active_minutes": 4.51,
+      "model_minutes": 2.82,
+      "tool_minutes": 1.69,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "a children's writer researching and drafting a 1,250-word sourced saint story with notes",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 205.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
