@@ -162,13 +162,13 @@
 
   const $ = (id) => document.getElementById(id);
   function cell(text, cls) { const td = document.createElement("td"); td.textContent = text; if (cls) td.className = cls; return td; }
-  function row(label, value) { const tr = document.createElement("tr"); tr.append(cell(label), cell(value, "n")); return tr; }
+  function row(label, value, cls = "n") { const tr = document.createElement("tr"); tr.append(cell(label), cell(value, cls)); return tr; }
   function render() {
     const opts = { portal: $("pf-portal").value, before2023: $("pf-before").value === "yes", subTier: $("pf-subtier").value === "yes", gcPays: $("pf-gcpays").value === "yes" };
     const one = portalFee({ contract: $("pf-contract").value, ...opts });
     const year = one.errors.length ? one : yearOfPortalFees({ jobs: $("pf-jobs").value, averageContract: $("pf-contract").value, ...opts });
     $("pf-errors").replaceChildren(...year.errors.map((e) => { const p = document.createElement("p"); p.className = "finding"; p.textContent = e; return p; }));
-    $("pf-rows").replaceChildren(...(year.errors.length ? [] : [row("Fee on one subcontract", fmt(one.fee)), row("Share of the subcontract", (one.share * 100).toFixed(3) + "%"), row("Fees for a year of these jobs", fmt(year.total)), row("Rule applied", one.rule)]));
+    $("pf-rows").replaceChildren(...(year.errors.length ? [] : [row("Fee on one subcontract", fmt(one.fee)), row("Share of the subcontract", (one.share * 100).toFixed(3) + "%"), row("Fees for a year of these jobs", fmt(year.total)), row("Rule applied", one.rule, "")]));
   }
   for (const id of ["pf-portal", "pf-contract", "pf-jobs", "pf-before", "pf-subtier", "pf-gcpays"]) { $(id).addEventListener("input", render); $(id).addEventListener("change", render); }
   render();
