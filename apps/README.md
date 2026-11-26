@@ -77,14 +77,13 @@ The root `LICENSE` (FSL-1.1-MIT) covers this code. The private repository's
 
 ## What stayed private
 
-- **`apps/grants`** (Grant Autopilot). It names its first client throughout (59 files),
-  and that client sends documents under an NDA (`docs/onboarding/IMPORTING_DOCUMENTS.md`
-  there). Publishing it would make the client relationship public, which the NDA may not
-  allow. It can move once the client's name and any fixtures drawn from their material
-  are replaced with invented ones, or the client agrees. Until then it stays in the
-  private repository. Many files here still cite `apps/grants/...` as the pattern they were
-  copied from; those paths now exist only there. The trust page's grants profile stays
-  in `packages/trust-page` as a test fixture, but is not published (`PROFILES`).
+- **`apps/grants`** (Grant Autopilot). It contains client-confidential material (names,
+  onboarding notes and fixtures tied to its first customer), so it is not published. It
+  can move once that material is replaced with invented data, or with the client's
+  agreement. Until then it stays in the private repository. Many files here still cite
+  `apps/grants/...` as the pattern they were copied from; those paths now exist only
+  there. The trust page's grants profile stays in `packages/trust-page` as a test
+  fixture, but is not published (`PROFILES`).
 - **The private repository's `infra/aws/payments`**: this repository's
   `platform/aws/stacks/saas-starter/payments` replaces it.
 - **`scripts/import-venture.mjs`**: it imported public ventures into the private

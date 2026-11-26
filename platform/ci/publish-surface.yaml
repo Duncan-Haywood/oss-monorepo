@@ -56,6 +56,39 @@ workflows:
 - workflow: ai-first-markets-ci.yml
   classification: none
   publishes: []
+- workflow: apps-admin-ci.yml
+  classification: none
+  publishes: []
+- workflow: apps-billing-ci.yml
+  classification: none
+  publishes: []
+- workflow: apps-cad-features-ci.yml
+  classification: none
+  publishes: []
+- workflow: apps-cmmc-ci.yml
+  classification: none
+  publishes: []
+- workflow: apps-einvoice-preflight-ci.yml
+  classification: none
+  publishes: []
+- workflow: apps-einvoice-site-ci.yml
+  classification: none
+  publishes: []
+- workflow: apps-jobshop-quote-ci.yml
+  classification: none
+  publishes: []
+- workflow: apps-payapps-ci.yml
+  classification: none
+  publishes: []
+- workflow: apps-payapps-site-ci.yml
+  classification: none
+  publishes: []
+- workflow: apps-qbo-sync-ci.yml
+  classification: none
+  publishes: []
+- workflow: apps-seller-books-ci.yml
+  classification: none
+  publishes: []
 - workflow: backup-verification-evidence-ci.yml
   classification: none
   publishes: []

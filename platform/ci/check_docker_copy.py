@@ -201,7 +201,10 @@ def check(dockerfile):
     files, foreign, workdir = image_files(stage, context)
 
     def present(p):
-        return p in files or any(p == f or p.startswith(f + "/") for f in foreign)
+        # A directory reference (`new URL("../fonts/", import.meta.url)`) is satisfied by
+        # any file the image holds under that directory.
+        return (p in files or any(p == f or p.startswith(f + "/") for f in foreign)
+                or any(k.startswith(p + "/") for k in files))
 
     start = posixpath.normpath(posixpath.join(workdir, entry))
     if not present(start):

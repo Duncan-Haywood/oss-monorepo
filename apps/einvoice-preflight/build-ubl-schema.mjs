@@ -59,7 +59,7 @@ const IGNORED = new Set(["annotation", "import", "include"]);
 function readSchemaDir(dir) {
   const out = [];
   for (const f of FILES) {
-    const text = readFileSync(join(dir, f), "utf8").replace(/^﻿/, "").replace(/\r\n/g, "\n");
+    const text = readFileSync(join(dir, f), "utf8").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
     const prefixes = {};
     const head = text.match(/<xsd:schema\b[^>]*>/)[0];
     for (const m of head.matchAll(/\sxmlns(?::([\w.-]+))?\s*=\s*"([^"]*)"/g)) prefixes[m[1] ?? ""] = m[2];

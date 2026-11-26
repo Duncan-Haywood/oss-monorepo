@@ -20,7 +20,7 @@ export function detectDelimiter(firstLine: string): string {
 }
 
 export function parseCsv(text: string): Grid {
-  const src = text.replace(/^﻿/, "").replace(/\r\n?/g, "\n");
+  const src = text.replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n");
   const first = src.split("\n").find((l) => l.trim() !== "") ?? "";
   const delim = detectDelimiter(first);
   const rows: Grid = [];

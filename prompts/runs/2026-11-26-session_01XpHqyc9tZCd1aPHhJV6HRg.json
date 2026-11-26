@@ -59,7 +59,7 @@
   "deviations": [
     {
       "file": "apps/grants",
-      "why": "owner listed grants for the move; it names a client under an NDA in 59 files, so publishing it could breach that NDA (legal liability line)",
+      "why": "owner listed grants for the move; it holds client-confidential material, so publishing it is a legal liability",
       "did": "left in the private repo, trust-page grants profile kept only as a test fixture",
       "result": "every other app moved"
     },

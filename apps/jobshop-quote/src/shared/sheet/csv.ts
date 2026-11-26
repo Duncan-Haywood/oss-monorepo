@@ -34,7 +34,7 @@ function delimiter(lines: string[]): string {
 }
 
 export function parseCsv(text: string): Grid {
-  const src = text.replace(/^﻿/, "").replace(/\r\n?/g, "\n");
+  const src = text.replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n");
   const delim = delimiter(
     src
       .split("\n")

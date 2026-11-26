@@ -247,7 +247,7 @@ describe("export", () => {
       ],
     };
     const csv = exportCutSpeedCsv(full);
-    expect(csv.startsWith("﻿")).toBe(true);
+    expect(csv.startsWith("\uFEFF")).toBe(true);
     const grid = parseCsv(csv.slice(1));
     expect(grid[0]).toEqual(CUT_SPEED_EXPORT_HEADERS);
     expect(grid.slice(1, 5)).toEqual([

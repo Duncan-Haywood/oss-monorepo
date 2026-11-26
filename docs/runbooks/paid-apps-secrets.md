@@ -105,6 +105,4 @@ webhook secret both exist, and to `none` otherwise (`packages/billing/src/factor
 
 `apps/grants` (Grant Autopilot) and its secrets (`GOOGLE_CLIENT_*`, `SLACK_SIGNING_SECRET`,
 `SIMPLER_GRANTS_API_KEY`, `INTEGRATIONS_KEY`, `INTERNAL_API_TOKEN`, `PLATFORM_ADMIN_EMAILS`)
-stayed in the private repository. The app names a real client throughout (59 files), and
-that client sends documents under an NDA. Publishing it would make the client relationship
-public. See [`apps/README.md`](../../apps/README.md), "What stayed private".
+stayed in the private repository: it holds client-confidential material. See [`apps/README.md`](../../apps/README.md), "What stayed private".

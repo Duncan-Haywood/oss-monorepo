@@ -468,5 +468,5 @@ export function exportMaterialRateCsv(kind: MaterialRateKind, card: MaterialRate
       real(m ? spec.machineDefault(m) : null),
     ]);
   const lines = [materialRateExportHeaders(kind), ...rows];
-  return `﻿${lines.map((l) => l.map(csvField).join(",")).join("\r\n")}\r\n`;
+  return `\uFEFF${lines.map((l) => l.map(csvField).join(",")).join("\r\n")}\r\n`;
 }

@@ -3,7 +3,7 @@ import { parseCsv, parseStatus, planImport, resolveControlId } from "./csv-impor
 
 describe("parseCsv", () => {
   it("reads quotes, doubled quotes, quoted newlines, CRLF and a BOM", () => {
-    expect(parseCsv('﻿a,"b, c","say ""hi""\nthere"\r\n1,2,3')).toEqual([
+    expect(parseCsv('\uFEFFa,"b, c","say ""hi""\nthere"\r\n1,2,3')).toEqual([
       ["a", "b, c", 'say "hi"\nthere'],
       ["1", "2", "3"],
     ]);
