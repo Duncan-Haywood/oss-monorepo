@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqycc1gnWNoY43PrvCij",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T22:38:51Z",
+  "ended": "2026-11-26T22:48:21Z",
+  "wall_minutes": 9.81,
+  "tokens_in": 8641483,
+  "tokens_out": 42441,
+  "cost_usd": 3.7851,
+  "tool_calls": 69,
+  "task": "wall-framing-takeoff ROADMAP Next #1: hip offcut reuse on roof.mjs's rectangular hip roof (rect-hip-offcut-reuse)",
+  "projects": [
+    "private-monorepo/apps/wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/422",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "First full-suite run failed outlinesheathing.test.mjs's piece-for-piece comparison with roof.mjs (it pinned roof.mjs to the no-reuse layout); fixed by adding roof.hipStarts:false and comparing reuse counts across the two implementations."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "`--bets` named payapps #1 as free, but the per-app listing showed it already has a part claimed 0 min ago and every other item waits on demand; the useful free item was bet #6's."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "wall-framing-takeoff has no package.json and no CI workflow in private-monorepo (biome disabled), so `node --test *.test.mjs` run locally is the only check; the doc's install/CI notes do not say this for this app."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "Explore is free choice, but every ranked bet's feature queue was saturated or gated, and launch waits on the owner (legal pages, Paddle verification). I took the one free, ungated ROADMAP item on a ranked bet instead of inventing a new direction.",
+      "did": "Shipped the rectangular-hip sheathing reuse in private-monorepo#422.",
+      "result": "Merged; 10.3% fewer roof sheets over 4,978 rectangles."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No new blog post: this is an engine accuracy change, and the residential-takeoff marketing pages already cover hip roofs; a thin post per PR is discouraged (2026-11-24 consolidation).",
+      "did": "Documented in the app README and ROADMAP.",
+      "result": "null"
+    }
+  ],
+  "writeups": [
+    "private-monorepo apps/wall-framing-takeoff/README.md (roof framing paragraph) and ROADMAP.md, updated"
+  ],
+  "goal": null,
+  "notes": "Explore idea: finish the hip-offcut reuse for roof.mjs's rectangular hip roof (bet #6, residential takeoff). Hip starts (same side, turned end for end) plus cut-down triangles for narrower top courses, kept only when they save a sheet, then non-saving starts pruned with a validity re-check. Verification: hand count 10x10 ft 3:12 pyramid 7->5 sheets; property test on a grid (never more sheets, every start has a donor, area adds up); cross-check against outlinesheathing.mjs (identical with hipStarts:false; with reuse within one sheet: 45/43/29 vs 46/43/30); scratch sweep of 4,978 rectangles: 189,554 -> 170,050 sheets (10.3%), 0 worse, 0 invalid; full suite `node --test *.test.mjs` 1305 pass, 0 fail, 2 skipped. Risk review: only a false-positive email-outreach check on README.md (no email code). Security queue had 0 workable alerts; IDEAS inbox empty.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2e5a21f7-9d9e-59dd-bb29-562dfbffd284",
+    "transcripts": 1,
+    "first": "2026-11-26T22:38:51Z",
+    "last": "2026-11-26T22:48:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 67,
+        "input": 129,
+        "output": 42441,
+        "thinking": 13868,
+        "cache_read": 8486550,
+        "cache_write_5m": 0,
+        "cache_write_1h": 154804,
+        "api_equivalent_usd": 3.7851,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 67,
+      "input": 129,
+      "output": 42441,
+      "thinking": 13868,
+      "cache_read": 8486550,
+      "cache_write_5m": 0,
+      "cache_write_1h": 154804,
+      "api_equivalent_usd": 3.7851,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 69,
+    "tools": {
+      "Bash": 63,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.81,
+      "active_minutes": 9.81,
+      "model_minutes": 7.49,
+      "tool_minutes": 2.32,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a senior engineer designing, implementing and verifying a sheet-reuse packing heuristic with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 158.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
