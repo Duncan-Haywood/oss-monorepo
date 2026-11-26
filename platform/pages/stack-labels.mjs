@@ -143,3 +143,57 @@ export function labelStackTables(html) {
   const joined = out.join('');
   return joined === html ? html : joined;
 }
+
+/**
+ * Browser half: defines `stackLabels(table)`, the same labelling for rows a
+ * script writes after load. Plain ES5 so it sits inside pf-site.js's IIFE
+ * (build.mjs, SCROLL_A11Y_SCRIPT), which calls it on every table at each width
+ * check and whenever a watched table's rows change.
+ *
+ * Why (polish, 2026-11-26): the pass above reads markup, so a calculator that
+ * writes its results into `<tbody>` from a string got cards with no labels.
+ * Measured that day at 390 px, 47 of the 128 sideways swipes on the
+ * construction front doors were such script-filled results tables
+ * (`docs/reports/polish-2026-11-26-flat-rate-tables-stack.md`). With this, a
+ * venture opts a results table in the way it opts a static one in: the class
+ * and a `<thead>`. Same rules as the build pass: labels from the first header
+ * row (a `colspan` header labels each column it spans), a cell that already has
+ * a `data-label` or a `role` keeps its own, a row header is a card title, and a
+ * stack table holding another table is left alone. A row is read once: its
+ * last cell is marked (an expando, not an attribute, so the table's
+ * MutationObserver does not fire again), and a row the calculator replaced has
+ * new cells without the mark. Not a key of row count and text length, as
+ * figure-columns.mjs uses: "$1,200" rewritten as "$1,300" keeps both and would
+ * leave the new cells unlabelled.
+ */
+export const STACK_LABELS_JS = `
+  var stackRole=function(el,role){if(!el.hasAttribute('role'))el.setAttribute('role',role);};
+  var stackLabels=function(t){
+    if(!t||!t.rows||!t.classList||!t.classList.contains('stack')||!t.tHead||!t.tHead.rows.length)return;
+    if(t.getElementsByTagName('table').length)return;
+    var labels=[],hr=t.tHead.rows[0].cells,i,j,k;
+    for(i=0;i<hr.length;i++){
+      var txt=(hr[i].textContent||'').replace(/\\s+/g,' ').trim();
+      for(k=0;k<Math.max(1,hr[i].colSpan||1);k++)labels.push(txt);
+    }
+    if(!labels.length)return;
+    stackRole(t,'table');
+    var groups=t.children;
+    for(i=0;i<groups.length;i++)if(/^T(HEAD|BODY|FOOT)$/.test(groups[i].tagName))stackRole(groups[i],'rowgroup');
+    for(i=0;i<t.rows.length;i++){
+      var r=t.rows[i],end=r.cells[r.cells.length-1];
+      if(!end||end._pfStack)continue;
+      end._pfStack=1;
+      stackRole(r,'row');
+      if(r.parentNode===t.tHead){for(j=0;j<r.cells.length;j++)stackRole(r.cells[j],'columnheader');continue;}
+      var col=0;
+      for(j=0;j<r.cells.length;j++){
+        var c=r.cells[j],at=col;
+        col+=Math.max(1,c.colSpan||1);
+        if(c.tagName==='TH'){stackRole(c,c.getAttribute('scope')==='row'?'rowheader':'cell');continue;}
+        stackRole(c,'cell');
+        if(!c.hasAttribute('data-label')&&labels[at])c.setAttribute('data-label',labels[at]);
+      }
+    }
+  };
+`;

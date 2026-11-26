@@ -141,7 +141,7 @@ import {
 } from './invalid.mjs';
 import { BACKUP_WIDGET_HTML, BACKUP_WIDGET_SCRIPT } from './backup.mjs';
 import { REFLOW_CSS, TABLE_SCROLL_CLASS, WRAP_TABLES_JS, injectReflow } from './reflow.mjs';
-import { labelStackTables } from './stack-labels.mjs';
+import { labelStackTables, STACK_LABELS_JS } from './stack-labels.mjs';
 import { FIGURE_COLUMNS_CSS, FIGURE_COLUMNS_JS } from './figure-columns.mjs';
 import { PAPER_INK_JS } from './paper.mjs';
 import { STICKY_FIT_CSS, STICKY_FIT_JS } from './sticky-fit.mjs';
@@ -11306,6 +11306,10 @@ const SCROLL_A11Y_SCRIPT = `
   // comparison tbody written from saved rates) is watched for its own
   // changes; our attributes are not observed, so marking does not re-trigger.
   ${FIGURE_COLUMNS_JS}
+  // A \`table.stack\` whose rows a calculator wrote after load gets the labels
+  // and roles the build gives static ones (stack-labels.mjs, STACK_LABELS_JS),
+  // before the figure pass and the width check read it.
+  ${STACK_LABELS_JS}
   var watch=function(t){
     if(t._pfObs||typeof MutationObserver!=='function')return;
     t._pfObs=new MutationObserver(function(){later(1);});
@@ -11313,7 +11317,7 @@ const SCROLL_A11Y_SCRIPT = `
   };
   var measure=function(){
     var tl=document.getElementsByTagName('table');
-    for(var k=0;k<tl.length;k++){try{figs(tl[k]);watch(tl[k]);}catch(e){}}
+    for(var k=0;k<tl.length;k++){try{stackLabels(tl[k]);figs(tl[k]);watch(tl[k]);}catch(e){}}
     for(var i=0;i<candidates.length;i++){
       var el=candidates[i];
       if(el.scrollWidth>el.clientWidth+1){

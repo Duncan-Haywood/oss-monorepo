@@ -3,7 +3,7 @@ title: "A CSS grid split 161 phone tables into fragments; display: table keeps t
 seo_title: "Responsive tables as cards: why a grid splits inline markup"
 date: 2026-11-25
 description: "Turning table rows into labelled cards on a phone with display:grid breaks any cell that mixes text with <code>, <a> or <strong>. A table cell keeps it whole."
-tags: [design, css, accessibility, polish, einvoice-preflight, pay-app-guides]
+tags: [design, css, accessibility, polish, einvoice-preflight, pay-app-guides, contractor-wip-schedule]
 ---
 
 # A CSS grid split 161 phone tables into fragments; display: table keeps them whole
@@ -122,4 +122,30 @@ cards it is about three times taller on a phone (46,000 px of table became
 130,000). Each rule can now be read without scrolling sideways, and the
 rule anchors still highlight the linked card, which is how people reach a
 single rule from a rejection message.
+
+## Update, 2026-11-26: tables a calculator fills after load
+
+The labels come from a build step that reads each page's HTML. A calculator's
+results table is different: the page ships an empty `<tbody>`, and the
+script writes the rows once someone enters a job or presses "Load an
+example". The build never sees those cells, so they would have stacked with
+blank labels. None of those tables used the cards, and on a phone they
+scrolled sideways. The contractor WIP schedule showed each job's name and two
+of its eight figures. Billed, over/under and cash to come were off-screen.
+
+The site's shared script (`pf-site.js`) now applies the same labelling in the
+browser. It runs on every `table.stack` whenever the rows change, and uses
+the same rules as the build. Each row is marked once it has been read. That
+mark is a JavaScript property, not an attribute, so setting it does not set
+off the change watcher again. When a recalculation replaces a row, the new
+row has no mark and gets labelled. A cheaper check, row count plus text
+length, would have missed `$1,200` changing to `$1,300`. A tool now opts a
+results table in the same way as a static one: `class="stack"` and a header
+row.
+
+Twelve results tables in five construction tools use it now. Over their 11
+pages at 390 px, with the example filled in, sideways swipes went from 12 to
+4. All 4 left are rows of inputs. One CSS fix came with it: the label is now
+always left-aligned. Before, a right-aligned figure cell also pushed its
+label to the right edge.
 
