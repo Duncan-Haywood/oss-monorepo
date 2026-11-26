@@ -49,9 +49,10 @@ test("page documents the model and what it leaves out", () => {
   assert.match(html, /commission of 8% of the item price by default/);
 });
 
-test("page states the column names are matched by alias from memory", () => {
-  assert.match(page("index.html"), /matched by alias from memory of Whatnot's export/);
-  assert.match(page("README.md"), /matched by alias from memory of Whatnot's export/);
+test("page says where the column names come from: Whatnot's help article for the weekly report, alias for the rest", () => {
+  assert.match(page("index.html"), /Weekly Orders Report is read by the column names in Whatnot's help article; other exports by alias/);
+  assert.match(page("README.md"), /help\.whatnot\.com\/hc\/en-us\/articles\/36772664621837/);
+  assert.match(page("README.md"), /matched by alias from memory of\s+other exports/);
 });
 
 test("robots and sitemap let crawlers find the page", () => {

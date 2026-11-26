@@ -71,6 +71,10 @@ export function detectKind(text) {
   // Depop's sales export: before Poshmark, since both have a Brand column.
   if (depop.isDepopHeader(h)) return "depop";
   const has = (...names) => names.every((n) => h.some((x) => x === n));
+  // Whatnot's Seller Weekly Orders Report: column names from Whatnot's help
+  // article 36772664621837. Before Shopify, whose Transactions export also has
+  // a type and an amount.
+  if (has("transaction type", "transaction amount", "commission fee")) return "whatnot";
   // Shopify Payments "Transactions" export: a payout status and a type per money
   // movement. Checked before the item-per-row formats, none of which has these.
   if (has("transaction date", "type", "amount") && h.some((x) => /^payout (status|id)$/.test(x))) return "shopify";
@@ -355,15 +359,22 @@ function depopChannel(files, costText) {
 function itemChannel(channel, engine, files, costText, feeMode) {
   const out = emptyLine(channel);
   const items = [];
+  const adjustments = [];
   let skipped = 0;
   for (const f of files) {
     const delim = engine.detectDelimiter(f.text);
     const table = engine.parseCsv(f.text, delim); // read-only in both calls, so parsed once
     const n = engine.normalizeRows(table, { decimalComma: engine.detectDecimalComma(table, delim), feeMode });
-    if (n.error) return { error: `${f.name}: ${n.error}` };
+    // A Whatnot week with only refunds has no sales of its own, but its refunds
+    // still belong to sales in the other files.
+    if (n.error && !(n.adjustments && n.adjustments.length)) return { error: `${f.name}: ${n.error}` };
     items.push(...n.items);
+    adjustments.push(...(n.adjustments || []));
     skipped += (n.skipped || []).length;
   }
+  // A refund or shipping charge whose sale is in another of the files (Whatnot
+  // reports one week per file, and a refund lands in the week it completed).
+  const unmatched = engine.applyAdjustments ? engine.applyAdjustments(items, adjustments) : [];
   const r = engine.analyze(items, { costList: costText || "" });
   if (r.invalid) return { error: r.invalid };
   const s = r.summary;
@@ -393,6 +404,7 @@ function itemChannel(channel, engine, files, costText, feeMode) {
     net: m.payout,
     cogs: m.costedItems === m.items ? m.cost : null,
   }));
+  if (unmatched.length) out.notes.push(`${unmatched.length} ${CHANNELS[channel]} refund or shipping charge row(s), $${unmatched.reduce((t, a) => t + a.amount, 0).toFixed(2)} in all, belong to a sale in none of the files loaded, so they are not in these books: load the report for the week the sale completed.`);
   return { line: out, months, detail: r, skipped, costBad: r.costList ? r.costList.errors.length : 0 };
 }
 

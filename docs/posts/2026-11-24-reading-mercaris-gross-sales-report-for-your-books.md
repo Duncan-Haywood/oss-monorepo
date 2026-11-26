@@ -1,9 +1,9 @@
 ---
-title: "Reading Mercari and Depop sales reports for your books: what counts as sales and what doesn't"
-seo_title: "Mercari and Depop sales reports: what counts as your sales"
+title: "Reading Mercari, Depop and Whatnot sales reports for your books: what counts as sales and what doesn't"
+seo_title: "Mercari, Depop and Whatnot sales reports: what counts as sales"
 date: 2026-11-24
-tags: [resellers, mercari, depop, bookkeeping, schedule-c, reseller-books, for-customers]
-description: "Mercari's report has six fields of money the buyer paid; Depop's has 34 columns and no payout. How Reseller Books reads both for your books."
+tags: [resellers, mercari, depop, whatnot, bookkeeping, schedule-c, reseller-books, for-customers]
+description: "Mercari's report has six fields the buyer paid, Depop's no payout, Whatnot's refunds on their own rows. How Reseller Books reads all three for your books."
 ---
 
 [Reseller Books](../../ventures/reseller-books/) puts a reseller's
@@ -169,6 +169,52 @@ eBay's help pages answered the same check with a bot challenge, so eBay's
 columns in Seller Books are still unconfirmed. The way to settle them is one
 real export, not a workaround.
 
+## Whatnot's weekly orders report, added 2026-11-26
+
+Whatnot sends one CSV a week (Seller Hub > Financials > Statements), and
+its help centre now defines every column of it
+([Seller Weekly Orders Report](https://help.whatnot.com/hc/en-us/articles/36772664621837-Seller-Weekly-Orders-Report),
+"Metric Definitions", read 2026-11-26). Before that, the reader used
+names remembered from other Whatnot exports, such as `Sold Price`, `Order Date`
+and `Net Earnings`. None of the real report's date or payout columns has
+those names, so the weekly report was not read at all. It is read now.
+Four things in Whatnot's definitions change your books:
+
+- **One row is one transaction, not one sale.** Each row has a
+  `Transaction Type`: `Order Earnings`, `Order Refund`, `Tips` or
+  `Shipping Charge`. A refund is a second row with the same `Order ID`, in
+  the week it completed, which can be a different week (and file) from the
+  sale. Reseller Books takes each refund off the sale it belongs to, across
+  all the weekly files you load. If the sale is in none of them, the page
+  says how much was left out and which week to add.
+- **`Shipping Fee` is what you paid, not what the buyer paid.** In this
+  report it is seller-paid shipping, giveaway shipping included. The buyer's
+  shipping and tax are in `Buyer Paid`, which Whatnot collects and spends
+  itself. A reader that treats `Shipping Fee` as shipping income gets the
+  direction of the money wrong.
+- **The price is after your coupons.** `Post Coupon Price` is the sale price
+  after your own coupons, and it is the amount commission is charged on.
+  `Original Item Price` is before them.
+- **Dates are UTC, and by completion.** `Transaction Completed at UTC` is
+  when the money reached your balance, and Whatnot's monthly statements count
+  a transaction in the month it completed
+  ([Ledger](https://help.whatnot.com/hc/en-us/articles/44413003987981)).
+  A sale completed at 02:00 UTC on 1 March was the evening of 28 February
+  in the US, and it is in March's books.
+
+A giveaway sells for nothing and still costs its label, so it is kept as a
+$0 sale with its shipping as the loss. A Whatnot show that ran three
+giveaways should show that cost. Whatnot also charges sales tax on its
+commission and processing fees in some places (`Tax on Commission`,
+`Tax on Payment Processing Fee`); both count as part of what Whatnot took.
+
+Seller Books, the paid edition, got the same fix the same day, with the
+`Ledger Transaction ID` as the key that stops a re-uploaded week from
+counting twice. The caveat is the same as for the other two marketplaces:
+the column list is Whatnot's own, but no real Whatnot file has been read
+here yet. The timestamp format and the spelling of the type values are
+still unconfirmed, so the reader ignores case and punctuation in both.
+
 ## Why this matters for the paid product
 
 Reseller Books is the free edition of a planned subscription, Seller Books,
@@ -176,5 +222,6 @@ whose first milestone is exactly this: payout files from eBay, Poshmark,
 Mercari, Whatnot and Depop in one ledger, de-duplicated across re-uploads.
 With Depop in, the free edition now reads every marketplace on that list.
 
-*Arithmetic on your files, not tax advice. Mercari and Depop are trademarks
-of their owners; this tool is independent and not affiliated with either.*
+*Arithmetic on your files, not tax advice. Mercari, Depop and Whatnot are
+trademarks of their owners; this tool is independent and not affiliated with
+any of them.*

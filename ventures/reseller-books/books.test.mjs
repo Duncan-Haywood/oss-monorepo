@@ -173,3 +173,17 @@ test("header found past 15 blank lines, and large exports read the same", () => 
   const many = buildBooks([{ name: "p.csv", text: big }]).channels[0];
   assert.equal(many.orders, one.orders * 50);
 });
+
+test("Whatnot's Seller Weekly Orders Report is recognised, and a refund in a later week's file comes off its sale", () => {
+  // Header in the order of Whatnot's help article 36772664621837; rows authored.
+  const head = "Report Start Date,Week Number,Order Placed At UTC,Transaction Completed at UTC,Transaction Type,Transaction Message,Order ID,Listing Title,Listing Description,Product Category,Buy Format,Sale Type,Quantity Sold,SKU,Cost of Goods,Livestream ID,Livestream Title,Buyer Name,Buyer State,Buyer Country,Shipment ID,Transaction Currency,Transaction Amount,Buyer Paid,Original Item Price,Coupon Cost,Post Coupon Price,Shipping Fee,Commission Fee,Payment Processing Fee,Tax on Commission,Tax on Payment Processing Fee,Ledger Transaction ID,Order Refund Shipping Costs,Appealed Order Refund,Appealed Shipping Refund";
+  const week1 = [head, "2026-03-02,10,2026-03-02 19:00:00,2026-03-03 14:00:00,Order Earnings,Earnings,wn-1,Booster pack,,Pokemon Cards,Auction,,1,PKM-1,3.00,,Friday rips,b1,OH,US,sh-1,USD,21.77,32.05,25.00,0.00,25.00,0.00,2.00,1.23,0.00,0.00,led-1,,,"].join("\n");
+  const week2 = [head, "2026-03-09,11,,2026-03-10 10:00:00,Order Refund,Refund,wn-1,Booster pack,,,,,1,PKM-1,,,,b1,OH,US,sh-1,USD,-10.00,,,,,,,,,,led-2,,,", "2026-03-09,11,,2026-03-11 10:00:00,Order Refund,Refund,wn-0,Older,,,,,1,,,,,b2,OH,US,sh-0,USD,-5.00,,,,,,,,,,led-3,,,"].join("\n");
+  assert.equal(detectKind(week1), "whatnot");
+  const r = buildBooks([{ name: "week1.csv", text: week1 }, { name: "week2.csv", text: week2 }]);
+  const w = r.channels.find((c) => c.channel === "whatnot");
+  assert.equal(w.orders, 1);
+  assert.equal(w.sales, 25);
+  near(w.net, 11.77, "net after the 10.00 refund from week 2");
+  assert.ok(w.notes.some((n) => /1 Whatnot refund or shipping charge row\(s\), \$5\.00 in all/.test(n)), JSON.stringify(w.notes));
+});
