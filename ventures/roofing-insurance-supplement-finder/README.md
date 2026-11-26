@@ -9,8 +9,8 @@ homeowner information is asked for.
 **Live tool:** https://marisstella.app/roofing-insurance-supplement-finder/
 
 After using this, you can **see what an estimate left out in dollars, argue the
-measurement gaps and the price gap separately, and tell whether a supplement
-service's fee is worth paying**.
+measurement gaps and the price gap separately, and see what you keep after a
+supplement service's fee**.
 
 ## Try it
 
@@ -39,6 +39,23 @@ Open [`index.html`](index.html) and click **Find the gap**.
 Defaults are placeholders, not benchmarks. This is arithmetic, not insurance, legal or
 public-adjuster advice; it does not say what a policy covers, whether O&P applies, or who may
 negotiate a claim for a homeowner in your state. Real depreciation is set by the carrier.
+
+## Known gaps
+
+From the 2026-11-26 quality audit
+([`portfolio/quality/audits/2026-11-26-roofing-insurance-supplement-finder.json`](../../portfolio/quality/audits/2026-11-26-roofing-insurance-supplement-finder.json)):
+
+- One blended tear-off-plus-install price per square is applied to the squares
+  needed, waste included. Estimating software prices removal on the net roof area
+  and adds waste only to the install line, so the request can be overstated.
+  Fixing it needs a separate tear-off rate on net squares.
+- The shingle split prices the missing squares at your price and the price gap on
+  the adjuster's squares only. Splitting it the other way (missing squares at the
+  estimate's price, price gap on every square needed) gives the same total but
+  different halves; the page does not say which convention it uses.
+- Starter, drip edge and ice barrier are typed in, not derived from eave and rake
+  lengths, and are not flagged as code items (IRC 2021 R905.2.8.5, R905.1.2). Steep
+  slope is one tier, and there are no line codes or export.
 
 ## No warranty
 

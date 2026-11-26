@@ -61,6 +61,12 @@ test("line gaps split missing from over-included and mark status", () => {
   assert.equal(by.starter.status, "unused");
 });
 
+test("a line paid but not measured is over, not unused", () => {
+  const by = Object.fromEntries(lineGaps({ ...simple, permitMeasured: 0, permitPaid: 1, permitPrice: 200 }).map((r) => [r.key, r]));
+  assert.equal(by.permit.status, "over");
+  close(by.permit.over, 200);
+});
+
 test("supplement adds shingle gap and missing lines, and leaves over-included lines out", () => {
   const s = supplement({ ...simple, ridgeCapMeasured: 50, ridgeCapPaid: 80, ridgeCapPrice: 10 });
   close(s.shingle.total, 400);
