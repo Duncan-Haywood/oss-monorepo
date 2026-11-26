@@ -167,6 +167,27 @@ underbilling that mostly isn't there. It is a working schedule for the
 contractor and their accountant, not a financial statement. (Added
 2026-11-26; in development, not for sale.)
 
+Then there is money the job has already promised away. A sub that signs a
+lower-tier subcontract or issues a purchase order has committed to that cost
+even though most of it has not been invoiced yet. If the estimate ignores it,
+the WIP again shows a job further along and more profitable than it is. So
+purchase orders and subcontracts can now be entered per job, and each
+supplier invoice or sub pay app can be put against one. Whatever is not yet
+invoiced counts as cost still to come, so a line's estimate never drops below
+its cost to date plus its open commitments. An invoice that runs past its
+commitment is flagged, which usually means a change order to it was never
+recorded.
+
+The tests check the arithmetic on an example worked by hand. A $40,000 line
+has a $30,000 budget and a $35,000 lower-tier subcontract, with $10,000
+invoiced against it so far. On the budget alone the line reads 33.33% complete,
+$13,333.33 earned and $10,000 of projected profit. Counting the $25,000 still
+open, the estimate is $35,000, so the line is 28.57% complete, has earned
+$11,428.57 and will make $5,000. The budget-only view overstates earned
+revenue by $1,904.76 and projected profit by $5,000, although that $5,000 was
+gone the day the subcontract was signed. (Added 2026-11-26; in
+development, not for sale.)
+
 ### Where it stands (updated 2026-11-25)
 
 Still in development and not for sale. Built and tested so far:
