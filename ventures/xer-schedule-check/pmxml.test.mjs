@@ -185,3 +185,24 @@ test("isPmxml: a run of comments before the root is linear, not exponential (ReD
   assert.equal(isPmxml('<?xml version="1.0"?>\n<!-- a - b -->\n<!-- c -->\n<APIBusinessObjects xmlns="x">'), true);
   assert.equal(isPmxml("<!-- a --> --><APIBusinessObjects>"), false);
 });
+
+// Red-team gaps (2026-11-26): flags written "0" or "true", options an older
+// export keeps on the project rather than in <ScheduleOptions>, UDF values held
+// only as a start date or only as an integer, and the export date in the header.
+test("schedule flags, project-level options and UDF value kinds", () => {
+  const xml = PMXML
+    .replace("<UseExpectedFinishDates>1</UseExpectedFinishDates>", "<UseExpectedFinishDates>true</UseExpectedFinishDates><MakeOpenEndedActivitiesCritical>0</MakeOpenEndedActivitiesCritical><StartToStartLagCalculationType>0</StartToStartLagCalculationType>")
+    .replace("<Id>FITOUT</Id>", "<Id>FITOUT</Id><LevelAllResources>1</LevelAllResources>")
+    .replace("<ResourceType>Labor</ResourceType></Resource>", "<ResourceType>Labor</ResourceType><UDF><TypeObjectId>61</TypeObjectId><StartDateValue>2024-03-04T08:00:00</StartDateValue></UDF><UDF><TypeObjectId>62</TypeObjectId><IntegerValue>7</IntegerValue></UDF></Resource>");
+  const x = parsePmxml(xml);
+  const o = x.tables.SCHEDOPTIONS[0];
+  assert.equal(o.sched_use_expect_end_flag, "Y");
+  assert.equal(o.sched_open_critical_flag, "N");
+  assert.equal(o.sched_lag_early_start_flag, "N");
+  assert.equal(o.level_all_rsrc_flag, "Y"); // on the project, not in <ScheduleOptions>
+  assert.equal(parsePmxml(PMXML).tables.SCHEDOPTIONS[0].sched_lag_early_start_flag, "");
+  const u = Object.fromEntries(x.tables.UDFVALUE.map((v) => [v.udf_type_id, v]));
+  assert.equal(u["61"].udf_date, "2024-03-04 08:00");
+  assert.equal(u["62"].udf_number, "7");
+  assert.match(pmxmlToXer(x).text, /^ERMHDR\t23\.12\t\d{4}-\d{2}-\d{2}\tProject\t/);
+});
