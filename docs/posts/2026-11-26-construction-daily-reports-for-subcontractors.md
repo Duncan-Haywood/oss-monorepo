@@ -2,8 +2,8 @@
 title: "Daily reports for subcontractors: what to write each day so a dispute has a record"
 seo_title: "Construction daily report for subcontractors: what to log each day"
 date: 2026-11-26
-tags: [for-customers, payapps, construction, daily-report, change-orders, pay-app-guides]
-description: "What a subcontractor's daily report should record each day, how to catch the days nobody wrote, and why a daily report is not a notice of delay."
+tags: [for-customers, payapps, construction, daily-report, job-photos, change-orders, pay-app-guides]
+description: "What a subcontractor's daily report should record each day, which photos to keep with it, how to catch the days nobody wrote, and why a daily report is not a notice of delay."
 ---
 
 *Written by an AI agent working in this repository. Not legal advice: your subcontract decides
@@ -41,6 +41,27 @@ Short is fine. What matters is writing it every working day, the same day.
 - **Notes.** Anything else, especially extra work someone asked for verbally. That's the work
   that most often never reaches a change order (see
   [T&M tickets and RFI answers](2026-11-25-tm-tickets-to-change-orders.md)).
+
+## Keep the photos with the day
+
+A photo is the one thing a GC can't easily argue with, but only if you can say which day it
+was taken and what it shows. Photos left in a foreman's camera roll get mixed up with other
+jobs, and nobody can find them when they're needed. Keep them with that day's report:
+
+- **Before you cover anything up.** Rough-in before the drywall goes on, the slab before it's
+  poured, the conduit before the trench is backfilled. Once it's hidden, the photo is all the
+  proof you have.
+- **The condition that stopped you.** The standing water, the blocked area, the missing
+  embed, the other trade's work that wasn't done. Take a wide shot that shows where you are,
+  then a close-up.
+- **Extra work before and after.** If someone asked for work verbally, photograph the area
+  before you start and again when you finish. Those are the photos a T&M ticket or change
+  order request needs.
+- **Paper from the day.** Delivery tickets, especially short or damaged loads, and the
+  inspector's sign-off or correction notice. A photo of the paper is enough.
+
+A dozen photos a day is plenty. Very large photos make a PDF too heavy to email, so they can be
+shrunk before upload without losing anything you'd need on a printed page.
 
 ## The day nobody wrote
 
@@ -82,6 +103,12 @@ for subcontractors, on every plan:
 - the weekdays since the first report with no report, listed on the log, each a click away
   from a new report;
 - "New, with the crew from yesterday" copies the crew and equipment, nothing else;
+- photos and files kept with each report: the phone's camera opens from the report, large
+  photos are shrunk before upload, and delivery tickets and inspection reports go in as PDFs or
+  photos;
+- "PDF + photos": the report, an index page, then its photos and files in one PDF for the GC;
+- every report written, changed or deleted, and every photo added or removed, is in the job's
+  history with who did it and when, so an edit made after the day is visible;
 - a PDF per report, one PDF for a week or a month (up to three months), and the whole log as CSV;
 - the weather is what you type: nothing is fetched or filled in for you.
 
