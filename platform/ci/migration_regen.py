@@ -121,9 +121,11 @@ def fix(repo: Path, app: str, base: str, info: dict, generate_cmd: str | None) -
         if p.is_file():
             p.unlink()
     git(repo, "checkout", base, "--", mig)
-    cmd = (generate_cmd or "pnpm exec drizzle-kit generate --name {name}").replace("{name}", shlex.quote(name))
-    print(f"saved {', '.join(ours)} to {backup}; running `{cmd}` in {app}")
-    r = subprocess.run(cmd, shell=True, cwd=repo / app)
+    # An argument list, no shell: {name} becomes one argument, whatever the file was called.
+    cmd = [name if w == "{name}" else w
+           for w in shlex.split(generate_cmd or "pnpm exec drizzle-kit generate --name {name}")]
+    print(f"saved {', '.join(ours)} to {backup}; running `{shlex.join(cmd)}` in {app}")
+    r = subprocess.run(cmd, cwd=repo / app)
     if r.returncode != 0:
         print(f"generate failed (exit {r.returncode}); your SQL is in {backup}. "
               f"`git checkout {base} -- {mig}` leaves migrations/ as main's.")

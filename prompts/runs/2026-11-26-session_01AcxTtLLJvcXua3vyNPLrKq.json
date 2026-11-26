@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "security-scan blocked subprocess shell=True in migration_regen.py (semgrep py-shell-injection); switched to an argument list via shlex.split, re-tested on the synthetic repo and a real payapps clash (exit 0, drizzle-kit check clean)."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
