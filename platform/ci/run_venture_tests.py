@@ -352,6 +352,19 @@ def since_slugs(base):
     return with_dependents(slugs_in(paths))
 
 
+def since_paths(base):
+    """Every repo-relative path changed since `base`, the way since_slugs reads
+    ventures/: the working tree against base, plus untracked files locally.
+    None (so every unwired item runs) when git cannot answer."""
+    try:
+        paths = git("diff", "--name-only", "--no-renames", base).splitlines()
+        if not ON_ACTIONS:
+            paths += git("ls-files", "--others", "--exclude-standard").splitlines()
+    except (subprocess.CalledProcessError, OSError):
+        return None
+    return sorted(set(paths))
+
+
 def changed_slugs(base_ref="origin/main"):
     """Committed, staged, unstaged and untracked changes since the merge base."""
     # Refresh the base first: a cloud clone's origin/main can sit behind the
@@ -867,7 +880,13 @@ def main(argv):
     unwired_red = False
     if args.since is not None and not args.no_unwired:
         import unwired_checks
-        results = unwired_checks.run_everything()
+        import unwired_reads
+        # A change with no code in it runs only the items that read a changed
+        # path (unwired_reads.py; 72 of 150 main commits on 2026-11-26 changed
+        # only docs/reports/ and a run record).
+        changed = since_paths(args.since) if args.since.strip("0 ") else None
+        not_run = []
+        results = unwired_checks.run_everything(changed=changed, not_run=not_run)
         bad = unwired_checks.report(results)
         unwired_red = bool(bad)
         if bad:
@@ -880,7 +899,10 @@ def main(argv):
         skips = unwired_checks.skipped(results)
         print(f"{sum(rc == 0 for _, rc, _ in results) - len(skips)}/{len(results)} unwired tree "
               f"checks and tests pass" + (f", {len(skips)} skipped (missing pytest or a package: "
-                                          f"{' '.join(n for n, _ in skips)})" if skips else ""))
+                                          f"{' '.join(n for n, _ in skips)})" if skips else "")
+              + (f"; {len(not_run)} not run, since they read none of the {len(changed or [])} changed "
+                 f"path(s) (platform/ci/{unwired_reads.READS_FILE.name}, traced "
+                 f"{(unwired_reads.load() or {}).get('taken')})" if not_run else ""))
     elif named and not args.no_unwired:
         # A local named pass is not CI's pass: the changed-ventures job also runs
         # these (friction 2026-11-18: a new platform/ file passed here, failed CI).
