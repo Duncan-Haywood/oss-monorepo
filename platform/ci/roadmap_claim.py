@@ -20,7 +20,9 @@ shown as stale, and --claim on it takes a fresh generation (`<slug>--2`), since 
 that made it has ended. A claim whose slug a later commit subject on origin/main names
 (the PR title, punctuation ignored) is shown as MERGED and is no sibling. A claim records a hash of the session id, so re-running --claim on
 your own claim prints YOURS (exit 0), not TAKEN. An app with no ROADMAP.md, or work not on its Next list, takes --slug alone (`--claim 0 --slug X` means the same). A free item whose text says it waits ("if people ask", "once ... reachable", "owner step")
-is listed as gated, and the listing ends with the free, ungated item numbers. Exit codes: 0 ok, 2 usage or git error, 4 the item is already
+is listed as gated, and the listing ends with the free, ungated item numbers. A --slug whose
+words match a fresh rival claim's (pages-shop-time-zone vs page-dates-shop-time-zone) is
+refused as NEAR (exit 4) unless --distinct. Exit codes: 0 ok, 2 usage or git error, 4 the item is already
 claimed (pick another).
 """
 from __future__ import annotations
@@ -226,6 +228,39 @@ def sibling_claims(app: str, num: int | None, slug: str, info: dict[str, tuple[i
     return sorted(out, key=lambda x: -x[1][0])
 
 
+FILLER = {"part", "a", "an", "the", "and", "of", "to", "for", "on", "in", "with"}
+
+
+def slug_words(slug: str) -> set[str]:
+    """A slug's content words: no "part", numbers or filler, plurals folded (pages -> page)."""
+    out = set()
+    for w in slug.split("-"):
+        if w and not w.isdigit() and w not in FILLER:
+            out.add(w[:-1] if len(w) > 3 and w.endswith("s") and not w.endswith("ss") else w)
+    return out
+
+
+def near_claims(slug: str, info: dict[str, tuple[int, str]], now: float, stale_s: float,
+                merged: dict[str, str], tag: str | None) -> list[tuple[str, tuple[int, str]]]:
+    """Fresh, unmerged rival claims whose slug names the same work in other words.
+
+    Slugs are free text, so a branch-name collision misses the same part named twice
+    (2026-11-26: page-dates-shop-time-zone vs pages-shop-time-zone, a minute apart; both
+    runs built it). Same content words, or at least 3/4 of them shared, counts as near.
+    """
+    mine = slug_words(slug)
+    out = []
+    for s, (ts, m) in info.items():
+        if s == slug or s in merged or not ts or now - ts >= stale_s or is_mine(m, tag):
+            continue
+        theirs = slug_words(GEN.sub(r"\g<base>", s))
+        if len(mine) < 2 or len(theirs) < 2:
+            continue
+        if mine == theirs or len(mine & theirs) / len(mine | theirs) >= 0.75:
+            out.append((s, (ts, m)))
+    return sorted(out, key=lambda x: -x[1][0])
+
+
 def age(ts: int, now: float) -> str:
     mins = int((now - ts) / 60) if ts else -1
     return "age unknown" if mins < 0 else (f"{mins} min ago" if mins < 120 else f"{mins // 60} h ago")
@@ -330,6 +365,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--slug", help="claim under this slug instead (one part of an item, or an "
                                    "app whose ROADMAP has no Next list); works without --claim")
     ap.add_argument("--note", default="", help="what exactly this run builds")
+    ap.add_argument("--distinct", action="store_true",
+                    help="claim although a fresh claim's slug reads as the same work (NEAR)")
     ap.add_argument("--release", metavar="SLUG", help="delete your own claim on SLUG")
     ap.add_argument("--stale-hours", type=float, default=6.0)
     ap.add_argument("--bets", action="store_true",
@@ -398,6 +435,13 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"TAKEN: {slug} claimed {age(ts, now)}: {RUN.sub('', msg).rstrip()}\nPick another item.")
                 return 4
             gen = claims[slug][0] + 1
+        near = [] if a.distinct else near_claims(slug, info, now, stale_s, merged, tag)
+        if near:
+            print(f"NEAR: {slug} reads as the same work as a fresh claim; not claimed:")
+            for s, (ts, m) in near:
+                print(f"  - {s} ({age(ts, now)}): {RUN.sub('', m)[:140].rstrip()}")
+            print("Pick another item, or re-run with --distinct if the note shows different work.")
+            return 4
         msg = f"claim {a.app} #{a.claim or '-'} {slug}" + (f" [{a.note}]" if a.note else "") + f": {title}"
         if tag:
             msg += f" {{run {tag}}}"

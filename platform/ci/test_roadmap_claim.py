@@ -156,6 +156,30 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertEqual(code, 0, out)
         self.assertNotIn("ALSO CLAIMED", out)
 
+    def test_same_part_under_a_near_slug_is_refused(self):
+        # 2026-11-26: jobshop-quote #10 claimed twice a minute apart under these two slugs.
+        code, _ = self.main(self.a, "--claim", "2", "--slug", "page dates shop time zone")
+        self.assertEqual(code, 0)
+        code, out = self.main(self.b, "--claim", "2", "--slug", "pages shop time zone")
+        self.assertEqual(code, 4, out)
+        self.assertIn("NEAR", out)
+        self.assertIn("page-dates-shop-time-zone (", out)
+        # "part 2" and plurals are not what makes work different.
+        self.assertEqual(self.main(self.a, "--slug", "inbound rfq email notify")[0], 0)
+        self.assertEqual(self.main(self.b, "--slug", "inbound rfq emails part 2 notify")[0], 4)
+        # --distinct takes it anyway; a different part is never near.
+        code, out = self.main(self.b, "--claim", "2", "--slug", "pages shop time zone", "--distinct")
+        self.assertEqual(code, 0, out)
+        self.assertEqual(self.main(self.b, "--claim", "2", "--slug", "packets heic convert")[0], 0)
+        # A stale near claim does not block.
+        code, _ = self.main(self.b, "--slug", "inbound rfq email part 3 notify",
+                            now=rc.time.time() + 7 * 3600)
+        self.assertEqual(code, 0)
+
+    def test_slug_words(self):
+        self.assertEqual(rc.slug_words("backup-packets-part-2-heic"), {"backup", "packet", "heic"})
+        self.assertEqual(rc.slug_words("access-class"), {"access", "class"})
+
     def test_listing_shows_part_claims_under_their_item(self):
         code, _ = self.main(self.a, "--claim", "3", "--slug", "state forms texas", "--note", "TX notary block")
         self.assertEqual(code, 0)
