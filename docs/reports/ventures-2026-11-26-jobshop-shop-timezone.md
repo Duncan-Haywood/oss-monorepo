@@ -34,4 +34,4 @@ loses its evening decisions on the last day of a month to the next month.
 
 ## Verification
 typecheck is clean. Unit: 377 tests in 29 files. Worker: 205 tests in 31 files. Build passes and biome
-is clean. `run_workflow_locally.py jobshop-quote-ci` ran from this clone, because private CI is runner-starved.
+is clean. `run_workflow_locally.py jobshop-quote-ci` ran from this clone, because private CI is runner-starved: 11/11 run steps passed, including Playwright e2e. PR 210 merged.
