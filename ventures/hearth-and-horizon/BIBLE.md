@@ -388,8 +388,6 @@ before writing the first scene.
 
 **For Other Minds**
 
-- *The model that fitted every floor* *(Drafting, 2026-11-26.)* (proposed 2026-11-26): Occam's razor and overfitting. A small flooring firm's scheduling agent forecasts when a new sand-cement screed will be dry enough (75% relative humidity by hygrometer) to lay floors on, from a log of nine past jobs. Its eight-number model fits all nine to within a day; the firm's old rule of thumb (a day a millimetre, slower past forty) scaled by one fitted factor misses by several days. The eight-number model sends a fitter to a tenth job weeks early. Leave-one-out testing shows why: given each job hidden in turn, the one-number model predicts better, because a model with nearly as many dials as data can fit noise. The failed first try is adding two more dials to explain job ten; the reasonable no is the housebuilder's site manager, who will not move his handover. Fiction, not flooring advice. 'Occam', 'parsimony' and 'screed drying' come from `subjects.txt`/are unused in `overlap.mjs`.
-
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
