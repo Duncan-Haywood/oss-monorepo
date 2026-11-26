@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtLLyc5T9LL8C4deWss",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T14:07:03Z",
+  "ended": "2026-11-26T14:15:24Z",
+  "wall_minutes": 8.52,
+  "tokens_in": 6049058,
+  "tokens_out": 65221,
+  "cost_usd": 4.0286,
+  "tool_calls": 76,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19371",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/quality_mutate.py",
+      "issue": "Both auditors found that the README's suggested test command node --test '*.test.mjs' runs no tests under quality_mutate.py: it runs without a shell, so the glob reaches node unexpanded. They had to list the test files by name."
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "The auto-mode classifier blocked starting a background http.server for the Playwright walk. The auditor served the files through Playwright route interception instead; the README could name that pattern."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/CLAUDE.md",
+      "why": "Free calculators get no new depth unless they are a front door to a bet. I still fixed three small correctness defects, because the quality track's step 4 asks for that.",
+      "did": "Fixed only small, safe defects, each with a test. Larger gaps went to README Known gaps.",
+      "result": "31 and 27 tests pass, and the new tests fail on the old code."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-quality-audit-round-114.md"
+  ],
+  "goal": null,
+  "notes": "Mode sample, seed 2026-11-26-h-9cca, round 114. Subjects: ventures/pilot-car-escort-run-profit-calculator and ventures/uk-holiday-pay-calculator. Neither meets the bar (0 of 2); across all sampled audits, 39 of 441 do (Wilson 6% to 12%). Fixes are all in PR 19371: pilot-car defect 0 (a blank field read as 0), and uk-holiday defects 1 (no pre-April-2024 gate) and 4 (rounding). Open high: the UK irregular-hours accrual is not per pay period. Spot-checks rerun by hand: pilot-car sample costs 331.20, profit 118.80, needed revenue 474.17; UK leaver at 181/365 gets 14 days and GBP 1,080; GOV.UK's 30-hour example is 4 hours, the tool shows 3.62. run_venture_tests passed for both slugs, check_posts ok, quality_audit validate 0 problems, risk_review blocked nothing.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a347f215-d7cb-50f8-ba4c-1f4846c96c49",
+    "transcripts": 3,
+    "first": "2026-11-26T14:07:03Z",
+    "last": "2026-11-26T14:15:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 147,
+        "output": 65221,
+        "thinking": 16923,
+        "cache_read": 5785556,
+        "cache_write_5m": 180136,
+        "cache_write_1h": 83219,
+        "api_equivalent_usd": 4.0286,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 147,
+      "output": 65221,
+      "thinking": 16923,
+      "cache_read": 5785556,
+      "cache_write_5m": 180136,
+      "cache_write_1h": 83219,
+      "api_equivalent_usd": 4.0286,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.956,
+    "tool_calls": 76,
+    "tools": {
+      "Bash": 60,
+      "WebSearch": 4,
+      "ToolSearch": 2,
+      "Agent": 2,
+      "Write": 2,
+      "Read": 2,
+      "SubagentHandback": 2,
+      "mcp__github__create_pull_request": 1,
+      "ReadNotifications": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.52,
+      "active_minutes": 4.6,
+      "model_minutes": 3.68,
+      "tool_minutes": 0.92,
+      "waiting_on_human_minutes": 3.92,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 8.97
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
