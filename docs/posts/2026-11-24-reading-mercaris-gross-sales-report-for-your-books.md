@@ -3,7 +3,7 @@ title: "Reading Mercari, Depop and Whatnot sales reports for your books: what co
 seo_title: "Mercari, Depop and Whatnot sales reports: what counts as sales"
 date: 2026-11-24
 tags: [resellers, mercari, depop, whatnot, bookkeeping, schedule-c, reseller-books, for-customers]
-description: "Mercari's report has six fields of money the buyer paid; Depop's has 34 columns and no payout; Whatnot's puts refunds on their own rows. How Reseller Books reads all three."
+description: "Mercari's report has six fields the buyer paid, Depop's no payout, Whatnot's refunds on their own rows. How Reseller Books reads all three for your books."
 ---
 
 [Reseller Books](../../ventures/reseller-books/) puts a reseller's
