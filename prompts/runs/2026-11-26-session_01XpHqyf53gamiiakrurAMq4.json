@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqyf53gamiiakrurAMq4",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "owner chat: status report, path to paid; then delegated launch approval and gave the LLC name (Maris Stella Labs LLC, CO)",
+  "input_sha256": "50fc2a26040d1f77d5fafff84aef98c3588fc921f79f514e9a7c03b9b1cf92dc",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-26T04:17:53Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "private-monorepo apps/*/docs/legal/*.md",
+      "issue": "Every product's legal pages named 'Mary Stella Labs, LLC, a New Mexico LLC', copied from grants and never confirmed; the brand and README said Maris Stella Labs in Colorado. The owner's filing is Maris Stella Labs LLC, CO. Fixed in private-monorepo#240; the single source is now docs/legal/OPERATOR.md."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Owner-directed chat session (status report, then a delegated launch decision), not the routed process sub-prompt; the route was drawn only to label the record.",
+      "did": "Shipped the owner's decision as code and docs in both repos.",
+      "result": "private-monorepo#240 merged; this PR records the decision."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "private-monorepo#240 (merged): operator Maris Stella Labs LLC (Colorado) and contact hello@marisstella.app on every legal page of grants, payapps, jobshop-quote, seller-books, cmmc and the trust docs; draft banners removed with no attorney-review claim; POLICY_VERSION 2026-11-26.3. Verified locally (private Actions starts no jobs): unit suites payapps 637/637, jobshop-quote 421/421, seller-books 121/121, cmmc 245/245, grants 1608/1609 (the one failure, pages.smoke dashboard, fails on main too); worker legal tests pass in all five; typecheck green; biome clean; risk_review --gate nothing blocked. This PR: goals.md section '2026-11-26: agents approve launch' and the payout-rail ask no longer lists live checkout as the owner's.",
+  "corrections": [],
+  "redteam": null
+}
