@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [design]
+date: 2026-11-26
+---
 # Polish 2026-11-26: three construction front doors on a phone
 
 Track: polish/0. Picked from item 3 of "Still weakest" in
