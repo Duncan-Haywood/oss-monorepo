@@ -195,5 +195,52 @@ class T(unittest.TestCase):
         self.assertEqual(calls, [0])  # the test clone is not shallow
 
 
+class Search(unittest.TestCase):
+    """search_prs: GitHub search covers the --days window whatever the clone's depth."""
+
+    def fake(self, items, rc=0):
+        import json
+        seen = {}
+
+        def run(cmd, **kw):
+            seen["cmd"] = cmd
+            return subprocess.CompletedProcess(cmd, rc, json.dumps({"items": items}), "")
+        return run, seen
+
+    def test_merged_open_and_loose_matches(self):
+        import datetime as dt
+        run, seen = self.fake([
+            {"number": 5, "state": "closed", "title": "x: Foo-Calc part 2",
+             "pull_request": {"merged_at": "2026-11-20T01:00:00Z"}},
+            {"number": 6, "state": "open", "title": "foo-calc: wip", "created_at": "2026-11-25T00:00:00Z",
+             "pull_request": {"merged_at": None}},
+            {"number": 7, "state": "closed", "title": "foo calc loosely", "pull_request": {"merged_at": "2026-11-21"}},
+            {"number": 8, "state": "closed", "title": "foo-calc closed unmerged", "pull_request": {"merged_at": None}},
+            {"number": 9, "state": "closed", "title": "foo-calc old", "pull_request": {"merged_at": "2026-10-01"}},
+        ])
+        merged, open_ = slug_dupe.search_prs("foo-calc", 14, "o/r", run=run, today=dt.date(2026, 11, 26))
+        self.assertEqual(merged, ["#5 2026-11-20 x: Foo-Calc part 2"])
+        self.assertEqual(open_, ["#6 2026-11-25 foo-calc: wip"])
+        self.assertIn('q=repo:o/r is:pr in:title "foo-calc" updated:>=2026-11-12', seen["cmd"])
+
+    def test_unavailable_is_none(self):
+        run, _ = self.fake([], rc=1)
+        self.assertIsNone(slug_dupe.search_prs("foo-calc", 14, "o/r", run=run))
+
+        def boom(cmd, **kw):
+            raise FileNotFoundError("gh")
+        self.assertIsNone(slug_dupe.search_prs("foo-calc", 14, "o/r", run=boom))
+
+    def test_repo_of_urls(self):
+        orig = slug_dupe.git
+        try:
+            for url, want in [("https://github.com/A/b.git", "A/b"), ("git@github.com:A/b.git", "A/b"),
+                              ("http://local_proxy@127.0.0.1:1/git/A/b", "A/b"), ("/tmp/o.git", None)]:
+                slug_dupe.git = lambda *a, u=url: (0, u + "\n")
+                self.assertEqual(slug_dupe.repo_of(), want, url)
+        finally:
+            slug_dupe.git = orig
+
+
 if __name__ == "__main__":
     unittest.main()
