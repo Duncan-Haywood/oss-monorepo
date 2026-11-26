@@ -3,7 +3,7 @@ title: "ZUGFeRD MINIMUM and BASIC WL are not e-invoices in Germany, and our chec
 seo_title: "Is ZUGFeRD MINIMUM an e-invoice in Germany? No: BASIC WL neither"
 date: 2026-11-26
 tags: [for-customers, einvoice-preflight, e-invoicing, zugferd, factur-x, xrechnung, germany, accountants]
-description: "The BMF counts XRechnung and ZUGFeRD from 2.0.1 as e-invoices, except the MINIMUM and BASIC WL profiles. How to see which profile a file uses, and what our checker now reports."
+description: "The BMF counts XRechnung and ZUGFeRD from 2.0.1 as e-invoices except MINIMUM and BASIC WL. How to spot the profile, and what our checker reports."
 ---
 
 Many German invoicing programs can export a ZUGFeRD PDF. Fewer of them say

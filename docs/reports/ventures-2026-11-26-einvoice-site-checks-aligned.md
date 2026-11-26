@@ -1,3 +1,7 @@
+---
+kind: milestone
+date: 2026-11-26
+---
 # einvoice: the site's "checked / not checked" lists now match the app (2026-11-26)
 
 Bet #3 (e-invoice fix-and-explain), `private-monorepo` ROADMAP Next 3, merged as
