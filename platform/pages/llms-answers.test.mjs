@@ -9,6 +9,10 @@ const VENTURES = fileURLToPath(new URL('../../ventures/', import.meta.url));
 test('plainText strips tags, decodes entities and collapses space', () => {
   assert.equal(plainText('<a href="x">SSP</a> &amp; POA&amp;M\n  costs &#36;5 &mdash; &#x2264;3'), 'SSP & POA&M costs $5 — ≤3');
   assert.equal(plainText('bad &#99999999; ref'), 'bad &#99999999; ref');
+  // Nested fragments leave no tag behind.
+  const nested = plainText('a <scr<b>ipt>alert(1)</scr</b>ipt> b <<i>i>');
+  assert.equal(nested, 'a ipt>alert(1)ipt> b i>');
+  assert.ok(!/<[^>]*>/.test(nested));
 });
 
 test('extractFaq reads h3/answer pairs from the faq section only', () => {
@@ -37,6 +41,9 @@ test('withAnswers inserts before Source, and replaces an existing section in pla
 test('baseUrl keeps the address the llms.txt already uses', () => {
   assert.equal(baseUrl('- [a](https://marisstella.app/x-guides/a.html)', 'x-guides'), 'https://marisstella.app/x-guides/');
   assert.equal(baseUrl('# none', 'y'), 'https://marisstella.app/y/');
+  // A slug is matched literally: '.' is not a wildcard and '(' does not throw.
+  assert.equal(baseUrl('- [a](https://marisstella.app/axb/a.html)', 'a.b'), 'https://marisstella.app/a.b/');
+  assert.equal(baseUrl('- [a](https://marisstella.app/a(b/a.html)', 'a(b'), 'https://marisstella.app/a(b/');
 });
 
 // The ratchet: every product whose llms.txt has an Answers section keeps it in
