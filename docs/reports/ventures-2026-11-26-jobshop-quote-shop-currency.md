@@ -1,3 +1,7 @@
+---
+kind: milestone
+date: 2026-11-26
+---
 # jobshop-quote: one currency per shop (2026-11-26)
 
 Private PR 262 (`claim/jobshop-quote/shop-currency`, ROADMAP item 11).
