@@ -20,6 +20,9 @@ read as `--marker EXIT`, since two runs waited 540 s each on logs already ending
 Given a log too, it waits for the condition, then for the log's marker or for no process to
 have the log open any more (whichever comes first), and prints the log's tail; a log path that still does not exist 10 s after the condition holds ends the wait (exit 0, with a note).
 
+`--until` takes a shell command, not a log line: `--until EXIT` with a log is read as
+`--marker EXIT` (with a note), and without one it is refused, since `EXIT` never runs.
+
 A job with a known pid: `--pid 12345` returns once that process has exited. Do not
 use `--until "pgrep -f name"`: the shell running it matches its own command line, so it
 returns at once (friction 2026-11-06); use `--pid`, or `--gone NAME`.
@@ -135,6 +138,10 @@ def wait(path, marker=DEFAULT_MARKERS, timeout=100.0, interval=2.0, clock=time.m
     start = clock()
     end = start + timeout
     while True:
+        # Read the deadline before the log, so the last read comes after it: a marker
+        # written between the final read and the deadline check timed out a finished job
+        # (friction 2026-11-26).
+        last = clock() >= end
         if os.path.exists(path):
             with open(path, errors="replace") as f:
                 lines = f.read().splitlines()
@@ -147,9 +154,21 @@ def wait(path, marker=DEFAULT_MARKERS, timeout=100.0, interval=2.0, clock=time.m
                 return True, lines
             if boot is not None and os.stat(path).st_mtime < boot and clock() - start >= min(grace, timeout):
                 return None, lines
-        if clock() >= end:
+        if last:
             return False, []
         nap(interval)
+
+
+def not_a_command(cmd, run=subprocess.call):
+    """True when `cmd` is one bare word the shell cannot run (`EXIT`, `DONE`): a marker
+    passed to --until by mistake. Two runs on 2026-11-26 wrote `--until EXIT` for a log
+    ending `EXIT 0` and waited out 540 s, since the shell answers 127 forever. Checked with
+    `command -v`, so nothing is run."""
+    word = cmd.strip()
+    if not word or any(c.isspace() or c in "|&;<>()$`'\"\\*?[]{}=!~/" for c in word):
+        return False
+    return run(["sh", "-c", 'command -v "$1"', "sh", word],
+               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) != 0
 
 
 def wait_until(cmd, timeout=100.0, interval=2.0, clock=time.monotonic, nap=time.sleep, run=subprocess.call):
@@ -409,6 +428,13 @@ def main(argv=None):
             return 0
         print(f"{TIMED_OUT} pid {a.pid} still running after {a.timeout:.0f}s; call again{longer(a.timeout)}", file=sys.stderr)
         return 1
+    if a.until and not_a_command(a.until):
+        if not a.log or a.marker is not None:
+            ap.error(f"--until {a.until!r} is not a command the shell can run, so it would never succeed; "
+                     f"to wait for a {a.until!r} line in a log, pass the log and --marker {a.until}")
+        print(f"wait_for: {a.until!r} is not a command, so it is read as the log's marker "
+              f"(--marker {a.until}); --until takes a shell command", file=sys.stderr)
+        a.marker, a.until = a.until, None
     timeout = a.timeout
     note = until_is_a_marker(a.until) if a.until else None
     if note == "marker" and a.log and a.marker is None:

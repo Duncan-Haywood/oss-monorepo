@@ -287,6 +287,37 @@ class WaitFor(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("still failing", err)
 
+    def test_a_marker_word_given_to_until_is_read_as_the_marker(self):
+        # friction 2026-11-26: `--until EXIT` on a log ending `EXIT 0` waited out 540 s
+        from wait_for import not_a_command
+        self.assertTrue(not_a_command("EXIT"))
+        self.assertTrue(not_a_command("DONE"))
+        for cmd in ("true", "exit 0", "test -f x", "python3 -c 'import os'", "./run.sh", "x=1"):
+            self.assertFalse(not_a_command(cmd), cmd)
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("work\nEXIT 0\n")
+            code, out, err = self._main(p, "--until", "EXIT", "--timeout", "1", "--ignore-restart")
+            self.assertEqual(code, 0)
+            self.assertIn("EXIT 0", out)
+            self.assertIn("read as the log's marker", err)
+        with self.assertRaises(SystemExit):
+            with contextlib.redirect_stderr(io.StringIO()):
+                main(["--until", "EXIT", "--timeout", "0"])
+
+    def test_wait_reads_the_log_once_more_at_the_deadline(self):
+        # friction 2026-11-26: the marker landed after the last read but before the deadline check
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            t = [0.0]
+            def clock():  # the job writes its marker the moment the deadline arrives
+                if t[0] >= 10 and not os.path.exists(p):
+                    open(p, "w").write("DONE\n")
+                return t[0]
+            ok, _ = wait(p, timeout=10, interval=5, clock=clock, nap=lambda s: t.__setitem__(0, t[0] + s),
+                         held=lambda: [])
+            self.assertTrue(ok)
+
     def test_pattern_is_an_alias_for_marker(self):
         with tempfile.TemporaryDirectory() as d:
             p = os.path.join(d, "o.log")

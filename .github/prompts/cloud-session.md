@@ -44,7 +44,7 @@ payapps there. On 2026-11-25 this worked first time:
    (it took under a minute). Push with `git -c push.negotiate=true push -u origin <branch>`.
 3. Read its `CLAUDE.md` and the app's `ROADMAP.md` by hand (add_repo's result
    names a `register_repo_root` tool that ToolSearch does not find here; skip it); `pnpm install --frozen-lockfile --filter "{./apps/<dir>}..."`
-   (backgrounded, once per app you touch: a change to `payapps` and `payapps-site` needs both) gets the app's tests, `pnpm dev` and Playwright running. Select by
+   (from the private repo's root: inside the app it prints "No projects matched" and installs nothing; backgrounded, once per app you touch: a change to `payapps` and `payapps-site` needs both) gets the app's tests, `pnpm dev` and Playwright running. Select by
    directory in braces: a bare name must be the package name (cmmc's is
    `cmmc-workspace`, so `--filter cmmc...` matches nothing and exits 0), and
    `./apps/<dir>...` without braces silently drops the app's workspace deps.
@@ -60,7 +60,9 @@ payapps there. On 2026-11-25 this worked first time:
    private PRs 106-108 built one item within 20 minutes (backlog P079).
    The claim does not reserve a migration number: fetch the private `main` and
    renumber your new `migrations/` file just before merging (private PR 126 and
-   a parallel run both made 0034; three run records, 2026-11-25).
+   a parallel run both made 0034; three run records, 2026-11-25). The same
+   fetch usually turns up a conflict in the app ROADMAP's "Done" list, where
+   parallel runs append at the same spot: keep both entries (four reports, 2026-11-25/26).
 
 **If step 2 is refused by the permission layer** (a tool denial, not a git
 error), that is final for this session: do not retry, reword, or reach the

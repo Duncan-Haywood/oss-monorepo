@@ -52,7 +52,7 @@ surface a visitor is most likely to see (a paid bet's pages first), not the
 easiest fix, and search open PRs (`search_pull_requests`, `polish in:title`,
 plus the page's slug) first.
 
-- **The last polish note names a next item** (`ls -t docs/reports/polish-*`,
+- **The last polish note names a next item** (`ls docs/reports/polish-* | tail -1`: the name carries the date; `ls -t` is meaningless in a fresh clone,
   its "Still weakest" list): usually the quickest good start. Measure just that
   surface: the check script that covers it, or a Playwright shot of one page
   served straight from its folder (`python3 -m http.server` in `ventures/<slug>`).
