@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKo3jC8xQgHCLY8Jn9w",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T07:18:17Z",
+  "ended": "2026-11-26T07:39:54Z",
+  "wall_minutes": 22.06,
+  "tokens_in": 18834034,
+  "tokens_out": 70924,
+  "cost_usd": 6.7784,
+  "tool_calls": 122,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19272",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "UI component cleared its own 'Added N costs' message on the automatic re-read after import; caught by the new unit test and fixed",
+    "biome ci (whole app) failed on noUnsafeOptionalChaining in the new UI test; per-file 'biome check --write' had not surfaced it; fixed before merge",
+    "first merge_pull_request call passed a guessed expectedHeadSha and got 405; retried with the real SHA"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Private-monorepo CI jobs were starved (no runner, red in 2 s) as documented; ci_starvation.py + run_workflow_locally.py --repo-root worked first time"
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Running biome check --write on touched files is not enough: payapps-ci runs 'biome ci .', which also lints unit tests strictly; say to run 'pnpm exec biome ci .' from the app dir before pushing"
+    },
+    {
+      "file": "apps/payapps migrations (private)",
+      "issue": "Parallel payapps sessions collide on the next migration number (PR #274 and this run both made 0051); there is no reservation step in roadmap_claim.py"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "venture-preflight.mjs not run: it checks oss-monorepo ventures/<slug>, and this change is in private-monorepo apps/payapps (no oss venture touched)",
+      "did": "ran the private repo's payapps-ci, qbo-sync-ci and payapps-site-ci workflows locally instead",
+      "result": "all run steps passed after one lint fix"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (extended)",
+    "docs/reports/ventures-2026-11-26-payapps-costs-from-quickbooks.md (new)"
+  ],
+  "goal": null,
+  "notes": "Bet #1 PayApps, ROADMAP Next #2 (job costing part 2: costs from QuickBooks), claim claim/payapps/job-costing-part-2-qbo-costs. Merged private-monorepo#277: packages/qbo-sync/src/costs.ts reader (Bill/Purchase/VendorCredit by CustomerRef, paged, field names from Intuit PHP SDK), job link table + qbo_source unique index (migration 0051), routes, UI card, privacy policy 2026-11-26.11, QUICKBOOKS.md section, site copy. Verification: private CI starved (ci_starvation.py: 2/2 jobs never got a runner); run locally: payapps-ci all steps incl. worker 354/354 and D1 migration drift check, qbo-sync-ci 4/4 (64 node tests), payapps-site-ci 6/6. Not run against an Intuit sandbox.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7b86401c-e6c3-5aea-9461-98e3ead2fbc3",
+    "transcripts": 1,
+    "first": "2026-11-26T07:18:17Z",
+    "last": "2026-11-26T07:40:20Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 113,
+        "input": 215,
+        "output": 70924,
+        "thinking": 9607,
+        "cache_read": 18629682,
+        "cache_write_5m": 0,
+        "cache_write_1h": 204137,
+        "api_equivalent_usd": 6.7784,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 113,
+      "input": 215,
+      "output": 70924,
+      "thinking": 9607,
+      "cache_read": 18629682,
+      "cache_write_5m": 0,
+      "cache_write_1h": 204137,
+      "api_equivalent_usd": 6.7784,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 122,
+    "tools": {
+      "Bash": 108,
+      "Write": 5,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.06,
+      "active_minutes": 22.06,
+      "model_minutes": 13.91,
+      "tool_minutes": 8.15,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "QBO expense-reading adapter with paging and tests, link table and migration, import service with dedupe, UI card, docs and policy: about two days for a mid-level engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 206.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
