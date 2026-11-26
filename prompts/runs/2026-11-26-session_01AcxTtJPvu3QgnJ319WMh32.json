@@ -43,7 +43,7 @@
   "doc_friction": [
     {
       "file": "prompts/polish_next.py",
-      "issue": "In a shallow clone it named docs/reports/polish-2026-10-28-compare-titles.md as the newest note: git log --diff-filter=A counted every note as added in the shallow boundary commit. shallow-boundary-lint.test.mjs was already red on main for it. Fixed in this PR (skips boundary commits)."
+      "issue": "In a shallow clone it named docs/reports/polish-2026-10-28-compare-titles.md as the newest note: git log --diff-filter=A counted every note as added in the shallow boundary commit. shallow-boundary-lint.test.mjs was already red on main for it. I fixed it here too, but a parallel run's fix landed on main first (PR #19475's merge); main's version kept on merge."
     }
   ],
   "deviations": [
