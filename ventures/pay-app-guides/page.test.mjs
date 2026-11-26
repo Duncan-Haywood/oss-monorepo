@@ -23,7 +23,7 @@ test("every page carries the no-warranty clause, sponsor link, opt-out and hones
 });
 
 test("no page sends anything anywhere or loads remote scripts", () => {
-  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "retlog.mjs", "billing.mjs", "check.mjs", "waivers.mjs", "sworn.mjs", "stored.mjs", "shortpay.mjs", "frontload.mjs", "joint.mjs", "forecast.mjs", "millerbond.mjs", "tmlog.mjs", "usage.mjs"]) {
+  for (const name of [...PAGES, "calc.mjs", "colog.mjs", "retlog.mjs", "billing.mjs", "check.mjs", "waivers.mjs", "sworn.mjs", "stored.mjs", "shortpay.mjs", "frontload.mjs", "joint.mjs", "forecast.mjs", "millerbond.mjs", "prelim.mjs", "tmlog.mjs", "usage.mjs"]) {
     const src = page(name);
     assert.doesNotMatch(src, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource/, name);
     assert.doesNotMatch(src, /<script[^>]+src=["']https?:/, name);
@@ -317,7 +317,7 @@ test("Miller Act page: inputs labelled, statute and FAR linked with a read date,
 // so in a form an answer engine can lift. Each question must also be an h3 in
 // the page's visible "Common questions" section.
 const FAQ_PAGES = [
-  "change-order-log.html", "change-orders-schedule-of-values.html",
+  "california-preliminary-notice.html", "change-order-log.html", "change-orders-schedule-of-values.html",
   "conditional-vs-unconditional-lien-waivers.html",
   "front-loading-schedule-of-values.html", "how-to-fill-out-a-pay-application.html",
   "index.html", "joint-checks.html", "lien-waiver-forms-by-state.html",

@@ -18,7 +18,7 @@ variable "create_oidc_provider" {
 variable "region" {
   description = "Region of the state bucket."
   type        = string
-  default     = "us-east-1"
+  default     = "us-east-2"
 }
 
 variable "shared_state_stacks" {
@@ -46,4 +46,28 @@ variable "extra_roles" {
     statements  = any
   }))
   default = {}
+}
+
+variable "create_boundary" {
+  description = "False in single-account mode, where stacks/org makes the account's workload-boundary."
+  type        = bool
+  default     = true
+}
+
+variable "boundary_on_ci_roles" {
+  description = "Attach the workload-boundary to the gha-* roles themselves (single-account mode)."
+  type        = bool
+  default     = false
+}
+
+variable "state_bucket_name" {
+  description = "State bucket name; null means <account>-tofu-state-<region>. Single-account mode names it apart from the bootstrap's bucket of that name."
+  type        = string
+  default     = null
+}
+
+variable "state_kms_alias" {
+  description = "Alias of the state key (single-account mode keeps it apart from the bootstrap's alias/tofu-state)."
+  type        = string
+  default     = "alias/tofu-state"
 }

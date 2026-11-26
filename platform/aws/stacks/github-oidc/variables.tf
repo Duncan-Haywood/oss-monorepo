@@ -1,6 +1,17 @@
+variable "account_mode" {
+  description = "organization or single (stacks/org's variable of the same name; the workflows set both from AWS_ACCOUNT_MODE)."
+  type        = string
+  default     = "organization"
+
+  validation {
+    condition     = contains(["organization", "single"], var.account_mode)
+    error_message = "account_mode must be organization or single."
+  }
+}
+
 variable "region" {
   type    = string
-  default = "us-east-1"
+  default = "us-east-2"
 }
 
 variable "state_bucket" {

@@ -40,15 +40,20 @@ locals {
   # The stack's own CI role (gha-oss-monorepo-email-ops-apply / -plan, from the
   # github-oidc stack) when given; else the organisation's member role, as
   # the other stacks under platform/aws/stacks/ reach member accounts.
-  deploy_role_arn = coalesce(var.deploy_role_arn, "arn:aws:iam::${local.apps_account_id}:role/${var.member_role_name}")
+  # Single-account mode without a CI role: the workflow's own credentials,
+  # nothing to assume.
+  deploy_role_arn = var.deploy_role_arn != null ? var.deploy_role_arn : (var.account_mode == "single" ? null : "arn:aws:iam::${local.apps_account_id}:role/${var.member_role_name}")
 }
 
 provider "aws" {
   region = var.region
 
-  assume_role {
-    role_arn     = local.deploy_role_arn
-    session_name = "opentofu-email-ops"
+  dynamic "assume_role" {
+    for_each = local.deploy_role_arn == null ? [] : [local.deploy_role_arn]
+    content {
+      role_arn     = assume_role.value
+      session_name = "opentofu-email-ops"
+    }
   }
 
   default_tags {

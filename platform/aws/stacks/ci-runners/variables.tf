@@ -1,11 +1,11 @@
 variable "region" {
   description = "Home region."
   type        = string
-  default     = "us-east-1"
+  default     = "us-east-2"
 
   validation {
-    condition     = contains(["us-east-1", "us-west-2"], var.region)
-    error_message = "Only the allowed regions: us-east-1, us-west-2."
+    condition     = contains(["us-east-2", "us-east-1", "us-west-2"], var.region)
+    error_message = "Only the allowed regions: us-east-2, us-east-1, us-west-2."
   }
 }
 
@@ -109,4 +109,15 @@ variable "docker_runner" {
   description = "Also create <project_name>-docker, a privileged (Docker-capable) runner for jobs with service containers. Each build is still a fresh machine discarded after one job."
   type        = bool
   default     = true
+}
+
+variable "account_mode" {
+  description = "organization or single (stacks/org's variable of the same name). In single mode with no deploy_role_arn the provider uses the caller's own credentials, and the role carries stacks/org's workload-boundary."
+  type        = string
+  default     = "organization"
+
+  validation {
+    condition     = contains(["organization", "single"], var.account_mode)
+    error_message = "account_mode must be organization or single."
+  }
 }

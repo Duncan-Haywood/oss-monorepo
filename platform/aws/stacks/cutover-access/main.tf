@@ -62,6 +62,7 @@ resource "aws_iam_role" "github" {
   description          = "priv-cutover.yml (${each.key}); platform/aws/stacks/cutover-access"
   assume_role_policy   = data.aws_iam_policy_document.trust[each.key].json
   max_session_duration = var.max_session_seconds
+  permissions_boundary = local.boundary
 }
 
 data "aws_iam_policy_document" "github" {
@@ -70,10 +71,13 @@ data "aws_iam_policy_document" "github" {
   # Member account IDs by name (stacks/org names them), so the workflow needs
   # no variable per account. Read-only; the Organization API lists accounts
   # only from the management account.
-  statement {
-    sid       = "FindMemberAccounts"
-    actions   = ["organizations:ListAccounts"]
-    resources = ["*"]
+  dynamic "statement" {
+    for_each = local.single_account ? [] : [1]
+    content {
+      sid       = "FindMemberAccounts"
+      actions   = ["organizations:ListAccounts"]
+      resources = ["*"]
+    }
   }
 
   statement {
@@ -114,18 +118,32 @@ data "aws_iam_policy_document" "github" {
     resources = [data.aws_kms_alias.state.target_key_arn]
   }
 
-  statement {
-    sid     = "MemberRoles"
-    actions = ["sts:AssumeRole"]
-    resources = each.key == "run" ? [
-      "arn:aws:iam::${local.shared_infra_account_id}:role/cutover/cutover-read",
-      "arn:aws:iam::${local.apps_account_id}:role/cutover/cutover-read",
-      "arn:aws:iam::${local.apps_account_id}:role/cutover/cutover-operate",
-      ] : [
-      "arn:aws:iam::${local.shared_infra_account_id}:role/cutover/cutover-read",
-      "arn:aws:iam::${local.apps_account_id}:role/cutover/cutover-read",
-    ]
+  dynamic "statement" {
+    for_each = local.single_account ? [] : [1]
+    content {
+      sid     = "MemberRoles"
+      actions = ["sts:AssumeRole"]
+      resources = each.key == "run" ? [
+        "arn:aws:iam::${local.shared_infra_account_id}:role/cutover/cutover-read",
+        "arn:aws:iam::${local.apps_account_id}:role/cutover/cutover-read",
+        "arn:aws:iam::${local.apps_account_id}:role/cutover/cutover-operate",
+        ] : [
+        "arn:aws:iam::${local.shared_infra_account_id}:role/cutover/cutover-read",
+        "arn:aws:iam::${local.apps_account_id}:role/cutover/cutover-read",
+      ]
+    }
   }
+}
+
+# Single-account mode: what the member roles would hold, on the GitHub roles
+# directly. plan gets read; run gets operate (read plus the copy, the
+# simulator send and the webhook-secret check), as the member trust grants.
+resource "aws_iam_role_policy" "github_in_account" {
+  for_each = local.single_account ? { plan = data.aws_iam_policy_document.read["apps"].json, run = data.aws_iam_policy_document.operate.json } : {}
+
+  name   = each.key == "run" ? "cutover-operate" : "cutover-read"
+  role   = aws_iam_role.github[each.key].id
+  policy = each.value
 }
 
 resource "aws_iam_role_policy" "github" {
@@ -175,9 +193,11 @@ data "aws_iam_policy_document" "read" {
     resources = ["arn:aws:cloudfront::${each.value}:distribution/*"]
   }
   statement {
-    sid       = "ReadCertificates"
-    actions   = ["acm:DescribeCertificate"]
-    resources = ["arn:aws:acm:${var.region}:${each.value}:certificate/*"]
+    sid     = "ReadCertificates"
+    actions = ["acm:DescribeCertificate"]
+    # CloudFront's certificates live in us-east-1 whatever the home region;
+    # API Gateway's regional ones in var.region.
+    resources = distinct(["arn:aws:acm:us-east-1:${each.value}:certificate/*", "arn:aws:acm:${var.region}:${each.value}:certificate/*"])
   }
   statement {
     sid       = "ReadHostedZones"
@@ -197,6 +217,7 @@ data "aws_iam_policy_document" "read" {
 }
 
 resource "aws_iam_role" "shared_infra_read" {
+  count    = local.single_account ? 0 : 1
   provider = aws.shared_infra
 
   name                 = "cutover-read"
@@ -206,14 +227,16 @@ resource "aws_iam_role" "shared_infra_read" {
 }
 
 resource "aws_iam_role_policy" "shared_infra_read" {
+  count    = local.single_account ? 0 : 1
   provider = aws.shared_infra
 
   name   = "cutover-read"
-  role   = aws_iam_role.shared_infra_read.id
+  role   = aws_iam_role.shared_infra_read[0].id
   policy = data.aws_iam_policy_document.read["shared_infra"].json
 }
 
 resource "aws_iam_role" "apps_read" {
+  count    = local.single_account ? 0 : 1
   provider = aws.apps
 
   name                 = "cutover-read"
@@ -223,10 +246,11 @@ resource "aws_iam_role" "apps_read" {
 }
 
 resource "aws_iam_role_policy" "apps_read" {
+  count    = local.single_account ? 0 : 1
   provider = aws.apps
 
   name   = "cutover-read"
-  role   = aws_iam_role.apps_read.id
+  role   = aws_iam_role.apps_read[0].id
   policy = data.aws_iam_policy_document.read["apps"].json
 }
 
@@ -268,6 +292,7 @@ data "aws_iam_policy_document" "operate" {
 }
 
 resource "aws_iam_role" "apps_operate" {
+  count    = local.single_account ? 0 : 1
   provider = aws.apps
 
   name                 = "cutover-operate"
@@ -277,9 +302,10 @@ resource "aws_iam_role" "apps_operate" {
 }
 
 resource "aws_iam_role_policy" "apps_operate" {
+  count    = local.single_account ? 0 : 1
   provider = aws.apps
 
   name   = "cutover-operate"
-  role   = aws_iam_role.apps_operate.id
+  role   = aws_iam_role.apps_operate[0].id
   policy = data.aws_iam_policy_document.operate.json
 }

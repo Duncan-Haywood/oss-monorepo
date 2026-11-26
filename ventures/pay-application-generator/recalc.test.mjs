@@ -68,6 +68,11 @@ const cases = [
   ["a line with its own 7.5% rate, odd cents and a change order",
     "Item,Description,Scheduled value,Previous,This period,Stored,Retainage\n1,Steel,10000.33,3333.33,1111.11,555.55,7.5\n2,Paint,2000,0,333.33,0,\nCO-1,Extra,500,0,500,0,",
     { retainagePct: "10" }],
+  // A deductive change order whose retainage lands on a half cent: Excel and LibreOffice ROUND half away from zero,
+  // so the page must too, or a credit of 123.455 shows as 123.45 on the page and 123.46 in the workbook.
+  ["a deductive change order with retainage on a half cent",
+    "Item,Description,Scheduled value,Previous,This period,Stored\n1,Base,100000,0,1234.55,0\nCO-1,Deduct,-1234.55,0,-1234.55,0",
+    { retainagePct: "10" }],
 ];
 for (const [name, csv, settings] of cases) {
   test(`LibreOffice, recalculating from the formulas alone, gets the page's numbers: ${name}`, { skip: !soffice && "soffice not installed" }, () => {

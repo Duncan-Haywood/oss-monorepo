@@ -29,16 +29,22 @@ data "terraform_remote_state" "org" {
 }
 
 locals {
-  account_id      = data.terraform_remote_state.org.outputs.account_ids["shared-infra"]
-  deploy_role_arn = coalesce(var.deploy_role_arn, "arn:aws:iam::${local.account_id}:role/${var.member_role_name}")
+  account_id = data.terraform_remote_state.org.outputs.account_ids["shared-infra"]
+  # Single-account mode without a CI role: the workflow's own credentials.
+  deploy_role_arn = var.deploy_role_arn != null ? var.deploy_role_arn : (var.account_mode == "single" ? null : "arn:aws:iam::${local.account_id}:role/${var.member_role_name}")
+  # Single-account mode: stacks/org's workload-boundary unless one is given.
+  boundary = var.permissions_boundary_arn != null ? var.permissions_boundary_arn : try(data.terraform_remote_state.org.outputs.permissions_boundary_arn, null)
 }
 
 provider "aws" {
   region = var.region
 
-  assume_role {
-    role_arn     = local.deploy_role_arn
-    session_name = "opentofu-ci-runners"
+  dynamic "assume_role" {
+    for_each = local.deploy_role_arn == null ? [] : [local.deploy_role_arn]
+    content {
+      role_arn     = assume_role.value
+      session_name = "opentofu-ci-runners"
+    }
   }
 
   default_tags {

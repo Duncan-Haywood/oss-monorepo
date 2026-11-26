@@ -70,10 +70,18 @@ stack does not change it.
 
 ```hcl
 # backend.hcl for stack "site" (shared-infra)
-bucket       = "<shared-infra account id>-tofu-state-us-east-1"
+bucket       = "<shared-infra account id>-tofu-state-us-east-2"
 key          = "site/terraform.tfstate"
-region       = "us-east-1"
+region       = "us-east-2"
 ```
+
+Single-account mode: every workload stack's state is in one bucket,
+`<account id>-tofu-state-workloads-<region>` (key alias
+`alias/tofu-state-workloads`), apart from the bootstrap's
+`<account id>-tofu-state-<region>`, which the workload boundary keeps the
+workload roles from writing. Payments has no roles here in that mode: its
+isolation from this public repository is a separate account plus an RCP,
+and one account has neither.
 
 ```yaml
 permissions: { id-token: write, contents: read }
@@ -81,7 +89,7 @@ steps:
   - uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a # v4.3.1
     with:
       role-to-assume: arn:aws:iam::<account>:role/gha-oss-monorepo-site-plan  # -apply on main in aws-prod
-      aws-region: us-east-1
+      aws-region: us-east-2
   - run: tofu plan -lock=false   # the plan role cannot write the lock
 ```
 

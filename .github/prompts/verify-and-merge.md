@@ -53,6 +53,7 @@ python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/
 python3 -m pytest portfolio/work -q                      # directions and tasks registry (workctl.py), under 1 s
 python3 -m pytest platform/aws/stacks/dns/scripts -q    # Route 53 export and zone diff (cf_export.py, zone_diff.py), under 1 s
 python3 -m pytest platform/aws/cutover -q    # Cloudflare -> AWS cutover orchestrator against its fakes, under 2 s
+python3 -m pytest platform/aws/tests -q    # bootstrap.yaml: organization mode unchanged, single-account denies match stacks/org
 python3 -m pytest portfolio/research/<probe> -q          # one at a time: 4 share a test_measure.py basename
 python3 -m pytest portfolio/pipeline/probes/<probe> -q   # one at a time: root pytest --ignore's this tree
 python3 -m pytest prompts -q && python3 prompts/promptctl.py validate   # prompt.md, prompts/, run records

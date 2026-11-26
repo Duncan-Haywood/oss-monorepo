@@ -41,6 +41,18 @@ tier cap after which requests fail with HTTP 429 (platform.claude.com,
 "Claude Platform on AWS", Billing, read 2026-11-24): set a workspace limit
 there too (runbook, phase 2).
 
+## Single-account mode
+
+No Organization means no SCP: one budget for the account
+(`organization_limit_usd`), and at `freeze_at_percent` an `APPLY_IAM_POLICY`
+Budgets action attaches the IAM policy `spend-guard/spend-freeze` (the same
+denies) to the account's roles, except the bootstrap's (`/github/`), the
+spend guard's (`/spend-guard/`), the workload CI roles (`gha-*`) and AWS's
+own. The role list is read on each apply, which is why `spend` is applied
+last. To resume: detach `spend-freeze` from the roles (the action's
+*Reverse* in the Budgets console does it). The kill switch acts on the one
+account (`account`) when `kill_switch_accounts` includes `apps`.
+
 ## What the freeze SCP stops
 
 New EC2 instances and starts, NAT gateways, ECS services and tasks, new
@@ -70,7 +82,7 @@ stop any account, for when a person decides it should.
 ## What the kill switch stops
 
 In the account whose budget fired, in every region in `kill_switch_regions`
-(default `us-east-1` and `us-west-2`, the regions the org SCP allows):
+(default `us-east-2` and `us-east-1`, the regions `stacks/org` allows):
 
 - **IAM:** a deny policy (`spend-guard-deny`: Claude Platform on AWS, Bedrock,
   SES sending) on every role and user tagged `spend-guard=deny-on-budget`

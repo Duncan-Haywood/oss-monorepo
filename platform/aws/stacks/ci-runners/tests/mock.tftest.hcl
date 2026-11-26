@@ -146,3 +146,43 @@ run "large_compute_needs_a_deliberate_change" {
   }
   expect_failures = [var.compute_type]
 }
+
+# Account modes: single-account mode with no CI role assumes nothing and puts
+# stacks/org's boundary on the runner role; organization mode falls back to
+# the member role.
+run "single_account" {
+  command = plan
+
+  variables {
+    account_mode = "single"
+  }
+
+  override_data {
+    target = data.terraform_remote_state.org
+    values = {
+      outputs = {
+        account_ids              = { shared-infra = "123456789012" }
+        permissions_boundary_arn = "arn:aws:iam::123456789012:policy/workload-boundary"
+      }
+    }
+  }
+
+  assert {
+    condition     = local.deploy_role_arn == null
+    error_message = "single-account mode with no CI role uses the caller's own credentials"
+  }
+
+  assert {
+    condition     = aws_iam_role.ci.permissions_boundary == "arn:aws:iam::123456789012:policy/workload-boundary"
+    error_message = "the runner role carries the workload boundary"
+  }
+}
+
+run "organization_falls_back_to_the_member_role" {
+  command = plan
+
+  assert {
+    condition     = endswith(local.deploy_role_arn, ":role/OrganizationAccountAccessRole") && aws_iam_role.ci.permissions_boundary == null
+    error_message = "organization mode assumes the member role and adds no boundary of its own"
+  }
+}

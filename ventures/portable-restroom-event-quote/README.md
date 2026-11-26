@@ -106,6 +106,13 @@ Events counted: `quote_calculated`, `unit_added`, `unit_removed`,
   the crowd hits the restrooms at once.
 - Restroom trailers are a unit type, not a separate labor-and-generator model.
 - Local permit, placement, and accessibility rules are out of scope.
+- **Known gap (quality round 109, [audit](../../portfolio/quality/audits/2026-11-26-portable-restroom-event-quote.json)):**
+  the people-per-unit table in `calc.mjs` has no cited source and suggests 2 to
+  4 times the units of the PSAI special-event chart (500 people for 4 hours:
+  10 against PSAI's 5; 1,000 for 8 hours: 34 against 12), so the "fleet looks
+  light" warning fires on a PSAI-sized fleet. Re-basing it changes the numbers
+  the pages pin, so it needs its own change.
+- Extra service visits are priced per unit and add no truck mileage.
 
 ## Disclaimer
 

@@ -30,7 +30,7 @@ Homeowners shop "$4,500 automatic gate" and "$350 a foot." Those numbers
 cannot see the style. A 12-foot single aluminum swing on existing posts
 at the sample rates is about $6,506. The same shop's 16-foot dual steel
 swing with masonry columns, two loops, a keypad, and a solar kit is
-about $20,440 — and almost half of that is columns, loops, power, and
+about $20,440 — and almost half of that cost is columns, loops, power, and
 access. Matching the kit special on the dual masonry job is how a sold
 gate becomes a two-day loss after the first loop sawcut.
 
@@ -88,6 +88,20 @@ Events counted: `bid_calculated`, `preset_applied`, `style_changed`,
   arithmetic, not a recommendation.
 - Intercom, mag lock, traffic control, and utility conflicts are not
   modelled as their own rows yet — fold them into site hours or travel.
+
+Known gaps from the 2026-11-26 quality audit
+([`../../portfolio/quality/audits/2026-11-26-automatic-driveway-gate-bid-calculator.json`](../../portfolio/quality/audits/2026-11-26-automatic-driveway-gate-bid-calculator.json)):
+
+- **Leaf height does not change the price.** It is validated and printed on
+  the proposal, but leaf cost, hang hours and the operator ignore it: a 5 ft
+  and a 10 ft leaf price the same (`calc.mjs`, `gatePerLf` is effectively a
+  6 ft rate).
+- Operators are not sized to gate weight or length; a slide leaf is priced
+  at the opening width with no cantilever tail or track line.
+- One photo-eye kit per job, whatever the style; UL 325 (2016 on) needs
+  monitored entrapment protection for each entrapment zone.
+- AC trench is a flat 3 h and $185 with no run length or electrician line;
+  the default rate card is not cited.
 
 ## Disclaimer
 

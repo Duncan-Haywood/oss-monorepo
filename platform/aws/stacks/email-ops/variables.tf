@@ -1,11 +1,11 @@
 variable "region" {
-  description = "SES region; receiving is offered in us-east-1 and us-west-2. Must match stacks/email."
+  description = "SES region. Must match stacks/email. SES email receiving is listed for us-east-2 in AWS's endpoint table (General Reference, \"Amazon SES endpoints\", seen 2026-11-26): confirm it in the console before the first apply (docs/runbooks/cutover-run-day.md, step 0)."
   type        = string
-  default     = "us-east-1"
+  default     = "us-east-2"
 
   validation {
-    condition     = contains(["us-east-1", "us-west-2"], var.region)
-    error_message = "Only the allowed regions: us-east-1, us-west-2."
+    condition     = contains(["us-east-2", "us-east-1", "us-west-2"], var.region)
+    error_message = "Only the allowed regions: us-east-2, us-east-1, us-west-2."
   }
 }
 
@@ -64,4 +64,15 @@ variable "permissions_boundary_arn" {
   description = "The account's workload-boundary policy (github-oidc stack), attached to every role this stack creates. Null until that stack exists."
   type        = string
   default     = null
+}
+
+variable "account_mode" {
+  description = "organization or single (stacks/org's variable of the same name). In single mode with no deploy_role_arn the provider uses the caller's own credentials."
+  type        = string
+  default     = "organization"
+
+  validation {
+    condition     = contains(["organization", "single"], var.account_mode)
+    error_message = "account_mode must be organization or single."
+  }
 }

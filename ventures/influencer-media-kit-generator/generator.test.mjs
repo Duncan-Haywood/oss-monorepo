@@ -172,3 +172,27 @@ test("buildOneSheetText degrades gracefully with only the required fields", () =
   assert.ok(!text.includes("CONTACT"));
   assert.ok(!text.includes("undefined"));
 });
+
+// Quality audit 2026-11-26 (round 110): a handed-off `javascript:` link ran in
+// the tool's origin from the preview and shipped in the brand's file.
+test("non-web URLs are never emitted as links or images", async () => {
+  const { buildMediaKitHtml, safeUrl } = await import("./generator.mjs");
+  const html = buildMediaKitHtml({
+    creatorName: "A", bio: "B",
+    platformsRaw: "IG | 1 | 1% | javascript:alert(1)",
+    collabsRaw: "X | Y | JavaScript:alert(2)",
+    websiteUrl: " java\tscript:alert(3)", photoUrl: "javascript:alert(4)",
+  });
+  assert.doesNotMatch(html, /(href|src)="\s*java/i);
+  assert.equal(safeUrl("https://x.example/a"), "https://x.example/a");
+  assert.equal(safeUrl("mailto:a@b.example"), "mailto:a@b.example");
+  assert.equal(safeUrl("data:text/html,<b>"), "");
+  assert.equal(safeUrl("data:image/png;base64,AA", { image: true }), "data:image/png;base64,AA");
+  assert.equal(safeUrl("instagram.com/me"), "instagram.com/me");
+});
+
+test("engagementLabel appends the word only to a bare figure", async () => {
+  const { engagementLabel } = await import("./generator.mjs");
+  assert.equal(engagementLabel("4.2%"), "4.2% engagement");
+  assert.equal(engagementLabel("42% open"), "42% open");
+});

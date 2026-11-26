@@ -4,11 +4,13 @@
 # instance of Identity Center, so enabling it and creating the owner's user
 # (with MFA) are console steps (docs/runbooks/aws-cutover.md, owner checklist).
 # Once var.owner_identity_center_user_name is set, this file does the rest.
+# Single-account mode: nothing here (an account instance of Identity Center
+# has no member accounts to assign; the runbook's step 0 says what to do).
 
 data "aws_ssoadmin_instances" "this" {}
 
 locals {
-  sso_enabled  = var.owner_identity_center_user_name != "" && length(data.aws_ssoadmin_instances.this.arns) > 0
+  sso_enabled  = local.org && var.owner_identity_center_user_name != "" && length(data.aws_ssoadmin_instances.this.arns) > 0
   sso_arn      = local.sso_enabled ? tolist(data.aws_ssoadmin_instances.this.arns)[0] : null
   sso_store_id = local.sso_enabled ? tolist(data.aws_ssoadmin_instances.this.identity_store_ids)[0] : null
 }

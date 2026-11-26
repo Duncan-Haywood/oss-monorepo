@@ -1,0 +1,160 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKixCSurkr96YpWWNf7",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T06:09:56Z",
+  "ended": "2026-11-26T06:24:56Z",
+  "wall_minutes": 23.8,
+  "tokens_in": 20385785,
+  "tokens_out": 75155,
+  "cost_usd": 7.1732,
+  "tool_calls": 131,
+  "task": "Bet #1 PayApps: job costing part 1 (cost budgets per SOV line, costs entered or pasted, cost-to-cost WIP report per job and across jobs, Crew and up)",
+  "projects": [
+    "private-monorepo/apps/payapps",
+    "private-monorepo/apps/payapps-site"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/267",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First worker test expected 403 for a non-member reading another org's job; the app answers 404 (does not reveal the org).",
+      "fix": "Test asserts 404; behaviour unchanged."
+    },
+    {
+      "what": "Another run merged migration 0047 and privacy 2026-11-26.7 (PR #266) while this PR waited; a force-push of the rebased branch was refused by the auto-mode classifier.",
+      "fix": "Renumbered to 0048 and privacy 2026-11-26.8 on a rebased tree, then merged main into the pushed branch with that exact tree (normal push), re-ran payapps-ci locally (9/9 run: steps), merged."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Says take the top bet; on 2026-11-26 every payapps ROADMAP Next item was 'if asked' and ~40 claims in 15 h, so roadmap_claim.py listed 'free' items nobody should build yet. A note that a run may open a new ROADMAP item from bets.md's growth path (job costing, RFIs, estimating) via --slug would have saved reading time."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "private-monorepo CI on AWS CodeBuild (#19219) was still runner-starved for this PR (runner_id 0 on all four jobs); verified locally with run_workflow_locally.py --repo-root as the doc says."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "payapps gets several merges an hour, so migration numbers collide; worth saying: fetch main and check migrations/ just before merging, and resolve by merging main in (force-push is refused in auto mode)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took a new suite item (job costing) rather than a listed Next item: all listed ones wait on a customer ask, and bets.md names job costing as the wedge's growth path.",
+      "did": "Claimed claim/payapps/job-costing with --slug and added part 2 to the ROADMAP.",
+      "result": "First working version landed with tests; nothing else was claimed on it."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No new blog post: the product is not open for sign-ups, and pay-app-guides already has the over/under billing explainer. A post announcing a feature nobody can use yet would be thin.",
+      "did": "Wrote an agent doc for the next run and updated the product's marketing site features and pricing copy.",
+      "result": "null"
+    }
+  ],
+  "writeups": [
+    "docs/reports/payapps-job-costing-part-1.md"
+  ],
+  "goal": "$10k MRR: give the Crew/Company plans a reason to pay beyond pay apps (WIP schedule sureties ask for)",
+  "notes": "Verified in private-monorepo: payapps typecheck clean, build ok, biome clean on changed files; test:unit pass; test:worker 54 files / 336 tests pass; payapps-site test:unit 21 and test:worker 10 pass, typecheck clean. All 4 PR CI jobs starved (ci_starvation.py: runner_id 0), so payapps-ci was also run with run_workflow_locally.py --repo-root (see below). Marketing: payapps-site features page gained a 'Job cost and WIP' section and the Crew plan lists it. Local CI: payapps-ci.yml 9/9 run: steps passed twice (before and after the 0048 renumber), payapps-site-ci.yml 6/6; uses: steps not run. Merged as 85f3112.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "76080d3d-b003-53c1-94eb-0483d7f47982",
+    "transcripts": 1,
+    "first": "2026-11-26T06:09:56Z",
+    "last": "2026-11-26T06:33:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 126,
+        "input": 238,
+        "output": 75155,
+        "thinking": 10305,
+        "cache_read": 20181441,
+        "cache_write_5m": 0,
+        "cache_write_1h": 204106,
+        "api_equivalent_usd": 7.1732,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 126,
+      "input": 238,
+      "output": 75155,
+      "thinking": 10305,
+      "cache_read": 20181441,
+      "cache_write_5m": 0,
+      "cache_write_1h": 204106,
+      "api_equivalent_usd": 7.1732,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.99,
+    "tool_calls": 131,
+    "tools": {
+      "Bash": 116,
+      "Write": 6,
+      "mcp__github__pull_request_read": 3,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.8,
+      "active_minutes": 23.8,
+      "model_minutes": 14.77,
+      "tool_minutes": 9.03,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "senior full-stack dev: schema+migration, pure WIP engine with tests, API, two pages, plan gate, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 334.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

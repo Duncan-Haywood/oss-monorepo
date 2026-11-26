@@ -29,3 +29,9 @@ variable "record_global_resources" {
   type        = bool
   default     = true
 }
+
+variable "permissions_boundary_arn" {
+  description = "Boundary for the roles made here (single-account mode: stacks/org's workload-boundary). Null for none."
+  type        = string
+  default     = null
+}
