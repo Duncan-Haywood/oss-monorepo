@@ -2,11 +2,14 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { createHmac } from "node:crypto";
 import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { spawnSync } from "node:child_process";
 import { cleanKey, verifyLicence, onSale, newClaim, fetchKey, checkKey, wireBuy } from "./client.mjs";
 import { verifyPaddleSignature, signLicence, licenceForTransaction, handleBilling, claimHash, d1Store, TOLERANCE_SEC } from "./server.mjs";
 import worker from "./worker.mjs";
 import { CATALOGUE, productConfig, productForPrice } from "./catalogue.mjs";
-import { plan } from "./sync.mjs";
+import { plan, checkoutSource } from "./sync.mjs";
 
 const b64u = (buf) => Buffer.from(buf).toString("base64url");
 const pair = await crypto.subtle.generateKey({ name: "Ed25519" }, true, ["sign", "verify"]);
@@ -252,6 +255,72 @@ test("the committed catalogue holds no secret, and is dark as committed or fully
 
 test("every venture's paddle.mjs and checkout.mjs match the catalogue (node platform/billing/sync.mjs)", () => {
   for (const { file, want } of plan()) assert.equal(fs.existsSync(file) ? fs.readFileSync(file, "utf8") : null, want, file);
+});
+
+// The sync's command line is what a run actually types after editing client.mjs or
+// the catalogue. It ran untested: 6 of 6 seeded faults in it (a write that skips stale
+// files, --check that always fails or never does, a wrong exit code) passed this suite
+// (red-team 2026-11-26). This runs a copy in a scratch tree so the real ventures are
+// never written.
+test("sync.mjs on the command line: --check reports stale copies and writes nothing; a plain run writes them; both then agree", () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "billing-sync-"));
+  try {
+    const bin = path.join(tmp, "platform", "billing");
+    fs.mkdirSync(bin, { recursive: true });
+    for (const f of ["sync.mjs", "catalogue.mjs", "client.mjs"]) fs.copyFileSync(new URL(`./${f}`, import.meta.url), path.join(bin, f));
+    const slugs = Object.keys(CATALOGUE.products);
+    for (const slug of slugs) fs.mkdirSync(path.join(tmp, "ventures", slug), { recursive: true });
+    const run = (...args) => spawnSync(process.execPath, [path.join(bin, "sync.mjs"), ...args], { cwd: tmp, encoding: "utf8" });
+    const files = slugs.flatMap((s) => [`ventures/${s}/paddle.mjs`, `ventures/${s}/checkout.mjs`]);
+    const client = fs.readFileSync(new URL("./client.mjs", import.meta.url), "utf8");
+
+    let r = run("--check");
+    assert.equal(r.status, 1, "--check on a stale tree fails");
+    assert.match(r.stderr, /^out of date \(run node platform\/billing\/sync\.mjs\):\n {2}/);
+    for (const f of files) assert.ok(r.stderr.includes("\n  " + f), f + " listed");
+    for (const f of files) assert.equal(fs.existsSync(path.join(tmp, f)), false, "--check wrote " + f);
+
+    r = run();
+    assert.equal(r.status, 0, r.stderr);
+    assert.equal(r.stdout, "wrote:\n  " + files.join("\n  ") + "\n");
+    for (const s of slugs) {
+      assert.equal(fs.readFileSync(path.join(tmp, "ventures", s, "paddle.mjs"), "utf8"), client, s);
+      assert.equal(fs.readFileSync(path.join(tmp, "ventures", s, "checkout.mjs"), "utf8"), checkoutSource(s), s);
+    }
+
+    r = run();
+    assert.equal(r.status, 0);
+    assert.equal(r.stdout, "nothing to write\n");
+    r = run("--check");
+    assert.equal(r.status, 0, r.stderr);
+    assert.equal(r.stdout, "billing copies in sync\n");
+
+    // One stale copy: --check names just that file, and the write mends just that file.
+    fs.writeFileSync(path.join(tmp, files[0]), "// hand-edited\n");
+    r = run("--check");
+    assert.equal(r.status, 1);
+    assert.equal(r.stderr, "out of date (run node platform/billing/sync.mjs):\n  " + files[0] + "\n");
+    r = run();
+    assert.equal(r.stdout, "wrote:\n  " + files[0] + "\n");
+    assert.equal(fs.readFileSync(path.join(tmp, files[0]), "utf8"), client);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+// plan() covers only catalogue products, so a pack dropped from the catalogue (or a copy
+// pasted by hand into another venture) would keep a paddle.mjs no check compares with
+// client.mjs and a checkout.mjs with stale prices.
+test("only catalogue products carry a paddle.mjs or checkout.mjs", () => {
+  const ventures = new URL("../../ventures/", import.meta.url);
+  const stray = [];
+  for (const d of fs.readdirSync(ventures, { withFileTypes: true })) {
+    if (!d.isDirectory() || d.name in CATALOGUE.products) continue;
+    for (const f of ["paddle.mjs", "checkout.mjs"]) {
+      if (fs.existsSync(new URL(`${d.name}/${f}`, ventures))) stray.push(`ventures/${d.name}/${f}`);
+    }
+  }
+  assert.deepEqual(stray, [], "add the product to platform/billing/catalogue.mjs, or delete the copy");
 });
 
 test("the billing store runs against its real schema (node:sqlite standing in for D1)", async (t) => {
