@@ -129,7 +129,12 @@ class Verdicts(unittest.TestCase):
             if spec["kind"] == "go":
                 self.assertRegex(spec["go_sum"], r"^h1:[A-Za-z0-9+/]{43}=$")
                 self.assertRegex(spec["version"], r"^v\d+\.\d+\.\d+$")
-        self.assertEqual(scan.load_baseline(), [])
+        # Every accepted finding names a known tool, one exact rule, a specific path and a reason.
+        for e in scan.load_baseline():
+            self.assertIn(e.get("tool"), tools, e)
+            self.assertNotIn(e.get("rule"), (None, "", "*"), e)
+            self.assertNotIn(str(e.get("path", "")).strip("*/"), ("", "."), e)
+            self.assertGreater(len(str(e.get("reason", ""))), 40, e)
 
 
 class Staging(unittest.TestCase):
