@@ -27,8 +27,14 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { REPO_URL, withSiteHeader } from './site-nav.mjs';
+import { renderEarlyAccessForm, EARLY_ACCESS_CSS } from './early-access-form.mjs';
 
 export const CONSTRUCTION_PATH = 'industries/construction/';
+
+/** Page product id -> the edge Worker's early-access product key (`platform/edge/early-access.mjs`). */
+export const EARLY_ACCESS_KEYS = { 'pay-apps': 'payapps', 'residential-takeoff': 'takeoff' };
+/** The private fallback when the build has no edge origin: the agent-managed inbox. */
+export const EARLY_ACCESS_MAILTO = 'mailto:hello@marisstella.app?subject=Early%20access%3A%20Contractor%20billing';
 
 /** Product status words, and what each promises. Only `live` claims a sale. */
 export const STATUS_LABELS = {
@@ -270,7 +276,7 @@ export function renderConstructionPage({
   footer = '',
   liveSlugs = null,
   researchSlugs = null,
-  earlyAccessHref,
+  earlyAccessUrl = '',
   shots = [],
 } = {}) {
   // A tool is a venture slug (`pay-app-guides`) or a page inside one
@@ -280,7 +286,14 @@ export function renderConstructionPage({
   const title = 'Software for construction subcontractors and small builders';
   const description =
     'Pay apps, retainage, lien waivers, change orders and takeoff for subcontractors, small GCs, remodelers and roofers. Free tools today; paid suite in development.';
-  const cta = earlyAccessHref ?? `${toRoot}feedback/?type=idea`;
+  // Early access goes somewhere private: the edge Worker's list, or the inbox
+  // by email. Before 2026-11-26 it went to the public feedback form.
+  const earlyAccess = renderEarlyAccessForm({
+    edgeUrl: earlyAccessUrl,
+    choices: PRODUCTS.filter((p) => p.status === 'early-access' && EARLY_ACCESS_KEYS[p.id]).map((p) => [EARLY_ACCESS_KEYS[p.id], p.name]),
+    mailto: EARLY_ACCESS_MAILTO,
+    privacyHref: `${toRoot}privacy/`,
+  });
   const byId = Object.fromEntries(PRODUCTS.map((p) => [p.id, p]));
   const toolName = new Map(PROBLEMS.flatMap((p) => p.tools.map(([slug, name]) => [slug, name])));
   // Real stills of the free tools (showcase/capture.mjs, already filtered to
@@ -390,6 +403,7 @@ body{margin:0;background:var(--ic-bg);color:var(--ic-ink);font:16px/1.55 system-
 .ic-still img{display:block;width:100%;height:auto;border:1px solid var(--ic-line);border-radius:8px;background:#fff}
 .ic-still figcaption{color:var(--ic-muted);font-size:.9rem;margin-top:6px}
 .ic-lead-still{max-width:720px;margin:24px 0 8px}
+.ic-wrap{--ea-panel:var(--ic-panel);--ea-line:var(--ic-line);--ea-muted:var(--ic-muted);--ea-accent:var(--ic-accent)}${EARLY_ACCESS_CSS}
 .ic-lead-still img{box-shadow:0 6px 24px rgba(20,30,45,.12)}
 .ic-faq dt{font-weight:600;margin-top:1em}
 .ic-faq dd{margin:.3em 0 0}
@@ -401,8 +415,7 @@ body{margin:0;background:var(--ic-bg);color:var(--ic-ink);font:16px/1.55 system-
       <h1>${escapeHtml(title)}</h1>
       <p class="ic-lede">For specialty subcontractors, small general contractors, remodelers, roofers, framers, estimators and schedulers: software for the paperwork that decides whether a job gets paid on time.</p>
       <p class="ic-note">The paid products on this page are <strong>in development</strong>, taking early-access interest; none is on sale yet and no price is set. The free tools linked below work today, in your browser.</p>
-      <p class="ic-cta"><a href="${escapeHtml(cta)}">Ask for early access</a></p>
-      <p class="ic-src">The early-access form is this site’s public feedback form: what you send is published in the project’s GitHub repository, so describe how you bill or estimate today and leave out names, prices and anything private.</p>${leadShot ? figure(leadShot, 'ic-still ic-lead-still', false, '(max-width: 752px) calc(100vw - 32px), 720px') : ''}
+      ${earlyAccess}${leadShot ? figure(leadShot, 'ic-still ic-lead-still', false, '(max-width: 752px) calc(100vw - 32px), 720px') : ''}
 
       <h2>The jobs that eat the week</h2>
       <div class="ic-grid">${problemHtml}

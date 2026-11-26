@@ -153,3 +153,22 @@ test('real stills of the free tools: the pay-app one leads, others sit in their 
   // No stills, no figure.
   assert.ok(!renderConstructionPage({ baseUrl: BASE }).includes('<figure'));
 });
+
+test('early access goes somewhere private: the edge form, or the inbox by email; never the public feedback form', async () => {
+  const { CONSENT_TEXT } = await import('./early-access-consent.mjs');
+  const on = renderConstructionPage({ baseUrl: BASE, earlyAccessUrl: 'https://edge.example' });
+  assert.match(on, /<form class="ea-form"/);
+  assert.ok(on.includes('"https://edge.example/early-access"'), 'posts to the Worker route');
+  assert.ok(on.includes(CONSENT_TEXT.replace(/'/g, '&#39;')), 'shows the consent words the Worker stores');
+  assert.match(on, /<option value="payapps">Pay-app suite<\/option>/);
+  assert.match(on, /<option value="takeoff">Residential takeoff<\/option>/);
+  assert.match(on, /name="website"[^>]*tabindex="-1"/, 'honeypot field');
+  assert.match(on, /<noscript>.*mailto:hello@marisstella\.app/s, 'no-script fallback');
+  const off = renderConstructionPage({ baseUrl: BASE });
+  assert.ok(!off.includes('ea-form"'), 'no early-access form without an edge origin');
+  assert.match(off, /href="mailto:hello@marisstella\.app\?subject=Early%20access/);
+  for (const html of [on, off]) {
+    assert.ok(!html.includes('feedback/?type=idea'), 'not the public feedback form');
+    assert.ok(!/published in the project/.test(html));
+  }
+});

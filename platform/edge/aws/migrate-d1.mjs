@@ -51,18 +51,29 @@ export async function readWorker(base, { inboxToken = '', fetchImpl = fetch } = 
       after = page[page.length - 1].id;
     }
   }
-  return { counts, feedback, inbox };
+  const earlyAccess = [];
+  if (inboxToken) {
+    for (let after = 0; ;) {
+      const page = (await get(`/early-access?after=${after}`, { authorization: `Bearer ${inboxToken}` })).signups;
+      if (!page.length) break;
+      earlyAccess.push(...page);
+      after = page[page.length - 1].id;
+    }
+  }
+  return { counts, feedback, inbox, earlyAccess };
 }
 
 /** Write what was read into a store; returns what it wrote. */
-export async function writeAll(store, { counts, feedback, inbox }) {
+export async function writeAll(store, { counts, feedback, inbox, earlyAccess = [] }) {
   for (const c of counts) await store.importCount(c);
   for (const f of feedback) await store.importFeedback(f);
   for (const m of inbox) await store.importInbox(m);
+  for (const e of earlyAccess) await store.importEarlyAccess(e);
   const maxId = (rows) => rows.reduce((m, r) => Math.max(m, r.id), 0);
   await store.raiseSequence('feedback', maxId(feedback));
   await store.raiseSequence('inbox', maxId(inbox));
-  return { counts: counts.length, feedback: feedback.length, inbox: inbox.length };
+  await store.raiseSequence('early_access', maxId(earlyAccess));
+  return { counts: counts.length, feedback: feedback.length, inbox: inbox.length, early_access: earlyAccess.length };
 }
 
 async function main() {
@@ -70,7 +81,7 @@ async function main() {
   const site = JSON.parse(fs.readFileSync(path.join(HERE, '..', 'site.json'), 'utf8'));
   const base = process.env.WORKER_URL || site.url;
   const data = await readWorker(base, { inboxToken: process.env.INBOX_TOKEN || '' });
-  const summary = { from: base, counts: data.counts.length, feedback: data.feedback.length, inbox: data.inbox.length };
+  const summary = { from: base, counts: data.counts.length, feedback: data.feedback.length, inbox: data.inbox.length, early_access: data.earlyAccess.length };
   if (!apply) {
     console.log(JSON.stringify({ dry_run: true, ...summary }, null, 2));
     return;

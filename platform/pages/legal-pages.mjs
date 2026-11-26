@@ -86,6 +86,15 @@ export function legalDocuments({ toRoot = '../', analytics = false, counter = fa
       published in our public GitHub repository. Email addresses are removed from the text first;
       do not include anything you would not want published.</li>`
       : '',
+    feedback
+      ? `<li><strong>Early-access sign-ups.</strong> If you ask for early access to a paid product on a
+      page such as ${link('industries/construction/', 'Construction')}, we keep the email address you
+      give, the product, the optional trade and note you add, the page and the time, privately with our
+      host. Nothing from it is published: only the number of sign-ups per product is public. We use it
+      to email you when that product opens and for nothing else; an AI assistant working for us may read
+      the list to count and sort sign-ups. We keep it at most one year. Email ${mail} and we delete your
+      address from every list.</li>`
+      : '',
     `<li><strong>Email you send us.</strong> If you write to one of this site's addresses, we keep your
       message and address to answer you. An AI assistant reads and sorts the mail and drafts replies;
       anything about a legal matter, a refund, security, your personal data, or asking for a person goes
@@ -119,7 +128,9 @@ export function legalDocuments({ toRoot = '../', analytics = false, counter = fa
         our legitimate interest in knowing which pages and tools people use and where visitors come
         from, so we can improve them. The measurement is cookieless and aggregate, and you can object
         at any time (see "Your choices").</li>
-        <li><strong>Answering you</strong> (email and feedback): our legitimate interest in replying, or
+${feedback ? `        <li><strong>Early-access sign-ups</strong>: your consent, given by ticking the box on the form
+        (art. 6(1)(a)); you can withdraw it at any time by emailing us.</li>
+` : ''}        <li><strong>Answering you</strong> (email and feedback): our legitimate interest in replying, or
         steps you ask for before entering a contract with us (art. 6(1)(b)).</li>
         <li><strong>Legal obligations</strong> where the law requires us to keep or disclose
         information (art. 6(1)(c)).</li>
@@ -128,9 +139,9 @@ export function legalDocuments({ toRoot = '../', analytics = false, counter = fa
       <h2>Who receives it</h2>
       <ul>
         <li><strong>Cloudflare, Inc.</strong> hosts the site${analytics ? ', provides the analytics' : ''}
-        and stores email sent to us, as our processor, under its data processing addendum.</li>
+        and stores email sent to us${feedback ? ' and early-access sign-ups' : ''}, as our processor, under its data processing addendum.</li>
         <li><strong>Anthropic, PBC</strong> provides the AI assistant that reads, sorts and drafts
-        replies to email sent to us, as our processor under its commercial terms.</li>
+        replies to email sent to us${feedback ? ', and may read the early-access list,' : ''} as our processor under its commercial terms.</li>
         <li><strong>GitHub, Inc.</strong> hosts our public repository, where aggregate
         counts${feedback ? ' and published feedback' : ''} are committed.</li>
         <li>Authorities or others where the law requires it, or to protect our rights.</li>
@@ -150,7 +161,9 @@ export function legalDocuments({ toRoot = '../', analytics = false, counter = fa
         <li>Email: up to 90 days for most addresses; security reports up to 1 year; privacy and data
         requests up to 3 years, to show how we handled them; billing and payment mail up to 7 years,
         for tax and accounting records. Longer only where we need it for a legal claim.</li>
-        <li>Local storage on your device: until you clear it; we never receive it.</li>
+${feedback ? `        <li>Early-access sign-ups: at most one year from the sign-up, then deleted automatically;
+        sooner if you ask.</li>
+` : ''}        <li>Local storage on your device: until you clear it; we never receive it.</li>
       </ul>
 
       <h2>Cookies and similar technologies</h2>

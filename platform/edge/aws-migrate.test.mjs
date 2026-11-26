@@ -8,7 +8,7 @@ import { fakeDynamo } from './aws/fake-dynamo.mjs';
 
 // A Worker over an in-memory D1-like store, reached through fetchImpl.
 function memoryStore() {
-  const s = { counts: new Map(), feedback: [], inbox: [] };
+  const s = { counts: new Map(), feedback: [], inbox: [], early: [] };
   return {
     s,
     async addCount(day, slug) { const k = `${day}|${slug}`; s.counts.set(k, (s.counts.get(k) || 0) + 1); return true; },
@@ -16,6 +16,8 @@ function memoryStore() {
     async readFeedback(after) { return s.feedback.filter((r) => r.id > after).slice(0, 2); },
     async purgeInbox() {},
     async readInbox(after) { return s.inbox.filter((r) => r.id > after).slice(0, 2); },
+    async purgeEarlyAccess() {},
+    async readEarlyAccess(after) { return s.early.filter((r) => r.id > after).slice(0, 2); },
   };
 }
 
@@ -24,17 +26,22 @@ test('reads every page from the Worker and writes ids, values and sequences to D
   for (const [k, n] of [['2026-11-01|roof-bid', 7], ['2026-11-01|geo:GB', 2], ['2026-11-02|hub', 1]]) mem.s.counts.set(k, n);
   for (const id of [1, 2, 5]) mem.s.feedback.push({ id, day: '2026-11-01', type: 'idea', tool: '', page: '', message: `m${id}` });
   for (const id of [3, 4, 9]) mem.s.inbox.push({ id, received: '2026-11-01T00:00:00.000Z', mail_from: 'a@x', rcpt_to: 'support@marisstella.app', subject: 's', message_id: '<m>', raw: 'r' });
+  for (const id of [2, 6, 7]) mem.s.early.push({ id, received: '2026-11-26T00:00:00.000Z', product: 'payapps', email: `p${id}@x.test`, role: '', note: '', page: '', consent: '2026-11-26' });
   const env = { STORE: mem, INBOX_TOKEN: 't' };
   const fetchImpl = (url, init) => worker.fetch(new Request(url, init), env);
   const data = await readWorker('https://w.example', { inboxToken: 't', fetchImpl });
   assert.equal(data.counts.length, 3);
   assert.deepEqual(data.feedback.map((r) => r.id), [1, 2, 5]);
   assert.deepEqual(data.inbox.map((r) => r.id), [3, 4, 9]);
+  assert.deepEqual(data.earlyAccess.map((r) => r.id), [2, 6, 7]);
 
   const f = fakeDynamo();
   const ddb = dynamoStore({ call: f.call, table: 'edge' });
-  assert.deepEqual(await writeAll(ddb, data), { counts: 3, feedback: 3, inbox: 3 });
-  assert.deepEqual(await writeAll(ddb, data), { counts: 3, feedback: 3, inbox: 3 }, 'idempotent');
+  assert.deepEqual(await writeAll(ddb, data), { counts: 3, feedback: 3, inbox: 3, early_access: 3 });
+  assert.deepEqual(await writeAll(ddb, data), { counts: 3, feedback: 3, inbox: 3, early_access: 3 }, 'idempotent');
+  assert.deepEqual((await ddb.readEarlyAccess(0)).map((r) => r.email), ['p2@x.test', 'p6@x.test', 'p7@x.test']);
+  assert.equal(await ddb.insertEarlyAccess({ received: '2026-11-27T00:00:00.000Z', product: 'payapps', email: 'new@x.test', role: '', note: '', page: '', consent: '2026-11-26' }), true);
+  assert.deepEqual((await ddb.readEarlyAccess(7)).map((r) => r.id), [8], 'early-access ids continue after the migrated ones');
   assert.deepEqual((await ddb.readCounts('0000')).map((r) => r.n), [2, 7, 1]);
   assert.deepEqual((await ddb.readFeedback(0)).map((r) => r.id), [1, 2, 5]);
   await ddb.insertFeedback({ day: '2026-11-03', type: 'idea', tool: '', page: '', message: 'after cutover' });
@@ -47,5 +54,5 @@ test('without INBOX_TOKEN the inbox is skipped, and the D1 store is untouched by
   const db = { prepare: (sql) => ({ bind: () => ({ async all() { return { results: [] }; }, async run() { throw new Error(`write: ${sql}`); } }) }) };
   const fetchImpl = (url, init) => worker.fetch(new Request(url, init), { STORE: d1Store(db) });
   const data = await readWorker('https://w.example', { fetchImpl });
-  assert.deepEqual(data, { counts: [], feedback: [], inbox: [] });
+  assert.deepEqual(data, { counts: [], feedback: [], inbox: [], earlyAccess: [] });
 });
