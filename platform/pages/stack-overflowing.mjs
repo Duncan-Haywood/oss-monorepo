@@ -47,7 +47,9 @@ export const headKey = (html) => String(html)
 /** Every `<table>` open tag outside comments, scripts, styles and textareas, with what the rules above need. */
 export function sourceTables(html) {
   const out = [];
-  const re = /<!--[\s\S]*?-->|<script\b[\s\S]*?<\/script>|<style\b[\s\S]*?<\/style>|<textarea\b[\s\S]*?<\/textarea>|<table\b[^>]*>/gi;
+  // End tags as browsers parse them: `</script >`, `</script foo>` and a
+  // comment closed by `--!>` all end the block (code-scanning #1432).
+  const re = /<!--[\s\S]*?--!?>|<script\b[\s\S]*?<\/script\b[^>]*>|<style\b[\s\S]*?<\/style\b[^>]*>|<textarea\b[\s\S]*?<\/textarea\b[^>]*>|<table\b[^>]*>/gi;
   let m;
   while ((m = re.exec(html))) {
     if (!/^<table/i.test(m[0])) continue;

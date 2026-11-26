@@ -46,3 +46,11 @@ test('tables inside scripts and comments are not source tables', () => {
   assert.equal(t.length, 1);
   assert.equal(t[0].head, headKey('JobNet yd'));
 });
+
+test('end tags with spaces or attributes, and --!> comments, still close the block', () => {
+  const inner = '<table><thead><tr><th>Hidden</th></tr></thead><tbody><tr><td>x</td></tr></tbody></table>';
+  const html = `<script>const t = '${inner}';</script >${STATIC}<style>/* ${inner} */</style\n>`
+    + `<!-- ${inner} --!>${STATIC.replace('Job', 'Two')}`;
+  const heads = sourceTables(html).map((x) => x.head);
+  assert.deepEqual(heads, [headKey('JobNet yd'), headKey('TwoNet yd')]);
+});
