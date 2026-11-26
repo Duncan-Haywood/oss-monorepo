@@ -47,6 +47,10 @@
     {
       "file": "CLAUDE.md (private-monorepo)",
       "issue": "says run `pnpm exec biome check --write <files>`, but apps/einvoice-preflight/biome.json disables linter and formatter, so biome ignores its files; the app's CI runs only node --test"
+    },
+    {
+      "file": ".github/workflows/priv-risk-review.yml",
+      "issue": "pushing the run record and marking the PR ready within seconds raced: the ready_for_review run (on the stale head e162f8e) cancelled the synchronize run on the new head via cancel-in-progress, leaving the head's required risk-review 'cancelled' and auto-merge stuck; land-your-work.md could say to mark ready only after the last push's checks start, or the workflow could key concurrency on head sha"
     }
   ],
   "deviations": [
@@ -58,11 +62,11 @@
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-26-rabatt-skonto-frachtkosten-in-a-zugferd-e-invoice.md (extended: long descriptions, page breaks, m\u00b3/t; stale 'not done yet' fixed)",
+    "docs/posts/2026-11-26-rabatt-skonto-frachtkosten-in-a-zugferd-e-invoice.md (extended: long descriptions, page breaks, m³/t; stale 'not done yet' fixed)",
     "private: apps/einvoice-preflight/pro/README.md section 'A description over several lines and across a page break'"
   ],
   "goal": "bet #3 e-invoice fix-and-explain: the PDF converter (paid wedge) reads bill-of-quantities style invoices from trades",
-  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/403 merged (squash 6b6438bc). Building the fixture also surfaced two bugs on a single page: a 5-line description kept 2 lines (16 pt window), and rows in m\u00b3 and t were dropped (no unit), failing the totals check; both fixed (MTQ/TNE added to reader and generate.mjs). Local verification: node --test pro/*.test.mjs 246/246; worker/*.test.mjs 9/9; *.test.mjs 2224 pass, 1 fail (repair-facturx 'poppler opens the repaired PDF': the container's pdfdetach wrapper refuses to save attachments; environmental). CI on PR 403 was starved (run 45889564101, no runner).",
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/403 merged (squash 6b6438bc). Building the fixture also surfaced two bugs on a single page: a 5-line description kept 2 lines (16 pt window), and rows in m³ and t were dropped (no unit), failing the totals check; both fixed (MTQ/TNE added to reader and generate.mjs). Local verification: node --test pro/*.test.mjs 246/246; worker/*.test.mjs 9/9; *.test.mjs 2224 pass, 1 fail (repair-facturx 'poppler opens the repaired PDF': the container's pdfdetach wrapper refuses to save attachments; environmental). CI on PR 403 was starved (run 45889564101, no runner).",
   "corrections": [],
   "redteam": null,
   "usage": {
