@@ -694,6 +694,45 @@ any other stock with no new cost, because the cost was already taken in 2025.
 "Undo" takes a return back out of stock, and deleting the refund removes it.
 This is a worksheet, not tax advice.
 
+## A label printer is not a laptop: equipment and the $2,500 line (added 2026-11-26)
+
+Resellers buy things they keep and use as well as stock to sell: a label
+printer, a shipping scale, a ring light, shelving, a camera, a laptop. A
+bookkeeping app that files all of them as "supplies" deducts them in full in
+the year you buy them. For the cheaper ones that's usually fine. For the
+expensive ones it often isn't.
+
+The rule in between is the **de minimis safe harbor** in the tangible property
+regulations (Treas. Reg. 1.263(a)-1(f)). A business without audited financial
+statements can deduct the cost of an item in the year it's bought when the
+item, or the invoice, comes to $2,500 or less. That limit has applied since
+2016. The safe harbor isn't automatic. You elect it each year with a short
+statement attached to your return, titled "Section 1.263(a)-1(f) de minimis
+safe harbor election", that gives your name, address and taxpayer
+identification number. Anything over the limit is depreciated, or expensed by
+election under section 179 or bonus depreciation, on Form 4562. The result
+goes on Schedule C line 13.
+
+Seller Books now has an **Equipment** category that follows that line:
+
+- **$2,500 or less an item**: its own row under line 27a, "Equipment expensed
+  under the de minimis safe harbor". The worksheet reminds you that the return
+  needs the election statement.
+- **Over $2,500**: listed for Form 4562. Line 13 shows the number of items and
+  their cost but no amount, because the depreciation method is your
+  preparer's call. Total expenses and profit leave these items out, and the
+  worksheet warns that those totals read high until line 13 is filled in.
+- **An office or supplies expense over $2,500** is flagged as possibly
+  equipment, so a $2,899 laptop entered as office expense gets looked at
+  before it reaches line 18.
+
+In the app's tests, a $129.99 label printer lands on line 27a and a $2,899.00
+laptop lands on line 13 (Form 4562), out of the totals. The year-end expense
+list says the same thing row by row. Enter each item as its own expense: the
+limit applies per item, so one row for a shelving unit and a camera bought
+together can hide which side of $2,500 each one is on. This is a worksheet,
+not tax advice.
+
 ## What comes next
 
 Each of the ten tool pages now ends with a short "track true profit across
