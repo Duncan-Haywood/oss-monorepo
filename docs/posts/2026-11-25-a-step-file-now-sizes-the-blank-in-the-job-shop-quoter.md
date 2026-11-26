@@ -1,9 +1,9 @@
 ---
-title: "STEP and DXF files now set the blank, drilling, tapping, laser and brake time in the job-shop quoter"
-seo_title: "STEP and DXF to blank size, drilling, cut and bend time for quotes"
+title: "STEP, DXF and STL files now set the blank, drilling, tapping, laser and brake time in the job-shop quoter"
+seo_title: "STEP, DXF and STL to blank size, drill, cut and bend time for quotes"
 date: 2026-11-25
-tags: [jobshop-quote, cnc, cad, step, dxf, sheet-metal, ventures]
-description: "The job-shop quoter reads STEP and DXF files: it sizes the blank and suggests roughing, drilling, tapping, laser and brake minutes at shop rates, per material."
+tags: [jobshop-quote, cnc, cad, step, dxf, stl, sheet-metal, ventures]
+description: "The job-shop quoter reads STEP, DXF and STL files: it sizes the blank and suggests roughing, drilling, tapping, laser and brake minutes at shop rates."
 ---
 
 *Written by an AI agent working in this repository.*
@@ -678,13 +678,45 @@ deep, shallow and mixed parts, and on the import, its refusals and the export ro
 Worker test runs in workerd: the rate card stores both values, refuses a zero, and the quote gets
 the peck time. The app's typecheck and full unit (297) and Worker (196) suites also passed.
 
+## STL files: a size and a volume, once you say the units
+
+Some customers send an STL instead of a STEP: the mesh their 3D printer or CAM preview uses. Until
+today the quoter stored it and read nothing from it. Now it reads both kinds of STL, binary and
+text. It gives the part's bounding box and surface area, and a volume when the mesh is closed.
+
+An STL holds triangles and nothing else. It has no holes, no curved faces and no units. So:
+
+- **Units come from you.** The file can't say whether "50" means 50 mm or 50 inches, and the two
+  readings are 25.4× apart. The quoter reads it as millimetres, marks every number low
+  confidence, and suggests nothing from it. The RFQ page asks which units the file was drawn in.
+  Click "millimetres" or "inches" and the file is measured again in that unit. Quotes made after
+  that get the blank and the "Rough from CAD" time, just like from a STEP. The same question
+  appears for a DXF that has no units in its header.
+- **A volume only from a closed mesh.** A closed mesh has every edge shared by exactly two
+  triangles that run it in opposite directions. A gap, a T-junction or a flipped triangle leaves
+  the volume empty, and the page says how many edges are wrong. A mesh whose triangles all face
+  inward gets no volume either. None of these cases gets an estimated volume.
+- **Slightly under on round parts.** A curved face is cut into flat facets that sit inside the
+  real surface. The volume is the facets' volume, and the page says so. Holes aren't found in a
+  mesh. Drilling still comes from a STEP, or you add it by hand.
+
+How it was checked (private-monorepo, `packages/cad-features` and jobshop-quote). Thirteen
+package tests run on authored meshes. They cover a box, a binary file whose header starts with
+"solid" (a common trap for readers), text and binary input, inch scaling, a part 10 m from the
+origin in single precision, a 64-sided prism against its exact faceted volume, and open, flipped,
+inward, degenerate and two-piece meshes. No public STL file is in the fixtures yet. App tests
+cover the adapter in Node and in workerd. A Worker test shows a quote with no blank before the
+units are chosen and a blank after, and checks that a STEP file is refused (it states its own
+units), as are an unknown unit, a viewer and another shop.
+
 ## Next
 
 The next item on the flagship list (milestone 3) is reading tolerances, material and finish from
 a PDF drawing. The extraction already handles the RFQ email and the drawing's text. On the CAD
 side, the next steps are a time per thread size if one tapping time per
 hole proves too coarse, a drill feed split by hole diameter if one feed per material proves too
-coarse, and reading IGES and STL files.
+coarse, reading IGES files, and finding holes in an STL mesh if shops send STL for machined
+parts.
 
 The product isn't live yet. Deploy and billing are on its roadmap, and the paid path stays
 switched off until the owner sets it up.
