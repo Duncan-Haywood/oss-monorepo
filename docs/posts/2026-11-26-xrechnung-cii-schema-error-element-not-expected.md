@@ -1,9 +1,9 @@
 ---
 title: "\"This element is not expected\": the XRechnung CII schema errors, and the three we found in our own examples"
-seo_title: "XRechnung CII schema error \"element is not expected\": causes and fixes"
+seo_title: "XRechnung CII schema error \"element is not expected\": causes, fixes"
 date: 2026-11-26
 tags: [for-customers, einvoice-preflight, e-invoicing, xrechnung, zugferd, factur-x, cii, germany, france, accountants]
-description: "Why a CII e-invoice with correct amounts is refused by the schema check: element order, missing elements and the udt/qdt namespace slip. Our checker now reports them."
+description: "Why a CII e-invoice with correct amounts fails the schema check: element order, missing elements and the udt/qdt namespace slip, and what our checker reports."
 ---
 
 An XRechnung or ZUGFeRD invoice can have every amount right and still be
