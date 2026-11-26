@@ -48,7 +48,7 @@ locals {
           Action    = "sts:AssumeRoleWithWebIdentity"
           Resource  = "*"
           Condition = {
-            StringLike = { "token.actions.githubusercontent.com:sub" = [for r in local.public_subject_repos : "repo:${r}:*"] }
+            StringLike = { "token.actions.githubusercontent.com:sub" = local.public_subject_patterns }
           }
         }]
       }
@@ -82,4 +82,10 @@ locals {
     var.public_repository,
     "${split("/", var.public_repository)[0]}@${var.public_repository_owner_id}/${split("/", var.public_repository)[1]}@${var.public_repository_id}",
   ]
+  # The last pattern matches any ID-qualified subject that carries the public
+  # repository's numeric ID, so a renamed repository (or owner) cannot slip
+  # past the Deny. In a Deny a wider pattern only refuses more.
+  public_subject_patterns = concat([for r in local.public_subject_repos : "repo:${r}:*"], [
+    "repo:*/*@${var.public_repository_id}:*",
+  ])
 }

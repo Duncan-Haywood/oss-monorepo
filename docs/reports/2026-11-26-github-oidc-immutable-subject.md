@@ -43,7 +43,7 @@ Both forms, with no wildcard on any Allow:
 | `stacks/llm` `github-llm-gate` | `:ref:refs/heads/main` and `:environment:aws-llm`, both forms |
 | `stacks/app-identity` sync role | `:environment:cloudflare`, both forms |
 | `stacks/cutover-access` | `:environment:cutover-plan` / `:environment:cutover`, both forms |
-| `stacks/org` payments RCP (Deny) | `repo:OWNER/REPO:*` and `repo:OWNER@ID/REPO@ID:*` |
+| `stacks/org` payments RCP (Deny) | `repo:OWNER/REPO:*`, `repo:OWNER@ID/REPO@ID:*`, and `repo:*/*@REPO_ID:*` (any name, so a rename cannot slip past) |
 
 The ID form is a variable: `immutable_github_repository` in the stacks (default
 `Duncan-Haywood@49566815/oss-monorepo@1315497858`, validated as `OWNER@ID/REPO@ID`),
