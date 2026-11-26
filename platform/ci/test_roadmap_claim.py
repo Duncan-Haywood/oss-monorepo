@@ -127,6 +127,47 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertEqual(code, 0, out)
         self.assertNotIn("ALSO CLAIMED", out)
 
+    def merge(self, subject, ago=0):
+        """A squash merge on origin/main whose subject is the PR title, `ago` seconds old."""
+        when = f"@{int(rc.time.time()) - ago} +0000"
+        env = {**os.environ, "GIT_COMMITTER_DATE": when, "GIT_AUTHOR_DATE": when}
+        run(self.a, "fetch", "-q", "origin", "main")
+        run(self.a, "checkout", "-q", "-B", "work", "FETCH_HEAD")
+        (self.a / "f.txt").write_text(subject)
+        run(self.a, "add", "-A")
+        subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@example.invalid", "commit", "-q",
+                        "-m", subject], cwd=self.a, env=env, check=True, capture_output=True)
+        run(self.a, "push", "-q", "origin", "HEAD:refs/heads/main")
+
+    def test_merged_part_is_not_a_sibling_and_lists_as_merged(self):
+        self.assertEqual(self.main(self.a, "--claim", "2", "--slug", "packets heic")[0], 0)
+        self.assertEqual(self.main(self.a, "--claim", "2", "--slug", "packets heic convert")[0], 0)
+        # The longer part merged; its title also contains the shorter slug, which stays open.
+        self.merge("payapps: Packets HEIC convert, JPEG output (#12)")
+        code, out = self.main(self.b, "--claim", "2", "--slug", "packets webp")
+        self.assertEqual(code, 0, out)
+        self.assertIn("packets-heic (", out)
+        self.assertNotIn("packets-heic-convert", out)
+        _, listing = self.main(self.b)
+        self.assertIn("MERGED packets-heic-convert", listing)
+        self.assertNotIn("MERGED packets-heic (", listing)
+        # Claiming a merged slug again says it is done.
+        code, out = self.main(self.b, "--claim", "2", "--slug", "packets heic convert")
+        self.assertEqual(code, 4, out)
+        self.assertIn("DONE", out)
+
+    def test_merged_whole_item_lists_as_merged(self):
+        self.assertEqual(self.main(self.a, "--claim", "1")[0], 0)
+        self.merge("QuickBooks, part 5: SOV lines")
+        _, listing = self.main(self.b)
+        self.assertIn("[MERGED] quickbooks-part-5", listing)
+
+    def test_commit_before_the_claim_does_not_mark_it(self):
+        self.merge("QuickBooks part 5 groundwork", ago=600)
+        self.assertEqual(self.main(self.a, "--claim", "1")[0], 0)
+        _, listing = self.main(self.b)
+        self.assertNotIn("MERGED", listing)
+
     def test_release(self):
         self.main(self.a, "--claim", "3")
         slug = rc.slugify(rc.next_items(ROADMAP)[2][1])
