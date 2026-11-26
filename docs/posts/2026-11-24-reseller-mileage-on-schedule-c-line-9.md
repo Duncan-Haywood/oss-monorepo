@@ -2,7 +2,8 @@
 title: "Sourcing runs are a business expense: putting a reseller's mileage on Schedule C line 9"
 seo_title: "Reseller mileage on Schedule C line 9: the 2026 rate change"
 date: 2026-11-24
-tags: [resellers, mileage, bookkeeping, schedule-c]
+tags: [resellers, mileage, bookkeeping, schedule-c, reseller-books, for-customers]
+updated: 2026-11-26
 description: "Thrift runs and post office trips go on Schedule C line 9. The 2026 rate changed on July 1, so a trip log has to be priced by date. Reseller Books now does it."
 ---
 
@@ -71,3 +72,35 @@ says so. It is arithmetic on your files, not tax advice.
 This is the third milestone of Seller Books, a hosted product being built for
 multi-marketplace resellers that this free page is the engine of: one ledger,
 cost of goods, mileage, then a Schedule C line-mapped export.
+
+## Update, 2026-11-26: trips from MileIQ, Stride or Everlance
+
+Most resellers who log miles at all let a phone app do it: MileIQ, Stride,
+Everlance, TripLog or Driversnote notice each drive and ask afterwards whether
+it was business. Typing those drives into a second log is the step that gets
+skipped, and line 9 comes up short. So the hosted Seller Books now reads the
+app's own CSV export on its Mileage page:
+
+- **Only business drives are offered.** A drive the app marks personal,
+  commuting, charity or medical is left out, and so is one never classified,
+  each with the reason on the page. Charity and medical miles are real
+  deductions, but on Schedule A, not C. Everlance puts "Work" or "Personal" in
+  a column called Purpose; that is read as the classification, and the trip's
+  notes become the purpose.
+- **Every trip needs a purpose before it is saved.** Trackers often export
+  none. The page fills in what the file has, and one box fills the rest
+  ("Sourcing: Goodwill Main St"), because a log without the why is the weak
+  point in an audit.
+- **Kilometres are converted.** A km column, or a Unit column saying km,
+  becomes miles at 1.609344 km to the mile.
+- **Importing the same month twice adds nothing.** A trip with the same date,
+  miles and route is marked as already in the log. Two identical post office
+  runs on one day still count as two.
+
+What it rests on: none of these apps publishes its CSV header row on a page
+we could reach, so the reader matches columns by name, accepts several
+spellings for each field, and shows on the page which of your columns it read
+for each one. A file it cannot place is refused with the column names it
+expected, never guessed at. Seller Books is in early access and not yet open
+for sign-up.
+

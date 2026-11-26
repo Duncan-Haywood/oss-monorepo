@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01EhTJVM7vaekzGhU8nKPAFc",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T15:56:17Z",
+  "ended": "2026-11-26T16:03:41Z",
+  "wall_minutes": 9.92,
+  "tokens_in": 8208443,
+  "tokens_out": 36844,
+  "cost_usd": 3.4792,
+  "tool_calls": 71,
+  "task": "seller-books (bet #5): import mileage trips from a tracker app's CSV export",
+  "projects": [
+    "seller-books",
+    "seller-books-site",
+    "reseller-books"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19398",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets said 'Start here: bet #1 payapps, item #16', but #16 already had a live claim from 0 minutes earlier and the per-app listing then showed nothing free; bets 2-4 are all gated on owner launch steps, so the useful next step (an unlisted item on a bet with no ROADMAP) was found by hand."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "run_workflow_locally hands off after 100 s and says not to edit the checkout; I had already edited a sibling app (seller-books-site) in that checkout mid-run without knowing. The warning only appears in the hand-off output, not before starting."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The default is the top bet; bets 1-4 had no free, ungated item (payapps crowded, the rest waiting on owner deploys).",
+      "did": "Took bet #5 seller-books and opened a new item (mileage-csv-import) with --slug",
+      "result": "Shipped and merged as private PR 362 with unit, worker and e2e tests"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-reseller-mileage-on-schedule-c-line-9.md (extended with a 2026-11-26 update section)"
+  ],
+  "goal": "$10k MRR: deepen bet #5's hosted product toward a paying reseller",
+  "notes": "Private PR 362 (merged, https://github.com/Duncan-Haywood/private-monorepo/pull/362): apps/seller-books mileage import (parser services/importers/mileage.ts, routes POST /mileage/import/preview and /mileage/import, MileageImport component, IMPORTERS.md section, fixtures, test/unit/mileage.test.ts 6, test/worker/mileage-import.test.ts 4, test/e2e/11-mileage-import.spec.ts 1) plus a seller-books-site feature line. Private CI starved; run_workflow_locally seller-books-ci: 11/11 run: steps passed including the full Playwright suite (8 uses:/non-PR steps not run). seller-books-site node tests 37/37. Tracker CSV headers unconfirmed (no help page lists them); documented as lowest-confidence importer. Claim: claim/seller-books/mileage-csv-import.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "84270966-f34f-57e2-b76b-8bc701211623",
+    "transcripts": 1,
+    "first": "2026-11-26T15:56:17Z",
+    "last": "2026-11-26T16:06:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 66,
+        "input": 128,
+        "output": 36844,
+        "thinking": 4991,
+        "cache_read": 8067277,
+        "cache_write_5m": 0,
+        "cache_write_1h": 141038,
+        "api_equivalent_usd": 3.4792,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 66,
+      "input": 128,
+      "output": 36844,
+      "thinking": 4991,
+      "cache_read": 8067277,
+      "cache_write_5m": 0,
+      "cache_write_1h": 141038,
+      "api_equivalent_usd": 3.4792,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 59,
+      "WebSearch": 3,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.92,
+      "active_minutes": 9.92,
+      "model_minutes": 7.37,
+      "tool_minutes": 2.55,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "parser, two routes, review UI, fixtures, unit/worker/e2e tests and docs for one importer, by a mid-level full-stack engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 287.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
