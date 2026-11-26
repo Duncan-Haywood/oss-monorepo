@@ -115,10 +115,10 @@
     <div class="big" id="big"></div>
     <div id="report-findings"></div>
     <h3>Every panel</h3>
-    <div class="scroll"><table id="node-table"><thead><tr><th>Panel</th><th>Fed from</th><th class="n">Volts</th><th class="n">Fault current, A</th><th class="n">Magnitude sum, A</th><th class="n">Reads low</th><th class="n">X/R</th><th class="n">Peak, A</th><th class="n">Rating</th></tr></thead><tbody></tbody></table></div>
+    <div class="scroll"><table id="node-table" class="stack"><thead><tr><th>Panel</th><th>Fed from</th><th class="n">Volts</th><th class="n">Fault current, A</th><th class="n">Magnitude sum, A</th><th class="n">Reads low</th><th class="n">X/R</th><th class="n">Peak, A</th><th class="n">Rating</th></tr></thead><tbody></tbody></table></div>
     <div id="arc-block" hidden>
       <h3>Arc flash (IEEE 1584-2018)</h3>
-      <div class="scroll"><table id="arc-table"><thead><tr><th>Panel</th><th>Equipment</th><th class="n">Arcing kA</th><th class="n">Reduced kA</th><th class="n">Clearing ms</th><th class="n">Incident energy, cal/cm²</th><th class="n">Working distance</th><th class="n">Arc flash boundary</th></tr></thead><tbody></tbody></table></div>
+      <div class="scroll"><table id="arc-table" class="stack"><thead><tr><th>Panel</th><th>Equipment</th><th class="n">Arcing kA</th><th class="n">Reduced kA</th><th class="n">Clearing ms</th><th class="n">Incident energy, cal/cm²</th><th class="n">Working distance</th><th class="n">Arc flash boundary</th></tr></thead><tbody></tbody></table></div>
       <p class="note">Incident energy is the higher of the full and reduced arcing-current cases, each with its own clearing time. Enclosure sizes, gaps and working distances are the typical values IEEE 1584-2018 tabulates for each equipment type; for a real enclosure use the <a href="arc-flash-calculator.html">single-point arc flash calculator</a>, which takes its dimensions.</p>
     </div>
     <p class="note">Fault current: bolted three-phase (or single-phase line-to-line) symmetrical rms, impedances added as complex numbers. Magnitude sum: the same system with every impedance added as a plain number, which is what point-to-point multipliers do. Peak: IEC 60909 kappa x 1.414 x the symmetrical current.</p>
