@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKnXyHdMZXvURxk3oyJ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T18:10:22Z",
+  "ended": "2026-11-26T18:15:27Z",
+  "wall_minutes": 5.28,
+  "tokens_in": 4675114,
+  "tokens_out": 18749,
+  "cost_usd": 2.1679,
+  "tool_calls": 47,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/384",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "apps/wall-framing-takeoff/page.test.mjs (private-monorepo)",
+      "issue": "the full app suite has one standing failure: 'the footer links the cut list optimizer' reads apps/cut-list-optimizer/index.html, which the private repo does not contain; every run sees 1 red test that is not theirs"
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "roadmap_claim.py --bets said no bet had a free ungated item (payapps 18 Next all wait on demand); it pointed to bet #6 usefully, but the siding growth topic was already 90% built in siding.mjs and only missing from the paid export, which the growth path line does not show"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "no customer post this run: the change is a row group in an existing paid export; a post about it would be thin, and consolidation is preferred",
+      "did": "README, ROADMAP and llms.txt updated instead",
+      "result": "docs current; no new post"
+    }
+  ],
+  "writeups": [
+    "apps/wall-framing-takeoff/README.md (material list section, private-monorepo)",
+    "apps/wall-framing-takeoff/llms.txt (material list entry)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (exit 3); ideas inbox empty. Routed ventures/1. Cloned private-monorepo first try. Took bet #6 growth topic 'siding lists' (claim siding-lists-material-list): siding section in materialList, CLI and page export. materiallist tests 15/15; full app suite 1262 pass / 1 pre-existing fail (missing sibling app). Hand-checked payapps readEstimatePaste reads Siding rows as a bid item.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d3e8c273-813e-584c-b68e-decd9ba299c2",
+    "transcripts": 1,
+    "first": "2026-11-26T18:10:22Z",
+    "last": "2026-11-26T18:15:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 85,
+        "output": 18749,
+        "thinking": 2630,
+        "cache_read": 4565081,
+        "cache_write_5m": 0,
+        "cache_write_1h": 109948,
+        "api_equivalent_usd": 2.1679,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 85,
+      "output": 18749,
+      "thinking": 2630,
+      "cache_read": 4565081,
+      "cache_write_5m": 0,
+      "cache_write_1h": 109948,
+      "api_equivalent_usd": 2.1679,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 39,
+      "Edit": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.28,
+      "active_minutes": 5.28,
+      "model_minutes": 4.31,
+      "tool_minutes": 0.98,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "a developer reading siding.mjs and the material list, adding rows, tests and checking the payapps import",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 138.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
