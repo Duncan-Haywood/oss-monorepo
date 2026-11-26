@@ -108,13 +108,15 @@ export function scaleAt(p, m) {
 
 const capped = (p, s) => month(p, Math.min(1, p.occPct / 100 * s), Math.min(1, p.dayFillPct / 100 * s));
 
-// Lowest utilisation u (boarding occupancy and daycare fill both at u percent of capacity) where profit reaches `extra` or more. Staffing steps, so scan.
+// Lowest utilisation u (boarding occupancy and daycare fill both at u percent of capacity) from which profit stays at `extra` or more all the way to 100%.
+// Staffing steps up one attendant at a time, so profit can dip below zero again above the first crossing; scan down from 100% so that dip is not hidden.
 export function breakEvenUtilisation(p, extra = 0) {
-  for (let i = 0; i <= 200; i++) {
-    const u = i / 200;
-    if (month(p, u, u).profit >= extra) return u;
+  let be = null;
+  for (let i = 200; i >= 0; i--) {
+    if (month(p, i / 200, i / 200).profit >= extra) be = i / 200;
+    else break;
   }
-  return null;
+  return be;
 }
 
 export function compute(raw) {
