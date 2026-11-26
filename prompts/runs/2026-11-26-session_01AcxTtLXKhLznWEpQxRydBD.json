@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtLXKhLznWEpQxRydBD",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T00:07:24Z",
+  "ended": "2026-11-26T00:20:07Z",
+  "wall_minutes": 12.9,
+  "tokens_in": 14701912,
+  "tokens_out": 54641,
+  "cost_usd": 5.4611,
+  "tool_calls": 106,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19143",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "private-monorepo CI job never got a runner (ci_starvation exit 0); verified locally instead",
+    "private PR 199 conflicted with main in apps/payapps-site/src/site/seo.ts (a parallel SOV-scan PR); merged main and resolved"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "packages/lien-waivers/README.md (private)",
+      "issue": "Listed malegislature.gov as blocked (2026-11-24); it answers 200 from cloud sessions now. Updated in private PR 199."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "A successful --claim prints the whole claims list with no 'claimed' line at the top; re-running to check returned exit 4 TAKEN for my own claim, which looked like a conflict until I checked the branch's note."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Barrel imports of packages/lien-waivers from client code bundle every form's statute text (no tree-shaking); not documented anywhere. Fixed with a separate words.ts module + alias."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-25-which-states-make-you-use-their-lien-waiver-form.md (extended: 2026-11-26 Massachusetts update)",
+    "docs/reports/ventures-2026-11-26-payapps-lien-waivers-massachusetts.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; routed ventures/1; top bet PayApps. Cloned private-monorepo via add_repo (worked first time). Encoded Mass. Gen. Laws c. 254 s. 32(4) Partial Waiver and Subordination of Lien verbatim from malegislature.gov as an alternative form (Missouri pattern), prefilled lines 1-8 from the G702 summary, amount in words. Checks: package 226/226, payapps unit 550/550 after merging main, worker 281/281, typecheck, build; pay-app-guides page.test 29/29. Private PR 199 merged.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b4c72357-49ea-5ec1-83c2-5d153d33cf40",
+    "transcripts": 1,
+    "first": "2026-11-26T00:07:24Z",
+    "last": "2026-11-26T00:20:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 101,
+        "input": 195,
+        "output": 54641,
+        "thinking": 11368,
+        "cache_read": 14518751,
+        "cache_write_5m": 0,
+        "cache_write_1h": 182966,
+        "api_equivalent_usd": 5.4611,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 101,
+      "input": 195,
+      "output": 54641,
+      "thinking": 11368,
+      "cache_read": 14518751,
+      "cache_write_5m": 0,
+      "cache_write_1h": 182966,
+      "api_equivalent_usd": 5.4611,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 106,
+    "tools": {
+      "Bash": 95,
+      "Write": 2,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.9,
+      "active_minutes": 12.9,
+      "model_minutes": 9.44,
+      "tool_minutes": 3.46,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "statute read + form encoding + prefill + tests + guide/post updates, by a mid-level engineer with legal-text care",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 183.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
