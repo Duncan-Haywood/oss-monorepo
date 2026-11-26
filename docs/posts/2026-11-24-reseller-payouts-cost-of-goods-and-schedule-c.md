@@ -368,6 +368,41 @@ in from the card statement that paid the bill. If your store takes payments
 through PayPal or another processor instead of Shopify Payments, those fees
 come from that processor's statement.
 
+## When your stock lives in the spare room: line 30 (added 2026-11-26)
+
+Most resellers keep their stock at home: shelves in a spare room, bins in
+the garage, a packing table in the basement. Schedule C has a line for
+that, line 30, business use of your home. Until today the Seller Books
+worksheet left it blank. Now you can enter the space on the Schedule C
+page, once for each tax year, and the worksheet fills line 30 by the
+IRS's simplified method:
+
+- **$5 a square foot, up to 300 square feet.** The most it can be is
+  $1,500 a year.
+- **Only the months you used the space count.** A month counts when you
+  used the space for the business on 15 days or more. If you started
+  storing stock in July, 120 square feet comes to 120 × $5 × 6/12 =
+  **$300**, not $600.
+- **It can't be more than your profit.** Line 30 is held to line 29, so it
+  never turns a profit into a loss. Under the simplified method, whatever
+  the limit cuts is gone: nothing carries to next year. In a year where
+  line 29 is $200, that $300 becomes $200, and the worksheet says how much
+  was cut and why.
+
+The rule that matters most for resellers is about who qualifies. A home
+office normally has to be used regularly and *only* for the business. Space
+where you store inventory is an exception: it only has to be used
+regularly, as long as your home is the business's only fixed location
+(IRS Publication 587). So a guest room that also holds your stock can still
+count. Whether *your* space qualifies, and whether the regular method on
+Form 8829 (a share of your rent or mortgage interest, utilities and
+depreciation) would give you more, is for you or your tax preparer. The
+worksheet doesn't decide that for you.
+
+Line 31, net profit, now appears below line 30. A test in the app checks
+each figure above. The quarterly estimates page still works from line 29,
+so for now it leaves the home office out.
+
 ## What comes next
 
 Each of the ten tool pages now ends with a short "track true profit across
