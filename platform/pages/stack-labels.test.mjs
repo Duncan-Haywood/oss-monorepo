@@ -66,6 +66,8 @@ test('pf-chrome.css copy: every rule scoped to table.stack, inside :where(), in 
 
 test('the build links the chrome copy and runs the label pass on venture pages', () => {
   const build = fs.readFileSync(path.join(here, 'build.mjs'), 'utf8');
-  assert.match(build, /\$\{STACK_TABLE_CHROME_CSS\}`;\n\}/, 'renderChromeStyle ends with the card layout');
+  // Only the phone font-size floor on form fields (input-zoom.mjs) may follow it:
+  // it sets nothing a card layout sets.
+  assert.match(build, /\$\{STACK_TABLE_CHROME_CSS\}(\$\{INPUT_ZOOM_CSS\})?`;\n\}/, 'renderChromeStyle ends with the card layout');
   assert.match(build, /const labelled = labelStackTables\(marked\);\n\s*const reflowed = injectReflow\(labelled\);/);
 });

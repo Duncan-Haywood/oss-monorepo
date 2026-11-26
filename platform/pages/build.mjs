@@ -148,6 +148,7 @@ import { STICKY_FIT_CSS, STICKY_FIT_JS } from './sticky-fit.mjs';
 import { JUMP_ROW_CSS } from './jump-row.mjs';
 import { ANSWER_LEAD_CSS } from './answer-lead-style.mjs';
 import { SELECT_FIT_CSS } from './select-fit.mjs';
+import { INPUT_ZOOM_CSS } from './input-zoom.mjs';
 import {
   SITE_NAME,
   MARK_BG,
@@ -11047,8 +11048,10 @@ export function renderChromeStyle() {
   // floor that keeps a select in a table cell readable (select-fit.mjs; it must
   // follow REFLOW_CSS, whose narrow-screen min-width:0 it overrides), and the
   // right-aligned figure columns pf-site.js marks (figure-columns.mjs), and the
-  // opt-in phone cards for a wide `table.stack` (site-nav.mjs, STACK_TABLE_CHROME_CSS).
-  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${VENTURE_CHROME_CSS}${REFLOW_CSS}${ASSISTANT_VOICE_CSS}${STICKY_FIT_CSS}${JUMP_ROW_CSS}${ANSWER_LEAD_CSS}${SELECT_FIT_CSS}${FIGURE_COLUMNS_CSS}${STACK_TABLE_CHROME_CSS}`;
+  // opt-in phone cards for a wide `table.stack` (site-nav.mjs, STACK_TABLE_CHROME_CSS),
+  // and last the 16px phone floor on form fields that stops iOS zooming on focus
+  // (input-zoom.mjs, INPUT_ZOOM_CSS).
+  return `${CHROME_CSS.trimStart()}${SITE_HEADER_CSS}${VENTURE_CHROME_CSS}${REFLOW_CSS}${ASSISTANT_VOICE_CSS}${STICKY_FIT_CSS}${JUMP_ROW_CSS}${ANSWER_LEAD_CSS}${SELECT_FIT_CSS}${FIGURE_COLUMNS_CSS}${STACK_TABLE_CHROME_CSS}${INPUT_ZOOM_CSS}`;
 }
 
 // The same anonymous, local-only convention the hub uses: which tool slugs were
