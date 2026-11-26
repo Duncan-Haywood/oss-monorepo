@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKkKyR6PkwyMeP6KH63",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T02:19:10Z",
+  "ended": "2026-11-26T02:26:41Z",
+  "wall_minutes": 8.42,
+  "tokens_in": 6207729,
+  "tokens_out": 31146,
+  "cost_usd": 2.7472,
+  "tool_calls": 66,
+  "task": "payapps ROADMAP Next #4 part 2a: Procore subcontractor invoice sheet per pay app",
+  "projects": [
+    "payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19177",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "private-monorepo CI jobs ended red in 2-3 s with no runner (ci_starvation.py: runner_id 0)",
+      "fix": "ran payapps-ci and payapps-site-ci locally with run_workflow_locally.py"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "support.procore.com / v2.support.procore.com do not resolve from the cloud session; vendor help pages for GC portals had to be read through search-index quotes. Worth listing under 'Outbound hosts'."
+    },
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "flags 'Auth, session or payment code changed' and 'New outbound hosts' on a file whose only match is the word 'invoice' and a help-link URL constant; false positives cost a paragraph of PR text each."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-25-procore-subcontractor-sov-csv-template.md",
+    "docs/reports/ventures-2026-11-26-payapps-procore-invoice-sheet.md"
+  ],
+  "goal": "$10k MRR: bet #1 payapps, GC-portal friction for subs billing Procore GCs",
+  "notes": "Security queue empty; IDEAS empty; routed ventures/1. private-monorepo cloned via add_repo first try. Built Procore invoice sheet in private PR 221 (pure module + panel + tests; site features + llms.txt). Local verification: payapps typecheck clean, pnpm test:unit exit 0, payapps-site unit 21/21 + typecheck; run_workflow_locally payapps-ci / payapps-site-ci results in the private PR. Procore wording from search-index snippets (host unreachable).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6d542a95-764a-5ebc-a788-6c2341c3a411",
+    "transcripts": 1,
+    "first": "2026-11-26T02:19:10Z",
+    "last": "2026-11-26T02:27:35Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 115,
+        "output": 31146,
+        "thinking": 4601,
+        "cache_read": 6094494,
+        "cache_write_5m": 0,
+        "cache_write_1h": 113120,
+        "api_equivalent_usd": 2.7472,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 115,
+      "output": 31146,
+      "thinking": 4601,
+      "cache_read": 6094494,
+      "cache_write_5m": 0,
+      "cache_write_1h": 113120,
+      "api_equivalent_usd": 2.7472,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 51,
+      "Write": 5,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "WebFetch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.42,
+      "active_minutes": 8.42,
+      "model_minutes": 6.53,
+      "tool_minutes": 1.89,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior full-stack dev: pure module + tests, React panel + tests, docs and post, about 6 h",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 218.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
