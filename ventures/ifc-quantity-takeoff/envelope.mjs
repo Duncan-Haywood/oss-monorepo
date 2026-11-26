@@ -152,15 +152,19 @@ export function isRoofPiece(r, byId) {
 
 // distance along a ray (origin o, unit direction d) to an oriented
 // rectangle grown by `pad`, or Infinity when it misses
-function rayHit(o, d, r, pad) {
-  const n = [-r.u[1], r.u[0]];
+// (the length axis u, then its normal [-u1, u0], as before; no arrays per
+// call: walls x blockers x 9 points x 2 faces x 5 rays made it the takeoff's
+// largest allocator on ISSUE_098_R8, docs/history/ifc-takeoff-perf-2026-11-26.md)
+export function rayHit(o, d, r, pad) {
+  const u0 = r.u[0], u1 = r.u[1];
   const rx = o[0] - r.c[0], ry = o[1] - r.c[1];
   let t0 = 0, t1 = Infinity;
-  for (const [ax, h] of [[r.u, r.hl + pad], [n, r.ht + pad]]) {
-    const p = rx * ax[0] + ry * ax[1], v = d[0] * ax[0] + d[1] * ax[1];
+  for (let i = 0; i < 2; i++) {
+    const ax0 = i ? -u1 : u0, ax1 = i ? u0 : u1, h = i ? r.ht + pad : r.hl + pad;
+    const p = rx * ax0 + ry * ax1, v = d[0] * ax0 + d[1] * ax1;
     if (Math.abs(v) < 1e-12) { if (p < -h || p > h) return Infinity; continue; }
     let a = (-h - p) / v, b = (h - p) / v;
-    if (a > b) [a, b] = [b, a];
+    if (a > b) { const t = a; a = b; b = t; }
     if (a > t0) t0 = a;
     if (b < t1) t1 = b;
     if (t0 > t1) return Infinity;

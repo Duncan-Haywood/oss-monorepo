@@ -5,8 +5,8 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { prism, clipPoly, clipByPlanes, beyondAPlane, polyPlanes, orientShell, solidExtent, solidPoints, planeAreas, apply, IDENTITY } from "./geom.mjs";
-import { planRect } from "./envelope.mjs";
+import { prism, clipPoly, clipByPlanes, clipBounds, clipByPlanesBoxed, beyondAPlane, polyPlanes, orientShell, solidExtent, solidPoints, planeAreas, apply, IDENTITY } from "./geom.mjs";
+import { planRect, rayHit } from "./envelope.mjs";
 
 // ---- the code as it was before (reference) ----
 const EPS_REL = 1e-9;
@@ -322,4 +322,71 @@ test("orientShell's edge table gives the same answer as the Map on large and ope
     if (i % 3 === 0) tris.splice(5, 1);
     assert.deepEqual(orientShell(tris), orientShellOld(tris));
   }
+});
+
+// ---- 2026-11-26: openings cut from the box and the distinct points first ----
+// (docs/history/ifc-takeoff-perf-2026-11-26.md)
+
+test("clipByPlanesBoxed gives clipByPlanes' faces: disjoint, touching, cut, cut then emptied", () => {
+  const counts = { same: 0, empty: 0, cut: 0 };
+  const box = (x0, y0, z0, x1, y1, z1) => prism([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], [0, 0, z1 - z0]).map((f) => f.map((p) => [p[0], p[1], p[2] + z0]));
+  const check = (B, planes) => {
+    const ref = clipByPlanesOld(B, planes);
+    const got = clipByPlanesBoxed(B, clipBounds(B), planes);
+    assert.deepEqual(got, ref);
+    if (ref === B) { assert.equal(got, B); counts.same++; } else if (!ref.length) counts.empty++; else counts.cut++;
+  };
+  for (let i = 0; i < 4000; i++) {
+    const sc = [1, 1000, 1e-3, 3e5][i % 4];
+    const far = i % 5 === 0 ? 6 : 1.5;
+    const A = randomPrism(sc), B = randomPrism(sc * (0.2 + rnd()), [sc * far * (rnd() * 2 - 1), sc * far * (rnd() * 2 - 1), sc * (rnd() - 0.5)]);
+    const planes = polyPlanes(A);
+    check(B, planes);
+    // the same body, and a plane list run from a shuffled start
+    if (i % 50 === 0) check(A, planes);
+    if (i % 3 === 0) check(B, planes.slice(1).concat(planes.slice(0, 1)));
+  }
+  // axis-aligned blocks that touch on a face, an edge or a corner, overlap a
+  // hair, or stand a hair apart: the bounds' margins are where these sit
+  for (const sc of [1, 1000, 1e-3]) {
+    const A = box(0, 0, 0, sc, sc, sc), planes = polyPlanes(A);
+    for (const d of [0, 1e-12, -1e-12, 1e-9, -1e-9, 1e-6, -1e-6]) {
+      for (const [ox, oy, oz] of [[1, 0, 0], [1, 1, 0], [1, 1, 1], [0.5, 0.5, 1], [-1, 0.2, 0.2]]) {
+        const sx = ox * (sc + d * sc), sy = oy * (sc + d * sc), sz = oz * (sc + d * sc);
+        check(box(sx, sy, sz, sx + sc, sy + sc, sz + sc), planes);
+      }
+    }
+  }
+  check([], polyPlanes(randomPrism()));
+  assert.equal(clipBounds([]), null);
+  assert.ok(counts.same > 100 && counts.empty > 1000 && counts.cut > 300, JSON.stringify(counts));
+});
+
+function rayHitOld(o, d, r, pad) {
+  const n = [-r.u[1], r.u[0]];
+  const rx = o[0] - r.c[0], ry = o[1] - r.c[1];
+  let t0 = 0, t1 = Infinity;
+  for (const [ax, h] of [[r.u, r.hl + pad], [n, r.ht + pad]]) {
+    const p = rx * ax[0] + ry * ax[1], v = d[0] * ax[0] + d[1] * ax[1];
+    if (Math.abs(v) < 1e-12) { if (p < -h || p > h) return Infinity; continue; }
+    let a = (-h - p) / v, b = (h - p) / v;
+    if (a > b) [a, b] = [b, a];
+    if (a > t0) t0 = a;
+    if (b < t1) t1 = b;
+    if (t0 > t1) return Infinity;
+  }
+  return t0;
+}
+
+test("rayHit gives the same distances as before", () => {
+  let hits = 0, misses = 0;
+  for (let i = 0; i < 20000; i++) {
+    const a = rnd() * 2 * Math.PI, b = i % 4 === 0 ? a + Math.PI / 2 * Math.floor(rnd() * 4) : rnd() * 2 * Math.PI;
+    const r = { c: [rnd() * 20 - 10, rnd() * 20 - 10], u: i % 4 === 0 ? [1, 0] : [Math.cos(a), Math.sin(a)], hl: rnd() * 5, ht: rnd() * 0.3 };
+    const o = [rnd() * 30 - 15, rnd() * 30 - 15], d = i % 4 === 0 ? [Math.round(Math.cos(b)), Math.round(Math.sin(b))] : [Math.cos(b), Math.sin(b)];
+    const t = rayHit(o, d, r, 0.05);
+    assert.equal(Object.is(t, rayHitOld(o, d, r, 0.05)), true);
+    if (t === Infinity) misses++; else hits++;
+  }
+  assert.ok(hits > 1000 && misses > 1000, `${hits} ${misses}`);
 });
