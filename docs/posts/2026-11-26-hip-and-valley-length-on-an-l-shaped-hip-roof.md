@@ -3,7 +3,7 @@ title: "How long are the hips and valleys on an L-shaped hip roof?"
 date: 2026-11-26
 updated: 2026-11-26
 tags: [wall-framing-takeoff, for-customers, construction]
-description: Hip, valley and ridge lengths and roof sheathing courses for an L-shaped hip roof, worked by hand at 4 to 12 in 12, for any square-cornered plan.
+description: Hip, valley and ridge lengths for an L-shaped hip roof and its sheathing courses, by hand at 4 to 12 in 12, with hip cut-offs reused at the valleys.
 ---
 
 If you order hip and ridge cap, valley flashing or hip rafters off a plan, you need three numbers: the ridge length, the hip length along the slope and the valley length along the slope. On a rectangle there are textbook formulas. On an L, a T or a stepped plan, most people sketch the roof by hand. This post works one L-shaped house through by hand, gives the multipliers so you can check your own, and says what the framing takeoff we are building now does with any square-cornered outline.
@@ -75,16 +75,28 @@ Take the L above at 6 in 12. Its long outside eave is 42 ft (504 in) with a hip 
 
 The takeoff now lays this out for any square-cornered plan. It works out each plane's exact shape from the same rule that gives the hip and valley lines. It splits each course into sheet lengths and cuts the pieces from whole 4 × 8 sheets with the same optimiser that cuts the lumber order. For the L:
 
-| Pitch | Sloped area (sq ft) | Sheets if nothing were wasted | Sheets from the courses |
-| --- | --- | --- | --- |
-| 4 in 12 | 1,590 | 49.7 | 61 |
-| 6 in 12 | 1,686 | 52.7 | 68 |
-| 8 in 12 | 1,812 | 56.6 | 70 |
-| 12 in 12 | 2,133 | 66.6 | 82 |
+| Pitch | Sloped area (sq ft) | Sheets if nothing were wasted | Sheets from the courses | With hip cut-offs reused (below) |
+| --- | --- | --- | --- | --- |
+| 4 in 12 | 1,590 | 49.7 | 61 | 57 |
+| 6 in 12 | 1,686 | 52.7 | 68 | 65 |
+| 8 in 12 | 1,812 | 56.6 | 70 | 66 |
+| 12 in 12 | 2,133 | 66.6 | 82 | 78 |
 
-The course count is an **upper bound**. It doesn't reuse the triangles cut off at hips and valleys, and it doesn't pair a narrow top strip with a leftover from another width, so on a plan with many small planes it runs high. For example, it gives 38% offcut on the 30 × 30 ft stepped plan above. It also doesn't land end joints on rafters. For a plain rectangle it gives exactly the sheet count the takeoff's rectangular hip roof already gives, piece for piece. On 120 random plans, every point of the roof falls under a piece of its own plane's course.
+The first course count was an **upper bound** that didn't reuse the triangles cut off at hips, and didn't pair a narrow top strip with one of another width, so on a plan with many small planes it ran high (the next section fixes both). For example, it gives 38% offcut on the 30 × 30 ft stepped plan above. It also doesn't land end joints on rafters. For a plain rectangle it gives exactly the sheet count the takeoff's rectangular hip roof already gives, piece for piece. On 120 random plans, every point of the roof falls under a piece of its own plane's course.
 
 The roof plan drawing now has every eave side dimensioned along the eave edge. The bid package we are building prints that drawing ahead of the quantities, so the customer sees the roof they are being quoted for.
+
+## Sheathing it: the hip cut-off is the valley's missing corner (added 2026-11-26)
+
+On a stepped hip roof, counting sheathing by each course's longest edge throws away a lot of plywood. On the 30 × 30 ft stair-step at 6 in 12, that count came to 41 sheets of 4 × 8 for 809 sq ft, or 38% offcut. Most of that waste is triangles.
+
+Lay each course 48 in up the slope from the eave. Where a course ends at a **hip**, the 45-degree cut leaves a right triangle. One leg runs along the course, as long as the course's run in plan (48 ÷ 1.118 = 42-15/16 in at 6 in 12). The other leg runs 48 in up the slope. Where a course ends at a **valley**, the course gets longer toward its top by the same 42-15/16 in. Cut the valley piece to the course's *bottom* length instead, and the gap left at its top corner is exactly that triangle. A cut-off from a hip at the right end of a course fits a valley at the left end of another course just by sliding it over. You don't flip it, so the printed face stays up. Left hips feed right valleys the same way. The joint runs up the slope, like any other end joint.
+
+The second saving is the narrow top courses. A 32-1/2 in strip and a 3-9/16 in strip both come out of one 48 in sheet. Ripping each width from its own sheets wastes the rest.
+
+With both changes, the takeoff's count for the same stair-step falls from 41 to **34 sheets** (25.6% offcut), and from 49 to 44 at 12 in 12. The L above falls from 68 to **65** at 6 in 12, and by 3 to 4 sheets at every pitch in the table. Across 200 random stepped outlines the total is 9% lower. The count is still an upper bound. Hip cut-offs beyond what the valleys need are not reused, and neither are length offcuts. End joints are not yet moved onto rafters, so your framer may land a joint between rafters and need H-clips or blocking there.
+
+How it was checked: a rectangle still gives the plain hip-roof count piece for piece. On 120 random outlines, every sampled point of the roof lies under a piece of its own course, and a reused triangle has to cover the point itself, not just its strip.
 
 ## Where to use it
 
