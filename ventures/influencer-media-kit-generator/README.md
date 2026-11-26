@@ -127,6 +127,15 @@ sponsor link, and the sibling docs-page link. `prefill.test.mjs` covers the
 handoff described above — the field allowlist, the caps, and, most of all,
 that merging never removes or rewrites what the creator already typed.
 
+## Known gaps
+
+From the 2026-11-26 quality audit
+([`../../portfolio/quality/audits/2026-11-26-influencer-media-kit-generator.json`](../../portfolio/quality/audits/2026-11-26-influencer-media-kit-generator.json)):
+a `|` inside a field silently splits the row (`Bundle (Reel | 3 Stories) | $900`
+loses the $900); the print stylesheet hides the only date, so a printed kit's
+stats are undated; there is no average views, reach or impressions field, and
+engagement is free text with no stated convention.
+
 ## Status
 
 `stage: prototype` in [`VENTURE.yaml`](VENTURE.yaml). Untested hypothesis —

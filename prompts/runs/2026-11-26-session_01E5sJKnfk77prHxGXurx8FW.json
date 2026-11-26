@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKnfk77prHxGXurx8FW",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T06:18:26Z",
+  "ended": "2026-11-26T06:30:52Z",
+  "wall_minutes": 12.64,
+  "tokens_in": 13293542,
+  "tokens_out": 117529,
+  "cost_usd": 7.8543,
+  "tool_calls": 154,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19252",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/quality_mutate.py",
+      "issue": "Only mutates files inside oss-monorepo; the seller-books auditor had to copy the private app into a scratch tree to seed bugs in a private flagship."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "add_repo for private-monorepo with access 'read' was enough to clone and audit; the doc only describes 'push'. Read access meant the private fix could not land this session."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Private flagship highs (seller-books store.ts auto-link) need a private-repo PR and a schema change for multi-unit links; out of a sample round's scope with read-only access.",
+      "did": "Recorded both highs in the audit (they head the queue) and in the post instead of fixing.",
+      "result": "Public-side fixes landed; private highs left for a fix session."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-quality-audit-round-110.md"
+  ],
+  "goal": null,
+  "notes": "Mode sample, seed 2026-11-26-d-b4a7, round 110. Subjects: ventures/seller-books (flagship, private app), ventures/influencer-media-kit-generator, ventures/automatic-driveway-gate-bid-calculator, platform/analytics. Share meeting the bar: 0 of 3 sampled (cumulative 38 of 433, Wilson 6-12%); flagship does not meet it (6 of 16 flagships). Seeded bugs caught 19 of 26. Spot-checks rerun by me: seller-books 2025 Schedule C lines by hand (L29 -95816, Part III 6200); gate default preset 6505.58 and leaf height 5 vs 10 ft both 6505.58; media kit javascript: href emitted; analytics malformed token uncaught at provision.mjs:67. Fix PR (this one, #19252): analytics malformed-token no longer fails deploy + CLI test (mutant reverting it caught); media-kit safeUrl for href/src + tests, 'no watermark' claim corrected, engagementLabel tested; gate 'almost half' is of cost + share test (surviving mutant now caught), UL 325 FAQ wording. Tests: gate 143/143, media kit 62/62, analytics 10/10. validate: 681 files, 0 problems. check_posts ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "173297f0-336a-5b9b-97e9-b4c6b5433718",
+    "transcripts": 5,
+    "first": "2026-11-26T06:18:26Z",
+    "last": "2026-11-26T06:31:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 147,
+        "input": 297,
+        "output": 117529,
+        "thinking": 28390,
+        "cache_read": 12764278,
+        "cache_write_5m": 427340,
+        "cache_write_1h": 101627,
+        "api_equivalent_usd": 7.8543,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 147,
+      "input": 297,
+      "output": 117529,
+      "thinking": 28390,
+      "cache_read": 12764278,
+      "cache_write_5m": 427340,
+      "cache_write_1h": 101627,
+      "api_equivalent_usd": 7.8543,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.96,
+    "tool_calls": 154,
+    "tools": {
+      "Bash": 138,
+      "Agent": 4,
+      "SubagentHandback": 4,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Read": 1,
+      "WebSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.64,
+      "active_minutes": 7.2,
+      "model_minutes": 5.79,
+      "tool_minutes": 1.42,
+      "waiting_on_human_minutes": 5.44,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 19.64
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "four expert audits at ~2h each plus three small fixes and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 127.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
