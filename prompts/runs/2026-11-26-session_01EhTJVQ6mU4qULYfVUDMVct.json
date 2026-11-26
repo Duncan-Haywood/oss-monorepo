@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01EhTJVQ6mU4qULYfVUDMVct",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T15:55:51Z",
+  "ended": "2026-11-26T16:11:32Z",
+  "wall_minutes": 19.72,
+  "tokens_in": 20559244,
+  "tokens_out": 67189,
+  "cost_usd": 7.0955,
+  "tool_calls": 128,
+  "task": "payapps (bet #1) T&M tickets part 2: per-job rate sheet and the weekly-email line for signed tickets not on a change order",
+  "projects": [
+    "payapps",
+    "payapps-site"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19400",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "A heredoc python edit was refused by the rm-safety parser (nothing deleted); redone with Edit.",
+    "Migration 0065 collided with private PR 361 (daily-report files) merged during the run; renumbered to 0066 after merging main, policy version to .20."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Says to renumber the migration 'just before merging'; it collided on the first fetch before pushing, so fetching private main before pushing at all would have avoided stopping a running local CI."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "The ROADMAP-Done conflict warning held, and the same thing happened in the shared customer post (docs/posts T&M) and the payapps-site seo.ts llms facts line: parallel runs edit the same paragraph. Worth naming those two files too."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Did not run venture-preflight.mjs: the change is in private-monorepo apps, not a ventures/<slug> in this repo, and the public diff is one post.",
+      "did": "Ran payapps-ci and payapps-site-ci locally instead.",
+      "result": "15/15 steps passed."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Claimed only part of ROADMAP item 16 (rate sheet + weekly email), leaving photos/history, to stay out of the parallel daily-reports attachments run's shared code.",
+      "did": "Claimed with --slug.",
+      "result": "No code conflict with PR 361 beyond the migration number."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-tm-tickets-to-change-orders.md (new section: price tickets from the subcontract's rate sheet)",
+    "apps/payapps/docs/TM-TICKETS.md (private)"
+  ],
+  "goal": null,
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/364 merged (5aac39a). Local CI: payapps-ci.yml 9/9 run steps passed (unit+worker 176 s, D1 migrations in sync), payapps-site-ci.yml 6/6 passed. Privacy policy 2026-11-26.20 lists the rate sheet.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "aa8ac42a-4702-5f43-8d2b-4305130b3c75",
+    "transcripts": 1,
+    "first": "2026-11-26T15:55:51Z",
+    "last": "2026-11-26T16:15:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 119,
+        "input": 222,
+        "output": 67189,
+        "thinking": 8094,
+        "cache_read": 20348894,
+        "cache_write_5m": 0,
+        "cache_write_1h": 210128,
+        "api_equivalent_usd": 7.0955,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 119,
+      "input": 222,
+      "output": 67189,
+      "thinking": 8094,
+      "cache_read": 20348894,
+      "cache_write_5m": 0,
+      "cache_write_1h": 210128,
+      "api_equivalent_usd": 7.0955,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.99,
+    "tool_calls": 128,
+    "tools": {
+      "Bash": 108,
+      "Edit": 10,
+      "Read": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Write": 1,
+      "ToolSearch": 1,
+      "TaskStop": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.72,
+      "active_minutes": 19.72,
+      "model_minutes": 13.15,
+      "tool_minutes": 6.57,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "senior full-stack dev: schema+migration, API, React panel, digest section, 5 test files, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 197.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
