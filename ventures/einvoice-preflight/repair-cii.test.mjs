@@ -166,3 +166,48 @@ test("ZUGFeRD EXTENDED sub-invoice lines are not summed", () => {
   assert.equal(r.repaired, false);
   assert.ok(r.skipped.some((s) => /sub-invoice lines/.test(s)));
 });
+
+// Red-team guards, 2026-11-26 (prompts/runs/2026-11-26-session_01XpHqycsd3j9RMogFgfVGdC.json).
+test("a standard-rated (S) group with no rate is not read as 0%, so tax is not recomputed", () => {
+  // Only E, Z and O may omit the rate; S with the rate missing on every line and the header
+  // must stop the tax part instead of being recomputed as tax-free.
+  const src = ex("xrechnung-cii-invoice.xml").replaceAll("<ram:RateApplicablePercent>19</ram:RateApplicablePercent>", "")
+    .replace('<ram:TaxTotalAmount currencyID="EUR">190.00', '<ram:TaxTotalAmount currencyID="EUR">197.00');
+  const r = repairCii(src);
+  assert.ok(r.skipped.some((s) => /Tax was not recomputed/.test(s)));
+  assert.ok(!r.changes.some((c) => c.path === "/totals/tax"));
+});
+
+test("a missing AllowanceTotalAmount with an allowance present is reported, not passed over", () => {
+  const src = withAllowance().replace("<ram:AllowanceTotalAmount>100.00</ram:AllowanceTotalAmount>", "");
+  const r = repairCii(src);
+  assert.ok(r.skipped.some((s) => /AllowanceTotalAmount is missing; it should be 100\.00/.test(s)));
+});
+
+test("BT-111 in the same currency as BT-110 is repaired with it", () => {
+  const clean = ex("xrechnung-cii-invoice.xml").replace('<ram:TaxTotalAmount currencyID="EUR">190.00</ram:TaxTotalAmount>', '<ram:TaxTotalAmount currencyID="EUR">190.00</ram:TaxTotalAmount><ram:TaxTotalAmount currencyID="EUR">190.00</ram:TaxTotalAmount>');
+  const src = clean.replaceAll('currencyID="EUR">190.00', 'currencyID="EUR">197.00');
+  const r = repairCii(src);
+  assert.deepEqual(r.changes.map((c) => [c.path, c.to]), [["/totals/tax", "190.00"], ["/totals/tax_accounting_currency", "190.00"]]);
+  assert.equal(r.xml, clean);
+});
+
+test("a quantity or price that is not a plain number (a decimal comma) is reported, never a crash", () => {
+  const clean = ex("xrechnung-cii-invoice.xml");
+  for (const src of [clean.replace(/(<ram:BilledQuantity[^>]*>)8/, "$11,5"), clean.replace("<ram:ChargeAmount>120.00", "<ram:ChargeAmount>120,00")]) {
+    const r = repairCii(src);
+    assert.equal(r.repaired, false);
+    assert.equal(r.xml, src);
+    assert.ok(r.skipped.some((s) => /not a plain number/.test(s)), r.skipped.join(" | "));
+  }
+});
+
+test("a kept line total that is not a number stops the recompute instead of writing NaN", () => {
+  // Line 1 gets its own allowance, so its total is kept as written: "960,00" cannot be summed.
+  const src = ex("xrechnung-cii-invoice.xml").replace("<ram:LineTotalAmount>960.00", "<ram:LineTotalAmount>960,00")
+    .replace("<ram:SpecifiedTradeSettlementLineMonetarySummation>", "<ram:SpecifiedTradeAllowanceCharge><ram:ChargeIndicator><udt:Indicator>false</udt:Indicator></ram:ChargeIndicator><ram:ActualAmount>0.00</ram:ActualAmount></ram:SpecifiedTradeAllowanceCharge><ram:SpecifiedTradeSettlementLineMonetarySummation>");
+  assert.ok(src.includes("960,00") && src.includes("ActualAmount>0.00"));
+  const r = repairCii(src);
+  assert.ok(!r.xml.includes("NaN"));
+  assert.equal(r.repaired, false);
+});
