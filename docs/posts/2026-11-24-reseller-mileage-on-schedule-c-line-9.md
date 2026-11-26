@@ -4,7 +4,7 @@ seo_title: "Reseller mileage on Schedule C line 9: the 2026 rate change"
 date: 2026-11-24
 tags: [resellers, mileage, bookkeeping, schedule-c, reseller-books, for-customers]
 updated: 2026-11-26
-description: "Thrift runs and post office trips go on Schedule C line 9. The 2026 rate changed on July 1, so a trip log has to be priced by date. Reseller Books now does it."
+description: "Thrift runs go on Schedule C line 9, and the IRS rate changed mid-year in 2022 and 2026, so trips are priced by date. Reseller Books and Seller Books now do."
 ---
 
 A reseller's marketplace reports carry sales, fees, postage and ads. They do
@@ -104,3 +104,51 @@ for each one. A file it cannot place is refused with the column names it
 expected, never guessed at. Seller Books is in early access and not yet open
 for sign-up.
 
+
+## Update, 2026-11-26: the hosted books price every trip by its date too
+
+The free page above priced trips by date from the start. The hosted Seller
+Books did not: its Schedule C page asked for one rate and multiplied the
+year's miles by it, and left line 9 blank until you typed something in. An
+independent quality audit of the app the same day singled that out as the
+one mileage gap a preparer would hit, and the product's own marketing page
+already promised the per-date rate. Now the app does what the page says:
+
+- **Each trip takes the IRS business rate in force on the day it was
+  driven.** The table runs from 2019 and was read directly from
+  [irs.gov's standard mileage rates page](https://www.irs.gov/tax-professionals/standard-mileage-rates)
+  on 2026-11-26, which lists both mid-year changes:
+
+  | Trips dated | Business rate | IRS release |
+  |---|---|---|
+  | 2022-01-01 to 2022-06-30 | 58.5¢ | IR-2021-251 |
+  | 2022-07-01 to 2022-12-31 | 62.5¢ | IR-2022-124 |
+  | 2023 | 65.5¢ | IR-2022-234 |
+  | 2024 | 67¢ | IR-2023-239 |
+  | 2025 | 70¢ | IR-2024-312 |
+  | 2026-01-01 to 2026-06-30 | 72.5¢ | IR-2025-128 |
+  | 2026-07-01 to 2026-12-31 | 76¢ | IR-2026-29 |
+
+  The 2026 figures match the ones in the table above; the IRS page names
+  its news releases rather than the notice and announcement.
+- **Line 9 shows its working.** Its note reads, for example, "25 mi at
+  72.5¢ (IRS 2026-01-01 to 2026-06-30, IR-2025-128); 100 mi at 76¢ (IRS
+  2026-07-01 to 2026-12-31, IR-2026-29)", and the total is rounded once, so
+  25 miles in May and 100 in August come to $94.13, where the year's
+  January rate alone would give $90.63.
+- **The mileage log download agrees to the cent.** Each trip row now carries
+  its rate and amount, and the total row is line 9. The quarterly
+  estimated-tax page reads the same rule, so a period that ends on May 31
+  counts only the spring miles, at the spring rate.
+- **A year the IRS has not priced yet is not guessed.** Here the hosted app
+  differs from the free page: a 2027 trip is left out of line 9, with a
+  warning naming its miles and dates, until the 2027 rate is added or you
+  type a rate in. A blank on a worksheet is easier to catch than a figure
+  that looks finished.
+- **Your own rate still wins.** Type one in and every trip uses it, which is
+  the right choice if your preparer tells you to.
+
+It still assumes you use the standard mileage rate for that car rather than
+actual expenses, which is generally fixed by the choice made in the first
+year the car is used for business. It is your own records arranged by line,
+not tax advice.
