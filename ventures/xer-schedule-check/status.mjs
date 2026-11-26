@@ -10,7 +10,9 @@
 //
 // slips: [{ code, hours }] adds working hours to an activity's remaining
 // duration after statusing (an activity forecast to finish in the period is
-// left in progress with that much remaining): planted progress delay, for
+// left in progress with that much remaining; one not yet due to start stays
+// unstarted with a longer remaining duration, and a milestone's slip is
+// ignored): planted progress delay, for
 // checking a windows analysis against a known answer. It is also the
 // "what if we hold to the plan" baseline for a forecast.
 //
@@ -73,7 +75,12 @@ export function statusAsPlanned(xer, projId, dd, { slips = [], overruns = [], co
     if (!t || !r || r.ef === undefined) continue;
     const es = r.remES ?? r.es, ef = r.ef;
     const slip = slipBy.get(row.task_code) || 0;
-    if (es >= dd && !slip) continue;
+    if (es >= dd) {
+      // not due to start yet: a planted slip lengthens the work but never
+      // starts it early (a milestone has no duration to lengthen)
+      if (slip && t.type !== "TT_Mile" && t.type !== "TT_FinMile") row.remain_drtn_hr_cnt = hrs((num(row.remain_drtn_hr_cnt) ?? 0) * 60 + slip);
+      continue;
+    }
     const start = t.actStart ?? Math.min(es, dd);
     // remaining work before the period, and the part of it done by dd
     const rem = ef > es ? t.cal.workBetween(es, ef) : 0;
