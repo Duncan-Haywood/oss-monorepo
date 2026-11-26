@@ -99,7 +99,8 @@ test("cli --html writes the report", () => {
 
 test("the page offers the HTML report download", () => {
   const page = file("index.html");
-  assert.match(page, /import \{ htmlReport \} from "\.\/html-report\.mjs"/);
+  assert.match(page, /import\("\.\/html-report\.mjs"\)/);
+  assert.match(page, /const \{ htmlReport \} = await htmlReportMod\(\)/);
   assert.match(page, /id="dl-html"/);
   assert.match(page, /record\("html_report_downloaded"\)/);
 });

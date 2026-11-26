@@ -32,8 +32,22 @@ test("the page and worker import modules that exist and never a Node-only one", 
   };
   const html = page("index.html");
   for (const m of html.matchAll(/from "\.\/([a-z0-9-]+\.mjs)"/g)) walk(m[1]);
+  // Modules the page loads on first use, import("./x.mjs"), must exist and run in a browser too.
+  for (const m of html.matchAll(/import\("\.\/([a-z0-9-]+\.mjs)"\)/g)) walk(m[1]);
   walk("worker.mjs");
-  assert.ok(seen.has("ids.mjs") && seen.has("bcf.mjs"));
+  assert.ok(seen.has("ids.mjs") && seen.has("bcf.mjs") && seen.has("spec-doc.mjs") && seen.has("excel2ids.mjs"));
+});
+
+test("a first visit loads only the usage counter and the zip reader; the rest waits for a file or a button", () => {
+  // docs/history/ids-model-check-page-perf-2026-11-25.md: the static imports
+  // were 164 kB gzip (the IDS parser and model readers, which the worker loads
+  // for itself), and nothing used them before a file was chosen.
+  const html = page("index.html");
+  const statics = [...html.matchAll(/^\s*import [^;]*? from "\.\/([a-z0-9-]+\.mjs)";/gm)].map((m) => m[1]).sort();
+  assert.deepEqual(statics, ["usage.mjs", "zip.mjs"]);
+  for (const f of ["report.mjs", "html-report.mjs", "bcf.mjs", "fix.mjs", "bsdd-suggest.mjs", "sheet.mjs", "excel2ids.mjs", "spec-doc.mjs"]) {
+    assert.ok(html.includes(`import("./${f}")`), `${f} loads on first use`);
+  }
 });
 
 test("the in-page FAQ matches the structured data", () => {
