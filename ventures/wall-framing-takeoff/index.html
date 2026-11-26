@@ -614,7 +614,7 @@
     import { panelMaxError, panelOrder, panelOrderText, panelPullText } from "./panels.mjs";
     import { budget, budgetCsv, priceSheet } from "./budget.mjs";
     import { proposal, proposalText, proposalHtml } from "./bidletter.mjs";
-    import { bidPackageHtml } from "./bidpackage.mjs";
+    import { bidPackageHtml, cleanLogo } from "./bidpackage.mjs";
     import { wireBuyButton, checkLicence } from "./licence.mjs";
     import { levelBids } from "./bidlevel.mjs";
     import { budgetDiff } from "./compare.mjs";
@@ -1672,7 +1672,7 @@
       const buy = wireBuyButton($("#buyLink"), { onKey: (k) => { $("#pkgKey").value = k; $("#pkgCheck").click(); }, onStatus: (m) => { if (m) $("#pkgState").textContent = m; } });
       if (buy) { $("#buyRow").hidden = false; }
       let logo = "";
-      $("#pkgLogo").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) { logo = ""; return; } const r = new FileReader(); r.onload = () => { logo = String(r.result); }; r.readAsDataURL(f); });
+      $("#pkgLogo").addEventListener("change", (e) => { const f = e.target.files[0]; if (!f) { logo = ""; return; } const r = new FileReader(); r.onload = () => { logo = cleanLogo(String(r.result)); $("#pkgState").textContent = logo ? "Logo added." : "Logo not used: it must be a PNG, JPEG, WebP or GIF under about 290 KB. The package opens without it."; }; r.readAsDataURL(f); });
       $("#pkgCheck").addEventListener("click", async () => {
         $("#pkgState").textContent = "Checking...";
         const v = await checkLicence($("#pkgKey").value);
