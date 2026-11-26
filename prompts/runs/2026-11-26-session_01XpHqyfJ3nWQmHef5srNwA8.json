@@ -1,0 +1,154 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqyfJ3nWQmHef5srNwA8",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T11:39:20Z",
+  "ended": "2026-11-26T11:54:06Z",
+  "wall_minutes": 15.19,
+  "tokens_in": 13126794,
+  "tokens_out": 50360,
+  "cost_usd": 4.8843,
+  "tool_calls": 103,
+  "task": "Seller Books (bet #5): import expenses from a bank or card statement CSV with merchant-rule category suggestions",
+  "projects": [
+    "seller-books"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/321",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    "private-monorepo CI for PR 321: both seller-books-ci jobs never got a runner (ci_starvation.py exit 0, 2 of 2 starved); verified locally instead",
+    "first merge attempt 405: main moved (PRs 319/320) while checks ran; merged main in and resolved README and ARCHITECTURE conflicts"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets named payapps #5 as 'free and not gated', but its text is 'if customers bill through them', which is waiting on demand in all but name; payapps had 4 live claims, so I took seller-books, which had no ROADMAP and no claims"
+    },
+    {
+      "file": "apps/seller-books/src/worker/services/legal/documents.ts",
+      "issue": "generated from docs/legal/*.md by sync-documents.mjs; the file header could say so, because editing it directly fails documents.test.ts"
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "parallel seller-books PRs 319 (renamed the invite button) and 320 (an e2e spec using the old label) both merged on starved CI, so main's e2e spec 05 was red. Nothing runs the e2e suite against main after a merge"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "bet #1 payapps and #2 jobshop-quote were crowded or demand-gated; seller-books (#5) had an unclaimed wedge gap (expenses were typed in by hand only)",
+      "did": "built the statement import for bet #5 instead of a gated item on #1",
+      "result": "merged as private PR 321 with unit, worker and e2e tests"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "main's invitations e2e spec was broken by two parallel PRs and blocked my full e2e run",
+      "did": "fixed the spec forward inside PR 321 (one label)",
+      "result": "all 9 e2e specs pass locally"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-10-27-why-a-resellers-bank-statement-understates-profit.md (extended: which card charges are expenses)"
+  ],
+  "goal": null,
+  "notes": "Local verification in /home/user/private-monorepo/apps/seller-books after merging main: pnpm typecheck OK; pnpm test:unit 183 passed; pnpm test:worker 74 passed; biome check clean; scripts/e2e-run.sh 9/9 specs passed (05-invitations after the label fix). run_workflow_locally.py seller-books-ci: 11/11 run steps passed, with the 8 uses: steps not run. risk_review.py: nothing blocked; the personal-data check was answered in the PR body and the privacy policy now says statement files are not kept.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "273ba378-8719-5934-b7c2-e8e509139a6a",
+    "transcripts": 1,
+    "first": "2026-11-26T11:39:20Z",
+    "last": "2026-11-26T11:54:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 96,
+        "input": 183,
+        "output": 50360,
+        "thinking": 7813,
+        "cache_read": 12966221,
+        "cache_write_5m": 0,
+        "cache_write_1h": 160390,
+        "api_equivalent_usd": 4.8843,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 96,
+      "input": 183,
+      "output": 50360,
+      "thinking": 7813,
+      "cache_read": 12966221,
+      "cache_write_5m": 0,
+      "cache_write_1h": 160390,
+      "api_equivalent_usd": 4.8843,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 103,
+    "tools": {
+      "Bash": 91,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.19,
+      "active_minutes": 15.19,
+      "model_minutes": 10.16,
+      "tool_minutes": 5.04,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "parser for 3 statement layouts, merchant rules, two routes with dedupe, React review UI, unit/worker/e2e tests, docs: about 1.5 days for a mid-level full-stack dev",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 204.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
