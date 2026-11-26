@@ -16,6 +16,7 @@ import { roundHalfUpToCents } from "./checks.mjs";
 import { parseXmlTree } from "./ubl.mjs";
 import { xmlValueFindings } from "./xmlvalues.mjs";
 import { checkAgainstFa3Schema } from "./fa3-xsd.mjs";
+import { stripXmlNoise } from "./xml-text.mjs";
 
 const TOLERANCE = 0.01;
 const RATES = new Set(["23", "22", "8", "7", "5", "4", "3", "0 KR", "0 WDT", "0 EX", "zw", "oo", "np I", "np II"]);
@@ -301,8 +302,8 @@ function checkKsefTransport(source, text, root, out) {
     out.push(finding("PL-018", `The XML declaration names encoding "${decl[1]}"; KSeF accepts a prolog only if it names UTF-8.`,
       "Write the file as UTF-8 and set encoding=\"UTF-8\" in the declaration, or drop the declaration.", "/"));
   }
-  // Processing instructions other than the XML declaration (comments and CDATA removed first).
-  const bare = text.replace(/<!--[\s\S]*?-->/g, "").replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, "");
+  // Processing instructions other than the XML declaration (comments and CDATA removed first, in one pass).
+  const bare = stripXmlNoise(text, { cdata: true });
   const realPis = [...bare.matchAll(/<\?([A-Za-z_:][\w.:-]*)/g)].filter((m, i) => !(m[1] === "xml" && i === 0 && /^\uFEFF?\s*$/.test(bare.slice(0, m.index))));
   if (realPis.length) {
     const names = [...new Set(realPis.map((m) => m[1]))].join(", ");

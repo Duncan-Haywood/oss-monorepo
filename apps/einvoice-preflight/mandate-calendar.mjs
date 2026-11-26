@@ -17,7 +17,19 @@ const MONTHS = { Jan: 1, Feb: 2, Mar: 3, Apr: 4, May: 5, Jun: 6, Jul: 7, Aug: 8,
 const DATE_RE = /\b(\d{1,2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]* (\d{4})\b/g;
 const HOST = "https://example.invalid/einvoice-preflight/";
 
-const decode = (s) => s.replace(/<[^>]+>/g, "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#39;|&apos;/g, "'").replace(/&quot;/g, '"').trim();
+// Text of a table cell: tags removed (repeated until none is left, so `<<b>i>` cannot rebuild
+// one), then the entities decoded in one pass, so `&amp;lt;` reads as the text `&lt;`.
+const ENTITIES = { amp: "&", lt: "<", gt: ">", "#39": "'", apos: "'", quot: '"' };
+const stripTags = (s) => {
+  let out = s;
+  let prev;
+  do {
+    prev = out;
+    out = out.replace(/<[^>]*>/g, "");
+  } while (out !== prev);
+  return out;
+};
+const decode = (s) => stripTags(s).replace(/&(amp|lt|gt|#39|apos|quot);/g, (m, e) => ENTITIES[e]).trim();
 
 // Split at semicolons and sentence ends outside brackets. A clause that holds
 // several dates is split again at commas and " and ", so each date keeps only

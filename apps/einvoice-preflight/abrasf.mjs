@@ -35,6 +35,7 @@ import { rioCodeProblem, RIO } from "./rio-service-codes.mjs";
 import { parseCfdiXml } from "./cfdi-xml.mjs";
 import { UF_CODE } from "./nfe.mjs";
 import { GAPS, CHECK_DIGIT_EXCEPTIONS, COUNT } from "./ibge-municipios-data.mjs";
+import { stripXmlNoise } from "./xml-text.mjs";
 
 export { ABRASF_NS, SOURCE };
 const SCHEMA_RULES = new Set(["ABR-002", "ABR-003", "ABR-004", "ABR-005", "ABR-006"]);
@@ -314,7 +315,7 @@ function checkCityCode(root, n, parent, p, out, notes) {
 /** Check an ABRASF NFS-e file. Returns {findings, skipped, meta}. */
 export function checkAbrasf(text) {
   const findings = [], skipped = [];
-  const body = String(text).replace(/<!\[CDATA\[[\s\S]*?\]\]>|<!--[\s\S]*?-->/g, "");
+  const body = stripXmlNoise(text, { cdata: true });
   const amp = /&(?!(?:amp|lt|gt|quot|apos|#\d+|#x[0-9a-fA-F]+);)/.exec(body);
   if (amp) {
     const line = body.slice(0, amp.index).split("\n").length;

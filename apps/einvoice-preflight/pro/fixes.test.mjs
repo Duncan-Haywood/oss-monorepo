@@ -120,7 +120,9 @@ test("peppol-process: missing ProfileID gets the single valid billing process (U
   const xml = mutate(
     "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0",
     "urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0",
-  ).replace('<cbc:EndpointID schemeID="0088">4098765000003</cbc:EndpointID>', '<cbc:EndpointID schemeID="0088">4098765000003</cbc:EndpointID>');
+  );
+  // Peppol also wants the buyer's electronic address: the fixture has one, so ProfileID is all that is missing.
+  assert.ok(xml.includes('<cbc:EndpointID schemeID="0088">4098765000003</cbc:EndpointID>'));
   const r = await assertFixed("p.xml", xml, "peppol-process", { profile: "peppol" });
   assert.ok(r.fixes.content.includes(`<cbc:ProfileID>${PEPPOL_BILLING_PROCESS}</cbc:ProfileID>`));
 });

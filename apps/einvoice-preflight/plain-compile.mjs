@@ -211,7 +211,7 @@ function xqueryFunction(fn) {
   // functions declare `$custom:eas-codes` and the like: rename them to `$custom_eas-codes`
   // inside that function (they are local; nothing outside can name them).
   const prefixed = new Set([...decl.matchAll(/\blet \$([\w.-]+:[\w.-]+)/g)].map((m) => m[1]));
-  for (const v of prefixed) decl = decl.replace(new RegExp(`\\$${v.replace(/[.-]/g, "\\$&")}(?![\\w.-])`, "g"), `$${v.replace(":", "_")}`);
+  for (const v of prefixed) decl = decl.replace(new RegExp(`\\$${v.replace(/[.*+?^${}()|[\]\\-]/g, "\\$&")}(?![\\w.-])`, "g"), () => `$${v.replace(":", "_")}`);
   return decl;
 }
 

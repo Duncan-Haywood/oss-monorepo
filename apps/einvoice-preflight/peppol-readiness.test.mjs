@@ -118,3 +118,9 @@ test("the CLI reports a folder and exits 1 when a file is newly rejected", { ski
   assert.match(out, /1 of 2 Peppol files pass 3\.0\.22 today/);
   assert.match(readFileSync(join(dir, "r.csv"), "utf8"), /b\.xml,newly-rejected,PEPPOL-COMMON-R040,fatal/);
 });
+
+test("the Markdown rule table escapes backslashes before pipes, so a cell cannot break its row", () => {
+  const md = toMarkdown({ release: "3.1.0", current: "3.0.22", mandatory: "2027-02-24", files: 1, peppol: 1, counts: { "newly-rejected": 1 }, rows: [],
+    rules: [{ rule: "R1", severity: "fatal", files: ["a.xml"], advice: "Use a\\|b or C:\\" }] });
+  assert.ok(md.includes("| R1 | fatal | 1 | Use a\\\\\\|b or C:\\\\ |"), md);
+});

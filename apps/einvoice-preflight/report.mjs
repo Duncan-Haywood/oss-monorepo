@@ -274,7 +274,7 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
         const key = /<(?:[A-Za-z0-9_]+:)?chNFe>\s*([0-9A-Z]{44})\s*</.exec(peek)?.[1];
         const pair = key && inputs.find((o) => o !== input && typeof o.source === "string" && looksLikeNfe(o.source) && o.source.includes(`NFe${key}`));
         const aut = /<(?:[A-Za-z0-9_]+:)?tpEventoAut>\s*(\d{6})\s*</.exec(peek)?.[1];
-        const cancelled = aut && key && inputs.find((o) => o !== input && typeof o.source === "string" && looksLikeNfeEvent(o.source) && o.source.includes(key) && new RegExp(`<(?:[A-Za-z0-9_]+:)?tpEvento>\\s*${aut}\\s*<`).test(o.source));
+        const cancelled = aut && key && inputs.find((o) => o !== input && typeof o.source === "string" && looksLikeNfeEvent(o.source) && o.source.includes(key) && [...o.source.matchAll(/<(?:[A-Za-z0-9_]+:)?tpEvento>\s*(\d{6})\s*</g)].some((t) => t[1] === aut));
         const ev = checkNfeEvent(peek, { ...(pair ? { nfe: pair.source } : {}), ...(cancelled ? { cancelled: cancelled.source } : {}) });
         const m = ev.meta;
         const kind = m.types?.length > 1 ? `batch of ${m.events} reform events (${m.types.join(", ")})` : m.tpEvento === "211110" || !m.name ? "presumed-credit appropriation event (211110)" : `event ${m.tpEvento} ("${m.name}")`;

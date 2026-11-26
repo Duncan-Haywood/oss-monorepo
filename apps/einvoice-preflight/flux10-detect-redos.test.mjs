@@ -10,8 +10,12 @@ import test from "node:test";
 import { detectSyntax } from "./schematron-core.mjs";
 import { looksLikeFlux10 } from "./flux10.mjs";
 
-// The PR #17149 pattern, kept only as the reference for the comparison below.
-const OLD = /^(?:\uFEFF)?\s*(?:<\?[\s\S]*?\?>\s*|<!--[\s\S]*?-->\s*)*<Report\b[^>]*>\s*(?:<!--[\s\S]*?-->\s*)*<ReportDocument\b/;
+// The PR #17149 pattern, kept only as the reference for the comparison below. It is the slow
+// one on purpose (it backtracks exponentially on many leading comments), so it is a fixture
+// string compiled here, run only on the generator's short prologs (at most 4 items), and never
+// shipped; the product's own sniffers are the linear rewrite.
+const VULNERABLE_PR17149_SOURCE = String.raw`^(?:\uFEFF)?\s*(?:<\?[\s\S]*?\?>\s*|<!--[\s\S]*?-->\s*)*<Report\b[^>]*>\s*(?:<!--[\s\S]*?-->\s*)*<ReportDocument\b`;
+const OLD = new RegExp(VULNERABLE_PR17149_SOURCE);
 
 test("flux10 sniffing: 200 leading comments or PIs before another root answer at once", () => {
   for (const item of ["<!-- note -->\n", "<?pi data?>", "<!--a-->", "<?a?>"]) {

@@ -40,6 +40,7 @@ import { checkBrazilId } from "./brazil.mjs";
 import { parseCfdiXml } from "./cfdi-xml.mjs";
 import { checkClassTrib } from "./cclasstrib.mjs";
 import { checkCredPres } from "./ccredpres.mjs";
+import { declaresNamespace } from "./xml-text.mjs";
 
 export const NFE_NS = "http://www.portalfiscal.inf.br/nfe";
 
@@ -49,7 +50,7 @@ function finding(rule, message, fix, path) {
 
 export function looksLikeNfe(text) {
   const head = String(text).slice(0, 4096);
-  return /<(?:[A-Za-z0-9_]+:)?(?:NFe|nfeProc)[\s>]/.test(head) && head.includes(NFE_NS);
+  return /<(?:[A-Za-z0-9_]+:)?(?:NFe|nfeProc)[\s>]/.test(head) && declaresNamespace(head, NFE_NS);
 }
 
 // ---------- schema layer ----------
