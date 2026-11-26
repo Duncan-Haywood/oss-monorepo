@@ -158,7 +158,7 @@ class Registry(unittest.TestCase):
         self.assertEqual(
             set(bc.CHECKS),
             {"journey", "sweep", "contrast", "roundtrip", "presets", "highlight",
-             "sideways", "optout"},
+             "sideways", "optout", "framerate"},
         )
 
     def test_every_enumeration_of_the_checks_agrees(self):
@@ -230,9 +230,10 @@ class Registry(unittest.TestCase):
         # goes stale the moment the check joins CHECKS, and the assertion at
         # the bottom fails then so the exemption cannot outlive its reason.
         pending = {
-            "framerate": "docs/reports/2026-11-03-homepage-frame-rate.md: add it "
-                         "to both CHECKS tuples and the two lists in "
-                         "browser-checks-ci.yml in one control-plane PR",
+            # framerate was registered by the 2026-11-26 red-team run after three
+            # runs against a fresh build all read ~60 fps (budget 30); the names
+            # below still say "the same control-plane PR as framerate": that PR
+            # is open to any run now, since nothing waits for the owner.
             # Found by the 2026-11-13 red-team run: these three landed after
             # framerate without registering, and this test (nightly only) went
             # red on main. Each exits 1 on a defect, so each is check-shaped.

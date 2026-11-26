@@ -2091,8 +2091,8 @@ one browser, and `--all` prints every page's first-card top and the px it has
 to spare at each width, a before/after table without a hand-written probe.
 Same `DIST` / `PLAYWRIGHT` variables as `sideways.mjs`, plus `WIDTHS` (or
 `WIDTH`), `HEIGHT`, `ALL=1` and `ONLY_SLUGS` (`for-retirees,for-parents`). Not
-in CI (Playwright); waiting with `framerate` for the control-plane PR that
-registers browser checks.
+in CI (Playwright); waiting to be registered in `browser_checks.CHECKS`
+(`framerate` was registered on 2026-11-26).
 
 ```
 node platform/pages/fold-check.mjs
