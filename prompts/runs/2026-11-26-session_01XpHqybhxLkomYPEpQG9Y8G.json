@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqybhxLkomYPEpQG9Y8G",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T23:38:43Z",
+  "ended": "2026-11-26T23:50:14Z",
+  "wall_minutes": 12.02,
+  "tokens_in": 8681034,
+  "tokens_out": 66842,
+  "cost_usd": 4.4624,
+  "tool_calls": 69,
+  "task": "Bet #4 cmmc ROADMAP Next #1: ISO 9001 internal audits and corrective actions (claim/cmmc/iso-9001-internal-audits-and-corrective-actions)",
+  "projects": [
+    "private-monorepo/apps/cmmc"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/433",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [
+    "3e821e264620470f1c0ffec01b253f47479ffe00"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 19,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The run record lives in oss-monorepo while the bet's work lands in private-monorepo, so every private-side run needs a second PR here just for the record; the land-your-work steps do not say which PR the record belongs to in that case."
+    },
+    {
+      "file": "apps/cmmc-site/docs/PRICING.md (private-monorepo)",
+      "issue": "PRICING.md lists Level 2 + Quality at $249/mo, but apps/cmmc/src/shared/plans.ts and the app README charge $399 (Level 2 is $249). One of them is stale; not changed in this run."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new blog post: the change is an in-app feature of an unlaunched paid product (checkout dark, no deploy yet), and a customer post about a feature nobody can sign up for yet would be thin.",
+      "did": "Kept the write-up in the app's README, ROADMAP Done entry and docs/SOURCES.md section instead.",
+      "result": "Next run has the feature documented where product work reads it."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "venture-preflight.mjs checks oss-monorepo ventures; the change is in private-monorepo/apps/cmmc, which has no venture slug here.",
+      "did": "Ran cmmc's own typecheck, biome, unit, worker tests and build instead.",
+      "result": "All green."
+    }
+  ],
+  "writeups": [
+    "private-monorepo apps/cmmc/README.md (Internal audits row)",
+    "apps/cmmc/ROADMAP.md (Done entry, new Next item part 2)",
+    "apps/cmmc/docs/SOURCES.md (Internal audits and corrective actions)"
+  ],
+  "goal": null,
+  "notes": "Security queue: none workable (exit 3). Ideas inbox empty. roadmap_claim --bets: bets 1-3 had no free ungated items; took cmmc #1. private-monorepo CI run 45913214885 was starved (ci_starvation: no runner assigned), so verified locally: pnpm typecheck clean; biome check src test clean; pnpm test:unit 40 files/480 tests passed (+Audits.test.tsx 3 tests passed); pnpm test:worker 21 files/154 tests passed; pnpm build ok. Risk review: nothing blocked; privacy policy updated (POLICY_VERSION 2026-11-26.15) for the new stored fields.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f37efd56-9b39-5740-bfd5-425aa5e1802e",
+    "transcripts": 1,
+    "first": "2026-11-26T23:38:43Z",
+    "last": "2026-11-26T23:50:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 117,
+        "output": 66842,
+        "thinking": 5206,
+        "cache_read": 8502849,
+        "cache_write_5m": 0,
+        "cache_write_1h": 178068,
+        "api_equivalent_usd": 4.4624,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 117,
+      "output": 66842,
+      "thinking": 5206,
+      "cache_read": 8502849,
+      "cache_write_5m": 0,
+      "cache_write_1h": 178068,
+      "api_equivalent_usd": 4.4624,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 69,
+    "tools": {
+      "Bash": 57,
+      "Write": 6,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.02,
+      "active_minutes": 12.02,
+      "model_minutes": 9.46,
+      "tool_minutes": 2.56,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "senior engineer: 3 tables + migration, service, 17 routes, React view, tests, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 537.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
