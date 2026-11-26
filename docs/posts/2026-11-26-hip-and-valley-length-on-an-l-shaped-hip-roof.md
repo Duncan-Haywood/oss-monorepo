@@ -3,7 +3,7 @@ title: "How long are the hips and valleys on an L-shaped hip roof?"
 date: 2026-11-26
 updated: 2026-11-26
 tags: [wall-framing-takeoff, for-customers, construction]
-description: Hip, valley and ridge lengths for an L-shaped hip roof, and its sheathing courses by hand, with hip cut-offs reused at valleys and end joints on rafters.
+description: Hip, valley and ridge lengths for an L-shaped hip roof, and its sheathing by hand, with hip cut-offs reused at valleys and at the next course's hip.
 ---
 
 If you order hip and ridge cap, valley flashing or hip rafters off a plan, you need three numbers: the ridge length, the hip length along the slope and the valley length along the slope. On a rectangle there are textbook formulas. On an L, a T or a stepped plan, most people sketch the roof by hand. This post works one L-shaped house through by hand, gives the multipliers so you can check your own, and says what the framing takeoff we are building now does with any square-cornered outline.
@@ -119,6 +119,27 @@ A joint with no rafter under it needs something to nail both panel ends to. The 
 By hand, on the 30 × 30 ft stair-step at 6 in 12 with 2x8 rafters 16 in on centre: the 6 joints behind a valley triangle each fall in a 16 in bay, so each block is 16 − 1-1/2 = **14-1/2 in**. Four of those joints are on 48 in eave courses and two are on the 32-1/2 in course above, so the order gains **4 nailers of 48 in, 2 of 32-1/2 in and 12 blocks of 14-1/2 in**, all 2x8, cut from the same boards as the rafters. They show up in the board order and in the supplier material list as "sheathing nailer" and "sheathing block". Across the 80 random outlines, every joint with no rafter under it got exactly one nailer and two blocks.
 
 The takeoff does not size or check this blocking. Check it against the nailing schedule for your roof sheathing.
+
+## Reusing the hip cut-offs a second time: turn them end for end (added 2026-11-26)
+
+The valley corners use only some of the hip triangles. A plain hip roof has no valleys at all, so every triangle there went in the scrap pile. That pile is about one sheet in six.
+
+There is a second place a hip triangle fits. Take the triangle cut off the right-hand hip end of one course and turn it end for end on the roof, keeping the printed face up. Its square corner is now at the bottom, and its long cut edge is now parallel to the hip. That is exactly the corner the next course needs where it meets the hip. Put the triangle there, and the sheet beside it only has to reach the course's *top* length, not its bottom length. On a 6 in 12 roof that sheet is 42-15/16 in shorter, and it leaves no triangle of its own. Left-hand hips work the same way. The panel's long edge still runs along the eave, across the rafters, so its strength direction does not change.
+
+Because a hip end that takes a triangle gives up its own, the takeoff fills valley corners first. Then it starts hip ends that are too short to give a triangle anyway, and then every other hip end up each hip. It keeps the result only when the sheet count goes down; otherwise it lays the roof as before. By hand, on a 40 × 28 ft hip roof at 6 in 12 (42 × 30 ft at the eaves): the second course on the long side starts with the first course's left-hand triangle at the hip, 42-15/16 in from the eave corner. Its first sheet starts 85-7/8 in along. The third course is cut to its bottom length again and gives its own triangle to the fourth.
+
+| Roof (12 in overhang) | Pitch | Before | With turned cut-offs |
+| --- | --- | --- | --- |
+| 40 × 28 ft hip roof | 6 in 12 | 53 sheets (16.9% offcut) | **47** (6.3%) |
+| 30 × 30 ft stair-step | 6 in 12 | 34 (25.6%) | **30** (15.7%) |
+| 30 × 30 ft stair-step | 12 in 12 | 44 | **39** |
+| The L above | 4 / 6 / 8 / 12 in 12 | 57 / 65 / 66 / 78 | **55 / 59 / 61 / 74** |
+
+Over 200 random stepped outlines the total fell from 7,631 to 7,003 sheets, 8.2% fewer. None of them came out higher.
+
+The cost is one more end joint per turned triangle, where triangle meets sheet, and it usually falls between rafters. With the roof framed at 16 in on centre, the 40 × 28 ft roof goes from 54 sheets with no joint to block to **48 sheets with 13 joints to block**. The takeoff now lists a nailer and two blocks for each of those joints in the lumber order. Across 80 random framed outlines it was 8.4% fewer sheets. Six sheets of plywood cost more than 13 short nailers and 26 blocks cut from rafter scrap, but the trade is yours to make. The engine can lay the roof without turned triangles, though that switch is not on the page yet.
+
+How it was checked: on 120 random outlines, every sampled point of the roof is still under a piece of its own course. A turned triangle is tested as the shape it really is, widest at the bottom of the course, unlike a valley triangle, which is widest at the top. The turned triangles never outnumber the hip ends that gave one. With turned triangles switched off, a rectangle still matches the takeoff's plain hip roof piece for piece. Triangles from a full course are not yet trimmed down for the narrow top course, and the count is still an upper bound, because leftover triangles and length offcuts are still not reused.
 
 ## Where to use it
 
