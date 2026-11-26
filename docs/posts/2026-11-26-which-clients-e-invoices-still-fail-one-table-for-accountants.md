@@ -70,6 +70,24 @@ doesn't use up the plan's monthly invoice allowance, and it holds no more
 client data than the history already did. Through the API it is
 `GET /v1/dashboard?days=30`, or `&format=csv&lang=de` for the spreadsheet.
 
+## Invoices converted from a PDF count too
+
+Many clients don't have an e-invoice to upload yet. They have a PDF from Word
+or Excel. The workspace's "PDF to e-invoice" screen reads that PDF, has you
+confirm each value it read, and builds a Factur-X / ZUGFeRD, XRechnung or UBL
+file that has been through the same checks. The download stays locked until
+the marked values are confirmed and the e-invoice's totals match the PDF's.
+
+Once the download unlocks, the screen offers **Save to history** for one of
+your clients. The server saves its own build and check result as a run in that
+client's history. It never takes a result the browser sends. The history
+marks the file "converted from a PDF", and the table above counts it like any
+uploaded invoice. What is kept is the same as for an upload: the file name, a
+checksum of the file and of its XML, the format, and the rule ids. The PDF
+itself is never stored. Saving costs nothing extra. The invoice was already
+counted against the plan when it was built, and a rebuilt Factur-X PDF that
+differs only in its timestamp is recognised by its XML checksum.
+
 ## What it does not do yet
 
 - It does not group failures by the invoice's seller. The history keeps no
