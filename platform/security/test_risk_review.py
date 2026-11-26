@@ -221,6 +221,43 @@ class StaleBaseTests(unittest.TestCase):
         self.assertIsNone(rr.stale_base_warning("main", "HEAD", self.mb("main"), 1))
 
 
+class NonUtf8DiffTests(unittest.TestCase):
+    """P089: a diff with Latin-1 or binary bytes still gets a review."""
+
+    def setUp(self):
+        import os, subprocess, tempfile
+        self.tmp = tempfile.TemporaryDirectory()
+        self.cwd = os.getcwd()
+        os.chdir(self.tmp.name)
+        os.environ.update({"GIT_AUTHOR_NAME": "t", "GIT_AUTHOR_EMAIL": "t@example.invalid",
+                           "GIT_COMMITTER_NAME": "t", "GIT_COMMITTER_EMAIL": "t@example.invalid"})
+
+        def g(*a):
+            subprocess.run(["git", *a], check=True, capture_output=True)
+        g("init", "-q", "-b", "main")
+        Path("a").write_text("a")
+        g("add", "a")
+        g("commit", "-qm", "a")
+        g("checkout", "-qb", "work")
+        Path("latin1.txt").write_bytes("caf\xe9 se\xf1or\nKEY=AKIA".encode("latin-1") + b"ABCDEFGHIJKLMNOP\n")
+        Path("blob.bin").write_bytes(bytes(range(256)))
+        g("add", ".")
+        g("commit", "-qm", "fixtures")
+
+    def tearDown(self):
+        import os
+        os.chdir(self.cwd)
+        self.tmp.cleanup()
+
+    def test_review_runs_and_still_finds_the_secret(self):
+        import contextlib, io
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            code = rr.main(["--base", "main", "--no-fetch", "--strict"])
+        self.assertEqual(code, 1)  # --strict: the secret in the Latin-1 file was seen
+        self.assertTrue(out.getvalue().strip())
+
+
 class ShallowCloneTests(unittest.TestCase):
     """origin/main and HEAD share no commit in a shallow clone until deepened."""
 
