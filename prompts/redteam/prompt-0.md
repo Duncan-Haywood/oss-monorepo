@@ -116,10 +116,11 @@ It re-applies every escaped mutant and sets `caught_after_fix`. Each `gap`
 should now read `true`. If one reads `false`, the new test does not catch it
 yet.
 
-`rerun` finds each mutated line by its text, so run it after adding the test
-and before any refactor that moves or rewrites those lines (extracting
-helpers, say). A line it reports as `line changed` is triaged by hand: re-apply
-the mutant to the new code and say so in `note`.
+`rerun` finds each mutated line by its text, and follows one that a fix only
+re-indented or moved (a try block, a helper), so run it before any refactor
+that rewrites those lines. A line it reports as `line changed` is triaged by
+hand: re-apply the mutant to the new code, set `caught_after_fix` from what
+the suite did, and say so in `note`.
 
 Fix what you find even when it reaches past the target: a sweep across many
 files, a sibling with the same bug, or a test that was red before you came

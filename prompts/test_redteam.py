@@ -215,6 +215,36 @@ class CampaignTest(unittest.TestCase):
         self.assertTrue(all("red without the mutant" in m["note"] for m in escaped))
         self.assertEqual(self.target.read_text(), CALC)
 
+    def test_rerun_follows_a_reindented_line(self):
+        # doc_friction 2026-11-25/26: a fix that wrapped the mutated line in a
+        # block re-indented it, and rerun said "line changed; triage by hand".
+        camp = redteam.campaign(self.target, 10, seed=1, repo=self.repo)
+        record = self.repo / "run.json"
+        record.write_text(json.dumps({"redteam": None}))
+        redteam.add_to_record(record, camp)
+        with (self.venture / "calc.test.mjs").open("a") as fh:
+            fh.write(HIGH_TEST)
+        line = "export const isLarge = (n) => n > 100;"
+
+        def escaped_after(source):
+            self.target.write_text(source)
+            rec = redteam.rerun(record, repo=self.repo)
+            self.assertEqual(self.target.read_text(), source)
+            return [m for m in rec["redteam"]["campaigns"][0]["mutants"] if not m["caught"]]
+
+        # Same text, new indentation, one line further down: found and run there.
+        escaped = escaped_after(CALC.replace(line, "// moved\n    " + line))
+        self.assertEqual([m["caught_after_fix"] for m in escaped], [True, True])
+        self.assertTrue(all(m["note"] == "[rerun: re-indented line found at 6]" for m in escaped))
+        # Rewritten text: still left for hand triage.
+        escaped = escaped_after(CALC.replace(line, "  " + line.replace("n > 100", "n>100")))
+        self.assertEqual([m["caught_after_fix"] for m in escaped], [None, None])
+        self.assertTrue(all(m["note"] == "[rerun: line changed; triage by hand]" for m in escaped))
+        # Two re-indented copies: ambiguous, so not guessed.
+        escaped = escaped_after(CALC.replace(line, "  " + line + "\nconst copy = `\n    " + line + "\n`;"))
+        self.assertEqual([m["caught_after_fix"] for m in escaped], [None, None])
+        self.assertTrue(all("2 lines match it ignoring indentation" in m["note"] for m in escaped), [m["note"] for m in escaped])
+
     def test_rerun_tags_do_not_pile_up(self):
         # doc_friction 2026-11-26: two reruns on a red suite doubled every escaped
         # mutant's note; a rerun that then runs the mutant drops the stale tag.
