@@ -85,6 +85,16 @@ logs to find the one holding up a crew. An RFI with no response date is never ca
 the date you entered is the only test. Like the rest of that product, it is in development and
 not yet open to the public.
 
+An RFI is usually about a drawing, and the answer often comes back as a drawing too: a
+marked-up sheet goes out, and a sketch or an architect's supplemental instruction (ASI) comes
+back. Keep both with the RFI and not in an email thread. In that log, each RFI keeps its own
+files: the marked-up sheet or detail, photos of the condition, and the response when it
+arrives. The RFI form lists the files sent with it by name, so the GC can tell whether they all
+came through, and one download puts the RFI, an index and those files in a single PDF to
+attach. The response is left out of that PDF, because it is the GC's document, not part of your
+question. When the answer turns into a change order, the question, the sheet it was about and
+the answer are all filed in one place.
+
 ## Time you give away: a submittal that comes back late
 
 Some of what a sub gives away for free is time, not work. Shop drawings, product data and
