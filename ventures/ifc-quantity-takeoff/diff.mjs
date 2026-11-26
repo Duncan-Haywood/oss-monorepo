@@ -232,10 +232,11 @@ export function diffTakeoffs(rowsA, rowsB, opts = {}) {
 
   // 1. GlobalId. A GlobalId must be unique in a file, but some are not (in
   //    HHS construction2.ifc a column was given a slab's); when one repeats,
-  //    the same class is preferred, and the repeats are counted
+  //    the same class is preferred, and the repeats are counted (an unset
+  //    GlobalId, `$`, is no GlobalId, so it is not a repeat)
   const byGid = new Map();
   for (const b of B) if (b.globalId) { if (!byGid.has(b.globalId)) byGid.set(b.globalId, []); byGid.get(b.globalId).push(b); }
-  const dupCount = (rows) => { const seen = new Set(), dup = new Set(); for (const r of rows) { if (seen.has(r.globalId)) dup.add(r.globalId); seen.add(r.globalId); } return dup.size; };
+  const dupCount = (rows) => { const seen = new Set(), dup = new Set(); for (const r of rows) { if (!r.globalId) continue; if (seen.has(r.globalId)) dup.add(r.globalId); seen.add(r.globalId); } return dup.size; };
   for (const a of A) {
     const cands = (a.globalId && byGid.get(a.globalId) || []).filter((b) => freeB.has(b));
     const b = cands.find((c) => c.ifcClass === a.ifcClass) ?? (cands.length === 1 ? cands[0] : null);
