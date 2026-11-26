@@ -195,7 +195,16 @@ date, so the renewal can go out with the application. When a policy
 renews, the old certificate is archived and no longer flagged. The
 optional weekly "money to chase" email lists every certificate that has
 expired or will expire within 30 days, so a company with no pay
-application due that week still hears about it. The build
+application due that week still hears about it. A renewal has to reach
+every GC that holds the old certificate (the "certificate holder" box on
+the form), and on a sub with a dozen jobs that list lives in someone's
+head. So each certificate can now record which jobs' GCs hold it, with
+the date it was sent. The insurance page then says "Send the renewal to
+Peak GC and Sierra Builders", naming each GC once even when it holds the
+certificate on several jobs. A new certificate is offered the same jobs
+as the archived one it replaces, the weekly email names the GCs on each
+renewal line, and a draft pay application names any certificate not
+recorded as sent to that job's GC. The build
 reads only the dates typed in. It does not check coverage, limits or
 what a subcontract requires. (Added 2026-11-26; still in development.)
 
