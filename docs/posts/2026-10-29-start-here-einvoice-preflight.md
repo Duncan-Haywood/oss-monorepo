@@ -115,6 +115,46 @@ If your team wants a shared endpoint, there is an API you run yourself
 by your own `EINVOICE_API_KEY`. See
 [the self-hosting post](2026-10-29-start-here-self-hosting.md).
 
+## The paid edition, in development: fix and explain
+
+*Added 2026-11-26.* The checker above stays free. Its output is a rule ID and one sentence
+of English, and for many people that is where the work starts. So a paid edition is being
+built for German and French businesses and their accountants before the issuing deadlines
+(Germany: prior-year turnover above €800,000 from 1 January 2027, everyone from 1 January
+2028; France: SMEs from 1 September 2027; dates from the
+[four-country post](2026-11-24-e-invoicing-deadlines-four-countries-official-sources.md),
+which links each government page). On 2026-11-26 its code landed in the owner's private
+repository: the product and a German, French and English site. **It is not for sale yet**,
+the checkout is switched off, and nothing below is a measured result with customers.
+
+What it adds on top of the free checks:
+
+- **Each failed rule explained in German, French or English.** All 92 rule IDs the free
+  checker can raise have a written explanation in each language, and a test fails if one
+  is missing. A rarer official rule with no written text gets a short explanation from a
+  language model (Claude Haiku 5.5, the cheapest model that does the job). That text is
+  labelled as model-written, and it is thrown away if it adds a number the finding does not
+  contain or says the invoice is valid. Pass or fail is never decided by the model.
+- **A corrected file for mechanical mistakes only, with a diff.** The fixes are a date written
+  as `24.08.2026` instead of `2026-08-24`, an amount with three decimals, a lower-case
+  currency code, a currency code missing when only one is possible, and the Peppol process
+  ID when only one value is valid. A fix is kept only if the corrected file passes that rule
+  again and raises no new finding. A date like `03/04/2026` is ambiguous and is left alone.
+  So is any arithmetic error, a wrong identifier or missing business data: those need a
+  person.
+- **A workspace for an accounting practice:** clients, batch upload, and a history per
+  client that keeps file hashes and rule IDs, never the invoice itself.
+- **A metered API** for small invoicing vendors, with keys stored only as hashes.
+
+Still to do before anyone can pay:
+- hosting, a database and the checkout
+- a web page for the workspace
+- a review of the German and French wording by native speakers
+- the owner's decision on the licences of the official rule files it would serve
+
+If that is the tool you are missing, the
+[early-access page](https://marisstella.app/industries/eu-e-invoicing/) takes your email.
+
 ## What it does not do
 
 - It is not tax, legal or accounting advice, and it is not a certified
