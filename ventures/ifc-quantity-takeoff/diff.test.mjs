@@ -360,3 +360,24 @@ test("rooms: added, given a property, resized, and matched under a new GlobalId"
   // a model's rooms against themselves: nothing
   assert.equal(diffRooms(after.rooms, after.rooms).summary.changed, 0);
 });
+
+test("red team 2026-11-26: class change under one GlobalId, the group tolerance is inclusive, a removed room property, unset GlobalIds", () => {
+  // the one element under a GlobalId pairs even when its class changed (IfcWall -> IfcWallStandardCase)
+  const cls = diffTakeoffs([row({ g: "W1", cls: "IfcWall", v: 1 })], [row({ g: "W1", cls: "IfcWallStandardCase", v: 1 })]);
+  assert.equal(cls.summary.byGlobalId, 1);
+  assert.deepEqual(cls.changed[0].attributes.class, { before: "IfcWall", after: "IfcWallStandardCase" });
+  // two later elements of other classes under that GlobalId: no guess
+  const two = diffTakeoffs([row({ g: "W1", cls: "IfcWall", v: 1 })], [row({ g: "W1", cls: "IfcSlab", v: 1 }), row({ g: "W1", cls: "IfcColumn", v: 1 })]);
+  assert.equal(two.summary.byGlobalId, 0);
+  // parts summing exactly groupTol away from the host still merge (0.5 + 0.5 against 0.75: 0.25 of 1)
+  const parts = [row({ g: "P1", v: 0.5, box: [0, 0, 0, 1, 1, 0.5] }), row({ g: "P2", v: 0.5, box: [0, 0, 0.5, 1, 1, 1] })];
+  const host = row({ g: "H", v: 0.75, box: [0, 0, 0, 1, 1, 1] });
+  assert.equal(diffTakeoffs(parts, [host], { groupTol: 0.25 }).summary.merged, 1);
+  assert.equal(diffTakeoffs(parts, [host], { groupTol: 0.24 }).summary.merged, 0);
+  // a room property removed reads as removed, not as a change to (empty)
+  const rc = { attributes: {}, quantities: {}, properties: { "Brief.Use": { before: "Print", after: null, kind: "removed" }, "Brief.Finish": { before: "A", after: "B", kind: "changed" } } };
+  assert.equal(roomChangeText(rc, { short: true }), "Use removed (was Print); Finish: A -> B");
+  // elements with an unset GlobalId ($) are not a repeated GlobalId
+  const unset = [row({ g: null, v: 1, box: [0, 0, 0, 1, 1, 1] }), row({ g: null, v: 2, box: [5, 0, 0, 6, 1, 1] }), row({ g: "G3", v: 1 })];
+  assert.deepEqual(diffTakeoffs(unset, unset).summary.duplicateGlobalIds, { before: 0, after: 0 });
+});
