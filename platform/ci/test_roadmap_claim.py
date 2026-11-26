@@ -216,8 +216,11 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertIn("packets-heic (", out)
         self.assertNotIn("packets-heic-convert", out)
         _, listing = self.main(self.b)
-        self.assertIn("MERGED packets-heic-convert", listing)
-        self.assertNotIn("MERGED packets-heic (", listing)
+        self.assertIn("Merged claims (1; --all for notes): packets-heic-convert", listing)
+        self.assertNotIn("MERGED packets-heic", listing)
+        _, full = self.main(self.b, "--all")
+        self.assertIn("MERGED packets-heic-convert", full)
+        self.assertNotIn("MERGED packets-heic (", full)
         # Claiming a merged slug again says it is done.
         code, out = self.main(self.b, "--claim", "2", "--slug", "packets heic convert")
         self.assertEqual(code, 4, out)
@@ -234,6 +237,27 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertEqual(self.main(self.a, "--claim", "1")[0], 0)
         _, listing = self.main(self.b)
         self.assertNotIn("MERGED", listing)
+
+    def test_lost_push_race_names_the_rival_claim(self):
+        self.assertEqual(self.main(self.a, "--claim", "2", "--note", "HEIC only")[0], 0)
+        # b listed the remote before a's push landed: it sees no claim, then its push is refused.
+        with mock.patch.object(rc, "parse_claims", return_value={}):
+            code, out = self.main(self.b, "--claim", "2")
+        self.assertEqual(code, 4, out)
+        self.assertIn("TAKEN: another run pushed refs/heads/claim/payapps/backup-packets-part-2", out)
+        self.assertIn("HEIC only", out)
+        self.assertNotIn("push failed", out)
+
+    def test_failed_push_with_no_rival_says_push_failed(self):
+        def refuse(*_a, **_k):
+            rc.LAST_PUSH_ERR = "fatal: the remote end hung up unexpectedly"
+            return False
+        with mock.patch.object(rc, "push_claim", refuse):
+            code, out = self.main(self.a, "--claim", "2")
+        self.assertEqual(code, 2, out)
+        self.assertIn("PUSH FAILED", out)
+        self.assertIn("hung up unexpectedly", out)
+        self.assertNotIn("TAKEN", out)
 
     def test_rerun_of_own_claim_says_yours_not_taken(self):
         self.assertEqual(self.main(self.a, "--claim", "1")[0], 0)

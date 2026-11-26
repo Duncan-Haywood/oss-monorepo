@@ -22,7 +22,9 @@ that made it has ended. A claim whose slug a later commit subject on origin/main
 your own claim prints YOURS (exit 0), not TAKEN. An app with no ROADMAP.md takes --slug claims. A free item whose text says it waits ("if people ask", "once ... reachable", "owner step")
 is listed as gated, and the listing ends with the free, ungated item numbers. A --slug whose
 words match a fresh rival claim's (pages-shop-time-zone vs page-dates-shop-time-zone) is
-refused as NEAR (exit 4) unless --distinct. Exit codes: 0 ok, 2 usage or git error, 4 the item is already
+refused as NEAR (exit 4) unless --distinct. Merged and stale claims not under an item are
+summed up in one line each (--all lists them with notes). A refused claim push says TAKEN
+(a rival holds the branch, exit 4) or PUSH FAILED (no one does; retry, exit 2). Exit codes: 0 ok, 2 usage or git error, 4 the item is already
 claimed (pick another).
 """
 from __future__ import annotations
@@ -213,7 +215,34 @@ def push_claim(repo: str, ref: str, message: str, base: str | None = None) -> bo
     if made.returncode != 0:
         return False
     r = git(repo, "push", "-q", f"--force-with-lease={ref}:", "origin", f"{made.stdout.strip()}:{ref}")
+    global LAST_PUSH_ERR
+    LAST_PUSH_ERR = r.stderr.strip()
     return r.returncode == 0
+
+
+LAST_PUSH_ERR = ""
+
+
+def lost_or_failed(repo: str, app: str, slug: str, ref: str, tag: str | None, now: float) -> int:
+    """After a refused claim push, say whether a rival holds the ref or the push itself failed.
+
+    Three run records (2026-11-26) got "TAKEN ... (or the push failed)" and had to ls-remote
+    and read the claim commit by hand to tell a lost race from a proxy disconnect.
+    """
+    ls = git(repo, "ls-remote", "origin", ref)
+    sha = ls.stdout.split()[0] if ls.returncode == 0 and ls.stdout.strip() else ""
+    if not sha:
+        err = LAST_PUSH_ERR.splitlines()[-1] if LAST_PUSH_ERR else "no error text"
+        print(f"PUSH FAILED: {ref} does not exist on origin, so no run holds it; the push itself "
+              f"failed ({err[:200]}). Retry the same command.")
+        return 2
+    ts, msg = claim_info(repo, app, {slug: (0, sha)}).get(slug, (0, ""))
+    if is_mine(msg, tag):
+        print(f"YOURS: {slug} was claimed by this session {age(ts, now)}; nothing to do.")
+        return 0
+    print(f"TAKEN: another run pushed {ref} {age(ts, now)}: {RUN.sub('', msg).rstrip()}\n"
+          f"Pick another item.")
+    return 4
 
 
 def sibling_claims(app: str, num: int | None, slug: str, info: dict[str, tuple[int, str]],
@@ -369,6 +398,8 @@ def main(argv: list[str] | None = None) -> int:
                     help="claim although a fresh claim's slug reads as the same work (NEAR)")
     ap.add_argument("--release", metavar="SLUG", help="delete your own claim on SLUG")
     ap.add_argument("--stale-hours", type=float, default=6.0)
+    ap.add_argument("--all", action="store_true",
+                    help="list merged and stale claims one per line, with their notes")
     ap.add_argument("--bets", action="store_true",
                     help="list every ranked bet's app with its free, ungated items and live claims")
     ap.add_argument("--bets-md", type=Path, default=BETS_MD, help=argparse.SUPPRESS)
@@ -443,8 +474,7 @@ def main(argv: list[str] | None = None) -> int:
             msg += f" {{run {tag}}}"
         ref = ref_name(a.app, slug, gen)
         if not push_claim(a.repo, ref, msg):
-            print(f"TAKEN: another run pushed {ref} first (or the push failed). Pick another item.")
-            return 4
+            return lost_or_failed(a.repo, a.app, slug, ref, tag, now)
         print(f"CLAIMED {ref.removeprefix('refs/heads/')}. Name the slug in your PR title; "
               f"`--release {slug}` if you drop it.")
         why = gate(by_num.get(a.claim, "")) if a.claim is not None else None
@@ -482,13 +512,23 @@ def main(argv: list[str] | None = None) -> int:
               "Free and not gated: none. Take the next bet, or open a new item from the bet's "
               "growth path (portfolio/monetization/bets.md) with --slug <short-name> --note ...")
     others = sorted(set(claims) - seen)
-    if others:
+    # Merged and stale claims are history, one line each kind: payapps listed ~40 of them before
+    # anything live, and two runs (2026-11-26) grep -v'd them away. --all lists them in full.
+    done = [s for s in others if s in merged]
+    stale = [s for s in others if s not in merged and info.get(s, (0, ""))[0]
+             and now - info[s][0] >= stale_s]
+    live = [s for s in others if s not in done and s not in stale]
+    if live or (a.all and others):
         print("Other claims on this app (parts of items, or items already done):")
-        for slug in others:
+        for slug in (others if a.all else live):
             ts, msg = info.get(slug, (0, ""))
-            stale = "MERGED " if slug in merged else ("STALE " if ts and now - ts >= stale_s else "")
+            kind = "MERGED " if slug in done else ("STALE " if slug in stale else "")
             mine = " (yours)" if is_mine(msg, tag) else ""
-            print(f"  - {stale}{slug}{mine} ({age(ts, now)}): {RUN.sub('', msg)[:110].rstrip()}")
+            print(f"  - {kind}{slug}{mine} ({age(ts, now)}): {RUN.sub('', msg)[:110].rstrip()}")
+    if not a.all:
+        for label, group in (("Merged", done), ("Stale", stale)):
+            if group:
+                print(f"{label} claims ({len(group)}; --all for notes): {', '.join(group)}")
     return 0
 
 
