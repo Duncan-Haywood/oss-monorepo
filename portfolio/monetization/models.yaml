@@ -891,25 +891,36 @@ products:
     first_offer: multi-platform import with a Schedule C-mapped P&L export
     price_hypothesis: "about $10 to $20 a month (bets.md wedge price; untested)"
     tiers:
-      - name: Hobby
-        price: $12 a month
-        includes: 2 platforms, cost of goods, P&L
+      # Replaced 2026-11-26 with the tiers built in apps/seller-books/src/shared/plans.ts, which
+      # follow the marketing site's proposal (seller-books-site docs/PRICING.md: price on orders
+      # a month, the value and cost driver). The earlier Hobby $12 / Pro $24 / Business $49 rows
+      # were superseded by that proposal on 2026-11-24.
+      - name: Free
+        price: $0
+        includes: 1 platform, 1 user, up to 25 orders a month (hard cap)
         status: proposal
         why: >-
-          Between Seller Ledger's $10 and $20 plans; a hobby seller's books need
-          little, and the cost per user is near zero.
-      - name: Pro
-        price: $24 a month
-        includes: every supported platform, mileage log, Schedule C export, accountant CSV
+          A seller sees their own profit before paying; the cap is low enough
+          that it is not a Side hustle substitute.
+      - name: Side hustle
+        price: $15 a month or $150 a year
+        includes: 2 platforms, about 100 orders a month (never blocking), cost of goods, Schedule C worksheet
         status: proposal
         why: >-
-          Under A2X's $29 for a single channel, for all channels at once.
+          Inside the $10 to $20 wedge (Seller Ledger $10 / $20); Paddle's $0.50
+          fixed fee is the largest cost, so the annual plan matters.
+      - name: Full time
+        price: $35 a month or $350 a year
+        includes: all 6 platforms, about 600 orders a month
+        status: proposal
+        why: >-
+          Multi-platform is the pain; A2X charges $29 a month per channel.
       - name: Business
-        price: $49 a month
-        includes: high volume, 3 users, inventory by location
+        price: $69 a month or $690 a year
+        includes: all 6 platforms, about 2,500 orders a month, 4 users
         status: proposal
         why: >-
-          At Seller Ledger's $50 top plan, inside Link My Books' $21 to $136 range.
+          Within Link My Books' $21 to $136 range, for sellers with a helper or bookkeeper.
     cost_drivers:
       - storage of imported CSVs and the ledger (small per user)
       - upkeep when a marketplace changes its export format (agent time)
@@ -929,11 +940,13 @@ products:
         price: about $21 to $136 a month
         source: https://www.capterra.com/p/184768/Link-My-Books/pricing/
         read: 2026-11-24
-    stage: planned
+    stage: built-dark
     next: >-
-      Milestone (1) of the seller-books flagship row: import ventures/reseller-books'
-      engines into private-monorepo/apps/seller-books and add accounts with saved,
-      deduplicated imports.
+      Paid plans, limits and Paddle checkout are built and dark (private PR 202,
+      2026-11-26; apps/seller-books/docs/BILLING.md): Free (1 platform, 25
+      orders a month) plus the site's Side hustle $15, Full time $35 and
+      Business $69 tiers. Before a sale: legal pages and a seller-books-deploy
+      workflow with the Paddle catalog sync, then the owner's Paddle secrets.
     next_owner: false
 
   - app: private-monorepo/apps/wall-framing-takeoff

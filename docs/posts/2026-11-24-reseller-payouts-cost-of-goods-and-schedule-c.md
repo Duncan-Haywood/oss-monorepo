@@ -115,6 +115,45 @@ federal threshold is back at more than $20,000 and more than 200
 transactions. Income is reportable either way, and that is reason enough to
 keep the books.
 
+## How Seller Books' plans would work (added 2026-11-26)
+
+Seller Books, the hosted version, now has its plans built in, switched off. Nothing is on sale and
+no card is taken. The plans are there so that when early access opens, the limits a seller meets are
+the ones described here and not a surprise. Prices are still a proposal.
+
+| Plan | Price | Platforms | Users | Orders a month |
+|---|---|---|---|---|
+| Free | $0 | 1 | 1 | up to 25 |
+| Side hustle | $15 a month or $150 a year | 2 | 1 | about 100 |
+| Full time | $35 a month or $350 a year | all 6 | 1 | about 600 |
+| Business | $69 a month or $690 a year | all 6 | 4 | about 2,500 |
+
+Three rules decide what a plan does, and we chose them with tax season in mind:
+
+- **A busy month never locks a paid plan.** The order numbers are a guide. If December brings 140
+  orders on Side hustle, the import still goes through. The billing page shows your busiest month of
+  the last twelve and names the plan that fits, and you decide whether to move.
+- **The free plan has a real cap, and it refuses a file whole.** If a report would take a month past
+  25 orders, nothing from it is imported, and the message names the month. You never get half a
+  report and a P&L that quietly misses sales.
+- **Nothing you imported is ever hidden.** If a subscription lapses, sales, the P&L, the inventory
+  list, the mileage log, the Schedule C worksheet and every CSV export keep working. Only new
+  platforms past the free limit and new users wait. Your own books stay yours at filing time.
+
+Platforms are counted by where you import from: once you import one eBay report, eBay is one of
+your platforms. Delete every import from a platform and it frees up again.
+
+### A bug that would have failed almost every real file
+
+Writing the tests for these limits turned up an older fault. The app saved sales eight rows at a
+time. Each sale row carries 20 values, and the database it runs on (Cloudflare D1) accepts at most 100
+values in one statement, so any report with five or more new sales failed outright. The sample files
+the importers were tested with had four sales or fewer, so nothing caught it. A real year of eBay
+or Mercari exports has hundreds. Rows are now saved in batches sized from each table's column count,
+and a test imports a 300-order report. It is the same lesson as
+[an earlier post](2026-11-14-the-sample-file-works-the-real-export-crashes.md): test with a file the
+size of a real export.
+
 ## What comes next
 
 Each of the ten tool pages now ends with a short "track true profit across
