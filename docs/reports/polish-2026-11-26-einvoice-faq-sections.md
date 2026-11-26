@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [seo, aeo]
+topics: [seo]
 date: 2026-11-26
 ---
 # Polish 2026-11-26: the last two einvoice-preflight FAQs join llms.txt Answers
