@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqycCnw4ggECACn6xSz5",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T23:39:04Z",
+  "ended": "2026-11-26T23:44:35Z",
+  "wall_minutes": 5.72,
+  "tokens_in": 3887929,
+  "tokens_out": 20429,
+  "cost_usd": 1.9745,
+  "tool_calls": 42,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19521",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets named cmmc #1 as free, but `roadmap_claim.py cmmc` a moment later showed it claimed 0 min ago by another run; every bet #1-4 Next item was then claimed or gated on demand, so the 'start here' line sent me to work that was gone."
+    },
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "Flagged 'Email sending or outreach changed' on a Grants.gov data snapshot JSON that holds no email addresses (grep @/email/mailto = 0); likely a keyword in opportunity titles. False positive on data files."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Default is to land a product slice in private-monorepo for the top bet; all Next items on bets 1-4 were claimed or gated on demand, and bets 5 and 7 already cover their growth paths.",
+      "did": "Took the public side of live bet #7 (Grant Autopilot), which had no for-customers post: a reproducible Grants.gov snapshot script, the committed data and an SEO customer guide.",
+      "result": "Merged as one PR; numbers reproduce from the committed snapshot."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-federal-grants-a-small-nonprofit-can-apply-for.md",
+    "docs/data/grants-gov-nonprofits/README.md"
+  ],
+  "goal": null,
+  "notes": "Local: doc-refs-ci 3/3 run steps passed (2 uses: steps not run); writing-style.test.mjs 3/3 pass; risk_review: nothing blocked. Snapshot: 471 posted opps open to 501(c)(3) at 2026-11-26T23:42Z, 400 research, 71 program, 7 ceilings <=$100k. No agent doc: the data README carries what a rerun needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "98555098-eeb4-565f-80c4-0e8b4c43d04a",
+    "transcripts": 1,
+    "first": "2026-11-26T23:39:04Z",
+    "last": "2026-11-26T23:44:47Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 80,
+        "output": 20429,
+        "thinking": 4699,
+        "cache_read": 3786820,
+        "cache_write_5m": 0,
+        "cache_write_1h": 101029,
+        "api_equivalent_usd": 1.9745,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 80,
+      "output": 20429,
+      "thinking": 4699,
+      "cache_read": 3786820,
+      "cache_write_5m": 0,
+      "cache_write_1h": 101029,
+      "api_equivalent_usd": 1.9745,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 38,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.72,
+      "active_minutes": 5.72,
+      "model_minutes": 3.81,
+      "tool_minutes": 1.91,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "an analyst pulling 471 Grants.gov records, classifying them and writing a sourced guide",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 253.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

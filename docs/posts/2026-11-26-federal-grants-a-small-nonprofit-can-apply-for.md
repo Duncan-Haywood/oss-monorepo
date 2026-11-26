@@ -3,7 +3,7 @@ title: "Federal grants a small nonprofit can apply for: 471 on Grants.gov, about
 seo_title: "Federal grants for small nonprofits: what's open on Grants.gov now"
 date: 2026-11-26
 tags: [grant-autopilot, for-customers, grants, nonprofits, grants-gov, federal-grants]
-description: "We read every opportunity posted on Grants.gov that a 501(c)(3) can apply for. 400 of 471 were research funding; of the other 71, the median award ceiling was $1M and 7 capped awards at $100,000 or less."
+description: "Of 471 Grants.gov opportunities open to a 501(c)(3) on 26 Nov 2026, 400 were research. Of the other 71, just 7 capped awards at $100,000 or less."
 ---
 
 If you run a small nonprofit and type "federal grants for nonprofits" into
