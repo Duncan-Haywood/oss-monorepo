@@ -195,6 +195,26 @@ class T(unittest.TestCase):
         self.assertEqual(calls, [0])  # the test clone is not shallow
 
 
+    def test_search_answer_skips_the_deepen(self):
+        # PR titles cover the window, so a shallow clone fetches only the tip (no ~30 s deepen);
+        # when the search fails, the deepen runs as before.
+        import contextlib, io
+        orig = (slug_dupe.fetch_ref.fetch_ref, slug_dupe.fetch_ref.is_shallow, slug_dupe.repo_of, slug_dupe.search_prs)
+        for answer, want in [(([], []), [0]), (None, [0, 14])]:
+            calls = []
+            slug_dupe.fetch_ref.fetch_ref = lambda ref, remote, days, cwd, out, timeout=None: calls.append(days) or 0
+            slug_dupe.fetch_ref.is_shallow = lambda cwd: True
+            slug_dupe.repo_of = lambda remote="origin": "o/r"
+            slug_dupe.search_prs = lambda slug, days, repo, a=answer: a
+            try:
+                with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+                    self.assertEqual(slug_dupe.main(["nope-zzz"]), 0)
+            finally:
+                (slug_dupe.fetch_ref.fetch_ref, slug_dupe.fetch_ref.is_shallow,
+                 slug_dupe.repo_of, slug_dupe.search_prs) = orig
+            self.assertEqual(calls, want, answer)
+
+
 class Search(unittest.TestCase):
     """search_prs: GitHub search covers the --days window whatever the clone's depth."""
 
