@@ -1,3 +1,11 @@
+---
+kind: brief
+date: 2026-11-26
+subjects: [reseller-books]
+title: Seller Books legal pages shipped, and the code facts the privacy policy rests on
+description: Handover for private PR 203 (bet #5 paid-launch step 1), listing what to re-check when the code changes.
+---
+
 # Seller Books: legal pages shipped (private PR 203, bet #5)
 
 Date: 2026-11-26. Explore run.
