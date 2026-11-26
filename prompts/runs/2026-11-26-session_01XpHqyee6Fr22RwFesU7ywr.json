@@ -30,10 +30,15 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "Edited tracked files in private-monorepo while run_workflow_locally.py was still running, which voids that run; started it again from the start after the commit."
+    "Edited tracked files in private-monorepo while run_workflow_locally.py was still running, which voids that run; started it again from the start after the commit.",
+    "Did not check main for parallel work on the same files before building. PR 349 landed the same feature during the run."
   ],
   "integrity_issues": [],
   "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Item #12 was listed as 'free' with no warning, although another run's claim (submittals-part-3-register-import) on the same item was in flight under a different part slug. Both runs built a spec-section import and the same POST /import endpoint; mine (PR 348) conflicted on merge and had to be reworked into PR 351. Claims on parts of one item should show each other, or the item should be marked claimed."
+    },
     {
       "file": "platform/ci/roadmap_claim.py",
       "issue": "The payapps item 'Submittals, part 3' names a register 'imported from the spec book', but neither the ROADMAP nor the claim output says that oss-monorepo ventures/submittal-register already has a measured engine for it. I found it only after building a second reader. A pointer on the ROADMAP item would have let me import the engine instead."
@@ -49,6 +54,12 @@
       "why": "The work went to private-monorepo (bet #1, payapps), so the oss PR carries the customer post, the agent note and this record, not the product code.",
       "did": "Opened private PR 348 for the feature and oss PR 19381 for the post and record.",
       "result": "Both PRs opened; merge status is in notes."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "PR 348 conflicted with PR 349, which had merged, and duplicated its UI and endpoint. The rule is to merge main and resolve, not close, but resolving would have left two import panels.",
+      "did": "Closed PR 348 and opened PR 351, which keeps 349's design and adapts my measured reader into its spec path.",
+      "result": "PR 351: 349's tests pass unchanged and UFGS and 400-page support are added; merge status in notes."
     }
   ],
   "writeups": [
@@ -56,7 +67,7 @@
     "docs/reports/2026-11-26-payapps-spec-register.md"
   ],
   "goal": null,
-  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/348 (claim submittals-part-3-spec-register). Verification: spec-submittals unit tests 21/21; worker submittals tests 9/9; payapps pnpm test:unit passed (990 passed, 1 skipped); typecheck, build and biome clean; payapps-site unit tests 21/21. On PR 348, CI jobs ended red in about 2 s (no runner); payapps-ci was run locally with run_workflow_locally.py. Eval: 2019 UFGS package, 54 trade sections: 865/869 recall, 0 extra. Real PDFs: UFGS 09 29 00 from wbdg.org (25 items) and Massillon City Schools 092900 (2 items). The page was not driven in a browser (no e2e exists for submittals).",
+  "notes": "Private PR 348 was closed as superseded by https://github.com/Duncan-Haywood/private-monorepo/pull/351 (claim submittals-part-3-spec-register), after PR 349 from a parallel run merged the same import. Verification: spec-submittals unit tests 21/21; worker submittals tests 9/9; payapps pnpm test:unit passed (990 passed, 1 skipped); typecheck, build and biome clean; payapps-site unit tests 21/21. On PR 348, CI jobs ended red in about 2 s (no runner); payapps-ci was run locally with run_workflow_locally.py. Eval: 2019 UFGS package, 54 trade sections: 865/869 recall, 0 extra. Real PDFs: UFGS 09 29 00 from wbdg.org (25 items) and Massillon City Schools 092900 (2 items). The page was not driven in a browser (no e2e exists for submittals).",
   "corrections": [],
   "redteam": null,
   "usage": {

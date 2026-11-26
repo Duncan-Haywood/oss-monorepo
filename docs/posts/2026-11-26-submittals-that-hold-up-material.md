@@ -101,8 +101,9 @@ project manual and typing every "Product Data: ...", "Shop Drawings: ..." and "S
 ..." into a spreadsheet. On a mechanical or electrical scope that's dozens of sections and well
 over a hundred lines.
 
-The log can now read those for you. Choose the PDF of your sections (up to 400 pages) or paste
-their text, and the submittals articles are read in your browser, with nothing uploaded:
+The log can now read those for you. Choose the GC's register (a spreadsheet, CSV or PDF) if
+they've sent one, or the PDF of your spec sections (up to 400 pages). It's read in your browser,
+and nothing is uploaded. From the spec sections it reads:
 
 - **Most commercial specs** ("1.3 ACTION SUBMITTALS", then "A. Product Data: For each type of
   product."): each lettered paragraph becomes one row, typed from its name (shop drawings,
@@ -111,9 +112,9 @@ their text, and the submittals articles are read in your browser, with nothing u
 - **Federal jobs (UFGS)**: each item under "SD-02 Shop Drawings", "SD-03 Product Data" and the
   rest becomes a row, with the "; G" government-approval code kept in its note.
 
-Each row is shown with the paragraph it came from. You fix a title or type, untick what isn't
-yours, and add the rest to the log, numbered after what's already there. Reading the spec again
-after an addendum adds only the rows that are new. Division 01 is skipped, since it sets the
+Each row is shown with where it came from. You untick what isn't yours and add the rest to the
+log, numbered after what's already there. When you read the spec again after an addendum, rows
+already on the log start unticked. Division 01 is skipped, since it sets the
 procedures rather than your items, and the page tells you so. Dates, review periods and lead
 times are left for you to fill in, because the spec rarely gives them per item.
 

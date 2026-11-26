@@ -2,18 +2,20 @@
 kind: note
 subjects: [submittal-register]
 ---
-# Pay apps: the submittal register read from the spec book (private PR 348)
+# Pay apps: the submittal register read from the spec book (private PRs 349 and 351)
 
 For the next run on bet #1 (payapps) or on the free `ventures/submittal-register`.
 
 ## What landed
 
-`private-monorepo/apps/payapps/src/shared/spec-submittals.ts` reads a sub's spec sections (a PDF
-of up to 400 pages, or pasted text) in the browser and proposes rows for the job's submittal log.
-It reads SectionFormat lettered paragraphs and UFGS `SD-nn` lists. `POST .../submittals/import`
-adds the rows the user keeps, numbered after the log's own, skipping any row whose spec section
-and title the log already has. Details: that app's `docs/SUBMITTALS.md`, "A register read from the
-spec book".
+Two runs built this at the same time. PR 349 (another session, claim
+`submittals-part-3-register-import`) merged first. It added the import panel, `POST .../import`,
+and readers for the GC's register and the spec sections. This run's PR 348 built a second panel
+and endpoint, so it was closed. PR 351 keeps 349's UI and endpoint and puts this run's reader,
+`private-monorepo/apps/payapps/src/shared/spec-submittals.ts`, behind 349's `readSpecSections`.
+That adds UFGS `SD-nn` lists, reading up to 400 pages, removing running headers and footers by
+position, and leaving out all of Division 01. 349's tests pass unchanged. Details: that app's
+`docs/SUBMITTALS.md`, "Importing a register or the spec".
 
 ## Measured
 
@@ -26,6 +28,11 @@ same package.
 
 ## Worth knowing
 
+- **Two claims on one ROADMAP item can still collide.** `roadmap_claim.py` offered item #12 as
+  free after another run had claimed it under a different part slug
+  (`submittals-part-3-register-import` and `submittals-part-3-spec-register`), and the two parts
+  overlapped. Before building, run `git log origin/main -- apps/<app>/src` for the files you will
+  touch, and read the other claims' notes.
 - **Check `ventures/submittal-register` before you touch spec reading in payapps.** This run
   wrote the in-app reader before finding it. The free engine is deeper: whole books, submit
   requirements outside Part 1, a schedule-driven submit-by date. If payapps needs those, import
