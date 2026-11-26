@@ -19,6 +19,7 @@
 import schema from "./ubl-xsd-data.mjs";
 import { wellFormed } from "./fatturapa-xsd.mjs";
 import { makeSchemaChecker } from "./xsd-check.mjs";
+import { stripXmlNoise } from "./xml-text.mjs";
 
 const finding = (rule, message, fix, path) => ({ rule, message, fix, path });
 const NS = schema.namespaces;
@@ -140,7 +141,7 @@ function namespaceAndAttributeFindings(top, type, path) {
 
 /** The UBL root of a document: Invoice or CreditNote, or null when the file is something else. */
 export function ublRoot(text) {
-  const m = /<(?:[\w.-]+:)?(Invoice|CreditNote)[\s>/]/.exec(text.replace(/<!--[\s\S]*?-->|<\?[\s\S]*?\?>/g, ""));
+  const m = /<(?:[\w.-]+:)?(Invoice|CreditNote)[\s>/]/.exec(stripXmlNoise(text, { pi: true }));
   if (!m) return null;
   const top = namespacedTree(text).children[0];
   if (!top || !Object.hasOwn(ROOT_NS, top.name)) return null;

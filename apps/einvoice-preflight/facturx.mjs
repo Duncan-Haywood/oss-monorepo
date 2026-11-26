@@ -6,6 +6,7 @@
 // FlateDecode attachments (zlib-wrapped or raw) are inflated in the
 // browser with DecompressionStream. Other filters tell the user to drop
 // the XML or run the CLI.
+import { stripXmlNoise } from "./xml-text.mjs";
 
 const PREFERRED_NAMES = ["factur-x.xml", "zugferd-invoice.xml", "xrechnung.xml"];
 const LATIN1 = new TextDecoder("latin1");
@@ -258,7 +259,7 @@ function preferInvoiceAttachment(attachments) {
 function looksLikeInvoiceXml(data) {
   // Official ZUGFeRD samples open with a licence comment of several KB, which
   // pushes the root element past any fixed window: drop comments first.
-  const head = LATIN1.decode(data.subarray(0, 262144)).replace(/<!--[\s\S]*?-->/g, "").slice(0, 4096);
+  const head = stripXmlNoise(LATIN1.decode(data.subarray(0, 262144))).slice(0, 4096);
   return (
     head.includes("urn:oasis:names:specification:ubl:schema:xsd:Invoice-2")
     || head.includes("urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2")

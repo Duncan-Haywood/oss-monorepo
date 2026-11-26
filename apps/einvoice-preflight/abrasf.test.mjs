@@ -5,6 +5,7 @@ import { checkAbrasf, looksLikeAbrasf, municipioProblem, ibgeCheckDigit } from "
 import { CHECK_DIGIT_EXCEPTIONS, COUNT } from "./ibge-municipios-data.mjs";
 import { rootsOf, VERSIONS, cityProvider, providerSameAs, providerMulti, multiFor, CITY_COUNT } from "./abrasf-xsd.mjs";
 import { preflightDocuments } from "./report.mjs";
+import { stripXmlNoise } from "./xml-text.mjs";
 
 const rps = readFileSync(new URL("./fixtures/abrasf-gerar-nfse-204.xml", import.meta.url), "utf8");
 const nfse = readFileSync(new URL("./fixtures/abrasf-compnfse-204.xml", import.meta.url), "utf8");
@@ -109,7 +110,7 @@ test("1.00 files (fraction rates, InfRps) skip the schema and still check values
 });
 
 test("an RPS escaped inside a SOAP parameter is found and checked", () => {
-  const inner = rps.replace(/<\?xml[^>]*\?>/, "").replace(/<!--[\s\S]*?-->/, "");
+  const inner = stripXmlNoise(rps.replace(/<\?xml[^>]*\?>/, ""));
   const esc = inner.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   const soap = `<?xml version="1.0"?><soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"><soap:Body><GerarNfse xmlns="http://nfse.abrasf.org.br"><nfseDadosMsg>${esc}</nfseDadosMsg></GerarNfse></soap:Body></soap:Envelope>`;
   assert.ok(looksLikeAbrasf(soap));

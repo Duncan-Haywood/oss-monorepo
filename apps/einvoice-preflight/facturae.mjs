@@ -57,8 +57,11 @@ function rootNamespace(source) {
   const open = /<([A-Za-z0-9_]+:)?Facturae[\s>][^>]*/.exec(source);
   if (!open) return "";
   const prefix = open[1] ? open[1].slice(0, -1) : "";
-  const re = prefix ? new RegExp(`xmlns:${prefix}\\s*=\\s*["']([^"']*)["']`) : /xmlns\s*=\s*["']([^"']*)["']/;
-  return (re.exec(open[0]) || [])[1] ?? "";
+  // Read the tag's namespace declarations and pick the prefix's own (no pattern built from the file).
+  for (const m of open[0].matchAll(/\sxmlns(?::([A-Za-z0-9_.-]+))?\s*=\s*["']([^"']*)["']/g)) {
+    if ((m[1] ?? "") === prefix) return m[2];
+  }
+  return "";
 }
 
 // Spanish NIF/NIE/CIF check: the same code the party VAT check uses (vat.mjs).

@@ -38,6 +38,7 @@ import { keyCheckDigit } from "./nfe.mjs";
 import { checkClassTrib } from "./cclasstrib.mjs";
 import { issRateProblem, issBurdenProblem, lcSubitem } from "./iss-rate.mjs";
 import { cityRateProblem } from "./iss-city-rates.mjs";
+import { declaresNamespace, stripXmlNoise } from "./xml-text.mjs";
 
 export const NFSE_NS = "http://www.sped.fazenda.gov.br/nfse";
 export { PACKAGE };
@@ -48,7 +49,7 @@ function finding(rule, message, fix, path) {
 
 export function looksLikeNfse(text) {
   const head = String(text).slice(0, 4096);
-  return /<(?:[A-Za-z0-9_]+:)?(?:DPS|NFSe)[\s>]/.test(head) && head.includes(NFSE_NS);
+  return /<(?:[A-Za-z0-9_]+:)?(?:DPS|NFSe)[\s>]/.test(head) && declaresNamespace(head, NFSE_NS);
 }
 
 // ---------- schema layer ----------
@@ -440,7 +441,7 @@ export function checkNfse(text) {
   const findings = [], skipped = [];
   let root;
   // A bare & (not an entity) is not well-formed XML; the reader here would let it pass.
-  const body = String(text).replace(/<!\[CDATA\[[\s\S]*?\]\]>|<!--[\s\S]*?-->/g, "");
+  const body = stripXmlNoise(text, { cdata: true });
   const amp = /&(?!(?:amp|lt|gt|quot|apos|#\d+|#x[0-9a-fA-F]+);)/.exec(body);
   if (amp) {
     const line = body.slice(0, amp.index).split("\n").length;

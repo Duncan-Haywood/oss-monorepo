@@ -24,6 +24,9 @@ import { fileURLToPath } from "node:url";
 import { compileSchematron } from "./plain-compile.mjs";
 import { addEnglish } from "./br-fr-en.mjs";
 
+// The five predefined XML entities, decoded in one pass so `&amp;lt;` reads as the text `&lt;`.
+const XML_ENTITIES = { amp: "&", quot: '"', lt: "<", gt: ">", apos: "'" };
+
 // The Factur-X sets look codes up in a side file (document('FACTUR-X_EXTENDED_codedb.xml')),
 // which fontoxpath cannot open, so those checks were skipped (30 to 40 per invoice). Inline
 // each list as a sequence: `$v = ('380', '381', ...)`. Returns how many lookups were inlined.
@@ -32,7 +35,7 @@ function inlineCodeDb(rules, dir) {
   const dbs = {};
   const list = (file, id) => {
     dbs[file] ??= Object.fromEntries([...readFileSync(join(dir, file), "utf8").matchAll(/<cl id="(\d+)">([\s\S]*?)<\/cl>/g)]
-      .map(([, n, body]) => [n, [...body.matchAll(/value="([^"]*)"/g)].map(([, v]) => v.replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&apos;/g, "'"))]));
+      .map(([, n, body]) => [n, [...body.matchAll(/value="([^"]*)"/g)].map(([, v]) => v.replace(/&(amp|quot|lt|gt|apos);/g, (m, e) => XML_ENTITIES[e]))]));
     const values = dbs[file][id];
     if (!values) throw new Error(`${file}: no code list ${id}`);
     return `(${values.map((v) => `'${v.replace(/'/g, "''")}'`).join(", ")})`;

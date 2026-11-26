@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 
 const page = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+// Every regex metacharacter, backslash included, matched literally.
+const escapeRegExp = (s) => s.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&");
 const sitemap = readFileSync(new URL("./sitemap.xml", import.meta.url), "utf8");
 const robots = readFileSync(new URL("./robots.txt", import.meta.url), "utf8");
 const engineSrc = readFileSync(new URL("./page-engine.mjs", import.meta.url), "utf8");
@@ -78,7 +80,7 @@ test("sitemap does not point at README.md and lists every shipped html page", ()
   assert.doesNotMatch(sitemap, /README\.md/);
   const htmlFiles = readdirSync(new URL("./", import.meta.url)).filter((name) => name.endsWith(".html"));
   for (const name of htmlFiles) {
-    assert.match(sitemap, new RegExp(name.replace(/\./g, "\\.")), `${name} is missing from sitemap.xml`);
+    assert.match(sitemap, new RegExp(escapeRegExp(name)), `${name} is missing from sitemap.xml`);
   }
 });
 

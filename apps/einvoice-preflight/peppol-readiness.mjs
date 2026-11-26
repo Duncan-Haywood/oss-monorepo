@@ -123,13 +123,17 @@ export function toCsv(s) {
   return out.join("\n") + "\n";
 }
 
+// A Markdown table cell: a backslash is escaped first, so a text ending in one cannot turn the
+// escaped pipe after it back into a column break.
+const mdCell = (text) => String(text).replace(/\\/g, "\\\\").replace(/\|/g, "\\|");
+
 export function toMarkdown(s) {
   const lines = [`# Peppol BIS ${s.release} readiness`, "", headline(s), ""];
   lines.push("| Verdict | Files |", "|---|---:|");
   for (const [k, label] of Object.entries(VERDICTS)) if (s.counts[k]) lines.push(`| ${label} | ${s.counts[k]} |`);
   if (s.rules.length) {
     lines.push("", `## What ${s.release} adds, by rule`, "", "| Rule | Severity | Files | What to change |", "|---|---|---:|---|");
-    for (const r of s.rules) lines.push(`| ${r.rule} | ${r.severity} | ${r.files.length} | ${(r.advice || r.fix || r.message).replace(/\|/g, "\\|")} |`);
+    for (const r of s.rules) lines.push(`| ${r.rule} | ${r.severity} | ${r.files.length} | ${mdCell(r.advice || r.fix || r.message)} |`);
   }
   const flagged = s.rows.filter((r) => r.verdict === "newly-rejected");
   if (flagged.length) {
