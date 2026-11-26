@@ -18,7 +18,7 @@
   "cost": 1,
   "opened": "2026-11-26",
   "source": "ventures run 2026-11-26, session_01E5sJKkVkHQqUshVfPHALZ2",
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19168",
   "result": "helped: risk_review.py exits normally on a diff adding Latin-1 and binary files (NonUtf8DiffTests; crashed with UnicodeDecodeError on the old git())",
   "history": [
     {
