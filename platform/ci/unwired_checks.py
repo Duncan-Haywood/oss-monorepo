@@ -66,8 +66,17 @@ ROOT = HERE.parents[1]
 WORKFLOWS = HERE.parents[1] / ".github" / "workflows"
 
 
+def uncommented(text):
+    """A workflow's text without its whole-line YAML comments. A name that
+    appears only in a comment is not wired: until 2026-11-26 the comment
+    "The unwired tree checks (unwired_checks.py, doc_index.py check) run from
+    this workflow" in ventures-tests.yml made `doc_index.py check` (EXTRA) and
+    test_unwired_checks.py count as wired, so neither ran anywhere."""
+    return "\n".join(line for line in text.splitlines() if not line.lstrip().startswith("#"))
+
+
 def workflow_text(workflows=WORKFLOWS):
-    return "\n".join(p.read_text(encoding="utf-8", errors="replace")
+    return "\n".join(uncommented(p.read_text(encoding="utf-8", errors="replace"))
                      for p in sorted(workflows.glob("*.y*ml")))
 
 
@@ -82,8 +91,8 @@ def pr_workflow_text(workflows=WORKFLOWS):
     """The text of the workflows a pull request can trigger. A suite named only
     by a nightly or a dispatch-only workflow is as unseen at merge as one named
     by none (test_browser_checks.py, 2026-11-13)."""
-    return "\n".join(t for t in (p.read_text(encoding="utf-8", errors="replace")
-                                 for p in sorted(workflows.glob("*.y*ml")))
+    return "\n".join(uncommented(t) for t in (p.read_text(encoding="utf-8", errors="replace")
+                                              for p in sorted(workflows.glob("*.y*ml")))
                      if triggers_on_pull_request(t))
 
 
