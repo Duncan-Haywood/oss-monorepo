@@ -14,21 +14,8 @@
 #   subject is the public repository is accepted by any role in the payments
 #   account. The trust policies already say so (stacks/github-oidc, tested);
 #   this keeps it true if a later trust policy is written wrongly.
-#   GitHub writes the subject in two forms: name-only,
-#   repo:<owner>/<name>:<context>, which every trust here expects and
-#   github/configure.sh pins with the repository's OIDC subject template; and
-#   ID-qualified, repo:<owner>@<owner-id>/<name>@<repo-id>:<context>, which
-#   GitHub issued for this repository before the template was set (CloudTrail,
-#   2026-11-26). A deny must match both, and the repository ID matches after a
-#   rename too (docs/reports/2026-11-26-github-oidc-subject-form.md).
 
 locals {
-  public_repo_owner = split("/", var.public_repository)[0]
-  public_repo_name  = split("/", var.public_repository)[1]
-  public_repo_id_subjects = [
-    "repo:${local.public_repo_owner}@*/${local.public_repo_name}@*:*",
-    "repo:*/*@${var.public_repository_id}:*",
-  ]
   rcps = {
     data-perimeter = {
       description = "S3, KMS, Secrets Manager and SQS only for this organization's principals and AWS services"
@@ -62,15 +49,6 @@ locals {
           Resource  = "*"
           Condition = {
             StringLike = { "token.actions.githubusercontent.com:sub" = ["repo:${var.public_repository}:*"] }
-          }
-          }, {
-          Sid       = "DenyPublicRepoWebIdentityIdQualified"
-          Effect    = "Deny"
-          Principal = "*"
-          Action    = "sts:AssumeRoleWithWebIdentity"
-          Resource  = "*"
-          Condition = {
-            StringLike = { "token.actions.githubusercontent.com:sub" = local.public_repo_id_subjects }
           }
         }]
       }

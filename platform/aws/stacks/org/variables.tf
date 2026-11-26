@@ -49,14 +49,3 @@ variable "public_repository" {
   type        = string
   default     = "Duncan-Haywood/oss-monorepo"
 }
-
-variable "public_repository_id" {
-  description = "GitHub's numeric ID of public_repository (the @<id> after the name in an ID-qualified OIDC subject; CloudTrail, 2026-11-26). Not a secret: the REST API returns it for any public repository."
-  type        = string
-  default     = "1315497858"
-
-  validation {
-    condition     = can(regex("^[0-9]+$", var.public_repository_id))
-    error_message = "public_repository_id is GitHub's numeric repository ID."
-  }
-}

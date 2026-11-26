@@ -3,122 +3,84 @@ kind: brief
 topics: [everything-as-code, hosting]
 date: 2026-11-26
 ---
-# GitHub OIDC subject form: keep name-only, pinned by the template
+# GitHub OIDC subject form: trusts move to the ID form; configure.sh checks the prefix
 
 2026-11-26. For whoever next touches an AWS trust, `platform/aws/github/configure.sh`
-or the payments resource control policy.
+or the payments resource control policy. Companion to
+`docs/reports/2026-11-26-github-oidc-immutable-subject.md` (PR #19507, the trust changes).
 
-## What happened
+## Evidence
 
-The first AWS apply (`priv-aws-apply.yml`, run 45905276526, `workflow_dispatch`
-on main) failed at `configure-aws-credentials` with
-`AccessDenied ... AssumeRoleWithWebIdentity`. CloudTrail in the management
-account showed this subject on the `aws-prod` job's token:
+- Apply run 45905276526 was refused (`AccessDenied ... AssumeRoleWithWebIdentity`).
+  CloudTrail showed `sub = repo:Duncan-Haywood@49566815/oss-monorepo@1315497858:environment:aws-prod`,
+  and every trust expected `repo:Duncan-Haywood/oss-monorepo:...`.
+- The owner set the template `{"use_default":false,"include_claim_keys":["repo","context"]}`.
+  GitHub's read-back was `{"use_default":false,"use_immutable_subject":true,
+  "include_claim_keys":["repo","context"],"sub_claim_prefix":"repo:Duncan-Haywood@49566815/oss-monorepo@1315497858"}`.
+  The next apply (run 45906725339) was refused the same way. That read-back and
+  the refusal reached this session from the session that ran the setup. This
+  session confirmed from the API that run 45906725339 exists and failed; it
+  could not read GitHub's documentation, because docs.github.com is blocked here.
 
-    repo:Duncan-Haywood@49566815/oss-monorepo@1315497858:environment:aws-prod
+So the claim keys set only the context. The prefix comes from
+`use_immutable_subject`: while it is true, the template cannot give a
+name-only subject. Whether it can be set to false has not been tested.
 
-Every trust in the tree expects the name-only form
-`repo:Duncan-Haywood/oss-monorepo:environment:aws-prod`:
+## Decision: the ID form
 
-| Where | Subjects |
-|---|---|
-| `platform/aws/bootstrap/bootstrap.yaml` (github-plan, github-apply) | `repo:${GitHubRepository}:pull_request`, `:environment:${ApplyEnvironment}` |
-| `stacks/github-oidc/account-roles` (every per-stack role, both repos) | `repo:<owner>/<repo>:pull_request`, `:environment:aws-prod` |
-| `stacks/github-oidc` (findings reader) | `repo:<owner>/oss-monorepo:ref:refs/heads/main` |
-| `stacks/llm` | `:ref:refs/heads/main`, `:environment:aws-llm` |
-| `stacks/site`, `stacks/app-identity`, `stacks/cutover-access` | `:environment:<env>` |
+This replaces the first draft of this report, which kept name-only subjects
+pinned by the template. That premise was wrong (above).
 
-The ID-qualified token matched none of them, so it was refused. The failure
-was safe (it failed closed). The owner's interim fix, from CloudShell, set the
-repository's OIDC subject template to `{"use_default": false,
-"include_claim_keys": ["repo", "context"]}`. That template yields
-`repo:<owner>/<name>:<context>`.
+- **The trusts accept both forms for now.** PR #19507 changes the bootstrap
+  github-plan/github-apply roles, `stacks/llm`, `stacks/app-identity`,
+  `stacks/cutover-access` and the payments RCP.
+- **The ID form is the stronger one.** `repo:<owner>@<id>/<name>@<id>` does
+  not match a repository that later takes the same name. The name form is
+  open to that if the owner account or a repository is ever renamed or
+  deleted and the name is taken.
+- **It is what GitHub issues.** It is the repository's default, and the only
+  form the setup has seen working since 2026-11-26.
+- **Next step: drop the name form** from the trusts once the first apply has
+  passed with the ID form. Before applying `stacks/github-oidc` and
+  `stacks/site`/`modules/static-site`, they need the same change; they still
+  build name-only subjects. private-monorepo's ID is 1441455568.
 
-## Decision: keep name-only subjects, pin the template as code
+Not chosen: turning `use_immutable_subject` off to keep name-only trusts. It
+is untested, it gives up the stronger form, and it would depend on a GitHub
+setting staying put.
 
-Moving every trust to the ID-qualified form would be the stronger design: an
-ID survives a rename and cannot be squatted. We still keep name-only for now,
-for four reasons.
+## configure.sh
 
-1. **The fix that is known to work.** The template `["repo","context"]` is the
-   long-standing, documented way to get `repo:<owner>/<name>:<context>`. The
-   ID-qualified form we have seen once, in one CloudTrail event. This session
-   could not reach docs.github.com or github.blog (blocked by the network
-   policy), so we cannot confirm how GitHub decides to emit it, whether a
-   template can request it on purpose, or what it looks like for
-   `pull_request` and `ref:` contexts. Writing every trust against a guessed
-   format risks a second lockout, this time with the bootstrap's
-   github-apply role, which only the owner can repair.
-2. **The bootstrap is hand-applied.** The github-plan and github-apply trusts
-   live in `bootstrap.yaml`, which the owner deploys from CloudShell. Any edit
-   there is also a blocking `aws-guardrail-weakened` finding by design. Moving
-   the form would take two owner actions in the right order (re-deploy the
-   bootstrap, change the template) plus a gate exception, against one
-   `configure.sh` run.
-3. **The squatting risk is small here.** To impersonate
-   `repo:Duncan-Haywood/oss-monorepo`, an attacker needs a repository of that
-   name under the `Duncan-Haywood` account. That requires the owner to delete
-   or rename the repository *and* the user name to be released and
-   re-registered. That is a real risk, but a slow one the owner controls. A
-   squatter could create its own `aws-prod` environment, so the environment
-   limits do not help: do not rename or delete either repository, or the
-   owner account, while name-only trusts exist.
-4. **Drift fails closed.** If the template is ever reset, tokens go back to
-   whatever GitHub's default is and the trusts refuse them, as on
-   2026-11-26. Nothing opens up.
+`pin_oidc_sub` runs for oss-monorepo and private-monorepo, on every full run
+and on its own with `--oidc-sub`. It:
 
-## The deny was the real hole
+1. PUTs `{"use_default":false,"include_claim_keys":["repo","context"]}`. The
+   trusts' contexts (`pull_request`, `environment:<env>`,
+   `ref:refs/heads/main`) need exactly these keys. That is also what the
+   repository reads now.
+2. Reads back `use_default`, `include_claim_keys`, `use_immutable_subject` and
+   `sub_claim_prefix`, and prints them.
+3. Fails unless the prefix is `repo:<owner>/<name>` or
+   `repo:<owner>@<owner-id>/<name>@<repo-id>`, with the IDs looked up from the
+   API. Those are the two forms the trusts accept. A reply with no prefix
+   counts as the name form, unless immutable subjects are on; then it fails
+   and points at CloudTrail.
 
-Allow-side trusts fail closed on an unexpected form. Deny-side patterns fail
-open. `stacks/org/rcps.tf`'s `payments-no-public-repo` denied
-`repo:Duncan-Haywood/oss-monorepo:*` only, so an ID-qualified token from the
-public repository did not match it. The payments trusts' exact `StringEquals`
-on `repo:Duncan-Haywood/private-monorepo:...` still refused such a token, but
-the RCP exists for the day a trust is written wrongly. It now carries a
-second Deny statement for:
+`platform/aws/tests/test_oidc_subject.py` runs the script against a stub `gh`:
+the ID form, the name form, a foreign prefix, a wrong ID, and immutable with
+no prefix. A check of the keys alone passed while the subject stayed
+ID-qualified (run 45906725339). That is the failure these tests guard against.
 
-- `repo:Duncan-Haywood@*/oss-monorepo@*:*`, the ID-qualified form by name;
-- `repo:*/*@1315497858:*`, any subject carrying the public repository's ID,
-  which still holds after a rename (`var.public_repository_id`).
+## The payments RCP
 
-Lesson for any future deny on `sub`: match every form GitHub can emit, not
-only the form the trusts use.
+Allow-side trusts fail closed on an unexpected form. A deny on `sub` fails
+open. The payments RCP denied only `repo:Duncan-Haywood/oss-monorepo:*`, so
+an ID-form token from the public repository did not match it. PR #19507 adds
+the exact ID form to that Deny.
 
-## What is now code
-
-- `platform/aws/github/configure.sh` pins `["repo","context"]` on
-  oss-monorepo and private-monorepo (its payments roles in
-  `stacks/github-oidc` trust it). It runs on every full run and on its own
-  with `--oidc-sub`, reads the setting back, prints it, and exits non-zero if
-  the template did not take.
-- `platform/aws/tests/test_oidc_subject.py` fails if any trust subject in
-  `bootstrap.yaml`, `stacks/` or `modules/` is written ID-qualified or in an
-  unexpected shape, or if `configure.sh` stops pinning that template on both
-  repositories.
-- `docs/runbooks/aws-cutover.md`, owner step 3, names the template and the
-  symptom of a missing one.
-
-## Still to confirm
-
-- Whether the interim template took effect: the next run of
-  `priv-aws-apply.yml` (merging this PR under `platform/aws/` triggers one)
-  either assumes `github-apply` or fails as before. If it still fails with
-  `AccessDenied`, read the new `sub` in CloudTrail before changing anything.
-- Whether private-monorepo already has the template set. Run
-  `configure.sh --oidc-sub` once; it covers both repositories.
-
-## When to switch to the ID form
-
-Switch when GitHub's documentation, readable from a session, says how to
-request the ID-qualified subject on purpose, and gives its exact format for
-`pull_request`, `environment:` and `ref:` contexts. Then, in one PR:
-
-- change `bootstrap.yaml`'s `GitHubRepository` pattern and both trusts. During
-  the move, accept both forms (a list under `StringEquals`) so CI keeps
-  working between the bootstrap re-deploy and the template change;
-- update every tofu stack and its tests, and flip
-  `test_oidc_subject.py`'s rule;
-- change `OIDC_SUB_KEYS` in `configure.sh`;
-- add the gate exception first, as a separate PR.
-
-Then drop the name-only form from the trusts.
+PR #19501 (merged) added gate allowlist entries for a variant this PR first
+carried and then dropped to avoid conflicting with #19507:
+`repo:<owner>@*/<name>@*:*` and `repo:*/*@<repo-id>:*`. The second still
+matches after a rename of the public repository, which the exact form does
+not. Those entries match nothing now. Reuse them if the Deny gains the
+rename-proof pattern, or remove them.

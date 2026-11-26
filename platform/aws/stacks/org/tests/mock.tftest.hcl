@@ -121,16 +121,6 @@ run "resource_control_policies" {
   }
 
   assert {
-    condition     = jsondecode(aws_organizations_policy.rcp["payments-no-public-repo"].content).Statement[1].Effect == "Deny" && jsondecode(aws_organizations_policy.rcp["payments-no-public-repo"].content).Statement[1].Action == "sts:AssumeRoleWithWebIdentity"
-    error_message = "The ID-qualified subjects of the public repository are denied too."
-  }
-
-  assert {
-    condition     = jsondecode(aws_organizations_policy.rcp["payments-no-public-repo"].content).Statement[1].Condition.StringLike["token.actions.githubusercontent.com:sub"] == ["repo:Duncan-Haywood@*/oss-monorepo@*:*", "repo:*/*@1315497858:*"]
-    error_message = "ID-qualified tokens (repo:owner@id/name@id:...) from the public repository are refused in payments, by name and by repository ID."
-  }
-
-  assert {
     condition     = alltrue([for p in aws_organizations_policy.rcp : p.type == "RESOURCE_CONTROL_POLICY" && length(p.content) <= 5120])
     error_message = "RCPs are typed and within AWS's 5,120-character limit."
   }

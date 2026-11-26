@@ -52,13 +52,12 @@ rights on GitHub. Everything else is done by agents through pull requests.
    `bash platform/aws/github/configure.sh <account-id>` (or, by hand: create
    environments `aws-prod` and `aws-llm` limited to the `main` branch and set
    the repository variable `AWS_ACCOUNT_ID`; in single-account mode also
-   `AWS_ACCOUNT_MODE=single`; and pin the OIDC subject template on both
-   repositories:
-   `gh api -X PUT repos/<owner>/<repo>/actions/oidc/customization/sub -F use_default=false -f 'include_claim_keys[]=repo' -f 'include_claim_keys[]=context'`).
-   The template matters: without it GitHub may issue
-   `repo:<owner>@<id>/<name>@<id>:...` subjects, which no trust accepts, and
-   the apply fails with `AccessDenied ... AssumeRoleWithWebIdentity` (run
-   45905276526). `configure.sh --oidc-sub` re-pins it and prints what is set
+   `AWS_ACCOUNT_MODE=single`). `configure.sh` also sets each repository's OIDC
+   subject claim keys to `repo` and `context` and prints the subject prefix GitHub
+   will use. With immutable subjects on (this repository's default) the prefix is
+   `repo:<owner>@<id>/<name>@<id>`, and the trusts must accept that form, or the
+   apply fails with `AccessDenied ... AssumeRoleWithWebIdentity` (runs 45905276526
+   and 45906725339). `configure.sh --oidc-sub` re-runs only this check
    (docs/reports/2026-11-26-github-oidc-subject-form.md). Also set the repository
    variable `AWS_BUDGET_ALERT_EMAIL` to where spend alerts should go, then
    click the confirmation link AWS emails after the first apply: without it

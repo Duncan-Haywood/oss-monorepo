@@ -27,10 +27,16 @@
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": 5,
+  "tests_added": 6,
   "outcome": "success",
-  "errors": [],
-  "integrity_issues": [],
+  "errors": [
+    "Decided before evidence on use_immutable_subject was available; reworked."
+  ],
+  "integrity_issues": [
+    {
+      "issue": "First version of the decision assumed include_claim_keys [repo,context] yields name-only subjects; it does not while use_immutable_subject is true. Corrected before merge after peer evidence."
+    }
+  ],
   "doc_friction": [
     {
       "file": "CLAUDE.md",
@@ -57,7 +63,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Part 1 PR #19501 (allowlist entries) merged with all checks green. Local checks for part 2: tofu test stacks/org 3/3; tofu validate; tofu fmt -check platform/aws clean; pytest platform/aws 87 passed; checkov stacks/org 0 failed; adversarial gate local: deny wildcards allowed, warnings only; risk_review: nothing blocked. docs.github.com unreachable, so the ID-qualified subject syntax was not confirmed from docs; decision kept name-only. Whether the owner's interim template took effect is answered by the apply run this merge triggers. Agent doc: docs/reports/2026-11-26-github-oidc-subject-form.md.",
+  "notes": "Part 1 PR #19501 (allowlist entries) merged green. Part 2 first kept name-only subjects pinned by the template; a peer session (PR #19507) relayed the owner's read-back (use_immutable_subject:true, sub_claim_prefix ID form) and that run 45906725339 was refused after the pin, so part 2 was reworked: org/RCP changes dropped (PR #19507 owns trusts and RCP), configure.sh checks sub_claim_prefix against both accepted forms, tests run the script against a stub gh (mutation check: accepting any prefix makes 2 tests fail). Report rewritten: ID form chosen. Local: pytest platform/aws 11 passed (tests dir); tofu fmt clean; risk_review nothing blocked. The #19501 allowlist entries now match nothing (noted in the report). Agent doc: docs/reports/2026-11-26-github-oidc-subject-form.md.",
   "corrections": [],
   "redteam": null
 }
