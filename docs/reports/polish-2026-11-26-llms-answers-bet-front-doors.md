@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [seo, aeo]
+topics: [seo]
 date: 2026-11-26
 ---
 # Polish 2026-11-26: llms.txt answers for the other bet front doors
