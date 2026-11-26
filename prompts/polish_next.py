@@ -32,20 +32,41 @@ CITE = re.compile(
     r"(?:\s+list)?[^`]{0,40}?\bin\s+`(?:docs/reports/)?(polish-[^`]+?\.md)`")
 
 
+def shallow_boundary(root: Path = ROOT) -> set[str]:
+    """Commits at a shallow clone's boundary: git diffs them against nothing, so
+    `--diff-filter=A` says they add every file (platform/daily/collect.mjs)."""
+    try:
+        rel = subprocess.run(["git", "rev-parse", "--git-path", "shallow"], cwd=root,
+                             capture_output=True, text=True, timeout=30).stdout.strip()
+        path = Path(rel) if Path(rel).is_absolute() else root / rel
+        return set(path.read_text().split()) if rel and path.is_file() else set()
+    except (OSError, subprocess.TimeoutExpired):
+        return set()
+
+
 def commit_order(root: Path = ROOT) -> list[str]:
-    """Polish note names, newest add first, from git history (empty if none)."""
+    """Polish note names, newest add first, from git history (empty if none).
+
+    A note "added" by a shallow boundary commit is older than the clone's
+    history, so it is left out and ordered by name (ordered_notes)."""
     names: list[str] = []
+    boundary = shallow_boundary(root)
     for ref in ("origin/main", "HEAD"):
         try:
             out = subprocess.run(
-                ["git", "log", ref, "--format=", "--name-only", "--diff-filter=A",
+                ["git", "log", ref, "--format=@%H", "--name-only", "--diff-filter=A",
                  "--", "docs/reports/polish-*.md"],
                 cwd=root, capture_output=True, text=True, timeout=60).stdout
         except (OSError, subprocess.TimeoutExpired):
             continue
+        skip = False
         for line in out.splitlines():
-            name = Path(line.strip()).name
-            if name and name not in names:
+            line = line.strip()
+            if line.startswith("@"):
+                skip = line[1:] in boundary
+                continue
+            name = Path(line).name
+            if name and not skip and name not in names:
                 names.append(name)
         if names:
             break

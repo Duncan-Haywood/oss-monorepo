@@ -50,6 +50,15 @@ class PolishNextTest(unittest.TestCase):
         marks = pn.taken([p])
         self.assertEqual(sorted(marks["polish-2026-11-26-alpha.md"]), [1, 3])
 
+    def test_shallow_boundary_commit_adds_are_skipped(self):
+        # a shallow clone's boundary commit "adds" every note; only real adds count
+        from unittest import mock
+        out = "@aaa\n\ndocs/reports/polish-b.md\n@bbb\n\ndocs/reports/polish-a.md\n"
+        run = mock.Mock(return_value=mock.Mock(stdout=out))
+        with mock.patch.object(pn, "shallow_boundary", return_value={"bbb"}), \
+                mock.patch.object(pn.subprocess, "run", run):
+            self.assertEqual(pn.commit_order(self.dir), ["polish-b.md"])
+
 
 if __name__ == "__main__":
     unittest.main()
