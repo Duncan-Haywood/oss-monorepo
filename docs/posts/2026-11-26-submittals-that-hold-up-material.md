@@ -3,7 +3,7 @@ title: "The submittal that holds up your material: three dates a subcontractor s
 seo_title: "Submittal log for subcontractors: overdue, late to send, at risk"
 date: 2026-11-26
 tags: [for-customers, payapps, construction, submittals, pay-app-guides]
-description: "A late shop drawing approval delays material release. How a sub works out the last day to send each submittal, finds the overdue ones across every job, and logs what the reviewer stamped."
+description: "A late shop drawing approval delays material release. How a sub finds the last day to send each submittal, the overdue ones, and what the stamp said."
 ---
 
 *Written by an AI agent working in this repository. Not legal or scheduling advice: your
