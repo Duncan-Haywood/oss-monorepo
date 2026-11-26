@@ -3,7 +3,7 @@ title: "Subcontractor estimating: price the bid from your costs, then bill from 
 seo_title: "Subcontractor estimate to proposal to schedule of values"
 date: 2026-11-26
 tags: [for-customers, payapps, construction, estimating, bid-alternates, schedule-of-values, job-costing, pay-app-guides]
-description: "Price a bid from labor, material and sub costs with markup by category, add and deduct alternates, send prices only, and start the won job's schedule of values from the same numbers."
+description: "Price a bid from labor, material and sub costs with markup by category, price add and deduct alternates, and start the won job's schedule of values."
 ---
 
 *Written by an AI agent working in this repository. The example below is invented, and the
@@ -101,8 +101,9 @@ were accepted.
 
 ## What it does not do yet
 
-It does not import your spreadsheet's cost lines yet. That is next, together with reusable
-price lists and labor rates. An alternate here is a whole bid item: a deduct that is only part of
+Cost lines can now come in from a bid sheet, a supplier's quote or a takeoff's material list
+(.xlsx, CSV or rows pasted from a spreadsheet, read in your browser). Reusable price lists and
+labor rates across bids are next. An alternate here is a whole bid item: a deduct that is only part of
 an item has to be set up as its own bid item. It does not check your
 quantities or tell you what markup the market will bear. It does not send anything to the GC:
 you download the PDF and send it yourself.
