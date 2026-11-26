@@ -1,0 +1,194 @@
+{
+  "date": "2026-11-26",
+  "stratum": "venture",
+  "seed": "2026-11-26-l-ae8a",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "subject": "ventures/s-corp-reasonable-compensation-calculator",
+  "professional": "a CPA who sets S-corp owner salaries each year; first checks: are the 2026 FICA rates, wage base and Additional Medicare thresholds right, is the cited case law accurate, and does the method follow the comparable-wage approach the IRS reasonable-compensation job aid and the courts use",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "node -e on calc.mjs: ficaCost(100000)=15,300 (12.4%+2.9% by hand: 12,400+2,900); ficaCost(250000,'single')=30,578 (0.124*184,500=22,878; 0.029*250,000=7,250; 0.009*50,000=450); ficaCost(140000,'mfs') additional Medicare 135 (0.009*15,000); Watson scenario extra FICA 24,000->91,044 = 10,257.73 (13,929.73-3,672.00). 2026 OASDI base $184,500 confirmed against the SSA Federal Register notice 2025-19763 (via WebSearch). $24,000 salary and $91,044 benchmark confirmed (Journal of Accountancy, CALT Iowa State summaries). The '$200,000-274,000 of annual profit' figure could not be confirmed in this session.",
+    "completeness": "README features checked end to end in calc.mjs: comparison against hours-scaled comparable wage (works), FICA at planned and at floor (works), 2026 wage base (works), nine-factor checklist (NINE_FACTORS, nine entries), explainer and comparison pages exist and link back. No stubs. Gap: a salary larger than the compensation pool is not flagged (assess({planned 50000, pool 40000}) returns flagLevel 'ok'/'caution' with no note) although the module header calls it 'its own problem'.",
+    "verification": "node --test '*.test.mjs': 41 pass, 0 fail. quality_mutate.py: 4 mutants, 3 survived (MFS threshold 125000->150000; planned>=floor -> planned>floor; Math.max(0,pool-planned) -> pool-planned); 1 caught (hours cap 2 -> 1).",
+    "craft": "calc.mjs (186 lines) read in full: pure functions, constants named and cited, input validation explicit, no dead code. Minor: distribution = pool - salary ignores the employer half of FICA that also comes out of the pool.",
+    "claims": "Case caption wrong on every page, the explainer's <title>, README, VENTURE.yaml and calc.mjs: 'Watson v. Commissioner' is David E. Watson, P.C. v. United States (a refund suit in the S.D. Iowa, aff'd 8th Cir.). Warn flag says the fact pattern is 'in every reported reasonable-compensation adjustment case', which no file backs. 2026 wage base, Additional Medicare thresholds, no-60/40-rule statement and disclaimer (footer, README) are backed.",
+    "fitness": "Walked the job 'set a defensible salary for my one-person S-corp': the tool computes the FICA trade-off well, but the hardest input, the comparable wage, is left to the user with no link to BLS OEWS or any lookup, so the owner who does not already have a figure cannot finish the job here.",
+    "domain": "Matches the comparable-wage approach (IRS 'Reasonable Compensation Job Aid for IRS Valuation Professionals', Watson). Departures a CPA would raise: total FICA is presented as the cost of a salary dollar without the employer-share deduction against the S-corp's income; linear hour scaling of a salaried comparable above 40 h/week."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "combined FICA on $100,000 single",
+      "method": "hand: 0.124*100000 + 0.029*100000",
+      "command": "node -e \"import('./calc.mjs').then(m=>console.log(m.ficaCost(100000)))\"",
+      "expected": "15300",
+      "observed": "15300",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "combined FICA on $250,000 single, above wage base and AMT threshold",
+      "method": "hand from SSA 2026 base 184,500 and IRC 3101(b)(2) $200k",
+      "command": "node -e ficaCost(250000,'single')",
+      "expected": "30578",
+      "observed": "30578",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Additional Medicare on $140,000 MFS",
+      "method": "hand: 0.009*(140000-125000), IRC 3101(b)(2)",
+      "command": "node -e ficaCost(140000,'mfs')",
+      "expected": "135",
+      "observed": "135",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "extra FICA to move Watson's $24,000 salary to the $91,044 benchmark",
+      "method": "hand: 0.153*91044 - 0.153*24000",
+      "command": "node -e assess({plannedSalary:24000,compensationPool:250000,marketWageFullTime:91044,hoursPerWeek:40,filingStatus:'mfj'})",
+      "expected": "10257.73",
+      "observed": "10257.732",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "2026 Social Security wage base $184,500",
+      "method": "SSA notice, Federal Register 2025-19763 (WebSearch)",
+      "command": "WebSearch 'SSA 2026 social security wage base'",
+      "expected": "184500",
+      "observed": "184500 in SS_WAGE_BASE_2026",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "case caption of 668 F.3d 1008",
+      "method": "Journal of Accountancy and CALT summaries (WebSearch)",
+      "command": "grep -rn 'Watson v. Commissioner' ventures/s-corp-reasonable-compensation-calculator",
+      "expected": "David E. Watson, P.C. v. United States",
+      "observed": "Watson v. Commissioner (16 places)",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "Watson facts: $24,000 salary, $91,044 benchmark, ~$200-274k profit",
+      "method": "same summaries",
+      "command": "WebSearch",
+      "expected": "24,000 / 91,044 / unconfirmed",
+      "observed": "24,000 / 91,044 confirmed; profit range not found",
+      "result": "partial"
+    },
+    {
+      "dimension": "completeness",
+      "what": "salary larger than the compensation pool",
+      "method": "module header says over-paying is 'its own problem'",
+      "command": "node -e assess({plannedSalary:50000,compensationPool:40000,marketWageFullTime:80000,hoursPerWeek:20})",
+      "expected": "a note that salary exceeds the pool",
+      "observed": "flagLevel ok, no note",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "node --test '*.test.mjs'",
+      "expected": "green",
+      "observed": "41 pass",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "a link or source for the comparable-wage input",
+      "method": "read index.html field note",
+      "command": "grep -n 'bls.gov' index.html",
+      "expected": "a link to BLS OEWS",
+      "observed": "named, not linked",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:45",
+      "change": "mfs: 125000 -> mfs: 150000",
+      "caught": false,
+      "test_cmd": "node --test calc.test.mjs page.test.mjs"
+    },
+    {
+      "where": "calc.mjs:87",
+      "change": "Math.min(hours / 40, 2) -> Math.min(hours / 40, 1)",
+      "caught": true,
+      "test_cmd": "node --test calc.test.mjs page.test.mjs"
+    },
+    {
+      "where": "calc.mjs:146",
+      "change": "planned >= floor -> planned > floor",
+      "caught": false,
+      "test_cmd": "node --test calc.test.mjs page.test.mjs"
+    },
+    {
+      "where": "calc.mjs:136",
+      "change": "Math.max(0, pool - planned) -> pool - planned",
+      "caught": false,
+      "test_cmd": "node --test calc.test.mjs page.test.mjs"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Case caption wrong everywhere: 'Watson v. Commissioner' is David E. Watson, P.C. v. United States, 668 F.3d 1008 (8th Cir. 2012), a refund suit, not a Tax Court case. A CPA citing it from this page would cite it wrongly.",
+      "where": "ventures/s-corp-reasonable-compensation-calculator/why-the-irs-tests-your-s-corp-salary.html:6",
+      "category": "overclaim",
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19450"
+    },
+    {
+      "severity": "medium",
+      "what": "Three of four seeded mutants in core rules survived (MFS Additional Medicare threshold, the planned==floor boundary, the non-negative distribution clamp).",
+      "where": "ventures/s-corp-reasonable-compensation-calculator/calc.test.mjs:1",
+      "category": "untested-core",
+      "origin": "tests",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19450"
+    },
+    {
+      "severity": "low",
+      "what": "Warn flag says the low-salary-plus-distribution pattern is 'the fact pattern in every reported reasonable-compensation adjustment case'; no file backs 'every'.",
+      "where": "ventures/s-corp-reasonable-compensation-calculator/calc.mjs:150",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "'$200,000-274,000 of annual profit' in Watson is not sourced in any file and was not confirmable; the confirmed figures are the $24,000 salary and the $91,044 benchmark.",
+      "where": "ventures/s-corp-reasonable-compensation-calculator/why-the-irs-tests-your-s-corp-salary.html:33",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "A salary above the compensation pool is not flagged, though the module says it is 'its own problem'; distribution also ignores the employer FICA share drawn from the same pool.",
+      "where": "ventures/s-corp-reasonable-compensation-calculator/calc.mjs:136",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "The comparable-wage input, the figure the whole test turns on, names BLS OEWS without linking it or any occupation lookup.",
+      "where": "ventures/s-corp-reasonable-compensation-calculator/index.html:55",
+      "category": "scope-gap",
+      "origin": "spec"
+    }
+  ],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19450"],
+  "verdict": "Arithmetic is right: four FICA outputs recomputed by hand match to the cent, and the 2026 wage base matches the SSA notice. It does not meet the bar for two reasons. Claims: the leading case is mis-captioned on every page and in the explainer's title, and one flag says 'every reported case'. Verification: 3 of 4 seeded mutants in core rules survived. Fitness is 2 because the comparable wage, which the whole test turns on, is left to the user with no lookup. This round fixes the caption and adds tests that kill the three mutants; the scores here are from before those fixes."
+}
