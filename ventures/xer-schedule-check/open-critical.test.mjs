@@ -89,3 +89,25 @@ test("Project XML: MultipleCriticalPaths read as the P6 option, and written from
   // and on to an XER for P6 import
   assert.equal(parseXer(p6XerText(xml).text).tables.SCHEDOPTIONS[0].sched_open_critical_flag, "Y");
 });
+
+// eval/open-critical.mjs (the measurement in eval/open-critical-2026-11-24.md)
+// run end to end on this network plus E (55.5 h, start -> FIN), whose half
+// hour of float sits just above the zero threshold. Worked by hand: off, C and
+// D carry 24 h, E 0.5 h, the rest 0; on, C and D drop to 0 (48 h = 6 days lost).
+test("eval/open-critical.mjs: the counts on a network worked by hand", async () => {
+  const { execFileSync } = await import("node:child_process");
+  const { mkdtempSync, writeFileSync, readFileSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join } = await import("node:path");
+  const x = parseXer(text());
+  x.tables.TASK.push(task("6", "E", 55.5));
+  x.tables.TASKPRED.push(link("15", "3", "6"));
+  const dir = mkdtempSync(join(tmpdir(), "open-crit-"));
+  writeFileSync(join(dir, "net.xer"), xerText(x.tables));
+  const out = join(dir, "out.json");
+  const stdout = execFileSync(process.execPath, [new URL("./eval/open-critical.mjs", import.meta.url).pathname, dir, "--json", out], { encoding: "utf8" });
+  const [row] = JSON.parse(readFileSync(out, "utf8"));
+  assert.deepEqual(row, { file: "net.xer", stored: "", open: 6, openEnds: 2, loseFloat: 2, becomeCritical: 2, criticalOff: 3, criticalOn: 5,
+    floatLostDays: 6, earlyDatesMoved: 0, floatGrew: 0, asFileVsOff: 0 });
+  assert.match(stdout, /^total\t\t6\t2\t2\t2\t3\t5\t6\t0\t0\t0$/m);
+});
