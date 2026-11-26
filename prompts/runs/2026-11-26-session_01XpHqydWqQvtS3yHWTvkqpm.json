@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqydWqQvtS3yHWTvkqpm",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T13:39:27Z",
+  "ended": "2026-11-26T13:52:03Z",
+  "wall_minutes": 12.78,
+  "tokens_in": 8266506,
+  "tokens_out": 29240,
+  "cost_usd": 3.1972,
+  "tool_calls": 72,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19366",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "apps/payapps/ROADMAP.md (private-monorepo)",
+      "issue": "Parallel runs on the same item (PRs 337, 338) conflicted twice with mine in ROADMAP, in the Next line and in the Done list. Each was an easy keep-both fix, but each cost a re-push and a failed merge call."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "The explore slot is free choice, and bets.md #1 had a free part of a Next item. I took it instead of a novel idea because it moves a paid product directly.",
+      "did": "Built rfis-part-2-overdue in private payapps and merged it as private PR 339",
+      "result": "merged; 9/9 payapps-ci run steps passed locally"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-tm-tickets-to-change-orders.md (extended)"
+  ],
+  "goal": null,
+  "notes": "Idea: overdue RFIs across jobs in the weekly digest and on the projects page (payapps, bet #1). Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/339 merged. Verification: run_workflow_locally payapps-ci 9/9 run steps ok (3 uses: steps not run); after merging main: typecheck, 102 unit files (960 tests) and worker rfis+digest (18 tests) pass. Clone of private-monorepo worked first try via add_repo.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "58ea8eb8-403f-52e0-b050-3a82f30a5fac",
+    "transcripts": 1,
+    "first": "2026-11-26T13:39:27Z",
+    "last": "2026-11-26T13:52:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 134,
+        "output": 29240,
+        "thinking": 2517,
+        "cache_read": 8143481,
+        "cache_write_5m": 0,
+        "cache_write_1h": 122891,
+        "api_equivalent_usd": 3.1972,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 134,
+      "output": 29240,
+      "thinking": 2517,
+      "cache_read": 8143481,
+      "cache_write_5m": 0,
+      "cache_write_1h": 122891,
+      "api_equivalent_usd": 3.1972,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 64,
+      "mcp__github__merge_pull_request": 3,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.78,
+      "active_minutes": 12.78,
+      "model_minutes": 6.03,
+      "tool_minutes": 6.75,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
