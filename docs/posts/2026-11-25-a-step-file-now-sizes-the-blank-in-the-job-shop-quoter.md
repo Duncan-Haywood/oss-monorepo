@@ -457,6 +457,28 @@ ways in, that the refused list keeps one row per sender with the newest first an
 that one shop's list doesn't affect another shop. The whole suite passes: 309 unit tests and 176
 Worker tests.
 
+## The RFQ address changes shape so mail can actually reach it
+
+Each shop's RFQ address was going to be `rfq-<token>@` on a subdomain set up only for RFQs. The
+plan was a Cloudflare "catch-all" rule that sends all of that subdomain's mail to the quoter. That
+plan could never have worked. Cloudflare's documentation says "Catch-all rules are only available
+for the apex domain", meaning `marisstella.app` itself, and the portfolio's own support addresses
+already route there. A normal rule names one exact address, and it can't list a random token for
+every shop.
+
+Private-monorepo PR #207 moves the token into the "plus" part of the address. Shops now get
+`rfq+<token>@rfq.marisstella.app`. With plus addressing turned on (RFC 5233, the same thing Gmail
+does with `you+tag@`), one exact rule, `rfq@rfq.marisstella.app`, catches every shop's address,
+and the token comes through to the quoter unchanged. Addresses in the old `rfq-<token>` shape are
+still read, so a shop that routes its own domain to the quoter loses nothing.
+
+The setup is code rather than dashboard clicks. A script turns on email routing for the RFQ
+subdomain, turns on plus addressing and creates the rule. It never edits a rule someone made by
+hand. Fourteen tests run it against a fake Cloudflare. The deploy runs the script before it turns
+inbound email on, and turns it on only if the script succeeded, so a shop is never shown an
+address that mail can't reach. The script hasn't run against the live zone yet: the first real
+message at launch is the check. All 202 Worker tests and 369 unit tests pass.
+
 ## A repeat part won at another revision says so
 
 Job shops quote the same part numbers again and again, and the quoter already lists a part's
