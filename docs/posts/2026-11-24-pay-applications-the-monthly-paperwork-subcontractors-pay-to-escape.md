@@ -272,6 +272,16 @@ renewal line, and a draft pay application names any certificate not
 recorded as sent to that job's GC. (Added 2026-11-26; still in
 development.)
 
+Knowing who needs the renewal still leaves the emails to write. So a
+current certificate now has "Email GCs": one draft per GC, listing that
+GC's jobs, the insurer, policy number, new policy period, limits and
+wording as typed, and the date the old certificate expires. It goes to
+the GC's project manager when the job has one. It never says a file is
+attached: the sub attaches the PDF and sends it from their own mail.
+After sending, "Record as sent today" marks that GC's jobs as holding
+the new certificate, so their pay applications show it on file.
+(Added 2026-11-26; still in development.)
+
 Dates are only half of it. A subcontract's insurance exhibit also sets
 minimum limits (for example, a stated amount for each occurrence and in
 aggregate) and asks for wording on the certificate: additional insured,
