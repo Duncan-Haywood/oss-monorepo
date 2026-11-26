@@ -399,3 +399,22 @@ the list. A waiver drops off the moment you attach the signed copy, and a job yo
 with all its lists. The sample job never shows up in the email. As before, PayApps sends nothing to
 your suppliers itself, it is still in development with nothing for sale yet, and this is not legal
 advice.
+
+### And then: the request opens already addressed
+
+The request email was a draft with an empty "To" line, so every month someone dug through their
+inbox for the supply house's accounts-receivable address. Now each supplier on the list can carry
+an email address. Type it once, when you add the supplier or later with "Email address" on its row,
+and "Email" opens the draft addressed to it.
+
+PayApps remembers the address for that supplier across all your jobs. A supply house's AR address is
+usually the same on every job, so next month's list, or a list on another job, has the address
+filled in when you add the same supplier. The suggestions show which address each supplier will be
+added with. Names match the way the list already matches them, so "ABC Supply, Inc." and "abc
+supply inc" are the same supplier. If you correct an address, the newest one is used from then on.
+Clearing it on a row stops that row from being addressed. Your company's addresses are never shown
+to another company.
+
+The draft still opens in your own mail app, and you press send. PayApps sends nothing to your
+suppliers itself. It is still in development, with nothing for sale yet, and this is not legal
+advice.
