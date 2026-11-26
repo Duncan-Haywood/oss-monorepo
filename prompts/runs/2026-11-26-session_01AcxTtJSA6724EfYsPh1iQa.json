@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "My first gitconfig fix used str.replace, which replaced both identical 'pat += **' blocks (onbranch and hasconfig); 3 tests went red, caught and corrected before commit."
+    "My first gitconfig fix used str.replace, which replaced both identical 'pat += **' blocks (onbranch and hasconfig); 3 tests went red, caught and corrected before commit.",
+    "The restroom FAQ edit replaced only the first copy of the sentence (the FAQPage JSON-LD), leaving the visible text unchanged; CI's platform/pages faq-visible test caught it and the visible copy was fixed."
   ],
   "integrity_issues": [],
   "doc_friction": [
