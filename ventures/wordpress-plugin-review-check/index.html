@@ -248,7 +248,7 @@ function example_save_settings() {
     row('Plugin header found', report.pluginHeaderFound ? 'ok' : 'bad', report.pluginHeaderFound ? `Yes (${report.pluginHeaderPath})` : 'No');
 
     if (report.stableTagStatus === 'match') row('Stable tag vs Version', 'ok', 'Match');
-    else if (report.stableTagStatus === 'trunk') row('Stable tag vs Version', 'info', '"trunk" -- always serves latest commit');
+    else if (report.stableTagStatus === 'trunk') row('Stable tag vs Version', 'bad', '"trunk" -- Plugin Check reports this as an error; use the tagged version');
     else if (report.stableTagStatus === 'mismatch') row('Stable tag vs Version', 'bad', `readme.txt says "${report.stableTagMismatch.stableTag}", header says "${report.stableTagMismatch.pluginVersion}"`);
     else row('Stable tag vs Version', 'info', 'Not checked (one or both files/fields missing)');
 

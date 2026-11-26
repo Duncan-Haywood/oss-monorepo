@@ -7,8 +7,8 @@
 //   node check.mjs [path] [--readme <file>] [--plugin-file <file>] [--json]
 //
 // Exit code 0 when a readme.txt and a plugin header were found, the readme's
-// Stable tag matches the plugin header's Version (or is deliberately
-// "trunk"), every required readme/header field is present, no line echoes a
+// Stable tag matches the plugin header's Version (not "trunk", which Plugin
+// Check reports as an error), every required readme/header field is present, no line echoes a
 // superglobal with no escaping function, and no file reads $_POST with no
 // nonce-verification call anywhere in it; 1 otherwise. That makes it usable
 // as a CI gate: `node check.mjs . || exit 1`.
@@ -147,7 +147,7 @@ function formatText(result) {
   if (report.stableTagStatus === 'match') {
     lines.push(`[OK] Stable tag (${basename(readmePath ?? 'readme.txt')}) matches Version (${report.pluginHeaderPath ?? 'plugin header'}).`);
   } else if (report.stableTagStatus === 'trunk') {
-    lines.push('[i] Stable tag is "trunk" -- the directory always serves the latest commit; no version to compare.');
+    lines.push('[X] Stable tag is "trunk". Plugin Check reports this as an error (trunk_stable_tag): set Stable tag to the tagged release that matches Version.');
   } else if (report.stableTagStatus === 'mismatch') {
     lines.push(`[X] Stable tag mismatch: readme.txt says "${report.stableTagMismatch.stableTag}", the plugin header says "${report.stableTagMismatch.pluginVersion}". A mismatch here is one of the most common Plugin Directory review notes -- the directory serves whatever version Stable tag names, so a stale tag ships an old build even after you upload a new one.`);
   } else {

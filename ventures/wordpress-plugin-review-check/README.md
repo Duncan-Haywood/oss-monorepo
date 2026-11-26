@@ -55,7 +55,7 @@ dotfiles/dotdirs. Finds every `readme.txt` in the tree (reads the first;
 `--readme` overrides which one) and the first PHP file carrying a
 `Plugin Name:` header line (`--plugin-file` overrides which one). Exits `0`
 when a readme and a plugin header were found, `Stable tag` matches `Version`
-(or is deliberately `trunk`), every required field is present, no line
+(and is not `trunk`, which Plugin Check reports as an error), every required field is present, no line
 echoes a superglobal with no escaping function, and no file reads `$_POST`
 with no nonce check anywhere in it; `1` otherwise -- usable directly as a CI
 gate:
