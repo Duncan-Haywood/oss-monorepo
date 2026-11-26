@@ -10,6 +10,34 @@ want to do the change to a more restrictive license", picking a
 source-available licence for the public repository over a non-commercial one.
 That move is the section "The public repository: FSL-1.1-MIT" below.
 
+> **Superseded, 2026-11-26: products live here, all rights reserved.** The
+> owner corrected where the products go: "they stay in open but with
+> restrcitve license", then on the licence: "i dont think convert to mit in 2
+> years. just all rights reserved license". Asked the same day, the owner chose
+> to bring wall-framing-takeoff and einvoice-preflight back from
+> `private-monorepo` and to move the apps built only there (payapps, cmmc,
+> jobshop-quote, seller-books, grants, admin, their sites and `packages/`)
+> into this repository too. So:
+>
+> - the `proprietary` track's products, and every paid app, live in this
+>   public repository under an **all-rights-reserved** notice (source visible,
+>   no licence granted, no future-licence conversion); the free tools stay
+>   FSL-1.1-MIT;
+> - what cannot be undone stays as it is: a version already published under
+>   MIT or FSL keeps that licence, and FSL releases still convert to MIT two
+>   years after each one shipped. The new notice covers work from the change on;
+> - `private-monorepo` keeps only what must stay private: the payments-account
+>   infrastructure (the AWS payments account trusts only that repository's
+>   OIDC tokens, `platform/aws/stacks/github-oidc/variables.tf`), secret
+>   inventories, and owner-confirmation checklists;
+> - nothing is published before a pre-publication audit (secrets, personal
+>   data, client data, security-sensitive notes) of each app, because
+>   publishing cannot be reversed.
+>
+> Steps: task `products-to-public-repo` in `portfolio/work/tasks.yaml`. The
+> "proprietary, `private-monorepo/apps/<slug>`" column below is out of date
+> until that task closes.
+
 > **Superseded in part, 2026-11-24 (later the same day).** The owner then set
 > that products are vertical software suites for small and medium businesses,
 > chosen by promise and value rather than by how much code already exists

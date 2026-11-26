@@ -125,7 +125,7 @@ replace that work.
 - **Where it comes from.** Payments run through Paddle (Guardrails,
   "Payments"). The revenue comes from the subscription products in
   [`LICENSING_TRANSITION.md`](../portfolio/monetization/LICENSING_TRANSITION.md)
-  (built in `private-monorepo`), plus the traffic, SEO, distribution and sales
+  (built in `private-monorepo` until 2026-11-26; moving to this repository, all rights reserved), plus the traffic, SEO, distribution and sales
   work that brings them buyers. For example, $10k is about 340 customers at
   $29 a month, or 200 at $49. Pick the products and prices by their evidence in
   [`models.yaml`](../portfolio/monetization/models.yaml), not by these
@@ -1429,6 +1429,7 @@ glad to see, never work that embarrasses them or the author.
 **Licensing and attribution.**
 - Original work is MIT-licensed.
 - The paid products the owner chose to sell (owner, 2026-11-24) are built in the private repository under a proprietary licence (`portfolio/monetization/LICENSING_TRANSITION.md`).
+- **Superseded 2026-11-26 (owner):** the paid products stay in, and move back to, this public repository under an all-rights-reserved licence (source visible, no MIT conversion: "i dont think convert to mit in 2 years. just all rights reserved license"). Versions already published under MIT or FSL keep those licences. Plan: `LICENSING_TRANSITION.md`, "2026-11-26: products live here, all rights reserved"; task `products-to-public-repo`.
 - Third-party code keeps its original license. Check compatibility before vendoring. Prefer dependencies over copying where you can (a default: it keeps licences and updates someone else's job).
 - Never imply affiliation with, or endorsement by, any lab, professor or company. Say "builds on" or "reproduces", never "with" or "for".
 
