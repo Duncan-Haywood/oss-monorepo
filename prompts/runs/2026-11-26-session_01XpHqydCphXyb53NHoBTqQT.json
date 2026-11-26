@@ -39,6 +39,10 @@
     {
       "file": ".github/prompts/cloud-session.md",
       "issue": "add_repo's result again asked to call register_repo_root, which ToolSearch does not offer; the doc's 'skip it' was right and saved time."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "slug_dupe.py georgia found nothing because the other run's public write-up merged after the check; when a bet's part 1 merged within hours, its public post/guide follow-up may still be landing, so check open PRs touching the same guide before writing public copy."
     }
   ],
   "deviations": [],
@@ -47,7 +51,7 @@
     "ventures/pay-app-guides/lien-waiver-forms-by-state.html (Georgia row and section)"
   ],
   "goal": null,
-  "notes": "Bet #1 payapps, ROADMAP item 1 part 'Georgia part 2' claimed as claim/payapps/lien-waivers-georgia-part-2. Shipped in private-monorepo PR 215 (merged a8acdf2): packages/lien-waivers gaAffidavitOfNonpayment (verbatim (g)(2) form, 12 pt, unpaid cross-check), gaNinetyDays; payapps 90-day clock on sent unpaid Georgia waivers (waiver list, cash page and weekly email from 30 days before to 30 after), affidavit prefilled from the waiver and printed (Crew+). Private CI starved (ci_starvation: 1 of 1 job never got a runner); verified locally: package node --test 233 pass, tsc clean; payapps typecheck clean, test:unit 603/603, test:worker 292/292, build ok, biome no new findings. Public side here: guide page Georgia row/section, llms.txt regenerated, page.test.mjs 29 pass, post update.",
+  "notes": "Bet #1 payapps, ROADMAP item 1 part 'Georgia part 2' claimed as claim/payapps/lien-waivers-georgia-part-2. Shipped in private-monorepo PR 215 (merged a8acdf2): packages/lien-waivers gaAffidavitOfNonpayment (verbatim (g)(2) form, 12 pt, unpaid cross-check), gaNinetyDays; payapps 90-day clock on sent unpaid Georgia waivers (waiver list, cash page and weekly email from 30 days before to 30 after), affidavit prefilled from the waiver and printed (Crew+). Private CI starved (ci_starvation: 1 of 1 job never got a runner); verified locally: package node --test 233 pass, tsc clean; payapps typecheck clean, test:unit 603/603, test:worker 292/292, build ok, biome no new findings. Public side here: guide page Georgia row/section, llms.txt regenerated, page.test.mjs 29 pass, post update. Merge with main conflicted: the Georgia part 1 run (docs/reports/ventures-2026-11-26-payapps-lien-waivers-georgia.md) had already added a Georgia row/section to the guide and a Georgia update to the post while this run wrote its own; kept main's versions and added only this run's product facts (90-day clock, affidavit) to the guide's early-access line and the post's Georgia update; llms.txt regenerated.",
   "corrections": [],
   "redteam": null,
   "private_prs": [

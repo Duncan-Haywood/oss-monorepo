@@ -1,6 +1,6 @@
 ---
 title: "Which states make you use their lien waiver form, read from the statutes"
-seo_title: "Statutory lien waiver forms by state: 10 states read from the law"
+seo_title: "Statutory lien waiver forms by state: 11 states read from the law"
 date: 2026-11-25
 tags: [for-customers, payapps, construction, lien-waivers, pay-app-guides]
 description: "Nine states set lien waiver wording in statute. We read each one from the legislature's own published text: how many forms, how strict, and the trap in each."
@@ -80,7 +80,7 @@ A conditional waiver releases the owner, lender or bond surety only once there i
 payment: your endorsement on a check that has been paid, or your written acknowledgment
 (Civ. Code § 8124).
 
-**What we could not check.** Mississippi is often said to have a statutory form, but we could not open its
+**What we could not check.** Mississippi is often said to have statutory forms, but we could not open its
 official text, so it is not listed rather than listed from memory. Massachusetts and Georgia were read the
 next day (updates below).
 
@@ -225,38 +225,56 @@ you sign. The free guide,
 now has a Massachusetts row and section. Whether a general-form waiver is enforceable on a
 Massachusetts job is a question for a Massachusetts lawyer. Not legal advice.
 
-## Update, 2026-11-26: Georgia, and the 90 days that run whether you were paid or not
+## Update, 2026-11-26: Georgia, and the 90 days that run whether or not you are paid
 
-Georgia's official Code is published through LexisNexis, which we could not open. The State does publish
-the two Acts that wrote the current section: SB 315 (2020), which rewrote all of O.C.G.A. § 44-14-366 from
-1 January 2021, and SB 143 (2021), which rewrote the affidavit of nonpayment. We rebuilt the section from
-those, as passed, and Georgia is now in the
-[guide's table](https://marisstella.app/pay-app-guides/lien-waiver-forms-by-state.html).
+Georgia was the other state on our "could not check" list. Its official Code is published only
+through LexisNexis, which we could not open. The State does publish the laws that wrote the
+section, so we read those: [SB 315](https://gov.georgia.gov/document/2020-signed-legislation/sb-315/download),
+which rewrote all of O.C.G.A. § 44-14-366 from 1 January 2021, and
+[SB 143](https://gov.georgia.gov/document/2021-signed-legislation/sb-143/download), which rewrote
+the affidavit of nonpayment in 2021. A bill shows what it changes by striking old words and
+underlining new ones, so we kept the underlined words and dropped the struck ones. We read each
+change against the bill. Check the current Code before relying on it. What a sub should know:
 
-Georgia's two forms are "upon interim payment" and "upon final payment". Neither is conditional or
-unconditional in the usual sense. Each waives "upon the receipt of the sum" you write in. Then
-subsection (g)(2) adds a clock. A signed waiver "shall conclusively be deemed effective" at the earliest
-of three things:
+- **Two forms, not four.** One is a "Waiver and Release of Lien and Payment Bond Rights Upon
+  Interim Payment" and the other is the same "Upon Final Payment". Neither is called conditional
+  or unconditional. Each waives "upon the receipt of the sum of $____". The interim form covers
+  work through a date you fill in and excepts "any retained amounts". The final form has no
+  exception.
+- **The 90 days.** Once signed, the waiver is conclusively effective at the earliest of three
+  things: the money actually arriving, a separate written acknowledgment that you were paid in
+  full, or "ninety days after the date of the execution of the waiver and release". Only one thing
+  stops the clock: filing an affidavit of nonpayment "in the county in which the property is
+  located" before the 90 days are up (§ 44-14-366(g)(2)). The form's own notice says so: you are
+  deemed to have waived "EVEN IF YOU HAVE NOT ACTUALLY RECEIVED SUCH PAYMENT, 90 DAYS AFTER THE
+  DATE STATED ABOVE UNLESS YOU FILE AN AFFIDAVIT OF NONPAYMENT". Before 2021 the period was 60
+  days, and a claim of lien stopped it too. The 2020 Act struck both. So if you sign a Georgia
+  waiver with the pay application and the check never comes, put the 90th day on your calendar.
+- **The affidavit** has its own statutory form, sworn before a notary. Within seven days of filing
+  it, send a copy to the owner by registered or certified mail or statutory overnight delivery.
+  In some cases a copy also goes to the contractor at the address on the notice of commencement.
+- **Twelve point, under seal.** Both waiver forms must "be in at least 12 point font" and "need
+  not be in boldface capital letters". They are signed under seal, with lines for a witness and
+  an address. A waiver covers only your lien and payment bond rights and "shall not be deemed to
+  affect any other rights or remedies" (§ 44-14-366(a)), which is what the 2020 Act was passed to
+  say.
 
-- the money in the waiver actually arriving;
-- a separate written acknowledgment of payment in full;
-- "Ninety days after the date of the execution of the waiver and release, unless prior to the
-  expiration of said 90 day period the claimant files in the county in which the property is located an
-  affidavit of nonpayment".
+PayApps, the pay-app product we are building, now prints both Georgia forms word for word. The
+interim form is offered for a progress waiver and the final form for a final one. It prints every
+line at 12 point, as the statute requires. From the job and the pay application it fills in the
+contractor, the project, the owner, the property, the amount and the through date. You fill in
+the county, the city and what you furnished. Day and month go on by hand when you sign under
+seal.
 
-So a subcontractor who signs the interim waiver with the pay application, as GCs usually ask, and is
-then not paid, loses the lien and bond rights that waiver covers on day 90, unless it has filed the
-affidavit by then. The waiver form itself says so in a capitalised NOTICE, and leaving that notice off
-"shall render the form unenforceable and invalid". The affidavit has its own form in the same
-subsection. It is sworn before a notary and printed "in at least 12 point font". Within seven days of
-filing it, a copy goes to the owner by registered or certified mail or statutory overnight delivery.
-
-PayApps now handles that clock on Georgia jobs. When a Georgia waiver is marked sent and the payments
-recorded on its pay application do not cover it, the waiver list shows the day the 90 days end and how
-much is still unpaid. The cash page and the weekly email name it from 30 days before the end. One click
-opens the affidavit of nonpayment in the statute's wording, filled from the waiver: the county, the
-contractor, the work, the project, the owner and the property, the waiver's date and amount, and the
-amount still unpaid. You check it, print it at 12 point and take it to a notary. It counts 90 calendar
-days from the day you marked the waiver sent and does not move the date for a weekend or holiday, so do
-not wait for the last day. Whether to file, and where, is still your decision with counsel.
-
+Later the same day it gained the clock and the affidavit. When a Georgia waiver is marked sent and
+the payments recorded on its pay application do not cover it, the waiver list shows the day the 90
+days end and how much is still unpaid, and the cash page and the weekly email name it from 30 days
+before the end. One click opens the affidavit of nonpayment in the statute's wording, filled from
+the waiver: the county, the contractor, the work, the project, the owner and the property, the
+waiver's date and amount, and the amount still unpaid. You check it, print it at 12 point and swear
+it before a notary. It counts 90 calendar days from the day you marked the waiver sent and does not
+move the date for a weekend or holiday, so do not wait for the last day. Recording that you filed it
+is next. The free guide,
+[statutory lien waiver forms by state](https://marisstella.app/pay-app-guides/lien-waiver-forms-by-state.html),
+now has a Georgia row and section. Not legal advice: ask a Georgia lawyer before relying on a
+waiver.

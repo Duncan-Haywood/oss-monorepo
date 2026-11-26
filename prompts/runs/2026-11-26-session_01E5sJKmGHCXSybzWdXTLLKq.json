@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKmGHCXSybzWdXTLLKq",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T01:18:18Z",
+  "ended": "2026-11-26T01:29:55Z",
+  "wall_minutes": 11.96,
+  "tokens_in": 12389806,
+  "tokens_out": 41106,
+  "cost_usd": 4.5845,
+  "tool_calls": 97,
+  "task": "PayApps (bet #1): GC billing cutoff day per job with reminders before and after a missed cutoff (claim/payapps/billing-cutoff-day)",
+  "projects": [
+    "payapps",
+    "payapps-site"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19162",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 24,
+  "outcome": "success",
+  "errors": [
+    "Local payapps-ci caught a biome format difference left by a hand sed edit in billing-cutoff.ts; fixed in a second private commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/ci_starvation.py",
+      "issue": "Starved-run message says to report the unblock in gitops/ci/README.md, but CLAUDE.md says the gitops/ tree was deleted on 2026-10-30."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Every free payapps ROADMAP Next item was blocked (GC portal hosts answer 403 through the proxy) or waiting on a customer or on usage data. Picking an unlisted slice with roadmap_claim --slug worked, but the prompt does not mention that route."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "No free ROADMAP Next item could be built without guessing formats or waiting on a customer",
+      "did": "Claimed and built an unlisted payapps slice (billing cutoff day) under roadmap_claim --slug",
+      "result": "Shipped with unit and worker tests; recorded in the payapps ROADMAP Done list"
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "why": "add_repo's result asks for register_repo_root; cloud-session.md says to skip it",
+      "did": "Skipped it and read private CLAUDE.md by hand",
+      "result": "fine"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-prompt-payment-laws-for-subcontractors.md (new section: the GC's billing cutoff)",
+    "docs/reports/ventures-2026-11-26-payapps-billing-cutoff-day.md"
+  ],
+  "goal": "$10k MRR: retention and value of the top bet's paid product (monthly billing reminder)",
+  "notes": "Private PR Duncan-Haywood/private-monorepo#211. Locally: payapps typecheck passes; test:unit 63 files / 595 tests pass; test:worker 45 files / 288 tests pass; payapps-site typecheck and 21 unit tests pass; run_workflow_locally payapps-site-ci 6/6 run: steps pass. payapps-ci first run failed on biome ci (format), fixed, then re-run (see the private PR). GitHub CI on the private repo got no runner (ci_starvation: 1 of 1 jobs never got a runner). risk_review: nothing blocked; one personal-data prompt, and none is collected.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bfd64159-ab23-52f8-a450-b91a1c7ff5c3",
+    "transcripts": 1,
+    "first": "2026-11-26T01:18:18Z",
+    "last": "2026-11-26T01:30:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 92,
+        "input": 174,
+        "output": 41106,
+        "thinking": 8402,
+        "cache_read": 12225047,
+        "cache_write_5m": 0,
+        "cache_write_1h": 164585,
+        "api_equivalent_usd": 4.5845,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 92,
+      "input": 174,
+      "output": 41106,
+      "thinking": 8402,
+      "cache_read": 12225047,
+      "cache_write_5m": 0,
+      "cache_write_1h": 164585,
+      "api_equivalent_usd": 4.5845,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 97,
+    "tools": {
+      "Bash": 88,
+      "Write": 4,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.96,
+      "active_minutes": 11.96,
+      "model_minutes": 9.15,
+      "tool_minutes": 2.81,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior full-stack engineer: schema+migration, pure date rules with tests, UI, cash report wiring, worker tests, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 218.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
