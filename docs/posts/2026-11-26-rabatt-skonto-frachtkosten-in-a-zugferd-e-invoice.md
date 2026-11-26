@@ -118,8 +118,16 @@ this on one plumbing invoice of our own, printed by Chromium and by LibreOffice.
 Both read completely, and the Factur-X built from each passes the checker. We
 have not measured it on real firms' invoices yet.
 
-**Not done yet:** changing a row's discount on the convert screen (today you
-see it in the row's note), a discount printed on its own line under a row, a
+The row's discount is also an editable cell on the convert screen, next to
+the VAT rate. Type `12 %` for a percent of quantity x price, or `5,00` for an
+amount; leave it blank to remove the discount. The reason stays your column's
+name. Anything the screen cannot read as a percent or an amount above zero is
+marked and blocks "Build" until you correct it. A changed discount also changes
+the line net, so if the result no longer matches the totals printed on your PDF,
+the screen names the net, VAT and total that differ and keeps the download
+locked until they agree.
+
+**Not done yet:** a discount printed on its own line under a row, a
 description that breaks across a page, and scanned PDFs (no text layer).
 
 The free [e-invoice preflight](https://marisstella.app/einvoice-preflight/)
