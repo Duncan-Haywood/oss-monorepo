@@ -5,7 +5,12 @@ import os from 'node:os';
 import path from 'node:path';
 import vm from 'node:vm';
 import { spawnSync } from 'node:child_process';
-import { AGENT_BLOG, autoSeoTitle, BLOG, bodyMatcher, buildWriting, PAGE_SIZE as WRITING_PAGE_SIZE, TOPICS, loadPosts, parseFrontMatter, postPageTitle, rankRelated, rankRelatedBySort, relatedPosts, renderFeed, renderIndex, renderPost, renderSearchIndex, searchText, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
+
+// A built blog page and the stylesheet it links (pf-writing.css at the site
+// root since 2026-11-26), for the tests that check its CSS rules.
+const pageWithStyle = async (out, rel) =>
+  `${await fs.readFile(path.join(out, rel), 'utf8')}\n${await fs.readFile(path.join(out, WRITING_STYLE_FILE), 'utf8')}`;
+import { AGENT_BLOG, WRITING_STYLE_FILE, renderWritingStyle, autoSeoTitle, BLOG, bodyMatcher, buildWriting, PAGE_SIZE as WRITING_PAGE_SIZE, TOPICS, loadPosts, parseFrontMatter, postPageTitle, rankRelated, rankRelatedBySort, relatedPosts, renderFeed, renderIndex, renderPost, renderSearchIndex, searchText, TITLE_BUDGET, WRITING_PATH } from './writing.mjs';
 
 const BASE = 'https://example.test/site/';
 
@@ -482,7 +487,7 @@ test('finder: menus share the search box height and Clear sits beside the count,
   const root = repoWith({ '2026-10-01-one.md': post('One', '2026-10-01') });
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-finder-row-'));
   await buildWriting(out, BASE, { root });
-  const html = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
+  const html = await pageWithStyle(out, path.join(WRITING_PATH, 'index.html'));
   const h = (sel) => html.match(new RegExp(sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ' \\{[^}]*?height:(\\d+px)'))?.[1];
   assert.equal(h('.finder input[type=search]'), '42px');
   assert.equal(h('.finder select'), '42px');
@@ -627,7 +632,7 @@ test('finder: topic chips are one sideways row on a phone, faded at the end that
   const root = repoWith({ '2026-10-01-one.md': post('One', '2026-10-01') });
   const out = mkdtempSync(path.join(os.tmpdir(), 'writing-finder-chips-'));
   await buildWriting(out, BASE, { root });
-  const html = await fs.readFile(path.join(out, WRITING_PATH, 'index.html'), 'utf8');
+  const html = await pageWithStyle(out, path.join(WRITING_PATH, 'index.html'));
   const phone = html.match(/@media \(max-width:639px\) \{([\s\S]*?)\n  \}/)?.[1] || '';
   assert.match(phone, /\.chips \{ flex-wrap:nowrap; overflow-x:auto;/);
   assert.match(phone, /\.chips > \* \{ flex:none; white-space:nowrap;/, 'every chip, buttons and the podcast index\'s links alike, keeps its width in the row');
@@ -782,7 +787,7 @@ test('Tools and projects: a project with three posts gets its own page, linked f
 
 test('the phone keeps the "By project" chips to one sideways row', async () => {
   const { renderTopicPage } = await import('./writing.mjs');
-  const html = renderTopicPage([], 'tools', { projects: [{ slug: 'x', name: 'X', count: 3 }] });
+  const html = renderTopicPage([], 'tools', { projects: [{ slug: 'x', name: 'X', count: 3 }] }) + renderWritingStyle();
   assert.match(html, /@media \(max-width:639px\) \{\s*\.topic-nav\.lead ul \{ flex-wrap:nowrap; overflow-x:auto;/);
 });
 

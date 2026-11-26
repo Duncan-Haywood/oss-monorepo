@@ -464,6 +464,15 @@ const longDate = (iso) => {
 // scroll. `overflow-wrap:anywhere` reached 0 but split amounts like $2,853.20.
 export const PHONE_TABLE_CSS = '@media (max-width:420px) { th, td { padding:6px; -webkit-hyphens:auto; hyphens:auto; } }';
 
+// The blog's stylesheet, written once to the site root (`buildWriting`) and
+// linked where the inline <style> used to sit, so the cascade order against
+// pf-site.css is unchanged. Until 2026-11-26 every post, tag and index page
+// carried it inline: 12.9 KB on each of 7,815 pages, 96 MB of the 189 MB of post
+// HTML, written by every full build and every test build (perf track,
+// docs/history/pages-build-perf-2026-11-26-writing-stylesheet.md).
+export const WRITING_STYLE_FILE = 'pf-writing.css';
+export const renderWritingStyle = () => `${STYLE.trim()}\n`;
+
 const STYLE = `
   :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
   @media (prefers-color-scheme: dark) { :root { --bg:#0f141a; --panel:#161d26; --ink:#e7edf4; --muted:#a3b0bf; --line:#2a3542; --accent:#86a8ff; --code:#1d2631; } }
@@ -636,7 +645,7 @@ ${podcastFeedHref ? `<link rel="alternate" type="application/rss+xml" title="${e
 <meta property="og:type" content="${jsonLd['@type'] === 'BlogPosting' ? 'article' : 'website'}">
 ${canonical ? `<meta property="og:url" content="${esc(canonical)}">\n` : ''}${socialCard ? `<meta property="og:image" content="${esc(socialCard)}">\n<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">\n` : ''}<meta name="twitter:card" content="${socialCard ? 'summary_large_image' : 'summary'}">
 <script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, '\\u003c')}</script>
-${breadcrumb ? `<script type="application/ld+json">${JSON.stringify(breadcrumb).replace(/</g, '\\u003c')}</script>\n` : ''}<style>${STYLE}</style>
+${breadcrumb ? `<script type="application/ld+json">${JSON.stringify(breadcrumb).replace(/</g, '\\u003c')}</script>\n` : ''}<link rel="stylesheet" href="${esc(`${toRoot}${WRITING_STYLE_FILE}`)}">
 </head>
 <body>
 <div class="wrap">
@@ -1719,6 +1728,8 @@ export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, 
     ...projectGroups(posts.filter((p) => p.topic === 'research'), { root, topic: 'research', questions: (slug) => questions.get(slug) || '', ledes: (slug) => ledes.get(slug) || '' }),
   ];
   await writeSection(outDir, posts, BLOG, { baseUrl, socialCard, rebase, episodes, byPost, agentPosts: agentPosts.length, projects, published });
+  // Every page writeSection wrote links this (shell(); writeSection made outDir).
+  await fs.writeFile(path.join(outDir, WRITING_STYLE_FILE), renderWritingStyle());
   if (agentPosts.length) {
     await writeSection(outDir, agentPosts, AGENT_BLOG, { baseUrl, socialCard, rebase });
     const dir = path.join(outDir, AGENTS_PATH);
