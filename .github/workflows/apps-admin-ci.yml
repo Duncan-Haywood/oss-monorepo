@@ -2,7 +2,7 @@
 # actions pinned to .github/ci-policy.yaml SHAs, checkout without persisted credentials,
 # the AWS CodeBuild runner switch replaced by this repository's vars.CI_RUNNER.
 # PR checks for the owner console (apps/admin) and the platform-admin contract (packages/admin-metrics).
-# Zero dependencies beyond the repo's dev tools; never needs secrets.
+# Zero dependencies beyond the repo's dev tools; never needs a secret;
 name: apps-admin-ci
 on:
   pull_request:

@@ -1,7 +1,7 @@
 # Moved from Duncan-Haywood/private-monorepo .github/workflows/einvoice-site-ci.yml at cded6eaf5d8a (2026-11-26);
 # actions pinned to .github/ci-policy.yaml SHAs, checkout without persisted credentials,
 # the AWS CodeBuild runner switch replaced by this repository's vars.CI_RUNNER.
-# PR checks for apps/einvoice-site (zero-dependency static site + worker). Never needs secrets.
+# PR checks for apps/einvoice-site (zero-dependency static site + worker). Never needs a secret;
 name: apps-einvoice-site-ci
 on:
   pull_request:

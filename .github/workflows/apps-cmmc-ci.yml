@@ -1,8 +1,8 @@
 # Moved from Duncan-Haywood/private-monorepo .github/workflows/cmmc-ci.yml at cded6eaf5d8a (2026-11-26);
 # actions pinned to .github/ci-policy.yaml SHAs, checkout without persisted credentials,
 # the AWS CodeBuild runner switch replaced by this repository's vars.CI_RUNNER.
-# PR checks for apps/cmmc (also when packages/billing changes). Deploys: docs/runbooks/paid-apps-secrets.md
-# only; this workflow never needs secrets.
+# PR checks for apps/cmmc (also when packages/billing changes). Deploys: the paid-apps secrets runbook in docs/runbooks
+# only; this workflow never needs a secret;
 name: apps-cmmc-ci
 on:
   pull_request:

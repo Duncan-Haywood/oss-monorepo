@@ -1,7 +1,7 @@
 # Moved from Duncan-Haywood/private-monorepo .github/workflows/seller-books-ci.yml at cded6eaf5d8a (2026-11-26);
 # actions pinned to .github/ci-policy.yaml SHAs, checkout without persisted credentials,
 # the AWS CodeBuild runner switch replaced by this repository's vars.CI_RUNNER.
-# PR checks for apps/seller-books; never needs secrets. Deploys: docs/runbooks/paid-apps-secrets.md.
+# PR checks for apps/seller-books; never needs a secret; Deploys: the paid-apps secrets runbook in docs/runbooks.
 name: apps-seller-books-ci
 on:
   pull_request:

@@ -2,7 +2,7 @@
 # actions pinned to .github/ci-policy.yaml SHAs, checkout without persisted credentials,
 # the AWS CodeBuild runner switch replaced by this repository's vars.CI_RUNNER.
 # PR checks for apps/payapps-site (the PayPencil marketing site). No deploy workflow yet: see
-# apps/payapps-site/README.md "Deploying". Never needs secrets.
+# apps/payapps-site/README.md "Deploying". Never needs a secret;
 name: apps-payapps-site-ci
 on:
   pull_request:

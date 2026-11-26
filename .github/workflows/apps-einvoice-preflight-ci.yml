@@ -3,7 +3,7 @@
 # the AWS CodeBuild runner switch replaced by this repository's vars.CI_RUNNER.
 # PR checks for apps/einvoice-preflight: the imported checker's suite and the paid layer (pro/).
 # No npm dependencies, so no install step (pro/ imports packages/billing's TypeScript through
-# Node 22's type stripping); never needs secrets.
+# Node 22's type stripping); never needs a secret;
 name: apps-einvoice-preflight-ci
 on:
   pull_request:
