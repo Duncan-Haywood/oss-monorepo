@@ -293,6 +293,38 @@ The same rule as above applies: nothing a member imports is hidden when a
 plan lapses. Removing a member takes away their access, not the work they
 did.
 
+## Why your 1099-K doesn't match your sales (added 2026-11-26)
+
+A platform's Form 1099-K usually shows more than the seller thinks they
+made, and the gap is rarely a mistake. The IRS instructions define box 1a,
+the gross amount, "without regard to any adjustments for credits": refunds,
+fees and shipping adjustments are not taken off. So a seller who refunded
+$50 and paid $200 in fees still sees the full amount buyers paid. Whether a
+marketplace's box 1a also includes the sales tax it collected on your
+behalf is something we could not find stated on a page we could check, so
+Seller Books does not assume it.
+
+Seller Books' 1099-K page now has a check for this. Type one platform's box
+1a, and the books' sales for that platform and year are added up three
+ways: item sales, then with the shipping buyers paid, then with the sales
+tax the platform collected. The closest of the three is shown as the
+closest, not as what the platform includes. Type the monthly boxes (5a to
+5l) as well and it names what usually explains the rest:
+
+- **A month with an amount on the form and no orders in the books.** Most
+  often that month's report was never imported.
+- **Two months off by the same amount in opposite directions.** A sale on
+  the 31st that you date by the order and the platform dates by the day it
+  paid out. The year's total is unaffected.
+- **Monthly boxes that don't add to box 1a.** Usually a typing slip; check
+  both against the form before reading further.
+- **Books higher than the form.** The same sale imported from two reports,
+  cancelled orders kept, or a second account counted.
+
+Nothing typed into the check is saved. It is a comparison of your records
+with the form, not tax advice, and it does not tell you what to report:
+your income is what the books show, whether or not the form agrees.
+
 ## Your own Shopify store, in the same books (added 2026-11-26)
 
 Plenty of resellers run a Shopify store beside the marketplaces, for repeat
@@ -335,6 +367,41 @@ labels, which go on your Shopify bill. Add them as expenses, or bring them
 in from the card statement that paid the bill. If your store takes payments
 through PayPal or another processor instead of Shopify Payments, those fees
 come from that processor's statement.
+
+## When your stock lives in the spare room: line 30 (added 2026-11-26)
+
+Most resellers keep their stock at home: shelves in a spare room, bins in
+the garage, a packing table in the basement. Schedule C has a line for
+that, line 30, business use of your home. Until today the Seller Books
+worksheet left it blank. Now you can enter the space on the Schedule C
+page, once for each tax year, and the worksheet fills line 30 by the
+IRS's simplified method:
+
+- **$5 a square foot, up to 300 square feet.** The most it can be is
+  $1,500 a year.
+- **Only the months you used the space count.** A month counts when you
+  used the space for the business on 15 days or more. If you started
+  storing stock in July, 120 square feet comes to 120 × $5 × 6/12 =
+  **$300**, not $600.
+- **It can't be more than your profit.** Line 30 is held to line 29, so it
+  never turns a profit into a loss. Under the simplified method, whatever
+  the limit cuts is gone: nothing carries to next year. In a year where
+  line 29 is $200, that $300 becomes $200, and the worksheet says how much
+  was cut and why.
+
+The rule that matters most for resellers is about who qualifies. A home
+office normally has to be used regularly and *only* for the business. Space
+where you store inventory is an exception: it only has to be used
+regularly, as long as your home is the business's only fixed location
+(IRS Publication 587). So a guest room that also holds your stock can still
+count. Whether *your* space qualifies, and whether the regular method on
+Form 8829 (a share of your rent or mortgage interest, utilities and
+depreciation) would give you more, is for you or your tax preparer. The
+worksheet doesn't decide that for you.
+
+Line 31, net profit, now appears below line 30. A test in the app checks
+each figure above. The quarterly estimates page still works from line 29,
+so for now it leaves the home office out.
 
 ## What comes next
 

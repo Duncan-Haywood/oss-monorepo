@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqyf842AtffYYUyhgUEH",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T12:39:43Z",
+  "ended": "2026-11-26T12:48:10Z",
+  "wall_minutes": 8.63,
+  "tokens_in": 2903841,
+  "tokens_out": 33427,
+  "cost_usd": 2.0223,
+  "tool_calls": 33,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19349",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The Next up proposal asked for a real hill town's steep street with its real grade; published climb guides for Gold Hill disagree (0.14 km at 21% vs 0.5 km at 6.5% with the steepest 100 m at 17.9%, both with 32 m gain), so the story uses an invented lane for the calculation and cites Gold Hill only as a landmark with the disagreement stated."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "overlap.mjs --unused offered 'compound interest, rule of 72' as unused, but The Roof Fund That Fell Behind already does a fund growing against rising prices; the subject list matches words, not angles, so a candidate still needs a --titles and summary check."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio is 581 MB against the 400 MB cap.",
+      "did": "Landed text and pages without audio.",
+      "result": "Story, pages and feeds regenerated; node --test 22/22."
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "No blog post: the creative piece is the run's write-up, and the 2026-11-24 consolidation direction argues against a thin post per story.",
+      "did": "No post.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "ventures/hearth-and-horizon/stories/the-gear-that-made-the-hill-no-shorter.md"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon. Piece: the-gear-that-made-the-hill-no-shorter (5,045 words, Shaftesbury, October 2054), from the BIBLE Next up proposal, claimed in a draft PR before drafting. Numbers worked in Python (force, speed, cadence and pedal force in 32/32 and 22/42, work on the pitch, weekdays). Added a new Hearth & Horizon Next up proposal (The toast that stayed pale, Maillard). Checks: node generate.mjs, node --test 22/22 pass, risk_review.py nothing blocked (page uses the shelf's existing anonymous local counting).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "39175489-496a-54ab-b342-cd60463f9ff4",
+    "transcripts": 1,
+    "first": "2026-11-26T12:39:43Z",
+    "last": "2026-11-26T12:48:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 31,
+        "input": 63,
+        "output": 33427,
+        "thinking": 15410,
+        "cache_read": 2804712,
+        "cache_write_5m": 0,
+        "cache_write_1h": 99066,
+        "api_equivalent_usd": 2.0223,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 31,
+      "input": 63,
+      "output": 33427,
+      "thinking": 15410,
+      "cache_read": 2804712,
+      "cache_write_5m": 0,
+      "cache_write_1h": 99066,
+      "api_equivalent_usd": 2.0223,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.966,
+    "tool_calls": 33,
+    "tools": {
+      "Bash": 25,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "WebFetch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.63,
+      "active_minutes": 8.63,
+      "model_minutes": 7.28,
+      "tool_minutes": 1.35,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
