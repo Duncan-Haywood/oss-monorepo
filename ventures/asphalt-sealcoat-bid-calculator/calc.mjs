@@ -126,7 +126,7 @@ export function calculateBid(input) {
     if (coats > 4) throw new Error(`${label}: coats must be 4 or fewer`);
     const firstCoatSqFtPerGal = number(surface.firstCoatSqFtPerGal ?? 0, `${label}: first-coat coverage`, { allowZero: false });
     const secondCoatSqFtPerGal = number(surface.secondCoatSqFtPerGal ?? 0, `${label}: second-coat coverage`, { allowZero: false });
-    const firstGallons = squareFeet / (firstCoatSqFtPerGal * coverageMult);
+    const firstGallons = coats > 0 ? squareFeet / (firstCoatSqFtPerGal * coverageMult) : 0;
     const extraCoatGallons = coats > 1 ? (coats - 1) * (squareFeet / secondCoatSqFtPerGal) : 0;
     const gallons = firstGallons + extraCoatGallons;
     const applyHours = coats > 0 && squareFeet > 0 ? (squareFeet * coats) / sqFtPerCrewHour : 0;

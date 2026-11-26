@@ -191,3 +191,28 @@ test('add-ons that are disabled do not bill hours or parts', () => {
   assert.equal(result.addOnHours, 0.3);
   assert.ok(result.materials > result.sealerCost);
 });
+
+// Quality round 117 (portfolio/quality/audits/2026-11-26-asphalt-sealcoat-bid-calculator.json).
+test('a surface with zero coats bills no sealer', () => {
+  const result = calculateBid({
+    ...driveway(),
+    surfaces: [{ name: 'Skipped', squareFeet: 800, coats: 0, firstCoatSqFtPerGal: 90, secondCoatSqFtPerGal: 120 }],
+  });
+  assert.equal(result.totalGallons, 0);
+  assert.equal(result.sealerCost, 0);
+});
+
+test('the minimum on-site hours apply only below the minimum, not at it', () => {
+  const base = calculateBid(driveway());
+  const at = calculateBid({ ...driveway(), minOnSiteHours: base.rawOnSite });
+  assert.equal(at.minimumApplied, false);
+  const above = calculateBid({ ...driveway(), minOnSiteHours: base.rawOnSite + 0.5 });
+  assert.equal(above.minimumApplied, true);
+  assert.ok(Math.abs(above.onSiteHours - (base.rawOnSite + 0.5)) < 1e-9);
+});
+
+test('sand mixing adds a fixed 0.15 h plus 0.01 h per gallon', () => {
+  const result = calculateBid({ ...driveway(), sand: true });
+  assert.ok(Math.abs(result.sandHours - (0.15 + result.totalGallons * 0.01)) < 1e-9);
+  assert.ok(Math.abs(result.sandHours - 0.305556) < 1e-5);
+});
