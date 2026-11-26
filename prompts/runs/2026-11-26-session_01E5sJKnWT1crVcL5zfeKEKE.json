@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKnWT1crVcL5zfeKEKE",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T21:18:16Z",
+  "ended": "2026-11-26T21:27:19Z",
+  "wall_minutes": 9.21,
+  "tokens_in": 6505632,
+  "tokens_out": 21693,
+  "cost_usd": 2.5858,
+  "tool_calls": 66,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19482",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets named cmmc #6 as 'free and not gated', but its only open ask reads 'if assessors ask for them there', a demand gate the gate-word list misses."
+    },
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "I guessed a --pattern flag; the flag is --until. CLAUDE.md names the tool but not its flags."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "apps/seller-books/docs/ARCHITECTURE.md",
+      "why": "The 'line 30 in the quarterly estimates' item was filed under 'Next, if sellers ask', but it is a correctness gap: estimates overstated tax for anyone with a saved home office. With no customers yet, a demand gate on a known overstatement keeps the bug open indefinitely.",
+      "did": "Built it for bet #5 (seller-books), which had no ROADMAP and no claims, instead of the gated cmmc #6.",
+      "result": "Merged as private-monorepo PR 412 with 12/12 local CI steps passing."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-reseller-payouts-cost-of-goods-and-schedule-c.md (line 30 section extended)"
+  ],
+  "goal": null,
+  "notes": "private-monorepo PR 412 merged (https://github.com/Duncan-Haywood/private-monorepo/pull/412): /estimated-tax reads line 31, home office by months to each period end. Local seller-books-ci: 12/12 run: steps passed after a Biome format fix (first run 11/12). Claim: claim/seller-books/estimates-home-office.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d4abea35-f9d2-5280-a610-68e0b9dc4bf2",
+    "transcripts": 1,
+    "first": "2026-11-26T21:18:16Z",
+    "last": "2026-11-26T21:27:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 117,
+        "output": 21693,
+        "thinking": 3147,
+        "cache_read": 6396492,
+        "cache_write_5m": 0,
+        "cache_write_1h": 109023,
+        "api_equivalent_usd": 2.5858,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 117,
+      "output": 21693,
+      "thinking": 3147,
+      "cache_read": 6396492,
+      "cache_write_5m": 0,
+      "cache_write_1h": 109023,
+      "api_equivalent_usd": 2.5858,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 59,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.21,
+      "active_minutes": 9.21,
+      "model_minutes": 4.44,
+      "tool_minutes": 4.77,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "small feature in an existing engine with worker tests and a doc/post update",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 154.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
