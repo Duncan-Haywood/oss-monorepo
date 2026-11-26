@@ -3,7 +3,9 @@
 // its siblings, and the calculator (the hub) linked neither the pay-if-paid reader, the prompt
 // payment table nor the waiver forms by state.
 //
-// Add a page: put it in GROUPS, then run `node nav.mjs` to rewrite every page.
+// Add a page: put it in GROUPS, then run `node nav.mjs` to rewrite every page. Also list it in
+// platform/pages/industry-construction.mjs and run `node platform/pages/llms-answers.mjs
+// ventures/pay-app-guides` (platform/pages tests check both).
 // page.test.mjs fails if a page is missing from GROUPS or its block is out of date.
 import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -33,6 +35,7 @@ export const GROUPS = [
     ["prompt-payment-laws.html", "Prompt payment laws by state"],
     ["conditional-vs-unconditional-lien-waivers.html", "Conditional vs unconditional lien waivers"],
     ["lien-waiver-forms-by-state.html", "Lien waiver forms by state"],
+    ["california-preliminary-notice.html", "California 20-day preliminary notice"],
     ["lien-waiver-log.html", "Lien waiver log (given and collected)"],
     ["sworn-statement.html", "Contractor's sworn statement builder"],
     ["paid-short.html", "Paid short? Reconcile the check"],
