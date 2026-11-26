@@ -145,7 +145,14 @@ GATES = (
         r"\b(?:once|until|after|when)\s+the owner\b|\bthe owner (?:runs|onboards|sets|adds)\b|"
         r"\bonboard(?:s|ing)? the sender domain\b|(?:^|[.;(]\s*)owner:|"
         r"\b[A-Z][A-Z_]*_(?:TOKEN|SECRET|API_KEY)\b", re.I)),
+    # Work only a person can honestly do: an agent's "native-speaker read" would be fabricated
+    # (nine run records, 2026-11-26, on einvoice-preflight's Polish KSeF item).
+    ("waits on a person", re.compile(
+        r"\bnative[- ](?:\w+[- ])?(?:speakers?|reviewers?|readers?)\b|"
+        r"(?<!no )\bhuman (?:reviewers?|translators?|read(?:er)?s?|review)\b|"
+        r"(?<!no )\b(?:lawyer|attorney|accountant|CPA)(?:'s)? (?:review|read|sign-off)\b", re.I)),
     ("waits on evidence", re.compile(
+        r"\bonly if\b[^.;()]{0,60}\b(?:a market|worth)\b|"
         r"\bif\b[^.;()]{0,60}?\b(?:ever|turns? up|shows? up|proves?|turns? out)\b|"
         r"\bif (?:the )?(?:counts?|numbers|data)\b", re.I)),
 )
@@ -265,7 +272,7 @@ def ask_gates(text: str) -> list[tuple[str, tuple[str, str] | None]]:
 
 def gate(text: str) -> str | None:
     """Why an item waits ("waits on demand", "waits on a source", "owner step",
-    "waits on evidence"), or None."""
+    "waits on a person", "waits on evidence"), or None."""
     hit = gate_match(text)
     return hit[0] if hit else None
 
