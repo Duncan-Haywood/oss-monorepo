@@ -387,6 +387,8 @@ before writing the first scene.
 
 **For Other Minds**
 
+- *The record that never moved* *(Drafting, 2026-11-26.)* (proposed 2026-11-26): explore and exploit. In 2054 a small Eden Valley builder's scheduling agent books ready-mix by a rule the office wrote in 2052: the supplier with the best on-time record over twelve months. A new two-truck plant four miles away gets two trial loads in April 2053, one late from a weigh-hopper fault in its second week, and its record of 1 in 2 never moves again, because the rule never books it. Numbers: the incumbent 172 of 200 on time (86%, Wilson 95% interval about 80 to 90%); a supplier that is truly 90% on time is late at least once in its first two loads about 19 times in 100; 1 in 2 has an interval of about 9 to 91%. A late incumbent load on a raft slab forces a construction joint. The reasonable no is the owner who will not risk structural pours on an untried plant; the compromise sends every non-structural pour (paths, shed bases, blinding) to the new plant until it has twenty: 19 of 20 on time, interval about 76 to 99%, and a 19-or-better run would turn up about one time in five even if the new plant were only as good as the old. 'bandit', 'explore', 'exploit' and 'cold joint' are unused in `overlap.mjs`.
+
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
