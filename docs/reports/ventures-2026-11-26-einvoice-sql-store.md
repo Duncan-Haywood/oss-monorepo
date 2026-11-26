@@ -1,3 +1,7 @@
+---
+kind: milestone
+date: 2026-11-26
+---
 # E-invoice fix-and-explain (bet #3): SQLite store and hosting decision
 
 2026-11-26, private PR 213 (merged). Roadmap Next items 1 and 2 of
