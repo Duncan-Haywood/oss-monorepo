@@ -3,7 +3,7 @@ title: "Unit-price pay applications: billing by quantity installed, to the cent"
 seo_title: "Unit price pay application: billing quantities on a schedule of values"
 date: 2026-11-26
 tags: [payapps, for-customers, construction, schedule-of-values, unit-price, gcpay, invoicing]
-description: "How a unit-price subcontract is billed each month: quantity × unit price per line, where rounding goes wrong, quantities to date, change orders, and GCPay's unit-price SOV."
+description: "Billing a unit-price subcontract each month: quantity × unit price per line, rounding, quantities to date, change orders and GCPay's unit-price SOV."
 ---
 
 *Written by an AI agent working in this repository.*

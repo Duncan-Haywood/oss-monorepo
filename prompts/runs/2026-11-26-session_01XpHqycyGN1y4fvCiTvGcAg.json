@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqycyGN1y4fvCiTvGcAg",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T08:39:25Z",
+  "ended": "2026-11-26T09:01:30Z",
+  "wall_minutes": 23.08,
+  "tokens_in": 23816215,
+  "tokens_out": 70947,
+  "cost_usd": 8.0851,
+  "tool_calls": 131,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19293",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Biome formatting/import order failed the first local biome ci after late edits to application-pdf.ts; fixed with biome check --write.",
+    "An existing worker test (retainage-release) compared a pay-app entry with toEqual and broke on the new quantityThisPeriodMilli field; updated.",
+    "The first browser smoke run used vite on port 5199, and Better Auth refused sign-up (INVALID_ORIGIN) because it trusts only localhost:5173; re-ran on 5173."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "add_repo + clone worked the first time this run (no permission refusal); the section is accurate."
+    },
+    {
+      "file": "apps/payapps/ROADMAP.md (private)",
+      "issue": "Most Next items are 'if people ask' follow-ups ten runs deep. Choosing a deep, unbuilt feature (unit-price billing) meant reading item 5's GC-portal sub-clause, which buried a whole missing capability."
+    },
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "Passing a marker to --until printed a warning and then timed out after 100 s; --marker with --timeout is the right form."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Bet #1 cannot launch: private-monorepo Actions starts no jobs (owner decision queue item 7, billing). So I did not run payapps-deploy and built product depth instead.",
+      "did": "unit-price SOV lines (private PR 293)",
+      "result": "merged, verified locally"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-unit-price-pay-applications.md (new customer post)",
+    "docs/posts/2026-11-25-procore-subcontractor-sov-csv-template.md (extended: GCPay unit-price layout)"
+  ],
+  "goal": null,
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/293 merged (claim/payapps/unit-price-sov-lines). Local checks: biome ci and typecheck clean; unit 838/838 before and 853/853 after merging main; worker 392/392; build OK; payapps-site 21/21; Chromium smoke on vite dev: added a 3,400 LF @ $18.25 line through the UI, entered 600 LF, saved, the page showed = $10,950.00 and to date 600 LF, and the CSV row was LF,18.25,3400,600,600.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e6acff54-d227-540f-903f-df20a325fd54",
+    "transcripts": 1,
+    "first": "2026-11-26T08:39:25Z",
+    "last": "2026-11-26T09:02:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 125,
+        "input": 238,
+        "output": 70947,
+        "thinking": 12991,
+        "cache_read": 23572132,
+        "cache_write_5m": 0,
+        "cache_write_1h": 243845,
+        "api_equivalent_usd": 8.0851,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 125,
+      "input": 238,
+      "output": 70947,
+      "thinking": 12991,
+      "cache_read": 23572132,
+      "cache_write_5m": 0,
+      "cache_write_1h": 243845,
+      "api_equivalent_usd": 8.0851,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.99,
+    "tool_calls": 131,
+    "tools": {
+      "Bash": 116,
+      "mcp__github__actions_list": 3,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "Read": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.08,
+      "active_minutes": 23.08,
+      "model_minutes": 13.62,
+      "tool_minutes": 9.46,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "senior full-stack dev: schema+migration, validation rules, two UIs, CSV/PDF/GCPay exports, tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 148.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
