@@ -55,6 +55,19 @@ class ParseTest(unittest.TestCase):
     def test_slug_before_colon(self):
         self.assertEqual(rc.slugify("QuickBooks, part 5: an item per line"), "quickbooks-part-5")
 
+    def test_gate_reads_conditional_items(self):
+        self.assertEqual(rc.gate("CSV export of retainage, if people ask"), "waits on demand")
+        self.assertEqual(rc.gate("Textura columns (once a customer asks)"), "waits on demand")
+        self.assertEqual(rc.gate("Saved crews; if shops ask for it"), "waits on demand")
+        self.assertEqual(rc.gate("California waivers, once an official copy is reachable (leginfo 403)"),
+                         "waits on a source")
+        self.assertEqual(rc.gate("GCPay import: no public spec for the columns"), "waits on a source")
+        self.assertEqual(rc.gate("**launch** sender domain and deploy (owner step)"), "owner step")
+        for free in ("QuickBooks, part 5: an item per schedule-of-values line",
+                     "Owner dashboard: a shop owner sees every quote",
+                     "Ask-for-payment email when an invoice is overdue"):
+            self.assertIsNone(rc.gate(free), free)
+
     def test_parse_claims_newest_generation(self):
         ls = ("a\trefs/heads/claim/payapps/history-part-3\n"
               "b\trefs/heads/claim/payapps/history-part-3--2\n"
@@ -104,6 +117,20 @@ class ClaimRaceTest(unittest.TestCase):
         sha = tree.split()[0]
         run(self.a, "fetch", "-q", "origin", sha)
         self.assertEqual(run(self.a, "ls-tree", sha).stdout, "")
+
+    def test_listing_marks_gated_items_and_sums_up(self):
+        roadmap = self.a / "apps" / "payapps" / "ROADMAP.md"
+        roadmap.write_text(ROADMAP.replace("GC portal export formats", "GC portal formats, if people ask"))
+        _, listing = self.main(self.a)
+        self.assertIn("[free, waits on demand] notarization", listing)
+        self.assertIn("Free and not gated: #1, #2", listing)
+        code, out = self.main(self.a, "--claim", "3")
+        self.assertEqual(code, 0, out)
+        self.assertIn("reads as gated (waits on demand)", out)
+        self.main(self.b, "--claim", "1")
+        self.main(self.b, "--claim", "2")
+        _, listing = self.main(self.a)
+        self.assertIn("Free and not gated: none", listing)
 
     def test_part_slug_and_stale_retake(self):
         code, out = self.main(self.a, "--claim", "2", "--slug", "Backup packets part 2 HEIC", "--note", "HEIC only")

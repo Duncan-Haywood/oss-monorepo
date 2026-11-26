@@ -18,7 +18,8 @@ second run's push fails and it picks another item. No files, so no CI runs on it
 shown as stale, and --claim on it takes a fresh generation (`<slug>--2`), since the run
 that made it has ended. A claim whose slug a later commit subject on origin/main names
 (the PR title, punctuation ignored) is shown as MERGED and is no sibling. A claim records a hash of the session id, so re-running --claim on
-your own claim prints YOURS (exit 0), not TAKEN. An app with no ROADMAP.md takes --slug claims. Exit codes: 0 ok, 2 usage or git error, 4 the item is already
+your own claim prints YOURS (exit 0), not TAKEN. An app with no ROADMAP.md takes --slug claims. A free item whose text says it waits ("if people ask", "once ... reachable", "owner step")
+is listed as gated, and the listing ends with the free, ungated item numbers. Exit codes: 0 ok, 2 usage or git error, 4 the item is already
 claimed (pick another).
 """
 from __future__ import annotations
@@ -92,6 +93,31 @@ def next_items(roadmap: str) -> list[tuple[int, str]]:
         elif items and line.startswith((" ", "\t")) and line.strip():
             items[-1] = (items[-1][0], items[-1][1] + " " + line.strip())
     return items
+
+
+# Items whose own text says they wait on something a session cannot supply. Twenty-odd run
+# records (2026-11-25..26) found bet #1's [free] items were "if people ask", "once an official
+# copy is reachable" or owner steps, and spent about ten minutes per run re-deriving that before
+# dropping a bet. Phrases are matched in the item's text only; a miss just leaves it [free].
+GATES = (
+    ("waits on demand", re.compile(
+        r"\b(?:if|once|when|until)\s+(?:a |an |the |any |more )?(?:people|shops?|customers?|users?|"
+        r"contractors?|subs?|buyers?|sellers?|firms?|clients?|someone|anyone|demand)\s+"
+        r"(?:asks?|requests?|wants?|needs?|shows?)\b|\bif asked\b|\bon request\b|"
+        r"\bonce (?:usage|traffic)\b|\bonce [^.;()]{0,25}\bmeasured\b", re.I)),
+    ("waits on a source", re.compile(
+        r"\bonce\b[^.;()]{0,60}\b(?:reachable|published|available)\b|\b403\b|"
+        r"\bno public (?:spec|format|columns?|schema|docs?)\b", re.I)),
+    ("owner step", re.compile(r"\bowner[- ](?:only|steps?|actions?)\b|\bneeds the owner\b", re.I)),
+)
+
+
+def gate(text: str) -> str | None:
+    """Why an item waits ("waits on demand", "waits on a source", "owner step"), or None."""
+    for label, rx in GATES:
+        if rx.search(text):
+            return label
+    return None
 
 
 def parse_claims(ls_remote: str, app: str) -> dict[str, tuple[int, str]]:
@@ -277,6 +303,10 @@ def main(argv: list[str] | None = None) -> int:
             return 4
         print(f"CLAIMED {ref.removeprefix('refs/heads/')}. Name the slug in your PR title; "
               f"`--release {slug}` if you drop it.")
+        why = gate(by_num.get(a.claim, "")) if a.claim is not None else None
+        if why:
+            print(f"NOTE: item {a.claim}'s text reads as gated ({why}); build it only if that "
+                  f"condition now holds, else `--release {slug}` and pick another.")
         # Different part slugs of one item never collide on the branch name, so two runs can
         # claim the same work under two names (2026-11-25: inbound-rfq-email-notify and
         # inbound-rfq-email-part-2-notify, minutes apart; the second was built and discarded).
@@ -291,6 +321,7 @@ def main(argv: list[str] | None = None) -> int:
     head = "ROADMAP Next" if roadmap.is_file() else "has no ROADMAP.md"
     print(f"{a.app} {head} ({len(items)} items; claims older than {a.stale_hours:g} h are stale):")
     seen = set()
+    open_now: list[int] = []
     if not items:
         print("  (no `## Next` list: claim what you build with --slug <short-name> --note ...)")
     for i, text in items:
@@ -312,11 +343,22 @@ def main(argv: list[str] | None = None) -> int:
             mark = f"{len(parts)} part(s) claimed: read the notes below before claiming another"
         elif any(c.startswith(slug + "-") and c not in merged for c in claims):
             mark = "a part is claimed: see below"
+        why = gate(text)
+        if mark == "free":
+            if why:
+                mark = f"free, {why}"
+            else:
+                open_now.append(i)
         print(f"{i:>3}. [{mark}] {slug}: {text[:90]}")
         for s, (ts, m) in parts:
             seen.add(s)
             mine = " (yours)" if is_mine(m, tag) else ""
             print(f"       part {s}{mine} ({age(ts, now)}): {RUN.sub('', m)[:140].rstrip()}")
+    if items:
+        # The one line twenty runs asked for: is there anything here to build right now?
+        print(f"Free and not gated: {', '.join(f'#{n}' for n in open_now)}" if open_now else
+              "Free and not gated: none. Take the next bet, or open a new item from the bet's "
+              "growth path (portfolio/monetization/bets.md) with --slug <short-name> --note ...")
     others = sorted(set(claims) - seen)
     if others:
         print("Other claims on this app (parts of items, or items already done):")
