@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqyfPMmFZuuyPHh8X9kH",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T10:39:35Z",
+  "ended": "2026-11-26T10:50:57Z",
+  "wall_minutes": 11.53,
+  "tokens_in": 8704652,
+  "tokens_out": 25088,
+  "cost_usd": 3.0965,
+  "tool_calls": 84,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19321",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "first e2e run of the new spec failed: test setup omitted the required line material (400); fixed in the spec"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "create_pull_request with draft:true then merge_pull_request returns 405 'still a draft'; the land-your-work steps could say to flip draft:false (update_pull_request) before merging"
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "its 'do not change tracked files here' warning does not say whether 'here' is the --repo-root checkout or the calling repo"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-25-a-step-file-now-sizes-the-blank-in-the-job-shop-quoter.md (extended)",
+    "docs/reports/ventures-2026-11-26-jobshop-routing-record-shown.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty, ideas inbox empty. Bet #1 payapps free items #5 (Siteline/Trimble Pay formats, no public spec) and #10 (waiver history outside a pay app, which doesn't exist) skipped; took bet #2 jobshop-quote #10 next slice. Private PR #314 merged: line shows its recorded routings, x per routing and Clear, an emptied record counts under 'No saved routing'. Local jobshop-quote-ci: 11/11 run steps ok (biome, typecheck, unit, worker 118s, build, migrations, Playwright incl. new 10-routing-record.spec.ts); 8 uses: steps not run.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3a6b0363-b23b-5d32-8e15-e510083778dd",
+    "transcripts": 1,
+    "first": "2026-11-26T10:39:35Z",
+    "last": "2026-11-26T10:51:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 81,
+        "input": 156,
+        "output": 25088,
+        "thinking": 3502,
+        "cache_read": 8595104,
+        "cache_write_5m": 0,
+        "cache_write_1h": 109392,
+        "api_equivalent_usd": 3.0965,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 81,
+      "input": 156,
+      "output": 25088,
+      "thinking": 3502,
+      "cache_read": 8595104,
+      "cache_write_5m": 0,
+      "cache_write_1h": 109392,
+      "api_equivalent_usd": 3.0965,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 84,
+    "tools": {
+      "Bash": 75,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.53,
+      "active_minutes": 11.53,
+      "model_minutes": 6.36,
+      "tool_minutes": 5.18,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "UI component + helpers + worker and e2e tests + docs for an experienced React/TS dev",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 129.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
