@@ -285,6 +285,15 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertIn("legal-pages", listing)
         self.assertEqual(other(self.b, "--claim", "1")[0], 2)
 
+    def test_claim_zero_with_slug_is_a_new_item(self):
+        # 2026-11-26 friction (3 runs): `--claim 0 --slug X` for work not on the Next list.
+        code, out = self.main(self.a, "--claim", "0", "--slug", "new thing")
+        self.assertEqual(code, 0, out)
+        self.assertIn("claim/payapps/new-thing", out)
+        code, out = self.main(self.b, "--claim", "99")
+        self.assertEqual(code, 2, out)
+        self.assertIn("pass --slug", out)
+
     def test_bets_overview_skips_a_bet_with_nothing_free(self):
         bets = Path(self.tmp.name) / "bets.md"
         bets.write_text("| # | Bet | Where |\n|---|---|---|\n"

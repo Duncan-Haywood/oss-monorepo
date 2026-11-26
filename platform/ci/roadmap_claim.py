@@ -19,7 +19,7 @@ second run's push fails and it picks another item. No files, so no CI runs on it
 shown as stale, and --claim on it takes a fresh generation (`<slug>--2`), since the run
 that made it has ended. A claim whose slug a later commit subject on origin/main names
 (the PR title, punctuation ignored) is shown as MERGED and is no sibling. A claim records a hash of the session id, so re-running --claim on
-your own claim prints YOURS (exit 0), not TAKEN. An app with no ROADMAP.md takes --slug claims. A free item whose text says it waits ("if people ask", "once ... reachable", "owner step")
+your own claim prints YOURS (exit 0), not TAKEN. An app with no ROADMAP.md, or work not on its Next list, takes --slug alone (`--claim 0 --slug X` means the same). A free item whose text says it waits ("if people ask", "once ... reachable", "owner step")
 is listed as gated, and the listing ends with the free, ungated item numbers. A --slug whose
 words match a fresh rival claim's (pages-shop-time-zone vs page-dates-shop-time-zone) is
 refused as NEAR (exit 4) unless --distinct. Merged and stale claims not under an item are
@@ -441,10 +441,14 @@ def main(argv: list[str] | None = None) -> int:
     info = claim_info(a.repo, a.app, claims)
     merged = merged_claims(a.repo, info)
 
+    if a.claim == 0 and a.slug:
+        # Three runs on 2026-11-26 wrote `--claim 0 --slug X` for a new item; it means --slug alone.
+        a.claim = None
     if a.claim is not None or a.slug:
         by_num = dict(items)
         if a.claim is not None and a.claim not in by_num:
-            print(f"item {a.claim} is not in this Next list ({sorted(by_num)})")
+            print(f"item {a.claim} is not in this Next list ({sorted(by_num)}); "
+                  f"for work not on the list, pass --slug <name> without --claim")
             return 2
         title = by_num.get(a.claim, a.slug or "")[:120]
         slug = slugify(a.slug) if a.slug else slugify(title)
