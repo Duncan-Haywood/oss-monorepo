@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKkV7augxuVUqUiexfc",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T11:18:41Z",
+  "ended": "2026-11-26T11:20:31Z",
+  "wall_minutes": 2.01,
+  "tokens_in": 1147568,
+  "tokens_out": 4811,
+  "cost_usd": 0.725,
+  "tool_calls": 18,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19331",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "friction_rank output says 'check before taking it: claim_check.py' but the script lives at portfolio/router/claim_check.py, not platform/ci/; the bare name sent me to a missing path."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No post or agent doc: a one-flag tool fix whose error text and docstring explain it.",
+      "did": "Docstring, error message and PR body carry it",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Critique mode (backlog: only owner/blocked items). Security queue empty (exit 3); IDEAS empty. Fixed friction cluster #4 (roadmap_claim --claim 0 --slug). Verified: unittest test_roadmap_claim 18 OK; promptctl validate ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ff4ce987-03fc-55a0-822b-aa358ac35a53",
+    "transcripts": 1,
+    "first": "2026-11-26T11:18:41Z",
+    "last": "2026-11-26T11:20:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 17,
+        "input": 33,
+        "output": 4811,
+        "thinking": 334,
+        "cache_read": 1096363,
+        "cache_write_5m": 0,
+        "cache_write_1h": 51172,
+        "api_equivalent_usd": 0.725,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 17,
+      "input": 33,
+      "output": 4811,
+      "thinking": 334,
+      "cache_read": 1096363,
+      "cache_write_5m": 0,
+      "cache_write_1h": 51172,
+      "api_equivalent_usd": 0.725,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.955,
+    "tool_calls": 18,
+    "tools": {
+      "Bash": 15,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 2.01,
+      "active_minutes": 2.01,
+      "model_minutes": 1.21,
+      "tool_minutes": 0.79,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 0.5,
+      "basis": "read friction, patch one branch, add test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 50.0
+    },
+    "leverage": 69.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
