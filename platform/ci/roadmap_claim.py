@@ -310,6 +310,10 @@ def main(argv: list[str] | None = None) -> int:
     for i, text in items:
         slug = slugify(text)
         mark = "free"
+        # Part claims (--claim N --slug X) rarely start with the item's slug, so match them by
+        # the item number their message records. Two runs (2026-11-26) saw item 11 listed as
+        # [free] beside a fresh part claim and claimed the same scope under a second slug.
+        parts = [] if slug in merged else sibling_claims(a.app, i, slug, info, now, stale_s, merged)
         if slug in claims:
             seen.add(slug)
             ts, msg = info.get(slug, (0, ""))
@@ -318,9 +322,15 @@ def main(argv: list[str] | None = None) -> int:
             else:
                 mark = ("STALE " if ts and now - ts >= stale_s else "CLAIMED ") + age(ts, now)
                 mark += " (yours)" if is_mine(msg, tag) else ""
+        elif parts:
+            mark = f"{len(parts)} part(s) claimed: read the notes below before claiming another"
         elif any(c.startswith(slug + "-") and c not in merged for c in claims):
             mark = "a part is claimed: see below"
         print(f"{i:>3}. [{mark}] {slug}: {text[:90]}")
+        for s, (ts, m) in parts:
+            seen.add(s)
+            mine = " (yours)" if is_mine(m, tag) else ""
+            print(f"       part {s}{mine} ({age(ts, now)}): {RUN.sub('', m)[:140].rstrip()}")
     others = sorted(set(claims) - seen)
     if others:
         print("Other claims on this app (parts of items, or items already done):")

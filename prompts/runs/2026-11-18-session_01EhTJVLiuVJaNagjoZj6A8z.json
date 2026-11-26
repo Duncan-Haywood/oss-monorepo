@@ -357,6 +357,7 @@
       {
         "file": "ventures/help-keeper/search.mjs",
         "issue": "stem() maps a word and its inflections to different stems ('rate'->'rate' but 'rates'->'rat'; 'ship' vs 'shipping'->'shipp'; 'code' vs 'codes'->'cod'; 'policy' vs 'policies'), so a non-final query word of 3 stemmed letters never matches the other form (repro: KB title 'Shipping rate', query 'rates shipping' -> matchedAll false). A candidate fix (es only after s/x/z/ch/sh, fold trailing e and y->i, undouble after -ing/-ed) was measured on the BANKING77 dev split only: right answers 77/760/1030 -> 78/791/1011 at 0/10/40 past questions (wrong 4/40/54 -> 4/40/53), mixed, so it was not shipped. Shipping it changes support-agent's published test-split table (a fourth scoring, to note in fixtures/banking77/README.md), the DEFAULT_CALIBRATION* constants (refit with benchmark.mjs --defaults), eval.test.mjs and page.test.mjs pins, and the numbers in README, index.html, llms.txt and the how-to page. Worth doing with a help-center (not banking) eval set that shows the gain.",
+        "blocked": "a help-center (not banking) eval set that shows the stemmer fix gains; BANKING77 alone measured it as mixed",
         "patched": false
       }
     ]

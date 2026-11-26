@@ -1,0 +1,385 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqydaerocVywZddufqQe",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T02:39:11Z",
+  "ended": "2026-11-26T02:40:23Z",
+  "wall_minutes": 9.05,
+  "tokens_in": 3549018,
+  "tokens_out": 17802,
+  "cost_usd": 1.6512,
+  "tool_calls": 45,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19180",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "redteam.py targets --probe 20 lists every wall-framing-takeoff file as >20s (the whole-venture suite), so construction product #2 can't be campaigned under the default probe; moved to einvoice-preflight."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No customer blog post: a sign-rule fix in a checker is not worth a post; it went into the README change-log row and an agent doc.",
+      "did": "README row + docs/reports agent doc",
+      "result": "merged with the fix"
+    }
+  ],
+  "writeups": [
+    "docs/reports/redteam-2026-11-26-einvoice-adjustment-sign.md",
+    "ventures/einvoice-preflight/README.md (negative-invoice row extended)"
+  ],
+  "goal": null,
+  "notes": "Open list: both entries still deferred (framerate nightly is control-plane; help-keeper stemmer needs a help-center eval set), not re-attempted. Guard added: adjustment-parity.test.mjs (JS vs Python, 1500 seeded invoices); reverting only the Python fix makes 261 disagree. run_venture_tests.py einvoice-preflight: 2803 tests, 0 failed.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/einvoice-preflight/adjustment.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 63054006,
+        "commit": "0d1685a12",
+        "sites": 90,
+        "baseline_seconds": 10.3,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/adjustment.mjs",
+            "line": 38,
+            "col": 13,
+            "operator": "or-to-and",
+            "before": "if (!row || typeof row !== \"object\" || Array.isArray(row)) continue;",
+            "after": "if (!row && typeof row !== \"object\" || Array.isArray(row)) continue;",
+            "line_text": "    if (!row || typeof row !== \"object\" || Array.isArray(row)) continue;",
+            "caught": false,
+            "seconds": 10.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "A null row passes the mutated guard and row.kind throws; adjustment.test.mjs now runs headerAdjustmentNetDelta over [null, charge 5]."
+          },
+          {
+            "file": "ventures/einvoice-preflight/adjustment.mjs",
+            "line": 41,
+            "col": 52,
+            "operator": "lt-to-le",
+            "before": "if (kind === null || amount === null || (amount < 0 && !negative)) continue;",
+            "after": "if (kind === null || amount === null || (amount <= 0 && !negative)) continue;",
+            "line_text": "    if (kind === null || amount === null || (amount < 0 && !negative)) continue;",
+            "caught": false,
+            "seconds": 10.9,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "amount == 0 skipped vs added: adding or subtracting 0.00 leaves the delta unchanged (and roundHalfUpToCents(0 - 0) is 0), so no visible difference."
+          },
+          {
+            "file": "ventures/einvoice-preflight/adjustment.mjs",
+            "line": 75,
+            "col": 17,
+            "operator": "and-to-or",
+            "before": "return invoice && Array.isArray(invoice.adjustments) ? invoice.adjustments : [];",
+            "after": "return invoice || Array.isArray(invoice.adjustments) ? invoice.adjustments : [];",
+            "line_text": "  return invoice && Array.isArray(invoice.adjustments) ? invoice.adjustments : [];",
+            "caught": true,
+            "seconds": 10.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/adjustment.mjs",
+            "line": 80,
+            "col": 38,
+            "operator": "or-to-and",
+            "before": "if (!row || typeof row !== \"object\" || Array.isArray(row)) {",
+            "after": "if (!row || typeof row !== \"object\" && Array.isArray(row)) {",
+            "line_text": "  if (!row || typeof row !== \"object\" || Array.isArray(row)) {",
+            "caught": false,
+            "seconds": 11.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "An array row was reported as missing kind/amount/reason instead of one not-an-object finding; adjustment.test.mjs now pins the single INV-050 finding for [[]]."
+          },
+          {
+            "file": "ventures/einvoice-preflight/adjustment.mjs",
+            "line": 100,
+            "col": 39,
+            "operator": "eq-flip",
+            "before": "if (!(\"amount\" in row) || row.amount === null || row.amount === \"\") {",
+            "after": "if (!(\"amount\" in row) || row.amount !== null || row.amount === \"\") {",
+            "line_text": "  if (!(\"amount\" in row) || row.amount === null || row.amount === \"\") {",
+            "caught": true,
+            "seconds": 11.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/adjustment.mjs",
+            "line": 122,
+            "col": 53,
+            "operator": "neq-flip",
+            "before": "if (\"base\" in row && row.base !== null && row.base !== \"\") {",
+            "after": "if (\"base\" in row && row.base !== null && row.base === \"\") {",
+            "line_text": "  if (\"base\" in row && row.base !== null && row.base !== \"\") {",
+            "caught": true,
+            "seconds": 11.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/adjustment.mjs",
+            "line": 134,
+            "col": 23,
+            "operator": "and-to-or",
+            "before": "if (\"percent\" in row && row.percent !== null && row.percent !== \"\") {",
+            "after": "if (\"percent\" in row || row.percent !== null && row.percent !== \"\") {",
+            "line_text": "  if (\"percent\" in row && row.percent !== null && row.percent !== \"\") {",
+            "caught": true,
+            "seconds": 10.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/adjustment.mjs",
+            "line": 148,
+            "col": 30,
+            "operator": "neq-flip",
+            "before": "if (amount !== null && base !== null && percent !== null) {",
+            "after": "if (amount !== null && base === null && percent !== null) {",
+            "line_text": "  if (amount !== null && base !== null && percent !== null) {",
+            "caught": true,
+            "seconds": 11.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/einvoice-preflight/mx-address.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 417190766,
+        "commit": "0d1685a12",
+        "sites": 42,
+        "baseline_seconds": 11.2,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/mx-address.mjs",
+            "line": 14,
+            "col": 53,
+            "operator": "const-plus-one",
+            "before": "const n36 = (s) => (s[0] === \"_\" ? -parseInt(s.slice(1), 36) : parseInt(s, 36));",
+            "after": "const n36 = (s) => (s[0] === \"_\" ? -parseInt(s.slice(2), 36) : parseInt(s, 36));",
+            "line_text": "const n36 = (s) => (s[0] === \"_\" ? -parseInt(s.slice(1), 36) : parseInt(s, 36));",
+            "caught": true,
+            "seconds": 11.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/mx-address.mjs",
+            "line": 24,
+            "col": 78,
+            "operator": "or-to-and",
+            "before": "if (estado !== undefined) cur = { estado, municipio, localidad: localidad || \"\" };",
+            "after": "if (estado !== undefined) cur = { estado, municipio, localidad: localidad && \"\" };",
+            "line_text": "    if (estado !== undefined) cur = { estado, municipio, localidad: localidad || \"\" };",
+            "caught": true,
+            "seconds": 11.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/mx-address.mjs",
+            "line": 37,
+            "col": 23,
+            "operator": "const-plus-one",
+            "before": "cp += gap === \"\" ? 1 : n36(gap);",
+            "after": "cp += gap === \"\" ? 2 : n36(gap);",
+            "line_text": "    cp += gap === \"\" ? 1 : n36(gap);",
+            "caught": true,
+            "seconds": 10.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/mx-address.mjs",
+            "line": 75,
+            "col": 20,
+            "operator": "neq-flip",
+            "before": "if (d.Municipio !== undefined) {",
+            "after": "if (d.Municipio === undefined) {",
+            "line_text": "    if (d.Municipio !== undefined) {",
+            "caught": true,
+            "seconds": 10.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/mx-address.mjs",
+            "line": 79,
+            "col": 34,
+            "operator": "and-to-or",
+            "before": "if (d.Localidad !== undefined && info.localidad) {",
+            "after": "if (d.Localidad !== undefined || info.localidad) {",
+            "line_text": "    if (d.Localidad !== undefined && info.localidad) {",
+            "caught": true,
+            "seconds": 10.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/mx-address.mjs",
+            "line": 81,
+            "col": 40,
+            "operator": "and-to-or",
+            "before": "else if (d.Estado === info.estado && d.Localidad !== info.localidad) out.push({ field: \"Localidad\", message: `Localidad ${d.Localidad} is not the locality of postal code ${cp}: c_CodigoPostal gives ${info.estado} ${info.localidad}.`, fix: `Set Localidad=\"${info.localidad}\", correct the postal code, or leave Localidad out.` });",
+            "after": "else if (d.Estado === info.estado || d.Localidad !== info.localidad) out.push({ field: \"Localidad\", message: `Localidad ${d.Localidad} is not the locality of postal code ${cp}: c_CodigoPostal gives ${info.estado} ${info.localidad}.`, fix: `Set Localidad=\"${info.localidad}\", correct the postal code, or leave Localidad out.` });",
+            "line_text": "      else if (d.Estado === info.estado && d.Localidad !== info.localidad) out.push({ field: \"Localidad\", message: `Localidad ${d.Localidad} is not the locality of postal code ${cp}: c_CodigoPostal gives ${info.estado} ${info.localidad}.`, fix: `Set Localidad=\"${info.localidad}\", correct the postal code, or leave Localidad out.` });",
+            "caught": true,
+            "seconds": 11.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/mx-address.mjs",
+            "line": 85,
+            "col": 14,
+            "operator": "const-plus-one",
+            "before": "if (!/^\\d{4}$/.test(d.Colonia)) uncoded.push(\"Colonia\");",
+            "after": "if (!/^\\d{5}$/.test(d.Colonia)) uncoded.push(\"Colonia\");",
+            "line_text": "    if (!/^\\d{4}$/.test(d.Colonia)) uncoded.push(\"Colonia\");",
+            "caught": true,
+            "seconds": 10.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/mx-address.mjs",
+            "line": 89,
+            "col": 39,
+            "operator": "const-plus-one",
+            "before": "const list = [...set].slice(0, 5).join(\", \");",
+            "after": "const list = [...set].slice(0, 6).join(\", \");",
+            "line_text": "        const list = [...set].slice(0, 5).join(\", \");",
+            "caught": false,
+            "seconds": 11.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test covered a postal code with more than five colonias, so the cut-off of the list in the CCE129 message was free to change; cce20.test.mjs now pins the message for 01650 (7 colonias)."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/einvoice-preflight/adjustment.mjs",
+        "issue": "A negative invoice that carries its sign on the header BaseAmount (base -1500, percent 10, amount -150) got a false INV-051 'base is missing or invalid', though the percent may carry the sign and the arithmetic matches. Same in src/einvoice_preflight/adjustment.py. Fixed: a negative base is accepted on a negative invoice and still has to match amount = base x percent; ordinary invoices still flag it. Tests in pint-current.test.mjs and tests/test_adjustment.py fail without the fix.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "18d9be2a-e97c-58b3-b9c0-1913b7d4437f",
+    "transcripts": 1,
+    "first": "2026-11-26T02:39:11Z",
+    "last": "2026-11-26T02:48:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 85,
+        "output": 17802,
+        "thinking": 2570,
+        "cache_read": 3473934,
+        "cache_write_5m": 0,
+        "cache_write_1h": 74999,
+        "api_equivalent_usd": 1.6512,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 85,
+      "output": 17802,
+      "thinking": 2570,
+      "cache_read": 3473934,
+      "cache_write_5m": 0,
+      "cache_write_1h": 74999,
+      "api_equivalent_usd": 1.6512,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 42,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.05,
+      "active_minutes": 9.05,
+      "model_minutes": 2.76,
+      "tool_minutes": 6.29,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "triage 4 mutants, diagnose and fix a JS/Python sign bug, write a parity test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 181.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -17,6 +17,11 @@ output "dlq_url" {
   value = aws_sqs_queue.dlq.url
 }
 
+output "sender_role_arn" {
+  description = "The one principal the queue accepts messages from (app-paddle-webhook's role)."
+  value       = local.sender_role_arn
+}
+
 output "consumer_policy" {
   value = local.consumer_policy
 }

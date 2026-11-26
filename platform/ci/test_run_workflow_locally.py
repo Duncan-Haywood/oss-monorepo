@@ -2391,12 +2391,12 @@ class Handoff(unittest.TestCase):
         cmd = [sys.executable, "-c",
                "import time; print('started', flush=True); time.sleep(5); "
                f"print('{runner.DONE_PREFIX}0')"]
-        ticks = iter(range(100))
+        ticks = iter(range(1000))
         code = runner.handoff([], window=1, out=out, clock=lambda: next(ticks),
                               nap=lambda _s: time.sleep(0.2), cmd=cmd)
-        self.assertEqual(code, runner.HANDED_OFF)
         text = out.getvalue()
         self.assertIn("[handed off]", text)
+        self.assertEqual(text.count("[handed off]"), 1)
         log = text.split("Log: ", 1)[1].split()[0]
         self.assertTrue(os.path.isfile(log))
         self.assertIn("wait_for.py " + log, text)
@@ -2405,6 +2405,22 @@ class Handoff(unittest.TestCase):
         self.assertIn("do not change tracked files", text)
         self.assertIn("already written when this started is fine", text)
         self.assertIn("created since, such as a new run record, is an edit", text)
+
+    def test_a_long_run_still_ends_with_its_own_exit_code(self):
+        # Exiting 3 at the window made a run_in_background call finish early,
+        # before the verdict (friction, two sessions on 2026-11-26): the call
+        # now keeps relaying and returns the child's code, after the note.
+        out = io.StringIO()
+        cmd = [sys.executable, "-c",
+               "import sys, time; time.sleep(1.5); print('late line', flush=True); "
+               "sys.exit(1)"]
+        ticks = iter(range(1000))
+        code = runner.handoff([], window=1, out=out, clock=lambda: next(ticks),
+                              nap=lambda _s: time.sleep(0.2), cmd=cmd)
+        self.assertEqual(code, 1)
+        text = out.getvalue()
+        self.assertIn("[handed off]", text)
+        self.assertLess(text.index("[handed off]"), text.index("late line"))
 
     def test_the_child_ends_with_a_line_wait_for_accepts(self):
         import wait_for

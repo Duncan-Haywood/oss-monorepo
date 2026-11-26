@@ -398,12 +398,14 @@ function privacy() {
   </ul>
   <h2>What we use it for</h2>
   <p>To email you about early access to ${esc(SITE_NAME)}, and to count (not profile) which platforms and order volumes people want, so we can decide what to build and how to price it. We don't sell or share the list. No analytics or advertising scripts run on this site.</p>
+  <h2>Who can see it</h2>
+  <p>Only the people who run ${esc(SITE_NAME)} can see the list: your email address, the page you signed up on, whether you confirmed, and the date. Each time they view it, that view is logged.</p>
   <h2>How long</h2>
   <p>Signups that aren't confirmed are deleted after 30 days. If you unsubscribe, we keep your address only so we never email it again, and delete the rest.</p>
   <h2>Leaving</h2>
   <p>Every email has an unsubscribe link. To have your address deleted entirely, email <a href="mailto:hello@marisstella.app">hello@marisstella.app</a>.</p>
 </section>`;
-  const text = `# Privacy (early-access list)\n\nStores: email, optional platforms and order range, signup page, consent wording version, timestamps, salted hash of IP. Used only for early-access emails and aggregate counts. Unconfirmed signups deleted after 30 days. Unsubscribe link in every email; deletion on request at hello@marisstella.app.`;
+  const text = `# Privacy (early-access list)\n\nStores: email, optional platforms and order range, signup page, consent wording version, timestamps, salted hash of IP. Used only for early-access emails and aggregate counts. Only the people who run the site can see the list (email, signup page, confirmed or not, date); each view is logged. Unconfirmed signups deleted after 30 days. Unsubscribe link in every email; deletion on request at hello@marisstella.app.`;
   return {
     path,
     title,

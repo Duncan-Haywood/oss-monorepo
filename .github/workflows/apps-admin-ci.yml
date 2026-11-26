@@ -1,0 +1,47 @@
+# Moved from Duncan-Haywood/private-monorepo .github/workflows/admin-ci.yml at cded6eaf5d8a (2026-11-26);
+# actions pinned to .github/ci-policy.yaml SHAs, checkout without persisted credentials,
+# the AWS CodeBuild runner switch replaced by this repository's vars.CI_RUNNER.
+# PR checks for the owner console (apps/admin) and the platform-admin contract (packages/admin-metrics).
+# Zero dependencies beyond the repo's dev tools; never needs a secret;
+name: apps-admin-ci
+on:
+  pull_request:
+    paths:
+      - "apps/admin/**"
+      - "packages/admin-metrics/**"
+      - ".github/workflows/apps-admin-ci.yml"
+  push:
+    branches-ignore: [main]
+    paths:
+      - "apps/admin/**"
+      - "packages/admin-metrics/**"
+      - ".github/workflows/apps-admin-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: admin-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: lint, types, tests
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec biome ci apps/admin packages/admin-metrics
+      - run: pnpm exec tsc -p packages/admin-metrics/tsconfig.json
+      - run: pnpm exec tsc -p apps/admin/tsconfig.json
+      - run: node --test packages/admin-metrics/src/*.test.ts
+      - run: node --test apps/admin/test/*.test.ts apps/admin/test/*.test.mjs

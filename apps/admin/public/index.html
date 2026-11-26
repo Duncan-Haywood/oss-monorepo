@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Owner Console</title>
+  <link rel="stylesheet" href="/app.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <header class="top">
+    <h1>Owner Console</h1>
+    <div class="who" id="who"></div>
+    <label class="window">Window
+      <select id="days">
+        <option value="7">7 days</option>
+        <option value="30" selected>30 days</option>
+        <option value="90">90 days</option>
+      </select>
+    </label>
+    <button id="refresh" type="button">Refresh</button>
+  </header>
+  <main id="main"><p class="muted">Loading…</p></main>
+  <footer class="muted">
+    Numbers come from each product's admin API. “—” means not measured (never zero). MRR comes only
+    from prices recorded by Paddle webhooks, per currency, before tax. Costs are measured LLM spend only.
+  </footer>
+</body>
+</html>

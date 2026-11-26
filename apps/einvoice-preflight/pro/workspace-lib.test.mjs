@@ -61,3 +61,25 @@ test("formatEuro and usageShare", () => {
   assert.equal(usageShare(150, 100), 1);
   assert.equal(usageShare(1, 0), 0);
 });
+
+test("keyRows: newest first, revoked dropped, the signed-in key marked by its prefix", async () => {
+  const { keyRows, canCreateKey } = await import("./web/workspace-lib.mjs");
+  const current = "epk_abcdefgh12345678restofkey";
+  const rows = keyRows(
+    [
+      { id: "k1", name: "default", prefix: "epk_abcdefgh", createdAt: "2026-11-01T00:00:00Z", lastUsedAt: "2026-11-26T09:00:00Z" },
+      { id: "k2", name: "DATEV", prefix: "epk_zzzzzzzz", createdAt: "2026-11-20T00:00:00Z", lastUsedAt: null },
+      { id: "k3", name: "old", prefix: "epk_abcdefgh", createdAt: "2026-11-21T00:00:00Z", revokedAt: "2026-11-22T00:00:00Z" },
+      null,
+    ],
+    current,
+  );
+  assert.deepEqual(rows.map((r) => [r.id, r.current]), [["k2", false], ["k1", true]]);
+  assert.equal(rows[0].lastUsedAt, null);
+  assert.deepEqual(keyRows(undefined, current), []);
+  assert.equal(keyRows([{ id: "k", prefix: "epk_" }], current)[0].current, false, "a too-short prefix never matches");
+  assert.equal(keyRows([{ id: "k", prefix: "epk_abcdefgh" }], null)[0].current, false);
+  assert.equal(canCreateKey(1, 2), true);
+  assert.equal(canCreateKey(2, 2), false);
+  assert.equal(canCreateKey(0, undefined), false);
+});

@@ -20,7 +20,14 @@ export default defineConfig({
     cloudflareTest({
       wrangler: { configPath: "./wrangler.test.jsonc" },
       remoteBindings: false,
-      miniflare: { bindings: { TEST_SCHEMA_SQL: migrationsSql() } },
+      miniflare: {
+        bindings: {
+          TEST_SCHEMA_SQL: migrationsSql(),
+          // Owner-console token for test/worker/admin.test.ts (test-only value).
+          ADMIN_SERVICE_TOKEN: "test-admin-service-token-0123456789abcdef",
+          ADMIN_METRICS_TOKEN: "test-admin-metrics-token-0123456789abcdef",
+        },
+      },
     }),
   ],
   test: {

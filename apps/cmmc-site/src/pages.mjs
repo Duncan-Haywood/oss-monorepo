@@ -211,7 +211,7 @@ It is in early access: the list below is what we are building with the first sho
   <ul class="check">
     <li>Asks plain questions about your shop (machines, network, who has access, which vendors and clouds) and drafts the SSP from your answers only. Anything you have not answered stays marked as a gap; nothing is filled in for you.</li>
     <li>Tracks each of the 15 Level 1 or 110 Level 2 requirements as met, not met or not applicable, with the evidence you attach.</li>
-    <li>Imports the self-assessment spreadsheet you already keep: save it as CSV, preview which requirements change, then apply. Statuses, owners, notes and implementation statements come across; rows it cannot read are listed by line, not guessed.</li>
+    <li>Imports the self-assessment spreadsheet you already keep: choose the Excel workbook (or a CSV), preview which requirements change, then apply. The workbook is read in your browser and only the assessment sheet is sent. Statuses, owners, notes and implementation statements come across; rows it cannot read are listed by line, not guessed.</li>
     <li>Calculates your SPRS score with the DoD Assessment Methodology weights and shows which open items cost the most points.</li>
     <li>Builds the POA&amp;M, flags requirements that may not sit on one, and reminds owners before the 180-day close-out.</li>
     <li>Reminds the senior official about the annual affirmation and keeps the record of what was affirmed and when.</li>
@@ -364,6 +364,9 @@ no sales calls unless you ask for one.</p>`,
 <h2>Why</h2>
 <p>To send one confirmation email and, once you confirm, early-access news about this product. Nothing is sold or shared
 except with the services that run the site (Cloudflare for hosting, the database and email delivery).</p>
+<h2>Who can see it</h2>
+<p>Only the people who run ${SITE_NAME} can see the list: your email address, the page you signed up on, whether you
+confirmed, and the date. Each time they view it, that view is logged.</p>
 <h2>How long</h2>
 <p>Unconfirmed addresses are deleted after 30 days. Confirmed addresses stay until you leave the list or the early-access
 program ends.</p>

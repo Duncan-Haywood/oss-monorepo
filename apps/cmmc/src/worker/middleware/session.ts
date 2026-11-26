@@ -20,7 +20,14 @@ export const sessionMiddleware = createMiddleware<AppEnv>(async (c, next) => {
         .from(userTable)
         .where(eq(userTable.id, testUserId))
         .get();
-      if (row) c.set("user", { id: row.id, email: row.email, name: row.name });
+      if (row) {
+        c.set("user", {
+          id: row.id,
+          email: row.email,
+          name: row.name,
+          emailVerified: row.emailVerified,
+        });
+      }
       return next();
     }
   }
@@ -38,6 +45,7 @@ export const sessionMiddleware = createMiddleware<AppEnv>(async (c, next) => {
         c.set("user", {
           id: response.user.id,
           email: response.user.email,
+          emailVerified: response.user.emailVerified === true,
           name: response.user.name,
         });
       }

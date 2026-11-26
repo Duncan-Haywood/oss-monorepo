@@ -104,12 +104,13 @@ ${c.deadlineSummary()}
 <div class="card"><h3>Checked</h3><ul>
 <li>The CII XSD schema (UN/CEFACT D16B, the EN 16931 subset CEN publishes) for EN 16931 files and their CIUSes such as XRechnung and Factur-X BASIC: element order, required and unknown elements, number, date and true/false values, and namespaces (udt: where the schema wants qdt:). On 499 altered test files every verdict matched xmllint running the same schema.</li>
 <li>Reading the file: UBL 2.1 and UN/CEFACT CII XML, the XML attached to a Factur-X / ZUGFeRD PDF, and the PDF around it (PDF/A-3 marker, attachment name and relationship, the profile named in the PDF's metadata).</li>
+<li>The UBL 2.1 schema (XSD) on every UBL invoice and credit note, before any business rule: unknown or repeated elements, element order, missing elements, values that are not a number, date, time or true/false, missing <code>currencyID</code> and other attributes, and the namespace of each element.</li>
 <li>The EN 16931 business rules (BR-…) through the official CEN Schematron, and the official XRechnung or Peppol BIS add-on when the file declares one, wherever the server has them installed; each result says whether they ran. Beside them, our own checks: required fields, totals exact to the cent, at most two decimals, date and currency codes, VAT-number and IBAN check digits.</li>
 <li>Germany: a ZUGFeRD / Factur-X MINIMUM or BASIC WL file from a German seller is flagged as not an e-invoice. With the XRechnung rules (chosen, or detected from the file's specification identifier), nine checks after BR-DE: buyer reference and Leitweg-ID check digits, payment instructions, seller contact, seller and buyer address, invoice type code, specification identifier and the seller's tax number.</li>
 <li>France: with the French rules (chosen, or detected when seller and buyer are both in France), the seller's and buyer's SIREN or SIRET and their check digit, the SIREN inside the seller's French VAT number, the category of the operation (one of the new details on the ${c.a("deadlines-fr", "France page")}), and the late-payment penalty, €40 recovery indemnity and early-payment discount mentions.</li>
 </ul></div>
 <div class="card"><h3>Not checked</h3><ul>
-<li>The UBL 2.1 XSD schema, and the CII schema for Factur-X EXTENDED, MINIMUM and BASIC WL files (each has its own): such a file can pass here and still be refused by a validator that runs the schema.</li>
+<li>The CII schema for Factur-X EXTENDED, MINIMUM and BASIC WL files (each has its own): such a file can pass here and still be refused by a validator that runs the schema.</li>
 <li>Whether the VAT rate or VAT treatment is right for the transaction.</li>
 <li>Whether a VAT number, SIREN or Leitweg-ID exists or is active: only its form and check digits.</li>
 <li>France: whether the option to pay VAT on debits applies and is stated.</li>
@@ -319,6 +320,7 @@ function privacy(c) {
 <li>a hash of the confirmation link (not the link itself), its expiry, and when and how many confirmation emails were sent (to limit resending).</li>
 </ul>
 <p>We do not store your IP address. Purpose: to confirm your address (double opt-in) and then email you about early access to this product. Legal basis: your consent, Art. 6(1)(a) GDPR. You can withdraw it at any time with the delete link in every email; this does not affect what happened before.</p>
+<p>Who can see the list: only the people who run this service (the controller above) can view it, in an internal overview showing your email address, whether you confirmed, and the date. Each such view is logged.</p>
 
 <h2>How long</h2>
 <ul>

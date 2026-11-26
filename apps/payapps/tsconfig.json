@@ -15,6 +15,7 @@
       "@client/*": ["src/client/*"],
       "@test/*": ["test/*"],
       "@billing": ["../../packages/billing/src/index.ts"],
+      "@admin-metrics": ["../../packages/admin-metrics/src/index.ts"],
       "@lien-waivers": ["../../packages/lien-waivers/src/index.ts"],
       "@lien-waivers/words": ["../../packages/lien-waivers/src/words.ts"],
       "@qbo-sync": ["../../packages/qbo-sync/src/index.ts"]

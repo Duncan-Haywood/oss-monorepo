@@ -1,10 +1,10 @@
 ---
-title: "Procore for subcontractors: filling the SOV template and the monthly invoice without retyping"
-seo_title: "Procore subcontractor SOV import and monthly invoice: what to enter"
+title: "Procore and Textura for subcontractors: filling the GC's templates and the monthly invoice without retyping"
+seo_title: "Procore SOV import and invoice, Textura billing upload: what to enter"
 date: 2026-11-25
-tags: [payapps, for-customers, construction, schedule-of-values, procore, invoicing]
+tags: [payapps, for-customers, construction, schedule-of-values, procore, textura, invoicing]
 updated: 2026-11-26
-description: "Procore SSOV CSV import rules and what each subcontractor invoice column asks for, with tools that fill both from your pay app."
+description: "Procore SSOV import rules, what Procore's invoice columns ask for, and Textura's Upload Billing Amounts template, filled from your pay app."
 ---
 
 *Written by an AI agent working in this repository.*
@@ -106,8 +106,82 @@ of your pay app before you submit. If the GC's invoice lists their own SOV posit
 your SSOV lines, add up your lines under each position.
 
 As with the SSOV filler, this is built from Procore's published help and has not been tried on a
-live Procore project. Textura and GCPay are next on the list, not built.
+live Procore project.
+
+## If the GC is on Textura: Upload Billing Amounts
+
+Oracle's Textura works the other way round from Procore's invoice: you *can* fill the monthly
+invoice from a file. In your billing workflow, on the **Progress** tab, the **More** menu has
+**Upload Billing Amounts**. The dialog asks whether you are uploading **This Period Billing
+Amounts** or **To Date Billing Amounts**, and its **Download Template** button gives "a
+pre-formatted Excel spreadsheet" that "includes phase codes, description, budget amounts, and the
+current billing amounts for the line items in your contract." You fill it, save it as CSV and
+upload it in the same dialog. ([Oracle's instructions](https://docs.oracle.com/cd/E97085_01/TPMhelp/en/Europe/10307605.htm))
+
+What the fields mean, from Oracle's Subcontractor Billing Workflow Guide:
+
+- **Work This Period:** "the dollar amount of the work completed between the draw Period From and
+  Period To dates." Column E of your continuation sheet.
+- **Material Stored This Period:** "the dollar amount of material stored between the Period From
+  and Period To dates." Like Procore's New Materials Stored, this is what came in this period, not
+  the balance on site in column F, so the same trap applies.
+- **Retention:** Oracle warns that "if your retention amounts do not meet the retention settings,
+  the system will override the amounts in the file." The GC's draw settings win.
+
+Two things to get right. Pick the upload that matches your numbers: **This Period** for this
+month's amounts (a G703's column E), **To Date** for running totals (column G). And start from the
+template Textura gave you, changing only the amounts: it comes from the contract's schedule of
+values in Textura, so its rows are the ones the upload knows.
+
+### This Period or To Date?
+
+Oracle's Progress tab page describes the editable **Completed to Date** field as "the total
+monetary value ... for the current and previous periods", and says that entering Material Stored
+This Period "will automatically adjust the Completed to Date" field. So Completed to Date includes
+stored materials: it is your G703's column G (work completed from previous applications, plus this
+period, plus materials presently stored), not column D + E alone.
+([Oracle's field overview](https://docs.oracle.com/cd/E97085_01/TPMhelp/en/Europe/10313240.htm))
+
+The To Date upload is the safer one when the This Period numbers are awkward to work out:
+
+- **Stored materials went down** (some were installed). Textura's Material Stored This Period
+  wants what *came in* this period, which you can't read off a falling balance. A running total
+  doesn't care.
+- **You started billing in Textura partway through the job,** or your earlier applications were
+  done somewhere else. To Date needs only today's totals.
+
+The catch: if Textura's earlier periods don't match yours (a period the GC cut, a change order
+billed differently), a To Date figure lower than what Textura already shows would bill a
+*negative* period on that line. Compare before you upload.
+
+Oracle's pages don't publish the template's column headings, so a tool filling it has to read
+them from the file you downloaded.
+
+## Doing it in PayApps
+
+Each pay application now has a **Textura billing upload** button. Choose the template Textura
+gave you (the CSV, or the Excel file as downloaded), and it:
+
+1. tells This Period from To Date by the template's headings (you can switch it), and finds the
+   columns to fill: Work This Period and Material Stored This Period, or Completed to Date and a
+   stored-to-date column if the template has one. If your GC's template words them differently,
+   you point at the right column;
+2. matches each Textura row to one of your lines: same phase code as your item number, else the
+   same description, else the only line whose scheduled value equals the row's budget. You can
+   change any match, or leave a row as Textura wrote it;
+3. writes this application's work this period and the materials newly stored on each matched row
+   (To Date: column G, and column F where there is a stored column), amounts as plain numbers, and keeps every other cell, row and the delimiter as they were.
+   Retention cells are left alone;
+4. points out lines you billed that are on no Textura row (the upload would leave their amount
+   out), budgets that differ from your scheduled value (often a change order not yet in Textura),
+   stored materials it can't work out from the balances (This Period only; that cell is left for
+   you), and To Date lines where Textura already shows more than your application.
+
+The file is read and written in your browser. Upload the result in the same Textura dialog and
+check the table it shows before you continue. Like the Procore tools, this is built from Oracle's
+published help and has not been tried on a live Textura project or a template a GC has sent us.
+GCPay is next on the list, not built.
 
 PayApps is in early access: pay applications, retainage, change orders, lien waivers and
-QuickBooks for subcontractors. Not affiliated with Procore. This is general information, not legal
+QuickBooks for subcontractors. Not affiliated with Procore or Oracle. This is general information, not legal
 or accounting advice.

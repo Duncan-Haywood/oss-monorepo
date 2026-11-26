@@ -5,6 +5,7 @@ import { hmacSha256Hex, PromoCodeError, WebhookSignatureError } from "./crypto.t
 import {
   PaddleBillingProvider,
   paddleBaseUrl,
+  paddleSubscriptionPrice,
   signPaddleWebhook,
   verifyPaddleSignature,
 } from "./paddle.ts";
@@ -169,6 +170,52 @@ describe("PaddleBillingProvider.parseWebhook", () => {
       data: { ...subscriptionEvent.data, items: [{ price: { id: "pri_comp" } }] },
     });
     assert.equal(ev.subscription, undefined);
+  });
+});
+
+describe("paddleSubscriptionPrice (MRR source)", () => {
+  const item = {
+    quantity: 2,
+    price: {
+      id: "pri_std_m",
+      unit_price: { amount: "2900", currency_code: "usd" },
+      billing_cycle: { interval: "month", frequency: 1 },
+    },
+  };
+
+  it("records the billed unit price, cycle and quantity exactly as the webhook carries them", () => {
+    assert.deepEqual(paddleSubscriptionPrice(item, null), {
+      unitAmountMinor: 2900,
+      currency: "USD",
+      interval: "month",
+      frequency: 1,
+      quantity: 2,
+      discounted: false,
+    });
+    assert.equal(paddleSubscriptionPrice(item, { id: "dsc_1" })?.discounted, true);
+  });
+
+  it("returns null when any part is missing or malformed (never a guessed price)", () => {
+    const bad = [
+      { ...item, price: { ...item.price, unit_price: { amount: "29.00", currency_code: "USD" } } },
+      { ...item, price: { ...item.price, unit_price: { amount: "2900" } } },
+      { ...item, price: { ...item.price, billing_cycle: { interval: "fortnight", frequency: 1 } } },
+      { ...item, price: { ...item.price, billing_cycle: { interval: "month" } } },
+      { ...item, quantity: -1 },
+      { price: { id: "pri_std_m" } },
+      null,
+    ];
+    for (const b of bad) assert.equal(paddleSubscriptionPrice(b, null), null);
+  });
+
+  it("normalize() attaches the price to the subscription", () => {
+    const ev = provider().normalize({
+      ...subscriptionEvent,
+      data: { ...subscriptionEvent.data, items: [item] },
+    });
+    assert.equal(ev.subscription?.price?.unitAmountMinor, 2900);
+    const noPrice = provider().normalize(subscriptionEvent);
+    assert.equal(noPrice.subscription?.price, undefined);
   });
 });
 

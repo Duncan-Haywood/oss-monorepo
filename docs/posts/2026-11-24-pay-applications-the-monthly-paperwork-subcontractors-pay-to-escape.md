@@ -1,6 +1,7 @@
 ---
 title: "Pay applications: the monthly paperwork subcontractors pay to escape"
 date: 2026-11-24
+updated: 2026-11-26
 tags: [construction, subcontractors, billing, retainage, lien-waivers, stored-materials, schedule-of-values, pay-app-guides, for-customers]
 description: "What a monthly pay application involves for a trade sub, what billing tools charge today (sourced), and the product we are building. In development."
 ---
@@ -178,6 +179,56 @@ instead. To make room on page 1, the summary rows sit closer together
 when the block is on. A test checks every line and box against the
 footer in the tallest layout. With the switch off, the page is
 unchanged. (Added 2026-11-25; still in development.)
+
+**An expired insurance certificate.** Subcontracts usually require the
+sub to keep certificates of insurance on file with the GC: general
+liability, auto and workers' compensation at least. When a policy renews
+and nobody sends the new certificate, the GC's compliance check can hold
+the payment, and the sub hears about it only when the check doesn't
+come. The build now keeps the company's own certificates: the coverage,
+insurer, policy number and policy dates typed from each one. A
+certificate counts as expiring 30 days before its expiry date and as
+expired from that day on. The projects page shows a one-line note while
+one is expiring or expired. A draft pay application dated on or after an
+expiry, or less than 30 days before it, lists that certificate with its
+date, so the renewal can go out with the application. When a policy
+renews, the old certificate is archived and no longer flagged. The
+optional weekly "money to chase" email lists every certificate that has
+expired or will expire within 30 days, so a company with no pay
+application due that week still hears about it. A renewal has to reach
+every GC that holds the old certificate (the "certificate holder" box on
+the form), and on a sub with a dozen jobs that list lives in someone's
+head. So each certificate can now record which jobs' GCs hold it, with
+the date it was sent. The insurance page then says "Send the renewal to
+Peak GC and Sierra Builders", naming each GC once even when it holds the
+certificate on several jobs. A new certificate is offered the same jobs
+as the archived one it replaces, the weekly email names the GCs on each
+renewal line, and a draft pay application names any certificate not
+recorded as sent to that job's GC. The build
+reads only the dates typed in. It does not check coverage, limits or
+what a subcontract requires. (Added 2026-11-26; still in development.)
+
+**A scanned schedule of values.** The schedule of values often arrives
+as a scan: the GC's signed copy, or a page someone ran through the
+office copier. Until now the import read a scan only if the scanner had
+saved it as a "searchable PDF", with its own text layer. If it hadn't,
+the import asked the contractor to rescan it. The build now reads a scan
+that is only pictures, too. It runs the open-source Tesseract text
+reader inside the browser, so the scan is never uploaded. The text it
+reads goes through the same checks as any other import, including the
+check that the lines add up to the sheet's own total.
+
+We tested it on two scans of a 48-line bid breakdown, tilted 1.5
+degrees as a page lies on the glass: a grey 300 dpi scan and a
+black-and-white one. Both came in with all 48 lines and the sheet's
+$1,120,223.00 total. OCR still makes mistakes. On the grey scan one cost
+code lost its spaces ("011000"). On the black-and-white scan, one amount
+came back as "9.200.00". No amount is written with two full stops, so
+the build reads it as $9,200.00 and says so. The cost codes on that scan
+were too uneven to read as a column, so its lines were numbered in
+order instead. Every figure still has to be checked against the paper.
+The first scan downloads the text reader, about 7 MB, and each page
+takes a few seconds. (Added 2026-11-26; still in development.)
 
 The working price range in our notes is about $99 to $249 a month. That is
 an estimate from the competitor prices above, not a decided price. The paid

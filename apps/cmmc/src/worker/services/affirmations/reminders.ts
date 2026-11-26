@@ -1,6 +1,7 @@
 // The affirmation reminder email (ROADMAP, "Affirmation reminders by email, part 2"): a dated email
 // to an organization's admins and owners 60 and 7 days before an SPRS affirmation, self-assessment
-// or POA&M closeout falls due, from the dates the Affirmations page already shows
+// or POA&M closeout falls due, and once after it passes with no newer affirmation recorded (ROADMAP,
+// "Affirmation reminders, part 3"), from the dates the Affirmations page already shows
 // (src/shared/affirmation.ts, affirmationSchedule; stages in src/shared/affirmation-reminders.ts).
 //
 // Rules (docs/EMAIL.md, "Affirmation reminders"):
@@ -18,6 +19,7 @@
 import type { AffirmationSchedule, Deadline } from "@shared/affirmation";
 import {
   type AffirmationReminderSettings,
+  OVERDUE_STAGE,
   type ReminderStage,
   type ReminderUnsubscribeStatus,
   reminderStage,
@@ -61,6 +63,10 @@ export function dueReminders(schedules: readonly AffirmationSchedule[]): DueRemi
 const oneLine = (s: string, max: number) => sanitizeHeaderValue(s, max);
 
 const inDays = (n: number) => (n === 0 ? "today" : `in ${n} day${n === 1 ? "" : "s"}`);
+const daysAgo = (n: number) => `${n} day${n === 1 ? "" : "s"} ago`;
+const isOverdue = (r: DueReminder) => r.stage === OVERDUE_STAGE;
+const when = (r: DueReminder) =>
+  isOverdue(r) ? `passed ${daysAgo(-r.deadline.daysLeft)}` : inDays(r.deadline.daysLeft);
 
 /** The reminder's subject and text. Pure, so the wording is tested without a database. */
 export function affirmationReminderEmail(f: {
@@ -72,23 +78,48 @@ export function affirmationReminderEmail(f: {
 }): { subject: string; text: string } {
   const base = f.appUrl.replace(/\/+$/, "");
   const org = oneLine(f.orgName, 80) || "your organization";
-  const lines: string[] = [];
-  for (const r of f.reminders) {
-    lines.push(
-      `- Level ${r.level}: ${r.deadline.label}: due ${r.deadline.due} (${inDays(r.deadline.daysLeft)})`,
+  const overdue = f.reminders.filter(isOverdue);
+  const soon = f.reminders.filter((r) => !isOverdue(r));
+  const block = (list: readonly DueReminder[]) =>
+    list.flatMap((r) => [
+      `- Level ${r.level}: ${r.deadline.label}: due ${r.deadline.due} (${when(r)})`,
       `  Basis: ${r.deadline.basis}`,
+    ]);
+  const lines: string[] = [];
+  if (overdue.length > 0) {
+    lines.push(
+      `From the affirmations recorded for ${org} in CMMC Workspace, ${
+        overdue.length === 1 ? "this date has" : "these dates have"
+      } passed with no newer affirmation recorded:`,
+      "",
+      ...block(overdue),
+      "",
+      "If your affirming official has already entered it in SPRS, record it on the Affirmations page",
+      "so the next dates are counted from it. This is the only email about a passed date.",
+      "",
+    );
+  }
+  if (soon.length > 0) {
+    lines.push(
+      overdue.length > 0
+        ? "These dates fall due soon:"
+        : `From the affirmations recorded for ${org} in CMMC Workspace, these dates fall due soon:`,
+      "",
+      ...block(soon),
+      "",
     );
   }
   const first = f.reminders[0];
   const subject =
     f.reminders.length === 1 && first
-      ? `${first.deadline.label} due ${inDays(first.deadline.daysLeft)} (${org})`
-      : `${f.reminders.length} CMMC dates fall due soon (${org})`;
+      ? isOverdue(first)
+        ? `${first.deadline.label} was due ${first.deadline.due} (${org})`
+        : `${first.deadline.label} due ${inDays(first.deadline.daysLeft)} (${org})`
+      : overdue.length > 0
+        ? `${overdue.length} CMMC date${overdue.length === 1 ? " has" : "s have"} passed (${org})`
+        : `${f.reminders.length} CMMC dates fall due soon (${org})`;
   const text = [
-    `From the affirmations recorded for ${org} in CMMC Workspace, these dates fall due soon:`,
-    "",
     ...lines,
-    "",
     `See the dates and record the next affirmation: ${base}/?tab=affirmations`,
     "",
     "These dates are counted from what your organization recorded. They are a planning aid, not a",

@@ -2,8 +2,9 @@
 
 The management-account stacks (`org`, `baseline`, `spend`, `llm`, `email`,
 `app-identity`) apply through the bootstrap's `github-plan` /
-`github-apply`. The workload stacks other agents are writing (`dns`, `site`,
-`edge`, `saas-starter`, `products`, and `payments` from the private
+`github-apply`. The workload stacks (`dns`, `site`, `saas-starter`,
+`edge-api`, `email-ops`, the product stacks `listing-lens`, `shift-roster`,
+`retail-pilot-intel` and `ai-first-markets`, and `payments` from the private
 repository) should not share that one administrator role. This stack gives
 each of them its own pair of roles in the account it changes. Each workload
 account also gets its own state bucket, so no stack's state sits where
@@ -21,8 +22,8 @@ another account's roles can read it.
 
 | Role | Trusted subject (exact) | Can |
 |---|---|---|
-| `gha-<repo>-<stack>-plan` | `repo:Duncan-Haywood/<repo>:pull_request` | `ReadOnlyAccess`; read `<stack>/` state (and `dns/`); never write, never read secrets or SSM parameters |
-| `gha-<repo>-<stack>-apply` | `repo:Duncan-Haywood/<repo>:environment:aws-prod` | its managed policies; write `<stack>/` state only; create and edit IAM roles and policies named `<stack>-*`, and only with the boundary attached |
+| `gha-<repo>-<stack>-plan` | `repo:Duncan-Haywood/<repo>:pull_request` | `ReadOnlyAccess`; read `<stack>/` state and the account's shared keys (`dns/` in shared-infra; `saas-starter/` and `edge-api/` in apps); never write, never read secrets or SSM parameters |
+| `gha-<repo>-<stack>-apply` | `repo:Duncan-Haywood/<repo>:environment:aws-prod` | its managed policies; write `<stack>/` state only; create and edit IAM roles and policies named `<prefix>-*` for each of the stack's `iam_prefixes` (default: the stack's name), and only with the boundary attached |
 | `gha-oss-monorepo-findings-read` (security) | `repo:Duncan-Haywood/oss-monorepo:ref:refs/heads/main` | receive and delete messages on `security-findings` (`../findings`) |
 
 The boundary caps every role a workload creates. It denies:
@@ -34,9 +35,25 @@ The boundary caps every role a workload creates. It denies:
 | Stack | Account | Repo | Apply role's managed policies |
 |---|---|---|---|
 | dns | shared-infra | oss-monorepo | AmazonRoute53FullAccess |
-| site, edge | shared-infra | oss-monorepo | PowerUserAccess |
-| saas-starter, products | apps | oss-monorepo | PowerUserAccess |
+| site | shared-infra | oss-monorepo | PowerUserAccess |
+| saas-starter, edge-api, email-ops, listing-lens, shift-roster, retail-pilot-intel, ai-first-markets | apps | oss-monorepo | PowerUserAccess |
 | payments | payments | **private-monorepo** | PowerUserAccess |
+
+**IAM names.** Each key in `stacks` must be the stack's directory name, its
+state key's first segment and the start of every IAM name it creates. The
+exception is `iam_prefixes`. A prefix must contain the stack's name and never
+start with `gha`; no stack uses it yet. Payments' Paddle receiver is
+`payments-paddle-webhook` (`modules/app-paddle-webhook`'s `role_name`, set
+the same in private-monorepo `infra/aws/payments`), and `stacks/saas-starter`
+(`payments_sender_role_name`) accepts queue messages only from that name, so
+the two defaults change together or not at all. The test `apply_roles_cover_the_names_their_stacks_create`
+holds one real role name per stack. Add one when a stack gains a role.
+
+**Not yet CI-ready:** `edge-api` and `email-ops` read the management
+account's `org/` (and email-ops' `email/`) state for account IDs and SES
+outputs. Their apps CI roles cannot read the management bucket, so until those
+reads become variables they keep applying with the management credentials
+(their README's default, `OrganizationAccountAccessRole`).
 
 `PowerUserAccess` excludes IAM, Organizations and Account management. A
 stack that needs less should say so in its README, and the narrower list
@@ -92,4 +109,7 @@ Adding it to `.github/workflows/priv-aws-apply.yml`'s stack order (after
 - payments state lives in the payments account
 - the boundary's denials are present
 - `CreateRole` works only with the boundary
-- IAM writes are limited to the stack's prefix, and state writes to the stack's own key
+- IAM writes are limited to the stack's prefixes, and state writes to the stack's own key
+- each stack's apply role covers a role name that stack really creates
+  (payments: `payments-paddle-webhook`, and nothing named `saas-starter-*`)
+- a prefix that does not contain its stack's name is refused

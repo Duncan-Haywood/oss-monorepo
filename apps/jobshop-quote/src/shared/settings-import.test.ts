@@ -192,8 +192,8 @@ describe("exportSettingsCsv", () => {
       quoteValidDays: 45,
     };
     const csv = exportSettingsCsv(odd);
-    expect(csv.startsWith("﻿Setting,Value\r\n")).toBe(true);
-    const s = readSettingsSheet(parseCsv(csv.replace(/^﻿/, "")));
+    expect(csv.startsWith("\uFEFFSetting,Value\r\n")).toBe(true);
+    const s = readSettingsSheet(parseCsv(csv.replace(/^\uFEFF/, "")));
     expect(s.errors).toEqual([]);
     expect(s.rows).toHaveLength(6);
     const plan = planSettingsImport(s.rows, odd);

@@ -39,3 +39,139 @@ allow:
     contains: topic invokes the kill switch, which stops what is running
     reason: an intended narrowing (PR #18802) - a budget now wakes the kill switch only for kill_switch_accounts (apps, sandbox), because stopping shared-infra would take the site and DNS down and stopping payments would drop Paddle webhooks; those accounts keep every alert and the freeze SCP, a manual stop still reaches them, and tofu tests pin the list
     added: 2026-11-25
+  - rule: workflow-escalation
+    path: .github/workflows/priv-email-deploy.yml
+    contains: CLOUDFLARE_API_TOKEN
+    reason: the Cloudflare deploy token, under the same three spellings priv-edge-deploy.yml already reads, to deploy the agent-inbox Worker (D1, R2, wrangler deploy) (owner brief 2026-11-26, agent-managed inboxes)
+    added: 2026-11-26
+  - rule: workflow-escalation
+    path: .github/workflows/priv-email-deploy.yml
+    contains: CLOUDFLAREAPITOKEN
+    reason: alias of CLOUDFLARE_API_TOKEN the owner saved (priv-edge-deploy.yml reads the same three names); deploys the agent-inbox Worker (owner brief 2026-11-26, agent-managed inboxes)
+    added: 2026-11-26
+  - rule: workflow-escalation
+    path: .github/workflows/priv-email-deploy.yml
+    contains: CLOUDFLARERESTRICTEDAPIKEY
+    reason: alias of CLOUDFLARE_API_TOKEN the owner saved (priv-edge-deploy.yml reads the same three names); deploys the agent-inbox Worker (owner brief 2026-11-26, agent-managed inboxes)
+    added: 2026-11-26
+  - rule: workflow-escalation
+    path: .github/workflows/priv-email-deploy.yml
+    contains: CLOUDFLARE_ACCOUNT_ID
+    reason: the Cloudflare account id wrangler needs, as priv-edge-deploy.yml reads it (owner brief 2026-11-26, agent-managed inboxes)
+    added: 2026-11-26
+  - rule: workflow-escalation
+    path: .github/workflows/priv-email-deploy.yml
+    contains: CLOUDFLAREACCOUNTID
+    reason: alias of CLOUDFLARE_ACCOUNT_ID the owner saved, as priv-edge-deploy.yml reads it (owner brief 2026-11-26, agent-managed inboxes)
+    added: 2026-11-26
+  - rule: workflow-escalation
+    path: .github/workflows/priv-email-deploy.yml
+    contains: MAIL_AGENT_TOKEN
+    reason: pushed to the agent-inbox Worker as its AGENT_TOKEN secret with wrangler secret bulk (from a temp file, never logged); the API bearer token agents use (owner brief 2026-11-26, agent-managed inboxes)
+    added: 2026-11-26
+  - rule: workflow-escalation
+    path: .github/workflows/priv-email-deploy.yml
+    contains: MAIL_READ_TOKEN
+    reason: pushed to the agent-inbox Worker as its read-only READ_TOKEN secret (wrangler secret bulk, never logged) (owner brief 2026-11-26, agent-managed inboxes)
+    added: 2026-11-26
+  - rule: workflow-escalation
+    path: .github/workflows/priv-email-deploy.yml
+    contains: MAIL_OWNER_TOKEN
+    reason: pushed to the agent-inbox Worker as OWNER_TOKEN, the only token that resolves owner flags and records opt-ins (wrangler secret bulk, never logged) (owner brief 2026-11-26, agent-managed inboxes)
+    added: 2026-11-26
+  - rule: workflow-escalation
+    path: .github/workflows/priv-email-deploy.yml
+    contains: MAIL_UNSUBSCRIBE_SECRET
+    reason: pushed to the agent-inbox Worker as UNSUBSCRIBE_SECRET, the HMAC key for one-click unsubscribe links (wrangler secret bulk, never logged) (owner brief 2026-11-26, agent-managed inboxes)
+    added: 2026-11-26
+  - rule: workflow-escalation
+    path: .github/workflows/priv-email-deploy.yml
+    contains: EMAIL_FORWARD_TO
+    reason: the owner's forwarding address, already read by priv-cloudflare-email.yml; pushed to the agent-inbox Worker as OWNER_FORWARD_TO for flag alerts and forwarding (wrangler secret bulk, never logged or committed) (owner brief 2026-11-26, agent-managed inboxes)
+    added: 2026-11-26
+  - rule: workflow-escalation
+    path: .github/workflows/priv-cutover.yml
+    contains: plan/id-token:write
+    reason: the cutover's plan job assumes github-cutover-plan by GitHub OIDC (no stored AWS key); that role trusts only the cutover-plan environment (main only) and can read cutover/* secrets and the cloudflare/ state, never write (stacks/cutover-access, PR #19204; owner brief 2026-11-26, "secrets etc gets managed in aws not in gh")
+    added: 2026-11-26
+  - rule: workflow-escalation
+    path: .github/workflows/priv-cutover.yml
+    contains: run/id-token:write
+    reason: the cutover's run job assumes github-cutover by GitHub OIDC; that role trusts only the cutover environment, which is main only and requires the owner's approval before the job starts (stacks/cutover-access, github/configure.sh, PR #19204)
+    added: 2026-11-26
+  - rule: workflow-escalation
+    path: .github/workflows/priv-cutover.yml
+    contains: lets the job mint cloud credentials
+    reason: the file-level form of the two plan/run id-token findings above, same two jobs, same environment-scoped roles; workflow_dispatch only, no pull_request trigger (PR #19204)
+    added: 2026-11-26
+  # aws-single-account-mode (single-account mode and the us-east-2 home
+  # region). Each entry names a removed line that the same PR replaces with
+  # an indexed or mode-aware form; the protection is still there.
+  - rule: aws-guardrail-weakened
+    path: platform/aws/bootstrap/bootstrap.yaml
+    contains: 'the bootstrap stack (the GitHub OIDC trust anchor and the apply role) changed'
+    reason: 'TEMPORARY, for the single-account-mode PR only, removed by the follow-up PR right after it merges. That PR adds an AccountMode parameter whose single value ADDS explicit denies to github-apply (audit and detection, region, commitments, no keys or passwords) and narrows CreateUser to /transitional/; organization mode renders the same statements as before, pinned by platform/aws/tests/test_bootstrap.py'
+    added: 2026-11-26
+  - rule: aws-guardrail-weakened
+    path: platform/aws/stacks/baseline/outputs.tf
+    contains: '.kill_switch_role_arn'
+    reason: 'the member baseline modules gain count (zero in single-account mode), so module.<x>.kill_switch_role_arn becomes module.<x>[0].kill_switch_role_arn; the same roles are output in organization mode (tofu tests)'
+    added: 2026-11-26
+  - rule: aws-guardrail-weakened
+    path: platform/aws/stacks/baseline/security.tf
+    contains: 'policy_id = aws_securityhub_configuration_policy.baseline.id'
+    reason: 'the Security Hub central configuration gains count (organization mode only), so the reference becomes baseline[0].id; single-account mode subscribes FSBP and CIS on the account instead (tofu tests)'
+    added: 2026-11-26
+  - rule: aws-guardrail-weakened
+    path: platform/aws/stacks/baseline/tests/mock.tftest.hcl
+    contains: 'aws_guardduty_organization_configuration.this.auto_enable_organization_members == "ALL"'
+    reason: 'the same assertion, indexed ([0]) because the resource gains count for single-account mode'
+    added: 2026-11-26
+  - rule: aws-guardrail-weakened
+    path: platform/aws/stacks/baseline/tests/mock.tftest.hcl
+    contains: 'length(aws_securityhub_configuration_policy.baseline.configuration_policy[0].enabled_standard_arns) == 2'
+    reason: 'the same assertion, indexed ([0]) because the resource gains count for single-account mode'
+    added: 2026-11-26
+  - rule: aws-guardrail-weakened
+    path: platform/aws/stacks/spend/kill_switch.tf
+    contains: 'KILL_ON_BUDGET = jsonencode(var.kill_switch_accounts)'
+    reason: 'becomes jsonencode(local.kill_accounts), which is var.kill_switch_accounts in organization mode and ["account"] in single-account mode when apps is listed (tofu tests pin both)'
+    added: 2026-11-26
+  - rule: aws-guardrail-weakened
+    path: platform/aws/stacks/spend/main.tf
+    contains: 'contains(var.kill_switch_accounts, each.key) ? [aws_sns_topic.kill.arn, aws_sns_topic.alerts.arn]'
+    reason: 'becomes contains(local.kill_accounts, each.key), the same list in organization mode, the one account in single-account mode (tofu tests)'
+    added: 2026-11-26
+  - rule: aws-guardrail-weakened
+    path: platform/aws/stacks/spend/main.tf
+    contains: 'condition     = alltrue([for k in var.kill_switch_accounts : contains(keys(local.accounts), k)])'
+    reason: 'the same precondition, skipped only in single-account mode, where the account names map to one budget key (local.kill_accounts)'
+    added: 2026-11-26
+  - rule: aws-guardrail-weakened
+    path: platform/aws/stacks/spend/tests/mock.tftest.hcl
+    contains: 'variables.REGIONS == "us-east-1,us-west-2"'
+    reason: 'the kill switch now sweeps the allowed regions of the new home region, us-east-2 and us-east-1 (the test asserts that list)'
+  - rule: obfuscated-payload
+    path: apps/einvoice-preflight/plain/fontoxpath.esm.js
+    reason: the published minified ES module of fontoxpath (MIT, Fonto Group BV; licence in plain/fontoxpath.LICENSE.txt, listed in THIRD_PARTY.md), byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app (PR #19220); vendored so the XPath engine needs no install
+    added: 2026-11-26
+  - rule: test-skipped
+    path: apps/einvoice-preflight/schematron.test.mjs
+    contains: saxon-js not installed
+    reason: a conditional skip, taken only when the optional saxon-js dependency is absent (runSchematron returns status unavailable); byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app (PR #19220)
+    added: 2026-11-26
+  - rule: test-skipped
+    path: apps/einvoice-preflight/schematron.test.mjs
+    contains: run build-schematron.mjs
+    reason: a conditional skip, taken only when the compiled Peppol SEF file has not been built; byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app (PR #19220)
+    added: 2026-11-26
+  - rule: test-skipped
+    path: apps/einvoice-preflight/plain-schematron.test.mjs
+    contains: saxon-js not installed
+    reason: a conditional skip, taken only when the optional saxon-js dependency is absent; byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app (PR #19220)
+    added: 2026-11-26
+  - rule: test-skipped
+    path: apps/einvoice-preflight/official-good-cases.test.mjs
+    contains: npm i --no-sa
+    reason: a conditional skip, taken only when the optional plain Schematron files are not installed; byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app (PR #19220)
+    added: 2026-11-26

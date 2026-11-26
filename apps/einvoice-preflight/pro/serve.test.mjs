@@ -38,6 +38,8 @@ test("routeFor: paid owns /app, /healthz and /v1 except the free API paths", () 
   assert.equal(routeFor("/", off), "free");
   assert.equal(routeFor("/create.html", off), "free");
   assert.equal(routeFor("/report.mjs", off), "free");
+  assert.equal(routeFor("/api/admin/metrics", off), "pro");
+  assert.equal(routeFor("/api/other", off), "free");
 });
 
 test("one port serves the free pages, the workspace and the paid API", async () => {
@@ -114,6 +116,8 @@ test("Dockerfile.pro starts the combined server and ships what pro/ imports", ()
   assert.match(DOCKERFILE, /CMD \["node", "pro\/serve\.mjs"\]/);
   // pro/plans.mjs and pro/billing.mjs import ../../../packages/billing/src/index.ts
   assert.match(DOCKERFILE, /COPY packages\/billing\/src \/srv\/packages\/billing\/src/);
+  // pro/admin.mjs imports ../../../packages/admin-metrics/src/index.ts
+  assert.match(DOCKERFILE, /COPY packages\/admin-metrics\/src \/srv\/packages\/admin-metrics\/src/);
   assert.match(DOCKERFILE, /WORKDIR \/srv\/apps\/einvoice-preflight/);
   assert.match(DOCKERFILE, /COPY apps\/einvoice-preflight\/pro \.\/pro/);
   assert.match(DOCKERFILE, /VOLUME \/data/);

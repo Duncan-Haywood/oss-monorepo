@@ -291,7 +291,7 @@ fabrication job shops. Pricing and the paid path stay dark until the items marke
   (`legal_acceptance`, migration 0009; `POST /api/me/legal/accept` refuses a stale version):
   onboarding and the shop are behind the notice until then. Sign-up links the four documents; every
   signed-in page and the auth pages have them in the footer. Still drafts: the owner confirms the
-  operator name and contact email, and the agent legal review checks them (no outside counsel: owner, 2026-11-26) (`docs/DEPLOY.md`).
+  operator name and contact email, and counsel reviews them (`docs/DEPLOY.md`).
 - Phone width (2026-11-25): no page of the signed-in app scrolls sideways on a 390 px screen.
   The cause was not the line editor's grid but the price table: a browser gives `<fieldset>`
   `min-inline-size: min-content`, so the nine-column table (476 px) stretched the whole line, and the
@@ -446,8 +446,8 @@ fabrication job shops. Pricing and the paid path stay dark until the items marke
 
 ## Next
 
-3. **launch** Owner: confirm the operator name and contact email in `docs/legal/*.md` and have
-   counsel review them (the pages ship as drafts, each says so); run `jobshop-quote-deploy` once, onboard the sender domain,
+3. **launch** Operator and contact email are filled in and launch is agent-approved
+   (`docs/legal/OPERATOR.md`, 2026-11-26); run `jobshop-quote-deploy` once, onboard the sender domain,
    pick `JOBSHOP_DOMAIN`, and add `push: branches: [main]` (docs/DEPLOY.md, "Before strangers sign
    up"). Inbound RFQs: set `JOBSHOP_INBOUND_EMAIL=on` and `CLOUDFLARE_EMAIL_ROUTING_TOKEN` (item 8).
 4. Billing, part 4 (the RFQ page's 80%/100% banner for every member done 2026-11-25; the deploy

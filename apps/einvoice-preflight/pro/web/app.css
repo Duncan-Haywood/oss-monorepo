@@ -52,3 +52,11 @@ code.key { overflow-wrap: anywhere; font-size: 1rem; padding: 4px 6px; backgroun
 .history { padding-left: 18px; }
 footer { margin-top: 24px; }
 .badge.ok, .badge.bad { color: #fff; }
+.keys .badge { margin-left: 6px; }
+.keys form label { flex: 1; min-width: 200px; margin: 0; }
+a { color: var(--accent); }
+main.legal { max-width: 760px; }
+main.legal h1 { font-size: 1.5rem; }
+main.legal h2 { font-size: 1.1rem; margin-top: 1.5em; }
+main.legal table { border-collapse: collapse; width: 100%; display: block; overflow-x: auto; }
+main.legal th, main.legal td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }

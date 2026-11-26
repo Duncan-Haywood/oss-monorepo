@@ -2382,10 +2382,44 @@ INV-039 also stops calling twelve EAS codes unpublished that EN 16931's BR-CL-25
 
 `peppol-bis-3-1-0-readiness.html` answers the sender's question before 24 February 2027: drop a folder of invoices you have sent and each Peppol file runs under 3.0.22 and 3.1.0 in the browser. The page counts the files that pass today and would be rejected then, groups what 3.1.0 adds by rule with what to change (0088 GLN-only, the Dutch formats now fatal, Belgian/Luxembourg numbers, the "exactly one" UBL rules, national changes), and downloads a CSV or Markdown summary. Below the tool, a table generated from the compiled sets lists every rule 3.1.0 adds, removes, raises to fatal or retests (147 rows; `node build-peppol-readiness-page.mjs` rewrites it). One thing the diff surfaced: in CII, the Norwegian and Swedish VAT rules NO-R-001, SE-R-001/002 looked for scheme `VAT` (CII writes `VA`) and could not fire under 3.0.22; 3.1.0 fixes that. Terminal: `node peppol-readiness-cli.mjs <folder> --csv out.csv` (exit 1 when a file is newly rejected). On OpenPeppol's 17 published Peppol examples: 5 newly rejected, all R040. 3.1.0 was not yet tagged on GitHub on 2026-11-24 (newest tag 3.0.22; rules stay on release-candidate branch `2026-Q4-QA2` at `90f078a`). Tests: `peppol-readiness.test.mjs` (8). Write-up: `eval/peppol-readiness-2026-11-24.md`. Open: a real sender's folder; rebuild from the tag.
 
+## The UBL 2.1 schema on every UBL file (2026-11-26)
+
+Every receiving validator (KoSIT's XRechnung validator, Peppol access points, phive) runs the
+XSD before any business rule, and a file that fails it is refused whatever its Schematron
+result. Until now this checker did not: a UBL file with elements out of order, a `cac:` where
+UBL says `cbc:`, or an amount without `currencyID` could pass here and be refused there. Now
+every UBL Invoice and CreditNote is checked against the OASIS UBL 2.1 schema first:
+
+| Rule | What it catches |
+|---|---|
+| UBL-XSD-01 | an element the schema does not allow there, or one too many |
+| UBL-XSD-02 | elements out of sequence |
+| UBL-XSD-03 | a required element missing |
+| UBL-XSD-04 | a value that is not its type: a number, YYYY-MM-DD date, hh:mm:ss time, true/false or base64 |
+| UBL-XSD-05 | a required attribute missing (currencyID, unitCode, mimeCode) or an undeclared one |
+| UBL-XSD-06 | an element, or the root, in the wrong namespace |
+| UBL-XSD-07 | a cut-off or badly nested file |
+
+`build-ubl-schema.mjs` downloads the OASIS Standard package (UBL-2.1.zip, refused unless its
+SHA-256 matches) and reads the Invoice and CreditNote schemas and the common modules into
+`ubl-xsd-data.mjs`: content models, the namespace of each element, attributes. The XSD is not
+copied (OASIS IPR notice; facts only, as for FA(3) and NAV). `ubl-xsd.mjs` runs it through the
+shared `xsd-check.mjs` (which learned `xs:time`, `xs:base64Binary` and the `xsd:any` slot)
+plus its own namespace and attribute pass. Messages never echo a value, and the paid layer
+explains each rule in German, French and English (`pro/explain-catalog.mjs`).
+
+**Measured** (`eval/ubl-xsd-diff.mjs`, `eval/ubl-xsd-2026-11-26.md`): same verdict as xmllint
+on all 38 UBL files in `examples/`, `fixtures/` and the OASIS package's examples, and on
+21,719 of 21,726 seeded mutations in 16 kinds. The 7 others are base64 data with a non-base64
+character, which libxml2 skips and the XSD and Xerces (the Java validators' parser) refuse; we
+refuse it too. Not checked: inside a UBL extension's content (it must hold one element from
+another namespace; that element is not looked into), `xsi:type`. CII files have their own pass ("CII schema (XSD) validation", above). Tests:
+`ubl-xsd.test.mjs` (15).
+
 ## Provenance
 
 Moved on 2026-11-26 from `Duncan-Haywood/private-monorepo` `apps/einvoice-preflight` at commit
-`b1b7c3f63ce289c4051d8506eb0744856350f80e` (a copy of the tree, not its git history), when the paid apps moved
+`cded6eaf5d8aefcb42e61ed1cad3ec0b81826072` (a copy of the tree, not its git history), when the paid apps moved
 to this public repository. Licence: the root `LICENSE` (FSL-1.1-MIT) unless this
 directory's own LICENSE says otherwise; third-party files keep their notices. Index:
 [`apps/README.md`](../../apps/README.md).

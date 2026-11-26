@@ -66,8 +66,17 @@ ROOT = HERE.parents[1]
 WORKFLOWS = HERE.parents[1] / ".github" / "workflows"
 
 
+def uncommented(text):
+    """A workflow's text without its whole-line YAML comments. A name that
+    appears only in a comment is not wired: until 2026-11-26 the comment
+    "The unwired tree checks (unwired_checks.py, doc_index.py check) run from
+    this workflow" in ventures-tests.yml made `doc_index.py check` (EXTRA) and
+    test_unwired_checks.py count as wired, so neither ran anywhere."""
+    return "\n".join(line for line in text.splitlines() if not line.lstrip().startswith("#"))
+
+
 def workflow_text(workflows=WORKFLOWS):
-    return "\n".join(p.read_text(encoding="utf-8", errors="replace")
+    return "\n".join(uncommented(p.read_text(encoding="utf-8", errors="replace"))
                      for p in sorted(workflows.glob("*.y*ml")))
 
 
@@ -82,8 +91,8 @@ def pr_workflow_text(workflows=WORKFLOWS):
     """The text of the workflows a pull request can trigger. A suite named only
     by a nightly or a dispatch-only workflow is as unseen at merge as one named
     by none (test_browser_checks.py, 2026-11-13)."""
-    return "\n".join(t for t in (p.read_text(encoding="utf-8", errors="replace")
-                                 for p in sorted(workflows.glob("*.y*ml")))
+    return "\n".join(uncommented(t) for t in (p.read_text(encoding="utf-8", errors="replace")
+                                              for p in sorted(workflows.glob("*.y*ml")))
                      if triggers_on_pull_request(t))
 
 
@@ -489,7 +498,7 @@ COVERED_BY_TREE_TEST = {
 }
 
 
-def run_everything(checks_only=False, jobs=6):
+def run_everything(checks_only=False, jobs=6, changed=None, not_run=None):
     """Checks, then (unless checks_only) suites and EXTRA: one sorted result list.
 
     One pool for all four kinds (2026-11-14). Four pools in a row each waited
@@ -501,7 +510,14 @@ def run_everything(checks_only=False, jobs=6):
 
     A check in COVERED_BY_TREE_TEST whose suite is in the pool waits for that
     suite: green, and the check is reported covered without a second scan;
-    anything else, and the check runs after the pool."""
+    anything else, and the check runs after the pool.
+
+    `changed` (repo-relative paths) drops the items unwired_reads.json shows
+    reading none of them, unless a changed path is code (2026-11-26,
+    docs/history/ci-perf-2026-11-26-unwired-reads-map.md); their names go in
+    `not_run` when a list is passed."""
+    import unwired_reads
+    needed = unwired_reads.selector(changed)
     groups = []
     checks, suites = unwired(), [] if checks_only else unwired_tests()
     suite_names = {Path(s).name for s in suites}
@@ -514,8 +530,24 @@ def run_everything(checks_only=False, jobs=6):
     if not checks_only:
         groups.append((lambda p, *a: main_health.run(p, *a), unwired_extra()))
     work = [(runner, p if isinstance(p, tuple) else (p,)) for runner, paths in groups for p in paths]
+    if needed is not None:
+        dropped = [w for w in work if not needed(item_name(w[0], w[1][0]))]
+        if not_run is not None:
+            not_run += sorted([item_name(r, a[0]) for r, a in dropped]
+                              + [main_health.label(c) for c in deferred if not needed(main_health.label(c))])
+        deferred = [c for c in deferred if needed(main_health.label(c))]
+        work = [w for w in work if w not in dropped]
     results = run_mixed(work, jobs=jobs)
     return sorted(results + covered_or_run(deferred, results, jobs))
+
+
+def item_name(runner, path):
+    """The result name `runner` will give `path`, before it runs."""
+    if runner is run_node_suite:
+        return node_name(path)
+    if runner is run_suite:
+        return suite_name(path)
+    return main_health.label(path)
 
 
 def covered_or_run(deferred, results, jobs=6):

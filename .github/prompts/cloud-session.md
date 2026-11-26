@@ -38,7 +38,7 @@ Their CI is `.github/workflows/apps-<name>-ci.yml` on this repository's
 public runners, so the private repo's starvation workarounds no longer apply
 to them. Build, test and merge them like any other change here:
 
-1. `pnpm install --frozen-lockfile --filter "{./apps/<dir>}..."` (backgrounded)
+1. `pnpm install --frozen-lockfile --filter "{./apps/<dir>}..."` (backgrounded, once per app you touch: a change to `payapps` and `payapps-site` needs both)
    from the repository root gets the app's tests, `pnpm dev` and Playwright
    running. Select by directory in braces: a bare name must be the package
    name (cmmc's is `cmmc-workspace`, so `--filter cmmc...` matches nothing and

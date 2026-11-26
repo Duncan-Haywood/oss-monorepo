@@ -14,7 +14,8 @@
       "@worker/*": ["src/worker/*"],
       "@client/*": ["src/client/*"],
       "@test/*": ["test/*"],
-      "@billing": ["../../packages/billing/src/index.ts"]
+      "@billing": ["../../packages/billing/src/index.ts"],
+      "@admin-metrics": ["../../packages/admin-metrics/src/index.ts"]
     }
   },
   "include": ["src", "test", "*.ts"]

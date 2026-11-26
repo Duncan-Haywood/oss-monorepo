@@ -248,6 +248,40 @@ class TestMissingReferencedScript(RepoCase):
         hits = [f for f in findings if f.rule == "R1-missing-referenced-script"]
         self.assertEqual(len(hits), 2)
 
+    WORKDIR_WORKFLOW = """
+        name: app-ci
+        on: pull_request
+        permissions:
+          contents: read
+        defaults:
+          run:
+            working-directory: apps/shop
+        jobs:
+          check:
+            steps:
+              - run: node --test scripts/provision.test.mjs
+              - run: scripts/lint.sh
+                working-directory: apps/other
+    """
+
+    def test_resolves_paths_against_the_default_working_directory(self):
+        findings = self.run_rules(
+            {"a.yml": self.WORKDIR_WORKFLOW},
+            {
+                "apps/shop/scripts/provision.test.mjs": "// test\n",
+                "apps/other/scripts/lint.sh": "#!/bin/sh\n",
+            },
+        )
+        self.assertNotIn("R1-missing-referenced-script", self.rules_fired(findings))
+
+    def test_still_fires_when_absent_from_the_working_directory_too(self):
+        findings = self.run_rules({"a.yml": self.WORKDIR_WORKFLOW}, {"apps/shop/scripts/lint.sh": "#!/bin/sh\n"})
+        hits = [f for f in findings if f.rule == "R1-missing-referenced-script"]
+        self.assertEqual(sorted(h.summary for h in hits), [
+            "references scripts/lint.sh, which is not in the repository",
+            "references scripts/provision.test.mjs, which is not in the repository",
+        ])
+
 
 # --------------------------------------------------------------------------
 # R2 — static output delimiter

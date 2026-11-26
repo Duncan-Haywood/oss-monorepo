@@ -1,7 +1,7 @@
 variable "role_name" {
   description = "Lambda and IAM role name. Must equal the apps stack's sender_role_name."
   type        = string
-  default     = "saas-starter-payments-paddle-webhook"
+  default     = "payments-paddle-webhook"
 }
 
 variable "secret_name" {

@@ -18,7 +18,9 @@ import {
   checkoutPriceKey,
   decideSubscriptionUpdate,
   type Entitlement,
+  isNewPaidSubscription,
   newCheckoutId,
+  nextLifecycleStamps,
   PromoCodeError,
   parseCheckoutToken,
   resolveCheckoutToken,
@@ -51,6 +53,7 @@ import {
 import { AppError, badRequest, paymentRequired } from "../../lib/errors";
 import { newId } from "../../lib/ids";
 import type { Tenant } from "../../types";
+import { notifyOwnerNewPaid } from "../owner-notify";
 
 type SubscriptionRow = typeof subscriptions.$inferSelect;
 
@@ -454,8 +457,18 @@ export async function handleWebhook(ctx: AppContext, request: Request): Promise<
     if (consumed.length === 0) return ignore("checkout token replay", orgId);
   }
 
-  // 5. Write.
+  // 5. Write. The price is stored exactly as this event reports it (the only MRR source), and the
+  // lifecycle stamps only ever record what webhooks said (never back-filled).
+  const price = s.price;
+  const stamps = nextLifecycleStamps(current, s.status, event.occurredAt ?? ctx.now());
   const values = {
+    priceAmountMinor: price?.unitAmountMinor ?? null,
+    priceCurrency: price?.currency ?? null,
+    billingInterval: price?.interval ?? null,
+    billingFrequency: price?.frequency ?? null,
+    priceQuantity: price?.quantity ?? null,
+    priceDiscounted: price ? price.discounted : null,
+    ...stamps,
     planKey: s.planKey,
     status: s.status,
     provider,
@@ -472,5 +485,6 @@ export async function handleWebhook(ctx: AppContext, request: Request): Promise<
     .values({ orgId, ...values })
     .onConflictDoUpdate({ target: subscriptions.orgId, set: { ...values, updatedAt: ctx.now() } });
   ctx.logger.info("billing.subscription_applied", { orgId, plan: s.planKey, status: s.status });
+  if (isNewPaidSubscription(current, s)) await notifyOwnerNewPaid(ctx, orgId);
   return finish({ outcome: "applied" }, orgId);
 }

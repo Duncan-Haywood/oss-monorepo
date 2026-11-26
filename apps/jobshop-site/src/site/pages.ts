@@ -529,6 +529,9 @@ export function privacyPage(_ctx: RenderContext): Html {
     <h2>Why</h2>
     <p>To contact you about early access and to decide what to build first. Nothing else: no newsletter,
     no sharing, no selling.</p>
+    <h2>Who can see it</h2>
+    <p>Only the people who run ${SITE_NAME} can see the list of requests: your name, email address, the
+    page you sent the form from, and the date. Each time they view it, that view is logged.</p>
     <h2>Where</h2>
     <p>In a database on Cloudflare, which hosts this site. The site sets no tracking cookies and loads no
     third-party scripts.</p>

@@ -1,0 +1,10 @@
+Acme Machining - NIST SP 800-171 self-assessment
+
+Requirement,Status,Owner,Implementation statement,Notes
+Access Control
+3.1.1,Met,it@acme.example,"Accounts are created by IT
+from a signed request.",Reviewed Nov
+3.1.2,"=IF(1=1,""Not met"",""Met"")",,,Role mapping pending
+3.1.3,mostly,,,
+Awareness and Training
+3.2.1,Partially implemented,,"Annual training, slides; ""phishing"" module, quarterly",

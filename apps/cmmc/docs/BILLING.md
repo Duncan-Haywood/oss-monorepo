@@ -82,7 +82,7 @@ rules. Checkout and the portal return to `/?tab=billing`.
 1. Terms, privacy and refund pages with the liability notes (no certification claim, no CUI), which
    Paddle's verification and the models row both require first. Done as drafts (2026-11-25,
    `docs/legal/*.md`, served at `/legal/:key`); the owner confirms the operator name and contact
-   email and has the agent legal review check them (no outside counsel: owner, 2026-11-26). Give Paddle the `/legal/terms`,
+   email and has counsel review them before launch. Give Paddle the `/legal/terms`,
    `/legal/privacy` and `/legal/refunds` URLs on the cmmc host.
 2. The deploy workflow (`cmmc-deploy`, [DEPLOY.md](DEPLOY.md)) syncs `billing/paddle-catalog.json`
    to Paddle with `packages/billing/scripts/paddle-catalog.ts` and passes the price ids read back to

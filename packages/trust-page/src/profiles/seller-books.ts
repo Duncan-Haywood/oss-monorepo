@@ -8,7 +8,7 @@ const S = "apps/seller-books";
 
 export const sellerBooksProfile: TrustProfile = {
   product: "Seller Books",
-  operator: "Mary Stella Labs, LLC (New Mexico, USA)",
+  operator: "Maris Stella Labs LLC (Colorado, USA)",
   lifecycle: "pre_launch",
   reviewedOn: "2026-11-24",
   securityContact: null,

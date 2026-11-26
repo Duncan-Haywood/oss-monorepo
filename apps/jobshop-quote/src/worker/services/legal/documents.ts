@@ -11,14 +11,14 @@ export interface LegalDocumentSource {
 export const LEGAL_DOCUMENTS: Record<LegalDocKey, LegalDocumentSource> = {
   terms: {
     title: "Terms of Service",
-    updatedAt: "2026-11-25",
+    updatedAt: "2026-11-26",
     markdown: `# Terms of Service
 
-**Version 2026-11-25** · Mary Stella Labs, LLC
+**Version 2026-11-26** · Maris Stella Labs LLC
 
 ## 1. Who we are
 
-Job Shop Quote (the "Service") is operated by **Mary Stella Labs, LLC**, a New Mexico limited liability company ("we", "us"). These Terms are an agreement between us and the company that creates an account (the "Customer", "you"). The person who accepts these Terms confirms they are authorized to do so on the company's behalf.
+Job Shop Quote (the "Service") is operated by **Maris Stella Labs LLC**, a Colorado limited liability company ("we", "us"). These Terms are an agreement between us and the company that creates an account (the "Customer", "you"). The person who accepts these Terms confirms they are authorized to do so on the company's behalf.
 
 ## 2. The Service
 
@@ -82,21 +82,21 @@ We may update these Terms. We will post the new version with a new version date 
 
 ## 14. Governing law
 
-These Terms are governed by the laws of the **State of New Mexico**, USA, without regard to conflict-of-law rules. Courts located in New Mexico have jurisdiction over disputes, unless the law requires otherwise.
+These Terms are governed by the laws of the **State of Colorado**, USA, without regard to conflict-of-law rules. Courts located in Colorado have jurisdiction over disputes, unless the law requires otherwise.
 
 ## 15. Contact
 
-Mary Stella Labs, LLC, New Mexico, USA · [contact email to be confirmed before launch]
+Maris Stella Labs LLC, Colorado, USA · hello@marisstella.app
 `,
   },
   privacy: {
     title: "Privacy Policy",
-    updatedAt: "2026-11-25",
+    updatedAt: "2026-11-26",
     markdown: `# Privacy Policy
 
-**Version 2026-11-25** · Mary Stella Labs, LLC
+**Version 2026-11-26** · Maris Stella Labs LLC
 
-This policy explains what information Job Shop Quote (operated by Mary Stella Labs, LLC, "we") collects, why, who processes it, and the choices you have.
+This policy explains what information Job Shop Quote (operated by Maris Stella Labs LLC, "we") collects, why, who processes it, and the choices you have.
 
 ## What we collect
 
@@ -150,6 +150,7 @@ We will update this list before adding a new subprocessor.
 - Encryption in transit (HTTPS) and at rest (provider-managed storage encryption).
 - Tenant isolation: every record and file belongs to one shop and is checked against your membership on every request.
 - Role-based access within each shop (owner, admin, estimator, viewer).
+- Operator access: our platform administrators (the people who run the service) can see account data across shops: shop names, account owners' names and email addresses, sign-up dates, plan, subscription status and the price billed. Each such view is logged. These operator tools do not show your RFQs, drawings, quotes or rate card.
 - Sent quotes are frozen: the PDF your customer received is kept unchanged with its checksum.
 
 No system is perfectly secure. We will notify affected customers of a security incident involving their data as required by law.
@@ -171,15 +172,15 @@ We will post updates with a new version date and ask you to accept material chan
 
 ## Contact
 
-Mary Stella Labs, LLC, New Mexico, USA · [contact email to be confirmed before launch]
+Maris Stella Labs LLC, Colorado, USA · hello@marisstella.app
 `,
   },
   refunds: {
     title: "Refund Policy",
-    updatedAt: "2026-11-25",
+    updatedAt: "2026-11-26",
     markdown: `# Refund Policy
 
-**Version 2026-11-25** · Mary Stella Labs, LLC
+**Version 2026-11-26** · Maris Stella Labs LLC
 
 ## Try it free first
 
@@ -207,15 +208,15 @@ When you change plans, any credit or charge is handled as shown at checkout.
 
 ## Contact
 
-Mary Stella Labs, LLC, New Mexico, USA · [contact email to be confirmed before launch]
+Maris Stella Labs LLC, Colorado, USA · hello@marisstella.app
 `,
   },
   "acceptable-use": {
     title: "Acceptable Use Policy",
-    updatedAt: "2026-11-25",
+    updatedAt: "2026-11-26",
     markdown: `# Acceptable Use Policy
 
-**Version 2026-11-25** · Mary Stella Labs, LLC
+**Version 2026-11-26** · Maris Stella Labs LLC
 
 Job Shop Quote exists to help shops quote their own work quickly and accurately. You agree not to use it to do any of the following.
 
@@ -247,7 +248,7 @@ We may suspend or terminate accounts that violate this policy, with notice where
 
 ## Contact
 
-Mary Stella Labs, LLC, New Mexico, USA · [contact email to be confirmed before launch]
+Maris Stella Labs LLC, Colorado, USA · hello@marisstella.app
 `,
   },
 };

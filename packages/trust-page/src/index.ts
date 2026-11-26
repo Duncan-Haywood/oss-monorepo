@@ -32,7 +32,7 @@ import type { TrustProfile } from "./types.ts";
 
 /**
  * Profiles by app directory name (apps/<id>). grants is not listed: apps/grants stayed in the
- * private repository when the paid apps moved here (2026-11-26; it names a client under an NDA),
+ * private repository when the paid apps moved here (2026-11-26; it holds client-confidential material),
  * so its profile's sources do not exist in this tree. grantsProfile stays exported as the
  * fixture the guard and render tests use.
  */

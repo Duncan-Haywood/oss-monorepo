@@ -105,12 +105,13 @@ ${c.deadlineSummary()}
 <div class="card"><h3>Geprüft</h3><ul>
 <li>Das CII-XSD-Schema (UN/CEFACT D16B, die von CEN veröffentlichte EN-16931-Teilmenge) für EN-16931-Dateien und ihre CIUS wie XRechnung und Factur-X BASIC: Reihenfolge der Elemente, Pflicht- und unbekannte Elemente, Zahlen, Datums- und Wahrheitswerte sowie Namensräume (udt: statt qdt:). Bei 499 veränderten Testdateien stimmte jedes Ergebnis mit xmllint auf demselben Schema überein.</li>
 <li>Das Lesen der Datei: UBL 2.1 und UN/CEFACT CII als XML, das in ein Factur-X-/ZUGFeRD-PDF eingebettete XML und das PDF darum (PDF/A-3-Kennzeichen, Name und Beziehung des Anhangs, das in den PDF-Metadaten genannte Profil).</li>
+<li>Das UBL-2.1-Schema (XSD) bei jeder UBL-Rechnung und -Gutschrift, vor allen Geschäftsregeln: unbekannte oder doppelte Elemente, Reihenfolge der Elemente, fehlende Elemente, Werte, die keine Zahl, kein Datum, keine Uhrzeit und kein true/false sind, fehlendes <code>currencyID</code> und andere Attribute sowie der Namensraum jedes Elements.</li>
 <li>Die Geschäftsregeln der EN 16931 (BR-…) über das offizielle CEN-Schematron, dazu das offizielle XRechnung- oder Peppol-BIS-Zusatzmodul, wenn die Datei eines angibt, überall dort, wo der Server sie installiert hat; jedes Ergebnis sagt, ob sie liefen. Daneben unsere eigenen Prüfungen: Pflichtfelder, centgenaue Summen, höchstens zwei Nachkommastellen, Datums- und Währungscodes, Prüfziffern von USt-IdNr. und IBAN.</li>
 <li>Deutschland: Eine ZUGFeRD-/Factur-X-Datei im Profil MINIMUM oder BASIC WL von einem deutschen Verkäufer wird als keine E-Rechnung gemeldet. Mit den XRechnung-Regeln (gewählt oder aus der Spezifikationskennung der Datei erkannt) neun Prüfungen nach BR-DE: Käuferreferenz und Prüfziffern der Leitweg-ID, Zahlungsanweisungen, Kontakt des Verkäufers, Anschrift von Verkäufer und Käufer, Rechnungsart, Spezifikationskennung und Steuernummer des Verkäufers.</li>
 <li>Frankreich: Mit den französischen Regeln (gewählt oder erkannt, wenn Verkäufer und Käufer beide in Frankreich sind) SIREN oder SIRET von Verkäufer und Käufer samt Prüfziffer, die SIREN in der französischen USt-IdNr. des Verkäufers, die Art des Umsatzes (eine der neuen Angaben auf der ${c.a("deadlines-fr", "Seite zu Frankreich")}) sowie die Angaben zu Verzugszinsen, 40-Euro-Pauschale und Skonto.</li>
 </ul></div>
 <div class="card"><h3>Nicht geprüft</h3><ul>
-<li>Das XSD-Schema von UBL 2.1 und das CII-Schema für Factur-X-/ZUGFeRD-Dateien in den Profilen EXTENDED, MINIMUM und BASIC WL (jedes hat ein eigenes): Eine solche Datei kann hier bestehen und von einem Validator mit Schemaprüfung trotzdem abgelehnt werden.</li>
+<li>Das CII-Schema für Factur-X-/ZUGFeRD-Dateien in den Profilen EXTENDED, MINIMUM und BASIC WL (jedes hat ein eigenes): Eine solche Datei kann hier bestehen und von einem Validator mit Schemaprüfung trotzdem abgelehnt werden.</li>
 <li>Ob Steuersatz oder umsatzsteuerliche Behandlung für den Umsatz richtig sind.</li>
 <li>Ob eine USt-IdNr., SIREN oder Leitweg-ID existiert oder gültig ist: nur Form und Prüfziffern.</li>
 <li>Frankreich: ob die Option zur Besteuerung nach vereinbarten Entgelten (TVA sur les débits) gilt und angegeben ist.</li>
@@ -320,6 +321,7 @@ function privacy(c) {
 <li>einen Hashwert des Bestätigungslinks (nicht den Link selbst), sein Ablaufdatum sowie wann und wie viele Bestätigungs-E-Mails versandt wurden (um wiederholtes Senden zu begrenzen).</li>
 </ul>
 <p>Ihre IP-Adresse speichern wir nicht. Zweck: Ihre Adresse zu bestätigen (Double-Opt-in) und Ihnen danach E-Mails zum Frühzugang zu diesem Produkt zu senden. Rechtsgrundlage: Ihre Einwilligung, Art. 6 Abs. 1 lit. a DSGVO. Sie können sie jederzeit über den Löschlink in jeder E-Mail widerrufen; die Rechtmäßigkeit der bis dahin erfolgten Verarbeitung bleibt davon unberührt.</p>
+<p>Wer die Liste sehen kann: nur die Betreiber dieses Dienstes (der oben genannte Verantwortliche), in einer internen Übersicht mit Ihrer E-Mail-Adresse, dem Bestätigungsstatus und dem Datum. Jeder solche Abruf wird protokolliert.</p>
 
 <h2>Speicherdauer</h2>
 <ul>

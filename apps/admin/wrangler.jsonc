@@ -1,0 +1,27 @@
+// Owner Console (apps/admin) — Cloudflare Worker configuration. Deployed by hand with
+// .github/workflows/admin-deploy.yml. Nothing here is secret or personal: product URLs
+// (PRODUCTS), PLATFORM_ADMIN_EMAILS, ADMIN_SERVICE_TOKEN, CF_ACCESS_* and EMAIL_FROM are set on the
+// worker from non-secret GitHub variables (admin-deploy.yml) and by set-admins.yml, whose tokens live
+// in AWS Secrets Manager under paid-apps/* (README.md).
+{
+  "name": "owner-console",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-11-01",
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+  "preview_urls": false,
+  "workers_dev": true,
+  "assets": {
+    "directory": "public",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  // Owner mail (daily digest). Sends only once EMAIL_FROM is an address on an onboarded sender domain
+  // AND DIGEST_ENABLED=on.
+  "send_email": [{ "name": "EMAIL" }],
+  // Daily digest at 06:47 UTC for the previous UTC day.
+  "triggers": { "crons": ["47 6 * * *"] },
+  "vars": {
+    "APP_ENV": "production",
+    "DIGEST_ENABLED": "off"
+  }
+}

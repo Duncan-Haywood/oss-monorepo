@@ -57,7 +57,7 @@ export function ControlsView({
             <div className="flex items-center gap-2">
               {info.role !== "viewer" && !importing && (
                 <button type="button" className={btnGhostCls} onClick={() => setImporting(true)}>
-                  Import CSV
+                  Import spreadsheet
                 </button>
               )}
               <select

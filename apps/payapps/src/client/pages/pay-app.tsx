@@ -14,6 +14,7 @@ import { PaymentsPanel } from "../components/payments";
 import { ProcoreInvoicePanel } from "../components/procore-invoice";
 import { QuickBooksPanel } from "../components/quickbooks";
 import { RetainageReleasePanel } from "../components/retainage-release";
+import { TexturaBillingPanel } from "../components/textura-billing";
 import { WaiversPanel } from "../components/waivers";
 import { api, projectPath } from "../lib/api";
 
@@ -410,6 +411,8 @@ export function PayAppPage() {
       {a.status !== "draft" && <QuickBooksPanel orgId={orgId} base={base} />}
 
       {project.data && <ProcoreInvoicePanel orgId={orgId} project={project.data} app={a} />}
+
+      {project.data && <TexturaBillingPanel orgId={orgId} project={project.data} app={a} />}
 
       <AttachmentsPanel base={base} />
 

@@ -83,11 +83,22 @@ marketing, with an unsubscribe header.
    does, `apps/grants/docs/SEO.md`, "Hosting note").
 3. `pnpm db:migrate:remote` (D1 `payapps-site` is created on first deploy).
 4. Set vars: `APP_ENV=production`, `SITE_URL`, `EMAIL_FROM` (a sender on a domain onboarded to Cloudflare
-   Email Service), and `EMAIL_MODE=cloudflare`. No secrets are needed.
+   Email Service), and `EMAIL_MODE=cloudflare`. Optional secrets: `ADMIN_SERVICE_TOKEN` and `ADMIN_METRICS_TOKEN` (below).
 5. `SITE_URL=... pnpm build && pnpm exec wrangler deploy`.
 
 Sign-ups live in this site's own D1 database, not the app's. When `apps/payapps` launches, export the
 confirmed rows (`SELECT email, company, role, jobs, tool FROM early_access_signups WHERE status='confirmed'`).
+
+## Owner console API
+
+`GET /payapps/api/admin/metrics?days=30` (total, confirmed, by day, by source page) and
+`GET /payapps/api/admin/accounts?limit=50` (newest sign-ups: email, source page, confirmed, date) serve the
+owner console (`apps/admin`) in the `packages/admin-metrics` contract (`src/worker/admin.ts`). They answer
+only `Authorization: Bearer <ADMIN_SERVICE_TOKEN>`: a Worker secret of at least 32 characters, set by the
+`set-admins` workflow, never committed. Unset, the endpoints are closed. `ADMIN_METRICS_TOKEN` (same rules) is
+the agents' read-only credential: it reads `/metrics` only; `/accounts` (emails) answers 403. Every read writes a row to
+`admin_audit_log` (`migrations/0002_admin_audit_log.sql`). There is no unsubscribed count: removing a
+sign-up deletes it.
 
 ## Open items
 
@@ -97,7 +108,7 @@ confirmed rows (`SELECT email, company, role, jobs, tool FROM early_access_signu
 ## Provenance
 
 Moved on 2026-11-26 from `Duncan-Haywood/private-monorepo` `apps/payapps-site` at commit
-`b1b7c3f63ce289c4051d8506eb0744856350f80e` (a copy of the tree, not its git history), when the paid apps moved
+`cded6eaf5d8aefcb42e61ed1cad3ec0b81826072` (a copy of the tree, not its git history), when the paid apps moved
 to this public repository. Licence: the root `LICENSE` (FSL-1.1-MIT) unless this
 directory's own LICENSE says otherwise; third-party files keep their notices. Index:
 [`apps/README.md`](../../apps/README.md).

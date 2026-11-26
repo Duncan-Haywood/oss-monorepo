@@ -1,0 +1,5 @@
+{
+  "comment": "What the retire stage may delete, after the cool-off. An agent's PR fills this in and, in the same PR, removes the matching resource and import blocks from platform/aws/stacks/cloudflare/*.generated.tf; retire then applies only if the plan deletes exactly these addresses. Workers are deleted through the API (they are not in state). The zone, its DNS and Email Routing stay: DNS stays on Cloudflare unless the full-exit track (README.md) is chosen.",
+  "workers": [],
+  "tofu_destroy": []
+}

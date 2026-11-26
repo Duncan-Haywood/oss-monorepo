@@ -116,20 +116,41 @@ Bet #4 in the public repository's `portfolio/monetization/bets.md`. Claim an ite
   `POST /controls/import {level, csv, apply}` previews (any editor, any plan) or applies (Level 2
   needs the Level 2 plan) in D1 batches with one `control.import` audit entry. Partial credit for
   3.5.3 and 3.13.11 is still picked by hand. `src/shared/controls/csv-import.ts`.
+- Import part 2, the workbook itself (2026-11-26). "Import spreadsheet" also takes the .xlsx: it is
+  read in the browser with no library (the reader from apps/payapps, `src/shared/xlsx.ts`), the sheet
+  with the most requirement ids is chosen (a "Sheet" picker shows every tab and its id count), and
+  only that sheet goes to the same endpoint as CSV, so one reader decides everything. Rows keep their
+  Excel numbers ("Row 14"); formulas count by their saved result, and one saved without a result is
+  named by row. An old .xls, a password-protected or ZIP64 workbook gets a message to save it as .xlsx
+  or CSV. Tested on a workbook LibreOffice wrote (`test/fixtures/README.md`).
+  `src/shared/controls/sheet-import.ts`.
+
+- Overdue notice (2026-11-26). The daily reminder run also sends admins and owners one email once
+  an annual affirmation, self-assessment or POA&M closeout date has passed with no newer affirmation
+  recorded (stage 0 in `affirmation_reminder_sent`, so it goes once per due date and overlapping
+  runs never repeat it), only while the date passed at most 30 days ago, so a date that lapsed long
+  before the workspace was set up does not start mailing. It names the date and its eCFR basis, says
+  how long ago it passed, and asks the admin to record the affirmation if the official already
+  entered it in SPRS, with the same planning-aid caveat and stop link. Passed dates lead a message
+  that also lists coming ones. The checkbox, docs/EMAIL.md and the privacy policy say so
+  (POLICY_VERSION 2026-11-26.4). Unit tests for the stage window and wording; a worker test for the
+  one notice, no repeat, and no notice past 30 days.
 
 ## Must do before a public launch
 
 - Owner: run `cmmc-deploy` once (by hand; [docs/DEPLOY.md](docs/DEPLOY.md)) and, at launch, let it
   run on every merge (`push: branches: [main]`)
 - Owner: Paddle secrets and a notification destination (docs/BILLING.md, "Turning it on")
-- Owner: confirm the operator name and contact email in the legal pages and have the agent legal review check them (no outside counsel: owner, 2026-11-26)
+- Done 2026-11-26: operator (Maris Stella Labs LLC, Colorado) and contact email filled in; launch is
+  agent-approved under `docs/legal/OPERATOR.md`. No attorney review (open checks listed there)
 
 ## Next
 
 - ISO 9001, part 2: check the 47 clause headings against a copy of ISO 9001:2015 (or ISO's free
   contents preview) and set `checkedAgainstCopy`; AS9100D's aerospace additions once a source is in
   hand; filter the clause list to "mine" once shops with several owners ask
-- Import, part 2: read .xlsx directly (no CSV step) and the POA&M sheet, once shops send real files;
-  check the header phrases against a real NIST SSP template or a prime's questionnaire
-- Affirmation reminders, part 3 (the subscribable calendar link done 2026-11-25): an overdue
-  notice to admins (one, not daily) if shops ask; the reminder email goes out only once the owner onboards the sender domain (docs/EMAIL.md)
+- Import, part 3 (the .xlsx read directly, done 2026-11-26): the POA&M sheet, once shops send real
+  files; check the header phrases against a real NIST SSP template or a prime's questionnaire
+- Affirmation reminders, part 4 (the subscribable calendar link done 2026-11-25; the one overdue
+  notice done 2026-11-26): the reminder email goes out only once the owner onboards the sender
+  domain (docs/EMAIL.md); a per-member choice of stages if admins find three emails per date too many

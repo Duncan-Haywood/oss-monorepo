@@ -117,7 +117,7 @@ test("sitemap lists every page and robots allows crawling", () => {
 
 test("the footer links the cut list optimizer, and it links back", () => {
   assert.match(page("index.html"), /<a href="\.\.\/cut-list-optimizer\/">/);
-  assert.match(readFileSync(new URL("../cut-list-optimizer/index.html", import.meta.url), "utf8"), /<a href="\.\.\/wall-framing-takeoff\/">/);
+  assert.match(readFileSync(new URL("../../ventures/cut-list-optimizer/index.html", import.meta.url), "utf8"), /<a href="\.\.\/wall-framing-takeoff\/">/);
 });
 
 test("the page offers blocking and fire blocking, and the plan it builds reaches the engine", async () => {

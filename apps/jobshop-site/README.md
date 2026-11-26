@@ -98,6 +98,16 @@ pnpm db:migrate:local && pnpm dev   # wrangler dev at http://localhost:8787
 pnpm exec biome check --write <files>   # from the repo root config
 ```
 
+## Owner console API
+
+`GET {base}/api/admin/metrics?days=30` (total, by day, by source page) and
+`GET {base}/api/admin/accounts?limit=50` (newest requests: email, name, source page, date) serve the owner
+console (`apps/admin`) in the `packages/admin-metrics` contract (`src/worker/admin.ts`); `{base}` is
+`BASE_PATH` (e.g. `/jobshop`). They answer only `Authorization: Bearer <ADMIN_SERVICE_TOKEN>`, a Worker
+secret of at least 32 characters, never committed; unset, they are closed. Every read writes a row to
+`admin_audit_log` (`migrations/0002_admin_audit_log.sql`). The list is single opt-in, so `confirmed` and
+the per-day `verified` counts are null, and there is no unsubscribed count (deletion is by email request). `ADMIN_METRICS_TOKEN` (same rules) is the agents' read-only credential: `/metrics` only; `/accounts` answers 403.
+
 ## Deploying (not set up yet)
 
 There is no deploy workflow for this app yet. To deploy under marisstella.app/jobshop:
@@ -105,13 +115,14 @@ There is no deploy workflow for this app yet. To deploy under marisstella.app/jo
    `/jobshop/...`; `run_worker_first` already covers `/jobshop/api/*`), deploy with
    `--var BASE_PATH:/jobshop` and the route `marisstella.app/jobshop*`. Checked locally with `wrangler dev --var BASE_PATH:/jobshop`.
 2. `wrangler d1 create jobshop-site`, `pnpm db:migrate:remote`, `wrangler secret put IP_HASH_SALT`.
+   Optional: `ADMIN_SERVICE_TOKEN`, `ADMIN_METRICS_TOKEN` (set by the `set-admins` workflow; see "Owner console API").
 3. Add the app's lines to the host's root `robots.txt` (the portfolio site's `HOSTED_APPS`), since
    crawlers only read the root file; `dist/robots.txt` is the reference.
 
 ## Provenance
 
 Moved on 2026-11-26 from `Duncan-Haywood/private-monorepo` `apps/jobshop-site` at commit
-`b1b7c3f63ce289c4051d8506eb0744856350f80e` (a copy of the tree, not its git history), when the paid apps moved
+`cded6eaf5d8aefcb42e61ed1cad3ec0b81826072` (a copy of the tree, not its git history), when the paid apps moved
 to this public repository. Licence: the root `LICENSE` (FSL-1.1-MIT) unless this
 directory's own LICENSE says otherwise; third-party files keep their notices. Index:
 [`apps/README.md`](../../apps/README.md).

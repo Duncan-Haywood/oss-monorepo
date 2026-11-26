@@ -3,7 +3,7 @@
 **Self-assessment by the company, 2026-11-24. Not an audit, not a certification.**
 
 Implementation Group 1 (IG1) is the CIS Controls' baseline for small organizations. This assessment
-covers Mary Stella Labs, LLC: one owner, AI agents writing code, all hosting on Cloudflare, and the
+covers Maris Stella Labs LLC: one owner, AI agents writing code, all hosting on Cloudflare, and the
 owner's own devices.
 
 **About the list.** The research step could not open cisecurity.org (network policy). The safeguard IDs

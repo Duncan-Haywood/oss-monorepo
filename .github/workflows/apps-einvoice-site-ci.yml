@@ -1,6 +1,7 @@
-# Moved from Duncan-Haywood/private-monorepo .github/workflows/einvoice-site-ci.yml at b1b7c3f63ce2 (2026-11-26);
-# actions pinned to .github/ci-policy.yaml SHAs, checkout without persisted credentials.
-# PR checks for apps/einvoice-site (zero-dependency static site + worker). Never needs secrets.
+# Moved from Duncan-Haywood/private-monorepo .github/workflows/einvoice-site-ci.yml at cded6eaf5d8a (2026-11-26);
+# actions pinned to .github/ci-policy.yaml SHAs, checkout without persisted credentials,
+# the AWS CodeBuild runner switch replaced by this repository's vars.CI_RUNNER.
+# PR checks for apps/einvoice-site (zero-dependency static site + worker). Never needs a secret;
 name: apps-einvoice-site-ci
 on:
   pull_request:
@@ -24,7 +25,7 @@ concurrency:
 jobs:
   check:
     name: lint, build, tests
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -35,7 +36,7 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-      - run: pnpm install --frozen-lockfile --filter private-monorepo
+      - run: pnpm install --frozen-lockfile --filter paid-apps-workspace
       - name: Biome
         run: pnpm exec biome ci apps/einvoice-site
       - name: Build (dev)

@@ -22,7 +22,9 @@ import {
   checkoutPriceKey,
   createBillingProvider,
   decideSubscriptionUpdate,
+  isNewPaidSubscription,
   newCheckoutId,
+  nextLifecycleStamps,
   PromoCodeError,
   parseCheckoutToken,
   resolveCheckoutToken,
@@ -231,7 +233,24 @@ export function createBilling(deps) {
       return { result: "ignored", reason: "checkout token replay", accountId };
     }
     const s = decision.subscription;
+    // The billed price exactly as this event reports it (the only MRR source; admin metrics) and
+    // the lifecycle stamps, which only ever record what webhooks said (never back-filled).
+    const price = s.price;
+    const stamps = nextLifecycleStamps(
+      current && { trialStartedAt: toDate(current.trialStartedAt), firstPaidAt: toDate(current.firstPaidAt), canceledAt: toDate(current.canceledAt) },
+      s.status,
+      event.occurredAt ?? now(),
+    );
     await store.upsertSubscription(accountId, {
+      priceAmountMinor: price?.unitAmountMinor ?? null,
+      priceCurrency: price?.currency ?? null,
+      billingInterval: price?.interval ?? null,
+      billingFrequency: price?.frequency ?? null,
+      priceQuantity: price?.quantity ?? null,
+      priceDiscounted: price ? price.discounted : null,
+      trialStartedAt: toIso(stamps.trialStartedAt),
+      firstPaidAt: toIso(stamps.firstPaidAt),
+      canceledAt: toIso(stamps.canceledAt),
       planKey: s.planKey,
       status: s.status,
       providerCustomerId: s.providerCustomerId,
@@ -242,6 +261,11 @@ export function createBilling(deps) {
       providerUpdatedAt: toIso(decision.providerUpdatedAt),
       pastDueSince: toIso(decision.pastDueSince),
     });
+    // Owner "new paid subscription" notice: this app has no email port yet, so it is a log line
+    // only (account id + plan; the account has no email on record). apps/admin's digest covers it.
+    if (isNewPaidSubscription(current, s) && (env.OWNER_NOTIFICATIONS ?? "").toLowerCase() === "on") {
+      log(`einvoice-billing: new paid subscription for account ${accountId} on plan ${s.planKey}`);
+    }
     return { result: "applied", accountId };
   }
 

@@ -1,0 +1,250 @@
+{
+  "date": "2026-11-26",
+  "subject": "ventures/depop-fee-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-26-b-a98b",
+  "auditor": "agent session (Claude), quality round 108, see run record",
+  "status": "audited",
+  "professional": "a full-time reseller / e-commerce bookkeeper who reconciles Depop payouts for US, UK and international sellers; they check first that the processing-fee base (item + shipping + tax) and rate match Depop's 'Seller fees and charges' table per country, that the boosting fee uses the right rate and base for the region, and that the rest-of-world schedule is current",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 3,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Recomputed by hand against Depop's published US/UK processing rates (3.3% + $0.45, 2.9% + GBP 0.30 on item + shipping; Depop Help Centre article 360001791127 as quoted in web-search extracts, since depophelp.zendesk.com, news.depop.com and partnerapi.depop.com all fail DNS in this container). Probe script (scratchpad/depop/probe.mjs) against the shipped calc.mjs: US $50 -> fee 50x0.033+0.45 = 1.65+0.45 = 2.10, payout 47.90 (pass); US $22 + $8 ship -> 30x0.033+0.45 = 0.99+0.45 = 1.44, payout 28.56 (pass); UK GBP40 + GBP5 ship, GBP3.50 label -> 45x0.029+0.30 = 1.305+0.30 = 1.605, payout 45-1.605-3.50 = 39.895 (pass); target price US, $20 profit, $10 cost, $5 ship, $6 label -> (30-5x0.967+0.45+6)/0.967 = 31.615/0.967 = 32.6939 (pass, solves back to profit 20.00). Wrong outputs: rest-of-world A$50 sale gives a 5.00 fee with no processing, but Depop's own announcement (search extract) removed selling fees for Australian sellers on AUD sales from 22 July 2026 (2.6% + A$0.30 = 1.60), and other non-US/UK sellers pay 10% plus payment processing, not 10% alone; UK boosted GBP50 + GBP3.50 own-label shipping gives boost 6.00 where Depop's Boosted Listings Policy (12% on item price plus shipping when no Depop label is used) gives 6.42; rest-of-world boost applies 12% where the policy lists 8% outside the US/UK; compareRegions marks UK 'best' for 100 by comparing GBP96.80 with $96.25 as plain numbers. US/UK unboosted arithmetic is exact; the other schedules are not, so 2.",
+    "completeness": "Claimed features run end to end in calc.mjs and index.html: per-region fee (US, UK, ROW), Boosted Listings toggle, profit after label/item/prep cost, price for target profit (round-trips exactly), three-region compare table, buyer Marketplace fee disclosure note, save/forget on device, shareable link (share.mjs, tested), hand-off to where-to-sell (to-where-to-sell.mjs, tested), usage counter with opt-out (usage.mjs, tested). Both content pages and llms.txt present; served-copy shows no placeholder origins. No stubs or TODOs. Every listed feature works as described; what is wrong is the rule it applies, which is scored under correctness/domain.",
+    "verification": "node --test '*.test.mjs' in ventures/depop-fee-calculator: 46 pass, 0 fail (bare 'node --test' from the README also runs, 46 pass). Tests pin the four rate constants and the target round-trip, so a changed rate would be caught. Five seeded mutants via quality_mutate.py: bestRegion comparison flipped (calc.mjs:215) SURVIVED; fixed processing fee no longer charged on a shipping-only sale (calc.mjs:87) SURVIVED; effective rate divided by item price instead of item+shipping (calc.mjs:149) SURVIVED; negative target price no longer returns null (calc.mjs:107) SURVIVED; boost base widened to include shipping (calc.mjs:88) caught. 4 of 5 survive; the compare test only asserts bestRegion is one of the three keys (calc.test.mjs:105).",
+    "craft": "Read calc.mjs (217 lines), calc.test.mjs, index.html script, share.mjs, usage.mjs. Pure, dependency-free module with input validation that rejects blanks, negatives and '1,200' with named-field errors (checked). Defects: ROW currency hard-coded to '$' (calc.mjs:44) so a EUR or AUD seller sees dollar signs; compareRegions ranks payouts across currencies without conversion (calc.mjs:215); regionOf has a redundant double check (calc.mjs:79). Small and readable; a senior JS reviewer would accept it with those notes.",
+    "claims": "Disclaimer, not-affiliated line, no-upload claim (page.test.mjs, pass) and Seller Books 'in development, early access' wording are present and honest. US/UK rates match the cited Help Centre article, and index.html:134 says 'rechecked as of 2026-11-24' (docs/reports/2026-11-24-seller-tools-front-doors.md shows only the US row was rechecked). Unbacked or contradicted: 'Rest of world ... no separate processing fee' (index.html:34, :211; how-much-does-depop-actually-take.html:44; calc.mjs:13) contradicts Depop's table, which charges processing outside the US/UK; Boost '12% ... on the item price' (index.html:58, :217; guide :68, :94) departs from the policy's base and regional rate; README:51 'Every rate is a constant lifted from Depop's own published Help Centre article' is not true of the boost base, which calc.mjs:33-38 admits is the author's reading. The source is named but never linked by URL, and the content pages carry no check date.",
+    "fitness": "Walked the job as a US reseller pricing a $35 top with $5 shipping and a $4 cost: payout, profit and a target price come out right and fast; same for a UK seller. A front door to bet #5 (Seller Books, portfolio/monetization/bets.md:29): the page ends with a 'Track true profit across every platform' section linking /industries/online-sellers/ and three reseller bookkeeping guides, and llms.txt repeats it; there is no sign-up on the page itself, so the lead depends on one more click. Gaps a bookkeeper hits: sales tax in the processing base, own-label vs Depop-label boost base, bundles, and any non-US/UK seller (Australian sellers get a fee about 3x too high). Fit for US/UK single-sale pricing; not for international sellers.",
+    "domain": "Against Depop's 'Seller fees and charges' and Boosted Listings Policy (as quoted in web-search extracts on 2026-11-26; direct fetch blocked): US/UK selling fee 0% and processing rates right. Departures: (1) rest-of-world modelled as 10% with no processing, where Depop charges processing too, and Australia moved to 0% selling + 2.6% + A$0.30 on 22 July 2026; (2) boost fee 12% of item price everywhere, where the policy has 12% in US/UK and 8% elsewhere, on item price plus shipping when the seller does not use a Depop label (rate effective for new listings from 23 March 2026); (3) processing base omits applicable taxes, which the help centre includes; (4) the 28-day boosted-attribution window is described only loosely ('while the listing was boosted'). A bookkeeper would sign off the US/UK unboosted number only."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "US $50 sale, no shipping",
+      "method": "by hand from Depop Help Centre US rate: 50 x 0.033 + 0.45 = 2.10; 50 - 2.10 = 47.90",
+      "command": "node scratchpad/depop/probe.mjs $PWD/ventures/depop-fee-calculator/calc.mjs (repo root)",
+      "expected": "fee 2.10, payout 47.90",
+      "observed": "US50 2.1 47.9 4.2",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "US $22 item + $8 buyer shipping",
+      "method": "by hand: 30 x 0.033 + 0.45 = 0.99 + 0.45 = 1.44; 30 - 1.44 = 28.56",
+      "command": "node scratchpad/depop/probe.mjs $PWD/ventures/depop-fee-calculator/calc.mjs (repo root)",
+      "expected": "fee 1.44, payout 28.56",
+      "observed": "US22+8 1.44 28.56",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "UK GBP40 + GBP5 shipping, GBP3.50 label",
+      "method": "by hand from Depop UK rate: 45 x 0.029 + 0.30 = 1.605; 45 - 1.605 - 3.50 = 39.895",
+      "command": "node scratchpad/depop/probe.mjs $PWD/ventures/depop-fee-calculator/calc.mjs (repo root)",
+      "expected": "fee 1.605, payout 39.895",
+      "observed": "UK40+5-3.5 1.605 39.895",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "price for $20 target profit, US, $10 cost, $5 ship, $6 label",
+      "method": "by hand: target payout 30; (30 - 5 x 0.967 + 0.45 + 6) / 0.967 = 31.615 / 0.967 = 32.6939",
+      "command": "node scratchpad/depop/probe.mjs $PWD/ventures/depop-fee-calculator/calc.mjs (repo root)",
+      "expected": "32.6939, profit back 20",
+      "observed": "target 32.6939; target back 20",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "UK boosted GBP50 + GBP3.50 shipping, own label",
+      "method": "Depop Boosted Listings Policy (search extract): 12% of item price plus shipping when no Depop label: 0.12 x 53.50 = 6.42",
+      "command": "node scratchpad/depop/probe.mjs $PWD/ventures/depop-fee-calculator/calc.mjs (repo root)",
+      "expected": "6.42 (6.00 only with a Depop label)",
+      "observed": "UKboost50+3.5 6",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "rest-of-world A$50 sale (Australia)",
+      "method": "Depop announcement 'Depop makes selling free in Australia' (search extract): 0% selling fee on AUD sales from 22 July 2026, processing 2.6% + A$0.30 = 1.60",
+      "command": "node scratchpad/depop/probe.mjs $PWD/ventures/depop-fee-calculator/calc.mjs (repo root)",
+      "expected": "fee 1.60, currency A$",
+      "observed": "ROW50 5 $",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "rest-of-world boosted $50 sale",
+      "method": "Depop Boosted Listings Policy (search extract): 8% outside the UK and US",
+      "command": "node scratchpad/depop/probe.mjs $PWD/ventures/depop-fee-calculator/calc.mjs (repo root)",
+      "expected": "4.00",
+      "observed": "ROWboost50 6",
+      "result": "fail"
+    },
+    {
+      "dimension": "craft",
+      "what": "compareRegions best region for a 100 sale",
+      "method": "payouts are in different currencies; no ranking is meaningful without conversion",
+      "command": "node scratchpad/depop/probe.mjs $PWD/ventures/depop-fee-calculator/calc.mjs (repo root)",
+      "expected": "no cross-currency 'best', or a conversion",
+      "observed": "best uk {us: $96.25, uk: GBP96.8, row: $90}",
+      "result": "fail"
+    },
+    {
+      "dimension": "craft",
+      "what": "input handling: -5, '1,200', 1e3",
+      "method": "run calculateSale",
+      "command": "node scratchpad/depop/probe.mjs $PWD/ventures/depop-fee-calculator/calc.mjs (repo root)",
+      "expected": "named errors for -5 and '1,200'",
+      "observed": "'must be at least 0', 'must be a number'; 1e3 read as 1000",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "cd ventures/depop-fee-calculator && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "46 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'Rest of world ... no separate processing fee'",
+      "method": "Depop 'Seller fees and charges' (search extract): sellers outside US/UK pay processing (PayPal or Depop Payments)",
+      "command": "grep -n 'no separate processing\\|none broken out' ventures/depop-fee-calculator/*.html",
+      "expected": "processing disclosed",
+      "observed": "index.html:34, :211, guide :44 state none",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "README:51 'Every rate is a constant lifted from Depop's own published Help Centre article'",
+      "method": "compare with calc.mjs:33-38, which says the boost base is the author's reading",
+      "command": "sed -n 33,38p ventures/depop-fee-calculator/calc.mjs",
+      "expected": "claim limited to the rates actually lifted",
+      "observed": "boost base is an inference, not lifted",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "no-upload claim and disclaimer",
+      "method": "page.test.mjs and page read",
+      "command": "cd ventures/depop-fee-calculator && node --test page.test.mjs",
+      "expected": "pass; disclaimer present",
+      "observed": "pass; no-warranty, not-affiliated and no-upload text on all three pages",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "served llms.txt and canonicals",
+      "method": "deploy rewrite",
+      "command": "node platform/pages/served-copy.mjs depop-fee-calculator",
+      "expected": "no placeholder origin",
+      "observed": "no placeholder or retired origin left",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "front door to Seller Books (bet #5)",
+      "method": "read index.html:224 and llms.txt; bets.md:29",
+      "command": "grep -n 'industries/online-sellers' ventures/depop-fee-calculator/index.html ventures/depop-fee-calculator/llms.txt",
+      "expected": "link to the paid product",
+      "observed": "linked from page and llms.txt, labelled in development, early access; no on-page signup",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:215",
+      "change": "b[1].payout > a[1].payout -> b[1].payout < a[1].payout",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:87",
+      "change": "itemPrice > 0 || buyerShipping > 0 ? -> itemPrice > 0 ?",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:149",
+      "change": "(depopFee / base) * 100 -> (depopFee / itemPrice) * 100",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:107",
+      "change": "return price >= 0 ? price : null; -> return price;",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:88",
+      "change": "boosted ? itemPrice * -> boosted ? (itemPrice + buyerShipping) *",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Rest-of-world schedule is a flat 10% with no processing fee. Depop charges payment processing outside the US/UK too, and from 22 July 2026 Australian sellers on AUD sales pay 0% selling + 2.6% + A$0.30 (an A$50 sale: tool 5.00, Depop 1.60). The same claim is on index.html:34/:211 and the guide's table.",
+      "where": "ventures/depop-fee-calculator/calc.mjs:44",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Boost fee is 12% of item price in every region. Depop's Boosted Listings Policy: 12% in US/UK, 8% elsewhere, on item price plus shipping when the seller does not use a Depop label (UK GBP50 + GBP3.50 own label: tool 6.00, policy 6.42).",
+      "where": "ventures/depop-fee-calculator/calc.mjs:88",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "compareRegions labels one region 'best' after comparing payouts in USD, GBP and an unnamed local currency as raw numbers. Lead-auditor correction: every region is priced on the same nominal base and label cost, so highest payout always equals lowest fee share and the ranking is the same as a currency-free one; the defect is presentational (the table invites reading $ and £ as comparable), not a wrong answer. Downgraded from medium by the lead auditor after checking.",
+      "where": "ventures/depop-fee-calculator/calc.mjs:215",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "Four of five seeded mutants in core logic survive (best-region comparison, shipping-only fixed fee, effective-rate base, negative target price); the compare test only checks bestRegion is one of the keys.",
+      "where": "ventures/depop-fee-calculator/calc.test.mjs:105",
+      "category": "untested-core",
+      "origin": "tests",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19225"
+    },
+    {
+      "severity": "low",
+      "what": "Processing-fee base omits applicable taxes, which Depop's help centre includes (US sales tax), so the fee is slightly understated.",
+      "where": "ventures/depop-fee-calculator/calc.mjs:85",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "README says every rate is lifted from Depop's Help Centre, but the boost base is the author's inference (calc.mjs:33-38); the source is never linked by URL, and the 2026-11-24 recheck covered only the US row.",
+      "where": "ventures/depop-fee-calculator/README.md:51",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "Rest-of-world currency hard-coded to '$', so EUR or AUD sellers see dollar signs.",
+      "where": "ventures/depop-fee-calculator/calc.mjs:44",
+      "category": "code-craft",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19225"],
+  "verdict": "Does not meet the bar (correctness 2, claims 2, verification 2, median 2); finished (completeness 3). The US and UK unboosted arithmetic is exact: four hand recomputations (US $50 -> 2.10, US $22+$8 -> 1.44, UK GBP45 base -> 1.605, target price 32.6939) all match. The gaps are in the schedule, not the arithmetic: rest of world is modelled as 10% with no processing although Depop charges processing there and moved Australia to 0% + 2.6% + A$0.30 on 22 July 2026; the boost fee ignores the 8% non-US/UK rate and the shipping-inclusive base for own-label sales; and the region comparison ranks payouts across currencies. Four of five seeded mutants survive. Depop's own pages were not reachable from this container (DNS allowlist), so the Depop figures here come from web-search extracts of those pages; a session with network access should confirm them before a fix lands. It is a working front door to Seller Books (bet #5) for US/UK sellers."
+}

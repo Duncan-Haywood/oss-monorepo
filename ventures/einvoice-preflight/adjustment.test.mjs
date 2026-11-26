@@ -177,3 +177,13 @@ test("UBL without header allowance stays clean", () => {
   assert.equal("adjustments" in mapped, false);
   assert.deepEqual(checkInvoice(mapped), []);
 });
+
+test("a null header row is skipped by the net delta and an array row is one 'not an object' finding (red team 2026-11-26)", () => {
+  assert.equal(headerAdjustmentNetDelta({ adjustments: [null, { kind: "charge", amount: 5 }] }), 5);
+  assert.deepEqual(inspectHeaderAdjustments({ adjustments: [[]] }), [{
+    rule: "INV-050",
+    message: "Header allowance or charge row is not an object.",
+    fix: "Provide kind, amount, and a reason, or omit the row.",
+    path: "/adjustments/0",
+  }]);
+});

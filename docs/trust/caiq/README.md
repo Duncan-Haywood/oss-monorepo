@@ -42,6 +42,6 @@ its download page.
 
 ## Scope
 
-The answers describe **Grant Autopilot** (`apps/grants`), the live product, operated by Mary Stella
-Labs, LLC, on Cloudflare. Differences for Seller Books are noted where they matter; a separate
+The answers describe **Grant Autopilot** (`apps/grants`), the live product, operated by Maris Stella
+Labs LLC (Colorado), on Cloudflare. Differences for Seller Books are noted where they matter; a separate
 submission per product would be needed if both were listed.

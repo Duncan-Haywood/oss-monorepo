@@ -1,10 +1,10 @@
 # Terms of Service
 
-**Version 2026-11-26** · Mary Stella Labs, LLC
+**Version 2026-11-26** · Maris Stella Labs LLC
 
 ## 1. Who we are
 
-Seller Books (the "Service") is operated by **Mary Stella Labs, LLC**, a New Mexico limited liability company ("we", "us"). These Terms are an agreement between us and the person or business that creates an account (the "Customer", "you"). If you accept these Terms for a business, you confirm you are authorized to do so on its behalf.
+Seller Books (the "Service") is operated by **Maris Stella Labs LLC**, a Colorado limited liability company ("we", "us"). These Terms are an agreement between us and the person or business that creates an account (the "Customer", "you"). If you accept these Terms for a business, you confirm you are authorized to do so on its behalf.
 
 ## 2. The Service
 
@@ -70,8 +70,8 @@ We may update these Terms. We will post the new version with a new version date 
 
 ## 14. Governing law
 
-These Terms are governed by the laws of the **State of New Mexico**, USA, without regard to conflict-of-law rules. Courts located in New Mexico have jurisdiction over disputes, unless the law requires otherwise.
+These Terms are governed by the laws of the **State of Colorado**, USA, without regard to conflict-of-law rules. Courts located in Colorado have jurisdiction over disputes, unless the law requires otherwise.
 
 ## 15. Contact
 
-Mary Stella Labs, LLC, New Mexico, USA · [contact email to be confirmed before launch]
+Maris Stella Labs LLC, Colorado, USA · hello@marisstella.app

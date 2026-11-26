@@ -3,12 +3,12 @@
 One Cloudflare Worker (`seller-books`) serves the SPA and the API, with a D1 database (`seller-books`)
 and Cloudflare Email Service for account mail. There is no R2 bucket: report files are parsed in the
 request and only the rows are kept. The workflow
-[`.github/workflows/seller-books-deploy.yml`](../../../.github/workflows/seller-books-deploy.yml) does
+`seller-books-deploy.yml` in the private repository (not ported: these apps are moving off Cloudflare to AWS; see [`docs/runbooks/paid-apps-secrets.md`](../../../docs/runbooks/paid-apps-secrets.md)) does
 the whole deploy; there are no dashboard steps beyond the settings below. It was ported from
 `jobshop-quote-deploy.yml` on 2026-11-26 and has not run yet.
 
 **It runs by hand only** (Actions -> seller-books-deploy -> Run workflow). The legal pages are drafts
-until the owner confirms the operator name and contact email and the agent legal review checks them (no outside counsel: owner, 2026-11-26)
+until the owner confirms the operator name and contact email and counsel reviews them
 ([BILLING.md](BILLING.md), "Turning it on"), so a merge never puts the app in front of strangers. After
 launch, add `push: branches: [main]` to the workflow so every merge ships. To gate each run, add
 required reviewers to the `seller-books-production` environment (Settings -> Environments).

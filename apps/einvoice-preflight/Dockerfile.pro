@@ -16,11 +16,17 @@ COPY apps/einvoice-preflight/build-schematron.mjs ./
 RUN npm init -y >/dev/null && npm i saxon-js xslt3 slimdom fontoxpath && node build-schematron.mjs
 
 FROM node:22-alpine
+# The runtime never runs npm, npx, corepack or yarn: drop the package-manager toolchain the base
+# image bundles, so its own dependencies (flagged by trivy-image) are not in the shipped image.
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/lib/node_modules/corepack \
+      /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack /usr/local/bin/yarn /usr/local/bin/yarnpkg /opt/yarn-*
 # node:sqlite (the store) needs Node 22.13+; .ts imports from packages/billing need type
 # stripping, on by default from Node 22.18. Fail the build, not the first request.
 RUN node -e 'const [a,b]=process.versions.node.split(".").map(Number); if (a===22 && b<18) { console.error("Node 22.18+ needed"); process.exit(1) }'
 COPY packages/billing/src /srv/packages/billing/src
-RUN rm -f /srv/packages/billing/src/*.test.ts
+# pro/admin.mjs imports the platform-admin contract the same way.
+COPY packages/admin-metrics/src /srv/packages/admin-metrics/src
+RUN rm -f /srv/packages/billing/src/*.test.ts /srv/packages/admin-metrics/src/*.test.ts
 WORKDIR /srv/apps/einvoice-preflight
 COPY apps/einvoice-preflight/*.mjs apps/einvoice-preflight/index.html apps/einvoice-preflight/create.html ./
 COPY apps/einvoice-preflight/pro ./pro

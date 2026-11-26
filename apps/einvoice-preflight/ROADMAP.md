@@ -74,15 +74,19 @@ marketing site is `apps/einvoice-site`. Rules for this app: `pro/README.md` and 
 1. Hosting, part 2: the owner picks a Node container host (needs a card) for `Dockerfile.pro`
    with one volume at `/data`; then a daily `VACUUM INTO` backup of the SQLite file.
 2. Workspace page, part 2 (part 1 done 2026-11-26: `/app` with trial sign-up, key sign-in, clients,
-   batches, explanations, fixed file and diff downloads, history): email sign-in with a reset
-   link, API keys on the page, a terms link at sign-up, and the einvoice-site CTA pointing at `/app`
-   once a host serves it.
+   batches, explanations, fixed file and diff downloads, history; API keys on the page and the
+   Terms and Privacy Policy linked at sign-up with the accepted version recorded, done 2026-11-26,
+   `pro/legal/`, pro/README.md "The workspace page"): email sign-in with a reset link; German and
+   French versions of the two legal pages and a data processing agreement (Art. 28 GDPR) for
+   accountants who ask; name the host in the privacy page's subprocessors once chosen; and the
+   einvoice-site CTA pointing at `/app` once a host serves it.
 3. `scripts/import-venture.mjs`: also flag NOTICE and `*.LICENSE.txt` files, not only `LICENSE`.
-4. XSD schema validation for UBL 2.1 (CII D16B done 2026-11-26: `cii-xsd.mjs`, rules CII-001..007,
-   for EN 16931 files and their CIUSes, namespaces included; 499 of 499 verdicts agree with
-   xmllint; the site's lists say so in all three languages; README, "CII schema (XSD)
-   validation"). Next: the OASIS UBL 2.1 schemas (docs.oasis-open.org was refused by the build
-   host's proxy, and ConnectingEurope's repository carries no UBL XSD; try an npm or Maven package
-   that ships them, check the OASIS licence), which need `ref=` to global elements and
-   `xsd:any` (UBLExtensions) in the builder; then the Factur-X EXTENDED, MINIMUM and BASIC WL
-   schemas from the Factur-X package, so those profiles are checked by their own schema.
+4. XSD schema validation: CII D16B done 2026-11-26 (`cii-xsd.mjs`, rules CII-001..007, for
+   EN 16931 files and their CIUSes, namespaces included; 499 of 499 verdicts agree with xmllint;
+   README, "CII schema (XSD) validation"). UBL 2.1 done 2026-11-26 (`build-ubl-schema.mjs` from
+   the OASIS UBL-2.1.zip, which docs.oasis-open.org served this time, SHA-256 pinned;
+   `ubl-xsd.mjs`, UBL-XSD-01..07 on every UBL file; same verdict as xmllint on 38 of 38 files and
+   21,719 of 21,726 mutated ones, the 7 being base64 that libxml2 accepts and Xerces refuses,
+   `eval/ubl-xsd-2026-11-26.md`). Both are "checked" on einvoice-site in all three languages.
+   Next: the Factur-X EXTENDED, MINIMUM and BASIC WL schemas from the Factur-X package, so those
+   profiles are checked by their own schema.

@@ -10,7 +10,7 @@ import { describe, expect, it } from "vitest";
 
 describe("parseCsv", () => {
   it("handles quotes, embedded commas/newlines, CRLF and a BOM", () => {
-    expect(parseCsv('﻿a,"b,1","c ""q"""\r\n1,"line\nbreak",3\n')).toEqual([
+    expect(parseCsv('\uFEFFa,"b,1","c ""q"""\r\n1,"line\nbreak",3\n')).toEqual([
       ["a", "b,1", 'c "q"'],
       ["1", "line\nbreak", "3"],
     ]);

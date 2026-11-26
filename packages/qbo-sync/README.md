@@ -238,7 +238,7 @@ Intuit's canonical reference pages, worth reading once the network allows `devel
 ## Provenance
 
 Moved on 2026-11-26 from `Duncan-Haywood/private-monorepo` `packages/qbo-sync` at commit
-`b1b7c3f63ce289c4051d8506eb0744856350f80e` (a copy of the tree, not its git history), when the paid apps moved
+`cded6eaf5d8aefcb42e61ed1cad3ec0b81826072` (a copy of the tree, not its git history), when the paid apps moved
 to this public repository. Licence: the root `LICENSE` (FSL-1.1-MIT) unless this
 directory's own LICENSE says otherwise; third-party files keep their notices. Index:
 [`apps/README.md`](../../apps/README.md).

@@ -1,0 +1,7 @@
+{
+  "exported": false,
+  "note": "Placeholder until the cutover's export stage runs with the owner's short-lived token (platform/aws/cutover/README.md, Run 1). The export replaces this file and writes imports.generated.tf and resources.generated.tf beside it.",
+  "account_id": "",
+  "zone": { "id": "", "name": "marisstella.app" },
+  "hosts": {}
+}

@@ -21,7 +21,7 @@ const TEXT_MAX = 8000;
 
 /** RFC 4180 with the usual spreadsheet exports: BOM, CRLF, quoted newlines, `,` `;` or tab. */
 export function parseCsv(input: string): string[][] {
-  const text = input.replace(/^﻿/, "");
+  const text = input.replace(/^\uFEFF/, "");
   const delimiter = detectDelimiter(text);
   const rows: string[][] = [];
   let row: string[] = [];

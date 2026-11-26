@@ -86,16 +86,20 @@ locals {
     }
   }
 
+  # IAM names each apply role may manage: the stack's own name unless the
+  # stack lists exact prefixes.
+  iam_prefixes = { for stack, cfg in var.stacks : stack => coalesce(cfg.iam_prefixes, [stack]) }
+
   apply_iam = {
     for stack, cfg in var.stacks : stack => [
       {
         Sid    = "ManageOwnRolesWithinBoundary"
         Effect = "Allow"
         Action = ["iam:CreateRole", "iam:PutRolePermissionsBoundary"]
-        Resource = [
-          "arn:aws:iam::${local.account_id}:role/${stack}-*",
-          "arn:aws:iam::${local.account_id}:role/service-role/${stack}-*",
-        ]
+        Resource = flatten([for p in local.iam_prefixes[stack] : [
+          "arn:aws:iam::${local.account_id}:role/${p}-*",
+          "arn:aws:iam::${local.account_id}:role/service-role/${p}-*",
+        ]])
         Condition = { StringEquals = { "iam:PermissionsBoundary" = local.boundary_arn } }
       },
       {
@@ -109,11 +113,11 @@ locals {
           "iam:UntagPolicy", "iam:UntagRole", "iam:UpdateAssumeRolePolicy",
           "iam:UpdateRole", "iam:UpdateRoleDescription",
         ]
-        Resource = [
-          "arn:aws:iam::${local.account_id}:role/${stack}-*",
-          "arn:aws:iam::${local.account_id}:role/service-role/${stack}-*",
-          "arn:aws:iam::${local.account_id}:policy/${stack}-*",
-        ]
+        Resource = flatten([for p in local.iam_prefixes[stack] : [
+          "arn:aws:iam::${local.account_id}:role/${p}-*",
+          "arn:aws:iam::${local.account_id}:role/service-role/${p}-*",
+          "arn:aws:iam::${local.account_id}:policy/${p}-*",
+        ]])
       },
       {
         Sid      = "ServiceLinkedRoles"
@@ -227,6 +231,46 @@ resource "aws_iam_role_policy" "plan" {
         Sid      = "PlansNeverWriteOrReadSecrets"
         Effect   = "Deny"
         Action   = ["s3:PutObject", "s3:DeleteObject", "secretsmanager:GetSecretValue", "ssm:GetParameter*"]
+        Resource = "*"
+      },
+      # ReadOnlyAccess allows s3:GetObject, kms:Decrypt and data reads on
+      # everything, and an Allow above cannot narrow it: only a Deny can.
+      # Pull-request code runs with these credentials, so contents stay
+      # unreadable apart from this stack's own (and shared) state. The list is
+      # modules/account-baseline's github-plan-readonly minus lambda:GetFunction,
+      # which `tofu plan` needs to refresh a Lambda function (quality round 108,
+      # portfolio/quality/audits/2026-11-26-aws.json).
+      {
+        Sid    = "PlansReadOnlyOwnState"
+        Effect = "Deny"
+        Action = ["s3:GetObject", "s3:GetObjectVersion"]
+        NotResource = concat(
+          ["${local.state_bucket_arn}/${each.key}/*"],
+          [for s in var.shared_state_stacks : "${local.state_bucket_arn}/${s}/terraform.tfstate"]
+        )
+      },
+      {
+        Sid         = "PlansDecryptOnlyState"
+        Effect      = "Deny"
+        Action      = "kms:Decrypt"
+        NotResource = local.state_kms_key_arn
+      },
+      {
+        Sid    = "PlansNeverReadData"
+        Effect = "Deny"
+        Action = [
+          "dynamodb:GetItem",
+          "dynamodb:BatchGetItem",
+          "dynamodb:Query",
+          "dynamodb:Scan",
+          "logs:GetLogEvents",
+          "logs:FilterLogEvents",
+          "logs:StartQuery",
+          "sqs:ReceiveMessage",
+          "athena:GetQueryResults",
+          "cloudtrail:LookupEvents",
+          "rds-data:ExecuteStatement",
+        ]
         Resource = "*"
       },
     ])

@@ -424,7 +424,7 @@ function AffirmationForm({
   );
 }
 
-/** The member's own switch for the reminder email 60 and 7 days before each date. */
+/** The member's own switch for the reminder email 60 and 7 days before each date, and once after. */
 function ReminderEmailSetting({ orgId }: { orgId: string }) {
   const qc = useQueryClient();
   const key = ["affirmation-reminders", orgId];
@@ -445,7 +445,8 @@ function ReminderEmailSetting({ orgId }: { orgId: string }) {
   if (!s.eligible) {
     return (
       <p className="text-sm text-stone-600">
-        Admins and owners of this organization get a reminder email 60 and 7 days before each date.
+        Admins and owners of this organization get a reminder email 60 and 7 days before each date,
+        and one notice if a date passes with no newer affirmation recorded.
       </p>
     );
   }
@@ -458,7 +459,7 @@ function ReminderEmailSetting({ orgId }: { orgId: string }) {
           disabled={save.isPending}
           onChange={(e) => save.mutate(e.target.checked)}
         />
-        Email me 60 and 7 days before each date falls due
+        Email me 60 and 7 days before each date falls due, and once if it passes
       </label>
       {!s.delivers && (
         <p className="text-xs text-stone-500">

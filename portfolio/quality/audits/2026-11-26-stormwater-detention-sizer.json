@@ -1,0 +1,253 @@
+{
+  "date": "2026-11-26",
+  "subject": "ventures/stormwater-detention-sizer",
+  "stratum": "venture",
+  "seed": "2026-11-26-b-a98b",
+  "auditor": "agent session (Claude), quality round 108, see run record",
+  "status": "audited",
+  "professional": "a licensed civil engineer who does site stormwater design; they check first that the runoff and unit-hydrograph numbers reproduce, that the routing conserves volume and matches a textbook modified-Puls run, and that the outlet it reports is physically buildable (orifice not below the manual minimum, a weir whose length and head are inside the weir equation's range)",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Lead-auditor change, 3 -> 2: the arithmetic matches its own formulas (recomputations below pass), but the worked example's 100-year stage is about 0.9 ft low against a contracted-weir model a civil engineer would use for a 0.62 ft weir at 2.27 ft head (defect 0), and that stage sets the basin depth a user would build. A wrong output a user acts on caps correctness at 2. Auditor's original evidence follows. Ran `node cli.mjs`: orifice 4.6 in, weir 0.62 ft at crest 2.05 ft, depth 5.33 ft; 2-yr rain 2.84 in, peaks 0.76 -> 9.62 cfs, out 0.76; 100-yr rain 6.03 in, 8.21 -> 28.15 cfs, out 8.21, stage 4.33 ft. Recomputed by hand: 24-h rain 40 x 24 / 1450^0.8 = 960 / 338.14 = 2.839 in (tool 2.8391); TR-55 eq. 2-3 runoff CN 61 at P 2.839: S 6.3934, Ia 1.2787, Q = 1.5604^2 / 7.9538 = 0.3061 in (tool 0.3061), CN 85: S 1.7647, Ia 0.3529, Q = 2.4862^2 / 4.2510 = 1.454 in (tool 1.4540), 100-yr CN 85 at 6.033: Q = 5.6801^2 / 7.4448 = 4.334 in (tool 4.3337); NEH-630 ch.16 qp = 484 x (5/640) / (1/60 + 0.12) = 3.78125 / 0.136667 = 27.668 cfs/in (page 27.67); orifice + weir at the 100-yr peak stage 4.3275 ft: 0.6 x 0.115745 x sqrt(64.348 x 4.13556) = 1.1329 cfs plus 3.33 x 0.620505 x 2.27319^1.5 = 7.0818 cfs, total 8.2147 = the allowable 8.2147. An auditor-written Python modified-Puls (Chow 1988 sec. 8.2 rating table with 1 mm linear interpolation, UH ordinates by 200-point midpoint sampling, not the closed-form integral) reproduces pre/post peaks 0.7602/9.6232 and 8.2147/28.1506 cfs and routed peaks 0.7602 cfs at 2.0543 ft and 8.2147 cfs at 4.3275 ft to 4 decimals. Every number is right for the equations the tool states; the weir number is the domain defect below, not an arithmetic one.",
+    "completeness": "README/llms/page features checked end to end: CN runoff (works), triangular UH with any PRF (works, volume conserved), alternating-block storm (works), storage-indication routing (works), orifice sized on small storm (works), weir crest at small-storm peak and weir length on large storm (works), one-storm mode (`largeA \"\"`, test passes), entered allowable (works), freeboard/top of bank (works), CSV download with formula guard (works; 11 columns), usage counting opt-out (usage.test.mjs passes). No TODOs or stubs; links to ../earthwork-cut-fill/ and ../sprinkler-hydraulic-calc/ exist as ventures. Gaps are listed as not modelled rather than claimed.",
+    "verification": "`node --test '*.test.mjs'`: 31 pass, 0 fail (14 s). Tests pin hand calcs (runoff, UH peak and volume, prismoidal volume, orifice, weir), a linear-reservoir exact solution, mass conservation, an independent RK4 (0.5 %), field limits and every page number against the engine. Seeded 4 mutants with quality_mutate.py: routing trapezoid prevIn+iNow -> 2 iNow caught; orifice below-crown exponent 1.5 -> 2.5 caught (by a hang); the coarse-time-step threshold 0.29 -> 0.9 survived; the small-orifice warning threshold 3 in -> 1 in survived. Core arithmetic is well guarded; the two professional warnings are untested.",
+    "craft": "Read detention.mjs (394 lines), cli.mjs, index.html script, page.test.mjs, detention.test.mjs. Pure functions, one engine shared by page/CLI/tests, input parsing rejects blanks and '1,200' with a message (`node cli.mjs --areaAc 1,200` -> 'Drainage area: enter a number'), CSV formula guard. Defects: required depth is taken from the last storm, not the highest stage (detention.mjs:336-337; with `--largeA 30` the 2-yr stage is 2.05 ft but the reported depth is 2.23 ft); the orifice search silently returns its 8 ft upper bound (bisectIncreasing at detention.mjs:209, used at 314), so `--smallAllow 20` reports a '96.0 in' orifice; findings for a large storm smaller than the small one advise 'a larger basin footprint' when the input is the problem.",
+    "claims": "Checked: README example numbers (4.6 in, 0.62 ft at 2.05 ft, 0.76 and 8.21 cfs, 5.33 ft) = CLI output; guide table and steps (0.31/1.45 in, 0.1367 h/27.67 cfs/in, 0.3167 h/11.94, 14,455 and 35,926 ft3, 5.50 ft orifice-only stage, 132 x 92 ft, '6,000 h + 480 h2 + 12 h3') all pinned by page.test.mjs:66-87 and reproduced; llms.txt 'every step's hydrograph as CSV' (reportCsv) pass; 'nothing uploaded / no analytics vendors' (usage.mjs is localStorage only, page.test.mjs checks no fetch) pass; 'Unverified against HydroCAD, HEC-HMS' stated honestly (README:41); disclaimer on README, page and guide. Not disclosed: that the weir equation is the suppressed form with no end contractions or orifice transition (README:25 says only 'sharp-crested weir ... Cw 3.33'), which is what makes the headline 0.62 ft weir misleading.",
+    "fitness": "Job walked: a site engineer laying out a 5-acre subdivision pond gets an orifice, weir and depth in one click, with CSV hydrographs to compare against a HydroCAD run. Useful as a first-pass screen, but a PE in most US jurisdictions designs with the NRCS Type II/III 24-h distribution or Atlas 14 patterns (not offered), a riser/barrel with tailwater (not modelled) and contracted weirs or riser orifices, so the outlet it reports is not one they would draw without redoing it. Portfolio fit: verticals.json maps it as a front door for `payapps` by a category rule, but index.html:154 links only to two other free calculators; there is no link, CTA or audience overlap (civil designers vs. subcontractor billing) with any paid bet in portfolio/monetization/bets.md, so as a front door it leads nowhere.",
+    "domain": "Compared against NEH-630 ch.10/16, TR-55, Chow et al. 1988 sec. 8.2/14.4 and standard riser-outlet practice (Francis weir, HEC-22 ch.8 detention outlets). Runoff, UH, alternating block and modified Puls match the sources. Departures: (1) the weir is the suppressed Francis equation applied at any length/head ratio, so the example's 0.62 ft weir runs 2.27 ft deep (H/L = 3.7, far outside the weir equation's range); with standard 2-end contraction (L' = L - 0.2 H) the auditor's routing gives 3.18 cfs out and a 100-yr stage of 5.23 ft, 0.90 ft above the reported 4.33 ft, consuming 0.9 of the 1 ft freeboard; (2) no NRCS 24-h distributions, which most US manuals require for the 2- to 100-yr storms (disclosed); (3) the coarse-step warning uses 0.29 Tp, not traceable to NEH-630 ch.16 (which gives D about 0.133 Tc, about 0.2 Tp); for the example D = 2 min against 0.133 x 12 = 1.6 min, so it passes a check NEH would fail slightly.",
+    "summary": "Arithmetic is right and well tested; the weir physics and the missing NRCS storm distributions keep it at a screening tool, and it links to no paid product."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "24-h depth of the 2-yr storm from i = 40/(t+10)^0.8",
+      "method": "hand arithmetic from the IDF definition (Chow et al. 1988 sec. 14.4)",
+      "command": "node cli.mjs",
+      "expected": "2.839 in (960 / 338.14)",
+      "observed": "2.84 in (2.8391)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "TR-55 runoff depth, CN 61 and CN 85 at P = 2.839 in; CN 85 at 6.033 in",
+      "method": "TR-55 (1986) eq. 2-3/2-4 by hand",
+      "command": "node -e analyze(sampleInput()) storms[].preRunoffIn/postRunoffIn",
+      "expected": "0.3061, 1.454, 4.334 in",
+      "observed": "0.3061, 1.4540, 4.3337 in",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "NRCS triangular UH peak for the developed site",
+      "method": "NEH-630 ch.16 qp = 484 A / Tp, Tp = D/2 + 0.6 Tc, by hand",
+      "command": "page text step 2 vs hand",
+      "expected": "27.668 cfs/in at Tp 0.13667 h",
+      "observed": "27.67 cfs/in, 0.1367 h",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "100-yr peak outflow from the reported outlet at the reported peak stage",
+      "method": "orifice Q = Cd A sqrt(2gh) + weir Q = 3.33 L H^1.5 by hand",
+      "command": "hand at h = 4.3275 ft, d = 0.383889 ft, crest 2.054294 ft, L = 0.620505 ft",
+      "expected": "1.1329 + 7.0818 = 8.2147 cfs",
+      "observed": "8.2147 cfs (allowable 8.2147)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "pre/post peaks and routed peaks for both storms",
+      "method": "auditor-written Python modified Puls with rating table and linear interpolation (Chow 1988 sec. 8.2), UH by midpoint sampling",
+      "command": "python3 -I scratchpad/indep.py",
+      "expected": "0.7602/9.6232, 8.2147/28.1506 cfs; out 0.7602 @ 2.0543 ft, 8.2147 @ 4.3275 ft",
+      "observed": "0.7602/9.6232, 8.2147/28.1506; 0.7602 @ 2.0543 ft, 8.2147 @ 4.3275 ft",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "is the 0.62 ft weir at 2.27 ft head inside the weir equation's range",
+      "method": "Francis contracted weir L' = L - 0.1 n H (n = 2), routed in the auditor script",
+      "command": "python3 -I scratchpad/indep.py (contract=True)",
+      "expected": "a buildable weir holds 100-yr stage at the reported 4.33 ft",
+      "observed": "with end contractions: 3.18 cfs out, stage 5.23 ft (+0.90 ft), depth 6.23 ft vs reported 5.33 ft",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "coarse time-step warning threshold",
+      "method": "NEH-630 ch.16, D about 0.133 Tc",
+      "command": "node cli.mjs (no warning at dt 2 min, post Tc 0.2 h)",
+      "expected": "warning when dt > 1.6 min",
+      "observed": "threshold 0.29 Tp = 2.38 min, no warning",
+      "result": "partial"
+    },
+    {
+      "dimension": "craft",
+      "what": "required depth when the large storm is smaller than the small",
+      "method": "run with a smaller second storm",
+      "command": "node cli.mjs --largeA 30",
+      "expected": "depth >= max stage (2.05) + 1 = 3.05 ft, or an input error",
+      "observed": "Depth 2.23 ft (from the 1.23 ft 'large' stage); advice says enlarge the basin",
+      "result": "fail"
+    },
+    {
+      "dimension": "craft",
+      "what": "orifice search upper bound when no detention is needed",
+      "method": "run with a generous small-storm allowable",
+      "command": "node cli.mjs --smallAllow 20",
+      "expected": "orifice not needed / capped stated",
+      "observed": "'Orifice: 96.0 in' (the 8 ft bisection bound), with only an info finding",
+      "result": "partial"
+    },
+    {
+      "dimension": "craft",
+      "what": "thousands separator in a numeric field",
+      "method": "run",
+      "command": "node cli.mjs --areaAc 1,200",
+      "expected": "an error, not a silent value",
+      "observed": "'Drainage area: enter a number'",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README / FAQ / guide worked numbers match the engine",
+      "method": "CLI output vs page text; page.test.mjs:66-87 pins them",
+      "command": "node cli.mjs; node --test page.test.mjs",
+      "expected": "4.6 in, 0.62 ft at 2.05 ft, 4.33 ft, 5.33 ft, 14,455 / 35,926 ft3, 5.50 ft orifice-only",
+      "observed": "identical; orifice-only 100-yr stage 5.5023 ft",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "nothing uploaded, no analytics vendors",
+      "method": "read usage.mjs and the page script; page.test.mjs checks no network calls",
+      "command": "node --test usage.test.mjs page.test.mjs",
+      "expected": "localStorage counters only",
+      "observed": "localStorage only, DNT honoured, opt-out button",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "weir method disclosed with its limits",
+      "method": "README:25, index.html 'How it is calculated' vs weirFlow",
+      "command": "read",
+      "expected": "suppressed-weir assumption or validity range stated",
+      "observed": "only 'sharp-crested weir, Cw 3.33'; no contraction or head/length limit",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "31 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "front door to a paid bet",
+      "method": "index.html links vs portfolio/monetization/bets.md and verticals.json",
+      "command": "grep -n href index.html",
+      "expected": "a link or CTA to a paid construction product",
+      "observed": "mapped to payapps in verticals.json, but the page links only to two free calculators",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "detention.mjs:184",
+      "change": "const rhs = prevIn + iNow + (2 * s) / dt - o; -> const rhs = iNow + iNow + (2 * s) / dt - o;",
+      "caught": true,
+      "test_cmd": "node --test *.test.mjs"
+    },
+    {
+      "where": "detention.mjs:156",
+      "change": "return full(d) * (h / d) ** 1.5; -> return full(d) * (h / d) ** 2.5;",
+      "caught": true,
+      "test_cmd": "node --test *.test.mjs",
+      "note": "tests timed out after 84 s on the mutant (the unmutated suite took 13.6 s): a hang, counted as caught"
+    },
+    {
+      "where": "detention.mjs:291",
+      "change": "const lagLimit = 0.29 * postUH.tp * 60; -> const lagLimit = 0.9 * postUH.tp * 60;",
+      "caught": false,
+      "test_cmd": "node --test *.test.mjs"
+    },
+    {
+      "where": "detention.mjs:343",
+      "change": "if (outlet.orificeDiameter < 1 / 12 * 3) { -> if (outlet.orificeDiameter < 1 / 12 * 1) {",
+      "caught": false,
+      "test_cmd": "node --test *.test.mjs"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Weir flow uses the suppressed Francis equation at any length and head, so the sizer reports physically implausible short weirs: the example's 0.62 ft weir runs 2.27 ft deep (H/L 3.7). With standard end contractions the same opening passes 3.18 cfs, not 8.21, and the 100-yr stage is 5.23 ft, 0.90 ft above the reported 4.33 ft (depth 6.23 vs 5.33 ft). No contraction, minimum length or orifice transition for the riser opening, and no finding warning when H/L is large.",
+      "where": "ventures/stormwater-detention-sizer/detention.mjs:161",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Required depth and top of bank come from the last storm's peak stage, not the highest; with a second storm smaller than the first (`--largeA 30`) the 2-yr stage is 2.05 ft but depth is reported as 2.23 ft, and the finding tells the user to enlarge the basin instead of flagging the storm order.",
+      "where": "ventures/stormwater-detention-sizer/detention.mjs:336",
+      "category": "logic-error",
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19225"
+    },
+    {
+      "severity": "medium",
+      "what": "No NRCS Type I/IA/II/III 24-h distribution or Atlas 14 temporal pattern; most US drainage manuals require one for the 2- to 100-yr design storms, so a PE must redo the hydrology (disclosed as not modelled).",
+      "where": "ventures/stormwater-detention-sizer/detention.mjs:54",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "The orifice search silently returns its 8 ft upper bound when the small storm needs no detention (`--smallAllow 20` prints 'Orifice: 96.0 in').",
+      "where": "ventures/stormwater-detention-sizer/detention.mjs:314",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Coarse-time-step warning uses 0.29 Tp, not traceable to the cited NEH-630 ch.16 (D about 0.133 Tc, about 0.2 Tp); the example's 2 min step passes a check NEH would flag at 1.6 min.",
+      "where": "ventures/stormwater-detention-sizer/detention.mjs:291",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "The two professional warnings (coarse step, small orifice) are untested: mutating either threshold leaves all 31 tests green.",
+      "where": "ventures/stormwater-detention-sizer/detention.mjs:343",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "README and page describe the weir only as 'sharp-crested, Cw 3.33', with no suppressed/no-contraction assumption or validity range, so the headline 0.62 ft weir reads as a design value.",
+      "where": "ventures/stormwater-detention-sizer/README.md:25",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "Listed as a front door for the payapps bet (portfolio/monetization/verticals.json), but the page links only to two free calculators; no path to any paid product.",
+      "where": "ventures/stormwater-detention-sizer/index.html:154",
+      "category": "scope-gap",
+      "origin": "spec"
+    }
+  ],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19225"],
+  "verdict": "Meets the bar narrowly, as a screening tool. Every output recomputed (rain depth, TR-55 runoff, NEH-630 UH peak, orifice+weir at peak stage, and a full independent modified-Puls run) matches to 4 decimals, the tests are strong (31 pass, core routing and orifice mutants caught) and every page number is pinned to the engine. It falls short where a site PE would look first: the reported weir is the suppressed Francis equation at H/L 3.7, and with end contractions the example's 100-yr stage rises 0.90 ft, eating the freeboard; depth is taken from the last storm not the highest; and there are no NRCS 24-h distributions. As a free front door it leads to no paid product."
+}

@@ -1,6 +1,6 @@
 # Refund Policy
 
-**Version 2026-11-25** · Mary Stella Labs, LLC
+**Version 2026-11-26** · Maris Stella Labs LLC
 
 ## Try it free first
 
@@ -28,4 +28,4 @@ When you change plans, any credit or charge is handled as shown at checkout.
 
 ## Contact
 
-Mary Stella Labs, LLC, New Mexico, USA · [contact email to be confirmed before launch]
+Maris Stella Labs LLC, Colorado, USA · hello@marisstella.app

@@ -57,6 +57,16 @@ writes the message to `.wrangler/tmp/email/`.
 - No platform fee percentages: they change and differ by category. The product reads the fees each
   seller was actually charged.
 
+## Owner console API
+
+`GET /seller-books/api/admin/metrics?days=30` (total, confirmed, unsubscribed, by day, by source page) and
+`GET /seller-books/api/admin/accounts?limit=50` (newest sign-ups: email, source page, confirmed, date) serve
+the owner console (`apps/admin`) in the `packages/admin-metrics` contract (`src/admin.mjs`, which imports
+that package's TypeScript source; Node ≥ 22.18 and wrangler both load it). They answer only
+`Authorization: Bearer <ADMIN_SERVICE_TOKEN>`, a Worker secret of at least 32 characters, never committed;
+unset, they are closed. Every read writes a row to `admin_audit_log` (`migrations/0002_admin_audit_log.sql`).
+Unsubscribed rows stay as suppression records, so they count in `total` and `unsubscribed`. `ADMIN_METRICS_TOKEN` (same rules) is the agents' read-only credential: `/metrics` only; `/accounts` answers 403.
+
 ## Hosting and launch checklist (not deployed)
 
 Intended URL `https://marisstella.app/seller-books` (provisional, like grants at `/grants`). Before launch:
@@ -65,6 +75,7 @@ Intended URL `https://marisstella.app/seller-books` (provisional, like grants at
 - [ ] Route `marisstella.app/seller-books*` to this Worker, and add its disallow + sitemap lines to the
       host root `robots.txt` (built by the portfolio site in oss-monorepo; see apps/grants/docs/SEO.md).
 - [ ] `wrangler secret put TOKEN_SECRET`; set `APP_ENV=production` (fails closed without the secret).
+- [ ] Optional: `ADMIN_SERVICE_TOKEN`, `ADMIN_METRICS_TOKEN` for the owner console (set by the `set-admins` workflow; below).
 - [ ] Onboard the sender domain for Cloudflare Email Service and set a real `EMAIL_FROM`.
 - [ ] `wrangler d1 migrations apply seller-books-site --remote`.
 - [ ] Reconcile docs/PRICING.md competitor figures with bets.md and the vendors' own pages.
@@ -73,7 +84,7 @@ Intended URL `https://marisstella.app/seller-books` (provisional, like grants at
 ## Provenance
 
 Moved on 2026-11-26 from `Duncan-Haywood/private-monorepo` `apps/seller-books-site` at commit
-`b1b7c3f63ce289c4051d8506eb0744856350f80e` (a copy of the tree, not its git history), when the paid apps moved
+`cded6eaf5d8aefcb42e61ed1cad3ec0b81826072` (a copy of the tree, not its git history), when the paid apps moved
 to this public repository. Licence: the root `LICENSE` (FSL-1.1-MIT) unless this
 directory's own LICENSE says otherwise; third-party files keep their notices. Index:
 [`apps/README.md`](../../apps/README.md).

@@ -7,11 +7,13 @@
 //   POST {base}/api/early-access/confirm  confirm -> 303 confirmed / link-expired
 //   GET  {base}/api/early-access/leave    page with a button
 //   POST {base}/api/early-access/leave    delete the entry -> 303 left / link-expired
+//   GET  {base}/api/admin/metrics|accounts  owner console only (admin.mjs; service token)
 //   scheduled (daily)                     delete never-confirmed rows older than 30 days
 //
 // Privacy: never log an email address or a token; IPs are stored only as a salted hash. A valid
 // sign-up gets the same answer whatever the address's state, so the form cannot be used to learn who
 // is on the list.
+import { handleAdmin } from "./admin.mjs";
 import { CONSENT_VERSION } from "./site.mjs";
 
 export const DAY = 86_400_000;
@@ -360,6 +362,9 @@ export async function purgePending(env, now = Date.now()) {
 // ---------- routing ----------
 
 async function handleApi(request, env, path) {
+  // Before the sign-up configuration check: the admin API needs only its own token.
+  if (path.startsWith("/api/admin/"))
+    return handleAdmin(request, env, path.slice("/api/admin".length));
   const { base } = config(env);
   const wantsJson = (request.headers.get("Accept") ?? "").includes("application/json");
   const page = (p) => redirect(`${base}${p}`);

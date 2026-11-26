@@ -6,6 +6,8 @@ export interface SessionUser {
   id: string;
   email: string;
   name: string;
+  /** The address is confirmed; the platform admin gate (middleware/platform-admin.ts) requires it. */
+  emailVerified: boolean;
 }
 
 /** Set by requireOrg(): the caller's verified membership in the org named by :orgId. */

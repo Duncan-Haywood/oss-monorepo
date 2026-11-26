@@ -7,6 +7,10 @@ export const alias = {
   "@test": fileURLToPath(new URL("./test", import.meta.url)),
   // Shared Paddle billing (packages/billing), consumed as source: no package.json change.
   "@billing": fileURLToPath(new URL("../../packages/billing/src/index.ts", import.meta.url)),
+  // The platform-admin contract (packages/admin-metrics), consumed as source the same way.
+  "@admin-metrics": fileURLToPath(
+    new URL("../../packages/admin-metrics/src/index.ts", import.meta.url),
+  ),
   // The amount-in-words helper alone, for the browser (the index would bundle every form's text).
   // Before "@lien-waivers", which would otherwise match this prefix first.
   "@lien-waivers/words": fileURLToPath(

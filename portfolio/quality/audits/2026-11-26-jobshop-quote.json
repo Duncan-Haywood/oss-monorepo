@@ -1,0 +1,241 @@
+{
+  "date": "2026-11-26",
+  "subject": "ventures/jobshop-quote",
+  "stratum": "flagship",
+  "seed": "2026-11-26-b-a98b",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality round 108, see run record",
+  "status": "audited",
+  "professional": "an experienced CNC / fabrication job-shop estimator; they check first that machine-hour rate x cycle time and setup-once-per-lot are right at every quantity break, that material is blank size x density x $/lb plus a drop/kerf allowance (or whole bars), that outside processing carries its lot minimum and its own markup, that markup is not confused with margin, and that a missing input blocks the quote instead of being guessed",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "Three quotes (seven quantity breaks) worked by hand from first principles and compared to computeCost output from a script the auditor wrote (node --experimental-strip-types probe.mts private-monorepo/apps/jobshop-quote/src/shared/costing.ts): all 7 unit prices and totals match to the cent, including per-lb plate with a material minimum and an outside-service lot minimum (A), round bar with a separate setup rate, in-house finishing, a lot extra and a binding line minimum (B), and per-stock bar bought in whole pieces with two ops on one machine (C). Blocking: no blank, no density, no parts-per-stock, no material, a machine id not on this card and duplicate breaks each return an issue and no price. One wrong-by-omission output: an operation with 0 setup and 0 cycle minutes prices without an issue (cost = material only), and the client turns a blank minutes field into 0 (quote-detail.tsx:379) and starts every new operation at 0 cycle minutes (quote-detail.tsx:665).",
+    "completeness": "README/ROADMAP 'Done' items checked by running the suites: costing engine, extraction verification, cover note, PDF page count, rate-card and settings import, CAD suggestions (rough, cut, bend, drill with feed and pecks, tap), routings, repeat parts, quote diff, win/loss: pnpm test:unit 31 files / 421 tests pass; pnpm test:worker (API end to end in workerd, incl. cross-tenant isolation) 34 files / 217 tests pass. Deploy and live billing are listed under Next (item 3), not claimed done. Not run: pnpm test:e2e (browser). No stubs or TODOs found in costing.ts.",
+    "verification": "pnpm test:unit: 421 pass, 0 fail (2.8 s). Eight hand-seeded mutants in costing.ts, each run against src/shared/costing.test.ts and reverted (private repo status clean afterwards): finishing lot minimum dropped, in-house finishing taken out of labor markup, scrap halved, material minimum dropped, setup rate ignored, material-not-chosen gate inverted, extras at labor markup - all 7 CAUGHT; unit price Math.ceil -> Math.round SURVIVED (no test has a total that is not a multiple of the quantity). The main pricing test is hand-checked in its comments; the author's tests are strong but the zero-minute operation case is untested because the engine does not treat it as an issue.",
+    "craft": "Read src/shared/costing.ts (944 lines), costing.test.ts (test names), src/client/routes/quote-detail.tsx (operation editor), src/shared/api.ts (rate schemas). Engine is pure, zod-validated, integer cents with one rounding per component, a basis line per component and a rate snapshot; issue checks run before any arithmetic so the later '?? 0' fallbacks are unreachable. Concerns: costing.ts mixes the pricing engine with ~500 lines of CAD suggestion helpers; computeCost throws a ZodError on invalid input instead of returning issues (callers validate first); client num('') -> 0 is a silent fallback into a pricing input.",
+    "claims": "Public front door: ventures/machine-shop-guides pages and platform/pages/industry-manufacturing.mjs call the product 'In development (early access)', 'Neither is released yet', 'Pricing is not set yet' - backed (ROADMAP item 3: not deployed; checkout dark). 'Prices from your own shop rates, setup times and material costs' - backed by computeCost (pure function of card and inputs) and the unknown_* issues. 'Keeps every quote and its assumptions' - backed by the rate snapshot and basis lines. 'Reads an RFQ (the email, the drawings, the CAD)' - drawings are read as converted text; reading title blocks from page images is still open (flagships.yaml item 3), so slightly generous. ventures/cnc-machining-quote-calculator makes no claim about the paid product. ARCHITECTURE rule 2 'Missing data blocks pricing; it is never guessed' lists its cases accurately, but a blank cycle-time field priced as 0 sits against its spirit. portfolio/flagships.yaml 'next' still lists the DXF sheet-metal path as open though ROADMAP item 5 records it done 2026-11-25 (stale).",
+    "fitness": "Walked an estimator's job through the engine: rate card, three typical parts, quantity breaks 1-100, outside anodize and passivate, material certs, line minimum - the price table is what an estimator would produce by hand. Gaps hit in the first hour on a production quote: no scrap/yield starts (to ship 100 at 3% fallout you start 104; machine time, outside processing and per-stock material are all priced on the shipped quantity); programming, first-article and inspection have no per-lot labor line (setup minutes or a lot extra marked up at the material rate are the workarounds); parts per bar is typed by hand rather than derived from bar length, part length, kerf and grip (the free calculator does both). And no shop can use it today: the app is not deployed (ROADMAP item 3).",
+    "domain": "Compared with standard job-shop estimating practice (machine/labor rate x hours, setup once per lot, material by weight or whole stock units with a drop allowance, outside processing with vendor lot minimums and its own markup, quantity breaks recomputed per lot) the method is right: setup and lot minimums amortise correctly, outside services carry their own markup, per-stock material buys whole pieces, and the settings import refuses 'Margin' with 'a 20% margin is a 25% markup'. Departures: kerf/facing/drop only as a percent of blank weight, not a per-cut length allowance; no part-scrap/yield starts; zero-minute operations accepted. A senior estimator would sign off on the core with those limits stated, which the README does not yet state."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Quote A: 6061 plate 4x3x1 in, $4.50/lb, 0.0975 lb/in3, 8% scrap, $25 material min; VMC $95/h, 60 min setup, 12 min cycle; outside anodize $3/pc, $175 lot; markups labor 25%, material 15%, outside 10%; q 1/10/100",
+      "method": "by hand: weight 12 x 0.0975 = 1.17 lb. q=10: material 1.17x10x450x1.08 = 5686.2 -> 5686c; setup 9500; run 0.2 h x 9500 x 10 = 19000; anodize max(3000,17500) = 17500; cost 51686; markup 853 + 28500x0.25 = 7125 + 1750 = 9728; price 61414; unit ceil(6141.4) = $61.42. q=1: material min 2500, cost 31400, markup 4975, unit $363.75. q=100: material 56862, run 190000, anodize 30000, cost 286362, markup 8529+49875+3000 = 61404, unit ceil(3477.66) = $34.78",
+      "command": "node --experimental-strip-types --no-warnings probe.mts private-monorepo/apps/jobshop-quote/src/shared/costing.ts (auditor's scratch script)",
+      "expected": "unit 36375 / 6142 / 3478 cents",
+      "observed": "unit 36375 / 6142 / 3478 cents (totals 36375 / 61420 / 347800)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Quote B: 1018 round bar 1.5 dia x 3 in, $1.20/lb, 0.284 lb/in3, 15% scrap; lathe $85/h run, $60/h setup, 45 min setup, 4.8 min cycle; in-house deburr $0.50/pc; certs $25/lot; line minimum $150; q 5/50",
+      "method": "by hand: volume pi x 0.75^2 x 3 = 5.30144 in3, weight 1.50561 lb. q=5: material 1.50561x5x120x1.15 = 1038.87 -> 1039; setup 0.75 h x 6000 = 4500; run 0.08 h x 8500 x 5 = 3400; deburr 250; certs 2500; cost 11689; markup 156 + 8150x0.25 = 2038 + 375 = 2569; price 14258 < 15000 so unit 15000/5 = $30.00. q=50: material 10389, run 34000, deburr 2500, cost 53889, markup 1558+10250+375 = 12183, price 66072, unit ceil(1321.44) = $13.22",
+      "command": "node --experimental-strip-types --no-warnings probe.mts private-monorepo/apps/jobshop-quote/src/shared/costing.ts (auditor's scratch script)",
+      "expected": "unit 3000 (min adj 742) / 1322 cents",
+      "observed": "unit 3000 (minAdj 742) / 1322 cents",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Quote C: 304 bar per stock piece $48, 7 parts per piece, $60 material min; mill $110/h, Op 10 90 min setup 6 min cycle, Op 20 30 min setup 3 min cycle; outside passivate $1.25/pc, $95 lot; q 3/20",
+      "method": "by hand: q=3: ceil(3/7) = 1 bar = 4800 < 6000 min -> 6000; setup 1.5h+0.5h at 11000 = 22000; run (0.1+0.05) h x 11000 x 3 = 4950; passivate 9500; cost 42450; markup 900 + 26950x0.25 = 6738 + 950 = 8588; price 51038; unit ceil(17012.67) = $170.13. q=20: ceil(20/7) = 3 bars = 14400; run 33000; cost 78900; markup 2160+13750+950 = 16860; unit 95760/20 = $47.88",
+      "command": "node --experimental-strip-types --no-warnings probe.mts private-monorepo/apps/jobshop-quote/src/shared/costing.ts (auditor's scratch script)",
+      "expected": "unit 17013 / 4788 cents",
+      "observed": "unit 17013 / 4788 cents",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "missing inputs block: no blank (per-lb), no density with a dimensioned blank, no parts-per-stock, no material and not customer-supplied, machine id not on this card, duplicate breaks",
+      "method": "estimator rule: never price a guessed input",
+      "command": "node --experimental-strip-types --no-warnings probe.mts private-monorepo/apps/jobshop-quote/src/shared/costing.ts (auditor's scratch script)",
+      "expected": "an issue and no price for each",
+      "observed": "material_needs_blank, material_needs_density, material_needs_parts_per_stock, material_not_chosen, unknown_machine, duplicate_quantity",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "operation with 0 setup and 0 cycle minutes (what a blank field or a new '+ Operation' row sends)",
+      "method": "estimator rule: an unfilled cycle time must block, not price as free",
+      "command": "node --experimental-strip-types --no-warnings probe.mts private-monorepo/apps/jobshop-quote/src/shared/costing.ts (auditor's scratch script)",
+      "expected": "an issue (no price)",
+      "observed": "priced: setup 0, run 0, cost 5686 (material only), raised to the $150 line minimum",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "markup vs margin",
+      "method": "markup is on cost, margin on price; a 25% markup is a 20% margin",
+      "command": "grep -n 'margin is not a markup' private-monorepo/apps/jobshop-quote/src/shared/settings-import.ts",
+      "expected": "engine labels and applies markup on cost; margin never silently mapped",
+      "observed": "costing.ts:393-397 markup on cost per component; settings-import.ts:92 refuses 'Margin' with the conversion",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "scrap/yield starts and per-lot programming/FAI",
+      "method": "estimating practice (and the free cnc-machining-quote-calculator README): starts = ceil(good / (1 - fallout)); programming and FAI once per lot",
+      "command": "grep -n 'scrap\\|yield\\|program' private-monorepo/apps/jobshop-quote/src/shared/costing.ts",
+      "expected": "a fallout allowance on run time, outside processing and stock; a per-lot labor line",
+      "observed": "scrap only as a % of blank weight (costing.ts:368); breaks price the shipped quantity q (costing.ts:363); no programming/FAI field",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "unit test suite",
+      "method": "run",
+      "command": "pnpm test:unit (in private-monorepo/apps/jobshop-quote)",
+      "expected": "all pass",
+      "observed": "31 files, 421 tests passed",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "worker (API, workerd) suite incl. cross-tenant isolation",
+      "method": "run",
+      "command": "pnpm test:worker (in private-monorepo/apps/jobshop-quote)",
+      "expected": "all pass",
+      "observed": "34 files, 217 tests passed",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "front-door status claims: 'In development (early access)', 'Neither is released yet', 'Pricing is not set yet'",
+      "method": "compare with ROADMAP item 3 (deploy not run) and docs/BILLING.md (checkout dark)",
+      "command": "grep -n 'status:\\|Pricing is not set' platform/pages/industry-manufacturing.mjs; grep -n 'Neither is released' ventures/machine-shop-guides/index.html",
+      "expected": "no claim the product is available or priced",
+      "observed": "all three present and accurate",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'Reads an RFQ (the email, the drawings, the CAD) and drafts a priced quote'",
+      "method": "compare with ARCHITECTURE (PDF text via toMarkdown) and flagships.yaml next item 3 (page-image title-block reading open)",
+      "command": "grep -n 'Reads an RFQ' platform/pages/industry-manufacturing.mjs",
+      "expected": "drawing reading as built",
+      "observed": "email and CAD backed; drawings read as converted text only, page images not yet; operations need the estimator's minutes unless CAD suggests them",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "flagships.yaml 'next' list matches ROADMAP",
+      "method": "compare",
+      "command": "sed -n 122,133p portfolio/flagships.yaml",
+      "expected": "open items still open",
+      "observed": "item (4) 'a sheet-metal path from the DXF cut length, pierces and bends' recorded done 2026-11-25 in ROADMAP item 5",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "private-monorepo/apps/jobshop-quote/src/shared/costing.ts:385",
+      "change": "Math.max(rate.perPartCents * q, rate.lotChargeCents) -> rate.perPartCents * q",
+      "caught": true,
+      "test_cmd": "npx vitest run --config vitest.unit.config.ts src/shared/costing.test.ts"
+    },
+    {
+      "where": "private-monorepo/apps/jobshop-quote/src/shared/costing.ts:395",
+      "change": "(setupCents + runCents + inHouseFinishCents) * labor markup -> (setupCents + runCents) * labor markup",
+      "caught": true,
+      "test_cmd": "npx vitest run --config vitest.unit.config.ts src/shared/costing.test.ts"
+    },
+    {
+      "where": "private-monorepo/apps/jobshop-quote/src/shared/costing.ts:368",
+      "change": "(1 + pct(material.scrapBps)) -> (1 + pct(material.scrapBps) / 2)",
+      "caught": true,
+      "test_cmd": "npx vitest run --config vitest.unit.config.ts src/shared/costing.test.ts"
+    },
+    {
+      "where": "private-monorepo/apps/jobshop-quote/src/shared/costing.ts:370",
+      "change": "Math.max(roundCents(raw), material.minChargeCents) -> roundCents(raw)",
+      "caught": true,
+      "test_cmd": "npx vitest run --config vitest.unit.config.ts src/shared/costing.test.ts"
+    },
+    {
+      "where": "private-monorepo/apps/jobshop-quote/src/shared/costing.ts:377",
+      "change": "machine.setupRateCents ?? machine.hourlyRateCents -> machine.hourlyRateCents",
+      "caught": true,
+      "test_cmd": "npx vitest run --config vitest.unit.config.ts src/shared/costing.test.ts"
+    },
+    {
+      "where": "private-monorepo/apps/jobshop-quote/src/shared/costing.ts:230",
+      "change": "!inputs.material && !inputs.customerSuppliedMaterial -> !inputs.material && inputs.customerSuppliedMaterial",
+      "caught": true,
+      "test_cmd": "npx vitest run --config vitest.unit.config.ts src/shared/costing.test.ts"
+    },
+    {
+      "where": "private-monorepo/apps/jobshop-quote/src/shared/costing.ts:397",
+      "change": "extras at materialMarkupBps -> extras at laborMarkupBps",
+      "caught": true,
+      "test_cmd": "npx vitest run --config vitest.unit.config.ts src/shared/costing.test.ts"
+    },
+    {
+      "where": "private-monorepo/apps/jobshop-quote/src/shared/costing.ts:400",
+      "change": "Math.ceil((priced + minimumAdjustmentCents) / q) -> Math.round(...)",
+      "caught": false,
+      "test_cmd": "npx vitest run --config vitest.unit.config.ts src/shared/costing.test.ts"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "An operation with 0 setup and 0 cycle minutes prices without an issue, and the quote editor sends 0 for a blank minutes field and starts every new operation at 0 cycle minutes, so an unfilled cycle time can reach a sent quote as free machine time (the line minimum may hide it). ARCHITECTURE rule 2 says missing data blocks pricing.",
+      "where": "private-monorepo/apps/jobshop-quote/src/shared/costing.ts:236",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "No scrap/yield starts: every break prices machine time, outside processing and per-stock bars on the shipped quantity; fallout exists only as a % of blank weight. The free front-door calculator models starts = ceil(good / (1 - fallout)); the paid engine does not.",
+      "where": "private-monorepo/apps/jobshop-quote/src/shared/costing.ts:363",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "No per-lot labor line for programming, first-article or inspection: the workarounds are setup minutes or a lot extra, and extras are marked up at the material rate, so shop labor entered that way is marked up as a purchased item.",
+      "where": "private-monorepo/apps/jobshop-quote/src/shared/costing.ts:397",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Unit-price rounding is untested: Math.ceil -> Math.round survives costing.test.ts, which would let unit x quantity fall below the computed price by up to q/2 cents.",
+      "where": "private-monorepo/apps/jobshop-quote/src/shared/costing.ts:400",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "Parts per stock piece is typed by hand; there is no bar-yield calculation from bar length, part length, parting kerf and grip/remnant, and kerf/drop on per-lb material is only a weight percentage.",
+      "where": "private-monorepo/apps/jobshop-quote/src/shared/costing.ts:100",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Manufacturing page says the product 'Reads an RFQ (the email, the drawings, the CAD)'; drawings are read as converted text only, and reading title blocks from page images is still open (flagships.yaml next item 3).",
+      "where": "platform/pages/industry-manufacturing.mjs:50",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "flagships.yaml 'next' for jobshop-quote still lists the DXF sheet-metal path as open; ROADMAP item 5 records cut, bend and sheet-blank suggestions done 2026-11-25.",
+      "where": "portfolio/flagships.yaml:130",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Meets the bar (correctness 3, claims 3, verification 3, median 3); finished (completeness 3). The costing engine is exact: three quotes (seven breaks) worked by hand from a typical rate card match its output to the cent, setup and lot minimums amortise correctly over quantity, outside services carry their own markup, per-stock bars are bought whole, markup is never confused with margin, and six kinds of missing input block the price. Tests are strong (421 unit, 217 worker, all pass; 7 of 8 seeded mutants caught, the survivor being unit-price rounding). The worst defect is that a blank cycle time becomes 0 and prices as free machine time instead of blocking, against the app's own 'missing data blocks pricing' rule. Fitness is 2: the app is not deployed, and an estimator quoting a production lot will miss scrap/yield starts and a per-lot programming/FAI line, both of which the free front-door calculator already models."
+}

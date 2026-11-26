@@ -4,7 +4,7 @@ Free, agent-maintainable alternatives to a paid SOC 2 (owner's decision, 2026-11
 revenue justifies it). Everything here describes what the code and infrastructure in this repository
 actually do, and says plainly what is missing.
 
-**Honest status: Mary Stella Labs, LLC holds no security certification, attestation or audit report
+**Honest status: Maris Stella Labs LLC holds no security certification, attestation or audit report
 (no SOC 2, no ISO 27001, no CSA STAR listing).** Nothing here has been submitted to any registry or
 outside service. Infrastructure providers publish their own security reports; those cover the
 provider, never our products, and no document here may say otherwise.

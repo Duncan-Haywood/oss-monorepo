@@ -15,7 +15,7 @@
 // store can only promise inside one process.
 //
 // Invoice contents are never stored: a run keeps file names, hashes, rule ids and fix ids.
-import { newId } from "./store.mjs";
+import { newId, subscriptionRecord } from "./store.mjs";
 
 /**
  * The port a driver implements. Parameters are positional (`?`).
@@ -116,7 +116,34 @@ CREATE TABLE IF NOT EXISTS webhook_events (
   received_at TEXT NOT NULL,
   PRIMARY KEY (provider, provider_event_id)
 );
+CREATE TABLE IF NOT EXISTS admin_audit_log (
+  id TEXT PRIMARY KEY,
+  actor_type TEXT NOT NULL,
+  actor_id TEXT NOT NULL,
+  action TEXT NOT NULL,
+  metadata TEXT,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS admin_audit_log_created ON admin_audit_log(created_at);
 `;
+
+/**
+ * Columns added after schema version 1 (ALTER TABLE ... ADD COLUMN when missing, on every start):
+ * the billed price the webhook recorded (MRR) and the lifecycle stamps (admin metrics).
+ */
+export const ADDED_COLUMNS = /** @type {const} */ ([
+  ["subscriptions", "price_amount_minor", "INTEGER"],
+  ["subscriptions", "price_currency", "TEXT"],
+  ["subscriptions", "billing_interval", "TEXT"],
+  ["subscriptions", "billing_frequency", "INTEGER"],
+  ["subscriptions", "price_quantity", "INTEGER"],
+  ["subscriptions", "price_discounted", "INTEGER"],
+  ["subscriptions", "trial_started_at", "TEXT"],
+  ["subscriptions", "first_paid_at", "TEXT"],
+  ["subscriptions", "canceled_at", "TEXT"],
+  // the Terms version accepted at sign-up (pro/legal/terms.md); null for accounts made by the admin token
+  ["accounts", "terms_version", "TEXT"],
+]);
 
 /** D1 binds at most 100 parameters per statement; three per metered row stays under it. */
 const METER_CHUNK = 30;
@@ -135,7 +162,7 @@ function usageColumn(field) {
 }
 
 /** @param {Record<string, any>} r @returns {import("./store.mjs").Account} */
-const toAccount = (r) => ({ id: r.id, name: r.name, plan: r.plan, createdAt: r.created_at });
+const toAccount = (r) => ({ id: r.id, name: r.name, plan: r.plan, createdAt: r.created_at, termsVersion: r.terms_version ?? null });
 /** @param {Record<string, any>} r @returns {import("./store.mjs").ApiKey} */
 const toKey = (r) => ({
   id: r.id,
@@ -170,6 +197,15 @@ const toSubscription = (r) => ({
   providerUpdatedAt: r.provider_updated_at ?? null,
   pastDueSince: r.past_due_since ?? null,
   updatedAt: r.updated_at,
+  priceAmountMinor: r.price_amount_minor ?? null,
+  priceCurrency: r.price_currency ?? null,
+  billingInterval: r.billing_interval ?? null,
+  billingFrequency: r.billing_frequency ?? null,
+  priceQuantity: r.price_quantity ?? null,
+  priceDiscounted: r.price_discounted === null || r.price_discounted === undefined ? null : Boolean(r.price_discounted),
+  trialStartedAt: r.trial_started_at ?? null,
+  firstPaidAt: r.first_paid_at ?? null,
+  canceledAt: r.canceled_at ?? null,
 });
 /** @param {Record<string, any>} r @returns {import("./store.mjs").PendingCheckout} */
 const toCheckout = (r) => ({
@@ -204,18 +240,25 @@ export class SqlStore {
   /** Create the tables if they do not exist. Call once before use. */
   async init() {
     await this.db.exec(SCHEMA);
+    for (const [table, column, type] of ADDED_COLUMNS) {
+      // table, column and type come from the ADDED_COLUMNS constant, never from input.
+      const cols = await this.db.all(`SELECT name FROM pragma_table_info('${table}')`);
+      const alter = `ALTER TABLE ${table} ADD COLUMN ${column} ${type}`;
+      if (!cols.some((c) => c.name === column)) await this.db.exec(alter);
+    }
     return this;
   }
 
   // --- accounts ---
-  /** @param {{ name: string, plan?: string }} input */
+  /** @param {{ name: string, plan?: string, termsVersion?: string | null }} input */
   async createAccount(input) {
-    const account = { id: newId("acct"), name: input.name, plan: input.plan ?? "trial", createdAt: this.now().toISOString() };
-    await this.db.run("INSERT INTO accounts (id, name, plan, created_at) VALUES (?, ?, ?, ?)", [
+    const account = { id: newId("acct"), name: input.name, plan: input.plan ?? "trial", createdAt: this.now().toISOString(), termsVersion: input.termsVersion ?? null };
+    await this.db.run("INSERT INTO accounts (id, name, plan, created_at, terms_version) VALUES (?, ?, ?, ?, ?)", [
       account.id,
       account.name,
       account.plan,
       account.createdAt,
+      account.termsVersion,
     ]);
     return account;
   }
@@ -366,15 +409,22 @@ export class SqlStore {
   /** @param {string} accountId @param {Omit<import("./store.mjs").Subscription, "accountId" | "updatedAt">} input */
   async upsertSubscription(accountId, input) {
     const updatedAt = this.now().toISOString();
+    const x = subscriptionRecord(input);
     const [r] = await this.db.all(
       `INSERT INTO subscriptions (account_id, plan_key, status, provider_customer_id, provider_subscription_id, current_period_start,
-         current_period_end, cancel_at_period_end, provider_updated_at, past_due_since, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         current_period_end, cancel_at_period_end, provider_updated_at, past_due_since, updated_at,
+         price_amount_minor, price_currency, billing_interval, billing_frequency, price_quantity, price_discounted,
+         trial_started_at, first_paid_at, canceled_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON CONFLICT (account_id) DO UPDATE SET plan_key = excluded.plan_key, status = excluded.status,
          provider_customer_id = excluded.provider_customer_id, provider_subscription_id = excluded.provider_subscription_id,
          current_period_start = excluded.current_period_start, current_period_end = excluded.current_period_end,
          cancel_at_period_end = excluded.cancel_at_period_end, provider_updated_at = excluded.provider_updated_at,
-         past_due_since = excluded.past_due_since, updated_at = excluded.updated_at
+         past_due_since = excluded.past_due_since, updated_at = excluded.updated_at,
+         price_amount_minor = excluded.price_amount_minor, price_currency = excluded.price_currency,
+         billing_interval = excluded.billing_interval, billing_frequency = excluded.billing_frequency,
+         price_quantity = excluded.price_quantity, price_discounted = excluded.price_discounted,
+         trial_started_at = excluded.trial_started_at, first_paid_at = excluded.first_paid_at, canceled_at = excluded.canceled_at
        RETURNING *`,
       [
         accountId,
@@ -388,6 +438,15 @@ export class SqlStore {
         input.providerUpdatedAt,
         input.pastDueSince,
         updatedAt,
+        x.priceAmountMinor,
+        x.priceCurrency,
+        x.billingInterval,
+        x.billingFrequency,
+        x.priceQuantity,
+        x.priceDiscounted === null ? null : x.priceDiscounted ? 1 : 0,
+        x.trialStartedAt,
+        x.firstPaidAt,
+        x.canceledAt,
       ],
     );
     return toSubscription(r);
@@ -448,6 +507,75 @@ export class SqlStore {
   /** Processing failed: forget the claim so the provider's retry is processed. @param {string} provider @param {string} providerEventId */
   async releaseWebhookEvent(provider, providerEventId) {
     await this.db.run("DELETE FROM webhook_events WHERE provider = ? AND provider_event_id = ?", [provider, providerEventId]);
+  }
+
+  // --- platform admin (owner console): see store.mjs; only server.mjs /v1/admin/* calls these ---
+
+  /** @param {string} sinceIso */
+  async adminSnapshot(sinceIso) {
+    const [accounts, [active], subs, events] = await Promise.all([
+      this.db.all("SELECT created_at FROM accounts"),
+      this.db.all("SELECT COUNT(DISTINCT account_id) AS n FROM api_keys WHERE last_used_at >= ?", [sinceIso]),
+      this.db.all("SELECT * FROM subscriptions"),
+      this.db.all("SELECT type, received_at FROM webhook_events"),
+    ]);
+    return {
+      accountCreatedAt: accounts.map((r) => String(r.created_at)),
+      activeAccounts: Number(active?.n ?? 0),
+      subscriptions: subs.map(toSubscription),
+      webhookEvents: events.map((r) => ({ type: String(r.type), receivedAt: String(r.received_at) })),
+    };
+  }
+
+  /** @param {"recent" | "trials" | "churn"} list @param {number} limit @param {string} trialSinceIso */
+  async adminListAccounts(list, limit, trialSinceIso) {
+    const n = Math.min(Math.max(Math.trunc(limit) || 1, 1), 200);
+    const select = `SELECT a.id AS a_id, a.name AS a_name, a.plan AS a_plan, a.created_at AS a_created_at, s.*
+      FROM accounts a LEFT JOIN subscriptions s ON s.account_id = a.id`;
+    const rows =
+      list === "trials"
+        ? await this.db.all(
+            `${select} WHERE s.status = 'trialing' OR s.trial_started_at >= ? ORDER BY s.trial_started_at DESC, a.created_at DESC LIMIT ?`,
+            [trialSinceIso, n],
+          )
+        : list === "churn"
+          ? await this.db.all(
+              `${select} WHERE s.status IN ('canceled', 'past_due') OR s.cancel_at_period_end = 1
+               ORDER BY COALESCE(s.canceled_at, s.updated_at) DESC LIMIT ?`,
+              [n],
+            )
+          : await this.db.all(`${select} ORDER BY a.created_at DESC, a.id DESC LIMIT ?`, [n]);
+    return rows.map((r) => ({
+      account: { id: r.a_id, name: r.a_name, plan: r.a_plan, createdAt: r.a_created_at },
+      subscription: r.account_id ? toSubscription(r) : null,
+    }));
+  }
+
+  /** @param {{ actorId: string, action: string, metadata?: Record<string, unknown> | null }} input */
+  async adminAudit(input) {
+    const row = { id: newId("aal"), actorType: /** @type {const} */ ("service"), actorId: input.actorId, action: input.action, metadata: input.metadata ?? null, createdAt: this.now().toISOString() };
+    await this.db.run("INSERT INTO admin_audit_log (id, actor_type, actor_id, action, metadata, created_at) VALUES (?, ?, ?, ?, ?, ?)", [
+      row.id,
+      row.actorType,
+      row.actorId,
+      row.action,
+      row.metadata ? JSON.stringify(row.metadata) : null,
+      row.createdAt,
+    ]);
+    return row;
+  }
+
+  /** Newest first. @param {number} [limit] */
+  async adminListAudit(limit = 50) {
+    const rows = await this.db.all("SELECT * FROM admin_audit_log ORDER BY created_at DESC, rowid DESC LIMIT ?", [limit]);
+    return rows.map((r) => ({
+      id: r.id,
+      actorType: r.actor_type,
+      actorId: r.actor_id,
+      action: r.action,
+      metadata: r.metadata ? JSON.parse(r.metadata) : null,
+      createdAt: r.created_at,
+    }));
   }
 
   // --- usage metering ---

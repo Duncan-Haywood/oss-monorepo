@@ -7,6 +7,7 @@ import { contextMiddleware } from "./middleware/context";
 import { originCheck, securityHeaders } from "./middleware/security";
 import { sessionMiddleware } from "./middleware/session";
 import { requireOrg } from "./middleware/tenant";
+import adminRoutes from "./routes/admin";
 import authRoutes from "./routes/auth";
 import billingRoutes from "./routes/billing";
 import calendarRoutes from "./routes/calendar";
@@ -36,6 +37,8 @@ export function createApp() {
   app.route("/api/calendar", calendarRoutes);
   app.use("/api/*", sessionMiddleware);
   app.route("/api/me", me);
+  // Platform admin (owner) API: PLATFORM_ADMIN_EMAILS session or the console's service token.
+  app.route("/api/admin", adminRoutes);
   app.use("/api/orgs/:orgId/*", requireOrg());
   app.use("/api/orgs/:orgId", requireOrg());
   app.route("/api/orgs/:orgId/billing", orgBillingRoutes);

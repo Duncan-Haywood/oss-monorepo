@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import type { ProviderSubscription } from "./provider.ts";
-import { decideSubscriptionUpdate, type StoredSubscription } from "./subscription-events.ts";
+import {
+  decideSubscriptionUpdate,
+  isNewPaidSubscription,
+  nextLifecycleStamps,
+  type StoredSubscription,
+} from "./subscription-events.ts";
 
 const now = new Date("2026-11-24T00:00:00Z");
 const t = (iso: string) => new Date(iso);
@@ -137,5 +142,67 @@ describe("decideSubscriptionUpdate", () => {
     );
     assert.ok(d3.apply);
     assert.equal(d3.pastDueSince, null);
+  });
+});
+
+describe("nextLifecycleStamps", () => {
+  const at = t("2026-11-25T00:00:00Z");
+  const earlier = t("2026-11-01T00:00:00Z");
+
+  it("stamps a trial start, a first payment and a cancel once each", () => {
+    assert.deepEqual(nextLifecycleStamps(null, "trialing", at), {
+      trialStartedAt: at,
+      firstPaidAt: null,
+      canceledAt: null,
+    });
+    const converted = nextLifecycleStamps({ trialStartedAt: earlier }, "active", at);
+    assert.deepEqual(converted, { trialStartedAt: earlier, firstPaidAt: at, canceledAt: null });
+    const canceled = nextLifecycleStamps(converted, "canceled", t("2026-12-01T00:00:00Z"));
+    assert.equal(canceled.firstPaidAt, at);
+    assert.equal(canceled.canceledAt?.toISOString(), "2026-12-01T00:00:00.000Z");
+    // A redelivered cancel keeps the first cancel time; a re-subscription clears it.
+    assert.equal(
+      nextLifecycleStamps(canceled, "canceled", t("2027-01-01T00:00:00Z")).canceledAt,
+      canceled.canceledAt,
+    );
+    assert.equal(
+      nextLifecycleStamps(canceled, "active", t("2027-01-01T00:00:00Z")).canceledAt,
+      null,
+    );
+  });
+
+  it("never back-fills: an active row with no stamps gets firstPaidAt only from this event", () => {
+    assert.equal(nextLifecycleStamps({}, "past_due", at).firstPaidAt, null);
+    assert.equal(nextLifecycleStamps({}, "past_due", at).trialStartedAt, null);
+  });
+});
+
+describe("isNewPaidSubscription", () => {
+  const next = { status: "active", providerSubscriptionId: "sub_1" };
+  it("is true for a first payment, a trial converting and a re-subscription", () => {
+    assert.equal(isNewPaidSubscription(null, next), true);
+    assert.equal(
+      isNewPaidSubscription({ status: "trialing", providerSubscriptionId: "sub_1" }, next),
+      true,
+    );
+    assert.equal(
+      isNewPaidSubscription({ status: "canceled", providerSubscriptionId: "sub_0" }, next),
+      true,
+    );
+    assert.equal(
+      isNewPaidSubscription({ status: "comp", providerSubscriptionId: null }, next),
+      true,
+    );
+  });
+  it("is false for renewals, recoveries from past_due and non-active events", () => {
+    assert.equal(
+      isNewPaidSubscription({ status: "active", providerSubscriptionId: "sub_1" }, next),
+      false,
+    );
+    assert.equal(
+      isNewPaidSubscription({ status: "past_due", providerSubscriptionId: "sub_1" }, next),
+      false,
+    );
+    assert.equal(isNewPaidSubscription(null, { ...next, status: "trialing" }), false);
   });
 });

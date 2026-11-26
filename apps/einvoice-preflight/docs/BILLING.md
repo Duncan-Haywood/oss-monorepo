@@ -71,7 +71,9 @@ period end; never provider ids) and the plans on sale.
 
 ## Turning it on (owner)
 
-1. Paddle account verified (it needs the live pricing page, terms, privacy and refund policies).
+1. Paddle account verified (it needs the live pricing page, terms, privacy and refund policies: the
+   service serves its Terms, with the refund terms in section 5, at `/app/terms` and its Privacy
+   Policy at `/app/privacy`, from `pro/legal/*.md`).
 2. Secrets on the host, never in the tree: `BILLING_PROVIDER=paddle`, `BILLING_API_KEY`
    (`pdl_sdbx_` for the sandbox), `BILLING_WEBHOOK_SECRET` (the notification destination's secret),
    `CHECKOUT_SECRET` (32 or more random characters; signs checkout tokens), `APP_URL` (https; the

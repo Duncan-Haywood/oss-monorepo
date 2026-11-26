@@ -29,6 +29,8 @@ node --test platform/aws/stacks/email-ops/sender/*.test.mjs  # SES sender, conse
 node --test platform/counter/*.test.mjs
 node --test platform/analytics/*.test.mjs
 node --test platform/edge/*.test.mjs           # the site's feedback/counts Worker (platform/edge)
+node --test platform/email/*.test.mjs          # the agent-managed inboxes Worker (platform/email)
+node --test platform/email/aws/*.test.mjs      # its SES inbound adapter (the AWS move)
 node --test platform/ci/*.test.mjs             # venture YAML readers guard (PR #16739)
 node --test platform/aws/stacks/saas-starter/runtime/test/*.test.mjs  # needs `npm ci` there first; the Postgres e2e skips unless PG_SUPERUSER_URL is set
 node --test portfolio/requests/*.test.mjs       # the open custom development request queue
@@ -39,6 +41,9 @@ node --test research/marriage-divorce-evidence/app/tests/*.test.mjs
 node --test research/civ-levers/app/tests/*.test.mjs
 node --test platform/aws/stacks/site/deploy/*.test.mjs platform/aws/modules/static-site/functions/*.test.mjs  # the AWS site: publisher, CloudFront Functions, verify-live.sh against an emulator
 python3 platform/ci/run_venture_tests.py --changed   # every venture your branch touches, in parallel (no args: all ~1,300, minutes not hours)
+pnpm install --frozen-lockfile && pnpm --filter "{./apps/<dir>}..." test   # a paid app and its packages/ deps (apps/README.md); covers apps/<dir>/**/*.test.mjs and packages/<dir>/**/*.test.mjs; all of them: pnpm -r typecheck && pnpm -r test && pnpm -r build (minutes: run_in_background)
+node --test apps/admin/test/*.test.mjs apps/cmmc-site/test/*.test.mjs apps/cmmc/scripts/*.test.mjs apps/einvoice-preflight/*.test.mjs apps/einvoice-preflight/pro/*.test.mjs apps/einvoice-site/test/*.test.mjs apps/jobshop-quote/scripts/*.test.mjs apps/payapps/scripts/*.test.mjs apps/seller-books-site/test/*.test.mjs apps/seller-books/scripts/*.test.mjs apps/wall-framing-takeoff/*.test.mjs   # the apps' plain node tests, from the root after pnpm install (~3 min); poppler's test needs a pdfdetach that can save
+(cd apps/einvoice-preflight && PYTHONPATH=src python3 -m pytest tests -q)   # its own pyproject.toml (the private CI never ran these); the Python half of the e-invoice checker
 # No pytest/numpy? PY=$(python3 platform/ci/pyenv.py pytest numpy), then "$PY" -m pytest: some images split python3 from what pip/apt install into.
 (cd platform/ci && rc=0; for m in test_*.py; do python3 -m unittest "${m%.py}" || { echo "FAILED $m"; rc=1; }; done; exit $rc)  # runs every module, lists each failure
 (cd platform/ci/agent_review && python3 -m unittest test_review)
@@ -50,6 +55,7 @@ python3 -m pytest platform/aws/stacks/spend/kill_switch -q
 python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline -q  # >4 min in a shallow clone (router's real-portfolio tests; run reports 2026-10-19): run_in_background
 python3 -m pytest portfolio/work -q                      # directions and tasks registry (workctl.py), under 1 s
 python3 -m pytest platform/aws/stacks/dns/scripts -q    # Route 53 export and zone diff (cf_export.py, zone_diff.py), under 1 s
+python3 -m pytest platform/aws/cutover -q    # Cloudflare -> AWS cutover orchestrator against its fakes, under 2 s
 python3 -m pytest portfolio/research/<probe> -q          # one at a time: 4 share a test_measure.py basename
 python3 -m pytest portfolio/pipeline/probes/<probe> -q   # one at a time: root pytest --ignore's this tree
 python3 -m pytest prompts -q && python3 prompts/promptctl.py validate   # prompt.md, prompts/, run records

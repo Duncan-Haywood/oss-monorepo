@@ -957,5 +957,5 @@ function exportCells(kind: RateImportKind, r: Existing): string[] {
  */
 export function exportRateCsv(kind: RateImportKind, rows: Existing[]): string {
   const lines = [EXPORT_HEADERS[kind], ...rows.map((r) => exportCells(kind, r))];
-  return `﻿${lines.map((l) => l.map(csvField).join(",")).join("\r\n")}\r\n`;
+  return `\uFEFF${lines.map((l) => l.map(csvField).join(",")).join("\r\n")}\r\n`;
 }

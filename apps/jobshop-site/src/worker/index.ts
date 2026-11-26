@@ -1,6 +1,7 @@
 // The Worker in front of the prerendered site. Static pages are served by Workers static assets;
 // only /api/* reaches this code (wrangler.jsonc run_worker_first).
 
+import { handleAdmin } from "./admin";
 import { handleEarlyAccess } from "./early-access";
 import { basePath, type Env } from "./env";
 
@@ -27,6 +28,10 @@ export default {
     const base = basePath(env);
     if (url.pathname === `${base}/api/early-access`) {
       return withSecurityHeaders(await handleEarlyAccess(request, env, ctx));
+    }
+    if (url.pathname.startsWith(`${base}/api/admin/`)) {
+      const sub = url.pathname.slice(`${base}/api/admin`.length);
+      return withSecurityHeaders(await handleAdmin(request, env, sub));
     }
     if (url.pathname.startsWith(`${base}/api/`)) {
       return withSecurityHeaders(

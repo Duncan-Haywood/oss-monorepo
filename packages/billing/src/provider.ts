@@ -39,6 +39,28 @@ export interface ProviderSubscription {
   currentPeriodStart: Date | null;
   currentPeriodEnd: Date | null;
   cancelAtPeriodEnd: boolean;
+  /**
+   * The recurring price the provider reports for the subscription's first item, exactly as the
+   * webhook carries it (never looked up or estimated). Absent when the payload has no usable price.
+   */
+  price?: SubscriptionPrice;
+}
+
+/** A subscription's billed recurring price, as recorded from the provider's webhook. */
+export interface SubscriptionPrice {
+  /** Unit price in the currency's minor units (Paddle `unit_price.amount`), before tax. */
+  unitAmountMinor: number;
+  /** ISO 4217 code, upper case. */
+  currency: string;
+  /** Billing cycle: every `frequency` `interval`s. */
+  interval: "day" | "week" | "month" | "year";
+  frequency: number;
+  quantity: number;
+  /**
+   * A discount applies (Paddle `discount` is set). The payload does not say how much the customer
+   * actually pays, so such a subscription is counted as "unpriced" in MRR rather than guessed.
+   */
+  discounted: boolean;
 }
 
 export interface BillingWebhookEvent {

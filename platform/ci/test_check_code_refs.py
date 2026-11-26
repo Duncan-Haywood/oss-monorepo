@@ -36,6 +36,21 @@ class Missing(unittest.TestCase):
             got = list(c.missing_refs(doc, root, {"platform"}))
             self.assertEqual(got, [(1, "platform/gone.py"), (5, "platform/gone2.py")])
 
+    def test_another_repositorys_path_is_not_checked(self):
+        # goals.md: "`private-monorepo`'s\n`apps/grants/.../paddle.ts`" names that repo's file.
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "platform").mkdir()
+            (root / "platform/real.py").write_text("")
+            doc = root / "doc.md"
+            doc.write_text(
+                "see `other-repo`'s\n`platform/theirs.py` for it;\n"
+                "`platform`'s `platform/gone.py` is still ours\n")
+            subprocess.run(["git", "-C", d, "init", "-q"], check=True)
+            subprocess.run(["git", "-C", d, "add", "-A"], check=True)
+            got = list(c.missing_refs(doc, root, {"platform"}))
+            self.assertEqual(got, [(3, "platform/gone.py")])
+
 
 class Main(unittest.TestCase):
     def _repo(self, d, doc):
