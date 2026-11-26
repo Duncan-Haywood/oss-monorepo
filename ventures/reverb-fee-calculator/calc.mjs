@@ -293,7 +293,7 @@ export function counterOfferMessage(input) {
   const offerPrice = number(input.offerPrice, 'Offer price');
   const match = offerThatMatchesEbayList(input);
   const money = (value) => {
-    const format = (value) => `$${Number(value).toFixed(2)}`;
+    const format = (value) => `$${Number(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const text = format(Math.abs(value));
     return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
   };
@@ -301,7 +301,7 @@ export function counterOfferMessage(input) {
     return `Thanks for the offer of ${money(offerPrice)} -- that already nets as much as selling this on eBay at my list price, so I'm glad to accept it.`;
   }
   const ask = Math.ceil(match.offerPrice);
-  return `Thanks for the offer of ${money(offerPrice)}. To match what I'd net selling this on eBay at my list price, I'd need to land closer to $${ask} -- would you meet me there, or somewhere in between?`;
+  return `Thanks for the offer of ${money(offerPrice)}. To match what I'd net selling this on eBay at my list price, I'd need to land closer to $${ask.toLocaleString("en-US")} -- would you meet me there, or somewhere in between?`;
 }
 
 // Same listing, four ways to handle shipping. Marketplace and Reverb
@@ -516,7 +516,7 @@ export function compareConsignment(input, salePrice = input?.price) {
 
 export function consignmentNote(comparison) {
   const money = (value) => {
-    const format = (value) => `$${Number(value).toFixed(2)}`;
+    const format = (value) => `$${Number(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const text = format(Math.abs(value));
     return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
   };
@@ -676,7 +676,7 @@ export function compareReturnResolution(input, salePrice = input?.price) {
 
 export function returnResolutionNote(comparison) {
   const money = (value) => {
-    const text = `$${Math.abs(Number(value)).toFixed(2)}`;
+    const text = `$${Math.abs(Number(value)).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     return Number(value) < 0 && /[1-9]/.test(text) ? `-${text}` : text;
   };
   const capped = comparison.breakEvenRefundCappedByOrder;
@@ -826,7 +826,7 @@ export function compareWaitForBetterOffer(input, salePrice = input?.price) {
 
 export function waitForBetterOfferNote(comparison) {
   const money = (value) => {
-    const format = (value) => `$${Number(value).toFixed(2)}`;
+    const format = (value) => `$${Number(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const text = format(Math.abs(value));
     return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
   };

@@ -160,7 +160,7 @@
     // this page asks -- so the sign goes outside the symbol, not after it.
     const money = (value) => {
       if (!Number.isFinite(value)) return "n/a";
-      const text = `$${Math.abs(value).toFixed(2)}`;
+      const text = `$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     };
 

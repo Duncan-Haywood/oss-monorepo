@@ -896,7 +896,7 @@ test("compareShopifyCapital rejects impossible offers", () => {
 test("summary names the Capital fee and the wait as the default winner", () => {
   const text = compareShopifyCapital(CAPITAL_BASE).summary;
   assert.match(text, /Waiting and self-funding/);
-  assert.match(text, /\$1400\.00/);
+  assert.match(text, /\$1,400\.00/);
   assert.match(text, /44\.8%/);
   assert.match(text, /\$368\.42 extra profit/);
 });
@@ -1621,7 +1621,7 @@ test("summary names the subscription leftover and does not tell you to turn subs
   assert.match(text, /1\.2/);
   assert.match(text, /76\.1%/);
   assert.match(text, /38\.9%/);
-  assert.match(text, /\$1492\.42/);
+  assert.match(text, /\$1,492\.42/);
   assert.doesNotMatch(text, /should offer|must offer|turn on subscriptions|turn on selling plans/i);
 });
 

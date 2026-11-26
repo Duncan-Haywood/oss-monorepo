@@ -31,7 +31,7 @@
         "name": "Should I send a bulk PO to FBA or use Amazon AWD?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "On the calculator defaults — a $29.99 large-standard unit, 15% referral, $4.15 FBA pick, $8 cost of goods, $1.20 FBA inbound, 400 units selling 80 a month, AWD receive $0.15, AWD storage $0.48 / cu ft, and $0.68 AWD-to-FBA — AWD keeps $165.33 more on the lot than sending everything to FBA now ($4723.93 vs $4558.60). The transfer can rise to about $1.09 before FBA wins. You-hold and drip loses $161.33 because $0.25 / unit / month at home is more than FBA storage on this carton."
+          "text": "On the calculator defaults — a $29.99 large-standard unit, 15% referral, $4.15 FBA pick, $8 cost of goods, $1.20 FBA inbound, 400 units selling 80 a month, AWD receive $0.15, AWD storage $0.48 / cu ft, and $0.68 AWD-to-FBA — AWD keeps $165.33 more on the lot than sending everything to FBA now ($4,723.93 vs $4,558.60). The transfer can rise to about $1.09 before FBA wins. You-hold and drip loses $161.33 because $0.25 / unit / month at home is more than FBA storage on this carton."
         }
       },
       {
@@ -88,8 +88,8 @@
   </p>
   <p>
     On the default $29.99 large-standard unit, AWD keeps $165.33 more
-    on 400 units than sending everything to FBA now ($4723.93 vs
-    $4558.60). AWD receive is $0.15 and the $0.68 transfer on units
+    on 400 units than sending everything to FBA now ($4,723.93 vs
+    $4,558.60). AWD receive is $0.15 and the $0.68 transfer on units
     that move still beats $1.20 FBA inbound plus five months of FBA
     storage on the pile. The transfer can rise to about $1.09 before
     FBA wins. A $1.20 transfer flips FBA ahead by $42.67. You-hold
@@ -157,7 +157,7 @@
   </p>
   <h2>Common questions</h2>
   <h3>Should I send a bulk PO to FBA or use Amazon AWD?</h3>
-  <p>On the calculator defaults — a $29.99 large-standard unit, 15% referral, $4.15 FBA pick, $8 cost of goods, $1.20 FBA inbound, 400 units selling 80 a month, AWD receive $0.15, AWD storage $0.48 / cu ft, and $0.68 AWD-to-FBA — AWD keeps $165.33 more on the lot than sending everything to FBA now ($4723.93 vs $4558.60). The transfer can rise to about $1.09 before FBA wins. You-hold and drip loses $161.33 because $0.25 / unit / month at home is more than FBA storage on this carton.</p>
+  <p>On the calculator defaults — a $29.99 large-standard unit, 15% referral, $4.15 FBA pick, $8 cost of goods, $1.20 FBA inbound, 400 units selling 80 a month, AWD receive $0.15, AWD storage $0.48 / cu ft, and $0.68 AWD-to-FBA — AWD keeps $165.33 more on the lot than sending everything to FBA now ($4,723.93 vs $4,558.60). The transfer can rise to about $1.09 before FBA wins. You-hold and drip loses $161.33 because $0.25 / unit / month at home is more than FBA storage on this carton.</p>
   <h3>Is Amazon AWD the same as inbound placement?</h3>
   <p>No. Inbound placement is which fulfillment centers a shipment goes to, and the fee Amazon charges when you send to fewer of them. AWD is a cheaper bulk warehouse in front of FBA: you receive the PO there, then Amazon replenishes a working FBA stock. This page holds placement at zero so the table stays an inbound-bulk question. It does not recommend AWD and it does not publish Amazon's live AWD schedule.</p>
   <h3>When does sending the whole lot to FBA beat AWD?</h3>
@@ -183,7 +183,7 @@
     ];
     const money = (value) => {
       const sign = value < 0 ? "−" : "";
-      return `${sign}$${Math.abs(value).toFixed(2)}`;
+      return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     };
 
     function update() {

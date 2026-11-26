@@ -109,7 +109,7 @@ test("default inputs on the page match the worked example", () => {
   assert.match(html, /\$106\.36/);
   assert.match(html, /\$74\.62/);
   assert.match(html, /\$74\.23/);
-  assert.match(html, /\$1492\.42/);
+  assert.match(html, /\$1,492\.42/);
   assert.match(html, /\$21\.98/);
 });
 

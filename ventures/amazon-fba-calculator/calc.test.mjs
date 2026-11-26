@@ -1006,7 +1006,7 @@ test("bulkBuySummary names the extra cash and the COGS that still ties", () => {
   }));
   assert.match(text, /\$1\.61/);
   assert.match(text, /\$803\.33/);
-  assert.match(text, /\$3335\.95/);
+  assert.match(text, /\$3,335\.95/);
   assert.match(text, /\$8\.11/);
   assert.match(text, /26\.0 months/);
 });
@@ -2112,7 +2112,7 @@ test("compareAwd: default 400-unit lot still prefers AWD replenish over FBA now"
   assert.equal(comparison.fba.sold, 400);
   assert.equal(comparison.awd.leftover, 0);
   assert.match(comparison.summary, /\$165\.33 more on 400 units/);
-  assert.match(comparison.summary, /\$4723\.93 vs \$4558\.60/);
+  assert.match(comparison.summary, /\$4,723\.93 vs \$4,558\.60/);
   assert.match(comparison.summary, /\$1\.09/);
   assert.match(comparison.summary, /loses \$161\.33/);
   assert.equal(awdNote(comparison), comparison.summary);

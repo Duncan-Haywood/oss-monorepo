@@ -382,7 +382,7 @@ test("SEO page uses the same MOQ worked example the tests lock", () => {
   assert.match(bulkSeo, /\$12\.60/);
   assert.match(bulkSeo, /\$1\.61/);
   assert.match(bulkSeo, /\$803\.33/);
-  assert.match(bulkSeo, /\$3335\.95/);
+  assert.match(bulkSeo, /\$3,335\.95/);
   assert.match(bulkSeo, /\$8\.11/);
   assert.match(bulkSeo, /26\.0 months/);
   assert.match(bulkSeo, /\$7\.81/);

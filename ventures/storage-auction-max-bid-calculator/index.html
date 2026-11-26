@@ -100,7 +100,7 @@ import { recordEvent, toggleUsage, usageAllowed } from './usage.mjs';
 import { encodeInputs, decodeInputs, hasSharedInputs, formValues, FIELD_IDS } from './share.mjs';
 const el = id => document.getElementById(id);
 const money = (n) => {
-  const format = (v) => `$${v.toFixed(2)}`;
+  const format = (v) => `$${v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const text = format(Math.abs(n));
   return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 };

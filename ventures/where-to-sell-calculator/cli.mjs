@@ -158,7 +158,7 @@ function pickChannels(a) {
 }
 
 const r2 = (n) => Math.round(n * 100) / 100;
-export const money = (n) => `${n < 0 && Math.abs(n).toFixed(2) !== "0.00" ? "-" : ""}$${Math.abs(n).toFixed(2)}`;
+export const money = (n) => `${n < 0 && Math.abs(n).toFixed(2) !== "0.00" ? "-" : ""}$${Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 export function analyze(items, channels, opts = {}) {
   const includeReturns = opts.includeReturns !== false;

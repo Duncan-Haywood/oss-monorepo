@@ -354,7 +354,7 @@ export function compareLowPriceFba(input) {
 
 function moneyLabel(value) {
   const abs = Math.abs(value);
-  const formatted = abs.toFixed(2);
+  const formatted = abs.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   return value < 0 ? `-$${formatted}` : `$${formatted}`;
 }
 
@@ -727,7 +727,7 @@ export function returnsSummary({ typedRate, handling, unsellable, typed }) {
     : wipePct === 0
       ? "The completed sale already loses money, so any return rate still loses."
       : `The return rate that wipes expected profit is about ${wipePct.toFixed(1)}%.`;
-  return `At a ${typedRate}% return rate, $${handling.toFixed(2)} handling, and ${unsellable}% unsellable, ${path} expects ${moneyLabel(expected)} versus ${moneyLabel(kept)} on a completed sale — ${moneyLabel(drag)} of drag. ${wipeLine}`;
+  return `At a ${typedRate}% return rate, $${handling.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} handling, and ${unsellable}% unsellable, ${path} expects ${moneyLabel(expected)} versus ${moneyLabel(kept)} on a completed sale — ${moneyLabel(drag)} of drag. ${wipeLine}`;
 }
 
 export const SELLER_PLAN_DEFAULTS = {
@@ -850,7 +850,7 @@ export function couponDiscount({ salePrice, couponPercent = 0, couponFixed = 0 }
 function couponLabel(percent, fixed) {
   const parts = [];
   if (percent > 0) parts.push(`${percent}%`);
-  if (fixed > 0) parts.push(`$${fixed.toFixed(2)} off`);
+  if (fixed > 0) parts.push(`$${fixed.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} off`);
   if (parts.length === 0) return "No coupon";
   return `${parts.join(" + ")} coupon`;
 }
@@ -982,7 +982,7 @@ export function compareCoupons(input) {
 
 export function couponSummary(comparison) {
   const money = (value) => {
-    const format = (value) => `$${value.toFixed(2)}`;
+    const format = (value) => `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const text = format(Math.abs(value));
     return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
   };
@@ -1132,7 +1132,7 @@ export function compareSubscribeSave(input) {
 
 export function subscribeSaveSummary(comparison) {
   const money = (value) => {
-    const format = (value) => `$${value.toFixed(2)}`;
+    const format = (value) => `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const text = format(Math.abs(value));
     return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
   };
@@ -3791,12 +3791,12 @@ export function sizeTierPackagingNote(comparison) {
     const shrink = inches > 0
       ? `shrink the shortest side by ${inches.toFixed(2)} in into a ${comparison.dropTier.targetTierLabel.toLowerCase()} carton`
       : `pack the unit into a ${comparison.dropTier.targetTierLabel.toLowerCase()} carton`;
-    return `If you can ${shrink} and the unit still fits, FBA keeps $${money.toFixed(2)} more per unit than the current pack after the extra prep you entered.`;
+    return `If you can ${shrink} and the unit still fits, FBA keeps $${money.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} more per unit than the current pack after the extra prep you entered.`;
   }
   if (comparison.winner === "drop_weight") {
     const ounces = comparison.dropWeight.cuts.weightOz;
     const money = roundMoney(comparison.dropWeight.profitDelta);
-    return `If the shipped weight drops ${ounces.toFixed(1)} oz into the next fulfillment band, FBA keeps $${money.toFixed(2)} more per unit. Dimensions stay the same, so the size tier does not change.`;
+    return `If the shipped weight drops ${ounces.toFixed(1)} oz into the next fulfillment band, FBA keeps $${money.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} more per unit. Dimensions stay the same, so the size tier does not change.`;
   }
   if (comparison.dropTier && comparison.dropTier.profitDelta < 0) {
     return "The extra prep on the smaller carton costs more than the fulfillment and storage it saves on these rates.";
@@ -3810,7 +3810,7 @@ export function storageSeasonNote(result) {
   }
   const money = (value) => {
     const sign = value < 0 ? "−" : "";
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const january = result.scenarios.off_peak;
   const mixed = result.scenarios.mixed;
@@ -3835,7 +3835,7 @@ export function placementSummary(comparison) {
   }
   const money = (value) => {
     const sign = value < 0 ? "-" : "";
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   const { winner, paths, extraFreightOptimizedCanCarry, units, nextBestDelta } = comparison;
   const winnerLine = winner === "tie"
@@ -4089,7 +4089,7 @@ export function lowInventoryNote(result) {
   }
   const money = (value) => {
     const sign = value < 0 ? "−" : "";
-    return `${sign}$${Math.abs(value).toFixed(2)}`;
+    return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
   if (!result.applies) {
     if (result.reason === "fbm") {
