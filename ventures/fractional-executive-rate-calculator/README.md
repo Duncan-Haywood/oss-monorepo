@@ -29,6 +29,19 @@ numbers with your own.
 Averages only: no income tax, equity upside, paid sick leave or slow
 collection. Not tax, legal or financial advice. See the page.
 
+## Known gaps
+
+From the quality audit of 2026-11-26
+([`portfolio/quality/audits/2026-11-26-fractional-executive-rate-calculator.json`](../../portfolio/quality/audits/2026-11-26-fractional-executive-rate-calculator.json)):
+
+- **Payroll tax is one flat rate on all revenue, business costs included, with
+  no Social Security wage base.** IRS self-employment tax is 15.3% of 92.35% of
+  net earnings, with the 12.4% part only up to the wage base ($184,500 in 2026).
+  For the page's example the extra tax is about $15,830, not $23,194, so the day
+  rate is about 2.5% high ($2,010 against $2,060), and more for higher earners.
+- The "1.5x employee daily pay" rule of thumb is not cited.
+- No profit or risk margin input; retainers can only be priced as days per month.
+
 ## Tests
 
 `node --test`

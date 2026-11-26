@@ -35,6 +35,7 @@
     button.secondary { background: #e4edf1; color: #1f4a5d; }
     table { width: 100%; border-collapse: collapse; margin-top: 8px; }
     th, td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #ece7f2; }
+    @media (max-width: 480px) { th, td { padding: 8px 4px; overflow-wrap: anywhere; } }
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
@@ -83,7 +84,7 @@
       <div><label for="discount">Retainer discount (%)</label>
         <input type="number" id="discount" min="0" step="1" value="0" placeholder="0"></div>
     </div>
-    <p class="note">Payroll tax: as an employee the employer paid half of it; as a consultant you pay all of it, roughly 7.65 percent of revenue extra in the US. Time off and non-billable share come off 260 working days before any rate is set.</p>
+    <p class="note">Payroll tax: as an employee the employer paid half of it; as a consultant you pay all of it. In the US that is about 7.65 percent extra until your earnings pass the Social Security wage base ($184,500 in 2026) and about 1.45 percent above it; this field applies one flat rate to all revenue, so above the base it overstates the tax. Time off and non-billable share come off your working days before any rate is set.</p>
   </section>
 
   <section class="card">
