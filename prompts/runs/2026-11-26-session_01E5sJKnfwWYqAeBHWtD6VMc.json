@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKnfwWYqAeBHWtD6VMc",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T23:18:12Z",
+  "ended": "2026-11-26T23:27:01Z",
+  "wall_minutes": 9.09,
+  "tokens_in": 2794549,
+  "tokens_out": 31661,
+  "cost_usd": 1.8997,
+  "tool_calls": 32,
+  "task": "Hearth & Horizon story from the bible proposal 'The toast that stayed pale' (Maillard reaction)",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19515",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Says 'search_pull_requests' for duplicate checks, but the MCP search tools are not available in cloud sessions; gh api search/issues (per BIBLE.md) worked."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Consolidated-posts direction and the creative track's per-story post habit pull different ways; I folded the new story into the existing Leidenfrost kitchen post rather than starting a new one."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Owner direction prefers consolidating posts over a new post per PR.",
+      "did": "Extended docs/posts/2026-11-22-hearth-and-horizon-the-drop-that-dances.md into a two-story kitchen-heat post (Leidenfrost + Maillard) instead of a new post.",
+      "result": "check_posts.py ok, 0 near-copies."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio at 581 MB of the 400 MB cap.",
+      "did": "Text only, no MP3.",
+      "result": "Story and pages landed without audio, as the track prescribes."
+    }
+  ],
+  "writeups": [
+    "ventures/hearth-and-horizon/stories/the-toast-that-stayed-pale.md",
+    "docs/posts/2026-11-22-hearth-and-horizon-the-drop-that-dances.md (new section)"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon. Piece: the-toast-that-stayed-pale (5,470 words, Holbeck, Leeds, Nov 2061). Claimed via a Drafting marker in BIBLE.md and draft PR #19515 before drafting; no open PR used 'toast' or 'Maillard'. Weekdays checked with datetime (28 Oct and 4 Nov 2061 Fridays; 1 Nov Tuesday, so All Saints stays a holy day in England and Wales). Energy model in the closing note recomputed (12 kWh gas vs about 3.5 kWh electric; 144 slices). Re-read caught three self-inconsistencies before commit: humidity slider at middle vs log at 100%, a test-energy figure below the preheat model, and a priest's stole in his pocket after Mass. Added the next H&H proposal (Brazil nut effect). node --test 22/22 pass; check_posts ok; risk_review: no blocks (personal-data check is the shelf's standard page template, unchanged). Usage: audio_played/audio_finished n/a (text only).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9444b8e9-a383-5e26-8722-df520cd8474c",
+    "transcripts": 1,
+    "first": "2026-11-26T23:18:12Z",
+    "last": "2026-11-26T23:27:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 61,
+        "output": 31661,
+        "thinking": 12633,
+        "cache_read": 2703798,
+        "cache_write_5m": 0,
+        "cache_write_1h": 90690,
+        "api_equivalent_usd": 1.8997,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 61,
+      "output": 31661,
+      "thinking": 12633,
+      "cache_read": 2703798,
+      "cache_write_5m": 0,
+      "cache_write_1h": 90690,
+      "api_equivalent_usd": 1.8997,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 32,
+    "tools": {
+      "Bash": 29,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.09,
+      "active_minutes": 9.09,
+      "model_minutes": 6.43,
+      "tool_minutes": 2.66,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "researching and writing a checked 5,500-word technical short story plus a post section",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 526.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
