@@ -43,8 +43,8 @@ export function newId() {
 export function readSalary(v) {
   if (typeof v === "number") return v;
   let s = String(v ?? "").trim().replace(/^[$€£]\s*/, "").replace(/\s+/g, "");
-  if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(s)) s = s.split(",").join("");
-  else if (/^(\d+|\d{1,3}(\.\d{3})+),\d{1,2}$/.test(s)) s = s.split(".").join("").replace(",", ".");
+  if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(s)) s = s.replace(/,/g, "");
+  else if (/^(\d+|\d{1,3}(\.\d{3})+),\d{1,2}$/.test(s)) s = s.replace(/\./g, "").replace(",", ".");
   else if (s.includes(",")) return NaN;
   return Number(s);
 }
