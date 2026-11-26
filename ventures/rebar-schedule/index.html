@@ -93,13 +93,13 @@
         <p class="muted" id="ffdLine"></p>
         <p class="muted" id="costLine"></p>
         <h3>By bar size</h3>
-        <div class="scroll"><table id="sizeTable"><tr><th>Size</th><th>Bars</th><th>Length (m)</th><th>Weight (kg)</th><th>Stock bars</th><th>Bought (kg)</th><th>Bound</th></tr></table></div>
+        <div class="scroll"><table id="sizeTable" class="stack"><thead><tr><th>Size</th><th>Bars</th><th>Length (m)</th><th>Weight (kg)</th><th>Stock bars</th><th>Bought (kg)</th><th>Bound</th></tr></thead></table></div>
         <h3>Cutting plan</h3>
         <div id="plans"></div>
         <h3>Reusable offcuts</h3>
         <p class="muted" id="offcuts"></p>
         <h3>Cut lengths per mark</h3>
-        <div class="scroll"><table id="markTable"><tr><th>Mark</th><th>Size</th><th>Shape</th><th>Dims (mm)</th><th>No.</th><th>Exact (mm)</th><th>Cut (mm)</th><th>kg</th></tr></table></div>
+        <div class="scroll"><table id="markTable" class="stack"><thead><tr><th>Mark</th><th>Size</th><th>Shape</th><th>Dims (mm)</th><th>No.</th><th>Exact (mm)</th><th>Cut (mm)</th><th>kg</th></tr></thead></table></div>
         <div class="actions">
           <button type="button" id="csvMarks">Download schedule CSV</button>
           <button type="button" id="csvPlan">Download cutting plan CSV</button>
@@ -139,9 +139,12 @@
 
     function node(tag, text, cls) { const n = document.createElement(tag); if (text != null) n.textContent = text; if (cls) n.className = cls; return n; }
     function fillTable(table, head, rows, leftCols = 1) {
+      // Header in a <thead>, rows in a <tbody>: a table.stack takes its phone-card labels from the thead.
       table.replaceChildren();
-      const tr = node('tr'); head.forEach((h, i) => tr.append(node('th', h, i < leftCols ? 'l' : ''))); table.append(tr);
-      for (const r of rows) { const row = node('tr'); r.forEach((c, i) => row.append(node('td', c, i < leftCols ? 'l' : ''))); table.append(row); }
+      const thead = node('thead'), tbody = node('tbody');
+      const tr = node('tr'); head.forEach((h, i) => tr.append(node('th', h, i < leftCols ? 'l' : ''))); thead.append(tr);
+      for (const r of rows) { const row = node('tr'); r.forEach((c, i) => row.append(node('td', c, i < leftCols ? 'l' : ''))); tbody.append(row); }
+      table.append(thead, tbody);
     }
 
     function compute() {

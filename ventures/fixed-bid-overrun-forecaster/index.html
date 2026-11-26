@@ -79,7 +79,7 @@
     <div id="advice"></div>
     <p class="stats" id="stats"></p>
     <h3>Three ways the rest of the job could go</h3>
-    <div class="scroll"><table><thead><tr><th scope="col">Assumption</th><th class="n" scope="col">Final cost</th><th class="n" scope="col">Cost still to spend</th><th class="n" scope="col">Margin</th><th class="n" scope="col">Margin %</th></tr></thead><tbody id="scenarios"></tbody></table></div>
+    <div class="scroll"><table class="stack"><thead><tr><th scope="col">Assumption</th><th class="n" scope="col">Final cost</th><th class="n" scope="col">Cost still to spend</th><th class="n" scope="col">Margin</th><th class="n" scope="col">Margin %</th></tr></thead><tbody id="scenarios"></tbody></table></div>
     <p class="note" id="warnings"></p>
     <p><button type="button" class="secondary" id="download">Download forecast as CSV</button></p>
   </section>
@@ -173,7 +173,7 @@
       const { price, budget } = inputs();
       if (!(price > 0 && budget > 0)) { out.innerHTML = '<p class="note">Enter the price and cost budget above first.</p>'; return false; }
       const t = trend(p.snapshots, { price, budget });
-      out.innerHTML = `<div class="scroll"><table><thead><tr><th scope="col">Period</th><th class="n" scope="col">% complete</th><th class="n" scope="col">Cost to date</th><th class="n" scope="col">CPI</th><th class="n" scope="col">Forecast final cost</th><th class="n" scope="col">Forecast margin</th></tr></thead><tbody>` +
+      out.innerHTML = `<div class="scroll"><table class="stack"><thead><tr><th scope="col">Period</th><th class="n" scope="col">% complete</th><th class="n" scope="col">Cost to date</th><th class="n" scope="col">CPI</th><th class="n" scope="col">Forecast final cost</th><th class="n" scope="col">Forecast margin</th></tr></thead><tbody>` +
         t.rows.map((r) => r.error ? `<tr><th scope="row">${esc(r.period)}</th><td colspan="5">${esc(r.error)}</td></tr>` : `<tr><th scope="row">${esc(r.period)}</th><td class="n">${r.percentComplete}%</td><td class="n">${money(r.actualCost)}</td><td class="n">${r.cpi === null ? "n/a" : r.cpi.toFixed(2)}</td><td class="n">${money(r.eac)}</td><td class="n">${money(r.margin)}</td></tr>`).join("") +
         `</tbody></table></div><ul>${t.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>`;
       return true;

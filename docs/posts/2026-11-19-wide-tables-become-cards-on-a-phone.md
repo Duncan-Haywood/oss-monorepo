@@ -111,3 +111,24 @@ than a table you can swipe.
 The 84 left are mostly results tables the calculators write after you press the button. They
 need labels written at runtime, which is the next piece of work. Run notes:
 `docs/reports/polish-2026-11-26-flat-rate-tables-stack.md`.
+
+## Update, end of 2026-11-26: the results tables
+
+The runtime labels landed (`docs/reports/polish-2026-11-26-runtime-stack-labels.md`): a table
+whose rows a calculator writes after you press the button now gets its card labels in the
+browser, so those tables can opt in with the same `class="stack"`. The next run added the class
+to 39 read-only results tables in 22 construction tools: the bid leveling worksheet's ranking,
+the certified payroll report, rebar cut lengths, voltage drop wire sizes, surety bond capacity,
+window design pressures and the rest. Input grids, where each cell is a field you type in,
+were left alone; a card of text boxes is a different design problem.
+
+| the 22 tools at 390 px, example worked out | before | after |
+|---|---|---|
+| blocks that need a sideways swipe | 41 | 9 |
+| WH-347 payroll report, per worker | 1,160 px of columns in a 288 px box | one card per worker, every figure visible |
+| results cells carrying a label (5 tables checked) | none | 197 of 197 |
+
+The rebar schedule wrote its header row into the table body, so it had nothing to take labels
+from; it now writes a real `<thead>`. Across the 131 construction front doors the count is now
+43 swipes, down from 128 at the start of the day. Run notes:
+`docs/reports/polish-2026-11-26-results-tables-stack.md`.
