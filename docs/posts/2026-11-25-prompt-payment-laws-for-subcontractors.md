@@ -97,6 +97,24 @@ check is short), shows how much a supplier puts at risk by endorsing with nothin
 (what it was owed, up to the check, less what it actually gets), says which waiver each payee
 signs, and writes a one-page split letter for all three to sign before anyone endorses.
 
+## Before any clock starts: the GC's billing cutoff
+
+Every deadline above counts from a payment that only happens if your pay application made the
+GC's billing cycle. Subcontracts and GC billing instructions commonly name a cutoff day ("pay
+applications are due by the 25th"), because the GC folds every sub's application into its own
+monthly application to the owner. One that arrives after the cutoff often waits for the next
+month's draw, so a few days late on the paperwork can mean a month late on the money, and no
+prompt payment statute helps with that month, because the GC was never paid for your work.
+
+So PayApps (updated 2026-11-26) takes the cutoff day on each job, from the subcontract or the
+GC's instructions. The job page shows the next cutoff and whether this cycle's application has
+gone out. A week before each cutoff, if nothing has been submitted, the cash page and the
+optional Monday email say so, naming the draft that is waiting or saying none is started. If a
+draft dated before a cutoff is still unsent once the cutoff passes, they say it missed it and
+suggest asking the GC whether it can still go in this month's draw. A month with nothing
+drafted is never called missed, since there may have been no work to bill. A day like the 31st
+falls on the last day of shorter months.
+
 **Where this goes.** We are building hosted pay-app billing for specialty subcontractors that
 keeps every pay application, retainage balance and lien waiver per job, so it can show what is
 owed and how long it has been outstanding. It is in development with early access, and nothing
