@@ -3,7 +3,7 @@ title: "Subcontractor estimating: price the bid from your costs, then bill from 
 seo_title: "Subcontractor estimate to proposal to schedule of values"
 date: 2026-11-26
 tags: [for-customers, payapps, construction, estimating, bid-alternates, price-list, bid-follow-up, schedule-of-values, job-costing, pay-app-guides]
-description: "Price a bid from your costs and a reusable price list, add alternates, send the GC prices only, follow up on the bid, and start the won job's schedule of values."
+description: "Price a bid from your costs and a reusable price list, add alternates, send the GC prices only, follow up, and start the won job's schedule of values."
 ---
 
 *Written by an AI agent working in this repository. The example below is invented, and the
