@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { parseInputs, decodeDraft, computeAll, delayScenarios, followUpDraft, releaseSchedule, releaseNote, comparePartialReleaseOffer, partialReleaseNote, worksheetSummary, summaryText, cashFlowRecordText, compareRetainageRates, rateComparisonNote, evidenceSnapshot, paymentScheduleSummary } from './calc.mjs';
+import { parseInputs, decodeDraft, computeAll, delayScenarios, followUpDraft, releaseSchedule, releaseNote, comparePartialReleaseOffer, partialReleaseNote, worksheetSummary, summaryText, cashFlowRecordText, compareRetainageRates, rateComparisonNote, evidenceSnapshot, paymentScheduleSummary, formatMoney } from './calc.mjs';
 
 test('calculates retainage and carrying cost without rounding drift', () => {
   const parsed = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' });
@@ -32,7 +32,7 @@ test('only restores complete valid worksheet drafts', () => {
 
 test('draft names the measured amount and keeps the decision with the user', () => {
   const draft = followUpDraft({ result: { earnedUnpaid: 25000, retainageWithheld: 10000 }, currency: '$' });
-  assert.match(draft, /\$25000\.00/);
+  assert.match(draft, /\$25,000\.00/);
   assert.match(draft, /not legal advice/);
 });
 
@@ -41,7 +41,7 @@ test('caps retainage still unpaid at the total unpaid balance', () => {
   const result = computeAll(parsed.values);
   assert.equal(result.retainageWithheld, 10000);
   assert.equal(result.retainageStillUnpaid, 5000);
-  assert.match(followUpDraft({ result }), /including approximately \$5000\.00 in retainage/);
+  assert.match(followUpDraft({ result }), /including approximately \$5,000\.00 in retainage/);
 });
 
 test('shows incremental carrying cost for future delay scenarios', () => {
@@ -57,7 +57,7 @@ test('worksheet summary preserves project context and model assumptions', () => 
   const parsed = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' });
   const summary = worksheetSummary({ projectName: 'Main Street remodel', payerName: 'Acme Construction', invoiceReference: 'Pay application #4', dueDate: 'August 30, 2026', values: parsed.values, result: computeAll(parsed.values) });
   assert.match(summary, /Project: Main Street remodel/);
-  assert.match(summary, /Retainage withheld \(10\.0%\): \$10000\.00/);
+  assert.match(summary, /Retainage withheld \(10\.0%\): \$10,000\.00/);
   assert.match(summary, /Annual carrying-cost assumption: 12\.0%/);
   assert.match(summary, /Verify the figures/);
 });
@@ -66,7 +66,7 @@ test('worksheet summary includes optional delay scenarios for project review', (
   const values = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' }).values;
   const summary = worksheetSummary({ values, result: computeAll(values), scenarios: delayScenarios(values) });
   assert.match(summary, /Further-delay scenarios \(modeled\):/);
-  assert.match(summary, /\+90 days: \$26479\.45 outstanding; \$739\.72 added carrying cost/);
+  assert.match(summary, /\+90 days: \$26,479\.45 outstanding; \$739\.72 added carrying cost/);
 });
 
 test('defaults release-schedule fields so older worksheets still parse', () => {
@@ -185,7 +185,7 @@ test('release note names the typically releasable amount', () => {
     reductionAtPct: 50,
     reducedRetainagePct: 5,
   });
-  assert.match(releaseNote(schedule), /\$3000\.00/);
+  assert.match(releaseNote(schedule), /\$3,000\.00/);
   assert.match(releaseNote(schedule), /not a contract reading/);
 });
 
@@ -203,8 +203,8 @@ test('worksheet summary includes the modeled release schedule', () => {
     result: computeAll(values),
     release: releaseSchedule(values),
   });
-  assert.match(summary, /Proper hold at this percent complete: \$5000\.00/);
-  assert.match(summary, /Typically already releasable: \$3000\.00/);
+  assert.match(summary, /Proper hold at this percent complete: \$5,000\.00/);
+  assert.match(summary, /Typically already releasable: \$3,000\.00/);
 });
 
 test('partial retainage offer: $5k waiver trails waiting; acceleration still beats both', () => {
@@ -269,9 +269,9 @@ test('rejects a negative or empty partial offer and a fractional wait', () => {
 test('partial-release note stays arithmetic and does not tell the user to sign', () => {
   const values = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' }).values;
   const note = partialReleaseNote(comparePartialReleaseOffer(values, { partialOffer: 5000, waitDays: 60 }));
-  assert.match(note, /\$9802\.74/);
-  assert.match(note, /\$4802\.74 behind/);
-  assert.match(note, /\$9901\.37/);
+  assert.match(note, /\$9,802\.74/);
+  assert.match(note, /\$4,802\.74 behind/);
+  assert.match(note, /\$9,901\.37/);
   assert.match(note, /not interest, a lien right, or a reason to sign/);
   assert.doesNotMatch(note, /accept|refuse|should sign|you should/i);
 });
@@ -281,9 +281,9 @@ test('worksheet summary can include the partial-release comparison', () => {
   const partialRelease = comparePartialReleaseOffer(values, { partialOffer: 5000, waitDays: 60 });
   const summary = worksheetSummary({ values, result: computeAll(values), partialRelease });
   assert.match(summary, /Partial retainage offer \(modeled\):/);
-  assert.match(summary, /Typed check today: \$5000\.00/);
-  assert.match(summary, /Take the check, close the rest: cash \$5000\.00/);
-  assert.match(summary, /Break-even check that matches waiting: \$9802\.74/);
+  assert.match(summary, /Typed check today: \$5,000\.00/);
+  assert.match(summary, /Take the check, close the rest: cash \$5,000\.00/);
+  assert.match(summary, /Break-even check that matches waiting: \$9,802\.74/);
 });
 
 test('defaults typical retainage hold to 90 days when omitted', () => {
@@ -336,8 +336,8 @@ test('does not invent a bid at 100 percent retainage', () => {
 test('rate comparison note prices the cash-now gap, not just interest', () => {
   const values = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' }).values;
   const note = rateComparisonNote(compareRetainageRates(values));
-  assert.match(note, /\$111111\.11/);
-  assert.match(note, /\$11111\.11 more/);
+  assert.match(note, /\$111,111\.11/);
+  assert.match(note, /\$11,111\.11 more/);
   assert.match(note, /cash-now gap/);
   assert.match(note, /not a contract reading/);
   assert.doesNotMatch(note, /should bid|must add|you should/i);
@@ -351,7 +351,7 @@ test('worksheet summary includes the retainage-rate comparison', () => {
     rateRows: compareRetainageRates(values),
   });
   assert.match(summary, /Retainage rate comparison \(modeled on a 90-day hold\):/);
-  assert.match(summary, /10\.0% \(this worksheet\): withheld \$10000\.00; progress cash \$90000\.00; bid to keep progress cash \$111111\.11 \(\$11111\.11 extra\)/);
+  assert.match(summary, /10\.0% \(this worksheet\): withheld \$10,000\.00; progress cash \$90,000\.00; bid to keep progress cash \$111,111\.11 \(\$11,111\.11 extra\)/);
 });
 
 test('payment schedule export ignores blank rows and calculates outstanding amounts', () => {
@@ -359,7 +359,7 @@ test('payment schedule export ignores blank rows and calculates outstanding amou
     { label: 'Mobilization', billed: '12000', paid: '5000' },
     { label: '', billed: '', paid: '' }
   ]);
-  assert.match(summary, /1\. Mobilization \| billed \$12000\.00 \| paid \$5000\.00 \| outstanding \$7000\.00/);
+  assert.match(summary, /1\. Mobilization \| billed \$12,000\.00 \| paid \$5,000\.00 \| outstanding \$7,000\.00/);
   assert.doesNotMatch(summary, /2\./);
   assert.match(summary, /Review this schedule/);
 });
@@ -394,9 +394,9 @@ test('summary export contains modeled values and safety boundary', () => {
   const parsed = parseInputs({ contractValue: '100000', retainagePct: '10', paidToDate: '75000', daysOutstanding: '90', annualCarryingRatePct: '12' });
   const summary = summaryText({ projectName: 'Main Street remodel', result: computeAll(parsed.values) });
   assert.match(summary, /Main Street remodel/);
-  assert.match(summary, /Retainage withheld: \$10000\.00/);
-  assert.match(summary, /Retainage still unpaid: \$10000\.00/);
-  assert.match(summary, /Total modeled cash outstanding: \$25739\.73/);
+  assert.match(summary, /Retainage withheld: \$10,000\.00/);
+  assert.match(summary, /Retainage still unpaid: \$10,000\.00/);
+  assert.match(summary, /Total modeled cash outstanding: \$25,739\.73/);
   assert.match(summary, /Not legal, tax, financial, or engineering advice/);
   assert.doesNotMatch(summary, /Hello /);
 });
@@ -423,7 +423,7 @@ test('the page restores drafts through decodeDraft, not a bare JSON.parse', () =
 test('cash-flow record creates a portable record with explicit assumptions', () => {
   const record = cashFlowRecordText({ projectName: 'Library remodel', invoiceReference: 'Pay app 4', dueDate: '2026-08-30', generatedDate: '2026-08-25', result: { retainageWithheld: 10000, earnedUnpaid: 25000, carryingCost: 739.73, totalCashOutstanding: 25739.73 } });
   assert.match(record, /Project: Library remodel/);
-  assert.match(record, /Total modeled cash outstanding: \$25739\.73/);
+  assert.match(record, /Total modeled cash outstanding: \$25,739\.73/);
   assert.match(record, /not a determination of interest/);
 });
 
@@ -433,4 +433,15 @@ test('the page offers a downloadable cash-flow record', () => {
   assert.match(page, /cashFlowRecordText\(/);
   assert.match(page, /retainage-cash-flow-record\.txt/);
   assert.match(page, /retainage-cashflow:record-downloads/);
+});
+
+test('money in notes, drafts and downloads matches the result cards', () => {
+  assert.equal(formatMoney(111111.111), '$111,111.11');
+  assert.equal(formatMoney(2500), '$2,500.00');
+  assert.equal(formatMoney(98.63), '$98.63');
+  assert.equal(formatMoney(-4802.74), '-$4,802.74');
+  assert.equal(formatMoney(-0.001), '$0.00');
+  assert.equal(formatMoney(1234.5, '€'), '€1,234.50');
+  const note = releaseNote(releaseSchedule({ contractValue: 100000, retainagePct: 10, paidToDate: 67500, percentComplete: 75, reductionAtPct: 50, reducedRetainagePct: 5 }));
+  assert.doesNotMatch(note, /\$\d{4,}\./, 'no unseparated amounts in prose');
 });
