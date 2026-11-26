@@ -64,7 +64,8 @@
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-25-a-step-file-now-sizes-the-blank-in-the-job-shop-quoter.md (extended: 'Parts per sheet, counted from the DXF')"
+    "docs/posts/2026-11-25-a-step-file-now-sizes-the-blank-in-the-job-shop-quoter.md (extended: 'Parts per sheet, counted from the DXF')",
+    "PR https://github.com/Duncan-Haywood/oss-monorepo/pull/19348 carries the post and this record"
   ],
   "goal": "MRR: makes the job-shop quoter (bet #2) price sheet-metal parts bought by the sheet without a hand count",
   "notes": "Idea: rectangular nest yield (guillotine, up to 3 blocks, exact integer search) pre-fills partsPerStock for per-sheet materials. Verification: pnpm typecheck clean; pnpm test unit 515/515, worker 226/226; jobshop-site unit 42/42; biome clean. Private CI starved (run 45820231315: no runner), so run_workflow_locally.py jobshop-quote-ci was run here. Result: jobshop-quote-ci.yml 11/11 run: steps passed locally (lint, typecheck, unit, worker, build, D1 migrations in sync, Playwright e2e; 8 uses: steps not run). Private PR #328 merged as 6525b3d.",
