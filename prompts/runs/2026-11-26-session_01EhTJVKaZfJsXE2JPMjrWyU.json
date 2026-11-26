@@ -57,7 +57,7 @@
     "docs/posts/2026-11-26-submittals-that-hold-up-material.md"
   ],
   "goal": "bet #1 payapps: retention and weekly-email value for specialty subs (submittals across jobs)",
-  "notes": "Private PR 341: submittalsToChase (overdue back, late to send, resubmit; newest revision; at-risk first), weekly email section, GET /api/orgs/:orgId/submittals/to-chase, projects-page box. tsc clean; biome no errors; unit 967 passed; worker 415 passed; payapps-ci locally 9/9 run steps passed (uses: steps not run). Worked example in the post uses the same dates as the worker digest test.",
+  "notes": "Private PR 341: submittalsToChase (overdue back, late to send, resubmit; newest revision; at-risk first), weekly email section, GET /api/orgs/:orgId/submittals/to-chase, projects-page box. tsc clean; biome no errors; unit 967 passed; worker 415 passed; payapps-ci locally 9/9 run steps passed (uses: steps not run). Worked example in the post uses the same dates as the worker digest test. Public PR: https://github.com/Duncan-Haywood/oss-monorepo/pull/19372.",
   "corrections": [],
   "redteam": null,
   "usage": {
