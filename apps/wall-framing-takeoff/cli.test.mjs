@@ -1,7 +1,7 @@
 import { sampleRoof } from "./roof.mjs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { main } from "./cli.mjs";
+import { main, layerPattern } from "./cli.mjs";
 import { samplePlan } from "./engine.mjs";
 
 const run = (argv, plan) => main(argv, () => (typeof plan === "string" ? plan : JSON.stringify(plan)));
@@ -174,6 +174,24 @@ test("--wall-layer reads a drawing whose layers are not named like wall", () => 
   const ok = run(["house.dxf", "--plan-only", "--wall-layer=plan-x"], dxf);
   assert.equal(ok.code, 0, ok.out);
   assert.equal(JSON.parse(ok.out.split("\n\nNotes")[0]).walls.length, 4);
+});
+
+test("layer flags match name fragments literally, | between alternatives", () => {
+  const p = layerPattern("a.wall|S-WALL");
+  assert.ok(p.test("A.WALL-EXT") && p.test("s-wall") && !p.test("AxWALL"));
+  assert.ok(layerPattern("A?WALL").test("a?wall") && !layerPattern("A?WALL").test("AWALL"));
+  // a catastrophic-backtracking pattern is just a name now, and answers at once
+  const evil = layerPattern("(a+)+$");
+  assert.equal(evil.test(`${"a".repeat(40)}!`), false);
+  assert.ok(evil.test("x(a+)+$y"));
+  assert.doesNotThrow(() => layerPattern("[unclosed("));
+  assert.ok(layerPattern("[unclosed(").test("[UNCLOSED("));
+  const g = (c, v) => `${c}\n${v}\n`;
+  const L = (l, a, b, c, d) => g(0, "LINE") + g(8, l) + g(10, a) + g(20, b) + g(11, c) + g(21, d);
+  const dxf = g(0, "SECTION") + g(2, "ENTITIES") + L("PLAN.X", 0, 0, 480, 0) + L("PLAN.X", 480, 0, 480, 336) + L("PLAN.X", 480, 336, 0, 336) + L("PLAN.X", 0, 336, 0, 0) + g(0, "ENDSEC");
+  assert.equal(run(["house.dxf", "--plan-only", "--wall-layer=nope|plan.x"], dxf).code, 0);
+  assert.equal(run(["house.dxf", "--plan-only", "--wall-layer=plan.y"], dxf).code, 2);
+  assert.equal(run(["house.dxf", "--plan-only", "--wall-layer=PLAN.*"], dxf).code, 2);
 });
 
 test("an IFC floor plan goes through the same route as a DXF", () => {

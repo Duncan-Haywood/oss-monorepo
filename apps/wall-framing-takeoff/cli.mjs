@@ -54,12 +54,24 @@ import { planFromDxf } from "./dxf.mjs";
 import { stackFloors } from "./stackfloors.mjs";
 import { pathToFileURL } from "node:url";
 
-/** `--wall-layer=RE`, `--door-layer=RE`, `--window-layer=RE`: layer-name patterns (case-insensitive) for drawings whose layers are not named like "wall". */
+/**
+ * A layer flag's value as a pattern: layer-name fragments matched case-insensitively,
+ * `|` between alternatives (`A-WALL|S-WALL`). Each fragment is matched literally, so a
+ * name with `.`, `+` or `(` in it works, and a command-line value cannot build an
+ * arbitrary (or catastrophically backtracking) regular expression.
+ * @param {string} v
+ */
+export function layerPattern(v) {
+  const parts = v.split("|").filter((p) => p !== "").map((p) => p.replace(/[\\^$.*+?()[\]{}|/-]/g, "\\$&"));
+  return new RegExp(parts.join("|"), "i");
+}
+
+/** `--wall-layer=NAMES`, `--door-layer=NAMES`, `--window-layer=NAMES`: layer-name fragments (case-insensitive, `|` between alternatives) for drawings whose layers are not named like "wall". */
 function layerOptions(argv) {
   const out = {};
   for (const [flag, key] of [["wall", "wallLayer"], ["door", "doorLayer"], ["window", "windowLayer"]]) {
     const v = argv.find((a) => a.startsWith(`--${flag}-layer=`))?.slice(flag.length + 9);
-    if (v) out[key] = new RegExp(v, "i");
+    if (v) out[key] = layerPattern(v);
   }
   return out;
 }
@@ -134,7 +146,7 @@ Usage:
   node cli.mjs plan.json --headers  size headers from the plan's own headerTable ({upTo, header, plies?} rows from your span table; an opening with "header": "auto" takes the first row that covers it) and list hand-picked ones the table says are too light
   node cli.mjs plan.dxf --ifc-json=plan.json  read each wall's and opening's real height from the JSON of ifc-engine plan, same storey (a DXF carries only places and widths)
   node cli.mjs house.ifc [--storey=N|name]  the same from an IFC file (one storey at a time; the lowest by default) (IfcWall axis lines, IfcDoor/IfcWindow; hand-written fixtures only so far)
-  node cli.mjs house.dxf --plan-only  read a DXF floor plan (wall centre lines on a layer named like "wall", openings as lines on "door"/"window" layers; --units=in|ft|mm|cm|m when the file does not say; --wall-layer=RE, --door-layer=RE and --window-layer=RE name the layers when they are not called like that; walls drawn as two face lines are paired into centre lines automatically, --double-line forces it, --single-line turns it off) and print the plan JSON; without --plan-only it goes straight on to the takeoff
+  node cli.mjs house.dxf --plan-only  read a DXF floor plan (wall centre lines on a layer named like "wall", openings as lines on "door"/"window" layers; --units=in|ft|mm|cm|m when the file does not say; --wall-layer=NAMES, --door-layer=NAMES and --window-layer=NAMES name the layers when they are not called like that (case-insensitive name fragments, matched literally, | between alternatives); walls drawn as two face lines are paired into centre lines automatically, --double-line forces it, --single-line turns it off) and print the plan JSON; without --plan-only it goes straight on to the takeoff
   node cli.mjs --example            print the example plan (an invented 40 x 28 ft ranch) to start from
   cat plan.json | node cli.mjs -    read the plan from stdin
 

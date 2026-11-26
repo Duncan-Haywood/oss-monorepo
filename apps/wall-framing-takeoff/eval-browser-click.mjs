@@ -5,6 +5,7 @@ import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { extname, join } from "node:path";
+import { confinedPath } from "./static-path.mjs";
 
 const root = fileURLToPath(new URL(".", import.meta.url));
 let chromium;
@@ -22,7 +23,8 @@ if (!chromium) { console.log("skipped: playwright not installed"); process.exit(
 const types = { ".html": "text/html", ".mjs": "text/javascript" };
 const server = createServer(async (req, res) => {
   try {
-    const p = join(root, req.url.split("?")[0] === "/" ? "index.html" : decodeURIComponent(req.url.split("?")[0]));
+    const p = confinedPath(root, req.url, "index.html");
+    if (!p) { res.writeHead(404).end(); return; }
     const body = await readFile(p);
     res.writeHead(200, { "content-type": types[extname(p)] || "text/plain" }).end(body);
   } catch { res.writeHead(404).end(); }
