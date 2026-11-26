@@ -1,3 +1,7 @@
+---
+kind: note
+subjects: [wall-framing-takeoff, einvoice-preflight, billing]
+---
 # Red team 2026-11-26: billing Worker, catalogue, and the dropped renewal key
 
 Target: the shared Paddle billing code (`platform/billing/worker.mjs`,
