@@ -1,0 +1,280 @@
+{
+  "date": "2026-11-26",
+  "subject": "ventures/grants",
+  "stratum": "flagship",
+  "seed": "2026-11-26-e-6ce5",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality round 111, see run record",
+  "status": "audited",
+  "professional": "a development director / grants manager at a small nonprofit, with a nonprofit accountant for the budget; they check first that deadlines are read from the funder's record correctly and reminders fire on the right day, that funder data comes from a real source (Grants.gov) and demo data cannot pass as real, that the SF-424A-style budget totals, match/cost-share and indirect lines add up and indirect follows 2 CFR 200.414 (negotiated rate, or the 15% of MTDC de minimis since the 2024 revision), that nothing promises an award, and (for the owner) that a lapsed subscription loses the paid, LLM-backed features",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran the shipped modules (vitest probe in a scratch shadow copy at /tmp/claude-0/gshadow, real tree untouched) and recomputed by hand: (1) a six-line budget (0.5 FTE x $52,000 request, $7,800 fringe, 3 x $1,234.56 travel as match, 0.333 x $1,000 supplies, $6,000 equipment as other funds, $5,019 indirect) through computeTotals/budgetWarnings: direct request $34,130, total project $48,852.68, match 7.6% of total, shortfall vs a $5,000 required match $1,296.32, over-ceiling by $149, request mismatch flagged - all equal hand arithmetic; quantity 0.333 is rounded to 0.33 as documented. (2) parseGrantsGovDate on the four Grants.gov formats ('Jan 15, 2027 12:00:00 AM EST', '2027-01-15-00-00-00', '01/15/2027', '01152027') -> 2027-01-15; 02/30/2027, 2027-02-29 and 'TBD' -> null; 2028-02-29 accepted. (3) Plans: annual = 12 x monthly x 0.9 rounded to the dollar: $108 / $313 / $1,609 (code 10800/31300/160900); Starter full cost recomputed from Paddle's published pay-as-you-go 5% + $0.50: fee $1.00, 3% refund reserve $0.30, hosting $5/25 + $0.10 + 5 x $0.01 = $0.35, LLM $0.19 -> $1.84 (docs/PRICING.md $1.84, margin 82%); annual $0.49 + $0.27 + $0.35 + $0.19 = $1.30/month -> 6.92x as documented. (4) Grants.gov eligibility codes 12/13/07/11/25/99 match the Grants.gov API guide's code list. Departure: client daysUntil (format.ts:13) uses local-time getters on a 23:59 UTC timestamp, so a 12/10/2026 deadline is 14 days away in America/Denver but 15 in Europe/Berlin and Pacific/Auckland. Indirect is never computed (see domain). eCFR, api.grants.gov and marisstella.app all returned proxy 403, so 2 CFR 200.414 and live Grants.gov responses were checked from the auditor's knowledge, not fetched.",
+    "completeness": "README: finds opportunities (Grants.gov search2 + fetchOpportunity, Simpler.Grants, watchlist, ProPublica prospecting), matches, drafts grounded in the fact base, grounding verification and review routing, submission (email or manual guide), follow-ups, budgets with SF-424A export, Paddle billing. pnpm test:worker 67 files / 611 tests pass; pnpm test:unit 157 of 158 files, 1640 of 1641 tests pass, 1 red (pages.smoke.test.tsx dashboard: the test does not mock the newer grant-plan endpoint, so the matches card shows 'Couldn't load your grant plan'); pnpm typecheck clean. Flagship milestone (1) asks for 'a test that a lapsed subscription loses paid features': assertCanDraft has one for new drafts, but regeneration is not gated (defect 1). Live page and billing state not verifiable: https://marisstella.app/grants returned proxy 403; docs/LAUNCH_CHECKLIST.md still says NO-GO with blockers (typecheck failing, legal placeholders) that are no longer true, so its billing-not-live line cannot be trusted either way. Offline sample opportunities are labelled '[Sample]' and only seeded with FAKE_EXTERNALS=true.",
+    "verification": "11 hand-seeded mutants in budget.ts, grants-gov.ts, grace.ts, billing/index.ts and safety-rails.ts (scratch copy, targeted vitest runs): 9 caught (ceiling > -> >=, match% denominator, indirect counted as direct, invalid-date check removed, MM/DD swapped, grace applied to any status, quota >= -> >, canceled treated as active, billing safety rail disabled), 2 survived: the cost-share shortfall also subtracting 'other funds' (budget.ts:236), and remainingOpportunityScores ignoring an inactive subscription (billing/index.ts:145), which survived the whole worker suite plus matching (497 tests), so a canceled org could keep getting LLM fit scores with every test green. A scratch probe test showed the real gap the suites miss: with the subscription set to canceled, POST /applications returns 402 but POST /applications/:id/regenerate returns 200 for both a full redraft (pipelineDeps.draft called) and a section redraft. Plus the unit suite is red on main. Tests are otherwise thorough (2,250 tests) and hand-derived on budget and date logic.",
+    "craft": "Read src/shared/budget.ts, src/shared/billing/{plans,cost-model,grace}.ts, src/worker/services/billing/index.ts, discovery/grants-gov.ts (date parsing, mapping), submission/index.ts (scheduleDeadlineReminders), review/{safety-rails,automation}.ts, pipeline/index.ts (createApplication, regenerate) and steps.ts (stepDraft), client format.ts and marketing hero/footer/faq. Pure shared engines, integer cents, zod at the boundary, every tenant query scoped by orgId, API quirks documented with dates. Defects: the entitlement check lives in stepDraft only for round 0 and is absent from the section-redraft path, so the gate depends on the caller; plan features (autopilot on Standard/Pro) are not enforced anywhere; client date math mixes UTC storage with local getters; a stale smoke test left red.",
+    "claims": "Terms section 7 'No guarantee of funding ... or that any application will be funded' - backed in documents.ts:48-50; no page copy promises awards or success rates (grep). '30-day money-back guarantee' on hero, pricing, FAQ - backed by the Refund Policy (documents.ts:239-256) and a 3% refund reserve in the cost model. 'Every fact cites your own documents', 'anything unverified is flagged' - backed by grounding/verify.ts and the anti-fabrication rule in budgets/propose.ts:47. Pricing table rendered from PLANS, matches docs/PRICING.md. Unbacked or loose: hero promise 'Nothing is sent until you approve it' is unqualified while supervised/full autopilot submits without per-item approval (footer and FAQ do qualify it 'By default'); plan features say autopilot submission is a Standard/Pro feature but no code checks the plan, so Starter gets it. 'Live at marisstella.app/grants' (bets.md, flagships.yaml) could not be checked (proxy 403).",
+    "fitness": "Walked a small nonprofit's job: upload documents -> fact base, discovery and fit scoring, start an application (402 without a plan), draft with citations, budget editor with ceiling/cost-share/request checks and SF-424A export, review, manual or email submission, 14- and 3-day deadline reminders (submission/index.ts:837). It would save a grants manager real drafting time. First-hour gaps: automated discovery is federal only (Grants.gov / Simpler.Grants), while small nonprofits mostly apply to foundations, which come in only through the watchlist or manual entry; the accountant has to compute indirect by hand; billing may not be live (unverifiable), and for the owner a canceled customer keeps unlimited LLM redrafting on existing applications.",
+    "domain": "Against SF-424A Section B (object classes a-h, i total direct, j indirect, k total) the categories and totals are right, though the columns are funding sources (request/match/other) rather than Section B's program/activity columns (labelled 'SF-424A-style'). Against 2 CFR 200.414 (2024 revision, effective 2024-10-01): indirect is a free-entry line, never computed as rate x MTDC, never checked against a negotiated rate or the 15% de minimis, and MTDC exclusions (equipment, participant support, subawards over $50,000) are not modelled; the design forbids computing it (propose.ts:47). In the probe budget, 15% of MTDC (direct $43,833.68 less $6,000 equipment) is $5,675.05; the app has no way to say so. Deadlines: dates are taken as written, stored at 23:59 UTC (about 6:59 PM ET, earlier than the usual 11:59 PM ET Grants.gov cutoff, so conservative), with the real cutoff kept as free text; reminders at 14 and 3 days. Anti-fabrication (drafts and budget lines only from confirmed facts) is stricter than common practice and right."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "SF-424A-style totals, match %, cost-share shortfall, ceiling and request-mismatch warnings for a six-line budget",
+      "method": "hand arithmetic: request 26,000 + 7,800 + 330 = 34,130 direct + 5,019 indirect = 39,149; total 48,852.68; match 3,703.68 / 48,852.68 = 7.58%; shortfall 5,000 - 3,703.68 = 1,296.32; over a 39,000 ceiling by 149",
+      "command": "cd /tmp/claude-0/gshadow/apps/grants && pnpm exec vitest run --config vitest.unit.config.ts test/unit/zz-probe.test.ts --silent=false (probe importing @shared/budget computeTotals/budgetWarnings)",
+      "expected": "direct request 3413000c, total 4885268c, match 7.6%, shortfall 129632c, over_ceiling by $149, request_mismatch",
+      "observed": "direct request 3413000, total 4885268, matchPercentOfTotal 7.6, shortfallCents 129632, over_ceiling '$149', cost_share_short '$1,296.32', request_mismatch",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Grants.gov date formats and invalid dates",
+      "method": "Grants.gov API formats (search2 MM/DD/YYYY, *DateStr YYYY-MM-DD-HH-mm-ss, 'Mon D, YYYY hh:mm:ss AM TZ', XML extract MMDDYYYY) and the Gregorian calendar",
+      "command": "same probe: parseGrantsGovDate on 8 inputs",
+      "expected": "four formats -> 2027-01-15; 02/30/2027, 2027-02-29, TBD -> null; 2028-02-29 valid",
+      "observed": "2027-01-15T23:59Z for all four; null, null, null; 2028-02-29T23:59Z",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "annual prices and Starter fully loaded monthly cost",
+      "method": "12 x price x 0.9 rounded to the dollar; Paddle published pay-as-you-go fee 5% + $0.50; 3% reserve; hosting $5/25 + $0.10 + $0.01/draft",
+      "command": "probe: PLANS[k].annualPriceCents; monthlyCost(starter allowance, {1000, month}) and {10800, year}",
+      "expected": "$108 / $313 / $1,609; month $1.00 fee + $0.30 + $0.35 + LLM = $1.84 (PRICING.md); year fee 590c/12 = 49.17c, total about $1.30",
+      "observed": "10800 / 31300 / 160900; month total 1,839,550 micros (fee 1,000,000, reserve 300,000, hosting 350,000, LLM 189,550); year 1,301,217 micros (fee 491,667)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "days-left for a 12/10/2026 deadline seen on 2026-11-26 in three time zones",
+      "method": "calendar count: 14 days",
+      "command": "TZ=America/Denver|Europe/Berlin|Pacific/Auckland pnpm exec vitest run ... test/unit/zz-probe.test.ts (daysUntil, deadlineUrgency from client format.ts)",
+      "expected": "14 in every zone",
+      "observed": "14 (Denver), 15 (Berlin), 15 (Auckland)",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Grants.gov eligibility codes used for nonprofit and tribal filters",
+      "method": "Grants.gov API guide eligibility code list (12 501(c)(3) nonprofits, 13 non-501(c)(3) nonprofits, 07 federally recognized tribal governments, 11 tribal organizations, 25 others, 99 unrestricted)",
+      "command": "sed -n 23,40p private-monorepo/apps/grants/src/worker/services/discovery/grants-gov.ts",
+      "expected": "codes and meanings as listed",
+      "observed": "identical",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "indirect costs follow 2 CFR 200.414 (negotiated rate or 15% de minimis of MTDC, 2024 revision)",
+      "method": "2 CFR 200.414(f) and the 200.1 MTDC definition (auditor's knowledge; eCFR fetch got proxy 403)",
+      "command": "grep -rn -i 'de minimis\\|MTDC\\|200.414\\|indirect rate' private-monorepo/apps/grants/src; sed -n 47p src/worker/services/budgets/propose.ts",
+      "expected": "indirect computed or checked as rate x MTDC; for the probe budget 15% x (43,833.68 - 6,000) = $5,675.05 or a warning",
+      "observed": "no match in code; indirect is a free-entry line and the proposer is told 'never compute one from a rate'; only the glossary mentions a de minimis rate, with no number",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "lapsed subscription loses LLM drafting (flagship milestone 1)",
+      "method": "scratch worker probe: active Starter sub, create application, set status canceled, call the API",
+      "command": "cd /tmp/claude-0/gshadow/apps/grants && pnpm exec vitest run --config vitest.worker.config.ts src/worker/services/pipeline/zz-probe-lapsed.worker.test.ts --silent=false",
+      "expected": "create, full regenerate and section regenerate all 402 after cancel",
+      "observed": "create while active 201; full regenerate after cancel 200 (draft called once); section regenerate after cancel 200; new create after cancel 402",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "unit and worker suites, typecheck",
+      "method": "run",
+      "command": "cd private-monorepo/apps/grants && pnpm test:unit; pnpm test:worker; pnpm typecheck",
+      "expected": "all pass",
+      "observed": "unit 1640 passed, 1 failed (pages.smoke.test.tsx:158 dashboard: 'Unable to find ... YouthBuild Construction Training'), 9 skipped; worker 67 files / 611 passed; tsc clean",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "no promised awards; refund guarantee backed",
+      "method": "read marketing components and legal documents",
+      "command": "grep -rn -i 'guarantee\\|award rate\\|success rate\\|win more' src/client src/worker/services/legal/documents.ts",
+      "expected": "no award promise; 30-day refund in the Refund Policy; a no-funding-guarantee clause",
+      "observed": "no award or success-rate claim; Refund Policy 'full refund within 30 days'; Terms section 7 'No guarantee of funding'",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "plan features: autopilot submission only on Standard and Pro",
+      "method": "trace the autopilot gates (safety-rails.ts, automation.ts, orgs/service.ts) for a plan check",
+      "command": "grep -rn 'planKey\\|getEntitlement' src/worker/services/review src/worker/services/submission src/worker/services/orgs",
+      "expected": "Starter cannot enable autopilot submission",
+      "observed": "only billingActive (status) is checked; no plan check, so a Starter org can turn on supervised/full autopilot",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "hero promise 'Nothing is sent until you approve it'",
+      "method": "compare with automation levels",
+      "command": "sed -n 7,12p src/client/components/marketing/hero.tsx; sed -n 34,37p src/worker/services/review/automation.ts",
+      "expected": "qualified, since supervised/full autopilot sends without per-item approval",
+      "observed": "unqualified in the hero; footer and FAQ say 'By default'; default level 'prepared' never auto-submits",
+      "result": "partial"
+    },
+    {
+      "dimension": "completeness",
+      "what": "served page and launch state",
+      "method": "load https://marisstella.app/grants; read docs/LAUNCH_CHECKLIST.md",
+      "command": "curl -sSL -o /dev/null -w '%{http_code}' https://marisstella.app/grants",
+      "expected": "200 and a current checklist",
+      "observed": "proxy 403 (CONNECT tunnel failed); checklist reviewed 2026-11-19 says NO-GO citing a failing typecheck and legal placeholders that are now fixed",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "private-monorepo/apps/grants/src/shared/budget.ts:248",
+      "change": "requestCents > ceiling -> requestCents >= ceiling",
+      "caught": true,
+      "test_cmd": "pnpm exec vitest run --config vitest.unit.config.ts src/shared/budget.test.ts src/worker/services/budgets/budgets.test.ts"
+    },
+    {
+      "where": "private-monorepo/apps/grants/src/shared/budget.ts:236",
+      "change": "Math.max(0, required - total.matchCents) -> Math.max(0, required - total.matchCents - total.otherCents)",
+      "caught": false,
+      "test_cmd": "pnpm exec vitest run --config vitest.unit.config.ts src/shared/budget.test.ts src/worker/services/budgets/budgets.test.ts"
+    },
+    {
+      "where": "private-monorepo/apps/grants/src/shared/budget.ts:233",
+      "change": "(total.matchCents / total.totalCents) * 1000 -> (total.matchCents / total.requestCents) * 1000",
+      "caught": true,
+      "test_cmd": "pnpm exec vitest run --config vitest.unit.config.ts src/shared/budget.test.ts src/worker/services/budgets/budgets.test.ts"
+    },
+    {
+      "where": "private-monorepo/apps/grants/src/shared/budget.ts:205",
+      "change": "indirect lines also added to total direct",
+      "caught": true,
+      "test_cmd": "pnpm exec vitest run --config vitest.unit.config.ts src/shared/budget.test.ts src/worker/services/budgets/budgets.test.ts"
+    },
+    {
+      "where": "private-monorepo/apps/grants/src/worker/services/discovery/grants-gov.ts:317",
+      "change": "calendar validity check removed (return date)",
+      "caught": true,
+      "test_cmd": "pnpm exec vitest run --config vitest.unit.config.ts src/worker/services/discovery/discovery.test.ts"
+    },
+    {
+      "where": "private-monorepo/apps/grants/src/worker/services/discovery/grants-gov.ts:290",
+      "change": "MM/DD/YYYY parsed as DD/MM/YYYY",
+      "caught": true,
+      "test_cmd": "pnpm exec vitest run --config vitest.unit.config.ts src/worker/services/discovery/discovery.test.ts"
+    },
+    {
+      "where": "private-monorepo/apps/grants/src/shared/billing/grace.ts:18",
+      "change": "status !== \"past_due\" || !pastDueSince -> !pastDueSince (grace for any status)",
+      "caught": true,
+      "test_cmd": "pnpm exec vitest run --config vitest.unit.config.ts src/shared/billing"
+    },
+    {
+      "where": "private-monorepo/apps/grants/src/worker/services/billing/index.ts:134",
+      "change": "used >= limit -> used > limit",
+      "caught": true,
+      "test_cmd": "pnpm exec vitest run --config vitest.worker.config.ts test/worker/billing.test.ts test/worker/billing-security.test.ts"
+    },
+    {
+      "where": "private-monorepo/apps/grants/src/worker/services/billing/index.ts:87",
+      "change": "canceled counted as active",
+      "caught": true,
+      "test_cmd": "pnpm exec vitest run --config vitest.worker.config.ts test/worker/billing.test.ts test/worker/billing-security.test.ts"
+    },
+    {
+      "where": "private-monorepo/apps/grants/src/worker/services/billing/index.ts:145",
+      "change": "if (!ent.plan || !ent.active) return 0; -> if (!ent.plan) return 0;",
+      "caught": false,
+      "test_cmd": "pnpm exec vitest run --config vitest.worker.config.ts test/worker src/worker/services/matching"
+    },
+    {
+      "where": "private-monorepo/apps/grants/src/worker/services/review/safety-rails.ts:129",
+      "change": "billing_inactive rail disabled",
+      "caught": true,
+      "test_cmd": "pnpm exec vitest run --config vitest.unit.config.ts src/worker/services/review"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "A lapsed subscription keeps the paid LLM features: after the subscription is canceled (or past_due beyond grace), POST /applications/:id/regenerate still returns 200 and runs a full redraft or a section redraft, because assertCanDraft is only called for round 0 (steps.ts:300) and not at all on the section-redraft path. Unlimited, unmetered LLM spend for non-paying orgs; exactly the case flagship milestone (1) asks a test for.",
+      "where": "private-monorepo/apps/grants/src/worker/services/pipeline/index.ts:663",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "Regenerations never count against the draft quota and have no cap, so an active Starter org can redraft one application without limit; the cost model's 'full allowance' cost (revisionFactor 1.3) is not an upper bound and the 40% margin floor is not enforced in use.",
+      "where": "private-monorepo/apps/grants/src/worker/services/billing/index.ts:118",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Plan features advertise autopilot submission only on Standard ('for small, low-risk asks') and Pro, but no code checks the plan: a $10 Starter org can enable supervised/full autopilot; Standard and Pro are not differentiated either.",
+      "where": "private-monorepo/apps/grants/src/shared/billing/plans.ts:93",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "No indirect-cost computation or check: indirect is a free-entry line, never rate x MTDC, never compared with a negotiated rate or the 15% de minimis of 2 CFR 200.414(f) (2024 revision), MTDC exclusions not modelled; the proposer is told never to compute it from a rate.",
+      "where": "private-monorepo/apps/grants/src/worker/services/budgets/propose.ts:47",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Unit suite red on main: the dashboard smoke test does not mock the newer grant-plan endpoint, so the matches card errors and 'YouthBuild Construction Training' is never found (1 of 1641 tests).",
+      "where": "private-monorepo/apps/grants/src/client/components/grants/pages.smoke.test.tsx:158",
+      "category": "repo-hygiene",
+      "origin": "build"
+    },
+    {
+      "severity": "low",
+      "what": "remainingOpportunityScores' inactive-subscription check is untested: dropping it survives 497 worker tests (billing + matching), so a canceled org getting LLM fit scores would ship green.",
+      "where": "private-monorepo/apps/grants/src/worker/services/billing/index.ts:145",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "Cost-share shortfall is untested against 'other funds': subtracting other funds from the shortfall survives the budget tests.",
+      "where": "private-monorepo/apps/grants/src/shared/budget.ts:236",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "Client daysUntil reads a 23:59 UTC deadline with local-time getters, so days-left is one too many east of UTC (15 instead of 14 in Berlin and Auckland); US zones are right.",
+      "where": "private-monorepo/apps/grants/src/client/components/grants/format.ts:13",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Hero promise 'Nothing is sent until you approve it' is unqualified, while supervised/full autopilot submits without per-item approval (footer and FAQ say 'By default').",
+      "where": "private-monorepo/apps/grants/src/client/components/marketing/hero.tsx:11",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "LAUNCH_CHECKLIST (reviewed 2026-11-19) still says NO-GO citing a failing typecheck and legal placeholders that are now fixed, so its billing-not-live line cannot be relied on.",
+      "where": "private-monorepo/apps/grants/docs/LAUNCH_CHECKLIST.md:29",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Misses the bar on verification (correctness 3, claims 3, verification 2, domain 2, fitness 2, median 3); finished (completeness 3). The arithmetic it does is right: a six-line budget's SF-424A totals, match share, cost-share shortfall and ceiling warnings match hand arithmetic to the cent, Grants.gov dates in all four formats parse correctly with impossible dates rejected, and annual prices and the Starter cost model match a recomputation from Paddle's 5% + $0.50. Worker tests (611) pass and 9 of 11 seeded mutants are caught, but the unit suite is red on main and a scratch probe shows the billing gap the suites miss: a canceled org gets 402 on a new application yet 200 on full and section regeneration, so a lapsed subscription keeps unlimited LLM redrafting. Regenerations are unmetered even for paying orgs, and autopilot submission advertised for Standard and Pro is not gated by plan. For the accountant, indirect costs are free entry with no 2 CFR 200.414 rate x MTDC computation or 15% de minimis check. No page promises awards; terms disclaim funding. The live page (marisstella.app/grants) could not be loaded (proxy 403)."
+}

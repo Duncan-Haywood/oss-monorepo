@@ -1,0 +1,233 @@
+{
+  "date": "2026-11-26",
+  "subject": "ventures/wix-product-csv-check",
+  "stratum": "venture",
+  "seed": "2026-11-26-e-6ce5",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality round 111, see run record",
+  "status": "audited",
+  "professional": "a Wix store operator / e-commerce catalogue specialist who migrates and bulk-edits Wix Stores catalogues by CSV; they check first that the tool reads the template Wix currently hands out (column names, fieldType values, inventory spellings), that Product/Variant structure errors are caught with the right line, and that the 'safe fixes' never turn a valid file into an invalid one",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Source limit: support.wix.com is blocked from this container (curl: CONNECT tunnel 403; WebFetch: ENOTFOUND, outside allowed domains), so Wix's rules come from web-search extracts of Wix's own help pages (Importing Products to Wix Stores, en/ja/pl; Product Import Error Messages, en/zh-hant; Exporting and Importing Your Products, dated 2026-08-25). The README names no source beyond 'read from memory'. Probe script /tmp/claude-0/wix/probe.mjs against the shipped calc.mjs. Pass on the legacy template: orphan Variant (handleId mug, no Product row) -> orphan-variant error L6; variant choice XL not in 'S;M' -> variant-unknown-choice L4; repeated S combination -> dup-variant L5 (Wix: repeated variant option combinations are rejected); name 80 chars clean, 81 chars -> name-length (Wix ja page: product name max 80); PERCENT 100 clean, 101 -> discount-percent; price '1,299.00' and '-5' -> price-format. Wrong or missing against Wix's current documentation: (1) the new Wix Stores catalog template uses fieldType PRODUCT, VARIANT or MEDIA, 'case sensitive', and inventory in_stock / out_of_stock: the tool warns on PRODUCT/VARIANT, errors on every MEDIA row and on in_stock, and its 'safe fixes' rewrite PRODUCT -> Product, which the case-sensitive importer would reject; (2) 16 image URLs on one product pass silently though Wix allows up to 15; (3) an 8,001-character description passes though Wix's ja page gives 8,000; (4) a 12,000-row file passes with no note of any per-file limit; (5) AMOUNT discount 50 on a price of 10 passes. Core arithmetic of the old-format rules is right; the rule set is out of date for the current importer, so 2.",
+    "completeness": "Every feature the README, VENTURE.yaml and page name runs end to end in calc.mjs and index.html: Product/Variant structure (orphan, unknown choice, duplicate handle, duplicate combination, multi-choice variant, missing choice), name length, price/surcharge/weight/cost formats, visible TRUE/FALSE, inventory, discount mode/value/percent cap, image links, scientific-notation and repeated SKUs, semicolon/tab delimiter, unquoted-comma row shift, encoding/mojibake warnings, safe-fixes pass with a listed change log, findings CSV download, clean and broken examples, local-only usage counter with opt-out. No stubs, TODOs or dead links (page.test.mjs checks related-tool links exist). Served copy clean. It does all it says; what it says is a legacy-template checker, scored under correctness/domain.",
+    "verification": "cd ventures/wix-product-csv-check && node --test '*.test.mjs': 32 pass, 0 fail (calc, page, usage and a seeded repair fuzz for idempotence). Five mutants via platform/ci/quality_mutate.py: percent cap '> 100' -> '>= 100' (calc.mjs:203) SURVIVED; variants limit 1000 -> 100000 (calc.mjs:16) SURVIVED; name limit 80 -> 81 caught; duplicate-combination guard 'combo.length' -> 'combo.length > 1' caught; no-variants warning disabled caught. 2 of 5 survive: boundary values are not pinned. No test covers the current Wix template (PRODUCT/VARIANT/MEDIA), so the repair regression it causes is invisible to the suite.",
+    "craft": "Read calc.mjs (356 lines), index.html script, page.test.mjs, calc.test.mjs, repair-fuzz.test.mjs. Pure, dependency-free module; hand-written CSV parser handles quotes, doubled quotes and embedded newlines with physical line numbers; repair is idempotent (fuzz test). Defects: COLUMNS (calc.mjs:6-12) lists additionalInfoTitle/Description 1-2 and customTextField 1 only, so additionalInfoTitle3 and customTextField2 get 'Unknown column ... Wix skips columns it does not recognise' warnings (probe run; the legacy template has more slots, from memory, not confirmed by the search extracts); boundary limits are bare constants with 'from memory' notes; .pill.high CSS duplicated (index.html:40, :50). A senior JS reviewer would accept the code with those notes.",
+    "claims": "Backed: no-upload claim (page.test.mjs asserts no fetch/XHR/beacon), not-affiliated and no-warranty footer, 'read from memory' and a not-checked list on the page and README (honest about provenance), usage-event names match the code (test). Unbacked or contradicted: the rules section states fieldType Product/Variant, inventory InStock/OutOfStock as Wix's format with no mention that the new catalog uses PRODUCT/VARIANT/MEDIA and in_stock/out_of_stock (index.html:99, :103); 'Safe fixes ... only things with one reasonable reading' (index.html:105, :119; calc.mjs:290) is false for a new-catalog file, where the fix breaks a valid value; llms.txt's 'Results are estimates from the numbers typed in' is calculator boilerplate on a file checker. The FAQ tells users to 'confirm the current format in a fresh Wix export', which partly hedges, so 2 not 1.",
+    "fitness": "Walked the job as a store owner editing a legacy-catalog export (clean sample -> 0 errors; broken sample -> each real fault with its line, safe fixes leave real faults in place): quick and useful. As an owner on the new Wix Stores catalog (rolling out per Wix's help page), a valid file gets an error on every MEDIA row and every in_stock value, and the download would corrupt fieldType. Track mit-lead-magnet (transition.py); VENTURE.yaml says the paid version is 'not built'; the page links only sibling free checkers and the fee comparison, not any paid product (bets.md ranks Seller Books #5 for resellers), so it is not a front door to anything paid.",
+    "domain": "Against Wix's published import rules (search extracts, 2026-11-26): required handleId/name/fieldType/price for products and handleId/fieldType/option choices for variants, matched; 80-char name, matched; repeated combinations rejected, matched; 'do not add or delete columns', partly (unknown columns warned, but some real template columns are called unknown). Departures: the current new-catalog template (PRODUCT/VARIANT/MEDIA, case sensitive, media rows, in_stock/out_of_stock) is not recognised; 15-image cap, 8,000-char description, image file type (jpg/png/gif) and any per-file size or row limit are not checked; the 100-column structure limit in Wix's error table is not checked. A catalogue specialist would sign off the legacy Product/Variant checks only."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "orphan Variant, unknown choice and repeated combination",
+      "method": "Wix 'Importing Products to Wix Stores' (search extract): variants share their product's handleId; Product Import Error Messages: repeated variant option combinations rejected",
+      "command": "node /tmp/claude-0/wix/probe.mjs (case 'variants')",
+      "expected": "unknown choice L4, duplicate combo L5, orphan L6",
+      "observed": "variant-unknown-choice L4, dup-variant L5, orphan-variant L6",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "product name 80 vs 81 characters",
+      "method": "Wix ja help page (search extract): product name max 80 characters",
+      "command": "node /tmp/claude-0/wix/probe.mjs (case 'name')",
+      "expected": "80 clean, 81 flagged",
+      "observed": "only L3 (81 chars) -> name-length error",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "percent discount 100 vs 101",
+      "method": "by hand: a percent discount above 100 is impossible; 100 is valid",
+      "command": "node /tmp/claude-0/wix/probe.mjs (case 'disc')",
+      "expected": "101 flagged, 100 clean",
+      "observed": "discount-percent on L3 (101) only; AMOUNT 50 on price 10 not flagged",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "new Wix Stores catalog file: PRODUCT / VARIANT / MEDIA rows, inventory in_stock",
+      "method": "Wix 'Exporting and Importing Your Products' (search extract): 'Must be PRODUCT, VARIANT or MEDIA. This field is case sensitive.'; error messages: stock 'in_stock', 'out_of_stock' or a number",
+      "command": "node /tmp/claude-0/wix/probe.mjs (case 'newcat' and 'repair newcat')",
+      "expected": "no errors on valid values; safe fixes leave PRODUCT/VARIANT alone",
+      "observed": "error on MEDIA row and both in_stock values, warnings on PRODUCT/VARIANT; repair rewrites PRODUCT -> Product, VARIANT -> Variant",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "16 image URLs on one product",
+      "method": "Wix import docs (search extract): up to 15 images per product",
+      "command": "node /tmp/claude-0/wix/probe.mjs (case 'imgs16')",
+      "expected": "flagged",
+      "observed": "no finding",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "8,001-character description, 60-character SKU",
+      "method": "Wix ja help page (search extract): description max 8,000 characters",
+      "command": "node /tmp/claude-0/wix/probe.mjs (case 'long')",
+      "expected": "description flagged",
+      "observed": "no finding",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "12,000-row file",
+      "method": "Wix FAQ 'How many products can I import using one file?' exists; answer not in extract (third-party blog says 10,000 rows / 15 MB, unconfirmed)",
+      "command": "node /tmp/claude-0/wix/probe.mjs (last line)",
+      "expected": "at least a note that large files may exceed Wix's per-file limit",
+      "observed": "12000 products, no non-info finding",
+      "result": "partial"
+    },
+    {
+      "dimension": "craft",
+      "what": "additionalInfoTitle3, additionalInfoDescription3, customTextField2 headers",
+      "method": "legacy Wix template has more additional-info and custom-text slots (auditor's memory; not confirmed by extracts)",
+      "command": "node -e (validate on a 7-column header, see run record)",
+      "expected": "recognised columns",
+      "observed": "three 'Unknown column ... Wix skips columns' warnings",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "cd ventures/wix-product-csv-check && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "32 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'Safe fixes ... only things with one reasonable reading'",
+      "method": "compare with repair() on a new-catalog file",
+      "command": "node /tmp/claude-0/wix/probe.mjs (repair newcat)",
+      "expected": "no change to valid values",
+      "observed": "changes valid PRODUCT/VARIANT to an invalid casing",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "no upload, disclaimer, not affiliated, read-from-memory disclosure",
+      "method": "page.test.mjs and page read",
+      "command": "cd ventures/wix-product-csv-check && node --test page.test.mjs",
+      "expected": "pass; disclosures present",
+      "observed": "pass; no-warranty, not-affiliated, no-upload and from-memory text present (index.html:62, :128-131)",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "served llms.txt and canonicals",
+      "method": "deploy rewrite",
+      "command": "node platform/pages/served-copy.mjs wix-product-csv-check",
+      "expected": "no placeholder origin",
+      "observed": "no placeholder or retired origin left; llms.txt points at marisstella.app; but carries 'estimates from the numbers typed in' boilerplate",
+      "result": "partial"
+    },
+    {
+      "dimension": "fitness",
+      "what": "front door to a paid product",
+      "method": "python3 portfolio/monetization/transition.py; VENTURE.yaml; footer links",
+      "command": "python3 portfolio/monetization/transition.py",
+      "expected": "link to a ranked paid product if it claims one",
+      "observed": "mit-lead-magnet track; paid version 'not built'; no claim and no link to a paid product",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:203",
+      "change": "Number(dv) > 100 -> Number(dv) >= 100",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:16",
+      "change": "variants: 1000 } -> variants: 100000 }",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:16",
+      "change": "name: 80, -> name: 81,",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:280",
+      "change": "if (combo.length && p.combos.has(key)) -> if (combo.length > 1 && p.combos.has(key))",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:285",
+      "change": "if (p.defs.length && !p.variants) -> if (p.defs.length && p.variants < 0)",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "The 'safe fixes' rewrite fieldType PRODUCT/VARIANT to Product/Variant. Wix's current (new catalog) template requires PRODUCT, VARIANT or MEDIA and says the field is case sensitive, so the downloaded 'cleaned' CSV turns a valid file into one the importer rejects. The same values get warnings in validate (calc.mjs:166, :173).",
+      "where": "ventures/wix-product-csv-check/calc.mjs:319",
+      "category": "domain-rule",
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19260"
+    },
+    {
+      "severity": "medium",
+      "what": "New-catalog files are not recognised: every MEDIA row is an error ('not Product or Variant') and inventory in_stock / out_of_stock is an error, though both are valid in Wix's current template.",
+      "where": "ventures/wix-product-csv-check/calc.mjs:169",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Published Wix limits not checked: more than 15 images per product, description over 8,000 characters, image file types other than jpg/png/gif, and any per-file row or size limit (a 12,000-row file passes clean).",
+      "where": "ventures/wix-product-csv-check/calc.mjs:16",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Two of five seeded boundary mutants survive (percent cap >= 100, variants limit 1000 -> 100000); no test uses Wix's current template, so the repair regression above is untested.",
+      "where": "ventures/wix-product-csv-check/calc.test.mjs:77",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "Page rules section states Product/Variant and InStock/OutOfStock as Wix's format with no mention of the new catalog's PRODUCT/VARIANT/MEDIA and in_stock/out_of_stock; 'one reasonable reading' safe-fix claim is false for those files.",
+      "where": "ventures/wix-product-csv-check/index.html:105",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "COLUMNS lists only additionalInfo 1-2 and customTextField 1, so later legacy-template slots (additionalInfoTitle3, customTextField2) are reported as unknown columns Wix will skip (auditor's memory of the template; not confirmed from Wix's page here).",
+      "where": "ventures/wix-product-csv-check/calc.mjs:10",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "llms.txt says 'Results are estimates from the numbers typed in', calculator boilerplate that does not describe a file checker.",
+      "where": "ventures/wix-product-csv-check/llms.txt:5",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    }
+  ],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19260"],
+  "verdict": "Does not meet the bar (correctness 2, claims 2, verification 2, median 2); finished (completeness 3). On Wix's legacy Product/Variant template the checks are right: orphan variant, unlisted choice, repeated combination, 80/81-character name and 100/101% discount all came out as Wix's rules predict, with the right line numbers, and the 32 tests pass. The gap is that Wix's current help pages describe a new catalog template (fieldType PRODUCT, VARIANT or MEDIA, case sensitive; inventory in_stock/out_of_stock) that the tool calls errors, and its 'safe fixes' rewrite PRODUCT to Product, making a valid file invalid. Published limits (15 images, 8,000-character description, per-file size) are not checked, and two of five boundary mutants survive. support.wix.com was blocked from this container, so the Wix rules here come from search extracts of Wix's own pages; a session that can load them should confirm the new-template details before a fix lands. It is a free lead magnet with no paid product behind it."
+}
