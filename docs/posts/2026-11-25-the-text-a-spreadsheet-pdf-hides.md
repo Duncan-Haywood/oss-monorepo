@@ -158,3 +158,21 @@ several lines, so when more than three figures could explain it, the import name
 the plain total check. Printed PDFs and spreadsheets are not touched: a figure printed by the program
 that made it is what the sheet says, not a misread. As before, everything runs in the browser and
 the file is never uploaded.
+
+## Update: the other columns narrow it down
+
+A row on the continuation sheet has more than one check built in. Next to D + E + F = G, the form
+prints the balance to finish (H, the scheduled value C less G) and the percent complete (G divided
+by C). Until now the import used only the first check, so a row with one misread often left two
+suspects. For example: "column E reads $8,125.25, or column G reads $33,125.25". Either change makes
+D + E + F equal G.
+
+The import now reads H and the % column as well, and names a cell only if one look-alike digit there
+makes every check on the row come out right. In the example, H agrees with G, so changing G would
+break the balance. Only E is named. A misread scheduled value is now caught on its own row: D + E + F
+never touches C, but C - G = H does. A mid-job start now also flags a row whose C - G is not its H,
+even on a spreadsheet, because H is defined as C - G and a row where they differ is wrong somewhere.
+When the totals check has two equal lines that could each explain the gap, their H columns tell them
+apart. The import judges the % by how precisely it is printed, so "45%" counts as anything from
+44% up to 46%. H and % are only checks: they are never imported. A blank or unreadable cell in
+either column is skipped and raises no warning.
