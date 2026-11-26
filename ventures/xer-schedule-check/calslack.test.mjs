@@ -108,3 +108,31 @@ test("zero-length work gains no calendar slack: a 0 h task finishes where it sta
   assert.equal(byCode(cs, "A").tf, 24);
   assert.equal(byCode(cs, "B").lfAbs, undefined);
 });
+
+test("text: exactly 20 links print with no '... more' line, and the least-float activity comes first", () => {
+  const links = Array.from({ length: 20 }, (_, i) => ({ pred: `P${i}`, succ: "S", type: "FF", lag: 0, lagCalendar: "C", predCalendar: "C", succCalendar: "C", succLateFinish: "", succMayFinish: "", gap: 8 }));
+  const activities = [{ code: "FIRST", name: "first", tfP6: 0, tf: 8, gain: 8 }, { code: "SECOND", name: "second", tfP6: 8, tf: 16, gain: 8 }];
+  const out = calendarSlackText({ open: 30, activities, links, leavesCritical: 1, maxGain: 8 });
+  assert.doesNotMatch(out, /more \(--csv\)/);
+  assert.match(out, /P19 \("C"\)/);
+  assert.match(out, /\n {2}FIRST +TF +0 -> +8 {2}\(\+8\) {2}first\n/);
+  const more = calendarSlackText({ open: 30, activities, links: [...links, { ...links[0], pred: "P20" }], leavesCritical: 0, maxGain: 8 });
+  assert.match(more, /\.\.\. 1 more \(--csv\)/);
+});
+
+test("a gain of one hour is listed (a calendar working one hour on Saturday)", () => {
+  // the curing calendar works Saturday 08:00-09:00 only, so A gains 1 h
+  const ONE = `(0||CalendarData()((0||DaysOfWeek()((0||1()())(0||2()${D})(0||3()${D})(0||4()${D})(0||5()${D})(0||6()${D})(0||7()((0||0(s|08:00|f|09:00)())))))(0||Exceptions()())))`;
+  const xer = parseXer(xerText({
+    PROJECT: [{ proj_id: "1", proj_short_name: "TEST", clndr_id: "C1", last_recalc_date: "2025-12-01 08:00", plan_start_date: "2025-12-01 08:00", plan_end_date: "" }],
+    CALENDAR: [
+      { clndr_id: "C1", default_flag: "Y", clndr_name: "Mon-Fri", day_hr_cnt: 8, clndr_data: WEEK },
+      { clndr_id: "C7", default_flag: "N", clndr_name: "Saturday hour", day_hr_cnt: 8, clndr_data: ONE },
+    ],
+    SCHEDOPTIONS: [{ schedoptions_id: "1", proj_id: "1", sched_float_type: "FT_FF", sched_calendar_on_relationship_lag: "rcal_Predecessor", sched_retained_logic: "Y", sched_progress_override: "N" }],
+    TASK: [task("1", "X", 48), task("2", "B", 8), task("3", "C", 8), task("4", "A", 8, { clndr_id: "C7" }), task("5", "END", 0, { task_type: "TT_FinMile" })],
+    TASKPRED: [link("1", "5", "1"), link("2", "3", "2"), link("3", "5", "3"), link("4", "2", "4", "PR_FF", 8)],
+  }));
+  const r = calendarSlack(xer);
+  assert.deepEqual(r.activities.map((a) => [a.code, a.gain]), [["A", 1]]);
+});

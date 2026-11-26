@@ -132,3 +132,15 @@ test("CSV guards cells a spreadsheet would run as formulas", () => {
   const line = progressCsv(r).split("\r\n")[1];
   assert.match(line, /,'=cmd,'@SUM\(A1\),/);
 });
+
+test("units %: a missing remaining quantity counts as none left, not as one unit", () => {
+  assert.equal(claimedPercent({ complete_pct_type: "CP_Units", act_work_qty: 50 }), 100);
+  assert.equal(claimedPercent({ complete_pct_type: "CP_Units", act_work_qty: 1, remain_equip_qty: 1 }), 50);
+});
+
+test("an actual start after the data date counts no time spent", () => {
+  // started 2025-12-16, the day after the data date, with nothing left: 0 d spent
+  const r = review([active("A", 50, 0, 10, { act_start_date: "2025-12-16 08:00" })]);
+  assert.deepEqual(kinds(r, "A"), ["zero-remaining"]);
+  assert.equal(r.items[0].spent, 0);
+});

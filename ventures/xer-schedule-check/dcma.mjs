@@ -577,7 +577,7 @@ const csvEsc = (v) => {
   let s = String(v ?? "");
   // a cell a spreadsheet would read as a formula is written as text
   if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
-  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 
 // One row per open activity: the recomputed early and late dates, total and
@@ -605,7 +605,7 @@ export function findingsCsv(report) {
     let s = String(v ?? "");
     // a cell a spreadsheet would read as a formula is written as text
     if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
-    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   const rows = [["check", "activity", "name", "detail"]];
   for (const c of [...report.checks, ...report.extra]) for (const it of c.items) rows.push([c.name, it.code, it.name, it.why]);

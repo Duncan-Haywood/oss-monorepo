@@ -147,3 +147,60 @@ test("outputs: text, CSV (formula-safe), table, and a cleaned XER byte for byte 
   assert.ok(!/\tac\t/.test(cleaned) && /\tab\t/.test(cleaned));
   assert.equal(redundantLogic(parseXer(cleaned)).redundant.length, 0);
 });
+
+test("lag hours are reported in hours, and the event-visit count is exact (so --max-visits cuts where it says)", () => {
+  const preds = [link("B", "A", "PR_FS", 0, "ab"), link("C", "B", "PR_FS", 8, "bc"), link("C", "A", "PR_FS", 16, "ac")];
+  const xer = parseXer(text([task("A", 8), task("B", 8), task("C", 8)], preds));
+  const r = redundantLogic(xer);
+  assert.equal(r.lagCarrying[0].lagHours, 16);
+  assert.deepEqual(r.lagCarrying[0].via.map((v) => v.lagHours), [0, 8]);
+  // from A's finish: A.F, B.S, B.F, C.S (4); from B's finish: B.F, C.S (2)
+  assert.equal(r.summary.visits, 6);
+  assert.equal(redundantLogic(xer, { maxVisits: 6 }).summary.truncated, false);
+  assert.equal(redundantLogic(xer, { maxVisits: 5 }).summary.truncated, true);
+});
+
+// A brute-force oracle: for each link u -> v, the longest path u -> v that
+// uses no link straight from u to v, plus the parallel-link tie rule. Random
+// networks large enough that the search's priority queue holds many events
+// at once, so a queue that pops out of topological order shows up here.
+test("random networks: every link is classified as a brute-force longest-path search says", () => {
+  let seed = 20261126;
+  const rnd = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
+  const TYPES = ["PR_FS", "PR_SS", "PR_FF", "PR_SF"];
+  const ENDS = { PR_FS: [1, 0], PR_SS: [0, 0], PR_FF: [1, 1], PR_SF: [0, 1] };
+  for (let round = 0; round < 40; round++) {
+    const n = 6 + Math.floor(rnd() * 10);
+    const tasks = Array.from({ length: n }, (_, i) => task(`T${i}`, 8));
+    const preds = [];
+    const m = n + Math.floor(rnd() * n * 2);
+    for (let k = 0; k < m; k++) {
+      const a = Math.floor(rnd() * (n - 1)), b = a + 1 + Math.floor(rnd() * (n - 1 - a));
+      const type = TYPES[Math.floor(rnd() * 4)];
+      const lag = [0, 0, 8, 16, 24][Math.floor(rnd() * 5)];
+      preds.push(link(`T${b}`, `T${a}`, type, lag, `r${round}k${k}`));
+    }
+    const r = redundantLogic(parseXer(text(tasks, preds)));
+    // the event graph: 2i start, 2i+1 finish, minutes
+    const E = [];
+    for (let i = 0; i < n; i++) E.push({ from: 2 * i, to: 2 * i + 1, w: 0, id: null });
+    preds.forEach((p, k) => {
+      const a = +p.pred_task_id.slice(1), b = +p.task_id.slice(1), [x, y] = ENDS[p.pred_type];
+      E.push({ from: 2 * a + x, to: 2 * b + y, w: p.lag_hr_cnt * 60, id: p.task_pred_id, k });
+    });
+    const longest = (u, v, skip) => {
+      const d = new Array(2 * n).fill(-Infinity); d[u] = 0;
+      for (let z = u; z <= v; z++) if (d[z] > -Infinity) for (const e of E) if (e.from === z && !skip(e)) d[e.to] = Math.max(d[e.to], d[z] + e.w);
+      return d[v];
+    };
+    const want = new Map();
+    for (const e of E) {
+      if (e.id === null) continue;
+      let best = longest(e.from, e.to, (f) => f.id !== null && f.from === e.from && f.to === e.to);
+      for (const f of E) if (f !== e && f.id !== null && f.from === e.from && f.to === e.to && (f.w > e.w || (f.w === e.w && f.k < e.k))) best = Math.max(best, f.w);
+      if (best > -Infinity) want.set(e.id, [best >= e.w ? "redundant" : "lag", Math.round(best / 6) / 10]);
+    }
+    const got = new Map([...r.redundant.map((x) => [x.id, ["redundant", x.otherPathLagHours]]), ...r.lagCarrying.map((x) => [x.id, ["lag", x.otherPathLagHours]])]);
+    assert.deepEqual([...got].sort(), [...want].sort(), `round ${round}`);
+  }
+});

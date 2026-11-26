@@ -191,7 +191,7 @@ export function ribbonText(rb) {
 const csvEsc = (v) => {
   let s = String(v ?? "");
   if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?%?$/.test(s)) s = "'" + s;
-  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 
 export function ribbonCsv(rb) {

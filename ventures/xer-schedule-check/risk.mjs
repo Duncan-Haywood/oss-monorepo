@@ -529,7 +529,7 @@ export function* riskSteps(xer, opts = {}) {
 const csvCell = (v) => {
   let s = String(v ?? "");
   if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
-  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 
 // one row per activity that was on the driving path in any run or moves the finish
