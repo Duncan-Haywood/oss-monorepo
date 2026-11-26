@@ -241,8 +241,10 @@ export class SqlStore {
   async init() {
     await this.db.exec(SCHEMA);
     for (const [table, column, type] of ADDED_COLUMNS) {
+      // table, column and type come from the ADDED_COLUMNS constant, never from input.
       const cols = await this.db.all(`SELECT name FROM pragma_table_info('${table}')`);
-      if (!cols.some((c) => c.name === column)) await this.db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${type}`);
+      const alter = `ALTER TABLE ${table} ADD COLUMN ${column} ${type}`;
+      if (!cols.some((c) => c.name === column)) await this.db.exec(alter);
     }
     return this;
   }

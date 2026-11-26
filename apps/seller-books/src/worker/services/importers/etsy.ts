@@ -145,6 +145,9 @@ export function parseEtsyStatement(text: string): ImportParseResult {
       const type = (row.get("type") ?? "").toLowerCase();
       const title = row.get("title") ?? "";
       const info = row.get("info") || null;
+      // The order number Etsy writes in the title or info text ("Order #1234"), if any.
+      const text = `${title} ${info ?? ""}`;
+      const orderId = /order\s*#?\s*(\d+)/i.exec(text)?.[1] ?? null;
       // Net is the reliable signed column; fall back to Fees & Taxes, then Amount.
       const value =
         parseMoney(row.get("net")) ?? parseMoney(row.get("fees")) ?? parseMoney(row.get("amount"));
@@ -177,7 +180,7 @@ export function parseEtsyStatement(text: string): ImportParseResult {
         out.sales.push({
           kind: "refund",
           externalId: `${ext}:refund`,
-          orderId: /order\s*#?\s*(\d+)/i.exec(`${title} ${info ?? ""}`)?.[1] ?? null,
+          orderId,
           date,
           title,
           sku: null,
@@ -208,7 +211,7 @@ export function parseEtsyStatement(text: string): ImportParseResult {
         date,
         kind,
         amountCents: -value,
-        orderId: /order\s*#?\s*(\d+)/i.exec(`${title} ${info ?? ""}`)?.[1] ?? null,
+        orderId,
         description: [title, info].filter(Boolean).join(" · "),
       });
     } catch (e) {
