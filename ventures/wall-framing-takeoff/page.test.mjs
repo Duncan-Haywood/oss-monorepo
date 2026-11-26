@@ -1281,7 +1281,7 @@ test("the wall sheathing page: FAQ matches its data and the stated figures are w
   const a = run({});
   assert.equal(a.summary.sheets, 32); assert.equal(a.order.label, "4x9"); assert.equal(Math.round(a.summary.areaBought), 1152); assert.equal(Math.round(a.summary.areaCovered), 1036);
   const b = run({ windows: 6, doors: 2 });
-  assert.equal(b.summary.sheets, 33); assert.equal(Math.round(b.summary.areaBought), 1188); assert.equal(Math.round(b.summary.areaCovered), 923); assert.equal(Math.round(b.summary.waste * 100), 22);
+  assert.equal(b.summary.sheets, 32); assert.equal(Math.round(b.summary.areaBought), 1152); assert.equal(Math.round(b.summary.areaCovered), 923); assert.equal(Math.round(b.summary.waste * 100), 20); // 33 sheets before 2026-11-26, when openings were centred too close together
   const c = run({ windows: 6, doors: 2, orientation: "horizontal" });
   assert.equal(c.summary.sheets, 27); assert.equal(c.summary.panels, 38); assert.equal(c.order.label, "4x12");
   // an 8 ft wall is 97-1/8 in: one 4x8 sheet cannot cover it

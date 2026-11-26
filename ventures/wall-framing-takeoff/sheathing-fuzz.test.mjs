@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan } from "./engine.mjs";
-import { sheathe, defaultSheathing } from "./sheathing.mjs";
+import { sheathe, defaultSheathing, houseSheathingPlan } from "./sheathing.mjs";
 
 // Property test: random walls with random openings, both orientations. Whatever the layout, the panels of a
 // wall must tile its length (per course) with no gap or overlap, no panel may be wider than a sheet, and
@@ -73,4 +73,16 @@ test("fuzz: sheathing panels tile every wall and keep cutouts inside", () => {
   }
   console.log(`# fuzz: ${checked} sheathed walls checked, ${declined} plans or layouts declined`);
   assert.ok(checked > 200, `only ${checked} walls checked (${declined} declined)`);
+});
+
+test("every house the sheathing page accepts lays out: 8 windows on a 108 in square house put two windows 0 in apart", () => {
+  // The page takes only counts, so a king-stud overlap error asks the user to move openings they never placed.
+  for (let side = 96; side <= 300; side++) {
+    for (const [windows, doors] of [[4, 0], [8, 0], [12, 2], [16, 4]]) {
+      const h = houseSheathingPlan({ length: side, width: side, height: "8ft", windows, doors });
+      if (!h.ok) continue;
+      const r = takeoff(h.plan);
+      assert.ok(r.ok, `${windows} windows, ${doors} doors on a ${side} in house: ${r.errors?.[0]}`);
+    }
+  }
 });

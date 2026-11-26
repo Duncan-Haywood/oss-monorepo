@@ -126,3 +126,25 @@ test("panelMaxError: text, NaN, tiny and huge panel sizes are refused (a 0.5 in 
   assert.throws(() => panelizeWall(r.walls[0], 0.5), /6 to 1200/);
   assert.throws(() => panelOrder(r, samplePlan(), /** @type {any} */ ("16")), /number of inches/);
 });
+
+test("pieceCount is the sum of the panel's piece quantities (the panel sheets print it)", () => {
+  for (const w of r.walls) {
+    const parts = panelParts(w, panelizeWall(w, 144));
+    for (const p of parts) assert.equal(p.pieceCount, p.pieces.reduce((t, x) => t + x.qty, 0), `${w.id} ${p.name}`);
+  }
+  // hand count: two studs and one bottom plate
+  const w = { id: "T", length: 48, members: [
+    { kind: "stud", x: 0, w: 1.5, size: "2x4", length: 92.625, label: "stud" },
+    { kind: "stud", x: 46.5, w: 1.5, size: "2x4", length: 92.625, label: "stud" },
+    { kind: "plate", x: 0, w: 48, size: "2x4", length: 48, label: "bottom plate" },
+  ] };
+  assert.equal(panelParts(w, panelizeWall(w, 96))[0].pieceCount, 3);
+});
+
+test("a plate piece centred exactly on a cut line still lands in one panel", () => {
+  const stud = (x) => ({ kind: "stud", x, w: 1.5, size: "2x4", length: 92.625, label: "stud" });
+  const w = { id: "T", length: 192, members: [stud(0), stud(94.5), stud(96), stud(190.5), { kind: "plate", x: 0, w: 192, size: "2x4", length: 192, label: "bottom plate" }] };
+  const s = panelizeWall(w, 96);
+  assert.deepEqual(s.cuts, [96]);
+  assert.deepEqual(s.panels.flatMap((p) => p.members).sort((a, b) => a - b), [0, 1, 2, 3, 4]);
+});
