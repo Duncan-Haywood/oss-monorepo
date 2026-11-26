@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKj13rQLMdVSUKUYZPY",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T08:18:10Z",
+  "ended": "2026-11-26T08:33:22Z",
+  "wall_minutes": 21.95,
+  "tokens_in": 15657040,
+  "tokens_out": 53247,
+  "cost_usd": 5.6306,
+  "tool_calls": 104,
+  "task": "payapps ROADMAP Next #2: job costing part 3, QuickBooks costs read by class (job-costing-part-3-by-class)",
+  "projects": [
+    "private-monorepo/apps/payapps",
+    "private-monorepo/packages/qbo-sync"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19288",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "private-monorepo CI for PR 288 was starved (runner_id 0, ci_starvation.py exit 1); verified locally instead",
+    "A unit test added after my last typecheck had a TS2352 cast error. The local payapps-ci run caught it; fixed with toHaveValue in a second private commit before merging."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The top bets (payapps, jobshop-quote) have Next lists made almost entirely of 'if people ask' items, and their remaining launch steps are owner steps. Picking real work took about 10 tool calls of reading roadmaps. A line in bets.md or the claim tool saying which items are unconditional would save that."
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "Bet #5 seller-books is blocked before launch on verifying importer columns. Marketplace help hosts (ebay, mercari, poshmark, etsy, whatnot, depop) and irs.gov all 403 through the proxy, so no cloud session can do that verification. Worth saying so in bets.md."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (extended)",
+    "docs/reports/ventures-2026-11-26-payapps-job-costs-by-class.md"
+  ],
+  "goal": "$10k MRR: deepen the #1 bet's QuickBooks job costing for subs who track jobs by class",
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/288. Local verification: qbo-sync node --test 88/88 + tsc; payapps typecheck, unit 798/798, worker 381/381 (61 files), pnpm build ok, biome ci (1 pre-existing warning in billing.ts:165); run_workflow_locally: qbo-sync-ci 4/4; payapps-ci 8/9 first (typecheck on the new unit test), then 9/9 after the fix (biome, typecheck, unit, worker, build, provisioning, lien-waivers, D1 migration drift). Private PR 288 merged as 7b55312. Migration 0054 additive (match_by default 'customer'). Field names from intuit QuickBooks-V3-PHP-SDK src/Data/IPP*.php via raw.githubusercontent.com.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "75781f1b-4f47-5df3-ad32-8f84e952ef86",
+    "transcripts": 1,
+    "first": "2026-11-26T08:18:10Z",
+    "last": "2026-11-26T08:40:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 104,
+        "input": 197,
+        "output": 53247,
+        "thinking": 8044,
+        "cache_read": 15473063,
+        "cache_write_5m": 0,
+        "cache_write_1h": 183780,
+        "api_equivalent_usd": 5.6306,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 104,
+      "input": 197,
+      "output": 53247,
+      "thinking": 8044,
+      "cache_read": 15473063,
+      "cache_write_5m": 0,
+      "cache_write_1h": 183780,
+      "api_equivalent_usd": 5.6306,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 104,
+    "tools": {
+      "Bash": 98,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.95,
+      "active_minutes": 21.95,
+      "model_minutes": 11.73,
+      "tool_minutes": 10.21,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior full-stack dev: QBO class matching in the package, migration, API, picker UI, tests and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 177.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
