@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, mobile, tooling]
+topics: [design, software-for-routine]
 date: 2026-11-26
 ---
 # Polish 2026-11-26: a phone probe over every construction front door

@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01EhTJVMcLPNtWhvVZxcRCzj",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T18:56:05Z",
+  "ended": "2026-11-26T19:09:15Z",
+  "wall_minutes": 13.37,
+  "tokens_in": 5743855,
+  "tokens_out": 33270,
+  "cost_usd": 2.7344,
+  "tool_calls": 63,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19445",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A shot script's bash heredoc was unquoted, so ${name} and backticks expanded; redone with a quoted heredoc."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/README.md",
+      "issue": "No phone-width probe for the bet front doors existed; four polish runs wrote throwaway Playwright scripts. Added phone-probe-check.mjs and a README section."
+    },
+    {
+      "file": "platform/security/risk_review.py",
+      "issue": "It flagged 'auth, session or payment code' and 'personal data' on a Playwright measuring script with none of either (probably the 'pay-app' and 'session'/'form' words): a false positive to answer by hand."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Picked the carried 'Still weakest' item 1 from the newest-by-content note (pay-app-cards-grid), not the alphabetically last note that `ls | tail -1` returns (retainage-cards-and-money).",
+      "did": "Read all three notes dated 2026-11-26 and took the item carried twice.",
+      "result": "The probe shipped, plus 4 real fixes it found."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Extended an existing post instead of writing a new one (consolidation direction).",
+      "did": "Added a dated section to docs/posts/2026-11-19-wide-tables-become-cards-on-a-phone.md.",
+      "result": "One post fewer; the numbers sit with the earlier table work."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-wide-tables-become-cards-on-a-phone.md (extended)",
+    "docs/reports/polish-2026-11-26-phone-probe.md"
+  ],
+  "goal": null,
+  "notes": "Local checks: node --test 'platform/pages/*.test.mjs' 2124/2124 pass; run_venture_tests.py pay-app-guides 264 pass + site page checks; phone-probe.test.mjs 8 pass. Probe over 131 construction slugs/495 pages at 390px: 0 sideways pages, 0 fields <16px, 0 tall rows, 126 swipes (median 107 px). Pay-app pages: 4 failures before, 0 after.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "aa8ae0c2-04a4-5b7a-b227-ad4e6fd9f69b",
+    "transcripts": 1,
+    "first": "2026-11-26T18:56:05Z",
+    "last": "2026-11-26T19:09:27Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 99,
+        "output": 33270,
+        "thinking": 5660,
+        "cache_read": 5625821,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117935,
+        "api_equivalent_usd": 2.7344,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 99,
+      "output": 33270,
+      "thinking": 5660,
+      "cache_read": 5625821,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117935,
+      "api_equivalent_usd": 2.7344,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 52,
+      "Read": 6,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.37,
+      "active_minutes": 13.36,
+      "model_minutes": 5.95,
+      "tool_minutes": 7.42,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "probe script + tests, 4 page fixes, full measurement and write-up by a front-end engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 219.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
