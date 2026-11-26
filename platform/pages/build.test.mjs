@@ -4610,8 +4610,16 @@ test('a sideways-scrolling box is given keyboard access, and only when it scroll
 
   // `role="region"` on a <table> replaces its table semantics, so a screen
   // reader stops announcing rows and columns. The tab stop is the whole fix.
-  assert.ok(!/setAttribute\('role'/.test(pass),
+  // The one role writer allowed is the phone-card labeller (stack-labels.mjs),
+  // which puts table/row/cell roles back where `display:block` drops them, and
+  // only where the venture set none.
+  assert.ok(!/['"]region['"]/.test(pass),
     'the pass overrides the role of the box it makes focusable');
+  const roleWriters = pass.match(/setAttribute\('role'[^)]*\)/g) || [];
+  assert.deepEqual(roleWriters, ["setAttribute('role',role)"],
+    'only the phone-card labeller may set a role, and only through stackRole');
+  assert.match(pass, /stackRole=function\(el,role\)\{if\(!el\.hasAttribute\('role'\)\)/,
+    'the labeller must never replace a role the page set');
 
   // The pass is one file now, so what each page has to carry is the tag that
   // loads it. A page that lost the tag loses keyboard access to every wide
