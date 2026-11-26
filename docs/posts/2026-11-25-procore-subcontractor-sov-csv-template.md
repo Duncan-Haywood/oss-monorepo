@@ -220,6 +220,13 @@ numbers kept as written, so "01" stays "01"), and before you download it says:
 - which lines have no item number (GCPay's Auto Number box can fill those after the upload);
 - which item numbers are used twice.
 
+If your job has unit-price lines (a quantity, unit and unit price on the line), the panel offers
+GCPay's five-column **unit price** layout instead: Units is the contract quantity, Unit Description
+its unit (CY, LF) and Unit Value the price of one unit, and a lump-sum line goes in as 1 LS at its
+value. The guide names those five columns without defining them, so that reading is ours: compare
+it with the GC's unit-price template before you upload. How unit-price lines are billed each month
+is in [unit-price pay applications](2026-11-26-unit-price-pay-applications.md).
+
 The workbook is made in your browser. Like the Procore and Textura tools, it follows GCPay's
 published guide and has not been tried on a live GCPay project; the guide is from 2019 and the
 screens may have moved since. If GCPay refuses the file, paste the rows into the template it
