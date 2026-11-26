@@ -37,7 +37,8 @@ drawings, the STEP or DXF file) into a priced quote from your own rate card. Onc
 marked sent:
 
 1. **It gets a first follow-up day.** By default that is three days after the send day on your
-   shop's calendar. An admin can change the number of days on the quote log, or set it to 0 to
+   shop's calendar. A day that falls on a Saturday or Sunday moves to the Monday, so a quote sent
+   on Thursday comes up at the start of the next week, not on Sunday. An admin can change the number of days on the quote log, or set it to 0 to
    turn it off.
 2. **The quote log opens with a Follow up card.** It lists every sent quote that is due, longest
    overdue first ("due today", "4 days overdue"). Each row shows the contact, the total, when the
