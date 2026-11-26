@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqybz6TED4xjrrgwSzhK",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Make the GitHub OIDC subject form durable as code after apply run 45905276526 failed with AccessDenied AssumeRoleWithWebIdentity (ID-qualified sub); configure.sh pin, decide name-only vs ID form with a report, risk review, tofu test, land.",
+  "input_sha256": "f84d1c2b666d3c5572b9c4a8b9aaeca27f82bbbdf599a0d63377e21ca41a2eb2",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-26T22:46:35Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "GitHub OIDC subject form durable as code (oidc-subject)",
+  "projects": [
+    "platform/aws"
+  ],
+  "pr": 19510,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "A gate exception must merge in a separate PR first, but sessions may push to one branch only; doing it serially (PR 1 merged, branch restarted from main, PR 2) works and is worth stating in .github/prompts/duplicate-work.md or agent-hardening.md."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "No note on running `tofu test` here: registry.opentofu.org is blocked, but the OpenTofu binary and the opentofu/terraform-provider-aws release zips from github.com match the lock files' zh: hashes and work as a filesystem_mirror (TF_CLI_CONFIG_FILE)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Stop hook asked to commit/push part 2 while part 1 (its gate exception) was unmerged; pushing it to the one branch would have folded it into part 1, so it was stashed until part 1 merged.",
+      "did": "stash, then commit after the merge",
+      "result": "both PRs landed in order"
+    },
+    {
+      "file": "prompts/promptctl.py route",
+      "why": "Routed to ventures/1 (top bet), but the owner gave a specific AWS task; did that task under the routed version.",
+      "did": "user-directed platform/aws work",
+      "result": "shipped"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Part 1 PR #19501 (allowlist entries) merged with all checks green. Local checks for part 2: tofu test stacks/org 3/3; tofu validate; tofu fmt -check platform/aws clean; pytest platform/aws 87 passed; checkov stacks/org 0 failed; adversarial gate local: deny wildcards allowed, warnings only; risk_review: nothing blocked. docs.github.com unreachable, so the ID-qualified subject syntax was not confirmed from docs; decision kept name-only. Whether the owner's interim template took effect is answered by the apply run this merge triggers. Agent doc: docs/reports/2026-11-26-github-oidc-subject-form.md.",
+  "corrections": [],
+  "redteam": null
+}

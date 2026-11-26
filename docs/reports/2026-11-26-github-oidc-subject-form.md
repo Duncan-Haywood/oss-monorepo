@@ -1,3 +1,8 @@
+---
+kind: brief
+topics: [everything-as-code, hosting]
+date: 2026-11-26
+---
 # GitHub OIDC subject form: keep name-only, pinned by the template
 
 2026-11-26. For whoever next touches an AWS trust, `platform/aws/github/configure.sh`
