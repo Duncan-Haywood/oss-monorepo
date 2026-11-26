@@ -94,39 +94,38 @@ can't go in, like a spreadsheet, is named on the index so the reviewer knows it'
 separately. A resubmittal starts as a new revision with no files, so what went with the first
 round stays on the first round.
 
-## Start the log from your sections of the spec book
+## Starting the log from the register or the spec
 
-The first job on a new project is building the log at all: reading each of your sections in the
-project manual and typing every "Product Data: ...", "Shop Drawings: ..." and "Sample Warranty:
-..." into a spreadsheet. On a mechanical or electrical scope that's dozens of sections and well
-over a hundred lines.
+The first hour on a new job usually goes on typing the submittal list into a log by hand,
+though the GC's register or the spec sections already list every item. So the log can now
+start from either one, read in your browser (the file isn't uploaded):
 
-The log can now read those for you. Choose the GC's register (a spreadsheet, CSV or PDF) if
-they've sent one, or the PDF of your spec sections (up to 400 pages). It's read in your browser,
-and nothing is uploaded. From the spec sections it reads:
+- **The GC's register**, as a spreadsheet, CSV, or a PDF printed from their system: spec
+  section, number, title, type, the required on-site date and the lead time come across, with
+  "3 weeks" counted as 21 days.
+- **The spec sections for your scope**, as the architect's PDF (up to 400 pages): each lettered paragraph under
+  a section's SUBMITTALS article ("B. Shop Drawings: Show locations of control joints...")
+  becomes a line, titled with the section and typed from its label. Division 01's procedures
+  section and "submit in accordance with..." paragraphs are left out.
+- **Federal jobs (UFGS sections)**: each item under "SD-02 Shop Drawings", "SD-03 Product Data"
+  and the rest becomes a line, with the "; G" government-approval code kept in its notes.
 
-- **Most commercial specs** ("1.3 ACTION SUBMITTALS", then "A. Product Data: For each type of
-  product."): each lettered paragraph becomes one row, typed from its name (shop drawings,
-  product data, samples, test reports, certificates, O&M data, warranties). Each row also notes
-  whether it came from the action, informational, close-out or maintenance-material article.
-- **Federal jobs (UFGS)**: each item under "SD-02 Shop Drawings", "SD-03 Product Data" and the
-  rest becomes a row, with the "; G" government-approval code kept in its note.
+You check each line before it is added. Lines already on the log start unticked. The reader
+doesn't guess anything: a lead time given in business days, a date it can't read, or a type it
+doesn't recognise is left blank, and the original wording is kept in the line's notes. Sent and
+returned dates aren't imported, because the register says what is due and the log records what
+actually happened. Mockups that a spec asks for under Quality Assurance rather than in a
+Submittals article aren't picked up, so it's still worth reading those sections yourself.
 
-Each row is shown with where it came from. You untick what isn't yours and add the rest to the
-log, numbered after what's already there. When you read the spec again after an addendum, rows
-already on the log start unticked. Division 01 is skipped, since it sets the
-procedures rather than your items, and the page tells you so. Dates, review periods and lead
-times are left for you to fill in, because the spec rarely gives them per item.
-
-How well it reads: on the 54 trade sections of a public set of federal guide specifications,
-where each section's own data tags its submittal items, it found 865 of the 869 tagged items and
-added nothing extra. The four it missed were items listed twice in one section. Commercial
-specs are worded more freely, so check every row against the spec. The spec and the GC's
-register decide what is required.
+How well the spec reader does: on the 54 trade sections of a public set of federal guide
+specifications, where each section's own data tags its submittal items, it found 865 of the 869
+tagged items and added nothing extra. The four it missed were items listed twice in one section.
+Commercial specs are worded more freely, so check every line against the spec. The spec and the
+GC's register decide what is required.
 
 ## What it won't do
 
-It doesn't read the GC's stamp, decide what was approved, or say who caused a delay. The list
+It doesn't decide what was approved or say who caused a delay. The list
 reflects what was entered. If a late review is turning into a schedule claim, read your
 subcontract's notice and delay clauses and talk to a construction attorney before the deadline
 in them passes.

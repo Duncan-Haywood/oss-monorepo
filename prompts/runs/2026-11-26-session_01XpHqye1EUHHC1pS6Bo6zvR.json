@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqye1EUHHC1pS6Bo6zvR",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T14:39:10Z",
+  "ended": "2026-11-26T14:52:49Z",
+  "wall_minutes": 14.32,
+  "tokens_in": 10378515,
+  "tokens_out": 52146,
+  "cost_usd": 4.3852,
+  "tool_calls": 76,
+  "task": "payapps (bet #1) submittals part 3a: import the submittal log from the GC's register (.xlsx/CSV/printed PDF) or the spec sections' SUBMITTALS articles",
+  "projects": [
+    "private-monorepo/apps/payapps",
+    "docs/posts"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/349",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 16,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The run record lives in oss-monorepo while the work merges in private-monorepo, so a private-repo run still needs a second (oss) PR just for the record plus post; the land-your-work flow doesn't say this up front."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Did not run node platform/pages/venture-preflight.mjs: the change is in private-monorepo's payapps app, not an oss venture page.",
+      "did": "Ran payapps typecheck, full unit (983) and worker (432) suites and biome locally.",
+      "result": "all green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-submittals-that-hold-up-material.md (extended: starting the log from the register or the spec)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (exit 3); ideas inbox empty. Routed ventures/1. private-monorepo clone worked first time via add_repo. roadmap_claim --bets named payapps #12; claimed slug submittals-part-3-register-import. Local verification: pnpm typecheck clean; pnpm test:unit 983 passed 1 skipped; pnpm test:worker 68 files 432 passed; risk_review: nothing blocked. Fixtures: Chromium-printed register (45 rows, 2 pages) and spec sections (3 sections) PDFs with their generator scripts. Merged private main (#346) into the branch cleanly before merge.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "536fcfa4-72ae-5093-8005-0a51de6915b8",
+    "transcripts": 1,
+    "first": "2026-11-26T14:39:10Z",
+    "last": "2026-11-26T14:53:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 75,
+        "input": 145,
+        "output": 52146,
+        "thinking": 7250,
+        "cache_read": 10216054,
+        "cache_write_5m": 0,
+        "cache_write_1h": 162316,
+        "api_equivalent_usd": 4.3852,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 75,
+      "input": 145,
+      "output": 52146,
+      "thinking": 7250,
+      "cache_read": 10216054,
+      "cache_write_5m": 0,
+      "cache_write_1h": 162316,
+      "api_equivalent_usd": 4.3852,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 76,
+    "tools": {
+      "Bash": 68,
+      "Write": 4,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.32,
+      "active_minutes": 14.32,
+      "model_minutes": 9.58,
+      "tool_minutes": 4.74,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "parser for register/spec formats, endpoint, UI, fixtures and tests for a senior TS dev",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 273.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqybrW3DA65jCtszKupH",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T14:38:30Z",
+  "ended": "2026-11-26T14:51:09Z",
+  "wall_minutes": 12.79,
+  "tokens_in": 9029672,
+  "tokens_out": 28157,
+  "cost_usd": 3.3456,
+  "tool_calls": 84,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19379",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The 'git checkout -B <branch> origin/main' step needs a fetch of origin/main first. The session branch had been cut from a stale local main, and a later 'git merge --ff-only' failed with 'refusing to merge unrelated histories' because the clone is shallow. Re-running checkout -B after the fetch fixed it."
+    },
+    {
+      "file": "apps/payapps/README.md (private)",
+      "issue": "The local dev steps don't say a new account must click 'I agree' on the terms gate before any page loads. A Playwright check timed out once on it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-25-tm-tickets-to-change-orders.md (extended: starting a change order from an answered RFI)"
+  ],
+  "goal": null,
+  "notes": "Bet #1 payapps, ROADMAP Next #11 (claimed rfis-part-2-change-order-from-rfi). Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/346 merged (squash ac083cc). Its CI job was starved: ci_starvation.py found runner_id 0. Verified locally instead: tsc clean; biome ci 0 errors (1 warning already there, in billing.ts); vitest unit 972 passed / 1 skipped; worker 433 passed; vite build ok. Browser check on pnpm dev: answered RFI -> Start a change order -> form filled 'RFI 001: Ceiling height at corridor 2' -> saved; the row then showed CO 1 and the summary 'Nothing waiting'.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a73e20bf-2a9e-546c-a36d-0b8db713939b",
+    "transcripts": 1,
+    "first": "2026-11-26T14:38:30Z",
+    "last": "2026-11-26T14:51:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 78,
+        "input": 151,
+        "output": 28157,
+        "thinking": 3577,
+        "cache_read": 8904401,
+        "cache_write_5m": 0,
+        "cache_write_1h": 125120,
+        "api_equivalent_usd": 3.3456,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 78,
+      "input": 151,
+      "output": 28157,
+      "thinking": 3577,
+      "cache_read": 8904401,
+      "cache_write_5m": 0,
+      "cache_write_1h": 125120,
+      "api_equivalent_usd": 3.3456,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 84,
+    "tools": {
+      "Bash": 72,
+      "ToolSearch": 3,
+      "Read": 3,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.79,
+      "active_minutes": 12.79,
+      "model_minutes": 5.79,
+      "tool_minutes": 6.99,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a senior full-stack dev: schema + route + UI + tests + browser check",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 179.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
