@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtGhSnmjMFfQ4MkJdFm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T18:07:10Z",
+  "ended": "2026-11-26T18:20:32Z",
+  "wall_minutes": 13.55,
+  "tokens_in": 11417561,
+  "tokens_out": 48849,
+  "cost_usd": 4.5618,
+  "tool_calls": 87,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/386",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Claimed seller-books 'returns-restock' while another run held 'inventory-returns-restock' for the same audit gap; slug claims don't catch the same item under different slugs, so a full implementation was built twice and the first copy was dropped. Search open/merged private PR titles for the gap's keywords (here 'restock') before building."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "migration_regen.py has to run from the private clone's root with a relative app path; passing the absolute path from oss-monorepo printed a false CLASH on 0000."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No post extended: open oss PR 19434 is already editing the same section of the reseller Schedule C post for private PR 385, and a second edit there would conflict.",
+      "did": "Recorded the P&L, ledger and journal reversal in the app's README and ARCHITECTURE.md instead.",
+      "result": "No conflict. The post can pick up one sentence once 19434 merges."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Private PR 385 merged the same restock feature mid-run, under a different slug.",
+      "did": "Dropped my duplicate branch and shipped only what 385 left out: the cost reversal in the P&L, ledger and QuickBooks journal, plus a Biome fix to 385's e2e spec.",
+      "result": "Merged as private PR 386 with local CI 11/11."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Bets 1 to 4 had no free, ungated ROADMAP items. Took seller-books (bet 5), which had the fewest claims, and its quality-audit gap 'returned item not put back in stock'. Local seller-books-ci gave 11/11 run: steps passed; the uses: steps did not run. risk_review found nothing.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "409b63db-2be9-502e-a255-217b6bc57072",
+    "transcripts": 1,
+    "first": "2026-11-26T18:07:10Z",
+    "last": "2026-11-26T18:20:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 83,
+        "input": 159,
+        "output": 48849,
+        "thinking": 10938,
+        "cache_read": 11250649,
+        "cache_write_5m": 0,
+        "cache_write_1h": 166753,
+        "api_equivalent_usd": 4.5618,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 83,
+      "input": 159,
+      "output": 48849,
+      "thinking": 10938,
+      "cache_read": 11250649,
+      "cache_write_5m": 0,
+      "cache_write_1h": 166753,
+      "api_equivalent_usd": 4.5618,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 87,
+    "tools": {
+      "Bash": 81,
+      "Write": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.55,
+      "active_minutes": 13.55,
+      "model_minutes": 8.17,
+      "tool_minutes": 5.38,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "P&L/ledger reversal, tests and CI for an existing feature",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 65.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
