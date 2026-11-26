@@ -49,3 +49,23 @@ variable "public_repository" {
   type        = string
   default     = "Duncan-Haywood/oss-monorepo"
 }
+
+variable "public_repository_owner_id" {
+  description = "Numeric ID of public_repository's owner, for GitHub's immutable OIDC subject (rcps.tf)."
+  type        = string
+  default     = "49566815"
+  validation {
+    condition     = can(regex("^[0-9]+$", var.public_repository_owner_id))
+    error_message = "public_repository_owner_id is the owner's numeric ID."
+  }
+}
+
+variable "public_repository_id" {
+  description = "Numeric ID of public_repository, for GitHub's immutable OIDC subject (rcps.tf)."
+  type        = string
+  default     = "1315497858"
+  validation {
+    condition     = can(regex("^[0-9]+$", var.public_repository_id))
+    error_message = "public_repository_id is the repository's numeric ID."
+  }
+}

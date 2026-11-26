@@ -174,6 +174,8 @@ data "aws_iam_policy_document" "ci_trust" {
       values = [
         "repo:${var.github_repository}:ref:refs/heads/main",
         "repo:${var.github_repository}:environment:aws-llm",
+        "repo:${var.immutable_github_repository}:ref:refs/heads/main",
+        "repo:${var.immutable_github_repository}:environment:aws-llm",
       ]
     }
   }

@@ -153,6 +153,20 @@ run "any_workspace_in_the_apps_account" {
   }
 }
 
+run "ci_trust_accepts_both_subject_forms" {
+  command = plan
+
+  assert {
+    condition = sort(flatten([for c in one(data.aws_iam_policy_document.ci_trust.statement).condition : tolist(c.values) if c.variable == "token.actions.githubusercontent.com:sub"])) == sort([
+      "repo:Duncan-Haywood/oss-monorepo:ref:refs/heads/main",
+      "repo:Duncan-Haywood/oss-monorepo:environment:aws-llm",
+      "repo:Duncan-Haywood@49566815/oss-monorepo@1315497858:ref:refs/heads/main",
+      "repo:Duncan-Haywood@49566815/oss-monorepo@1315497858:environment:aws-llm",
+    ])
+    error_message = "The CI LLM role trusts main and aws-llm of this repository, in both subject forms, and nothing else."
+  }
+}
+
 run "one_workspace" {
   command = plan
   variables {

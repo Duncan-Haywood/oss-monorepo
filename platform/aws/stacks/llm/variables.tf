@@ -51,3 +51,13 @@ variable "enable_bedrock_alternative" {
   type        = bool
   default     = false
 }
+
+variable "immutable_github_repository" {
+  description = "github_repository as GitHub writes it in an immutable OIDC subject, OWNER@OWNER_ID/REPO@REPO_ID (repo:<this>:...). GitHub issues this form for the repository since 2026-11 (CloudTrail on the first apply); trusts accept it beside the name form."
+  type        = string
+  default     = "Duncan-Haywood@49566815/oss-monorepo@1315497858"
+  validation {
+    condition     = can(regex("^[A-Za-z0-9-]+@[0-9]+/[A-Za-z0-9._-]+@[0-9]+$", var.immutable_github_repository))
+    error_message = "immutable_github_repository is OWNER@OWNER_ID/REPO@REPO_ID, with no wildcard."
+  }
+}

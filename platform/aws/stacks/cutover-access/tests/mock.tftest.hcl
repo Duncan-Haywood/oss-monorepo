@@ -54,7 +54,7 @@ run "trust_is_one_environment_each" {
   assert {
     condition = alltrue([
       for k, env in { plan = "cutover-plan", run = "cutover" } :
-      join(",", flatten([for c in one(data.aws_iam_policy_document.trust[k].statement).condition : tolist(c.values) if c.variable == "token.actions.githubusercontent.com:sub"])) == "repo:Duncan-Haywood/oss-monorepo:environment:${env}"
+      join(",", flatten([for c in one(data.aws_iam_policy_document.trust[k].statement).condition : tolist(c.values) if c.variable == "token.actions.githubusercontent.com:sub"])) == "repo:Duncan-Haywood/oss-monorepo:environment:${env},repo:Duncan-Haywood@49566815/oss-monorepo@1315497858:environment:${env}"
     ])
     error_message = "Each GitHub role trusts exactly one environment of this repository."
   }

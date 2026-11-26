@@ -246,7 +246,10 @@ data "aws_iam_policy_document" "sync_trust" {
     condition {
       test     = "StringEquals"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:${var.github_repository}:environment:${var.sync_environment}"]
+      values = [
+        "repo:${var.github_repository}:environment:${var.sync_environment}",
+        "repo:${var.immutable_github_repository}:environment:${var.sync_environment}",
+      ]
     }
   }
 }
