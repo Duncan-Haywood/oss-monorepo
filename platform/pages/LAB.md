@@ -24,7 +24,7 @@ Code: [`lab.mjs`](lab.mjs) (pages and the `EXPERIMENTS` list),
    with a pointer.
 5. **Write it up.** Each experiment that ships or graduates gets a short
    entry in the log below. Anything with a finding worth sharing becomes a
-   post in [`docs/posts/`](../../docs/posts/), which publishes to `writing/`.
+   post in [`docs/posts/`](../../docs/posts/), which publishes to `engineering/` (or `blog/`, for a customer guide).
 
 ## What is live
 
@@ -58,7 +58,7 @@ every distribution channel. The roadmap is ordered roughly by cost.
   pull into their own sites), with a lesson or post on how it works.
 
 **Media, for engineering and for research**
-- **Blog:** it already exists at `writing/` (from `docs/posts/`). Research
+- **Blog:** it already exists at `blog/` and `engineering/` (from `docs/posts/`). Research
   write-ups should land there too, generated from each project's `LOG.md`
   and results so nothing is claimed that the research did not find.
 - **Podcast:** start with the posts read aloud in the listener's own browser

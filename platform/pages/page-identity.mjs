@@ -84,16 +84,20 @@ function h1TextOf(html) {
  * escaped HTML), or with " · Blog" added when the headline clashes too.
  * pages: Map of relative path -> html. Returns [{ rel, from, to, html }].
  */
-export function resolvePostTitleClashes(pages, { prefix = 'writing/' } = {}) {
+// Both blogs since the split of 2026-11-26 (writing.mjs). The engineering status page sits under
+// engineering/ too; its title is its own, so it never clashes.
+export function resolvePostTitleClashes(pages, { prefix = ['blog/', 'engineering/'] } = {}) {
+  const prefixes = [].concat(prefix);
+  const isPost = (rel) => prefixes.some((p) => rel.startsWith(p));
   const taken = new Set();
   for (const [rel, html] of pages) {
-    if (SKIP.has(rel) || rel.startsWith(prefix)) continue;
+    if (SKIP.has(rel) || isPost(rel)) continue;
     const t = titleOf(html);
     if (t) taken.add(t);
   }
   const changes = [];
   for (const [rel, html] of pages) {
-    if (!rel.startsWith(prefix)) continue;
+    if (!isPost(rel)) continue;
     const from = titleOf(html);
     if (!from || !taken.has(from)) continue;
     const headline = h1TextOf(html);

@@ -60,7 +60,7 @@ const THROTTLE = Number(process.env.THROTTLE || 4);
  * turn this red.
  */
 function defaultPages() {
-  const pages = ['', 'research/', 'writing/'];
+  const pages = ['', 'research/', 'blog/'];
   try {
     const manifest = JSON.parse(fs.readFileSync(path.join(HERE, 'showcase', 'manifest.json'), 'utf8'));
     for (const shot of (manifest.shots ?? []).slice(0, 3)) pages.push(`${shot.slug}/`);

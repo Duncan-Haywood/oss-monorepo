@@ -1,8 +1,19 @@
 /**
- * The writing section: essays and write-ups about how this repository is
- * built and what it found, published at `writing/` on the Pages site.
+ * The two blogs, built from one folder of posts (owner, 2026-11-26: "i think the move is to split
+ * the blogs for sure"):
  *
- *   node platform/pages/writing.mjs --out=dist      # writes dist/writing/
+ *   blog/          the marketing blog, labelled "Blog" in the header: customer posts only (the
+ *                  `business` topic), in product-line sections, written for small-business buyers
+ *   engineering/   the engineering blog, linked from the footer: every other post (process,
+ *                  infrastructure, agents, research, quality, testing, stories, tools), with the
+ *                  topic and project pages the single blog had
+ *
+ *   node platform/pages/writing.mjs --out=dist      # writes dist/blog/ and dist/engineering/
+ *
+ * Which blog a post is on follows from its topic and nothing else (`blogOf(topicOf(...))`), so a
+ * post is on exactly one. Until the split every post was at `writing/<slug>/`; those URLs 301 to
+ * the new homes (writing-moves.mjs, cloudflare/router.mjs), and `writing/feed.xml` and
+ * `writing/podcast/` keep serving where subscribers found them.
  *
  * Sources are Markdown files in `docs/posts/`, named `<YYYY-MM-DD>-<slug>.md`,
  * each with a small front-matter block:
@@ -15,23 +26,23 @@
  *   ---
  *
  * Link one post from another by its file name (`[title](2026-10-16-slug.md)`):
- * that works on GitHub, and the site rewrites it to the post's page.
+ * that works on GitHub, and the site rewrites it to the post's page, on whichever blog it is.
  *
  * Optional front matter: `topic:` (one of TOPICS' ids) overrides the topic
- * `topicOf` derives from the tags. The blog index filters by topic and tag and
+ * `topicOf` derives from the tags. The engineering blog's index filters by topic and tag and
  * searches titles, summaries and full text; the podcast groups episodes by
  * their post's topic.
  *
- * A second, smaller blog is written by agents for agents (LLM readers):
+ * A third, smaller blog is written by agents for agents (LLM readers):
  * Markdown in `docs/agent-posts/`, same front matter, published at
- * `writing/agents/` with each post's raw Markdown beside its page (as
+ * `engineering/agents/` with each post's raw Markdown beside its page (as
  * `<slug>.txt`: the site checker only allows extensions the server types,
  * and `.md` is not one of them), an
  * `llms.txt` index and an `llms-full.txt` of every post.
  *
  * To publish a post, add the file. `build.mjs` calls `buildWriting` on every
- * site build, lists each post in the sitemap, and links the index from the
- * hub; `check.mjs` fails a build whose writing pages lack a disclaimer or a
+ * site build, lists each page in the sitemap, and links both blogs from every
+ * page's header or footer; `check.mjs` fails a build whose blog pages lack a disclaimer or a
  * link from the hub. Rendering reuses the devlog's escaping Markdown renderer,
  * so a post cannot inject markup and repository paths become GitHub links.
  */
@@ -44,20 +55,23 @@ import { SITE_NAME, TITLE_BUDGET, siteTitle, sponsorsNote, withSiteHeader } from
 import { loadResearchRegistry } from './research-registry.mjs';
 import { decodeEntities } from './entities.mjs';
 import { completeArticleNode } from './article-ld.mjs';
-import { softwareLines } from './business.mjs';
+import { industriesWithProducts, softwareLines } from './business.mjs';
 import { loadEpisodes, renderPlayer, renderPodcastBody, renderPodcastHero, writePodcastAssets, PODCAST_PATH, SHOW_DESCRIPTION, SHOW_TITLE } from './podcast.mjs';
+import { ENGINEERING_BLOG_PATH, LEGACY_PATH, MARKETING_PATH, rewriteLegacyLinks } from './writing-moves.mjs';
+import { PRODUCT_CARD_CSS, renderProductCard } from './products.mjs';
+
+export { ENGINEERING_BLOG_PATH, MARKETING_PATH };
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(HERE, '..', '..');
 
-export const WRITING_PATH = 'writing/';
+/** The single blog's old home. Only its Atom feed (every post, both blogs) and the podcast are still written here. */
+export const WRITING_PATH = LEGACY_PATH;
 export const POSTS_DIR = 'docs/posts';
 export const AGENT_POSTS_DIR = 'docs/agent-posts';
-export const AGENTS_PATH = `${WRITING_PATH}agents/`;
-// Directories inside `writing/` that are not posts: a post with one of these slugs would overwrite them.
-const RESERVED_SLUGS = new Set(['agents', 'podcast', 'page', 'topic']);
-/** Each topic's own page, under the blog: `writing/topic/<id>/`. */
-export const TOPIC_PATH = `${WRITING_PATH}topic/`;
+export const AGENTS_PATH = `${ENGINEERING_BLOG_PATH}agents/`;
+/** Each engineering topic's own page: `engineering/topic/<id>/`. */
+export const TOPIC_PATH = `${ENGINEERING_BLOG_PATH}topic/`;
 
 /** Posts per index page. A page of 50 cards is about 50 kB of HTML; one page of every post was 2.3 MB. */
 export const PAGE_SIZE = 50;
@@ -90,9 +104,62 @@ const TOPIC_IDS = new Set(TOPICS.map((t) => t.id));
  * carries a DEV_TAGS tag is about how the thing was built, not for its user, and stays where it was.
  */
 export const CUSTOMER_TAGS = Object.freeze(new Set(['for-customers', ...softwareLines().flatMap((l) => [l.id, ...l.tools])]));
+/**
+ * Which blog a topic's posts are on: the marketing blog (`blog/`) for "For your business", the
+ * engineering blog (`engineering/`) for every other topic. The one classifier is `topicOf`; this
+ * only reads its answer, so a post is on exactly one blog (owner, 2026-11-26, the blog split).
+ */
+export const blogOf = (topic) => (topic === 'business' ? 'blog' : 'engineering');
+/** A topic's blog folder, from the site root. */
+export const blogPathOf = (topic) => (blogOf(topic) === 'blog' ? MARKETING_PATH : ENGINEERING_BLOG_PATH);
+
+/**
+ * The marketing blog's sections, one per industry with a paid software line (business.mjs, in its
+ * order: construction, manufacturing, online sellers, EU e-invoicing, nonprofits), then "more" for
+ * a customer post that names none. Each section has its own page at `blog/<id>/` and carries the
+ * line's product card, so a reader of a guide is one click from the product it is a door to.
+ */
+export const MARKETING_SECTIONS = Object.freeze([
+  ...industriesWithProducts(softwareLines()).map((i) => Object.freeze({
+    id: i.slug,
+    label: i.name,
+    who: i.who,
+    lines: Object.freeze(softwareLines().filter((l) => l.industry === i.slug)),
+  })),
+  Object.freeze({ id: 'more', label: 'More for small businesses', who: 'Owners and bookkeepers of any small business', lines: Object.freeze([]) }),
+]);
+const SECTION_IDS = new Set(MARKETING_SECTIONS.map((s) => s.id));
+// Tags that name an industry without naming one of its products' tools.
+const INDUSTRY_TAGS = Object.freeze({
+  construction: 'construction', contractors: 'construction', 'pay-app-guides': 'construction', roofing: 'construction', framing: 'construction',
+  manufacturing: 'manufacturing', 'machine-shop-guides': 'manufacturing', 'machine-shops': 'manufacturing', cnc: 'manufacturing',
+  'online-sellers': 'online-sellers', resellers: 'online-sellers', reselling: 'online-sellers', ebay: 'online-sellers',
+  'eu-e-invoicing': 'eu-e-invoicing', 'e-invoicing': 'eu-e-invoicing', einvoicing: 'eu-e-invoicing', peppol: 'eu-e-invoicing', xrechnung: 'eu-e-invoicing',
+  nonprofits: 'nonprofits', nonprofit: 'nonprofits', grants: 'nonprofits',
+});
+
+/**
+ * A customer post's section: the industry of the first product line its tags name (the line's id
+ * or one of its tools), else the first industry tag, else "more".
+ */
+export function sectionOf(tags = []) {
+  const lines = softwareLines();
+  for (const t of tags) {
+    const l = lines.find((x) => x.id === t || x.tools.includes(t));
+    if (l?.industry && SECTION_IDS.has(l.industry)) return l.industry;
+  }
+  for (const t of tags) if (SECTION_IDS.has(INDUSTRY_TAGS[t])) return INDUSTRY_TAGS[t];
+  return 'more';
+}
+
+// Folders inside either blog that are not posts: a post with one of these slugs would overwrite them.
+// `status` is the engineering status page (engineering.mjs), `<section>` the marketing blog's sections.
+const RESERVED_SLUGS = new Set(['agents', 'podcast', 'page', 'topic', 'status', ...SECTION_IDS]);
 const DEV_TAGS = ['testing', 'test-coverage', 'property-testing', 'redteam', 'red-team', 'mutation-testing', 'fault-injection',
   'quality-audit', 'process', 'prompting', 'prompt-engineering', 'ai-agents', 'agents', 'opinion', 'ci', 'build', 'caching',
-  'performance', 'perf', 'bug', 'bugfix', 'refactor', 'refactoring', 'polish', 'seo', 'aeo', 'llms-txt', 'site', 'github-actions', 'hosting', 'tooling', 'research'];
+  // `bugs` and `robustness` since the blog split (2026-11-26): "A lumber size called toString got
+  // through the framing validators" is a crash write-up, not a guide a builder came to read.
+  'performance', 'perf', 'bug', 'bugs', 'bugfix', 'robustness', 'refactor', 'refactoring', 'polish', 'seo', 'aeo', 'llms-txt', 'site', 'github-actions', 'hosting', 'tooling', 'research'];
 const TOOL_TAGS = ['projects', 'tools', 'mcp', 'distribution', 'voice-interfaces', 'byok', 'local-llm', 'privacy', 'podcasting', 'desktop-apps'];
 const INFRA_TAGS = ['github-pages', 'hosting', 'kubernetes', 'github-actions', 'static-site', 'static-sites'];
 const AGENT_TAGS = ['ai-agents', 'process', 'prompting', 'prompt-engineering', 'engineering-management'];
@@ -422,6 +489,7 @@ function loadPost(root, POSTS_DIR, name, projects = NO_PROJECTS) {
     throw new Error(`${POSTS_DIR}/${name}: topic "${meta.topic}" is not one of ${[...TOPIC_IDS].join(', ')}`);
   }
   const tags = Array.isArray(meta.tags) ? meta.tags : [];
+  const topic = topicOf(tags, meta.topic, projects);
   const words = body.split(/\s+/).filter(Boolean).length;
   return {
     slug: fm[2],
@@ -432,9 +500,14 @@ function loadPost(root, POSTS_DIR, name, projects = NO_PROJECTS) {
     description: plainDescription(meta.description),
     descriptionHtml: descriptionHtml(meta.description),
     tags,
-    topic: topicOf(tags, meta.topic, projects),
+    topic,
+    // Which blog the post is on, and its page from the site root (`blogOf`).
+    blog: blogOf(topic),
+    href: `${blogPathOf(topic)}${fm[2]}/`,
+    // A customer post's section of the marketing blog.
+    ...(topic === 'business' ? { section: sectionOf(tags) } : {}),
     // The venture a "Tools and projects" post is about: its first tag naming a folder in ventures/.
-    project: projectOf(tags, topicOf(tags, meta.topic, projects), projects),
+    project: projectOf(tags, topic, projects),
     source: `${POSTS_DIR}/${name}`,
     body,
     words,
@@ -568,6 +641,16 @@ const STYLE = `
   .post-meta .src { margin-left:auto; }
   .pager { display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; margin:2em 0 0; font-size:.92rem; }
   /* Every topic's page, as links (the finder's chips are script-only buttons). Wraps: it sits below the list, not above it. */
+  .jump { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 1em; padding:0; list-style:none; }
+  .jump a { display:inline-flex; align-items:center; min-height:32px; padding:0 12px; border:1px solid var(--line); border-radius:999px; background:var(--panel); text-decoration:none; color:var(--ink); font-size:.85rem; }
+  .jump a:hover, .jump a:focus-visible { border-color:var(--accent); color:var(--accent); }
+  .mk-section { margin:0 0 2.6em; scroll-margin-top:16px; }
+  .mk-section > h2 { font-size:1.45rem; margin:0 0 .1em; } .mk-section > h2 a { color:inherit; }
+  .mk-section > .meta { margin:0 0 1em; }
+  .mk-section .pl-grid, main > .pl-grid { margin:0 0 1.2em; }
+  .post-cta { margin:2em 0 0; }
+  .post-cta > h2 { font-size:1.1rem; margin:0 0 .2em; }
+  ${PRODUCT_CARD_CSS}
   .topic-nav { margin:2.2em 0 0; padding-top:1.2em; border-top:1px solid var(--line); }
   .topic-nav h2 { font-size:1rem; margin:0 0 .6em; }
   .topic-nav ul { list-style:none; display:flex; flex-wrap:wrap; gap:8px; margin:0; padding:0; }
@@ -621,7 +704,7 @@ export function descriptionHtml(d) {
   return out + esc(src.slice(last));
 }
 
-function shell({ title, description, canonical, toRoot, crumbs, hero = '', body, jsonLd, breadcrumb, feedHref, socialCard, podcastFeedHref, current = 'writing', robots = '' }) {
+function shell({ title, description, canonical, toRoot, crumbs, hero = '', body, jsonLd, breadcrumb, feedHref, feedTitle = ENGINEERING_BLOG.feedTitle, socialCard, podcastFeedHref, current = 'engineering', robots = '', foot = '' }) {
   // The site's shared header (site-nav.mjs) above this section's own breadcrumb.
   return withSiteHeader(`<!doctype html>
 <html lang="en">
@@ -630,7 +713,7 @@ function shell({ title, description, canonical, toRoot, crumbs, hero = '', body,
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
-${robots ? `<meta name="robots" content="${esc(robots)}">\n` : ''}${canonical ? `<link rel="canonical" href="${esc(canonical)}">\n` : ''}<link rel="alternate" type="application/atom+xml" title="${esc(SITE_NAME)}: writing" href="${esc(feedHref)}">
+${robots ? `<meta name="robots" content="${esc(robots)}">\n` : ''}${canonical ? `<link rel="canonical" href="${esc(canonical)}">\n` : ''}<link rel="alternate" type="application/atom+xml" title="${esc(feedTitle)}" href="${esc(feedHref)}">
 ${podcastFeedHref ? `<link rel="alternate" type="application/rss+xml" title="${esc(SHOW_TITLE)}" href="${esc(podcastFeedHref)}">\n` : ''}<meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:type" content="${jsonLd['@type'] === 'BlogPosting' ? 'article' : 'website'}">
@@ -648,7 +731,7 @@ ${hero}
 ${body}
 </main>
 <footer>
-  <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
+${foot}  <p>Written with AI assistance and checked against the repository; every figure links to, or names, its source in the
   <a href="https://github.com/Duncan-Haywood/oss-monorepo">repository</a>. Provided as-is, with no warranty of accuracy or
   completeness, and not advice of any kind. FSL-1.1-MIT-licensed, like the tools.</p>
   <p>${sponsorsNote()}</p>
@@ -659,15 +742,29 @@ ${body}
 `, { toRoot, current });
 }
 
-/** The two blogs: one for people (and agents), one written by agents for agents. */
+/**
+ * The blogs. `BLOG` is the marketing blog (`blog/`, "Blog" in the header), `ENGINEERING_BLOG` the
+ * engineering blog (`engineering/`, in the footer), `AGENT_BLOG` the agent-to-agent blog under it.
+ */
 export const BLOG = Object.freeze({
   id: 'blog',
-  path: WRITING_PATH,
+  path: MARKETING_PATH,
   dir: POSTS_DIR,
   depth: 1,
   name: 'Blog',
-  feedTitle: `${SITE_NAME}: writing`,
-  description: "Essays on building software with unattended AI coding agents, from this repository's own history and numbers.",
+  nav: 'writing',
+  feedTitle: `${SITE_NAME}: guides for small businesses`,
+  description: 'Practical guides for subcontractors, machine shops, resellers, firms facing e-invoicing and small nonprofits, from the team building their software.',
+});
+export const ENGINEERING_BLOG = Object.freeze({
+  id: 'engineering',
+  path: ENGINEERING_BLOG_PATH,
+  dir: POSTS_DIR,
+  depth: 1,
+  name: 'Engineering blog',
+  nav: 'engineering',
+  feedTitle: `${SITE_NAME}: engineering`,
+  description: "How the products are built and tested by unattended AI coding agents, what the research found, and the stories, from the repository's own numbers.",
 });
 export const AGENT_BLOG = Object.freeze({
   id: 'agents',
@@ -675,9 +772,12 @@ export const AGENT_BLOG = Object.freeze({
   dir: AGENT_POSTS_DIR,
   depth: 2,
   name: 'Agent to agent',
+  nav: 'engineering',
   feedTitle: `${SITE_NAME}: agent to agent`,
   description: 'Posts written by AI agents for AI agents: dense, sourced notes an LLM reader can act on. Each post is also served as raw Markdown.',
 });
+/** The section a post is on. */
+export const sectionFor = (post) => (post.blog === 'blog' ? BLOG : ENGINEERING_BLOG);
 
 // The index's search and filters. The full list renders without JavaScript;
 // this hides what does not match, reorders on sort, keeps the state in the URL
@@ -1018,7 +1118,7 @@ export function renderTopicPage(allPosts, topicId, { baseUrl = '', socialCard = 
     socialCard,
     toRoot,
     robots: sub ? 'noindex' : '',
-    crumbs: `<a href="${toBlog}">Blog</a> › ${sub ? `<a href="../../">${esc(topic.label)}</a> › Page ${page}` : esc(topic.label)}`,
+    crumbs: `<a href="${toBlog}">Engineering blog</a> › ${sub ? `<a href="../../">${esc(topic.label)}</a> › Page ${page}` : esc(topic.label)}`,
     feedHref: `${toBlog}feed.xml`,
     breadcrumb: baseUrl
       ? {
@@ -1026,7 +1126,7 @@ export function renderTopicPage(allPosts, topicId, { baseUrl = '', socialCard = 
           '@type': 'BreadcrumbList',
           itemListElement: [
             { name: SITE_NAME, item: baseUrl },
-            { name: BLOG.name, item: `${baseUrl}${WRITING_PATH}` },
+            { name: ENGINEERING_BLOG.name, item: `${baseUrl}${ENGINEERING_BLOG_PATH}` },
             { name: topic.label, item: `${baseUrl}${here}` },
           ].map((crumb, i) => ({ '@type': 'ListItem', position: i + 1, ...crumb })),
         }
@@ -1037,14 +1137,14 @@ export function renderTopicPage(allPosts, topicId, { baseUrl = '', socialCard = 
       name: topic.seo,
       description: topic.blurb,
       url: canonical || undefined,
-      isPartOf: { '@type': 'Blog', name: BLOG.feedTitle, url: baseUrl ? `${baseUrl}${WRITING_PATH}` : undefined },
+      isPartOf: { '@type': 'Blog', name: ENGINEERING_BLOG.feedTitle, url: baseUrl ? `${baseUrl}${ENGINEERING_BLOG_PATH}` : undefined },
       mainEntity: {
         '@type': 'ItemList',
         numberOfItems: mine.length,
-        itemListElement: posts.map((p, i) => ({ '@type': 'ListItem', position: first + i, name: p.title, url: baseUrl ? `${baseUrl}${WRITING_PATH}${p.slug}/` : undefined })),
+        itemListElement: posts.map((p, i) => ({ '@type': 'ListItem', position: first + i, name: p.title, url: baseUrl ? `${baseUrl}${p.href}` : undefined })),
       },
     },
-    hero: `<p class="eyebrow">Blog topic</p>
+    hero: `<p class="eyebrow">Engineering blog topic</p>
 <h1>${esc(topic.label)}${sub ? `, page ${page}` : ''}</h1>
 <p class="dek">${esc(topic.blurb)}</p>
 <p class="meta">${sub ? `Posts ${first} to ${first + posts.length - 1} of ${n}, newest first.` : `${n} ${mine.length === 1 ? 'post' : 'posts'}, newest first.`} <a href="${toBlog}?topic=${esc(topicId)}">Search within this topic</a> · <a href="${toBlog}">every post</a></p>`,
@@ -1125,7 +1225,7 @@ export function renderProjectPage(allPosts, project, { baseUrl = '', socialCard 
     socialCard,
     toRoot,
     robots: sub ? 'noindex' : '',
-    crumbs: `<a href="${toBlog}">Blog</a> › <a href="${toTopic}">${esc(topic.label)}</a> › ${sub ? `<a href="../../">${esc(project.name)}</a> › Page ${page}` : esc(project.name)}`,
+    crumbs: `<a href="${toBlog}">Engineering blog</a> › <a href="${toTopic}">${esc(topic.label)}</a> › ${sub ? `<a href="../../">${esc(project.name)}</a> › Page ${page}` : esc(project.name)}`,
     feedHref: `${toBlog}feed.xml`,
     breadcrumb: baseUrl
       ? {
@@ -1133,7 +1233,7 @@ export function renderProjectPage(allPosts, project, { baseUrl = '', socialCard 
           '@type': 'BreadcrumbList',
           itemListElement: [
             { name: SITE_NAME, item: baseUrl },
-            { name: BLOG.name, item: `${baseUrl}${WRITING_PATH}` },
+            { name: ENGINEERING_BLOG.name, item: `${baseUrl}${ENGINEERING_BLOG_PATH}` },
             { name: topic.label, item: `${baseUrl}${topicHere}` },
             { name: project.name, item: `${baseUrl}${here}` },
           ].map((crumb, i) => ({ '@type': 'ListItem', position: i + 1, ...crumb })),
@@ -1145,12 +1245,12 @@ export function renderProjectPage(allPosts, project, { baseUrl = '', socialCard 
       name: seo,
       description: lede || blurb,
       url: canonical || undefined,
-      isPartOf: { '@type': 'Blog', name: BLOG.feedTitle, url: baseUrl ? `${baseUrl}${WRITING_PATH}` : undefined },
+      isPartOf: { '@type': 'Blog', name: ENGINEERING_BLOG.feedTitle, url: baseUrl ? `${baseUrl}${ENGINEERING_BLOG_PATH}` : undefined },
       ...(toolHref && baseUrl ? { about: { '@type': research ? 'ResearchProject' : 'SoftwareApplication', name: question || project.name, url: `${baseUrl}${toolHref}` } } : {}),
       mainEntity: {
         '@type': 'ItemList',
         numberOfItems: mine.length,
-        itemListElement: posts.map((p, i) => ({ '@type': 'ListItem', position: first + i, name: p.title, url: baseUrl ? `${baseUrl}${WRITING_PATH}${p.slug}/` : undefined })),
+        itemListElement: posts.map((p, i) => ({ '@type': 'ListItem', position: first + i, name: p.title, url: baseUrl ? `${baseUrl}${p.href}` : undefined })),
       },
     },
     hero: `<p class="eyebrow">${research ? `Research programme · ${esc(project.name)}` : 'Project log'}</p>
@@ -1165,32 +1265,12 @@ ${renderProjectNav(projects, 0, { toProjects: `${toTopic}`, current: project.slu
   });
 }
 
-/** Newest customer posts pinned on the blog's first page. */
-export const CUSTOMER_LEAD = 6;
-
 /**
- * The first thing on the blog: the newest "For your business" posts (owner, 2026-11-25: "blogs
- * get moved from dev blog to marketing blog"), above the finder over every post. Empty when
- * there are none, so a build with no customer posts shows the plain index.
+ * The engineering blog's index (or the agent-to-agent blog's). Page 1 (`page` omitted) is
+ * `<section>/index.html` with the finder over every post; page n is `<section>/page/n/` with a
+ * plain list. The marketing blog has its own index, `renderMarketingIndex`.
  */
-export function renderCustomerLead(posts, { n = CUSTOMER_LEAD, toTopics = 'topic/' } = {}) {
-  const mine = posts.filter((p) => p.topic === 'business').sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
-  if (!mine.length) return '';
-  return `<section class="customer-lead" aria-labelledby="customer-lead-h">
-<h2 id="customer-lead-h">For your business</h2>
-<ul class="posts">
-${renderCards(mine.slice(0, n), '', { topicPill: false })}
-</ul>
-<p class="meta"><a href="${toTopics}business/">All ${formatCount(mine.length)} guides for your business →</a></p>
-</section>
-`;
-}
-
-/**
- * One blog index. Page 1 (`page` omitted) is `<section>/index.html` with the
- * finder over every post; page n is `<section>/page/n/` with a plain list.
- */
-export function renderIndex(allPosts, { baseUrl = '', socialCard = '', episodes = [], section = BLOG, agentPosts = 0, page = 1 } = {}) {
+export function renderIndex(allPosts, { baseUrl = '', socialCard = '', episodes = [], section = ENGINEERING_BLOG, agentPosts = 0, page = 1, customerPosts = 0 } = {}) {
   const count = pageCount(allPosts);
   const paged = count > 1;
   const sub = page > 1;
@@ -1200,16 +1280,18 @@ export function renderIndex(allPosts, { baseUrl = '', socialCard = '', episodes 
   const posts = allPosts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const items = renderCards(posts, up);
   const isAgents = section.id === 'agents';
+  const toPodcast = `${toRoot}${PODCAST_PATH}`;
   const dek = sub
     ? `<p class="dek">Older posts, ${(page - 1) * PAGE_SIZE + 1} to ${(page - 1) * PAGE_SIZE + posts.length} of ${formatCount(allPosts.length)}. <a href="${up}">Search and filter every post</a>, or subscribe with the <a href="${up}feed.xml">Atom feed</a>.</p>`
     : isAgents
     ? `<p class="dek">Written by AI agents, for AI agents. The audience is an LLM reading with tools: posts are dense, cite repository paths you can open,
 and lead with what to do. People are welcome to read along. For a model, the plain-text entry points are
 <a href="llms.txt">llms.txt</a> (the index), <a href="llms-full.txt">llms-full.txt</a> (every post in one file) and each post's
-raw Markdown (<code>&lt;slug&gt;.txt</code>). New posts: the <a href="feed.xml">Atom feed</a>. The blog for people is <a href="../">here</a>.</p>`
-    : `<p class="dek">Practical guides for the businesses our products serve: subcontractors and builders, machine shops, resellers, European firms facing e-invoicing, and nonprofits.
-The build log (how AI agents make and test it all) and the research notes follow under their own topics. Subscribe with the <a href="feed.xml">Atom feed</a>.${episodes.length ? ` Or listen: <a href="podcast/">the podcast</a> has spoken versions of ${episodes.length} of these posts, by topic.` : ` The <a href="podcast/">podcast</a> will carry spoken versions.`} What shipped and what is next: <a href="../updates/">updates and roadmap</a>.${agentPosts ? ` There is also an <a href="agents/">agent-to-agent blog</a>, written by AI agents with other agents as the readers.` : ''}</p>`;
-  const title = `${isAgents ? 'Agent-to-agent blog' : 'Blog'}${sub ? `, page ${page}` : ''} · ${SITE_NAME}`;
+raw Markdown (<code>&lt;slug&gt;.txt</code>). New posts: the <a href="feed.xml">Atom feed</a>. The engineering blog for people is <a href="../">here</a>.</p>`
+    : `<p class="dek">How the products are built: unattended AI coding agents writing and testing the software, the research behind it, quality audits, hosting and the stories.
+Subscribe with the <a href="feed.xml">Atom feed</a>.${episodes.length ? ` Or listen: <a href="${toPodcast}">the podcast</a> has spoken versions of ${episodes.length} posts, by topic.` : ` The <a href="${toPodcast}">podcast</a> will carry spoken versions.`} What shipped and what is next: <a href="${toRoot}updates/">updates and roadmap</a>; the fleet's live numbers: <a href="status/">engineering status</a>.${agentPosts ? ` There is also an <a href="agents/">agent-to-agent blog</a>, written by AI agents with other agents as the readers.` : ''}${customerPosts ? ` Guides for the businesses the products serve are on <a href="${toRoot}${MARKETING_PATH}">the blog</a>.` : ''}</p>`;
+  const name = isAgents ? 'Agent-to-agent blog' : ENGINEERING_BLOG.name;
+  const title = `${name}${sub ? `, page ${page}` : ''} · ${SITE_NAME}`;
   const pager = renderPager(page, count, up ? '../../' : '');
   return shell({
     title,
@@ -1217,13 +1299,15 @@ The build log (how AI agents make and test it all) and the research notes follow
     canonical,
     socialCard,
     toRoot,
+    current: section.nav,
     robots: sub ? 'noindex' : '',
-    crumbs: sub ? `<a href="../../">Blog</a> › Page ${page}` : isAgents ? '<a href="../">Blog</a> › Agent to agent' : 'Blog',
+    crumbs: sub ? `<a href="../../">${esc(name)}</a> › Page ${page}` : isAgents ? `<a href="../">${esc(ENGINEERING_BLOG.name)}</a> › Agent to agent` : esc(name),
     feedHref: `${up}feed.xml`,
-    podcastFeedHref: episodes.length ? `${up}podcast/feed.xml` : '',
-    jsonLd: { '@context': 'https://schema.org', '@type': 'Blog', name: section.feedTitle, url: canonical || undefined },
-    hero: `<p class="eyebrow">${isAgents ? 'Agent to agent' : 'Blog'}</p>
-<h1>${isAgents ? 'Agent-to-agent blog' : 'Blog'}${sub ? `, page ${page}` : ''}</h1>
+    feedTitle: section.feedTitle,
+    podcastFeedHref: episodes.length ? `${toPodcast}feed.xml` : '',
+    jsonLd: { '@context': 'https://schema.org', '@type': 'Blog', name: section.feedTitle, description: section.description, url: canonical || undefined },
+    hero: `<p class="eyebrow">${isAgents ? 'Agent to agent' : 'How we build it'}</p>
+<h1>${esc(name)}${sub ? `, page ${page}` : ''}</h1>
 ${dek}`,
     body: !posts.length
       ? '<p>No posts yet.</p>'
@@ -1232,7 +1316,7 @@ ${dek}`,
 ${items}
 </ul>
 ${pager}`
-        : `${isAgents ? '' : renderCustomerLead(allPosts)}${renderFinder(allPosts)}
+        : `${renderFinder(allPosts)}
 <ul class="posts" id="posts"${paged ? ` data-all="posts.json" data-total="${allPosts.length}"` : ''}>
 ${items}
 </ul>
@@ -1243,29 +1327,169 @@ ${isAgents ? '' : renderTopicNav(allPosts)}
   });
 }
 
-/** A link to another post's source file becomes a link to that post's page on this site. */
-export function linkSiblings(html, posts) {
+/** Customer posts shown per section on the marketing blog's front page. */
+export const SECTION_LEAD = 4;
+
+/** The line under every marketing blog page: where the build log lives. */
+const howWeBuildIt = (toRoot) => `  <p class="eng-link">How we build it: the <a href="${toRoot}${ENGINEERING_BLOG_PATH}">engineering blog</a> covers how AI coding agents write and test this software, the research behind it, and what it costs.</p>\n`;
+
+/** A section's product cards (products.mjs), so each guide sits one click from the product. */
+function sectionProducts(sec, toRoot, published) {
+  if (!sec.lines.length) return '';
+  return `<ul class="pl-grid">\n${sec.lines.map((l) => renderProductCard(l, { toRoot, published, heading: 'h3' })).join('\n')}\n</ul>\n`;
+}
+
+/** Customer posts grouped by section, newest first, in MARKETING_SECTIONS order. */
+export function marketingSections(posts) {
+  const newest = [...posts].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+  return MARKETING_SECTIONS.map((sec) => ({ ...sec, posts: newest.filter((p) => (p.section || 'more') === sec.id) }));
+}
+
+/**
+ * The marketing blog's front page, `blog/`: one band per industry with a paid line (its product
+ * card and its newest guides, linking the section's own page), for a small-business buyer. A
+ * section with no guides yet still shows its product and says so; "more" shows only with posts.
+ */
+export function renderMarketingIndex(posts, { baseUrl = '', socialCard = '', published = null } = {}) {
+  const canonical = baseUrl ? `${baseUrl}${MARKETING_PATH}` : '';
+  const toRoot = '../';
+  const sections = marketingSections(posts).filter((sec) => sec.posts.length || sec.lines.length);
+  const jump = sections.map((sec) => `<li><a href="#${esc(sec.id)}">${esc(sec.label)}</a></li>`).join('');
+  const bands = sections.map((sec) => `<section class="mk-section" id="${esc(sec.id)}" aria-labelledby="${esc(sec.id)}-h">
+<h2 id="${esc(sec.id)}-h">${sec.posts.length ? `<a href="${esc(sec.id)}/">${esc(sec.label)}</a>` : esc(sec.label)}</h2>
+<p class="meta">For ${esc(sec.who.charAt(0).toLowerCase() + sec.who.slice(1))}.</p>
+${sectionProducts(sec, toRoot, published)}${sec.posts.length
+    ? `<ul class="posts">
+${renderCards(sec.posts.slice(0, SECTION_LEAD), '', { topicPill: false })}
+</ul>
+<p class="meta"><a href="${esc(sec.id)}/">All ${formatCount(sec.posts.length)} ${esc(sec.label.toLowerCase())} ${sec.posts.length === 1 ? 'guide' : 'guides'} →</a></p>`
+    : '<p class="meta">No guides here yet.</p>'}
+</section>`).join('\n');
+  return shell({
+    title: `Blog: guides for small businesses · ${SITE_NAME}`,
+    description: BLOG.description,
+    canonical,
+    socialCard,
+    toRoot,
+    current: BLOG.nav,
+    crumbs: 'Blog',
+    feedHref: 'feed.xml',
+    feedTitle: BLOG.feedTitle,
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'Blog',
+      name: BLOG.feedTitle,
+      description: BLOG.description,
+      url: canonical || undefined,
+      ...(baseUrl ? { publisher: { '@type': 'Organization', name: SITE_NAME, url: baseUrl } } : {}),
+      blogPost: [...posts].sort((a, b) => (a.date < b.date ? 1 : -1)).slice(0, 10).map((p) => ({ '@type': 'BlogPosting', headline: p.title, datePublished: p.date, url: baseUrl ? `${baseUrl}${p.href}` : undefined })),
+    },
+    hero: `<p class="eyebrow">Blog</p>
+<h1>Guides for the businesses we build for</h1>
+<p class="dek">Plain answers for subcontractors and builders, machine shops, resellers, firms facing EU e-invoicing and small nonprofits: how a pay application, a takeoff, a quote or an e-invoice works, from the team building the software for it. Subscribe with the <a href="feed.xml">Atom feed</a>.</p>
+${jump ? `<ul class="jump">${jump}</ul>` : ''}`,
+    body: posts.length || sections.length ? bands : '<p>No posts yet.</p>',
+    foot: howWeBuildIt(toRoot),
+  });
+}
+
+/**
+ * One section of the marketing blog: `blog/<id>/` (newest PAGE_SIZE guides) and
+ * `blog/<id>/page/<n>/` (noindex) for the rest, with the section's product cards on its first page.
+ */
+export function renderMarketingSection(posts, sectionId, { baseUrl = '', socialCard = '', page = 1, published = null } = {}) {
+  const sec = marketingSections(posts).find((x) => x.id === sectionId);
+  if (!sec) throw new Error(`renderMarketingSection: no section "${sectionId}"`);
+  const count = pageCount(sec.posts);
+  const sub = page > 1;
+  const here = `${MARKETING_PATH}${sec.id}/`;
+  const canonical = baseUrl ? `${baseUrl}${here}${sub ? `page/${page}/` : ''}` : '';
+  const toBlog = sub ? '../../../' : '../';
+  const toRoot = `${toBlog}../`;
+  const list = sec.posts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const first = (page - 1) * PAGE_SIZE + 1;
+  const n = formatCount(sec.posts.length);
+  const blurb = `Guides for ${sec.who.charAt(0).toLowerCase() + sec.who.slice(1)}${sec.lines.length ? `, from the team building ${sec.lines.map((l) => l.name).join(' and ')}` : ''}.`;
+  const seo = `${sec.label} guides for small businesses`;
+  return shell({
+    title: sub ? `${sec.label} guides, page ${page} · ${SITE_NAME}` : postPageTitle(seo),
+    description: [`${blurb} ${n} ${sec.posts.length === 1 ? 'guide' : 'guides'}, newest first.`, blurb].find((d) => d.length <= 160) ?? blurb.slice(0, 160),
+    canonical,
+    socialCard,
+    toRoot,
+    current: BLOG.nav,
+    robots: sub ? 'noindex' : '',
+    crumbs: `<a href="${toBlog}">Blog</a> › ${sub ? `<a href="../../">${esc(sec.label)}</a> › Page ${page}` : esc(sec.label)}`,
+    feedHref: `${toBlog}feed.xml`,
+    feedTitle: BLOG.feedTitle,
+    breadcrumb: baseUrl
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { name: SITE_NAME, item: baseUrl },
+            { name: BLOG.name, item: `${baseUrl}${MARKETING_PATH}` },
+            { name: sec.label, item: `${baseUrl}${here}` },
+          ].map((crumb, i) => ({ '@type': 'ListItem', position: i + 1, ...crumb })),
+        }
+      : undefined,
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: seo,
+      description: blurb,
+      url: canonical || undefined,
+      isPartOf: { '@type': 'Blog', name: BLOG.feedTitle, url: baseUrl ? `${baseUrl}${MARKETING_PATH}` : undefined },
+      mainEntity: {
+        '@type': 'ItemList',
+        numberOfItems: sec.posts.length,
+        itemListElement: list.map((p, i) => ({ '@type': 'ListItem', position: first + i, name: p.title, url: baseUrl ? `${baseUrl}${p.href}` : undefined })),
+      },
+    },
+    hero: `<p class="eyebrow">Blog · ${esc(sec.label)}</p>
+<h1>${esc(sec.label)} guides${sub ? `, page ${page}` : ''}</h1>
+<p class="dek">${esc(blurb)}</p>
+<p class="meta">${sub ? `Guides ${first} to ${first + list.length - 1} of ${n}, newest first.` : `${n} ${sec.posts.length === 1 ? 'guide' : 'guides'}, newest first.`} <a href="${toBlog}">All guides</a>${sec.lines.length ? ` · <a href="${toRoot}industries/${esc(sec.id)}/">${esc(sec.label)}: what we are building</a>` : ''}</p>`,
+    body: `${sub ? '' : sectionProducts(sec, toRoot, published)}<ul class="posts" id="posts">
+${renderCards(list, toBlog, { topicPill: false })}
+</ul>
+${renderPager(page, count, sub ? '../../' : '')}`,
+    foot: howWeBuildIt(toRoot),
+  });
+}
+
+/**
+ * A link to another post's source file becomes a link to that post's page on this site, on
+ * whichever blog it is. `from` is the blog of the page doing the linking ('blog' or 'engineering'):
+ * a post on the same blog is `../<slug>/`, one on the other blog `../../<blog>/<slug>/`. A post with
+ * no `blog` (the agent-to-agent posts) stays a sibling.
+ */
+export function linkSiblings(html, posts, from = '') {
   // One pass over the page's hrefs, not one scan of the page per post. The
   // replacement never contains REPO_BLOB, so the old chain of replaces and this
   // lookup agree; the first post with a given source wins, as before.
-  const to = siblingTargets(posts);
+  const to = siblingTargets(posts, from);
   return html.replace(/href="([^"]*)"/g, (m, v) => to.get(v) ?? m);
 }
 
-// The source -> page map for one posts array, built once and reused for every
+// The source -> page map for one posts array and linking blog, built once and reused for every
 // post page (as `relatedIndex` is). Rebuilding it per page was 3,700 posts x
 // 3,700 pages x two `esc` calls, about 8 s of a warm build (2026-11-12). The
 // length check rebuilds it if a caller grows the array between pages.
 const SIBLING_TARGETS = new WeakMap();
-function siblingTargets(posts) {
-  const cached = SIBLING_TARGETS.get(posts);
-  if (cached && cached.n === posts.length) return cached.to;
+function siblingTargets(posts, from = '') {
+  let byFrom = SIBLING_TARGETS.get(posts);
+  if (!byFrom || byFrom.n !== posts.length) SIBLING_TARGETS.set(posts, (byFrom = { n: posts.length, maps: new Map() }));
+  const cached = byFrom.maps.get(from);
+  if (cached) return cached;
   const to = new Map();
   for (const p of posts) {
-    const from = esc(REPO_BLOB + p.source);
-    if (!to.has(from)) to.set(from, `href="../${esc(p.slug)}/"`);
+    const src = esc(REPO_BLOB + p.source);
+    if (to.has(src)) continue;
+    const there = !from || !p.blog || p.blog === from ? `../${esc(p.slug)}/` : `../../${esc(p.href)}`;
+    to.set(src, `href="${there}"`);
   }
-  SIBLING_TARGETS.set(posts, { n: posts.length, to });
+  byFrom.maps.set(from, to);
   return to;
 }
 
@@ -1489,29 +1713,51 @@ function postIndex(posts, slug) {
   return i !== undefined && posts[i]?.slug === slug ? i : posts.findIndex((p) => p.slug === slug);
 }
 
-function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = null, section = BLOG, projects = [] } = {}) {
+/**
+ * One post's page. `posts` is the post's own blog, for its related list and older/newer steps;
+ * `everyPost` (both blogs) resolves links to other posts and to old `writing/` URLs.
+ */
+function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = null, section = sectionFor(post), projects = [], everyPost = posts, bySlug = null, published = null } = {}) {
   const canonical = baseUrl ? `${baseUrl}${section.path}${post.slug}/` : '';
   const isAgents = section.id === 'agents';
+  const isMarketing = section.id === BLOG.id;
   const toRoot = '../'.repeat(section.depth + 1);
   const at = postIndex(posts, post.slug);
   const newer = at > 0 ? posts[at - 1] : null;
   const older = at >= 0 && at < posts.length - 1 ? posts[at + 1] : null;
   const related = relatedPosts(post, posts);
-  const tags = post.tags.map((t) => `<a class="tag" href="../?tag=${encodeURIComponent(t)}">${esc(t)}</a>`).join('');
-  // A post on the people's blog links its topic's own page; the agent blog has no topic pages.
-  const topicHref = isAgents ? `../?topic=${esc(post.topic)}` : `../topic/${esc(post.topic)}/`;
-  const topic = `<a class="topic" href="${topicHref}">${esc(topicLabel(post.topic))}</a>`;
+  // The engineering blog's finder filters by tag; the marketing blog has no finder, so its tags are labels.
+  const tags = post.tags.map((t) => (isMarketing ? `<span class="tag">${esc(t)}</span>` : `<a class="tag" href="../?tag=${encodeURIComponent(t)}">${esc(t)}</a>`)).join('');
+  // A customer post links its section of the marketing blog; an engineering post its topic's page;
+  // the agent blog has no topic pages.
+  const sec = isMarketing ? MARKETING_SECTIONS.find((x) => x.id === (post.section || 'more')) : undefined;
+  const topicHref = isAgents ? `../?topic=${esc(post.topic)}` : sec ? `../${esc(sec.id)}/` : `../topic/${esc(post.topic)}/`;
+  const topicName = sec ? sec.label : topicLabel(post.topic);
+  const topic = `<a class="topic" href="${topicHref}">${esc(topicName)}</a>`;
   // The post's project page, when its project has one (`projectGroups`).
-  const project = !isAgents && post.project ? projects.find((g) => g.slug === post.project && (g.topic || 'tools') === post.topic) : undefined;
-  const projectLink = project ? ` · <a href="../${TOPIC_PATH.slice(WRITING_PATH.length)}${esc(post.topic)}/${esc(project.slug)}/">More on ${esc(project.name)}</a>` : '';
+  const project = !isAgents && !isMarketing && post.project ? projects.find((g) => g.slug === post.project && (g.topic || 'tools') === post.topic) : undefined;
+  const projectLink = project ? ` · <a href="../topic/${esc(post.topic)}/${esc(project.slug)}/">More on ${esc(project.name)}</a>` : '';
   const markdown = isAgents ? ` · <a href="../${esc(post.slug)}.txt" type="text/plain">Markdown (plain text)</a>` : '';
+  const blogName = isMarketing ? BLOG.name : ENGINEERING_BLOG.name;
+  const toBlog = isAgents ? '../../' : '../';
+  // The product a customer post is a door to: its section's lines, as on the section page.
+  const cta = sec && sec.lines.length
+    ? `<section class="post-cta" aria-labelledby="cta-h"><h2 id="cta-h">What we are building for ${esc(sec.label.toLowerCase())}</h2>
+<ul class="pl-grid">
+${sec.lines.map((l) => renderProductCard(l, { toRoot, published, heading: 'h3' })).join('\n')}
+</ul></section>
+`
+    : '';
+  const slugBlogs = bySlug ?? new Map(everyPost.map((p) => [p.slug, p.blog]));
+  const articleHtml = rewriteLegacyLinks(relinkSite(linkSiblings(renderMarkdown(post.body, { fromPath: post.source, dropTitle: true }), everyPost, isAgents ? '' : post.blog), toRoot), toRoot, slugBlogs);
   return shell({
     title: postPageTitle(post.seoTitle || post.title),
     description: post.description,
     canonical,
     socialCard,
     toRoot,
-    crumbs: isAgents ? '<a href="../../">Blog</a> › <a href="../">Agent to agent</a>' : '<a href="../">Blog</a>',
+    current: section.nav,
+    crumbs: isAgents ? `<a href="../../">${esc(ENGINEERING_BLOG.name)}</a> › <a href="../">Agent to agent</a>` : `<a href="../">${esc(blogName)}</a>${sec ? ` › <a href="../${esc(sec.id)}/">${esc(sec.label)}</a>` : ''}`,
     // The same trail as the visible one above, for search results. Only with a
     // real origin: a fixture build has no absolute URL to name.
     breadcrumb: baseUrl
@@ -1520,13 +1766,15 @@ function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = 
           '@type': 'BreadcrumbList',
           itemListElement: [
             { name: SITE_NAME, item: baseUrl },
-            { name: BLOG.name, item: `${baseUrl}${WRITING_PATH}` },
+            { name: blogName, item: `${baseUrl}${isMarketing ? MARKETING_PATH : ENGINEERING_BLOG_PATH}` },
             ...(isAgents ? [{ name: AGENT_BLOG.name, item: `${baseUrl}${AGENTS_PATH}` }] : []),
+            ...(sec ? [{ name: sec.label, item: `${baseUrl}${MARKETING_PATH}${sec.id}/` }] : []),
             { name: post.title, item: canonical },
           ].map((crumb, i) => ({ '@type': 'ListItem', position: i + 1, ...crumb })),
         }
       : undefined,
     feedHref: '../feed.xml',
+    feedTitle: section.feedTitle,
     jsonLd: withArticleDefaults({
       '@context': 'https://schema.org',
       '@type': 'BlogPosting',
@@ -1535,8 +1783,9 @@ function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = 
       datePublished: post.date,
       url: canonical || undefined,
       keywords: post.tags.join(', ') || undefined,
-      articleSection: topicLabel(post.topic),
+      articleSection: topicName,
       wordCount: post.words,
+      ...(baseUrl ? { isPartOf: { '@type': 'Blog', name: section.feedTitle, url: `${baseUrl}${section.path}` } } : {}),
       ...(episode && baseUrl
         ? { audio: { '@type': 'AudioObject', contentUrl: `${baseUrl}${PODCAST_PATH}audio/${episode.audioFile}`, encodingFormat: 'audio/mpeg', duration: `PT${Math.round(episode.seconds)}S` } }
         : {}),
@@ -1545,37 +1794,55 @@ function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = 
 <p class="dek">${post.descriptionHtml ?? esc(post.description)}</p>
 <p class="meta post-meta">${topic} <span class="when"><time datetime="${post.date}">${longDate(post.date)}</time> · ${post.minutes}&nbsp;min&nbsp;read</span> <span class="tail">${tags ? `<span class="tags">${tags}</span> ` : ''}<span class="src"><a href="${REPO_BLOB}${esc(post.source)}">Source</a>${markdown}</span></span></p>`,
     body: `<article>
-${episode ? `${renderPlayer(episode, '../podcast/')}\n` : ''}${relinkSite(linkSiblings(renderMarkdown(post.body, { fromPath: post.source, dropTitle: true }), posts), toRoot)}
+${episode ? `${renderPlayer(episode, `${toRoot}${PODCAST_PATH}`)}\n` : ''}${articleHtml}
 </article>
-<section class="more" aria-labelledby="related-h">
-${related.length ? `<h2 id="related-h">Related posts</h2>
-<ul class="related">${related.map((p) => `<li><a href="../${esc(p.slug)}/">${esc(p.title)}</a><span class="when"><time datetime="${p.date}">${longDate(p.date)}</time> · ${esc(topicLabel(p.topic))}</span></li>`).join('')}</ul>` : ''}
+${cta}<section class="more" aria-labelledby="related-h">
+${related.length ? `<h2 id="related-h">Related ${isMarketing ? 'guides' : 'posts'}</h2>
+<ul class="related">${related.map((p) => `<li><a href="../${esc(p.slug)}/">${esc(p.title)}</a><span class="when"><time datetime="${p.date}">${longDate(p.date)}</time> · ${esc(isMarketing ? MARKETING_SECTIONS.find((x) => x.id === (p.section || 'more'))?.label ?? '' : topicLabel(p.topic))}</span></li>`).join('')}</ul>` : ''}
 ${newer || older ? `<nav class="pager steps" aria-label="Older and newer posts">${older ? `<a href="../${esc(older.slug)}/" rel="prev"><span class="dir">← Older</span>${esc(older.title)}</a>` : '<span></span>'}${newer ? `<a href="../${esc(newer.slug)}/" rel="next" class="next"><span class="dir">Newer →</span>${esc(newer.title)}</a>` : ''}</nav>` : ''}
-<p class="all"><a href="../">All ${isAgents ? 'agent-to-agent posts' : 'writing'}</a> · <a href="${topicHref}">More in ${esc(topicLabel(post.topic))}</a>${projectLink} · <a href="${toRoot}">All tools and research</a></p>
+<p class="all"><a href="${isAgents ? '../' : toBlog}">All ${isAgents ? 'agent-to-agent posts' : isMarketing ? 'guides' : 'engineering posts'}</a> · <a href="${topicHref}">More in ${esc(topicName)}</a>${projectLink} · <a href="${toRoot}">All tools and research</a></p>
 </section>`,
+    foot: isMarketing ? howWeBuildIt(toRoot) : '',
   });
 }
 
+/**
+ * The feed at the single blog's old address, `writing/feed.xml`: every post from both blogs, so a
+ * reader subscribed before the split (2026-11-26) keeps getting everything. Each entry links the
+ * post's new page and keeps its old `<id>`, so a feed reader does not show every post again as new.
+ */
+export const LEGACY_FEED = Object.freeze({
+  id: 'legacy',
+  path: WRITING_PATH,
+  feedTitle: `${SITE_NAME}: writing`,
+  keepIds: true,
+});
+
 /** Atom feed. Absolute links need the base URL; without one (a fixture build) they stay relative. */
-export function renderFeed(posts, { baseUrl = '', section = BLOG } = {}) {
+export function renderFeed(posts, { baseUrl = '', section = ENGINEERING_BLOG } = {}) {
   const root = `${baseUrl}${section.path}`;
   const updated = posts[0] ? `${posts[0].date}T00:00:00Z` : '1970-01-01T00:00:00Z';
+  const label = (p) => (p.blog === 'blog' ? MARKETING_SECTIONS.find((x) => x.id === (p.section || 'more'))?.label ?? topicLabel(p.topic) : topicLabel(p.topic));
   const entries = posts
-    .map(
-      (p) => `  <entry>
+    .map((p) => {
+      const href = p.href ? `${baseUrl}${p.href}` : `${root}${p.slug}/`;
+      return `  <entry>
     <title>${esc(p.title)}</title>
-    <link href="${esc(`${root}${p.slug}/`)}"/>
-    <id>${esc(`${root}${p.slug}/`)}</id>
+    <link href="${esc(href)}"/>
+    <id>${esc(section.keepIds ? `${root}${p.slug}/` : href)}</id>
     <updated>${p.date}T00:00:00Z</updated>
-    <category term="${esc(p.topic)}" label="${esc(topicLabel(p.topic))}"/>
+    <category term="${esc(p.blog === 'blog' ? p.section || 'more' : p.topic)}" label="${esc(label(p))}"/>
     <summary>${esc(p.description)}</summary>
-  </entry>`,
-    )
+  </entry>`;
+    })
     .join('\n');
+  // The legacy feed's own link is the marketing blog, where `writing/` now sends a browser.
+  const home = section.keepIds ? `${baseUrl}${MARKETING_PATH}` : root;
   return `<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>${esc(section.feedTitle)}</title>
-  <link href="${esc(root)}"/>
+  <link href="${esc(home)}"/>
+  <link rel="self" href="${esc(`${root}feed.xml`)}"/>
   <id>${esc(root)}</id>
   <updated>${updated}</updated>
 ${entries}
@@ -1604,7 +1871,7 @@ ${posts.map((p) => `- [${p.title}](${root}${p.slug}.txt): ${p.description} (${p.
 ## Optional
 
 - [Atom feed](${root}feed.xml): new posts, newest first.
-- [The blog for people](${baseUrl}${WRITING_PATH}): longer essays on the same work.
+- [The engineering blog](${baseUrl}${ENGINEERING_BLOG_PATH}): longer essays on the same work, for people.
 `;
 }
 
@@ -1624,8 +1891,8 @@ export function renderPodcastIndex(episodes, { baseUrl = '', socialCard = '' } =
     canonical,
     socialCard,
     toRoot: '../../',
-    crumbs: `<a href="../">Blog</a> › Podcast`,
-    current: 'writing',
+    crumbs: `<a href="../../${ENGINEERING_BLOG_PATH}">${esc(ENGINEERING_BLOG.name)}</a> › Podcast`,
+    current: 'engineering',
     hero: renderPodcastHero(),
     feedHref: '../feed.xml',
     podcastFeedHref: 'feed.xml',
@@ -1634,24 +1901,24 @@ export function renderPodcastIndex(episodes, { baseUrl = '', socialCard = '' } =
   });
 }
 
-/** Write one blog's pages, feed and search index into `<outDir>/<section.path>`. */
 /** The ids of the topics at least one post has, in TOPICS order. */
 export const topicIds = (posts) => TOPICS.map((t) => t.id).filter((id) => posts.some((p) => p.topic === id));
 
-async function writeSection(outDir, posts, section, { baseUrl, socialCard, rebase, episodes = [], byPost = new Map(), agentPosts = 0, projects = [], published = new Set() }) {
+/** Write the engineering blog's (or the agent blog's) pages, feed and search index into `<outDir>/<section.path>`. */
+async function writeSection(outDir, posts, section, { baseUrl, socialCard, rebase, episodes = [], byPost = new Map(), agentPosts = 0, projects = [], published = new Set(), everyPost = posts, customerPosts = 0 }) {
   const dir = path.join(outDir, section.path);
   await fs.mkdir(dir, { recursive: true });
-  await fs.writeFile(path.join(dir, 'index.html'), rebase(renderIndex(posts, { baseUrl, socialCard, episodes, section, agentPosts })));
+  await fs.writeFile(path.join(dir, 'index.html'), rebase(renderIndex(posts, { baseUrl, socialCard, episodes, section, agentPosts, customerPosts })));
   // Past one page the index lists the newest posts; the rest are numbered pages, and the finder reads posts.json.
   const pages = pageCount(posts);
   if (pages > 1) {
     await fs.writeFile(path.join(dir, 'posts.json'), rebase(renderPostRows(posts)));
     for (let n = 2; n <= pages; n++) {
       await fs.mkdir(path.join(dir, 'page', String(n)), { recursive: true });
-      await fs.writeFile(path.join(dir, 'page', String(n), 'index.html'), rebase(renderIndex(posts, { baseUrl, socialCard, episodes, section, agentPosts, page: n })));
+      await fs.writeFile(path.join(dir, 'page', String(n), 'index.html'), rebase(renderIndex(posts, { baseUrl, socialCard, episodes, section, agentPosts, customerPosts, page: n })));
     }
   }
-  if (section.id === BLOG.id) {
+  if (section.id === ENGINEERING_BLOG.id) {
     for (const id of topicIds(posts)) {
       const tdir = path.join(outDir, TOPIC_PATH, id);
       await fs.mkdir(tdir, { recursive: true });
@@ -1679,24 +1946,50 @@ async function writeSection(outDir, posts, section, { baseUrl, socialCard, rebas
   }
   await fs.writeFile(path.join(dir, 'feed.xml'), rebase(renderFeed(posts, { baseUrl, section })));
   await fs.writeFile(path.join(dir, 'search.json'), rebase(renderSearchIndex(posts)));
-  // Sync on purpose, as in build.mjs's rewritePagesSync. Awaiting an
-  // fs.promises mkdir and write per post, one post at a time, sent ~9,500
-  // round trips through libuv's thread pool for files that take microseconds
-  // to write: the main thread sat idle for about 45% of this loop over 4,741
-  // posts (2026-11-15, docs/history/pages-build-perf-2026-11-15-writing-sync-writes.md).
-  // Nothing else in this process is in flight here (the research builder is a
-  // child process with no pipe to drain), so blocking holds nothing up.
+  writePostPages(dir, posts, section, { baseUrl, socialCard, rebase, byPost, projects, everyPost, published });
+}
+
+// Sync on purpose, as in build.mjs's rewritePagesSync. Awaiting an
+// fs.promises mkdir and write per post, one post at a time, sent ~9,500
+// round trips through libuv's thread pool for files that take microseconds
+// to write: the main thread sat idle for about 45% of this loop over 4,741
+// posts (2026-11-15, docs/history/pages-build-perf-2026-11-15-writing-sync-writes.md).
+// Nothing else in this process is in flight here (the research builder is a
+// child process with no pipe to drain), so blocking holds nothing up.
+function writePostPages(dir, posts, section, { baseUrl, socialCard, rebase, byPost = new Map(), projects = [], everyPost = posts, published = null }) {
+  const bySlug = new Map(everyPost.map((p) => [p.slug, p.blog]));
   for (const post of posts) {
     mkdirSync(path.join(dir, post.slug), { recursive: true });
-    writeFileSync(path.join(dir, post.slug, 'index.html'), rebase(renderPost(post, posts, { baseUrl, socialCard, episode: byPost.get(post.slug), section, projects })));
+    writeFileSync(path.join(dir, post.slug, 'index.html'), rebase(renderPost(post, posts, { baseUrl, socialCard, episode: byPost.get(post.slug), section, projects, everyPost, bySlug, published })));
   }
 }
 
+/** Write the marketing blog, `blog/`: its front page, a page per section with guides, its feed and every customer post. */
+async function writeMarketing(outDir, posts, { baseUrl, socialCard, rebase, byPost, everyPost, published }) {
+  const dir = path.join(outDir, MARKETING_PATH);
+  await fs.mkdir(dir, { recursive: true });
+  await fs.writeFile(path.join(dir, 'index.html'), rebase(renderMarketingIndex(posts, { baseUrl, socialCard, published })));
+  const written = [];
+  for (const sec of marketingSections(posts).filter((x) => x.posts.length)) {
+    const sdir = path.join(dir, sec.id);
+    await fs.mkdir(sdir, { recursive: true });
+    await fs.writeFile(path.join(sdir, 'index.html'), rebase(renderMarketingSection(posts, sec.id, { baseUrl, socialCard, published })));
+    for (let n = 2; n <= pageCount(sec.posts); n++) {
+      await fs.mkdir(path.join(sdir, 'page', String(n)), { recursive: true });
+      await fs.writeFile(path.join(sdir, 'page', String(n), 'index.html'), rebase(renderMarketingSection(posts, sec.id, { baseUrl, socialCard, published, page: n })));
+    }
+    written.push(sec.id);
+  }
+  await fs.writeFile(path.join(dir, 'feed.xml'), rebase(renderFeed(posts, { baseUrl, section: BLOG })));
+  writePostPages(dir, posts, BLOG, { baseUrl, socialCard, rebase, byPost, everyPost, published });
+  return written;
+}
+
 /**
- * Write `writing/` into outDir, with the podcast at `writing/podcast/` when an
- * episode's audio is committed, and the agent-to-agent blog at
- * `writing/agents/` when `docs/agent-posts/` has a post. Returns the page
- * slugs under `writing/` for the sitemap.
+ * Write both blogs into outDir: the marketing blog at `blog/`, the engineering blog at
+ * `engineering/` (with the agent-to-agent blog at `engineering/agents/` when
+ * `docs/agent-posts/` has a post), the combined feed at `writing/feed.xml` and the podcast at
+ * `writing/podcast/`. Returns every indexable page's path from the site root, for the sitemap.
  */
 // `originAlias` is the site's default address (build.mjs passes its
 // DEFAULT_BASE_URL). A post that links to a tool by its full URL then follows
@@ -1707,18 +2000,21 @@ async function writeSection(outDir, posts, section, { baseUrl, socialCard, rebas
 export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, socialCard = '', originAlias = '', published = new Set() } = {}) {
   const posts = loadPosts(root);
   const agentPosts = loadPosts(root, AGENT_POSTS_DIR);
-  const topicByPost = new Map(posts.map((p) => [p.slug, p.topic]));
-  const episodes = loadEpisodes(root, new Set(posts.map((p) => p.slug))).map((ep) => ({ ...ep, topic: topicByPost.get(ep.post) || 'tools' }));
+  const customer = posts.filter((p) => p.blog === 'blog');
+  const engineering = posts.filter((p) => p.blog !== 'blog');
+  const postBySlug = new Map(posts.map((p) => [p.slug, p]));
+  const episodes = loadEpisodes(root, new Set(posts.map((p) => p.slug))).map((ep) => ({ ...ep, topic: postBySlug.get(ep.post)?.topic || 'tools', href: postBySlug.get(ep.post)?.href }));
   const byPost = new Map(episodes.map((ep) => [ep.post, ep]));
   const aliases = [].concat(originAlias || []).filter((a) => a && baseUrl && a !== baseUrl);
   const rebase = (html) => aliases.reduce((h, a) => h.split(a).join(baseUrl), html);
   const questions = researchQuestions(root);
   const ledes = researchLedes(root);
   const projects = [
-    ...projectGroups(posts.filter((p) => p.topic === 'tools'), { root }),
-    ...projectGroups(posts.filter((p) => p.topic === 'research'), { root, topic: 'research', questions: (slug) => questions.get(slug) || '', ledes: (slug) => ledes.get(slug) || '' }),
+    ...projectGroups(engineering.filter((p) => p.topic === 'tools'), { root }),
+    ...projectGroups(engineering.filter((p) => p.topic === 'research'), { root, topic: 'research', questions: (slug) => questions.get(slug) || '', ledes: (slug) => ledes.get(slug) || '' }),
   ];
-  await writeSection(outDir, posts, BLOG, { baseUrl, socialCard, rebase, episodes, byPost, agentPosts: agentPosts.length, projects, published });
+  const sections = await writeMarketing(outDir, customer, { baseUrl, socialCard, rebase, byPost, everyPost: posts, published });
+  await writeSection(outDir, engineering, ENGINEERING_BLOG, { baseUrl, socialCard, rebase, episodes, byPost, agentPosts: agentPosts.length, projects, published, everyPost: posts, customerPosts: customer.length });
   if (agentPosts.length) {
     await writeSection(outDir, agentPosts, AGENT_BLOG, { baseUrl, socialCard, rebase });
     const dir = path.join(outDir, AGENTS_PATH);
@@ -1728,19 +2024,26 @@ export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, 
     await fs.writeFile(path.join(dir, 'llms.txt'), rebase(renderAgentLlmsTxt(agentPosts, { baseUrl })));
     await fs.writeFile(path.join(dir, 'llms-full.txt'), rebase(renderAgentLlmsFull(agentPosts, { baseUrl })));
   }
-  // The podcast page is in the top navigation, so it is written even before any
+  // The old single blog's feed, still where its subscribers point (LEGACY_FEED).
+  await fs.mkdir(path.join(outDir, WRITING_PATH), { recursive: true });
+  await fs.writeFile(path.join(outDir, WRITING_PATH, 'feed.xml'), rebase(renderFeed(posts, { baseUrl, section: LEGACY_FEED })));
+  // The podcast page is in the footer, so it is written even before any
   // episode has audio; the feeds and audio only once one does.
   if (episodes.length) await writePodcastAssets(outDir, episodes, { root, baseUrl, image: socialCard, topics: TOPICS });
   await fs.mkdir(path.join(outDir, PODCAST_PATH), { recursive: true });
   await fs.writeFile(path.join(outDir, PODCAST_PATH, 'index.html'), rebase(renderPodcastIndex(episodes, { baseUrl, socialCard })));
   return [
-    ...posts.map((p) => p.slug),
+    MARKETING_PATH,
+    ...sections.map((id) => `${MARKETING_PATH}${id}/`),
+    ...customer.map((p) => p.href),
+    ENGINEERING_BLOG_PATH,
+    ...engineering.map((p) => p.href),
     // Each topic's first page; its numbered pages are noindex, like the blog's.
-    ...topicIds(posts).map((id) => `topic/${id}`),
+    ...topicIds(engineering).map((id) => `${TOPIC_PATH}${id}/`),
     // Each project's first page under "Tools and projects" or "Research findings".
-    ...projects.map((g) => `topic/${g.topic || 'tools'}/${g.slug}`),
-    'podcast',
-    ...(agentPosts.length ? ['agents', ...agentPosts.map((p) => `agents/${p.slug}`)] : []),
+    ...projects.map((g) => `${TOPIC_PATH}${g.topic || 'tools'}/${g.slug}/`),
+    PODCAST_PATH,
+    ...(agentPosts.length ? [AGENTS_PATH, ...agentPosts.map((p) => `${AGENTS_PATH}${p.slug}/`)] : []),
   ];
 }
 
@@ -1753,5 +2056,5 @@ if (invokedDirectly) {
   // Over a full build's dist, link the tools it already holds.
   const published = new Set(existsSync(out) ? readdirSync(out) : []);
   const pages = await buildWriting(out, arg('base-url') ?? '', { published });
-  console.log(`writing: wrote ${path.join(out, WRITING_PATH)} (${pages.length} pages)`);
+  console.log(`writing: wrote ${path.join(out, MARKETING_PATH)} and ${path.join(out, ENGINEERING_BLOG_PATH)} (${pages.length} indexable pages)`);
 }

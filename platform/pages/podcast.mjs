@@ -25,6 +25,7 @@ import { fileURLToPath } from 'node:url';
 import { esc } from '../devlog/markdown.mjs';
 import { SITE_NAME } from './site-nav.mjs';
 import { parseFrontMatter, WRITING_PATH } from './writing.mjs';
+import { ENGINEERING_BLOG_PATH, MARKETING_PATH } from './writing-moves.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(HERE, '..', '..');
@@ -121,9 +122,13 @@ text-to-speech model), and the scripts are written by AI agents from the reposit
 post has the links and sources.</p>`;
 }
 
+// An episode's post, from `writing/podcast/`: `ep.href` (the post's page from the site root, set by
+// buildWriting since the blog split of 2026-11-26), else the old `writing/<slug>/` sibling.
+const postHref = (ep) => (ep.href ? `../../${ep.href}` : `../${ep.post}/`);
+
 function renderEpisode(ep) {
   return `<li id="${esc(ep.slug)}">
-  <h3><a href="../${esc(ep.post)}/">${esc(ep.title)}</a></h3>
+  <h3><a href="${esc(postHref(ep))}">${esc(ep.title)}</a></h3>
   <p>${esc(ep.description)}</p>
   <p class="meta"><time datetime="${ep.date}">${ep.date}</time> · ${clock(ep.seconds)}</p>
   <audio controls preload="none" src="audio/${esc(ep.audioFile)}"></audio>
@@ -140,7 +145,7 @@ ${paragraphs(ep.script)}
  */
 export function renderPodcastBody(episodes, topics = []) {
   if (!episodes.length) return `<p>No episodes yet.</p>
-<p class="more"><a href="../">All posts</a> · <a href="../../">All tools and research</a></p>`;
+<p class="more"><a href="../../${ENGINEERING_BLOG_PATH}">Engineering blog</a> · <a href="../../${MARKETING_PATH}">Blog</a> · <a href="../../">All tools and research</a></p>`;
   const groups = topics
     .map((t) => ({ ...t, episodes: episodes.filter((ep) => ep.topic === t.id) }))
     .filter((g) => g.episodes.length);
@@ -160,7 +165,7 @@ ${g.episodes.map(renderEpisode).join('\n')}
 </section>`,
     )
     .join('\n')}
-<p class="more"><a href="../">All posts</a> · <a href="../../">All tools and research</a></p>`;
+<p class="more"><a href="../../${ENGINEERING_BLOG_PATH}">Engineering blog</a> · <a href="../../${MARKETING_PATH}">Blog</a> · <a href="../../">All tools and research</a></p>`;
 }
 
 /** RSS 2.0 with the iTunes tags podcast directories read. Enclosures need absolute URLs, so a build without a base URL leaves them relative. */
@@ -174,7 +179,7 @@ export function renderPodcastFeed(episodes, { baseUrl = '', image = '', topic = 
       (ep) => `    <item>
       <title>${esc(ep.title)}</title>
       <description>${esc(ep.description)}</description>
-      <link>${esc(`${baseUrl}${WRITING_PATH}${ep.post}/`)}</link>
+      <link>${esc(`${baseUrl}${ep.href || `${WRITING_PATH}${ep.post}/`}`)}</link>
       <guid isPermaLink="false">${esc(`${root}${ep.stem}`)}</guid>
       <pubDate>${new Date(`${ep.date}T00:00:00Z`).toUTCString()}</pubDate>
       <enclosure url="${esc(`${root}audio/${ep.audioFile}`)}" length="${ep.bytes}" type="audio/mpeg"/>

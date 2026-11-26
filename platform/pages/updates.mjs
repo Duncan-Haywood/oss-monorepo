@@ -630,7 +630,7 @@ ${tile(s.costed ? money(s.spend) : '—', s.costed ? `measured compute cost of $
         ? `<p>${decisions.length} decision${decisions.length === 1 ? '' : 's'} only the owner can make (money, accounts, publishing under the portfolio's name):</p>
 <ul class="log">${decisions.slice(0, 6).map((d) => `<li><code>${esc(d.id)}</code>${d.gates ? ` <span class="meta">· blocks ${esc(d.gates)}</span>` : ''}</li>`).join('')}</ul>`
         : '<p class="note">Nothing is waiting on the owner.</p>'
-  }<p class="note">Agents work around these rather than wait; the full list is on the <a href="../engineering/">engineering status page</a>.</p></div>
+  }<p class="note">Agents work around these rather than wait; the full list is on the <a href="../engineering/status/">engineering status page</a>.</p></div>
 </div>`;
 
   // Same origin only: the dashboard's stats.json, written at publish time.
@@ -677,7 +677,7 @@ ${data.runs.length.toLocaleString('en-US')} are in the repository so far, in <a 
 and keeps what works. Experiments and their verdicts are on the <a href="../dev/analyses/">development analyses</a> page.</li>
 </ol>
 <p>Go deeper: the <a href="../dev/">development dashboard</a> (merges, CI and cost per day), the
-<a href="../engineering/">engineering status page</a>, <a href="../${'writing/'}">essays on how it is built</a>, and the
+<a href="../engineering/status/">engineering status page</a>, <a href="../engineering/">essays on how it is built</a>, and the
 <a href="${REPO_URL}">source on GitHub</a>.</p>`;
 
   return shell({

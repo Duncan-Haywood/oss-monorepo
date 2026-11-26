@@ -4,7 +4,7 @@
  * effort and the compute go, what is blocked on the owner, and what the runs
  * themselves say is slowing them down.
  *
- *   node platform/pages/engineering.mjs --out=dist        # writes dist/engineering/index.html
+ *   node platform/pages/engineering.mjs --out=dist        # writes dist/engineering/status/index.html
  *   node platform/pages/engineering.mjs --out=dist --today=2026-10-16
  *
  * `build.mjs` calls `buildEngineeringPage` on every site build, so the page is
@@ -40,7 +40,8 @@ import { formatCount } from './count.mjs';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_ROOT = path.resolve(HERE, '..', '..');
 
-export const ENGINEERING_PATH = 'engineering/';
+// Under the engineering blog since the blog split (2026-11-26), which took `engineering/` itself.
+export const ENGINEERING_PATH = 'engineering/status/';
 export { REPO_URL };
 
 // Fixed order so a track keeps its colour from build to build. Anything a
@@ -660,7 +661,7 @@ footer{color:var(--muted);font-size:13px;padding:8px 0 40px}
 <body>
 <div class="wrap">
 <header>
-  <div class="crumbs"><a href="${REPO_URL}">Repository</a> · <a href="../dev/">Development dashboard</a></div>
+  <div class="crumbs"><a href="${REPO_URL}">Repository</a> · <a href="../../dev/">Development dashboard</a> · <a href="../">Engineering blog</a></div>
   <h1>Engineering status</h1>
   <p class="lede">The monorepo as an engineering manager would read it: what shipped, what each agent session worked on, where the effort and compute went, and what is blocked on the owner. Rebuilt from <code>main</code> at ${head} on ${esc(model.today)} every time the site is published.</p>
 </header>
@@ -754,13 +755,13 @@ ${mergeRows}
   <p class="sub">${model.ventures.total.toLocaleString('en-US')} ventures (${stageText || 'no stages recorded'}); ${model.launchesTotal.toLocaleString('en-US')} have a launch date in <code>launched.json</code>. Launches per week:</p>
   ${launchChart(model.launchWeeks)}
   <h2 style="margin-top:16px">Latest launches</h2>
-  <ul class="plain">${model.launchesRecent.map((l) => `<li><span class="faint">${esc(l.date)}</span> <a href="../${esc(l.slug)}/">${esc(l.slug)}</a></li>`).join('')}</ul>
+  <ul class="plain">${model.launchesRecent.map((l) => `<li><span class="faint">${esc(l.date)}</span> <a href="../../${esc(l.slug)}/">${esc(l.slug)}</a></li>`).join('')}</ul>
 </section>
 <section>
   <h2>Research</h2>
   <p class="sub">${formatCount(model.research.projects)} projects in ${model.research.themes.length} themes, from <code>research/_homepage/projects.json</code>.</p>
   ${barList(model.research.themes.map((t) => [t.name, t.count]))}
-  ${model.research.logs.length ? `<h2 style="margin-top:16px">Latest research log entries</h2><ul class="plain">${model.research.logs.map((l) => `<li><span class="faint">${esc(l.date)}</span> <a href="../research/${esc(l.slug)}/">${esc(l.slug)}</a>: ${inlineCode(l.title)}</li>`).join('')}</ul>` : ''}
+  ${model.research.logs.length ? `<h2 style="margin-top:16px">Latest research log entries</h2><ul class="plain">${model.research.logs.map((l) => `<li><span class="faint">${esc(l.date)}</span> <a href="../../research/${esc(l.slug)}/">${esc(l.slug)}</a>: ${inlineCode(l.title)}</li>`).join('')}</ul>` : ''}
 </section>
 </div>
 
@@ -772,7 +773,7 @@ ${mergeRows}
 </div>
 </body>
 </html>
-`, { toRoot: '../', crumbs: [{ label: 'Engineering status' }] });
+`, { toRoot: '../../', crumbs: [{ label: 'Engineering blog', href: '../' }, { label: 'Engineering status' }] });
 }
 
 export async function buildEngineeringPage(outDir, baseUrl = '', { root = DEFAULT_ROOT, today } = {}) {

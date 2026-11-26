@@ -60,6 +60,9 @@ export function siteAddress(baseUrl) {
 // should not share one, and the same section should always get the same.
 const SECTION_ACCENTS = {
   writing: '#9333ea',
+  // The two blogs that replaced writing/ (2026-11-26): the engineering blog keeps its purple.
+  blog: '#b45309',
+  engineering: '#9333ea',
   compare: '#0e7490',
   updates: '#15803d',
   ask: '#4338ca',
@@ -98,6 +101,8 @@ export function accentFor(section, topic = '') {
 const SECTION_NAMES = {
   research: 'Research',
   writing: 'Writing',
+  blog: 'Blog',
+  engineering: 'Engineering blog',
   compare: 'Compare',
   updates: 'Updates',
   ask: 'Ask',
@@ -111,6 +116,8 @@ const SECTION_NAMES = {
 const FOOTERS = {
   research: 'Open research · code, tests and results',
   writing: 'Essays from building in public',
+  blog: 'Guides for small businesses',
+  engineering: 'Essays from building in public',
 };
 const DEFAULT_FOOTER = 'Free · source available · FSL-1.1-MIT';
 
@@ -228,9 +235,9 @@ export function pageCardPlan(html, relative, { baseUrl, siteCard = 'social-card.
   let kicker = sectionName;
   const topic = crumbs.find((c) => c !== sectionName && c.length < 70) ?? '';
   if (topic && topic !== headline) kicker = sectionName ? `${sectionName} · ${topic}` : topic;
-  if (section === 'writing') {
+  if (section === 'writing' || section === 'blog' || section === 'engineering') {
     const minutes = /(\d+)\s*min read/i.exec(html.replace(/<[^>]+>/g, ' '))?.[1];
-    if (minutes && dir !== 'writing/') kicker = `Writing · ${minutes} min read`;
+    if (minutes && dir !== `${section}/`) kicker = `${section === 'blog' ? 'Guide' : section === 'engineering' ? 'Engineering' : 'Writing'} · ${minutes} min read`;
   }
   // A section's own front page ("Writing", "Updates") has a one-word title,
   // so its card carries the page's description under it.

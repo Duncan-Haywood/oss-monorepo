@@ -75,8 +75,8 @@ test('the one-walk finish writes the same bytes and reports as the title, sponso
   const pages = {
     // A tool page and a post that reuses its title: the post is retitled.
     'tool/index.html': page(`<h1>Same</h1><input>${sponsor}<script>1</script>`, own('Same')),
-    'writing/post/index.html': page(`<h1>A post of its own</h1><p>${sponsor}</p>`, own('Same', '<meta name="description" content="Same">')),
-    'writing/other/index.html': page('<h1>Other</h1><button>b</button><script>1</script>', own('Other')),
+    'engineering/post/index.html': page(`<h1>A post of its own</h1><p>${sponsor}</p>`, own('Same', '<meta name="description" content="Same">')),
+    'engineering/other/index.html': page('<h1>Other</h1><button>b</button><script>1</script>', own('Other')),
     // On the site-wide card, so it plans a card of its own.
     'guides/one/index.html': page('<h1>Guide one</h1>', `<title>Guide one</title><meta property="og:image" content="https://x.test/${SOCIAL_CARD_FILE}">`),
     'plain.html': page('<p>plain</p>'),

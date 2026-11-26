@@ -335,7 +335,7 @@ const longDate = (iso) => {
 };
 
 /** The newest essays, so the front door shows the site is alive. */
-export function renderLatestWriting(posts = [], { writingPath = 'writing/', limit = 3 } = {}) {
+export function renderLatestWriting(posts = [], { writingPath = 'blog/', limit = 3 } = {}) {
   // Customer-facing posts (topic "business", writing.mjs) since 2026-11-25 (owner: "blogs get
   // moved from dev blog to marketing blog"); the newest of any kind only when there are none.
   const newest = (list) => [...list].sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0)).slice(0, limit);
@@ -345,11 +345,11 @@ export function renderLatestWriting(posts = [], { writingPath = 'writing/', limi
   return `    <section class="band" id="writing" aria-labelledby="writing-h">
       <p class="section-eyebrow">Guides</p>
       <h2 id="writing-h">${customer.length ? 'Guides for the businesses we build for' : 'Notes from building it in public'}</h2>
-      <p class="band-lede">${customer.length ? 'Answers to the questions subcontractors, machine shops, sellers and nonprofits ask, from the tools that do the work.' : "What the tools turned up and how they were built, written from the repository's own records and numbers."} <a href="${esc(writingPath)}">Read all ${formatCount(posts.length)} posts →</a></p>
+      <p class="band-lede">${customer.length ? 'Answers to the questions subcontractors, machine shops, sellers and nonprofits ask, from the tools that do the work.' : "What the tools turned up and how they were built, written from the repository's own records and numbers."} <a href="${esc(customer.length ? writingPath : 'engineering/')}">Read all ${formatCount(customer.length || posts.length)} ${customer.length ? 'guides' : 'posts'} →</a></p>
       <ul class="posts">
 ${latest
   .map(
-    (p) => `        <li><a href="${esc(`${writingPath}${p.slug}/`)}">
+    (p) => `        <li><a href="${esc(p.href ?? `${writingPath}${p.slug}/`)}">
           <span class="post-meta">${icon('pen', { size: 16 })}<time datetime="${esc(p.date)}">${esc(longDate(p.date))}</time>${p.minutes ? ` · ${p.minutes} min read` : ''}</span>
           <span class="post-title">${esc(p.title)}</span>
           <span class="post-desc">${esc(p.description)}</span>

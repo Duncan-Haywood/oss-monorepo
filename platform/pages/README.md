@@ -411,6 +411,39 @@ without asserting anything — the gate-that-never-opens shape this repo keeps
 re-learning. They read the shared file directly now, and count the pages that
 link it separately.
 
+## The two blogs (`writing.mjs`)
+
+One folder of posts (`docs/posts/`), two blogs since 2026-11-26 (owner: "i
+think the move is to split the blogs for sure"):
+
+| Path | What | Linked from |
+|---|---|---|
+| `blog/` | The marketing blog: customer guides only, in a section per industry with a paid software line (construction, manufacturing, online sellers, EU e-invoicing, nonprofits; `blog/<industry>/`), each with its product card from `products.mjs` | the header ("Blog") |
+| `engineering/` | The engineering blog: every other post, with the finder, topic pages (`engineering/topic/<id>/`) and project pages | the footer, and every marketing blog page's foot ("How we build it") |
+| `engineering/agents/` | The agent-to-agent blog | the engineering blog |
+| `engineering/status/` | The engineering status page (`engineering.mjs`), `noindex` | the footer |
+| `writing/feed.xml` | The old blog's Atom feed: every post from both blogs, at their new URLs, with each entry's old `<id>` so readers do not see everything again | subscribers from before the split |
+| `writing/podcast/` | The podcast and its RSS feeds, left where podcast apps poll them | the footer |
+
+**Which blog a post is on** is one rule: `blogOf(topicOf(tags))`. The
+`business` topic ("For your business": `for-customers`, or a paid line's id or
+tool among the tags without a dev tag such as `testing`, `bugs` or `process`)
+is the marketing blog; every other topic is the engineering blog. A post that
+lands on the wrong one is fixed with `topic:` in its front matter or a tag,
+never with a second list. `writing.test.mjs` checks every real post is on
+exactly one blog.
+
+**Old URLs.** Every `writing/...` URL but the feed and the podcast gets a real
+301 from the site Worker (`cloudflare/router.mjs`, `writing-moves.mjs`): a post
+to the blog that now holds it (the Worker asks the shard whether
+`/blog/<slug>/` exists), `writing/` and `writing/topic/business/` to `blog/`,
+the other topic and project pages to the same path under `engineering/`. Not a
+redirect page per post, as the GitHub Pages move used: 7,386 stubs would have
+pushed the shard Worker past Cloudflare's 20,000-file limit (it held about
+13,070 files that day). Links inside posts that still name a `writing/` URL,
+and links from one post's source file to another, are rewritten at build time
+to the new page, on whichever blog it is.
+
 ## How the hub is organised
 
 Two levels, both derived from the slug in `build.mjs` — there is no manifest to
@@ -2134,7 +2167,7 @@ node platform/pages/venture-fold.mjs --write-baseline                  # after a
 ### Lighthouse on the pages a visitor sees first
 
 `lighthouse.mjs` runs Lighthouse (mobile by default) on the hub, /research/,
-/writing/, /stories/, one post and every flagship in
+/blog/, /engineering/, /stories/, one post and every flagship in
 `portfolio/flagships.yaml`, against the built dist, and prints one Markdown
 table row per page with the failing accessibility audits named. It serves the
 dist itself, rewriting the local build's absolute origin (`DEFAULT_BASE_URL`)
@@ -2144,7 +2177,7 @@ dependency: install it once into your scratchpad.
 ```
 npm i --prefix "$SCRATCH/lh" lighthouse@12.8.2
 LIGHTHOUSE="$SCRATCH/lh/node_modules/.bin/lighthouse" node platform/pages/lighthouse.mjs
-... --pages=research/,writing/ --min-a11y=95 --form=desktop
+... --pages=research/,blog/ --min-a11y=95 --form=desktop
 ```
 
 First run, 2026-11-11: /research/ accessibility 88 and /writing/ 92 (theme-tag

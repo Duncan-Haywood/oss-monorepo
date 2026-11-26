@@ -86,13 +86,13 @@ test('a post that reuses a tool page title is renamed, not left to fail the depl
   const post = (h1) => `<title>Free checker</title><meta property="og:title" content="Free checker"><h1>${h1}</h1>`;
   const pages = new Map([
     ['tool/index.html', tool],
-    ['writing/a/index.html', post('Why we built a checker')],
-    ['writing/b/index.html', post('Free checker')],
+    ['engineering/a/index.html', post('Why we built a checker')],
+    ['blog/b/index.html', post('Free checker')],
   ]);
   const changes = resolvePostTitleClashes(pages);
   assert.deepEqual(changes.map((c) => [c.rel, c.to]), [
-    ['writing/a/index.html', 'Why we built a checker'],
-    ['writing/b/index.html', 'Free checker · Blog'],
+    ['engineering/a/index.html', 'Why we built a checker'],
+    ['blog/b/index.html', 'Free checker · Blog'],
   ]);
   assert.match(changes[0].html, /og:title" content="Why we built a checker"/);
   for (const c of changes) pages.set(c.rel, c.html);
@@ -102,9 +102,9 @@ test('a post that reuses a tool page title is renamed, not left to fail the depl
 
 test('a post with its own title is left alone, and a skipped page does not reserve a title', () => {
   const pages = new Map([
-    ['writing/a/index.html', '<title>Own title</title><h1>A</h1>'],
+    ['engineering/a/index.html', '<title>Own title</title><h1>A</h1>'],
     ['404.html', '<title>Not found</title><h1>x</h1>'],
-    ['writing/b/index.html', '<title>Not found</title><h1>B</h1>'],
+    ['blog/b/index.html', '<title>Not found</title><h1>B</h1>'],
   ]);
   assert.deepEqual(resolvePostTitleClashes(pages), []);
 });

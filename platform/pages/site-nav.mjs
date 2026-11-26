@@ -94,7 +94,10 @@ export const SITE_NAV = Object.freeze([
   // Updates were top-level tabs of their own (owner, 2026-10-21); they now sit
   // under Blog (the blog index links both, and their pages mark Blog current)
   // and stay in the footer's "Read" group.
-  Object.freeze({ id: 'writing', label: 'Blog', href: 'writing/' }),
+  // Since 2026-11-26 (owner: "split the blogs") Blog is the marketing blog of customer guides,
+  // blog/; the engineering blog, engineering/, is in the footer. The id stays `writing` so the
+  // pages that mark it current need no change.
+  Object.freeze({ id: 'writing', label: 'Blog', href: 'blog/' }),
   Object.freeze({ id: 'ask', label: 'Ask', href: 'ask/' }),
   // Anyone may ask for a tool, product or feature to be built (owner,
   // 2026-11-02: "on the top tab. request a tool product or feature"). The
@@ -222,7 +225,8 @@ export function renderSiteFooterNav({ toRoot = '' } = {}) {
     ]],
     ['Read', [
       ['research/', 'Research'],
-      ['writing/', 'Blog'],
+      ['blog/', 'Blog'],
+      ['engineering/', 'Engineering blog'],
       ['writing/podcast/', 'Podcast'],
       ['stories/', 'Stories'],
       ['updates/', 'Updates &amp; roadmap'],
@@ -237,7 +241,7 @@ export function renderSiteFooterNav({ toRoot = '' } = {}) {
       ['custom-development/', 'Custom development'],
       ['hardware/', 'Hardware designs'],
       ['queue/', 'Work queue'],
-      ['engineering/', 'Engineering status'],
+      ['engineering/status/', 'Engineering status'],
       ['dev/', 'Development dashboard'],
       ['dev/daily/', 'Daily brief'],
       [REPO_URL, 'Source on GitHub'],

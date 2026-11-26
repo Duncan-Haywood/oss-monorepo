@@ -946,7 +946,8 @@ test('the hub\'s top navigation links the blog; the podcast sits under it', asyn
   const html = await read('index.html');
   const nav = html.match(/<nav class="pfs-head"[\s\S]*?<\/nav>/);
   assert.ok(nav, 'the hub has the shared site header');
-  assert.match(nav[0], /<a data-pfs-nav="writing" href="writing\/"[^>]*>Blog<\/a>/);
+  // The marketing blog since the split (2026-11-26); the engineering blog is in the footer.
+  assert.match(nav[0], /<a data-pfs-nav="writing" href="blog\/"[^>]*>Blog<\/a>/);
   // Podcast and Updates moved under Blog (owner, 2026-11-24: two reading items, Blog and Stories).
   assert.doesNotMatch(nav[0], /data-pfs-nav="podcast"|data-pfs-nav="updates"/);
 });
@@ -1024,7 +1025,10 @@ test('llms-full.txt keeps each tool on one line, so no description leaks into pr
   const network = externalCallExceptions(surfaces).length;
   // Plus one per live product under "Products" (company.mjs); products in
   // development are bold, not linked, so they are not "- [" bullets.
-  assert.equal(bullets.length, surfaces.length + 16 + audiences + topics + agentBlog + network + LIVE_PRODUCTS.length);
+  // Plus the two blogs (2026-11-26): the marketing blog (its sections are indented
+  // "  - [" lines) and the engineering blog, when the build has posts.
+  const blogs = loadPosts().length ? 2 : 0;
+  assert.equal(bullets.length, surfaces.length + 16 + audiences + topics + agentBlog + network + LIVE_PRODUCTS.length + blogs);
   for (const bullet of bullets) {
     assert.match(bullet, /^- \[[^\]]+\]\(https?:\/\/[^)]+\): \S/, `malformed bullet: ${bullet}`);
   }
@@ -1494,7 +1498,7 @@ test('renderSearchIndex files a guide under its tool and a post under the blog',
     [],
     {
       guides: [{ slug: 'roofing-bid-calculator', url: 'roofing-bid-calculator/how-to-price-a-tear-off.html', title: 'How to price a tear-off', description: 'Layers, disposal and decking.' }],
-      posts: [{ slug: 'hello', title: 'Hello', description: 'A post.', tags: ['agents'] }],
+      posts: [{ slug: 'hello', title: 'Hello', description: 'A post.', tags: ['agents'], href: 'engineering/hello/' }],
       sections: [{ url: 'compare/jobber/', title: 'Jobber alternatives', description: 'Tools with a page against Jobber.', section: 'compare' }],
     },
   ));
@@ -1503,7 +1507,7 @@ test('renderSearchIndex files a guide under its tool and a post under the blog',
   assert.deepEqual([page.k, page.u, data.cats[page.c]], ['page', 'compare/jobber/', 'Comparison']);
   assert.deepEqual([guide.k, guide.s, guide.u, guide.c], ['guide', 'roofing-bid-calculator', 'roofing-bid-calculator/how-to-price-a-tear-off.html', tool.c]);
   assert.match(guide.x, /\bdisposal\b/);
-  assert.deepEqual([post.k, post.u, data.cats[post.c]], ['post', 'writing/hello/', 'Blog']);
+  assert.deepEqual([post.k, post.u, data.cats[post.c]], ['post', 'engineering/hello/', 'Blog']);
   assert.match(post.x, /\bagents\b/);
 });
 
@@ -2280,7 +2284,9 @@ test('every page type carries the one site header, with every nav item', async (
     researchProject: ['research', 'accel-kws', 'index.html'],
     researchTopic: ['research', 'topics', 'accel', 'index.html'],
     engineering: ['engineering', 'index.html'],
-    writing: ['writing', 'index.html'],
+    engineeringStatus: ['engineering', 'status', 'index.html'],
+    blog: ['blog', 'index.html'],
+    blogSection: ['blog', 'construction', 'index.html'],
     updates: ['updates', 'index.html'],
     changelog: ['changelog', 'index.html'],
     venture: ['ebay-fee-calculator', 'index.html'],
@@ -5507,11 +5513,10 @@ test('the hub sitemap holds the hub, the product pages, the Tools index, the cat
   // And each research topic page, which the build passes in the same list.
   assert.ok(renderHubSitemap(BASE, [], [], ['topics/accel']).includes(`<loc>${BASE}${RESEARCH_PATH}topics/accel/</loc>`));
 
-  // The writing index and each post, and neither when there are no posts.
-  const withPosts = renderHubSitemap(BASE, [], [], [], ['a-post']);
-  assert.ok(withPosts.includes(`<loc>${BASE}writing/</loc>`));
-  assert.ok(withPosts.includes(`<loc>${BASE}writing/a-post/</loc>`));
-  assert.ok(!renderHubSitemap(BASE).includes('writing/'));
+  // Both blogs' pages, as paths from the site root (writing.mjs, buildWriting), and none when there are no posts.
+  const withPosts = renderHubSitemap(BASE, [], [], [], ['blog/', 'blog/a-guide/', 'engineering/', 'engineering/a-post/']);
+  for (const p of ['blog/', 'blog/a-guide/', 'engineering/', 'engineering/a-post/']) assert.ok(withPosts.includes(`<loc>${BASE}${p}</loc>`), p);
+  assert.ok(!renderHubSitemap(BASE).includes('blog/') && !renderHubSitemap(BASE).includes('writing/'));
 });
 
 test('tools whose audience browses a section are filed in it', async () => {

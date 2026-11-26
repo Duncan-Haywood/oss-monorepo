@@ -40,7 +40,7 @@ test('the header carries every nav item, in order, relative to the page', () => 
   // One landmark, labelled, and the section the page is in is marked current.
   assert.equal(html.match(/<nav\b/g).length, 1);
   assert.match(html, /<nav[^>]*aria-label="Site"/);
-  assert.match(html, /data-pfs-nav="writing" href="\.\.\/\.\.\/writing\/" aria-current="page"/);
+  assert.match(html, /data-pfs-nav="writing" href="\.\.\/\.\.\/blog\/" aria-current="page"/);
   assert.equal(html.match(/aria-current="page"/g).length, 1);
   // A section that left the header marks no tab, and its pages still render.
   assert.doesNotMatch(renderSiteHeader({ toRoot: '../', current: 'research' }), /aria-current="page"/);
