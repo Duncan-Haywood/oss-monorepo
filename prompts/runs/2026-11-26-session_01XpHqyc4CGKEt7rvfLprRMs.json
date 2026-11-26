@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqyc4CGKEt7rvfLprRMs",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T07:39:17Z",
+  "ended": "2026-11-26T07:58:05Z",
+  "wall_minutes": 18.97,
+  "tokens_in": 15793923,
+  "tokens_out": 62480,
+  "cost_usd": 5.8426,
+  "tool_calls": 104,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19276",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "private PR 279 first merge attempt 405: PR 274 landed migration 0052 meanwhile; renumbered to 0053, re-ran the full suite, merged"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Renumbering a migration at merge time is mentioned, but drizzle-kit meta conflicts (AA 0052_snapshot.json, UU _journal.json) need a recipe: take main's meta, delete your .sql, rerun drizzle-kit generate. Two parallel payapps PRs landed during this run."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "venture-preflight.mjs not run: this run changed no venture under oss-monorepo ventures/, only docs; product code is in private-monorepo",
+      "did": "ran the private repo's CI steps locally instead",
+      "result": "all green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (extended)",
+    "docs/reports/ventures-2026-11-26-payapps-purchase-orders-from-quickbooks.md"
+  ],
+  "goal": null,
+  "notes": "Bet #1 PayApps, ROADMAP Next #2 part (claim job-costing-part-3-qbo-purchase-orders). Private PR Duncan-Haywood/private-monorepo#279, merged. CI there was starved (ci_starvation.py: no runner), so it was verified locally on the final merged tree: typecheck, biome ci (one existing warning in billing.ts), unit 797/797, worker 373/373, build, provision test 4/4, drizzle-kit check plus drift generate clean, qbo-sync 68/68. Risk review: nothing blocked.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "def6e229-1024-5c3c-b8e7-921eb7c279e8",
+    "transcripts": 1,
+    "first": "2026-11-26T07:39:17Z",
+    "last": "2026-11-26T07:58:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 100,
+        "input": 192,
+        "output": 62480,
+        "thinking": 8210,
+        "cache_read": 15609955,
+        "cache_write_5m": 0,
+        "cache_write_1h": 183776,
+        "api_equivalent_usd": 5.8426,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 100,
+      "input": 192,
+      "output": 62480,
+      "thinking": 8210,
+      "cache_read": 15609955,
+      "cache_write_5m": 0,
+      "cache_write_1h": 183776,
+      "api_equivalent_usd": 5.8426,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 104,
+    "tools": {
+      "Bash": 92,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.97,
+      "active_minutes": 18.97,
+      "model_minutes": 11.96,
+      "tool_minutes": 7.01,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "senior dev estimate: QBO PO reader + LinkedTxn matching, migration, API, UI, tests, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 273.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
