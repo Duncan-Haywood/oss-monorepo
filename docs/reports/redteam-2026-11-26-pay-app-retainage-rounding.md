@@ -1,6 +1,6 @@
 ---
 kind: note
-topics: [redteam, pay-application-generator]
+topics: [redteam]
 date: 2026-11-26
 ---
 # Red team 2026-11-26: pay-app retainage rounding on negative amounts
