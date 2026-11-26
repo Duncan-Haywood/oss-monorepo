@@ -3,7 +3,7 @@ title: "Rabatt, Skonto and Frachtkosten: where a discount goes when your PDF inv
 seo_title: "Rabatt, Skonto and freight in a ZUGFeRD or XRechnung e-invoice"
 date: 2026-11-26
 tags: [for-customers, einvoice-preflight, e-invoicing, zugferd, factur-x, xrechnung, germany, france, accountants]
-description: "A discount below the item table is not a line, Skonto is not a discount, and a discount across two VAT rates needs splitting. How our PDF converter reads them."
+description: "Where a discount, a Rabatt column, Skonto and freight go in a ZUGFeRD or XRechnung e-invoice, and how our PDF converter reads each one."
 ---
 
 Most small firms in Germany and France still send invoices as a PDF from Word,
@@ -87,8 +87,40 @@ Factur-X built from each passes the checker. These are our own test files, so th
 show the reading works on those layouts. They do not show how often it works on
 the invoices real firms send. We have not measured that yet.
 
-**Not done yet:** a discount printed on a single item row, a description that
-breaks across a page, and scanned PDFs (no text layer).
+## A discount on one item row
+
+Wholesalers' and tradespeople's invoices often give the discount per row, in a
+column of its own:
+
+```
+Pos. Bezeichnung        Menge  Einzelpreis  Rabatt   USt   Gesamt
+1    Kupferrohr 15 mm   24 m      8,40 €    10 %    19 %  181,44 €
+3    Montage Heizkörper  8 Std.  62,00 €            19 %  496,00 €
+4    Thermostatkopf      6 Stk   24,90 €   -9,40 €  19 %  140,00 €
+```
+
+In EN 16931 a discount like this is a **line allowance** (group BG-27). It sits
+on the line, takes the line's VAT rate, and the line's net (BT-131) is quantity
+x price less the allowance. A converter that ignores the Rabatt column sees
+24 x 8,40 = 201,60, not 181,44, and either drops the row or prints the wrong
+amount.
+
+Since 26 November the converter reads these rows. When the table header has a
+Rabatt, Nachlass, Remise or Discount column, a row whose quantity x price is not
+its amount is accepted when **exactly one** discount makes it so, to the cent.
+That discount is either a percent (201,60 less 10 % is 181,44) or an amount
+(149,40 less 9,40 is 140,00). On a row with two percents, the arithmetic decides
+which one is the discount and which is the VAT rate. If no reading fits, or two
+do, the row is left out and the totals check says a row is missing, so nothing
+is guessed. Each row's sum is shown beside it, and the e-invoice carries the
+discount as a line allowance with your column's name as its reason. We tested
+this on one plumbing invoice of our own, printed by Chromium and by LibreOffice.
+Both read completely, and the Factur-X built from each passes the checker. We
+have not measured it on real firms' invoices yet.
+
+**Not done yet:** changing a row's discount on the convert screen (today you
+see it in the row's note), a discount printed on its own line under a row, a
+description that breaks across a page, and scanned PDFs (no text layer).
 
 The free [e-invoice preflight](https://marisstella.app/einvoice-preflight/)
 checks an XRechnung, ZUGFeRD or Factur-X file you already have, including its
