@@ -62,9 +62,12 @@ payapps there. On 2026-11-25 this worked first time:
    prints YOURS; an app with no ROADMAP.md, or work not on its Next list, takes `--slug` alone, no `--claim`; `--release` usually
    fails through the proxy, so let a dropped claim go stale). Open-PR checks missed this:
    private PRs 106-108 built one item within 20 minutes (backlog P079).
-   The claim does not reserve a migration number: fetch the private `main` and
-   renumber your new `migrations/` file just before merging (private PR 126 and
-   a parallel run both made 0034; three run records, 2026-11-25). The same
+   The claim does not reserve a migration number (private PR 126 and a parallel
+   run both made 0034; ten reports, 2026-11-25/26). Just before merging, fetch the
+   private `main`, run `python3 /home/user/oss-monorepo/platform/ci/migration_rebase.py apps/<dir>`
+   (exit 1 on a collision), merge `main`, resolve schema conflicts by hand, then rerun
+   it with `--fix`: it drops your migration, takes main's `meta/` and generates again,
+   and commit before `run_workflow_locally.py` (cmmc-ci's "migrations in sync" step reads `git status`). The same
    fetch usually turns up a conflict in the app ROADMAP's "Done" list, where
    parallel runs append at the same spot: keep both entries (four reports, 2026-11-25/26).
 
