@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqycXz6rSeUVnkBTjrU5",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T09:39:12Z",
+  "ended": "2026-11-26T09:48:44Z",
+  "wall_minutes": 9.74,
+  "tokens_in": 7606105,
+  "tokens_out": 35467,
+  "cost_usd": 3.2805,
+  "tool_calls": 72,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19305",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "private PR 303's first merge attempt was refused with 405 because the PR was still a draft; marked it ready, then merged"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "listed einvoice #1 (hosting part 2) as free; another run's claim branch was 16 s old when checked by hand, so the listing raced it"
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "step 3's install command must run from the private repo root; running `pnpm --dir ../.. install --filter \"{./apps/cmmc}...\"` from inside the app printed 'No projects matched' (the filter resolves against the cwd)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/monetization/bets.md",
+      "why": "skipped bets #1 to #3: payapps and jobshop-quote had only gated free items, and einvoice's free item was claimed seconds earlier",
+      "did": "took bet #4 (cmmc), ESP part 3, the CRM import",
+      "result": "merged as private PR 303"
+    },
+    {
+      "file": "docs/reports/ventures-2026-11-26-cmmc-esp-part-2.md",
+      "why": "the previous run said not to invent a CRM layout. Real CRMs sit behind logins or paywalls, so the reader accepts the two layouts that public descriptions name, refuses any cell it can't read, and lists it",
+      "did": "generic reader plus a ROADMAP note to check it against real files",
+      "result": "merged; checking against a real file is still open"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-nist-800-171-ssp-template-for-small-shops.md (new paragraph)",
+    "docs/reports/ventures-2026-11-26-cmmc-esp-part-3-crm-import.md"
+  ],
+  "goal": null,
+  "notes": "Private CI was starved (ci_starvation.py: no runner assigned). Ran locally: run_workflow_locally.py --repo-root private-monorepo cmmc-ci, 8/8 run: steps passed (Biome, typecheck, unit, worker integration and the rest); 3 uses: steps not run. Separately: test:unit 325/325, of which 19 are new.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2140914b-2e76-54d0-87fc-40bdebe13690",
+    "transcripts": 1,
+    "first": "2026-11-26T09:39:12Z",
+    "last": "2026-11-26T09:48:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 66,
+        "input": 129,
+        "output": 35467,
+        "thinking": 6294,
+        "cache_read": 7471430,
+        "cache_write_5m": 0,
+        "cache_write_1h": 134546,
+        "api_equivalent_usd": 3.2805,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 66,
+      "input": 129,
+      "output": 35467,
+      "thinking": 6294,
+      "cache_read": 7471430,
+      "cache_write_5m": 0,
+      "cache_write_1h": 134546,
+      "api_equivalent_usd": 3.2805,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 56,
+      "Write": 4,
+      "ToolSearch": 3,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__pull_request_read": 1,
+      "WebSearch": 1,
+      "WebFetch": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.74,
+      "active_minutes": 9.74,
+      "model_minutes": 7.44,
+      "tool_minutes": 2.3,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "parser + UI + 19 tests + docs for a mid-level engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 182.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
