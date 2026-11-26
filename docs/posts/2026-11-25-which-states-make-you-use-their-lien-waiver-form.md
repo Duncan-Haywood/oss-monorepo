@@ -264,8 +264,17 @@ interim form is offered for a progress waiver and the final form for a final one
 line at 12 point, as the statute requires. From the job and the pay application it fills in the
 contractor, the project, the owner, the property, the amount and the through date. You fill in
 the county, the city and what you furnished. Day and month go on by hand when you sign under
-seal. It does not print the affidavit of nonpayment yet, and it does not remind you yet when the
-90 days are about to run out. Both are next. The free guide,
+seal.
+
+Later the same day it gained the clock and the affidavit. When a Georgia waiver is marked sent and
+the payments recorded on its pay application do not cover it, the waiver list shows the day the 90
+days end and how much is still unpaid, and the cash page and the weekly email name it from 30 days
+before the end. One click opens the affidavit of nonpayment in the statute's wording, filled from
+the waiver: the county, the contractor, the work, the project, the owner and the property, the
+waiver's date and amount, and the amount still unpaid. You check it, print it at 12 point and swear
+it before a notary. It counts 90 calendar days from the day you marked the waiver sent and does not
+move the date for a weekend or holiday, so do not wait for the last day. Recording that you filed it
+is next. The free guide,
 [statutory lien waiver forms by state](https://marisstella.app/pay-app-guides/lien-waiver-forms-by-state.html),
 now has a Georgia row and section. Not legal advice: ask a Georgia lawyer before relying on a
 waiver.
