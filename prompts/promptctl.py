@@ -645,8 +645,19 @@ def backlog_summary(items: list[dict[str, Any]]) -> dict[str, Any]:
             "next": [f"{i['id']} {i['title']}" for i in backlog_rank(items)[:3]]}
 
 
-def print_backlog(root: Path = ROOT) -> None:
+def print_backlog(root: Path = ROOT, title: str | None = None) -> None:
     items = [item for _, item in load_backlog(root)]
+    if title:
+        # One line for a track's own rows (perf runs, 2026-11-20 to 25: 30+ friction
+        # reports re-reading owner-only perf rows before moving on).
+        rows = [i for i in backlog_rank(items) if str(i["title"]).lower().startswith(title.lower())]
+        free = [i for i in rows if i["owner"] == "agent" and not backlog_blocked(i)]
+        for i in free:
+            print(f"{i['id']} {i['effect']}/{i['cost']} {i['status']}: {i['title']}")
+        if not free:
+            held = ", ".join(i["id"] for i in rows) or "none"
+            print(f"No agent-workable '{title}' item (owner-owned or blocked: {held}); move on.")
+        return
     ranked = backlog_rank(items)
     s = backlog_summary(items)
     c = s["counts"]
@@ -1440,7 +1451,9 @@ def main(argv: list[str] | None = None) -> int:
                    "(about 70 s) to date the friction reports' files")
     p.add_argument("--section", help="print only the '## ' sections whose title contains this "
                    "text (case-insensitive), e.g. 'friction' or 'candidates'; the full output is 50KB+")
-    sub.add_parser("backlog", help="list open process improvements, best first")
+    p = sub.add_parser("backlog", help="list open process improvements, best first")
+    p.add_argument("--title", help="only the agent-workable open items whose title starts with "
+                   "this text, e.g. 'perf:', one per line, or one line saying there is none")
     p = sub.add_parser("backfill-pr", help="fill empty `pr` in run records from the merge commit subject")
     p.add_argument("--dry-run", action="store_true")
     sub.add_parser("validate", help="check routing, prompts, run records, the backlog and the guidance map")
@@ -1481,7 +1494,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{len(found)} record(s) {'would get' if args.dry_run else 'got'} a pr number")
         return 0
     if args.cmd == "backlog":
-        print_backlog(ROOT)
+        print_backlog(ROOT, args.title)
         return 0
     if args.cmd == "map":
         print_map(ROOT, args.track)

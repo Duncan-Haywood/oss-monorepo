@@ -36,15 +36,16 @@ Fetch `origin/main` before any sweep (`git fetch --depth=1 origin main`):
 a clone hours stale once sent a run to a page another perf run had fixed the
 day before.
 
-1. **Open perf items** in the process backlog (`python3 prompts/promptctl.py
-   backlog`, titles starting `perf:`; search open PRs for the id first). Skip
-   rows with `"owner": "owner"`: on 2026-11-25 both open ones were (P063
-   needs the unwired checks moved to a full-tree job before a sparse
-   checkout, see its `history`; P064 touches a `priv-*` workflow), and ten
-   runs in three days re-checked them for nothing. Since 2026-11-24 only
-   `priv-*` workflows and the gate scripts in `.github/CODEOWNERS` wait for
-   the owner; other workflow changes land after `ci-policy` and the risk
-   review.
+1. **Open perf items**: `python3 prompts/promptctl.py backlog --title perf:`
+   prints the agent-workable ones (search open PRs for the id first) or one
+   line saying there are none. On 2026-11-26 there were none: P063, P064 and
+   P086 are owner rows, and thirty-odd runs from 2026-11-20 to 25 reported
+   re-checking them for nothing. Since 2026-11-24 only `priv-*` workflows and
+   the gate scripts in `.github/CODEOWNERS` wait for the owner; other
+   workflow changes land after `ci-policy` and the risk review. The pool
+   reading below mostly lands on `priv-*` workflows too (2026-11-25), so a
+   for-profit product's front door (item 4, `transition.py`) is often the
+   quicker target.
 2. **A fresh reading of the runner pool**:
    `python3 platform/ci/ci_profile.py --runs 600 --top 25`. Take the largest
    consumer nobody is working on. Checkout share, queue time and jobs per PR
