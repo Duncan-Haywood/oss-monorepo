@@ -113,6 +113,14 @@ not the GC's sign-off. The PDF says both. The rules (status, overdue days,
 dates in order, the paste reader) are covered by unit tests, and every
 route has a test that another company's job answers "not found".
 
+Each document on the checklist now also keeps its files: the PDF as sent,
+photos of attic stock delivered, and the GC's receipt when it comes back.
+One close-out binder PDF puts a transmittal listing every document and its
+dates in front of the required documents' files, with the GC's receipts
+left out. What a subcontract usually asks for at close-out, and how to
+deliver it as one package, is in
+[close-out documents: what a subcontractor sends to get retainage released](2026-11-26-subcontractor-closeout-documents-and-retainage.md).
+
 ## The closeout documents beside it
 
 The punch list is half of what the release waits on; the warranty letter,
