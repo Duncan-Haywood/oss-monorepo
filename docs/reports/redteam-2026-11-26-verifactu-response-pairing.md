@@ -1,3 +1,8 @@
+---
+kind: note
+topics: [redteam]
+date: 2026-11-26
+---
 # Red team 2026-11-26: VeriFactu reply pairing (einvoice-preflight)
 
 Target: `ventures/einvoice-preflight/verifactu-response.mjs` (reads the AEAT's
