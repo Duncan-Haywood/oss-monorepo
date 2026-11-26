@@ -170,3 +170,24 @@ test("CSV with only a Role column still imports; Company-only too", () => {
   assert.equal(fromCsv("Role\nDev\n").apps.length, 1);
   assert.equal(fromCsv("Company\nAcme\n").apps.length, 1);
 });
+
+// Added by quality round 118 (portfolio/quality/audits/2026-11-26-ventures-job-application-tracker.json).
+test("nextActions includes a follow-up exactly horizonDays ahead", () => {
+  const a = normalizeApp({ id: "h", company: "Acme", role: "Eng", applied: "2026-11-01" }); // due 2026-11-08
+  assert.equal(nextActions([a], "2026-11-06").length, 1);
+  assert.equal(nextActions([a], "2026-11-05").length, 0);
+});
+
+test("CSV export quotes a cell that starts with '-' unless it is a plain number (OWASP CSV injection)", () => {
+  const csv = toCsv([{ company: "-2+3+cmd|' /C calc'!A0", role: "-5", notes: "" }]);
+  assert.match(csv, /\n"?'-2\+3/);
+  assert.match(csv, /,-5,/);
+});
+
+test("CSV import reads spreadsheet-formatted salaries and counts dates it could not read", () => {
+  const { apps, undatedRows } = fromCsv('company,role,salary,applied\r\nAcme,Eng,"$120,000",11/20/2026\r\nBeta,Ops,95000,2026-11-20\r\n');
+  assert.equal(apps[0].salary, 120000);
+  assert.equal(apps[0].applied, "");
+  assert.equal(apps[1].applied, "2026-11-20");
+  assert.equal(undatedRows, 1);
+});

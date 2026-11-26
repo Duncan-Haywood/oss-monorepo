@@ -49,7 +49,8 @@ export function normalizeApp(raw) {
     ? raw.history.filter((h) => h && STATUSES.includes(h.status) && isIsoDate(h.date)).map((h) => ({ status: h.status, date: h.date }))
     : [];
   if (history.length === 0 && applied) history = [{ status: status === "wishlist" ? "wishlist" : "applied", date: applied }];
-  const money = Number(raw.salary);
+  // Spreadsheets export "120,000" or "$120,000"; Number() of either is NaN.
+  const money = Number(String(raw.salary ?? "").replace(/[$,\s]/g, ""));
   return {
     id: String(raw.id || newId()),
     company, role,
@@ -216,13 +217,19 @@ export function fromCsv(text) {
   if (col.company < 0 && col.role < 0) return { apps: [], skipped: rows.length - 1 };
   const apps = [];
   let skipped = 0;
+  // Rows whose applied or follow-up date was not YYYY-MM-DD (a spreadsheet
+  // re-save often turns 2026-11-20 into 11/20/2026). The date is left blank
+  // rather than guessed (11/12 is ambiguous), and the page says how many.
+  let undatedRows = 0;
   for (const r of rows.slice(1)) {
     const raw = {};
     for (const c of CSV_COLUMNS) raw[c] = col[c] >= 0 ? (r[col[c]] ?? "").replace(/^'(?=[=+\-@\t\r])/, "") : "";
     const app = normalizeApp(raw);
-    if (app) apps.push(app); else skipped++;
+    if (!app) { skipped++; continue; }
+    if ((raw.applied.trim() && !app.applied) || (raw.followUp.trim() && !app.followUp)) undatedRows++;
+    apps.push(app);
   }
-  return { apps, skipped };
+  return { apps, skipped, undatedRows };
 }
 
 // ---- Calendar -----------------------------------------------------------
