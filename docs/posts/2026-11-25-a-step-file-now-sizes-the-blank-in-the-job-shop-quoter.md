@@ -950,6 +950,49 @@ checks the report shows "Plate" 1 won and "No saved routing" 1 lost. A new brows
 (`10-routing-record.spec.ts`) opens a line recorded under "Plate", presses "×", saves, and checks
 both the stored record and the page after a reload.
 
+## Parts per sheet, counted from the DXF
+
+Most sheet-metal shops do not buy steel by the pound. They buy it by the sheet: a 48 × 96 in sheet
+of 16 gauge 304 at one price. The quoter already priced material that way ("per stock piece"), but
+the estimator had to type how many parts one sheet gives, which means sketching a nest in their head
+for every DXF in the RFQ.
+
+A sheet material on the rate card can now carry its width, its length and one **nest gap**: the
+space the shop leaves between parts and from the sheet edge, which covers kerf, web and edge trim.
+When a DXF part is quoted in that material, the new quote fills in the parts per sheet itself.
+
+How it counts:
+
+- Each part is its flat pattern's bounding rectangle. A true-shape nesting program can fit more
+  L-shapes or rings onto a sheet. This count is never higher than the rectangles allow, so if
+  it is wrong, the quote comes out high rather than low.
+- Parts may turn 90°, and the layout can mix the two ways round. It tries every guillotine layout
+  of up to three blocks, each block all one way round. The arithmetic is in thousandths of an inch,
+  so six 8 in parts fit exactly in 48 in.
+
+Two examples on a 48 × 96 in sheet with a 0.25 in gap:
+
+| Flat pattern | All one way round | Mixed layout | Area bound |
+|---|---|---|---|
+| 4.06 × 2 in bracket | 462 | **468** | 471 |
+| 11.75 × 23.75 in panel | 9 | **10** | 15 |
+
+The panel is where this pays off. Laid out all one way round, four parts across would need 48.25 in,
+so a plain grid fits 3 × 3. The 23.75 in strip left at the end of the sheet still holds one more
+panel turned sideways. At $185 a sheet that is $18.50 of material per part, not $20.56, and an
+estimator counting rows by hand would usually miss it.
+
+What it leaves alone:
+
+- **No gap on the material, no count.** A gap of 0 is allowed, for sheared blanks, but an empty
+  gap means the shop has not said, so the count stays with the estimator.
+- **A size read with low confidence gives no count**, the same rule as the blank.
+- **A sheet size or gap in mm or feet is refused on import.** It reads "Sheet width (in)", "Sheet
+  length (in)" and "Nest gap (in)", and the export writes them back out.
+
+This was private-monorepo PR #328 (migration 0031). The pricing engine did not change. The count
+is an input that the estimator can edit, and the basis line on the quote still prints it.
+
 ## Next
 
 The next item on the flagship list (milestone 3) is reading tolerances, material and finish from
