@@ -66,7 +66,10 @@ rights on GitHub. Everything else is done by agents through pull requests.
    **apps** account, open *Claude Platform on AWS*, sign up, create a
    workspace in **us-east-1**, and set the repository variable
    `CLAUDE_AWS_WORKSPACE_ID` to its `wrkspc_...` ID. In the Claude Console
-   set a monthly workspace spend limit.
+   set a monthly workspace spend limit. After the next apply, turn on the
+   adversarial gate's LLM review on AWS billing (no Anthropic API key):
+   `bash platform/aws/github/configure.sh --llm-gate <ci_role_arn> <wrkspc_id>`,
+   where `ci_role_arn` is the `llm` stack's output in the apply summary.
 6. **SES out of the sandbox**, when an agent reports phase 2's email checks
    green: Actions → *AWS apply* → Run workflow, tick *request SES
    production access*. The use-case text is in
@@ -98,9 +101,20 @@ rights on GitHub. Everything else is done by agents through pull requests.
     `risk-review`):
     `gh api -X PUT repos/Duncan-Haywood/oss-monorepo/rulesets/26239454 --input .github/rulesets/main.json`.
     Read [`.github/rulesets/README.md`](../../.github/rulesets/README.md)
-    first: it says when to apply it (after agents have their own
-    non-admin identities) and how to check it took. Only a repository
-    admin can change rulesets, and agents must not hold that power.
+    first: it says to hold the CodeQL rule until CodeQL has completed one
+    analysis on `main`, and how to check the ruleset took. Only a
+    repository admin can change rulesets, and agents must not hold that
+    power.
+11. **private-monorepo's CI on AWS** (GitHub gives that repository no hosted
+    runners; [`stacks/ci-runners`](../../platform/aws/stacks/ci-runners/README.md)):
+    after the first apply, in the **shared-infra** account open Developer
+    Tools → Settings → Connections → `github-private-monorepo-ci` →
+    *Update pending connection*, and install the AWS Connector app on
+    `private-monorepo` only (AWS allows no API for this). Once the apply
+    summary reads `AVAILABLE` and an agent has merged `connection_ready = true`,
+    run `bash platform/aws/github/configure.sh --private-ci`. Its jobs,
+    deploys included, then run on AWS; deleting the `CODEBUILD_RUNNER`
+    variable moves them back.
 
 Only if the `dns` job reports a permission error: give the Cloudflare token
 in the `cloudflare` environment *Zone → DNS → Edit* on marisstella.app.
