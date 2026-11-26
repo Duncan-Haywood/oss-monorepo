@@ -100,7 +100,7 @@ class ClaimRaceTest(unittest.TestCase):
         patch = mock.patch.object(rc.time, "time", lambda: now) if now else contextlib.nullcontext()
         env = mock.patch.dict(os.environ, {"ROADMAP_CLAIM_RUN": run or str(repo)})
         with patch, env, contextlib.redirect_stdout(buf):
-            code = rc.main([app, "--repo", str(repo), *argv])
+            code = rc.main([*([app] if app else []), "--repo", str(repo), *argv])
         return code, buf.getvalue()
 
     def test_second_claim_loses_and_list_shows_it(self):
@@ -236,6 +236,31 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertIn("has no ROADMAP.md", listing)
         self.assertIn("legal-pages", listing)
         self.assertEqual(other(self.b, "--claim", "1")[0], 2)
+
+    def test_bets_overview_skips_a_bet_with_nothing_free(self):
+        bets = Path(self.tmp.name) / "bets.md"
+        bets.write_text("| # | Bet | Where |\n|---|---|---|\n"
+                        "| 1 | **Pay apps** | new `private-monorepo/apps/payapps` |\n"
+                        "| 2 | **Books** | new `private-monorepo/apps/seller-books` |\n"
+                        "| 3 | **Quotes** | `jobshop-quote` imported |\n"
+                        "| 4 | **Missing** | `private-monorepo/apps/nowhere` |\n")
+        quotes = self.a / "apps" / "jobshop-quote"
+        quotes.mkdir()
+        (quotes / "ROADMAP.md").write_text(NUMBERED)
+        (self.a / "apps" / "seller-books").mkdir()
+        self.assertEqual([a for _, _, a in rc.bet_apps(bets.read_text())],
+                         ["payapps", "seller-books", "jobshop-quote", "nowhere"])
+        _, out = self.main(self.a, "--bets", "--bets-md", str(bets), app=None)
+        self.assertIn("payapps: 3 Next, free and not gated: #1, #2, #3; 0 live claim(s)", out)
+        self.assertIn("Start here: bet #1 payapps, item #1", out)
+        for n in ("1", "2", "3"):
+            self.assertEqual(self.main(self.b, "--claim", n)[0], 0)
+        code, out = self.main(self.a, "--bets", "--bets-md", str(bets), app=None)
+        self.assertEqual(code, 0, out)
+        self.assertIn("payapps: 3 Next, free and not gated: none; 3 live claim(s)", out)
+        self.assertIn("seller-books: no ROADMAP.md", out)
+        self.assertIn("nowhere: not in this clone", out)
+        self.assertIn("Start here: bet #3 jobshop-quote, item #3", out)
 
     def test_release(self):
         self.main(self.a, "--claim", "3")
