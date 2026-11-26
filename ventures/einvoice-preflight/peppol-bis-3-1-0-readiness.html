@@ -23,9 +23,12 @@
     th { background: #eaf0f5; }
     td code, li code { word-break: break-all; }
     .fatal { color: #b3261e; font-weight: 650; } .warning { color: #8a5a00; }
+    #faq { margin-top: 28px; background: #fff; border: 1px solid #d5dde4; border-radius: 12px; padding: 4px 20px 12px; }
+    #faq h3 { font-size: 1.02rem; margin: 18px 0 4px; }
+    #faq p { margin: 0 0 8px; }
     footer { margin-top: 2.5em; font-size: .85rem; color: #4a5560; }
   </style>
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When does Peppol BIS Billing 3.1.0 apply?","acceptedAnswer":{"@type":"Answer","text":"OpenPeppol's release notes for 3.1.0 (branch 2026-Q4-QA2 of OpenPEPPOL/peppol-bis-invoice-3) give 23 November 2026 for publication and 24 February 2027 as the date access points must apply it. From that day a file that passes 3.0.22 can be rejected."}},{"@type":"Question","name":"Are my invoices uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The rules are downloaded with the page and every file is checked in your browser. Nothing you drop leaves your machine."}},{"@type":"Question","name":"What breaks most often?","acceptedAnswer":{"@type":"Answer","text":"On OpenPeppol's own published examples, five of seventeen files that passed 3.0.22 failed 3.1.0, all on PEPPOL-COMMON-R040: scheme 0088 now takes a 13-digit GLN only. Your files may break on other rules; the check lists them."}}]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"When does Peppol BIS Billing 3.1.0 apply?","acceptedAnswer":{"@type":"Answer","text":"OpenPeppol's release notes for 3.1.0 (branch 2026-Q4-QA2 of OpenPEPPOL/peppol-bis-invoice-3) give 23 November 2026 for publication and 24 February 2027 as the date access points must apply it. From that day a file that passes 3.0.22 can be rejected. On 24 November 2026 the release was not yet tagged on OpenPeppol's GitHub, so the rules here are compiled from that release-candidate branch at commit 90f078a; they pass all 1,138 of OpenPeppol's own unit-test asserts. They will be rebuilt from the tag when it appears."}},{"@type":"Question","name":"Are my invoices uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. The rules are downloaded with the page and every file is checked in your browser. Nothing you drop leaves your machine."}},{"@type":"Question","name":"What breaks most often?","acceptedAnswer":{"@type":"Answer","text":"On OpenPeppol's own published examples, five of seventeen files that passed 3.0.22 failed 3.1.0, all on PEPPOL-COMMON-R040: scheme 0088 now takes a 13-digit GLN only. Your files may break on other rules; the check lists them."}},{"@type":"Question","name":"Can I check thousands of files at once?","acceptedAnswer":{"@type":"Answer","text":"The same check runs from a terminal on a folder of any size and writes a CSV: node peppol-readiness-cli.mjs ./sent-invoices --csv readiness.csv (FSL-1.1-MIT licensed, in the source). To check a single file against every rule, not only what changes, use the full checker."}}]}</script>
 </head>
 <body>
 <main>
@@ -206,14 +209,17 @@
 <!-- changes:end -->
   </div>
 
-  <h2>When does Peppol BIS Billing 3.1.0 apply?</h2>
+  <section id="faq">
+  <h2>Common questions</h2>
+  <h3>When does Peppol BIS Billing 3.1.0 apply?</h3>
   <p>OpenPeppol's release notes for 3.1.0 (branch <code>2026-Q4-QA2</code> of OpenPEPPOL/peppol-bis-invoice-3) give 23 November 2026 for publication and 24 February 2027 as the date access points must apply it. From that day a file that passes 3.0.22 can be rejected. On 24 November 2026 the release was not yet tagged on OpenPeppol's GitHub, so the rules here are compiled from that release-candidate branch at commit <code>90f078a</code>; they pass all 1,138 of OpenPeppol's own unit-test asserts. They will be rebuilt from the tag when it appears.</p>
-  <h2>Are my invoices uploaded?</h2>
+  <h3>Are my invoices uploaded?</h3>
   <p>No. The rules are downloaded with the page and every file is checked in your browser. Nothing you drop leaves your machine.</p>
-  <h2>What breaks most often?</h2>
+  <h3>What breaks most often?</h3>
   <p>On OpenPeppol's own published examples, five of seventeen files that passed 3.0.22 failed 3.1.0, all on PEPPOL-COMMON-R040: scheme 0088 now takes a 13-digit GLN only. Your files may break on other rules; the check lists them.</p>
-  <h2>Thousands of files?</h2>
+  <h3>Can I check thousands of files at once?</h3>
   <p>The same check runs from a terminal on a folder of any size and writes a CSV: <code>node peppol-readiness-cli.mjs ./sent-invoices --csv readiness.csv</code> (FSL-1.1-MIT licensed, in the <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/einvoice-preflight">source</a>). To check a single file against every rule, not only what changes, use the <a href="./">full checker</a>.</p>
+  </section>
   <p><label><input id="usageOptOut" type="checkbox"> Do not keep anonymous local usage counts</label></p>
 </main>
 <footer>
