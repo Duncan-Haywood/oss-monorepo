@@ -867,6 +867,31 @@ jobshop-quote): 18 new unit tests cover the cell rules, the ZIP and every tab's 
 the app's own importers. The file was also opened by two other readers, Python's openpyxl and
 LibreOffice. Both kept the number formats and showed the formula-looking name as text.
 
+## Your logo on the quote
+
+Until now the quote PDF opened with the shop's name in bold type and nothing else. Shops send
+that PDF to the buyers they are trying to win, and a quote from a competitor usually has the
+shop's logo at the top. So the rate card now has **"Logo on quotes"**: an admin uploads a PNG or
+JPEG, sees a preview, and every quote PDF from then on prints it at the top left, above the shop
+name.
+
+- **It fits a fixed box.** The logo sits inside 2.5 x 0.75 in with its shape kept, so a wide
+  wordmark and a square badge both look right next to "QUOTE".
+- **Transparent PNGs stay transparent.** The see-through part of a PNG is carried into the PDF
+  rather than turned white or black, so the logo looks the same on any viewer.
+- **What uploads is what prints.** The upload is checked by the same code that draws it in the
+  PDF. A file that is not really a PNG or JPEG (an SVG renamed to .png, say), one over 1 MB or
+  over 4 megapixels, or a 16-bit PNG is refused with the reason, and the old logo stays.
+- **Quotes already sent don't change.** A sent quote keeps the exact PDF it was sent with, so
+  changing or removing the logo later never changes a document a customer already has.
+- **No logo, no change.** A shop that never uploads one gets the same PDF as before.
+
+How it was checked (private-monorepo PR #294, jobshop-quote): 9 unit tests cover the image
+reader and the PDF writer, from transparency and photo orientation to the refused files and the
+PDF's own byte offsets. 4 integration tests cover upload, preview, replace, remove, roles, other
+shops and sent quotes. A transparent PNG and a JPEG made with ImageMagick were also rendered to
+images with Poppler's `pdftoppm` to check that they sit where they should.
+
 ## Next
 
 The next item on the flagship list (milestone 3) is reading tolerances, material and finish from
