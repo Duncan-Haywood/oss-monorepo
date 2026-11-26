@@ -404,6 +404,29 @@ GC. The files count against the same storage limit as other attachments,
 and they are deleted with the certificate. (Added 2026-11-26; still in
 development.)
 
+**The other papers a GC asks for.** Insurance is not the only file a GC
+keeps on a sub. Before the first payment, and again when something
+lapses, the GC's subcontractor onboarding or prequalification form
+usually asks for the contractor's license in the job's state (class and
+number), a W-9, a bonding letter from the surety stating bonding
+capacity, the experience modification rate (EMR) letter, the OSHA 300A
+summary, the written safety program, and a DBE, MBE or WBE
+certification where the job has goals. A sub working in three states
+has three licenses with three renewal dates. The build now keeps these
+beside the insurance certificates on a "Licenses and documents" page,
+typed from each document: the state or city, class, number, issuer and
+dates. The expiry date is optional, because a W-9 or a safety program
+has none; those are never flagged. One with an expiry date follows the
+certificate rules: a note on the projects page 30 days before it, and a
+warning on a draft pay application dated within that window or after it.
+A W-9 keeps only the date it was signed. Its number is the company's tax
+ID (an EIN, or a Social Security number for a sole proprietor), so the
+build refuses to store one. The page also turns the list into text to
+paste into a GC's prequalification form, licenses first, with an expired
+document listed and marked rather than left out. It reads what was
+typed and does not check a license with the state board. (Added
+2026-11-26; still in development.)
+
 **A scanned schedule of values.** The schedule of values often arrives
 as a scan: the GC's signed copy, or a page someone ran through the
 office copier. Until now the import read a scan only if the scanner had
