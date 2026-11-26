@@ -1,0 +1,26 @@
+{
+ "comment": "A paid app with D1 data and a Paddle webhook, only in dry runs, so every switch step is exercised before a real paid app lands in apps.d.",
+ "apps": [
+  {
+   "name": "demo-paid",
+   "hosts": [
+    "app.demo.marisstella.app"
+   ],
+   "aws": {
+    "kind": "apigateway",
+    "account": "apps"
+   },
+   "health": "/api/health",
+   "data": {
+    "d1_database": "demo-paid",
+    "product": "demo_paid"
+   },
+   "paddle": {
+    "notification_setting_id": "ntfset_01demo",
+    "aws_destination": "https://abc123demo.lambda-url.us-east-1.on.aws/",
+    "webhook_secret": "paid-apps/demo-paid/paddle-webhook"
+   },
+   "crawl": false
+  }
+ ]
+}

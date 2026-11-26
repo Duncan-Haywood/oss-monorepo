@@ -1,0 +1,9 @@
+{
+  "comment": "The four public products on the SaaS starter (docs/reports/2026-11-25-aws-move-products.md). None has D1, KV or R2 data of ours and none serves on marisstella.app today, so their switch creates the hostname rather than moving it.",
+  "apps": [
+    { "name": "shift-roster", "hosts": ["hub.marisstella.app"], "aws": { "kind": "apigateway", "account": "apps" }, "health": "/healthz", "freeze": false, "data": null, "paddle": null, "crawl": false },
+    { "name": "listing-lens", "hosts": ["listing-docs.marisstella.app"], "aws": { "kind": "apigateway", "account": "apps" }, "health": "/healthz", "freeze": false, "data": null, "paddle": null, "crawl": false },
+    { "name": "retail-pilot-intel", "hosts": ["pilot-docs.marisstella.app"], "aws": { "kind": "apigateway", "account": "apps" }, "health": "/healthz", "freeze": false, "data": null, "paddle": null, "crawl": false },
+    { "name": "ai-first-markets", "hosts": ["markets.marisstella.app"], "aws": { "kind": "apigateway", "account": "apps" }, "health": "/healthz", "freeze": false, "data": null, "paddle": null, "crawl": false }
+  ]
+}

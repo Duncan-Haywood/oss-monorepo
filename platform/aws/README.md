@@ -33,10 +33,13 @@ stacks/email               SES identities, DKIM, MAIL FROM, DMARC, config sets, 
 stacks/app-identity        TRANSITIONAL: an IAM user for Cloudflare Workers, key rotated in Secrets Manager
 stacks/github-oidc         per-stack CI roles and a state bucket in each workload account (payments: private repo only)
 stacks/findings            HIGH/CRITICAL Security Hub findings -> SQS -> files on security-alerts
+stacks/cutover-access      the Cloudflare -> AWS cutover's roles (GitHub OIDC, one environment each)
+stacks/cloudflare          the Cloudflare account as OpenTofu (export + switch.tf); applied only by the cutover
+cutover/                   the cutover orchestrator, app list, fakes and tests (cutover/README.md)
 ```
 
 Apply order (the apply workflow follows it): `org`, `baseline`, `spend`,
-`llm`, `email`, `app-identity`; then `github-oidc` and `findings` (both
+`llm`, `email`, `app-identity`, `cutover-access`; then `github-oidc` and `findings` (both
 with the management credentials, not yet in the workflow). After those come
 the workload stacks, each applied by its own `gha-<repo>-<stack>-apply` role
 against its own account's state bucket: `dns` (shared-infra), then `site`
