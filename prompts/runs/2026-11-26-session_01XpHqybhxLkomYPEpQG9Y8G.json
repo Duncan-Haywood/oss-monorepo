@@ -65,7 +65,7 @@
     "apps/cmmc/docs/SOURCES.md (Internal audits and corrective actions)"
   ],
   "goal": null,
-  "notes": "Security queue: none workable (exit 3). Ideas inbox empty. roadmap_claim --bets: bets 1-3 had no free ungated items; took cmmc #1. private-monorepo CI run 45913214885 was starved (ci_starvation: no runner assigned), so verified locally: pnpm typecheck clean; biome check src test clean; pnpm test:unit 40 files/480 tests passed (+Audits.test.tsx 3 tests passed); pnpm test:worker 21 files/154 tests passed; pnpm build ok. Risk review: nothing blocked; privacy policy updated (POLICY_VERSION 2026-11-26.15) for the new stored fields.",
+  "notes": "Security queue: none workable (exit 3). Ideas inbox empty. roadmap_claim --bets: bets 1-3 had no free ungated items; took cmmc #1. private-monorepo CI run 45913214885 was starved (ci_starvation: no runner assigned), so verified locally: pnpm typecheck clean; biome check src test clean; pnpm test:unit 40 files/480 tests passed (+Audits.test.tsx 3 tests passed); pnpm test:worker 21 files/154 tests passed; pnpm build ok. Risk review: nothing blocked; privacy policy updated (POLICY_VERSION 2026-11-26.15) for the new stored fields. Run record PR: https://github.com/Duncan-Haywood/oss-monorepo/pull/19524.",
   "corrections": [],
   "redteam": null,
   "usage": {
