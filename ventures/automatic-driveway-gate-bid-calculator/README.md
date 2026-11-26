@@ -30,7 +30,7 @@ Homeowners shop "$4,500 automatic gate" and "$350 a foot." Those numbers
 cannot see the style. A 12-foot single aluminum swing on existing posts
 at the sample rates is about $6,506. The same shop's 16-foot dual steel
 swing with masonry columns, two loops, a keypad, and a solar kit is
-about $20,440 — and almost half of that is columns, loops, power, and
+about $20,440 — and almost half of that cost is columns, loops, power, and
 access. Matching the kit special on the dual masonry job is how a sold
 gate becomes a two-day loss after the first loop sawcut.
 
