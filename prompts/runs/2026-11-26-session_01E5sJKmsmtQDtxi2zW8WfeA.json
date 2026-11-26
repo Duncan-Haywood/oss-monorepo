@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKmsmtQDtxi2zW8WfeA",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T18:18:19Z",
+  "ended": "2026-11-26T18:27:39Z",
+  "wall_minutes": 10.04,
+  "tokens_in": 8440024,
+  "tokens_out": 48506,
+  "cost_usd": 3.9625,
+  "tool_calls": 65,
+  "task": "Bet #3 einvoice-preflight ROADMAP Next 6: PDF to ZUGFeRD part 2, the workspace convert screen",
+  "projects": [
+    "einvoice-preflight",
+    "einvoice-site"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/388",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "pro/server.mjs caches the workspace's web files in memory, so a CSS fix did not show until the dev server was restarted",
+      "fix": "restarted the server"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "says to run pnpm install --filter \"{./apps/<dir>}...\" for an app's tests; einvoice-preflight has no package.json, so it prints 'No projects matched' and its tests need no install at all. A line saying zero-dependency apps skip the install would save a step."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No new blog post: the work is a feature inside the private paid product. Its customer copy went to the einvoice-site's own step list and llms.txt, in three languages, instead of a dev post here.",
+      "did": "site copy + pro/README.md section",
+      "result": "customer-facing copy shipped with the feature"
+    }
+  ],
+  "writeups": [
+    "private-monorepo apps/einvoice-preflight/pro/README.md 'Part 2: the convert screen'",
+    "apps/einvoice-site 'From a PDF' step (DE/FR/EN)"
+  ],
+  "goal": "$10k MRR: einvoice-preflight's paid workspace turns a plain PDF invoice into a checked Factur-X/CII/UBL file, the job German/French SMEs face before the 2027/2028 mandates",
+  "notes": "Claimed claim/einvoice-preflight/pdf-to-zugferd-part-2-workspace-screen. Verification: node --test pro/*.test.mjs worker/*.test.mjs 210 pass; einvoice-site tests 34 pass; driven in Chromium (sign up, drop rechnung-de.pdf, download locked until marks confirmed and buyer address added, downloaded 2026-0815.pdf, no overflow at 390 px, no console errors). Also fixed a pre-existing phone overflow from the hidden file input. Private CI starved (ci_starvation.py: 1 of 1 job never got a runner); run_workflow_locally: einvoice-site-ci 4/4 run steps ok; einvoice-preflight-ci pro and worker steps ok, root suite 2220 pass / 1 fail (repair-facturx.test.mjs poppler test, which fails identically on the parent commit, so it predates this PR and is environmental). Merged as private squash cc6a87b.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8f7d8349-ed94-518e-aa04-e1b9c8defbbb",
+    "transcripts": 1,
+    "first": "2026-11-26T18:18:19Z",
+    "last": "2026-11-26T18:28:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 119,
+        "output": 48506,
+        "thinking": 6718,
+        "cache_read": 8272741,
+        "cache_write_5m": 0,
+        "cache_write_1h": 167164,
+        "api_equivalent_usd": 3.9625,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 119,
+      "output": 48506,
+      "thinking": 6718,
+      "cache_read": 8272741,
+      "cache_write_5m": 0,
+      "cache_write_1h": 167164,
+      "api_equivalent_usd": 3.9625,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 60,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Write": 1,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.04,
+      "active_minutes": 10.04,
+      "model_minutes": 7.91,
+      "tool_minutes": 2.14,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a mid-level full-stack dev building a review/confirm form over an existing API, a build route, tests and 4-language copy",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 252.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
