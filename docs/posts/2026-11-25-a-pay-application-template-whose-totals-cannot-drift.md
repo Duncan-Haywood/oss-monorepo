@@ -113,6 +113,24 @@ for that step, and the template page links to it.
 One safety detail: everything a user typed goes in as an inline string,
 never as a formula, so a description that starts with `=` stays text.
 
+## Checking the numbers from a phone
+
+Updated 2026-11-26. Plenty of pay apps get a last look on a phone in the
+truck before they go out, and the results were hard to read there. At
+390 px wide the line-by-line table was 1,004 px across, so you saw Item,
+Description and Scheduled and had to scroll sideways for everything else.
+The summary was padded text for pasting into an email, and on a narrow
+screen each amount wrapped onto the line below its label.
+
+Now, under 600 px, each schedule line is a card: "4 Electrical rough-in"
+on top, then Scheduled, Previous, This period, Stored, Completed, Percent
+complete, Balance to finish and Retainage, one named row each. The
+summary shows as nine label-and-amount rows ("8. CURRENT PAYMENT DUE
+(6 - 7) ... $84,870.00" on the worked example). The text you download or
+print is the same padded text as before; only the on-screen view changed.
+Input boxes are 16 px on a phone, so iPhone Safari no longer zooms the
+page when you tap one.
+
 ## Why a spreadsheet, for a product we mean to sell
 
 The paid product in development is a hosted pay-app suite: schedules
