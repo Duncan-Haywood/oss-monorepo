@@ -132,6 +132,16 @@ test("a payment is matched to the shifted period that ended before it", () => {
   assert.equal(r.periods[0].owed, 100);
 });
 
+test("a February payment on a monthly return pays January, not a month 13 of the year before (red team 2026-11-26)", () => {
+  let b = importStatement(books(), "Date,Description,Amount\n2026-02-10,State tax,-7.00\n", "1000").books;
+  b = confirm(b, Object.fromEntries(b.transactions.filter((t) => /State tax/.test(t.desc)).map((t) => [t.id, "2100"])));
+  const r = salesTaxReturn(b, { frequency: "monthly" });
+  assert.ok(r.periods.every((p) => /^\d{4}-(0[1-9]|1[0-2])$/.test(p.period)), r.periods.map((p) => p.period).join());
+  const jan = r.periods.find((p) => p.period === "2026-01");
+  assert.equal(jan.paid, 700);
+  assert.equal(jan.owed, 0);
+});
+
 test("endMonth outside the first period is refused", () => {
   assert.throws(() => salesTaxReturn(books(), { endMonth: 4 }));
   assert.throws(() => salesTaxReturn(books(), { frequency: "monthly", endMonth: 2 }));
@@ -495,6 +505,10 @@ test("due dates match the states' own pages, read 2026-11-12", async () => {
 test("a frequency the state's own page does not offer gets a note naming the ones it does", () => {
   assert.match(stateFilingNote("OK", "quarterly"), /lists monthly, semiannual sales tax filing, not quarterly/);
   assert.match(stateFilingNote("NM", "annual"), /not annual/);
+  // NM's approval note is for quarterly and semiannual filers only: a monthly filer needs no approval (red team 2026-11-26)
+  assert.match(stateFilingNote("NM", "quarterly"), /approval \(ACD-31015\)/);
+  assert.match(stateFilingNote("NM", "semiannual"), /approval \(ACD-31015\)/);
+  assert.equal(stateFilingNote("NM", "monthly"), null);
   assert.match(stateFilingNote("CA", "semiannual"), /cdtfa\.ca\.gov.*not semiannual|not semiannual.*cdtfa/);
   assert.match(stateFilingNote("IN", "quarterly"), /not quarterly.*INTIME/);
   assert.match(stateFilingNote("PA", "annual"), /^Pennsylvania has no annual return/);

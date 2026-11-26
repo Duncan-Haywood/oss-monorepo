@@ -64,3 +64,28 @@ test("toIcs does not need Node's Buffer, so the browser page can call it", () =>
     assert.ok(ics.split("\r\n").every((l) => new TextEncoder().encode(l).length <= 75));
   } finally { globalThis.Buffer = B; }
 });
+
+// Red team 2026-11-26: `calendar --freq weekly` (or "Monthly") printed quarterly sales tax dates, and
+// `--state OR` (no sales tax) or `--state ZZ` (no such state) listed sales tax returns that do not exist.
+test("salesTaxDueDates refuses a frequency, period end or state it does not know, and lists nothing for a state with no sales tax", () => {
+  for (const frequency of ["weekly", "Monthly", "annually", ""]) assert.throws(() => salesTaxDueDates(2026, { state: "TX", frequency }), /frequency must be monthly, quarterly, semiannual or annual/, frequency);
+  for (const [frequency, endMonth] of [["quarterly", 0], ["quarterly", 4], ["semiannual", 7], ["annual", 13], ["annual", 2.5]]) assert.throws(() => salesTaxDueDates(2026, { frequency, endMonth }), /endMonth/, `${frequency} ${endMonth}`);
+  assert.throws(() => salesTaxDueDates(2026, { state: "ZZ" }), /not a US state/);
+  for (const state of ["OR", "MT", "NH", "DE", "AK", "or"]) assert.deepEqual(salesTaxDueDates(2026, { state }), [], state);
+  assert.deepEqual(salesTaxDueDates(2026, { state: "tx", frequency: "quarterly" }).map((e) => e.due), ["2026-01-20", "2026-04-20", "2026-07-20", "2026-10-20"]);
+  assert.equal(salesTaxDueDates(2026, { frequency: "annual", endMonth: 9 }).length, 1);
+});
+
+test("cli calendar exits 2 on a bad --freq or --state, and says why a no-sales-tax state has no returns", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const cli = new URL("./cli.mjs", import.meta.url).pathname;
+  for (const args of [["--state", "TX", "--freq", "weekly"], ["--state", "ZZ"]]) {
+    const r = spawnSync("node", [cli, "calendar", "--year", "2026", ...args], { encoding: "utf8" });
+    assert.equal(r.status, 2, args.join(" "));
+    assert.doesNotMatch(r.stdout, /sales tax return/, args.join(" "));
+  }
+  const or = spawnSync("node", [cli, "calendar", "--year", "2026", "--state", "OR"], { encoding: "utf8" });
+  assert.equal(or.status, 0);
+  assert.doesNotMatch(or.stdout, /sales tax return/);
+  assert.match(or.stderr, /Oregon has no statewide sales tax/); // stderr, so --json stdout stays parseable
+});
