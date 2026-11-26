@@ -104,3 +104,27 @@ allow:
     contains: lets the job mint cloud credentials
     reason: the file-level form of the two plan/run id-token findings above, same two jobs, same environment-scoped roles; workflow_dispatch only, no pull_request trigger (PR #19204)
     added: 2026-11-26
+  - rule: obfuscated-payload
+    path: apps/einvoice-preflight/plain/fontoxpath.esm.js
+    reason: the published minified ES module of fontoxpath (MIT, Fonto Group BV; licence in plain/fontoxpath.LICENSE.txt, listed in THIRD_PARTY.md), byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app (PR #19220); vendored so the XPath engine needs no install
+    added: 2026-11-26
+  - rule: test-skipped
+    path: apps/einvoice-preflight/schematron.test.mjs
+    contains: saxon-js not installed
+    reason: a conditional skip, taken only when the optional saxon-js dependency is absent (runSchematron returns status unavailable); byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app (PR #19220)
+    added: 2026-11-26
+  - rule: test-skipped
+    path: apps/einvoice-preflight/schematron.test.mjs
+    contains: run build-schematron.mjs
+    reason: a conditional skip, taken only when the compiled Peppol SEF file has not been built; byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app (PR #19220)
+    added: 2026-11-26
+  - rule: test-skipped
+    path: apps/einvoice-preflight/plain-schematron.test.mjs
+    contains: saxon-js not installed
+    reason: a conditional skip, taken only when the optional saxon-js dependency is absent; byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app (PR #19220)
+    added: 2026-11-26
+  - rule: test-skipped
+    path: apps/einvoice-preflight/official-good-cases.test.mjs
+    contains: npm i --no-sa
+    reason: a conditional skip, taken only when the optional plain Schematron files are not installed; byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app (PR #19220)
+    added: 2026-11-26
