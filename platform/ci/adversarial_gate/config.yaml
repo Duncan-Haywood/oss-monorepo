@@ -156,6 +156,12 @@ known_hosts:
   - sts.amazonaws.com
   - token.actions.githubusercontent.com
   - platform.claude.com
+  # Paddle's API (merchant of record), live and sandbox: the Cloudflare -> AWS
+  # cutover repoints a product's webhook notification setting and sends a
+  # simulated event (platform/aws/cutover/cutover.py, docs/runbooks/aws-cutover.md).
+  # The key is the owner's, short-lived, read from AWS Secrets Manager.
+  - api.paddle.com
+  - sandbox-api.paddle.com
 
 # Owners whose actions may be added to .github/ci-policy.yaml's allowlist
 # without a finding. Anything else is a new trust decision (`ci-policy-trust`).
