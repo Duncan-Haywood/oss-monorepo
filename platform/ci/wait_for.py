@@ -59,7 +59,30 @@ wrote it is gone and must be started again (results it already saved survive).
 Do not pipe it (`| tail`) or chain `&& echo DONE`: a pipe hides the exit 1 and the chained echo fires falsely
 (friction 2026-10-29); read the log file afterwards instead.
 """
-import argparse, os, subprocess, sys, time
+import argparse, os, re, subprocess, sys, time
+
+# Terminal escapes (colour, cursor show/hide, OSC titles). Vitest, Playwright and pnpm
+# end a run with `ESC[?25h` (show cursor) and no newline, so a following `echo EXIT $?`
+# wrote `ESC[?25hEXIT 0` and no marker test matched: two runs waited out 580 s on logs
+# that "already ended with EXIT 0" (run records 2026-11-26). Matching reads lines without them.
+ANSI = re.compile(r"\x1b(?:\[[0-?]*[ -/]*[@-~]|\][^\x07\x1b]*(?:\x07|\x1b\\)|[@-Z\\-_])")
+
+
+def plain(line):
+    return ANSI.sub("", line)
+
+
+# A default marker glued to the end of the job's last line, `...100%EXIT 0`: the job's
+# own output ended without a newline before the `echo`. Taken only from the log's last
+# non-blank line and only once no process holds the log open, so a job that prints
+# "...EXIT 0" mid-run is not cut short. A glued DONE needs a non-word character before
+# it, so a custom marker such as PDKDONE still needs --marker or --until.
+GLUED = re.compile(r"(?:(?<![A-Za-z0-9_])DONE|EXIT[ =:]-?\d+|\[exited with code -?\d+\])\s*$")
+
+
+def glued_marker(lines, held):
+    last = next((l for l in reversed(lines) if l.strip()), "")
+    return bool(GLUED.search(last)) and held() == []
 
 
 def is_marker(line, marker):
@@ -144,11 +167,13 @@ def wait(path, marker=DEFAULT_MARKERS, timeout=100.0, interval=2.0, clock=time.m
         last = clock() >= end
         if os.path.exists(path):
             with open(path, errors="replace") as f:
-                lines = f.read().splitlines()
+                lines = [plain(l) for l in f.read().splitlines()]
             markers = (marker,) if isinstance(marker, str) else marker
             quiet = markers == DEFAULT_MARKERS
             if (any(is_marker(l, m) for l in lines for m in markers) or (quiet and any(map(is_quiet_marker, lines)))) \
                     and not stale_marker(lines, markers, held, quiet):
+                return True, lines
+            if quiet and glued_marker(lines, held):
                 return True, lines
             if closed_ends and held() == []:
                 return True, lines

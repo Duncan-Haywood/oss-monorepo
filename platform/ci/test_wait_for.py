@@ -13,6 +13,32 @@ class WaitFor(unittest.TestCase):
             self.assertTrue(ok)
             self.assertEqual(lines[-1], "DONE")
 
+    def test_marker_after_terminal_escapes_counts(self):
+        # run records 2026-11-26: vitest/playwright end on ESC[?25h with no newline, so
+        # `echo EXIT $?` wrote ESC[?25hEXIT 0 and two waits ran out 580 s on finished jobs
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            for tail in ("\x1b[?25hEXIT 0\n", "\x1b[32m\x1b[0mDONE\n", "\x1b]0;title\x07exit 0\n"):
+                open(p, "w").write("ok\n" + tail)
+                ok, lines = wait(p, timeout=1, held=lambda: [(1, "bash")])
+                self.assertTrue(ok, tail)
+                self.assertNotIn("\x1b", lines[-1])
+
+    def test_marker_glued_to_the_last_line_counts_once_the_log_is_closed(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("tests 12 passed 100%EXIT 0\n")
+            t = [0.0]
+            clock, nap = (lambda: t[0]), (lambda s: t.__setitem__(0, t[0] + s))
+            # still held: the job may print more, so keep waiting
+            self.assertFalse(wait(p, timeout=3, clock=clock, nap=nap, held=lambda: [(1, "bash")])[0])
+            self.assertTrue(wait(p, timeout=1, held=lambda: [])[0])
+            # only the default markers, only on the last line, and not when /proc can't say
+            self.assertFalse(wait(p, marker="END", timeout=3, clock=clock, nap=nap, held=lambda: [])[0])
+            self.assertFalse(wait(p, timeout=3, clock=clock, nap=nap, held=lambda: None)[0])
+            open(p, "w").write("saw EXIT 0\nstill going\n")
+            self.assertFalse(wait(p, timeout=3, clock=clock, nap=nap, held=lambda: [])[0])
+
     def test_earlier_phase_marker_in_a_held_log_is_stale(self):
         # friction 2026-11-15: phase two appended to phase one's log; the old DONE ended both waits at once
         with tempfile.TemporaryDirectory() as d:
