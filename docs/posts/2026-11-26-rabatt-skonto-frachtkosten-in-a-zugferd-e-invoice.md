@@ -3,7 +3,7 @@ title: "Rabatt, Skonto and Frachtkosten: where a discount goes when your PDF inv
 seo_title: "Rabatt, Skonto and freight in a ZUGFeRD or XRechnung e-invoice"
 date: 2026-11-26
 tags: [for-customers, einvoice-preflight, e-invoicing, zugferd, factur-x, xrechnung, germany, france, accountants]
-description: "Where a discount, a Rabatt column, Skonto and freight go in a ZUGFeRD or XRechnung e-invoice, and how our PDF converter reads each one."
+description: "Where Rabatt, Skonto and freight go in a ZUGFeRD or XRechnung e-invoice, and how our PDF converter reads them and long item text."
 ---
 
 Most small firms in Germany and France still send invoices as a PDF from Word,
@@ -127,8 +127,38 @@ the line net, so if the result no longer matches the totals printed on your PDF,
 the screen names the net, VAT and total that differ and keeps the download
 locked until they agree.
 
-**Not done yet:** a discount printed on its own line under a row, a
-description that breaks across a page, and scanned PDFs (no text layer).
+## Long item descriptions, page breaks, m³ and tonnes
+
+Invoices from builders, landscapers and other trades often copy their item text
+from a bill of quantities, which runs to five lines for a single row:
+
+```
+11  Natursteinmauer Granit trocken gesetzt,      9 m   145,00 €   1.305,00 €
+    Höhe bis 60 cm, inkl. Streifenfundament
+    C20/25, Frostschutzschicht und
+    ───────────── page break ─────────────
+    Hinterfüllung mit Drainagekies 16/32
+    sowie Abdeckplatten Granit geflammt
+```
+
+Until 26 November the converter kept only the description lines right next to
+a row's amounts, so this row came out as two lines of text, and anything after
+the page break was dropped. Now it keeps every line of the description. It
+handles both common layouts: amounts on the first line with the text below
+(what a browser prints) and amounts centred in the text (what LibreOffice
+prints). When the text continues at the top of the next page under the repeated
+table header, it is joined to the last row of the previous page. The joined row
+is then marked for you to confirm, with the joined text shown, because a page
+break is where a reader is most likely to guess wrong. A page number or a
+"Seite 2 von 2" heading is never joined to a description.
+
+The same invoice showed a plainer gap. Rows priced per cubic metre (`18 m³`)
+or per tonne (`12 t`) were not read at all, so the totals check failed. They
+now come through as the standard unit codes MTQ and TNE. We tested this on one
+landscaping invoice of our own, printed by Chromium and by LibreOffice. All 13
+rows read in both prints, and the Factur-X built from each passes the checker.
+
+**Not done yet:** scanned PDFs (no text layer).
 
 The free [e-invoice preflight](https://marisstella.app/einvoice-preflight/)
 checks an XRechnung, ZUGFeRD or Factur-X file you already have, including its
