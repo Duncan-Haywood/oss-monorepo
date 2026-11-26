@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "A shot script's bash heredoc was unquoted, so ${name} and backticks expanded; redone with a quoted heredoc."
+    "A shot script's bash heredoc was unquoted, so ${name} and backticks expanded; redone with a quoted heredoc.",
+    "CI changed-ventures failed: test_browser_checks requires every BASE_URL+browser script in platform/pages to be registered or listed; added phone-probe-check to `pending` (registering now would start the nightly red on 126 swipes)."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -41,6 +42,10 @@
     {
       "file": "platform/security/risk_review.py",
       "issue": "It flagged 'auth, session or payment code' and 'personal data' on a Playwright measuring script with none of either (probably the 'pay-app' and 'session'/'form' words): a false positive to answer by hand."
+    },
+    {
+      "file": "platform/pages/README.md",
+      "issue": "The 'new browser check' sections don't say a new *-check.mjs must be added to test_browser_checks.py `pending`/`by_hand` or CHECKS; found only from CI."
     }
   ],
   "deviations": [

@@ -258,6 +258,13 @@ class Registry(unittest.TestCase):
             "ask-suggestions-check": "taps each /ask/ example question and judges "
                                      "the answer; register in the same control-plane "
                                      "PR as framerate",
+            # 2026-11-26 polish run (phone probe): its first reading over the
+            # construction front doors is 126 sideways swipes on 495 pages
+            # (docs/reports/polish-2026-11-26-phone-probe.md), so registering
+            # now would start the nightly red; it also needs an --only build.
+            "phone-probe-check": "bet front doors on a 390 px phone (swipes, small "
+                                 "fields, tall rows); register once the 126 swipes "
+                                 "are worked down",
         }
         # Browser tools run by hand on purpose, never by the nightly. Each
         # entry says why it is not a check.
