@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the seven browser checks against a build, and prove what answered.
+"""Run the browser checks (CHECKS, nine since 2026-11-26) against a build, and prove what answered.
 
 Why this exists. `platform/pages/` carries seven checks CI cannot run --
 `journey.mjs` (the customer journey), `sweep.mjs` (does every tool still
@@ -152,7 +152,7 @@ PAGES = os.path.join(REPO_ROOT, "platform", "pages")
 # with twenty to forty numeric fields where the message said "check the
 # highlighted input" and nothing was highlighted. A check nobody runs is the
 # same gate-that-never-opens this file's exit-code handling exists to stop.
-CHECKS = ("sideways", "presets", "roundtrip", "highlight", "contrast", "optout", "sweep", "journey")
+CHECKS = ("sideways", "presets", "roundtrip", "highlight", "contrast", "optout", "framerate", "sweep", "journey")
 
 SENTINEL_NAME = ".browser-checks-sentinel"
 

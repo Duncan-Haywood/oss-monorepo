@@ -120,6 +120,20 @@ test("a clearing code is checked against the bank code inside the IBAN (INV-027)
     ["IT60X0542811101000000123456", "0542811101", []], // ABI + CAB
     ["FR1420041010050500013M02606", "2004101005", []], // code banque + guichet
     ["NL91ABNA0417164300", "123456", []], // no domestic clearing code in a Dutch IBAN: not compared
+    // Both slices of every two-slice country (bank alone, then bank + branch). Before the
+    // 2026-11-26 red-team run only FR and IT were covered, so a wrong offset in MC's
+    // bank + branch slice shipped unnoticed: a correct Monaco code then failed INV-027.
+    ["ES9121000418450200051332", "2100", []],
+    ["ES9121000418450200051332", "21000418", []],
+    ["HU42117730161111101800000000", "117", []],
+    ["HU42117730161111101800000000", "1177301", []],
+    ["MC5811222000010123456789030", "11222", []],
+    ["MC5811222000010123456789030", "1122200001", []],
+    ["MC5811222000010123456789030", "1122200002", ["INV-027"]],
+    ["PT50000201231234567890154", "0002", []],
+    ["PT50000201231234567890154", "00020123", []],
+    ["SM86U0322509800000000270100", "03225", []],
+    ["SM86U0322509800000000270100", "0322509800", []],
   ];
   for (const [iban, bic, rules] of cases) {
     const findings = inspectPaymentBic({ payment: { iban, bic } });
