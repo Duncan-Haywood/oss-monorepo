@@ -91,3 +91,20 @@ test('provision returns no token when every attempt fails', async () => {
   assert.equal(token, '');
   assert.match(logs.join('\n'), /Authentication error/);
 });
+
+// Quality audit 2026-11-26 (round 110): a malformed token pasted into site.json
+// threw before any guard and exited 1, failing the job the deploy needs.
+test('provision CLI: a malformed committed token is ignored, exit 0, no token', async () => {
+  const { spawnSync } = await import('node:child_process');
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'wa-cli-'));
+  for (const f of ['provision.mjs', 'web-analytics.mjs']) {
+    await fs.copyFile(new URL(`./${f}`, import.meta.url), path.join(dir, f));
+  }
+  await fs.writeFile(path.join(dir, 'site.json'), JSON.stringify({ host: 'h.example', token: 'not-a-token' }));
+  const env = { ...process.env };
+  for (const k of ['CLOUDFLARE_ACCOUNT_ID', 'CLOUDFLAREACCOUNTID', 'CLOUDFLARE_ANALYTICS_TOKEN', 'CLOUDFLARE_API_TOKEN', 'GITHUB_OUTPUT']) delete env[k];
+  const r = spawnSync(process.execPath, ['provision.mjs'], { cwd: dir, env, encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /no token/);
+  assert.match(r.stderr, /ignoring the token in site\.json/);
+});

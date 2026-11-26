@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKjMe6NEUkvLxfVzTsB",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T07:10:17Z",
+  "ended": "2026-11-26T07:17:12Z",
+  "wall_minutes": 7.83,
+  "tokens_in": 6360216,
+  "tokens_out": 30018,
+  "cost_usd": 2.8322,
+  "tool_calls": 58,
+  "task": "einvoice-preflight ROADMAP #2 part workspace-dpa: GDPR Art. 28 data processing agreement (with 2021/914 SCCs) for the e-invoice workspace at /app/dpa, incorporated by the Terms",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/273",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [
+    "f939ba34b71912b5474d9a7c97005ddb1ff46b0a"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "repair-facturx.test.mjs:115 fails locally: the container's pdfdetach has saving switched off (environment, untouched by this diff)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "payapps (bet #1) had 9 Next items, most claimed within minutes or marked 'if people ask'; the claim listing made the contention visible quickly, which is why this run moved to bet #3. Works as intended, noted as a signal that payapps is saturated by parallel runs."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "EUR-Lex, commission.europa.eu, op.europa.eu and legislation.gov.uk all refused through the proxy (403), so primary legal text (SCC 2021/914) cannot be read from a cloud session; worth listing under 'Outbound hosts'."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Top bet (payapps) is saturated: its free roadmap items are 'if people ask' and the rest were claimed minutes earlier by parallel runs.",
+      "did": "Took bet #3 (e-invoice), whose ROADMAP item 2 names the missing DPA, a legal prerequisite for its target buyers (DE/FR accountants processing client data) to sign up.",
+      "result": "DPA shipped with tests in private-monorepo#273."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No new blog post: the deliverable is a legal page in a private product; a post about the DPA would be thin and the einvoice marketing site lives in private-monorepo.",
+      "did": "Documented in pro/README.md and ROADMAP instead.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "private-monorepo apps/einvoice-preflight/pro/README.md, 'The workspace page' (DPA paragraph)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (exit 3), ideas inbox empty. Local: node --test pro/*.test.mjs 147 pass 0 fail. SCC clause options written from the agent's knowledge of 2021/914 because EUR-Lex returned 403; flagged in README and ROADMAP for a check. GitHub CI on private-monorepo#273 starved (ci_starvation.py: runner_id 0, no runner). Local run_workflow_locally.py einvoice-preflight-ci: pro suite green; root suite 2218 pass, 142 skipped, 1 fail, repair-facturx.test.mjs:115 'poppler opens the repaired PDF', because this container's pdfdetach refuses to save files. That is environmental and not in this diff. Merged as f939ba3.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5de95c26-e72b-51d4-93b1-737db5100475",
+    "transcripts": 1,
+    "first": "2026-11-26T07:10:17Z",
+    "last": "2026-11-26T07:18:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 108,
+        "output": 30018,
+        "thinking": 7275,
+        "cache_read": 6237114,
+        "cache_write_5m": 0,
+        "cache_write_1h": 122994,
+        "api_equivalent_usd": 2.8322,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 108,
+      "output": 30018,
+      "thinking": 7275,
+      "cache_read": 6237114,
+      "cache_write_5m": 0,
+      "cache_write_1h": 122994,
+      "api_equivalent_usd": 2.8322,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 50,
+      "mcp__github__pull_request_read": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Write": 1,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.83,
+      "active_minutes": 7.83,
+      "model_minutes": 6.63,
+      "tool_minutes": 1.2,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "drafting and code-checking an Art. 28 DPA with SCC annexes plus wiring and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 211.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

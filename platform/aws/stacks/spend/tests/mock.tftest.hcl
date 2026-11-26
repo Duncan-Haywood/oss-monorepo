@@ -180,7 +180,7 @@ run "spend_shape" {
   }
 
   assert {
-    condition     = strcontains(aws_organizations_policy.freeze.content, "aws-external-anthropic:CreateInference")
+    condition     = strcontains(aws_organizations_policy.freeze[0].content, "aws-external-anthropic:CreateInference")
     error_message = "the freeze SCP stops Claude calls"
   }
 }
@@ -217,7 +217,7 @@ run "per_account_kill_switch_and_alerts" {
   }
 
   assert {
-    condition     = aws_lambda_function.kill_switch.environment[0].variables.REGIONS == "us-east-1,us-west-2"
+    condition     = aws_lambda_function.kill_switch.environment[0].variables.REGIONS == "us-east-2,us-east-1"
     error_message = "the kill switch sweeps both allowed regions"
   }
 }
@@ -226,14 +226,14 @@ run "freeze_scp_leaves_data_logs_and_dns_alone" {
   command = plan
 
   assert {
-    condition = length([for a in jsondecode(aws_organizations_policy.freeze.content).Statement[0].Action :
+    condition = length([for a in jsondecode(aws_organizations_policy.freeze[0].content).Statement[0].Action :
     a if can(regex("^(s3|logs|cloudtrail|route53|route53domains|kms|dynamodb|secretsmanager|guardduty|securityhub|config):", a))]) == 0
     error_message = "the freeze must never touch storage, logs, audit, DNS, domains or keys"
   }
 
   assert {
     condition = alltrue([for a in ["autoscaling:UpdateAutoScalingGroup", "lambda:UpdateEventSourceMapping", "ec2:RequestSpotInstances"] :
-    contains(jsondecode(aws_organizations_policy.freeze.content).Statement[0].Action, a)])
+    contains(jsondecode(aws_organizations_policy.freeze[0].content).Statement[0].Action, a)])
     error_message = "the freeze stops the kill switch's work from being undone"
   }
 }
@@ -247,7 +247,7 @@ run "anomaly_detection" {
   }
 
   assert {
-    condition     = length(jsondecode(aws_ce_anomaly_monitor.accounts.monitor_specification).Dimensions.Values) == 7
+    condition     = length(jsondecode(aws_ce_anomaly_monitor.accounts[0].monitor_specification).Dimensions.Values) == 7
     error_message = "the account monitor covers every account, management included"
   }
 
@@ -277,5 +277,85 @@ run "alert_emails_are_sensitive_but_subscribed" {
   assert {
     condition     = length(aws_sns_topic_subscription.alert_email) == 2
     error_message = "one email subscription per address (count, so the addresses never become printed keys)"
+  }
+}
+
+# Single-account mode: one budget that acts, the freeze as an IAM policy a
+# Budgets action attaches to the account's roles, no SCP, the boundary on
+# the spend guard's own roles.
+run "single_account" {
+  command = plan
+
+  variables {
+    account_mode = "single"
+  }
+
+  override_data {
+    target = data.terraform_remote_state.org
+    values = {
+      outputs = {
+        organization_id          = null
+        management_account_id    = "000000000000"
+        account_ids              = { for k in ["log-archive", "security", "shared-infra", "apps", "payments", "sandbox"] : k => "000000000000" }
+        permissions_boundary_arn = "arn:aws:iam::000000000000:policy/workload-boundary"
+      }
+    }
+  }
+
+  override_data {
+    target = data.aws_iam_roles.all[0]
+    values = {
+      arns = [
+        "arn:aws:iam::000000000000:role/app-llm",
+        "arn:aws:iam::000000000000:role/ci/github-llm-gate",
+        "arn:aws:iam::000000000000:role/cutover/github-cutover",
+        "arn:aws:iam::000000000000:role/gha-oss-monorepo-site-apply",
+        "arn:aws:iam::000000000000:role/github/github-apply",
+        "arn:aws:iam::000000000000:role/github/github-plan",
+        "arn:aws:iam::000000000000:role/spend-guard/spend-kill-switch",
+        "arn:aws:iam::000000000000:role/aws-service-role/config.amazonaws.com/AWSServiceRoleForConfig",
+        "arn:aws:iam::000000000000:role/saas-starter-db-admin",
+      ]
+    }
+  }
+
+  assert {
+    condition     = join(",", keys(aws_budgets_budget.account)) == "account" && aws_budgets_budget.account["account"].limit_amount == "200" && length(aws_budgets_budget.organization) == 0
+    error_message = "one budget for the one account, at the organisation limit"
+  }
+
+  assert {
+    condition     = length(aws_organizations_policy.freeze) == 0 && length(aws_budgets_budget_action.freeze) == 0
+    error_message = "no SCP and no SCP action without an Organization"
+  }
+
+  assert {
+    condition     = aws_budgets_budget_action.freeze_single[0].action_type == "APPLY_IAM_POLICY"
+    error_message = "the freeze is a Budgets IAM-policy action"
+  }
+
+  assert {
+    condition     = jsonencode(local.freeze_roles) == jsonencode(["app-llm", "github-cutover", "github-llm-gate", "saas-starter-db-admin"])
+    error_message = "the freeze reaches the workload roles, never the bootstrap, spend-guard, gha-* or AWS service roles"
+  }
+
+  assert {
+    condition     = jsondecode(aws_iam_policy.freeze[0].policy).Statement[0].Action == local.freeze_actions && contains(local.freeze_actions, "aws-external-anthropic:CreateInference")
+    error_message = "the IAM freeze denies what the SCP denies"
+  }
+
+  assert {
+    condition     = jsondecode(aws_lambda_function.kill_switch.environment[0].variables.KILL_ON_BUDGET) == ["account"]
+    error_message = "the apps kill-switch setting carries over to the one account"
+  }
+
+  assert {
+    condition     = aws_iam_role.kill_switch.permissions_boundary == "arn:aws:iam::000000000000:policy/workload-boundary" && aws_iam_role.budgets_action.permissions_boundary == "arn:aws:iam::000000000000:policy/workload-boundary"
+    error_message = "the spend guard's roles carry the workload boundary"
+  }
+
+  assert {
+    condition     = length(aws_ce_anomaly_monitor.accounts) == 0
+    error_message = "no linked-account monitor for one account"
   }
 }

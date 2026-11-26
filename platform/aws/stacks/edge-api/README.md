@@ -4,7 +4,7 @@ The AWS home of [`platform/edge`](../../../edge/README.md): the same handler the
 Cloudflare Worker runs, on Lambda behind the site's CloudFront distribution,
 with its data in DynamoDB. The Worker keeps serving until cutover.
 
-Account: **apps** (beside SES, so inbound mail is one account; found from the org stack's `account_ids`). Region: **us-east-1**. Nothing here has been
+Account: **apps** (beside SES, so inbound mail is one account; found from the org stack's `account_ids`). Region: **us-east-2** (the home region). Nothing here has been
 applied; there is no AWS account yet.
 
 ## What it creates

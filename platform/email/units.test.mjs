@@ -68,6 +68,15 @@ test('MIME: HTML-only mail becomes text without scripts', () => {
   assert.equal(m.htmlPresent, true);
 });
 
+test('HTML-only multipart keeps its text: the epilogue is not a part (RFC 2046 5.1.1, round 111 audit)', () => {
+  const alt = parseMessage('From: p@example.org\r\nSubject: My order\r\nContent-Type: multipart/alternative; boundary=b1\r\n\r\n--b1\r\nContent-Type: text/html\r\n\r\n<p>I want a refund or my lawyer will be in touch.</p>\r\n--b1--\r\n');
+  assert.equal(alt.text, 'I want a refund or my lawyer will be in touch.');
+  assert.deepEqual(classify({ subject: alt.subject, text: alt.text, from: 'p@example.org' }, {}, ['legal', 'refund']).flags.sort(), ['legal', 'refund']);
+  const mixed = parseMessage('From: p@example.org\r\nContent-Type: multipart/mixed; boundary=m\r\n\r\npreamble\r\n--m\r\nContent-Type: text/html\r\n\r\n<p>See attached</p>\r\n--m\r\nContent-Type: application/pdf; name=a.pdf\r\nContent-Transfer-Encoding: base64\r\n\r\nAAAA\r\n--m--\r\nepilogue text\r\n');
+  assert.equal(mixed.text, 'See attached');
+  assert.equal(mixed.attachments.length, 1);
+});
+
 test('automated senders are recognised', () => {
   assert.ok(isAutomated({ 'auto-submitted': ['auto-replied'] }, 'a@b'));
   assert.ok(isAutomated({ 'list-id': ['x'] }, 'a@b'));

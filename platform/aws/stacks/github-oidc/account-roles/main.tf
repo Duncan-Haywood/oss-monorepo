@@ -26,7 +26,7 @@ data "aws_caller_identity" "current" {}
 
 locals {
   account_id        = data.aws_caller_identity.current.account_id
-  state_bucket_name = "${local.account_id}-tofu-state-${var.region}"
+  state_bucket_name = coalesce(var.state_bucket_name, "${local.account_id}-tofu-state-${var.region}")
   state_bucket_arn  = "arn:aws:s3:::${local.state_bucket_name}"
   state_kms_key_arn = length(aws_kms_key.state) > 0 ? aws_kms_key.state[0].arn : null
   github_host       = "token.actions.githubusercontent.com"
@@ -133,42 +133,6 @@ locals {
       },
     ]
   }
-
-  # What any role a workload stack creates can never do, whatever policy it
-  # is later given.
-  boundary_policy = {
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid      = "AllowWithinAccount"
-        Effect   = "Allow"
-        Action   = "*"
-        Resource = "*"
-      },
-      {
-        Sid    = "DenyIdentityAndOrgChanges"
-        Effect = "Deny"
-        Action = [
-          "account:*", "iam:CreateAccessKey", "iam:CreateLoginProfile", "iam:CreateUser",
-          "iam:CreateOpenIDConnectProvider", "iam:CreateSAMLProvider",
-          "iam:DeleteRolePermissionsBoundary", "organizations:*", "sso:*",
-        ]
-        Resource = "*"
-      },
-      {
-        Sid      = "DenyTouchingCIRolesAndBoundary"
-        Effect   = "Deny"
-        Action   = "iam:*"
-        Resource = ["arn:aws:iam::${local.account_id}:role/gha-*", local.boundary_arn]
-      },
-      {
-        Sid      = "DenyGovernanceBypass"
-        Effect   = "Deny"
-        Action   = ["s3:BypassGovernanceRetention", "kms:ScheduleKeyDeletion", "kms:DisableKey"]
-        Resource = "*"
-      },
-    ]
-  }
 }
 
 resource "aws_iam_openid_connect_provider" "github" {
@@ -177,20 +141,18 @@ resource "aws_iam_openid_connect_provider" "github" {
   client_id_list = ["sts.amazonaws.com"]
 }
 
-resource "aws_iam_policy" "boundary" {
-  # checkov:skip=CKV_AWS_62:A permissions boundary grants nothing; its Allow * is the ceiling and its Deny statements are the point.
-  # checkov:skip=CKV_AWS_63:A permissions boundary grants nothing; its Allow * is the ceiling and its Deny statements are the point.
-  # checkov:skip=CKV_AWS_286:A permissions boundary grants nothing; its Allow * is the ceiling and its Deny statements are the point.
-  # checkov:skip=CKV_AWS_287:A permissions boundary grants nothing; its Allow * is the ceiling and its Deny statements are the point.
-  # checkov:skip=CKV_AWS_288:A permissions boundary grants nothing; its Allow * is the ceiling and its Deny statements are the point.
-  # checkov:skip=CKV_AWS_289:A permissions boundary grants nothing; its Allow * is the ceiling and its Deny statements are the point.
-  # checkov:skip=CKV_AWS_290:A permissions boundary grants nothing; its Allow * is the ceiling and its Deny statements are the point.
-  # checkov:skip=CKV_AWS_355:A permissions boundary grants nothing; its Allow * is the ceiling and its Deny statements are the point.
-  # checkov:skip=CKV2_AWS_40:A permissions boundary grants nothing; its Allow * is the ceiling and its Deny statements are the point.
-  count       = length(var.stacks) > 0 ? 1 : 0
-  name        = "workload-boundary"
-  description = "Permissions boundary every role created by a workload stack must carry"
-  policy      = jsonencode(local.boundary_policy)
+# The boundary itself (modules/workload-boundary). In single-account mode
+# stacks/org makes the account's one boundary, so create_boundary is false
+# and every role here refers to that one by name.
+module "boundary" {
+  count      = var.create_boundary && length(var.stacks) > 0 ? 1 : 0
+  source     = "../../../modules/workload-boundary"
+  account_id = local.account_id
+}
+
+moved {
+  from = aws_iam_policy.boundary[0]
+  to   = module.boundary[0].aws_iam_policy.this
 }
 
 resource "aws_iam_role" "plan" {
@@ -198,6 +160,9 @@ resource "aws_iam_role" "plan" {
   name                 = "gha-${each.value.repo}-${each.key}-plan"
   description          = "Read-only plans of ${each.key} from ${each.value.repo} pull requests"
   max_session_duration = 3600
+  # Single-account mode: the CI roles share the account with the management
+  # stacks, so they carry the boundary too.
+  permissions_boundary = var.boundary_on_ci_roles ? local.boundary_arn : null
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -282,6 +247,9 @@ resource "aws_iam_role" "apply" {
   name                 = "gha-${each.value.repo}-${each.key}-apply"
   description          = "Applies ${each.key} from ${each.value.repo} main through ${var.apply_environment}"
   max_session_duration = 3600
+  # Single-account mode: the CI roles share the account with the management
+  # stacks, so they carry the boundary too.
+  permissions_boundary = var.boundary_on_ci_roles ? local.boundary_arn : null
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -323,6 +291,9 @@ resource "aws_iam_role" "extra" {
   name                 = each.key
   description          = each.value.description
   max_session_duration = 3600
+  # Single-account mode: the CI roles share the account with the management
+  # stacks, so they carry the boundary too.
+  permissions_boundary = var.boundary_on_ci_roles ? local.boundary_arn : null
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -370,7 +341,7 @@ resource "aws_kms_key" "state" {
 
 resource "aws_kms_alias" "state" {
   count         = length(var.stacks) > 0 ? 1 : 0
-  name          = "alias/tofu-state"
+  name          = var.state_kms_alias
   target_key_id = aws_kms_key.state[0].key_id
 }
 

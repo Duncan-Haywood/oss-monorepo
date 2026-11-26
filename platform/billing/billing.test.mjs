@@ -59,6 +59,21 @@ test("Paddle signature: good, rotated, tampered, stale, missing, no secret", asy
   assert.match((await verifyPaddleSignature(sign(raw), raw, "", NOW)).reason, /no webhook secret/);
 });
 
+test("quality round 109: a truncated or one-digit h1 never matches (the length check in the compare)", async () => {
+  const raw = JSON.stringify({ event_type: "transaction.completed", data: { id: "txn_x" } });
+  const good = sign(raw);
+  const h1 = good.split("h1=")[1];
+  const ts = good.split(";")[0];
+  for (const cut of [1, 2, 32, h1.length - 1]) {
+    const r = await verifyPaddleSignature(`${ts};h1=${h1.slice(0, cut)}`, raw, SECRET, NOW);
+    assert.deepEqual(r, { ok: false, reason: "signature mismatch" }, `h1 cut to ${cut}`);
+  }
+  // 16 one-digit guesses: none may pass, or a forger needs about 16 tries.
+  for (const d of "0123456789abcdef") {
+    assert.equal((await verifyPaddleSignature(`${ts};h1=${d}`, raw, SECRET, NOW)).ok, false, `h1=${d}`);
+  }
+});
+
 test("a signed key verifies offline; a wrong product, a wrong signer, tampering and expiry do not", async () => {
   const key = await signLicence({ v: 1, p: "shed-designer", t: "one-off", s: "txn_x", iat: NOW }, PRIV);
   assert.ok(cleanKey(key));

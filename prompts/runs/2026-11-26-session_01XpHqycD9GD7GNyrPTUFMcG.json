@@ -1,0 +1,278 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqycD9GD7GNyrPTUFMcG",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T06:37:48Z",
+  "ended": "2026-11-26T06:38:48Z",
+  "wall_minutes": 6.33,
+  "tokens_in": 3039591,
+  "tokens_out": 15368,
+  "cost_usd": 1.5456,
+  "tool_calls": 36,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19257",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/pay-application-generator/recalc.test.mjs",
+      "issue": "The only page-vs-workbook check skips without soffice (most CI); this container has soffice, so it ran in ~3 s here. Worth checking whether CI could install it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-25-a-pay-application-template-whose-totals-cannot-drift.md (new 2026-11-26 section)",
+    "docs/reports/redteam-2026-11-26-pay-app-retainage-rounding.md"
+  ],
+  "goal": null,
+  "notes": "Target workbook.mjs (fresh). 10 mutants, 7 caught, 2 gaps fixed, 1 equivalent. Real defect: half-cent retainage rounding asymmetry on negative amounts (calc.mjs mulBp), fixed. Guard added: seeded odd-symmetry sweep in calc.test.mjs, which runs in CI and fails on the old code. Verified: run_venture_tests.py pay-application-generator ok; recalc.test.mjs 7/7 with soffice.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/pay-application-generator/workbook.mjs",
+        "test": "node --test ventures/pay-application-generator/**/*.test.mjs  (in .)",
+        "seed": 447140880,
+        "commit": "a3265f193",
+        "sites": 196,
+        "baseline_seconds": 2.9,
+        "mutants": [
+          {
+            "file": "ventures/pay-application-generator/workbook.mjs",
+            "line": 25,
+            "col": 87,
+            "operator": "const-plus-one",
+            "before": "for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xff] ^ (c >>> 8);",
+            "after": "for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xff] ^ (c >>> 9);",
+            "line_text": "  for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xff] ^ (c >>> 8);",
+            "caught": true,
+            "seconds": 2.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-application-generator/workbook.mjs",
+            "line": 34,
+            "col": 57,
+            "operator": "const-plus-one",
+            "before": "const u32 = (v) => [v & 0xff, (v >>> 8) & 0xff, (v >>> 16) & 0xff, (v >>> 24) & 0xff];",
+            "after": "const u32 = (v) => [v & 0xff, (v >>> 8) & 0xff, (v >>> 17) & 0xff, (v >>> 24) & 0xff];",
+            "line_text": "  const u32 = (v) => [v & 0xff, (v >>> 8) & 0xff, (v >>> 16) & 0xff, (v >>> 24) & 0xff];",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-application-generator/workbook.mjs",
+            "line": 63,
+            "col": 96,
+            "operator": "const-plus-one",
+            "before": "export const colName = (i) => { let s = \"\"; for (let n = i + 1; n > 0; n = Math.floor((n - 1) / 26)) s = String.fromCharCode(65 + ((n - 1) % 26)) + s; return s; };",
+            "after": "export const colName = (i) => { let s = \"\"; for (let n = i + 1; n > 0; n = Math.floor((n - 1) / 27)) s = String.fromCharCode(65 + ((n - 1) % 26)) + s; return s; };",
+            "line_text": "export const colName = (i) => { let s = \"\"; for (let n = i + 1; n > 0; n = Math.floor((n - 1) / 26)) s = String.fromCharCode(65 + ((n - 1) % 26)) + s; return s; };",
+            "caught": false,
+            "seconds": 3.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "colName only ever sees 12 columns here, but it is exported; added a test of column letters past Z (AA, AZ, ZZ, AAA)."
+          },
+          {
+            "file": "ventures/pay-application-generator/workbook.mjs",
+            "line": 76,
+            "col": 25,
+            "operator": "eq-flip",
+            "before": "if (c.v == null || c.v === \"\") return s ? `<c r=\"${ref}\"${s}/>` : \"\";",
+            "after": "if (c.v == null || c.v !== \"\") return s ? `<c r=\"${ref}\"${s}/>` : \"\";",
+            "line_text": "  if (c.v == null || c.v === \"\") return s ? `<c r=\"${ref}\"${s}/>` : \"\";",
+            "caught": true,
+            "seconds": 3.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-application-generator/workbook.mjs",
+            "line": 94,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "export const FIRST_LINE_ROW = 11; // 1-based: rows 1-8 header and rates, 9 column letters, 10 headings",
+            "after": "export const FIRST_LINE_ROW = 12; // 1-based: rows 1-8 header and rates, 9 column letters, 10 headings",
+            "line_text": "export const FIRST_LINE_ROW = 11; // 1-based: rows 1-8 header and rates, 9 column letters, 10 headings",
+            "caught": true,
+            "seconds": 2.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-application-generator/workbook.mjs",
+            "line": 114,
+            "col": 34,
+            "operator": "div-to-times",
+            "before": "const storedRate = storedRateBp / 10000;",
+            "after": "const storedRate = storedRateBp * 10000;",
+            "line_text": "  const storedRate = storedRateBp / 10000;",
+            "caught": true,
+            "seconds": 3.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-application-generator/workbook.mjs",
+            "line": 120,
+            "col": 4,
+            "operator": "const-plus-one",
+            "before": "c[3] = [{ v: \"Period to\", s: S.bold }, settings.periodTo || \"\"];",
+            "after": "c[4] = [{ v: \"Period to\", s: S.bold }, settings.periodTo || \"\"];",
+            "line_text": "  c[3] = [{ v: \"Period to\", s: S.bold }, settings.periodTo || \"\"];",
+            "caught": true,
+            "seconds": 3.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-application-generator/workbook.mjs",
+            "line": 133,
+            "col": 4,
+            "operator": "const-plus-one",
+            "before": "c[9] = HEADINGS.map((h) => ({ v: h, s: S.head }));",
+            "after": "c[10] = HEADINGS.map((h) => ({ v: h, s: S.head }));",
+            "line_text": "  c[9] = HEADINGS.map((h) => ({ v: h, s: S.head }));",
+            "caught": true,
+            "seconds": 2.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-application-generator/workbook.mjs",
+            "line": 160,
+            "col": 80,
+            "operator": "const-plus-one",
+            "before": "const tot = (k) => (filled ? dollarsOf(lines.reduce((a, l) => a + l[k], 0)) : 0);",
+            "after": "const tot = (k) => (filled ? dollarsOf(lines.reduce((a, l) => a + l[k], 0)) : 1);",
+            "line_text": "  const tot = (k) => (filled ? dollarsOf(lines.reduce((a, l) => a + l[k], 0)) : 0);",
+            "caught": false,
+            "seconds": 2.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "blank template total cached values (shown by previewers that do not recalculate) were never asserted; the test named \"zero totals\" now checks every SUM total caches 0."
+          },
+          {
+            "file": "ventures/pay-application-generator/workbook.mjs",
+            "line": 194,
+            "col": 77,
+            "operator": "const-plus-one",
+            "before": "{ name: CONT, rows: c, widths: [9, 36, 12, 15, 15, 15, 15, 17, 11, 15, 15, 14], freezeRow: 10, landscape: true },",
+            "after": "{ name: CONT, rows: c, widths: [9, 36, 12, 15, 15, 15, 15, 17, 11, 15, 16, 14], freezeRow: 10, landscape: true },",
+            "line_text": "      { name: CONT, rows: c, widths: [9, 36, 12, 15, 15, 15, 15, 17, 11, 15, 15, 14], freezeRow: 10, landscape: true },",
+            "caught": false,
+            "seconds": 2.9,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "a printed column width (15 to 16 characters) on the continuation sheet: layout only, no number or formula changes; a test would only restate the literal."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/pay-application-generator/calc.mjs",
+        "issue": "Retainage rounding used Math.round, which takes half a cent toward +infinity: a deductive change order of -1,234.55 at 10% held -123.45 while the same amount billed held 123.46, and the downloaded workbook's ROUND formulas (half away from zero) gave -123.46, so LibreOffice recalculation showed retainage a cent off the page (recalc.test.mjs reproduced it: 0 vs 1 cent). Fixed with a half-away-from-zero roundCents in mulBp and the remaining-mode split; failing test first in calc.test.mjs and a recalc case.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fd7c8a78-9025-51cd-a769-71d4f9cb9b68",
+    "transcripts": 1,
+    "first": "2026-11-26T06:37:48Z",
+    "last": "2026-11-26T06:44:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 35,
+        "input": 70,
+        "output": 15368,
+        "thinking": 4397,
+        "cache_read": 2958739,
+        "cache_write_5m": 0,
+        "cache_write_1h": 80782,
+        "api_equivalent_usd": 1.5456,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 35,
+      "input": 70,
+      "output": 15368,
+      "thinking": 4397,
+      "cache_read": 2958739,
+      "cache_write_5m": 0,
+      "cache_write_1h": 80782,
+      "api_equivalent_usd": 1.5456,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 34,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.33,
+      "active_minutes": 6.33,
+      "model_minutes": 3.42,
+      "tool_minutes": 2.91,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -121,7 +121,7 @@ function main() {
   const { input, result, found } = collect({ repo: opts.repo });
   const out = { ...result };
   if (opts.key) out.why = why({ ...input, key: opts.key });
-  if (opts.verify) out.verify = found ? verify(result, process.cwd() === resolve(opts.repo) ? process.cwd() : resolve(opts.repo)) : { ok: null, note: "not inside a repository" };
+  if (opts.verify) out.verify = found ? verify(result, found.top) : { ok: null, note: "not inside a repository" };
   if (opts.json) console.log(JSON.stringify(out, null, 2));
   else {
     console.log(reportText(result));

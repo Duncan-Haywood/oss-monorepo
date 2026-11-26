@@ -1,6 +1,17 @@
+variable "account_mode" {
+  description = "organization or single (stacks/org's variable of the same name). Single: one budget, an IAM-policy freeze instead of the SCP (README.md, \"Single-account mode\")."
+  type        = string
+  default     = "organization"
+
+  validation {
+    condition     = contains(["organization", "single"], var.account_mode)
+    error_message = "account_mode must be organization or single."
+  }
+}
+
 variable "region" {
   type    = string
-  default = "us-east-1"
+  default = "us-east-2"
 }
 
 variable "state_bucket" {
@@ -22,7 +33,7 @@ variable "monthly_limits_usd" {
 }
 
 variable "organization_limit_usd" {
-  description = "Monthly budget for the whole organisation (alerts only; the per-account budgets act)."
+  description = "Monthly budget for the whole organisation (alerts only; the per-account budgets act). In single-account mode it is the one account's budget, which acts."
   type        = number
   default     = 200
 }
@@ -55,9 +66,9 @@ variable "kill_switch_accounts" {
 }
 
 variable "kill_switch_regions" {
-  description = "Regions the kill switch sweeps: the regions the org's SCP allows."
+  description = "Regions the kill switch sweeps: the regions the org's SCP (single-account mode: the boundary) allows, stacks/org allowed_regions."
   type        = list(string)
-  default     = ["us-east-1", "us-west-2"]
+  default     = ["us-east-2", "us-east-1"]
 }
 
 variable "anomaly_threshold_usd" {

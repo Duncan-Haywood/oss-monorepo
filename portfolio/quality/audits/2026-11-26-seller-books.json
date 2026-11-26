@@ -1,0 +1,261 @@
+{
+  "date": "2026-11-26",
+  "subject": "ventures/seller-books",
+  "stratum": "flagship",
+  "seed": "2026-11-26-d-b4a7",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), independent quality auditor, see run record",
+  "status": "audited",
+  "professional": "a CPA / enrolled agent who prepares Schedule C returns for online resellers; they check first that gross receipts (line 1) include shipping charged and exclude marketplace-collected sales tax and can be reconciled to the 1099-K, that refunds go to line 2 and fee credits net against line 10, that Part III lines 35 + 36 - 41 = 42 ties to what actually left inventory (each unit sold matched to a purchase made before the sale), that line 9 uses the IRS standard mileage rate in force on each trip's date (2024 67 cents, Notice 2024-08; 2025 70 cents, Notice 2025-5), and that re-uploading a report does not double revenue",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "Three outputs recomputed by hand and compared to the shipped code from an auditor-written vitest probe (scratchpad/probe/probe.test.ts importing apps/seller-books/src/worker/services/{books,importers}/*.ts): (1) a 2025 Schedule C worksheet built from seven items, four sales, three charges, meals, supplies and 1,234.5 miles at 70 cents: lines 1/2/3/4/5 = 10500/2000/8500/6200/2300, 8 = 1440, 9 = 86415, 10 = 1040, 24b = 1501, 27a = 3720, 28 = 98116, 29 = -95816, Part III 35/36/40/41/42 = 3500/5000/8500/2300/6200 - all match to the cent; (2) the eBay fixture parsed and run through buildPnl: revenue 125000, fees 20008, postage 875, net 104117, which equals the sum of the report's own Net amount column (3866 + 106272 - 3906) less the label (875) and promoted-listing fee (1240), so the books reconcile to the deposits; refund 4500 = gross 4830 less 330 tax eBay returned; (3) lot allocation 10000 over [manual 4000, -, -] = 4000/3000/3000 and 1000 over 3 = 334/333/333. Mileage 500 mi x 67 cents (2024) = 33500. But a worker probe (auditor's test in a scratch copy of the app, importing the repo's own eBay fixture after creating two SKU-PYREX-2 items at $10 and one SKU-JEANS-1 item acquired 2026-03-01) shows two wrong COGS outputs: the quantity-2 Pyrex order links one item, leaving the second in stock (P&L COGS 1000 for 2 units with ordersWithoutCost 0; Part III line 41 1000, line 42 1700 where 2000 + nothing for the jeans is right), and the 2026-01-05 jeans sale links to an item bought 2026-03-01 (status sold, disposedDate before acquiredDate). Wrong numbers on line 41/42 a user would file, so correctness is capped at 2.",
+    "completeness": "ARCHITECTURE.md claims checked by running suites and probes: six importers (eBay, Poshmark, Mercari, Whatnot, Depop, Etsy x2) against fixtures - pnpm test:unit 9 files / 126 tests pass; worker suite (sign-up, import, re-import duplicates, delete import, wrong file explained, viewer 403, lot + SKU auto-link to P&L and worksheet, CSV download, invitations, org cascade, cross-tenant isolation) 7 files / 56 tests pass; re-import of the eBay fixture in the probe: salesCreated 0, duplicatesSkipped 5; lot allocation, sourcing-sheet import, P&L and Schedule C worksheet and CSV all work. Stated gaps, not claimed done: not deployed, billing dark, no e2e suite, fixtures authored rather than real exports (IMPORTERS.md). No TODO stubs in the books services.",
+    "verification": "pnpm test:unit: 126 passed (1.4 s); pnpm test:worker: 56 passed (19.4 s). Ten hand-seeded mutants run with quality_mutate.py in a scratch mirror of the app (private repo untouched, git status clean): shipping dropped from line 1, personal-use withdrawal ignored on line 36, disposed-on-Dec-31 boundary, lot leftover-cent rule, eBay refund tax-back, meals at 100%, re-import dedup disabled - all 7 CAUGHT (plus one invalid mutant, desc() not imported, discarded). In the order-to-item auto-link (store.ts) both mutants SURVIVED the full worker suite: oldest-first ordering replaced by title order, and the in_stock filter removed (an already-sold item can be linked to a second sale). The two real bugs found by probe (quantity > 1, item acquired after the sale) are also untested. The Schedule C and importer cores are well tested; the COGS matching path, which decides line 41/42, is not.",
+    "craft": "Read src/worker/services/books/{schedule-c,lots,pnl,service}.ts, importers/{store,inventory-store,ebay}.ts, routes/org/reports.ts, client routes/tax.tsx, vitest configs. Pure builders over plain rows, integer cents, every query filtered by orgId, header matching by name, CSV formula neutralisation. Defects: the order-to-item matching is written twice with different rules - inventory-store.ts:126 only links an item bought on or before the sale date, store.ts:156 takes the first in-stock item whatever its date; sale.inventoryItemId is a single column (schema books.ts:60), so a multi-unit order cannot carry its cost; eBay charge rows keep the report's '--' placeholder as orderId (probe output). Otherwise a senior TypeScript reviewer would accept it.",
+    "claims": "README: 'v0.1, not deployed', 'Paid plans are built and dark', 'worksheet (not a filing, not tax advice)' - backed (DEPLOY.md, BILLING.md, SCHEDULE_C_DISCLAIMER in every response and the CSV, checked in the worker test). ARCHITECTURE: 're-imports are safe' backed by the probe (0 created, 5 duplicates); 'Lines 35 + 36 - 41 = 42, items written off also count; personal use comes off line 36' backed by recomputation 1; 'Seller Books never computes a fee from a percentage' backed by reference.test.ts; 'Line 9 ... the app does not assume a rate' backed (null rate leaves line 9 blank with a warning); 1099-K federal threshold 'over $20,000 and over 200 transactions' matches the One Big Beautiful Bill Act reinstatement (auditor's knowledge of the IRS FAQ, cited in form-1099k.ts). Importer verification limits are stated honestly (IMPORTERS.md, RESEARCH-2026-11-24.md). One overreach: 'An order is linked to the item it sold ... Schedule C Part III follows the form, at cost with specific identification' reads as complete while a multi-unit order links only one unit. The public front door ventures/reseller-books makes no claim about the paid app.",
+    "fitness": "Walked a reseller's year: create a lot, import the eBay report, re-import it, see P&L and the 2026 worksheet and CSV. It produces what a preparer wants for a one-of-a-kind thrift seller. Gaps a preparer hits in the first hour: no 1099-K reconciliation (line 1 vs Form 1099-K box 1a per platform, the IRS's first matching test; the worksheet never shows the gap from sales tax, shipping or refunds); multi-quantity orders understate COGS silently; returned items are not put back in stock (fixture's 'Return accepted' refund leaves the jeans sold); unlinked orders are flagged on the P&L but the worksheet's Part III gives no warning that line 41 is then overstated; line 9 takes one typed rate per year (no rate table, no check that the rate matches the year, no split for a mid-year change), though the free front door's trips.mjs already prices each trip by date from a sourced table. Not deployed, and importer columns are from authored fixtures, not real exports.",
+    "domain": "Compared with IRS Schedule C instructions and Pub 334/538 practice: line 1 items + shipping charged with marketplace-facilitator sales tax excluded, refunds on line 2, fee credits netting line 10, promoted listings on line 8, postage and subscriptions itemised under 27a/Part V, 50% meals on 24b, Part III 35 + 36 - 41 = 42 at cost with personal-use withdrawals off line 36 and write-offs flowing into COGS - all standard and correctly computed. Departures: units matched to purchases made after the sale (impossible under specific identification or FIFO), one unit per order, returns not restocked, no line 33 valuation method, no 1099-K tie-out, and mileage priced at one user-typed rate per year rather than the rate in force on each trip's date (2024 67 cents, 2025 70 cents per IRS Notices 2024-08 and 2025-5, auditor's knowledge; the repo's own table records 72.5 cents for 2026 per Notice 2026-10 and a 76-cent rate from 2026-07-01 per Announcement 2026-11, which the auditor could not verify past its June 2026 knowledge). A CPA would sign off on the line mapping, not yet on the inventory matching."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "2025 Schedule C worksheet: 7 items (2 opening, 4 bought in 2025 incl. one written off and one taken for personal use, 1 sold in 2024), 3 sales + 1 refund + 1 prior-year sale, subscription/label/ad charges, $30.01 meals, $40 supplies, 1,234.5 business miles at 70 cents",
+      "method": "by hand from the Schedule C form: line 1 = 4000+500+6000 = 10500; 2 = 2000; 3 = 8500; Part III 35 = 2000+1500 = 3500, 36 = (3000+1200+5000+800) - 5000 personal = 5000, 40 = 8500, 41 = 1500+800 = 2300, 42 = 6200 (= 2000+3000+1200 that left for business); 8 = 200+1240; 9 = 1234.5 x 70 = 86415; 10 = 520+780-260 = 1040; 24b = round(3001/2) = 1501; 27a = (650+875)+2195 = 3720; 28 = 1440+86415+1040+4000+1501+3720 = 98116; 29 = 2300-98116 = -95816",
+      "command": "cd scratchpad/probe && apps/seller-books/node_modules/.bin/vitest run --config vitest.config.ts --root . --silent=false (auditor's probe importing src/worker/services/books/schedule-c.ts)",
+      "expected": "L1 10500, L4 6200, L9 86415, L10 1040, L28 98116, L29 -95816; Part III 3500/5000/8500/2300/6200",
+      "observed": "L1 10500, L4 6200, L9 86415, L10 1040, L28 98116, L29 -95816; Part III 3500/5000/8500/2300/6200",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "eBay Transaction report fixture through the importer and P&L: books reconcile to the report's own Net amount column",
+      "method": "by hand: nets 38.66 + 1062.72 - 39.06 = 1062.32, less shipping label 8.75 and promoted-listings fee 12.40 = 1041.17; revenue (40+5) + 1250 - 45 = 1250.00; fees 5.94+0.40+168.13+0.40+18.75-5.94+12.40 = 200.08; refund 48.30 gross - 3.30 tax returned by eBay = 45.00; payout row and GBP row skipped",
+      "command": "same probe (parseEbayTransactionReport + buildPnl on test/fixtures/ebay-transaction-report.csv)",
+      "expected": "net 104117, revenue 125000, fees 20008, refund 4500, 2 skipped rows",
+      "observed": "net 104117, revenue 125000, fees 20008, refund 4500, skipped payout + GBP",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "lot cost allocation and Schedule C line 9 for a 2024 trip log",
+      "method": "by hand: $100 lot, one item typed at $40 -> 4000/3000/3000; $10 over 3 -> 334/333/333 (leftover cent to first); 500 miles x 67 cents (IRS Notice 2024-08, 2024 rate, auditor's knowledge) = $335.00",
+      "command": "same probe (allocateLotCost, buildScheduleC year 2024 mileageRateCents 67)",
+      "expected": "4000/3000/3000; 334/333/333; line 9 33500",
+      "observed": "4000/3000/3000; 334/333/333; line 9 33500",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "COGS for a quantity-2 eBay order (Pyrex, SKU-PYREX-2, two $10 items in stock)",
+      "method": "specific identification / FIFO: both units leave inventory, COGS 2000, ordersWithoutCost or a warning if not",
+      "command": "auditor's worker probe in a scratch copy: vitest run --config vitest.worker.config.ts test/worker/zz-probe.test.ts (items created via POST /inventory/items, then POST /imports with the eBay fixture)",
+      "expected": "both Pyrex items sold; P&L COGS for the order 2000",
+      "observed": "itemsLinked counts one Pyrex; 'Pyrex B' still in_stock; P&L COGS 1000 for the order, ordersWithoutCost 0, no warning; Part III line 41 includes the unsold-on-paper $10",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "an order dated 2026-01-05 auto-linking to an item acquired 2026-03-01 (same SKU)",
+      "method": "a unit cannot be sold before it is bought; the sourcing-sheet path (inventory-store.ts:126) already refuses this",
+      "command": "same worker probe",
+      "expected": "sale left unlinked (flagged without cost); item stays in stock",
+      "observed": "item 'Jeans bought later' status sold, disposedDate 2026-01-05 (before its acquiredDate); its $7 counted in line 42",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "re-uploading the same report does not duplicate revenue",
+      "method": "dedup on (org, platform, external id)",
+      "command": "same worker probe: second POST /imports of the same eBay CSV",
+      "expected": "0 sales created, all duplicates",
+      "observed": "salesCreated 0, duplicatesSkipped 5",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "line 9 at the IRS standard rate for the trip's date",
+      "method": "IRS Notices 2024-08 (67 cents, 2024) and 2025-5 (70 cents, 2025), auditor's knowledge; the repo's free engine trips.mjs prices each trip by date from a sourced table",
+      "command": "grep -n mileageRate src/worker/routes/org/reports.ts src/client/routes/tax.tsx (apps/seller-books)",
+      "expected": "rate looked up by trip date, or at least checked against the year",
+      "observed": "one user-typed cents-per-mile for the whole year (reports.ts:22, any 0-500), placeholder 'e.g. 70' whatever the year; correct arithmetic when the right rate is typed, no split for a mid-year change",
+      "result": "partial"
+    },
+    {
+      "dimension": "domain",
+      "what": "gross receipts reconcilable to Form 1099-K",
+      "method": "preparer practice: tie Schedule C line 1 to 1099-K box 1a per platform, explaining sales tax, shipping and refunds",
+      "command": "grep -rn -i 1099 src/worker/services/books src/client/routes/tax.tsx (apps/seller-books)",
+      "expected": "a per-platform gross (incl. buyer-paid sales tax and shipping) beside line 1",
+      "observed": "1099-K page holds threshold notes only; P&L reports salesTaxCollectedCents per cell but the worksheet has no 1099-K tie-out",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "refund with 'Return accepted' puts the item back in inventory",
+      "method": "an item returned to stock is closing inventory, not COGS",
+      "command": "same worker probe (fixture's Feb 2 refund of SKU-JEANS-1)",
+      "expected": "item back in_stock or flagged",
+      "observed": "item stays sold; no warning",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "unit and worker suites",
+      "method": "run",
+      "command": "pnpm test:unit; pnpm test:worker (in private-monorepo/apps/seller-books after pnpm install --frozen-lockfile --filter '{./apps/seller-books}...')",
+      "expected": "all pass",
+      "observed": "unit 9 files / 126 passed; worker 7 files / 56 passed",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "every Schedule C response and CSV carries the worksheet disclaimer; status 'not deployed', billing dark",
+      "method": "compare README with schedule-c.ts SCHEDULE_C_DISCLAIMER, reports.ts CSV rows, worker test, DEPLOY.md/BILLING.md",
+      "command": "grep -n 'not a tax return' src/worker/services/books/schedule-c.ts test/worker/books.test.ts",
+      "expected": "present in JSON and CSV",
+      "observed": "present; worker test asserts it in the CSV",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "ARCHITECTURE: 'An order is linked to the item it sold' / Part III 'at cost with specific identification'",
+      "method": "compare with store.ts:156 and the worker probe",
+      "command": "grep -n 'free?.shift()' src/worker/services/importers/store.ts",
+      "expected": "every unit of an order carries its cost",
+      "observed": "one item per order (single sale.inventoryItemId column); multi-unit orders not mentioned as a limit",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "private-monorepo/apps/seller-books/src/worker/services/books/schedule-c.ts:84",
+      "change": "gross += s.itemCents + s.shippingChargedCents -> gross += s.itemCents",
+      "caught": true,
+      "test_cmd": "./node_modules/.bin/vitest run --config vitest.unit.config.ts"
+    },
+    {
+      "where": "private-monorepo/apps/seller-books/src/worker/services/books/schedule-c.ts:133",
+      "change": "const line36 = purchases - personalUse; -> const line36 = purchases;",
+      "caught": true,
+      "test_cmd": "./node_modules/.bin/vitest run --config vitest.unit.config.ts"
+    },
+    {
+      "where": "private-monorepo/apps/seller-books/src/worker/services/books/schedule-c.ts:113",
+      "change": "it.disposedDate <= d -> it.disposedDate < d",
+      "caught": true,
+      "test_cmd": "./node_modules/.bin/vitest run --config vitest.unit.config.ts"
+    },
+    {
+      "where": "private-monorepo/apps/seller-books/src/worker/services/books/schedule-c.ts:103",
+      "change": "add(\"24b\", Math.round(mealsFull / 2)) -> add(\"24b\", mealsFull)",
+      "caught": true,
+      "test_cmd": "./node_modules/.bin/vitest run --config vitest.unit.config.ts"
+    },
+    {
+      "where": "private-monorepo/apps/seller-books/src/worker/services/books/lots.ts:39",
+      "change": "base + (extra > 0 ? 1 : 0) -> base",
+      "caught": true,
+      "test_cmd": "./node_modules/.bin/vitest run --config vitest.unit.config.ts"
+    },
+    {
+      "where": "private-monorepo/apps/seller-books/src/worker/services/importers/ebay.ts:133",
+      "change": "(gross ?? abs(net) ?? 0) - taxBack -> (gross ?? abs(net) ?? 0)",
+      "caught": true,
+      "test_cmd": "./node_modules/.bin/vitest run --config vitest.unit.config.ts"
+    },
+    {
+      "where": "private-monorepo/apps/seller-books/src/worker/services/importers/store.ts:79",
+      "change": "if (existingSales.has(s.externalId)) -> if (false && existingSales.has(s.externalId))",
+      "caught": true,
+      "test_cmd": "./node_modules/.bin/vitest run --config vitest.worker.config.ts test/worker/books.test.ts"
+    },
+    {
+      "where": "private-monorepo/apps/seller-books/src/worker/services/importers/store.ts:123",
+      "change": ".orderBy(inventoryItem.acquiredDate) -> .orderBy(inventoryItem.title) (oldest-first matching lost)",
+      "caught": false,
+      "test_cmd": "./node_modules/.bin/vitest run --config vitest.worker.config.ts"
+    },
+    {
+      "where": "private-monorepo/apps/seller-books/src/worker/services/importers/store.ts:119",
+      "change": "drop eq(inventoryItem.status, \"in_stock\") from the auto-link query (sold items re-linkable)",
+      "caught": false,
+      "test_cmd": "./node_modules/.bin/vitest run --config vitest.worker.config.ts"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Marketplace-import auto-link gives a multi-quantity order one inventory item (free?.shift() once per order; sale.inventoryItemId is a single column), so the other units stay in stock: P&L COGS is understated with no 'without cost' flag, and Schedule C line 41 is overstated and line 42 understated by their cost. Confirmed with the repo's own eBay fixture (Pyrex, quantity 2: one of two $10 items linked, COGS 1000 instead of 2000).",
+      "where": "private-monorepo/apps/seller-books/src/worker/services/importers/store.ts:156",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "high",
+      "what": "Marketplace-import auto-link does not require the item to have been bought on or before the sale date, so a sale links to a later purchase (probe: 2026-01-05 sale linked to an item acquired 2026-03-01, disposedDate before acquiredDate) and that later purchase's cost moves into the earlier period's COGS. The sourcing-sheet path already has the rule (inventory-store.ts:126); the two copies of the matching logic diverge.",
+      "where": "private-monorepo/apps/seller-books/src/worker/services/importers/store.ts:103",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "The order-to-item matching path is untested where it matters: replacing oldest-first ordering and removing the in_stock filter both survive the full worker suite, and no test has a quantity > 1 order or a sale before the item's acquired date.",
+      "where": "private-monorepo/apps/seller-books/test/worker/books.test.ts:135",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "Schedule C worksheet gives no warning when orders in the year have no linked item; their items stay in_stock, so line 41 is overstated and line 42 understated, while only the P&L counts ordersWithoutCost.",
+      "where": "private-monorepo/apps/seller-books/src/worker/services/books/schedule-c.ts:106",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Line 9 uses one user-typed cents-per-mile for the whole year with no rate table, no check that the rate belongs to the year and no split for a mid-year change; the repo's free engine (ventures/reseller-books/trips.mjs) already prices each trip by date from a sourced IRS table.",
+      "where": "private-monorepo/apps/seller-books/src/worker/routes/org/reports.ts:22",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "No 1099-K reconciliation: the worksheet never sets line 1 beside each platform's reportable gross (which can include buyer-paid sales tax and shipping), the first thing an IRS matching notice and a preparer compare.",
+      "where": "private-monorepo/apps/seller-books/src/worker/services/books/schedule-c.ts:176",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "A refund for a returned item ('Return accepted') does not put the item back in stock, so its cost stays in COGS instead of closing inventory; no warning.",
+      "where": "private-monorepo/apps/seller-books/src/worker/services/importers/store.ts:218",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "ARCHITECTURE says an order is linked to 'the item it sold' and Part III uses specific identification, without stating the one-item-per-order limit.",
+      "where": "private-monorepo/apps/seller-books/docs/ARCHITECTURE.md:72",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "eBay charge rows store the report's '--' placeholder as orderId (Order number '--' on the promoted-listings fee row) instead of null.",
+      "where": "private-monorepo/apps/seller-books/src/worker/services/importers/ebay.ts:69",
+      "category": "input-handling",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Does not meet the bar (correctness 2, verification 2; median 3); finished against what it claims (completeness 3). The Schedule C line mapping is what a reseller's preparer would use: a 2025 worksheet worked by hand from the form (gross with shipping, refunds on line 2, fee credits netting line 10, ads on 8, postage and subscriptions in Part V, 50% meals, mileage at 70 cents, Part III 35 + 36 - 41 = 42 with personal use and write-offs) matches to the cent, the eBay importer's books reconcile to the report's own net column, and re-uploads are deduplicated. Tests pass (126 unit, 56 worker) and caught 7 of 9 valid seeded mutants. The cost-of-goods matching on marketplace import is wrong in two common cases, both shown with the app's own eBay fixture: a quantity-2 order costs one unit, and a sale can take an item bought after it; both move Part III line 41/42, and both seeded mutants in that path survived. A preparer would also want a 1099-K tie-out, a per-trip-date mileage rate (the free front door already has one) and returns put back in stock. Not deployed."
+}

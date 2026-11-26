@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b51'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>California 20-Day Preliminary Notice</title>
+  <meta name="description" content="California 20-day preliminary notice for subs and suppliers: who gets it, the last day, what a late one covers, and a draft with § 8202's owner statement.">
+  <meta property="og:title" content="California 20-day preliminary notice: who gets it, when, and a draft notice">
+  <meta property="og:description" content="Cal. Civ. Code §§ 8200-8216 for subcontractors and suppliers on private jobs: the 20-day date by delivery method, what a late notice still protects, and a draft with every required item.">
+  <link rel="canonical" href="./california-preliminary-notice.html">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .err { color: #9a3412; font-weight: 600; }
+    #draft { white-space: pre-wrap; font: 13px/1.5 ui-monospace, Menlo, Consolas, monospace; background: var(--soft); border-radius: 7px; padding: 10px 12px; }
+    .statement p { font-weight: 700; }
+    @media print {
+      body.print-notice main > *:not(#notice-card), body.print-notice header, body.print-notice #all-guides, body.print-notice footer { display: none; }
+      body.print-notice #notice-card > *:not(#print-area) { display: none; }
+    }
+    #print-area { display: none; }
+    @media print { body.print-notice #print-area { display: block; font: 12pt/1.45 Georgia, serif; } #print-area .bold { font-weight: 700; } }
+  </style>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "California 20-day preliminary notice: who gets it, when, and a draft notice", "datePublished": "2026-11-26", "dateModified": "2026-11-26"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Who has to send a California preliminary notice?", "acceptedAnswer": {"@type": "Answer", "text": "Before recording a lien claim, giving a stop payment notice or claiming on a payment bond, a claimant gives preliminary notice to the owner, the direct contractor and the construction lender, if any (Cal. Civ. Code § 8200(a)). A laborer does not have to, and a claimant with a direct contract with the owner gives it only to the construction lender, if any (§ 8200(e))."}}, {"@type": "Question", "name": "When is the California preliminary notice due?", "acceptedAnswer": {"@type": "Answer", "text": "Not later than 20 days after you first furnished work on the job (§ 8204(a)). By personal delivery, certified or registered mail, express mail or an overnight carrier the notice is given the day it is delivered or deposited; left and mailed under Code Civ. Proc. § 415.20 it is given five days after mailing (§ 8116)."}}, {"@type": "Question", "name": "What if I send the preliminary notice late?", "acceptedAnswer": {"@type": "Answer", "text": "You can still give it, but a lien, stop payment notice or bond claim then covers only work performed within the 20 days before the notice and after (§ 8204(a)). Work before that window is not covered."}}, {"@type": "Question", "name": "Is there an official California preliminary notice form?", "acceptedAnswer": {"@type": "Answer", "text": "No. The statute sets the contents, not a form: the names and addresses of the owner, direct contractor and lender, the site, who you are and your relationship to the parties, the work, who hired you, an estimate of the total price, and the NOTICE TO PROPERTY OWNER statement in boldface (§§ 8102, 8202)."}}]}</script>
+</head>
+<body>
+<header>
+  <p class="kicker">Pay app guides · <a href="./">schedule of values calculator</a></p>
+  <h1>California 20-day preliminary notice: who gets it, when, and a draft</h1>
+  <p>On a private California job, a subcontractor or supplier that has not given a <strong>preliminary notice</strong> cannot record a valid mechanics lien or give a valid stop payment notice (Cal. Civ. Code § 8200(c)), and needs it (or a § 8612 notice) for a payment bond claim (§ 8200(d)). It is due <strong>20 days after you first furnish work</strong>. Enter your dates below for the last day by delivery method and what a late notice still protects, then fill in the job for a draft with every item the statute lists.</p>
+  <nav class="guides" aria-label="Guides">
+    <a href="lien-waiver-forms-by-state.html">Lien waiver forms by state</a>
+    <a href="conditional-vs-unconditional-lien-waivers.html">Lien waivers</a>
+    <a href="prompt-payment-laws.html">Prompt payment laws</a>
+  </nav>
+</header>
+<main>
+<section class="card" id="dates">
+  <h2>Your dates</h2>
+  <p>Your entries stay in this browser tab; nothing is uploaded.</p>
+  <p><button type="button" class="secondary" id="sample">Load the example</button></p>
+  <div class="grid">
+    <div><label for="role">Who are you on this job?</label><select id="role">
+      <option value="sub">A subcontractor or supplier</option>
+      <option value="direct">I contracted directly with the owner</option>
+      <option value="laborer">A laborer (wages for my own work)</option>
+    </select></div>
+    <div><label for="first">First day you furnished work (YYYY-MM-DD)</label><input id="first" placeholder="2026-03-02"></div>
+    <div><label for="method">How the notice is given</label><select id="method">
+      <option value="certified">Certified or registered mail</option>
+      <option value="express">Express mail or overnight carrier</option>
+      <option value="personal">Personal delivery</option>
+      <option value="leave">Left at the address and a copy mailed</option>
+    </select></div>
+    <div><label for="served">Day delivered or mailed (optional)</label><input id="served" placeholder="2026-03-10"></div>
+    <div><label for="today">Today (YYYY-MM-DD)</label><input id="today"></div>
+  </div>
+  <div id="who" aria-live="polite"></div>
+  <div id="errors" aria-live="polite"></div>
+  <div id="result" aria-live="polite"></div>
+  <p class="note">"Work" in the statute covers labor, service, equipment and material. Dates count calendar days and are not moved off a weekend or holiday here, so serve well before the last day. Mail sent by one of the § 8110 services is given the day it is deposited (§ 8116(b)); ordinary first-class mail is not one of them.</p>
+</section>
+
+<section class="card" id="who-gets-it">
+  <h2>Who gets the notice</h2>
+  <ul>
+    <li><strong>The owner or reputed owner</strong> (§ 8200(a)(1)).</li>
+    <li><strong>The direct contractor</strong> (the GC who contracted with the owner) you provide work to, directly or through other subcontractors (§ 8200(a)(2)).</li>
+    <li><strong>The construction lender, if any</strong> (§ 8200(a)(3)). Ask the GC or check the recorded deed of trust; the notice asks for it "to the extent known" (§ 8102(a)).</li>
+  </ul>
+  <p>A laborer gives none, and a claimant with a direct contract with the owner gives it only to the lender, if any (§ 8200(e)). One notice to each person covers all of your work on the job, and work you add later even outside its description (§ 8206(a), (c)), but if you work under contracts with more than one subcontractor, give a separate notice for each contract (§ 8206(b)).</p>
+  <p>Leaving it out has a second cost: for a licensed subcontractor whose subcontract pays more than $400, failing to give the notice is grounds for discipline under the Contractors' State License Law (§ 8216).</p>
+</section>
+
+<section class="card" id="contents">
+  <h2>What the notice must say</h2>
+  <p>California sets the contents, not a form. A notice that varies from the list still counts if it is enough to substantially inform the person of the required information (§ 8102(b)).</p>
+  <div class="scroll"><table class="stack" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">Item</th><th role="columnheader" scope="col">Section</th></tr></thead>
+    <tbody>
+      <tr role="row"><td role="cell" data-label="Item">Name and address of the owner or reputed owner</td><td role="cell" data-label="Section">§ 8102(a)(1)</td></tr>
+      <tr role="row"><td role="cell" data-label="Item">Name and address of the direct contractor</td><td role="cell" data-label="Section">§ 8102(a)(2)</td></tr>
+      <tr role="row"><td role="cell" data-label="Item">Name and address of the construction lender, if any</td><td role="cell" data-label="Section">§ 8102(a)(3)</td></tr>
+      <tr role="row"><td role="cell" data-label="Item">A description of the site sufficient to identify it, including its street address (a sufficient legal description saves a wrong or missing address)</td><td role="cell" data-label="Section">§ 8102(a)(4)</td></tr>
+      <tr role="row"><td role="cell" data-label="Item">Your name, address and relationship to the parties</td><td role="cell" data-label="Section">§ 8102(a)(5)</td></tr>
+      <tr role="row"><td role="cell" data-label="Item">A general description of the work provided and to be provided</td><td role="cell" data-label="Section">§§ 8102(a)(6)(A), 8202(a)(1)</td></tr>
+      <tr role="row"><td role="cell" data-label="Item">The name of the person you provide the work to or for</td><td role="cell" data-label="Section">§ 8102(a)(6)(B)</td></tr>
+      <tr role="row"><td role="cell" data-label="Item">A statement or estimate of your demand, if any, after all just credits and offsets</td><td role="cell" data-label="Section">§ 8102(a)(6)(C)</td></tr>
+      <tr role="row"><td role="cell" data-label="Item">An estimate of the total price of the work provided and to be provided</td><td role="cell" data-label="Section">§ 8202(a)(2)</td></tr>
+      <tr role="row"><td role="cell" data-label="Item">The NOTICE TO PROPERTY OWNER statement, in boldface</td><td role="cell" data-label="Section">§ 8202(a)(3)</td></tr>
+      <tr role="row"><td role="cell" data-label="Item">From a subcontractor that has not paid all compensation due a laborer: the laborer's name and address, and any benefit fund owed (§ 8024(b))</td><td role="cell" data-label="Section">§ 8202(b)</td></tr>
+    </tbody>
+  </table></div>
+  <p>A material invoice or certified payroll that carries all of this, given the way notices must be given, is enough on its own (§ 8202(c)).</p>
+</section>
+
+<section class="card" id="notice-card">
+  <h2>Draft the notice</h2>
+  <p>Fill in what you know. Anything the statute lists that is still blank is named under the draft. Print gives the statement in bold, as § 8202(a)(3) requires; a copied text needs the statement set in bold before you send it.</p>
+  <div class="grid">
+    <div><label for="f-owner">Owner or reputed owner, and address</label><input id="f-owner"></div>
+    <div><label for="f-direct">Direct contractor (GC), and address</label><input id="f-direct"></div>
+    <div><label for="f-lender">Construction lender and address (if any)</label><input id="f-lender"></div>
+    <div><label for="f-site">Job site: street address or legal description</label><input id="f-site"></div>
+    <div><label for="f-claimant">Your company, address and role (e.g. "subcontractor to ...")</label><input id="f-claimant"></div>
+    <div><label for="f-hiredBy">Who hired you (the person you provide work to)</label><input id="f-hiredBy"></div>
+    <div><label for="f-work">General description of your work</label><input id="f-work"></div>
+    <div><label for="f-estimate">Estimate of the total price of your work ($)</label><input id="f-estimate"></div>
+    <div><label for="f-demand">Amount owed now, after credits (optional)</label><input id="f-demand"></div>
+    <div><label for="f-laborers">Unpaid laborers or benefit funds, names and addresses (if any)</label><input id="f-laborers"></div>
+    <div><label for="f-date">Date of the notice</label><input id="f-date"></div>
+    <div><label for="f-signer">Signer's name and title</label><input id="f-signer"></div>
+  </div>
+  <p id="missing" class="note" aria-live="polite"></p>
+  <div id="draft" aria-label="Draft notice"></div>
+  <p><button type="button" id="print">Print the notice</button> <button type="button" class="secondary" id="copy">Copy the text</button></p>
+  <div id="print-area"></div>
+  <p class="note">This is a draft built from the statute's list, not legal advice and not a form approved by anyone. Send one copy to each person in "Who gets the notice", and keep the proof (below). If the job is a public work, these sections do not apply; public works have their own notice rules (§ 9300 and following).</p>
+</section>
+
+<section class="card" id="serve">
+  <h2>How to give it, and how to prove it</h2>
+  <ul>
+    <li><strong>Means.</strong> Personal delivery; mail by registered or certified mail, express mail or an overnight express carrier; or leaving it and mailing a copy as Code Civ. Proc. § 415.20 provides for a summons (§§ 8106, 8110).</li>
+    <li><strong>When it counts as given.</strong> Personal delivery: when delivered. Mail: when deposited in the mail or with the carrier. Left and mailed: five days after mailing (§ 8116).</li>
+    <li><strong>Proof.</strong> If you later record a lien or make a claim, you prove the notice with a <em>proof of notice declaration</em> stating what was given, the date, place and manner, facts showing it was given as the statute requires, and the name, address and capacity of each person given it (§ 8118(a)). For a mailed notice, attach the post office's or carrier's receipt showing payment for certified, registered, express or overnight service, or a return receipt, delivery confirmation, tracking record or the returned envelope (§ 8118(b)). Keep these the day you mail.</li>
+  </ul>
+</section>
+
+<section class="card statement" id="statement">
+  <h2>The statement, word for word (§ 8202(a)(3))</h2>
+  <p>NOTICE TO PROPERTY OWNER</p>
+  <p>EVEN THOUGH YOU HAVE PAID YOUR CONTRACTOR IN FULL, if the person or firm that has given you this notice is not paid in full for labor, service, equipment, or material provided or to be provided to your construction project, a lien may be placed on your property. Foreclosure of the lien may lead to loss of all or part of your property. You may wish to protect yourself against this by (1) requiring your contractor to provide a signed release by the person or firm that has given you this notice before making payment to your contractor, or (2) any other method that is appropriate under the circumstances.</p>
+  <p>This notice is required by law to be served by the undersigned as a statement of your legal rights. This notice is not intended to reflect upon the financial condition of the contractor or the person employed by you on the construction project.</p>
+  <p>If you record a notice of cessation or completion of your construction project, you must within 10 days after recording, send a copy of the notice of completion to your contractor and the person or firm that has given you this notice. The notice must be sent by registered or certified mail. Failure to send the notice will extend the deadline to record a claim of lien. You are not required to send the notice if you are a residential homeowner of a dwelling containing four or fewer units.</p>
+  <p class="note" style="font-weight:400">Source: Cal. Civ. Code §§ 8102, 8106, 8110, 8116, 8118, 8200, 8202, 8204, 8206 and 8216, text from the California Legislative Counsel's official bulk download of California law (pubinfo_2025.zip), read <strong>2026-11-25</strong>. Each section was added by Stats. 2010, Ch. 697 (SB 189), operative July 1, 2012, with no later amendment listed. Read them on <a href="https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&amp;sectionNum=8202.">leginfo.legislature.ca.gov</a> before relying on this page. For the lien filing dates after the notice, see the free <a href="https://marisstella.app/mechanics-lien-deadline-calculator/">mechanics lien deadline calculator</a>.</p>
+</section>
+
+<section class="card" id="faq">
+  <h2>Common questions</h2>
+  <h3>Who has to send a California preliminary notice?</h3>
+  <p>Before recording a lien claim, giving a stop payment notice or claiming on a payment bond, a claimant gives preliminary notice to the owner, the direct contractor and the construction lender, if any (Cal. Civ. Code § 8200(a)). A laborer does not have to, and a claimant with a direct contract with the owner gives it only to the construction lender, if any (§ 8200(e)).</p>
+  <h3>When is the California preliminary notice due?</h3>
+  <p>Not later than 20 days after you first furnished work on the job (§ 8204(a)). By personal delivery, certified or registered mail, express mail or an overnight carrier the notice is given the day it is delivered or deposited; left and mailed under Code Civ. Proc. § 415.20 it is given five days after mailing (§ 8116).</p>
+  <h3>What if I send the preliminary notice late?</h3>
+  <p>You can still give it, but a lien, stop payment notice or bond claim then covers only work performed within the 20 days before the notice and after (§ 8204(a)). Work before that window is not covered.</p>
+  <h3>Is there an official California preliminary notice form?</h3>
+  <p>No. The statute sets the contents, not a form: the names and addresses of the owner, direct contractor and lender, the site, who you are and your relationship to the parties, the work, who hired you, an estimate of the total price, and the NOTICE TO PROPERTY OWNER statement in boldface (§§ 8102, 8202).</p>
+</section>
+
+<section class="card cta" id="early-access">
+  <h2>Never miss the 20 days on a new job</h2>
+  <p>We are building hosted pay-app billing for specialty subcontractors. On a California job it fills this notice from the job (owner, GC, site, contract sum plus approved change orders), counts the 20 days from the day you first furnish work, records each notice given (to whom, how, the day and tracking number) with its receipts, prints the § 8118 proof of notice declaration, and reminds you until the owner and the GC each have one. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
+</section>
+</main>
+<!-- all-guides: generated by nav.mjs, do not edit by hand -->
+<nav class="all-guides" id="all-guides" aria-label="All pay app tools and guides">
+    <div>
+      <h2>Tools</h2>
+      <ul>
+      <li><a href="./">Schedule of values calculator</a></li>
+      <li><a href="pay-application-checker.html">Pay app checker (this month vs last)</a></li>
+      <li><a href="change-order-log.html">Change order log</a></li>
+      <li><a href="tm-tickets.html">T&amp;M ticket log and CO request</a></li>
+      <li><a href="schedule-of-values-template.html">Free Excel SOV template</a></li>
+      <li><a href="front-loading-schedule-of-values.html">Front-loading check (balanced SOV)</a></li>
+      <li><a href="pay-if-paid-clauses.html">Pay-if-paid clause reader</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Billing guides</h2>
+      <ul>
+      <li><a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a></li>
+      <li><a href="change-orders-schedule-of-values.html">Change orders and the SOV</a></li>
+      <li><a href="stored-materials-billing.html">Billing stored materials</a></li>
+      <li><a href="overbilling-underbilling.html">Overbilling and underbilling</a></li>
+      <li><a href="retainage-explained.html">Retainage explained, with state caps</a></li>
+      <li><a href="retainage-release.html">Getting retainage released</a></li>
+      <li><a href="retainage-in-quickbooks.html">Retainage in QuickBooks</a></li>
+      <li><a href="retainage-tracker.html">Retainage tracker (every job)</a></li>
+      <li><a href="pay-application-software-compared.html">Pay app software compared</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Getting paid and lien waivers</h2>
+      <ul>
+      <li><a href="prompt-payment-laws.html">Prompt payment laws by state</a></li>
+      <li><a href="conditional-vs-unconditional-lien-waivers.html">Conditional vs unconditional lien waivers</a></li>
+      <li><a href="lien-waiver-forms-by-state.html">Lien waiver forms by state</a></li>
+      <li><a href="california-preliminary-notice.html" aria-current="page">California 20-day preliminary notice</a></li>
+      <li><a href="lien-waiver-log.html">Lien waiver log (given and collected)</a></li>
+      <li><a href="sworn-statement.html">Contractor's sworn statement builder</a></li>
+      <li><a href="paid-short.html">Paid short? Reconcile the check</a></li>
+      <li><a href="joint-checks.html">Joint check splitter and split letter</a></li>
+      <li><a href="miller-act-payment-bond-claims.html">Miller Act bond claim deadlines (federal jobs)</a></li>
+      <li><a href="pay-app-cash-forecast.html">When will I get paid? Cash forecast</a></li>
+      </ul>
+    </div>
+</nav>
+<!-- /all-guides -->
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, or financial advice, and it does not replace your contract, your accountant, or an attorney. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Privacy.</strong> Everything runs in your browser; nothing you type is uploaded. No accounts, cookies or analytics vendors. Anonymous counters (<code>guide_ca_prelim_viewed</code>, <code>ca_prelim_dated</code>, <code>ca_prelim_printed</code>, <code>ca_prelim_copied</code>) are kept in local storage on your device only, never with your entries, and Do Not Track switches them off. <button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
+</footer>
+<script type="module">
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  import { isoDate, noticeDates, recipients, draftNotice, OWNER_NOTICE_HEAD, OWNER_NOTICE } from "./prelim.mjs";
+  record("guide_ca_prelim_viewed");
+  const b = document.getElementById("optout");
+  b.addEventListener("click", () => { setUsageOptOut(true); b.textContent = "Usage counting is off"; b.disabled = true; });
+  if (usageOptedOut()) { b.textContent = "Usage counting is off"; b.disabled = true; }
+
+  const $ = (id) => document.getElementById(id);
+  const now = new Date();
+  $("today").value = isoDate(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+  const FIELDS = ["owner", "direct", "lender", "site", "claimant", "hiredBy", "work", "estimate", "demand", "laborers", "date", "signer"];
+  let counted = false, text = "";
+  const para = (t, cls = "finding") => { const p = document.createElement("p"); p.className = cls; p.textContent = t; return p; };
+  const PILL = { past: ["high", "passed"], today: ["high", "today"], soon: ["high", "soon"], open: ["", "open"] };
+  const when = (label, date, s) => {
+    const p = document.createElement("p"); p.className = "finding";
+    if (s) {
+      const [pill, word] = PILL[s.state];
+      const span = document.createElement("span"); span.className = `pill ${pill}`; span.textContent = word;
+      const left = s.daysLeft < 0 ? `${-s.daysLeft} days ago` : s.daysLeft === 0 ? "today" : `${s.daysLeft} days left`;
+      p.append(span, `${label}: ${date} (${left})`);
+    } else p.textContent = `${label}: ${date}`;
+    return p;
+  };
+  function renderDates() {
+    const who = recipients($("role").value);
+    const w = [para(who.why, "note")];
+    if (who.to.length) { const ul = document.createElement("ul"); for (const t of who.to) { const li = document.createElement("li"); li.textContent = t; ul.append(li); } w.unshift(ul); }
+    $("who").replaceChildren(...w);
+    if (!who.needed || !$("first").value.trim()) { $("errors").replaceChildren(); $("result").replaceChildren(); return; }
+    const r = noticeDates({ first: $("first").value, served: $("served").value, method: $("method").value, today: $("today").value });
+    $("errors").replaceChildren(...r.errors.map((e) => para(e, "err")));
+    if (r.errors.length) { $("result").replaceChildren(); return; }
+    const out = [when("Last day for the notice to be given", r.lastDay, r.status)];
+    if (r.sendBy !== r.lastDay) out.push(when("Leave and mail it by", r.sendBy, r.sendByStatus));
+    out.push(para(`By this method the notice is ${r.rule}.`, "note"));
+    if (r.given) out.push(para(`${r.onTime ? "On time" : "Late"}: given ${r.given}. It covers ${r.covers}.`));
+    for (const n of r.notes) out.push(para(n, "note"));
+    $("result").replaceChildren(...out);
+    if (!counted) { record("ca_prelim_dated"); counted = true; }
+  }
+  function renderDraft() {
+    const f = Object.fromEntries(FIELDS.map((k) => [k, $(`f-${k}`).value]));
+    const d = draftNotice(f);
+    text = d.text;
+    $("draft").textContent = d.text;
+    $("missing").textContent = d.missing.length ? `Still blank: ${d.missing.join("; ")}. The statute asks for each to the extent you know it.` : "Every item the statute lists is filled in.";
+    const area = $("print-area");
+    area.replaceChildren();
+    const [before] = d.text.split(OWNER_NOTICE_HEAD);
+    for (const line of before.split("\n")) area.append(para(line, ""));
+    const h = para(OWNER_NOTICE_HEAD, "bold"); area.append(h);
+    for (const p of OWNER_NOTICE) area.append(para(p, "bold"));
+    const after = d.text.split(OWNER_NOTICE.at(-1))[1] || "";
+    for (const line of after.split("\n").filter(Boolean)) area.append(para(line, ""));
+  }
+  for (const id of ["role", "first", "method", "served", "today"]) $(id).addEventListener("input", renderDates);
+  for (const k of FIELDS) $(`f-${k}`).addEventListener("input", renderDraft);
+  $("sample").addEventListener("click", () => {
+    $("role").value = "sub"; $("first").value = "2026-03-02"; $("method").value = "certified"; $("served").value = "2026-03-10";
+    const s = { owner: "Bayview Holdings LLC, 1 Market St, San Francisco, CA 94105", direct: "Harbor Builders Inc., 20 Pier Rd, Oakland, CA 94607", lender: "", site: "1200 Mission St, San Francisco, CA 94103 (APN 3727-001)", claimant: "Ridge Drywall LLC, 5 Elm Ave, Fremont, CA 94536, subcontractor to Harbor Builders Inc.", hiredBy: "Harbor Builders Inc.", work: "Metal stud framing, drywall and taping, floors 2 to 5", estimate: "$184,500.00", demand: "", laborers: "", date: "2026-03-10", signer: "Ana Ruiz, President" };
+    for (const k of FIELDS) $(`f-${k}`).value = s[k];
+    renderDates(); renderDraft();
+  });
+  $("print").addEventListener("click", () => { document.body.classList.add("print-notice"); record("ca_prelim_printed"); window.print(); document.body.classList.remove("print-notice"); });
+  $("copy").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(text); $("copy").textContent = "Copied: set the statement in bold before sending"; record("ca_prelim_copied"); }
+    catch { $("copy").textContent = "Copy failed: select the text and copy it"; }
+  });
+  renderDates(); renderDraft();
+</script>
+</body>
+</html>

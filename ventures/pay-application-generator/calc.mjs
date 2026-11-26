@@ -48,7 +48,11 @@ export function parsePercent(s) {
 
 export const dollars = (c) => `${c < 0 ? "-" : ""}$${(Math.abs(c) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 export const pctText = (bp) => `${(bp / 100).toFixed(2)}%`;
-const mulBp = (cents, bp) => Math.round((cents * bp) / 10000);
+// Half a cent rounds away from zero, as Excel's and LibreOffice's ROUND do, so a deductive change order's retainage is
+// the mirror of the same amount billed (Math.round would take -123.455 to -123.45 but 123.455 to 123.46) and the
+// workbook's formulas give the page's numbers.
+const roundCents = (x) => (x < 0 ? -Math.round(-x) : Math.round(x));
+const mulBp = (cents, bp) => roundCents((cents * bp) / 10000);
 
 const ALIASES = {
   item: ["item", "item no", "item number", "no", "line", "code", "cost code"],
@@ -128,7 +132,7 @@ export function compute(text, settings = {}) {
   // threshold (in proportion, against the total it is measured on) keeps the base rate and the rest takes the reduced one.
   const workRet = (work, measuredTotal) => {
     if (!prospective || measuredTotal <= thresholdCents) return mulBp(work, workRate);
-    const pre = Math.round((work * thresholdCents) / measuredTotal);
+    const pre = roundCents((work * thresholdCents) / measuredTotal);
     return mulBp(pre, baseRate) + mulBp(work - pre, reducedRate);
   };
 

@@ -884,12 +884,76 @@ run "baseline_shape" {
   }
 
   assert {
-    condition     = aws_guardduty_organization_configuration.this.auto_enable_organization_members == "ALL"
+    condition     = aws_guardduty_organization_configuration.this[0].auto_enable_organization_members == "ALL"
     error_message = "GuardDuty on in every account"
   }
 
   assert {
-    condition     = length(aws_securityhub_configuration_policy.baseline.configuration_policy[0].enabled_standard_arns) == 2
+    condition     = length(aws_securityhub_configuration_policy.baseline[0].configuration_policy[0].enabled_standard_arns) == 2
     error_message = "FSBP and CIS enabled"
+  }
+}
+
+# Single-account mode: the account's own trail, detector, standards and
+# analyzer; no delegated administrator, no organisation configuration, one
+# baseline module; the kill switch's target role carries the boundary.
+run "single_account" {
+  command = plan
+
+  variables {
+    account_mode = "single"
+  }
+
+  override_data {
+    target = data.terraform_remote_state.org
+    values = {
+      outputs = {
+        organization_id          = null
+        management_account_id    = "000000000000"
+        account_ids              = { for k in ["log-archive", "security", "shared-infra", "apps", "payments", "sandbox"] : k => "000000000000" }
+        permissions_boundary_arn = "arn:aws:iam::000000000000:policy/workload-boundary"
+      }
+    }
+  }
+
+  assert {
+    condition     = !aws_cloudtrail.org.is_organization_trail && aws_cloudtrail.org.is_multi_region_trail && aws_cloudtrail.org.enable_log_file_validation
+    error_message = "a single-account multi-region trail with log file validation"
+  }
+
+  assert {
+    condition = (
+      length(aws_guardduty_organization_admin_account.this) == 0
+      && length(aws_securityhub_organization_admin_account.this) == 0
+      && length(aws_organizations_delegated_administrator.this) == 0
+      && length(aws_guardduty_organization_configuration.this) == 0
+      && length(aws_securityhub_organization_configuration.this) == 0
+      && length(aws_config_configuration_aggregator.org) == 0
+      && length(data.aws_organizations_organization.this) == 0
+    )
+    error_message = "no delegated admin and no organisation-wide configuration without an Organization"
+  }
+
+  assert {
+    condition     = aws_guardduty_detector.security.enable && length(aws_securityhub_standards_subscription.single) == 2
+    error_message = "GuardDuty on, FSBP and CIS subscribed on the account"
+  }
+
+  assert {
+    condition     = aws_accessanalyzer_analyzer.org.type == "ACCOUNT"
+    error_message = "an account-scoped Access Analyzer"
+  }
+
+  assert {
+    condition = (
+      length(module.log_archive) + length(module.security) + length(module.shared_infra) + length(module.apps) + length(module.payments) + length(module.sandbox) == 0
+      && join(",", keys(output.kill_switch_role_arns)) == "management"
+    )
+    error_message = "one baseline, the account's"
+  }
+
+  assert {
+    condition     = module.management.kill_switch_role_boundary == "arn:aws:iam::000000000000:policy/workload-boundary"
+    error_message = "the kill switch's target role carries the workload boundary"
   }
 }

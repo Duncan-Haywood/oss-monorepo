@@ -30,7 +30,10 @@ locals {
 # Sending lives in the apps account, beside the products that send.
 provider "aws" {
   region = var.region
-  assume_role { role_arn = "arn:aws:iam::${local.apps_account_id}:role/${var.member_role_name}" }
+  dynamic "assume_role" {
+    for_each = var.account_mode == "single" ? [] : ["arn:aws:iam::${local.apps_account_id}:role/${var.member_role_name}"]
+    content { role_arn = assume_role.value }
+  }
   default_tags {
     tags = {
       managed-by = "platform/aws/stacks/email"

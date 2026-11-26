@@ -6,7 +6,7 @@ locals {
   log_bucket = "${local.accounts["log-archive"]}-org-logs-${var.region}"
   trail_name = "org-trail"
   trail_arn  = "arn:aws:cloudtrail:${var.region}:${local.mgmt_id}:trail/${local.trail_name}"
-  all_ids    = concat([local.mgmt_id], values(local.accounts))
+  all_ids    = distinct(concat([local.mgmt_id], values(local.accounts)))
 }
 
 data "aws_iam_policy_document" "log_key" {
@@ -193,7 +193,7 @@ data "aws_iam_policy_document" "log_bucket" {
   statement {
     sid     = "CloudTrailWrite"
     actions = ["s3:PutObject"]
-    resources = [
+    resources = local.single ? ["${aws_s3_bucket.logs.arn}/cloudtrail/AWSLogs/${local.mgmt_id}/*"] : [
       "${aws_s3_bucket.logs.arn}/cloudtrail/AWSLogs/${local.mgmt_id}/*",
       "${aws_s3_bucket.logs.arn}/cloudtrail/AWSLogs/${local.org.organization_id}/*",
     ]
@@ -253,7 +253,7 @@ resource "aws_cloudtrail" "org" {
   s3_bucket_name                = aws_s3_bucket.logs.id
   s3_key_prefix                 = "cloudtrail"
   kms_key_id                    = aws_kms_key.logs.arn
-  is_organization_trail         = true
+  is_organization_trail         = !local.single # single-account mode: the account's own trail
   is_multi_region_trail         = true
   include_global_service_events = true
   enable_log_file_validation    = true

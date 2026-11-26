@@ -1,7 +1,18 @@
+variable "account_mode" {
+  description = "organization or single (stacks/org's variable of the same name; the workflows set it from the repository variable AWS_ACCOUNT_MODE). In single mode every provider uses the workflow's own credentials: there are no member accounts to assume a role in."
+  type        = string
+  default     = "organization"
+
+  validation {
+    condition     = contains(["organization", "single"], var.account_mode)
+    error_message = "account_mode must be organization or single."
+  }
+}
+
 variable "region" {
   description = "Region of the Claude Platform on AWS workspace. Workspaces are bound to one region and every commercial region is supported (platform.claude.com/docs/en/build-with-claude/claude-platform-on-aws, read 2026-11-24)."
   type        = string
-  default     = "us-east-1"
+  default     = "us-east-2"
 }
 
 variable "state_bucket" {

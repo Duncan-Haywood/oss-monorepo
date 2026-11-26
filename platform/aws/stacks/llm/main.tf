@@ -119,9 +119,10 @@ data "aws_iam_policy_document" "app_trust" {
 }
 
 resource "aws_iam_role" "app_llm" {
-  name               = "app-llm"
-  description        = "Products on AWS that call Claude"
-  assume_role_policy = data.aws_iam_policy_document.app_trust.json
+  name                 = "app-llm"
+  description          = "Products on AWS that call Claude"
+  assume_role_policy   = data.aws_iam_policy_document.app_trust.json
+  permissions_boundary = local.boundary
   tags = {
     # stacks/spend kill switch denies Claude to this role when the apps
     # budget is spent.
@@ -136,9 +137,21 @@ resource "aws_iam_role_policy_attachment" "app_llm" {
 
 # --- Role for CI jobs on main that call Claude (the LLM gate) --------------
 
+# One GitHub OIDC provider per account: in single-account mode the
+# bootstrap's is this account's, so it is read, not made.
 resource "aws_iam_openid_connect_provider" "github" {
+  count          = local.single ? 0 : 1
   url            = "https://token.actions.githubusercontent.com"
   client_id_list = ["sts.amazonaws.com"]
+}
+
+data "aws_iam_openid_connect_provider" "bootstrap" {
+  count = local.single ? 1 : 0
+  url   = "https://token.actions.githubusercontent.com"
+}
+
+locals {
+  github_oidc_arn = local.single ? data.aws_iam_openid_connect_provider.bootstrap[0].arn : aws_iam_openid_connect_provider.github[0].arn
 }
 
 data "aws_iam_policy_document" "ci_trust" {
@@ -146,7 +159,7 @@ data "aws_iam_policy_document" "ci_trust" {
     actions = ["sts:AssumeRoleWithWebIdentity"]
     principals {
       type        = "Federated"
-      identifiers = [aws_iam_openid_connect_provider.github.arn]
+      identifiers = [local.github_oidc_arn]
     }
     condition {
       test     = "StringEquals"
@@ -167,8 +180,11 @@ data "aws_iam_policy_document" "ci_trust" {
 }
 
 resource "aws_iam_role" "ci_llm" {
-  name                 = "github-llm-gate"
-  path                 = "/github/"
+  name = "github-llm-gate"
+  # Single-account mode: /ci/, because the bootstrap denies github-apply any
+  # change to roles under /github/ in its own account (where this one lives).
+  path                 = local.single ? "/ci/" : "/github/"
+  permissions_boundary = local.boundary
   description          = "GitHub Actions on main calling Claude Platform on AWS"
   assume_role_policy   = data.aws_iam_policy_document.ci_trust.json
   max_session_duration = 3600

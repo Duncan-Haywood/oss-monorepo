@@ -29,12 +29,19 @@ data "terraform_remote_state" "org" {
 
 locals {
   apps_account_id = data.terraform_remote_state.org.outputs.account_ids["apps"]
+  single          = var.account_mode == "single"
+  # Single-account mode: stacks/org's workload-boundary on every identity
+  # here; null in organization mode.
+  boundary = try(data.terraform_remote_state.org.outputs.permissions_boundary_arn, null)
 }
 
 # The transitional identity lives in the apps account, beside what it calls.
 provider "aws" {
   region = var.region
-  assume_role { role_arn = "arn:aws:iam::${local.apps_account_id}:role/${var.member_role_name}" }
+  dynamic "assume_role" {
+    for_each = var.account_mode == "single" ? [] : ["arn:aws:iam::${local.apps_account_id}:role/${var.member_role_name}"]
+    content { role_arn = assume_role.value }
+  }
   default_tags {
     tags = {
       managed-by = "platform/aws/stacks/app-identity"

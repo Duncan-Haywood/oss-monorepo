@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtHfBepPWnMUPtqce8C",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T06:06:43Z",
+  "ended": "2026-11-26T06:14:06Z",
+  "wall_minutes": 8.1,
+  "tokens_in": 7016321,
+  "tokens_out": 33042,
+  "cost_usd": 3.0322,
+  "tool_calls": 72,
+  "task": "payapps ROADMAP Next #4 part 3: GCPay schedule of values upload workbook (claim gc-portal-gcpay)",
+  "projects": [
+    "payapps",
+    "payapps-site"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19249",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "private-monorepo PR 263 CI jobs ended red in 2 s",
+      "resolution": "ci_starvation.py: never got a runner; ran payapps-ci and payapps-site-ci locally with run_workflow_locally.py"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "apps/payapps/ROADMAP.md (private)",
+      "issue": "Most free Next items are gated on 'if asked'/'once a customer asks'/'once usage is measured', so a run has to read all eight to find one it can honestly start; GCPay (#4) was the only ungated one."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "add_repo's result still names register_repo_root and says not to read CLAUDE.md yourself; the doc correctly says skip it. Worked first try."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-25-procore-subcontractor-sov-csv-template.md (extended: GCPay section)",
+    "docs/reports/ventures-2026-11-26-payapps-gcpay-sov-upload.md"
+  ],
+  "goal": "$10k MRR: bet #1 pay-app billing, GC portal coverage (GCPay subs can upload their SOV)",
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/263. Source: GCPay Subcontractor Training Guide Rev. 12/19 (published by a GC), read with pdftotext. Verified locally: payapps typecheck clean; payapps unit 76 files / 708 tests passed; payapps-site unit 21 passed; biome clean on touched files; generated .xlsx opened by openpyxl with -W error and round-tripped through the app's readXlsx; run_workflow_locally.py payapps-ci and payapps-site-ci (see PR). CI on private repo starved (no runner).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "781df8c9-87f4-538d-8cf0-e05a701adedb",
+    "transcripts": 1,
+    "first": "2026-11-26T06:06:43Z",
+    "last": "2026-11-26T06:14:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 128,
+        "output": 33042,
+        "thinking": 3205,
+        "cache_read": 6892138,
+        "cache_write_5m": 0,
+        "cache_write_1h": 124055,
+        "api_equivalent_usd": 3.0322,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 128,
+      "output": 33042,
+      "thinking": 3205,
+      "cache_read": 6892138,
+      "cache_write_5m": 0,
+      "cache_write_1h": 124055,
+      "api_equivalent_usd": 3.0322,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 57,
+      "Write": 6,
+      "ToolSearch": 3,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "WebSearch": 1,
+      "WebFetch": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.1,
+      "active_minutes": 8.1,
+      "model_minutes": 5.75,
+      "tool_minutes": 2.35,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "source research, xlsx writer, module, UI, tests and docs for one portal export, by a mid-level engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 197.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

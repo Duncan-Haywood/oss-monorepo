@@ -140,6 +140,54 @@ QuickBooks sync is needed from the first version, because that is where the
 money ends up. Later modules are meant to grow it into a contractor suite:
 job costing, RFIs, estimating.
 
+Job costing has started, beside the billing: a cost budget for each
+schedule-of-values line, costs typed or pasted in as they come, and a WIP
+schedule worked by cost (cost to date divided by estimated total cost). That
+estimate is where WIP schedules often go wrong. A budget from the bid is only
+an estimate. When a line overruns, the WIP keeps showing the old budget until
+someone revises it, and the job looks further along than it is. So the
+project manager can now type a **cost to complete** for any line, meaning
+what it still has to cost from today. The line's estimate becomes the cost
+spent on it through that day plus the cost to complete. Percent complete,
+earned revenue, over/under billing and projected profit then follow the new
+estimate. Costs dated after the estimate are counted against it. If they use
+it all up, the build says so and holds the estimate at the cost to date. It
+does not guess a new one.
+
+The build's tests include an example worked by hand. A $100,000 line is
+billed $50,000 against a $60,000 budget. It had $30,000 of cost by the 15th,
+when the project manager typed $40,000 to complete, and $6,000 more by the
+31st. The estimate is $70,000, $10,000 over budget, so the line is 51.43%
+complete ($36,000 of $70,000), has earned $51,428.57 and is $1,428.57
+underbilled, with $30,000 of projected profit. On the bid budget the same
+line would read 60% complete, $60,000 earned, $10,000 underbilled and
+$40,000 of projected profit. The old budget overstates earned revenue by
+$8,571.43 and profit by $10,000, and a surety reading it would see an
+underbilling that mostly isn't there. It is a working schedule for the
+contractor and their accountant, not a financial statement. (Added
+2026-11-26; in development, not for sale.)
+
+Then there is money the job has already promised away. A sub that signs a
+lower-tier subcontract or issues a purchase order has committed to that cost
+even though most of it has not been invoiced yet. If the estimate ignores it,
+the WIP again shows a job further along and more profitable than it is. So
+purchase orders and subcontracts can now be entered per job, and each
+supplier invoice or sub pay app can be put against one. Whatever is not yet
+invoiced counts as cost still to come, so a line's estimate never drops below
+its cost to date plus its open commitments. An invoice that runs past its
+commitment is flagged, which usually means a change order to it was never
+recorded.
+
+The tests check the arithmetic on an example worked by hand. A $40,000 line
+has a $30,000 budget and a $35,000 lower-tier subcontract, with $10,000
+invoiced against it so far. On the budget alone the line reads 33.33% complete,
+$13,333.33 earned and $10,000 of projected profit. Counting the $25,000 still
+open, the estimate is $35,000, so the line is 28.57% complete, has earned
+$11,428.57 and will make $5,000. The budget-only view overstates earned
+revenue by $1,904.76 and projected profit by $5,000, although that $5,000 was
+gone the day the subcontract was signed. (Added 2026-11-26; in
+development, not for sale.)
+
 ### Where it stands (updated 2026-11-25)
 
 Still in development and not for sale. Built and tested so far:
@@ -204,9 +252,36 @@ Peak GC and Sierra Builders", naming each GC once even when it holds the
 certificate on several jobs. A new certificate is offered the same jobs
 as the archived one it replaces, the weekly email names the GCs on each
 renewal line, and a draft pay application names any certificate not
-recorded as sent to that job's GC. The build
-reads only the dates typed in. It does not check coverage, limits or
-what a subcontract requires. (Added 2026-11-26; still in development.)
+recorded as sent to that job's GC. (Added 2026-11-26; still in
+development.)
+
+Dates are only half of it. A subcontract's insurance exhibit also sets
+minimum limits (for example, a stated amount for each occurrence and in
+aggregate) and asks for wording on the certificate: additional insured,
+waiver of subrogation, primary and non-contributory. A certificate that
+is current but short on any of these can still be sent back. So each
+certificate can now carry its limits and the wording it shows, and each
+job can carry what its subcontract asks for, one row per coverage. The
+job page marks every requirement "Met" or "Gap" and says why in words:
+no certificate, expired, not started yet, a limit below what is asked
+(with both figures), a limit nobody typed (never assumed met), or an
+endorsement the certificate does not show. An umbrella policy counts
+toward a limit only where the job says the GC accepts that. A draft pay
+application lists the same gaps as of its own date, so they are fixed
+before it goes out. The build checks what was typed from the
+certificate, not the policy itself. The insurance broker still confirms
+the coverage. (Added 2026-11-26; still in development.)
+
+Many GCs also want the current certificate itself in the backup of every
+pay application, not only on file. So each certificate in the build now
+keeps its files: the certificate PDF from the agent, usually an ACORD 25,
+and any endorsements the subcontract asks for, such as additional insured
+or waiver of subrogation. A draft pay application lists the files of
+every active certificate, and one click copies a file into that
+application's backup, so it goes into the single PDF packet sent to the
+GC. The files count against the same storage limit as other attachments,
+and they are deleted with the certificate. (Added 2026-11-26; still in
+development.)
 
 **A scanned schedule of values.** The schedule of values often arrives
 as a scan: the GC's signed copy, or a page someone ran through the
@@ -229,6 +304,33 @@ were too uneven to read as a column, so its lines were numbered in
 order instead. Every figure still has to be checked against the paper.
 The first scan downloads the text reader, about 7 MB, and each page
 takes a few seconds. (Added 2026-11-26; still in development.)
+
+**A scan on its side.** A sheet fed into the scanner sideways or
+upside down used to come back empty or as garbage. Tesseract reads text
+that runs down the page, but not text that runs up it or is upside down.
+On our test page it read that text at a mean confidence of 50 out of 100,
+against 93 for the same page the right way up. The build now works out
+which way the text runs and turns the page to read it, as you would turn
+the paper. When most of a page reads as unsure, it reads the page again
+turned half round and keeps the better result. That second read costs
+about 3 seconds, and only on such a page. The import then says which
+page it turned. Tested on the black-and-white scan above with one page
+turned each way: all 48 lines and the $1,120,223.00 total came through.
+(Added 2026-11-26; still in development.)
+
+**The WIP schedule, as a PDF for the surety.** A bonded subcontractor
+sends a work-in-progress schedule to its surety, and often its bank, every
+quarter or at year end. The build already works one out from each job's cost
+budgets, its costs and its latest sent pay application (cost-to-cost percent
+complete). It now prints that schedule as a one-file PDF: for each active
+job the contract, the estimated cost and gross profit, cost to date, percent
+complete, earned revenue, billed to date, over and under billing, cost to
+complete and the revenue still to earn, with totals and a line for the
+company to sign. A job still missing a budget line is listed but left out of
+the totals, and the page says so. The PDF says what it is: a working
+schedule, not financial statements, an audit or a review, to check with the
+company's accountant before it goes to the surety. (Added 2026-11-26; still
+in development.)
 
 The working price range in our notes is about $99 to $249 a month. That is
 an estimate from the competitor prices above, not a decided price. The paid

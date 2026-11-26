@@ -24,6 +24,24 @@ export function escapeHtml(value) {
 }
 
 /**
+ * Returns the address if it is safe to put in an href or src, else "". A
+ * `javascript:` (or any other non-web) scheme in a pasted or handed-off link
+ * would run in the tool's own origin from the preview and in the brand's copy
+ * (quality audit 2026-11-26). Links keep http(s) and mailto; images also keep
+ * data:image/. An address with no scheme at all is left alone.
+ */
+export function safeUrl(value, { image = false } = {}) {
+  const url = String(value ?? "").trim();
+  const scheme = /^([a-z][a-z0-9+.-]*):/i.exec(url.replace(/[\u0000-\u0020]/g, ""));
+  if (!scheme) return url;
+  const name = scheme[1].toLowerCase();
+  if (name === "http" || name === "https") return url;
+  if (!image && name === "mailto") return url;
+  if (image && /^data:image\//i.test(url)) return url;
+  return "";
+}
+
+/**
  * Parses a textarea's pipe-delimited lines into objects, positionally
  * matching `fields`. Blank lines and lines starting with "#" are skipped, so
  * a saved worked example can carry comments. Every value is trimmed; a line
@@ -151,7 +169,7 @@ export function buildMediaKitHtml(data) {
     <table class="stats">
       <tbody>
         ${platforms.map((p) => `<tr>
-          <td class="k">${p.url ? `<a href="${escapeHtml(p.url)}" rel="noopener">${escapeHtml(p.platform || "")}</a>` : escapeHtml(p.platform || "")}</td>
+          <td class="k">${safeUrl(p.url) ? `<a href="${escapeHtml(safeUrl(p.url))}" rel="noopener">${escapeHtml(p.platform || "")}</a>` : escapeHtml(p.platform || "")}</td>
           <td>${escapeHtml(p.followers || "")}</td>
           <td>${escapeHtml(engagementLabel(p.engagement))}</td>
         </tr>`).join("")}
@@ -175,7 +193,7 @@ export function buildMediaKitHtml(data) {
         ${collabs.map((c) => `<tr>
           <td class="k">${escapeHtml(c.brand || "")}</td>
           <td>${escapeHtml(c.campaign || "")}</td>
-          <td>${c.url ? `<a href="${escapeHtml(c.url)}" rel="noopener">View</a>` : ""}</td>
+          <td>${safeUrl(c.url) ? `<a href="${escapeHtml(safeUrl(c.url))}" rel="noopener">View</a>` : ""}</td>
         </tr>`).join("")}
       </tbody>
     </table>
@@ -205,7 +223,7 @@ export function buildMediaKitHtml(data) {
     contactName ? escapeHtml(contactName) : "",
     contactEmail ? `<a href="mailto:${escapeHtml(contactEmail)}">${escapeHtml(contactEmail)}</a>` : "",
     contactPhone ? escapeHtml(contactPhone) : "",
-    websiteUrl ? `<a href="${escapeHtml(websiteUrl)}" rel="noopener">${escapeHtml(websiteUrl)}</a>` : "",
+    websiteUrl ? (safeUrl(websiteUrl) ? `<a href="${escapeHtml(safeUrl(websiteUrl))}" rel="noopener">${escapeHtml(websiteUrl)}</a>` : escapeHtml(websiteUrl)) : "",
   ].filter(Boolean);
 
   return `<!doctype html>
@@ -248,7 +266,7 @@ export function buildMediaKitHtml(data) {
 </head>
 <body>
   <header>
-    ${photoUrl ? `<img src="${escapeHtml(photoUrl)}" alt="${escapeHtml(photoAlt)}">` : ""}
+    ${safeUrl(photoUrl, { image: true }) ? `<img src="${escapeHtml(safeUrl(photoUrl, { image: true }))}" alt="${escapeHtml(photoAlt)}">` : ""}
     <div>
       <h1>${escapeHtml(name)}</h1>
       ${tagline ? `<p class="tagline">${escapeHtml(tagline)}</p>` : ""}

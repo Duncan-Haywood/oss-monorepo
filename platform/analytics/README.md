@@ -52,6 +52,15 @@ says whether the list/create calls and response fields are as assumed.
 collected, no analytics vendor" promise. Any change to what is collected
 changes those pages in the same PR.
 
+## Known gaps
+
+From the 2026-11-26 quality audit
+([`../../portfolio/quality/audits/2026-11-26-analytics.json`](../../portfolio/quality/audits/2026-11-26-analytics.json)):
+`provision.mjs` reads only the first page of the Cloudflare site list, so a
+host past page 1 would get a duplicate site created; neither CLI is tested
+beyond the malformed-token case; and with `site.json`'s token still empty,
+nothing is measured yet and nothing pulls the numbers into `portfolio/usage/`.
+
 ## Next
 
 - Pull the Web Analytics numbers into the repository daily
