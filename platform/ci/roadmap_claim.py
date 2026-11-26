@@ -125,7 +125,8 @@ def inline_next(roadmap: str) -> list[tuple[int, str]]:
 # dropping a bet. Twenty more (2026-11-26) found the first phrase list too narrow: "once real
 # companies are counted", "if customers bill through them", "whatever the first shops ask",
 # "once a source is in hand", "the owner runs the workflow once", "if those ever exist".
-# Phrases are matched in the item's text only; a miss just leaves it [free]. Bare "when" is not
+# "if assessors ask" (2026-11-26) was missed for want of the role in _WHO, so any subject
+# followed by ask/request now counts. Phrases are matched in the item's text only; a miss just leaves it [free]. Bare "when" is not
 # a condition word here: done-history text uses it descriptively ("when a company tracks ...").
 _WHO = (r"(?:people|shops?|customers?|users?|GCs?|PMs?|admins?|companies|contractors?|subs?|"
         r"buyers?|sellers?|firms?|clients?|estimators?|someone|anyone|demand|usage|traffic)")
@@ -136,7 +137,9 @@ GATES = (
         r"(?:asks?|requests?|wants?|needs?|shows?)\b|\bif asked\b|\bon request\b|"
         r"\bonce (?:usage|traffic)\b|\bonce [^.;()]{0,25}\bmeasured\b|"
         r"\b(?:if|once|until)\s+(?:[\w'-]+\s+){0,3}?" + _WHO + r"\b|"
-        r"\bwhatever\b[^.;()]{0,30}\b(?:asks?|wants?|needs?)\b", re.I)),
+        r"\bwhatever\b[^.;()]{0,30}\b(?:asks?|wants?|needs?)\b|"
+        # Any asker: "if assessors ask for them there" (2026-11-26) named a role no list held.
+        r"\b(?:if|once|until)\s+(?!it\b|this\b|that\b)(?:[\w'-]+\s+){0,3}?(?:asks?|requests?)\b", re.I)),
     ("waits on a source", re.compile(
         r"\bonce\b[^.;()]{0,60}\b(?:reachable|published|available|in hand|is live|goes live|"
         r"answers|(?:is|can be) read|has run)\b|\b403\b|\bwhen\b[^.;]{0,60}\bchanges?\b|\bno public (?:spec|format|columns?|schema|docs?)\b", re.I)),
@@ -666,7 +669,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     ap.add_argument("app", nargs="?", help="app directory under apps/, e.g. payapps")
     ap.add_argument("--repo", default=DEFAULT_REPO)
-    ap.add_argument("--claim", type=int, metavar="N", help="claim Next item N (as listed)")
+    ap.add_argument("--claim", type=int, metavar="N", help="claim Next item N (as listed); a slug-only claim passes --slug alone")
     ap.add_argument("--slug", help="claim under this slug instead (one part of an item, or an "
                                    "app whose ROADMAP has no Next list); works without --claim")
     ap.add_argument("--note", default="", help="what exactly this run builds")
