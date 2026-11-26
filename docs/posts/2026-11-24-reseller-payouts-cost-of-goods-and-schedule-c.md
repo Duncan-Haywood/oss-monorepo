@@ -491,6 +491,42 @@ Schedule C page, and each file adds up to its own worksheet figure.
 These are your own records, in a form you can file away or send on. They are
 not a return and not tax advice.
 
+## Sales with no marketplace report (added 2026-11-26)
+
+A lot of reselling never goes through a marketplace. You sell a table on
+Facebook Marketplace and the buyer pays cash at the door. You run a stall at
+a flea market. Someone picks up a jacket and pays by Venmo. None of these
+sales show up in an eBay or Poshmark report. If your books are built only
+from those reports, these sales are missing from them. Your gross receipts
+come out too low, and so does the cost of goods for the items you sold this
+way. The IRS says income from selling goods is taxable whether or not you
+get a Form 1099-K for it.
+
+Seller Books now lets you type these sales in on the Sales page, under "Add a
+direct sale". You enter the date, what sold, what the buyer paid for the item
+and any shipping they paid. If a payment app took a fee or you paid postage,
+those go in too. If you pick the item from your stock, its cost moves to cost
+of goods sold on the sale date. A refund to a buyer goes in the same way and
+lands on line 2 (returns). Direct sales get their own "Direct sales" row in
+profit and loss. They count in gross receipts on the worksheet's line 1, and
+they appear in the sales ledger and the QuickBooks journal export like any
+other sale. You can tag booth fees or market rent as "Direct sales" expenses
+so they sit in the same row.
+
+Here is the test example. An oak side table cost $15.00. It sold for $60.00
+on Facebook Marketplace, paid through an app that kept $1.74. The Sales page
+shows $58.26 net and the item linked. In the worker test, a $45.00 sale with
+$8.00 of buyer-paid shipping, a $1.60 payment fee, $6.50 of postage and a
+$12.00 item adds $53.00 to line 1. Take off $1.60 of fees, $6.50 of postage
+and $12.00 of cost of goods, and the profit is $32.90.
+
+Enter the price before any sales tax. Seller Books keeps sales tax a
+marketplace collected out of gross receipts, but it does not handle tax you
+collected yourself. Whether you owe sales tax on a direct sale depends on
+your state, and that is a question for your state or your tax professional.
+On the free plan, direct sales count toward the 25 orders a month. They do
+not use up the plan's one marketplace.
+
 ## Marketplace sales into QuickBooks Online, one entry a month (added 2026-11-26)
 
 If you or your bookkeeper already keep the books in QuickBooks Online, you
