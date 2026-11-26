@@ -476,6 +476,32 @@ def bet_apps(bets_md: str) -> list[tuple[int, str, str]]:
     return out
 
 
+def bet_wedges(bets_md: str) -> dict[int, str]:
+    """{rank: the bet's "**Wedge:**" bullet, one line} from bets.md's evidence sections.
+
+    The wedge names what the product grows into ("growing into job costing, RFIs and
+    estimating"), the place a run opens a new item when every Next item waits. Six records
+    (2026-11-26) hit "no free, ungated item" and read bets.md by hand to find it.
+    """
+    out: dict[int, str] = {}
+    rank, buf = None, None
+    for line in bets_md.splitlines() + [""]:
+        head = re.match(r"^#{2,4}\s+(\d+)\.\s", line)
+        if buf is not None and (not line.strip() or line.lstrip().startswith(("- ", "#"))):
+            out[rank] = " ".join(" ".join(buf).split())
+            buf = None
+        if head:
+            rank = int(head.group(1))
+        elif line.startswith("#"):
+            rank = None
+        m = re.match(r"^\s*-\s+\*\*Wedge:\*\*\s*(.*)$", line)
+        if m and rank is not None and rank not in out:
+            buf = [m.group(1)]
+        elif buf is not None and line.strip():
+            buf.append(line.strip())
+    return out
+
+
 def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None) -> int:
     """One line per bet: free ungated items and live claims, then the first bet with work free.
 
@@ -483,7 +509,8 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None) -> 
     live claims and no free, ungated item, then read bet #2's and #3's ROADMAPs by hand to
     find work. This reads them all in one call, in bets.md's order.
     """
-    bets = bet_apps(bets_md.read_text(encoding="utf-8")) if bets_md.is_file() else []
+    text = bets_md.read_text(encoding="utf-8") if bets_md.is_file() else ""
+    bets = bet_apps(text)
     if not bets:
         print(f"no ranking rows with an app path in {bets_md}")
         return 2
@@ -493,6 +520,7 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None) -> 
         return 2
     now = time.time()
     start = None
+    present: list[tuple[int, int, str]] = []  # (live claims, rank, app) for apps in this clone
     print(f"Bets in bets.md order (claims older than {stale_s / 3600:g} h are stale):")
     for rank, name, app in bets:
         roadmap = Path(repo) / "apps" / app / "ROADMAP.md"
@@ -503,6 +531,7 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None) -> 
         info = claim_info(repo, app, claims)
         merged = merged_claims(repo, info)
         live = sum(1 for s, (ts, _) in info.items() if s not in merged and ts and now - ts < stale_s)
+        present.append((live, rank, app))
         if not roadmap.is_file():
             print(f"{rank:>3}. {app}: no ROADMAP.md, {live} live claim(s); claim with --slug ({name})")
             continue
@@ -517,9 +546,18 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None) -> 
         rank, app, nums = start
         print(f"Start here: bet #{rank} {app}, item #{nums[0]} "
               f"(`roadmap_claim.py {app}` for the list, then `--claim {nums[0]}`).")
+    elif present:
+        # Three runs opened new payapps items within 15 minutes (2026-11-26) while other bets
+        # sat with no live claims: send the next run to the least-crowded bet, with its wedge.
+        live, rank, app = min(present)
+        wedge = bet_wedges(text).get(rank)
+        print(f"Start here: no bet has a free, ungated item. Fewest live claims: bet #{rank} {app} "
+              f"({live}). Open a new item from its wedge with `roadmap_claim.py {app} --slug "
+              f"<short-name> --note ...` (check its ROADMAP's Done list first).")
+        print(f"  Wedge (bets.md): {wedge}" if wedge else
+              f"  (bets.md has no **Wedge:** line for bet #{rank}: read its evidence section)")
     else:
-        print("Start here: no bet has a free, ungated item. Open a new item from a bet's growth "
-              "path (portfolio/monetization/bets.md) with `<app> --slug <short-name> --note ...`.")
+        print("Start here: no ranked bet's app is in this clone.")
     return 0
 
 
@@ -678,8 +716,9 @@ def main(argv: list[str] | None = None) -> int:
     if items:
         # The one line twenty runs asked for: is there anything here to build right now?
         print(f"Free and not gated: {', '.join(f'#{n}' for n in open_now)}" if open_now else
-              "Free and not gated: none. Take the next bet, or open a new item from the bet's "
-              "growth path (portfolio/monetization/bets.md) with --slug <short-name> --note ...")
+              "Free and not gated: none. Take the next bet (`--bets` names the least-crowded one), "
+              "or open a new item from the bet's **Wedge:** line in portfolio/monetization/bets.md "
+              "with --slug <short-name> --note ...")
     others = sorted(set(claims) - seen)
     # Merged and stale claims are history, one line each kind: payapps listed ~40 of them before
     # anything live, and two runs (2026-11-26) grep -v'd them away. --all lists them in full.
