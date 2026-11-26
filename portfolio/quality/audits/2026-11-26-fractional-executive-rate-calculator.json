@@ -1,0 +1,196 @@
+{
+  "date": "2026-11-26",
+  "subject": "ventures/fractional-executive-rate-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-26-k-30c0",
+  "round": 117,
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a working US fractional CFO who prices their own engagements (and checks clients' self-employment tax), the first things checked being the payroll-tax treatment for a $200k+ earner, the utilisation assumption behind the day rate, and whether the retainer and client-mix figures reconcile",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 3,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Recomputed with scratchpad frac/se.mjs. Pass (hand arithmetic, standard billable-days method): page example (salary 200,000 + bonus 40,000, benefits 30,000, costs 10,000, 7.65%, 260 days, 30 off, 20% non-billable, 80% sold) gives 280,000/0.9235 = 303,194.37, (260-30)*0.8*0.8 = 147.2 sold days, 2,059.74/day, 257.47/h, 2.68x of 200,000/260; the tool and the Chromium page show $303,194, 147, $2,060, $257, 2.7x. Client mix 4+3+5 days at 10% discount: 12*2,059.74*0.9 = 22,245.19/month, 266,942.30/yr, *0.9235 - 40,000 = 206,521.22 left, 33,478.80 short; page shows $266,942, $206,521, $33,479. FTE daily pay 200,000/260 = 769.23 matches the 2,080-hour (260 x 8) convention. Fail: payroll tax against IRS 'Self-employment tax' page and Topic 751 (15.3% on 92.35% of net earnings, Social Security part only on the first $184,500 in 2026, 0.9% additional Medicare above $200,000), net of the employee FICA the salary already bore: the example's extra tax is 15,830, not the tool's 23,194 (46% over), so revenue 295,829.62 vs 303,194.37 (+2.5%) and day rate 2,009.71 vs 2,059.74; a 300,000 CFO is +3.4% (2,526.59 vs 2,611.46); below the base (100,000) the gap is 0.7%. Fail: a blank or 0 'share you expect to sell' silently becomes 100% (calc.mjs:48): page shows $1,648/day over 184 sold days instead of an error. Arithmetic right, the one tax rule wrong for the target earner and a silent fallback: 2.",
+    "completeness": "Walked in Chromium via Playwright at 375 px (scratchpad frac/walk.cjs, files served by route interception): Load an example computes (day rate, 5 retainer rows 2-10 days, client table, mix table, 5 findings); Calculate after editing working days to 250 recomputes ($2,153, 141 days); bad client line reported as 'Some lines were not read'; Clear then Calculate shows 'Enter the full-time pay'; opt-out sets the stored flag, removes counters and disables the button; usage counter records rate_calculated and example_loaded in localStorage; LICENSE 200; no console errors, no external requests. Every README feature (rateFor, retainerFor, parseClients/analyse, findings) works end to end; no stubs or TODOs: 3.",
+    "verification": "node --test '*.test.mjs' in the subject dir: tests 25, pass 25, fail 0; the README's 'node --test' also passes 25/25. Seven mutants via platform/ci/quality_mutate.py: dropping costs from revenue needed caught; discount cap 90 -> 5 caught; capacity check > 1 -> > 1.2 caught; FTE day pay divisor workingDays -> 260 SURVIVED; low-multiple threshold 1.5 -> 3 SURVIVED; concentration threshold 0.5 -> 0.8 SURVIVED; sold fallback || 100 -> || 80 SURVIVED. The headline arithmetic is pinned by a hand-checked test, but 4 of 7 seeded bugs in finding thresholds and input fallbacks pass: 2.",
+    "craft": "Read calc.mjs (139 lines), index.html (233 lines incl. script), usage.mjs, calc.test.mjs, page.test.mjs, usage.test.mjs. Pure engine, client names escaped (an <img onerror> client name rendered as text in the walk), storage access guarded, no network. Defects: silent fallbacks for blank/zero inputs (soldPct -> 100, workingDays -> 260, hoursPerDay -> 8, calc.mjs:43,48,51) and silent clamps (payroll tax 50%, non-billable 90%, discount 90%) with no finding; 'takeHome' names gross pre-tax pay (calc.mjs:38); retainerFor returns effectiveDayRate 0 rather than null for 0 days (calc.mjs:69); the client-mix table overflows a 375 px viewport by 2 px (scrollWidth 377, index.html:110). Small and readable: 3.",
+    "claims": "Backed: day/hourly/retainer/client-mix outputs (calc.mjs, walk); 'nothing uploaded' (page.test asserts no fetch/XHR/beacon, walk saw no external request); usage events named in the footer equal those recorded; DNT/GPC honoured (usage.mjs); no-warranty and not-advice text in footer and FAQ; 'What this does not cover' lists income tax, equity, collection, market rates; FAQ JSON-LD matches visible copy (page.test); served llms.txt points at marisstella.app (curl of the live llms.txt, served-copy.mjs: no placeholder origin). Wrong or unbacked: index.html:86 'roughly 7.65 percent of revenue extra in the US' is wrong for anyone above the 2026 $184,500 Social Security base (IRS), i.e. most of the stated audience; the same note says time off comes off '260 working days' though the field is editable; the '1.5x employee daily pay' rule (FAQ, JSON-LD, finding) cites nothing; 'take-home' is used for gross pay (defined once in the limits list). 2.",
+    "fitness": "Walked as a $200k CFO going fractional: in under a minute the page gives a day rate, hourly rate, retainer prices for 2-10 days a month and whether a three-client book covers the target, with the shortfall and concentration flagged. That is the job ('what do I quote'). First-hour gaps: no profit or risk margin above replacement cost, retainers only as days per month (no hours-per-month or days-per-week framing), no saved or downloadable result, payroll tax overstated by ~2.5-3.4% on revenue for this earner (conservative direction). Usable with stated limits: 3.",
+    "domain": "Compared with the standard billable-utilisation (cost-plus) pricing method (target revenue / billable days, with time off and non-billable time removed first) and IRS SE-tax rules (IRS 'Self-employment tax (Social Security and Medicare taxes)' and Topic 751, fetched 2026-11-26). Matches: the utilisation method (147.2 of 260 days, 56.6% billable, within the usual solo-consultant range), treating replaced benefits as a cost, the employer-half framing of the tax change. Departs: payroll tax is a flat share of gross revenue including business costs, rather than 15.3% x 92.35% of net earnings with the Social Security part stopping at the wage base and the employee half netted; no margin; the 1.5x heuristic is uncited. A fractional CFO would accept the rate method and correct the tax line: 2."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Page example day rate, hourly rate and multiple",
+      "method": "hand arithmetic of the standard billable-days method: (240,000+30,000+10,000)/(1-0.0765); (260-30)*(1-0.2)*0.8 sold days; /8 hours; / (200,000/260)",
+      "command": "node scratchpad/frac/se.mjs ('hand' line); node scratchpad/frac/walk.cjs",
+      "expected": "303,194.37 revenue, 147.2 days, 2,059.74/day, 257.47/h, 2.68x",
+      "observed": "rateFor 303,194.37 / 147.2 / 2,059.74 / 257.47; page '$2,060 ($257 an hour) ... $303,194 ... 147 sold days', '2.7x'",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Worked example client mix (4+3+5 days, 10% retainer discount)",
+      "method": "hand: 12 * 2,059.74 * 0.9 per month, *12, *(1-0.0765) - 30,000 - 10,000, vs 240,000",
+      "command": "node scratchpad/frac/se.mjs ('hand mix' vs 'example mix'); walk.cjs mix table",
+      "expected": "22,245.19/month, 266,942.30/yr, 206,521.22 left, 33,478.80 short, 12/15.33 = 78.3% of capacity",
+      "observed": "22,245.19, 266,942.28, 206,521.2, 33,478.8, 78.3%; page $266,942 / $206,521 / short by $33,479",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Extra payroll tax for the example earner ($240k wages replaced)",
+      "method": "IRS 'Self-employment tax' page and Topic 751 (2026): 15.3% on 92.35% of net earnings, 12.4% part only on first $184,500, 0.9% additional Medicare above $200,000; extra = SE tax on (revenue - business costs) minus employee FICA already borne on $240k; solved by bisection",
+      "command": "node scratchpad/frac/se.mjs ('page example' row)",
+      "expected": "extra tax 15,830; revenue 295,829.62; day rate 2,009.71",
+      "observed": "tool extra tax 23,194 (7.65% of revenue); revenue 303,194.37 (+2.49%); day rate 2,059.74",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Extra payroll tax below and well above the wage base",
+      "method": "same IRS rules; $100k salary no benefits/costs, and $300k salary with $40k benefits and $15k costs",
+      "command": "node scratchpad/frac/se.mjs ('below base', 'senior CFO' rows)",
+      "expected": "100k: revenue 107,545.73 (tool close); 300k: revenue 371,914.19, day 2,526.59",
+      "observed": "100k: 108,283.70 (+0.69%); 300k: 384,407.15 (+3.36%), day 2,611.46",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "FTE daily pay divisor",
+      "method": "2,080-hour work year convention (52 weeks x 40 h = 260 days x 8 h)",
+      "command": "node scratchpad/frac/se.mjs ('wd 250' line); rateFor base fteDayPay",
+      "expected": "200,000/260 = 769.23; with 250 working days entered, 800",
+      "observed": "769.23; 800",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Blank or 0% 'share of billable days you expect to sell'",
+      "method": "page walk: clear the field, then type 0, then Calculate",
+      "command": "node scratchpad/frac/walk.cjs ('blank sold', '0% sold')",
+      "expected": "an error or 'No billable days left', not a rate",
+      "observed": "both give $1,648/day over 184 sold days (treated as 100% sold, 20% below the 80% rate)",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "Payroll-tax note 'roughly 7.65 percent of revenue extra in the US' and 'come off 260 working days'",
+      "method": "IRS SE tax page (wage base $184,500 for 2026); the working-days field is editable",
+      "command": "grep -n 'roughly 7.65' ventures/fractional-executive-rate-calculator/index.html",
+      "expected": "7.65% only below the wage base, on 92.35% of net earnings; 'your working days'",
+      "observed": "index.html:86 states 7.65% of revenue flat and a fixed 260 days",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "'A day rate under about 1.5 times a full-time employee's daily pay usually fails to cover them'",
+      "method": "search the subject for a source; recompute the multiple the model itself produces with zero benefits and costs at default utilisation",
+      "command": "grep -n '1.5' ventures/fractional-executive-rate-calculator/*; se.mjs ('defaults only' line)",
+      "expected": "a cited benchmark",
+      "observed": "no source in any file; the model alone yields 1.91x at defaults, so the threshold is an uncited heuristic",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "Nothing uploaded, disclaimer, usage events, served URLs",
+      "method": "page.test.mjs, Playwright request log, served llms.txt",
+      "command": "node scratchpad/frac/walk.cjs; curl https://marisstella.app/fractional-executive-rate-calculator/llms.txt; node platform/pages/served-copy.mjs fractional-executive-rate-calculator",
+      "expected": "no external requests; no-warranty and not-advice text; counters = named events; served links on marisstella.app",
+      "observed": "external requests []; disclaimer true; {rate_calculated:1, example_loaded:1}; live llms.txt links marisstella.app; served-copy: no placeholder origin",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Example, recalculate, bad line, clear, opt-out, LICENSE at 375 px",
+      "method": "Playwright Chromium, viewport 375x800",
+      "command": "node scratchpad/frac/walk.cjs; node scratchpad/frac/wide.cjs",
+      "expected": "each control works, no console errors, no horizontal scroll",
+      "observed": "all controls worked, no errors; scrollWidth 377 vs 375 after the example (client-mix table 2 px wide)",
+      "result": "partial"
+    },
+    {
+      "dimension": "verification",
+      "what": "Test suite",
+      "method": "run in subject dir, glob and README form",
+      "command": "node --test '*.test.mjs'; node --test",
+      "expected": "green",
+      "observed": "tests 25, pass 25, fail 0 (both)",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {"where": "calc.mjs:42", "change": "(takeHome + benefits + costs) / (1 - se) -> (takeHome + benefits) / (1 - se)", "caught": true, "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"},
+    {"where": "calc.mjs:61", "change": "r2(nn(i.salary) / workingDays) : null -> r2(nn(i.salary) / 260) : null", "caught": false, "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"},
+    {"where": "calc.mjs:111", "change": "rate.multiple < 1.5 ? -> rate.multiple < 3 ?", "caught": false, "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"},
+    {"where": "calc.mjs:131", "change": "top.monthly / monthlyRevenue > 0.5 -> top.monthly / monthlyRevenue > 0.8", "caught": false, "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"},
+    {"where": "calc.mjs:48", "change": "nn(i.soldPct) || 100 -> nn(i.soldPct) || 80", "caught": false, "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"},
+    {"where": "calc.mjs:68", "change": "Math.min(nn(discountPct), 90) -> Math.min(nn(discountPct), 5)", "caught": true, "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"},
+    {"where": "calc.mjs:119", "change": "result.capacityUse > 1) -> result.capacityUse > 1.2)", "caught": true, "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"}
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Payroll tax is a flat 7.65% of gross revenue (business costs included), with no Social Security wage base: for the page's own $240k example the extra tax is 23,194 vs 15,830 under IRS SE-tax rules (15.3% on 92.35% of net earnings, 12.4% part capped at $184,500 in 2026, less the employee FICA already borne), so revenue needed and the day rate are 2.5% high ($2,060 vs $2,010) and 3.4% high for a $300k CFO; only below the base is it within 0.7%",
+      "where": "ventures/fractional-executive-rate-calculator/calc.mjs:42",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "A blank or 0 'share of billable days you expect to sell' silently becomes 100% (nn(...) || 100), so clearing the field to retype it prices against 184 instead of 147 days: $1,648 a day instead of $2,060, with no finding",
+      "where": "ventures/fractional-executive-rate-calculator/calc.mjs:48",
+      "category": "input-handling",
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19417"
+    },
+    {
+      "severity": "low",
+      "what": "The payroll-tax note states 'roughly 7.65 percent of revenue extra in the US' (wrong above the $184,500 2026 wage base, where most of the audience sits) and that time off comes off '260 working days' though working days is an editable field",
+      "where": "ventures/fractional-executive-rate-calculator/index.html:86",
+      "category": "overclaim",
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19417"
+    },
+    {
+      "severity": "low",
+      "what": "The '1.5x employee daily pay' rule in the FAQ, FAQ JSON-LD and the low-multiple finding cites no source; at default utilisation with zero benefits and costs the model itself already gives 1.91x",
+      "where": "ventures/fractional-executive-rate-calculator/calc.mjs:111",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Finding thresholds and input fallbacks are untested: FTE day-pay divisor workingDays -> 260, multiple threshold 1.5 -> 3, concentration 0.5 -> 0.8 and sold fallback 100 -> 80 all leave the 25 tests green",
+      "where": "ventures/fractional-executive-rate-calculator/calc.test.mjs:15",
+      "category": "untested-core",
+      "origin": "tests",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19417"
+    },
+    {
+      "severity": "low",
+      "what": "The client-mix table overflows a 375 px viewport by 2 px after the example loads (documentElement.scrollWidth 377), giving a small horizontal scroll on phones",
+      "where": "ventures/fractional-executive-rate-calculator/index.html:110",
+      "category": "code-craft",
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19417"
+    },
+    {
+      "severity": "low",
+      "what": "The rate is break-even replacement cost with no profit or risk margin input, and retainers are priced only as whole days a month (no hours-per-month or days-per-week framing common in fractional engagements)",
+      "where": "ventures/fractional-executive-rate-calculator/calc.mjs:42",
+      "category": "scope-gap",
+      "origin": "spec"
+    }
+  ],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19417"],
+  "verdict": "A small, private, well-behaved fractional-executive pricing page whose arithmetic recomputes exactly (example: 280,000/0.9235 = $303,194 over 147.2 sold days = $2,060 a day; the 4+3+5-day mix at 10% off leaves $206,521, $33,479 short) and whose page works end to end at 375 px with 25 passing tests. It does not meet the bar: correctness, verification, claims and domain are 2. The one tax rule it encodes, a flat 7.65% of revenue, ignores the 2026 $184,500 Social Security wage base its $200k+ audience is above, overstating the extra tax by 46% and the day rate by 2.5-3.4%; a blank sold-share field silently prices at 100% sold (20% low); and 4 of 7 seeded mutants in thresholds and fallbacks survive. Finished (completeness 3); a fractional CFO would use the method after correcting the tax line."
+}

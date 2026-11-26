@@ -1,0 +1,287 @@
+{
+  "date": "2026-11-26",
+  "subject": "ventures/asphalt-sealcoat-bid-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-26-k-30c0",
+  "round": 117,
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a pavement-maintenance contractor / estimator who bids residential and commercial sealcoating, crack fill and restriping, and checks gallons per coat against the sealer manufacturer's technical data sheet, crack-fill material per linear foot, striping time, travel, minimum job charge, and margin-vs-markup math before a price goes out",
+  "scores": {
+    "correctness": 2,
+    "completeness": 2,
+    "verification": 2,
+    "craft": 3,
+    "claims": 1,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Scratchpad recompute.mjs against hand arithmetic and SealMaster technical data sheets (sealmaster.net PMCTS and PMM TDS pages, fetched 2026-11-26). Pass: the shipped 800 sq ft oxidized two-coat driveway, hand-computed 800/90 + 800/120 = 15.556 gal, apply 1600/900 = 1.778 h + oil 4*0.12 + crack 40/80 + setup 0.5 = 3.258 h on site, travel 16/35 = 0.457 h, loaded wage 24*1.32 = 31.68, labor 117.69, materials 89.87, direct 242.56, cost 278.94, price 278.94/0.75 = 371.93; tool identical. Margin vs markup: profit/price = 25.000% at a 25% target (markup 33.3%), correct. FAQ condition figures (good 14.07 gal / $362.27, oxidized 15.56 / $371.93, failing 18.52 / $391.23) all reproduce. Sand 4 lb per gal sits inside SealMaster's 200-400 lb per 100 gal. Fail: (1) SealMaster PMCTS and PMM sheets give one rate for every coat, 70-82 sq ft per gallon of mixed material (0.11-0.13 gal/sq yd); the tool's second coat is 120 sq ft/gal (110-125 by preset), so the default driveway needs 19.51-22.86 gal by spec and the tool orders 15.56 (20-32% short), price 371.93 vs 397.71-419.51 at spec coverage; the second-coat figure cannot be edited in the UI. (2) A surface with coats 0 still bills a full first coat: 8.89 gal and $243.09 (calc.mjs:129), confirmed in Chromium. (3) The vs-a-flat page's hard-lot example ($988.99, cost $741.74) is computed with addOns: [], but the page auto-adds the 0.3 h + $18 handicap stencil whenever stalls > 0, so entering the same lot in the UI shows $1,031.17 / cost $773.37 (Playwright walk.cjs). Arithmetic right, inputs and two outputs wrong: 2.",
+    "completeness": "Walked index.html in Chromium (Playwright, route interception, 375 px, walk.cjs/walk2.cjs): computes on load ($371.93, 15.6 gal, walk-away $278.94); no horizontal scroll on index or the three SEO pages (scrollWidth 375); disclaimer present on all four; proposal prints with scope lines, deposit split and reference, and no cost/wage/margin figures on the customer copy; share link round-trips to a second page; usage tally in localStorage (bid_calculated, proposal_printed), opt-out control present; no console errors, no external requests. Claimed but not working: 'Every coverage figure is editable' (README.md:69) - only first-coat coverage has an input (index.html:367), second coat lives in a hidden data attribute; FAQ 'a chosen add-on kit' - the user cannot choose one, the handicap stencil is silently added when stalls > 0 (index.html:445); vs-bitumio says the tool takes 'waste', there is no waste input. Two of about a dozen claimed features fail: 2.",
+    "verification": "node --test '*.test.mjs' in the subject dir: tests 118, pass 118, fail 0 (0.23 s); plain node --test also passes. Six mutants with platform/ci/quality_mutate.py: margin -> markup caught; primer 0.08 -> 0.1 gal/spot caught; condition multiplier applied to coat 2 caught; one-way travel caught; minimum-hours < -> <= SURVIVED; sand mix-time per-gallon term dropped SURVIVED. Tests feed calculateBid addOns: [] for the striped-lot example (vs-a-flat-per-square-foot-price.test.mjs:54) while the page injects the handicap add-on, so the published figure is pinned against an input the UI never builds; coats 0 untested: 2.",
+    "craft": "Read calc.mjs (249 lines), index.html script (lines 328-806), share.mjs, proposal.mjs, proposal-terms.mjs, usage.mjs and all nine test files. Pure, validated engine with named errors, localStorage guarded, proposal block generated from one source. Defects: second-coat coverage held in row.dataset.secondCover and not reset when the type changes after the first-coat field was edited, so a row labelled Residential driveway keeps the parking lot's 110 sq ft/gal (walk2.cjs: $383.12 / 17.3 gal instead of $371.93 / 15.6); ADD_ON_PRESETS 'sand' (calc.mjs:39) is dead, sand runs through its own flag; sand mix-time constants 0.15 h + 0.01 h/gal are uncommented magic numbers (calc.mjs:168); proposed price 0 reports a 0% margin rather than undefined (calc.mjs:243). Acceptable for the language: 3.",
+    "claims": "Backed: no network (walk saw no external request), disclaimer on every page, no Bitumio price stated (vs-bitumio.test.mjs), not-affiliated line, coverage presets described as ballpark, FAQ condition figures reproduce, served copy (node platform/pages/served-copy.mjs) has no placeholder origin. Unbacked or wrong: every Bitumio feature claim (map measurement, QuickBooks, automated proposals, crack size/waste material calc, 'sold as an ongoing subscription with a free tier', 'well-documented identity') carries no cited source on the page; the test comment says bitumio.com was unreachable and the claims came from a web search; my WebSearch found third-party listings disagreeing on the free tier (GetApp lists a free plan, Software Advice and Krowdbase list only a free trial), and bitumio.com/pricing returned an empty page; vs-bitumio.html:46 says this tool takes 'waste' (it has no such input); README 'Every coverage figure is editable' false; vs-a-flat page's $988.99 is not what the tool shows for that lot ($1,031.17); the same page's FAQ says the easy driveway 'needs one coat' while the example is two coats, and says failing pavement 'drinks nearly twice the first-coat sealer' where the multiplier ratio is 1.2/0.75 = 1.6: 1.",
+    "fitness": "Walked as an estimator pricing the 800 sq ft driveway and a striped 800 sq ft lot: a price, walk-away, per-sq-ft and a printable proposal arrive in under a minute. In the first hour they would hit: no way to enter the second-coat yield from their data sheet, so gallons for two coats come out 20-32% under the manufacturer's rate; no concentrate vs mixed-material distinction or dilution (water %) input, so $/gal and coverage can be on different bases; crack fill is $/ft only, with no width/depth or lb/ft for hot-pour; minimum is hours on site, with no dollar minimum job charge; a hidden stencil add-on they did not ask for appears on any striped lot. Usable as a sketch, not as the number to send: 2.",
+    "domain": "Compared against SealMaster PMCTS/PMM TDS (two coats minimum, 70-82 sq ft/gal mixed per coat, 200-400 lb sand per 100 gal concentrate), FHWA-RD-99-147 crack sealing manual method (material = reservoir width x depth x length x density; hand arithmetic for a 1/2 x 1/2 in reservoir at ~1.1 g/cc gives ~0.12 lb/ft), and standard margin-on-price math. Agrees: margin as share of price, overhead on direct cost, round-trip travel, minimum on-site time, priming oil spots, condition raising first-coat consumption. Departs: second coat modelled thinner (120 vs 70-82 sq ft/gal) against the manufacturer's single rate; sand loaded per gallon of total (mixed) sealer where sheets load per gallon of concentrate; no dilution; crack fill not sized; striping reduced to 0.08 h and $3.50 per stall with no linear-foot layout: 2."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Default 800 sq ft oxidized two-coat driveway: gallons, cost and price",
+      "method": "hand arithmetic from the stated inputs",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/4cc04ee0-2e6a-56a1-b397-fd2b6063e90b/scratchpad/seal/recompute.mjs",
+      "expected": "15.556 gal, cost 278.94, price 371.93",
+      "observed": "15.556 gal, cost 278.94, price 371.93",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Two-coat gallons for 800 sq ft against manufacturer coverage",
+      "method": "SealMaster PMCTS and PMM TDS (sealmaster.net, fetched 2026-11-26): 70-82 sq ft/gal mixed material per coat, same rate each coat",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/4cc04ee0-2e6a-56a1-b397-fd2b6063e90b/scratchpad/seal/recompute.mjs",
+      "expected": "19.51-22.86 gal; price 397.71-419.51",
+      "observed": "15.56 gal; price 371.93 (second coat at 120 sq ft/gal)",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Target margin is margin on price, not markup on cost",
+      "method": "hand arithmetic: profit/price = 25% means price = cost/0.75, markup 33.3%",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/4cc04ee0-2e6a-56a1-b397-fd2b6063e90b/scratchpad/seal/recompute.mjs",
+      "expected": "profit/price 25.000%, markup 33.333%",
+      "observed": "25.000%, 33.333%",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Sand loading per gallon",
+      "method": "SealMaster PMCTS/PMM mix design 200-400 lb sand per 100 gal concentrate (2-4 lb/gal)",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/4cc04ee0-2e6a-56a1-b397-fd2b6063e90b/scratchpad/seal/recompute.mjs",
+      "expected": "2-4 lb per gal of concentrate",
+      "observed": "4.0 lb per gal of total mixed gallons (62.2 lb on 15.56 gal)",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Crack filler material per linear foot",
+      "method": "FHWA-RD-99-147 volume method, hand arithmetic: 0.5 x 0.5 x 12 in = 3 in^3/ft x 16.39 cc x 1.1 g/cc = 54 g = 0.12 lb/ft",
+      "command": "hand arithmetic; grep crackFillerPerFoot calc.mjs",
+      "expected": "material from width/depth or lb/ft input",
+      "observed": "flat $/ft input only (default 0.45), no size model",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "A surface with 0 coats",
+      "method": "hand: 0 coats means 0 gallons",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/4cc04ee0-2e6a-56a1-b397-fd2b6063e90b/scratchpad/seal/walk.cjs",
+      "expected": "0 gal for that surface",
+      "observed": "8.9 gal, $243.09 job price",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "FAQ condition figures (good/oxidized/failing)",
+      "method": "recompute with tool inputs from the FAQ",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/4cc04ee0-2e6a-56a1-b397-fd2b6063e90b/scratchpad/seal/recompute.mjs",
+      "expected": "14.07/$362.27, 15.56/$371.93, 18.52/$391.23",
+      "observed": "14.07/$362.27, 15.56/$371.93, 18.52/$391.23",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "vs-a-flat page hard-lot price matches what the tool shows",
+      "method": "enter the page's lot in the UI",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/4cc04ee0-2e6a-56a1-b397-fd2b6063e90b/scratchpad/seal/walk.cjs",
+      "expected": "$988.99, cost $741.74",
+      "observed": "$1,031.17, cost $773.37 (auto handicap add-on)",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "Bitumio feature and free-tier claims cite a public source",
+      "method": "read vs-bitumio.html for links; WebSearch third-party listings; WebFetch bitumio.com/pricing",
+      "command": "grep -no 'href=\"[^\"]*\"' vs-bitumio.html",
+      "expected": "a cited source per competitor claim",
+      "observed": "no external link; listings disagree on a free tier; vendor pricing page empty",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "README 'Every coverage figure is editable'",
+      "method": "list row inputs in Chromium",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/4cc04ee0-2e6a-56a1-b397-fd2b6063e90b/scratchpad/seal/walk.cjs",
+      "expected": "first- and second-coat inputs",
+      "observed": "s-sqft, s-coats, s-cover only",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "375 px layout, disclaimer, proposal, share, usage on index and SEO pages",
+      "method": "Playwright Chromium walk",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/4cc04ee0-2e6a-56a1-b397-fd2b6063e90b/scratchpad/seal/walk.cjs",
+      "expected": "no horizontal scroll, disclaimer, proposal without costs, share round-trip, usage tally",
+      "observed": "scrollWidth 375 on all four pages, disclaimer present, proposal printed without cost lines, shared link restores price, usage keys stored, no console errors",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "Test suite",
+      "method": "run",
+      "command": "node --test '*.test.mjs'",
+      "expected": "green",
+      "observed": "118 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Served llms.txt/sitemap hosts",
+      "method": "deploy rewrite check",
+      "command": "node platform/pages/served-copy.mjs asphalt-sealcoat-bid-calculator",
+      "expected": "no placeholder origin",
+      "observed": "no placeholder or retired origin",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:188",
+      "change": "price = totalCost / (1 - m) -> totalCost * (1 + m)",
+      "caught": true,
+      "test_cmd": "node --test calc.test.mjs share.test.mjs page.test.mjs proposal.test.mjs proposal-terms.test.mjs usage.test.mjs vs-a-flat-per-square-foot-price.test.mjs vs-bitumio.test.mjs"
+    },
+    {
+      "where": "calc.mjs:171",
+      "change": "rawOnSite < minOnSiteHours -> <=",
+      "caught": false,
+      "test_cmd": "node --test calc.test.mjs share.test.mjs page.test.mjs proposal.test.mjs proposal-terms.test.mjs usage.test.mjs vs-a-flat-per-square-foot-price.test.mjs vs-bitumio.test.mjs"
+    },
+    {
+      "where": "calc.mjs:168",
+      "change": "sandHours 0.15 + totalGallons*0.01 -> 0.15",
+      "caught": false,
+      "test_cmd": "node --test calc.test.mjs share.test.mjs page.test.mjs proposal.test.mjs proposal-terms.test.mjs usage.test.mjs vs-a-flat-per-square-foot-price.test.mjs vs-bitumio.test.mjs"
+    },
+    {
+      "where": "calc.mjs:44",
+      "change": "PRIMER_GALLONS_PER_SPOT 0.08 -> 0.1",
+      "caught": true,
+      "test_cmd": "node --test calc.test.mjs share.test.mjs page.test.mjs proposal.test.mjs proposal-terms.test.mjs usage.test.mjs vs-a-flat-per-square-foot-price.test.mjs vs-bitumio.test.mjs"
+    },
+    {
+      "where": "calc.mjs:130",
+      "change": "second-coat gallons also divided by coverageMult",
+      "caught": true,
+      "test_cmd": "node --test calc.test.mjs share.test.mjs page.test.mjs proposal.test.mjs proposal-terms.test.mjs usage.test.mjs vs-a-flat-per-square-foot-price.test.mjs vs-bitumio.test.mjs"
+    },
+    {
+      "where": "calc.mjs:173",
+      "change": "travel (2*miles)/speed -> miles/speed",
+      "caught": true,
+      "test_cmd": "node --test calc.test.mjs share.test.mjs page.test.mjs proposal.test.mjs proposal-terms.test.mjs usage.test.mjs vs-a-flat-per-square-foot-price.test.mjs vs-bitumio.test.mjs"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Competitor claims about Bitumio (map measurement, QuickBooks, automated proposals, material calc with crack size and waste, 'sold as an ongoing subscription with a free tier', 'well-documented identity') carry no cited public source on the page; third-party listings disagree on the free tier (GetApp: free plan; Software Advice, Krowdbase: free trial only) and the vendor's pricing page could not be read",
+      "where": "ventures/asphalt-sealcoat-bid-calculator/vs-bitumio.html:26",
+      "category": "overclaim",
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19417"
+    },
+    {
+      "severity": "high",
+      "what": "Second-coat coverage is hard-coded at 110-125 sq ft/gal and has no input, against SealMaster's single 70-82 sq ft/gal rate for every coat; two-coat gallons come out 20-32% short (15.56 vs 19.51-22.86 gal on the default driveway) and the contractor cannot correct it",
+      "where": "ventures/asphalt-sealcoat-bid-calculator/calc.mjs:15",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "README says 'Every coverage figure is editable'; only first-coat coverage has an input, second coat is a hidden data attribute",
+      "where": "ventures/asphalt-sealcoat-bid-calculator/README.md:69",
+      "category": "overclaim",
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19417"
+    },
+    {
+      "severity": "medium",
+      "what": "A surface with coats 0 still bills a full first coat of sealer (8.89 gal, job $243.09 in the UI); firstGallons ignores coats",
+      "where": "ventures/asphalt-sealcoat-bid-calculator/calc.mjs:129",
+      "category": "logic-error",
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19417"
+    },
+    {
+      "severity": "medium",
+      "what": "The page silently adds the 0.3 h + $18 handicap stencil add-on to every job with stalls > 0; the user cannot choose or see it, though the FAQ says 'a chosen add-on kit'",
+      "where": "ventures/asphalt-sealcoat-bid-calculator/index.html:445",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "vs-a-flat page publishes $988.99 / cost $741.74 / $1.24 per sq ft / 2.66x for the striped lot, computed with addOns: []; the tool shows $1,031.17 / $773.37 for the same lot because of the auto add-on, and the test pins the copy, not the UI input",
+      "where": "ventures/asphalt-sealcoat-bid-calculator/vs-a-flat-per-square-foot-price.html:97",
+      "category": "tests-check-a-copy",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "vs-bitumio says this calculator takes 'sealer coverage rate and waste'; there is no waste input in calc.mjs or the page",
+      "where": "ventures/asphalt-sealcoat-bid-calculator/vs-bitumio.html:46",
+      "category": "overclaim",
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19417"
+    },
+    {
+      "severity": "medium",
+      "what": "No concentrate vs mixed-material basis or dilution (water %) input: coverage and $/gal can be on different bases, and sand is loaded per gallon of total sealer where manufacturer mix designs load per gallon of concentrate",
+      "where": "ventures/asphalt-sealcoat-bid-calculator/calc.mjs:181",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Second-coat coverage not reset when the surface type changes after the first-coat field was edited: a row labelled Residential driveway keeps the parking lot's 110 sq ft/gal ($383.12 instead of $371.93)",
+      "where": "ventures/asphalt-sealcoat-bid-calculator/index.html:403",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Minimum-hours boundary and the sand mix-time per-gallon term are untested: mutants < -> <= and dropping 0.01 h/gal both survive",
+      "where": "ventures/asphalt-sealcoat-bid-calculator/calc.mjs:171",
+      "category": "untested-core",
+      "origin": "tests",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19417"
+    },
+    {
+      "severity": "low",
+      "what": "vs-a-flat FAQ says the easy driveway 'needs one coat' (the example is two coats) and failing pavement 'drinks nearly twice the first-coat sealer' (multiplier ratio 1.2/0.75 = 1.6)",
+      "where": "ventures/asphalt-sealcoat-bid-calculator/vs-a-flat-per-square-foot-price.html:110",
+      "category": "overclaim",
+      "origin": "claims",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19417"
+    },
+    {
+      "severity": "low",
+      "what": "Crack fill is a flat $/ft with no width/depth or lb/ft, so hot-pour material for wide cracks is not sized; no dollar minimum job charge, only minimum on-site hours",
+      "where": "ventures/asphalt-sealcoat-bid-calculator/calc.mjs:180",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Dead preset: ADD_ON_PRESETS 'sand' is never used (sand runs through its own flag); sand mix-time constants 0.15 h and 0.01 h/gal are uncommented",
+      "where": "ventures/asphalt-sealcoat-bid-calculator/calc.mjs:39",
+      "category": "code-craft",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19417"],
+  "verdict": "The arithmetic is exact: the default driveway reproduces by hand to the cent ($371.93, walk-away $278.94), margin is correctly margin on price, and the page works at 375 px with a clean customer proposal, share link, disclaimer and local usage tally. It does not meet the bar. The second-coat yield is hard-coded 35-40% thinner than SealMaster's published per-coat rate and cannot be edited, so two-coat gallons run 20-32% short; a zero-coat surface still bills a coat; a hidden stencil add-on makes the striped-lot example on the comparison page ($988.99) disagree with the tool ($1,031.17); and the Bitumio page states competitor features and a free tier with no cited source while third-party listings disagree. Two of six seeded mutants survived. Fix the second-coat input and the coats-0 gallons with tests, cite or cut the Bitumio claims, and make the add-on explicit before this is a number a sealcoating estimator would send."
+}
