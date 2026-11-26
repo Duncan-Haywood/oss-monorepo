@@ -29,3 +29,17 @@ run "high_findings_reach_an_encrypted_queue" {
     error_message = "The name matches the reader role's grant in stacks/github-oidc."
   }
 }
+
+# Single-account mode: the same queue and rule; the provider assumes nothing.
+run "single_account" {
+  command = plan
+
+  variables {
+    account_mode = "single"
+  }
+
+  assert {
+    condition     = aws_sqs_queue.findings.name == "security-findings" && var.region == "us-east-2"
+    error_message = "single-account mode plans the same export in the home region"
+  }
+}

@@ -11,5 +11,6 @@ output "kill_switch_function" {
 }
 
 output "freeze_policy_id" {
-  value = aws_organizations_policy.freeze.id
+  description = "The freeze: the SCP id, or in single-account mode the IAM policy ARN (detach it from the roles to resume)."
+  value       = local.single ? aws_iam_policy.freeze[0].arn : aws_organizations_policy.freeze[0].id
 }

@@ -26,6 +26,11 @@ data "terraform_remote_state" "org" {
 locals {
   shared_infra_account_id = data.terraform_remote_state.org.outputs.account_ids["shared-infra"]
   apps_account_id         = data.terraform_remote_state.org.outputs.account_ids["apps"]
+  # One AWS account, no Organization: the read and operate policies go on
+  # the two GitHub roles themselves and no member role is made
+  # (cutover.py reads CUTOVER_SINGLE_ACCOUNT=true and assumes nothing).
+  single_account = var.account_mode == "single"
+  boundary       = try(data.terraform_remote_state.org.outputs.permissions_boundary_arn, null)
   tags = {
     managed-by = "platform/aws/stacks/cutover-access"
     repository = var.github_repository
@@ -42,13 +47,19 @@ provider "aws" {
 provider "aws" {
   alias  = "shared_infra"
   region = var.region
-  assume_role { role_arn = "arn:aws:iam::${local.shared_infra_account_id}:role/${var.member_role_name}" }
+  dynamic "assume_role" {
+    for_each = var.account_mode == "single" ? [] : ["arn:aws:iam::${local.shared_infra_account_id}:role/${var.member_role_name}"]
+    content { role_arn = assume_role.value }
+  }
   default_tags { tags = local.tags }
 }
 
 provider "aws" {
   alias  = "apps"
   region = var.region
-  assume_role { role_arn = "arn:aws:iam::${local.apps_account_id}:role/${var.member_role_name}" }
+  dynamic "assume_role" {
+    for_each = var.account_mode == "single" ? [] : ["arn:aws:iam::${local.apps_account_id}:role/${var.member_role_name}"]
+    content { role_arn = assume_role.value }
+  }
   default_tags { tags = local.tags }
 }

@@ -311,6 +311,22 @@
    "by": "friction_verdicts.json prompt.md allocate.py verdict (this PR)",
    "at": "2026-11-26T06:00:46Z",
    "note": "The stale prompt.md cluster these reports point at is now settled with a verdict."
+  },
+  {
+   "file": "private-monorepo/CLAUDE.md",
+   "match": "pre-?installed",
+   "verdict": "fixed",
+   "by": "private PR 265",
+   "at": "2026-11-26T06:14:23Z",
+   "note": "CLAUDE.md now says a fresh clone has no node_modules and gives the pnpm install line (checked 2026-11-26)."
+  },
+  {
+   "file": "apps/einvoice-site",
+   "match": "biome",
+   "verdict": "fixed",
+   "by": "private PR 264 (root biome ci . clean)",
+   "at": "2026-11-26T06:14:24Z",
+   "note": "biome ci apps/einvoice-site and biome ci . both pass on private main after PR 264 (checked 2026-11-26)."
   }
  ]
 }

@@ -64,7 +64,14 @@ export async function provision({ host, account, tokens, fetchImpl = fetch, log 
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const site = JSON.parse(await fs.readFile(new URL('./site.json', import.meta.url), 'utf8'));
-  let token = normaliseToken(site.token);
+  // A malformed committed token must not stop the deploy (README: "never fails a
+  // deploy"); ignore it and fall back to the API path (quality audit 2026-11-26).
+  let token = '';
+  try {
+    token = normaliseToken(site.token);
+  } catch (err) {
+    console.error(`web analytics: ${err.message}; ignoring the token in site.json.`);
+  }
   if (token) {
     console.error('web analytics: using the token committed in platform/analytics/site.json.');
   } else {

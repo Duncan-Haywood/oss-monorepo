@@ -1,0 +1,232 @@
+{
+  "date": "2026-11-26",
+  "subject": "ventures/gitconfig-include-check",
+  "stratum": "venture",
+  "seed": "2026-11-26-c-40a7",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality round 109, see run record",
+  "status": "audited",
+  "professional": "a senior developer-tooling / git engineer (the person who owns a company's git onboarding and dotfiles); they check first that each includeIf condition matches exactly when git's does (gitdir: with ~, ./, trailing slash and **/ rewriting, gitdir/i:, onbranch: on short names and detached HEAD, hasconfig:remote.*.url: globbing), that include order and last-value-wins give the same winning file as git config --show-origin, that relative include paths resolve from the including file, and that the tool's own --verify can be trusted",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 3,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "Built 26 temp homes and repositories with real git 2.43.0 in the auditor's scratch dir (HOME=<case> GIT_CONFIG_NOSYSTEM=1, cases c1-c26) and compared `git config --show-origin --get user.email` with the engine's effective value via the CLI collector (auditor's probe.mjs calling cli/check.mjs collect()). 26 of 28 runs agree on value and origin file: gitdir:~/work/ (match), gitdir:~/work (no match, flagged), gitdir:~/work/api (no match, flagged as work tree), gitdir/i:~/WORK/ (match), gitdir:~/WORK/ (no match, gitdir-case), include above [user] (personal wins, include-overridden), relative gitdir:work/ at depth 3 (match), relative include chain ~/.gitconfig -> conf/a -> sub/b (resolved from the including file), onbranch:feature/ on feature/login (match), onbranch:refs/heads/main (no match, flagged), onbranch:main and onbranch:** on a detached HEAD (no match), hasconfig https ** glob (match), hasconfig https pattern vs git@ remote (no match, hasconfig-scheme), hasconfig acme/* vs acme/sub/api.git (no match: WM_PATHNAME), remote URL inside a hasconfig include (same fatal), symlinked ~/work at the top folder (match, flagged), gitdir:./proj/ in ~/dot/inc (match), linked worktree (main repo location decides), missing target, GitDir:, $HOME in path, gitdir:~/work/**/api/, quoted value with ';', CRLF with a line continuation, include from .git/config via ../, bad line in an included file (same file and line). One wrong verdict: hasconfig:remote.*.url:https://github.com/acme/ (trailing slash) with remote https://github.com/acme/api.git -> git: me@home (no match); tool: me@acme, directive READ (gitconfig.mjs:603 adds ** after a trailing slash, which git does only for gitdir: and onbranch:). One expected-by-design gap: symlinked ~/work from a subfolder, the pure engine (given typed and real gitdir) reports the work value while git uses the personal one; it flags gitdir-symlink and says so, and the CLI from the subfolder gives the right value. The author's differential test (600 random trees run here) agrees with git. Overruled from 3 to 2 by the session lead: case c12 (hasconfig:remote.*.url:https://github.com/acme/ with origin https://github.com/acme/api.git) was rerun by the lead; git printed file:<H>/.gitconfig me@home while the tool printed me@acme and marked the include READ. That is a wrong answer to the exact question the tool exists to answer (which email git uses), on a pattern its own docs list, so it cannot be outweighed by the 26 agreeing runs.",
+    "completeness": "README feature table checked: every finding kind in the table was produced by at least one of the auditor's cases (gitdir-no-trailing-slash, gitdir-names-work-tree, include-overridden, unknown-condition, gitdir-case, gitdir-symlink, include-target-missing, include-env-var, onbranch-refs-prefix, onbranch-detached, hasconfig-scheme, gitdir-relative, linked-worktree, git-stops) or by the shipped tests. CLI: --verify, --key, --json run; finds .git, real path, branch and include targets itself. Web page served at https://marisstella.app/gitconfig-include-check/ (HTTP 200); guide page present. No stubs or TODOs in gitconfig.mjs. --verify is broken from any subfolder (spurious DIFFERS), a claimed feature that half-works.",
+    "verification": "`node --test '*.test.mjs'` in the subject: 32 pass, 0 fail (2.3 s); cli/check.test.mjs 2 pass. GITCONFIG_DIFF_TRIALS=600 node --test gitconfig.diff.test.mjs: pass (10 s) - a real differential test against git config --list --show-origin --show-scope, which is a strong oracle. Four seeded mutants via quality_mutate.py: gitdir trailing-slash ** removed CAUGHT; include-overridden order check inverted CAUGHT; detached-HEAD onbranch guard removed SURVIVED (wildmatch('**','') is true, so onbranch:** / onbranch:* would match on a detached HEAD; the generator never pairs those with detached HEAD); hasconfig trailing-slash ** removed SURVIVED (which is the correct behaviour: neither direction is tested, which is how the c12 bug shipped). No test covers --verify from a subfolder.",
+    "craft": "Read gitconfig.mjs (888 lines: wildmatch port, a char-by-char parser mirroring git_parse_source, readAll with emit/collect/forbid modes for populate_remote_urls, analysis), cli/check.mjs, usage.mjs, index.html. Clean, pure, no dependencies, comments cite the git function each part mirrors. Defects: cli/check.mjs:124 passes process.cwd() rather than found.top to verify(), and verify() joins git's top-relative 'file:.git/config' origins onto it, so every run below the top folder reports DIFFERS; verify() returns ok=true whenever both git and the engine fail, without comparing file or line (check.mjs:101); a hasconfig fatal thrown inside condition() (gitconfig.mjs:596-600) aborts before the directive is recorded, so the included file then gets a spurious file-never-read finding (seen in case c15). One 888-line module mixing engine and report text is acceptable for a zero-dependency tool.",
+    "claims": "README/llms.txt 'checked against git config --list --show-origin --show-scope on thousands of random config trees': backed by gitconfig.diff.test.mjs (600 trees reproduced here; the 5,000 held-out run was not re-run). 'hasconfig:remote.*.url: against the remote URLs that the hidden first pass collects': backed except for the trailing-slash case, which the generator does not draw. Guide's six failure modes: each reproduced against git 2.43 in cases c1-c22 (trailing slash, include order, GitDir:/space, missing file/$HOME, symlink top vs subfolder, onbranch detached). Limits (Unix paths, no -c / GIT_CONFIG_*, ~user/) stated on README, llms.txt and page. Disclaimer: present on page (index.html:156) and README. Privacy/usage: four local-only counters with an opt-out and DNT/GPC respected (usage.mjs), as the README says. '--verify compares every value with your own git' overstates it: from a subfolder it reports a difference that is not there.",
+    "fitness": "Walked the developer's job: 'why is this work repo committing with my personal email?'. Pasting ~/.gitconfig and the included file, or running the CLI in the repo, gives the winning file and line, the include line that did not apply, and why (no trailing slash, include above [user], miscased condition, symlink), with the fix. That is the job, end to end, faster than reading git-config(1). Gaps a practitioner would hit: a hasconfig pattern ending in '/' is reported as READ when git skips it, exactly the confusion the tool exists to resolve; GIT_CONFIG_GLOBAL and -c (common in CI and some dotfile managers) are not modelled (stated); --verify untrustworthy from a subfolder. It is a demoted free tool, not a front door to a ranked bet.",
+    "domain": "Compared with git-config(1) 'Conditional includes' and observed git 2.43 behaviour: gitdir: rewriting (~/, ./ relative to the including file, **/ for relative patterns, ** after a trailing slash, WM_PATHNAME), gitdir/i:, real-then-typed path (strbuf_add_absolute_path) for symlinks, onbranch: on the short name with a trailing-slash **, false on detached HEAD, hasconfig with the populate_remote_urls pass and the 'remote URLs cannot be configured' fatal, include depth 10, relative include paths, the early system/global read and the .git/config format check all match. One departure: hasconfig:remote.*.url: gets ** appended after a trailing slash; git-config(1) defines the trailing-slash rule for gitdir: and onbranch: only, and git does not apply it to hasconfig. A senior git engineer would sign off with that fixed."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "gitdir:~/work/ (trailing slash), repo ~/work/api",
+      "method": "real git 2.43.0 as oracle (git-config(1) Conditional includes)",
+      "command": "cd $H/work/api && HOME=$H GIT_CONFIG_NOSYSTEM=1 git config --show-origin --get user.email; node probe.mjs $H/work/api $H",
+      "expected": "file:~/.gitconfig-work me@work",
+      "observed": "tool: me@work from ~/.gitconfig-work:2",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "gitdir:~/work (no slash) and gitdir:~/work/api (work tree), repo ~/work/api",
+      "method": "real git 2.43.0 as oracle",
+      "command": "git config --show-origin --get user.email (cases c2, c3)",
+      "expected": "file:~/.gitconfig me@home for both",
+      "observed": "tool: me@home for both, with gitdir-no-trailing-slash and gitdir-names-work-tree",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "gitdir/i:~/WORK/ matches; gitdir:~/WORK/ does not",
+      "method": "real git 2.43.0 as oracle",
+      "command": "git config --show-origin --get user.email (cases c4, c5)",
+      "expected": "me@work / me@home",
+      "observed": "me@work / me@home (gitdir-case on c5)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "[includeIf] above [user]: the personal value wins",
+      "method": "real git 2.43.0 as oracle (last value wins)",
+      "command": "git config --show-origin --get user.email (case c6)",
+      "expected": "file:~/.gitconfig me@home",
+      "observed": "me@home from ~/.gitconfig:4, include-overridden finding",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "relative include chain ~/.gitconfig -> conf/a -> sub/b, and ../local.inc from .git/config",
+      "method": "real git 2.43.0 as oracle (paths relative to the including file)",
+      "command": "git config --show-origin --get user.email (cases c8, c24)",
+      "expected": "~/conf/sub/b me@nested; .git/../local.inc me@local",
+      "observed": "~/conf/sub/b:2 me@nested; ~/r/.git/../local.inc:2 me@local",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "onbranch:feature/ on feature/login; onbranch:refs/heads/main; onbranch:main and onbranch:** on detached HEAD",
+      "method": "real git 2.43.0 as oracle",
+      "command": "git config --show-origin --get user.email (cases c9, c10, c17)",
+      "expected": "me@feat; me@home; me@home; me@home",
+      "observed": "me@feat; me@home (onbranch-refs-prefix); me@home (onbranch-detached); me@home",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "hasconfig:remote.*.url:https://github.com/acme/** (match), https pattern vs git@ remote (no), git@github.com:acme/* vs acme/sub/api.git (no), remote url inside the hasconfig include (fatal)",
+      "method": "real git 2.43.0 as oracle",
+      "command": "git config --show-origin --get user.email (cases c11, c13, c14, c15)",
+      "expected": "me@acme; me@home; me@home; fatal: remote URLs cannot be configured in file directly or indirectly included by includeIf.hasconfig:remote.*.url",
+      "observed": "same four verdicts (c15 also emits a spurious file-never-read for the included file)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "hasconfig:remote.*.url:https://github.com/acme/ (trailing slash), remote https://github.com/acme/api.git",
+      "method": "real git 2.43.0 as oracle; git-config(1) gives the trailing-slash ** rule for gitdir: and onbranch: only",
+      "command": "cd $H/r && HOME=$H GIT_CONFIG_NOSYSTEM=1 git config --show-origin --get user.email; node cli/check.mjs --key user.email",
+      "expected": "file:~/.gitconfig me@home (include not read)",
+      "observed": "tool: me@acme from ~/.gitconfig-acme:2, directive READ",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "symlink ~/work -> ~/real/work: top folder vs subfolder",
+      "method": "real git 2.43.0 as oracle (cd through the link)",
+      "command": "git config --show-origin --get user.email in work/api and work/api/sub (case c16)",
+      "expected": "me@work at top, me@home in sub",
+      "observed": "engine with typed+real gitdir: me@work plus gitdir-symlink warning in both; CLI from sub: me@home",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "parser edge cases: quoted value with ';' and trailing comment, CRLF with a backslash line continuation, '[bad' line in an included file",
+      "method": "real git 2.43.0 as oracle",
+      "command": "git config --show-origin --get user.email (cases c23, c25, c26)",
+      "expected": "'me@work ; x'; me@work; fatal: bad config line 3 in file ~/.gitconfig-work",
+      "observed": "same, including the fatal file and line",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "shipped suites and the differential test",
+      "method": "run",
+      "command": "node --test '*.test.mjs'; node --test cli/check.test.mjs; GITCONFIG_DIFF_TRIALS=600 node --test gitconfig.diff.test.mjs",
+      "expected": "all pass",
+      "observed": "32 pass; 2 pass; 600-tree differential pass in 10 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "CLI --verify from a subfolder of a plain (no symlink) repository",
+      "method": "run in case c1 work/api and work/api/sub",
+      "command": "cd $H/work/api/sub && HOME=$H GIT_CONFIG_NOSYSTEM=1 node cli/check.mjs --verify",
+      "expected": "matches git (7 values), as at the top folder",
+      "observed": "top: 'matches git (7 values)'; sub: 'DIFFERS from git' with local entries attributed to ~/work/api/sub/.git/config",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "disclaimer, usage tracking and privacy claim",
+      "method": "read index.html, usage.mjs, README",
+      "command": "grep -n 'No warranty\\|optout\\|usage.mjs' index.html; sed -n 1,40p usage.mjs",
+      "expected": "disclaimer on the page; anonymous counting with opt-out; nothing uploaded",
+      "observed": "index.html:156 disclaimer with the verify-with-git advice; local-only counters, opt-out button, DNT/GPC honoured",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "served page and llms.txt URLs",
+      "method": "load the served page",
+      "command": "curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/gitconfig-include-check/",
+      "expected": "200",
+      "observed": "200",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "guide 'Six ways includeIf fails' each reproduced against git 2.43",
+      "method": "real git cases c1-c22",
+      "command": "./run.sh c2 / c6 / c21 / c20 / c22 / c16 / c17",
+      "expected": "each failure mode behaves as the guide says",
+      "observed": "all six as described, including the symlink top-folder vs subfolder split",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "ventures/gitconfig-include-check/gitconfig.mjs:365",
+      "change": "if (pat.endsWith(\"/\")) { pat += \"**\"; ... } -> if (false) { ... }  (gitdir trailing-slash rule)",
+      "caught": true,
+      "test_cmd": "node --test gitconfig.test.mjs gitconfig.diff.test.mjs page.test.mjs usage.test.mjs"
+    },
+    {
+      "where": "ventures/gitconfig-include-check/gitconfig.mjs:588",
+      "change": "if (!ctx.branch) return { matched: false, ... } -> if (false) ...  (detached-HEAD onbranch guard)",
+      "caught": false,
+      "test_cmd": "node --test gitconfig.test.mjs gitconfig.diff.test.mjs page.test.mjs usage.test.mjs"
+    },
+    {
+      "where": "ventures/gitconfig-include-check/gitconfig.mjs:791",
+      "change": "if (win.index < e.index) continue; -> if (win.index > e.index) continue;  (include-overridden order)",
+      "caught": true,
+      "test_cmd": "node --test gitconfig.test.mjs gitconfig.diff.test.mjs page.test.mjs usage.test.mjs"
+    },
+    {
+      "where": "ventures/gitconfig-include-check/gitconfig.mjs:603",
+      "change": "removed `if (pat.endsWith(\"/\")) pat += \"**\";` from the hasconfig branch",
+      "caught": false,
+      "test_cmd": "node --test gitconfig.test.mjs gitconfig.diff.test.mjs page.test.mjs usage.test.mjs"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "hasconfig:remote.*.url: patterns ending in '/' get ** appended, so [includeIf \"hasconfig:remote.*.url:https://github.com/acme/\"] is reported READ (user.email = the included value) for remote https://github.com/acme/api.git, while git 2.43 does not include it and keeps the personal address. The trailing-slash rule is git's for gitdir: and onbranch: only.",
+      "where": "ventures/gitconfig-include-check/gitconfig.mjs:603",
+      "category": "domain-rule",
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19247"
+    },
+    {
+      "severity": "medium",
+      "what": "cli --verify reports 'DIFFERS from git' whenever it is run below the repository's top folder: check.mjs:124 passes process.cwd() instead of found.top, and verify() joins git's top-relative 'file:.git/config' origins onto it.",
+      "where": "ventures/gitconfig-include-check/cli/check.mjs:124",
+      "category": "logic-error",
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19247"
+    },
+    {
+      "severity": "low",
+      "what": "The differential generator never draws a hasconfig pattern with a trailing slash, nor onbranch:** / onbranch:* with a detached HEAD: removing the detached-HEAD guard (where wildmatch('**','') is true) and removing the hasconfig ** rule both leave every test green.",
+      "where": "ventures/gitconfig-include-check/gitconfig.diff.test.mjs:38",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "verify() treats any non-zero git exit as agreement when the engine also has a fatal, without comparing the file and line git names.",
+      "where": "ventures/gitconfig-include-check/cli/check.mjs:101",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "When a hasconfig include contains a remote URL, the fatal is thrown inside condition() before the directive is recorded, so the included file also gets a misleading 'No include reaches this file' (file-never-read) finding.",
+      "where": "ventures/gitconfig-include-check/gitconfig.mjs:600",
+      "category": "logic-error",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19247"],
+  "verdict": "[Lead overrule: correctness 3 -> 2, so the subject does not meet the bar.] Meets the bar (correctness 3, claims 3, verification 3, median 3); finished (completeness 3). Against real git 2.43 in 26 hand-built homes (trailing slash, work-tree name, gitdir/i:, include order, relative gitdir and include paths, ./ patterns, onbranch incl. detached HEAD, hasconfig globs and its fatal, symlinks, linked worktrees, parser edge cases) the engine names the same winning value and file in all but one case, and the author's differential test against git config --list --show-origin passes on 600 random trees. The worst defect is high but narrow: a hasconfig:remote.*.url: pattern ending in '/' is treated as matching everything below it, which git does not do, so the tool says READ where git skips the include (gitconfig.mjs:603). Next: the CLI's --verify cries 'DIFFERS' from any subfolder (check.mjs:124). Two of four seeded mutants survive, both in edge paths the generator never draws."
+}

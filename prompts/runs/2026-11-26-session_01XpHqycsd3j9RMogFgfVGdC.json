@@ -1,0 +1,362 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqycsd3j9RMogFgfVGdC",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T06:39:04Z",
+  "ended": "2026-11-26T06:39:47Z",
+  "wall_minutes": 10.58,
+  "tokens_in": 4220242,
+  "tokens_out": 20348,
+  "cost_usd": 1.9169,
+  "tool_calls": 49,
+  "task": "redteam campaign on einvoice-preflight repair-cii.mjs and mexico.mjs; hunt real bugs in the repair path",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19258",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam.py",
+      "issue": "targets --under ventures/wall-framing-takeoff --probe 20 spent ~60 s probing 69 files that all share one >20 s suite; a per-suite probe cache would answer in one run."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "docs/posts",
+      "why": "CLAUDE.md prefers consolidated posts",
+      "did": "extended the existing 2026-11-14 repair post with a dated update instead of a new post",
+      "result": "one post covers both repair red-team runs"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-the-repair-button-that-broke-valid-invoices.md (extended)"
+  ],
+  "goal": null,
+  "notes": "Guard added: ventures/einvoice-preflight/repair-fuzz.test.mjs (decimal comma in each of 1,009 XML numeric fields + every JSON number; must not throw TypeError/RangeError or write NaN). On its first run against the old code it found 6 crashing example files (cii-invoice.xml + 5 ZATCA). Verification: python3 platform/ci/run_venture_tests.py einvoice-preflight -> ok, 2813 tests, 0 failed. 0 open defects at step 0 (1 blocked, skipped).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/einvoice-preflight/repair-cii.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 87758916,
+        "commit": "a3265f193",
+        "sites": 242,
+        "baseline_seconds": 10.7,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/repair-cii.mjs",
+            "line": 23,
+            "col": 26,
+            "operator": "and-to-or",
+            "before": "const rate = pct ?? (id && /^[EZO]$/.test(id) ? 0 : null);",
+            "after": "const rate = pct ?? (id || /^[EZO]$/.test(id) ? 0 : null);",
+            "line_text": "  const rate = pct ?? (id && /^[EZO]$/.test(id) ? 0 : null);",
+            "caught": false,
+            "seconds": 10.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Gap: S with no rate on lines and header was read as 0% and tax recomputed. Test 'a standard-rated (S) group with no rate...'."
+          },
+          {
+            "file": "ventures/einvoice-preflight/repair-cii.mjs",
+            "line": 41,
+            "col": 19,
+            "operator": "false-to-true",
+            "before": "if (!c) return false;",
+            "after": "if (!c) return true;",
+            "line_text": "    if (!c) return false;",
+            "caught": false,
+            "seconds": 11.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Gap: edit() reporting success on a missing child hid the 'AllowanceTotalAmount is missing' notice. Test 'a missing AllowanceTotalAmount...'."
+          },
+          {
+            "file": "ventures/einvoice-preflight/repair-cii.mjs",
+            "line": 42,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "const old = b[3].slice(c.start, c.end);",
+            "after": "const old = b[4].slice(c.start, c.end);",
+            "line_text": "    const old = b[3].slice(c.start, c.end);",
+            "caught": true,
+            "seconds": 11.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/repair-cii.mjs",
+            "line": 74,
+            "col": 72,
+            "operator": "const-plus-one",
+            "before": "const base = num(firstChild(priceBlock, \"BasisQuantity\")?.value) ?? 1;",
+            "after": "const base = num(firstChild(priceBlock, \"BasisQuantity\")?.value) ?? 2;",
+            "line_text": "    const base = num(firstChild(priceBlock, \"BasisQuantity\")?.value) ?? 1;",
+            "caught": true,
+            "seconds": 11.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/repair-cii.mjs",
+            "line": 173,
+            "col": 106,
+            "operator": "const-plus-one",
+            "before": "if (marks[0] === invoiceCurrency && marks[1] === invoiceCurrency) { taxAt = 0; accounting = { at: 1, same: true }; }",
+            "after": "if (marks[0] === invoiceCurrency && marks[1] === invoiceCurrency) { taxAt = 0; accounting = { at: 2, same: true }; }",
+            "line_text": "        if (marks[0] === invoiceCurrency && marks[1] === invoiceCurrency) { taxAt = 0; accounting = { at: 1, same: true }; }",
+            "caught": false,
+            "seconds": 11.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Gap: no test had two TaxTotalAmount in the same currency; BT-111 was left stale. Test 'BT-111 in the same currency as BT-110 is repaired with it'."
+          },
+          {
+            "file": "ventures/einvoice-preflight/repair-cii.mjs",
+            "line": 220,
+            "col": 34,
+            "operator": "plus-to-minus",
+            "before": "xml = xml.slice(0, abs) + inner + xml.slice(abs + cur[3].length);",
+            "after": "xml = xml.slice(0, abs) - inner + xml.slice(abs + cur[3].length);",
+            "line_text": "          xml = xml.slice(0, abs) + inner + xml.slice(abs + cur[3].length);",
+            "caught": true,
+            "seconds": 11.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/repair-cii.mjs",
+            "line": 237,
+            "col": 85,
+            "operator": "const-plus-one",
+            "before": "const at = b.index + b[0].indexOf(\">\") + 1 + m.index + m[0].indexOf(\">\") + 1;",
+            "after": "const at = b.index + b[0].indexOf(\">\") + 1 + m.index + m[0].indexOf(\">\") + 2;",
+            "line_text": "          const at = b.index + b[0].indexOf(\">\") + 1 + m.index + m[0].indexOf(\">\") + 1;",
+            "caught": true,
+            "seconds": 12.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/repair-cii.mjs",
+            "line": 239,
+            "col": 26,
+            "operator": "const-plus-one",
+            "before": "xml = xml.slice(0, at) + value + xml.slice(at + m[3].length);",
+            "after": "xml = xml.slice(1, at) + value + xml.slice(at + m[3].length);",
+            "line_text": "          xml = xml.slice(0, at) + value + xml.slice(at + m[3].length);",
+            "caught": true,
+            "seconds": 12.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/einvoice-preflight/mexico.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 661917263,
+        "commit": "a3265f193",
+        "sites": 77,
+        "baseline_seconds": 11.0,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/mexico.mjs",
+            "line": 15,
+            "col": 35,
+            "operator": "eq-flip",
+            "before": "const s = rfcWithoutDigit.length === 11 ? \" \" + rfcWithoutDigit : rfcWithoutDigit;",
+            "after": "const s = rfcWithoutDigit.length !== 11 ? \" \" + rfcWithoutDigit : rfcWithoutDigit;",
+            "line_text": "  const s = rfcWithoutDigit.length === 11 ? \" \" + rfcWithoutDigit : rfcWithoutDigit;",
+            "caught": true,
+            "seconds": 10.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/mexico.mjs",
+            "line": 23,
+            "col": 19,
+            "operator": "gt-to-ge",
+            "before": "if (mm < 1 || mm > 12 || dd < 1) return false;",
+            "after": "if (mm < 1 || mm >= 12 || dd < 1) return false;",
+            "line_text": "  if (mm < 1 || mm > 12 || dd < 1) return false;",
+            "caught": true,
+            "seconds": 11.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/mexico.mjs",
+            "line": 34,
+            "col": 35,
+            "operator": "true-to-false",
+            "before": "if (GENERIC.has(s)) return { ok: true, rfc: s, kind: \"generic\", problems: [] };",
+            "after": "if (GENERIC.has(s)) return { ok: false, rfc: s, kind: \"generic\", problems: [] };",
+            "line_text": "  if (GENERIC.has(s)) return { ok: true, rfc: s, kind: \"generic\", problems: [] };",
+            "caught": true,
+            "seconds": 10.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/mexico.mjs",
+            "line": 35,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "if (s.length !== 12 && s.length !== 13) {",
+            "after": "if (s.length !== 13 && s.length !== 13) {",
+            "line_text": "  if (s.length !== 12 && s.length !== 13) {",
+            "caught": true,
+            "seconds": 10.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/mexico.mjs",
+            "line": 38,
+            "col": 27,
+            "operator": "minus-to-plus",
+            "before": "const letters = s.length - 9;",
+            "after": "const letters = s.length + 9;",
+            "line_text": "  const letters = s.length - 9;",
+            "caught": true,
+            "seconds": 10.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/mexico.mjs",
+            "line": 47,
+            "col": 17,
+            "operator": "false-to-true",
+            "before": "return { ok: false, rfc: s, kind: s.length === 12 ? \"company\" : \"person\", problems: [`The check digit should be ${want}, not ${s.at(-1)}: a character in this RFC is probably mistyped.`] };",
+            "after": "return { ok: true, rfc: s, kind: s.length === 12 ? \"company\" : \"person\", problems: [`The check digit should be ${want}, not ${s.at(-1)}: a character in this RFC is probably mistyped.`] };",
+            "line_text": "    return { ok: false, rfc: s, kind: s.length === 12 ? \"company\" : \"person\", problems: [`The check digit should be ${want}, not ${s.at(-1)}: a character in this RFC is probably mistyped.`] };",
+            "caught": true,
+            "seconds": 10.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/einvoice-preflight/repair-cii.mjs",
+        "issue": "A decimal comma ('1,5', '120,00') in BilledQuantity, ChargeAmount, a kept LineTotalAmount or TotalPrepaidAmount became NaN and crashed repairCii with a TypeError in fmt (shown on the page as 'could not read this XML'); a kept NaN line total would have written NaN.",
+        "patched": true
+      },
+      {
+        "file": "ventures/einvoice-preflight/repair-ubl.mjs",
+        "issue": "Same class on the ZATCA path: a decimal comma in a line TaxTotal's TaxAmount or a prepayment TaxableAmount/Percent crashed repairUbl with a TypeError (5 example files).",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1a6dbed2-af87-5335-9e4e-c6ed07db1552",
+    "transcripts": 1,
+    "first": "2026-11-26T06:39:04Z",
+    "last": "2026-11-26T06:49:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 90,
+        "output": 20348,
+        "thinking": 3543,
+        "cache_read": 4134826,
+        "cache_write_5m": 0,
+        "cache_write_1h": 85326,
+        "api_equivalent_usd": 1.9169,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 90,
+      "output": 20348,
+      "thinking": 3543,
+      "cache_read": 4134826,
+      "cache_write_5m": 0,
+      "cache_write_1h": 85326,
+      "api_equivalent_usd": 1.9169,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 47,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.58,
+      "active_minutes": 10.58,
+      "model_minutes": 4.32,
+      "tool_minutes": 6.26,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: mutation triage, 5 tests, fuzz guard, two fixes, post update",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 208.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

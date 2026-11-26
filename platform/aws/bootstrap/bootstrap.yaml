@@ -4,11 +4,22 @@ AWSTemplateFormatVersion: "2010-09-09"
 # OpenTofu applied from GitHub Actions with short-lived OIDC credentials.
 #
 # Run it from AWS CloudShell (signed in as the account's first admin user or
-# root, us-east-1):
+# root, in the home region, us-east-2: the state bucket is named after it and
+# every stack reads it there):
 #
 #   curl -fsSLO https://raw.githubusercontent.com/Duncan-Haywood/oss-monorepo/main/platform/aws/bootstrap/bootstrap.yaml
 #   aws cloudformation deploy --stack-name github-bootstrap \
-#     --template-file bootstrap.yaml --capabilities CAPABILITY_NAMED_IAM
+#     --template-file bootstrap.yaml --capabilities CAPABILITY_NAMED_IAM \
+#     --parameter-overrides AccountMode=organization   # or single
+#
+# AccountMode (docs/runbooks/cutover-run-day.md, step 0, says how to tell):
+#   organization  the account can run AWS Organizations: SCPs (stacks/org)
+#                 guard the member accounts.
+#   single        it cannot (for example an account made through AWS's
+#                 project-based sign-up): no SCPs exist, so github-apply also
+#                 carries the denies the SCPs would have made (the
+#                 Single* statements below), and stacks/org puts a
+#                 permissions boundary on every role the stacks create.
 #   aws cloudformation describe-stacks --stack-name github-bootstrap \
 #     --query 'Stacks[0].Outputs' --output table
 #
@@ -30,6 +41,15 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: GitHub OIDC trust, OpenTofu state and the two CI roles (platform/aws/bootstrap)
 
 Parameters:
+  AccountMode:
+    Type: String
+    Default: organization
+    AllowedValues: [organization, single]
+    Description: organization (AWS Organizations available) or single (one account, no Organization); set the same value as the repository variable AWS_ACCOUNT_MODE
+  AllowedRegions:
+    Type: CommaDelimitedList
+    Default: us-east-2,us-east-1
+    Description: single mode only, regions github-apply may call regional services in (stacks/org allowed_regions; us-east-1 is for CloudFront's certificate and WAF)
   GitHubRepository:
     Type: String
     Default: Duncan-Haywood/oss-monorepo
@@ -45,6 +65,9 @@ Parameters:
     Default: 365
     MinValue: 30
     Description: days to keep non-current state versions
+
+Conditions:
+  SingleAccount: !Equals [!Ref AccountMode, single]
 
 Resources:
   GitHubOidcProvider:
@@ -328,15 +351,133 @@ Resources:
                   - route53domains:TransferDomain
                   - support:CreateCase
                 Resource: "*"
-              - Sid: NoLongLivedKeysInManagement
-                Effect: Deny
-                Action:
-                  - iam:CreateAccessKey
-                  - iam:CreateLoginProfile
-                  - iam:CreateUser
-                Resource: "*"
+              - !If
+                - SingleAccount
+                # One account: the transitional Worker user
+                # (stacks/app-identity) is made here, where stacks/org's SCP
+                # exempted OrganizationAccountAccessRole in a member account.
+                # Users only under /transitional/; keys and passwords never
+                # (the rotator role, not github-apply, mints the key).
+                - Sid: NoLongLivedKeysInManagement
+                  Effect: Deny
+                  Action:
+                    - iam:CreateAccessKey
+                    - iam:CreateLoginProfile
+                    - iam:CreateUser
+                  NotResource: !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:user/transitional/*
+                - Sid: NoLongLivedKeysInManagement
+                  Effect: Deny
+                  Action:
+                    - iam:CreateAccessKey
+                    - iam:CreateLoginProfile
+                    - iam:CreateUser
+                  Resource: "*"
+              - !If
+                - SingleAccount
+                - Sid: SingleNoKeysOrPasswordsEvenTransitional
+                  Effect: Deny
+                  Action:
+                    - iam:CreateAccessKey
+                    - iam:CreateLoginProfile
+                    - iam:UpdateLoginProfile
+                  Resource: "*"
+                - !Ref AWS::NoValue
+              # Single mode: stacks/org/scps.tf "KeepAuditAndDetection", less
+              # the calls github-apply makes to set them up (UpdateTrail,
+              # PutEventSelectors, PutAccountPublicAccessBlock): it may build
+              # and tighten audit and detection, never stop or remove them.
+              - !If
+                - SingleAccount
+                - Sid: SingleKeepAuditAndDetection
+                  Effect: Deny
+                  Action:
+                    - cloudtrail:DeleteTrail
+                    - cloudtrail:StopLogging
+                    - guardduty:DeleteDetector
+                    - guardduty:DisassociateFromAdministratorAccount
+                    - guardduty:DisassociateFromMasterAccount
+                    - guardduty:StopMonitoringMembers
+                    - config:DeleteConfigurationRecorder
+                    - config:DeleteDeliveryChannel
+                    - config:StopConfigurationRecorder
+                    - securityhub:DisableSecurityHub
+                    - securityhub:DisassociateFromAdministratorAccount
+                    - access-analyzer:DeleteAnalyzer
+                    - ec2:DisableEbsEncryptionByDefault
+                  Resource: "*"
+                - !Ref AWS::NoValue
+              # Single mode: stacks/org/scps.tf "DenyUnapprovedRegions", the
+              # same global-service list (keep the two in step).
+              - !If
+                - SingleAccount
+                - Sid: SingleDenyUnapprovedRegions
+                  Effect: Deny
+                  NotAction:
+                    - a4b:*
+                    - access-analyzer:*
+                    - account:*
+                    - acm:*
+                    - aws-marketplace-management:*
+                    - aws-marketplace:*
+                    - aws-portal:*
+                    - billing:*
+                    - budgets:*
+                    - ce:*
+                    - cloudfront:*
+                    - config:*
+                    - cur:*
+                    - directconnect:*
+                    - ec2:DescribeRegions
+                    - ec2:DescribeTransitGateways
+                    - ec2:DescribeVpnGateways
+                    - fms:*
+                    - globalaccelerator:*
+                    - health:*
+                    - iam:*
+                    - importexport:*
+                    - kms:*
+                    - networkmanager:*
+                    - organizations:*
+                    - payments:*
+                    - pricing:*
+                    - route53:*
+                    - route53domains:*
+                    - s3:GetAccountPublic*
+                    - s3:ListAllMyBuckets
+                    - s3:ListMultiRegionAccessPoints
+                    - s3:PutAccountPublic*
+                    - shield:*
+                    - sso:*
+                    - sts:*
+                    - support:*
+                    - tax:*
+                    - trustedadvisor:*
+                    - waf-regional:*
+                    - waf:*
+                    - wafv2:*
+                    - wellarchitected:*
+                  Resource: "*"
+                  Condition:
+                    StringNotEquals:
+                      aws:RequestedRegion: !Ref AllowedRegions
+                - !Ref AWS::NoValue
+              # Single mode: the rest of stacks/org/scps.tf "NoCommitments"
+              # (OwnerOnlyMoneyAndExits above has the others).
+              - !If
+                - SingleAccount
+                - Sid: SingleNoCommitments
+                  Effect: Deny
+                  Action:
+                    - ec2:PurchaseHostReservation
+                    - elasticache:PurchaseReservedCacheNodesOffering
+                    - shield:CreateSubscription
+                  Resource: "*"
+                - !Ref AWS::NoValue
 
 Outputs:
+  AccountMode:
+    Value: !Ref AccountMode
+    Description: set this as the GitHub repository variable AWS_ACCOUNT_MODE
   AccountId:
     Value: !Ref AWS::AccountId
     Description: set this as the GitHub repository variable AWS_ACCOUNT_ID

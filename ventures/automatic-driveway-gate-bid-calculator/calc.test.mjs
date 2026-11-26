@@ -309,3 +309,18 @@ test('slide is a track and one operator, not a pair of swing leaves', () => {
   assert.ok(slide.hoursOperators > 0);
   assert.ok(slide.gateMaterial > 0);
 });
+
+// Quality audit 2026-11-26 (round 110): dropping columnMaterial from extraCost
+// left every test green, and that share backs the how-much page's "almost half
+// of that dual bid's cost" line. The share is of cost, not of the bid price.
+test('dual masonry preset: extra work is 45.4% of cost, the figure the guide quotes', () => {
+  const p = JOB_PRESETS[1];
+  const b = calculateBid({
+    hourlyWage: 42, burdenRate: 32, travelAndEquipment: 285, overheadRate: 16, targetMargin: 28, permitFee: 125,
+    ...p, ...suggestedStyleKit(p.style), ...suggestedColumnKit(p.columnType), ...suggestedPowerKit(p.power),
+  });
+  assert.equal(b.price.toFixed(2), '20439.88');
+  assert.equal(b.extraCost.toFixed(2), '6682.84');
+  assert.ok(Math.abs(b.shares.extra - 45.41) < 0.01, `extra share ${b.shares.extra}`);
+  assert.ok(b.extraCost / b.price < 0.5 && b.extraCost / b.totalCost > 0.45);
+});

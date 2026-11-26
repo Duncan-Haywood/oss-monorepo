@@ -4,7 +4,7 @@
 mock_provider "aws" {
   alias = "security"
   mock_resource "aws_kms_key" {
-    defaults = { arn = "arn:aws:kms:us-east-1:111111111111:key/11111111-2222-3333-4444-555555555555", key_id = "11111111-2222-3333-4444-555555555555" }
+    defaults = { arn = "arn:aws:kms:us-east-2:111111111111:key/11111111-2222-3333-4444-555555555555", key_id = "11111111-2222-3333-4444-555555555555" }
   }
   mock_resource "aws_iam_role" {
     defaults = { arn = "arn:aws:iam::111111111111:role/mock-role" }
@@ -26,7 +26,7 @@ mock_provider "aws" {
 mock_provider "aws" {
   alias = "shared_infra"
   mock_resource "aws_kms_key" {
-    defaults = { arn = "arn:aws:kms:us-east-1:111111111111:key/11111111-2222-3333-4444-555555555555", key_id = "11111111-2222-3333-4444-555555555555" }
+    defaults = { arn = "arn:aws:kms:us-east-2:111111111111:key/11111111-2222-3333-4444-555555555555", key_id = "11111111-2222-3333-4444-555555555555" }
   }
   mock_resource "aws_iam_role" {
     defaults = { arn = "arn:aws:iam::111111111111:role/mock-role" }
@@ -48,7 +48,7 @@ mock_provider "aws" {
 mock_provider "aws" {
   alias = "apps"
   mock_resource "aws_kms_key" {
-    defaults = { arn = "arn:aws:kms:us-east-1:111111111111:key/11111111-2222-3333-4444-555555555555", key_id = "11111111-2222-3333-4444-555555555555" }
+    defaults = { arn = "arn:aws:kms:us-east-2:111111111111:key/11111111-2222-3333-4444-555555555555", key_id = "11111111-2222-3333-4444-555555555555" }
   }
   mock_resource "aws_iam_role" {
     defaults = { arn = "arn:aws:iam::111111111111:role/mock-role" }
@@ -66,11 +66,15 @@ mock_provider "aws" {
     target = module.apps.data.aws_caller_identity.current
     values = { account_id = "555555555555" }
   }
+  override_data {
+    target = module.single[0].data.aws_caller_identity.current
+    values = { account_id = "555555555555" }
+  }
 }
 mock_provider "aws" {
   alias = "payments"
   mock_resource "aws_kms_key" {
-    defaults = { arn = "arn:aws:kms:us-east-1:111111111111:key/11111111-2222-3333-4444-555555555555", key_id = "11111111-2222-3333-4444-555555555555" }
+    defaults = { arn = "arn:aws:kms:us-east-2:111111111111:key/11111111-2222-3333-4444-555555555555", key_id = "11111111-2222-3333-4444-555555555555" }
   }
   mock_resource "aws_iam_role" {
     defaults = { arn = "arn:aws:iam::111111111111:role/mock-role" }
@@ -142,7 +146,7 @@ run "payments_is_private_repo_only" {
   }
 
   assert {
-    condition     = output.state_buckets["payments"] == "666666666666-tofu-state-us-east-1"
+    condition     = output.state_buckets["payments"] == "666666666666-tofu-state-us-east-2"
     error_message = "Payments state lives in the payments account."
   }
 }
@@ -179,7 +183,7 @@ run "roles_cannot_escape_their_boundary" {
   assert {
     condition = alltrue(flatten([
       for stack, doc in module.apps.apply_policies : [
-        for s in doc.Statement : alltrue([for r in flatten([s.Resource]) : endswith(r, "-tofu-state-us-east-1/${stack}/*")])
+        for s in doc.Statement : alltrue([for r in flatten([s.Resource]) : endswith(r, "-tofu-state-us-east-2/${stack}/*")])
         if s.Sid == "WriteOwnState"
       ]
     ]))
@@ -305,7 +309,7 @@ run "apply_roles_cover_the_names_their_stacks_create" {
   assert {
     condition = alltrue([
       for stack in ["listing-lens", "email-ops"] : length(setsubtract(
-        ["arn:aws:s3:::555555555555-tofu-state-us-east-1/saas-starter/terraform.tfstate", "arn:aws:s3:::555555555555-tofu-state-us-east-1/edge-api/terraform.tfstate"],
+        ["arn:aws:s3:::555555555555-tofu-state-us-east-2/saas-starter/terraform.tfstate", "arn:aws:s3:::555555555555-tofu-state-us-east-2/edge-api/terraform.tfstate"],
         flatten([for s in module.apps.apply_policies[stack].Statement : flatten([s.Resource]) if s.Sid == "ReadOwnAndSharedState"])
       )) == 0
     ])
@@ -323,4 +327,60 @@ run "iam_prefixes_must_name_their_stack" {
   }
 
   expect_failures = [var.stacks]
+}
+
+# Single-account mode: every workload stack's roles in the one account, the
+# stacks/org boundary on all of them, no payments, no second OIDC provider.
+run "single_account" {
+  command = plan
+
+  variables {
+    account_mode = "single"
+    account_ids  = { for k in ["log-archive", "security", "shared-infra", "apps", "payments", "sandbox"] : k => "555555555555" }
+  }
+
+  assert {
+    condition = (
+      length(module.security.role_arns) + length(module.shared_infra.role_arns) + length(module.apps.role_arns) + length(module.payments.role_arns) == 0
+      && length(module.security.extra_role_arns) == 0
+    )
+    error_message = "the per-account modules make nothing in single-account mode"
+  }
+
+  assert {
+    condition     = sort(keys(module.single[0].role_arns)) == sort([for k, s in var.stacks : k if s.account != "payments"])
+    error_message = "every stack but payments gets its roles in the one account"
+  }
+
+  assert {
+    condition     = !contains(keys(output.role_arns), "payments") && output.state_buckets["payments"] == null
+    error_message = "payments waits for an Organization (no RCP or separate account protects it here)"
+  }
+
+  assert {
+    condition     = output.state_buckets["apps"] == "555555555555-tofu-state-workloads-us-east-2" && output.state_buckets["shared-infra"] == output.state_buckets["apps"]
+    error_message = "one workloads state bucket, named apart from the bootstrap's <account>-tofu-state-<region>"
+  }
+
+  assert {
+    condition     = module.single[0].boundary_policy == null
+    error_message = "the boundary is stacks/org's, not made a second time here"
+  }
+
+  assert {
+    condition = alltrue(concat(
+      [for r in module.single[0].role_names_and_boundaries : r == "arn:aws:iam::555555555555:policy/workload-boundary"],
+    ))
+    error_message = "every CI role carries the workload boundary in single-account mode"
+  }
+
+  assert {
+    condition     = module.single[0].oidc_provider_arn == "arn:aws:iam::555555555555:oidc-provider/token.actions.githubusercontent.com"
+    error_message = "the bootstrap's OIDC provider is reused"
+  }
+
+  assert {
+    condition     = contains(keys(module.single[0].extra_role_arns), "gha-oss-monorepo-findings-read")
+    error_message = "the findings reader moves to the one account"
+  }
 }

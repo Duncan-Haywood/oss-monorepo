@@ -18,9 +18,10 @@ data "aws_iam_policy_document" "lambda_trust" {
 }
 
 resource "aws_iam_role" "kill_switch" {
-  name               = "spend-kill-switch"
-  path               = "/spend-guard/"
-  assume_role_policy = data.aws_iam_policy_document.lambda_trust.json
+  name                 = "spend-kill-switch"
+  path                 = "/spend-guard/"
+  assume_role_policy   = data.aws_iam_policy_document.lambda_trust.json
+  permissions_boundary = local.boundary
 }
 
 resource "aws_cloudwatch_log_group" "kill_switch" {
@@ -85,7 +86,7 @@ resource "aws_lambda_function" "kill_switch" {
       TARGET_ROLE = "spend-guard/spend-kill-switch-target"
       DRY_RUN     = var.kill_switch_dry_run ? "1" : "0"
       # Budget notifications stop only these; the rest alert (README.md).
-      KILL_ON_BUDGET = jsonencode(var.kill_switch_accounts)
+      KILL_ON_BUDGET = jsonencode(local.kill_accounts)
       REGIONS        = join(",", var.kill_switch_regions)
     }
   }

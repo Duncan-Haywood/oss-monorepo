@@ -1,0 +1,69 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqyfG1FRyHQstBq1SCxu",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "AWS single-account mode (account_mode organization|single) and us-east-2 home region for platform/aws; runbook step 0",
+  "input_sha256": "0043b146bef366fab378578ab4d74fd51f0391bac78ad2d9cde6812d0b8bb239",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-26T06:03:07Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "platform/aws"
+  ],
+  "pr": 19244,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A commit taken while the background tofu suite was running captured a temporarily regenerated baseline lock file; caught in the risk review's sensitive-file list and amended before push."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The brief said provider-level dynamic blocks are not supported; with OpenTofu 1.13.10 and hashicorp/aws 6.72.0 a dynamic assume_role block in a provider plans cleanly (checked with a dummy-credential plan), and an empty role_arn only warns it will become an error. Recorded in platform/aws/README.md."
+    },
+    {
+      "file": "platform/ci/adversarial_gate/gate.py",
+      "issue": "The bootstrap rule blocks every change under platform/aws/bootstrap/ with empty evidence, so an allowlist entry can only match the rule's own message and would clear all future bootstrap changes. Needed a temporary entry plus a removal PR; a digest- or PR-scoped entry would be safer."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "registry.opentofu.org is blocked by the proxy; releases.hashicorp.com works, but its provider hashes differ from the lock files, so local tofu tests need the lock files set aside."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/aws/stacks/app-identity/main.tf",
+      "why": "The brief asks for the boundary on every role; the key rotator cannot carry it because the boundary denies iam:CreateAccessKey, the rotator's only job.",
+      "did": "Left the rotator without a boundary, documented and asserted in tests.",
+      "result": "Every other single-mode role carries workload-boundary."
+    },
+    {
+      "file": "platform/aws/stacks/github-oidc/main.tf",
+      "why": "Payments' isolation from the public repository needs a separate account and an RCP, neither of which exists in one account.",
+      "did": "No payments roles in single mode.",
+      "result": "Documented in README 'Single-account mode'."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Local verification: tofu test across 18 stacks all pass (single-mode runs added); tofu fmt -check clean; pytest platform/aws 86 pass; cfn-lint 1.61.0 clean on bootstrap.yaml; checkov 3.4.10 0 failed / 0 parse errors; ci_policy_check pass; adversarial gate 0 blocking with the allowlist from PR #19243 (merged first). Follow-up PR removes the temporary bootstrap allowlist entry.",
+  "corrections": [],
+  "redteam": null
+}

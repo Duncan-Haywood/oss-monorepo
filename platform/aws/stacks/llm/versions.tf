@@ -25,13 +25,20 @@ data "terraform_remote_state" "org" {
 
 locals {
   apps_account_id = data.terraform_remote_state.org.outputs.account_ids["apps"]
+  single          = var.account_mode == "single"
+  # Single-account mode: stacks/org's workload-boundary on every role here.
+  # Null in organization mode (the SCPs guard the apps account).
+  boundary = try(data.terraform_remote_state.org.outputs.permissions_boundary_arn, null)
 }
 
 # Everything here lives in the apps account: the account that signs up for
 # Claude Platform on AWS owns the workspace, and its principals call it.
 provider "aws" {
   region = var.region
-  assume_role { role_arn = "arn:aws:iam::${local.apps_account_id}:role/${var.member_role_name}" }
+  dynamic "assume_role" {
+    for_each = var.account_mode == "single" ? [] : ["arn:aws:iam::${local.apps_account_id}:role/${var.member_role_name}"]
+    content { role_arn = assume_role.value }
+  }
   default_tags {
     tags = {
       managed-by = "platform/aws/stacks/llm"

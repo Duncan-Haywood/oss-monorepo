@@ -42,6 +42,14 @@ test("startup cost and a level loan", () => {
   near(payment(12000, 0, 1), 1000);
 });
 
+test("no utilisation above break-even shows a loss when a staffing step bites (round 111 audit)", () => {
+  const p = parse(SAMPLE);
+  const u = breakEvenUtilisation(p, 0);
+  assert.ok(u !== null);
+  for (let i = Math.round(u * 200); i <= 200; i++) assert.ok(month(p, i / 200, i / 200).profit >= 0, `loss at ${i / 2}%`);
+  assert.ok(month(p, u - 0.005, u - 0.005).profit < 0);
+});
+
 test("break-even utilisation is the first half-percent that clears the bar", () => {
   const p = parse({ ...BASE, nightly: "200", minStaff: "1", dogsPerAttendant: "20" });
   const u = breakEvenUtilisation(p, 0);

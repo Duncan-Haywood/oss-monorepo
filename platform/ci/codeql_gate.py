@@ -163,8 +163,11 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--sarif", required=True, type=Path, help="SARIF file or directory of them")
     ap.add_argument("--base", default="HEAD^1", help="commit to diff against (default: the merge commit's base parent)")
     args = ap.parse_args(argv)
+    # errors="replace": a diff can carry non-UTF-8 bytes (a Latin-1 fixture, a binary
+    # blob git still diffs as text); a strict decode crashed the gate before it read
+    # one finding (PR 19220). Line numbers come from the hunk headers, which are ASCII.
     diff = subprocess.run(["git", "diff", "-U0", "--no-color", "--no-ext-diff", args.base, "HEAD"],
-                          check=True, capture_output=True, text=True).stdout
+                          check=True, capture_output=True, encoding="utf-8", errors="replace").stdout
     fail, warn = evaluate(load_sarif(args.sarif), changed_lines(diff))
     text = report(fail, warn)
     print(text)

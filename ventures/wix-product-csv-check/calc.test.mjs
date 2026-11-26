@@ -125,6 +125,15 @@ test("extra cells from an unquoted comma are an error with the line", () => {
   assert.equal(r.findings.find((f) => f.code === "extra-cells").line, 2);
 });
 
+test("repair leaves upper-case PRODUCT and VARIANT alone (round 111 audit)", () => {
+  // Wix's newer catalogue template spells fieldType PRODUCT / VARIANT / MEDIA and calls it case sensitive,
+  // so rewriting PRODUCT to Product is not a change with one reasonable reading.
+  const r = repair(file({ ...WITH_SIZE, fieldType: "PRODUCT" }));
+  assert.equal(r.error, null);
+  assert.equal(parseCsv(r.text).rows[1].cells[COLUMNS.indexOf("fieldType")], "PRODUCT");
+  assert.ok(!r.changes.some((c) => c.includes("fieldType")));
+});
+
 test("repair changes only formatting and lists each change", () => {
   const input = file({ ...WITH_SIZE, fieldType: "product", price: "$1,299.00", visible: "true", discountMode: "percent", discountValue: "5", inventory: "instock", productOptionType1: "drop down", sku: " X1 ", name: "  Keep My Words  " });
   const r = repair(input);

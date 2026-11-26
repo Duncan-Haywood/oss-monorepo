@@ -168,7 +168,7 @@ run "records" {
   }
 
   assert {
-    condition     = contains([for r in local.mail_from_records : r.content if r.type == "MX"], "feedback-smtp.us-east-1.amazonses.com")
+    condition     = contains([for r in local.mail_from_records : r.content if r.type == "MX"], "feedback-smtp.us-east-2.amazonses.com")
     error_message = "MAIL FROM MX points at SES feedback in the region"
   }
 
@@ -197,5 +197,20 @@ run "route53_when_zone_moves" {
   assert {
     condition     = length(aws_route53_record.ses) == 11
     error_message = "every record goes to Route 53"
+  }
+}
+
+# Single-account mode: the same identities in the one account; the provider
+# assumes nothing (no member account to assume into).
+run "single_account" {
+  command = plan
+
+  variables {
+    account_mode = "single"
+  }
+
+  assert {
+    condition     = length(local.mail_from_records) > 0 && var.region == "us-east-2"
+    error_message = "single-account mode plans the same sending setup in us-east-2"
   }
 }

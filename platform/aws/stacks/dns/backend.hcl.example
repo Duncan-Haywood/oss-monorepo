@@ -3,6 +3,6 @@
 # comes from the bootstrap stack's outputs).
 bucket       = "REPLACE-with-bootstrap-state-bucket"
 key          = "dns/terraform.tfstate"
-region       = "us-east-1"
+region       = "us-east-2"
 encrypt      = true
 use_lockfile = true
