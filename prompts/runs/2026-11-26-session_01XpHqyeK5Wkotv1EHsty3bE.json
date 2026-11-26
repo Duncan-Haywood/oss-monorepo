@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqyeK5Wkotv1EHsty3bE",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T19:39:22Z",
+  "ended": "2026-11-26T19:47:49Z",
+  "wall_minutes": 8.7,
+  "tokens_in": 9499917,
+  "tokens_out": 31402,
+  "cost_usd": 3.5667,
+  "tool_calls": 83,
+  "task": "Bet #3 einvoice-preflight, ROADMAP Next 6 part: save a converted (PDF to ZUGFeRD) invoice to a client's history",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19455",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First merge attempt of private PR 400 returned 405 (conflict with the parallel row-discount-edit run on app.js and ROADMAP.md)",
+      "fix": "merged origin/main, kept main's null fix, kept both ROADMAP entries, re-ran pro tests (229 pass) and the Chromium drive, then merged"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets pointed at einvoice item 5 (Polish KSeF part 3), whose free part is a native-speaker read an agent cannot honestly do and a Polish site gated on demand; item 6 was labelled 'waits on demand' though only its last sub-part (OCR scans) is gated. Claimed item 6 with --slug instead."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "pnpm install --filter \"{./apps/einvoice-preflight}...\" prints 'No projects matched' because einvoice-preflight has no package.json (zero-dependency app); the note could say it needs no install."
+    },
+    {
+      "file": "private-monorepo apps/einvoice-preflight/pro/serve.mjs",
+      "issue": "serves /app/app.js from a startup cache, so a UI edit needs a server restart before a browser check sees it; cost one confusing re-run."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-26-which-clients-e-invoices-still-fail-one-table-for-accountants.md (extended: converted PDFs saved to a client's history)"
+  ],
+  "goal": "$10k MRR: bet #3's accountant workspace keeps converted invoices in the client's audit history, the dashboard counts them",
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/400 merged (squash ff6067f). Its CI job 'checker + paid layer tests' was starved (ci_starvation.py: runner_id 0), so verified locally: node --test pro/*.test.mjs 229 pass 0 fail after merging main; worker/*.test.mjs pass; root *.test.mjs 2224 pass, 1 fail = repair-facturx.test.mjs 'poppler opens the repaired PDF' because this container's pdfdetach has saving disabled (environmental, file untouched). Chromium drive against pro/serve.mjs: convert rechnung-de.pdf, confirm, build, save to client, open client: history shows '2026-0815.pdf \u00b7 converted from a PDF', usage 1 invoice, no console errors, no stray 'null'. Risk review: auth (client ownership checked server-side before build/metering; run holds the server's own check) and personal data (hashes, file name, rule ids only, as batches) answered in PR 400.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2787dd87-c2ad-5e8f-9d90-bcdb0ad98349",
+    "transcripts": 1,
+    "first": "2026-11-26T19:39:22Z",
+    "last": "2026-11-26T19:48:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 80,
+        "input": 155,
+        "output": 31402,
+        "thinking": 4052,
+        "cache_read": 9366677,
+        "cache_write_5m": 0,
+        "cache_write_1h": 133085,
+        "api_equivalent_usd": 3.5667,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 80,
+      "input": 155,
+      "output": 31402,
+      "thinking": 4052,
+      "cache_read": 9366677,
+      "cache_write_5m": 0,
+      "cache_write_1h": 133085,
+      "api_equivalent_usd": 3.5667,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 83,
+    "tools": {
+      "Bash": 71,
+      "Write": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.7,
+      "active_minutes": 8.7,
+      "model_minutes": 5.53,
+      "tool_minutes": 3.17,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "API change + UI step in 4 languages + tests on two stores + browser check, a mid-level engineer's estimate",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 168.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
