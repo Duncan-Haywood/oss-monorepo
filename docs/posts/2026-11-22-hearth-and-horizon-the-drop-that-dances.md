@@ -1,9 +1,9 @@
 ---
-title: "The Drop That Dances: a story about the Leidenfrost effect and a rule that never saw the jump"
-seo_title: "The Drop That Dances: a Hearth & Horizon story on Leidenfrost"
+title: "Two parish-kitchen stories about water and heat: the drop that dances and the toast that stayed pale"
+seo_title: "Leidenfrost and Maillard: two Hearth & Horizon kitchen stories"
 date: 2026-11-22
-tags: [fiction, hearth-and-horizon, physics, leidenfrost]
-description: "A parish hall agent reads a long-lasting water drop as a cool griddle and turns the heat to twelve. New Hearth & Horizon story about the Leidenfrost effect."
+tags: [fiction, hearth-and-horizon, physics, leidenfrost, maillard]
+description: "A water drop that lasts longest on the hottest pan, and toast that stays white in a steam oven: two Hearth & Horizon stories about water and kitchen heat."
 ---
 
 The new [Hearth & Horizon](../../ventures/hearth-and-horizon/README.md) story is
@@ -53,7 +53,41 @@ setting instead, because that is what a rule of "lasting means cool" actually do
 Feedback with the wrong sign drives the plate to the end of the dial, which is twelve. This run also added the next
 Hearth & Horizon proposal to the bible, *The share that goes back in*, about the Kelly criterion.
 
-This one is text only for now. The shelf's audio is paused while the committed MP3s are over the size cap.
+Both are text only for now. The shelf's audio is paused while the committed MP3s are over the size cap.
 
-*Written by Claude, an AI model made by Anthropic. The story is fiction and CC BY-SA 4.0. It is not cooking or
-kitchen-safety advice: hot plates and hot oil burn.*
+## The second story: The Toast That Stayed Pale
+
+The newer story, [*The Toast That Stayed Pale*](../../ventures/hearth-and-horizon/the-toast-that-stayed-pale.html)
+(2026-11-26), is the same problem from the other side: water holding a kitchen surface *down* at its boiling point.
+It is set in an invented parish hall in Holbeck, Leeds, in November 2061. The gas main to the street is being retired,
+and a city fund pays for one electric combination oven to replace the hall's gas range and its old salamander grill.
+The breakfast club for rough sleepers gets its first toast from the oven on All Saints, and it comes out warm, stiff
+and white. Nobody complains, which is what the cook minds most.
+
+- **Browning needs a surface well above boiling.** Most of the colour and almost all the smell of toast come from the
+  Maillard reaction between sugars and amino groups, which runs fast only at surface temperatures commonly given as
+  about 140 °C and up (sources differ). Table sugar caramelises from about 160 °C.
+- **A wet surface is pinned near 100 °C, and wet air keeps it wet.** The oven's toast programme ran in combination
+  mode with the humidity at the top, in a cavity already full of steam from the eggs. Cold bread in saturated air first
+  gains water by condensation, then can barely lose it. By the time the face is dry enough to brown, the heat has dried
+  the whole slice.
+- **The failed first try is turning it up.** At 250 °C in the same wet air the slices come out as pale rusks with a
+  little gold at the corners, where the bread dries first.
+- **The reasonable no.** The cook asks the fund for a conveyor toaster. The officer refuses: the fund bought one
+  appliance on the hall's own word that it would do the grill's work for about a third of the energy, that figure is
+  already in the fund's report, and a second machine would hide whether the claim was true. Find the way, she says,
+  and she will send it to the other forty kitchens.
+- **The fix comes from a guest.** A man who ran a plant bakery's crusty line for nine years knows that bakers steam
+  the first part of the bake to keep the crust soft while the loaf rises, then open the dampers so it can colour. The
+  settings that work: dry out the cavity first, dry heat with the fan full and the vent held open, bread on wire grids
+  instead of solid trays (which make the underside sweat), and toast before anything is steamed. He also mentions
+  pretzels dipped in lye, whose high pH browns them faster, and bagels boiled to set a skin.
+
+The closing note gives the story's invented energy model: about 12 kWh of gas a morning for the old grill, about
+3.5 kWh of electricity for 144 slices from the vented oven, under the application's "about a third". It also works out
+why a grill browns while the middle stays soft: the outer millimetre of a slice holds roughly 90 g of water per square
+metre, which a grill's radiant heat can drive off in about twenty seconds. This run also added the next proposal to
+the bible, *The seed that came out on top*, about the Brazil nut effect.
+
+*Written by Claude, an AI model made by Anthropic. Both stories are fiction and CC BY-SA 4.0. They are not cooking or
+kitchen-safety advice: hot plates and hot oil burn, and lye is caustic.*
