@@ -1,0 +1,226 @@
+{
+  "date": "2026-11-26",
+  "subject": "ventures/etsy-profit-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-26-g-3a69",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality round 113, see run record",
+  "status": "audited",
+  "professional": "a senior e-commerce accountant who keeps the books for Etsy sellers; they check first that each fee line matches Etsy's published schedule and base (transaction 6.5% on item + shipping + gift wrap, processing 3% + $0.25 on the total including sales tax, $0.20 per listing and per extra unit sold, Offsite Ads 15%/12% capped at $100 per order, regulatory operating fee, 2.5% currency conversion), and that the page's fee claims would reconcile to a real Etsy payment-account statement",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Source: etsy.com/legal/fees returned HTTP 403 to WebFetch; Etsy Help Center 'What are the Fees and Taxes for Selling on Etsy?' (help.etsy.com/hc/en-us/articles/115014483627) loaded and quoted: transaction fee '6.5% of the total order amount' incl. shipping and gift wrap; processing taken from the sale price 'including shipping and ... sales tax if you charge tax on the listing'; '$0.20 each for the extra quantity you sell'; 'A 2.5% fee is assessed when currency conversion is required'; 'The Offsite Ad fee will never exceed $100 for an order'. 'Fees and Listing Multiple Quantities' (help.etsy.com 360000344908, search extract): a partial sale of a multi-quantity listing auto-renews and charges the renewal fee. Probe /tmp/claude-0/etsy-audit/probe.mjs against shipped calc.mjs. Pass, by hand from Etsy's rates: $40 + $5 ship, $5 label, $12 materials -> transaction 2.925, processing 1.60, listing 0.20, profit 23.275 (tool 23.28), break-even (0.20+0.25+17)/(1-0.095)-5 = 14.28 (tool 14.28), 12%/15% Offsite 17.875/16.525 (tool 17.88/16.52); default $30+$5 fees 3.775 (page lead '$3.78'), profit 21.225 (21.23); $14 print profit 2.435, Offsite ceiling 2.435/17 = 14.32% (tool 14.32); priceForMargin 30% -> 12.27, rechecked to 30.0%. Fail: $1,000 attributed order at 15% -> tool offsite fee $150.00, Etsy caps it at $100 (profit understated $50; maxAffordableOffsiteRate says 69.5%, meaningless under the cap); taxed order ($3.60 sales tax) -> no tax input, processing 1.60 vs Etsy's 3% x 48.60 + 0.25 = 1.708; listing-renewal page says 2 sales in a window cost $0.20 total ($0.10/sale) when Etsy charges $0.20 per auto-renew-on-sale. Core arithmetic is right; three fee rules a bookkeeper reconciles against are missing or wrong, so 2.",
+    "completeness": "Every feature README/llms.txt/VENTURE.yaml names runs: order profit, margin, ROI, break-even, target-margin and target-profit reprice (priceForMargin/priceForProfit probed), organic vs 12% vs 15% Offsite side-by-side and ceiling, Etsy Plus, personalization, on-site Ads ACOS, production partner, Star Seller, shop sale, free shipping, label comparison, listing renewal, save/restore/shareable link (share.test.mjs), order summary (summary.test.mjs), local usage counter with opt-out (usage.test.mjs), ten SEO pages each with a page test. README worked numbers rechecked for the order core and listing-renewal ($20.43, $40.65, $0.10). No stubs or TODOs found; served copy clean (node platform/pages/served-copy.mjs etsy-profit-calculator: 'no placeholder or retired origin left'). It does what it says; what it says omits Etsy rules, scored under correctness/domain.",
+    "verification": "cd ventures/etsy-profit-calculator && node --test '*.test.mjs': 197 tests, 197 pass, 0 fail, 0.45 s. Five mutants via platform/ci/quality_mutate.py: transaction fee base revenue -> price (calc.mjs:29) caught; percentage-rate guard >= 100 -> > 100 (calc.mjs:25) caught; break-even drops paymentFixed (calc.mjs:46) caught; renewal overstated guard > 1 -> > 2 (calc.mjs:1398) caught; maxAffordableOffsiteRate floor < -> <= (calc.mjs:104) SURVIVED (exact break-even boundary not pinned). 4 of 5 caught. No test asserts the $100 Offsite cap, a sales-tax processing base or multi-quantity fees, because none is implemented.",
+    "craft": "Read calc.mjs (1,764 lines; calculateOrder, compareOffsiteAdRates, maxAffordableOffsiteRate, priceForMargin, calculateListingRenewal), index.html input wiring (currentInputs at index.html:259 passes raw strings), listing-renewal.html, calc.test.mjs. Pure dependency-free module, validated inputs, named constants with dated source comments (calc.mjs:1-6), null vs 0 vs Infinity handled deliberately in maxAffordableOffsiteRate. Notes: one 1,764-line module for eleven calculators; calculateOrder's local number() treats a blank string as 0 (Number('') = 0), so a cleared Item price silently prices a $0 order (probe: price '' -> profit -0.45, no error) while nonNegativeNumber elsewhere treats '' as missing. A senior JS reviewer would accept with those notes.",
+    "claims": "Backed: page lead's $0.20 / 6.5% incl. shipping and gift wrap / 3% + $0.25 and '$3.78' (recomputed 3.775) match Etsy's Help Center; 15%/12% split at $10,000 matches; llms.txt worked example (23.28, 17.88, 16.52, 14.28, 136.9%) reproduced exactly; no-upload, not-affiliated, no-warranty and 'not tax, financial or business advice' text present (index.html:237, are-etsy-offsite-ads-worth-it.html:87); Seller Books labelled 'in development, early access'. Contradicted: listing-renewal.html:7, :35 and README 'Does auto-renew still cover a slow listing?' say Etsy charges the listing fee 'not once per sale' and that per-order charging 'overstates listing cost'; Etsy's multi-quantity article says a listing that sells with stock left auto-renews for $0.20, so per-sale is the usual real cost and the page understates it. Offsite pages and README describe Offsite Ads as a percentage of the order total with no mention of the $100 per-order cap. 2.",
+    "fitness": "Walked the job as a US seller pricing a typical $20-$60 handmade order: enter price, shipping, label, materials -> fee lines, profit and break-even match Etsy's rates to the cent; the follow-on decision panels are quick and useful. As the bookkeeper reconciling a month of Etsy statements: sales tax is not an input so every taxed order's processing fee is low; a 3-unit order's $0.40 multi-quantity fee has nowhere to go; UK/FR/IT/ES/CA sellers have no regulatory operating fee field (workaround: add it to the transaction %), no 2.5% currency conversion line; a high-ticket attributed sale shows Offsite fees above $100. The page is a front door to Seller Books (index.html:233), which is not yet available. Good for list-price decisions, short of statement reconciliation, so 2.",
+    "domain": "Compared with Etsy's Help Center fee article (loaded 2026-11-26) and the regulatory operating fee announcements (search extracts: UK 0.48%, FR 1.14%, IT 0.80%, ES 0.88% from 2026-06-22). Matches: transaction 6.5% base incl. shipping, US processing 3% + $0.25, $0.20 listing, Offsite 15% under / 12% at $10,000 trailing 365 days, applied to the order total. Departs: Offsite $100 per-order cap absent (calc.mjs:31); processing fee base excludes sales tax (calc.mjs:30); multi-quantity $0.20 per extra unit and auto-renew-on-sale not modelled, and the renewal page states the opposite; no regulatory operating fee or currency-conversion line; no gift-wrap input though the lead names it. A senior Etsy bookkeeper would sign off the per-order arithmetic for a single-unit, untaxed, under-$666 US order, not the fee model in general."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "llms.txt worked example: $40 item, $5 shipping, $5 label, $12 materials",
+      "method": "by hand from Etsy Help Center 'What are the Fees and Taxes for Selling on Etsy?' rates: 0.065 x 45 + (0.03 x 45 + 0.25) + 0.20",
+      "command": "node /tmp/claude-0/etsy-audit/probe.mjs (case A)",
+      "expected": "fees 4.725, profit 23.275, break-even 14.28; 12% -> 17.875, 15% -> 16.525",
+      "observed": "fees 0.20/2.93/1.60, profit 23.28, BE 14.28; 12% 17.88, 15% 16.52",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "page lead fee total on $30 item + $5 shipping",
+      "method": "by hand from Etsy Help Center rates",
+      "command": "node /tmp/claude-0/etsy-audit/probe.mjs (case B)",
+      "expected": "0.20 + 2.275 + 1.30 = 3.775 (lead says $3.78); profit 21.225",
+      "observed": "fees 0.20/2.28/1.30, profit 21.23",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Offsite Ads fee on a $1,000 attributed order at 15%",
+      "method": "Etsy Help Center fee article: 'The Offsite Ad fee will never exceed $100 for an order, regardless of the order total'",
+      "command": "node /tmp/claude-0/etsy-audit/probe.mjs (case C)",
+      "expected": "offsite fee $100.00, profit 594.55",
+      "observed": "offsite fee $150.00, profit 544.55; maxAffordableOffsiteRate 69.5%",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "payment processing on an order with $3.60 sales tax",
+      "method": "Etsy Help Center: processing fee taken from the sale price including shipping and sales tax; 0.03 x 48.60 + 0.25",
+      "command": "node /tmp/claude-0/etsy-audit/probe.mjs (case D; no tax field exists in calculateOrder or index.html)",
+      "expected": "processing 1.708",
+      "observed": "processing 1.60; no sales-tax input to enter",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Offsite break-even ceiling on the $14 print",
+      "method": "by hand: organic profit 17 - 0.20 - 1.105 - 0.76 - 12.50 = 2.435; 2.435 / 17",
+      "command": "node /tmp/claude-0/etsy-audit/probe.mjs (case E)",
+      "expected": "profit 2.435, ceiling 14.32%",
+      "observed": "profit 2.44, ceiling 14.3235%",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "priceForMargin 30% on the default order",
+      "method": "by hand: price 12.27 -> revenue 17.27, fees 0.20 + 0.095 x 17.27 + 0.25 = 2.09, costs 10, profit 5.18 / 17.27",
+      "command": "node /tmp/claude-0/etsy-audit/probe.mjs (case H)",
+      "expected": "margin 30.0%",
+      "observed": "12.2727 -> 30.0%",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "listing fee across 2 sales of a multi-quantity listing in one renewal window",
+      "method": "Etsy 'Fees and Listing Multiple Quantities' (help.etsy.com 360000344908, search extract): a sale with stock left auto-renews and charges the $0.20 renewal fee; fee article: '$0.20 each for the extra quantity you sell'",
+      "command": "node /tmp/claude-0/etsy-audit/probe.mjs (case F)",
+      "expected": "at least $0.20 per sale (auto-renew sold), $0.40+ for two sales",
+      "observed": "listingPerSale 0.10, periodProfitAfterListing 40.65, overstatedInPeriod 0.20",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "regulatory operating fee and 2.5% currency conversion for a non-US seller",
+      "method": "Etsy fee article (ROF countries UK, FR, IT, IN, ES, TR, VN, CA; 2.5% conversion); ROF rates from Etsy announcement extracts",
+      "command": "grep -n -i 'regulatory\\|currency conv' calc.mjs index.html",
+      "expected": "a field or a documented workaround",
+      "observed": "no match; only 'other countries' processing rates differ'",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "cd ventures/etsy-profit-calculator && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "197 pass, 0 fail, 0.45 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "blank Item price",
+      "method": "by hand: a cleared required field should error, not price a $0 order",
+      "command": "node /tmp/claude-0/etsy-audit/probe.mjs (case I)",
+      "expected": "'Price must be a non-negative number' or similar",
+      "observed": "revenue 0, profit -0.45, no error",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "'Etsy charges the listing fee when a listing publishes or auto-renews, not once per sale'",
+      "method": "compare with Etsy multi-quantity help article",
+      "command": "grep -n -i 'renew\\|overstat' listing-renewal.html",
+      "expected": "claim consistent with auto-renew-on-sale",
+      "observed": "listing-renewal.html:7, :35, :81 state the opposite for multi-quantity listings",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "disclaimer, not-affiliated, no-upload, Seller Books status",
+      "method": "page read",
+      "command": "grep -n 'No warranty\\|early access' index.html are-etsy-offsite-ads-worth-it.html",
+      "expected": "present",
+      "observed": "present at index.html:233, :237 and are-etsy-offsite-ads-worth-it.html:87",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "served llms.txt and canonicals",
+      "method": "deploy rewrite",
+      "command": "node platform/pages/served-copy.mjs etsy-profit-calculator",
+      "expected": "no placeholder origin",
+      "observed": "no placeholder or retired origin left (source github.io links are rewritten: source-only)",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:29",
+      "change": "transaction: revenue * transactionRate / 100 -> transaction: price * transactionRate / 100",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:25",
+      "change": "if (percentageRate >= 100) throw -> if (percentageRate > 100) throw",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:46",
+      "change": "breakEvenPrice numerator drops paymentFixed",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:1398",
+      "change": "expectedSales > 1 ? ... -> expectedSales > 2 ? ...",
+      "caught": true,
+      "test_cmd": "node --test '*.test.mjs'"
+    },
+    {
+      "where": "calc.mjs:104",
+      "change": "if (organic.profit < floor) return null -> if (organic.profit <= floor) return null",
+      "caught": false,
+      "test_cmd": "node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Offsite Ads fee has no $100 per-order cap. Etsy's fee article: 'will never exceed $100 for an order'. Above $666.67 (15%) or $833.33 (12%) the tool overstates the fee ($150 on a $1,000 order), and maxAffordableOffsiteRate and the Offsite comparison/ceiling are wrong for those orders.",
+      "where": "ventures/etsy-profit-calculator/calc.mjs:31",
+      "category": "domain-rule",
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19370"
+    },
+    {
+      "severity": "high",
+      "what": "Listing-renewal page and README state Etsy charges the listing fee 'not once per sale' and that per-order charging 'overstates listing cost'; Etsy auto-renews a multi-quantity listing on each sale for $0.20 (and a sold-out quantity-1 listing must be renewed to sell again), so the page understates listing cost (2 sales -> $0.10 per sale instead of about $0.20).",
+      "where": "ventures/etsy-profit-calculator/listing-renewal.html:35",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Payment processing is computed on item + shipping only; Etsy takes it on the total including sales tax. No sales-tax input exists, so every taxed US order understates the fee (3% of the tax; $0.11 on $3.60).",
+      "where": "ventures/etsy-profit-calculator/calc.mjs:30",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Not modelled: multi-quantity fee ($0.20 per extra unit in one order), regulatory operating fee (UK, FR, IT, ES, IN, TR, VN, CA), 2.5% currency conversion, gift wrap charged (the lead names it in the fee base but there is no field).",
+      "where": "ventures/etsy-profit-calculator/calc.mjs:8",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "A blank Item price silently becomes $0 (Number('') = 0) and prices a -$0.45 order instead of erroring; nonNegativeNumber elsewhere treats '' as missing.",
+      "where": "ventures/etsy-profit-calculator/calc.mjs:10",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Seeded mutant 'organic.profit < floor' -> '<=' survives: no test pins the exact break-even boundary of maxAffordableOffsiteRate.",
+      "where": "ventures/etsy-profit-calculator/calc.mjs:104",
+      "category": "untested-core",
+      "origin": "tests"
+    }
+  ],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19370"],
+  "verdict": "Does not meet the bar (correctness 2, claims 2, verification 3, median 2); finished (completeness 3). The per-order arithmetic is right: five outputs recomputed by hand from Etsy's Help Center rates (the $40 llms.txt example, the $3.78 page lead, the $14 print's 14.3% Offsite ceiling, a 30% target-margin price, the break-even price) all match to the cent, 197 tests pass and 4 of 5 seeded mutants are caught. The gap is the fee model a bookkeeper reconciles against: the Offsite Ads fee is not capped at Etsy's published $100 per order, the listing-renewal page tells sellers the $0.20 fee is not charged per sale when Etsy auto-renews a multi-quantity listing on each sale, processing excludes sales tax, and multi-quantity, regulatory operating and currency-conversion fees are absent. etsy.com/legal/fees was 403 from this container; the rules come from Etsy's Help Center fee article (loaded) and search extracts of Etsy's multi-quantity and regulatory-fee pages."
+}

@@ -92,6 +92,29 @@ The field names and function lists in `scan.mjs` are reproduced from
 WordPress.org's own published plugin-developer documentation as of 2026-09.
 They are data, not advice, and can go stale if WordPress changes them.
 
+## Known gaps
+
+From the quality audit of 2026-11-26
+([`portfolio/quality/audits/2026-11-26-wordpress-plugin-review-check.json`](../../portfolio/quality/audits/2026-11-26-wordpress-plugin-review-check.json)),
+measured against Plugin Check's source and the WordPress Coding Standards:
+
+- **Any `License` value passes.** Plugin Check raises `invalid_license` for a
+  licence that is not GPL-compatible (`License: Proprietary`); this tool only
+  checks that the field exists.
+- `sanitize_text_field`, `sanitize_email`, `sanitize_file_name` and `boolval`
+  count as escaping here; WPCS does not accept them as output escaping.
+- Header parsing departs from core `get_file_data()`: `#`-prefixed and
+  `<?php /* ... */` one-line headers are missed, a trailing `*/` is kept, there
+  is no 8 KB window, and the first header file in any subdirectory wins.
+- `License URI` is treated as required; the readme docs mark it optional.
+- The nonce check is file-level and textual (a nonce call in a comment or
+  another function counts) and reads `$_POST` only, where WPCS works per
+  function.
+- Not checked yet: the 5-tag limit, the 150-character short description, an
+  outdated `Tested up to`, and name or licence mismatches between readme and
+  header.
+- Fixed in PR #19370: `Stable tag: trunk` now fails, as Plugin Check errors on it.
+
 ## Privacy
 
 Everything runs locally. The browser tool reads files with the File API and

@@ -298,3 +298,20 @@ inputs and run it yourself.
 ## Track true profit across every platform
 
 The page ends with a short section for sellers on more than one marketplace. It links the online-sellers industry page (`/industries/online-sellers/`), where Seller Books, a hosted product for payout reconciliation, cost of goods and a Schedule C-shaped profit and loss, is listed as in development, early access. It also links three guides that live in `ventures/ebay-fee-calculator/`: reconciling marketplace payouts to sales, cost of goods sold for resellers, and a Schedule C worksheet for resellers. Fee figures in the page's sourced lead were rechecked on 2026-11-24 (`docs/reports/2026-11-24-seller-tools-front-doors.md`).
+
+## Known gaps
+
+From the quality audit of 2026-11-26
+([`portfolio/quality/audits/2026-11-26-etsy-profit-calculator.json`](../../portfolio/quality/audits/2026-11-26-etsy-profit-calculator.json)):
+
+- **The listing-renewal page understates listing cost for multi-quantity
+  listings.** Etsy auto-renews a listing with stock left for $0.20 each time
+  it sells, so per-sale is the real cost there; the page's "not once per
+  sale" framing only fits a quantity-1 listing renewing on its four-month
+  timer.
+- Payment processing is computed without sales tax (Etsy charges it on the
+  tax too), and there is no sales-tax field.
+- Not modelled: $0.20 per extra unit in one order, the regulatory operating
+  fee (UK, France, Italy, Spain and others), 2.5% currency conversion, and
+  gift wrap.
+- Fixed in PR #19370: the Offsite Ads fee now stops at Etsy's $100 per-order cap.
