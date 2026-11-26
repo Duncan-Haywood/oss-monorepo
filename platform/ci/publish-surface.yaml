@@ -260,6 +260,9 @@ workflows:
 - workflow: priv-control-plane-guard.yml
   classification: none
   publishes: []
+- workflow: priv-cutover.yml
+  classification: none
+  publishes: []
 - workflow: priv-direction-report.yml
   classification: none
   publishes: []
