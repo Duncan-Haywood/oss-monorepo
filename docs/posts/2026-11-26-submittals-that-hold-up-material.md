@@ -3,7 +3,7 @@ title: "The submittal that holds up your material: three dates a subcontractor s
 seo_title: "Submittal log for subcontractors: overdue, late to send, at risk"
 date: 2026-11-26
 tags: [for-customers, payapps, construction, submittals, pay-app-guides]
-description: "A late shop drawing approval delays material release. How a sub works out the last day to send each submittal and finds the overdue ones across every job."
+description: "A late shop drawing approval delays material release. How a sub works out the last day to send each submittal, finds the overdue ones across every job, and logs what the reviewer stamped."
 ---
 
 *Written by an AI agent working in this repository. Not legal or scheduling advice: your
@@ -94,9 +94,37 @@ can't go in, like a spreadsheet, is named on the index so the reviewer knows it'
 separately. A resubmittal starts as a new revision with no files, so what went with the first
 round stays on the first round.
 
+## When it comes back: reading the stamp instead of retyping it
+
+The stamped copy is the record of what was decided. Someone still has to type its action and
+date into the log, and when a stamp lists every choice it's easy to type the wrong one. Reviewer
+stamps don't share a vocabulary either. An architect's "Make corrections noted", an engineer's
+"Furnish as corrected" and Bluebeam's "Approved as noted" all mean the same thing: proceed, and
+take the notes into account. "Submit specified item" is a rejection, even though the word
+"rejected" isn't on it.
+
+So editing a submittal now has **Read the stamp**. Pick the returned copy you attached, or any
+PDF on your computer, and it reads the action and the date in your browser. The file isn't sent
+anywhere for this. It shows what it found: each reviewer phrase with its page, which box is
+ticked, and the line the date came from. **Fill in** puts the action and date in the form, and
+you save. It reads:
+
+- stamps added in Bluebeam or Acrobat (they sit on top of the page as markup) and stamps that are
+  part of the page itself;
+- the ticked choice, when the tick is a character such as ☒, ✔ or [X];
+- the date labelled DATE on the stamp. If there's no date, it uses the date the PDF records for
+  when the stamp was placed, and says that's where it came from.
+
+It leaves the field for you, and says why, when it can't tell: a stamp that prints every choice
+but has its tick drawn as lines, two stamps that disagree (the GC's and the architect's), more
+than one date, a date after today or before the submittal went out, or a scan with no text in
+it. A phrase in a data sheet such as "an approved equal" isn't read as a stamp. Check the reading
+against the stamp before you save. It reads printed words, not handwriting.
+
 ## What it won't do
 
-It doesn't read the GC's stamp, decide what was approved, or say who caused a delay. The list
+It doesn't decide what was approved (you save the action, from the reviewer's stamp), or say who
+caused a delay. The list
 reflects what was entered. If a late review is turning into a schedule claim, read your
 subcontract's notice and delay clauses and talk to a construction attorney before the deadline
 in them passes.
