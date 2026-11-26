@@ -1,6 +1,6 @@
 ---
 title: "Which states make you use their lien waiver form, read from the statutes"
-seo_title: "Statutory lien waiver forms by state: 11 states read from the law"
+seo_title: "Statutory lien waiver forms by state: 12 states read from the law"
 date: 2026-11-25
 tags: [for-customers, payapps, construction, lien-waivers, pay-app-guides]
 description: "Nine states set lien waiver wording in statute. We read each one from the legislature's own published text: how many forms, how strict, and the trap in each."
@@ -81,8 +81,8 @@ payment: your endorsement on a check that has been paid, or your written acknowl
 (Civ. Code § 8124).
 
 **What we could not check.** Mississippi is often said to have statutory forms, but we could not open its
-official text, so it is not listed rather than listed from memory. Massachusetts and Georgia were read the
-next day (updates below).
+official text, so it is not listed rather than listed from memory. Massachusetts, Georgia and Mississippi
+were read the next day (updates below).
 
 **Where this goes.** The pay-app product we are building for specialty subcontractors already
 prints the Arizona, California, Florida, Michigan, Missouri, Nevada, Texas, Utah and Wyoming waivers word for
@@ -278,3 +278,49 @@ is next. The free guide,
 [statutory lien waiver forms by state](https://marisstella.app/pay-app-guides/lien-waiver-forms-by-state.html),
 now has a Georgia row and section. Not legal advice: ask a Georgia lawyer before relying on a
 waiver.
+
+## Update, 2026-11-26: Mississippi, and 60 days instead of 90
+
+Mississippi was the last state on our "could not check" list. Its official Code is published only
+through LexisNexis, which we could not open. Both sections that matter were created new by one Act,
+[SB 2622](https://billstatus.ls.state.ms.us/documents/2014/html/SB/2600-2699/SB2622SG.htm) (2014),
+which the Legislature still publishes as sent to the Governor (approved 11 April 2014). We read
+that, compared it with the PDF of the same bill, and searched the Legislature's lists of measures
+for 2015 to 2026 for a later amendment. We found none. Check the current Code before relying on it.
+What a sub should know:
+
+- **Two forms, like Georgia's.** One is an "Interim Waiver and Release upon Payment", used for any
+  payment other than the final one (Miss. Code Ann. § 85-7-419(2)). The other is a "Waiver and
+  Release upon Final Payment" (§ 85-7-419(3)). A waiver "shall substantially follow" the right
+  form. A blank filled in wrongly does not invalidate it "if the subject matter of the release
+  reasonably may be determined". The interim form excepts retained amounts. Both are sworn before
+  a notary.
+- **The 60 days.** Once you sign, the amount in the waiver is conclusively "deemed paid in full" at
+  the earliest of three things: the money actually arriving, a separate written acknowledgment of
+  payment in full, or "Sixty (60) days after the date of the execution of the waiver and release".
+  The only way to stop the clock is to file an affidavit of nonpayment in the county where the
+  property is before the 60 days run out, and send the owner a true copy (§ 85-7-419(5)(b)). The
+  form's notice says you are deemed paid "EVEN IF YOU HAVE NOT ACTUALLY RECEIVED THE PAYMENT".
+  That notice also names "A CLAIM OF LIEN" as a way to stop the clock, but the statute's list
+  names only the affidavit, so ask counsel before relying on a claim of lien alone. Georgia also
+  gave 60 days before its 2021 rewrite. Mississippi still does.
+- **Two days for the owner's copy.** The affidavit of nonpayment has its own statutory form
+  (§ 85-7-433(3)). Its last paragraph says "WITHIN TWO (2) DAYS OF FILING THIS AFFIDAVIT OF
+  NONPAYMENT" a copy goes to the owner by registered or certified mail or statutory overnight
+  delivery. Georgia gives seven days. Filing suspends the waiver "until payment in full has been
+  received" (§ 85-7-419(5)(e)). If you are then paid in full, you must sign an affidavit that
+  payment was received if asked, and once it is recorded the affidavit of nonpayment "shall be
+  deemed void" ((5)(c)).
+
+PayApps, the pay-app product we are building, prints both Mississippi waivers word for word. It now
+tracks the 60 days in the same way it tracks Georgia's 90. When a Mississippi waiver is marked sent
+and the payments recorded on its pay application do not cover it, the waiver list shows the day the
+60 days end. The cash page names it from 30 days before the end. One click prints the affidavit of
+nonpayment in the statute's wording, filled from the waiver. Once you record it as filed, PayApps
+counts the two days for the owner's copy, and then marks the waiver as suspended until you are paid.
+Mississippi's affidavit names no copy to a contractor, so PayApps never asks about one. It counts
+calendar days from the day you marked the waiver sent and does not move the date for a weekend or
+holiday, so do not wait for the last day. The free guide,
+[statutory lien waiver forms by state](https://marisstella.app/pay-app-guides/lien-waiver-forms-by-state.html),
+now has a Mississippi row and section. PayApps is in development, and nothing is for sale yet. Not
+legal advice: ask a Mississippi lawyer before relying on a waiver.
