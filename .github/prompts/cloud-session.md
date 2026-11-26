@@ -44,7 +44,7 @@ payapps there. On 2026-11-25 this worked first time:
    (it took under a minute). Push with `git -c push.negotiate=true push -u origin <branch>`.
 3. Read its `CLAUDE.md` and the app's `ROADMAP.md` by hand (add_repo's result
    names a `register_repo_root` tool that ToolSearch does not find here; skip it); `pnpm install --frozen-lockfile --filter "{./apps/<dir>}..."`
-   (from the private repo's root: inside the app it prints "No projects matched" and installs nothing; backgrounded, once per app you touch: a change to `payapps` and `payapps-site` needs both) gets the app's tests, `pnpm dev` and Playwright running. Select by
+   (from the private repo's root: inside the app it prints "No projects matched" and installs nothing; backgrounded, once per app you touch: a change to `payapps` and `payapps-site` needs both; an app with no `package.json`, such as `einvoice-preflight`, has no install step: its tests run as they stand, six reports 2026-11-25/26) gets the app's tests, `pnpm dev` and Playwright running. Select by
    directory in braces: a bare name must be the package name (cmmc's is
    `cmmc-workspace`, so `--filter cmmc...` matches nothing and exits 0), and
    `./apps/<dir>...` without braces silently drops the app's workspace deps.
