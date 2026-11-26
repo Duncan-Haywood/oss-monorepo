@@ -31,8 +31,8 @@ name: Security gate
 #
 # Credentials: checkouts keep none (anonymous fetch, public repo). The scan
 # job's token is read-only (zizmor's online audits). Only adversarial-llm
-# sees a secret (ANTHROPIC_API_KEY, or a GitHub OIDC token for an AWS role),
-# in the `paid-agents` environment; it runs only main's llm_review.py, on
+# sees a credential (a GitHub OIDC token for the github-llm-gate AWS role,
+# Claude Platform on AWS), in the `aws-llm` environment; it runs only main's llm_review.py, on
 # same-repository PRs, and its output is a JSON file the verdict job reads
 # as data.
 #
@@ -159,11 +159,14 @@ jobs:
 
   # The LLM red-team, only for control-plane and high-risk PRs from this
   # repository (a fork cannot spend the owner's budget). The only job with a
-  # secret: it runs in the `paid-agents` environment (limited to main, which
-  # is the ref a pull_request_target run has), so the key and the AWS role's
-  # OIDC subject (repo:<owner>/<repo>:environment:paid-agents) are reachable
-  # from this job and no other. It runs main's llm_review.py on the diff file
-  # the rules job wrote, and only writes llm.json.
+  # credential: it runs in the `aws-llm` environment (limited to main, which
+  # is the ref a pull_request_target run has), whose OIDC subject
+  # (repo:<owner>/<repo>:environment:aws-llm) is the only one the
+  # github-llm-gate role trusts (platform/aws/stacks/llm). No other workflow
+  # uses that environment, so no other job can reach the role. Billing is
+  # AWS's (owner, 2026-11-26: "this gets moved to aws billing"); there is no
+  # Anthropic API key path. It runs main's llm_review.py on the diff file the
+  # rules job wrote, and only writes llm.json.
   adversarial-llm:
     name: adversarial-llm
     needs: adversarial-rules
@@ -172,10 +175,10 @@ jobs:
       (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    environment: paid-agents
+    environment: aws-llm
     permissions:
       contents: read
-      id-token: write  # for the AWS role (Claude Platform on AWS); unused with an API key
+      id-token: write  # for the github-llm-gate AWS role (Claude Platform on AWS)
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -195,10 +198,10 @@ jobs:
 
       - name: LLM adversarial review
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           AWS_ROLE_ARN: ${{ vars.ADVERSARIAL_REVIEW_AWS_ROLE_ARN }}
-          AWS_REGION: ${{ vars.ADVERSARIAL_REVIEW_AWS_REGION }}
-          ANTHROPIC_AWS_WORKSPACE_ID: ${{ vars.ANTHROPIC_AWS_WORKSPACE_ID }}
+          AWS_REGION: ${{ vars.ADVERSARIAL_REVIEW_AWS_REGION || vars.AWS_REGION || 'us-east-1' }}
+          # The same workspace the llm stack scopes the role to (priv-aws-apply.yml).
+          ANTHROPIC_AWS_WORKSPACE_ID: ${{ vars.CLAUDE_AWS_WORKSPACE_ID }}
         run: |
           if python3 -I platform/ci/adversarial_gate/llm_review.py --out "$RUNNER_TEMP/gate" --has-credential; then
             python3 -m pip install --quiet --require-hashes --only-binary :all: --no-deps -r platform/ci/adversarial_gate/requirements-llm.txt
