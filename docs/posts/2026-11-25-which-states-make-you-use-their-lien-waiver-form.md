@@ -80,9 +80,9 @@ A conditional waiver releases the owner, lender or bond surety only once there i
 payment: your endorsement on a check that has been paid, or your written acknowledgment
 (Civ. Code § 8124).
 
-**What we could not check.** Georgia and Mississippi are often said to have statutory forms, but we could not
-open their official text, so they are not listed rather than listed from memory. Massachusetts was read the
-next day (update below).
+**What we could not check.** Mississippi is often said to have a statutory form, but we could not open its
+official text, so it is not listed rather than listed from memory. Massachusetts and Georgia were read the
+next day (updates below).
 
 **Where this goes.** The pay-app product we are building for specialty subcontractors already
 prints the Arizona, California, Florida, Michigan, Missouri, Nevada, Texas, Utah and Wyoming waivers word for
@@ -224,3 +224,39 @@ you sign. The free guide,
 [statutory lien waiver forms by state](https://marisstella.app/pay-app-guides/lien-waiver-forms-by-state.html),
 now has a Massachusetts row and section. Whether a general-form waiver is enforceable on a
 Massachusetts job is a question for a Massachusetts lawyer. Not legal advice.
+
+## Update, 2026-11-26: Georgia, and the 90 days that run whether you were paid or not
+
+Georgia's official Code is published through LexisNexis, which we could not open. The State does publish
+the two Acts that wrote the current section: SB 315 (2020), which rewrote all of O.C.G.A. § 44-14-366 from
+1 January 2021, and SB 143 (2021), which rewrote the affidavit of nonpayment. We rebuilt the section from
+those, as passed, and Georgia is now in the
+[guide's table](https://marisstella.app/pay-app-guides/lien-waiver-forms-by-state.html).
+
+Georgia's two forms are "upon interim payment" and "upon final payment". Neither is conditional or
+unconditional in the usual sense. Each waives "upon the receipt of the sum" you write in. Then
+subsection (g)(2) adds a clock. A signed waiver "shall conclusively be deemed effective" at the earliest
+of three things:
+
+- the money in the waiver actually arriving;
+- a separate written acknowledgment of payment in full;
+- "Ninety days after the date of the execution of the waiver and release, unless prior to the
+  expiration of said 90 day period the claimant files in the county in which the property is located an
+  affidavit of nonpayment".
+
+So a subcontractor who signs the interim waiver with the pay application, as GCs usually ask, and is
+then not paid, loses the lien and bond rights that waiver covers on day 90, unless it has filed the
+affidavit by then. The waiver form itself says so in a capitalised NOTICE, and leaving that notice off
+"shall render the form unenforceable and invalid". The affidavit has its own form in the same
+subsection. It is sworn before a notary and printed "in at least 12 point font". Within seven days of
+filing it, a copy goes to the owner by registered or certified mail or statutory overnight delivery.
+
+PayApps now handles that clock on Georgia jobs. When a Georgia waiver is marked sent and the payments
+recorded on its pay application do not cover it, the waiver list shows the day the 90 days end and how
+much is still unpaid. The cash page and the weekly email name it from 30 days before the end. One click
+opens the affidavit of nonpayment in the statute's wording, filled from the waiver: the county, the
+contractor, the work, the project, the owner and the property, the waiver's date and amount, and the
+amount still unpaid. You check it, print it at 12 point and take it to a notary. It counts 90 calendar
+days from the day you marked the waiver sent and does not move the date for a weekend or holiday, so do
+not wait for the last day. Whether to file, and where, is still your decision with counsel.
+
