@@ -387,8 +387,6 @@ before writing the first scene.
 
 **For Other Minds**
 
-- *The drain that was not on the drawings* *(Drafting, 2026-11-26.)* (proposed 2026-11-26): Cromwell's rule. A 2054-55 small building firm in Dunbar, East Lothian, repairing a damp patch at the foot of an invented parish church's north aisle wall, runs a diagnosis agent whose vendor template gives any cause with no recorded asset (a drain not on the drawings) a probability of exactly zero, a rule written for the good reason of stopping agents from blaming invisible pipes. Bayes' rule multiplies a zero by every likelihood and gets zero, so a retired mason's memory of a drain and a hose test on the hall roof in a dry week only shuffle the probability among condensation, rain penetration and rising damp. A first pass: priors 0.40/0.35/0.25/0; five observations; with the zero, the March posterior names rising damp at 47 in 100, while the model gave the mason's word and the hose test about 1 in 20 each; with a prior of 1 in 1,000 the drain reaches about 1 in 6 by Christmas and 3 in 4 by March; with 1 in 100, about 2 in 3 and 97 in 100. The failed first try is the gutter and lime repointing that changes nothing; the reasonable no is the finance chair who will not ask the diocese to dig a churchyard path on a memory; the turn is a cheap reversible test (the hall downpipe diverted into a butt) and the patch drying through a wet April. Fiction, not building-survey advice. Cromwell's 1650 letter to the General Assembly, a month before Dunbar, is quoted from its text only; 'Cromwell', 'Bayes' and 'prior of zero' are unused in `overlap.mjs`.
-
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
