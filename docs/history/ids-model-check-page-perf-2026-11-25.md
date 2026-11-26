@@ -72,6 +72,34 @@ to `usage.mjs` and `zip.mjs`; `html-report.test.mjs` checks the lazy form.
   page errors. The bSDD and repaired-IDS offers are not shown for the starter
   IDS in either version, so those two paths were exercised by the tests only.
 
+## Follow-up, 2026-11-26: retry after a failed load, audit modules fetched early
+
+PR #19004 sat green and unmerged for a day; a perf run on 2026-11-26 made the
+same change before finding it (its `slug_dupe.py` check came after the work,
+not before), merged #19004, and kept two things its own version did better:
+
+1. **A failed `import()` is forgotten.** `lazy()` cached the rejected
+   promise, so one dropped fetch left that button dead until a reload.
+   Playwright, first fetch of `report.mjs` aborted with `page.route`, then
+   two presses of the CSV download after the sample check: on #19004 "no
+   download" both times; now "no download", then `tiny-house-ids.csv`.
+   (`report.mjs` was used because the worker also imports `fix.mjs` and
+   `sheet.mjs`, so blocking those breaks the worker rather than the page.)
+2. **The audit starts loading `fix.mjs` and `sheet.mjs` when it posts to the
+   worker**, not after the reply. Click to "Audited in" with the
+   coordination-basics sample, Slow 4G (150 ms, 1.6 Mbps) and 4x CPU, five
+   fresh contexts each: 3,682 to 3,719 ms before, 3,281 to 3,294 ms after
+   (about 0.4 s, one round trip plus the parse).
+
+Verification: a Playwright script drove both versions unthrottled through the
+sample check (BCF, HTML, CSV, JSON), three sample IDS audits (rendered result,
+repaired IDS, .xlsx, .csv, Excel2IDS, readable .html and .md, bSDD links,
+opened through JavaScript since the bSDD block sits in a closed `<details>`)
+and the sample spreadsheet dropped as an IDS: 29 outputs, text hashed after
+masking the report's check time, zips by length, identical; no page errors.
+That covers the bSDD path the first pass left to the tests.
+`run_venture_tests.py ids-model-check`: 627 tests pass, plus page checks.
+
 ## Not changed, ranked for the next run
 
 1. **`editor.html`** (the IDS editor) and `revision.html`/`cobie.html` were not
