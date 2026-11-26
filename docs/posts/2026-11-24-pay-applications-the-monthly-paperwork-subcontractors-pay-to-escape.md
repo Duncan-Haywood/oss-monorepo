@@ -2,7 +2,7 @@
 title: "Pay applications: the monthly paperwork subcontractors pay to escape"
 date: 2026-11-24
 updated: 2026-11-26
-tags: [construction, subcontractors, billing, retainage, lien-waivers, stored-materials, schedule-of-values, pay-app-guides, for-customers]
+tags: [construction, subcontractors, billing, retainage, lien-waivers, stored-materials, schedule-of-values, certified-payroll, davis-bacon, pay-app-guides, for-customers]
 description: "What a monthly pay application involves for a trade sub, what billing tools charge today (sourced), and the product we are building. In development."
 ---
 
@@ -204,6 +204,18 @@ so the cost can be corrected. Payroll run through QuickBooks Payroll is not in
 QuickBooks' accounting data that apps can read, so labor comes in from the
 payroll report instead (below). (Added 2026-11-26; in development, not
 for sale, and not yet tried against a live QuickBooks company.)
+
+Not every company tags costs to a customer. Plenty of electrical and
+mechanical subs on QuickBooks Online Plus or Advanced keep one customer per GC
+and track each job as a class instead ("Jobs:Mesa Clinic"), so every bill line
+carries the job's class and the profit-and-loss by class is their job report.
+For them the link can now be a class: choose "Costs tagged by: Class" and pick
+it. If the job's invoices already carry a class (set on the QuickBooks page),
+that class is offered first. PayApps then reads the bills, checks, card
+charges, vendor credits, payroll journal entries and purchase orders whose
+lines carry that class, and nothing tagged only to a parent class such as
+"Jobs". (Added 2026-11-26; in development, not for sale, and not yet tried
+against a live QuickBooks company.)
 
 Purchase orders count too. A switchgear order placed in September for $18,000 is
 cost on its way, and if the job report only shows the $9,000 billed so far, the
@@ -473,6 +485,36 @@ and the location goes on the invoice. If someone later makes that class
 inactive in QuickBooks, the job's next invoice is held back with a message
 naming it. PayApps does not post it to no class. This is also tested
 against a simulated QuickBooks company only.
+
+**Certified payroll on Davis-Bacon jobs** (added 2026-11-26). A sub on a
+Federal or federally assisted job (a VA clinic, a federally funded school or
+transit project) owes the GC a certified payroll every week, on top of the
+monthly pay application. The Department of Labor's regulations (29 CFR
+5.5(a)(3)(ii)) require the weekly payroll. DOL's own Form WH-347 is
+optional, and DOL says a properly completed one satisfies the requirement. Each worker gets a row per labor
+classification, with hours for each of the seven days split into straight
+time and overtime, the rate paid, fringe benefit credit and cash in lieu,
+gross pay for this job and for all work, tax, FICA and other deductions, and
+net pay. A second page carries a statement of compliance that the official
+who paid the crew signs. The current revision (January 2025) has six
+checkboxes in that statement, with tables for apprenticeship programs and for
+each fringe plan's hourly credit per worker.
+
+The arithmetic is where a hand-filled form goes wrong: overtime on more than 40 hours in the week across all jobs, fringe
+credit times hours, net pay that has to match the check. In the build, the job
+gets a certified payroll page that works out those columns from what the
+contractor types. It refuses to print a full Social Security number (DOL's
+instructions forbid it), hours over 24 in a day, or deductions larger than
+gross pay. It warns about straight time over 40 hours, an overtime rate under
+time and a half, a rate under the wage determination's figure the contractor
+typed, and an unfunded fringe plan, which needs DOL approval first. The PDF
+follows the form's columns, prints the statement of compliance in the form's
+own words, and leaves the signature blank, because DOL does not accept a
+copied one. Workers' names and numbers are not stored on our servers. The
+draft stays in the contractor's browser, so next week starts from this week's
+crew. It is not a Department of Labor product and not legal advice: the
+contractor checks the figures and signs. Like the rest of the build, it is in
+development.
 
 ## What exists now, free
 
