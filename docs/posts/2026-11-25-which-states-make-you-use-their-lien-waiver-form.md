@@ -332,3 +332,32 @@ holiday, so do not wait for the last day. The free guide,
 [statutory lien waiver forms by state](https://marisstella.app/pay-app-guides/lien-waiver-forms-by-state.html),
 now has a Mississippi row and section. PayApps is in development, and nothing is for sale yet. Not
 legal advice: ask a Mississippi lawyer before relying on a waiver.
+
+## Update, 2026-11-26: the waivers you collect from your own suppliers
+
+Everything above is about the waiver you give. Many GCs also want waivers from the people *you*
+pay: the supply house that delivered the wire, the rental yard, the insulation sub you brought in.
+These are often called lower-tier waivers. A subcontract or the GC's pay-app checklist may ask for
+them with each application, and a payment can sit until the last one arrives. Whether yours does,
+and which kind it wants (conditional for this period, unconditional for money you already paid
+out), is in your subcontract, not in this post.
+
+The work is not the form. The supplier signs its own state's form, or the GC's. The hard part is
+the list: who owes you one this month, whether you have asked, and who is still out on the day you
+want to submit. PayApps, the pay-app product we are building, now keeps that list on each pay
+application:
+
+- **Who to ask** comes from the job's purchase orders and subcontracts, one row per vendor. Vendors
+  that have invoiced something to date are ticked, and those with nothing invoiced yet are not,
+  because they may have furnished nothing this period. Last month's list is offered too. You tick
+  who owes one, pick the waiver kind, and add them all through the period end in one go.
+- **Each waiver** is shown as not asked, asked (with the days it has been waiting) or received,
+  with the amount and a note. The pay app says "3 of 5 in; still out: Rio Rentals, Valley
+  Insulation".
+- **The request** is a short email in plain words that you copy or open in your mail app: the job,
+  the GC, the kind of waiver, the through date and the amount. PayApps sends nothing itself.
+
+The signed copies go in the pay app's attachments, so they land in the backup packet next to your
+own waiver. A later part will attach each file to its row and list the waivers still out across
+jobs in the weekly email. This is on the Crew plan and up, alongside lien waivers. PayApps is in
+development, and nothing is for sale yet. Not legal advice.

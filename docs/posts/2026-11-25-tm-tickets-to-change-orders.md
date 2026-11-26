@@ -153,6 +153,31 @@ how many signed tickets are on no change order, what they add up to, and the dat
 one, because most subcontracts set a deadline for submitting extra work. Like the RFI and
 submittal logs, it is in development and not yet open to the public.
 
+## Price tickets from the subcontract's rate sheet
+
+Many subcontracts carry a T&M exhibit: the hourly rate for each trade, the equipment rates, how
+material is priced, and the markups on each. A GC reviewing a change order request checks the
+ticket's pricing against that exhibit. A journeyman billed at last year's rate, or a 15% markup
+where the exhibit says 10%, is the usual reason a request comes back. Two habits help:
+
+- **Type the exhibit in once per job**, with where it came from ("Exhibit D, rates through June
+  2027"), and price every ticket on that job from it rather than from memory or the last ticket.
+- **Check each ticket against the sheet before it goes out.** A rate that differs may be right
+  (overtime, a different crew), but you should know before the GC asks.
+
+The hosted pay-app billing we are building keeps one rate sheet per job. A job that already has
+tickets gets a first draft from the rates on them, and you correct it against the exhibit. New
+tickets start with the sheet's markups, and filling blank rates uses the sheet first. Changing
+the sheet never quietly reprices a ticket that has already been written. Instead, a ticket not
+yet on a change order lists every rate or markup that differs from the sheet, so a person
+decides which one is right.
+
+Signed tickets that are on no change order are also listed in the opt-in weekly email, one line
+per job, oldest work first. Each line gives the ticket numbers, what is priced so far and how
+many tickets still have no rate. Most subcontracts set a deadline for submitting extra work, so
+a signed ticket three weeks old belongs on the week's list. Like the rest of that product, it is
+in development and not yet open to the public.
+
 ## What the T&M log will not do
 
 It does not tell you whether work is extra, whether a signed ticket counts as notice under
