@@ -37,6 +37,8 @@ Drop the AEAT's reply next to the records you sent. That is the `RespuestaRegFac
 
 We had one real AEAT reply to test with, recorded and anonymised by another open-source project: code 1123, "El formato del NIF es incorrecto", on a NIF of `AAAA`. Before this change the checker would have passed that record. Now it explains the reply and reproduces it.
 
+*Fix, 26 November 2026.* The "accepted, yet this checker flags it" note had a bug. Chain checks (a broken link to the previous record, say) were matched to a record by the start of its invoice number. So a batch holding F1 and F10, where only F10's link was broken, also blamed F1, and an F1 the AEAT accepted was reported as one the checker flags. Chain findings are now matched on the record's full number, date and issuer. A test pins the F1/F10 case.
+
 ## What it is not
 
 The mapping comes from reading the AEAT's Spanish text against the rules. We have the AEAT's real answer for only one code so far. It does not look anyone up in the census, does not send anything to the AEAT, and does not certify a billing system. Measurements: `ventures/einvoice-preflight/eval/verifactu-aeat-codes-2026-11-15.md`. The code is MIT.

@@ -242,7 +242,7 @@ const TS_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:[+-]\d{2}:\d{2})$/;
 const cents = (s) => Math.round(Number(s) * 100);
 const fmt = (c) => (c / 100).toFixed(2);
 const sameId = (a, b) => !!a && !!b && a.issuer === b.issuer && a.number === b.number && a.date === b.date;
-const idText = (id) => (id ? `${id.number || "?"} of ${id.date || "?"} (issuer ${id.issuer || "?"})` : "?");
+export const idText = (id) => (id ? `${id.number || "?"} of ${id.date || "?"} (issuer ${id.issuer || "?"})` : "?");
 const nifLike = (s) => /^[0-9A-Z]\d{7}[0-9A-Z]$/.test(String(s || ""));
 
 export function readVerifactu(source) {
