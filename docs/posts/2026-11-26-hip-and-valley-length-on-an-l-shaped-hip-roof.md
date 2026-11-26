@@ -3,7 +3,7 @@ title: "How long are the hips and valleys on an L-shaped hip roof?"
 date: 2026-11-26
 updated: 2026-11-26
 tags: [wall-framing-takeoff, for-customers, construction]
-description: Hip, valley and ridge lengths for an L-shaped hip roof and its sheathing courses, by hand at 4 to 12 in 12, with hip cut-offs reused at the valleys.
+description: Hip, valley and ridge lengths for an L-shaped hip roof, and its sheathing courses by hand, with hip cut-offs reused at valleys and end joints on rafters.
 ---
 
 If you order hip and ridge cap, valley flashing or hip rafters off a plan, you need three numbers: the ridge length, the hip length along the slope and the valley length along the slope. On a rectangle there are textbook formulas. On an L, a T or a stepped plan, most people sketch the roof by hand. This post works one L-shaped house through by hand, gives the multipliers so you can check your own, and says what the framing takeoff we are building now does with any square-cornered outline.
@@ -94,9 +94,23 @@ Lay each course 48 in up the slope from the eave. Where a course ends at a **hip
 
 The second saving is the narrow top courses. A 32-1/2 in strip and a 3-9/16 in strip both come out of one 48 in sheet. Ripping each width from its own sheets wastes the rest.
 
-With both changes, the takeoff's count for the same stair-step falls from 41 to **34 sheets** (25.6% offcut), and from 49 to 44 at 12 in 12. The L above falls from 68 to **65** at 6 in 12, and by 3 to 4 sheets at every pitch in the table. Across 200 random stepped outlines the total is 9% lower. The count is still an upper bound. Hip cut-offs beyond what the valleys need are not reused, and neither are length offcuts. End joints are not yet moved onto rafters, so your framer may land a joint between rafters and need H-clips or blocking there.
+With both changes, the takeoff's count for the same stair-step falls from 41 to **34 sheets** (25.6% offcut), and from 49 to 44 at 12 in 12. The L above falls from 68 to **65** at 6 in 12, and by 3 to 4 sheets at every pitch in the table. Across 200 random stepped outlines the total is 9% lower. The count is still an upper bound. Hip cut-offs beyond what the valleys need are not reused, and neither are length offcuts. End joints were not yet moved onto rafters here; the next section does that.
 
 How it was checked: a rectangle still gives the plain hip-roof count piece for piece. On 120 random outlines, every sampled point of the roof lies under a piece of its own course, and a reused triangle has to cover the point itself, not just its strip.
+
+## End joints on the rafters, courses staggered (added 2026-11-26)
+
+Cutting every course into plain 8 ft lengths makes the count low, but on a hip plane the course starts at the hip line, not at a rafter. So a joint 96 in along the course usually lands between rafters, and the code books want panel ends over framing. The fix is to pick the joint, not the length: from the end you start at, run each sheet to the **farthest rafter centre it reaches**, cut it there, and carry on from that rafter.
+
+By hand, on a 40 × 28 ft hip roof at 6 in 12 with rafters 16 in on centre and a 12 in overhang. Along the 42 ft (504 in) eave the rafters stand 12 in in from the eave corner and then every 16 in, at 12, 28, 44 … in. The farthest one within 96 in of the corner is at 92 in. After that, 96 in is exactly six spaces, so the joints fall at 92, 188, 284, 380 and 476, and the last piece is 504 − 476 = 28 in. The course above starts at the hip, 42.93 in in. To stagger the joints, the first piece of every other course is at most half a sheet, which puts its first joint on the rafter at 76 in. No joint goes on a rafter the course below already has a joint on unless nothing else is in reach.
+
+The takeoff now does this for any square-cornered plan, using the rafters it frames on that roof. It lists each course's joints and says which ones have no rafter under them, so you can block those. The cost is small:
+
+- the 40 × 28 ft hip roof: all 50 joints on rafters, none lined up, **54 sheets instead of 53**;
+- the 30 × 30 ft stair-step: **35 instead of 34**. 26 joints are on rafters. The 6 joints behind a reused valley triangle need a block, because the triangle's shape fixes where they go;
+- 80 random stepped outlines at 16, 19.2 and 24 in spacing: **2.9% more sheets** in total. Of 2,922 joints, all but one of those not behind a valley triangle land on a rafter.
+
+How it was checked: every joint marked as on a rafter was matched to a framed rafter at that spot whose length spans that course. No joint shares a rafter with the course below. Each course still covers exactly what the plain layout covered, and that layout is the one checked point by point on 120 random roofs above. Blocking pieces are not in the lumber order yet.
 
 ## Where to use it
 

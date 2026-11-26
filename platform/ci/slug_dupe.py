@@ -22,7 +22,9 @@ It also asks GitHub's search for pull requests with the slug in their title
 That covers the whole --days window whatever the clone's depth (two runs on
 2026-11-26 had the deepen cut to a few hours) and lists open PRs, so the
 separate open-PR search is only needed for a keyword that is not in titles.
-When gh cannot answer it says so and the git checks stand alone; --no-search skips it.
+When the search answers, the deepen is skipped (only the tip is fetched): PR
+titles already cover the window, and the deepen cost ~30 s a call. When gh
+cannot answer it says so and the git checks, deepened, stand alone; --no-search skips it.
 
 Exit 1: `ventures/<slug>` is already on origin/main, or a commit naming the
 slug landed there within --days, or a PR titled with it merged within --days. Extend that work instead of duplicating it.
@@ -104,8 +106,8 @@ def search_prs(slug, days, repo, run=subprocess.run, today=None):
     return merged, open_
 
 
-def refresh(remote="origin", days=14, budget=30.0):
-    """Bring <remote>/main to its tip, then deepen it to `days` within `budget` seconds.
+def refresh(remote="origin", days=14, budget=30.0, deepen=True):
+    """Bring <remote>/main to its tip, then (with `deepen`) deepen it to `days` within `budget` seconds.
 
     The tip is what catches a sibling that merged after the clone was made (PR #18769),
     and it costs only the new commits. Deepening a fresh cloud clone to 14 days took
@@ -120,7 +122,7 @@ def refresh(remote="origin", days=14, budget=30.0):
         print(f"warning: could not refresh {remote}/main; reading the local ref, "
               "which may be stale", file=sys.stderr)
         return
-    if not fetch_ref.is_shallow(cwd):
+    if not deepen or not fetch_ref.is_shallow(cwd):
         return
     cutoff = time.time() - days * 86400
     old = fetch_ref.oldest([f"{remote}/main"], cwd)
@@ -149,28 +151,30 @@ def main(argv=None):
         # An empty slug greps every commit and lists all of ventures/: always "duplicate".
         print(f"not a venture slug: {a.slug!r}", file=sys.stderr)
         return 2
-    cut = refresh(a.remote, a.days, a.budget) if not a.no_fetch else None
+    # Search first: when GitHub answers, PR titles cover the whole --days window (every
+    # change lands as a squash commit titled like its PR), so the shallow-clone deepen
+    # would add only commits naming the slug in their body, at ~30 s a call (3 runs on
+    # 2026-11-26 reported the wait). The tip refresh still runs: the git checks of
+    # ventures/<slug> and of branches need a current ref, not a deep one.
+    repo = None if a.no_search else repo_of(a.remote)
+    found = search_prs(a.slug, a.days, repo) if repo else None
+    cut = refresh(a.remote, a.days, a.budget, deepen=found is None) if not a.no_fetch else None
     try:
         on_main, commits, branches = check(a.slug, a.days, a.remote)
     except RuntimeError as e:
         print(f"error: {e}", file=sys.stderr)
         return 2
-    merged, open_, found = [], [], None
-    repo = None if a.no_search else repo_of(a.remote)
-    if repo:
-        found = search_prs(a.slug, a.days, repo)
-        if found is None:
-            print("note: GitHub search for PRs was unavailable; open PRs are unchecked "
-                  "(search_pull_requests) and the git window above is all that was read", file=sys.stderr)
-        else:
-            seen = " ".join(commits)
-            merged = [m for m in found[0] if f"(#{m.split()[0][1:]})" not in seen]
-            open_ = found[1]
+    merged, open_ = [], []
+    if repo and found is None:
+        print("note: GitHub search for PRs was unavailable; open PRs are unchecked "
+              "(search_pull_requests) and the git window above is all that was read", file=sys.stderr)
+    elif found is not None:
+        seen = " ".join(commits)
+        merged = [m for m in found[0] if f"(#{m.split()[0][1:]})" not in seen]
+        open_ = found[1]
     if cut:
         # The deepen is bounded; say what the git search missed, and what covered it.
-        covered = (f"PR titles were searched over all {a.days} days on GitHub, so only commits "
-                   "outside a slug-titled PR can be missed") if repo and found is not None else \
-                  "For the full window run with --budget 0 (in the background: about a minute the first time)"
+        covered = "For the full window run with --budget 0 (in the background: about a minute the first time)"
         print(f"note: {a.remote}/main is at its tip, but deepening to {a.days} days took over "
               f"{a.budget:g} s, so commits were searched back to {cut} only. {covered}.", file=sys.stderr)
     if on_main:

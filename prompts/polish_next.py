@@ -33,26 +33,24 @@ CITE = re.compile(
 
 
 def shallow_boundary(root: Path = ROOT) -> set[str]:
-    """Commits at a shallow clone's edge (empty for a full clone).
-
-    git diffs such a commit against an empty tree, so every file in it looks
-    "added" there. Unskipped, the whole tree's polish notes landed in one
-    boundary commit and the newest note fell to whichever git listed first
-    (2026-11-26: it named a note from October; shallow-boundary-lint.test.mjs).
-    """
+    """Commits at a shallow clone's boundary: git diffs them against nothing, so
+    `--diff-filter=A` says they add every file (platform/daily/collect.mjs)."""
     try:
-        path = subprocess.run(["git", "rev-parse", "--git-path", "shallow"], cwd=root,
-                              capture_output=True, text=True, timeout=30).stdout.strip()
-        file = Path(path) if Path(path).is_absolute() else root / path
-        return set(file.read_text().split()) if path and file.exists() else set()
+        rel = subprocess.run(["git", "rev-parse", "--git-path", "shallow"], cwd=root,
+                             capture_output=True, text=True, timeout=30).stdout.strip()
+        path = Path(rel) if Path(rel).is_absolute() else root / rel
+        return set(path.read_text().split()) if rel and path.is_file() else set()
     except (OSError, subprocess.TimeoutExpired):
         return set()
 
 
 def commit_order(root: Path = ROOT) -> list[str]:
-    """Polish note names, newest add first, from git history (empty if none)."""
+    """Polish note names, newest add first, from git history (empty if none).
+
+    A note "added" by a shallow boundary commit is older than the clone's
+    history, so it is left out and ordered by name (ordered_notes)."""
     names: list[str] = []
-    edge = shallow_boundary(root)
+    boundary = shallow_boundary(root)
     for ref in ("origin/main", "HEAD"):
         try:
             out = subprocess.run(
@@ -61,14 +59,14 @@ def commit_order(root: Path = ROOT) -> list[str]:
                 cwd=root, capture_output=True, text=True, timeout=60).stdout
         except (OSError, subprocess.TimeoutExpired):
             continue
-        sha = ""
+        skip = False
         for line in out.splitlines():
             line = line.strip()
             if line.startswith("@"):
-                sha = line[1:]
+                skip = line[1:] in boundary
                 continue
             name = Path(line).name
-            if name and sha not in edge and name not in names:
+            if name and not skip and name not in names:
                 names.append(name)
         if names:
             break
