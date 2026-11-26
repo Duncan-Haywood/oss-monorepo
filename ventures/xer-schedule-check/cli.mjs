@@ -234,6 +234,14 @@ for (const f of new Set(VALUED)) {
   const v = opt(f);
   if (args.includes(f) && (v === undefined || v.startsWith("--"))) { console.error(`xer-schedule-check: ${f} needs a value`); process.exit(2); }
 }
+// count flags take a whole number: `--paths five` read as NaN gave every
+// float path, `--paths 0` none, and `--seed x` a risk run with seed null that
+// cannot be repeated (red team 2026-11-26); the web page clamps its own inputs
+const WHOLE = { "--paths": 1, "--crew": 1, "--max-runs": 1, "--seed": -Infinity };
+for (const [f, min] of Object.entries(WHOLE)) {
+  const v = opt(f);
+  if (v !== undefined && !(/^-?\d+$/.test(v) && Number(v) >= min)) { console.error(`xer-schedule-check: ${f} takes a whole number${min > -Infinity ? ` of at least ${min}` : ""} (got ${v})`); process.exit(2); }
+}
 // flags whose value may be left out: what follows is their value unless it is
 // a file on disk (so `--risk 1000 schedule.xer` and `--risk schedule.xer` both
 // read schedule.xer), and is never taken for the schedule

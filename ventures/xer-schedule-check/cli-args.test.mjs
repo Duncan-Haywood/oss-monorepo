@@ -67,3 +67,19 @@ test("every flag read with opt() is declared VALUED or OPTIONAL, so its value is
   assert.deepEqual([...read].filter((f) => !declared.has(f)), []);
   assert.deepEqual([...list("OPTIONAL")].filter((f) => list("VALUED").has(f)), []);
 });
+
+test("count flags refuse a value that is not a whole number instead of guessing", () => {
+  // red team 2026-11-26: `--paths five` gave every float path, `--paths 0`
+  // none with every activity "unreached", `--seed x` a risk run with seed null
+  withFile((dir, run) => {
+    for (const a of [["--float-paths", "--paths", "five"], ["--float-paths", "--paths", "0"], ["--float-paths", "--paths", "2.5"], ["--risk", "20", "--seed", "x"], ["--levelled", "--crew", "0"]]) {
+      const r = run("s.xer", ...a, "--json");
+      assert.equal(r.status, 2, `${a.join(" ")}: ${r.stdout.slice(0, 80)}`);
+      assert.match(r.stderr, /takes a whole number/);
+    }
+    const ok = run("s.xer", "--float-paths", "--paths", "2", "--json");
+    assert.equal(ok.status, 0, ok.stderr);
+    assert.equal(JSON.parse(ok.stdout).paths.length, 2);
+    assert.equal(run("s.xer", "--risk", "20", "--seed", "-3", "--json").status, 0);
+  });
+});
