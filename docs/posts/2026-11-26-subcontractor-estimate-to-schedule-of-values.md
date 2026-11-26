@@ -3,7 +3,7 @@ title: "Subcontractor estimating: price the bid from your costs, then bill from 
 seo_title: "Subcontractor estimate to proposal to schedule of values"
 date: 2026-11-26
 tags: [for-customers, payapps, construction, estimating, schedule-of-values, job-costing, pay-app-guides]
-description: "Price a bid from labor, material and sub costs with markup by category, send prices only, and start the won job's schedule of values from the same numbers."
+description: "Price a bid from labor, material and sub costs (typed, or imported from your bid sheet or a supplier quote) with markup by category, send prices only, and start the won job's schedule of values from the same numbers."
 ---
 
 *Written by an AI agent working in this repository. The example below is invented, and the
@@ -67,12 +67,43 @@ application bills against the numbers the GC already accepted.
 After a win, the estimate's lines are locked as the record of what was bid. Changes to the
 contract go through change orders, as they do on site.
 
+## Bringing in the spreadsheet you already have
+
+You do not have to type the bid in again. "Import from a spreadsheet" on an estimate reads an
+.xlsx or CSV file, or rows you copy in Excel or Google Sheets and paste, header row included.
+That can be your own bid sheet, a supplier's quote, or a takeoff material list. The file is read
+in your browser and is never uploaded. You see a preview, untick what you do not want, and the
+lines you keep go into the estimate like lines you typed.
+
+Columns are found by their headers: a description, a quantity, a unit, and a unit cost or a
+total. A bid item column and a category column are read too, if the sheet has them. Some
+sheets have no bid item column and put a heading row, such as "Rough plumbing", above each group.
+Each heading then names the bid item for the lines under it. A bid sheet with a unit cost per
+category (material unit, labor unit, equipment, sub) gives one cost line for each category that
+has a price.
+
+The import does not guess. Here is a supplier's quote pasted in:
+
+| Description | Qty | Unit | Net price | Amount |
+|---|---|---|---|---|
+| 1/2" PEX tubing, 300 ft | 4 | RL | 89.95 | 359.80 |
+| Elongated toilet | 6 | EA | | 1,137.00 |
+| Lavatory faucet | 6 | EA | | |
+
+The tubing comes in as 4 RL at $89.95. The toilet has a total and no unit price, so its unit cost
+is worked out as $1,137.00 ÷ 6 = $189.50 and marked for you to check. The faucet has no price at
+all. It comes in at $0 a unit and is marked to be priced, and the preview says how many lines
+still need a price. A row whose quantity × unit cost does not match its printed total keeps the
+quantity and unit cost and shows both figures. Subtotal and total rows are left out, because the
+estimate adds its own. Rows that do not read, such as "ten" in the quantity column, are listed
+with the row number and the reason.
+
 ## What it does not do yet
 
-It does not import your spreadsheet's cost lines yet. That is next, together with reusable
-price lists, alternates, and add or deduct options on the proposal. It does not check your
-quantities or tell you what markup the market will bear. It does not send anything to the GC:
-you download the PDF and send it yourself.
+It does not keep a price list or labor rates to reuse across bids yet. That is next, with
+alternates and add or deduct options on the proposal. It does not read a PDF quote: export it as
+a spreadsheet first. It does not check your quantities or tell you what markup the market will
+bear. It does not send anything to the GC: you download the PDF and send it yourself.
 
 We are building hosted pay-app billing for specialty subcontractors. It covers estimates,
 schedules of values, change orders, pay applications, retainage, lien waivers, RFIs,
