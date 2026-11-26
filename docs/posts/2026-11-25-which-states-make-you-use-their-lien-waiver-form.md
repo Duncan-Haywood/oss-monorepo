@@ -1,6 +1,6 @@
 ---
 title: "Which states make you use their lien waiver form, read from the statutes"
-seo_title: "Statutory lien waiver forms by state: 10 states read from the law"
+seo_title: "Statutory lien waiver forms by state: 11 states read from the law"
 date: 2026-11-25
 tags: [for-customers, payapps, construction, lien-waivers, pay-app-guides]
 description: "Nine states set lien waiver wording in statute. We read each one from the legislature's own published text: how many forms, how strict, and the trap in each."
@@ -80,9 +80,9 @@ A conditional waiver releases the owner, lender or bond surety only once there i
 payment: your endorsement on a check that has been paid, or your written acknowledgment
 (Civ. Code § 8124).
 
-**What we could not check.** Georgia and Mississippi are often said to have statutory forms, but we could not
-open their official text, so they are not listed rather than listed from memory. Massachusetts was read the
-next day (update below).
+**What we could not check.** Mississippi is often said to have statutory forms, but we could not open its
+official text, so it is not listed rather than listed from memory. Massachusetts and Georgia were read the
+next day (updates below).
 
 **Where this goes.** The pay-app product we are building for specialty subcontractors already
 prints the Arizona, California, Florida, Michigan, Missouri, Nevada, Texas, Utah and Wyoming waivers word for
@@ -224,3 +224,48 @@ you sign. The free guide,
 [statutory lien waiver forms by state](https://marisstella.app/pay-app-guides/lien-waiver-forms-by-state.html),
 now has a Massachusetts row and section. Whether a general-form waiver is enforceable on a
 Massachusetts job is a question for a Massachusetts lawyer. Not legal advice.
+
+## Update, 2026-11-26: Georgia, and the 90 days that run whether or not you are paid
+
+Georgia was the other state on our "could not check" list. Its official Code is published only
+through LexisNexis, which we could not open. The State does publish the laws that wrote the
+section, so we read those: [SB 315](https://gov.georgia.gov/document/2020-signed-legislation/sb-315/download),
+which rewrote all of O.C.G.A. § 44-14-366 from 1 January 2021, and
+[SB 143](https://gov.georgia.gov/document/2021-signed-legislation/sb-143/download), which rewrote
+the affidavit of nonpayment in 2021. A bill shows what it changes by striking old words and
+underlining new ones, so we kept the underlined words and dropped the struck ones. We read each
+change against the bill. Check the current Code before relying on it. What a sub should know:
+
+- **Two forms, not four.** One is a "Waiver and Release of Lien and Payment Bond Rights Upon
+  Interim Payment" and the other is the same "Upon Final Payment". Neither is called conditional
+  or unconditional. Each waives "upon the receipt of the sum of $____". The interim form covers
+  work through a date you fill in and excepts "any retained amounts". The final form has no
+  exception.
+- **The 90 days.** Once signed, the waiver is conclusively effective at the earliest of three
+  things: the money actually arriving, a separate written acknowledgment that you were paid in
+  full, or "ninety days after the date of the execution of the waiver and release". Only one thing
+  stops the clock: filing an affidavit of nonpayment "in the county in which the property is
+  located" before the 90 days are up (§ 44-14-366(g)(2)). The form's own notice says so: you are
+  deemed to have waived "EVEN IF YOU HAVE NOT ACTUALLY RECEIVED SUCH PAYMENT, 90 DAYS AFTER THE
+  DATE STATED ABOVE UNLESS YOU FILE AN AFFIDAVIT OF NONPAYMENT". Before 2021 the period was 60
+  days, and a claim of lien stopped it too. The 2020 Act struck both. So if you sign a Georgia
+  waiver with the pay application and the check never comes, put the 90th day on your calendar.
+- **The affidavit** has its own statutory form, sworn before a notary. Within seven days of filing
+  it, send a copy to the owner by registered or certified mail or statutory overnight delivery.
+  In some cases a copy also goes to the contractor at the address on the notice of commencement.
+- **Twelve point, under seal.** Both waiver forms must "be in at least 12 point font" and "need
+  not be in boldface capital letters". They are signed under seal, with lines for a witness and
+  an address. A waiver covers only your lien and payment bond rights and "shall not be deemed to
+  affect any other rights or remedies" (§ 44-14-366(a)), which is what the 2020 Act was passed to
+  say.
+
+PayApps, the pay-app product we are building, now prints both Georgia forms word for word. The
+interim form is offered for a progress waiver and the final form for a final one. It prints every
+line at 12 point, as the statute requires. From the job and the pay application it fills in the
+contractor, the project, the owner, the property, the amount and the through date. You fill in
+the county, the city and what you furnished. Day and month go on by hand when you sign under
+seal. It does not print the affidavit of nonpayment yet, and it does not remind you yet when the
+90 days are about to run out. Both are next. The free guide,
+[statutory lien waiver forms by state](https://marisstella.app/pay-app-guides/lien-waiver-forms-by-state.html),
+now has a Georgia row and section. Not legal advice: ask a Georgia lawyer before relying on a
+waiver.
