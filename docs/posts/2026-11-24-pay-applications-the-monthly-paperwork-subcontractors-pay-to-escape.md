@@ -196,6 +196,28 @@ renews, the old certificate is archived and no longer flagged. The build
 reads only the dates typed in. It does not check coverage, limits or
 what a subcontract requires. (Added 2026-11-26; still in development.)
 
+**A scanned schedule of values.** The schedule of values often arrives
+as a scan: the GC's signed copy, or a page someone ran through the
+office copier. Until now the import read a scan only if the scanner had
+saved it as a "searchable PDF", with its own text layer. If it hadn't,
+the import asked the contractor to rescan it. The build now reads a scan
+that is only pictures, too. It runs the open-source Tesseract text
+reader inside the browser, so the scan is never uploaded. The text it
+reads goes through the same checks as any other import, including the
+check that the lines add up to the sheet's own total.
+
+We tested it on two scans of a 48-line bid breakdown, tilted 1.5
+degrees as a page lies on the glass: a grey 300 dpi scan and a
+black-and-white one. Both came in with all 48 lines and the sheet's
+$1,120,223.00 total. OCR still makes mistakes. On the grey scan one cost
+code lost its spaces ("011000"). On the black-and-white scan, one amount
+came back as "9.200.00". No amount is written with two full stops, so
+the build reads it as $9,200.00 and says so. The cost codes on that scan
+were too uneven to read as a column, so its lines were numbered in
+order instead. Every figure still has to be checked against the paper.
+The first scan downloads the text reader, about 7 MB, and each page
+takes a few seconds. (Added 2026-11-26; still in development.)
+
 The working price range in our notes is about $99 to $249 a month. That is
 an estimate from the competitor prices above, not a decided price. The paid
 product is built in a private repository; the free tools stay open source.
