@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqyfckg89Nps45t9Y6gp",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T14:39:31Z",
+  "ended": "2026-11-26T15:04:20Z",
+  "wall_minutes": 25.03,
+  "tokens_in": 10080476,
+  "tokens_out": 56791,
+  "cost_usd": 4.3301,
+  "tool_calls": 83,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19383",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "vitest console.log output was not shown in a probe test; wrote to a file instead",
+    "biome flagged an array-index React key; fixed"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "roadmap_claim.py --bets said item #12 was free, but its spec-register part was claimed within the same minute by a parallel run (three runs claimed parts of #12 at once); a part-level claim picked the remaining part."
+    },
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "used --pattern '^EXIT' on a log whose last line was 'EXIT 0' and it timed out after 580 s anyway; read the log directly instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "apps/payapps/test/fixtures/README.md",
+      "why": "PyMuPDF install (to build a real Bluebeam-style stamp-annotation fixture) was refused by the permission layer",
+      "did": "real-program fixture printed by Chromium (stamp flattened into the page) plus hand-built PDFs for annotations",
+      "result": "both paths tested; the annotation path has no real-program fixture yet"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-submittals-that-hold-up-material.md (extended: reading the stamp)",
+    "apps/payapps/docs/SUBMITTALS.md 'Reading the stamp' (private)"
+  ],
+  "goal": null,
+  "notes": "Bet #1 payapps, ROADMAP #12 part 3b (claim submittals-part-3-returned-stamp), private PR 347 merged (2e2c8cf). CI starved (ci_starvation: 1 of 1 job never got a runner, run 45843096090); verified locally: run_workflow_locally payapps-ci 9/9 run steps passed, payapps-site-ci 6/6 (uses: setup steps not run); pnpm typecheck clean; pnpm test:unit exit 0 before and after merging private main (conflicts in ROADMAP, SUBMITTALS.md and submittals.tsx with the parallel register-import PR, resolved keeping both).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1e55e24a-1dc9-5642-a034-948e93127400",
+    "transcripts": 1,
+    "first": "2026-11-26T14:39:31Z",
+    "last": "2026-11-26T15:04:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 146,
+        "output": 56791,
+        "thinking": 12297,
+        "cache_read": 9929356,
+        "cache_write_5m": 0,
+        "cache_write_1h": 150974,
+        "api_equivalent_usd": 4.3301,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 146,
+      "output": 56791,
+      "thinking": 12297,
+      "cache_read": 9929356,
+      "cache_write_5m": 0,
+      "cache_write_1h": 150974,
+      "api_equivalent_usd": 4.3301,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 83,
+    "tools": {
+      "Bash": 71,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Edit": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 25.03,
+      "active_minutes": 25.03,
+      "model_minutes": 10.7,
+      "tool_minutes": 14.33,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "PDF annotation reader, stamp rules, UI, tests and docs for a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 230.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

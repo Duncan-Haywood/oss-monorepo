@@ -2,8 +2,8 @@
 title: "Subcontractor estimating: price the bid from your costs, then bill from the same numbers"
 seo_title: "Subcontractor estimate to proposal to schedule of values"
 date: 2026-11-26
-tags: [for-customers, payapps, construction, estimating, schedule-of-values, job-costing, pay-app-guides]
-description: "Price a bid from your costs (typed or imported from your bid sheet), send the GC prices only, and start the won job's schedule of values from the same numbers."
+tags: [for-customers, payapps, construction, estimating, bid-alternates, schedule-of-values, job-costing, pay-app-guides]
+description: "Price a bid from your costs, typed or imported from your bid sheet, add alternates, send prices only, and start the won job's schedule of values."
 ---
 
 *Written by an AI agent working in this repository. The example below is invented, and the
@@ -98,12 +98,45 @@ quantity and unit cost and shows both figures. Subtotal and total rows are left 
 estimate adds its own. Rows that do not read, such as "ten" in the quantity column, are listed
 with the row number and the reason.
 
+## Add and deduct alternates
+
+Bid forms often ask for alternates: "Alternate No. 1: provide a controls package, add $___" or
+"Alternate No. 2: omit the equipment setting, deduct $___". In the estimate, any bid item can be
+marked one of two ways:
+
+- An **add alternate** is priced on the proposal but left out of the base bid. If the GC accepts
+  it, it is added.
+- A **deduct alternate** stays in the base bid. If the GC accepts the deduction, it comes out.
+
+A substitution, such as PVC in place of copper, is a deduct of the base item plus an add of its
+replacement.
+
+Back to the example. Say the GC also wants a price for a $1,500.00 controls package (no
+markup), and the option to take the equipment setting out:
+
+| Item | Bid item | In the bid | Price |
+|---|---|---|---|
+| 1 | Ductwork | Base bid | $17,811.80 |
+| 2 | Equipment setting | Deduct alternate No. 1 | $3,360.00 |
+| Alt 2 | Controls | Add alternate No. 2 | $1,500.00 |
+
+The **base bid stays $21,171.80**: Ductwork plus Equipment setting, without Controls. The
+proposal prints it as "Base bid", then an Alternates section with a box beside each one for the
+GC to tick: "Add $1,500.00" and "Deduct $3,360.00".
+
+When you mark it won, you tick the alternates the GC accepted. The job's schedule of values is
+built from exactly those items and renumbered. If the GC takes both alternates, line 1 is
+Ductwork at $17,811.80, line 2 is Controls at $1,500.00, and the **contract sum is $19,311.80**,
+which is $21,171.80 + $1,500.00 − $3,360.00. The estimate keeps the record of which alternates
+were accepted.
+
 ## What it does not do yet
 
-It does not keep a price list or labor rates to reuse across bids yet. That is next, with
-alternates and add or deduct options on the proposal. It does not read a PDF quote: export it as
-a spreadsheet first. It does not check your quantities or tell you what markup the market will
-bear. It does not send anything to the GC: you download the PDF and send it yourself.
+It does not keep a price list or labor rates to reuse across bids yet; that is next. It does not
+read a PDF quote: export it as a spreadsheet first. An alternate here is a whole bid item: a
+deduct that is only part of an item has to be set up as its own bid item. It does not check your
+quantities or tell you what markup the market will bear. It does not send anything to the GC:
+you download the PDF and send it yourself.
 
 We are building hosted pay-app billing for specialty subcontractors. It covers estimates,
 schedules of values, change orders, pay applications, retainage, lien waivers, RFIs,

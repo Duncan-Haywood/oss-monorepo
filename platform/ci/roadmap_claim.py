@@ -23,7 +23,8 @@ your own claim prints YOURS (exit 0), not TAKEN. An app with no ROADMAP.md, or w
 is listed as gated with the phrase quoted (an item that mixes asks is gated only when every
 open ask waits; the listing names the open one), and the listing ends with the free, ungated item numbers. A --slug whose
 words match a fresh rival claim's (pages-shop-time-zone vs page-dates-shop-time-zone) is
-refused as NEAR (exit 4) unless --distinct. Merged and stale claims not under an item are
+refused as NEAR (exit 4) unless --distinct; claims are read again after the push, so a near rival
+that landed first in the same seconds releases yours (exit 4) and a same-item part shows as ALSO CLAIMED. Merged and stale claims not under an item are
 summed up in one line each (--all lists them with notes). A refused claim push says TAKEN
 (a rival holds the branch, exit 4) or PUSH FAILED (no one does; retry, exit 2). Exit codes: 0 ok, 2 usage or git error, 4 the item is already
 claimed (pick another).
@@ -372,6 +373,15 @@ def lost_or_failed(repo: str, app: str, slug: str, ref: str, tag: str | None, no
     return 4
 
 
+def refresh(repo: str, app: str) -> tuple[dict[str, tuple[int, str]], dict[str, tuple[int, str]]] | None:
+    """(claims, info) read from origin again, or None if ls-remote fails."""
+    ls = git(repo, "ls-remote", "origin", f"refs/heads/{PREFIX}{app}/*")
+    if ls.returncode != 0:
+        return None
+    claims = parse_claims(ls.stdout, app)
+    return claims, claim_info(repo, app, claims)
+
+
 def sibling_claims(app: str, num: int | None, slug: str, info: dict[str, tuple[int, str]],
                    now: float, stale_s: float,
                    merged: dict[str, str] | None = None) -> list[tuple[str, tuple[int, str]]]:
@@ -612,6 +622,28 @@ def main(argv: list[str] | None = None) -> int:
         if hit:
             print(f"NOTE: item {a.claim}'s text reads as gated ({hit[0]}: \"{hit[1]}\"); build it "
                   f"only if your part is not the gated one or the condition now holds, else `--release {slug}` and pick another.")
+        # Re-read the claims now that ours is on origin: the lists above were read before the
+        # push, so a rival pushed in the same seconds was invisible to both runs (2026-11-26:
+        # payapps #12 submittals-part-3-spec-register and -register-import, 1 s apart; both
+        # built the same import and one PR was reworked).
+        fresh = refresh(a.repo, a.app)
+        if fresh is not None:
+            claims, info = fresh
+            merged = merged_claims(a.repo, info)
+            mine_ts = info.get(slug, (int(now), ""))[0]
+            mine_sha = claims.get(slug, (0, ""))[1]
+            first = [] if a.distinct else [
+                (s, v) for s, v in near_claims(slug, info, now, stale_s, merged, tag)
+                if (v[0], claims[s][1]) < (mine_ts, mine_sha)]
+            if first:
+                print(f"NEAR (after the push): a rival claimed the same work first; not keeping {slug}:")
+                for s, (ts, m) in first:
+                    print(f"  - {s} ({age(ts, now)}): {RUN.sub('', m)[:140].rstrip()}")
+                r = git(a.repo, "push", "-q", f"--force-with-lease={ref}:{mine_sha}", "origin", f":{ref}")
+                print("Released your claim. Pick another item, or re-run with --distinct if the note "
+                      "shows different work." if r.returncode == 0 else
+                      f"Release failed ({r.stderr.strip()[:160]}): run `--release {slug}`, then pick another item.")
+                return 4
         # Different part slugs of one item never collide on the branch name, so two runs can
         # claim the same work under two names (2026-11-25: inbound-rfq-email-notify and
         # inbound-rfq-email-part-2-notify, minutes apart; the second was built and discarded).
@@ -620,7 +652,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"ALSO CLAIMED on item {a.claim} (fresh, other slugs). If one covers what you "
                   f"are building, `--release {slug}` and pick another:")
             for s, (ts, m) in siblings:
-                print(f"  - {s} ({age(ts, now)}): {m[:140]}")
+                print(f"  - {s} ({age(ts, now)}): {RUN.sub('', m)[:140].rstrip()}")
         return 0
 
     head = "ROADMAP Next" if roadmap.is_file() else "has no ROADMAP.md"
