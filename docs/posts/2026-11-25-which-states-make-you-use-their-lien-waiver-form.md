@@ -374,4 +374,28 @@ opening it.
 Only PDFs and JPEG or PNG photos are accepted on a row, because those are what the packet can
 merge; a Word file would be left out of it and look like a missing waiver. If you remove a supplier
 from the list, its file stays on the pay app as ordinary backup rather than disappearing. The list
-of waivers still out across all your jobs, in the weekly email, is the next part.
+of waivers still out across all your jobs, in the weekly email, is the next part (done the same
+day: below).
+
+### Later still: every waiver still out, across all your jobs
+
+A list per pay application works when you are sitting in that pay application. It does not help on
+a Monday morning with six jobs open and the question "who am I still waiting on?". So the waivers
+still out now show in two more places.
+
+- **The projects page** lists every pay application on an
+  open job that has a supplier's or sub's waiver not yet in. One line each: "Clinic TI (#2207), pay
+  app 4 to Harbor Builders: 3 lower-tier waivers still out (ABC Supply, Ferguson and Valley Rebar),
+  the oldest asked for 12 days ago, 1 not asked for yet." The longest wait comes first, and each
+  line opens that pay application's list, where the request email is drafted.
+- **The weekly "money to chase" email**, for everyone who turned it on, carries the same lines
+  under "Lower-tier waivers still out", each linked to its pay application. A waiver still out is
+  enough on its own to send that week's email, because a GC that wants lower-tier waivers can hold
+  the whole payment for the last one.
+
+"Still out" means only what you entered: no received date and no signed copy attached on its row.
+PayApps does not decide whether your GC needs a waiver from that supplier; you put the supplier on
+the list. A waiver drops off the moment you attach the signed copy, and a job you close drops off
+with all its lists. The sample job never shows up in the email. As before, PayApps sends nothing to
+your suppliers itself, it is still in development with nothing for sale yet, and this is not legal
+advice.
