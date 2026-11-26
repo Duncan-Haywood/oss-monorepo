@@ -567,6 +567,33 @@ tasks:
       Left: Grant Autopilot (private repo session), apply + cutover once the account exists, then
       the wrangler/workflow removal PRs.
 
+  - id: products-to-public-repo
+    direction: promote-or-demote
+    title: Keep paid products in this repository under an all-rights-reserved licence and move the private apps here
+    done_when: >-
+      (1) a PR adds the all-rights-reserved notice to ALLOWED_LICENCES in
+      platform/security/risk_review.py (a gate change, merged on its own
+      first); (2) a template notice at portfolio/monetization/licences/
+      ALL-RIGHTS-RESERVED, and ventures/<slug>/LICENSE switched to it for the
+      proprietary track, keeping each one's published-MIT/FSL note; (3) a
+      pre-publication audit script (secrets, personal data, client data,
+      internal hostnames, security notes) run on each private app, output in
+      the PR; (4) each private app and packages/* copied into the tree, one PR
+      each, with CI ported and the private copy removed; (5) payments infra,
+      secrets inventory and owner checklists stay in private-monorepo, and
+      the CLAUDE.md files, transition.py MOVED and goals.md say where things
+      are.
+    hours: 40
+    status: open
+    added: 2026-11-26
+    notes: >-
+      Owner, 2026-11-26 (LICENSING_TRANSITION.md, "Superseded, 2026-11-26").
+      Publishing private code cannot be undone: audit before every copy.
+      Watch: the payments account's OIDC trust is private-monorepo only, so
+      a product's payments/webhook deploy either stays there or the trust is
+      redesigned in its own reviewed PR; private apps use a pnpm workspace
+      and packages/ (billing, admin-metrics, trust-page, lien-waivers,
+      qbo-sync, cad-features) that move with them.
   - id: aws-client-accounts
     direction: aws-consolidation
     title: Vend one AWS account per client project and report its cost for cost-plus billing
