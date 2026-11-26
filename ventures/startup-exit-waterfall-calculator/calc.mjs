@@ -86,10 +86,12 @@ export function normalize(raw) {
 }
 
 export function netProceeds(m, exit = m.exit) {
-  const fees = exit * m.feePct / 100;
-  const afterDebt = Math.max(0, exit - m.debt - fees);
+  // Debt and fees both come off the top; together they can never take more than the sale.
+  const debtPaid = Math.min(m.debt, exit);
+  const fees = Math.min(exit * m.feePct / 100, exit - debtPaid);
+  const afterDebt = Math.max(0, exit - debtPaid - fees);
   const carve = afterDebt * m.carvePct / 100;
-  return { fees, debtPaid: Math.min(m.debt, exit), carve, net: Math.max(0, afterDebt - carve) };
+  return { fees, debtPaid, carve, net: Math.max(0, afterDebt - carve) };
 }
 
 // Sum of what participants take at a per-share price p.

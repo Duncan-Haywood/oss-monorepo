@@ -1,0 +1,211 @@
+{
+  "date": "2026-11-26",
+  "subject": "ventures/startup-exit-waterfall-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-26-i-2d20",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality round 115, see run record",
+  "status": "audited",
+  "professional": "a startup/VC lawyer or cap-table specialist who builds exit waterfalls (Carta-level); they check first that a multi-series stack with mixed seniority, a capped participating senior with cumulative dividends, options with a strike and an unconverted SAFE reproduces by hand, that each non-participating series' convert-or-take decision is the one it would actually make, and that the conversion breakpoints are right",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 3,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "Ran the shipped functions with node (scratchpad w.mjs, w2.mjs) and recomputed by hand from standard NVCA waterfall mechanics. (1) The page's sample deal (exit $60M, debt $1.5M, 2% fees; Seed $2M/1.1M sh rank 3, A $8M/1.6M sh rank 2, B $20M/2.0M sh rank 1 capped 3x with 8% x 2y cumulative dividend; $500k post-money SAFE at $30M cap; 6.3M common; 1.2M options @ $0.40). By hand: net 57.3M; SAFE shares = (1/60) x 12.2M / (59/60) = 206,779.66; B claim 23.2M, room 36.8M; iterating decisions, A keeps its $8M pref (converted would be 1.6M x 2.787 = 4.46M), Seed converts (2.71M > 2M), SAFE converts (508,588 > 500k), B participates (28.12M vs 9.21M converted); per-share p = (57.3 - 23.2 - 8 + 1.2M x 0.40) / 10,806,779.66 = 26.58M / 10.80678M = 2.4595671. Payouts: Founders 14,757,403, Employees 737,870, options 1.2M x (p - 0.40) = 2,471,481, Seed 2,705,524, A 8,000,000, B 23.2M + 4,919,134 = 28,119,134, SAFE 508,588. Tool: identical to the dollar, p = 2.4595671267. (2) Breakpoints for the sample: common's first dollar at net = stack 33.7M -> exit = (33.7 + 1.5)/0.98 = 35,918,367 (tool 35,918,367); Seed converts when 1.1M x p = 2M with B participating and SAFE on its pref: net = 1.818182 x 10.6M + 31.7M - 0.48M = 50.4927M -> exit 51.9927/0.98 = 53,053,803 (tool 53,053,803). (3) Capped participation, 1M common, A $2M/1M sh capped 3x: at $10M A = 2M + 4M = 6M (cap binds), at $11M A 6M / C 5M, at $14M A converts 7M/7M, conversion breakpoint $12M; tool identical. (4) Options cashless exercise: 900k common + 100k options @ $2 at $10M -> p = 10.2M/1M = 10.20, options 820,000; tool 10.2 / 820,000. (5) Pre-money-cap note $1M at 10% x 2y, cap $9M, 9M common, exit $20M: 1.2M shares, 1.2/10.2 x 20M = 2,352,941; tool 2,352,941. Every recomputed output matches. Not scored 4: no comparison against a cap-table platform or a law-firm funds-flow, and one reporting slip (debt + fees can exceed the exit, below).",
+    "completeness": "Claimed features checked end to end via the shipped calc.mjs: net proceeds with debt/fees/carve-out (works; carve-out mutant caught), multiple, cumulative simple dividends, seniority and pari passu pro-rata shortfall (works), full and capped participation (works), option strike (works), convert-or-not iteration to a stable set (works on the sample and a two-series pari passu case), breakpoints (common first dollar, per-series conversion; reproduced), 0.25x-10x sweep (8 columns), SAFE and note conversion (reproduced), CSV with formula guard, usage counting with opt-out and DNT (usage.test.mjs). No TODOs or stubs; footer links ../safe-dilution-calculator/ and ../startup-option-value-calculator/ exist as ventures. Limits: the form has fixed rows (4 preferred, 2 SAFEs, 1 note, 3 common, 2 option rows).",
+    "verification": "`node --test '*.test.mjs'` (and bare `node --test`, as README says): 39 pass, 0 fail, 0.2 s. Seven mutants via quality_mutate.py: pari passu pro-rata -> equal split caught; strike ignored caught; capped room ignoring preference caught; SAFE post-money /(1-f) dropped caught; carve-out on gross caught; note interest dropped caught; capped-participation series removed from the conversion breakpoints SURVIVED (calc.mjs:211). Tests pin hand calcs, not only engine output, so core arithmetic is well guarded; the breakpoint list for capped series is not.",
+    "craft": "Read calc.mjs (295 lines), index.html script, usage.mjs, all three test files. Pure functions, one engine for page and tests, robust bisection for the per-share price, CSV formula-injection guard, esc() on every user string in innerHTML. Defects: findings look series up by name (calc.mjs:262), so two series with the same name lose the 'paid twice' finding (repro: two rows named Pref, the second full participating -> no participation finding); netProceeds reports debtPaid = min(debt, exit) while fees are still taken in full (calc.mjs:92: exit 1M, debt 1M, fee 5% -> debt 1,000,000 + fees 50,000 > exit); dense one-line formatters (calc.mjs:4-5); blank exit silently becomes 0 rather than an error (calc.mjs:12); the 'cannot absorb' branch (calc.mjs:139-147) is unreachable while at least one common/option row is required and writes conv rows into partic.",
+    "claims": "Checked: README model bullets vs calc.mjs (all backed, including SAFE formula S_i = (a_i/c_i) F/(1 - sum a/c), calc.mjs:68-72, and the $1M SAFE at $10M cap -> $2M of $20M example, reproduced); 'Nothing uploaded' (page.test.mjs checks no fetch/XHR/beacon; usage.mjs localStorage only) pass; usage events named on page = recorded (page.test.mjs:83) pass; disclaimer, independence and no-SLA text on README and page pass; llms.txt links rewrite to marisstella.app at deploy (served-copy.mjs: no placeholder left) pass. Fail: index.html:127 'Not modelled: ... unconverted notes and SAFEs' contradicts the SAFE/note section the same page models (index.html:81-89) and README:27; index.html:100 labels options 'granted and vested or accelerating' while line 127 lists 'unvested equity and acceleration' as not modelled. 'Solved exactly (bisection)' (README:19) is a 200-step bisection, accurate to well under a cent; acceptable.",
+    "fitness": "Job walked: a founder or employee with an LOI enters the sample-shaped cap table and gets per-holder payouts, the price at which common sees money, each series' conversion price and a sweep, in one click, with CSV. That is the real question they have and the numbers are right. Limits a professional hits early: at most 4 preferred series (a Series C/D company with Seed, Seed-2, A, B, C cannot be entered unless series with identical terms are merged), 2 option rows (strike tranches cannot be aggregated exactly once some are underwater), 1 note, no unissued-pool vs granted distinction, no escrow/holdback or management incentive plan, no per-share rounding or funds-flow output. Portfolio: verticals.json marks it 'frozen' with no paid product to feed (free single-purpose tool, demoted by the 2026-11-24 direction).",
+    "domain": "Compared against NVCA model charter liquidation mechanics (Art. B.2: preference = original issue price x multiple + accrued dividends; series seniority; participation with an aggregate cap including the preference; deemed conversion when as-converted pays more) and the YC post-money SAFE liquidity-event clause (greater of purchase amount or amount/liquidity price, liquidity capitalization including the SAFEs). Matches: per-series conversion with dividends forfeited on conversion, cap measured on the total including preference, options treated by cashless exercise (strike effectively added to the pot, which the price solve reproduces exactly), pari passu shortfall by claim, post-money SAFE gross-up. Departures (all disclosed except where noted): notes have no change-of-control premium (often 1.5-2x principal) and no discount; SAFE liquidity capitalization uses every typed option row (YC excludes the unissued pool; the label says granted, so acceptable); carve-out as % after debt and fees rather than a fixed plan; convert decisions modelled per series, not by class vote; conversion equilibrium found greedily one series at a time (fine for the cases checked, not proven unique).",
+    "summary": "Every recomputed output, including the full multi-series sample, matches hand NVCA mechanics to the dollar; tests are strong. Gaps are fixed form rows, a page line that says SAFEs are not modelled when they are, and small reporting slips."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "full sample deal: payouts to all 7 holders and the per-share price",
+      "method": "hand NVCA waterfall (seniority, capped participation with 8% x 2y cumulative dividend, post-money SAFE gross-up, cashless options), iterating each series' convert decision",
+      "command": "node scratchpad/w.mjs (analyze(sampleTerms()))",
+      "expected": "p 2.4595671; Founders 14,757,403; Employees 737,870; options 2,471,481; Seed 2,705,524 (converts); A 8,000,000 (pref); B 28,119,134; SAFE 508,588 (converts)",
+      "observed": "p 2.4595671267; 14,757,403; 737,870; 2,471,481; 2,705,524; 8,000,000; 28,119,134; 508,588; converts [Seed, SAFE]",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "sample breakpoints: common first dollar and Seed conversion price",
+      "method": "hand: net = stack 33.7M -> (33.7+1.5)/0.98; Seed: 1.1M x p = 2M with 10.6M participating shares",
+      "command": "node scratchpad/w.mjs (r.points)",
+      "expected": "35,918,367 and 53,053,803",
+      "observed": "35,918,367 and 53,053,803",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "capped participating 3x: payouts at 10M/11M/14M and conversion breakpoint",
+      "method": "hand: pref 2M + 50% of rest capped at 6M total; converts when exit/2 > 6M",
+      "command": "node scratchpad/w.mjs (capped)",
+      "expected": "A 6M/C 4M; A 6M/C 5M; A 7M/C 7M; breakpoint 12,000,000",
+      "observed": "identical; breakpoint 12,000,000",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "options with a strike (cashless exercise)",
+      "method": "hand: p = (10M + 100k x $2) / 1M shares",
+      "command": "node scratchpad/w.mjs (opt)",
+      "expected": "p 10.20, options 820,000, common 9,180,000",
+      "observed": "10.2, 820,000, 9,180,000",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "pre-money-cap convertible note with simple interest",
+      "method": "hand: 1M x 1.2 = 1.2M; price 9M/9M = $1; 1.2M/10.2M x 20M",
+      "command": "node scratchpad/w2.mjs",
+      "expected": "2,352,941",
+      "observed": "2,352,941",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "debt and fees when the exit does not cover them",
+      "method": "run netProceeds via waterfallAt",
+      "command": "node scratchpad/w.mjs (overflow: exit 1M, debt 1M, fee 5%)",
+      "expected": "debt repaid + fees <= 1,000,000",
+      "observed": "debtPaid 1,000,000 + fees 50,000 = 1,050,000 (net 0)",
+      "result": "fail"
+    },
+    {
+      "dimension": "craft",
+      "what": "duplicate series names",
+      "method": "two preferred rows named 'Pref', the second full participating",
+      "command": "node scratchpad/w.mjs (dup)",
+      "expected": "a 'Pref is paid twice' finding for the participating row",
+      "observed": "no participation finding (lookup by name finds the non-participating row)",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "cd ventures/startup-exit-waterfall-calculator && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "39 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "page's not-modelled list vs what the page models",
+      "method": "index.html:127 vs index.html:81-89 and calc.mjs:54-84",
+      "command": "sed -n 127p index.html",
+      "expected": "consistent",
+      "observed": "lists 'unconverted notes and SAFEs' as not modelled although the page has a SAFE/note section that is modelled",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "nothing uploaded; usage counted locally with opt-out and DNT",
+      "method": "read usage.mjs and page script; page.test.mjs:38-50, 83-91",
+      "command": "node --test page.test.mjs usage.test.mjs",
+      "expected": "localStorage only, no network calls",
+      "observed": "localStorage only, DNT/GPC honoured, opt-out persists",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "served llms.txt and sitemap carry the live origin",
+      "method": "deploy rewrite simulation",
+      "command": "node platform/pages/served-copy.mjs startup-exit-waterfall-calculator",
+      "expected": "no placeholder or retired origin",
+      "observed": "no placeholder or retired origin left",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "cap table size a later-stage company needs",
+      "method": "count form rows in index.html",
+      "command": "grep -c 'id=\"p[0-9]-name\"' index.html",
+      "expected": "5+ preferred series, several option strike tranches",
+      "observed": "4 preferred rows, 2 option rows, 2 SAFEs, 1 note, 3 common rows",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {"where": "calc.mjs:125", "change": "pay * m.preferred[i].claim / claim -> pay / idx.length", "caught": true, "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"},
+    {"where": "calc.mjs:98", "change": "Math.max(p - x.strike, 0) -> Math.max(p, 0)", "caught": true, "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"},
+    {"where": "calc.mjs:134", "change": "Math.max(0, p.capTotal - out.pref[i]) -> Math.max(0, p.capTotal)", "caught": true, "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"},
+    {"where": "calc.mjs:71", "change": "baseShares / (1 - f) -> baseShares", "caught": true, "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"},
+    {"where": "calc.mjs:91", "change": "afterDebt * m.carvePct / 100 -> exit * m.carvePct / 100", "caught": true, "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"},
+    {"where": "calc.mjs:80", "change": "pr * (1 + rate / 100 * years) -> pr", "caught": true, "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"},
+    {"where": "calc.mjs:211", "change": "if (p.participation === \"full\") return; -> if (p.participation !== \"none\") return;", "caught": false, "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"}
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Fixed form rows: 4 preferred series, 2 option rows, 2 SAFEs, 1 note, 3 common holders. A Series C/D company or an option pool with several strike tranches cannot be entered without merging rows, which is exact only for identical terms (and for options only while every tranche is in the money).",
+      "where": "ventures/startup-exit-waterfall-calculator/index.html:177",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "'How it is calculated' lists 'unconverted notes and SAFEs' as not modelled, contradicting the SAFE/note section on the same page and README:27, which model them.",
+      "where": "ventures/startup-exit-waterfall-calculator/index.html:127",
+      "category": "stale-docs",
+      "origin": "maintenance",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19413"
+    },
+    {
+      "severity": "low",
+      "what": "Options heading says 'granted and vested or accelerating' while the not-modelled list says 'unvested equity and acceleration'; a user cannot tell whether to enter accelerating options.",
+      "where": "ventures/startup-exit-waterfall-calculator/index.html:100",
+      "category": "stale-docs",
+      "origin": "maintenance",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19413"
+    },
+    {
+      "severity": "low",
+      "what": "debtPaid is min(debt, exit) while fees are still exit x fee%, so when the exit does not cover both the CSV shows debt repaid + fees above the exit (exit 1M, debt 1M, fee 5% -> 1,000,000 + 50,000).",
+      "where": "ventures/startup-exit-waterfall-calculator/calc.mjs:92",
+      "category": "logic-error",
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19413"
+    },
+    {
+      "severity": "low",
+      "what": "The 'paid twice' finding looks the series up by name, so two series with the same name attach the wrong terms and the participating one gets no finding; the sweep's groups map keys by name too.",
+      "where": "ventures/startup-exit-waterfall-calculator/calc.mjs:262",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "No test covers the conversion breakpoint of a capped participating series: dropping capped series from the breakpoint list leaves all 39 tests green.",
+      "where": "ventures/startup-exit-waterfall-calculator/calc.mjs:211",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "Convertible notes get no change-of-control premium (commonly 1.5-2x principal at a sale before conversion); only the discount is listed as not modelled.",
+      "where": "ventures/startup-exit-waterfall-calculator/calc.mjs:80",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "A blank exit price (or debt) is read as 0 and runs, instead of asking for a value.",
+      "where": "ventures/startup-exit-waterfall-calculator/calc.mjs:12",
+      "category": "input-handling",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19413"],
+  "verdict": "Meets the bar for what it attempts. Five independent hand recomputations from NVCA waterfall mechanics, including the full seven-holder sample with mixed seniority, a capped participating senior with cumulative dividends, a post-money SAFE and options with a strike, match the tool to the dollar, as do its breakpoints; 6 of 7 seeded mutants were caught by 39 tests that pin hand calculations. What keeps it from expert grade: fixed form rows (4 preferred series, 2 option rows) that a later-stage cap table outgrows, a page line that says SAFEs and notes are not modelled when they are, no note change-of-control premium, and small reporting slips (debt + fees can exceed the exit; findings keyed by series name). It is a frozen free tool with no paid product behind it."
+}

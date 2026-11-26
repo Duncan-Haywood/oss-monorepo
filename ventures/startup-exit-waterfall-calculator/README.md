@@ -31,6 +31,15 @@ pay-to-play, any term not on the form.
 
 Open `index.html` through any static server. Tests: `node --test`.
 
+## Known gaps
+
+From the 2026-11-26 quality audit ([`portfolio/quality/audits/2026-11-26-startup-exit-waterfall-calculator.json`](../../portfolio/quality/audits/2026-11-26-startup-exit-waterfall-calculator.json)):
+
+- The form has fixed rows (4 preferred series, 2 option pools, 2 SAFEs, 1 note, 3 common holders), so a Series C or D company, or options at several strikes, cannot be entered exactly.
+- Convertible notes get no change-of-control premium (often 1.5x to 2x principal at a sale before conversion).
+- A blank exit price is read as $0 instead of asking for one; two series with the same name confuse the "paid twice" finding.
+- No test covers the conversion breakpoint of a capped participating series.
+
 ## Disclaimer
 
 **No warranty.** This tool is provided free and as-is, without warranty of any kind, express or
