@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKm5SpeyBnWFDvRKRzG",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T12:10:41Z",
+  "ended": "2026-11-26T12:25:38Z",
+  "wall_minutes": 15.12,
+  "tokens_in": 11397687,
+  "tokens_out": 48323,
+  "cost_usd": 4.6277,
+  "tool_calls": 85,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/326",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Driving payapps in pnpm dev with Playwright needed an Origin header on API calls (sign-up returned 403 without it) and NODE_PATH=$(npm root -g) for require('playwright') from a scratch dir; neither is written down."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets pointed at payapps #5 as 'free and not gated' though its text ends 'if customers bill through them'; the sworn-statement half was ungated, the portal half is demand-gated."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "No new post: the public guide ventures/pay-app-guides/sworn-statement.html already covers the topic and its early-access CTA already describes this feature accurately, so a new post would be a thin duplicate (consolidated-posts direction).",
+      "did": "Left the guide unchanged.",
+      "result": "No SEO duplicate added."
+    }
+  ],
+  "writeups": [
+    "apps/payapps/ROADMAP.md item 5 (private) records what shipped and what is next"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; no ideas. Bet #1 payapps item #5 claimed as claim/payapps/sworn-statement. Shipped the contractor's sworn statement (IL 770 ILCS 60/5, MI MCL 570.1110, lender/title draws): job page prefilled from POs/subcontracts, live checks, waivers to collect, PDF with generic jurat, stateless route. CI starved (ci_starvation.py exit 0 on run 45819025688, no runner); run_workflow_locally.py payapps-ci: 9/9 run: steps passed. Also: worker test 5/5, unit suite EXIT 0, typecheck, biome, Playwright drive of the page and PDF download with no console errors. ilga.gov and legislature.mi.gov 403 through the proxy, so no statute text was quoted; wording leaned on the public guide's 2026-11-25 reading.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "32a4d415-567e-5bda-8ffd-10e9528d4d71",
+    "transcripts": 1,
+    "first": "2026-11-26T12:10:41Z",
+    "last": "2026-11-26T12:25:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 80,
+        "input": 153,
+        "output": 48323,
+        "thinking": 7159,
+        "cache_read": 11220469,
+        "cache_write_5m": 0,
+        "cache_write_1h": 177065,
+        "api_equivalent_usd": 4.6277,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 80,
+      "input": 153,
+      "output": 48323,
+      "thinking": 7159,
+      "cache_read": 11220469,
+      "cache_write_5m": 0,
+      "cache_write_1h": 177065,
+      "api_equivalent_usd": 4.6277,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 85,
+    "tools": {
+      "Bash": 75,
+      "Write": 3,
+      "Read": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.12,
+      "active_minutes": 15.12,
+      "model_minutes": 8.85,
+      "tool_minutes": 6.27,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "feature like certified payroll export: shared module, PDF, route, page, tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 216.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
