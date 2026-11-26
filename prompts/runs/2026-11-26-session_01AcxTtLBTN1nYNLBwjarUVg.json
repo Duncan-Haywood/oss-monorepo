@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "platform/ci/quality_audit.py validate rejected the flagship ventures/payapps that sample itself drew (no public directory; code only in private-monorepo); fixed in this PR"
+    "platform/ci/quality_audit.py validate rejected the flagship ventures/payapps that sample itself drew (no public directory; code only in private-monorepo); fixed in this PR",
+    "deploy-concurrency-check CI dogfood step (check.py .github/workflows --fail-on-risk) red with 12 findings in workflows other PRs added; pre-existing (job path-filtered to the venture, so main never ran it); scanner fix left to a ventures/process run, recorded in the README Known gaps and audit defect 4"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -41,6 +42,10 @@
     {
       "file": "portfolio/quality/README.md",
       "issue": "no guidance for auditing a flagship whose code is in private-monorepo (what may be published in the public audit file); I limited it to file:line references and no code"
+    },
+    {
+      "file": ".github/workflows/deploy-concurrency-check-ci.yml",
+      "issue": "the repo-wide --fail-on-risk scan only runs on venture changes, so new workflows can make it red unseen until the next unrelated venture PR"
     }
   ],
   "deviations": [
