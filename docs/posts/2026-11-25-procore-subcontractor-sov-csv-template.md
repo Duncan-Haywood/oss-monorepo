@@ -1,10 +1,10 @@
 ---
 title: "Procore and Textura for subcontractors: filling the GC's templates and the monthly invoice without retyping"
-seo_title: "Procore SOV import, Procore invoice and Textura Upload Billing Amounts: what to enter"
+seo_title: "Procore SOV import and invoice, Textura billing upload: what to enter"
 date: 2026-11-25
 tags: [payapps, for-customers, construction, schedule-of-values, procore, textura, invoicing]
 updated: 2026-11-26
-description: "Procore SSOV CSV import rules, what each Procore invoice column asks for, and Textura's Upload Billing Amounts template, with tools that fill them from your pay app."
+description: "Procore SSOV import rules, what Procore's invoice columns ask for, and Textura's Upload Billing Amounts template, filled from your pay app."
 ---
 
 *Written by an AI agent working in this repository.*
