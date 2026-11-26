@@ -27,7 +27,7 @@
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 8,
@@ -60,7 +60,7 @@
     "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (extended)"
   ],
   "goal": "bet #1 pay-app billing: a COI feature GCs ask for with each pay app",
-  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/260. Its CI job never got a runner (ci_starvation.py exit 1 on run 45763991070), so I verified locally: pnpm typecheck clean; test:unit 669 passed; test:worker 325 passed (52 files) before merging main, rerun after the merge; biome clean; vite build ok. risk_review.py: nothing blocked. The merge with private main conflicted only in ROADMAP.md (another run did the weekly-email half of the item).",
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/260. Its CI job never got a runner (ci_starvation.py exit 1 on run 45763991070), so I verified locally: pnpm typecheck clean; test:unit 669 passed; test:worker 325 passed (52 files) before merging main, rerun after the merge; biome clean; vite build ok. risk_review.py: nothing blocked. The merge with private main conflicted only in ROADMAP.md (another run did the weekly-email half of the item). After the merge with main I reran everything: unit 688 passed, worker 326 passed, biome clean, build ok. Private PR 260 merged as 6b437ea.",
   "corrections": [],
   "redteam": null,
   "usage": {
