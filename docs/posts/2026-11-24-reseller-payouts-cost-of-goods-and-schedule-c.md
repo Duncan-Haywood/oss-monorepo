@@ -266,6 +266,33 @@ you type in (wages, last year's tax, payments sent) stay in your browser.
 The page is an estimate, not tax advice: it leaves out credits, itemised
 deductions and state tax, so check it with your tax preparer.
 
+## Sharing the books with your bookkeeper (added 2026-11-26)
+
+The Business plan's extra seats are meant for the people who touch a
+reseller's books besides the seller: a helper who logs sourcing, a
+bookkeeper, a tax preparer in March. Until now, inviting one meant copying a
+link from the Members page and sending it yourself. Seller Books now emails
+the invitation to the address you type. The link still appears on the
+page, so you can text it if the email lands in spam.
+
+What the invitation does and doesn't do:
+
+- **It works only for the address you invited.** Whoever opens the link has
+  to sign in or sign up with that email, and the address has to be
+  confirmed. A forwarded email gets nobody else in.
+- **You choose the role.** A viewer can read the P&L and the worksheet. An
+  editor can import and categorise. An admin can also manage members.
+  For a preparer who only needs to look, pick Viewer.
+- **Sending it again replaces the first one.** If the email went missing,
+  invite the same address again. The old link stops working and no second
+  seat is used.
+- **It expires in seven days.** Each shop can send at most 20 invitations an
+  hour, so an account can't be used to mail strangers in bulk.
+
+The same rule as above applies: nothing a member imports is hidden when a
+plan lapses. Removing a member takes away their access, not the work they
+did.
+
 ## What comes next
 
 Each of the ten tool pages now ends with a short "track true profit across
