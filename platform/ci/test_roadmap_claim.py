@@ -63,7 +63,25 @@ class ParseTest(unittest.TestCase):
                          "waits on a source")
         self.assertEqual(rc.gate("GCPay import: no public spec for the columns"), "waits on a source")
         self.assertEqual(rc.gate("**launch** sender domain and deploy (owner step)"), "owner step")
+        # Phrasings the first list missed (twenty run records, 2026-11-26), from real Next items.
+        for text, why in (("Getting started, part 6: once real companies are counted", "waits on demand"),
+                          ("other portals (Siteline) if customers bill through them", "waits on demand"),
+                          ("Next: whatever the first shops ask of the report.", "waits on demand"),
+                          ("check it on a scanned drawing once a shop sends one", "waits on demand"),
+                          ("AS9100D's additions once a source is in hand", "waits on a source"),
+                          ("check the SCC clauses against EUR-Lex once it answers", "waits on a source"),
+                          ("the reminder email goes out only once the owner onboards it", "owner step"),
+                          ("part 2 done: the owner runs the workflow once", "owner step"),
+                          ("History, part 3: waivers outside a pay app, if those ever exist",
+                           "waits on evidence"),
+                          ("a side-by-side viewer, if opening two tabs proves a chore",
+                           "waits on evidence")):
+            self.assertEqual(rc.gate(text), why, text)
+        self.assertEqual(rc.gate_match("Saved crews; if shops ask for it (part 2)"),
+                         ("waits on demand", "if shops ask for it"))
         for free in ("QuickBooks, part 5: an item per schedule-of-values line",
+                     "Job costing: lines picked by class when a company tracks jobs by class",
+                     "Reminder email once the invoice is past due",
                      "Owner dashboard: a shop owner sees every quote",
                      "Ask-for-payment email when an invoice is overdue"):
             self.assertIsNone(rc.gate(free), free)
@@ -122,11 +140,11 @@ class ClaimRaceTest(unittest.TestCase):
         roadmap = self.a / "apps" / "payapps" / "ROADMAP.md"
         roadmap.write_text(ROADMAP.replace("GC portal export formats", "GC portal formats, if people ask"))
         _, listing = self.main(self.a)
-        self.assertIn("[free, waits on demand] notarization", listing)
+        self.assertIn('[free, waits on demand: "if people ask"] notarization', listing)
         self.assertIn("Free and not gated: #1, #2", listing)
         code, out = self.main(self.a, "--claim", "3")
         self.assertEqual(code, 0, out)
-        self.assertIn("reads as gated (waits on demand)", out)
+        self.assertIn('reads as gated (waits on demand: "if people ask")', out)
         self.main(self.b, "--claim", "1")
         self.main(self.b, "--claim", "2")
         _, listing = self.main(self.a)
