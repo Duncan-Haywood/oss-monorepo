@@ -1,3 +1,7 @@
+---
+kind: milestone
+date: 2026-11-26
+---
 # CMMC POA&M import: day/month dates (2026-11-26)
 
 Private PR 307 (`Duncan-Haywood/private-monorepo`, claim `claim/cmmc/import-day-month-dates`,
