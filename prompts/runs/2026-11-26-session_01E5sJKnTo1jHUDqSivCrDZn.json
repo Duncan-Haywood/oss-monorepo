@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKnTo1jHUDqSivCrDZn",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T15:17:59Z",
+  "ended": "2026-11-26T15:39:09Z",
+  "wall_minutes": 25.2,
+  "tokens_in": 19633187,
+  "tokens_out": 103296,
+  "cost_usd": 7.9467,
+  "tool_calls": 111,
+  "task": "Bet #1 payapps: T&M tickets module (claim/payapps/tm-tickets), a new item since every bet's Next list was claimed or gated",
+  "projects": [
+    "private-monorepo/apps/payapps",
+    "private-monorepo/apps/payapps-site",
+    "docs/posts"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/358",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 38,
+  "outcome": "success",
+  "errors": [
+    "Two own test mistakes fixed before the first push: a ProjectDetailDto field read as `sov` (it is `sovLines`; tests are outside tsconfig, so typecheck did not catch it) and a multi-ticket error message whose ticket depended on DB row order (the service now sorts by ticket number)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets reported no free, ungated item on any of the seven bets: every Next item waits on demand, a source or the owner, so a run has to invent a new item. That is the norm on 2026-11-26, and three other runs added new payapps modules (daily reports, estimates, punch list) within the same hour."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "The migration-renumber warning was accurate: two parallel payapps PRs took 0061 and 0062 and both bumped POLICY_VERSION to .17 while this ran. Deleting the generated migration, taking main's meta files and running drizzle-kit generate again was the clean fix and could be written down as the recipe."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "No bet had a free Next item, so I opened a new payapps item (T&M tickets) from the bet's suite growth path instead of moving down to a lower bet.",
+      "did": "Claimed claim/payapps/tm-tickets with --slug and built it in private-monorepo.",
+      "result": "Landed with tests; the only collisions were the migration number and the policy version, resolved at merge."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-tm-tickets-to-change-orders.md (extended with a section on the hosted module)",
+    "private-monorepo apps/payapps/docs/TM-TICKETS.md"
+  ],
+  "goal": "$10k MRR: deepen bet #1's contractor suite with a module tied to the billing it already does (signed extra work -> change order -> pay app)",
+  "notes": "Security queue empty (exit 3); no ideas; route drew ventures/1. The private-monorepo clone worked first time via add_repo. Verification: payapps typecheck clean; new unit tests 31 (shared rules 26, page form 4, PDF image writer 1); worker tests 7 (signature lock, PDF with embedded JPEG, multi-ticket change order and freeing on delete, viewer 403s, cross-tenant 404s). The full local runs of payapps-ci.yml (9/9 run steps) and payapps-site-ci.yml (6/6) passed before and after merging main; the uses: steps did not run locally. risk_review.py blocked nothing; the personal-data check is answered in the PR (GC rep signature image, privacy policy 2026-11-26.18).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "94980867-e6da-525a-ba38-0ffff37ddddc",
+    "transcripts": 1,
+    "first": "2026-11-26T15:17:59Z",
+    "last": "2026-11-26T15:43:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 104,
+        "input": 196,
+        "output": 103296,
+        "thinking": 10750,
+        "cache_read": 19382549,
+        "cache_write_5m": 0,
+        "cache_write_1h": 250442,
+        "api_equivalent_usd": 7.9467,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 104,
+      "input": 196,
+      "output": 103296,
+      "thinking": 10750,
+      "cache_read": 19382549,
+      "cache_write_5m": 0,
+      "cache_write_1h": 250442,
+      "api_equivalent_usd": 7.9467,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 111,
+    "tools": {
+      "Bash": 101,
+      "Write": 6,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 25.2,
+      "active_minutes": 25.2,
+      "model_minutes": 17.64,
+      "tool_minutes": 7.56,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "a senior full-stack engineer building a tenant-scoped CRUD module with signature capture, PDF image embedding, change-order integration and 38 tests: about three days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 302.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

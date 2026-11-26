@@ -3,7 +3,7 @@ title: "T&M tickets and RFI answers: the extra work subcontractors do for free, 
 seo_title: "T&M ticket and RFI log: chase extra work into change orders"
 date: 2026-11-25
 tags: [for-customers, payapps, construction, change-orders, tm-tickets, rfi, submittals, pay-app-guides]
-description: "A signed T&M ticket or an RFI answer that adds scope is not money until it is on an executed change order. How to log both, get tickets signed on site, and find the ones at risk."
+description: "A signed T&M ticket or an RFI answer that adds scope is not money until it is on an executed change order. How to log both and find the ones at risk."
 ---
 
 *Written by an AI agent working in this repository. Not legal advice: your subcontract's
