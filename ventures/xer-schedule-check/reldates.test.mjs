@@ -174,3 +174,60 @@ test("an SF lag is spent from the predecessor's actual start", () => {
   assert.equal(u.spent, lagCalendar(m, rel).workBetween(started.actStart, dd));
   assert.equal(u.eff, rel.lag - u.spent);
 });
+
+// Red-team guards, 2026-11-26: each witness on its own, and the FF and
+// started-SF shapes, which the example file has no link of.
+const blank = (x, id, field) => ({ ...x, tables: { ...x.tables, TASKPRED: x.tables.TASKPRED.map((r) => (r.task_pred_id === id ? { ...r, [field]: "" } : r)) } });
+// a link added between two activities of a scheduled file, its dates written the way P6 writes them
+function withLink(type, pick, lagH) {
+  const x0 = scheduled();
+  const m0 = buildModel(x0);
+  const [p, s] = pick(m0);
+  const row0 = { task_pred_id: "rt1", task_id: s.id, pred_task_id: p.id, proj_id: s.proj, pred_proj_id: p.proj, pred_type: type, lag_hr_cnt: String(lagH) };
+  const m1 = buildModel({ ...x0, tables: { ...x0.tables, TASKPRED: [...x0.tables.TASKPRED, row0] } });
+  const rel = m1.rels.find((q) => q.id === "rt1");
+  const lc = lagCalendar(m1, rel), lag = unspentLag(m1, rel, p, s).eff, P = (k, t) => parseDate(t.row[k]);
+  const done = p.status === "TK_Complete", rem = done ? 0 : p.remain;
+  let aref = null, arls;
+  if (type === "PR_FF") { aref = s.cal.subWork(lc.addWork(P("early_end_date", p), lag), s.remain); arls = lc.subWork(P("late_end_date", s), lag); }
+  if (type === "PR_SF") { if (!done) aref = s.cal.subWork(lc.addWork(P("early_start_date", p), lag), s.remain); arls = p.cal.subWork(lc.subWork(P("late_end_date", s), lag), rem); }
+  const row = { ...row0, aref: aref === null ? "" : formatDate(aref), arls: formatDate(arls) };
+  return { ...x0, tables: { ...x0.tables, TASKPRED: [...x0.tables.TASKPRED, row] } };
+}
+const twoOpen = (m) => { const o = [...m.tasks.values()].filter((t) => t.status === "TK_NotStart" && !t.span && t.remain > 0); return [o[0], o[o.length - 1]]; };
+
+test("with aref empty, arls alone names the old lag, and says it is the only witness", () => {
+  // 9023: Flooring -> Furniture install, FS 80 h, cut to 16 h, aref not written
+  const r = relationshipLags(buildModel(setLag(blank(scheduled(), "9023", "aref"), "9023", 16)));
+  assert.deepEqual(r.links.map((l) => [l.rel.id, l.was / 60, l.witnesses.join("+")]), [["9023", 80, "arls"]]);
+});
+
+test("an SS link with arls empty is checked on aref, which alone never names a lag", () => {
+  // aref is the weaker witness (an hour off on some P6 Web links), so with
+  // arls empty an edited lag is not listed, and no lag is read from the empty date
+  const x = blank(scheduled(), "9025", "arls");
+  assert.deepEqual(relationshipLags(buildModel(x)).links, []);
+  const r = relationshipLags(buildModel(setLag(x, "9025", 56)));
+  assert.equal(r.checked, relationshipLags(buildModel(scheduled())).checked);
+  assert.deepEqual(r.links, []);
+});
+
+test("an FF link decodes: aref is the successor's early start, arls its late finish less the lag", () => {
+  const x = withLink("PR_FF", twoOpen, 24);
+  const before = relationshipLags(buildModel(scheduled())).checked;
+  const r = relationshipLags(buildModel(x));
+  assert.equal(r.checked, before + 1);
+  assert.deepEqual(r.links, []);
+  const r2 = relationshipLags(buildModel(setLag(x, "rt1", 8)));
+  assert.deepEqual(r2.links.map((l) => [l.rel.id, l.lag / 60, l.was / 60, l.witnesses.join("+")]), [["rt1", 8, 24, "aref+arls"]]);
+});
+
+test("an SF link from a started predecessor is read on arls alone when aref is empty", () => {
+  const pick = (m) => [[...m.tasks.values()].find((t) => t.status === "TK_Active" && t.actStart !== null && t.remain > 0), twoOpen(m)[1]];
+  const x = blank(withLink("PR_SF", pick, 400), "rt1", "aref");
+  const before = relationshipLags(buildModel(scheduled())).started.checked;
+  const r = relationshipLags(buildModel(x));
+  assert.equal(r.started.checked, before + 1);
+  assert.ok(r.started.agree.has("rt1"), "the dates agree with the unspent lag");
+  assert.deepEqual([...r.started.was, ...r.started.atMost], []);
+});

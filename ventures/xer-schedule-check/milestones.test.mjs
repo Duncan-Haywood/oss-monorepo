@@ -88,3 +88,39 @@ test("a mandatory start keeps its date", () => {
   const alt = schedule(xer, { milestones24h: true });
   assert.equal(by(alt, "M").es, D_("2025-12-08T08:00"));
 });
+
+// Red-team guards, 2026-11-26. C5: Mon-Fri from 08:30, so a milestone on it
+// after Thursday 17:00 sits at Friday 08:30 and B (Mon-Fri from 08:00) loses
+// half an hour. FF from X holds B's finish, so only its start moves.
+const D5 = "((0||0(s|08:30|f|12:00)())(0||1(s|13:00|f|17:00)()))";
+const cal5 = `(0||CalendarData()((0||DaysOfWeek()(${[1, 2, 3, 4, 5, 6, 7].map((d) => `(0||${d}()${[2, 3, 4, 5, 6].includes(d) ? D5 : "()"})`).join("")}))(0||Exceptions()())))`;
+const NET_HALF = (bLinks = [link("2", "3", "2")], extraTasks = []) => parseXer(xerText({
+  PROJECT: [{ proj_id: "1", proj_short_name: "TEST", clndr_id: "C1", last_recalc_date: "2025-12-01 08:00", plan_start_date: "2025-12-01 08:00", plan_end_date: "" }],
+  CALENDAR: [
+    { clndr_id: "C1", default_flag: "Y", clndr_name: "Mon-Fri", day_hr_cnt: 8, clndr_data: cal([2, 3, 4, 5, 6]) },
+    { clndr_id: "C5", default_flag: "N", clndr_name: "Mon-Fri 08:30", day_hr_cnt: 7.5, clndr_data: cal5 },
+  ],
+  SCHEDOPTIONS: [{ schedoptions_id: "1", proj_id: "1", sched_float_type: "FT_FF", sched_calendar_on_relationship_lag: "rcal_Predecessor", sched_retained_logic: "Y", sched_progress_override: "N" }],
+  TASK: [task("1", "A", 32), task("2", "M", 0, { task_type: "TT_Mile", clndr_id: "C5" }), task("3", "B", 8), task("4", "X", 80), task("5", "END", 0, { task_type: "TT_FinMile" }), ...extraTasks],
+  TASKPRED: [link("1", "2", "1"), ...bLinks, link("3", "5", "3"), link("4", "5", "4")],
+}));
+
+test("a half hour lost to a milestone's later working start is reported as half an hour", () => {
+  const r = milestoneCalendars(NET_HALF());
+  assert.deepEqual(r.activities.filter((a) => a.code === "B").map((a) => a.hours), [0.5]);
+  assert.deepEqual(r.milestones.map((m) => [m.code, m.hours, m.successors.map((x) => x.hours)]), [["M", 0.5, [0.5]]]);
+});
+
+test("an activity already under way is listed by how much earlier it could finish", () => {
+  // B started on the data date; retained logic holds its remaining 8 h for M,
+  // so on a 24-hour milestone it finishes Friday rather than Monday
+  const xer = NET();
+  xer.tables.TASK = xer.tables.TASK.map((t) => (t.task_code === "B" ? { ...t, status_code: "TK_Active", act_start_date: "2025-12-01 08:00" } : t));
+  const r = milestoneCalendars(xer);
+  // its start is fixed, so the hours are the finish's: Friday 8 h
+  assert.deepEqual(r.activities.map((a) => [a.code, a.start, a.couldStart, a.hours, a.tf, a.tf24]), [["B", "2025-12-01 08:00", "2025-12-01 08:00", 8, 32, 40]]);
+  // the milestone that holds it is named too, by B's remaining start (Monday,
+  // not Friday): retained logic holds the remaining work for an FS link
+  assert.deepEqual(r.milestones.map((m) => [m.code, m.hours, m.successors.map((x) => [x.code, x.start, x.couldStart, x.hours, x.remaining])]),
+    [["M", 8, [["B", "2025-12-08 08:00", "2025-12-05 08:00", 8, true]]]]);
+});

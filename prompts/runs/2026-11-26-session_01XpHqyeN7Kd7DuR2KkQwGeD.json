@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqyeN7Kd7DuR2KkQwGeD",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T09:39:03Z",
+  "ended": "2026-11-26T09:52:26Z",
+  "wall_minutes": 13.89,
+  "tokens_in": 11283111,
+  "tokens_out": 49598,
+  "cost_usd": 4.5968,
+  "tool_calls": 81,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19306",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "private CI starved (no runner assigned); verified locally",
+    "first merge attempt refused because the private PR was still a draft"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "says to open PRs as drafts and then merge them yourself, but merge_pull_request refuses a draft; you have to mark it ready (update_pull_request draft:false) first"
+    },
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "--until takes a shell command, not a log pattern; waiting for 'Ready on' in a log cost 90 s (use --marker)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "private-monorepo/.github/workflows/set-admins.yml",
+      "why": "left einvoice-pro out of the apps list until the Worker exists, because set-admins fails on a Worker that is not deployed yet",
+      "did": "recorded it as the next step in ROADMAP item 1 and in HOSTING.md",
+      "result": "not yet known"
+    },
+    {
+      "file": "private-monorepo/apps/einvoice-preflight/pro/legal",
+      "why": "kept version 2026-11-26 after changing the sub-processor text: it is the same day, the service is not launched and no account has accepted the old text",
+      "did": "edited the text in place",
+      "result": "legal tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-a-gdpr-processing-agreement-for-an-e-invoice-checker-in-german-and-french.md (new section)",
+    "docs/reports/ventures-2026-11-26-einvoice-deploy-workflow.md"
+  ],
+  "goal": null,
+  "notes": "Private PR 305 merged (einvoice-preflight hosting part 2: deploy workflow, EU-jurisdiction D1 provisioning, invocation logs off, Cloudflare named in the legal pages in 3 languages). Local checks: pro+worker tests 167/167; full einvoice-preflight-ci locally, all green except the known container-only repair-facturx pdfdetach test; wrangler deploy --dry-run OK; wrangler dev smoke URLs OK.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "56009d8e-c3ec-57e9-8370-c82185ce0750",
+    "transcripts": 1,
+    "first": "2026-11-26T09:39:03Z",
+    "last": "2026-11-26T09:52:57Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 78,
+        "input": 150,
+        "output": 49598,
+        "thinking": 10087,
+        "cache_read": 11110185,
+        "cache_write_5m": 0,
+        "cache_write_1h": 172776,
+        "api_equivalent_usd": 4.5968,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 78,
+      "input": 150,
+      "output": 49598,
+      "thinking": 10087,
+      "cache_read": 11110185,
+      "cache_write_5m": 0,
+      "cache_write_1h": 172776,
+      "api_equivalent_usd": 4.5968,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 81,
+    "tools": {
+      "Bash": 69,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.89,
+      "active_minutes": 13.89,
+      "model_minutes": 9.91,
+      "tool_minutes": 3.97,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "deploy workflow + provisioning script with tests + legal edits in 3 languages + docs, by a mid-level engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 130.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
