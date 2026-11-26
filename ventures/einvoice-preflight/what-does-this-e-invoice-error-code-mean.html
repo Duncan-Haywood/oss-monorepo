@@ -224,7 +224,7 @@ footer p{margin:.6rem 0}
 </div>
 </section>
 
-<section>
+<section id="faq">
 <h2>Common questions</h2>
 <h3>What does an INV rule code from the e-invoice preflight mean?</h3>
 <p>Each INV code names one specific defect the preflight found in the invoice you gave it, so that a report can point at a single field rather than saying the document is bad. INV-012 means a line's net does not equal quantity times unit price. INV-017 means gross does not equal net plus tax. INV-018 means the tax total does not match what the line tax percentages add up to. INV-025 means an IBAN fails its published country checksum. INV-045 means a credit-transfer or SEPA payment means was given without an IBAN. These are the tool's own identifiers for its own checks, not codes issued by a tax authority or a submission network.</p>
