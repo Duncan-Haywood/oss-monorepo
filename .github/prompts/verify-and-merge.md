@@ -29,6 +29,8 @@ node --test platform/aws/stacks/email-ops/sender/*.test.mjs  # SES sender, conse
 node --test platform/counter/*.test.mjs
 node --test platform/analytics/*.test.mjs
 node --test platform/edge/*.test.mjs           # the site's feedback/counts Worker (platform/edge)
+node --test platform/email/*.test.mjs          # the agent-managed inboxes Worker (platform/email)
+node --test platform/email/aws/*.test.mjs      # its SES inbound adapter (the AWS move)
 node --test platform/ci/*.test.mjs             # venture YAML readers guard (PR #16739)
 node --test platform/aws/stacks/saas-starter/runtime/test/*.test.mjs  # needs `npm ci` there first; the Postgres e2e skips unless PG_SUPERUSER_URL is set
 node --test portfolio/requests/*.test.mjs       # the open custom development request queue
@@ -50,6 +52,7 @@ python3 -m pytest platform/aws/stacks/spend/kill_switch -q
 python3 -m pytest portfolio/ledger portfolio/scoring portfolio/router portfolio/usage portfolio/pipeline -q  # >4 min in a shallow clone (router's real-portfolio tests; run reports 2026-10-19): run_in_background
 python3 -m pytest portfolio/work -q                      # directions and tasks registry (workctl.py), under 1 s
 python3 -m pytest platform/aws/stacks/dns/scripts -q    # Route 53 export and zone diff (cf_export.py, zone_diff.py), under 1 s
+python3 -m pytest platform/aws/cutover -q    # Cloudflare -> AWS cutover orchestrator against its fakes, under 2 s
 python3 -m pytest portfolio/research/<probe> -q          # one at a time: 4 share a test_measure.py basename
 python3 -m pytest portfolio/pipeline/probes/<probe> -q   # one at a time: root pytest --ignore's this tree
 python3 -m pytest prompts -q && python3 prompts/promptctl.py validate   # prompt.md, prompts/, run records

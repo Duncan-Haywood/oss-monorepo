@@ -170,6 +170,13 @@ has the rules.
 
 ## Inbox: support@, hello@ and accounts@marisstella.app
 
+> **Moved, 2026-11-26.** Mail now goes to the `marisstella-mail` Worker in
+> [`platform/email/`](../email/README.md) (raw MIME in R2, threads, flags,
+> drafts and guarded replies). The routing file is generated from
+> `platform/email/inboxes.yaml`. This Worker's `/inbox` route stays only so
+> mail it already holds can be read until its 90-day purge empties the table;
+> it receives nothing new once the routing apply runs.
+
 The Worker's `email` handler (`inbox.mjs`) is the agent-managed inbox for the
 site's addresses. Cloudflare Email Routing hands it each message
 (`platform/pages/cloudflare/email-routing.json`), and it stores the raw

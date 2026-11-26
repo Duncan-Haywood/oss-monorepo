@@ -124,3 +124,28 @@ test('REGIONS exposes exactly us, uk, row with the documented rates', () => {
   assert.equal(REGIONS.uk.processingFixed, 0.30);
   assert.equal(REGIONS.row.sellingRate, 10);
 });
+
+// Quality round 108 (portfolio/quality/audits/2026-11-26-depop-fee-calculator.json):
+// four hand-seeded bugs survived the suite above. Each test below kills one.
+test('feeFor charges the fixed processing fee on a shipping-only sale', () => {
+  // US: 5 x 3.3% + 0.45 = 0.615
+  const { processingFee } = feeFor({ itemPrice: 0, buyerShipping: 5, region: 'us' });
+  assert.ok(Math.abs(processingFee - 0.615) < 1e-9);
+});
+
+test('effective rate is the fee over item price plus shipping, not item price alone', () => {
+  // US $22 + $8: fee 30 x 3.3% + 0.45 = 1.44; 1.44 / 30 = 4.8%
+  const result = calculateSale({ itemPrice: '22', buyerShipping: '8', region: 'us' });
+  assert.ok(Math.abs(result.effectiveRate - 4.8) < 1e-9);
+});
+
+test('priceForTargetPayout returns null when no non-negative price reaches the target', () => {
+  // $50 of buyer shipping alone already pays out more than a $0 target.
+  assert.equal(priceForTargetPayout(0, { buyerShipping: 50, region: 'us' }), null);
+});
+
+test('compareRegions names the region that keeps the most of a $100 sale', () => {
+  // US 3.75 fee, UK 3.20 (2.9 + 0.30), rest of world 10.00: UK keeps the most.
+  const result = compareRegions({ itemPrice: '100' });
+  assert.equal(result.bestRegion, 'uk');
+});

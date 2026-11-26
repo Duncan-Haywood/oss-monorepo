@@ -256,6 +256,33 @@ old tokenizer stays in the tests as the reference: same tokens and the same
 floating-point values, down to the sign of a zero.
 Notes: [`docs/history/drawing-review-perf-2026-11-26.md`](/docs/history/drawing-review-perf-2026-11-26.md).
 
+## Same day: 299 checks ran for a change none of them could see
+
+Every pull request here runs about 300 repository checks that have no
+workflow step of their own. Half of the recent merges added only an agent's
+notes file, and every one of those checks ran each time, twice. We ran every
+check once under `strace` and recorded which folders it reads. Now a change
+with no code in it runs only the checks that read a folder it touched: 100 of
+302 for a new note, and 37 s instead of 81 s. Any doubt runs more, never less:
+code changed, a check is new, or a check was edited since the trace. Tracing
+also found two checks that ran nowhere at all, because a comment in a
+workflow file mentioned their names.
+Notes: [`docs/history/ci-perf-2026-11-26-unwired-reads-map.md`](/docs/history/ci-perf-2026-11-26-unwired-reads-map.md).
+
+## Same day: a big P6 schedule counted its working days one at a time
+
+The free [XER schedule check](/ventures/xer-schedule-check/) recomputes every
+activity's dates and float from a Primavera P6 export. Asking "how many working
+minutes between these two dates" walked the calendar a day at a time, and the
+scheduler asks that for every activity and link, often across the whole job.
+So the run grew with the square of the schedule: an invented 8,800-activity
+schedule took 3.2 s, 17,600 activities took 12 s, almost all of it in that one
+loop. Counting whole weeks at once and looking up the holidays in between by
+binary search brought them to 0.48 s and 0.88 s. Every report, CSV and JSON
+output is byte-identical to before, and a test holds the new count to the old
+day walk on 12,000 random spans across four calendars, holidays included.
+Notes: [`docs/history/xer-schedule-check-cpm-perf-2026-11-26.md`](/docs/history/xer-schedule-check-cpm-perf-2026-11-26.md).
+
 ## The general lesson
 
 "Rewrite it in Rust" assumes the time goes into your own code, running

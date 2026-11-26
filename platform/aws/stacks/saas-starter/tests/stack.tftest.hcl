@@ -68,6 +68,10 @@ run "platform_only" {
     condition     = output.example == null
     error_message = "example product off by default"
   }
+  assert {
+    condition     = module.entitlements.sender_role_arn == "arn:aws:iam::222222222222:role/payments-paddle-webhook" && can(regex("^arn:aws:iam::222222222222:role/payments-[^*]+$", module.entitlements.sender_role_arn))
+    error_message = "the queue accepts only payments-paddle-webhook, a payments-* name the payments apply role (stacks/github-oidc) can create"
+  }
 }
 
 run "with_example_product" {

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { relative } from 'node:path';
-import { plainText, extractFaq, answersSection, withAnswers, baseUrl, renderFor, optedIn } from './llms-answers.mjs';
+import { plainText, extractFaq, answersSection, questionsSection, answersDoc, withAnswers, baseUrl, renderFor, optedIn, INLINE_LIMIT, ANSWERS_FILE } from './llms-answers.mjs';
 
 const VENTURES = fileURLToPath(new URL('../../ventures/', import.meta.url));
 
@@ -26,6 +26,16 @@ test('answersSection links each question to its page section', () => {
   assert.match(s, /^## Answers\n/);
   assert.match(s, /- \[What \\\[is\\\] it\?\]\(https:\/\/h\/x\/#faq\): A\.\n/);
   assert.match(s, /- \[B\?\]\(https:\/\/h\/x\/b\.html#faq\): B\.\n$/);
+});
+
+test('questionsSection links the questions and points at the answers file', () => {
+  const pages = [{ file: 'a.html', faq: [{ q: 'A?', a: 'Yes.' }, { q: 'B?', a: 'No.' }] }];
+  const s = questionsSection(pages, 'https://h/x/');
+  assert.match(s, /^## Answers\n/);
+  assert.ok(s.includes('(https://h/x/llms-answers.txt)'));
+  assert.match(s, /- \[a\]\(https:\/\/h\/x\/a\.html#faq\): A\? B\?\n$/);
+  assert.ok(!s.includes('Yes.'));
+  assert.equal(answersDoc('T', pages, 'https://h/x/'), '# T: answers\n\nThe questions each page answers in its "Common questions" section, with the answer as the page states it. Each link opens that section; the page has the sources.\n\n- [A?](https://h/x/a.html#faq): Yes.\n- [B?](https://h/x/a.html#faq): No.\n');
 });
 
 test('withAnswers inserts before Source, and replaces an existing section in place', () => {
@@ -52,8 +62,11 @@ test('every opted-in llms.txt Answers section matches its pages', () => {
   const dirs = optedIn(VENTURES);
   assert.ok(dirs.length >= 2, 'machine-shop-guides and pay-app-guides carry the section');
   for (const dir of dirs) {
-    const { llms, next } = renderFor(dir);
+    const { llms, next, answers, nextAnswers } = renderFor(dir);
     const rel = relative(fileURLToPath(new URL('../../', import.meta.url)), dir);
-    assert.equal(llms, next, `${rel}/llms.txt Answers out of date: run node platform/pages/llms-answers.mjs ${rel}`);
+    const fix = `run node platform/pages/llms-answers.mjs ${rel}`;
+    assert.equal(llms, next, `${rel}/llms.txt Answers out of date: ${fix}`);
+    assert.equal(answers, nextAnswers, `${rel}/${ANSWERS_FILE} out of date: ${fix}`);
+    assert.ok(Buffer.byteLength(llms) <= INLINE_LIMIT * 1.5, `${rel}/llms.txt is ${Buffer.byteLength(llms)} bytes; too big for one fetch`);
   }
 });

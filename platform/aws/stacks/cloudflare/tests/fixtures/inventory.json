@@ -1,0 +1,10 @@
+{
+  "exported": true,
+  "account_id": "0123456789abcdef0123456789abcdef",
+  "zone": { "id": "fedcba9876543210fedcba9876543210", "name": "marisstella.app" },
+  "hosts": {
+    "marisstella.app": { "kind": "worker_custom_domain", "id": "d0d0d0d0", "service": "monorepo-projects-site", "environment": "production" },
+    "grants.marisstella.app": { "kind": "worker_custom_domain", "id": "d1d1d1d1", "service": "grant-autopilot", "environment": "production" },
+    "hub.marisstella.app": { "kind": "record", "id": "r0r0r0r0", "type": "A", "content": "192.0.2.10", "proxied": false, "ttl": 3600 }
+  }
+}

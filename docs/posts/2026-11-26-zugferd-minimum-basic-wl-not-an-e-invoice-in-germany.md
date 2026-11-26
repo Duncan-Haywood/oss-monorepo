@@ -58,5 +58,24 @@ and the official EN 16931 Schematron in the workspace. Two claims could not
 be backed, so we took them off the list: full XSD schema validation (now
 listed as *not* checked) and fixes to totals, which the checker never makes.
 
+**Update, later the same day: each profile's own schema.** Since then, the
+schema checks have been built. A MINIMUM or BASIC WL file is now checked
+against the XSD for its own profile, taken from the Factur-X 1.0.9 package.
+It is not checked against the EN 16931 one. This matters even outside
+Germany. Both profiles are cut-down versions of the full format. An element
+or attribute that is fine in an EN 16931 file can be refused in a BASIC WL
+file. Invoice lines are one example. Another is a `listID` attribute on the
+currency code, which the BASIC WL schema does not have. A validator that
+runs the schema refuses such a file before any business rule. The checker
+now reports the element and the reason, under the same rule ids as the
+EN 16931 schema check (CII-001 to CII-007). EXTENDED files get their own
+schema too.
+
+We compared it with libxml2's validator on the same schemas. We used 12
+published sample files and 1,199 copies of them, each altered at random
+(elements swapped, removed or duplicated, wrong namespaces, decimal commas,
+stray attributes). The checker gave the same verdict on every one. The French
+EXTENDED-CTC-FR schema is not checked yet.
+
 This is not tax advice. Whether a particular invoice must be an e-invoice
 depends on the transaction and the dates above; your tax adviser decides.

@@ -63,8 +63,8 @@ jobs:
       BUDGET_ALERT_EMAIL: ${{ vars.AWS_BUDGET_ALERT_EMAIL }}
       KILL_SWITCH_LIVE: ${{ vars.AWS_KILL_SWITCH_LIVE }}
       # Dependency order: org makes the accounts; baseline the roles in them;
-      # app-identity reads llm's and email's outputs; ci-runners needs only org.
-      STACKS: org baseline spend llm email app-identity ci-runners
+      # app-identity reads llm's and email's outputs; cutover-access reads org's account IDs; ci-runners needs only org.
+      STACKS: org baseline spend llm email app-identity cutover-access ci-runners
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:

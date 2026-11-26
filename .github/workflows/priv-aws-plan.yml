@@ -121,7 +121,7 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        stack: [org, baseline, spend, llm, email, app-identity, ci-runners]
+        stack: [org, baseline, spend, llm, email, app-identity, cutover-access, ci-runners]
     env:
       AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
       STACK: ${{ matrix.stack }}

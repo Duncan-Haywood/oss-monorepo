@@ -77,7 +77,9 @@ rights on GitHub. Everything else is done by agents through pull requests.
    portfolio.
 7. **At the end (phase 5):** close the Anthropic first-party account and the
    Resend account, and delete their keys.
-8. **Move DNS to Route 53** (independent of the LLM and email phases; when
+8. **Move DNS to Route 53** (optional full-exit track only: the default
+   [Cloudflare move](#the-cloudflare-move-one-approved-run) keeps DNS on
+   Cloudflare and needs none of this step; independent of the LLM and email phases; when
    an agent's PR says `zone_diff.py` prints zero differences and the site
    and edge API serve from AWS). The steps, in
    [`platform/aws/stacks/dns/README.md`](../../platform/aws/stacks/dns/README.md),
@@ -118,6 +120,104 @@ rights on GitHub. Everything else is done by agents through pull requests.
 
 Only if the `dns` job reports a permission error: give the Cloudflare token
 in the `cloudflare` environment *Zone → DNS → Edit* on marisstella.app.
+
+## The Cloudflare move (one approved run)
+
+The owner, 2026-11-26: "i give full access tokens and it runs once then
+expire the tokens", "it's a quick switch over", "secrets etc gets managed in
+aws not in gh". The apps and the site move from Cloudflare Workers to AWS in
+one owner-approved run of `.github/workflows/priv-cutover.yml`; DNS stays
+on Cloudflare (its records are repointed), email keeps its current sender
+until SES production access is granted, and any failure rolls back on its
+own. Design, stages and checks:
+[`platform/aws/cutover/README.md`](../../platform/aws/cutover/README.md).
+
+Or let an agent run it inside a one-hour credential window instead of the workflow:
+[`cutover-run-day.md`](cutover-run-day.md) (same code, same stages).
+
+**Before the day (agents, through PRs; no owner time):** owner steps 1 to 3
+above are done, and `github/configure.sh` has been re-run once so the
+`cutover-plan` and `cutover` environments exist (the second with you as
+required reviewer). The next apply creates the cutover roles
+(`stacks/cutover-access`). The site has published to CloudFront for at
+least a day (`stacks/site` README, step 4), each app's AWS stack is applied
+and its `/healthz` answers, and every paid app that moves has its
+`platform/aws/cutover/apps.d/` file. An agent says so in a PR; that is your
+cue.
+
+**On the day (about 15 minutes of yours, spread over a morning):**
+
+1. **Make the token** (Cloudflare dashboard → My Profile → API Tokens →
+   Create Token → Custom token). Permissions: *Zone → Zone → Read*,
+   *Zone → DNS → Edit*, *Zone → Zone WAF → Edit* (the write freeze),
+   *Zone → Workers Routes → Read*, *Zone → Email Routing Rules → Read*,
+   *Account → Workers Scripts → Edit*, *Account → D1 → Edit*,
+   *Account → Workers R2 Storage → Read*, *Account → Cloudflare Pages → Read*,
+   *Account → Account Analytics → Read*. Zone resources: *Specific zone →
+   marisstella.app*; account resources: your account. **TTL: end date
+   tomorrow** (the run refuses a token with no end date, or more than 72 h
+   left). If a name differs in the dashboard, pick the closest: the export
+   lists anything it could not read rather than failing.
+2. **Put it in AWS, not GitHub** (AWS CloudShell, management account,
+   us-east-1; `read -rs` keeps it out of the screen and the history):
+   ```sh
+   read -rs CF && aws secretsmanager create-secret --name cutover/cloudflare-api-token --secret-string "$CF" >/dev/null && unset CF && echo stored
+   ```
+   Only if an `apps.d` file has a `paddle` block: a Paddle API key with
+   notification-settings and simulations permissions (an expiry if
+   Paddle's dashboard offers one; otherwise revoke it after the run):
+   ```sh
+   read -rs PK && aws secretsmanager create-secret --name cutover/paddle-api-key --secret-string "{\"api_key\":\"$PK\",\"environment\":\"live\"}" >/dev/null && unset PK && echo stored
+   ```
+3. **Run 1, the export** (GitHub → Actions → *Cutover (Cloudflare to AWS)*
+   → Run workflow → stages `export`). No approval: it is read-only. An
+   agent commits its `cloudflare-export` artifact in a PR and merges it
+   once the adopt plan is imports only (usually under an hour).
+4. **Run 2, the move**, when that PR has merged: Run workflow → stages
+   `prepare switch verify`. Read the *plan* job's summary (what will
+   change, app by app), then approve the `cutover` deployment. The run
+   takes 15 to 60 minutes (longer only while an ACM certificate waits for
+   validation) and deletes the secrets from AWS at the end. Its summary
+   says what moved, or what failed and that it was rolled back.
+
+If Run 2 stops, nothing is left half-moved: the failed app is back on
+Cloudflare (verify failures put every app back). Make a new token (step 1
+and 2; the old secret was deleted), and run `prepare switch verify` again:
+it resumes. `rollback` puts everything back by hand at any time until
+retire.
+
+**Seven days later (about 10 minutes):** an agent's PR lists in
+`platform/aws/cutover/retire.json` the Workers, D1 databases and R2 buckets
+that nothing serves any more. Repeat steps 1 and 2 (the same permissions,
+with *D1* and *Workers R2 Storage* at *Edit*), then Run workflow → stages
+`retire`, approve. It deletes only what that file lists and only if no D1
+table changed since its copy. Then cancel Workers Paid, if no Worker is
+left (a billing action in your name).
+
+**Calendar, default path:**
+
+| When | Who | What |
+|---|---|---|
+| any day before | agents | AWS stacks applied, site on CloudFront for 1 day, app health green, `apps.d` complete |
+| day 0, morning | owner, 10 min | steps 1 to 3 |
+| day 0, within an hour | agent | export PR merged |
+| day 0, afternoon | owner, 5 min | step 4 (read the plan summary, approve) |
+| when AWS grants SES production access | owner, 1 click | runbook step 6; apps then flip `EMAIL_PROVIDER` (phases 3, 4) on their own clock |
+| day 7 | owner, 10 min | retire run |
+
+**Optional: the full exit from Cloudflare** (DNS to Route 53, inbound mail
+to SES). External clocks set the pace, so it is a calendar, not a run:
+
+| When | Who | What, and what happens in between |
+|---|---|---|
+| day −14 | owner | start the registrar transfer of marisstella.app off Cloudflare Registrar (a paid order; it only allows Cloudflare's nameservers). Takes up to 5 to 7 days; a transfer keeps the nameservers, so nothing changes meanwhile |
+| day −14 | owner, 1 click | SES production access (step 6) if not already granted; agents ramp SES sending 10% → 50% → 100% over at least 3 days (phase 3), watching bounce and complaint rates |
+| day −7 | agents | `stacks/email-ops` inbound ready; `stacks/dns` applied from `cf_export.py`'s records; `route53_track: true` in `apps.json`; `zone_diff.py` zero |
+| day −2 | owner | DNSSEC off in Cloudflare if on (`dig +short DS marisstella.app`), then wait for the DS record to leave the registry plus its TTL |
+| day −1 | cutover run | lower TTLs (prepare does it for records above 300 s); inbound MX to SES through `extra_records` |
+| day 0 | owner | nameservers to Route 53's four (`stacks/dns` README, step 7) |
+| day 0 to +2 | agents | verify against public resolvers; Cloudflare's copy stays as the rollback |
+| day +7 | owner | retire the zone and close (or empty) the Cloudflare account |
 
 ## Phase 0: account and bootstrap (owner, steps 1 to 3)
 

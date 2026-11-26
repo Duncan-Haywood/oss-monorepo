@@ -291,6 +291,16 @@ class OpenDefects(unittest.TestCase):
         self.assertEqual([(d["record"], d["index"], d["file"]) for d in found],
                          [("a.json", 1, "w.py"), ("b.json", 1, "y.mjs")])
 
+    def test_blocked_entries_listed_apart(self):
+        recs = [("a.json", {"redteam": {"campaigns": [], "real_defects": [
+            {"file": "x.mjs", "issue": "needs data", "blocked": "a help-center eval set"},
+            {"file": "y.mjs", "issue": "workable", "blocked": "  "},
+            {"file": "z.mjs", "issue": "done", "patched": True, "blocked": "old"}]}})]
+        self.assertEqual([d["file"] for d in redteam.open_defects(recs)], ["y.mjs"])
+        parked = redteam.open_defects(recs, blocked=True)
+        self.assertEqual([(d["file"], d["blocked"]) for d in parked],
+                         [("x.mjs", "a help-center eval set")])
+
 
 if __name__ == "__main__":
     unittest.main()

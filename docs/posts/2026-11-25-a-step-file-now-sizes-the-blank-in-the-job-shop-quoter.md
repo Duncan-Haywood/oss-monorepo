@@ -796,6 +796,37 @@ zone falling back to UTC. A worker test checks three things: only an admin can s
 shop can't change another's, and a quote won the evening of 31 October counts in October in both
 the report and the CSV. All 377 unit and 205 worker tests pass.
 
+## The whole rate card in one Excel file
+
+Each table on the rate card could already go out as its own CSV and come back in. A shop with
+machines, materials, cut speeds, removal rates, drill feeds, finishing and settings ended up with
+seven files to keep track of. Shops don't keep rates like that. They keep one workbook with a tab
+for each table.
+
+The import panel now has **"Download the whole rate card as one Excel file"**. It gives one .xlsx
+with seven tabs: Shop settings, Machines, Materials, Cut speeds, Removal rates, Drill feeds and
+Finishing. Each tab has the same columns as that table's CSV, so nothing new needs learning. To
+bring it back, choose the file on the import panel. It opens the tab for the kind of sheet you
+picked, and if you pick a different tab, the kind changes to match the tab's name. "Cut chart" and
+"Outside services" are recognised too, if your own workbook uses those names.
+
+Small things that matter once the file is open in Excel:
+
+- **Rates are real numbers.** $95.00 an hour is the number 95 shown with two decimals, so a
+  column can be summed or scaled with a formula. Scrap and markups are percentages Excel knows
+  as percentages.
+- **Names and descriptions stay text.** A stock description of "1.50" comes back as "1.50",
+  not as the number 1.5. A machine named "=something" is shown as typed and never runs as a
+  formula.
+- **An unedited file changes nothing.** Every tab imported as it was downloaded shows "no change"
+  on every row. Change one hourly rate in Excel and the preview shows exactly that one change.
+
+The file is made in the browser with no spreadsheet library: a few XML files zipped by hand. The
+same card always gives the same bytes. How it was checked (private-monorepo PR #251,
+jobshop-quote): 18 new unit tests cover the cell rules, the ZIP and every tab's round trip through
+the app's own importers. The file was also opened by two other readers, Python's openpyxl and
+LibreOffice. Both kept the number formats and showed the formula-looking name as text.
+
 ## Next
 
 The next item on the flagship list (milestone 3) is reading tolerances, material and finish from

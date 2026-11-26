@@ -89,3 +89,42 @@ allow:
     contains: EMAIL_FORWARD_TO
     reason: the owner's forwarding address, already read by priv-cloudflare-email.yml; pushed to the agent-inbox Worker as OWNER_FORWARD_TO for flag alerts and forwarding (wrangler secret bulk, never logged or committed) (owner brief 2026-11-26, agent-managed inboxes)
     added: 2026-11-26
+  - rule: workflow-escalation
+    path: .github/workflows/priv-cutover.yml
+    contains: plan/id-token:write
+    reason: the cutover's plan job assumes github-cutover-plan by GitHub OIDC (no stored AWS key); that role trusts only the cutover-plan environment (main only) and can read cutover/* secrets and the cloudflare/ state, never write (stacks/cutover-access, PR #19204; owner brief 2026-11-26, "secrets etc gets managed in aws not in gh")
+    added: 2026-11-26
+  - rule: workflow-escalation
+    path: .github/workflows/priv-cutover.yml
+    contains: run/id-token:write
+    reason: the cutover's run job assumes github-cutover by GitHub OIDC; that role trusts only the cutover environment, which is main only and requires the owner's approval before the job starts (stacks/cutover-access, github/configure.sh, PR #19204)
+    added: 2026-11-26
+  - rule: workflow-escalation
+    path: .github/workflows/priv-cutover.yml
+    contains: lets the job mint cloud credentials
+    reason: the file-level form of the two plan/run id-token findings above, same two jobs, same environment-scoped roles; workflow_dispatch only, no pull_request trigger (PR #19204)
+    added: 2026-11-26
+  - rule: obfuscated-payload
+    path: apps/einvoice-preflight/plain/fontoxpath.esm.js
+    reason: the published minified ES module of fontoxpath (MIT, Fonto Group BV; licence in plain/fontoxpath.LICENSE.txt, listed in THIRD_PARTY.md), byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app (PR #19220); vendored so the XPath engine needs no install
+    added: 2026-11-26
+  - rule: test-skipped
+    path: apps/einvoice-preflight/schematron.test.mjs
+    contains: saxon-js not installed
+    reason: a conditional skip, taken only when the optional saxon-js dependency is absent (runSchematron returns status unavailable); byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app (PR #19220)
+    added: 2026-11-26
+  - rule: test-skipped
+    path: apps/einvoice-preflight/schematron.test.mjs
+    contains: run build-schematron.mjs
+    reason: a conditional skip, taken only when the compiled Peppol SEF file has not been built; byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app (PR #19220)
+    added: 2026-11-26
+  - rule: test-skipped
+    path: apps/einvoice-preflight/plain-schematron.test.mjs
+    contains: saxon-js not installed
+    reason: a conditional skip, taken only when the optional saxon-js dependency is absent; byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app (PR #19220)
+    added: 2026-11-26
+  - rule: test-skipped
+    path: apps/einvoice-preflight/official-good-cases.test.mjs
+    contains: npm i --no-sa
+    reason: a conditional skip, taken only when the optional plain Schematron files are not installed; byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app (PR #19220)
+    added: 2026-11-26

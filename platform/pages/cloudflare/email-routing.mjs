@@ -14,10 +14,21 @@
 //     message to the Worker, and disables rules this script made for
 //     addresses no longer listed.
 //
-// A Worker action needs no verified destination address, so there is no
-// verification email to click. Dry run by default; APPLY=1 writes. Needs
-// CLOUDFLARE_API_TOKEN with Zone → Email Routing Rules: Edit and Zone →
-// Zone Settings: Edit (to enable), and CLOUDFLARE_ACCOUNT_ID.
+//   * keeps the _dmarc TXT record equal to the config's `dmarc` block,
+//   * when an inbox forwards to the owner (`owner_destination`), makes sure
+//     the EMAIL_FORWARD_TO secret's address is an Email Routing destination
+//     (Cloudflare mails it one verification link; the address is never
+//     printed or committed).
+//
+// The file is generated from platform/email/inboxes.yaml
+// (platform/email/gen_config.py); edit that, not the JSON.
+//
+// A Worker action needs no verified destination address. Dry run by default;
+// APPLY=1 writes. Needs CLOUDFLARE_API_TOKEN with Zone → Email Routing Rules:
+// Edit, Zone → Zone Settings: Edit (to enable), Zone → DNS: Edit (DMARC) and
+// Account → Email Routing Addresses: Edit (owner destination), and
+// CLOUDFLARE_ACCOUNT_ID. A missing optional permission is reported, and the
+// rules are still applied.
 //
 //   node platform/pages/cloudflare/email-routing.mjs
 
@@ -103,7 +114,61 @@ export function client(token, fetchImpl = fetch) {
   };
 }
 
-export async function apply({ cfg, cf, write, log = console.log }) {
+/** The _dmarc TXT value for the config, or null when it has none. */
+export function dmarcRecord(cfg) {
+  if (!cfg.dmarc) return null;
+  const { policy, rua_local: rua } = cfg.dmarc;
+  if (!['none', 'quarantine', 'reject'].includes(policy)) throw new Error(`bad dmarc policy: ${policy}`);
+  if (!cfg.addresses.some((a) => a.local === rua)) throw new Error(`dmarc rua ${rua}@ is not a routed address`);
+  return `v=DMARC1; p=${policy}; rua=mailto:${rua}@${cfg.zone}; adkim=r; aspf=r`;
+}
+
+async function applyDmarc({ cfg, cf, write, log, zoneId }) {
+  const want = dmarcRecord(cfg);
+  if (!want) return null;
+  const name = `_dmarc.${cfg.zone}`;
+  const unq = (c) => String(c || '').replace(/^"|"$/g, '');
+  const have = (await cf('GET', `/zones/${zoneId}/dns_records?type=TXT&name=${encodeURIComponent(name)}`)) || [];
+  const dmarc = have.filter((r) => unq(r.content).startsWith('v=DMARC1'));
+  if (dmarc.length > 1) throw new Error(`${name} has ${dmarc.length} DMARC records; remove all but one by hand`);
+  if (dmarc.length && unq(dmarc[0].content) === want) { log('dmarc record already matches'); return 'same'; }
+  log(`${write ? '' : 'would '}${dmarc.length ? 'update' : 'create'} ${name} TXT "${want}"`);
+  if (!write) return 'planned';
+  const body = { type: 'TXT', name, content: `"${want}"`, ttl: 3600 };
+  if (dmarc.length) await cf('PUT', `/zones/${zoneId}/dns_records/${dmarc[0].id}`, body);
+  else await cf('POST', `/zones/${zoneId}/dns_records`, body);
+  return 'written';
+}
+
+async function applyOwnerDestination({ cfg, cf, write, log, accountId, forwardTo }) {
+  if (!cfg.owner_destination) return null;
+  if (!forwardTo || !accountId) {
+    log('an inbox forwards to the owner but EMAIL_FORWARD_TO or CLOUDFLARE_ACCOUNT_ID is unset: forwarding stays off until both are set');
+    return 'unset';
+  }
+  const want = String(forwardTo).trim().toLowerCase();
+  const list = (await cf('GET', `/accounts/${accountId}/email/routing/addresses?per_page=50`)) || [];
+  const found = list.find((a) => String(a.email).toLowerCase() === want);
+  if (found) {
+    log(found.verified ? 'owner destination is verified' : 'owner destination exists but is NOT verified yet: the owner clicks the link Cloudflare emailed');
+    return found.verified ? 'verified' : 'pending';
+  }
+  log(`${write ? 'adding' : 'would add'} the owner destination (EMAIL_FORWARD_TO); Cloudflare will email it a verification link`);
+  if (write) await cf('POST', `/accounts/${accountId}/email/routing/addresses`, { email: want });
+  return write ? 'added' : 'planned';
+}
+
+/** Run an optional step; a missing permission is reported, not fatal. */
+async function optional(label, log, fn) {
+  try {
+    return await fn();
+  } catch (e) {
+    log(`${label} skipped: ${e.message} (the token may lack the permission named in this script's header)`);
+    return 'error';
+  }
+}
+
+export async function apply({ cfg, cf, write, log = console.log, accountId = '', forwardTo = '' }) {
   const zones = await cf('GET', `/zones?name=${encodeURIComponent(cfg.zone)}`);
   if (!zones?.length) throw new Error(`zone ${cfg.zone} is not in this Cloudflare account`);
   const zoneId = zones[0].id;
@@ -126,6 +191,8 @@ export async function apply({ cfg, cf, write, log = console.log }) {
     if (o.op === 'create') await cf('POST', `/zones/${zoneId}/email/routing/rules`, o.rule);
     else await cf('PUT', `/zones/${zoneId}/email/routing/rules/${o.id}`, o.rule);
   }
+  await optional('dmarc', log, () => applyDmarc({ cfg, cf, write, log, zoneId }));
+  await optional('owner destination', log, () => applyOwnerDestination({ cfg, cf, write, log, accountId, forwardTo }));
   return ops;
 }
 
@@ -136,5 +203,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     console.error('missing: CLOUDFLARE_API_TOKEN');
     process.exit(2);
   }
-  await apply({ cfg, cf: client(token), write: process.env.APPLY === '1' });
+  await apply({
+    cfg, cf: client(token), write: process.env.APPLY === '1',
+    accountId: process.env.CLOUDFLARE_ACCOUNT_ID || '', forwardTo: process.env.EMAIL_FORWARD_TO || '',
+  });
 }

@@ -14,7 +14,7 @@ variable "payments_account_id" {
 variable "sender_role_name" {
   description = "Role name of the Paddle webhook Lambda in the payments account (app-paddle-webhook's role_name)."
   type        = string
-  default     = "saas-starter-payments-paddle-webhook"
+  default     = "payments-paddle-webhook"
 }
 
 variable "source_dir" {

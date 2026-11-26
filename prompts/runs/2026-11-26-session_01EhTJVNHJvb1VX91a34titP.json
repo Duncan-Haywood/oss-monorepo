@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01EhTJVNHJvb1VX91a34titP",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T04:56:27Z",
+  "ended": "2026-11-26T05:07:57Z",
+  "wall_minutes": 11.69,
+  "tokens_in": 16771828,
+  "tokens_out": 129485,
+  "cost_usd": 9.2203,
+  "tool_calls": 182,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19225",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "adversarial-gate blocked a self.skipTest in my new validator test; rewrote it hermetically with a temp flagships.yaml"
+  ],
+  "integrity_issues": [
+    "Two auditor calls overruled by the lead after checking: stormwater correctness 3->2 (high domain defect gives a 0.9 ft low stage the user would build to); depop compareRegions defect medium->low (same nominal base in every region, so max payout == min fee share; my first 'fix' changed nothing and was reverted)."
+  ],
+  "doc_friction": [
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "sample draws flagships as ventures/<name> but validate required the path to exist; jobshop-quote lives only in private-monorepo, so its audit could not validate. Fixed in this PR."
+    },
+    {
+      "file": "platform/ci/quality_mutate.py",
+      "issue": "refuses paths outside the public repo, so private-flagship mutations were seeded by hand."
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "no guidance for auditing a flagship whose code is private (what may be cited in a public audit file)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-26-quality-audit-round-108.md"
+  ],
+  "goal": null,
+  "notes": "seed 2026-11-26-b-a98b, round 108, mode sample. Subjects: ventures/jobshop-quote (flagship, private app; meets bar), ventures/stormwater-detention-sizer (no), ventures/depop-fee-calculator (no), platform/aws (no). Sampled share this round 0 of 3; overall 38 of 430 (6%-12%). Seeded bugs caught 12 of 21. Fixes in PR 19225: stormwater depth from max storm stage (+test failing on old code), depop 4 tests killing 4 surviving mutants (quality_mutate confirms caught), validate accepts private flagships. Follow-up: separate PR for platform/aws account-roles plan-role data-read denies (high, latent). Checks run: node --test in both ventures (50/50, 32/32), pytest platform/ci/test_quality_audit.py 23 passed, quality_audit validate 0 problems, check_posts ok, risk_review nothing triggered.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d3bdd0da-4337-5fa2-bc2c-9297cb011716",
+    "transcripts": 5,
+    "first": "2026-11-26T04:56:27Z",
+    "last": "2026-11-26T05:08:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 169,
+        "input": 346,
+        "output": 129485,
+        "thinking": 38326,
+        "cache_read": 16156392,
+        "cache_write_5m": 507600,
+        "cache_write_1h": 107490,
+        "api_equivalent_usd": 9.2203,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 169,
+      "input": 346,
+      "output": 129485,
+      "thinking": 38326,
+      "cache_read": 16156392,
+      "cache_write_5m": 507600,
+      "cache_write_1h": 107490,
+      "api_equivalent_usd": 9.2203,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.963,
+    "tool_calls": 182,
+    "tools": {
+      "Bash": 154,
+      "WebFetch": 5,
+      "Agent": 4,
+      "Read": 4,
+      "SubagentHandback": 4,
+      "ToolSearch": 3,
+      "Write": 3,
+      "WebSearch": 3,
+      "mcp__github__create_pull_request": 1,
+      "mcp__claude-code-remote__add_repo": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.69,
+      "active_minutes": 6.72,
+      "model_minutes": 4.98,
+      "tool_minutes": 1.74,
+      "waiting_on_human_minutes": 4.98,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 23.22
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "four subject audits with recomputation at ~2h each plus fixes and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 108.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

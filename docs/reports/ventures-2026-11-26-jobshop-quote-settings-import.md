@@ -40,10 +40,28 @@ can now set its markups and line minimum from that file, as well as its machines
 - The export ("Setting,Value", UTF-8 with a BOM) and the blank template both read back unchanged.
 
 ## Still open on item 11
-- Clearing a value from the sheet (claimed separately as `clear-cells`).
-- An .xlsx export.
-- The text settings (lead time, terms), if shops keep them in the sheet.
+- Clearing a value from a *rate row* (claimed as `clear-cells` on 2026-11-25; not landed as of
+  2026-11-26 05:15 UTC, and now stale).
+- ~~An .xlsx export.~~ Done in private PR 251.
+- ~~The text settings (lead time, terms).~~ Done in private PR 252, see below.
 - Multiple currencies.
+
+## Update, 2026-11-26: lead time, terms and "(none)" (private PR 252)
+- The settings sheet reads and writes **Default lead time** and **Quote terms** as text rows
+  (`src/shared/settings-import.ts`). Line breaks inside a cell are kept, and the export's
+  formula apostrophe is stripped (`readTextCell`).
+- `(none)` or `(clear)` empties a text setting, and the export writes `(none)` for an empty one so
+  the round trip stays a no-op. A number setting refuses `(none)` and names what to write
+  ("0%", "0", a day count, a quantity), because those settings have no empty state in the schema.
+- "Payment terms" and "Lead time (days)" / "Lead time per part" are left out with a reason, not
+  mapped to the nearest setting.
+- If a text value spreads across more than one cell (an unquoted CSV comma), the row is refused,
+  so the value is never cut short. A number keeps its allowed note in the next cell ("per PO").
+- Another run claimed the same scope 5 minutes later (`rate-card-import-part-3-clear-and-terms`,
+  05:09 UTC). Check PR 252 before building it again.
+- Verification: typecheck clean; unit 452/452; the e2e `06-settings-import.spec.ts` (extended with
+  a lead-time row and a refused "Payment terms" row) passes. The private CI had no runner
+  (`ci_starvation.py` exit 0), so `run_workflow_locally.py jobshop-quote-ci` ran from the clone.
 
 ## Verification
 - `pnpm typecheck` and biome: clean.
