@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKkh6R3AwVi7KGa6fSF",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T06:18:25Z",
+  "ended": "2026-11-26T06:29:26Z",
+  "wall_minutes": 12.13,
+  "tokens_in": 8412637,
+  "tokens_out": 43123,
+  "cost_usd": 3.5606,
+  "tool_calls": 74,
+  "task": "Bet #1 payapps, ROADMAP Next #3 (SOV import from a PDF part 5): OCR of scans on their side or upside down",
+  "projects": [
+    "payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19254",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "one hand-built placement matrix in a new unit test was wrong at first (and float noise); fixed by deriving it and comparing to 1/1000 pt"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "add_repo's result still names register_repo_root; the doc's 'skip it' note was right and saved time"
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "payapps Next items are mostly 'if people ask'; with ~40 claims in 15 h the free items left are speculative, so the doc's 'top bet by default' sends every run to the same saturated app"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (extended: 'A scan on its side')",
+    "docs/reports/ventures-2026-11-26-payapps-sideways-scans.md"
+  ],
+  "goal": "$10k MRR: deepen bet #1's SOV import (scanned schedules from GCs) toward a paying subcontractor",
+  "notes": "Security queue empty (exit 3); ideas inbox empty; routed ventures/1. private-monorepo PR 268 merged (squash d330301): runsFromOcr maps lines along their baseline any way turned, turns the page to the dominant text direction, ocrText retries a mostly-unsure read half turned (tesseract.js rotateRadians PI). Measured: confidence 93 upright/clockwise vs 50 anticlockwise/upside down; 93 after half turn. New fixture sov-scan-pictures-sideways.pdf: 48 lines, $1,120,223.00, real engine 6.5 s. Existing fixtures regenerate byte-identical. Private CI starved (ci_starvation.py: runner_id 0); run_workflow_locally.py --repo-root private payapps-ci: 9/9 run steps passed, 3 uses: steps not run. Unit 714/714, typecheck, biome clean. Not checked in a browser.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a7eb9283-9b03-50e4-a8d1-9199b8be5307",
+    "transcripts": 1,
+    "first": "2026-11-26T06:18:25Z",
+    "last": "2026-11-26T06:30:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 133,
+        "output": 43123,
+        "thinking": 14003,
+        "cache_read": 8282362,
+        "cache_write_5m": 0,
+        "cache_write_1h": 130142,
+        "api_equivalent_usd": 3.5606,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 133,
+      "output": 43123,
+      "thinking": 14003,
+      "cache_read": 8282362,
+      "cache_write_5m": 0,
+      "cache_write_1h": 130142,
+      "api_equivalent_usd": 3.5606,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 74,
+    "tools": {
+      "Bash": 67,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.13,
+      "active_minutes": 12.13,
+      "model_minutes": 7.53,
+      "tool_minutes": 4.6,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior dev: measure Tesseract orientation behaviour, generalise OCR geometry, fixture + tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 168.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
