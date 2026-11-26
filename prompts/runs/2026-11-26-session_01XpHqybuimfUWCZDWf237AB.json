@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqybuimfUWCZDWf237AB",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T04:39:28Z",
+  "ended": "2026-11-26T04:54:52Z",
+  "wall_minutes": 15.66,
+  "tokens_in": 2847740,
+  "tokens_out": 14228,
+  "cost_usd": 1.4549,
+  "tool_calls": 39,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19224",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Fixed here: under run_in_background the 100 s handoff exited 3, so the job finished mid-sweep (friction cluster 9). The harness now backgrounds timed-out foreground calls instead of killing them, so the handoff's early exit had no remaining purpose."
+    },
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "Waiting on the outer relay log (stdout of a background --for-changes) times out 'no DONE line' because the relay strips DONE lines; wait on the tool call itself or the detached log it names. Cost one 540 s wait."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-a-tool-that-backgrounds-itself.md (extended: 'Two weeks later')"
+  ],
+  "goal": null,
+  "notes": "Security queue: 2 alerts, both claimed (exit 3). IDEAS.md and requests empty. Routed process/1. Backlog has no agent-workable item, so Critique mode via friction_rank cluster 9. main_health.py 328/328 green before the change. Tests: platform/ci test_run_workflow_locally 278 OK. End-to-end --for-changes under run_in_background: note at 100 s, ended once at 5m09s with exit 5 (NO_VERDICT for priv-codeql/priv-security-gate only; portfolio-validate 101/101). Backlog ids touched: none.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7005aa1b-9279-57da-b827-d6f1cbb2ba8c",
+    "transcripts": 1,
+    "first": "2026-11-26T04:39:28Z",
+    "last": "2026-11-26T04:55:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 64,
+        "output": 14228,
+        "thinking": 2396,
+        "cache_read": 2770677,
+        "cache_write_5m": 0,
+        "cache_write_1h": 76999,
+        "api_equivalent_usd": 1.4549,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 64,
+      "output": 14228,
+      "thinking": 2396,
+      "cache_read": 2770677,
+      "cache_write_5m": 0,
+      "cache_write_1h": 76999,
+      "api_equivalent_usd": 1.4549,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 36,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.66,
+      "active_minutes": 15.66,
+      "model_minutes": 2.89,
+      "tool_minutes": 12.77,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "diagnose harness behaviour, change handoff loop, test, verify end to end, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 137.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
