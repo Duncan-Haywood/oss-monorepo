@@ -43,7 +43,7 @@ Same method (`bench2.mjs`: one `readPart` call, Node 22, this container).
 
 ## Not changed (ranked for the next run)
 
-1. The per-vertex key string (`id`, 239 ms self) is now the top cost. A
+1. **Done same day** (PR 19157, `stock-size-stl-perf-2026-11-26.md`: float-bit weld keeping both rules, 500k triangles 1,700 → 647 ms). Was: the per-vertex key string (`id`, 239 ms self) is now the top cost. A
    numeric hash on the float bits would need care: `${-0}` is `"0"`, so today
    `-0` and `0` share a vertex, and NaN keys collapse; a bit key splits both
    and could change the "not closed" count.
