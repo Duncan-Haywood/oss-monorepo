@@ -22,7 +22,7 @@
   "baseline": "4 page-perf passes on 2026-11-24..26 (shift-roster, ai-bookkeeper, wall-framing-takeoff, shed-designer), each with its own script; 0 shared",
   "opened": "2026-11-26",
   "source": "process critique, measure 'Doc friction by file' on prompts/perf/prompt-0.md (2026-11-26)",
-  "pr": null,
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19478",
   "result": null,
   "history": []
 }
