@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { parseXer } from "./xer.mjs";
 import { schedule } from "./cpm.mjs";
 import { assess } from "./dcma.mjs";
-import { longestPath, floatPaths, floatPathsCsv, finishActivity, drivingInto, targetBound, floatAgainst } from "./floatpaths.mjs";
+import { longestPath, floatPaths, floatPathsCsv, finishActivity, drivingInto, targetBound, floatAgainst, relationshipFloat } from "./floatpaths.mjs";
 
 // Mon-Fri 08:00-12:00, 13:00-17:00 (8 h/day)
 const WEEK = "(0||CalendarData()((0||DaysOfWeek()((0||1()())(0||2()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||3()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||4()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||5()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||6()((0||0(s|08:00|f|12:00)())(0||1(s|13:00|f|17:00)())))(0||7()())))(0||Exceptions()())))";
@@ -131,4 +131,44 @@ test("finished, summary and unscheduled targets give no paths", () => {
   const res = schedule(x);
   assert.equal(floatPaths(res, "9").target, null);
   assert.equal(floatPaths(res, "nope").paths.length, 0);
+});
+
+test("a path follows only the link that sets each predecessor's date", () => {
+  // B (24 h) -> C (8 h) -> H (24 h) -FF+8-> END ; C -> E (8 h) -FS+8-> END ;
+  // A (8 h) -> D (8 h) -> E ; D -> H. D's target-bound date is set by D -> H,
+  // not D -> E, so the path through E stops at E and A-D is a path of its own.
+  const p = project([
+    task("1", "A", 8), task("2", "B", 24), task("3", "C", 8), task("4", "D", 8), task("5", "E", 8), task("8", "H", 24),
+    task("9", "END", 0, { task_type: "TT_FinMile" }),
+  ], [
+    link("1", "3", "2"), link("2", "4", "1"), link("3", "5", "3"), link("4", "5", "4"), link("5", "8", "3"), link("6", "8", "4"),
+    link("7", "9", "5", "PR_FS", 8), link("8", "9", "8", "PR_FF", 8),
+  ]);
+  const res = schedule(p);
+  const fp = floatPaths(res, "9");
+  assert.deepEqual(fp.paths.map((x) => [x.float, x.activities.map((a) => a.code)]), [[0, ["B", "C", "H", "END"]], [16, ["E"]], [16, ["A", "D"]]]);
+  // the link's lag is reported in hours
+  assert.deepEqual(fp.paths[1].activities[0].link, { to: "END", type: "FS", lag: 8, float: 16 });
+});
+
+test("float path ties on relative float go to the predecessor that finishes later", () => {
+  const p = project([
+    task("1", "A", 8), task("3", "C", 8), task("4", "D", 8), task("5", "E", 16), task("6", "END", 0, { task_type: "TT_FinMile" }),
+  ], [
+    link("1", "3", "1", "PR_SS"), link("2", "4", "1"), link("3", "4", "3", "PR_SS"), link("4", "5", "3"),
+    link("5", "5", "4", "PR_SS"), link("6", "6", "1", "PR_SS"), link("7", "6", "4"), link("8", "6", "5"),
+  ]);
+  const res = schedule(p);
+  const fp = floatPaths(res, "6");
+  assert.deepEqual(fp.paths.map((x) => [x.float, x.activities.map((a) => a.code)]), [[0, ["A", "D", "E", "END"]], [0, ["C"]]]);
+});
+
+test("relationship float is null when either end has no dates", () => {
+  const res = schedule(NET());
+  const rel = res.model.tasks.get("3").preds.find((r) => r.predId === "1");
+  assert.equal(relationshipFloat(res, rel), 0);
+  const noPred = { ...res, tasks: new Map([...res.tasks].filter(([id]) => id !== "1")) };
+  assert.equal(relationshipFloat(noPred, rel), null);
+  const noSucc = { ...res, tasks: new Map([...res.tasks].filter(([id]) => id !== "3")) };
+  assert.equal(relationshipFloat(noSucc, rel), null);
 });

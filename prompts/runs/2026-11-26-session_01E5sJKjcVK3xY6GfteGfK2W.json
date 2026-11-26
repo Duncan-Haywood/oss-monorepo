@@ -1,0 +1,261 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKjcVK3xY6GfteGfK2W",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T14:18:02Z",
+  "ended": "2026-11-26T14:20:08Z",
+  "wall_minutes": 7.57,
+  "tokens_in": 2997443,
+  "tokens_out": 19830,
+  "cost_usd": 1.659,
+  "tool_calls": 37,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19376",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Triaging order-sensitive mutants (path tie-breaks, via-link filter) by hand-designing networks was slow; a throwaway fuzz against a mutated copy (imports rewritten to absolute paths) found and shrank counterexamples in seconds. Worth naming as a technique."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No post written: the change is test coverage plus CLI argument validation, nothing a customer post would add to.",
+      "did": "Recorded findings in the run record and PR only.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Target floatpaths.mjs (not mutated before). 6 escaped: 4 gaps fixed with tests (rerun: all caught_after_fix true), 2 equivalent. Guard added: WHOLE flag table in cli.mjs refuses non-whole count flags (covers --paths, --crew, --max-runs, --seed) with a CLI test. Verification: run_venture_tests.py xer-schedule-check ok, 610 tests.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/xer-schedule-check/floatpaths.mjs",
+        "test": "node --test ventures/xer-schedule-check/**/*.test.mjs  (in .)",
+        "seed": 691546424,
+        "commit": "16faa5027",
+        "sites": 134,
+        "baseline_seconds": 4.9,
+        "mutants": [
+          {
+            "file": "ventures/xer-schedule-check/floatpaths.mjs",
+            "line": 61,
+            "col": 10,
+            "operator": "or-to-and",
+            "before": "if (!pv || !sv || pv.ef === undefined || sv.ef === undefined) return null;",
+            "after": "if (!pv && !sv || pv.ef === undefined || sv.ef === undefined) return null;",
+            "line_text": "  if (!pv || !sv || pv.ef === undefined || sv.ef === undefined) return null;",
+            "caught": false,
+            "seconds": 4.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "relationshipFloat is exported (lookahead.mjs, crash.mjs) and documented to return null when either end has no dates; new test calls it on a result missing one end"
+          },
+          {
+            "file": "ventures/xer-schedule-check/floatpaths.mjs",
+            "line": 106,
+            "col": 28,
+            "operator": "const-plus-one",
+            "before": "let best = null, bestN = -1;",
+            "after": "let best = null, bestN = -2;",
+            "line_text": "  let best = null, bestN = -1;",
+            "caught": false,
+            "seconds": 4.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "drivingInto([t.id]) always includes t itself, so n >= 1 and any initial bestN below 1 picks the same first candidate"
+          },
+          {
+            "file": "ventures/xer-schedule-check/floatpaths.mjs",
+            "line": 154,
+            "col": 15,
+            "operator": "or-to-and",
+            "before": "if (!b || !cone.has(rel.succId)) continue;",
+            "after": "if (!b && !cone.has(rel.succId)) continue;",
+            "line_text": "        if (!b || !cone.has(rel.succId)) continue;",
+            "caught": false,
+            "seconds": 4.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "bound only ever holds cone ids, and a cone successor is bound before its predecessor is peeled (Kahn over the cone); the only way to have a cone successor unbound is a self-loop, and cpm.mjs leaves looped activities out of result.tasks so they never enter the cone (checked: a B->B link gives res.loops=[[B]] and no B in res.tasks)"
+          },
+          {
+            "file": "ventures/xer-schedule-check/floatpaths.mjs",
+            "line": 201,
+            "col": 76,
+            "operator": "const-plus-one",
+            "before": "return (ft === \"FT_SF\" ? st : ft === \"FT_FF\" ? fin : Math.min(st, fin)) / 60;",
+            "after": "return (ft === \"FT_SF\" ? st : ft === \"FT_FF\" ? fin : Math.min(st, fin)) / 61;",
+            "line_text": "  return (ft === \"FT_SF\" ? st : ft === \"FT_FF\" ? fin : Math.min(st, fin)) / 60;",
+            "caught": true,
+            "seconds": 5.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/xer-schedule-check/floatpaths.mjs",
+            "line": 218,
+            "col": 221,
+            "operator": "const-plus-one",
+            "before": "return { id, code: t.code, name: t.name, start: formatDate(r.remES ?? r.es), finish: formatDate(r.ef), tf: r.tf, rf: rf.get(id), link: link ? { to: model.tasks.get(link.succId).code, type: rel2(link), lag: link.lag / 60, float: Math.max(0, relationshipFloat(result, link)) / 60 } : null };",
+            "after": "return { id, code: t.code, name: t.name, start: formatDate(r.remES ?? r.es), finish: formatDate(r.ef), tf: r.tf, rf: rf.get(id), link: link ? { to: model.tasks.get(link.succId).code, type: rel2(link), lag: link.lag / 61, float: Math.max(0, relationshipFloat(result, link)) / 60 } : null };",
+            "line_text": "    return { id, code: t.code, name: t.name, start: formatDate(r.remES ?? r.es), finish: formatDate(r.ef), tf: r.tf, rf: rf.get(id), link: link ? { to: model.tasks.get(link.succId).code, type: rel2(link), lag: link.lag / 60, float: Math.max(0, relationshipFloat(result, link)) / 60 } : null };",
+            "caught": false,
+            "seconds": 4.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test had a float-path link with a lag; new test asserts lag 8 h on E->END"
+          },
+          {
+            "file": "ventures/xer-schedule-check/floatpaths.mjs",
+            "line": 233,
+            "col": 43,
+            "operator": "or-to-and",
+            "before": "if (!b || assigned.has(rel.predId) || b.via !== rel) continue;",
+            "after": "if (!b || assigned.has(rel.predId) && b.via !== rel) continue;",
+            "line_text": "        if (!b || assigned.has(rel.predId) || b.via !== rel) continue;",
+            "caught": false,
+            "seconds": 4.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test: D's bound is set by D->H, so the path through E must stop at E; mutant ran A-D-E as one path (found by a 4000-network fuzz, shrunk)"
+          },
+          {
+            "file": "ventures/xer-schedule-check/floatpaths.mjs",
+            "line": 238,
+            "col": 25,
+            "operator": "eq-flip",
+            "before": "if (f < nf || (f === nf && e > ne)) { next = rel.predId; nf = f; ne = e; }",
+            "after": "if (f < nf || (f !== nf && e > ne)) { next = rel.predId; nf = f; ne = e; }",
+            "line_text": "        if (f < nf || (f === nf && e > ne)) { next = rel.predId; nf = f; ne = e; }",
+            "caught": false,
+            "seconds": 4.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test: tie on relative float between C and D into E goes to D (finishes later); mutant picked C"
+          },
+          {
+            "file": "ventures/xer-schedule-check/floatpaths.mjs",
+            "line": 242,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "paths.push({ n: paths.length + 1, float: rf.get(seed), activities: chain.reverse().map(row) });",
+            "after": "paths.push({ n: paths.length + 2, float: rf.get(seed), activities: chain.reverse().map(row) });",
+            "line_text": "    paths.push({ n: paths.length + 1, float: rf.get(seed), activities: chain.reverse().map(row) });",
+            "caught": true,
+            "seconds": 4.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/xer-schedule-check/cli.mjs",
+        "issue": "count flags read with Number() and no check: `--float-paths --paths five` (NaN) returned every float path, `--paths 0` or `-1` returned none with every activity unreached, `--seed x` ran a risk analysis reported with seed null (not repeatable), `--crew 0` accepted. Fixed: a WHOLE table refuses non-whole or below-minimum values with exit 2; test in cli-args.test.mjs fails before the fix.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19376"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2f2dcb58-2b90-58ea-9105-31e752cd7f0b",
+    "transcripts": 1,
+    "first": "2026-11-26T14:18:02Z",
+    "last": "2026-11-26T14:25:37Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 66,
+        "output": 19830,
+        "thinking": 6582,
+        "cache_read": 2912415,
+        "cache_write_5m": 0,
+        "cache_write_1h": 84962,
+        "api_equivalent_usd": 1.659,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 66,
+      "output": 19830,
+      "thinking": 6582,
+      "cache_read": 2912415,
+      "cache_write_5m": 0,
+      "cache_write_1h": 84962,
+      "api_equivalent_usd": 1.659,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 37,
+    "tools": {
+      "Bash": 34,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.57,
+      "active_minutes": 7.57,
+      "model_minutes": 4.2,
+      "tool_minutes": 3.38,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "triage 6 mutants, fuzz, 5 tests, CLI fix",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 180.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
