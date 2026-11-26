@@ -101,8 +101,8 @@ What could go wrong, and what stops it:
   CloudShell, never in GitHub. `export` and `prepare` refuse a token
   without an expiry or with more than 72 h left. The run job deletes it at
   the end. Inside a run it reaches only this process and the `tofu`
-  subprocess's environment, and is registered with `::add-mask::` (a line
-  GitHub's runner consumes, not shows). Tests check that no token, key,
+  subprocess's environment. It is never printed, not even as an
+  `::add-mask::` line (CodeQL counts that as logging it). Tests check that no token, key,
   secret binding value or customer row reaches the log, the summary or the
   state.
 - **Who can read it.** `github-cutover-plan` (environment `cutover-plan`)

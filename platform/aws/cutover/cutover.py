@@ -485,7 +485,7 @@ class Ctx:
         for a in cfg["apps"]:
             self.state["apps"].setdefault(a["name"], {"status": "pending", "steps": {}})
         self.inventory = None
-        self.token: dict = {}
+        self.credential_expiry = ""
         self.timings: list[tuple[str, float]] = []
         self.started = clock.now()
         self.budget_minutes = 60.0
@@ -582,7 +582,7 @@ def check_token(ctx: Ctx) -> dict:
         raise CutoverError("the Cloudflare token expires within 15 minutes (or has): make a new one")
     if left > MAX_TOKEN_HOURS:
         raise CutoverError(f"the Cloudflare token expires in {left:.0f} h; the limit is {MAX_TOKEN_HOURS} h")
-    return {"token_id": t.get("id"), "expires_on": exp}
+    return str(exp)
 
 
 def inventory_account(ctx: Ctx) -> dict:
@@ -688,7 +688,6 @@ def import_blocks(inv: dict) -> str:
 
 
 def stage_export(ctx: Ctx, out_dir: Path) -> None:
-    tok = ctx.token
     inv = inventory_account(ctx)
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "inventory.generated.json").write_text(json.dumps(inv, indent=2, sort_keys=True) + "\n")
@@ -702,7 +701,7 @@ def stage_export(ctx: Ctx, out_dir: Path) -> None:
     n_imports = (out_dir / "imports.generated.tf").read_text().count("import {")
     ctx.note(f"export: zone {inv['zone']['name']}, {len(inv['records'])} records, {len(inv['workers_custom_domains'])} custom domains, "
              f"{len(inv['workers_scripts'])} Workers, {len(inv['d1_databases'])} D1, {len(inv['r2_buckets'])} R2; {n_imports} import blocks; "
-             f"token expires {tok['expires_on']}")
+             f"credential expires {ctx.credential_expiry}")
     for h, v in inv["hosts"].items():
         ctx.note(f"export: {h}: {v['kind']}")
     for m in inv["unreadable"]:
@@ -1360,14 +1359,6 @@ STAGE_ORDER = ["export", "prepare", "switch", "verify", "rollback", "retire", "d
 FLAG_STAGES = {"apply": ["switch", "verify"], "verify": ["verify"], "rollback": ["rollback"]}
 
 
-def mask(value: str) -> None:
-    # GitHub hides a value from every later log line once it is registered.
-    if os.environ.get("GITHUB_ACTIONS") == "true":
-        for line in value.splitlines():
-            if line.strip():
-                print(f"::add-mask::{line}", flush=True)
-
-
 def build_real(args, cfg) -> Ctx:
     region = os.environ.get("AWS_DEFAULT_REGION", "us-east-1")
     run_id = os.environ.get("GITHUB_RUN_ID", "local")
@@ -1383,14 +1374,12 @@ def build_real(args, cfg) -> Ctx:
         if needs_cf and not token:
             raise CutoverError(f"{SECRET_CLOUDFLARE} is not in Secrets Manager (README.md, Owner steps)")
         raw = aws.secret(SECRET_PADDLE)
+    # Never printed, logged or stored: the values go only into request headers
+    # and the tofu subprocess's environment (tests check the log, summary and state).
     token = (token or "").strip()
-    if token != PROXY_TOKEN:
-        mask(token)
     paddle = None
     if raw:
-        mask(raw)
         p = json.loads(raw)
-        mask(p["api_key"])
         paddle = Paddle(p["api_key"], p.get("environment", "live"), args.plan)
     bucket = os.environ.get("CUTOVER_STATE_BUCKET")
     if not bucket:
@@ -1415,7 +1404,7 @@ def run(ctx: Ctx, stages: list[str], only: str | None, export_out: Path) -> int:
     try:
         if any(s != "delete-secrets" for s in stages):
             # Every run that holds the token checks it first (the owner's 24-48 h rule).
-            ctx.token = check_token(ctx)
+            ctx.credential_expiry = check_token(ctx)
         for s in stages:
             if s == "export":
                 stage_export(ctx, export_out)

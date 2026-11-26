@@ -11,6 +11,7 @@ import importlib.util
 import io
 import json
 import shutil
+import urllib.parse
 from pathlib import Path
 
 import pytest
@@ -56,6 +57,10 @@ def reopen(tmp_path, ctx, plan_only=False):
 
 def advance(ctx, **kw):
     ctx.clock.sleep(dt.timedelta(**kw).total_seconds())
+
+
+def paddle_host(ctx):
+    return urllib.parse.urlparse(ctx.world.d["paddle"]["settings"]["ntfset_01demo"]["destination"]).hostname
 
 
 def new_token(ctx, hours=24):
@@ -289,7 +294,7 @@ def test_dns_failure_rolls_the_app_back_and_a_rerun_finishes(tmp_path):
     demo = ctx.state["apps"]["demo-paid"]
     assert demo["status"] == "rolled_back"
     assert host_shape(ctx, "app.demo.marisstella.app") == "A 192.0.2.50"
-    assert ctx.world.d["paddle"]["settings"]["ntfset_01demo"]["destination"].startswith("https://demo-paid.example.workers.dev")
+    assert paddle_host(ctx) == "demo-paid.example.workers.dev"
     fw = [r for r in ctx.world.cf["rulesets"] if r["phase"] == "http_request_firewall_custom"]
     assert all(not r["rules"] for r in fw)
     # Apps before it stay switched.
@@ -358,7 +363,7 @@ def test_paddle_test_failure_rolls_back(tmp_path):
     w["fail"]["paddle_test"] = True
     ctx, code = full_run(tmp_path, world=w)
     assert code == 1 and "Paddle test event answered [500]" in ctx.out.getvalue()
-    assert ctx.world.d["paddle"]["settings"]["ntfset_01demo"]["destination"].startswith("https://demo-paid.example.workers.dev")
+    assert paddle_host(ctx) == "demo-paid.example.workers.dev"
 
 
 def test_unhealthy_host_rolls_back_only_that_app(tmp_path):
