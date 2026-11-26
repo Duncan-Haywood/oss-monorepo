@@ -24,7 +24,7 @@ variable "region" {
 variable "shared_state_stacks" {
   description = "Stacks in this account whose state every role here may read (for example dns, read by site)."
   type        = list(string)
-  default     = ["dns"]
+  default     = []
 }
 
 variable "stacks" {
@@ -33,6 +33,7 @@ variable "stacks" {
     repo             = string
     managed_policies = list(string)
     extra_statements = optional(any, [])
+    iam_prefixes     = optional(list(string))
   }))
   default = {}
 }

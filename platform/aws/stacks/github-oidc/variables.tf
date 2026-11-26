@@ -41,6 +41,8 @@ variable "stacks" {
     repo             = string
     managed_policies = list(string)
     extra_statements = optional(any, [])
+    # IAM name prefixes the apply role may manage; null means [<stack>].
+    iam_prefixes = optional(list(string))
   }))
   default = {
     dns = {
@@ -53,17 +55,37 @@ variable "stacks" {
       repo             = "oss-monorepo"
       managed_policies = ["arn:aws:iam::aws:policy/PowerUserAccess"]
     }
-    edge = {
-      account          = "shared-infra"
-      repo             = "oss-monorepo"
-      managed_policies = ["arn:aws:iam::aws:policy/PowerUserAccess"]
-    }
     saas-starter = {
       account          = "apps"
       repo             = "oss-monorepo"
       managed_policies = ["arn:aws:iam::aws:policy/PowerUserAccess"]
     }
-    products = {
+    edge-api = {
+      account          = "apps"
+      repo             = "oss-monorepo"
+      managed_policies = ["arn:aws:iam::aws:policy/PowerUserAccess"]
+    }
+    email-ops = {
+      account          = "apps"
+      repo             = "oss-monorepo"
+      managed_policies = ["arn:aws:iam::aws:policy/PowerUserAccess"]
+    }
+    listing-lens = {
+      account          = "apps"
+      repo             = "oss-monorepo"
+      managed_policies = ["arn:aws:iam::aws:policy/PowerUserAccess"]
+    }
+    shift-roster = {
+      account          = "apps"
+      repo             = "oss-monorepo"
+      managed_policies = ["arn:aws:iam::aws:policy/PowerUserAccess"]
+    }
+    retail-pilot-intel = {
+      account          = "apps"
+      repo             = "oss-monorepo"
+      managed_policies = ["arn:aws:iam::aws:policy/PowerUserAccess"]
+    }
+    ai-first-markets = {
       account          = "apps"
       repo             = "oss-monorepo"
       managed_policies = ["arn:aws:iam::aws:policy/PowerUserAccess"]
@@ -83,6 +105,14 @@ variable "stacks" {
   validation {
     condition     = alltrue([for s in values(var.stacks) : contains(["oss-monorepo", "private-monorepo"], s.repo)])
     error_message = "Repository must be oss-monorepo or private-monorepo."
+  }
+
+  validation {
+    condition = alltrue(flatten([for name, s in var.stacks : [
+      for p in coalesce(s.iam_prefixes, [name]) :
+      can(regex("^[a-z][a-z0-9-]{2,}$", p)) && strcontains(p, name) && !startswith(p, "gha")
+    ]]))
+    error_message = "Each iam_prefixes entry is lowercase, contains its stack's name and never starts with gha (the CI roles)."
   }
 
   validation {

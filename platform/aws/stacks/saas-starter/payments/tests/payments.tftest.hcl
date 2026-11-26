@@ -53,4 +53,8 @@ run "receiver_role_name_matches_the_apps_queue_policy" {
     condition     = module.paddle_webhook.policy.Statement[3].Resource == var.queue_arn
     error_message = "sends to the apps queue"
   }
+  assert {
+    condition     = module.paddle_webhook.role_name == "payments-paddle-webhook"
+    error_message = "the receiver is payments-* (stacks/github-oidc's payments apply scope) and the name the apps queue accepts"
+  }
 }
