@@ -230,6 +230,19 @@ order instead. Every figure still has to be checked against the paper.
 The first scan downloads the text reader, about 7 MB, and each page
 takes a few seconds. (Added 2026-11-26; still in development.)
 
+**A scan on its side.** A sheet fed into the scanner sideways or
+upside down used to come back empty or as garbage. Tesseract reads text
+that runs down the page, but not text that runs up it or is upside down.
+On our test page it read that text at a mean confidence of 50 out of 100,
+against 93 for the same page the right way up. The build now works out
+which way the text runs and turns the page to read it, as you would turn
+the paper. When most of a page reads as unsure, it reads the page again
+turned half round and keeps the better result. That second read costs
+about 3 seconds, and only on such a page. The import then says which
+page it turned. Tested on the black-and-white scan above with one page
+turned each way: all 48 lines and the $1,120,223.00 total came through.
+(Added 2026-11-26; still in development.)
+
 The working price range in our notes is about $99 to $249 a month. That is
 an estimate from the competitor prices above, not a decided price. The paid
 product is built in a private repository; the free tools stay open source.
