@@ -1,0 +1,157 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtH2pNmTC7vVmtXTvZ1",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T19:06:14Z",
+  "ended": "2026-11-26T19:16:06Z",
+  "wall_minutes": 15.05,
+  "tokens_in": 11169567,
+  "tokens_out": 42771,
+  "cost_usd": 4.28,
+  "tool_calls": 93,
+  "task": "bet #5 reseller books: TikTok Shop statement importer (tiktok-shop-importer)",
+  "projects": [
+    "private-monorepo/apps/seller-books",
+    "private-monorepo/apps/seller-books-site"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/396",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [
+    "e87ac0a697b65a112da402e604c1cf773b65d3ad"
+  ],
+  "lines_added": 572,
+  "lines_removed": 17,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "biome --write ran over the whole app and would have reformatted untouched files; only my files ended up changed, checked with git status",
+      "impact": "none"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets named einvoice-preflight #5 as 'free and not gated', but the item's first part is a native-speaker read (cannot be done honestly by an agent) and the rest is 'only if Polish accountants are a market': the gate detector misses both phrasings."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "add_repo + one clone of private-monorepo worked first time (under a minute), as the section says; no friction."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "bets #1-#4 and #6 had only demand-, owner- or source-gated items; took bet #5 (seller-books, no ROADMAP) with a --slug claim instead of opening a new growth-path item on bet #1",
+      "did": "built the TikTok Shop importer, a gap in seller-books' platform list",
+      "result": "merged as private PR 396"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "no new post: the paid product's site page /platforms/tiktok-shop is the customer-facing write-up, and the public free tiktok-shop-settlement-analyzer was not linked because the seller-books site is not deployed yet (marisstella.app/seller-books/ answered 404)",
+      "did": "marketing page in seller-books-site instead of a blog post",
+      "result": "page built and tested; it goes live when the site is deployed"
+    }
+  ],
+  "writeups": [
+    "private-monorepo/apps/seller-books/docs/IMPORTERS.md (TikTok Shop section)",
+    "private-monorepo/apps/seller-books-site /platforms/tiktok-shop page"
+  ],
+  "goal": null,
+  "notes": "Security queue empty, IDEAS empty; routed to ventures (draw). Private CI starved (ci_starvation.py: runner_id 0 on both jobs). I ran seller-books-ci locally with run_workflow_locally.py: 11/11 run: steps passed, Playwright e2e included; the 8 uses: steps were not run. Also by hand: unit 269 passed, worker 119 passed, site 40 passed. Column names come from an MIT dictionary (Perufitlife/tiktok-shop-settlement), TikTok's Finance API field names and Seller University definitions quoted by search; no real export seen, stated in IMPORTERS.md. Follow-up for the next seller-books run: point the public tiktok-shop-settlement-analyzer and reseller-books free tools at seller-books once its site deploys.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "728143b0-b90d-5abf-bba0-e63917e40824",
+    "transcripts": 1,
+    "first": "2026-11-26T19:06:14Z",
+    "last": "2026-11-26T19:21:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 87,
+        "input": 167,
+        "output": 42771,
+        "thinking": 9814,
+        "cache_read": 11016828,
+        "cache_write_5m": 0,
+        "cache_write_1h": 152572,
+        "api_equivalent_usd": 4.28,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 87,
+      "input": 167,
+      "output": 42771,
+      "thinking": 9814,
+      "cache_read": 11016828,
+      "cache_write_5m": 0,
+      "cache_write_1h": 152572,
+      "api_equivalent_usd": 4.28,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 93,
+    "tools": {
+      "Bash": 76,
+      "WebFetch": 5,
+      "WebSearch": 3,
+      "ToolSearch": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.05,
+      "active_minutes": 15.05,
+      "model_minutes": 7.75,
+      "tool_minutes": 7.3,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an importer with research, tests, docs and a site page: about 6 hours for a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 140.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
