@@ -2439,6 +2439,15 @@ class Handoff(unittest.TestCase):
         self.assertIn("do not change tracked files", text)
         self.assertIn("already written when this started is fine", text)
         self.assertIn("created since, such as a new run record, is an edit", text)
+        self.assertIn("do not change tracked files in " + runner.REPO, text)
+
+    def test_the_note_names_the_checkout_a_repo_root_run_reads(self):
+        # "here" left --repo-root runs unsure which checkout was off limits
+        # (friction, two sessions on 2026-11-26).
+        other = os.path.join(self.tmp, "private")
+        self.assertEqual(runner.checkout_of(["x-ci", "--repo-root", other]), other)
+        self.assertEqual(runner.checkout_of(["--repo-root=" + other, "x-ci"]), other)
+        self.assertEqual(runner.checkout_of(["x-ci"]), runner.REPO)
 
     def test_a_long_run_still_ends_with_its_own_exit_code(self):
         # Exiting 3 at the window made a run_in_background call finish early,
