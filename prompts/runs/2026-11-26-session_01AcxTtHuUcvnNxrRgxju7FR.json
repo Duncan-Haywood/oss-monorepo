@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtHuUcvnNxrRgxju7FR",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T14:06:59Z",
+  "ended": "2026-11-26T14:22:08Z",
+  "wall_minutes": 16.15,
+  "tokens_in": 13076115,
+  "tokens_out": 43217,
+  "cost_usd": 4.7721,
+  "tool_calls": 97,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19375",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "payapps-ci local run 1 failed on the 'migrations in sync' step because the new migration was still untracked; it passed after committing",
+    "rfi-files.test.ts first draft failed typecheck (Uint8Array as BlobPart); fixed with .slice() as packet.test.ts does"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "run_workflow_locally's 'D1 migrations in sync' step uses git status, so it fails on new migration files that are not committed yet; worth saying 'commit before running it'"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "The free-choice slot went to the top paid bet's free roadmap item (roadmap_claim --bets), not a new idea, because the North star asks for paying-customer work first",
+      "did": "Built payapps RFI files and packet (private PR 343) and extended the customer post",
+      "result": "merged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-tm-tickets-to-change-orders.md (extended: RFI files paragraph)"
+  ],
+  "goal": null,
+  "notes": "Idea: payapps RFIs part 2c, files kept with an RFI (rfi_files, migration 0058), listed on the RFI PDF and merged into a one-PDF packet without the GC's response. Private PR 343 merged; local payapps-ci 9/9 run steps passed, hosted runner starved (3 s fail). Tests: 8 worker and 2 unit tests added.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b1620255-543f-5d0e-a5ba-0e8c41fb7337",
+    "transcripts": 1,
+    "first": "2026-11-26T14:06:59Z",
+    "last": "2026-11-26T14:23:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 90,
+        "input": 169,
+        "output": 43217,
+        "thinking": 4649,
+        "cache_read": 12910324,
+        "cache_write_5m": 0,
+        "cache_write_1h": 165622,
+        "api_equivalent_usd": 4.7721,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 90,
+      "input": 169,
+      "output": 43217,
+      "thinking": 4649,
+      "cache_read": 12910324,
+      "cache_write_5m": 0,
+      "cache_write_1h": 165622,
+      "api_equivalent_usd": 4.7721,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 97,
+    "tools": {
+      "Bash": 87,
+      "Write": 2,
+      "Edit": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.15,
+      "active_minutes": 16.15,
+      "model_minutes": 8.52,
+      "tool_minutes": 7.64,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a mid-level full-stack dev mirroring an existing attachments feature: table, service, routes, PDF, packet, UI, tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 125.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
