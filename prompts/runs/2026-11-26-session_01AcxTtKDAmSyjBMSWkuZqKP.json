@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtKDAmSyjBMSWkuZqKP",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T05:07:17Z",
+  "ended": "2026-11-26T05:15:29Z",
+  "wall_minutes": 9.01,
+  "tokens_in": 6413579,
+  "tokens_out": 24721,
+  "cost_usd": 2.5805,
+  "tool_calls": 65,
+  "task": "Bet #2 Job Shop Quote, ROADMAP item 11 (rate-card import part 3): lead time and quote terms text settings in the settings sheet import/export, and (none) to clear them",
+  "projects": [
+    "jobshop-quote"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19229",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Claims are per slug, so a second run claimed the same scope of item 11 five minutes after mine under a different slug (rate-card-import-part-3-clear-and-terms) with no collision. The listing also showed item 11 as [free] although a stale part claim (clear-cells) existed. An overlap warning on a claim note that shares words with an open claim on the same item would catch this."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md",
+      "why": "There is no new blog post. A settings-sheet import detail for Job Shop Quote is too thin for a customer post, and the owner asked to consolidate posts.",
+      "did": "Extended the existing agent doc docs/reports/ventures-2026-11-26-jobshop-quote-settings-import.md instead.",
+      "result": "The next run finds the item's state in one file."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Bet #1 (PayApps) has only 'if asked' and owner-blocked items left, and dozens of concurrent claims, so a slice there would have been speculative. I took bet #2 instead.",
+      "did": "Shipped jobshop-quote ROADMAP item 11.",
+      "result": "Merged as private PR 252."
+    }
+  ],
+  "writeups": [
+    "docs/reports/ventures-2026-11-26-jobshop-quote-settings-import.md (extended)"
+  ],
+  "goal": null,
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/252 merged (244751b). Verification: pnpm typecheck clean; pnpm test:unit 33 files / 452 tests passed; scripts/e2e-run.sh test/e2e/06-settings-import.spec.ts passed (extended). The private CI 'lint, types, tests' job ended red in 8 s with no runner (ci_starvation.py --run 45760075749 exit 0), so I ran run_workflow_locally.py --repo-root private-monorepo jobshop-quote-ci: 11/11 run steps passed, including Playwright e2e. The 8 uses: steps were not run, so this is not a green check. risk_review.py on the private branch blocked nothing and triggered no checks. The security queue was empty and IDEAS.md had nothing pending.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4c89c35c-a0b5-505e-8c64-fd1b5aee341a",
+    "transcripts": 1,
+    "first": "2026-11-26T05:07:17Z",
+    "last": "2026-11-26T05:16:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 64,
+        "input": 125,
+        "output": 24721,
+        "thinking": 4890,
+        "cache_read": 6310523,
+        "cache_write_5m": 0,
+        "cache_write_1h": 102931,
+        "api_equivalent_usd": 2.5805,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 64,
+      "input": 125,
+      "output": 24721,
+      "thinking": 4890,
+      "cache_read": 6310523,
+      "cache_write_5m": 0,
+      "cache_write_1h": 102931,
+      "api_equivalent_usd": 2.5805,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 59,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.01,
+      "active_minutes": 9.01,
+      "model_minutes": 4.92,
+      "tool_minutes": 4.09,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "a senior engineer adding two text fields, a clear token and tests to an existing sheet importer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 155.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
