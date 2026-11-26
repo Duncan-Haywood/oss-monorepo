@@ -34,6 +34,12 @@ The command runs in the subject root (or `--cwd`). One that starts with
 from the repository root instead, so a row copied from an audit works as is.
 One led by `VAR=value` also runs through bash, so an environment prefix works.
 
+A subject in another checkout (a private-monorepo flagship, `apps/<name>/...`)
+takes `--repo-root <that clone>`; its file path is then read from that root.
+Two auditors on 2026-11-26 copied a private app into a scratch tree by hand.
+When the command runs without a shell, a quoted glob (`"'*.test.mjs'"`) is
+unquoted and expanded as a shell would, so it no longer runs 0 tests.
+
 PYTHONDONTWRITEBYTECODE=1 is set, and the copy starts without `__pycache__`,
 so a stale `.pyc` cannot run the mutant or hide it (round 45).
 """
@@ -41,6 +47,7 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+import glob
 import hashlib
 import json
 import os
@@ -125,6 +132,28 @@ def is_shell(cmd: list[str]) -> bool:
             or (len(cmd) == 1 and any(c in cmd[0] for c in " &|;")))
 
 
+GLOB_CHARS = re.compile(r"[*?\[]")
+
+
+def shell_words(cmd: list[str], cwd: Path) -> list[str]:
+    """Do for a command run without a shell what the shell would have: drop one pair of
+    surrounding quotes left on a word (`"'*.test.mjs'"`) and expand a glob that matches
+    files under `cwd`, sorted. An unmatched glob is passed on as is, as bash does, so
+    `node --test` can still match it itself. Rounds 62 and 114 of the quality audit both
+    lost mutant runs to a quoted glob that reached the runner unexpanded and ran no tests."""
+    out = []
+    for word in cmd:
+        if len(word) >= 2 and word[0] == word[-1] and word[0] in "'\"":
+            word = word[1:-1]
+        if GLOB_CHARS.search(word) and not word.startswith("-"):
+            hits = sorted(glob.glob(word, root_dir=cwd, recursive=True))
+            if hits:
+                out.extend(hits)
+                continue
+        out.append(word)
+    return out
+
+
 def starts_with_cd(cmd: list[str]) -> bool:
     return " ".join(cmd).lstrip().startswith("cd ")
 
@@ -158,7 +187,7 @@ def run(cmd: list[str], cwd: Path, timeout: float) -> tuple[str, float, str]:
     orphaned and kept running, holding its CPU and any port it had bound."""
     env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
     start = time.monotonic()
-    argv = ["bash", "-c", " ".join(cmd)] if is_shell(cmd) else cmd
+    argv = ["bash", "-c", " ".join(cmd)] if is_shell(cmd) else shell_words(cmd, cwd)
     p = subprocess.Popen(argv, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                          text=True, errors="replace", start_new_session=True)
     try:
@@ -216,6 +245,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--old", required=True)
     ap.add_argument("--new", required=True)
     ap.add_argument("--occurrence", type=int, default=None, help="which match of --old, 1-based")
+    ap.add_argument("--repo-root", default=None,
+                    help="another checkout holding the subject, such as a private-monorepo clone "
+                         "(default: this repository); a relative file path is read from it")
     ap.add_argument("--root", default=None, help="directory copied for real (default: first two path parts)")
     ap.add_argument("--cwd", default=None, help="repo-relative directory to run the tests in (default: --root)")
     ap.add_argument("--timeout", type=int, default=TIMEOUT,
@@ -228,12 +260,16 @@ def main(argv: list[str] | None = None) -> int:
     if not cmd:
         ap.error("no test command after --")
 
+    repo = Path(args.repo_root).resolve() if args.repo_root else REPO
+    if not repo.is_dir():
+        ap.error(f"--repo-root {args.repo_root} is not a directory")
     target = Path(args.file)
-    target = (target if target.is_absolute() else Path.cwd() / target).resolve()
+    target = (target if target.is_absolute() else (repo if args.repo_root else Path.cwd()) / target).resolve()
     try:
-        rel = target.relative_to(REPO)
+        rel = target.relative_to(repo)
     except ValueError:
-        ap.error(f"{args.file} is not inside {REPO}")
+        ap.error(f"{args.file} is not inside {repo}" + ("" if args.repo_root else
+                 " (a subject in another checkout, such as private-monorepo, takes --repo-root <clone>)"))
     if not target.is_file():
         ap.error(f"{args.file} is not a file")
     root = Path(args.root) if args.root else default_root(rel)
@@ -242,7 +278,7 @@ def main(argv: list[str] | None = None) -> int:
         ap.error("--root must name a directory inside the repository, not its top")
     if root.parts != rel.parts[:len(root.parts)]:
         ap.error(f"{rel} is not under --root {root}")
-    if not (REPO / cwd).is_dir():
+    if not (repo / cwd).is_dir():
         ap.error(f"--cwd {cwd} is not a directory")
 
     before = digest(target)
@@ -254,7 +290,7 @@ def main(argv: list[str] | None = None) -> int:
     tmp = Path(tempfile.mkdtemp(prefix="quality_mutate-"))
     say = (lambda *a: None) if args.json else print
     try:
-        build_shadow(REPO, root, tmp / "repo")
+        build_shadow(repo, root, tmp / "repo")
         # A command that starts with `cd <subject> &&` (the shape audit files record
         # as test_cmd) is written from the repository root, so run it from there;
         # from the subject folder its `cd` failed and read as a red baseline
@@ -269,7 +305,7 @@ def main(argv: list[str] | None = None) -> int:
             if state == "pass" and ran_no_tests(tail):
                 print(tail, file=sys.stderr)
                 print("baseline ran no tests, so no mutant could be caught. Check the test "
-                      "command (a quoted glob passed without a shell matches nothing).", file=sys.stderr)
+                      "command (does the runner find test files in the directory it runs in?).", file=sys.stderr)
                 return 2
             if state != "pass":
                 print(tail, file=sys.stderr)
