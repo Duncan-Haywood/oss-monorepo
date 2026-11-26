@@ -47,19 +47,29 @@ Steps: [`.github/prompts/land-your-work.md`](../../.github/prompts/land-your-wor
 
 ## Pick one piece of work
 
-Look before you choose. Build the site locally
-(`node platform/pages/build.mjs`, which writes a dist folder beside it and
-takes about 3 to 20 minutes in a cloud session (runs 2026-10-28 to 11-06 reported 3 to 20): start it as
-`node platform/pages/build.mjs > build.log 2>&1; echo DONE >> build.log` in `run_in_background`
-(the build prints no DONE marker itself), re-run `platform/ci/wait_for.py build.log` until it
-returns, and look at the repo while it runs; then
-`node platform/pages/check.mjs`; see `platform/pages/README.md`)
-and screenshot it with the pre-installed Playwright (from an ESM script in the
-repo `import pw from '/opt/node-tools/node_modules/playwright/index.js'`;
-a bare `playwright` import fails there) at phone and desktop widths: the hub, one flagship from `portfolio/flagships.yaml`, a research
-page, the Stories page and a blog post. Pick the weakest surface a visitor is
-most likely to see, not the easiest fix. Search open PRs
-(`search_pull_requests`, `polish in:title`, plus the page's slug) first.
+Measure before you choose, at the cost the choice needs. Pick the weakest
+surface a visitor is most likely to see (a paid bet's pages first), not the
+easiest fix, and search open PRs (`search_pull_requests`, `polish in:title`,
+plus the page's slug) first.
+
+- **The last polish note names a next item** (`ls -t docs/reports/polish-*`,
+  its "Still weakest" list): usually the quickest good start. Measure just that
+  surface: the check script that covers it, or a Playwright shot of one page
+  served straight from its folder (`python3 -m http.server` in `ventures/<slug>`).
+  26 of 49 polish runs from 2026-11-20 to 26 skipped the full survey this way,
+  and all 26 ended `success` (`prompts/runs/*.json`, deviations).
+- **No note, or the list is stale or claimed**: survey. Build the site
+  (`node platform/pages/build.mjs > build.log 2>&1; echo DONE >> build.log` in
+  `run_in_background`, 3 to 20 min; the build prints no DONE itself, so wait
+  with `platform/ci/wait_for.py build.log`), run `node platform/pages/check.mjs`
+  (`platform/pages/README.md`), and screenshot at phone and desktop widths the
+  hub, one flagship from `portfolio/flagships.yaml`, a research page, the
+  Stories page and a blog post.
+
+Playwright comes from an ESM script in the repo,
+`import pw from '/opt/node-tools/node_modules/playwright/index.js'` (a bare
+`playwright` import fails). The live site is out of reach: the cloud proxy
+refuses marisstella.app, so screenshot a local build or folder.
 
 Good runs, each enough on its own:
 
