@@ -109,8 +109,13 @@ function walk(raw, acc, depth = 0) {
     const boundary = param(ctype, 'boundary');
     if (!boundary) { acc.plain ??= body.trim(); return; }
     const delim = new RegExp(`^--${boundary.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(--)?[ \t]*\r?$`, 'm');
-    const parts = body.split(delim).filter((p) => p !== undefined && p !== '--');
-    for (const part of parts.slice(1)) walk(part.replace(/^\r?\n/, ''), acc, depth + 1);
+    // split() with the capture group gives [preamble, cap, part1, cap, part2, cap, ...]; a '--' capture closes the
+    // body, and RFC 2046 5.1.1 says the epilogue after it is ignored (it used to parse as an empty text/plain part).
+    const pieces = body.split(delim);
+    for (let i = 2; i < pieces.length; i += 2) {
+      walk(pieces[i].replace(/^\r?\n/, ''), acc, depth + 1);
+      if (pieces[i + 1] === '--') break;
+    }
     return;
   }
   const isAttachment = depth > 0 && (/^\s*attachment\b/i.test(disp) || (filename && !type.startsWith('text/')));
