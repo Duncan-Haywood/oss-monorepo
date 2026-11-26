@@ -1,11 +1,11 @@
 variable "region" {
-  description = "Home region. CloudFront, ACM and WAF need us-east-1."
+  description = "Home region (allowed: us-east-2, us-east-1, us-west-2). This stack makes no CloudFront, ACM or WAF resource, so it need not be us-east-1."
   type        = string
-  default     = "us-east-1"
+  default     = "us-east-2"
 
   validation {
-    condition     = contains(["us-east-1", "us-west-2"], var.region)
-    error_message = "Only the allowed regions: us-east-1, us-west-2."
+    condition     = contains(["us-east-2", "us-east-1", "us-west-2"], var.region)
+    error_message = "Only the allowed regions: us-east-2, us-east-1, us-west-2."
   }
 }
 
@@ -106,4 +106,15 @@ variable "alarm_topic_arn" {
   description = "SNS topic for error and throttle alarms (the spend-guards stack's alert topic). Null = alarms with no action."
   type        = string
   default     = null
+}
+
+variable "account_mode" {
+  description = "organization or single (stacks/org's variable of the same name). In single mode with no deploy_role_arn the provider uses the caller's own credentials."
+  type        = string
+  default     = "organization"
+
+  validation {
+    condition     = contains(["organization", "single"], var.account_mode)
+    error_message = "account_mode must be organization or single."
+  }
 }

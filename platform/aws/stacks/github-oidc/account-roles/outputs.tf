@@ -23,8 +23,8 @@ output "trust_subjects" {
 }
 
 output "boundary_policy" {
-  description = "The permissions boundary document, or null when the account has no workload stacks."
-  value       = length(aws_iam_policy.boundary) > 0 ? jsondecode(aws_iam_policy.boundary[0].policy) : null
+  description = "The permissions boundary document, or null when the account has no workload stacks or the boundary is made elsewhere (single-account mode)."
+  value       = length(module.boundary) > 0 ? module.boundary[0].policy : null
 }
 
 output "apply_policies" {
@@ -40,4 +40,13 @@ output "state_bucket" {
 output "state_kms_key_arn" {
   description = "Key of this account's state bucket."
   value       = local.state_kms_key_arn
+}
+
+output "role_names_and_boundaries" {
+  description = "Permissions boundary of every role here, keyed by role name (null where none; for tests and review)."
+  value = merge(
+    { for r in aws_iam_role.plan : r.name => r.permissions_boundary },
+    { for r in aws_iam_role.apply : r.name => r.permissions_boundary },
+    { for r in aws_iam_role.extra : r.name => r.permissions_boundary },
+  )
 }

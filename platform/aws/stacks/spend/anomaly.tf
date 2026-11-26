@@ -11,6 +11,9 @@ resource "aws_ce_anomaly_monitor" "services" {
 }
 
 resource "aws_ce_anomaly_monitor" "accounts" {
+  # One account has no linked accounts to compare; the services monitor is
+  # its signal.
+  count        = local.single ? 0 : 1
   name         = "spend-by-account"
   monitor_type = "CUSTOM"
   monitor_specification = jsonencode({
@@ -33,7 +36,7 @@ resource "aws_ce_anomaly_subscription" "alerts" {
   frequency = "IMMEDIATE"
   monitor_arn_list = concat(
     aws_ce_anomaly_monitor.services[*].arn,
-    [aws_ce_anomaly_monitor.accounts.arn],
+    aws_ce_anomaly_monitor.accounts[*].arn,
   )
 
   subscriber {

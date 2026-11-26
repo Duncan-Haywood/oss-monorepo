@@ -148,7 +148,7 @@ run "any_workspace_in_the_apps_account" {
   command = plan
 
   assert {
-    condition     = length(local.workspace_arns) == 1 && local.workspace_arns[0] == "arn:aws:aws-external-anthropic:us-east-1:444444444444:workspace/*"
+    condition     = length(local.workspace_arns) == 1 && local.workspace_arns[0] == "arn:aws:aws-external-anthropic:us-east-2:444444444444:workspace/*"
     error_message = "defaults to every workspace of the apps account in the region"
   }
 }
@@ -160,7 +160,7 @@ run "one_workspace" {
   }
 
   assert {
-    condition     = length(local.workspace_arns) == 1 && local.workspace_arns[0] == "arn:aws:aws-external-anthropic:us-east-1:444444444444:workspace/wrkspc_01AbCdEf23GhIj"
+    condition     = length(local.workspace_arns) == 1 && local.workspace_arns[0] == "arn:aws:aws-external-anthropic:us-east-2:444444444444:workspace/wrkspc_01AbCdEf23GhIj"
     error_message = "scopes to the named workspace"
   }
 
@@ -176,4 +176,57 @@ run "rejects_bad_workspace_id" {
     workspace_ids = ["not-a-workspace"]
   }
   expect_failures = [var.workspace_ids]
+}
+
+# Single-account mode: no member account, the bootstrap's OIDC provider, and
+# stacks/org's boundary on both roles.
+run "single_account" {
+  command = plan
+
+  variables {
+    account_mode = "single"
+  }
+
+  override_data {
+    target = data.terraform_remote_state.org
+    values = {
+      outputs = {
+        organization_id          = null
+        management_account_id    = "444444444444"
+        account_ids              = { for k in ["log-archive", "security", "shared-infra", "apps", "payments", "sandbox"] : k => "444444444444" }
+        permissions_boundary_arn = "arn:aws:iam::444444444444:policy/workload-boundary"
+      }
+    }
+  }
+
+  override_data {
+    target = data.aws_iam_openid_connect_provider.bootstrap[0]
+    values = { arn = "arn:aws:iam::444444444444:oidc-provider/token.actions.githubusercontent.com" }
+  }
+
+  assert {
+    condition     = length(aws_iam_openid_connect_provider.github) == 0 && local.github_oidc_arn == "arn:aws:iam::444444444444:oidc-provider/token.actions.githubusercontent.com"
+    error_message = "single-account mode reuses the bootstrap's OIDC provider"
+  }
+
+  assert {
+    condition     = aws_iam_role.ci_llm.path == "/ci/"
+    error_message = "the CI role stays out of /github/, which the bootstrap closes to github-apply"
+  }
+
+  assert {
+    condition = alltrue([
+      for r in [aws_iam_role.app_llm, aws_iam_role.ci_llm] : r.permissions_boundary == "arn:aws:iam::444444444444:policy/workload-boundary"
+    ])
+    error_message = "every role carries the workload boundary"
+  }
+}
+
+run "organization_mode_unchanged" {
+  command = plan
+
+  assert {
+    condition     = length(aws_iam_openid_connect_provider.github) == 1 && aws_iam_role.ci_llm.path == "/github/" && aws_iam_role.app_llm.permissions_boundary == null
+    error_message = "organization mode keeps its own provider, /github/ and no boundary"
+  }
 }

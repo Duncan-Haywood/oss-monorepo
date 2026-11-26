@@ -118,6 +118,7 @@ resource "aws_iam_role" "plan" {
   description          = "Assumed by the management account's github-plan role for tofu plan"
   assume_role_policy   = data.aws_iam_policy_document.plan_trust.json
   max_session_duration = 3600
+  permissions_boundary = var.permissions_boundary_arn
 }
 
 resource "aws_iam_role_policy_attachment" "plan_readonly" {
@@ -230,6 +231,7 @@ resource "aws_iam_role" "kill_switch" {
   description          = "Assumed by the management account's spend kill switch"
   assume_role_policy   = data.aws_iam_policy_document.kill_switch_trust.json
   max_session_duration = 3600
+  permissions_boundary = var.permissions_boundary_arn
 }
 
 resource "aws_iam_role_policy" "kill_switch" {

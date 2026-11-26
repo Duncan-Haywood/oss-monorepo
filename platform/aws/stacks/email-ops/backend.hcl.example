@@ -2,6 +2,6 @@
 # Bucket and region are the bootstrap stack's outputs.
 bucket       = "REPLACE-with-bootstrap-state-bucket"
 key          = "email-ops/terraform.tfstate"
-region       = "us-east-1"
+region       = "us-east-2"
 encrypt      = true
 use_lockfile = true

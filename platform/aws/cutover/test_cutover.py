@@ -509,3 +509,27 @@ def test_cli_apply_flag_and_report(tmp_path, capsys):
 def test_cli_needs_a_stage():
     with pytest.raises(SystemExit):
         C.main([])
+
+
+def test_certificates_are_read_in_their_own_region(tmp_path):
+    # Home region us-east-2, CloudFront certificate in us-east-1: the call
+    # names the certificate's region, not the home one.
+    ctx = ctx_for(tmp_path)
+    ctx.aws.region = "us-east-2"
+    C.cert_status(ctx, {"target": "d.cloudfront.net", "cert": "arn:aws:acm:us-east-1:111111111111:certificate/site", "cert_role": "shared-infra:read"})
+    args = ctx.aws.calls[-1][1]
+    assert args[:2] == ["acm", "describe-certificate"] and args[-2:] == ["--region", "us-east-1"]
+
+
+def test_real_aws_passes_the_home_region_unless_the_call_names_one(monkeypatch):
+    seen = []
+
+    class P:
+        returncode, stdout, stderr = 0, "{}", ""
+
+    monkeypatch.setattr(C.subprocess, "run", lambda argv, **kw: seen.append(argv) or P())
+    aws = C.Aws("us-east-2", plan_only=True, run_id="t")
+    aws._run(["sts", "get-caller-identity"])
+    aws._run(["acm", "describe-certificate", "--certificate-arn", "x", "--region", "us-east-1"])
+    assert seen[0][-4:-2] == ["--region", "us-east-2"]
+    assert seen[1].count("--region") == 1 and "us-east-1" in seen[1]

@@ -42,7 +42,12 @@ concurrency:
 
 env:
   TOFU_VERSION: 1.13.10
-  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-2' }}
+  # organization (default) or single: one AWS account without AWS Organizations
+  # (docs/runbooks/cutover-run-day.md, step 0). Every stack reads it.
+  AWS_ACCOUNT_MODE: ${{ vars.AWS_ACCOUNT_MODE || 'organization' }}
+  TF_VAR_account_mode: ${{ vars.AWS_ACCOUNT_MODE || 'organization' }}
+  TF_VAR_region: ${{ vars.AWS_REGION || 'us-east-2' }}
 
 jobs:
   apply:
@@ -64,7 +69,9 @@ jobs:
       KILL_SWITCH_LIVE: ${{ vars.AWS_KILL_SWITCH_LIVE }}
       # Dependency order: org makes the accounts; baseline the roles in them;
       # app-identity reads llm's and email's outputs; cutover-access reads org's account IDs.
-      STACKS: org baseline spend llm email app-identity cutover-access
+      # spend comes last: in single-account mode its freeze names the roles
+      # that exist when it is applied (stacks/spend/freeze.tf).
+      STACKS: org baseline llm email app-identity cutover-access spend
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -230,7 +237,7 @@ jobs:
       APPS_ACCOUNT_ID: ${{ needs.apply.outputs.apps_account_id }}
       WEBSITE_URL: https://marisstella.app/
     steps:
-      - name: Assume github-apply, then the apps account
+      - name: Assume github-apply, then the apps account (single-account mode, github-apply itself)
         run: |
           set -euo pipefail
           token=$(curl -sSf -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
@@ -242,8 +249,14 @@ jobs:
           export AWS_ROLE_ARN="arn:aws:iam::${AWS_ACCOUNT_ID}:role/github/github-apply"
           export AWS_ROLE_SESSION_NAME="ses-access-${GITHUB_RUN_ID}"
           export AWS_DEFAULT_REGION="${AWS_REGION}"
-          creds=$(aws sts assume-role --role-arn "arn:aws:iam::${APPS_ACCOUNT_ID}:role/OrganizationAccountAccessRole" \
-            --role-session-name "ses-access-${GITHUB_RUN_ID}" --query Credentials --output json)
+          if [ "${AWS_ACCOUNT_MODE}" = "single" ]; then
+            creds=$(aws sts assume-role-with-web-identity --role-arn "${AWS_ROLE_ARN}" \
+              --role-session-name "ses-access-${GITHUB_RUN_ID}" --web-identity-token "file://${AWS_WEB_IDENTITY_TOKEN_FILE}" \
+              --query Credentials --output json)
+          else
+            creds=$(aws sts assume-role --role-arn "arn:aws:iam::${APPS_ACCOUNT_ID}:role/OrganizationAccountAccessRole" \
+              --role-session-name "ses-access-${GITHUB_RUN_ID}" --query Credentials --output json)
+          fi
           for k in AccessKeyId SecretAccessKey SessionToken; do
             v=$(printf '%s' "$creds" | python3 -c "import json,sys; print(json.load(sys.stdin)['$k'])")
             echo "::add-mask::${v}"

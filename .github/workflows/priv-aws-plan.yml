@@ -30,7 +30,10 @@ concurrency:
 
 env:
   TOFU_VERSION: 1.13.10
-  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-2' }}
+  # organization (default) or single (docs/runbooks/cutover-run-day.md, step 0).
+  TF_VAR_account_mode: ${{ vars.AWS_ACCOUNT_MODE || 'organization' }}
+  TF_VAR_region: ${{ vars.AWS_REGION || 'us-east-2' }}
 
 jobs:
   check:

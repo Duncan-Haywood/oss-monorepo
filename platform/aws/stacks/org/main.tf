@@ -4,6 +4,13 @@
 # This account (the one the owner created and bootstrapped) becomes the
 # management account. It holds only the Organization, billing, the
 # organization trail's definition and the CI roles; no workload runs here.
+#
+# Single-account mode (var.account_mode = "single", for an account that
+# cannot run AWS Organizations, such as one made through AWS's project-based
+# sign-up): nothing in this file or in scps.tf, rcps.tf and identity.tf is
+# created. single.tf makes the account's permissions boundary instead, and
+# outputs.tf maps every account name to this one account, so the stacks that
+# read account_ids keep working unchanged.
 
 locals {
   accounts = {
@@ -15,9 +22,15 @@ locals {
     sandbox      = { ou = "sandbox", purpose = "experiments, tight budget" }
   }
   ous = toset(["security", "infrastructure", "workloads", "payments", "sandbox"])
+
+  org = var.account_mode == "organization"
+  # What the for_each blocks iterate: empty in single-account mode.
+  org_accounts = local.org ? local.accounts : {}
+  org_ous      = local.org ? local.ous : toset([])
 }
 
 resource "aws_organizations_organization" "this" {
+  count       = local.org ? 1 : 0
   feature_set = "ALL"
 
   aws_service_access_principals = [
@@ -37,13 +50,13 @@ resource "aws_organizations_organization" "this" {
 }
 
 resource "aws_organizations_organizational_unit" "this" {
-  for_each  = local.ous
+  for_each  = local.org_ous
   name      = each.key
-  parent_id = aws_organizations_organization.this.roots[0].id
+  parent_id = aws_organizations_organization.this[0].roots[0].id
 }
 
 resource "aws_organizations_account" "this" {
-  for_each = local.accounts
+  for_each = local.org_accounts
 
   name      = each.key
   email     = format(var.account_email_template, each.key)
@@ -69,6 +82,7 @@ resource "aws_organizations_account" "this" {
 # Centralized root access: removes member accounts' root credentials and lets
 # the management account run the few root-only tasks as short sessions.
 resource "aws_iam_organizations_features" "root_access" {
+  count            = local.org ? 1 : 0
   enabled_features = ["RootCredentialsManagement", "RootSessions"]
   depends_on       = [aws_organizations_organization.this]
 }

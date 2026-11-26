@@ -15,12 +15,22 @@
 # possible: the limits are set below what the owner can afford to lose.
 
 locals {
-  org      = data.terraform_remote_state.org.outputs
-  mgmt_id  = local.org.management_account_id
-  accounts = merge({ management = local.mgmt_id }, local.org.account_ids)
+  org     = data.terraform_remote_state.org.outputs
+  mgmt_id = local.org.management_account_id
+  # Single-account mode: one budget for the one account (key "account",
+  # limit organization_limit_usd), no Organization budget, and the freeze is
+  # an IAM policy a Budgets action attaches to the account's roles
+  # (freeze.tf), since there is no SCP to attach.
+  single   = var.account_mode == "single"
+  boundary = try(local.org.permissions_boundary_arn, null)
+  accounts = local.single ? { account = local.mgmt_id } : merge({ management = local.mgmt_id }, local.org.account_ids)
+  limits   = local.single ? { account = var.organization_limit_usd } : var.monthly_limits_usd
   # Accounts the freeze SCP can be attached to (SCPs never bind the
   # management account).
-  freezable = { for k, id in local.org.account_ids : k => id }
+  freezable = local.single ? {} : { for k, id in local.org.account_ids : k => id }
+  # In single-account mode the apps setting carries over: the one account
+  # holds the products.
+  kill_accounts = local.single ? (contains(var.kill_switch_accounts, "apps") ? ["account"] : []) : var.kill_switch_accounts
 }
 
 data "aws_iam_policy_document" "topic_key" {
@@ -146,13 +156,17 @@ resource "aws_budgets_budget" "account" {
   for_each     = local.accounts
   name         = "monthly-${each.key}"
   budget_type  = "COST"
-  limit_amount = tostring(var.monthly_limits_usd[each.key])
+  limit_amount = tostring(local.limits[each.key])
   limit_unit   = "USD"
   time_unit    = "MONTHLY"
 
-  cost_filter {
-    name   = "LinkedAccount"
-    values = [each.value]
+  # One account has nothing to filter (and is no linked account).
+  dynamic "cost_filter" {
+    for_each = local.single ? [] : [each.value]
+    content {
+      name   = "LinkedAccount"
+      values = [cost_filter.value]
+    }
   }
 
   notification {
@@ -185,12 +199,12 @@ resource "aws_budgets_budget" "account" {
     threshold_type      = "PERCENTAGE"
     notification_type   = "ACTUAL"
     # Only kill-switch accounts wake the kill switch; the rest alert.
-    subscriber_sns_topic_arns = contains(var.kill_switch_accounts, each.key) ? [aws_sns_topic.kill.arn, aws_sns_topic.alerts.arn] : [aws_sns_topic.alerts.arn]
+    subscriber_sns_topic_arns = contains(local.kill_accounts, each.key) ? [aws_sns_topic.kill.arn, aws_sns_topic.alerts.arn] : [aws_sns_topic.alerts.arn]
   }
 
   lifecycle {
     precondition {
-      condition     = alltrue([for k in var.kill_switch_accounts : contains(keys(local.accounts), k)])
+      condition     = local.single || alltrue([for k in var.kill_switch_accounts : contains(keys(local.accounts), k)])
       error_message = "kill_switch_accounts names an account the org stack does not have."
     }
     precondition {
@@ -203,6 +217,8 @@ resource "aws_budgets_budget" "account" {
 }
 
 resource "aws_budgets_budget" "organization" {
+  # Single-account mode: the one account's budget already has this limit.
+  count        = local.single ? 0 : 1
   name         = "monthly-organization"
   budget_type  = "COST"
   limit_amount = tostring(var.organization_limit_usd)
