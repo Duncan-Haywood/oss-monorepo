@@ -52,6 +52,6 @@ test('the comparison page links back to the calculator', () => {
   assert.match(html, /<a href="\.\/">/);
 });
 
-test('cites Watson v. Commissioner rather than inventing a new example', () => {
-  assert.match(html, /Watson v\. Commissioner/);
+test('cites Watson v. United States rather than inventing a new example', () => {
+  assert.match(html, /Watson v\. United States/);
 });
