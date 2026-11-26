@@ -187,6 +187,35 @@ run "roles_cannot_escape_their_boundary" {
   }
 }
 
+run "plan_roles_read_only_their_own_state" {
+  command = plan
+
+  # ReadOnlyAccess allows every object and every decrypt; only these denies
+  # keep pull-request code to its own stack's state (quality round 108).
+  assert {
+    condition = alltrue(flatten([
+      for m in [module.security, module.shared_infra, module.apps, module.payments] : [
+        for stack, doc in m.plan_policies : anytrue([
+          for s in doc.Statement : s.Effect == "Deny" && contains(flatten([s.Action]), "s3:GetObject") && contains(flatten([try(s.NotResource, [])]), "arn:aws:s3:::${m.state_bucket}/${stack}/*") && !contains(keys(s), "Resource")
+        ])
+      ]
+    ]))
+    error_message = "Each plan role denies s3:GetObject everywhere but its own state prefix."
+  }
+
+  assert {
+    condition = alltrue(flatten([
+      for m in [module.security, module.shared_infra, module.apps, module.payments] : [
+        for stack, doc in m.plan_policies : alltrue([
+          for a in ["kms:Decrypt", "dynamodb:Scan", "sqs:ReceiveMessage", "secretsmanager:GetSecretValue"] :
+          contains(flatten([for s in doc.Statement : s.Action if s.Effect == "Deny"]), a)
+        ])
+      ]
+    ]))
+    error_message = "Plan roles deny decrypt outside state, data reads and secrets."
+  }
+}
+
 run "apps_reuses_the_llm_stacks_oidc_provider" {
   command = plan
 
