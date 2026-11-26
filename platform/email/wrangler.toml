@@ -1,0 +1,45 @@
+# The mail Worker for the agent-managed inboxes (platform/email/README.md).
+# Deployed by .github/workflows/priv-email-deploy.yml. Free plan: D1, R2
+# (10 GB free), Email Routing and cron triggers have no charge at this
+# volume; going over a free limit fails requests, it never bills unless the
+# owner adds a paid plan.
+name = "marisstella-mail"
+main = "worker.mjs"
+compatibility_date = "2025-09-01"
+workers_dev = true
+
+[vars]
+# Set once the owner provides a real postal address (CAN-SPAM); until then
+# marketing sends are refused (`outreach-not-configured`). Replies work without it.
+SENDER_NAME = ""
+POSTAL_ADDRESS = ""
+MAIL_FROM_NAME = ""
+# This Worker's public URL, for one-click unsubscribe links; the deploy fills it in.
+PUBLIC_URL = ""
+
+[[d1_databases]]
+binding = "DB"
+database_name = "marisstella-mail"
+# Filled in by the deploy workflow (find or create by name).
+database_id = "00000000-0000-0000-0000-000000000000"
+
+[[r2_buckets]]
+binding = "RAW"
+bucket_name = "marisstella-mail-raw"
+
+# Replies and opted-in marketing. Reaches any address only once the domain is
+# onboarded to Cloudflare Email Service; before that, sends to unverified
+# addresses fail and are logged as failed.
+[[send_email]]
+name = "SEND"
+
+# Owner alerts and the daily digest, to the verified OWNER_FORWARD_TO address.
+[[send_email]]
+name = "ALERT"
+
+# Daily: retention purge and the owner digest (07:17 UTC).
+[triggers]
+crons = ["17 7 * * *"]
+
+# Secrets (wrangler secret put, never in this file): AGENT_TOKEN, READ_TOKEN,
+# OWNER_TOKEN, OWNER_FORWARD_TO, UNSUBSCRIBE_SECRET.

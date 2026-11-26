@@ -1,0 +1,116 @@
+# The agent-managed inboxes, as code (owner, 2026-11-26: "we need agent
+# managed inboxes for the domains"; 2026-10-31: everything as code).
+#
+# This file is the source of truth for which addresses exist, who owns each,
+# how long its mail is kept, and whether a copy goes to the owner. After an
+# edit, run `python3 platform/email/gen_config.py` and commit both generated
+# files:
+#
+#   platform/email/inboxes.json                 what the mail Worker reads
+#   platform/pages/cloudflare/email-routing.json what Cloudflare Email Routing
+#                                                (and the AWS email-ops stack's
+#                                                SES receipt rule) is applied from
+#
+# CI fails when they drift (`gen_config.py --check`).
+#
+# No personal address is ever written here. `forward_to_owner: true` means
+# "also forward to the address in the OWNER_FORWARD_TO Worker secret"; the
+# value lives only in that secret and in the EMAIL_FORWARD_TO repository
+# secret the routing apply step verifies as a destination.
+#
+# Fields per inbox:
+#   local             the part before @ (lower case)
+#   owner             the product slug or function that answers it
+#   purpose           one line, for whoever reads the mail
+#   retention_days    raw message and parsed copy deleted after this many days
+#   forward_to_owner  copy each message to OWNER_FORWARD_TO (default false)
+#   auto_reply        may an agent send a reply from this inbox (default true);
+#                     false means drafts only, the owner sends
+#   flag_all          every message is flagged to the owner (default false)
+
+version: 1
+domain: marisstella.app
+worker: marisstella-mail
+
+defaults:
+  retention_days: 90
+  forward_to_owner: false
+  auto_reply: true
+  flag_all: false
+
+# Sending. `provider` is the adapter the Worker sends through: `cloudflare`
+# (the send_email binding; Cloudflare Email Service once the domain is
+# onboarded) or `none` (every send is refused and logged, drafts still work).
+# The AWS move swaps in `ses` (platform/email/README.md, "Portability").
+sending:
+  provider: cloudflare
+  daily_cap: 50              # sends of any kind per UTC day, all inboxes together
+  per_recipient_daily_cap: 3 # replies to one address per UTC day (stops mail loops)
+  max_body_chars: 20000
+
+# Mail that must reach the owner instead of an automatic answer. A message
+# matching any of these is flagged: the owner gets an immediate email and
+# the daily digest lists it, and no agent can send on that thread until the
+# owner resolves the flag. The patterns live in classify.mjs (tested).
+flag_to_owner: [legal, refund, security, human_request, chargeback, data_request]
+
+# Outreach (pivot point 7). Marketing goes only to contacts with a recorded
+# opt-in; cold outreach is refused here: it belongs on its own registered
+# domain through the email-ops `cold` stream (platform/aws/stacks/email-ops).
+outreach:
+  marketing: true
+  cold: false
+
+# DMARC for the domain, applied with the routing rules as the _dmarc TXT
+# record. Starts at p=none with aggregate reports to the `rua` inbox below;
+# raise to quarantine, then reject, once the reports are clean.
+dmarc:
+  policy: none
+  rua: dmarc
+
+inboxes:
+  - local: hello
+    owner: portfolio
+    purpose: everything else - press, ideas, partnerships; named in the Privacy Policy
+  - local: support
+    owner: portfolio
+    purpose: help with a tool, a product or a self-deploy
+  - local: privacy
+    owner: legal
+    purpose: data-subject requests (access, erasure) under GDPR/CCPA; statutory deadlines
+    retention_days: 1095
+    forward_to_owner: true
+    auto_reply: false
+    flag_all: true
+  - local: security
+    owner: security
+    purpose: vulnerability reports (security.txt contact)
+    retention_days: 365
+    forward_to_owner: true
+    auto_reply: false
+    flag_all: true
+  - local: billing
+    owner: billing
+    purpose: Paddle and app-store payout, tax and dispute notices; customer billing questions
+    retention_days: 2555
+  - local: accounts
+    owner: distribution
+    purpose: sign-ups and notices for the portfolio's platform accounts (portfolio/distribution/accounts.json)
+    auto_reply: false
+  - local: sales
+    owner: sales
+    purpose: replies to outreach and inbound leads
+  - local: dmarc
+    owner: platform
+    purpose: DMARC aggregate reports (rua) for the domain
+    retention_days: 30
+    auto_reply: false
+  - local: grants
+    owner: grant-autopilot
+    purpose: support for Grant Autopilot (grants.marisstella.app)
+  - local: payapps
+    owner: payapps
+    purpose: support for the pay-app billing product (bet 1)
+  - local: seller-books
+    owner: seller-books
+    purpose: support for reseller profit and Schedule C books (bet 5)

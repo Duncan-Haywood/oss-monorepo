@@ -1,0 +1,139 @@
+{
+  "version": 1,
+  "domain": "marisstella.app",
+  "worker": "marisstella-mail",
+  "sending": {
+    "provider": "cloudflare",
+    "daily_cap": 50,
+    "per_recipient_daily_cap": 3,
+    "max_body_chars": 20000
+  },
+  "flag_to_owner": [
+    "chargeback",
+    "data_request",
+    "human_request",
+    "legal",
+    "refund",
+    "security"
+  ],
+  "outreach": {
+    "marketing": true,
+    "cold": false
+  },
+  "dmarc": {
+    "policy": "none",
+    "rua_local": "dmarc"
+  },
+  "inboxes": [
+    {
+      "local": "hello",
+      "address": "hello@marisstella.app",
+      "owner": "portfolio",
+      "purpose": "everything else - press, ideas, partnerships; named in the Privacy Policy",
+      "retention_days": 90,
+      "forward_to_owner": false,
+      "auto_reply": true,
+      "flag_all": false
+    },
+    {
+      "local": "support",
+      "address": "support@marisstella.app",
+      "owner": "portfolio",
+      "purpose": "help with a tool, a product or a self-deploy",
+      "retention_days": 90,
+      "forward_to_owner": false,
+      "auto_reply": true,
+      "flag_all": false
+    },
+    {
+      "local": "privacy",
+      "address": "privacy@marisstella.app",
+      "owner": "legal",
+      "purpose": "data-subject requests (access, erasure) under GDPR/CCPA; statutory deadlines",
+      "retention_days": 1095,
+      "forward_to_owner": true,
+      "auto_reply": false,
+      "flag_all": true
+    },
+    {
+      "local": "security",
+      "address": "security@marisstella.app",
+      "owner": "security",
+      "purpose": "vulnerability reports (security.txt contact)",
+      "retention_days": 365,
+      "forward_to_owner": true,
+      "auto_reply": false,
+      "flag_all": true
+    },
+    {
+      "local": "billing",
+      "address": "billing@marisstella.app",
+      "owner": "billing",
+      "purpose": "Paddle and app-store payout, tax and dispute notices; customer billing questions",
+      "retention_days": 2555,
+      "forward_to_owner": false,
+      "auto_reply": true,
+      "flag_all": false
+    },
+    {
+      "local": "accounts",
+      "address": "accounts@marisstella.app",
+      "owner": "distribution",
+      "purpose": "sign-ups and notices for the portfolio's platform accounts (portfolio/distribution/accounts.json)",
+      "retention_days": 90,
+      "forward_to_owner": false,
+      "auto_reply": false,
+      "flag_all": false
+    },
+    {
+      "local": "sales",
+      "address": "sales@marisstella.app",
+      "owner": "sales",
+      "purpose": "replies to outreach and inbound leads",
+      "retention_days": 90,
+      "forward_to_owner": false,
+      "auto_reply": true,
+      "flag_all": false
+    },
+    {
+      "local": "dmarc",
+      "address": "dmarc@marisstella.app",
+      "owner": "platform",
+      "purpose": "DMARC aggregate reports (rua) for the domain",
+      "retention_days": 30,
+      "forward_to_owner": false,
+      "auto_reply": false,
+      "flag_all": false
+    },
+    {
+      "local": "grants",
+      "address": "grants@marisstella.app",
+      "owner": "grant-autopilot",
+      "purpose": "support for Grant Autopilot (grants.marisstella.app)",
+      "retention_days": 90,
+      "forward_to_owner": false,
+      "auto_reply": true,
+      "flag_all": false
+    },
+    {
+      "local": "payapps",
+      "address": "payapps@marisstella.app",
+      "owner": "payapps",
+      "purpose": "support for the pay-app billing product (bet 1)",
+      "retention_days": 90,
+      "forward_to_owner": false,
+      "auto_reply": true,
+      "flag_all": false
+    },
+    {
+      "local": "seller-books",
+      "address": "seller-books@marisstella.app",
+      "owner": "seller-books",
+      "purpose": "support for reseller profit and Schedule C books (bet 5)",
+      "retention_days": 90,
+      "forward_to_owner": false,
+      "auto_reply": true,
+      "flag_all": false
+    }
+  ]
+}
