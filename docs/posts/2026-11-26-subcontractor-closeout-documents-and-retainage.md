@@ -76,7 +76,9 @@ When the work is fully billed, the punch list is accepted and every document is 
 writing. Address it to the GC's project manager and state the retainage held, the punch list's
 state, and each document with the date it was sent and accepted. Say what you delivered. Don't
 claim the subcontract's conditions are met: that's for the GC and the contract to decide. Then
-bill the release on your next pay application, the way your subcontract asks for it.
+bill the release on your next pay application, the way your subcontract asks for it. If you
+use QuickBooks Online, which has no retainage field, see
+[how subcontractors track retainage in QuickBooks](2026-11-25-retainage-in-quickbooks-online.md).
 
 If the GC holds retainage long after close-out, look up your state's prompt-payment law. Many
 states set a deadline for releasing retainage (see
