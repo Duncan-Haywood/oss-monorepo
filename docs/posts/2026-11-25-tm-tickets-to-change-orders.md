@@ -69,12 +69,21 @@ The pay-app billing we are building now has an RFI log that works this way. Each
 RFIs and shows which are open, which are past the response date you entered, and how long
 answers take. Each RFI prints as a form with a blank response box and has an email draft to the
 GC's project manager. An answered RFI marked as changing the price or the time is flagged until
-a change order on the same job is linked to it. Across jobs, every RFI past the response date
-you entered with no answer is listed on the projects page and in the opt-in weekly email, most
-days overdue first, each linked to its job's log where the follow-up email is drafted. A sub
-with ten jobs open does not have to open ten logs to find the one holding up a crew. An RFI
-with no response date is never called overdue: the date you entered is the only test. Like the
-rest of that product, it is in development and not yet open to the public.
+a change order on the same job is linked to it.
+
+A log shows the dates as they stand today. In a dispute over extra work, the question is often
+when a date was written down: was the RFI marked sent on the day it went out, or filled in
+weeks later? So every change to an RFI also goes into the job's history, with who made it and
+when: entered, sent, answered (and by whom), linked to a change order, any other field
+changed, deleted. The history downloads as a spreadsheet. It records what people typed into the
+log. It does not prove that an email reached the GC, so keep the sent email too.
+
+Across jobs, every RFI past the response date you entered with no answer is listed on the
+projects page and in the opt-in weekly email, most days overdue first, each linked to its job's
+log where the follow-up email is drafted. A sub with ten jobs open does not have to open ten
+logs to find the one holding up a crew. An RFI with no response date is never called overdue:
+the date you entered is the only test. Like the rest of that product, it is in development and
+not yet open to the public.
 
 ## What the T&M log will not do
 
