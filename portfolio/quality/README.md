@@ -170,7 +170,10 @@ easy failure is grading the README instead of the thing. So:
   mutants in the shared tree and nothing needs reverting (four run records,
   2026-11-12, hit that race). The test command runs in the subject root, so
   write `tests`, not `ventures/<slug>/tests` (or start it with `cd <path> &&`);
-  a red baseline from a repo-relative path now prints a hint. By hand, set `PYTHONDONTWRITEBYTECODE=1`: a
+  a red baseline from a repo-relative path now prints a hint. A flagship whose
+  code is in `private-monorepo` takes `--repo-root <its clone>` with an
+  `apps/<name>/...` path. To walk pages in Playwright when a background
+  `http.server` is refused, serve the files with `page.route` (round 114). By hand, set `PYTHONDONTWRITEBYTECODE=1`: a
   revert of the same size in the same second leaves the mutated `.pyc` in
   use (round 45).
 - **Name the professional.** Write who the senior reviewer is ("a licensed

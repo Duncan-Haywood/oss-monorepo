@@ -131,6 +131,39 @@ class MainTest(Fixture):
         code, _ = self.mutate("--old", "x > 100", "--new", "x >= 100")
         assert code == 2
 
+    def test_a_quoted_glob_without_a_shell_is_expanded(self):
+        # `-- node --test "'*.test.mjs'"` reached node with its quotes on and ran 0 tests
+        # (quality rounds 62 and 114); the words are now unquoted and globbed like a shell's
+        for pattern in ("test_*.py", "'test_*.py'", '"test_*.py"'):
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+                code = qm.main([str(self.repo / "ventures/a/calc.py"), "--old", "x > 100", "--new", "x >= 100",
+                                "--json", "--", sys.executable, "-m", "unittest", "-q", pattern])
+            self.assertEqual(code, 0, (pattern, out.getvalue()))
+            self.assertTrue(json.loads(out.getvalue().strip().splitlines()[-1])["caught"])
+
+    def test_repo_root_mutates_a_subject_in_another_checkout(self):
+        # private-monorepo flagships live outside this repository (doc_friction 2026-11-26)
+        qm.REPO = Path(self._tmp.name) / "elsewhere"
+        args = ["ventures/a/calc.py", "--old", "x > 100", "--new", "x >= 100", "--json", "--",
+                sys.executable, "-m", "unittest", "-q"]
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            with self.assertRaises(SystemExit):
+                qm.main(args)
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            code = qm.main(["--repo-root", str(self.repo), *args])
+        self.assertEqual(code, 0, out.getvalue())
+        self.assertEqual(json.loads(out.getvalue().strip().splitlines()[-1])["where"], "calc.py:2")
+        self.assertEqual((self.repo / "ventures/a/calc.py").read_text(), CALC)
+
+    def test_shell_words(self):
+        d = self.repo / "ventures/a"
+        self.assertEqual(qm.shell_words(["x", "'*.py'"], d), ["x", "calc.py", "test_calc.py"])
+        self.assertEqual(qm.shell_words(["x", "*.nomatch"], d), ["x", "*.nomatch"])
+        self.assertEqual(qm.shell_words(["x", "--glob=*.py", "'a b'"], d), ["x", "--glob=*.py", "a b"])
+        self.assertEqual(qm.shell_words(["x", "'"], d), ["x", "'"])
+
     def test_repo_relative_test_path_gets_a_hint(self):
         # `-s ventures/a` inside ventures/a: discovery fails, and the hint says what to write
         err = io.StringIO()
