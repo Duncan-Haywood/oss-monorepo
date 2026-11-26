@@ -233,6 +233,9 @@ export function renderManufacturingPage({ baseUrl = '', indexed = INDEXED, publi
 <title>${esc(siteTitle(TITLE))}</title>
 <meta name="description" content="${esc(DESCRIPTION)}">
 ${indexed ? '' : '<meta name="robots" content="noindex">\n'}${canonical}<style>
+body{margin:0;background:#f6f7f9;color:var(--pfs-ink,#1d2530);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+@media (prefers-color-scheme:dark){body{background:#12171d}}
+.mfg a{color:var(--pfs-accent,#1f4e8c)}
 .mfg{max-width:52rem;margin:0 auto;padding:1rem 16px 3rem;line-height:1.55}
 .mfg h1{font-size:1.9rem;line-height:1.2;margin:.5rem 0}
 .mfg .lede{font-size:1.1rem}

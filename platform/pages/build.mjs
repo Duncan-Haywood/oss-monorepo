@@ -13989,6 +13989,8 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
       baseUrl: base,
       disclaimer: disclaimerHtml('../../', surfaces),
       chromeScript: `<script src="../../${CHROME_MODULE_FILE}" ${CHROME_SLUG_ATTR}="industries" defer></script>`,
+      // Real still of the free checker (showcase/capture.mjs), already limited to published tools.
+      shots: showcase.shots,
     }),
   );
   // The request form's tool and research-direction pickers, fetched on demand.

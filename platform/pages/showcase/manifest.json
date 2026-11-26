@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-25",
+  "generated": "2026-11-26",
   "shots": [
     {
       "slug": "wall-framing-takeoff",
@@ -14,6 +14,13 @@
       "caption": "Rolls a schedule of values into a G702-style pay application, retainage and all",
       "hero": "pay-application-generator-hero.webp",
       "heroWide": "pay-application-generator-hero-1200.webp"
+    },
+    {
+      "slug": "einvoice-preflight",
+      "file": "einvoice-preflight.webp",
+      "caption": "Checks an e-invoice against the EN 16931 rules and names the fix for each failure",
+      "hero": "einvoice-preflight-hero.webp",
+      "heroWide": "einvoice-preflight-hero-1200.webp"
     },
     {
       "slug": "cnc-machining-quote-calculator",

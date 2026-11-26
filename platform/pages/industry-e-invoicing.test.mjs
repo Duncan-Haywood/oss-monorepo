@@ -89,3 +89,28 @@ test('wired into the build: sitemap, an inbound link, a site-owned directory', (
   assert.ok(renderCustomDevelopmentPage({ baseUrl: base, requests: [] }).includes(`href="../${INDUSTRY_E_INVOICING_PATH}"`));
   assert.ok(SITE_OWN_DIRS.has('industries'));
 });
+
+test('shows the checker\'s real still under the free checker section, and none without one', () => {
+  const shots = [
+    { slug: 'pay-application-generator', file: 'p.webp', caption: 'Other tool' },
+    { slug: 'einvoice-preflight', file: 'e.webp', hero: 'e-hero.webp', heroWide: 'e-hero-1200.webp', caption: 'Checks an e-invoice' },
+  ];
+  const withStill = renderEInvoicingIndustryPage({ baseUrl: base, shots });
+  const fig = withStill.match(/<figure class="ei-still">[\s\S]*?<\/figure>/);
+  assert.ok(fig, 'figure rendered');
+  assert.ok(withStill.indexOf(fig[0]) > withStill.indexOf('id="checker"') && withStill.indexOf(fig[0]) < withStill.indexOf('id="product"'));
+  assert.match(fig[0], /src="\.\.\/\.\.\/showcase\/e-hero\.webp" srcset="\.\.\/\.\.\/showcase\/e-hero\.webp 600w, \.\.\/\.\.\/showcase\/e-hero-1200\.webp 1200w"/);
+  assert.match(fig[0], /width="600" height="375"/);
+  assert.match(fig[0], /alt="E-invoice Preflight with its broken example checked: Checks an e-invoice"/);
+  assert.match(fig[0], /loading="lazy"/);
+  assert.ok(!withStill.includes('p.webp'), 'other tools\' stills are not shown');
+  assert.ok(!html.includes('ei-still"'), 'no figure without a still');
+  assert.ok(!renderEInvoicingIndustryPage({ baseUrl: base, shots: [shots[0]] }).includes('<figure'));
+});
+
+test('the deadline table stacks into labelled cards on a phone', () => {
+  assert.match(html, /<table role="table" class="ei-table stack">/);
+  const rows = html.match(/<tr role="row">\s*<td[\s\S]*?<\/tr>/g);
+  assert.equal(rows.length, DEADLINES.length);
+  for (const row of rows) assert.deepEqual([...row.matchAll(/data-label="([^"]*)"/g)].map((m) => m[1]), ['Country', 'From', 'What changes']);
+});
