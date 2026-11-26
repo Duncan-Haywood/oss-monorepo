@@ -274,3 +274,108 @@ test('customer-supplied article walk-aways match the engine at the stated $0 tra
   const withDefault = calculateBid({ ...base, travelAndEquipment: 75 }).totalCost;
   assert.equal(Math.round(withDefault - supplied), 86);
 });
+
+// Quality audit 2026-11-23 (same file): four seeded mutants in the pricing
+// engine survived the suite. Each test below fails on one of them, with the
+// expected figure worked by hand.
+
+function typical() {
+  return {
+    ...special(),
+    ...suggestedTypeKit('fixed'),
+    ...suggestedScopeKit('new-cut-in'),
+    units: 2, shafts: 2, stories: 1, type: 'fixed', scope: 'new-cut-in', roof: 'asphalt',
+    travelMiles: 12, includeIceWater: true, includePaint: true,
+  };
+}
+
+const near = (actual, expected, tol = 1e-6) => assert.ok(Math.abs(actual - expected) < tol, `${actual} != ${expected}`);
+
+test('the Typical job recomputed line by line by hand', () => {
+  const r = calculateBid(typical());
+  // hours: trip 1.4 + 12 mi x 0.035 = 1.82; units 2 x 4.5 = 9; cut 2 x 1.6 = 3.2;
+  // framing 2 x 1.4 = 2.8; roof 2 x 0.6 = 1.2; shafts 2 x 2.8 = 5.6;
+  // ice 2 x 0.7 = 1.4; paint 2 shafts x 1.1 = 2.2; site 1 -> 28.22 h
+  near(r.totalHours, 28.22);
+  // labour 28.22 h x $42 x 1.30 = $1,540.812
+  near(r.laborCost, 1540.812);
+  // material 2x720 + 2x140 + 2x95 + 2x45 + 2x55 + 12 mi x 2.8 = 2,143.60
+  near(r.materialCost, 2143.6);
+  // direct 1,540.812 + 2,143.60 + 75 = 3,759.412; +15% = 4,323.3238; / 0.8
+  near(r.totalCost, 4323.3238);
+  near(r.price, 5404.15475);
+});
+
+test('story hours scale with units: three units up a second story is 2.4 h, not 0.8', () => {
+  near(calculateBid({ ...special(), units: 3, stories: 2 }).hoursStories, 2.4);
+});
+
+test('shaft paint is per shaft, not per unit', () => {
+  const r = calculateBid({ ...special(), units: 3, shafts: 1, includePaint: true });
+  near(r.hoursPaint, 1.1);
+  assert.equal(r.paintMaterial, 55);
+});
+
+test('laminated glass is charged on every unit', () => {
+  const r = calculateBid({ ...special(), units: 3, includeLaminated: true });
+  assert.equal(r.laminatedMaterial, 540);
+  near(r.hoursLaminated, 0.9);
+});
+
+test('a price above cost but below the target price is not a losing bid', () => {
+  const r = calculateBid(special());
+  const scored = calculateBid({ ...special(), proposedPrice: (r.totalCost + r.price) / 2 });
+  assert.equal(scored.proposed.belowBreakEven, false);
+  assert.ok(scored.proposed.profit > 0);
+});
+
+// Audit defect 1: Number('') is 0, so a cleared field priced the job silently.
+test('a blank field is an error that names the field, not a silent zero', () => {
+  assert.throws(() => calculateBid({ ...special(), hourlyWage: '' }), /Hourly wage is blank/);
+  assert.throws(() => calculateBid({ ...special(), units: '  ' }), /Units is blank/);
+  assert.equal(calculateBid({ ...special(), otherCost: '0' }).softCost, 75);
+});
+
+test('units, shafts and stories must be whole numbers', () => {
+  assert.throws(() => calculateBid({ ...special(), units: 2.5 }), /Units must be a whole number/);
+  assert.throws(() => calculateBid({ ...special(), shafts: '1.5' }), /Shafts must be a whole number/);
+  assert.throws(() => calculateBid({ ...special(), stories: 1.5 }), /Stories must be a whole number/);
+});
+
+// Audit defect 2: a tube passes between rafters and is its own shaft.
+test('a tubular cut-in has no framing, and glass cut-ins keep theirs', () => {
+  assert.deepEqual(suggestedScopeKit('new-cut-in', 'tubular'),
+    { cutHoursPerUnit: 1.2, pullHoursPerUnit: 0, framingHoursPerUnit: 0 });
+  assert.equal(suggestedScopeKit('new-cut-in', 'fixed').framingHoursPerUnit, 1.4);
+  assert.equal(suggestedScopeKit('new-cut-in').framingHoursPerUnit, 1.4);
+  assert.equal(suggestedScopeKit('replace-existing', 'tubular').framingHoursPerUnit, 0.3);
+});
+
+test('the comparison prices the tube row without drywall shafts or framing', () => {
+  const rows = compareType(typical());
+  const tube = rows.find((row) => row.type === 'tubular');
+  // 2 tubes, cut-in: trip 1.82 + units 2 x 2.5 + cut 2 x 1.2 + roof 1.2 + ice 1.4 + site 1 = 12.82 h
+  near(tube.totalHours, 12.82);
+  near(rows.find((row) => row.type === 'fixed').totalHours, 28.22);
+  assert.ok(rows.every((row) => Number.isFinite(row.extraShare)));
+});
+
+test('a tube with drywall shafts is priced as typed but flagged', () => {
+  const r = calculateBid({ ...special(), shafts: 1 });
+  assert.equal(r.warnings.length, 1);
+  assert.match(r.warnings[0], /its own light shaft/);
+  assert.deepEqual(calculateBid(special()).warnings, []);
+});
+
+// Audit defect 8: the FAQ's dollar and hour figures are prose; tie them to the engine.
+test('the index FAQ figures match the engine on the page defaults', async () => {
+  const { readFileSync } = await import('node:fs');
+  const html = readFileSync(new URL('./index.html', import.meta.url), 'utf8');
+  const r = calculateBid(special());
+  const fmt = (v) => `$${v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const kit = suggestedTypeKit('tubular');
+  for (const figure of [fmt(r.price), fmt(r.travelInvoice), `${r.hoursTravel.toFixed(2)} hours`,
+    `${r.totalHours.toFixed(2)} hours`, `$${kit.flashingInvoice} of flashing`, `$${kit.unitInvoice} unit`]) {
+    assert.ok(html.includes(figure), `FAQ is missing ${figure}`);
+  }
+});

@@ -66,7 +66,7 @@ export const JOB_PRESETS = Object.freeze([
     includePaint: true,
   },
   {
-    label: 'Venting: 1 solar venting, new cut-in, 1 shaft, steep asphalt, 2 stories',
+    label: 'Venting: 1 solar venting, new cut-in, 1 shaft, asphalt, 2 stories',
     units: 1,
     shafts: 1,
     stories: 2,
@@ -93,11 +93,17 @@ export const JOB_PRESETS = Object.freeze([
   },
 ]);
 
-function number(value, name, { min = 0, allowZero = true } = {}) {
+// A cleared field arrives as '' and Number('') is 0, so a blank wage priced
+// the job with no labour at all. Blank is an error that says what to type.
+function number(value, name, { min = 0, allowZero = true, integer = false } = {}) {
+  if (typeof value === 'string' && value.trim() === '') {
+    throw new Error(`${name} is blank: enter a number (0 if there is none)`);
+  }
   const result = Number(value);
   if (!Number.isFinite(result)) throw new Error(`${name} must be a number`);
   if (result < min) throw new Error(`${name} must be at least ${min}`);
   if (!allowZero && result === 0) throw new Error(`${name} must be greater than zero`);
+  if (integer && !Number.isInteger(result)) throw new Error(`${name} must be a whole number`);
   return result;
 }
 
@@ -153,9 +159,20 @@ export function suggestedTypeKit(type) {
 /**
  * Replace-existing pulls the old unit and reuses a sound curb.
  * New cut-in opens the roof and the ceiling and frames the hole.
+ *
+ * A tubular unit is the exception on a cut-in: a 10–14" tube passes
+ * between rafters and ceiling joists, so there is a round hole to cut in
+ * the deck and one in the ceiling, and no header or curb to frame. Pass
+ * the type to get that kit; without it the glass-unit kit is returned.
+ * The 1.2 h covers the deck cut, the ceiling cut and running the tube
+ * through the attic; like every kit figure it is a starting number to
+ * replace with the crew's own times.
  */
-export function suggestedScopeKit(scope) {
+export function suggestedScopeKit(scope, type) {
   const id = String(scope);
+  if (id === 'new-cut-in' && String(type) === 'tubular') {
+    return { cutHoursPerUnit: 1.2, pullHoursPerUnit: 0, framingHoursPerUnit: 0 };
+  }
   if (id === 'replace-existing') {
     return { cutHoursPerUnit: 0.4, pullHoursPerUnit: 0.8, framingHoursPerUnit: 0.3 };
   }
@@ -215,9 +232,9 @@ export function calculateBid(input) {
   const scope = requirePreset(SCOPE_PRESETS, input.scope, 'scope').id;
   const roof = requirePreset(ROOF_PRESETS, input.roof, 'roof').id;
 
-  const units = number(input.units ?? 0, 'Units');
-  const shafts = number(input.shafts ?? 0, 'Shafts');
-  const stories = number(input.stories ?? 1, 'Stories', { min: 1 });
+  const units = number(input.units ?? 0, 'Units', { integer: true });
+  const shafts = number(input.shafts ?? 0, 'Shafts', { integer: true });
+  const stories = number(input.stories ?? 1, 'Stories', { min: 1, integer: true });
   const travelMiles = number(input.travelMiles ?? 0, 'Travel miles');
   const includeIceWater = flag(input.includeIceWater);
   const includeLaminated = flag(input.includeLaminated);
@@ -301,6 +318,14 @@ export function calculateBid(input) {
   const hourShare = (amount) => (totalHours === 0 ? 0 : amount / totalHours * 100);
   const extraCost = extraHardware;
 
+  // Things a roofer would query before sending the number. They do not
+  // change the price: the inputs are the crew's call.
+  const warnings = [];
+  if (type === 'tubular' && shafts > 0) {
+    warnings.push('A tubular sun tunnel is its own light shaft: drywall shafts are usually 0 for tubes. Keep them only if you are finishing a box around the tube.');
+  }
+  if (units === 0) warnings.push('No units: the price is only travel and site time.');
+
   return {
     type,
     scope,
@@ -349,6 +374,7 @@ export function calculateBid(input) {
     pricePerUnit: units === 0 ? null : price / units,
     effectiveHourlyRate: totalHours === 0 ? null : price / totalHours,
     breakEvenPrice: totalCost,
+    warnings,
     shares: {
       labor: costShare(laborCost),
       finish: costShare(finishMaterial),
@@ -388,18 +414,22 @@ export function calculateBid(input) {
  * tube number applied to a glass cut-in. User-typed type
  * rates are not reused here: the comparison is
  * apples-to-apples on the starting figures. Scope and
- * roof kits stay with the current job.
+ * roof kits stay with the current job, except that the
+ * tube row takes the tube cut-in kit and no drywall shafts
+ * or shaft paint: the tube is its own shaft.
  */
 export function compareType(input) {
-  const scopeKit = suggestedScopeKit(String(input.scope ?? 'replace-existing'));
+  const scope = String(input.scope ?? 'replace-existing');
   const roofKit = suggestedRoofKit(String(input.roof ?? 'asphalt'));
   const extraKit = suggestedExtraKit();
   const rows = TYPE_PRESETS.map((preset) => {
     const kit = suggestedTypeKit(preset.id);
+    const tube = preset.id === 'tubular';
     const bid = calculateBid({
       ...input,
+      ...(tube ? { shafts: 0, includePaint: false } : {}),
       type: preset.id,
-      ...scopeKit,
+      ...suggestedScopeKit(scope, preset.id),
       ...roofKit,
       ...extraKit,
       ...kit,
