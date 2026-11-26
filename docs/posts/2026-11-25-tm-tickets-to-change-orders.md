@@ -178,6 +178,36 @@ many tickets still have no rate. Most subcontracts set a deadline for submitting
 a signed ticket three weeks old belongs on the week's list. Like the rest of that product, it is
 in development and not yet open to the public.
 
+## Photos of the work, and a record of what changed
+
+When a GC questions a T&M ticket, the questions are usually the same: was the work really
+extra, did it take that long, and where did that material come from? A signature answers who
+agreed. Photos and receipts answer the rest. Two habits help, whatever tool you use:
+
+- **Take photos before, during and after**, from the same spot if you can, and keep them with
+  the ticket, not in someone's camera roll. A photo of the condition before the work starts is
+  the one that is hardest to get later.
+- **Keep the material backup with the ticket**: the delivery ticket, the counter receipt or
+  the supplier invoice for what you priced. A reviewer who can match a line to a receipt has
+  less reason to strike it.
+
+In the pay-app billing we are building, each ticket now keeps its own files: photos of the work
+(the default, taken straight from the phone), material backup, and a scan of the paper copy
+when the superintendent signed on paper. A file never changes what was signed or what a change
+order bills, so photos can still be added to a signed or billed ticket. One download puts the
+priced ticket, an index and its files into a single PDF. Another puts every ticket on a change
+order and each ticket's files into one PDF, with each file named by its ticket ("T&M 3: Photo
+of the extra work"), so the backup goes to the GC as one attachment.
+
+Each ticket also writes the job's history, with who did what and when: written up, changed,
+signed (by whom, with their title and date, on the screen or on paper), signature taken off,
+billed on which change order and for how much, deleted, and each file added or removed. An edit
+after signing names what it touched. Rate changes are listed apart from quantity changes,
+because rates may still change after the GC signs and quantities may not. If a dispute turns
+on whether the hours changed after the superintendent signed, that row is the record. It records
+what people entered in the log, so keep the signed originals too. Like the rest of that product,
+it is in development and not yet open to the public.
+
 ## What the T&M log will not do
 
 It does not tell you whether work is extra, whether a signed ticket counts as notice under
