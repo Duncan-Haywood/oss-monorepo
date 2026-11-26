@@ -13,7 +13,13 @@
 // and re-run it after editing a page's FAQ (`--check` only reports).
 // The section replaces an existing "## Answers" up to the next "## " heading;
 // otherwise it goes before "## Products in development" or "## Source", or last.
-import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
+//
+// A product with hundreds of answers (einvoice-preflight: 396 from 99 pages,
+// which would make a 245 KB llms.txt) would outgrow one fetch, the reason the
+// site index is capped (backlog P052). Past INLINE_LIMIT the llms.txt keeps
+// the questions, each linked to its page, and the answers go to a sibling
+// llms-answers.txt that the section links; the test checks both files.
+import { readFileSync, writeFileSync, readdirSync, existsSync, unlinkSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -81,6 +87,24 @@ export function answersSection(pages, base) {
   return lines.join('\n') + '\n';
 }
 
+// The questions only, for an llms.txt whose answers live in llms-answers.txt.
+export function questionsSection(pages, base) {
+  const lines = ['## Answers', '', `The questions each page answers in its "Common questions" section, one line per page. The answers, word for word as the pages state them, are in [llms-answers.txt](${base}${ANSWERS_FILE}); each link opens that section of the page, which has the sources.`, ''];
+  for (const { file, faq } of pages) {
+    const name = file === 'index.html' ? 'index' : file.replace(/\.html$/, '');
+    lines.push(`- [${linkText(name)}](${base}${file === 'index.html' ? '' : file}#faq): ${faq.map(({ q }) => q).join(' ')}`);
+  }
+  return lines.join('\n') + '\n';
+}
+
+// The sibling file: a title line, then the full section.
+export function answersDoc(title, pages, base) {
+  return `# ${title}: answers\n\n` + answersSection(pages, base).replace(/^## Answers\n\n/, '');
+}
+
+export const INLINE_LIMIT = 100_000;
+export const ANSWERS_FILE = 'llms-answers.txt';
+
 export function withAnswers(llms, section) {
   const text = llms.endsWith('\n') ? llms : llms + '\n';
   const at = text.search(/^## Answers[ \t]*$/m);
@@ -103,7 +127,15 @@ export function renderFor(dir) {
   const llms = readFileSync(join(dir, 'llms.txt'), 'utf8');
   const files = readdirSync(dir).filter((f) => f.endsWith('.html')).sort((a, b) => (a === 'index.html' ? -1 : b === 'index.html' ? 1 : a.localeCompare(b)));
   const pages = files.map((file) => ({ file, faq: extractFaq(readFileSync(join(dir, file), 'utf8')) })).filter((p) => p.faq.length);
-  return { llms, next: pages.length ? withAnswers(llms, answersSection(pages, baseUrl(llms, slug))) : llms, count: pages.reduce((n, p) => n + p.faq.length, 0) };
+  const count = pages.reduce((n, p) => n + p.faq.length, 0);
+  const answersPath = join(dir, ANSWERS_FILE);
+  const answers = existsSync(answersPath) ? readFileSync(answersPath, 'utf8') : null;
+  if (!pages.length) return { llms, next: llms, count, answers, nextAnswers: answers };
+  const base = baseUrl(llms, slug);
+  const inline = withAnswers(llms, answersSection(pages, base));
+  if (Buffer.byteLength(inline) <= INLINE_LIMIT) return { llms, next: inline, count, answers, nextAnswers: null };
+  const title = (llms.match(/^# (.+)$/m) || [null, slug])[1].trim();
+  return { llms, next: withAnswers(llms, questionsSection(pages, base)), count, answers, nextAnswers: answersDoc(title, pages, base) };
 }
 
 // Products that have opted in: their llms.txt already has the section.
@@ -119,11 +151,14 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const dirs = args.filter((a) => a !== '--check');
   let stale = 0;
   for (const dir of dirs) {
-    const { llms, next, count } = renderFor(dir);
-    if (next === llms) { console.log(`${dir}: current (${count} answers)`); continue; }
+    const { llms, next, count, answers, nextAnswers } = renderFor(dir);
+    const split = nextAnswers !== null;
+    if (next === llms && answers === nextAnswers) { console.log(`${dir}: current (${count} answers${split ? `, in ${ANSWERS_FILE}` : ''})`); continue; }
     if (check) { stale++; console.log(`${dir}: out of date, run node platform/pages/llms-answers.mjs ${dir}`); continue; }
     writeFileSync(join(dir, 'llms.txt'), next);
-    console.log(`${dir}: wrote ${count} answers`);
+    if (split) writeFileSync(join(dir, ANSWERS_FILE), nextAnswers);
+    else if (answers !== null) unlinkSync(join(dir, ANSWERS_FILE));
+    console.log(`${dir}: wrote ${count} answers${split ? ` (questions in llms.txt, answers in ${ANSWERS_FILE})` : ''}`);
   }
   process.exit(stale ? 1 : 0);
 }
