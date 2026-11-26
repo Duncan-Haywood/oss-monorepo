@@ -558,13 +558,57 @@ locally: lint, typecheck, unit and Worker tests, build, migrations check and the
 The live header's exact fields won't be seen until the RFQ domain is switched on, so checking
 one real message is on the launch list.
 
+## Removal rates and drill feeds from your own spreadsheet
+
+The two per-material tables above, removal rates and drill feeds, could only be typed in one
+machine and one material at a time. Most shops already keep those numbers in a spreadsheet next
+to their CAM posts, so the tables tended to stay empty, the same thing that happened to cut
+speeds until they could be imported.
+
+The rate card's "Import from a spreadsheet" panel now takes two more kinds of sheet: "Removal
+rates by material (roughing)" and "Drill feeds by material". Pick an .xlsx or CSV file, or paste
+the rows from Excel or Google Sheets. The file is read in the browser and isn't uploaded. Each row
+needs a machine, a material and the number:
+
+| Machine   | Material               | Removal rate (in3/min) |
+|-----------|------------------------|------------------------|
+| Haas VF-2 | Aluminum 6061-T6 plate | 4.5                    |
+| Haas VF-2 | 303 Stainless bar      | 1.2                    |
+
+What the import does:
+
+- **Reads the headers loosely.** "Work center", "Alloy", "Material removal rate (in³/min)",
+  "MRR" and "Penetration feed IPM" are all recognised.
+- **Converts metric by exact factors only, and says so on the row.** cm³/min and mm³/min become
+  in³/min (16.387064 cm³ to the in³). mm/min becomes in/min (25.4 mm to the inch). So 100 cm³/min
+  shows as "read as 6.1024 in³/min".
+- **Refuses a feed per revolution or per tooth.** Turning that into inches per minute needs the
+  spindle speed, and the app won't assume one. The column is left out and the reason is shown.
+- **Matches what's already on the card, and never adds to it.** Machines and materials are
+  matched by name, ignoring case and spacing. A new machine or material goes in under Machines or
+  Materials first.
+- **Saves every row or none.** A laser in a removal-rate sheet, a saw in a drill-feed sheet, a
+  pair listed twice, a new pair with no number, a change to a retired machine, or a value too
+  large to be right is named by its row, and nothing is saved until the sheet is fixed.
+
+"Download the rates on the card now" exports the table, with each machine's default rate as a
+last column that is there to read and isn't imported. Edit the file and import it back. An
+export imported unchanged reads as "no change" on every row. Saved quotes keep their prices until
+someone presses Re-price.
+
+How it was checked (private-monorepo PR #196, jobshop-quote): 15 new unit tests on the reader, the
+matching and the export round trip, and 5 new Worker tests in workerd. Those cover adds and
+updates by name, one bad row saving nothing, a laser refused, an estimator refused, and a second
+shop unable to match the first shop's machines. The app's typecheck, full unit and Worker suites,
+build and the three browser tests were also run.
+
 ## Next
 
 The next item on the flagship list (milestone 3) is reading tolerances, material and finish from
 a PDF drawing. The extraction already handles the RFQ email and the drawing's text. On the CAD
 side, the next steps are peck time for deep holes, a time per thread size if one tapping time per
-hole proves too coarse, importing removal rates from a spreadsheet the way cut speeds are, and
-reading IGES and STL files.
+hole proves too coarse, a drill feed split by hole diameter if one feed per material proves too
+coarse, and reading IGES and STL files.
 
 The product isn't live yet. Deploy and billing are on its roadmap, and the paid path stays
 switched off until the owner sets it up.
