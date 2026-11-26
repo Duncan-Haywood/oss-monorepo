@@ -68,7 +68,7 @@ test('the committed file covers every flagship and every mechanism has a basis',
 });
 
 test('flagshipSlugs leaves out paid-bet rows (`app:`), which models.yaml evaluates', () => {
-  const src = 'flagships:\n  - venture: payapps\n    bet: 1\n    app: private-monorepo/apps/payapps\n    why: >-\n      x\n  - venture: old-tool\n    demoted: >-\n      y\n';
+  const src = 'flagships:\n  - venture: payapps\n    bet: 1\n    app: apps/payapps\n    why: >-\n      x\n  - venture: old-tool\n    demoted: >-\n      y\n';
   assert.deepEqual(flagshipSlugs(src), ['old-tool']);
 });
 

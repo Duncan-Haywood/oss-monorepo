@@ -146,8 +146,8 @@ export function orderRequests(requests) {
 
 /**
  * Flagships from `portfolio/flagships.yaml`, in file order: { venture, why, next }
- * plus `app` when the row has one: its `app: private-monorepo/apps/<slug>` (a paid bet built in the
- * private repository, 2026-11-24).
+ * plus `app` when the row has one: its `app: apps/<slug>` (a paid bet, 2026-11-24 ranking, built in
+ * this repository since 2026-11-26), or `private-monorepo/apps/grants` for the one app that stays private.
  * The file is a flat list whose `why:` and `next:` are folded `>-` scalars,
  * so a line reader is enough (and keeps the site build free of a YAML parser).
  */
@@ -484,7 +484,7 @@ ${
               return `<li><div class="card"><h3>${name}</h3>
 ${f.why ? `<p class="muted">${inline(clip(f.why, 240), '', { linkPrs: false })}</p>` : ''}
 ${f.next ? `<p><strong>Working towards:</strong> ${inline(clip(f.next, 300), '', { linkPrs: false })}</p>${f.next.length > 300 ? `<details><summary>Full milestone</summary><p>${inline(f.next, '', { linkPrs: false })}</p></details>` : ''}` : ''}
-${f.app ? `<p class="meta">Built in the private repository (<code>${esc(f.app)}</code>)</p>` : `<p class="meta"><a href="${REPO_URL}/tree/main/ventures/${esc(f.venture)}">Source</a></p>${progressHtml(progress(`ventures/${f.venture}`))}`}</div></li>`;
+${f.app && !f.app.startsWith('apps/') ? `<p class="meta">Built in the private repository (<code>${esc(f.app)}</code>)</p>` : `<p class="meta"><a href="${REPO_URL}/tree/main/${esc(f.app ?? `ventures/${f.venture}`)}">Source</a></p>${progressHtml(progress(f.app ?? `ventures/${f.venture}`))}`}</div></li>`;
             })
             .join('')}</ol>`
         : '<p class="note">No flagships are listed.</p>',

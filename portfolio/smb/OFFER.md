@@ -178,8 +178,10 @@ and why.
 
 ## Where it is built
 
-Suite code is a paid product. It goes in `private-monorepo` under a
-proprietary licence, as `LICENSING_TRANSITION.md` sets out. The free MIT tool
+Suite code is a paid product. It goes in `apps/<suite>` in this repository,
+under the root FSL-1.1-MIT licence, beside the other paid apps (they moved here
+from `private-monorepo` on 2026-11-26; `LICENSING_TRANSITION.md` and
+`apps/README.md` set out the licence). The free tool
 for the same job stays here as a lead magnet. This file, the evidence and the
 calculator stay public, because pricing on an open book is part of the pitch.
 Each shop owns its data and can export it whenever it wants. Data export is

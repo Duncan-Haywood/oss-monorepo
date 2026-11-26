@@ -3078,8 +3078,9 @@ def _main(argv=None) -> int:
                          "unused goes to the later ones (pooled_budget)")
     ap.add_argument("--repo-root", metavar="DIR",
                     help="run the named workflow(s) of another checkout, e.g. "
-                         "/home/user/private-monorepo, whose Actions jobs get "
-                         "no runner (see set_repo_root)")
+                         "/home/user/private-monorepo (grants only: the paid apps "
+                         "moved here and run as apps-<name>-ci), whose Actions "
+                         "jobs get no runner (see set_repo_root)")
     ap.add_argument("--foreground", action="store_true",
                     help="never hand a long run to the background (see "
                          "HANDOFF_S); the default under an agent harness is "
@@ -3089,7 +3090,7 @@ def _main(argv=None) -> int:
     if args.repo_root:
         if args.tree or args.for_changes or (args.list and not args.workflow):
             print("--repo-root runs named workflows only (e.g. --repo-root "
-                  "/home/user/private-monorepo payapps-ci); --tree and "
+                  "/home/user/private-monorepo grants-ci); --tree and "
                   "--for-changes select by this repository's own rules",
                   file=sys.stderr)
             return 2
@@ -3159,6 +3160,9 @@ def set_repo_root(path: str) -> str | None:
     404 log on every PR (about twenty 2026-11-25 run records said so), so each
     run there re-typed the workflow's steps by hand. Steps run in that
     checkout, with its `working-directory` defaults, under the same screen.
+    Since 2026-11-26 the paid apps live in this repository (`apps/<app>`,
+    workflows `apps-<name>-ci.yml` on public runners), so this is for the one
+    app left there, grants.
     """
     root = os.path.abspath(os.path.expanduser(path))
     workflows = os.path.join(root, ".github", "workflows")

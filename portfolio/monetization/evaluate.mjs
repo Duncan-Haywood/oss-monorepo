@@ -31,7 +31,7 @@ export const DONATION_FEE = { pct: 0, fixed: 0 };
 // storage, per unit of `unit`) must keep at least MARGIN_FLOOR after the
 // merchant fee; MARGIN_TARGET is the minimum to aim for (owner: "a sort of
 // minimal goal"), not a ceiling. The same floor is enforced on the
-// subscription apps by private-monorepo packages/billing (MIN_MARGIN).
+// subscription apps by packages/billing (MIN_MARGIN).
 export const MARGIN_FLOOR = 0.4;
 export const MARGIN_TARGET = 0.6;
 
@@ -118,7 +118,7 @@ export function ventureSlugs() {
 }
 
 // Flagship rows that need an evaluation here. A paid bet's row (`app:
-// private-monorepo/apps/<slug>`, the 2026-11-24 ranking) is evaluated by its
+// apps/<slug>`, the 2026-11-24 ranking) is evaluated by its
 // `app:` row in models.yaml instead, so it is left out.
 export function flagshipSlugs(text = fs.readFileSync(path.join(ROOT, 'portfolio/flagships.yaml'), 'utf8')) {
   return text.split(/^(?=\s*- venture:)/m)

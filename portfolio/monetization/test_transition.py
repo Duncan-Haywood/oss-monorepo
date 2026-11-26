@@ -114,7 +114,11 @@ def test_move_records_are_complete():
         assert rec["paid_page"].startswith("https://marisstella.app/industries/")
         assert rec["where"]
     assert t.MOVED["wall-framing-takeoff"]["status"] == "moved"
-    assert t.MOVED["einvoice-preflight"]["status"] == "moving"
+    # Imported 2026-11-24 (apps/einvoice-preflight/PROVENANCE.md), here since 2026-11-26.
+    assert t.MOVED["einvoice-preflight"]["status"] == "moved"
+    for slug, rec in t.MOVED.items():
+        if rec["status"] == "moved":
+            assert (t.ROOT / "apps" / slug).is_dir(), slug
 
 
 def test_free_edition_pages_link_the_paid_edition():

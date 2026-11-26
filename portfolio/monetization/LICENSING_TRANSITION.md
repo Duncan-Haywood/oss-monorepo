@@ -30,13 +30,20 @@ in order). Run `python3 portfolio/monetization/transition.py` for the table.
 
 | Track | Count | Licence from here on | Where new work happens |
 |---|---|---|---|
-| `proprietary`: products with depth | 20 | proprietary, all rights reserved | `private-monorepo/apps/<slug>` |
+| `proprietary`: products with depth | 20 | FSL-1.1-MIT, the root `LICENSE` (proprietary in the private repository until 2026-11-26) | `apps/<slug>` in this repository (grants: `private-monorepo/apps/grants`) |
 | `mit-lead-magnet`: single-purpose free tools | 1,415 | FSL-1.1-MIT (was MIT) | this repository |
 | `mit-commons`: open hardware, open plans, devotional | 5 | FSL-1.1-MIT (was MIT) | this repository |
 | `mit-deployer-run`: `sales-agent` | 1 | FSL-1.1-MIT (was MIT) | this repository |
 
 The track names keep their `mit-` prefix because `transition.json` and its
 readers key on them; they now mean "stays public", not "stays MIT".
+
+On 2026-11-26 the paid apps moved from `Duncan-Haywood/private-monorepo` to
+`apps/` and `packages/` here (PR #19220), because the private repository's
+Actions started no jobs. Their licence is now the root `LICENSE`
+(FSL-1.1-MIT), with the per-app exceptions in [`apps/README.md`](../../apps/README.md),
+"Licence". Only `apps/grants` stays private: it names a client under an NDA.
+"The private app" below means `apps/<slug>` here for every app but grants.
 
 Of the 20 products, **8 are subscriptions** (a model call, a server, storage or
 a rule set we keep current costs money each month per customer: ai-bookkeeper,
@@ -156,12 +163,13 @@ so that line is amended in its own PR for the owner's approval.
    link to the paid one once that exists. The public copy keeps working and
    keeps its SEO, and from then on it gets only lead-magnet maintenance
    (fixes, page polish), not new depth.
-2. **Import it into the private repository** with
-   `private-monorepo/scripts/import-venture.mjs <slug>`. The script copies the
-   tree at a named commit, records the source commit and the third-party
-   licence list in `apps/<slug>/PROVENANCE.md`, keeps the MIT notice for the
-   imported baseline, and adds the proprietary notice that covers changes made
-   after the import.
+2. **Import it into `apps/<slug>`**: copy the tree at a named commit, record
+   the source commit and the third-party licence list in
+   `apps/<slug>/PROVENANCE.md`, keep the MIT notice for the imported baseline,
+   and put changes made after the import under FSL-1.1-MIT, as
+   `apps/einvoice-preflight/LICENSE` does. (Before 2026-11-26 this was
+   `private-monorepo/scripts/import-venture.mjs`, which added a proprietary
+   notice instead; the script did not move here.)
 3. **Build the paid path there**: a cost-plus subscription or a one-off licence
    key, through the merchant of record behind a `BillingProvider` port as
    Grant Autopilot does. It stays dark (no checkout link set) until the owner
@@ -171,7 +179,8 @@ so that line is amended in its own PR for the owner's approval.
 
 Status (2026-11-24): **wall-framing-takeoff is imported** (step 2,
 private-monorepo PR #8, 304 files, its tests pass there); steps 1, 3 and 4 are
-next. `MOVED` in `transition.py` records each import.
+next. `MOVED` in `transition.py` records each import. Since 2026-11-26 both
+imports, wall-framing-takeoff and einvoice-preflight, are in `apps/` here.
 
 Order: `move_order` in `transition.json`, which follows flagship rank and then
 depth. wall-framing-takeoff is first: its licence-key and checkout modules

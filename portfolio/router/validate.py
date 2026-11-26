@@ -132,7 +132,19 @@ def check(venture_dir, data, errors):
         err("missing `links` mapping (values may be null)")
 
 
-APP_PREFIX = "private-monorepo/apps/"
+# A bet's `app:` is `apps/<slug>` in this repository (the paid apps moved here
+# from private-monorepo on 2026-11-26), or `private-monorepo/apps/grants`, the
+# one app that stays private because it names a client under an NDA.
+APP_PREFIX = "apps/"
+PRIVATE_APP_PREFIX = "private-monorepo/apps/"
+PRIVATE_APPS = frozenset({"grants"})
+
+
+def app_ok(app: str) -> bool:
+    if app.startswith(PRIVATE_APP_PREFIX):
+        return app[len(PRIVATE_APP_PREFIX):] in PRIVATE_APPS
+    slug = app[len(APP_PREFIX):] if app.startswith(APP_PREFIX) else ""
+    return bool(slug) and "/" not in slug
 
 
 def check_bet_order(errors, rows):
@@ -154,9 +166,10 @@ def check_bet_order(errors, rows):
                               "(bet rows are numbered 1..N in file order).")
             expect = (e["bet"] if isinstance(e["bet"], int) else expect) + 1
             app = str(e.get("app") or "")
-            if not (app.startswith(APP_PREFIX) and len(app) > len(APP_PREFIX)):
+            if not app_ok(app):
                 errors.append(f"flagships.yaml: bet {name} needs `app: {APP_PREFIX}<slug>` "
-                              "(where its deepening work happens).")
+                              f"(where its deepening work happens; {PRIVATE_APP_PREFIX} is for "
+                              f"{', '.join(sorted(PRIVATE_APPS))} only).")
             if e.get("demoted"):
                 errors.append(f"flagships.yaml: {name} is a bet and `demoted:` at once.")
         else:

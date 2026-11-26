@@ -188,6 +188,13 @@ disclaimer and usage tracking. `python3 platform/ci/run_workflow_locally.py
 --for-changes` runs what your diff would trigger. The full checklist and its
 traps: [`.github/prompts/verify-and-merge.md`](.github/prompts/verify-and-merge.md).
 
+**Session setup never waits for the owner** (owner, 2026-11-26: "you don't
+need me for that permission ... if you need an api key or something like that
+you ask but don't stupidly block yourself on my approval for something like
+this"): attaching a repository with `add_repo`, cloning it, installing
+dependencies and similar steps are yours to do. Ask only for an API key or
+secret you cannot obtain yourself (`request_credential` where offered).
+
 **Flag the owner only when you cannot finish without them:** moving money;
 accounts that need a card, ID, domain or bank; publishing under the
 portfolio's public name; unattended automation that spends paid budget; a
@@ -230,10 +237,12 @@ after the fetch (auto mode refuses `git reset --hard`; five sessions, 2026-11-24
 - Classify a red or missing run before debugging:
   `python3 platform/ci/ci_starvation.py --run <run_id>`. Exit 0 means every
   job got a runner, so the failure is real; exit 1 means starved, so verify
-  locally. `private-monorepo`'s jobs end red in 1-10 s with a 404 log (no
-  runner): add `--repo Duncan-Haywood/private-monorepo`, and run them with
-  `run_workflow_locally.py --repo-root <its clone> <app>-ci`
-  (`cloud-session.md`, "Reaching `private-monorepo`").
+  locally. The paid apps' CI is `.github/workflows/apps-<name>-ci.yml` here,
+  on public runners, since they moved to `apps/` on 2026-11-26. Only grants
+  is left in `private-monorepo`, whose jobs end red in 1-10 s with a 404 log
+  (no runner): add `--repo Duncan-Haywood/private-monorepo`, and run them with
+  `run_workflow_locally.py --repo-root <its clone> grants-ci`
+  (`cloud-session.md`, "The bets' code: here, except grants").
 - Use check runs, not legacy statuses (`get_status` reports 0 on a PR with red
   check runs). Details: [`.github/prompts/verify-and-merge.md`](.github/prompts/verify-and-merge.md), "Reading CI".
 

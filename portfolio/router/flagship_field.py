@@ -1180,7 +1180,8 @@ def notes_dir(args, venture: str) -> Path:
 
     ventures/<v>/ when the venture has a public folder; otherwise
     portfolio/flagships/<v>/, created on write. Why: payapps and the other
-    bets live in private-monorepo, so ventures/payapps/ does not exist, and
+    bets live in apps/<slug> (private-monorepo until 2026-11-26; grants still
+    there), so ventures/payapps/ does not exist, and
     --park, --history and an over-cap --replace refused with "no venture
     folder" (three run records on 2026-11-25), leaving hand-edited YAML as the
     only way to fit the row. The notes stay public, like the row itself.

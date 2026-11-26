@@ -14,7 +14,7 @@
   "proprietary": [
     {
       "venture": "einvoice-preflight",
-      "source_lines": 36599,
+      "source_lines": 36620,
       "track": "proprietary",
       "why": "flagship #3: the depth people pay for",
       "model": "subscription",
@@ -24,8 +24,8 @@
         "ventures/einvoice-preflight/fixtures/hungary-nav/LICENCE-NAV.md"
       ],
       "moved": {
-        "status": "moving",
-        "where": "free edition frozen 2026-11-24; import to private-monorepo apps/einvoice-preflight is next",
+        "status": "moved",
+        "where": "apps/einvoice-preflight (imported 2026-11-24, PROVENANCE.md there; here since 2026-11-26)",
         "free_tag": "einvoice-preflight-free-v1",
         "paid_page": "https://marisstella.app/industries/eu-e-invoicing/"
       },
@@ -33,7 +33,7 @@
     },
     {
       "venture": "wall-framing-takeoff",
-      "source_lines": 18161,
+      "source_lines": 18191,
       "track": "proprietary",
       "why": "flagship #6: the depth people pay for",
       "model": "one-off",
@@ -41,7 +41,7 @@
       "third_party_licences": [],
       "moved": {
         "status": "moved",
-        "where": "private-monorepo apps/wall-framing-takeoff (PR #8, 2026-11-24)",
+        "where": "apps/wall-framing-takeoff (imported in private-monorepo PR #8, 2026-11-24; here since 2026-11-26)",
         "free_tag": "wall-framing-takeoff-free-v1",
         "paid_page": "https://marisstella.app/industries/construction/"
       },
@@ -71,7 +71,7 @@
     },
     {
       "venture": "shift-roster-builder",
-      "source_lines": 14095,
+      "source_lines": 14105,
       "track": "proprietary",
       "why": "flagship #11: the depth people pay for",
       "model": "subscription",
@@ -128,7 +128,7 @@
     },
     {
       "venture": "xer-schedule-check",
-      "source_lines": 16634,
+      "source_lines": 16636,
       "track": "proprietary",
       "why": "flagship #18: the depth people pay for",
       "model": "one-off",
@@ -218,7 +218,7 @@
     },
     {
       "venture": "retail-pilot-intel",
-      "source_lines": 8773,
+      "source_lines": 8824,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "one-off",
@@ -253,7 +253,7 @@
     },
     {
       "venture": "machine-shop-guides",
-      "source_lines": 5740,
+      "source_lines": 5988,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "subscription",

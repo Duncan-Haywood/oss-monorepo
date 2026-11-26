@@ -68,6 +68,8 @@ free from the local git remote. `--repo owner/name`, `GITHUB_REPOSITORY`, and
 that same git remote are tried in order. `--repo` also steers route 1, so
 `--repo Duncan-Haywood/private-monorepo --run <id>` classifies the private
 repository's CI from this clone (before 2026-11-25 the gh route ignored it).
+Only grants is still there; the other paid apps moved to `apps/` here on
+2026-11-26 and their `apps-<name>-ci.yml` runs on this repository's runners.
 
 Exit status: 0 if every job examined ran on a real runner, 1 if any was
 starved, 2 if there is no answer to give — a usage or API error, a run whose

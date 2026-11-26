@@ -39,9 +39,14 @@ DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 # product with no paid offer at all (process critique, 2026-11-24).
 NO_AGENT_STEP = re.compile(r"\bnothing agent-doable is left\b|\bagent steps (?:are )?done\b", re.I)
 
-# A paid bet (portfolio/monetization/bets.md, 2026-11-24) is built in the
-# private repository and named by `app:` instead of `venture:`. Its row adds:
-APP_PREFIX = "private-monorepo/apps/"
+# A paid bet (portfolio/monetization/bets.md, 2026-11-24) is named by `app:`
+# instead of `venture:`: `apps/<slug>` in this repository, where the paid apps
+# moved from private-monorepo on 2026-11-26, or `private-monorepo/apps/<slug>`
+# for the one app that stays private (grants names a client under an NDA).
+# Its row adds:
+APP_PREFIX = "apps/"
+PRIVATE_APP_PREFIX = "private-monorepo/apps/"
+PRIVATE_APPS = frozenset({"grants"})
 BET_REQUIRED = ["bet", "billing", "tiers", "cost_drivers", "rail", "checkout"]
 BILLING = ["subscription", "one-off"]
 CHECKOUT = ["dark", "live"]
@@ -72,8 +77,32 @@ def row_name(row: dict, i: int = 0) -> str:
     if row.get("venture"):
         return str(row["venture"])
     if row.get("app"):
-        return "app:" + str(row["app"]).removeprefix(APP_PREFIX)
+        return "app:" + app_slug(str(row["app"]))
     return f"row {i}"
+
+
+def app_slug(app: str) -> str:
+    """`payapps` from `apps/payapps` or `private-monorepo/apps/grants`; the text unchanged otherwise."""
+    for prefix in (PRIVATE_APP_PREFIX, APP_PREFIX):
+        if app.startswith(prefix):
+            return app[len(prefix):]
+    return app
+
+
+def app_error(app: str, repo: Path | None = None) -> str | None:
+    """Why an `app:` value is wrong, or None: `apps/<slug>` here (a directory, when
+    `repo` is given), or `private-monorepo/apps/<slug>` for an app that stayed private."""
+    slug = app_slug(app)
+    if app.startswith(PRIVATE_APP_PREFIX):
+        if slug not in PRIVATE_APPS:
+            return (f"`app` {app}: only {', '.join(sorted(PRIVATE_APPS))} stays in private-monorepo; "
+                    f"the other paid apps moved here, so write {APP_PREFIX}{slug}")
+        return None
+    if not app.startswith(APP_PREFIX) or not slug or "/" in slug:
+        return f"`app` must be {APP_PREFIX}<slug> (or {PRIVATE_APP_PREFIX}grants)"
+    if repo is not None and not (repo / "apps" / slug).is_dir():
+        return f"`app` {app}: no apps/{slug} directory"
+    return None
 
 
 def load(path: Path = MODELS) -> dict:
@@ -118,7 +147,7 @@ def check(data: dict, repo: Path = REPO) -> list[str]:
         if row.get("venture") and row.get("app"):
             errors.append(f"{where}: set `venture` or `app`, not both")
         elif row.get("app"):
-            errors.extend(check_bet_row(row, where))
+            errors.extend(check_bet_row(row, where, repo))
         elif not row.get("venture"):
             errors.append(f"{where}: missing `venture` (or `app` for a private bet)")
         elif not (repo / "ventures" / str(name)).is_dir():
@@ -190,13 +219,13 @@ def billing_summary(data: dict, proprietary: list[dict]) -> str:
     return line
 
 
-def check_bet_row(row: dict, where: str) -> list[str]:
+def check_bet_row(row: dict, where: str, repo: Path | None = None) -> list[str]:
     """A private bet's row: where it is built, how it bills, and proposed tiers
     that say they are proposals until a sale is recorded (no invented prices)."""
     errors = []
-    app = str(row.get("app"))
-    if not app.startswith(APP_PREFIX) or len(app) == len(APP_PREFIX):
-        errors.append(f"{where}: `app` must be {APP_PREFIX}<slug>")
+    problem = app_error(str(row.get("app")), repo)
+    if problem:
+        errors.append(f"{where}: {problem}")
     for key in BET_REQUIRED:
         if key not in row:
             errors.append(f"{where}: missing `{key}`")

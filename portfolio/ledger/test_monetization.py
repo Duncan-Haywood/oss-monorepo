@@ -71,7 +71,7 @@ def test_empty_queue_says_what_to_do():
 
 def bet_row(**kw):
     base = row(
-        app="private-monorepo/apps/payapps", bet=1, billing="subscription", rail="paddle",
+        app="apps/payapps", bet=1, billing="subscription", rail="paddle",
         checkout="dark", cost_drivers=["storage"],
         tiers=[{"name": "Solo", "price": "$99 a month", "status": "proposal", "why": "matches a comparable"}],
     )
@@ -100,15 +100,25 @@ def test_bet_row_needs_paddle_dark_and_cost_drivers():
     assert any("checkout live needs stage live" in e for e in errs)
     assert any("billing must be" in e for e in errs)
     assert any("missing `cost_drivers`" in e for e in errs)
-    errs = m.check({"products": [bet_row(app="apps/payapps")]})
+    errs = m.check({"products": [bet_row(app="ventures/payapps")]})
     assert any("`app` must be" in e for e in errs)
+
+
+def test_bet_app_lives_here_except_grants():
+    # 2026-11-26: the paid apps moved to apps/ here; only grants stays private.
+    assert m.check({"products": [bet_row(app="private-monorepo/apps/grants")]}) == []
+    assert m.row_name(bet_row(app="private-monorepo/apps/grants")) == "app:grants"
+    errs = m.check({"products": [bet_row(app="private-monorepo/apps/payapps")]})
+    assert any("only grants stays in private-monorepo" in e and "apps/payapps" in e for e in errs), errs
+    errs = m.check({"products": [bet_row(app="apps/no-such-app-zz")]})
+    assert any("no apps/no-such-app-zz directory" in e for e in errs), errs
 
 
 def test_queue_puts_bets_first_in_bet_order():
     data = {"products": [
         row(venture="b", stage="built-dark", liability="low"),
-        bet_row(app="private-monorepo/apps/two", bet=2),
-        bet_row(app="private-monorepo/apps/one", bet=1, stage="planned"),
+        bet_row(app="apps/two", bet=2),
+        bet_row(app="apps/one", bet=1, stage="planned"),
     ]}
     assert [m.row_name(r) for r in m.queue(data)] == ["app:one", "app:two", "b"]
 

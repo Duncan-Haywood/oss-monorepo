@@ -115,8 +115,10 @@ class Venture:
     # (four runs in two days left einvoice-preflight, whose only buildable
     # item was dated "after 2026-11-23": run-record doc_friction, 2026-11-18).
     flagship_not_before: Optional[date] = None
-    # flagships.yaml `app: private-monorepo/apps/<slug>`: where a paid bet's
-    # deepening work happens (2026-11-24 ranking, portfolio/monetization/bets.md).
+    # flagships.yaml `app: apps/<slug>`: where a paid bet's deepening work
+    # happens (2026-11-24 ranking, portfolio/monetization/bets.md). The paid apps
+    # moved here from private-monorepo on 2026-11-26; grants stays there
+    # (`private-monorepo/apps/grants`, a client under an NDA).
     # A bet with no ventures/<slug> directory is listed from this field alone.
     flagship_app: Optional[str] = None
 
@@ -658,8 +660,8 @@ def load_ventures(
                 flagship_app=apps.get(name) if flag_rank is not None else None,
             )
         )
-    # A paid bet built only in private-monorepo has no VENTURE.yaml here; its
-    # flagship row still gets a Deepen task, pointed at its `app:`.
+    # A paid bet built in apps/<slug> (or grants, in private-monorepo) has no
+    # VENTURE.yaml; its flagship row still gets a Deepen task, pointed at its `app:`.
     listed = {v.name for v in ventures}
     for name, app in apps.items():
         if name in listed or name not in flagships:
@@ -867,10 +869,17 @@ def next_task(v: Venture) -> str:
                 f"(same tool with `--field buildable`, capped at {FLAGSHIP_BUILDABLE_MAX} characters; "
                 "drop the field when nothing buildable is left)."
             )
-        where = (f"Work in {v.flagship_app} (attach private-monorepo with add_repo, push access; if the clone is refused, "
-                 "that is final: do this bet's public side here instead; "
-                 "the paid bet's model is its `app:` row in portfolio/monetization/models.yaml). "
-                 if v.flagship_app else "")
+        if not v.flagship_app:
+            where = ""
+        elif v.flagship_app.startswith("private-monorepo/"):
+            where = (f"Work in {v.flagship_app} (attach private-monorepo with add_repo, push access; "
+                     "that is session setup, so do it without asking the owner; if the clone is refused, "
+                     "that is final: do this bet's public side here instead; "
+                     "the paid bet's model is its `app:` row in portfolio/monetization/models.yaml). ")
+        else:
+            where = (f"Work in {v.flagship_app} (in this repository; claim a ROADMAP item first with "
+                     "`python3 platform/ci/roadmap_claim.py <app>`; "
+                     "the paid bet's model is its `app:` row in portfolio/monetization/models.yaml). ")
         return (
             f"Deepen (flagship {v.flagship_rank + 1}): {where}{milestone} "
             "Land a working slice, then rewrite this venture's `next:` in portfolio/flagships.yaml "

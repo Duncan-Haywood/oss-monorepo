@@ -71,12 +71,12 @@ no venture has a single measured visitor. That is not the brief. So:
   and a paying small-business customer: its wedge feature, accounts and
   saved data, an import or integration buyers need, the paid tier and a
   checkout that ships dark, onboarding. A bet's product code lives in
-  `private-monorepo` (the table names where); when this session can clone
-  it, build there, and otherwise (a refused clone is final:
-  [`cloud-session.md`](../../.github/prompts/cloud-session.md)) do the bet's
+  `apps/<app>` here (the table names where; moved from `private-monorepo`
+  on 2026-11-26), so build there; only grants stays in `private-monorepo`
+  ([`cloud-session.md`](../../.github/prompts/cloud-session.md)). The bet's
   public side here (its
   front-door free tool, its marketing and SEO pages, a research engine it
-  uses). The flagships in
+  uses) counts too. The flagships in
   [`portfolio/flagships.yaml`](../../portfolio/flagships.yaml) get work only
   where one is, or feeds, a ranked bet; size and sunk effort are not reasons
   on their own. Probe hosts before planning around them: from a cloud session

@@ -10,7 +10,9 @@ This directory is where that work lives between sessions:
   Since that day the top rows of
   [`portfolio/flagships.yaml`](../flagships.yaml) are these seven bets, in
   bets.md's order, each pointing its deepening work at
-  `private-monorepo/apps/<slug>` (`app:`); every other flagship row is
+  `apps/<slug>` in this repository (`app:`; the paid apps moved here from
+  private-monorepo on 2026-11-26, and only `private-monorepo/apps/grants`
+  stays there, for a client under an NDA); every other flagship row is
   `demoted:` below them with its reason.
 - **[`models.yaml`](models.yaml)**: one row per product with its buyer, model,
   first paid offer, a price hypothesis, competitors' list prices (with source
@@ -93,13 +95,13 @@ Two things follow:
 
 The owner, 2026-11-24: "invest in things that have most promise and most
 value"; the north star is $10k MRR. Every bet is a subscription built in
-`private-monorepo`, sold through Paddle, and dark until the owner sets its
+`apps/` here (grants in `private-monorepo`), sold through Paddle, and dark until the owner sets its
 price ids. **Every tier price is a proposal** (no sale has happened); each
 one's `why` names the comparable it is set against, and those comparables
 come from bets.md's sources (many are aggregator listings: re-read the
 vendor's page before setting a Paddle price).
 
-| Bet | App (`private-monorepo/apps/`) | Customer | Proposed tiers (a month) | Main cost driver | Stage |
+| Bet | App (`apps/`; grants in `private-monorepo/apps/`) | Customer | Proposed tiers (a month) | Main cost driver | Stage |
 |---|---|---|---|---|---|
 | 1 | `payapps` | specialty subcontractors, small GCs | $99 / $179 / $249 | document storage, QuickBooks sync | planned |
 | 2 | `jobshop-quote` | CNC and fabrication job shops | $199 / $399 | model calls per RFQ | planned |
