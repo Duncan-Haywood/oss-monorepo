@@ -8,6 +8,7 @@ const VENTURES = fileURLToPath(new URL('../../ventures/', import.meta.url));
 
 test('plainText strips tags, decodes entities and collapses space', () => {
   assert.equal(plainText('<a href="x">SSP</a> &amp; POA&amp;M\n  costs &#36;5 &mdash; &#x2264;3'), 'SSP & POA&M costs $5 — ≤3');
+  assert.equal(plainText('bad &#99999999; ref'), 'bad &#99999999; ref');
 });
 
 test('extractFaq reads h3/answer pairs from the faq section only', () => {

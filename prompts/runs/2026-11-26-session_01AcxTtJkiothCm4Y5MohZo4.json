@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "CI changed-ventures: check_code_point_range.py flagged unguarded String.fromCodePoint in llms-answers.mjs; fixed with a range guard and a test."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -50,7 +52,7 @@
     "docs/reports/polish-2026-11-26-llms-answers.md"
   ],
   "goal": null,
-  "notes": "node --test platform/pages/llms-answers.test.mjs: 6 pass. machine-shop-guides and pay-app-guides page.test.mjs pass. Site build completed locally (before this change; the llms.txt files are copied as-is).",
+  "notes": "node --test platform/pages/llms-answers.test.mjs: 6 pass. machine-shop-guides and pay-app-guides page.test.mjs pass. Site build completed locally (before this change; the llms.txt files are copied as-is). Full platform/pages suite: 2106 pass, 1 fail (identical-cache-name test, which itself reported my mid-run doc edits as the cause); re-run alone: pass.",
   "corrections": [],
   "redteam": null,
   "usage": {

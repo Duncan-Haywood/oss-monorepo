@@ -19,12 +19,15 @@ import { fileURLToPath } from 'node:url';
 
 const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', mdash: '—', ndash: '–', hellip: '…', rsquo: '’', lsquo: '‘', rdquo: '”', ldquo: '“', times: '×', divide: '÷', sect: '§', deg: '°', plusmn: '±', le: '≤', ge: '≥', minus: '−' };
 
+// A malformed reference past U+10FFFF stays as written instead of throwing.
+const codePoint = (n, raw) => (n <= 0x10ffff ? String.fromCodePoint(n) : raw);
+
 export function plainText(html) {
   return html
     .replace(/<\/?(p|li|ul|ol|br|div|tr|td|th|table)\b[^>]*>/gi, ' ')
     .replace(/<[^>]*>/g, '')
-    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
-    .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
+    .replace(/&#x([0-9a-f]+);/gi, (m, h) => codePoint(parseInt(h, 16), m))
+    .replace(/&#(\d+);/g, (m, d) => codePoint(Number(d), m))
     .replace(/&([a-z]+);/gi, (m, n) => ENTITIES[n.toLowerCase()] ?? m)
     .replace(/\s+/g, ' ')
     .trim();
