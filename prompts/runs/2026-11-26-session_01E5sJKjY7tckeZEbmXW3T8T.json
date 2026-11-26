@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKjY7tckeZEbmXW3T8T",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T20:18:11Z",
+  "ended": "2026-11-26T20:32:43Z",
+  "wall_minutes": 14.83,
+  "tokens_in": 17348949,
+  "tokens_out": 72770,
+  "cost_usd": 6.6867,
+  "tool_calls": 102,
+  "task": "Bet #6 residential takeoff, wall-framing-takeoff ROADMAP Next #1: outline roof sheathing in courses and a printable, dimensioned roof plan in the bid package (claim outline-roof-sheathing-courses)",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19468",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "First draft of outlinesheathing.mjs failed its own area check on a Z outline: the plane section was sampled 1e-9 in from a level-ridge depth rounded to 1e-6, so a jump in the section width was integrated on the wrong side. Fixed with a 1e-4 in offset.",
+    "Two sides on one line facing the same way (collinear eave sides) double-counted their shared plane under the L-infinity rule (996 vs 951 sq ft on a random outline); fixed by giving the shared part to the earlier side.",
+    "The first property test used the function under test as its inside check and flagged points outside the eave line; given its own even-odd test.",
+    "The committed sample bid package changed byte-for-byte because of new drawing CSS; the CSS is now emitted only when a drawing is present."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/monetization/bets.md / roadmap_claim.py --bets",
+      "issue": "Bet #3's only free item (einvoice-preflight Next #5) is a native-speaker read of Polish text plus a market judgement; an agent cannot honestly do the first, so --bets' 'Start here' pointed at work no run can finish. Took bet #6's free item instead."
+    },
+    {
+      "file": "private-monorepo apps/wall-framing-takeoff",
+      "issue": "The app has no CI workflow in private-monorepo (.github/workflows has none for it) and biome is disabled in its biome.json, so PR 406 merged on local node --test (1284 pass) and the Chromium eval only; nothing in the land-your-work guide says what verifies an app with no workflow."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md (step 1, top bet first)",
+      "why": "Bets #1, #2 and #4 had no free ungated items, and #3's free item needs a native Polish speaker.",
+      "did": "Took bet #6's free ROADMAP item (wall-framing-takeoff Next #1), construction being the owner's favourite vertical.",
+      "result": "Shipped and merged as private PR 406."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-hip-and-valley-length-on-an-l-shaped-hip-roof.md (extended: 'Sheathing the same roof, course by course')"
+  ],
+  "goal": "Move the residential takeoff (bet #6) toward a paying contractor: sheet counts for any square-cornered hip roof and a dimensioned roof plan in the paid bid package.",
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/406 merged (450d7b17). New outlinesheathing.mjs: exact plane sections by the roof's own L-infinity rule, courses up the slope, pieces through optimizeStock; a rectangle equals roof.mjs's hip roof sheet for sheet and piece for piece (3 cases); 120 seeded random outlines: plane areas sum to the sloped area and every random point lies under a piece of its own plane's course. Wired into CLI, page roof card, material list and budget. roofplan.mjs dimensions every eave side; bidpackage.mjs prints the drawing (cleanDrawing whitelist). Verification: node --test *.test.mjs in apps/wall-framing-takeoff: 1286 tests, 1284 pass, 0 fail, 2 skipped; eval-roof-plan-click.mjs in Chromium all ok, no page errors. Next on the ROADMAP: pool narrow top strips across widths and reuse hip/valley offcuts (38% offcut on a small stair-step), end joints on rafters.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f4a1fa9f-c1f6-565e-8aa4-4ddc76412702",
+    "transcripts": 1,
+    "first": "2026-11-26T20:18:11Z",
+    "last": "2026-11-26T20:33:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 99,
+        "input": 187,
+        "output": 72770,
+        "thinking": 21785,
+        "cache_read": 17123021,
+        "cache_write_5m": 0,
+        "cache_write_1h": 225741,
+        "api_equivalent_usd": 6.6867,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 99,
+      "input": 187,
+      "output": 72770,
+      "thinking": 21785,
+      "cache_read": 17123021,
+      "cache_write_5m": 0,
+      "cache_write_1h": 225741,
+      "api_equivalent_usd": 6.6867,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 102,
+    "tools": {
+      "Bash": 91,
+      "Write": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.83,
+      "active_minutes": 14.83,
+      "model_minutes": 12.45,
+      "tool_minutes": 2.38,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "senior estimating-software dev: geometry module + tests ~8h, integration in CLI/page/material list/budget ~3h, SVG dimensions and bid package ~2h, post ~1h",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 209.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -3,7 +3,7 @@ title: "How long are the hips and valleys on an L-shaped hip roof?"
 date: 2026-11-26
 updated: 2026-11-26
 tags: [wall-framing-takeoff, for-customers, construction]
-description: Hip, valley and ridge lengths for an L-shaped hip roof, worked by hand at 4, 6, 8 and 12 in 12, and how the takeoff finds them for any square-cornered plan.
+description: Hip, valley and ridge lengths and roof sheathing courses for an L-shaped hip roof, worked by hand at 4 to 12 in 12, for any square-cornered plan.
 ---
 
 If you order hip and ridge cap, valley flashing or hip rafters off a plan, you need three numbers: the ridge length, the hip length along the slope and the valley length along the slope. On a rectangle there are textbook formulas. On an L, a T or a stepped plan, most people sketch the roof by hand. This post works one L-shaped house through by hand, gives the multipliers so you can check your own, and says what the framing takeoff we are building now does with any square-cornered outline.
@@ -63,6 +63,28 @@ The same plan gives you the fascia and soffit order. On a hip roof every side of
 Take the stepped 30 × 30 ft plan from the checks above: six outside corners, two inside, 120 ft of wall, and a 12 in overhang. The eave line is 120 + 8 × 1 = 128 ft. Side by side, that is 32, 12, four sides of 10, 12 and 32 ft. With 12 in soffit panels in 12 ft lengths, one course runs under each side. Each 32 ft side takes two whole panels plus an 8 ft piece, and each 12 ft side takes one panel. That leaves four 10 ft pieces and two 8 ft pieces, and no two of them fit in one 12 ft panel. So the total is 12 panels before waste. Fascia is the same 128 ft.
 
 The takeoff now counts this for a plan outline the framing model can't split. It uses the same soffit, fascia, J-channel and frieze rules as the framed roofs. For a plain rectangle it gives exactly what the framed hip roof gives. It doesn't count corner mitres, drip edge, nails or caulk. It also doesn't split vented and solid panels under an outline-only roof yet, because the ventilation sizing reads a framed roof.
+
+## Sheathing the same roof, course by course (added 2026-11-26)
+
+Squares tell you how much roof there is, not how many sheets to buy. Sheets go on in 4 ft courses up the slope from the eave, long edge along the eave, and the hips and valleys change how long each course is. On every plane of a one-pitch hip roof:
+
+- a course is the eave side's length, **minus one course's run at each hip end and plus one course's run at each valley end**, for every course you go up;
+- one 48 in course covers 48 ÷ √(1 + (pitch/12)²) of run in plan: **42.93 in at 6 in 12** (45.54 at 4, 39.94 at 8, 33.94 at 12).
+
+Take the L above at 6 in 12. Its long outside eave is 42 ft (504 in) with a hip at each end, so the courses run 504, 504 − 2 × 42.93 = 418.1, then 332.3 in, and a top strip about 30½ in wide. The two short inside eaves are 16 ft (192 in) with a hip at one end and the valley at the other. Their courses stay the same length all the way up: a piece has to reach the hip's line at the bottom of the course and the valley's line at the top, so each one needs 192 + 42.93 = **234.9 in** of sheet, cut on the 45 at both ends.
+
+The takeoff now lays this out for any square-cornered plan. It works out each plane's exact shape from the same rule that gives the hip and valley lines. It splits each course into sheet lengths and cuts the pieces from whole 4 × 8 sheets with the same optimiser that cuts the lumber order. For the L:
+
+| Pitch | Sloped area (sq ft) | Sheets if nothing were wasted | Sheets from the courses |
+| --- | --- | --- | --- |
+| 4 in 12 | 1,590 | 49.7 | 61 |
+| 6 in 12 | 1,686 | 52.7 | 68 |
+| 8 in 12 | 1,812 | 56.6 | 70 |
+| 12 in 12 | 2,133 | 66.6 | 82 |
+
+The course count is an **upper bound**. It doesn't reuse the triangles cut off at hips and valleys, and it doesn't pair a narrow top strip with a leftover from another width, so on a plan with many small planes it runs high. For example, it gives 38% offcut on the 30 × 30 ft stepped plan above. It also doesn't land end joints on rafters. For a plain rectangle it gives exactly the sheet count the takeoff's rectangular hip roof already gives, piece for piece. On 120 random plans, every point of the roof falls under a piece of its own plane's course.
+
+The roof plan drawing now has every eave side dimensioned along the eave edge. The bid package we are building prints that drawing ahead of the quantities, so the customer sees the roof they are being quoted for.
 
 ## Where to use it
 
