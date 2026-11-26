@@ -316,7 +316,7 @@ export function repair(input) {
   for (let ri = 1; ri < rows.length; ri++) {
     const r = rows[ri];
     if (r.every((c) => c.trim() === "")) continue;
-    if (ft >= 0 && r[ft] !== undefined && /^(product|variant)$/i.test(r[ft].trim())) edit(ri, ft, r[ft].trim()[0].toUpperCase() + r[ft].trim().slice(1).toLowerCase(), "Product or Variant");
+    if (ft >= 0 && r[ft] !== undefined && /^(product|variant)$/i.test(r[ft].trim()) && !/^(PRODUCT|VARIANT)$/.test(r[ft].trim())) edit(ri, ft, r[ft].trim()[0].toUpperCase() + r[ft].trim().slice(1).toLowerCase(), "Product or Variant");
     if (price >= 0 && r[price] !== undefined) { const v = r[price].trim(); if (v && !isNum(v)) { const c = cleanPrice(v); if (isNum(c)) edit(ri, price, c, "plain number"); } }
     if (sur >= 0 && r[sur] !== undefined) { const v = r[sur].trim(); if (v && !/^-?\d+(\.\d+)?$/.test(v)) { const c = cleanPrice(v); if (/^-?\d+(\.\d+)?$/.test(c)) edit(ri, sur, c, "plain number"); } }
     if (vis >= 0 && r[vis] !== undefined && /^(true|false)$/i.test(r[vis].trim())) edit(ri, vis, r[vis].trim().toUpperCase(), "TRUE or FALSE");
