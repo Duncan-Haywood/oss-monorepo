@@ -53,7 +53,9 @@ payapps there. On 2026-11-25 this worked first time:
 4. **Claim the item before building it:** `python3 platform/ci/roadmap_claim.py <app>`
    lists the ROADMAP's Next items as free or claimed; `--claim N` (with `--slug`/`--note`
    for one part of an item) pushes a create-only `claim/<app>/<slug>` branch there and
-   exits 4 if another run got it first, so pick another. Open-PR checks missed this:
+   exits 4 if another run got it first, so pick another (re-running on your own claim
+   prints YOURS; an app with no ROADMAP.md takes `--slug` claims; `--release` usually
+   fails through the proxy, so let a dropped claim go stale). Open-PR checks missed this:
    private PRs 106-108 built one item within 20 minutes (backlog P079).
    The claim does not reserve a migration number: fetch the private `main` and
    renumber your new `migrations/` file just before merging (private PR 126 and
