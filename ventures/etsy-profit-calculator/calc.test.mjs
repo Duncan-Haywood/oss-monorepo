@@ -1177,3 +1177,15 @@ test('break-even listings is a whole count, free of float error', () => {
   assert.equal(plusBreakEvenListings(args), 12);
   assert.equal(plusBreakEvenListings({ ...args, otherPlusValue: 7.5 }), 13); // 12.5 listings: the 13th covers it
 });
+
+test('Offsite Ads fee stops at Etsy\'s $100 per-order cap', async () => {
+  const { calculateOrder, maxAffordableOffsiteRate, OFFSITE_AD_FEE_CAP } = await import('./calc.mjs');
+  assert.equal(OFFSITE_AD_FEE_CAP, 100);
+  const big = calculateOrder({ price: 990, shippingCharged: 10, offsiteAdRate: 15 });
+  assert.equal(big.fees.offsiteAd, 100);
+  assert.equal(calculateOrder({ price: 990, shippingCharged: 10, offsiteAdRate: 12 }).fees.offsiteAd, 100);
+  // Below the cap the percentage still applies: $45 at 15% is $6.75.
+  assert.ok(Math.abs(calculateOrder({ price: 40, shippingCharged: 5, offsiteAdRate: 15 }).fees.offsiteAd - 6.75) < 1e-9);
+  // With more than $100 of organic profit, no rate pushes the order below $0.
+  assert.equal(maxAffordableOffsiteRate({ price: 990, shippingCharged: 10 }), Infinity);
+});

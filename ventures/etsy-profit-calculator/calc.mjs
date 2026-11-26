@@ -5,6 +5,12 @@
 // Fees for Selling on Etsy" (United States: 3% + $0.25 USD).
 export const ETSY_US_FEES = { listingFee: 0.2, transactionRate: 6.5, paymentRate: 3, paymentFixed: 0.25 };
 
+// Etsy caps the Offsite Ads fee per attributed order: "The Offsite Ad fee
+// will never exceed $100 for an order" (Help Center, "What are the Fees and
+// Taxes for Selling on Etsy?", read 2026-11-26). Without the cap a $1,000
+// order at 15% showed $150 (quality audit 2026-11-26-etsy-profit-calculator).
+export const OFFSITE_AD_FEE_CAP = 100;
+
 export function calculateOrder(input) {
   const number = (value, name) => {
     const result = Number(value);
@@ -28,7 +34,7 @@ export function calculateOrder(input) {
     listing: listingFee,
     transaction: revenue * transactionRate / 100,
     payment: revenue * paymentRate / 100 + paymentFixed,
-    offsiteAd: revenue * offsiteAdRate / 100,
+    offsiteAd: Math.min(revenue * offsiteAdRate / 100, OFFSITE_AD_FEE_CAP),
   };
   // Cash the seller lays out to make and ship the order. Marketplace
   // fees are deducted from proceeds, not paid up front, so they stay
@@ -105,6 +111,9 @@ export function maxAffordableOffsiteRate(input, minProfit = 0) {
   // No revenue for a percentage fee to sit on, so the rate cannot move
   // profit at all. The floor is already met above, so every rate clears it.
   if (organic.revenue <= 0) return Infinity;
+  // The fee stops at OFFSITE_AD_FEE_CAP, so an order with at least that much
+  // headroom over the floor clears it at every rate.
+  if (organic.profit - floor >= OFFSITE_AD_FEE_CAP) return Infinity;
   const rate = (organic.profit - floor) / organic.revenue * 100;
   if (!Number.isFinite(rate)) return null;
   return Math.max(0, rate);
