@@ -2,7 +2,7 @@
 title: "ZUGFeRD MINIMUM and BASIC WL are not e-invoices in Germany, and our checker now says so"
 seo_title: "Is ZUGFeRD MINIMUM an e-invoice in Germany? No: BASIC WL neither"
 date: 2026-11-26
-tags: [for-customers, einvoice-preflight, e-invoicing, zugferd, factur-x, xrechnung, germany, accountants]
+tags: [for-customers, einvoice-preflight, e-invoicing, zugferd, factur-x, xrechnung, germany, france, accountants]
 description: "The BMF counts XRechnung and ZUGFeRD from 2.0.1 as e-invoices except MINIMUM and BASIC WL. How to spot the profile, and what our checker reports."
 ---
 
@@ -74,8 +74,29 @@ schema too.
 We compared it with libxml2's validator on the same schemas. We used 12
 published sample files and 1,199 copies of them, each altered at random
 (elements swapped, removed or duplicated, wrong namespaces, decimal commas,
-stray attributes). The checker gave the same verdict on every one. The French
-EXTENDED-CTC-FR schema is not checked yet.
+stray attributes). The checker gave the same verdict on every one.
+
+**Update, also 2026-11-26: France's EXTENDED-CTC-FR.** France's reform has its
+own extended profile. Its BT-24 ends in
+`#conformant#urn.cpro.gouv.fr:1p0:extended-ctc-fr`. The checker now checks
+those files against their own schema too. That schema is not a cut-down
+Factur-X one. It is a full UN/CEFACT CrossIndustryInvoice D22B schema,
+published with the profile and taken here from the same package. Until now
+such a file got no schema check here at all, only the French business rules.
+Now it gets the same CII-001 to CII-007 checks.
+
+Two things the D22B schema allows may surprise you:
+
+- The invoice number (BT-1) is optional in the schema itself. The profile's
+  business rules require it, and those still run.
+- Code elements may carry `listVersionID`.
+
+Neither is reported as a schema error, which is how libxml2 treats them as well.
+
+We tested it on the five EXTENDED-CTC-FR sample invoices that FNFE-MPE
+publishes and on 1,499 randomly altered copies of them. The verdict matched
+libxml2 on every file. Code lists are still left to the business rules, as
+for the other profiles.
 
 This is not tax advice. Whether a particular invoice must be an e-invoice
 depends on the transaction and the dates above; your tax adviser decides.
