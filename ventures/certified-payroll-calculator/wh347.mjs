@@ -11,7 +11,10 @@ import { calculateCertifiedPayroll } from "./calc.mjs";
 export const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const round2 = (x) => Math.round((x + Number.EPSILON) * 100) / 100;
 // Prose dollars (flags, advice) carry thousands separators, as the report table does: "$3731.50" beside "$3,731.50" reads as a typo.
-const usd = (x) => "$" + Number(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const usd = (x) => {
+  const text = "$" + Math.abs(Number(x)).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return x < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 const round1 = (x) => Math.round((x + Number.EPSILON) * 10) / 10;
 
 function nonNeg(v, label) {
