@@ -165,6 +165,18 @@ override_data {
   }
 }
 
+run "sync_trust_accepts_both_subject_forms" {
+  command = plan
+
+  assert {
+    condition = sort(flatten([for c in one(data.aws_iam_policy_document.sync_trust.statement).condition : tolist(c.values) if c.variable == "token.actions.githubusercontent.com:sub"])) == sort([
+      "repo:Duncan-Haywood/oss-monorepo:environment:cloudflare",
+      "repo:Duncan-Haywood@49566815/oss-monorepo@1315497858:environment:cloudflare",
+    ])
+    error_message = "The Worker-secret sync role trusts one environment of this repository, in both subject forms."
+  }
+}
+
 run "transitional_identity" {
   command = plan
 

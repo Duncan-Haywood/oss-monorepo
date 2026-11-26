@@ -116,7 +116,7 @@ run "resource_control_policies" {
   }
 
   assert {
-    condition     = jsondecode(aws_organizations_policy.rcp["payments-no-public-repo"].content).Statement[0].Condition.StringLike["token.actions.githubusercontent.com:sub"][0] == "repo:Duncan-Haywood/oss-monorepo:*"
+    condition     = jsondecode(aws_organizations_policy.rcp["payments-no-public-repo"].content).Statement[0].Condition.StringLike["token.actions.githubusercontent.com:sub"] == ["repo:Duncan-Haywood/oss-monorepo:*", "repo:Duncan-Haywood@49566815/oss-monorepo@1315497858:*"]
     error_message = "Every token from the public repository is refused in payments."
   }
 

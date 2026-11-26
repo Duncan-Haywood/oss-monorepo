@@ -152,8 +152,9 @@ stacks use the dynamic form.
   TLS-only, old versions kept a year). OpenTofu >= 1.10 locks with a lock
   object in the bucket (`use_lockfile`), so there is no DynamoDB table;
 - **`github-plan`**: assumable only by `pull_request` workflows of this
-  repository (`sub = repo:Duncan-Haywood/oss-monorepo:pull_request`; fork PRs
-  get no OIDC token). `ReadOnlyAccess`, read of the state, assume
+  repository (`sub = repo:Duncan-Haywood/oss-monorepo:pull_request`, or the
+  immutable form `repo:Duncan-Haywood@49566815/oss-monorepo@1315497858:pull_request`
+  that GitHub issues for this repository; fork PRs get no OIDC token). `ReadOnlyAccess`, read of the state, assume
   `github-plan-readonly` in member accounts, and explicit denies on reading
   data: S3 objects outside the state, KMS decrypt outside the state key,
   Secrets Manager values, SSM parameters, DynamoDB items, log events, Lambda

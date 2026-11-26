@@ -102,3 +102,31 @@ def test_commitments_together_cover_the_scp():
     block = text[text.index('Sid    = "NoCommitments"'):]
     scp = re.findall(r'"([a-z0-9-]+:[A-Za-z]+)"', block[: block.index("]")])
     assert scp and set(scp) <= have, set(scp) - have
+
+
+def _render_sub(value, params):
+    """Render a !Sub (string, or [template, vars] with !Select/!Split vars)."""
+    sub = value["!Sub"]
+    template, extra = (sub, {}) if isinstance(sub, str) else (sub[0], sub[1])
+    names = dict(params)
+    for k, v in extra.items():
+        idx, split = v["!Select"]
+        sep, ref = split["!Split"]
+        names[k] = params[ref["!Ref"]].split(sep)[int(idx)]
+    return re.sub(r"\$\{([A-Za-z]+)\}", lambda m: names[m.group(1)], template)
+
+
+def test_trusts_accept_both_github_subject_forms():
+    # GitHub issued repo:OWNER@ID/REPO@ID:... for this repository on
+    # 2026-11-26 (CloudTrail on the first apply); the name form stays valid
+    # for repositories that opt out of immutable subjects.
+    doc = yaml.load((HERE / "bootstrap.yaml").read_text(), Loader=_Loader)
+    params = {k: str(v.get("Default")) for k, v in doc["Parameters"].items()}
+    for role, ctx in (("GitHubPlanRole", "pull_request"), ("GitHubApplyRole", "environment:aws-prod")):
+        cond = doc["Resources"][role]["Properties"]["AssumeRolePolicyDocument"]["Statement"][0]["Condition"]
+        subs = sorted(_render_sub(v, params) for v in cond["StringEquals"]["token.actions.githubusercontent.com:sub"])
+        assert subs == sorted([
+            f"repo:Duncan-Haywood/oss-monorepo:{ctx}",
+            f"repo:Duncan-Haywood@49566815/oss-monorepo@1315497858:{ctx}",
+        ]), (role, subs)
+        assert cond["StringEquals"]["token.actions.githubusercontent.com:aud"] == "sts.amazonaws.com"

@@ -48,7 +48,7 @@ locals {
           Action    = "sts:AssumeRoleWithWebIdentity"
           Resource  = "*"
           Condition = {
-            StringLike = { "token.actions.githubusercontent.com:sub" = ["repo:${var.public_repository}:*"] }
+            StringLike = { "token.actions.githubusercontent.com:sub" = [for r in local.public_subject_repos : "repo:${r}:*"] }
           }
         }]
       }
@@ -72,4 +72,14 @@ resource "aws_organizations_policy_attachment" "rcp" {
   ]...) : {}
   policy_id = aws_organizations_policy.rcp[each.value.policy].id
   target_id = aws_organizations_organizational_unit.this[each.value.ou].id
+}
+
+# The Deny must name both subject forms GitHub issues for the public repository:
+# by name, and the immutable form with numeric IDs (repo:OWNER@ID/REPO@ID:...),
+# which this repository issues since 2026-11 (CloudTrail, first apply).
+locals {
+  public_subject_repos = [
+    var.public_repository,
+    "${split("/", var.public_repository)[0]}@${var.public_repository_owner_id}/${split("/", var.public_repository)[1]}@${var.public_repository_id}",
+  ]
 }

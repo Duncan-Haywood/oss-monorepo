@@ -55,6 +55,16 @@ Parameters:
     Default: Duncan-Haywood/oss-monorepo
     AllowedPattern: "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
     Description: owner/repo whose workflows may assume the roles
+  GitHubOwnerId:
+    Type: String
+    Default: "49566815"
+    AllowedPattern: "^[0-9]+$"
+    Description: numeric ID of the repository's owner, for GitHub's immutable OIDC subject (repo:OWNER@ID/REPO@ID:...)
+  GitHubRepositoryId:
+    Type: String
+    Default: "1315497858"
+    AllowedPattern: "^[0-9]+$"
+    Description: numeric ID of the repository, for GitHub's immutable OIDC subject
   ApplyEnvironment:
     Type: String
     Default: aws-prod
@@ -180,7 +190,15 @@ Resources:
             Condition:
               StringEquals:
                 token.actions.githubusercontent.com:aud: sts.amazonaws.com
-                token.actions.githubusercontent.com:sub: !Sub repo:${GitHubRepository}:pull_request
+                token.actions.githubusercontent.com:sub:
+                  # Both subject forms GitHub issues: by name, and the immutable
+                  # form with numeric IDs (the default for this repository since
+                  # 2026; the first apply was refused for lacking it).
+                  - !Sub repo:${GitHubRepository}:pull_request
+                  - !Sub
+                    - repo:${Owner}@${GitHubOwnerId}/${Name}@${GitHubRepositoryId}:pull_request
+                    - Owner: !Select [0, !Split ["/", !Ref GitHubRepository]]
+                      Name: !Select [1, !Split ["/", !Ref GitHubRepository]]
       ManagedPolicyArns:
         - !Sub arn:${AWS::Partition}:iam::aws:policy/ReadOnlyAccess
       Policies:
@@ -263,7 +281,15 @@ Resources:
             Condition:
               StringEquals:
                 token.actions.githubusercontent.com:aud: sts.amazonaws.com
-                token.actions.githubusercontent.com:sub: !Sub repo:${GitHubRepository}:environment:${ApplyEnvironment}
+                token.actions.githubusercontent.com:sub:
+                  # Both subject forms GitHub issues: by name, and the immutable
+                  # form with numeric IDs (the default for this repository since
+                  # 2026; the first apply was refused for lacking it).
+                  - !Sub repo:${GitHubRepository}:environment:${ApplyEnvironment}
+                  - !Sub
+                    - repo:${Owner}@${GitHubOwnerId}/${Name}@${GitHubRepositoryId}:environment:${ApplyEnvironment}
+                    - Owner: !Select [0, !Split ["/", !Ref GitHubRepository]]
+                      Name: !Select [1, !Split ["/", !Ref GitHubRepository]]
       # Applying an Organization baseline (accounts, SCPs, the org trail,
       # delegated administrators) needs administrator rights in the
       # management account. What keeps it in bounds: only `aws-prod` jobs
