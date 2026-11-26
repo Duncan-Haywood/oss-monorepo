@@ -104,7 +104,7 @@ on:
       checks:
         description: "Comma-separated subset to run (default: all seven)"
         required: false
-        default: "sideways,presets,roundtrip,highlight,contrast,optout,sweep,journey"
+        default: "sideways,presets,roundtrip,highlight,contrast,optout,framerate,sweep,journey"
       only:
         description: "Comma-separated venture slugs to scope to (default: the whole site)"
         required: false
@@ -141,7 +141,7 @@ jobs:
           python-version: "3.12"
       - id: split
         env:
-          CHECKS: ${{ inputs.checks || 'sideways,presets,roundtrip,highlight,contrast,optout,sweep,journey' }}
+          CHECKS: ${{ inputs.checks || 'sideways,presets,roundtrip,highlight,contrast,optout,framerate,sweep,journey' }}
         run: |
           python3 -c 'import json, os; print("checks=" + json.dumps([c.strip() for c in os.environ["CHECKS"].split(",") if c.strip()]))' >> "$GITHUB_OUTPUT"
       # The harness has its own unit tests, and a change to it is exactly the
