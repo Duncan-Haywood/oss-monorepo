@@ -1,4 +1,6 @@
+import ast
 import io
+import re
 import sys
 import tempfile
 import unittest
@@ -114,6 +116,76 @@ class Unwired(unittest.TestCase):
     def test_a_red_suite_says_how_to_rerun_it_with_unittest(self):
         text = u.report([("test_doc_index.py", 1, "FAILED (failures=1)")])
         self.assertIn("cd platform/ci && python3 -m unittest test_doc_index", text)
+
+
+class CoveredByTreeTest(unittest.TestCase):
+    """COVERED_BY_TREE_TEST (2026-11-26): a check whose suite already runs it on
+    the tree is not run a second time, unless that suite is not green."""
+
+    TREE_ASSERT = re.compile(
+        r"\.main\((\[\])?\)\s*(,\s*0\s*\)|==\s*0)"            # main([]) == 0 / assertEqual(main(), 0)
+        r"|\[sys\.executable,\s*str\((pathlib\.)?Path\(\w+\.__file__\)\)\]"  # the script, no arguments
+        r"|\[sys\.executable,\s*str\(script\)\]")
+
+    def test_every_named_test_still_runs_its_check_on_the_tree(self):
+        here = Path(u.__file__).resolve().parent
+        for check, test in u.COVERED_BY_TREE_TEST.items():
+            with self.subTest(check=check):
+                self.assertTrue((here / check).is_file())
+                src = (here / f"test_{check}").read_text(encoding="utf-8")
+                tree = ast.parse(src)
+                fns = [n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == test]
+                self.assertEqual(len(fns), 1, f"test_{check} has no single {test}")
+                body = ast.get_source_segment(src, fns[0])
+                self.assertRegex(body, self.TREE_ASSERT)
+                stem = check[:-3]
+                # main() with no argument list only matches the script when main takes none.
+                if re.search(r"\.main\(\)", body) and not re.search(r"\.main\(\[\]\)", body):
+                    csrc = (here / check).read_text(encoding="utf-8")
+                    self.assertRegex(csrc, r"(?m)^def main\(\s*(\)|root[^,)]*=)", stem)
+
+    def _run(self, suite_result):
+        ran = []
+
+        def check(p):
+            ran.append(p)
+            return p, 0, "ran"
+
+        with mock.patch.object(u, "unwired", return_value=["check_x.py", "check_y.py"]), \
+                mock.patch.object(u, "unwired_tests", return_value=["test_check_x.py"]), \
+                mock.patch.object(u, "unwired_portfolio_tests", return_value=[]), \
+                mock.patch.object(u, "unwired_node_suites", return_value=[]), \
+                mock.patch.object(u, "unwired_extra", return_value=[]), \
+                mock.patch.dict(u.COVERED_BY_TREE_TEST, {"check_x.py": "test_t", "check_y.py": "test_t"}), \
+                mock.patch.object(u.main_health, "label", side_effect=lambda p: p), \
+                mock.patch.object(u.main_health, "run", side_effect=check), \
+                mock.patch.object(u, "run_suite", return_value=("test_check_x.py", *suite_result)), \
+                redirect_stdout(io.StringIO()):
+            results = u.run_everything()
+        return ran, {n: (rc, out) for n, rc, out in results}
+
+    def test_a_green_suite_covers_its_check(self):
+        ran, results = self._run((0, "OK"))
+        # check_y has no suite in the pool, so it runs as before.
+        self.assertEqual(ran, ["check_y.py"])
+        self.assertEqual(results["check_x.py"][0], 0)
+        self.assertIn("covered by test_check_x.py", results["check_x.py"][1])
+        self.assertEqual(sorted(results), ["check_x.py", "check_y.py", "test_check_x.py"])
+
+    def test_a_red_or_skipped_suite_runs_the_check_itself(self):
+        for suite_result in ((1, "FAIL"), (0, f"{u.SKIPPED} needs yaml"),
+                             (u.main_health.TIMED_OUT, "timed out")):
+            with self.subTest(suite=suite_result):
+                ran, results = self._run(suite_result)
+                self.assertEqual(sorted(ran), ["check_x.py", "check_y.py"])
+                self.assertEqual(results["check_x.py"], (0, "ran"))
+
+    def test_checks_only_runs_every_check(self):
+        ran = []
+        with mock.patch.object(u, "unwired", return_value=["check_parse_sign.py"]), \
+                mock.patch.object(u.main_health, "run", side_effect=lambda p: (ran.append(p), (p, 0, ""))[1]):
+            u.run_everything(checks_only=True)
+        self.assertEqual(ran, ["check_parse_sign.py"])
 
 
 class PullRequestTrigger(unittest.TestCase):

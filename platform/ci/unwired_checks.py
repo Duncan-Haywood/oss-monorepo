@@ -453,6 +453,42 @@ def unwired_extra(here=HERE, workflows=WORKFLOWS):
     return [(here / name, *args) for name, *args in EXTRA if name not in text]
 
 
+# Checks whose own test suite already runs them on the whole tree, mapped to that
+# test (2026-11-26). Each named test asserts `check.main([]) == 0` (or `main()`
+# for a main that takes no argument, or runs the script with no arguments and
+# asserts exit 0), which is what running `check_X.py` here asserts, so the pool
+# ran the same scan twice: about 23 s of its 243 s serial on a 4-core container
+# (docs/history/ci-perf-2026-11-26-unwired-tree-scan-once.md). A listed check
+# runs alone only when its suite is not green (red, timed out or skipped), so a
+# skipped suite never hides it. Every entry was checked to give the same exit
+# code and output from platform/ci (where its suite runs) and from the root
+# (where the check runs); test_unwired_checks pins that each named test still
+# holds its tree assertion. A check left out of this map just runs twice.
+COVERED_BY_TREE_TEST = {
+    "check_agent_text_on_pages.py": "test_repository_pages_are_clean",
+    "check_clock_rollover.py": "test_tree_is_clean",
+    "check_column_shift.py": "test_repository_is_green",
+    "check_decimal_comma.py": "test_the_tree_is_clean",
+    "check_decimal_format.py": "test_the_tree_is_clean",
+    "check_docker_copy.py": "test_repo_is_clean",
+    "check_dotted_dates.py": "test_the_tree_is_clean",
+    "check_dst_day_step.py": "test_repository_ventures_are_clean",
+    "check_finite_thresholds.py": "test_tree_is_clean",
+    "check_money_pence.py": "test_the_tree_is_clean",
+    "check_month_overflow.py": "test_ventures_tree_is_clean",
+    "check_negative_zero_money.py": "test_tree_is_clean",
+    "check_noindex_sitemap.py": "test_default_root_is_repo_ventures_and_help",
+    "check_open_range_messages.py": "test_venture_tree_is_clean",
+    "check_parse_sign.py": "test_the_tree_is_clean",
+    "check_playwright_import.py": "test_repository_is_clean",
+    "check_row_spread.py": "test_the_repository_is_green",
+    "check_se_tax_floor.py": "test_tree_is_clean",
+    "check_shallow_refspec.py": "test_main_fails_on_a_bad_tree_and_the_real_tree_is_clean",
+    "check_test_spawn_cwd.py": "test_repository_is_clean",
+    "check_trailing_flag_value.py": "test_repository_is_green",
+}
+
+
 def run_everything(checks_only=False, jobs=6):
     """Checks, then (unless checks_only) suites and EXTRA: one sorted result list.
 
@@ -461,16 +497,43 @@ def run_everything(checks_only=False, jobs=6):
     container the checks took 20 s, the suites 21 s and the node suites 29 s,
     each set by one item, 70 s in all for 305 s of work. The suites and node
     suites go in first, since the long items are among them
-    (docs/history/ci-perf-2026-11-14-icon-memo-unwired-pool.md)."""
+    (docs/history/ci-perf-2026-11-14-icon-memo-unwired-pool.md).
+
+    A check in COVERED_BY_TREE_TEST whose suite is in the pool waits for that
+    suite: green, and the check is reported covered without a second scan;
+    anything else, and the check runs after the pool."""
     groups = []
+    checks, suites = unwired(), [] if checks_only else unwired_tests()
+    suite_names = {Path(s).name for s in suites}
+    deferred = [c for c in checks if Path(c).name in COVERED_BY_TREE_TEST
+                and f"test_{Path(c).name}" in suite_names]
     if not checks_only:
-        groups += [(run_node_suite, unwired_node_suites()), (run_suite, unwired_tests()),
+        groups += [(run_node_suite, unwired_node_suites()), (run_suite, suites),
                    (run_suite, unwired_portfolio_tests())]
-    groups.append((main_health.run, unwired()))
+    groups.append((main_health.run, [c for c in checks if c not in deferred]))
     if not checks_only:
         groups.append((lambda p, *a: main_health.run(p, *a), unwired_extra()))
     work = [(runner, p if isinstance(p, tuple) else (p,)) for runner, paths in groups for p in paths]
-    return sorted(run_mixed(work, jobs=jobs))
+    results = run_mixed(work, jobs=jobs)
+    return sorted(results + covered_or_run(deferred, results, jobs))
+
+
+def covered_or_run(deferred, results, jobs=6):
+    """Results for the deferred checks: "covered" where the suite that runs the
+    check on the tree came back green, a real run where it did not."""
+    by_name = {name: (rc, out) for name, rc, out in results}
+    out, rerun = [], []
+    for c in deferred:
+        name = Path(c).name
+        suite = f"test_{name}"
+        rc, text = by_name.get(suite, (None, ""))
+        if rc == 0 and not text.startswith(SKIPPED):
+            out.append((main_health.label(c), 0,
+                        f"covered by {suite} ({COVERED_BY_TREE_TEST[name]} runs this check "
+                        "on the tree), so not run a second time"))
+        else:
+            rerun.append((main_health.run, (c,)))
+    return out + (run_mixed(rerun, jobs=jobs) if rerun else [])
 
 
 def run_mixed(work, jobs=6):
