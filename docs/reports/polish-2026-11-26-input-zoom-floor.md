@@ -1,7 +1,7 @@
 ---
-title: "Polish 2026-11-26: a 16 px floor on form fields stops iOS zoom on every venture page"
+kind: polish
+topics: [design]
 date: 2026-11-26
-tags: [polish, mobile, site-build]
 ---
 
 # Polish 2026-11-26: no zoom on focus, on every venture page
