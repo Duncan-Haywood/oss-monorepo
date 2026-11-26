@@ -61,7 +61,7 @@ threw is retried on redelivery. `test/worker/billing.test.ts` covers each of the
 
 1. Paddle account verified (needs live pricing, terms, privacy and refund pages: the marketing site,
    PR #18, and the legal pages at `/legal/terms`, `/legal/privacy` and `/legal/refunds`, drafts that
-   need the owner's contact email and the agent legal review first).
+   need the owner's contact email and counsel review first).
 2. The deploy workflow (`payapps-deploy`, [DEPLOY.md](DEPLOY.md)) syncs
    `billing/paddle-catalog.json` to Paddle when `PAYAPPS_BILLING_API_KEY` is set and passes the price
    ids read back to the Worker as `BILLING_PRICE_IDS`. Products and prices are code (regenerated from

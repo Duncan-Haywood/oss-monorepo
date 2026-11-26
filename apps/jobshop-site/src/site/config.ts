@@ -10,6 +10,6 @@ export const DEFAULT_SITE_URL = "https://marisstella.app/jobshop";
 export const CMMC_SITE_URL = "https://marisstella.app/cmmc";
 /** Routed mailbox shared with apps/grants (Cloudflare Email Routing). */
 export const CONTACT_EMAIL = "hello@marisstella.app";
-export const PUBLISHER = "Mary Stella Labs, LLC";
+export const PUBLISHER = "Maris Stella Labs LLC";
 /** The day the site's copy was last reviewed (sitemap lastmod for pages without their own date). */
 export const CONTENT_DATE = "2026-11-24";

@@ -26,6 +26,11 @@ export default defineConfig({
           AUTH_SECRET: "test-secret-test-secret-test-secret-0123456789",
           ANTHROPIC_API_KEY: "test-key",
           TEST_SCHEMA_SQL: exportSchemaSql(),
+          // Platform admin API (test/worker/admin.test.ts). Test-only values, never real addresses.
+          PLATFORM_ADMIN_EMAILS: "owner-admin@example.test",
+          ADMIN_SERVICE_TOKEN: "test-admin-service-token-0123456789abcdef",
+          ADMIN_METRICS_TOKEN: "test-admin-metrics-token-0123456789abcdef",
+          OWNER_NOTIFICATIONS: "on",
         },
       },
     }),

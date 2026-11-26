@@ -8,9 +8,11 @@
 //   GET  /api/early-access/remove?token=    page with a "Delete my sign-up" button
 //   POST /api/early-access/remove?token=    deletes the row → 303 to the removed page
 //   GET  /api/health
+//   GET  /api/admin/metrics, /api/admin/accounts   owner console only (admin.ts; service token)
 import { basePathOf, PAGES, PRODUCT_NAME, type PublicPage } from "@shared/site";
 import { href, html, pageShell, type SiteContext } from "@site/html";
 import { type Context, Hono } from "hono";
+import { adminRoutes } from "./admin";
 import { type EmailSender, senderFromEnv } from "./email";
 import { parseSignup } from "./input";
 import { confirmSignup, removeSignup, signUp } from "./signups";
@@ -213,6 +215,8 @@ export function createApp(deps: AppDeps = {}) {
     if (outcome !== "removed") return badLink(c, false);
     return c.redirect(href(site(c), PAGES.removed.path), 303);
   });
+
+  app.route("/api/admin", adminRoutes(now));
 
   app.notFound((c) => c.json({ error: { code: "not_found", message: "Not found" } }, 404));
 

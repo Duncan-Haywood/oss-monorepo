@@ -8,6 +8,7 @@ import type {
   BillingWebhookEvent,
   CheckoutRequest,
   ProviderSubscriptionStatus,
+  SubscriptionPrice,
 } from "./provider.ts";
 
 /** Public, test-only secret. Never use it for a real provider. */
@@ -35,6 +36,8 @@ export interface FakeWebhookBody {
     currentPeriodStart?: string | null;
     currentPeriodEnd?: string | null;
     cancelAtPeriodEnd?: boolean;
+    /** The billed recurring price, as a real Paddle event would carry it. */
+    price?: SubscriptionPrice;
   };
 }
 
@@ -126,6 +129,7 @@ export class SignedFakeBillingProvider implements BillingProvider {
         currentPeriodEnd: toDate(s.currentPeriodEnd),
         cancelAtPeriodEnd: s.cancelAtPeriodEnd ?? false,
       };
+      if (s.price) event.subscription.price = s.price;
     }
     return event;
   }

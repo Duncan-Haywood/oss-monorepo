@@ -2,7 +2,7 @@
 
 | | |
 | --- | --- |
-| Applies to | Every product and account of Mary Stella Labs, LLC |
+| Applies to | Every product and account of Maris Stella Labs LLC |
 | Owner | The company owner; acts as incident lead for every incident |
 | Reviewed | 2026-11-24 · next review by 2027-05-24, and after every SEV1/SEV2 |
 

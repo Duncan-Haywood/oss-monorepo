@@ -51,7 +51,7 @@ test/                     node:test suites (build, pricing, worker against node:
 
 ```bash
 node build.mjs                 # dev build for http://localhost:8787
-node --test test/*.test.mjs    # 30 tests
+node --test test/*.test.mjs    # 34 tests
 ```
 
 Lint/format with the root biome config: `pnpm exec biome check --write apps/einvoice-site` from the
@@ -115,6 +115,18 @@ binding `EMAIL`). Later launch news to confirmed addresses is marketing mail, wh
 Service does not accept (see `apps/grants/src/worker/ports/cloudflare-email.ts`); send it through a
 provider that allows marketing mail, with the delete link in every message.
 
+## Owner console API
+
+`GET /api/admin/metrics?days=30` (total, confirmed, by day) and `GET /api/admin/accounts?limit=50` (newest
+sign-ups: email, confirmed, date) serve the owner console (`apps/admin`) in the `packages/admin-metrics`
+contract (`admin.mjs`, which imports that package's TypeScript source; Node ≥ 22.18 and wrangler both load
+it). They answer only `Authorization: Bearer <ADMIN_SERVICE_TOKEN>`, a Worker secret of at least 32
+characters set by the `set-admins` workflow and never committed; unset, they are closed. They work without
+`SIGNING_SECRET`. Every read writes a row to `admin_audit_log` (`migrations/0002_admin_audit_log.sql`).
+The form does not record which page a sign-up came from, so `bySource` is `[]` and each sign-up's `source`
+is null; there is no unsubscribed count (deleting removes the row). The privacy pages say the operators can
+see the list and that views are logged (new paragraph in de/fr/en: include it in the native review). `ADMIN_METRICS_TOKEN` (same rules) is the agents' read-only credential: `/metrics` only; `/accounts` answers 403.
+
 ## Before launch
 
 1. Native-speaker review of de/fr copy (above).
@@ -124,7 +136,7 @@ provider that allows marketing mail, with the delete link in every message.
    (it refuses to build if any is missing, so no placeholder can ship).
 5. `wrangler d1 create einvoice-site` and put the id in `wrangler.jsonc`;
    `wrangler d1 migrations apply einvoice-site --remote`.
-6. `wrangler secret put SIGNING_SECRET` (32+ random bytes). Set `SITE_URL` and `EMAIL_FROM` vars;
+6. `wrangler secret put SIGNING_SECRET` (32+ random bytes); optionally `ADMIN_SERVICE_TOKEN` and `ADMIN_METRICS_TOKEN` (above). Set `SITE_URL` and `EMAIL_FROM` vars;
    onboard the sender domain in Cloudflare Email Service.
 7. `wrangler deploy` (wrangler is installed in `apps/grants`; there is no deploy workflow for this
    app yet).
@@ -138,7 +150,7 @@ See `docs/PRICING.md`: accountant plans at €19 / €29 / €49 per month and a
 ## Provenance
 
 Moved on 2026-11-26 from `Duncan-Haywood/private-monorepo` `apps/einvoice-site` at commit
-`b1b7c3f63ce289c4051d8506eb0744856350f80e` (a copy of the tree, not its git history), when the paid apps moved
+`cded6eaf5d8aefcb42e61ed1cad3ec0b81826072` (a copy of the tree, not its git history), when the paid apps moved
 to this public repository. Licence: the root `LICENSE` (FSL-1.1-MIT) unless this
 directory's own LICENSE says otherwise; third-party files keep their notices. Index:
 [`apps/README.md`](../../apps/README.md).

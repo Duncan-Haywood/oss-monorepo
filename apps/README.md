@@ -2,7 +2,8 @@
 
 The for-profit apps and their shared packages. They moved here from the private
 repository `Duncan-Haywood/private-monorepo` on 2026-11-26, as a copy of its tree at
-commit `b1b7c3f63ce289c4051d8506eb0744856350f80e` (not its git history). Owner,
+commit `cded6eaf5d8aefcb42e61ed1cad3ec0b81826072` (not its git history; first
+taken at `b1b7c3f`, then re-synced to `cded6ea` before merging). Owner,
 2026-11-26: move them "as a priority". GitHub Actions in the private repository started no
 jobs (private minutes are metered, and the account's spending limit blocked them), so no
 paid app could be tested or deployed. Public-repository Actions are free.
@@ -20,9 +21,11 @@ paid app could be tested or deployed. Public-repository Actions are free.
 | `packages/qbo-sync` | QuickBooks Online sync (optional, off) | (#1) |
 | `packages/cad-features` | CAD feature extraction (STEP) | (#2) |
 | `packages/trust-page` | Trust and security pages built from cited repository facts | (shared) |
+| `apps/admin`, `packages/admin-metrics` | The owner's console: metrics and accounts across every product | (shared) |
 
-`docs/trust/` (security policies, CAIQ answers, DPA template, subprocessors) came across
-with them.
+`docs/trust/` (security policies, CAIQ answers, DPA template, subprocessors) and
+`docs/legal/OPERATOR.md` (the operator, Maris Stella Labs LLC, and who may approve a
+launch) came across with them.
 
 ## Layout, and why
 
@@ -61,13 +64,14 @@ The root `LICENSE` (FSL-1.1-MIT) covers this code. The private repository's
 ## Checks made before publishing
 
 - **Secrets:** gitleaks with this repository's config (`platform/security/gitleaks.toml`)
-  over every moved file. 22 hits, all test placeholders. 18 were in `apps/grants` (not
-  moved). The other four are made-up test values, marked `gitleaks:allow` on their line.
-- **Personal data:** every email address in the tree was listed and read. Two test
-  fixtures put invented people at domains that may belong to real organisations
-  (`harborbuilders.com`, `nmfoundation.org` and two others). They now use reserved
-  `.example` domains. The remaining real-looking addresses are inside the
-  already-published NF-e corpus.
+  over every moved file, at both snapshots. All hits were test placeholders. Most were in
+  `apps/grants` (not moved). The other four are made-up test values, marked
+  `gitleaks:allow` on their line.
+- **Personal data:** every email address in the tree was listed and read. PayApps test
+  fixtures put an invented billing contact at a domain that may belong to a real company;
+  they now use the reserved `.example` domain. Similar fixtures were in `apps/grants`
+  (not moved). The remaining real-looking addresses are inside the already-published
+  NF-e corpus.
 - **Customer data:** see "What stayed private".
 - **Licences:** every nested LICENSE and third-party notice read (above).
 
@@ -92,14 +96,14 @@ The root `LICENSE` (FSL-1.1-MIT) covers this code. The private repository's
   `main` once their settings exist. The apps are moving off Cloudflare to the AWS SaaS
   starter, so their Cloudflare deploy workflows were not ported. Settings, and what
   deploys today: [`docs/runbooks/paid-apps-secrets.md`](../docs/runbooks/paid-apps-secrets.md).
-- **Legal pages:** the "Draft ... have counsel review it before launch" banner is gone from
-  every app's terms, privacy, refund and acceptable-use pages, and the bundled
-  `documents.ts` files were regenerated. There is no outside counsel; a sibling
-  agent session does the legal review and **owns the content of these pages**. Older
-  notes that still say "counsel" in `ROADMAP.md` and `docs/` are superseded by this
-  section.
+- **Legal pages:** no longer "draft until counsel". The private repository's own
+  legal-review session did this before the move (its PR #240): the banner is gone, the
+  operator is Maris Stella Labs LLC (Colorado), and tests fail if a banner, a placeholder
+  or a claim of attorney review comes back. That sibling legal-review session **owns the
+  content of these pages**. Launch authority and the open legal checks:
+  [`docs/legal/OPERATOR.md`](../docs/legal/OPERATOR.md).
 - **Checkout:** `BILLING_PROVIDER` defaults to `paddle` when both Paddle secrets exist,
-  and to `none` otherwise (`packages/billing/src/factory.ts`; grants had its own copy).
+  and to `none` otherwise (`packages/billing/src/factory.ts`).
   An explicit `none` still switches checkout off.
 
 ## CI

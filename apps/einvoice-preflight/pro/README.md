@@ -65,8 +65,11 @@ Run `node pro/server.mjs` (env: `PORT`, `PRO_DB_FILE` (SQLite, production) or `P
 is at the top of `server.mjs`. In short:
 
 ```
-GET  /app                          the workspace page (sign up, sign in with the key, clients, batches)
-POST /v1/signup                    {name, acceptTerms: true} -> trial account + API key (shown once)
+GET  /app                          the workspace page (sign up, sign in with the key, clients, batches, API keys)
+GET  /app/terms | /app/privacy     the Terms of Service and Privacy Policy (pro/legal/*.md)
+GET  /v1/legal                     their titles and versions
+POST /v1/signup                    {name, acceptTerms: true, termsVersion?} -> trial account + API key (shown once);
+                                   the account records the Terms version; a stale termsVersion gets 409
 POST /v1/admin/accounts            (ADMIN_TOKEN)  -> account + first API key (shown once)
 POST /v1/check?lang=de&fix=1       raw invoice body -> findings with explanations, fixes, diff
                                    profile= xrechnung|peppol|france|slovakia|auto (auto: from the file)
@@ -98,6 +101,17 @@ with "remember"). Then: plan and usage meters with upgrade buttons (checkout whe
 otherwise a "not open yet" line), client companies, a drop zone that sends files as base64 batches
 split to the API's caps (50 files, 1 MiB each, 20 MiB of base64 per request), each finding with its
 plain-language explanation, the fixed file and its diff as downloads, and the client's history.
+An "API keys" panel lists the account's keys (name, first 12 characters, created, last used; the one
+this browser signed in with is marked), creates one (shown once, there) up to the plan's limit, and
+revokes one (revoking this browser's own key signs it out, after a warning).
+
+The sign-up checkbox links the Terms of Service and the Privacy Policy, served at `/app/terms` and
+`/app/privacy` from `pro/legal/terms.md` and `privacy.md` by a zero-dependency renderer
+(`legal.mjs`, every character escaped; the server refuses to start if a file lacks its title or
+"**Version YYYY-MM-DD**" line). Sign-up records the Terms version on the account (`termsVersion`,
+also in `GET /v1/account`); a page left open across a change sends the old version and is asked to
+accept again. The pages are in English; the checkbox says so in German and French. They are
+agent-approved under `docs/legal/OPERATOR.md` at the repository root, not reviewed by an attorney.
 The page builds the DOM from text nodes only and loads nothing from another origin.
 
 Sign-up abuse: per client IP (`SIGNUP_PER_IP_PER_HOUR`, 5) and per day for the server
@@ -122,8 +136,11 @@ per million), and is cached per rule, message and language across all accounts.
 - Storage is one JSON file (single process). A D1 or SQLite adapter implements the same
   `store.mjs` methods; that is the next step before more than one instance runs.
 - The workspace page signs in with the API key (no email or password yet, so no reset: a lost key
-  means a new trial). Email sign-in, key management on the page and a terms link wait for the
-  launch steps in `../ROADMAP.md`.
+  with no second key means a new trial; the keys panel lets a firm keep a spare). Email sign-in waits
+  for an email port and the launch steps in `../ROADMAP.md`.
+- The Terms and Privacy Policy are English only, and the hosting provider is named in the
+  subprocessor table only once the owner picks one (`../docs/HOSTING.md`). An Art. 28 GDPR data
+  processing agreement is offered on request, not yet as a document.
 - The official Schematron (BR-xx) runs only where `slimdom` and `fontoxpath` are
   installed (`../plain-node.mjs`); without them the report says `schematron: "unavailable"`.
 - Templates were written from the rules' meaning, not reviewed by a German or French

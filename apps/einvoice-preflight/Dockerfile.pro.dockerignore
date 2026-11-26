@@ -1,4 +1,4 @@
-# Context for Dockerfile.pro, built from the repository root: this app and packages/billing only.
+# Context for Dockerfile.pro, built from the repository root: this app, packages/billing and packages/admin-metrics only.
 *
 !apps/einvoice-preflight/*.mjs
 !apps/einvoice-preflight/index.html
@@ -7,4 +7,5 @@
 !apps/einvoice-preflight/plain
 !apps/einvoice-preflight/fonts
 !packages/billing/src
+!packages/admin-metrics/src
 **/node_modules

@@ -338,6 +338,42 @@ export const TEMPLATES = {
     fr: ["Un nombre, une date ou une heure contient une espace ou un caractère invisible : ce n'est pas une valeur XML valable.", "Supprimez l'espace ou le caractère invisible de cette valeur."],
   },
 
+  // --- UBL 2.1 schema (ubl-xsd.mjs), checked before any business rule ---
+  "UBL-XSD-01": {
+    en: ["The file has an element the UBL 2.1 schema does not allow at this place, or one element too many. Validators check the schema first and refuse the file outright.", "Remove the element named in the detail, or move it to the block where UBL defines it."],
+    de: ["Die Datei enthält an dieser Stelle ein Element, das das UBL-2.1-Schema nicht zulässt, oder ein Element zu oft. Validatoren prüfen zuerst das Schema und weisen die Datei sofort ab.", "Entfernen Sie das in der Meldung genannte Element oder setzen Sie es in den Block, in dem UBL es vorsieht."],
+    fr: ["Le fichier contient à cet endroit un élément que le schéma UBL 2.1 n'autorise pas, ou un élément de trop. Les validateurs contrôlent d'abord le schéma et rejettent le fichier d'emblée.", "Supprimez l'élément indiqué dans le détail, ou déplacez-le dans le bloc où UBL le prévoit."],
+  },
+  "UBL-XSD-02": {
+    en: ["Elements are in the wrong order. UBL fixes the order of elements inside each block, and a file out of order fails the schema.", "Reorder the elements as the detail says; most invoicing software fixes this when the export template is corrected."],
+    de: ["Elemente stehen in der falschen Reihenfolge. UBL legt die Reihenfolge in jedem Block fest; eine Datei in anderer Reihenfolge besteht die Schemaprüfung nicht.", "Ordnen Sie die Elemente wie in der Meldung angegeben; meist genügt es, die Exportvorlage der Rechnungssoftware zu korrigieren."],
+    fr: ["Des éléments ne sont pas dans le bon ordre. UBL fixe l'ordre des éléments dans chaque bloc, et un fichier dans un autre ordre échoue au contrôle du schéma.", "Remettez les éléments dans l'ordre indiqué ; le plus souvent, il suffit de corriger le modèle d'export du logiciel de facturation."],
+  },
+  "UBL-XSD-03": {
+    en: ["An element the UBL 2.1 schema requires here is missing.", "Add the element named in the detail."],
+    de: ["Ein Element, das das UBL-2.1-Schema hier verlangt, fehlt.", "Ergänzen Sie das in der Meldung genannte Element."],
+    fr: ["Un élément que le schéma UBL 2.1 exige à cet endroit manque.", "Ajoutez l'élément indiqué dans le détail."],
+  },
+  "UBL-XSD-04": {
+    en: ["A value cannot be read as the type the schema requires: a number, a YYYY-MM-DD date, an hh:mm:ss time, true or false, or base64 data.", "Write the value in that form, for example 1250.00 for an amount (a point, no thousands separator) or 2026-08-24 for a date."],
+    de: ["Ein Wert lässt sich nicht als der vom Schema verlangte Typ lesen: Zahl, Datum JJJJ-MM-TT, Uhrzeit hh:mm:ss, true oder false oder Base64-Daten.", "Schreiben Sie den Wert in dieser Form, z. B. 1250.00 für einen Betrag (Punkt, kein Tausendertrennzeichen) oder 2026-08-24 für ein Datum."],
+    fr: ["Une valeur ne peut pas être lue dans le type exigé par le schéma : nombre, date AAAA-MM-JJ, heure hh:mm:ss, true ou false, ou données base64.", "Écrivez la valeur sous cette forme, par exemple 1250.00 pour un montant (un point, sans séparateur de milliers) ou 2026-08-24 pour une date."],
+  },
+  "UBL-XSD-05": {
+    en: ["An attribute is wrong: a required one is missing (every amount needs currencyID, every measure unitCode, every attachment mimeCode), or the element carries one the schema does not declare.", "Add the missing attribute, or remove the one the detail names."],
+    de: ["Ein Attribut stimmt nicht: Ein Pflichtattribut fehlt (jeder Betrag braucht currencyID, jedes Maß unitCode, jeder Anhang mimeCode), oder das Element trägt eines, das das Schema nicht vorsieht.", "Ergänzen Sie das fehlende Attribut oder entfernen Sie das in der Meldung genannte."],
+    fr: ["Un attribut est incorrect : un attribut obligatoire manque (tout montant exige currencyID, toute mesure unitCode, toute pièce jointe mimeCode), ou l'élément porte un attribut que le schéma ne prévoit pas.", "Ajoutez l'attribut manquant, ou supprimez celui indiqué dans le détail."],
+  },
+  "UBL-XSD-06": {
+    en: ["An element is written in the wrong namespace (for example cac: where UBL uses cbc:). To a validator it is a different element, so the file fails the schema.", "Write the element with the prefix the detail names and make sure that prefix is declared."],
+    de: ["Ein Element steht im falschen Namensraum (z. B. cac: statt cbc:). Für einen Validator ist es ein anderes Element; die Datei besteht die Schemaprüfung nicht.", "Schreiben Sie das Element mit dem in der Meldung genannten Präfix und deklarieren Sie dieses Präfix."],
+    fr: ["Un élément est écrit dans le mauvais espace de noms (par exemple cac: au lieu de cbc:). Pour un validateur, c'est un autre élément, et le fichier échoue au contrôle du schéma.", "Écrivez l'élément avec le préfixe indiqué dans le détail et vérifiez que ce préfixe est déclaré."],
+  },
+  "UBL-XSD-07": {
+    en: ["The XML is not well formed: a tag is never closed or closes out of order. This usually means the file was cut off or edited by hand.", "Export the file again from the invoicing software."],
+    de: ["Das XML ist nicht wohlgeformt: Ein Tag wird nie oder in falscher Reihenfolge geschlossen. Meist wurde die Datei abgeschnitten oder von Hand bearbeitet.", "Exportieren Sie die Datei erneut aus der Rechnungssoftware."],
+    fr: ["Le XML n'est pas bien formé : une balise n'est jamais fermée ou se ferme dans le désordre. Le plus souvent, le fichier a été tronqué ou modifié à la main.", "Exportez de nouveau le fichier depuis le logiciel de facturation."],
+  },
   // --- German XRechnung (BR-DE) ---
   "XR-001": {
     en: ["The buyer reference (BT-10) is missing. XRechnung requires it; for public buyers it is the Leitweg-ID.", "Enter the Leitweg-ID or buyer reference the buyer gave you."],

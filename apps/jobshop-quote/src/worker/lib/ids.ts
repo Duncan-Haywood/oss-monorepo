@@ -21,7 +21,8 @@ export type IdPrefix =
   | "qln"
   | "qem"
   | "rtg"
-  | "llm";
+  | "llm"
+  | "aal";
 
 export function newId(prefix: IdPrefix): string {
   const bytes = new Uint8Array(20);

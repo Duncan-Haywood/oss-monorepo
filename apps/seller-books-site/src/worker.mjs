@@ -7,9 +7,11 @@
 //   POST /api/early-access/confirm          token in the form body → result page / JSON
 //   GET  /api/early-access/unsubscribe?token=  page with an "Unsubscribe" button
 //   POST /api/early-access/unsubscribe?token=  one-click (RFC 8058, no Origin) or the page button
+//   GET  /api/admin/metrics | /api/admin/accounts  owner console only (admin.mjs; ADMIN_SERVICE_TOKEN)
 //
 // Bindings (wrangler.jsonc): ASSETS, DB (D1), EMAIL (send_email, optional), EARLY_ACCESS_LIMITER
 // (rate limit, optional). Vars: APP_ENV, SITE_URL, EMAIL_FROM. Secret: TOKEN_SECRET.
+import { handleAdmin } from "./admin.mjs";
 import { BASE_PATH, EARLY_ACCESS_SUBSCRIBE_MESSAGE, SITE_NAME, SITE_URL } from "./content.mjs";
 import {
   confirm,
@@ -324,6 +326,10 @@ export async function handleRequest(req, env, ctx) {
     if (route === "unsubscribe" && (req.method === "GET" || req.method === "POST"))
       return handleUnsubscribe(req, env);
     return json(404, { ok: false, error: "Not found" });
+  }
+  const admin = `${BASE_PATH}/api/admin/`;
+  if (url.pathname.startsWith(admin)) {
+    return withHeaders(await handleAdmin(req, env, url.pathname.slice(admin.length - 1)));
   }
   if (url.pathname.startsWith(`${BASE_PATH}/api/`))
     return json(404, { ok: false, error: "Not found" });

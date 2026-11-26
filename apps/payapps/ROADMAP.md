@@ -961,6 +961,27 @@ Status: **in development**. Not deployed, no customers, not for sale. Paid plans
   `test/worker/procore-ssov.test.ts`. Not checked against a live Procore project; how the GC's form
   shows commitment change orders (one line each is assumed, as Procore's commitment change orders
   are kept apart from the SOV positions) is to be confirmed with the first customer on Procore.
+- GC portal exports, part 2c: Oracle Textura's billing upload (2026-11-26, every plan). Textura lets a
+  subcontractor fill the invoice from a file: Progress tab, More → Upload Billing Amounts → This Period
+  Billing Amounts → Download Template, then upload the saved CSV. On each pay application, "Textura
+  billing upload" takes that template (CSV, or the Excel file as Textura gives it, read from its first
+  sheet), matches each Textura row to a line of the application (phase code = item number, else the
+  same description, else the only line whose scheduled value equals the row's budget; a line goes on
+  one row; any row can be re-matched or left as Textura wrote it), and writes Work This Period (G703
+  column E) and Material Stored This Period (materials newly stored: the stored balance's rise, as the
+  Procore sheet works it out; left for the person, and said so, when the balance fell or the job opened
+  mid-way). Every other cell, the rows above the header, the delimiter and unmatched rows are written
+  back unchanged; amounts as plain numbers. Retention cells are left alone (Textura "will override the
+  amounts in the file" that miss the draw's retention settings). Flags: lines billed this period on no
+  row, budgets that differ from the scheduled value, stored materials with no column for them (bill
+  them on Textura's Stored Materials tab), the To Date template chosen by mistake; a line on two rows,
+  or no work column, blocks the download. Oracle does not publish the template's headings, so columns
+  are found from Textura's field names ("Work This Period", "Material Stored This Period", per the
+  Subcontractor Billing Workflow Guide, North America, read 2026-11-26) and the person can point at
+  another column. Pure code `src/shared/gc-export/textura-billing.ts` (tests beside it), UI
+  `src/client/components/textura-billing.tsx` (`test/unit/textura-billing.test.tsx`). Not checked
+  against a live Textura project or a real downloaded template: confirm the headings with the first
+  customer on Textura. The To Date upload and GCPay are not done.
 - Lien waivers: Massachusetts (2026-11-26, Crew and up). Mass. Gen. Laws c. 254, § 32, read on the
   General Court's site (snapshot `packages/lien-waivers/sources/ma-254-32.txt`), voids agreements that
   bar filing a notice of contract or enforcing a lien, except four; the fourth is its "Partial Waiver
@@ -1079,8 +1100,8 @@ Status: **in development**. Not deployed, no customers, not for sale. Paid plans
 - Deploy sets `EMAIL_FROM` and checks `GET /api/health` answers `"email": true` (docs/EMAIL.md)
 - Run the deploy workflow once (`payapps-deploy`, by hand; [docs/DEPLOY.md](docs/DEPLOY.md)) and, at
   launch, let it run on every merge (`push: branches: [main]`)
-- Owner: confirm the operator name in `docs/legal/*.md` (copied from apps/grants: Mary Stella Labs,
-  LLC, New Mexico), fill in the contact email, and have the agent legal review check the drafts (no outside counsel: owner, 2026-11-26) (each says so)
+- Done 2026-11-26: operator (Maris Stella Labs LLC, Colorado) and contact email filled in; launch is
+  agent-approved under `docs/legal/OPERATOR.md` (no attorney review; open checks listed there)
 - Owner: Paddle secrets and a notification destination (docs/BILLING.md, "Turning it on"); the
   deploy workflow runs the Paddle catalog sync
 - Owner: an Intuit developer app, its keys and redirect URI, and `QBO_TOKEN_KEY`
@@ -1099,9 +1120,10 @@ Status: **in development**. Not deployed, no customers, not for sale. Paid plans
 - SOV import from a PDF, part 4: a scan with no text layer through OCR in the browser (searchable
   scans are read since 2026-11-26; a misread amount is pointed at, and pinned by the H and %
   columns, since 2026-11-26)
-- State-specific pay-application forms (beyond the notary block); GC portal export formats, part 2
-  (Textura, GCPay). Part 1, Procore's SSOV template, part 2a, the Procore invoice sheet, and part 2b,
-  that sheet by the GC's SOV positions, are done
+- State-specific pay-application forms (beyond the notary block); GC portal export formats, part 3
+  (GCPay; Textura's To Date upload, if a customer's GC wants it). Part 1, Procore's SSOV template,
+  part 2a, the Procore invoice sheet, part 2b, that sheet by the GC's SOV positions, and part 2c,
+  Textura's This Period billing upload, are done
 - Backup packets, part 3: HEIC photos attached from Chrome or Firefox (no HEIC decoder there: one
   in WebAssembly, or the Worker's); save a packet order with the pay
   app if people ask for it to survive a reload

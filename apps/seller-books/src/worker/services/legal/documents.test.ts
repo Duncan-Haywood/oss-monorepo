@@ -16,19 +16,20 @@ describe("bundled legal documents", () => {
     },
   );
 
-  it.each(LEGAL_DOC_KEYS)(
-    "%s has title and version line, and no 'draft until counsel' banner (owner, 2026-11-26)",
-    (key) => {
-      const doc = LEGAL_DOCUMENTS[key];
-      expect(doc.title).toBe(LEGAL_DOC_TITLES[key]);
-      expect(doc.markdown.startsWith(`# ${doc.title}\n`)).toBe(true);
-      expect(doc.markdown).toContain("Seller Books");
-      expect(doc.markdown).not.toContain("Have counsel review it before launch");
-      expect(doc.updatedAt <= POLICY_VERSION).toBe(true);
-      // Adapted from Job Shop Quote: none of its product wording may survive the port.
-      expect(doc.markdown).not.toMatch(/Job Shop Quote|RFQ|rate card|estimator|ITAR|drawing/);
-    },
-  );
+  it.each(LEGAL_DOC_KEYS)("%s has title, version line and counsel-review note", (key) => {
+    const doc = LEGAL_DOCUMENTS[key];
+    expect(doc.title).toBe(LEGAL_DOC_TITLES[key]);
+    expect(doc.markdown.startsWith(`# ${doc.title}\n`)).toBe(true);
+    expect(doc.markdown).toContain("Seller Books");
+    expect(doc.markdown).toContain("Maris Stella Labs LLC");
+    expect(doc.markdown).toContain("hello@marisstella.app");
+    // Operator and launch authority: docs/legal/OPERATOR.md. No draft banner, no placeholder, and
+    // never a claim of attorney review.
+    expect(doc.markdown).not.toMatch(/\*\*Draft\.\*\*|to be confirmed before launch|counsel/i);
+    expect(doc.updatedAt <= POLICY_VERSION).toBe(true);
+    // Adapted from Job Shop Quote: none of its product wording may survive the port.
+    expect(doc.markdown).not.toMatch(/Job Shop Quote|RFQ|rate card|estimator|ITAR|drawing/);
+  });
 
   it("terms say the worksheet is not a return, fees come from reports, and disclaim advice", () => {
     const t = LEGAL_DOCUMENTS.terms.markdown;
@@ -41,7 +42,7 @@ describe("bundled legal documents", () => {
       "merchant of record",
       "You own your content",
       "12 months",
-      "New Mexico",
+      "Colorado",
     ]) {
       expect(t).toContain(phrase);
     }

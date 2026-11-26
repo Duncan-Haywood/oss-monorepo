@@ -302,6 +302,13 @@
       "when": 1795664974796,
       "tag": "0042_ca_notice_files",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "6",
+      "when": 1795666250979,
+      "tag": "0043_admin_metrics",
+      "breakpoints": true
     }
   ]
 }

@@ -113,3 +113,30 @@ export function formatEuro(cents, lang) {
 
 /** @param {number} used @param {number} limit */
 export const usageShare = (used, limit) => (limit > 0 ? Math.min(1, Math.max(0, used / limit)) : 0);
+
+/**
+ * The keys panel's rows: newest first, each marked when it is the key this browser signed in with
+ * (the server lists only a key's first 12 characters, `prefix`, never the key). Revoking the current
+ * key signs this browser out, so the page asks before it does.
+ * @param {any[]} keys items of GET /v1/keys @param {string | null} currentKey
+ */
+export function keyRows(keys, currentKey) {
+  const list = Array.isArray(keys) ? keys : [];
+  return list
+    .filter((k) => k && typeof k.id === "string" && !k.revokedAt)
+    .map((k) => {
+      const prefix = String(k.prefix ?? "");
+      return {
+        id: k.id,
+        name: String(k.name ?? ""),
+        prefix,
+        createdAt: k.createdAt ? String(k.createdAt) : null,
+        lastUsedAt: k.lastUsedAt ? String(k.lastUsedAt) : null,
+        current: Boolean(currentKey && prefix.length >= 8 && currentKey.startsWith(prefix)),
+      };
+    })
+    .sort((a, b) => String(b.createdAt ?? "").localeCompare(String(a.createdAt ?? "")));
+}
+
+/** "2 of 3 keys" data: whether another key may be created on this plan. @param {number} active @param {number | undefined} limit */
+export const canCreateKey = (active, limit) => typeof limit === "number" && limit > 0 && active < limit;

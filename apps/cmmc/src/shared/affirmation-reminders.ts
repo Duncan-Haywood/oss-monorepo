@@ -5,15 +5,27 @@
 // the dashboard turns amber) and 7 days ahead. A deadline gets at most one email per stage per due
 // date. If the daily run misses the exact day (a deploy, an outage, an affirmation recorded with the
 // date already close), the stage still applies on the next run, so the email is late, not lost.
-// Overdue dates get no email: the dashboard shows them in red, and an email every day would be noise.
+//
+// A third stage, OVERDUE_STAGE, is one notice once a date has passed with no newer affirmation
+// recorded: an email every day would be noise, so it goes once per due date, and only while the date
+// passed at most OVERDUE_NOTICE_DAYS ago (a missed run still sends it; a date that lapsed months
+// before the workspace was set up does not start mailing on the first run, the page shows it red).
 import { DUE_SOON_DAYS } from "./affirmation";
 
-export const REMINDER_STAGES = [DUE_SOON_DAYS, 7] as const;
+/** Stored as 0 in `affirmation_reminder_sent.stage`: the date has passed. */
+export const OVERDUE_STAGE = 0;
+export const OVERDUE_NOTICE_DAYS = 30;
+
+export const REMINDER_STAGES = [DUE_SOON_DAYS, 7, OVERDUE_STAGE] as const;
 export type ReminderStage = (typeof REMINDER_STAGES)[number];
 
-/** 7 within a week (today included), 60 within DUE_SOON_DAYS, otherwise (or overdue) null. */
+/**
+ * 7 within a week (today included), 60 within DUE_SOON_DAYS, OVERDUE_STAGE (0) from the day after
+ * the due date through OVERDUE_NOTICE_DAYS after it, otherwise null.
+ */
 export function reminderStage(daysLeft: number): ReminderStage | null {
-  if (!Number.isFinite(daysLeft) || daysLeft < 0) return null;
+  if (!Number.isFinite(daysLeft)) return null;
+  if (daysLeft < 0) return daysLeft >= -OVERDUE_NOTICE_DAYS ? OVERDUE_STAGE : null;
   if (daysLeft <= 7) return 7;
   if (daysLeft <= DUE_SOON_DAYS) return DUE_SOON_DAYS;
   return null;

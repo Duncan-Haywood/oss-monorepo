@@ -13,7 +13,8 @@ export type IdPrefix =
   | "itm"
   | "mil"
   | "exp"
-  | "bev";
+  | "bev"
+  | "aal";
 
 export function newId(prefix: IdPrefix): string {
   const bytes = new Uint8Array(20);

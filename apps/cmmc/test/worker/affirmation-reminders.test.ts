@@ -65,8 +65,24 @@ describe("affirmation reminder email", () => {
     expect(week).toHaveLength(1);
     expect(week[0]?.subject).toContain("due in 6 days");
     expect(await runOn("2027-01-05", t.user.email)).toHaveLength(0);
-    // Overdue: no email.
-    expect(await runOn("2027-01-12", t.user.email)).toHaveLength(0);
+    // Overdue: one notice, then nothing more for that date.
+    const late = await runOn("2027-01-12", t.user.email);
+    expect(late).toHaveLength(1);
+    expect(late[0]?.subject).toBe("Annual affirmation in SPRS was due 2027-01-10 (Acme Machining)");
+    expect(late[0]?.text).toContain("due 2027-01-10 (passed 2 days ago)");
+    expect(late[0]?.text).toContain("This is the only email about a passed date.");
+    expect(await runOn("2027-01-13", t.user.email)).toHaveLength(0);
+    expect(await runOn("2027-02-05", t.user.email)).toHaveLength(0);
+  });
+
+  it("sends no overdue notice for a date that passed over 30 days before the run", async () => {
+    const t = await setupTenant();
+    await recordAffirmation(t);
+    // 2027-01-10 + 30 days = 2027-02-09 is the last day a notice can go.
+    expect(await runOn("2027-02-10", t.user.email)).toHaveLength(0);
+    const t2 = await setupTenant();
+    await recordAffirmation(t2);
+    expect(await runOn("2027-02-09", t2.user.email)).toHaveLength(1);
   });
 
   it("goes to admins and owners who have not turned it off, not editors or viewers", async () => {

@@ -316,6 +316,12 @@ export async function preflightDocuments(inputs, { maxBytes = DEFAULT_MAX_BYTES,
       const aside = steppedAside(invoice);
       const errors = checkInvoice(invoice).filter((e) => !aside.has(e.rule));
       errors.push(...pdfFindings);
+      // The UBL 2.1 schema, the first gate every receiving validator applies (ubl-xsd.mjs,
+      // UBL-XSD-01..07). Loaded on demand: its table is about 130 KB.
+      if (xml && !looksLikeCii(xml)) {
+        const { checkAgainstUblSchema } = await import("./ubl-xsd.mjs");
+        errors.push(...checkAgainstUblSchema(xml));
+      }
       // The EN 16931 CII schema (D16B subset), the first gate a receiver's validator applies:
       // order, required elements, value types and namespaces (cii-xsd.mjs). Only for EN 16931
       // and its CIUSes; EXTENDED, MINIMUM and BASIC WL files have their own schemas.

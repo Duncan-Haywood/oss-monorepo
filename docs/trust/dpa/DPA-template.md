@@ -23,7 +23,7 @@
 ---
 
 This Data Processing Addendum ("**DPA**") forms part of the agreement between **[[Customer legal
-name]]** ("**Customer**") and **Mary Stella Labs, LLC**, a New Mexico limited liability company
+name]]** ("**Customer**") and **Maris Stella Labs LLC**, a Colorado limited liability company
 ("**Provider**"), for the use of **Grant Autopilot** (the "**Service**") (the "**Agreement**").
 
 ## 1. Roles and scope
@@ -173,8 +173,8 @@ or Data Protection Law do not allow a limit]].
 
 | | |
 | --- | --- |
-| Name | Mary Stella Labs, LLC |
-| Address | [[registered address]], New Mexico, USA |
+| Name | Maris Stella Labs LLC |
+| Address | [[registered address]], Colorado, USA |
 | Contact person | [[name]], owner, [[contact email, to be confirmed: OWNER-CONFIRM.md §7]] |
 | Activities relevant to the transfer | Hosting and operating Grant Autopilot for the exporter |
 | Role | Processor [[or sub-processor]] |

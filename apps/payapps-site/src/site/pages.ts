@@ -221,6 +221,7 @@ export const FEATURES: readonly Feature[] = [
     body: "Enter work completed this period and materials presently stored per line; the continuation-sheet columns follow: total completed and stored, percent complete, balance to finish and retainage.",
     bullets: [
       "GC billing through Procore? Each pay app has a Procore invoice sheet: the Work Completed This Period and materials-stored amounts to type into the GC's Procore invoice, line by line, with copy buttons, so it matches the G702/G703 you send. If the GC's invoice lists their own SOV positions instead of your lines, save where your lines sit under those positions once (from the subcontractor SOV template) and every pay app's sheet totals by position, with change orders listed apart. Where the stored-materials balance fell and new deliveries can't be told apart, it says so instead of guessing. Built from Procore's published help, not yet tried on a live Procore project",
+      "GC billing through Oracle Textura? Download the This Period billing template from Textura's Upload Billing Amounts, choose it on the pay app, and download it back filled: Work This Period and Material Stored This Period on each of your lines, matched by phase code, description or budget (change any match), with every other cell kept as Textura wrote it, ready for the same upload. Lines on no Textura row and budgets that differ from your SOV are pointed out. Built from Oracle's published help, not yet tried on a live Textura project",
       "Summary page: original contract sum, net change by change orders, total completed and stored to date, retainage, less previous certificates, current payment due",
       "PDF in a familiar application-and-continuation-sheet layout (our own layout, not an AIA document), plus CSV",
       "Draft, submitted, certified and paid, with the GC's certified amount where it differs; history that can't be rewritten",
@@ -513,6 +514,8 @@ function privacy(ctx: SiteContext): BuiltPage {
   <p>We send one email with a confirmation link. Until you use it you are not on the list, and an unconfirmed sign-up is deleted after 30 days.</p>
   <h2>Removing your sign-up</h2>
   <p>Every email we send has a link that deletes your sign-up and your answers straight away.</p>
+  <h2>Who can see it</h2>
+  <p>Only the people who run ${PRODUCT_NAME} can see the list: your email address, the page you signed up from, whether you confirmed, and the date. Each time they view it, that view is logged.</p>
   <h2>Where it's kept</h2>
   <p>The site and the list run on Cloudflare (Workers, D1 database, Email Service), in the United States.</p>
 </div>`;

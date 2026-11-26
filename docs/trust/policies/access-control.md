@@ -2,7 +2,7 @@
 
 | | |
 | --- | --- |
-| Applies to | Mary Stella Labs, LLC: every product in this repository and the accounts that run them |
+| Applies to | Maris Stella Labs LLC: every product in this repository and the accounts that run them |
 | Owner | The company owner (the only employee) |
 | Reviewed | 2026-11-24 · next review by 2027-05-24, or when someone gets access |
 

@@ -77,8 +77,8 @@ the portal return to `/o/:orgId/billing`. `GET /api/health` reports `billing: tr
 
 1. Terms, privacy, refund and acceptable-use pages: **built 2026-11-26** (`docs/legal/*.md`, served at
    `/legal/:key` and `/api/legal`, accepted per user and version; see ARCHITECTURE.md, "Legal
-   documents"). Paddle's domain review asks for them. Still the owner's: confirm the operator name and
-   a contact email (each document's last line is a placeholder) and have the agent legal review check the drafts (no outside counsel: owner, 2026-11-26).
+   documents"). Paddle's domain review asks for them. Operator, contact email and launch
+   authority: `docs/legal/OPERATOR.md` at the repository root (2026-11-26; agents approve launch).
 2. The deploy workflow `seller-books-deploy` (**built 2026-11-26**, [DEPLOY.md](DEPLOY.md)) syncs
    `billing/paddle-catalog.json` to Paddle with `packages/billing/scripts/paddle-catalog.ts` when the
    repository secret `SELLER_BOOKS_BILLING_API_KEY` is set, and passes the price ids it reads back to the

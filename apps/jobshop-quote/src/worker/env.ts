@@ -28,6 +28,23 @@ export interface Secrets {
    * shops receive RFQs at `rfq+{token}@{domain}`. Empty leaves inbound email off.
    */
   INBOUND_EMAIL_DOMAIN?: string;
+  /**
+   * Platform admins (comma-separated emails; verified addresses only) for /api/admin/*. Set on the
+   * worker by .github/workflows/set-admins.yml, never committed. Unset = nobody.
+   */
+  PLATFORM_ADMIN_EMAILS?: string;
+  /**
+   * The owner console's (apps/admin) credential for /api/admin/*: `Authorization: Bearer <token>`,
+   * at least 32 characters. Set by set-admins.yml; unset = the bearer path is closed.
+   */
+  ADMIN_SERVICE_TOKEN?: string;
+  /**
+   * Read-only token for agents measuring progress: GET /api/admin/metrics only (aggregate counts,
+   * MRR), never the account lists. At least 32 characters; set by set-admins.yml; unset = closed.
+   */
+  ADMIN_METRICS_TOKEN?: string;
+  /** "on" = email PLATFORM_ADMIN_EMAILS on each new paid subscription (needs account mail). */
+  OWNER_NOTIFICATIONS?: string;
   /** Test-only: full DDL injected by vitest.worker.config.ts */
   TEST_SCHEMA_SQL?: string;
 }

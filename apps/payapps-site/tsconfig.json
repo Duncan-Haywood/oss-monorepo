@@ -8,7 +8,8 @@
       "@shared/*": ["src/shared/*"],
       "@site/*": ["src/site/*"],
       "@worker/*": ["src/worker/*"],
-      "@test/*": ["test/*"]
+      "@test/*": ["test/*"],
+      "@admin-metrics": ["../../packages/admin-metrics/src/index.ts"]
     }
   },
   "include": ["src", "test", "scripts", "*.ts"]

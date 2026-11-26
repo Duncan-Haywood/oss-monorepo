@@ -54,6 +54,17 @@ node src/build.mjs
 
 No email address or token is ever logged.
 
+## Owner console API
+
+`GET /cmmc/api/admin/metrics?days=30` (total, confirmed, by day, by source page) and
+`GET /cmmc/api/admin/accounts?limit=50` (newest sign-ups: email, source page, confirmed, date) serve the owner
+console (`apps/admin`) in the `packages/admin-metrics` contract (`src/admin.mjs`, which imports that
+package's TypeScript source; Node ≥ 22.18 and wrangler both load it). They answer only
+`Authorization: Bearer <ADMIN_SERVICE_TOKEN>`, a Worker secret of at least 32 characters set by the
+`set-admins` workflow and never committed; unset, they are closed. They work without `TOKEN_SECRET`. Every
+read writes a row to `admin_audit_log` (`migrations/0002_admin_audit_log.sql`). There is no unsubscribed
+count: leaving deletes the row. `ADMIN_METRICS_TOKEN` (same rules) is the agents' read-only credential: `/metrics` only; `/accounts` answers 403.
+
 ## Deploy (owner)
 
 Not wired into CI yet (this change stays inside `apps/cmmc-site`). To deploy by hand:
@@ -63,7 +74,7 @@ Not wired into CI yet (this change stays inside `apps/cmmc-site`). To deploy by 
 2. Onboard the sender domain for Cloudflare Email Service (grants: `scripts/email-sending.mjs`) and set
    `EMAIL_FROM` in `wrangler.jsonc`.
 3. `wrangler secret put TOKEN_SECRET` and `wrangler secret put IP_HASH_SALT` (random, 32+ bytes).
-   Without `TOKEN_SECRET` the sign-up endpoint answers 503.
+   Without `TOKEN_SECRET` the sign-up endpoint answers 503. Optional: `ADMIN_SERVICE_TOKEN`, `ADMIN_METRICS_TOKEN` (above).
 4. `node src/build.mjs && wrangler deploy`. The route is `marisstella.app/cmmc*`.
 5. Add `/cmmc/api/` and `/cmmc/early-access/` disallow lines and `/cmmc/sitemap.xml` to the host's root
    `robots.txt` (built in oss-monorepo `platform/pages/build.mjs`, `HOSTED_APPS`).
@@ -74,7 +85,7 @@ written; facts were confirmed through search) and confirm the `apps/jobshop-site
 ## Provenance
 
 Moved on 2026-11-26 from `Duncan-Haywood/private-monorepo` `apps/cmmc-site` at commit
-`b1b7c3f63ce289c4051d8506eb0744856350f80e` (a copy of the tree, not its git history), when the paid apps moved
+`cded6eaf5d8aefcb42e61ed1cad3ec0b81826072` (a copy of the tree, not its git history), when the paid apps moved
 to this public repository. Licence: the root `LICENSE` (FSL-1.1-MIT) unless this
 directory's own LICENSE says otherwise; third-party files keep their notices. Index:
 [`apps/README.md`](../../apps/README.md).

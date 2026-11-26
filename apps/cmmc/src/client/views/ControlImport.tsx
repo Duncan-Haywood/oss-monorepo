@@ -1,7 +1,14 @@
-// "Import from a spreadsheet": a shop that already tracks NIST SP 800-171 or CMMC in Excel saves the
-// sheet as CSV, previews what would change, and applies it. The server reads the file
-// (src/shared/controls/csv-import.ts); blank cells never overwrite what is recorded.
+// "Import from a spreadsheet": a shop that already tracks NIST SP 800-171 or CMMC in Excel chooses the
+// workbook (.xlsx) or a CSV, previews what would change, and applies it. A workbook is read here in the
+// browser and the chosen sheet is sent as CSV (src/shared/controls/sheet-import.ts); the server reads
+// that text (src/shared/controls/csv-import.ts). Blank cells never overwrite what is recorded.
 import type { ImplementationStatus } from "@shared/controls";
+import {
+  gridToCsv,
+  looksLikeWorkbook,
+  readWorkbookForImport,
+  type WorkbookRead,
+} from "@shared/controls/sheet-import";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { api } from "../lib/api";
@@ -46,6 +53,12 @@ export function ControlImport({
   const qc = useQueryClient();
   const [csv, setCsv] = useState<string | null>(null);
   const [fileName, setFileName] = useState("");
+  const [fileError, setFileError] = useState<string | null>(null);
+  const [workbook, setWorkbook] = useState<WorkbookRead | null>(null);
+  const [sheetIdx, setSheetIdx] = useState(0);
+  // A workbook's preview says "Row 14" (the Excel row); a CSV's says "Line 14".
+  const rowWord = workbook ? "Row" : "Line";
+  const sheetNote = workbook ? ` (${workbook.sheets[sheetIdx]?.name ?? "sheet"})` : "";
   const run = useMutation({
     mutationFn: (apply: boolean) =>
       api<Preview>(`/api/orgs/${orgId}/controls/import`, {
@@ -71,8 +84,8 @@ export function ControlImport({
     >
       <div className="space-y-3 text-sm text-stone-800">
         <p>
-          Save your assessment sheet as CSV (in Excel: File, Save As, CSV UTF-8). It needs one
-          column of requirement ids (
+          Choose your assessment workbook (.xlsx) or the sheet saved as CSV. A workbook is read in
+          this browser and only the sheet you pick is sent. It needs one column of requirement ids (
           {level === 2 ? "AC.L2-3.1.1 or 3.1.1" : "AC.L1-b.1.i, (b)(1)(i) or 3.1.1"}) and any of: a
           status (Met, Not met, Implemented, Partially implemented, N/A), an owner's e-mail, notes,
           an implementation statement. Blank cells leave what is recorded as it is. Imported
@@ -80,16 +93,64 @@ export function ControlImport({
         </p>
         <input
           type="file"
-          accept=".csv,text/csv,text/plain"
-          aria-label="CSV file"
+          accept=".xlsx,.csv,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          aria-label="Spreadsheet file"
           onChange={async (e) => {
             const file = e.target.files?.[0];
             run.reset();
-            if (!file) return setCsv(null);
+            setCsv(null);
+            setWorkbook(null);
+            setFileError(null);
+            if (!file) return;
             setFileName(file.name);
-            setCsv(await file.text());
+            const bytes = new Uint8Array(await file.arrayBuffer());
+            if (!looksLikeWorkbook(bytes)) {
+              setCsv(new TextDecoder().decode(bytes));
+              return;
+            }
+            try {
+              const wb = await readWorkbookForImport(bytes, level);
+              const idx = Math.max(0, wb.best);
+              setWorkbook(wb);
+              setSheetIdx(idx);
+              setCsv(gridToCsv(wb.grids[idx] ?? []));
+            } catch (err) {
+              setFileError(err instanceof Error ? err.message : "This workbook could not be read.");
+            }
           }}
         />
+        {fileError && (
+          <p role="alert" className="text-red-700">
+            {fileError}
+          </p>
+        )}
+        {workbook && workbook.sheets.length > 1 && (
+          <label className="flex flex-wrap items-center gap-2">
+            <span>Sheet</span>
+            <select
+              className="rounded border border-stone-300 px-2 py-1"
+              value={sheetIdx}
+              onChange={(e) => {
+                const idx = Number(e.target.value);
+                run.reset();
+                setSheetIdx(idx);
+                setCsv(gridToCsv(workbook.grids[idx] ?? []));
+              }}
+            >
+              {workbook.sheets.map((s, i) => (
+                <option key={s.name} value={i}>
+                  {s.name} ({s.idCells} requirement id{s.idCells === 1 ? "" : "s"})
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+        {workbook && workbook.best < 0 && (
+          <p className="text-amber-800">
+            No sheet in this workbook has Level {level} requirement ids; the preview reads the first
+            sheet.
+          </p>
+        )}
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
@@ -116,12 +177,13 @@ export function ControlImport({
             {preview.applied ? (
               <p role="status" className="rounded bg-emerald-50 p-2 text-emerald-900">
                 Imported {preview.changes.length} requirement
-                {preview.changes.length === 1 ? "" : "s"} from {fileName}. The score and SSP now use
-                them.
+                {preview.changes.length === 1 ? "" : "s"} from {fileName}
+                {sheetNote}. The score and SSP now use them.
               </p>
             ) : (
               <p>
-                {fileName}: {preview.changes.length} requirement
+                {fileName}
+                {sheetNote}: {preview.changes.length} requirement
                 {preview.changes.length === 1 ? "" : "s"} would change
                 {preview.unchanged ? `, ${preview.unchanged} already match` : ""}.
                 {!canApply && preview.changes.length > 0 && (
@@ -142,7 +204,7 @@ export function ControlImport({
                 <table className="w-full text-left text-xs">
                   <thead>
                     <tr className="text-stone-500">
-                      <th className="py-1 pr-2">Line</th>
+                      <th className="py-1 pr-2">{rowWord}</th>
                       <th className="py-1 pr-2">Requirement</th>
                       <th className="py-1 pr-2">Status</th>
                       <th className="py-1">Also</th>
@@ -179,7 +241,7 @@ export function ControlImport({
                 <ul className="max-h-48 list-disc overflow-auto pl-5 text-xs text-amber-900">
                   {preview.issues.map((i) => (
                     <li key={`${i.line}:${i.message}`}>
-                      {i.line ? `Line ${i.line}: ` : ""}
+                      {i.line ? `${rowWord} ${i.line}: ` : ""}
                       {i.message}
                     </li>
                   ))}

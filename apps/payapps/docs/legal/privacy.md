@@ -1,8 +1,8 @@
 # Privacy Policy
 
-**Version 2026-11-25** · Mary Stella Labs, LLC
+**Version 2026-11-26** · Maris Stella Labs LLC
 
-This policy explains what information PayApps (operated by Mary Stella Labs, LLC, "we") collects, why, who processes it, and the choices you have.
+This policy explains what information PayApps (operated by Maris Stella Labs LLC, "we") collects, why, who processes it, and the choices you have.
 
 ## What we collect
 
@@ -54,6 +54,7 @@ We will update this list before adding a new subprocessor. PayApps does not send
 - Encryption in transit (HTTPS) and at rest (provider-managed storage encryption).
 - Tenant isolation: every record belongs to one company and is checked against your membership on every request.
 - Role-based access within each company (admin, editor, viewer).
+- Operator access: our platform administrators (the people who run the service) can see account data across companies: company names, account owners' names and email addresses, sign-up dates, plan, subscription status and the price billed. Each such view is logged. These operator tools do not show your jobs, pay applications, waivers or attachments.
 - Submitted applications are kept as an unchangeable history.
 
 No system is perfectly secure. We will notify affected customers of a security incident involving their data as required by law.
@@ -75,4 +76,4 @@ We will post updates with a new version date and ask you to accept material chan
 
 ## Contact
 
-Mary Stella Labs, LLC, New Mexico, USA · [contact email to be confirmed before launch]
+Maris Stella Labs LLC, Colorado, USA · hello@marisstella.app

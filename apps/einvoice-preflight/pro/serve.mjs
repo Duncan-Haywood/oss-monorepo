@@ -17,6 +17,7 @@
 //   /fonts/<name>.ttf                 -> the generator page's PDF fonts (../fonts/; the free server has no route)
 //   the free API paths                -> free with FREE_API=on, else a JSON 404 naming /v1/check
 //   any other /v1/*                   -> paid (unknown ones answer the paid API's JSON 404)
+//   /api/admin/*                      -> paid (the owner console's admin API, admin.mjs)
 //   everything else                   -> free (/, /index.html, /create.html, /*.mjs, else 404)
 import { readdirSync, readFileSync } from "node:fs";
 import { createServer } from "node:http";
@@ -47,6 +48,7 @@ export function routeFor(pathname, opts) {
   if (pathname === "/healthz" || pathname === "/app" || pathname.startsWith("/app/")) return "pro";
   if (FREE_API_PATHS.has(pathname)) return opts.freeApi ? "free" : "off";
   if (pathname === "/v1" || pathname.startsWith("/v1/")) return "pro";
+  if (pathname.startsWith("/api/admin/")) return "pro";
   return "free";
 }
 

@@ -1,4 +1,4 @@
-// A small XSD validator shared by the schema passes (FA(3), NAV Online Számla):
+// A small XSD validator shared by the schema passes (FA(3), NAV Online Számla, CII, UBL):
 // it walks a parsed XML tree against a table of content models and simple-type
 // facets that a build-*-schema.mjs script read out of the authority's XSD.
 //   makeSchemaChecker(schema, { codes, authority, format })
@@ -9,8 +9,28 @@
 // Element names are matched by local name. Namespaces are checked only when the
 // schema's element particles carry `ns`, the parsed nodes carry `ns` and `codes.ns`
 // is given (the CII pass: namespaceNames maps each ns key to a label for messages).
+// A complex type may carry `any: { min, max }` (an xsd:any slot, as UBL's ExtensionContent):
+// only the number of child elements is checked, not what they hold.
 
 const finding = (rule, message, fix, path) => ({ rule, message, fix, path });
+
+// xs:time (XSD 1.0 Part 2, 3.2.8): hh:mm:ss with optional fraction and zone; 24:00:00 is allowed.
+function validTime(v) {
+  const m = /^(\d{2}):(\d{2}):(\d{2})(\.\d+)?(Z|[+-](\d{2}):(\d{2}))?$/.exec(v);
+  if (!m) return false;
+  const [h, min, sec] = [Number(m[1]), Number(m[2]), Number(m[3])];
+  if (m[6] !== undefined && (Number(m[6]) > 14 || Number(m[7]) > 59 || (Number(m[6]) === 14 && Number(m[7]) > 0))) return false;
+  if (h === 24) return min === 0 && sec === 0 && !/[1-9]/.test(m[4] ?? "");
+  return h < 24 && min < 60 && sec < 60;
+}
+
+// xs:base64Binary (XSD 1.0 Part 2, 3.2.16): groups of four from the base64 alphabet, spaces
+// allowed between characters, "=" padding only at the end and only after the bits it allows.
+function validBase64(v) {
+  const s = v.replace(/ /g, "");
+  if (s.length % 4) return false;
+  return /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/][AQgw]==|[A-Za-z0-9+/]{2}[AEIMQUYcgkosw048]=)?$/.test(s);
+}
 
 export function makeSchemaChecker(schema, { codes, authority, format, namespaceNames = {} }) {
   const regexCache = new Map();
@@ -37,7 +57,7 @@ export function makeSchemaChecker(schema, { codes, authority, format, namespaceN
     return r;
   }
 
-  const COLLAPSE = new Set(["token", "decimal", "integer", "nonNegativeInteger", "byte", "int", "long", "date", "dateTime", "boolean", "gYear"]);
+  const COLLAPSE = new Set(["token", "decimal", "integer", "nonNegativeInteger", "byte", "int", "long", "date", "dateTime", "time", "boolean", "gYear", "base64Binary", "language"]);
 
   function valueProblem(type, raw) {
     const t = fold(type);
@@ -54,6 +74,8 @@ export function makeSchemaChecker(schema, { codes, authority, format, namespaceN
     if (t.base === "date" && !(/^\d{4}-\d{2}-\d{2}(Z|[+-]\d{2}:\d{2})?$/.test(value) && !Number.isNaN(Date.parse(value.slice(0, 10))) && new Date(value.slice(0, 10) + "T00:00:00Z").toISOString().slice(0, 10) === value.slice(0, 10))) return "is not a YYYY-MM-DD date";
     if (t.base === "dateTime" && !(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?$/.test(value) && !Number.isNaN(Date.parse(value.slice(0, 10))) && new Date(value.slice(0, 10) + "T00:00:00Z").toISOString().slice(0, 10) === value.slice(0, 10))) return "is not a date and time (YYYY-MM-DDThh:mm:ss)";
     if (t.base === "gYear" && !/^-?\d{4,}(Z|[+-]\d{2}:\d{2})?$/.test(value)) return "is not a year";
+    if (t.base === "time" && !validTime(value)) return "is not a time of day (hh:mm:ss)";
+    if (t.base === "base64Binary" && !validBase64(value)) return "is not base64 data";
     if (t.base === "boolean" && !["true", "false", "1", "0"].includes(value)) return "is not true or false";
     if (t.base === "decimal" || whole) {
       const digits = value.replace(/^[+-]/, "").replace(".", "");
@@ -172,6 +194,12 @@ export function makeSchemaChecker(schema, { codes, authority, format, namespaceN
     if (def.text) {
       const problem = valueProblem(def.text, node.text);
       if (problem) out.push(finding(codes.value, `${node.name} ${problem}.`, `Correct ${node.name}; ${authority} refuses a file whose values break the schema.`, path));
+      return;
+    }
+    if (def.any) {
+      const n = node.children.length;
+      if (n < def.any.min) out.push(finding(codes.missing, `${node.name} must hold ${def.any.min === 1 ? "one element" : `at least ${def.any.min} elements`} and is empty.`, `Put the extension's content inside ${node.name}, or remove the extension.`, path));
+      else if (def.any.max >= 0 && n > def.any.max) out.push(finding(codes.extra, `${node.name} holds ${n} elements; the schema allows ${def.any.max === 1 ? "one" : def.any.max}.`, `Wrap the extension's content in a single element inside ${node.name}.`, path));
       return;
     }
     if (!def.model) return;

@@ -11,6 +11,7 @@ import type {
   BillingWebhookEvent,
   CheckoutRequest,
   ProviderSubscriptionStatus,
+  SubscriptionPrice,
 } from "./provider.ts";
 
 export const PADDLE_SIGNATURE_HEADER = "paddle-signature";
@@ -49,6 +50,42 @@ const date = (v: unknown): Date | null => {
   const d = new Date(s);
   return Number.isNaN(d.getTime()) ? null : d;
 };
+
+const INTERVALS = ["day", "week", "month", "year"] as const;
+const posInt = (v: unknown): number | null => {
+  const n = typeof v === "string" && /^\d+$/.test(v) ? Number(v) : v;
+  return typeof n === "number" && Number.isSafeInteger(n) && n >= 0 ? n : null;
+};
+
+/**
+ * The recurring price of a Paddle subscription item, exactly as the webhook reports it
+ * (`price.unit_price.amount` in minor units, `price.billing_cycle`, `quantity`), or null when any
+ * part is missing or malformed. `discount` is the subscription's `discount` field.
+ */
+export function paddleSubscriptionPrice(
+  item: unknown,
+  discount: unknown,
+): SubscriptionPrice | null {
+  const it = obj(item);
+  const price = obj(it.price);
+  const unit = obj(price.unit_price);
+  const cycle = obj(price.billing_cycle);
+  const amount = posInt(unit.amount);
+  const currency = str(unit.currency_code)?.toUpperCase() ?? null;
+  const interval = INTERVALS.find((i) => i === cycle.interval) ?? null;
+  const frequency = posInt(cycle.frequency);
+  const quantity = it.quantity === undefined ? 1 : posInt(it.quantity);
+  if (amount === null || !currency || !/^[A-Z]{3}$/.test(currency)) return null;
+  if (!interval || !frequency || quantity === null) return null;
+  return {
+    unitAmountMinor: amount,
+    currency,
+    interval,
+    frequency,
+    quantity,
+    discounted: Boolean(discount && typeof discount === "object"),
+  };
+}
 
 export function paddleBaseUrl(apiKey: string): string {
   return apiKey.startsWith("pdl_sdbx_")
@@ -244,6 +281,8 @@ export class PaddleBillingProvider implements BillingProvider {
           currentPeriodEnd: date(period.ends_at),
           cancelAtPeriodEnd: str(obj(data.scheduled_change).action) === "cancel",
         };
+        const price = paddleSubscriptionPrice(items[0], data.discount);
+        if (price) event.subscription.price = price;
       }
     }
     return event;

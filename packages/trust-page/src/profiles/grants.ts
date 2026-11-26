@@ -16,7 +16,7 @@ const G = "apps/grants";
 
 export const grantsProfile: TrustProfile = {
   product: "Grant Autopilot",
-  operator: "Mary Stella Labs, LLC (New Mexico, USA)",
+  operator: "Maris Stella Labs LLC (Colorado, USA)",
   lifecycle: "live",
   reviewedOn: "2026-11-24",
   securityContact: null,

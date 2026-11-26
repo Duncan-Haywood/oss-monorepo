@@ -106,12 +106,13 @@ ${c.deadlineSummary()}
 <div class="card"><h3>Vérifié</h3><ul>
 <li>Le schéma XSD CII (UN/CEFACT D16B, le sous-ensemble EN 16931 publié par le CEN) pour les fichiers EN 16931 et leurs CIUS comme XRechnung et Factur-X BASIC : ordre des éléments, éléments obligatoires et inconnus, valeurs numériques, dates et booléens, et espaces de noms (udt: au lieu de qdt:). Sur 499 fichiers de test modifiés, chaque verdict a concordé avec xmllint appliquant le même schéma.</li>
 <li>La lecture du fichier : XML UBL 2.1 et UN/CEFACT CII, le XML joint à un PDF Factur-X / ZUGFeRD et le PDF qui l'entoure (marqueur PDF/A-3, nom et relation de la pièce jointe, profil indiqué dans les métadonnées du PDF).</li>
+<li>Le schéma UBL 2.1 (XSD) sur chaque facture et avoir UBL, avant toute règle de gestion : éléments inconnus ou répétés, ordre des éléments, éléments manquants, valeurs qui ne sont pas un nombre, une date, une heure ou true/false, <code>currencyID</code> et autres attributs manquants, et l'espace de noms de chaque élément.</li>
 <li>Les règles de gestion EN 16931 (BR-…) via le Schematron officiel du CEN, et le module officiel XRechnung ou Peppol BIS quand le fichier en déclare un, partout où le serveur les a installés ; chaque résultat indique s'ils ont été exécutés. À côté, nos propres contrôles : champs obligatoires, totaux exacts au centime, deux décimales au plus, codes de date et de devise, clés de contrôle des numéros de TVA et des IBAN.</li>
 <li>France : avec les règles françaises (choisies, ou détectées quand vendeur et acheteur sont tous deux en France), le SIREN ou SIRET du vendeur et de l'acheteur et leur clé de contrôle, le SIREN contenu dans le numéro de TVA français du vendeur, la catégorie de l'opération (l'une des nouvelles mentions de la ${c.a("deadlines-fr", "page France")}), et les mentions de pénalités de retard, d'indemnité forfaitaire de 40 € et d'escompte.</li>
 <li>Allemagne : un fichier ZUGFeRD / Factur-X au profil MINIMUM ou BASIC WL émis par un vendeur allemand est signalé comme n'étant pas une facture électronique. Avec les règles XRechnung (choisies, ou détectées d'après l'identifiant de spécification du fichier), neuf contrôles d'après BR-DE : référence acheteur et clé de contrôle du Leitweg-ID, instructions de paiement, contact du vendeur, adresses du vendeur et de l'acheteur, code de type de facture, identifiant de spécification et numéro fiscal du vendeur.</li>
 </ul></div>
 <div class="card"><h3>Non vérifié</h3><ul>
-<li>Le schéma XSD UBL 2.1, et le schéma CII des fichiers Factur-X aux profils EXTENDED, MINIMUM et BASIC WL (chacun a le sien) : un tel fichier peut passer ici et être refusé par un validateur qui applique le schéma.</li>
+<li>Le schéma CII des fichiers Factur-X aux profils EXTENDED, MINIMUM et BASIC WL (chacun a le sien) : un tel fichier peut passer ici et être refusé par un validateur qui applique le schéma.</li>
 <li>Si le taux ou le régime de TVA est le bon pour l'opération.</li>
 <li>Si un numéro de TVA, un SIREN ou un Leitweg-ID existe ou est actif : seulement sa forme et sa clé de contrôle.</li>
 <li>France : si l'option pour le paiement de la TVA d'après les débits s'applique et figure sur la facture.</li>
@@ -321,6 +322,7 @@ function privacy(c) {
 <li>une empreinte (hachage) du lien de confirmation, et non le lien lui-même, sa date d'expiration, ainsi que la date et le nombre d'e-mails de confirmation envoyés (pour limiter les renvois).</li>
 </ul>
 <p>Nous ne conservons pas votre adresse IP. Finalité : confirmer votre adresse (double opt-in), puis vous écrire au sujet de l'accès anticipé à ce produit. Base légale : votre consentement, art. 6, paragraphe 1, point a), du RGPD. Vous pouvez le retirer à tout moment grâce au lien de suppression présent dans chaque e-mail ; ce retrait ne remet pas en cause la licéité du traitement effectué auparavant.</p>
+<p>Qui peut voir la liste : seules les personnes qui exploitent ce service (le responsable du traitement indiqué ci-dessus), dans une vue interne qui affiche votre adresse e-mail, si vous avez confirmé et la date. Chaque consultation est journalisée.</p>
 
 <h2>Durée de conservation</h2>
 <ul>

@@ -68,9 +68,8 @@ stripped from the deploy config so the offline demo can never reach production.
 ## Before strangers sign up
 
 - Owner: the Terms, Privacy, Refund and Acceptable Use pages are live in the app (`docs/legal/*.md`,
-  served at `/legal/:key`, accepted once per user) but are drafts: confirm the operator name (copied
-  from grants: Mary Stella Labs, LLC, New Mexico), fill in the contact email, and have the agent legal review check
-  them. After any change in substance, run `node docs/legal/sync-documents.mjs` and bump
+  served at `/legal/:key`, accepted once per user) with the operator (Maris Stella Labs LLC, Colorado) and
+  contact email filled in; launch authority is `docs/legal/OPERATOR.md` at the repository root. After any change in substance, run `node docs/legal/sync-documents.mjs` and bump
   `POLICY_VERSION` in `src/shared/legal.ts` so every user is asked to accept the new version.
 - Owner: run the workflow once, onboard the sender domain so `/api/health` reports `email: true`, and
   decide the host (`JOBSHOP_DOMAIN`).

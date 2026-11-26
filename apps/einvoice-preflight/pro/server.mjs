@@ -4,7 +4,9 @@
 //
 //   node pro/server.mjs            PORT (8790), PRO_DB_FILE (SQLite database, the production store),
 //                                  PRO_DATA_FILE (one JSON file, single process; memory if neither),
-//                                  ADMIN_TOKEN (creates accounts), ANTHROPIC_API_KEY + LLM_MODEL
+//                                  ADMIN_TOKEN (creates accounts), ADMIN_SERVICE_TOKEN (owner console reads,
+//                                  admin.mjs; >= 32 chars), ADMIN_METRICS_TOKEN (agents: read-only,
+//                                  /v1/admin/metrics only; >= 32 chars), ANTHROPIC_API_KEY + LLM_MODEL
 //                                  (optional long-tail explanations), FAKE_LLM=true (offline demo),
 //                                  Paid plans (on once set, docs/BILLING.md): BILLING_PROVIDER (default paddle),
 //                                  BILLING_API_KEY, BILLING_WEBHOOK_SECRET, BILLING_PRICE_IDS,
@@ -15,11 +17,20 @@
 //
 //   GET    /healthz
 //   GET    /app, /app/app.js, /app/app.css, /app/workspace-lib.mjs   the accountant workspace page (pro/web/)
-//   POST   /v1/signup                        {name, acceptTerms: true} -> 201 {account, apiKey}  (public trial
-//                                            sign-up; PUBLIC_SIGNUP=off disables it; per-IP and daily caps:
+//   GET    /app/terms, /app/privacy          the Terms of Service and Privacy Policy (pro/legal/*.md)
+//   GET    /v1/legal                         -> {terms: {title, version, url}, privacy: {...}}   (public)
+//   POST   /v1/signup                        {name, acceptTerms: true, termsVersion?} -> 201 {account, apiKey}  (public trial
+//                                            sign-up; the account records the terms version accepted, and a stale
+//                                            termsVersion (the page was open across a change) gets 409 terms_changed;
+//                                            PUBLIC_SIGNUP=off disables it; per-IP and daily caps:
 //                                            SIGNUP_PER_IP_PER_HOUR (5), SIGNUP_PER_DAY (200); TRUST_PROXY=1 reads
 //                                            the client IP from the last X-Forwarded-For entry)
 //   POST   /v1/admin/accounts                {name, plan?} -> 201 {account, apiKey}   (ADMIN_TOKEN)
+//   GET    /v1/admin/metrics?days=           -> ProductAdminMetrics (packages/admin-metrics)
+//   GET    /v1/admin/accounts?list=recent|trials|churn&limit=   -> AdminAccountsPage
+//                                            Both also at /api/admin/*, the other products' path. Owner console
+//                                            only: ADMIN_SERVICE_TOKEN (not ADMIN_TOKEN); ADMIN_METRICS_TOKEN reads
+//                                            metrics only (accounts 403); every read audited (admin.mjs)
 //   GET    /v1/billing/plans                 -> {available, items}                 (public: the pricing table)
 //   POST   /v1/billing/webhook               Paddle notifications (signature-verified, unauthenticated)
 //   GET    /v1/account                       -> {account, plan, usage, subscription, graceUntil, billing}
@@ -45,8 +56,10 @@ import { readFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { fileURLToPath } from "node:url";
 import { isBlocking } from "../report.mjs";
+import { AdminError, adminRead } from "./admin.mjs";
 import { BillingError, createBilling } from "./billing.mjs";
 import { checkInvoice, sha256 } from "./check.mjs";
+import { loadLegal } from "./legal.mjs";
 import { loadLlmFromEnv } from "./llm.mjs";
 import { periodOf, PLANS } from "./plans.mjs";
 import { openSqliteStore } from "./sql-store.mjs";
@@ -66,6 +79,8 @@ const WEB = Object.fromEntries(
     ["/app/app.css", "app.css", "text/css; charset=utf-8"],
   ].map(([path, file, type]) => [path, { type, body: readFileSync(new URL(`./web/${file}`, import.meta.url)) }]),
 );
+/** The Terms and Privacy Policy (pro/legal/*.md), rendered once; sign-up records the terms version. */
+const LEGAL = loadLegal();
 /** Same-origin only: no inline script, no third-party anything, no framing. */
 const WEB_CSP =
   "default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'self'; frame-ancestors 'none'";
@@ -315,6 +330,17 @@ export function createProHandler(deps = {}) {
     if (method === "GET" && p === "/healthz") return { status: 200, body: { ok: true } };
 
     if (method === "GET" && (p === "/" || p === "/app/index.html")) return { status: 302, body: null, headers: { location: "/app" } };
+    if (method === "GET" && (p === "/app/terms" || p === "/app/privacy")) {
+      return {
+        status: 200,
+        raw: Buffer.from(LEGAL[p === "/app/terms" ? "terms" : "privacy"].page),
+        headers: { "content-type": "text/html; charset=utf-8", "content-security-policy": WEB_CSP, "referrer-policy": "no-referrer", "cache-control": "no-cache" },
+      };
+    }
+    if (method === "GET" && p === "/v1/legal") {
+      const meta = (/** @type {"terms" | "privacy"} */ k) => ({ title: LEGAL[k].title, version: LEGAL[k].version, url: `/app/${k}` });
+      return { status: 200, body: { terms: meta("terms"), privacy: meta("privacy") } };
+    }
     if (method === "GET" && WEB[p]) {
       const f = WEB[p];
       return {
@@ -330,10 +356,12 @@ export function createProHandler(deps = {}) {
       const name = text(body.name, 200);
       if (!name) throw new HttpError(400, "invalid", "name is required.");
       if (body.acceptTerms !== true) throw new HttpError(400, "invalid", "acceptTerms must be true.");
+      if (body.termsVersion !== undefined && body.termsVersion !== LEGAL.terms.version)
+        throw new HttpError(409, "terms_changed", `The Terms changed (version ${LEGAL.terms.version}); read /app/terms and accept again.`);
       const verdict = signups.take(clientIp(req));
       if (verdict !== "ok")
         throw new HttpError(429, "signup_limited", verdict === "ip" ? "Too many sign-ups from this address; try again in an hour." : "Sign-up is busy today; try again tomorrow.");
-      const account = await store.createAccount({ name, plan: "trial" });
+      const account = await store.createAccount({ name, plan: "trial", termsVersion: LEGAL.terms.version });
       const k = generateApiKey();
       await store.createApiKey(account.id, { name: "default", prefix: k.prefix, hash: k.hash });
       return { status: 201, body: { account, apiKey: k.secret } };
@@ -344,6 +372,11 @@ export function createProHandler(deps = {}) {
     }
     if (method === "POST" && p === "/v1/billing/webhook") {
       return billing.webhook(webRequest(req, await readBody(req, MAX_WEBHOOK)));
+    }
+
+    if (method === "GET" && (m = /^\/(?:v1|api)\/admin\/(metrics|accounts)$/.exec(p))) {
+      const what = m[1] === "metrics" ? "metrics" : "accounts";
+      return { status: 200, body: await adminRead(what, url, req.headers.authorization, { store, env, now }) };
     }
 
     if (method === "POST" && p === "/v1/admin/accounts") {
@@ -504,7 +537,7 @@ export function createProHandler(deps = {}) {
     try {
       out = await route(req, url);
     } catch (e) {
-      if (e instanceof HttpError || e instanceof BillingError) out = { status: e.status, body: { error: { code: e.code, message: e.message } } };
+      if (e instanceof HttpError || e instanceof BillingError || e instanceof AdminError) out = { status: e.status, body: { error: { code: e.code, message: e.message } } };
       else {
         console.error("einvoice-pro: internal error", e instanceof Error ? e.message : "unknown");
         out = { status: 500, body: { error: { code: "internal", message: "Internal error." } } };

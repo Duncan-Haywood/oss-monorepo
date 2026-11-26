@@ -98,3 +98,56 @@ export function decideSubscriptionUpdate(
     ),
   };
 }
+
+// --- Lifecycle stamps (admin metrics + owner notifications) ------------------------------------
+
+/** Statuses that mean the customer is being billed (MRR counts these; trialing is not revenue). */
+export const PAID_SUBSCRIPTION_STATUSES = ["active", "past_due"] as const;
+
+export const isPaidStatus = (status: string | null | undefined): boolean =>
+  status === "active" || status === "past_due";
+
+/** First-time stamps an app keeps on its subscription row (all nullable, set once). */
+export interface LifecycleStamps {
+  /** First time the org's subscription was seen trialing. */
+  trialStartedAt: Date | null;
+  /** First time it was seen paid (active), e.g. a trial converting. */
+  firstPaidAt: Date | null;
+  /** When it was last seen canceled; cleared when it is paid or trialing again. */
+  canceledAt: Date | null;
+}
+
+/**
+ * The stamps after applying an event that moves the subscription to `status` at `at`. Stamps only
+ * record what webhooks report; nothing is back-filled or inferred.
+ */
+export function nextLifecycleStamps(
+  current: Partial<LifecycleStamps> | null | undefined,
+  status: string,
+  at: Date,
+): LifecycleStamps {
+  const trialStartedAt = current?.trialStartedAt ?? (status === "trialing" ? at : null);
+  const firstPaidAt = current?.firstPaidAt ?? (status === "active" ? at : null);
+  const canceledAt =
+    status === "canceled"
+      ? (current?.canceledAt ?? at)
+      : status === "active" || status === "trialing"
+        ? null
+        : (current?.canceledAt ?? null);
+  return { trialStartedAt, firstPaidAt, canceledAt };
+}
+
+/**
+ * True when an applied event starts a NEW paid subscription for the org: it is now active and the
+ * org was not already paying on this subscription (first payment, a trial converting, or a
+ * re-subscription after a cancel). Used for the owner's "new paid subscription" email.
+ */
+export function isNewPaidSubscription(
+  current: { status: string; providerSubscriptionId: string | null } | null | undefined,
+  next: { status: string; providerSubscriptionId: string },
+): boolean {
+  if (next.status !== "active") return false;
+  if (!current) return true;
+  if (current.providerSubscriptionId !== next.providerSubscriptionId) return true;
+  return !isPaidStatus(current.status);
+}

@@ -1,8 +1,8 @@
 # Privacy Policy
 
-**Version 2026-11-25** · Mary Stella Labs, LLC
+**Version 2026-11-26** · Maris Stella Labs LLC
 
-This policy explains what information CMMC Workspace (operated by Mary Stella Labs, LLC, "we") collects, why, who processes it, and the choices you have.
+This policy explains what information CMMC Workspace (operated by Maris Stella Labs LLC, "we") collects, why, who processes it, and the choices you have.
 
 ## What we collect
 
@@ -23,7 +23,7 @@ This policy explains what information CMMC Workspace (operated by Mary Stella La
 - To support you when you ask us to.
 - To meet legal obligations.
 
-The Service sends account email: a link to confirm your email address when you sign up, a password-reset link when you ask for one, and a notice if someone tries to create an account with your address. It also sends admins and owners of an organization a reminder 60 and 7 days before an affirmation or self-assessment date recorded in the Service falls due; every reminder has a one-click link to stop it, and the Affirmations page has the same switch. We do not send marketing email from the app. An admin can also make a private calendar subscription link for these dates: anyone holding the link can read the due dates and their regulatory basis (no names, contacts or scores) until an admin resets or turns it off, and we keep only a fingerprint of the link and the time a calendar last fetched it.
+The Service sends account email: a link to confirm your email address when you sign up, a password-reset link when you ask for one, and a notice if someone tries to create an account with your address. It also sends admins and owners of an organization a reminder 60 and 7 days before an affirmation or self-assessment date recorded in the Service falls due, and one notice if that date passes with no newer affirmation recorded; every reminder has a one-click link to stop it, and the Affirmations page has the same switch. We do not send marketing email from the app. An admin can also make a private calendar subscription link for these dates: anyone holding the link can read the due dates and their regulatory basis (no names, contacts or scores) until an admin resets or turns it off, and we keep only a fingerprint of the link and the time a calendar last fetched it.
 
 ## Subprocessors
 
@@ -56,6 +56,7 @@ We will update this list before adding a new subprocessor.
 - Encryption in transit (HTTPS) and at rest (provider-managed storage encryption).
 - Tenant isolation: every record and file belongs to one organization and is checked against your membership on every request.
 - Role-based access within each organization (owner, admin, editor, viewer), with an audit log.
+- Operator access: our platform administrators (the people who run the service) can see account data across organizations: organization names, account owners' names and email addresses, sign-up dates, plan, subscription status and the price billed. Each such view is logged. These operator tools do not show your SSP, POA&M, evidence, affirmations or quality records.
 - Evidence downloads are served as attachments with a restrictive content policy.
 
 No system is perfectly secure. The Service is not a CUI enclave: do not store CUI here. We will notify affected customers of a security incident involving their data as required by law.
@@ -77,4 +78,4 @@ We will post updates with a new version date and ask you to accept material chan
 
 ## Contact
 
-Mary Stella Labs, LLC, New Mexico, USA · [contact email to be confirmed before launch]
+Maris Stella Labs LLC, Colorado, USA · hello@marisstella.app

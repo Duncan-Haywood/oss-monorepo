@@ -6,6 +6,7 @@
 //   POST /api/early-access/confirm    confirms -> 303 to the confirmed page
 //   GET  /api/early-access/delete     page with one "Delete" button
 //   POST /api/early-access/delete     deletes the row -> 303; also RFC 8058 one-click (no Origin)
+//   GET  /api/admin/metrics|accounts  owner console only (admin.mjs; service token)
 //   scheduled (daily)                 deletes unconfirmed rows after 7 days, confirmed after 24 months
 //
 // What is stored is exactly what the privacy pages list (content/i18n/*.mjs, "privacy"): no IP
@@ -13,6 +14,7 @@
 // (SIGNING_SECRET) and not stored. Every response says the same thing whether or not the address
 // is already known, and the email is sent after the response (waitUntil), so neither the answer
 // nor its timing reveals who signed up.
+import { handleAdmin } from "./admin.mjs";
 import { COUNTRIES } from "./content/deadlines.mjs";
 import { CONSENT_VERSION, esc, ROLES } from "./content/format.mjs";
 import de from "./content/i18n/de.mjs";
@@ -316,6 +318,10 @@ export default {
   async fetch(request, env, ctx) {
     const { pathname } = new URL(request.url);
     const m = request.method;
+    if (pathname.startsWith("/api/admin/")) {
+      // Needs only its own token, not SIGNING_SECRET.
+      return handleAdmin(request, env, pathname.slice("/api/admin".length));
+    }
     if (pathname.startsWith("/api/")) {
       if (!env.SIGNING_SECRET) return new Response("Not configured", { status: 503 });
       if (pathname === "/api/early-access" && m === "POST") return handleSignup(request, env, ctx);

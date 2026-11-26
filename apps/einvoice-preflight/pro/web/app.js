@@ -3,7 +3,7 @@
 // batch of invoices, read each finding in German, French or English, download the fixed file and
 // its diff. FSL-1.1-MIT (see ../../LICENSE, part 2). Talks only to this server's /v1 API.
 // Everything is built with createElement and text nodes, never HTML strings, so file names and messages cannot inject markup.
-import { diffName, fixedName, formatEuro, planBatches, summarizeResult, toBase64, usageShare } from "./workspace-lib.mjs";
+import { canCreateKey, diffName, fixedName, formatEuro, keyRows, planBatches, summarizeResult, toBase64, usageShare } from "./workspace-lib.mjs";
 
 /** @typedef {"de" | "fr" | "en"} Lang */
 
@@ -14,7 +14,25 @@ const T = {
     signupH: "Start a free trial",
     signupP: "100 invoices a month, 3 client companies, no card. You get an API key: it is your sign-in, shown once.",
     firm: "Firm or practice name",
-    accept: "I understand this checks the rules listed on the site and is not tax or legal advice.",
+    accept: "I accept the {terms} and have read the {privacy}. I understand this checks the rules listed on the site and is not tax or legal advice.",
+    terms: "Terms of Service",
+    privacy: "Privacy Policy",
+    termsChanged: "The Terms changed while this page was open. Read them again and accept.",
+    keysH: "API keys",
+    keysP: "Each key signs in here and works with the API. Give each person or integration its own key, and revoke one you no longer use.",
+    keyName: "Key name",
+    createKey: "Create key",
+    keyCreatedH: "Your new key, shown once",
+    keyPrefix: "Starts with",
+    keyCreated: "Created",
+    keyLastUsed: "Last used",
+    never: "never",
+    thisBrowser: "this browser",
+    revoke: "Revoke",
+    confirmRevoke: "Revoke this key? Anything using it stops working.",
+    confirmRevokeCurrent: "This is the key this browser signed in with. Revoking it signs you out here. Continue?",
+    keysOf: "{n} of {m} keys on your plan",
+    keysFull: "Your plan's key limit is reached: revoke a key or upgrade to create another.",
     create: "Create trial account",
     signinH: "Sign in",
     signinP: "Paste the API key you saved at sign-up.",
@@ -86,7 +104,25 @@ const T = {
     signupH: "Kostenlos testen",
     signupP: "100 Rechnungen im Monat, 3 Mandanten, keine Karte. Sie erhalten einen API-Schlüssel: Er ist Ihre Anmeldung und wird nur einmal angezeigt.",
     firm: "Name der Kanzlei oder Firma",
-    accept: "Mir ist bewusst, dass hier die auf der Website genannten Regeln geprüft werden und dies keine Steuer- oder Rechtsberatung ist.",
+    accept: "Ich akzeptiere die {terms} und habe die {privacy} gelesen (beide auf Englisch). Mir ist bewusst, dass hier die auf der Website genannten Regeln geprüft werden und dies keine Steuer- oder Rechtsberatung ist.",
+    terms: "Nutzungsbedingungen",
+    privacy: "Datenschutzerklärung",
+    termsChanged: "Die Nutzungsbedingungen haben sich geändert, während diese Seite offen war. Bitte lesen und erneut akzeptieren.",
+    keysH: "API-Schlüssel",
+    keysP: "Jeder Schlüssel meldet hier an und funktioniert mit der API. Geben Sie jeder Person oder Integration einen eigenen Schlüssel und widerrufen Sie Schlüssel, die Sie nicht mehr nutzen.",
+    keyName: "Name des Schlüssels",
+    createKey: "Schlüssel erstellen",
+    keyCreatedH: "Ihr neuer Schlüssel, nur einmal angezeigt",
+    keyPrefix: "Beginnt mit",
+    keyCreated: "Erstellt",
+    keyLastUsed: "Zuletzt genutzt",
+    never: "nie",
+    thisBrowser: "dieser Browser",
+    revoke: "Widerrufen",
+    confirmRevoke: "Diesen Schlüssel widerrufen? Alles, was ihn nutzt, funktioniert dann nicht mehr.",
+    confirmRevokeCurrent: "Mit diesem Schlüssel ist dieser Browser angemeldet. Wenn Sie ihn widerrufen, werden Sie hier abgemeldet. Fortfahren?",
+    keysOf: "{n} von {m} Schlüsseln Ihres Tarifs",
+    keysFull: "Das Schlüssel-Limit Ihres Tarifs ist erreicht: Widerrufen Sie einen Schlüssel oder wechseln Sie den Tarif.",
     create: "Testkonto anlegen",
     signinH: "Anmelden",
     signinP: "Fügen Sie den API-Schlüssel ein, den Sie bei der Registrierung gespeichert haben.",
@@ -158,7 +194,25 @@ const T = {
     signupH: "Essai gratuit",
     signupP: "100 factures par mois, 3 sociétés clientes, sans carte. Vous recevez une clé d'API : c'est votre identifiant, affiché une seule fois.",
     firm: "Nom du cabinet ou de l'entreprise",
-    accept: "Je comprends que l'outil contrôle les règles indiquées sur le site et qu'il ne s'agit pas d'un conseil fiscal ou juridique.",
+    accept: "J'accepte les {terms} et j'ai lu la {privacy} (toutes deux en anglais). Je comprends que l'outil contrôle les règles indiquées sur le site et qu'il ne s'agit pas d'un conseil fiscal ou juridique.",
+    terms: "Conditions d'utilisation",
+    privacy: "Politique de confidentialité",
+    termsChanged: "Les conditions d'utilisation ont changé pendant que cette page était ouverte. Relisez-les et acceptez-les à nouveau.",
+    keysH: "Clés d'API",
+    keysP: "Chaque clé permet de se connecter ici et fonctionne avec l'API. Donnez une clé à chaque personne ou intégration, et révoquez celles que vous n'utilisez plus.",
+    keyName: "Nom de la clé",
+    createKey: "Créer une clé",
+    keyCreatedH: "Votre nouvelle clé, affichée une seule fois",
+    keyPrefix: "Commence par",
+    keyCreated: "Créée le",
+    keyLastUsed: "Dernière utilisation",
+    never: "jamais",
+    thisBrowser: "ce navigateur",
+    revoke: "Révoquer",
+    confirmRevoke: "Révoquer cette clé ? Tout ce qui l'utilise cessera de fonctionner.",
+    confirmRevokeCurrent: "Ce navigateur est connecté avec cette clé. La révoquer vous déconnecte ici. Continuer ?",
+    keysOf: "{n} clés sur {m} de votre offre",
+    keysFull: "La limite de clés de votre offre est atteinte : révoquez une clé ou changez d'offre.",
     create: "Créer le compte d'essai",
     signinH: "Connexion",
     signinP: "Collez la clé d'API enregistrée lors de l'inscription.",
@@ -290,6 +344,8 @@ const state = {
   client: null,
   /** @type {string | null} key shown once after sign-up */
   newKey: null,
+  /** @type {{ terms?: { version: string, url: string }, privacy?: { version: string, url: string } } | null} */
+  legal: null,
 };
 
 /** @param {keyof typeof T.en} k */
@@ -392,14 +448,7 @@ function header() {
           {
             type: "button",
             class: "link",
-            onclick: () => {
-              state.key = null;
-              state.account = null;
-              state.client = null;
-              write(session, "eip.key", null);
-              write(local, "eip.key", null);
-              render();
-            },
+            onclick: signOut,
           },
           t("signout"),
         )
@@ -407,7 +456,23 @@ function header() {
   );
 }
 
-const footer = () => h("footer", {}, h("p", { class: "small" }, t("disclaimer")));
+/** A link to a legal page, opened in a new tab so a half-filled form survives. @param {"terms" | "privacy"} k */
+const legalLink = (k) => h("a", { href: `/app/${k}`, target: "_blank", rel: "noopener" }, t(k));
+
+/** Text with {terms} and {privacy} replaced by links. @param {string} text */
+function withLegalLinks(text) {
+  /** @type {(Node | string)[]} */
+  const parts = [];
+  for (const piece of text.split(/(\{terms\}|\{privacy\})/)) {
+    if (piece === "{terms}") parts.push(legalLink("terms"));
+    else if (piece === "{privacy}") parts.push(legalLink("privacy"));
+    else if (piece) parts.push(piece);
+  }
+  return parts;
+}
+
+const footer = () =>
+  h("footer", {}, h("p", { class: "small" }, t("disclaimer")), h("p", { class: "small" }, legalLink("terms"), " · ", legalLink("privacy")));
 
 // ---------- signed out ----------
 
@@ -423,13 +488,19 @@ function signedOut() {
         e.preventDefault();
         signupMsg.replaceChildren();
         try {
-          const r = await api("POST", "/v1/signup", { name: firm.value, acceptTerms: accept.checked }, { auth: false });
+          const termsVersion = state.legal?.terms?.version;
+          const r = await api("POST", "/v1/signup", { name: firm.value, acceptTerms: accept.checked, ...(termsVersion ? { termsVersion } : {}) }, { auth: false });
           state.key = r.apiKey;
           state.newKey = r.apiKey;
           write(session, "eip.key", r.apiKey);
           render();
         } catch (err) {
-          signupMsg.replaceChildren(errorBox(err));
+          if (err instanceof ApiError && err.code === "terms_changed") {
+            state.legal = null;
+            accept.checked = false;
+            loadLegal();
+            signupMsg.replaceChildren(h("p", { class: "error", role: "alert" }, t("termsChanged")));
+          } else signupMsg.replaceChildren(errorBox(err));
         }
       },
     },
@@ -437,7 +508,7 @@ function signedOut() {
     h("p", {}, t("signupP")),
     h("label", { for: "firm" }, t("firm")),
     firm,
-    h("label", { class: "check" }, accept, " ", t("accept")),
+    h("label", { class: "check" }, accept, h("span", {}, ...withLegalLinks(t("accept")))),
     h("button", { type: "submit" }, t("create")),
     signupMsg,
   );
@@ -472,7 +543,17 @@ function signedOut() {
     signinMsg,
   );
 
+  if (!state.legal) loadLegal();
   show(header(), h("p", { class: "tagline" }, t("tagline")), h("div", { class: "two" }, signup, signin), footer());
+}
+
+/** The current Terms version, sent with sign-up so a change while the page was open is caught. */
+async function loadLegal() {
+  try {
+    state.legal = await api("GET", "/v1/legal", undefined, { auth: false });
+  } catch {
+    /* an older server: sign-up still records the version it serves */
+  }
 }
 
 function keyShown() {
@@ -568,6 +649,117 @@ function accountPanel() {
   );
 }
 
+/** @param {string | null} iso */
+const when = (iso) => (iso ? new Date(iso).toLocaleDateString(state.lang) : t("never"));
+
+/** API keys: list, create (shown once, here), revoke. */
+function keysPanel() {
+  const section = h("section", { class: "card keys" });
+  const msg = h("div");
+  const created = h("div");
+  const list = h("ul", { class: "clients" });
+  const count = h("p", { class: "small" });
+  const name = /** @type {HTMLInputElement} */ (h("input", { id: "kname", maxlength: "100" }));
+  const createBtn = /** @type {HTMLButtonElement} */ (h("button", { type: "submit" }, t("createKey")));
+  const limit = state.account?.plan?.apiKeys;
+
+  async function load() {
+    try {
+      const rows = keyRows((await api("GET", "/v1/keys")).items, state.key);
+      list.replaceChildren(...rows.map(row));
+      count.textContent = typeof limit === "number" ? t("keysOf").replace("{n}", String(rows.length)).replace("{m}", String(limit)) : "";
+      const ok = canCreateKey(rows.length, limit);
+      createBtn.disabled = !ok;
+      if (!ok && typeof limit === "number") count.append(" · ", t("keysFull"));
+    } catch (e) {
+      msg.replaceChildren(errorBox(e));
+    }
+  }
+
+  /** @param {ReturnType<typeof keyRows>[number]} k */
+  function row(k) {
+    return h(
+      "li",
+      {},
+      h(
+        "span",
+        {},
+        h("strong", {}, k.name || "key"),
+        " · ",
+        `${t("keyPrefix")} `,
+        h("code", {}, `${k.prefix}…`),
+        k.current ? h("span", { class: "badge ok" }, t("thisBrowser")) : null,
+        h("span", { class: "small" }, ` · ${t("keyCreated")} ${when(k.createdAt)} · ${t("keyLastUsed")} ${when(k.lastUsedAt)}`),
+      ),
+      h(
+        "button",
+        {
+          type: "button",
+          class: "secondary",
+          onclick: async () => {
+            if (!window.confirm(k.current ? t("confirmRevokeCurrent") : t("confirmRevoke"))) return;
+            msg.replaceChildren();
+            try {
+              await api("DELETE", `/v1/keys/${encodeURIComponent(k.id)}`);
+              if (k.current) return signOut();
+              await load();
+            } catch (err) {
+              msg.replaceChildren(errorBox(err));
+            }
+          },
+        },
+        t("revoke"),
+      ),
+    );
+  }
+
+  const form = h(
+    "form",
+    {
+      class: "row",
+      onsubmit: async (/** @type {SubmitEvent} */ e) => {
+        e.preventDefault();
+        msg.replaceChildren();
+        created.replaceChildren();
+        try {
+          const r = await api("POST", "/v1/keys", { name: name.value.trim() || "key" });
+          name.value = "";
+          const copyBtn = h("button", { type: "button", class: "secondary" }, t("copy"));
+          copyBtn.addEventListener("click", async () => {
+            try {
+              await navigator.clipboard.writeText(r.apiKey);
+              copyBtn.textContent = t("copied");
+            } catch {
+              /* clipboard blocked: the key is still selectable */
+            }
+          });
+          created.replaceChildren(
+            h("div", { class: "card", role: "status" }, h("strong", {}, t("keyCreatedH")), h("p", { class: "small" }, t("keyShownP")), h("p", {}, h("code", { class: "key" }, r.apiKey), " ", copyBtn)),
+          );
+          await load();
+        } catch (err) {
+          msg.replaceChildren(errorBox(err));
+        }
+      },
+    },
+    h("label", { for: "kname" }, t("keyName"), name),
+    createBtn,
+  );
+
+  section.append(h("h2", {}, t("keysH")), h("p", { class: "small" }, t("keysP")), list, count, form, created, msg);
+  load();
+  return section;
+}
+
+function signOut() {
+  state.key = null;
+  state.account = null;
+  state.client = null;
+  write(session, "eip.key", null);
+  write(local, "eip.key", null);
+  render();
+}
+
 async function clientsView() {
   const msg = h("div");
   try {
@@ -657,7 +849,7 @@ async function clientsView() {
         ),
       )
     : h("p", {}, t("noClients"));
-  show(header(), accountPanel() ?? "", msg, h("section", { class: "card" }, h("h2", {}, t("clients")), list), add, footer());
+  show(header(), accountPanel() ?? "", msg, h("section", { class: "card" }, h("h2", {}, t("clients")), list), add, state.account ? keysPanel() : "", footer());
 }
 
 /** @param {any} r one batch result */

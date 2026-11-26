@@ -375,6 +375,22 @@ SCRIPT_REFERENCE = re.compile(
 SILENCING = ("|| true", "2>/dev/null", "if [[ -f", "if [ -f", "-f ")
 
 
+def _step_working_directory(wf: WorkflowFile, job: Job, step: dict) -> str | None:
+    """The directory a step's `run:` starts in, relative to the checkout, or None."""
+    wd = step.get("working-directory")
+    if isinstance(wd, str) and "${{" not in wd:
+        return wd
+    raw_job = (wf.data.get("jobs") or {}).get(job.name) if isinstance(wf.data, dict) else None
+    for holder in (raw_job, wf.data):
+        if not isinstance(holder, dict):
+            continue
+        run_defaults = ((holder.get("defaults") or {}).get("run") or {}) if isinstance(holder.get("defaults"), dict) else {}
+        wd = run_defaults.get("working-directory") if isinstance(run_defaults, dict) else None
+        if isinstance(wd, str) and "${{" not in wd:
+            return wd
+    return None
+
+
 def rule_missing_referenced_script(wf: WorkflowFile, repo_root: Path) -> list[Finding]:
     """R1: a run block invokes a repo script that is not in the repository.
 
@@ -391,8 +407,13 @@ def rule_missing_referenced_script(wf: WorkflowFile, repo_root: Path) -> list[Fi
             run = step.get("run")
             if not isinstance(run, str):
                 continue
+            # A relative path in `run:` resolves against the step's working directory:
+            # the step's own `working-directory`, else the job's, else the workflow's
+            # `defaults.run.working-directory`. Checking only the repository root would
+            # flag every script of a workflow that runs inside one app's directory.
+            base = _step_working_directory(wf, job, step)
             for match in dict.fromkeys(SCRIPT_REFERENCE.findall(run)):
-                if (repo_root / match).exists():
+                if (repo_root / match).exists() or (base and (repo_root / base / match).exists()):
                     continue
                 guarded = any(token in run for token in SILENCING)
                 line = wf.lines.get(("jobs", job.name, "steps", index, "run"))

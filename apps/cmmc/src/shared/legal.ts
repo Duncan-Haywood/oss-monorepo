@@ -5,7 +5,8 @@
 // "2026-11-25.2": the Privacy Policy now says the app sends account email (docs/EMAIL.md).
 // "2026-11-25.3": the Privacy Policy now says admins get the affirmation reminder email, and how to stop it.
 // "2026-11-25.4": the Privacy Policy now says an admin can make a calendar subscription link and who can read it.
-export const POLICY_VERSION = "2026-11-25.4";
+// "2026-11-26.4": the Privacy Policy now says admins also get one notice when a date has passed.
+export const POLICY_VERSION = "2026-11-26.4";
 
 export const LEGAL_DOC_KEYS = ["terms", "privacy", "refunds", "acceptable-use"] as const;
 export type LegalDocKey = (typeof LEGAL_DOC_KEYS)[number];

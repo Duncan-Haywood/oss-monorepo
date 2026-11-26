@@ -18,6 +18,15 @@
   `nosniff`, `Cache-Control: private, no-store`. Each download is written to the audit log.
 - Cloudflare R2 encrypts objects at rest by default. File contents are never logged.
 
+## Spreadsheet import
+
+- A workbook (.xlsx) chosen for "Import spreadsheet" is parsed in the browser (`src/shared/xlsx.ts`,
+  no library); the workbook itself is never uploaded or stored. Only the chosen sheet goes to
+  `POST /controls/import` as CSV text, where the existing caps apply (1 MB, 3,000 rows, 8,000
+  characters per text cell) and nothing but the parsed fields is written.
+- The reader is bounded: rows past 100,000 and columns past 200 are ignored, ZIP64, encrypted and old
+  OLE .xls files are refused with a message, and entries are inflated only on demand.
+
 ## Calendar subscription link
 
 - `GET /api/calendar/<token>.ics` is the only org data served without a session

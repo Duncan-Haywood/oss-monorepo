@@ -1,5 +1,6 @@
-# Moved from Duncan-Haywood/private-monorepo .github/workflows/einvoice-preflight-ci.yml at b1b7c3f63ce2 (2026-11-26);
-# actions pinned to .github/ci-policy.yaml SHAs, checkout without persisted credentials.
+# Moved from Duncan-Haywood/private-monorepo .github/workflows/einvoice-preflight-ci.yml at cded6eaf5d8a (2026-11-26);
+# actions pinned to .github/ci-policy.yaml SHAs, checkout without persisted credentials,
+# the AWS CodeBuild runner switch replaced by this repository's vars.CI_RUNNER.
 # PR checks for apps/einvoice-preflight: the imported checker's suite and the paid layer (pro/).
 # No npm dependencies, so no install step (pro/ imports packages/billing's TypeScript through
 # Node 22's type stripping); never needs secrets.
@@ -35,7 +36,7 @@ defaults:
 jobs:
   test:
     name: checker + paid layer tests
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4

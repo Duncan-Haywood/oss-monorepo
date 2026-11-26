@@ -17,7 +17,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 /**
- * @typedef {{ id: string, name: string, plan: string, createdAt: string }} Account
+ * @typedef {{ id: string, name: string, plan: string, createdAt: string, termsVersion: string | null }} Account
  * @typedef {{ id: string, accountId: string, name: string, prefix: string, hash: string, createdAt: string, lastUsedAt: string | null, revokedAt: string | null }} ApiKey
  * @typedef {{ id: string, accountId: string, name: string, country: string, vatId: string, reference: string, createdAt: string }} Client
  * @typedef {{ file: string, sha256: string, bytes: number, status: string, rules: string[], blocking: number,
@@ -30,14 +30,22 @@ import path from "node:path";
  * @typedef {{ accountId: string, planKey: string, status: import("../../../packages/billing/src/index.ts").SubscriptionStatus,
  *   providerCustomerId: string | null, providerSubscriptionId: string | null, currentPeriodStart: string | null,
  *   currentPeriodEnd: string | null, cancelAtPeriodEnd: boolean, providerUpdatedAt: string | null,
- *   pastDueSince: string | null, updatedAt: string }} Subscription
+ *   pastDueSince: string | null, updatedAt: string } & Partial<SubscriptionRecord>} Subscription
+ * @typedef {{ priceAmountMinor: number | null, priceCurrency: string | null, billingInterval: string | null,
+ *   billingFrequency: number | null, priceQuantity: number | null, priceDiscounted: boolean | null,
+ *   trialStartedAt: string | null, firstPaidAt: string | null, canceledAt: string | null }} SubscriptionRecord
+ *   The billed price exactly as the last applied webhook reported it (the only MRR source) and the
+ *   lifecycle stamps (packages/billing nextLifecycleStamps). All null until a webhook sets them.
+ * @typedef {{ id: string, actorType: "service", actorId: string, action: string,
+ *   metadata: Record<string, unknown> | null, createdAt: string }} AdminAuditEntry
+ *   Platform audit row for every /v1/admin read: no account id, never invoice contents.
  * @typedef {{ id: string, accountId: string, planKey: string, interval: "month" | "year", createdAt: string,
  *   expiresAt: string, consumedAt: string | null, providerSubscriptionId: string | null }} PendingCheckout
  * @typedef {{ provider: string, providerEventId: string, type: string, outcome: string, reason: string | null,
  *   accountId: string | null, receivedAt: string }} WebhookEvent
  * @typedef {{ accounts: Account[], apiKeys: ApiKey[], clients: Client[], runs: Run[], usage: Usage[],
  *   subscriptions: Subscription[], pendingCheckouts: PendingCheckout[], webhookEvents: WebhookEvent[],
- *   meteredDocuments: MeteredDocument[] }} Data
+ *   meteredDocuments: MeteredDocument[], adminAudit: AdminAuditEntry[] }} Data
  */
 
 /** @param {string} prefix */
@@ -54,6 +62,20 @@ const emptyData = () => ({
   pendingCheckouts: [],
   webhookEvents: [],
   meteredDocuments: [],
+  adminAudit: [],
+});
+
+/** The recorded-price and lifecycle fields, null when absent. @returns {SubscriptionRecord} */
+export const subscriptionRecord = (/** @type {Partial<SubscriptionRecord>} */ s) => ({
+  priceAmountMinor: s.priceAmountMinor ?? null,
+  priceCurrency: s.priceCurrency ?? null,
+  billingInterval: s.billingInterval ?? null,
+  billingFrequency: s.billingFrequency ?? null,
+  priceQuantity: s.priceQuantity ?? null,
+  priceDiscounted: s.priceDiscounted ?? null,
+  trialStartedAt: s.trialStartedAt ?? null,
+  firstPaidAt: s.firstPaidAt ?? null,
+  canceledAt: s.canceledAt ?? null,
 });
 
 export class MemoryStore {
@@ -68,9 +90,9 @@ export class MemoryStore {
   persist() {}
 
   // --- accounts ---
-  /** @param {{ name: string, plan?: string }} input @returns {Promise<Account>} */
+  /** @param {{ name: string, plan?: string, termsVersion?: string | null }} input @returns {Promise<Account>} */
   async createAccount(input) {
-    const account = { id: newId("acct"), name: input.name, plan: input.plan ?? "trial", createdAt: this.now().toISOString() };
+    const account = { id: newId("acct"), name: input.name, plan: input.plan ?? "trial", createdAt: this.now().toISOString(), termsVersion: input.termsVersion ?? null };
     this.data.accounts.push(account);
     this.persist();
     return account;
@@ -199,7 +221,7 @@ export class MemoryStore {
 
   /** @param {string} accountId @param {Omit<Subscription, "accountId" | "updatedAt">} input @returns {Promise<Subscription>} */
   async upsertSubscription(accountId, input) {
-    const row = { ...input, accountId, updatedAt: this.now().toISOString() };
+    const row = { ...input, ...subscriptionRecord(input), accountId, updatedAt: this.now().toISOString() };
     const i = this.data.subscriptions.findIndex((s) => s.accountId === accountId);
     if (i >= 0) this.data.subscriptions[i] = row;
     else this.data.subscriptions.push(row);
@@ -260,6 +282,65 @@ export class MemoryStore {
   async releaseWebhookEvent(provider, providerEventId) {
     this.data.webhookEvents = this.data.webhookEvents.filter((e) => !(e.provider === provider && e.providerEventId === providerEventId));
     this.persist();
+  }
+
+  // --- platform admin (owner console) -------------------------------------------------------
+  // The ONLY cross-account reads besides authentication and webhook binding. Called only from the
+  // /v1/admin/* routes in server.mjs, after the ADMIN_SERVICE_TOKEN check; never from tenant routes.
+  // They return account metadata (name, plan, dates, subscription), never runs or invoice data.
+
+  /**
+   * Inputs for the admin metrics: every account's creation time, the accounts whose API key was
+   * used since `sinceIso`, every subscription row and the webhook event types received.
+   * @param {string} sinceIso
+   */
+  async adminSnapshot(sinceIso) {
+    const active = new Set(this.data.apiKeys.filter((k) => k.lastUsedAt && k.lastUsedAt >= sinceIso).map((k) => k.accountId));
+    return {
+      accountCreatedAt: this.data.accounts.map((a) => a.createdAt),
+      activeAccounts: active.size,
+      subscriptions: this.data.subscriptions.map((s) => ({ ...s, ...subscriptionRecord(s) })),
+      webhookEvents: this.data.webhookEvents.map((e) => ({ type: e.type, receivedAt: e.receivedAt })),
+    };
+  }
+
+  /**
+   * Accounts with their subscription, newest first (recent), trialing or trial-stamped since
+   * `trialSinceIso` (trials), or canceled / past_due / cancel scheduled (churn).
+   * @param {"recent" | "trials" | "churn"} list @param {number} limit @param {string} trialSinceIso
+   * @returns {Promise<{ account: Account, subscription: Subscription | null }[]>}
+   */
+  async adminListAccounts(list, limit, trialSinceIso) {
+    const subOf = new Map(this.data.subscriptions.map((s) => [s.accountId, { ...s, ...subscriptionRecord(s) }]));
+    const rows = this.data.accounts.map((account) => ({ account: { ...account }, subscription: subOf.get(account.id) ?? null }));
+    const desc = (/** @type {string | null | undefined} */ a, /** @type {string | null | undefined} */ b) => ((a ?? "") < (b ?? "") ? 1 : (a ?? "") > (b ?? "") ? -1 : 0);
+    let out;
+    if (list === "trials") {
+      out = rows
+        .filter((r) => r.subscription && (r.subscription.status === "trialing" || (r.subscription.trialStartedAt ?? "") >= trialSinceIso))
+        .sort((a, b) => desc(a.subscription?.trialStartedAt, b.subscription?.trialStartedAt) || desc(a.account.createdAt, b.account.createdAt));
+    } else if (list === "churn") {
+      out = rows
+        .filter((r) => r.subscription && (r.subscription.status === "canceled" || r.subscription.status === "past_due" || r.subscription.cancelAtPeriodEnd))
+        .sort((a, b) => desc(a.subscription?.canceledAt ?? a.subscription?.updatedAt, b.subscription?.canceledAt ?? b.subscription?.updatedAt));
+    } else {
+      out = rows.sort((a, b) => desc(a.account.createdAt, b.account.createdAt));
+    }
+    return out.slice(0, limit);
+  }
+
+  /** @param {{ actorId: string, action: string, metadata?: Record<string, unknown> | null }} input */
+  async adminAudit(input) {
+    /** @type {AdminAuditEntry} */
+    const row = { id: newId("aal"), actorType: "service", actorId: input.actorId, action: input.action, metadata: input.metadata ?? null, createdAt: this.now().toISOString() };
+    this.data.adminAudit.push(row);
+    this.persist();
+    return row;
+  }
+
+  /** Newest first. @param {number} [limit] */
+  async adminListAudit(limit = 50) {
+    return [...this.data.adminAudit].reverse().slice(0, limit);
   }
 
   // --- usage metering ---

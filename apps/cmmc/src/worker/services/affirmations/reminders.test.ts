@@ -29,6 +29,51 @@ describe("dueReminders", () => {
   });
 });
 
+describe("dueReminders after the due date", () => {
+  it("lists a passed date once it is overdue, for 30 days", () => {
+    const at = (day: string) =>
+      dueReminders([affirmationSchedule([rec()], 2, day)]).map((r) => [r.deadline.key, r.stage]);
+    expect(at("2027-01-10")).toEqual([["annual_affirmation", 7]]);
+    expect(at("2027-01-11")).toEqual([["annual_affirmation", 0]]);
+    expect(at("2027-02-09")).toEqual([["annual_affirmation", 0]]);
+    expect(at("2027-02-10")).toEqual([]);
+  });
+});
+
+describe("affirmationReminderEmail, overdue", () => {
+  it("says the date passed, asks for the SPRS entry to be recorded, and keeps the caveats", () => {
+    const reminders = dueReminders([affirmationSchedule([rec()], 2, "2027-01-11")]);
+    const m = affirmationReminderEmail({
+      appUrl: "https://cmmc.example",
+      orgName: "Acme Machining",
+      reminders,
+      unsubscribePage: null,
+    });
+    expect(m.subject).toBe("Annual affirmation in SPRS was due 2027-01-10 (Acme Machining)");
+    expect(m.text).toContain("this date has passed with no newer affirmation recorded:");
+    expect(m.text).toContain("due 2027-01-10 (passed 1 day ago)");
+    expect(m.text).toContain("record it on the Affirmations page");
+    expect(m.text).toContain("does not submit anything to SPRS");
+    expect(m.text).not.toContain("fall due soon");
+  });
+
+  it("puts passed dates first when a message has both kinds", () => {
+    const cond = rec({ cmmcStatus: "conditional", cmmcStatusDate: "2026-07-20" });
+    // 2027-01-16: the closeout (2027-01-16) is due today, the annual date passed six days ago.
+    const reminders = dueReminders([affirmationSchedule([cond], 2, "2027-01-16")]);
+    expect(reminders.map((r) => r.stage)).toEqual([0, 7]);
+    const m = affirmationReminderEmail({
+      appUrl: "https://cmmc.example",
+      orgName: "Acme Machining",
+      reminders,
+      unsubscribePage: null,
+    });
+    expect(m.subject).toBe("1 CMMC date has passed (Acme Machining)");
+    expect(m.text.indexOf("(passed 6 days ago)")).toBeLessThan(m.text.indexOf("(today)"));
+    expect(m.text).toContain("These dates fall due soon:");
+  });
+});
+
 describe("affirmationReminderEmail", () => {
   const reminders = dueReminders([affirmationSchedule([rec()], 2, "2027-01-03")]);
 

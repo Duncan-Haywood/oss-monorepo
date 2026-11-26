@@ -1,6 +1,6 @@
 # Acceptable Use Policy
 
-**Version 2026-11-25** · Mary Stella Labs, LLC
+**Version 2026-11-26** · Maris Stella Labs LLC
 
 PayApps exists to help contractors bill accurately and get paid for the work they did. You agree not to use it to do any of the following.
 
@@ -27,4 +27,4 @@ We may suspend or terminate accounts that violate this policy, with notice where
 
 ## Contact
 
-Mary Stella Labs, LLC, New Mexico, USA · [contact email to be confirmed before launch]
+Maris Stella Labs LLC, Colorado, USA · hello@marisstella.app

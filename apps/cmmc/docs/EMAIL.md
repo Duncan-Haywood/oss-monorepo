@@ -34,8 +34,11 @@ Where it is on:
 midnight in every US time zone):
 
 - **What:** every annual affirmation, self-assessment or POA&M closeout date on the Affirmations
-  page that is 60 days out or less (stage 60) or 7 days out or less (stage 7). Overdue dates get no
-  email. One message per member per organization per day, listing every date that reached a stage,
+  page that is 60 days out or less (stage 60) or 7 days out or less (stage 7), and one notice once
+  a date has passed with no newer affirmation recorded (stage 0, `OVERDUE_STAGE`), sent only while
+  the date passed at most 30 days ago (`OVERDUE_NOTICE_DAYS`), so a date that lapsed long before the
+  first run does not start mailing; the page shows it in red either way. The notice asks the admin
+  to record the affirmation if the official already entered it in SPRS. One message per member per organization per day, listing every date that reached a stage,
   with the eCFR basis and the planning-aid note (the app never submits to SPRS).
 - **Who:** members with role admin or owner, with a confirmed address where sign-in needs one,
   who have not turned it off. Editors and viewers see the setting but get nothing.
@@ -43,7 +46,7 @@ midnight in every US time zone):
   before sending; only rows this run inserted are mailed, so overlapping runs never repeat one. A
   new affirmation moves the due date, so the next cycle is reminded again. A missed day sends on
   the next run. A failed send is logged with counts and not retried.
-- **Stopping it:** the "Email me 60 and 7 days before each date falls due" box on the Affirmations
+- **Stopping it:** the "Email me 60 and 7 days before each date falls due, and once if it passes" box on the Affirmations
   tab (`GET|PUT /api/orgs/:orgId/affirmations/reminders`, the member's own row in
   `member_notifications`), or the signed link in every message: `List-Unsubscribe` plus
   `List-Unsubscribe-Post: List-Unsubscribe=One-Click` point at

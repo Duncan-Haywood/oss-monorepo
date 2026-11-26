@@ -14,11 +14,11 @@ export const LEGAL_DOCUMENTS: Record<LegalDocKey, LegalDocumentSource> = {
     updatedAt: "2026-11-26",
     markdown: `# Terms of Service
 
-**Version 2026-11-26** · Mary Stella Labs, LLC
+**Version 2026-11-26** · Maris Stella Labs LLC
 
 ## 1. Who we are
 
-Seller Books (the "Service") is operated by **Mary Stella Labs, LLC**, a New Mexico limited liability company ("we", "us"). These Terms are an agreement between us and the person or business that creates an account (the "Customer", "you"). If you accept these Terms for a business, you confirm you are authorized to do so on its behalf.
+Seller Books (the "Service") is operated by **Maris Stella Labs LLC**, a Colorado limited liability company ("we", "us"). These Terms are an agreement between us and the person or business that creates an account (the "Customer", "you"). If you accept these Terms for a business, you confirm you are authorized to do so on its behalf.
 
 ## 2. The Service
 
@@ -84,11 +84,11 @@ We may update these Terms. We will post the new version with a new version date 
 
 ## 14. Governing law
 
-These Terms are governed by the laws of the **State of New Mexico**, USA, without regard to conflict-of-law rules. Courts located in New Mexico have jurisdiction over disputes, unless the law requires otherwise.
+These Terms are governed by the laws of the **State of Colorado**, USA, without regard to conflict-of-law rules. Courts located in Colorado have jurisdiction over disputes, unless the law requires otherwise.
 
 ## 15. Contact
 
-Mary Stella Labs, LLC, New Mexico, USA · [contact email to be confirmed before launch]
+Maris Stella Labs LLC, Colorado, USA · hello@marisstella.app
 `,
   },
   privacy: {
@@ -96,9 +96,9 @@ Mary Stella Labs, LLC, New Mexico, USA · [contact email to be confirmed before 
     updatedAt: "2026-11-26",
     markdown: `# Privacy Policy
 
-**Version 2026-11-26** · Mary Stella Labs, LLC
+**Version 2026-11-26** · Maris Stella Labs LLC
 
-This policy explains what information Seller Books (operated by Mary Stella Labs, LLC, "we") collects, why, who processes it, and the choices you have.
+This policy explains what information Seller Books (operated by Maris Stella Labs LLC, "we") collects, why, who processes it, and the choices you have.
 
 ## What we collect
 
@@ -151,6 +151,7 @@ We will update this list before adding a new subprocessor.
 - Encryption in transit (HTTPS) and at rest (provider-managed storage encryption).
 - Tenant isolation: every record belongs to one shop and is checked against your membership on every request.
 - Role-based access within each shop (owner, admin, editor, viewer).
+- Operator access: our platform administrators (the people who run the service) can see account data across shops: shop names, account owners' names and email addresses, sign-up dates, plan, subscription status and the price billed. Each such view is logged. These operator tools do not show your sales, fees, inventory, mileage or expenses.
 
 No system is perfectly secure. We will notify affected customers of a security incident involving their data as required by law.
 
@@ -171,7 +172,7 @@ We will post updates with a new version date and ask you to accept material chan
 
 ## Contact
 
-Mary Stella Labs, LLC, New Mexico, USA · [contact email to be confirmed before launch]
+Maris Stella Labs LLC, Colorado, USA · hello@marisstella.app
 `,
   },
   refunds: {
@@ -179,7 +180,7 @@ Mary Stella Labs, LLC, New Mexico, USA · [contact email to be confirmed before 
     updatedAt: "2026-11-26",
     markdown: `# Refund Policy
 
-**Version 2026-11-26** · Mary Stella Labs, LLC
+**Version 2026-11-26** · Maris Stella Labs LLC
 
 ## Try it free first
 
@@ -207,7 +208,7 @@ When you change plans, any credit or charge is handled as shown at checkout.
 
 ## Contact
 
-Mary Stella Labs, LLC, New Mexico, USA · [contact email to be confirmed before launch]
+Maris Stella Labs LLC, Colorado, USA · hello@marisstella.app
 `,
   },
   "acceptable-use": {
@@ -215,7 +216,7 @@ Mary Stella Labs, LLC, New Mexico, USA · [contact email to be confirmed before 
     updatedAt: "2026-11-26",
     markdown: `# Acceptable Use Policy
 
-**Version 2026-11-26** · Mary Stella Labs, LLC
+**Version 2026-11-26** · Maris Stella Labs LLC
 
 Seller Books exists to help resellers keep honest, accurate books of their own selling. You agree not to use it to do any of the following.
 
@@ -241,7 +242,7 @@ We may suspend or terminate accounts that violate this policy, with notice where
 
 ## Contact
 
-Mary Stella Labs, LLC, New Mexico, USA · [contact email to be confirmed before launch]
+Maris Stella Labs LLC, Colorado, USA · hello@marisstella.app
 `,
   },
 };

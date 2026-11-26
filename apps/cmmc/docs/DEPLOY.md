@@ -67,8 +67,8 @@ also refuses it when `APP_ENV=production`.
 ## Before strangers sign up
 
 - Owner: the Terms, Privacy, Refund and Acceptable Use pages are live in the app (`docs/legal/*.md`,
-  served at `/legal/:key`, accepted once per user) but are drafts: confirm the operator name, fill in
-  the contact email, and have the agent legal review check them (no outside counsel: owner, 2026-11-26). After any change in substance, run
+  served at `/legal/:key`, accepted once per user). Operator, contact and launch authority:
+  `docs/legal/OPERATOR.md` at the repository root (agents approve launch; no attorney review). After any change in substance, run
   `node docs/legal/sync-documents.mjs` and bump `POLICY_VERSION` in `src/shared/legal.ts`.
 - Owner: run the workflow once and decide the host (`CMMC_DOMAIN`).
 - Owner: Paddle secrets and a notification destination at `<APP_URL>/api/billing/webhook`

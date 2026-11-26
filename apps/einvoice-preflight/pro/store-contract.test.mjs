@@ -200,7 +200,18 @@ for (const [name, make] of Object.entries(BACKENDS)) {
         pastDueSince: null,
       };
       const saved = await s.upsertSubscription(a.id, row);
-      assert.deepEqual({ ...saved, updatedAt: undefined }, { ...row, accountId: a.id, updatedAt: undefined });
+      const unset = {
+        priceAmountMinor: null,
+        priceCurrency: null,
+        billingInterval: null,
+        billingFrequency: null,
+        priceQuantity: null,
+        priceDiscounted: null,
+        trialStartedAt: null,
+        firstPaidAt: null,
+        canceledAt: null,
+      };
+      assert.deepEqual({ ...saved, updatedAt: undefined }, { ...row, ...unset, accountId: a.id, updatedAt: undefined });
       const updated = await s.upsertSubscription(a.id, { ...row, planKey: "plus", status: "past_due", cancelAtPeriodEnd: true, pastDueSince: "2026-11-25T10:00:00.000Z" });
       assert.equal(updated.planKey, "plus");
       assert.equal((await s.getSubscription(a.id)).cancelAtPeriodEnd, true);
@@ -226,6 +237,60 @@ for (const [name, make] of Object.entries(BACKENDS)) {
       assert.equal(await s.claimWebhookEvent("paddle", "evt_2", "subscription.updated"), true);
       await s.releaseWebhookEvent("paddle", "evt_2");
       assert.equal(await s.claimWebhookEvent("paddle", "evt_2", "subscription.updated"), true, "a released claim is processed on retry");
+    });
+
+    test("admin: recorded price and stamps round-trip; admin-only cross-account reads; audit", async () => {
+      const s = await make(tickingClock());
+      const a = await s.createAccount({ name: "Kanzlei A" });
+      const b = await s.createAccount({ name: "Kanzlei B" });
+      const base = {
+        planKey: "starter",
+        status: "active",
+        providerCustomerId: "ctm_a",
+        providerSubscriptionId: "sub_a",
+        currentPeriodStart: null,
+        currentPeriodEnd: null,
+        cancelAtPeriodEnd: false,
+        providerUpdatedAt: null,
+        pastDueSince: null,
+      };
+      const priced = {
+        ...base,
+        priceAmountMinor: 4900,
+        priceCurrency: "EUR",
+        billingInterval: "month",
+        billingFrequency: 1,
+        priceQuantity: 1,
+        priceDiscounted: false,
+        trialStartedAt: "2026-11-01T00:00:00.000Z",
+        firstPaidAt: "2026-11-15T00:00:00.000Z",
+        canceledAt: null,
+      };
+      await s.upsertSubscription(a.id, priced);
+      const got = await s.getSubscription(a.id);
+      for (const k of Object.keys(priced)) assert.deepEqual(got[k], priced[k], k);
+      await s.upsertSubscription(b.id, { ...base, providerCustomerId: "ctm_b", providerSubscriptionId: "sub_b", status: "canceled", canceledAt: "2026-11-20T00:00:00.000Z" });
+
+      const key = await s.createApiKey(a.id, { name: "k", prefix: "epk_x", hash: "h-admin-a" });
+      await s.findActiveApiKeyByHash(key.hash);
+      const snap = await s.adminSnapshot("2026-01-01T00:00:00.000Z");
+      assert.equal(snap.accountCreatedAt.length, 2);
+      assert.equal(snap.activeAccounts, 1);
+      assert.equal(snap.subscriptions.length, 2);
+      assert.equal(snap.subscriptions.find((x) => x.accountId === a.id).priceAmountMinor, 4900);
+
+      const recent = await s.adminListAccounts("recent", 10, "2026-01-01T00:00:00.000Z");
+      assert.deepEqual(recent.map((r) => r.account.name), ["Kanzlei B", "Kanzlei A"]);
+      assert.equal(recent[1].subscription.priceCurrency, "EUR");
+      assert.deepEqual((await s.adminListAccounts("churn", 10, "2026-01-01T00:00:00.000Z")).map((r) => r.account.id), [b.id]);
+      assert.deepEqual((await s.adminListAccounts("trials", 10, "2026-01-01T00:00:00.000Z")).map((r) => r.account.id), [a.id]);
+      assert.equal((await s.adminListAccounts("recent", 1, "2026-01-01T00:00:00.000Z")).length, 1);
+
+      await s.adminAudit({ actorId: "admin-console", action: "admin.metrics_read", metadata: { days: 30 } });
+      const [entry] = await s.adminListAudit(5);
+      assert.equal(entry.action, "admin.metrics_read");
+      assert.equal(entry.actorType, "service");
+      assert.deepEqual(entry.metadata, { days: 30 });
     });
   });
 }
@@ -303,4 +368,24 @@ test("the paid API runs end to end on SqlStore: account, batch, history, usage, 
     server.close();
     store.close();
   }
+});
+
+test("SqlStore adds the admin-metrics columns to a database created before them", async () => {
+  const { DatabaseSync } = await import("node:sqlite");
+  const file = join(dir, "old.db");
+  const old = new DatabaseSync(file);
+  // Schema version 1's subscriptions table, as deployed before the price columns existed.
+  old.exec(`CREATE TABLE accounts (id TEXT PRIMARY KEY, name TEXT NOT NULL, plan TEXT NOT NULL, created_at TEXT NOT NULL);
+    CREATE TABLE subscriptions (account_id TEXT PRIMARY KEY REFERENCES accounts(id), plan_key TEXT NOT NULL, status TEXT NOT NULL,
+      provider_customer_id TEXT, provider_subscription_id TEXT UNIQUE, current_period_start TEXT, current_period_end TEXT,
+      cancel_at_period_end INTEGER NOT NULL DEFAULT 0, provider_updated_at TEXT, past_due_since TEXT, updated_at TEXT NOT NULL);
+    INSERT INTO accounts VALUES ('acct_old', 'Old', 'trial', '2026-01-01T00:00:00.000Z');
+    INSERT INTO subscriptions (account_id, plan_key, status, updated_at) VALUES ('acct_old', 'starter', 'active', '2026-01-01T00:00:00.000Z');`);
+  old.close();
+  const s = await openSqliteStore(file);
+  const sub = await s.getSubscription("acct_old");
+  assert.equal(sub.status, "active");
+  assert.equal(sub.priceAmountMinor, null, "never back-filled");
+  await s.init(); // idempotent
+  s.close();
 });

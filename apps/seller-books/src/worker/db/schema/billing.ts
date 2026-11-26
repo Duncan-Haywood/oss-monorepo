@@ -2,8 +2,8 @@
 // Paddle checkout to an org through a signed token (never an orgId in custom_data); billing_events
 // makes webhook processing idempotent. Rows are written only by the webhook and by operators.
 import { SUBSCRIPTION_STATUSES } from "@billing";
-import { index, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
-import { bool, createdAt, ts, updatedAt } from "./_columns";
+import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { bool, createdAt, json, ts, updatedAt } from "./_columns";
 import { organization, user } from "./auth";
 
 export const subscriptions = sqliteTable(
@@ -24,6 +24,20 @@ export const subscriptions = sqliteTable(
     providerUpdatedAt: ts("provider_updated_at"),
     /** Start of the past_due grace period. */
     pastDueSince: ts("past_due_since"),
+    /**
+     * The billed recurring price exactly as the last applied Paddle webhook reported it (packages/
+     * billing SubscriptionPrice). The only source of MRR (routes/admin.ts); null = not reported.
+     */
+    priceAmountMinor: integer("price_amount_minor"),
+    priceCurrency: text("price_currency"),
+    billingInterval: text("billing_interval"),
+    billingFrequency: integer("billing_frequency"),
+    priceQuantity: integer("price_quantity"),
+    priceDiscounted: bool("price_discounted"),
+    /** Lifecycle stamps from webhooks (packages/billing nextLifecycleStamps); never back-filled. */
+    trialStartedAt: ts("trial_started_at"),
+    firstPaidAt: ts("first_paid_at"),
+    canceledAt: ts("canceled_at"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
@@ -65,4 +79,24 @@ export const billingEvents = sqliteTable(
     createdAt: createdAt(),
   },
   (t) => [uniqueIndex("billing_events_provider_event_idx").on(t.provider, t.providerEventId)],
+);
+
+/**
+ * Platform audit trail: every read of /api/admin/* (and anything else an operator does across
+ * tenants). Not tenant data: it has no org_id, so it is never shown to or deleted with an org.
+ */
+export const adminAuditLog = sqliteTable(
+  "admin_audit_log",
+  {
+    id: text("id").primaryKey(),
+    /** "user" (a platform admin's session) or "service" (the owner console's token). */
+    actorType: text("actor_type", { enum: ["user", "service"] }).notNull(),
+    /** User id, or the service name ("admin-console"). */
+    actorId: text("actor_id").notNull(),
+    /** e.g. "admin.metrics_read", "admin.accounts_read". */
+    action: text("action").notNull(),
+    metadata: json<Record<string, unknown>>("metadata"),
+    createdAt: createdAt(),
+  },
+  (t) => [index("admin_audit_log_created_idx").on(t.createdAt)],
 );
