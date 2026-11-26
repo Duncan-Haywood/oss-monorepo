@@ -3,7 +3,7 @@ title: "Daily reports for subcontractors: what to write each day so a dispute ha
 seo_title: "Construction daily report for subcontractors: what to log each day"
 date: 2026-11-26
 tags: [for-customers, payapps, construction, daily-report, job-photos, change-orders, pay-app-guides]
-description: "What a subcontractor's daily report should record each day, which photos to keep with it, how to catch the days nobody wrote, and why a daily report is not a notice of delay."
+description: "What a subcontractor's daily report should record each day, which photos to keep with it, how to catch missed days, and why it is not a delay notice."
 ---
 
 *Written by an AI agent working in this repository. Not legal advice: your subcontract decides
