@@ -7,8 +7,9 @@
 // Input, plan key `bids`: [{ bidder, lines: [{ item, qty, unitPrice?, amount? }] }]
 // `item` is a budget line's item name (case and spacing ignored). A line gives
 // `amount`, or `qty` and `unitPrice`. Nothing is shipped as a price: a gap is
-// priced only from the other bidders' unit prices (median) or the plan's typed
-// price for that line, and with neither it is listed as unleveled, never guessed.
+// priced only from the other bidders' unit prices (median), their lump sums for
+// the line (median) when none gave a unit price, or the plan's typed price for
+// that line, and with neither it is listed as unleveled, never guessed.
 
 const r2 = (/** @type {number} */ n) => Math.round(n * 100) / 100;
 const norm = (/** @type {string} */ s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
@@ -26,9 +27,15 @@ const median = (/** @type {number[]} */ a) => {
 export function levelBids(bud, bids, opts = {}) {
   if (!bud || typeof bud !== "object" || !Array.isArray(bud.lines)) return { ok: false, errors: ["Bid leveling needs a budget with a list of lines."], bidders: [], lines: [] };
   opts = opts && typeof opts === "object" ? opts : {};
-  const tol = opts.tolerance ?? 0.05;
-  const byKey = new Map(bud.lines.map((l) => [norm(l.item), l]));
   const errors = [];
+  // A negative tolerance flags exact quantities as "over"; NaN or a string
+  // silently turns every quantity check off. Refuse both and use the default.
+  let tol = 0.05;
+  if (opts.tolerance != null) {
+    if (typeof opts.tolerance === "number" && Number.isFinite(opts.tolerance) && opts.tolerance >= 0) tol = opts.tolerance;
+    else errors.push(`tolerance must be a number of 0 or more (a fraction, 0.05 is 5%); ${String(opts.tolerance)} ignored, 0.05 used`);
+  }
+  const byKey = new Map(bud.lines.map((l) => [norm(l.item), l]));
   // Shape and range guards: hostile or hand-typed bids never throw, and a bad
   // number is refused with a reason instead of flowing into a total.
   const LIMIT = 1e9;
@@ -66,7 +73,13 @@ export function levelBids(bud, bids, opts = {}) {
     const k = norm(l.item);
     const peers = bids.map((b) => got.get(b.bidder)?.get(k)?.unitPrice).filter((x) => typeof x === "number");
     const ref = l.unitPrice ?? median(/** @type {number[]} */ (peers));
-    return { item: l.item, unit: l.unit, modelQty: l.qty, refUnitPrice: ref == null ? null : r2(ref), refSource: l.unitPrice != null ? "plan price" : ref != null ? "median of bids" : null, k };
+    // A bid that prices the line as a lump sum (amount, no quantity) has no
+    // unit price, but it is still a price for the whole line. Without this, a
+    // rival who left the line out was "unleveled", added nothing, and could be
+    // named lowest leveled for skipping scope (red team 2026-11-26).
+    const lumps = ref != null ? [] : bids.map((b) => got.get(b.bidder)?.get(k)).filter((g) => g && g.unitPrice == null).map((g) => /** @type {{ amount: number }} */ (g).amount);
+    const refAmount = median(lumps);
+    return { item: l.item, unit: l.unit, modelQty: l.qty, refUnitPrice: ref == null ? null : r2(ref), refAmount: refAmount == null ? null : r2(refAmount), refSource: l.unitPrice != null ? "plan price" : ref != null ? "median of bids" : refAmount != null ? "median of lump-sum bids" : null, k };
   });
 
   const out = bids.map((b) => {
@@ -79,6 +92,11 @@ export function levelBids(bud, bids, opts = {}) {
     for (const r of rows) {
       const g = m.get(r.k);
       if (!g) {
+        if (r.refUnitPrice == null && r.refAmount != null) {
+          adds += r.refAmount;
+          flags.push({ item: r.item, kind: "missing", note: `not in the bid; the other bids' lump sum for the line (${r.refSource}) adds ${r.refAmount}` });
+          continue;
+        }
         if (r.refUnitPrice == null) { unleveled.push(r.item); flags.push({ item: r.item, kind: "missing", note: "not in the bid; no price to level it with" }); continue; }
         const add = r2(r.modelQty * r.refUnitPrice);
         adds += add;
