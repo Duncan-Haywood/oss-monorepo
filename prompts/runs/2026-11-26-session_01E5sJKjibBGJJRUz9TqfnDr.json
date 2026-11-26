@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKjibBGJJRUz9TqfnDr",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T01:09:19Z",
+  "ended": "2026-11-26T01:13:13Z",
+  "wall_minutes": 4.04,
+  "tokens_in": 2003281,
+  "tokens_out": 11735,
+  "cost_usd": 1.138,
+  "tool_calls": 27,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19158",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/friction_rank.py",
+      "issue": "--live cluster 8 (prompt.md/cloud-session.md naming a missing portfolio/monetization/allocate.py) is already fixed: cloud-session.md now names portfolio/router/allocate.py. The cluster still shows because the fix was in cloud-session.md, not the file the friction names."
+    },
+    {
+      "file": "platform/ci/main_health.py",
+      "issue": "Started it in the background and then edited a file it tests, so its one red (test_roadmap_claim.py) was my own half-finished edit. It cost a re-check against main's copy."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new blog post: this is internal tooling with nothing to tell a customer reader, and the PR body and commit message say what changed.",
+      "did": "Tool fix + tests + one doc sentence",
+      "result": "shipped"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Critique mode (backlog: owner rows only). friction_rank --live cluster on roadmap_claim.py: six reports of re-claim printing TAKEN for your own claim, and three reports of apps with no ROADMAP.md being unclaimable. Fixed both with a hashed session tag and --slug claims for apps that have no ROADMAP. test_roadmap_claim 13 OK, test_quality_claim OK, promptctl validate ok, main_health 327/328 (the red was this run's mid-edit). No backlog ids touched.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "cdcd490a-c6bf-5524-8895-ca775f0f4e77",
+    "transcripts": 1,
+    "first": "2026-11-26T01:09:19Z",
+    "last": "2026-11-26T01:13:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 26,
+        "input": 52,
+        "output": 11735,
+        "thinking": 1836,
+        "cache_read": 1938818,
+        "cache_write_5m": 0,
+        "cache_write_1h": 64411,
+        "api_equivalent_usd": 1.138,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 26,
+      "input": 52,
+      "output": 11735,
+      "thinking": 1836,
+      "cache_read": 1938818,
+      "cache_write_5m": 0,
+      "cache_write_1h": 64411,
+      "api_equivalent_usd": 1.138,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.968,
+    "tool_calls": 27,
+    "tools": {
+      "Bash": 25,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.04,
+      "active_minutes": 4.04,
+      "model_minutes": 2.39,
+      "tool_minutes": 1.65,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
