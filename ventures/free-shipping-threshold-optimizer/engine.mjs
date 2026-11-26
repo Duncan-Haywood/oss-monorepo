@@ -99,7 +99,7 @@ export function analyze(parsed, options = {}) {
   const findings = [];
   const add = (rule, severity, message) => findings.push({ rule, severity, message });
   // Magnitude only: every caller words the direction itself ("beats", "behind").
-  const usd = (n) => { const text = Math.abs(n).toFixed(2); return `$${text}`; };
+  const usd = (n) => { const text = Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); return `$${text}`; };
 
   const known = rows.filter((r) => r.ship !== null);
   const meanShip = known.length ? known.reduce((a, r) => a + r.ship, 0) / known.length : o.shipCost;
@@ -162,7 +162,7 @@ export function summarize(report) {
   const warns = report.findings.filter((f) => f.severity === "warn").length;
   const t = report.totals;
   const b = report.best;
-  return { status: warns ? "warn" : "ok", errors: 0, warns, text: `${report.count} order(s), average order $${t.aov.toFixed(2)}, shipping costs you about $${t.avgShip.toFixed(2)} an order. Best threshold at your assumptions: ${report.label(b.threshold)}${b.threshold === report.current ? " (what you have now)" : ` (${b.gain >= 0 ? "+" : "-"}$${Math.abs(b.gain).toFixed(2)} on these orders vs ${report.label(report.current)})`}.` };
+  return { status: warns ? "warn" : "ok", errors: 0, warns, text: `${report.count} order(s), average order $${t.aov.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}, shipping costs you about $${t.avgShip.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} an order. Best threshold at your assumptions: ${report.label(b.threshold)}${b.threshold === report.current ? " (what you have now)" : ` (${b.gain >= 0 ? "+" : "-"}$${Math.abs(b.gain).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} on these orders vs ${report.label(report.current)})`}.` };
 }
 
 export const INPUT_NOTES = [

@@ -243,7 +243,7 @@ function shopifyChannel(txFiles, orderFiles, costText) {
   out.from = s.firstMonth;
   out.to = s.lastMonth;
   if (orders.length) {
-    if (tax > 0) out.notes.push(`$${tax.toFixed(2)} of sales tax collected was taken out of Shopify sales and payout (from the Orders export); it is owed to the state, not income.`);
+    if (tax > 0) out.notes.push(`$${tax.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of sales tax collected was taken out of Shopify sales and payout (from the Orders export); it is owed to the state, not income.`);
   } else {
     out.notes.push("Shopify sales here include the sales tax and shipping customers paid, because no Orders export was given. Add it to take tax out and to cost products.");
   }
@@ -292,11 +292,11 @@ function mercariChannel(files, costText) {
   out.from = s.firstMonth;
   out.to = s.lastMonth;
   if (s.duplicates) out.notes.push(`${s.duplicates} Mercari row(s) repeated an Item ID from another download and were counted once.`);
-  if (s.inProgress) out.notes.push(`${s.inProgress} Mercari order(s) ($${s.inProgressPrice.toFixed(2)} at item price) were still in progress when the report was made; their fees are estimates, so they are left out until a later report shows them completed.`);
+  if (s.inProgress) out.notes.push(`${s.inProgress} Mercari order(s) ($${s.inProgressPrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} at item price) were still in progress when the report was made; their fees are estimates, so they are left out until a later report shows them completed.`);
   if (s.canceled) out.notes.push(`${s.canceled} canceled Mercari order(s) were left out: a canceled order pays nothing.`);
   if (s.unreconciled) out.notes.push(`${s.unreconciled} Mercari row(s) have a Net Seller Proceeds that the listed fees do not explain; the difference is under other deductions.`);
   const buyer = r2(s.buyerShipping + s.buyerTax + s.buyerFees);
-  if (buyer > 0) out.notes.push(`Buyers also paid $${buyer.toFixed(2)} on top of item prices on completed Mercari orders (shipping $${s.buyerShipping.toFixed(2)}, sales tax $${s.buyerTax.toFixed(2)}, buyer fees $${s.buyerFees.toFixed(2)}). None of it reached you, so it is not in sales, but a 1099-K can include some of it.`);
+  if (buyer > 0) out.notes.push(`Buyers also paid $${buyer.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} on top of item prices on completed Mercari orders (shipping $${s.buyerShipping.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}, sales tax $${s.buyerTax.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}, buyer fees $${s.buyerFees.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}). None of it reached you, so it is not in sales, but a 1099-K can include some of it.`);
   if (s.costed === s.orders) {
     out.cogs = s.cogs;
     out.costedShare = 1;
@@ -339,11 +339,11 @@ function depopChannel(files, costText) {
   out.to = s.lastMonth;
   out.notes.push("Depop's export has no payout figure per sale, so Depop's net here is item price plus buyer shipping, less the label, Depop fee, Depop Payments fee, boosting and refunds. Check it against your Depop payouts.");
   if (s.duplicates) out.notes.push(`${s.duplicates} Depop row(s) repeated a sale from another download (same date, time, buyer, description and price) and were counted once.`);
-  if (s.feeRefunds) out.notes.push(`Depop gave back $${s.feeRefunds.toFixed(2)} of fees on refunded sales; it is netted against Depop's fees.`);
+  if (s.feeRefunds) out.notes.push(`Depop gave back $${s.feeRefunds.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of fees on refunded sales; it is netted against Depop's fees.`);
   if (s.fullyRefunded) out.notes.push(`${s.fullyRefunded} Depop sale(s) were refunded in full and are taken to have come back into stock.`);
   if (s.bundled) out.notes.push(`${s.bundled} Depop row(s) were part of a bundle; a bundle's shipping and fees can sit on one of its rows, so per-item figures are approximate while the totals are not.`);
   const buyer = r2(s.buyerTax + s.buyerFees);
-  if (buyer > 0) out.notes.push(`Buyers also paid $${buyer.toFixed(2)} on top on Depop (sales tax $${s.buyerTax.toFixed(2)}, Buyer Marketplace Fee $${s.buyerFees.toFixed(2)}). None of it reached you, so it is not in sales, but a 1099-K can include some of it.`);
+  if (buyer > 0) out.notes.push(`Buyers also paid $${buyer.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} on top on Depop (sales tax $${s.buyerTax.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}, Buyer Marketplace Fee $${s.buyerFees.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}). None of it reached you, so it is not in sales, but a 1099-K can include some of it.`);
   if (s.costed === s.orders) {
     out.cogs = s.cogs;
     out.costedShare = 1;
@@ -404,7 +404,7 @@ function itemChannel(channel, engine, files, costText, feeMode) {
     net: m.payout,
     cogs: m.costedItems === m.items ? m.cost : null,
   }));
-  if (unmatched.length) out.notes.push(`${unmatched.length} ${CHANNELS[channel]} refund or shipping charge row(s), $${unmatched.reduce((t, a) => t + a.amount, 0).toFixed(2)} in all, belong to a sale in none of the files loaded, so they are not in these books: load the report for the week the sale completed.`);
+  if (unmatched.length) out.notes.push(`${unmatched.length} ${CHANNELS[channel]} refund or shipping charge row(s), $${unmatched.reduce((t, a) => t + a.amount, 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} in all, belong to a sale in none of the files loaded, so they are not in these books: load the report for the week the sale completed.`);
   return { line: out, months, detail: r, skipped, costBad: r.costList ? r.costList.errors.length : 0 };
 }
 
@@ -591,16 +591,16 @@ export function scheduleWorksheet(channels, total, mileage = null, inventory = n
     rows.push(
       { line: "Part III 33", label: "Method used to value closing inventory", amount: null, note: "Cost (33a): each unit at what you paid for it, oldest purchase sold first." },
       { line: "Part III 35", label: "Inventory at beginning of year", amount: p.line35, note: p.openingSource === "entered" ? "As you entered it (last year's line 41)." : `From the log: purchases before ${p.year} not marked sold before it. Should equal last year's line 41.` },
-      { line: "Part III 36", label: "Purchases less cost of items withdrawn for personal use", amount: p.line36, note: `${p.year} purchases in the log${p.withdrawn ? `, less $${p.withdrawn.toFixed(2)} marked personal or kept` : ""}.` },
+      { line: "Part III 36", label: "Purchases less cost of items withdrawn for personal use", amount: p.line36, note: `${p.year} purchases in the log${p.withdrawn ? `, less $${p.withdrawn.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} marked personal or kept` : ""}.` },
       { line: "Part III 37-39", label: "Labor, materials and supplies, other costs", amount: null, note: "Not in a sourcing sheet. Add any to line 40 with your preparer." },
       { line: "Part III 40", label: "Add lines 35 through 39", amount: p.line40, note: "Lines 35 and 36 only." },
       { line: "Part III 41", label: "Inventory at end of year", amount: p.line41, note: `${p.closingUnits} unit(s) bought by Dec 31 ${p.year} and not sold in these reports or marked gone. Count what is on your shelves and compare.` },
-      { line: "Part III 42", label: "Cost of goods sold (line 40 less line 41)", amount: p.line42, note: `Carried to line 4. ${p.matchedUnits} sold unit(s) matched to purchases at $${p.matchedCost.toFixed(2)}.` },
+      { line: "Part III 42", label: "Cost of goods sold (line 40 less line 41)", amount: p.line42, note: `Carried to line 4. ${p.matchedUnits} sold unit(s) matched to purchases at $${p.matchedCost.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.` },
     );
   }
   if (mileage) {
     const rates = mileage.rates.map((r) => `${(r * 100).toFixed(1).replace(/\.0$/, "")}¢`).join(" and ");
-    rows.push({ line: "9", label: "Car and truck expenses (standard mileage rate)", amount: mileage.carTruck, note: `${mileage.businessMiles} business miles from your trip log at ${rates || "the IRS rate"} a mile by trip date (2026: 72.5¢ to June 30, 76¢ from July 1), plus $${(mileage.tolls + mileage.parking).toFixed(2)} of business tolls and parking. The standard rate replaces actual car costs (gas, repairs, insurance, depreciation) and generally has to be chosen in the first year the car is used for business.` });
+    rows.push({ line: "9", label: "Car and truck expenses (standard mileage rate)", amount: mileage.carTruck, note: `${mileage.businessMiles} business miles from your trip log at ${rates || "the IRS rate"} a mile by trip date (2026: 72.5¢ to June 30, 76¢ from July 1), plus $${(mileage.tolls + mileage.parking).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of business tolls and parking. The standard rate replaces actual car costs (gas, repairs, insurance, depreciation) and generally has to be chosen in the first year the car is used for business.` });
     rows.push({ line: "Part IV 44a", label: "Business miles", amount: null, miles: mileage.businessMiles, note: `${mileage.businessMiles} business, ${mileage.commuteMiles} commuting, ${mileage.otherMiles} other miles in the log. Part IV also asks for the date the car went into service and whether you have written evidence; the log is that evidence.` });
   }
   return rows;
@@ -612,23 +612,23 @@ function findings(channels, total, months, mileage = null, inventory = null) {
   else if (inventory) {
     out.push({
       severity: inventory.unmatchedUnits ? "high" : "info",
-      title: `Schedule C Part III for ${inventory.year}: cost of goods sold $${inventory.line42.toFixed(2)}, closing inventory $${inventory.line41.toFixed(2)}`,
-      detail: `Opening inventory $${inventory.line35.toFixed(2)} plus purchases $${inventory.line36.toFixed(2)}, less $${inventory.line41.toFixed(2)} still on hand at December 31 (${inventory.closingUnits} unit(s)). ${inventory.matchedUnits} sold unit(s) were matched to the purchase that bought them, oldest first.`,
+      title: `Schedule C Part III for ${inventory.year}: cost of goods sold $${inventory.line42.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}, closing inventory $${inventory.line41.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      detail: `Opening inventory $${inventory.line35.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} plus purchases $${inventory.line36.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}, less $${inventory.line41.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} still on hand at December 31 (${inventory.closingUnits} unit(s)). ${inventory.matchedUnits} sold unit(s) were matched to the purchase that bought them, oldest first.`,
     });
     const old = inventory.aged && inventory.aged.buckets.find((b) => b.label === "Over a year");
     if (old && old.units) {
       const names = inventory.aged.items.filter((i) => i.oldestDays > 365).slice(0, 3).map((i) => i.item).join("; ");
-      out.push({ severity: "medium", title: `$${old.cost.toFixed(2)} of stock (${old.units} unit(s), ${(old.share * 100).toFixed(0)}% of closing inventory) was bought over a year before December 31, ${inventory.year}`, detail: `Longest-waiting money first: ${names}. Count these on the shelf before you sign off line 41, and decide whether to relist, reprice or bundle them. The stock-by-age table lists every item.` });
+      out.push({ severity: "medium", title: `$${old.cost.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of stock (${old.units} unit(s), ${(old.share * 100).toFixed(0)}% of closing inventory) was bought over a year before December 31, ${inventory.year}`, detail: `Longest-waiting money first: ${names}. Count these on the shelf before you sign off line 41, and decide whether to relist, reprice or bundle them. The stock-by-age table lists every item.` });
     }
     for (const n of inventory.notes) out.push({ severity: /no purchase in the inventory log/.test(n) ? "high" : "info", title: `Inventory: ${n}`, detail: "" });
   }
   if (mileage && mileage.businessTrips) {
     out.push({
       severity: "info",
-      title: `${mileage.businessTrips} business trips, ${mileage.businessMiles} miles: $${mileage.carTruck.toFixed(2)} of car and truck expenses`,
+      title: `${mileage.businessTrips} business trips, ${mileage.businessMiles} miles: $${mileage.carTruck.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of car and truck expenses`,
       detail: total.profitAfterCar === null
         ? "At the IRS standard mileage rate for each trip's date, plus business tolls and parking. Add costs for every sale to see profit after the car."
-        : `At the IRS standard mileage rate for each trip's date, plus business tolls and parking. Profit after the cost of goods and the car: $${total.profitAfterCar.toFixed(2)}.`,
+        : `At the IRS standard mileage rate for each trip's date, plus business tolls and parking. Profit after the cost of goods and the car: $${total.profitAfterCar.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.`,
     });
   }
   if (mileage) for (const n of mileage.notes) out.push({ severity: "info", title: `Mileage: ${n}`, detail: "" });
@@ -640,16 +640,16 @@ function findings(channels, total, months, mileage = null, inventory = null) {
       out.push({
         severity: "info",
         title: `${best.label} keeps ${(best.keepRate * 100).toFixed(1)}% of every sale dollar; ${worst.label} keeps ${(worst.keepRate * 100).toFixed(1)}%`,
-        detail: `That is before the cost of the goods. On ${best.label}, $100 of sales leaves $${(best.keepRate * 100).toFixed(2)} after fees, postage bought there, ads and refunds; on ${worst.label} it leaves $${(worst.keepRate * 100).toFixed(2)}. Compare like with like: a channel full of heavy items pays more in postage, which is not its fee.`,
+        detail: `That is before the cost of the goods. On ${best.label}, $100 of sales leaves $${(best.keepRate * 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} after fees, postage bought there, ads and refunds; on ${worst.label} it leaves $${(worst.keepRate * 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}. Compare like with like: a channel full of heavy items pays more in postage, which is not its fee.`,
       });
     }
   }
   for (const c of channels) {
     if (c.sales > 0 && c.ads / c.sales < -0.05) {
-      out.push({ severity: "medium", title: `${c.label} advertising is ${((-c.ads / c.sales) * 100).toFixed(1)}% of sales`, detail: `${c.label} ads and promotions cost $${(-c.ads).toFixed(2)} against $${c.sales.toFixed(2)} of sales. Check the sales they brought against what you would have sold anyway.` });
+      out.push({ severity: "medium", title: `${c.label} advertising is ${((-c.ads / c.sales) * 100).toFixed(1)}% of sales`, detail: `${c.label} ads and promotions cost $${(-c.ads).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} against $${c.sales.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of sales. Check the sales they brought against what you would have sold anyway.` });
     }
     if (c.sales > 0 && Math.abs(c.refunds) / c.sales > 0.05) {
-      out.push({ severity: "medium", title: `${c.label} refunds are ${((Math.abs(c.refunds) / c.sales) * 100).toFixed(1)}% of sales`, detail: `$${Math.abs(c.refunds).toFixed(2)} was refunded on $${c.sales.toFixed(2)} of sales. Refunded sales also return no fee on some marketplaces.` });
+      out.push({ severity: "medium", title: `${c.label} refunds are ${((Math.abs(c.refunds) / c.sales) * 100).toFixed(1)}% of sales`, detail: `$${Math.abs(c.refunds).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} was refunded on $${c.sales.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of sales. Refunded sales also return no fee on some marketplaces.` });
     }
     for (const n of c.notes) out.push({ severity: "info", title: n.startsWith(c.label) ? n : `${c.label}: ${n}`, detail: "" });
   }
@@ -667,7 +667,7 @@ function findings(channels, total, months, mileage = null, inventory = null) {
   const costed = months.filter((m) => m.profit !== null);
   if (costed.length >= 3) {
     const worst = [...costed].sort((a, b) => a.profit - b.profit)[0];
-    if (worst.profit < 0) out.push({ severity: "high", title: `${worst.month} lost $${(-worst.profit).toFixed(2)} after the cost of goods`, detail: "The month's marketplace payouts were smaller than what you paid for the items sold in it." });
+    if (worst.profit < 0) out.push({ severity: "high", title: `${worst.month} lost $${(-worst.profit).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} after the cost of goods`, detail: "The month's marketplace payouts were smaller than what you paid for the items sold in it." });
   }
   return out;
 }
@@ -697,7 +697,7 @@ export function toCsv(result) {
 }
 
 export function summaryText(result) {
-  const m = (v) => (v === null || v === undefined ? "–" : ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(v).toFixed(2)));
+  const m = (v) => (v === null || v === undefined ? "–" : ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })));
   const out = [`Reseller books: ${result.channels.map((c) => c.label).join(", ")}`];
   const t = result.total;
   out.push(`Sales ${m(t.sales)}, refunds ${m(t.refunds)}, fees ${m(t.platformFees)}, postage ${m(t.labels)}, ads ${m(t.ads)}, other ${m(t.other)}, net payout ${m(t.net)}.`);

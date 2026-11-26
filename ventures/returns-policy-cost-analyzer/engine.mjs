@@ -117,7 +117,7 @@ export function analyze(parsed, options = {}) {
   const findings = [];
   const add = (rule, severity, message) => findings.push({ rule, severity, message });
   const usd = (n) => {
-    const format = (n) => `$${Math.abs(n).toFixed(2)}`;
+    const format = (n) => `$${Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const text = format(Math.abs(n));
     return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
   };
@@ -194,7 +194,7 @@ export function summarize(report) {
   const errors = report.findings.filter((f) => f.severity === "error").length;
   const warns = report.findings.filter((f) => f.severity === "warn").length;
   const t = report.totals;
-  return { status: errors ? "error" : warns ? "warn" : "ok", errors, warns, text: `${report.count} order(s), ${t.returns} returned (${(t.returnRate * 100).toFixed(0)}%). Returns cost about $${t.costPerReturn.toFixed(2)} each and $${t.returnCost.toFixed(2)} in total; profit margin ${(t.marginBeforeReturns * 100).toFixed(0)}% before returns, ${(t.marginAfterReturns * 100).toFixed(0)}% after.` };
+  return { status: errors ? "error" : warns ? "warn" : "ok", errors, warns, text: `${report.count} order(s), ${t.returns} returned (${(t.returnRate * 100).toFixed(0)}%). Returns cost about $${t.costPerReturn.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} each and $${t.returnCost.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} in total; profit margin ${(t.marginBeforeReturns * 100).toFixed(0)}% before returns, ${(t.marginAfterReturns * 100).toFixed(0)}% after.` };
 }
 
 export const INPUT_NOTES = [

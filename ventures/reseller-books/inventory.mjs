@@ -295,7 +295,7 @@ export function costLines(lots) {
 export function partThreeNotes(p) {
   const out = [];
   const usd = (v) => {
-    const format = (v) => `$${v.toFixed(2)}`;
+    const format = (v) => `$${v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const text = format(Math.abs(v));
     return v < 0 && /[1-9]/.test(text) ? `-${text}` : text;
   };

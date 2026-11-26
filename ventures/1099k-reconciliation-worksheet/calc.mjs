@@ -66,14 +66,14 @@ export function reconcileRow(row = {}) {
       id: "adjustments-exceed-box1a",
       severity: "high",
       title: `${platform}: refunds + marketplace-remitted sales tax exceed Box 1a`,
-      detail: `You entered $${nonIncomeAdjustments.toFixed(2)} of refunds and marketplace-remitted sales tax against a Box 1a of $${box1a.toFixed(2)} — that leaves a negative amount, which isn't possible. Re-check these two numbers against the platform's own 1099-K and payout statement before trusting this row.`,
+      detail: `You entered $${nonIncomeAdjustments.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of refunds and marketplace-remitted sales tax against a Box 1a of $${box1a.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} — that leaves a negative amount, which isn't possible. Re-check these two numbers against the platform's own 1099-K and payout statement before trusting this row.`,
     });
   } else if (box1a > 0 && nonIncomeAdjustments / box1a > LARGE_NON_INCOME_SHARE) {
     findings.push({
       id: "large-non-income-share",
       severity: "medium",
       title: `${platform}: refunds and marketplace-remitted sales tax are ${Math.round((nonIncomeAdjustments / box1a) * 100)}% of Box 1a`,
-      detail: `$${nonIncomeAdjustments.toFixed(2)} of the $${box1a.toFixed(2)} reported is refunds or sales tax the platform collected and remitted on your behalf, not your income. That's a large share — worth confirming against the platform's own statement rather than an estimate, since it's the single biggest lever on this row's result.`,
+      detail: `$${nonIncomeAdjustments.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of the $${box1a.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} reported is refunds or sales tax the platform collected and remitted on your behalf, not your income. That's a large share — worth confirming against the platform's own statement rather than an estimate, since it's the single biggest lever on this row's result.`,
     });
   }
   if (box1a > 0 && estimatedNetProfit < 0) {
@@ -81,7 +81,7 @@ export function reconcileRow(row = {}) {
       id: "platform-loss",
       severity: "medium",
       title: `${platform}: shows an estimated loss after costs`,
-      detail: `After marketplace-remitted tax, refunds, fees, cost of goods, and shipping, this platform's estimated net result is a loss of $${Math.abs(estimatedNetProfit).toFixed(2)}. If these were personal items you sold for less than you paid (used clothes, furniture, gear), that loss is not deductible: the IRS has you report the 1099-K amount on Schedule 1 (Form 1040) line 8z and offset it on line 24z, so the net is zero and it stays off Schedule C. Only a real business (bought to resell, or run for profit) can carry a loss onto Schedule C — keep the receipts that support it.`,
+      detail: `After marketplace-remitted tax, refunds, fees, cost of goods, and shipping, this platform's estimated net result is a loss of $${Math.abs(estimatedNetProfit).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}. If these were personal items you sold for less than you paid (used clothes, furniture, gear), that loss is not deductible: the IRS has you report the 1099-K amount on Schedule 1 (Form 1040) line 8z and offset it on line 24z, so the net is zero and it stays off Schedule C. Only a real business (bought to resell, or run for profit) can carry a loss onto Schedule C — keep the receipts that support it.`,
     });
   }
 
@@ -128,7 +128,7 @@ export function reconcileAll(rows = []) {
         id: "multi-platform-summary",
         severity: "info",
         title: `${reconciled.length} platforms reconciled`,
-        detail: `Combined, these ${reconciled.length} 1099-K forms report $${totals.box1a.toFixed(2)} in Box 1a. After backing out $${totals.nonIncomeAdjustments.toFixed(2)} of refunds and marketplace-remitted sales tax and $${totals.totalExpenses.toFixed(2)} of your own costs, this worksheet's estimate of your combined net profit is $${totals.estimatedNetProfit.toFixed(2)}.`,
+        detail: `Combined, these ${reconciled.length} 1099-K forms report $${totals.box1a.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} in Box 1a. After backing out $${totals.nonIncomeAdjustments.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of refunds and marketplace-remitted sales tax and $${totals.totalExpenses.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} of your own costs, this worksheet's estimate of your combined net profit is $${totals.estimatedNetProfit.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.`,
       });
     }
     // Fires on every non-empty worksheet, unconditionally -- the same

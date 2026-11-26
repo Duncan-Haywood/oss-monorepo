@@ -25,6 +25,8 @@ export const PLATFORMS = {
 };
 
 const round2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
+// "$4,730.00", sign outside the symbol, for sentences a reseller reads.
+const usd = (n) => `${n < 0 && Math.abs(n).toFixed(2) !== "0.00" ? "-" : ""}$${Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const finite = (n) => typeof n === "number" && Number.isFinite(n);
 
 function clean(input) {
@@ -213,8 +215,8 @@ export function summarizeSales(report) {
   if (!report.count) return { status: "none", text: "No sales rows could be read." };
   const t = report.total;
   const best = report.platforms[0];
-  const loseNote = report.losers.length ? `; ${report.losers.length} sale${report.losers.length === 1 ? "" : "s"} lost money (worst ${report.losers[0].event || report.losers[0].platform}, $${report.losers[0].loss})` : "";
-  return { status: t.profit >= 0 ? "ok" : "loss", text: `${t.sales} sales netted $${t.profit} on $${t.cost} paid (${t.roi ?? "n/a"}% ROI), ${t.feePct ?? "n/a"}% of gross went to fees; best platform ${best.platform} ($${best.profit})${loseNote}.` };
+  const loseNote = report.losers.length ? `; ${report.losers.length} sale${report.losers.length === 1 ? "" : "s"} lost money (worst ${report.losers[0].event || report.losers[0].platform}, ${usd(report.losers[0].loss)})` : "";
+  return { status: t.profit >= 0 ? "ok" : "loss", text: `${t.sales} sales netted ${usd(t.profit)} on ${usd(t.cost)} paid (${t.roi ?? "n/a"}% ROI), ${t.feePct ?? "n/a"}% of gross went to fees; best platform ${best.platform} (${usd(best.profit)})${loseNote}.` };
 }
 
 export const INPUT_NOTES = [

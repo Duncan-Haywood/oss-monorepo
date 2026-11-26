@@ -349,7 +349,7 @@ export function defaultPromoSet({ percentOff = 10, amountOff = 10 } = {}) {
   const percent = number(percentOff, "Promo percent");
   const amount = number(amountOff, "Promo amount");
   if (percent > 100) throw new Error("Promo percent must be at most 100");
-  const amountLabel = Number.isInteger(amount) ? `$${amount} off item` : `$${amount.toFixed(2)} off item`;
+  const amountLabel = Number.isInteger(amount) ? `$${amount} off item` : `$${amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} off item`;
   return [
     { id: "list", kind: "list", label: "List price" },
     { id: "percent_off", kind: "percent_off", percent, label: `${percent}% off item` },
@@ -496,7 +496,7 @@ function winnerFromLabelDelta(delta) {
 
 function moneyLabel(value) {
   const sign = value < 0 ? "-" : "";
-  return `${sign}$${Math.abs(value).toFixed(2)}`;
+  return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 function pathFromOrder(id, label, order, labelCost, shippingCharged) {

@@ -145,7 +145,7 @@ export const FEE_MODES = ["auto", "schedule"];
 const r2 = (n) => Math.round(n * 100) / 100;
 const isBlank = (s) => s === "" || /^[-–—\s]+$/.test(s);
 const norm = (s) => String(s ?? "").toLowerCase().replace(/\s+/g, " ").trim();
-const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(n).toFixed(2));
+const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 
 // Returns { items, skipped, excludedCount, currency, columns, dmy, feeSource, error }.
 // An item is { line, id, title, brand, sku, t, listedT, price, fee, scheduleFee,
@@ -322,7 +322,7 @@ export function analyze(rawItems, { costList = "", from = null, to = null, minBr
   if (stopBrands.length) findings.push({ severity: "high", title: `Consider not sourcing: ${stopBrands.map((b) => b.label).join(", ")}`, detail: stopBrands.map((b) => `${b.label}: ${usd(b.profit)} over ${b.costedItems} sales (${(b.feeRate * 100).toFixed(0)}% effective fee)`).join("; ") + `. A brand needs at least ${minBrandItems} costed sales to be named.` });
   if (thinBrands.length) findings.push({ severity: "medium", title: `Thin margin brands: ${thinBrands.map((b) => b.label).join(", ")}`, detail: thinBrands.map((b) => `${b.label}: ${(b.margin * 100).toFixed(0)}% of sale price kept as profit`).join("; ") + "." });
   if (feeHeavyBrands.length) findings.push({ severity: "medium", title: `Fee takes 25% or more of the price: ${feeHeavyBrands.map((b) => b.label).join(", ")}`, detail: "The flat fee is heavy on low-priced items. Without a cost column this is the only sourcing signal the file can give." });
-  if (flat.length) findings.push({ severity: flatExtra > 0 ? "medium" : "info", title: `${flat.length} sale${flat.length === 1 ? "" : "s"} under $15 paid the flat $2.95`, detail: `That is ${usd(flat.reduce((s, x) => s + x.scheduleFee, 0))} in fees on ${usd(flat.reduce((s, x) => s + x.price, 0))} of sales (${(flat.reduce((s, x) => s + x.scheduleFee, 0) / flat.reduce((s, x) => s + x.price, 0) * 100).toFixed(0)}%)${flatExtra > 0 ? `, ${usd(flatExtra)} more than 20% would have taken, because the flat fee costs more than 20% below $${BREAK_EVEN_PRICE.toFixed(2)}` : ""}.` });
+  if (flat.length) findings.push({ severity: flatExtra > 0 ? "medium" : "info", title: `${flat.length} sale${flat.length === 1 ? "" : "s"} under $15 paid the flat $2.95`, detail: `That is ${usd(flat.reduce((s, x) => s + x.scheduleFee, 0))} in fees on ${usd(flat.reduce((s, x) => s + x.price, 0))} of sales (${(flat.reduce((s, x) => s + x.scheduleFee, 0) / flat.reduce((s, x) => s + x.price, 0) * 100).toFixed(0)}%)${flatExtra > 0 ? `, ${usd(flatExtra)} more than 20% would have taken, because the flat fee costs more than 20% below $${BREAK_EVEN_PRICE.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : ""}.` });
   if (shipLossItems.length) findings.push({ severity: "medium", title: `${shipLossItems.length} sale${shipLossItems.length === 1 ? "" : "s"} carried a shipping discount or deduction`, detail: `${usd(shipLossItems.reduce((s, x) => s + x.shippingLoss, 0))} in total, an average of ${usd(shipLossItems.reduce((s, x) => s + x.shippingLoss, 0) / shipLossItems.length)} on those sales. Where the file lists a seller shipping discount it is used; otherwise any gap between price minus fee and net earnings is counted.` });
   if (feeMismatch.length) findings.push({ severity: "info", title: `${feeMismatch.length} fee${feeMismatch.length === 1 ? "" : "s"} in the file differ from the published $2.95 / 20% schedule`, detail: "The fee in your file is used. Promotions, a different rate on your account or an old schedule can explain this; check a few against your own statement." });
   if (slow.length) findings.push({ severity: "info", title: `${slow.length} item${slow.length === 1 ? "" : "s"} took more than 90 days to sell`, detail: "Slow sellers tie up cash and closet space. Days are from the listed date to the order date in the file." });
@@ -340,7 +340,7 @@ export function analyze(rawItems, { costList = "", from = null, to = null, minBr
 // Plain text for pasting into a note, a forum post or a message to yourself.
 export function summaryText(r, { currency = "" } = {}) {
   const s = r.summary, c = currency ? currency + " " : "";
-  const m = (n) => (Number.isFinite(n) ? ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(c + "$" + Math.abs(n).toFixed(2)) : "n/a");
+  const m = (n) => (Number.isFinite(n) ? ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(c + "$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })) : "n/a");
   const lines = [
     `Poshmark sales ${dateStr(s.from)} to ${dateStr(s.to)}: ${s.items} sales across ${s.brands} brand(s)`,
     `Sales ${m(s.price)}, Poshmark fees ${m(s.fee)} (${(s.feeRate * 100).toFixed(1)}% effective), shipping deductions ${m(s.shippingLoss)}, payout ${m(s.payout)}`,

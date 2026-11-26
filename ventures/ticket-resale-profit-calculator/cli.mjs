@@ -43,7 +43,7 @@ async function readStdin() {
   return Buffer.concat(chunks).toString("utf8");
 }
 
-const usd = (n) => `${n < 0 && Math.abs(n).toFixed(2) !== "0.00" ? "-" : ""}$${Math.abs(n).toFixed(2)}`;
+const usd = (n) => `${n < 0 && Math.abs(n).toFixed(2) !== "0.00" ? "-" : ""}$${Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 export async function run(argv, { readFile = (p) => fs.readFile(p, "utf8"), stdin = readStdin } = {}) {
   const args = parseArgs(argv);

@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKnqvYD3vyjowVXu2zu",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T22:18:04Z",
+  "ended": "2026-11-26T22:26:57Z",
+  "wall_minutes": 9.22,
+  "tokens_in": 6468280,
+  "tokens_out": 22713,
+  "cost_usd": 2.5518,
+  "tool_calls": 71,
+  "task": "polish: run the raw-amount phone-probe rule over every industry and fix the findings",
+  "projects": [
+    "amazon-fba-calculator",
+    "shopify-fee-calculator",
+    "reseller-books",
+    "reverb-fee-calculator",
+    "where-to-sell-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19497",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "First push went to a self-named branch polish/unseparated-money-all-industries before I re-pushed to the session's designated branch; that stray remote branch is left for cleanup."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Bash heredocs containing backticks/${} (python - <<EOF) were refused by the harness rm-safety check even though they delete nothing; writing the script with Write worked. Worth a line in cloud-session.md."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "No docs/posts post: owner 2026-11-24 asks for consolidated posts, and a formatting sweep is too thin for a reader post.",
+      "did": "Wrote only the docs/reports note for the next polish run.",
+      "result": "note carries the measurements"
+    }
+  ],
+  "writeups": [
+    "docs/reports/polish-2026-11-26-unseparated-money-all-industries.md"
+  ],
+  "goal": null,
+  "notes": "phone-probe-check --industry all on 207 slugs: 23 raw-amount failures on 14 slugs before, 0 after (rebuilt and re-probed). run_venture_tests.py --changed: 35 suites, 0 failed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4a28e995-26a0-5419-a15e-72c50cf67065",
+    "transcripts": 1,
+    "first": "2026-11-26T22:18:04Z",
+    "last": "2026-11-26T22:27:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 125,
+        "output": 22713,
+        "thinking": 3824,
+        "cache_read": 6365149,
+        "cache_write_5m": 0,
+        "cache_write_1h": 103006,
+        "api_equivalent_usd": 2.5518,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 125,
+      "output": 22713,
+      "thinking": 3824,
+      "cache_read": 6365149,
+      "cache_write_5m": 0,
+      "cache_write_1h": 103006,
+      "api_equivalent_usd": 2.5518,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 59,
+      "Edit": 6,
+      "Write": 2,
+      "Grep": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.22,
+      "active_minutes": 9.22,
+      "model_minutes": 4.55,
+      "tool_minutes": 4.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "probe 207 slugs, fix 23 pages' formatters and pins across 14 ventures",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 156.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

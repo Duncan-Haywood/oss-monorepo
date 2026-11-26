@@ -93,7 +93,7 @@ export async function run(argv, { readFile = (p) => fs.readFile(p, "utf8"), stdi
   const fmtBE = (b) => (!b ? "(current)" : b.kind === "always" ? "pays at any drop-off" : b.kind === "never" ? "does not pay" : b.kind === "atLeast" ? `pays if drop-off >= ${(b.drag * 100).toFixed(0)}%` : `pays if drop-off <= ${(b.drag * 100).toFixed(0)}%`);
   for (const t of report.table) {
     const mark = t === report.best ? " <- best" : t === report.robust ? " <- safest" : "";
-    lines.push(`  ${report.label(t.threshold).padEnd(17)} free ${(t.freePct * 100).toFixed(0).padStart(3)}%  ${(t.gain >= 0 ? "+" : "-") + "$" + Math.abs(t.gain).toFixed(2).padStart(9)}  ${fmtBE(t.breakEven)}${mark}`);
+    lines.push(`  ${report.label(t.threshold).padEnd(17)} free ${(t.freePct * 100).toFixed(0).padStart(3)}%  ${(t.gain >= 0 ? "+" : "-") + "$" + Math.abs(t.gain).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).padStart(9)}  ${fmtBE(t.breakEven)}${mark}`);
   }
   if (report.skipped) lines.push("", `${report.skipped} line(s) skipped (not parseable).`);
   lines.push("", "Findings:");

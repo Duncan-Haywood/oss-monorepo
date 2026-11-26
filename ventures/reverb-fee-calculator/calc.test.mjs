@@ -362,7 +362,7 @@ test('consignmentNote names the default worked example without telling you to co
   assert.match(note, /30% shop cut/);
   assert.match(note, /\$520\.00 cash offer/);
   assert.match(note, /8\.55%/);
-  assert.match(note, /\$1045\.14/);
+  assert.match(note, /\$1,045\.14/);
   assert.match(note, /\$731\.60/);
   assert.doesNotMatch(note, /you should|recommend|must consign/i);
 });

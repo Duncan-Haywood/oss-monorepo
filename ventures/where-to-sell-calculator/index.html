@@ -604,7 +604,7 @@
     // A minus sign belongs in front of the currency, not between the sign and
     // the digits: "$-0.41" reads as a typo, and the shelf-time table shows a
     // negative in every row of "if it does not sell".
-    const money = (value) => (value < 0 ? `−$${Math.abs(value).toFixed(2)}` : `$${value.toFixed(2)}`);
+    const money = (value) => (value < 0 ? `−$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
 
     // Deep-ish clone so editing a channel never mutates the shipped presets.
     const freshChannels = () => CHANNEL_PRESETS.map((channel) => ({ ...channel }));

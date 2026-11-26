@@ -302,7 +302,7 @@ function finding(severity, title, detail) {
 
 const money = (n) => {
   const value = Number(n) || 0;
-  const text = `$${Math.abs(value).toFixed(2)}`;
+  const text = `$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 };
 

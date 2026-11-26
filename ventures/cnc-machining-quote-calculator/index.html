@@ -507,7 +507,7 @@
     // that rounds away to zero at the requested precision.
     const money = (n, places = 2) => {
       const value = Number(n) || 0;
-      const text = `$${Math.abs(value).toFixed(places)}`;
+      const text = `$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: places, maximumFractionDigits: places })}`;
       return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     };
     const pct = (n) => `${(Number(n) || 0).toFixed(1)}%`;

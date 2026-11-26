@@ -27,7 +27,7 @@ const returnSeo = readFileSync(new URL('./should-i-take-the-return-or-refund-on-
 const vsSeo = readFileSync(new URL('./vs-reverbs-selling-fees-page.html', import.meta.url), 'utf8');
 
 function money(value) {
-  return `$${(Math.round((Number(value) + Number.EPSILON) * 100) / 100).toFixed(2)}`;
+  return `$${(Math.round((Number(value) + Number.EPSILON) * 100) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 function signed(value) {
   return `${value < 0 ? '−' : '+'}${money(Math.abs(value))}`;

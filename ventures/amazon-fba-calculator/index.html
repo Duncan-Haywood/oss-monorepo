@@ -1069,7 +1069,7 @@
     // disagree about which inputs exist.
     import { INPUT_FIELDS as ids, TOGGLE_FIELDS as toggleIds } from "./calc.mjs";
     const money = (value) => {
-      const format = (value) => `$${value.toFixed(2)}`;
+      const format = (value) => `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       const text = format(Math.abs(value));
       return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     };
@@ -1144,7 +1144,7 @@
     // page to learn whether sending extra units beats paying the surcharge.
     function renderLowInventory(input) {
       const result = compareLowInventory(input);
-      const signed = (value) => `${value < 0 && Math.abs(value).toFixed(2) !== "0.00" ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
+      const signed = (value) => `${value < 0 && Math.abs(value).toFixed(2) !== "0.00" ? "−" : ""}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       const verdict = document.getElementById("lowInventoryVerdict");
       if (!result.applies) {
         verdict.textContent = result.reason === "fbm"
@@ -1202,7 +1202,7 @@
         ...input,
         removalFee: input.agedRemovalFee,
       });
-      const signed = (value) => `${value < 0 && Math.abs(value).toFixed(2) !== "0.00" ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
+      const signed = (value) => `${value < 0 && Math.abs(value).toFixed(2) !== "0.00" ? "−" : ""}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       const verdict = document.getElementById("liquidationVerdict");
       if (result.winner === "elsewhere") {
         verdict.textContent = `Selling elsewhere keeps ${signed(result.extraElsewhereVsLiquidate)} more than FBA Liquidations`;
@@ -1233,7 +1233,7 @@
     // is-amazon-vine-worth-it.html.
     function renderVine(input) {
       const result = compareVine(input);
-      const signed = (value) => `${value < 0 && Math.abs(value).toFixed(2) !== "0.00" ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
+      const signed = (value) => `${value < 0 && Math.abs(value).toFixed(2) !== "0.00" ? "−" : ""}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       const verdict = document.getElementById("vineVerdict");
       if (result.winner === "leftover") {
         verdict.textContent = `Vine leftover units keep ${signed(result.extraKeptOnLeftover)} more than skipping Vine`;
@@ -1261,7 +1261,7 @@
     // should-i-use-seller-fulfilled-prime.html.
     function renderSfp(input) {
       const result = compareSfp(input);
-      const signed = (value) => `${value < 0 && Math.abs(value).toFixed(2) !== "0.00" ? "−" : ""}$${Math.abs(value).toFixed(2)}`;
+      const signed = (value) => `${value < 0 && Math.abs(value).toFixed(2) !== "0.00" ? "−" : ""}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       const verdict = document.getElementById("sfpVerdict");
       if (result.winner === "sfp") {
         verdict.textContent = `Seller Fulfilled Prime keeps ${signed(result.extraKeptOnSfp)} more per session than FBA`;
@@ -1415,7 +1415,7 @@
         const field = document.getElementById("fulfillmentFee");
         field.placeholder = result.suggestedFulfillment.toFixed(2);
         document.getElementById("sizeHint").textContent =
-          `(${result.sizeTierLabel}, default $${result.suggestedFulfillment.toFixed(2)})`;
+          `(${result.sizeTierLabel}, default $${result.suggestedFulfillment.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`;
         fillAuto("fulfillmentFee", result.suggestedFulfillment.toFixed(2));
 
         const stayAuto = document.getElementById("lowPriceSalePrice").dataset.auto === "1"
@@ -1431,7 +1431,7 @@
         });
         document.getElementById("lowPriceFulfillmentFee").placeholder = compared.suggestedLow.toFixed(2);
         document.getElementById("lowPriceFeeHint").textContent =
-          `(default $${compared.suggestedLow.toFixed(2)})`;
+          `(default $${compared.suggestedLow.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`;
         fillAuto("lowPriceFulfillmentFee", compared.suggestedLow.toFixed(2));
         fillAuto("lowPriceSalePrice", compared.stayPrice.toFixed(2));
         fillAuto("raisePrice", compared.raisePrice.toFixed(2));
@@ -1448,7 +1448,7 @@
         });
         document.getElementById("mcfFulfillmentFee").placeholder = mcfCompared.suggestedMcfFee.toFixed(2);
         document.getElementById("mcfFeeHint").textContent =
-          `(default $${mcfCompared.suggestedMcfFee.toFixed(2)})`;
+          `(default $${mcfCompared.suggestedMcfFee.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`;
         fillAuto("mcfFulfillmentFee", mcfCompared.suggestedMcfFee.toFixed(2));
         fillAuto("dtcSalePrice", mcfCompared.dtcSalePrice.toFixed(2));
       } catch {
@@ -1755,9 +1755,9 @@
         const minimal = document.getElementById("placementMinimalPerUnit");
         const partial = document.getElementById("placementPartialPerUnit");
         document.getElementById("placementMinimalHint").textContent =
-          `(${sizeTierLabel} default $${filled.placementMinimalPerUnit.toFixed(2)})`;
+          `(${sizeTierLabel} default $${filled.placementMinimalPerUnit.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`;
         document.getElementById("placementPartialHint").textContent =
-          `(${sizeTierLabel} default $${filled.placementPartialPerUnit.toFixed(2)})`;
+          `(${sizeTierLabel} default $${filled.placementPartialPerUnit.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`;
         if (minimal.dataset.auto !== "0") {
           syncingPlacement = true;
           minimal.value = filled.placementMinimalPerUnit.toFixed(2);

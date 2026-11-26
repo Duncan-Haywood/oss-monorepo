@@ -92,8 +92,8 @@ test("worked example on the page matches the locked comparison", () => {
   assert.ok(Math.abs(result.extraAwdVsFba - 165.33333333333303) < 1e-4);
   const note = awdNote(result);
   assert.ok(html.includes("$165.33"), "missing $165.33 lot gap");
-  assert.ok(html.includes("$4723.93"), "missing AWD leftover");
-  assert.ok(html.includes("$4558.60"), "missing FBA leftover");
+  assert.ok(html.includes("$4,723.93"), "missing AWD leftover");
+  assert.ok(html.includes("$4,558.60"), "missing FBA leftover");
   assert.ok(html.includes("$1.09"), "missing transfer ceiling");
   assert.ok(html.includes("$1.20"), "missing expensive-transfer flip");
   assert.ok(html.includes("$42.67"), "missing expensive-transfer gap");

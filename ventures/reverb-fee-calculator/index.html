@@ -389,7 +389,7 @@
 
     const field = id => document.getElementById(id);
     const money = (value) => {
-      const format = (value) => `$${value.toFixed(2)}`;
+      const format = (value) => `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       const text = format(Math.abs(value));
       return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     };
@@ -486,8 +486,8 @@
 
       const offerBeatsEbayList = offer.offer.profit > vsEbay.ebay.profit;
       document.getElementById('compareVerdict').textContent = offerBeatsEbayList
-        ? `The $${Number(inputs.offerPrice).toFixed(2)} Reverb offer still beats eBay at your $${Number(inputs.price).toFixed(2)} list on these inputs.`
-        : `The $${Number(inputs.offerPrice).toFixed(2)} Reverb offer leaves less than eBay at your list. The crossover offer is ${money(match.offerPrice)}.`;
+        ? `The $${Number(inputs.offerPrice).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Reverb offer still beats eBay at your $${Number(inputs.price).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} list on these inputs.`
+        : `The $${Number(inputs.offerPrice).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} Reverb offer leaves less than eBay at your list. The crossover offer is ${money(match.offerPrice)}.`;
 
       const wait = compareWaitForBetterOffer(inputs);
       const waitBest = Math.max(...wait.rows.map(row => row.expectedProfit));

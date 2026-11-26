@@ -75,7 +75,7 @@ export async function run(argv, { readFile = (p) => fs.readFile(p, "utf8"), stdi
   const exitCode = summary.errors > 0 || (args.failOn === "warn" && summary.warns > 0) ? 1 : 0;
   if (args.json) return { exitCode, output: JSON.stringify({ summary, note: MODEL_NOTE, totals: report.totals, categories: report.categories, best: report.best, robust: report.robust, policies: report.table, findings: report.findings }, null, 2) };
 
-  const money = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(x).toFixed(2));
+  const money = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
   const lines = [summary.text, "", "By category (worst first):"];
   for (const c of report.categories) lines.push(`  ${c.cat.padEnd(16)} ${String(c.orders).padStart(5)} orders  return rate ${(c.rate * 100).toFixed(0).padStart(3)}%  returns cost ${money(c.cost).padStart(10)}  margin ${(c.marginBefore * 100).toFixed(0)}% -> ${(c.margin * 100).toFixed(0)}%`);
   lines.push("", `Expected profit change vs free returns on these ${report.count} orders (deterrence ${report.options.deterrence}x, ${Math.round(report.options.drag * 100)}% checkout drop-off when a fee is shown):`);

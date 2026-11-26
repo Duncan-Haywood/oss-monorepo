@@ -199,7 +199,7 @@
       has to land about 1.2 paid cycles before it matches one-time.
       Skip can rise to about 76.1% before monthly matches one-time.
       The billing fee can rise to about 38.9% before monthly matches
-      one-time. A 25% enroll mix across 80 buyers keeps $1492.42 more
+      one-time. A 25% enroll mix across 80 buyers keeps $1,492.42 more
       than selling every buyer one-time. After one paid cycle with no
       skip, monthly keeps $26.59 against $31.74 one-time; a 20%
       one-month prepaid keeps $21.98 and one-time wins. Raise skip to
@@ -248,7 +248,7 @@
     ];
     const money = (value) => {
       const sign = value < 0 ? "-" : "";
-      return `${sign}$${Math.abs(value).toFixed(2)}`;
+      return `${sign}$${Math.abs(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     };
     const pct = (value) => Number.isFinite(value) ? `${value.toFixed(1)}%` : "—";
 

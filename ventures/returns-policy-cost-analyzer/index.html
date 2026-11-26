@@ -170,7 +170,7 @@ node cli.mjs analyze orders.csv --deterrence 0.5 --drag 5 --json --fail-on warn<
       if (days >= 1) o.days = days;
       return o;
     }
-    const usd = (n) => `${n < 0 && Math.abs(n).toFixed(2) !== "0.00" ? "-" : "+"}$${Math.abs(n).toFixed(2)}`;
+    const usd = (n) => `${n < 0 && Math.abs(n).toFixed(2) !== "0.00" ? "-" : "+"}$${Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const pays = (b) => (b.kind === "always" ? "at any drop-off tested" : b.kind === "never" ? "never" : `drop-off is ${(b.drag * 100).toFixed(1)}% or less`);
 
     function renderReport() {
@@ -184,7 +184,7 @@ node cli.mjs analyze orders.csv --deterrence 0.5 --drag 5 --json --fail-on warn<
       const { status, text: summaryText } = summarize(report);
       els.summary.innerHTML = `<span class="${status === "ok" ? "ok" : status === "none" ? "error" : "changed"}">${escapeHtml(summaryText)}</span>`;
       els.catT.hidden = !report.count;
-      els.catR.innerHTML = report.count ? report.categories.map((c) => `<tr><td>${escapeHtml(c.cat)}</td><td class="num">${c.orders}</td><td class="num">${(c.rate * 100).toFixed(0)}%</td><td class="num">$${c.cost.toFixed(2)}</td><td class="num">${(c.marginBefore * 100).toFixed(0)}% → ${(c.margin * 100).toFixed(0)}%</td></tr>`).join("") : "";
+      els.catR.innerHTML = report.count ? report.categories.map((c) => `<tr><td>${escapeHtml(c.cat)}</td><td class="num">${c.orders}</td><td class="num">${(c.rate * 100).toFixed(0)}%</td><td class="num">$${c.cost.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td><td class="num">${(c.marginBefore * 100).toFixed(0)}% → ${(c.margin * 100).toFixed(0)}%</td></tr>`).join("") : "";
       els.costT.hidden = !report.count;
       els.costR.innerHTML = report.count ? report.table.map((t) => `<tr class="${t === report.best ? "best" : t === report.robust ? "safe" : ""}"><td>${escapeHtml(t.label)}${t === report.best ? " · best" : t === report.robust ? " · safest" : ""}</td><td class="num">${usd(t.gain)}</td><td>${escapeHtml(pays(t.breakEven))}</td></tr>`).join("") : "";
       els.table.hidden = report.findings.length === 0;

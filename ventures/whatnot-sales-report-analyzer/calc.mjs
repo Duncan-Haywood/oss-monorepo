@@ -160,7 +160,7 @@ export const FEE_MODES = ["auto", "schedule"];
 const r2 = (n) => Math.round(n * 100) / 100;
 const isBlank = (s) => s === "" || /^[-–—\s]+$/.test(s);
 const norm = (s) => String(s ?? "").toLowerCase().replace(/\s+/g, " ").trim();
-const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(n).toFixed(2));
+const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 
 // Returns { items, skipped, excludedCount, currency, columns, dmy, feeSource, error }.
 // An item is { line, id, title, show, category, sku, t, price, fee, scheduleFee,
@@ -393,7 +393,7 @@ export const dateStr = (t) => new Date(t).toISOString().slice(0, 10);
 // Plain text for pasting into a note, a forum post or a message to yourself.
 export function summaryText(r, { currency = "" } = {}) {
   const s = r.summary, c = currency ? currency + " " : "";
-  const m = (n) => (Number.isFinite(n) ? ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(c + "$" + Math.abs(n).toFixed(2)) : "n/a");
+  const m = (n) => (Number.isFinite(n) ? ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(c + "$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })) : "n/a");
   const lines = [
     `Whatnot sales ${dateStr(s.from)} to ${dateStr(s.to)}: ${s.items} sales, ${s.shows} show(s), ${s.categories} categor${s.categories === 1 ? "y" : "ies"}`,
     `Sales ${m(s.price)}, Whatnot fees ${m(s.fee)} (${(s.feeRate * 100).toFixed(1)}% effective), other deductions ${m(s.deductions)}, payout ${m(s.payout)}`,
