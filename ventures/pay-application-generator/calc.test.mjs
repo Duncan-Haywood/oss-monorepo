@@ -236,3 +236,28 @@ test("a percent is a plain decimal: hex or exponent text is refused", () => {
   assert.equal(parsePercent("7.5"), 750);
   assert.equal(parsePercent(".5%"), 50);
 });
+
+test("half a cent of retainage rounds away from zero, so a deductive change order mirrors the same amount billed", () => {
+  // 10% of 1,234.55 is 123.455. Excel's ROUND (and the workbook's formulas) give 123.46 and -123.46; Math.round alone
+  // would give -123.45 for the deduction and leave the page a cent off the workbook.
+  const r = compute("Item,Description,Scheduled value,Previous,This period,Stored\n1,Base,100000,0,1234.55,0\nCO-1,Deduct,-1234.55,0,-1234.55,0", S());
+  assert.deepEqual(r.errors, []);
+  assert.deepEqual(r.lines.map((l) => l.ret), [12346, -12346]);
+  assert.equal(r.summary.retainage, 0);
+});
+
+test("retainage is odd-symmetric: negating every amount on a line negates its retainage, at any rate", () => {
+  // A seeded sweep over cents and rates, so any rounding that favours one sign (the class of the bug above) fails here
+  // in CI, where the LibreOffice recalculation test is skipped.
+  let seed = 7;
+  const rnd = (n) => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed % n; };
+  for (let i = 0; i < 300; i++) {
+    // Amounts ending in 5 cents at the common 10%, 5% and 2.5% rates land on half cents; the rest are any rate.
+    const amt = ((rnd(1000000) * 10 + 5) / 100).toFixed(2), stored = ((rnd(10000) * 10 + 5) / 100).toFixed(2);
+    const rate = ["10", "5", "2.5", (rnd(2001) / 100).toFixed(2)][i % 4];
+    const csv = (sign) => `Item,Description,Scheduled value,Previous,This period,Stored\nCO-${i},Change,${sign}${amt},0,${sign}${amt},${sign}${stored}`;
+    const pos = compute(csv(""), S({ retainagePct: rate })), neg = compute(csv("-"), S({ retainagePct: rate }));
+    assert.deepEqual([pos.errors, neg.errors], [[], []]);
+    assert.equal(neg.lines[0].ret, -pos.lines[0].ret, `${amt} + ${stored} stored at ${rate}%`);
+  }
+});
