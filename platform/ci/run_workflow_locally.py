@@ -34,8 +34,9 @@ each step's `working-directory`, and reports which passed.
     python3 platform/ci/run_workflow_locally.py doc-refs-ci prompts-ci   # several, in turn
     python3 platform/ci/run_workflow_locally.py --list priv-portfolio-pages.yml
 
-Under an agent harness a run still going after 100 s detaches and prints
-its log path and a `wait_for.py` line (exit 3); `--foreground` stays attached.
+Under an agent harness a run still going after 100 s prints its detached
+log path and a `wait_for.py` line, then keeps relaying until it ends and
+exits with its real code; `--foreground` skips the detached child.
 A sweep exits 0 when every selected workflow passed, 1 when a step failed
 (or the checkout moved, or nothing was selected), and 5 (NO_VERDICT) when
 nothing failed but a workflow ran out of budget or stopped after a skipped
@@ -1977,7 +1978,7 @@ NOTHING_RAN = 6
 # and some twenty run records in two days had to read the log to learn that
 # nothing had failed ("an exit code that separates 'failed' from
 # 'unverifiable here' would save a reading pass"). 5, not 2 or 3: 2 is a
-# usage error and 3 is HANDED_OFF.
+# usage error and 3 was HANDED_OFF (no longer returned, see HANDOFF_S).
 NO_VERDICT = 5
 
 
@@ -2924,11 +2925,23 @@ def _run_selected(args, selected, held, absent=(), changed=()) -> int:
 # run and starting again with run_in_background. Instead of one more line in
 # the always-read guides, the tool does it: under an agent harness (CLAUDECODE
 # set, stdout not a terminal) it runs itself as a detached child writing a log,
-# relays that log for HANDOFF_S seconds and, if the child is still running,
-# says where the log is and exits HANDED_OFF. A run that ends inside the window
-# reads exactly as before, exit code included. --foreground turns it off.
+# relays that log and, if the child is still running after HANDOFF_S seconds,
+# says where the log is. A run that ends inside the window reads exactly as
+# before, exit code included. --foreground turns it off.
+#
+# Until 2026-11-26 the parent then exited HANDED_OFF (3). That broke the call
+# the guides recommend: started with run_in_background, the outer call ended at
+# 100 s with exit 3, its completion notice fired early and a second wait on the
+# detached log was needed (friction_rank cluster 9, two sessions on
+# 2026-11-26). The harness by then also moves a foreground call that outlasts
+# its timeout to the background instead of killing it (checked 2026-11-26: a
+# 5 s timeout on a 60 s python call was backgrounded, not cut off). So the
+# parent now prints the note and keeps relaying until the child ends, returning
+# the child's own code: a background call finishes once, with the real verdict,
+# and a foreground call that is cut off still leaves the detached child and the
+# note saying how to wait for it.
 HANDOFF_S = 100
-HANDED_OFF = 3
+HANDED_OFF = 3  # kept for readers of old logs; handoff() no longer returns it
 CHILD_ENV = "RUN_WORKFLOW_LOCALLY_CHILD"
 DONE_PREFIX = "DONE exit "
 
@@ -2951,8 +2964,9 @@ def handoff(argv, window=HANDOFF_S, out=None, clock=time.monotonic,
             nap=time.sleep, cmd=None) -> int:
     """Run this script on `argv` as a detached child and relay its log.
 
-    Returns the child's exit code when it ends inside `window` seconds, else
-    HANDED_OFF after printing the log path and how to wait for it."""
+    Returns the child's exit code. Past `window` seconds it first prints the
+    log path and how to wait for it, in case this call is cut off, then keeps
+    relaying (see the note above HANDOFF_S)."""
     out = sys.stdout if out is None else out
     fd, log = tempfile.mkstemp(prefix="run_workflow_locally-", suffix=".log")
     env = dict(os.environ, **{CHILD_ENV: "1", "PYTHONUNBUFFERED": "1"})
@@ -2961,7 +2975,7 @@ def handoff(argv, window=HANDOFF_S, out=None, clock=time.monotonic,
             cmd or [sys.executable, os.path.abspath(__file__), *argv],
             stdout=fh, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
             env=env, start_new_session=True)
-    pos, end = 0, clock() + window
+    pos, end, noted = 0, clock() + window, False
 
     def relay():
         nonlocal pos
@@ -2979,11 +2993,14 @@ def handoff(argv, window=HANDOFF_S, out=None, clock=time.monotonic,
         relay()
         if code is not None:
             return code
-        if clock() >= end:
+        if not noted and clock() >= end:
+            noted = True
             out.write(
                 f"\n[handed off] Still running after {window} s, detached so a "
                 f"foreground tool call cannot cut it off (pid {child.pid}).\n"
                 f"  Log: {log}\n"
+                "  This call keeps relaying the log and exits with the run's "
+                "own code. If it is cut off, the run goes on:\n"
                 f"  Wait: python3 platform/ci/wait_for.py {log} --timeout 110 "
                 "(repeat until it exits 0, or start it with run_in_background "
                 "--timeout 3600); the last line reads 'DONE exit <code>'.\n"
@@ -2994,7 +3011,6 @@ def handoff(argv, window=HANDOFF_S, out=None, clock=time.monotonic,
                 "record, is an edit.\n"
                 "  Pass --foreground to run attached instead.\n")
             out.flush()
-            return HANDED_OFF
         nap(1)
 
 
@@ -3083,7 +3099,8 @@ def _main(argv=None) -> int:
     ap.add_argument("--foreground", action="store_true",
                     help="never hand a long run to the background (see "
                          "HANDOFF_S); the default under an agent harness is "
-                         "to detach after 100 s and print the log path")
+                         "to print a detached log path after 100 s and keep "
+                         "relaying it")
     args = ap.parse_args(argv)
 
     if args.repo_root:
