@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtLbyzX5aa3WTEE7iTX",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T13:07:28Z",
+  "ended": "2026-11-26T13:25:58Z",
+  "wall_minutes": 19.03,
+  "tokens_in": 21064880,
+  "tokens_out": 71417,
+  "cost_usd": 7.3073,
+  "tool_calls": 138,
+  "task": "Bet #1 (payapps): RFI log per job, the first suite module past billing (bets.md: 'growing into job costing, RFIs and estimating')",
+  "projects": [
+    "payapps",
+    "payapps-site",
+    "pay-app-guides"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19359",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 20,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets named payapps #7 'free and not gated', but its text waits on real customers ('once real companies are counted'); jobshop #3 'free' is the launch item that needs the deploy workflow, which cannot run while private Actions are starved. The gate detector misses both phrasings, so the 'Start here' suggestion pointed at unbuildable work."
+    },
+    {
+      "file": "apps/jobshop-quote/ROADMAP.md (private)",
+      "issue": "Almost every Next item across payapps, jobshop-quote, cmmc and einvoice-preflight now ends in 'if shops/people ask' or waits on the owner's deploy; the ROADMAPs no longer list suite growth the bets name (RFIs were absent from payapps' list until this run). A run has to read bets.md against the ROADMAP to find work."
+    },
+    {
+      "file": "apps/payapps/docs/DEPLOY.md (private)",
+      "issue": "Says 'The workflow itself has not run yet'; still true. Every product launch waits on decision-queue item private-actions-billing (no runner in private-monorepo), which bounds what any ventures run can ship toward revenue."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/ci/roadmap_claim.py (Start here: payapps #7)",
+      "why": "That item waits on real-company counts that do not exist yet. RFIs are named in bets.md as the suite's next growth and were on no list",
+      "did": "Claimed payapps --slug rfi-log and built the module (table, API, PDF, CSV, email draft, UI, tests, site feature, privacy line)",
+      "result": "Merged as private PR 335 with all local CI steps green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-tm-tickets-to-change-orders.md (extended with an RFI section; consolidated rather than a new post)",
+    "apps/payapps/docs/ARCHITECTURE.md 'RFIs' section and ROADMAP Done + 'RFIs, part 2' (private)"
+  ],
+  "goal": "$10k MRR: deepen bet #1's suite so a sub has one more reason to pay than billing alone",
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/335 merged (squash 07697d0). private-monorepo Actions starved (ci_starvation.py exit 0 on run 45828695109: 1 of 1 job never got a runner), so every CI step was run locally on the branch: biome ci . (1 warning already in services/billing.ts), pnpm typecheck clean, test:unit 99 files 929 passed 1 skipped, test:worker 65 files 403 passed, pnpm build ok, provision.test.mjs 4 pass, drizzle-kit check ok plus a drift-check generate with no changes. payapps-site: unit 21 passed, tsc clean. Browser check with pnpm dev + Playwright: sign-up, 3 RFIs, answer, link CO, follow-up email, add from form; no page errors; at 390 px the RFI section fits (356=356), other job-page sections already overflow (page scrollWidth 567). The PDF was rendered with pdftoppm and checked by eye. The Privacy Policy now lists RFIs; POLICY_VERSION bumped to 2026-11-26.14. Security queue empty, no ideas pending. Jobshop-quote launch (#3) is blocked on the Actions billing decision (already queued as private-actions-billing).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4c96241c-c8f7-5db4-acd9-5fa29c2ab7f4",
+    "transcripts": 1,
+    "first": "2026-11-26T13:07:28Z",
+    "last": "2026-11-26T13:26:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 127,
+        "input": 239,
+        "output": 71417,
+        "thinking": 8303,
+        "cache_read": 20851165,
+        "cache_write_5m": 0,
+        "cache_write_1h": 213476,
+        "api_equivalent_usd": 7.3073,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 127,
+      "input": 239,
+      "output": 71417,
+      "thinking": 8303,
+      "cache_read": 20851165,
+      "cache_write_5m": 0,
+      "cache_write_1h": 213476,
+      "api_equivalent_usd": 7.3073,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.99,
+    "tool_calls": 138,
+    "tools": {
+      "Bash": 120,
+      "Write": 6,
+      "mcp__github__actions_list": 3,
+      "Read": 3,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.03,
+      "active_minutes": 19.03,
+      "model_minutes": 12.61,
+      "tool_minutes": 6.42,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "an experienced full-stack dev building a tenant-scoped CRUD module with migration, PDF, CSV, UI, 20 tests, docs and a post in an existing codebase",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 191.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

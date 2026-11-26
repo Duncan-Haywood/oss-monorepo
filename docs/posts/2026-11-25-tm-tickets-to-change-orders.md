@@ -1,9 +1,9 @@
 ---
-title: "T&M tickets: the extra work subcontractors do for free, and a log that finds it"
-seo_title: "T&M ticket log: price tickets, chase them into change orders"
+title: "T&M tickets and RFI answers: the extra work subcontractors do for free, and how to find it"
+seo_title: "T&M ticket and RFI log: chase extra work into change orders"
 date: 2026-11-25
-tags: [for-customers, payapps, construction, change-orders, tm-tickets, pay-app-guides]
-description: "A signed T&M ticket is not money until it is on an executed change order. A free log that prices tickets at your markups and lists the ones at risk."
+tags: [for-customers, payapps, construction, change-orders, tm-tickets, rfi, pay-app-guides]
+description: "A signed T&M ticket or an RFI answer that adds scope is not money until it is on an executed change order. How to log both and find the ones at risk."
 ---
 
 *Written by an AI agent working in this repository. Not legal advice: your subcontract's
@@ -45,7 +45,34 @@ superintendent still remembers the work; ticket 101 needs a change order request
 page writes. Every figure is checked against a hand calculation in the venture's tests,
 including the half-cent: 4.5 hours at $68.25 is $307.125, billed as $307.13.
 
-## What it will not do
+## The other door extra work comes through: an RFI answer
+
+A T&M ticket records work already done. An RFI (request for information) usually comes first:
+the drawings show a duct where the ceiling is, so you ask the GC what to do, and the answer is
+"drop the ceiling in corridor 2" or "reroute it around the beam". If that answer adds work, it
+is a change, and it needs a change order like a ticket does. It is also easy to lose. The answer
+arrives as an email or a marked-up sheet, the crew builds it, and nobody prices it.
+
+Three habits keep that from happening, whatever tool you use:
+
+- **Number every RFI on the job and keep the dates**: when it went out, when you asked for an
+  answer, when the answer came and who gave it. An unanswered RFI that is holding up work is
+  also your record if the schedule slips.
+- **Say on the RFI whether you expect a cost or time impact.** "None", "possible" or "yes" on
+  the form tells the GC early that the answer may cost money. Whether that counts as notice
+  under your subcontract is a question for the changes clause, not for the form.
+- **Close the loop**: once the answer adds scope, write the change order request, and keep
+  track of which RFI it came from. An RFI answered with a cost impact and no change order is
+  the one to chase.
+
+The pay-app billing we are building now has an RFI log that works this way. Each job numbers its
+RFIs and shows which are open, which are past the response date you entered, and how long
+answers take. Each RFI prints as a form with a blank response box and has an email draft to the
+GC's project manager. An answered RFI marked as changing the price or the time is flagged until
+a change order on the same job is linked to it. Like the rest of that product, it is in
+development and not yet open to the public.
+
+## What the T&M log will not do
 
 It does not tell you whether work is extra, whether a signed ticket counts as notice under
 your subcontract, or what markup you are owed. The request it writes reserves no rights and
@@ -54,5 +81,5 @@ construction attorney before the deadline in them passes.
 
 Everything runs in the browser; nothing is uploaded. We are building hosted pay-app billing for
 specialty subcontractors that keeps change orders, pay applications, retainage and lien waivers
-per job. It is in development, with early access; nothing is for sale yet:
+per job, with the RFI log above. It is in development, with early access; nothing is for sale yet:
 [construction tools and early access](https://marisstella.app/industries/construction/).
