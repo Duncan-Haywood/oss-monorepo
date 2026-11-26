@@ -689,3 +689,37 @@ A shop that never picks a currency sees no change. Its quotes print in US
 dollars as before, with no currency line. Next, the rate-card spreadsheet
 import will read "€85.00" and "CA$85" cells. Today it accepts "$" and "USD"
 only.
+
+## Update, 26 November 2026: the ISO 9001 checklist is checked against the standard's contents
+
+The CMMC workspace has an ISO 9001 tab: one row per requirement clause, using
+the same evidence files as your CMMC requirements, so a training record
+attached once shows up under both. Until today the tab carried a warning:
+the clause list had not been checked against a copy of the standard. The
+session that wrote it could not reach iso.org.
+
+Now it has been checked. We compared every row with the contents page of
+ISO 9001:2015, fifth edition (2015-09-15), as printed in the publisher's
+licensed preview.
+
+- **All 47 clause numbers are real.** Every row is a clause the contents
+  page lists, in the same order.
+- **42 headings match word for word.** The other five are the subclauses
+  the standard calls only "General" (7.1.1, 7.5.1, 8.4.1, 9.1.1 and 10.1).
+  The tab shows them as "Resources: general" and so on, so a row still
+  makes sense when you filter or export.
+- **Some subclauses share one row.** 5.1.1 and 5.1.2, the 8.3 design
+  subclauses and the three parts of management review (9.3.1 to 9.3.3)
+  each sit in their parent's row, because a small shop keeps one set of
+  records for them. A build-to-print shop usually excludes 8.3, with a
+  reason, and the tab asks for that reason.
+- **A test keeps it that way.** The headings now sit in a test. If anyone
+  renames, renumbers or reorders a row so it no longer matches the
+  contents page, the build fails.
+
+What it still is not: the requirement text is ISO's copyright, so it is
+not in the app. Keep your own copy of the standard. The notes on what to
+gather for each clause are our wording, not ISO's. The tab is for your own
+check before a registrar's audit. Only an accredited certification body
+certifies. AS9100D's aerospace additions come next, once we have a source
+we can cite.
