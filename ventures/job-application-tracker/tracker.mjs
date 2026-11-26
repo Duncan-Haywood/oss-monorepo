@@ -36,6 +36,19 @@ export function newId() {
   return "a" + Date.now().toString(36) + seq.toString(36);
 }
 
+// Spreadsheets export "120,000" or "$120,000"; Number() of either is NaN.
+// Read the comma by its shape (platform/ci/check_money_comma.py): thousands
+// commas are dropped, a decimal comma ("29,99", "1.234,56") becomes a dot,
+// and any other comma is not a number.
+export function readSalary(v) {
+  if (typeof v === "number") return v;
+  let s = String(v ?? "").trim().replace(/^[$€£]\s*/, "").replace(/\s+/g, "");
+  if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(s)) s = s.split(",").join("");
+  else if (/^(\d+|\d{1,3}(\.\d{3})+),\d{1,2}$/.test(s)) s = s.split(".").join("").replace(",", ".");
+  else if (s.includes(",")) return NaN;
+  return Number(s);
+}
+
 // Coerce anything (form input, imported CSV row, old saved data) into a
 // well-formed application, or return null if it has no usable identity.
 export function normalizeApp(raw) {
@@ -49,8 +62,7 @@ export function normalizeApp(raw) {
     ? raw.history.filter((h) => h && STATUSES.includes(h.status) && isIsoDate(h.date)).map((h) => ({ status: h.status, date: h.date }))
     : [];
   if (history.length === 0 && applied) history = [{ status: status === "wishlist" ? "wishlist" : "applied", date: applied }];
-  // Spreadsheets export "120,000" or "$120,000"; Number() of either is NaN.
-  const money = Number(String(raw.salary ?? "").replace(/[$,\s]/g, ""));
+  const money = readSalary(raw.salary);
   return {
     id: String(raw.id || newId()),
     company, role,

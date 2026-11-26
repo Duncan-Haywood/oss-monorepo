@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "first salary parser stripped every comma ('29,99' -> 2999); check_money_comma.py in ventures-tests caught it locally; replaced with readSalary that reads the comma by shape, with a test"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -53,7 +55,7 @@
     "docs/posts/2026-11-26-quality-audit-round-118.md"
   ],
   "goal": null,
-  "notes": "seed 2026-11-26-l-ae8a, round 118, mode sample. Subjects: ventures/s-corp-reasonable-compensation-calculator (bar: no; claims 2, verification 2), ventures/job-application-tracker (bar: no; verification 2). Share meeting the bar this round 0 of 2; all sampled 40 of 453 (Wilson 7-12%). Fix PR: #19450 (same PR): Watson caption corrected (David E. Watson, P.C. v. United States), 3+2 surviving mutants now caught (rerun with quality_mutate.py: all caught), tracker CSV import reads $120,000 salaries and reports unreadable dates. Verification: run_venture_tests.py for both slugs green (44 and 40 tests); quality_audit.py validate 703 files 0 problems; check_posts ok; risk_review blocked nothing (index.html change is citation text only, no personal data).",
+  "notes": "seed 2026-11-26-l-ae8a, round 118, mode sample. Subjects: ventures/s-corp-reasonable-compensation-calculator (bar: no; claims 2, verification 2), ventures/job-application-tracker (bar: no; verification 2). Share meeting the bar this round 0 of 2; all sampled 40 of 453 (Wilson 7-12%). Fix PR: #19450 (same PR): Watson caption corrected (David E. Watson, P.C. v. United States), 3+2 surviving mutants now caught (rerun with quality_mutate.py: all caught), tracker CSV import reads $120,000 salaries and reports unreadable dates. Verification: run_venture_tests.py for both slugs green (44 and 40 tests); quality_audit.py validate 703 files 0 problems; check_posts ok; risk_review blocked nothing (index.html change is citation text only, no personal data). run_workflow_locally --for-changes: pages, portfolio-validate, page-integrity, agent-permission-harness green; ventures-tests failed once on check_money_comma (fixed, rerun green).",
   "corrections": [],
   "redteam": null,
   "usage": {

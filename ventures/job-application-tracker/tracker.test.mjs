@@ -191,3 +191,13 @@ test("CSV import reads spreadsheet-formatted salaries and counts dates it could 
   assert.equal(apps[1].applied, "2026-11-20");
   assert.equal(undatedRows, 1);
 });
+
+test("readSalary reads the comma by its shape", async () => {
+  const { readSalary } = await import("./tracker.mjs");
+  assert.equal(readSalary("$120,000"), 120000);
+  assert.equal(readSalary("1,200.50"), 1200.5);
+  assert.equal(readSalary("29,99"), 29.99);
+  assert.equal(readSalary("1.234,56"), 1234.56);
+  assert.ok(Number.isNaN(readSalary("12,34,5")));
+  assert.equal(readSalary(95000), 95000);
+});
