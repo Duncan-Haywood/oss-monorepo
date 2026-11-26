@@ -226,6 +226,46 @@ the file tells you how many sales still need a cost before the cost of goods
 is complete. The file is a bookkeeping record, not a tax return and not tax
 advice.
 
+## Quarterly estimated tax when your sales come late in the year (added 2026-11-26)
+
+Nobody withholds tax from reselling profit. So if you expect to owe $1,000 or
+more in federal tax for the year after withholding and credits, the IRS
+expects you to pay it in four instalments. The due dates are April 15,
+June 15, September 15 and January 15, each moved to the next business day
+when it falls on a weekend or a Washington, DC holiday. In 2025 the June
+payment was due on the 16th.
+
+There are two lawful ways to size those payments, and resellers often fit
+the second better:
+
+- **Regular:** a quarter of the year's required payment on each date. The
+  required payment is the smaller of 90% of this year's tax and 100% of last
+  year's (110% if last year's AGI was over $150,000).
+- **Annualized (Form 2210, Schedule AI):** each payment is based on your
+  actual profit up to the end of each period (March 31, May 31, August 31,
+  December 31), scaled up to a year. For a seller who makes most of their
+  profit in the fourth quarter, the April, June and September amounts can be
+  close to zero, with the balance due in January.
+
+Here is a worked case that the app's tests check. A single filer in 2026 has
+no profit until the autumn and ends the year with $40,000 of Schedule C
+profit. That comes to $5,651.82 of self-employment tax and $1,775.11 of
+income tax, after the $16,100 standard deduction and a $4,214.82 qualified
+business income deduction: $7,426.93 in all. Last year's tax was $6,000.
+
+- Regular method: $1,500 is due on each of the four dates.
+- Annualized method: $0 in April, June and September, then $6,000 in January.
+
+To pay on the annualized schedule you file Schedule AI with your return.
+
+Seller Books now has a **Quarterly estimates** page that does this from your
+books. It reads the Schedule C profit to each period's end, shows both
+methods side by side, and tells you what is still to pay by the next date
+after counting the payments you have sent and your withholding. The figures
+you type in (wages, last year's tax, payments sent) stay in your browser.
+The page is an estimate, not tax advice: it leaves out credits, itemised
+deductions and state tax, so check it with your tax preparer.
+
 ## What comes next
 
 Each of the ten tool pages now ends with a short "track true profit across
