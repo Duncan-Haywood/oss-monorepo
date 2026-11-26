@@ -1,0 +1,154 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKnEoBH6bi9qA9Zsi2c",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T21:18:08Z",
+  "ended": "2026-11-26T21:31:52Z",
+  "wall_minutes": 14.36,
+  "tokens_in": 13077892,
+  "tokens_out": 61980,
+  "cost_usd": 5.2692,
+  "tool_calls": 94,
+  "task": "Bet #4 CMMC Workspace: supplier flow-down (Suppliers tab checked against DFARS 252.204-7021), claim/cmmc/supplier-flow-down",
+  "projects": [
+    "private-monorepo/apps/cmmc",
+    "docs/posts"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19483",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 36,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets named cmmc #6 'free and not gated', but its only open ask is 'if assessors ask for them there', a demand gate the parser missed; every other cmmc item was also demand- or owner-gated, so I claimed a bets.md growth-path topic with --slug instead"
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--claim takes only an int; '--claim -' for a slug-only claim errors; the working form is --slug without --claim (the help text could say so)"
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "ecfr.gov, acquisition.gov, govinfo.gov and federalregister.gov all refused this session (403 / DNS) though SOURCES.md says eCFR answered on 2026-11-25/26; raw.githubusercontent.com/GSA/GSA-Acquisition-DFARS/master/dita/<section>.dita answered and is worth listing under 'Outbound hosts' as the DFARS fallback (the FAR one, GSA-Acquisition-FAR, was already used by an earlier run)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "bets #1-#3 had no free ungated items and #5 seller-books has ~35 merged claims in a day; #4 cmmc's listed free item was demand-gated",
+      "did": "took bet #4's unbuilt growth-path topic 'supplier flow-down' from bets.md and claimed it by slug",
+      "result": "merged as private-monorepo PR #413 with full local verification"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "private-monorepo CI jobs never got runners (ci_starvation.py: starved on both runs)",
+      "did": "ran every cmmc-ci step locally (biome ci, tsc, unit 435, worker 142, provision tests, build, no client maps, drizzle-kit check and drift-check) and merged",
+      "result": "merged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-cmmc-level-1-self-assessment-checklist.md (extended: flow-down section)",
+    "private apps/cmmc/docs/SOURCES.md 'Suppliers' (source hashes, what was and was not read)",
+    "private apps/cmmc/ROADMAP.md (Done entry and Suppliers part 2 in Next)"
+  ],
+  "goal": "$10k MRR: deepen the CMMC Workspace's Level 2 plan with the subcontractor flow-down list primes ask small shops for",
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/413 (squash 574e1b1c). New: src/shared/suppliers.ts (pure checks; 12 verbatim DFARS quotes, hash-pinned), migration 0015 supplier, services/suppliers, routes /suppliers (+export.csv), views/Suppliers.tsx, POLICY_VERSION 2026-11-26.12 privacy line. Tests: 26 unit, 3 component, 7 worker. Local verification (CI starved): biome ci clean; tsc clean; vitest unit 435/435; worker 142/142; node --test scripts/provision.test.mjs 5/5; vite build ok; check-no-client-maps ok; drizzle-kit check 'Everything's fine', drift-check 'No schema changes'. 32 CFR 170.23 not quoted (eCFR refused): level choice left to the shop, said in README, page, SOURCES and post.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "28981db9-dfee-5a61-935a-44388c63b9fc",
+    "transcripts": 1,
+    "first": "2026-11-26T21:18:08Z",
+    "last": "2026-11-26T21:32:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 92,
+        "input": 177,
+        "output": 61980,
+        "thinking": 9034,
+        "cache_read": 12896511,
+        "cache_write_5m": 0,
+        "cache_write_1h": 181204,
+        "api_equivalent_usd": 5.2692,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 92,
+      "input": 177,
+      "output": 61980,
+      "thinking": 9034,
+      "cache_read": 12896511,
+      "cache_write_5m": 0,
+      "cache_write_1h": 181204,
+      "api_equivalent_usd": 5.2692,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 94,
+    "tools": {
+      "Bash": 83,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "WebFetch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.36,
+      "active_minutes": 14.36,
+      "model_minutes": 10.71,
+      "tool_minutes": 3.65,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a senior full-stack dev reading DFARS 7021 and building a tested register feature (schema, API, UI, legal update) in an existing app",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 189.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

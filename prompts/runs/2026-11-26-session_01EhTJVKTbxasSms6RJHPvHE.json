@@ -35,6 +35,10 @@
     {
       "file": "platform/ci/slug_dupe.py",
       "issue": "Passing the PR-title form 'redteam: xer-schedule-check' gives 'not a venture slug'. The bare slug works, but the CLAUDE.md wording ('<slug-or-keyword>') suggests a keyword would too."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "A red test on main was fixed by two sessions at once: nothing marks a red main check as claimed, so the duplicate effort only showed up as a merge conflict."
     }
   ],
   "deviations": [
@@ -53,7 +57,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Targets: ventures/xer-schedule-check/evmseries.mjs and calreview.mjs (redteam.py targets --fresh, suite 4.6 s). Real-bug hunt: input given out of order, a renamed project, the same data date twice. Choosing the project name from the last update given matches windows.mjs's documented intent, so it is not a defect. The venture suite (624 tests) passes. CI's pages test job was red on main because of prompts/polish_next.py (shallow-boundary lint). Fixed in this PR: boundary commits are now skipped, with a test against a real --depth=2 clone. The existing lint is what caught it, so no new guard was needed.",
+  "notes": "Targets: ventures/xer-schedule-check/evmseries.mjs and calreview.mjs (redteam.py targets --fresh, suite 4.6 s). Real-bug hunt: input given out of order, a renamed project, the same data date twice. Choosing the project name from the last update given matches windows.mjs's documented intent, so it is not a defect. The venture suite (624 tests) passes. CI's pages test job was red on main because of prompts/polish_next.py (shallow-boundary lint). PR #19475 fixed it on main while this run was fixing it too. After merging main, this PR keeps main's code and adds a test against a real --depth=2 clone, alongside main's mocked one. The existing lint is what caught it, so no new guard was needed.",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -307,7 +311,7 @@
         "file": "prompts/polish_next.py",
         "issue": "PR #19469 added a `git log --diff-filter=A` reader that never skipped shallow boundary commits. In a shallow clone the boundary commit 'adds' every polish note, so notes older than the clone's horizon were ranked as if newly added, in path order. This also turned main's `platform/pages/shallow-boundary-lint.test.mjs` red, failing the pages 'test' job on every PR.",
         "patched": true,
-        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19474"
+        "patched_in": "already fixed on main: PR #19475 landed the same boundary skip at the same time (found on merging main into this branch); this PR keeps main's code and adds a test against a real --depth=2 clone"
       }
     ]
   },

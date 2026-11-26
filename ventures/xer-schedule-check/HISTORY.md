@@ -4,6 +4,8 @@ Results moved out of `portfolio/flagships.yaml`'s `next:` by `portfolio/router/f
 
 ## Moved from flagships.yaml `next:`
 
+- (2026-11-26, red team 4) P6 XML import and the eval scripts: 6 of 8 seeded faults in pmxml.mjs escaped (flags written "0" or "true", options an older export keeps on the project, UDF values held only as a start date or an integer, the header's export date) and all 8 in eval/open-critical.mjs (no test ran it). Both now guarded, all 14 caught after. New ratchet `eval-coverage.test.mjs`: every eval/*.mjs is run by a test or listed in `eval/UNTESTED.txt` (69 of 75 listed); the list only shrinks. Open question, not a defect: the reader takes P6 XML's StartToStartLagCalculationType as "1"/"0"; no P6-written file in reach showed the real values.
+
 - (2026-11-25, red team 3) windows analysis: a driving-path activity that finished early was tallied in "Named in the most windows" (the list of where the job lost its time, also used by the written review); an early finish is now a gain, like work under way that went faster. Mutation guards added for windows.mjs and udf-ranges.mjs (5 of 16 escaped: unchanged in-progress work, pathAtStart, a null forecast finish, LOE and finish milestones with UDF ranges, a bare --ranges-udf flag), all caught after.
 
 - (2026-11-25, red team 2) crash rates CSV: a "Crash cost per day" or "Cost to shorten per day" header was read as the room column too (room = 1,500 days for a $1,500/day row), so the joint acceleration could shorten an activity far past what the contractor offered. The cost column is now picked first and the room among the others. Mutation guards added for crash.mjs, collapse.mjs and drag.mjs: 12 of 23 non-equivalent mutants escaped, all caught after.

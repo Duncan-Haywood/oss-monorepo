@@ -51,6 +51,15 @@ class PolishNextTest(unittest.TestCase):
         marks = pn.taken([p])
         self.assertEqual(sorted(marks["polish-2026-11-26-alpha.md"]), [1, 3])
 
+    def test_shallow_boundary_commit_adds_are_skipped(self):
+        # a shallow clone's boundary commit "adds" every note; only real adds count
+        from unittest import mock
+        out = "@aaa\n\ndocs/reports/polish-b.md\n@bbb\n\ndocs/reports/polish-a.md\n"
+        run = mock.Mock(return_value=mock.Mock(stdout=out))
+        with mock.patch.object(pn, "shallow_boundary", return_value={"bbb"}), \
+                mock.patch.object(pn.subprocess, "run", run):
+            self.assertEqual(pn.commit_order(self.dir), ["polish-b.md"])
+
 
 class ShallowBoundaryTest(unittest.TestCase):
     """A shallow clone's boundary commit "adds" every note; those are not dated by it."""
@@ -68,10 +77,10 @@ class ShallowBoundaryTest(unittest.TestCase):
                 git(src, "add", ".")
                 git(src, "commit", "-q", "-m", name)
             git(Path(tmp), "clone", "-q", "--depth=2", f"file://{src}", str(clone))
-            self.assertTrue(pn.shallow_commits(clone))
+            self.assertTrue(pn.shallow_boundary(clone))
             # c and b are real adds; the boundary commit (b) would otherwise also "add" a
             self.assertEqual(pn.commit_order(clone), ["polish-2026-11-03-c.md"])
-            self.assertEqual(pn.shallow_commits(src), set())
+            self.assertEqual(pn.shallow_boundary(src), set())
             self.assertEqual(pn.commit_order(src), ["polish-2026-11-03-c.md", "polish-2026-11-02-b.md", "polish-2026-11-01-a.md"])
 
 

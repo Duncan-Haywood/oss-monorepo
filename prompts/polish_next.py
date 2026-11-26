@@ -32,23 +32,25 @@ CITE = re.compile(
     r"(?:\s+list)?[^`]{0,40}?\bin\s+`(?:docs/reports/)?(polish-[^`]+?\.md)`")
 
 
-def shallow_commits(root: Path = ROOT) -> set[str]:
-    """The shallow clone's boundary commits (empty for a full clone)."""
+def shallow_boundary(root: Path = ROOT) -> set[str]:
+    """Commits at a shallow clone's boundary: git diffs them against nothing, so
+    `--diff-filter=A` says they add every file (platform/daily/collect.mjs)."""
     try:
         rel = subprocess.run(["git", "rev-parse", "--git-path", "shallow"], cwd=root,
                              capture_output=True, text=True, timeout=30).stdout.strip()
+        path = Path(rel) if Path(rel).is_absolute() else root / rel
+        return set(path.read_text().split()) if rel and path.is_file() else set()
     except (OSError, subprocess.TimeoutExpired):
         return set()
-    f = (root / rel) if rel else None
-    if not f or not f.is_file():
-        return set()
-    return {ln.strip() for ln in f.read_text().splitlines() if ln.strip()}
 
 
 def commit_order(root: Path = ROOT) -> list[str]:
-    """Polish note names, newest add first, from git history (empty if none)."""
+    """Polish note names, newest add first, from git history (empty if none).
+
+    A note "added" by a shallow boundary commit is older than the clone's
+    history, so it is left out and ordered by name (ordered_notes)."""
     names: list[str] = []
-    boundary = shallow_commits(root)
+    boundary = shallow_boundary(root)
     for ref in ("origin/main", "HEAD"):
         try:
             out = subprocess.run(
@@ -61,8 +63,6 @@ def commit_order(root: Path = ROOT) -> list[str]:
         for line in out.splitlines():
             line = line.strip()
             if line.startswith("@"):
-                # a shallow clone's boundary commit diffs against nothing, so it
-                # "adds" every note: its notes are undated, not newest
                 skip = line[1:] in boundary
                 continue
             name = Path(line).name
