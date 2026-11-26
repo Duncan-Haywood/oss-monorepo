@@ -10,6 +10,8 @@ import { calculateCertifiedPayroll } from "./calc.mjs";
 
 export const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const round2 = (x) => Math.round((x + Number.EPSILON) * 100) / 100;
+// Prose dollars (flags, advice) carry thousands separators, as the report table does: "$3731.50" beside "$3,731.50" reads as a typo.
+const usd = (x) => "$" + Number(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const round1 = (x) => Math.round((x + Number.EPSILON) * 10) / 10;
 
 function nonNeg(v, label) {
@@ -58,8 +60,8 @@ export function buildWorker(w, index = 0) {
 
   if (!String(w.classification ?? "").trim()) flags.push("Classification is blank: the form needs the work classification from the wage determination.");
   if (projectHours === 0) flags.push("No hours on this project this week.");
-  if (c.underpaymentTotal > 0.005) flags.push(`Underpaid against the wage determination by $${round2(c.underpaymentTotal).toFixed(2)} for the week.`);
-  if (c.otUnderpaymentIfCashFringeExcluded > 0.005) flags.push(`Cash fringe counted in the overtime rate: $${round2(c.otUnderpaymentIfCashFringeExcluded).toFixed(2)} more than a system that pays overtime on base only.`);
+  if (c.underpaymentTotal > 0.005) flags.push(`Underpaid against the wage determination by ${usd(round2(c.underpaymentTotal))} for the week.`);
+  if (c.otUnderpaymentIfCashFringeExcluded > 0.005) flags.push(`Cash fringe counted in the overtime rate: ${usd(round2(c.otUnderpaymentIfCashFringeExcluded))} more than a system that pays overtime on base only.`);
   if (net < -0.005) flags.push("Deductions are more than gross pay.");
   if (input.bonaFideFringePerHour + input.cashFringePerHour < input.requiredFringeRate - 1e-9) flags.push("Fringe paid is below the required fringe rate; base pay must make up the difference, which the underpayment check above already tests.");
 
@@ -96,8 +98,8 @@ export function buildReport(input) {
   if (!header.payrollNo) missing.push("payroll number");
   const flagged = workers.filter((w) => w.flags.length > 0).length;
   const advice = [];
-  advice.push(`${workers.length} worker${workers.length === 1 ? "" : "s"}, ${totals.projectHours} hours on this project, $${totals.gross.toFixed(2)} gross, $${totals.net.toFixed(2)} net.`);
-  if (totals.underpayment > 0.005) advice.push(`Underpayment against the wage determination totals $${totals.underpayment.toFixed(2)}. Pay it before you submit, and note it on the payroll.`);
+  advice.push(`${workers.length} worker${workers.length === 1 ? "" : "s"}, ${totals.projectHours} hours on this project, ${usd(totals.gross)} gross, ${usd(totals.net)} net.`);
+  if (totals.underpayment > 0.005) advice.push(`Underpayment against the wage determination totals ${usd(totals.underpayment)}. Pay it before you submit, and note it on the payroll.`);
   else advice.push("No underpayment against the rates you entered.");
   if (flagged) advice.push(`${flagged} worker row${flagged === 1 ? "" : "s"} carry a flag. Fix or understand each before you sign.`);
   if (missing.length) advice.push(`The form header still needs: ${missing.join(", ")}.`);

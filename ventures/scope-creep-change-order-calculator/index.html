@@ -117,7 +117,7 @@ node cli.mjs --price 6000 --hours 60 --file requests.txt --max-creep-pct 20   # 
   </footer>
 
   <script type="module">
-    import { parseRequests, calculate, toMarkdown, toCsv } from "./engine.mjs";
+    import { parseRequests, calculate, toMarkdown, toCsv, money } from "./engine.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -132,9 +132,9 @@ node cli.mjs --price 6000 --hours 60 --file requests.txt --max-creep-pct 20   # 
       if (!(opts.basePrice > 0 && opts.baseHours > 0)) { $("#status").innerHTML = '<span class="error">Enter both the quoted price and the quoted hours.</span>'; return; }
       $("#status").textContent = bad.length ? `${bad.length} line(s) skipped: not in the expected format.` : "";
       const r = calculate(items, opts);
-      $("#summary").innerHTML = `<span class="ok">Change order: ${r.amount.toFixed(2)}</span> for ${r.billableHours} billable hours at ${r.changeRate}/h — revised price ${r.newPrice.toFixed(2)}. Creep is ${r.creepPct}% of the quoted hours and adds about ${r.daysAdded} working day(s).`;
-      $("#rows").innerHTML = r.lines.map((l) => `<tr><td>${escapeHtml(l.title)}</td><td>${l.hours}</td><td>${l.billableHours}</td><td>${l.amount.toFixed(2)}</td></tr>`).join("");
-      $("#absorb").innerHTML = `<span class="changed">If you absorb it instead:</span> ${r.absorbedCost.toFixed(2)} of unpaid work, and your effective rate falls from ${r.rate}/h to ${r.absorbedRate}/h (−${r.rateDropPct}%).`;
+      $("#summary").innerHTML = `<span class="ok">Change order: ${money(r.amount)}</span> for ${r.billableHours} billable hours at ${r.changeRate}/h — revised price ${money(r.newPrice)}. Creep is ${r.creepPct}% of the quoted hours and adds about ${r.daysAdded} working day(s).`;
+      $("#rows").innerHTML = r.lines.map((l) => `<tr><td>${escapeHtml(l.title)}</td><td>${l.hours}</td><td>${l.billableHours}</td><td>${money(l.amount)}</td></tr>`).join("");
+      $("#absorb").innerHTML = `<span class="changed">If you absorb it instead:</span> ${money(r.absorbedCost)} of unpaid work, and your effective rate falls from ${r.rate}/h to ${r.absorbedRate}/h (−${r.rateDropPct}%).`;
       $("#out").value = toMarkdown(r, { client: $("#client").value.trim(), project: $("#project").value.trim() });
       csv = toCsv(r);
       $("#report-card").hidden = false;

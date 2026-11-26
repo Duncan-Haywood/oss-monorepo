@@ -559,7 +559,7 @@
       el('overhead').textContent = money(result.overhead);
       el('cost').textContent = money(result.totalCost);
       el('profit').textContent = money(result.profit);
-      el('perMbh').textContent = result.pricePerMbh === null ? 'n/a' : `$${result.pricePerMbh.toFixed(2)}`;
+      el('perMbh').textContent = result.pricePerMbh === null ? 'n/a' : money(result.pricePerMbh);
       el('hourlyRate').textContent = result.effectiveHourlyRate === null ? 'n/a' : `${money(result.effectiveHourlyRate)}/h`;
       el('breakEven').textContent = money(result.breakEvenPrice);
 
