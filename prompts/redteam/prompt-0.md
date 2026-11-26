@@ -42,7 +42,7 @@ with a failing test first, like a step-3 defect. If it no longer reproduces, a
 later run fixed it without saying so. Either way, set `"patched": true` and
 `"patched_in": "<your PR url>"` on the entry in the record that found it (or
 `"patched_in": "already fixed on main: <how you checked>"`). That is the one
-edit an older record takes. On 2026-11-03 the list held 4 entries: one already
+edit an older record takes, besides `"blocked": "<what the fix needs>"` for an entry no red-team run can fix yet (a missing eval set, say): `open` then lists it on one line apart and runs skip it. An entry that says "control plane, own PR, owner approval" is not blocked: since 2026-11-24 nothing waits for the owner, so fix it in your PR. On 2026-11-03 the list held 4 entries: one already
 fixed, and three fixed that day (a red deploy test, orphan branches read as
 landed, about 190 venture files linking to a 404 host). If fixing everything on the
 list would take the whole run, fix what you can and seed fewer mutants.

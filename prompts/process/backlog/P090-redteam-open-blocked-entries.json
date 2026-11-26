@@ -1,0 +1,27 @@
+{
+  "id": "P090",
+  "title": "redteam.py open re-lists defects no red-team run can fix, so step 0 is a re-read every run",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "Step 0 of prompts/redteam/prompt-0.md asks each run to fix every entry `redteam.py open` lists. One of the two left (help-keeper stemmer) waits on a help-center eval set that does not exist, so every run re-read it and moved on; the other still said 'control plane, own PR, owner approval', which stopped applying on 2026-11-24, so runs read it as unworkable too.",
+  "evidence": [
+    "python3 platform/ci/friction_rank.py --live --ungated --days 3, 2026-11-26: cluster 4, 5 sessions on prompts/redteam/prompt-0.md (2026-11-23..26)",
+    "prompts/runs/2026-11-25-*.json and 2026-11-26-*.json: 8 doc_friction entries asking for a blocked/parked state or noting the stale owner-approval wording"
+  ],
+  "change": "Real-defect entries may carry `blocked: \"<what the fix needs>\"`; `open` lists those on one line apart and leaves them out of the fix-first count. The help-keeper entry is marked blocked. Step 0 says the owner-approval wording no longer blocks a fix.",
+  "touches": [
+    "prompts/redteam.py",
+    "prompts/test_redteam.py",
+    "prompts/redteam/prompt-0.md",
+    "prompts/runs/2026-11-18-session_01EhTJVLiuVJaNagjoZj6A8z.json"
+  ],
+  "metric": "Run-record doc_friction entries on prompts/redteam/prompt-0.md about step 0's open list being unactionable, per 7 days after merge",
+  "baseline": "8 entries in 2026-11-25..26 records",
+  "opened": "2026-11-26",
+  "source": "friction_rank.py cluster 4 (2026-11-26)",
+  "pr": "this",
+  "result": null,
+  "history": []
+}
