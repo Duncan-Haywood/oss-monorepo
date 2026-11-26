@@ -69,7 +69,7 @@
   ],
   "defects": [
     {"severity": "high", "what": "Workload-account plan roles (gha-<repo>-<stack>-plan), assumable by any same-repository pull_request, have ReadOnlyAccess with only PutObject/DeleteObject/GetSecretValue/SSM denied: they can read every S3 object (including other stacks' state, decryptable with the shared state key), DynamoDB items, SQS messages and Lambda environment in shared-infra, apps and security, and a PR could print them into a public Actions log. The member-account github-plan-readonly and the bootstrap github-plan carry a full deny-data-reads list; this role does not, and its comments claim the opposite.",
-     "where": "platform/aws/stacks/github-oidc/account-roles/main.tf:219", "category": "domain-rule", "origin": "spec"},
+     "where": "platform/aws/stacks/github-oidc/account-roles/main.tf:219", "category": "domain-rule", "origin": "spec", "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19237"},
     {"severity": "medium", "what": "The workload permissions boundary does not enforce itself on roles that bounded roles create (no Deny on iam:CreateRole / iam:PutRolePermissionsBoundary unless iam:PermissionsBoundary is the workload boundary). The apply role may attach any managed policy (e.g. AdministratorAccess) to its <stack>-* roles, so a bounded role with IAM rights can create an unbounded role and then rewrite the gha-* roles' trust.",
      "where": "platform/aws/stacks/github-oidc/account-roles/main.tf:135", "category": "domain-rule", "origin": "spec"},
     {"severity": "medium", "what": "Plan-role comments claim prefix-scoped state reads and no secret/data reads; ReadOnlyAccess makes both false (see the high defect).",
@@ -87,6 +87,6 @@
     {"severity": "low", "what": "priv-security-gate.yml's adversarial-llm job expects an AWS role trusting environment:paid-agents (vars.ADVERSARIAL_REVIEW_AWS_ROLE_ARN); no file under platform/aws defines it (github-llm-gate trusts main and aws-llm only), against 'everything as code'.",
      "where": "platform/aws/stacks/llm/main.tf:159", "category": "scope-gap", "origin": "spec"}
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19237"],
   "verdict": "Below the bar (correctness 2, claims 2, verification 2) and not finished (completeness 2). The management-account bootstrap is senior-grade: exact aud+sub OIDC trust that fork PRs cannot reach, a plan role whose data denies hold under IAM evaluation, a hardened state bucket, and spend guards with honest limits. The workload-account roles in stacks/github-oidc are not: their PR-reachable plan roles omit the data-read denies every other plan role here carries (account-roles/main.tf:219), the permissions boundary is escapable by roles it bounds, and no test would catch either. Smallest safe fix: give gha-*-plan the same deny-data-reads list as modules/account-baseline (S3 GetObject outside the state bucket, DynamoDB, SQS, logs, Lambda GetFunction) plus a tftest assertion; add a boundary self-enforcement Deny. IaC tests (tofu test, checkov, cfn-lint) could not be run in this session; the README's results line is stale."
 }
