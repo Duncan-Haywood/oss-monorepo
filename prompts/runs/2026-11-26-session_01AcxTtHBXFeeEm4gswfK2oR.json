@@ -1,0 +1,382 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtHBXFeeEm4gswfK2oR",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T15:06:23Z",
+  "ended": "2026-11-26T15:07:45Z",
+  "wall_minutes": 10.83,
+  "tokens_in": 3781612,
+  "tokens_out": 20936,
+  "cost_usd": 1.8139,
+  "tool_calls": 45,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19386",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "step 3 says to run `rerun` after adding tests, but a failing real-defect test (written first, per step 3) makes the suite red and rerun then skips every mutant; and rerun skips untriaged mutants silently (its summary looks unchanged). Say: triage first, and patch the defect without changing mutated lines before rerun."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "no blog post: a test-gap and web/CLI parity fix with no user-facing claim to write about",
+      "did": "recorded the outcome in the PR and this record",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Targets: cii.mjs and creditlink.mjs (einvoice-preflight, #1 for-profit). The line-36 and-to-or mutant escaped before the patch and is equivalent after it (parseDecimal returns finite or null). Lead, not a confirmed defect: fa3.mjs, fatturapa.mjs and repair.mjs each keep a num() helper on bare Number(), which reads '0x64' as 100; a hex line quantity through repairInvoice showed no wrong change, so it was left alone. Verified: run_venture_tests.py einvoice-preflight ok, 2828 tests.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/einvoice-preflight/cii.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 270245442,
+        "commit": "5a0f6709d",
+        "sites": 91,
+        "baseline_seconds": 10.3,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/cii.mjs",
+            "line": 62,
+            "col": 47,
+            "operator": "or-to-and",
+            "before": "return text.includes(\"CrossIndustryInvoice\") || text.includes(CII_NS);",
+            "after": "return text.includes(\"CrossIndustryInvoice\") && text.includes(CII_NS);",
+            "line_text": "  return text.includes(\"CrossIndustryInvoice\") || text.includes(CII_NS);",
+            "caught": false,
+            "seconds": 10.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test fed a CrossIndustryInvoice outside the :100 namespace; cii.test.mjs now routes a :99 file to the CII reader"
+          },
+          {
+            "file": "ventures/einvoice-preflight/cii.mjs",
+            "line": 99,
+            "col": 30,
+            "operator": "or-to-and",
+            "before": "if (!identifier.attrs || identifier.attrs.schemeID !== \"VA\" || primary.has(identifier)) continue;",
+            "after": "if (!identifier.attrs && identifier.attrs.schemeID !== \"VA\" || primary.has(identifier)) continue;",
+            "line_text": "        if (!identifier.attrs || identifier.attrs.schemeID !== \"VA\" || primary.has(identifier)) continue;",
+            "caught": true,
+            "seconds": 10.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/cii.mjs",
+            "line": 128,
+            "col": 27,
+            "operator": "or-to-and",
+            "before": "const id = (child.text || \"\").trim();",
+            "after": "const id = (child.text && \"\").trim();",
+            "line_text": "    const id = (child.text || \"\").trim();",
+            "caught": true,
+            "seconds": 10.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/cii.mjs",
+            "line": 183,
+            "col": 11,
+            "operator": "or-to-and",
+            "before": "if (id || scheme) mapped.endpoint = { id, scheme };",
+            "after": "if (id && scheme) mapped.endpoint = { id, scheme };",
+            "line_text": "    if (id || scheme) mapped.endpoint = { id, scheme };",
+            "caught": false,
+            "seconds": 10.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test had a URIID without schemeID; cii.test.mjs now pins endpoint {id, scheme: ''}"
+          },
+          {
+            "file": "ventures/einvoice-preflight/cii.mjs",
+            "line": 297,
+            "col": 84,
+            "operator": "or-to-and",
+            "before": "if (row.tax_percent || row.taxable_amount || row.tax_amount || row.tax_category || row.exemption_reason) {",
+            "after": "if (row.tax_percent || row.taxable_amount || row.tax_amount || row.tax_category && row.exemption_reason) {",
+            "line_text": "    if (row.tax_percent || row.taxable_amount || row.tax_amount || row.tax_category || row.exemption_reason) {",
+            "caught": false,
+            "seconds": 10.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no header tax row with only a category code; cii.test.mjs now pins the second row"
+          },
+          {
+            "file": "ventures/einvoice-preflight/cii.mjs",
+            "line": 311,
+            "col": 134,
+            "operator": "or-to-and",
+            "before": "const taxNode = taxAmounts.find((node) => !node.attrs || !node.attrs.currencyID || !currency || node.attrs.currencyID === currency) || taxAmounts[0];",
+            "after": "const taxNode = taxAmounts.find((node) => !node.attrs || !node.attrs.currencyID || !currency || node.attrs.currencyID === currency) && taxAmounts[0];",
+            "line_text": "  const taxNode = taxAmounts.find((node) => !node.attrs || !node.attrs.currencyID || !currency || node.attrs.currencyID === currency) || taxAmounts[0];",
+            "caught": false,
+            "seconds": 10.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no file with a TaxTotalAmount in another currency first, or none in the invoice currency; cii.test.mjs covers both"
+          },
+          {
+            "file": "ventures/einvoice-preflight/cii.mjs",
+            "line": 366,
+            "col": 87,
+            "operator": "or-to-and",
+            "before": "const headerReason = breakdown.find((row) => row.exemption_reason)?.exemption_reason || \"\";",
+            "after": "const headerReason = breakdown.find((row) => row.exemption_reason)?.exemption_reason && \"\";",
+            "line_text": "  const headerReason = breakdown.find((row) => row.exemption_reason)?.exemption_reason || \"\";",
+            "caught": true,
+            "seconds": 11.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/cii.mjs",
+            "line": 452,
+            "col": 26,
+            "operator": "or-to-and",
+            "before": "...descendants(header || { name: \"\", children: [] }, \"IncludedNote\").map((note) => nestedText(note, \"Content\")),",
+            "after": "...descendants(header && { name: \"\", children: [] }, \"IncludedNote\").map((note) => nestedText(note, \"Content\")),",
+            "line_text": "    ...descendants(header || { name: \"\", children: [] }, \"IncludedNote\").map((note) => nestedText(note, \"Content\")),",
+            "caught": false,
+            "seconds": 10.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "header IncludedNote (BT-22) was never read in a test; cii.test.mjs now pins notes"
+          }
+        ]
+      },
+      {
+        "target": "ventures/einvoice-preflight/creditlink.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 477198521,
+        "commit": "5a0f6709d",
+        "sites": 50,
+        "baseline_seconds": 10.7,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/creditlink.mjs",
+            "line": 35,
+            "col": 25,
+            "operator": "eq-flip",
+            "before": "const n = typeof gross === \"string\" && gross.trim() !== \"\" ? Number(gross) : gross;",
+            "after": "const n = typeof gross !== \"string\" && gross.trim() !== \"\" ? Number(gross) : gross;",
+            "line_text": "  const n = typeof gross === \"string\" && gross.trim() !== \"\" ? Number(gross) : gross;",
+            "caught": true,
+            "seconds": 10.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/creditlink.mjs",
+            "line": 36,
+            "col": 31,
+            "operator": "and-to-or",
+            "before": "return typeof n === \"number\" && Number.isFinite(n) ? Math.round(Number((Math.abs(n) * 100).toPrecision(15))) : null;",
+            "after": "return typeof n === \"number\" || Number.isFinite(n) ? Math.round(Number((Math.abs(n) * 100).toPrecision(15))) : null;",
+            "line_text": "  return typeof n === \"number\" && Number.isFinite(n) ? Math.round(Number((Math.abs(n) * 100).toPrecision(15))) : null;",
+            "caught": false,
+            "seconds": 10.1,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "Escaped before the patch (an unreadable gross read as NaN poisoned the credit sum and hid INV-057; creditlink.test.mjs pins that case). After this run's real-defect fix n comes from parseDecimal, which returns a finite number or null, so `typeof n === 'number' || Number.isFinite(n)` is false exactly when the original is: no input can tell them apart."
+          },
+          {
+            "file": "ventures/einvoice-preflight/creditlink.mjs",
+            "line": 36,
+            "col": 105,
+            "operator": "const-plus-one",
+            "before": "return typeof n === \"number\" && Number.isFinite(n) ? Math.round(Number((Math.abs(n) * 100).toPrecision(15))) : null;",
+            "after": "return typeof n === \"number\" && Number.isFinite(n) ? Math.round(Number((Math.abs(n) * 100).toPrecision(16))) : null;",
+            "line_text": "  return typeof n === \"number\" && Number.isFinite(n) ? Math.round(Number((Math.abs(n) * 100).toPrecision(15))) : null;",
+            "caught": false,
+            "seconds": 10.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "toPrecision(16) keeps float noise, so 0.565 rounded to 56 cents, not the CLI's ROUND_HALF_UP 57; creditlink.test.mjs pins 0.565 over 0.56"
+          },
+          {
+            "file": "ventures/einvoice-preflight/creditlink.mjs",
+            "line": 47,
+            "col": 54,
+            "operator": "and-to-or",
+            "before": "const docs = parsed.filter(({ invoice }) => invoice && typeof invoice === \"object\" && !Array.isArray(invoice));",
+            "after": "const docs = parsed.filter(({ invoice }) => invoice || typeof invoice === \"object\" && !Array.isArray(invoice));",
+            "line_text": "  const docs = parsed.filter(({ invoice }) => invoice && typeof invoice === \"object\" && !Array.isArray(invoice));",
+            "caught": true,
+            "seconds": 10.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/creditlink.mjs",
+            "line": 49,
+            "col": 63,
+            "operator": "eq-flip",
+            "before": "const credits = docs.filter(({ invoice }) => kindOf(invoice) === \"credit_note\" && ref(invoice.original_invoice));",
+            "after": "const credits = docs.filter(({ invoice }) => kindOf(invoice) !== \"credit_note\" && ref(invoice.original_invoice));",
+            "line_text": "  const credits = docs.filter(({ invoice }) => kindOf(invoice) === \"credit_note\" && ref(invoice.original_invoice));",
+            "caught": true,
+            "seconds": 10.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/creditlink.mjs",
+            "line": 56,
+            "col": 110,
+            "operator": "eq-flip",
+            "before": "const same = invoices.filter(({ invoice }) => ref(invoice.invoice_number) === wanted && sellerOf(invoice) === seller);",
+            "after": "const same = invoices.filter(({ invoice }) => ref(invoice.invoice_number) === wanted && sellerOf(invoice) !== seller);",
+            "line_text": "    const same = invoices.filter(({ invoice }) => ref(invoice.invoice_number) === wanted && sellerOf(invoice) === seller);",
+            "caught": true,
+            "seconds": 9.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/creditlink.mjs",
+            "line": 67,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "if (same.length > 1) continue; // duplicate numbers are INV-019's job",
+            "after": "if (same.length > 2) continue; // duplicate numbers are INV-019's job",
+            "line_text": "    if (same.length > 1) continue; // duplicate numbers are INV-019's job",
+            "caught": false,
+            "seconds": 9.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no batch had exactly two invoices with the credit's number; creditlink.test.mjs now checks the credit is left to INV-019"
+          },
+          {
+            "file": "ventures/einvoice-preflight/creditlink.mjs",
+            "line": 85,
+            "col": 54,
+            "operator": "eq-flip",
+            "before": "const original = invoices.find(({ name }) => name === file);",
+            "after": "const original = invoices.find(({ name }) => name !== file);",
+            "line_text": "    const original = invoices.find(({ name }) => name === file);",
+            "caught": true,
+            "seconds": 10.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/einvoice-preflight/creditlink.mjs",
+        "issue": "cents() read a credit or invoice gross with Number(), so a hex ('0x64' = 100), binary ('0b1111111') or out-of-range ('1e20') gross counted as an amount and the web page flagged INV-057 where the CLI's creditlink.py (parse_decimal) read nothing; the same Number() trap numbers.mjs was written to close. Reproduced with inspectCreditLinks vs credit_link_findings on the same batch.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19386"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2a6910cf-80f5-58b0-91c4-5a061a851257",
+    "transcripts": 1,
+    "first": "2026-11-26T15:06:23Z",
+    "last": "2026-11-26T15:17:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 89,
+        "output": 20936,
+        "thinking": 6955,
+        "cache_read": 3699663,
+        "cache_write_5m": 0,
+        "cache_write_1h": 81860,
+        "api_equivalent_usd": 1.8139,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 89,
+      "output": 20936,
+      "thinking": 6955,
+      "cache_read": 3699663,
+      "cache_write_5m": 0,
+      "cache_write_1h": 81860,
+      "api_equivalent_usd": 1.8139,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 43,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.83,
+      "active_minutes": 10.83,
+      "model_minutes": 4.76,
+      "tool_minutes": 6.08,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "triage 8 mutants, write 9 tests, find and fix one parity bug",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 165.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
