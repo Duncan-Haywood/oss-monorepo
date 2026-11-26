@@ -124,7 +124,11 @@ screen each amount wrapped onto the line below its label.
 
 Now, under 600 px, each schedule line is a card: "4 Electrical rough-in"
 on top, then Scheduled, Previous, This period, Stored, Completed, Percent
-complete, Balance to finish and Retainage, one named row each. The
+complete, Balance to finish and Retainage, two to a row with the name
+above each amount, so the four you check first (Scheduled, Previous,
+This period, Stored) fit in the top half of the card. A card is 238 px
+tall on a 390 px phone, down from 310 px when each amount had its own
+row, and the ten-line example's table went from 3,230 px to 2,511. The
 summary shows as nine label-and-amount rows ("8. CURRENT PAYMENT DUE
 (6 - 7) ... $84,870.00" on the worked example). The text you download or
 print is the same padded text as before; only the on-screen view changed.

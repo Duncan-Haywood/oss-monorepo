@@ -46,18 +46,20 @@
        sideways scroller, with every amount after Scheduled off screen, and the padded summary
        wrapped each amount under its label. Below 600 px each line is a card ("1 General
        conditions", then one row per amount, named), and sumview.mjs draws the summary as
-       label/amount rows. The <pre> stays the download source and shows from 601 px up. */
+       label/amount rows. The <pre> stays the download source and shows from 601 px up.
+       Then (same day) the cards were 310 px tall each, 3,230 px for the ten-line example: the
+       amounts now sit two to a row, name above amount, so a card is about half as tall. */
     .sum-view { display: none; }
     @media (max-width: 600px) {
       input, select { font-size: 16px; } /* under 16 px, iOS zooms the page on focus */
       table.stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-      table.stack, table.stack tbody, table.stack tr { display: block; }
-      table.stack tr { border: 1px solid #dad6c8; border-radius: 10px; padding: 10px 12px 4px; margin: 0 0 10px; background: #fff; }
-      table.stack td { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; border: 0; border-top: 1px solid #e8e4d6; padding: 6px 0; text-align: right; }
-      table.stack td::before { content: attr(data-label); color: #54503f; font-size: .8rem; font-weight: 600; text-align: left; }
-      table.stack td:first-child, table.stack td:nth-child(2) { display: inline; border: 0; padding: 0; font-weight: 700; color: #3b2a14; }
-      table.stack td:first-child { margin-right: .45em; }
-      table.stack td:nth-child(3) { margin-top: 8px; }
+      table.stack, table.stack tbody { display: block; }
+      table.stack tr { display: flex; flex-wrap: wrap; column-gap: 12px; border: 1px solid #dad6c8; border-radius: 10px; padding: 10px 12px 4px; margin: 0 0 10px; background: #fff; }
+      table.stack td { flex: 0 0 calc(50% - 6px); box-sizing: border-box; min-width: 0; display: flex; flex-direction: column; border: 0; border-top: 1px solid #e8e4d6; padding: 5px 0 6px; text-align: left; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+      table.stack td::before { content: attr(data-label); color: #54503f; font-size: .78rem; font-weight: 600; line-height: 1.3; }
+      table.stack td:first-child, table.stack td:nth-child(2) { display: block; border: 0; padding: 0 0 8px; font-weight: 700; color: #3b2a14; font-variant-numeric: normal; }
+      table.stack td:first-child { flex: 0 0 auto; column-gap: 0; }
+      table.stack td:nth-child(2) { flex: 1 1 60%; margin-left: -4px; }
       table.stack td:empty { display: none; }
       pre.sum.has-view { display: none; }
       .sum-view:not([hidden]) { display: block; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 6px 12px; font-size: .9rem; }
