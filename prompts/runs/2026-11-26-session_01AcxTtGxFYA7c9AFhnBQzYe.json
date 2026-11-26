@@ -32,12 +32,13 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 4,
   "outcome": "success",
   "errors": [
-    "A python heredoc edit was refused by the Bash rm-safety parser (no removal in it); rewrote it as a script file in the scratchpad."
+    "A python heredoc edit was refused by the Bash rm-safety parser (no removal in it); rewrote it as a script file in the scratchpad.",
+    "CI validate (check_money_sign.py) caught my new wh347.mjs usd() signing a negative as $-9.24; fixed to sign outside the symbol."
   ],
   "integrity_issues": [],
   "doc_friction": [
