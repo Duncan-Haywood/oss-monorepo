@@ -43,6 +43,15 @@ describe("generateSecurityTxt", () => {
       TrustClaimError,
     );
   });
+  it("rejects a long adversarial mailto contact quickly", () => {
+    const contact = [`mailto:!@!.${"!.".repeat(100_000)} `];
+    const t0 = performance.now();
+    assert.throws(
+      () => generateSecurityTxt({ contact, expires: IN_90_DAYS }, NOW),
+      TrustClaimError,
+    );
+    assert.ok(performance.now() - t0 < 200, `took ${performance.now() - t0} ms`);
+  });
   it("refuses an expiry in the past or more than a year ahead", () => {
     const c = ["mailto:s@example.test"];
     assert.throws(

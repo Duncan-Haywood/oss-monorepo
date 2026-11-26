@@ -86,8 +86,21 @@ export function isValidSource(s: string): boolean {
   return path.length > 0 && !path.startsWith("/") && !path.split("/").includes("..");
 }
 
+/**
+ * `mailto:local@domain.tld`: what /^mailto:[^@\s]+@[^@\s]+\.[^@\s]+$/ accepts (no whitespace, one
+ * "@", a non-empty local part, a dot inside the domain), checked by splitting instead. That regex
+ * backtracks over every dot in the domain, so "mailto:!@!." plus many "!." took quadratic time.
+ */
+export function isMailtoAddress(uri: string): boolean {
+  if (!uri.startsWith("mailto:") || /\s/.test(uri)) return false;
+  const parts = uri.slice("mailto:".length).split("@");
+  if (parts.length !== 2) return false;
+  const [local = "", domain = ""] = parts;
+  return local.length > 0 && domain.slice(1, -1).includes(".");
+}
+
 export function isSecurityContact(uri: string): boolean {
-  return /^mailto:[^@\s]+@[^@\s]+\.[^@\s]+$/.test(uri) || /^https:\/\/[^\s]+$/.test(uri);
+  return isMailtoAddress(uri) || /^https:\/\/[^\s]+$/.test(uri);
 }
 
 function checkClaim(c: Claim, where: string): void {

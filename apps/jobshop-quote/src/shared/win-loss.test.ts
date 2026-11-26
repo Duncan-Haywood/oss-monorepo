@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { WIN_LOSS_WINDOWS, winLossWindowOf } from "./api";
 import type { CostBreak, RateSnapshot } from "./costing";
 import {
   bandLabel,
@@ -478,5 +479,14 @@ describe("win/loss by routing and part family", () => {
       routings,
     );
     expect(csv.split("\r\n")[1]?.endsWith(",BRK-1001,Turned shaft; No saved routing")).toBe(true);
+  });
+});
+
+describe("winLossWindowOf", () => {
+  it("accepts only the windows the page offers", () => {
+    for (const w of WIN_LOSS_WINDOWS) expect(winLossWindowOf(w)).toBe(w);
+    expect(winLossWindowOf("30")).toBeNull();
+    expect(winLossWindowOf('365"><img src=x onerror=alert(1)>')).toBeNull();
+    expect(winLossWindowOf("")).toBeNull();
   });
 });

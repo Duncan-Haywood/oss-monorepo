@@ -62,6 +62,12 @@ describe("renderSsp", () => {
     expect(md).toContain("No lockout \\| yet");
   });
 
+  it("escapes a backslash before a pipe, so the pipe stays escaped in the POA&M table", () => {
+    const poam = [{ ...base.poam[0], weakness: "ends in \\| cell" }] as SspInput["poam"];
+    const md = renderSsp({ ...base, poam });
+    expect(md).toContain("| ends in \\\\\\| cell |");
+  });
+
   it("says no score can be produced without an SSP", () => {
     const md = renderSsp({ ...base, records: [] });
     expect(md).toContain("not computable");

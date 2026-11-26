@@ -9,7 +9,7 @@
 //   - Optional: Encryption, Acknowledgments, Preferred-Languages (once), Canonical, Policy, Hiring.
 //     Web URIs in those fields must be https.
 
-import { TrustClaimError } from "./guard.ts";
+import { isMailtoAddress, TrustClaimError } from "./guard.ts";
 import type { TrustProfile } from "./types.ts";
 
 export interface SecurityTxtFields {
@@ -29,7 +29,7 @@ export const MAX_EXPIRY_DAYS = 365;
 const DAY_MS = 86_400_000;
 
 function assertContact(uri: string): void {
-  if (/^mailto:[^@\s]+@[^@\s]+\.[^@\s]+$/.test(uri)) return;
+  if (isMailtoAddress(uri)) return;
   if (/^tel:\+?[0-9-]+$/.test(uri)) return;
   if (/^https:\/\/\S+$/.test(uri)) return;
   throw new TrustClaimError(

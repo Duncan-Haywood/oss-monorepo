@@ -1,7 +1,12 @@
 // Win/loss analytics: where the shop wins, at what markup, and what each repeat part went at.
 // Every figure is counted from the shop's own decided quotes (src/shared/win-loss.ts).
 
-import { WIN_LOSS_WINDOWS, type WinLossDto, type WinLossWindow } from "@shared/api";
+import {
+  WIN_LOSS_WINDOWS,
+  type WinLossDto,
+  type WinLossWindow,
+  winLossWindowOf,
+} from "@shared/api";
 import type { PartPrices, WinLossRow } from "@shared/win-loss";
 import { LOW_SAMPLE } from "@shared/win-loss";
 import { useQuery } from "@tanstack/react-query";
@@ -35,7 +40,11 @@ export function WinLossPage() {
         <div className="flex flex-wrap items-center gap-2">
           <Select
             value={range}
-            onChange={(e) => setRange(e.target.value as WinLossWindow)}
+            onChange={(e) => {
+              // Keep one of our own window values, never the option's DOM text, in the CSV link.
+              const w = winLossWindowOf(e.target.value);
+              if (w) setRange(w);
+            }}
             aria-label="Decided within"
           >
             {WIN_LOSS_WINDOWS.map((w) => (

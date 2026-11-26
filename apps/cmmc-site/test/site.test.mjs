@@ -5,7 +5,15 @@ import { mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { build, fileFor, htmlToText, normalizeBasePath, withBase } from "../src/build.mjs";
+import {
+  build,
+  decodeEntities,
+  fileFor,
+  htmlToText,
+  normalizeBasePath,
+  removeTags,
+  withBase,
+} from "../src/build.mjs";
 import { PAGES } from "../src/pages.mjs";
 import { JOBSHOP, SOURCES, STATUS_CHECKED } from "../src/site.mjs";
 
@@ -114,6 +122,22 @@ test("llms.txt follows llmstxt.org shape and carries the non-claims and the date
   assert.match(full, /# CMMC Level 1 vs Level 2/);
   assert.ok(!/<[a-z]+[ >]/.test(full.replace(/<\d/g, "")), "no HTML tags left in llms-full.txt");
   assert.equal(htmlToText('<a href="/cmmc/pricing">P</a>', SITE, "/cmmc"), `[P](${SITE}/pricing)`);
+});
+
+test("tag stripping runs to a fixpoint and entities decode once", () => {
+  // One regex pass over a nested tag splices a new one together; the loop removes it too.
+  assert.equal(removeTags("<<script>script>alert(1)<</script>/script>"), "script>alert(1)/script>");
+  assert.ok(!/<script/i.test(removeTags("<scr<script>ipt>x")));
+  assert.ok(!htmlToText("<p>a <<b>script>b</p>", SITE, "/cmmc").includes("<"));
+  // "&amp;lt;" is the text "&lt;": decoding &amp; first and then &lt; would turn it into "<".
+  assert.equal(
+    decodeEntities("&amp;lt;script&amp;gt; R&amp;D &quot;x&quot;"),
+    '&lt;script&gt; R&D "x"',
+  );
+  assert.equal(
+    htmlToText("<p>&amp;quot; &amp;amp; &lt;b&gt;</p>", SITE, "/cmmc"),
+    "&quot; &amp; &lt;b&gt;",
+  );
 });
 
 test("every page shows the dated CMMC phase status or links to it, and the non-claims footer", () => {

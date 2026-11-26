@@ -3,6 +3,7 @@
 // file already uploaded, so a training record or an internal audit is stored once and serves both.
 // Every query filters by orgId. Nothing here claims certification or audit readiness.
 import { SCOPE_DISCLAIMER } from "@shared/enums";
+import { markdownCell } from "@shared/markdown";
 import {
   type ClauseState,
   ISO9001_CLAUSES,
@@ -229,7 +230,7 @@ export async function unlinkEvidenceEverywhere(ctx: AppContext, orgId: string, e
     );
 }
 
-const cell = (s: string) => s.replace(/\|/g, "\\|").replace(/\r?\n/g, " ").trim();
+const cell = (s: string) => markdownCell(s).trim();
 
 /** Markdown gap report: readiness by section, then every clause with status, notes and evidence. */
 export function renderQualityReport(

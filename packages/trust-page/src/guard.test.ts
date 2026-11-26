@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { assertHonestText, isValidSource, TrustClaimError, validateProfile } from "./guard.ts";
+import {
+  assertHonestText,
+  isMailtoAddress,
+  isSecurityContact,
+  isValidSource,
+  TrustClaimError,
+  validateProfile,
+} from "./guard.ts";
 import { grantsProfile } from "./profiles/grants.ts";
 import type { TrustProfile } from "./types.ts";
 
@@ -92,5 +99,42 @@ describe("isValidSource", () => {
     assert.equal(isValidSource("/etc/passwd"), false);
     assert.equal(isValidSource("http://insecure.example"), false);
     assert.equal(isValidSource(""), false);
+  });
+});
+
+describe("mailto contacts", () => {
+  const OLD = /^mailto:[^@\s]+@[^@\s]+\.[^@\s]+$/;
+
+  it("accepts exactly what the old regex accepted", () => {
+    const cases = [
+      "mailto:security@example.test",
+      "mailto:a@b.c",
+      "mailto:a@.bc",
+      "mailto:a@bc.",
+      "mailto:a@b..c",
+      "mailto:a@..",
+      "mailto:a@...",
+      "mailto:@b.c",
+      "mailto:a@b",
+      "mailto:a@@b.c",
+      "mailto:a@b.c@d.e",
+      "mailto:a b@c.d",
+      "mailto:a@b.c\n",
+      "mailto:a@b.c ",
+      "MAILTO:a@b.c",
+      "mailto:",
+      "a@b.c",
+    ];
+    for (const c of cases) assert.equal(isMailtoAddress(c), OLD.test(c), JSON.stringify(c));
+  });
+
+  it("rejects a long adversarial address in linear time", () => {
+    const long = `mailto:!@!.${"!.".repeat(100_000)}`;
+    for (const s of [`${long} `, `${long}@`]) {
+      const t0 = performance.now();
+      assert.equal(isSecurityContact(s), false);
+      assert.ok(performance.now() - t0 < 200, `took ${performance.now() - t0} ms`);
+    }
+    assert.equal(isSecurityContact(long), true);
   });
 });

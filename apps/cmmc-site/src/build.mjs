@@ -75,16 +75,23 @@ export const fileFor = (path) => (path === "/" ? "index.html" : `${path.slice(1)
 
 const pageUrl = (siteUrl, path) => (path === "/" ? `${siteUrl}/` : `${siteUrl}${path}`);
 
-const stripTags = (html) =>
-  html
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/\s+/g, " ")
-    .trim();
+const ENTITIES = { "&amp;": "&", "&nbsp;": " ", "&lt;": "<", "&gt;": ">", "&quot;": '"' };
+/** Decode entities in one pass, so "&amp;lt;" becomes "&lt;", never "<". */
+export const decodeEntities = (s, names = /&(?:amp|nbsp|lt|gt|quot);/g) =>
+  s.replace(names, (m) => ENTITIES[m] ?? m);
+
+/** Remove tags until none are left: a single pass over "<<b>i>" would leave "<i>" behind. */
+export function removeTags(html, replacement = "", tag = /<[^>]+>/g) {
+  let out = html;
+  let prev;
+  do {
+    prev = out;
+    out = out.replace(tag, replacement);
+  } while (out !== prev);
+  return out;
+}
+
+const stripTags = (html) => decodeEntities(removeTags(html, " ")).replace(/\s+/g, " ").trim();
 
 function jsonLd(page, siteUrl) {
   const url = pageUrl(siteUrl, page.path);
@@ -248,7 +255,7 @@ ${SOURCES.map((s) => `- [${s.title}](${s.url}): ${s.publisher}, cited ${s.checke
 export function htmlToText(html, siteUrl, base) {
   const abs = (href) =>
     href.startsWith("/") ? `${siteUrl}${href.slice(base.length) || "/"}` : href;
-  return html
+  const md = html
     .replace(
       /<a [^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g,
       (_, h, t) => `[${stripTags(t)}](${abs(h)})`,
@@ -260,10 +267,9 @@ export function htmlToText(html, siteUrl, base) {
     .replace(/<li[^>]*>/g, "\n- ")
     .replace(/<tr[^>]*>/g, "\n| ")
     .replace(/<\/t[dh]>/g, " |")
-    .replace(/<\/(p|ul|table|section|aside|div|form)>/g, "\n")
-    .replace(/<(?!\/?h\d)[^>]+>/g, "")
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
+    .replace(/<\/(p|ul|table|section|aside|div|form)>/g, "\n");
+  // Tags go until none are left, then &amp;/&quot; decode in one pass (&lt;/&gt; stay encoded).
+  return decodeEntities(removeTags(md, "", /<(?!\/?h\d)[^>]+>/g), /&(?:amp|quot);/g)
     .replace(/[ \t]+/g, " ")
     .replace(/\n /g, "\n")
     .replace(/\n{3,}/g, "\n\n")

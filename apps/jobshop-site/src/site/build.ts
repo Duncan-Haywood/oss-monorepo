@@ -147,19 +147,37 @@ export function renderPage(ctx: DocumentContext, route: PublicRoute): string {
   return renderDocument(ctx, route, body(ctx), jsonLdFor(ctx, route));
 }
 
+/**
+ * Replace every match of `pattern` until none is left. One pass is not enough when removing a
+ * match splices a new one together ("<scr<b>ipt>" leaves "ipt>", "<<b>script>" leaves "<script>").
+ */
+export function removeAll(input: string, pattern: RegExp, replacement = ""): string {
+  let out = input;
+  let prev: string;
+  do {
+    prev = out;
+    out = out.replace(pattern, replacement);
+  } while (out !== prev);
+  return out;
+}
+
 /** Visible text of the <main> element, for llms-full.txt. */
 export function mainText(page: string): string {
   const main = /<main\b[^>]*>([\s\S]*?)<\/main>/.exec(page)?.[1] ?? "";
-  return main
-    .replace(/<form\b[\s\S]*?<\/form>/g, " ")
-    .replace(/<(figure|svg)\b[\s\S]*?<\/\1>/g, " ")
+  const blocks = removeAll(
+    removeAll(main, /<form\b[\s\S]*?<\/form\s*>/gi, " "),
+    /<(figure|svg)\b[\s\S]*?<\/\1\s*>/gi,
+    " ",
+  );
+  const md = blocks
     .replace(/<\/(h[1-6])>/g, "\n\n")
     .replace(/<h([1-6])\b[^>]*>/g, (_, n: string) => `\n\n${"#".repeat(Number(n) + 1)} `)
     .replace(/<li\b[^>]*>/g, "\n- ")
     .replace(/<summary\b[^>]*>/g, "\n\n### ")
     .replace(/<\/summary>/g, "\n\n")
-    .replace(/<\/(p|ul|ol|section|div)>/g, "\n\n")
-    .replace(/<[^>]+>/g, "")
+    .replace(/<\/(p|ul|ol|section|div)>/g, "\n\n");
+  // Entities decode after every tag is gone, &amp; last, so "&amp;lt;" stays the text "&lt;".
+  return removeAll(md, /<[^>]+>/g)
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
     .replace(/&lt;/g, "<")

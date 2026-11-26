@@ -22,13 +22,29 @@ const read = (rel) => readFileSync(join(out, rel), "utf8");
 const fileOf = (path) => `${path.slice(1)}index.html`;
 const htmlOf = (id, lang) => read(fileOf(pathOf(id, lang)));
 const all = (html, re) => [...html.matchAll(re)].map((m) => m[1]);
+/** Replace every match until none is left: one pass over "<scr<script></script>ipt>" leaves a tag. */
+const removeAll = (s, re) => {
+  let out = s;
+  let prev;
+  do {
+    prev = out;
+    out = out.replace(re, " ");
+  } while (out !== prev);
+  return out;
+};
+const ENTITIES = { "&amp;": "&", "&#39;": "'", "&quot;": '"' };
+/** Visible text: script blocks (any case, `</script >` too), then tags, then one-pass entity decode. */
 const text = (html) =>
-  html
-    .replace(/<script[\s\S]*?<\/script>/g, " ")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&#39;/g, "'")
-    .replace(/&quot;/g, '"');
+  removeAll(removeAll(html, /<script\b[\s\S]*?<\/script\s*>/gi), /<[^>]+>/g).replace(
+    /&(?:amp|#39|quot);/g,
+    (m) => ENTITIES[m],
+  );
+
+test("the text() helper strips script blocks in any case and decodes entities once", () => {
+  assert.equal(text("a<SCRIPT>x()</SCRIPT >b").replace(/\s+/g, " "), "a b");
+  assert.ok(!/<script/i.test(text("<scr<script></script>ipt>alert(1)</script>")));
+  assert.equal(text("&amp;quot; R&amp;D &quot;q&quot;"), '&quot; R&D "q"');
+});
 
 test("builds every page in every language", () => {
   assert.equal(manifest.pages.length, PAGES.length * LANGS.length);

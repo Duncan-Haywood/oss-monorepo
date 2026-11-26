@@ -653,6 +653,9 @@ export interface QuoteStatsDto {
 export const WIN_LOSS_WINDOWS = ["90", "365", "all"] as const;
 export type WinLossWindow = (typeof WIN_LOSS_WINDOWS)[number];
 export const winLossQuerySchema = z.object({ window: z.enum(WIN_LOSS_WINDOWS).default("365") });
+/** The window named by `value` (e.g. a <select>'s DOM text), or null when it is not one of ours. */
+export const winLossWindowOf = (value: string): WinLossWindow | null =>
+  WIN_LOSS_WINDOWS.find((w) => w === value) ?? null;
 
 export interface WinLossDto extends WinLossReport {
   window: WinLossWindow;

@@ -14,6 +14,7 @@ import {
   scoreLevel2,
 } from "@shared/controls";
 import { SCOPE_DISCLAIMER } from "@shared/enums";
+import { markdownCell } from "@shared/markdown";
 
 export interface SspRecord {
   controlId: string;
@@ -173,8 +174,7 @@ export function renderSsp(input: SspInput): string {
     out.push("| Requirement | Weakness | Scheduled completion |");
     out.push("| --- | --- | --- |");
     for (const i of open) {
-      const cell = (s: string) => s.replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
-      out.push(`| ${i.controlId} | ${cell(i.weakness)} | ${i.scheduledCompletion} |`);
+      out.push(`| ${i.controlId} | ${markdownCell(i.weakness)} | ${i.scheduledCompletion} |`);
     }
   }
   out.push("");
