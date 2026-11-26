@@ -647,6 +647,41 @@ what sold. A sale of something you never entered as an item needs no change:
 the warning lists the figures and leaves the decision to you and your
 preparer. This is a worksheet, not tax advice.
 
+## A return that came back to the shelf (added 2026-11-26)
+
+A refund row in a marketplace report says money went back to the buyer. It
+doesn't say whether the item came back too. When it did and you relist it,
+the books need to show it on hand again. If they don't, the item stays
+"sold", its cost stays in cost of goods sold, and line 41 misses something
+that's sitting on your shelf.
+
+Each refund on the Sales page now has an "Item came back?" control. It lists
+the items that refund's order sold (matched by the order number in the
+report), or the most recent items sold before the refund when there's no
+order number. Picking one puts it back in stock at its original cost, dated
+the day it came back. Two rules keep earlier years as filed:
+
+- **The original sale stays a sale on its own date.** The item goes back in
+  stock as a new entry from the return date. A year you've already filed
+  keeps the line 41 you filed.
+- **The returned item isn't a purchase.** You bought it before, and its cost
+  went into cost of goods sold when it sold. So line 36 leaves it out, with a
+  note saying how much, and line 41 takes its cost back out of cost of goods
+  sold while it's on hand.
+
+The app's tests use a $10.00 pot sold for $60.00. Sold in March and back in
+stock in April of the same year, line 41 shows $10.00, line 36 leaves the
+$10.00 out, and cost of goods sold for the year is $0.00. The $60.00 refund
+cancels the sale on the income side too. Sold on December 10, 2025 and back on
+January 5, 2026, the 2025 worksheet still shows $10.00 of cost of goods sold
+and nothing on hand, as it was filed. The 2026 worksheet shows $10.00 on hand
+and cost of goods sold of −$10.00 if nothing else sold. That negative figure is
+right: it reverses the cost 2025 already took. Ask your preparer if you're not
+sure how to report a year like that. If the item sells again, it sells like
+any other stock with no new cost, because the cost was already taken in 2025.
+"Undo" takes a return back out of stock, and deleting the refund removes it.
+This is a worksheet, not tax advice.
+
 ## What comes next
 
 Each of the ten tool pages now ends with a short "track true profit across
