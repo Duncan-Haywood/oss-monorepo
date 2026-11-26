@@ -195,9 +195,45 @@ date, so the renewal can go out with the application. When a policy
 renews, the old certificate is archived and no longer flagged. The
 optional weekly "money to chase" email lists every certificate that has
 expired or will expire within 30 days, so a company with no pay
-application due that week still hears about it. The build
-reads only the dates typed in. It does not check coverage, limits or
-what a subcontract requires. (Added 2026-11-26; still in development.)
+application due that week still hears about it. A renewal has to reach
+every GC that holds the old certificate (the "certificate holder" box on
+the form), and on a sub with a dozen jobs that list lives in someone's
+head. So each certificate can now record which jobs' GCs hold it, with
+the date it was sent. The insurance page then says "Send the renewal to
+Peak GC and Sierra Builders", naming each GC once even when it holds the
+certificate on several jobs. A new certificate is offered the same jobs
+as the archived one it replaces, the weekly email names the GCs on each
+renewal line, and a draft pay application names any certificate not
+recorded as sent to that job's GC. (Added 2026-11-26; still in
+development.)
+
+Dates are only half of it. A subcontract's insurance exhibit also sets
+minimum limits (for example, a stated amount for each occurrence and in
+aggregate) and asks for wording on the certificate: additional insured,
+waiver of subrogation, primary and non-contributory. A certificate that
+is current but short on any of these can still be sent back. So each
+certificate can now carry its limits and the wording it shows, and each
+job can carry what its subcontract asks for, one row per coverage. The
+job page marks every requirement "Met" or "Gap" and says why in words:
+no certificate, expired, not started yet, a limit below what is asked
+(with both figures), a limit nobody typed (never assumed met), or an
+endorsement the certificate does not show. An umbrella policy counts
+toward a limit only where the job says the GC accepts that. A draft pay
+application lists the same gaps as of its own date, so they are fixed
+before it goes out. The build checks what was typed from the
+certificate, not the policy itself. The insurance broker still confirms
+the coverage. (Added 2026-11-26; still in development.)
+
+Many GCs also want the current certificate itself in the backup of every
+pay application, not only on file. So each certificate in the build now
+keeps its files: the certificate PDF from the agent, usually an ACORD 25,
+and any endorsements the subcontract asks for, such as additional insured
+or waiver of subrogation. A draft pay application lists the files of
+every active certificate, and one click copies a file into that
+application's backup, so it goes into the single PDF packet sent to the
+GC. The files count against the same storage limit as other attachments,
+and they are deleted with the certificate. (Added 2026-11-26; still in
+development.)
 
 **A scanned schedule of values.** The schedule of values often arrives
 as a scan: the GC's signed copy, or a page someone ran through the
