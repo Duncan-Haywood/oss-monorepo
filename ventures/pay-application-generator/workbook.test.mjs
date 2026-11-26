@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { compute, sampleList, SAMPLE_SETTINGS } from "./calc.mjs";
-import { workbookModel, workbookXlsx, crc32, FIRST_LINE_ROW, SPARE_ROWS, TEMPLATE_ROWS, CONT } from "./workbook.mjs";
+import { workbookModel, workbookXlsx, crc32, colName, FIRST_LINE_ROW, SPARE_ROWS, TEMPLATE_ROWS, CONT } from "./workbook.mjs";
 
 // Read a stored zip back: local headers in order, checking each CRC.
 function unzip(bytes) {
@@ -104,6 +104,8 @@ test("the blank template has 30 formula rows, default 10% rates and zero totals"
   assert.equal(rows[6][1].v, 0.1);
   for (let r = FIRST_LINE_ROW; r <= m.lastLineRow; r++) assert.equal(rows[r - 1][7].f, `E${r}+F${r}+G${r}`);
   assert.equal(rows[m.totalRow - 1][3].f, `SUM(D${FIRST_LINE_ROW}:D${m.lastLineRow})`);
+  // A previewer that does not recalculate shows the cached totals, so every one must read zero, not just the formulas.
+  rows[m.totalRow - 1].forEach((c, j) => { if (c && c.f && /^SUM\(/.test(c.f)) assert.equal(c.v, 0, `blank total in column ${j}`); });
   const files = unzip(workbookXlsx(null, {}));
   assert.match(files["xl/worksheets/sheet1.xml"], /Application for payment/);
 });
@@ -112,4 +114,8 @@ test("a result with errors gives the blank template rather than a half-filled on
   const r = compute("Description\nx", {});
   assert.ok(r.errors.length);
   assert.equal(workbookModel(r, {}).filled, false);
+});
+
+test("column letters go past Z the way spreadsheets count them", () => {
+  assert.deepEqual([0, 11, 25, 26, 27, 51, 52, 701, 702].map(colName), ["A", "L", "Z", "AA", "AB", "AZ", "BA", "ZZ", "AAA"]);
 });

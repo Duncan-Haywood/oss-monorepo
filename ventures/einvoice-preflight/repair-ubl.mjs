@@ -279,6 +279,11 @@ export function repairUbl(source) {
     const { id, pct } = category(l.b.inner, "ClassifiedTaxCategory");
     const rate = pct ?? (id && /^[EZO]$/.test(id) ? 0 : null);
     let vat = num(firstChild(tt.inner, "TaxAmount", ["TaxSubtotal"])?.value);
+    // "130,43" (a decimal comma) is no XML decimal: left as written, never a crash (2026-11-26).
+    if (Number.isNaN(vat) || Number.isNaN(rate)) {
+      skipped.push(`Line ${i + 1}'s TaxTotal has a VAT amount or rate that is not a plain number (XML decimals use a dot); it was left as written.`);
+      return;
+    }
     if (vat !== null && rate !== null) {
       const want = roundHalfUpToCents((l.net * rate) / 100);
       // Within 0.01 is kept: a price that already includes VAT (869.57 + 130.43 = 1000.00
@@ -297,6 +302,10 @@ export function repairUbl(source) {
       const taxable = num(firstChild(s.inner, "TaxableAmount")?.value);
       const r = c.pct ?? (c.id && /^[EZO]$/.test(c.id) ? 0 : null);
       if (taxable === null || r === null) return;
+      if (Number.isNaN(taxable) || Number.isNaN(r)) {
+        skipped.push(`Line ${i + 1}'s prepayment ${k + 1} has a taxable amount or rate that is not a plain number (XML decimals use a dot); it was left as written.`);
+        return;
+      }
       const t = roundHalfUpToCents((taxable * r) / 100);
       set(sub, "TaxAmount", ["TaxCategory"], `/lines/${i}/prepayment/${k}/tax`, fmt(t), `Prepayment VAT (KSA-32) is the prepayment taxable amount (KSA-31) times ${r}% (BR-KSA-79).`);
       prepaySum = roundHalfUpToCents(prepaySum + taxable + t);

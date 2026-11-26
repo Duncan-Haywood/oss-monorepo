@@ -104,14 +104,11 @@ allow:
     contains: lets the job mint cloud credentials
     reason: the file-level form of the two plan/run id-token findings above, same two jobs, same environment-scoped roles; workflow_dispatch only, no pull_request trigger (PR #19204)
     added: 2026-11-26
-  # aws-single-account-mode (single-account mode and the us-east-2 home
-  # region). Each entry names a removed line that the same PR replaces with
-  # an indexed or mode-aware form; the protection is still there.
-  - rule: aws-guardrail-weakened
-    path: platform/aws/bootstrap/bootstrap.yaml
-    contains: 'the bootstrap stack (the GitHub OIDC trust anchor and the apply role) changed'
-    reason: 'TEMPORARY, for the single-account-mode PR only, removed by the follow-up PR right after it merges. That PR adds an AccountMode parameter whose single value ADDS explicit denies to github-apply (audit and detection, region, commitments, no keys or passwords) and narrows CreateUser to /transitional/; organization mode renders the same statements as before, pinned by platform/aws/tests/test_bootstrap.py'
-    added: 2026-11-26
+  # aws-single-account-mode (PR #19244: single-account mode and the
+  # us-east-2 home region). Each entry names a removed line that PR replaced
+  # with an indexed or mode-aware form; the protection is still there. Its
+  # temporary bootstrap.yaml entry was removed once it merged, so every
+  # later bootstrap change is blocked again.
   - rule: aws-guardrail-weakened
     path: platform/aws/stacks/baseline/outputs.tf
     contains: '.kill_switch_role_arn'

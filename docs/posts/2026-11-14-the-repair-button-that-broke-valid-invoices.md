@@ -28,6 +28,14 @@ On the old code, 9 of the 16 repair tests fail. On the new code all of them pass
 
 The same run seeded 8 faults into the UBL XML repair. The existing tests caught 4. Three of the 4 that got through were real gaps, and each now has a test. One was a single-fix file not marked as repaired. One was a zero base quantity that the totals recomputed past. One was the float slack in the 0.01 tolerance on two-million-rial Omani lines. The fourth fault could not change the output.
 
+## Update, 2026-11-26: a decimal comma crashed the repair
+
+A later red-team run tried a number the way many European sellers type it: `1,5` for one and a half, `130,43` for a VAT amount. XML decimals use a dot, so the file is not valid. The repair should have said so. On a CII invoice (XRechnung CII, ZUGFeRD, Factur-X) it crashed instead. A comma in a quantity, a net price or the prepaid amount did it. The UBL repair crashed the same way on a comma in a Saudi (ZATCA) line's VAT or prepayment amount. In each case the value was read as "not a number" and passed on to the rounding step, which fails on it. The page then said it "could not read this XML as a UBL or CII invoice", which was no help to the person trying to fix it.
+
+The repair now names the line and the field, says that XML decimals use a dot, and leaves the file unchanged. A new test tries a decimal comma in every one of the 1,009 numeric fields across the 39 XML examples, and in every number of the JSON examples. Each repair may refuse with a clear message or skip a step and say why. It may not throw an internal error or write `NaN` into the file. On the old code that test failed on 6 of the example files.
+
+The same run seeded 8 faults into the CII repair; the tests caught 5. All three that got through were real gaps, and each now has a test. A standard-rated (S) group with no rate was read as 0%. A missing allowance total was passed over silently. A second tax total in the same currency (BT-111) was left stale. Six more faults seeded into the Mexican CFDI rules were all caught.
+
 The broader lesson applies to any validator that also offers an auto-fix: **the fixer must not have its own arithmetic.** Two copies of the same rule drift apart, and the user only sees the drift as a "fix" that makes things worse.
 
 The tool is free and MIT licensed, and it runs in the browser: [einvoice-preflight](https://marisstella.app/einvoice-preflight/).
