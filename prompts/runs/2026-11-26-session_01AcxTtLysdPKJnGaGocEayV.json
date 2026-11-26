@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtLysdPKJnGaGocEayV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T05:06:46Z",
+  "ended": "2026-11-26T05:18:50Z",
+  "wall_minutes": 13.13,
+  "tokens_in": 12960682,
+  "tokens_out": 54035,
+  "cost_usd": 5.0947,
+  "tool_calls": 98,
+  "task": "einvoice-preflight ROADMAP Next 4: Factur-X MINIMUM, BASIC WL and EXTENDED schemas (claim facturx-profile-xsd)",
+  "projects": [
+    "einvoice-preflight",
+    "einvoice-site"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19231",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [
+    "private-monorepo *-ci.yml runners starved (jobs red in seconds); verified with run_workflow_locally.py instead",
+    "repair-facturx.test.mjs 'poppler opens the repaired PDF' fails in this image: the pdfdetach wrapper refuses saves (environment, not the change)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md / bets.md",
+      "issue": "payapps (bet 1) had about 30 claims from parallel runs and its free Next items depend on unpublished formats (GCPay columns are not public) or a new dependency (OCR), so I moved to bet 3. The router does not show how crowded each bet is."
+    },
+    {
+      "file": "apps/einvoice-site (private)",
+      "issue": "einvoice-site-ci's Biome step was red on main (admin.mjs and its test were not formatted); fixed forward in private PR 254."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took bet 3 (e-invoice) instead of the top bet (payapps): payapps' free items need a format that is not public (GCPay) or a dependency that is not allowed (in-browser OCR), and jobshop-quote's items mostly wait on 'if shops ask'.",
+      "did": "Built the einvoice ROADMAP's concrete Next item, the Factur-X profile schemas.",
+      "result": "Merged as private PR 254, verified against xmllint."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-zugferd-minimum-basic-wl-not-an-e-invoice-in-germany.md (extended)",
+    "private-monorepo apps/einvoice-preflight/eval/facturx-xsd-2026-11-26.md",
+    "private-monorepo apps/einvoice-preflight/README.md, 'Factur-X MINIMUM, BASIC WL and EXTENDED schemas'"
+  ],
+  "goal": "bet 3, e-invoice fix-and-explain: close a promised-but-unchecked gap on the product site",
+  "notes": "Private PR 254 (merged 09176f1): cii-xsd.mjs picks the schema by BT-24. The Factur-X 1.0.9 MINIMUM, BASIC WL and EXTENDED XSDs come from akretion/factur-x d0c39409 through build-facturx-schema.mjs into facturx-xsd-data.mjs. The shared reader cii-schema-read.mjs rebuilds cii-xsd-data.mjs byte-identically. CII-005 now flags undeclared attributes. xmllint differential: 12/12 real files; 480/480 mutants at N=40 and 1199/1199 at N=100; the EN 16931 re-run matched 545/545. Local CI: checker suite 2218 passed and 1 failed (poppler, environment); pro 134/134; site 34/34 with Biome clean after the format fix. risk_review: no blocks; the flagged items are answered in the PR body (a build-time execFileSync of git with constant args; github.com reached only at build time).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fb98c844-6c37-538c-87b3-78d2be07afb1",
+    "transcripts": 1,
+    "first": "2026-11-26T05:06:46Z",
+    "last": "2026-11-26T05:19:54Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 90,
+        "input": 175,
+        "output": 54035,
+        "thinking": 9416,
+        "cache_read": 12778296,
+        "cache_write_5m": 0,
+        "cache_write_1h": 182211,
+        "api_equivalent_usd": 5.0947,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 90,
+      "input": 175,
+      "output": 54035,
+      "thinking": 9416,
+      "cache_read": 12778296,
+      "cache_write_5m": 0,
+      "cache_write_1h": 182211,
+      "api_equivalent_usd": 5.0947,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 98,
+    "tools": {
+      "Bash": 84,
+      "ToolSearch": 3,
+      "Write": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__actions_list": 1,
+      "mcp__github__list_pull_requests": 1,
+      "WebSearch": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.13,
+      "active_minutes": 13.13,
+      "model_minutes": 9.41,
+      "tool_minutes": 3.72,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an engineer reading three profile XSD sets, building and checking a differential validator, updating docs in 3 languages",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 196.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
