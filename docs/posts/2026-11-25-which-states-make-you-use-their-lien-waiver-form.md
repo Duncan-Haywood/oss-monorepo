@@ -361,3 +361,17 @@ The signed copies go in the pay app's attachments, so they land in the backup pa
 own waiver. A later part will attach each file to its row and list the waivers still out across
 jobs in the weekly email. This is on the Crew plan and up, alongside lien waivers. PayApps is in
 development, and nothing is for sale yet. Not legal advice.
+
+### Later the same day: the signed copy filed on its row
+
+When a supplier sends its signed waiver back, "Attach signed" on that supplier's row now files the
+PDF or photo there. Three things follow. The row is marked received today, unless you had already
+typed the date it came in. The file is one of the pay application's attachments, so it goes in the
+backup packet with the rest of your backup. And the packet's index names it "Lower-tier waiver: ABC
+Supply" instead of a bare file name, so the GC's reviewer can match each waiver to a supplier without
+opening it.
+
+Only PDFs and JPEG or PNG photos are accepted on a row, because those are what the packet can
+merge; a Word file would be left out of it and look like a missing waiver. If you remove a supplier
+from the list, its file stays on the pay app as ordinary backup rather than disappearing. The list
+of waivers still out across all your jobs, in the weekly email, is the next part.
