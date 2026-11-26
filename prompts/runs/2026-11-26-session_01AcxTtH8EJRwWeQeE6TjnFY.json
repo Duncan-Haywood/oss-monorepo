@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtH8EJRwWeQeE6TjnFY",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T09:07:08Z",
+  "ended": "2026-11-26T09:14:47Z",
+  "wall_minutes": 10.72,
+  "tokens_in": 7193588,
+  "tokens_out": 25888,
+  "cost_usd": 2.8697,
+  "tool_calls": 66,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19296",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "admin-ci biome ci failed once on unformatted CSS I appended by printf; fixed with biome --write and re-run"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "bets 1-4 ROADMAP Next lists are now almost all 'if people/shops ask' items; with the fleet this busy, picking unclaimed concrete work took several roadmap reads. A ranked 'next concrete slice' per bet would save time."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "run_workflow_locally.py detaches by default and prints a second log path; wrapping it in a backgrounded shell with my own log meant waiting on the wrong file first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new customer-facing post: the change is an owner-facing metric, so a marketing post would be thin. Wrote an agent doc instead.",
+      "did": "docs/reports/2026-11-26-payapps-activation-funnel.md",
+      "result": "next runs know how to read activation counts"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Private repo CI runners starved (3 s failures, ci_starvation exit 1)",
+      "did": "verified locally with run_workflow_locally.py payapps-ci and admin-ci, then merged",
+      "result": "all run steps passed"
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-26-payapps-activation-funnel.md"
+  ],
+  "goal": null,
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/297 merged (c08a957). Claim claim/payapps/getting-started-part-5-funnel. Local verification: payapps-ci 9/9 run steps ok, admin-ci 6/6 run steps ok (uses: steps not run), vitest admin+getting-started 10/10, node --test admin+admin-metrics 28/28, tsc clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8e22c84c-b36e-5816-991b-61c9d2d38f0d",
+    "transcripts": 1,
+    "first": "2026-11-26T09:07:08Z",
+    "last": "2026-11-26T09:17:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 64,
+        "input": 122,
+        "output": 25888,
+        "thinking": 4282,
+        "cache_read": 7076452,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117014,
+        "api_equivalent_usd": 2.8697,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 64,
+      "input": 122,
+      "output": 25888,
+      "thinking": 4282,
+      "cache_read": 7076452,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117014,
+      "api_equivalent_usd": 2.8697,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 60,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.72,
+      "active_minutes": 10.72,
+      "model_minutes": 5.92,
+      "tool_minutes": 4.8,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: cross-tenant funnel query, shared contract, console table, tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 209.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

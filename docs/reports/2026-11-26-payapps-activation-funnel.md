@@ -1,3 +1,7 @@
+---
+kind: milestone
+date: 2026-11-26
+---
 # PayApps: where companies stall, in the owner metrics (2026-11-26)
 
 Private PR 297 (`private-monorepo`, slug `getting-started-part-5-funnel`) added an activation
