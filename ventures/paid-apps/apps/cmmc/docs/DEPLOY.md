@@ -2,7 +2,7 @@
 
 One Cloudflare Worker (`cmmc-workspace`) serves the SPA and the API, with a D1 database
 (`cmmc-workspace`) and an R2 bucket for evidence files (`cmmc-workspace-files`). The workflow
-[`.github/workflows/cmmc-deploy.yml`](../../../.github/workflows/cmmc-deploy.yml) does the whole
+[`.github/workflows/cmmc-deploy.yml`](../../../ci-from-private/workflows/cmmc-deploy.yml) does the whole
 deploy; there are no dashboard steps beyond the settings below. It is a port of jobshop-quote's
 deploy (`apps/jobshop-quote/docs/DEPLOY.md`, itself ported from payapps), with the differences listed
 at the end.

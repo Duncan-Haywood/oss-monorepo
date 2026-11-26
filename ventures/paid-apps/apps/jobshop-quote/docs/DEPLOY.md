@@ -4,7 +4,7 @@ One Cloudflare Worker (`jobshop-quote`) serves the SPA and the API, with a D1 da
 (`jobshop-quote`), an R2 bucket for drawings, CAD files and sent quote PDFs (`jobshop-quote-files`),
 Workers AI for drawing text, two Workers Rate Limiting namespaces (1201-1202), a daily cron for
 quote expiry and Cloudflare Email Service for account and quote mail. The workflow
-[`.github/workflows/jobshop-quote-deploy.yml`](../../../.github/workflows/jobshop-quote-deploy.yml)
+[`.github/workflows/jobshop-quote-deploy.yml`](../../../ci-from-private/workflows/jobshop-quote-deploy.yml)
 does the whole deploy; there are no dashboard steps beyond the settings below. It is a port of
 payapps' deploy (`apps/payapps/docs/DEPLOY.md`), with the differences listed at the end.
 
