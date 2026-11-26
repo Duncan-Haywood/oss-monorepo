@@ -141,6 +141,14 @@ The cost is one more end joint per turned triangle, where triangle meets sheet, 
 
 How it was checked: on 120 random outlines, every sampled point of the roof is still under a piece of its own course. A turned triangle is tested as the shape it really is, widest at the bottom of the course, unlike a valley triangle, which is widest at the top. The turned triangles never outnumber the hip ends that gave one. With turned triangles switched off, a rectangle still matches the takeoff's plain hip roof piece for piece. Triangles from a full course are not yet trimmed down for the narrow top course, and the count is still an upper bound, because leftover triangles and length offcuts are still not reused.
 
+## A trap on stepped plans: two eaves on one line (added 2026-11-26)
+
+Picture a plan with a bump-out between two lower sections, where the eaves on either side of the bump-out sit on the same line. Those two eaves feed **one** roof plane. Behind the bump-out they join, and nothing on the roof marks where one eave's part ends and the other's begins. No hip, no valley, no ridge. If you lay sheathing by working out each eave's plane separately, the place where one part runs out is easy to miss. That is where the other part's course turns a corner, and a course measured only at the hips and valleys comes out short there.
+
+Our takeoff had exactly this bug. It measured each course at the heights where the roof lines meet, and this corner sits at none of them. On a four-column stepped house (89 in columns, 6 in 12, 18 in eaves) the planes added up to 1004.18 sq ft against the eave line's 1003.06, so the takeoff refused the plan. Worse, across 400 random comb-shaped plans (steps on both long sides), 23 plans had a course as much as one full 8 ft sheet short of the roof, and the area check did not notice. The takeoff now also checks each course at the depth where each eave's share of a plane runs out. All 400 plans are now covered piece for piece, checked at 19 depths in every course. The other 199 stepped plans from the test above came out the same, sheet for sheet.
+
+If you sheathe a plan like this by hand, measure the shared plane as one piece and look at the course lengths behind the bump-out.
+
 ## Where to use it
 
 This is part of the estimating module we are building for the contractor suite, and it is not on the free framing page yet. Until it is, the multipliers above get you there by hand for an L, T or U. The free [wall framing takeoff](https://marisstella.app/wall-framing-takeoff/) already counts studs, plates, headers and the board order for the walls under that roof.

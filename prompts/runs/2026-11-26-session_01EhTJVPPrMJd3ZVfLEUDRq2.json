@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01EhTJVPPrMJd3ZVfLEUDRq2",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T22:56:33Z",
+  "ended": "2026-11-26T23:03:21Z",
+  "wall_minutes": 7.42,
+  "tokens_in": 6596790,
+  "tokens_out": 29066,
+  "cost_usd": 2.8516,
+  "tool_calls": 60,
+  "task": "wall-framing-takeoff outline-plane-depth-breaks: outline roof sheathing missed a kink where two collinear same-facing eave sides share a plane",
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/424",
+  "record_pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19506",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [],
+  "lines_added": 87,
+  "lines_removed": 10,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets says payapps item #1 is free, but the payapps listing shows #1 already has a part claimed and every other item waits on demand; bets #1-#4 had nothing ungated, so it took four listings to find work."
+    },
+    {
+      "file": "apps/wall-framing-takeoff/biome.json (private-monorepo)",
+      "issue": "Its linter and formatter are disabled and the clone has no node_modules, so CLAUDE.md's 'biome check the files you touched' does nothing for this app; I skipped it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Bets #1-#5 had no free, ungated ROADMAP item (all waiting on demand or on owner steps). I took bet #6 and, rather than its listed free item (a sheet-count refinement), fixed the correctness bug its ROADMAP flagged as 'worth a look'.",
+      "did": "Fixed outline roof sheathing (each plane's depth is now a break) with stress tests.",
+      "result": "Merged private-monorepo#424. It also fixed a silent under-count the area check missed: courses short on 23 of 400 comb outlines before, 0 after."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Merged private-monorepo#424 with no CI check runs (the repository reported none). Verified locally instead.",
+      "did": "Full app suite: 1310 tests, 1308 pass, 0 fail, 2 skipped.",
+      "result": "merged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-hip-and-valley-length-on-an-l-shaped-hip-roof.md (extended: 'A trap on stepped plans: two eaves on one line')",
+    "apps/wall-framing-takeoff/ROADMAP.md in private-monorepo (dated entry)"
+  ],
+  "goal": "bet #6 residential takeoff: correct sheathing counts on stepped plans",
+  "notes": "Security queue: none workable (exit 3). Ideas inbox empty. Route: ventures/1. private-monorepo clone worked first try via add_repo. Old code on 400 seeded comb outlines: 2 area-check failures; 27 planes on 23 outlines with a course up to 96 in short. New code: 0 and 0. The 200 stair-step outlines are unchanged apart from the one now passing (6,963 to 6,927 sheets with cut-down triangles). The new tests fail on the old code. Local suite: node --test '*.test.mjs' in apps/wall-framing-takeoff, 1308 pass, 0 fail. Invented outlines only.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6b44c6f0-616d-5c52-912a-7c0c662a3c30",
+    "transcripts": 1,
+    "first": "2026-11-26T22:56:33Z",
+    "last": "2026-11-26T23:03:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 113,
+        "output": 29066,
+        "thinking": 8451,
+        "cache_read": 6474813,
+        "cache_write_5m": 0,
+        "cache_write_1h": 121864,
+        "api_equivalent_usd": 2.8516,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 113,
+      "output": 29066,
+      "thinking": 8451,
+      "cache_read": 6474813,
+      "cache_write_5m": 0,
+      "cache_write_1h": 121864,
+      "api_equivalent_usd": 2.8516,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 55,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.42,
+      "active_minutes": 7.42,
+      "model_minutes": 5.48,
+      "tool_minutes": 1.95,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "reproduce, diagnose geometry kink, fix, stress tests, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 140.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
