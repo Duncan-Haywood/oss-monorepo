@@ -1,0 +1,39 @@
+// Test-only Worker config used by vitest.worker.config.ts. Mirrors wrangler.jsonc minus
+// bindings Miniflare cannot run locally (Workers AI, Vectorize) and static assets.
+// test/unit/wrangler-config.test.ts asserts the two stay in sync.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "grant-autopilot",
+  "main": "src/worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    { "binding": "DB", "database_name": "grant-autopilot", "database_id": "local-test" }
+  ],
+  "r2_buckets": [{ "binding": "FILES", "bucket_name": "grant-autopilot-files" }],
+  "queues": {
+    "producers": [{ "binding": "JOBS", "queue": "grant-autopilot-jobs" }],
+    "consumers": [{ "queue": "grant-autopilot-jobs", "max_batch_size": 5, "max_retries": 3 }]
+  },
+  "send_email": [{ "name": "EMAIL" }],
+  "workflows": [
+    {
+      "name": "grant-autopilot-application-pipeline",
+      "binding": "APPLICATION_PIPELINE",
+      "class_name": "ApplicationPipeline"
+    }
+  ],
+  "vars": {
+    "APP_ENV": "test",
+    "APP_URL": "http://localhost:5173",
+    "BASE_PATH": "",
+    "LLM_MODEL": "claude-haiku-5-5",
+    "EMBEDDING_MODEL": "@cf/baai/bge-m3",
+    "TRANSCRIBE_MODEL": "@cf/openai/whisper-large-v3-turbo",
+    "FAKE_EXTERNALS": "true",
+    "EMAIL_FROM": "Grant Autopilot <no-reply@example.org>",
+    "CRAWLER_USER_AGENT": "GrantAutopilotBot/0.1 (+https://github.com/; respects robots.txt)",
+    "MARKETING_EMAIL_ENABLED": "false",
+    "MARKETING_POSTAL_ADDRESS": ""
+  }
+}

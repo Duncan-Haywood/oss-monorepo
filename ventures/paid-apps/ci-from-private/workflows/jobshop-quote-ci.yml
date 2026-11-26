@@ -1,0 +1,113 @@
+# PR checks for apps/jobshop-quote. Never needs secrets (FakeLlm, local D1/R2).
+name: jobshop-quote-ci
+on:
+  pull_request:
+    paths:
+      - "apps/jobshop-quote/**"
+      - "packages/cad-features/**"
+      - "packages/billing/**"
+      # src/shared/plans.test.ts checks the app's plans against the pricing page's.
+      - "apps/jobshop-site/src/shared/plans.ts"
+      - ".github/workflows/jobshop-quote-ci.yml"
+      - ".github/workflows/jobshop-quote-deploy.yml"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - "biome.json"
+  push:
+    branches-ignore: [main]
+    paths:
+      - "apps/jobshop-quote/**"
+      - "packages/cad-features/**"
+      - "packages/billing/**"
+      # src/shared/plans.test.ts checks the app's plans against the pricing page's.
+      - "apps/jobshop-site/src/shared/plans.ts"
+      - ".github/workflows/jobshop-quote-ci.yml"
+      - ".github/workflows/jobshop-quote-deploy.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jobshop-quote-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+    working-directory: apps/jobshop-quote
+
+jobs:
+  check:
+    name: lint, types, tests, build, migrations
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Biome
+        run: pnpm exec biome ci .
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit tests
+        run: pnpm test:unit
+      - name: Worker integration tests (workerd, fake externals)
+        run: pnpm test:worker
+      - name: Build
+        run: pnpm build
+      - name: Deploy provisioning script
+        run: node --test scripts/provision.test.mjs scripts/email-routing.test.mjs
+      - name: D1 migrations in sync with schema
+        run: |
+          pnpm exec drizzle-kit check
+          timeout 120 pnpm exec drizzle-kit generate </dev/null
+          drift="$(git status --porcelain --untracked-files=all -- migrations)"
+          if [[ -n "$drift" ]]; then
+            echo "::error title=Schema and migrations out of sync::Run 'pnpm db:generate' in apps/jobshop-quote and commit the result."
+            echo "$drift"
+            exit 1
+          fi
+
+  # The browser suite (test/e2e, docs in README "Tests"): sign-up to a priced, sent and won quote with the
+  # prices checked against hand-worked figures, tenant isolation across two shops, no page wider
+  # than a 390 px phone, a STEP-sized blank, the quote email, a revision, the rate-card import and
+  # an invited estimator's limits. Offline (FakeLlm, fresh local D1), so it never needs a secret.
+  e2e:
+    name: e2e (Playwright, offline)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Playwright
+        run: scripts/e2e-run.sh
+        env:
+          CI: "true"
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jobshop-quote-playwright-report
+          path: |
+            apps/jobshop-quote/playwright-report/
+            apps/jobshop-quote/test-results/e2e/
+          if-no-files-found: ignore
+          retention-days: 14

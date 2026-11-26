@@ -1,0 +1,307 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1795558504347,
+      "tag": "0000_yummy_terror",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1795565639026,
+      "tag": "0001_billing",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1795567422554,
+      "tag": "0002_lien_waivers",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1795573350865,
+      "tag": "0003_opening_application",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1795576202508,
+      "tag": "0004_invitations",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1795578071421,
+      "tag": "0005_payments",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1795578485406,
+      "tag": "0006_legal_acceptance",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1795579268890,
+      "tag": "0007_attachments",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1795580651809,
+      "tag": "0008_pay_terms",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1795581844658,
+      "tag": "0009_quickbooks",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1795583430345,
+      "tag": "0010_qbo_payments",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1795588864129,
+      "tag": "0011_change_order_sent",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1795592859634,
+      "tag": "0012_change_order_schedule",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "6",
+      "when": 1795593542016,
+      "tag": "0013_short_close",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "6",
+      "when": 1795594935498,
+      "tag": "0014_pay_app_events",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "6",
+      "when": 1795597132150,
+      "tag": "0015_line_retainage",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "6",
+      "when": 1795597846142,
+      "tag": "0016_sample_job",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "6",
+      "when": 1795600753072,
+      "tag": "0017_qbo_invoice_item",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "6",
+      "when": 1795601377453,
+      "tag": "0018_cash_digest",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "6",
+      "when": 1795602400942,
+      "tag": "0019_pay_terms_basis",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "6",
+      "when": 1795604314821,
+      "tag": "0020_gc_billing_contact",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "6",
+      "when": 1795605620564,
+      "tag": "0021_job_events",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "6",
+      "when": 1795606870925,
+      "tag": "0022_onboarding_emails",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "6",
+      "when": 1795607895611,
+      "tag": "0023_change_order_attachments",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "6",
+      "when": 1795608471764,
+      "tag": "0024_digest_weekday",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "6",
+      "when": 1795609076959,
+      "tag": "0025_pay_when_paid",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "6",
+      "when": 1795610441677,
+      "tag": "0026_pay_terms_outer_limit",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "6",
+      "when": 1795611594553,
+      "tag": "0027_gc_pm_contact",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "6",
+      "when": 1795612136114,
+      "tag": "0028_co_last_emailed",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "6",
+      "when": 1795614049623,
+      "tag": "0029_digest_hour_time_zone",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "6",
+      "when": 1795614431445,
+      "tag": "0030_qbo_auto_payments",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "6",
+      "when": 1795615781690,
+      "tag": "0031_qbo_item_per_job",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "6",
+      "when": 1795616352717,
+      "tag": "0032_qbo_credit_memos",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "6",
+      "when": 1795618688995,
+      "tag": "0033_qbo_item_per_line",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "6",
+      "when": 1795624848392,
+      "tag": "0034_opening_line_release",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "6",
+      "when": 1795625186746,
+      "tag": "0035_notary_block",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "6",
+      "when": 1795644025979,
+      "tag": "0036_ca_notice_sends",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "6",
+      "when": 1795656227719,
+      "tag": "0037_billing_day",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "6",
+      "when": 1795659235169,
+      "tag": "0038_ga_affidavit_filing",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "6",
+      "when": 1795660838573,
+      "tag": "0039_procore_ssov_placement",
+      "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "6",
+      "when": 1795662553265,
+      "tag": "0040_ga_affidavit_part_4",
+      "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "6",
+      "when": 1795664514333,
+      "tag": "0041_ga_noc",
+      "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "6",
+      "when": 1795664974796,
+      "tag": "0042_ca_notice_files",
+      "breakpoints": true
+    }
+  ]
+}

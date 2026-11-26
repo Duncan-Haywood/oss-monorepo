@@ -1,0 +1,61 @@
+# Tex. Prop. Code § 53.284, text as published by the Texas Legislature.
+# Source: https://statutes.capitol.texas.gov/Docs/PR/htm/PR.53.htm#53.284 (the page is a JavaScript
+# app; its chapter file is served at https://tcss.legis.texas.gov/resources/PR/htm/PR.53.htm,
+# Last-Modified 10 Apr 2026, chapter amendments through the 89th Legislature, 2025).
+# Fetched: 2026-11-25 (HTML tags stripped, blank lines dropped; wording, quotes and spacing unchanged).
+# Public law. Used by test/tx.test.ts and test/whole-form.test.ts to check the encoded forms.
+Sec. 53.284.  FORMS FOR WAIVER AND RELEASE OF LIEN OR PAYMENT BOND CLAIM.  (a)  A waiver and release given by a claimant or potential claimant is unenforceable unless it substantially complies with the applicable form described by Subsections (b)-(e).
+(b)  If a claimant or potential claimant is required to execute a waiver and release in exchange for or to induce the payment of a progress payment and is not paid in exchange for the waiver and release or if a single payee check or joint payee check is given in exchange for the waiver and release, the waiver and release must read:
+"CONDITIONAL WAIVER AND RELEASE ON PROGRESS PAYMENT
+"Project ___________________
+"Job No. ___________________
+"On receipt by the signer of this document of a check from ________________ (maker of check) in the sum of $__________ payable to _____________________ (payee or payees of check) and when the check has been properly endorsed and has been paid by the bank on which it is drawn, this document becomes effective to release any mechanic's lien right, any right arising from a payment bond that complies with a state or federal statute, any common law payment bond right, any claim for payment, and any rights under any similar ordinance, rule, or statute related to claim or payment rights for persons in the signer's position  that the signer has on the property of ________________  (owner) located at ______________________ (location) to the following extent: ______________________ (job description).
+"This release covers a progress payment for all labor, services, equipment, or materials furnished to the property or to __________________ (person with whom signer contracted) as indicated in the attached statement(s) or progress payment request(s), except for unpaid retention, pending modifications and changes, or other items furnished.
+"Before any recipient of this document relies on this document, the recipient should verify evidence of payment to the signer.
+"The signer warrants that the signer has already paid or will use the funds received from this progress payment to promptly pay in full all of the signer's laborers, subcontractors, materialmen, and suppliers for all work, materials, equipment, or services provided for or to the above referenced project in regard to the attached statement(s) or progress payment request(s).
+"Date ____________________________
+"_________________________________ (Company name)
+"By ______________________________ (Signature)
+"_________________________________ (Title)"
+(c)  If a claimant or potential claimant is required to execute an unconditional waiver and release to prove the receipt of good and sufficient funds for a progress payment and the claimant or potential claimant asserts in the waiver and release that the claimant or potential claimant has been paid the progress payment, the waiver and release must:
+(1)  contain a notice at the top of the document, printed in bold type at least as large as the largest type used in the document, but not smaller than 10-point type, that reads:
+"NOTICE:
+"This document waives rights unconditionally and states that you have been paid for giving up those rights.  It is prohibited for a person to require you to sign this document if you have not been paid the payment amount set forth below.  If you have not been paid, use a conditional release form."; and
+(2)  below the notice, read:
+"UNCONDITIONAL WAIVER AND RELEASE ON PROGRESS PAYMENT
+"Project ___________________
+"Job No. ___________________
+"The signer of this document has been paid and has received a progress payment in the sum of $___________ for all labor, services, equipment, or materials furnished to the property or to _____________________ (person with whom signer contracted) on the property of _______________________ (owner) located at  ______________________ (location) to the following extent:  ______________________ (job description).  The signer therefore waives and releases any mechanic's lien right, any right arising from a payment bond that complies with a state or federal statute, any common law payment bond right, any claim for payment, and any rights under any similar ordinance, rule, or statute related to claim or payment rights for persons in the signer's position that the signer has on the above referenced project to the following extent:
+"This release covers a progress payment for all labor, services, equipment, or materials furnished to the property or to __________________ (person with whom signer contracted) as indicated in the attached statement(s) or progress payment request(s), except for unpaid retention, pending modifications and changes, or other items furnished.
+"The signer warrants that the signer has already paid or will use the funds received from this progress payment to promptly pay in full all of the signer's laborers, subcontractors, materialmen, and suppliers for all work, materials, equipment, or services provided for or to the above referenced project in regard to the attached statement(s) or progress payment request(s).
+"Date ____________________________
+"_________________________________ (Company name)
+"By ______________________________ (Signature)
+"_________________________________ (Title)"
+(d)  If a claimant or potential claimant is required to execute a waiver and release in exchange for or to induce the payment of a final payment and is not paid in good and sufficient funds in exchange for the waiver and release or if a single payee check or joint payee check is given in exchange for the waiver and release, the waiver and release must read:
+"CONDITIONAL WAIVER AND RELEASE ON FINAL PAYMENT
+"Project ___________________
+"Job No. ___________________
+"On receipt by the signer of this document of a check from ________________ (maker of  check) in the sum of $____________ payable to _____________________ (payee or payees of check) and when the check has been properly endorsed and has been paid by the bank on which it is drawn, this document becomes effective to release any mechanic's lien right, any right arising from a payment bond that complies with a state or federal statute, any common law payment bond right, any claim for payment, and any rights under any similar ordinance, rule, or statute related to claim or payment rights for persons in the signer's position that the signer has on the property of _____________________ (owner) located at ______________________ (location) to the following extent:  ______________________ (job description).
+"This release covers the final payment to the signer for all labor, services, equipment, or materials furnished to the property or to __________________ (person with whom signer contracted).
+"Before any recipient of this document relies on this document, the recipient should verify evidence of payment to the signer.
+"The signer warrants that the signer has already paid or will use the funds received from this final payment to promptly pay in full all of the signer's laborers, subcontractors, materialmen, and suppliers for all work, materials, equipment, or services provided for or to the above referenced project up to the date of this waiver and release.
+"Date ____________________________
+"_________________________________ (Company name)
+"By ______________________________ (Signature)
+"_________________________________ (Title)"
+(e)  If a claimant or potential claimant is required to execute an unconditional waiver and release to prove the receipt of good and sufficient funds for a final payment and the claimant or potential claimant asserts in the waiver and release that the claimant or potential claimant has been paid the final payment, the waiver and release must:
+(1)  contain a notice at the top of the document, printed in bold type at least as large as the largest type used in the document, but not smaller than 10-point type, that reads:
+"NOTICE:
+"This document waives rights unconditionally and states that you have been paid for giving up those rights.  It is prohibited for a person to require you to sign this document if you have not been paid the payment amount set forth below.  If you have not been paid, use a conditional release form."; and
+(2)  below the notice, read:
+"UNCONDITIONAL WAIVER AND RELEASE ON FINAL PAYMENT
+"Project ___________________
+"Job No. ___________________
+"The signer of this document has been paid in full for all labor, services, equipment, or materials furnished to the property or to ___________________ (person with whom signer contracted) on the property of ______________________ (owner) located at ______________________ (location) to the following extent: ______________________ (job description).  The signer therefore waives and releases any mechanic's lien right, any right arising from a payment bond that complies with a state or federal statute, any common law payment bond right, any claim for payment, and any rights under any similar ordinance, rule, or statute related to claim or payment rights for persons in the signer's position.
+"The signer warrants that the signer has already paid or will use the funds received from this final payment to promptly pay in full all of the signer's laborers, subcontractors, materialmen, and suppliers for all work, materials, equipment, or services provided for or to the above referenced project up to the date of this waiver and release.
+"Date ____________________________
+"_________________________________ (Company name)
+"By ______________________________ (Signature)
+"_________________________________ (Title)"
+Added by Acts 2011, 82nd Leg., R.S., Ch. 271 (H.B. 1456), Sec. 3, eff. January 1, 2012.

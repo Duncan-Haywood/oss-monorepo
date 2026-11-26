@@ -1,0 +1,64 @@
+# PR checks for apps/payapps. Never needs secrets. Deploys are payapps-deploy.yml (by hand).
+name: payapps-ci
+on:
+  pull_request:
+    paths:
+      - "apps/payapps/**"
+      - "packages/billing/**"
+      - "packages/lien-waivers/**"
+      - ".github/workflows/payapps-ci.yml"
+      - ".github/workflows/payapps-deploy.yml"
+      - "pnpm-lock.yaml"
+  push:
+    branches-ignore: [main]
+    paths:
+      - "apps/payapps/**"
+      - "packages/billing/**"
+      - "packages/lien-waivers/**"
+      - ".github/workflows/payapps-ci.yml"
+      - ".github/workflows/payapps-deploy.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: payapps-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: apps/payapps
+
+jobs:
+  check:
+    name: lint, types, tests, build, migrations
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec biome ci .
+      - run: pnpm typecheck
+      - run: pnpm test:unit
+      - run: pnpm test:worker
+      - run: pnpm build
+      - name: deploy provisioning script
+        run: node --test scripts/provision.test.mjs
+      - name: lien-waivers package (statutory text checked against its official snapshot)
+        working-directory: packages/lien-waivers
+        run: node --test "test/**/*.test.ts"
+      - name: D1 migrations in sync with schema
+        run: |
+          pnpm exec drizzle-kit check
+          pnpm exec drizzle-kit generate --name drift-check
+          if [[ -n "$(git status --porcelain migrations)" ]]; then
+            echo "::error::Schema changed without a migration. Run 'pnpm db:generate' and commit it."
+            git status --porcelain migrations
+            exit 1
+          fi

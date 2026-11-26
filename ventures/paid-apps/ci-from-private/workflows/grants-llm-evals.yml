@@ -1,0 +1,89 @@
+# Live Claude evals + cost benchmark for apps/grants, authenticated with Anthropic Workload Identity
+# Federation (GitHub OIDC). No long-lived Anthropic key is stored in GitHub: the Anthropic SDK exchanges
+# the GitHub identity token for a short-lived access token (it auto-detects the ANTHROPIC_FEDERATION_* env).
+# Manual only — every run spends real tokens.
+name: grants-llm-evals
+on:
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: "What to run"
+        type: choice
+        # smoke: one real call per LLM purpose (evals/live/smoke.ts), spend capped at $3.
+        options: [smoke, evals, cost-benchmark, both]
+        default: both
+      model:
+        description: "Model to run (cheapest that does the job: start with Haiku, compare up)"
+        type: choice
+        options: [claude-haiku-5-5, claude-sonnet-5-5, claude-opus-5-5]
+        default: claude-haiku-5-5
+
+permissions:
+  id-token: write # mint the GitHub OIDC token for Anthropic WIF
+  contents: read
+
+concurrency:
+  group: grants-llm-evals
+  cancel-in-progress: false
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: apps/grants
+    env:
+      # Identifiers, not secrets: access is enforced by the federation rule bound to this repository.
+      ANTHROPIC_FEDERATION_RULE_ID: ${{ vars.ANTHROPIC_FEDERATION_RULE_ID || 'fdrl_01Xntf46UqiLnwUXXVd5kzbf' }}
+      ANTHROPIC_ORGANIZATION_ID: ${{ vars.ANTHROPIC_ORGANIZATION_ID || 'c79f838a-cda8-4b2f-896c-7c3d4e246d21' }}
+      ANTHROPIC_SERVICE_ACCOUNT_ID: ${{ vars.ANTHROPIC_SERVICE_ACCOUNT_ID || 'svac_01YXzckC5oLP8MNNe7F89Njh' }}
+      ANTHROPIC_WORKSPACE_ID: ${{ vars.ANTHROPIC_WORKSPACE_ID || 'wrkspc_01WhT7isRjQsUYcKCx8Bm58L' }}
+      ANTHROPIC_IDENTITY_TOKEN_FILE: ${{ github.workspace }}/.anthropic-oidc-token
+      LLM_MODEL: ${{ inputs.model }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Fetch GitHub OIDC token for Anthropic
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const fs = require("node:fs");
+            const token = await core.getIDToken("https://api.anthropic.com");
+            core.setSecret(token);
+            fs.writeFileSync(process.env.ANTHROPIC_IDENTITY_TOKEN_FILE, token, { mode: 0o600 });
+
+      - name: Prompt contracts (offline, before any spend)
+        if: inputs.suite == 'smoke'
+        run: pnpm exec vitest run --config vitest.unit.config.ts evals/prompt-contracts
+
+      - name: Live smoke suite (one call per LLM purpose, capped at $3)
+        if: inputs.suite == 'smoke'
+        shell: bash # pipefail: a failing purpose fails the job despite tee
+        run: pnpm exec tsx evals/live/smoke.ts --markdown --max-usd=3 | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Faithfulness evals (drafting + grounding)
+        if: inputs.suite == 'evals' || inputs.suite == 'both'
+        run: pnpm exec tsx evals/run.ts | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Cost benchmark (tokens and USD per application)
+        if: inputs.suite == 'cost-benchmark' || inputs.suite == 'both'
+        run: pnpm exec tsx evals/cost-benchmark.ts --markdown | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: llm-eval-results
+          path: apps/grants/evals/results/
+          if-no-files-found: ignore
+
+      - name: Remove identity token
+        if: always()
+        run: rm -f "$ANTHROPIC_IDENTITY_TOKEN_FILE"

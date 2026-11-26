@@ -1,0 +1,533 @@
+# OWNER: infra agent. Deploys apps/grants to Cloudflare Workers. See apps/grants/docs/DEPLOY.md.
+#   push to main       -> production (GitHub environment "production": add required reviewers there)
+#   workflow_dispatch  -> production or demo (separate worker on fakes: no Anthropic key needed)
+# Never deploys from pull requests: PR checks are grants-ci.yml.
+name: grants-deploy
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/grants/**"
+      - "packages/billing/**"
+      - ".github/workflows/grants-deploy.yml"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Where to deploy"
+        type: choice
+        options: [production, demo]
+        default: production
+      skip_checks:
+        description: "Quick deploy: skip lint/typecheck/tests (only for a commit grants-ci already passed)"
+        type: boolean
+        default: false
+      hotfix:
+        description: "Hotfix lane (~1 min): skip checks, resource provisioning and secret sync. Code + migrations only."
+        type: boolean
+        default: false
+      admin_emails:
+        description: "Optional: set PLATFORM_ADMIN_EMAILS on the worker (comma-separated; a repository secret wins)"
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: grants-deploy-${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'production' }}
+  cancel-in-progress: false # never cancel a deploy (or a migration) half-way
+
+jobs:
+  # Merging to main before Cloudflare is connected is normal: skip the deploy (with a notice) instead of
+  # failing every push. Reads repository secrets only; environment-scoped secrets are not visible here.
+  preflight:
+    name: preflight (Cloudflare credentials)
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    # Same environment as the deploy job, so environment-scoped secrets count too.
+    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'production' }}
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    steps:
+      - id: check
+        env:
+          # The token may be saved under any of these names (repository or environment secret).
+          HAS_TOKEN: ${{ (secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLARE_API_KEY || secrets.CF_API_TOKEN || secrets.CLOUDFLARE_TOKEN || secrets.CF_API_KEY || secrets.CF_TOKEN) != '' }}
+          HAS_ACCOUNT: ${{ (secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CF_ACCOUNT_ID || vars.CLOUDFLARE_ACCOUNT_ID) != '' }}
+          N_CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+          N_CLOUDFLARE_API_KEY: ${{ secrets.CLOUDFLARE_API_KEY != '' }}
+          N_CF_API_TOKEN: ${{ secrets.CF_API_TOKEN != '' }}
+          N_CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN != '' }}
+          N_CF_API_KEY: ${{ secrets.CF_API_KEY != '' }}
+          N_CF_TOKEN: ${{ secrets.CF_TOKEN != '' }}
+          N_CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+          N_CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID != '' }}
+        run: |
+          found="$(env | sed -n 's/^N_\([A-Z_]*\)=true$/\1/p' | sort | paste -sd, -)"
+          echo "Cloudflare secrets visible to this run: ${found:-none}"
+          if [[ "$HAS_TOKEN" == "true" && "$HAS_ACCOUNT" == "true" ]]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            missing=""
+            [[ "$HAS_TOKEN" == "true" ]] || missing="CLOUDFLARE_API_TOKEN"
+            [[ "$HAS_ACCOUNT" == "true" ]] || missing="${missing:+$missing and }CLOUDFLARE_ACCOUNT_ID"
+            echo "::notice title=Deploy skipped::Missing secret(s): ${missing} (visible: ${found:-none}). Add them as repository secrets under Settings -> Secrets and variables -> Actions (see apps/grants/docs/DEPLOY.md). grants-ci still checks every change."
+          fi
+
+  deploy:
+    needs: preflight
+    if: needs.preflight.outputs.ready == 'true'
+    name: deploy (${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'production' }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment:
+      name: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'production' }}
+      url: ${{ steps.deploy.outputs.app_url || steps.urls.outputs.app_url }}
+    defaults:
+      run:
+        shell: bash # -eo pipefail
+        working-directory: apps/grants
+    env:
+      DEPLOY_ENV: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'production' }}
+      # Production URL: the catalogue Worker on marisstella.app forwards /grants/* to this Worker over a
+      # service binding (apps/grants/docs/DEPLOY.md, "Path prefix"). Override with the APP_URL repository
+      # variable; its path must equal BASE_PATH below.
+      PRODUCT_URL: ${{ vars.APP_URL || 'https://marisstella.app/grants' }}
+      # Path prefix of the production build; step "Base path" exports BASE_PATH (empty for the demo,
+      # which stays at its host's root). Override with the BASE_PATH repository variable.
+      PRODUCTION_BASE_PATH: ${{ vars.BASE_PATH || '/grants' }}
+      # Old production host, kept attached to the Worker so it can 301 to PRODUCT_URL. Override with the
+      # APP_DOMAIN repository variable.
+      APP_DOMAIN: ${{ vars.APP_DOMAIN || 'grants.marisstella.app' }}
+      # Demo host (one-click sessions on fakes). Override with the DEMO_DOMAIN repository variable.
+      DEMO_DOMAIN: ${{ vars.DEMO_DOMAIN || 'grants-demo.marisstella.app' }}
+      WRANGLER_SEND_METRICS: "false"
+      # Hotfix lane: resources and worker secrets already exist, so only code + migrations ship.
+      HOTFIX: ${{ github.event_name == 'workflow_dispatch' && inputs.hotfix && 'true' || '' }}
+    steps:
+      - name: Mask optional inputs
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.admin_emails != '' }}
+        env:
+          ADMIN_EMAILS: ${{ inputs.admin_emails }}
+        run: |
+          echo "::add-mask::$ADMIN_EMAILS"
+          IFS=',' read -ra list <<<"$ADMIN_EMAILS"
+          for e in "${list[@]}"; do echo "::add-mask::$(printf '%s' "$e" | tr -d '[:space:]')"; done
+        working-directory: .
+      - uses: actions/checkout@v4
+      - name: Base path
+        run: |
+          if [[ "$DEPLOY_ENV" == "demo" ]]; then base=""; else base="${PRODUCTION_BASE_PATH%/}"; fi
+          echo "BASE_PATH=$base" >>"$GITHUB_ENV"
+          echo "base path: ${base:-none (host root)}"
+        working-directory: .
+      # A prefixed build makes the old host 301 to PRODUCT_URL, so it may only go out once the catalogue
+      # Worker forwards <base>/* to this Worker; otherwise every user would be sent to the catalogue's
+      # 404 (and browsers cache a 301). Through the forward, <base>/api/health answers 200: the health
+      # JSON from a prefixed version, or this app's own HTML page from the unprefixed one still live
+      # (its SPA fallback). The catalogue answers 404 there. Nothing is deployed when this fails.
+      - name: Check the catalogue forwards the base path
+        if: env.BASE_PATH != ''
+        run: |
+          probe="${PRODUCT_URL%/}/api/health"
+          for attempt in 1 2 3; do
+            code="$(curl -sS --max-time 15 -o /tmp/forward-probe -w '%{http_code}' "$probe" || true)"
+            if [[ "$code" == 200 ]] &&
+              { jq -e '.ok == true' /tmp/forward-probe >/dev/null 2>&1 ||
+                grep -q '<title>Grant Autopilot' /tmp/forward-probe; }; then
+              echo "catalogue forwards $probe to this app (HTTP $code)"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "::error title=Catalogue forward not live::$probe answered HTTP ${code:-nothing}, not this app. Deploy the catalogue's /grants forward first (oss-monorepo: platform/pages/cloudflare/router.mjs, binding GRANTS), then re-run this workflow. Nothing was deployed."
+          exit 1
+        working-directory: .
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      # Cloudflare credentials are exported only after install/tests/build (step "Cloudflare credentials").
+      - run: pnpm install --frozen-lockfile
+
+      - name: Require D1 migrations
+        run: |
+          if [[ ! -d migrations ]] || ! compgen -G "migrations/*.sql" >/dev/null; then
+            echo "::error title=No D1 migrations::apps/grants/migrations is missing. Run 'pnpm db:generate' in apps/grants, commit the migrations and merge again."
+            exit 1
+          fi
+
+      - name: Checks
+        if: ${{ !(github.event_name == 'workflow_dispatch' && (inputs.skip_checks || inputs.hotfix)) }}
+        run: |
+          pnpm exec biome ci .
+          pnpm typecheck
+          pnpm test:unit
+          pnpm test:worker
+
+      - name: Build
+        env:
+          # Canonical URLs / sitemap for prerendered marketing pages (the demo's point at production).
+          # BASE_PATH (step "Base path") sets Vite's base and the built wrangler.json (vite.config.ts).
+          SITE_URL: ${{ env.PRODUCT_URL }}
+          # Optional cookieless Cloudflare Web Analytics.
+          CF_WEB_ANALYTICS_TOKEN: ${{ vars.CF_WEB_ANALYTICS_TOKEN }}
+          # Optional Cloudflare Turnstile site key (public; baked into the SPA). Pair it with the
+          # TURNSTILE_SECRET_KEY secret below. See apps/grants/docs/AUTH.md.
+          VITE_TURNSTILE_SITE_KEY: ${{ vars.TURNSTILE_SITE_KEY }}
+          # "Try the live demo" (components/demo/try-live-demo.tsx): production links to the demo host,
+          # the demo build starts one-click sessions and links "Start your own" back to production.
+          VITE_DEMO_URL: https://${{ env.DEMO_DOMAIN }}
+          VITE_DEMO_MODE: ${{ env.DEPLOY_ENV == 'demo' && 'true' || '' }}
+          VITE_PRODUCT_URL: ${{ env.PRODUCT_URL }}
+        run: |
+          # The product URL's path and the build's base path must agree, or links and API calls break.
+          url_path="$(node -e 'const p=new URL(process.argv[1]).pathname.replace(/\/+$/,"");console.log(p)' "$PRODUCT_URL")"
+          if [[ "$DEPLOY_ENV" != "demo" && "$url_path" != "${BASE_PATH%/}" ]]; then
+            echo "::error title=APP_URL and BASE_PATH disagree::APP_URL $PRODUCT_URL has path '$url_path' but BASE_PATH is '$BASE_PATH'."
+            exit 1
+          fi
+          pnpm build
+
+      # One credential step for the whole deploy. Accepts an API token (any of the secret names in the
+      # preflight) or the Global API Key + CLOUDFLARE_EMAIL. Exports only what wrangler needs for the
+      # mode it verified (values stay masked) to the remaining steps.
+      - name: Cloudflare credentials
+        env:
+          CF_SECRET: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLARE_API_KEY || secrets.CF_API_TOKEN || secrets.CLOUDFLARE_TOKEN || secrets.CF_API_KEY || secrets.CF_TOKEN }}
+          CF_EMAIL: ${{ secrets.CLOUDFLARE_EMAIL || vars.CLOUDFLARE_EMAIL }}
+          CF_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CF_ACCOUNT_ID || vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          api=https://api.cloudflare.com/client/v4
+          secret="$(printf '%s' "$CF_SECRET" | tr -d '[:space:]')"
+          account="$(printf '%s' "$CF_ACCOUNT" | tr -d '[:space:]')"
+          email="$(printf '%s' "$CF_EMAIL" | tr -d '[:space:]')"
+          echo "::add-mask::$secret"
+          ok() { jq -e '.success == true' >/dev/null 2>&1; }
+          if curl -sS -H "Authorization: Bearer $secret" "$api/user/tokens/verify" | ok ||
+             curl -sS -H "Authorization: Bearer $secret" "$api/accounts/$account/tokens/verify" | ok; then
+            echo "Cloudflare: API token verified"
+            { echo "CF_AUTH_MODE=token"; echo "CLOUDFLARE_API_TOKEN=$secret"; } >>"$GITHUB_ENV"
+          elif [[ "$secret" =~ ^[0-9a-f]{37}$ ]]; then
+            if [[ -z "$email" ]]; then
+              echo "::error title=Cloudflare Global API Key needs your login email::The saved key is a Global API Key. Add a repository secret CLOUDFLARE_EMAIL with the email you log in to Cloudflare with, then re-run this workflow (or save a scoped API token as CLOUDFLARE_API_TOKEN instead)."
+              exit 1
+            fi
+            echo "::add-mask::$email"
+            if ! curl -sS -H "X-Auth-Email: $email" -H "X-Auth-Key: $secret" "$api/user" | ok; then
+              echo "::error title=Cloudflare rejected the Global API Key::Check CLOUDFLARE_EMAIL is your Cloudflare login email and the key is the Global API Key (My Profile -> API Tokens -> Global API Key)."
+              exit 1
+            fi
+            echo "Cloudflare: Global API Key verified"
+            { echo "CF_AUTH_MODE=global"; echo "CLOUDFLARE_API_KEY=$secret"; echo "CLOUDFLARE_EMAIL=$email"; } >>"$GITHUB_ENV"
+          else
+            echo "::error title=Cloudflare credential rejected::The saved Cloudflare secret is neither an active API token nor a Global API Key (37 hex characters; got ${#secret} characters). An Origin CA key (v1.0-...) does not work here."
+            exit 1
+          fi
+          echo "CLOUDFLARE_ACCOUNT_ID=$account" >>"$GITHUB_ENV"
+
+      - name: Resolve worker name and URL
+        id: urls
+        run: |
+          api=https://api.cloudflare.com/client/v4
+          if [[ "$CF_AUTH_MODE" == "global" ]]; then
+            auth=(-H "X-Auth-Email: $CLOUDFLARE_EMAIL" -H "X-Auth-Key: $CLOUDFLARE_API_KEY")
+          else
+            auth=(-H "Authorization: Bearer $CLOUDFLARE_API_TOKEN")
+          fi
+          if [[ "$DEPLOY_ENV" == "demo" ]]; then worker=grant-autopilot-demo; else worker=grant-autopilot; fi
+          if [[ "$DEPLOY_ENV" == "demo" ]]; then domain="$DEMO_DOMAIN"; else domain="$APP_DOMAIN"; fi
+          # The custom domain needs the zone in this account (and zone permissions on a token). If the
+          # zone is not reachable, deploy on workers.dev instead of failing.
+          zone="$(awk -F. '{print $(NF-1)"."$NF}' <<<"$domain")"
+          zone_id="$(curl -sS "${auth[@]}" "$api/zones?name=$zone&account.id=$CLOUDFLARE_ACCOUNT_ID" | jq -r '.result[0].id // empty' 2>/dev/null || true)"
+          if [[ -z "$zone_id" ]]; then
+            echo "::warning title=Custom domain skipped::Zone $zone is not reachable with this credential (add Zone Read, DNS Edit and Workers Routes Edit to the token). Deploying on workers.dev."
+            domain=""
+          fi
+          sub="$(curl -sS "${auth[@]}" "$api/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" | jq -r '.result.subdomain // empty' 2>/dev/null || true)"
+          if [[ -z "$sub" ]]; then
+            # First Workers deploy on this account: claim a workers.dev subdomain.
+            for want in marisstella "marisstella-${CLOUDFLARE_ACCOUNT_ID:0:6}"; do
+              sub="$(curl -sS -X PUT "${auth[@]}" -H "Content-Type: application/json" --data "{\"subdomain\":\"$want\"}" \
+                "$api/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" | jq -r '.result.subdomain // empty' 2>/dev/null || true)"
+              [[ -n "$sub" ]] && break
+            done
+          fi
+          workers_dev_url="${sub:+https://$worker.$sub.workers.dev}"
+          # host_url: where this Worker answers by itself (custom domain, else workers.dev).
+          if [[ -n "$domain" ]]; then host_url="https://$domain"; else host_url="$workers_dev_url"; fi
+          if [[ -z "$host_url" ]]; then
+            echo "::error::No custom domain and no workers.dev subdomain on this account. Open Workers & Pages once in the Cloudflare dashboard, then re-run."
+            exit 1
+          fi
+          # app_url (APP_URL on the Worker): production is served at PRODUCT_URL through the catalogue
+          # Worker's service binding, whatever happens to the custom domain; the demo at its own host.
+          if [[ "$DEPLOY_ENV" == "demo" ]]; then url="$host_url"; else url="${PRODUCT_URL%/}"; fi
+          {
+            echo "worker=$worker"
+            echo "domain=$domain"
+            echo "app_url=$url"
+            echo "host_url=$host_url"
+            echo "workers_dev_url=$workers_dev_url"
+          } >>"$GITHUB_OUTPUT"
+          echo "Deploying $worker ($DEPLOY_ENV) to $url (Worker host: $host_url, base path: ${BASE_PATH:-none})"
+
+      - name: Provision (Vectorize + metadata indexes, queues) and write deploy config
+        id: provision
+        env:
+          DOMAIN: ${{ steps.urls.outputs.domain }}
+        run: |
+          node scripts/provision.mjs --env "$DEPLOY_ENV" ${HOTFIX:+--fast} \
+            --write-config "dist/grant_autopilot/wrangler.$DEPLOY_ENV.json" \
+            ${DOMAIN:+--domain "$DOMAIN"}
+
+      # Normal deploys migrate BEFORE the new code goes live (migrations must stay backward compatible).
+      - name: Apply D1 migrations (database exists)
+        if: steps.provision.outputs.d1_exists == 'true'
+        env:
+          CONFIG: ${{ steps.provision.outputs.config }}
+        run: pnpm exec wrangler d1 migrations apply DB --remote --config "$CONFIG"
+
+      - name: Deploy
+        id: deploy
+        env:
+          CONFIG: ${{ steps.provision.outputs.config }}
+          WORKER: ${{ steps.urls.outputs.worker }}
+          APP_URL: ${{ steps.urls.outputs.app_url }}
+          HOST_URL: ${{ steps.urls.outputs.host_url }}
+          DOMAIN: ${{ steps.urls.outputs.domain }}
+          WORKERS_DEV_URL: ${{ steps.urls.outputs.workers_dev_url }}
+          # Sender for verification/reset/notification emails (domain must be verified with the email provider).
+          EMAIL_FROM: ${{ vars.EMAIL_FROM || 'Grant Autopilot <no-reply@marisstella.app>' }}
+          # Transactional email provider (apps/grants/docs/EMAIL.md): auto | cloudflare | resend.
+          # "auto" keeps Resend while RESEND_API_KEY is set, else uses Cloudflare Email Service.
+          EMAIL_PROVIDER: ${{ vars.EMAIL_PROVIDER || 'auto' }}
+          # LLM provider (apps/grants/docs/DEPLOY.md, "Moving LLM and email to AWS"):
+          # anthropic | aws | aws-with-fallback. The AWS settings below are not secret.
+          LLM_PROVIDER: ${{ vars.LLM_PROVIDER || 'anthropic' }}
+          V_AWS_REGION: ${{ vars.AWS_REGION }}
+          V_SES_REGION: ${{ vars.SES_REGION }}
+          V_SES_CONFIGURATION_SET: ${{ vars.SES_CONFIGURATION_SET }}
+          V_ANTHROPIC_AWS_WORKSPACE_ID: ${{ vars.ANTHROPIC_AWS_WORKSPACE_ID }}
+          WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/wrangler-deploy.ndjson
+        run: |
+          args=(--config "$CONFIG" --name "$WORKER"
+            --var "APP_ENV:production" --var "APP_URL:$APP_URL" --var "EMAIL_FROM:${EMAIL_FROM}"
+            --var "EMAIL_PROVIDER:${EMAIL_PROVIDER}" --var "LLM_PROVIDER:${LLM_PROVIDER}"
+            --message "${GITHUB_SHA::12} via ${GITHUB_EVENT_NAME} (run ${GITHUB_RUN_ID})")
+          # The build already wrote BASE_PATH into the config (vite.config.ts); this keeps them in step.
+          if [[ -n "$BASE_PATH" ]]; then args+=(--var "BASE_PATH:$BASE_PATH"); fi
+          for name in AWS_REGION SES_REGION SES_CONFIGURATION_SET ANTHROPIC_AWS_WORKSPACE_ID; do
+            value_var="V_${name}"
+            if [[ -n "${!value_var}" ]]; then args+=(--var "${name}:${!value_var}"); fi
+          done
+          if [[ "$DEPLOY_ENV" == "demo" ]]; then
+            args+=(--var "FAKE_EXTERNALS:true" --var "INLINE_JOBS:true" --var "DEMO_MODE:true")
+          else
+            args+=(--var "FAKE_EXTERNALS:false")
+          fi
+          if ! pnpm exec wrangler deploy "${args[@]}"; then
+            if [[ -z "$DOMAIN" || -z "$WORKERS_DEV_URL" ]]; then exit 1; fi
+            echo "::warning title=Custom domain failed::Deploy with $DOMAIN failed (token needs DNS Edit + Workers Routes Edit on the zone). Retrying on workers.dev."
+            jq 'del(.routes) | .workers_dev = true' "$CONFIG" >"$CONFIG.tmp" && mv "$CONFIG.tmp" "$CONFIG"
+            HOST_URL="$WORKERS_DEV_URL"
+            # Production keeps APP_URL (served via the catalogue); the demo moves to workers.dev.
+            if [[ "$DEPLOY_ENV" == "demo" ]]; then
+              APP_URL="$WORKERS_DEV_URL"
+              for i in "${!args[@]}"; do [[ "${args[$i]}" == APP_URL:* ]] && args[$i]="APP_URL:$APP_URL"; done
+            fi
+            pnpm exec wrangler deploy "${args[@]}"
+          fi
+          echo "app_url=$APP_URL" >>"$GITHUB_OUTPUT"
+          echo "host_url=$HOST_URL" >>"$GITHUB_OUTPUT"
+          version="$(jq -r 'select(.type=="deploy") | .version_id // empty' "$WRANGLER_OUTPUT_FILE_PATH" 2>/dev/null | tail -1 || true)"
+          echo "version_id=$version" >>"$GITHUB_OUTPUT"
+
+      # First deploy only: `wrangler deploy` just auto-provisioned the D1 database, migrate it now.
+      - name: Apply D1 migrations (first deploy)
+        if: steps.provision.outputs.d1_exists != 'true'
+        env:
+          CONFIG: ${{ steps.provision.outputs.config }}
+        run: pnpm exec wrangler d1 migrations apply DB --remote --config "$CONFIG"
+
+      # Products and prices as code (owner, 2026-11-24): billing/paddle-catalog.json, generated from
+      # src/shared/billing/plans.ts and committed, is synced to Paddle here, and BILLING_PRICE_IDS is
+      # read back from Paddle instead of being pasted into a secret. Production only; the demo runs on
+      # fakes. Only items tagged custom_data.app=grants are touched; nothing is deleted; a changed
+      # amount makes a new price and archives the old one. Turning on live charging (a live key and a
+      # verified Paddle account) stays the owner's step.
+      - name: Sync the Paddle catalog
+        id: paddle
+        if: ${{ env.HOTFIX != 'true' && env.DEPLOY_ENV == 'production' }}
+        # A Paddle problem must not block shipping the app: the step warns and the secret fallback stays.
+        continue-on-error: true
+        env:
+          BILLING_API_KEY: ${{ secrets.BILLING_API_KEY }}
+        run: |
+          if [[ -z "$BILLING_API_KEY" ]]; then echo "BILLING_API_KEY not set; skipping the Paddle catalog"; exit 0; fi
+          out="$RUNNER_TEMP/paddle-price-ids.json"
+          if ! node ../../packages/billing/scripts/paddle-catalog.ts --catalog billing/paddle-catalog.json --apply --price-ids-out "$out"; then
+            echo "::warning::Paddle catalog sync failed; BILLING_PRICE_IDS falls back to the secret. See the log above."
+            exit 1
+          fi
+          echo "price_ids=$(cat "$out")" >>"$GITHUB_OUTPUT"
+
+      - name: Sync secrets from GitHub (non-empty only)
+        if: ${{ env.HOTFIX != 'true' }}
+        env:
+          CONFIG: ${{ steps.provision.outputs.config }}
+          WORKER: ${{ steps.urls.outputs.worker }}
+          # Optional owner-provided values; AUTH_SECRET / INTERNAL_API_TOKEN override generated ones.
+          S_ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          S_GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          S_GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          S_RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          # Transitional scoped IAM user for Claude Platform on AWS + SES (platform/aws in
+          # oss-monorepo); replaced by role credentials once the app runs on AWS.
+          S_AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          S_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          S_BILLING_PROVIDER: ${{ secrets.BILLING_PROVIDER }}
+          S_BILLING_API_KEY: ${{ secrets.BILLING_API_KEY }}
+          S_BILLING_WEBHOOK_SECRET: ${{ secrets.BILLING_WEBHOOK_SECRET }}
+          # Read back from Paddle by the step above; the secret is only a fallback.
+          S_BILLING_PRICE_IDS: ${{ steps.paddle.outputs.price_ids || secrets.BILLING_PRICE_IDS }}
+          S_SIMPLER_GRANTS_API_KEY: ${{ secrets.SIMPLER_GRANTS_API_KEY }}
+          S_PLATFORM_ADMIN_EMAILS: ${{ secrets.PLATFORM_ADMIN_EMAILS || inputs.admin_emails }}
+          # Bot check on the auth forms (docs/AUTH.md). Without it the forms work without Turnstile.
+          S_TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
+          # Slack /grants slash command + integration secret encryption (docs/INTEGRATIONS.md).
+          S_SLACK_SIGNING_SECRET: ${{ secrets.SLACK_SIGNING_SECRET }}
+          S_INTEGRATIONS_KEY: ${{ secrets.INTEGRATIONS_KEY }}
+          # Cloudflare Access gate for /api/admin/* (and the whole host with PROTECT_ALL=true).
+          # Not secret: a repository/environment variable works too.
+          S_CF_ACCESS_TEAM_DOMAIN: ${{ secrets.CF_ACCESS_TEAM_DOMAIN || vars.CF_ACCESS_TEAM_DOMAIN }}
+          S_CF_ACCESS_AUD: ${{ secrets.CF_ACCESS_AUD || vars.CF_ACCESS_AUD }}
+          S_CF_ACCESS_PROTECT_ALL: ${{ secrets.CF_ACCESS_PROTECT_ALL || vars.CF_ACCESS_PROTECT_ALL }}
+          S_AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+          S_INTERNAL_API_TOKEN: ${{ secrets.INTERNAL_API_TOKEN }}
+        run: |
+          umask 077
+          file="$RUNNER_TEMP/worker-secrets.json"
+          trap 'rm -f "$file"' EXIT
+          # The demo runs on fakes: never ship the real LLM / email / billing / grants API keys to it.
+          node - "$file" <<'JS'
+          const fs = require("node:fs");
+          const demo = process.env.DEPLOY_ENV === "demo";
+          const prodOnly = new Set(["ANTHROPIC_API_KEY", "RESEND_API_KEY", "SIMPLER_GRANTS_API_KEY",
+            "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY",
+            "BILLING_PROVIDER", "BILLING_API_KEY", "BILLING_WEBHOOK_SECRET", "BILLING_PRICE_IDS",
+            "SLACK_SIGNING_SECRET"]);
+          const out = {};
+          for (const [k, v] of Object.entries(process.env)) {
+            if (!k.startsWith("S_") || !v || !v.trim()) continue;
+            const name = k.slice(2);
+            if (demo && prodOnly.has(name)) continue;
+            out[name] = v;
+          }
+          fs.writeFileSync(process.argv[2], JSON.stringify(out));
+          console.log(`syncing ${Object.keys(out).length} secret(s): ${Object.keys(out).sort().join(", ") || "none"}`);
+          JS
+          if [[ "$(jq 'length' "$file")" -gt 0 ]]; then
+            pnpm exec wrangler secret bulk "$file" --name "$WORKER" --config "$CONFIG"
+          fi
+
+      - name: Generate AUTH_SECRET / INTERNAL_API_TOKEN if missing (never overwrites)
+        if: ${{ env.HOTFIX != 'true' }}
+        env:
+          CONFIG: ${{ steps.provision.outputs.config }}
+          WORKER: ${{ steps.urls.outputs.worker }}
+        run: |
+          # Fails the step (pipefail) if the list cannot be read: never guess and overwrite a secret.
+          existing="$(pnpm exec wrangler secret list --format json --name "$WORKER" --config "$CONFIG" \
+            | sed -n '/^\[/,$p' | jq -r '.[].name')"
+          for name in AUTH_SECRET INTERNAL_API_TOKEN; do
+            if grep -qx "$name" <<<"$existing"; then
+              echo "$name already set on $WORKER: keeping it"
+              continue
+            fi
+            value="$(openssl rand -hex 32)"
+            echo "::add-mask::$value"
+            printf '%s' "$value" | pnpm exec wrangler secret put "$name" --name "$WORKER" --config "$CONFIG" >/dev/null
+            unset value
+            echo "$name generated and stored on $WORKER (write-only; not kept anywhere else)"
+          done
+
+      # 1. The new version answers on the Worker's own host (custom domain or workers.dev), with the base
+      #    path: <base>/api/health is served on every host (src/worker/lib/canonical-host.ts).
+      # 2. APP_URL/api/health through the catalogue's forward: a warning, not a failure, while that
+      #    forward is not live (it ships from the catalogue's repository, possibly after this deploy).
+      # 3. Production only: the old host 301s to APP_URL with path and query kept.
+      - name: Smoke test /api/health
+        env:
+          APP_URL: ${{ steps.deploy.outputs.app_url || steps.urls.outputs.app_url }}
+          HOST_URL: ${{ steps.deploy.outputs.host_url || steps.urls.outputs.host_url }}
+          DOMAIN: ${{ steps.urls.outputs.domain }}
+        run: |
+          expect_fake=false
+          [[ "$DEPLOY_ENV" == "demo" ]] && expect_fake=true
+          healthy() {
+            body="$(curl -fsS --max-time 10 "$1" 2>/dev/null)" &&
+              jq -e --argjson fake "$expect_fake" '.ok == true and .env == "production" and .fake == $fake' <<<"$body" >/dev/null
+          }
+          direct="${HOST_URL%/}${BASE_PATH}/api/health"
+          deadline=$((SECONDS + 60))
+          until healthy "$direct"; do
+            if (( SECONDS >= deadline )); then
+              echo "::error::$direct did not report ok:true, fake:$expect_fake within 60s (last: ${body:-no response})"
+              exit 1
+            fi
+            sleep 2
+          done
+          echo "healthy on the Worker host: $direct -> $body"
+
+          canonical="${APP_URL%/}/api/health"
+          if [[ "$canonical" != "$direct" ]]; then
+            ok=""
+            for _ in 1 2 3 4 5; do
+              if healthy "$canonical"; then ok=1; break; fi
+              sleep 4
+            done
+            if [[ -n "$ok" ]]; then
+              echo "healthy at the public URL: $canonical -> $body"
+            else
+              echo "::warning title=Public URL not answering yet::$canonical is not served by this Worker yet. The catalogue Worker on $(cut -d/ -f3 <<<"$APP_URL") must forward ${BASE_PATH:-/}* to grant-autopilot (apps/grants/docs/DEPLOY.md, \"Path prefix\"). The deploy itself is healthy."
+            fi
+          fi
+
+          app_host="$(cut -d/ -f3 <<<"$APP_URL")"
+          if [[ -n "$DOMAIN" && "$DOMAIN" != "$app_host" ]]; then
+            want="${APP_URL%/}/smoke-redirect?probe=1"
+            deadline=$((SECONDS + 30))
+            until got="$(curl -sS --max-time 10 -o /dev/null -w '%{http_code} %{redirect_url}' "https://$DOMAIN/smoke-redirect?probe=1")" &&
+              [[ "$got" == "301 $want" ]]; do
+              if (( SECONDS >= deadline )); then
+                echo "::error::https://$DOMAIN/smoke-redirect?probe=1 answered '${got:-nothing}', expected '301 $want'"
+                exit 1
+              fi
+              sleep 2
+            done
+            echo "old host redirects: https://$DOMAIN/... -> $want"
+          fi
+
+      - name: Summary
+        if: always()
+        env:
+          APP_URL: ${{ steps.deploy.outputs.app_url || steps.urls.outputs.app_url }}
+          HOST_URL: ${{ steps.deploy.outputs.host_url || steps.urls.outputs.host_url }}
+          WORKER: ${{ steps.urls.outputs.worker }}
+          VERSION: ${{ steps.deploy.outputs.version_id }}
+        run: |
+          {
+            echo "### grants-deploy ($DEPLOY_ENV)"
+            echo "- worker: \`$WORKER\`"
+            echo "- url: $APP_URL"
+            echo "- worker host: $HOST_URL (base path: \`${BASE_PATH:-none}\`)"
+            echo "- version: \`${VERSION:-n/a}\` (rollback: \`pnpm exec wrangler rollback <version-id> --name $WORKER\`)"
+            echo "- commit: \`$GITHUB_SHA\`"
+          } >>"$GITHUB_STEP_SUMMARY"

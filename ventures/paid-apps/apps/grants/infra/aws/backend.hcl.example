@@ -1,0 +1,7 @@
+# tofu init -backend-config=backend.hcl   (copy this file; the bucket is the apps account's state
+# bucket from the oss-monorepo bootstrap stack outputs, the same one the saas-starter stack uses)
+bucket       = "<apps account state bucket>"
+key          = "products/grants/terraform.tfstate"
+region       = "us-east-1"
+encrypt      = true
+use_lockfile = true

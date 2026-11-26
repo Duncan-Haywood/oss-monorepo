@@ -1,0 +1,116 @@
+// Grant Autopilot — Cloudflare Worker configuration (infrastructure as code).
+// D1 / R2 / Queues are auto-provisioned by `wrangler deploy` when no id is given.
+// Vectorize is provisioned by `scripts/provision.mjs` (idempotent) before deploy.
+// Production deploys (.github/workflows/grants-deploy.yml) run on the build output
+// (dist/grant_autopilot/wrangler.json, derived from this file) via provision.mjs --write-config, which
+// renames resources per environment and sets routes/workers_dev. Change a setting here, then rebuild.
+// Use full-line comments only: test/unit/wrangler-config.test.ts strips nothing else.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "grant-autopilot",
+  "main": "src/worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  // Workers Logs. Sample every request at launch (low volume; one JSON line per API request, see
+  // docs/OPERATIONS.md). Lower head_sampling_rate (0..1) only if daily log volume nears the plan limit;
+  // errors are then sampled too. Logpush (long-term retention / SIEM) is not configured: it needs
+  // `"logpush": true` here plus a Logpush job on the account, and must not export request bodies.
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+  // Placement: default (run near the user), decided for launch. Smart Placement only moves the Worker
+  // for /api/* (assets are always served at the edge) and needs steady traffic to decide; the first
+  // tenant is in New Mexico and D1 is created in a nearby US region, so the gain is small. Revisit with
+  // `"placement": { "mode": "smart" }` if p95 of D1-heavy routes is high once there is real traffic.
+  //
+  // CPU limit: platform default (30 s per invocation) on purpose. LLM, Workers AI and fetch waits are
+  // wall time, not CPU. The CPU-heavy paths are DOCX/zip parsing (capped in services/ingestion/files.ts)
+  // and the privacy export zip (queue job). Add `"limits": { "cpu_ms": <ms> }` only after Workers Metrics
+  // shows CPU-time errors on the export job; never lower it below what that job needs.
+  //
+  // Version preview URLs (<version>-<name>.<subdomain>.workers.dev) would serve production data on a
+  // second origin that APP_URL/Better Auth do not trust. Deploys use `wrangler deploy`, not previews.
+  "preview_urls": false,
+  "upload_source_maps": true,
+  // Served at the host root here (local dev). A build with BASE_PATH=/grants (production, see
+  // vite.config.ts) sets assets.base_path "/grants/", run_worker_first ["/grants/api/*"] and the
+  // BASE_PATH var in dist/grant_autopilot/wrangler.json; requests outside the base path then reach the
+  // Worker, which 301s foreign hosts to APP_URL (src/worker/http.ts).
+  "assets": {
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "grant-autopilot",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "FILES",
+      "bucket_name": "grant-autopilot-files"
+    }
+  ],
+  "vectorize": [
+    {
+      "binding": "VECTORS",
+      "index_name": "grant-autopilot-chunks"
+    }
+  ],
+  "ai": { "binding": "AI" },
+  // Cloudflare Email Service (transactional mail; docs/EMAIL.md). The sender domain is onboarded by
+  // scripts/email-sending.mjs from email-sending.json. `wrangler dev` only simulates sends locally.
+  "send_email": [{ "name": "EMAIL" }],
+  "queues": {
+    "producers": [{ "binding": "JOBS", "queue": "grant-autopilot-jobs" }],
+    "consumers": [
+      {
+        "queue": "grant-autopilot-jobs",
+        "max_batch_size": 5,
+        "max_batch_timeout": 5,
+        "max_retries": 3,
+        "dead_letter_queue": "grant-autopilot-jobs-dlq"
+      }
+    ]
+  },
+  "workflows": [
+    {
+      "name": "grant-autopilot-application-pipeline",
+      "binding": "APPLICATION_PIPELINE",
+      "class_name": "ApplicationPipeline"
+    }
+  ],
+  // Workers Rate Limiting bindings (period must be 10 or 60 seconds). See middleware/rate-limit.ts.
+  "ratelimits": [
+    { "name": "AUTH_LIMITER", "namespace_id": "1001", "simple": { "limit": 20, "period": 60 } },
+    { "name": "LLM_LIMITER", "namespace_id": "1002", "simple": { "limit": 30, "period": 60 } },
+    { "name": "UPLOAD_LIMITER", "namespace_id": "1003", "simple": { "limit": 20, "period": 60 } },
+    { "name": "CALENDAR_LIMITER", "namespace_id": "1004", "simple": { "limit": 20, "period": 60 } },
+    { "name": "NEWSLETTER_LIMITER", "namespace_id": "1005", "simple": { "limit": 5, "period": 60 } }
+  ],
+  "triggers": {
+    // 13:17 UTC daily: grant discovery + re-matching. Every 30 min: due follow-ups.
+    "crons": ["17 13 * * *", "*/30 * * * *"]
+  },
+  // Defaults for local dev. grants-deploy.yml overrides APP_ENV ("production"; never "test", which
+  // enables the x-test-user-id identity header), APP_URL and FAKE_EXTERNALS with --var. BASE_PATH ("" =
+  // host root) comes from the build (vite.config.ts) and must match APP_URL's path.
+  // EMAIL_FROM and CRAWLER_USER_AGENT are NOT overridden yet: set them before launch (see
+  // docs/LAUNCH_CHECKLIST.md). Secrets (ANTHROPIC_API_KEY, AUTH_SECRET, ...) never go here.
+  "vars": {
+    "APP_ENV": "development",
+    "APP_URL": "http://localhost:5173",
+    "BASE_PATH": "",
+    "LLM_MODEL": "claude-haiku-5-5",
+    "EMBEDDING_MODEL": "@cf/baai/bge-m3",
+    "TRANSCRIBE_MODEL": "@cf/openai/whisper-large-v3-turbo",
+    "FAKE_EXTERNALS": "false",
+    "EMAIL_FROM": "Grant Autopilot <no-reply@example.org>",
+    "CRAWLER_USER_AGENT": "GrantAutopilotBot/0.1 (+https://github.com/; respects robots.txt)",
+    // Newsletter welcome/nurture emails (docs/EMAIL_MARKETING.md). Off until the owner turns it on;
+    // sends also stay off while MARKETING_POSTAL_ADDRESS (CAN-SPAM postal address) is empty.
+    // PLACEHOLDER: set the real postal address before enabling; never invent one.
+    "MARKETING_EMAIL_ENABLED": "false",
+    "MARKETING_POSTAL_ADDRESS": ""
+  }
+}

@@ -1,0 +1,9 @@
+# Copy to .dev.vars for local development (never commit .dev.vars).
+ANTHROPIC_API_KEY=sk-ant-...
+AUTH_SECRET=replace-with-32+-random-chars
+INTERNAL_API_TOKEN=replace-with-random-token
+# Optional
+SIMPLER_GRANTS_API_KEY=
+RESEND_API_KEY=
+# Set to true to run fully offline with deterministic fakes for LLM, embeddings, email, web.
+FAKE_EXTERNALS=true

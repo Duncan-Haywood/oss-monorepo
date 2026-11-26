@@ -1,0 +1,46 @@
+# PR checks for apps/einvoice-preflight: the imported checker's suite and the paid layer (pro/).
+# No npm dependencies, so no install step (pro/ imports packages/billing's TypeScript through
+# Node 22's type stripping); never needs secrets.
+name: einvoice-preflight-ci
+on:
+  pull_request:
+    paths:
+      - "apps/einvoice-preflight/**"
+      - "apps/einvoice-site/content/pricing.mjs"
+      - "packages/billing/**"
+      - ".github/workflows/einvoice-preflight-ci.yml"
+  push:
+    branches-ignore: [main]
+    paths:
+      - "apps/einvoice-preflight/**"
+      - "apps/einvoice-site/content/pricing.mjs"
+      - "packages/billing/**"
+      - ".github/workflows/einvoice-preflight-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: einvoice-preflight-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+    working-directory: apps/einvoice-preflight
+
+jobs:
+  test:
+    name: checker + paid layer tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Paid layer (fixes re-validate, explanations, API, tenant isolation)
+        run: node --test pro/*.test.mjs
+      - name: Imported checker suite
+        run: node --test --test-concurrency=4 *.test.mjs

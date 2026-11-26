@@ -1,0 +1,100 @@
+# OWNER: grants AWS runtime (apps/grants/docs/AWS.md). PR checks for the AWS port of Grant Autopilot:
+# the Postgres adapters against a real Postgres 16, the Lambda bundle built with the AWS SaaS
+# starter's runtime and smoke-tested, and the OpenTofu stacks validated and tested with mocks.
+# No secrets and no AWS credentials: nothing here can reach or change an AWS account.
+name: grants-aws
+on:
+  pull_request:
+    paths:
+      - "apps/grants/**"
+      - "infra/aws/**"
+      - ".github/workflows/grants-aws.yml"
+  push:
+    branches-ignore: [main]
+    paths:
+      - "apps/grants/**"
+      - "infra/aws/**"
+      - ".github/workflows/grants-aws.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: grants-aws-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  # The oss-monorepo commit the OpenTofu module sources pin (keep the three in step).
+  STARTER_REF: d59d05bb052dbe82e1bd682e7c02c6fc0a9be424
+
+jobs:
+  runtime:
+    name: Postgres adapters, Lambda bundle, smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust # throwaway CI database, no password
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    defaults:
+      run:
+        working-directory: apps/grants
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Duncan-Haywood/oss-monorepo
+          ref: ${{ env.STARTER_REF }}
+          path: oss-monorepo
+          sparse-checkout: platform/aws/stacks/saas-starter/runtime
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Starter runtime dependencies (its own lockfile)
+        run: npm ci --prefix "$GITHUB_WORKSPACE/oss-monorepo/platform/aws/stacks/saas-starter/runtime"
+      - name: Postgres integration tests
+        env:
+          GRANTS_PG_URL: postgres://postgres@localhost:5432/postgres
+          PG_MODULE_DIR: ${{ github.workspace }}/oss-monorepo/platform/aws/stacks/saas-starter/runtime
+          STARTER_PLATFORM_SQL: ${{ github.workspace }}/oss-monorepo/platform/aws/stacks/saas-starter/runtime/sql/001_platform.sql
+        run: pnpm exec vitest run --config vitest.unit.config.ts test/unit/aws-postgres.test.ts
+      - name: Build the Lambda bundle
+        env:
+          STARTER_RUNTIME: ${{ github.workspace }}/oss-monorepo/platform/aws/stacks/saas-starter/runtime
+        run: scripts/aws/build-lambda.sh
+      - name: Smoke-test the built bundle (migrate, auth, tenancy, schedules)
+        env:
+          STARTER_RUNTIME: ${{ github.workspace }}/oss-monorepo/platform/aws/stacks/saas-starter/runtime
+          PG_SUPERUSER_URL: postgres://postgres@localhost:5432/postgres
+        run: node scripts/aws/smoke-lambda.mjs
+
+  tofu:
+    name: tofu validate + test (${{ matrix.dir }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        dir: [apps/grants/infra/aws, infra/aws/payments]
+    defaults:
+      run:
+        working-directory: ${{ matrix.dir }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: 1.10.7
+          tofu_wrapper: false
+      - run: tofu fmt -check -recursive
+      - run: tofu init -backend=false -input=false
+      - run: tofu validate
+      - run: tofu test

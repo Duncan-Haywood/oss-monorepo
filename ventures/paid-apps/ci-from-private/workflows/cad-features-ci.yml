@@ -1,0 +1,47 @@
+# PR checks for packages/cad-features (DXF/STEP part geometry). No secrets, no network.
+name: cad-features-ci
+on:
+  pull_request:
+    paths:
+      - "packages/cad-features/**"
+      - ".github/workflows/cad-features-ci.yml"
+      - "pnpm-lock.yaml"
+      - "biome.json"
+  push:
+    branches-ignore: [main]
+    paths:
+      - "packages/cad-features/**"
+      - ".github/workflows/cad-features-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cad-features-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+    working-directory: packages/cad-features
+
+jobs:
+  check:
+    name: lint, types, tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Biome
+        run: pnpm exec biome ci .
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Tests (node --test, TypeScript run directly)
+        run: pnpm test

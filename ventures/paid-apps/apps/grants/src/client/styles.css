@@ -1,0 +1,282 @@
+@import "tailwindcss";
+
+/*
+  Design tokens — "Juniper & Sandstone". See docs/DESIGN.md for the palette, contrast ratios and rules.
+
+  - brand    deep juniper teal-green: primary actions, links, active navigation, focus.
+  - accent   sandstone/terracotta: sparing highlights (eyebrows, the org avatar, one callout per view).
+  - neutral  warm stone grays (replaces Tailwind's cold `slate`/`gray`; overrides Tailwind `neutral`).
+  - success / warning / danger / info: status only, always paired with an icon or text.
+
+  Text rules (all verified WCAG AA on white, canvas and muted surfaces):
+    text-strong (900) headings · text-default (700) body · text-muted (600) secondary ·
+    text-subtle (500) meta/captions. 400 is for icons, placeholders and input borders only (3:1).
+  Semantic scales (success/…): 50–100 tinted surfaces, 200–300 rings, 500–600 icons/dots/bars,
+  700–800 text on tints.
+*/
+@theme {
+  /* ---- brand: juniper ---- */
+  --color-brand-50: #f0f7f4;
+  --color-brand-100: #daede4;
+  --color-brand-200: #b5daca;
+  --color-brand-300: #86c0aa;
+  --color-brand-400: #529f86;
+  --color-brand-500: #2f8068;
+  --color-brand-600: #226955;
+  --color-brand-700: #1c5646;
+  --color-brand-800: #17463a;
+  --color-brand-900: #123930;
+  --color-brand-950: #0a231d;
+
+  /* ---- accent: sandstone / terracotta ---- */
+  --color-accent-50: #fcf6f0;
+  --color-accent-100: #f8e8d8;
+  --color-accent-200: #f0cfb0;
+  --color-accent-300: #e4ae80;
+  --color-accent-400: #d58d57;
+  --color-accent-500: #c2703a;
+  --color-accent-600: #a3582b;
+  --color-accent-700: #854624;
+  --color-accent-800: #6b3920;
+  --color-accent-900: #57301c;
+  --color-accent-950: #311809;
+
+  /* ---- neutral: warm stone (overrides Tailwind's neutral) ---- */
+  --color-neutral-0: #ffffff;
+  --color-neutral-50: #faf9f7;
+  --color-neutral-100: #f4f2ee;
+  --color-neutral-200: #e8e4de;
+  --color-neutral-300: #d6d0c7;
+  --color-neutral-400: #8f877d;
+  --color-neutral-500: #6b645b;
+  --color-neutral-600: #57514a;
+  --color-neutral-700: #443f39;
+  --color-neutral-800: #2e2a26;
+  --color-neutral-900: #1f1c19;
+  --color-neutral-950: #13110f;
+
+  /* ---- semantic scales ---- */
+  --color-success-50: #eff8f1;
+  --color-success-100: #d7efdd;
+  --color-success-200: #addcb9;
+  --color-success-300: #7cc48f;
+  --color-success-400: #4fa868;
+  --color-success-500: #358c50;
+  --color-success-600: #2a7341;
+  --color-success-700: #215c35;
+  --color-success-800: #1c4a2c;
+  --color-success-900: #173d25;
+  --color-success-950: #0c2415;
+
+  --color-warning-50: #fdf7e7;
+  --color-warning-100: #faebc3;
+  --color-warning-200: #f3d584;
+  --color-warning-300: #e9bb4a;
+  --color-warning-400: #d69e22;
+  --color-warning-500: #b07f12;
+  --color-warning-600: #8e640e;
+  --color-warning-700: #724f0f;
+  --color-warning-800: #5b3f11;
+  --color-warning-900: #4a3411;
+  --color-warning-950: #2b1d08;
+
+  --color-danger-50: #fdf2f2;
+  --color-danger-100: #fae0df;
+  --color-danger-200: #f3bebc;
+  --color-danger-300: #e8928f;
+  --color-danger-400: #da6460;
+  --color-danger-500: #c6433f;
+  --color-danger-600: #aa332f;
+  --color-danger-700: #8c2a27;
+  --color-danger-800: #722522;
+  --color-danger-900: #5e211f;
+  --color-danger-950: #360f0e;
+
+  --color-info-50: #f0f5fa;
+  --color-info-100: #dce7f3;
+  --color-info-200: #b8cfe7;
+  --color-info-300: #8aaed6;
+  --color-info-400: #5d8cc0;
+  --color-info-500: #4172aa;
+  --color-info-600: #325c8f;
+  --color-info-700: #294b75;
+  --color-info-800: #223e60;
+  --color-info-900: #1d3450;
+  --color-info-950: #111f31;
+
+  /* ---- semantic aliases ---- */
+  /* Lines: border-line / divide-line / ring-line … */
+  --color-line-subtle: var(--color-neutral-100);
+  --color-line: var(--color-neutral-200);
+  --color-line-strong: var(--color-neutral-300);
+  /* Form-control borders must reach 3:1 against the surface (WCAG 1.4.11). */
+  --color-line-input: var(--color-neutral-400);
+  --color-focus: var(--color-brand-600);
+
+  /* Surfaces: bg-canvas (app background) · bg-surface (cards) · bg-elevated (menus, popovers,
+     dialogs) · bg-muted (table heads, wells, hover) · bg-subtle (zebra rows, footers). */
+  --background-color-canvas: var(--color-neutral-50);
+  --background-color-surface: var(--color-neutral-0);
+  --background-color-elevated: var(--color-neutral-0);
+  --background-color-muted: var(--color-neutral-100);
+  --background-color-subtle: var(--color-neutral-50);
+  --background-color-inverse: var(--color-neutral-900);
+
+  /* Text: text-strong · text-default · text-muted · text-subtle · text-inverse · text-link */
+  --text-color-strong: var(--color-neutral-900);
+  --text-color-default: var(--color-neutral-700);
+  --text-color-muted: var(--color-neutral-600);
+  --text-color-subtle: var(--color-neutral-500);
+  --text-color-inverse: var(--color-neutral-50);
+  --text-color-link: var(--color-brand-700);
+
+  /* ---- type ---- */
+  --font-sans:
+    "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  /* Body copy is 16px (text-base). Headings tighten line-height and tracking as they grow. */
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.125rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.375rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.625rem;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.625rem;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.75rem;
+  --text-xl--letter-spacing: -0.01em;
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: 1.9rem;
+  --text-2xl--letter-spacing: -0.018em;
+  --text-3xl: 1.875rem;
+  --text-3xl--line-height: 2.25rem;
+  --text-3xl--letter-spacing: -0.022em;
+  --text-4xl: 2.25rem;
+  --text-4xl--line-height: 2.6rem;
+  --text-4xl--letter-spacing: -0.025em;
+
+  /* ---- shape & depth (warm-tinted shadows) ---- */
+  --radius-sm: 0.3125rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.875rem;
+  --radius-2xl: 1.125rem;
+
+  --shadow-xs: 0 1px 2px 0 rgb(41 33 25 / 0.05);
+  --shadow-sm: 0 1px 2px 0 rgb(41 33 25 / 0.06), 0 1px 3px 0 rgb(41 33 25 / 0.06);
+  --shadow-card: 0 1px 2px 0 rgb(41 33 25 / 0.04), 0 1px 3px 0 rgb(41 33 25 / 0.05);
+  --shadow-raised: 0 2px 4px -1px rgb(41 33 25 / 0.06), 0 6px 16px -4px rgb(41 33 25 / 0.1);
+  --shadow-overlay: 0 12px 32px -10px rgb(41 33 25 / 0.28), 0 4px 12px -4px rgb(41 33 25 / 0.12);
+
+  /* ---- motion: short, ease-out, disabled under prefers-reduced-motion ---- */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-fade-in: fade-in 150ms ease-out;
+  --animate-scale-in: scale-in 160ms var(--ease-out-soft);
+  --animate-slide-in-left: slide-in-left 220ms var(--ease-out-soft);
+  --animate-toast-in: toast-in 220ms var(--ease-out-soft);
+  --animate-shimmer: shimmer 1.6s ease-in-out infinite;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes slide-in-left {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: none;
+    }
+  }
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes shimmer {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.55;
+    }
+  }
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+html {
+  color-scheme: light;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  @apply bg-canvas text-base text-strong antialiased;
+  font-feature-settings: "cv11", "ss01";
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+::selection {
+  background: var(--color-brand-100);
+  color: var(--color-brand-900);
+}
+
+/* Visible keyboard focus everywhere, even on elements that forget to style it. */
+:where(a, button, [role="button"], [tabindex], summary):focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+/* Tabular figures for numbers in tables. */
+:where(table) {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    /* biome-ignore lint/complexity/noImportantStyles: reduced-motion must override component styles */
+    animation-duration: 0.01ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: reduced-motion must override component styles */
+    animation-iteration-count: 1 !important;
+    /* biome-ignore lint/complexity/noImportantStyles: reduced-motion must override component styles */
+    transition-duration: 0.01ms !important;
+    /* biome-ignore lint/complexity/noImportantStyles: reduced-motion must override component styles */
+    scroll-behavior: auto !important;
+  }
+}

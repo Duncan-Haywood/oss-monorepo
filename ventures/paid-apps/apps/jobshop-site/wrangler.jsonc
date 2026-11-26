@@ -1,0 +1,41 @@
+// Job shop marketing site (provisional name, see README.md): prerendered static pages served by
+// Workers static assets, plus one Worker route for the early-access form (D1).
+// Run `pnpm build` first: assets come from dist/. Use full-line comments only.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "jobshop-site",
+  "main": "src/worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+  "preview_urls": false,
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    // pricing.html is served at /pricing (200, no redirect), so canonical URLs never redirect.
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page",
+    // /jobshop/api/* for a build under BASE_PATH=/jobshop (files then live in dist/jobshop/).
+    "run_worker_first": ["/api/*", "/jobshop/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "jobshop-site",
+      "migrations_dir": "migrations"
+    }
+  ],
+  // Workers Rate Limiting (period must be 10 or 60 seconds): 5 form posts per IP per minute.
+  "ratelimits": [
+    {
+      "name": "EARLY_ACCESS_LIMITER",
+      "namespace_id": "2001",
+      "simple": { "limit": 5, "period": 60 }
+    }
+  ],
+  // Local defaults. A deploy under marisstella.app/jobshop builds with BASE_PATH=/jobshop and sets
+  // the same BASE_PATH var here (see README "Deploying"). IP_HASH_SALT is a secret: `wrangler secret put`.
+  "vars": {
+    "BASE_PATH": "",
+    "SITE_URL": "https://marisstella.app/jobshop"
+  }
+}

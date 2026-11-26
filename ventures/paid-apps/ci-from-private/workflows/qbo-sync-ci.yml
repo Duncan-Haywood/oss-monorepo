@@ -1,0 +1,50 @@
+# PR checks for packages/qbo-sync (QuickBooks Online AccountingSync library). Needs no secrets:
+# every test runs against the in-memory fake or hand-written HTTP fixtures.
+name: qbo-sync-ci
+on:
+  pull_request:
+    paths:
+      - "packages/qbo-sync/**"
+      - ".github/workflows/qbo-sync-ci.yml"
+      - "tsconfig.base.json"
+      - "biome.json"
+  push:
+    branches-ignore: [main]
+    paths:
+      - "packages/qbo-sync/**"
+      - ".github/workflows/qbo-sync-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qbo-sync-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+    working-directory: packages/qbo-sync
+
+jobs:
+  check:
+    name: lint, types, tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Biome
+        run: pnpm exec biome ci .
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit tests (fake + HTTP fixtures, no network)
+        run: pnpm test

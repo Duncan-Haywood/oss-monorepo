@@ -1,0 +1,11 @@
+{
+  "$comment": "Cloudflare Email Service sending domains for Grant Autopilot, applied by scripts/email-sending.mjs (docs/EMAIL.md). The domain must match EMAIL_FROM (grants-deploy.yml defaults it to no-reply@marisstella.app). drop_suppressed_recipients: a send that includes a bounced or complaining address still reaches the other recipients instead of failing whole.",
+  "zone": "marisstella.app",
+  "domains": [
+    {
+      "name": "marisstella.app",
+      "drop_suppressed_recipients": true,
+      "preview_enabled": false
+    }
+  ]
+}

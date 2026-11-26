@@ -1,0 +1,164 @@
+# OWNER: infra agent. PR checks for apps/grants (deploys are grants-deploy.yml, on merge to main).
+# Runs on every pull request and on pushes to non-main branches; never needs secrets.
+name: grants-ci
+on:
+  pull_request:
+    paths:
+      - "apps/grants/**"
+      - ".github/workflows/grants-*.yml"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - "biome.json"
+  push:
+    branches-ignore: [main]
+    paths:
+      - "apps/grants/**"
+      - ".github/workflows/grants-*.yml"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - "biome.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: grants-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash # -eo pipefail
+    working-directory: apps/grants
+
+jobs:
+  check:
+    name: lint, types, tests, build, evals (fake)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Biome
+        run: pnpm exec biome ci .
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit tests
+        run: pnpm test:unit
+      - name: Worker integration tests (workerd, fake externals)
+        run: pnpm test:worker
+      - name: Build (Vite + Cloudflare plugin)
+        run: pnpm build
+      - name: Evals smoke test (FakeLlm, no network)
+        run: pnpm exec tsx evals/run.ts --fake
+
+  migrations:
+    name: D1 migrations in sync with schema
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: drizzle-kit check + generate drift guard
+        run: |
+          if [[ ! -d migrations ]]; then
+            echo "::warning title=No D1 migrations::apps/grants/migrations does not exist yet. Run 'pnpm db:generate' and commit it: grants-deploy.yml refuses to deploy without migrations."
+            exit 0
+          fi
+          pnpm exec drizzle-kit check
+          # A schema change without its migration makes `generate` write a new file: fail on any drift.
+          timeout 120 pnpm exec drizzle-kit generate </dev/null
+          drift="$(git status --porcelain --untracked-files=all -- migrations)"
+          if [[ -n "$drift" ]]; then
+            echo "::error title=Schema and migrations out of sync::Run 'pnpm db:generate' in apps/grants and commit the result."
+            echo "$drift"
+            git diff --stat -- migrations
+            exit 1
+          fi
+          echo "schema and migrations are in sync"
+
+  e2e:
+    name: e2e (Playwright, offline demo)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Allowed to fail while the demo flow is still being built; the report is uploaded either way.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Playwright
+        run: scripts/e2e-run.sh
+        env:
+          CI: "true"
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            apps/grants/playwright-report/
+            apps/grants/test-results/e2e/
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # Production serves the app under /grants (https://marisstella.app/grants/). Unlike the demo-flow job
+  # above, this one must pass: it is the only browser check of the prefix (router basepath, in-app
+  # links, assets, the Path=/grants session cookie).
+  e2e-base-path:
+    name: e2e under /grants
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Playwright (base path /grants)
+        run: scripts/e2e-run.sh test/e2e/06-base-path.spec.ts
+        env:
+          CI: "true"
+          E2E_BASE_PATH: /grants
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-base-path
+          path: |
+            apps/grants/playwright-report/
+            apps/grants/test-results/e2e/
+          if-no-files-found: ignore
+          retention-days: 14

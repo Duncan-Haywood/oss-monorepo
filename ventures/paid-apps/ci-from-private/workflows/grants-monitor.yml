@@ -1,0 +1,203 @@
+# OWNER: infra agent. Production probe for apps/grants (Grant Autopilot); runbook: apps/grants/docs/MONITORING.md.
+# Every 15 minutes: GET $APP_URL/api/health (public; APP_URL defaults to https://marisstella.app/grants
+# once APP_DOMAIN is set) and, when the INTERNAL_API_TOKEN secret is set, GET $APP_URL/api/health/deep
+# (bearer token). A failing check opens or updates ONE issue labelled `incident`;
+# the next healthy run comments on it and closes it. Warnings are annotated on the run but open no issue.
+name: grants-monitor
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+# Never run two probes at once (they would race to open the incident issue).
+concurrency:
+  group: grants-monitor
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Probe health endpoints
+        id: probe
+        shell: bash
+        env:
+          APP_DOMAIN: ${{ vars.APP_DOMAIN }}
+          # The public URL (origin + base path). The old host APP_DOMAIN 301s there (apps/grants/docs/DEPLOY.md).
+          APP_URL: ${{ vars.APP_URL || 'https://marisstella.app/grants' }}
+          INTERNAL_API_TOKEN: ${{ secrets.INTERNAL_API_TOKEN }}
+        run: |
+          set -uo pipefail
+          domain="${APP_DOMAIN:-}"
+          domain="${domain#https://}"; domain="${domain#http://}"; domain="${domain%%/*}"
+          if [ -z "$domain" ]; then
+            echo "::notice title=grants-monitor skipped::Repository variable APP_DOMAIN is not set; nothing to probe."
+            echo "result=skipped" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # Probe the public URL, not the old host: it answers /api/health itself, but everything users
+          # reach goes through APP_URL (the catalogue Worker's forward to this one). Until the move to
+          # APP_URL has been deployed, the old host still serves the app instead of 301ing there; then
+          # probe the old host, so the monitor doesn't open an incident for a URL nobody uses yet.
+          base="${APP_URL%/}"
+          old_status=$(curl -sS --max-time 20 -o /dev/null -w '%{http_code}' "https://${domain}/" 2>/dev/null || true)
+          if [ "https://${domain}" != "$base" ] && [ "$old_status" != "301" ]; then
+            echo "::notice title=grants-monitor on the old host::https://${domain}/ answers ${old_status:-nothing}, not a 301 to ${base}: the move has not been deployed yet, so probing https://${domain}."
+            base="https://${domain}"
+          fi
+          # Retries (10 s apart) confirm a failure before it counts, and ride out one-off network blips.
+          curl_opts=(-sS --max-time 20 --retry 2 --retry-delay 10 --retry-all-errors
+            -H "Accept: application/json" -H "User-Agent: grants-monitor")
+          checks='[]'
+          add() {
+            checks=$(jq -c --arg n "$1" --arg s "$2" --arg d "$3" '. + [{name: $n, status: $s, detail: $d}]' <<<"$checks")
+          }
+          curl_error() { tail -n 1 "$1" 2>/dev/null | head -c 300; }
+
+          # 1. Public liveness: HTTP 200 and {"ok": true}.
+          read -r code secs < <(curl "${curl_opts[@]}" -o public.json -w '%{http_code} %{time_total}\n' \
+            "$base/api/health" 2>curl-public.err || true)
+          code="${code:-000}"
+          if [ "$code" = "200" ] && jq -e '.ok == true' public.json >/dev/null 2>&1; then
+            add public ok "HTTP 200 in ${secs}s"
+          else
+            add public fail "HTTP ${code} $(curl_error curl-public.err)"
+          fi
+
+          # 2. Deep checks (only when the GitHub secret exists). The token goes to curl on stdin, not argv.
+          if [ -n "${INTERNAL_API_TOKEN:-}" ]; then
+            mode="public+deep"
+            code=$(printf 'Authorization: Bearer %s\n' "$INTERNAL_API_TOKEN" |
+              curl "${curl_opts[@]}" -H @- -o deep.json -w '%{http_code}' "$base/api/health/deep" 2>curl-deep.err || true)
+            code="${code:-000}"
+            if { [ "$code" = "200" ] || [ "$code" = "503" ]; } &&
+              jq -e '(.checks | type) == "array"' deep.json >/dev/null 2>&1; then
+              checks=$(jq -c --argjson c "$checks" '$c + [.checks[] | {
+                name: (.name | tostring),
+                status: (if .status == "ok" or .status == "warn" or .status == "fail" then .status else "fail" end),
+                detail: ((.detail // "") | tostring)
+              }]' deep.json)
+            elif [ "$code" = "401" ]; then
+              add deep_check fail "HTTP 401: the INTERNAL_API_TOKEN GitHub secret does not match the Worker secret"
+            elif [ "$code" = "404" ]; then
+              add deep_check fail "HTTP 404: INTERNAL_API_TOKEN is not set on the Worker (or /api/health/deep is not deployed)"
+            else
+              add deep_check fail "HTTP ${code} $(curl_error curl-deep.err)"
+            fi
+          else
+            mode="public"
+            echo "::notice title=grants-monitor public only::Secret INTERNAL_API_TOKEN is not set; skipped /api/health/deep (see apps/grants/docs/MONITORING.md)."
+          fi
+
+          jq -n --arg domain "$domain" --arg mode "$mode" --arg checkedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --argjson checks "$checks" '{domain: $domain, mode: $mode, checkedAt: $checkedAt, checks: $checks,
+              result: (if any($checks[]; .status == "fail") then "fail"
+                       elif any($checks[]; .status == "warn") then "warn" else "ok" end)}' > report.json
+          result=$(jq -r .result report.json)
+          echo "result=${result}" >> "$GITHUB_OUTPUT"
+
+          # Annotations + job summary.
+          jq -r '.checks[] | select(.status != "ok")
+            | "::\(if .status == "fail" then "error" else "warning" end) title=\(.name)::\(.detail)"' report.json
+          {
+            echo "### ${domain}: ${result} (${mode})"
+            echo
+            echo "| Check | Status | Detail |"
+            echo "| --- | --- | --- |"
+            jq -r '.checks[] | "| `\(.name)` | \(.status) | \(.detail | gsub("\\|"; "\\|")) |"' report.json
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open, update or close the incident issue
+        if: steps.probe.outputs.result == 'fail' || steps.probe.outputs.result == 'warn' || steps.probe.outputs.result == 'ok'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("node:fs");
+            const report = JSON.parse(fs.readFileSync("report.json", "utf8"));
+            const { owner, repo } = context.repo;
+            const MARKER = "<!-- grants-monitor -->";
+            const LABEL = "incident";
+            const runUrl = `${context.serverUrl}/${owner}/${repo}/actions/runs/${context.runId}`;
+            const runbook = `${context.serverUrl}/${owner}/${repo}/blob/HEAD/apps/grants/docs/MONITORING.md#on-call-checklist`;
+            const failing = report.checks.filter((c) => c.status === "fail");
+            const warnings = report.checks.filter((c) => c.status === "warn");
+            const esc = (s) => String(s).replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
+            const table = (rows) =>
+              ["| Check | Status | Detail |", "| --- | --- | --- |",
+               ...rows.map((c) => `| \`${esc(c.name)}\` | ${c.status} | ${esc(c.detail)} |`)].join("\n");
+
+            const open = await github.paginate(github.rest.issues.listForRepo, {
+              owner, repo, state: "open", labels: LABEL, per_page: 100,
+            });
+            const issue = open.find((i) => !i.pull_request && (i.body ?? "").includes(MARKER));
+
+            if (report.result !== "fail") {
+              if (!issue) return;
+              const note = warnings.length
+                ? ` ${warnings.length} warning(s) remain: ${warnings.map((c) => `\`${c.name}\``).join(", ")}.`
+                : "";
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: issue.number,
+                body: `Resolved: no failing health checks as of ${report.checkedAt} ([run](${runUrl})).${note} Closing automatically.`,
+              });
+              await github.rest.issues.update({
+                owner, repo, issue_number: issue.number, state: "closed", state_reason: "completed",
+              });
+              core.notice(`Closed incident #${issue.number}`);
+              return;
+            }
+
+            const key = failing.map((c) => c.name).sort().join(",");
+            const body = [
+              MARKER,
+              `<!-- failing:${key} -->`,
+              `**${report.domain}** is failing its health checks (probe mode: \`${report.mode}\`).`,
+              "",
+              `Last checked: ${report.checkedAt} ([run](${runUrl})). On-call checklist: [MONITORING.md](${runbook}).`,
+              "",
+              "### Failing",
+              table(failing),
+              ...(warnings.length ? ["", "### Warnings", table(warnings)] : []),
+              "",
+              "_Updated by the grants-monitor workflow every 15 minutes while failing; closed automatically once healthy._",
+            ].join("\n");
+
+            if (issue) {
+              const previous = /<!-- failing:(.*?) -->/.exec(issue.body ?? "")?.[1] ?? "";
+              await github.rest.issues.update({ owner, repo, issue_number: issue.number, body });
+              if (previous !== key) {
+                await github.rest.issues.createComment({
+                  owner, repo, issue_number: issue.number,
+                  body: `Failing checks changed at ${report.checkedAt} ([run](${runUrl})):\n\n${table(failing)}`,
+                });
+              }
+              core.notice(`Updated incident #${issue.number}`);
+              return;
+            }
+
+            try {
+              await github.rest.issues.getLabel({ owner, repo, name: LABEL });
+            } catch (e) {
+              if (e.status !== 404) throw e;
+              await github.rest.issues.createLabel({
+                owner, repo, name: LABEL, color: "b60205",
+                description: "Production incident (opened by grants-monitor)",
+              });
+            }
+            const created = await github.rest.issues.create({
+              owner, repo, labels: [LABEL],
+              title: `Grant Autopilot health check failing (${report.domain})`,
+              body,
+            });
+            core.notice(`Opened incident #${created.data.number}`);
+
+      - name: Fail the run while unhealthy
+        if: steps.probe.outputs.result == 'fail'
+        run: |
+          echo "::error::Health checks failing; see the incident issue labelled 'incident'."
+          exit 1

@@ -1,0 +1,29 @@
+{
+  "app": "grants",
+  "productName": "Grant Autopilot",
+  "currency": "USD",
+  "taxCategory": "saas",
+  "plans": [
+    {
+      "key": "starter",
+      "name": "Starter",
+      "description": "For a small team drafting a few applications a month.",
+      "monthlyCents": 1000,
+      "annualCents": 10800
+    },
+    {
+      "key": "standard",
+      "name": "Standard",
+      "description": "For an active development office with a steady grant calendar.",
+      "monthlyCents": 2900,
+      "annualCents": 31300
+    },
+    {
+      "key": "pro",
+      "name": "Pro",
+      "description": "For multi-program organizations and grant consultants.",
+      "monthlyCents": 14900,
+      "annualCents": 160900
+    }
+  ]
+}

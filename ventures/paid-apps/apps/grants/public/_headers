@@ -1,0 +1,36 @@
+# Headers for static assets and the SPA shell (index.html, including the SPA fallback).
+# API responses (/api/*, run_worker_first) get the same set from src/worker/middleware/security.ts
+# (with an API-specific CSP). Keep the two in sync.
+#
+# The CSP was checked against the production build (`pnpm build`, dist/client, 2026-11-19):
+#   - index.html has no inline <script>/<style>/style="" (one external module script + one stylesheet)
+#   - the CSS has no url() and no @font-face (system font stack), so no font-src / data: images needed
+#   - the bundle never creates <style> elements; React `style` props go through the CSSOM, which CSP
+#     does not restrict, so style-src needs no 'unsafe-inline'
+#   - the only network target is same-origin /api. Google OAuth and Paddle checkout are top-level
+#     navigations (window.location), which connect-src / form-action do not cover
+#   - the microphone (dictation) is same-origin only; nothing plays blob: media or runs web workers
+#   - Cloudflare Turnstile (auth forms, only when the build sets VITE_TURNSTILE_SITE_KEY) needs
+#     https://challenges.cloudflare.com in script-src (api.js) and frame-src (the challenge iframe),
+#     nothing else: https://developers.cloudflare.com/turnstile/reference/content-security-policy/
+# Safari also upgrades http://localhost under upgrade-insecure-requests: test a local build
+# (`vite preview`, `wrangler dev`) in Chrome/Firefox, or over https.
+#
+# CSP reporting (stub, not enabled): once a collector exists, append `; report-to csp; report-uri
+# https://<collector>/csp` to the policy and add the header
+#   Reporting-Endpoints: csp="https://<collector>/csp"
+# Roll a stricter change out as Content-Security-Policy-Report-Only first.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self'; img-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; frame-src https://challenges.cloudflare.com; worker-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
+  Strict-Transport-Security: max-age=31536000
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), geolocation=(), microphone=(self), payment=(), usb=(), browsing-topics=()
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+
+# Vite content-hashes everything under /assets/, so it can be cached forever. index.html keeps the
+# platform default (revalidate every time) so a deploy is picked up on the next navigation.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

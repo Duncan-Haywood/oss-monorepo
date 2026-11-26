@@ -1,0 +1,36 @@
+import type { EmailSendBinding } from "./ports/email";
+
+// Worker bindings + secrets. Bindings come from wrangler.jsonc (worker-configuration.d.ts, regenerate with
+// `pnpm cf-typegen`). Secrets are set with `wrangler secret put` / .dev.vars.
+export interface Secrets {
+  /** Also signs checkout tokens (services/billing.ts); 32+ characters. */
+  AUTH_SECRET?: string;
+  /**
+   * Sender for account mail ("Seller Books <no-reply@example.org>"), a var in wrangler.jsonc. With
+   * the `EMAIL` send_email binding it turns on real mail (ports/email.ts, docs/EMAIL.md); without it
+   * every message is only logged as not sent.
+   */
+  EMAIL_FROM?: string;
+  /**
+   * Paid plans ship dark. "paddle" + BILLING_API_KEY + BILLING_WEBHOOK_SECRET turns checkout on
+   * (ports/billing.ts, docs/BILLING.md); anything else leaves every org on the Free plan.
+   */
+  BILLING_PROVIDER?: string;
+  /** Owner-only Paddle API key (a pdl_sdbx_ key selects the sandbox). */
+  BILLING_API_KEY?: string;
+  /** Owner-only: secret of the Paddle notification destination for /api/billing/webhook. */
+  BILLING_WEBHOOK_SECRET?: string;
+  /** JSON {"side":"pri_…","side:annual":"pri_…",…}, read back from Paddle by the catalog sync. */
+  BILLING_PRICE_IDS?: string;
+  /** Test-only: full DDL injected by vitest.worker.config.ts */
+  TEST_SCHEMA_SQL?: string;
+}
+
+/** Optional until the sender domain is onboarded (docs/EMAIL.md); absent in tests. */
+export interface OptionalBindings {
+  EMAIL?: EmailSendBinding;
+}
+
+export type Env = CloudflareBindings & Secrets & OptionalBindings;
+
+export const isProd = (env: Env) => env.APP_ENV === "production";

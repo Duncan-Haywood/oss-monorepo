@@ -1,0 +1,299 @@
+// @ts-check
+// Foundation quantities: footing, stem wall and slab concrete, rebar, forms,
+// gravel base and vapor barrier for a rectangular house.
+//
+// `type: "stem"` is a footing under a stem wall with a separate slab poured
+// inside it; `type: "monolithic"` is one pour with a thickened edge (and
+// optional thickened interior strips under bearing walls). The footing and
+// stem are centred on one another and `width` x `depth` is the footing's
+// outside size. Everything is closed-form geometry in inches and converts to
+// cubic yards at the end; nothing here sizes a footing or checks soil bearing,
+// frost depth or rebar against a code, those are your inputs.
+import { formatLength } from "./engine.mjs";
+
+const BAR_LB_FT = { 3: 0.376, 4: 0.668, 5: 1.043, 6: 1.502 };
+const CU_IN_PER_YD = 46656;
+
+/** @typedef {{ id?: string, type?: "stem"|"monolithic", width: number, depth: number, footing?: { width?: number, depth?: number, bars?: number, bar?: number, formed?: boolean, steps?: { rise: number, length: number, name?: string }[] }, stem?: { height?: number, thickness?: number, bar?: number, spacing?: number, walkout?: { length: number, extra: number, maxStepRise?: number } }, slab?: { thickness?: number, bar?: number, spacing?: number, baseThickness?: number }, interior?: { length: number, width?: number, depth?: number }[], anchorBolts?: { spacing?: number, endDistance?: number, plateStock?: number, diameter?: number, embed?: number }, cornerBars?: boolean, piers?: { name?: string, count: number, pad: number, padDepth: number, column?: number, columnHeight?: number, bars?: number, bar?: number, load?: number }[], soilBearing?: number, cover?: number, barLength?: number, waste?: number, truck?: number, price?: number }} Foundation */
+
+export function sampleFoundation() {
+  return { id: "Foundation", type: "stem", width: 480, depth: 336, footing: { width: 20, depth: 10, bars: 2, bar: 4 }, stem: { height: 32, thickness: 8, bar: 4, spacing: 32 }, slab: { thickness: 4, bar: 3, spacing: 18, baseThickness: 4 }, interior: [{ length: 336, width: 24, depth: 12 }] };
+}
+
+/** @param {Foundation} f */
+export function validateFoundation(f) {
+  const e = [];
+  // Shape first: a hand-written or agent-built JSON body can hold null, a string or an object where a list belongs.
+  const isObj = (/** @type {unknown} */ v) => v != null && typeof v === "object" && !Array.isArray(v);
+  if (!isObj(f)) return ["A foundation is an object with width and depth."];
+  for (const k of /** @type {const} */ (["footing", "stem", "slab", "anchorBolts"])) if (f[k] != null && !isObj(f[k])) e.push(`${k} must be an object.`);
+  if (f.footing?.steps != null && !Array.isArray(f.footing.steps)) e.push("footing.steps must be a list.");
+  if (f.stem?.walkout != null && !isObj(f.stem.walkout)) e.push("stem.walkout must be an object.");
+  for (const k of /** @type {const} */ (["interior", "piers"])) if (f[k] != null && !Array.isArray(f[k])) e.push(`${k} must be a list.`);
+  for (const [k, list] of /** @type {const} */ ([["interior", f.interior], ["piers", f.piers], ["footing.steps", f.footing?.steps]])) if (Array.isArray(list) && list.some((x) => !isObj(x))) e.push(`Every entry in ${k} must be an object.`);
+  if (e.length) return e;
+  // Real numbers only: a text "0.1" passed the range checks by coercion and `1 + waste` then made the order 10x too big.
+  const num = (/** @type {string} */ name, /** @type {any} */ o, /** @type {string[]} */ keys) => { for (const k of keys) if (o?.[k] != null && !(typeof o[k] === "number" && Number.isFinite(o[k]))) e.push(`${name}${k} must be a number.`); };
+  num("", f, ["width", "depth", "soilBearing", "waste", "truck", "price"]);
+  num("footing.", f.footing, ["width", "depth", "bars", "bar"]);
+  num("stem.", f.stem, ["height", "thickness", "bar", "spacing"]);
+  num("slab.", f.slab, ["thickness", "bar", "spacing", "baseThickness"]);
+  num("stem.walkout.", f.stem?.walkout, ["length", "extra", "maxStepRise"]);
+  num("anchorBolts.", f.anchorBolts, ["spacing", "endDistance", "plateStock"]);
+  for (const [i, x] of (f.interior || []).entries()) num(`interior ${i + 1} `, x, ["length", "width", "depth"]);
+  for (const [i, x] of (f.piers || []).entries()) num(`piers ${i + 1} `, x, ["count", "pad", "padDepth", "column", "columnHeight", "load", "bar"]);
+  for (const [i, x] of (f.footing?.steps || []).entries()) num(`footing.steps ${i + 1} `, x, ["rise", "length"]);
+  if (e.length) return e;
+  const ft = { width: 16, depth: 8, bars: 2, bar: 4, ...f.footing };
+  if (!(f.width >= 120 && f.width <= 2400)) e.push("Foundation width must be between 10 ft and 200 ft.");
+  if (!(f.depth >= 120 && f.depth <= 2400)) e.push("Foundation depth must be between 10 ft and 200 ft.");
+  if ((f.type ?? "stem") !== "stem" && f.type !== "monolithic") e.push(`Unknown foundation type ${f.type}; use "stem" or "monolithic".`);
+  if (f.soilBearing != null && !(f.soilBearing >= 500 && f.soilBearing <= 12000)) e.push("Soil bearing is the allowable pressure in psf, from 500 to 12,000.");
+  if (!(ft.width >= 8 && ft.width <= 60)) e.push("Footing width must be between 8 and 60 in.");
+  if (!(ft.depth >= 6 && ft.depth <= 48)) e.push("Footing depth must be between 6 and 48 in.");
+  for (const [i, p] of (f.piers || []).entries()) {
+    if (!Number.isInteger(p.count) || p.count < 1 || p.count > 200) e.push(`Pier group ${i + 1}: count must be a whole number from 1 to 200.`);
+    if (!(p.pad >= 8 && p.pad <= 96) || !(p.padDepth >= 6 && p.padDepth <= 48)) e.push(`Pier group ${i + 1}: pad must be 8 to 96 in square and 6 to 48 in deep.`);
+    if (p.column && (p.column < 6 || p.column > p.pad || !(p.columnHeight > 0))) e.push(`Pier group ${i + 1}: column must be at least 6 in, no wider than the pad, with a height.`);
+    if (p.load != null && !(p.load > 0 && p.load <= 200000)) e.push(`Pier group ${i + 1}: load is the service load per pier in lb, above 0 and at most 200,000.`);
+    if (p.bar != null && !Object.hasOwn(BAR_LB_FT, p.bar)) e.push(`Pier group ${i + 1}: bar size #${p.bar} is not one of #3 to #6.`);
+  }
+  for (const [i, t] of (ft.steps || []).entries()) {
+    if (!(t.rise >= 4 && t.rise <= 24)) e.push(`Footing step ${i + 1}: rise must be between 4 and 24 in.`);
+    if (!(t.length >= 24 && t.length <= 2 * (f.width + f.depth))) e.push(`Footing step ${i + 1}: the lowered run must be at least 24 in and no longer than the perimeter.`);
+  }
+  if (!Number.isInteger(ft.bars) || ft.bars < 0 || ft.bars > 8) e.push("Footing bars must be a whole number from 0 to 8.");
+  for (const [n, b] of [["Footing", ft.bar], ["Stem", f.stem?.bar ?? 4], ["Slab", f.slab?.bar ?? 3]]) if (!Object.hasOwn(BAR_LB_FT, b)) e.push(`${n} bar size #${b} is not one of #3 to #6.`);
+  const st = { height: 32, thickness: 8, spacing: 32, ...f.stem };
+  if ((f.type ?? "stem") === "stem") {
+    if (!(st.height >= 8 && st.height <= 120)) e.push("Stem wall height must be between 8 and 120 in.");
+    if (!(st.thickness >= 6 && st.thickness <= ft.width - 2)) e.push("Stem thickness must be at least 6 in and narrower than the footing.");
+    if (!(st.spacing >= 8 && st.spacing <= 96)) e.push("Stem bar spacing must be between 8 and 96 in.");
+    const w = f.stem?.walkout;
+    if (w?.maxStepRise != null && !(w.maxStepRise >= 4 && w.maxStepRise <= 24)) e.push("Walkout maxStepRise (the tallest single footing step) must be between 4 and 24 in.");
+    if (w && (!(w.length >= 24 && w.length <= Math.max(f.width, f.depth)) || !(w.extra > 0 && w.extra <= 96))) e.push("Walkout stem: the tapered run must be 24 in to the longest side, and the extra height above 0 and at most 96 in.");
+  }
+  const sl = { thickness: 4, spacing: 18, ...f.slab };
+  if (!(sl.thickness >= 3 && sl.thickness <= 12)) e.push("Slab thickness must be between 3 and 12 in.");
+  if (!(sl.spacing >= 6 && sl.spacing <= 48)) e.push("Slab bar spacing must be between 6 and 48 in.");
+  if (f.slab?.baseThickness != null && !(f.slab.baseThickness >= 0 && f.slab.baseThickness <= 24)) e.push("Slab base (gravel) thickness must be between 0 and 24 in.");
+  if ((f.type ?? "stem") === "monolithic" && !(ft.depth > sl.thickness)) e.push("A monolithic thickened edge must be deeper than the slab.");
+  for (const [i, s] of (f.interior || []).entries()) {
+    if (!(s.length > 0 && s.length <= Math.max(f.width, f.depth))) e.push(`Interior footing ${i + 1} must be longer than 0 and no longer than the house.`);
+    if (!((s.width ?? 24) >= 8 && (s.depth ?? ft.depth) >= 6)) e.push(`Interior footing ${i + 1} must be at least 8 in wide and 6 in deep.`);
+  }
+  if (f.anchorBolts) {
+    const a = { spacing: 72, endDistance: 12, plateStock: 192, ...f.anchorBolts };
+    if (!(a.spacing >= 12 && a.spacing <= 120)) e.push("Anchor bolt spacing must be between 12 and 120 in.");
+    if (!(a.endDistance >= 4 && a.endDistance <= 24)) e.push("Anchor bolt end distance must be between 4 and 24 in.");
+    if (/** @type {any} */ (a).sealRoll != null && !(/** @type {any} */ (a).sealRoll >= 10 && /** @type {any} */ (a).sealRoll <= 500)) e.push("Sill seal roll length must be between 10 and 500 ft.");
+    if (!(a.plateStock >= 96 && a.plateStock <= 240)) e.push("Sill plate stock must be between 8 and 20 ft.");
+    if (a.plateStock < 4 * a.endDistance) e.push("Sill plate stock is too short for the end distance.");
+  }
+  if (f.waste != null && !(f.waste >= 0 && f.waste <= 0.3)) e.push("Waste must be between 0 and 0.3.");
+  if (f.truck != null && !(f.truck >= 1 && f.truck <= 12)) e.push("Truck size must be between 1 and 12 cubic yards.");
+  return e;
+}
+
+/** Straight bars of `stock` length needed to run `len` with a lap at each joint. */
+function splice(len, stock, lap) {
+  if (len <= stock) return { bars: 1, joints: 0 };
+  const bars = Math.ceil((len - lap) / (stock - lap) - 1e-9);
+  return { bars, joints: bars - 1 };
+}
+
+/** @param {Foundation} f */
+export function layoutFoundation(f) {
+  const errors = validateFoundation(f);
+  if (errors.length) return { ok: false, errors };
+  const type = f.type ?? "stem";
+  const ft = { width: 16, depth: 8, bars: 2, bar: 4, ...f.footing };
+  const st = { height: 32, thickness: 8, bar: 4, spacing: 32, ...f.stem };
+  const sl = { thickness: 4, bar: 3, spacing: 18, baseThickness: 4, ...f.slab };
+  const cover = f.cover ?? 3, stock = f.barLength ?? 240, waste = f.waste ?? 0.05, truck = f.truck ?? 10;
+  const lapOf = (/** @type {number} */ bar) => 40 * (bar / 8); // 40 bar diameters
+  const interior = (f.interior || []).map((s) => ({ length: s.length, width: s.width ?? 24, depth: s.depth ?? ft.depth }));
+
+  // Perimeter run of the footing's centreline (the footing is `width` x `depth` outside).
+  const cw = f.width - ft.width, cd = f.depth - ft.width;
+  const centreline = 2 * (cw + cd);
+  // Stepped footings: each step lowers `length` in. of the perimeter footing by `rise`. The footing keeps
+  // its section (it just sits lower), the stem above it is `rise` taller over that run, and each riser is a
+  // solid block ft.width wide, `rise` high and one footing depth long where the two levels overlap.
+  const steps = (ft.steps || []).map((t, i) => ({ name: t.name ?? `step ${i + 1}`, rise: t.rise, length: t.length }));
+  const stepRun = steps.reduce((a, t) => a + t.length, 0), stepStemVol = steps.reduce((a, t) => a + t.length * t.rise, 0);
+  // Walkout: along one side the grade falls away, so the stem grows linearly from the normal height to
+  // `extra` taller at the far end (a wedge: half of length x extra of wall face).
+  const wo = type === "stem" ? f.stem?.walkout : undefined;
+  const woFace = wo ? wo.length * wo.extra / 2 : 0;
+  // Optional: the footing under the taper steps down with the grade in equal steps no taller than `maxStepRise`,
+  // each over an equal share of the run. Each riser is a solid block (footing width x rise x footing depth); the
+  // stem wedge above already carries the taller wall, and the footing section itself is unchanged.
+  const woN = wo?.maxStepRise ? Math.ceil(wo.extra / wo.maxStepRise) : 0;
+  const woSteps = Array.from({ length: woN }, (_, i) => ({ name: `walkout footing step ${i + 1}`, rise: wo.extra / woN, length: wo.length / woN }));
+  const footVol = centreline * ft.width * ft.depth;
+  const interiorVol = interior.reduce((s, i) => s + i.length * i.width * i.depth, 0);
+
+  /** @type {{ name: string, cuYd: number }[]} */
+  const pours = [];
+  let slabW, slabD, slabArea, formArea, formEdge;
+  if (type === "stem") {
+    slabW = f.width - ft.width - st.thickness; slabD = f.depth - ft.width - st.thickness;
+    slabArea = slabW * slabD / 144;
+    pours.push({ name: "footing", cuYd: footVol / CU_IN_PER_YD });
+    pours.push({ name: "stem wall", cuYd: ((2 * (cw + cd)) * st.height + stepStemVol + woFace) * st.thickness / CU_IN_PER_YD });
+    if (woSteps.length) pours.push({ name: "walkout footing step risers", cuYd: woSteps.reduce((a, t) => a + ft.width * t.rise * ft.depth, 0) / CU_IN_PER_YD });
+    if (steps.length) pours.push({ name: "footing step risers", cuYd: steps.reduce((a, t) => a + ft.width * t.rise * ft.depth, 0) / CU_IN_PER_YD });
+    pours.push({ name: "slab", cuYd: slabW * slabD * sl.thickness / CU_IN_PER_YD });
+    if (interiorVol) pours.push({ name: "interior footings", cuYd: interiorVol / CU_IN_PER_YD });
+    // Stem forms on both faces; footings are poured in the trench unless `footing.formed`.
+    const stemFaces = 2 * (centreline * st.height + stepStemVol + woFace) / 144;
+    const footForms = ft.formed ? centreline * 2 * ft.depth / 144 : 0;
+    formArea = stemFaces + footForms;
+    formEdge = 2 * centreline / 12 + (ft.formed ? 2 * centreline / 12 : 0);
+  } else {
+    // One pour: the slab over the whole outside, plus the thickened edge band below it.
+    slabW = f.width; slabD = f.depth;
+    slabArea = slabW * slabD / 144;
+    const band = f.width * f.depth - (f.width - 2 * ft.width) * (f.depth - 2 * ft.width);
+    pours.push({ name: "slab", cuYd: f.width * f.depth * sl.thickness / CU_IN_PER_YD });
+    pours.push({ name: "thickened edge", cuYd: band * (ft.depth - sl.thickness) / CU_IN_PER_YD });
+    if (interiorVol) pours.push({ name: "interior thickened strips", cuYd: interior.reduce((s, i) => s + i.length * i.width * Math.max(0, i.depth - sl.thickness), 0) / CU_IN_PER_YD });
+    const outside = 2 * (f.width + f.depth);
+    formArea = outside * sl.thickness / 144; // edge form above grade; the trench shapes the rest
+    formEdge = outside / 12;
+  }
+  // Piers: square pads with an optional square column on top (deck posts, interior columns).
+  const piers = (f.piers || []).map((p, i) => ({ name: p.name ?? `pier ${i + 1}`, count: p.count, pad: p.pad, padDepth: p.padDepth, column: p.column ?? 0, columnHeight: p.columnHeight ?? 0, load: p.load ?? null, bars: p.bars ?? 4, bar: p.bar ?? 4 }));
+  for (const p of piers) {
+    const vol = p.count * (p.pad * p.pad * p.padDepth + p.column * p.column * p.columnHeight);
+    pours.push({ name: `${p.name} (${p.count} pads${p.column ? " and columns" : ""})`, cuYd: vol / CU_IN_PER_YD });
+  }
+  // Bearing: service load over pad area against the allowable soil pressure (both typed). Needs `load` and `soilBearing`.
+  const pierChecks = f.soilBearing ? piers.filter((p) => p.load).map((p) => {
+    const area = p.pad * p.pad / 144, pressure = p.load / area, needPad = Math.ceil(Math.sqrt(p.load / f.soilBearing * 144));
+    return { name: p.name, load: p.load, pad: p.pad, pressure: +pressure.toFixed(0), allowable: f.soilBearing, ok: pressure <= f.soilBearing, minPad: needPad };
+  }) : [];
+  const concreteNet = pours.reduce((s, p) => s + p.cuYd, 0);
+  const concrete = concreteNet * (1 + waste);
+  const trucks = Math.max(1, Math.ceil(concrete / truck - 1e-9));
+  const lastLoad = concrete - (trucks - 1) * truck;
+
+  // Rebar.
+  /** @type {{ what: string, bar: number, qty: number, length: number, feet: number }[]} */
+  const rebar = [];
+  const addBars = (what, bar, runs, runLen) => {
+    if (!runs) return;
+    const lap = lapOf(bar);
+    const sp = splice(runLen, stock, lap);
+    const feet = runs * (runLen + sp.joints * lap) / 12;
+    rebar.push({ what, bar, qty: runs * sp.bars, length: Math.min(stock, runLen) / 12, feet });
+  };
+  const loop = 2 * ((f.width - 2 * cover) + (f.depth - 2 * cover));
+  const sideW = f.width - 2 * cover, sideD = f.depth - 2 * cover;
+  // With `cornerBars` the horizontal layers run straight along each side and an L-bar (a lap-length
+  // leg each way) ties every layer at every corner; otherwise a layer is one loop bent on site.
+  const horizontal = (/** @type {string} */ what, /** @type {number} */ bar, /** @type {number} */ layers) => {
+    if (!f.cornerBars) return addBars(`${what} continuous bars`, bar, layers, loop);
+    addBars(`${what} bars, long sides`, bar, 2 * layers, sideW);
+    addBars(`${what} bars, short sides`, bar, 2 * layers, sideD);
+    const leg = Math.ceil(lapOf(bar)), len = 2 * leg;
+    if (layers) rebar.push({ what: `${what} corner L-bars (${leg} in legs)`, bar, qty: 4 * layers, length: len / 12, feet: 4 * layers * len / 12 });
+  };
+  horizontal("footing", ft.bar, ft.bars);
+  for (const [i, s] of interior.entries()) addBars(`interior footing ${i + 1} bars`, ft.bar, Math.max(ft.bars, 2), s.length - 2 * cover);
+  if (type === "stem") {
+    const dowels = Math.ceil(centreline / st.spacing);
+    const len = ft.depth - cover + st.height + 6 + lapOf(st.bar); // up from the footing, hook back at the slab, lapped to the sill
+    rebar.push({ what: "stem verticals", bar: st.bar, qty: dowels, length: len / 12, feet: dowels * len / 12 });
+    horizontal("stem horizontal", st.bar, 2);
+    // Extra stem verticals over a lowered run, each longer by the rise; the step's own footing bars are lapped across the riser.
+    for (const t of steps) {
+      const n = Math.ceil(t.length / st.spacing), len = ft.depth - cover + st.height + t.rise + 6 + lapOf(st.bar);
+      rebar.push({ what: `${t.name} stem verticals (${t.rise} in taller)`, bar: st.bar, qty: n, length: len / 12, feet: n * len / 12 });
+    }
+    if (wo) {
+      // Verticals over the taper average half the extra height longer.
+      const n = Math.ceil(wo.length / st.spacing), len = ft.depth - cover + st.height + wo.extra / 2 + 6 + lapOf(st.bar);
+      rebar.push({ what: `walkout stem verticals (average ${wo.extra / 2} in taller)`, bar: st.bar, qty: n, length: len / 12, feet: n * len / 12 });
+    }
+  }
+  const nx = Math.floor((slabW - 2 * cover) / sl.spacing) + 1, ny = Math.floor((slabD - 2 * cover) / sl.spacing) + 1;
+  addBars("slab bars along the width", sl.bar, ny, slabW - 2 * cover);
+  addBars("slab bars along the depth", sl.bar, nx, slabD - 2 * cover);
+  for (const p of piers) {
+    if (p.column) {
+      // Column verticals: down to 3 in above the pad bottom, up through the column, lapped 40 diameters at the top.
+      const len = p.padDepth - cover + p.columnHeight + lapOf(p.bar);
+      rebar.push({ what: `${p.name} column verticals`, bar: p.bar, qty: p.count * p.bars, length: len / 12, feet: p.count * p.bars * len / 12 });
+    }
+    // Pad mat: bars each way, one per ~6 in across the pad inside the cover.
+    const n = Math.max(2, Math.floor((p.pad - 2 * cover) / 6) + 1), len = p.pad - 2 * cover;
+    rebar.push({ what: `${p.name} pad mat`, bar: p.bar, qty: p.count * 2 * n, length: len / 12, feet: p.count * 2 * n * len / 12 });
+  }
+  const rebarLb = rebar.reduce((s, r) => s + r.feet * BAR_LB_FT[r.bar], 0);
+
+  // Sub-slab.
+  const base = slabArea * sl.baseThickness / 12 / 27;
+  const barrier = slabArea * 1.1;
+  const stakes = Math.ceil(formEdge * 12 / 48) + 4;
+  // Anchor bolts: the sill plate on each side is cut into equal pieces no longer than the stock
+  // length; every piece gets at least two bolts, one within `endDistance` of each end, and the
+  // rest at no more than `spacing`. Plate length per side = centreline length + wall thickness.
+  let anchors = null;
+  if (f.anchorBolts) {
+    const a = { spacing: 72, endDistance: 12, plateStock: 192, diameter: 0.5, embed: 7, ...f.anchorBolts };
+    const t = type === "stem" ? st.thickness : ft.width;
+    const sides = [cw + t, cw + t, cd + t, cd + t];
+    let pieces = 0, bolts = 0, plateIn = 0;
+    for (const L of sides) {
+      plateIn += L;
+      const n = Math.ceil(L / a.plateStock - 1e-9), p = L / n;
+      pieces += n;
+      bolts += n * Math.max(2, Math.ceil((p - 2 * a.endDistance) / a.spacing - 1e-9) + 1);
+    }
+    // Sill seal (foam gasket) runs under every plate piece; a typed roll length (default 50 ft) sets the rolls, 5% added for laps and cuts.
+    const sealRollFt = /** @type {any} */ (a).sealRoll ?? 50;
+    const plateFeet = plateIn / 12;
+    anchors = { bolts, pieces, plateFeet: Math.round(plateFeet * 100) / 100, sealRolls: Math.ceil(plateFeet * 1.05 / sealRollFt - 1e-9), sealRollFt, diameter: a.diameter, embed: a.embed, spacing: a.spacing, endDistance: a.endDistance, plateStock: a.plateStock };
+  }
+  const notes = [
+    f.cornerBars ? "Horizontal bars run straight along each side with an L-bar at every corner and layer; chairs are not counted." : "Footing bars are one continuous loop (bent at the corners on site); corner L-bars and chairs are not counted.",
+    `Rebar is lapped 40 bar diameters at each joint in ${formatLength(stock)} stock; ${+(waste * 100).toFixed(4)}% waste is added to concrete only.`,
+    "Sizes, bar schedules, frost depth and soil bearing are your inputs; nothing here checks them against a code or an engineer's design.",
+  ];
+  if (lastLoad < 3 && trucks > 1) notes.push(`The last truck carries only ${lastLoad.toFixed(1)} cu yd; most plants charge a short-load fee under about 3 yd, so consider rounding the pour up or splitting it.`);
+  if (anchors) notes.push(`Anchor bolts: ${anchors.bolts} of ${anchors.diameter} in x ${anchors.embed} in embed for ${anchors.pieces} sill plate pieces (at most ${anchors.spacing} in apart, one within ${anchors.endDistance} in of each plate end, two per piece); spacing and edge distances are your inputs, check them against your code edition. Interior bearing lines are not counted.`);
+  for (const t of steps) if (t.length < 2 * t.rise) notes.push(`${t.name}: a ${t.rise} in step over ${t.length} in is steeper than 1 vertical to 2 horizontal; many codes limit a footing step to that slope or ask for a stepped design by an engineer.`);
+  for (const t of woSteps) if (t.length < 2 * t.rise) { notes.push(`Walkout footing steps: ${woSteps.length} steps of ${+t.rise.toFixed(1)} in over ${+t.length.toFixed(1)} in each are steeper than 1 vertical to 2 horizontal; shorten maxStepRise or lengthen the taper, or get a stepped design from an engineer.`); break; }
+  if (woSteps.length) notes.push(`Walkout footing: stepped down in ${woSteps.length} equal step${woSteps.length === 1 ? "" : "s"} of ${+woSteps[0].rise.toFixed(1)} in (maxStepRise ${wo.maxStepRise}); riser concrete is counted, the extra digging and the bars lapped across risers are not.`);
+  if (steps.length) notes.push(`Stepped footing: ${steps.length} step${steps.length === 1 ? "" : "s"} lowering ${stepRun} in of footing; the footing section is unchanged, the stem is taller over that run, and the digging for the lower level is not counted.`);
+  if (wo) notes.push(`Walkout: the stem grows ${wo.extra} in taller over ${wo.length} in (wedge volume and form area, verticals at their average length); backfill limits, a retaining-wall design and the lateral load on a tall stem are the engineer's.${wo.extra > 48 ? " A stem this much taller than the footing usually needs a designed retaining wall." : ""}`);
+  if (type === "stem" && !ft.formed) notes.push("Footings are assumed poured against the trench, so only the stem wall is formed.");
+  if (piers.length) notes.push("Piers: pad mat bars every 6 in each way and column verticals are typed-geometry estimates, not a pier design; bearing area and depth are your engineer's call.");
+  for (const c of pierChecks) if (!c.ok) notes.push(`${c.name}: ${c.load} lb on a ${c.pad} in pad is ${c.pressure} psf, over the ${c.allowable} psf you typed for the soil; the pad would need to be at least ${c.minPad} in square (service load only, no footing weight or code factors).`);
+  return {
+    ok: true, errors: [], pierChecks, id: f.id ?? "Foundation", type, width: f.width, depth: f.depth, footing: ft, stem: type === "stem" ? st : null, slab: sl,
+    interior, steps, walkoutSteps: woSteps.map((t) => ({ ...t, rise: +t.rise.toFixed(2), length: +t.length.toFixed(2) })), pours: pours.map((p) => ({ ...p, cuYd: +p.cuYd.toFixed(3) })), concrete: { net: +concreteNet.toFixed(3), waste, order: +concrete.toFixed(2), trucks, truck, lastLoad: +lastLoad.toFixed(2), cost: f.price != null ? +(concrete * f.price).toFixed(2) : null },
+    rebar: rebar.map((r) => ({ ...r, feet: +r.feet.toFixed(1), length: +r.length.toFixed(2) })), rebarLb: +rebarLb.toFixed(0),
+    forms: { contactSqFt: +formArea.toFixed(1), plywoodSheets: Math.ceil(formArea * 1.1 / 32), edgeLinearFt: +formEdge.toFixed(1), stakes },
+    base: { cuYd: +base.toFixed(2), thickness: sl.baseThickness }, anchors, vaporBarrierSqFt: +barrier.toFixed(0), slabSqFt: +slabArea.toFixed(1), centreline: +centreline.toFixed(1), notes,
+  };
+}
+
+export function foundationText(l) {
+  if (!l.ok) return l.errors.map((e) => `  - ${e}`);
+  const out = [`${l.id}: ${l.type === "stem" ? "footing, stem wall and slab" : "monolithic slab with thickened edge"}, ${formatLength(l.width)} x ${formatLength(l.depth)} outside`];
+  out.push("  Concrete (cu yd, before waste):");
+  for (const p of l.pours) out.push(`    ${p.name.padEnd(28)} ${p.cuYd.toFixed(2)}`);
+  const c = l.concrete;
+  out.push(`  Order ${c.order} cu yd with ${(100 * c.waste).toFixed(0)}% waste: ${c.trucks} truck${c.trucks === 1 ? "" : "s"} of ${c.truck} yd (last carries ${c.lastLoad})${c.cost != null ? `, ${c.cost.toFixed(2)} at the typed price` : ""}`);
+  out.push(`  Rebar, ${l.rebarLb} lb:`);
+  for (const r of l.rebar) out.push(`    ${String(r.qty).padStart(4)}  #${r.bar} x ${r.length.toFixed(1)} ft  ${r.what} (${r.feet.toFixed(0)} ft)`);
+  out.push(`  Forms: ${l.forms.contactSqFt} sq ft of contact (${l.forms.plywoodSheets} sheets of 4x8 ply with 10% spare), ${l.forms.edgeLinearFt} ft of edge board, ${l.forms.stakes} stakes`);
+  if (l.anchors) out.push(`  Anchor bolts: ${l.anchors.bolts} (${l.anchors.diameter} in x ${l.anchors.embed} in embed, with nut and washer) for ${l.anchors.pieces} sill plate pieces`);
+  if (l.anchors) out.push(`  Sill plate: ${l.anchors.pieces} treated boards, ${l.anchors.plateFeet} ft; sill seal: ${l.anchors.sealRolls} roll(s) of ${l.anchors.sealRollFt} ft (5% added)`);
+  out.push(`  Under the slab (${l.slabSqFt} sq ft): ${l.base.cuYd} cu yd of ${l.base.thickness} in gravel, ${l.vaporBarrierSqFt} sq ft of vapor barrier with laps`);
+  for (const n of l.notes) out.push(`  - ${n}`);
+  return out;
+}

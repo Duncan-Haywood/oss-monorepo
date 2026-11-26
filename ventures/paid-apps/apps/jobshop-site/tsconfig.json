@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023"],
+    "types": ["node", "@cloudflare/vitest-plugin/types", "./src/worker/worker-configuration.d.ts"],
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["src/shared/*"],
+      "@site/*": ["src/site/*"],
+      "@worker/*": ["src/worker/*"]
+    }
+  },
+  "include": ["src", "test", "scripts", "*.ts"]
+}

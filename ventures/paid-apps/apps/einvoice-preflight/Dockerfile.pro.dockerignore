@@ -1,0 +1,10 @@
+# Context for Dockerfile.pro, built from the repository root: this app and packages/billing only.
+*
+!apps/einvoice-preflight/*.mjs
+!apps/einvoice-preflight/index.html
+!apps/einvoice-preflight/create.html
+!apps/einvoice-preflight/pro
+!apps/einvoice-preflight/plain
+!apps/einvoice-preflight/fonts
+!packages/billing/src
+**/node_modules

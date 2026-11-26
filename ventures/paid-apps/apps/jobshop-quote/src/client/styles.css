@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-stone-50 text-stone-800 antialiased;
+}
+
+/*
+ * Browsers give <fieldset> `min-inline-size: min-content`, so one wide child (the quote line's
+ * nine-column price table) stretched the whole page past a phone's width instead of shrinking.
+ * Let fieldsets shrink like any block; wide tables scroll inside their own wrapper.
+ */
+@layer base {
+  fieldset {
+    min-inline-size: 0;
+  }
+}

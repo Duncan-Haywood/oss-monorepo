@@ -1,0 +1,43 @@
+# PR checks for packages/billing (Paddle port, webhook rules, catalog sync). Never needs secrets: the
+# Paddle tests run against an in-memory fake. Grants also imports the catalog module in its own tests.
+name: billing-ci
+on:
+  pull_request:
+    paths:
+      - "packages/billing/**"
+      - ".github/workflows/billing-ci.yml"
+      - "pnpm-lock.yaml"
+  push:
+    branches-ignore: [main]
+    paths:
+      - "packages/billing/**"
+      - ".github/workflows/billing-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: billing-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: packages/billing
+
+jobs:
+  check:
+    name: lint, types, tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec biome ci .
+      - run: pnpm typecheck
+      - run: pnpm test

@@ -1,0 +1,8 @@
+# Grant Autopilot. Placeholder domain: replace https://grantautopilot.example with the production
+# origin before launch (also in public/sitemap.xml and the og:/twitter: tags in index.html).
+User-agent: *
+Allow: /
+Disallow: /orgs
+Disallow: /api
+
+Sitemap: https://grantautopilot.example/sitemap.xml

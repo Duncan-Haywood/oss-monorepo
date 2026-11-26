@@ -1,0 +1,195 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1795558858249,
+      "tag": "0000_init",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1795559778494,
+      "tag": "0001_quote_revision",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1795612292807,
+      "tag": "0002_billing",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1795625904665,
+      "tag": "0003_quote_revisions",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1795627350413,
+      "tag": "0004_quote_emails",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1795627686260,
+      "tag": "0005_rfq_page_counts",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1795630441620,
+      "tag": "0006_routings",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1795631204252,
+      "tag": "0007_inbound_email",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1795632106239,
+      "tag": "0008_changes_on_pdf",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1795633207739,
+      "tag": "0009_legal_acceptance",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1795633790748,
+      "tag": "0010_rfq_arrival_notify",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1795634379757,
+      "tag": "0011_quote_expiry_reminders",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1795634810259,
+      "tag": "0012_allowance_notices",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "6",
+      "when": 1795635680963,
+      "tag": "0013_email_signature_sender_copy",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "6",
+      "when": 1795636050780,
+      "tag": "0014_repeat_parts_prefill",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "6",
+      "when": 1795638078158,
+      "tag": "0015_sheet_metal_machine_rates",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "6",
+      "when": 1795639333693,
+      "tag": "0016_machine_seconds_per_hole",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "6",
+      "when": 1795640327593,
+      "tag": "0017_material_sheet_thickness",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "6",
+      "when": 1795642846252,
+      "tag": "0018_cut_speeds",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "6",
+      "when": 1795646491131,
+      "tag": "0019_machine_drill_feed",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "6",
+      "when": 1795647602397,
+      "tag": "0020_machine_tapping",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "6",
+      "when": 1795648203979,
+      "tag": "0021_inbound_sender_allowlist",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "6",
+      "when": 1795648810617,
+      "tag": "0022_removal_rates",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "6",
+      "when": 1795650116215,
+      "tag": "0023_drill_feeds",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "6",
+      "when": 1795651738215,
+      "tag": "0024_rfq_thread_references",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "6",
+      "when": 1795652474116,
+      "tag": "0025_machine_peck",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "6",
+      "when": 1795656106842,
+      "tag": "0026_shop_time_zone",
+      "breakpoints": true
+    }
+  ]
+}

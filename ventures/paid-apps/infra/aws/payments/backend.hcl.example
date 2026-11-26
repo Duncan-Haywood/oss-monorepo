@@ -1,0 +1,7 @@
+# tofu init -backend-config=backend.hcl   (copy this file). The PAYMENTS account's own state bucket
+# and key, as oss-monorepo stacks/github-oidc (PR #18768) grants them to this repository's roles.
+bucket       = "<payments-account-id>-tofu-state-us-east-1"
+key          = "payments/terraform.tfstate"
+region       = "us-east-1"
+encrypt      = true
+use_lockfile = true

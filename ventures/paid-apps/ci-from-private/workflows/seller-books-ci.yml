@@ -1,0 +1,67 @@
+# PR checks for apps/seller-books; never needs secrets. Deploys are seller-books-deploy.yml (by hand).
+name: seller-books-ci
+on:
+  pull_request:
+    paths:
+      - "apps/seller-books/**"
+      - "packages/billing/**"
+      - ".github/workflows/seller-books-*.yml"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - "biome.json"
+  push:
+    branches-ignore: [main]
+    paths:
+      - "apps/seller-books/**"
+      - "packages/billing/**"
+      - ".github/workflows/seller-books-*.yml"
+      - "pnpm-lock.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: seller-books-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+    working-directory: apps/seller-books
+
+jobs:
+  check:
+    name: lint, types, tests, build, migrations
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Biome
+        run: pnpm exec biome ci .
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit tests
+        run: pnpm test:unit
+      - name: Worker integration tests (workerd)
+        run: pnpm test:worker
+      - name: Deploy provisioning tests
+        run: node --test scripts/provision.test.mjs
+      - name: Build
+        run: pnpm build
+      - name: D1 migrations in sync with schema
+        run: |
+          pnpm exec drizzle-kit check
+          pnpm exec drizzle-kit generate --name drift-check
+          if [[ -n "$(git status --porcelain migrations)" ]]; then
+            echo "::error::Schema changed without a migration: run 'pnpm db:generate' and commit it."
+            git status --porcelain migrations
+            exit 1
+          fi

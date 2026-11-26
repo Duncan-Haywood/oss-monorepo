@@ -1,0 +1,61 @@
+# PR checks for apps/payapps-site (the PayPencil marketing site). No deploy workflow yet: see
+# apps/payapps-site/README.md "Deploying". Never needs secrets.
+name: payapps-site-ci
+on:
+  pull_request:
+    paths:
+      - "apps/payapps-site/**"
+      # The pricing page mirrors these (test/unit/plans-sync.test.ts): a price change there runs it.
+      - "apps/payapps/src/shared/plans.ts"
+      - "packages/billing/src/pricing.ts"
+      - ".github/workflows/payapps-site-*.yml"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - "biome.json"
+  push:
+    branches-ignore: [main]
+    paths:
+      - "apps/payapps-site/**"
+      # The pricing page mirrors these (test/unit/plans-sync.test.ts): a price change there runs it.
+      - "apps/payapps/src/shared/plans.ts"
+      - "packages/billing/src/pricing.ts"
+      - ".github/workflows/payapps-site-*.yml"
+      - "pnpm-lock.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: payapps-site-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+    working-directory: apps/payapps-site
+
+jobs:
+  check:
+    name: lint, types, tests, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Biome
+        run: pnpm exec biome ci .
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit tests (pages, SEO files, plans, validation)
+        run: pnpm test:unit
+      - name: Worker integration tests (workerd, local D1, fake email)
+        run: pnpm test:worker
+      - name: Build
+        run: pnpm build
