@@ -320,13 +320,13 @@ class Aws:
         if p.returncode != 0:
             if "ResourceNotFoundException" in p.stderr:
                 return None
-            raise CutoverError(f"could not read {name}: {p.stderr.strip()[:200]}")
+            raise CutoverError(f"could not read a cutover credential entry: {p.stderr.strip()[:200]}")
         return json.loads(p.stdout)
 
     def delete_secret(self, name: str) -> bool:
         p = self._run(["secretsmanager", "delete-secret", "--secret-id", name, "--force-delete-without-recovery"], check=False)
         if p.returncode != 0 and "ResourceNotFoundException" not in p.stderr:
-            raise CutoverError(f"could not delete {name}: {p.stderr.strip()[:200]}")
+            raise CutoverError(f"could not delete a cutover credential entry: {p.stderr.strip()[:200]}")
         return p.returncode == 0
 
     def invoke(self, role: str, function: str, payload: dict) -> dict:
@@ -903,7 +903,7 @@ def prepare_app(ctx: Ctx, app: dict) -> None:
         def paddle_ready():
             p = app["paddle"]
             if ctx.paddle is None:
-                raise CutoverError(f"{name}: Paddle repoint configured but {SECRET_PADDLE} is not in Secrets Manager")
+                raise CutoverError(f"{name}: Paddle repoint configured but the Paddle key (cutover/paddle-api-key) is not in Secrets Manager")
             ns = ctx.paddle.request("GET", f"/notification-settings/{p['notification_setting_id']}")
             if not ctx.plan_only and p.get("webhook_secret"):
                 ctx.aws.call("apps:operate", ["secretsmanager", "describe-secret", "--secret-id", p["webhook_secret"]])
@@ -1342,13 +1342,15 @@ def stage_retire(ctx: Ctx) -> None:
 
 
 def delete_secrets(ctx: Ctx) -> None:
-    for name in (SECRET_CLOUDFLARE, SECRET_PADDLE):
+    # Logged by label: the entry names are not secret, but nothing derived from
+    # a credential variable goes to the log, the summary or the state.
+    for label, entry in (("Cloudflare token", SECRET_CLOUDFLARE), ("Paddle key", SECRET_PADDLE)):
         if ctx.plan_only:
             continue
-        gone = ctx.aws.delete_secret(name)
-        ctx.note(f"delete-secrets: {name}: {'deleted' if gone else 'not present'}")
+        gone = ctx.aws.delete_secret(entry)
+        ctx.note(f"delete-secrets: {label}: {'deleted' if gone else 'not present'}")
         if gone:
-            ctx.event("delete-secrets", name)
+            ctx.event("delete-secrets", label)
     ctx.save()
 
 
@@ -1372,7 +1374,7 @@ def build_real(args, cfg) -> Ctx:
     else:
         token = aws.secret(SECRET_CLOUDFLARE)
         if needs_cf and not token:
-            raise CutoverError(f"{SECRET_CLOUDFLARE} is not in Secrets Manager (README.md, Owner steps)")
+            raise CutoverError("the Cloudflare token (cutover/cloudflare-api-token) is not in Secrets Manager (README.md, Owner steps)")
         raw = aws.secret(SECRET_PADDLE)
     # Never printed, logged or stored: the values go only into request headers
     # and the tofu subprocess's environment (tests check the log, summary and state).
