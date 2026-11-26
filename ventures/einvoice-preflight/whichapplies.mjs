@@ -4,7 +4,7 @@
 // business is placed in a wave by one typed number; nothing is looked up.
 //   node whichapplies.mjs                 write which-e-invoice-mandate-applies.html
 //   node whichapplies.mjs --check         exit 1 if the page is stale
-//   node whichapplies.mjs DE 500000       print the answer for Germany, EUR 500,000
+//   node whichapplies.mjs DE 500000       print the answer for Germany, EUR 500,000 (exit 2 on bad input)
 // Cut-offs come from secondary guides on the country pages (several are marked
 // there as unread primary texts); confirm with the tax authority. Not advice.
 import fs from "node:fs";
@@ -158,7 +158,14 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const h = render();
     if (!fs.existsSync(here(PAGE)) || fs.readFileSync(here(PAGE), "utf8") !== h) { console.error(`${PAGE} is stale: run node whichapplies.mjs`); process.exit(1); }
   } else if (a.length === 2) {
-    const r = answer(a[0].toUpperCase(), COUNTRIES[a[0].toUpperCase()]?.input === "class" ? a[1] : Number(a[1]));
+    // A blank argument is not 0 (Number("") is 0): refuse it, as the page does.
+    a[1] = a[1].trim();
+    if (COUNTRIES[a[0].toUpperCase()]?.input === "class") a[1] = a[1].toLowerCase();
+    let r;
+    try {
+      if (a[1] === "") throw new Error("turnover must be a number of at least 0");
+      r = answer(a[0].toUpperCase(), COUNTRIES[a[0].toUpperCase()]?.input === "class" ? a[1] : Number(a[1]));
+    } catch (e) { console.error(e.message); process.exit(2); }
     console.log(`${r.country}: ${r.date}\n${r.what}\n${r.always}${r.note ? "\n" + r.note : ""}`);
   } else { fs.writeFileSync(here(PAGE), render()); console.log(`wrote ${PAGE}`); }
 }

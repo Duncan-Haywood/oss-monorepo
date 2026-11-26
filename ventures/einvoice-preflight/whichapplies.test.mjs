@@ -69,3 +69,47 @@ test("Malaysia wave dates appear in the phases table on its own page", () => {
     assert.ok(html.includes(`<td>1 ${mon[m]} ${y}</td>`), w.date);
   }
 });
+
+// The command line: `node whichapplies.mjs DE 500000` and `--check`, run as a
+// user would (red team 2026-11-26: every CLI line was unguarded).
+import { spawnSync } from "node:child_process";
+import os from "node:os";
+import path from "node:path";
+const SELF = new URL("./whichapplies.mjs", import.meta.url);
+const cli = (args, script = SELF) => spawnSync(process.execPath, [script instanceof URL ? script.pathname : script, ...args], { encoding: "utf8" });
+
+test("CLI answers a country and a turnover, either side of the edge", () => {
+  const lo = cli(["DE", "500000"]), hi = cli(["de", "900000"]);
+  assert.equal(lo.status, 0, lo.stderr);
+  assert.match(lo.stdout, /^Germany: 2028-01-01\n/);
+  assert.equal(hi.status, 0, hi.stderr);
+  assert.match(hi.stdout, /^Germany: 2027-01-01\n/);
+  const fr = cli(["FR", "LARGE"]);
+  assert.equal(fr.status, 0, fr.stderr);
+  assert.match(fr.stdout, /^France: 2026-09-01\n/);
+});
+test("CLI refuses a blank or non-number turnover instead of reading it as 0", () => {
+  for (const bad of ["", " ", "500k", "-1"]) {
+    const r = cli(["DE", bad]);
+    assert.notEqual(r.status, 0, `"${bad}" was answered: ${r.stdout}`);
+    assert.equal(r.stdout, "");
+    assert.match(r.stderr, /turnover must be a number/);
+  }
+});
+test("--check passes on the tree, writes nothing, and fails on a stale page", () => {
+  const ok = cli(["--check"]);
+  assert.equal(ok.status, 0, ok.stderr);
+  assert.equal(ok.stdout, "");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "whichapplies-"));
+  try {
+    for (const f of ["whichapplies.mjs", "e-invoicing-mandates-by-country.html"]) fs.copyFileSync(new URL(`./${f}`, import.meta.url), path.join(dir, f));
+    const page = path.join(dir, "which-e-invoice-mandate-applies.html");
+    fs.writeFileSync(page, "stale");
+    const stale = cli(["--check"], path.join(dir, "whichapplies.mjs"));
+    assert.equal(stale.status, 1);
+    assert.match(stale.stderr, /is stale/);
+    assert.equal(fs.readFileSync(page, "utf8"), "stale", "--check must not rewrite the page");
+    fs.rmSync(page);
+    assert.equal(cli(["--check"], path.join(dir, "whichapplies.mjs")).status, 1, "a missing page is stale too");
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
