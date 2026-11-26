@@ -523,9 +523,8 @@ the import, puts both bowls back.
 
 Two gaps from the same audit are still open, and we would rather say so. A
 returned item is not put back in stock automatically, because a refund row
-doesn't say whether the item came back. And the worksheet doesn't yet warn
-on Part III when unlinked orders leave line 41 too high. The P&L page does
-flag those orders.
+doesn't say whether the item came back. The other gap, the Part III warning
+when unlinked orders leave line 41 too high, is now closed (next section).
 
 ## Sales with no marketplace report (added 2026-11-26)
 
@@ -619,6 +618,34 @@ is missing (or marked sold too early), and you fix the items, or last year's
 return was wrong, and that's a question for your preparer. Either way the
 figure and the warning go into the CSV for your preparer. This is a
 worksheet, not tax advice.
+
+## When a sale has no item, line 41 may be too high (added 2026-11-26)
+
+Closing inventory (line 41) is every item still marked in stock on
+December 31. When a sale isn't linked to the item it sold, that item stays
+in stock and keeps counting in line 41, so line 41 comes out too high and cost
+of goods sold (line 42) too low. Profit, and the tax on it, then come out
+high by the same amount. It happens when an order's SKU doesn't match any item,
+or when a direct sale was typed in without picking the stock item.
+
+Seller Books can't tell from the books alone whether the item behind an
+unlinked sale is one you entered or one you never put in. So it doesn't move
+line 41. It tells you how far off line 41 could be. The Schedule C page now
+counts the year's orders with no item linked, or with fewer items than units
+sold. It then adds up the stock still on hand that was bought on or before
+the last of those sales, since those items are the only ones the sales could
+have taken. That total is the most line 41 can be too high. It shows as a
+warning, as a note on line 41 and in the CSV, and the page links to the Sales
+page, where "Only orders without an item" lists the sales to fix.
+
+In the app's test, a $10.00 Pyrex bowl bought on February 1 and a $30.00
+market-stall sale typed in on March 10 with no item give a warning that line
+41 ($10.00) may be overstated by up to $10.00. Linking the sale to the bowl
+clears the warning and moves the $10.00 from line 41 to line 42. Stock bought
+after the last unlinked sale is never counted, because it couldn't have been
+what sold. A sale of something you never entered as an item needs no change:
+the warning lists the figures and leaves the decision to you and your
+preparer. This is a worksheet, not tax advice.
 
 ## What comes next
 
