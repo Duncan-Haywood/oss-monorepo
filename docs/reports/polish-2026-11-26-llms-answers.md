@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [seo]
+date: 2026-11-26
+---
 # Polish 2026-11-26: llms.txt "Answers" generated from page FAQs
 
 Track: polish/0. Picked item 2 of "Still weakest" in
