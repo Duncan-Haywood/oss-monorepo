@@ -319,7 +319,9 @@ def validate_audit(a: dict) -> list[str]:
     if a.get("status") not in STATUSES:
         errs.append(f"{name}: status must be one of {STATUSES}")
     subj = a.get("subject", "")
-    if subj and not (ROOT / subj).exists():
+    # A flagship whose app lives in private-monorepo (flagships.yaml `app:`)
+    # has no public path; `sample` still draws it as ventures/<name>.
+    if subj and not (ROOT / subj).exists() and subj not in {f"ventures/{n}" for n in flagships()}:
         errs.append(f"{name}: subject {subj} is not a path in the repository")
     if a.get("status") == "audited":
         if not a.get("professional"):

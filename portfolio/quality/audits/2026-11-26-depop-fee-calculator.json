@@ -220,7 +220,8 @@
       "what": "Four of five seeded mutants in core logic survive (best-region comparison, shipping-only fixed fee, effective-rate base, negative target price); the compare test only checks bestRegion is one of the keys.",
       "where": "ventures/depop-fee-calculator/calc.test.mjs:105",
       "category": "untested-core",
-      "origin": "tests"
+      "origin": "tests",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19225"
     },
     {
       "severity": "low",
@@ -244,6 +245,6 @@
       "origin": "implementation"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19225"],
   "verdict": "Does not meet the bar (correctness 2, claims 2, verification 2, median 2); finished (completeness 3). The US and UK unboosted arithmetic is exact: four hand recomputations (US $50 -> 2.10, US $22+$8 -> 1.44, UK GBP45 base -> 1.605, target price 32.6939) all match. The gaps are in the schedule, not the arithmetic: rest of world is modelled as 10% with no processing although Depop charges processing there and moved Australia to 0% + 2.6% + A$0.30 on 22 July 2026; the boost fee ignores the 8% non-US/UK rate and the shipping-inclusive base for own-label sales; and the region comparison ranks payouts across currencies. Four of five seeded mutants survive. Depop's own pages were not reachable from this container (DNS allowlist), so the Depop figures here come from web-search extracts of those pages; a session with network access should confirm them before a fix lands. It is a working front door to Seller Books (bet #5) for US/UK sellers."
 }

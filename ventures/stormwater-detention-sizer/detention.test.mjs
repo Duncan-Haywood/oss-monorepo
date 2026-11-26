@@ -180,6 +180,15 @@ test("one storm only: no weir", () => {
   close(a.requiredDepthFt, a.storms[0].peakStage + 1, 1e-12);
 });
 
+test("basin depth covers the highest storm stage, even when the storms are out of order", () => {
+  // quality round 108: a "100-year" smaller than the 2-year peaked lower, and
+  // the depth was read from that last storm, leaving the 2-year over the top.
+  const a = analyze({ ...sampleInput(), largeA: "30" });
+  const maxStage = Math.max(...a.storms.map((s) => s.peakStage));
+  assert.ok(a.storms[0].peakStage > a.storms[1].peakStage, "the case under test");
+  close(a.requiredDepthFt, maxStage + 1, 1e-12);
+});
+
 test("input errors come back as messages", () => {
   assert.match(analyze({ ...sampleInput(), areaAc: "x" }).error, /Drainage area/);
   assert.match(analyze({ ...sampleInput(), postCN: "120" }).error, /curve number/);
