@@ -45,6 +45,26 @@ test("sheathing nails: edge ring plus intermediate studs, by hand", () => {
   assert.equal(layoutFasteners({ sheathing: false }, {}, r).sheathingCounted, false);
 });
 
+test("sheathing nails: a panel that starts past 0 counts its own intermediate studs (hand arithmetic, redteam 2026-11-26)", () => {
+  // two panels, 0-48 and 48-96, at 16 in: studs inside are 16, 32 and 64, 80; each panel 48 edge + 2 lines x 8
+  const r = { walls: [wall([])], sheathing: { walls: [{ id: "A", panels: [{ x0: 0, x1: 48, width: 48, height: 96 }, { x0: 48, x1: 96, width: 48, height: 96 }] }] } };
+  const l = layoutFasteners({ waste: 0 }, { studSpacing: 16 }, r);
+  assert.equal(l.connections.find((c) => c.name === "Sheathing nails").nails, 2 * (48 + 16));
+});
+
+test("plate straps: one or two per joint accepted, other counts refused (redteam 2026-11-26)", () => {
+  for (const ok of [1, 2]) assert.deepEqual(validateFasteners({ plateStraps: { perJoint: ok } }), []);
+  for (const bad of [0, 3, 1.5]) assert.equal(validateFasteners({ plateStraps: { perJoint: bad } }).length, 1);
+});
+
+test("brace text priced by the foot says per ft, never 'at null each' (redteam 2026-11-26)", () => {
+  const r = { walls: [{ id: "A", length: 480, height: 96, members: [] }] };
+  const foot = fastenerText(layoutFasteners({ wallBracing: { pricePerFoot: 1.5 } }, {}, r)).find((x) => x.includes("wall brace"));
+  assert.ok(!foot.includes("null") && foot.includes("at 1.5 per ft"), foot);
+  const each = fastenerText(layoutFasteners({ wallBracing: { price: 20 } }, {}, r)).find((x) => x.includes("wall brace"));
+  assert.ok(each.endsWith("40.00 at 20 each"), each);
+});
+
 test("bad inputs are refused", () => {
   assert.equal(validateFasteners({ edgeSpacing: 1 }).length, 1);
   assert.equal(layoutFasteners({ waste: 2 }, {}, { walls: [] }).ok, false);
