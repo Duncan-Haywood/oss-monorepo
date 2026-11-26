@@ -188,7 +188,8 @@
       "what": "Break-even utilisation is the first half-percent where profit >= target, but profit is non-monotonic under stepped staffing: on the sample it reports 38.5% while profit is negative again at 46.5-48%. Fix: scan from 100% down and return the lowest u above which profit stays >= extra (break on the first failure), or report the loss band.",
       "where": "ventures/pet-boarding-daycare-profit-calculator/calc.mjs:113",
       "category": "logic-error",
-      "origin": "implementation"
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19260"
     },
     {
       "severity": "medium",
@@ -226,6 +227,6 @@
       "origin": "spec"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19260"],
   "verdict": "Does not meet the bar (correctness 2, domain 2, fitness 2; claims 3, verification 3, median 3); finished (completeness 3). The arithmetic is exact: an independent Python model of the stated rules reproduces the sample month (profit 9,541.45), startup 112,700, payment 856.58 (and the loan function matches published amortisation values 599.55 and 126.68), price factor 0.9743 and the ramp trough, reserve and payback. Claims are honest: no benchmark is asserted, sample figures are labelled illustrative and the staffing ratio defers to the insurer or state. The gaps are in the method: break-even is a first crossing although stepped staffing makes profit go negative again above it (38.5% reported, losses at 46.5-48% on the sample), and staffing averages daycare dogs across closed days before rounding, understating labour by about 10% for a weekday daycare. Tests catch 4 of 6 seeded mutants; the displayed reserve is unpinned. It is a free lead magnet with no path to a paid product."
 }

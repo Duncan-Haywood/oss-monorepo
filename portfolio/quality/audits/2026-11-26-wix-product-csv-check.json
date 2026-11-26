@@ -182,7 +182,8 @@
       "what": "The 'safe fixes' rewrite fieldType PRODUCT/VARIANT to Product/Variant. Wix's current (new catalog) template requires PRODUCT, VARIANT or MEDIA and says the field is case sensitive, so the downloaded 'cleaned' CSV turns a valid file into one the importer rejects. The same values get warnings in validate (calc.mjs:166, :173).",
       "where": "ventures/wix-product-csv-check/calc.mjs:319",
       "category": "domain-rule",
-      "origin": "spec"
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19260"
     },
     {
       "severity": "medium",
@@ -227,6 +228,6 @@
       "origin": "maintenance"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19260"],
   "verdict": "Does not meet the bar (correctness 2, claims 2, verification 2, median 2); finished (completeness 3). On Wix's legacy Product/Variant template the checks are right: orphan variant, unlisted choice, repeated combination, 80/81-character name and 100/101% discount all came out as Wix's rules predict, with the right line numbers, and the 32 tests pass. The gap is that Wix's current help pages describe a new catalog template (fieldType PRODUCT, VARIANT or MEDIA, case sensitive; inventory in_stock/out_of_stock) that the tool calls errors, and its 'safe fixes' rewrite PRODUCT to Product, making a valid file invalid. Published limits (15 images, 8,000-character description, per-file size) are not checked, and two of five boundary mutants survive. support.wix.com was blocked from this container, so the Wix rules here come from search extracts of Wix's own pages; a session that can load them should confirm the new-template details before a fix lands. It is a free lead magnet with no paid product behind it."
 }
