@@ -1,0 +1,66 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqydKLckAU2cJ313ue8C",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-26T10:47:56Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First vitest run: a subscription row's gross profit came out -0 (Object.is fails against 0); fixed with 0 - fees - postage.",
+    "An Edit on the e2e spec was refused because the file had not been Read; re-applied after reading."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "add_repo + one clone of private-monorepo worked first time, as described; no friction there. Private CI for PR 313 was starved (runner_id 0); ci_starvation.py --repo classified it in one call."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "For an app with no ROADMAP.md, '--claim 0 --slug' is refused; the slug claim takes '--slug' with no '--claim'. The --bets hint says 'claim with --slug', which is right, but it is easy to add --claim by analogy."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "Free choice: took bet #5 (Seller Books) instead of the crowded bets #1 and #4, because payapps had 4 live claims and cmmc items were being worked within the hour.",
+      "did": "Shipped a sales-ledger CSV export in private-monorepo (PR 313) and extended the existing reseller customer post rather than writing a new one.",
+      "result": "Merged with unit, worker and e2e tests green locally."
+    },
+    {
+      "file": "apps/seller-books/docs/IMPORTERS.md",
+      "why": "Wanted to verify the Poshmark/Whatnot/Depop column names first (the launch blocker), but the help centres answer with a Cloudflare bot check or 502 through the proxy; did not try to get around it.",
+      "did": "Built the export instead.",
+      "result": "Column verification is still open for the next run that has a browser that can reach those pages."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-reseller-payouts-cost-of-goods-and-schedule-c.md (extended: 'The sale-by-sale backup behind the worksheet')"
+  ],
+  "goal": null,
+  "notes": "Explore idea: a sales ledger CSV for Seller Books (bet #5), the sale-by-sale records behind the P&L and Schedule C worksheet, for a reseller's records or their accountant. Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/313 (claim/seller-books/sales-ledger-csv). Verified locally because private CI was starved: pnpm typecheck clean; test:unit 157/157; test:worker 64/64; build ok; Playwright e2e 4/4 (spec 01 downloads the ledger, total gross profit 68.98 equals the P&L's).",
+  "corrections": [],
+  "redteam": null
+}
