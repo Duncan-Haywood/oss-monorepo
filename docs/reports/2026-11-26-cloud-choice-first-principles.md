@@ -1,3 +1,8 @@
+---
+kind: analysis
+topics: [hosting]
+date: 2026-11-26
+---
 # Cloud choice from first principles: AWS, Azure, credits and portability (2026-11-26)
 
 Written for the owner and for later agents. It records a conversation with the
