@@ -22,6 +22,7 @@
     "wall-framing-takeoff"
   ],
   "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/424",
+  "record_pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19506",
   "repo": "Duncan-Haywood/private-monorepo",
   "commits": [],
   "lines_added": 87,
