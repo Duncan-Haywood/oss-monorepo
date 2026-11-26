@@ -20,9 +20,40 @@
 #     AWS_ACCOUNT_MODE; AWS_ACCOUNT_ID turns on priv-aws-plan.yml and
 #     priv-aws-apply.yml.
 #
+# Two later steps, each run once when the apply summary says it is ready:
+#
+#   bash platform/aws/github/configure.sh --private-ci
+#       private-monorepo's jobs move to the AWS CodeBuild runners
+#       (stacks/ci-runners) once its GitHub connection reads AVAILABLE.
+#       Undo: gh variable delete CODEBUILD_RUNNER --repo Duncan-Haywood/private-monorepo
+#
+#   bash platform/aws/github/configure.sh --llm-gate <github-llm-gate-role-arn> <claude-workspace-id>
+#       turns on the adversarial gate's LLM review (Claude Platform on AWS,
+#       AWS billing) and scopes stacks/llm to that workspace.
+#
 # Idempotent. Needs `gh` logged in with repo admin (gh auth status). Account
 # IDs are not secrets, so these are variables, not secrets.
 set -euo pipefail
+
+case "${1:-}" in
+  --private-ci)
+    private="${PRIVATE_REPOSITORY:-Duncan-Haywood/private-monorepo}"
+    gh variable set CODEBUILD_RUNNER --repo "$private" --body "private-monorepo-ci"
+    gh variable set CODEBUILD_RUNNER_DOCKER --repo "$private" --body "private-monorepo-ci-docker"
+    echo "${private}: jobs run on the AWS CodeBuild runners from their next run."
+    exit 0
+    ;;
+  --llm-gate)
+    role="${2:?usage: configure.sh --llm-gate <role-arn> <workspace-id>}"
+    workspace="${3:?usage: configure.sh --llm-gate <role-arn> <workspace-id>}"
+    [[ "$role" =~ ^arn:aws:iam::[0-9]{12}:role/(github|ci)/github-llm-gate$ ]] || { echo "expected the github-llm-gate role ARN (stacks/llm output)" >&2; exit 1; }
+    repo="${GITHUB_REPOSITORY:-Duncan-Haywood/oss-monorepo}"
+    gh variable set ADVERSARIAL_REVIEW_AWS_ROLE_ARN --repo "$repo" --body "$role"
+    gh variable set CLAUDE_AWS_WORKSPACE_ID --repo "$repo" --body "$workspace"
+    echo "adversarial-llm uses ${role} from its next run."
+    exit 0
+    ;;
+esac
 
 account="${1:?usage: configure.sh <aws-account-id> [region] [organization|single]}"
 region="${2:-us-east-2}"

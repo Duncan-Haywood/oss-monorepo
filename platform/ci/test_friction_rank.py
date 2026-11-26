@@ -401,6 +401,27 @@ def test_confirmations_are_not_friction():
         assert not fr.is_confirmation(real), real
 
 
+def test_doc_affirmations_are_not_friction():
+    # 2026-11-26: 17 of cloud-session.md's 19 live reports said the doc was right
+    # while using "isn't"/"still" about add_repo's own text.
+    for ok in ["add_repo's result again names register_repo_root, which isn't available here. "
+               "The doc already says to skip it, and that worked.",
+               "The private clone and add_repo steps worked first time, as written. "
+               "The note to skip register_repo_root is still right.",
+               "add_repo's result again asked to call register_repo_root, which ToolSearch does not offer; "
+               "the doc's 'skip it' was right and saved time.",
+               "add_repo's result still names register_repo_root, which is not available, as the doc already says.",
+               "Accurate: add_repo + one inline clone worked first time and register_repo_root was not needed. No friction.",
+               "add_repo's result says to call register_repo_root; cloud-session.md correctly says to skip it."]:
+        assert fr.is_confirmation(ok), ok
+    for real in ["the doc already says to skip it, but the tool text is stale",
+                 "add_repo worked first time; the payapps-site app needed its own pnpm install, "
+                 "which the doc does not mention",
+                 "as the section says, no friction; private CI jobs fail in 2 s with 404 logs",
+                 "Asks for a site build (7-20 min); skipped it, no friction otherwise."]:
+        assert not fr.is_confirmation(real), real
+
+
 def test_load_skips_confirmations(tmp_path):
     (tmp_path / "r.json").write_text(json.dumps({"date": "2026-11-25", "doc_friction": [
         {"file": "a.md", "issue": "add_repo + one clone worked first time as documented; no friction"},

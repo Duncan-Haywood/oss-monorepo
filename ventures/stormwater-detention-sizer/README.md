@@ -25,11 +25,23 @@ orifice and a 0.62 ft weir at 2.05 ft hold the 2-year peak to 0.76 cfs and the 1
   sharp-crested weir Cw L (h - crest)^1.5, Cw 3.33.
 - Routing: storage-indication (modified Puls), each step solved for the level by bisection (no table interpolation).
 - Sizing: orifice by bisection so the small storm's peak out equals its allowable; weir crest at that storm's peak
-  level; weir length by bisection so the large storm's peak out equals its allowable; depth = peak level + freeboard.
+  level; weir length by bisection so the large storm's peak out equals its allowable; depth = the highest peak level
+  of any storm + freeboard.
   Allowable = the pre-development peak of the same storm unless entered.
 
 Not modelled: NRCS 24-hour distributions and Atlas 14 temporal patterns, multiple subareas and reaches, infiltration,
 tailwater, barrel or culvert control, the emergency spillway, water-quality and channel-protection volumes, metric units.
+
+## Known gaps
+
+From [quality round 108](../../portfolio/quality/audits/2026-11-26-stormwater-detention-sizer.json):
+
+- **The weir has no end contractions and no head-to-length check.** Francis without contractions is a suppressed
+  weir (crest as wide as its channel). The worked example sizes a 0.62 ft weir running 2.27 ft deep (H/L about 3.7),
+  where a contracted rectangular weir, L' = L - 0.2 H, passes about 3.2 cfs, not 8.2, and the 100-year stage is about
+  0.9 ft higher. Treat the weir length as a screening number until contractions and a riser or slot option land.
+- **No NRCS Type II/III 24-hour distribution**; the hyetograph is an alternating block from the IDF.
+- Neither warning threshold (coarse time step, small orifice) has a test.
 
 ## Spec sources
 

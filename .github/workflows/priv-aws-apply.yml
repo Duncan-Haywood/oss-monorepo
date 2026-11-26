@@ -68,10 +68,10 @@ jobs:
       BUDGET_ALERT_EMAIL: ${{ vars.AWS_BUDGET_ALERT_EMAIL }}
       KILL_SWITCH_LIVE: ${{ vars.AWS_KILL_SWITCH_LIVE }}
       # Dependency order: org makes the accounts; baseline the roles in them;
-      # app-identity reads llm's and email's outputs; cutover-access reads org's account IDs.
+      # app-identity reads llm's and email's outputs; cutover-access reads org's account IDs; ci-runners needs only org.
       # spend comes last: in single-account mode its freeze names the roles
       # that exist when it is applied (stacks/spend/freeze.tf).
-      STACKS: org baseline llm email app-identity cutover-access spend
+      STACKS: org baseline llm email app-identity cutover-access ci-runners spend
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -127,6 +127,8 @@ jobs:
         run: |
           set -euo pipefail
           tofu -chdir=platform/aws/stacks/email output -json dns_records > "${RUNNER_TEMP}/ses-dns-records.json"
+          if ! conn=$(tofu -chdir=platform/aws/stacks/ci-runners output -raw connection_status); then conn="unreadable"; fi
+          echo "- ci-runners GitHub connection: \`${conn}\` (PENDING until the owner's console click; then an agent sets connection_ready = true)" >> "$GITHUB_STEP_SUMMARY"
           apps=$(tofu -chdir=platform/aws/stacks/org output -json account_ids | python3 -c 'import json,sys; print(json.load(sys.stdin)["apps"])')
           echo "apps_account_id=${apps}" >> "$GITHUB_OUTPUT"
           {

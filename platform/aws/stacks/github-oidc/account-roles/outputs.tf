@@ -32,6 +32,11 @@ output "apply_policies" {
   value       = { for k, p in aws_iam_role_policy.apply : k => jsondecode(p.policy) }
 }
 
+output "plan_policies" {
+  description = "Inline plan policy documents by stack (for tests and review)."
+  value       = { for k, p in aws_iam_role_policy.plan : k => jsondecode(p.policy) }
+}
+
 output "state_bucket" {
   description = "This account's state bucket (null when the account has no workload stacks)."
   value       = length(aws_s3_bucket.state) > 0 ? aws_s3_bucket.state[0].bucket : null

@@ -23,11 +23,15 @@
   "opened": "2026-11-25",
   "source": "process run 2026-11-25 (critique: friction_rank top clusters read against main)",
   "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19038",
-  "result": null,
+  "result": "partial (2026-11-26): the 'worked as documented' entries were gone, but the top live cluster was still cloud-session.md at 19 sessions, 18 of them entries saying the doc was right ('the doc already says to skip register_repo_root, which worked') that P082's caveat list kept because they say 'isn't'/'still'/'not' about add_repo's own text. Follow-up in the same file: AFFIRMS (doc-was-right phrasing) counts as a confirmation unless a complaint word appears; 29 more of 11,030 entries in prompts/runs/ now drop, the register_repo_root row left the live list (verdict re-recorded), and none of the new top 10 examples is a confirmation (read by hand).",
   "history": [
     {
       "date": "2026-11-25",
       "note": "Shipped. The started-time change hid no extra clusters on the 3- and 7-day windows (43 and 80 hidden, same as before), so its value is correctness, not count. Verify by re-reading the top 10 in a few days."
+    },
+    {
+      "date": "2026-11-26",
+      "note": "Verified and extended: AFFIRMS/COMPLAINT in friction_rank.py, tests in test_friction_rank.py, register_repo_root verdict re-recorded, two CLAUDE.md clusters (reset --hard, foreground sleep) fixed with one line each."
     }
   ]
 }

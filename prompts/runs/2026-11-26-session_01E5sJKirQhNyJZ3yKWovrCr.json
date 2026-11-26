@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKirQhNyJZ3yKWovrCr",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T05:18:35Z",
+  "ended": "2026-11-26T05:44:43Z",
+  "wall_minutes": 27.1,
+  "tokens_in": 22014554,
+  "tokens_out": 89313,
+  "cost_usd": 7.9004,
+  "tool_calls": 144,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19238",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First Tesseract attempt read the tilted scan as garbage: tesseract.js defaults to PSM 6 (single block); PSM 3 fixed it.",
+    "Private CI jobs ended red in 2-3 s (no runners); verified locally instead.",
+    "Main's private PR 257 left `pnpm typecheck` failing (insurance-note.test.tsx fetch mock typed with no args); fixed forward in PR 258."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Most free payapps ROADMAP items need legal text or GC portal formats from hosts this session's egress blocks (statutes.capitol.texas.gov, help.trimble.com, gcpayhelp.freshdesk.com all 403); running egress_probe.py before picking would have saved two research detours."
+    },
+    {
+      "file": "private-monorepo/CLAUDE.md",
+      "issue": "'Never add dependencies without being asked' conflicts with the ROADMAP item 'OCR in the browser', which cannot be done without an OCR engine; I treated the ROADMAP entry as the ask."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "roadmap_claim.py takes no --repo-root; it worked by default once private-monorepo was cloned at /home/user/private-monorepo."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "private-monorepo/CLAUDE.md",
+      "why": "Added tesseract.js 7.0.0 and @tesseract.js-data/eng 1.0.0 (Apache-2.0/MIT, pinned) despite the no-new-dependencies default: browser OCR needs an engine, and writing one is not sensible.",
+      "did": "Pinned exact versions; engine self-hosted under /ocr/, lazy-loaded, code-split out of the main bundle.",
+      "result": "Build, unit and worker suites green; Chromium check read both fixtures."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (extended: scanned SOV paragraph)"
+  ],
+  "goal": null,
+  "notes": "Bet #1 payapps, ROADMAP Next #3 (SOV import from a PDF part 4: scan with no text layer through OCR in the browser), claim claim/payapps/sov-pdf-ocr-no-text-layer. Private PR 258 merged (8d7d7c5). Local verification: biome ci (1 existing warning in billing.ts), tsc, unit 681, worker 319, build, provision 4, lien-waivers 240; Chromium via vite dev: JPEG scan 8.5 s incl. engine load, G4 5 s, only same-origin requests. Not done: sideways pictures, JBIG2/JPX, >10 pages.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a4706e41-9623-53f3-8a76-84b36548f9f5",
+    "transcripts": 1,
+    "first": "2026-11-26T05:18:35Z",
+    "last": "2026-11-26T05:45:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 137,
+        "input": 262,
+        "output": 89313,
+        "thinking": 24784,
+        "cache_read": 21795027,
+        "cache_write_5m": 0,
+        "cache_write_1h": 219265,
+        "api_equivalent_usd": 7.9004,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 137,
+      "input": 262,
+      "output": 89313,
+      "thinking": 24784,
+      "cache_read": 21795027,
+      "cache_write_5m": 0,
+      "cache_write_1h": 219265,
+      "api_equivalent_usd": 7.9004,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.99,
+    "tool_calls": 144,
+    "tools": {
+      "Bash": 125,
+      "Write": 6,
+      "Read": 4,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "WebSearch": 1,
+      "WebFetch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 27.1,
+      "active_minutes": 27.1,
+      "model_minutes": 15.01,
+      "tool_minutes": 12.09,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "senior engineer: PDF image extraction (JPEG/CCITT/PNM), OCR integration, self-hosted wasm assets, fixtures and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 303.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
