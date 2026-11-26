@@ -4,7 +4,7 @@
 # fail, nothing bills. Skipped, not failed, until the Cloudflare secrets exist.
 #
 # Worker secrets are pushed from repository secrets when they are set, so
-# the owner sets each value once, here (platform/email/README.md, "Owner
+# the owner sets each value once, in the `cloudflare` environment (platform/email/README.md, "Owner
 # steps"): MAIL_AGENT_TOKEN, MAIL_READ_TOKEN, MAIL_OWNER_TOKEN,
 # EMAIL_FORWARD_TO (the owner's address; never in the tree), and
 # MAIL_UNSUBSCRIBE_SECRET. Values never reach the log: they go to wrangler
@@ -47,6 +47,10 @@ jobs:
     if: ${{ needs.gate.outputs.ready == 'true' }}
     runs-on: ${{ github.event.pull_request.head.repo.fork && 'ubuntu-latest' || vars.CI_RUNNER || 'ubuntu-latest' }}
     timeout-minutes: 10
+    # The environment limited to main that already holds EMAIL_FORWARD_TO
+    # (priv-cloudflare-email.yml); the MAIL_* secrets belong there too.
+    environment:
+      name: cloudflare
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CLOUDFLAREAPITOKEN || secrets.CLOUDFLARERESTRICTEDAPIKEY }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || secrets.CLOUDFLAREACCOUNTID }}

@@ -324,7 +324,7 @@ decisions:
   opened: "2026-11-26"
   action: >-
     Turn on the agent-managed inboxes (platform/email/README.md, "Owner
-    steps"). (1) Add repository secrets MAIL_AGENT_TOKEN, MAIL_READ_TOKEN,
+    steps"). (1) Add secrets to the `cloudflare` environment: MAIL_AGENT_TOKEN, MAIL_READ_TOKEN,
     MAIL_OWNER_TOKEN and MAIL_UNSUBSCRIBE_SECRET (each `openssl rand -hex
     32`) and EMAIL_FORWARD_TO (your personal address; it receives privacy@
     and security@ copies, flag alerts and the daily digest). (2) Make sure

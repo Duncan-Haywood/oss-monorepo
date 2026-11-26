@@ -129,8 +129,8 @@ a product has its own domain.
 
 ## Owner steps
 
-1. **Secrets** (Settings → Secrets and variables → Actions → New repository
-   secret). Generate each token with `openssl rand -hex 32`:
+1. **Secrets** (Settings → Environments → `cloudflare` → add environment
+   secret; that environment is limited to `main`). Generate each token with `openssl rand -hex 32`:
    - `MAIL_AGENT_TOKEN`, `MAIL_READ_TOKEN`, `MAIL_OWNER_TOKEN`, `MAIL_UNSUBSCRIBE_SECRET`
    - `EMAIL_FORWARD_TO`: your personal address (forwarding for privacy@ and
      security@, flag alerts, the digest). The name already exists in
