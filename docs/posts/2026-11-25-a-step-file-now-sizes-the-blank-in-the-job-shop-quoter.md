@@ -771,6 +771,31 @@ and a B-rep solid. Seven deliberate bugs were put into the reader, and the tests
 after one test was tightened. A synthetic 14 MB file of 3,000 trimmed faces reads in about 0.6 s.
 No real exporter's IGES file has been tested yet. That is the next check.
 
+## Win/loss months now end at your shop's midnight
+
+The Win/loss page counts decided quotes by calendar month. Until today it read that calendar in
+UTC. For a shop in Chicago, a quote marked won at 7 pm on 31 October is already midnight on
+1 November in UTC, so it was counted in November. Over a year that moves a handful of evening
+decisions into the wrong month. A month-end review that compares October with November then
+argues about numbers that don't match the shop's own log.
+
+Shops now set a **Time zone** on the Rate card. The field suggests every zone the browser knows
+and has a "Use this computer's" button. The name is checked against the same time-zone data the
+server uses, so a typo like `America/Chicgo` is refused rather than silently read as UTC. With a
+zone set, the Win/loss months and the date column in the CSV export both use the shop's calendar,
+and the CSV header names the zone (`Decided (America/Chicago)`). A quote's row in the spreadsheet
+and its month on the page therefore always agree. Totals don't change, because only the month
+boundaries move. Timestamps are still stored in UTC.
+
+The plan's monthly RFQ allowance still resets on the UTC month, as the billing page says. One
+boundary for every shop keeps that counter simple and auditable.
+
+How it was checked: unit tests cover a zone west of UTC (Chicago, including the night US daylight
+saving ends on 1 November 2026), one east of it (Berlin and Tokyo over New Year) and an unknown
+zone falling back to UTC. A worker test checks three things: only an admin can set the zone, one
+shop can't change another's, and a quote won the evening of 31 October counts in October in both
+the report and the CSV. All 377 unit and 205 worker tests pass.
+
 ## Next
 
 The next item on the flagship list (milestone 3) is reading tolerances, material and finish from
