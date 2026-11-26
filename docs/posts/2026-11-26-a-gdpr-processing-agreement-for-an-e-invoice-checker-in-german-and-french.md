@@ -18,9 +18,9 @@ The hosted workspace for [E-invoice Preflight](https://marisstella.app/einvoice-
 now publishes its three legal pages in German and French as well as English:
 the Terms, the Privacy Policy and the processing agreement (Data Processing
 Agreement / Auftragsverarbeitungsvertrag / accord de sous-traitance). The
-workspace is not open to the public yet, because its hosting provider has not
-been chosen. This post says what the agreement commits to, so a firm can judge
-it before it opens.
+workspace is not open to the public yet. Its hosting provider is now chosen
+and named (below), and the deploy is built but has not been run. This post says
+what the agreement commits to, so a firm can judge it before it opens.
 
 ## What the agreement says, in short
 
@@ -54,9 +54,37 @@ matching the code:
   id, the finding's message (which can quote one value, such as a date or an
   identifier), the proposed fix and the language. The explanation cache lives
   only in the server's memory and holds at most 5,000 entries.
-- **What does not exist yet says so.** Backups and the hosting provider are
-  marked "not in place yet". The provider will be named, with its location,
-  before the service opens.
+- **What does not exist yet says so.** Anything the service does not do yet is
+  marked "not in place yet" in the annexes rather than described as done.
+
+## Where the data is held (added 2026-11-26)
+
+The hosting provider is **Cloudflare, Inc.** The Privacy Policy and the
+agreement's Annexes I, II and III name it in all three languages:
+
+- **The database is stored in the EU.** It is a Cloudflare D1 database
+  created in D1's EU jurisdiction. Under that setting the database runs and
+  stores its data only inside the European Union
+  ([Cloudflare's documentation](https://developers.cloudflare.com/d1/configuration/data-location/)).
+  A jurisdiction can only be chosen when a database is created, so the deploy
+  script creates it that way. It stops if it finds an existing database in
+  another jurisdiction.
+- **Requests are handled at the nearest Cloudflare data center,** which can
+  be outside the EU. The annex says so instead of promising EU-only
+  processing.
+- **Encryption at rest:** D1 encrypts the live database and its history with
+  AES-256 in GCM mode, using keys Cloudflare manages
+  ([data security](https://developers.cloudflare.com/d1/reference/data-security/)).
+- **Backups:** D1's Time Travel feature is always on and can restore the
+  database to any minute of the last 30 days
+  ([Time Travel](https://developers.cloudflare.com/d1/reference/time-travel/)).
+  So deleted client records disappear from that history within 30 days, and
+  the agreement's deletion clause now says exactly that.
+- **Logs:** Cloudflare's per-request logs are switched off. Those logs record
+  each request's details, including the IP address, and the Privacy Policy
+  says IP addresses are never written down. Error logs (a short message, never
+  an API key or an invoice) are kept for up to 7 days and may be stored outside
+  the EU.
 
 ## The translations, and their limits
 
