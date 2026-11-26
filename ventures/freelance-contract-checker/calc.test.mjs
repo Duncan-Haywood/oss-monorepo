@@ -56,3 +56,15 @@ test("money helpers and outputs", () => {
   assert.match(summaryText(r, SAMPLE_SETTINGS), /not legal advice/);
   assert.equal(findingsCsv(r).split("\n").length, r.findings.length + 1);
 });
+
+// Quality round 119 (portfolio/quality/audits/2026-11-26-freelance-contract-checker.json, defect 1):
+// the optional word-number group used to swallow the leading digit, so "within 90 days" read as 0.
+test("multi-digit day counts are read whole, with no 'payment' before them", () => {
+  assert.equal(paymentDays("Client shall pay within 90 days of receipt of invoice."), 90);
+  assert.equal(paymentDays("Client shall pay the balance within 90 days of completion."), 90);
+  assert.equal(paymentDays("Client pays within 120 days of acceptance."), 120);
+  assert.equal(paymentDays("Client pays within sixty (60) days of delivery."), 60);
+  const r = analyze("This Services Agreement is between Client and Contractor for a brochure for a fee of $3,000. Two rounds of revisions are included; further work needs a written change order. Deliverables are deemed accepted after 5 days. A 50% deposit is due on signing. Late invoices accrue 1.5% per month. Each party's liability is limited to fees paid. Client shall pay the balance within 90 days of completion.", { fee: "3000" });
+  assert.equal(r.extracted.days, 90);
+  assert.notEqual(r.verdict, "no-red-flags");
+});

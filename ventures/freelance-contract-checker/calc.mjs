@@ -23,7 +23,7 @@ export function paymentDays(text) {
   const t = String(text).toLowerCase();
   const found = [];
   for (const m of t.matchAll(/\bnet[\s-]*(\d{1,3})\b/g)) found.push(+m[1]);
-  for (const m of t.matchAll(/(?:within|after|in)\s+(?:(\w[\w -]*?)\s*)?\(?(\d{1,3})\)?\s*(?:calendar |business )?days[^.]{0,60}(?:invoice|receipt|acceptance|approval|delivery|completion)/g)) found.push(+m[2]);
+  for (const m of t.matchAll(/(?:within|after|in)\s+(?:([a-z][a-z -]*?)\s*)?\(?(\d{1,3})\)?\s*(?:calendar |business )?days[^.]{0,60}(?:invoice|receipt|acceptance|approval|delivery|completion)/g)) found.push(+m[2]);
   for (const m of t.matchAll(/(?:invoice|payment)[^.]{0,80}(?:within|after)\s+(\d{1,3})\s*days/g)) found.push(+m[1]);
   for (const [w, n] of Object.entries(WORDNUM)) if (new RegExp(`(?:within|after)\\s+${w}\\b[^.]{0,30}days`).test(t)) found.push(n);
   return found.length ? Math.max(...found) : null;
