@@ -1252,3 +1252,6 @@ export const GALLERY_DESIGNS = [
   }
  }
 ];
+// The card a first-time visitor opens on (gallery-ui.mjs firstDesignId), chosen
+// here so the page does not price two sheds before its first draw.
+export const FIRST_DESIGN_ID = "balanced";

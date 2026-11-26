@@ -118,6 +118,16 @@ test('a first-time visitor opens on the balanced gallery design, which passes cl
   assert.notEqual(firstDesign().length, d.length);
 });
 
+// The page opens on the id make-gallery.mjs stored rather than pricing two
+// sheds at load; the stored id must be the one the rule picks now.
+test('the stored first-design id is the one firstDesignId picks from these prices', async () => {
+  const { firstDesign, firstDesignId } = await import('./gallery-ui.mjs');
+  const { FIRST_DESIGN_ID } = await import('./gallery-data.mjs');
+  const id = firstDesignId(GALLERY_DESIGNS);
+  assert.equal(FIRST_DESIGN_ID, id);
+  assert.deepEqual(firstDesign(), GALLERY_DESIGNS.find((g) => g.id === id)?.design);
+});
+
 // The worker-thread path make-gallery.mjs uses must give the serial path's
 // answer. Costs and the rows are compared on the cheapest search only, so the
 // test stays quick; the full gallery from the parallel runs is checked above.
