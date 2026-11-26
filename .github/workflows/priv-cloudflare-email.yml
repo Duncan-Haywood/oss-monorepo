@@ -3,9 +3,14 @@
 # included). Run by hand: Actions → Cloudflare email routing → Run workflow,
 # with "apply" ticked to write; unticked it only prints the plan.
 #
-# Secrets: CLOUDFLARE_API_TOKEN (needs Email Routing permissions, see the
-# script's header), CLOUDFLARE_ACCOUNT_ID, and EMAIL_FORWARD_TO, the inbox
-# every address forwards to. Cloudflare's API is free; nothing here pushes.
+# The routing file is generated from platform/email/inboxes.yaml; the job
+# refuses to apply a stale one. Besides the rules it keeps the _dmarc record
+# and, when an inbox forwards to the owner, adds EMAIL_FORWARD_TO as a
+# verified Email Routing destination (Cloudflare mails it one link).
+#
+# Secrets: CLOUDFLARE_API_TOKEN (permissions in the script's header),
+# CLOUDFLARE_ACCOUNT_ID, and EMAIL_FORWARD_TO, the owner's address (never
+# printed). Cloudflare's API is free; nothing here pushes.
 name: Cloudflare email routing
 
 on:
@@ -37,5 +42,6 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
+      - run: python3 platform/email/gen_config.py --check
       - run: node --test platform/pages/cloudflare/email-routing.test.mjs
       - run: node platform/pages/cloudflare/email-routing.mjs

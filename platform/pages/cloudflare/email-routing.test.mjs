@@ -1,14 +1,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { RULE_PREFIX, apply, canonical, desiredRules, loadConfig, plan } from './email-routing.mjs';
+import { RULE_PREFIX, apply, canonical, desiredRules, dmarcRecord, loadConfig, plan } from './email-routing.mjs';
 
 test('the config is valid and every address is on the site domain', async () => {
   const cfg = await loadConfig();
   assert.equal(cfg.zone, 'marisstella.app');
   assert.ok(cfg.addresses.some((a) => a.local === 'support'));
   // Mail goes to the agent inbox Worker, never to a person's address.
-  assert.equal(cfg.deliver_to_worker, 'monorepo-projects-edge');
+  assert.equal(cfg.deliver_to_worker, 'marisstella-mail');
   assert.ok(!JSON.stringify(cfg).includes('@'));
 });
 
@@ -64,4 +64,45 @@ test('rules as Cloudflare returns them (other key order, extra fields) plan to n
 test('a stale rule that is already disabled is left alone, not disabled again', () => {
   const stale = { id: '9', name: `${RULE_PREFIX}gone@x.test`, enabled: false, matchers: [], actions: [] };
   assert.deepEqual(plan([stale], []), []);
+});
+
+test('dmarc and the owner destination: planned on a dry run, address never logged', async () => {
+  const cfg = await loadConfig();
+  assert.equal(dmarcRecord(cfg), 'v=DMARC1; p=none; rua=mailto:dmarc@marisstella.app; adkim=r; aspf=r');
+  const calls = [];
+  const lines = [];
+  const cf = async (method, route, body) => {
+    calls.push([method, route, body]);
+    if (route.startsWith('/zones?')) return [{ id: 'z' }];
+    if (route.endsWith('/email/routing')) return { enabled: true };
+    if (route.includes('/email/routing/rules')) return desiredRules(cfg).map((r, i) => ({ id: String(i), ...r }));
+    if (route.includes('/dns_records')) return [];
+    if (route.includes('/email/routing/addresses')) return [];
+    throw new Error(`unexpected ${route}`);
+  };
+  await apply({ cfg, cf, write: false, log: (l) => lines.push(l), accountId: 'acct', forwardTo: 'Owner@Personal.test' });
+  assert.ok(lines.some((l) => l.startsWith('would create _dmarc.marisstella.app TXT')));
+  assert.ok(lines.some((l) => l.startsWith('would add the owner destination')));
+  assert.ok(!lines.join('\n').toLowerCase().includes('owner@personal.test'), 'the address is never printed');
+  assert.ok(calls.every(([m]) => m === 'GET'), 'a dry run only reads');
+  calls.length = 0;
+  await apply({ cfg, cf, write: true, log: () => {}, accountId: 'acct', forwardTo: 'Owner@Personal.test' });
+  assert.deepEqual(calls.filter(([m]) => m === 'POST').map(([, r, b]) => [r, b]), [
+    ['/zones/z/dns_records', { type: 'TXT', name: '_dmarc.marisstella.app', content: '"v=DMARC1; p=none; rua=mailto:dmarc@marisstella.app; adkim=r; aspf=r"', ttl: 3600 }],
+    ['/accounts/acct/email/routing/addresses', { email: 'owner@personal.test' }],
+  ]);
+});
+
+test('a missing DNS permission does not stop the routing rules', async () => {
+  const cfg = await loadConfig();
+  const lines = [];
+  const cf = async (method, route) => {
+    if (route.startsWith('/zones?')) return [{ id: 'z' }];
+    if (route.endsWith('/email/routing')) return { enabled: true };
+    if (route.includes('/email/routing/rules')) return [];
+    throw new Error('Authentication error');
+  };
+  const ops = await apply({ cfg, cf, write: false, log: (l) => lines.push(l) });
+  assert.equal(ops.length, cfg.addresses.length);
+  assert.ok(lines.some((l) => l.startsWith('dmarc skipped: Authentication error')));
 });
