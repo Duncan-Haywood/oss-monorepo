@@ -93,5 +93,42 @@ in LZW. A standard PDF viewer (poppler) reads all five. Before the change our re
 four of them and refused the fifth. Now all five give the same 93 lines of text. Their packet pages,
 rendered and compared pixel by pixel with the originals, differ only in the page stamp.
 
-Still not handled: scanned PDFs, which have no text to read and need OCR. That is next on the
-roadmap.
+## Update: scans saved as searchable PDFs
+
+Many offices scan paper to a "searchable PDF". Office scanners have a setting for it, and so do
+phone apps such as Adobe Scan and Microsoft Lens. The file holds the page as a picture and, on top
+of it, the text the scanner's OCR read, drawn invisibly so the page can be searched and copied. Our
+reader already read that invisible text, yet every such file we tried failed to import with "Could
+not find the table header".
+
+The cause was the paper, not the text. A sheet never lies quite square on the glass. At a tilt of
+0.4 degrees, an amount at the right edge of a line sits 3.7 points lower than the item number at its
+left. The import counts text as one line only when it is within 3 points (0.3 of the type size), so
+each line split in two, and the header row and the amounts came apart.
+
+The import now spots a scan: most of the text is drawn invisibly, a mode the PDF standard defines
+for exactly this purpose. It measures each page's tilt by taking the slope from each word to the
+next word on its line and using the median, and levels the page before rebuilding the table. A
+slope steeper than about 5 degrees is treated as slanted text, not a tilt. It also drops the
+characters OCR invents from a table's printed borders, such as a "|" before a word or a lone ")".
+Three smaller fixes help any PDF that places every word separately: a number inside a description
+("scope item 1") stays in the description, two header words a little apart ("Cost" "Code") stay one
+heading, and a header repeated on page 2 with a smudge read beside it is dropped like any other
+repeat. Printed PDFs are not levelled. When we tried, a sparse summary page paired words across
+lines and reported a false tilt.
+
+To test it we printed our bid breakdown, turned it into grey page images, tilted them, added
+speckle and ran Tesseract 5.3.4 over them to make two searchable scans: 0.4 degrees at 200 dpi, and
+1.5 degrees the other way at 300 dpi. Both failed before. Both now read all 48 lines and the
+$1,120,223.00 total, which matches the sheet's own total line. By hand we also checked 0 and -0.8
+degrees, which read correctly. At 2.5 degrees, or at 150 dpi, Tesseract's own text is too garbled to
+use: the import refuses and says to rescan the sheet straight at 300 dpi.
+
+The OCR still makes mistakes, and we do not hide them. In both test scans "Temporary power" came
+back as nonsense, and one item number lost a space. Every import from a scan carries a note that
+says the lines came from OCR and to check each amount against the paper. The check of the sheet's
+own total against its lines catches a misread figure whenever the sheet prints a total. The file is
+still read in the browser and never uploaded.
+
+Still not handled: a scan with no text layer at all. The import says to save it again as a
+searchable PDF.
