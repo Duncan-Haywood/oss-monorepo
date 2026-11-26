@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01AcxTtGD5jLX7iguSksyzVL",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T18:07:21Z",
+  "ended": "2026-11-26T18:16:20Z",
+  "wall_minutes": 9.51,
+  "tokens_in": 7023851,
+  "tokens_out": 36095,
+  "cost_usd": 3.1446,
+  "tool_calls": 67,
+  "task": "Seller Books (bet #5): put a refunded item that came back back in stock without disturbing filed years (inventory-returns-restock)",
+  "projects": [
+    "seller-books"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19434",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/migration_regen.py",
+      "issue": "Run from oss-monorepo with an absolute path to the private app it reports a false CLASH on 0000_init.sql; it only works from the private repo's root with a relative apps/<app> path (cloud-session.md shows the relative form but not the cwd)."
+    },
+    {
+      "file": "apps/seller-books (drizzle-kit generate)",
+      "issue": "drizzle-kit drops ON DELETE CASCADE from an ALTER TABLE ADD ... REFERENCES; the generated SQL had to be fixed by hand."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Bets #1-#4 had no free, ungated roadmap item (roadmap_claim.py --bets), so I took bet #5 seller-books. I picked the open correctness gap the 2026-11-26 quality audit had named, instead of the untouched growth topic the tool suggested.",
+      "did": "Claimed claim/seller-books/inventory-returns-restock, built it in private-monorepo, merged private PR 385",
+      "result": "Merged with unit, worker and e2e tests passing locally"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "private-monorepo CI has no runners (cloud-session.md), so I merged private PR 385 on local verification without waiting for check runs.",
+      "did": "Ran typecheck, the unit, worker and new e2e specs, build, biome and migration_regen locally; listed them in the PR body",
+      "result": "Merged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-reseller-payouts-cost-of-goods-and-schedule-c.md (extended: 'A return that came back to the shelf')"
+  ],
+  "goal": "Seller Books' Schedule C Part III correct for returns, a must-have for a reseller to trust the worksheet before paying",
+  "notes": "Security queue empty, IDEAS empty. Routed to ventures/1. add_repo plus one clone of private-monorepo worked first time. private PR https://github.com/Duncan-Haywood/private-monorepo/pull/385 (squash 0d23bf7): migration 0008 adds inventory_item.return_sale_id (FK sale, ON DELETE cascade) and returned_from_item_id (unique per org); GET/POST/DELETE /sales/:refundId/returned-items; Schedule C line 36 excludes restocked copies, with a note; copies removed when the refund is deleted or the original is released; Sales page 'Item came back?'. Local verification: typecheck clean; test:unit 256/256; test:worker 117/117 (5 new); build ok; e2e 13-refund-restock passed; migration_regen ok; risk_review blocked nothing on both repos. The full e2e suite was not run, only the new spec.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "02f194c8-0b0e-52cc-a3d2-2acdb51fcbf1",
+    "transcripts": 1,
+    "first": "2026-11-26T18:07:21Z",
+    "last": "2026-11-26T18:16:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 115,
+        "output": 36095,
+        "thinking": 7680,
+        "cache_read": 6893294,
+        "cache_write_5m": 0,
+        "cache_write_1h": 130442,
+        "api_equivalent_usd": 3.1446,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 115,
+      "output": 36095,
+      "thinking": 7680,
+      "cache_read": 6893294,
+      "cache_write_5m": 0,
+      "cache_write_1h": 130442,
+      "api_equivalent_usd": 3.1446,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 58,
+      "Write": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__merge_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.51,
+      "active_minutes": 9.51,
+      "model_minutes": 6.09,
+      "tool_minutes": 3.42,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "schema+migration, 3 routes, worksheet rule, UI control, worker+e2e tests, docs and post for a mid-level engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 190.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
