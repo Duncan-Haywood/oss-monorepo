@@ -97,7 +97,11 @@ class ParseTest(unittest.TestCase):
                            "are a market worth the site's space", "waits on a person"),
                           ("a Polish site, only if Polish accountants are a market", "waits on evidence"),
                           ("a native German reviewer for the templates", "waits on a person"),
-                          ("the lien waiver text after a lawyer's review", "waits on a person")):
+                          ("the lien waiver text after a lawyer's review", "waits on a person"),
+                          # cmmc #6 (2026-11-26): --bets called it free; the asker is no _WHO word.
+                          ("C3PAO evidence binder export, if assessors ask for them there",
+                           "waits on demand"),
+                          ("a Procore sync once a prime requests one", "waits on demand")):
             self.assertEqual(rc.gate(text), why, text)
         self.assertEqual(rc.gate_match("Saved crews; if shops ask for it (part 2)"),
                          ("waits on demand", "if shops ask for it"))
@@ -108,6 +112,8 @@ class ParseTest(unittest.TestCase):
                      "Ask-for-payment email when an invoice is overdue",
                      "Native app wrapper for the reader (Capacitor)",
                      "Show the total only if the rows add up",
+                     "Retry the upload if it asks for a new token",
+                     "Ask-for-quote form that emails the shop",
                      "Waiver text, agent-approved (no attorney review; open checks listed there)"):
             self.assertIsNone(rc.gate(free), free)
 
