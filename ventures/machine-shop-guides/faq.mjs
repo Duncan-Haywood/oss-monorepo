@@ -113,6 +113,14 @@ export const FAQ = {
     ["How should outside processes go on a quote?",
       "Outside processes such as plating, anodizing or heat treatment usually carry a per-part price and a lot minimum. For short runs the minimum is what you pay, so quote it as a flat charge per lot rather than burying it in the part price."],
   ],
+  "machine-shop-quoting-software.html": [
+    ["What kinds of machine shop quoting software are there?",
+      "Four: a spreadsheet or calculator, the quoting module inside a job-shop ERP, a standalone quoting platform, and the newer AI RFQ readers that draft the parts and operations from the email, drawing and model for an estimator to check. Each needs your own rates before it gives a good number."],
+    ["How much does machine shop quoting software cost?",
+      "Public listings checked on 24 November 2026 showed QuotedPart at $199 a month per shop (Toolradar), JobBOSS² at about $3,000 a year (SoftwareConnect) and ProShop at $650 to $715 a month (G2). We could confirm no public price for Paperless Parts or the AI quoting entrants. Listings disagree, so get the current price from the vendor."],
+    ["Can I upload CUI drawings to a quoting tool?",
+      "Only to a service that may hold them. Under DFARS 252.204-7012(b)(2)(ii)(D), a cloud service that stores covered defense information for you must meet security requirements equivalent to the FedRAMP Moderate baseline. Ask the vendor in writing, and keep CUI and export-controlled drawings out of any tool that says no."],
+  ],
   "quote-vs-actual.html": [
     ["How do I compare quoted and actual hours?",
       "Export the job cost or estimate-vs-actual report from your ERP, or keep the same columns from travelers and the time clock, and paste it here. The page shows, per machine, the median of actual ÷ quoted, the hours missed and what they cost at your rate."],

@@ -1,0 +1,154 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKm6NdTCohEbF7eGLXo",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T13:18:08Z",
+  "ended": "2026-11-26T13:28:21Z",
+  "wall_minutes": 10.43,
+  "tokens_in": 6600423,
+  "tokens_out": 27591,
+  "cost_usd": 2.951,
+  "tool_calls": 65,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19361",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A shell command with a bare `cat > file` (no heredoc) waited on stdin and hit the 120 s timeout; stopped and rerun."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Lists jobshop-quote #3 (launch), #8, #10 and #12 and cmmc #1-#4 as 'free and not gated'. Each one's text actually waits on the owner (deploy, sender domain) or on real customer files. Reading every item cost several minutes; the gate phrases miss 'once the inbound domain is live', 'once shops send real files' and 'whatever the first shops ask'."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Does not say that private-monorepo deploy workflows cannot run while decision-queue item 7 (Actions billing) is open. I checked deploy history and CI runs before finding item 7 in decision_queue.py."
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "Says to re-check prices on the vendor's page, but vendor and aggregator hosts (quotedpart, paperlessparts, proshoperp, toolradar, g2, softwareconnect) all fail DNS through this session's proxy. So the check cannot be done from a cloud session."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new post in docs/posts. The deliverable is itself a search-aimed customer page, and a post repeating it would split the same query across two URLs (CLAUDE.md: consolidate for SEO).",
+      "did": "Shipped the page with FAQ JSON-LD and llms.txt answers instead.",
+      "result": "One canonical URL for the query."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The default is to build the top bet in private-monorepo. The clone worked, but every free item there is gated, and a deploy cannot run without runners.",
+      "did": "Took bet #2's public side here, which deploys on merge.",
+      "result": "A live SEO page for bet #2's buyers."
+    }
+  ],
+  "writeups": [
+    "ventures/machine-shop-guides/machine-shop-quoting-software.html (customer page)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; ideas inbox empty. Cloned private-monorepo. Bets: payapps (4 live claims, free items gated); jobshop-quote, cmmc and einvoice free items wait on owner, deploy or customer data. No product deploy has ever run (jobshop-quote/payapps), and private CI runs end in about 4 s with no runner. Draft legal-review PR private-monorepo#249 lists the owner's open questions before launch. Verification: run_venture_tests.py machine-shop-guides 253 pass, plus the site page checks; the new price-source test was shown to fail when a link was removed; at 390 px there is no page overflow.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b4b1948c-1abd-581c-a0c4-41fe502805b2",
+    "transcripts": 1,
+    "first": "2026-11-26T13:18:08Z",
+    "last": "2026-11-26T13:28:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 58,
+        "input": 111,
+        "output": 27591,
+        "thinking": 6275,
+        "cache_read": 6462022,
+        "cache_write_5m": 0,
+        "cache_write_1h": 138290,
+        "api_equivalent_usd": 2.951,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 58,
+      "input": 111,
+      "output": 27591,
+      "thinking": 6275,
+      "cache_read": 6462022,
+      "cache_write_5m": 0,
+      "cache_write_1h": 138290,
+      "api_equivalent_usd": 2.951,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 44,
+      "WebFetch": 6,
+      "mcp__github__actions_list": 4,
+      "ToolSearch": 3,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "WebSearch": 1,
+      "Write": 1,
+      "TaskStop": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.43,
+      "active_minutes": 10.43,
+      "model_minutes": 5.77,
+      "tool_minutes": 4.66,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "researching competitors and writing and testing one comparison page",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 135.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

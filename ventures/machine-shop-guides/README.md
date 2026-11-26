@@ -24,6 +24,7 @@ shops: an RFQ-to-quote assistant and a CMMC Level 1/2 + ISO 9001 workspace
 | `cmmc-level-1-vs-level-2.html` | FCI vs CUI, the clauses to look for, Level 1 and Level 2 requirements, Phase 2 status (checked 24 Nov 2026). |
 | `ssp-and-poam.html` | What goes in an SSP and a POA&M, and CMMC POA&M limits. |
 | `how-to-price-a-machined-part.html` | The quoting method, from the shop's own records. |
+| `machine-shop-quoting-software.html` | Quoting software sorted into four kinds (spreadsheet, ERP module, standalone platform, AI RFQ reader), listed prices each linked to the listing it came from (no vendor page was readable, 2026-11-26), questions for a demo, and the free tools as the route to try first. Our own product shows no price. |
 
 Logic lives in `sprs-data.mjs` (weights), `sprs.mjs` (scoring), `ssp.mjs` (SSP builder), `part-geometry.mjs` (STEP/STL reader and stock sizing), `cycle.mjs` (cycle time from the shop's feeds), `quote.mjs`
 (quoting), `quote-doc.mjs` (the customer quote) and `calibrate.mjs` (quote vs actual); tests: `node --test *.test.mjs`. Every regulatory claim and the date
