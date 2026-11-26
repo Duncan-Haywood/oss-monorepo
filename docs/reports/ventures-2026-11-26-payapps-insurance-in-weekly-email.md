@@ -1,3 +1,7 @@
+---
+kind: milestone
+date: 2026-11-26
+---
 # PayApps: insurance certificates in the weekly email (private PR 259)
 
 Date: 2026-11-26. Bet #1 (pay-app billing, `private-monorepo/apps/payapps`). ROADMAP Next #7, the part
