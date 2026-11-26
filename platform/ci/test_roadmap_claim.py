@@ -219,6 +219,40 @@ class ClaimRaceTest(unittest.TestCase):
                             now=rc.time.time() + 7 * 3600)
         self.assertEqual(code, 0)
 
+    def blind(self, repo, *argv):
+        """Claim from `repo` as if its pre-push listing ran before every rival's push landed."""
+        real, calls = rc.parse_claims, []
+
+        def first_blind(ls, app):
+            calls.append(1)
+            return {} if len(calls) == 1 else real(ls, app)
+        with mock.patch.object(rc, "parse_claims", first_blind):
+            return self.main(repo, *argv)
+
+    def test_same_second_near_claim_is_released_after_the_push(self):
+        # Commit times have 1 s resolution (a tie goes to the lower sha, the same answer in both
+        # runs); date a's claim 30 s back so the test knows which run was first.
+        with mock.patch.dict(os.environ, {"GIT_COMMITTER_DATE": f"{int(rc.time.time()) - 30} +0000"}):
+            self.assertEqual(self.main(self.a, "--claim", "2", "--slug", "page dates shop time zone")[0], 0)
+        code, out = self.blind(self.b, "--claim", "2", "--slug", "pages shop time zone")
+        self.assertEqual(code, 4, out)
+        self.assertIn("NEAR (after the push)", out)
+        self.assertIn("Released your claim", out)
+        ls = run(self.b, "ls-remote", "origin", "refs/heads/claim/payapps/*").stdout
+        self.assertNotIn("pages-shop-time-zone", ls)
+        self.assertIn("page-dates-shop-time-zone", ls)
+        # The first claimant keeps its claim when it re-checks.
+        self.assertIn("YOURS", self.main(self.a, "--claim", "2", "--slug", "page dates shop time zone")[1])
+
+    def test_same_second_sibling_part_is_shown_after_the_push(self):
+        # 2026-11-26: payapps #12 spec-register and register-import, claimed 1 s apart.
+        self.assertEqual(self.main(self.a, "--claim", "2", "--slug", "spec register",
+                                   "--note", "register from the spec book")[0], 0)
+        code, out = self.blind(self.b, "--claim", "2", "--slug", "register import")
+        self.assertEqual(code, 0, out)
+        self.assertIn("ALSO CLAIMED on item 2", out)
+        self.assertIn("register from the spec book", out)
+
     def test_slug_words(self):
         self.assertEqual(rc.slug_words("backup-packets-part-2-heic"), {"backup", "packet", "heic"})
         self.assertEqual(rc.slug_words("access-class"), {"access", "class"})
