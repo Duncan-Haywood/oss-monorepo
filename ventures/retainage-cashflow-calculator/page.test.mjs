@@ -184,3 +184,12 @@ test('main\'s later sections wait for the module, so the milestone section does 
   assert.match(block[1], /DOMContentLoaded[^<]*classList\.add\('pf-rows-ready'\)/);
   assert.match(page, /<main>\s*<section><h2>Your project figures<\/h2>/, 'the form stays main\'s first section, so it is never held back');
 });
+
+test('every results table scrolls inside its card, not the page, on a phone', () => {
+  // 2026-11-26 polish: the rate table (527 px) widened the page to 581 px at 390 px.
+  const tables = page.match(/<table\b/g) || [];
+  const wrapped = page.match(/<div class="table-scroll" role="region" aria-label="[^"]+" tabindex="0"><table\b/g) || [];
+  assert.equal(wrapped.length, tables.length);
+  assert.match(page, /main>section\{min-width:0\}/);
+  assert.match(page, /\.table-scroll\{overflow-x:auto/);
+});

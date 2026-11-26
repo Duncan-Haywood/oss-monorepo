@@ -21,7 +21,7 @@
     .note, footer { font-size: .86rem; color: #54503f; }
     .card { background: #fff; border: 1px solid #dad6c8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #3b2a1410; margin: 18px 0; }
     label { display: block; font-weight: 600; margin: 12px 0 4px; }
-    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 16px system-ui, sans-serif; background: #fff; }
     .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
     @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
     button { border: 0; border-radius: 8px; padding: 11px 15px; background: #7a3e0a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
@@ -40,6 +40,7 @@
     .due { font-size: 1.6rem; font-weight: 800; color: #3b2a14; }
     footer { margin-top: 28px; border-top: 1px solid #dad6c8; padding-top: 16px; }
     textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #b9b39c; border-radius: 7px; font: 13px ui-monospace, monospace; }
+@media (max-width: 700px) { textarea { font-size: 16px; } }
     pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: #fbfaf5; border: 1px solid #dad6c8; border-radius: 8px; padding: 16px; overflow-x: auto; }
     .scroll { overflow-x: auto; }
     @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, #next, header { display: none; } }

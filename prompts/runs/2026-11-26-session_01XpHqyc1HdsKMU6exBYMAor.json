@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqyc1HdsKMU6exBYMAor",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T12:38:11Z",
+  "ended": "2026-11-26T12:41:43Z",
+  "wall_minutes": 3.65,
+  "tokens_in": 2334752,
+  "tokens_out": 11365,
+  "cost_usd": 1.1929,
+  "tool_calls": 30,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19350",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/polish-2026-11-26-pay-application-generator-phone.md",
+      "issue": "'Still weakest' item 3 (<pre> summaries in three lien/retainage pages) was stale: none of the pages has a <pre>; measuring found a real sideways scroll instead."
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "'ls docs/reports/polish-* | tail -1' sorts by slug within a date, so the 'last' note is alphabetical, not the newest of the day."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "No docs/posts/ post: a phone-layout fix on three pages is not worth a reader's time on its own; the report carries it.",
+      "did": "Agent report only",
+      "result": "Report written for the next run"
+    }
+  ],
+  "writeups": [
+    "docs/reports/polish-2026-11-26-construction-front-doors-phone.md"
+  ],
+  "goal": null,
+  "notes": "Playwright probe at 390x844 and 1280x900 per folder: retainage scrollWidth 581->390; lien pages' inputs under 16px 8/8 and 10/10 -> 0. Venture tests 60, 29, 40+38 pass.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7b11d39c-73aa-50d1-a516-e6c27ffb68ad",
+    "transcripts": 1,
+    "first": "2026-11-26T12:38:11Z",
+    "last": "2026-11-26T12:41:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 61,
+        "output": 11365,
+        "thinking": 1455,
+        "cache_read": 2270797,
+        "cache_write_5m": 0,
+        "cache_write_1h": 63894,
+        "api_equivalent_usd": 1.1929,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 61,
+      "output": 11365,
+      "thinking": 1455,
+      "cache_read": 2270797,
+      "cache_write_5m": 0,
+      "cache_write_1h": 63894,
+      "api_equivalent_usd": 1.1929,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 30,
+    "tools": {
+      "Bash": 25,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.65,
+      "active_minutes": 3.65,
+      "model_minutes": 2.37,
+      "tool_minutes": 1.28,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "measure three pages at two widths, CSS fix, test, report",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 125.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
