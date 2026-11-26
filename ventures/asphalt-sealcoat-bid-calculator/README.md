@@ -66,11 +66,29 @@ dependency. See [`calc.test.mjs`](calc.test.mjs).
 The surface types ship with common ballpark first- and second-coat coverage as
 a starting point. **They are not a manufacturer yield, a specification, or a
 guarantee.** Real yield depends on sealer, dilution, pavement texture, and
-weather. Every coverage figure is editable, and picking a surface type never
-overwrites a yield the contractor has already changed.
+weather. The first-coat coverage is editable on the page, and picking a surface
+type never overwrites a yield the contractor has already changed. The second-coat
+coverage comes from the surface type and has no field yet (see Known gaps).
 
 This tool does not recommend coal-tar versus asphalt-emulsion sealer and does
 not check local VOC rules. That choice stays with the contractor.
+
+## Known gaps
+
+From the quality audit of 2026-11-26
+([`portfolio/quality/audits/2026-11-26-asphalt-sealcoat-bid-calculator.json`](../../portfolio/quality/audits/2026-11-26-asphalt-sealcoat-bid-calculator.json)):
+
+- **Second-coat coverage is fixed per surface type (110 to 125 sq ft/gal) and
+  has no field.** Manufacturer data sheets (for example SealMaster's PMCTS and
+  PMM sheets) give one rate for every coat, about 70 to 82 sq ft per gallon of
+  mixed material, so two-coat gallons here can come out 20 to 32% short. Set
+  the first-coat field from your own sealer's sheet and check the gallons line.
+- No concentrate-versus-mixed basis or dilution input; sand is loaded per gallon
+  of total sealer, where data sheets load it per gallon of concentrate.
+- The handicap stencil add-on is added to any job with stalls and cannot be
+  switched off on the page.
+- Crack fill is a flat price per foot with no width or depth; the minimum is in
+  hours, with no dollar minimum.
 
 ## Privacy
 
