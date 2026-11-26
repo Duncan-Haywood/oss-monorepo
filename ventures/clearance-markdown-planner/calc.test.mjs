@@ -262,3 +262,41 @@ test("a semicolon export reads decimal commas as decimals, not cents", () => {
   assert.deepEqual(s.weeks.map((w) => w.price), [19.99, 1014.99]);
   assert.deepEqual(parseSales("date,price,units\n2026-01-05,\"1,019.99\",10").weeks.map((w) => w.price), [1019.99]);
 });
+
+test("weekly decay applies from week 2: a two-week hold sells min(D1 + D2, I) with D ~ Poisson(base * (1 + decay))", () => {
+  // Holding the price under lost sales, total sold over two weeks is min(D1 + D2, I),
+  // and D1 + D2 is Poisson with mean base * (1 + decay) when week 1 is undecayed.
+  const r = planMarkdown({ ...base, weeks: 2, units: 30, price: 10, salvage: 2, cost: 0, baseDemand: 6, elasticity: -2, decay: 0.5, dispersion: 0, maxDiscount: 30, step: 10, simRuns: 100 });
+  const { lo, p } = demandPmf(9, 9);
+  const es = p.reduce((s, x, i) => s + x * Math.min(lo + i, 30), 0);
+  const hold = r.baselines[0]; // per-week pmf tails are truncated, so allow 0.01 of the ~132 value
+  assert.ok(Math.abs(hold.expectedValue - (10 * es + 2 * (30 - es))) < 0.01, `${hold.expectedValue} vs ${10 * es + 2 * (30 - es)}`);
+});
+
+test("the elasticity range is the 80% interval (z = 1.2816) and never narrower than the 0.15 standard-error floor", () => {
+  const f = fitElasticity(synth(-2.6, 40, 1), { refPrice: 50 });
+  assert.ok(f.usable);
+  assert.ok(Math.abs((f.hi - f.elasticity) / f.sd - 1.2815515655446004) < 1e-9);
+  assert.ok(Math.abs((f.elasticity - f.lo) / f.sd - 1.2815515655446004) < 1e-9);
+  // A noiseless history would give a near-zero raw standard error; the floor holds it at 0.15.
+  const clean = fitElasticity(synth(-2.6, 40, 1, 0), { refPrice: 50 });
+  if (clean.usable) assert.ok(clean.se >= 0.15 - 1e-12 && Math.abs(clean.se - 0.15) < 1e-9, String(clean.se));
+});
+
+test("a steep fall in demand is clamped to 30% a week, and said so", () => {
+  const f = fitElasticity(synth(-2.6, 12, 3, 0.1, 0.6), { refPrice: 50 });
+  assert.ok(f.usable);
+  assert.equal(f.decay, 0.7);
+  assert.ok(f.warnings.some((w) => /limits the decay to 30% a week/.test(w)), JSON.stringify(f.warnings));
+});
+
+test("the behind-schedule checkpoint assumes 25% more stock than planned (capped at what you have)", () => {
+  const r = planMarkdown({ ...base, simRuns: 100 });
+  assert.ok(r.checkpoints.length > 2);
+  let checked = 0;
+  for (const c of r.checkpoints) {
+    assert.equal(c.behindUnits, Math.min(base.units, Math.round(c.startUnits * 1.25)));
+    if (c.startUnits * 1.25 < base.units) checked++;
+  }
+  assert.ok(checked > 0, "no checkpoint below the cap");
+});

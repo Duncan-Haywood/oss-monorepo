@@ -33,3 +33,14 @@ Run the tests: `node --test` in this directory. Open `index.html` through any st
 server (ES modules need http, not file://).
 
 FSL-1.1-MIT licensed. See `LICENSE`.
+
+## Known gaps
+
+From the 2026-11-26 quality audit ([`portfolio/quality/audits/2026-11-26-clearance-markdown-planner.json`](../../portfolio/quality/audits/2026-11-26-clearance-markdown-planner.json)):
+
+- The weekly demand level is exp(intercept) of a log-units fit with no retransformation, and zero-sales weeks are dropped, so at low volume (about 4 units a week) demand reads roughly 8% low and the plan can mark down earlier than needed. At 60 a week the bias is negligible.
+- The log-residual spread is reused as the over-dispersion factor although it already includes Poisson noise, so low-volume variance is counted twice.
+- No planner KPIs: markdown dollars, markdown % of sales, gross margin after markdown and weeks of supply are not shown. One SKU or price group at a time.
+- Lot rounding on stock over 1,000 units can model a unit more than entered (1,001 becomes 1,002, sell-through 100.1%).
+- An unquoted thousands separator in a comma CSV (`1,200`) is read as 1 unit with no warning.
+- With a typed elasticity the robustness table uses a fixed ±0.6 band, not the 80% interval the page describes.
