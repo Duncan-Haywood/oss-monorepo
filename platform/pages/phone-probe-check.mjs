@@ -2,7 +2,8 @@
 // example out where the page has one, and fails on the four defects the
 // 2026-11-26 polish runs kept measuring by hand: the page scrolls sideways, a
 // table hides columns behind a sideways swipe, a form field iOS zooms into,
-// a stacked table row taller than the screen. Rules and reasons: phone-probe.mjs.
+// a stacked table row taller than the screen; plus a money amount printed
+// without thousands separators. Rules and reasons: phone-probe.mjs.
 //
 //   node platform/pages/build.mjs --only=$(node platform/pages/phone-probe-check.mjs --list) --out=/tmp/pp
 //   DIST=/tmp/pp node platform/pages/phone-probe-check.mjs
@@ -162,4 +163,4 @@ if (failures.length) {
   console.log(failures.join('\n'));
   process.exit(1);
 }
-console.log('No page scrolls sideways, hides a table behind a swipe, has a field iOS zooms into, or a stacked row taller than the screen.');
+console.log('No page scrolls sideways, hides a table behind a swipe, has a field iOS zooms into, a stacked row taller than the screen, or an unseparated money amount.');

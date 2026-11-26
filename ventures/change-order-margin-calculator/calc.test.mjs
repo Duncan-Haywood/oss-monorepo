@@ -106,6 +106,17 @@ test('the summary carries delay and cap lines only when they apply', () => {
   assert.doesNotMatch(plain, /Contract markup cap/);
 
   const full = summaryText({ title: 'Add two circuits' }, calculateChangeOrder({ ...DEFAULTS, daysAdded: 3, dailyGeneralConditions: 450, markupCapPercent: 15 }));
-  assert.match(full, /Extended general conditions: 3 day\(s\) at \$450\.00\/day = \$1350\.00/);
-  assert.match(full, /Contract markup cap 15%: most billable is \$2277\.00, leaving 4\.3% after overhead/);
+  assert.match(full, /Extended general conditions: 3 day\(s\) at \$450\.00\/day = \$1,350\.00/);
+  assert.match(full, /Contract markup cap 15%: most billable is \$2,277\.00, leaving 4\.3% after overhead/);
+});
+
+test('money in the summary carries thousands separators and no -$0.00', async () => {
+  const { formatMoney } = await import('./calc.mjs');
+  assert.equal(formatMoney(12500), '$12,500.00');
+  assert.equal(formatMoney(-1234.5), '-$1,234.50');
+  assert.equal(formatMoney(-0.004), '$0.00');
+  const input = { hours: 100, wage: 60, burdenPercent: 30, materials: 4000, overheadPercent: 10, targetMarginPercent: 20, proposedPrice: 15000 };
+  const text = summaryText(input, calculateChangeOrder(input));
+  assert.match(text, /Proposed price: \$15,000\.00/);
+  assert.doesNotMatch(text, /\$\d{4,}/, 'no unseparated amount');
 });

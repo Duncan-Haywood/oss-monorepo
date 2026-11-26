@@ -327,6 +327,30 @@
    "by": "private PR 264 (root biome ci . clean)",
    "at": "2026-11-26T06:14:24Z",
    "note": "biome ci apps/einvoice-site and biome ci . both pass on private main after PR 264 (checked 2026-11-26)."
+  },
+  {
+   "file": "platform/ci/wait_for.py",
+   "match": "final check of the log|--until reads a shell command",
+   "verdict": "fixed",
+   "by": "this PR (wait_for reads the log once more at the deadline; a bare --until word is read as --marker, one code path)",
+   "at": "2026-11-26T20:09:04Z",
+   "note": ""
+  },
+  {
+   "file": ".github/prompts/cloud-session.md",
+   "match": "No projects matched",
+   "verdict": "fixed",
+   "by": "this PR: cloud-session.md step 3 says an app with no package.json has no install step",
+   "at": "2026-11-26T20:09:05Z",
+   "note": ""
+  },
+  {
+   "file": "platform/ci/roadmap_claim.py",
+   "match": "native[- ]speaker",
+   "verdict": "fixed",
+   "by": "roadmap-claim-person PR",
+   "at": "2026-11-26T20:21:42Z",
+   "note": "gate 'waits on a person' (native-speaker/human/lawyer review) and 'only if ... a market' as evidence"
   }
  ]
 }

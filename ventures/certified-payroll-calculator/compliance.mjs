@@ -4,7 +4,7 @@
 // agency's. Pure functions, no network, no storage.
 
 const usd = (x) => {
-  const format = (x) => "$" + x.toFixed(2);
+  const format = (x) => "$" + x.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   if (!(Number(x) < 0)) return format(x);
   const text = format(Math.abs(x));
   return /[1-9]/.test(text) ? `-${text}` : text;

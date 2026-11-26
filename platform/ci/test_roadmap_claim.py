@@ -89,7 +89,15 @@ class ParseTest(unittest.TestCase):
                           ("History, part 3: waivers outside a pay app, if those ever exist",
                            "waits on evidence"),
                           ("a side-by-side viewer, if opening two tabs proves a chore",
-                           "waits on evidence")):
+                           "waits on evidence"),
+                          # einvoice-preflight #5 as of 2026-11-26: nine records called it "free".
+                          ("Polish KSeF, part 3 (part 1 done 2026-11-26: PL templates): the "
+                           "native-speaker read of the Polish templates and workspace (Must do above), "
+                           "and a Polish-language version of einvoice-site, only if Polish accountants "
+                           "are a market worth the site's space", "waits on a person"),
+                          ("a Polish site, only if Polish accountants are a market", "waits on evidence"),
+                          ("a native German reviewer for the templates", "waits on a person"),
+                          ("the lien waiver text after a lawyer's review", "waits on a person")):
             self.assertEqual(rc.gate(text), why, text)
         self.assertEqual(rc.gate_match("Saved crews; if shops ask for it (part 2)"),
                          ("waits on demand", "if shops ask for it"))
@@ -97,7 +105,10 @@ class ParseTest(unittest.TestCase):
                      "Job costing: lines picked by class when a company tracks jobs by class",
                      "Reminder email once the invoice is past due",
                      "Owner dashboard: a shop owner sees every quote",
-                     "Ask-for-payment email when an invoice is overdue"):
+                     "Ask-for-payment email when an invoice is overdue",
+                     "Native app wrapper for the reader (Capacitor)",
+                     "Show the total only if the rows add up",
+                     "Waiver text, agent-approved (no attorney review; open checks listed there)"):
             self.assertIsNone(rc.gate(free), free)
 
     def test_gate_reads_each_open_ask(self):
