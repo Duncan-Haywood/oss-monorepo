@@ -1,0 +1,26 @@
+{
+  "id": "P091",
+  "title": "Parallel private-app runs clash on drizzle migration numbers and renumber by hand; cloud-session.md said to rename the file, which breaks drizzle's journal",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "A ROADMAP claim reserves no migration number, so two runs on one app each generate the next NNNN migration and the second to merge conflicts on migrations/meta/_journal.json and NNNN_snapshot.json. cloud-session.md said to 'renumber your new migrations/ file', but a rename leaves drizzle's snapshot chain and journal wrong; runs worked out the real recipe (take main's migrations/, drop yours, re-run drizzle-kit generate) each time and five asked for it to be written down.",
+  "evidence": [
+    "grep -l -i -E 'migration (number )?collid|collided|renumber|took 00[0-9][0-9]|regenerated as 00|migration.{0,40}(clash|collision)' prompts/runs/2026-11-2[56]-*.json: 36 records",
+    "doc_friction on .github/prompts/cloud-session.md asking for the regenerate recipe: sessions 01XpHqyfZFp, 01XpHqyc4CG, 01XpHqye72U, 01XpHqyfQt3, 01EhTJVQ6mU, 01E5sJKnPp9N9, 01E5sJKneKmrH (2026-11-25..26)"
+  ],
+  "change": "platform/ci/migration_regen.py <app>: a check (exit 1 when the branch's migration number is taken on origin/main) and --fix (mid-merge or after: migrations/ set to main's, drizzle-kit generate --name <yours>, staged, and a diff of the old and new SQL so a hand-written backfill is added back). cloud-session.md points at it instead of 'renumber'. Tested on a synthetic repo (test_migration_regen.py) and on a real clash in private apps/payapps (0071 vs 0071 -> 0072, drizzle-kit check clean, local branches only).",
+  "touches": [
+    "platform/ci/migration_regen.py",
+    "platform/ci/test_migration_regen.py",
+    ".github/prompts/cloud-session.md"
+  ],
+  "metric": "Run records per 7 days after merge whose errors or doc_friction describe regenerating or renumbering a clashing migration by hand (not via migration_regen.py)",
+  "baseline": "36 records mention a migration clash or renumber in 2026-11-25..26; 7 ask for the recipe",
+  "opened": "2026-11-26",
+  "source": "process critique, doc_friction on .github/prompts/cloud-session.md (2026-11-26)",
+  "pr": "this",
+  "result": null,
+  "history": []
+}
