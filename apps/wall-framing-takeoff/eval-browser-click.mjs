@@ -1,0 +1,536 @@
+// Clicks the page through in a real browser: sheathing on, then "long side along the wall".
+// `node eval-browser-click.mjs`; skips with exit 0 when Playwright or a Chromium is missing.
+// Finds playwright on the import path, PLAYWRIGHT_PATH (file or package dir), or /opt/node-tools.
+import { createServer } from "node:http";
+import { readFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
+import { extname, join } from "node:path";
+
+const root = fileURLToPath(new URL(".", import.meta.url));
+let chromium;
+const { existsSync, statSync } = await import("node:fs");
+// playwright is not on the default import path in cloud containers; try the
+// env override (a file or a package directory) and the known container path.
+const candidates = ["playwright", process.env.PLAYWRIGHT_PATH, "/opt/node-tools/node_modules/playwright", "playwright-core"].filter(Boolean).map((c) => {
+  if (!c.startsWith("/") || !existsSync(c)) return c;
+  return statSync(c).isDirectory() ? join(c, "index.mjs") : c;
+});
+for (const c of candidates) {
+  try { const m = await import(c.startsWith("/") ? "file://" + c : c); chromium = (m.default ?? m).chromium; if (chromium) break; } catch {}
+}
+if (!chromium) { console.log("skipped: playwright not installed"); process.exit(0); }
+const types = { ".html": "text/html", ".mjs": "text/javascript" };
+const server = createServer(async (req, res) => {
+  try {
+    const p = join(root, req.url.split("?")[0] === "/" ? "index.html" : decodeURIComponent(req.url.split("?")[0]));
+    const body = await readFile(p);
+    res.writeHead(200, { "content-type": types[extname(p)] || "text/plain" }).end(body);
+  } catch { res.writeHead(404).end(); }
+});
+await new Promise((r) => server.listen(0, "127.0.0.1", r));
+let browser;
+try { browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined }); } catch (e) { console.log("skipped: no Chromium:", e.message.split("\n")[0]); server.close(); process.exit(0); }
+const page = await browser.newPage();
+const errors = [];
+await page.goto(`http://127.0.0.1:${server.address().port}/`);
+await page.check("#sheath");
+await page.waitForSelector("#sheathing table");
+const vertical = await page.textContent("#sheathing");
+await page.check("#sheathH");
+await page.waitForFunction(() => document.querySelector("#sheathing")?.textContent.includes("long side along the wall"));
+const horizontal = await page.textContent("#sheathing");
+await page.selectOption("#advFrame", "both");
+await page.waitForFunction(() => document.querySelector("#sheathing")?.textContent.includes("long side along the wall"));
+const adv = await page.textContent("#sheathing");
+console.log(adv.includes("CHECK FAILED") ? "FAIL: advanced framing check" : "ok: advanced framing both, no check failures");
+console.log(vertical.includes("Panels run vertically") && horizontal.includes("CHECK FAILED") === false ? "ok: vertical then horizontal, no check failures" : "FAIL");
+await page.fill("#panelMax", "12 ft");
+await page.fill("#sheathPsf", "1.5");
+const [dl] = await Promise.all([page.waitForEvent("download"), page.click("#drawings")]);
+const drawn = await (await import("node:fs/promises")).readFile(await dl.path(), "utf8");
+const panelsOk = drawn.includes("Shop panels (up to 12") && drawn.includes("Panel A") && /lb/.test(drawn) && !/NaN|undefined/.test(drawn);
+console.log(panelsOk ? "ok: drawings download with shop panels" : "FAIL: shop panels missing");
+// Shop-panel lumber order: with a panel length set the button downloads the order and pull list; without one it says what is missing.
+const [po] = await Promise.all([page.waitForEvent("download"), page.click("#panelOrderBtn")]);
+const orderTxt = await (await import("node:fs/promises")).readFile(await po.path(), "utf8");
+const orderOk = po.suggestedFilename() === "shop-panel-lumber-order.txt" && orderTxt.trim().split("\n").length > 3 && !/NaN|undefined/.test(orderTxt);
+console.log(orderOk ? "ok: shop-panel lumber order downloads (" + orderTxt.trim().split("\n").length + " lines)" : "FAIL: shop-panel order download\n" + orderTxt.slice(0, 400));
+const heavier = await (async () => { await page.fill("#sheathPsf", "0"); const [d0] = await Promise.all([page.waitForEvent("download"), page.click("#drawings")]); const t0 = await (await import("node:fs/promises")).readFile(await d0.path(), "utf8"); await page.fill("#sheathPsf", "1.5"); return t0.length < drawn.length; })();
+console.log(heavier ? "ok: a sheathing weight adds panel weights to the drawings" : "FAIL: sheathing weight changed nothing in the drawings");
+await page.fill("#panelMax", "");
+await page.click("#panelOrderBtn");
+const noLen = (await page.textContent("#status")).includes("Enter the longest shop panel");
+console.log(noLen ? "ok: panel order without a length asks for one" : "FAIL: no message without a panel length");
+// Nails by connection: tick the box, type a box size and price, and the card and the budget line appear; sheathing nails follow the sheathing box.
+await page.check("#faOn");
+await page.fill("#faBox", "2500"); await page.fill("#faPrice", "45");
+await page.waitForFunction(() => document.querySelector("#fastenersOut")?.textContent.includes("box(es) of 2500"));
+const nailTxt = await page.textContent("#fastenersOut");
+const nailOk = /Sheathing nails/.test(nailTxt) && !/NaN|undefined/.test(nailTxt) && (await page.textContent("#budgetOut")).includes("Framing nails");
+console.log(nailOk ? "ok: nails by connection with sheathing, box count and budget line" : "FAIL: nails card\n" + nailTxt.slice(0, 400));
+// Wall braces: the select and a price reach the fasteners card and the budget line.
+await page.selectOption("#faWbOn", "1"); await page.fill("#faWbPrice", "12");
+await page.waitForFunction(() => /wall brace\(s\)/.test(document.querySelector("#fastenersOut")?.textContent || ""));
+const wbTxt = await page.textContent("#fastenersOut");
+console.log(/\d+ wall brace\(s\) at 45 degrees/.test(wbTxt) && !/NaN|undefined/.test(wbTxt) ? "ok: wall braces from the page controls" : "FAIL: wall braces\n" + wbTxt.slice(0, 400));
+// Piers: a typed group reaches the foundation card with its name, concrete and rebar.
+await page.check("#fnOn");
+await page.fill("#fnPiers", "6, 24, 12, 8, 30, 4, 4, deck posts");
+await page.waitForFunction(() => document.querySelector("#foundationOut")?.textContent.includes("deck posts (6 pads and columns)"));
+const pierTxt = await page.textContent("#foundationOut");
+console.log(/pad mat/.test(pierTxt) && !/NaN|undefined/.test(pierTxt) ? "ok: foundation piers from the page box" : "FAIL: pier box\n" + pierTxt.slice(0, 400));
+// Footing steps: a typed step reaches the foundation card as a stepped-footing note.
+await page.fill("#fnSteps", "16, 96, east slope");
+await page.waitForFunction(() => document.querySelector("#foundationOut")?.textContent.includes("Stepped footing"));
+const stepTxt = await page.textContent("#foundationOut");
+console.log(!/NaN|undefined/.test(stepTxt) ? "ok: footing steps from the page box" : "FAIL: step box\n" + stepTxt.slice(0, 400));
+await page.fill("#fnSteps", "");
+await page.fill("#fnPiers", ""); await page.uncheck("#fnOn");
+await page.uncheck("#sheath");
+await page.waitForFunction(() => document.querySelector("#fastenersOut")?.textContent.includes("add --sheathing"));
+await page.check("#sheath");
+await page.fill("#panelMax", "12 ft");
+await page.check("#rfOn");
+await page.waitForFunction(() => document.querySelector("#roofOut")?.textContent.includes("rafters"));
+const roofTxt = await page.textContent("#roofOut");
+await page.selectOption("#rfSpacing", "24");
+await page.waitForFunction(() => document.querySelector("#roofOut")?.textContent.includes("at 24 o.c."));
+const roofOk = /Roof sheathing: \d+ sheets/.test(roofTxt) && !/NaN|undefined/.test(roofTxt) && (await page.textContent("#order")).includes("rafter") === false; // order rows carry sizes, not kinds
+console.log(roofOk ? "ok: roof on, then 24 in spacing" : "FAIL: roof card");
+await page.fill("#rfW", "16 ft"); await page.fill("#rfL", "24 ft"); // a 28 x 40 hip needs 21 ft hips, longer than default stock
+await page.selectOption("#rfShape", "hip");
+await page.selectOption("#rfHip", "2x10");
+await page.waitForFunction(() => document.querySelector("#roofOut")?.textContent.includes("Hip roof"));
+const hipTxt = await page.textContent("#roofOut");
+const hipOk = /2x10 hips of/.test(hipTxt) && !/NaN|undefined/.test(hipTxt);
+console.log(hipOk ? "ok: hip roof with 2x10 hips" : "FAIL: hip roof card");
+await page.selectOption("#rfShape", "gable");
+await page.fill("#rfW", "28 ft"); await page.fill("#rfL", "40 ft");
+await page.selectOption("#rfWing", "1");
+await page.fill("#rfWingW", "16 ft"); await page.fill("#rfWingP", "12 ft");
+await page.selectOption("#rfWingValley", "2x10");
+await page.waitForFunction(() => /valley/i.test(document.querySelector("#roofOut")?.textContent || ""));
+const wingTxt = await page.textContent("#roofOut");
+const wingOk = /2x10/.test(wingTxt) && !/NaN|undefined/.test(wingTxt) && (await page.isHidden("#rfWingW") === false);
+console.log(wingOk ? "ok: cross wing with 2x10 valleys" : "FAIL: wing card: " + wingTxt.slice(0, 300));
+await page.fill("#rfWingPitch", "3");
+await page.waitForFunction(() => /3:12 against the main roof/.test(document.querySelector("#roofOut")?.textContent || ""));
+console.log("ok: wing at 3:12 on a 4:12 roof");
+await page.selectOption("#rfWing2", "1");
+await page.fill("#rfWing2W", "14 ft"); await page.fill("#rfWing2P", "10 ft");
+await page.waitForFunction(() => /Cross wing/i.test(document.querySelector("#roofOut")?.textContent || "") && !document.querySelector("#errors")?.textContent);
+let backingOk = true;
+const wing2Txt = await page.textContent("#roofOut");
+const wing2Ok = !/NaN|undefined/.test(wing2Txt) && (await page.isHidden("#rfWing2W") === false);
+console.log(wing2Ok ? "ok: second wing on the left" : "FAIL: second wing card: " + wing2Txt.slice(0, 300));
+await page.selectOption("#rfValleyBacking", "1");
+await page.waitForFunction(() => /valley backing/i.test(document.querySelector("#roofOut")?.textContent || ""), null, { timeout: 5000 }).then(() => console.log("ok: valley backing listed"), () => { backingOk = false; console.log("FAIL: valley backing not in the roof card"); });
+await page.selectOption("#rfShape", "hip");
+const wingHidden = await page.isHidden("#rfWingW") && await page.isHidden("#rfWing2W");
+console.log(wingHidden ? "ok: wing fields hidden on a hip roof" : "FAIL: wing fields shown on a hip roof");
+await page.uncheck("#rfOn");
+await page.check("#fnOn");
+await page.click("#run");
+await page.waitForFunction(() => /Order .* cu yd/.test(document.querySelector("#foundationOut")?.textContent || ""));
+const fnTxt = await page.textContent("#foundationOut");
+await page.selectOption("#fnType", "monolithic");
+await page.click("#run");
+await page.waitForFunction(() => /monolithic slab/.test(document.querySelector("#foundationOut")?.textContent || ""));
+const fnOk = !/NaN|undefined/.test(fnTxt + await page.textContent("#foundationOut")) && /stem wall/.test(fnTxt);
+console.log(fnOk ? "ok: foundation, stem then monolithic" : "FAIL: foundation card");
+await page.uncheck("#fnOn");
+await page.check("#dwOn");
+await page.fill("#dwCeil", "40 ft, 28 ft");
+await page.click("#run");
+await page.waitForFunction(() => /sheets of 4 x 8 ft/.test(document.querySelector("#drywallOut")?.textContent || ""));
+const dwTxt = await page.textContent("#drywallOut");
+console.log(!/NaN|undefined/.test(dwTxt) ? "ok: drywall card with a ceiling" : "FAIL: drywall card: " + dwTxt.slice(0, 300));
+const beadFt = (t) => Number((t.match(/corner bead: ([\d.]+) ft/) || [])[1] || 0);
+await page.selectOption('select[aria-label="Wall 1 free ends, where the wall ends without meeting another wall"]', "1");
+await page.click("#run");
+await page.waitForFunction((b) => { const m = (document.querySelector("#drywallOut")?.textContent || "").match(/corner bead: ([\d.]+) ft/); return m && Number(m[1]) > b; }, beadFt(dwTxt));
+console.log("ok: a free end on wall 1 adds corner bead");
+await page.selectOption('select[aria-label="Wall 1 free ends, where the wall ends without meeting another wall"]', "0");
+await page.selectOption("#dwJoints", "true");
+await page.click("#run");
+await page.waitForFunction(() => /snapped to framing/.test(document.querySelector("#drywallOut")?.textContent || ""));
+console.log("ok: Wall end joints select snaps drywall joints to studs");
+await page.selectOption("#dwJoist", "16");
+await page.click("#run");
+await page.waitForFunction(() => /end joints on ceilings/.test(document.querySelector("#drywallOut")?.textContent || ""));
+console.log("ok: ceiling joist spacing reports ceiling joints");
+await page.selectOption("#dwJoist", "");
+await page.selectOption("#dwJoints", "");
+await page.uncheck("#dwOn");
+await page.check("#flOn");
+await page.fill("#flOpen", "100 in, 40 in, 36 in, 100 in; 300 in, 190 in, 36 in, 100 in");
+await page.click("#run");
+await page.waitForFunction(() => /2 openings/.test(document.querySelector("#floorOut")?.textContent || ""));
+const floorTxt = await page.textContent("#floorOut");
+const floorOk = !/NaN|undefined/.test(floorTxt);
+console.log(floorOk ? "ok: floor with two stairwells (2 openings)" : "FAIL: floor card: " + floorTxt.slice(0, 300));
+await page.fill("#flOpen", "100 in, 40 in, 36 in, 100 in; 100 in, 100 in, 36 in, 40 in");
+await page.click("#run");
+await page.waitForFunction(() => /too close/.test(document.body.textContent));
+console.log("ok: overlapping stairwells refused on the page");
+// Cantilever: a typed overhang reaches the floor card and the saved plan; one past 8 ft is refused.
+await page.fill("#flOpen", "");
+await page.fill("#flCant", "2 ft");
+await page.click("#run");
+await page.waitForFunction(() => /Joists cantilever/.test(document.querySelector("#floorOut")?.textContent || ""));
+const cantTxt = await page.textContent("#floorOut");
+const [svc] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const savedC = JSON.parse(await (await import("node:fs/promises")).readFile(await svc.path(), "utf8"));
+const cantOk = !/NaN|undefined/.test(cantTxt) && savedC.floor?.cantilever === 24;
+console.log(cantOk ? "ok: floor cantilever on the card and in the saved plan" : "FAIL: cantilever: " + cantTxt.slice(0, 300) + " saved=" + savedC.floor?.cantilever);
+await page.fill("#flCant", "10 ft");
+await page.click("#run");
+await page.waitForFunction(() => /cantilever must be between/.test(document.body.textContent));
+console.log("ok: cantilever past 8 ft refused on the page");
+await page.fill("#flCant", "");
+// Stairwell header check: typed loads reach the floor card, the saved plan and a hanger-capacity failure.
+await page.fill("#flOpen", "100 in, 40 in, 36 in, 100 in");
+await page.fill("#flHdr", "40, 10, 900, 180, 1300000, 360, 50");
+await page.click("#run");
+await page.waitForFunction(() => /FAILS on your figures/.test(document.querySelector("#floorOut")?.textContent || ""));
+const [svh] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const savedH = JSON.parse(await (await import("node:fs/promises")).readFile(await svh.path(), "utf8"));
+const hc = savedH.floor?.headerCheck;
+console.log(hc && hc.Fb === 900 && hc.hangerCapacity === 50 && hc.deflLimit === 360 ? "ok: stairwell header check typed on the page, failing a 50 lb hanger, saved in the plan" : "FAIL: header check " + JSON.stringify(hc));
+// Cantilever tip ratio: the eighth figure reaches the plan and the check's allowed deflection (2 ft out, L/360 = 0.13 in).
+await page.fill("#flCant", "2 ft");
+await page.fill("#flHdr", "40, 10, 900, 180, 1300000, 0, 0, 360");
+await page.click("#run");
+await page.waitForFunction(() => /Cantilever joist, .*against 0\.13/.test(document.querySelector("#floorOut")?.textContent || ""), null, { timeout: 8000 }).catch(async () => console.log("FAIL: cantilever tip ratio not in the floor notes: " + JSON.stringify((await page.textContent("#floorOut")).split("\n").filter((l) => /antilever|hanger capacity/i.test(l)).map((l) => l.slice(0, 160))) + " body: " + JSON.stringify((await page.innerText("body")).split("\n").filter((l) => /ancilever|must|Stairwell header|refus/.test(l)).map((l) => l.slice(0, 200)))));
+const [svt] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const savedT = JSON.parse(await (await import("node:fs/promises")).readFile(await svt.path(), "utf8"));
+console.log(savedT.floor?.headerCheck?.cantDeflLimit === 360 ? "ok: cantilever tip ratio typed on the page, in the check and the saved plan" : "FAIL: cantDeflLimit " + JSON.stringify(savedT.floor?.headerCheck));
+await page.fill("#flCant", "");
+await page.fill("#flHdr", "40, 10, abc");
+await page.click("#run");
+await page.waitForFunction(() => /Stairwell header check: write live/.test(document.body.textContent));
+console.log("ok: malformed header check refused on the page");
+await page.fill("#flHdr", "");
+await page.fill("#flOpen", "");
+// Stair stringer check: typed figures reach the stairs card and the saved plan; a malformed field is refused.
+await page.check("#stOn");
+await page.fill("#stRise", "9' 0\"");
+await page.fill("#stCheck", "40, 12, 900, 180, 1300000, 240");
+await page.click("#run");
+await page.waitForFunction(() => /Stringer check \(/.test(document.querySelector("#stairsOut")?.textContent || ""));
+const [svs] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const savedS = JSON.parse(await (await import("node:fs/promises")).readFile(await svs.path(), "utf8"));
+const sk = savedS.stairs?.stringerCheck;
+console.log(sk && sk.Fb === 900 && sk.deflLimit === 240 ? "ok: stringer check typed on the page, shown on the stairs card, saved in the plan" : "FAIL: stringer check " + JSON.stringify(sk));
+await page.fill("#stCheck", "40, 12, abc");
+await page.click("#run");
+await page.waitForFunction(() => /Stringer check: write live/.test(document.body.textContent));
+console.log("ok: malformed stringer check refused on the page");
+// Stringer connection and bearing (#stCheck2): typed figures reach the saved plan; a lone field and a bad one are refused.
+await page.fill("#stCheck", "40, 12, 900, 180, 1300000, 240");
+await page.fill("#stCheck2", "400, 425, 3.5");
+await page.click("#run");
+await page.waitForFunction(() => /Stringer check \(/.test(document.querySelector("#stairsOut")?.textContent || ""));
+const [svs2] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const sk2 = JSON.parse(await (await import("node:fs/promises")).readFile(await svs2.path(), "utf8")).stairs?.stringerCheck;
+console.log(sk2 && sk2.connectorCapacity === 400 && sk2.bearingFcPerp === 425 && sk2.bearingLength === 3.5 ? "ok: stringer connector and bearing typed on the page, saved in the plan" : "FAIL: stringer connector/bearing " + JSON.stringify(sk2));
+await page.fill("#stCheck2", "400");
+await page.click("#run");
+await page.waitForFunction(() => /Stringer connection and bearing: write connector lb/.test(document.body.textContent));
+console.log("ok: malformed stringer connector/bearing refused on the page");
+await page.fill("#stCheck2", "");
+// Notched support (#stCheck3): "throat" and inches reach the saved plan; a bad value is refused.
+await page.fill("#stCheck", "40, 12, 900, 180, 1300000, 240");
+await page.fill("#stCheck3", "5");
+await page.click("#run");
+await page.waitForFunction(() => /Stringer check \(/.test(document.querySelector("#stairsOut")?.textContent || ""));
+const [svs3] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const sk3 = JSON.parse(await (await import("node:fs/promises")).readFile(await svs3.path(), "utf8")).stairs?.stringerCheck;
+console.log(sk3 && sk3.notchedSupport === 5 ? "ok: stringer notched support typed on the page, saved in the plan" : "FAIL: notchedSupport " + JSON.stringify(sk3));
+await page.fill("#stCheck3", "throat");
+await page.click("#run");
+await page.waitForFunction(() => /Stringer check \(/.test(document.querySelector("#stairsOut")?.textContent || ""));
+const [svs4] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const sk4 = JSON.parse(await (await import("node:fs/promises")).readFile(await svs4.path(), "utf8")).stairs?.stringerCheck;
+console.log(sk4 && sk4.notchedSupport === true ? "ok: stringer notched support 'throat' saved as true" : "FAIL: notchedSupport throat " + JSON.stringify(sk4));
+await page.fill("#stCheck3", "-2");
+await page.click("#run");
+await page.waitForFunction(() => /Stringer notched at the support: write throat/.test(document.body.textContent));
+console.log("ok: malformed notched support refused on the page");
+await page.fill("#stCheck3", "");
+await page.fill("#stCheck", "");
+// Winders: typed treads, turn and radius reach the stairs card (a zero pivot fails and the smallest radius is solved).
+await page.fill("#stWinders", "3, 90, 0");
+await page.click("#run");
+await page.waitForFunction(() => /Winders fail/.test(document.querySelector("#stairsOut")?.textContent || ""));
+const wtxt = await page.textContent("#stairsOut");
+console.log(/smallest inner radius that passes is 11\.5 in/.test(wtxt) ? "ok: winders typed on the page, failing pivot shows the solved radius" : "FAIL: winders text " + wtxt.slice(-300));
+await page.fill("#stWinders", "3, 90, 12");
+await page.click("#run");
+await page.waitForFunction(() => /Winders pass/.test(document.querySelector("#stairsOut")?.textContent || ""));
+console.log("ok: winders at a 12 in radius pass on the page");
+await page.fill("#stWinders", "3");
+await page.click("#run");
+await page.waitForFunction(() => /Winders: write treads/.test(document.body.textContent));
+console.log("ok: malformed winders field refused on the page");
+await page.fill("#stWinders", "");
+// Landing post column check: typed soil, size, fc and Emin reach the stairs card.
+await page.fill("#stRise", "13'");
+await page.fill("#stLandPosts", "1500, 4x4, 1000, 400000");
+await page.click("#run");
+await page.waitForFunction(() => /Landing post column/.test(document.querySelector("#stairsOut")?.textContent || ""));
+console.log("ok: landing post column check typed on the page and shown on the stairs card");
+await page.fill("#stLandPosts", "1500, 4x4");
+await page.click("#run");
+await page.waitForFunction(() => /Landing post check: write soil/.test(document.body.textContent));
+console.log("ok: malformed landing post field refused on the page");
+await page.fill("#stLandPosts", "");
+// Stair guard and handrail: typed sides and handrail height reach the stairs card and the order.
+await page.fill("#stRise", "9'");
+await page.fill("#stRail", "2, 36");
+await page.click("#run");
+await page.waitForFunction(() => /guard|Guard|baluster/i.test(document.querySelector("#stairsOut")?.textContent || ""));
+console.log("ok: stair guard and handrail typed on the page and shown on the stairs card");
+await page.fill("#stRail", "3");
+await page.click("#run");
+await page.waitForFunction(() => /Guard and handrail: write the number/.test(document.body.textContent));
+console.log("ok: malformed guard field refused on the page");
+await page.fill("#stRail", "");
+await page.fill("#stLandEdges", "end, side");
+await page.click("#run");
+await page.waitForFunction(() => /landing/i.test(document.querySelector("#stairsOut")?.textContent || ""));
+console.log("ok: landing open edges typed on the page and shown on the stairs card");
+await page.fill("#stLandEdges", "top");
+await page.click("#run");
+await page.waitForFunction(() => /Landing open edges: write end/.test(document.body.textContent));
+console.log("ok: malformed landing edges refused on the page");
+await page.fill("#stLandEdges", "");
+// Deck post check: typed loads and wood figures reach the deck card.
+await page.check("#dkOn");
+await page.fill("#dkWidth", "16'"); await page.fill("#dkDepth", "12'"); await page.fill("#dkHeight", "36 in");
+await page.fill("#dkPostCheck", "10, 40, 1000, 400000");
+await page.click("#run");
+await page.waitForFunction(() => /Post check \(typed figures\)/.test(document.querySelector("#deckOut")?.textContent || ""));
+console.log("ok: deck post check typed on the page and shown on the deck card");
+await page.fill("#dkPostCheck", "10, 40");
+await page.click("#run");
+await page.waitForFunction(() => /Deck post check: write dead psf/.test(document.body.textContent));
+console.log("ok: malformed deck post check refused on the page");
+await page.fill("#dkPostCheck", "");
+// Deck joist and beam checks: typed figures reach the deck card; a short entry is refused.
+await page.fill("#dkJoistCheck", "10, 40, 1000, 175, 1400000");
+await page.fill("#dkBeamCheck", "10, 40, 1000, 175, 1400000");
+await page.click("#run");
+await page.waitForFunction(() => /Joist check \(typed figures/.test(document.querySelector("#deckOut")?.textContent || "") && /Beam check \(typed figures/.test(document.querySelector("#deckOut")?.textContent || ""));
+console.log("ok: deck joist and beam checks typed on the page and shown on the deck card");
+await page.fill("#dkBeamCheck", "10, 40");
+await page.click("#run");
+await page.waitForFunction(() => /Deck beam check: write dead psf/.test(document.body.textContent));
+console.log("ok: malformed deck beam check refused on the page");
+await page.fill("#dkJoistCheck", ""); await page.fill("#dkBeamCheck", "");
+// Deck blocking: a typed spacing adds rows to the deck card.
+await page.fill("#dkBlocking", "48");
+await page.click("#run");
+await page.waitForFunction(() => /Blocking: \d+ rows?/.test(document.querySelector("#deckOut")?.textContent || ""));
+console.log("ok: deck blocking typed on the page and shown on the deck card");
+await page.fill("#dkBlocking", "");
+await page.uncheck("#dkOn");
+await page.uncheck("#stOn");
+await page.uncheck("#flOn");
+await page.uncheck("#sheathH");
+await page.uncheck("#sheath");
+await page.fill("#panelMax", "");
+await page.fill('[aria-label="Wall 1 gable pitch"]', "6");
+await page.fill('[aria-label="Wall 1 gable peak position"]', "6 ft");
+await page.click("#run");
+await page.waitForFunction(() => /gable/i.test(document.body.textContent) && !document.querySelector("#errors")?.textContent, null, { timeout: 90000 });
+const gableOk = !/NaN|undefined/.test(await page.textContent("#results").catch(() => ""));
+console.log(gableOk ? "ok: gable wall (6:12, peak 6 ft) frames from the page" : "FAIL: gable wall");
+await page.fill('[aria-label="Wall 1 gable pitch"]', "40");
+await page.click("#run");
+await page.waitForFunction(() => /gable pitch/.test(document.body.textContent), null, { timeout: 90000 });
+console.log("ok: bad gable pitch refused on the page");
+await page.fill('[aria-label="Wall 1 gable pitch"]', "");
+// header table: the first opening set to auto takes the first row that covers it; a light hand pick is listed
+await page.locator("details", { hasText: "Size headers from your own span table" }).locator("summary").click();
+await page.fill("#hdrTable", "2 ft, 2x6\n4 ft, 2x8, 2\n8 ft, 2x12, 3");
+await page.selectOption('[aria-label="Opening 1 header size"]', "auto");
+await page.click("#run");
+await page.waitForFunction(() => /set from the table/.test(document.querySelector("#hdrNotes")?.textContent || ""), null, { timeout: 90000 });
+const hdrTxt = await page.textContent("#hdrNotes");
+const hdrOk = !/NaN|undefined/.test(hdrTxt) && !(await page.textContent("#errors"));
+console.log(hdrOk ? "ok: header table sizes an auto opening: " + hdrTxt.slice(0, 120) : "FAIL: header table: " + hdrTxt);
+await page.fill("#hdrTable", "");
+await page.click("#run");
+await page.waitForFunction(() => /header table is empty/.test(document.body.textContent), null, { timeout: 90000 });
+console.log("ok: auto header with no table refused on the page");
+// budget: typed prices price the sheet and labor lines; the total ties to the table
+await page.fill("#hdrTable", "");
+await page.click("#example");
+await page.fill("#priceText", "wallSheet, 20\nlaborWallFoot, 10\ntax, 0.1");
+await page.click("#run");
+await page.waitForFunction(() => /Wall framing/.test(document.querySelector("#budgetOut")?.textContent || ""), null, { timeout: 90000 });
+const budTxt = await page.textContent("#budgetOut");
+const budOk = !/NaN|undefined/.test(budTxt) && /total/.test(budTxt) && /labor/.test(budTxt);
+console.log(budOk ? "ok: budget from typed prices on the page" : "FAIL: budget: " + budTxt.slice(0, 200));
+// a misspelt price name is listed with a "did you mean" instead of a silent zero (2026-11-02)
+await page.fill("#priceText", "wallSheet, 20\nlaborWallFoo, 10");
+await page.click("#run");
+await page.waitForFunction(() => document.querySelector("#ignoredPrices"), null, { timeout: 90000 });
+const ignTxt = await page.textContent("#ignoredPrices");
+console.log(/laborWallFoo/.test(ignTxt) && /did you mean laborWallFoot/.test(ignTxt) && /laborWallFoo \(did/.test(ignTxt) ? "ok: misspelt price listed with the nearest name" : "FAIL: ignoredPrices: " + ignTxt);
+// the price-name picker appends a "name, " line once and does not duplicate it
+await page.fill("#priceText", "wallSheet, 20");
+await page.selectOption("#priceName", "laborHoldDown");
+await page.click("#priceAddBtn");
+await page.click("#priceAddBtn");
+const addedTxt = await page.inputValue("#priceText");
+console.log(addedTxt === "wallSheet, 20\nlaborHoldDown, " ? "ok: price picker adds one line" : "FAIL: price picker: " + JSON.stringify(addedTxt));
+await page.fill("#priceText", "wallSheet, 20\nlaborWallFoot, 10\ntax, 0.1");
+// prices travel in the saved plan file and come back on load
+const [sv] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const saved = JSON.parse(await (await import("node:fs/promises")).readFile(await sv.path(), "utf8"));
+const priceSaved = saved.prices?.wallSheet === 20 && saved.prices?.tax === 0.1;
+console.log(priceSaved ? "ok: typed prices are saved in the plan file" : "FAIL: prices not in saved plan: " + JSON.stringify(saved.prices));
+// interior trim card: boards, a budget line from the typed price, and the saved plan keeps it
+await page.check("#trOn");
+await page.fill("#trBasePrice", "14");
+await page.fill("#trCasPrice", "9");
+await page.fill("#priceText", "wallSheet, 20");
+await page.click("#run");
+await page.waitForFunction(() => /baseboard/i.test(document.querySelector("#trimOut")?.textContent || ""), null, { timeout: 90000 });
+const trimTxt = await page.textContent("#trimOut");
+const trimBud = await page.textContent("#budgetOut");
+const [sv2] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const saved2 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv2.path(), "utf8"));
+const trimOk = !/NaN|undefined/.test(trimTxt) && /casing/i.test(trimTxt) && /baseboard/i.test(trimBud) && saved2.trim?.basePrice === 14;
+console.log(trimOk ? "ok: trim card, budget line and saved plan" : "FAIL: trim: " + trimTxt.slice(0, 200));
+// shoe moulding and scarf overlap on the trim card (2026-11-01 click test of fields that were source-tested only)
+await page.selectOption("#trShoe", "true");
+await page.fill("#trShoeStock", "120");
+await page.fill("#trShoePrice", "6");
+await page.fill("#trScarf", "2");
+await page.click("#run");
+await page.waitForFunction(() => /Shoe moulding:/.test(document.querySelector("#trimOut")?.textContent || ""), null, { timeout: 30000 }).catch(() => {});
+const shoeTxt = await page.textContent("#trimOut");
+const [svTrimShoe] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const savedTrimShoe = JSON.parse(await (await import("node:fs/promises")).readFile(await svTrimShoe.path(), "utf8"));
+const shoeOk = !/NaN|undefined/.test(shoeTxt) && /Shoe moulding: .* in 10 ft boards/.test(shoeTxt) && /scarf overlaps/.test(shoeTxt) && savedTrimShoe.trim?.shoe === true && savedTrimShoe.trim?.shoeStock === 120 && savedTrimShoe.trim?.shoePrice === 6 && savedTrimShoe.trim?.scarf === 2;
+console.log(shoeOk ? "ok: trim shoe moulding and scarf overlap, card and saved plan" : "FAIL: trim shoe/scarf: " + shoeTxt.slice(0, 400) + JSON.stringify(savedTrimShoe.trim));
+// gutters card (roof is already on): sections, downspouts, a budget line from a typed price, saved plan keeps it
+await page.check("#rfOn");
+await page.selectOption("#rfShape", "gable");
+await page.check("#guOn");
+await page.fill("#priceText", "wallSheet, 20\ngutterSection, 9");
+await page.click("#run");
+await page.waitForFunction(() => /Downspouts:/.test(document.querySelector("#guttersOut")?.textContent || ""), null, { timeout: 30000 }).catch(async () => { console.log("FAIL: gutters card; errors:", (await page.textContent("#errors")).slice(0, 300), "roof on:", await page.isChecked("#rfOn")); });
+const guTxt = await page.textContent("#guttersOut");
+const guBud = await page.textContent("#budgetOut");
+const [sv3] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const saved3 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv3.path(), "utf8"));
+const guOk = !/NaN|undefined/.test(guTxt) && /Gutter sections/.test(guBud) && saved3.gutters && typeof saved3.gutters === "object";
+console.log(guOk ? "ok: gutters card, budget line and saved plan" : "FAIL: gutters: " + guTxt.slice(0, 200));
+// dormer card (roof is already on, so the main pitch is left blank): parts listed, saved plan keeps it
+await page.check("#dmOn");
+await page.fill("#dmWidth", "72");
+await page.fill("#dmEave", "48");
+await page.fill("#dmPitch", "8");
+await page.click("#run");
+await page.waitForFunction(() => /ridge/.test(document.querySelector("#dormerOut")?.textContent || ""), null, { timeout: 30000 }).catch(async () => { console.log("FAIL: dormer card; errors:", await page.textContent("#errors")); });
+const dmTxt = await page.textContent("#dormerOut");
+const [svDm] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const savedDm = JSON.parse(await (await import("node:fs/promises")).readFile(await svDm.path(), "utf8"));
+console.log(!/NaN|undefined/.test(dmTxt) && /ridge/.test(dmTxt) && savedDm.dormer?.width === 72 ? "ok: dormer card and saved plan" : "FAIL: dormer: " + dmTxt.slice(0, 200));
+// gable dormer front window (2026-10-31): same three fields feed dormer.window on a gable
+await page.fill("#dmWinW", "30"); await page.fill("#dmWinH", "24"); await page.fill("#dmWinSill", "14");
+await page.click("#run");
+await page.waitForFunction(() => /window/.test(document.querySelector("#dormerOut")?.textContent || ""), null, { timeout: 30000 }).catch(async () => { console.log("FAIL: gable dormer window; errors:", await page.textContent("#errors")); });
+const gwTxt = await page.textContent("#dormerOut");
+const [svGw] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const savedGw = JSON.parse(await (await import("node:fs/promises")).readFile(await svGw.path(), "utf8"));
+console.log(!/NaN|undefined/.test(gwTxt) && /window/.test(gwTxt) && savedGw.dormer?.window?.width === 30 && !savedGw.dormer?.shape ? "ok: gable dormer window card and saved plan" : "FAIL: gable dormer window: " + gwTxt.slice(0, 200));
+// shed dormer (2026-10-31): shape select, roof opening depth, shed text on the card, saved plan keeps shape
+await page.selectOption("#dmShape", "shed");
+await page.fill("#dmPitch", "3");
+await page.fill("#dmMain", "8");
+await page.fill("#dmOpening", "96");
+await page.fill("#dmWinW", "36"); await page.fill("#dmWinH", "20"); await page.fill("#dmWinSill", "12");
+await page.click("#run");
+await page.waitForFunction(() => /shed dormer/.test(document.querySelector("#dormerOut")?.textContent || ""), null, { timeout: 30000 }).catch(async () => { console.log("FAIL: shed dormer card; errors:", await page.textContent("#errors")); });
+const shTxt = await page.textContent("#dormerOut");
+const [svSh] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const savedSh = JSON.parse(await (await import("node:fs/promises")).readFile(await svSh.path(), "utf8"));
+console.log(!/NaN|undefined/.test(shTxt) && /shed dormer/.test(shTxt) && /main-roof opening/.test(shTxt) && savedSh.dormer?.shape === "shed" && savedSh.dormer?.roofOpening?.depth === 96 && savedSh.dormer?.window?.sill === 12 ? "ok: shed dormer card and saved plan" : "FAIL: shed dormer: " + shTxt.slice(0, 200));
+await page.selectOption("#dmShape", "");
+await page.fill("#dmMain", "");
+await page.fill("#dmPitch", "8");
+// siding starter strip and head flashing (2026-10-31): fields read into the plan, shown in the card, saved
+await page.check("#sdOn");
+await page.selectOption("#sdStarter", "true");
+await page.fill("#sdStarterPrice", "6");
+await page.selectOption("#sdHeadFlashing", "true");
+await page.fill("#sdFlashingExtend", "3");
+await page.fill("#sdFlashingPrice", "12");
+await page.click("#run");
+await page.waitForFunction(() => /Starter strip:/.test(document.querySelector("#sidingOut")?.textContent || ""), null, { timeout: 30000 }).catch(() => {});
+const sdTxt = await page.textContent("#sidingOut");
+const [sv4] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const saved4 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv4.path(), "utf8"));
+const sdOk = !/NaN|undefined/.test(sdTxt) && /Starter strip:/.test(sdTxt) && /flashing/i.test(sdTxt) && saved4.siding?.starter === true && saved4.siding?.headFlashing === true && saved4.siding?.flashingExtend === 3 && saved4.siding?.starterPrice === 6;
+console.log(sdOk ? "ok: siding starter strip and head flashing, card and saved plan" : "FAIL: siding: " + sdTxt.slice(0, 300));
+// siding opening trim and vertical boards with battens (2026-10-31 click test of fields that were source-tested only)
+await page.selectOption("#sdOpeningTrim", "true");
+await page.fill("#sdTrimPrice", "9");
+await page.selectOption("#sdStarter", "");
+await page.selectOption("#sdStyle", "vertical");
+await page.selectOption("#sdBattens", "true");
+await page.fill("#sdBattenPrice", "5");
+await page.click("#run");
+await page.waitForFunction(() => /Battens:/.test(document.querySelector("#sidingOut")?.textContent || ""), null, { timeout: 30000 }).catch(() => {});
+const sd2Txt = await page.textContent("#sidingOut");
+const [sv5] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const saved5 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv5.path(), "utf8"));
+const sd2Ok = !/NaN|undefined/.test(sd2Txt) && /Battens:/.test(sd2Txt) && /Opening trim:/.test(sd2Txt) && saved5.siding?.style === "vertical" && saved5.siding?.battens === true && saved5.siding?.openingTrim === true && saved5.siding?.battenPrice === 5 && saved5.siding?.trimPrice === 9 && !saved5.siding?.starter;
+console.log(sd2Ok ? "ok: siding opening trim and vertical battens, card and saved plan" : "FAIL: siding trim/battens: " + (await page.textContent("#errors")).slice(0, 400) + sd2Txt.slice(0, 200) + JSON.stringify(saved5.siding));
+// slab edge F-factor and window/door U on the insulation card (2026-10-31 click test of fields that were source-tested only)
+await page.check("#inOn");
+await page.selectOption("#inEff", "true");
+await page.fill("#inWinU", "0.3"); await page.fill("#inDoorU", "0.4"); await page.fill("#inSlabF", "0.54");
+await page.click("#run");
+await page.waitForFunction(() => /slab edge/i.test(document.querySelector("#insulationOut")?.textContent || ""), null, { timeout: 30000 }).catch(() => {});
+const inTxt = await page.textContent("#insulationOut");
+const [sv6] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const saved6 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv6.path(), "utf8"));
+const slabOk = !/NaN|undefined/.test(inTxt) && /slab edge/i.test(inTxt) && saved6.insulation?.assembly?.slabEdgeF === 0.54 && saved6.insulation?.assembly?.windowU === 0.3;
+console.log(slabOk ? "ok: insulation slab edge F-factor, card and saved plan" : "FAIL: slab edge: " + (await page.textContent("#errors")).slice(0, 300) + inTxt.slice(0, 400));
+// ceiling under the attic on the insulation card (2026-11-03: page controls for ceilingR / ceilingFromAttic, engine-only before)
+await page.fill("#inAtticR", "38");
+await page.fill("#inDeltaF", "60");
+await page.fill("#inCeilR", "40");
+await page.click("#run");
+await page.waitForFunction(() => /Ceiling under the attic/.test(document.querySelector("#insulationOut")?.textContent || ""), null, { timeout: 30000 }).catch(() => {});
+const ceTxt = await page.textContent("#insulationOut");
+const [sv8] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const saved8 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv8.path(), "utf8"));
+const ceilOk = !/NaN|undefined/.test(ceTxt) && /Ceiling under the attic: .* at R-40\.0/.test(ceTxt) && saved8.insulation?.assembly?.ceilingR === 40;
+console.log(ceilOk ? "ok: insulation ceiling under the attic, card and saved plan" : "FAIL: ceiling: " + (await page.textContent("#errors")).slice(0, 300) + ceTxt.slice(0, 500));
+// allowances on the price box and the customer proposal card (2026-11-01)
+await page.fill("#priceText", "wallSheet, 20\nlaborWallFoot, 10\noverhead, 0.1\nprofit, 0.1\nallowance Permit, 1200");
+await page.fill("#propClient", "Test Client"); await page.fill("#propExcl", "Painting");
+await page.fill("#propPay", "Deposit, 30\nFinal, 70");
+await page.check("#propPartial");
+await page.click("#propBtn");
+await page.waitForFunction(() => /PROPOSAL|Proposal not issued/.test(document.querySelector("#propOut")?.textContent || ""), null, { timeout: 30000 }).catch(() => {});
+const propTxt = await page.textContent("#propOut");
+const [sv7] = await Promise.all([page.waitForEvent("download"), page.click("#savePlan")]);
+const saved7 = JSON.parse(await (await import("node:fs/promises")).readFile(await sv7.path(), "utf8"));
+const propOk = /Prepared for Test Client/.test(propTxt) && /Permit: 1,200\.00/.test(propTxt) && /Not included: Painting/.test(propTxt) && /Deposit/.test(propTxt) && /Final/.test(propTxt) && !/NaN|undefined/.test(propTxt) && saved7.allowances?.Permit === 1200;
+console.log(propOk ? "ok: allowance line and customer proposal, card and saved plan" : "FAIL: proposal: " + propTxt.slice(0, 500) + JSON.stringify(saved7.allowances));
+// the proposal's printable page opens as a self-contained page (2026-11-01)
+const [popup] = await Promise.all([page.context().waitForEvent("page", { timeout: 15000 }).catch(() => null), page.click("#propPrint")]);
+let printOk = false, printTxt = "";
+if (popup) { await popup.waitForLoadState("load").catch(() => {}); printTxt = await popup.content(); printOk = /Test Client/.test(printTxt) && /Permit/.test(printTxt) && /Painting/.test(printTxt) && !/<script/i.test(printTxt) && !/NaN|undefined/.test(await popup.innerText("body")); await popup.close(); }
+console.log(printOk ? "ok: proposal printable page opens, has client, allowance, exclusion, no script" : "FAIL: printable page: " + (popup ? printTxt.slice(0, 400) : "no popup"));
+console.log("page errors:", errors.length);
+await browser.close(); server.close();
+process.exit(errors.length || !panelsOk || !orderOk || !heavier || !noLen || !roofOk || !fnOk || !hipOk || !wingOk || !wing2Ok || !backingOk || !wingHidden || !floorOk || !cantOk || !gableOk || !hdrOk || !budOk || !priceSaved || !trimOk || !guOk || !sdOk || !sd2Ok || !slabOk || !ceilOk || !propOk || !printOk || horizontal.includes("CHECK FAILED") ? 1 : 0);

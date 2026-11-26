@@ -1,0 +1,5 @@
+"Item Id","Sold Date","Completed Date","Order Status","Item Title","Item Price","Buyer Shipping Fee","Seller Shipping Fee","Mercari Selling Fee","Payment Processing Fee","Shipping Adjustment Fee","Sales Tax Charged to Buyer","Buyer Protection Charged to Buyer","Net Seller Proceeds"
+"m11111111111","2026-02-01","2026-02-05","completed","Nintendo DS Lite (pink)","45.00","0.00","7.50","4.50","0.00","0.00","3.60","1.62","33.00"
+"m22222222222","2026-02-03","2026-02-08","completed","Lego minifig lot","20.00","5.99","0.00","2.60","0.00","1.25","1.60","0.72","16.15"
+"m33333333333","2026-02-09","","cancelled","Cancelled item","10.00","0.00","0.00","0.00","0.00","0.00","0.00","0.00","0.00"
+"m44444444444","Feb 30 2026","","completed","Bad date row","10.00","0.00","0.00","1.00","0.00","0.00","0.00","0.00","9.00"

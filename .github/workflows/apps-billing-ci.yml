@@ -1,0 +1,47 @@
+# Moved from Duncan-Haywood/private-monorepo .github/workflows/billing-ci.yml at b1b7c3f63ce2 (2026-11-26);
+# actions pinned to .github/ci-policy.yaml SHAs, checkout without persisted credentials.
+# PR checks for packages/billing (Paddle port, webhook rules, catalog sync). Never needs secrets: the
+# Paddle tests run against an in-memory fake. Grants also imports the catalog module in its own tests.
+name: apps-billing-ci
+on:
+  pull_request:
+    paths:
+      - "packages/billing/**"
+      - ".github/workflows/apps-billing-ci.yml"
+      - "pnpm-lock.yaml"
+  push:
+    branches-ignore: [main]
+    paths:
+      - "packages/billing/**"
+      - ".github/workflows/apps-billing-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: billing-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: packages/billing
+
+jobs:
+  check:
+    name: lint, types, tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec biome ci .
+      - run: pnpm typecheck
+      - run: pnpm test

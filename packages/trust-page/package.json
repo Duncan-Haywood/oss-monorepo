@@ -1,0 +1,14 @@
+{
+  "name": "@private-monorepo/trust-page",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Per-product security (trust) page renderer and RFC 9116 security.txt generator. Every claim carries a status and a source; certification wording is refused. Zero runtime dependencies.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test \"src/**/*.test.ts\""
+  }
+}

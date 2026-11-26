@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A synthetic CFDI 4.0 de nómina (type N, unstamped), an extraordinary pay on leaving:
+     overtime (019, with HorasExtra), a disability subsidy (014, with its Incapacidad),
+     seniority premium (022) and indemnity (025) with SeparacionIndemnizacion; ISR and a
+     loan repayment withheld; the employment subsidy owed but not paid in cash (0.01, the
+     guide's Apéndice 5) and a refund of last year's annual balance (004). Time split
+     between two companies (SubContratacion 60/40). TotalSueldos 1,700.00 + separation
+     60,000.00 = 61,700.00; other payments 215.01; deductions 6,700.00; Total 55,215.01.
+     Same parties as cfdi-4.0-nomina.xml. Passes every MX rule. -->
+<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" xmlns:nomina12="http://www.sat.gob.mx/nomina12" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sat.gob.mx/cfd/4 http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd http://www.sat.gob.mx/nomina12 http://www.sat.gob.mx/sitio_internet/cfd/nomina/nomina12.xsd" Version="4.0" Serie="N" Folio="1044" Fecha="2026-11-10T12:00:00" FormaPago="99" NoCertificado="30001000000500003416" Certificado="" SubTotal="61915.01" Descuento="6700.00" Moneda="MXN" Total="55215.01" TipoDeComprobante="N" Exportacion="01" MetodoPago="PUE" LugarExpedicion="86000" Sello="">
+  <cfdi:Emisor Rfc="EKU9003173C9" Nombre="ESCUELA KEMPER URGATE" RegimenFiscal="601"/>
+  <cfdi:Receptor Rfc="XOJI740919U48" Nombre="INGRID XODAR JIMENEZ" DomicilioFiscalReceptor="88965" RegimenFiscalReceptor="605" UsoCFDI="CN01"/>
+  <cfdi:Conceptos>
+    <cfdi:Concepto ClaveProdServ="84111505" Cantidad="1" ClaveUnidad="ACT" Descripcion="Pago de nómina" ValorUnitario="61915.01" Importe="61915.01" Descuento="6700.00" ObjetoImp="01"/>
+  </cfdi:Conceptos>
+  <cfdi:Complemento>
+    <nomina12:Nomina Version="1.2" TipoNomina="E" FechaPago="2026-11-10" FechaInicialPago="2026-11-10" FechaFinalPago="2026-11-10" NumDiasPagados="1.000" TotalPercepciones="61700.00" TotalDeducciones="6700.00" TotalOtrosPagos="215.01">
+      <nomina12:Emisor RegistroPatronal="B5510768108"/>
+      <nomina12:Receptor Curp="XOJI740919MSRDMN00" NumSeguridadSocial="04078873454" FechaInicioRelLaboral="2019-03-01" Antigüedad="P7Y8M9D" TipoContrato="01" Sindicalizado="Sí" TipoJornada="01" TipoRegimen="02" NumEmpleado="120" Departamento="Cobranza" Puesto="Analista" RiesgoPuesto="1" PeriodicidadPago="99" Banco="002" CuentaBancaria="12345678901" SalarioBaseCotApor="490.22" SalarioDiarioIntegrado="520.00" ClaveEntFed="SON">
+        <nomina12:SubContratacion RfcLabora="EKU9003173C9" PorcentajeTiempo="60.000"/>
+        <nomina12:SubContratacion RfcLabora="URE180429TM6" PorcentajeTiempo="40.000"/>
+      </nomina12:Receptor>
+      <nomina12:Percepciones TotalSueldos="1700.00" TotalSeparacionIndemnizacion="60000.00" TotalGravado="25300.00" TotalExento="36400.00">
+        <nomina12:Percepcion TipoPercepcion="019" Clave="00519" Concepto="Horas extra" ImporteGravado="300.00" ImporteExento="300.00">
+          <nomina12:HorasExtra Dias="2" TipoHoras="01" HorasExtra="6" ImportePagado="600.00"/>
+        </nomina12:Percepcion>
+        <nomina12:Percepcion TipoPercepcion="014" Clave="00514" Concepto="Subsidio por incapacidad" ImporteGravado="0.00" ImporteExento="1100.00"/>
+        <nomina12:Percepcion TipoPercepcion="022" Clave="00522" Concepto="Prima por antigüedad" ImporteGravado="5000.00" ImporteExento="10000.00"/>
+        <nomina12:Percepcion TipoPercepcion="025" Clave="00525" Concepto="Indemnización" ImporteGravado="20000.00" ImporteExento="25000.00"/>
+        <nomina12:SeparacionIndemnizacion TotalPagado="60000.00" NumAñosServicio="7" UltimoSueldoMensOrd="15000.00" IngresoAcumulable="15000.00" IngresoNoAcumulable="10000.00"/>
+      </nomina12:Percepciones>
+      <nomina12:Deducciones TotalOtrasDeducciones="500.00" TotalImpuestosRetenidos="6200.00">
+        <nomina12:Deduccion TipoDeduccion="002" Clave="00302" Concepto="ISR" Importe="6200.00"/>
+        <nomina12:Deduccion TipoDeduccion="004" Clave="00304" Concepto="Préstamo de la empresa" Importe="500.00"/>
+      </nomina12:Deducciones>
+      <nomina12:OtrosPagos>
+        <nomina12:OtroPago TipoOtroPago="002" Clave="00101" Concepto="Subsidio para el empleo (efectivamente entregado al trabajador)" Importe="0.01">
+          <nomina12:SubsidioAlEmpleo SubsidioCausado="107.40"/>
+        </nomina12:OtroPago>
+        <nomina12:OtroPago TipoOtroPago="004" Clave="00104" Concepto="Aplicación de saldo a favor por compensación anual" Importe="215.00">
+          <nomina12:CompensacionSaldosAFavor SaldoAFavor="600.00" Año="2025" RemanenteSalFav="215.00"/>
+        </nomina12:OtroPago>
+      </nomina12:OtrosPagos>
+      <nomina12:Incapacidades>
+        <nomina12:Incapacidad DiasIncapacidad="7" TipoIncapacidad="02" ImporteMonetario="1100.00"/>
+      </nomina12:Incapacidades>
+    </nomina12:Nomina>
+  </cfdi:Complemento>
+</cfdi:Comprobante>

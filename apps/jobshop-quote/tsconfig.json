@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "types": [
+      "vite/client",
+      "@cloudflare/vitest-plugin/types",
+      "./src/worker/worker-configuration.d.ts"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["src/shared/*"],
+      "@worker/*": ["src/worker/*"],
+      "@client/*": ["src/client/*"],
+      "@test/*": ["test/*"],
+      "@cad-features": ["../../packages/cad-features/src/index.ts"],
+      "@billing": ["../../packages/billing/src/index.ts"]
+    }
+  },
+  "include": ["src", "test", "*.ts"]
+}

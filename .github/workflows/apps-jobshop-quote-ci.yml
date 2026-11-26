@@ -1,0 +1,117 @@
+# Moved from Duncan-Haywood/private-monorepo .github/workflows/jobshop-quote-ci.yml at b1b7c3f63ce2 (2026-11-26);
+# actions pinned to .github/ci-policy.yaml SHAs, checkout without persisted credentials.
+# PR checks for apps/jobshop-quote. Never needs secrets (FakeLlm, local D1/R2).
+name: apps-jobshop-quote-ci
+on:
+  pull_request:
+    paths:
+      - "apps/jobshop-quote/**"
+      - "packages/cad-features/**"
+      - "packages/billing/**"
+      # src/shared/plans.test.ts checks the app's plans against the pricing page's.
+      - "apps/jobshop-site/src/shared/plans.ts"
+      - ".github/workflows/apps-jobshop-quote-ci.yml"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - "biome.json"
+  push:
+    branches-ignore: [main]
+    paths:
+      - "apps/jobshop-quote/**"
+      - "packages/cad-features/**"
+      - "packages/billing/**"
+      # src/shared/plans.test.ts checks the app's plans against the pricing page's.
+      - "apps/jobshop-site/src/shared/plans.ts"
+      - ".github/workflows/apps-jobshop-quote-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jobshop-quote-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+    working-directory: apps/jobshop-quote
+
+jobs:
+  check:
+    name: lint, types, tests, build, migrations
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Biome
+        run: pnpm exec biome ci .
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit tests
+        run: pnpm test:unit
+      - name: Worker integration tests (workerd, fake externals)
+        run: pnpm test:worker
+      - name: Build
+        run: pnpm build
+      - name: Deploy provisioning script
+        run: node --test scripts/provision.test.mjs scripts/email-routing.test.mjs
+      - name: D1 migrations in sync with schema
+        run: |
+          pnpm exec drizzle-kit check
+          timeout 120 pnpm exec drizzle-kit generate </dev/null
+          drift="$(git status --porcelain --untracked-files=all -- migrations)"
+          if [[ -n "$drift" ]]; then
+            echo "::error title=Schema and migrations out of sync::Run 'pnpm db:generate' in apps/jobshop-quote and commit the result."
+            echo "$drift"
+            exit 1
+          fi
+
+  # The browser suite (test/e2e, docs in README "Tests"): sign-up to a priced, sent and won quote with the
+  # prices checked against hand-worked figures, tenant isolation across two shops, no page wider
+  # than a 390 px phone, a STEP-sized blank, the quote email, a revision, the rate-card import and
+  # an invited estimator's limits. Offline (FakeLlm, fresh local D1), so it never needs a secret.
+  e2e:
+    name: e2e (Playwright, offline)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Cache Playwright browsers
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Playwright
+        run: scripts/e2e-run.sh
+        env:
+          CI: "true"
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: jobshop-quote-playwright-report
+          path: |
+            apps/jobshop-quote/playwright-report/
+            apps/jobshop-quote/test-results/e2e/
+          if-no-files-found: ignore
+          retention-days: 14

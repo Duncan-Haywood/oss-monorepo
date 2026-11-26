@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A road transfer of fuel and soft drinks from Villahermosa to two depots: a tractor with a semi-trailer (T3S2), hazardous goods (UN 1203 in steel drums) with the environmental policy, distances summed into TotalDistRec, quantities tied to their origin and destination, and the driver's licence.
+     Synthetic and unstamped: SAT's test RFC EKU9003173C9, made-up plates, permits and
+     policies. Expects no finding (cartaporte31.test.mjs); eval/cartaporte-mutations.mjs
+     plants defects in it and eval/cartaporte-xsd-diff.mjs mutates it against xmllint. -->
+<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" xmlns:cartaporte31="http://www.sat.gob.mx/CartaPorte31" Version="4.0" Serie="CP" Folio="1" Fecha="2026-11-10T07:00:00" SubTotal="0" Moneda="XXX" Total="0" TipoDeComprobante="T" Exportacion="01" LugarExpedicion="86000" NoCertificado="30001000000500003416" Sello="" Certificado="">
+  <cfdi:Emisor Rfc="EKU9003173C9" Nombre="ESCUELA KEMPER URGATE" RegimenFiscal="601"/>
+  <cfdi:Receptor Rfc="EKU9003173C9" Nombre="ESCUELA KEMPER URGATE" DomicilioFiscalReceptor="86000" RegimenFiscalReceptor="601" UsoCFDI="S01"/>
+  <cfdi:Conceptos>
+    <cfdi:Concepto ClaveProdServ="15101515" NoIdentificacion="GAS-91" Cantidad="4000" ClaveUnidad="LTR" Descripcion="Gasolina premium" ValorUnitario="0" Importe="0" ObjetoImp="01"/>
+    <cfdi:Concepto ClaveProdServ="50202306" NoIdentificacion="REF-600" Cantidad="300" ClaveUnidad="XBX" Descripcion="Refrescos en caja" ValorUnitario="0" Importe="0" ObjetoImp="01"/>
+  </cfdi:Conceptos>
+  <cfdi:Complemento>
+    <cartaporte31:CartaPorte Version="3.1" IdCCP="CCC1A2B3-4C5D-4E6F-8A9B-0C1D2E3F4A5B" TranspInternac="No" TotalDistRec="312.5">
+      <cartaporte31:Ubicaciones>
+        <cartaporte31:Ubicacion TipoUbicacion="Origen" IDUbicacion="OR000001" RFCRemitenteDestinatario="EKU9003173C9" NombreRemitenteDestinatario="ESCUELA KEMPER URGATE" FechaHoraSalidaLlegada="2026-11-10T08:00:00">
+          <cartaporte31:Domicilio Calle="Avenida Paseo Tabasco" NumeroExterior="1203" Municipio="004" Estado="TAB" Pais="MEX" CodigoPostal="86000"/>
+        </cartaporte31:Ubicacion>
+        <cartaporte31:Ubicacion TipoUbicacion="Destino" IDUbicacion="DE000001" RFCRemitenteDestinatario="EKU9003173C9" NombreRemitenteDestinatario="ESCUELA KEMPER URGATE" FechaHoraSalidaLlegada="2026-11-10T10:30:00" DistanciaRecorrida="160">
+          <cartaporte31:Domicilio Calle="Carretera Federal 180" Municipio="003" Estado="CAM" Pais="MEX" CodigoPostal="24100"/>
+        </cartaporte31:Ubicacion>
+        <cartaporte31:Ubicacion TipoUbicacion="Destino" IDUbicacion="DE000002" RFCRemitenteDestinatario="EKU9003173C9" NombreRemitenteDestinatario="ESCUELA KEMPER URGATE" FechaHoraSalidaLlegada="2026-11-10T13:00:00" DistanciaRecorrida="152.5">
+          <cartaporte31:Domicilio Calle="Avenida Central" Municipio="002" Estado="CAM" Pais="MEX" CodigoPostal="24000"/>
+        </cartaporte31:Ubicacion>
+      </cartaporte31:Ubicaciones>
+      <cartaporte31:Mercancias PesoBrutoTotal="9040.000" UnidadPeso="KGM" NumTotalMercancias="2">
+        <cartaporte31:Mercancia BienesTransp="15101515" Descripcion="Gasolina premium" Cantidad="4000" ClaveUnidad="LTR" MaterialPeligroso="Sí" CveMaterialPeligroso="1203" Embalaje="1A1" DescripEmbalaje="Bidones de acero" PesoEnKg="3000.000">
+          <cartaporte31:CantidadTransporta Cantidad="4000" IDOrigen="OR000001" IDDestino="DE000001"/>
+        </cartaporte31:Mercancia>
+        <cartaporte31:Mercancia BienesTransp="50202306" Descripcion="Refrescos en caja" Cantidad="300" ClaveUnidad="XBX" PesoEnKg="6040.000">
+          <cartaporte31:CantidadTransporta Cantidad="300" IDOrigen="OR000001" IDDestino="DE000002"/>
+        </cartaporte31:Mercancia>
+        <cartaporte31:Autotransporte PermSCT="TPAF03" NumPermisoSCT="PERM-0001-2026">
+          <cartaporte31:IdentificacionVehicular ConfigVehicular="T3S2" PesoBrutoVehicular="41.50" PlacaVM="AB1234C" AnioModeloVM="2022"/>
+          <cartaporte31:Seguros AseguraRespCivil="ASEGURADORA EJEMPLO" PolizaRespCivil="RC-123456" AseguraMedAmbiente="ASEGURADORA EJEMPLO" PolizaMedAmbiente="MA-654321"/>
+          <cartaporte31:Remolques>
+            <cartaporte31:Remolque SubTipoRem="CTR004" Placa="RM1234A"/>
+          </cartaporte31:Remolques>
+        </cartaporte31:Autotransporte>
+      </cartaporte31:Mercancias>
+      <cartaporte31:FiguraTransporte>
+        <cartaporte31:TiposFigura TipoFigura="01" RFCFigura="EKU9003173C9" NumLicencia="LFED123456" NombreFigura="OPERADOR DE EJEMPLO"/>
+      </cartaporte31:FiguraTransporte>
+    </cartaporte31:CartaPorte>
+  </cfdi:Complemento>
+</cfdi:Comprobante>

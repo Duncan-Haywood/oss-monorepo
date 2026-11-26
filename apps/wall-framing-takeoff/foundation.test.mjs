@@ -1,0 +1,218 @@
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import { layoutFoundation, sampleFoundation, validateFoundation, foundationText } from "./foundation.mjs";
+
+const near = (a, b, tol = 1e-3) => assert.ok(Math.abs(a - b) <= tol, `${a} vs ${b}`);
+
+test("stem footing volume is centreline length x width x depth, by hand", () => {
+  // 40 x 28 ft outside, 20 in footing: centreline (480-20)+(336-20)=776 each way pair -> 1552 in
+  const l = layoutFoundation({ ...sampleFoundation(), interior: [] });
+  assert.ok(l.ok);
+  near(l.centreline, 1552);
+  near(l.pours.find((p) => p.name === "footing").cuYd, 1552 * 20 * 10 / 46656, 0.001);
+});
+
+test("stem slab is the clear area inside the stem wall", () => {
+  const l = layoutFoundation(sampleFoundation());
+  near(l.slabSqFt, (480 - 20 - 8) * (336 - 20 - 8) / 144, 0.1);
+  near(l.pours.find((p) => p.name === "slab").cuYd, (452 * 308 * 4) / 46656, 0.001);
+});
+
+test("a monolithic slab is the whole slab plus only the deeper edge band", () => {
+  const f = { type: "monolithic", width: 480, depth: 336, footing: { width: 12, depth: 16 }, slab: { thickness: 4 } };
+  const l = layoutFoundation(f);
+  near(l.pours.find((p) => p.name === "slab").cuYd, 480 * 336 * 4 / 46656, 0.001);
+  const band = 480 * 336 - 456 * 312;
+  near(l.pours.find((p) => p.name === "thickened edge").cuYd, band * 12 / 46656, 0.001);
+});
+
+test("truck count rounds up and warns about a short last load", () => {
+  const l = layoutFoundation(sampleFoundation());
+  assert.equal(l.concrete.trucks, Math.ceil(l.concrete.order / 10));
+  const small = layoutFoundation({ ...sampleFoundation(), truck: 6 });
+  assert.ok(small.concrete.trucks >= 1);
+});
+
+test("rebar longer than a stock bar gets lapped joints", () => {
+  const l = layoutFoundation({ ...sampleFoundation(), interior: [] });
+  const r = l.rebar.find((x) => x.what === "footing continuous bars");
+  // loop = 2*((480-6)+(336-6)) = 1608 in, #4 lap 20 in, 20 ft stock -> ceil((1608-20)/220)=8 bars per line
+  assert.equal(r.qty, 2 * 8);
+  near(r.feet, 2 * (1608 + 7 * 20) / 12, 0.1);
+});
+
+test("slab grid counts bars each way from the spacing", () => {
+  const l = layoutFoundation(sampleFoundation());
+  const w = l.rebar.find((x) => x.what === "slab bars along the width");
+  const d = l.rebar.find((x) => x.what === "slab bars along the depth");
+  const ny = Math.floor((308 - 6) / 18) + 1;
+  const nx = Math.floor((452 - 6) / 18) + 1;
+  assert.equal(w.qty, ny * Math.ceil((452 - 6 - 15) / (240 - 15)));
+  assert.equal(d.qty, nx * Math.ceil((308 - 6 - 15) / (240 - 15)));
+});
+
+test("bad inputs are refused with the reason", () => {
+  assert.match(validateFoundation({ ...sampleFoundation(), width: 50 })[0], /width/);
+  assert.match(validateFoundation({ ...sampleFoundation(), footing: { bar: 9 } }).join(" "), /#9/);
+  assert.match(validateFoundation({ type: "monolithic", width: 480, depth: 336, footing: { depth: 4 } }).join(" "), /deeper/);
+  assert.equal(layoutFoundation({ ...sampleFoundation(), stem: { thickness: 30 } }).ok, false);
+});
+
+test("text output names the pours, the trucks and the rebar weight", () => {
+  const t = foundationText(layoutFoundation(sampleFoundation())).join("\n");
+  assert.match(t, /footing/);
+  assert.match(t, /truck/);
+  assert.match(t, /Rebar, \d+ lb/);
+});
+
+test("anchor bolts: two per plate piece, within the end distance, at most the spacing apart", () => {
+  // stem 8 in: plate sides are 460+8=468 in and 316+8=324 in, each cut into 192 in stock pieces
+  const l = layoutFoundation({ ...sampleFoundation(), anchorBolts: {} });
+  assert.ok(l.ok);
+  // 468 -> 3 pieces of 156 in: ceil((156-24)/72)+1 = 3 bolts each (x2 sides = 18)
+  // 324 -> 2 pieces of 162 in: ceil((162-24)/72)+1 = 3 bolts each (x2 sides = 12)
+  assert.equal(l.anchors.pieces, 10);
+  assert.equal(l.anchors.bolts, 30);
+  assert.ok(foundationText(l).some((x) => /Anchor bolts: 30/.test(x)));
+});
+
+test("sill plate feet and sill seal rolls: 2x468 + 2x324 in = 132 ft, +5% over 50 ft rolls", () => {
+  const l = layoutFoundation({ ...sampleFoundation(), anchorBolts: {} });
+  assert.equal(l.anchors.plateFeet, 132);
+  assert.equal(l.anchors.sealRolls, 3); // 138.6 / 50 = 2.77
+  const l2 = layoutFoundation({ ...sampleFoundation(), anchorBolts: { sealRoll: 200 } });
+  assert.equal(l2.anchors.sealRolls, 1);
+  assert.equal(layoutFoundation({ ...sampleFoundation(), anchorBolts: { sealRoll: 5 } }).ok, false);
+  assert.ok(foundationText(l).some((x) => /Sill plate: 10 treated boards, 132 ft; sill seal: 3 roll/.test(x)));
+});
+
+test("a short plate piece still gets two bolts; no anchorBolts key means no count", () => {
+  const l = layoutFoundation({ type: "stem", width: 144, depth: 144, anchorBolts: { spacing: 120 } });
+  assert.equal(l.anchors.bolts, 8); // 4 sides of ~136 in, ceil((136-24)/120)+1 = 2 each
+  assert.equal(layoutFoundation(sampleFoundation()).anchors, null);
+});
+
+test("anchor bolt inputs are validated", () => {
+  assert.ok(validateFoundation({ ...sampleFoundation(), anchorBolts: { spacing: 200 } }).some((x) => /spacing/.test(x)));
+});
+
+test("cornerBars: straight side runs plus an L-bar per layer per corner, legs one lap long", () => {
+  const base = layoutFoundation(sampleFoundation());
+  const l = layoutFoundation({ ...sampleFoundation(), cornerBars: true });
+  assert.ok(l.ok);
+  const footL = l.rebar.find((r) => /footing corner L-bars/.test(r.what));
+  assert.equal(footL.qty, 8); // 2 layers x 4 corners
+  near(footL.length, 40 / 12, 0.01); // #4 lap = 40 x 0.5 in = 20 in a leg
+  assert.equal(l.rebar.find((r) => /stem horizontal corner L-bars/.test(r.what)).qty, 8);
+  assert.ok(!l.rebar.some((r) => /continuous/.test(r.what)));
+  // sides: 2 layers x (474 + 474 + 330 + 330) in of straight bar, plus splices, plus the corner bars
+  const side = l.rebar.filter((r) => /footing bars, (long|short) sides/.test(r.what)).reduce((s, r) => s + r.feet, 0);
+  assert.ok(side >= 2 * 2 * (474 + 330) / 12 - 0.5);
+  assert.ok(l.rebarLb > base.rebarLb); // corner bars add steel to the bent-loop count
+  assert.ok(base.notes.some((n) => /continuous loop/.test(n)) && l.notes.some((n) => /L-bar at every corner/.test(n)));
+});
+
+test("piers: pad and column volume and rebar by hand", () => {
+  const base = layoutFoundation(sampleFoundation());
+  const l = layoutFoundation({ ...sampleFoundation(), piers: [{ name: "deck", count: 4, pad: 24, padDepth: 12, column: 8, columnHeight: 30 }] });
+  assert.ok(l.ok);
+  const p = l.pours.find((x) => x.name.startsWith("deck"));
+  near(p.cuYd, 4 * (24 * 24 * 12 + 8 * 8 * 30) / 46656, 0.001);
+  // verticals: 4 per column, (12 - 3 + 30 + 20) in each; mat: floor(18/6)+1 = 4 bars each way, 18 in long
+  const v = l.rebar.find((r) => r.what === "deck column verticals"), m = l.rebar.find((r) => r.what === "deck pad mat");
+  assert.equal(v.qty, 16); near(v.feet, 16 * 59 / 12, 0.1);
+  assert.equal(m.qty, 32); near(m.feet, 32 * 18 / 12, 0.1);
+  assert.ok(l.rebarLb > base.rebarLb);
+});
+
+test("piers are validated", () => {
+  assert.ok(validateFoundation({ ...sampleFoundation(), piers: [{ count: 0, pad: 24, padDepth: 12 }] }).length);
+  assert.ok(validateFoundation({ ...sampleFoundation(), piers: [{ count: 2, pad: 12, padDepth: 12, column: 16, columnHeight: 10 }] }).length);
+});
+
+test("a footing step makes the stem taller over the lowered run and adds a riser block", () => {
+  const base = layoutFoundation({ ...sampleFoundation(), interior: [] });
+  const f = sampleFoundation(); f.interior = []; f.footing = { ...f.footing, steps: [{ rise: 16, length: 120 }] };
+  const l = layoutFoundation(f);
+  assert.ok(l.ok);
+  near(l.pours.find((p) => p.name === "stem wall").cuYd - base.pours.find((p) => p.name === "stem wall").cuYd, 120 * 16 * 8 / 46656, 1e-3);
+  near(l.pours.find((p) => p.name === "footing step risers").cuYd, 20 * 16 * 10 / 46656, 1e-3);
+  near(l.forms.contactSqFt - base.forms.contactSqFt, 2 * 120 * 16 / 144, 0.1);
+  assert.ok(l.rebar.some((r) => r.what.startsWith("step 1 stem verticals") && r.qty === Math.ceil(120 / 32)));
+  assert.ok(!l.notes.some((n) => n.includes("steeper")));
+});
+
+test("a step steeper than 1 to 2 warns, and a bad rise is refused", () => {
+  const f = sampleFoundation(); f.footing = { ...f.footing, steps: [{ rise: 20, length: 30 }] };
+  assert.ok(layoutFoundation(f).notes.some((n) => n.includes("steeper")));
+  f.footing.steps = [{ rise: 40, length: 100 }];
+  assert.ok(!layoutFoundation(f).ok);
+});
+
+test("pier bearing: load over pad area against typed soil pressure, by hand", () => {
+  // 24 in pad = 4 sq ft; 10,000 lb is 2,500 psf. Soil 2,000 psf fails and needs sqrt(5)*12 = 26.8 -> 27 in; 3,000 psf passes.
+  const mk = (soilBearing) => layoutFoundation({ ...sampleFoundation(), soilBearing, piers: [{ name: "post", count: 2, pad: 24, padDepth: 12, load: 10000 }] });
+  const bad = mk(2000), good = mk(3000);
+  assert.equal(bad.pierChecks[0].pressure, 2500); assert.equal(bad.pierChecks[0].ok, false); assert.equal(bad.pierChecks[0].minPad, 27);
+  assert.ok(bad.notes.some((n) => /27 in square/.test(n)));
+  assert.equal(good.pierChecks[0].ok, true); assert.ok(!good.notes.some((n) => /psf you typed/.test(n)));
+  assert.deepEqual(layoutFoundation(sampleFoundation()).pierChecks, []);
+  assert.ok(validateFoundation({ ...sampleFoundation(), soilBearing: 100 }).length);
+});
+
+test("walkout stem adds a wedge of wall, by hand", () => {
+  const base = layoutFoundation({ ...sampleFoundation(), interior: [] });
+  const f = { ...sampleFoundation(), interior: [] }; f.stem = { ...f.stem, walkout: { length: 240, extra: 48 } };
+  const l = layoutFoundation(f);
+  assert.ok(l.ok);
+  // wedge face = 240 x 48 / 2 = 5760 sq in, x 8 in thick
+  near(l.pours.find((p) => p.name === "stem wall").cuYd - base.pours.find((p) => p.name === "stem wall").cuYd, 5760 * 8 / 46656, 0.001);
+  near(l.forms.contactSqFt - base.forms.contactSqFt, 2 * 5760 / 144, 0.1);
+  const v = l.rebar.find((r) => r.what.startsWith("walkout stem verticals"));
+  assert.equal(v.qty, Math.ceil(240 / 32));
+  assert.ok(l.notes.some((n) => n.startsWith("Walkout")));
+  f.stem.walkout = { length: 10, extra: 48 };
+  assert.ok(!layoutFoundation(f).ok);
+});
+
+test("walkout footing steps down in equal steps, by hand", () => {
+  const f = { ...sampleFoundation(), interior: [] }; f.stem = { ...f.stem, walkout: { length: 240, extra: 48, maxStepRise: 16 } };
+  const l = layoutFoundation(f);
+  assert.ok(l.ok);
+  assert.equal(l.walkoutSteps.length, 3); // ceil(48 / 16)
+  assert.equal(l.walkoutSteps[0].rise, 16); assert.equal(l.walkoutSteps[0].length, 80);
+  // risers: 3 x footing width x 16 x footing depth
+  const ft = l.footing; near(l.pours.find((p) => p.name === "walkout footing step risers").cuYd, 3 * ft.width * 16 * ft.depth / 46656, 0.001);
+  assert.ok(!l.notes.some((n) => n.includes("steeper")));
+  f.stem.walkout = { length: 60, extra: 48, maxStepRise: 24 }; // 2 steps of 24 over 30 in: steeper than 1:2
+  assert.ok(layoutFoundation(f).notes.some((n) => n.startsWith("Walkout footing steps") && n.includes("steeper")));
+  f.stem.walkout = { length: 240, extra: 48, maxStepRise: 2 };
+  assert.ok(!layoutFoundation(f).ok);
+  assert.equal(layoutFoundation({ ...sampleFoundation(), interior: [] }).walkoutSteps.length, 0);
+});
+
+test("malformed foundation bodies come back as errors, not exceptions", () => {
+  const b = { width: 480, depth: 360 };
+  for (const bad of [null, "x", [], { ...b, footing: null, interior: "a" }, { ...b, interior: [null] }, { ...b, piers: {} }, { ...b, piers: [null] }, { ...b, footing: { steps: {} } }, { ...b, footing: { steps: [null] } }, { ...b, stem: { walkout: "x" } }, { ...b, slab: [] }]) {
+    const r = layoutFoundation(bad);
+    assert.equal(r.ok, false, JSON.stringify(bad));
+    assert.ok(r.errors.length > 0);
+  }
+  assert.equal(layoutFoundation({ ...b, anchorBolts: null }).ok, true);
+});
+
+test("validateFoundation refuses numbers given as text (a text waste made the order 10x too big)", () => {
+  const s = sampleFoundation();
+  for (const bad of [{ waste: "0.1" }, { width: "480" }, { truck: "10" }, { footing: { ...s.footing, width: "20" } }, { stem: { ...s.stem, height: "32" } }, { interior: [{ length: "336" }] }]) {
+    const e = validateFoundation({ ...s, ...bad });
+    assert.ok(e.length && /must be a number/.test(e[0]), JSON.stringify(bad));
+  }
+  assert.deepEqual(validateFoundation(s), []);
+});
+
+test("validateFoundation bounds the slab gravel base (1e9 in once ordered a billion cubic yards)", () => {
+  const s = sampleFoundation();
+  for (const v of [1e9, -1, 25]) assert.ok(validateFoundation({ ...s, slab: { ...s.slab, baseThickness: v } }).some((x) => /base/.test(x)), String(v));
+  assert.deepEqual(validateFoundation({ ...s, slab: { ...s.slab, baseThickness: 0 } }), []);
+  assert.deepEqual(validateFoundation(s), []);
+});

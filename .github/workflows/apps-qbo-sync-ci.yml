@@ -1,0 +1,52 @@
+# Moved from Duncan-Haywood/private-monorepo .github/workflows/qbo-sync-ci.yml at b1b7c3f63ce2 (2026-11-26);
+# actions pinned to .github/ci-policy.yaml SHAs, checkout without persisted credentials.
+# PR checks for packages/qbo-sync (QuickBooks Online AccountingSync library). Needs no secrets:
+# every test runs against the in-memory fake or hand-written HTTP fixtures.
+name: apps-qbo-sync-ci
+on:
+  pull_request:
+    paths:
+      - "packages/qbo-sync/**"
+      - ".github/workflows/apps-qbo-sync-ci.yml"
+      - "tsconfig.base.json"
+      - "biome.json"
+  push:
+    branches-ignore: [main]
+    paths:
+      - "packages/qbo-sync/**"
+      - ".github/workflows/apps-qbo-sync-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qbo-sync-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+    working-directory: packages/qbo-sync
+
+jobs:
+  check:
+    name: lint, types, tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Biome
+        run: pnpm exec biome ci .
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit tests (fake + HTTP fixtures, no network)
+        run: pnpm test

@@ -1,0 +1,17 @@
+// Test-only Worker config used by vitest.worker.config.ts: wrangler.jsonc minus static assets.
+// test/unit/wrangler-config.test.ts asserts the two stay in sync.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "seller-books",
+  "main": "src/worker/index.ts",
+  "compatibility_date": "2026-11-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    { "binding": "DB", "database_name": "seller-books", "database_id": "local-test" }
+  ],
+  "vars": {
+    "APP_ENV": "test",
+    "APP_URL": "http://localhost:5173",
+    "FAKE_EXTERNALS": "true"
+  }
+}

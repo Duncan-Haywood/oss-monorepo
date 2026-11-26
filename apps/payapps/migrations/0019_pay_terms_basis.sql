@@ -1,0 +1,1 @@
+ALTER TABLE `projects` ADD `pay_terms_basis` text DEFAULT 'application_date' NOT NULL;

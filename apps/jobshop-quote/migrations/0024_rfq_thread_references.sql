@@ -1,0 +1,1 @@
+ALTER TABLE `rfqs` ADD `thread_references` text;

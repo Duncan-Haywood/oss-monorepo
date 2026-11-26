@@ -1,0 +1,1 @@
+ALTER TABLE `projects` ADD `pay_terms_days` integer;

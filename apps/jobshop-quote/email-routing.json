@@ -1,0 +1,7 @@
+{
+  "$comment": "Inbound RFQ email as code (docs/EMAIL.md, 'Routing as code'). scripts/email-routing.mjs makes Cloudflare match this: Email Routing on for `domain` (a subdomain of `zone`), subaddressing on for the zone, and one literal rule `rfq@<domain>` sending to `worker`. Shops' addresses are rfq+<token>@<domain>. The deploy sets INBOUND_EMAIL_DOMAIN to `domain` only after this applied cleanly.",
+  "zone": "marisstella.app",
+  "domain": "rfq.marisstella.app",
+  "local": "rfq",
+  "worker": "jobshop-quote"
+}
