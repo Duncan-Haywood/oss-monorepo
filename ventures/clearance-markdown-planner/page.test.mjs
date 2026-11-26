@@ -99,3 +99,7 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("LICENSE"), /Functional Source License/);
   assert.match(page("VENTURE.yaml"), /^name: clearance-markdown-planner$/m);
 });
+
+test("the page links to Reseller Books, the paid product it is the front door for", () => {
+  assert.match(page("index.html"), /<a href="\.\.\/reseller-books\/">Reseller Books<\/a>/);
+});
