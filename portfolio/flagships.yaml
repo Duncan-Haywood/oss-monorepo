@@ -47,14 +47,16 @@
 # value"; north star $10k MRR). The top rows are the bets of
 # portfolio/monetization/bets.md, in its order, each with:
 #   bet: <N>    its rank in bets.md (validate.py: rows 1..N first, in order);
-#   app: private-monorepo/apps/<slug>  where its deepening work happens. Attach
-#               that repository with add_repo (push access). A bet with no
-#               ventures/<slug> directory still gets a Deepen row in
-#               allocate.py from `app:`.
+#   app: apps/<slug>  where its deepening work happens, in this repository
+#               (the paid apps moved here from private-monorepo on 2026-11-26).
+#               Only grants stays private: `private-monorepo/apps/grants`
+#               (it holds client-confidential material; attach that repository with
+#               add_repo, push access). A bet with no ventures/<slug> directory
+#               still gets a Deepen row in allocate.py from `app:`.
 #   front_door: [<slug>, ...]  optional: the ventures/<slug> folders that are
 #               the bet's public side here (free tool, guides). allocate.py
-#               lists which of them a live open PR is on, so a run whose clone
-#               is refused picks a free one (validate.py: each must exist).
+#               lists which of them a live open PR is on, so parallel runs
+#               pick a free one (validate.py: each must exist).
 # Every other row carries `demoted: <reason>` and sits below the bets; it keeps
 # its `next:` for runs that hold one of its inputs, but a free run takes a bet.
 # Change the order with evidence in bets.md, not here. Each bet's paid model is
@@ -72,7 +74,7 @@ flagships:
   - venture: payapps
     bet: 1
     front_door: [pay-application-generator, pay-app-guides, lien-waiver-checker, mechanics-lien-deadline-calculator]
-    app: private-monorepo/apps/payapps
+    app: apps/payapps
     why: >-
       Bet 1 (score 22): specialty subcontractors and small GCs prepare monthly AIA
       G702/G703 pay applications, track retainage, chase lien waivers and change
@@ -82,7 +84,7 @@ flagships:
       RFIs, estimating; bet 6 becomes its estimating module). The owner's favourite
       vertical.
     next: >-
-      Built in private-monorepo/apps/payapps (attach it with add_repo, push access).
+      Built in apps/payapps (moved here from private-monorepo, 2026-11-26).
       Landed: (1) jobs with a schedule of values and monthly pay apps with
       retainage, PDF and CSV in its own layout; (2) change orders; plans and Paddle
       billing, dark (private-monorepo PR #37: Free 1 active job, Solo $99, Crew
@@ -111,7 +113,7 @@ flagships:
   - venture: jobshop-quote
     bet: 2
     front_door: [machine-shop-guides, cnc-machining-quote-calculator]
-    app: private-monorepo/apps/jobshop-quote
+    app: apps/jobshop-quote
     why: >-
       Bet 2 (score 19, ranked up for willingness to pay): CNC and fabrication job
       shops turn RFQs (drawings, CAD, email) into priced quotes by hand, often hours
@@ -120,7 +122,7 @@ flagships:
       sources), so ship narrow and soon. Same buyers as bet 4 (CMMC). The public
       cnc-machining-quote-calculator is a lead magnet for it. New app.
     next: >-
-      Built in private-monorepo/apps/jobshop-quote (add_repo, push access). Landed: (1)
+      Built in apps/jobshop-quote (moved here 2026-11-26). Landed: (1)
       rate card and pure quote engine, RFQ intake, verified extraction, quote PDF, won/lost
       log (private-monorepo PR #30, on Haiku); (2) STEP/DXF in through packages/cad-features
       (PR #29, DXF expansion budget; PR #40): a solid's box sizes the blank, one measured
@@ -135,7 +137,7 @@ flagships:
   - venture: einvoice-preflight
     bet: 3
     front_door: [einvoice-preflight]
-    app: private-monorepo/apps/einvoice-preflight
+    app: apps/einvoice-preflight
     why: >-
       Bet 3 (score 21, hard legal deadlines): Germany requires issuing e-invoices
       above EUR 800k turnover from 1 Jan 2027 and for everyone from 2028; France's
@@ -145,8 +147,8 @@ flagships:
       import (LICENSING_TRANSITION.md, "How one product moves"). Its public history
       and open rule items: ventures/einvoice-preflight/README.md and NEXT.md.
     next: >-
-      Import with private-monorepo/scripts/import-venture.mjs einvoice-preflight if
-      not yet done (record it in transition.py MOVED), then build there: (1) each
+      Imported to apps/einvoice-preflight (2026-11-24, PROVENANCE.md there; moved
+      here with the paid apps 2026-11-26); build there: (1) each
       failed rule explained in plain German, French and Dutch (what is wrong, where,
       how to fix), written once per rule, not generated per call; (2) a safe
       auto-fix for the mechanical failures (rounding, missing codes with one valid
@@ -161,7 +163,7 @@ flagships:
   - venture: cmmc
     bet: 4
     front_door: [machine-shop-guides]
-    app: private-monorepo/apps/cmmc
+    app: apps/cmmc
     why: >-
       Bet 4 (score 19): CMMC Phase 1 took effect 10 Nov 2025 and Level 1/2
       self-assessments remain required after Phase 2's suspension; the DoD estimates
@@ -169,8 +171,8 @@ flagships:
       month, PreVeil Pass $450 for 3 users, consultants $3k to $25k for an SSP and
       POA&M (bets.md, with sources). Same machine shops as bet 2. New app.
     next: >-
-      Build in private-monorepo (add_repo, push access), scaffolded from apps/grants
-      with Paddle dark. Milestones: (1) the 110 NIST SP 800-171 Rev. 2 requirements
+      Build in apps/cmmc (scaffolded from the private apps/grants, moved here
+      2026-11-26) with Paddle dark. Milestones: (1) the 110 NIST SP 800-171 Rev. 2 requirements
       and their assessment objectives from NIST's public text, with a per-control
       status, evidence notes and the DoD assessment methodology's SPRS score
       (weights from the published method; unit tests on the scoring); (2) a System
@@ -186,7 +188,7 @@ flagships:
   - venture: seller-books
     bet: 5
     front_door: [reseller-books]
-    app: private-monorepo/apps/seller-books
+    app: apps/seller-books
     why: >-
       Bet 5 (score 21, but a $10 to $20 wedge price): multi-platform resellers
       (eBay, Poshmark, Mercari, Whatnot, Depop) need fees split out, cost of goods
@@ -195,9 +197,8 @@ flagships:
       with sources). No bank feed needed. The public reseller-books venture and the
       payout calculators are its lead magnets and its engine's starting point.
     next: >-
-      Build in private-monorepo (add_repo, push access), starting from
-      ventures/reseller-books' engines (import with import-venture.mjs, then rename
-      to seller-books), scaffolded from apps/grants with Paddle dark. Milestones:
+      Build in apps/seller-books (moved here 2026-11-26), starting from
+      ventures/reseller-books' engines, with Paddle dark. Milestones:
       (1) accounts and saved imports: payout and order CSVs from eBay, Poshmark,
       Mercari, Whatnot and Depop parsed into one ledger with fees, shipping and
       refunds split out, deduplicated across re-uploads (the public engines now read
@@ -220,17 +221,18 @@ flagships:
   - venture: wall-framing-takeoff
     bet: 6
     front_door: [wall-framing-takeoff, pdf-plan-takeoff]
-    app: private-monorepo/apps/wall-framing-takeoff
+    app: apps/wall-framing-takeoff
     why: >-
       Bet 6 (score 18): remodelers, roofers and framers buy takeoff (Togal.AI
       $249.99 to $299.99 a month, Handoff from $149, Buildxact about $199, roof
       reports about $13 to $38 each; 128,187 remodeler establishments; bets.md with
-      sources). Imported to private-monorepo (PR #8 there). Its engine frames every
+      sources). Imported to private-monorepo (PR #8 there), now apps/wall-framing-takeoff
+      here (2026-11-26). Its engine frames every
       wall and orders lumber within 0.02% of the LP bound; it becomes the estimating
       module of the bet 1 contractor suite. The free edition stays at
       ventures/wall-framing-takeoff (its real-input items: ROADMAP.md and NEXT.md).
     next: >-
-      Work in private-monorepo/apps/wall-framing-takeoff (add_repo, push access).
+      Work in apps/wall-framing-takeoff.
       Milestones: (1) roofing and siding material lists from a PDF plan set: roof
       planes, pitch, ridge, hip, valley and eave lengths to squares, underlayment,
       drip edge and starter; wall areas less openings to siding squares and trim,
@@ -249,6 +251,7 @@ flagships:
       adapter (apps/grants/src/worker/ports/billing/paddle.ts). Instrumentl lists
       $299 to $999 a month and reviewers call it pricey for small nonprofits
       (bets.md, with sources). Finishing its paid path is cheap; no large new build.
+      The one app left in private-monorepo (it holds client-confidential material).
     next: >-
       Work in private-monorepo/apps/grants (add_repo, push access). Milestones: (1)
       the Paddle checkout end to end in Paddle's sandbox with webhook-driven plan

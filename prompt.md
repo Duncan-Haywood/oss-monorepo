@@ -53,12 +53,13 @@ a scheduled venture run takes the top bet in
 [`portfolio/monetization/bets.md`](portfolio/monetization/bets.md) it can move
 toward a paying customer: vertical software for small and medium businesses,
 chosen by promise rather than by how much code exists (`goals.md`, "Where
-effort goes"). The bets' code lives in `private-monorepo`: try one clone
-([`cloud-session.md`](.github/prompts/cloud-session.md), "Reaching
-`private-monorepo`"); if it works, build there, and if it is refused (final for
-the session, no retry) take the bet's public side here (its
+effort goes"). The bets' code lives in this repository, in `apps/<app>` and
+`packages/<pkg>` (moved from `private-monorepo` on 2026-11-26; claim a ROADMAP
+item first with `python3 platform/ci/roadmap_claim.py <app>`). Only grants
+stays in `private-monorepo` ([`cloud-session.md`](.github/prompts/cloud-session.md),
+"The bets' code: here, except grants"). A bet's public side here (its
 front-door page or free tool, SEO and marketing pages, a research engine it
-uses). Free tools get work only as a front door to a bet.
+uses) is work for it too. Free tools get work only as a front door to a bet.
 
 **Website requests and flagships come after the bets** (owner, 2026-11-02, a
 "custom free dev shop for businesses", now ranked below the 2026-11-24

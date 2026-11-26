@@ -1099,7 +1099,8 @@ def test_reads_result_on_readme_cited_work():
 
 
 def test_park_and_history_for_a_private_flagship_go_to_the_notes_dir(tmp_path):
-    # Three 2026-11-25 run records: payapps lives in private-monorepo, so
+    # Three 2026-11-25 run records: payapps lived in private-monorepo (apps/ here
+    # since 2026-11-26, still with no ventures/ folder), so
     # ventures/payapps/ does not exist and --park/--history refused with
     # "no venture folder". The notes now go to portfolio/flagships/<v>/.
     f = tmp_path / "flagships.yaml"

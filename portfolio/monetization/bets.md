@@ -22,13 +22,17 @@ without a sales team, Margin, Time = time to first dollar.
 
 | # | Bet | Customer | WTP | Size | Dist | Margin | Time | Total | Where it is built |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | **Pay-app billing → contractor suite** | specialty subcontractors, small GCs | 4 | 5 | 4 | 5 | 4 | 22 | new `private-monorepo/apps/payapps` |
-| 2 | **AI RFQ-to-quote for job shops** | CNC and fabrication shops | 5 | 3 | 3 | 4 | 4 | 19 | new `private-monorepo/apps/jobshop-quote` |
-| 3 | **E-invoice fix-and-explain** | DE/FR SMEs, their accountants, small invoicing vendors | 3 | 5 | 4 | 5 | 4 | 21 | `einvoice-preflight` imported to private |
-| 4 | **CMMC L1/L2 + ISO 9001 workspace** | small defense/aerospace shops | 4 | 5 | 3 | 4 | 3 | 19 | new `private-monorepo/apps/cmmc` |
-| 5 | **Reseller profit and Schedule C books** | multi-platform resellers | 4 | 4 | 5 | 4 | 4 | 21 | new `private-monorepo/apps/seller-books` |
-| 6 | **Residential takeoff (roof, siding, framing lists from PDFs)** | remodelers, roofers, framers | 4 | 4 | 3 | 3 | 4 | 18 | `private-monorepo/apps/wall-framing-takeoff` |
-| 7 | **Grant Autopilot** (live) | small nonprofits | 4 | 3 | 3 | 3 | 3 | 16 | `private-monorepo/apps/grants` |
+| 1 | **Pay-app billing → contractor suite** | specialty subcontractors, small GCs | 4 | 5 | 4 | 5 | 4 | 22 | `apps/payapps` |
+| 2 | **AI RFQ-to-quote for job shops** | CNC and fabrication shops | 5 | 3 | 3 | 4 | 4 | 19 | `apps/jobshop-quote` |
+| 3 | **E-invoice fix-and-explain** | DE/FR SMEs, their accountants, small invoicing vendors | 3 | 5 | 4 | 5 | 4 | 21 | `apps/einvoice-preflight` (imported from `ventures/einvoice-preflight`) |
+| 4 | **CMMC L1/L2 + ISO 9001 workspace** | small defense/aerospace shops | 4 | 5 | 3 | 4 | 3 | 19 | `apps/cmmc` |
+| 5 | **Reseller profit and Schedule C books** | multi-platform resellers | 4 | 4 | 5 | 4 | 4 | 21 | `apps/seller-books` |
+| 6 | **Residential takeoff (roof, siding, framing lists from PDFs)** | remodelers, roofers, framers | 4 | 4 | 3 | 3 | 4 | 18 | `apps/wall-framing-takeoff` |
+| 7 | **Grant Autopilot** (live) | small nonprofits | 4 | 3 | 3 | 3 | 3 | 16 | `private-monorepo/apps/grants` (stays private: it holds client-confidential material) |
+
+The apps were built in `Duncan-Haywood/private-monorepo` from 2026-11-24 and
+moved to `apps/` and `packages/` in this repository on 2026-11-26 (PR #19220,
+[`apps/README.md`](../../apps/README.md)); only grants stays there.
 
 Why this order rather than by total: #1, #2 and #4 are SMBs at $99–$300+ a
 month in the owner's favourite verticals (construction, manufacturing), and #2

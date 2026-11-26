@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Claim a private-monorepo ROADMAP "Next" item before building it (backlog P079).
+"""Claim an app's ROADMAP "Next" item before building it (backlog P079).
 
 Parallel ventures runs read the same app ROADMAP and pick the same top item within
 minutes; the open-PR check at the start cannot see a PR opened ten minutes later
-(2026-11-25: private-monorepo PRs 106, 107 and 108 all built one slice; 107 and 108
+(2026-11-25: the private repo's PRs 106, 107 and 108 all built one slice; 107 and 108
 closed). A claim is a create-only branch `claim/<app>/<slug>` pushed to the clone's
 origin, holding one parentless empty commit whose message names the item, so the
 second run's push fails and it picks another item. No files, so no CI runs on it.
@@ -14,7 +14,10 @@ second run's push fails and it picks another item. No files, so no CI runs on it
         --note "HEIC and WebP photos only"                     # claim one part of an item
     python3 platform/ci/roadmap_claim.py payapps --release <slug>   # give up your own claim
 
---repo defaults to /home/user/private-monorepo. A claim older than --stale-hours (6) is
+--repo defaults to this clone, whose apps/<app>/ROADMAP.md is read and whose origin takes
+the claim branch: the paid apps moved here from private-monorepo (PRs 19220 and its
+follow-up, 2026-11-26). Only `grants` stays in the private repo (it names a client under an
+NDA), so for it --repo defaults to /home/user/private-monorepo. A claim older than --stale-hours (6) is
 shown as stale, and --claim on it takes a fresh generation (`<slug>--2`), since the run
 that made it has ended. A claim whose slug a later commit subject on origin/main names
 (the PR title, punctuation ignored) is shown as MERGED and is no sibling. A claim records a hash of the session id, so re-running --claim on
@@ -34,7 +37,9 @@ import time
 from pathlib import Path
 
 PREFIX = "claim/"
-DEFAULT_REPO = "/home/user/private-monorepo"
+ROOT = str(Path(__file__).resolve().parents[2])
+PRIVATE_REPO = "/home/user/private-monorepo"
+PRIVATE_APPS = frozenset({"grants"})  # still in Duncan-Haywood/private-monorepo (client NDA)
 CACHE = "refs/roadmap-claims/"
 GEN = re.compile(r"^(?P<base>.+?)--(?P<n>\d+)$")
 RUN = re.compile(r"\{run ([0-9a-f]{10})\}")
@@ -54,6 +59,11 @@ def run_tag() -> str | None:
 def is_mine(msg: str, tag: str | None) -> bool:
     m = RUN.search(msg)
     return bool(tag and m and m.group(1) == tag)
+
+
+def default_repo(app: str) -> str:
+    """Where `app` lives: this clone for the moved paid apps, the private clone for grants."""
+    return PRIVATE_REPO if app in PRIVATE_APPS else ROOT
 
 
 def git(repo: str, *args: str, check: bool = False, env: dict | None = None) -> subprocess.CompletedProcess:
@@ -206,7 +216,8 @@ def age(ts: int, now: float) -> str:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     ap.add_argument("app", help="app directory under apps/, e.g. payapps")
-    ap.add_argument("--repo", default=DEFAULT_REPO)
+    ap.add_argument("--repo", default=None, help="clone holding apps/<app> (default: this repo; "
+                    "the private clone for grants)")
     ap.add_argument("--claim", type=int, metavar="N", help="claim Next item N (as listed)")
     ap.add_argument("--slug", help="claim under this slug instead (one part of an item, or an "
                                    "app whose ROADMAP has no Next list); works without --claim")
@@ -214,10 +225,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--release", metavar="SLUG", help="delete your own claim on SLUG")
     ap.add_argument("--stale-hours", type=float, default=6.0)
     a = ap.parse_args(argv)
+    a.repo = a.repo or default_repo(a.app)
 
     roadmap = Path(a.repo) / "apps" / a.app / "ROADMAP.md"
     if not (Path(a.repo) / ".git").exists():
-        print(f"no git clone at {a.repo}: clone private-monorepo first (.github/prompts/cloud-session.md)")
+        hint = ("clone private-monorepo first (.github/prompts/cloud-session.md)"
+                if a.app in PRIVATE_APPS else "pass --repo <this repo's clone>")
+        print(f"no git clone at {a.repo}: {hint}")
         return 2
     # An app with no ROADMAP.md (seller-books, grants, cmmc on 2026-11-25..26) still takes
     # --slug claims; three runs pushed claim branches by hand because this used to exit 2.

@@ -615,7 +615,9 @@ products:
 
   # ---------------------------------------------------------------------------
   # The paid bets (portfolio/monetization/bets.md, ranked 2026-11-24), one row
-  # each, built in private-monorepo and named by `app:` instead of `venture:`.
+  # each, named by `app:` instead of `venture:`: `apps/<slug>` in this repository
+  # (moved from private-monorepo 2026-11-26), or private-monorepo/apps/grants,
+  # the one app that stays private (it holds client-confidential material).
   # Every tier price below is a PROPOSAL (`status: proposal`, with its `why`),
   # not a measured price: no sale has happened. Comparables are copied from
   # bets.md's sources, read 2026-11-24, many via aggregators (Capterra, G2,
@@ -624,7 +626,7 @@ products:
   # sets each product's price ids in owner-only config. Cost drivers are the
   # things that scale with customers; their unit costs are not measured yet.
   # ---------------------------------------------------------------------------
-  - app: private-monorepo/apps/payapps
+  - app: apps/payapps
     bet: 1
     buyer: specialty-trade subcontractors (electrical, mechanical, drywall, concrete) and small GCs who bill monthly AIA-style pay applications
     liability: medium
@@ -685,7 +687,7 @@ products:
         read: 2026-11-24
     stage: built-dark
     next: >-
-      The tiers are code in private-monorepo/apps/payapps/src/shared/plans.ts
+      The tiers are code in apps/payapps/src/shared/plans.ts
       (PR #37), with a Free plan of 1 active job and 1 user as the default, the
       Paddle catalogue as code (billing/paddle-catalog.json) and a 40%-margin
       test; checkout, portal and the signed webhook are built and dark. Next for
@@ -693,7 +695,7 @@ products:
       the owner's Paddle secrets (apps/payapps/docs/BILLING.md, "Turning it on").
     next_owner: false
 
-  - app: private-monorepo/apps/jobshop-quote
+  - app: apps/jobshop-quote
     bet: 2
     buyer: CNC machining and metal fabrication job shops whose owner or estimator quotes RFQs by hand
     liability: medium
@@ -751,7 +753,7 @@ products:
       cost per RFQ from llm_calls before taking money.
     next_owner: false
 
-  - app: private-monorepo/apps/einvoice-preflight
+  - app: apps/einvoice-preflight
     bet: 3
     buyer: German and French SMEs facing the 2027-28 e-invoicing mandates, their accountants, and small invoicing-software vendors
     liability: medium
@@ -805,13 +807,13 @@ products:
         read: 2026-11-02
     stage: planned
     next: >-
-      Import the venture into private-monorepo (scripts/import-venture.mjs) if not
-      done, then milestone (1) of its flagship row: rule explanations in German
+      Imported to apps/einvoice-preflight (2026-11-24; here since 2026-11-26);
+      next is milestone (1) of its flagship row: rule explanations in German
       and French for the most-failed rules. The public row above (venture:
       einvoice-preflight, audit pack) is the free edition's old one-off offer.
     next_owner: false
 
-  - app: private-monorepo/apps/cmmc
+  - app: apps/cmmc
     bet: 4
     buyer: small US defense and aerospace suppliers (often machine shops) that must self-assess against CMMC Level 1 or 2
     liability: high
@@ -873,13 +875,13 @@ products:
         read: 2026-11-24
     stage: built-dark
     next: >-
-      Billing part 2 in private-monorepo/apps/cmmc/ROADMAP.md: terms, privacy
+      Billing part 2 in apps/cmmc/ROADMAP.md: terms, privacy
       and refund pages carrying the liability notes (no certification claim,
       no CUI), before Paddle is turned on. Plans, checkout (dark), limits and
       the Billing tab shipped in private PR 156.
     next_owner: false
 
-  - app: private-monorepo/apps/seller-books
+  - app: apps/seller-books
     bet: 5
     buyer: multi-platform resellers (eBay, Poshmark, Mercari, Whatnot, Depop) who file a Schedule C
     liability: medium
@@ -949,7 +951,7 @@ products:
       workflow with the Paddle catalog sync, then the owner's Paddle secrets.
     next_owner: false
 
-  - app: private-monorepo/apps/wall-framing-takeoff
+  - app: apps/wall-framing-takeoff
     bet: 6
     buyer: residential remodelers, roofers and framers who take off materials from PDF plan sets
     liability: medium
@@ -1002,7 +1004,7 @@ products:
     stage: planned
     next: >-
       Milestone (1) of the wall-framing-takeoff flagship row (bet 6): roofing and
-      siding lists from a PDF plan set in private-monorepo/apps/wall-framing-takeoff.
+      siding lists from a PDF plan set in apps/wall-framing-takeoff.
     next_owner: false
 
   - app: private-monorepo/apps/grants

@@ -11,7 +11,7 @@ owner: duncan
 # Free edition (2026-11-24, LICENSING_TRANSITION.md "How one product moves",
 # step 1): this public copy is frozen at main commit cf0b6311f (tag wall-framing-takeoff-free-v1,
 # command in transition.py MOVED) and gets
-# lead-magnet maintenance only (fixes, page polish), not new depth; imported into private-monorepo apps/wall-framing-takeoff (PR #8).
+# lead-magnet maintenance only (fixes, page polish), not new depth; imported into private-monorepo apps/wall-framing-takeoff (PR #8), now apps/wall-framing-takeoff in this repository (2026-11-26).
 # The paid edition is in development, not for sale; its page is
 # https://marisstella.app/industries/construction/ (early access). Record:
 # portfolio/monetization/transition.py MOVED.

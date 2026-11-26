@@ -29,58 +29,69 @@ until `git merge-base HEAD origin/main` answers. To date changes,
 the auto-mode classifier refuses `git reset --hard origin/main`. `git fetch --unshallow origin main` takes 2-15 min and ~5 GB:
 background it, only if you need it all.
 
-## Reaching `private-monorepo` (the bets' code)
+## The bets' code: here, except grants
 
-A clone of `Duncan-Haywood/private-monorepo` fails until the repository is
-attached to the session. Ten run records from 2026-11-24/25 say "clone refused"
-and built only the bet's public side, while other runs the same day shipped
-payapps there. On 2026-11-25 this worked first time:
+Since 2026-11-26 the paid apps and their shared packages live in this
+repository at `apps/<app>` and `packages/<pkg>`, the same paths they had in
+`Duncan-Haywood/private-monorepo` (PR #19220; [`apps/README.md`](../../apps/README.md)).
+Their CI is `.github/workflows/apps-<name>-ci.yml` on this repository's
+public runners, so the private repo's starvation workarounds no longer apply
+to them. Build, test and merge them like any other change here:
+
+1. `pnpm install --frozen-lockfile --filter "{./apps/<dir>}..."` (backgrounded, once per app you touch: a change to `payapps` and `payapps-site` needs both)
+   from the repository root gets the app's tests, `pnpm dev` and Playwright
+   running. Select by directory in braces: a bare name must be the package
+   name (cmmc's is `cmmc-workspace`, so `--filter cmmc...` matches nothing and
+   exits 0), and `./apps/<dir>...` without braces silently drops the app's
+   workspace deps. Read the app's `README.md` and `ROADMAP.md` first.
+2. **Claim the item before building it:** `python3 platform/ci/roadmap_claim.py <app>`
+   lists `apps/<app>/ROADMAP.md`'s Next items as free or claimed; `--claim N` (with `--slug`/`--note`
+   for one part of an item) pushes a create-only, file-less `claim/<app>/<slug>` branch to
+   this repository's origin and exits 4 if another run got it first, so pick another
+   (re-running on your own claim prints YOURS; an app with no ROADMAP.md takes `--slug`
+   claims; `--release` usually fails through the proxy, so let a dropped claim go stale).
+   Open-PR checks missed this: private PRs 106-108 built one item within 20 minutes
+   (backlog P079). The claim does not reserve a migration number: fetch `main` and
+   renumber your new `migrations/` file just before merging (private PR 126 and a
+   parallel run both made 0034; three run records, 2026-11-25).
+3. Verify with the app's workflow, or locally with
+   `python3 platform/ci/run_workflow_locally.py apps-<name>-ci`.
+
+**Grants is the one exception.** Grant Autopilot (`private-monorepo`'s
+`apps/grants`) stays private because it holds client-confidential material.
+For grants work only:
 
 1. `mcp__claude-code-remote__add_repo` with `owner: Duncan-Haywood`,
    `repo: private-monorepo`, `access: push` (push lets you open and merge
    the PR there).
 2. One clone, inline, timeout about 10 min:
    `git clone --depth 1 https://github.com/Duncan-Haywood/private-monorepo /home/user/private-monorepo`
-   (it took under a minute). Push with `git -c push.negotiate=true push -u origin <branch>`.
-3. Read its `CLAUDE.md` and the app's `ROADMAP.md` by hand (add_repo's result
-   names a `register_repo_root` tool that ToolSearch does not find here; skip it); `pnpm install --frozen-lockfile --filter "{./apps/<dir>}..."`
-   (backgrounded, once per app you touch: a change to `payapps` and `payapps-site` needs both) gets the app's tests, `pnpm dev` and Playwright running. Select by
-   directory in braces: a bare name must be the package name (cmmc's is
-   `cmmc-workspace`, so `--filter cmmc...` matches nothing and exits 0), and
-   `./apps/<dir>...` without braces silently drops the app's workspace deps.
-   The risk review runs there from this clone's copy: `cd /home/user/private-monorepo &&
+   (it took under a minute on 2026-11-25). Push with `git -c push.negotiate=true push -u origin <branch>`.
+3. Read its `CLAUDE.md` and `private-monorepo`'s `apps/grants/ROADMAP.md` by hand (add_repo's result
+   names a `register_repo_root` tool that ToolSearch may not find; skip it).
+   `python3 platform/ci/roadmap_claim.py grants` claims there (its `--repo`
+   defaults to that clone for grants). The risk review runs there from this
+   clone's copy: `cd /home/user/private-monorepo &&
    python3 /home/user/oss-monorepo/platform/security/risk_review.py`; its
    "sensitive files" check reads *this* repo's CODEOWNERS, so check the private one by hand.
-4. **Claim the item before building it:** `python3 platform/ci/roadmap_claim.py <app>`
-   lists the ROADMAP's Next items as free or claimed; `--claim N` (with `--slug`/`--note`
-   for one part of an item) pushes a create-only `claim/<app>/<slug>` branch there and
-   exits 4 if another run got it first, so pick another (re-running on your own claim
-   prints YOURS; an app with no ROADMAP.md takes `--slug` claims; `--release` usually
-   fails through the proxy, so let a dropped claim go stale). Open-PR checks missed this:
-   private PRs 106-108 built one item within 20 minutes (backlog P079).
-   The claim does not reserve a migration number: fetch the private `main` and
-   renumber your new `migrations/` file just before merging (private PR 126 and
-   a parallel run both made 0034; three run records, 2026-11-25).
+4. Its `grants-ci.yml` jobs end red in 1-10 s with a 404 log (no runner):
+   that is starvation, not a failure. Run them with
+   `python3 platform/ci/run_workflow_locally.py --repo-root /home/user/private-monorepo grants-ci`
+   from this clone, put its summary in the PR body, and merge (same MCP tools,
+   `repo: private-monorepo`). The run record still lands here, in a PR of its own
+   if nothing else changed.
 
-**If step 2 is refused by the permission layer** (a tool denial, not a git
-error), that is final for this session: do not retry, reword, or reach the
-code another way (MCP file tools, a different URL). Of the 42 run records
-from 2026-11-25 that mention private-monorepo, 28 hit this refusal; the ones
-that re-planned fast still shipped. Go straight to the bet's public side here
-(prompt.md, step 1), on a surface the bet's `portfolio/router/allocate.py` row lists under
-"none on" (its `[bet N live PRs: ...]` note reads open PR titles against the
-row's `front_door:`): on 2026-11-25 four parallel runs landed in
-pay-app-guides within the hour and conflicted on its shared lists. Say
-"clone refused" once in the run record's `errors`; the owner-side fix is the
-`private-monorepo-clone` row in `portfolio/ledger/asks.yaml`.
-
-The PR there is opened and merged with the same MCP tools (`repo: private-monorepo`).
-Its `*-ci.yml` jobs end red in 1-10 s with a 404 log (no runner, on every PR
-there since at least PR 42): that is starvation, not a failure. Run them with
-`python3 platform/ci/run_workflow_locally.py --repo-root /home/user/private-monorepo <app>-ci`
-from this clone (it runs that workflow's `run:` steps in that checkout), put
-its summary in the PR body, and merge.
-The run record still lands here, in a PR of its own if nothing else changed.
+**Session setup never waits for the owner** (owner, 2026-11-26: "you don't
+need me for that permission ... if you need an api key or something like that
+you ask but don't stupidly block yourself on my approval for something like
+this"). Attaching a repository with `add_repo`, cloning it, installing
+dependencies and similar setup steps are the agent's to do: do not stop to ask
+the owner first, and do not record them as owner asks. Ask only for an API key
+or secret you cannot obtain yourself (`request_credential` where offered). If
+the permission layer itself denies a step (a tool denial, not a git error),
+that denial is final for the session: do not retry, reword, or reach the code
+another way (MCP file tools, a different URL); say so once in the run record's
+`errors` and do other work.
 
 ## Python and tests
 

@@ -570,7 +570,8 @@ class LoadRealVenturesTests(unittest.TestCase):
             and (p / "VENTURE.yaml").is_file()
             and not (p / "NOT-A-VENTURE").is_file()
         }
-        # Paid bets built only in private-monorepo come from their flagship `app:`.
+        # Paid bets with no ventures/<slug> (built in apps/, or grants in private-monorepo)
+        # come from their flagship `app:`.
         app_only = {v.name for v in ventures if v.flagship_app and v.name not in expected_dirs}
         self.assertEqual({v.name for v in ventures} - app_only, expected_dirs)
         self.assertTrue(ventures, "expected at least one venture with a VENTURE.yaml")
@@ -910,8 +911,9 @@ class FlagshipTests(unittest.TestCase):
             self.assertEqual(load_flagships(p), {"a": (0, "do a"), "b": (1, "")})
 
     def test_bet_with_only_an_app_gets_a_deepen_row_pointing_at_it(self):
-        """A paid bet built only in private-monorepo (2026-11-24 ranking) has no
-        VENTURE.yaml here; its row is still routed, at its rank, to its `app:`."""
+        """A paid bet built in apps/<slug> (2026-11-24 ranking; moved here from
+        private-monorepo 2026-11-26) has no VENTURE.yaml; its row is still routed,
+        at its rank, to its `app:`."""
         with tempfile.TemporaryDirectory() as d:
             root = Path(d)
             (root / "ventures" / "old-tool").mkdir(parents=True)
@@ -919,17 +921,18 @@ class FlagshipTests(unittest.TestCase):
             (root / "ledger").mkdir()
             flags = root / "flagships.yaml"
             flags.write_text("flagships:\n"
-                             "  - venture: payapps\n    bet: 1\n    app: private-monorepo/apps/payapps\n"
+                             "  - venture: payapps\n    bet: 1\n    app: apps/payapps\n"
                              "    next: build pay apps\n"
                              "  - venture: old-tool\n    demoted: no bet\n    next: old work\n")
             vs = _load_ventures(root / "ventures", root / "ledger", root / "scores.json", flags)
             by = {v.name: v for v in vs}
             self.assertEqual(by["payapps"].flagship_rank, 0)
-            self.assertEqual(by["payapps"].flagship_app, "private-monorepo/apps/payapps")
+            self.assertEqual(by["payapps"].flagship_app, "apps/payapps")
             self.assertIsNone(by["old-tool"].flagship_app)
             self.assertEqual([v.name for v in rank(vs)][:2], ["payapps", "old-tool"])
             task = next_task(by["payapps"])
-            self.assertTrue(task.startswith("Deepen (flagship 1): Work in private-monorepo/apps/payapps"))
+            self.assertTrue(task.startswith("Deepen (flagship 1): Work in apps/payapps"))
+            self.assertNotIn("add_repo", task)
             self.assertIn("build pay apps", task)
 
     def test_every_listed_flagship_is_a_real_routable_venture(self):

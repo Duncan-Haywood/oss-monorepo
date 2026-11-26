@@ -10,8 +10,8 @@
 // (platform/counter/), `feedback` (platform/edge/ form) and the list of
 // tools that call an outside service. docs/legal/privacy-baseline.md is the
 // legal floor these follow. The operator and governing law are the ones the
-// paid products' documents already name (private-monorepo
-// apps/grants/src/shared/legal.ts, LEGAL_ENTITY).
+// paid products' documents already name (apps/grants/src/shared/legal.ts,
+// LEGAL_ENTITY, in private-monorepo, where grants stays).
 //
 // The paid products (Grant Autopilot and the rest) have their own Terms and
 // Privacy Policy covering accounts, billing and customer data; these pages

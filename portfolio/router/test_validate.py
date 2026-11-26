@@ -85,8 +85,8 @@ def test_flagship_front_door_must_name_existing_ventures(tmp_path):
 def test_bets_come_first_in_order_and_others_say_why(tmp_path):
     p = tmp_path / "flagships.yaml"
     good = ("flagships:\n"
-            "  - venture: a\n    bet: 1\n    app: private-monorepo/apps/a\n    next: ok\n"
-            "  - venture: b\n    bet: 2\n    app: private-monorepo/apps/b\n    next: ok\n"
+            "  - venture: a\n    bet: 1\n    app: apps/a\n    next: ok\n"
+            "  - venture: grants\n    bet: 2\n    app: private-monorepo/apps/grants\n    next: ok\n"
             "  - venture: c\n    demoted: no bet in bets.md\n    next: ok\n")
     p.write_text(good)
     errors = []
@@ -94,12 +94,22 @@ def test_bets_come_first_in_order_and_others_say_why(tmp_path):
     assert errors == []
     p.write_text("flagships:\n"
                  "  - venture: c\n    next: ok\n"
-                 "  - venture: a\n    bet: 2\n    app: apps/a\n    next: ok\n")
+                 "  - venture: a\n    bet: 2\n    app: elsewhere/a\n    next: ok\n")
     errors = []
     validate.check_flagships(errors, p)
     text = "\n".join(errors)
     assert "c is not a bet" in text and "sits below a demoted row" in text
-    assert "expected 1" in text and "needs `app: private-monorepo/apps/<slug>`" in text
+    assert "expected 1" in text and "needs `app: apps/<slug>`" in text
+
+
+def test_a_moved_app_may_not_point_at_the_private_repo(tmp_path):
+    # 2026-11-26: the paid apps moved to apps/ here; only grants stays private.
+    p = tmp_path / "flagships.yaml"
+    p.write_text("flagships:\n"
+                 "  - venture: payapps\n    bet: 1\n    app: private-monorepo/apps/payapps\n    next: ok\n")
+    errors = []
+    validate.check_flagships(errors, p)
+    assert any("needs `app: apps/<slug>`" in e and "grants only" in e for e in errors), errors
 
 
 def test_file_without_bets_skips_the_bet_check(tmp_path):

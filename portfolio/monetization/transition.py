@@ -94,21 +94,22 @@ OVERRIDES: dict[str, dict[str, str]] = {
 
 COMMONS_PREFIXES = ("open-",)
 
-# Products on their way to the private repository ("How one product moves" in
-# LICENSING_TRANSITION.md). status "moved": imported (step 2) and the public
+# Products on their way to a paid edition in apps/<slug> ("How one product moves"
+# in LICENSING_TRANSITION.md; the paid apps were imported into private-monorepo
+# and moved to this repository's apps/ on 2026-11-26). status "moved": imported (step 2) and the public
 # copy frozen as the free edition (step 1); "moving": the free edition is
 # frozen and the import is next. `free_tag` is the git tag of the frozen free
 # edition; `paid_page` is where the paid edition is announced (in development).
 MOVED: dict[str, dict[str, str]] = {
     "wall-framing-takeoff": {
         "status": "moved",
-        "where": "private-monorepo apps/wall-framing-takeoff (PR #8, 2026-11-24)",
+        "where": "apps/wall-framing-takeoff (imported in private-monorepo PR #8, 2026-11-24; here since 2026-11-26)",
         "free_tag": "wall-framing-takeoff-free-v1",
         "paid_page": "https://marisstella.app/industries/construction/",
     },
     "einvoice-preflight": {
-        "status": "moving",
-        "where": "free edition frozen 2026-11-24; import to private-monorepo apps/einvoice-preflight is next",
+        "status": "moved",
+        "where": "apps/einvoice-preflight (imported 2026-11-24, PROVENANCE.md there; here since 2026-11-26)",
         "free_tag": "einvoice-preflight-free-v1",
         "paid_page": "https://marisstella.app/industries/eu-e-invoicing/",
     },

@@ -86,9 +86,9 @@ test('parseFlagships keeps file order and unfolds >- scalars', () => {
 });
 
 test('parseFlagships keeps a bet row\'s `app:` (2026-11-24 ranking)', () => {
-  const src = 'flagships:\n  - venture: payapps\n    bet: 1\n    app: private-monorepo/apps/payapps\n    why: >-\n      Pay apps.\n    next: >-\n      Build it.\n';
+  const src = 'flagships:\n  - venture: payapps\n    bet: 1\n    app: apps/payapps\n    why: >-\n      Pay apps.\n    next: >-\n      Build it.\n';
   assert.deepEqual(parseFlagships(src), [
-    { venture: 'payapps', why: 'Pay apps.', next: 'Build it.', app: 'private-monorepo/apps/payapps' },
+    { venture: 'payapps', why: 'Pay apps.', next: 'Build it.', app: 'apps/payapps' },
   ]);
 });
 
@@ -136,6 +136,15 @@ test('renderQueue shows the lanes in prompt.md order, read-only', () => {
   // Read-only: the page's own content has no inputs (the shared header's search box is not ours).
   const main = html.slice(html.indexOf('<main>'), html.indexOf('</main>'));
   assert.doesNotMatch(main, /<form|<textarea|<input|contenteditable/);
+});
+
+test('a bet in apps/ links its source here; grants says private (paid apps move, 2026-11-26)', () => {
+  const src = 'flagships:\n  - venture: payapps\n    bet: 1\n    app: apps/payapps\n    next: >-\n      a\n'
+    + '  - venture: grants\n    bet: 2\n    app: private-monorepo/apps/grants\n    next: >-\n      b\n';
+  const html = renderQueue({ ...DATA, flagships: parseFlagships(src) });
+  assert.match(html, /\/tree\/main\/apps\/payapps">Source<\/a>/);
+  assert.match(html, /Built in the private repository \(<code>private-monorepo\/apps\/grants<\/code>\)/);
+  assert.doesNotMatch(html, /<code>apps\/payapps<\/code>/);
 });
 
 test('a missing source says so instead of rendering an empty queue', () => {

@@ -36,8 +36,9 @@ python3 portfolio/ledger/supersede_check.py <pr>      # before closing a PR as "
   Its `sitemap.xml` merges by union (`.gitattributes`; the build overwrites
   it anyway), and a page test should read the folder rather than list pages.
   The rest (llms.txt, README table, nav) you resolve by keeping both sides.
-- **Claim a private roadmap item before you build it.** Sibling ventures runs
-  read the same `ROADMAP.md` "Next" list in `private-monorepo` and pick the same
+- **Claim an app's roadmap item before you build it** (`python3
+  platform/ci/roadmap_claim.py <app>`, `cloud-session.md`). Sibling ventures runs
+  read the same `apps/<app>/ROADMAP.md` "Next" list and pick the same
   item. On 2026-11-25 one session built the pay-when-paid outer limit and then
   the change-order history panel, and each time a sibling merged the same
   feature (private PRs 95 and 96) minutes before it was ready. Two checks cost

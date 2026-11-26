@@ -52,6 +52,13 @@ class ParseTest(unittest.TestCase):
         self.assertEqual(rc.slugify(items[1][1]), "billing-part-2")
         self.assertTrue(rc.slugify(items[0][1]).startswith("launch-deploy-pipeline"))
 
+    def test_default_repo_is_this_clone_except_grants(self):
+        # The paid apps moved here on 2026-11-26; grants stays private (client NDA).
+        root = str(Path(rc.__file__).resolve().parents[2])
+        self.assertEqual(rc.default_repo("payapps"), root)
+        self.assertTrue((Path(root) / "apps" / "payapps").is_dir())
+        self.assertEqual(rc.default_repo("grants"), rc.PRIVATE_REPO)
+
     def test_slug_before_colon(self):
         self.assertEqual(rc.slugify("QuickBooks, part 5: an item per line"), "quickbooks-part-5")
 
