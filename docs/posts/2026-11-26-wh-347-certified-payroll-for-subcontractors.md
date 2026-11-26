@@ -2,7 +2,7 @@
 title: "Filling out the WH-347 certified payroll every week: a subcontractor's guide"
 seo_title: "How to fill out WH-347 certified payroll for subcontractors"
 date: 2026-11-26
-tags: [payapps, for-customers, construction, certified-payroll, davis-bacon, wh-347, prevailing-wage]
+tags: [payapps, for-customers, construction, certified-payroll, davis-bacon, wh-347, prevailing-wage, california, ecpr]
 description: "The WH-347 (Rev. January 2025) column by column for Davis-Bacon subcontractors: computed columns, the six statements, and checks before you send it."
 ---
 
@@ -96,6 +96,34 @@ cannot say which day the hours were worked, and spreading them across the week w
 them up. Holiday, vacation, PTO and sick hours are not hours worked on the job and stay off the
 form. Double time needs care: the WH-347's overtime row has one rate.
 
+## California public works: the DIR eCPR file, version 2.0
+
+On a California public work the payroll goes to the Department of Industrial Relations (Labor Code
+§ 1776), uploaded to its Public Works portal, usually as an XML file in DIR's eCPR format. DIR
+has published **version 2.0** of that format and accepts version 1 files only until
+**13 January 2027** (DIR's V2 FAQ). After that, a V1 export from older payroll software will not
+upload. What changed, from DIR's XSD and "eCPR XML Guidelines V2" (read 2026-11-26):
+
+- **Fewer contractor and project fields, stricter ones.** License, FEIN, addresses and the project
+  location block are gone. The **PWCR** (your Public Works Contractor Registration, exactly 10
+  digits) and DIR's **project ID** are required, and a mismatch with DIR's records fails the upload.
+- **Names split** into first, middle and last. **ITIN** is accepted for a worker with no SSN. SSNs
+  must be unique in the file: a duplicate rejects every employee who shares it.
+- **Several classifications per worker**, each with its own craft, level (`journeyman` or
+  `apprentice`, with the apprentice period 1 to 10), seven days of straight time, **overtime and
+  doubletime**, rates and fringe.
+- **Fringe in five categories** (health and welfare, vacation and holiday, pension, training,
+  other) as hourly amounts, plus whether it was paid to the worker or to a plan. At least one of
+  those two must be true.
+- **Deductions in eight categories** (federal tax, FICA, state tax, SDI, fund administration,
+  savings, dues, other) and a total.
+- **"Source of truth" totals.** DIR stores the total hourly rates, total deductions, gross for this
+  project, gross for all work and net as you send them, without recomputing them. A file can pass
+  the schema and still be wrong (the FAQ's own warning), so compute these, don't type them.
+
+The one thing the WH-347 can't give you is the full Social Security number. DOL says never put it on
+the federal form; DIR's file requires it. Keep the two apart.
+
 ## Doing it in PayApps
 
 PayApps, our pay-app billing for specialty subcontractors, added certified payroll on 2026-11-26.
@@ -114,14 +142,20 @@ It sits on the job, next to that job's pay applications:
   the crew, rates and plans.
 - Workers' names and numbers are not stored on our servers: the draft stays in your browser and the
   PDF is rendered and sent back.
+- **California public works (added the same day):** tick the California box and the same week
+  downloads as DIR's eCPR version 2.0 file. You add the PWCR, project ID, addresses, crafts, check
+  numbers and any doubletime. State tax is split out of the withholding, and SDI, dues and the rest
+  out of "other", so the PDF and the XML show the same deductions and net. It checks DIR's upload
+  rules before you download, and the output validates against DIR's published XSD. The file is
+  built in your browser. Full SSNs and ITINs are held only while the page is open: they are not
+  saved with the draft and never sent to us.
 
 Not yet: hours straight from a QuickBooks Time or payroll connection, the crew saved with the job
-instead of the browser, state prevailing-wage formats such as California's electronic certified
-payroll, and uploads to the compliance systems GCs use (LCPtracker and the like). These come if
+instead of the browser, other states' prevailing-wage formats, and uploads to the compliance systems GCs use (LCPtracker and the like). These come if
 contractors ask for them.
 
 PayApps is in early access and not yet offered for sale:
 [see the construction tools and join early access](https://marisstella.app/industries/construction/).
-Not affiliated with the Department of Labor or LCPtracker. This is general information, not legal,
+Not affiliated with the Department of Labor, California DIR or LCPtracker. This is general information, not legal,
 payroll or compliance advice; which wage determination applies and whether your contract is covered
 come from your contract and the contracting officer.
