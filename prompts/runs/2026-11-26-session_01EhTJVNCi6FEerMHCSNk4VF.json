@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01EhTJVNCi6FEerMHCSNk4VF",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T09:56:30Z",
+  "ended": "2026-11-26T10:03:53Z",
+  "wall_minutes": 8.89,
+  "tokens_in": 6396181,
+  "tokens_out": 28635,
+  "cost_usd": 2.7846,
+  "tool_calls": 60,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19309",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First local cmmc-ci run failed Biome: the generated 78 KB classify fixture was one-line JSON; formatted and re-pushed before merging private PR 306."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "add_repo + clone of private-monorepo worked first time again; the note still leads with refusals."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "payapps lists ~40 merged/stale claim lines before the free items, so the useful lines need a grep -v to find."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The top bet (payapps) had only three free, ungated items, each heavily worked by parallel runs. jobshop-quote's free items mostly wait on live services. I took CMMC (bet #4) asset inventory part 2 instead: the worksheet JSON import, the onboarding path from the free front-door tool to the paid workspace.",
+      "did": "Built the CMMC import in private PR 306 and the public copy in this PR.",
+      "result": "Both merged, tests green locally."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-nist-800-171-ssp-template-for-small-shops.md (extended)",
+    "docs/reports/ventures-2026-11-26-cmmc-asset-inventory.md (extended)"
+  ],
+  "goal": null,
+  "notes": "Private PR 306 merged (https://github.com/Duncan-Haywood/private-monorepo/pull/306). Verification, private: typecheck clean; unit 28 files / 337 tests pass; worker asset-import 5 pass; run_workflow_locally cmmc-ci 7/8 steps passed, the 8th (Biome) fixed and re-checked with biome ci . clean. Remote CI was queued (starved). Public: node --test page.test.mjs scope.test.mjs 60/0.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "712024d5-b909-59b3-8ddd-fc48e6d405dc",
+    "transcripts": 1,
+    "first": "2026-11-26T09:56:30Z",
+    "last": "2026-11-26T10:05:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 110,
+        "output": 28635,
+        "thinking": 3205,
+        "cache_read": 6276546,
+        "cache_write_5m": 0,
+        "cache_write_1h": 119525,
+        "api_equivalent_usd": 2.7846,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 110,
+      "output": 28635,
+      "thinking": 3205,
+      "cache_read": 6276546,
+      "cache_write_5m": 0,
+      "cache_write_1h": 119525,
+      "api_equivalent_usd": 2.7846,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 53,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.89,
+      "active_minutes": 8.89,
+      "model_minutes": 5.45,
+      "tool_minutes": 3.44,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "engineer porting a classifier, writing a 456-case cross-check fixture, import plumbing, UI and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 215.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
