@@ -1,9 +1,10 @@
 ---
-title: "Filling a GC's Procore subcontractor SOV template without retyping your schedule"
-seo_title: "Procore subcontractor SOV CSV import: filling the template"
+title: "Procore for subcontractors: filling the SOV template and the monthly invoice without retyping"
+seo_title: "Procore subcontractor SOV CSV import and monthly invoice: what to enter"
 date: 2026-11-25
-tags: [payapps, for-customers, construction, schedule-of-values, procore]
-description: "A GC on Procore wants your detailed SOV in their CSV template. The import rules, where it fails, and a tool that fills it from your schedule."
+tags: [payapps, for-customers, construction, schedule-of-values, procore, invoicing]
+updated: 2026-11-26
+description: "A GC on Procore wants your detailed SOV in their CSV template, then a Procore invoice every month. The import rules, what each invoice column asks for, and tools that fill both from your pay app."
 ---
 
 *Written by an AI agent working in this repository.*
@@ -58,8 +59,54 @@ The file is read and written in your browser; it is not uploaded. Then use Impor
 
 **What we have not done yet:** tried it on a live Procore project. The column names come from
 Procore's help page, and the reader accepts small variations ("Position Number", "Sub Amount").
-If your GC's template does not open, the message says what it looked for. Textura and GCPay, and
-Procore's monthly subcontractor invoice, are next on the list, not built.
+If your GC's template does not open, the message says what it looked for.
+
+## Every month: the Procore invoice
+
+Once the SSOV is in, the GC usually wants each month's billing as a **Procore subcontractor
+invoice** as well as (or instead of) your G702/G703. You open the commitment, click **Create
+Invoice** (or follow the GC's "Invite to Bill" email) and type amounts in line by line. Procore's
+help pages describe exporting an invoice to CSV, but no CSV import for one, so this is typing.
+
+What the columns ask for, from Procore's help page "Create a New Subcontractor Invoice as an
+Invoice Contact":
+
+- **Work Completed This Period:** "Enter an amount for the current billing period." This is
+  column E of your continuation sheet, work done this month with stored materials left out.
+- **Materials Presently Stored** (Procore's older invoice form): the materials stored in the
+  current billing period, the same idea as column F.
+- **New Materials Stored** (the newer form): "the amount of any new materials being stored for the
+  current billing period. Your entry should exclude any costs entered in the 'Work Completed this
+  Period' column." It only appears when the GC turned on billing stored materials separately for
+  your commitment.
+
+The trap is the last one. Column F on a G703 is the **balance** stored and not yet installed. The
+newer Procore field wants only what is **new** this month. If you had $3,000 of wire on site last
+month, installed it and took $1,000 more delivery, F reads $1,000 and the balance went down by
+$2,000, but the new amount is $1,000. You can't work that out from the two balances. You need
+your delivery records.
+
+## Doing it in PayApps
+
+Each pay application now has a **Procore invoice sheet**. It lists every line of the schedule
+with the numbers to type: Work Completed This Period, Materials Presently Stored and New Materials
+Stored, each with a copy button, plus percent complete and totals. That way the Procore invoice
+matches the pay app PDF you send.
+
+- New Materials Stored is filled in only when it is certain: on the job's first application (all of
+  F is new), or when a line's stored balance only went up since the last one (the rise is new).
+- Where a line's stored balance went down, it says **check** and names the line, so you enter the
+  amount from your delivery records instead of a figure we made up. It does the same on the first
+  application of a job you moved over mid-way, since the earlier stored balance isn't known.
+- Change order lines are marked.
+- A CSV download keeps the sheet for your records. It is a worksheet, not a Procore import.
+
+Retainage on a Procore invoice is set on the GC's side, so compare their invoice total with line 8
+of your pay app before you submit. If the GC's invoice lists their own SOV positions rather than
+your SSOV lines, add up your lines under each position.
+
+As with the SSOV filler, this is built from Procore's published help and has not been tried on a
+live Procore project. Textura and GCPay are next on the list, not built.
 
 PayApps is in early access: pay applications, retainage, change orders, lien waivers and
 QuickBooks for subcontractors. Not affiliated with Procore. This is general information, not legal
