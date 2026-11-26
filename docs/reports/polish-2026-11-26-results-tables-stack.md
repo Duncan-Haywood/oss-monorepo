@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [design, mobile]
+topics: [design]
 date: 2026-11-26
 ---
 # Polish 2026-11-26: 39 script-written results tables become phone cards
