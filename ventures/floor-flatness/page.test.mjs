@@ -65,6 +65,9 @@ test('CLI runs the example with a spec and a grind target', () => {
 test('CLI guesses formats and rejects bad input', () => {
   assert.match(run(parseArgs([])).error, /readings file/);
   assert.match(run(parseArgs(['x', '--unit', 'yd'])).error, /--unit/);
+  // Quality round 119 (audits/2026-11-26-floor-flatness.json, defect 5): '--ff abc' used to print 'against NaN'.
+  assert.match(run(parseArgs(['--example', '--ff', 'abc'])).error, /--ff needs a number/);
+  assert.match(run(parseArgs(['--example', '--edge'])).error, /--edge needs a number/);
   assert.match(run(parseArgs(['x']), () => '1,2,oops\n').error ?? '', /not a number/);
   const grid = Array.from({ length: 12 }, (_, r) => Array.from({ length: 12 }, (_, c) => ((r * 7 + c * 3) % 5) * 0.01).join(',')).join('\n');
   const g = run(parseArgs(['g.csv']), () => grid);

@@ -27,8 +27,13 @@ export function parseArgs(argv) {
   const num = { '--edge': 'edge', '--radius': 'radius', '--area': 'area', '--straightedge': 'straightedge', '--gap': 'gap', '--grind': 'grind' };
   for (let i = 0; i < argv.length; i++) {
     const k = argv[i];
-    if (k in spec) a.spec[spec[k]] = Number(argv[++i]);
-    else if (k in num) a[num[k]] = Number(argv[++i]);
+    if (k in spec || k in num) {
+      const v = argv[++i];
+      const n = v === undefined || v.trim() === '' ? NaN : Number(v);
+      if (!Number.isFinite(n) || n < 0) a.badValue = `${k} needs a number of 0 or more (got ${v ?? 'nothing'})`;
+      else if (k in spec) a.spec[spec[k]] = n;
+      else a[num[k]] = n;
+    }
     else if (k === '--format') a.format = argv[++i];
     else if (k === '--unit') a.unit = argv[++i];
     else if (k === '--json') a.json = true;
@@ -51,6 +56,7 @@ function guessFormat(text) {
 export function run(a, read = p => readFileSync(p, 'utf8')) {
   if (a.help) return { help: true };
   if (a.bad) return { error: `Unknown option ${a.bad}` };
+  if (a.badValue) return { error: a.badValue };
   if (!UNITS.includes(a.unit)) return { error: `--unit must be one of ${UNITS.join(', ')}` };
   let sections, errors = [], format = a.format;
   try {

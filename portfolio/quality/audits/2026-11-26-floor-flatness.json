@@ -1,0 +1,226 @@
+{
+  "date": "2026-11-26",
+  "subject": "ventures/floor-flatness",
+  "stratum": "venture",
+  "seed": "2026-11-26-m-b1b2",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality round 119, see run record",
+  "status": "audited",
+  "professional": "a concrete flatwork contractor or floor-flatness surveyor (testing-agency technician) who measures to ASTM E1155 and reads specs written to ACI 117 / ACI 302.1R; they check first that q is the 24-in curvature from 12-in readings, z/d the 10-ft difference, FF = 4.57/(3S+|mean|) and FL = 12.5/(3S+|mean|), that sample lines and test sections meet E1155's validity rules (nj >= 12 points per line, test section >= 320 sq ft and 8 ft a side, Nmin 10-ft readings per section), how sections combine into the test-surface value, and that minimum local values are applied per section and overall values to the surface",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 3,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Source limit: ASTM E1155 itself is paywalled; the iteh.ai sample PDFs returned 404 and a mirror of E1155M-96 gave a proxy 502 (CONNECT tunnel failed). Read instead the ASCC Technical Checklist 'F-Number Measurement' (ascconline.org, 2010, quoting E1155 sections 7.1-7.2 and the Nmin rule) and the auditor's own knowledge of E1155 for the equations (q = z[i] - 2 z[i-1] + z[i-2] at 12-in spacing; d = z[i] - z[i-10]; FF = 4.57/(3 S_q + |q mean|); FL = 12.5/(3 S_d + |d mean|), sample sd). Independent Python script /tmp/claude-0/ff/recompute.py (stdlib statistics.stdev, not the shipped code) vs flatness.mjs: (A) a 23-reading line of my own: Python FF 65.23 (21 q), FL 91.36 (13 d); tool FF 65.23 (21), FL 91.36 (13), match. (B) the example grid with a 2-ft edge band, 27 rows + 37 columns = 64 lines: Python FF 31.04 (1870 q), FL 42.73 (1358 d); tool (analyseSection(gridSurvey(exampleGrid(),{edgeFt:2}))) and CLI 'FF 31.0 (1870 curvatures), FL 42.7 (1358 10-ft differences), 64 lines', match. (C) 10-ft straightedge on a 12-reading profile, brute-force search of every support pair straddling the centre with the edge above all readings: gaps 0.0950, 0.1100 in; tool straightedgeGaps 0.0950, 0.1100, match. Gaps in rules, not arithmetic: no E1155 sample-validity checks (see domain), and the cross-section combination (area-weighted mean) could not be confirmed against the standard's text. Arithmetic is right on every recomputed output, so 3.",
+    "completeness": "Every README/page feature runs: typed sample lines with sections and areas (parseLines; CLI run on /tmp/claude-0/ff/nmin.txt with two sections gave per-section FF/FL, area-weighted overall, and PASS/FAIL against SOV and MLV); grid CSV read along rows and columns with an edge band (CLI --example --edge 2); point cloud resampled to a 12-in lattice (test 'point cloud resampled... tilted plane'); straightedge gap with an allowed-gap count ('2 line(s) over 0.25 in'); grind estimate ('reached at FF 40.1 by lowering 95 readings'); JSON output; CSV export with formula-injection guard (test). Heat map, profile and print were not loaded in a browser this session (page.test.mjs checks every element id the script looks up exists and no innerHTML). README's 'Not done' list is honest (standard not read, no real-survey comparison, no E1486, no LAS/E57, no paid report). No stubs or dead links found; served copy clean.",
+    "verification": "cd ventures/floor-flatness && node --test '*.test.mjs': 21 pass, 0 fail. Eight mutants via platform/ci/quality_mutate.py: spec pass '>=' -> '>' caught; |mean| -> mean in fNumber caught; area weighting removed from overall() caught; straightedge contact '<= mid/>= mid' -> '< mid/> mid' caught; sample sd n-1 -> n caught; small-sample FL warning threshold 30 -> 3 SURVIVED; upper-hull collinear drop '<=' -> '<' SURVIVED (likely equivalent: a collinear hull point does not move the support line); grind report filter r > 0 -> r > 0.01 SURVIVED. Core FF/FL/overall/spec logic is pinned, including a hand-worked line on the guide page; warnings and grind reporting edges are not.",
+    "craft": "Read flatness.mjs (402 lines), cli.mjs (125), flatness.test.mjs, page.test.mjs, usage.mjs, index.html script. Pure dependency-free module, gaps never bridged, results written with textContent, localStorage reads guarded. Defects: (1) a section with no area silently becomes 1 sq ft (cli.mjs:78 'a.area ?? 1'), so lines-format sections without '## ..., area N' are weighted equally and printed as '(1 sq ft)' with no warning (run on /tmp/claude-0/ff/noarea2.txt); (2) overall() drops a section whose F is Infinity (flatness.mjs:162), so a perfectly flat/level section is excluded from the weighted overall and the overall FL printed '-' with no note; (3) CLI numeric flags are not validated: '--ff abc' or a bare '--ff' prints 'FAIL Overall FF: 30.9 against NaN' (cli.mjs:30). A senior JS reviewer would accept the code with those fixes.",
+    "claims": "Backed: equations and their provenance stated honestly ('standard's own text was not read', README Spec sources, page disclaimer, llms.txt); worked 13-reading example FF 48.3 recomputed in page.test.mjs and by this audit's formula; 'nothing uploaded' (no fetch in script, page.test.mjs no-markup test; usage.mjs stores only event and day, opt-out box and DNT/GPC honoured); no-warranty, not-engineering-advice and not-a-test-by-a-qualified-agency on every page (page.test.mjs); the 30-value note labelled 'our rule of thumb, not a limit from the standard'; VNA/defined-traffic floors pointed elsewhere, consistent with ASCC's quote that E1155 shall not enforce fixed-path floors. Not backed: the page FAQ 'The tool pools every line in a section, as the method does' and 'area-weighted mean ... the reading of ASTM E1155 section 9.15' rest on unread secondary copies (hedged on the page, so not an overclaim, but unconfirmed); README says the standard's minimum sample size 'could not' be read, though the free ASCC checklist states it. Served llms.txt/canonicals clean (served-copy.mjs).",
+    "fitness": "Walked the job: a flatwork foreman with laser-level readings on a 2,400 sq ft pour and a 300 sq ft infill strip, spec FF 35/FL 25 overall, 24/17 local. Typed lines with '## Bay 1, area 2400' and '## Bay 2, area 300' (/tmp/claude-0/ff/nmin.txt): got per-section FF/FL, an area-weighted overall and PASS/FAIL per limit in under a second, plus straightedge gaps and a grind sizing on the example. As a pre-check before the agency's report it does the job. A surveyor would hit in the first hour that Bay 1's FL 'PASS' rests on 42 10-ft readings where E1155 requires Nmin = A/30 = 80, Bay 2 is below the 320 sq ft minimum test section, line B1 has 5 points (E1155-14: nj >= 12), and there is no 90% confidence interval for the report (ASCC checklist item C); none is flagged. Paid path: transition.py puts it in mit-lead-magnet; it is not in bets.md and links only to sibling free concrete calculators, not to bet #1 (pay-app billing for subs, concrete subs named), so it is not a front door to any paid product.",
+    "domain": "Against E1155 as quoted by the ASCC checklist and the auditor's knowledge: equations, 12-in spacing, 24-in curvature, 10-ft differences, no bridging across missing readings, two orthogonal directions on grids, MLV per test section and SOV on the combined surface (ASCC note) all match. Departures: (1) no Nmin check (2 sqrt(A) for 320 <= A <= 1600 sq ft, A/30 above) though the user gives each section's area; (2) no test-section validity check (>= 320 sq ft, >= 8 ft a side, boundaries not crossing construction joints); (3) sample lines under 12 points are pooled into FF (E1155-14 nj >= 12); (4) no 90% confidence interval per section; (5) line placement rules (45-degree lines or equal aggregate length both ways; all 45-degree when the slab is under 25 ft wide) not checked or explained; (6) the combination rule for sections (area-weighted) is unconfirmed against the standard; (7) no ACI 117 defaults (e.g. MLV when unspecified, FL not applied to unshored elevated slabs) or ACI 302.1R class presets; (8) E1155M metric spacing approximated (disclosed). A surveyor would sign off the arithmetic, not an acceptance result, so 2."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "FF and FL of a 23-reading line (my own readings)",
+      "method": "ASTM E1155 equations (auditor's knowledge; standard text blocked): q = z[i]-2z[i-1]+z[i-2], d = z[i]-z[i-10], FF = 4.57/(3S+|mean|), FL = 12.5/(3S+|mean|), sample sd; independent Python stdlib script",
+      "command": "python3 -I /tmp/claude-0/ff/recompute.py; node -e analyseSection on the same line",
+      "expected": "FF 65.23 (21 q), FL 91.36 (13 d)",
+      "observed": "FF 65.23 (21), FL 91.36 (13)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "example bay, 2-ft edge band, rows and columns pooled",
+      "method": "same E1155 equations in Python over all 64 row/column lines of exampleGrid() exported to JSON",
+      "command": "python3 -I /tmp/claude-0/ff/recompute.py; node cli.mjs --example --edge 2",
+      "expected": "FF 31.04 (1870 q), FL 42.73 (1358 d), 64 lines",
+      "observed": "FF 31.0 (1870 curvatures), FL 42.7 (1358 10-ft differences), 64 lines",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "gap under a 10 ft straightedge on a 12-reading profile",
+      "method": "brute force: every support pair straddling the centre with the edge above all readings, minimum-gap support, by an independent Python loop",
+      "command": "python3 -I /tmp/claude-0/ff/recompute.py; node -e straightedgeGaps(P,10)",
+      "expected": "0.0950, 0.1100 in",
+      "observed": "0.0950, 0.1100 in",
+      "result": "pass"
+    },
+    {
+      "dimension": "domain",
+      "what": "Nmin 10-ft readings for a 2,400 sq ft section",
+      "method": "ASCC Technical Checklist (quoting E1155): Nmin = 2 sqrt(A) for 320 <= A <= 1600, A/30 for A > 1600",
+      "command": "node cli.mjs /tmp/claude-0/ff/nmin.txt --ff 35 --fl 25 --ff-local 24 --fl-local 17",
+      "expected": "Nmin 80; 42 readings flagged as an invalid test sample",
+      "observed": "FL 84.5 (42 10-ft differences), 'PASS Bay 1 FL (local)', no note",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "300 sq ft section and a 5-point line",
+      "method": "ASCC checklist 7.2.1: no test section < 320 sq ft or < 8 ft a side; E1155-14 (iteh search extract): nj >= 12 reading points per sample",
+      "command": "node cli.mjs /tmp/claude-0/ff/nmin.txt ...",
+      "expected": "section flagged; 5-point line excluded or flagged",
+      "observed": "Bay 2 (300 sq ft) reported with PASS/FAIL; B1 noted only as adding nothing to FL, its q pooled into FF",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "90% confidence interval per test section",
+      "method": "ASCC checklist, report item C: F-numbers for each test section with the 90% confidence interval",
+      "command": "node cli.mjs --example --json",
+      "expected": "a confidence interval per section",
+      "observed": "none (README lists it as not done)",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "overall value over sections",
+      "method": "ASCC note: SOV applies to combined test-surface F-numbers, MLV to each test section; exact combination formula not readable here",
+      "command": "node cli.mjs /tmp/claude-0/ff/nmin.txt",
+      "expected": "MLV per section, SOV on combined value",
+      "observed": "MLV checked per section, SOV on area-weighted overall (17.0 from 16.7 @2400 and 19.7 @300); weighting rule unconfirmed",
+      "result": "partial"
+    },
+    {
+      "dimension": "craft",
+      "what": "sections without an area, and non-numeric spec flags",
+      "method": "by hand: missing area should warn, not default; NaN limit should be rejected",
+      "command": "node cli.mjs /tmp/claude-0/ff/noarea2.txt; node cli.mjs --example --ff abc",
+      "expected": "warning or error",
+      "observed": "'A (1 sq ft)', 'B (1 sq ft)' equal-weighted silently; 'FAIL Overall FF: 30.9 against NaN'",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "cd ventures/floor-flatness && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "21 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "disclaimer, privacy and provenance on every page",
+      "method": "read index.html, ff-fl-for-concrete-contractors.html, README, llms.txt; page.test.mjs",
+      "command": "cd ventures/floor-flatness && node --test page.test.mjs",
+      "expected": "no-warranty, not engineering advice, never uploaded, standard-not-read disclosed",
+      "observed": "present on both pages; llms.txt and README state the standard was not read",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "guide page worked example FF 48.3",
+      "method": "recomputed from the 13 readings with the E1155 equation (11 q, mean -0.0018, sd 0.0309)",
+      "command": "node --test page.test.mjs (plus the recompute in this audit's formula)",
+      "expected": "48.3",
+      "observed": "48.3",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "usage tracking is local, anonymous and opt-out",
+      "method": "read usage.mjs and index.html script",
+      "command": "grep -n usage index.html; sed -n 1,30p usage.mjs",
+      "expected": "event and day only, opt-out box, no network",
+      "observed": "localStorage counter of event/day, opt-out checkbox, DNT/GPC honoured, guarded storage access",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "served llms.txt and canonicals",
+      "method": "deploy rewrite",
+      "command": "node platform/pages/served-copy.mjs floor-flatness",
+      "expected": "no placeholder origin",
+      "observed": "no placeholder or retired origin left",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "front door to a paid product",
+      "method": "python3 portfolio/monetization/transition.py; portfolio/monetization/bets.md; page links",
+      "command": "python3 portfolio/monetization/transition.py",
+      "expected": "link to a ranked paid product if one fits (bet #1 sells to concrete subs)",
+      "observed": "mit-lead-magnet; not in bets.md; links only to free concrete-maturity and formwork-pressure tools",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {"where": "flatness.mjs:179", "change": "pass: got >= limit -> pass: got > limit", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "flatness.mjs:44", "change": "const denom = 3 * s + Math.abs(m); -> const denom = 3 * s + m;", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "flatness.mjs:166", "change": "t + x.areaSqFt * x.result[k].F, 0) / A -> t + x.result[k].F, 0) / s.length", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "flatness.mjs:88", "change": "if (hull[h] <= mid && hull[h + 1] >= mid) -> if (hull[h] < mid && hull[h + 1] > mid)", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "flatness.mjs:36", "change": "return Math.sqrt(s / (a.length - 1)); -> return Math.sqrt(s / a.length);", "caught": true, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "flatness.mjs:155", "change": "if (allD.length && allD.length < 30) -> if (allD.length && allD.length < 3)", "caught": false, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "flatness.mjs:118", "change": "(y[b] - y[a]) * (i - a) <= (y[i] - y[a]) * (b - a) -> ... < ... (likely equivalent mutant)", "caught": false, "test_cmd": "node --test '*.test.mjs'"},
+    {"where": "flatness.mjs:228", "change": "if (r > 0) ground.push -> if (r > 0.01) ground.push", "caught": false, "test_cmd": "node --test '*.test.mjs'"}
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "No E1155 minimum-sample check: a section's area is known, but Nmin (2 sqrt(A) for 320-1600 sq ft, A/30 above) is never compared with its 10-ft readings, so a 2,400 sq ft section with 42 readings (Nmin 80) prints 'PASS ... FL (local)' with no note; README says the minimum 'could not' be read though the free ASCC checklist states it.",
+      "where": "ventures/floor-flatness/flatness.mjs:154",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Test-sample validity not enforced: sections under 320 sq ft (or 8 ft a side) are scored and pass/failed, and sample lines with fewer than 12 points (E1155-14 nj >= 12) are pooled into the section FF; the only per-line rule applied is 3 readings for FF and 11 for FL.",
+      "where": "ventures/floor-flatness/flatness.mjs:150",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "No 90% confidence interval per test section, which an E1155 report carries (ASCC checklist, report item C); listed as not done in README.",
+      "where": "ventures/floor-flatness/flatness.mjs:157",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "A section with no area silently defaults to 1 sq ft, so lines-format sections without an area are weighted equally in the overall and printed '(1 sq ft)' with no warning.",
+      "where": "ventures/floor-flatness/cli.mjs:78",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "CLI numeric flags are not validated: '--ff abc' or a bare '--ff' yields 'FAIL Overall FF: 30.9 against NaN'.",
+      "where": "ventures/floor-flatness/cli.mjs:30",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "overall() drops sections whose F is Infinity (perfectly flat or level samples), so they vanish from the area-weighted overall and the overall can print '-' with no note.",
+      "where": "ventures/floor-flatness/flatness.mjs:162",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Two non-equivalent seeded mutants survive: the small-sample FL warning threshold (30 -> 3) and the grind report filter (r > 0 -> r > 0.01); warnings and grind reporting edges are unpinned.",
+      "where": "ventures/floor-flatness/flatness.test.mjs:52",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "No ACI 117 / 302.1R context in the spec step: no MLV default when the contract gives none, no class presets, and no note that FL is not applied to unshored elevated slabs; line-placement rules (45-degree lines, or equal aggregate length both ways; all 45-degree under 25 ft wide) are not explained.",
+      "where": "ventures/floor-flatness/index.html:1",
+      "category": "scope-gap",
+      "origin": "spec"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Meets the bar (correctness 3, claims 3, verification 3, median 3) and finished (completeness 3), with domain 2. The arithmetic is right: an independent Python script using the E1155 equations reproduced the tool's FF 65.23 / FL 91.36 on a 23-reading line, FF 31.04 / FL 42.73 on the 64-line example bay with a 2-ft edge band, and the 10-ft straightedge gaps 0.095 / 0.110 in by brute force; 21 tests pass and 5 of 8 seeded mutants (all in the FF/FL, overall and spec core) were caught. Provenance is disclosed honestly. The gap a surveyor would hit is E1155's sample validity: the tool never compares a section's 10-ft readings with Nmin (2 sqrt(A) or A/30), scores sections under 320 sq ft and pools lines under 12 points, and gives no 90% confidence interval, so it prints PASS on samples a testing agency would reject. ASTM's own text was unreachable (iteh 404, mirror 502); the validity rules come from the ASCC F-number checklist, and the cross-section area weighting could not be confirmed. It is a free lead magnet with no link to a paid product."
+}
