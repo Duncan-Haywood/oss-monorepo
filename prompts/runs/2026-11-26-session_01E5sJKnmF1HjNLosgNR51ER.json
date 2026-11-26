@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01E5sJKnmF1HjNLosgNR51ER",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T23:10:06Z",
+  "ended": "2026-11-26T23:21:50Z",
+  "wall_minutes": 11.94,
+  "tokens_in": 7839083,
+  "tokens_out": 53136,
+  "cost_usd": 3.9003,
+  "tool_calls": 70,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/429",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "migration_regen.py run from the oss-monorepo cwd with an absolute app path reported a false CLASH on 0000_init.sql; it must be run from the private repo root with `apps/<app>` (the doc says so only implicitly)."
+    },
+    {
+      "file": "apps/cmmc-site/src/pages.mjs (private)",
+      "issue": "The pricing page proposes $149/$249 a month billed annually, while apps/cmmc/src/shared/plans.ts charges 24_900/39_900 cents. The site and the app disagree on price; it needs a pricing decision, not a drive-by edit."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets found no free, ungated item in any of the 7 bets (all wait on demand, the owner or a source). The growth-path topics in bets.md were the only route to new work; 'ISO 9001 document control' was untouched although the cmmc site already sold it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Every Next item of the bets above #4 waited on demand. bets.md names #1 first, but its free items were all gated",
+      "did": "Took bet #4's untouched growth topic, which the paid plan's marketing already promised",
+      "result": "Shipped; the site's 'document control' claim is now backed by the app"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No blog or customer post this run: the work is in the private app, and the cmmc-site copy already describes document control",
+      "did": "Wrote the feature into the app README, ROADMAP and SOURCES instead",
+      "result": "No new public writing"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Security queue empty (1 claimed). Built ISO 9001 document control part 1 in private apps/cmmc: master list, release/revise/review/withdraw, history, CSV, plan gate, privacy policy 2026-11-26.14. Local cmmc-ci 9/9 run steps passed (3 uses: steps not run); 16 unit + 6 worker tests added, full worker suite 149 passed. Next: internal audits and corrective actions, which the site's Level 2 + Quality plan also lists.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "684a9bb1-76df-592c-afe4-a3650c8c07dd",
+    "transcripts": 1,
+    "first": "2026-11-26T23:10:06Z",
+    "last": "2026-11-26T23:22:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 114,
+        "output": 53136,
+        "thinking": 4601,
+        "cache_read": 7676240,
+        "cache_write_5m": 0,
+        "cache_write_1h": 162729,
+        "api_equivalent_usd": 3.9003,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 114,
+      "output": 53136,
+      "thinking": 4601,
+      "cache_read": 7676240,
+      "cache_write_5m": 0,
+      "cache_write_1h": 162729,
+      "api_equivalent_usd": 3.9003,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 70,
+    "tools": {
+      "Bash": 60,
+      "Write": 5,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.94,
+      "active_minutes": 11.94,
+      "model_minutes": 8.09,
+      "tool_minutes": 3.84,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "senior engineer: schema, service, routes, view, tests for a register with revision workflow",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 307.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
