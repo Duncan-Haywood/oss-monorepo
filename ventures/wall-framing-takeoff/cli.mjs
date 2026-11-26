@@ -30,7 +30,7 @@ import { layoutDormer, layoutShedDormer, dormerText } from "./dormer.mjs";
 import { layoutFasteners, fastenerText } from "./fasteners.mjs";
 import { layoutStair, linkStairReaction, stairCuts, stairText, layoutStairWithLanding, landingCuts, landingText, checkWinders, layoutWinders, winderText, STAIR_LIMITS } from "./stairs.mjs";
 import { layoutRoof, roofCuts, roofText } from "./roof.mjs";
-import { resolveHeaders, headerText } from "./headers.mjs";
+import { resolveHeaders, headerText, hasHeaderTable } from "./headers.mjs";
 import { gangOpenings } from "./ganged.mjs";
 import { doorsToFloor, shallowHeaders, trimOpenings } from "./shallowheaders.mjs";
 import { openingSizes, wallHeights } from "./ifcwasm.mjs";
@@ -384,11 +384,12 @@ function runMain(argv, readInput = (p) => readFileSync(p === "-" ? 0 : p, "utf8"
   }
   /** @type {ReturnType<typeof resolveHeaders> | null} */
   let headers = null;
-  if (plan.headerTable) {
+  // Any table counts: a per-stud `headerTables` or a wall's own `headerTable` used to be skipped here (red team 2026-11-26).
+  if (hasHeaderTable(plan)) {
     headers = resolveHeaders(plan);
     if (!headers.ok) return { code: 1, out: `The header table has problems:\n${headers.errors.map((e) => `  - ${e}`).join("\n")}` };
     plan = headers.plan;
-  } else if (flags.has("--headers")) return { code: 2, out: "The plan has no `headerTable` (rows of {upTo, header, plies?} from your span table)." };
+  } else if (flags.has("--headers")) return { code: 2, out: "The plan has no `headerTable` (rows of {upTo, header, plies?} from your span table; or `headerTables` keyed by stud size, or a wall's own `headerTable`)." };
   let floor = null;
   if (flags.has("--floor") || plan.floor) {
     if (!plan.floor) return { code: 2, out: "The plan has no `floor` object (width, depth, joist, spacing, beam)." };
