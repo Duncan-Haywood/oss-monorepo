@@ -627,6 +627,22 @@ class BacklogTest(PromptTestCase):
         self.assertIn("(blocked)", buf.getvalue())
         self.assertIn("Critique mode", buf.getvalue())
 
+    def test_backlog_title_filter_lists_only_workable_rows(self):
+        self.put("P001-a.json", _item("P001", title="perf: owner thing", owner="owner"))
+        self.put("P002-a.json", _item("P002", title="perf: free thing"))
+        self.put("P003-a.json", _item("P003", title="seo: other"))
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            promptctl.print_backlog(self.fx.root, "perf:")
+        self.assertEqual(buf.getvalue().strip().splitlines()[0][:4], "P002")
+        self.assertNotIn("P001", buf.getvalue())
+        self.put("P002-a.json", _item("P002", title="perf: free thing", status="dropped",
+                                      result="no"))
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            promptctl.print_backlog(self.fx.root, "perf:")
+        self.assertIn("No agent-workable 'perf:' item (owner-owned or blocked: P001)", buf.getvalue())
+
     def test_bad_items_are_refused(self):
         cases = [
             ("P001-a.json", _item("P001", status="maybe"), "status must be"),
