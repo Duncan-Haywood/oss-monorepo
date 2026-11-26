@@ -154,6 +154,33 @@ and a test imports a 300-order report. It is the same lesson as
 [an earlier post](2026-11-14-the-sample-file-works-the-real-export-crashes.md): test with a file the
 size of a real export.
 
+## What Seller Books puts in writing about your data (added 2026-11-26)
+
+Seller Books now has its Terms of Service, Privacy Policy, Refund Policy
+and Acceptable Use Policy, and every user accepts the current version
+before opening their books. They are drafts until counsel reviews them,
+but each privacy statement was checked against what the app actually
+stores, and a test fails if the code and the policy drift apart:
+
+- **The report file is not kept.** From an import the app keeps the rows
+  your books need (dates, order ids, item titles, SKUs, amounts and each
+  fee exactly as the report itemised it) plus the file's name and a
+  checksum to catch the same file imported twice. Buyer names and
+  addresses are not stored.
+- **No AI model reads your books.** Your reports and records go to two
+  service providers only: Cloudflare, which hosts the app and its
+  database, and Paddle, which handles checkout.
+- **Fees come from your reports, never from a published rate.** The
+  Schedule C worksheet is a summary for you or your tax preparer, not a
+  return and not tax advice.
+- **You can delete what you imported.** Deleting an import removes the
+  sales it created; an owner can delete the whole shop.
+
+The Refund Policy offers a full refund within 30 days of the first paid
+payment, once paid plans open. Seller Books is still in development; the
+[online sellers page](https://marisstella.app/industries/online-sellers/)
+has early access.
+
 ## What comes next
 
 Each of the ten tool pages now ends with a short "track true profit across
