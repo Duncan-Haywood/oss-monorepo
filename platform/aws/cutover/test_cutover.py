@@ -469,3 +469,38 @@ def test_cli_dry_run(tmp_path, capsys):
     shutil.copytree(HERE / "fixtures", tmp_path / "fx")
     assert C.main(["--fixtures", str(tmp_path / "fx"), "--state", str(tmp_path / "s.json"), "--plan", "prepare", "switch"]) == 0
     assert "switch (plan)" in capsys.readouterr().out
+
+
+# ---------------------------------------------------- the agent-run path ----
+
+def test_budget_stops_before_an_app_that_would_not_fit(tmp_path):
+    ctx = ctx_for(tmp_path)
+    assert go(ctx, "prepare") == 0
+    advance(ctx, hours=1, minutes=1)
+    ctx = reopen(tmp_path, ctx)
+    ctx.budget_minutes = 12               # room for about one app plus verify
+    assert go(ctx, "switch") == 1
+    out = ctx.out.getvalue()
+    assert "time budget" in out and "switched apps stay switched" in out
+    statuses = [a["status"] for a in ctx.state["apps"].values()]
+    assert "switched" in statuses and "pending" in statuses and "rolled_back" not in statuses
+
+
+def test_cli_apply_flag_and_report(tmp_path, capsys):
+    shutil.copytree(HERE / "fixtures", tmp_path / "fx")
+    state, report = str(tmp_path / "s.json"), tmp_path / "report.md"
+    assert C.main(["--fixtures", str(tmp_path / "fx"), "--state", state, "prepare"]) == 0
+    w = json.loads((tmp_path / "s.world.json").read_text())
+    w["now"] = "2026-12-01T16:10:00Z"     # past the demo app's lowered TTL
+    (tmp_path / "s.world.json").write_text(json.dumps(w))
+    assert C.main(["--fixtures", str(tmp_path / "fx"), "--state", state, "--apply", "--report", str(report)]) == 0
+    text = report.read_text()
+    assert "Result: OK" in text and "- demo-paid: switched" in text and "min budget" in text
+    assert TOKEN not in text
+    assert C.main(["--fixtures", str(tmp_path / "fx"), "--state", state, "--rollback", "--app", "site"]) == 0
+    assert json.loads(Path(state).read_text())["apps"]["site"]["status"] == "rolled_back"
+
+
+def test_cli_needs_a_stage():
+    with pytest.raises(SystemExit):
+        C.main([])

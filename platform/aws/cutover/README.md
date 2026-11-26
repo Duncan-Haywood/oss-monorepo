@@ -16,7 +16,7 @@ no AWS account yet.
 | `apps.json`, `apps.d/*.json` | What moves, in order (below) |
 | `retire.json` | What the retire stage may delete, filled in by a PR after the cool-off |
 | `fakes.py`, `fixtures/` | In-memory Cloudflare, AWS, Paddle, HTTP and OpenTofu for dry runs |
-| `test_cutover.py` | 39 tests: the happy path, every rollback, resume, plan mode, secrets |
+| `test_cutover.py` | 42 tests: the happy path, every rollback, resume, plan mode, secrets |
 | `canon_vectors.json` | The copy checksum's test vectors, shared with the Lambda side |
 | [`../stacks/cloudflare/`](../stacks/cloudflare/README.md) | The Cloudflare account as OpenTofu: the export's generated config plus `switch.tf` |
 | [`../stacks/cutover-access/`](../stacks/cutover-access/) | The two GitHub roles and the member-account roles |
@@ -61,6 +61,12 @@ and timestamps, never a secret or a row.
 | `rollback` | By hand: freeze, DNS back, Paddle back, report rows written on AWS since the copy (to reconcile by hand), unfreeze | |
 | `retire` | After `cooloff_days` (7): deletes what `retire.json` lists, only if the plan's deletions are exactly those addresses, no listed Worker still has a route or custom domain, every host points at AWS, and no D1 table has changed since its copy | any check fails |
 | `delete-secrets` | `ForceDeleteWithoutRecovery` on `cutover/cloudflare-api-token` and `cutover/paddle-api-key`; the workflow runs it after every run job unless told to keep them | |
+
+The agent-run path (the owner's 1-hour credential window, run by a session rather than the
+workflow): `--credentials environment` (Cloudflare through the session's network secret, AWS
+from `aws login`), `--apply` (switch then verify), `--verify`, `--rollback`, `--budget-minutes`
+(stops before an app that would not fit, default 60) and `--report <file>`. Owner steps, the
+session's rules and its network: [`docs/runbooks/cutover-run-day.md`](../../../docs/runbooks/cutover-run-day.md).
 
 `--plan` runs any stage read-only (every client refuses writes; the plan
 role could not write anyway). The workflow's plan job does this and posts

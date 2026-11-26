@@ -70,6 +70,11 @@ PRODUCT = re.compile(r"^[a-z][a-z0-9_]{1,40}$")
 IDENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,62}$")
 AWS_ACCOUNTS = ("shared-infra", "apps")
 BATCH_BYTES = 4_000_000  # under Lambda's 6 MB synchronous payload
+# The owner's window: credentials valid for an hour, the whole switch well inside it.
+# Per-app estimates, measured against the fakes plus the real waits in wait_served.
+APP_SWITCH_MINUTES = 4
+VERIFY_MINUTES = 5
+PROXY_TOKEN = "proxy-injected-cloudflare-token"  # replaced by the session's network secret
 
 
 class CutoverError(Exception):
@@ -277,6 +282,9 @@ class Aws:
         self.region, self.plan_only, self.run_id = region, plan_only, run_id
         self._creds: dict[str, dict] = {}
         self._accounts: dict[str, str] | None = None
+        # One AWS account, no Organization (stacks/cutover-access single_account):
+        # every call runs with the caller's own role.
+        self.single_account = os.environ.get("CUTOVER_SINGLE_ACCOUNT") == "true"
 
     def _run(self, args: list[str], env=None, check=True):
         p = subprocess.run(["aws", *args, "--region", self.region, "--output", "json"], capture_output=True, text=True, env=env, timeout=300)
@@ -291,7 +299,7 @@ class Aws:
         return self._accounts
 
     def _env(self, role: str):
-        if role == "mgmt":
+        if role == "mgmt" or self.single_account:
             return None
         if role not in self._creds:
             account, name = self.ROLES[role]
@@ -478,6 +486,9 @@ class Ctx:
             self.state["apps"].setdefault(a["name"], {"status": "pending", "steps": {}})
         self.inventory = None
         self.token: dict = {}
+        self.timings: list[tuple[str, float]] = []
+        self.started = clock.now()
+        self.budget_minutes = 60.0
 
     # logging: never a secret, never a row
     def log(self, msg: str) -> None:
@@ -504,10 +515,13 @@ class Ctx:
         """Run fn once; a resumed run skips a step whose result is recorded."""
         if name in steps:
             return steps[name]
+        t0 = self.clock.now()
         result = fn()
+        took = round((self.clock.now() - t0).total_seconds(), 1)
+        self.timings.append((name, took))
         if self.plan_only:
             return result
-        steps[name] = {"at": iso(self.clock.now()), **(result or {})}
+        steps[name] = {"at": iso(self.clock.now()), "seconds": took, **(result or {})}
         self.save()
         return steps[name]
 
@@ -1133,6 +1147,12 @@ def stage_switch(ctx: Ctx, only: str | None) -> None:
     for a in ctx.cfg["apps"]:
         if only and a["name"] != only:
             continue
+        if ctx.state["apps"][a["name"]]["status"] != "switched":
+            left = ctx.budget_minutes - (ctx.clock.now() - ctx.started).total_seconds() / 60
+            need = APP_SWITCH_MINUTES * (2 if a.get("data") else 1)
+            if left < need + VERIFY_MINUTES:
+                raise CutoverError(f"time budget: {left:.0f} min left, {a['name']} needs about {need} plus {VERIFY_MINUTES} for verify; "
+                                   "stopping before it (switched apps stay switched; re-run with fresh credentials to continue)")
         switch_app(ctx, a)
 
 
@@ -1336,6 +1356,8 @@ def delete_secrets(ctx: Ctx) -> None:
 # ------------------------------------------------------------------ main ----
 
 STAGE_ORDER = ["export", "prepare", "switch", "verify", "rollback", "retire", "delete-secrets"]
+# The agent-run spelling (docs/runbooks/cutover-run-day.md): --apply is switch then verify.
+FLAG_STAGES = {"apply": ["switch", "verify"], "verify": ["verify"], "rollback": ["rollback"]}
 
 
 def mask(value: str) -> None:
@@ -1350,14 +1372,21 @@ def build_real(args, cfg) -> Ctx:
     region = os.environ.get("AWS_DEFAULT_REGION", "us-east-1")
     run_id = os.environ.get("GITHUB_RUN_ID", "local")
     aws = Aws(region, args.plan, run_id)
-    token = aws.secret(SECRET_CLOUDFLARE)
     needs_cf = any(s != "delete-secrets" for s in args.stages)
-    if needs_cf and not token:
-        raise CutoverError(f"{SECRET_CLOUDFLARE} is not in Secrets Manager (README.md, Owner steps)")
+    if args.credentials == "environment":
+        # The run session's network secret for api.cloudflare.com replaces this
+        # placeholder in flight; a token in the environment works too.
+        token = os.environ.get("CLOUDFLARE_API_TOKEN") or PROXY_TOKEN
+        raw = os.environ.get("CUTOVER_PADDLE_SECRET_JSON")
+    else:
+        token = aws.secret(SECRET_CLOUDFLARE)
+        if needs_cf and not token:
+            raise CutoverError(f"{SECRET_CLOUDFLARE} is not in Secrets Manager (README.md, Owner steps)")
+        raw = aws.secret(SECRET_PADDLE)
     token = (token or "").strip()
-    mask(token)
+    if token != PROXY_TOKEN:
+        mask(token)
     paddle = None
-    raw = aws.secret(SECRET_PADDLE)
     if raw:
         mask(raw)
         p = json.loads(raw)
@@ -1365,11 +1394,12 @@ def build_real(args, cfg) -> Ctx:
         paddle = Paddle(p["api_key"], p.get("environment", "live"), args.plan)
     bucket = os.environ.get("CUTOVER_STATE_BUCKET")
     if not bucket:
-        raise CutoverError("CUTOVER_STATE_BUCKET is not set")
+        raise CutoverError("CUTOVER_STATE_BUCKET is not set (the Cloudflare stack's state lives there in every mode)")
     kms = os.environ.get("CUTOVER_STATE_KMS")
     backend = {"bucket": bucket, "key": "cloudflare/terraform.tfstate", "region": region, **({"kms_key_id": kms} if kms else {})}
     tofu = Tofu(STACK, token, args.plan, backend)
-    return Ctx(cfg, Cloudflare(token, args.plan), paddle, aws, Http(), tofu, S3State(aws, bucket, kms), Clock(), plan_only=args.plan)
+    store = FileState(Path(args.state_file)) if args.state_file else S3State(aws, bucket, kms)
+    return Ctx(cfg, Cloudflare(token, args.plan), paddle, aws, Http(), tofu, store, Clock(), plan_only=args.plan)
 
 
 def build_fake(args, cfg) -> Ctx:
@@ -1405,6 +1435,15 @@ def run(ctx: Ctx, stages: list[str], only: str | None, export_out: Path) -> int:
         ctx.note(f"STOPPED: {e}")
         code = 1
     finally:
+        took = (ctx.clock.now() - ctx.started).total_seconds() / 60
+        ctx.summary.append(f"time: {took:.1f} of {ctx.budget_minutes:.0f} min budget; slowest steps: "
+                           + ", ".join(f"{n} {s:.0f}s" for n, s in sorted(ctx.timings, key=lambda t: -t[1])[:5]))
+        if getattr(ctx, "report_path", None):
+            Path(ctx.report_path).write_text(
+                f"# Cutover report: {' '.join(stages)}{' (plan only)' if ctx.plan_only else ''}\n\n"
+                f"Result: {'OK' if code == 0 else 'STOPPED'} at {iso(ctx.clock.now())}\n\n"
+                + "".join(f"- {line}\n" for line in ctx.summary)
+                + "\n## App status\n\n" + "".join(f"- {n}: {a['status']}\n" for n, a in ctx.state["apps"].items()))
         summary = os.environ.get("GITHUB_STEP_SUMMARY")
         if summary:
             with open(summary, "a", encoding="utf-8") as f:
@@ -1415,13 +1454,27 @@ def run(ctx: Ctx, stages: list[str], only: str | None, export_out: Path) -> int:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    ap.add_argument("stages", nargs="+", choices=STAGE_ORDER)
+    ap.add_argument("stages", nargs="*", choices=STAGE_ORDER)
+    ap.add_argument("--apply", action="store_true", help="switch then verify (the agent-run path)")
+    ap.add_argument("--verify", action="store_true", help="verify only")
+    ap.add_argument("--rollback", action="store_true", help="every switched app back to Cloudflare")
+    ap.add_argument("--credentials", choices=["secrets-manager", "environment"], default="secrets-manager",
+                    help="secrets-manager (the workflow) or environment: the Cloudflare token from the proxy's network "
+                         "secret or CLOUDFLARE_API_TOKEN, AWS from the default chain (aws login)")
+    ap.add_argument("--state-file", help="keep the run state in this file instead of S3 (a rehearsal; the real run keeps S3 so a workflow run can resume it)")
+    ap.add_argument("--budget-minutes", type=float, default=60.0, help="stop before an app that would not fit (default 60)")
+    ap.add_argument("--report", help="write a Markdown report here at the end")
     ap.add_argument("--plan", action="store_true", help="read-only preview: no Cloudflare, AWS, Paddle or state writes")
     ap.add_argument("--app", help="limit prepare/switch/rollback to one app")
     ap.add_argument("--fixtures", help="dry run against fixture files (fakes.py), no network")
     ap.add_argument("--state", help="with --fixtures: the run state file")
     ap.add_argument("--export-out", default=str(STACK), help="where export writes its generated files")
     args = ap.parse_args(argv)
+    for flag, stages in FLAG_STAGES.items():
+        if getattr(args, flag):
+            args.stages = list(args.stages) + stages
+    if not args.stages:
+        ap.error("name a stage, or --apply / --verify / --rollback")
     args.stages = sorted(set(args.stages), key=STAGE_ORDER.index)
     try:
         cfg = load_config()
@@ -1431,6 +1484,8 @@ def main(argv=None) -> int:
     except CutoverError as e:
         print(f"STOPPED: {e}", file=sys.stderr)
         return 1
+    ctx.budget_minutes = args.budget_minutes
+    ctx.report_path = args.report
     return run(ctx, args.stages, args.app, Path(args.export_out))
 
 

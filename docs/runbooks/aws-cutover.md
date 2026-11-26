@@ -118,6 +118,9 @@ until SES production access is granted, and any failure rolls back on its
 own. Design, stages and checks:
 [`platform/aws/cutover/README.md`](../../platform/aws/cutover/README.md).
 
+Or let an agent run it inside a one-hour credential window instead of the workflow:
+[`cutover-run-day.md`](cutover-run-day.md) (same code, same stages).
+
 **Before the day (agents, through PRs; no owner time):** owner steps 1 to 3
 above are done, and `github/configure.sh` has been re-run once so the
 `cutover-plan` and `cutover` environments exist (the second with you as
