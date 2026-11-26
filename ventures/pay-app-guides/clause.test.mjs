@@ -76,3 +76,27 @@ test("the guide page lists every state in STATES, links each source, and labels 
   assert.match(html, /2026-11-25/);
   assert.match(html, /import \{ readClause, stateReading, questions, STATES \} from "\.\/clause\.mjs"/);
 });
+
+test("written-out day counts are read, including compounds and every word in the table (red team 2026-11-26)", () => {
+  const days = (w) => readClause(`Contractor shall pay Subcontractor within ${w} days after receipt of payment from Owner.`).days;
+  assert.equal(days("seven"), 7);
+  assert.equal(days("fifteen"), 15);
+  assert.equal(days("fourteen"), 14);
+  assert.equal(days("four"), 4);
+  assert.equal(days("twenty-one"), 21);
+  assert.equal(days("forty five"), 45);
+  assert.equal(days("Thirty"), 30);
+  assert.equal(days("ninety"), 90);
+  assert.equal(days("several"), null);
+  // A written-out count is a number of days, so the page must not say the clause names none.
+  assert.ok(!questions(readClause("Payment within fourteen days after receipt of payment from Owner."), "fl").join(" ").includes("names no number of days"));
+  assert.ok(readClause("Payment within forty five days after receipt of payment from Owner.").whenPaid.some((s) => /forty five days after/.test(s.words)));
+});
+
+test("a quote is widened to whole words at both ends", () => {
+  const pad = "abcdefghijklmnopqrstuvwxyz0123456789 ".repeat(3);
+  const r = readClause(`${pad}Contractor shall pay within ten days after receipt of payment from the Owner. ${pad}`);
+  const ctx = r.whenPaid[0].context;
+  assert.ok(ctx.startsWith("…abcdefghijklmnopqrstuvwxyz0123456789 "), ctx);
+  assert.ok(ctx.endsWith(" from the Owner.…"), ctx);
+});

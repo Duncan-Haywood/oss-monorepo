@@ -83,7 +83,8 @@ export function compute(text, settings = {}) {
     const amount = parseMoney(get("amount"));
     if (amount == null || amount < 0) { out.errors.push(`${label}: amount is not a dollar figure of zero or more.`); continue; }
     const paidRaw = get("paidAmount"), paidAmount = paidRaw === "" ? undefined : parseMoney(paidRaw);
-    if (paidAmount === null) { out.errors.push(`${label}: paid amount is not a dollar figure.`); continue; }
+    // A negative paid amount once passed and inflated "the waiver gives up" (red team 2026-11-26).
+    if (paidAmount === null || paidAmount < 0) { out.errors.push(`${label}: paid amount is not a dollar figure of zero or more.`); continue; }
     const dates = {};
     let bad = false;
     for (const k of ["through", "signed", "paid"]) {
