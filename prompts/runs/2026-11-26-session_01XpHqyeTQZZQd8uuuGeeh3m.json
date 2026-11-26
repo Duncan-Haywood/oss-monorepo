@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqyeTQZZQd8uuuGeeh3m",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Owner brief 2026-11-26: split the blog into a marketing blog at blog/ and an engineering blog at engineering/",
+  "input_sha256": "4120bd463f79015abd99bbbc9fd4f0cea492468ecc582bbd3f2a9205e73e3e84",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-26T03:20:31Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Split the single blog at writing/ into a marketing blog (blog/) and an engineering blog (engineering/) per the owner's 2026-11-26 brief",
+  "projects": [
+    "platform/pages"
+  ],
+  "pr": 19193,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/goals.md",
+      "issue": "Lines 361, 727, 770 and 818 still describe the blog as writing/ (CODEOWNERS-adjacent guidance file left for a separate small follow-up, per the brief)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "owner brief (system notification, 2026-11-26)",
+      "why": "Asked for a redirect page per old writing/ URL. 7,386 stubs would push the shard Worker from ~13,070 files past Cloudflare's 20,000-file free-plan limit (deploy log of run 45745125333), so old URLs get real 301s from the site Worker instead (writing-moves.mjs, router.mjs).",
+      "did": "301s in router.mjs, with a HEAD probe for which blog holds a slug; writing/feed.xml and writing/podcast/ keep serving",
+      "result": "check.mjs passes on a full build with no dead links and no orphaned sitemap URLs; split.test.mjs covers the redirects"
+    },
+    {
+      "file": "platform/pages/engineering.mjs",
+      "why": "engineering/ was already the status page's URL; the brief puts the engineering blog there, so the status page moved to engineering/status/ (still noindex, linked from the footer and the blog)",
+      "did": "moved",
+      "result": "check.mjs passes"
+    }
+  ],
+  "writeups": [],
+  "goal": "north-star: customer guides get their own marketing blog in front of small-business buyers, with product CTAs",
+  "notes": "Full build 2m12s; node check.mjs: 'looks publishable: 1439 products, 13561 pages, no dead links'. Built HTML has no writing/ link except feed and podcast. Touched-module tests (writing, writing-moves, podcast, engineering, site-nav, page-identity, home, verify-live, cloudflare/split) green. Customer posts: construction 382, EU e-invoicing 234, manufacturing 8, online sellers 2; engineering 6,760. bugs/robustness added to DEV_TAGS (6 crash write-ups moved off the customer blog). Usage tracking: the site-wide Cloudflare beacon build.mjs injects into every page covers both blogs, as it did writing/.",
+  "corrections": [],
+  "redteam": null
+}
