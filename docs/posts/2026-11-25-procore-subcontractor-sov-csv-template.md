@@ -128,10 +128,31 @@ What the fields mean, from Oracle's Subcontractor Billing Workflow Guide:
 - **Retention:** Oracle warns that "if your retention amounts do not meet the retention settings,
   the system will override the amounts in the file." The GC's draw settings win.
 
-Two things to get right. Pick **This Period** in the dialog if your numbers are this month's (a
-G703's column E is). And start from the template Textura gave you, changing only the amounts:
-it comes from the contract's schedule of values in Textura, so its rows are the ones the upload
-knows.
+Two things to get right. Pick the upload that matches your numbers: **This Period** for this
+month's amounts (a G703's column E), **To Date** for running totals (column G). And start from the
+template Textura gave you, changing only the amounts: it comes from the contract's schedule of
+values in Textura, so its rows are the ones the upload knows.
+
+### This Period or To Date?
+
+Oracle's Progress tab page describes the editable **Completed to Date** field as "the total
+monetary value ... for the current and previous periods", and says that entering Material Stored
+This Period "will automatically adjust the Completed to Date" field. So Completed to Date includes
+stored materials: it is your G703's column G (work completed from previous applications, plus this
+period, plus materials presently stored), not column D + E alone.
+([Oracle's field overview](https://docs.oracle.com/cd/E97085_01/TPMhelp/en/Europe/10313240.htm))
+
+The To Date upload is the safer one when the This Period numbers are awkward to work out:
+
+- **Stored materials went down** (some were installed). Textura's Material Stored This Period
+  wants what *came in* this period, which you can't read off a falling balance. A running total
+  doesn't care.
+- **You started billing in Textura partway through the job,** or your earlier applications were
+  done somewhere else. To Date needs only today's totals.
+
+The catch: if Textura's earlier periods don't match yours (a period the GC cut, a change order
+billed differently), a To Date figure lower than what Textura already shows would bill a
+*negative* period on that line. Compare before you upload.
 
 Oracle's pages don't publish the template's column headings, so a tool filling it has to read
 them from the file you downloaded.
@@ -141,17 +162,20 @@ them from the file you downloaded.
 Each pay application now has a **Textura billing upload** button. Choose the template Textura
 gave you (the CSV, or the Excel file as downloaded), and it:
 
-1. finds the Work This Period and Material Stored This Period columns by their headings. If your
-   GC's template words them differently, you point at the right column;
+1. tells This Period from To Date by the template's headings (you can switch it), and finds the
+   columns to fill: Work This Period and Material Stored This Period, or Completed to Date and a
+   stored-to-date column if the template has one. If your GC's template words them differently,
+   you point at the right column;
 2. matches each Textura row to one of your lines: same phase code as your item number, else the
    same description, else the only line whose scheduled value equals the row's budget. You can
    change any match, or leave a row as Textura wrote it;
-3. writes this application's work this period and the materials newly stored on each matched row,
-   amounts as plain numbers, and keeps every other cell, row and the delimiter as they were.
+3. writes this application's work this period and the materials newly stored on each matched row
+   (To Date: column G, and column F where there is a stored column), amounts as plain numbers, and keeps every other cell, row and the delimiter as they were.
    Retention cells are left alone;
 4. points out lines you billed that are on no Textura row (the upload would leave their amount
    out), budgets that differ from your scheduled value (often a change order not yet in Textura),
-   and stored materials it can't work out from the balances (that cell is left for you).
+   stored materials it can't work out from the balances (This Period only; that cell is left for
+   you), and To Date lines where Textura already shows more than your application.
 
 The file is read and written in your browser. Upload the result in the same Textura dialog and
 check the table it shows before you continue. Like the Procore tools, this is built from Oracle's
