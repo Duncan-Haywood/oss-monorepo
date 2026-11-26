@@ -110,7 +110,15 @@ The takeoff now does this for any square-cornered plan, using the rafters it fra
 - the 30 × 30 ft stair-step: **35 instead of 34**. 26 joints are on rafters. The 6 joints behind a reused valley triangle need a block, because the triangle's shape fixes where they go;
 - 80 random stepped outlines at 16, 19.2 and 24 in spacing: **2.9% more sheets** in total. Of 2,922 joints, all but one of those not behind a valley triangle land on a rafter.
 
-How it was checked: every joint marked as on a rafter was matched to a framed rafter at that spot whose length spans that course. No joint shares a rafter with the course below. Each course still covers exactly what the plain layout covered, and that layout is the one checked point by point on 120 random roofs above. Blocking pieces are not in the lumber order yet.
+How it was checked: every joint marked as on a rafter was matched to a framed rafter at that spot whose length spans that course. No joint shares a rafter with the course below. Each course still covers exactly what the plain layout covered, and that layout is the one checked point by point on 120 random roofs above.
+
+## Blocking the joints that miss a rafter (added 2026-11-26)
+
+A joint with no rafter under it needs something to nail both panel ends to. The takeoff now puts that in the lumber order. For each such joint it lists a nailer the size of the rafters, as long as the course is wide, set on edge under the joint, and a block between the two rafters at each end of the nailer to carry it. Each block is the clear gap between those rafters: the distance between their centres less one rafter thickness (1-1/2 in). Where a hip or valley leaves a rafter on one side only, the block is listed at the rafter spacing less 1-1/2 in, and you cut it to fit.
+
+By hand, on the 30 × 30 ft stair-step at 6 in 12 with 2x8 rafters 16 in on centre: the 6 joints behind a valley triangle each fall in a 16 in bay, so each block is 16 − 1-1/2 = **14-1/2 in**. Four of those joints are on 48 in eave courses and two are on the 32-1/2 in course above, so the order gains **4 nailers of 48 in, 2 of 32-1/2 in and 12 blocks of 14-1/2 in**, all 2x8, cut from the same boards as the rafters. They show up in the board order and in the supplier material list as "sheathing nailer" and "sheathing block". Across the 80 random outlines, every joint with no rafter under it got exactly one nailer and two blocks.
+
+The takeoff does not size or check this blocking. Check it against the nailing schedule for your roof sheathing.
 
 ## Where to use it
 
