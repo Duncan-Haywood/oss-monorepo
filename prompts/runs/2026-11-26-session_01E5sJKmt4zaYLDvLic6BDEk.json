@@ -24,10 +24,12 @@
   ],
   "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/430",
   "repo": "Duncan-Haywood/private-monorepo",
-  "commits": [],
+  "commits": [
+    "private-monorepo@aa5a784757cebc4bccf65372722b733549dbc2fc"
+  ],
   "lines_added": null,
   "lines_removed": null,
-  "merged": null,
+  "merged": true,
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": 8,
@@ -62,7 +64,7 @@
     "docs/posts/2026-11-24-reseller-payouts-cost-of-goods-and-schedule-c.md (new section: equipment and the $2,500 line)"
   ],
   "goal": null,
-  "notes": "Idea: equipment/de minimis safe harbor in Seller Books. Security queue empty (1 claimed). Local verification in private-monorepo/apps/seller-books: typecheck clean; test:unit 28 files 296 passed; test:worker 24 files 129 passed; build ok. risk_review: nothing blocked; personal-data check answered (no new data, one enum value).",
+  "notes": "Idea: equipment/de minimis safe harbor in Seller Books. Security queue empty (1 claimed). Local verification in private-monorepo/apps/seller-books: typecheck clean; test:unit 28 files 296 passed; test:worker 24 files 129 passed; build ok. risk_review: nothing blocked; personal-data check answered (no new data, one enum value). private-monorepo CI starved (ci_starvation.py: runner_id 0 on both jobs); e2e run locally: 17 passed. Merged private-monorepo#430 as aa5a784. Public side: oss-monorepo#19519.",
   "corrections": [],
   "redteam": null,
   "usage": {
