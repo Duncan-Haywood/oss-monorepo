@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqybhUaTWsop7y4W1qqK",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T21:38:53Z",
+  "ended": "2026-11-26T21:46:41Z",
+  "wall_minutes": 8.33,
+  "tokens_in": 6806206,
+  "tokens_out": 27126,
+  "cost_usd": 2.8591,
+  "tool_calls": 62,
+  "task": "CMMC (bet #4) ROADMAP item: supplier current-through dates in the calendar file and subscribable link, plus a dashboard card (claim cmmc/suppliers-part-3-calendar-dashboard)",
+  "projects": [
+    "private-monorepo/apps/cmmc",
+    "docs/posts"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19485",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "pnpm install run with --dir from inside apps/cmmc printed 'No projects matched' and installed nothing; rerun from the repo root worked",
+      "cost_minutes": 1
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "The 'run pnpm install from the private repo root' warning is accurate. I still lost a minute because `pnpm --dir <root>` from inside the app resolves the {./apps/<dir>} filter against the cwd, not --dir. A one-line note would help."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-25-cmmc-level-1-self-assessment-checklist.md (new section: supplier renewal dates on the calendar and dashboard)"
+  ],
+  "goal": "Bet #4 CMMC workspace: a retention/daily-use feature on the Suppliers tab that a paying Level 2 shop needs (renewal reminders without email)",
+  "notes": "Private PR https://github.com/Duncan-Haywood/private-monorepo/pull/414 merged (squash 3d4080d4). Bets #1-#3 had no free, ungated ROADMAP items per roadmap_claim.py --bets, and it pointed to cmmc #6/#7. I took #7. Verification: run_workflow_locally.py --repo-root private-monorepo cmmc-ci gave 9/9 run: steps ok (Biome, typecheck, unit 443, worker integration 142, build, migrations in sync). The 3 uses: steps were not run. Privacy Policy bumped to 2026-11-26.13 because the calendar link now carries supplier counts. The feed carries no supplier names (a worker test asserts this). No migration was needed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f1cc7740-aaa1-5a83-9101-fcdb5a439253",
+    "transcripts": 1,
+    "first": "2026-11-26T21:38:53Z",
+    "last": "2026-11-26T21:47:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 117,
+        "output": 27126,
+        "thinking": 2503,
+        "cache_read": 6683669,
+        "cache_write_5m": 0,
+        "cache_write_1h": 122420,
+        "api_equivalent_usd": 2.8591,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 117,
+      "output": 27126,
+      "thinking": 2503,
+      "cache_read": 6683669,
+      "cache_write_5m": 0,
+      "cache_write_1h": 122420,
+      "api_equivalent_usd": 2.8591,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 54,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.33,
+      "active_minutes": 8.33,
+      "model_minutes": 4.82,
+      "tool_minutes": 3.5,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior full-stack engineer: shared logic + ICS + worker wiring + dashboard card + tests + privacy/docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 209.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

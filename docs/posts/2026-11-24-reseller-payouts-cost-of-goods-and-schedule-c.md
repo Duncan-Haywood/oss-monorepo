@@ -400,8 +400,20 @@ depreciation) would give you more, is for you or your tax preparer. The
 worksheet doesn't decide that for you.
 
 Line 31, net profit, now appears below line 30. A test in the app checks
-each figure above. The quarterly estimates page still works from line 29,
-so for now it leaves the home office out.
+each figure above.
+
+**The quarterly estimates now take it off too** (added later on
+2026-11-26). Each due date's payment is worked out from line 31, so the space
+you saved lowers it. Only the months you had used the space by the end of
+each period count. Take a seller with one $1,000 sale in February who stores
+stock in 300 square feet all year: that is $125 a month. The profit counted
+to March 31 is $1,000 − $375 = $625, and to May 31 it is $1,000 − $625 = $375.
+By August 31 the home office has used up the profit. On December 31 the
+full $1,500 is held to the $1,000 of profit, so line 31 is $0, the same as
+the Schedule C page shows. A month starts to count on its 15th day, so if you
+check on April 10, April isn't counted yet. The app's tests check each of these
+figures. Without a home office saved, the page says it is left out and
+where to add it.
 
 ## Amazon sellers: the Date Range Report, line by line (added 2026-11-26)
 
