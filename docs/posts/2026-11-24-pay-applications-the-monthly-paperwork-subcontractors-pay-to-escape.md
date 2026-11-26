@@ -516,6 +516,29 @@ crew. It is not a Department of Labor product and not legal advice: the
 contractor checks the figures and signs. Like the rest of the build, it is in
 development.
 
+The hours by day can now come from a time report instead of being typed
+(added 2026-11-26). The contractor exports a CSV with one row per worker and
+day worked, such as QuickBooks time activities or a time-card detail report,
+and the page puts each day's hours on that day of the week. Hours from other
+jobs are left out. Four things a time export gets wrong are handled rather than
+guessed at:
+
+- A payroll register has one date per pay period. Read as if it were by day, it
+  puts 40 hours on a Friday. A date column headed pay date, check date, period end or
+  week ending is refused.
+- Overtime can appear twice. When there is a total column and an overtime
+  column, the overtime is taken out of the total. A row with more overtime than
+  total hours is blocked.
+- Double time is left out of the overtime row and listed. The WH-347's
+  overtime row has one rate, usually time and a half, so double-time hours put
+  there would be priced at 1.5x on a form the contractor signs as true.
+- Holiday, vacation, PTO and sick rows are pay, not hours worked, so they are
+  left out and named.
+
+Rates, deductions and gross pay are not read from the file. They stay typed on
+the form, where the wage determination checks run. The CSV is read in the
+browser and never uploaded.
+
 ## What exists now, free
 
 Parts of the job already have free tools on this site. They

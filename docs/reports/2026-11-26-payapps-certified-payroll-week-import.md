@@ -7,6 +7,7 @@
   **Lesson:** a claim's slug does not say what a run builds. Two claims on one ROADMAP item (9)
   within a minute of each other turned out to be the same work. Before building, read the other
   fresh claims' notes on the same item, not only the slug.
+- The public write-up is folded into `docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md` (certified payroll section), not a new post.
 - Private PR 292 (this run): `payKind` now has a `dt` kind. Double time, DT and 2x are left out of
   the overtime row (one rate, usually 1.5x) and listed per worker. Before this, they were priced at
   the overtime rate on a sworn form.
