@@ -208,6 +208,17 @@ recorded as sent to that job's GC. The build
 reads only the dates typed in. It does not check coverage, limits or
 what a subcontract requires. (Added 2026-11-26; still in development.)
 
+Many GCs also want the current certificate itself in the backup of every
+pay application, not only on file. So each certificate in the build now
+keeps its files: the certificate PDF from the agent, usually an ACORD 25,
+and any endorsements the subcontract asks for, such as additional insured
+or waiver of subrogation. A draft pay application lists the files of
+every active certificate, and one click copies a file into that
+application's backup, so it goes into the single PDF packet sent to the
+GC. The files count against the same storage limit as other attachments,
+and they are deleted with the certificate. (Added 2026-11-26; still in
+development.)
+
 **A scanned schedule of values.** The schedule of values often arrives
 as a scan: the GC's signed copy, or a page someone ran through the
 office copier. Until now the import read a scan only if the scanner had
