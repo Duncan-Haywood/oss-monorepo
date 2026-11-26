@@ -516,21 +516,28 @@ crew. It is not a Department of Labor product and not legal advice: the
 contractor checks the figures and signs. Like the rest of the build, it is in
 development.
 
-The slowest part of that form each week is the hours: seven days, straight
-time and overtime, for every worker, copied from a time-tracking or payroll
-system that already has them. So the page can now fill the hours from a time
-report (added later on 2026-11-26): a CSV with one row per employee and day
-worked, such as QuickBooks time activities or a time-card detail export from
-a payroll service. Each day's hours go on that day of the week, overtime is
-taken from an overtime column or a pay type, and holiday, vacation and sick
-rows are left out. Workers are matched by name, so last week's rates and
-classifications stay. One kind of report is refused on purpose: a payroll
-report dated by pay date or period end has one date for the whole week, and
-it can't say whether Tuesday had 10 hours or 6. Spreading those hours across
-the days would be making up the very figures the contractor signs for, so
-the page asks for a by-day report instead. The file is read in the browser and not
-sent anywhere. Rates, deductions and gross pay are still typed and checked
-on the form.
+The hours by day can now come from a time report instead of being typed
+(added 2026-11-26). The contractor exports a CSV with one row per worker and
+day worked, such as QuickBooks time activities or a time-card detail report,
+and the page puts each day's hours on that day of the week. Hours from other
+jobs are left out. Four things a time export gets wrong are handled rather than
+guessed at:
+
+- A payroll register has one date per pay period. Read as if it were by day, it
+  puts 40 hours on a Friday. A date column headed pay date, check date, period end or
+  week ending is refused.
+- Overtime can appear twice. When there is a total column and an overtime
+  column, the overtime is taken out of the total. A row with more overtime than
+  total hours is blocked.
+- Double time is left out of the overtime row and listed. The WH-347's
+  overtime row has one rate, usually time and a half, so double-time hours put
+  there would be priced at 1.5x on a form the contractor signs as true.
+- Holiday, vacation, PTO and sick rows are pay, not hours worked, so they are
+  left out and named.
+
+Rates, deductions and gross pay are not read from the file. They stay typed on
+the form, where the wage determination checks run. The CSV is read in the
+browser and never uploaded.
 
 ## What exists now, free
 

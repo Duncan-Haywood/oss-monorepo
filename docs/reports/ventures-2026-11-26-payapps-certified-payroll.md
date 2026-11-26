@@ -73,5 +73,9 @@ pre-existing warning in `billing.ts`), typecheck payapps + payapps-site, payapps
 832 tests, payapps-site unit 21, build. No browser smoke this time (happy-dom component tests cover
 fill, refusal and no fetch). Worker tests not rerun: no worker code changed.
 
+Later the same day: a parallel run had built the same feature (private PR 290, closed as superseded)
+and fixed double time in this module (private PR 292: DT/2x left out of the OT row and listed).
+See `docs/reports/2026-11-26-payapps-certified-payroll-week-import.md`.
+
 Next: a QuickBooks Time connection instead of a CSV, state formats (California DIR eCPR), GC
 compliance-system uploads; all "if people ask".

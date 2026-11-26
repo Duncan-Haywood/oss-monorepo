@@ -32,7 +32,9 @@
   "errors": [
     "tsc TS2352 on HTMLElement->HTMLSelectElement casts in the new component test; fixed with `as unknown as`"
   ],
-  "integrity_issues": [],
+  "integrity_issues": [
+    "Duplicate work: a parallel run built the same feature under a second claim on ROADMAP item 9 (private PR 290, closed as superseded). It also found that this run's payKind priced double time at the OT rate; fixed in private PR 292."
+  ],
   "doc_friction": [
     {
       "file": "platform/ci/roadmap_claim.py",
@@ -54,7 +56,7 @@
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (extended)",
+    "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (kept main's version, written by the parallel run, on merge)",
     "docs/reports/ventures-2026-11-26-payapps-certified-payroll.md (extended)"
   ],
   "goal": null,

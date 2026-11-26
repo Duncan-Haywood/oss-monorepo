@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01XpHqyeJfDCz9Pekt1qw5Gz",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T08:38:58Z",
+  "ended": "2026-11-26T08:52:30Z",
+  "wall_minutes": 13.74,
+  "tokens_in": 12696596,
+  "tokens_out": 54027,
+  "cost_usd": 4.9567,
+  "tool_calls": 95,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19290",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "Built a feature (private PR 290) that private PR 289 built in parallel under a different claim slug on the same ROADMAP item; 290 closed as superseded"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Claim slugs are free text: 'certified-payroll-part-2-saved-crew' was used to build 'fill the week from a report', the same work as this run's claim one minute later. The ALSO CLAIMED warning showed the slug and note, but the note did not match what was built. Item-level parts give false confidence."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Seller Books importer verification needs marketplace help pages; eBay serves a bot wall, Mercari/Whatnot 403, Poshmark times out from cloud sessions (2026-11-26). Worth listing under outbound hosts."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Wrote no new post (consolidation): extended the existing pay-app customer post's certified payroll section instead",
+      "did": "folded section into docs/posts/2026-11-24-pay-applications-...md",
+      "result": "one post, no thin duplicate"
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "why": "Did not merge private PR 290 (my own work): a duplicate UI for the same job would confuse users",
+      "did": "closed 290 as superseded, shipped the one real gap it found (double time priced as OT) as private PR 292, merged",
+      "result": "bug fixed on main; ~1h of duplicate work discarded"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-pay-applications-the-monthly-paperwork-subcontractors-pay-to-escape.md (extended)",
+    "docs/reports/2026-11-26-payapps-certified-payroll-week-import.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (exit 3); ideas inbox empty. Private CI starved (ci_starvation exit 0: no runner). Local checks for private PR 290: typecheck, all unit tests, worker certified-payroll test, build, Playwright run of the page. Private PR 292: typecheck, biome, 29 unit tests across certified-payroll and timesheet-import. Private PRs: 290 closed, 292 merged.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7833f6c8-a533-59b4-8b56-46d6cb2bd856",
+    "transcripts": 1,
+    "first": "2026-11-26T08:38:58Z",
+    "last": "2026-11-26T08:52:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 90,
+        "input": 173,
+        "output": 54027,
+        "thinking": 8850,
+        "cache_read": 12525123,
+        "cache_write_5m": 0,
+        "cache_write_1h": 171300,
+        "api_equivalent_usd": 4.9567,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 90,
+      "input": 173,
+      "output": 54027,
+      "thinking": 8850,
+      "cache_read": 12525123,
+      "cache_write_5m": 0,
+      "cache_write_1h": 171300,
+      "api_equivalent_usd": 4.9567,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 95,
+    "tools": {
+      "Bash": 82,
+      "mcp__github__create_pull_request": 3,
+      "Write": 2,
+      "ToolSearch": 2,
+      "mcp__github__merge_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "Read": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.74,
+      "active_minutes": 13.73,
+      "model_minutes": 9.95,
+      "tool_minutes": 3.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "estimate: a senior dev reading the payroll import, building and testing a CSV-to-WH-347 importer, then the double-time fix and the post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 121.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
