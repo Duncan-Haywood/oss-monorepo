@@ -197,7 +197,8 @@
       "what": "CLI numeric flags are not validated: '--ff abc' or a bare '--ff' yields 'FAIL Overall FF: 30.9 against NaN'.",
       "where": "ventures/floor-flatness/cli.mjs:30",
       "category": "input-handling",
-      "origin": "implementation"
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19476"
     },
     {
       "severity": "low",
@@ -221,6 +222,6 @@
       "origin": "spec"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19476"],
   "verdict": "Meets the bar (correctness 3, claims 3, verification 3, median 3) and finished (completeness 3), with domain 2. The arithmetic is right: an independent Python script using the E1155 equations reproduced the tool's FF 65.23 / FL 91.36 on a 23-reading line, FF 31.04 / FL 42.73 on the 64-line example bay with a 2-ft edge band, and the 10-ft straightedge gaps 0.095 / 0.110 in by brute force; 21 tests pass and 5 of 8 seeded mutants (all in the FF/FL, overall and spec core) were caught. Provenance is disclosed honestly. The gap a surveyor would hit is E1155's sample validity: the tool never compares a section's 10-ft readings with Nmin (2 sqrt(A) or A/30), scores sections under 320 sq ft and pools lines under 12 points, and gives no 90% confidence interval, so it prints PASS on samples a testing agency would reject. ASTM's own text was unreachable (iteh 404, mirror 502); the validity rules come from the ASCC F-number checklist, and the cross-section area weighting could not be confirmed. It is a free lead magnet with no link to a paid product."
 }
