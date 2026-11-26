@@ -1,18 +1,56 @@
 {
+  "_generated": "from platform/email/inboxes.yaml by platform/email/gen_config.py; edit that file, not this one",
   "zone": "marisstella.app",
   "addresses": [
+    {
+      "local": "hello",
+      "purpose": "everything else - press, ideas, partnerships; named in the Privacy Policy"
+    },
     {
       "local": "support",
       "purpose": "help with a tool, a product or a self-deploy"
     },
     {
-      "local": "hello",
-      "purpose": "everything else: press, ideas, partnerships"
+      "local": "privacy",
+      "purpose": "data-subject requests (access, erasure) under GDPR/CCPA; statutory deadlines"
+    },
+    {
+      "local": "security",
+      "purpose": "vulnerability reports (security.txt contact)"
+    },
+    {
+      "local": "billing",
+      "purpose": "Paddle and app-store payout, tax and dispute notices; customer billing questions"
     },
     {
       "local": "accounts",
       "purpose": "sign-ups and notices for the portfolio's platform accounts (portfolio/distribution/accounts.json)"
+    },
+    {
+      "local": "sales",
+      "purpose": "replies to outreach and inbound leads"
+    },
+    {
+      "local": "dmarc",
+      "purpose": "DMARC aggregate reports (rua) for the domain"
+    },
+    {
+      "local": "grants",
+      "purpose": "support for Grant Autopilot (grants.marisstella.app)"
+    },
+    {
+      "local": "payapps",
+      "purpose": "support for the pay-app billing product (bet 1)"
+    },
+    {
+      "local": "seller-books",
+      "purpose": "support for reseller profit and Schedule C books (bet 5)"
     }
   ],
-  "deliver_to_worker": "monorepo-projects-edge"
+  "deliver_to_worker": "marisstella-mail",
+  "owner_destination": true,
+  "dmarc": {
+    "policy": "none",
+    "rua_local": "dmarc"
+  }
 }

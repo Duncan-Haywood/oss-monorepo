@@ -29,6 +29,8 @@ node --test platform/aws/stacks/email-ops/sender/*.test.mjs  # SES sender, conse
 node --test platform/counter/*.test.mjs
 node --test platform/analytics/*.test.mjs
 node --test platform/edge/*.test.mjs           # the site's feedback/counts Worker (platform/edge)
+node --test platform/email/*.test.mjs          # the agent-managed inboxes Worker (platform/email)
+node --test platform/email/aws/*.test.mjs      # its SES inbound adapter (the AWS move)
 node --test platform/ci/*.test.mjs             # venture YAML readers guard (PR #16739)
 node --test platform/aws/stacks/saas-starter/runtime/test/*.test.mjs  # needs `npm ci` there first; the Postgres e2e skips unless PG_SUPERUSER_URL is set
 node --test portfolio/requests/*.test.mjs       # the open custom development request queue

@@ -316,6 +316,39 @@ decisions:
     Email Routing part becomes moot once SES receives mail; its ruleset
     part does not.
 
+- id: agent-inboxes-secrets
+  asks: []
+  prs: [19197]
+  gates: revenue
+  exposure: credential
+  opened: "2026-11-26"
+  action: >-
+    Turn on the agent-managed inboxes (platform/email/README.md, "Owner
+    steps"). (1) Add secrets to the `cloudflare` environment: MAIL_AGENT_TOKEN, MAIL_READ_TOKEN,
+    MAIL_OWNER_TOKEN and MAIL_UNSUBSCRIBE_SECRET (each `openssl rand -hex
+    32`) and EMAIL_FORWARD_TO (your personal address; it receives privacy@
+    and security@ copies, flag alerts and the daily digest). (2) Make sure
+    the Cloudflare token can do Workers Scripts Write, D1 Write, Zone Email
+    Routing Rules Edit, Zone Settings Edit, DNS Edit and Account Email
+    Routing Addresses Edit (R2 Write too if you enable R2, which Cloudflare
+    asks a payment method for; without it raw mail stays in D1). (3) Run
+    Actions -> email-deploy, then Actions -> Cloudflare email routing with
+    "apply" ticked, and click the verification link Cloudflare emails you.
+    (4) When agents should answer customers: onboard marisstella.app to
+    Cloudflare Email Service. Give agent sessions MAIL_AGENT_TOKEN and
+    MAIL_API_URL.
+  unlocks:
+    - >-
+      hello@, support@, privacy@, billing@ and the product addresses receive
+      mail (the Privacy Policy's contact has had no MX record), Paddle's
+      domain review sees working support and privacy contacts, and agents
+      can triage and answer support mail inside code-enforced guardrails.
+  blocked_by: []
+  note: >-
+    Owner, 2026-11-26: "we need agent managed inboxes for the domains."
+    Supersedes the last sentence of web-analytics-token (confirm hello@
+    receives mail). Every value is a secret only the owner holds; nothing
+    else is waiting on a person.
 - id: web-analytics-token
   asks: []
   prs: [18774]

@@ -39,6 +39,10 @@
     {
       "file": "CLAUDE.md",
       "issue": "ci_starvation.py printed 'never got a runner' but the shell showed exit 0 through a pipe; harmless, but the doc's exit-code reading (0 = real failure) is easy to misread when piped."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "slug_dupe.py 'mississippi' found nothing at 04:00 UTC, but PR #19201 (another session, private PR 233) added the same Mississippi guide section and merged before this PR; on merge I kept main's guide and llms.txt, and kept only this run's post section and product-paragraph update. A re-check right before opening the PR (as the doc says) would have caught it."
     }
   ],
   "deviations": [

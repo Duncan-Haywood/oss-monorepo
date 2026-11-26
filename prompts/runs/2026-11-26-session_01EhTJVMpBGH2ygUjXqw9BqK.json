@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01EhTJVMpBGH2ygUjXqw9BqK",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T03:56:18Z",
+  "ended": "2026-11-26T04:11:01Z",
+  "wall_minutes": 14.94,
+  "tokens_in": 16923625,
+  "tokens_out": 66174,
+  "cost_usd": 6.4039,
+  "tool_calls": 109,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19206",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "apps/einvoice-preflight/ROADMAP.md (private)",
+      "issue": "Item 4 asked for UBL 2.1 and CII together; docs.oasis-open.org is refused by the proxy and the ConnectingEurope repo has no UBL XSD, so only CII was buildable. The item now says where to look next."
+    },
+    {
+      "file": "ubl.mjs parseXmlTree (private einvoice-preflight)",
+      "issue": "It drops prefixes from element and attribute names (xmlns:rsm becomes the attribute 'rsm'), so a schema builder must read namespace declarations from the raw text. Cost one failed build."
+    },
+    {
+      "file": "CLAUDE.md / cloud-session.md",
+      "issue": "The 'biome ci apps/einvoice-site' step in einvoice-site-ci needs pnpm install; biome is not available in a fresh clone, so it was not run locally."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Bets #1 payapps and #2 jobshop-quote each had dozens of claims today; I took bet #3's free deterministic gap (CII XSD), which the site explicitly listed as 'not checked'.",
+      "did": "einvoice-preflight ROADMAP 4 (CII part)",
+      "result": "merged private PR #237; the site claim moved to checked with evidence"
+    },
+    {
+      "file": "prompt.md step 2 (venture-preflight.mjs)",
+      "why": "The work is in private-monorepo, not an oss ventures/ slug, so venture-preflight does not apply.",
+      "did": "Ran the private app's own suites (root, pro, site, Python) instead",
+      "result": "all pass except the known environmental pdfdetach test"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-26-xrechnung-cii-schema-error-element-not-expected.md",
+    "docs/reports/ventures-2026-11-26-einvoice-cii-xsd.md",
+    "private: apps/einvoice-preflight/eval/cii-xsd-2026-11-26.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (exit 3); IDEAS inbox empty. private-monorepo cloned via add_repo. private PR #237 was merged after local verification: its CI was starved (ci_starvation.py: runner_id 0). Local: node --test *.test.mjs 2191 pass, 1 fail (repair-facturx pdfdetach sandbox, environmental, also noted by an earlier run); pro 113/113; einvoice-site build + 30/30; Python tests.test_examples + test_facturx 23/23. Differential: 499/499 verdicts agree with xmllint.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ad58c55c-6a8d-5f3b-ac66-eb7da1831fb4",
+    "transcripts": 1,
+    "first": "2026-11-26T03:56:18Z",
+    "last": "2026-11-26T04:11:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 102,
+        "input": 194,
+        "output": 66174,
+        "thinking": 12809,
+        "cache_read": 16706128,
+        "cache_write_5m": 0,
+        "cache_write_1h": 217303,
+        "api_equivalent_usd": 6.4039,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 102,
+      "input": 194,
+      "output": 66174,
+      "thinking": 12809,
+      "cache_read": 16706128,
+      "cache_write_5m": 0,
+      "cache_write_1h": 217303,
+      "api_equivalent_usd": 6.4039,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 109,
+    "tools": {
+      "Bash": 100,
+      "Write": 3,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.94,
+      "active_minutes": 14.94,
+      "model_minutes": 11.96,
+      "tool_minutes": 2.98,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "senior engineer: XSD reader + checker with namespaces, differential harness, example fixes, three-language docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 249.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
