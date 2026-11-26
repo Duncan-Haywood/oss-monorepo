@@ -1,0 +1,231 @@
+{
+  "date": "2026-11-26",
+  "subject": "ventures/pet-boarding-daycare-profit-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-26-e-6ce5",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality round 111, see run record",
+  "status": "audited",
+  "professional": "a small-business accountant / consultant who advises pet boarding and daycare owners; they check first that revenue, labour and fixed cost tie out for a sample month, that the staffing step follows how dogs are actually on site (open vs closed daycare days), that 'break-even occupancy' is a true threshold above which the business stays profitable, that the loan payment and DSCR match a standard amortisation, and that no market benchmark is presented without a source",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Independent Python model written from the page's stated rules (/tmp/claude-0/pb/hand.py, no import of calc.mjs) on the SAMPLE inputs: nights 30x0.70x30=630, daycare days 25x0.80x26=520, gross 630x55+520x38+(630/4)x18=34,650+19,760+2,835=57,245, revenue after 3% = 55,527.65, supplies 1,150x6.5=7,475, dogs on site 21+17.33=38.33 -> 4 attendants, labour 4x12x30x16.5x1.12=26,611.20, fixed 11,900, profit 9,541.45; startup 112,700, loan 67,620, payment 856.58/month, break-even 38.5% (ops) and 40.0% (with loan), price factor 0.9743 for 15% margin (re-solves to exactly 15.0%), trough -73,318.17 at month 4, reserve 28,238.17, first profit month 5, payback month 16. calc.mjs returns identical figures. Loan payment checked against published amortisation values the author did not write: payment(100000,6,30)=599.55 and payment(10000,9,10)=126.68, both the standard table values. Wrong outputs: (1) break-even is the FIRST half-percent with profit >= 0, but profit is not monotonic because staffing steps: on the sample, break-even reports 38.5% yet profit is negative again at 46.5%, 47%, 47.5% and 48% utilisation (the 5th attendant arrives), so an owner planning at 47% is told he is above break-even while losing money; (2) staffing takes ceil(average dogs over a 30-day month), averaging daycare dogs across closed days before rounding: 10 full runs + 30 full daycare spots open 20 days gives 3 attendants every day (labour 19,958.40) where open days need ceil(40/12)=4 and closed days need max(2, ceil(10/12))=2, i.e. 100 attendant-days = 22,176.00 (model 10% low). Sample arithmetic exact; two decision outputs are wrong in ordinary configurations, so 2.",
+    "completeness": "Every feature the README, VENTURE.yaml and page header claim runs end to end: monthly profit with stepped staffing, break-even occupancy (ops and with loan), price change to target margin, demand/price/wage sweep tables, five-year table, 60-month ramp with trough, reserve and payback, startup cost and level loan with DSCR, text summary and CSV download, print, example loader, clear, usage counter with opt-out (usage.mjs, tested). No stubs or TODOs; served copy clean. Features work as described; what is wrong is the rule, scored under correctness/domain.",
+    "verification": "node --test '*.test.mjs' in the subject dir: 31 pass, 0 fail; the README's repo-root command also gives 31 pass. Tests include hand-worked months, loan, break-even, price factor and input rejection. Six seeded mutants via quality_mutate.py: ceil->floor in attendants (calc.mjs:71) caught; target-margin formula /(1-m) -> *(1+m) (calc.mjs:134) caught; add-on per stay -> per 30 nights (calc.mjs:81) caught; fees /100 -> /1000 (calc.mjs:82) caught; reserve drops the +equity term (calc.mjs:151) SURVIVED; payback cum>=0 -> cum>0 && mo>1 (calc.mjs:149) SURVIVED (near-equivalent). 4 of 6 caught; the ramp test only asserts reserve >= 0 (calc.test.mjs:64), so the displayed reserve, trough and payback are unpinned. The break-even test checks only the point just below u, which is why the non-monotonic band is not caught.",
+    "craft": "Read calc.mjs (203 lines), calc.test.mjs, page.test.mjs, index.html script, usage.mjs. Pure dependency-free module, named-field error messages, negatives and non-numbers rejected, '1,200' and '$5,200' and '70%' parsed correctly, zero occupancy gives margin/price factor null rather than NaN or a divide-by-zero (checked). Defects: num() strips every comma so '5,2' silently becomes 52 (calc.mjs:17); blank wage and blank occupancy silently default to 0 (calc.mjs:31,34), so forgetting the wage drops labour to $0 and triples profit with no warning (the page does say 'the rest default to zero'); onSite blends open and closed days before the ceil (calc.mjs:85). Readable and small; a reviewer would accept it with those notes.",
+    "claims": "No warranty / not advice footer, privacy line and usage disclosure present (page.test.mjs asserts disclaimer and no fetch/XHR/beacon, pass). No market rate, occupancy or staffing benchmark is asserted: calc.mjs:3 and the example status say figures are illustrative, the ratio field tells the user to use their insurer's or state's rule, and the 'Not decided' list names licensing, zoning, seasonality, tax. The SAMPLE 12 dogs per attendant is not presented as a standard (a web search found no IBPSA ratio and only a Colorado PACFA breeder rule of 1 supervisor per 15 commingled dogs, 8 CCR 1202-15 14.10.4), so no source-data defect. The FAQ answer 'reports the first level that covers operating costs' is literally true but does not warn that profit can dip below zero again above it. llms.txt is minimal (one page link) but accurate; served copy rewrites hosts cleanly.",
+    "fitness": "Walked the consultant's job on the sample: one screen gives a pro-forma month, staffing, break-even, DSCR, ramp reserve and payback, faster than a spreadsheet. Gaps an accountant hits in the first hour: no seasonality or holiday peak (stated, but it is the core risk in boarding), no open-vs-closed-day staffing, no grooming/training/cat-boarding revenue lines, no per-dog-day contribution margin shown, owner draw mixed into fixed costs before DSCR, break-even band misreported. transition.py puts it in the mit-lead-magnet track; it leads to no paid product (footer links only to three free calculators and GitHub Sponsors), and pet care is not one of the bets in portfolio/monetization/bets.md.",
+    "domain": "Against standard small-business break-even / CVP practice and how kennels staff: revenue and fee treatment, add-on per stay, insurance /12, level-payment loan and DSCR (operating profit / annual debt service) are standard. Departures: (1) break-even under step costs should report the band(s) where profit is positive, or the lowest level above which it stays positive; first-crossing alone misleads; (2) staffing ratios apply to dogs on site at a time, so daycare and closed days must be staffed separately, not averaged over the month; (3) average annual occupancy drives staffing, ignoring peaks where the ratio actually binds; (4) owner/manager draw sits in operating cost, so DSCR is understated for an owner-operator lender view (a lender adds back owner comp). An accountant would sign off the pro-forma arithmetic but not the break-even or staffing step without these fixes."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "sample month: gross, revenue, staffing, profit",
+      "method": "independent Python from the page's stated rules (hand.py, not importing calc.mjs): 57,245 gross; 55,527.65 revenue; 4 staff; 26,611.20 labour; 9,541.45 profit",
+      "command": "python3 /tmp/claude-0/pb/hand.py; node -e compute(SAMPLE)",
+      "expected": "profit 9541.45, labour 26611.2, staff 4",
+      "observed": "profit 9541.45, labour 26611.2, staff 4",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "level loan payment against published amortisation values",
+      "method": "standard mortgage table: $100,000 at 6% for 30 years = $599.55; $10,000 at 9% for 10 years = $126.68",
+      "command": "node /tmp/claude-0/pb/probe.mjs $PWD/ventures/pet-boarding-daycare-profit-calculator/calc.mjs (repo root)",
+      "expected": "599.55 and 126.68",
+      "observed": "pmt 100k 6% 30y 599.55 10k 9% 10y 126.68",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "sample startup, loan payment and price factor to 15% margin",
+      "method": "by hand: 66,000+18,000+10,400+9,000+9,300=112,700; 60% loan 67,620 = 6.762 x 126.68 = 856.58/month; price factor (7,475+26,611.2+11,900)/0.85/(57,245x0.97)=0.97431, re-solved margin 15.0%",
+      "command": "python3 /tmp/claude-0/pb/hand.py",
+      "expected": "112700, 856.58, 0.97431",
+      "observed": "112700, 856.5816, 0.9743148",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "break-even occupancy is a threshold (profit stays >= 0 above it) on the sample",
+      "method": "definition of break-even in CVP analysis; scan of month() at every half percent above beOps",
+      "command": "node /tmp/claude-0/pb/probe.mjs $PWD/ventures/pet-boarding-daycare-profit-calculator/calc.mjs (repo root)",
+      "expected": "no negative profit above 38.5%",
+      "observed": "break-even 38.5% reported, profit negative at 46.5, 47, 47.5, 48%",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "staffing for 10 full runs + 30 full daycare spots open 20 days, 12 dogs/attendant, min 2",
+      "method": "by hand, ratio applied to dogs on site per day: 20 open days x ceil(40/12)=4 + 10 closed days x 2 = 100 attendant-days x 12h x 16.5 x 1.12 = 22,176.00",
+      "command": "node /tmp/claude-0/pb/probe.mjs $PWD/ventures/pet-boarding-daycare-profit-calculator/calc.mjs (repo root)",
+      "expected": "labour 22176.00",
+      "observed": "avg-model staff 3 labor 19958.40",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "ramp trough, reserve, first profit and payback on the sample",
+      "method": "independent month loop in hand.py, linear 30%->100% over 12 months",
+      "command": "python3 /tmp/claude-0/pb/hand.py",
+      "expected": "trough -73318.17 at month 4, reserve 28238.17, first profit 5, payback 16",
+      "observed": "-73318.17, 4, 28238.17, 5, 16",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "input handling: '1,200', '$5,200', '70%', negative rent, 'abc', zero capacity, zero occupancy",
+      "method": "probe each input through compute()",
+      "command": "node /tmp/claude-0/pb/probe.mjs $PWD/ventures/pet-boarding-daycare-profit-calculator/calc.mjs (repo root)",
+      "expected": "commas/$/% parsed, negatives and text rejected, zero occupancy no NaN",
+      "observed": "all as expected; margin and priceFactor null at zero revenue",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "malformed and blank inputs",
+      "method": "probe '5,2' rent and blank wage/occupancy",
+      "command": "node /tmp/claude-0/pb/probe.mjs $PWD/ventures/pet-boarding-daycare-profit-calculator/calc.mjs (repo root)",
+      "expected": "error or warning",
+      "observed": "'5,2' -> 52 silently; blank wage -> labour $0, profit 36,152.65; blank occupancy -> 0",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "cd ventures/pet-boarding-daycare-profit-calculator && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "31 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "disclaimer, privacy and no-network claim",
+      "method": "read index.html footer; page.test.mjs asserts no fetch/XHR/beacon",
+      "command": "node --test page.test.mjs",
+      "expected": "present and tested",
+      "observed": "present, test passes",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "benchmark constants (staff ratio, occupancy, prices) presented as standards",
+      "method": "read calc.mjs SAMPLE and index.html; web search for IBPSA / state ratios (found only Colorado PACFA breeder rule 1:15, 8 CCR 1202-15 14.10.4)",
+      "command": "grep -n SAMPLE calc.mjs index.html",
+      "expected": "no uncited benchmark presented as fact",
+      "observed": "sample labelled illustrative; ratio field defers to insurer/state",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "served llms.txt, sitemap and canonical",
+      "method": "served-copy",
+      "command": "node platform/pages/served-copy.mjs pet-boarding-daycare-profit-calculator",
+      "expected": "no placeholder origins",
+      "observed": "no placeholder or retired origin left",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "leads to a paid product",
+      "method": "transition.py track; bets.md; page links",
+      "command": "python3 portfolio/monetization/transition.py",
+      "expected": "a path to a paid bet",
+      "observed": "mit-lead-magnet; no paid product linked, not a bet",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:71",
+      "change": "Math.ceil(dogs / p.dogsPerAttendant - 1e-9) -> Math.floor(dogs / p.dogsPerAttendant)",
+      "caught": true,
+      "test_cmd": "node --test *.test.mjs"
+    },
+    {
+      "where": "calc.mjs:134",
+      "change": "needNet = costs / (1 - m) -> costs * (1 + m)",
+      "caught": true,
+      "test_cmd": "node --test *.test.mjs"
+    },
+    {
+      "where": "calc.mjs:81",
+      "change": "(nights / p.stayNights) * p.addOn -> nights * p.addOn / BOARDING_DAYS",
+      "caught": true,
+      "test_cmd": "node --test *.test.mjs"
+    },
+    {
+      "where": "calc.mjs:82",
+      "change": "gross * p.feesPct / 100 -> gross * p.feesPct / 1000",
+      "caught": true,
+      "test_cmd": "node --test *.test.mjs"
+    },
+    {
+      "where": "calc.mjs:151",
+      "change": "Math.max(0, -(trough + equity)) -> Math.max(0, -trough)",
+      "caught": false,
+      "test_cmd": "node --test *.test.mjs"
+    },
+    {
+      "where": "calc.mjs:149",
+      "change": "cum >= 0 -> cum > 0 && mo > 1",
+      "caught": false,
+      "test_cmd": "node --test *.test.mjs"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Break-even utilisation is the first half-percent where profit >= target, but profit is non-monotonic under stepped staffing: on the sample it reports 38.5% while profit is negative again at 46.5-48%. Fix: scan from 100% down and return the lowest u above which profit stays >= extra (break on the first failure), or report the loss band.",
+      "where": "ventures/pet-boarding-daycare-profit-calculator/calc.mjs:113",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "Staffing rounds up the month-average dogs on site, blending daycare open and closed days before the ceil; 10 full runs + 30 full daycare spots open 20 days gives labour 19,958 vs 22,176 when open and closed days are staffed separately (10% low).",
+      "where": "ventures/pet-boarding-daycare-profit-calculator/calc.mjs:85",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Reserve, trough and payback are unpinned by tests: the ramp test asserts only reserve >= 0, so dropping the +equity term in reserve (shows 73,318 instead of 28,238) survives.",
+      "where": "ventures/pet-boarding-daycare-profit-calculator/calc.test.mjs:64",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "No seasonality or peak-occupancy staffing: staffing is sized to average annual occupancy, while the ratio binds at holiday peaks, the main operating risk in boarding.",
+      "where": "ventures/pet-boarding-daycare-profit-calculator/calc.mjs:85",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Blank wage and blank occupancy silently default to 0 (labour $0, profit tripled) and '5,2' parses as 52; the page discloses zero defaults but a missing wage deserves an error.",
+      "where": "ventures/pet-boarding-daycare-profit-calculator/calc.mjs:34",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Leads to no paid product: mit-lead-magnet track, footer links only to free calculators and Sponsors; pet care is not a bet in bets.md.",
+      "where": "ventures/pet-boarding-daycare-profit-calculator/index.html:150",
+      "category": "scope-gap",
+      "origin": "spec"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Does not meet the bar (correctness 2, domain 2, fitness 2; claims 3, verification 3, median 3); finished (completeness 3). The arithmetic is exact: an independent Python model of the stated rules reproduces the sample month (profit 9,541.45), startup 112,700, payment 856.58 (and the loan function matches published amortisation values 599.55 and 126.68), price factor 0.9743 and the ramp trough, reserve and payback. Claims are honest: no benchmark is asserted, sample figures are labelled illustrative and the staffing ratio defers to the insurer or state. The gaps are in the method: break-even is a first crossing although stepped staffing makes profit go negative again above it (38.5% reported, losses at 46.5-48% on the sample), and staffing averages daycare dogs across closed days before rounding, understating labour by about 10% for a weekday daycare. Tests catch 4 of 6 seeded mutants; the displayed reserve is unpinned. It is a free lead magnet with no path to a paid product."
+}
