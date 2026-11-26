@@ -3,7 +3,7 @@ title: "How long are the hips and valleys on an L-shaped hip roof?"
 date: 2026-11-26
 updated: 2026-11-26
 tags: [wall-framing-takeoff, for-customers, construction]
-description: Hip, valley and ridge lengths for an L-shaped hip roof and its sheathing courses, by hand at 4 to 12 in 12, with hip cut-offs reused at the valleys and end joints on the rafters.
+description: Hip, valley and ridge lengths for an L-shaped hip roof, and its sheathing courses by hand, with hip cut-offs reused at valleys and end joints on rafters.
 ---
 
 If you order hip and ridge cap, valley flashing or hip rafters off a plan, you need three numbers: the ridge length, the hip length along the slope and the valley length along the slope. On a rectangle there are textbook formulas. On an L, a T or a stepped plan, most people sketch the roof by hand. This post works one L-shaped house through by hand, gives the multipliers so you can check your own, and says what the framing takeoff we are building now does with any square-cornered outline.
