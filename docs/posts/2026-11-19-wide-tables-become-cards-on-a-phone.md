@@ -85,3 +85,29 @@ label-and-amount rows the other pay-app pages show on a phone, and its copy butt
 the padded text. Two schedule-of-values CSV blocks ran up to 78 px past their box; they now wrap.
 Those four pages are clean now. The other 126 swipes are the list the next runs work through.
 Run notes: `docs/reports/polish-2026-11-26-phone-probe.md`.
+
+## Update, later on 2026-11-26: the flat-rate guides
+
+Most of those 126 came from one page shape. About 35 of the bid calculators have a guide that
+compares a flat rate ("$35 a foot", "$2,495 furnace special") with the calculator's own price
+for three jobs, and ends each row with a verdict: covers, or short by so much. On a phone the
+table showed the job and the flat quote, and the verdict, the reason for the page, sat off the
+right edge. On the fence guide the table was 581 px tall and still hid a column.
+
+Those tables were written by hand, so the fix was the same small edit 42 times: mark the table
+`class="stack"` and let the build label each cell from its header. That is the kind of chore a
+script does better than a person, so it is now one (`platform/pages/stack-overflowing.mjs`). It
+opens the built page at phone width, finds the tables that overflow, matches each to its source
+by its header text and adds the class. It refuses any table a script fills in after the page
+loads, because those rows would arrive without labels, and a card of unlabelled numbers is worse
+than a table you can swipe.
+
+| construction front doors at 390 px, 495 pages | before | after |
+|---|---|---|
+| blocks that need a sideways swipe | 128 | 84 |
+| static tables among them | 56 | 14 |
+| fence guide's worked-example table | 581 px tall, verdict off-screen | 397 px, every value visible |
+
+The 84 left are mostly results tables the calculators write after you press the button. They
+need labels written at runtime, which is the next piece of work. Run notes:
+`docs/reports/polish-2026-11-26-flat-rate-tables-stack.md`.

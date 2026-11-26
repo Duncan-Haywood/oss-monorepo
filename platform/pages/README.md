@@ -2083,6 +2083,21 @@ First reading, 2026-11-26: 0 sideways pages, 0 small fields, 0 tall rows,
 126 swipes over 495 pages (`docs/reports/polish-2026-11-26-phone-probe.md`).
 Not in CI (Playwright).
 
+Fixing the read-only ones: `stack-overflowing.mjs` takes the probe's
+`at load: div.pf-table-scroll` pages, finds each table that overflows on the
+built page, matches it to its source by header text and adds `class="stack"`
+(cards on a phone, labels from `stack-labels.mjs`). It skips any table a
+script fills (no body cells, or an `id` on the table or `<tbody>`), since those
+would get no labels, and reports what it skipped:
+
+```
+grep 'at load: div.pf-table-scroll' probe.txt | cut -d' ' -f1 | sort -u > pages.txt
+DIST=/tmp/pp node platform/pages/stack-overflowing.mjs pages.txt --dry
+```
+
+2026-11-26: it stacked 42 guide-page tables; construction swipes 128 to 84
+(`docs/reports/polish-2026-11-26-flat-rate-tables-stack.md`).
+
 ### Checking a stuck result card fits the window
 
 Most calculators keep their result in a `position: sticky` card beside a long
