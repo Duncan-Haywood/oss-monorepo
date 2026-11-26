@@ -184,6 +184,50 @@ test("red-team 2026-11-25 (server.mjs): a forged signature is refused, the windo
   assert.equal((await handleBilling(hook("null"), ENV, o)).status, 200, "a JSON null body is acknowledged, not a 500");
 });
 
+test("red-team 2026-11-26 (server.mjs): no signature is a refusal, real Paddle ids parse, defaults use seconds", async () => {
+  // A missing-signature branch returning ok:true passed the suite: the old test
+  // matched only the reason. Assert the whole result, and through the route.
+  const raw = '{"event_type":"transaction.completed"}';
+  const h1 = sign(raw).split(";")[1];
+  for (const header of [null, "", `ts=${NOW}`, `ts=${NOW};h1=`, h1]) {
+    assert.deepEqual(await verifyPaddleSignature(header, raw, SECRET, NOW), { ok: false, reason: "missing paddle-signature" }, String(header));
+  }
+  const store = memStore();
+  const o = { store, catalogue: CAT, nowSec: NOW };
+  const claim = newClaim();
+  const body = JSON.stringify({ event_type: "transaction.completed", data: oneOffTx(claim) });
+  const unsigned = new Request("https://edge.test/billing/paddle", { method: "POST", body });
+  const r401 = await handleBilling(unsigned, ENV, o);
+  assert.equal(r401.status, 401, "a webhook with no Paddle-Signature header mints nothing");
+  assert.deepEqual(await r401.json(), { error: "missing paddle-signature" });
+  assert.equal(store.claims.size, 0);
+
+  // The default clock is seconds, not milliseconds (callers in worker.mjs pass none).
+  const nowS = Math.floor(Date.now() / 1000);
+  const fresh = `ts=${nowS};h1=${createHmac("sha256", SECRET).update(`${nowS}:${raw}`).digest("hex")}`;
+  assert.deepEqual(await verifyPaddleSignature(fresh, raw, SECRET), { ok: true, reason: "" });
+  const dflt = licenceForTransaction(oneOffTx(newClaim()), CAT);
+  assert.ok(Math.abs(dflt.claims.iat - nowS) < 60, "iat in seconds: " + dflt.claims.iat);
+
+  // Real Paddle ids carry every digit; the fixtures above only 0 and 1.
+  const realTxn = "txn_01h04vsc0qhwtsbsxh3422wjs4", realSub = "sub_01h8bx2m9q7r5t3w6y4z8c";
+  const one = licenceForTransaction(oneOffTx(newClaim(), { id: realTxn }), CAT, NOW);
+  assert.equal(one.claims.s, realTxn);
+  const subbed = licenceForTransaction({ ...subTx(newClaim(), "2027-02-15T00:00:00Z", realTxn), subscription_id: realSub }, CAT, NOW);
+  assert.equal(subbed.claims.s, realSub);
+  assert.equal(subbed.subscription, realSub);
+  // A subscription id that is a string but not Paddle's shape is not one.
+  for (const bad of ["sub_", "sub_UPPERCASE0000", "sub_01abc'; DROP", "txn_01h04vsc0qhwtsbsxh"]) {
+    assert.match(licenceForTransaction({ ...subTx(newClaim(), "2027-02-15T00:00:00Z"), subscription_id: bad }, CAT, NOW).skip, /without a subscription/, bad);
+  }
+
+  // A minted webhook answers {ok:true}; an ignored event's type is cut at 60 characters.
+  const ok = await handleBilling(hook(body), ENV, o);
+  assert.deepEqual(await ok.json(), { ok: true });
+  const long = "x".repeat(100);
+  assert.equal((await (await handleBilling(hook(JSON.stringify({ event_type: long })), ENV, o)).json()).ignored, long.slice(0, 60));
+});
+
 test("a lapsed subscription key renews from the Worker; a one-off key cannot ask", async () => {
   const store = memStore();
   const claim = newClaim();
