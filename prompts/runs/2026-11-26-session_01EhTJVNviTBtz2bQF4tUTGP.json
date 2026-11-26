@@ -28,13 +28,17 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": "success",
+  "outcome": "partial",
   "errors": [],
   "integrity_issues": [],
   "doc_friction": [
     {
-      "file": "platform/security/risk_review.py",
-      "issue": "Its own sensitive-file list flagged test_risk_review.py but not risk_review.py itself in this diff; although .github/CODEOWNERS lists both (lines 44-45)."
+      "file": "prompts/process/prompt-1.md",
+      "issue": "P089 was taken by PR #19168 in parallel; slug_dupe and the open-PR list both came up empty at pick time because #19168 opened and merged within minutes. My identical fix hit a merge conflict and was dropped for main's (stronger) version."
+    },
+    {
+      "file": "platform/ci/ci_starvation.py",
+      "issue": "Starved-run message and docstring sent sessions to gitops/ci/README.md, deleted 2026-10-30 (friction_rank --live cluster 9, 2 sessions). Fixed here."
     }
   ],
   "deviations": [
@@ -47,7 +51,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Security queue empty (security_next exit 3); ideas inbox empty; route drew process/1. Took top agent backlog item P089. New test errors (UnicodeDecodeError) on old code, passes on new; test_risk_review 28 OK; promptctl validate ok; risk_review: nothing blocked. Backlog ids: P089.",
+  "notes": "Security queue empty (security_next exit 3); ideas inbox empty; route drew process/1. Took P089 and fixed it, but PR #19168 landed the same fix first; merged main and kept its version (its test also proves the secret pattern still fires). Then fixed friction_rank cluster 9: ci_starvation.py no longer points at the deleted gitops/ci/README.md. test_ci_starvation 76 OK; promptctl validate ok; risk_review nothing blocked. Backlog ids: P089 (already done by #19168).",
   "corrections": [],
   "redteam": null,
   "usage": {
