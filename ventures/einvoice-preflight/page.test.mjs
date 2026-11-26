@@ -97,10 +97,11 @@ test("browser page offers the arithmetic repair", () => {
   // The repair modules reach the page through page-engine.mjs, loaded on demand.
   assert.match(page, /import\("\.\/page-engine\.mjs"\)/);
   assert.match(page, /repairInvoice\(JSON\.parse\(text\)\)/);
-  assert.match(engineSrc, /from "\.\/repair\.mjs"/);
-  assert.match(engineSrc, /from "\.\/repair-cii\.mjs"/);
-  assert.match(engineSrc, /from "\.\/repair-ubl\.mjs"/);
-  assert.match(engineSrc, /from "\.\/repair-facturx\.mjs"/);
+  // Since 2026-11-26 the engine loads them on first use, with import().
+  assert.match(engineSrc, /import\("\.\/repair\.mjs"\)/);
+  assert.match(engineSrc, /import\("\.\/repair-cii\.mjs"\)/);
+  assert.match(engineSrc, /import\("\.\/repair-ubl\.mjs"\)/);
+  assert.match(engineSrc, /import\("\.\/repair-facturx\.mjs"\)/);
   assert.match(page, /id="repairedPdf"/);
 });
 

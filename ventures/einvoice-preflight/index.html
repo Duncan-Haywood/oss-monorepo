@@ -400,7 +400,7 @@
     <p>Free to use and source available. If it caught a defect before a rejection, the <a href="LICENSE">code is under the FSL-1.1-MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a> is optional and never changes what the tool does. FSL-1.1-MIT licensed.</p>
   </footer>
   <script type="module">
-    // The checker engine (83 modules, about 360 kB compressed; Mexico and Brazil load only for their files) loads on demand, so the
+    // The checker engine (74 modules, about 310 kB compressed; Mexico and Brazil load only for their files, the official Schematron and Repair only when used) loads on demand, so the
     // handlers below are attached as soon as the page is (page-engine.mjs).
     let engine = null;
     let engineLoad = null;
@@ -443,6 +443,11 @@
       const inputSection = drop.closest("section");
       const warm = () => loadEngine().catch(() => { engineLoad = null; });
       for (const type of ["pointerdown", "focusin", "dragenter", "keydown"]) inputSection.addEventListener(type, warm, { once: true, passive: true });
+      // The official-Schematron bridge loads apart from the engine: start it when
+      // a box that needs it is ticked.
+      for (const id of ["official", "peppolNext"]) document.getElementById(id).addEventListener("change", (e) => {
+        if (e.target.checked) loadEngine().then((m) => m.warmOfficial()).catch(() => {});
+      });
     }
 
     function setDropped(fileList) {
@@ -672,7 +677,8 @@
       log.innerHTML = "";
       inputError.textContent = "";
       const text = paste.value;
-      const { repairInvoice, repairUbl, repairCii, repairFacturX, looksLikeCii } = await loadEngine();
+      const { repairsReady, repairInvoice, repairUbl, repairCii, repairFacturX, looksLikeCii } = await loadEngine();
+      await repairsReady();
       const pdfFile = !text.trim() && dropped.length === 1 && /\.pdf$/i.test(dropped[0].name) ? dropped[0] : null;
       if (pdfFile) {
         let x;
@@ -696,7 +702,7 @@
       const isXml = text.trimStart().startsWith("<");
       let out;
       try {
-        out = isXml ? (looksLikeCii(text) ? repairCii(text) : repairUbl(text)) : repairInvoice(JSON.parse(text));
+        out = isXml ? (looksLikeCii(text) ? await repairCii(text) : await repairUbl(text)) : await repairInvoice(JSON.parse(text));
       } catch (e) {
         inputError.textContent = isXml ? `Repair could not read this XML as a UBL or CII invoice: ${e.message}` : "Repair works on a pasted JSON invoice or one UBL or CII XML file. Paste one first.";
         return;
