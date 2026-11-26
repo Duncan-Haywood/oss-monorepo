@@ -32,7 +32,7 @@ tr.total td { font-weight: 700; border-top: 2px solid var(--head); }
 .finding { padding: 6px 0; }
 .pill { display: inline-block; font-size: .68rem; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: var(--soft); color: var(--head); }
 .pill.high { background: #fde8e8; color: #9a3412; }
-pre.sum { white-space: pre-wrap; font: 13px/1.5 ui-monospace, monospace; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 14px; overflow-x: auto; }
+pre.sum { white-space: pre-wrap; overflow-wrap: anywhere; font: 13px/1.5 ui-monospace, monospace; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 14px; overflow-x: auto; }
 .cta { border: 2px solid var(--accent); }
 .cta h2 { margin-top: 0; }
 /* Every page: the generated block from nav.mjs, grouped, above the footer. */

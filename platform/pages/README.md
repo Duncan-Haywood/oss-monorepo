@@ -2058,6 +2058,31 @@ not yet in `browser_checks.py` (control-plane CI, its own PR).
 node platform/pages/ask-voice-icon.mjs
 ```
 
+### Probing the paid bets' front doors on a phone
+
+`phone-probe-check.mjs` loads every page of the construction front doors
+(`front-doors.json` tools mapped to `construction`, plus `pay-app-guides` and
+`pay-application-generator`) at 390x844, loads the example and works it out
+where the page has a button for it, and exits 1 listing each page that:
+scrolls sideways; has a block that needs a sideways swipe (a table hiding
+its answer columns inside a scroller, which `sideways.mjs` cannot see because
+the scroller contains the overflow); has a form field under 16 px; or has a
+stacked table row taller than the screen. Nav strips are skipped; a scroller
+meant to scroll opts out with `data-phone-scroll-ok`. Rules in `phone-probe.mjs`
+(tested by `phone-probe.test.mjs`). It reads a built site because the
+input-zoom floor lives in the shared chrome, and builds only what it needs:
+
+```
+node platform/pages/build.mjs --only=$(node platform/pages/phone-probe-check.mjs --list) --out=/tmp/pp   # ~2 min
+DIST=/tmp/pp node platform/pages/phone-probe-check.mjs                    # 495 pages, ~70 s
+DIST=/tmp/pp node platform/pages/phone-probe-check.mjs --widths 320,390 --all --slugs pay-app-guides
+node platform/pages/phone-probe-check.mjs --industry all --list             # every bet's doors
+```
+
+First reading, 2026-11-26: 0 sideways pages, 0 small fields, 0 tall rows,
+126 swipes over 495 pages (`docs/reports/polish-2026-11-26-phone-probe.md`).
+Not in CI (Playwright).
+
 ### Checking a stuck result card fits the window
 
 Most calculators keep their result in a `position: sticky` card beside a long

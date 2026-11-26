@@ -17,7 +17,6 @@
     .tile span { font-size: .8rem; color: var(--muted); }
     .err { color: #9a3412; font-weight: 600; }
     tr.short td { color: #9a3412; font-weight: 600; }
-    #summary { white-space: pre; overflow-x: auto; font: 12px/1.45 ui-monospace, monospace; }
   </style>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Pay App Cash Forecast", "applicationCategory": "BusinessApplication", "operatingSystem": "Any (web browser)", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "When will I get paid on a pay application?", "acceptedAnswer": {"@type": "Answer", "text": "Add up the chain: the date you submit (the GC's cutoff day), the days the owner takes to pay the GC after it receives the application, and the days the GC takes to pay you after the owner pays it. A 25th cutoff with 30-day owner terms and a GC that pays 10 days later puts the money about 40 days after the cutoff. Your subcontract, and on some jobs a prompt payment statute, set the GC's part."}}, {"@type": "Question", "name": "Why do subcontractors run short of cash on profitable jobs?", "acceptedAnswer": {"@type": "Answer", "text": "Payroll and suppliers are paid every week or two, but pay applications go in once a month and are paid 30 to 60 days later, less retainage. Work done just after a cutoff can wait more than two months to become cash. A week-by-week forecast shows the gap before it arrives."}}]}</script>
@@ -74,7 +73,7 @@
     <button type="button" class="secondary" id="csv-weeks">Download weeks CSV</button>
     <button type="button" class="secondary" id="csv-receipts">Download payments CSV</button>
   </p>
-  <p id="summary" class="note"></p>
+  <pre id="summary" class="sum"></pre>
 </section>
 
 <section class="card">
@@ -163,6 +162,7 @@
   <p><strong>Privacy.</strong> Everything runs in your browser; nothing you type is uploaded. No accounts, cookies or analytics vendors. Anonymous counters (<code>guide_cash_forecast_viewed</code>, <code>cash_forecast_calculated</code>, <code>cash_forecast_example_loaded</code>, <code>cash_forecast_copied</code>, <code>cash_forecast_csv_downloaded</code>) are kept in local storage on your device only, never with your numbers, and Do Not Track switches them off. <button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
   <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
 </footer>
+<script type="module" src="sumview.mjs"></script>
 <script type="module">
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
   import { SAMPLE, dayText, dollars, forecast, parseApps, parseJobs, receiptsCsv, summaryText, weeksCsv } from "./forecast.mjs";

@@ -58,3 +58,30 @@ next fix.
 
 The change, its test and the measurements are in PR #17509; the run's notes are in
 `docs/reports/polish-2026-11-19-stacked-tables.md`.
+
+## Update, 2026-11-26: the same problem on the construction tools, now measured in one run
+
+The blog's tables were fixed by the build. The construction tools that lead to the paid pay-app
+product have hand-written pages, and five polish runs on 2026-11-26 each measured one of them on
+a phone with their own script. Each one turned up a table hiding its answer behind a sideways
+swipe. `platform/pages/phone-probe-check.mjs` now does that measuring in one run over every page
+of every construction front door (495 pages, about 70 seconds). It loads each page at 390 × 844,
+loads the example and works it out where the page has one, and checks four things: does the
+page scroll sideways, does a table or text block need a sideways swipe, is any form field under
+16 px (iOS zooms into it), is any stacked row taller than the screen.
+
+| at 390 px, 131 construction slugs, 495 pages | count |
+|---|---|
+| pages that scroll sideways | 0 |
+| form fields under 16 px | 0 |
+| stacked rows taller than the screen | 0 |
+| blocks that need a sideways swipe | 126 (median 107 px hidden, worst 1,354 px) |
+
+The first run also turned up four defects on the pay-app guides themselves, fixed in the same
+PR. The portal fee calculator showed its labels while the fee ($880, $7,040) sat off the right
+edge, because the long "Rule applied" text was set to never wrap. The cash forecast printed its
+summary as 12 px monospace padded for email, 462 px wide in a 312 px box. It now uses the
+label-and-amount rows the other pay-app pages show on a phone, and its copy button still copies
+the padded text. Two schedule-of-values CSV blocks ran up to 78 px past their box; they now wrap.
+Those four pages are clean now. The other 126 swipes are the list the next runs work through.
+Run notes: `docs/reports/polish-2026-11-26-phone-probe.md`.
