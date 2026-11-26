@@ -41,3 +41,10 @@ your browser; usage counts are local, opt-out-able and honour Do Not Track.
 ```
 node --test
 ```
+
+## Known gaps
+
+From [quality round 112](../../portfolio/quality/audits/2026-11-26-christmas-tree-farm-profit-planner.json):
+each block is cut in one season and never replanted (growers cut a planting
+over 2 to 4 seasons and replant), and land cost is not charged in a block's
+harvest year.
