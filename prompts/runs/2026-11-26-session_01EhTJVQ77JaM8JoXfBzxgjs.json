@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-26",
+  "session": "https://claude.ai/code/session_01EhTJVQ77JaM8JoXfBzxgjs",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T16:56:08Z",
+  "ended": "2026-11-26T16:59:12Z",
+  "wall_minutes": 3.22,
+  "tokens_in": 2022383,
+  "tokens_out": 10856,
+  "cost_usd": 1.1362,
+  "tool_calls": 26,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19414",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/polish-2026-11-26-pay-application-generator-phone.md",
+      "issue": "'Still weakest' item 3 (<pre> summaries in mechanics-lien-deadline-calculator, lien-waiver-checker, retainage-cashflow-calculator) is stale: none of those pages has a <pre>. Also the retainage note's unseparated-money item does not apply to bet front doors (remaining toFixed(2) all feed CSV)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Skipped the full site survey and measured one page from its folder, as the last note named the item",
+      "did": "Playwright on the served folder at 320/390/1280",
+      "result": "success"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No new post: extended the existing customer post's phone section instead (consolidation direction)",
+      "did": "updated 2026-11-25 pay-application template post",
+      "result": "success"
+    }
+  ],
+  "writeups": [
+    "docs/reports/polish-2026-11-26-pay-app-cards-grid.md",
+    "docs/posts/2026-11-25-a-pay-application-template-whose-totals-cannot-drift.md (extended)"
+  ],
+  "goal": null,
+  "notes": "Card 310->238 px, table 3230->2511 px at 390 px; 86 venture tests + site page checks pass; risk_review blocked nothing.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6187e90f-b1f1-509c-b064-4037706f08cf",
+    "transcripts": 1,
+    "first": "2026-11-26T16:56:08Z",
+    "last": "2026-11-26T16:59:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 26,
+        "input": 51,
+        "output": 10856,
+        "thinking": 2113,
+        "cache_read": 1956379,
+        "cache_write_5m": 0,
+        "cache_write_1h": 65953,
+        "api_equivalent_usd": 1.1362,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 26,
+      "input": 51,
+      "output": 10856,
+      "thinking": 2113,
+      "cache_read": 1956379,
+      "cache_write_5m": 0,
+      "cache_write_1h": 65953,
+      "api_equivalent_usd": 1.1362,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.967,
+    "tool_calls": 26,
+    "tools": {
+      "Bash": 21,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.22,
+      "active_minutes": 3.22,
+      "model_minutes": 1.92,
+      "tool_minutes": 1.29,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "front-end dev: measure, CSS change, screenshots, note",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 132.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
