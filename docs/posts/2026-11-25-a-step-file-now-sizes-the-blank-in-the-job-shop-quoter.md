@@ -924,6 +924,32 @@ another quote. It checks that the report and CSV count "Plate" only, that a save
 shop's routing id, and that the other shop can't edit the line. The full suite passes locally:
 499 unit tests and 225 integration tests.
 
+### You can see, and take off, the routing a line counts under
+
+Private-monorepo PR #314.
+
+Recording the routing left one gap: the record was invisible. An estimator who applied
+"Mounting plate" and then rebuilt the line into a different part had no way to tell that win/loss
+still credited it to "Mounting plate", or to stop it. The quote line now says so under "Routing
+templates", for example "Win/loss counts this line under: Plates: Mounting plate".
+
+- **Take one off.** Each routing named there has an "×". Pressing it marks the line unsaved, and
+  Save stores the change, the same as applying a routing. "Clear" takes them all off at once when
+  a line records more than one.
+- **Cleared means "none", not "guess again".** Once the last routing is off, the line reads
+  "counted under "No saved routing"", and the report counts it there. It is not matched by its
+  operations again, so an estimator's decision isn't undone by a lookalike routing.
+- **Deleted routings stay honest.** A recorded routing deleted since shows as "Routing since
+  deleted", which is also the row it counts under in the report.
+- **Read-only where lines can't change.** A sent quote, or a member without estimating rights,
+  sees the routings named but no buttons.
+
+How it was checked: unit tests cover the two new record helpers (naming, deleted routings, the
+emptied record). The integration test now clears the copied line's record, loses that quote, and
+checks the report shows "Plate" 1 won and "No saved routing" 1 lost. A new browser test
+(`10-routing-record.spec.ts`) opens a line recorded under "Plate", presses "×", saves, and checks
+both the stored record and the page after a reload.
+
 ## Next
 
 The next item on the flagship list (milestone 3) is reading tolerances, material and finish from
