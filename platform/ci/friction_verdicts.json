@@ -351,6 +351,14 @@
    "by": "roadmap-claim-person PR",
    "at": "2026-11-26T20:21:42Z",
    "note": "gate 'waits on a person' (native-speaker/human/lawyer review) and 'only if ... a market' as evidence"
+  },
+  {
+   "file": "platform/ci/slug_dupe.py",
+   "match": "deepening origin/main took over 30",
+   "verdict": "fixed",
+   "by": "PR #19473",
+   "at": "2026-11-26T20:59:17Z",
+   "note": "deepen skipped when GitHub PR-title search answers; 34 s -> 4 s"
   }
  ]
 }
