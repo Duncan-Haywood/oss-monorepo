@@ -31,6 +31,10 @@ claimed (pick another). When no bet has a free, ungated item, --bets lists each 
 `**Growth path:**` topics from bets.md with the live and merged claims on each, and names
 the least-crowded bet's first topic with no live claim. Both picks (the free item and the
 untouched topic) rotate per session among the first three, so parallel runs spread out.
+Hosts an item names (wyoleg.gov,
+ksef.podatki.gov.pl) are probed through this session's proxy (egress_probe.py, a few seconds,
+--no-probe skips): the listing shows each one's state, and an ask whose named hosts all refuse
+is gated "waits on a source" for this session only, since egress differs per environment.
 """
 from __future__ import annotations
 
@@ -181,6 +185,62 @@ GATES = (
 )
 
 
+# Hosts named in an item's text. Reachability is per environment and changes (2026-11-26:
+# docs.oasis-open.org recorded as refused answered the next session; malegislature.gov,
+# listed blocked on 11-24, answered 200; ksef.podatki.gov.pl and GC-portal help pages refused
+# while roadmap_claim listed their items as free), so it is probed live, never stored.
+_TLDS = ("gov|com|org|net|edu|io|eu|int|mil|app|dev|co|info|uk|us|pl|de|fr|it|es|nl|be|at|ch|"
+         "se|dk|no|fi|pt|ie|cz|ca|au|nz|jp|in")
+_HOST = re.compile(r"(?<![@\w.-])((?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:" + _TLDS + r"))(?![\w-]|\.\w)",
+                   re.I)
+# Our own domains name where a product is served, not a source it waits on (jobshop-quote's
+# rfq.marisstella.app inbound address); example.* are placeholders.
+_NOT_HOSTS = re.compile(r"^(?:.*\.)?(?:example\.(?:com|org|net)|marisstella\.app|workers\.dev)$|^(?:e\.g|i\.e)$",
+                        re.I)
+
+
+def hosts_in(text: str) -> list[str]:
+    """Distinct host names in an item's text, in order (example.com and friends left out)."""
+    out: list[str] = []
+    for m in _HOST.finditer(text):
+        h = m.group(1).lower()
+        if "." in h and not _NOT_HOSTS.match(h) and h not in out:
+            out.append(h)
+    return out
+
+
+def probe_hosts(hosts, timeout: int = 6) -> dict[str, str]:
+    """{host: "ok" | "blocked" | "no answer"} through this session's proxy, in parallel.
+
+    ROADMAP_CLAIM_PROBE=off (or --no-probe) skips it, for tests and offline runs.
+    """
+    hosts = sorted(set(hosts))
+    if not hosts or os.environ.get("ROADMAP_CLAIM_PROBE") == "off":
+        return {}
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from concurrent.futures import ThreadPoolExecutor
+    import egress_probe
+    with ThreadPoolExecutor(max_workers=16) as ex:
+        states = ex.map(lambda h: egress_probe.curl_probe(f"https://{h}/", timeout)[0], hosts)
+    return dict(zip(hosts, states))
+
+
+def host_gate(ask: str, reach: dict[str, str] | None) -> tuple[str, str] | None:
+    """("waits on a source", "<host> refused here") when every host an ask names was refused."""
+    hosts = hosts_in(ask)
+    if not reach or not hosts or any(reach.get(h) in (None, "ok") for h in hosts):
+        return None
+    return "waits on a source", f"{', '.join(hosts)}: {reach[hosts[0]]} in this session"
+
+
+def host_line(text: str, reach: dict[str, str] | None) -> str | None:
+    """'hosts: a (ok), b (blocked)' for an item that names hosts, once they were probed."""
+    hosts = hosts_in(text)
+    if not reach or not hosts:
+        return None
+    return "hosts (probed now): " + ", ".join(f"{h} ({reach.get(h, 'not probed')})" for h in hosts)
+
+
 _DONE = re.compile(r"\bdone(?: \d{4}-\d\d-\d\d)?\b", re.I)
 # A clause that reports state rather than asks for work: "X is done", "the host is named",
 # "the container stays the alternative".
@@ -256,14 +316,14 @@ def open_asks(text: str) -> list[str]:
     return long or asks
 
 
-def gate_match(text: str) -> tuple[str, str] | None:
+def gate_match(text: str, reach: dict[str, str] | None = None) -> tuple[str, str] | None:
     """(why, the phrase that says so) for an item whose every open ask waits, or None.
 
     Items mix done history with several open asks, each with its own condition (open_asks).
     One ask free leaves the item free: ten records (2026-11-26) found items gated by a tail
     clause alone ("the manual as a PDF if shops ask") or freed by history text.
     """
-    gates = ask_gates(text)
+    gates = ask_gates(text, reach)
     return None if any(hit is None for _, hit in gates) else gates[0][1]
 
 
@@ -282,11 +342,14 @@ def _match(text: str) -> tuple[str, str] | None:
     return None
 
 
-def ask_gates(text: str) -> list[tuple[str, tuple[str, str] | None]]:
-    """(ask, (why, phrase) or None) for each open ask; a "then ..." ask waits on the one before."""
+def ask_gates(text: str, reach: dict[str, str] | None = None) -> list[tuple[str, tuple[str, str] | None]]:
+    """(ask, (why, phrase) or None) for each open ask; a "then ..." ask waits on the one before.
+
+    With `reach` (probe_hosts), an ask whose named hosts all refused is gated too.
+    """
     out: list[tuple[str, tuple[str, str] | None]] = []
     for ask in open_asks(text) or [text]:
-        hit = _match(ask)
+        hit = _match(ask) or host_gate(ask, reach)
         if hit is None and out and re.match(r"\W*then\b", ask, re.I):
             hit = out[-1][1]
         out.append((ask, hit))
@@ -480,7 +543,8 @@ def age(ts: int, now: float) -> str:
 
 def item_marks(app: str, items: list[tuple[int, str]], claims: dict[str, tuple[int, str]],
                info: dict[str, tuple[int, str]], merged: dict[str, str], now: float, stale_s: float,
-               tag: str | None) -> tuple[list[tuple[int, str, str, str, list]], list[int]]:
+               tag: str | None, reach: dict[str, str] | None = None
+               ) -> tuple[list[tuple[int, str, str, str, list]], list[int]]:
     """([(number, slug, text, mark, part claims)], free-and-ungated numbers) for a Next list."""
     rows, open_now = [], []
     for i, text in items:
@@ -501,7 +565,7 @@ def item_marks(app: str, items: list[tuple[int, str]], claims: dict[str, tuple[i
             mark = f"{len(parts)} part(s) claimed: read the notes below before claiming another"
         elif any(c.startswith(slug + "-") and c not in merged for c in claims):
             mark = "a part is claimed: see below"
-        hit = gate_match(text)
+        hit = gate_match(text, reach)
         if mark == "free":
             if hit:
                 mark = f'free, {hit[0]}: "{hit[1]}"'
@@ -623,7 +687,7 @@ def growth_topics(rank: int, app: str, topics: list[str], claims: tuple[dict, di
         print(f"  Every topic has a live claim: take a part none names (`roadmap_claim.py {app} --all`).")
 
 
-def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None) -> int:
+def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None, probe: bool = True) -> int:
     """One line per bet: free ungated items and live claims, then the first bet with work free.
 
     Six run records (2026-11-25..26) took "the top bet" into payapps while it held 20 to 30
@@ -660,7 +724,8 @@ def bets_overview(repo: str, bets_md: Path, stale_s: float, tag: str | None) -> 
             growth[app] = (info, merged)
             continue
         items = next_items(roadmap.read_text(encoding="utf-8"))
-        _, open_now = item_marks(app, items, claims, info, merged, now, stale_s, tag)
+        reach = probe_hosts(h for _, t in items for h in hosts_in(t)) if probe else None
+        _, open_now = item_marks(app, items, claims, info, merged, now, stale_s, tag, reach)
         free = ", ".join(f"#{n}" for n in open_now) or "none"
         print(f"{rank:>3}. {app}: {len(items)} Next, free and not gated: {free}; "
               f"{live} live claim(s) ({name})")
@@ -706,6 +771,8 @@ def main(argv: list[str] | None = None) -> int:
                     help="list merged and stale claims one per line, with their notes")
     ap.add_argument("--bets", action="store_true",
                     help="list every ranked bet's app with its free, ungated items and live claims")
+    ap.add_argument("--no-probe", action="store_true",
+                    help="do not probe the hosts items name (offline, or to save the few seconds)")
     ap.add_argument("--bets-md", type=Path, default=BETS_MD, help=argparse.SUPPRESS)
     a = ap.parse_args(argv)
     if not a.bets and not a.app:
@@ -715,7 +782,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"no git clone at {a.repo}: clone private-monorepo first (.github/prompts/cloud-session.md)")
         return 2
     if a.bets:
-        return bets_overview(a.repo, a.bets_md, a.stale_hours * 3600, run_tag())
+        return bets_overview(a.repo, a.bets_md, a.stale_hours * 3600, run_tag(), not a.no_probe)
     roadmap = Path(a.repo) / "apps" / a.app / "ROADMAP.md"
     # An app with no ROADMAP.md (seller-books, grants, cmmc on 2026-11-25..26) still takes
     # --slug claims; three runs pushed claim branches by hand because this used to exit 2.
@@ -827,12 +894,16 @@ def main(argv: list[str] | None = None) -> int:
     seen = set()
     if not items:
         print("  (no `## Next` list: claim what you build with --slug <short-name> --note ...)")
-    rows, open_now = item_marks(a.app, items, claims, info, merged, now, stale_s, tag)
+    reach = None if a.no_probe else probe_hosts(h for _, t in items for h in hosts_in(t))
+    rows, open_now = item_marks(a.app, items, claims, info, merged, now, stale_s, tag, reach)
     for i, slug, text, mark, parts in rows:
         if slug in claims:
             seen.add(slug)
         print(f"{i:>3}. [{mark}] {slug}: {text[:90]}")
-        gates = ask_gates(text)
+        line = host_line(text, reach)
+        if line:
+            print(f"       {line}")
+        gates = ask_gates(text, reach)
         free_asks = [ask for ask, hit in gates if hit is None]
         if mark.startswith("free") and len(gates) > 1:
             # The item's heading is history; say which ask is the open one (or that none is).

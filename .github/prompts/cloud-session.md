@@ -151,7 +151,7 @@ gets a proxy 403 for every .gov host. Probe once, all at once:
 `python3 platform/ci/egress_probe.py [word|URL ...]` (under a second) says which
 hosts answer and, for a blocked one, the fallback another run verified (FAR and
 DFARS clauses: GSA's source files on raw.githubusercontent.com). Add a host you
-probed by hand to `platform/ci/egress_hosts.json`. A proxy 403 is not the site's answer. Say in the PR or run record which figure could not be
+probed by hand to `platform/ci/egress_hosts.json`. In a ROADMAP item, name the source host (`wyoleg.gov`) rather than writing "403": `roadmap_claim.py` probes named hosts each run and gates the item only in sessions that refuse them. A proxy 403 is not the site's answer. Say in the PR or run record which figure could not be
 checked, never cite from memory (`goals.md`). Proxy state:
 `curl -sS "$HTTPS_PROXY/__agentproxy/status"`.
 

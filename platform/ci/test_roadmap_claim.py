@@ -142,6 +142,32 @@ class ParseTest(unittest.TestCase):
         self.assertEqual(len(rc.open_asks("Waivers, if asked: move the day once Miss. Code Ann. "
                                           "§ 1-3-67 is read")), 1)
 
+    def test_hosts_in_finds_named_hosts_not_files(self):
+        text = ("Wyoming (wyoleg.gov serves the bill; see `ROADMAP.md`, index.html, pdf.js, "
+                "e.g. docs.oasis-open.org/ubl, mail ops@acme.com, https://example.com/x) and "
+                "ksef.podatki.gov.pl. Then wyoleg.gov again.")
+        self.assertEqual(rc.hosts_in(text), ["wyoleg.gov", "docs.oasis-open.org", "ksef.podatki.gov.pl"])
+        self.assertEqual(rc.hosts_in("Node.js and package.json only"), [])
+        self.assertEqual(rc.hosts_in("mail to rfq.marisstella.app, the worker on x.workers.dev"), [])
+
+    def test_refused_hosts_gate_an_ask_only_when_all_refuse(self):
+        # 2026-11-26 friction: items whose source host the proxy refuses were listed [free],
+        # while a host once recorded as refused answered the next session.
+        item = "California waivers from leginfo.legislature.ca.gov (Civil Code 8132)"
+        self.assertIsNone(rc.gate_match(item))
+        self.assertEqual(rc.gate_match(item, {"leginfo.legislature.ca.gov": "blocked"})[0],
+                         "waits on a source")
+        self.assertIsNone(rc.gate_match(item, {"leginfo.legislature.ca.gov": "ok"}))
+        self.assertIsNone(rc.gate_match(item, {}))  # not probed: unknown, not refused
+        both = "Read dir.ca.gov or downloads.leginfo.legislature.ca.gov for the form"
+        self.assertIsNone(rc.gate_match(both, {"dir.ca.gov": "blocked",
+                                               "downloads.leginfo.legislature.ca.gov": "ok"}))
+        mixed = "A weekly email line for each job and its waivers; the statute text from wyoleg.gov"
+        self.assertIsNone(rc.gate_match(mixed, {"wyoleg.gov": "blocked"}))
+        self.assertEqual(rc.host_line(both, {"dir.ca.gov": "blocked"}),
+                         "hosts (probed now): dir.ca.gov (blocked), "
+                         "downloads.leginfo.legislature.ca.gov (not probed)")
+
     def test_parse_claims_newest_generation(self):
         ls = ("a\trefs/heads/claim/payapps/history-part-3\n"
               "b\trefs/heads/claim/payapps/history-part-3--2\n"
@@ -504,6 +530,24 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertIn("Fewest live claims: bet #2 jobshop-quote (2)", out)
         self.assertIn("Wedge (bets.md): email in, quote out.", out)
         self.assertNotIn("growth path", out)
+
+    def test_listing_probes_named_hosts(self):
+        road = self.a / "apps" / "payapps" / "ROADMAP.md"
+        road.write_text(ROADMAP.replace("- Notarization block", "- Wyoming waivers from wyoleg.gov\n- Notarization block"))
+        seen = []
+
+        def fake(hosts, timeout=6):
+            seen.append(sorted(hosts))
+            return {"wyoleg.gov": "blocked"}
+        with mock.patch.object(rc, "probe_hosts", fake):
+            _, out = self.main(self.a)
+            self.assertEqual(seen, [["wyoleg.gov"]])
+            self.assertIn('[free, waits on a source: "wyoleg.gov: blocked in this session"]', out)
+            self.assertIn("hosts (probed now): wyoleg.gov (blocked)", out)
+            self.assertIn("Free and not gated: #1, #2, #4", out)
+            _, out = self.main(self.a, "--no-probe")
+            self.assertEqual(len(seen), 1)
+            self.assertIn("Free and not gated: #1, #2, #3, #4", out)
 
     def test_release(self):
         self.main(self.a, "--claim", "3")
