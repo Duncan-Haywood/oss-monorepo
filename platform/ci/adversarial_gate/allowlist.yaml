@@ -172,3 +172,13 @@ allow:
     contains: npm i --no-sa
     reason: a conditional skip, taken only when the optional plain Schematron files are not installed; byte-identical to the copy already on main in ventures/einvoice-preflight, moved with the paid app (PR #19220)
     added: 2026-11-26
+  - rule: aws-guardrail-weakened
+    path: platform/aws/stacks/org/rcps.tf
+    contains: '"repo:${local.public_repo_owner}@*/${local.public_repo_name}@*:*",'
+    reason: a widening of a Deny, not an Allow - the payments RCP also refuses the public repository's ID-qualified OIDC subject (repo:owner@id/name@id:context), which GitHub issued for it on 2026-11-26 (apply run 45905276526) and which the name-only pattern above it does not match; no trust or Allow uses it
+    added: 2026-11-26
+  - rule: aws-guardrail-weakened
+    path: platform/aws/stacks/org/rcps.tf
+    contains: '"repo:*/*@${var.public_repository_id}:*",'
+    reason: a widening of a Deny, not an Allow - the payments RCP refuses any ID-qualified OIDC subject carrying the public repository's numeric ID, so a rename of the public repository cannot slip past it; it can only refuse more, and no trust or Allow uses it
+    added: 2026-11-26
