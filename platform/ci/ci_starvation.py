@@ -41,8 +41,9 @@ the run-timing API is no help either (it reports `billable.UBUNTU.total_ms: 0`
 for this repo even on a pre-cliff run that held a runner for 99 seconds). That
 distinction lives on the owner's billing page.
 
-The fix does not depend on knowing which one it is: self-hosted runners are not
-metered and restore CI either way. See `gitops/ci/README.md`.
+Whichever it is, the fix is the owner's (billing). Self-hosted runners would
+sidestep it, but that route went with the `gitops/` tree, deleted on
+2026-10-30. A session verifies locally and records what it ran instead.
 
 ## How it reaches the Actions API
 
@@ -270,8 +271,8 @@ def render(rows):
         lines.append(
             f"{len(starved)} of {len(rows)} job(s) never got a runner. These red "
             "checks are not\nyour change failing. Verify locally, record what you "
-            "ran, and report the\nunblock in gitops/ci/README.md rather than "
-            "re-diagnosing this next session."
+            "ran in the run\nrecord's notes (CLAUDE.md, \"Before merging\") rather than "
+            "re-diagnosing this."
         )
     elif pending:
         lines.append(
