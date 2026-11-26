@@ -7,6 +7,10 @@ output "role_arn" {
   value = aws_iam_role.this.arn
 }
 
+output "role_name" {
+  value = aws_iam_role.this.name
+}
+
 output "secret_name" {
   value = aws_secretsmanager_secret.paddle.name
 }

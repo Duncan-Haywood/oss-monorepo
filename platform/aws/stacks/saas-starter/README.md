@@ -52,7 +52,7 @@ Owner, once (AWS forces these; nothing else needs a console):
    role the provider assumes; the apply role must be allowed to assume it (or be it).
 
 Conventions this stack follows (from the foundation stacks): every IAM role and Lambda is named
-`saas-starter-*` (payments: `saas-starter-payments-*`); every role carries
+`saas-starter-*` (payments: `payments-*`, the payments apply role's IAM scope in `stacks/github-oidc`); every role carries
 `permissions_boundary_arn`; the payments half is a sub-stack that only the private repository
 applies.
 
@@ -67,7 +67,7 @@ Then, in order:
 | 5. Check | anyone | Paddle's "send test notification" → the consumer log shows `outcome: ignored` (test events carry no `customData`); the DLQ stays empty. |
 | 6. Products | CI | add one module call per product (below); merge. |
 
-The role name `saas-starter-payments-paddle-webhook` is the contract between the two stacks
+The role name `payments-paddle-webhook` is the contract between the two stacks
 (`payments_sender_role_name` here = `app-paddle-webhook.role_name` there); change both or neither.
 
 ## Adding a product (one module call + a handler)

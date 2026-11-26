@@ -214,17 +214,17 @@ run "public_repo_cannot_target_payments" {
 run "apply_roles_cover_the_names_their_stacks_create" {
   command = plan
 
-  # modules/app-paddle-webhook's role_name default, used by private-monorepo
-  # infra/aws/payments: create it with the boundary, then manage it.
+  # modules/app-paddle-webhook's role_name (private-monorepo infra/aws/payments
+  # sets the same): create it with the boundary, then manage it.
   assert {
     condition = alltrue([
       for sid in ["ManageOwnRolesWithinBoundary", "ManageOwnRolesAndPolicies"] : anytrue(flatten([
         for s in module.payments.apply_policies["payments"].Statement : [
-          for p in flatten([s.Resource]) : can(regex("^${replace(p, "*", ".*")}$", "arn:aws:iam::666666666666:role/saas-starter-payments-paddle-webhook"))
+          for p in flatten([s.Resource]) : can(regex("^${replace(p, "*", ".*")}$", "arn:aws:iam::666666666666:role/payments-paddle-webhook"))
         ] if s.Sid == sid
       ]))
     ])
-    error_message = "The payments apply role can create and manage saas-starter-payments-paddle-webhook."
+    error_message = "The payments apply role can create and manage payments-paddle-webhook."
   }
 
   # Still tight: no other saas-starter name, no CI role, no other account.
@@ -235,12 +235,12 @@ run "apply_roles_cover_the_names_their_stacks_create" {
           for arn in [
             "arn:aws:iam::666666666666:role/saas-starter-hello",
             "arn:aws:iam::666666666666:role/gha-private-monorepo-payments-apply",
-            "arn:aws:iam::555555555555:role/saas-starter-payments-paddle-webhook",
+            "arn:aws:iam::555555555555:role/payments-paddle-webhook",
           ] : can(regex("^${replace(p, "*", ".*")}$", arn))
         ])
       ] if s.Effect == "Allow" && s.Sid != "ServiceLinkedRoles"
     ]))
-    error_message = "The payments grant covers only payments-* and saas-starter-payments-* in the payments account."
+    error_message = "The payments grant covers only payments-* in the payments account."
   }
 
   # One role name per apps stack, as each stack's .tf builds it.

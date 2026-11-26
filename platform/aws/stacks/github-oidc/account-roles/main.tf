@@ -87,7 +87,7 @@ locals {
   }
 
   # IAM names each apply role may manage: the stack's own name unless the
-  # stack lists exact prefixes (payments: its module's saas-starter-payments-*).
+  # stack lists exact prefixes.
   iam_prefixes = { for stack, cfg in var.stacks : stack => coalesce(cfg.iam_prefixes, [stack]) }
 
   apply_iam = {

@@ -50,7 +50,7 @@ variables {
 run "only_the_payments_webhook_role_can_send" {
   command = apply
   assert {
-    condition     = jsondecode(aws_sqs_queue_policy.this.policy).Statement[0].Principal.AWS == "arn:aws:iam::222222222222:role/saas-starter-payments-paddle-webhook" && jsondecode(aws_sqs_queue_policy.this.policy).Statement[0].Action == "sqs:SendMessage"
+    condition     = jsondecode(aws_sqs_queue_policy.this.policy).Statement[0].Principal.AWS == "arn:aws:iam::222222222222:role/payments-paddle-webhook" && jsondecode(aws_sqs_queue_policy.this.policy).Statement[0].Action == "sqs:SendMessage"
     error_message = "queue writable only by the payments webhook role, send only"
   }
   assert {

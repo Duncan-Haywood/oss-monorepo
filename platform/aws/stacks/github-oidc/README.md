@@ -37,16 +37,16 @@ The boundary caps every role a workload creates. It denies:
 | dns | shared-infra | oss-monorepo | AmazonRoute53FullAccess |
 | site | shared-infra | oss-monorepo | PowerUserAccess |
 | saas-starter, edge-api, email-ops, listing-lens, shift-roster, retail-pilot-intel, ai-first-markets | apps | oss-monorepo | PowerUserAccess |
-| payments (IAM prefixes `payments`, `saas-starter-payments`) | payments | **private-monorepo** | PowerUserAccess |
+| payments | payments | **private-monorepo** | PowerUserAccess |
 
 **IAM names.** Each key in `stacks` must be the stack's directory name, its
 state key's first segment and the start of every IAM name it creates. The
 exception is `iam_prefixes`. A prefix must contain the stack's name and never
-start with `gha`. Payments lists `saas-starter-payments`, because
-`modules/app-paddle-webhook` names its role
-`saas-starter-payments-paddle-webhook`. That name is fixed:
-`stacks/saas-starter` (`payments_sender_role_name`) refers to it by name from
-the apps account. The test `apply_roles_cover_the_names_their_stacks_create`
+start with `gha`; no stack uses it yet. Payments' Paddle receiver is
+`payments-paddle-webhook` (`modules/app-paddle-webhook`'s `role_name`, set
+the same in private-monorepo `infra/aws/payments`), and `stacks/saas-starter`
+(`payments_sender_role_name`) accepts queue messages only from that name, so
+the two defaults change together or not at all. The test `apply_roles_cover_the_names_their_stacks_create`
 holds one real role name per stack. Add one when a stack gains a role.
 
 **Not yet CI-ready:** `edge-api` and `email-ops` read the management
@@ -111,5 +111,5 @@ Adding it to `.github/workflows/priv-aws-apply.yml`'s stack order (after
 - `CreateRole` works only with the boundary
 - IAM writes are limited to the stack's prefixes, and state writes to the stack's own key
 - each stack's apply role covers a role name that stack really creates
-  (payments: `saas-starter-payments-paddle-webhook`, and nothing else from saas-starter)
+  (payments: `payments-paddle-webhook`, and nothing named `saas-starter-*`)
 - a prefix that does not contain its stack's name is refused

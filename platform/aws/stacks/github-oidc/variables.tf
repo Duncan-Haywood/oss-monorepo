@@ -94,8 +94,6 @@ variable "stacks" {
       account          = "payments"
       repo             = "private-monorepo"
       managed_policies = ["arn:aws:iam::aws:policy/PowerUserAccess"]
-      # modules/app-paddle-webhook names its role saas-starter-payments-paddle-webhook.
-      iam_prefixes = ["payments", "saas-starter-payments"]
     }
   }
 
