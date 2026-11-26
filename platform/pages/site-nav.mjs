@@ -733,6 +733,9 @@ html{overflow-x:clip}
  * A row header (`<th scope="row">`, how venture pages name a row) is the card's title the same
  * way a first `<td>` is (polish, 2026-11-25), and venture pages get this layout too:
  * `STACK_TABLE_CHROME_CSS` below.
+ *
+ * The label is pinned left (polish, 2026-11-26): a venture's figure cell (`td.n{text-align:right}`)
+ * otherwise hands its alignment to the `::before`, and the labels of a card ragged to the right.
  */
 export const STACK_TABLE_CSS = `
 @media (max-width:600px){
@@ -744,7 +747,7 @@ export const STACK_TABLE_CSS = `
   table.stack td{border:0;border-top:1px solid var(--pfs-line,rgba(128,128,128,.34));padding:7px 0;
     display:table;table-layout:fixed;width:100%;text-align:left;overflow-wrap:anywhere}
   table.stack td::before{content:attr(data-label);display:table-cell;width:34%;min-width:6.5em;padding-right:10px;
-    vertical-align:top;color:var(--pfs-muted,inherit);font-size:13px;font-weight:600;line-height:1.5}
+    vertical-align:top;text-align:left;color:var(--pfs-muted,inherit);font-size:13px;font-weight:600;line-height:1.5}
   table.stack td:first-child,table.stack th[scope=row]{display:block;width:auto;border:0;font-weight:650;padding:9px 0 7px;text-align:left}
   table.stack td:first-child::before{content:none}
   table.stack th[scope=row]{font-size:inherit;text-transform:none;letter-spacing:normal;color:inherit}

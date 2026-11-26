@@ -5,7 +5,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { labelStackTables, labelText } from './stack-labels.mjs';
+import { labelStackTables, labelText, STACK_LABELS_JS } from './stack-labels.mjs';
+import { renderChromeModule } from './build.mjs';
 import { STACK_TABLE_CSS, STACK_TABLE_CHROME_CSS } from './site-nav.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -70,4 +71,90 @@ test('the build links the chrome copy and runs the label pass on venture pages',
   // it sets nothing a card layout sets.
   assert.match(build, /\$\{STACK_TABLE_CHROME_CSS\}(\$\{INPUT_ZOOM_CSS\})?`;\n\}/, 'renderChromeStyle ends with the card layout');
   assert.match(build, /const labelled = labelStackTables\(marked\);\n\s*const reflowed = injectReflow\(labelled\);/);
+});
+
+// The browser half (STACK_LABELS_JS) against a minimal DOM: just the properties it reads.
+function el(tagName, attrs = {}, extra = {}) {
+  const a = { ...attrs };
+  return {
+    tagName, colSpan: Number(a.colspan || 1), textContent: '', ...extra,
+    attrs: a,
+    hasAttribute: (k) => k in a,
+    getAttribute: (k) => (k in a ? a[k] : null),
+    setAttribute: (k, v) => { a[k] = String(v); },
+  };
+}
+function domTable({ cls = 'stack', head = ['Job', 'Contract', 'Billed'], nested = false } = {}) {
+  const t = el('TABLE');
+  t.classList = { contains: (c) => cls.split(' ').includes(c) };
+  const thead = el('THEAD');
+  const tbody = el('TBODY');
+  t.children = [thead, tbody];
+  const hr = el('TR');
+  hr.parentNode = thead;
+  hr.cells = head.map((h) => (typeof h === 'string' ? el('TH', {}, { textContent: `  ${h}\n ` }) : el('TH', h.attrs, { textContent: h.text })));
+  thead.rows = [hr];
+  t.tHead = thead;
+  t.body = [];
+  Object.defineProperty(t, 'rows', { get: () => [hr, ...t.body] });
+  t.getElementsByTagName = () => (nested ? [{}] : []);
+  t.write = (rows) => { // what a calculator's `tbody.innerHTML = ...` does: new rows, new cells
+    t.body = rows.map((cells) => {
+      const tr = el('TR');
+      tr.parentNode = tbody;
+      tr.cells = cells.map(([tag, attrs, text]) => el(tag, attrs, { textContent: text }));
+      return tr;
+    });
+  };
+  return t;
+}
+const runLabels = (t) => new Function('t', `${STACK_LABELS_JS}\nstackLabels(t);`)(t);
+const labelsOf = (t) => t.body.map((r) => r.cells.map((c) => c.attrs['data-label'] ?? '-').join('|'));
+
+test('runtime: rows a script writes get labels and roles, a rewrite is labelled again', () => {
+  const t = domTable();
+  t.write([[['TD', {}, 'Oak Ave'], ['TD', {}, '$240,000'], ['TD', {}, '$150,000']]]);
+  runLabels(t);
+  assert.deepEqual(labelsOf(t), ['Job|Contract|Billed']);
+  assert.equal(t.attrs.role, 'table');
+  assert.deepEqual(t.children.map((g) => g.attrs.role), ['rowgroup', 'rowgroup']);
+  assert.equal(t.tHead.rows[0].cells[1].attrs.role, 'columnheader');
+  assert.equal(t.body[0].attrs.role, 'row');
+  assert.ok(t.body[0].cells.every((c) => c.attrs.role === 'cell'));
+  // Same row count, same text length: new cells must still be labelled.
+  t.write([[['TD', {}, 'Oak Ave'], ['TD', {}, '$240,001'], ['TD', {}, '$150,001']]]);
+  runLabels(t);
+  assert.deepEqual(labelsOf(t), ['Job|Contract|Billed']);
+});
+
+test('runtime: colspan, row headers and hand labels as the build pass treats them', () => {
+  const t = domTable({ head: ['Rule', { text: 'Text', attrs: { colspan: '2' } }, 'Applies'] });
+  t.write([
+    [['TH', { scope: 'row' }, 'BR-1'], ['TD', {}, 'en'], ['TD', { 'data-label': 'Mine' }, 'fr'], ['TD', {}, 'All']],
+    [['TD', {}, 'BR-2'], ['TD', { colspan: '2' }, 'both'], ['TD', { role: 'gridcell' }, 'Some']],
+  ]);
+  runLabels(t);
+  assert.deepEqual(labelsOf(t), ['-|Text|Mine|Applies', 'Rule|Text|Applies']);
+  assert.equal(t.body[0].cells[0].attrs.role, 'rowheader');
+  assert.equal(t.body[1].cells[2].attrs.role, 'gridcell', 'a role the venture set is kept');
+});
+
+test('runtime: plain, header-less and nested tables are left alone', () => {
+  for (const t of [domTable({ cls: 'stacked' }), domTable({ nested: true })]) {
+    t.write([[['TD', {}, 'a'], ['TD', {}, 'b'], ['TD', {}, 'c']]]);
+    runLabels(t);
+    assert.deepEqual(labelsOf(t), ['-|-|-']);
+    assert.equal(t.attrs.role, undefined);
+  }
+  const bare = domTable();
+  bare.tHead = null;
+  bare.write([[['TD', {}, 'a']]]);
+  runLabels(bare);
+  assert.deepEqual(labelsOf(bare), ['-']);
+});
+
+test('runtime: pf-site.js runs the labeller on every table before the figure pass', () => {
+  const src = renderChromeModule();
+  assert.match(src, /var stackLabels=function\(t\)/);
+  assert.match(src, /stackLabels\(tl\[k\]\);figs\(tl\[k\]\)/);
 });

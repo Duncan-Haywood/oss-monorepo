@@ -92,13 +92,13 @@ b.late{color:var(--acc)}
     <summary><b>Also required outside Part 1:</b> <span id="buriedSum"></span></summary>
     <p class="note">Sentences in Part 2, Part 3 or other Part 1 articles that oblige someone to submit something. "Covered by" is the Part 1 row that seems to say the same thing; a blank one is a likely missed submittal. Read each one: the match is a word comparison, not a judgment.</p>
     <p class="row"><label><input id="addBuried" type="checkbox"> Add the uncovered ones to the register</label> <button type="button" class="secondary" id="buriedCsv">Download this list (CSV)</button></p>
-    <div class="tablewrap"><table>
+    <div class="tablewrap"><table class="stack">
       <thead><tr><th>Ref</th><th>Section</th><th>Where</th><th>Type</th><th>Requirement</th><th>When</th><th>Covered by</th></tr></thead>
       <tbody id="buriedRows"></tbody>
     </table></div>
   </details>
   <p class="note" id="shown"></p>
-  <div class="tablewrap"><table>
+  <div class="tablewrap"><table class="stack">
     <thead><tr><th>No.</th><th>Section</th><th>Type</th><th>Phase</th><th>Requirement</th><th>Page</th><th id="dueHead" hidden>Submit by</th></tr></thead>
     <tbody id="rows"></tbody>
   </table></div>
