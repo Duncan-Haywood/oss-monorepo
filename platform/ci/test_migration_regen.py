@@ -117,6 +117,14 @@ class MigrationRegen(unittest.TestCase):
         self.assertEqual(sh(self.repo, "commit", "-q", "--no-edit").returncode, 0)
         self.assertEqual(self.run_tool()[0], 0)
 
+    def test_fix_refuses_before_merge(self):
+        # generating on the unmerged branch would drop main's new table
+        self.diverge()
+        code, out = self.run_tool("--fix")
+        self.assertEqual(code, 2, out)
+        self.assertIn("Merge main first", out)
+        self.assertTrue((self.app / "migrations" / "0001_mine.sql").exists(), "touched nothing")
+
     def test_fix_refuses_unresolved_schema(self):
         self.diverge()
         sh(self.repo, "merge", "--no-edit", "main")

@@ -18,7 +18,8 @@ fetches `origin/main` (skip with --no-fetch) and compares the migrations your
 branch adds with the ones main has: a clash is a number main already uses, or one
 at or below main's newest.
 
---fix works during a merge with conflicts or after one. It saves your migration
+--fix works during a merge with conflicts or after one, and refuses before it
+(the schema would lack main's tables, so drizzle would emit DROPs for them). It saves your migration
 SQL to a backup folder, sets `migrations/` to exactly main's, runs
 `pnpm exec drizzle-kit generate --name <your migration's name>` in the app
 (--generate-cmd overrides it), stages `migrations/`, and diffs the new SQL against
@@ -103,6 +104,16 @@ def fix(repo: Path, app: str, base: str, info: dict, generate_cmd: str | None) -
     if not ours:
         print(f"nothing to do: your branch adds no migration under {mig}.")
         return 0
+    # Generating before main is merged reads a schema without main's new tables, and
+    # drizzle diffs it against main's snapshot: the "fix" would DROP them. Ask for the
+    # merge (done, or in progress with base as MERGE_HEAD) first.
+    in_merge = git(repo, "rev-parse", "-q", "--verify", "MERGE_HEAD", check=False).strip()
+    merged = subprocess.run(["git", "-C", str(repo), "merge-base", "--is-ancestor", base, "HEAD"],
+                            capture_output=True).returncode == 0
+    if not merged and in_merge != git(repo, "rev-parse", base).strip():
+        print(f"Merge {base} first (`git merge {base}`): generating from a schema without "
+              f"main's changes would drop main's new tables. Then run --fix again.")
+        return 2
     unmerged = [p for p in git(repo, "diff", "--name-only", "--diff-filter=U").split()
                 if not p.startswith(mig + "/")]
     if unmerged:
