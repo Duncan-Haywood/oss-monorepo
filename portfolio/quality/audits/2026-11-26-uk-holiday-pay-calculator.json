@@ -1,0 +1,216 @@
+{
+  "date": "2026-11-26",
+  "subject": "ventures/uk-holiday-pay-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-26-h-9cca",
+  "round": 114,
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a UK payroll specialist / employment-law HR adviser who checks starters', leavers', part-timers' and irregular-hours workers' statutory holiday and final-pay holiday under the Working Time Regulations 1998",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Recomputed against the live GOV.UK 'Holiday entitlement' guide (fetched as JSON from www.gov.uk/api/content/holiday-entitlement-rights, 2026-11-26) with scratchpad checks.mjs/checks2.mjs. Pass: 5 days full year = 28; 6 days capped at 28; 3 days = 16.8 full-year days (GOV.UK example); leaver 1 Jan-30 Jun 2026, 5 days: 181/365*28 = 13.885 -> 14 days (GOV.UK half-year = 14), 9 left after 5 taken, 9 * 600/5 = GBP 1,080; worked example starter 14 Apr 2026: 262/365*28 = 20.099, rounded up 20.5, 17.5 left, GBP 2,100; year starting 2027-03-01 has 366 days. Fail: (1) GOV.UK's own irregular-hours example, 30 hours in a weekly pay period -> 4 hours of leave (12.07% = 3.621, 'must be rounded up to the nearest hour if ... 0.5 of an hour or more'); the tool gives 3.62 and has no pay-period input, so 52 weeks of 30 h gives 188.29 h where per-period accrual gives 208 h. (2) No date gate: GOV.UK says the 12.07% accrual and rolled-up pay apply only to leave years beginning on or after 1 April 2024; a leave year starting 2023-04-01 still gets the 12.07% result and the rolled-up pay finding. (3) Full-year 3-day worker is told '17 days of statutory holiday' where GOV.UK says 'at least 16.8'. (4) Rounding happens after r2(), so 35 part-year cases round down by under 0.005 day (0.5 day/week, 131 days: exact 1.00493, entitled 1). (5) Worked example's contract check reports '25-day contract is below statutory' with 8 bank holidays counted as leave entered alongside it. Arithmetic right, method gaps on the irregular-hours path: 2.",
+    "completeness": "Walked in Chromium via Playwright (scratchpad walk.cjs, files served by route interception) at 375 px: no horizontal scroll; Load an example fills and computes (20.5 days, 17.5 left, GBP 2,100); pattern switch hides/shows the regular vs irregular fields; irregular 1000 h at GBP 12.50 with 40 taken -> 120.7 h accrued, 80.7 left; Clear then Work out shows the first validation error; Download result saves uk-holiday-pay.txt; usage counter records example_loaded and summary_downloaded in localStorage; opt-out button stores the flag and disables itself; LICENSE and the five sibling links load (200). No console errors. Every README/page feature (5.6 weeks, 28 cap, pro rata starters and leavers, 12.07%, days left, unused-day value, contract check, bank holidays) is present. No stubs or TODOs: 3.",
+    "verification": "node --test '*.test.mjs' in the subject dir: tests 28, pass 28, fail 0 (0.18 s); the README's repo-root command also passes 28/28. Six mutants via platform/ci/quality_mutate.py (test command node --test calc.test.mjs page.test.mjs usage.test.mjs, because the quoted glob without a shell ran no tests): roundUpHalf ceil -> round caught; cap > -> >= caught; leaver end date minus a day caught; rolled-up uplift *1.01 caught; contract check < -> <= SURVIVED; irregular 'leaving with unused hours' finding ungated from leave SURVIVED. Arithmetic is pinned; finding branches and the boundaries are not, and no test encodes a GOV.UK worked example for irregular hours: 3.",
+    "craft": "Read calc.mjs (146 lines), index.html script (lines 138-189), usage.mjs, all three test files. Pure engine, validated inputs with named errors, dates parsed strictly (rejects 2026-02-30), localStorage guarded, output escaped. Defects: roundUpHalf applies r2 before ceil (calc.mjs:18), so the 'never round down' promise breaks by up to 0.005 day; two money formatters, so findings say 'GBP 120' while the table says '£120' on the same screen (calc.mjs:16 vs index.html:145); very long one-line statements (calc.mjs:95, 142) are hard to review; bank holidays subtract from 'left to choose' (12.5) while 'Days remaining' says 17.5 for the same example with no explanation; footer list missing a comma (index.html:133). Acceptable: 3.",
+    "claims": "Backed: 5.6 weeks / 28 cap / 16.8 for 3 days (GOV.UK Entitlement), pro rata for starters (GOV.UK 'pro-rata' alternative), 12.07% for leave years from 1 April 2024 and rolled-up pay only then (GOV.UK Holiday pay), 52 paid weeks average (GOV.UK Holiday pay), payment in lieu on leaving, deductions only if agreed in writing, nothing uploaded (page.test asserts no fetch/XHR/beacon; walk saw none), usage events named = events recorded, disclaimer in footer, README, header note and downloaded summary, served-copy reports no placeholder origin in llms.txt/sitemap. Unbacked or wrong: FAQ 'Employers should round up to the next half day' for a full-year part-timer (GOV.UK: 'at least 16.8 days') and the headline '17 days of statutory holiday'; the 12.07% FAQ states the April 2024 limit but the engine does not apply it; the worked example (the first thing a visitor sees) flags a 25-day contract as unlawful though 8 bank holidays are entered alongside it, the common '25 days plus bank holidays' contract; VENTURE.yaml says it competes with GOV.UK 'by adding the irregular-hours method', which GOV.UK's calculator already has: 2.",
+    "fitness": "Walked as a 3-day part-timer, a 14 April starter and a 30 June leaver: each gets a defensible day count, days left and a final-pay figure in under a minute, with a 'get it in writing' and Acas step. A payroll specialist would hit in the first hour: irregular-hours workers on a pay-period basis (the main 12.07% population) get an unrounded annual total instead of per-period hours; pre-April-2024 leave years get the wrong method; no reg 15A monthly accrual for first-year starters (GOV.UK's default for a 13 January starter is 1/12 per month, 2.5 days for January); bank holidays not pro-rated for starters (the example's starter after 14 April 2026 sees 5 E&W bank holidays, not 8); holiday pay for irregular hours uses a single hourly rate rather than the 52-paid-week average. Usable for regular-hours checks: 2.",
+    "domain": "Compared with GOV.UK 'Holiday entitlement' (Entitlement, Calculate leave entitlement, Holiday pay, Taking holiday before leaving) and WTR 1998 regs 13, 13A, 14, 15A, 15B, 16. Matches: 5.6 weeks capped at 28; part-time pro rata; leaver accrual on proportion of year with payment in lieu; 12.07% rate; rolled-up pay limited to irregular/part-year; 52 paid weeks reference; 3-months-less-a-day claim limit. Departs: reg 15B accrual is per pay period with rounding to the nearest hour at 0.5, not 12.07% of an annual total; no 1 April 2024 transition gate; full-year rounding presented as the statutory figure; reg 15A first-year monthly accrual not offered; no normal-vs-basic rate split for the 4 + 1.6 weeks. A payroll specialist would sign off the regular-hours path, not the irregular-hours one: 2."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Part-time 3 days a week, full leave year",
+      "method": "GOV.UK Holiday entitlement, Entitlement: '3 days a week ... at least 16.8 days' leave a year (3 x 5.6)'",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/a347f215-d7cb-50f8-ba4c-1f4846c96c49/scratchpad/ukhol/checks.mjs (case 1)",
+      "expected": "fullDays 16.8; statutory entitlement at least 16.8 (rounding up allowed, not required)",
+      "observed": "fullDays 16.8, entitled 17, headline '17 days of statutory holiday this leave year'",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Leaver 30 June 2026, leave year 1 Jan 2026, 5 days, GBP 600/week, 5 taken",
+      "method": "hand: WTR reg 14 proportion of leave year, 181/365 * 28 = 13.885, round up 14; 14-5 = 9; 9 * 600/5 = 1,080; GOV.UK half-year 5-day example 14 days",
+      "command": "checks.mjs case 4",
+      "expected": "181 days, 13.88 accrued, 14 entitled, 9 remaining, GBP 1,080",
+      "observed": "181, 13.88, 14, 9, 1080",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Six days a week is capped",
+      "method": "GOV.UK Limits on statutory leave: 'staff working 6 days a week are only entitled to 28 days'",
+      "command": "checks.mjs case 3",
+      "expected": "28, capped",
+      "observed": "fullDays 28, capped true, entitled 28",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Irregular hours: GOV.UK worked example, 30 hours in a weekly pay period",
+      "method": "GOV.UK Calculate leave entitlement: '30 x 12.07 / 100 = 3.621' -> 4 hours, 'rounded up to the nearest hour if the entitlement is 0.5 of an hour or more' (WTR reg 15B)",
+      "command": "node scratchpad/ukhol/checks2.mjs",
+      "expected": "4 hours",
+      "observed": "3.62 hours (no pay-period input; 52 x 30 h gives 188.29 h vs 208 h per-period)",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Irregular hours, leave year starting 1 April 2023",
+      "method": "GOV.UK: 'For leave years beginning on or before 31 March 2024 ... does not need to be accrued based on hours'; rolled-up pay not allowed 'if their leave year began on or before 31 March 2024'",
+      "command": "checks2.mjs, yearStart 2023-04-01",
+      "expected": "warning or refusal: 12.07% accrual and rolled-up pay do not apply to this leave year",
+      "observed": "12.07% result (120.7 h) and the rolled-up holiday pay finding, no warning",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "No rounding down for part-year entitlement",
+      "method": "brute force over 0.5-5 days a week and every employed-days count 1-364 against exact min(28, 5.6d) * e/365",
+      "command": "checks.mjs case 10",
+      "expected": "entitled >= exact accrual in every case",
+      "observed": "35 cases below exact, e.g. 0.5 day/week, 131 days: exact 1.00493, entitled 1 (r2 before ceil)",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Leap-year leave year spanning February 2028",
+      "method": "calendar: 1 Mar 2027 - 29 Feb 2028 is 366 days",
+      "command": "checks.mjs case 9",
+      "expected": "366, 2028-02-29",
+      "observed": "366, 2028-02-29",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Worked example contract check with 8 bank holidays counted as leave",
+      "method": "Playwright: Load an example; GOV.UK 'An employer can include bank holidays as part of statutory annual leave'",
+      "command": "node scratchpad/ukhol/walk.cjs",
+      "expected": "a 25-day contract plus bank holidays (33) is above the 28-day minimum, or the field says whether bank holidays are included",
+      "observed": "HIGH 'Your contract gives 18 days for this period, below the statutory 20.5. The statutory minimum applies instead.'",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "FAQ: part-time 16.8 days, 'Employers should round up to the next half day'",
+      "method": "GOV.UK Entitlement: 'must get at least 16.8 days'; half-day rounding appears only for first-year monthly accrual",
+      "command": "grep -n 'round up' ventures/uk-holiday-pay-calculator/index.html",
+      "expected": "16.8 is the statutory figure; rounding up is the employer's option",
+      "observed": "index.html:116 and JSON-LD line 12 say employers should round up",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "Disclaimer, privacy, usage tracking and served URLs",
+      "method": "page.test.mjs assertions, Playwright walk, node platform/pages/served-copy.mjs uk-holiday-pay-calculator",
+      "command": "node platform/pages/served-copy.mjs uk-holiday-pay-calculator",
+      "expected": "no-warranty and not-advice text on page, README and summary; no network calls; opt-out works; no placeholder origin",
+      "observed": "all present; no fetch/XHR; opt-out stored; served-copy: no placeholder or retired origin",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "Test suite",
+      "method": "run in subject dir and from repo root (README command)",
+      "command": "node --test '*.test.mjs'",
+      "expected": "green",
+      "observed": "tests 28, pass 28, fail 0",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Example, pattern switch, irregular result, clear, download, opt-out, sibling links at 375 px",
+      "method": "Playwright Chromium",
+      "command": "node scratchpad/ukhol/walk.cjs",
+      "expected": "each control works, no console errors, no horizontal scroll",
+      "observed": "all worked; 120.7 h / 80.7 left; uk-holiday-pay.txt downloaded; five sibling links and LICENSE 200; no errors",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {"where": "calc.mjs:18", "change": "roundUpHalf Math.ceil(r2(n) * 2 - 1e-9) / 2 -> Math.round(r2(n) * 2) / 2", "caught": true, "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"},
+    {"where": "calc.mjs:88", "change": "WEEKS * p.daysPerWeek > MAX_DAYS -> >=", "caught": true, "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"},
+    {"where": "calc.mjs:101", "change": "if (contractShare < entitled) -> <=", "caught": false, "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"},
+    {"where": "calc.mjs:78", "change": "toT = leave.t -> leave.t - DAY", "caught": true, "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"},
+    {"where": "calc.mjs:118", "change": "uplift * ACCRUAL -> * ACCRUAL * 1.01", "caught": true, "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"},
+    {"where": "calc.mjs:124", "change": "irregular 'leaving with unused hours' finding: if (leave && remaining > 0) -> if (remaining > 0)", "caught": false, "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"}
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Irregular-hours accrual is 12.07% of an annual hours total with no pay period: WTR reg 15B and GOV.UK accrue per pay period and round to the nearest hour at 0.5, so GOV.UK's own example (30 h in a weekly period = 4 h) comes out 3.62 h, and a year of 30-hour weeks is 188.29 h instead of 208 h",
+      "where": "ventures/uk-holiday-pay-calculator/calc.mjs:114",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "No 1 April 2024 gate: a leave year starting before 1 April 2024 still gets the 12.07% accrual and the rolled-up holiday pay finding, which GOV.UK says do not apply (rolled-up pay is not allowed) for those leave years; the FAQ states the limit but the engine ignores yearStart",
+      "where": "ventures/uk-holiday-pay-calculator/calc.mjs:112",
+      "category": "domain-rule",
+      "origin": "spec",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19371"
+    },
+    {
+      "severity": "medium",
+      "what": "The worked example flags a 25-day contract as below the statutory minimum while 8 bank holidays are entered as counting towards leave; the contract field does not say whether bank holidays are included, so the common '25 days plus bank holidays' contract (33 days) is reported unlawful",
+      "where": "ventures/uk-holiday-pay-calculator/calc.mjs:99",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "medium",
+      "what": "Full-year rounding is presented as the statutory figure: a 3-day worker is told '17 days of statutory holiday' and the FAQ says employers should round up, whereas GOV.UK says 'at least 16.8 days'; a worker could dispute a lawful 16.8",
+      "where": "ventures/uk-holiday-pay-calculator/index.html:116",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "roundUpHalf rounds to 2 dp before ceil, so 35 part-year cases round down by under 0.005 day (0.5 day/week, 131 days: 1.00493 -> 1), against the page's 'Employers should not round down'",
+      "where": "ventures/uk-holiday-pay-calculator/calc.mjs:18",
+      "category": "logic-error",
+      "origin": "implementation",
+      "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19371"
+    },
+    {
+      "severity": "low",
+      "what": "No reg 15A first-year monthly accrual (GOV.UK's 1/12 per month, 13 January starter = 2.5 days for January) and bank holidays are not limited to those in the employed period (the 14 April 2026 starter in the example sees 5 E&W bank holidays, not 8)",
+      "where": "ventures/uk-holiday-pay-calculator/calc.mjs:104",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "Two money formatters: findings and summary say 'GBP 120' while the table says '£120' on the same screen",
+      "where": "ventures/uk-holiday-pay-calculator/calc.mjs:16",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Contract-check boundary and the irregular leaver finding are untested: contractShare < -> <= and dropping the leave gate both survive",
+      "where": "ventures/uk-holiday-pay-calculator/calc.test.mjs:53",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "VENTURE.yaml says it competes with the GOV.UK calculator 'by adding the irregular-hours method', which GOV.UK's calculator already offers",
+      "where": "ventures/uk-holiday-pay-calculator/VENTURE.yaml:12",
+      "category": "overclaim",
+      "origin": "claims"
+    }
+  ],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/19371"],
+  "verdict": "A small, private, honest-looking GB holiday calculator whose regular-hours path recomputes cleanly against GOV.UK (28-day cap, 16.8 days for 3 days, 30 June leaver 14 days and GBP 1,080, 14 April starter 20.5 days) and whose page works end to end in Chromium with 28 passing tests and 4 of 6 seeded mutants caught. It does not meet the bar: correctness, claims, fitness and domain are 2. The irregular-hours path, the one it markets as its edge, takes 12.07% of an annual total instead of per-pay-period accrual rounded to the hour (GOV.UK's 30-hour example is 4 h; the tool says 3.62), applies 12.07% and rolled-up pay to pre-April-2024 leave years, and the worked example tells a '25 days plus bank holidays' worker their contract is unlawful. Finished (completeness 3), not payroll-specialist grade until the reg 15B accrual and the 2024 transition gate are modelled."
+}
