@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e1b51'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Progress Billing for Contractors: Draw Schedule Calculator</title>
+  <meta name="description" content="How progress billing works for contractors: draw schedules, percent complete and pay apps, deposits and retainage, with a free progress invoice calculator.">
+  <meta property="og:title" content="Progress billing for contractors, with a draw schedule calculator">
+  <meta property="og:description" content="Milestone draws, percent-complete billing and AIA-style pay apps compared, how a deposit and retainage come off each invoice, and a free calculator. Runs in the browser.">
+  <link rel="canonical" href="./progress-billing.html">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    #pb-stages { width: 100%; box-sizing: border-box; min-height: 170px; padding: 9px 10px; border: 1px solid var(--input); border-radius: 7px; font: 16px ui-monospace, monospace; background: var(--card); color: var(--ink); }
+    #pb-apply { width: 100%; box-sizing: border-box; padding: 8px 9px; border: 1px solid var(--input); border-radius: 7px; font: 15px system-ui, sans-serif; background: var(--card); color: var(--ink); }
+  </style>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Progress billing for contractors, with a draw schedule calculator", "datePublished": "2026-11-27", "dateModified": "2026-11-27"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is progress billing in construction?", "acceptedAnswer": {"@type": "Answer", "text": "Billing a job in parts as the work gets done, instead of one invoice at the end. The parts are set either by stages (a draw schedule: so much at rough-in, so much at drywall) or by how far along each line of a schedule of values is (percent complete), which is how a monthly pay application works."}}, {"@type": "Question", "name": "How is a deposit handled on progress invoices?", "acceptedAnswer": {"@type": "Answer", "text": "A deposit is money for work not done yet, so it is credited back against the invoices as the work is billed. The common ways are to spread it over every stage in proportion to its value, or to take it all off the first invoice. Either way, the credits should add up to the deposit by the final invoice."}}, {"@type": "Question", "name": "Is progress billing the same as a pay application?", "acceptedAnswer": {"@type": "Answer", "text": "A pay application is one form of progress billing: the percent-complete method written out line by line on a schedule of values, with retainage and the previous certificates, usually monthly. Homeowner and small commercial jobs often use a simpler draw schedule instead."}}, {"@type": "Question", "name": "Does QuickBooks Online do progress billing?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, from an accepted estimate, once progress invoicing is switched on in the Sales settings: each invoice bills a percent or an amount of each line, and the estimate keeps track of what is left. It has no retainage field, so retainage needs its own account, item and negative invoice line."}}]}</script>
+</head>
+<body>
+<header>
+  <p class="kicker">Pay app guides · <a href="./">schedule of values calculator</a></p>
+  <h1>Progress billing for contractors: draw schedules, deposits and retainage</h1>
+  <p>Progress billing means billing a job in parts as the work gets done, not in one invoice at the end. Most small contractors do it one of two ways: a <strong>draw schedule</strong> (a share of the price at each stage) or <strong>percent complete</strong> on each line of a schedule of values, which is what a monthly pay application is. This page compares the methods, shows how a deposit and retainage come off each invoice, and works out the next invoice on a draw schedule.</p>
+  <nav class="guides" aria-label="Guides">
+    <a href="#calculator">Draw schedule calculator</a>
+    <a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a>
+    <a href="retainage-explained.html">Retainage explained</a>
+    <a href="retainage-in-quickbooks.html">Retainage in QuickBooks</a>
+    <a href="#all-guides">All guides</a>
+  </nav>
+</header>
+<main>
+<section class="card">
+  <h2>Three ways to bill as you go</h2>
+  <div class="scroll"><table class="stack" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">Method</th><th role="columnheader" scope="col">How each invoice is set</th><th role="columnheader" scope="col">Where it is used</th><th role="columnheader" scope="col">What to watch</th></tr></thead>
+    <tbody>
+      <tr role="row"><td role="cell" data-label="Method">Draw schedule (milestones)</td><td role="cell" data-label="How each invoice is set">A fixed share of the price when a stage is reached: "15% at demo and framing, 20% when rough-in passes inspection"</td><td role="cell" data-label="Where it is used">Remodels, new homes, small commercial jobs, many residential subs</td><td role="cell" data-label="What to watch">Tie each draw to something both sides can see (an inspection, cabinets set), not "50% done". Keep the last draw big enough to finish the punch list.</td></tr>
+      <tr role="row"><td role="cell" data-label="Method">Percent complete by line</td><td role="cell" data-label="How each invoice is set">Each line of the schedule of values billed at its percent complete; this period = complete to date less billed before</td><td role="cell" data-label="Where it is used">Commercial subcontracts, jobs with a GC or owner's rep checking the numbers</td><td role="cell" data-label="What to watch">A front-loaded schedule gets cut. See the <a href="front-loading-schedule-of-values.html">front-loading check</a>.</td></tr>
+      <tr role="row"><td role="cell" data-label="Method">Pay application</td><td role="cell" data-label="How each invoice is set">Percent complete by line, written out on a summary page and a continuation sheet with stored materials, retainage and previous certificates, often by a monthly cutoff</td><td role="cell" data-label="Where it is used">Commercial and public work, most GC subcontracts</td><td role="cell" data-label="What to watch">The carry-forward from last month and the retainage are where most are sent back. See the <a href="pay-application-checker.html">pay app checker</a>.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Time and materials work bills what was used, not a share of a price; the <a href="tm-tickets.html">T&amp;M ticket log</a> covers it. Whatever the method, the contract should say it: the stages or the schedule of values, when an invoice may be sent, how many days the customer has to pay, and what happens to the deposit and any retainage.</p>
+</section>
+
+<section class="card">
+  <h2>Setting up a draw schedule</h2>
+  <ul>
+    <li><strong>Match the money to the cost.</strong> A stage where you buy cabinets and countertops should carry more of the price than one that is mostly labor, so you are not paying the supplier out of your own pocket.</li>
+    <li><strong>Make each stage checkable.</strong> "Rough plumbing and electrical passed inspection" ends arguments; "rough-in 50% done" starts them.</li>
+    <li><strong>Make the shares add to 100%</strong> (or the dollar amounts to the contract sum). A schedule that adds to 95% leaves 5% you never bill; the calculator below names the gap.</li>
+    <li><strong>Hold enough for the end.</strong> A final draw of 10% or so at the walkthrough keeps the punch list worth finishing for you and gives the customer a reason to sign off.</li>
+    <li><strong>Change orders get their own draw</strong> or are added to a stage in writing when approved, so the schedule still adds to the new contract sum. See <a href="change-orders-schedule-of-values.html">change orders and the SOV</a>.</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2>The deposit and retainage on each invoice</h2>
+  <p><strong>A deposit</strong> is paid before the work it covers, so it is credited back on the invoices as that work is billed. The two common ways: spread it over every stage in proportion to its value (a 10% deposit takes 10% off each draw), or take it all off the first invoice. Spreading keeps every invoice in proportion; the first-invoice way clears it early but can leave the first draw at or near zero. By the final invoice the credits should add to the deposit. How large a deposit may be is set by your contract and, on home-improvement jobs, sometimes by state law, so check the rule where the job is.</p>
+  <p><strong>Retainage</strong> is a share of each invoice the customer holds back until the end. It is held on the work billed, not on the deposit, and is billed again at completion. Draw schedules on homeowner jobs often have none; commercial subcontracts usually do. <a href="retainage-explained.html">Retainage explained</a> covers state caps on public work.</p>
+</section>
+
+<section class="card" id="calculator">
+  <h2>Draw schedule calculator: what to bill now</h2>
+  <p>Paste or type one stage per line: the stage, its share (a percent like <code>25%</code> or an amount like <code>21000</code>), and its status: <code>billed</code> (invoiced already), <code>done</code> (reached, bill it now) or blank (not reached). A header row is optional; tab-separated cells pasted from a spreadsheet work too. The worked example is filled in: an $84,000 kitchen remodel with a $8,400 deposit, two stages billed and the third reached.</p>
+  <div class="grid">
+    <div><label for="pb-project">Job (optional)</label><input id="pb-project" value="Kitchen remodel, 14 Elm St"></div>
+    <div><label for="pb-contract">Contract sum, with approved change orders ($)</label><input id="pb-contract" inputmode="decimal" value="84000"></div>
+    <div><label for="pb-deposit">Deposit received (optional, $)</label><input id="pb-deposit" inputmode="decimal" value="8400"></div>
+    <div><label for="pb-apply">Credit the deposit</label><select id="pb-apply"><option value="spread">Spread over every stage</option><option value="first">All on the first stage</option><option value="last">All on the last stage</option></select></div>
+    <div><label for="pb-ret">Retainage (optional, %)</label><input id="pb-ret" inputmode="decimal" value=""></div>
+    <div><label for="pb-number">Invoice number (optional)</label><input id="pb-number" value="3"></div>
+  </div>
+  <label for="pb-stages">Stages</label>
+  <textarea id="pb-stages" rows="7" spellcheck="false" wrap="off"></textarea>
+  <div id="pb-errors" aria-live="polite"></div>
+  <div class="scroll"><table class="stack compact" role="table">
+    <thead><tr role="row"><th role="columnheader" scope="col">Stage</th><th role="columnheader" scope="col">Share</th><th role="columnheader" scope="col">Value</th><th role="columnheader" scope="col">Deposit credit</th><th role="columnheader" scope="col">Retainage</th><th role="columnheader" scope="col">Net due</th><th role="columnheader" scope="col">Status</th></tr></thead>
+    <tbody id="pb-rows"></tbody>
+  </table></div>
+  <h3>The invoice</h3>
+  <pre class="sum" id="pb-invoice"></pre>
+  <p><button type="button" id="pb-copy">Copy invoice</button> <button type="button" class="secondary" id="pb-csv">Download schedule CSV</button></p>
+  <p class="note">The example: 30% of $84,000 = $25,200 for the third stage; the deposit is 10% of the contract, so 10% of the stage ($2,520) comes off; <strong>$22,680 due</strong>. With this invoice $54,600 is billed and $29,400 is left, $2,940 of the deposit still to credit on the last two stages. It writes figures only, no contract or notice wording. Your numbers stay in this browser tab.</p>
+</section>
+
+<section class="card">
+  <h2>Progress invoicing in QuickBooks Online</h2>
+  <p>QuickBooks Online bills in parts from an estimate. Intuit's help article (<a href="https://quickbooks.intuit.com/learn-support/en-us/help-article/invoicing/set-send-progress-invoices-quickbooks-online/L0Ymm6WjR_US_en_US" rel="noopener">Set up and send progress invoices</a>, read 2026-11-27 through search results, since Intuit's site could not be loaded directly) gives these steps:</p>
+  <ol>
+    <li>Settings, Account and settings, Sales: in Progress Invoicing, turn on "Create multiple partial invoices from a single estimate" and save.</li>
+    <li>Create the estimate for the whole contract, one line per stage or per schedule-of-values line, and mark it accepted.</li>
+    <li>Each time you bill, convert the estimate to an invoice and choose how much: a percent of every line, an amount, or a figure per line. The estimate keeps the rest open for the next invoice.</li>
+    <li>The Estimates &amp; Progress Invoicing Summary by Customer report lists each estimate and the invoices made from it.</li>
+  </ol>
+  <p>Two gaps contractors hit: QuickBooks has <strong>no retainage field</strong> (the <a href="retainage-in-quickbooks.html">retainage in QuickBooks</a> guide gives the account, item and negative line), and a deposit taken as a payment before any invoice needs to be applied to the invoices by hand. Intuit's community answers also say progress invoices depend on which invoice layout the company uses; if the option is missing, check that first.</p>
+</section>
+
+<section class="card">
+  <h2>What a progress invoice should show</h2>
+  <ul>
+    <li>The job, the invoice number and date, and the contract sum (with approved change orders).</li>
+    <li>The stages or lines billed on this invoice, each with its share and amount.</li>
+    <li>The deposit credited and retainage held on this invoice, and the amount due.</li>
+    <li>Billed in earlier invoices, billed to date and left to bill, so the customer can check the running total without your file.</li>
+    <li>Your payment terms and how to pay. Lien waivers or notices the job needs go with it as separate documents; see <a href="conditional-vs-unconditional-lien-waivers.html">conditional vs unconditional lien waivers</a>.</li>
+  </ul>
+</section>
+
+<section class="card" id="faq">
+  <h2>Common questions</h2>
+  <h3>What is progress billing in construction?</h3>
+  <p>Billing a job in parts as the work gets done, instead of one invoice at the end. The parts are set either by stages (a draw schedule: so much at rough-in, so much at drywall) or by how far along each line of a schedule of values is (percent complete), which is how a monthly pay application works.</p>
+  <h3>How is a deposit handled on progress invoices?</h3>
+  <p>A deposit is money for work not done yet, so it is credited back against the invoices as the work is billed. The common ways are to spread it over every stage in proportion to its value, or to take it all off the first invoice. Either way, the credits should add up to the deposit by the final invoice.</p>
+  <h3>Is progress billing the same as a pay application?</h3>
+  <p>A pay application is one form of progress billing: the percent-complete method written out line by line on a schedule of values, with retainage and the previous certificates, usually monthly. Homeowner and small commercial jobs often use a simpler draw schedule instead.</p>
+  <h3>Does QuickBooks Online do progress billing?</h3>
+  <p>Yes, from an accepted estimate, once progress invoicing is switched on in the Sales settings: each invoice bills a percent or an amount of each line, and the estimate keeps track of what is left. It has no retainage field, so retainage needs its own account, item and negative invoice line.</p>
+</section>
+
+<section class="card cta" id="early-access">
+  <h2>Every job's billing in one place</h2>
+  <p>We are building hosted billing for specialty subcontractors and small contractors: the schedule of values or draw schedule, each invoice or pay application, change orders, deposits and retainage kept per job and carried forward, with QuickBooks sync. It is <strong>in development, with early access</strong>; nothing is for sale yet. <a href="https://marisstella.app/industries/construction/">See the construction tools and join early access</a>.</p>
+</section>
+</main>
+<!-- all-guides: generated by nav.mjs, do not edit by hand -->
+<nav class="all-guides" id="all-guides" aria-label="All pay app tools and guides">
+    <div>
+      <h2>Tools</h2>
+      <ul>
+      <li><a href="./">Schedule of values calculator</a></li>
+      <li><a href="pay-application-checker.html">Pay app checker (this month vs last)</a></li>
+      <li><a href="change-order-log.html">Change order log</a></li>
+      <li><a href="tm-tickets.html">T&amp;M ticket log and CO request</a></li>
+      <li><a href="schedule-of-values-template.html">Free Excel SOV template</a></li>
+      <li><a href="front-loading-schedule-of-values.html">Front-loading check (balanced SOV)</a></li>
+      <li><a href="pay-if-paid-clauses.html">Pay-if-paid clause reader</a></li>
+      <li><a href="how-to-write-an-rfi.html">RFI drafter and how to write an RFI</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Billing guides</h2>
+      <ul>
+      <li><a href="how-to-fill-out-a-pay-application.html">How to fill out a pay application</a></li>
+      <li><a href="change-orders-schedule-of-values.html">Change orders and the SOV</a></li>
+      <li><a href="stored-materials-billing.html">Billing stored materials</a></li>
+      <li><a href="progress-billing.html" aria-current="page">Progress billing and draw schedules</a></li>
+      <li><a href="overbilling-underbilling.html">Overbilling and underbilling</a></li>
+      <li><a href="retainage-explained.html">Retainage explained, with state caps</a></li>
+      <li><a href="retainage-release.html">Getting retainage released</a></li>
+      <li><a href="retainage-in-quickbooks.html">Retainage in QuickBooks</a></li>
+      <li><a href="retainage-tracker.html">Retainage tracker (every job)</a></li>
+      <li><a href="gc-portal-billing.html">Billing in Procore, Textura and GCPay</a></li>
+      <li><a href="pay-application-software-compared.html">Pay app software compared</a></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Getting paid and lien waivers</h2>
+      <ul>
+      <li><a href="prompt-payment-laws.html">Prompt payment laws by state</a></li>
+      <li><a href="conditional-vs-unconditional-lien-waivers.html">Conditional vs unconditional lien waivers</a></li>
+      <li><a href="lien-waiver-forms-by-state.html">Lien waiver forms by state</a></li>
+      <li><a href="california-preliminary-notice.html">California 20-day preliminary notice</a></li>
+      <li><a href="lien-waiver-log.html">Lien waiver log (given and collected)</a></li>
+      <li><a href="sworn-statement.html">Contractor's sworn statement builder</a></li>
+      <li><a href="paid-short.html">Paid short? Reconcile the check</a></li>
+      <li><a href="joint-checks.html">Joint check splitter and split letter</a></li>
+      <li><a href="miller-act-payment-bond-claims.html">Miller Act bond claim deadlines (federal jobs)</a></li>
+      <li><a href="pay-app-cash-forecast.html">When will I get paid? Cash forecast</a></li>
+      <li><a href="certificate-of-insurance-for-subcontractors.html">Certificates of insurance (COI)</a></li>
+      </ul>
+    </div>
+</nav>
+<!-- /all-guides -->
+<footer>
+  <p><strong>No warranty.</strong> This guide and calculator are provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, or financial advice, and it does not replace your contract or your accountant. Deposit limits, payment terms and retainage depend on your contract and the law where the job is. You are responsible for verifying anything you invoice or send. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use. Not affiliated with Intuit.</p>
+  <p><strong>Privacy.</strong> No accounts, cookies or analytics vendors. Anonymous counters (<code>guide_progress_billing_viewed</code>, <code>progress_invoice_copied</code>, <code>progress_schedule_csv</code>) are kept in local storage on your device only, and Do Not Track switches them off. <button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Free to use and source available under the <a href="LICENSE">FSL-1.1-MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
+</footer>
+<script type="module" src="sumview.mjs"></script>
+<script type="module">
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+  import { compute, invoiceText, scheduleCsv, dollars, SAMPLE } from "./progress.mjs";
+  record("guide_progress_billing_viewed");
+  const b = document.getElementById("optout");
+  b.addEventListener("click", () => { setUsageOptOut(true); b.textContent = "Usage counting is off"; b.disabled = true; });
+  if (usageOptedOut()) { b.textContent = "Usage counting is off"; b.disabled = true; }
+
+  const $ = (id) => document.getElementById(id);
+  const HEADS = ["Stage", "Share", "Value", "Deposit credit", "Retainage", "Net due", "Status"];
+  const STATUS = { billed: "Billed", done: "Bill now", open: "Not reached" };
+  $("pb-stages").value = SAMPLE;
+  const note = (text) => { const p = document.createElement("p"); p.className = "finding"; p.textContent = text; return p; };
+  function tr(values) {
+    const row = document.createElement("tr");
+    values.forEach((v, i) => { const td = document.createElement("td"); td.dataset.label = HEADS[i]; td.textContent = v; if (i > 0 && i < 6) td.className = "n"; row.append(td); });
+    return row;
+  }
+  let last = null;
+  function render() {
+    const r = compute($("pb-stages").value, { project: $("pb-project").value, contract: $("pb-contract").value, deposit: $("pb-deposit").value, depositApply: $("pb-apply").value, retainage: $("pb-ret").value });
+    $("pb-errors").replaceChildren(...[...r.errors, ...r.warnings].map(note));
+    const ok = !r.errors.length;
+    last = ok ? r : null;
+    $("pb-rows").replaceChildren(...(ok ? r.stages.map((s) => tr([s.name, `${(s.pctOfContract * 100).toFixed(1)}%`, dollars(s.value), dollars(s.credit), dollars(s.retainage), dollars(s.net), STATUS[s.status]])) : []));
+    $("pb-invoice").textContent = ok ? invoiceText(r, { number: $("pb-number").value.trim(), date: new Date().toISOString().slice(0, 10) }) : "";
+    $("pb-copy").disabled = !ok;
+    $("pb-csv").disabled = !ok;
+  }
+  for (const id of ["pb-project", "pb-contract", "pb-deposit", "pb-apply", "pb-ret", "pb-number", "pb-stages"]) $(id).addEventListener("input", render);
+  $("pb-copy").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText($("pb-invoice").textContent); $("pb-copy").textContent = "Copied"; record("progress_invoice_copied"); }
+    catch { $("pb-copy").textContent = "Select the invoice and copy it"; }
+  });
+  $("pb-csv").addEventListener("click", () => {
+    if (!last) return;
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([scheduleCsv(last)], { type: "text/csv" }));
+    a.download = "draw-schedule.csv";
+    a.click();
+    URL.revokeObjectURL(a.href);
+    record("progress_schedule_csv");
+  });
+  render();
+</script>
+</body>
+</html>
