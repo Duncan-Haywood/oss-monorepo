@@ -307,3 +307,73 @@ allow:
     contains: SELLER_BOOKS_BILLING_WEBHOOK_SECRET
     reason: "the Paddle webhook signing secret the seller-books Worker verifies notifications with; pushed with wrangler secret bulk when set, never logged"
     added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: CLOUDFLARE_API_TOKEN
+    reason: "the Cloudflare deploy token under the spelling priv-payapps-deploy.yml and priv-seller-books-deploy.yml already read; deploys Job Shop Quote (bet #2, launch review ventures/jobshop-quote/apps/jobshop-quote/docs/LAUNCH-REVIEW.md before the first run) with wrangler from main only, by hand (D1, R2, Workers, Workers AI); used as stored and exported only after install, tests and build"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: CLOUDFLAREAPITOKEN
+    reason: "alias of CLOUDFLARE_API_TOKEN the owner saved (the other priv-* deploys read the same three names); deploys Job Shop Quote (bet #2) with wrangler from main only, by hand"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: CLOUDFLARERESTRICTEDAPIKEY
+    reason: "alias of CLOUDFLARE_API_TOKEN the owner saved (the other priv-* deploys read the same three names); deploys Job Shop Quote (bet #2) with wrangler from main only, by hand"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: CLOUDFLARE_ACCOUNT_ID
+    reason: "the Cloudflare account id wrangler needs, as priv-payapps-deploy.yml reads it; deploys Job Shop Quote (bet #2) with wrangler from main only, by hand"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: CLOUDFLAREACCOUNTID
+    reason: "alias of CLOUDFLARE_ACCOUNT_ID the owner saved, as priv-payapps-deploy.yml reads it; deploys Job Shop Quote (bet #2) with wrangler from main only, by hand"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: CLOUDFLARE_EMAIL_ROUTING_TOKEN
+    reason: "optional narrower Cloudflare token (Email Routing Rules and Zone Settings edit) for the inbound-RFQ routing step only, which runs only when the variable JOBSHOP_INBOUND_EMAIL=on; exported inside that one step, never logged; applies the reviewed apps/jobshop-quote/email-routing.json"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: JOBSHOP_ANTHROPIC_API_KEY
+    reason: "the app's own Anthropic key for RFQ extraction, pushed to the jobshop-quote Worker with wrangler secret bulk when the owner sets it (no fallback to the shared ANTHROPIC_API_KEY, so no LLM spend starts without that choice); per-shop and global daily caps in wrangler.jsonc bound it"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: JOBSHOP_AUTH_SECRET
+    reason: "optional override of the session-signing key, pushed to the jobshop-quote Worker with wrangler secret bulk from a 0600 temp file deleted in the same step, never logged; when unset the workflow generates one on the Worker"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: JOBSHOP_BILLING_API_KEY
+    reason: "the owner's Paddle key, read only when set, to sync billing/paddle-catalog.json to Paddle and push it to the jobshop-quote Worker (wrangler secret bulk, never logged); when unset paid plans stay dark"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: JOBSHOP_BILLING_PRICE_IDS
+    reason: "fallback Paddle price ids (not credentials) pushed to the jobshop-quote Worker when the catalog sync gives none; wrangler secret bulk, never logged"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: JOBSHOP_BILLING_WEBHOOK_SECRET
+    reason: "the Paddle webhook signing secret the jobshop-quote Worker verifies notifications with; pushed with wrangler secret bulk when set, never logged"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: JOBSHOP_QBO_CLIENT_ID
+    reason: "the owner's Intuit app client id for the QuickBooks connection, pushed to the jobshop-quote Worker when set (wrangler secret bulk, never logged)"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: JOBSHOP_QBO_CLIENT_SECRET
+    reason: "the owner's Intuit app client secret for the QuickBooks connection, pushed to the jobshop-quote Worker when set (wrangler secret bulk, never logged)"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-jobshop-quote-deploy.yml
+    contains: JOBSHOP_QBO_TOKEN_KEY
+    reason: "the key the jobshop-quote Worker encrypts stored QuickBooks tokens with, pushed when set (wrangler secret bulk, never logged)"
+    added: 2026-11-27
