@@ -32,7 +32,8 @@
   "errors": [
     "platform/pages build.test.mjs run together with the construction tests outlasted the 120 s foreground timeout; moved to background",
     "validate (test_promptctl LastChangeIndexTest) red twice on PR #19644; rerun did not help; root cause filed as P095",
-    "payapps CI job and changed-ventures failed on tests outside this diff (a sov/opening-balance UI waitFor timeout, the flake open PR #19638 fixes; test_check_code_point_range temp-dir race); the same suites pass locally"
+    "payapps CI job and changed-ventures failed on tests outside this diff (a sov/opening-balance UI waitFor timeout, the flake open PR #19638 fixes; test_check_code_point_range temp-dir race); the same suites pass locally",
+    "Merge conflict with main: another run (red team) landed the same state-forms.mjs -> cta.mjs fix in parallel; took main's version, regenerated the 12 state pages, and pointed main's new cta.test.mjs CLI test at APP_URL instead of null"
   ],
   "integrity_issues": [],
   "doc_friction": [

@@ -4,7 +4,7 @@ import { execFileSync } from "node:child_process";
 import { copyFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { apply, signupUrl, status } from "./cta.mjs";
+import { APP_URL, apply, signupUrl, status } from "./cta.mjs";
 
 const PAGE = `<main><section class="card cta" id="early-access">
   <h2>Chasing waivers?</h2>
@@ -63,7 +63,7 @@ test("node cta.mjs rewrites a stale page once, then leaves it alone", () => {
     writeFileSync(join(dir, "lien-waiver-log.html"), PAGE);
     const run = () => execFileSync(process.execPath, [join(dir, "cta.mjs")], { encoding: "utf8" });
     assert.equal(run().trim(), "updated lien-waiver-log.html");
-    assert.equal(readFileSync(join(dir, "lien-waiver-log.html"), "utf8"), apply(PAGE, "lien-waiver-log.html", null));
+    assert.equal(readFileSync(join(dir, "lien-waiver-log.html"), "utf8"), apply(PAGE, "lien-waiver-log.html", APP_URL));
     assert.equal(run().trim(), "", "a second run changes nothing");
   } finally {
     rmSync(dir, { recursive: true, force: true });
