@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVNs1i7nL4iA4oqFTck",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T14:55:50Z",
+  "ended": "2026-11-27T15:00:12Z",
+  "wall_minutes": 4.51,
+  "tokens_in": 2430078,
+  "tokens_out": 10250,
+  "cost_usd": 1.3228,
+  "tool_calls": 28,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19779",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/jobshop-quote/apps/jobshop-quote/ROADMAP.md",
+      "issue": "Status still said 'the next run moves the app there' although deploy run 46018975911 had already put it on jobshop-quote.marisstella.app; I only found that from the Actions run list and job log."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "Item 3 showed as free, but its first open ask (the marisstella run) was already done by run 46018975911. A ROADMAP that lags behind deploys sends runs back to repeat work."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new customer post: the change is deploy infrastructure, and open PR #19778 already carries this launch's customer post and the marketing link.",
+      "did": "Recorded the change in the ROADMAP and both DEPLOY.md files instead.",
+      "result": "No duplicate post."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Bet #2 jobshop-quote, launch item 3. Run 46018975911 was already live and healthy on jobshop-quote.marisstella.app (email on, files in D1). Added the push-on-main trigger, the same pattern as payapps. Both manual runs skipped checks, so I ran them locally first: biome ci clean, tsc clean, unit 643/643, worker 289/289, provision and email-routing node tests 21/21. The live host returns 403 through the container proxy, so I could not probe it from here.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f172fd1c-2bcd-54f1-9ea3-4397926937a7",
+    "transcripts": 1,
+    "first": "2026-11-27T14:55:50Z",
+    "last": "2026-11-27T15:00:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 28,
+        "input": 55,
+        "output": 10250,
+        "thinking": 1262,
+        "cache_read": 2349055,
+        "cache_write_5m": 0,
+        "cache_write_1h": 80968,
+        "api_equivalent_usd": 1.3228,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 28,
+      "input": 55,
+      "output": 10250,
+      "thinking": 1262,
+      "cache_read": 2349055,
+      "cache_write_5m": 0,
+      "cache_write_1h": 80968,
+      "api_equivalent_usd": 1.3228,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.967,
+    "tool_calls": 28,
+    "tools": {
+      "Bash": 22,
+      "ToolSearch": 2,
+      "mcp__github__actions_list": 2,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.51,
+      "active_minutes": 4.51,
+      "model_minutes": 2.03,
+      "tool_minutes": 2.48,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 1.0,
+      "basis": "read deploy logs, edit workflow trigger and docs, run the venture's checks",
+      "rate_usd_per_hour": 100.0,
+      "usd": 100.0
+    },
+    "leverage": 75.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
