@@ -46,7 +46,7 @@ version id). A rollback does not undo a migration.
 | `PAYAPPS_EMAIL_FROM` | variable | sender; default `PayApps <no-reply@marisstella.app>`, domain onboarded to Email Service ([EMAIL.md](EMAIL.md)) |
 | `PAYAPPS_AUTH_SECRET` | secret | optional; overrides the generated one |
 | `PAYAPPS_BILLING_PROVIDER` | variable | `paddle` turns checkout on once the two Paddle secrets are set; default `none` ([BILLING.md](BILLING.md)) |
-| `PAYAPPS_BILLING_API_KEY`, `PAYAPPS_BILLING_WEBHOOK_SECRET` | secrets | paid plans |
+| `PAYAPPS_BILLING_API_KEY` (else the shared `BILLING_API_KEY`, then `PADDLE_API_KEY`), `PAYAPPS_BILLING_WEBHOOK_SECRET` | secrets | paid plans |
 | `PAYAPPS_BILLING_PRICE_IDS` | secret | fallback only, when the catalog sync fails |
 | `PAYAPPS_QBO_CLIENT_ID`, `PAYAPPS_QBO_CLIENT_SECRET`, `PAYAPPS_QBO_TOKEN_KEY` | secrets | QuickBooks ([QUICKBOOKS.md](QUICKBOOKS.md)) |
 | `PAYAPPS_QBO_ENVIRONMENT` | variable | `sandbox` (default) or `production` |

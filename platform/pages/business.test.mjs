@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  CONTACT_EMAIL, INDUSTRIES, PRODUCT_LINES, STATUS, buildFirstHref, earlyAccessHref, hardwareLines, industriesWithProducts,
+  CONTACT_EMAIL, INDUSTRIES, PRODUCT_LINES, STATUS, usableSentence, buildFirstHref, earlyAccessHref, hardwareLines, industriesWithProducts,
   industriesWithoutProducts, linesForIndustry, softwareLines,
 } from './business.mjs';
 
@@ -31,6 +31,16 @@ test('only Grant Autopilot is marked live, and only a live line links to a produ
   assert.deepEqual(PRODUCT_LINES.filter((l) => l.status === 'live').map((l) => l.id), ['grant-autopilot']);
   for (const l of PRODUCT_LINES) assert.equal(Boolean(l.href), l.status === 'live', l.id);
   assert.equal(PRODUCT_LINES.find((l) => l.id === 'grant-autopilot').href, 'grants/');
+});
+
+test('open-free lines are the deployed apps, with a sign-up URL and no claim of a sale', () => {
+  const open = PRODUCT_LINES.filter((l) => l.status === 'open-free');
+  assert.deepEqual(open.map((l) => l.id), ['contractor-billing', 'seller-books']);
+  for (const l of PRODUCT_LINES) assert.equal(Boolean(l.appUrl), l.status === 'open-free', `${l.id}: appUrl only on an open-free line`);
+  assert.equal(open[0].appUrl.startsWith('https://payapps.marisstella.app/'), true);
+  assert.equal(open[1].appUrl.startsWith('https://seller-books.marisstella.app/'), true);
+  assert.match(STATUS['open-free'].note, /Nothing is sold yet/);
+  assert.equal(usableSentence(), 'Grant Autopilot is live, and PayApps and Seller Books are open on a free plan.');
 });
 
 test('hardware is long-term and says nothing has been built', () => {

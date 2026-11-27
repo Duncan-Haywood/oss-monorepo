@@ -1,6 +1,6 @@
 // US freelancer tax set-aside, tax year 2026: self-employment tax, federal
-// income tax (standard deduction, brackets, 20% QBI deduction below its
-// threshold), a user-entered flat state rate, and the quarterly 1040-ES
+// income tax (standard deduction, brackets, 20% QBI deduction with its
+// 2026 phase-in), a user-entered flat state rate, and the quarterly 1040-ES
 // safe harbor. Bracket and deduction tables match the other 2026 tools in this
 // repo (Rev. Proc. 2025-32); the IRS decides. Pure functions, no I/O.
 
@@ -11,10 +11,15 @@ export const BRACKETS = {
   hoh: [[17700, 0.10], [67450, 0.12], [105700, 0.22], [201750, 0.24], [256200, 0.32], [640600, 0.35], [Infinity, 0.37]],
 };
 export const STANDARD_DEDUCTION = { single: 16100, mfj: 32200, hoh: 24150 };
-// Above this taxable income (before QBI) the 20% deduction is limited by wages
-// and property for service businesses. Not modelled: no deduction is taken
-// above it, which errs toward setting aside more.
+// Above this taxable income (before QBI) the 20% deduction phases out over
+// QBI_PHASE_IN (IRC 199A(b)(3) and (d)(3); the range widened to $75,000 /
+// $150,000 from 2026). The tool assumes the business pays no W-2 wages and
+// holds no depreciable property, so the wage-and-property limit is $0 and a
+// service business (SSTB) and any other business phase out the same way:
+// 20% of QBI x (1 - excess / range), and nothing past the top of the range.
+// Quality audit 2026-11-20, defect 3: this used to be a cliff at the threshold.
 export const QBI_LIMIT = { single: 201750, mfj: 403500, hoh: 201750 };
+export const QBI_PHASE_IN = { single: 75000, mfj: 150000, hoh: 75000 };
 export const QBI_RATE = 0.2;
 export const SS_WAGE_BASE = 184500;
 export const SS_RATE = 0.124;
@@ -80,9 +85,12 @@ function liability(net, p) {
   const std = STANDARD_DEDUCTION[p.status];
   const beforeQbi = Math.max(0, agi - std);
   let qbi = 0;
-  if (p.qbi && beforeQbi <= QBI_LIMIT[p.status]) {
+  if (p.qbi) {
     const base = Math.max(0, net - se.half);
-    qbi = r2(Math.min(base * QBI_RATE, beforeQbi * QBI_RATE));
+    const excess = Math.max(0, beforeQbi - QBI_LIMIT[p.status]);
+    const range = Object.hasOwn(QBI_PHASE_IN, p.status) ? QBI_PHASE_IN[p.status] : QBI_PHASE_IN.single;
+    const kept = Math.max(0, 1 - excess / range);
+    qbi = r2(Math.min(base * QBI_RATE * kept, beforeQbi * QBI_RATE));
   }
   const taxable = r2(beforeQbi - qbi);
   const federal = incomeTax(taxable, p.status);
@@ -155,7 +163,10 @@ export function compute(input) {
     findings.push({ severity: "medium", title: `You probably owe $${PENALTY_FLOOR.toLocaleString("en-US")} or more after withholding, so the IRS expects estimated payments (Form 1040-ES) on ${DUE_DATES.join(", ")}. Paying at least $${needed.toFixed(2)} in total (${safe !== null && safe < ninety ? `${agiForSafe > 150000 ? "110%" : "100%"} of last year's tax${priorAgi === null ? ", judged on this year's AGI since last year's was not entered" : ""}` : "90% of this year's federal tax"}) avoids the federal underpayment penalty (your state has its own estimated-tax rules). ${withheld > 0 ? `Withholding on your wages counts toward it: if it equals the tax on the wages alone (about $${withheld.toFixed(2)}), about $${estimates.toFixed(2)} is left for estimates, $${r2(estimates / 4).toFixed(2)} a quarter.` : `The even split is about $${r2(needed / 4).toFixed(2)} per quarter.`}` });
   }
   if (!p.qbi) findings.push({ severity: "info", title: "The 20% qualified business income deduction is switched off, so the federal figure is higher than most sole proprietors will see." });
-  else if (L.qbi === 0 && net > 0 && L.taxable > QBI_LIMIT[status]) findings.push({ severity: "info", title: `Taxable income is above the $${QBI_LIMIT[status].toLocaleString("en-US")} line where the QBI deduction is limited by business type, wages and property. This tool takes no QBI deduction there, which errs toward saving more. A tax professional can tell you what you qualify for.` });
+  else if (net > 0 && L.taxable + L.qbi > QBI_LIMIT[status]) {
+    const top = QBI_LIMIT[status] + QBI_PHASE_IN[status];
+    findings.push({ severity: "info", title: `Taxable income before the QBI deduction passes $${QBI_LIMIT[status].toLocaleString("en-US")}, so the 20% deduction phases out ${L.qbi === 0 ? `fully by $${top.toLocaleString("en-US")}: this tool takes none` : `between there and $${top.toLocaleString("en-US")}: this tool takes $${L.qbi.toFixed(2)}`}. It assumes your business pays no W-2 wages and owns no equipment or property; if it does, a business that is not a specified service can keep more of the deduction. A tax professional can tell you what you qualify for.` });
+  }
   if (w2 + other > 0) findings.push({ severity: "info", title: `Of $${L.totalAll.toFixed(2)} total tax on all your income this year, $${r2(L.totalAll - total).toFixed(2)} is the tax on your W-2 wages and other income alone, which the set-aside assumes your paycheck withholding already covers. If nothing is withheld from that income, set that aside too, or raise your W-4 withholding.` });
   if (L.se.additional > 0) findings.push({ severity: "info", title: `Additional Medicare Tax of $${L.se.additional.toFixed(2)} (0.9%) is included because earnings pass $${ADDITIONAL_MEDICARE_THRESHOLD[status].toLocaleString("en-US")}.` });
   findings.push({ severity: "info", title: "State tax is a flat share of profit after half of self-employment tax, using the rate you entered. Real state brackets, local tax and credits differ, so treat it as a planning number." });

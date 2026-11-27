@@ -21,7 +21,7 @@ instead, whatever --repo says, so its claims live on this repository's origin. A
 shown as stale, and --claim on it takes a fresh generation (`<slug>--2`), since the run
 that made it has ended. A claim whose slug a later commit subject on origin/main names
 (the PR title, punctuation ignored) is shown as MERGED and is no sibling. A claim records a hash of the session id, so re-running --claim on
-your own claim prints YOURS (exit 0), not TAKEN. An app with no ROADMAP.md, or work not on its Next list, takes --slug alone (`--claim 0 --slug X` means the same). A free item whose text says it waits ("if people ask", "once real companies are counted", "once ... reachable", "the owner runs", "if those ever exist")
+your own claim prints YOURS (exit 0), not TAKEN. An app with no ROADMAP.md, or work not on its Next list, takes --slug alone (`--claim 0 --slug X` means the same). A number the Next list uses twice is refused unless --slug names the one meant. A free item whose text says it waits ("if people ask", "once real companies are counted", "once ... reachable", "the owner runs", "if those ever exist", "on a Windows PC", "a real iPhone photo")
 is listed as gated with the phrase quoted (an item that mixes asks is gated only when every
 open ask waits; the listing names the open one), and the listing ends with the free, ungated item numbers. A --slug whose
 words match a fresh rival claim's (pages-shop-time-zone vs page-dates-shop-time-zone) is
@@ -183,6 +183,13 @@ GATES = (
         r"\bnative[- ](?:\w+[- ])?(?:speakers?|reviewers?|readers?)\b|"
         r"(?<!no )\bhuman (?:reviewers?|translators?|read(?:er)?s?|review)\b|"
         r"(?<!no )\b(?:lawyer|attorney|accountant|CPA)(?:'s)? (?:review|read|sign-off)\b", re.I)),
+    # A check only a physical device can do: payapps #11 ("check it on a Windows PC and an
+    # Android phone with a real iPhone photo") was --bets' only free pick on 2026-11-27, and
+    # eight sessions that day were sent to it from a cloud container with no such device.
+    ("waits on a device", re.compile(
+        r"\b(?:on|with|from) (?:a |an )?(?:real|physical) (?:[\w-]+ ){0,2}?(?:devices?|phones?|"
+        r"iPhones?|iPads?|tablets?|PCs?|Macs?|printers?|scanners?|photos?)\b|"
+        r"\bon (?:a |an )?(?:Windows PC|Mac(?:Book)?|iPhone|iPad|Android (?:phone|tablet|device))\b", re.I)),
     ("waits on evidence", re.compile(
         r"\bonly if\b[^.;()]{0,60}\b(?:a market|worth)\b|"
         r"\bif\b[^.;()]{0,60}?\b(?:ever|turns? up|shows? up|proves?|turns? out)\b|"
@@ -363,7 +370,7 @@ def ask_gates(text: str, reach: dict[str, str] | None = None) -> list[tuple[str,
 
 def gate(text: str) -> str | None:
     """Why an item waits ("waits on demand", "waits on a source", "owner step",
-    "waits on a person", "waits on evidence"), or None."""
+    "waits on a person", "waits on a device", "waits on evidence"), or None."""
     hit = gate_match(text)
     return hit[0] if hit else None
 
@@ -910,7 +917,18 @@ def main(argv: list[str] | None = None) -> int:
             print(f"item {a.claim} is not in this Next list ({sorted(by_num)}); "
                   f"for work not on the list, pass --slug <name> without --claim")
             return 2
-        title = by_num.get(a.claim, a.slug or "")[:120]
+        twins = [t for n, t in items if n == a.claim]
+        if len(twins) > 1 and not a.slug:
+            # jobshop-quote's Next numbered two items 15 (2026-11-27); dict(items) kept the
+            # second, so `--claim 15` silently claimed whichever came last.
+            print(f"item {a.claim} is numbered twice in this Next list; pass the one you mean "
+                  f"with --slug:")
+            for t in twins:
+                print(f"  --claim {a.claim} --slug {slugify(t)}")
+            return 2
+        title = (next((t for t in twins if slugify(t) == slugify(a.slug)), None) if a.slug and twins
+                 else None) or by_num.get(a.claim, a.slug or "")[:120]
+        title = title[:120]
         slug = slugify(a.slug) if a.slug else slugify(title)
         gen = 1
         if slug in claims:

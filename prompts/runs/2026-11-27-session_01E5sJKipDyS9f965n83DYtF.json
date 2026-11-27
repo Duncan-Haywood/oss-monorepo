@@ -40,7 +40,7 @@
     },
     {
       "file": "prompts/process/backlog/",
-      "issue": "Two runs took P096 the same day (PR #19687 and PR #19635); nothing reserves a backlog id, so a long-lived PR collides with one merged later. Renumbered to P098 here (main took P097 too while this PR waited on a queued gate)."
+      "issue": "Two runs took P096 the same day (PR #19687 and PR #19635); nothing reserves a backlog id, so a long-lived PR collides with one merged later. Renumbered three times, ending at P099, as main took P096-P098 while this PR waited on queued gates."
     },
     {
       "file": ".github/prompts/land-your-work.md",

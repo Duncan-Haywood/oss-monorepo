@@ -80,6 +80,7 @@ also refuses it when `APP_ENV=production`.
 ## Differences from jobshop-quote
 
 - Account mail only (`CMMC_EMAIL_FROM`, docs/EMAIL.md): no inbound-mail domain.
-- No Workers AI, rate-limiting namespaces or cron in the config.
+- No Workers AI or rate-limiting namespaces. One daily cron (11:23 UTC, the affirmation reminder
+  email), which counts toward the account's cron-trigger limit (`python3 platform/ci/cron_budget.py`).
 - The smoke test checks `billing` as well as `email`.
 - Settings are prefixed `CMMC_` so their keys and spend are separate from the other apps'.

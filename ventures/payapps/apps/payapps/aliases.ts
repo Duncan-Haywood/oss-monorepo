@@ -16,6 +16,10 @@ export const alias = {
   "@lien-waivers/words": fileURLToPath(
     new URL("../../packages/lien-waivers/src/words.ts", import.meta.url),
   ),
+  // Texas lien deadlines alone (pure date math, no form text), for the browser, likewise.
+  "@lien-waivers/tx-dates": fileURLToPath(
+    new URL("../../packages/lien-waivers/src/tx-dates.ts", import.meta.url),
+  ),
   // Lien waiver forms (packages/lien-waivers), consumed as source the same way.
   "@lien-waivers": fileURLToPath(
     new URL("../../packages/lien-waivers/src/index.ts", import.meta.url),

@@ -195,6 +195,16 @@ export function falloutBpsFromText(text: string): number | undefined | "invalid"
   return bps <= MAX_FALLOUT_BPS ? bps : "invalid";
 }
 
+/**
+ * The shop settings' "Default fallout %" box: blank or 0 is no default (null), "3" or "2.5%" is
+ * 300 or 250 bps, anything else (or above MAX_FALLOUT_BPS) "invalid".
+ */
+export function defaultFalloutBpsFromText(text: string): number | null | "invalid" {
+  const bps = falloutBpsFromText(text);
+  if (bps === "invalid") return "invalid";
+  return bps ? bps : null;
+}
+
 /** Parts to start so `quantity` good parts ship at `falloutBps` expected fallout. */
 export function startsFor(quantity: number, falloutBps: number | undefined): number {
   if (!falloutBps || falloutBps <= 0) return quantity;
