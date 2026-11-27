@@ -98,7 +98,8 @@ RESIDUE = re.compile(r"FSL|Functional Source|open[- ]source|self-host|host it yo
 TEXT_EXT = {".html", ".htm", ".md", ".txt", ".mjs", ".js", ".cjs", ".ts", ".tsx",
             ".jsx", ".json", ".toml", ".yaml", ".yml", ".py", ".xml", ".webmanifest"}
 LICENSE_NAMES = {"LICENSE", "LICENSE.md", "LICENSE.txt", "LICENCE", "LICENCE.md"}
-SKIP_DIRS = ("node_modules/", "/vendor/", "/third_party/", "/eval/", "/fixtures/", "/samples/")
+SKIP_DIRS = ("node_modules/", "/vendor/", "/third_party/", "/eval/", "/fixtures/", "/samples/",
+             "sales-export-to-journal/engines/")  # engines: byte copies of free tools (copy-engines.mjs)
 SKIP_FILES = {"package-lock.json", "pnpm-lock.yaml", "yarn.lock", "third_party.json", "THIRD_PARTY.md",
               "PROVENANCE.md", "paddle.mjs"}  # paddle.mjs: a byte copy of platform/billing/client.mjs (sync.mjs)
 
