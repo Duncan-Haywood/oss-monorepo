@@ -114,15 +114,30 @@ function planPrices(): string {
   ).join("; ");
 }
 
+/**
+ * Cuts every script, style, form and nav element, opening tag to matching closing tag, by
+ * scanning rather than one regex pass (which can join the halves of a removed tag). An element
+ * left open drops the rest of the text.
+ */
+function dropBlocks(html: string): string {
+  const lower = html.toLowerCase();
+  const open = /<(script|style|form|nav)\b/gi;
+  let out = "";
+  let at = 0;
+  for (let m = open.exec(html); m; m = open.exec(html)) {
+    out += html.slice(at, m.index);
+    const close = `</${(m[1] ?? "").toLowerCase()}>`;
+    const end = lower.indexOf(close, m.index);
+    if (end < 0) return out;
+    at = end + close.length;
+    open.lastIndex = at;
+  }
+  return out + html.slice(at);
+}
+
 /** The pages' <main> as Markdown, for llms-full.txt. Deliberately small: our own markup only. */
 export function htmlToMarkdown(input: string): string {
-  // Repeated until nothing changes: one pass can join the halves of a tag it removed.
-  let text = input;
-  let prev: string;
-  do {
-    prev = text;
-    text = text.replace(/<(script|style|form|nav)\b[\s\S]*?<\/\1>/gi, "");
-  } while (text !== prev);
+  const text = dropBlocks(input);
   return (
     text
       .replace(/<h1[^>]*>([\s\S]*?)<\/h1>/gi, "\n# $1\n\n")

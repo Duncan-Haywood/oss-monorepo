@@ -30,7 +30,7 @@
   "merged": null,
   "ci_failures_before_green": 12,
   "review_findings": null,
-  "tests_added": 0,
+  "tests_added": 1,
   "outcome": "partial",
   "errors": [
     "payapps-ci first run: pnpm install --filter ran in apps/payapps (the job's default working-directory), matched nothing, so biome was missing; fixed by installing from the root",
@@ -83,7 +83,7 @@
   ],
   "writeups": [],
   "goal": "$10k MRR: PayApps is launch-approved but could not deploy because the private repo's Actions start no jobs; this repo's do",
-  "notes": "PR #19571 moved PayApps to top-level apps/ (private 0c4bf8e8, prepub audit 0 block) and went green on everything but CodeQL after fixing BOMs, gate-tripping comment text, harness paths, publish-surface, third-party, check_code_refs; CodeQL JS then found 4 high alerts in the moved code. Meanwhile #19586 (ventures/payapps) merged, so #19571 was closed as superseded. This PR applies the fixes to ventures/payapps: ca-ecpr notes and payapps-site htmlToMarkdown strip in a fixpoint loop and drop stray brackets, htmlToMarkdown no longer decodes &lt;/&gt; after stripping (llms-full.txt had none, so output unchanged), paddle.test compares the parsed host. Local: payapps-site biome/tsc/unit 21/worker 10; payapps biome/tsc/ca-ecpr tests 9+1 skipped; billing node tests 86 pass.",
+  "notes": "PR #19571 moved PayApps to top-level apps/ (private 0c4bf8e8, prepub audit 0 block) and went green on everything but CodeQL after fixing BOMs, gate-tripping comment text, harness paths, publish-surface, third-party, check_code_refs; CodeQL JS then found 4 high alerts in the moved code. Meanwhile #19586 (ventures/payapps) merged, so #19571 was closed as superseded. This PR applies the fixes to ventures/payapps: ca-ecpr notes and payapps-site htmlToMarkdown strip in a fixpoint loop and drop stray brackets, htmlToMarkdown no longer decodes &lt;/&gt; after stripping (llms-full.txt had none, so output unchanged), paddle.test compares the parsed host. Local: payapps-site biome/tsc/unit 21/worker 10; payapps biome/tsc/ca-ecpr tests 9+1 skipped; billing node tests 86 pass. CodeQL still flagged the fixpoint-loop regex in htmlToMarkdown (it does not recognise that loop with a backreference), so blocks are now cut by an exec/indexOf scan (dropBlocks), with a test for a removed block joining the halves of a tag; site unit 22, worker 10.",
   "corrections": [],
   "redteam": null,
   "usage": {
