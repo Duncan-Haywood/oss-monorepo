@@ -191,7 +191,9 @@ export const LEGAL_DIRS = ['privacy', 'terms', 'cookies'];
 export const PAYAPPS_SITE_DIR = 'payapps';
 // Seller Books' own marketing site, built and copied in by seller-books-site.mjs (paid bet #5).
 export const SELLER_BOOKS_SITE_DIR = 'seller-books';
-export const SITE_OWN_DIRS = new Set([PAYAPPS_SITE_DIR, SELLER_BOOKS_SITE_DIR, ...LEGAL_DIRS, HARDWARE_DIR, CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, LAB_DIR, SHOWCASE_DIR, FEEDBACK_DIR, CUSTOM_DEV_DIR, ASK_DIR, STORIES_DIR, INDUSTRIES_DIR, PRODUCTS_DIR]);
+// Job Shop Quote's own marketing site, copied in whole by jobshop-site.mjs: the same kind.
+export const JOBSHOP_SITE_DIR = 'jobshop';
+export const SITE_OWN_DIRS = new Set([PAYAPPS_SITE_DIR, SELLER_BOOKS_SITE_DIR, JOBSHOP_SITE_DIR, ...LEGAL_DIRS, HARDWARE_DIR, CATEGORY_DIR, ABOUT_DIR, COMPARE_DIR, GUIDES_DIR, RESEARCH_DIR, ENGINEERING_DIR, WRITING_DIR, UPDATES_DIR, CHANGELOG_DIR, QUEUE_DIR, LAB_DIR, SHOWCASE_DIR, FEEDBACK_DIR, CUSTOM_DEV_DIR, ASK_DIR, STORIES_DIR, INDUSTRIES_DIR, PRODUCTS_DIR]);
 
 // CMMC Workspace's own marketing site, built in by cmmc-site.mjs: a site page, not a free tool.
 export const CMMC_SITE_DIR = 'cmmc';
@@ -910,11 +912,14 @@ export async function checkSite(site, { minProducts = 1, pageCache = null } = {}
 
   // PayApps' marketing site: every page carries the disclaimer (its footer); reachability comes
   // from the construction page's link and the sitemap index, checked by the walk below.
-  for (const name of await fs.readdir(path.join(site, PAYAPPS_SITE_DIR)).catch(() => [])) {
-    if (!name.endsWith('.html')) continue;
-    const relative = path.join(PAYAPPS_SITE_DIR, name);
-    const html = await fs.readFile(path.join(site, relative), 'utf8');
-    if (!DISCLAIMER_MARKER.test(html)) problems.push(`${relative}: carries no disclaimer, so it must not ship`);
+  // Job Shop Quote's (jobshop-site.mjs) likewise, linked from the manufacturing page.
+  for (const dir of [PAYAPPS_SITE_DIR, JOBSHOP_SITE_DIR]) {
+    for (const name of await fs.readdir(path.join(site, dir)).catch(() => [])) {
+      if (!name.endsWith('.html')) continue;
+      const relative = path.join(dir, name);
+      const html = await fs.readFile(path.join(site, relative), 'utf8');
+      if (!DISCLAIMER_MARKER.test(html)) problems.push(`${relative}: carries no disclaimer, so it must not ship`);
+    }
   }
   // Seller Books' marketing site: the same, with its platform pages one level down.
   for (const name of await fs.readdir(path.join(site, SELLER_BOOKS_SITE_DIR), { recursive: true }).catch(() => [])) {

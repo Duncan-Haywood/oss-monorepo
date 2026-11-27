@@ -464,14 +464,19 @@ address stops it whatever the setting says.
   and what it holds. `pro/digest.test.mjs` checks no client name, VAT id, reference or file name
   reaches the text in any language.
 - **Sending:** `POST /v1/admin/digest/send {frequency: "weekly"|"monthly", period?, limit?}` with
-  `ADMIN_TOKEN`, as the month-end usage settlement: nothing runs on a timer. Each account and
+  `ADMIN_TOKEN`, as the month-end usage settlement (or the schedule below). Each account and
   period (`2026-W48`, ISO week in UTC; `2026-11`) is claimed in the store first (`digest_sends`,
   all four stores), so a repeated call sends nothing twice; a failed send releases its claim and
   the next call retries it. At most `limit` sends per call (default 40, a Worker request's
   subrequest budget); `more: true` says to call again. An account with no clients is claimed and
   skipped (`no_clients`). 503 `email_unavailable` until a mailer and `APP_URL` are set.
-- **Not done:** a schedule (a Worker cron calling the same function, once the deploy has run and the
-  owner agrees to an unattended send), per-client detail in the email (needs the DPA and Annex III
+- **Schedule (2026-11-27, off):** on the Worker, `DigestClock` (`worker/digest-clock.mjs`) calls the
+  same `sendDigests` hourly: weekly from 07:00 UTC Monday, monthly from 07:00 UTC on the 1st, up to
+  2 (weekly) or 3 (monthly) days late, never later. Failed sends are retried on the next two runs.
+  It does nothing until the Worker variable `DIGEST_SCHEDULE` is `on`, which is the owner's
+  decision (an unattended send); until then, post to the admin endpoint. The Node container has
+  no scheduler. `../docs/HOSTING.md`, "The client summary clock".
+- **Not done:** per-client detail in the email (needs the DPA and Annex III
   change above), and the native-speaker read of the four non-English texts.
 
 Tests: `pro/digest.test.mjs` (periods, the text in five languages, the opt-in and the send on a

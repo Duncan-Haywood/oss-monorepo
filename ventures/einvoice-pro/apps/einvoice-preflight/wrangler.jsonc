@@ -23,6 +23,16 @@
   "d1_databases": [{ "binding": "DB", "database_name": "einvoice-pro" }],
   // The metered plan's month-end settlement runs on SettleClock's alarm (worker/settle-clock.mjs),
   // not a cron trigger: the account's 5 cron triggers are in use (platform/ci/cron_budget.py).
-  "durable_objects": { "bindings": [{ "name": "SETTLE_CLOCK", "class_name": "SettleClock" }] },
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["SettleClock"] }]
+  // The client summary email runs on DigestClock's alarm (worker/digest-clock.mjs), off unless the
+  // variable DIGEST_SCHEDULE is "on" (the owner's call: an unattended send).
+  "durable_objects": {
+    "bindings": [
+      { "name": "SETTLE_CLOCK", "class_name": "SettleClock" },
+      { "name": "DIGEST_CLOCK", "class_name": "DigestClock" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["SettleClock"] },
+    { "tag": "v2", "new_sqlite_classes": ["DigestClock"] }
+  ]
 }

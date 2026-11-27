@@ -247,6 +247,23 @@ describe("syncCatalog against a fake Paddle", () => {
     );
   });
 
+  it("never follows a next page on another host with the API key", async () => {
+    const base = "https://sandbox-api.paddle.com";
+    const seen: string[] = [];
+    const c = new PaddleCatalogClient("pdl_sdbx_apikey_test", {
+      fetch: (async (input: string | URL | Request) => {
+        seen.push(String(input));
+        return Response.json({
+          data: [],
+          meta: { pagination: { has_more: true, next: "https://evil.example/products?after=x" } },
+        });
+      }) as typeof fetch,
+      baseUrl: base,
+    });
+    await assert.rejects(c.listProducts(), /next page outside the API base/);
+    assert.deepEqual(seen, [`${base}/products?status=active&per_page=200`]);
+  });
+
   it("an API error never echoes the key", async () => {
     const wrong = new PaddleCatalogClient("pdl_sdbx_apikey_wrong", {
       fetch: ((i: string, init: RequestInit) => fetch(i, init)) as typeof fetch,

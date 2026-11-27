@@ -15,7 +15,12 @@
 // (apps/jobshop-quote/src/client/router.tsx) and `from` names the page that sent the visitor, for a
 // later sign-up source report (the app ignores it today).
 //
-// The CMMC workspace (bet #4) is not open: set CMMC_APP_URL when its deploy answers healthy.
+// CMMC Workspace (bet #4) opened on its free Level 1 plan with cmmc-deploy run 46022366507
+// (2026-11-27, https://cmmc.marisstella.app, health `{"ok":true,"email":true,"files":"d1"}`), so
+// CMMC_APP_URL is set. Its link is `<app>/signup?from=machine-shop-guides/<page>`: `/signup` opens
+// "Create account" (apps/cmmc/src/client/lib/auth-mode.ts, as the cmmc-site links do). Its free plan is the one in
+// apps/cmmc/src/shared/plans.ts (`free`); Level 2, with the SPRS score and POA&M, is paid and not on
+// sale, and the status says so (cta.test.mjs reads that file).
 //
 // Copy rules (ventures/jobshop-quote/apps/jobshop-site/README.md): no customer counts, ratings or
 // outcomes; only what the Free plan does today (apps/jobshop-quote/src/shared/plans.ts, `free`);
@@ -31,8 +36,8 @@ export const JOBSHOP_APP_URL = "https://jobshop-quote.marisstella.app";
 export const PAID_PLANS_ON = false;
 /** True once "Extract with AI" has its key in production. */
 export const AI_EXTRACTION_ON = false;
-/** The CMMC workspace's origin once it is open; null while it is not. */
-export const CMMC_APP_URL = null;
+/** CMMC Workspace's origin (cmmc-deploy run 46022366507). null shows "not released yet". */
+export const CMMC_APP_URL = "https://cmmc.marisstella.app";
 
 const INDUSTRY = "https://marisstella.app/industries/manufacturing/";
 
@@ -48,6 +53,13 @@ export function signupUrl(appUrl, page) {
   const name = page.replace(/\.html$/, "");
   const from = name === "index" ? "machine-shop-guides" : `machine-shop-guides/${name}`;
   return `${appUrl.replace(/\/+$/, "")}/sign-up?from=${encodeURIComponent(from)}`;
+}
+
+/** CMMC Workspace's sign-up link: `/signup` opens "Create account". */
+export function cmmcSignupUrl(cmmcUrl, page) {
+  const name = page.replace(/\.html$/, "");
+  const from = name === "index" ? "machine-shop-guides" : `machine-shop-guides/${name}`;
+  return `${cmmcUrl.replace(/\/+$/, "")}/signup?from=${encodeURIComponent(from)}`;
 }
 
 export function heading(appUrl = JOBSHOP_APP_URL, cmmcUrl = CMMC_APP_URL) {
@@ -68,7 +80,7 @@ export function status(page, opts = {}) {
     ? ""
     : " Reading an RFQ with AI is not switched on yet: you enter the part and the app prices it from your rate card, measures STEP, DXF, STL and IGES files, and writes the quote PDF.";
   const cmmc = cmmcUrl
-    ? ` The <strong>CMMC workspace</strong> is open too: <a href="${cmmcUrl.replace(/\/+$/, "")}/">start it here</a>.`
+    ? ` The CMMC Level 1/2 and ISO 9001 workspace, <strong>CMMC Workspace</strong>, is open too: free on Level 1 (the 15 FAR 52.204-21 safeguards, their evidence and the SSP, for 1 user, no card); Level 2, with the SPRS score and the POA&amp;M, is a paid plan that is not on sale yet. <a href="${cmmcSignupUrl(cmmcUrl, page).replace(/&/g, "&amp;")}">Start free in CMMC Workspace</a>. Both are on the <a href="${INDUSTRY}">manufacturing page</a>.`
     : ` The CMMC workspace is not released yet; read what is planned on the <a href="${INDUSTRY}">manufacturing page</a>.`;
   return `The RFQ-to-quote assistant, <strong>Job Shop Quote</strong>, is <strong>open now</strong>: ${plan}.${ai} <a href="${link}">Start free in Job Shop Quote</a>.${cmmc}`;
 }
