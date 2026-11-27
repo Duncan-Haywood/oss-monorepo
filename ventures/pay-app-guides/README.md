@@ -6,7 +6,7 @@ Free front door for paid bet #1, pay-app billing for specialty subcontractors
 "lien waiver" lands here; every page ends with an honest CTA to the hosted
 product, PayApps, which is **open on the Free plan** (one active job; paid
 plans not on sale yet) since 2026-11-27 at
-<https://payapps.duncan-andrew-haywood.workers.dev/?signup> (`APP_URL` in `cta.mjs`).
+<https://payapps.marisstella.app/?signup> (`APP_URL` in `cta.mjs`).
 
 Live: <https://marisstella.app/pay-app-guides/>
 
