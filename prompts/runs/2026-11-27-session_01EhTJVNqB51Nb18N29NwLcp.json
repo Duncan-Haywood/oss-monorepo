@@ -39,6 +39,10 @@
     {
       "file": "ventures/payapps/apps/payapps-site/test/unit/legal.test.ts",
       "issue": "The local payapps-site typecheck failed at line 62 because my branch's base predated main's String(terms) fix. Merging main cleared it, so check main before calling a failure pre-existing."
+    },
+    {
+      "file": "platform/ci/adversarial_gate/gate.py",
+      "issue": "new-outbound-host treats the word 'fetched' in a comment as a network call (NET_CALL matches \\bfetch), so link-only gov URLs in a file became a block. I reworded the comment rather than allowlisting; the NET_CALL regex could require 'fetch(' instead."
     }
   ],
   "deviations": [
