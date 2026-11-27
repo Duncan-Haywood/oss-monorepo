@@ -1,3 +1,7 @@
+---
+kind: note
+date: 2026-11-27
+---
 # PayApps launch switch for the free guides (bet #1)
 
 2026-11-27, ventures run. For whoever runs the first good `payapps-deploy`.
