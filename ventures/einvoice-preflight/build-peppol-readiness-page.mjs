@@ -23,7 +23,7 @@ export function changesTable() {
     }
   }
   const body = [...rows.values()].map((r) => `<tr><td><code>${esc(r.id)}</code></td><td>${esc(r.syntaxes.join(", "))}</td><td>${esc(r.change)}</td><td class="${r.flag === "fatal" ? "fatal" : "warning"}">${esc(r.flag)}</td><td>${esc(r.text)}</td></tr>`);
-  return `<table><thead><tr><th>Rule</th><th>Syntax</th><th>Change</th><th>Severity in 3.1.0</th><th>Rule text (3.1.0)</th></tr></thead><tbody>\n${body.join("\n")}\n</tbody></table>`;
+  return `<table class="stack"><thead><tr><th>Rule</th><th>Syntax</th><th>Change</th><th>Severity in 3.1.0</th><th>Rule text (3.1.0)</th></tr></thead><tbody>\n${body.join("\n")}\n</tbody></table>`;
 }
 
 export function renderPage(html = readFileSync(PAGE, "utf8")) {

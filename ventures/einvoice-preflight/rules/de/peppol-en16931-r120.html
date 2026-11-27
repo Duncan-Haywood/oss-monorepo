@@ -12,7 +12,7 @@
 <meta property="og:title" content="PEPPOL-EN16931-R120: Peppol BIS erklärt">
 <meta property="og:description" content="PEPPOL-EN16931-R120: In jeder Position muss der Nettobetrag (BT-131) gleich Menge (BT-129) mal Nettopreis (BT-146) geteilt durch die Basismenge des Preises…">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Was bedeutet PEPPOL-EN16931-R120?","acceptedAnswer":{"@type":"Answer","text":"In jeder Position muss der Nettobetrag (BT-131) gleich Menge (BT-129) mal Nettopreis (BT-146) geteilt durch die Basismenge des Preises (BT-149) plus Zuschläge (BT-141) minus Abschläge (BT-136) der Position sein. Eine Abweichung bis 0,02 wird toleriert. Die Zu- und Abschläge werden summiert und auf zwei Nachkommastellen gerundet; fehlt die Menge oder die Basismenge, zählt sie als 1, ein fehlender Preis als 0."}},{"@type":"Question","name":"Wie behebe ich PEPPOL-EN16931-R120?","acceptedAnswer":{"@type":"Answer","text":"Rechnen Sie nach: Menge x Preis / Basismenge + Zuschläge - Abschläge, auf zwei Nachkommastellen gerundet, und tragen Sie das Ergebnis in cbc:LineExtensionAmount ein. Gilt der Preis pro 100 Stück, geben Sie cbc:BaseQuantity 100 mit derselben Mengeneinheit wie bei der Menge an. Geben Sie den Stückpreis mit so vielen Nachkommastellen an, dass die Rechnung aufgeht, oder berücksichtigen Sie jeden Rabatt nur einmal (im Preis oder als Abschlag)."}}]}</script>
-<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}pre .ln{display:block;padding-left:calc((var(--i) + 2) * 1ch);text-indent:calc((var(--i) + 2) * -1ch)}@media (max-width:700px){pre{white-space:pre-wrap;overflow-wrap:anywhere}}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
 </head><body><main>
 <header>
 <p class="eyebrow">E-Rechnungs-Prüfregel erklärt · Peppol BIS</p>
@@ -48,30 +48,7 @@
 </ol>
 <h2>Korrigiertes XML (minimales Beispiel von uns)</h2>
 <p><strong>UBL</strong></p>
-<pre><code>&lt;cac:InvoiceLine&gt;
-  &lt;cbc:ID&gt;1&lt;/cbc:ID&gt;
-  &lt;cbc:InvoicedQuantity unitCode=&quot;C62&quot;&gt;10&lt;/cbc:InvoicedQuantity&gt;
-  &lt;cbc:LineExtensionAmount currencyID=&quot;EUR&quot;&gt;245.00&lt;/cbc:LineExtensionAmount&gt;
-  &lt;cac:AllowanceCharge&gt;
-    &lt;cbc:ChargeIndicator&gt;false&lt;/cbc:ChargeIndicator&gt;
-    &lt;cbc:AllowanceChargeReason&gt;Discount&lt;/cbc:AllowanceChargeReason&gt;
-    &lt;cbc:Amount currencyID=&quot;EUR&quot;&gt;5.00&lt;/cbc:Amount&gt;
-  &lt;/cac:AllowanceCharge&gt;
-  &lt;cac:Item&gt;
-    &lt;cbc:Name&gt;Widget&lt;/cbc:Name&gt;
-    &lt;cac:ClassifiedTaxCategory&gt;
-      &lt;cbc:ID&gt;S&lt;/cbc:ID&gt;
-      &lt;cbc:Percent&gt;19&lt;/cbc:Percent&gt;
-      &lt;cac:TaxScheme&gt;
-        &lt;cbc:ID&gt;VAT&lt;/cbc:ID&gt;
-      &lt;/cac:TaxScheme&gt;
-    &lt;/cac:ClassifiedTaxCategory&gt;
-  &lt;/cac:Item&gt;
-  &lt;cac:Price&gt;
-    &lt;cbc:PriceAmount currencyID=&quot;EUR&quot;&gt;25.00&lt;/cbc:PriceAmount&gt;
-    &lt;cbc:BaseQuantity unitCode=&quot;C62&quot;&gt;1&lt;/cbc:BaseQuantity&gt;
-  &lt;/cac:Price&gt;
-&lt;/cac:InvoiceLine&gt;</code></pre>
+<pre><code><span class="ln" style="--i:0">&lt;cac:InvoiceLine&gt;</span><span class="ln" style="--i:2">  &lt;cbc:ID&gt;1<wbr>&lt;/cbc:ID&gt;</span><span class="ln" style="--i:2">  &lt;cbc:InvoicedQuantity unitCode=&quot;C62&quot;&gt;10<wbr>&lt;/cbc:InvoicedQuantity&gt;</span><span class="ln" style="--i:2">  &lt;cbc:LineExtensionAmount currencyID=&quot;EUR&quot;&gt;245.00<wbr>&lt;/cbc:LineExtensionAmount&gt;</span><span class="ln" style="--i:2">  &lt;cac:AllowanceCharge&gt;</span><span class="ln" style="--i:4">    &lt;cbc:ChargeIndicator&gt;false<wbr>&lt;/cbc:ChargeIndicator&gt;</span><span class="ln" style="--i:4">    &lt;cbc:AllowanceChargeReason&gt;Discount<wbr>&lt;/cbc:AllowanceChargeReason&gt;</span><span class="ln" style="--i:4">    &lt;cbc:Amount currencyID=&quot;EUR&quot;&gt;5.00<wbr>&lt;/cbc:Amount&gt;</span><span class="ln" style="--i:2">  &lt;/cac:AllowanceCharge&gt;</span><span class="ln" style="--i:2">  &lt;cac:Item&gt;</span><span class="ln" style="--i:4">    &lt;cbc:Name&gt;Widget<wbr>&lt;/cbc:Name&gt;</span><span class="ln" style="--i:4">    &lt;cac:ClassifiedTaxCategory&gt;</span><span class="ln" style="--i:6">      &lt;cbc:ID&gt;S<wbr>&lt;/cbc:ID&gt;</span><span class="ln" style="--i:6">      &lt;cbc:Percent&gt;19<wbr>&lt;/cbc:Percent&gt;</span><span class="ln" style="--i:6">      &lt;cac:TaxScheme&gt;</span><span class="ln" style="--i:8">        &lt;cbc:ID&gt;VAT<wbr>&lt;/cbc:ID&gt;</span><span class="ln" style="--i:6">      &lt;/cac:TaxScheme&gt;</span><span class="ln" style="--i:4">    &lt;/cac:ClassifiedTaxCategory&gt;</span><span class="ln" style="--i:2">  &lt;/cac:Item&gt;</span><span class="ln" style="--i:2">  &lt;cac:Price&gt;</span><span class="ln" style="--i:4">    &lt;cbc:PriceAmount currencyID=&quot;EUR&quot;&gt;25.00<wbr>&lt;/cbc:PriceAmount&gt;</span><span class="ln" style="--i:4">    &lt;cbc:BaseQuantity unitCode=&quot;C62&quot;&gt;1<wbr>&lt;/cbc:BaseQuantity&gt;</span><span class="ln" style="--i:2">  &lt;/cac:Price&gt;</span><span class="ln" style="--i:0">&lt;/cac:InvoiceLine&gt;</span></code></pre>
 <p class="note">Nur Beispielwerte. Ersetzen oder ergänzen Sie die Elemente in Ihrer Datei; die Reihenfolge der Elemente ist in beiden Syntaxen vorgeschrieben.</p>
 </section>
 <section>

@@ -12,7 +12,7 @@
 <meta property="og:title" content="BR-DE-3: Ort des Verkäufers fehlt">
 <meta property="og:description" content="BR-DE-3: XRechnung verlangt in der Postanschrift des Verkäufers einen Ort (BT-37). Die Prüfung läuft auf der Verkäuferanschrift und schlägt fehl, wenn der Ort…">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Was bedeutet BR-DE-3?","acceptedAnswer":{"@type":"Answer","text":"XRechnung verlangt in der Postanschrift des Verkäufers einen Ort (BT-37). Die Prüfung läuft auf der Verkäuferanschrift und schlägt fehl, wenn der Ort fehlt oder nur Leerzeichen enthält."}},{"@type":"Question","name":"Wie behebe ich BR-DE-3?","acceptedAnswer":{"@type":"Answer","text":"Tragen Sie den Ort des Verkäufers in das eigene Feld ein: cbc:CityName in cac:PostalAddress des Verkäufers (UBL) bzw. ram:CityName in ram:PostalTradeAddress (CII). Korrigieren Sie einmalig die Firmenstammdaten, damit spätere Rechnungen den Ort enthalten. Prüfen Sie gleich auch die Postleitzahl, denn BR-DE-4 verlangt sie ebenfalls."}}]}</script>
-<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}pre .ln{display:block;padding-left:calc((var(--i) + 2) * 1ch);text-indent:calc((var(--i) + 2) * -1ch)}@media (max-width:700px){pre{white-space:pre-wrap;overflow-wrap:anywhere}}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
 </head><body><main>
 <header>
 <p class="eyebrow">E-Rechnungs-Prüfregel erklärt · XRechnung</p>
@@ -47,21 +47,9 @@
 </ol>
 <h2>Korrigiertes XML (minimales Beispiel von uns)</h2>
 <p><strong>UBL</strong></p>
-<pre><code>&lt;cac:PostalAddress&gt;
-  &lt;cbc:StreetName&gt;Musterstraße 1&lt;/cbc:StreetName&gt;
-  &lt;cbc:CityName&gt;Berlin&lt;/cbc:CityName&gt;
-  &lt;cbc:PostalZone&gt;10115&lt;/cbc:PostalZone&gt;
-  &lt;cac:Country&gt;
-    &lt;cbc:IdentificationCode&gt;DE&lt;/cbc:IdentificationCode&gt;
-  &lt;/cac:Country&gt;
-&lt;/cac:PostalAddress&gt;</code></pre>
+<pre><code><span class="ln" style="--i:0">&lt;cac:PostalAddress&gt;</span><span class="ln" style="--i:2">  &lt;cbc:StreetName&gt;Musterstraße 1<wbr>&lt;/cbc:StreetName&gt;</span><span class="ln" style="--i:2">  &lt;cbc:CityName&gt;Berlin<wbr>&lt;/cbc:CityName&gt;</span><span class="ln" style="--i:2">  &lt;cbc:PostalZone&gt;10115<wbr>&lt;/cbc:PostalZone&gt;</span><span class="ln" style="--i:2">  &lt;cac:Country&gt;</span><span class="ln" style="--i:4">    &lt;cbc:IdentificationCode&gt;DE<wbr>&lt;/cbc:IdentificationCode&gt;</span><span class="ln" style="--i:2">  &lt;/cac:Country&gt;</span><span class="ln" style="--i:0">&lt;/cac:PostalAddress&gt;</span></code></pre>
 <p><strong>CII</strong></p>
-<pre><code>&lt;ram:PostalTradeAddress&gt;
-  &lt;ram:PostcodeCode&gt;10115&lt;/ram:PostcodeCode&gt;
-  &lt;ram:LineOne&gt;Musterstraße 1&lt;/ram:LineOne&gt;
-  &lt;ram:CityName&gt;Berlin&lt;/ram:CityName&gt;
-  &lt;ram:CountryID&gt;DE&lt;/ram:CountryID&gt;
-&lt;/ram:PostalTradeAddress&gt;</code></pre>
+<pre><code><span class="ln" style="--i:0">&lt;ram:PostalTradeAddress&gt;</span><span class="ln" style="--i:2">  &lt;ram:PostcodeCode&gt;10115<wbr>&lt;/ram:PostcodeCode&gt;</span><span class="ln" style="--i:2">  &lt;ram:LineOne&gt;Musterstraße 1<wbr>&lt;/ram:LineOne&gt;</span><span class="ln" style="--i:2">  &lt;ram:CityName&gt;Berlin<wbr>&lt;/ram:CityName&gt;</span><span class="ln" style="--i:2">  &lt;ram:CountryID&gt;DE<wbr>&lt;/ram:CountryID&gt;</span><span class="ln" style="--i:0">&lt;/ram:PostalTradeAddress&gt;</span></code></pre>
 <p class="note">Nur Beispielwerte. Ersetzen oder ergänzen Sie die Elemente in Ihrer Datei; die Reihenfolge der Elemente ist in beiden Syntaxen vorgeschrieben.</p>
 </section>
 <section>
