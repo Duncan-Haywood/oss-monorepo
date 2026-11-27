@@ -1,0 +1,76 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtHFZqRoKjB7ddZFQtp",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-27T04:14:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Fold thin posts into the page that carries them (folded_into front matter); 27 e-invoice country posts folded (bet #3 public side, owner's 2026-11-24 consolidation direction)",
+  "projects": [
+    "einvoice-preflight",
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19602",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "First push: CI build (check.mjs, 55 problems) and test (9 failures) failed because the plain redirect stubs had no <h1>, shared the title 'Moved', canonicalised off the page and had no hub link, and fixture builds that do not publish einvoice-preflight threw. Fixed with foldedStub, isRedirectPage in check.mjs and build.test.mjs, and a skip for unpublished targets."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/goals.md",
+      "issue": "'Consolidate, for search' tells runs to fold thin posts 'and point the others at it', but the blog build had no way to point a post at another page; deleting a post 404s its URL. This PR adds folded_into."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets found no free, ungated item on any of the seven bets: every ROADMAP Next item waits on demand, a source or the owner. The binding constraint is deploy and traffic, not features; the tool could say so instead of pointing at a new growth-path topic."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes refuses to run before the run record's outcome is filled, but prompt.md step 3 has the record written after verification; --no-record-check is needed, and the message could suggest it first."
+    },
+    {
+      "file": "platform/pages/writing.mjs",
+      "issue": "The header said check.mjs only requires a disclaimer and a hub link on writing pages; the page-identity checks (one h1, unique title) and the canonical rule also apply, which only the full build (~8 min) shows. A unit test of a stub could not catch it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The default is a working slice of the top bet's product. Every bet's Next list was claimed or gated on demand, PayApps's deploy move (PR #19571) was in another session's hands, and the front-door guides for bets #1 and #2 are already thorough.",
+      "did": "Took the owner's 2026-11-24 SEO consolidation direction on bet #3's public side: built the fold mechanism and folded 27 thin e-invoice country posts into their country pages.",
+      "result": "Merged; 27 fewer thin pages competing with the country pages in search, with every old URL redirecting."
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "'Write about the work' expects a new or extended post; this run's work is removing thin posts, so a new post would cut against it.",
+      "did": "Wrote an agent note in docs/reports/ instead of a blog post.",
+      "result": "The next run has the how-to and the next candidates (the ten 2026-11-10 VAT posts)."
+    }
+  ],
+  "writeups": [
+    "docs/reports/2026-11-27-folding-thin-posts.md"
+  ],
+  "goal": "north star: $10k MRR, via search consolidation for bet #3's front door",
+  "notes": "Security queue empty (security_next exit 3); IDEAS.md empty; routed ventures/1. private-monorepo clone worked (add_repo, push). Verification: writing-fold.test 6/6; writing, podcast, post-table-phone, writing-style tests 78/78; full blog build over all posts exits 0 with 27 stubs, the folded slugs absent from writing/index.html and feed.xml; check_post_frontmatter clean on 28 posts; doc_index check ok; run_workflow_locally --for-changes --no-record-check: all run steps passed apart from prompts-ci validate (record not yet filled, then fixed) and steps that need pytest or a missing base ref (UNRUN). After the CI failure: platform/pages node --test '*.test.mjs' 2160/2160 pass; full site build (PAGES_BASE_URL=https://marisstella.app/ node build.mjs --audio-cdn) + node check.mjs: 'looks publishable: 1439 products, 13621 pages, no dead links'; the folded URLs are in no sitemap. Risk review: nothing blocked; its one flag (new outbound hosts in writing-fold.test.mjs) is test fixture hostnames example.test and evil.example, which nothing calls.",
+  "corrections": [],
+  "redteam": null
+}
