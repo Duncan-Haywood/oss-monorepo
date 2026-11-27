@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="nl"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BR-CO-13: EN 16931 uitgelegd</title>
+<meta name="description" content="BR-CO-13: Het factuurtotaal zonder btw (BT-109) moet gelijk zijn aan de som van de nettoregelbedragen (BT-106) min de som van de kortingen op documentniveau…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/nl/br-co-13">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/br-co-13">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/br-co-13">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/br-co-13">
+<link rel="alternate" hreflang="nl" href="https://example.invalid/einvoice-preflight/rules/nl/br-co-13">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/br-co-13">
+<meta property="og:title" content="BR-CO-13: EN 16931 uitgelegd">
+<meta property="og:description" content="BR-CO-13: Het factuurtotaal zonder btw (BT-109) moet gelijk zijn aan de som van de nettoregelbedragen (BT-106) min de som van de kortingen op documentniveau…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Wat betekent BR-CO-13?","acceptedAnswer":{"@type":"Answer","text":"Het factuurtotaal zonder btw (BT-109) moet gelijk zijn aan de som van de nettoregelbedragen (BT-106) min de som van de kortingen op documentniveau (BT-107) plus de som van de toeslagen op documentniveau (BT-108), afgerond op twee decimalen; een ontbrekend totaal van kortingen of toeslagen telt als nul. Bijvoorbeeld 150.00 − 10.00 + 5.00 = 145.00."}},{"@type":"Question","name":"Hoe los ik BR-CO-13 op?","acceptedAnswer":{"@type":"Answer","text":"Bereken BT-109 als BT-106 − BT-107 + BT-108 (150.00 − 10.00 + 5.00 = 145.00). Zet het in UBL in cbc:TaxExclusiveAmount, in CII in ram:TaxBasisTotalAmount. Zorg dat BT-107 en BT-108 zelf de sommen zijn van de kortingen en toeslagen op documentniveau."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}pre .ln{display:block;padding-left:calc((var(--i) + 2) * 1ch);text-indent:calc((var(--i) + 2) * -1ch)}@media (max-width:700px){pre{white-space:pre-wrap;overflow-wrap:anywhere}}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-factuurregel uitgelegd · EN 16931</p>
+<h1>BR-CO-13: Totaal zonder btw klopt niet met regels, kortingen en toeslagen</h1>
+<nav class="langs" aria-label="Andere talen"><a href="../en/br-co-13.html" hreflang="en" lang="en">English</a><a href="../de/br-co-13.html" hreflang="de" lang="de">Deutsch</a><a href="../fr/br-co-13.html" hreflang="fr" lang="fr">Français</a><a href="index.html">Alle regels</a></nav>
+</header>
+<section>
+<h2>Officiële melding</h2>
+<blockquote lang="en">Invoice total amount without VAT (BT-109) = Σ Invoice line net amount (BT-131) - Sum of allowances on document level (BT-107) + Sum of charges on document level (BT-108).</blockquote>
+<dl>
+<dt>Ernst</dt><dd>Fout (de factuur wordt geweigerd)</dd>
+<dt>Gecontroleerd in</dt><dd>UBL, CII</dd>
+<dt>Bedrijfstermen</dt><dd>BT-109, BT-131, BT-107, BT-108</dd>
+</dl>
+</section>
+<section>
+<h2>Wat betekent BR-CO-13?</h2>
+<p>Het factuurtotaal zonder btw (BT-109) moet gelijk zijn aan de som van de nettoregelbedragen (BT-106) min de som van de kortingen op documentniveau (BT-107) plus de som van de toeslagen op documentniveau (BT-108), afgerond op twee decimalen; een ontbrekend totaal van kortingen of toeslagen telt als nul. Bijvoorbeeld 150.00 − 10.00 + 5.00 = 145.00.</p>
+<h2>Gebruikelijke oorzaken</h2>
+<ul>
+<li>Het totaal zonder btw is van de regelsom overgenomen en de korting of toeslag op documentniveau is vergeten.</li>
+<li>Een korting is twee keer afgetrokken, een keer in de regels en een keer op documentniveau.</li>
+<li>De totalen van kortingen en toeslagen zijn verwisseld, of een korting is als negatieve toeslag ingevoerd.</li>
+</ul>
+</section>
+<section>
+<h2>Hoe los ik BR-CO-13 op?</h2>
+<ol>
+<li>Bereken BT-109 als BT-106 − BT-107 + BT-108 (150.00 − 10.00 + 5.00 = 145.00).</li>
+<li>Zet het in UBL in cbc:TaxExclusiveAmount, in CII in ram:TaxBasisTotalAmount.</li>
+<li>Zorg dat BT-107 en BT-108 zelf de sommen zijn van de kortingen en toeslagen op documentniveau.</li>
+</ol>
+<h2>Gecorrigeerde XML (minimaal voorbeeld van ons)</h2>
+<p><strong>UBL</strong></p>
+<pre><code><span class="ln" style="--i:0">&lt;cac:LegalMonetaryTotal&gt;</span><span class="ln" style="--i:2">  &lt;cbc:LineExtensionAmount currencyID=&quot;EUR&quot;&gt;150.00<wbr>&lt;/cbc:LineExtensionAmount&gt;</span><span class="ln" style="--i:2">  &lt;cbc:TaxExclusiveAmount currencyID=&quot;EUR&quot;&gt;145.00<wbr>&lt;/cbc:TaxExclusiveAmount&gt;</span><span class="ln" style="--i:2">  &lt;cbc:TaxInclusiveAmount currencyID=&quot;EUR&quot;&gt;172.55<wbr>&lt;/cbc:TaxInclusiveAmount&gt;</span><span class="ln" style="--i:2">  &lt;cbc:AllowanceTotalAmount currencyID=&quot;EUR&quot;&gt;10.00<wbr>&lt;/cbc:AllowanceTotalAmount&gt;</span><span class="ln" style="--i:2">  &lt;cbc:ChargeTotalAmount currencyID=&quot;EUR&quot;&gt;5.00<wbr>&lt;/cbc:ChargeTotalAmount&gt;</span><span class="ln" style="--i:2">  &lt;cbc:PayableAmount currencyID=&quot;EUR&quot;&gt;172.55<wbr>&lt;/cbc:PayableAmount&gt;</span><span class="ln" style="--i:0">&lt;/cac:LegalMonetaryTotal&gt;</span></code></pre>
+<p><strong>CII</strong></p>
+<pre><code><span class="ln" style="--i:0">&lt;ram:SpecifiedTradeSettlementHeaderMonetarySummation&gt;</span><span class="ln" style="--i:2">  &lt;ram:LineTotalAmount&gt;150.00<wbr>&lt;/ram:LineTotalAmount&gt;</span><span class="ln" style="--i:2">  &lt;ram:ChargeTotalAmount&gt;5.00<wbr>&lt;/ram:ChargeTotalAmount&gt;</span><span class="ln" style="--i:2">  &lt;ram:AllowanceTotalAmount&gt;10.00<wbr>&lt;/ram:AllowanceTotalAmount&gt;</span><span class="ln" style="--i:2">  &lt;ram:TaxBasisTotalAmount&gt;145.00<wbr>&lt;/ram:TaxBasisTotalAmount&gt;</span><span class="ln" style="--i:2">  &lt;ram:TaxTotalAmount currencyID=&quot;EUR&quot;&gt;27.55<wbr>&lt;/ram:TaxTotalAmount&gt;</span><span class="ln" style="--i:2">  &lt;ram:GrandTotalAmount&gt;172.55<wbr>&lt;/ram:GrandTotalAmount&gt;</span><span class="ln" style="--i:2">  &lt;ram:DuePayableAmount&gt;172.55<wbr>&lt;/ram:DuePayableAmount&gt;</span><span class="ln" style="--i:0">&lt;/ram:SpecifiedTradeSettlementHeaderMonetarySummation&gt;</span></code></pre>
+<p class="note">Alleen voorbeeldwaarden. Vervang of vul de elementen in uw bestand aan; de volgorde van de elementen ligt in beide syntaxen vast.</p>
+</section>
+<section>
+<h2>Controleer uw bestand gratis</h2>
+<p>De gratis controle voert de officiële regels voor EN 16931, XRechnung en Peppol uit in uw browser. Uw bestand wordt niet geüpload.</p>
+<p><a class="button" href="../../index.html">Open de gratis controle</a></p>
+</section>
+<section class="cta">
+<p><span class="state">In ontwikkeling — vroege toegang</span></p>
+<h2>Controleren en uitleggen, voor boekhouders en factuurteams</h2>
+<p>Een betaalde dienst die elke geschonden regel in gewoon Nederlands, Duits, Frans of Engels uitlegt en een gecorrigeerd bestand voorstelt, is in ontwikkeling. <a href="https://example.invalid/industries/eu-e-invoicing/">Vroege toegang</a></p>
+</section>
+<section>
+<h2>Bron</h2>
+<p>Regel-ID en officiële melding uit: CEN/TC 434 EN 16931 validation artefacts, validation-1.3.17 (EUPL-1.2), gecompileerd uit upstream-commit 6e35e0a. De uitleg, oorzaken, oplossing en XML op deze pagina zijn van ons, niet van de uitgever van de regel. <a href="https://github.com/ConnectingEurope/eInvoicing-EN16931/tree/validation-1.3.17" rel="noopener">CEN/TC 434 EN 16931 validation artefacts validation-1.3.17</a></p>
+</section>
+<footer>
+<p><strong>Geen fiscaal of juridisch advies.</strong> Deze pagina legt uit wat een validatieregel controleert en hoe een bestand die regel doorstaat. Ze zegt niet welke btw-behandeling op uw verkoop van toepassing is; vraag dat aan uw boekhouder of belastingadviseur. <strong>Zonder garantie (no warranty):</strong> gratis en zoals het is; controleer het resultaat voordat u erop vertrouwt.</p>
+<p>Onze code en uitleg vallen onder de licentie FSL-1.1-MIT. Officiële regelmeldingen worden geciteerd onder de licentie van hun uitgever (EUPL-1.2, Apache-2.0, MPL-2.0), die op elke pagina wordt genoemd.</p>
+</footer>
+</main></body></html>

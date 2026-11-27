@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="nl"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PEPPOL-EN16931-P0112: Peppol BIS uitgelegd</title>
+<meta name="description" content="PEPPOL-EN16931-P0112: De factuurtypecodes 326 (deelfactuur), 384 (gecorrigeerde factuur) en 389 (factuur door de afnemer opgemaakt, self-billing) zijn op…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/nl/peppol-en16931-p0112">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/peppol-en16931-p0112">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/peppol-en16931-p0112">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/peppol-en16931-p0112">
+<link rel="alternate" hreflang="nl" href="https://example.invalid/einvoice-preflight/rules/nl/peppol-en16931-p0112">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/peppol-en16931-p0112">
+<meta property="og:title" content="PEPPOL-EN16931-P0112: Peppol BIS uitgelegd">
+<meta property="og:description" content="PEPPOL-EN16931-P0112: De factuurtypecodes 326 (deelfactuur), 384 (gecorrigeerde factuur) en 389 (factuur door de afnemer opgemaakt, self-billing) zijn op…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Wat betekent PEPPOL-EN16931-P0112?","acceptedAnswer":{"@type":"Answer","text":"De factuurtypecodes 326 (deelfactuur), 384 (gecorrigeerde factuur) en 389 (factuur door de afnemer opgemaakt, self-billing) zijn op Peppol alleen toegestaan als verkoper en koper allebei Duits zijn, beoordeeld op de landcode in hun postadres. Code 384 is ook toegestaan als beide Slowaaks zijn; voor die controle komt het land uit het voorvoegsel van het btw-nummer (bij de verkoper, anders uit het btw-nummer van de fiscaal vertegenwoordiger), met het postadres als terugval. Andere facturen gebruiken een code zoals 380."}},{"@type":"Question","name":"Hoe los ik PEPPOL-EN16931-P0112 op?","acceptedAnswer":{"@type":"Answer","text":"Controleer de landcodes in de postadressen (cac:Country/cbc:IdentificationCode) van verkoper en koper; bij twee Duitse partijen moeten beide DE zijn. Gebruik anders de handelsfactuurcode 380 in cbc:InvoiceTypeCode; om een factuur te corrigeren stuurt u een creditnota en een nieuwe factuur in plaats van een 384. Gaat het om self-billing of een deelfactuur, vraag dan uw Peppol-provider hoe uw ontvanger die gemarkeerd wil zien."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}pre .ln{display:block;padding-left:calc((var(--i) + 2) * 1ch);text-indent:calc((var(--i) + 2) * -1ch)}@media (max-width:700px){pre{white-space:pre-wrap;overflow-wrap:anywhere}}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-factuurregel uitgelegd · Peppol BIS</p>
+<h1>PEPPOL-EN16931-P0112: Factuurtypecode 326, 384 of 389 buiten de toegestane landen</h1>
+<nav class="langs" aria-label="Andere talen"><a href="../en/peppol-en16931-p0112.html" hreflang="en" lang="en">English</a><a href="../de/peppol-en16931-p0112.html" hreflang="de" lang="de">Deutsch</a><a href="../fr/peppol-en16931-p0112.html" hreflang="fr" lang="fr">Français</a><a href="index.html">Alle regels</a></nav>
+</header>
+<section>
+<h2>Officiële melding</h2>
+<blockquote lang="en">Invoice type codes 326 and 389 are only allowed when both buyer and seller are German organizations. Invoice type code 384 is only allowed when both buyer and seller are German organizations or both are Slovak organizations.</blockquote>
+<dl>
+<dt>Ernst</dt><dd>Fout (de factuur wordt geweigerd)</dd>
+<dt>Gecontroleerd in</dt><dd>UBL</dd>
+<dt>Bedrijfstermen</dt><dd>BT-3</dd>
+</dl>
+</section>
+<section>
+<h2>Wat betekent PEPPOL-EN16931-P0112?</h2>
+<p>De factuurtypecodes 326 (deelfactuur), 384 (gecorrigeerde factuur) en 389 (factuur door de afnemer opgemaakt, self-billing) zijn op Peppol alleen toegestaan als verkoper en koper allebei Duits zijn, beoordeeld op de landcode in hun postadres. Code 384 is ook toegestaan als beide Slowaaks zijn; voor die controle komt het land uit het voorvoegsel van het btw-nummer (bij de verkoper, anders uit het btw-nummer van de fiscaal vertegenwoordiger), met het postadres als terugval. Andere facturen gebruiken een code zoals 380.</p>
+<h2>Gebruikelijke oorzaken</h2>
+<ul>
+<li>De software gebruikt 326, 384 of 389 voor alle klanten, ook buitenlandse.</li>
+<li>Verkoper en koper zijn allebei Duits, maar een landcode in het postadres ontbreekt of is niet DE.</li>
+<li>Een gecorrigeerde factuur (384) is verstuurd tussen partijen in andere landen dan Duitsland of Slowakije, bijvoorbeeld tussen twee Belgische bedrijven.</li>
+</ul>
+</section>
+<section>
+<h2>Hoe los ik PEPPOL-EN16931-P0112 op?</h2>
+<ol>
+<li>Controleer de landcodes in de postadressen (cac:Country/cbc:IdentificationCode) van verkoper en koper; bij twee Duitse partijen moeten beide DE zijn.</li>
+<li>Gebruik anders de handelsfactuurcode 380 in cbc:InvoiceTypeCode; om een factuur te corrigeren stuurt u een creditnota en een nieuwe factuur in plaats van een 384.</li>
+<li>Gaat het om self-billing of een deelfactuur, vraag dan uw Peppol-provider hoe uw ontvanger die gemarkeerd wil zien.</li>
+</ol>
+<h2>Gecorrigeerde XML (minimaal voorbeeld van ons)</h2>
+<p><strong>UBL</strong></p>
+<pre><code><span class="ln" style="--i:0">&lt;cbc:InvoiceTypeCode&gt;380<wbr>&lt;/cbc:InvoiceTypeCode&gt;</span></code></pre>
+<p class="note">Alleen voorbeeldwaarden. Vervang of vul de elementen in uw bestand aan; de volgorde van de elementen ligt in beide syntaxen vast.</p>
+</section>
+<section>
+<h2>Controleer uw bestand gratis</h2>
+<p>De gratis controle voert de officiële regels voor EN 16931, XRechnung en Peppol uit in uw browser. Uw bestand wordt niet geüpload.</p>
+<p><a class="button" href="../../index.html">Open de gratis controle</a></p>
+</section>
+<section class="cta">
+<p><span class="state">In ontwikkeling — vroege toegang</span></p>
+<h2>Controleren en uitleggen, voor boekhouders en factuurteams</h2>
+<p>Een betaalde dienst die elke geschonden regel in gewoon Nederlands, Duits, Frans of Engels uitlegt en een gecorrigeerd bestand voorstelt, is in ontwikkeling. <a href="https://example.invalid/industries/eu-e-invoicing/">Vroege toegang</a></p>
+</section>
+<section>
+<h2>Bron</h2>
+<p>Regel-ID en officiële melding uit: OpenPeppol BIS Billing 3 rules, 3.0.22 (MPL-2.0), gecompileerd uit upstream-commit 38d693d. De uitleg, oorzaken, oplossing en XML op deze pagina zijn van ons, niet van de uitgever van de regel. <a href="https://github.com/OpenPEPPOL/peppol-bis-invoice-3/tree/3.0.22" rel="noopener">OpenPeppol BIS Billing 3 rules 3.0.22</a></p>
+</section>
+<footer>
+<p><strong>Geen fiscaal of juridisch advies.</strong> Deze pagina legt uit wat een validatieregel controleert en hoe een bestand die regel doorstaat. Ze zegt niet welke btw-behandeling op uw verkoop van toepassing is; vraag dat aan uw boekhouder of belastingadviseur. <strong>Zonder garantie (no warranty):</strong> gratis en zoals het is; controleer het resultaat voordat u erop vertrouwt.</p>
+<p>Onze code en uitleg vallen onder de licentie FSL-1.1-MIT. Officiële regelmeldingen worden geciteerd onder de licentie van hun uitgever (EUPL-1.2, Apache-2.0, MPL-2.0), die op elke pagina wordt genoemd.</p>
+</footer>
+</main></body></html>

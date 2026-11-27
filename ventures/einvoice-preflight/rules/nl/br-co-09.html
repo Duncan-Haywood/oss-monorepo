@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="nl"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BR-CO-09: Btw-nummer begint niet met een geldige landcode</title>
+<meta name="description" content="BR-CO-09: Elk btw-identificatienummer op de factuur (verkoper BT-31, fiscaal vertegenwoordiger van de verkoper BT-63, koper BT-48) moet beginnen met een…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/nl/br-co-09">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/br-co-09">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/br-co-09">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/br-co-09">
+<link rel="alternate" hreflang="nl" href="https://example.invalid/einvoice-preflight/rules/nl/br-co-09">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/br-co-09">
+<meta property="og:title" content="BR-CO-09: Btw-nummer begint niet met een geldige landcode">
+<meta property="og:description" content="BR-CO-09: Elk btw-identificatienummer op de factuur (verkoper BT-31, fiscaal vertegenwoordiger van de verkoper BT-63, koper BT-48) moet beginnen met een…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Wat betekent BR-CO-09?","acceptedAnswer":{"@type":"Answer","text":"Elk btw-identificatienummer op de factuur (verkoper BT-31, fiscaal vertegenwoordiger van de verkoper BT-63, koper BT-48) moet beginnen met een tweeletterige landcode in hoofdletters uit de lijst van de regel, bijvoorbeeld BE0123456789 of NL123456789B01. Opvallend: de lijst in de huidige officiële regels bevat GR maar niet EL, dus een Grieks btw-nummer met EL faalt hier, ook al zegt de melding dat EL is toegestaan (de oudere regels 1.3.8 aanvaardden EL nog)."}},{"@type":"Question","name":"Hoe los ik BR-CO-09 op?","acceptedAnswer":{"@type":"Answer","text":"Schrijf elk btw-nummer met zijn tweeletterige landprefix in hoofdletters en zonder spatie ervoor, zoals het op de btw-registratie staat. Zet een nationaal fiscaal nummer dat geen btw-nummer is in een eigen veld (in UBL een PartyTaxScheme met een ander schema dan VAT, in CII schemeID FC), niet in het btw-veld. Bij een Grieks EL-nummer: vraag de ontvanger tegen welke versie van de regels hij valideert voordat u iets wijzigt."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}pre .ln{display:block;padding-left:calc((var(--i) + 2) * 1ch);text-indent:calc((var(--i) + 2) * -1ch)}@media (max-width:700px){pre{white-space:pre-wrap;overflow-wrap:anywhere}}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-factuurregel uitgelegd · EN 16931</p>
+<h1>BR-CO-09: Btw-nummer begint niet met een geldige landcode</h1>
+<nav class="langs" aria-label="Andere talen"><a href="../en/br-co-09.html" hreflang="en" lang="en">English</a><a href="../de/br-co-09.html" hreflang="de" lang="de">Deutsch</a><a href="../fr/br-co-09.html" hreflang="fr" lang="fr">Français</a><a href="index.html">Alle regels</a></nav>
+</header>
+<section>
+<h2>Officiële melding</h2>
+<blockquote lang="en">The Seller VAT identifier (BT-31), the Seller tax representative VAT identifier (BT-63) and the Buyer VAT identifier (BT-48) shall have a prefix in accordance with ISO code ISO 3166-1 alpha-2 by which the country of issue may be identified. Nevertheless, Greece may use the prefix ‘EL’.</blockquote>
+<dl>
+<dt>Ernst</dt><dd>Fout (de factuur wordt geweigerd)</dd>
+<dt>Gecontroleerd in</dt><dd>UBL, CII</dd>
+<dt>Bedrijfstermen</dt><dd>BT-31, BT-63, BT-48</dd>
+</dl>
+</section>
+<section>
+<h2>Wat betekent BR-CO-09?</h2>
+<p>Elk btw-identificatienummer op de factuur (verkoper BT-31, fiscaal vertegenwoordiger van de verkoper BT-63, koper BT-48) moet beginnen met een tweeletterige landcode in hoofdletters uit de lijst van de regel, bijvoorbeeld BE0123456789 of NL123456789B01. Opvallend: de lijst in de huidige officiële regels bevat GR maar niet EL, dus een Grieks btw-nummer met EL faalt hier, ook al zegt de melding dat EL is toegestaan (de oudere regels 1.3.8 aanvaardden EL nog).</p>
+<h2>Gebruikelijke oorzaken</h2>
+<ul>
+<li>Het nummer is zonder landprefix ingevoerd, bijvoorbeeld 0123456789.</li>
+<li>Het prefix is in kleine letters geschreven (be0123456789) of er staat een spatie voor.</li>
+<li>Een nationaal fiscaal nummer (zoals het Nederlandse fiscaal nummer of de Duitse Steuernummer) staat in een veld voor het btw-nummer: in UBL een PartyTaxScheme met belastingschema VAT, in CII een SpecifiedTaxRegistration met schemeID VA.</li>
+<li>Een Grieks btw-nummer gebruikt het prefix EL.</li>
+</ul>
+</section>
+<section>
+<h2>Hoe los ik BR-CO-09 op?</h2>
+<ol>
+<li>Schrijf elk btw-nummer met zijn tweeletterige landprefix in hoofdletters en zonder spatie ervoor, zoals het op de btw-registratie staat.</li>
+<li>Zet een nationaal fiscaal nummer dat geen btw-nummer is in een eigen veld (in UBL een PartyTaxScheme met een ander schema dan VAT, in CII schemeID FC), niet in het btw-veld.</li>
+<li>Bij een Grieks EL-nummer: vraag de ontvanger tegen welke versie van de regels hij valideert voordat u iets wijzigt.</li>
+</ol>
+<h2>Gecorrigeerde XML (minimaal voorbeeld van ons)</h2>
+<p><strong>UBL</strong></p>
+<pre><code><span class="ln" style="--i:0">&lt;cac:PartyTaxScheme&gt;</span><span class="ln" style="--i:2">  &lt;cbc:CompanyID&gt;DE123456789<wbr>&lt;/cbc:CompanyID&gt;</span><span class="ln" style="--i:2">  &lt;cac:TaxScheme&gt;</span><span class="ln" style="--i:4">    &lt;cbc:ID&gt;VAT<wbr>&lt;/cbc:ID&gt;</span><span class="ln" style="--i:2">  &lt;/cac:TaxScheme&gt;</span><span class="ln" style="--i:0">&lt;/cac:PartyTaxScheme&gt;</span></code></pre>
+<p><strong>CII</strong></p>
+<pre><code><span class="ln" style="--i:0">&lt;ram:SpecifiedTaxRegistration&gt;</span><span class="ln" style="--i:2">  &lt;ram:ID schemeID=&quot;VA&quot;&gt;DE123456789<wbr>&lt;/ram:ID&gt;</span><span class="ln" style="--i:0">&lt;/ram:SpecifiedTaxRegistration&gt;</span></code></pre>
+<p class="note">Alleen voorbeeldwaarden. Vervang of vul de elementen in uw bestand aan; de volgorde van de elementen ligt in beide syntaxen vast.</p>
+</section>
+<section>
+<h2>Controleer uw bestand gratis</h2>
+<p>De gratis controle voert de officiële regels voor EN 16931, XRechnung en Peppol uit in uw browser. Uw bestand wordt niet geüpload.</p>
+<p><a class="button" href="../../index.html">Open de gratis controle</a></p>
+</section>
+<section class="cta">
+<p><span class="state">In ontwikkeling — vroege toegang</span></p>
+<h2>Controleren en uitleggen, voor boekhouders en factuurteams</h2>
+<p>Een betaalde dienst die elke geschonden regel in gewoon Nederlands, Duits, Frans of Engels uitlegt en een gecorrigeerd bestand voorstelt, is in ontwikkeling. <a href="https://example.invalid/industries/eu-e-invoicing/">Vroege toegang</a></p>
+</section>
+<section>
+<h2>Bron</h2>
+<p>Regel-ID en officiële melding uit: CEN/TC 434 EN 16931 validation artefacts, validation-1.3.17 (EUPL-1.2), gecompileerd uit upstream-commit 6e35e0a. De uitleg, oorzaken, oplossing en XML op deze pagina zijn van ons, niet van de uitgever van de regel. <a href="https://github.com/ConnectingEurope/eInvoicing-EN16931/tree/validation-1.3.17" rel="noopener">CEN/TC 434 EN 16931 validation artefacts validation-1.3.17</a></p>
+</section>
+<footer>
+<p><strong>Geen fiscaal of juridisch advies.</strong> Deze pagina legt uit wat een validatieregel controleert en hoe een bestand die regel doorstaat. Ze zegt niet welke btw-behandeling op uw verkoop van toepassing is; vraag dat aan uw boekhouder of belastingadviseur. <strong>Zonder garantie (no warranty):</strong> gratis en zoals het is; controleer het resultaat voordat u erop vertrouwt.</p>
+<p>Onze code en uitleg vallen onder de licentie FSL-1.1-MIT. Officiële regelmeldingen worden geciteerd onder de licentie van hun uitgever (EUPL-1.2, Apache-2.0, MPL-2.0), die op elke pagina wordt genoemd.</p>
+</footer>
+</main></body></html>
