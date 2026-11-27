@@ -1,6 +1,12 @@
 // Request schemas (validated by the Worker, used as types by the SPA) and response DTO types.
 import { z } from "zod";
-import type { CostBreak, CostInputs, CostIssue, RateSnapshot } from "./costing";
+import {
+  type CostBreak,
+  type CostInputs,
+  type CostIssue,
+  MAX_FALLOUT_BPS,
+  type RateSnapshot,
+} from "./costing";
 import { SHOP_CURRENCIES } from "./currency";
 import {
   MACHINE_KINDS,
@@ -43,6 +49,8 @@ export const shopSettingsPatchSchema = z
     quoteTerms: z.string().max(4000).nullable(),
     emailSignature: z.string().max(1000).nullable(),
     prefillRepeatParts: z.boolean(),
+    /** Fallout every new quote line starts with, basis points (300 = 3%); null is none. */
+    defaultFalloutBps: z.number().int().min(1).max(MAX_FALLOUT_BPS).nullable(),
     /** IANA zone name, stored in Intl's spelling; null for UTC. */
     timeZone: z
       .string()
@@ -577,6 +585,8 @@ export interface ShopSettingsDto {
   emailSignature: string | null;
   /** A new quote from an RFQ pre-fills lines from the last won quote of the same part and revision. */
   prefillRepeatParts: boolean;
+  /** Fallout every new quote line starts with, basis points (300 = 3%); null is none. */
+  defaultFalloutBps: number | null;
   /** IANA zone for calendar edges (quote dates and expiry, win/loss months); null means UTC. */
   timeZone: string | null;
   /** ISO 4217 code every amount is printed in; null means USD (shared/currency.ts). */

@@ -7,6 +7,7 @@ import {
   type CostInputs,
   computeCost,
   type DrillingMachine,
+  defaultFalloutBpsFromText,
   drilledHoleSizes,
   extraPecks,
   type FlatPatternMeasures,
@@ -968,5 +969,16 @@ describe("tapping from the hole sizes the estimator marked threaded", () => {
   it("shares the setup with roughing or drilling on the same machine", () => {
     expect(suggestTappingOperation(plate, [0.201], [vmc], ["vmc"])?.setupMinutes).toBe(0);
     expect(suggestTappingOperation(plate, [0.201], [vmc], ["lathe"])?.setupMinutes).toBe(45);
+  });
+});
+
+describe("defaultFalloutBpsFromText", () => {
+  it("reads blank and 0 as no default and refuses text and over 50%", () => {
+    expect(defaultFalloutBpsFromText("")).toBeNull();
+    expect(defaultFalloutBpsFromText("0")).toBeNull();
+    expect(defaultFalloutBpsFromText("3")).toBe(300);
+    expect(defaultFalloutBpsFromText("2.5%")).toBe(250);
+    expect(defaultFalloutBpsFromText("51")).toBe("invalid");
+    expect(defaultFalloutBpsFromText("three")).toBe("invalid");
   });
 });

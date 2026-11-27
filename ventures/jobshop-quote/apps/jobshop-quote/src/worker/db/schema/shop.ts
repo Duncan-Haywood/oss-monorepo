@@ -62,6 +62,12 @@ export const shopSettings = sqliteTable("shop_settings", {
    */
   prefillRepeatParts: bool("prefill_repeat_parts").notNull().default(false),
   /**
+   * Expected fallout (parts scrapped in process) in basis points, 300 = 3%: every new quote line
+   * starts with it (the estimator can change it per line; shared/costing.ts startsFor). Null is no
+   * default, so a line starts at 0% as before. A line copied from a won quote keeps its own.
+   */
+  defaultFalloutBps: integer("default_fallout_bps"),
+  /**
    * The shop's IANA time zone ("America/Chicago"), checked by shared/time-zone.ts; null reads as
    * UTC. Win/loss months and the CSV's dates use its calendar; stored instants stay UTC.
    */
