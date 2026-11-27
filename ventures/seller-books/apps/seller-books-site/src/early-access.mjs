@@ -315,12 +315,20 @@ export async function unsubscribe(deps, token) {
   return res.meta.changes > 0 ? "unsubscribed" : "invalid";
 }
 
-/** Deletes never-confirmed signups older than PENDING_RETENTION_MS. Returns rows deleted. */
+/**
+ * Deletes never-confirmed signups older than PENDING_RETENTION_MS whose newest confirmation link has
+ * also expired (the email promises CONFIRM_LINK_DAYS, so a link re-sent on day 29 still works on day
+ * 35). Returns rows deleted.
+ */
 export async function purgePending(deps) {
-  const cutoff = deps.now().getTime() - PENDING_RETENTION_MS;
+  const nowMs = deps.now().getTime();
+  const cutoff = nowMs - PENDING_RETENTION_MS;
   const res = await deps.db
-    .prepare("DELETE FROM early_access_signups WHERE status = 'pending' AND created_at < ?")
-    .bind(cutoff)
+    .prepare(
+      `DELETE FROM early_access_signups WHERE status = 'pending' AND created_at < ?
+         AND (confirm_token_expires_at IS NULL OR confirm_token_expires_at < ?)`,
+    )
+    .bind(cutoff, nowMs)
     .run();
   return res.meta.changes;
 }
