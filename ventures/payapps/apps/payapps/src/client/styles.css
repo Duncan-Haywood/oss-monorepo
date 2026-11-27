@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* A select is as wide as its longest option; on a phone that pushed pages sideways (the submittal
+   log's "by type (record for close-out documents, else approval)", 417px at 390). Cap it at its
+   container and let the browser truncate the closed label. */
+@layer base {
+  select {
+    max-width: 100%;
+  }
+}
+
 @layer components {
   .btn {
     @apply inline-flex items-center gap-1 rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-700 disabled:opacity-50;

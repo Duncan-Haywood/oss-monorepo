@@ -61,14 +61,18 @@ export function Layout() {
         {launchNotice(plans.data)}
       </div>
       <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-          <Link to="/" className="text-lg font-bold">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
+          <Link to="/" className="shrink-0 text-lg font-bold">
             PayApps
           </Link>
           {me.data && (
             <div className="flex min-w-0 items-center gap-3 text-sm">
               <span className="min-w-0 truncate text-slate-600">{me.data.user.email}</span>
-              <button type="button" className="btn-secondary" onClick={signOut}>
+              <button
+                type="button"
+                className="btn-secondary shrink-0 whitespace-nowrap"
+                onClick={signOut}
+              >
                 Sign out
               </button>
             </div>
