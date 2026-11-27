@@ -141,7 +141,7 @@ function home(ctx: SiteContext): BuiltPage {
       <li><strong>Set up a job once.</strong> Import the schedule of values from your own spreadsheet or the PDF bid breakdown, with the contract sum, retainage rate and pay terms. Already billing the job? Start from your last application.</li>
       <li><strong>Update progress each month.</strong> Work this period and stored materials per line; the continuation-sheet math, retainage and "less previous certificates" are calculated for you.</li>
       <li><strong>Send it with its backup.</strong> The application and continuation sheet as PDF and CSV for the GC's portal or email, the waiver it needs, and the backup attached.</li>
-      <li><strong>Get paid and keep the books straight.</strong> Record each check, see what is past due across every job, send the invoice and payment to QuickBooks Online, and bill the retainage when the work is done.</li>
+      <li><strong>Get paid and keep the books straight.</strong> Record each check, see what is past due across every job, send the invoice and payment to QuickBooks Online, and bill the retainage when the work is done, with the punch items and close-out documents it still waits on named job by job.</li>
     </ol>
     <p>All four steps work in the app today and are being tested before it opens to the public. The <a href="${href(ctx, PAGES.features.path)}">features page</a> marks what is built and what comes next.</p>
   </div>

@@ -224,7 +224,9 @@ export function cashDigest(
   }
   if (t.retainageOnCompleteJobsCents > 0) {
     summary.push(
-      `Retainage on finished work, ready to bill: ${formatCents(t.retainageOnCompleteJobsCents)}.`,
+      t.retainageWaitingOnCloseoutCents > 0
+        ? `Retainage on finished work: ${formatCents(t.retainageOnCompleteJobsCents)}, of which ${formatCents(t.retainageWaitingOnCloseoutCents)} is waiting on close-out (punch items or documents still open).`
+        : `Retainage on finished work, ready to bill: ${formatCents(t.retainageOnCompleteJobsCents)}.`,
     );
   }
   if (t.waiversToSend > 0) {
