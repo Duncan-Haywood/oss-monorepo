@@ -1,0 +1,271 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtLEccVjLDEqV3LeHzf",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T09:06:56Z",
+  "ended": "2026-11-27T09:07:40Z",
+  "wall_minutes": 5.4,
+  "tokens_in": 4242153,
+  "tokens_out": 17086,
+  "cost_usd": 1.804,
+  "tool_calls": 53,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19686",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "campaign's red-baseline message is the only signal that main's pay-app-guides suite was red after #19669; nothing on main flagged it (likely merge skew from an outdated branch)."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "finding which workflow runs a given platform/ci test took several greps; ventures-tests runs unwired platform/ci tests via run_venture_tests --since, which is documented only in that script's docstring."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "ran one 8-mutant campaign instead of two or three; most of the run went to fixing the red baseline and the dead-link class",
+      "did": "one campaign plus a retired-host guard in two checks",
+      "result": "all 5 gaps caught after fix"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Guard added: check_post_links.RETIRED_HOSTS (posts) and test_no_dead_pages_base.test_venture_files_do_not_link_a_retired_app_host (venture files); first run flagged the close-out post. No new post: a red-team fix PR; the defect is in the PR body and this record. Verification: pay-app-guides node suite 317 pass after tests added; pytest test_check_post_links 4 passed; unittest test_no_dead_pages_base OK.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/pay-app-guides/punch.mjs",
+        "test": "node --test ventures/pay-app-guides/**/*.test.mjs  (in .)",
+        "seed": 375020830,
+        "commit": "b6a9ae353",
+        "sites": 89,
+        "baseline_seconds": 1.7,
+        "baseline_skipped": 0,
+        "mutants": [
+          {
+            "file": "ventures/pay-app-guides/punch.mjs",
+            "line": 51,
+            "col": 74,
+            "operator": "const-plus-one",
+            "before": "line = line.replace(/^(?:[-*\u2022]\\s+|#?\\d{1,4}[.)]\\s+|#\\d{1,4}\\s+|P-\\d{1,4}\\s*[:.-]?\\s+)/i, \"\").trim();",
+            "after": "line = line.replace(/^(?:[-*\u2022]\\s+|#?\\d{1,4}[.)]\\s+|#\\d{1,4}\\s+|P-\\d{1,5}\\s*[:.-]?\\s+)/i, \"\").trim();",
+            "line_text": "    line = line.replace(/^(?:[-*\u2022]\\s+|#?\\d{1,4}[.)]\\s+|#\\d{1,4}\\s+|P-\\d{1,4}\\s*[:.-]?\\s+)/i, \"\").trim();",
+            "caught": false,
+            "seconds": 1.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "5-digit P- number boundary; test pins it"
+          },
+          {
+            "file": "ventures/pay-app-guides/punch.mjs",
+            "line": 56,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "if (m && m[0].trim() && m[1].trim()) { location = m[0].trim(); desc = m[1].trim(); }",
+            "after": "if (m && m[1].trim() && m[1].trim()) { location = m[0].trim(); desc = m[1].trim(); }",
+            "line_text": "    if (m && m[0].trim() && m[1].trim()) { location = m[0].trim(); desc = m[1].trim(); }",
+            "caught": false,
+            "seconds": 1.7,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "line is trimmed before the split, so m[0] (text before the first tab or ' - ') always starts with a non-space character and m[0].trim() is always truthy; only m[1] can be empty"
+          },
+          {
+            "file": "ventures/pay-app-guides/punch.mjs",
+            "line": 72,
+            "col": 82,
+            "operator": "plus-to-minus",
+            "before": "return { items: parseLines(text).map((x, i) => ({ number: null, ...x, line: i + 1 })), errors, mode: \"lines\" };",
+            "after": "return { items: parseLines(text).map((x, i) => ({ number: null, ...x, line: i - 1 })), errors, mode: \"lines\" };",
+            "line_text": "    return { items: parseLines(text).map((x, i) => ({ number: null, ...x, line: i + 1 })), errors, mode: \"lines\" };",
+            "caught": false,
+            "seconds": 1.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "line numbers of pasted items were untested; test added"
+          },
+          {
+            "file": "ventures/pay-app-guides/punch.mjs",
+            "line": 78,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "const line = i + 2;",
+            "after": "const line = i + 3;",
+            "line_text": "    const line = i + 2;",
+            "caught": false,
+            "seconds": 1.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "table error row numbers were untested; test asserts 'Row 3'"
+          },
+          {
+            "file": "ventures/pay-app-guides/punch.mjs",
+            "line": 90,
+            "col": 52,
+            "operator": "and-to-or",
+            "before": "if (item.accepted != null && item.fixed != null && item.accepted < item.fixed) { errors.push(`Row ${line}: accepted before it was fixed.`); return; }",
+            "after": "if (item.accepted != null && item.fixed != null || item.accepted < item.fixed) { errors.push(`Row ${line}: accepted before it was fixed.`); return; }",
+            "line_text": "    if (item.accepted != null && item.fixed != null && item.accepted < item.fixed) { errors.push(`Row ${line}: accepted before it was fixed.`); return; }",
+            "caught": true,
+            "seconds": 1.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/punch.mjs",
+            "line": 106,
+            "col": 12,
+            "operator": "const-plus-one",
+            "before": "let max = 0;",
+            "after": "let max = 1;",
+            "line_text": "  let max = 0;",
+            "caught": true,
+            "seconds": 1.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pay-app-guides/punch.mjs",
+            "line": 137,
+            "col": 61,
+            "operator": "neq-flip",
+            "before": "if (items.some((x) => x.acceptedBy != null && x.acceptedBy !== \"\") && noAcceptor.length) findings.push({ severity: \"normal\", text: `${noAcceptor.length} accepted item${noAcceptor.length === 1 ? \" does\" : \"s do\"} not say who accepted ${noAcceptor.length === 1 ? \"it\" : \"them\"}. A name and date is what you show when the release is held \"for the punch list\".` });",
+            "after": "if (items.some((x) => x.acceptedBy != null && x.acceptedBy === \"\") && noAcceptor.length) findings.push({ severity: \"normal\", text: `${noAcceptor.length} accepted item${noAcceptor.length === 1 ? \" does\" : \"s do\"} not say who accepted ${noAcceptor.length === 1 ? \"it\" : \"them\"}. A name and date is what you show when the release is held \"for the punch list\".` });",
+            "line_text": "  if (items.some((x) => x.acceptedBy != null && x.acceptedBy !== \"\") && noAcceptor.length) findings.push({ severity: \"normal\", text: `${noAcceptor.length} accepted item${noAcceptor.length === 1 ? \" does\" : \"s do\"} not say who accepted ${noAcceptor.length === 1 ? \"it\" : \"them\"}. A name and date is what you show when the release is held \"for the punch list\".` });",
+            "caught": false,
+            "seconds": 1.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "'who accepted' finding fired when no item named an acceptor; test added"
+          },
+          {
+            "file": "ventures/pay-app-guides/punch.mjs",
+            "line": 175,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "if (date) lines.splice(1, 0, `Date: ${date}`);",
+            "after": "if (date) lines.splice(2, 0, `Date: ${date}`);",
+            "line_text": "  if (date) lines.splice(1, 0, `Date: ${date}`);",
+            "caught": false,
+            "seconds": 1.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Date line position in the back-check email untested; test added"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/pay-app-guides/punch-list.html",
+        "issue": "Red baseline on main: the punch list page (PR #19669) landed with its generated CTA still linking https://payapps.duncan-andrew-haywood.workers.dev, which 404s since provisioning moved PayApps to payapps.marisstella.app; page.test.mjs failed ('CTA out of date'). Likely merge skew: the branch predated the cta.mjs host change. Regenerated with node cta.mjs.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19686"
+      },
+      {
+        "file": "docs/posts/2026-11-26-subcontractor-closeout-documents-and-retainage.md",
+        "issue": "Customer post's 'start free in PayApps' link pointed at the retired workers.dev host (curl: 404; payapps.marisstella.app/api/health 200). No check flagged it. Link fixed; check_post_links.py now fails on RETIRED_HOSTS and test_no_dead_pages_base.py fails on any venture file (DEPLOY.md excepted) naming one.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19686"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0fe3fa4d-a4aa-524b-aaea-4225ea9cc03a",
+    "transcripts": 1,
+    "first": "2026-11-27T09:06:56Z",
+    "last": "2026-11-27T09:12:20Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 100,
+        "output": 17086,
+        "thinking": 3787,
+        "cache_read": 4163402,
+        "cache_write_5m": 0,
+        "cache_write_1h": 78651,
+        "api_equivalent_usd": 1.804,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 100,
+      "output": 17086,
+      "thinking": 3787,
+      "cache_read": 4163402,
+      "cache_write_5m": 0,
+      "cache_write_1h": 78651,
+      "api_equivalent_usd": 1.804,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 51,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.4,
+      "active_minutes": 5.4,
+      "model_minutes": 3.47,
+      "tool_minutes": 1.93,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "diagnose red suite, fix link, write guard and 5 tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 110.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

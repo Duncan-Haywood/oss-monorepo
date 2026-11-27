@@ -29,3 +29,13 @@ def test_file_argument_checks_one_post(tmp_path, capsys):
     assert c.main(['x', str(tmp_path / 'ok.md')]) == 0
     assert c.main(['x', str(tmp_path / 'bad.md')]) == 1
     assert 'gone.md' in capsys.readouterr().out
+
+
+def test_retired_app_host_is_flagged(tmp_path):
+    """Red-team 2026-11-27: the close-out post's sign-up link pointed at payapps' workers.dev
+    address, which provisioning turned off when the custom domain went live (404)."""
+    (tmp_path / 'a.md').write_text(
+        '[s](https://payapps.duncan-andrew-haywood.workers.dev/?signup&from=post) '
+        '[ok](https://payapps.marisstella.app/?signup)\n')
+    bad = c.broken(str(tmp_path))
+    assert len(bad) == 1 and 'payapps.duncan-andrew-haywood.workers.dev' in bad[0][1]

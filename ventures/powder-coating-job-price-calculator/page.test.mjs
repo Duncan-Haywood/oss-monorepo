@@ -55,3 +55,16 @@ test("the share link only carries known keys and the page reads it back", () => 
   assert.match(html, /decodeShare\(location\.hash\)/);
   assert.match(html, /encodeShare\(read\(\)\)/);
 });
+
+test("the answer for the numbers on screen shows without a button press, and does not count a use", () => {
+  // The prefilled numbers are a real job: answer them on load and as fields
+  // change, in a strip kept in view while the long form scrolls.
+  const html = page("index.html");
+  assert.match(html, /<p class="live" id="live" hidden><\/p>/);
+  assert.match(html, /\.live \{ position: sticky; bottom: 0;/);
+  assert.match(html, /addEventListener\("input", \(\) => \{\s*clearTimeout\(previewTimer\);\s*previewTimer = setTimeout\(\(\) => run\(false, false\), 250\);/);
+  assert.match(html, /\} else run\(false, false\);\s*<\/script>/, "the page answers on load when no link was shared");
+  const fn = html.slice(html.indexOf("function run("), html.indexOf("function fill("));
+  assert.doesNotMatch(fn, /record\(/, "a preview is not a use: only the buttons record one");
+  assert.match(fn, /setAttribute\("aria-live", announce \? "polite" : "off"\)/, "previews are not read aloud on every keystroke");
+});
