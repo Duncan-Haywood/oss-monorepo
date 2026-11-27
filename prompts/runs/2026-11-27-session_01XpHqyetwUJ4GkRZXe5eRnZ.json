@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqyetwUJ4GkRZXe5eRnZ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T09:39:30Z",
+  "ended": "2026-11-27T09:49:16Z",
+  "wall_minutes": 9.99,
+  "tokens_in": 7333367,
+  "tokens_out": 47810,
+  "cost_usd": 3.6675,
+  "tool_calls": 57,
+  "task": "Bet #1 (PayApps) front door: Texas monthly lien notice deadlines guide with statutory forms",
+  "projects": [
+    "pay-app-guides",
+    "payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19697",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "texas-lien-notice.html had 70 px horizontal scroll at 390 px from long <select> options",
+      "fix": "shortened option labels; rechecked in Playwright"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/pay-app-guides/cta.mjs",
+      "issue": "florida-notice-to-owner.html (PR #19674) merged with the retired workers.dev CTA after #19665 switched every link; page.test.mjs did not catch it on main because the page was written by hand with the old block. Re-running node cta.mjs fixed it."
+    },
+    {
+      "file": "docs/posts",
+      "issue": "Two posts linked PayApps sign-up at payapps.duncan-andrew-haywood.workers.dev, which now returns 404; nothing checks post links against cta.mjs APP_URL. A post link check would catch this."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "The only free PayApps item (#11) needs a Windows PC and Android phone with a real iPhone photo, impossible from a cloud session; it is still offered as 'Start here'."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Every PayApps ROADMAP item waits on demand and #11 needs physical devices, so I did bet #1's public side (an SEO guide for a high-volume Texas search) instead of product code",
+      "did": "Texas lien notice guide in pay-app-guides plus a Texas section in the existing Florida notice post (consolidated, no new post)",
+      "result": "landed with tests"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-27-florida-notice-to-owner-45-days.md (extended with a Texas section)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (12 claimed); ideas inbox empty; route drew ventures/1. Statute read directly from tcss.legis.texas.gov (statutes.capitol.texas.gov is an SPA shell; the tcss resources path serves the HTML). Tex. Prop. Code 53.003(e) extends deadlines off weekends/legal holidays; 'legal holiday' undefined in ch. 53, so the page plans on the unmoved date and shows the 662.003 extension separately. Verified: run_venture_tests pay-app-guides (336) + mechanics-lien-deadline-calculator (60) pass; Playwright check at 390 px clean. Next run could add Texas notice tracking to PayApps itself (like the Florida NTO panel).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "84825891-8128-57dd-827f-9eb44c0274b0",
+    "transcripts": 1,
+    "first": "2026-11-27T09:39:30Z",
+    "last": "2026-11-27T09:49:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 107,
+        "output": 47810,
+        "thinking": 8537,
+        "cache_read": 7173748,
+        "cache_write_5m": 0,
+        "cache_write_1h": 159512,
+        "api_equivalent_usd": 3.6675,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 107,
+      "output": 47810,
+      "thinking": 8537,
+      "cache_read": 7173748,
+      "cache_write_5m": 0,
+      "cache_write_1h": 159512,
+      "api_equivalent_usd": 3.6675,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 51,
+      "Write": 3,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.99,
+      "active_minutes": 9.99,
+      "model_minutes": 8.32,
+      "tool_minutes": 1.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "statute reading, date engine with holiday rules, tests and page for a construction-law guide",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 218.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

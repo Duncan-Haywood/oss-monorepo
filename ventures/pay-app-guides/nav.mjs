@@ -42,6 +42,7 @@ export const GROUPS = [
     ["lien-waiver-forms-by-state.html", "Lien waiver forms by state"],
     ["california-preliminary-notice.html", "California 20-day preliminary notice"],
     ["florida-notice-to-owner.html", "Florida Notice to Owner (45 days)"],
+    ["texas-lien-notice.html", "Texas monthly lien notice deadlines"],
     ["lien-waiver-log.html", "Lien waiver log (given and collected)"],
     ["sworn-statement.html", "Contractor's sworn statement builder"],
     ["paid-short.html", "Paid short? Reconcile the check"],
