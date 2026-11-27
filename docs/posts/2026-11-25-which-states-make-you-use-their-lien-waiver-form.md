@@ -359,8 +359,8 @@ application:
 
 The signed copies go in the pay app's attachments, so they land in the backup packet next to your
 own waiver. A later part will attach each file to its row and list the waivers still out across
-jobs in the weekly email. This is on the Crew plan and up, alongside lien waivers. PayApps is in
-development, and nothing is for sale yet. Not legal advice.
+jobs in the weekly email. This is on the Crew plan and up, alongside lien waivers. PayApps itself is open and free on one
+job; the Crew plan is not on sale yet. Not legal advice.
 
 ### Later the same day: the signed copy filed on its row
 

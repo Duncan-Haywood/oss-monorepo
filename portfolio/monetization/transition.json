@@ -299,7 +299,7 @@
     },
     {
       "venture": "pay-app-guides",
-      "source_lines": 5068,
+      "source_lines": 5353,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "one-off",

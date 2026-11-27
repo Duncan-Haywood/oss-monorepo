@@ -83,6 +83,15 @@ heavy: NAHB counts
 There is also some churn coming among residential tools: CoConstruct is being
 folded into Buildertrend, with
 [no new CoConstruct projects after 31 March 2027](https://coconstruct.com/migration).
+CoConstruct's own page (read 2026-11-27) adds that active projects can be
+finished there and old ones stay readable, so the decision is where jobs that
+start after the cut-off will live, and whether to move a long job mid-stream.
+[CoConstruct is closing to new projects](https://marisstella.app/pay-app-guides/coconstruct-alternatives.html)
+sorts the options by kind of business (a custom or cost-plus builder needs a
+builder suite; a sub or small GC billing on a schedule of values may only need
+pay-app billing), lists what to pull out of CoConstruct before moving a partly
+billed job, and says plainly what PayApps does not do: selections, a
+homeowner portal or cost-plus billing.
 
 ### The fee you pay even without software (added 2026-11-25)
 

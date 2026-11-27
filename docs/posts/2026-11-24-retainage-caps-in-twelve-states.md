@@ -100,6 +100,8 @@ orders flow into the schedule of
 values](https://marisstella.app/pay-app-guides/change-orders-schedule-of-values.html).
 The calculator runs in the browser and uploads nothing.
 
-Hosted pay-app billing for subcontractors, covering the SOV, retainage,
-change orders and waivers across every job, is in development with early
-access; each guide links to it. Nothing is for sale yet.
+PayApps, our hosted pay-app billing for subcontractors, is open: the
+schedule of values, retainage (per line, with its own rate where the
+subcontract sets one) and change orders are free on one active job, with no
+card ([start free](https://marisstella.app/industries/construction/)). Lien waivers across every job are on the paid
+plans, which are not on sale yet.
