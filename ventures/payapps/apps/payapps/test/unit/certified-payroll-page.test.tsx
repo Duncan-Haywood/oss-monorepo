@@ -8,6 +8,7 @@ import { CaEcprSection } from "../../src/client/components/ca-ecpr-section";
 import { IlCtpSection } from "../../src/client/components/il-ctp-section";
 import { NjCprSection } from "../../src/client/components/nj-cpr-section";
 import { NyCprSection } from "../../src/client/components/ny-cpr-section";
+import { type OrDraftJob, OrPwrSection } from "../../src/client/components/or-pwr-section";
 import { WaCprSection } from "../../src/client/components/wa-cpr-section";
 import { blankWorker, lastSaturday, nextWeek } from "../../src/client/pages/certified-payroll";
 import { makeFormPdf } from "./form-fixture";
@@ -524,5 +525,63 @@ describe("certified payroll page helpers", () => {
     fireEvent.change(input, { target: { files: [new File([mw562 as BlobPart], "MW-562.pdf")] } });
     expect(await screen.findByText(/MW-562.pdf is NJDOL's MW-562/)).toBeTruthy();
     expect(button()).toHaveProperty("disabled", false);
+  });
+});
+
+describe("Oregon section (ORS 279C.845)", () => {
+  it("shows the week's due date, the split-week reading and the hold for a first-tier sub", () => {
+    let job: OrDraftJob = { on: true, earnedCents: 10_000_000 };
+    const view = render(
+      <OrPwrSection
+        job={job}
+        onJob={(j) => {
+          job = j;
+        }}
+        payrollRole="sub"
+        days={weekDays("2026-12-05")}
+        today="2026-11-27"
+      />,
+    );
+    // Week Sun 29 Nov to Sat 5 Dec 2026: filed with November, due Mon 7 Dec; December's is 8 Jan 2027.
+    expect(view.container.textContent).toContain("November 2026");
+    expect(view.container.textContent).toContain("Mon, Dec 7, 2026");
+    expect(view.container.textContent).toContain("10 days from today");
+    expect(view.container.textContent).toContain("Fri, Jan 8, 2027");
+    expect(view.container.textContent).toContain("prime contractor must retain 25%");
+    expect(view.container.textContent).toContain("$25,000.00");
+    fireEvent.click(screen.getByLabelText(/A lower-tier subcontractor/));
+    expect(job.tier).toBe("lower");
+  });
+
+  it("names the holiday it skipped and the public agency as holder for a prime", () => {
+    const view = render(
+      <OrPwrSection
+        job={{ on: true, filedOn: "2027-01-12" }}
+        onJob={() => {}}
+        payrollRole="prime"
+        days={weekDays("2026-12-19")}
+        today="2027-01-11"
+      />,
+    );
+    expect(view.container.textContent).toContain("New Year's Day (Fri, Jan 1, 2027)");
+    expect(view.container.textContent).toContain("3 days late");
+    expect(view.container.textContent).toContain("public agency must retain 25%");
+    expect(view.container.textContent).toContain("Tue, Jan 26, 2027");
+  });
+
+  it("is a single checkbox until turned on", () => {
+    let job: OrDraftJob = {};
+    render(
+      <OrPwrSection
+        job={undefined}
+        onJob={(j) => {
+          job = j;
+        }}
+        payrollRole="sub"
+        days={[]}
+      />,
+    );
+    fireEvent.click(screen.getByRole("checkbox"));
+    expect(job.on).toBe(true);
   });
 });

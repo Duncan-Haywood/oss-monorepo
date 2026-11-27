@@ -33,6 +33,7 @@ import { meQuery } from "../components/layout";
 import { MoneyInput } from "../components/money-input";
 import { NjCprSection, type NjDraftJob } from "../components/nj-cpr-section";
 import { NyCprSection, type NyDraftJob } from "../components/ny-cpr-section";
+import { type OrDraftJob, OrPwrSection } from "../components/or-pwr-section";
 import { TimesheetFill } from "../components/timesheet-fill";
 import { TimesheetImport } from "../components/timesheet-import";
 import { WaCprSection, type WaDraftJob } from "../components/wa-cpr-section";
@@ -47,6 +48,7 @@ type DraftRow = CertifiedPayrollRow & { uid?: string };
  * `il`: the Illinois IDOL extras (src/shared/il-ctp.ts), saved with the draft; never race,
  *   ethnicity, gender or veteran status.
  * `nj`: the New Jersey MW-562 extras (src/shared/nj-cpr.ts), saved with the draft.
+ * `or`: the Oregon due-date and late-hold inputs (src/shared/or-pwr.ts), saved with the draft.
  */
 type DraftWorker = Omit<CertifiedPayrollWorker, "rows"> & {
   uid?: string;
@@ -64,6 +66,7 @@ type Draft = Omit<CertifiedPayrollInput, "workers"> & {
   wa?: WaDraftJob;
   il?: IlDraftJob;
   nj?: NjDraftJob;
+  or?: OrDraftJob;
 };
 
 let uidCounter = 0;
@@ -149,6 +152,7 @@ export function nextWeek(d: Draft): Draft {
     ...(d.ca ? { ca: { ...d.ca, nonPerformance: false } } : {}),
     ...(d.wa ? { wa: { ...d.wa, noWork: false } } : {}),
     ...(d.nj ? { nj: { ...d.nj, noWork: false, sign: false, wagesPaid: "" } } : {}),
+    ...(d.or ? { or: { ...d.or, filedOn: "" } } : {}),
   };
 }
 
@@ -981,6 +985,13 @@ export function CertifiedPayrollPage() {
         workers={draft.workers}
         onWorker={(wi, nj) => setWorker(wi, { nj })}
         payroll={parsed?.success ? parsed.data : null}
+      />
+
+      <OrPwrSection
+        job={draft.or}
+        onJob={(or) => set({ or })}
+        payrollRole={draft.role}
+        days={days}
       />
 
       <section className="card grid gap-2">

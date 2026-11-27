@@ -1780,6 +1780,30 @@ nothing to copy. No customers yet. Paid plans are dark
   Next, if New Jersey customers ask: what a real upload reads back (and whether blank day cells need a 0),
   the Hub's CSV template once njwages.nj.gov answers (for crews past 10 rows), and more than one sheet a week if the Hub ever keeps them all.
 
+- Certified payroll, part 3f: Oregon public works due dates and the 25% hold (2026-11-27,
+  certified-payroll-oregon-wh38, every plan). Oregon takes no state upload: each contractor files a
+  certified statement for each week with the public agency, monthly "by the fifth business day of the
+  following month" (ORS 279C.845(4)), and a late filing lets the next tier up hold 25% of what was earned
+  (the agency from the prime, (7); the prime from a first-tier sub, (8)); OAR 839-025-0010(4)-(6) counts
+  it on the unpaid amount earned since the last filing, on top of other retainage, released within 14 days
+  of filing. An "Oregon public works" section on the certified payroll page dates the week on screen: the
+  month it files with (a split week goes with the earlier month, the later date named too, since the
+  statute does not say), the due date counted Monday to Friday less ORS 187.010's holidays (with (2)'s
+  Saturday/Sunday shifts; Governor-appointed days unknown, which can only make a date earlier), the
+  holidays it skipped and the days left; the prime / first-tier / lower-tier choice (defaulting from the
+  payroll's prime/sub), the 25% at stake on an amount typed, and the release date once a filing date is
+  entered; what BOLI wants with a WH-347 (the WH-38's signed certification, OAR 839-025-0010(3)(a); each
+  worker's address, (3); fringe by plan; the Enhanced WH-38's demographics on a qualifying agency's
+  contract over $3 million). It does not print the WH-38: `WH-38 2.19.25.pdf`, which BOLI's handbook
+  links, answered with an HTML page from this session. Sources read 2026-11-27 on oregonlegislature.gov
+  (ORS 279C.845, 187.010), secure.sos.state.or.us (OAR 839-025-0010) and oregon.gov/boli (PWR Laws
+  Handbook, 6.5.26 edition). Saved with the draft in the browser; nothing sent to the server.
+  `src/shared/or-pwr.ts` (dates worked by hand in `or-pwr.test.ts`), `src/client/components/or-pwr-section.tsx`,
+  `test/unit/certified-payroll-page.test.tsx`. Front door: certified-payroll-calculator's
+  `oregon-certified-payroll-wh38-due-dates.html` with the 2027 due-date table. Next, if Oregon customers
+  ask: the WH-38 filled once BOLI's file downloads, the hold on the cash report for a prime's subs who
+  have not filed, and the apprenticeship utilization share on enhanced reporting jobs.
+
 - Getting started, part 5 (2026-11-26): where companies stall, in the owner's metrics.
   `GET /api/admin/metrics` now carries `activation`: for every company, and for those that signed
   up inside the window, how many reached each checklist step (job, schedule of values, pay
@@ -2580,7 +2604,7 @@ nothing to copy. No customers yet. Paid plans are dark
   browser if people ask, other states' prevailing-wage formats once their official specs are read (California's DIR eCPR
   XML, schema 2.0, done 2026-11-26: part 3a; New York's NYSDOL XML done 2026-11-27: part 3b;
   Washington's L&I XML done 2026-11-27: part 3c; Illinois' IDOL CTP CSV done 2026-11-27: part 3d;
-  New Jersey's Wage Hub MW-562 done 2026-11-27: part 3e; its CSV template once njwages.nj.gov answers), and the upload formats of the compliance
+  New Jersey's Wage Hub MW-562 done 2026-11-27: part 3e; its CSV template once njwages.nj.gov answers; Oregon's due dates and 25% hold done 2026-11-27: part 3f, the WH-38 itself once BOLI's file downloads), and the upload formats of the compliance
   systems GCs use (LCPtracker and the like) if GCs ask
 - History, part 3: history for the job's waivers outside a pay app, if those ever exist
 - Notice to Owner, Florida, part 3 (part 2, the notices served per person, the saved first day and
