@@ -20,7 +20,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useParams } from "@tanstack/react-router";
 import { useState } from "react";
 import { ErrorText } from "../components/error";
-import { FollowUpEmails } from "../components/follow-up-emails";
+import { FollowUpEmails, PaidLateInterest } from "../components/follow-up-emails";
 import { meQuery } from "../components/layout";
 import { UnsentQuickBooksPayments } from "../components/unsent-quickbooks";
 import { api, orgPath } from "../lib/api";
@@ -352,6 +352,7 @@ export function CashReportView({
           )}
 
           <FollowUpEmails orgId={orgId} report={r} from={from} />
+          <PaidLateInterest orgId={orgId} report={r} from={from} />
 
           {r.totals.waiversToSend > 0 && (
             <p className="text-sm text-amber-800">
