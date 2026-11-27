@@ -39,6 +39,10 @@
     {
       "file": "platform/ci/roadmap_claim.py",
       "issue": "payapps #16 was listed as free and claimed by another run 7 seconds later; with bet #1's only other free item needing a physical Windows PC and Android phone, there was nothing workable on bet #1 this run."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "For jobshop-quote (moved in 2026-11-27, not deployed) it fails on catalogue placement: no launched.json date and it would land in the full 'More free tools' section. Payapps, moved the same way, has the same gaps on main. The preflight treats a not-yet-deployed paid product as a free tool needing a launch date."
     }
   ],
   "deviations": [
@@ -53,6 +57,12 @@
       "why": "Bet #1 (payapps) had no workable free item this run, so I took bet #2's only free item.",
       "did": "jobshop-quote ROADMAP #5",
       "result": "landed"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "venture-preflight failed on two pre-existing catalogue checks unrelated to this diff; writing a launch date would mark an undeployed product as launched.",
+      "did": "merged without fixing them; recorded here",
+      "result": "PR CI checks are the gate for this diff"
     }
   ],
   "writeups": [
@@ -60,7 +70,7 @@
     "ventures/jobshop-quote/apps/jobshop-quote/docs/GEOMETRY-LIMITS.md"
   ],
   "goal": null,
-  "notes": "Security queue: 0 workable. Ideas inbox empty. Verification: cad-features node --test 75/75; jobshop-quote vitest unit 633/633, worker 282/282; tsc clean (app + cad-features); biome check . clean. Real-file equality: extractFeatures JSON identical old vs new parser on 33 NIST + 3 Onshape STEP files. Timings in workerd 1.20251118.0 (local), heap via Node --max-old-space-size bisection (workerd local does not enforce the 128 MB isolate limit).",
+  "notes": "Security queue: 0 workable. Ideas inbox empty. Verification: cad-features node --test 75/75; jobshop-quote vitest unit 633/633, worker 282/282; tsc clean (app + cad-features); biome check . clean. Real-file equality: extractFeatures JSON identical old vs new parser on 33 NIST + 3 Onshape STEP files. Timings in workerd 1.20251118.0 (local), heap via Node --max-old-space-size bisection (workerd local does not enforce the 128 MB isolate limit). venture-preflight jobshop-quote: FAILED on pre-existing catalogue checks (launched.json, More-free-tools section full), not on this diff.",
   "corrections": [],
   "redteam": null,
   "usage": {
