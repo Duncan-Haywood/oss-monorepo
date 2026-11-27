@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const PAGES = ["index", "cmmc-level-1-self-assessment", "cmmc-scoping-worksheet", "sprs-score-calculator", "nist-800-171-ssp-template", "dfars-7012-incident-reporting", "cmmc-affirmation-dates", "stock-size-from-step-file", "job-shop-quote-calculator", "rfq-review", "drawing-review", "first-article-inspection", "cmmc-level-1-vs-level-2", "cmmc-subcontractor-flow-down", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual", "machine-shop-quoting-software", "machining-quote-template", "machine-hour-rate"];
+const PAGES = ["index", "cmmc-level-1-self-assessment", "cmmc-scoping-worksheet", "sprs-score-calculator", "nist-800-171-ssp-template", "dfars-7012-incident-reporting", "cmmc-affirmation-dates", "cmmc-cost", "stock-size-from-step-file", "job-shop-quote-calculator", "rfq-review", "drawing-review", "first-article-inspection", "cmmc-level-1-vs-level-2", "cmmc-subcontractor-flow-down", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual", "machine-shop-quoting-software", "machining-quote-template", "machine-hour-rate"];
 const read = (p) => readFileSync(new URL(`./${p}.html`, import.meta.url), "utf8");
 
 for (const p of PAGES) {
@@ -217,4 +217,24 @@ test("machine hour rate page ships no rates and builds its rows from text", () =
 
 test("the quote calculator takes a machine rate from the machine hour rate page", () => {
   assert.match(read("job-shop-quote-calculator"), /\["setupFactor", "cycleFactor", "machineRate"\]/);
+});
+
+// The cost page quotes DoD's regulatory impact analysis (2026-11-27). Every <q> is a pinned sentence
+// in cost.mjs (which cost.test.mjs finds in fixtures/cost/), every dollar figure in the prose is one
+// the rule prints, and the rows are built from text.
+test("CMMC cost page: quotes pinned, figures from the rule, DOM from text, nothing kept or sent", async () => {
+  const { QUOTES } = await import("./cost.mjs");
+  const html = read("cmmc-cost");
+  const rule = readFileSync(new URL("./fixtures/cost/89-fr-83092-cost.txt", import.meta.url), "utf8").replace(/\s+/g, " ");
+  const known = new Set(Object.values(QUOTES));
+  const qs = [...html.matchAll(/<q>([\s\S]*?)<\/q>/g)].map((m) => m[1].replace(/&amp;/g, "&"));
+  assert.ok(qs.length >= 4);
+  for (const q of qs) assert.ok(known.has(q), `not a pinned quote: ${q}`);
+  let text = html; let prev;
+  do { prev = text; text = text.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ""); } while (text !== prev);
+  for (const [fig] of text.matchAll(/\$[\d,]+(\.\d+)?/g)) assert.ok(rule.includes(fig), `${fig} is not printed in the rule`);
+  assert.doesNotMatch(html, /innerHTML|outerHTML|insertAdjacentHTML|document\.write/);
+  assert.doesNotMatch(html, /localStorage|sessionStorage|setItem\(/);
+  assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon/);
+  for (const name of ["c3paoQuote", "gapOneTime", "gapYearly"]) assert.doesNotMatch(html.match(new RegExp(`<input name="${name}"[^>]*>`))[0], /value=/);
 });
