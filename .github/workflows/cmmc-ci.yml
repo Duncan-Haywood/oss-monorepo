@@ -58,7 +58,8 @@ jobs:
       - run: pnpm test:unit
       - run: pnpm test:worker
       - name: Deploy provisioning script
-        run: node --test scripts/provision.test.mjs
+        working-directory: .
+        run: node --test ventures/cmmc/apps/cmmc/scripts/provision.test.mjs
       - run: pnpm build
       - name: No source maps in the public assets
         run: node ../../scripts/check-no-client-maps.mjs dist/client
