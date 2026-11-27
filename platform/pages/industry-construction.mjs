@@ -134,6 +134,7 @@ export const PROBLEMS = [
       ['pay-app-guides/flooring-contractor-billing.html', 'Pay apps for flooring and tile', 'An SOV by floor and material, slab moisture and floor prep as extras, material on site as stored, attic stock.'],
       ['pay-app-guides/glazing-contractor-billing.html', 'Pay apps for glazing and curtain wall', 'Engineering, frames and glass fabricated off site as stored materials, the mockup, water tests and broken glass.'],
       ['pay-app-guides/steel-contractor-billing.html', 'Pay apps for structural steel and misc metals', 'Detailing, fabricated steel as stored materials, erection by sequence or ton, embeds delivered early, RFIs.'],
+      ['pay-app-guides/fire-protection-contractor-billing.html', 'Pay apps for fire sprinkler contractors', 'Design and permit, pipe and heads as stored materials, rough-in before trim, the hydro test and the AHJ’s final acceptance.'],
       ['pay-app-guides/front-loading-schedule-of-values.html', 'Front-loading check', 'Compare each schedule of values line’s markup with the job’s, see what a reviewer sees, and get a balanced SOV.'],
       ['pay-app-guides/stored-materials-billing.html', 'Billing stored materials', 'The monthly stored-materials rollforward, so installed material is billed once, and the backup reviewers ask for.'],
       ['pay-app-guides/retainage-explained.html', 'Retainage explained, with state caps', 'How retainage is calculated and released, and public retainage caps for 16 states, each linked to the statute.'],
