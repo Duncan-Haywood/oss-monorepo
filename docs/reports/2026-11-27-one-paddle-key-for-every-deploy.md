@@ -73,3 +73,11 @@ the first run after merge: whether the key has `notification_setting.read`/`.wri
 and names the permission if not). Read the deploy's summary line "Paddle notification destination".
 Next: the same for `seller-books-deploy` (copy the two files into `ventures/seller-books/packages/billing`
 and set its own event list), and the launch review for live checkout.
+
+First live run (payapps-deploy 46027839041, 2026-11-27 15:52 UTC): the key may read and write
+notification settings. The deploy **created** destination `ntfset_01m8evambp5mrdq1z9w7wsgack`
+(inactive), but then refused the secret Paddle returned: the first version's check wanted
+`pdl_ntfset_[A-Za-z0-9_]{16,}`, or the field was absent from the create response. The follow-up
+(PR "paddle-webhook-destination part 2") accepts any `pdl_ntfset_…` value without whitespace,
+re-reads the destination by id when the field is missing, and logs which case it was (length
+and prefix only). The next deploy finds that destination instead of creating a second one.

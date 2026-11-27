@@ -165,6 +165,8 @@ ${main}
       <a href="${href(ctx, PAGES.features.path)}">Features</a>
       <a href="${href(ctx, PAGES.pricing.path)}">Pricing</a>
       ${launchOf(ctx).appUrl ? html`<a href="${`${launchOf(ctx).appUrl}/`}">Sign in</a>` : html`<a href="${href(ctx, PAGES.earlyAccess.path)}">Early access</a>`}
+      <a href="${href(ctx, PAGES.terms.path)}">Terms</a>
+      <a href="${href(ctx, PAGES.refunds.path)}">Refunds</a>
       <a href="${href(ctx, PAGES.privacy.path)}">Privacy</a>
       <a href="${href(ctx, "/llms.txt")}">llms.txt</a>
     </p>

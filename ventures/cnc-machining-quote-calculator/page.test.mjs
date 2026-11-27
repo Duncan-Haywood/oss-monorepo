@@ -206,10 +206,12 @@ test("nothing on any page reaches the network", () => {
     assert.doesNotMatch(html, /XMLHttpRequest|navigator\.sendBeacon|new WebSocket|EventSource/, `${name} must not transmit`);
     assert.doesNotMatch(html, /<script[^>]+src=/, `${name} must not load a remote script`);
     assert.doesNotMatch(html, /<link[^>]+href="https?:/, `${name} must not load a remote stylesheet`);
-    // The only absolute URLs permitted are the sponsor link and schema.org.
+    // The only absolute URLs permitted are the sponsor link, schema.org and the sign-up link to
+    // Job Shop Quote (a plain <a>, never loaded by the page).
     for (const url of [...html.matchAll(/https?:\/\/[^\s"'<)]+/g)].map((m) => m[0])) {
       assert.ok(
-        /^https?:\/\/(github\.com\/sponsors\/Duncan-Haywood|schema\.org|www\.w3\.org|www\.sitemaps\.org)/.test(url),
+        /^https?:\/\/(github\.com\/sponsors\/Duncan-Haywood|schema\.org|www\.w3\.org|www\.sitemaps\.org)/.test(url) ||
+          /^https:\/\/jobshop-quote\.marisstella\.app\/sign-up\?from=[a-z-]+$/.test(url),
         `${name} references an unexpected external URL: ${url}`,
       );
     }
@@ -596,4 +598,12 @@ test("the answer for the numbers on screen shows without a button press, and doe
   assert.match(INDEX, /\} else \{\s*preview\(\);\s*\}/);
   const body = INDEX.slice(INDEX.indexOf("function preview()"), INDEX.indexOf("let previewTimer"));
   assert.doesNotMatch(body, /recordUsage/, "a preview is not a use");
+});
+
+test("the page links Job Shop Quote's free sign-up and says what is not on sale", () => {
+  const cta = /<section class="card" id="job-shop-quote">[\s\S]*?<\/section>/.exec(INDEX);
+  assert.ok(cta, "no Job Shop Quote section");
+  assert.match(cta[0], /href="https:\/\/jobshop-quote\.marisstella\.app\/sign-up\?from=cnc-machining-quote-calculator"/);
+  assert.match(cta[0], /Paid plans are not on\s+sale yet/);
+  assert.doesNotMatch(cta[0], /\$\d/);
 });

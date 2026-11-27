@@ -246,3 +246,22 @@ export function dashboardCsv(d, lang) {
   ]);
   return `\uFEFF${[head, ...rows].map((r) => r.map(csvCell).join(",")).join("\r\n")}\r\n`;
 }
+
+/**
+ * The dashboard of one account over `days`, read from the store (the /v1/dashboard route and the
+ * summary email share it, pro/digest.mjs).
+ * @param {any} store @param {string} accountId @param {number} days @param {Date} at @returns {Promise<Dashboard>}
+ */
+export async function dashboardFor(store, accountId, days, at) {
+  const since = new Date(at.getTime() - days * 86_400_000).toISOString();
+  /** @type {Client[]} */
+  const clients = await store.listClients(accountId);
+  const runsByClient = new Map();
+  const lastByClient = new Map();
+  for (const c of clients) {
+    const { runs, last } = await runsSince(store, accountId, c.id, since);
+    runsByClient.set(c.id, runs);
+    lastByClient.set(c.id, last);
+  }
+  return buildDashboard({ clients, runsByClient, lastByClient, now: at, days });
+}

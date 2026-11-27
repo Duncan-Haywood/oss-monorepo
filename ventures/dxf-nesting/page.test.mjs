@@ -56,5 +56,7 @@ test("the pricing step has no built-in rates: every rate field starts empty", ()
     const tag = new RegExp(`<input[^>]*id="${id}"[^>]*>`).exec(html)[0];
     assert.doesNotMatch(tag, /\svalue=/, id);
   }
-  assert.match(html, /In development — early access/);
+  assert.match(html, /Open now, free to start/);
+  assert.match(html, /href="https:\/\/jobshop-quote\.marisstella\.app\/sign-up\?from=dxf-nesting"/);
+  assert.match(html, /paid plans are not on sale yet/);
 });
