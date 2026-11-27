@@ -127,8 +127,8 @@ class ConstantTimeCompare(unittest.TestCase):
         )
 
     def test_every_copy_matches_only_equal_inputs(self):
-        if not self.node:
-            self.skipTest("node not on PATH")
+        # No skip without node: a skipped run would pass every broken copy.
+        self.assertIsNotNone(self.node, "node not on PATH")
         for path, src, bytes_ in self.copies:
             name = DEF.search(src).group(1)
             with self.subTest(file=str(path.relative_to(REPO))):
@@ -141,8 +141,8 @@ class ConstantTimeCompare(unittest.TestCase):
 
     def test_catches_a_length_check_that_returns_true(self):
         """The 2026-11-27 mutant: this suite must fail it."""
-        if not self.node:
-            self.skipTest("node not on PATH")
+        # No skip without node: a skipped run would pass every broken copy.
+        self.assertIsNotNone(self.node, "node not on PATH")
         src = (
             "function timingSafeEqual(a, b) { if (a.length !== b.length) return true; let d = 0;"
             " for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i); return d === 0; }"

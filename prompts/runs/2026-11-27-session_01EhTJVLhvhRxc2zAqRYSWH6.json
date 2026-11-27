@@ -34,7 +34,8 @@
   "outcome": "success",
   "errors": [
     "assert.rejects with a third (message) argument failed tsc in packages/billing (TS2554); rewrote as catch + assert.ok",
-    "first host test used xn--p1ai, whose only digit (1) the mutated class still allowed; switched to xn--80asehdb"
+    "first host test used xn--p1ai, whose only digit (1) the mutated class still allowed; switched to xn--80asehdb",
+    "adversarial-gate blocked self.skipTest('node not on PATH') in the new suite (test-skipped rule); replaced with assertIsNotNone, which is also stricter"
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -53,7 +54,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Guard added: platform/ci/test_constant_time_compare.py runs 14 hand-written constant-time compares in ventures/ against one behaviour table. It passes on main. It fails the length-check mutant and a real copy with the length XOR removed (that needed NUL-padding cases, added). late-interest.ts hunt: no defect (the server enforces MAX_LATE_INTEREST_BPS[per] in projects.ts:70; dates are isoDate-validated).",
+  "notes": "Guard added: platform/ci/test_constant_time_compare.py runs 14 hand-written constant-time compares in ventures/ against one behaviour table. It passes on main. It fails the length-check mutant and a real copy with the length XOR removed (that needed NUL-padding cases, added). late-interest.ts hunt: no defect (the server enforces MAX_LATE_INTEREST_BPS[per] in projects.ts:70; dates are isoDate-validated). Real defect fixed: pay-app-guides nav lists out of date on main after two parallel merges (node nav.mjs).",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -304,7 +305,14 @@
         ]
       }
     ],
-    "real_defects": []
+    "real_defects": [
+      {
+        "file": "ventures/pay-app-guides/change-order-template.html",
+        "issue": "main red: PRs #19870 (change-order template) and the state bond claims page merged in parallel, each regenerating nav.mjs without the other's page, so page.test.mjs 'every page is in the all-guides list' failed on main (seen as this PR's changed-ventures failure after merging main)",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19873"
+      }
+    ]
   },
   "usage": {
     "measured_by": "prompts/runcost.py v1",
