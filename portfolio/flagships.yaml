@@ -72,7 +72,7 @@ flagships:
   - venture: payapps
     bet: 1
     front_door: [pay-application-generator, pay-app-guides, lien-waiver-checker, mechanics-lien-deadline-calculator]
-    app: private-monorepo/apps/payapps
+    app: ventures/payapps/apps/payapps
     why: >-
       Bet 1 (score 22): specialty subcontractors and small GCs prepare monthly AIA
       G702/G703 pay applications, track retainage, chase lien waivers and change
@@ -82,7 +82,7 @@ flagships:
       RFIs, estimating; bet 6 becomes its estimating module). The owner's favourite
       vertical.
     next: >-
-      Built in private-monorepo/apps/payapps (attach it with add_repo, push access).
+      Built in ventures/payapps/apps/payapps (moved from private-monorepo 2026-11-27).
       Landed: (1) jobs with a schedule of values and monthly pay apps with
       retainage, PDF and CSV in its own layout; (2) change orders; plans and Paddle
       billing, dark (private-monorepo PR #37: Free 1 active job, Solo $99, Crew

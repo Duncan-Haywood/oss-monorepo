@@ -38,5 +38,7 @@ payments-account infrastructure stays in `private-monorepo`, as `LICENSING_TRANS
 2. Remove `apps/payapps`, `apps/payapps-site` and the four packages from `private-monorepo` in a PR
    there, leaving a pointer here (the other apps that import `packages/billing` or
    `packages/admin-metrics` keep private copies until they move too).
-3. Point `portfolio/monetization/models.yaml`, `bets.md` and `roadmap_claim.py` at
-   `ventures/payapps/apps/payapps`.
+3. Done 2026-11-27: `portfolio/monetization/models.yaml`, `portfolio/flagships.yaml`, `bets.md`,
+   the router's Deepen task and `roadmap_claim.py` point at `ventures/payapps/apps/payapps`
+   (claims are `claim/payapps/*` branches on this repository from now on; the old ones in
+   `private-monorepo` were all past their six hours).
