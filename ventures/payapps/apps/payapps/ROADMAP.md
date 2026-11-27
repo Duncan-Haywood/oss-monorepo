@@ -1001,6 +1001,28 @@ this repository's GitHub Actions starts no jobs; it runs once the CodeBuild runn
   `services/payapps/notice-files.ts`; worker test `test/worker/ca-notice-files.test.ts`. Not done:
   listing the attached receipts on the § 8118 proof PDF, and the § 2015.5 perjury sentence.
 
+- Notice to Owner: Florida (2026-11-27, Crew and up, with lien waivers; florida-notice-to-owner).
+  The job page's "Preliminary notice of right to lien" panel prints Fla. Stat. § 713.06(2)(c)'s
+  Notice to Owner, the notice a sub, sub-sub or supplier not in privity with the owner must serve
+  before it can perfect a lien ("the failure to serve the notice, or to timely serve it, is a complete
+  defense"). The statute's whole form, word for word: the three capital warnings (bold), "To", the
+  services, the property, "under an order given by", the "IMPORTANT INFORMATION FOR YOUR PROTECTION"
+  text, the lienor's signature, name and address, and "Copies to". Prefilled from the job: the owner,
+  the site, the GC as who gave the order and as the first copy (§ 713.06(2)(a) requires the copy from
+  a sub-sub or a supplier to a sub), and the company name. Enter the first day of work and the panel
+  shows the last day to serve it (45 calendar days, § 713.06(2)(a)) and the last day to mail it so
+  service counts on mailing (40 days, by registered, Global Express Guaranteed or certified mail with
+  a mail log or USPS tracking, § 713.18(2)); not moved for weekends or holidays, and not saved. The
+  notes quote §§ 713.06(2) and 713.18 (how to serve; who gets copies; the building permit when there
+  is no notice of commencement). Text from the Florida Senate's 2026 Florida Statutes, read
+  2026-11-27 (snapshot `packages/lien-waivers/sources/fl-713-06.txt`); `test/fl-notice.test.ts`
+  compares the whole printed form and every quoted phrase with it (four one-phrase edits each fail
+  it). `packages/lien-waivers/src/fl-notice.ts`, worker case in `test/worker/notices.test.ts`. Why:
+  Florida has the second most specialty-trade establishments (44,445, bets.md), and a late Notice to
+  Owner loses the lien outright. Not done: a record of each notice served (as California's log), the
+  45-day reminder in the cash page and the weekly email, the combined notice to contractor on bonded
+  and public jobs (§ 255.05, § 713.23), and the notice of nonpayment and claim of lien (§ 713.08).
+
 - GC portal exports, part 1: Procore's subcontractor SOV template (2026-11-25). On the job page, under
   the schedule of values, "Procore subcontractor SOV": choose the CSV template the GC's Procore
   commitment gives (Subcontractor Schedule of Values tab, Edit SSOV, Import CSV, Download CSV
@@ -2185,6 +2207,11 @@ this repository's GitHub Actions starts no jobs; it runs once the CodeBuild runn
   XML, schema 2.0, done 2026-11-26: part 3a), and the upload formats of the compliance
   systems GCs use (LCPtracker and the like) if GCs ask
 - History, part 3: history for the job's waivers outside a pay app, if those ever exist
+- Notice to Owner, Florida, part 2 (part 1, the § 713.06(2)(c) form and the 45/40-day dates, done
+  2026-11-27): the notices served recorded per person (owner, contractor, the notice of
+  commencement's designee) with how and when, the first-day date saved with the job, and the 45-day
+  reminder on the cash page and in the weekly email, as California's log does; then the notice of
+  nonpayment (§ 713.08) if contractors use it
 - RFIs, part 3: (part 2 is done 2026-11-26: history, overdue across jobs, files, and a change
   order started from an answered RFI) the RFI's answer and files carried onto the change order
   request PDF as its backup, if people ask
