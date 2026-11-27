@@ -66,7 +66,7 @@ export function plan(input) {
   if (error) return { error };
   const m = model(v);
   const advice = [];
-  advice.push(`The night grosses ${usd(m.gross)} and costs ${usd(m.cost)}, so the cause keeps ${usd(m.net)}: ${usd(m.netPerGuest)} per seat. Cost per dollar raised is $${m.costPerDollar === null ? "n/a" : m.costPerDollar.toFixed(2)}.`);
+  advice.push(`The night grosses ${usd(m.gross)} and costs ${usd(m.cost)}, so the cause keeps ${usd(m.net)}: ${usd(m.netPerGuest)} per seat. Cost per dollar raised is $${m.costPerDollar === null ? "n/a" : m.costPerDollar.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.`);
   if (m.costPerDollar !== null) {
     advice.push(m.costPerDollar > 0.5
       ? `That is above $0.50 per dollar raised, a figure often quoted as a ceiling for special events. Check it against your own past events and your funders' expectations before the board sees only the gross.`

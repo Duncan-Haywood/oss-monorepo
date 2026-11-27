@@ -239,18 +239,16 @@ def suite_for(path: Path, repo: Path = REPO) -> tuple[list[str], Path] | None:
 
 
 def list_targets(repo: Path = REPO, under: str | None = None) -> list[Path]:
-    """Guarded files; `under` keeps those below a repo-relative directory, that one
-    file when it names a file (doc_friction 2026-11-25: a file path printed 0 targets),
-    or those whose path starts with it when it names neither."""
+    """Guarded files; `under` keeps those below a repo-relative directory, or that one
+    file when it names a file (doc_friction 2026-11-25: a file path printed 0 targets).
+    A path that is neither is read as a name prefix, so `ventures/x/salestax` lists
+    salestax-rules.mjs and salestaxreturn.mjs (three doc_friction reports, 2026-11-25/26)."""
     out = []
     tracked = subprocess.run(["git", "ls-files", "*.mjs", "*.js", "*.py"], cwd=repo,
                              capture_output=True, text=True, check=True).stdout.split()
     under = under.strip("/") if under else ""
     prefix = under + "/" if under else ""
     if under and not (repo / under).exists():
-        # A name prefix such as ventures/ai-bookkeeper/salestax (doc_friction
-        # 2026-11-25..26, three runs: it printed 0 guarded files) keeps every
-        # file whose path starts with it.
         prefix = under
     for rel in tracked:
         if not (rel.startswith(prefix) or rel == under):
@@ -576,8 +574,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--limit", type=int, default=20)
     p.add_argument("--seed", type=int)
     p.add_argument("--under", help="only files below this directory, e.g. platform or "
-                   "ventures/<slug> for one product, one file, or a name prefix such as "
-                   "ventures/ai-bookkeeper/salestax")
+                   "ventures/<slug> for one product, one file, or a name prefix "
+                   "(ventures/<slug>/salestax)")
     p.add_argument("--fresh", action="store_true",
                    help="skip files an earlier run record's campaign already mutated")
     p.add_argument("--probe", type=int, metavar="SECONDS",

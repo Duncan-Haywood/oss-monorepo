@@ -2083,6 +2083,16 @@ First reading, 2026-11-26: 0 sideways pages, 0 small fields, 0 tall rows,
 126 swipes over 495 pages (`docs/reports/polish-2026-11-26-phone-probe.md`).
 Not in CI (Playwright).
 
+The probe sees only what a page prints at its defaults and its example, so
+the money rule has a static half that runs with the site tests:
+`raw-money-format.mjs` fails `raw-money-format.test.mjs` on any
+`` `$${x.toFixed(2)}` `` (or `£`, `€`, any digit count) in a front-door
+tool's source. Format with
+`toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })`;
+a line that must stay raw (a sample CSV row the parser reads) carries
+`raw-amount-ok`. `node platform/pages/raw-money-format.mjs --all` counts the
+rest of `ventures/` (660 in 227 files on 2026-11-26, none of them front doors).
+
 Fixing the read-only ones: `stack-overflowing.mjs` takes the probe's
 `at load: div.pf-table-scroll` pages, finds each table that overflows on the
 built page, matches it to its source by header text and adds `class="stack"`

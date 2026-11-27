@@ -491,7 +491,7 @@
         `Travel: ${money(result.travelCost)} (${result.driveHours.toFixed(1)} h / loaded wage + miles)`,
         `Overhead: ${money(result.overhead)}`,
         `Profit at target margin: ${money(result.profit)}`,
-        result.pricePerSqFt === null ? '' : `Price per sq ft of door: $${result.pricePerSqFt.toFixed(2)}`,
+        result.pricePerSqFt === null ? '' : `Price per sq ft of door: $${result.pricePerSqFt.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
         '',
         'This is a draft for review. Confirm parts, labor, travel, permits, wind-load hardware, and all pricing before sending.',
       ].filter(line => line !== undefined).join('\n');

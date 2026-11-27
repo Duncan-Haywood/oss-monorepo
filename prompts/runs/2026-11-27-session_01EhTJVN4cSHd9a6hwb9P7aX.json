@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVN4cSHd9a6hwb9P7aX",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-26T23:56:19Z",
+  "ended": "2026-11-27T00:01:09Z",
+  "wall_minutes": 8.68,
+  "tokens_in": 5408482,
+  "tokens_out": 19173,
+  "cost_usd": 2.2699,
+  "tool_calls": 54,
+  "task": "payapps company-documents-part-2-renewal-email",
+  "projects": [
+    "payapps"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/434",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [
+    "8f7136c27a08757e4383612cbb378fa850df7cb5"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets named payapps item #1 'free and not gated' although its text ends 'if contractors ask'; the gate detector reads only some phrasings, and another session claimed a different slug on the same item minutes earlier."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/goals.md (Write about the work)",
+      "why": "No blog post: an internal email section in a paid app that nobody has seen yet gives a reader nothing new; EMAIL.md and ROADMAP.md in the app document it.",
+      "did": "Documented in apps/payapps/docs/EMAIL.md only",
+      "result": "shipped feature; no post"
+    }
+  ],
+  "writeups": [
+    "private-monorepo apps/payapps/docs/EMAIL.md (extended)"
+  ],
+  "goal": "$10k MRR: bet #1 payapps, retention feature (renewal reminders in the weekly email)",
+  "notes": "Security queue empty; ideas inbox empty; routed ventures. Private clone via add_repo worked first time. CI on private PR #434 starved (ci_starvation.py: runner_id 0). Local: biome check . clean, tsc clean, vitest unit 132 files/1221 passed, worker 80 files/518 passed, vite build ok. Risk review: only check was personal data; none collected (names/dates the tenant typed, opted-in members, cross-org test).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ef885e22-f14b-5f9b-aecc-87401bed7a7d",
+    "transcripts": 1,
+    "first": "2026-11-26T23:56:19Z",
+    "last": "2026-11-27T00:04:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 100,
+        "output": 19173,
+        "thinking": 1615,
+        "cache_read": 5305256,
+        "cache_write_5m": 0,
+        "cache_write_1h": 103126,
+        "api_equivalent_usd": 2.2699,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 100,
+      "output": 19173,
+      "thinking": 1615,
+      "cache_read": 5305256,
+      "cache_write_5m": 0,
+      "cache_write_1h": 103126,
+      "api_equivalent_usd": 2.2699,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 49,
+      "mcp__claude-code-remote__add_repo": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.68,
+      "active_minutes": 8.68,
+      "model_minutes": 3.56,
+      "tool_minutes": 5.12,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: digest section, tests, docs in a familiar codebase",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 176.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

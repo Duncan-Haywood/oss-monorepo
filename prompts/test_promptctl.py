@@ -811,39 +811,6 @@ class MeasureToleratesFreeTextEntriesTest(unittest.TestCase):
 
 
 class LastChangeIndexTest(unittest.TestCase):
-    def test_two_shallow_roots_date_like_git(self):
-        # CI's PR checkout is a merge whose two parents are shallow roots; for a file only the
-        # roots list, git names the first-parent root, not the newer one (PR #19529).
-        import subprocess
-        with tempfile.TemporaryDirectory() as tmp:
-            src, shal = Path(tmp, "src"), Path(tmp, "shal")
-            src.mkdir()
-            def git(*args, date="2026-11-20T00:00:00Z", cwd=src):
-                env = dict(os.environ, GIT_COMMITTER_DATE=date, GIT_AUTHOR_DATE=date)
-                subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", *args],
-                               cwd=cwd, env=env, check=True, capture_output=True)
-            git("init", "-q", "-b", "main")
-            (src / "f").write_text("a")
-            git("add", "f"); git("commit", "-qm", "A")
-            git("checkout", "-qb", "br")
-            (src / "g").write_text("b")
-            git("add", "g"); git("commit", "-qm", "B", date="2026-11-27T00:00:00Z")
-            git("checkout", "-q", "main")
-            (src / "h").write_text("c")
-            git("add", "h"); git("commit", "-qm", "C", date="2026-11-26T00:00:00Z")
-            git("merge", "-q", "--no-ff", "br", "-m", "M", date="2026-11-27T01:00:00Z")
-            git("clone", "-q", "--depth=2", src.as_uri(), str(shal), cwd=tmp)
-            with unittest.mock.patch.object(promptctl, "ROOT", shal / "prompts"):
-                promptctl._GIT_MEMO.clear()
-                try:
-                    for path in ("f", "g", "h"):
-                        with self.subTest(path=path):
-                            self.assertEqual(promptctl._changed_note(path),
-                                             promptctl._changed_note_uncached(path))
-                    self.assertIn("2026-11-26", promptctl._changed_note("f")[0])
-                finally:
-                    promptctl._GIT_MEMO.clear()
-
     def test_batch_index_matches_per_file_log(self):
         promptctl._GIT_MEMO.clear()
         idx = promptctl._last_change_index()
@@ -852,6 +819,42 @@ class LastChangeIndexTest(unittest.TestCase):
                 one = promptctl.subprocess.run(["git", "log", "-1", "--format=%H %cI", "--", path],
                                                cwd=promptctl.ROOT.parent, capture_output=True, text=True).stdout.split()
                 self.assertEqual(list(idx[path]), one)
+
+    def test_two_shallow_roots_date_a_root_only_file_as_git_does(self):
+        # 2026-11-27: CI's depth-2 clone of a PR merge has two shallow roots; the index took the
+        # PR head (dated a day later) while `git log -1` follows the first parent, main's head.
+        run = promptctl.subprocess.run
+        with tempfile.TemporaryDirectory() as tmp:
+            src, dst = Path(tmp) / "src", Path(tmp) / "dst"
+            src.mkdir()
+
+            def git(*args, cwd=src, when=None):
+                env = dict(os.environ, GIT_AUTHOR_NAME="t", GIT_AUTHOR_EMAIL="t@x", GIT_COMMITTER_NAME="t",
+                           GIT_COMMITTER_EMAIL="t@x", **({"GIT_COMMITTER_DATE": when} if when else {}))
+                run(["git", *args], cwd=cwd, env=env, check=True, capture_output=True)
+
+            git("init", "-q", "-b", "main")
+            (src / "keep.txt").write_text("a")
+            git("add", "."); git("commit", "-qm", "base", when="2026-11-20T00:00:00Z")
+            (src / "main.txt").write_text("1")
+            git("add", "."); git("commit", "-qm", "main", when="2026-11-26T10:00:00Z")
+            git("checkout", "-qb", "pr", "HEAD~1")
+            (src / "pr.txt").write_text("2")
+            git("add", "."); git("commit", "-qm", "pr", when="2026-11-27T01:00:00Z")
+            git("checkout", "-q", "main")
+            git("merge", "-q", "--no-ff", "pr", "-m", "merge", when="2026-11-27T02:00:00Z")
+            git("clone", "-q", "--depth=2", f"file://{src}", str(dst), cwd=tmp)
+            saved = dict(promptctl._GIT_MEMO)
+            try:
+                with unittest.mock.patch.object(promptctl, "ROOT", dst / "prompts"):
+                    promptctl._GIT_MEMO.clear()
+                    self.assertEqual(len(promptctl._shallow_boundary()), 2)
+                    self.assertEqual(promptctl._changed_note("keep.txt"),
+                                     promptctl._changed_note_uncached("keep.txt"))
+                    self.assertIn("2026-11-26", promptctl._changed_note("keep.txt")[0])
+            finally:
+                promptctl._GIT_MEMO.clear()
+                promptctl._GIT_MEMO.update(saved)
 
     def test_lookups_without_a_git_call_match_the_per_file_call(self):
         # Directories, free text in a `file` field, a shallow root's files and bare names are

@@ -41,3 +41,22 @@ costing, RFIs and estimating") with `--slug daily-reports-part-1`.
 
 Part 3: a "weekdays without a report" line in the weekly email (`cash-digest.ts`). Linking a report to a change order or RFI
 it backs waits until contractors ask for it. Estimating is the other suite module the bet names, and nobody has started it.
+
+## Part 3a (2026-11-27): missing weekdays in the weekly email
+
+The weekly "money to chase" email now has a "Weekdays without a daily report" section: per active job,
+the weekdays in the 7 days before the email with no report, among jobs with a report in the 14 days
+through the email's date (so a finished or never-logged job is never listed). Rules: `dailyReportGaps`
+and `dailyReportGapText` in `src/shared/daily-reports.ts`; query: `companyDailyReportJobs` in
+`services/payapps/daily-reports.ts` (recent dates plus `min(report_date)` per job, so days before the
+first report are not counted); wired in as the last positional argument of `cashDigest`.
+
+The one judgment call: **gaps alone never send the email**, unlike certificates, RFIs or T&M tickets.
+A subcontractor is often off site for days on a job, so an email that went out only to say "no report
+Tuesday" would mostly be noise. Revisit if contractors ask for it. Nothing new is stored, so no
+migration and no privacy-policy bump.
+
+How it was picked: `roadmap_claim.py --bets` found no free, ungated item on any bet. The claim tool
+reads all of item 18 ("Daily reports, part 3") as gated by "if contractors ask". In the ROADMAP text
+that condition follows the second half ("then a report picked as backup ... if contractors ask"), so
+this run built the first half and split the item into 3a (done) and 3b.

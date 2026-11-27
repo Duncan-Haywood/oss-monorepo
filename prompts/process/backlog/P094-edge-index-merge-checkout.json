@@ -1,0 +1,30 @@
+{
+  "id": "P094",
+  "title": "promptctl's shallow-edge change index disagrees with git in a PR merge checkout when the two parents' dates fall on different days",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 2,
+  "problem": "test_promptctl.LastChangeIndexTest.test_lookups_without_a_git_call_match_the_per_file_call failed on PR #19525's `validate` job (run 45914295040, 2026-11-27 00:01 UTC) with ' (file last changed on or before 2026-11-27, the shallow-clone edge)' from the index against '... 2026-11-26 ...' from `git log -1 -- .claude/hooks/block_pkill_f.py`. CI checks out refs/pull/N/merge: both parents (base tip and PR head) are shallow roots and each 'adds' every file. _last_change_indexes() keeps the first edge commit in log order (the newest, here the PR head, committed in UTC on 11-27); git follows the TREESAME parent, the first parent (base, committed 16:58-07:00, so dated 11-26 by when[:10]). It shows only when the two committer dates fall on different calendar days in their own timezones, so it looks flaky and appears around midnight. Any PR can hit it; the diff does not matter.",
+  "evidence": [
+    "PR #19525 validate job 140229690133 log: AssertionError, Tuples differ (2026-11-27 vs 2026-11-26), path='.claude/hooks/block_pkill_f.py'",
+    "prompts/promptctl.py _last_change_indexes: `into.setdefault(line, cur)` over edge commits in log order"
+  ],
+  "change": "Make the edge index follow git: when more than one shallow root lists a path, prefer the root git would walk to (first parent while the merge is TREESAME to it; compare blobs with `git ls-tree` on the roots when they differ), or mark such paths ambiguous so _index_hit returns None and the per-file call answers. Keep the speed: a single-root clone (most sessions) must stay one `git log` pass. Add a test that builds a two-root merge in a temp repo with parents dated on different days.",
+  "touches": [
+    "prompts/promptctl.py",
+    "prompts/test_promptctl.py"
+  ],
+  "metric": "validate failures of this test on PRs in the 14 days after merge",
+  "baseline": "1 seen (PR #19525, 2026-11-27)",
+  "opened": "2026-11-27",
+  "source": "polish run, PR #19525 CI",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19528",
+  "result": null,
+  "history": [
+    {
+      "date": "2026-11-27",
+      "note": "Fixed by PR #19528 (_first_parent_root, test_two_shallow_roots_date_a_root_only_file_as_git_does); PR #19529 hit and fixed the same failure in parallel and took main's version."
+    }
+  ]
+}

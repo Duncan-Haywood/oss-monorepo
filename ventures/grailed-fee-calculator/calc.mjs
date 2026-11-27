@@ -192,11 +192,11 @@ export function calculateSale(input) {
   const tiered = scheduleOf(schedule).tiered;
   const notes = [];
   if (tiered && base < TIER_THRESHOLD && base * (LOW_RATE / 100) < MIN_COMMISSION && base > 0) {
-    notes.push(`The ${LOW_RATE}% commission would be under Grailed's $${MIN_COMMISSION.toFixed(2)} minimum on a sale this small, so the minimum applies: that is ${((MIN_COMMISSION / base) * 100).toFixed(1)}% of this sale rather than ${LOW_RATE}%.`);
+    notes.push(`The ${LOW_RATE}% commission would be under Grailed's $${MIN_COMMISSION.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} minimum on a sale this small, so the minimum applies: that is ${((MIN_COMMISSION / base) * 100).toFixed(1)}% of this sale rather than ${LOW_RATE}%.`);
   }
   if (tiered && cliff && base >= TIER_THRESHOLD && itemPrice < cliff.recoverPrice) {
     notes.push(
-      `This sale is over the $${TIER_THRESHOLD} step, so ${HIGH_RATE}% applies to all of it. The same item one cent under would have paid you $${cliff.loss.toFixed(2)} more; you need to list at about $${cliff.recoverPrice.toFixed(2)} to net what $${cliff.priceBelow.toFixed(2)} does.`,
+      `This sale is over the $${TIER_THRESHOLD} step, so ${HIGH_RATE}% applies to all of it. The same item one cent under would have paid you $${cliff.loss.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} more; you need to list at about $${cliff.recoverPrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} to net what $${cliff.priceBelow.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} does.`,
     );
   }
   if (tiered && base < TIER_THRESHOLD && cliff && base >= TIER_THRESHOLD - 15) {

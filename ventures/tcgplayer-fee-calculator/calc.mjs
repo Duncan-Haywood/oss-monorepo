@@ -194,16 +194,16 @@ export function calculateSale(input) {
 
   const notes = [];
   if (breakdown.some(line => line.capped)) {
-    notes.push(`The commission cap applies: without it TCGplayer would take $${uncappedCommission.toFixed(2)} in commission, and you keep $${capSaving.toFixed(2)} more because it stops at $${(scheduleOf(schedule).lines[0].cap * quantity).toFixed(2)}.`);
+    notes.push(`The commission cap applies: without it TCGplayer would take $${uncappedCommission.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} in commission, and you keep $${capSaving.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} more because it stops at $${(scheduleOf(schedule).lines[0].cap * quantity).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.`);
   }
   if (subtotal > 0 && quantity === 1 && TRANSACTION_FIXED / subtotal > 0.05) {
-    notes.push(`The flat $${TRANSACTION_FIXED.toFixed(2)} processing fee is ${((TRANSACTION_FIXED / subtotal) * 100).toFixed(1)}% of this one-item order. It is charged once per order, so a buyer who adds more cards to the same cart pays it only once.`);
+    notes.push(`The flat $${TRANSACTION_FIXED.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} processing fee is ${((TRANSACTION_FIXED / subtotal) * 100).toFixed(1)}% of this one-item order. It is charged once per order, so a buyer who adds more cards to the same cart pays it only once.`);
   }
   if (quantity > 1) {
-    notes.push(`The $${TRANSACTION_FIXED.toFixed(2)} processing fee is charged once for the whole order, not per card: that is $${(TRANSACTION_FIXED / quantity).toFixed(2)} a card here.`);
+    notes.push(`The $${TRANSACTION_FIXED.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} processing fee is charged once for the whole order, not per card: that is $${(TRANSACTION_FIXED / quantity).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} a card here.`);
   }
   if (salesTax > 0) {
-    notes.push(`The 2.5% processing fee is charged on the buyer's $${salesTax.toFixed(2)} sales tax too, which you never receive: that costs you $${(salesTax * (TRANSACTION_RATE / 100)).toFixed(2)} on this order.`);
+    notes.push(`The 2.5% processing fee is charged on the buyer's $${salesTax.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} sales tax too, which you never receive: that costs you $${(salesTax * (TRANSACTION_RATE / 100)).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} on this order.`);
   }
   if (buyerShipping > 0) {
     notes.push('Shipping the buyer pays is inside the commission base, so TCGplayer takes its percentage of the shipping you charge as well as of the cards.');

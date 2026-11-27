@@ -30,13 +30,17 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "PR CI validate failed on test_promptctl LastChangeIndexTest: on CI's two-shallow-root merge checkout the one-pass index dated a root-only file by the newer root while git log -1 follows the first parent. Fixed in this PR (promptctl._first_parent_root) with a regression test that builds a two-root shallow clone."
+    "PR CI validate failed on test_promptctl's shallow-edge date check (two shallow roots in CI's PR merge checkout). I fixed it on the branch, then found PR #19528 (a parallel process run) had merged the same fix, plus the same redteam --under prefix fix, about 4 minutes earlier; took main's versions while merging and dropped mine."
   ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "prompts/test_redteam.py",
       "issue": "An earlier fix asserted that a name prefix (ventures/demo/calc) lists nothing, which locked in the behaviour three runs reported as friction; replaced it with a prefix test."
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Two process runs picked the same friction_rank clusters within minutes (PR #19528 and this one); friction_rank's 'open PRs naming it' tag only sees PRs, so a run that has not yet opened its PR is invisible. Opening the draft PR right after picking (before coding) would have shown the overlap."
     }
   ],
   "deviations": [
@@ -49,7 +53,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Security queue empty; ideas inbox empty; routed process/1 by draw. Backlog has only owner or blocked rows, so Critique mode via friction_rank --live --ungated --days 3. Fixed cluster 8 (check_post_frontmatter over-cap messages now quote the overflow) and cluster 4 (redteam list_targets accepts a name prefix). Tests: test_check_post_frontmatter 41 OK, test_redteam 26 OK; main_health 330/330 before the change. No backlog ids touched. Also fixed a latent promptctl bug the PR CI exposed (any PR changing prompts/*.py would hit it): edge index now prefers HEAD's first-parent shallow root. prompts unittest discover 163 OK.",
+  "notes": "Security queue empty; ideas inbox empty; routed process/1 by draw. Backlog has only owner or blocked rows, so Critique mode via friction_rank --live --ungated --days 3. Landed: cluster 8 (check_post_frontmatter's over-cap messages now give the overflow count and quote the words past the cap). Duplicated and dropped while merging: cluster 4 (redteam name prefix) and the promptctl two-root edge index, both already on main via PR #19528. Marked P094 done (pr #19528). Tests: test_check_post_frontmatter 41 OK; prompts unittest discover OK after the merge; main_health 330/330 before the change.",
   "corrections": [],
   "redteam": null,
   "usage": {

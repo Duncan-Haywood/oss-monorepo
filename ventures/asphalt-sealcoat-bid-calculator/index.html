@@ -548,7 +548,7 @@
         verdict.hidden = false;
         verdict.className = `verdict${result.proposed.belowBreakEven ? ' bad' : ''}`;
         const rate = result.proposed.hourlyRate === null ? 'n/a' : `${money(result.proposed.hourlyRate)}/h`;
-        const perFoot = result.proposed.perSqFt === null ? 'n/a' : `$${result.proposed.perSqFt.toFixed(2)}/sq ft`;
+        const perFoot = result.proposed.perSqFt === null ? 'n/a' : `$${result.proposed.perSqFt.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/sq ft`;
         verdict.innerHTML = result.proposed.belowBreakEven
           ? `At ${money(result.proposed.price)} (${perFoot}) this job <strong>loses ${money(Math.abs(result.proposed.profit))}</strong> before you take anything out of it. Your walk-away price is ${money(result.breakEvenPrice)}.`
           : `At ${money(result.proposed.price)} (${perFoot}) you keep <strong>${money(result.proposed.profit)}</strong> — a ${result.proposed.margin.toFixed(1)}% margin, billing ${rate} of labor.`;
