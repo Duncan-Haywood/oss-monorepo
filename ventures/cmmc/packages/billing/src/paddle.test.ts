@@ -116,6 +116,50 @@ describe("PaddleBillingProvider.parseWebhook", () => {
     }
   });
 
+  it("refuses to verify with a blank secret, whose HMAC anyone can compute", async () => {
+    // A secret set to "" or whitespace (a blank paste into the secret store) would make every
+    // forged webhook valid: the attacker signs with the same well-known key.
+    const body = '{"event_type":"subscription.activated"}';
+    const ts = Math.floor(NOW / 1000);
+    // WebCrypto refuses a zero-length HMAC key, so "" cannot sign; a whitespace key can.
+    for (const blank of ["", " ", "\n", "\t \r\n"]) {
+      const forged = blank ? await signPaddleWebhook(body, blank, ts) : `ts=${ts};h1=${"0".repeat(64)}`;
+      await assert.rejects(
+        verifyPaddleSignature(forged, body, blank, { nowMs: NOW }),
+        /No webhook secret/,
+      );
+    }
+  });
+
+  it("rejects a correctly signed but non-numeric ts, which would skip the replay window", async () => {
+    const body = "{}";
+    for (const ts of ["abc", "1e9", ""]) {
+      const h1 = await hmacSha256Hex(SECRET, `${ts}:${body}`);
+      await assert.rejects(
+        verifyPaddleSignature(`ts=${ts};h1=${h1}`, body, SECRET, { nowMs: NOW }),
+        /Malformed/,
+      );
+    }
+  });
+
+  it("holds the 5-minute tolerance exactly at its edge, both directions", async () => {
+    const body = "{}";
+    const nowSec = Math.floor(NOW / 1000);
+    for (const ts of [nowSec - 300, nowSec + 300]) {
+      await verifyPaddleSignature(await signPaddleWebhook(body, SECRET, ts), body, SECRET, {
+        nowMs: NOW,
+      });
+    }
+    for (const ts of [nowSec - 301, nowSec + 301]) {
+      await assert.rejects(
+        verifyPaddleSignature(await signPaddleWebhook(body, SECRET, ts), body, SECRET, {
+          nowMs: NOW,
+        }),
+        /Stale/,
+      );
+    }
+  });
+
   it("ignores a crafted custom_data.orgId and reads subscription_id on transaction events", () => {
     const crafted = provider().normalize({
       event_id: "evt_02",

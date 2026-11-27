@@ -116,6 +116,21 @@ describe("PaddleBillingProvider.parseWebhook", () => {
     }
   });
 
+  it("refuses to verify with a blank secret, whose HMAC anyone can compute", async () => {
+    // A secret set to "" or whitespace (a blank paste into the secret store) would make every
+    // forged webhook valid: the attacker signs with the same well-known key.
+    const body = '{"event_type":"subscription.activated"}';
+    const ts = Math.floor(NOW / 1000);
+    // WebCrypto refuses a zero-length HMAC key, so "" cannot sign; a whitespace key can.
+    for (const blank of ["", " ", "\n", "\t \r\n"]) {
+      const forged = blank ? await signPaddleWebhook(body, blank, ts) : `ts=${ts};h1=${"0".repeat(64)}`;
+      await assert.rejects(
+        verifyPaddleSignature(forged, body, blank, { nowMs: NOW }),
+        /No webhook secret/,
+      );
+    }
+  });
+
   it("rejects a correctly signed but non-numeric ts, which would skip the replay window", async () => {
     const body = "{}";
     for (const ts of ["abc", "1e9", ""]) {

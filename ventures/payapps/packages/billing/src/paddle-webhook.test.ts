@@ -43,6 +43,10 @@ describe("webhookUrl", () => {
       `${APP_URL}/app`,
       `${APP_URL}/?x=1`,
       "https://user:pw@payapps.marisstella.app",
+      // Each credential part alone is refused too, not only the pair.
+      "https://user@payapps.marisstella.app",
+      "https://:pw@payapps.marisstella.app",
+      `${APP_URL}/#frag`,
       "https://localhost",
       "https://127.0.0.1",
       "not a url",
@@ -305,6 +309,9 @@ describe("syncWebhookDestination", () => {
   it("accepts a secret whose body has characters beyond letters, digits and underscores", () => {
     assert.equal(isEndpointSecret("pdl_ntfset_01jabc_Ab-c+d/e=f0123456789"), true);
     assert.equal(isEndpointSecret("pdl_ntfset_x"), false);
+    // The length floor is strict: 20 characters is too short, 21 is enough.
+    assert.equal(isEndpointSecret(`pdl_ntfset_${"a".repeat(9)}`), false);
+    assert.equal(isEndpointSecret(`pdl_ntfset_${"a".repeat(10)}`), true);
     assert.equal(isEndpointSecret("pdl_ntfset_01jabc_with space_0123456789"), false);
     assert.equal(isEndpointSecret(`pdl_live_${"apikey"}_${"x".repeat(20)}`), false);
   });
