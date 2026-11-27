@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKjo4YufCA6KgCC6BB9",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T02:09:49Z",
+  "ended": "2026-11-27T02:19:05Z",
+  "wall_minutes": 9.48,
+  "tokens_in": 10409474,
+  "tokens_out": 39750,
+  "cost_usd": 4.1925,
+  "tool_calls": 83,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19569",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "pnpm install --filter \"{./apps/seller-books-site}...\" prints 'No projects matched' because that app has no package.json; biome only arrives through another app's filter (I used {./apps/seller-books}...). Worth one line, as the einvoice-preflight note has."
+    },
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "The routed focus says a new paid-bet idea with evidence is welcome, but today osha.gov, ecfr.gov, census.gov, federalregister.gov and govinfo.gov all 403 through the proxy, so a sourced bet (I started on OSHA recordkeeping/prequal for subs) could not be checked against primary text. Say to probe hosts first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "Dropped the OSHA ITA 300A / prequal bet idea after the official CSV spec and the 29 CFR 1904 appendix proved unreachable; building it from memory would have meant fabricating a filing format.",
+      "did": "Moved to an ungated marketing gap in bet #5 (Seller Books had no customer post and no site page for two features it already ships).",
+      "result": "Page merged in private PR 456 with tests pinning it to the worksheet code; customer post in this PR."
+    },
+    {
+      "file": "apps/seller-books-site/test/site.test.mjs (private)",
+      "why": "The honesty test banned '$2,500' everywhere (old 1099-K phase-in), but the de minimis limit is legitimately $2,500.",
+      "did": "Narrowed the ban: a sentence carrying $2,500 must be about the de minimis limit and must not mention 1099.",
+      "result": "56/56 pass; the 1099-K threshold test is unchanged."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-27-reseller-home-office-and-equipment-deductions.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: close the marketing gap for bet #5 Seller Books (0 customer posts). Shipped private-monorepo PR 456 (/seller-books/home-office-and-equipment: line 30 simplified method plus de minimis equipment; constants pinned to schedule-c.ts) and the public customer post. Private CI gets no runners (Actions billing, decision queue #1), so verification was local: node --test apps/seller-books-site/test/*.test.mjs 56 pass 0 fail; biome clean; Chromium scrollWidth 390 at 390 px. Also checked: funnel.json/front-doors.json already route free tools to the bets (manufacturing 9 feeders, e-invoicing 1, with no unmapped tool that fits well). Claim: claim/seller-books/site-home-office-equipment-page. No agent doc in docs/reports: nothing for the next run beyond the friction above.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "44391145-b299-56e7-b14a-4d5fabbd4d8c",
+    "transcripts": 1,
+    "first": "2026-11-27T02:09:49Z",
+    "last": "2026-11-27T02:19:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 149,
+        "output": 39750,
+        "thinking": 10714,
+        "cache_read": 10240736,
+        "cache_write_5m": 0,
+        "cache_write_1h": 168589,
+        "api_equivalent_usd": 4.1925,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 149,
+      "output": 39750,
+      "thinking": 10714,
+      "cache_read": 10240736,
+      "cache_write_5m": 0,
+      "cache_write_1h": 168589,
+      "api_equivalent_usd": 4.1925,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 83,
+    "tools": {
+      "Bash": 64,
+      "WebSearch": 10,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "mcp__claude-code-remote__add_repo": 1,
+      "WebFetch": 1,
+      "Read": 1,
+      "mcp__github__merge_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.48,
+      "active_minutes": 9.48,
+      "model_minutes": 7.34,
+      "tool_minutes": 2.14,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "a marketing writer researching IRS rules and building one tested static page plus a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 95.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

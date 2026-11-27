@@ -64,10 +64,10 @@ class MigrationRegen(unittest.TestCase):
         self.gen(name)
         self.commit(name)
 
-    def run_tool(self, *extra):
+    def run_tool(self, *extra, app="apps/a"):
         out = io.StringIO()
         with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
-            code = mr.main(["apps/a", "--repo", str(self.repo), "--base", "main", "--no-fetch",
+            code = mr.main([app, "--repo", str(self.repo), "--base", "main", "--no-fetch",
                             "--generate-cmd", f"{sys.executable} {self.gen_script} {{name}}", *extra])
         return code, out.getvalue()
 
@@ -91,6 +91,27 @@ class MigrationRegen(unittest.TestCase):
         code, out = self.run_tool()
         self.assertEqual(code, 0, out)
         self.assertIn("0001_mine.sql", out)
+
+    def test_absolute_and_cwd_relative_paths(self):
+        # An absolute app path used to make main look empty, so 0000_init "clashed".
+        sh(self.repo, "checkout", "-q", "-b", "work")
+        self.add_table("mine", "mine")
+        code, out = self.run_tool(app=str(self.app))
+        self.assertEqual(code, 0, out)
+        self.assertIn("0001_mine.sql follow", out)
+        old = Path.cwd()
+        try:
+            import os
+            os.chdir(self.repo / "apps")
+            code, out = self.run_tool(app="a")
+        finally:
+            os.chdir(old)
+        self.assertEqual(code, 0, out)
+        self.assertNotIn("0000", out.split("follow")[0])
+
+    def test_path_outside_repo_refused(self):
+        code, _ = self.run_tool(app=self.tmp.name)
+        self.assertEqual(code, 2)
 
     def test_clash_found(self):
         self.diverge()

@@ -13,7 +13,8 @@ migration, and run `drizzle-kit generate` again on the merged schema.
     git merge origin/main                                          # conflicts in migrations/meta are expected
     python3 platform/ci/migration_regen.py apps/payapps --fix      # regenerate as the next number
 
-Paths are relative to --repo (default /home/user/private-monorepo). The check
+The app is relative to --repo (default /home/user/private-monorepo); an absolute
+path, or one relative to the current folder, inside --repo works too. The check
 fetches `origin/main` (skip with --no-fetch) and compares the migrations your
 branch adds with the ones main has: a clash is a number main already uses, or one
 at or below main's newest.
@@ -66,6 +67,24 @@ def work_files(repo: Path, mig: str) -> list[str]:
 def numbered(names: list[str]) -> dict[str, str]:
     """{file: number} for drizzle-style NNNN_name.sql files."""
     return {n: m.group(1) for n in names if (m := NUM.match(n))}
+
+
+def repo_relative(repo: Path, app: str) -> str:
+    """`app` as a path relative to `repo`, from a repo-relative, cwd-relative or absolute path.
+
+    git reads `<base>:<path>` relative to the repo root, so an absolute path found no
+    migrations on main and every one of ours, 0000 included, looked like a clash
+    (three run records, 2026-11-26..27)."""
+    p = Path(app)
+    if not p.is_absolute():
+        if (repo / p).is_dir():
+            return p.as_posix().rstrip("/")
+        p = Path.cwd() / p
+    try:
+        rel = p.resolve().relative_to(repo)
+    except ValueError:
+        raise RuntimeError(f"{app} is not inside --repo {repo}; pass --repo or apps/<app>")
+    return rel.as_posix()
 
 
 def analyse(repo: Path, app: str, base: str) -> dict:
@@ -181,9 +200,10 @@ def main(argv: list[str] | None = None) -> int:
                       file=sys.stderr)
             elif time.time() - t > 20:
                 print(f"(fetched {a.base} in {time.time() - t:.0f} s)", file=sys.stderr)
-        info = analyse(repo, a.app, a.base)
+        app = repo_relative(repo, a.app)
+        info = analyse(repo, app, a.base)
         if a.fix:
-            return fix(repo, a.app.rstrip("/"), a.base, info, a.generate_cmd)
+            return fix(repo, app, a.base, info, a.generate_cmd)
         return check(info, a.base)
     except RuntimeError as e:
         print(f"error: {e}", file=sys.stderr)

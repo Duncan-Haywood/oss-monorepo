@@ -30,7 +30,7 @@
 
     <h2>Both spans loaded</h2>
     <p>With the load everywhere, the textbook coefficients for two equal spans give end reactions of 3/8 wL and a middle reaction of 10/8 wL. With w = 400 lb/ft and L = 12 ft, wL is 4,800 lb, so the ends carry 1,800 lb and the middle 6,000 lb. The moment over the middle post is −wL²/8 = −7,200 lb·ft (hogging), and the largest sagging moment, at 3/8 L from each end, is 9/128 wL², which is 4,050 lb·ft.</p>
-    <pre>node cli.mjs --spans 12,12 --supports pin,pin,pin --E 1600000 --I 1000 --udl L:400 --no-pattern
+    <pre data-phone-scroll-ok>node cli.mjs --spans 12,12 --supports pin,pin,pin --E 1600000 --I 1000 --udl L:400 --no-pattern
   +M 4,050 lb·ft at x = 4.50 ft
   -M -7,200 lb·ft at x = 12.00 ft</pre>
 
@@ -38,7 +38,7 @@
     <p>Now take the live load off the right span. The left span still bends down, but the right span no longer pushes the middle of the beam down on its side. So the beam rotates more over the middle post, and the moment there drops to −wL²/16 = −3,600 lb·ft. With less hogging to hold it, the left span sags more. Its end reaction rises to 7/16 wL = 2,100 lb, and the sagging moment peaks where the shear is zero, at x = 7/16 L = 5.25 ft:</p>
     <p style="text-align:center"><code>M = R²/(2w) = 2,100² / 800 = 5,512.5 lb·ft</code></p>
     <p>That is <strong>36% more</strong> than the 4,050 lb·ft from loading everything. The far end, with no load on its own span, is pulled <strong>up</strong> by wL/16 = 300 lb. Unless something holds it down, that post or hanger is in tension.</p>
-    <pre>node cli.mjs --spans 12,12 --supports pin,pin,pin --E 1600000 --I 1000 --udl L:400
+    <pre data-phone-scroll-ok>node cli.mjs --spans 12,12 --supports pin,pin,pin --E 1600000 --I 1000 --udl L:400
   Support 1 (pin, x = 0 ft): dead 0, max 2,100, min -300 lb
   +M 5,513 lb·ft at x = 5.25 ft (live on span 1)
   -M -7,200 lb·ft at x = 12.00 ft (live on spans 1, 2)</pre>

@@ -51,12 +51,12 @@
 
   <h2>3. The cutting plan: where the money is</h2>
   <p>Bars arrive in stock lengths, usually 12 m. Every offcut too short to use is steel paid for and thrown away. The 12 mm bars in the example are:</p>
-  <pre>01  48 × 5400
+  <pre style="white-space:pre-wrap;overflow-wrap:anywhere">01  48 × 5400
 02  32 × 2250
 09  16 × 2100</pre>
   <p>Cutting by hand, the usual rule is longest first, each piece into the first bar it fits (first-fit decreasing). Two 5400s go in each of the first 24 bars, leaving 1200 mm that no remaining piece fits. Then five 2250s per bar, and the 2100s. That takes <strong>34</strong> bars.</p>
   <p>The tool finds this instead:</p>
-  <pre>16 x 12000: 1 x 5400 + 2 x 2250 + 1 x 2100, offcut 0
+  <pre style="white-space:pre-wrap;overflow-wrap:anywhere">16 x 12000: 1 x 5400 + 2 x 2250 + 1 x 2100, offcut 0
 16 x 12000: 2 x 5400, offcut 1200</pre>
   <p><strong>32 stock bars</strong>, two fewer, because one 5400 + two 2250s + one 2100 uses a 12 m bar exactly. The steel itself is 364.8 m, 30.4 bars, but that is not the bound: the column-generation bound for these three lengths is exactly 32.0 bars, so no plan can use fewer, and 32 is proven optimal.</p>
   <p>On a real schedule the combinations are too many to try by hand. The tool solves the cutting-stock problem the way it has been solved since Gilmore and Gomory (1961): the linear relaxation by column generation (a simplex over cutting patterns, with a knapsack programme that finds the best new pattern from the simplex prices), which gives a lower bound no whole-bar plan can beat, then several ways of turning it into whole bars, keeping the cheapest. If the plan meets the bound, it is optimal and the page says so; if not, the page says how far it could at most be from optimal.</p>

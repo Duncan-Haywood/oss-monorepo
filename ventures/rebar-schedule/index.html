@@ -181,7 +181,7 @@
       const offcuts = [];
       for (const p of ok) {
         plans.append(node('p', `${p.dia} mm: ${fmt(p.bars)} stock bars, ${p.proven ? 'proven optimal' : `lower bound ${fmt(p.lowerBound / 1000, 1)} m of stock`}`, p.proven ? 'proven' : ''));
-        const t = node('table');
+        const t = node('table', null, 'stack');
         fillTable(t, ['Stock', 'Bars', 'Cut from each bar', 'Offcut'], p.patterns.map(q => [`${fmt(q.stock)} mm`, fmt(q.times), q.cuts.map(c => `${c.count} × ${fmt(c.length)} (${p.marksByLength[c.length].join(', ')})`).join(' + '), `${fmt(q.offcut)} mm`]));
         t.querySelectorAll('td:nth-child(3)').forEach(td => { td.className = 'l'; td.style.whiteSpace = 'normal'; });
         const wrap = node('div', null, 'scroll'); wrap.append(t); plans.append(wrap);

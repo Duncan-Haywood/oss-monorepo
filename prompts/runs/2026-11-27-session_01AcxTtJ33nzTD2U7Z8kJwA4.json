@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01AcxTtJ33nzTD2U7Z8kJwA4",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T02:07:17Z",
+  "ended": "2026-11-27T02:11:23Z",
+  "wall_minutes": 4.26,
+  "tokens_in": 3500712,
+  "tokens_out": 19671,
+  "cost_usd": 1.8502,
+  "tool_calls": 37,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19564",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "One fixture-derived constant in calc.test.mjs (sand hours 0.305556) broke when the driveway fixture changed; updated to 0.327778."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "Fix mode has no guidance on recomputing published example figures that a source-data fix changes (FAQ, comparison page, JSON-LD); that was most of the work."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Fix-mode day, so steps 1-5 (sample round) did not apply; followed the README's fix-mode row instead.",
+      "did": "queue --severity high, claimed asphalt-sealcoat-bid-calculator (construction-trade front door), fixed defects 1,4,5,8",
+      "result": "high defect closed pending re-audit"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-27-quality-fix-the-second-coat-is-a-full-coat.md"
+  ],
+  "goal": null,
+  "notes": "Mode fix (queue seed 2026-11-27-b46a). Subject ventures/asphalt-sealcoat-bid-calculator; fixed audit defects 1 (high, second-coat coverage), 4, 5, 8 in PR 19564, marked fixed_by. Security queue: none workable. node --test *.test.mjs: 126 pass; mutant secondCoat 90->120 caught; Chromium walk default $386.41/17.8 gal, stencil opt-in, no horizontal scroll at 390px. No sample round, so no share-at-bar number this run.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "95bc4dc3-94ae-514a-8a74-28ff18a1c001",
+    "transcripts": 1,
+    "first": "2026-11-27T02:07:17Z",
+    "last": "2026-11-27T02:11:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 36,
+        "input": 70,
+        "output": 19671,
+        "thinking": 2535,
+        "cache_read": 3403676,
+        "cache_write_5m": 0,
+        "cache_write_1h": 96966,
+        "api_equivalent_usd": 1.8502,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 36,
+      "input": 70,
+      "output": 19671,
+      "thinking": 2535,
+      "cache_read": 3403676,
+      "cache_write_5m": 0,
+      "cache_write_1h": 96966,
+      "api_equivalent_usd": 1.8502,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 37,
+    "tools": {
+      "Bash": 34,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.26,
+      "active_minutes": 4.26,
+      "model_minutes": 3.22,
+      "tool_minutes": 1.05,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

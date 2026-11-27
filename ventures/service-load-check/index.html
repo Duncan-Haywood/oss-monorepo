@@ -54,6 +54,7 @@
     textarea { width: 100%; box-sizing: border-box; font-family: ui-monospace, monospace; }
     #loads td input[type=text] { width: 100%; min-width: 4.5em; box-sizing: border-box; }
     #loads td select { max-width: 13em; }
+    @media (max-width: 600px) { #loads td select { max-width: 100%; width: 100%; min-width: 0; } } /* the rows stack as cards there (class="stack") */
     .scroll { position: relative; } /* keeps the visually hidden labels inside the scroll box, not widening the page */
     .ok { color: #1d6b3a; font-weight: 600; }
     .no { color: #a3261b; font-weight: 600; }
@@ -173,7 +174,7 @@
       const tr = document.createElement("tr");
       const kinds = Object.entries(KINDS).map(([k, v]) => '<option value="' + k + '"' + (l.kind === k ? " selected" : "") + ">" + esc(v) + "</option>").join("");
       tr.innerHTML =
-        '<td><label class="sr" for="ln' + i + '">Appliance name</label><input type="text" id="ln' + i + '" value="' + esc(l.name || "") + '"></td>' +
+        '<td><label class="sr" for="ln' + i + '">Appliance name</label><input type="text" id="ln' + i + '" placeholder="Appliance name" value="' + esc(l.name || "") + '"></td>' +
         '<td><label class="sr" for="lk' + i + '">Kind</label><select id="lk' + i + '">' + kinds + "</select></td>" +
         '<td><label class="sr" for="lv' + i + '">VA or watts</label><input type="text" inputmode="decimal" id="lv' + i + '" value="' + esc(l.va || "") + '"></td>' +
         '<td><label class="sr" for="la' + i + '">Amps</label><input type="text" inputmode="decimal" id="la' + i + '" value="' + esc(l.amps || "") + '"></td>' +

@@ -9,7 +9,8 @@
 // headings on entry pages (faqEntries() in platform/pages/build.mjs), so a hand-written block there
 // would ship the questions twice.
 //
-// Edit a question: change it here, then run `node faq.mjs` to rewrite the pages.
+// Edit a question: change it here, then run `node faq.mjs` to rewrite the pages and
+// `node platform/pages/llms-answers.mjs ventures/machine-shop-guides` (from the repo root) to rewrite llms.txt Answers.
 // page.test.mjs fails if a page has no entry here or its block is out of date.
 import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -40,6 +41,14 @@ export const FAQ = {
       "The contract tells you. Look for DFARS 252.204-7012, 7019, 7020 and 7021 in your purchase orders and flow-downs, and for drawings or models that arrive marked CUI. If every contract only involves FCI, such as purchase orders and delivery schedules, you are looking at Level 1."],
     ["Is CMMC Phase 2 suspended?",
       "As of 24 November 2026, yes. Phase 2, which would have required C3PAO Level 2 certification from 10 November 2026, was suspended by the Department of War on 13 July 2026. Self-assessments, DFARS 252.204-7012 and the SPRS score requirements of 7019 and 7020 still apply."],
+  ],
+  "cmmc-subcontractor-flow-down.html": [
+    ["What CMMC level does my subcontractor need?",
+      "It depends on what the subcontract sends them. Under 32 CFR 170.23, a supplier that will only process, store or transmit FCI needs Level 1 (Self). One that handles CUI needs Level 2 (Self) at least, and Level 2 (C3PAO) when the prime contract requires Level 2 (C3PAO) or Level 3 (DIBCAC)."],
+    ["Do I have to flow CMMC down to my plater or heat treater?",
+      "Yes, when the subcontract will involve FCI or CUI. DFARS 252.204-7021(f)(1) has you insert the substance of the clause, except paragraph (e)(1), in subcontracts that will contain a requirement to process, store or transmit FCI or CUI, commercial ones included; commercially available off-the-shelf items are excluded."],
+    ["What do I check before I award a subcontract?",
+      "That the supplier has a current CMMC status at the level the information calls for (252.204-7021(f)(2)) and has completed its affirmation before award (paragraph (d)(4)). Current means a Final Level 1 status within 1 year, a Final Level 2 status within 3 years, or a Conditional status within 180 days, each with an affirmation no older than 1 year."],
   ],
   "cmmc-scoping-worksheet.html": [
     ["What are the CMMC asset categories?",
