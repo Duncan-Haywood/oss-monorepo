@@ -1,6 +1,8 @@
 // Seller books: imports, sales (+ their fees), account-level charges, inventory, mileage, expenses.
 // Every table is tenant-scoped by org_id (ON DELETE CASCADE from organization). Money in integer cents,
 // calendar dates as ISO "YYYY-MM-DD" text (the seller's books are by calendar day, not instant).
+
+import type { ColumnMapping } from "@shared/column-mapping";
 import { index, integer, real, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 import { bool, cents, createdAt, json, updatedAt } from "./_columns";
 import { organization, user } from "./auth";
@@ -220,6 +222,21 @@ export const leftOutMerchant = sqliteTable(
     updatedAt: updatedAt(),
   },
   (t) => [uniqueIndex("left_out_merchant_org_merchant_idx").on(t.orgId, t.merchant)],
+);
+
+/**
+ * The columns a seller chose for a marketplace with no fixed report layout (importers/mapped.ts), saved on
+ * each import so the next file from that platform starts from them. Header names only, never file content.
+ */
+export const importMapping = sqliteTable(
+  "import_mapping",
+  {
+    orgId: orgId(),
+    platform: text("platform").notNull(),
+    mapping: json<ColumnMapping>("mapping").notNull(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [uniqueIndex("import_mapping_org_platform_idx").on(t.orgId, t.platform)],
 );
 
 /**

@@ -9,6 +9,7 @@ import {
   filedInventory,
   homeOffice,
   importBatch,
+  importMapping,
   inventoryItem,
   inventoryLot,
   leftOutMerchant,
@@ -36,6 +37,7 @@ export const TABLE_KEYS = [
   "mileageTrips",
   "expenses",
   "leftOutMerchants",
+  "importMappings",
   "homeOffice",
   "filedInventory",
   "estimateSettings",
@@ -98,6 +100,11 @@ export async function exportShop(ctx: AppContext, orgId: string): Promise<ShopEx
       .select()
       .from(leftOutMerchant)
       .where(eq(leftOutMerchant.orgId, orgId))
+      .all(),
+    importMappings: await db
+      .select()
+      .from(importMapping)
+      .where(eq(importMapping.orgId, orgId))
       .all(),
     homeOffice: await db.select().from(homeOffice).where(eq(homeOffice.orgId, orgId)).all(),
     filedInventory: await db

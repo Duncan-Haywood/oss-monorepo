@@ -8,6 +8,7 @@ import {
 } from "@shared/enums";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { MappedImport } from "../components/mapped-import";
 import { PayoutCheck } from "../components/payout-check";
 import { api, dollarsToCents, orgPath, today, usd } from "../lib/api";
 import { useOrgId } from "./org";
@@ -48,7 +49,10 @@ export function ImportsPage() {
   const qc = useQueryClient();
   const reports = useQuery({
     queryKey: ["reports"],
-    queryFn: () => api<{ items: ReportDef[] }>("/api/reference/reports"),
+    queryFn: () =>
+      api<{ items: ReportDef[]; mapped?: { platform: string; platformLabel: string }[] }>(
+        "/api/reference/reports",
+      ),
   });
   const batches = useQuery({
     queryKey: ["imports", orgId],
@@ -139,6 +143,9 @@ export function ImportsPage() {
           </div>
         )}
       </section>
+      {reports.data?.mapped && reports.data.mapped.length > 0 && (
+        <MappedImport orgId={orgId} platforms={reports.data.mapped} />
+      )}
       <PayoutCheck orgId={orgId} />
       <section className="card overflow-x-auto">
         <h2 className="mb-2 font-medium">Past imports</h2>

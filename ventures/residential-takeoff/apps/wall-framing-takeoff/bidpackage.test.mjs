@@ -2,8 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { proposal } from "./bidletter.mjs";
 import { bidPackageHtml, cleanLogo, cleanAccent } from "./bidpackage.mjs";
-import { buyLink, cleanKey, interpret, checkLicence } from "./licence.mjs";
-import { CHECKOUT_URL } from "./checkout.mjs";
+import { cleanKey, checkLicence, onSaleNow } from "./licence.mjs";
 import { readFileSync } from "node:fs";
 
 const b = {
@@ -36,25 +35,14 @@ test("logo and accent are sanitised", () => {
   assert.match(cleanLogo("data:image/png;base64,iVBOR=="), /^data:image\/png/);
   assert.equal(cleanAccent("red;}</style>"), "#1f3a5f");
 });
-test("licence: link, key and answer handling", async () => {
-  assert.equal(buyLink("http://x.test"), null);
-  assert.equal(buyLink("https://u:p@x.test"), null);
-  assert.ok(buyLink("https://shop.test/checkout/abc"));
+test("licence: junk keys and a dark build never unlock", async () => {
   assert.equal(cleanKey("a b"), null);
-  assert.equal(cleanKey("ABCD-1234-EFGH"), "ABCD-1234-EFGH");
-  assert.equal(interpret({ valid: true, license_key: { status: "active" } }).valid, true);
-  assert.equal(interpret({ valid: true, license_key: { status: "disabled" } }).valid, false);
-  assert.equal(interpret({ valid: "true" }).valid, false);
-  assert.equal(interpret(null).valid, false);
-  const ok = async (url, init) => { assert.match(init.body, /^license_key=ABCD-1234-EFGH$/); return { json: async () => ({ valid: true, license_key: { status: "active" } }) }; };
-  assert.equal((await checkLicence("ABCD-1234-EFGH", { fetch: ok, url: "https://v.test/validate" })).valid, true);
-  const down = async () => { throw new Error("net"); };
-  assert.equal((await checkLicence("ABCD-1234-EFGH", { fetch: down, url: "https://v.test/validate" })).valid, false);
-  assert.equal((await checkLicence("bad key", { fetch: ok, url: "https://v.test/validate" })).valid, false);
-  assert.equal((await checkLicence("ABCD-1234-EFGH", { fetch: ok, url: "" })).valid, false);
+  assert.equal(cleanKey("ABCD-1234-EFGH"), null, "the old Lemon Squeezy key shape is gone");
+  for (const k of ["", "ABCD-1234-EFGH", "ms1.x.y", null]) assert.equal((await checkLicence(/** @type {any} */ (k))).valid, false);
 });
-test("dark by default: no checkout link ships and the page gates the button on it", () => {
-  assert.match(CHECKOUT_URL, /^(https:\/\/\S+)?$/); // empty (dark) or an https link (live)
+test("dark by default: nothing is on sale and the page wires Buy through Paddle", () => {
+  assert.equal(onSaleNow(), false);
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
-  assert.match(html, /buyLink\(CHECKOUT_URL\)/);
+  assert.match(html, /createBillingProvider\(\)/);
+  assert.match(html, /\.wireBuy\(\$\("#buyLink"\)/);
 });

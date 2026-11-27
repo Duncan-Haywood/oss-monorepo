@@ -1,5 +1,7 @@
 // Guards the "no invented numbers" rules for reference data.
+
 import { readFileSync } from "node:fs";
+import { MAPPED_PLATFORMS } from "@shared/column-mapping";
 import { PLATFORMS } from "@shared/enums";
 import { FEE_SOURCES } from "@shared/reference/fee-sources";
 import { FEDERAL_1099K, STATE_1099K } from "@shared/reference/form-1099k";
@@ -9,8 +11,10 @@ import { describe, expect, it } from "vitest";
 const isDate = (s: string) => /^\d{4}-\d{2}-\d{2}$/.test(s);
 
 describe("fee sources", () => {
-  it("covers every platform with the marketplace's own page", () => {
-    expect(FEE_SOURCES.map((f) => f.platform).sort()).toEqual([...PLATFORMS].sort());
+  it("covers every fixed-layout platform with the marketplace's own page", () => {
+    // A column-mapped platform's fees are the columns the seller names, so it has no fee source here.
+    const fixed = PLATFORMS.filter((p) => !(MAPPED_PLATFORMS as readonly string[]).includes(p));
+    expect(FEE_SOURCES.map((f) => f.platform).sort()).toEqual([...fixed].sort());
     const own: Record<string, RegExp> = {
       ebay: /^https:\/\/www\.ebay\.com\//,
       poshmark: /^https:\/\/support\.poshmark\.com\//,
@@ -60,9 +64,10 @@ describe("fee sources", () => {
     }
   });
 
-  it("every platform has at least one report importer", () => {
-    const platforms = new Set(Object.values(REPORTS).map((r) => r.platform));
-    for (const p of PLATFORMS) expect(platforms.has(p), p).toBe(true);
+  it("every platform has a report importer or imports through the column mapping, never both", () => {
+    const platforms = new Set<string>(Object.values(REPORTS).map((r) => r.platform));
+    const mapped = new Set<string>(MAPPED_PLATFORMS);
+    for (const p of PLATFORMS) expect(platforms.has(p) !== mapped.has(p), p).toBe(true);
   });
 });
 

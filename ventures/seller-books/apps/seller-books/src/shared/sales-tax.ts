@@ -7,6 +7,11 @@
 // an order on the seller's own Shopify store. That money was collected by the seller for the state; it is
 // not income, and it is what goes on the seller's own sales tax return.
 //
+// Grailed, StockX and Vinted (imported through the column-mapped CSV) are marketplaces that collect the
+// tax themselves (Vinted's help article 1014; StockX and Grailed by secondary sources, docs/IMPORTERS.md).
+// "Another marketplace" is counted as the seller's, with a caveat: the app cannot know who collected it,
+// and showing tax that is not the seller's to file is the safer mistake than hiding tax that is.
+//
 // Shopify is the mixed case: its orders export puts every order's tax in one Taxes column, and orders
 // from the Shop sales channel can have their tax collected by Shopify as the marketplace. The orders
 // export does not say which, so Shopify's tax is counted as the seller's and the report says to take out
@@ -20,6 +25,7 @@ const SELLER_COLLECTED: ReadonlySet<string> = new Set<SaleChannel>([
   "paypal",
   "venmo",
   "shopify",
+  "other",
   "direct",
 ]);
 
@@ -29,12 +35,21 @@ export function taxCollector(channel: string): TaxCollector {
 }
 
 /** Channels whose tax the seller collected, in report order. */
-export const SELLER_TAX_CHANNELS = ["square", "paypal", "venmo", "shopify", "direct"] as const;
+export const SELLER_TAX_CHANNELS = [
+  "square",
+  "paypal",
+  "venmo",
+  "shopify",
+  "other",
+  "direct",
+] as const;
 
 /** Channels whose seller-collected tax needs a caveat in the report. */
 export const SELLER_TAX_CAVEATS: Partial<Record<SaleChannel, string>> = {
   shopify:
     "Shopify's orders export has one Taxes column. Tax on orders from the Shop sales channel is collected by Shopify as the marketplace: take those orders out.",
+  other:
+    "Another marketplace's file was matched by hand, so Seller Books cannot know who collected its tax. Most US marketplaces collect and send it themselves (marketplace facilitator laws): if this one did, that tax is not yours to file; take it out.",
 };
 
 export interface SalesTaxCellInput {

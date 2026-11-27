@@ -17,6 +17,7 @@ export const GROUPS = [
     ["change-order-log.html", "Change order log"],
     ["tm-tickets.html", "T&amp;M ticket log and CO request"],
     ["schedule-of-values-template.html", "Free Excel SOV template"],
+    ["construction-invoice-template.html", "Free contractor invoice template (Excel)"],
     ["front-loading-schedule-of-values.html", "Front-loading check (balanced SOV)"],
     ["pay-if-paid-clauses.html", "Pay-if-paid clause reader"],
     ["how-to-write-an-rfi.html", "RFI drafter and how to write an RFI"],

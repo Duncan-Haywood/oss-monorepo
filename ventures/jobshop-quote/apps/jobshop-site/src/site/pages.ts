@@ -87,6 +87,18 @@ export const SHOTS = {
     height: 860,
     alt: "The rate card in Job Shop Quote: two machines (a Haas VF-2 mill at $95.00 an hour and an Okuma LB3000 lathe at $105.00 an hour) and two materials (303 stainless bar at $6.20/lb and 6061-T6 aluminum plate at $4.50/lb, each with its density, 10% scrap, a minimum charge and the date the price was set), with the forms for adding more.",
   },
+  customerPdf: {
+    file: "customer-pdf.webp",
+    width: 1275,
+    height: 750,
+    alt: "The top of the quote PDF the customer receives: the shop's name, Example Precision, and QUOTE with quote number Q-1001, the date and a valid-until date a month later; prepared for Example Robotics LLC, Dana Example; then part BRK-1001 Rev B, motor mount bracket, at 10, 50 and 100 pieces for $46.40, $26.80 and $25.85 each ($464.00, $1,340.00 and $2,585.00). No costs, rates or markup appear.",
+  },
+  customerPage: {
+    file: "customer-quote-phone.webp",
+    width: 390,
+    height: 944,
+    alt: "The customer's page for the same quote on a phone, opened from a link with no account: the shop's name, the quote number and dates, a link to the PDF as sent, and an Accept this quote form where the buyer picks 10, 50 or 100 of BRK-1001 at the quoted prices or not ordering the part, sees the total, types their name, email, PO number and a note, and accepts the quote or declines it.",
+  },
 } as const;
 
 type Shot = (typeof SHOTS)[keyof typeof SHOTS];
@@ -116,6 +128,17 @@ function appShots(ctx: RenderContext): Html {
       <figure class="shot shot-phone">
         ${shotImg(ctx, SHOTS.quotePhone)}
         <figcaption>The same line on a phone.</figcaption>
+      </figure>
+    </div>
+    <h3 class="center shots-sub">What your customer gets</h3>
+    <div class="shots">
+      <figure class="shot shot-wide">
+        <a class="shot-link" href="${href(ctx, `/shots/${SHOTS.customerPdf.file}`)}">${shotImg(ctx, SHOTS.customerPdf)}</a>
+        <figcaption>The quote PDF: prices for each quantity break and the dates, with your notes and terms when you set them. The costs, rates and markup behind them stay in the app.</figcaption>
+      </figure>
+      <figure class="shot shot-phone">
+        ${shotImg(ctx, SHOTS.customerPage)}
+        <figcaption>The link you can send with it: the customer picks a quantity, adds a PO number and accepts, or declines, with no account.</figcaption>
       </figure>
     </div>
     <p class="center"><a class="link" href="${href(ctx, "/how-it-works")}">How the price is built, step by step →</a></p>
@@ -369,7 +392,10 @@ export function howItWorksPage(ctx: RenderContext): Html {
       title: "Your estimator reviews and sends",
       body: html`<p>The draft quote lists every part, its price build-up and anything flagged. Your
       estimator edits what needs editing and approves it. You then download it as a PDF on your letterhead
-      or have ${SITE_NAME} email it from your estimator's send button. It never sends a quote on its own.</p>`,
+      or have ${SITE_NAME} email it from your estimator's send button. It never sends a quote on its own.
+      With it can go a link where the customer picks a quantity and accepts, with a PO number, or
+      declines; the answer shows on the quote, which is marked won or lost.</p>
+      ${shotFigure(ctx, SHOTS.customerPdf, "What the customer receives: prices for every quantity break, the dates, your notes and terms when set, and none of the costs, rates or markup behind them. Made-up shop and customer.")}`,
     },
   ];
   const wont = [

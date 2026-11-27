@@ -46,6 +46,7 @@ export const JOB_EVENT_ACTIONS = [
   "fl_notice_delivered_set",
   "fl_notice_deleted",
   "tx_project_kind_set",
+  "tx_retainage_dates_set",
   "tx_notice_recorded",
   "tx_notice_deleted",
   "rfi_created",
@@ -117,6 +118,10 @@ export interface JobEventData {
   txMethod?: TxDeliveryMethod;
   /** Texas: "residential", "commercial" or null (not tracked). */
   txProjectKind?: string | null;
+  /** Texas retainage dates (§§ 53.057(a-1), 53.052(d)); null: cleared. */
+  txContractEndedOn?: string | null;
+  txOriginalEndedOn?: string | null;
+  txOriginalEndedHow?: string | null;
   /** Florida: the delivery date from the evidence of delivery; null: not entered or cleared. */
   deliveredOn?: string | null;
   /** Tracking or receipt number of a mailed notice. */
@@ -382,6 +387,17 @@ export function describeJobEvent(action: JobEventAction, d: JobEventData = {}): 
       return d.txProjectKind
         ? `Texas notices of claim tracked, as a ${d.txProjectKind === "residential" ? "residential construction project" : "project other than residential"}`
         : "Texas notices of claim no longer tracked";
+    case "tx_retainage_dates_set": {
+      const parts = [
+        d.txContractEndedOn ? `your contract ended ${d.txContractEndedOn}` : null,
+        d.txOriginalEndedOn
+          ? `the original contract ${d.txOriginalEndedHow ?? "ended"} ${d.txOriginalEndedOn}`
+          : null,
+      ].filter(Boolean);
+      return parts.length
+        ? `Texas retainage dates: ${parts.join("; ")}`
+        : "Texas retainage dates cleared";
+    }
     case "tx_notice_recorded":
       return `${txNotice(d)} recorded as sent`;
     case "tx_notice_deleted":

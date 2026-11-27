@@ -632,6 +632,9 @@ summary:focus-visible {
     grid-template-columns: minmax(0, 1fr) 17rem;
   }
 }
+.shots-sub {
+  margin-top: 2.5rem;
+}
 .shot {
   margin: 1.25rem 0 0;
   min-width: 0;

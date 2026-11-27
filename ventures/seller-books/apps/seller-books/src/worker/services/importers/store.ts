@@ -1,5 +1,6 @@
 // Persists a parsed report for one org: a batch row, then sales (+ fees) and charges, skipping rows already
 // imported (same org + platform + external id), and auto-linking orders to in-stock inventory by SKU.
+import type { ColumnMapping, MappedPlatform } from "@shared/column-mapping";
 import type { Platform } from "@shared/enums";
 import { and, eq, inArray } from "drizzle-orm";
 import type { AppContext } from "../../context";
@@ -9,7 +10,11 @@ import { badRequest } from "../../lib/errors";
 import { newId, sha256Hex } from "../../lib/ids";
 import { assertImportAllowed } from "../billing/service";
 import { type FreeUnit, takeUnits } from "../books/units";
-import { ImportFormatError, REPORTS, type ReportKey } from "./index";
+import { ImportFormatError, type ImportParseResult, REPORTS, type ReportKey } from "./index";
+import { parseMappedCsv } from "./mapped";
+
+/** A fixed report layout, or another marketplace's file read with the columns the seller chose. */
+export type ImportSource = ReportKey | { platform: MappedPlatform; mapping: ColumnMapping };
 
 export interface ImportSummary {
   id: string;
@@ -29,19 +34,26 @@ export async function importReport(
   ctx: AppContext,
   orgId: string,
   userId: string,
-  report: ReportKey,
+  source: ImportSource,
   fileName: string,
   text: string,
 ): Promise<ImportSummary> {
-  const def = REPORTS[report];
-  let parsed: ReturnType<typeof def.parse>;
+  let parsed: ImportParseResult;
+  let platform: Platform;
+  const report = typeof source === "string" ? source : parsedKind(source.platform);
   try {
-    parsed = def.parse(text);
+    if (typeof source === "string") {
+      const def = REPORTS[source];
+      parsed = def.parse(text);
+      platform = def.platform as Platform;
+    } else {
+      parsed = parseMappedCsv(text, source.platform, source.mapping);
+      platform = source.platform;
+    }
   } catch (e) {
     if (e instanceof ImportFormatError) throw badRequest(e.message, e.details);
     throw e;
   }
-  const platform = def.platform as Platform;
   const db = ctx.db;
 
   // De-duplicate against what this org already has (and within the file itself).
@@ -239,3 +251,5 @@ export async function importReport(
     warnings: parsed.warnings,
   };
 }
+
+const parsedKind = (platform: MappedPlatform) => `mapped_csv:${platform}`;

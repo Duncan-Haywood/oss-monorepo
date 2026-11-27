@@ -20,6 +20,7 @@ import {
   sovLineSchema,
   txNoticeSendSchema,
   txProjectKindSchema,
+  txRetainageDatesSchema,
   updateProjectSchema,
   updateSovLineSchema,
 } from "@shared/api/schemas";
@@ -126,6 +127,7 @@ import {
   deleteTxNoticeSend,
   recordTxNoticeSend,
   setTxProjectKind,
+  setTxRetainageDates,
 } from "../../services/payapps/tx-notices";
 import type { AppEnv } from "../../types";
 
@@ -727,6 +729,38 @@ routes.put(
       ]);
     }
     return c.json({ projectKind: r.projectKind });
+  },
+);
+
+routes.put(
+  "/:projectId/notices/tx/retainage-dates",
+  editor,
+  validate("json", txRetainageDatesSchema),
+  async (c) => {
+    const projectId = c.req.param("projectId");
+    const r = await setTxRetainageDates(
+      c.var.ctx,
+      c.var.tenant.orgId,
+      projectId,
+      c.req.valid("json"),
+    );
+    if (r.changed) {
+      await log(c, { id: projectId, isSample: r.isSample }, [
+        {
+          action: "tx_retainage_dates_set",
+          data: {
+            txContractEndedOn: r.txContractEndedOn,
+            txOriginalEndedOn: r.txOriginalEndedOn,
+            txOriginalEndedHow: r.txOriginalEndedHow,
+          },
+        },
+      ]);
+    }
+    return c.json({
+      contractEndedOn: r.txContractEndedOn,
+      originalEndedOn: r.txOriginalEndedOn,
+      originalEndedHow: r.txOriginalEndedHow,
+    });
   },
 );
 
