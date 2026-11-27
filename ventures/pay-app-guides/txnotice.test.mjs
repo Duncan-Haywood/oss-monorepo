@@ -124,12 +124,24 @@ test("draft fills blanks, keeps the statute's underscores, and adds the homestea
   assert.throws(() => draftNotice("nope"));
 });
 
+// Visible text of the page: script blocks dropped (any case, `</script >` too), tags
+// dropped, entities decoded in one pass so "&amp;#39;" stays literal.
+const ENTITIES = { "&amp;": "&", "&#39;": "'", "&rsquo;": "'" };
+function pageText(html) {
+  return html.replace(/<script\b[\s\S]*?<\/script[^>]*>/gi, " ").replace(/<[^>]+>/g, " ").replace(/&(?:amp|#39|rsquo);/g, (e) => ENTITIES[e]);
+}
+
 test("every quoted phrase on the page is in the statute snapshot", () => {
-  const body = PAGE.replace(/<script[\s\S]*?<\/script>/g, " ").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&#39;|&rsquo;/g, "'");
+  const body = pageText(PAGE);
   const quotes = [...body.matchAll(/“([^”]+)”/g)].map((m) => m[1]);
   assert.ok(quotes.length >= 10, `only ${quotes.length} quotes`);
   for (const q of quotes) assert.ok(flatS.includes(flat(q)), `not in the statute: “${q}”`);
   for (const line of DELIVERY) assert.ok(/§ 53\.003/.test(line));
+});
+
+test("page text extraction drops upper-case script blocks and does not double-decode entities", () => {
+  assert.equal(pageText("a<SCRIPT>x</SCRIPT >b").replace(/\s/g, ""), "ab");
+  assert.equal(pageText("&amp;#39;"), "&#39;");
 });
 
 test("page: inputs labelled, wired to txnotice.mjs, sources linked with a read date, disclaimer", () => {
