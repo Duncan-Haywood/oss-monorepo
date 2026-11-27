@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
@@ -47,6 +47,10 @@
     {
       "file": "ventures/seller-books/DEPLOY.md",
       "issue": "Says the port follows PR #19610 but not that ci_policy_check also needs a CODEOWNERS line for the venture (PayApps added it in #19617); found only by running ci_policy_check.py."
+    },
+    {
+      "file": "ventures/seller-books/DEPLOY.md",
+      "issue": "A new priv- deploy workflow also needs platform/ci/publish-surface.yaml regenerated (publish_surface.py --write); the validate job failed on it. Neither DEPLOY.md nor the PayApps pattern note says so."
     }
   ],
   "deviations": [
@@ -68,7 +72,7 @@
     "ventures/seller-books/apps/seller-books/docs/DEPLOY.md"
   ],
   "goal": null,
-  "notes": "Local checks: gate.py analyze 0 blocking (control-plane tier); ci_policy_check passes; validate_workflows 144 valid; in apps/seller-books: biome ci, typecheck, test:unit pass; pnpm build; check-no-client-maps clean; provision.test.mjs 5/5; provision --dry-run writes the workers.dev config. Next run: dispatch priv-seller-books-deploy on main (needs the Cloudflare token to have D1 edit) and record the URL in ventures/seller-books/DEPLOY.md.",
+  "notes": "Local checks: gate.py analyze 0 blocking (control-plane tier); ci_policy_check passes; validate_workflows 144 valid; in apps/seller-books: biome ci, typecheck, test:unit pass; pnpm build; check-no-client-maps clean; provision.test.mjs 5/5; provision --dry-run writes the workers.dev config. Next run: dispatch priv-seller-books-deploy on main (needs the Cloudflare token to have D1 edit) and record the URL in ventures/seller-books/DEPLOY.md. CI 'validate' failed once: publish-surface snapshot lacked the new workflow; fixed with publish_surface.py --write (classification dispatch, deploy job gated on main). portfolio-validate.yml locally: 101/101 run steps passed, 10 pytest steps not run (no pytest in that interpreter).",
   "corrections": [],
   "redteam": null,
   "usage": {
