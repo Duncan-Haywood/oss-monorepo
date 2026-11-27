@@ -570,6 +570,8 @@ export interface BillingDto {
   /** False while paid plans are dark on this deployment. */
   checkoutAvailable: boolean;
   portalAvailable: boolean;
+  /** False while this deployment has no file storage: uploads are off and plans say so. */
+  attachmentsAvailable: boolean;
   plans: PlanDto[];
 }
 
