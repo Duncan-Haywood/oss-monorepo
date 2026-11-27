@@ -229,6 +229,18 @@ marketing site is `apps/einvoice-site`. Rules for this app: `pro/README.md` and 
   form on the page itself with "software vendor" pre-selected. The old "billed monthly in arrears"
   line, wrong for the minimum, is gone from the page and corrected in docs/PRICING.md.
 
+- Metered validation API, part 2c (2026-11-27, metered-api-settle-schedule): the month-end settlement
+  runs by itself on the Worker. `SettleClock`, a SQLite Durable Object (`worker/settle-clock.mjs`;
+  binding and migration in `wrangler.jsonc`), is armed by the first request to an isolate and wakes
+  every 6 hours; from 06:00 UTC on the 1st it calls `settleUsage` for the closed month (up to three
+  months of catch-up after a gap) and records the month. An alarm, not a cron trigger, because the
+  account's 5 are in use (`platform/ci/cron_budget.py`). The claim per account and month still makes
+  a re-run, or the admin endpoint at the same time, answer "already". Billing dark: logged, nothing
+  stored. `USAGE_SETTLEMENT=off` stops it. Tested against the real billing on the fake provider
+  (`worker/settle-clock.test.mjs`), bundled by `wrangler deploy --dry-run` (both bindings listed),
+  and run in workerd with `wrangler dev`: the alarm fired 60 s after the first request and logged
+  `usage_settlement.unavailable` for 2026-10 with billing dark.
+
 - einvoice-site in Dutch (2026-11-27, einvoice-site-dutch): the marketing site's fourth language, every
   page under `/nl/` (home, boekhouders, api, prijzen, the four deadline pages, vroege-toegang, privacy
   and the form-flow pages), Belgium first for Flemish accountants, each deadline text in Dutch, the
@@ -298,6 +310,6 @@ marketing site is `apps/einvoice-site`. Rules for this app: `pro/README.md` and 
    "Dutch"): the same native read for `apps/einvoice-site/content/i18n/nl.mjs`, and the Dutch pages'
    CTA pointed at the workspace once the deploy has run.
 8. Metered validation API, part 2 (part 1 done 2026-11-27; `explain=0` plain validation done
-   2026-11-27): the settlement on a schedule (a Worker cron on the 1st once the deploy has run,
-   calling the same `settleUsage`); the einvoice-site API page's link to the `api` plan's sign-up
+   2026-11-27; the settlement on a schedule, a Durable Object alarm since no cron trigger is left,
+   done 2026-11-27, below): the einvoice-site API page's link to the `api` plan's sign-up
    once the deploy has run (the page itself, done 2026-11-27, below).

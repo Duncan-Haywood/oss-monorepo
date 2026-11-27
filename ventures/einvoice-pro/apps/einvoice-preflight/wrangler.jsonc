@@ -20,5 +20,9 @@
   // is about 22 s. Raise only with Workers Metrics in hand.
   "limits": { "cpu_ms": 60000 },
   // The SqlStore creates its tables on first use (pro/sql-store.mjs SCHEMA), so no migrations dir.
-  "d1_databases": [{ "binding": "DB", "database_name": "einvoice-pro" }]
+  "d1_databases": [{ "binding": "DB", "database_name": "einvoice-pro" }],
+  // The metered plan's month-end settlement runs on SettleClock's alarm (worker/settle-clock.mjs),
+  // not a cron trigger: the account's 5 cron triggers are in use (platform/ci/cron_budget.py).
+  "durable_objects": { "bindings": [{ "name": "SETTLE_CLOCK", "class_name": "SettleClock" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["SettleClock"] }]
 }

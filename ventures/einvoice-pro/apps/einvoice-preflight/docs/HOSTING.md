@@ -171,6 +171,17 @@ not synced here: once the Worker exists, `einvoice-pro` belongs in `set-admins.y
 a key or an invoice; 7 days on Workers Paid) and turns **invocation logs off**: they record each
 request's details, the client IP among them, and the Privacy Policy says IPs are never written.
 
+**The usage settlement clock** (2026-11-27, `worker/settle-clock.mjs`). The Worker also exports a
+Durable Object, `SettleClock` (binding `SETTLE_CLOCK`, migration `v1`, SQLite-backed, so on the Free
+plan), whose alarm runs every 6 hours and settles each closed month of the metered `api` plan from
+06:00 UTC on the 1st (docs/BILLING.md, "Usage above the minimum"). It is an alarm because the
+account's 5 cron triggers are all in use (`platform/ci/cron_budget.py`). The first request to a new
+isolate arms it, and each alarm sets the next one before it runs. It stores one value, the last
+month settled (`"2026-11"`): no account, key or invoice data, so the DPA's annexes are unchanged.
+While `BILLING_PROVIDER` is `none` each run logs `usage_settlement.unavailable` and does nothing.
+Set the variable `USAGE_SETTLEMENT=off` to stop it. Rolling back to a version from before the class
+existed needs a `deleted_classes` migration first, so roll forward instead.
+
 **Backups.** D1 Time Travel is always on and restores to any minute of the last 30 days on Workers
 Paid ([Cloudflare: Time Travel](https://developers.cloudflare.com/d1/reference/time-travel/));
 `wrangler d1 time-travel restore einvoice-pro --timestamp=<unix>`. The DPA's Annex II and section

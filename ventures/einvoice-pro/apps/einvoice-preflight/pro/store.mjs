@@ -315,7 +315,8 @@ export class MemoryStore {
 
   /**
    * Usage settlement: every subscription on `planKey`, across accounts (billing.mjs settleUsage,
-   * called only from the admin-token route). Returns billing rows, never runs or invoice data.
+   * called from the admin-token route and worker/settle-clock.mjs). Returns billing rows, never runs
+   * or invoice data.
    * @param {string} planKey
    */
   async listSubscriptionsByPlan(planKey) {

@@ -157,7 +157,14 @@ numbers as the site's `API_METER` (`plans.test.mjs` fails on drift):
   not undo it. `explain=0&fix=1` is `400 invalid` before anything is metered: safe fixes are part
   of the explained unit. Tests: `pro/metered-api.test.mjs`.
 
-Not yet: running the settlement on a schedule (a Worker cron on the 1st, after the deploy). The
+- **Settlement on a schedule (2026-11-27).** On the Worker, a Durable Object alarm
+  (`worker/settle-clock.mjs`, not a cron trigger: the account has none left) calls the same
+  `settleUsage` for each closed month from 06:00 UTC on the 1st; docs/BILLING.md has the details and
+  `worker/settle-clock.test.mjs` the tests (once per month even if re-run, nothing while billing is
+  dark, `USAGE_SETTLEMENT=off`). The Node container has no scheduler: there, post to the admin
+  endpoint.
+
+The
 site's API page describes this plan, `explain=0` and the billing above, with the early-access form
 and "software vendor" pre-selected (2026-11-27); it links to the plan's sign-up once the deploy has run.
 

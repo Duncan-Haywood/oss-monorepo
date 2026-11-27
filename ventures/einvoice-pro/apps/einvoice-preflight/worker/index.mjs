@@ -32,6 +32,7 @@ import { createProHandler } from "../pro/server.mjs";
 import { MAX_BODY, workerRoute } from "./route.mjs";
 import { SqlStore, d1Db } from "../pro/sql-store.mjs";
 import { BASE64, TEXT } from "./files.generated.mjs";
+import { armSettleClock, settleClockClass } from "./settle-clock.mjs";
 
 const JSON_HEADERS = { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "x-content-type-options": "nosniff" };
 
@@ -82,14 +83,34 @@ function trackedMailer(mailer) {
 /** @type {Promise<{ handle: (r: Request, i?: { remoteAddress?: string }) => Promise<Response>, pending: Set<Promise<unknown>> }> | null} */
 let app = null;
 
-/** One handler per isolate: the store's schema check runs once, not per request. @param {Env} env */
-function appFor(env) {
-  app ??= (async () => {
+/** @type {Promise<{ store: SqlStore, billing: ReturnType<typeof createBilling>, now: () => Date }> | null} */
+let core = null;
+
+/** The store and billing, once per isolate (shared by the handler and the SettleClock). @param {Env} env */
+function coreFor(env) {
+  core ??= (async () => {
     if (!env.DB) throw new Error("no D1 binding named DB (wrangler.jsonc)");
     const now = () => new Date();
     const store = await new SqlStore(d1Db(env.DB), { now }).init();
+    return { store, billing: createBilling({ env, store, now }), now };
+  })();
+  core.catch(() => {
+    core = null;
+  });
+  return core;
+}
+
+/**
+ * The metered plan's month-end settlement on a Durable Object alarm (settle-clock.mjs), since the
+ * account's cron triggers are all in use. Bound as SETTLE_CLOCK in wrangler.jsonc.
+ */
+export const SettleClock = settleClockClass(async (/** @type {Env} */ env) => (await coreFor(env)).billing);
+
+/** One handler per isolate: the store's schema check runs once, not per request. @param {Env} env */
+function appFor(env) {
+  app ??= (async () => {
+    const { store, billing, now } = await coreFor(env);
     const llm = await loadLlmFromEnv(env);
-    const billing = createBilling({ env, store, now });
     const { mailer, pending } = trackedMailer(mailerFromEnv(env));
     const pro = createProHandler({ store, llm, env, now, billing, mailer });
     return { handle: fetchHandlerFor(pro, { maxBody: MAX_BODY }), pending };
@@ -103,6 +124,7 @@ function appFor(env) {
 export default {
   /** @param {Request} request @param {Env} env @param {{ waitUntil: (p: Promise<unknown>) => void }} ctx */
   async fetch(request, env, ctx) {
+    ctx.waitUntil(armSettleClock(env));
     const url = new URL(request.url);
     const to = workerRoute(url.pathname, request.method);
     if (to === "font") {
