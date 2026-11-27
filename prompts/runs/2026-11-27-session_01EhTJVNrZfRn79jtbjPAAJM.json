@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": null,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "First merge attempt 405: PR #19540 (parallel polish run) landed table.stack.fields on 7 of the same input grids; merged main, took its side, re-probed (0 at 390 px)."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -39,6 +41,10 @@
     {
       "file": "platform/pages/site-nav.mjs",
       "issue": "STACK_TABLE_CHROME_CSS does not stretch a select in a stacked card: a venture's max-width on the select pushed it 40 px past the card (service-load-check); needed width:100%;min-width:0 locally."
+    },
+    {
+      "file": "platform/ci/slug_dupe.py",
+      "issue": "Searched 'swipe' and 'input-grids' before opening; the parallel PR #19540 was titled 'editable rows become cards' and opened during this run, so neither search could catch it. Two polish runs picking the same 'Still weakest' item in the same hour has no claim mechanism."
     }
   ],
   "deviations": [

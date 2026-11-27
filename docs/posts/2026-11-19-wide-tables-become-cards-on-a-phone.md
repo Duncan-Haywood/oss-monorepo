@@ -141,8 +141,9 @@ check asks for 17 fields per feeder in one row, 1,570 px wide; on a phone you sa
 name, where it was fed from and the size, and had to swipe for length, conduit and the
 breaker rating. The certified payroll form put 20 fields per worker in a 288 px box.
 
-The same `class="stack"` works on them. Each row becomes a card, each field gets the column's
-name beside it, and the Remove button sits at the bottom of the card. Nine input grids, nine
+A `fields` variant of the same cards (`class="stack fields"`, added the same day) works on
+them. Each row becomes a card, each field gets the column's name beside it, and the Remove
+button sits at the bottom of the card. Nine input grids, nine
 script-filled results tables and fourteen guide tables took the class. Formulas in `pre`
 blocks now wrap. Four command-line examples and two charts keep their sideways scroll on
 purpose, marked as such: a command has to stay copyable as one line, and a chart squeezed to

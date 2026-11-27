@@ -22,7 +22,7 @@ The 43 by kind, and what each got:
 
 | kind | count | fix |
 |---|---|---|
-| editable input grids (fault-current feeders 1,570 px in 312; WH-347 workers 1,642 in 288; hvac-repair and plumber flat-rate price books; service-load appliances; tile sizes; water-supply fixture types; tile obstacles; roofing supplement lines) | 9 | `class="stack"`: each row becomes a card of labelled fields |
+| editable input grids (fault-current feeders 1,570 px in 312; WH-347 workers 1,642 in 288; hvac-repair and plumber flat-rate price books; service-load appliances; tile sizes; water-supply fixture types; tile obstacles; roofing supplement lines) | 9 | `class="stack fields"`: each row becomes a card of labelled fields. PR #19540 (a parallel polish run, merged first) added the `fields` variant and applied it to seven of these; this PR merged onto it and gave water-supply and roofing the same class |
 | read-only results tables a script fills (continuous beam spans, elevator designs and demand sweep, HVAC rooms, duct runs and trunks, sprinkler pipes, rebar cutting plans) | 9 | `class="stack"` (`stack compact` for the 25-row sprinkler pipe list); the runtime labeller in `pf-site.js` labels the rows |
 | static guide tables (four quote-margin-check guides and its four scenario tables, walk-in tub ×2, walk-in shower, stair lift, boiler, psychrometric coil guide) | 14 | `class="stack"`; the coil guide's header row moved into a real `<thead>` so it has labels |
 | `pre` with formulas or number rows (floor flatness ×2, HVAC how-it-works ×2, rebar guide) and `span.eq` equations (elevator how-it-works ×2) | 7 | wrap: inline `white-space:pre-wrap; overflow-wrap:anywhere`, or a phone media rule for `.eq` |
@@ -50,6 +50,7 @@ Two follow-ups the cards needed, found in screenshots rather than by the probe:
 | ![table wider than the page](img/polish-2026-11-27-input-grids-qmc10-before.png) | ![one card per discount](img/polish-2026-11-27-input-grids-qmc10-after.png) |
 
 Tests: `python3 platform/ci/run_venture_tests.py --changed`, 33 suites, 0 failed.
+The 43 → 0 reading was retaken on the tree merged with `origin/main` 38fe8acf6 (PR #19540).
 
 ## Still weakest, next
 
