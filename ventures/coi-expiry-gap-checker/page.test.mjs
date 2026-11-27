@@ -53,3 +53,12 @@ test("related-tool links point at ventures that exist", () => {
   assert.ok(links.length >= 3);
   for (const m of links) assert.ok(existsSync(new URL(`../${m[1]}/VENTURE.yaml`, import.meta.url)), m[1]);
 });
+
+test("PayApps front door: one tagged sign-up link, open-now wording, paid plans not oversold", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  const links = html.match(/https:\/\/payapps\.marisstella\.app\/\?signup&amp;from=[a-z0-9._\/-]+/g) || [];
+  assert.deepEqual(links, ["https://payapps.marisstella.app/?signup&amp;from=coi-expiry-gap-checker"]);
+  assert.match(html, /class="[^"]*payapps-cta[^"]*">[^<]*PayApps/);
+  assert.match(html, /not on sale yet/);
+  assert.doesNotMatch(html, /workers\.dev/);
+});

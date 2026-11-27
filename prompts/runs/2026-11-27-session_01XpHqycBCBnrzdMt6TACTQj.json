@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqycBCBnrzdMt6TACTQj",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T11:39:07Z",
+  "ended": "2026-11-27T11:48:29Z",
+  "wall_minutes": 9.55,
+  "tokens_in": 7323396,
+  "tokens_out": 36667,
+  "cost_usd": 3.3268,
+  "tool_calls": 65,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19727",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Own unit test first expected 3 payments sent ($69.99); the fixture has 2 ($39.99). The test was wrong, not the code; fixed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets pointed at payapps #11, whose only open ask needs a real Windows PC and Android phone, which a cloud session cannot do; every other item on bets #1-#2 waits on demand, so the pick cost several reads before moving to bet #5's growth path."
+    },
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "Bet #4 says 'new private-monorepo/apps/cmmc' but three open PRs (#19601, #19689, #19714) are moving it into ventures/cmmc; the table's last column is stale."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Top bets #1-#2 had no free, ungated item and #3/#4 were mid-move by other runs, so I took bet #5 (seller-books) and its growth path 'more sales platforms'.",
+      "did": "PayPal Activity download importer from PayPal's own field reference",
+      "result": "merged with unit and worker suites green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-24-reseller-payouts-cost-of-goods-and-schedule-c.md (new section: Sales paid through PayPal)",
+    "docs/reports/ventures-2026-11-27-seller-books-paypal-import.md"
+  ],
+  "goal": null,
+  "notes": "Local: pnpm test:unit 316 pass, test:worker 133 pass, typecheck clean, biome no new findings. Sources: developer.paypal.com/reports/activity-download.md and /reports/reference/t-codes.md fetched with curl (200); paypal.com fee page 403 via proxy.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "47f58d29-c4b8-5d58-b15f-e9c91873de59",
+    "transcripts": 1,
+    "first": "2026-11-27T11:39:07Z",
+    "last": "2026-11-27T11:48:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 117,
+        "output": 36667,
+        "thinking": 9852,
+        "cache_read": 7178626,
+        "cache_write_5m": 0,
+        "cache_write_1h": 144653,
+        "api_equivalent_usd": 3.3268,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 117,
+      "output": 36667,
+      "thinking": 9852,
+      "cache_read": 7178626,
+      "cache_write_5m": 0,
+      "cache_write_1h": 144653,
+      "api_equivalent_usd": 3.3268,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 57,
+      "WebSearch": 3,
+      "ToolSearch": 2,
+      "WebFetch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.55,
+      "active_minutes": 9.55,
+      "model_minutes": 7.52,
+      "tool_minutes": 2.03,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer reading PayPal's field reference, writing the importer, fixture, tests and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 180.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

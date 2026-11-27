@@ -17,6 +17,7 @@ export const PLATFORMS = [
   "amazon",
   "tiktok",
   "square",
+  "paypal",
 ] as const;
 export type Platform = (typeof PLATFORMS)[number];
 
@@ -42,6 +43,7 @@ export const PLATFORM_LABELS: Record<SaleChannel, string> = {
   amazon: "Amazon",
   tiktok: "TikTok Shop",
   square: "Square",
+  paypal: "PayPal",
   direct: "Direct sales",
 };
 

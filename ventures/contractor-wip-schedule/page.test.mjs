@@ -97,3 +97,12 @@ test("robots, sitemap, README, LICENSE and VENTURE.yaml exist", () => {
   assert.match(page("LICENSE"), /Functional Source License/);
   assert.match(page("VENTURE.yaml"), /^name: contractor-wip-schedule$/m);
 });
+
+test("PayApps front door: one tagged sign-up link, open-now wording, paid plans not oversold", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  const links = html.match(/https:\/\/payapps\.marisstella\.app\/\?signup&amp;from=[a-z0-9._\/-]+/g) || [];
+  assert.deepEqual(links, ["https://payapps.marisstella.app/?signup&amp;from=contractor-wip-schedule"]);
+  assert.match(html, /class="[^"]*payapps-cta[^"]*">[^<]*PayApps/);
+  assert.match(html, /not on sale yet/);
+  assert.doesNotMatch(html, /workers\.dev/);
+});

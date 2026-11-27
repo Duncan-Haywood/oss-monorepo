@@ -6,6 +6,7 @@ import { parseEbayTransactionReport } from "./ebay";
 import { parseEtsySoldOrders, parseEtsyStatement } from "./etsy";
 import { parseMercariSalesReport } from "./mercari";
 import type { ImportParseResult } from "./parse";
+import { parsePaypalActivity } from "./paypal";
 import { parsePoshmarkSalesReport } from "./poshmark";
 import { parseShopifyOrders, parseShopifyPaymentsTransactions } from "./shopify";
 import { parseSquareTransactions } from "./square";
@@ -76,6 +77,12 @@ export const REPORTS = {
     platform: "square",
     label: "Square: Transactions CSV (Transactions > Export), card reader and market sales",
     parse: parseSquareTransactions,
+  },
+  paypal_activity_download: {
+    platform: "paypal",
+    label:
+      "PayPal: Activity download, CSV (Activity > Statements), sales paid by PayPal off the marketplaces",
+    parse: parsePaypalActivity,
   },
 } as const satisfies Record<
   string,
