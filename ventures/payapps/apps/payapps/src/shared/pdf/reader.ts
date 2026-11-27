@@ -187,6 +187,11 @@ export class PdfReader {
     return this.recovered;
   }
 
+  /** The newest trailer (Root, Info, ID, Size), for writing an incremental update. */
+  get trailerDict(): PdfDict {
+    return this.trailer;
+  }
+
   // --- cross-reference -------------------------------------------------------------------
 
   private async readXrefChain() {

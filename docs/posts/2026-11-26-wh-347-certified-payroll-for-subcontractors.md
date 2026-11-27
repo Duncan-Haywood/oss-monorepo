@@ -3,7 +3,7 @@ title: "Filling out the WH-347 certified payroll every week: a subcontractor's g
 seo_title: "How to fill out WH-347 certified payroll for subcontractors"
 date: 2026-11-26
 tags: [payapps, for-customers, construction, certified-payroll, davis-bacon, wh-347, prevailing-wage, california, ecpr, new-york, new-jersey, washington, illinois]
-description: "The WH-347 column by column for Davis-Bacon subs, the checks before sending it, and the CA, NY and WA files for states that want it filed online."
+description: "The WH-347 column by column for Davis-Bacon subs, the checks before sending it, and the CA, NY, WA and NJ filings for states that want it online."
 ---
 
 *Written by an AI agent working in this repository.*
@@ -192,6 +192,37 @@ the workers' details, the trades and classifications (you can map a mismatch to 
 optional but recommended, the wages against the prevailing rate. If that last step shows you paid
 less, L&I's guide says to pay the difference on the next check and file an amended week.
 
+## New Jersey public works: the MW-562 for the NJ Wage Hub
+
+Since August 2024 every contractor on a New Jersey public works project submits certified payroll
+online, through the NJ Wage Hub (P.L. 2023, c.138). NJDOL's Contractor User Guide (last updated
+03/06/2026) lists four ways in: type the week in, upload "an electronically filled out MW-562", fill
+the Hub's CSV template, or upload a Quantum Project Manager export. The MW-562 route is the one that
+needs no special software: NJDOL's Wage Hub FAQ links the fillable PDF as "the latest version"
+(revision 2/25), you fill it, save it, click "Add Certified Payroll" and drop the file in, and the
+Hub reads the form into its four steps for you to review. What the MW-562 asks for that the WH-347
+does not:
+
+- **Your FEIN and your NJ Public Works Contractor Registration number.** Every contractor and
+  subcontractor on NJ public work has to be registered.
+- **The date wages were due and paid**, and the week's dates over the Sunday-to-Saturday day
+  columns. The form's columns are fixed Sunday to Saturday, so it suits a week ending Saturday.
+- **Each worker's address, sex (M, F or N), race (the form's key: W, B, A, N, I, M) and ethnicity
+  (H or N).**
+- **Job title next to the work classification**: apprentice, journeyman, foreman.
+- **Federal and state income tax apart.** The WH-347 has one withholding column; the MW-562 splits
+  it, and has two "other" deduction columns with a label.
+- **Fringe benefits per hour by type in section 4(c)** on page 2: health and welfare,
+  vacation/holiday, apprenticeship/training, pension, and any other by name, with the plan
+  administrator and its filing number; and boxes 4(a) (paid to plans) and 4(b) (paid in cash).
+- **The signature**: a box to tick with your typed name and the date, which the form says has the
+  same legal effect as a written signature.
+
+Two things to know before you rely on it. The form has 10 rows, one per worker and classification;
+for a bigger crew, DOL suggests the CSV template. And the Hub keeps only the last submission for a
+week-ending date, so a second file for the same week replaces the first rather than adding to it.
+You also still owe the payroll to the public body itself.
+
 ## Other states where certified payroll is filed online
 
 California is no longer the only state that wants the payroll in its own system. On a **state or
@@ -273,9 +304,18 @@ It sits on the job, next to that job's pay applications:
   double time. A week with no work makes the no-work file. Full SSNs are held only while the page is
   open: not saved with the draft and never sent to us. The output validates against L&I's
   published schema.
+- **New Jersey public works (added 2026-11-27):** tick the New Jersey box, download the blank
+  MW-562 from NJDOL's link on the page and choose it, and PayApps fills NJDOL's own form with the
+  same week in your browser, ready for the Wage Hub's upload. You add the FEIN, registration number,
+  pay date, each worker's address and the form's demographics, and the NJ income tax (the rest of
+  the withholding goes in as federal). Fringe credits land in section 4(c) by benefit type. The
+  signature box is ticked only if you tick "I sign electronically". A week that does not end on
+  Saturday, or needs more than the form's 10 rows, is stopped with the reason. We checked the filled
+  file against NJDOL's real form; it has not yet been tried on a live Wage Hub upload, so review
+  what the Hub reads from it before you submit.
 
 Not yet: hours straight from a QuickBooks Time or payroll connection, the crew saved with the job
-instead of the browser, the other states' files in the table above (New Jersey's Wage Hub CSV next, once its template can be read), and uploads to the compliance systems GCs use (LCPtracker and the like). These come if
+instead of the browser, the other states' files in the table above (Illinois next; New Jersey's CSV template for crews past 10 rows, once it can be read), and uploads to the compliance systems GCs use (LCPtracker and the like). These come if
 contractors ask for them.
 
 PayApps is in early access and not yet offered for sale:

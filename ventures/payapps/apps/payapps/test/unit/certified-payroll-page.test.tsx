@@ -1,11 +1,15 @@
 // @vitest-environment happy-dom
 import { certifiedPayrollSchema, weekDays } from "@shared/certified-payroll";
+import { mw562FieldNames } from "@shared/nj-cpr";
+import { MW562 } from "@shared/nj-mw562-fields";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import { CaEcprSection } from "../../src/client/components/ca-ecpr-section";
+import { NjCprSection } from "../../src/client/components/nj-cpr-section";
 import { NyCprSection } from "../../src/client/components/ny-cpr-section";
 import { WaCprSection } from "../../src/client/components/wa-cpr-section";
 import { blankWorker, lastSaturday, nextWeek } from "../../src/client/pages/certified-payroll";
+import { makeFormPdf } from "./form-fixture";
 
 describe("certified payroll page helpers", () => {
   it("defaults the week to the Saturday on or before today", () => {
@@ -339,6 +343,81 @@ describe("certified payroll page helpers", () => {
     expect(button()).toHaveProperty("disabled", true);
     expect(screen.getByText(/requires all 9 digits/)).toBeTruthy();
     rerender(<WaCprSection {...props} ids={{ w1: { ssn: "123-45-6789" } }} />);
+    expect(button()).toHaveProperty("disabled", false);
+  });
+
+  it("carries the New Jersey extras into next week but not the tax, the pay date or the signature", () => {
+    const w = blankWorker();
+    w.lastName = "Rivera";
+    w.firstName = "Ana";
+    if (w.rows[0]) w.rows[0].classification = "Electrician";
+    const next = nextWeek({
+      projectName: "Newark School 14",
+      payrollNo: "3",
+      businessName: "Garden State Electric LLC",
+      businessAddress: "Newark",
+      projectLocation: "Essex County, NJ",
+      wageDeterminations: "NJ rates",
+      weekEnding: "2026-08-01",
+      workers: [{ ...w, nj: { address: "4 Elm St", sex: "F", stateTaxCents: 9_000 } }],
+      nj: { on: true, fein: "221234567", wagesPaid: "2026-08-07", sign: true, noWork: true },
+    });
+    expect(next.workers[0]?.nj).toEqual({ address: "4 Elm St", sex: "F", stateTaxCents: 0 });
+    expect(next.nj).toMatchObject({ fein: "221234567", wagesPaid: "", sign: false, noWork: false });
+    const parsed = certifiedPayrollSchema.parse(next);
+    expect(JSON.stringify(parsed)).not.toContain("4 Elm St");
+  });
+
+  it("the New Jersey section fills only NJDOL's MW-562, chosen by the contractor", async () => {
+    const payroll = certifiedPayrollSchema.parse({
+      projectName: "Newark School 14",
+      payrollNo: "3",
+      businessName: "Garden State Electric LLC",
+      businessAddress: "12 Market St, Newark NJ",
+      projectLocation: "Essex County, NJ",
+      wageDeterminations: "NJ rates",
+      weekEnding: "2026-08-01",
+      workers: [
+        {
+          lastName: "Rivera",
+          firstName: "Ana",
+          rows: [
+            {
+              classification: "Electrician",
+              status: "J",
+              st: [0, 800, 800, 800, 800, 800, 0],
+              ot: [0, 0, 0, 0, 0, 0, 0],
+              stRateCents: 6_050,
+              otRateCents: 9_075,
+            },
+          ],
+        },
+      ],
+    });
+    render(
+      <NjCprSection
+        job={{ on: true, fein: "221234567", registration: "PW-1", wagesPaid: "2026-08-07" }}
+        onJob={() => {}}
+        workers={[{ uid: "w1", lastName: "Rivera", firstName: "Ana", nj: { address: "4 Elm St" } }]}
+        onWorker={() => {}}
+        payroll={payroll}
+      />,
+    );
+    const button = () => screen.getByRole("button", { name: "Download filled MW-562" });
+    expect(button()).toHaveProperty("disabled", true);
+    const input = screen.getByLabelText(/blank MW-562/) as HTMLInputElement;
+    const other = new File([makeFormPdf([{ name: "Name", kind: "text" }]) as BlobPart], "w9.pdf");
+    fireEvent.change(input, { target: { files: [other] } });
+    expect(await screen.findByText(/not NJDOL's fillable MW-562/)).toBeTruthy();
+    expect(button()).toHaveProperty("disabled", true);
+    const { text, boxes } = mw562FieldNames();
+    const max = MW562.maxLen as Record<string, number>;
+    const mw562 = makeFormPdf([
+      ...text.map((name) => ({ name, kind: "text" as const, maxLen: max[name] })),
+      ...boxes.map((name) => ({ name, kind: "checkbox" as const })),
+    ]);
+    fireEvent.change(input, { target: { files: [new File([mw562 as BlobPart], "MW-562.pdf")] } });
+    expect(await screen.findByText(/MW-562.pdf is NJDOL's MW-562/)).toBeTruthy();
     expect(button()).toHaveProperty("disabled", false);
   });
 });

@@ -1640,6 +1640,36 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   step 4 and 5 messages checked, several weeks in one file (the schema allows it), and an amendment
   flag.
 
+- Certified payroll, part 3d: New Jersey MW-562 for the NJ Wage Hub (2026-11-27, certified-payroll-nj-mw562,
+  every plan). A "New Jersey public works" section on the certified payroll page fills NJDOL's own fillable
+  MW-562 (revision 2/25) with the same week; the NJ Wage Hub takes "an electronically filled out MW-562"
+  dropped into its Add Certified Payroll window (NJDOL's Contractor User Guide, 03/06/2026, Part 6 C;
+  online submission required on all public works since August 2024, P.L. 2023, c.138). Why the PDF and
+  not the Hub's CSV template: `njwages.nj.gov` (where the template zip lives) answered 403 from this
+  session, directly and through the Internet Archive, while the MW-562 on `www.nj.gov` (the file the
+  Wage Hub FAQ links as "the latest version") downloaded. The form is NJDOL's and is not kept here: the
+  contractor downloads the blank from NJDOL's link and chooses it, and the browser fills it
+  (`src/shared/pdf/form-fill.ts`, a general AcroForm filler on the existing PDF reader: fields by
+  qualified name, text and check boxes, an incremental update with its own xref table or stream, an
+  appearance stream per filled field plus /NeedAppearances; refuses encrypted or damaged forms, unknown
+  names and values past MaxLen). The form's 555 field names are irregular row to row, so
+  `scripts/nj-mw562-fields.py` maps them by position into `src/shared/nj-mw562-fields.ts`; a chosen file
+  whose fields differ is refused with a message (`mw562Problem`). Adds what the MW-562 asks and the
+  WH-347 does not: FEIN, NJ public works contractor registration number, the date wages were paid, per
+  worker the address, sex (M/F/N), race (the form's key) and ethnicity (H/N), the NJ income tax split
+  out of the WH-347 withholding (federal is the rest), an optional job title; fringe credits go to
+  section 4(c) one row per worker by the form's benefit types (health, vacation/holiday, training,
+  pension, other by name), boxes 4(a)/4(b) from funded plans and cash in lieu. The electronic-signature
+  box is ticked only when the contractor ticks "I sign electronically" (with today's date). Refused: a
+  week not ending on Saturday (the form's columns run Sunday to Saturday) and more than 10 rows (the Hub
+  keeps only the last submission for a week, so a second sheet would replace the first). Checked on
+  NJDOL's real file (`NJ_MW562=<path> pnpm test:unit`; `NJ_MW562_OUT` writes the filled copy): values
+  read back by our reader and by pypdf, pages rendered with poppler. Not yet tried on a live Wage Hub
+  upload. `src/shared/nj-cpr.ts`, `src/client/components/nj-cpr-section.tsx`; tests
+  `src/shared/nj-cpr.test.ts`, `src/shared/pdf/form-fill.test.ts`, `test/unit/certified-payroll-page.test.tsx`.
+  Next, if New Jersey customers ask: what a real upload reads back (and whether blank day cells need a 0),
+  the Hub's CSV template once njwages.nj.gov answers (for crews past 10 rows), and Illinois.
+
 - Getting started, part 5 (2026-11-26): where companies stall, in the owner's metrics.
   `GET /api/admin/metrics` now carries `activation`: for every company, and for those that signed
   up inside the window, how many reached each checklist step (job, schedule of values, pay
@@ -2327,7 +2357,7 @@ Cloudflare token gets Workers R2 Storage edit. No customers yet. Paid plans are 
   CSV, if people ask (a by-day CSV fills the week since 2026-11-26), save the crew and rates with the job instead of the
   browser if people ask, other states' prevailing-wage formats once their official specs are read (California's DIR eCPR
   XML, schema 2.0, done 2026-11-26: part 3a; New York's NYSDOL XML done 2026-11-27: part 3b;
-  Washington's L&I XML done 2026-11-27: part 3c; New Jersey's Wage Hub CSV next, once njwages.nj.gov answers), and the upload formats of the compliance
+  Washington's L&I XML done 2026-11-27: part 3c; New Jersey's Wage Hub MW-562 done 2026-11-27: part 3d; its CSV template once njwages.nj.gov answers), and the upload formats of the compliance
   systems GCs use (LCPtracker and the like) if GCs ask
 - History, part 3: history for the job's waivers outside a pay app, if those ever exist
 - Notice to Owner, Florida, part 3 (part 2, the notices served per person, the saved first day and
