@@ -55,6 +55,7 @@ import {
   gaClockText,
   gaWaiverClocks,
 } from "./ga-waiver-clock";
+import { type LienDeadline, lienDeadlineText } from "./lien-deadline";
 import { formatCents } from "./money";
 import type { ApplicationSummary, Totals } from "./payapp-math";
 import { expectedCents, type PaymentInput, paymentPosition } from "./payments";
@@ -173,6 +174,11 @@ export interface CashReportProjectInput {
    */
   flNotice?: { serveBy: string; mailBy: string } | null;
   /**
+   * The last day to record a lien on the job (src/shared/lien-deadline.ts), from its saved state and
+   * dates or its billing. Absent when the job has no state set or PayApps does not carry the state.
+   */
+  lienDeadline?: LienDeadline | null;
+  /**
    * Texas notices of claim (src/shared/tx-notices.ts): set when the job is tracked (residential or
    * not), with the notices recorded so far. Each unpaid month's § 53.056 notice is read from `apps`.
    */
@@ -268,6 +274,8 @@ export interface CashReportProject {
   backchargedCents: number;
   disputedCents: number;
   writtenOffCents: number;
+  /** The job's lien deadline (src/shared/lien-deadline.ts), or null when not set or not carried. */
+  lienDeadline: LienDeadline | null;
   /** Plain-language next steps, e.g. bill the retainage on a finished job. */
   actions: string[];
   lastApplication: { number: number; periodTo: string; status: PayAppStatus } | null;
@@ -741,6 +749,13 @@ export function projectCash(p: CashReportProjectInput, asOf: string): CashReport
   if (caText) actions.push(caText);
   const flText = flNoticeText(p.status === "active" ? p.flNotice : null, asOf);
   if (flText) actions.push(flText);
+  const lien = p.lienDeadline ?? null;
+  const lienText = lienDeadlineText(
+    lien,
+    { outstandingCents, retainageHeldCents, workComplete },
+    asOf,
+  );
+  if (lienText) actions.push(lienText);
   if (p.status === "active") actions.push(...txNoticeTexts(txUnpaidMonthsOf(p), asOf));
   // The GC's billing cutoff: drafts count too (a draft dated before a passed cutoff is a missed one).
   if (p.billingDay && p.status === "active" && !workComplete) {
@@ -789,6 +804,7 @@ export function projectCash(p: CashReportProjectInput, asOf: string): CashReport
     retainageAgeDays,
     workComplete,
     closeout,
+    lienDeadline: lien,
     waiversToSend: toSend,
     gaWaiverDeadlines: gaDeadlines,
     pendingChanges: pending,
