@@ -51,7 +51,7 @@ describe("POA&M import from a spreadsheet", () => {
     ]);
     // 3.1.20 is never allowed on a POA&M; the preview says so, the import still records the item.
     expect(preview.changes[0]).toMatchObject({ eligible: false });
-    expect(preview.changes[0]?.eligibilityReason).toContain("170.21(a)(2)(iv)");
+    expect(preview.changes[0]?.eligibilityReason).toContain("170.21(a)(2)(iii)");
     expect(preview.issues).toHaveLength(1);
     expect(preview.issues[0]).toMatchObject({ line: 5 });
     const list = () =>

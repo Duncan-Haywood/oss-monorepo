@@ -91,9 +91,23 @@ export interface Member {
   role: MemberRole;
 }
 
+/** A requirement recorded as met with an objective recorded not met; scored as not met. */
+export interface ObjectiveConflictView {
+  id: string;
+  nistId: string;
+  status: ImplementationStatus;
+  objectives: string[];
+}
+
 export interface ScoreResponse {
   level: 1 | 2;
-  level1?: { total: number; met: number; allMet: boolean; notMet: string[] };
+  level1?: {
+    total: number;
+    met: number;
+    allMet: boolean;
+    notMet: string[];
+    objectiveConflicts: ObjectiveConflictView[];
+  };
   level2?: {
     score: number | null;
     provisionalScore: number;
@@ -103,6 +117,7 @@ export interface ScoreResponse {
     unassessed: number;
     counts: Record<ImplementationStatus, number>;
     deductions: { id: string; points: number }[];
+    objectiveConflicts: ObjectiveConflictView[];
   };
   conditional?: {
     meetsPoamRules: boolean;

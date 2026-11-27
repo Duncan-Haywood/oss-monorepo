@@ -167,6 +167,9 @@ export async function acceptDraft(
 /** Scoring input: CMMC id -> state, for the org's records. */
 export function statesFrom(rows: ControlRecordRow[]): Map<string, ControlState> {
   return new Map(
-    rows.map((r) => [r.controlId, { status: r.status, partialCredit: r.partialCredit }]),
+    rows.map((r) => [
+      r.controlId,
+      { status: r.status, partialCredit: r.partialCredit, objectiveResults: r.objectiveResults },
+    ]),
   );
 }
