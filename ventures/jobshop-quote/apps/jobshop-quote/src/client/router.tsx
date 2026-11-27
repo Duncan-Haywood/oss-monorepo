@@ -12,6 +12,7 @@ import { RateCardPage } from "./routes/rate-card";
 import { RfqDetailPage } from "./routes/rfq-detail";
 import { RfqsPage } from "./routes/rfqs";
 import { RoutingsPage } from "./routes/routings";
+import { ShopLoadPage } from "./routes/shop-load";
 import { TeamPage } from "./routes/team";
 import { WinLossPage } from "./routes/win-loss";
 
@@ -98,6 +99,11 @@ const winLoss = createRoute({
   path: "/win-loss",
   component: WinLossPage,
 });
+const shopLoadPage = createRoute({
+  getParentRoute: () => org,
+  path: "/shop-load",
+  component: ShopLoadPage,
+});
 const team = createRoute({ getParentRoute: () => org, path: "/team", component: TeamPage });
 const billing = createRoute({
   getParentRoute: () => org,
@@ -116,7 +122,18 @@ const routeTree = root.addChildren([
   onboarding,
   invite,
   customerQuote,
-  org.addChildren([quoteLog, winLoss, rateCard, routingsPage, rfqs, rfq, quote, team, billing]),
+  org.addChildren([
+    quoteLog,
+    winLoss,
+    shopLoadPage,
+    rateCard,
+    routingsPage,
+    rfqs,
+    rfq,
+    quote,
+    team,
+    billing,
+  ]),
 ]);
 
 export const router = createRouter({ routeTree });

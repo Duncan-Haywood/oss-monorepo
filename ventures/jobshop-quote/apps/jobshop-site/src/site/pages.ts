@@ -127,6 +127,7 @@ export function homePage(ctx: RenderContext): Html {
           <li>${check}<span>Applies your rates, minimums and markups with plain arithmetic: same inputs, same price</span></li>
           <li>${check}<span>Lists the sent quotes due for a follow-up each morning and keeps a log of every call, so no quote goes quiet</span></li>
           <li>${check}<span>Dates every material price, warns when one is past your limit, and lists the open quotes priced before your supplier's price moved</span></li>
+          <li>${check}<span>Puts your won jobs on your machines by due date, shows which ones run past their date, and gives each new quote a lead time from your real backlog</span></li>
           <li>${check}<span>Imports your supplier's price sheet showing each price change and the open quotes it touches before you save, and keeps the supplier and date in each price's history</span></li>
         </ul>
       </div>
