@@ -422,3 +422,53 @@ allow:
     contains: PADDLE_API_KEY
     reason: "the shared Paddle API key, read only when the app's own key is unset (the owner holds one Paddle secret, 2026-11-27), for the same catalog sync and wrangler secret bulk push to the seller-books Worker as its own key; never logged; catalog items stay tagged custom_data.app=seller-books"
     added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-cmmc-deploy.yml
+    contains: CLOUDFLARE_API_TOKEN
+    reason: "the Cloudflare deploy token under the spelling priv-payapps-deploy.yml and priv-seller-books-deploy.yml already read; deploys CMMC Workspace (bet #4, launch review ventures/cmmc/apps/cmmc/docs/LAUNCH-REVIEW.md before the first run) with wrangler from main only, by hand (D1, R2, Workers); used as stored and exported only after install, tests and build"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-cmmc-deploy.yml
+    contains: CLOUDFLAREAPITOKEN
+    reason: "alias of CLOUDFLARE_API_TOKEN the owner saved (the other priv-* deploys read the same three names); deploys CMMC Workspace (bet #4) with wrangler from main only, by hand"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-cmmc-deploy.yml
+    contains: CLOUDFLARERESTRICTEDAPIKEY
+    reason: "alias of CLOUDFLARE_API_TOKEN the owner saved (the other priv-* deploys read the same three names); deploys CMMC Workspace (bet #4) with wrangler from main only, by hand"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-cmmc-deploy.yml
+    contains: CLOUDFLARE_ACCOUNT_ID
+    reason: "the Cloudflare account id wrangler needs, as priv-payapps-deploy.yml reads it; deploys CMMC Workspace (bet #4) with wrangler from main only, by hand"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-cmmc-deploy.yml
+    contains: CLOUDFLAREACCOUNTID
+    reason: "alias of CLOUDFLARE_ACCOUNT_ID the owner saved, as priv-payapps-deploy.yml reads it; deploys CMMC Workspace (bet #4) with wrangler from main only, by hand"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-cmmc-deploy.yml
+    contains: CMMC_ANTHROPIC_API_KEY
+    reason: "the app's own Anthropic key for 'Draft with AI' (implementation statements, policy procedures), pushed to the cmmc-workspace Worker with wrangler secret bulk when the owner sets it (no fallback to the shared ANTHROPIC_API_KEY, so no LLM spend starts without that choice); per-plan monthly draft limits bound it"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-cmmc-deploy.yml
+    contains: CMMC_AUTH_SECRET
+    reason: "optional override of the session-signing key, pushed to the cmmc-workspace Worker with wrangler secret bulk from a 0600 temp file deleted in the same step, never logged; when unset the workflow generates one on the Worker"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-cmmc-deploy.yml
+    contains: CMMC_BILLING_API_KEY
+    reason: "the owner's Paddle key, read only when set, to sync billing/paddle-catalog.json to Paddle and push it to the cmmc-workspace Worker (wrangler secret bulk, never logged); when unset paid plans stay dark"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-cmmc-deploy.yml
+    contains: CMMC_BILLING_PRICE_IDS
+    reason: "fallback Paddle price ids (not credentials) pushed to the cmmc-workspace Worker when the catalog sync gives none; wrangler secret bulk, never logged"
+    added: 2026-11-27
+  - rule: workflow-escalation
+    path: .github/workflows/priv-cmmc-deploy.yml
+    contains: CMMC_BILLING_WEBHOOK_SECRET
+    reason: "the Paddle webhook signing secret the cmmc-workspace Worker verifies notifications with; pushed with wrangler secret bulk when set, never logged"
+    added: 2026-11-27
