@@ -1,0 +1,392 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKmc261JinPQu6AArYn",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T09:18:05Z",
+  "ended": "2026-11-27T09:19:12Z",
+  "wall_minutes": 11.7,
+  "tokens_in": 4876324,
+  "tokens_out": 20240,
+  "cost_usd": 2.0786,
+  "tool_calls": 58,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19691",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Read mandate-calendar.mjs (by importing it in a repro script) while the campaign had it mutated, and got a RangeError from the mutant; the prompt warns about this. Redid the repro after the campaign."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "redteam.py targets lists no file of payapps' TypeScript app (bet #1, vitest, no node_modules in the clone), so the top bet cannot be mutation-tested. The run read its new wa-cpr.ts by hand and ran the campaigns on einvoice-preflight instead."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "The guard step names no workflow for platform/ci/test_*.py. It took several greps to learn that unwired_checks.py (via ventures-tests.yml) runs any new suite automatically; saying so in step 4b would save the search."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No blog post: a red-team fix to an internal calendar generator tells a customer nothing new; the record and PR carry the write-up.",
+      "did": "Record and test docstrings only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Campaigns: mandate-calendar.mjs 5/8 caught, argentina.mjs 8/8. The 3 gaps now have tests, caught_after_fix true. Guard added: platform/ci/test_ics_feeds.py (every tracked .ics: real dates, DTEND>DTSTART, CRLF). It was green on its first run over the one tracked feed, and its self-test rejects the 31 Feb case. Payapps wa-cpr.ts (merged in PR #19673) read by hand. One open question I could not check, because lni.wa.gov is blocked from this session: the WH-347 weekly 'other' deduction total (w.otherCents) is written to L&I's <deductionHourlyAmt>. If the XSD/guide means an hourly amount, the figure is a weekly total in an hourly field. The next run that can reach lni.wa.gov should check this against xmlschema.xsd and the XML Payroll Upload Guide. Local checks: node --test mandate-calendar.test.mjs 9/9 pass; python3 -m unittest test_ics_feeds OK; node mandate-calendar.mjs leaves the generated files unchanged.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/einvoice-preflight/mandate-calendar.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 201184896,
+        "commit": "5a80644b0",
+        "sites": 80,
+        "baseline_seconds": 9.5,
+        "baseline_skipped": 145,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/mandate-calendar.mjs",
+            "line": 16,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "const MONTHS = { Jan: 1, Feb: 2, Mar: 3, Apr: 4, May: 5, Jun: 6, Jul: 7, Aug: 8, Sep: 9, Oct: 10, Nov: 11, Dec: 12 };",
+            "after": "const MONTHS = { Jan: 1, Feb: 3, Mar: 3, Apr: 4, May: 5, Jun: 6, Jul: 7, Aug: 8, Sep: 9, Oct: 10, Nov: 11, Dec: 12 };",
+            "line_text": "const MONTHS = { Jan: 1, Feb: 2, Mar: 3, Apr: 4, May: 5, Jun: 6, Jul: 7, Aug: 8, Sep: 9, Oct: 10, Nov: 11, Dec: 12 };",
+            "caught": true,
+            "seconds": 10.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/mandate-calendar.mjs",
+            "line": 33,
+            "col": 54,
+            "operator": "const-plus-one",
+            "before": "else if (c === \")\") depth = Math.max(0, depth - 1);",
+            "after": "else if (c === \")\") depth = Math.max(0, depth - 2);",
+            "line_text": "      else if (c === \")\") depth = Math.max(0, depth - 1);",
+            "caught": false,
+            "seconds": 10.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "nested brackets: no test had a ')' inside '(...)'; mandate-calendar.test.mjs 'splitClauses keeps nested brackets whole'"
+          },
+          {
+            "file": "ventures/einvoice-preflight/mandate-calendar.mjs",
+            "line": 36,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "if (m && m.index === 0) { out.push(str.slice(start, i)); start = i + m[0].length; i = start - 1; }",
+            "after": "if (m && m.index === 1) { out.push(str.slice(start, i)); start = i + m[0].length; i = start - 1; }",
+            "line_text": "        if (m && m.index === 0) { out.push(str.slice(start, i)); start = i + m[0].length; i = start - 1; }",
+            "caught": true,
+            "seconds": 11.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/mandate-calendar.mjs",
+            "line": 36,
+            "col": 75,
+            "operator": "plus-to-minus",
+            "before": "if (m && m.index === 0) { out.push(str.slice(start, i)); start = i + m[0].length; i = start - 1; }",
+            "after": "if (m && m.index === 0) { out.push(str.slice(start, i)); start = i - m[0].length; i = start - 1; }",
+            "line_text": "        if (m && m.index === 0) { out.push(str.slice(start, i)); start = i + m[0].length; i = start - 1; }",
+            "caught": true,
+            "seconds": 239.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/mandate-calendar.mjs",
+            "line": 46,
+            "col": 104,
+            "operator": "plus-to-minus",
+            "before": "return cut(c, /^(,\\s+|\\s+and\\s+(?=[A-Za-z]*\\s*\\d))/).map((x, i) => (i === 0 || !prefix ? x : prefix + x));",
+            "after": "return cut(c, /^(,\\s+|\\s+and\\s+(?=[A-Za-z]*\\s*\\d))/).map((x, i) => (i === 0 || !prefix ? x : prefix - x));",
+            "line_text": "    return cut(c, /^(,\\s+|\\s+and\\s+(?=[A-Za-z]*\\s*\\d))/).map((x, i) => (i === 0 || !prefix ? x : prefix + x));",
+            "caught": true,
+            "seconds": 8.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/mandate-calendar.mjs",
+            "line": 76,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "while (Buffer.byteLength(rest) > 73) {",
+            "after": "while (Buffer.byteLength(rest) > 74) {",
+            "line_text": "  while (Buffer.byteLength(rest) > 73) {",
+            "caught": true,
+            "seconds": 8.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/mandate-calendar.mjs",
+            "line": 113,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "const from = process.argv[3] ?? new Date().toISOString().slice(0, 10);",
+            "after": "const from = process.argv[4] ?? new Date().toISOString().slice(0, 10);",
+            "line_text": "    const from = process.argv[3] ?? new Date().toISOString().slice(0, 10);",
+            "caught": false,
+            "seconds": 8.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "the --upcoming CLI had no test; added a spawn test with an explicit date"
+          },
+          {
+            "file": "ventures/einvoice-preflight/mandate-calendar.mjs",
+            "line": 114,
+            "col": 63,
+            "operator": "const-plus-one",
+            "before": "for (const e of events.filter((x) => x.date >= from).slice(0, 25)) console.log(`${e.date}  ${e.country}: ${e.note}`);",
+            "after": "for (const e of events.filter((x) => x.date >= from).slice(1, 25)) console.log(`${e.date}  ${e.country}: ${e.note}`);",
+            "line_text": "    for (const e of events.filter((x) => x.date >= from).slice(0, 25)) console.log(`${e.date}  ${e.country}: ${e.note}`);",
+            "caught": false,
+            "seconds": 9.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "the --upcoming CLI had no test; the spawn test compares all 25 lines"
+          }
+        ]
+      },
+      {
+        "target": "ventures/einvoice-preflight/argentina.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 178107462,
+        "commit": "5a80644b0",
+        "sites": 34,
+        "baseline_seconds": 9.1,
+        "baseline_skipped": 145,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/argentina.mjs",
+            "line": 10,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "const W = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];",
+            "after": "const W = [5, 4, 4, 2, 7, 6, 5, 4, 3, 2];",
+            "line_text": "const W = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];",
+            "caught": true,
+            "seconds": 10.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/argentina.mjs",
+            "line": 10,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "const W = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];",
+            "after": "const W = [5, 4, 3, 2, 7, 6, 5, 4, 4, 2];",
+            "line_text": "const W = [5, 4, 3, 2, 7, 6, 5, 4, 3, 2];",
+            "caught": true,
+            "seconds": 9.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/argentina.mjs",
+            "line": 15,
+            "col": 55,
+            "operator": "times-to-div",
+            "before": "for (let i = 0; i < 10; i++) s += Number(first10[i]) * W[i];",
+            "after": "for (let i = 0; i < 10; i++) s += Number(first10[i]) / W[i];",
+            "line_text": "  for (let i = 0; i < 10; i++) s += Number(first10[i]) * W[i];",
+            "caught": true,
+            "seconds": 9.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/argentina.mjs",
+            "line": 16,
+            "col": 15,
+            "operator": "minus-to-plus",
+            "before": "const m = 11 - (s % 11);",
+            "after": "const m = 11 + (s % 11);",
+            "line_text": "  const m = 11 - (s % 11);",
+            "caught": true,
+            "seconds": 10.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/argentina.mjs",
+            "line": 17,
+            "col": 28,
+            "operator": "eq-flip",
+            "before": "return m === 11 ? \"0\" : m === 10 ? null : String(m);",
+            "after": "return m === 11 ? \"0\" : m !== 10 ? null : String(m);",
+            "line_text": "  return m === 11 ? \"0\" : m === 10 ? null : String(m);",
+            "caught": true,
+            "seconds": 9.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/argentina.mjs",
+            "line": 23,
+            "col": 23,
+            "operator": "or-to-and",
+            "before": "const s = String(raw || \"\").replace(/[\\s.-]/g, \"\");",
+            "after": "const s = String(raw && \"\").replace(/[\\s.-]/g, \"\");",
+            "line_text": "  const s = String(raw || \"\").replace(/[\\s.-]/g, \"\");",
+            "caught": true,
+            "seconds": 8.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/argentina.mjs",
+            "line": 31,
+            "col": 8,
+            "operator": "const-plus-one",
+            "before": "if (s[10] !== want) return { ok: false, cuit: s, kind, problems: [`The check digit should be ${want}, not ${s[10]}.`] };",
+            "after": "if (s[11] !== want) return { ok: false, cuit: s, kind, problems: [`The check digit should be ${want}, not ${s[10]}.`] };",
+            "line_text": "  if (s[10] !== want) return { ok: false, cuit: s, kind, problems: [`The check digit should be ${want}, not ${s[10]}.`] };",
+            "caught": true,
+            "seconds": 9.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/argentina.mjs",
+            "line": 31,
+            "col": 35,
+            "operator": "false-to-true",
+            "before": "if (s[10] !== want) return { ok: false, cuit: s, kind, problems: [`The check digit should be ${want}, not ${s[10]}.`] };",
+            "after": "if (s[10] !== want) return { ok: true, cuit: s, kind, problems: [`The check digit should be ${want}, not ${s[10]}.`] };",
+            "line_text": "  if (s[10] !== want) return { ok: false, cuit: s, kind, problems: [`The check digit should be ${want}, not ${s[10]}.`] };",
+            "caught": true,
+            "seconds": 9.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/einvoice-preflight/mandate-calendar.mjs",
+        "issue": "An impossible day in the hub's Key dates ('31 Feb 2027') was written to mandate-calendar.ics as DTSTART 20270231 with DTEND 20270304, an invalid event a calendar app rejects or misplaces; and the month pattern '(Jan|...)[a-z]*' read '1 Janx 2028' or '1 Junior 2028' as a date. Now months must be an abbreviation or full name and a non-existent day throws, failing the build and its test. Repro: parseHub of a row with '31 Feb 2027' returned date '2027-02-31'.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fd7c3312-1a7d-58e9-a51c-e20727f4046d",
+    "transcripts": 1,
+    "first": "2026-11-27T09:18:05Z",
+    "last": "2026-11-27T09:29:47Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 109,
+        "output": 20240,
+        "thinking": 5577,
+        "cache_read": 4786718,
+        "cache_write_5m": 0,
+        "cache_write_1h": 89497,
+        "api_equivalent_usd": 2.0786,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 109,
+      "output": 20240,
+      "thinking": 5577,
+      "cache_read": 4786718,
+      "cache_write_5m": 0,
+      "cache_write_1h": 89497,
+      "api_equivalent_usd": 2.0786,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 52,
+      "ToolSearch": 2,
+      "WebFetch": 1,
+      "WebSearch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.7,
+      "active_minutes": 11.7,
+      "model_minutes": 5.1,
+      "tool_minutes": 6.6,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "mutation triage, date-validation fix and tests, ICS lint",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 144.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
