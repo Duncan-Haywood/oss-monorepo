@@ -1886,3 +1886,7 @@ subscription, should a scheduled venture run default to launch work
   `redteam/prompt-0.md` goes to zero; red-team campaigns under
   `ventures/payapps` appear in records. Compare next review.
 - Result: (next review)
+
+## E125: Review 2026-11-27, fourth session (reduced pass)
+
+- Routed by `review_when_due` (42 merged runs since E124). In progress.
