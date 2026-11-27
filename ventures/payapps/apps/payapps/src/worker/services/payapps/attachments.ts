@@ -31,6 +31,7 @@ import {
 } from "../../db/schema";
 import { AppError, badRequest, notFound } from "../../lib/errors";
 import { newId } from "../../lib/ids";
+import { storageLimitBytes } from "../../ports/file-store";
 import { orgPlan } from "../billing";
 import { lowerTierWaiverOnPayApp, markLowerTierReceived } from "./lower-tier-waivers";
 
@@ -196,7 +197,7 @@ export async function listAttachments(
   ]);
   return {
     items: rows.map(payAppDto),
-    storage: { usedBytes: used, limitBytes: plan.attachmentStorageBytes },
+    storage: { usedBytes: used, limitBytes: storageLimitBytes(ctx.env, plan) },
     enabled: Boolean(ctx.env.FILES),
   };
 }
@@ -229,7 +230,7 @@ export async function addAttachment(
   const problem = attachmentProblem(
     { name: input.file.name, sizeBytes: input.file.size },
     existing.length,
-    { usedBytes: used, limitBytes: plan.attachmentStorageBytes },
+    { usedBytes: used, limitBytes: storageLimitBytes(ctx.env, plan) },
   );
   if (problem) throw badRequest(problem);
 

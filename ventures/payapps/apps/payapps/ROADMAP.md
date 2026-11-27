@@ -2,10 +2,12 @@
 
 Status: **live on the Free plan** (2026-11-27). Live at https://payapps.marisstella.app since run 45963162134 (PR #19642,
 custom domain; workers.dev is off). The first live deploy, run 45949861746, was on workers.dev. The smoke test answered
-`{"ok":true,"app":"payapps","email":true}`, so sign-up email works. Attachments (R2) are off until the
-Cloudflare token gets Workers R2 Storage edit; until then `/api/health` answers `"files": false`, and the
-plan lists (`/api/billing/plans`, the Billing page) mark each storage line "(not switched on yet)"
-instead of selling space nobody can use (2026-11-27). No customers yet. Paid plans are dark
+`{"ok":true,"app":"payapps","email":true}`, so sign-up email works. The Cloudflare token has no Workers
+R2 Storage edit, so there is no bucket; since 2026-11-27 (files-without-r2) attachments work anyway, kept
+in D1's `file_blobs` (`src/worker/ports/file-store.ts`) at 50 MB per company and 300 MB in all, with
+`/api/health` answering `"fileStore": "d1"` and storage lines above 50 MB reading "(50 MB for now)"
+(docs/DEPLOY.md, step 3). Add R2 edit to the token before companies fill it; files then move to R2 with
+nothing to copy. No customers yet. Paid plans are dark
 (`BILLING_PROVIDER=none`) until the Paddle key and catalog sync are in place.
 
 ## Done (this MVP)
