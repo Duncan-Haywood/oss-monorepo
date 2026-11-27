@@ -24,6 +24,7 @@ import {
 import { INSURANCE_KINDS } from "@shared/insurance";
 import { COMMITMENT_KINDS, COST_CATEGORIES } from "@shared/job-cost";
 import { JOB_EVENT_ACTIONS, type JobEventData } from "@shared/job-history";
+import { LATE_INTEREST_METHODS, LATE_INTEREST_PERIODS } from "@shared/late-interest";
 import { PAY_APP_EVENT_ACTIONS, type PayAppEventData } from "@shared/pay-app-history";
 import { index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 import { cents, createdAt, json, ts, updatedAt } from "./_columns";
@@ -74,6 +75,19 @@ export const projects = sqliteTable(
      * when payTermsBasis is "owner_paid"; null when the subcontract states none.
      */
     payTermsOuterDays: integer("pay_terms_outer_days"),
+    /**
+     * Interest on late payment (src/shared/late-interest.ts, migration 0087): the rate in basis points
+     * per month or year, how a part month counts, and where the rate comes from (the subcontract's
+     * clause or a prompt payment statute, in the contractor's words). Null rate: not tracked.
+     */
+    lateInterestBps: integer("late_interest_bps"),
+    lateInterestPer: text("late_interest_per", { enum: LATE_INTEREST_PERIODS })
+      .notNull()
+      .default("month"),
+    lateInterestMethod: text("late_interest_method", { enum: LATE_INTEREST_METHODS })
+      .notNull()
+      .default("prorata"),
+    lateInterestSource: text("late_interest_source"),
     status: text("status", { enum: ["active", "closed"] })
       .notNull()
       .default("active"),

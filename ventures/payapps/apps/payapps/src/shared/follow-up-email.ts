@@ -17,10 +17,16 @@
 //   ("and in any event within 90 days") the draft also names the date that limit falls on, and once
 //   that date passes the application is past due like any other ("reminder", "second").
 // - "status": not yet due: asks that it is in for processing and nothing is missing.
+//
+// Interest on late payment (src/shared/late-interest.ts): when the contractor has set a rate on the
+// job, the second request and a past-due balance request state the rate, where it comes from (the
+// contractor's own words, or "our subcontract") and what has accrued on the cash report. The first
+// reminder leaves it out: it is the friendly one, and most late payments are paperwork.
 
 import type { OutstandingApp } from "./cash-report";
 import { OWNER_PAYMENT_FOLLOW_UP_DAYS, ownerPaymentUnknown, termsPhrase } from "./cash-report";
 import type { PayTermsBasis } from "./enums";
+import { type LateInterestTerms, rateLabel } from "./late-interest";
 import { formatCents } from "./money";
 
 /** Past due by more than this many days, the draft becomes a second request. */
@@ -41,6 +47,8 @@ export interface FollowUpJob {
   payTermsBasis: PayTermsBasis;
   /** Pay-when-paid outer limit in days from the application date, if any. */
   payTermsOuterDays?: number | null;
+  /** The job's late-payment rate, if the contractor set one. */
+  lateInterest?: LateInterestTerms | null;
 }
 
 export interface FollowUpEmail {
@@ -81,6 +89,18 @@ export function needsFollowUp(job: FollowUpJob, app: OutstandingApp): boolean {
 
 const terms = (job: FollowUpJob) =>
   job.payTermsBasis === "owner_paid" ? (job.payTermsOuterDays ?? null) : null;
+
+/**
+ * "Under Subcontract § 5.3, a late payment carries interest at 1.5% a month: $412.50 has accrued on
+ * this application so far (55 days past due)." Empty when no rate is set or nothing has accrued.
+ */
+export function interestLine(job: FollowUpJob, app: OutstandingApp): string {
+  const terms = job.lateInterest;
+  const cents = app.interestCents ?? 0;
+  if (!terms || cents <= 0 || app.daysPastDue <= 0) return "";
+  const source = terms.source?.trim() || "our subcontract";
+  return `Under ${source}, a late payment carries interest at ${rateLabel(terms)}: ${formatCents(cents)} has accrued on this application so far (${app.daysPastDue} days past due).`;
+}
 
 const jobLabel = (job: FollowUpJob) => (job.number ? `${job.name} (job ${job.number})` : job.name);
 
@@ -129,6 +149,7 @@ export function followUpEmail(
       subject = `Second request: ${label}, pay application #${app.number}, ${owed} past due`;
       lines.push(
         `I am following up again on our ${appRef} on ${label} (${sentOn}) for ${owed}, which is still unpaid ${app.ageDays} days after the application date.${due}${certified}`,
+        interestLine(job, app),
         "Please reply with the date the payment will be released, or tell me what is needed to release it. If there is a problem with the application, I would rather fix it this week than let it wait another cycle.",
       );
       break;
@@ -146,6 +167,7 @@ export function followUpEmail(
       subject = `Balance on ${label}, pay application #${app.number}: ${owed}`;
       lines.push(
         `Thank you for the ${formatCents(app.receivedCents)} received${app.lastReceivedOn ? ` (last on ${app.lastReceivedOn})` : ""} against our ${appRef} on ${label} (${sentOn}). The application was for ${billed}, which leaves ${owed} unpaid.${due}`,
+        interestLine(job, app),
         "Could you tell me what the balance is held for? If it is a backcharge, please send the backup for it; if it is waiting on a lien waiver or other paperwork, tell me what you need; and if it was missed, please let me know when it will be paid.",
       );
       break;

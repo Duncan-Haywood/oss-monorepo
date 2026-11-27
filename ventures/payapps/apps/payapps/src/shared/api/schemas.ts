@@ -38,6 +38,12 @@ import {
 import { INSURANCE_KINDS } from "../insurance";
 import { COMMITMENT_KINDS, COST_CATEGORIES, MAX_COST_ENTRIES_PER_REQUEST } from "../job-cost";
 import { MAX_QBO_IMPORT_LINES } from "../job-cost-qbo";
+import {
+  LATE_INTEREST_METHODS,
+  LATE_INTEREST_PERIODS,
+  MAX_LATE_INTEREST_BPS,
+  MAX_LATE_INTEREST_SOURCE,
+} from "../late-interest";
 import { LOWER_TIER_PARTY_KINDS, MAX_LOWER_TIER_PER_PAY_APP } from "../lower-tier-waivers";
 import { MAX_OWNER_PAID_BATCH } from "../payments";
 import {
@@ -127,6 +133,12 @@ const projectFields = z.object({
   payTermsBasis: z.enum(PAY_TERMS_BASES).optional(),
   /** Pay-when-paid outer limit: due within this many days of the application date in any event. */
   payTermsOuterDays: z.number().int().min(1).max(365).nullish(),
+  /** Interest on late payment, basis points per period (src/shared/late-interest.ts); null clears it. */
+  lateInterestBps: z.number().int().min(1).max(MAX_LATE_INTEREST_BPS.year).nullish(),
+  lateInterestPer: z.enum(LATE_INTEREST_PERIODS).optional(),
+  lateInterestMethod: z.enum(LATE_INTEREST_METHODS).optional(),
+  /** Where the rate comes from: the subcontract's clause or a statute, in the contractor's words. */
+  lateInterestSource: optText(MAX_LATE_INTEREST_SOURCE),
   /** Print a notary block (jurat and seal box) on the application summary PDF. */
   notaryBlock: z.boolean().optional(),
   /** The GC's monthly billing cutoff, day of the month (31: the last day); null clears it. */

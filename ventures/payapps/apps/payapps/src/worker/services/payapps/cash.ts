@@ -1,5 +1,6 @@
 // Cash report across an org's jobs (src/shared/cash-report.ts holds the math). Every project's
 // applications are recomputed from their entries, as everywhere else: nothing derived is stored.
+
 import {
   type CaNoticeRecipient,
   caNoticeDueOn,
@@ -13,6 +14,7 @@ import {
   closeoutReadiness,
   summarizeCloseout,
 } from "@shared/closeout";
+import { lateInterestTermsOf } from "@shared/late-interest";
 import type { LienDeadline, LienDeadlineResult } from "@shared/lien-deadline";
 import { centsToDecimal } from "@shared/money";
 import { type PunchItemFacts, summarizePunchList } from "@shared/punch-list";
@@ -70,6 +72,7 @@ export function toCashInput(
     payTermsDays: p.payTermsDays,
     payTermsBasis: p.payTermsBasis,
     payTermsOuterDays: p.payTermsOuterDays,
+    lateInterest: lateInterestTermsOf(p),
     billingDay: p.billingDay,
     closeout: closeouts.get(p.id) ?? null,
     caNotice:
