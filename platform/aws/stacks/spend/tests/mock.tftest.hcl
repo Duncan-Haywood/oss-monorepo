@@ -212,6 +212,13 @@ run "per_account_kill_switch_and_alerts" {
   }
 
   assert {
+    condition = alltrue([for k, b in aws_budgets_budget.account :
+      alltrue([for n in b.notification : length(n.subscriber_sns_topic_arns) == 1])
+    ])
+    error_message = "AWS allows one SNS subscriber per budget notification"
+  }
+
+  assert {
     condition     = jsondecode(aws_lambda_function.kill_switch.environment[0].variables.KILL_ON_BUDGET) == ["apps", "sandbox"]
     error_message = "the function itself must refuse budget kills elsewhere (belt and braces)"
   }
@@ -238,8 +245,26 @@ run "freeze_scp_leaves_data_logs_and_dns_alone" {
   }
 }
 
+run "no_anomaly_detection_before_cost_explorer" {
+  command = plan
+
+  assert {
+    condition     = length(aws_ce_anomaly_monitor.services) + length(aws_ce_anomaly_monitor.accounts) + length(aws_ce_anomaly_subscription.alerts) == 0
+    error_message = "anomaly detection waits for cost_explorer_enabled (AWS refuses it before Cost Explorer is launched)"
+  }
+
+  assert {
+    condition     = length(aws_budgets_budget.account) == 7 && length(aws_lambda_function.kill_switch.function_name) > 0
+    error_message = "budgets and the kill switch do not wait for Cost Explorer"
+  }
+}
+
 run "anomaly_detection" {
   command = plan
+
+  variables {
+    cost_explorer_enabled = true
+  }
 
   assert {
     condition     = length(aws_ce_anomaly_monitor.services) == 1
@@ -252,7 +277,7 @@ run "anomaly_detection" {
   }
 
   assert {
-    condition     = one(aws_ce_anomaly_subscription.alerts.subscriber).address == aws_sns_topic.alerts.arn
+    condition     = one(aws_ce_anomaly_subscription.alerts[0].subscriber).address == aws_sns_topic.alerts.arn
     error_message = "anomalies go to the alerts topic"
   }
 }
@@ -277,6 +302,11 @@ run "alert_emails_are_sensitive_but_subscribed" {
   assert {
     condition     = length(aws_sns_topic_subscription.alert_email) == 2
     error_message = "one email subscription per address (count, so the addresses never become printed keys)"
+  }
+
+  assert {
+    condition     = length(aws_sns_topic_subscription.kill_email) == 2 && alltrue([for s in aws_sns_topic_subscription.kill_email : s.topic_arn == aws_sns_topic.kill.arn])
+    error_message = "the alert emails also hear the kill topic (a budget notification reaches one topic only)"
   }
 }
 

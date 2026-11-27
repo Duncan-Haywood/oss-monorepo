@@ -152,6 +152,16 @@ resource "aws_sns_topic_subscription" "alert_email" {
   endpoint  = var.alert_emails[count.index]
 }
 
+# The same people hear when the kill switch is woken: a budget notification
+# can reach only one SNS topic, and for kill-switch accounts that is the kill
+# topic.
+resource "aws_sns_topic_subscription" "kill_email" {
+  count     = nonsensitive(length(var.alert_emails))
+  topic_arn = aws_sns_topic.kill.arn
+  protocol  = "email"
+  endpoint  = var.alert_emails[count.index]
+}
+
 resource "aws_budgets_budget" "account" {
   for_each     = local.accounts
   name         = "monthly-${each.key}"
@@ -198,8 +208,11 @@ resource "aws_budgets_budget" "account" {
     threshold           = var.freeze_at_percent
     threshold_type      = "PERCENTAGE"
     notification_type   = "ACTUAL"
-    # Only kill-switch accounts wake the kill switch; the rest alert.
-    subscriber_sns_topic_arns = contains(local.kill_accounts, each.key) ? [aws_sns_topic.kill.arn, aws_sns_topic.alerts.arn] : [aws_sns_topic.alerts.arn]
+    # Only kill-switch accounts wake the kill switch; the rest alert. AWS
+    # allows one SNS subscriber per notification ("CreationLimitExceeded",
+    # apply run 46080179786), so the kill topic carries the alert emails too
+    # (aws_sns_topic_subscription.kill_email).
+    subscriber_sns_topic_arns = contains(local.kill_accounts, each.key) ? [aws_sns_topic.kill.arn] : [aws_sns_topic.alerts.arn]
   }
 
   lifecycle {
