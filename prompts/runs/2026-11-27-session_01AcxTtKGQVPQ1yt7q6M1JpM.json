@@ -30,7 +30,7 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "test/unit/submittal-import-ui.test.tsx failed once under the full unit suite's load; passes alone with and without this change (timing flake, not fixed here)",
+    "test/unit/submittal-import-ui.test.tsx failed under full-suite load locally and in CI: SubmittalImport's mutationFn closed over `rows` from an earlier render (React Query swaps options in an effect), so a click before the effect flushed sent an empty list; fixed by passing the rows to mutate(). 30 other components use the same closure pattern and were not changed.",
     "Wrote a literal U+FEFF (BOM) in the CSV reader's regex and a test string; check_hidden_unicode failed changed-ventures in CI; replaced with \\uFEFF escapes",
     "Post front matter over the caps on the first push (title/description/seo_title); fixed in the second commit after check_posts.py"
   ],
