@@ -2383,6 +2383,20 @@ nothing to copy. No customers yet. Paid plans are dark
   `src/shared/timesheet-certified.ts`) instead of the time.csv export and import; two workweeks when
   the payroll week straddles them; other jobs' hours and missing trades named. docs/TIMESHEETS.md.
 
+- Interest on late payment (2026-11-27, every plan; prompt-pay-interest). The job page's
+  "Late-payment interest" setting takes a rate a month or a year, whether a part month counts as a
+  whole one ("per month or a fraction thereof"), and where the rate comes from in the contractor's
+  words (`projects.late_interest_bps`, `late_interest_per`, `late_interest_method`,
+  `late_interest_source`, migration 0088, saved through the job's PATCH; a monthly rate above 5% or a
+  yearly one above 60% is refused as a typo). "Fill from a statute" offers the four prompt payment
+  statutes whose rate the free guide read from the legislature's text (Tex. Prop. Code § 28.004 1.5% a
+  month; 815 ILCS 603/10 10% a year; N.C. Gen. Stat. § 22C-5 1% a month or part; Va. Code § 2.2-4354
+  1% a month, public work), each linked with what to check; PayApps never decides a statute applies.
+  The cash report (`src/shared/late-interest.ts`, `OutstandingApp.interestCents`) shows the simple
+  interest accrued since the due date on each past-due application, on the balance still owed after
+  each payment from the day it came in (30-day months, 365-day years), per job and in total; the
+  second follow-up request and a past-due balance request state the rate, its source and the amount
+  (the first reminder stays friendly and leaves it out).
 - Every page fits a phone (2026-11-27, phone-width-all-pages): a sweep of all 24 signed-in routes at
   390 px found the submittal log 417 px wide (its "Transmittals ask the GC" select sized to its longest
   option). Selects are now capped at their container (`styles.css`), the header keeps "PayApps" and
@@ -2451,6 +2465,11 @@ nothing to copy. No customers yet. Paid plans are dark
 
 ## Next (suite, by promise)
 
+- Late-payment interest, part 2 (part 1, the rate per job, the accrued interest on the cash report and
+  in the second request, done 2026-11-27): interest on an application that was paid late (the
+  accrual stops at the last payment, so it is billable after the check clears), an interest line on
+  the next pay application or a separate invoice to QuickBooks, and the cash CSV and weekly email
+  columns, if contractors ask.
 - Crew timesheets, part 2 (the week's hours filling the certified payroll page directly, done
   2026-11-27, timesheets-part-2-certified-payroll-fill): a foreman entering hours from a phone for the crew on one job, an
   approval step before posting, and state daily overtime (California first) as an opt-in rule, if

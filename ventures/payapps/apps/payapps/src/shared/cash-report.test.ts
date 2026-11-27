@@ -933,3 +933,48 @@ describe('pay-when-paid with an outer limit ("and in any event within N days")',
     expect(parseOuterLimitDays("400")).toBeUndefined();
   });
 });
+
+describe("late-payment interest on the cash report", () => {
+  const p1 = period(1, "2026-01-31", { L1: line(3_000_000) });
+  const tx = { bps: 150, per: "month" as const, method: "prorata" as const, source: null };
+
+  it("accrues on each past-due application's unpaid balance, net of payments, and totals per job", () => {
+    // #1: $27,000 due 2026-03-02 (30 days); $7,000 paid on 2026-03-12; report 2026-04-01 (30 days late).
+    // 2,700,000 x 0.015 x 10/30 + 2,000,000 x 0.015 x 20/30 = 13,500 + 20,000.
+    const input = job(
+      [p1],
+      [
+        {
+          status: "submitted",
+          applicationDate: "2026-01-31",
+          payments: [{ amountCents: 700_000, receivedOn: "2026-03-12" }],
+        },
+      ],
+      { payTermsDays: 30, lateInterest: tx },
+    );
+    const r = projectCash(input, "2026-04-01");
+    expect(r.outstanding[0]).toEqual(
+      expect.objectContaining({ dueOn: "2026-03-02", daysPastDue: 30, interestCents: 33_500 }),
+    );
+    expect(r.interestCents).toBe(33_500);
+    expect(cashReport([input], "2026-04-01").totals.interestCents).toBe(33_500);
+  });
+
+  it("is null without a rate or pay terms, and 0 before the due date", () => {
+    const meta = [{ status: "submitted" as const, applicationDate: "2026-01-31" }];
+    expect(
+      projectCash(job([p1], meta, { payTermsDays: 30 }), "2026-04-01").outstanding[0]
+        ?.interestCents,
+    ).toBeNull();
+    expect(
+      projectCash(job([p1], meta, { lateInterest: tx }), "2026-04-01").outstanding[0]
+        ?.interestCents,
+    ).toBeNull();
+    const early = projectCash(
+      job([p1], meta, { payTermsDays: 30, lateInterest: tx }),
+      "2026-02-15",
+    );
+    expect(early.outstanding[0]?.interestCents).toBe(0);
+    expect(early.interestCents).toBe(0);
+  });
+});

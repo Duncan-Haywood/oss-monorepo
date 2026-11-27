@@ -55,6 +55,7 @@ import {
   gaClockText,
   gaWaiverClocks,
 } from "./ga-waiver-clock";
+import { type LateInterestTerms, lateInterest } from "./late-interest";
 import { type LienDeadline, lienDeadlineText } from "./lien-deadline";
 import { formatCents } from "./money";
 import type { ApplicationSummary, Totals } from "./payapp-math";
@@ -158,6 +159,8 @@ export interface CashReportProjectInput {
   payTermsBasis?: PayTermsBasis;
   /** Pay-when-paid outer limit, days from the application date; null when none (or not pay-when-paid). */
   payTermsOuterDays?: number | null;
+  /** Interest on late payment (src/shared/late-interest.ts); null or absent when not tracked. */
+  lateInterest?: LateInterestTerms | null;
   apps: CashReportAppInput[];
   /** The job's change orders (only pending ones are reported). */
   changeOrders?: CashReportChangeOrderInput[];
@@ -219,6 +222,11 @@ export interface OutstandingApp {
   awaitingOwner: boolean;
   /** Pay-when-paid: the due date is the job's outer limit ("in any event within N days"), not the owner's payment. */
   dueByOuterLimit: boolean;
+  /**
+   * Interest accrued since dueOn on the unpaid balance at the job's late-payment rate, to the report
+   * date (src/shared/late-interest.ts); null when the job has no rate or the application no due date.
+   */
+  interestCents?: number | null;
 }
 
 export interface CashReportProject {
@@ -243,6 +251,10 @@ export interface CashReportProject {
   payTermsOuterDays: number | null;
   /** Still owed after its due date (0 without pay terms). */
   pastDueCents: number;
+  /** Interest accrued on the past-due applications (0 without a late-payment rate). */
+  interestCents: number;
+  /** The job's late-payment rate, or null when not tracked. */
+  lateInterest: LateInterestTerms | null;
   /** Still owed and due within 30 days of the report date (0 without pay terms). */
   dueNext30Cents: number;
   /** Pay-when-paid: still owed on applications whose owner payment is not recorded yet. */
@@ -295,6 +307,8 @@ export interface CashReport {
     /** Of that, retainage on jobs whose close-out checklist still has punch items or documents open. */
     retainageWaitingOnCloseoutCents: number;
     pastDueCents: number;
+    /** Interest accrued on past-due applications at each job's late-payment rate. */
+    interestCents: number;
     dueNext30Cents: number;
     /** Owed on jobs with no pay terms set: left out of past due and the 30-day forecast. */
     noTermsOutstandingCents: number;
@@ -635,6 +649,9 @@ export function projectCash(p: CashReportProjectInput, asOf: string): CashReport
           outerOn !== null &&
           dueOn === outerOn &&
           (ownerPaidOn === null || addDays(ownerPaidOn, terms) > outerOn),
+        interestCents:
+          lateInterest(p.lateInterest ?? null, dueOn, pos.expectedCents, a.payments ?? [], asOf)
+            ?.interestCents ?? null,
       });
     }
   }
@@ -642,6 +659,7 @@ export function projectCash(p: CashReportProjectInput, asOf: string): CashReport
   const pastDueCents = outstanding
     .filter((o) => o.daysPastDue > 0)
     .reduce((s, o) => s + o.amountCents, 0);
+  const interestCents = outstanding.reduce((s, o) => s + (o.interestCents ?? 0), 0);
   const dueNext30Cents = outstanding
     .filter((o) => o.dueOn !== null && o.dueOn >= asOf && o.dueOn <= horizon)
     .reduce((s, o) => s + o.amountCents, 0);
@@ -798,6 +816,8 @@ export function projectCash(p: CashReportProjectInput, asOf: string): CashReport
     payTermsBasis: basis,
     payTermsOuterDays: outerDays,
     pastDueCents,
+    interestCents,
+    lateInterest: p.lateInterest ?? null,
     dueNext30Cents,
     awaitingOwnerCents,
     retainageHeldCents,
@@ -845,6 +865,7 @@ export function cashReport(projects: CashReportProjectInput[], asOf: string): Ca
         r.closeout && !r.closeout.ready ? r.retainageHeldCents : 0,
       ),
       pastDueCents: sum((r) => r.pastDueCents),
+      interestCents: sum((r) => r.interestCents),
       dueNext30Cents: sum((r) => r.dueNext30Cents),
       noTermsOutstandingCents: sum((r) => (r.payTermsDays === null ? r.outstandingCents : 0)),
       awaitingOwnerCents: sum((r) => r.awaitingOwnerCents),

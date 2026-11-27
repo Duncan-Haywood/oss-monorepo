@@ -13,6 +13,7 @@ import {
   type CashReportProject,
   PENDING_CHANGE_FOLLOW_UP_DAYS,
 } from "@shared/cash-report";
+import { rateLabel } from "@shared/late-interest";
 import { formatCents } from "@shared/money";
 import { SHORT_REASON_LABELS } from "@shared/payments";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -328,6 +329,13 @@ export function CashReportView({
               note="owed and coming due under the pay terms"
             />
           </div>
+          {r.totals.interestCents > 0 && (
+            <p className="text-sm text-slate-600">
+              {formatCents(r.totals.interestCents)} of interest has accrued on past-due applications
+              at the late-payment rates set on their jobs. It is not in the totals above; the second
+              requests in the follow-up emails below state it.
+            </p>
+          )}
           {r.totals.noTermsOutstandingCents > 0 && (
             <p className="text-sm text-slate-600">
               {formatCents(r.totals.noTermsOutstandingCents)} is owed on jobs with no pay terms set,
@@ -534,6 +542,11 @@ export function CashReportView({
                         {p.pastDueCents > 0 && (
                           <div className="text-xs font-semibold text-red-700">
                             {formatCents(p.pastDueCents)} past due
+                          </div>
+                        )}
+                        {p.interestCents > 0 && p.lateInterest && (
+                          <div className="text-xs text-red-700">
+                            + {formatCents(p.interestCents)} interest at {rateLabel(p.lateInterest)}
                           </div>
                         )}
                         {p.payTermsDays !== null && p.pastDueCents === 0 && nextDue(p) && (

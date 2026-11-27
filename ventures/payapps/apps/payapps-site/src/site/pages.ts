@@ -352,6 +352,7 @@ export const FEATURES: readonly Feature[] = [
       "Record each check or transfer against an application, including partial payments; it turns paid when the payments reach the certified amount",
       "Due dates from each subcontract's pay terms (net days, days after the period end, or pay-when-paid with its outer limit): what is past due, and what to expect in the next 30 days",
       "Aged 0-30, 31-60, 61-90 and 90+ days, with the most overdue application named so you know who to call",
+      "Interest on late payment: set the rate from your subcontract's late-payment clause, or fill it from a prompt payment statute PayApps has read (Texas, Illinois, North Carolina, Virginia), and see what has accrued on each past-due application, net of partial payments; the second follow-up email to the GC states it",
       "Each GC's billing cutoff (\"by the 25th\"): a reminder the week before when nothing has gone out yet, and a note when a draft missed it, so an application doesn't slip to next month's draw",
     ],
   },
