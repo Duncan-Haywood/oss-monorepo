@@ -439,6 +439,22 @@
    "by": "6893cbb7f (zero-dependency apps skip the install) + a25c6a3ce (cd to the root; --dir still resolves against the cwd)",
    "at": "2026-11-27T17:21:18Z",
    "note": "Every report after the 11-26 06:14Z verdict names a case those two commits now cover in step 3 (checked 2026-11-27)."
+  },
+  {
+   "file": "platform/ci/roadmap_claim.py",
+   "match": "einvoice-preflight #4",
+   "verdict": "fixed",
+   "by": "PR #19850",
+   "at": "2026-11-27T19:22:27Z",
+   "note": "legal step gate: DPA change asks are gated"
+  },
+  {
+   "file": "portfolio/monetization/bets.md",
+   "match": "CMMC",
+   "verdict": "fixed",
+   "by": "PR #19850",
+   "at": "2026-11-27T19:22:28Z",
+   "note": "ranking table names ventures/cmmc"
   }
  ]
 }
