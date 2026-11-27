@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKnU7rzqJQn453H6Gjq",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T09:18:35Z",
+  "ended": "2026-11-27T09:24:40Z",
+  "wall_minutes": 6.29,
+  "tokens_in": 4658159,
+  "tokens_out": 18662,
+  "cost_usd": 2.0612,
+  "tool_calls": 51,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19690",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/monetization/bets.md / roadmap_claim.py",
+      "issue": "Bet #1 and #2 ROADMAP Next lists are nearly all 'waits on demand'; the one free payapps item (#11) needs a Windows PC and Android phone, which a cloud session doesn't have. With sign-ups now open, the list doesn't point at the real gap (traffic and sign-up links from front doors)."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "In this session the proxy refused every statute host (statutes.capitol.texas.gov, azleg.gov, legislature.mi.gov, le.utah.gov, leg.state.nv.us, and even flsenate.gov, which an earlier run today fetched), so a new sourced state guide (Texas monthly lien notices, the obvious next pay-app guide) wasn't possible."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md (Every run ships something useful: writing goes to consolidated posts)",
+      "why": "The change is a small launch-CTA switch across four front doors. A post about it would be thin, and the customer posts for these topics already exist.",
+      "did": "No new post; llms.txt for the two tools updated instead.",
+      "result": "PR #19690"
+    }
+  ],
+  "writeups": [
+    "ventures/certified-payroll-calculator/llms.txt and ventures/lien-waiver-checker/llms.txt updated; no post (see deviations)"
+  ],
+  "goal": null,
+  "notes": "Security queue: 12 alerts, all claimed (exit 3). IDEAS.md and requests: none. Routed ventures/1. Switched certified-payroll-calculator (index, wh347-report, llms), lien-waiver-checker (index, llms), mechanics-lien-deadline-calculator and retainage-cashflow-calculator from 'early access' to the live payapps.marisstella.app/?signup&from=<tool>. Plan claims checked against plans.ts and the certified-payroll route/page; corrected one claim to say the WH-347 draft lives in the browser. run_venture_tests.py on the 4 slugs: all pass (59/31/60/80 tests) plus site page checks. pay-application-generator was left to open PR #19688.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f56336d4-ee23-53b0-84e3-069c30ea595c",
+    "transcripts": 1,
+    "first": "2026-11-27T09:18:35Z",
+    "last": "2026-11-27T09:24:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 100,
+        "output": 18662,
+        "thinking": 4842,
+        "cache_read": 4561146,
+        "cache_write_5m": 0,
+        "cache_write_1h": 96913,
+        "api_equivalent_usd": 2.0612,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 100,
+      "output": 18662,
+      "thinking": 4842,
+      "cache_read": 4561146,
+      "cache_write_5m": 0,
+      "cache_write_1h": 96913,
+      "api_equivalent_usd": 2.0612,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 47,
+      "ToolSearch": 2,
+      "WebFetch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.29,
+      "active_minutes": 6.29,
+      "model_minutes": 4.88,
+      "tool_minutes": 1.41,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "edit and verify copy on 5 pages plus 2 tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 72.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
