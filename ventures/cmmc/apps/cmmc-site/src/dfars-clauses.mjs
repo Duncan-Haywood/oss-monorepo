@@ -132,7 +132,7 @@ const esc = (s) =>
 
 /** A quotation from QUOTES, marked with its fixture so the test can find it. */
 export function q(id) {
-  const x = QUOTES[id];
+  const x = Object.hasOwn(QUOTES, id) ? QUOTES[id] : null;
   if (!x) throw new Error(`no quote ${id}`);
   return `<q data-quote="${id}">${esc(x.text)}</q>`;
 }
@@ -333,7 +333,7 @@ export function dfarsClausesPage({ cite, statusBox, sourcesList, cta }) {
     <dt>What you do (our reading)</dt><dd>${esc(c.does)}</dd>
     <dt>Flows down to your suppliers?</dt><dd>${esc(c.flows)}</dd>
   </dl>
-  <p>In its own words: ${CLAUSE_QUOTES[c.id].map(q).join(" … ")}${QUOTES[CLAUSE_QUOTES[c.id].at(-1)].text.endsWith(".") ? "" : "."}</p>
+  <p>In its own words: ${quotesFor(c.id).map(q).join(" … ")}${quotesFor(c.id).at(-1) && q(quotesFor(c.id).at(-1)).endsWith(".</q>") ? "" : "."}</p>
   ${c.guide ? `<p>Next: <a href="${c.guide[0]}">${c.guide[1]}</a>.</p>` : ""}
 </section>`;
   return {
@@ -427,6 +427,11 @@ const CLAUSE_QUOTES = {
   "252.204-7025": ["d7025Prior", "d7025Uid"],
   "252.204-7024": ["d7024Use"],
 };
+
+function quotesFor(id) {
+  if (!Object.hasOwn(CLAUSE_QUOTES, id)) throw new Error(`no quotes for ${id}`);
+  return CLAUSE_QUOTES[id]; // own key, checked above
+}
 
 function humanDateShort(iso) {
   const [y, m, d] = iso.split("-").map(Number);
