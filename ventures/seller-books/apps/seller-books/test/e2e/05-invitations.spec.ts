@@ -45,6 +45,7 @@ test("an invited viewer joins by link, reads the books, cannot write, and loses 
     const business = page
       .locator(".card")
       .filter({ has: page.getByRole("button", { name: /Choose Business/ }) });
+    await page.getByLabel(/I agree that a paid plan renews automatically/).check();
     await business.getByRole("button", { name: /Choose Business/ }).click();
     await page.waitForURL(/checkout=success/);
     await confirmCheckout(page, baseURL, shop.orgId, "business");

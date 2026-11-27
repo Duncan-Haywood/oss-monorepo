@@ -53,6 +53,11 @@ statement the return needs, and anything over it is named for Form 4562 (line 13
 with a warning, rather than deducted as supplies. A large office or supplies expense that may be equipment is
 flagged.
 
+Paid plans follow the state automatic-renewal laws a consumer buyer brings (Colorado C.R.S. 6-1-732,
+California's ARL): the renewal terms beside every checkout button and a consent tick the server records,
+a one-step "Cancel subscription" on the Billing page, and an email to the owner and admins 26 to 39 days
+before each yearly renewal (once a year on a monthly plan); see docs/BILLING.md, "Automatic renewal".
+
 Read `docs/ARCHITECTURE.md` first. `docs/IMPORTERS.md` lists every supported report and how well its columns are
 verified.
 

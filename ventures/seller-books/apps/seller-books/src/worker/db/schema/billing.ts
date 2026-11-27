@@ -58,9 +58,36 @@ export const pendingCheckouts = sqliteTable(
     expiresAt: ts("expires_at").notNull(),
     consumedAt: ts("consumed_at"),
     providerSubscriptionId: text("provider_subscription_id"),
+    /**
+     * The automatic-renewal terms the admin ticked before checkout (shared/renewal-notice.ts
+     * RENEWAL_TERMS_VERSION) and when: California asks for proof of that consent to be kept
+     * (Bus. & Prof. Code 17602 as amended by AB 2863). Null on rows from before 2026-11-27.
+     */
+    renewalTermsVersion: text("renewal_terms_version"),
+    renewalConsentAt: ts("renewal_consent_at"),
     createdAt: createdAt(),
   },
   (t) => [index("pending_checkouts_org_idx").on(t.orgId)],
+);
+
+/**
+ * One row per automatic-renewal notice sent (services/billing/renewal-notices.ts): the renewal it
+ * was for (`renews_on`, YYYY-MM-DD) per org. The unique index is the claim, so a retried or doubled
+ * cron run never sends the same notice twice; a send that fails everywhere deletes its row.
+ */
+export const renewalNotices = sqliteTable(
+  "renewal_notice",
+  {
+    orgId: text("org_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    renewsOn: text("renews_on").notNull(),
+    providerSubscriptionId: text("provider_subscription_id"),
+    recipients: integer("recipients").notNull().default(0),
+    late: bool("late").notNull().default(false),
+    createdAt: createdAt(),
+  },
+  (t) => [uniqueIndex("renewal_notice_org_renews_idx").on(t.orgId, t.renewsOn)],
 );
 
 export const billingEvents = sqliteTable(

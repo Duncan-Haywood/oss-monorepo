@@ -33,7 +33,13 @@ test("the Free plan refuses a second platform until a paid plan is confirmed", a
   const fulltime = page
     .locator(".card")
     .filter({ has: page.getByRole("button", { name: /Choose Full time/ }) });
-  await fulltime.getByRole("button", { name: /Choose Full time/ }).click();
+  // The automatic-renewal terms sit beside the button, which waits for the consent tick.
+  await expect(
+    fulltime.getByText(/renews automatically every month at \$35\.00 plus any sales tax/),
+  ).toBeVisible();
+  await expect(fulltime.getByRole("button", { name: /Choose Full time/ })).toBeDisabled();
+  await page.getByLabel(/I agree that a paid plan renews automatically/).check();
+  await fulltime.getByRole("button", { name: /Choose Full time, renews monthly/ }).click();
   await page.waitForURL(/checkout=success/);
   expect(new URL(page.url()).searchParams.get("fake_checkout")).toBe("fulltime");
   await expect(
