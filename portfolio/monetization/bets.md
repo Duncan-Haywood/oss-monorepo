@@ -123,6 +123,12 @@ free. `roadmap_claim.py --bets` lists them with the claims already on each.
   at about $199/mo. Ship narrow and soon: funded rivals are arriving.
 - **Growth path:** quote follow-up and win rates, won quote to job traveler,
   QuickBooks invoicing, material price lists.
+- **Launch:** the launch review OPERATOR.md asks for is done (2026-11-27,
+  private-monorepo#482, `apps/jobshop-quote/docs/LAUNCH-REVIEW.md`): paid
+  plans keep 42–53% at their full AI ceiling, the legal pages match the code,
+  and the global AI cap is $30 a day for launch. An agent may now run
+  `jobshop-quote-deploy` and open sign-ups (Actions runners permitting);
+  checkout stays dark until Paddle verification. Bets #3–#5 have no review yet.
 
 ### 3. E-invoice fix-and-explain
 
