@@ -1,4 +1,4 @@
-// Stock report: aging of unsold inventory, sell-through, days to sell by platform and lot payback.
+// Stock report: aging of unsold inventory, sell-through, days to sell by platform, lot payback and profit by source.
 // The numbers come from GET /reports/stock (services/books/stock.ts, where every term is defined).
 import { PLATFORM_LABELS, type Platform } from "@shared/enums";
 import { useQuery } from "@tanstack/react-query";
@@ -179,6 +179,64 @@ export function StockPage() {
                   ))}
                 </tbody>
               </table>
+            )}
+          </section>
+
+          <section className="card overflow-x-auto">
+            <h2 className="mb-1 font-medium">Where you buy: profit by source</h2>
+            <p className="mb-2 text-xs text-stone-500">
+              Items sold from {r.from} to {r.to}, grouped by where they were bought (the item's
+              "where bought", else its lot's vendor). Profit is their proceeds less their cost of
+              goods; return is that profit as a share of the cost. Stock is what is unsold on{" "}
+              {r.asOf}.
+            </p>
+            {r.sources.length === 0 ? (
+              <p className="text-sm text-stone-600">Nothing sold in the period or in stock.</p>
+            ) : (
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>Source</th>
+                    <th className="num">Sold</th>
+                    <th className="num">Proceeds</th>
+                    <th className="num">Cost</th>
+                    <th className="num">Profit</th>
+                    <th className="num">Return</th>
+                    <th className="num">Median days</th>
+                    <th className="num">In stock (cost)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {r.sources.map((s) => (
+                    <tr key={s.source ?? ""}>
+                      <td>
+                        {s.source ?? <span className="text-stone-500">No source recorded</span>}
+                      </td>
+                      <td className="num">{s.sold}</td>
+                      <td className="num">{usd(s.proceedsCents)}</td>
+                      <td className="num">{usd(s.costCents)}</td>
+                      <td
+                        className={`num font-medium ${s.profitCents < 0 ? "text-red-700" : "text-brand-700"}`}
+                      >
+                        {usd(s.profitCents)}
+                      </td>
+                      <td className="num">
+                        {s.returnPercent == null ? "–" : `${s.returnPercent}%`}
+                      </td>
+                      <td className="num">{days(s.medianDays)}</td>
+                      <td className="num">
+                        {s.inStock} ({usd(s.inStockCostCents)})
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+            {r.sources.length === 1 && r.sources[0]?.source == null && (
+              <p className="mt-2 text-xs text-stone-500">
+                Add "where bought" to items on the Inventory page, a vendor to a lot, or a "Where
+                Bought" column to your sourcing sheet, to see which stores pay.
+              </p>
             )}
           </section>
 

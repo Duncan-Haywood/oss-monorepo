@@ -122,6 +122,7 @@ ${page.body}
       <a href="${href("/home-office-and-equipment")}">Home office and equipment</a>
       <a href="${href("/reseller-tax-deductions")}">Reseller tax deductions</a>
       <a href="${href("/quarterly-estimated-tax")}">Quarterly estimated tax</a>
+      <a href="${href("/compare")}">Compare</a>
       <a href="${href("/pricing")}">Pricing</a>
       <a href="${href("/faq")}">Questions</a>
       <a href="${href("/privacy")}">Privacy</a>

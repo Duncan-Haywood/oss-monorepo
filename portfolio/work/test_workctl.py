@@ -65,3 +65,19 @@ def test_rank_prefers_weight_and_starved_directions_and_skips_taken():
 def test_taken_ids_offline_checks_nothing():
     found, note = workctl.taken_ids(offline=True)
     assert found == set() and "offline" in note
+
+
+def test_merged_mentions_finds_tagged_titles():
+    subjects = [
+        "security: prepub audit script [work:public-repo-audit] (#19563)",
+        "payapps: e2e [payapps-e2e-second-month] (#19898)",
+        "other: unrelated [work:public-repo-audit-two] (#1)",
+        "no tag here (#2)",
+    ]
+    got = workctl.merged_mentions({"public-repo-audit", "payapps-e2e-second-month", "idle"}, subjects)
+    assert got == {"public-repo-audit": ["#19563"], "payapps-e2e-second-month": ["#19898"]}
+
+
+def test_progress_notes_silence_the_merged_warning():
+    assert workctl.PROGRESS_NOTE.search("Part 1 done 2026-11-27. Left: deploy.")
+    assert not workctl.PROGRESS_NOTE.search("Owner, 2026-11-26: audit before every copy.")

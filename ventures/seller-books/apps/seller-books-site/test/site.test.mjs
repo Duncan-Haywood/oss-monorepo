@@ -7,7 +7,9 @@ import { after, before, describe, test } from "node:test";
 import { build, fileFor } from "../build.mjs";
 import { BASE_PATH, PLATFORMS, SITE_URL, TIERS } from "../src/content.mjs";
 import {
+  ALTERNATIVES,
   COGS_EXAMPLE,
+  COMPARE_CHECKED_ON,
   cogsLines,
   DE_MINIMIS_ELECTION_TITLE,
   DE_MINIMIS_LIMIT_CENTS,
@@ -720,5 +722,60 @@ describe("the reseller inventory spreadsheet page", () => {
     assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
     assert.ok(read("llms.txt").includes(`${BASE_PATH}/reseller-inventory-spreadsheet)`));
     assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/reseller-inventory-spreadsheet<`));
+  });
+});
+
+describe("the compare page", () => {
+  const page = () => pages.find((p) => p.path === "/compare");
+  const appFile = (rel) =>
+    readFileSync(new URL(`../../seller-books/${rel}`, import.meta.url), "utf8");
+
+  test("our prices are the pricing page's own tiers and the free plan", () => {
+    const html = htmlOf(page());
+    for (const t of TIERS) assert.ok(html.includes(`${t.name} $${t.monthly}`), t.name);
+    assert.ok(html.includes("Free for 1 platform and up to 25 orders a month"));
+    assert.ok(linksTo(html, `${BASE_PATH}/pricing`));
+  });
+
+  test("every other tool's price names and links its source, dated, and says to check the vendor", () => {
+    const html = htmlOf(page());
+    for (const a of ALTERNATIVES) {
+      assert.ok(html.includes(a.name), a.name);
+      if (a.price === "Free") continue;
+      assert.ok(a.source?.url?.startsWith("https://"), `${a.name} has a source`);
+      assert.ok(html.includes(`href="${a.source.url}"`), `${a.name} source linked`);
+    }
+    assert.match(COMPARE_CHECKED_ON, /^\d{4}-\d{2}-\d{2}$/);
+    assert.ok(html.includes(`read through search excerpts ${COMPARE_CHECKED_ON}`));
+    assert.match(html, /check each vendor(&#39;|&#x27;|')s own page/);
+    assert.ok(html.includes("no tool here endorses"));
+  });
+
+  test("rates no rival: no scores, stars or comparative claims", () => {
+    const html = htmlOf(page()).toLowerCase();
+    for (const banned of ["stars", "rating", "worse than", "better than", "cheapest", "number one"])
+      assert.ok(!html.includes(banned), banned);
+  });
+
+  test("what it says the app does, the app does", () => {
+    assert.ok(
+      existsSync(
+        new URL("../../seller-books/src/worker/services/books/journal.ts", import.meta.url),
+      ),
+    );
+    assert.match(appFile("src/worker/services/books/lots.ts"), /lot/i);
+    assert.match(
+      appFile("src/worker/services/books/schedule-c.ts"),
+      /Line 41 counts every item still marked in stock/,
+    );
+  });
+
+  test("FAQ markup, and linked from every footer, llms.txt and the sitemap", () => {
+    const html = htmlOf(page());
+    assert.ok(html.includes('"@type":"FAQPage"'));
+    const link = `href="${BASE_PATH}/compare"`;
+    assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
+    assert.ok(read("llms.txt").includes(`${BASE_PATH}/compare)`));
+    assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/compare<`));
   });
 });

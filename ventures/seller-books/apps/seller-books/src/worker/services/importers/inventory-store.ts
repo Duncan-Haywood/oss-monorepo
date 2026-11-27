@@ -94,6 +94,7 @@ export async function importInventorySheet(
     acquiredDate: i.acquiredDate,
     costCents: i.costCents,
     costIsManual: true,
+    source: i.source,
     status: i.status as string,
     disposedDate: i.disposedDate,
   }));

@@ -77,6 +77,12 @@ variable "anomaly_threshold_usd" {
   default     = 10
 }
 
+variable "cost_explorer_enabled" {
+  description = "Set true once Cost Explorer has been launched in the management account (Billing console, Cost Explorer; free, owner's click, data can take up to 24 hours). Until then no anomaly monitor or subscription is created, because AWS refuses them."
+  type        = bool
+  default     = false
+}
+
 variable "create_service_monitor" {
   description = "Create the per-service anomaly monitor. AWS allows one per account and may have created a default at sign-up: if the apply says so, import that one instead (README.md)."
   type        = bool
