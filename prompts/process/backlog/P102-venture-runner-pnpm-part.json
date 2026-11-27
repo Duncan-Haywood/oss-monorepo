@@ -1,0 +1,25 @@
+{
+  "id": "P102",
+  "title": "run_venture_tests.py <slug> printed ok for a pnpm-workspace venture whose vitest suites it never runs",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "After the paid bets moved into ventures/ (payapps, jobshop-quote, seller-books, cmmc on 2026-11-27), `run_venture_tests.py payapps` ran only its 10 top-level *.test.mjs in 0.6 s and printed 'ok', while the app's 1,384 vitest unit and 572 worker tests, the site and the packages ran only in payapps-ci.yml. Sessions read the line as the CI pass; the same gap held for npm-tested ventures with their own workflow (print-atelier, quick-pick-survey, local-site-studio, ...) and einvoice-pro's node --test *.test.ts steps. --times also left these suites out without saying so.",
+  "evidence": [
+    "prompts/runs/2026-11-27-session_01AcxTtK*.json doc_friction: '`run_venture_tests.py payapps` ran only 10 top-level tests in 0.6 s; the app's vitest unit (1384) and worker (572) suites ... had to be run by hand. Nothing said so: it looks like a full pass.'",
+    "four 2026-11-27 records name run_venture_tests.py / venture_suite_times.json for missing the pnpm workspaces (friction_rank.py --live --ungated --days 3, cluster 16 and the per-file grep)"
+  ],
+  "change": "A named local run reads the venture's own workflows for package-manager test steps (pnpm/npm/yarn test*, vitest, playwright test, node --test of .ts/.js) and prints PART with the steps and the run_workflow_locally.py command, and counts it in the summary's 'only partly run'. CI's --since mode is unchanged. --times says those suites are not timed and points at ci_profile.py.",
+  "touches": [
+    "platform/ci/run_venture_tests.py",
+    "platform/ci/test_run_venture_tests.py"
+  ],
+  "metric": "run-record doc_friction naming run_venture_tests.py as passing a venture whose own-workflow JS suites did not run, after the merge",
+  "baseline": "4 records on 2026-11-27; `run_venture_tests.py payapps` -> 'ok payapps (0.3s, 10 tests)'",
+  "opened": "2026-11-27",
+  "source": "process run (friction_rank.py --live --ungated --days 3)",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19768",
+  "result": null,
+  "history": []
+}
