@@ -10,8 +10,11 @@
  * `build.mjs` calls `buildManufacturingPage` on every site build.
  *
  * Honesty rules this page keeps (tested in industry-manufacturing.test.mjs):
- *   - both products are in development: "early access", never "available";
- *     no price is shown until one is set;
+ *   - Job Shop Quote is open on its free Early access plan (jobshop-quote-deploy
+ *     run 46018975911, 2026-11-27) and links to its sign-up; the CMMC workspace
+ *     is in development ("early access"). Neither is "available" to buy: no
+ *     price is shown until checkout is on, and what is switched off (AI
+ *     reading of RFQs) is said on the card;
  *   - no claim of CMMC certification, C3PAO status or DoD endorsement;
  *   - every market fact carries the source `bets.md` cites for it.
  *
@@ -43,14 +46,18 @@ export const EARLY_ACCESS_HREF = 'custom-development/?kind=new#request';
 export const PRODUCTS = Object.freeze([
   Object.freeze({
     id: 'jobshop-quote',
-    name: 'Job-shop quoting: RFQ to priced quote',
-    status: 'In development (early access)',
+    name: 'Job Shop Quote: RFQ to priced quote',
+    status: 'Open · free early access',
+    // The app's create-account page, tagged with this page (machine-shop-guides/cta.mjs does the same).
+    appUrl: 'https://jobshop-quote.marisstella.app/sign-up?from=industries%2Fmanufacturing',
+    freePlan: 'Free early access: 40 RFQs a month and 3 users, no card. Paid plans are not on sale yet.',
     for: 'CNC machine shops and fabricators who quote from drawings, CAD files and emails.',
     does: [
       'Reads an RFQ (the email, the text of PDF drawings, STEP and DXF files) and drafts a priced quote.',
       'Prices from your own shop rates, setup times and material costs, not a generic table.',
       'Keeps every quote and its assumptions, so you can see why a job was priced the way it was.',
     ],
+    note: 'Reading an RFQ with AI and taking RFQs by email are not switched on yet: today you enter the part, and the app measures STEP, DXF, STL and IGES files, prices the job from your rate card and writes the quote PDF.',
     problems: ['rfq-backlog', 'own-rates'],
     // The free tool whose real still (showcase/capture.mjs) shows under this card.
     still: 'cnc-machining-quote-calculator',
@@ -219,7 +226,7 @@ export function renderManufacturingPage({ baseUrl = '', indexed = INDEXED, publi
   <p class="solves">Solves: ${p.problems.map((id) => `<a href="#${esc(id)}">${esc(problemTitle.get(id))}</a>`).join('; ')}</p>
   ${p.note ? `<p class="note">${esc(p.note)}</p>` : ''}
   ${p.still && still.has(p.still) ? figure(still.get(p.still), 'still', true, '(max-width: 52rem) calc(100vw - 66px), 600px') : ''}
-  <p>Pricing is not set yet. <a class="go" href="${esc(`${toRoot}${EARLY_ACCESS_HREF}`)}">Ask for early access</a></p>
+  ${p.appUrl ? `<p>${esc(p.freePlan)} <a class="go" href="${esc(p.appUrl)}">Start free in Job Shop Quote</a></p>` : `<p>Pricing is not set yet. <a class="go" href="${esc(`${toRoot}${EARLY_ACCESS_HREF}`)}">Ask for early access</a></p>`}
 </section>`).join('\n');
 
   const tools = liveTools.map((t) => `<li><a href="${esc(`${toRoot}${t.slug}/`)}">${esc(t.name)}</a>: ${esc(t.why)}</li>`).join('\n');
@@ -257,14 +264,14 @@ body{margin:0;background:#f6f7f9;color:var(--pfs-ink,#1d2530);font:16px/1.55 sys
 <body>
 <main class="mfg">
 <h1>${esc(TITLE)}</h1>
-<p class="lede">For CNC and fabrication job shops and small engineering firms: quote faster from your own rates, and keep your CMMC and ISO 9001 paperwork in one place. Two products are in development and open for early access; the free tools below work today.</p>
+<p class="lede">For CNC and fabrication job shops and small engineering firms: quote faster from your own rates, and keep your CMMC and ISO 9001 paperwork in one place. Job Shop Quote is open now, free to start (<a href="https://jobshop-quote.marisstella.app/sign-up?from=industries%2Fmanufacturing">create an account</a>); the CMMC workspace is in development and open for early access; the free tools below work today.</p>
 ${leadShot ? `${figure(leadShot, 'still lead-still', false, '(max-width: 52rem) calc(100vw - 32px), 720px')}\n` : ''}
 <h2>Common problems, and what solves them</h2>
 <ol class="problems">
 ${problems}
 </ol>
 
-<h2>Products in development</h2>
+<h2>Products</h2>
 ${products}
 
 <h2>Free tools you can use today</h2>
@@ -279,7 +286,7 @@ ${facts}
 </ul>
 
 <footer>
-<p>No warranty. These products are in development and the free tools give estimates from the figures you enter; they are not legal, compliance, tax or engineering advice. CMMC requirements and their timing are set by the Department of Defense and change; check the current rules before you rely on any date here.</p>
+<p>No warranty. Job Shop Quote is in early access, the CMMC workspace is in development, and the free tools give estimates from the figures you enter; they are not legal, compliance, tax or engineering advice. CMMC requirements and their timing are set by the Department of Defense and change; check the current rules before you rely on any date here.</p>
 ${footer}
 </footer>
 </main>

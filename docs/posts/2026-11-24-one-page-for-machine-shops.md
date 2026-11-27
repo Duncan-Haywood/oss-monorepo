@@ -3,7 +3,7 @@ title: "One page for machine shops: quoting, CMMC and the free tools already her
 seo_title: "Software for CNC job shops: quoting, CMMC, ISO 9001"
 date: 2026-11-24
 tags: [manufacturing, machine-shops, cmmc, quoting, iso-9001]
-description: "Eight free tools for CNC and fabrication shops were scattered across categories. One page now maps them, and two products in development, to four shop problems."
+description: "Software for CNC job shops: Job Shop Quote, open on free early access, a CMMC workspace in development, and free tools mapped to four shop problems."
 ---
 
 A CNC or fabrication job shop has a short list of problems that cost it money
@@ -11,6 +11,20 @@ every week. Two of the paid bets in this repository, an RFQ-to-quote tool
 and a CMMC and ISO 9001 workspace, are aimed at the same shops, so they now
 share one page: [Software for machine shops and engineering
 firms](https://marisstella.app/industries/manufacturing/).
+
+**Open now (27 November 2026):** Job Shop Quote, the RFQ-to-quote app, takes
+sign-ups on free early access: 40 RFQs a month and 3 users, no card. That
+covers the rate card (machines, setups, materials, imported from your
+spreadsheet), STEP, DXF, STL and IGES files measured for stock, cut length,
+bends and holes, each line priced from your own rates, the quote PDF and its
+email, revisions, the customer's one-click acceptance and the won/lost log.
+Two things are **not switched on yet**: reading the RFQ email and drawing with
+AI, and taking RFQs sent to the shop's own address, so today you enter the
+part yourself. Paid plans are **not on sale yet**. It has no customers yet.
+[Start free in Job Shop Quote](https://jobshop-quote.marisstella.app/sign-up?from=docs%2Fposts%2Fone-page-for-machine-shops).
+Check every price before it goes to a customer: the app does the arithmetic
+from your numbers, your estimator sends the quote. The CMMC workspace is still
+in development.
 
 ## Four problems
 
@@ -45,8 +59,10 @@ that turns an RFQ into a quote; those two gaps are the products.
 
 ## What the page does not say
 
-Both products are marked **in development (early access)**, with no price,
-because neither is built yet. The CMMC workspace is described as a tool for
+Both products were marked **in development (early access)**, with no price,
+when this page went up; since 27 November Job Shop Quote is marked open on
+its free plan and links to sign-up, still with no price, and the CMMC
+workspace stays in development. The CMMC workspace is described as a tool for
 preparing your own self-assessment: not a certification, not a C3PAO, and
 not endorsed by the Department of Defense. A test checks those lines are
 still there and that no "certified" or "DoD-approved" phrasing has crept in.

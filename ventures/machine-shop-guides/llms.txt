@@ -99,9 +99,10 @@ The questions each page answers in its "Common questions" section, with the answ
 - [How accurate is the bounding box?](https://marisstella.app/machine-shop-guides/stock-size-from-step-file.html#faq): For STEP it reads the solid's edges, so faces on planes, cylinders and cones give the exact box; spheres, fillets and free-form surfaces get a containing shape and a warning. Checked against OpenCascade on 68 parts, it never gave a box smaller than the part, 60 were exact and the rest were at most 2.8 mm too large and flagged.
 - [Can it estimate cycle time?](https://marisstella.app/machine-shop-guides/stock-size-from-step-file.html#faq): As a first number, from your own cutting data: roughing time is the metal to remove divided by your removal rate, finishing time is the surface area divided by your stepover times feed, plus your non-cutting allowance. It knows nothing about holes, threads or setups, so treat it as a starting line.
 
-## Products in development
+## Products
 
-- [Manufacturing: RFQ-to-quote assistant and CMMC/ISO 9001 workspace, early access](https://marisstella.app/industries/manufacturing/)
+- [Job Shop Quote: RFQ-to-quote app, open on free early access](https://jobshop-quote.marisstella.app/sign-up?from=machine-shop-guides%2Fllms): a hosted rate card (machines, setups, materials), STEP, DXF, STL and IGES files measured, each line priced from the shop's own rates, the quote PDF, and a won/lost log. Free for 40 RFQs a month and 3 users, no card; paid plans are not on sale yet, and reading an RFQ with AI is not switched on.
+- [Manufacturing: Job Shop Quote and the CMMC/ISO 9001 workspace (in development, early access)](https://marisstella.app/industries/manufacturing/)
 
 ## Source
 

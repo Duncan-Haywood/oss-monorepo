@@ -59,8 +59,20 @@ test('every tool the front doors send here is listed, so the door leads somewher
   }
 });
 
-test('products are in development, unpriced, and never claim certification or endorsement', () => {
-  for (const p of PRODUCTS) assert.match(p.status, /in development/i);
+test('products are open free or in development, unpriced, and never claim certification or endorsement', () => {
+  for (const p of PRODUCTS) {
+    if (p.appUrl) {
+      // Open: free plan only, a sign-up link on the app's own domain, and what is off said on the card.
+      assert.match(p.status, /^Open · free/);
+      assert.match(p.appUrl, /^https:\/\/[a-z-]+\.marisstella\.app\/sign-up\?from=/);
+      assert.match(p.freePlan, /Paid plans are not on sale yet/);
+      assert.match(p.note, /not switched on yet/);
+      assert.ok(html.includes(`href="${p.appUrl}"`), p.appUrl);
+    } else {
+      assert.match(p.status, /in development/i);
+    }
+  }
+  assert.ok(PRODUCTS.some((p) => !p.appUrl), 'the CMMC workspace is not open yet');
   assert.match(text, /early access/i);
   assert.match(text, /Pricing is not set yet/);
   assert.doesNotMatch(text, /\$\d+\s*(?:\/|a |per )mo/i);
