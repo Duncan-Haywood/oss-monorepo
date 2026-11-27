@@ -45,8 +45,7 @@ them).
 ## Fixed because this repository's tree checks found them
 
 CI's `changed-ventures` job runs checks `private-monorepo` never had; the same classes PayApps' move
-fixed. Each fix is in the public copy only, so a later `sync-from-private.sh` reintroduces them until
-the private copy goes or gets the same patch (the checks will say so):
+fixed. Each fix was applied here and to `private-monorepo`:
 
 - `traveler.ts`: the due date accepted 2026-02-30 (Date.parse rolls it to March); now
   `isCalendarDay` round-trips it, with `traveler.test.ts`.
@@ -62,6 +61,9 @@ the private copy goes or gets the same patch (the checks will say so):
   site's `mainText` (llms-full.txt) strips blocks and tags until nothing matches; two billing tests
   compare the Paddle host exactly instead of by substring; the STEP `DATA` regex no longer
   backtracks polynomially on runs of tabs (test with 50,000 tabs).
+- The adversarial gate's `page-without-disclaimer`: the SPA shell's `<noscript>` now carries the Terms'
+  wording (own rate card, not engineering, legal, tax or accounting advice, provided as is).
+- The same fixes landed in `private-monorepo` (PRs 467, 468, 475, 480), so a sync keeps them.
 - Nine literal U+FEFF characters written as `\uFEFF` escapes (same string).
 - The app's SPA shell `index.html` and a site test fixture are marked `noindex` (thin-page check;
   the shell is a sign-in app, the marketing pages are `apps/jobshop-site`).
