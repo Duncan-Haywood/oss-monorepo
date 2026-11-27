@@ -10,13 +10,14 @@ Der E-Rechnungs-Arbeitsbereich und die API (der „Dienst“) werden von **Maris
 
 ## 2. Der Dienst
 
-Der Dienst prüft elektronische Rechnungen (UBL- und UN/CEFACT-CII-XML sowie das XML in einer Factur-X- oder ZUGFeRD-PDF) anhand der auf unserer Website aufgeführten Regeln, erklärt jeden Befund in verständlichem Deutsch, Französisch oder Englisch und schlägt, wo die Korrektur keine neuen Angaben braucht, eine korrigierte Datei mit einer Gegenüberstellung der Änderungen (Diff) vor. Er führt je Mandant einen Verlauf der Prüfungen. Er wird über den Arbeitsbereich oder die API genutzt.
+Der Dienst prüft elektronische Rechnungen (UBL- und UN/CEFACT-CII-XML sowie das XML in einer Factur-X- oder ZUGFeRD-PDF) anhand der auf unserer Website aufgeführten Regeln, erklärt jeden Befund in verständlichem Deutsch, Französisch, Niederländisch, Polnisch oder Englisch und schlägt, wo die Korrektur keine neuen Angaben braucht, eine korrigierte Datei mit einer Gegenüberstellung der Änderungen (Diff) vor. Er kann außerdem eine einfache PDF-Rechnung in einen Entwurf übernehmen, den Sie prüfen und in eine E-Rechnungsdatei umwandeln (der Konverter). Er führt je Mandant einen Verlauf der Prüfungen und eine Übersicht über alle Mandanten. Er wird über den Arbeitsbereich oder die API genutzt.
 
 ## 3. Sie entscheiden, was Sie senden
 
 - **Ergebnisse stammen nur aus den aufgeführten Regeln.** Bestanden oder nicht bestanden ergibt sich aus deterministischen Prüfungen. Bestanden heißt, dass die Datei die Regeln erfüllt hat, die gelaufen sind, wie jedes Ergebnis sie auflistet; es heißt nicht, dass eine Steuerbehörde, eine empfangende Plattform oder der Kunde Ihres Mandanten die Rechnung annimmt, oder dass die Rechnung inhaltlich richtig ist (die umsatzsteuerliche Behandlung, die vereinbarten Beträge, ob die Waren oder Leistungen erbracht wurden).
 - **Erklärungen sind Hilfen.** Manche Erklärungen schreibt ein KI-Modell. Sie ändern nie ein Ergebnis und können unvollständig oder falsch sein. Lesen Sie die Regel und den amtlichen Text, wenn es darauf ankommt.
 - **Vorgeschlagene Korrekturen sind Vorschläge.** Eine Korrektur wird nur für eine kurze Liste formaler Berichtigungen angeboten und nur, wenn die korrigierte Datei die betroffene Regel ohne neuen Befund besteht. Prüfen Sie den Diff, bevor Sie eine korrigierte Datei an jemanden senden. Summen, Kennungen und fehlende Geschäftsdaten werden nie geändert.
+- **Eine umgewandelte Rechnung ist Ihr Entwurf.** Der Konverter liest Werte aus einer PDF und zeigt, woher jeder stammt; er kann einen Wert falsch lesen oder übersehen und weiß nicht, ob die Werte stimmen. Prüfen Sie jeden Wert, die Beteiligten und die umsatzsteuerliche Behandlung, bevor Sie die Datei versenden oder archivieren; Aussteller sind Sie, nicht wir.
 - **Keine Steuer-, Rechts- oder Buchhaltungsberatung.** Nichts im Dienst ist Steuer-, Rechts-, Buchhaltungs- oder Finanzberatung. Sie und Ihre Mandanten bleiben für die Rechnungen verantwortlich, die Sie ausstellen, empfangen und archivieren.
 
 ## 4. Konten und API-Schlüssel

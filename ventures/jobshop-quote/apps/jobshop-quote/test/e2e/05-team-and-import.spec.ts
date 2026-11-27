@@ -67,8 +67,11 @@ test("rate-card import, then an invited estimator's role limits", async ({
   await expect(est.getByRole("heading", { name: "Join the shop" })).toBeVisible();
   await est.getByRole("button", { name: "Accept invitation" }).click();
   await est.waitForURL(new RegExp(`${orgPath}$`));
+  // The org layout loads as its own chunk, so wait until it shows either the legal gate or the
+  // quote log before deciding whether the gate is there (a one-shot isVisible() raced the chunk).
   const agree = est.getByRole("button", { name: "I agree" });
-  if (await agree.isVisible().catch(() => false)) await agree.click();
+  await expect(agree.or(est.getByRole("heading", { name: "Quote log" }))).toBeVisible();
+  if (await agree.isVisible()) await agree.click();
 
   // Rate card: read only, no import, no add buttons.
   await est.goto(`${orgPath}/rate-card`);

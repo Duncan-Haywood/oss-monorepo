@@ -10,13 +10,14 @@ L'espace e-facture et l'API (le « Service ») sont exploités par **Maris Stell
 
 ## 2. Le Service
 
-Le Service contrôle des factures électroniques (XML UBL et UN/CEFACT CII, ainsi que le XML contenu dans un PDF Factur-X ou ZUGFeRD) au regard des règles listées sur notre site, explique chaque constat en français, en allemand ou en anglais clair et, lorsque la correction ne demande aucune information nouvelle, propose un fichier corrigé accompagné d'un comparatif des modifications (diff). Il conserve un historique des contrôles par société cliente. Il s'utilise depuis l'espace de travail ou par l'API.
+Le Service contrôle des factures électroniques (XML UBL et UN/CEFACT CII, ainsi que le XML contenu dans un PDF Factur-X ou ZUGFeRD) au regard des règles listées sur notre site, explique chaque constat en français, en allemand, en néerlandais, en polonais ou en anglais clair et, lorsque la correction ne demande aucune information nouvelle, propose un fichier corrigé accompagné d'un comparatif des modifications (diff). Il peut aussi reprendre une facture PDF simple dans un brouillon que vous vérifiez puis transformez en fichier de facture électronique (le convertisseur). Il conserve un historique des contrôles par société cliente et un tableau de bord de l'ensemble. Il s'utilise depuis l'espace de travail ou par l'API.
 
 ## 3. Vous décidez de ce que vous envoyez
 
 - **Les résultats proviennent uniquement des règles listées.** La conformité ou la non-conformité résulte de contrôles déterministes. Un résultat conforme signifie que le fichier a respecté les règles exécutées, telles que chaque résultat les liste ; il ne signifie pas qu'une administration fiscale, une plateforme de réception ou le client de votre client acceptera la facture, ni que la facture est exacte sur le fond (le traitement de TVA, les montants convenus, la réalité de la livraison ou de la prestation).
 - **Les explications sont des aides.** Certaines explications sont rédigées par un modèle d'IA. Elles ne modifient jamais un résultat et peuvent être incomplètes ou erronées. Lisez la règle et le texte officiel lorsque l'enjeu le justifie.
 - **Les corrections proposées sont des propositions.** Une correction n'est proposée que pour une courte liste de rectifications formelles, et seulement si le fichier corrigé respecte la règle visée sans nouveau constat. Vérifiez le diff avant d'envoyer un fichier corrigé à quiconque. Les totaux, les identifiants et les données commerciales manquantes ne sont jamais modifiés.
+- **Une facture convertie est votre brouillon.** Le convertisseur lit des valeurs dans un PDF et indique d'où vient chacune ; il peut mal lire ou omettre une valeur et ne sait pas si les valeurs sont justes. Vérifiez chaque valeur, les parties et le traitement de TVA avant d'envoyer ou d'archiver le fichier ; l'émetteur, c'est vous, pas nous.
 - **Aucun conseil fiscal, juridique ou comptable.** Rien dans le Service ne constitue un conseil fiscal, juridique, comptable ou financier. Vous et vos clients restez responsables des factures que vous émettez, recevez et archivez.
 
 ## 4. Comptes et clés d'API
