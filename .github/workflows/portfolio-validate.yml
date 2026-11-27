@@ -98,6 +98,10 @@ on:
       - "docs/posts/**"
       - "platform/ci/**"
       - ".github/workflows/**"
+      # Worker configs: cron_budget.py counts their schedules against the plan.
+      - "ventures/**/wrangler*.jsonc"
+      - "ventures/**/wrangler*.toml"
+      - "portfolio/hosting/cloudflare-plan.json"
   pull_request:
     paths:
       - "ventures/**/VENTURE.yaml"
@@ -141,6 +145,10 @@ on:
       - "docs/posts/**"
       - "platform/ci/**"
       - ".github/workflows/**"
+      # Worker configs: cron_budget.py counts their schedules against the plan.
+      - "ventures/**/wrangler*.jsonc"
+      - "ventures/**/wrangler*.toml"
+      - "portfolio/hosting/cloudflare-plan.json"
   workflow_dispatch:
 
 permissions:
@@ -311,6 +319,15 @@ jobs:
       - name: Usage-state unit tests
         working-directory: platform/ci
         run: python3 -m unittest test_usage_state
+
+      # Cloudflare counts cron triggers per account (Free: 5). Over it, the
+      # last deploy's trigger update fails and nothing earlier says so (P097).
+      - name: Cron triggers fit the Cloudflare plan
+        run: python3 platform/ci/cron_budget.py
+
+      - name: Cron-budget unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_cron_budget
 
       - name: Validate workflow files are parseable
         run: python3 platform/ci/validate_workflows.py

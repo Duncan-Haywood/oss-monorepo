@@ -111,6 +111,21 @@ Each remaining review finding read:
   made-up "Acme Machining" sheet (`it@acme.example`), written by LibreOffice from the committed
   `.source.csv`; `docProps` hold no author.
 
+## Sync keeps the edits made here (2026-11-27, PR #19714)
+
+PR #19689 landed this move. PR #19714 had re-verified the same branch in parallel and closes with the
+one gap it found. On private-monorepo `7ca83b92`, a sync changed nothing in the app. Its only diffs
+were three hand edits made here after the copy, which `sync-from-private.sh` would have quietly
+reverted:
+
+- `packages/billing/src/paddle.test.ts`: the host is compared exactly (CodeQL);
+- `packages/billing/src/paddle-key.test.ts`: the comment on the same comparison;
+- `apps/cmmc/docs/DEPLOY.md`: the private deploy workflow named as text.
+
+The script now saves these files before it replaces the tree and puts them back afterwards (its
+`keep_local` list). Drop an entry once private-monorepo has the same edit. The payapps and
+seller-books syncs may have the same gap (PR #19632's CodeQL fixes); not checked.
+
 ## Next
 
 1. `priv-cmmc-deploy.yml`, ported from the private workflow, in its own PR (control-plane tier),

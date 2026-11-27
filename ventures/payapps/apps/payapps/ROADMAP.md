@@ -1001,6 +1001,28 @@ instead of selling space nobody can use (2026-11-27). No customers yet. Paid pla
   `services/payapps/notice-files.ts`; worker test `test/worker/ca-notice-files.test.ts`. Not done:
   listing the attached receipts on the § 8118 proof PDF, and the § 2015.5 perjury sentence.
 
+- Notices of claim: Texas (2026-11-27, Crew and up, with lien waivers; texas-notice-of-claim). The
+  job page's "Preliminary notice of right to lien" panel, for a Texas job, offers both of the notices a
+  sub or supplier ("a claimant other than an original contractor") must send to keep a lien under
+  Tex. Prop. Code ch. 53 as amended by H.B. 2237 (original contracts from 2022-01-01), with a picker:
+  the monthly NOTICE OF CLAIM FOR UNPAID LABOR OR MATERIALS (§ 53.056(a-2)) and the NOTICE OF CLAIM
+  FOR UNPAID RETAINAGE (§ 53.057(a-2)), each the statute's whole form word for word (its two warnings
+  bold, the seven lines, the contact person and address under their captions). Prefilled: today's
+  date, the job and its address, the company, the GC as original contractor. Below them, "Texas
+  deadlines" (browser only, nothing saved): one notice date per unpaid month (15th of the third month
+  after, second on a residential construction project, § 53.001(10)), the lien affidavit date
+  (§ 53.052(b)-(c)), the retainage notice (30 days, § 53.057(a-1)) and the retainage affidavit
+  (§ 53.052(d)); each moved past a weekend per § 53.003(e) but not past a legal holiday (so a date
+  can be early, never late). Snapshot `packages/lien-waivers/sources/tx-53-notices.txt` (§§ 53.001
+  excerpt, 53.003, 53.052, 53.056, 53.057, Texas Legislature chapter file read 2026-11-27);
+  `src/tx-notice.ts`, `src/tx-dates.ts` (aliased `@lien-waivers/tx-dates` for the browser),
+  `test/tx-notice.test.ts` (both whole forms and every quoted phrase against the snapshot, the dates
+  by hand; two one-phrase mutants fail it), worker case in `test/worker/notices.test.ts`. Why: Texas
+  has the third most specialty-trade establishments (34,243, bets.md) and the notice is monthly, so
+  every unpaid month is a deadline a sub can miss. Not done: a log of notices sent with reminders on
+  the cash page (as Florida's), the months filled from the job's unpaid pay apps, Texas legal
+  holidays, pre-2022 contracts, public-works bond claims (Gov't Code ch. 2253), the lien affidavit.
+
 - Notice to Owner: Florida (2026-11-27, Crew and up, with lien waivers; florida-notice-to-owner).
   The job page's "Preliminary notice of right to lien" panel prints Fla. Stat. § 713.06(2)(c)'s
   Notice to Owner, the notice a sub, sub-sub or supplier not in privity with the owner must serve
@@ -2300,8 +2322,12 @@ instead of selling space nobody can use (2026-11-27). No customers yet. Paid pla
   every page from early access into "open now, free on one job" with sign-up links tagged
   `from=payapps-site/<page>`; a workers.dev address is refused. `APP_URL` is set to
   https://payapps.marisstella.app (the app's custom domain, PR #19642), so the built site says "open
-  now". Next: serve it (a deploy workflow, or the static pages on marisstella.app/payapps); set
-  `PAID_PLANS_ON` here and in `cta.mjs` the day checkout is live
+  now". Served from 2026-11-27 (payapps-site-served): https://marisstella.app/payapps/ is a static
+  copy, `apps/payapps-site/catalogue-export/` (`pnpm export:catalogue`; a unit test fails on drift),
+  that the catalogue build copies in without its free-tool chrome (`platform/pages/payapps-site.mjs`)
+  and lists in the root sitemap index. It has no early-access pages: the app is open, and no Worker
+  is behind the copy. Left: set `PAID_PLANS_ON` here and in `cta.mjs` the day checkout is live, then
+  re-export
 - Done 2026-11-27 (launch-signups-open): the free guides point at sign-up (`APP_URL` in
   `ventures/pay-app-guides/cta.mjs`, now https://payapps.marisstella.app; 42 pages say "open now", name
   what the Free plan leaves out and link to `/?signup&from=pay-app-guides/<page>`; `state-forms.mjs`
@@ -2387,6 +2413,11 @@ instead of selling space nobody can use (2026-11-27). No customers yet. Paid pla
   the reminder, done 2026-11-27): files per record (the mail log or USPS tracking printout
   § 713.18(2)(c) says to keep), the company's tier so the contractor's copy joins the reminder, and
   § 713.18(3)'s returned-mail rule, if contractors use the log
+- Texas notices of claim, part 2 (part 1, both statutory forms and the deadlines, done 2026-11-27):
+  a log of the notices sent per month and per recipient (owner and GC, § 53.056(a-1)) with the
+  delivery method and tracking (§ 53.003(b)), the unpaid months read from the job's pay apps, and a
+  reminder on the cash page and in the weekly email before each 15th; Texas legal holidays for
+  § 53.003(e)
 - RFIs, part 3: (part 2 is done 2026-11-26: history, overdue across jobs, files, and a change
   order started from an answered RFI) the RFI's answer and files carried onto the change order
   request PDF as its backup, if people ask

@@ -39,6 +39,7 @@ import { FUNNEL_ATTRS, FUNNEL_TOKEN_RE } from '../counter/core.mjs';
 import { buildEngineeringPage, ENGINEERING_PATH, REPO_URL } from './engineering.mjs';
 import { buildManufacturingPage } from './industry-manufacturing.mjs';
 import { buildConstructionPage, CONSTRUCTION_PATH } from './industry-construction.mjs';
+import { buildPayappsSite } from './payapps-site.mjs';
 import { buildNonprofitsPage } from './industry-nonprofits.mjs';
 import { renderHardwarePage, HARDWARE_PATH } from './hardware-page.mjs';
 import { loadRequests, SOURCES as REQUEST_SOURCES, STATUSES as REQUEST_STATUSES } from '../../portfolio/requests/requests.mjs';
@@ -12764,11 +12765,13 @@ function oneLineText(value) {
  * Every published venture gets a generated sitemap (see `renderVentureSitemap`),
  * so there is no venture the index can leave out.
  */
-export function renderSitemapIndex(surfaces, baseUrl) {
+export function renderSitemapIndex(surfaces, baseUrl, extraSitemaps = []) {
   const entries = [`  <sitemap><loc>${baseUrl}sitemap-hub.xml</loc></sitemap>`].concat(
     surfaces.map(
       (surface) => `  <sitemap><loc>${baseUrl}${surface.slug}/sitemap.xml</loc></sitemap>`,
     ),
+    // Sites this build copies in whole, with a sitemap of their own (payapps-site.mjs).
+    extraSitemaps.map((rel) => `  <sitemap><loc>${baseUrl}${rel}</loc></sitemap>`),
   );
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -14077,9 +14080,16 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
   // `noindex` and in no sitemap; see `engineering.mjs`.
   await buildEngineeringPage(outDir, base);
 
+  // PayApps' own marketing site (paid bet #1), copied in whole from the app's committed
+  // static export, without the catalogue chrome (`payapps-site.mjs`). Before the
+  // construction page, which links it.
+  const payappsSite = await buildPayappsSite(outDir, { baseUrl: base });
+  const extraSitemaps = payappsSite.filter((rel) => rel === 'payapps/sitemap.xml');
+
   // The construction industry landing page (`industry-construction.mjs`):
   // links only tools and research this build published.
   await buildConstructionPage(outDir, {
+    productSites: new Set(payappsSite.length ? ['payapps'] : []),
     baseUrl: base,
     disclaimer: disclaimerHtml('../../', surfaces),
     footer: renderSiteFooterNav({ toRoot: '../../' }),
@@ -14172,7 +14182,7 @@ async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, a
     }),
   );
 
-  await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base));
+  await fs.writeFile(path.join(outDir, 'sitemap.xml'), renderSitemapIndex(surfaces, base, extraSitemaps));
   await fs.writeFile(
     path.join(outDir, 'sitemap-hub.xml'),
     renderHubSitemap(

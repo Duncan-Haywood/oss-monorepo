@@ -2851,12 +2851,27 @@ class RecordPrecheck(unittest.TestCase):
         code, out, pick = self._sweep()
         self.assertEqual(code, 1)
         self.assertIn("prompts/runs/r.json still have outcome null", out)
+        self.assertIn("--no-record-check", out)
         pick.assert_not_called()
 
     def test_no_record_check_sweeps_anyway(self):
         code, _, pick = self._sweep(no_record_check=True)
         self.assertEqual(code, 0)
         pick.assert_called_once()
+
+
+class StartNote(unittest.TestCase):
+    """The sweep says what it reads and what voids it before it starts."""
+
+    def test_names_the_checkout_and_the_rule(self):
+        note = runner.start_note("/work/repo", 3)
+        self.assertIn("3 workflow(s) over /work/repo", note)
+        self.assertIn("voids the later verdicts", note)
+        self.assertNotIn("untracked", note)
+
+    def test_counts_untracked_files(self):
+        fp = runner.Fingerprint("h", "d", {}, {"new.sql": "b1", "x.md": "b2"})
+        self.assertIn("2 untracked file(s)", runner.start_note("/r", 1, fp))
 
 
 class DeferHeavyOnProse(unittest.TestCase):

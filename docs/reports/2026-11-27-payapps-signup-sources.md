@@ -20,3 +20,23 @@ For the next run working on PayApps' front doors (bet #1).
   private-monorepo does not draw the table yet. Accounts made before 2026-11-27 are all "(none)".
 - Before deciding which guide to deepen or which tool to retire, read these rows rather than
   guessing; an empty row means unmeasured traffic, not a dead page (`portfolio/usage/usage.yaml`).
+
+## Six more front doors (2026-11-27, claim construction-tools-front-doors)
+
+Construction tools whose topic is a PayApps module had no link into the app. Each now carries one
+`payapps-cta` paragraph naming only what PayApps does for that job on today's plans, and a guard test
+in its `page.test.mjs` (one tagged link, "not on sale yet", no workers.dev):
+
+| Tool (`from=`) | PayApps module named |
+|---|---|
+| `coi-expiry-gap-checker` | insurance certificates, expiry status, weekly email (every plan) |
+| `contractor-wip-schedule` | job costing and the WIP PDF (Crew plan, said to be not on sale) |
+| `change-order-margin-calculator` | change orders on the SOV, request PDF, pending list |
+| `submittal-register` | submittal log, last day to send, transmittal, overdue list |
+| `subcontractor-cashflow-planner` | pay terms, due dates, past due, next 30 days |
+| `construction-evidence-log` | daily reports and signed T&M tickets (no photos named: R2 is off) |
+
+Left out on purpose: `scope-creep-change-order-calculator` (fixed-price freelancers, not subs),
+`drawing-set-index` and `construction-delay-claim-calculator` (no matching PayApps module). When
+`PAID_PLANS_ON` flips, these six paragraphs say "not on sale yet" and need the same edit as `cta.mjs`:
+`grep -l payapps-cta ventures/*/index.html`.

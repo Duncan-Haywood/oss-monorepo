@@ -90,7 +90,7 @@ test("WY notice declares every placeholder it uses; only Wyoming and California 
   );
   assert.equal(noticeForms("wy").length, 1);
   assert.equal(noticeForms("CA").length, 1);
-  assert.deepEqual(noticeForms("TX"), []);
+  assert.equal(noticeForms("TX").length, 2);
   assert.deepEqual(noticeForms("MO"), []);
   assert.equal(noticeById("CO", WY_NOTICE_ID), undefined);
   assert.throws(() => noticeForms("ZZ"), RangeError);

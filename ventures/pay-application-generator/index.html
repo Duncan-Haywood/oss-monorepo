@@ -26,6 +26,12 @@
     @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } body { padding: 16px; } }
     button { border: 0; border-radius: 8px; padding: 11px 15px; background: #7a3e0a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
     button.secondary { background: #efe8d8; color: #3b2a14; }
+    .live { position: sticky; bottom: 0; z-index: 2; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 18px; margin: 18px -22px -22px; padding: 10px 22px 12px; background: #3b2a14; color: #fff; border-radius: 0 0 13px 13px; font-size: .86rem; font-variant-numeric: tabular-nums; }
+    .live[hidden] { display: none; }
+    .live b { font-size: 1.08rem; margin-left: 4px; }
+    .live a { color: #fff; font-weight: 700; margin-left: auto; }
+    .live a:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+    @media (max-width: 560px) { .card { padding: 18px 16px; } .live { margin: 18px -16px -18px; padding: 8px 16px 10px; gap: 0 14px; } .live a { margin-left: 0; } }
     table { width: 100%; border-collapse: collapse; margin-top: 8px; }
     th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid #e8e4d6; }
     th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #54503f; }
@@ -113,7 +119,8 @@
       <button type="button" class="secondary" id="load-ok">Load an example</button>
       <button type="button" class="secondary" id="clear-all">Clear</button>
     </p>
-    <p class="note" id="form-status">Choose a file or paste the schedule, then click Work out the application.</p>
+    <p class="note" id="form-status">Choose a file and click Work out the application, or paste the schedule: the payment due updates as you type.</p>
+    <p class="live" id="live" hidden></p>
   </section>
 
   <section class="card" id="report" aria-live="polite" hidden>
@@ -228,7 +235,12 @@
       periodTo: $("#period").value.trim(), contractor: $("#contractor").value.trim(), owner: $("#owner").value.trim(),
     });
 
-    function run(text) {
+    // run(text, quiet): quiet is the live preview while typing. It fills the #live strip, does not scroll,
+    // and sets the report's aria-live to off so a screen reader is not read the whole result on every keystroke.
+    const live = $("#live");
+    const strip = (html) => { live.innerHTML = html; live.hidden = !html; };
+    function run(text, quiet = false) {
+      report.setAttribute("aria-live", quiet ? "off" : "polite");
       const s = settings();
       let r = compute(text, s);
       imported = workbook && text === workbook.csv ? workbook : null;
@@ -238,7 +250,7 @@
         const found = sheet.findSchedule(parseCsv(text));
         if (!found.error) { imported = found; r = compute(found.csv, s); }
       }
-      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; return false; }
+      if (r.errors.length) { report.hidden = true; last = null; status.textContent = r.errors[0]; strip(`<span>${esc(r.errors[0])}</span>`); return false; }
       if (imported) r.findings = [...imported.checks, ...sheet.retainageChecks(imported, r), ...r.findings];
       last = { r, s };
       showImport(imported);
@@ -247,9 +259,11 @@
       $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</div>`).join("");
       $("#rows").innerHTML = r.lines.map((l) => `<tr><td>${esc(l.item)}</td><td>${esc(l.desc)}</td><td class="n" data-label="Scheduled">${dollars(l.c)}</td><td class="n" data-label="Previous">${dollars(l.d)}</td><td class="n" data-label="This period">${dollars(l.e)}</td><td class="n" data-label="Stored">${dollars(l.f)}</td><td class="n" data-label="Completed">${dollars(l.g)}</td><td class="n" data-label="Percent complete">${l.pct == null ? "" : pctText(l.pct)}</td><td class="n" data-label="Balance to finish">${dollars(l.balance)}</td><td class="n" data-label="Retainage">${dollars(l.ret)}</td></tr>`).join("");
       report.hidden = false;
+      const flagged = r.findings.filter((f) => f.severity !== "info").length;
+      strip(`<span>Payment due<b>${dollars(r.summary.due)}</b></span><span>Retainage held<b>${dollars(r.summary.retainage)}</b></span><span>${flagged ? `${flagged} finding${flagged > 1 ? "s" : ""}` : "No findings"}</span><a href="#report">Full result ↓</a>`);
       loadWorkbook().catch(() => {}); // warm the .xlsx writer for the download button below
       status.textContent = `${r.lines.length} lines read${imported ? ` from ${imported.header}` : ""}; ${r.findings.filter((f) => f.severity !== "info").length} finding(s) to look at.`;
-      report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+      if (!quiet) report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       return true;
     }
 
@@ -277,6 +291,17 @@
       }
       if (ok) record("schedule_calculated");
     });
+    // Live preview: once the box holds a schedule, editing it or any setting works the application out again
+    // after a pause. A chosen file still waits for the button (an .xlsx is read asynchronously). The preview
+    // records no usage event; only the buttons count.
+    let timer = 0;
+    const preview = async () => {
+      if ($("#file").files[0]) return;
+      const text = $("#paste").value;
+      if (!text.trim()) { report.hidden = true; last = null; strip(""); return; }
+      if (run(text, true) === null) { try { await loadSheet(); } catch { return; } run(text, true); }
+    };
+    $("#inputs").addEventListener("input", (e) => { if (e.target.id === "file") return; clearTimeout(timer); timer = setTimeout(preview, 300); });
     $("#file").addEventListener("change", () => { if (/\.(xlsx|xlsm)$/i.test($("#file").files[0]?.name || "")) loadSheet().catch(() => {}); });
     $("#load-ok").addEventListener("click", () => {
       $("#paste").value = sampleList(); $("#file").value = "";
@@ -287,7 +312,7 @@
       run($("#paste").value); record("example_loaded");
       status.textContent = "Worked example: a made-up renovation with two change orders, one of them deductive.";
     });
-    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; showImport(null); status.textContent = "Choose a file or paste the schedule, then click Work out the application."; });
+    $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; showImport(null); strip(""); status.textContent = "Choose a file and click Work out the application, or paste the schedule: the payment due updates as you type."; });
     $("#dl-summary").addEventListener("click", () => { if (last) { record("summary_downloaded"); download("pay-application-summary.txt", summaryText(last.r, last.s), "text/plain"); } });
     $("#dl-csv").addEventListener("click", () => { if (last) { record("csv_downloaded"); download("pay-application-schedule.csv", scheduleCsv(last.r), "text/csv"); } });
     const XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -314,7 +339,7 @@
       if (!n) return;
       record("next_period_started");
       $("#paste").value = n.csv; $("#file").value = ""; fill(n.settings);
-      report.hidden = true; last = null;
+      report.hidden = true; last = null; strip("");
       status.textContent = `Application ${n.settings.applicationNo || ""} started from the last one. Enter this period's work on each line, move any installed stored materials into This period, then click Work out the application. ${n.notes.join(" ")}`.replace(/\s+/g, " ");
       $("#inputs").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
     });

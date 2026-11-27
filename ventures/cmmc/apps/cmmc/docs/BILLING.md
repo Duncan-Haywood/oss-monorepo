@@ -34,7 +34,7 @@ hypotheses. Two changes from that row, both recorded there:
 
 `src/shared/plans.test.ts` fails CI when a paid plan falls under the 40% margin floor at full
 allowance. The cost model is deliberately pessimistic: every draft priced at Opus list prices with
-8k tokens in and the 4k-token cap out (about $0.11; the app runs on Haiku, about 40 times cheaper),
+20k tokens in and the 4k-token cap out (about $0.16; the app runs on Haiku, about 40 times cheaper),
 full evidence storage at R2's $0.015 per GB-month, $30 or $50 of the owner's support time per
 org-month, hosting, Paddle's 5% + $0.50 and a 3% refund reserve. Both paid plans clear the floor by
 a wide margin. `billing/paddle-catalog.json` is generated from `PLAN_LIST` (the same test fails
@@ -50,6 +50,12 @@ when it is stale; regenerate with `UPDATE_PADDLE_CATALOG=1`, see the test's head
   `policy.procedure_draft` (policy procedure) audit rows, so two drafts started at the same instant
   can both pass the last slot; one draft costs well under a cent on Haiku, so this is not guarded
   further.
+- **The service-wide daily AI cap** (`services/ai-capacity.ts`): after the plan's allowance, drafts
+  across every organization stop for the rest of the UTC day once they reach
+  `GLOBAL_DAILY_LLM_CAP_USD` (default $1.50, under the venture's $50 a month; `"0"` stops every
+  draft, `"off"` disables) at the configured model's worst-case price per draft: 429
+  `llm_capacity_exhausted`, before the model is called. Why and how it was sized:
+  [LAUNCH-REVIEW.md](LAUNCH-REVIEW.md), section 1.
 - **Evidence** over the plan's storage: 402 before the upload.
 - **A new member** over the user limit: 402.
 - **Nothing is ever hidden or deleted.** Reading every answer, the score, the SSP and its download,
@@ -81,9 +87,11 @@ rules. Checkout and the portal return to `/?tab=billing`.
 ## Turning it on (owner steps)
 
 1. Terms, privacy and refund pages with the liability notes (no certification claim, no CUI), which
-   Paddle's verification and the models row both require first. Done as drafts (2026-11-25,
-   `docs/legal/*.md`, served at `/legal/:key`); the owner confirms the operator name and contact
-   email and has counsel review them before launch. Give Paddle the `/legal/terms`,
+   Paddle's verification and the models row both require first. Done (2026-11-25, `docs/legal/*.md`,
+   served at `/legal/:key`), operator name confirmed 2026-11-26, and read against the code in the
+   launch review ([LAUNCH-REVIEW.md](LAUNCH-REVIEW.md), 2026-11-27) that `docs/legal/OPERATOR.md`
+   asks for instead of the owner's approval. No attorney has reviewed them, and nothing may say so.
+   Give Paddle the `/legal/terms`,
    `/legal/privacy` and `/legal/refunds` URLs on the cmmc host.
 2. The deploy workflow (`cmmc-deploy`, [DEPLOY.md](DEPLOY.md)) syncs `billing/paddle-catalog.json`
    to Paddle with `packages/billing/scripts/paddle-catalog.ts` and passes the price ids read back to
