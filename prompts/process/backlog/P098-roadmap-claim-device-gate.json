@@ -1,0 +1,26 @@
+{
+  "id": "P098",
+  "title": "roadmap_claim --bets sent every session to a Next ask only a physical device can check",
+  "status": "done",
+  "owner": "agent",
+  "effect": 2,
+  "cost": 1,
+  "problem": "payapps #11's only open ask without a demand gate was 'check it on a Windows PC and an Android phone with a real iPhone photo'. No gate phrase matched it, so --bets listed it as the one free item of bet #1 and named it 'Start here'; cloud sessions have headless Chromium on Linux, not those devices, and fell back to reading ROADMAPs by hand. Separately, jobshop-quote's Next numbered two items 15, and --claim 15 silently claimed the second (dict(items)).",
+  "evidence": [
+    "17 run records in prompts/runs/ mention 'Windows PC', 'Android phone' or 'real iPhone' (16 dated 2026-11-27), counted with a regex over the record text on 2026-11-27",
+    "promptctl.py measure, 'Doc friction by file', 2026-11-27: platform/ci/roadmap_claim.py 8 live reports in 3 days, the latest three naming payapps #11",
+    "apps/jobshop-quote/ROADMAP.md friction 2026-11-27T01:46: 'two items numbered 15 ... --claim 15 is ambiguous'"
+  ],
+  "change": "A 'waits on a device' gate (a check on a Windows PC, Mac, Android, iPhone or iPad, or on a 'real'/'physical' device; a bare 'on phones' stays free, since Playwright emulates it), and --claim N refused with the candidate slugs when N is used twice.",
+  "touches": [
+    "platform/ci/roadmap_claim.py",
+    "platform/ci/test_roadmap_claim.py"
+  ],
+  "metric": "run records' doc_friction naming roadmap_claim and a device-only item (Windows PC, Android, real iPhone) after the merge",
+  "baseline": "16 records on 2026-11-27 mentioned the device ask; --bets 'Start here' was payapps #11",
+  "opened": "2026-11-27",
+  "source": "process run (doc friction by file, roadmap_claim.py)",
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19738",
+  "result": null,
+  "history": []
+}

@@ -476,6 +476,19 @@ class ClaimRaceTest(unittest.TestCase):
         self.assertEqual(code, 2, out)
         self.assertIn("pass --slug", out)
 
+    def test_number_used_twice_needs_a_slug(self):
+        # jobshop-quote's Next numbered two items 15 (2026-11-27); --claim 15 took the second.
+        roadmap = self.a / "apps" / "payapps" / "ROADMAP.md"
+        roadmap.write_text("## Next\n\n15. Price lists, part 2: title block\n"
+                           "15. Price lists, part 2c: bar lengths\n")
+        code, out = self.main(self.a, "--claim", "15")
+        self.assertEqual(code, 2, out)
+        self.assertIn("numbered twice", out)
+        self.assertIn("--slug price-lists-part-2c", out)
+        code, out = self.main(self.a, "--claim", "15", "--slug", "price-lists-part-2c")
+        self.assertEqual(code, 0, out)
+        self.assertIn("CLAIMED claim/payapps/price-lists-part-2c", out)
+
     def test_bets_overview_skips_a_bet_with_nothing_free(self):
         bets = Path(self.tmp.name) / "bets.md"
         bets.write_text("| # | Bet | Where |\n|---|---|---|\n"
