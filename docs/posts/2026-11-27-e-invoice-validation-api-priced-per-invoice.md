@@ -3,7 +3,7 @@ title: "An e-invoice validation API for software vendors, priced per invoice: �
 seo_title: "XRechnung and ZUGFeRD validation API pricing, per invoice"
 date: 2026-11-27
 tags: [einvoice-preflight, for-customers, e-invoicing, xrechnung, factur-x, zugferd, peppol, api]
-description: "How the metered e-invoice API bills a software vendor: €19 monthly minimum, €1.40 per 1,000 clean invoices, €0.04 per invoice with errors explained, and plain validation with explain=0."
+description: "How the metered e-invoice API bills vendors: €19 minimum, €1.40 per 1,000 clean or plain-validated invoices, €0.04 per invoice with errors explained."
 ---
 
 If you sell invoicing or accounting software in Germany or France, your users
