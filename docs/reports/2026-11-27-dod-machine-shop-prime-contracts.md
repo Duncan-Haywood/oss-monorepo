@@ -1,3 +1,8 @@
+---
+kind: note
+date: 2026-11-27
+subjects: [cmmc, jobshop-quote]
+---
 # How many small machine shops hold DoD prime contracts (USAspending, read 2026-11-27)
 
 For bets #2 (Job Shop Quote) and #4 (CMMC workspace), which sell to the same small machine shops.
