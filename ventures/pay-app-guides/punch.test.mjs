@@ -79,3 +79,34 @@ test("CSV neutralises formula cells and keeps a GC initials column", () => {
   assert.match(csv, /'=HYPERLINK/);
   assert.match(csv, /'@room/);
 });
+
+// Red-team 2026-11-27: guards for mutants of punch.mjs that the suite let through.
+test("table errors name the spreadsheet row (header is row 1)", () => {
+  const r = compute("Item,Description,Listed\nP-1,Fix plate,2026-11-03\nP-2,,2026-11-03\nP-3,Seal,nope\n");
+  assert.deepEqual(r.errors, ["Row 3: no description.", 'Row 4: "nope" is not a date (use YYYY-MM-DD or MM/DD/YYYY).']);
+});
+
+test("pasted lines keep their order in line numbers", () => {
+  const r = compute("Fix plate\nSeal conduit\n");
+  assert.deepEqual(r.items.map((x) => x.line), [1, 2]);
+});
+
+test("P- numbers of up to four digits are dropped; longer ones stay as text", () => {
+  assert.equal(parseLines("P-0004 Label panel")[0].description, "Label panel");
+  assert.equal(parseLines("P-12345 Label panel")[0].description, "P-12345 Label panel");
+});
+
+test("no 'who accepted' finding when nobody on the list names an acceptor", () => {
+  const text = "Item,Description,Fixed,Accepted,Accepted by\nP-1,Fix plate,2026-11-07,2026-11-12,\n";
+  const r = compute(text, { asOf: "2026-11-20" });
+  assert.equal(r.findings.some((f) => /who accepted/.test(f.text)), false);
+  const named = compute(text + "P-2,Seal,2026-11-07,2026-11-12,M. Hill\n", { asOf: "2026-11-20" });
+  assert.equal(named.findings.some((f) => /1 accepted item does not say who accepted it/.test(f.text)), true);
+});
+
+test("the back-check email puts the date right under the subject", () => {
+  const r = compute(sampleItems(), SAMPLE_SETTINGS);
+  const lines = backCheckEmail(r, { date: "2026-11-20" }).split("\n");
+  assert.match(lines[0], /^Subject: /);
+  assert.equal(lines[1], "Date: 2026-11-20");
+});
