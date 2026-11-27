@@ -249,7 +249,7 @@ describe("PaddleBillingProvider.createCheckout", () => {
     });
     assert.equal(res.url, "https://pay.example/?_ptxn=txn_1");
     const txn = calls.find((c) => c.url.endsWith("/transactions"));
-    assert.ok(txn?.url.startsWith("https://sandbox-api.paddle.com"));
+    assert.equal(txn ? new URL(txn.url).origin : null, "https://sandbox-api.paddle.com");
     assert.deepEqual(txn?.body, {
       items: [{ price_id: "pri_st_y", quantity: 1 }],
       customer_id: "ctm_new",

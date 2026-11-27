@@ -287,7 +287,8 @@ export function renderSsp(input: SspInput): string {
     out.push("| Requirement | Weakness | Scheduled completion |");
     out.push("| --- | --- | --- |");
     for (const i of open) {
-      const cell = (s: string) => s.replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
+      const cell = (s: string) =>
+        s.replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
       out.push(`| ${i.controlId} | ${cell(i.weakness)} | ${i.scheduledCompletion} |`);
     }
   }
@@ -324,7 +325,8 @@ function renderPolicies(out: string[], policies: SspPolicy[]) {
   }
 }
 
-const tableCell = (s: string) => s.replace(/\|/g, "\\|").replace(/\r?\n/g, " ").trim();
+const tableCell = (s: string) =>
+  s.replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\r?\n/g, " ").trim();
 
 /** "### Asset inventory": one table per category that has assets, from the Assets tab. */
 function renderAssets(out: string[], assets: SspAsset[], diagram: string) {

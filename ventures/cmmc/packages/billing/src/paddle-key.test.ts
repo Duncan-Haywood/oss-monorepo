@@ -98,7 +98,8 @@ describe("probePaddleKey", () => {
     assert.equal(p.environment, "sandbox");
     assert.equal(p.baseUrl, "https://sandbox-api.paddle.com");
     assert.equal(keyProbeOk(p), true);
-    assert.ok(f.calls.every((c) => c.includes("sandbox-api.paddle.com")));
+    // Each call is "METHOD host/path": compare the host exactly, not as a substring.
+    assert.ok(f.calls.every((c) => c.split(" ")[1]?.split("/")[0] === "sandbox-api.paddle.com"));
     assert.equal(f.calls.length, 4);
   });
 

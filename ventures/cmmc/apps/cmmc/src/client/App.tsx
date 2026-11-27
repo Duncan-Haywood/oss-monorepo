@@ -302,7 +302,12 @@ function Workspace({ me }: { me: Me }) {
             <select
               className="rounded border border-stone-300 px-2 py-1 text-sm"
               value={orgId ?? ""}
-              onChange={(e) => setOrgId(e.target.value)}
+              onChange={(e) => {
+                // Take the id from the memberships the server sent, not the DOM value, so only a
+                // real organization id ever reaches the API paths built from it.
+                const picked = me.memberships.find((m) => m.id === e.target.value);
+                if (picked) setOrgId(picked.id);
+              }}
               aria-label="Organization"
             >
               {me.memberships.map((m) => (

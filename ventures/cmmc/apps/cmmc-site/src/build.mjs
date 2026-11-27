@@ -75,14 +75,24 @@ export const fileFor = (path) => (path === "/" ? "index.html" : `${path.slice(1)
 
 const pageUrl = (siteUrl, path) => (path === "/" ? `${siteUrl}/` : `${siteUrl}${path}`);
 
+/** Remove tags until none are left, so a nested or split tag cannot survive one pass. */
+const removeTags = (html, pattern, replacement) => {
+  let out = html;
+  for (let prev = ""; prev !== out; ) {
+    prev = out;
+    out = out.replace(pattern, replacement);
+  }
+  return out;
+};
+
 const stripTags = (html) =>
-  html
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&amp;/g, "&")
+  removeTags(html, /<[^>]+>/g, " ")
     .replace(/&nbsp;/g, " ")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/&quot;/g, '"')
+    // &amp; last, so "&amp;lt;" becomes "&lt;" (the text), not "<".
+    .replace(/&amp;/g, "&")
     .replace(/\s+/g, " ")
     .trim();
 
@@ -249,7 +259,7 @@ ${SOURCES.map((s) => `- [${s.title}](${s.url}): ${s.publisher}, cited ${s.checke
 export function htmlToText(html, siteUrl, base) {
   const abs = (href) =>
     href.startsWith("/") ? `${siteUrl}${href.slice(base.length) || "/"}` : href;
-  return html
+  const text = html
     .replace(
       /<a [^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g,
       (_, h, t) => `[${stripTags(t)}](${abs(h)})`,
@@ -261,10 +271,10 @@ export function htmlToText(html, siteUrl, base) {
     .replace(/<li[^>]*>/g, "\n- ")
     .replace(/<tr[^>]*>/g, "\n| ")
     .replace(/<\/t[dh]>/g, " |")
-    .replace(/<\/(p|ul|table|section|aside|div|form)>/g, "\n")
-    .replace(/<(?!\/?h\d)[^>]+>/g, "")
-    .replace(/&amp;/g, "&")
+    .replace(/<\/(p|ul|table|section|aside|div|form)>/g, "\n");
+  return removeTags(text, /<(?!\/?h\d)[^>]+>/g, "")
     .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, "&")
     .replace(/[ \t]+/g, " ")
     .replace(/\n /g, "\n")
     .replace(/\n{3,}/g, "\n\n")

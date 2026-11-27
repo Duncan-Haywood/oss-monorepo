@@ -229,7 +229,8 @@ export async function unlinkEvidenceEverywhere(ctx: AppContext, orgId: string, e
     );
 }
 
-const cell = (s: string) => s.replace(/\|/g, "\\|").replace(/\r?\n/g, " ").trim();
+const cell = (s: string) =>
+  s.replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\r?\n/g, " ").trim();
 
 /** Markdown gap report: readiness by section, then every clause with status, notes and evidence. */
 export function renderQualityReport(

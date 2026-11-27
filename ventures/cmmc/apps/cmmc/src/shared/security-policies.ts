@@ -179,7 +179,7 @@ export function renderPolicyDocument(p: PolicyDocumentInput): string {
   out.push(`| | |`);
   out.push(`| --- | --- |`);
   const row = (k: string, v: string) =>
-    out.push(`| ${k} | ${v.replace(/\|/g, "\\|").replace(/\r?\n/g, " ")} |`);
+    out.push(`| ${k} | ${v.replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\r?\n/g, " ")} |`);
   row("Organization", p.orgName);
   row("Family", `${FAMILIES[p.family]} (${p.family}), NIST SP 800-171 Rev. 2`);
   row(
@@ -226,7 +226,8 @@ export function renderPolicyManual(
   const byFamily = new Map(docs.map((d) => [d.family, d]));
   for (const f of POLICY_FAMILIES) {
     const d = byFamily.get(f);
-    const cell = (s: string) => s.replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
+    const cell = (s: string) =>
+      s.replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/\r?\n/g, " ");
     out.push(
       d
         ? `| ${f} | ${cell(d.title)} | ${d.version} | ${d.status === "approved" ? `Approved ${d.approvedOn ?? ""}`.trim() : "Draft"} | ${d.reviewDue ?? "—"} |`
