@@ -8,7 +8,7 @@
 //
 // The most important case is not synthetic. `catches the real defect at the
 // revisions where it actually shipped` runs the checker over the exact
-// `cut-list-optimizer/index.html` blobs from git history — the three commits
+// `cut-list-optimizer/index.html` blobs that shipped (pinned by git blob id under fixtures/) — the three commits
 // where the calculator was live and non-functional, and the commit that
 // repaired it. If a future change to the parser stops catching that, this test
 // fails with the real file rather than a hand-written approximation of it.
@@ -16,30 +16,66 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { checkPageIntegrity, parsePage, declaredIds, queriedIds, stripComments } from './page-integrity.mjs';
 import { readHistoryBlob, isShallowClone } from './history-blob.mjs';
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 
 const REPO = new URL('../../', import.meta.url).pathname;
 
-/**
- * Read every revision of `path` these history-pinned tests need.
- *
- * Returns a Map rev -> content, or `null` after skipping the test when this
- * clone is shallow and therefore does not carry the blobs. See history-blob.mjs
- * for why a skip is right there and wrong in a full clone: in a full clone the
- * read throws and the test fails, which is what should happen if the history
- * these tests pin themselves to ever goes away.
- */
-function readHistoryBlobs(t, revisions, path) {
+// The history-pinned tests below run over the exact blobs that shipped, kept
+// as files under fixtures/ so CI can check out one commit instead of the
+// repository's whole history (docs/history/ci-perf-2026-11-27-page-integrity-shallow.md).
+// Each file is pinned by its git blob id: a fixture that differs from the real
+// blob by one byte fails `pinned fixtures are byte-identical to the shipped
+// blobs`, and where the clone carries the history that test also reads
+// `<rev>:<path>` from git and compares.
+const FIXTURES = new URL('./fixtures/', import.meta.url);
+const PINNED = [
+  { rev: '1a8feb3', path: 'ventures/cut-list-optimizer/index.html', blob: '02359946f54050fa9a74eab09af5c4a0a7a09fc9', file: 'cut-list-optimizer-1a8feb3.html.blob' },
+  { rev: 'a702ff4', path: 'ventures/cut-list-optimizer/index.html', blob: 'a5ca38b8face0c8114fb410d1b72be7683fbec07', file: 'cut-list-optimizer-a702ff4.html.blob' },
+  { rev: '58d9b65', path: 'ventures/cut-list-optimizer/index.html', blob: 'cb92949e83cc62f2c3327813943cb470b21a3e75', file: 'cut-list-optimizer-58d9b65.html.blob' },
+  { rev: '4d4e6f0', path: 'ventures/cut-list-optimizer/index.html', blob: '810f7e22cecbb695c05b16e3f50fbe66cc661ef3', file: 'cut-list-optimizer-4d4e6f0.html.blob' },
+  { rev: '6ccd73c^', path: 'ventures/3pl-quote-normalizer/index.html', blob: 'a42123ce0a1d77600c353b090b58bedc75b5c284', file: '3pl-quote-normalizer-6ccd73c-parent.html.blob' },
+  { rev: '6ccd73c', path: 'ventures/3pl-quote-normalizer/index.html', blob: '48df1ec87ca890f9a53b1b85eb796bbc16660967', file: '3pl-quote-normalizer-6ccd73c.html.blob' },
+];
+
+/** git's blob id for these bytes: sha1 over "blob <length>\0" + content. */
+function gitBlobId(bytes) {
+  return createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
+}
+
+/** The pinned fixture's bytes, refusing any that are not the real blob. */
+function readPinned(entry) {
+  const bytes = readFileSync(new URL(entry.file, FIXTURES));
+  assert.equal(gitBlobId(bytes), entry.blob, `fixtures/${entry.file} is not ${entry.rev}:${entry.path}`);
+  return bytes.toString('utf8');
+}
+
+/** Map rev -> content for every revision of `path` a history-pinned test needs. */
+function readHistoryBlobs(revisions, path) {
   const blobs = new Map();
   for (const rev of revisions) {
-    const result = readHistoryBlob(REPO, rev, path);
-    if (!result.ok) {
-      t.skip(result.reason);
-      return null;
-    }
-    blobs.set(rev, result.content);
+    const entry = PINNED.find((e) => e.rev === rev && e.path === path);
+    assert.ok(entry, `no pinned fixture for ${rev}:${path}`);
+    blobs.set(rev, readPinned(entry));
   }
   return blobs;
 }
+
+test('pinned fixtures are byte-identical to the shipped blobs', (t) => {
+  for (const entry of PINNED) readPinned(entry);
+  // With history present (a full or deepened clone), check against git itself
+  // too. A shallow clone lacks these commits; the blob ids above still pin
+  // the bytes, so only this cross-check is skipped there.
+  if (isShallowClone(REPO)) {
+    t.diagnostic('shallow clone: blob ids checked, git cross-check skipped');
+    return;
+  }
+  for (const entry of PINNED) {
+    const result = readHistoryBlob(REPO, entry.rev, entry.path);
+    assert.ok(result.ok, result.reason);
+    assert.equal(result.content, readPinned(entry), `${entry.rev}:${entry.path} differs from fixtures/${entry.file}`);
+  }
+});
 
 /** A minimal but realistic page in the shape the portfolio's products use. */
 function page({ body = '', script = '' } = {}) {
@@ -988,8 +1024,7 @@ test('catches the real defect at the revisions where it actually shipped', (t) =
   // The calculator was live and completely non-functional at the first three.
   const brokenRevisions = ['1a8feb3', 'a702ff4', '58d9b65'];
   const repaired = '4d4e6f0';
-  const blobs = readHistoryBlobs(t, [...brokenRevisions, repaired], 'ventures/cut-list-optimizer/index.html');
-  if (!blobs) return;
+  const blobs = readHistoryBlobs([...brokenRevisions, repaired], 'ventures/cut-list-optimizer/index.html');
   const read = (rev) => blobs.get(rev);
 
   for (const rev of brokenRevisions) {
@@ -1058,8 +1093,7 @@ test('a src-only script has no body to parse and passes', () => {
 test('catches the 3PL syntax defect at the revision where it actually shipped', (t) => {
   // Again the real blobs, not a reconstruction: the commit that repaired the
   // calculator and its parent, where the page was live and completely dead.
-  const blobs = readHistoryBlobs(t, ['6ccd73c^', '6ccd73c'], 'ventures/3pl-quote-normalizer/index.html');
-  if (!blobs) return;
+  const blobs = readHistoryBlobs(['6ccd73c^', '6ccd73c'], 'ventures/3pl-quote-normalizer/index.html');
   const read = (rev) => blobs.get(rev);
 
   const findings = checkPageIntegrity(read('6ccd73c^'));
