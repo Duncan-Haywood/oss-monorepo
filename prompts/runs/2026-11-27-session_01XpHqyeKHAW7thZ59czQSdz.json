@@ -30,7 +30,8 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "A heredoc writing a test file was refused by the rm-safety check because the file's text contained rmSync; rewrote it with the Write tool."
+    "A heredoc writing a test file was refused by the rm-safety check because the file's text contained rmSync; rewrote it with the Write tool.",
+    "codeql gate (javascript-typescript) failed on js/incomplete-url-substring-sanitization: a test asserted llms.txt with includes('https://seller-books.marisstella.app/signup'); replaced with anchored regexes in both tests."
   ],
   "integrity_issues": [
     "Fixed two stale claims on the Seller Books site: 'Nine platforms' (ten are listed) and a FAQ promising a direct platform connection the app does not have."

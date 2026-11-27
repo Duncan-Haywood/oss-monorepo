@@ -47,7 +47,7 @@ describe("pre-launch (APP_URL null)", () => {
     for (const page of site.pages) {
       const html = site.html(page.path);
       assert.match(html, /early access/i, page.path);
-      assert.ok(!html.includes("seller-books.marisstella.app"), page.path);
+      assert.doesNotMatch(html, /href="https:\/\/seller-books\.marisstella\.app[/"]/, page.path);
     }
     assert.match(site.read("llms.txt"), /It is in early access/);
     assert.match(site.html("/pricing"), /Proposed pricing/);

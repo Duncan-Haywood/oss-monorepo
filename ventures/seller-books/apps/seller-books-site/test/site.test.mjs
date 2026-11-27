@@ -156,7 +156,7 @@ describe("crawler files", () => {
     assert.match(txt, /^# Seller Books\n\n> /);
     assert.match(txt, /open now/);
     assert.match(txt, /not on sale yet/);
-    assert.ok(txt.includes("https://seller-books.marisstella.app/signup"));
+    assert.match(txt, /Sign up at https:\/\/seller-books\.marisstella\.app\/signup\./);
     assert.ok(!txt.includes("/early-access)"), "no link to the closed list");
     assert.match(txt, /not a tax adviser/);
     assert.match(txt, /working name/);
