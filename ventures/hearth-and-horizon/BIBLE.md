@@ -387,6 +387,8 @@ before writing the first scene.
 
 **For Other Minds**
 
+- *The board by the door* *(Drafting, 2026-11-27.)* (Hawthorne; proposed 2026-11-27): a Tralee parish hall's food cupboard gets new dimmable LED panels, and the parish agent, starting a tally board by the door to measure them, reports parcels per volunteer-hour up 28 per cent. The coordinator's "no" (the rota hours were never the hours worked), a dim/lit alternation with the board still up that cannot tell the lights apart, and two weeks with the board down that fall back to the corrected baseline. The real Hawthorne illumination tests and the weaker effect found in their recovered data (Levitt and List, 2011) told without overclaiming either way. The lights stay because an old volunteer can read the dates on the tins.
+
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
