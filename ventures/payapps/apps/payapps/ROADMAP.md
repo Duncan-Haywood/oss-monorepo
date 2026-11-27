@@ -2080,6 +2080,11 @@ this repository's GitHub Actions starts no jobs; it runs once the CodeBuild runn
 - Owner: an Intuit developer app, its keys and redirect URI, and `QBO_TOKEN_KEY`
   (docs/QUICKBOOKS.md, "Turning it on"); check one invoice in a sandbox company first
 - Marketing site with the pricing table (`apps/payapps-site`, PR #18) reading `/api/billing/plans`
+- At launch, point the free guides at sign-up: set `APP_URL` in `ventures/pay-app-guides/cta.mjs` to the
+  deployed origin and run `node cta.mjs` there (30 pages' CTAs switch from "in development" to "open
+  now, free on one job" and link to `/?signup&from=pay-app-guides/<page>`, which opens "Create an
+  account", `src/client/lib/auth-mode.ts`); set `PAID_PLANS_ON` once checkout is live. Update the
+  "Can I buy the pay-app suite today?" answer in `platform/pages/industry-construction.mjs` the same day
 
 ## Next (suite, by promise)
 
