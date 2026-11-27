@@ -22,18 +22,47 @@ export const UNIT_PRESETS = Object.freeze([
   { id: 'trailer', label: 'Restroom trailer', rentPerDay: 280, serviceEach: 90 },
 ]);
 
-// People per restroom as a *starting estimate* for event planning, by how
-// long the event runs. Longer events and alcohol raise usage; the yard still
-// decides what they send. This is not a code table and is not a determination
-// that an event is or is not adequately served.
-export const PEOPLE_PER_UNIT_BY_HOURS = Object.freeze([
-  { maxHours: 4, peoplePerUnit: 50 },
-  { maxHours: 6, peoplePerUnit: 40 },
-  { maxHours: 8, peoplePerUnit: 30 },
-  { maxHours: 10, peoplePerUnit: 25 },
-  { maxHours: 12, peoplePerUnit: 20 },
-  { maxHours: Infinity, peoplePerUnit: 16 },
-]);
+// PSAI Special Event Chart, Extended Breakdown: restrooms required when no
+// pumping service is provided, 50/50 mix of men and women, one unit taking
+// about 200 uses with 4 hours between uses. Rows are average crowd size;
+// columns are average hours at the event, 1 to 10. Source: Portable
+// Sanitation Association International (independent study by the Center of
+// Business and Industrial Studies, University of Missouri-St. Louis), copy at
+// https://www.henniker.org/sites/g/files/vyhlif5391/f/uploads/portable_sanitation_chart.pdf
+// Transcribed verbatim; calc.test.mjs pins every row. It is an industry
+// planning chart, not a health-code table: local rules and venues may require
+// more, and the yard still decides what it sends.
+export const PSAI_SPECIAL_EVENT_CHART = Object.freeze([
+  [500, [2, 4, 4, 5, 6, 7, 9, 9, 10, 12]],
+  [1000, [4, 6, 8, 8, 9, 9, 11, 12, 13, 13]],
+  [2000, [5, 6, 9, 12, 14, 16, 18, 20, 23, 25]],
+  [3000, [6, 9, 12, 16, 20, 24, 26, 30, 34, 38]],
+  [4000, [8, 13, 16, 22, 25, 30, 35, 40, 45, 50]],
+  [5000, [12, 15, 20, 25, 31, 38, 44, 50, 56, 63]],
+  [10000, [15, 25, 38, 50, 63, 75, 88, 100, 113, 125]],
+  [15000, [20, 38, 56, 75, 94, 113, 131, 150, 169, 188]],
+  [20000, [25, 50, 75, 100, 125, 150, 175, 200, 225, 250]],
+  [25000, [38, 69, 99, 130, 160, 191, 221, 252, 282, 313]],
+  [30000, [46, 82, 119, 156, 192, 229, 266, 302, 339, 376]],
+  [35000, [53, 96, 139, 181, 224, 267, 310, 352, 395, 438]],
+  [40000, [61, 109, 158, 207, 256, 305, 354, 403, 452, 501]],
+  [45000, [68, 123, 178, 233, 288, 343, 398, 453, 508, 563]],
+  [50000, [76, 137, 198, 259, 320, 381, 442, 503, 564, 626]],
+  [55000, [83, 150, 217, 285, 352, 419, 486, 554, 621, 688]],
+  [60000, [91, 164, 237, 311, 384, 457, 531, 604, 677, 751]],
+  [65000, [98, 177, 257, 336, 416, 495, 575, 654, 734, 813]],
+  [70000, [106, 191, 277, 362, 448, 533, 619, 704, 790, 876]],
+  [75000, [113, 205, 296, 388, 480, 571, 663, 755, 846, 938]],
+  [80000, [121, 218, 316, 414, 512, 609, 707, 805, 903, 1001]],
+  [85000, [128, 232, 336, 440, 544, 647, 751, 855, 959, 1063]],
+  [90000, [136, 246, 356, 466, 576, 686, 796, 906, 1016, 1126]],
+  [95000, [143, 259, 375, 491, 607, 724, 840, 956, 1072, 1188]],
+  [100000, [151, 273, 395, 517, 639, 762, 884, 1006, 1128, 1251]],
+].map(([crowd, units]) => Object.freeze({ crowd, units: Object.freeze(units) })));
+
+// PSAI's public brochure: "If you are serving alcohol at your event, add
+// 10-20 percent more units." The tool takes the top of that range.
+export const ALCOHOL_UPLIFT = 0.2;
 
 function number(value, name, { min = 0, allowZero = true } = {}) {
   const result = Number(value);
@@ -44,35 +73,67 @@ function number(value, name, { min = 0, allowZero = true } = {}) {
 }
 
 /**
- * Starting people-per-restroom figure for a given event length.
- * Alcohol shortens the figure by 20% (more units), which is a common
- * planning adjustment — not a health-department rule.
+ * Restrooms from the PSAI Special Event Chart for a crowd and event length.
+ *
+ * Hours round up to a whole column (a 4.5-hour event reads the 5-hour
+ * column); under one hour reads the 1-hour column. A crowd between two chart
+ * rows is interpolated linearly between them; below 500 or above 100,000, the
+ * nearest row is scaled in proportion to the crowd; past 10 hours, the
+ * 10-hour column is scaled by hours / 10 (the chart stops at 10 hours, and an
+ * event that long usually gets a service visit instead). Those three cases
+ * are outside the chart and are reported as `withinChart: false`. Alcohol
+ * adds ALCOHOL_UPLIFT. The result rounds up, with a floor of one unit.
  */
-export function peoplePerUnit({ eventHours, alcohol = false } = {}) {
+export function psaiRestrooms({ attendees, eventHours, alcohol = false } = {}) {
+  const heads = number(attendees ?? 0, 'Attendees');
   const hours = number(eventHours ?? 0, 'Event hours');
-  const row = PEOPLE_PER_UNIT_BY_HOURS.find(entry => hours <= entry.maxHours);
-  const base = row.peoplePerUnit;
-  return alcohol ? base * 0.8 : base;
+  if (heads === 0) return { restroomUnits: 0, withinChart: true };
+  const column = Math.min(10, Math.max(1, Math.ceil(hours)));
+  const at = row => row.units[column - 1];
+  const rows = PSAI_SPECIAL_EVENT_CHART;
+  const first = rows[0];
+  const last = rows[rows.length - 1];
+  let units;
+  let withinChart = hours <= 10;
+  if (heads <= first.crowd) {
+    units = at(first) * heads / first.crowd;
+    if (heads < first.crowd) withinChart = false;
+  } else if (heads >= last.crowd) {
+    units = at(last) * heads / last.crowd;
+    if (heads > last.crowd) withinChart = false;
+  } else {
+    const upper = rows.findIndex(row => row.crowd >= heads);
+    const lo = rows[upper - 1];
+    const hi = rows[upper];
+    units = at(lo) + (at(hi) - at(lo)) * (heads - lo.crowd) / (hi.crowd - lo.crowd);
+  }
+  if (hours > 10) units *= hours / 10;
+  if (alcohol) units *= 1 + ALCOHOL_UPLIFT;
+  // Round away float noise before the ceiling: 9 * 1.2 must stay 10.8 -> 11,
+  // and 5 * 200 / 500 must stay exactly 2.
+  const restroomUnits = Math.max(1, Math.ceil(Math.round(units * 1e9) / 1e9));
+  return { restroomUnits, withinChart };
 }
 
 /**
- * A starting fleet the yard can accept or override. Accessible units are
- * suggested as at least one whenever any restrooms go out, and at least 5%
- * of the restroom count — a common planning split, not an ADA determination.
- * Handwash stations are suggested only when the event serves food.
+ * A starting fleet the yard can accept or override, sized from the PSAI
+ * Special Event Chart. Accessible units are suggested as at least one whenever
+ * any restrooms go out, and at least 5% of the restroom count (the ADA rule is
+ * 5%, not less than one, *per cluster*: a site with several clusters needs
+ * more) — a planning split, not an ADA determination. Handwash stations are
+ * suggested only when the event serves food.
  */
 export function suggestFleet({ attendees, eventHours, alcohol = false, foodService = false } = {}) {
   const heads = number(attendees ?? 0, 'Attendees');
-  const ppu = peoplePerUnit({ eventHours, alcohol });
-  if (heads === 0) {
-    return { peoplePerUnit: ppu, restroomUnits: 0, standard: 0, ada: 0, handwash: 0 };
+  const { restroomUnits, withinChart } = psaiRestrooms({ attendees: heads, eventHours, alcohol });
+  if (restroomUnits === 0) {
+    return { peoplePerUnit: null, restroomUnits: 0, standard: 0, ada: 0, handwash: 0, withinChart, source: 'PSAI Special Event Chart' };
   }
-  if (ppu === 0) throw new Error('People per unit must be greater than zero');
-  let restroomUnits = Math.ceil(heads / ppu);
-  const ada = restroomUnits === 0 ? 0 : Math.max(1, Math.ceil(restroomUnits * 0.05));
+  const ada = Math.max(1, Math.ceil(restroomUnits * 0.05));
   const standard = Math.max(0, restroomUnits - ada);
   const handwash = foodService ? Math.max(1, Math.ceil(restroomUnits / 4)) : 0;
-  return { peoplePerUnit: ppu, restroomUnits, standard, ada, handwash };
+  const peoplePerUnit = Math.round(heads / restroomUnits);
+  return { peoplePerUnit, restroomUnits, standard, ada, handwash, withinChart, source: 'PSAI Special Event Chart' };
 }
 
 /**
