@@ -121,9 +121,9 @@ Not covered yet: attaching the mail log or tracking printout to each record (Cal
 already take files), § 713.18(3)'s rule for a notice returned "refused" or "unclaimed", and the
 combined notice to contractor on bonded and public jobs (§ 255.05, § 713.23).
 
-PayApps is in early access: pay applications, retainage, change orders, lien waivers, preliminary
-notices and QuickBooks for subcontractors. [See what is built and join the early access
-list](https://marisstella.app/industries/construction/). This is general information about the
+PayApps is open: pay applications, retainage and change orders are free on one active job, with no
+card ([start free](https://marisstella.app/industries/construction/)). The Notice to Owner log, lien waivers and QuickBooks are on the
+paid plans (Crew and up), which are not on sale yet. This is general information about the
 statute's text, not legal advice. Whether a notice is required on your job, and who must get it,
 depends on your contract chain, so check with a Florida construction attorney when the money
 matters.

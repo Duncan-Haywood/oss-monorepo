@@ -105,5 +105,5 @@ close-out checklist on every job, on every plan:
 - once nothing stands in the way, an email to the GC's project manager asking for the release,
   drafted from what you entered.
 
-The product is in early access and nothing is for sale yet:
-[construction tools and early access](https://marisstella.app/industries/construction/).
+PayApps is open: free on one active job, with no card. [Start free](https://marisstella.app/industries/construction/).
+The paid plans (more jobs and users, lien waivers, QuickBooks and job costing) are not on sale yet.

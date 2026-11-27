@@ -3,6 +3,7 @@ title: "A three-week lookahead for subcontractors: one job for the GC, every job
 seo_title: "Three-week lookahead for subcontractors, and a crew lookahead"
 date: 2026-11-27
 tags: [for-customers, payapps, construction, schedule, lookahead, pay-app-guides]
+folded_into: writing/subcontractor-three-week-lookahead/
 description: "What a subcontractor's three-week lookahead should show the GC, how to move it when the GC slips, and where every crew is next week."
 ---
 
