@@ -10,7 +10,8 @@ stage: prototype
 owner: duncan
 
 # Bet #4 in portfolio/monetization/bets.md. Moved from private-monorepo on 2026-11-27 (task
-# move-cmmc-public); not deployed yet (DEPLOY.md). Free front doors: ventures/machine-shop-guides
+# move-cmmc-public); live at https://cmmc.marisstella.app since cmmc-deploy run 46022366507
+# (2026-11-27, DEPLOY.md), free Level 1 plan only. Free front doors: ventures/machine-shop-guides
 # (CMMC pages) and apps/cmmc-site's SPRS score calculator.
 hypotheses:
   - claim: Small defense and aerospace shops will pay about $249 a month to prepare their CMMC Level 2 SSP, POA&M and SPRS score in-house instead of hiring a consultant.
@@ -29,5 +30,5 @@ kill_criteria:
   - No paying customer after 90 days post-launch.
   - Monthly cost exceeds MRR for 3 consecutive months past `revenue` stage.
 links:
-  production: null
+  production: https://cmmc.marisstella.app
   analytics: null

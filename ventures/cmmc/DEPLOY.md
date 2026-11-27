@@ -45,14 +45,31 @@ Payments: the Paddle webhook is served by the app's own Worker, so nothing payme
 in `private-monorepo` except owner checklists. The app deploys with a Cloudflare token, not the
 payments account's OIDC trust, so that trust is not affected.
 
+## First deploy (2026-11-27, run 46022366507)
+
+Dispatched on `main` at `bae2bd14` (after PR #19771, evidence in D1 without R2). Checks, build,
+provisioning, D1 migrations, the Paddle catalog step (a no-op with billing off), the deploy and the
+AUTH_SECRET step all passed, and the Worker attached the default custom domain:
+`https://cmmc.marisstella.app/api/health` answered
+`{"ok":true,"app":"cmmc-workspace","billing":false,"email":true,"files":"d1"}`. So sign-up email
+works, evidence files are kept in D1 (no R2 bucket; add R2 edit to the token before shops fill it),
+paid plans are dark (no `CMMC_BILLING_*`), and AI drafts are off (no `CMMC_ANTHROPIC_API_KEY`: "Draft"
+answers that drafting is not configured). A second dispatch a second later (run 46022369260) was
+cancelled by the workflow's concurrency group before it started.
+
+Front doors since then: the 21 machine-shop guides (`ventures/machine-shop-guides/cta.mjs`), the
+products page and the manufacturing tool doors link to `/?signup&from=<page>`, which opens "Create an
+account" (`apps/cmmc/src/client/lib/auth-mode.ts`). That change reaches the live app on the next
+deploy: the workflow is manual, so dispatch it once more after the PR that carries it merges.
+
 ## Then
 
 The product side of launch is reviewed: [`apps/cmmc/docs/LAUNCH-REVIEW.md`](apps/cmmc/docs/LAUNCH-REVIEW.md)
 (2026-11-27, PR #19734), the record `docs/legal/OPERATOR.md` asks for before an agent deploys and
 opens sign-ups.
 
-1. Deploy once by hand; `/api/health` answers ok. Record the run here, as
-   `ventures/seller-books/DEPLOY.md` does.
+1. Done 2026-11-27 ("First deploy" above). Next: add `push: branches: [main]` with a paths filter
+   after a second good run, as `priv-payapps-deploy.yml` does.
 2. Remove `private-monorepo/apps/cmmc` and `apps/cmmc-site` in a private PR, repoint
    `portfolio/monetization/bets.md` ("Where it is built") and the `private-monorepo/apps/cmmc` row
    key in `portfolio/monetization/models.yaml`.

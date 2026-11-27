@@ -3,6 +3,14 @@
 Bet #4 in the public repository's `portfolio/monetization/bets.md`. Claim an item before building it:
 `python3 platform/ci/roadmap_claim.py cmmc` (in the public repository) lists the Next items below.
 
+Status: **live on the free Level 1 plan** (2026-11-27). First production deploy: cmmc-deploy run
+46022366507 (manual, main at bae2bd14), straight onto https://cmmc.marisstella.app; `/api/health`
+answered `{"ok":true,"app":"cmmc-workspace","billing":false,"email":true,"files":"d1"}`. AI drafts are
+off (no `CMMC_ANTHROPIC_API_KEY`, the owner's choice), Level 2 and Level 2 + Quality are dark (no
+Paddle secrets), evidence is kept in D1. The machine-shop guides, the products page and the
+manufacturing tool doors link to `/?signup&from=<page>` (`src/client/lib/auth-mode.ts`, 2026-11-27).
+No customers yet ([../../DEPLOY.md](../../DEPLOY.md), "First deploy").
+
 ## Done
 
 - Account email (2026-11-25): confirm the address at sign-up (sign-in refused until then), reset a

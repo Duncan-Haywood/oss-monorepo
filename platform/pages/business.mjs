@@ -281,8 +281,12 @@ export const PRODUCT_LINES = Object.freeze([
       'Fitting new work around the jobs already on the floor',
     ],
     product: 'RFQ in, priced quote out, using your shop’s own rates and setup times.',
-    status: 'early-access',
+    status: 'open-free',
     href: null,
+    appName: 'Job Shop Quote',
+    // Deployed from ventures/jobshop-quote (jobshop-quote-deploy run 46018975911, 2026-11-27); the same
+    // origin as ventures/machine-shop-guides/cta.mjs. Its router serves sign-up at /sign-up.
+    appUrl: 'https://jobshop-quote.marisstella.app/sign-up?from=products',
     industry: 'manufacturing',
     kind: 'software',
     tools: ['cnc-machining-quote-calculator', 'job-shop-scheduler'],
@@ -303,6 +307,27 @@ export const PRODUCT_LINES = Object.freeze([
     industry: 'eu-e-invoicing',
     kind: 'software',
     tools: ['einvoice-preflight'],
+  }),
+  line({
+    id: 'cmmc-workspace',
+    name: 'CMMC and ISO 9001 paperwork',
+    customer: 'Small defense and aerospace machine shops',
+    problems: [
+      'Writing the System Security Plan and POA&M without a consultant',
+      'Knowing your SPRS score and which open requirements cost the most points',
+      'Keeping the yearly affirmation and its evidence current',
+      'Keeping ISO 9001 records beside the security work',
+    ],
+    product: 'CMMC Level 1 and Level 2 self-assessment and ISO 9001 records in one workspace. It does not certify anyone.',
+    status: 'open-free',
+    href: null,
+    appName: 'CMMC Workspace',
+    // Deployed from ventures/cmmc (cmmc-deploy run 46022366507, 2026-11-27; ventures/cmmc/DEPLOY.md).
+    // `?signup` opens "Create an account" (apps/cmmc/src/client/lib/auth-mode.ts).
+    appUrl: 'https://cmmc.marisstella.app/?signup&from=products',
+    industry: 'manufacturing',
+    kind: 'software',
+    tools: ['machine-shop-guides'],
   }),
   line({
     id: 'seller-books',

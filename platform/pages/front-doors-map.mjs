@@ -37,8 +37,8 @@ const BUSINESS_CATEGORIES = ['trades', 'sales', 'backoffice', 'bookkeeping', 'ev
  * The five industry pages (owned by the hub's renderers, not this file) and
  * what may honestly be said about the product behind each. Every product is
  * "in development — early access" except Grant Autopilot, which is live, and
- * PayApps and Seller Books, which are open on a free plan with paid plans not
- * on sale (business.mjs, status 'open-free'); none of them is the free tool
+ * PayApps, Seller Books, Job Shop Quote and CMMC Workspace, which are open on a
+ * free plan with paid plans not on sale (business.mjs, status 'open-free'); none of them is the free tool
  * the line sits on (`note`). `open: true` changes the link from "see what is
  * being built" to "start free".
  */
@@ -60,8 +60,11 @@ export const INDUSTRIES = {
   },
   manufacturing: {
     label: 'Manufacturing',
-    product: 'RFQ-to-quote for CNC and fabrication job shops, and a CMMC and ISO 9001 workspace for small defense suppliers',
-    status: 'In development — early access',
+    product: 'Job Shop Quote, RFQ-to-quote for CNC and fabrication job shops, and CMMC Workspace for small defense suppliers (CMMC Level 1/2, ISO 9001)',
+    // Both deployed 2026-11-27 (jobshop-quote-deploy run 46018975911, cmmc-deploy run 46022366507);
+    // free plans only, paid plans not on sale (ventures/machine-shop-guides/cta.mjs states each plan).
+    status: 'Open — free on Level 1 or 40 RFQs a month',
+    open: true,
     slugs: [
       'cnc-machining-quote-calculator', 'job-shop-scheduler', 'laser-cutting-engraving-job-price-calculator', 'powder-coating-job-price-calculator',
       'mobile-welding-job-price-calculator', 'spc-control-charts', 'assembly-line-balancer', 'dxf-nesting', '3d-print-price-calculator',

@@ -47,3 +47,33 @@ The page now lists every objective under its requirement, and the shop marks eac
 **The renewal dates go on the calendar, not in a spreadsheet nobody opens.** Knowing that a plater's affirmation runs out in March helps only if someone sees it in February. So each supplier's "current through" dates now go into the workspace's calendar file. That is the same file, and the same private subscription link, that already carries the shop's own affirmation dates, policy reviews and training refreshers. There are two kinds of date per supplier, because the clause's definition has two clocks. One is the last day the CMMC status itself is current: 180 days for a Conditional status, one year for Final Level 1 (Self), three years for Final Level 2 or 3. The other is the last day the yearly affirmation is current. Each one sits on its date as an all-day event, with alarms 60 and 7 days ahead, which leaves time to ask the supplier for a new affirmation before the next order goes out. The events say how many suppliers fall on each date ("supplier affirmation: 2 suppliers") and never name them. Someone who gets hold of the link learns dates, not the shop's supply chain. The Suppliers tab, behind the sign-in, says which suppliers. The dashboard has a matching Suppliers card. It lists the suppliers that are no longer current first, then those running out within 60 days, then those still missing a status or a date, and shows how many of the suppliers the clause applies to have no open gap. Suppliers that only get COTS items, or orders with no FCI or CUI, stay off both. The workspace is still not for sale.
 
 **Who has been trained, and where the SSP says so.** At Level 2, five requirements are about people, not machines. Under NIST SP 800-171 3.2.1 to 3.2.3, everyone gets security awareness and insider threat training, and the people with security duties get training for those duties. Under 3.9.1 and 3.9.2, people are screened before they get access to systems that hold CUI, and their access is removed when they leave or move to another role. An assessor asks for the records behind each one. In a small shop those records are usually a spreadsheet and a folder of certificates. The workspace in development now has a People tab for them. It keeps each person's job title, whether they have CUI access and security duties (and which duties), when and how they were screened (the method, not the result), when access was granted, the date of each of the three trainings, and when access was removed after someone leaves. NIST sets no refresher interval, so the shop picks one (6, 12, 24 or 36 months, 12 by default) and the page says that this is the shop's choice. The tab flags every gap and names its requirement: a training missing or overdue, no screening date, screening after access was granted, nobody marked with security duties, a departure with no removal date. A roster or a training provider's completion report can be imported, and a training date only ever moves forward, so last year's export can't undo this year's training. Refresher dates go into the same calendar file as the affirmations, as counts with no names. Since today the System Security Plan prints the same counts under each of the five requirements, with the date they were taken: "2 of 3 current people have up-to-date security awareness training", the refresher interval, and how many gaps are still open. That gives the assessor the numbers in the SSP and the evidence on the People tab. The SSP goes to primes and assessors, so it carries counts, never a name. The counts are the shop's own records, not an assessment result, and the workspace is still not for sale.
+
+## Update, 27 November 2026: the workspace is open, free on Level 1
+
+Everything above calls the workspace "in development". Since 27 November it is open at
+[cmmc.marisstella.app](https://cmmc.marisstella.app/?signup&from=docs/posts/cmmc-level-1), and a shop
+can sign up today on the free **Level 1** plan, with no card. That plan is the Level 1
+self-assessment described at the top of this post, kept as a record instead of a browser tab: the 15
+FAR 52.204-21 requirements with their objectives, a status and a "how we meet it" line for each,
+evidence files up to 250 MB, the SSP and the pass/fail result, for one user. The affirmation dates and
+their reminder email come with it, and every Level 2 requirement and objective can be read, so a shop
+can see what Level 2 would ask before it needs it.
+
+What is not switched on yet, so you know before you sign up:
+
+- **Level 2 and Level 2 + Quality are not on sale.** Recording the 110 NIST SP 800-171 requirements,
+  the SPRS score, the POA&M, the People and Providers tabs' Level 2 checks and the ISO 9001 checklist
+  need those plans, and checkout is off. The free
+  [SPRS score calculator](https://marisstella.app/machine-shop-guides/sprs-score-calculator.html) and
+  [SSP template](https://marisstella.app/machine-shop-guides/nist-800-171-ssp-template.html) still work
+  in the meantime, with no account.
+- **"Draft with AI" is off.** Implementation statements are typed by the shop's own people; the AI
+  drafts come on once their spending cap is set.
+- **No multi-factor sign-in yet.** Accounts confirm their email address and sign-in attempts are
+  rate-limited, but MFA is still on the list.
+- **Evidence files are stored in the workspace's database** for now, up to the plan's 250 MB.
+
+Nothing about the rules changes. The workspace prepares the shop's own self-assessment; it is not a
+certification or a C3PAO assessment, the Department of Defense does not endorse it, and the affirming
+official still enters the result in SPRS. The 21 free machine-shop guides now link to the sign-up page
+from the card at the foot of each page.

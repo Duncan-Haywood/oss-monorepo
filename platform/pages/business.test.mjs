@@ -35,12 +35,14 @@ test('only Grant Autopilot is marked live, and only a live line links to a produ
 
 test('open-free lines are the deployed apps, with a sign-up URL and no claim of a sale', () => {
   const open = PRODUCT_LINES.filter((l) => l.status === 'open-free');
-  assert.deepEqual(open.map((l) => l.id), ['contractor-billing', 'seller-books']);
+  assert.deepEqual(open.map((l) => l.id), ['contractor-billing', 'jobshop-quoting', 'cmmc-workspace', 'seller-books']);
   for (const l of PRODUCT_LINES) assert.equal(Boolean(l.appUrl), l.status === 'open-free', `${l.id}: appUrl only on an open-free line`);
   assert.equal(open[0].appUrl.startsWith('https://payapps.marisstella.app/'), true);
-  assert.equal(open[1].appUrl.startsWith('https://seller-books.marisstella.app/'), true);
+  assert.equal(open[1].appUrl.startsWith('https://jobshop-quote.marisstella.app/'), true);
+  assert.equal(open[2].appUrl.startsWith('https://cmmc.marisstella.app/'), true);
+  assert.equal(open[3].appUrl.startsWith('https://seller-books.marisstella.app/'), true);
   assert.match(STATUS['open-free'].note, /Nothing is sold yet/);
-  assert.equal(usableSentence(), 'Grant Autopilot is live, and PayApps and Seller Books are open on a free plan.');
+  assert.equal(usableSentence(), 'Grant Autopilot is live, and PayApps, Job Shop Quote, CMMC Workspace and Seller Books are open on a free plan.');
 });
 
 test('hardware is long-term and says nothing has been built', () => {

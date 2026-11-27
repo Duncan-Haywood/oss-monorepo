@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { ApiError, api } from "./lib/api";
+import { initialAuthMode } from "./lib/auth-mode";
 import type { Me, OrgInfo } from "./lib/types";
 import { btnCls, btnGhostCls, Card, Disclaimer, ErrorText, Field, inputCls } from "./ui";
 import { AccountPageView, accountPageFromPath, ResendVerification } from "./views/Account";
@@ -95,7 +96,8 @@ function SignedInOrAuth() {
 
 function AuthScreen() {
   const qc = useQueryClient();
-  const [mode, setMode] = useState<"in" | "up">("in");
+  // `/?signup` (the marketing site's and guides' "Start free" links) opens on "Create an account".
+  const [mode, setMode] = useState<"in" | "up">(() => initialAuthMode(window.location.search));
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   // Set after a sign-up that needs the emailed confirmation link before the first sign-in.
   const [checkInbox, setCheckInbox] = useState<string | null>(null);
