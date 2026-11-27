@@ -1,5 +1,5 @@
 // Clicks index.html in a real browser with the Job report lit: checkout.mjs is swapped, in the browser only, for
-// a filled-in Paddle config with a throwaway Ed25519 key pair. Checks the Buy button shows, the material list locks,
+// a filled-in Paddle config with a throwaway Ed25519 key pair and a random sandbox-shaped client token made per run. Checks the Buy button shows, the material list locks,
 // a signed Job report key unlocks it and the bid package, and a key for another tool or a forged key does not.
 // Paddle's script is blocked, so the Buy click must say checkout could not load rather than hang.
 // `node eval-paddle-click.mjs`; skips with exit 0 when Playwright or a Chromium is missing.
@@ -24,7 +24,7 @@ const b64u = (buf) => Buffer.from(buf).toString("base64url");
 const pair = await crypto.subtle.generateKey({ name: "Ed25519" }, true, ["sign", "verify"]);
 const publicKey = b64u(await crypto.subtle.exportKey("raw", pair.publicKey));
 const priv = b64u(await crypto.subtle.exportKey("pkcs8", pair.privateKey));
-const lit = { product: "residential-takeoff", priceId: "pri_01evalevaleval", clientToken: "test_0123456789abcdef", publicKey, edge: "https://billing.invalid", environment: "sandbox" };
+const lit = { product: "residential-takeoff", priceId: "pri_01evalevaleval", clientToken: "test_" + Buffer.from(crypto.getRandomValues(new Uint8Array(12))).toString("hex"), publicKey, edge: "https://billing.invalid", environment: "sandbox" };
 const reportKey = await signLicence({ v: 1, p: "residential-takeoff", t: "one-off", s: "txn_eval", iat: 1 }, priv);
 const otherKey = await signLicence({ v: 1, p: "shed-designer", t: "one-off", s: "txn_eval", iat: 1 }, priv);
 const other = await crypto.subtle.generateKey({ name: "Ed25519" }, true, ["sign", "verify"]);
