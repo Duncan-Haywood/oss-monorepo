@@ -1,0 +1,154 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqyfPHYXPsBQhtyNKu7A",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T12:38:08Z",
+  "ended": "2026-11-27T12:45:51Z",
+  "wall_minutes": 54.06,
+  "tokens_in": 11236957,
+  "tokens_out": 39945,
+  "cost_usd": 4.4047,
+  "tool_calls": 79,
+  "task": "cmmc-deploy-port: port CMMC Workspace's deploy workflow (bet #4) as priv-cmmc-deploy.yml, allowlist first",
+  "projects": [
+    "cmmc"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19756",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/cmmc/apps/cmmc/docs/DEPLOY.md",
+      "issue": "'Differences from jobshop-quote' says no cron in the config, but wrangler.jsonc has a daily affirmation-reminder cron (PR #19732 fixes the line too)."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets said 'Start here: bet #2' (fewest claims) but bet #2's deploy port was already in an open PR; the actual unclaimed unlock (bet #4's deploy port) was only found by reading ventures/cmmc/DEPLOY.md. A 'not deployed yet' column per bet would surface it."
+    },
+    {
+      "file": "platform/ci/adversarial_gate/gate.py",
+      "issue": "analyze --diff <file> --head-tree . on uncommitted changes reports 'CODEOWNERS deleted' (control-plane-invariants) for a diff that only appends two lines; analyze on real commits does not. Use --base/--head on commits."
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "issue": "Reusing the session branch for a second PR after a squash-merge: force-with-lease was refused by the auto-mode classifier; it worked only because GitHub had deleted the merged branch, so a plain push succeeded. Worth a line saying the merged branch is auto-deleted, so no force push is needed."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No new customer post: the change is deploy plumbing with no user-facing surface; the run's write-up is ventures/cmmc/DEPLOY.md (what changed and what is next).",
+      "did": "documented the port in the venture's DEPLOY.md and the app's docs/DEPLOY.md",
+      "result": "next run can dispatch the deploy once the launch review (PR #19734) lands"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took bet #4 rather than #1/#2: #1 had 7 live claims and no free item, #2's deploy port was already an open PR; bet #4's deploy port was unclaimed and is what stands between CMMC Workspace and its first signup.",
+      "did": "ported the deploy workflow in two PRs",
+      "result": "see pr"
+    }
+  ],
+  "writeups": [
+    "ventures/cmmc/DEPLOY.md (rewritten: the port, differences, cron budget, next steps)"
+  ],
+  "goal": null,
+  "notes": "Two PRs: #19741 (allowlist, merged) then #19756 (workflow). Local verification in ventures/cmmc/apps/cmmc (the workflow's own steps): pnpm install --frozen-lockfile; biome ci . (219 files, clean); typecheck; test:unit 490/490; provision.test.mjs 5/5; build; check-no-client-maps ok; provision.mjs --dry-run --write-config; wrangler deploy --dry-run lists env.EMAIL, env.DB (cmmc-workspace), env.FILES (cmmc-workspace-files), APP_ENV, APP_URL, LLM_MODEL; test:worker 156/156. Gate on step 2: the 10 secret findings show as allowed by the step-1 entries; 3 warnings match priv-seller-books-deploy.yml (environment, two `|| true` read-only lookups). secrets_inventory.py: 52 secrets accounted for; ci_policy_check.py: passes with the /ventures/cmmc/ CODEOWNERS line; validate_workflows.py: 146 valid; publish_surface.py --write regenerated. Cron budget: with this Worker, deployed cron Workers reach 5, the free plan's limit (PR #19732). Mid-run, the launch review (PR #19734) merged and added CMMC_GLOBAL_DAILY_LLM_CAP_USD; the workflow passes it to the Worker, validated (^([0-9]+(\\.[0-9]+)?|off)$). cron_budget.py on main: 5 workflow-deployed cron Workers including cmmc-workspace, exactly the free-plan limit.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "469533b9-6a04-5a28-be92-a5f8b1d382ce",
+    "transcripts": 1,
+    "first": "2026-11-27T12:38:08Z",
+    "last": "2026-11-27T13:32:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 75,
+        "input": 147,
+        "output": 39945,
+        "thinking": 5722,
+        "cache_read": 11062729,
+        "cache_write_5m": 0,
+        "cache_write_1h": 174081,
+        "api_equivalent_usd": 4.4047,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 75,
+      "input": 147,
+      "output": 39945,
+      "thinking": 5722,
+      "cache_read": 11062729,
+      "cache_write_5m": 0,
+      "cache_write_1h": 174081,
+      "api_equivalent_usd": 4.4047,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 79,
+    "tools": {
+      "Bash": 66,
+      "mcp__github__pull_request_read": 5,
+      "Write": 2,
+      "mcp__github__create_pull_request": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 54.06,
+      "active_minutes": 21.52,
+      "model_minutes": 8.21,
+      "tool_minutes": 13.31,
+      "waiting_on_human_minutes": 32.55,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "port and review a ~290-line deploy workflow, allowlist, inventory and docs, run the app's checks",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 90.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
