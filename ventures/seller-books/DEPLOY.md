@@ -43,6 +43,16 @@ copy points at the app since 2026-11-27 (`apps/seller-books-site/src/launch.mjs`
 now, free on one platform, sign-up links tagged per page. Serving the site at
 `marisstella.app/seller-books` (404 today) is next: `apps/seller-books-site/README.md`, "Hosting".
 
+## Deploy on every merge (2026-11-27, seller-books-deploy-on-merge)
+
+A second run by hand (45986733132, on `44958ecd`) also succeeded. After it, about ten Seller Books PRs
+merged (payout reconcile, the worksheet PDF, the PayPal page, the automatic-renewal notice) and none
+reached the live Worker, because the workflow ran by hand only. It now also runs on `push` to `main`
+with a paths filter (`ventures/seller-books/**`, Markdown excepted, and the workflow file), as PayApps
+(PR #19676), Job Shop Quote and CMMC (PR #19821) do; the PR that adds the trigger touches the
+workflow file, so its merge is the first push run and ships those PRs. Main-only guard, secrets and
+environment unchanged; `platform/ci/publish-surface.yaml` lists it as `gated`.
+
 ## Then
 
 Remove `apps/seller-books` and `apps/seller-books-site` from `private-monorepo` in a PR there, leaving

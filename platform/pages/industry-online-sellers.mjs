@@ -201,7 +201,7 @@ export function onlineSellersTools(surfaces = []) {
  *   disclaimer -> the site disclaimer HTML for this page,
  *   tail -> scripts before </body> (the chrome script, which counts usage)
  */
-export function renderOnlineSellersPage({ baseUrl, surfaces = [], shell }) {
+export function renderOnlineSellersPage({ baseUrl, surfaces = [], shell, productSite = false }) {
   const toRoot = TO_ROOT;
   const url = `${baseUrl}${ONLINE_SELLERS_PATH}`;
   const shipped = new Set(onlineSellersTools(surfaces).map((t) => t.slug));
@@ -260,7 +260,8 @@ export function renderOnlineSellersPage({ baseUrl, surfaces = [], shell }) {
       </ul>
 
       <h2 id="product">${esc(product.name)} <span class="os-status">${esc(product.status)}</span></h2>
-      <p>${esc(product.pitch)}</p>
+      <p>${esc(product.pitch)}</p>${productSite ? `
+      <p>Features, the platforms it reads and the plans: <a href="${esc(`${toRoot}seller-books/`)}">the ${esc(product.name)} site</a> (<a href="${esc(`${toRoot}seller-books/pricing`)}">pricing</a>, <a href="${esc(`${toRoot}seller-books/schedule-c-worksheet`)}">the Schedule C worksheet</a>).</p>` : ''}
       <ul>${product.does.map((d) => `
         <li>${esc(d)}</li>`).join('')}
       </ul>

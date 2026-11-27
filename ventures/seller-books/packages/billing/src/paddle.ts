@@ -236,15 +236,24 @@ export class PaddleBillingProvider implements BillingProvider {
     return { url };
   }
 
-  async createPortalSession(providerCustomerId: string, _returnUrl: string) {
+  async createPortalSession(
+    providerCustomerId: string,
+    _returnUrl: string,
+    opts: { subscriptionId?: string | null } = {},
+  ) {
+    const sub = opts.subscriptionId ?? null;
     const res = await this.call(
       "POST",
       `/customers/${encodeURIComponent(providerCustomerId)}/portal-sessions`,
-      {},
+      // subscription_ids asks Paddle for deep links per subscription (urls.subscriptions[]).
+      sub ? { subscription_ids: [sub] } : {},
     );
-    const url = str(obj(obj(obj(res.data).urls).general).overview);
+    const urls = obj(obj(res.data).urls);
+    const url = str(obj(urls.general).overview);
     if (!url) throw new Error("Paddle: portal session has no url");
-    return { url };
+    const links = Array.isArray(urls.subscriptions) ? urls.subscriptions : [];
+    const mine = links.map(obj).find((l) => sub !== null && str(l.id) === sub);
+    return { url, cancelUrl: (mine && str(mine.cancel_subscription)) || null };
   }
 
   /**

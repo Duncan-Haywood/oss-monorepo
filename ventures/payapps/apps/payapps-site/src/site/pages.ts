@@ -98,6 +98,42 @@ export function homeFaq(ctx: SiteContext): readonly Faq[] {
   ];
 }
 
+/** A laptop-width still of the app (public/shots/), 1280 x 860, captured by apps/payapps `pnpm stills`. */
+interface WideShot {
+  file: string;
+  alt: string;
+  caption: string;
+}
+
+const SHOT_PAY_APP: WideShot = {
+  file: "pay-app-2-desktop.webp",
+  alt: "PayApps on a laptop: pay application #2 for the job Harbor Clinic Fit-out, period October 1 to 31, 2026. The continuation sheet lists four lines (rough-in, switchgear and panels, lighting fixtures, trim and close-out) with this period's work and stored materials typed in, and totals of $102,100.00 completed and stored to date and $10,210.00 retainage.",
+  caption:
+    "The continuation sheet (open it for full size). Type this month's work and stored materials on each line; completed to date, percent complete, balance to finish and retainage are worked out as you type.",
+};
+
+const SHOT_JOB: WideShot = {
+  file: "job-desktop.webp",
+  alt: "The job page for Harbor Clinic Fit-out (E-2409): GC Example Builders, contract $210,000.00, retainage 10%, original SOV locked because billing has started. The schedule of values lists rough-in $84,000.00, switchgear and panels $62,000.00, lighting fixtures $41,000.00 and trim, test and close-out $23,000.00, total $210,000.00, with buttons for the Procore subcontractor SOV, the GCPay SOV (Excel) and the Trimble Pay SOV, and a form to add a change order below.",
+  caption:
+    "The job: its schedule of values, locked once the first application went out, the exports GC portals ask for, and change orders below.",
+};
+
+const SHOT_CASH: WideShot = {
+  file: "cash-desktop.webp",
+  alt: "The Cash and retainage report: owed on sent applications $0.00, retainage held $5,840.00, paid $52,560.00 of $52,560.00 applied, past due $0.00, and one row for Harbor Clinic Fit-out, 27.8% complete, with $5,840.00 retainage held. A form below sets up a weekly email of money to chase.",
+  caption:
+    "Cash and retainage across every job: application #1 is paid, so what is left is the 10% held on it, and the report says how long it has been held.",
+};
+
+function wideShot(ctx: SiteContext, s: WideShot): Html {
+  const src = href(ctx, `/shots/${s.file}`);
+  return html`<figure class="shot shot-wide">
+      <a class="shot-link" href="${src}"><img src="${src}" width="1280" height="860" loading="lazy" decoding="async" alt="${s.alt}"></a>
+      <figcaption>${s.caption}</figcaption>
+    </figure>`;
+}
+
 /**
  * Screenshots of the app itself (public/shots/), captured from a local copy of apps/payapps by
  * `pnpm stills` there, with the worked example's made-up job, so the two agree to the cent. The
@@ -108,14 +144,15 @@ function appShots(ctx: SiteContext): Html {
   <h2 id="shots-h">What it looks like in the app</h2>
   <p>Screenshots of ${PRODUCT_NAME} itself, with the same made-up electrical job as the worked example, so the figures match. Nothing here is a customer's job.</p>
   <div class="shots">
-    <figure class="shot shot-wide">
-      <a class="shot-link" href="${href(ctx, "/shots/pay-app-2-desktop.webp")}"><img src="${href(ctx, "/shots/pay-app-2-desktop.webp")}" width="1280" height="860" loading="lazy" decoding="async" alt="PayApps on a laptop: pay application #2 for the job Harbor Clinic Fit-out, period October 1 to 31, 2026. The continuation sheet lists four lines (rough-in, switchgear and panels, lighting fixtures, trim and close-out) with this period's work and stored materials typed in, and totals of $102,100.00 completed and stored to date and $10,210.00 retainage."></a>
-      <figcaption>The continuation sheet (open it for full size). Type this month's work and stored materials on each line; completed to date, percent complete, balance to finish and retainage are worked out as you type.</figcaption>
-    </figure>
+    ${wideShot(ctx, SHOT_PAY_APP)}
     <figure class="shot shot-phone">
       <img src="${href(ctx, "/shots/pay-app-2-summary-phone.webp")}" width="358" height="569" loading="lazy" decoding="async" alt="The application summary on a phone: contract sum $210,000.00, completed and stored to date $102,100.00, retainage $8,980.00 on completed work and $1,230.00 on stored materials, less previous certificates $52,560.00, current payment due $39,330.00.">
       <figcaption>The summary on a phone, for checking the numbers from the truck before you send it.</figcaption>
     </figure>
+  </div>
+  <div class="shots shots-pair">
+    ${wideShot(ctx, SHOT_JOB)}
+    ${wideShot(ctx, SHOT_CASH)}
   </div>
 </section>`;
 }
@@ -228,6 +265,8 @@ interface Feature {
   status: FeatureStatus;
   body: string;
   bullets: readonly string[];
+  /** A still of this part of the app, shown under the bullets. */
+  shot?: WideShot;
 }
 
 export const STATUS_LABEL: Record<FeatureStatus, string> = {
@@ -240,6 +279,7 @@ export const STATUS_LABEL: Record<FeatureStatus, string> = {
 export const FEATURES: readonly Feature[] = [
   {
     id: "schedule-of-values",
+    shot: SHOT_JOB,
     title: "Schedule of values per job",
     status: "built",
     body: "Each job starts from the SOV in your subcontract, with the contract sum and retainage terms. Every pay app is built from it, so lines, scheduled values and totals stay the same from month to month, and the SOV locks once the first pay app goes out.",
@@ -254,6 +294,7 @@ export const FEATURES: readonly Feature[] = [
   },
   {
     id: "monthly-pay-app",
+    shot: SHOT_PAY_APP,
     title: "The monthly pay app",
     status: "built",
     body: "Enter work completed this period and materials presently stored per line; the continuation-sheet columns follow: total completed and stored, percent complete, balance to finish and retainage.",
@@ -303,6 +344,7 @@ export const FEATURES: readonly Feature[] = [
   },
   {
     id: "cash",
+    shot: SHOT_CASH,
     title: "What you're owed, across every job",
     status: "built",
     body: "One report of every application sent: billed, paid, still owed and retainage held, sorted by money owed, as a page and a CSV.",
@@ -310,6 +352,7 @@ export const FEATURES: readonly Feature[] = [
       "Record each check or transfer against an application, including partial payments; it turns paid when the payments reach the certified amount",
       "Due dates from each subcontract's pay terms (net days, days after the period end, or pay-when-paid with its outer limit): what is past due, and what to expect in the next 30 days",
       "Aged 0-30, 31-60, 61-90 and 90+ days, with the most overdue application named so you know who to call",
+      "Interest on late payment: set the rate from your subcontract's late-payment clause, or fill it from a prompt payment statute PayApps has read (Texas, Illinois, North Carolina, Virginia), and see what has accrued on each past-due application, net of partial payments; the second follow-up email to the GC states it",
       "Each GC's billing cutoff (\"by the 25th\"): a reminder the week before when nothing has gone out yet, and a note when a draft missed it, so an application doesn't slip to next month's draw",
     ],
   },
@@ -322,7 +365,7 @@ export const FEATURES: readonly Feature[] = [
       "Prints the state's statutory form where we have checked the text against the statute: Arizona, California, Florida, Georgia, Michigan, Mississippi, Nevada, Texas, Utah and Wyoming, plus Missouri's residential final waiver and Massachusetts' partial waiver and subordination of lien (its pay-app lines filled from the application); a general form in states with no statutory form",
       "Once a payment arrives, a reminder for the unconditional waiver you now owe, for the amount actually paid",
       "The lien deadline on every job (every plan): the last day to record a mechanics lien in Arizona, California, Colorado, Florida, Georgia, New York, North Carolina, Ohio, Texas or Washington, from the property's state and your last day on site, with the statute cited, and a warning on the cash page and in the weekly email 45 days ahead on any job that still owes you money",
-      "Public jobs (every plan): on a federal job, the Miller Act payment bond dates in place of a lien date (the 90-day notice to the prime and the one-year limit on the suit, 40 U.S.C. § 3133(b)); on a state or local job, your retainage checked against the state's cap on public work in 16 states, with the statute linked",
+      "Public jobs (every plan): on a federal job, the Miller Act payment bond dates in place of a lien date (the 90-day notice to the prime and the one-year limit on the suit, 40 U.S.C. § 3133(b)), and in Crew and up the 90-day notice itself drafted from the job (the unpaid amount with retainage, the sub you worked for, your last day) and printed as a PDF; on a state or local job, your retainage checked against the state's cap on public work in 16 states, with the statute linked",
       "Preliminary notices from the job page where the statute sets the wording or contents: California (private works), Florida's Notice to Owner, Texas' notices of claim and Wyoming so far, prefilled from the job",
       "Texas: the § 53.056 notice of claim for unpaid labor or materials and the § 53.057 notice of claim for unpaid retainage, word for word, with the 15th-of-the-month date for each unpaid month (rolled past weekends and Texas legal holidays), the retainage notice's 30 days and the lien affidavit dates; the months read from the job's unpaid pay apps, a log of each notice sent, and a reminder on the cash page and in the weekly email before each month's date",
       "Florida: the § 713.06 Notice to Owner word for word, with the 45-day last day to serve it and the 40-day last day to mail it so service counts on mailing (§ 713.18), from the day you first furnished work; record each notice and copy served (owner, contractor, the notice of commencement's designee) with how and when it went, see when each counts as served, and get a reminder on the cash page and in the weekly email until the owner has one",
@@ -380,6 +423,7 @@ export const FEATURES: readonly Feature[] = [
       "California public works: the same week as the DIR eCPR XML file (schema 2.0, which DIR requires from 13 January 2027) for the Public Works portal, with doubletime, the craft, the apprentice period, fringe by DIR category and deductions split into federal and state tax, SDI, dues and the rest; checked against DIR's rules before you download it. Full SSNs are typed for that file only and never leave your browser",
       "New York public work: the same week as the NYSDOL Certified Payroll portal's bulk-upload XML (required for Article 8 public work since 1 January 2026), with each row's classification picked from NYSDOL's list and supplements by NYSDOL type",
       "Washington public works: the same week as the XML file for L&I's PWIA upload, with L&I's trade code and county per row, apprentice registration and step, fringe in L&I's benefit fields and double time apart; full SSNs are typed for that file only and never leave your browser",
+      "New Jersey public works: NJDOL's own MW-562 filled in with the same week, ready to drop into the NJ Wage Hub's upload, with the demographics columns, federal and state tax apart and fringe by benefit type in section 4(c); filled in your browser",
       "Next week starts from this week's crew; workers' names and ID numbers stay in your browser and the download, never on our servers",
       "Every plan. Not a Department of Labor product and not legal advice: you check the figures and sign",
     ],
@@ -571,6 +615,7 @@ function features(ctx: SiteContext): BuiltPage {
     <h2>${f.title}</h2>
     <p>${f.body}</p>
     <ul>${f.bullets.map((b) => html`<li>${b}</li>`)}</ul>
+    ${f.shot ? wideShot(ctx, f.shot) : ""}
   </section>`,
   )}
   <section class="feature">

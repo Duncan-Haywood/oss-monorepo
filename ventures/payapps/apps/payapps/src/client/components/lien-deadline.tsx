@@ -19,6 +19,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { api } from "../lib/api";
 import { ErrorText } from "./error";
+import { MillerNoticeDraft } from "./miller-notice";
 
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -205,6 +206,12 @@ export function LienDeadlinePanel(props: {
               ))}
             </ul>
           </div>
+        )}
+        {federal && r.kind !== "not-covered" && p.millerTier !== "first" && (
+          <MillerNoticeDraft
+            path={path}
+            savedKey={`${p.millerTier ?? ""}|${p.lastFurnishedOn ?? ""}`}
+          />
         )}
         {r.kind === "unsupported" && (
           <p>

@@ -1904,3 +1904,28 @@ subscription, should a scheduled venture run default to launch work
 - Not done (reduced pass): audit, drift report, a new candidate.
 - Metric: slug_dupe friction about the run's own claim branch goes to zero.
 - Result: (next review)
+
+## E125: Review 2026-11-27, fourth session (reduced pass)
+
+- Routed by `review_when_due` (47 merged runs since E124 by `measure`'s count).
+- Decisions: candidates unchanged, all three "keep collecting: the intervals
+  overlap" (ventures/2, process/2, review/2), the same null result as E122
+  and E124. Third identical verdict today: at about 40 merged runs per few
+  hours, `review_every = 40` brings a review every few hours while the
+  candidate comparisons need hundreds of runs to move. Not changed here (one
+  change per review); the next review could weigh `review_every = 120`.
+- Change (step 5, friction on `platform/ci/roadmap_claim.py --bets`, 8 live
+  reports in 3 days, about 20 since 2026-11-26): every bet but one read
+  "free and not gated: none", and each run spent 10 to 20 minutes reading
+  ROADMAPs to learn why. The per-bet line now says it, e.g. payapps "none
+  (21 waits on demand, 1 waits on a device, 1 waits on evidence)", and when
+  no bet has free work and most items wait on demand, the fallback says the
+  bet's work is demand itself (front-door and search pages, marketing site,
+  sign-up, onboarding), which is what the runs that merged did anyway
+  (deviations on `prompts/ventures/prompt-2.md`, 2026-11-27). Tested
+  (`test_bets_overview_says_why_nothing_is_free`).
+- E124 result: too few runs (hours old).
+- Not done (reduced pass): derive, audit, drift report, a new candidate.
+- Metric: `--bets` friction reports that say they read ROADMAPs by hand to
+  find why nothing is free; compare the next review.
+- Result: (next review)

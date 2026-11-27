@@ -10,6 +10,12 @@ import type { AppEnv } from "../../types";
 const checkoutSchema = z.object({
   plan: z.string().min(1).max(32),
   interval: z.enum(["month", "year"]).default("month"),
+  // The automatic-renewal terms shown beside the button, ticked by the admin (Colorado C.R.S.
+  // 6-1-732(2), California Bus. & Prof. Code 17602): checkout is refused without it.
+  renewalConsent: z.literal(true, {
+    error: "Tick the box to agree that the plan renews automatically until you cancel",
+  }),
+  renewalTermsVersion: z.string().max(32).optional(),
   promoCode: z
     .string()
     .trim()
@@ -29,8 +35,11 @@ routes.post("/checkout", requireRole("admin"), validate("json", checkoutSchema),
   return c.json(await startCheckout(c.var.ctx, c.var.tenant, user.email, c.req.valid("json")));
 });
 
-routes.post("/portal", requireRole("admin"), async (c) =>
-  c.json(await startPortal(c.var.ctx, c.var.tenant.orgId)),
+const portalSchema = z.object({ action: z.enum(["manage", "cancel"]).default("manage") });
+
+// action "cancel": straight to the subscription's cancellation form when the provider has the link.
+routes.post("/portal", requireRole("admin"), validate("json", portalSchema), async (c) =>
+  c.json(await startPortal(c.var.ctx, c.var.tenant.orgId, c.req.valid("json").action)),
 );
 
 export default routes;

@@ -8,6 +8,7 @@ import type {
 } from "@shared/api/schemas";
 import type { ProjectDto } from "@shared/api/types";
 import { type ProcoreSsovPlacement, placementProblems } from "@shared/gc-export/procore-placement";
+import { MAX_LATE_INTEREST_BPS } from "@shared/late-interest";
 import { type UnitPricing, unitPricingProblem } from "@shared/unit-price";
 import { and, desc, eq, max, ne } from "drizzle-orm";
 import type { z } from "zod";
@@ -60,6 +61,15 @@ export async function updateProject(
   ) {
     throw conflict(
       "The contract sum is locked once a pay application is submitted; use a change order",
+    );
+  }
+  // A monthly rate is capped lower than a yearly one: check the pair as it will be saved.
+  const bps =
+    patch.lateInterestBps === undefined ? b.project.lateInterestBps : patch.lateInterestBps;
+  const per = patch.lateInterestPer ?? b.project.lateInterestPer;
+  if (bps !== null && bps > MAX_LATE_INTEREST_BPS[per]) {
+    throw badRequest(
+      `A late-payment rate of more than ${MAX_LATE_INTEREST_BPS[per] / 100}% a ${per} is almost always a typo`,
     );
   }
   // Reopening a closed job counts against the plan's active-job limit.

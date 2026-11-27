@@ -192,8 +192,10 @@ marketing site is `apps/einvoice-site`. Rules for this app: `pro/README.md` and 
 - A native German and a native French reviewer for the explanation templates and the site
   copy (both say they are unreviewed); a native Polish reviewer for the KSeF templates and the
   workspace page's Polish text before KSeF is marketed in Polish.
-- Re-check each official deadline source directly (the site's sources were read through
-  search excerpts on 2026-11-24; `apps/einvoice-site/content/deadlines.mjs`).
+- ~~Re-check each official deadline source directly~~ done 2026-11-27
+  (launch-re-check-each-official-deadline): every German and French statement re-read against the
+  BMF and impots.gouv.fr text itself, two wordings corrected, all sources `checkedVia: "direct"`
+  (einvoice-site README, "Germany and France, read directly on 2026-11-27").
 
 - Dutch explanations, part 1 (2026-11-27, dutch-explanations-part-1): the wedge in bets.md promises
   "plain German, French or Dutch", and the app had no Dutch. Every rule except the KSeF ones (111 ids)
@@ -264,6 +266,16 @@ marketing site is `apps/einvoice-site`. Rules for this app: `pro/README.md` and 
   account and ISO week or month, a failed send retried on the next call, 40 sends a call. Privacy
   Policy 2026-11-27 (EN/DE/FR) names the new use. Off until the owner sets the mailer
   (`RESEND_API_KEY`). pro/README.md "The client summary email".
+- Accountant client dashboard, part 3 (2026-11-27, accountant-client-dashboard-part-3-digest-schedule):
+  the summary email's schedule, shipped off. `DigestClock`, a second SQLite Durable Object
+  (`worker/digest-clock.mjs`, binding `DIGEST_CLOCK`, migration `v2`; an alarm because the account's
+  cron triggers are used up), runs hourly and calls the same `sendDigests` as the admin endpoint:
+  weekly from 07:00 UTC Monday, monthly from 07:00 UTC on the 1st, each up to 2 or 3 days late and
+  no later. The store's claims keep it to one email per account and period; failed sends are
+  retried on the next two runs, then the period closes; over 40 sends the next run is a minute
+  away. It sends nothing, and is not even armed, unless the Worker variable `DIGEST_SCHEDULE` is
+  `on`: an unattended send is the owner's call. 9 tests (`worker/digest-clock.test.mjs`), bundled by
+  `wrangler deploy --dry-run` (three bindings listed).
 
 ## Next (by what stands between the bet and a paying accountant)
 
@@ -304,9 +316,8 @@ marketing site is `apps/einvoice-site`. Rules for this app: `pro/README.md` and 
    `cii-extended-ctc-fr`, read by `build-facturx-schema.mjs`, picked by BT-24; 5 of 5 FNFE-MPE
    examples and 1,499 of 1,499 mutants agree with xmllint, same eval file). Next: the XRechnung
    extension's schema, if German files declaring it turn up.
-4. Accountant client dashboard, part 3 (part 2, the weekly or monthly summary email, done
-   2026-11-27, below): a Worker cron for the send once the deploy has run and the owner agrees to an
-   unattended send; client names in the email only with the DPA Annex III change and the 30-day
+4. Accountant client dashboard, part 4 (part 3, the schedule, done 2026-11-27 and off until the
+   owner sets `DIGEST_SCHEDULE=on`, below): client names in the email only with the DPA Annex III change and the 30-day
    notice (pro/README.md "The client summary email"); and the failing rules grouped by the
    invoice's seller once the run history stores a seller id (today it keeps hashes and rule ids
    only; a seller VAT id would be personal data under the DPA, so it needs the Annex I update in the

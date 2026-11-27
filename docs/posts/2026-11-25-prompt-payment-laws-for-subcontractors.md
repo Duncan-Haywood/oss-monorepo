@@ -2,6 +2,7 @@
 title: "How many days a GC has to pay you, read from seven states' prompt payment laws"
 seo_title: "Prompt payment laws for subcontractors: 7 states, deadlines, interest"
 date: 2026-11-25
+updated: 2026-11-27
 tags: [for-customers, payapps, construction, prompt-payment, pay-if-paid, joint-checks, pay-app-guides]
 description: "Texas gives a GC 7 days, Illinois 15. Prompt payment deadlines in seven states, and which states void pay-if-paid clauses, with a clause reader."
 ---
@@ -114,6 +115,25 @@ draft dated before a cutoff is still unsent once the cutoff passes, they say it 
 suggest asking the GC whether it can still go in this month's draw. A month with nothing
 drafted is never called missed, since there may have been no work to bill. A day like the 31st
 falls on the last day of shorter months.
+
+## Interest on a late pay app, kept on the job (added 2026-11-27)
+
+The calculator in the guide answers one question about one check. A sub with six jobs and a GC
+that pays slowly on all of them needs the running number, so PayApps now keeps it. On each job
+you set the late-payment rate: the one in your subcontract's late-payment clause, or one of the
+four statutory rates above that we could confirm (Texas 1½% a month, Illinois 10% a year, North
+Carolina 1% a month or part of a month, Virginia public work 1% a month), each with its link and
+what to check before relying on it. PayApps does not decide whether a statute covers your job;
+you do, or your attorney does.
+
+The cash report then shows the interest accrued on every past-due application: simple interest
+from the day after it was due, on the balance still owed, lowered from the day each partial
+payment came in. Take a $45,000 application due 2 March at 1½% a month, with $15,000 paid on 12
+March: by 1 April the interest is $225 for the first ten days on $45,000 plus $300 for the next
+twenty on $30,000, $525 in all. North Carolina's rule is counted its own way, each started month
+in full on the highest balance owed in it. The second follow-up email to the GC names the rate,
+where it comes from and the amount so far; the first reminder leaves it out, since most late
+payments are a missing waiver, not a dispute.
 
 **Where this goes.** PayApps, our hosted pay-app billing for specialty subcontractors, keeps
 every pay application, payment and retainage balance per job and shows what is owed, when it was

@@ -10,7 +10,7 @@ Seller Books (the "Service") is operated by **Maris Stella Labs LLC**, a Colorad
 
 The Service helps resellers keep their books: it imports the sales, fee and payout reports you download from the marketplaces you sell on, matches sales to the cost of goods **you enter** (per item or spread across a bulk lot), keeps your mileage and expense logs (including purchases you pick from a bank or card statement), shows profit by platform and month, and builds a Schedule C **worksheet** from those numbers. It also works out figures from what you enter: business use of your home (line 30, simplified method), the closing inventory you record for a year, quarterly federal estimated tax payments, a comparison of your books with a Form 1099-K you type in, and files you can take elsewhere (CSV exports, a journal for QuickBooks Online, and one ZIP of the year-end files for your tax preparer).
 
-Seller Books is not affiliated with, endorsed by or sponsored by eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok, Square, PayPal, Intuit (QuickBooks) or the IRS. Their names are used only to say which reports the Service reads or which software its exports are laid out for.
+Seller Books is not affiliated with, endorsed by or sponsored by eBay, Poshmark, Mercari, Whatnot, Depop, Etsy, Shopify, Amazon, TikTok, Square, PayPal, Venmo, Intuit (QuickBooks) or the IRS. Their names are used only to say which reports the Service reads or which software its exports are laid out for.
 
 ## 3. Your books are yours to check
 
@@ -33,6 +33,7 @@ You sign in with email and password. Keep your credentials secure and tell us pr
 
 - **Plans.** A free plan (one platform, one user and a monthly order limit) lets you see your own numbers before you pay. Paid plans, their prices and their limits (platforms, users and a monthly order guide) are shown in the app before you buy. On a paid plan, going over the monthly order guide never locks your books.
 - **Merchant of record.** Payments are processed by a third-party merchant of record (Paddle). The merchant of record is the seller of record for your purchase, handles payment, invoicing and applicable sales tax, and its own terms apply to the payment transaction.
+- **Automatic renewal.** A paid plan renews automatically at the end of each month or year (the cycle you chose at checkout) at the price then in effect, until you cancel. Before each yearly renewal, and once a year on a monthly plan, we email the shop's owner and admins 26 to 39 days ahead with the price and how to cancel. Cancelling from the billing page is one step; you keep the plan to the end of the period you paid for.
 - **Plan changes.** You can upgrade, downgrade or cancel at any time from the billing page. Changes take effect as described in the app. If we change prices, we will tell you in advance and the change applies from your next billing period.
 - **After a downgrade** your records stay in your account and readable; importing more than the free plan allows needs a paid plan.
 - **Refunds** are covered by the Refund Policy.

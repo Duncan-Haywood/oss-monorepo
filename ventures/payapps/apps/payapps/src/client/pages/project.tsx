@@ -27,6 +27,7 @@ import { GcpaySov } from "../components/gcpay-sov";
 import { HistoryPanel } from "../components/history";
 import { JobInsuranceRequirements } from "../components/insurance-requirements";
 import { JobSchedule } from "../components/job-schedule";
+import { LateInterestSetting } from "../components/late-interest";
 import { meQuery } from "../components/layout";
 import { LienDeadlinePanel } from "../components/lien-deadline";
 import { LienNoticesPanel } from "../components/lien-notices";
@@ -344,6 +345,16 @@ export function ProjectPage() {
             days={p.payTermsDays}
             basis={p.payTermsBasis}
             outerDays={p.payTermsOuterDays}
+            onSaved={async () => {
+              await qc.invalidateQueries({ queryKey: key });
+              await qc.invalidateQueries({ queryKey: ["cash", orgId] });
+            }}
+          />
+        </div>
+        <div className="text-sm text-slate-600">
+          <LateInterestSetting
+            path={projectPath(orgId, projectId)}
+            project={p}
             onSaved={async () => {
               await qc.invalidateQueries({ queryKey: key });
               await qc.invalidateQueries({ queryKey: ["cash", orgId] });

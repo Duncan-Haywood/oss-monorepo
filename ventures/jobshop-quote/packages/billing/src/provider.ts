@@ -105,7 +105,17 @@ export interface UsageChargeRequest {
 export interface BillingProvider {
   readonly name: string;
   createCheckout(req: CheckoutRequest): Promise<{ url: string }>;
-  createPortalSession(providerCustomerId: string, returnUrl: string): Promise<{ url: string }>;
+  /**
+   * The customer portal. With `subscriptionId`, `cancelUrl` is also returned when the provider has
+   * one: an authenticated link that opens that subscription's cancellation form directly (the
+   * one-step online cancel Colorado's C.R.S. 6-1-732(2)(d) describes). Links are short-lived: never
+   * store them.
+   */
+  createPortalSession(
+    providerCustomerId: string,
+    returnUrl: string,
+    opts?: { subscriptionId?: string | null },
+  ): Promise<{ url: string; cancelUrl?: string | null }>;
   /** Optional: providers that can bill metered usage onto a subscription. */
   chargeUsage?(req: UsageChargeRequest): Promise<{ chargeId: string | null }>;
   /** Verify signature and normalize. Throws WebhookSignatureError on an invalid signature. */

@@ -114,4 +114,34 @@ English text and has not been read by a native speaker yet; that review comes
 before the site goes public. And the Polish KSeF rules have no Dutch
 explanations, so the Dutch Poland page does not promise any.
 
+## Update, 27 November: the German and French sources read directly
+
+The checker's own site ([einvoice-site](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/einvoice-pro/apps/einvoice-site))
+had the same limit as this page: its German and French rows rested on search
+excerpts, and each country page said so with an asterisk. On 27 November the
+Federal Ministry of Finance's FAQ, its letters of 15 October 2025 and
+15 October 2026, and the DGFiP's pages and PDFs on impots.gouv.fr opened
+directly, so we read every German and French statement against the full text.
+The dates all held. Two wordings did not:
+
+- **Germany, PDFs in the transition.** We had written that until the end of
+  2026 any issuer may send "paper or a plain PDF" instead of an e-invoice. The
+  BMF FAQ (question 11) says paper is always allowed, but a PDF by email or any
+  other electronic format "kann ... nur verwendet werden, wenn der Empfänger
+  diesem Format zustimmt": only if the recipient agrees. So a customer can
+  refuse your PDF today. The page now says so.
+- **France, the new mandatory details.** The source we had cited was a DGFiP
+  fiche for small service businesses, and it does not list the new invoice
+  details. The DGFiP's own FAQ (question 3.4) does: four new details, namely the
+  customer's SIREN, the category of the transaction (goods, services or both),
+  the option to pay VAT on debits where it applies, and the delivery address
+  when it differs from the billing address. We had left out the fourth.
+
+economie.gouv.fr still refused our requests, so the French issue dates now
+cite impots.gouv.fr: "Je découvre la facturation électronique" for large and
+mid-sized companies on 1 September 2026, and the DGFiP's start-up guide for
+SMEs, very small businesses and micro-businesses on 1 September 2027, with
+voluntary early entry allowed. Every German and French row on that site is now
+marked as read directly, and a test keeps it that way.
+
 This is not tax advice.

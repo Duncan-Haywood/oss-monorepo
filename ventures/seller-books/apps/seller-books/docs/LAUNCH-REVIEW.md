@@ -52,7 +52,7 @@ every table in `src/worker/db/schema` (`auth.ts`, `billing.ts`, `books.ts`), eve
 | Privacy, subprocessors | Cloudflare (hosting, D1, Email Service) and Paddle. No other outbound host | none |
 | Privacy, email sent | Verification, reset, "already have an account", invitations; no marketing mail from the app. Matches the user-facing `email.send` call sites (`services/auth/emails.ts`, `routes/org/members.ts`) | none |
 | Refunds | Free plan with no card; 30-day full refund through Paddle; cancel any time, keep the paid period, records stay readable. Matches docs/BILLING.md ("Nothing is ever hidden or deleted") | none |
-| Renewal terms | Monthly or annual, cancel from the billing page; Paddle's checkout shows its own terms. Resellers can be consumers as well as businesses, so Colorado's automatic-renewal rules (OPERATOR.md, open checks) matter more here than for PayApps: check them before live checkout | **noted** for the checkout review |
+| Renewal terms | Monthly or annual. Colorado's and California's automatic-renewal rules read 2026-11-27 (BILLING.md, "Automatic renewal"): the terms beside every checkout button, a consent tick recorded with its version, a one-step "Cancel subscription", and a notice 26 to 39 days before each yearly renewal (once a year on monthly plans) | **fixed** 2026-11-27; open items listed there |
 | Acceptable use | Own accounts only, honest records, others' data, no probing; matches the tenant and invitation code | none |
 
 The terms' version line moved to 2026-11-27 and `POLICY_VERSION` to `2026-11-27.2`, so anyone who

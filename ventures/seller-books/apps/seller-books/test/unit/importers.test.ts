@@ -13,6 +13,7 @@ import {
 } from "@worker/services/importers/shopify";
 import { parseSquareTransactions } from "@worker/services/importers/square";
 import { parseTiktokShopStatement } from "@worker/services/importers/tiktok";
+import { parseVenmoStatement } from "@worker/services/importers/venmo";
 import { parseWhatnotOrdersReport } from "@worker/services/importers/whatnot";
 import { describe, expect, it } from "vitest";
 
@@ -800,5 +801,84 @@ describe("PayPal Activity Download", () => {
     expect(p.charges).toHaveLength(0);
     expect(p.skipped[0]?.reason).toMatch(/already on its own row/);
     expect(() => parsePaypalActivity("Date,Amount\n2026-01-01,5")).toThrow(ImportFormatError);
+  });
+});
+
+describe("Venmo statement", () => {
+  const r = parseVenmoStatement(fixture("venmo-statement.csv"));
+  const orders = r.sales.filter((s) => s.kind === "order");
+  const refunds = r.sales.filter((s) => s.kind === "refund");
+
+  it("finds the header under the title lines and imports complete payments received and refunds sent", () => {
+    expect(r.platform).toBe("venmo");
+    expect(r.reportKind).toBe("statement");
+    // The beginning-balance row holds one cell and is dropped; the closing summary row is skipped.
+    expect(r.rowCount).toBe(11);
+    expect(orders.map((o) => o.externalId)).toEqual([
+      "4000000000000000001",
+      "4000000000000000002",
+      "4000000000000000003",
+    ]);
+    expect(refunds.map((o) => o.externalId)).toEqual(["4000000000000000009"]);
+    expect(r.charges).toHaveLength(0);
+    const reason = (line: number) => r.skipped.find((s) => s.line === line)?.reason ?? "";
+    expect(r.skipped.map((s) => s.line)).toEqual([8, 9, 10, 11, 12, 14, 15]);
+    expect(reason(8)).toMatch(/you sent/);
+    expect(reason(9)).toMatch(/between your own accounts/);
+    expect(reason(10)).toMatch(/Status "Pending"/);
+    expect(reason(11)).toMatch(/Venmo card activity/);
+    expect(reason(12)).toMatch(/Venmo card activity/);
+    expect(reason(14)).toMatch(/credited to you: not a sale/);
+    expect(reason(15)).toMatch(/summary row/);
+  });
+
+  it("reads '+ $63.50' amounts, keeps Venmo's fee, counts the tip in the price and joins a multi-line note", () => {
+    expect(orders[0]).toMatchObject({
+      title: "Vintage lamp local pickup",
+      date: "2026-03-02",
+      itemCents: 2500,
+    });
+    expect(orders[0]?.fees).toEqual([]);
+    expect(orders[1]).toMatchObject({
+      title: "Wool coat FB Marketplace",
+      itemCents: 6350,
+      netCents: null,
+    });
+    expect(orders[1]?.fees).toEqual([
+      { kind: "payment_processing", amountCents: 131, sourceColumn: "Amount (fee)" },
+    ]);
+    // A Charge the seller sent that the buyer paid: money in, the $5 tip inside the total.
+    expect(orders[2]).toMatchObject({ title: "Denim jacket", itemCents: 4000, salesTaxCents: 0 });
+  });
+
+  it("books a refund sent as a refund with the fee given back", () => {
+    expect(refunds[0]).toMatchObject({ date: "2026-03-10", refundCents: 2000, orderId: null });
+    expect(refunds[0]?.fees.map((f) => f.amountCents)).toEqual([-43]);
+  });
+
+  it("warns about friends-and-family money, the fee reading, payments sent and unlinked refunds", () => {
+    const w = r.warnings.join(" ");
+    expect(w).toMatch(/Every payment received in this file is imported as a sale/);
+    expect(w).toMatch(/2 payments carry a Venmo fee/);
+    expect(w).toMatch(/1 payments you sent \(\$30\.00 in all\)/);
+    expect(w).toMatch(/1 refunds credited to you \(lines 14\)/);
+    expect(w).toMatch(/1 refunds imported/);
+  });
+
+  it("is stable on re-import, gives rows without an ID a stable key, and refuses other files", () => {
+    expect(
+      parseVenmoStatement(fixture("venmo-statement.csv")).sales.map((s) => s.externalId),
+    ).toEqual(r.sales.map((s) => s.externalId));
+    const csv = [
+      "Datetime,Type,Status,Note,From,To,Amount (total)",
+      "2026-01-02T10:00:00,Payment,Complete,Lamp,A,Me,+ $10.00",
+      "2026-01-02T10:00:00,Payment,Complete,Lamp,A,Me,+ $10.00",
+      "2026-01-03T10:00:00,Instant Transfer,Complete,,,,- $10.00",
+    ].join("\n");
+    const a = parseVenmoStatement(csv).sales.map((s) => s.externalId);
+    expect(a).toHaveLength(2);
+    expect(a[1]).toBe(`${a[0]}#2`);
+    expect(parseVenmoStatement(csv).sales.map((s) => s.externalId)).toEqual(a);
+    expect(() => parseVenmoStatement("Date,Amount\n2026-01-01,5")).toThrow(ImportFormatError);
   });
 });

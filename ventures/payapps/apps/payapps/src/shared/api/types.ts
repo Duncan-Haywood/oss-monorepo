@@ -38,6 +38,7 @@ import type { CertificateHolder, InsuranceKind, InsuranceStatus } from "../insur
 import type { InsuranceRequirement, RequirementCheck } from "../insurance-requirements";
 import type { CommitmentKind, CostCategory, JobCostReport } from "../job-cost";
 import type { JobEventAction, JobEventData } from "../job-history";
+import type { LateInterestMethod, LateInterestPer } from "../late-interest";
 import type { LegalStatusDto } from "../legal";
 import type { LienDeadlineResult } from "../lien-deadline";
 import type { LowerTierPartyKind, LowerTierStatus, LowerTierSummary } from "../lower-tier-waivers";
@@ -129,6 +130,11 @@ export interface ProjectDto {
   payTermsBasis: PayTermsBasis;
   /** Pay-when-paid outer limit in days from the application date ("in any event within 90 days"); null when none. */
   payTermsOuterDays: number | null;
+  /** Interest on late payment (src/shared/late-interest.ts): basis points per period, or null. */
+  lateInterestBps: number | null;
+  lateInterestPer: LateInterestPer;
+  lateInterestMethod: LateInterestMethod;
+  lateInterestSource: string | null;
   /** The application summary PDF carries a notary block (jurat and seal box). */
   notaryBlock: boolean;
   /** The GC's monthly billing cutoff, day of the month (31: the last day); null when not set. */
@@ -690,6 +696,27 @@ export interface NoticeOverviewDto {
   fl: FlNoticeLogDto | null;
   /** Texas only (state=TX): the notices of claim recorded as sent and the months still owed one. */
   tx: TxNoticeLogDto | null;
+}
+
+/** GET .../notices/miller: the Miller Act 90-day notice drafted from a federal job. */
+export interface MillerNoticeDto {
+  /** Whether the org's plan includes lien waivers and notices (Crew and up). */
+  enabled: boolean;
+  /**
+   * Whether the job needs the notice: "needed" (contracted with one of the prime's subs),
+   * "unsure" (the tier is not saved; sending it never hurts), "not-needed" (contracted with the
+   * prime), "not-covered" (below the second tier), "not-federal" (the job is not marked federal).
+   */
+  applies: "needed" | "unsure" | "not-needed" | "not-covered" | "not-federal";
+  notice: NoticeFormDto;
+  prefill: Record<string, string>;
+  /** The job's unpaid money from the cash report: billed and not paid, and retainage held. */
+  outstandingCents: number;
+  retainageHeldCents: number;
+  /** The saved last day of labor or material, if any (the amount and dates run from it). */
+  lastFurnishedOn: string | null;
+  /** The notice's 90th day (moved back to a Friday on a weekend), when the last day is saved. */
+  noticeDueOn: string | null;
 }
 
 /** A Texas notice of claim recorded as sent to one recipient. */

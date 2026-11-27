@@ -2,6 +2,7 @@
 // packages/billing's signed fake provider, so signature rejection is exercised for real.
 import { fakeWebhookRequest, signCheckoutToken } from "@billing";
 import type { BillingDto, PlanDto } from "@shared/plans";
+import { RENEWAL_TERMS_VERSION } from "@shared/renewal-notice";
 import { pendingCheckouts, subscriptions } from "@worker/db/schema";
 import { newId } from "@worker/lib/ids";
 import { eq } from "drizzle-orm";
@@ -53,7 +54,11 @@ const invite = (t: Tenant, email: string) =>
 
 async function checkout(t: Tenant, plan = "fulltime", interval = "month") {
   const { url } = await json<{ url: string }>(
-    api(path(t, "/billing/checkout"), { method: "POST", as: t.userId, json: { plan, interval } }),
+    api(path(t, "/billing/checkout"), {
+      method: "POST",
+      as: t.userId,
+      json: { plan, interval, renewalConsent: true },
+    }),
   );
   const rows = await testDb()
     .select()
@@ -218,14 +223,79 @@ describe("checkout", () => {
       .values({ id: newId("mem"), organizationId: t.orgId, userId: editor.id, role: "editor" });
     const post = (as: string, body: unknown) =>
       api(path(t, "/billing/checkout"), { method: "POST", as, json: body });
-    expect((await post(editor.id, { plan: "side" })).status).toBe(403);
-    expect((await post(t.userId, { plan: "free" })).status).toBe(400);
-    expect((await post(t.userId, { plan: "comp" })).status).toBe(400);
+    const ok = { renewalConsent: true };
+    expect((await post(editor.id, { plan: "side", ...ok })).status).toBe(403);
+    expect((await post(t.userId, { plan: "free", ...ok })).status).toBe(400);
+    expect((await post(t.userId, { plan: "comp", ...ok })).status).toBe(400);
     const { url, pending } = await checkout(t, "business", "year");
     expect(url).toContain("fake_checkout");
     expect(new URL(url).pathname).toBe(`/o/${t.orgId}/billing`);
     expect(pending?.planKey).toBe("business");
     expect(pending?.interval).toBe("year");
+  });
+
+  it("refuses checkout without the automatic-renewal consent, and records it when given", async () => {
+    const t = await freeTenant();
+    const post = (body: unknown) =>
+      api(path(t, "/billing/checkout"), { method: "POST", as: t.userId, json: body });
+    for (const body of [
+      { plan: "side" },
+      { plan: "side", renewalConsent: false },
+      { plan: "side", renewalConsent: "yes" },
+    ]) {
+      expect((await post(body)).status).toBe(400);
+    }
+    expect(
+      await testDb()
+        .select()
+        .from(pendingCheckouts)
+        .where(eq(pendingCheckouts.orgId, t.orgId))
+        .all(),
+    ).toHaveLength(0);
+    // A stale page's version is not recorded: the server's terms version is.
+    const res = await post({
+      plan: "side",
+      renewalConsent: true,
+      renewalTermsVersion: "2020-01-01",
+    });
+    expect(res.status).toBe(200);
+    const [row] = await testDb()
+      .select()
+      .from(pendingCheckouts)
+      .where(eq(pendingCheckouts.orgId, t.orgId))
+      .all();
+    expect(row?.renewalTermsVersion).toBe(RENEWAL_TERMS_VERSION);
+    expect(row?.renewalConsentAt).toBeInstanceOf(Date);
+  });
+
+  it("the portal opens the subscription's cancellation form on request (admins only)", async () => {
+    const t = await freeTenant();
+    const { pending } = await checkout(t, "side");
+    const token = await signCheckoutToken(TEST_AUTH_SECRET, pending?.id ?? "", t.orgId);
+    const id = `sub_cancel_${t.orgId}`;
+    await webhook({
+      providerEventId: `evt_cancel_${t.orgId}`,
+      type: "subscription.created",
+      occurredAt: "2026-11-01T00:00:00Z",
+      customData: { checkoutToken: token },
+      subscription: sub("side", id, `ctm_cancel_${t.orgId}`),
+    });
+    const portal = (body: unknown, as = t.userId) =>
+      json<{ url: string }>(api(path(t, "/billing/portal"), { method: "POST", as, json: body }));
+    expect((await portal({ action: "cancel" })).url).toContain("fake_portal=cancel");
+    expect((await portal({ action: "manage" })).url).toContain("fake_portal=1");
+    expect((await portal({})).url).toContain("fake_portal=1");
+    const editor = await createTestUser();
+    const { member } = await import("@worker/db/schema");
+    await testDb()
+      .insert(member)
+      .values({ id: newId("mem"), organizationId: t.orgId, userId: editor.id, role: "editor" });
+    const denied = await api(path(t, "/billing/portal"), {
+      method: "POST",
+      as: editor.id,
+      json: { action: "cancel" },
+    });
+    expect(denied.status).toBe(403);
   });
 
   it("a signed webhook with the checkout token puts the org on the paid plan", async () => {

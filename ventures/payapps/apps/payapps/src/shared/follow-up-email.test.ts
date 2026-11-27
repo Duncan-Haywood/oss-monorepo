@@ -235,3 +235,46 @@ describe("pay-when-paid with an outer limit", () => {
     expect(followUpKind(capped, a)).toBe("status");
   });
 });
+
+describe("late-payment interest in the drafts", () => {
+  const tx = {
+    bps: 150,
+    per: "month" as const,
+    method: "prorata" as const,
+    source: "Subcontract § 5.3",
+  };
+
+  it("the second request states the rate, its source and what has accrued", () => {
+    const e = followUpEmail(
+      job({ lateInterest: tx }),
+      app({ ageDays: 85, daysPastDue: 55, interestCents: 117_563 }),
+      from,
+    );
+    expect(e.kind).toBe("second");
+    expect(e.body).toContain(
+      "Under Subcontract § 5.3, a late payment carries interest at 1.5% a month: $1,175.63 has accrued on this application so far (55 days past due).",
+    );
+  });
+
+  it("without a source it says our subcontract; the first reminder leaves interest out", () => {
+    const j = job({ lateInterest: { ...tx, source: null } });
+    expect(
+      followUpEmail(j, app({ ageDays: 85, daysPastDue: 55, interestCents: 100 }), from).body,
+    ).toContain("Under our subcontract, a late payment");
+    const first = followUpEmail(j, app({ interestCents: 2_000 }), from);
+    expect(first.kind).toBe("reminder");
+    expect(first.body).not.toContain("interest");
+  });
+
+  it("no rate, nothing accrued or not past due: no interest line", () => {
+    const late = app({ ageDays: 85, daysPastDue: 55, interestCents: 5_000 });
+    expect(followUpEmail(job(), late, from).body).not.toContain("interest");
+    expect(
+      followUpEmail(job({ lateInterest: tx }), { ...late, interestCents: 0 }, from).body,
+    ).not.toContain("interest");
+    const balanceNotDue = app({ receivedCents: 100_000, daysPastDue: 0, interestCents: 0 });
+    expect(followUpEmail(job({ lateInterest: tx }), balanceNotDue, from).body).not.toContain(
+      "interest",
+    );
+  });
+});

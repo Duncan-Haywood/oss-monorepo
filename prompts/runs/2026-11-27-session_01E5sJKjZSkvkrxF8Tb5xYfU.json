@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01E5sJKjZSkvkrxF8Tb5xYfU",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T16:18:13Z",
+  "ended": "2026-11-27T16:33:31Z",
+  "wall_minutes": 15.53,
+  "tokens_in": 16586925,
+  "tokens_out": 57185,
+  "cost_usd": 6.0242,
+  "tool_calls": 107,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19805",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "worker test first failed: a line with customerSuppliedMaterial still needs material: null in the API body; fixed in the test"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets named einvoice-preflight #4 as 'free and not gated', but every sub-part of that item is gated (owner agreement, a DPA notice, 'if accountants ask'); every Next item on bets #1-#5 waits on demand, so the tool's 'start here' sent me to work I could not do"
+    },
+    {
+      "file": "portfolio/work/tasks.yaml",
+      "issue": "move-payapps-public, move-jobshop-quote-public, move-einvoice-pro-public, move-seller-books-public still show open though bets.md says all four moved into ventures/ on 2026-11-27"
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "usage error: I guessed --claim as a flag; --slug alone claims. The 'Take the next bet' hint could print the exact claim command"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "bet #1 (payapps) has no free Next item and its front door is saturated; outbound web was blocked (CONNECT 403) so no statute or export-format research was possible",
+      "did": "opened a new growth item on bet #2 (shop load and lead time, from the growth path 'won quote to job traveler'), buildable from in-repo data only",
+      "result": "shipped with tests; merged in this PR"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Writing goes to consolidated posts",
+      "did": "extended the existing for-customers post on quoted vs actual hours instead of a new post",
+      "result": "one section added"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-25-quoted-vs-actual-hours-for-machine-shops.md (extended: 'A lead time from your own backlog')"
+  ],
+  "goal": null,
+  "notes": "Local verification: typecheck, biome clean; unit 652/652, worker 292/292, build OK, jobshop-site 55/55. Outbound HTTPS to statute sites and google.com failed with CONNECT 403.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e6469b05-cde3-5212-b0f1-f0c2bdf03973",
+    "transcripts": 1,
+    "first": "2026-11-27T16:18:13Z",
+    "last": "2026-11-27T16:33:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 106,
+        "input": 205,
+        "output": 57185,
+        "thinking": 11729,
+        "cache_read": 16386420,
+        "cache_write_5m": 0,
+        "cache_write_1h": 200300,
+        "api_equivalent_usd": 6.0242,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 106,
+      "input": 205,
+      "output": 57185,
+      "thinking": 11729,
+      "cache_read": 16386420,
+      "cache_write_5m": 0,
+      "cache_write_1h": 200300,
+      "api_equivalent_usd": 6.0242,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 107,
+    "tools": {
+      "Bash": 100,
+      "Write": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.53,
+      "active_minutes": 15.53,
+      "model_minutes": 11.79,
+      "tool_minutes": 3.73,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "senior full-stack dev: scheduler model + tests, migration, 5 routes, two UI cards and a page, policy and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 232.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
