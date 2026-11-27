@@ -66,9 +66,11 @@ only, and this list needs `*.md`. The sparse worktree was built by hand with
 
 ## After
 
-The after number comes from this PR's CI run of the workflow. At the
-agent-permission-harness workflow's rate (44 s to 8 s checkout for a 14.3k-file
-sparse set of the same shape), expect roughly 46 s to 8 s per job.
+This PR's CI (run 45946539681, head `0aae84412`), from step timestamps in
+`actions/runs/<id>/jobs`: checkout **8 s** (was a 46 s median), job **32 s**
+(was 64 s). The tests passed and the job is green. At the window's three jobs
+an hour, that saves about 2 job-minutes an hour. The saving is larger in hours
+when agent-permission-harness PRs land, since its probes are in the trigger.
 
 ## Site-builder suite, re-read (nothing changed)
 

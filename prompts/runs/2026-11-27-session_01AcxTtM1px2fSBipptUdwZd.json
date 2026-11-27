@@ -57,7 +57,7 @@
     "docs/history/ci-perf-2026-11-27-error-rate-disclosure-sparse.md"
   ],
   "goal": null,
-  "notes": "Metric: error-rate-disclosure CI checkout. Before: median checkout 46 s of 64 s job (ci_profile.py --runs 1500, 04:13-05:09Z, 3 jobs). After: expected ~8 s (same-shape sparse set on agent-permission-harness went 44->8 s); read from this PR's CI run. Files checked out 82,403 -> 14,397. Same answers: 25 tests OK, measure.py JSON and every probe render cmp-identical vs clean full worktree. Site-builder re-read: suite 334 s wall/1,025 s CPU cold, 2,182 pass; buildSite 143 s cold cards vs 52 s warm; profile flat; card hardlink 0.6 s vs copy 1.8 s (not changed). Local: run_workflow_locally --for-changes 11/11 passed, priv-codeql/priv-security-gate no verdict locally.",
+  "notes": "Metric: error-rate-disclosure CI checkout. Before: median checkout 46 s of 64 s job (ci_profile.py --runs 1500, 04:13-05:09Z, 3 jobs). After: checkout 8 s, job 32 s (PR CI run 45946539681 step timestamps), green. Files checked out 82,403 -> 14,397. Same answers: 25 tests OK, measure.py JSON and every probe render cmp-identical vs clean full worktree. Site-builder re-read: suite 334 s wall/1,025 s CPU cold, 2,182 pass; buildSite 143 s cold cards vs 52 s warm; profile flat; card hardlink 0.6 s vs copy 1.8 s (not changed). Local: run_workflow_locally --for-changes 11/11 passed, priv-codeql/priv-security-gate no verdict locally.",
   "corrections": [],
   "redteam": null,
   "usage": {
