@@ -20,6 +20,7 @@ export const GROUPS = [
     ["front-loading-schedule-of-values.html", "Front-loading check (balanced SOV)"],
     ["pay-if-paid-clauses.html", "Pay-if-paid clause reader"],
     ["how-to-write-an-rfi.html", "RFI drafter and how to write an RFI"],
+    ["punch-list.html", "Punch list tracker and back-check email"],
   ]],
   ["Billing guides", [
     ["how-to-fill-out-a-pay-application.html", "How to fill out a pay application"],

@@ -1,18 +1,19 @@
-// Florida Notice to Owner: who serves it and on whom, the 45-day serve-by and 40-day mail-by dates,
-// when a notice counts as served for each method, and a draft of the § 713.06(2)(c) form word for
-// word.
+// Florida Notice to Owner (private works): who must serve it and on whom, the 45-day date, the
+// 40-day mail-by date for service on mailing, what a late notice costs, the 90-day claim of lien
+// date, and a draft of the statutory form, Fla. Stat. § 713.06(2)(c), word for word.
 //
-// Source: Fla. Stat. § 713.06(2) and § 713.18 as published by the Florida Senate (2026 Florida
-// Statutes), fetched 2026-11-27. The snapshot is PayApps' own verified copy,
-// ventures/payapps/packages/lien-waivers/sources/fl-713-06.txt; flnto.test.mjs checks every line of
-// NTO_FORM and every quoted phrase in QUOTES against it, so the page cannot drift from the statute.
+// Source: Fla. Stat. §§ 713.06(2), 713.18 and 713.08(4)(c), (5), 2026 Florida Statutes as published
+// by the Florida Senate (flsenate.gov), read 2026-11-27; snapshot in sources/fl-713.txt, which
+// flnto.test.mjs checks every quoted phrase and the whole form against. The same snapshot of
+// §§ 713.06(2) and 713.18 backs the Notice to Owner in PayApps (packages/lien-waivers/src/fl-notice.ts).
 //
-// Day counting: § 713.06(2)(a), "not later than 45 days after commencing" to furnish, so the last
-// day is the first day of furnishing + 45 calendar days; § 713.18(2)(b), "mailed within 40 days
-// after the date the lienor first furnishes", so the mail-by date is + 40. Nothing here moves a date
-// off a weekend or holiday: the sections read say nothing about one, so the earlier date stands and
-// the page says to serve early. The rule matches PayApps' (packages/lien-waivers/src/fl-service.ts).
-// Pure functions, no I/O.
+// Day counting: § 713.06(2)(a) says "not later than 45 days after commencing", so the last day is
+// first furnished + 45 calendar days. § 713.18(2)(b): mailed "within 40 days after the date the
+// lienor first furnishes", by registered, Global Express Guaranteed or certified mail with a mail
+// log or USPS tracking, the notice is served as of the mailing date; otherwise it is served when it
+// is delivered. The sections read here say nothing about weekends or holidays, so nothing is moved.
+// Not covered: public works and bonded jobs (§ 255.05, § 713.23), and a lienor in privity with the
+// owner, which § 713.06 ("Liens of persons not in privity") does not address. Pure functions, no I/O.
 
 const DAY = 86400000;
 
@@ -24,48 +25,47 @@ export function parseDate(v) {
   return d.getUTCMonth() === +m[2] - 1 && d.getUTCDate() === +m[3] ? t : NaN;
 }
 export const isoDate = (t) => new Date(t).toISOString().slice(0, 10);
+const addDays = (t, n) => t + n * DAY;
 const days = (a, b) => Math.round((b - a) / DAY);
 
-export const SERVE_DAYS = 45;
-export const MAIL_DAYS = 40;
+export const SERVE_DAYS = 45; // § 713.06(2)(a)
+export const MAIL_DAYS = 40; // § 713.18(2)(b)
+export const CLAIM_DAYS = 90; // § 713.08(5)
 
-// § 713.18(1) means of service, and which of them § 713.18(2) lets count on the day of mailing.
+// § 713.18(1) means of service, and whether § 713.18(2)'s service-on-mailing rule can apply.
 export const METHODS = {
-  certified: { label: "Certified mail", onMailing: true },
-  registered: { label: "Registered mail", onMailing: true },
-  gxg: { label: "Global Express Guaranteed", onMailing: true },
-  carrier: { label: "Common carrier delivery service", onMailing: false },
-  hand: { label: "Hand delivery", onMailing: false },
-  posting: { label: "Posting on the site", onMailing: false },
+  mail: { label: "Certified, registered or Global Express Guaranteed mail", onMailing: true, rule: "§ 713.18(1)(b), with evidence of delivery" },
+  carrier: { label: "Common carrier delivery service (e.g. a courier)", onMailing: false, rule: "§ 713.18(1)(b), with evidence of delivery" },
+  hand: { label: "Hand delivery", onMailing: false, rule: "§ 713.18(1)(a)" },
+  post: { label: "Posting on the job site", onMailing: false, rule: "§ 713.18(1)(c), only if hand delivery and mail or carrier cannot be accomplished" },
 };
 
-// § 713.06(2)(a), (b), (d): who gets the notice or a copy, by the lienor's place on the job.
+// The claimant's place on the job; who gets the notice and its copies follows § 713.06(2)(a), (b).
 export const ROLES = {
   sub: "A subcontractor hired by the contractor (GC)",
-  subsub: "A sub-subcontractor, or a supplier to a subcontractor",
-  supsubsub: "A supplier to a sub-subcontractor",
+  supplierGc: "A supplier (materialman) to the contractor",
+  subsub: "A sub-subcontractor (hired by a subcontractor)",
+  supplierSub: "A supplier to a subcontractor",
+  supplierSubsub: "A supplier to a sub-subcontractor",
+  laborer: "A laborer (paid wages for my own work)",
   direct: "I contracted directly with the owner",
-  laborer: "A laborer (wages for my own work)",
 };
 
-const DESIGNEE = "Anyone the owner's notice of commencement designates to receive a copy (§ 713.06(2)(b))";
-const LENDER = "A lender, if the notice of commencement names one: addressed to the persons and place it designates (§ 713.06(2)(d))";
+const DESIGNEE = "Anyone the owner's notice of commencement names to receive a copy (§ 713.06(2)(b); missing this copy does not invalidate an otherwise valid lien)";
 
 export function recipients(role) {
-  if (role === "laborer") {
-    return { needed: false, to: [], why: "Laborers are excepted: \"All lienors under this section, except laborers\" must serve the notice (§ 713.06(2)(a))." };
-  }
-  if (role === "direct") {
-    return { needed: false, to: [], why: "Section 713.06 is for lienors not in privity with the owner (subcontractors, sub-subcontractors and suppliers). A contractor hired by the owner does not serve this notice; Florida has other requirements for it (for example the contractor's final payment affidavit, § 713.06(3)(d)), which this page does not cover." };
-  }
-  const to = ["The owner (§ 713.06(2)(a)); served on one owner, it is served on all owners (§ 713.18(4))"];
-  if (role === "subsub" || role === "supsubsub") to.push("A copy to the contractor (GC) (§ 713.06(2)(a))");
-  if (role === "supsubsub") to.push("A copy to the subcontractor above your customer, if you know its name and address (§ 713.06(2)(a))");
-  to.push(DESIGNEE, LENDER);
-  const strict = role === "sub"
-    ? "Without it you cannot perfect a lien or record a claim of lien."
-    : "The copy to the contractor is also \"a prerequisite to perfecting a lien\".";
-  return { needed: true, to, why: `${strict} Missing the designee's copy "does not invalidate an otherwise valid lien" (§ 713.06(2)(b)).` };
+  if (role === "laborer") return { needed: false, to: [], why: "Laborers are excepted: \"All lienors under this section, except laborers\" must serve the notice (§ 713.06(2)(a))." };
+  if (role === "direct") return { needed: false, to: [], why: "Section 713.06 covers \"persons not in privity\" with the owner. A contractor who contracted with the owner does not serve this notice; the claim of lien date below still applies to you (§ 713.08(5)), and this page does not cover the rest of a contractor's lien steps." };
+  if (!ROLES[role]) return { needed: false, to: [], why: "Choose who you are on this job." };
+  const to = ["The owner (§ 713.06(2)(a))"];
+  if (role === "subsub" || role === "supplierSub" || role === "supplierSubsub") to.push("A copy on the contractor (GC) (§ 713.06(2)(a))");
+  if (role === "supplierSubsub") to.push("The subcontractor above your customer, if you know its name and address (§ 713.06(2)(a))");
+  to.push(DESIGNEE);
+  return {
+    needed: true,
+    to,
+    why: "Serving the notice is \"a prerequisite to perfecting a lien under this chapter and recording a claim of lien\", and \"the failure to serve the notice, or to timely serve it, is a complete defense to enforcement of a lien by any person\" (§ 713.06(2)(a)).",
+  };
 }
 
 function status(deadline, today) {
@@ -74,79 +74,94 @@ function status(deadline, today) {
   return { daysLeft: left, state: left < 0 ? "past" : left === 0 ? "today" : left <= 5 ? "soon" : "open" };
 }
 
-/**
- * The two dates from the first day of furnishing, and, given how and when a notice went out, the
- * day it counts as served and whether that is within the 45 days.
- *   first: YYYY-MM-DD, the first day you furnished labor, services or materials
- *   method: a METHODS key (optional); sent: day mailed, handed over or posted (optional);
- *   delivered: delivery date from the evidence of delivery (optional); today: for the countdown.
- */
-export function ntoDates({ first, method = "certified", sent = "", delivered = "", today = "" } = {}) {
+// first: first day of furnishing; sent: day mailed, handed over or posted; delivered: day a mailed
+// or couriered notice was delivered (optional); last: last day of furnishing (optional).
+export function noticeDates({ first, sent, delivered, method = "mail", last, today } = {}) {
   const errors = [];
   const f = parseDate(first);
   if (Number.isNaN(f)) errors.push("Enter the first day you furnished labor, services or materials as YYYY-MM-DD.");
-  if (!METHODS[method]) errors.push("Choose how the notice is served.");
-  const s = sent ? parseDate(sent) : null;
-  if (Number.isNaN(s)) errors.push("Enter the day the notice is mailed, handed over or posted as YYYY-MM-DD.");
-  const d = delivered ? parseDate(delivered) : null;
-  if (Number.isNaN(d)) errors.push("Enter the delivery date as YYYY-MM-DD.");
-  // Serving "before commencing" is allowed (§ 713.06(2)(a)), so a sent date before the first day is fine.
-  if (!errors.length && s !== null && d !== null && d < s) errors.push("The delivery date is before the day it was sent.");
+  const m = METHODS[method];
+  if (!m) errors.push("Choose how the notice is served.");
+  const opt = (v, what) => {
+    if (!v || !String(v).trim()) return null;
+    const t = parseDate(v);
+    if (Number.isNaN(t)) errors.push(`Enter ${what} as YYYY-MM-DD, or leave it blank.`);
+    return t;
+  };
+  const s = opt(sent, "the day the notice was mailed, delivered or posted");
+  const d = opt(delivered, "the day it was delivered");
+  const l = opt(last, "the last day you furnished work");
   if (errors.length) return { errors };
+  const r = compute(f, s, m, d, l, today);
+  // Serving before commencing is allowed by § 713.06(2)(a), so an early date is not an error.
+  if (!r.errors.length && s !== null && s < f) r.notes.unshift("Served before you started: the statute allows that (\"before commencing, or not later than 45 days after commencing\", § 713.06(2)(a)).");
+  return r;
+}
 
-  const serveBy = f + SERVE_DAYS * DAY;
-  const mailBy = f + MAIL_DAYS * DAY;
+function compute(f, s, m, d, l, today) {
+  const t = parseDate(today);
+  const serveBy = addDays(f, SERVE_DAYS);
+  const mailBy = addDays(f, MAIL_DAYS);
   const out = {
-    errors,
+    errors: [],
     serveBy: isoDate(serveBy),
-    mailBy: isoDate(mailBy),
-    status: status(serveBy, parseDate(today)),
-    mailStatus: status(mailBy, parseDate(today)),
-    servedOn: null,
-    basis: null,
-    onTime: null,
+    status: status(serveBy, t),
+    mailBy: m.onMailing ? isoDate(mailBy) : null,
+    mailByStatus: m.onMailing ? status(mailBy, t) : null,
+    rule: m.rule,
     notes: [],
   };
-  if (s === null) return out;
-
-  const m = METHODS[method];
-  if (method === "hand" || method === "posting") {
-    out.servedOn = isoDate(s);
-    out.basis = method === "posting" ? "posting" : "delivery";
-  } else if (m.onMailing && s <= mailBy) {
-    out.servedOn = isoDate(s);
-    out.basis = "mailing";
-    out.notes.push(`Mailed by ${m.label.toLowerCase()} within the ${MAIL_DAYS} days, so it is served as of the day mailed (§ 713.18(2)), as long as you keep a mail log with the USPS mail number, the name and address served and the USPS date stamp, or USPS tracking records showing the date the USPS received it (§ 713.18(2)(c)).`);
-  } else {
-    out.basis = "delivery";
-    out.servedOn = d === null ? null : isoDate(d);
-    out.notes.push(m.onMailing
-      ? `Mailed after the ${MAIL_DAYS} days (mail-by ${out.mailBy}), so it counts when delivered, with evidence of delivery (§ 713.18(1)(b)).`
-      : `A carrier's delivery counts when it is delivered, with evidence of delivery (§ 713.18(1)(b)); only registered, certified and Global Express Guaranteed mail can count on the day of mailing.`);
-    if (d === null) out.notes.push(`Enter the delivery date from the evidence of delivery to check it against ${out.serveBy}.`);
+  if (m.onMailing) {
+    out.notes.push(`Mailed by ${out.mailBy} with a mail log or USPS tracking records, the notice counts as served on the day you mail it (§ 713.18(2)). Mailed later, it counts only when it is delivered, and that must be by ${out.serveBy}.`);
+  } else if (m === METHODS.carrier) {
+    out.notes.push(`By courier the notice is served when it is delivered, so it must arrive by ${out.serveBy}; the service-on-mailing rule is for registered, certified and Global Express Guaranteed mail only (§ 713.18(2)(a)).`);
   }
-  if (out.basis === "posting") out.notes.push("Posting counts only \"if service as provided by paragraph (a) or paragraph (b) cannot be accomplished\" (§ 713.18(1)(c)). Keep a record of the attempts.");
-  if (out.servedOn !== null) {
-    out.onTime = out.basis === "mailing" ? true : out.servedOn <= out.serveBy;
-    if (!out.onTime) {
-      out.notes.push(`Served ${out.servedOn}, after the ${SERVE_DAYS} days ended ${out.serveBy}: "the failure to serve the notice, or to timely serve it, is a complete defense to enforcement of a lien by any person" (§ 713.06(2)(a)), and "a lienor must strictly comply with the time requirements" (§ 713.06(2)(f)). Unlike California, there is no partial cover for later work.`);
+  if (s !== null) {
+    let served = null;
+    if (m.onMailing && s <= mailBy) {
+      served = s;
+      out.servedHow = "on mailing (§ 713.18(2)), if you keep the mail log or USPS tracking records";
+    } else if (m.onMailing || m === METHODS.carrier) {
+      if (d !== null) {
+        if (d < s) return { errors: ["The delivery date is before the mailing date; check both dates."] };
+        served = d;
+        out.servedHow = "on delivery";
+      } else {
+        out.servedHow = null;
+        out.notes.push(m.onMailing
+          ? `Mailed ${isoDate(s)}, after the 40th day: it counts only when delivered. Enter the delivery date to check it reached the owner by ${out.serveBy}.`
+          : "Enter the delivery date to check it.");
+      }
+    } else {
+      served = s;
+      out.servedHow = m === METHODS.hand ? "on hand delivery" : "on posting";
+    }
+    if (served !== null) {
+      out.served = isoDate(served);
+      out.onTime = served <= serveBy;
+      if (!out.onTime) out.notes.push(`Late by ${days(serveBy, served)} day(s). Florida does not save part of the work: the failure "to timely serve it, is a complete defense to enforcement of a lien by any person" (§ 713.06(2)(a)), and "a lienor must strictly comply with the time requirements" (§ 713.06(2)(f)). Talk to a Florida construction attorney about any bond or contract claim you still have.`);
     }
   }
-  out.notes.push("In any event the notice must be served \"before the date of the owner’s disbursement of the final payment after the contractor has furnished the affidavit\" (§ 713.06(2)(a)), which can come before the 45 days on a short job.");
+  if (l !== null) {
+    if (l < f) return { errors: ["The last day of furnishing is before the first; check both dates."] };
+    out.claimBy = isoDate(addDays(l, CLAIM_DAYS));
+    out.claimStatus = status(addDays(l, CLAIM_DAYS), t);
+  }
   return out;
 }
 
-// § 713.06(2)(c), line by line as the Florida Senate prints it. Captions in parentheses mark where
-// the statute leaves a blank; draftNotice fills them. flnto.test.mjs checks each line verbatim
-// against the snapshot.
-export const NTO_FORM = [
+// § 713.06(2)(c), word for word. A {{key}} marks where the statute prints a caption or a blank.
+export const WARNINGS = [
   "WARNING! FLORIDA’S CONSTRUCTION LIEN LAW ALLOWS SOME UNPAID CONTRACTORS, SUBCONTRACTORS, AND MATERIAL SUPPLIERS TO FILE LIENS AGAINST YOUR PROPERTY EVEN IF YOU HAVE MADE PAYMENT IN FULL.",
   "UNDER FLORIDA LAW, YOUR FAILURE TO MAKE SURE THAT WE ARE PAID MAY RESULT IN A LIEN AGAINST YOUR PROPERTY AND YOUR PAYING TWICE.",
   "TO AVOID A LIEN AND PAYING TWICE, YOU MUST OBTAIN A WRITTEN RELEASE FROM US EVERY TIME YOU PAY YOUR CONTRACTOR.",
+];
+export const FORM = [
+  ...WARNINGS,
   "NOTICE TO OWNER",
-  "To (Owner’s name and address)",
+  "To {{owner}}",
   "The undersigned hereby informs you that he or she has furnished or is furnishing services or materials as follows:",
-  "(General description of services or materials) for the improvement of the real property identified as (property description) under an order given by____.",
+  "{{work}} for the improvement of the real property identified as {{site}} under an order given by {{hiredBy}}.",
   "Florida law prescribes the serving of this notice and restricts your right to make payments under your contract in accordance with Section 713.06, Florida Statutes.",
   "IMPORTANT INFORMATION FOR YOUR PROTECTION",
   "Under Florida’s laws, those who work on your property or provide materials and are not paid have a right to enforce their claim for payment against your property. This claim is known as a construction lien.",
@@ -155,56 +170,33 @@ export const NTO_FORM = [
   "—RECOGNIZE that this Notice to Owner may result in a lien against your property unless all those supplying a Notice to Owner have been paid.",
   "—LEARN more about the Construction Lien Law, Chapter 713, Part I, Florida Statutes, and the meaning of this notice by contacting an attorney or the Florida Department of Business and Professional Regulation.",
   "(Lienor’s Signature)",
-  "(Lienor’s Name)",
-  "(Lienor’s Address)",
-  "Copies to: (Those persons listed in Section 713.06(2)(a) and (b), Florida Statutes)",
+  "{{lienorName}}",
+  "{{lienorAddress}}",
+  "Copies to: {{copies}}",
 ];
 
-// Lines printed in capitals as warnings (bold on the printed notice).
-export const BOLD_LINES = new Set([0, 1, 2, 3, 8, 11]);
-
-// Every phrase the page and this module quote, checked against the snapshot by the test.
-export const QUOTES = [
-  "All lienors under this section, except laborers",
-  "not later than 45 days after commencing",
-  "before the date of the owner’s disbursement of the final payment after the contractor has furnished the affidavit",
-  "the failure to serve the notice, or to timely serve it, is a complete defense to enforcement of a lien by any person",
-  "a lienor must strictly comply with the time requirements",
-  "does not invalidate an otherwise valid lien",
-  "The notice may be in substantially the following form and must include the information and the warning contained in the following form",
-  "may rely on the information contained in the building permit application",
-  "is mailed within 40 days after the date the lienor first furnishes labor, services, or materials",
-  "if service as provided by paragraph (a) or paragraph (b) cannot be accomplished",
-  "NOTICE TO OWNER/NOTICE TO CONTRACTOR",
-  "The serving of the notice does not dispense with recording the claim of lien",
-  "a prerequisite to perfecting a lien",
-];
-
+// The caption the statute prints in each place, kept when the field is blank.
 export const FIELDS = [
-  ["owner", "Owner’s name and address", true],
-  ["work", "General description of services or materials", true],
-  ["site", "Property description", true],
-  ["hiredBy", "Under an order given by (who hired you)", true],
-  ["lienor", "Your company name (lienor)", true],
-  ["address", "Your company address", true],
-  ["copies", "Copies to", false],
+  ["owner", "(Owner’s name and address)", true],
+  ["work", "(General description of services or materials)", true],
+  ["site", "(property description)", true],
+  ["hiredBy", "____", true],
+  ["lienorName", "(Lienor’s Name)", true],
+  ["lienorAddress", "(Lienor’s Address)", true],
+  ["copies", "(Those persons listed in Section 713.06(2)(a) and (b), Florida Statutes)", false],
 ];
+const LABELS = { owner: "owner's name and address", work: "description of your services or materials", site: "property description", hiredBy: "who ordered the work", lienorName: "your company's name", lienorAddress: "your company's address", copies: "who gets copies" };
 
-/** The form with the user's entries in place of the statute's captions, and what is still blank. */
-export function draftNotice(v = {}) {
-  const val = (k) => String(v[k] ?? "").trim();
-  const missing = FIELDS.filter(([k, , req]) => req && !val(k)).map(([, label]) => label);
-  const or = (k, caption) => val(k) || caption;
-  const lines = NTO_FORM.map((line) => {
-    if (line === "To (Owner’s name and address)") return `To ${or("owner", "(Owner’s name and address)")}`;
-    if (line.startsWith("(General description")) {
-      return `${or("work", "(General description of services or materials)")} for the improvement of the real property identified as ${or("site", "(property description)")} under an order given by${val("hiredBy") ? ` ${val("hiredBy").replace(/\.+$/, "")}.` : "____."}`;
-    }
-    if (line === "(Lienor’s Signature)") return "____________________ (Lienor’s Signature)";
-    if (line === "(Lienor’s Name)") return or("lienor", "(Lienor’s Name)");
-    if (line === "(Lienor’s Address)") return or("address", "(Lienor’s Address)");
-    if (line.startsWith("Copies to:")) return `Copies to: ${or("copies", "(Those persons listed in Section 713.06(2)(a) and (b), Florida Statutes)")}`;
-    return line;
-  });
+const clean = (v) => String(v ?? "").replace(/\s+/g, " ").trim();
+
+export function draftNotice(fields = {}) {
+  const missing = [];
+  const fill = {};
+  for (const [key, caption, required] of FIELDS) {
+    const v = clean(fields[key]);
+    if (!v && required) missing.push(LABELS[key]);
+    fill[key] = v || caption;
+  }
+  const lines = FORM.map((line) => line.replace(/\{\{(\w+)\}\}/g, (_, k) => fill[k]));
   return { lines, text: lines.join("\n\n"), missing };
 }

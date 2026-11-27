@@ -1,111 +1,114 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { ntoDates, recipients, draftNotice, NTO_FORM, QUOTES, FIELDS } from "./flnto.mjs";
+import { noticeDates, recipients, draftNotice, FORM, FIELDS, WARNINGS } from "./flnto.mjs";
 
-// PayApps' verified snapshot of the Florida Senate's 2026 text of §§ 713.06(2) and 713.18.
-const SNAPSHOT = readFileSync(new URL("../payapps/packages/lien-waivers/sources/fl-713-06.txt", import.meta.url), "utf8");
-const statuteLines = SNAPSHOT.split("\n").filter((l) => !l.startsWith("#"));
-
-test("every line of the form is the statute's own line, in order", () => {
-  let at = statuteLines.findIndex((l) => l.startsWith("WARNING!"));
-  assert.ok(at > 0);
-  for (const line of NTO_FORM) {
-    assert.equal(statuteLines[at], line);
-    at++;
-  }
-  assert.match(statuteLines[at], /^The form may be combined/); // nothing of the form left out
-});
-
-test("every quoted phrase is in the statute", () => {
-  for (const q of QUOTES) assert.ok(SNAPSHOT.includes(q), q);
-});
-
-test("every phrase the page quotes in curly quotes is in the statute", () => {
-  const html = readFileSync(new URL("./florida-notice-to-owner.html", import.meta.url), "utf8");
-  const quoted = [...html.matchAll(/“([^”]+)”/g)].map((m) => m[1].replace(/&amp;/g, "&"));
-  assert.ok(quoted.length >= 8, `only ${quoted.length} quotes`);
-  for (const q of quoted) assert.ok(SNAPSHOT.includes(q), `not in the statute: ${q}`);
-});
+const SRC = readFileSync(new URL("./sources/fl-713.txt", import.meta.url), "utf8");
+const statute = SRC.split("\n").filter((l) => !l.startsWith("#")).join("\n");
+const flatS = statute.replace(/\s+/g, " ");
+const PAGE = readFileSync(new URL("./florida-notice-to-owner.html", import.meta.url), "utf8");
 
 // Dates counted by hand on a calendar.
-test("45 and 40 calendar days after the first day, not moved off a weekend", () => {
-  const r = ntoDates({ first: "2026-03-02", today: "2026-03-10" });
+test("45 and 40 calendar days after first furnishing, not moved for a weekend", () => {
+  const r = noticeDates({ first: "2026-03-02", today: "2026-03-10" });
   assert.deepEqual(r.errors, []);
   assert.equal(r.serveBy, "2026-04-16");
   assert.equal(r.mailBy, "2026-04-11"); // a Saturday: stays put
   assert.equal(r.status.daysLeft, 37);
-  assert.equal(r.mailStatus.daysLeft, 32);
-  assert.equal(r.status.state, "open");
+  assert.equal(r.mailByStatus.daysLeft, 32);
 });
 
 test("month end and leap year", () => {
-  assert.equal(ntoDates({ first: "2028-01-20" }).serveBy, "2028-03-05");
-  assert.equal(ntoDates({ first: "2028-01-20" }).mailBy, "2028-02-29");
-  assert.equal(ntoDates({ first: "2026-12-01" }).serveBy, "2027-01-15");
+  assert.equal(noticeDates({ first: "2028-01-20" }).serveBy, "2028-03-05");
+  assert.equal(noticeDates({ first: "2028-01-20" }).mailBy, "2028-02-29");
+  assert.equal(noticeDates({ first: "2026-12-10" }).serveBy, "2027-01-24");
 });
 
-test("certified mail within 40 days is served on mailing, even if delivered after day 45", () => {
-  const r = ntoDates({ first: "2026-03-02", method: "certified", sent: "2026-04-11", delivered: "2026-04-20" });
-  assert.equal(r.basis, "mailing");
-  assert.equal(r.servedOn, "2026-04-11");
+test("certified mail on day 40 is served on mailing", () => {
+  const r = noticeDates({ first: "2026-03-02", sent: "2026-04-11", method: "mail" });
+  assert.equal(r.served, "2026-04-11");
   assert.equal(r.onTime, true);
-  assert.match(r.notes.join(" "), /mail log/);
+  assert.match(r.servedHow, /on mailing/);
 });
 
-test("certified mail after day 40 counts on delivery", () => {
-  const late = ntoDates({ first: "2026-03-02", method: "certified", sent: "2026-04-12" });
-  assert.equal(late.basis, "delivery");
-  assert.equal(late.servedOn, null);
-  assert.equal(late.onTime, null);
-  assert.match(late.notes.join(" "), /Enter the delivery date/);
-  assert.equal(ntoDates({ first: "2026-03-02", method: "certified", sent: "2026-04-12", delivered: "2026-04-16" }).onTime, true);
-  const r = ntoDates({ first: "2026-03-02", method: "certified", sent: "2026-04-12", delivered: "2026-04-17" });
-  assert.equal(r.onTime, false);
-  assert.match(r.notes.join(" "), /complete defense/);
+test("certified mail on day 42 counts only on delivery", () => {
+  const open = noticeDates({ first: "2026-03-02", sent: "2026-04-13", method: "mail" });
+  assert.equal(open.served, undefined);
+  assert.match(open.notes.join(" "), /after the 40th day/);
+  const ok = noticeDates({ first: "2026-03-02", sent: "2026-04-13", delivered: "2026-04-16", method: "mail" });
+  assert.equal(ok.onTime, true);
+  const late = noticeDates({ first: "2026-03-02", sent: "2026-04-13", delivered: "2026-04-18", method: "mail" });
+  assert.equal(late.onTime, false);
+  assert.match(late.notes.join(" "), /Late by 2 day\(s\).*complete defense/);
 });
 
-test("a courier counts on delivery even within 40 days; hand delivery and posting on the day", () => {
-  const c = ntoDates({ first: "2026-03-02", method: "carrier", sent: "2026-03-05", delivered: "2026-03-06" });
-  assert.equal(c.basis, "delivery");
-  assert.equal(c.servedOn, "2026-03-06");
-  const h = ntoDates({ first: "2026-03-02", method: "hand", sent: "2026-04-16" });
+test("courier and hand delivery count on delivery", () => {
+  assert.equal(noticeDates({ first: "2026-03-02", sent: "2026-04-15", delivered: "2026-04-17", method: "carrier" }).onTime, false);
+  const h = noticeDates({ first: "2026-03-02", sent: "2026-04-16", method: "hand" });
   assert.equal(h.onTime, true);
-  assert.equal(ntoDates({ first: "2026-03-02", method: "hand", sent: "2026-04-17" }).onTime, false);
-  assert.match(ntoDates({ first: "2026-03-02", method: "posting", sent: "2026-03-10" }).notes.join(" "), /cannot be accomplished/);
+  assert.equal(h.mailBy, null);
 });
 
-test("serving before commencing is allowed", () => {
-  const r = ntoDates({ first: "2026-03-02", method: "hand", sent: "2026-02-20" });
+test("serving before work starts is allowed, with a note", () => {
+  const r = noticeDates({ first: "2026-03-02", sent: "2026-02-25", method: "hand" });
   assert.deepEqual(r.errors, []);
   assert.equal(r.onTime, true);
+  assert.match(r.notes[0], /before commencing/);
 });
 
-test("bad input is named, never guessed", () => {
-  assert.match(ntoDates({ first: "" }).errors[0], /first day/);
-  assert.match(ntoDates({ first: "2026-02-30" }).errors[0], /first day/);
-  assert.match(ntoDates({ first: "2026-03-02", sent: "3/5/2026" }).errors[0], /mailed, handed/);
-  assert.match(ntoDates({ first: "2026-03-02", method: "fax" }).errors[0], /how the notice/);
-  assert.match(ntoDates({ first: "2026-03-02", sent: "2026-03-10", delivered: "2026-03-09" }).errors[0], /before the day it was sent/);
+test("claim of lien: 90 days after the last day of furnishing", () => {
+  assert.equal(noticeDates({ first: "2026-03-02", last: "2026-09-30" }).claimBy, "2026-12-29");
+  assert.match(noticeDates({ first: "2026-03-02", last: "2026-02-01" }).errors[0], /before the first/);
 });
 
-test("who gets it follows § 713.06(2)(a), (b) and (d)", () => {
+test("bad dates are errors", () => {
+  assert.equal(noticeDates({ first: "2026-02-30" }).errors.length, 1);
+  assert.equal(noticeDates({ first: "2026-03-02", sent: "03/04/2026" }).errors.length, 1);
+  assert.match(noticeDates({ first: "2026-03-02", sent: "2026-04-13", delivered: "2026-04-10" }).errors[0], /before the mailing/);
+});
+
+test("who gets it, by role", () => {
   assert.equal(recipients("laborer").needed, false);
   assert.equal(recipients("direct").needed, false);
-  assert.equal(recipients("sub").to.length, 3);
-  assert.ok(recipients("subsub").to.some((t) => /copy to the contractor/.test(t)));
-  assert.ok(!recipients("sub").to.some((t) => /copy to the contractor/.test(t)));
-  assert.ok(recipients("supsubsub").to.some((t) => /subcontractor above your customer/.test(t)));
+  assert.equal(recipients("sub").to.length, 2);
+  assert.ok(recipients("subsub").to.some((t) => /copy on the contractor/.test(t)));
+  assert.ok(recipients("supplierSub").to.some((t) => /copy on the contractor/.test(t)));
+  assert.ok(!recipients("supplierGc").to.some((t) => /copy on the contractor/.test(t)));
+  assert.ok(recipients("supplierSubsub").to.some((t) => /subcontractor above/.test(t)));
 });
 
-test("the draft keeps every statutory line and fills the captions", () => {
-  const empty = draftNotice({});
-  for (const l of NTO_FORM.filter((l) => !l.startsWith("(Lienor"))) assert.ok(empty.text.includes(l), l);
-  assert.equal(empty.missing.length, FIELDS.filter((f) => f[2]).length);
-  const full = draftNotice({ owner: "Gulf Shore Partners LLC, 400 Bay St, Tampa, FL 33602", work: "Electrical rough-in and finish, labor and materials", site: "1800 W Kennedy Blvd, Tampa, FL 33606", hiredBy: "Coastline Builders Inc.", lienor: "Bright Line Electric LLC", address: "12 Palm Ave, Clearwater, FL 33755" });
-  assert.deepEqual(full.missing, []);
-  assert.match(full.text, /To Gulf Shore Partners LLC/);
-  assert.match(full.text, /^Electrical rough-in[^\n]* for the improvement of the real property identified as 1800 W Kennedy[^\n]* under an order given by Coastline Builders Inc\.$/m);
-  assert.match(full.text, /Copies to: \(Those persons listed/);
-  for (const l of NTO_FORM.filter((l) => !l.startsWith("(") && !l.startsWith("To ") && !l.startsWith("Copies"))) assert.ok(full.text.includes(l), l);
+test("the form is § 713.06(2)(c) word for word", () => {
+  const blank = FORM.map((l) => l.replace(/\{\{(\w+)\}\}/g, (_, k) => FIELDS.find(([f]) => f === k)[1]));
+  // The snapshot prints the description, property and order-giver on one line, and the signature
+  // block's captions, as the statute does; the draft gives each its own paragraph.
+  const form = statute.slice(statute.indexOf(WARNINGS[0]), statute.indexOf("The form may be combined"));
+  const flat = (t) => t.replace(/\s+/g, " ").trim();
+  assert.equal(flat(blank.join(" ")).replace("given by ____.", "given by____."), flat(form));
+});
+
+test("draft fills the blanks and names what is missing", () => {
+  const d = draftNotice({ owner: "Gulf Point LLC, 1 Bay St, Tampa, FL 33602", work: "Drywall, labor and materials", site: "400 Harbor Blvd, Tampa", hiredBy: "Coastline Builders Inc.", lienorName: "Ridge Drywall LLC", lienorAddress: "" });
+  assert.ok(d.text.includes("Drywall, labor and materials for the improvement of the real property identified as 400 Harbor Blvd, Tampa under an order given by Coastline Builders Inc."));
+  assert.deepEqual(d.missing, ["your company's address"]);
+  assert.ok(d.text.includes("(Lienor’s Address)"));
+  assert.ok(d.text.includes("Copies to: (Those persons listed"));
+});
+
+test("every phrase the page and module quote is in the statute", () => {
+  // Quotations are \"escaped\" in the module's strings and “curly” in the page's prose.
+  const src = readFileSync(new URL("./flnto.mjs", import.meta.url), "utf8");
+  const quotes = [...src.matchAll(/\\"([^"\\]+)\\"/g), ...PAGE.matchAll(/“([^”]+)”/g)].map((m) => m[1].replace(/&amp;/g, "&"));
+  assert.ok(quotes.length >= 10, `found ${quotes.length} quotes`);
+  for (const q of quotes) assert.ok(flatS.includes(q.replace(/\s+/g, " ")), `not in the statute: "${q}"`);
+});
+
+test("page cites the Florida Senate with the read date and links the guides", () => {
+  assert.match(PAGE, /href="https:\/\/www\.flsenate\.gov\/Laws\/Statutes\/2026\/713\.06"/);
+  assert.match(PAGE, /href="https:\/\/www\.flsenate\.gov\/Laws\/Statutes\/2026\/713\.08"/);
+  assert.match(PAGE, /read <strong>2026-11-27<\/strong>/);
+  for (const id of ["role", "first", "method", "sent", "delivered", "last", "today"]) assert.match(PAGE, new RegExp(`<label for="${id}">`), id);
+  for (const name of ["florida-lien-waiver-forms.html", "california-preliminary-notice.html"]) {
+    const other = readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
+    assert.match(other, /href="florida-notice-to-owner\.html"/, name);
+  }
 });

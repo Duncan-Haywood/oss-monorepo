@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { headKey, sourceTables, withStack, stackTables } from './stack-overflowing.mjs';
+import { headKey, staticHeadKey, sourceTables, withStack, stackTables } from './stack-overflowing.mjs';
 
 const STATIC = '<table>\n<thead><tr><th>Job</th><th class="num">Net yd&sup2;</th></tr></thead>\n<tbody><tr><td>A</td><td>1</td></tr></tbody>\n</table>';
 
@@ -74,4 +74,18 @@ test('tables sharing a header are stacked only when every one overflowed', () =>
   const r = stackTables(two, [head, head]);
   assert.equal(r.changed, 2);
   assert.equal((r.html.match(/<table class="stack">/g) || []).length, 2);
+});
+
+// Polish, 2026-11-27: marketplace-fee-compare's last `th` holds `<span id="parityHead">`,
+// which the page rewrites after load, so the rendered header matched no source table.
+test('a header whose id-ed label a script rewrote is matched by its static text', () => {
+  const src = STATIC.replace('<th class="num">Net yd&sup2;</th>', '<th><span id="lab">Price to match</span></th>');
+  const rendered = { html: '<tr><th>Job</th><th><span id="lab">Price to net what Depop does</span></th></tr>', static: '<tr><th>Job</th><th><span id="lab"></span></th></tr>' };
+  const r = stackTables(src, [rendered]);
+  assert.equal(r.changed, 1);
+  assert.match(r.html, /<table class="stack">/);
+  assert.equal(staticHeadKey('<th>Job</th><th><span id="x">Anything</span> yd</th>'), headKey('Job yd'));
+  // The full text still wins when it matches, and a static match is no looser about duplicates.
+  assert.equal(stackTables(src + src, [rendered]).changed, 0);
+  assert.equal(stackTables(STATIC, [{ html: '<tr><th>Job</th><th>Net yd²</th></tr>', static: '<tr><th>Job</th><th>Net yd²</th></tr>' }]).changed, 1);
 });

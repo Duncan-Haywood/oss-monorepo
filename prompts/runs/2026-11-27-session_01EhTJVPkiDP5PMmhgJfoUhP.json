@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVPkiDP5PMmhgJfoUhP",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T08:16:24Z",
+  "ended": "2026-11-27T08:24:37Z",
+  "wall_minutes": 8.5,
+  "tokens_in": 5642397,
+  "tokens_out": 25192,
+  "cost_usd": 2.3946,
+  "tool_calls": 63,
+  "task": "polish: per-cell prose on the einvoice-preflight mandates table, its country count, stack-overflowing static header match",
+  "projects": [
+    "einvoice-preflight",
+    "platform/pages"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19667",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "Adding class=\"prose\" to the hub's Key dates cells broke mandate-calendar.mjs's row regex (3 tests red); widened the regex to accept the class, calendar output unchanged."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "polish_next.py's next item (BR-FR-MV-11 row height) had already been judged marginal in its own note; a polish track with ~13 notes today on phone-card layout kept circling the same class of fix. A static source scan (stack tables with >200-char cells) found the better target in seconds without a build."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "wait_for.py timed out after 100s on a log that the chained background command had not yet created (the first suite still running); the message explained it well, but chaining two suites into one background job means the second log appears late."
+    },
+    {
+      "file": "ventures/einvoice-preflight/e-invoicing-mandates-by-country.html",
+      "issue": "Hand-edited hub page is parsed by mandate-calendar.mjs with an exact-markup regex; nothing near the table says so. Found only by the full suite."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Skipped the named next item (item 1 of the code-list note) as low value: under one screen, and the proposed toggle hides searchable reference text. Took items 2 and 3 of the earlier note instead.",
+      "did": "per-cell prose + count fix on the mandates page; static header match in stack-overflowing.mjs",
+      "result": "-11% card height at 390 px; 3 stale country counts fixed and pinned by a test"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-19-wide-tables-become-cards-on-a-phone.md (dated update)",
+    "docs/reports/polish-2026-11-27-mandates-key-dates.md"
+  ],
+  "goal": "bet #3 front door (einvoice-preflight) SEO page accuracy and phone readability",
+  "notes": "Measured with build.mjs --only=einvoice-preflight before (stash) and after, Chromium 390 and 1280 px. Whole-table prose tried and rejected (+7% height). Local: einvoice-preflight 2235/2235 pass; platform/pages 2163 pass + 1 fail that was my own concurrent edit of docs/ (the test says so), rerun alone: pass.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0d7c13d4-9776-5ad8-914a-153e9cb1f3ef",
+    "transcripts": 1,
+    "first": "2026-11-27T08:16:24Z",
+    "last": "2026-11-27T08:24:55Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 113,
+        "output": 25192,
+        "thinking": 3828,
+        "cache_read": 5544609,
+        "cache_write_5m": 0,
+        "cache_write_1h": 97675,
+        "api_equivalent_usd": 2.3946,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 113,
+      "output": 25192,
+      "thinking": 3828,
+      "cache_read": 5544609,
+      "cache_write_5m": 0,
+      "cache_write_1h": 97675,
+      "api_equivalent_usd": 2.3946,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 58,
+      "Read": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.5,
+      "active_minutes": 8.5,
+      "model_minutes": 4.51,
+      "tool_minutes": 3.99,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "front-end dev: measure, CSS variant, 93-cell edit, script fix, tests, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 125.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

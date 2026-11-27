@@ -35,12 +35,6 @@ export const STATES = [
   ["MO", "Missouri"], ["MA", "Massachusetts"], ["CA", "California"],
 ];
 
-// The state's notice guide, linked from its waiver page: the notice comes before the waivers.
-const NOTICE_LINKS = {
-  CA: ["california-preliminary-notice.html", "20-day preliminary notice"],
-  FL: ["florida-notice-to-owner.html", "Notice to Owner (45 days)"],
-};
-
 export const slugOf = (name) => `${name.toLowerCase().replace(/ /g, "-")}-lien-waiver-forms.html`;
 
 
@@ -215,8 +209,8 @@ ${ld.map((d) => `  <script type="application/ld+json">${JSON.stringify(d).replac
   <nav class="guides" aria-label="Guides">
     <a href="${HUB}">All states</a>
     <a href="conditional-vs-unconditional-lien-waivers.html">Conditional vs unconditional waivers</a>
-    <a href="lien-waiver-log.html">Lien waiver log</a>
-${NOTICE_LINKS[code] ? `    <a href="${NOTICE_LINKS[code][0]}">${NOTICE_LINKS[code][1]}</a>\n` : ""}    <a href="#all-guides" class="all">All guides</a>
+    <a href="lien-waiver-log.html">Lien waiver log</a>${NOTICE[code] ? `\n    <a href="${NOTICE[code][0]}">${NOTICE[code][1]}</a>` : ""}
+    <a href="#all-guides" class="all">All guides</a>
   </nav>
 </header>
 <main>
@@ -276,6 +270,12 @@ ${faq.map(([q, a]) => `  <h3>${esc(q)}</h3>\n  <p>${esc(a)}</p>`).join("\n")}
 </html>
 `;
 }
+
+// The state's notice guide, where the guides have one: the notice comes before any waiver.
+const NOTICE = {
+  CA: ["california-preliminary-notice.html", "20-day preliminary notice"],
+  FL: ["florida-notice-to-owner.html", "Notice to Owner (45 days)"],
+};
 
 // The hub's "What each state asks of you" entries each end with a link to the state's page.
 const LINK_START = "<!-- state-forms link -->";
