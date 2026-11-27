@@ -40,6 +40,10 @@
     {
       "file": "portfolio/quality/README.md",
       "issue": "quality_mutate.py runs a full baseline per mutation; with a 15 s suite four mutations took about 12 min sequentially and outran the 120 s tool timeout; a --skip-baseline or batch mode would help"
+    },
+    {
+      "file": "portfolio/monetization/verticals.json",
+      "issue": "pre-existing on main: ventures/jobshop-quote exists but verticals.json was not regenerated, so test_verticals.py::test_committed_json_is_consistent fails; run_workflow_locally --for-changes reports it inside ventures-tests though no PR workflow runs it"
     }
   ],
   "deviations": [
@@ -54,7 +58,7 @@
     "docs/posts/2026-11-27-quality-fix-a-riser-slot-is-not-a-full-width-weir.md"
   ],
   "goal": null,
-  "notes": "Mode fix (quality_audit.py mode, 5 highs open); queue seed 2026-11-27-dfc4; subject ventures/stormwater-detention-sizer (payapps front door). Fixed: contracted Francis weir default (L'=L-0.2H, suppressed option), H/L>1/3 finding, NEH-630 ch16 step check D=0.133 Tc (example dt 2->1.5 min), orifice-at-bound finding, PayApps early-access link, README/page/guide/llms numbers regenerated from the engine (page test pins them). Tests 32->38 green: node --test detention.test.mjs page.test.mjs usage.test.mjs. Mutations via quality_mutate.py: H/L /3->/2 caught (after adding 200x100 and 240x100 boundary cases; first run survived), step limit 0.133->0.2 Tc caught, contraction 0.1->0.05 caught, orifice-cap finding disabled caught. Sampled share meeting the bar: n/a (fix mode). Fix PRs: #19656. Risk review: no blockers; one legal prompt on index.html (no personal data added: a select and a link). Scores unchanged; a later round re-audits.",
+  "notes": "Mode fix (quality_audit.py mode, 5 highs open); queue seed 2026-11-27-dfc4; subject ventures/stormwater-detention-sizer (payapps front door). Fixed: contracted Francis weir default (L'=L-0.2H, suppressed option), H/L>1/3 finding, NEH-630 ch16 step check D=0.133 Tc (example dt 2->1.5 min), orifice-at-bound finding, PayApps early-access link, README/page/guide/llms numbers regenerated from the engine (page test pins them). Tests 32->38 green: node --test detention.test.mjs page.test.mjs usage.test.mjs. Mutations via quality_mutate.py: H/L /3->/2 caught (after adding 200x100 and 240x100 boundary cases; first run survived), step limit 0.133->0.2 Tc caught, contraction 0.1->0.05 caught, orifice-cap finding disabled caught. Sampled share meeting the bar: n/a (fix mode). Fix PRs: #19656. Risk review: no blockers; one legal prompt on index.html (no personal data added: a select and a link). Scores unchanged; a later round re-audits. Local run_workflow_locally --for-changes: 13/14 passed; the 1 failure is the pre-existing verticals.json/jobshop-quote mismatch on main (not this diff); pytest-only steps UNRUN.",
   "corrections": [],
   "redteam": null,
   "usage": {
