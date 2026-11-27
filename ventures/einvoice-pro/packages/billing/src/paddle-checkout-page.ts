@@ -19,6 +19,7 @@
 // subdomain needs its own approval (payapps.marisstella.app is not covered by marisstella.app). That
 // approval is a Paddle dashboard step with no API; Paddle's `checkout_url_domain_not_approved` error
 // is reported as such so the deploy log says exactly what is missing.
+import { appOriginWith } from "./app-origin.ts";
 import { paddleBaseUrl } from "./paddle.ts";
 
 export const PAY_PATH = "/pay";
@@ -38,20 +39,7 @@ export function clientTokenEnvironment(token: string): "production" | "sandbox" 
  * every customer of this account to this page, so a typo would hand them to someone else's site.
  */
 export function payPageUrl(appUrl: string): string {
-  let u: URL;
-  try {
-    u = new URL(appUrl.trim());
-  } catch {
-    throw new Error(`app URL ${JSON.stringify(appUrl)} is not a URL`);
-  }
-  if (u.protocol !== "https:") throw new Error("app URL must be https");
-  if (u.username || u.password || u.search || u.hash)
-    throw new Error("app URL must be a bare origin (no credentials, query or fragment)");
-  if (!/^([a-z0-9-]+\.)+[a-z][a-z0-9-]*$/.test(u.hostname))
-    throw new Error(`app URL host ${JSON.stringify(u.hostname)} is not a public host name`);
-  if (u.pathname !== "/" && u.pathname !== "")
-    throw new Error("app URL must have no path (the pay path is added here)");
-  return `${u.origin}${PAY_PATH}`;
+  return appOriginWith(appUrl, PAY_PATH, "pay");
 }
 
 export interface PaddleClientToken {

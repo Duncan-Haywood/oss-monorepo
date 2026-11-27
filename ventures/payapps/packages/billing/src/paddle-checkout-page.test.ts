@@ -25,6 +25,11 @@ describe("payPageUrl", () => {
       payPageUrl("https://payapps.marisstella.app/"),
       "https://payapps.marisstella.app/pay",
     );
+    // Every digit and hyphens are fine in host labels (shared check with webhookUrl).
+    assert.equal(
+      payPageUrl("https://pay-0123456789.acme-9.workers.dev"),
+      "https://pay-0123456789.acme-9.workers.dev/pay",
+    );
   });
   it("accepts host names with any digit and hyphens, in any label", () => {
     // A deploy on app2.example9.com or a punycode TLD (xn--80asehdb) must not be refused: 0-9, not 0-1.
