@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01XpHqyeKHAW7thZ59czQSdz",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T12:39:28Z",
+  "ended": "2026-11-27T12:49:44Z",
+  "wall_minutes": 10.58,
+  "tokens_in": 10874592,
+  "tokens_out": 43785,
+  "cost_usd": 4.5742,
+  "tool_calls": 77,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19743",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A heredoc writing a test file was refused by the rm-safety check because the file's text contained rmSync; rewrote it with the Write tool."
+  ],
+  "integrity_issues": [
+    "Fixed two stale claims on the Seller Books site: 'Nine platforms' (ten are listed) and a FAQ promising a direct platform connection the app does not have."
+  ],
+  "doc_friction": [
+    {
+      "file": "portfolio/monetization/bets.md",
+      "issue": "Bet #3's 'Where it is built' still says 'imported to private' while four open PRs (#19574, #19575, #19635, #19707) move it to ventures/einvoice-pro; roadmap_claim --bets reports it 'not in this clone'."
+    },
+    {
+      "file": "platform/ci/roadmap_claim.py",
+      "issue": "--bets points at the bet with fewest live claims (jobshop-quote) even when every item there waits on demand too; the actually-unblocked work (a launched product's own marketing site still on early access) was only visible from ventures/seller-books/DEPLOY.md."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No new or extended customer post: PR #19718 (open) already updates the reseller customer post to say Seller Books is open; a second edit to the same post would conflict.",
+      "did": "Shipped the site's own copy switch and README/DEPLOY notes instead.",
+      "result": "No post in this PR."
+    },
+    {
+      "file": "ventures/seller-books/apps/seller-books-site/README.md",
+      "why": "Serving the site at marisstella.app/seller-books left out: PayApps has two competing open PRs (#19733, #19736) for the same serving problem; a third pattern would add to the duplication.",
+      "did": "Wrote the follow-up into the site README 'Hosting' and DEPLOY.md.",
+      "result": "The copy is launch-ready; serving follows whichever PayApps approach lands."
+    }
+  ],
+  "writeups": [
+    "ventures/seller-books/apps/seller-books-site/README.md (launch switch, hosting next step)",
+    "ventures/seller-books/DEPLOY.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty (exit 3). Ideas inbox empty. Routed ventures/1. Bets #1, #2, #4: every ROADMAP Next item waits on demand; bet #3's move is driven by another session (PR #19707, CI running). Took Seller Books (bet #5): app live but its marketing site still early-access. Verification: node --test test/*.test.mjs 64 pass 0 fail (pre-launch, open and paid-on builds); biome ci 2.6.8 clean; Playwright 390/1280 px no horizontal scroll; app /signup, /login, /legal/privacy 200.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "07090a3a-0c8a-5c9d-815d-d88208739fa4",
+    "transcripts": 1,
+    "first": "2026-11-27T12:39:28Z",
+    "last": "2026-11-27T12:50:03Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 73,
+        "input": 138,
+        "output": 43785,
+        "thinking": 7744,
+        "cache_read": 10679191,
+        "cache_write_5m": 0,
+        "cache_write_1h": 195263,
+        "api_equivalent_usd": 4.5742,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 73,
+      "input": 138,
+      "output": 43785,
+      "thinking": 7744,
+      "cache_read": 10679191,
+      "cache_write_5m": 0,
+      "cache_write_1h": 195263,
+      "api_equivalent_usd": 4.5742,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 68,
+      "Write": 3,
+      "mcp__github__pull_request_read": 2,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.58,
+      "active_minutes": 10.58,
+      "model_minutes": 8.6,
+      "tool_minutes": 1.98,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "launch switch across a 24-page static site with tests for three states and a plans parity test, as a mid-level engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 87.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
