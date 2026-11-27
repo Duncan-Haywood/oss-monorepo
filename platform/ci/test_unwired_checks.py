@@ -458,5 +458,13 @@ class Triggers(unittest.TestCase):
     def test_the_real_workflow_starts_for_every_suite_it_runs(self):
         self.assertEqual(u.untriggered_suites(), [])
 
+    def test_the_real_workflow_installs_what_the_plain_suites_need(self):
+        # 2026-11-27: with no pytest or pyyaml on the runner, 29 suites were
+        # named skips on every ventures-tests run (job 140742180981).
+        wf = (u.ROOT / ".github/workflows/ventures-tests.yml").read_text(encoding="utf-8")
+        installs = [ln for ln in wf.splitlines()
+                    if "pip install" in ln and not ln.lstrip().startswith("#")]
+        self.assertTrue(any("pytest" in ln and "pyyaml" in ln for ln in installs), installs)
+
 if __name__ == "__main__":
     unittest.main()

@@ -139,7 +139,9 @@ the process list for the script's own name: it matches itself and never ends.
 - Playwright is global at `/opt/node22/lib/node_modules/playwright` and
   Chromium at `/opt/pw-browsers/chromium`: set `PLAYWRIGHT_PATH` and
   `CHROMIUM_PATH` for scripts that read them (`ai-bookkeeper/eval/browser-click.mjs`),
-  or they print "skipped: playwright not installed".
+  or they print "skipped: playwright not installed". A bare
+  `import 'playwright'` in a repo `.mjs` fails (ESM ignores `NODE_PATH`): use
+  `createRequire(import.meta.url)('/opt/node22/lib/node_modules/playwright')`.
 - `pkill -f <name>` kills the Bash tool's own shell, because its command
   line contains the pattern (the `pgrep` form matches itself the same way).
   `.claude/hooks/block_pkill_f.py` refuses both, also inside heredocs that
