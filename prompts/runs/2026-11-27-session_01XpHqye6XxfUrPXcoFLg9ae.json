@@ -50,7 +50,7 @@
     "ventures/jobshop-quote/apps/jobshop-quote/ROADMAP.md (Done entry)"
   ],
   "goal": null,
-  "notes": "Security queue empty (security_next exit 3); IDEAS empty. Local verification: pnpm typecheck clean; pnpm test in apps/jobshop-quote: unit 49 files / 643 tests pass, worker 46 files / 285 tests pass (incl. new test/worker/default-fallout.test.ts). biome check --write clean. risk_review: nothing blocked, no check triggered.",
+  "notes": "Security queue empty (security_next exit 3); IDEAS empty. Local verification: pnpm typecheck clean; pnpm test in apps/jobshop-quote: unit 49 files / 643 tests pass, worker 46 files / 285 tests pass (incl. new test/worker/default-fallout.test.ts). biome check --write clean. risk_review: nothing blocked, no check triggered. run_workflow_locally --for-changes: every jobshop-quote, packages and site job ok (incl. 'D1 migrations in sync with schema'); check_hidden_unicode caught a literal U+FEFF in a new test line (a '\\\\uFEFF' regex escape had become the raw character), fixed back to the escape; the gate.py 'analyze needs --diff' line is the local runner lacking a PR base, not a finding.",
   "corrections": [],
   "redteam": null,
   "usage": {

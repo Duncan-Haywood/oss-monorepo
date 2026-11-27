@@ -367,7 +367,7 @@ describe("default fallout", () => {
     const withFallout = { ...current, defaultFalloutBps: 250 };
     const csv = exportSettingsCsv(withFallout);
     expect(csv).toContain("Default fallout,2.5%");
-    const back = readSettingsSheet(parseCsv(csv.replace(/^﻿/, "")));
+    const back = readSettingsSheet(parseCsv(csv.replace(/^\uFEFF/, "")));
     expect(planSettingsImport(back.rows, withFallout).patch).toEqual({});
   });
 });
