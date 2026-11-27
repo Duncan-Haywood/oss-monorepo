@@ -22,6 +22,7 @@ Free to use and source available (FSL-1.1-MIT). Results are estimates from the n
 ## Guides
 
 - [CMMC Level 1 vs Level 2 for a small machine shop](https://marisstella.app/machine-shop-guides/cmmc-level-1-vs-level-2.html)
+- [CMMC flow-down to subcontractors and suppliers](https://marisstella.app/machine-shop-guides/cmmc-subcontractor-flow-down.html): the level each supplier needs under 32 CFR 170.23 (FCI only: Level 1 (Self); CUI: Level 2 (Self) at least, Level 2 (C3PAO) when the prime contract requires C3PAO or Level 3), quoted word for word; DFARS 252.204-7021 (NOV 2025) paragraphs (d)(1)(ii), (d)(4), (f)(1) (COTS excluded, (e)(1) left out) and (f)(2) (check current status before award); what "current" means (1 year, 3 years, 180 days Conditional, affirmation within 1 year); read on eCFR 27 Nov 2026
 - [What goes in an SSP and a POA&M](https://marisstella.app/machine-shop-guides/ssp-and-poam.html)
 - [How to price a machined part](https://marisstella.app/machine-shop-guides/how-to-price-a-machined-part.html)
 - [Machine shop quoting software: the four kinds and how to choose](https://marisstella.app/machine-shop-guides/machine-shop-quoting-software.html): spreadsheet, ERP quoting module, standalone quoting platform, AI RFQ reader; listed prices with their sources as of 24 Nov 2026 (QuotedPart, JobBOSS², ProShop; none confirmed for Paperless Parts or the AI entrants); demo questions, including CUI drawings and DFARS 252.204-7012(b)(2)(ii)(D)

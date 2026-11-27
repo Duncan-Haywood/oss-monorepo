@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-const PAGES = ["index", "cmmc-level-1-self-assessment", "cmmc-scoping-worksheet", "sprs-score-calculator", "nist-800-171-ssp-template", "dfars-7012-incident-reporting", "cmmc-affirmation-dates", "stock-size-from-step-file", "job-shop-quote-calculator", "rfq-review", "drawing-review", "first-article-inspection", "cmmc-level-1-vs-level-2", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual", "machine-shop-quoting-software"];
+const PAGES = ["index", "cmmc-level-1-self-assessment", "cmmc-scoping-worksheet", "sprs-score-calculator", "nist-800-171-ssp-template", "dfars-7012-incident-reporting", "cmmc-affirmation-dates", "stock-size-from-step-file", "job-shop-quote-calculator", "rfq-review", "drawing-review", "first-article-inspection", "cmmc-level-1-vs-level-2", "cmmc-subcontractor-flow-down", "ssp-and-poam", "how-to-price-a-machined-part", "quote-vs-actual", "machine-shop-quoting-software"];
 const read = (p) => readFileSync(new URL(`./${p}.html`, import.meta.url), "utf8");
 
 for (const p of PAGES) {
@@ -193,4 +193,16 @@ test("quoting software comparison: every listed price has its source, ours has n
   do { prev = text; text = text.replace(/<script\b[^>]*>[\s\S]*?<\/script\b[^>]*>/gi, ""); } while (text !== prev);
   assert.doesNotMatch(text.slice(0, text.indexOf('id="faq"') > 0 ? text.indexOf('id="faq"') : text.length), /\$\s?\d/);
   assert.match(html, /none paid to be listed/);
+});
+
+test("flow-down page: every quote is word for word from the eCFR text saved in fixtures/flow-down", () => {
+  const html = read("cmmc-subcontractor-flow-down");
+  const rule = ["32-cfr-170.23.txt", "dfars-252.204-7021.txt"].map((f) => readFileSync(new URL(`./fixtures/flow-down/${f}`, import.meta.url), "utf8"));
+  const quoted = [...html.matchAll(/<q>([^<]+)<\/q>/g)].map((m) => m[1].replace(/&amp;/g, "&"));
+  assert.ok(quoted.length >= 9, `only ${quoted.length} quotes`);
+  for (const q of quoted) assert.ok(rule.some((r) => r.includes(q)), `not in the eCFR text: ${q}`);
+  // The levels in the table are the rule's own: FCI only is Level 1, CUI at least Level 2, C3PAO above.
+  assert.match(html, /<td>FCI only \(no CUI\)<\/td><td>Level 1 \(Self\)<\/td>/);
+  assert.match(html, /Level 3 \(DIBCAC\)<\/td><td>Level 2 \(C3PAO\)<\/td>/);
+  assert.match(rule[0], /Level 3 \(DIBCAC\), then the CMMC Status of Level 2 \(C3PAO\) is the minimum/);
 });
