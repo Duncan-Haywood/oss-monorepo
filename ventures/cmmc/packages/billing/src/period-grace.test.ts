@@ -6,7 +6,7 @@ import {
   PAST_DUE_GRACE_DAYS,
   pastDueGraceUntil,
 } from "./grace.ts";
-import { addMonthsUtc, periodKeyFor } from "./period.ts";
+import { addMonthsUtc, periodKeyFor, quotaPeriodStart } from "./period.ts";
 
 const DAY = 86_400_000;
 const since = new Date("2026-11-10T00:00:00Z");
@@ -88,5 +88,12 @@ describe("quota period keys", () => {
       periodKeyFor(new Date("2027-01-01T00:00:00Z"), new Date("2026-11-19T00:00:00Z")),
       "2026-11",
     );
+  });
+
+  it("starts the first period at the anchor itself when now is the anchor instant", () => {
+    // A new subscription's usage at the very instant of its period start belongs to the
+    // anchored period, not to the calendar month (red team 2026-11-27: `>` vs `>=`).
+    const anchor = new Date("2026-10-15T08:00:00Z");
+    assert.equal(quotaPeriodStart(anchor, new Date(anchor)).toISOString(), anchor.toISOString());
   });
 });
