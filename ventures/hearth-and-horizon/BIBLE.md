@@ -387,6 +387,8 @@ before writing the first scene.
 
 **For Other Minds**
 
+- *Two hours a box* *(Drafting, 2026-11-27.)* (percent complete, schedule of values; proposed 2026-11-27): an electrical subcontractor's agent in Dayton, Ohio, bills the branch rough-in line of a school-to-senior-apartments conversion by hours spent over budgeted hours, and the March 2059 pay application reads 97.5 per cent. The general contractor's project manager has walked the third floor and sent it back. The boxes in the old classroom wing go into plaster on hollow clay tile at about two hours each against the estimate's 0.6; the hours ran ahead of the work, the over-billing paid the overrun and hid a loss from the owner. A failed first recount by wire issued (the easy part), a count of boxes set and made up that gives 75.0 per cent, the office manager's reasonable "no" (payroll was built on the bigger draw), and three honest numbers for three questions: work in place for the pay application, cost to cost on an updated forecast for the books, and the forecast loss for the owner. The ending image is the owner knocking on a tile wall. Construction subjects ('retainage', 'pay application', 'schedule of values') are unused in `overlap.mjs`.
+
 **Little Lamps** (check each feast day against the General Roman Calendar and
 the sources, and mark legend as legend)
 
