@@ -1,6 +1,6 @@
 # IDS Model Check
 
-> Free, FSL-1.1-MIT-licensed checker for buildingSMART IDS 1.0 (Information Delivery Specification) files against IFC building models (IFC2X3, IFC4, IFC4X3; STEP .ifc, ifcXML, ifcJSON, IFC5 alpha .ifcx or .ifczip). Runs in the browser with nothing uploaded, or as a dependency-free Node command line. Exports BCF 2.1 issues, CSV, JSON and a self-contained HTML report.
+> Free, all rights reserved checker for buildingSMART IDS 1.0 (Information Delivery Specification) files against IFC building models (IFC2X3, IFC4, IFC4X3; STEP .ifc, ifcXML, ifcJSON, IFC5 alpha .ifcx or .ifczip). Runs in the browser with nothing uploaded, or as a dependency-free Node command line. Exports BCF 2.1 issues, CSV, JSON and a self-contained HTML report.
 
 - Page: https://marisstella.app/ids-model-check/
 - Source: https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/ids-model-check

@@ -65,3 +65,8 @@ accepted:
     path: apps/einvoice-preflight/plain/fontoxpath.esm.js
     reason: "the vendored, published minified fontoxpath ES module (MIT, THIRD_PARTY.md), byte-identical to ventures/einvoice-preflight/plain/fontoxpath.esm.js on main; the match is an XPath engine's own .exec method, and the module imports no child_process."
     added: 2026-11-26
+  - tool: semgrep
+    rule: js-child-process-dynamic
+    path: apps/einvoice-preflight/pro/sql-store.mjs
+    reason: "SqlStore.init's this.db.exec is the D1/SQLite database's exec, not child_process (the module imports none); the ALTER TABLE template is filled only from the module's own constant ADDED_COLUMNS list, never from input. Moving with the paid app (PR #19574)."
+    added: 2026-11-27

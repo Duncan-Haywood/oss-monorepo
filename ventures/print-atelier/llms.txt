@@ -2,7 +2,7 @@
 
 > Free print-file preflight for artists and photographers: check implied DPI at a target print size, compare up to five export masters, and download a dated technical record before you pay for a proof. Runs entirely in your browser — artwork is never uploaded.
 
-Free to use and source available (FSL-1.1-MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
+Free to use and source visible (all rights reserved). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
 ## Pages
 
@@ -12,4 +12,4 @@ Free to use and source available (FSL-1.1-MIT). Results are estimates from the n
 
 ## Source
 
-- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/print-atelier): FSL-1.1-MIT licensed.
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/print-atelier): all rights reserved.

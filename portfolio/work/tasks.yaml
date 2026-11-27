@@ -589,6 +589,12 @@ tasks:
     notes: >-
       Owner, 2026-11-26 (LICENSING_TRANSITION.md, "Superseded, 2026-11-26").
       Publishing private code cannot be undone: audit before every copy.
+      Progress: (1) done, PR 19538. (2) 16 of 21 products relicensed by
+      portfolio/monetization/relicense_arr.py (2026-11-27); left are the six
+      that offer self-hosting (shift-roster-builder, league-schedule-generator,
+      babysitting-business-kit, quick-pick-survey, einvoice-preflight,
+      changepoint-detector's repo watch): owner, 2026-11-27, drop those
+      offers, then relicense. `relicense_arr.py --residue <slug>` lists them.
       Step 3 done 2026-11-27: platform/security/prepub_audit.py; PayApps,
       payapps-site and packages/ audited with 0 block findings
       (docs/reports/2026-11-27-prepub-audit-payapps.md).
@@ -613,8 +619,9 @@ tasks:
       exit on any finding; tests with planted examples; its output on
       apps/payapps and the packages PayApps imports, in the PR.
     hours: 6
-    status: open
+    status: done
     added: 2026-11-27
+    pr: 19563
   - id: move-payapps-public
     direction: paid-bets
     title: Move PayApps and the packages it imports into this repository (step 4 of products-to-public-repo)
@@ -651,7 +658,12 @@ tasks:
       permissions only the owner can grant, so the SES route (aws-ses-email)
       is the one with no owner step, and the owner chose it the same day
       ("all iac stuff instead we will do on aws instead once we fully move";
-      asks.yaml, aws-turnover).
+      asks.yaml, aws-turnover). Progress 2026-11-27: the SES route's store,
+      platform/email/aws/dynamo-store.mjs (DynamoDB rows + S3 raw MIME),
+      passes the store contract and runs the service end to end. Left: the
+      table, bucket and generated tokens (random_password into Secrets
+      Manager) in platform/aws/stacks/email-ops, and the Lambda API entry
+      (README.md, "Portability", step 4).
   - id: paddle-key-check
     direction: paid-bets
     title: Report whether each Paddle key is the right kind, without printing it
@@ -663,10 +675,18 @@ tasks:
       a tested pure classifier in packages/billing. Nothing of the key past
       its public prefix is printed.
     hours: 4
-    status: open
+    status: done
+    pr: https://github.com/Duncan-Haywood/private-monorepo/pull/458
     added: 2026-11-27
     notes: >-
-      Owner, 2026-11-27: "there is a key is it the right type or no?" No run
+      Done 2026-11-27 (private PR #458): packages/billing/src/paddle-key.ts
+      classifies the key's shape and probes the four catalog calls without
+      writing; scripts/paddle-catalog.ts prints the report first, so all six
+      catalog-syncing deploys show it on their next run. Private PR 459: no
+      answer from Paddle is no longer reported as "accepted", and the manual
+      paddle-key-check workflow checks all six apps' secrets in one run.
+      The answer for the recorded key arrives in the next run that gets a
+      runner (private-ci-codebuild-cutover). Owner, 2026-11-27: "there is a key is it the right type or no?" No run
       has been able to tell: the catalog sync landed 2026-11-25, after
       private-monorepo Actions stopped starting jobs. The recorded key is
       grants' BILLING_API_KEY; payapps-deploy reads PAYAPPS_BILLING_API_KEY.

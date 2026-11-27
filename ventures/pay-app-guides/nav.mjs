@@ -43,6 +43,7 @@ export const GROUPS = [
     ["joint-checks.html", "Joint check splitter and split letter"],
     ["miller-act-payment-bond-claims.html", "Miller Act bond claim deadlines (federal jobs)"],
     ["pay-app-cash-forecast.html", "When will I get paid? Cash forecast"],
+    ["certificate-of-insurance-for-subcontractors.html", "Certificates of insurance (COI)"],
   ]],
 ];
 

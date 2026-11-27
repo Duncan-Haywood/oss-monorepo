@@ -795,11 +795,16 @@ def build(
         render_sitemap_index(products, base_url), encoding="utf-8"
     )
     (out_dir / "robots.txt").write_text(render_robots(base_url), encoding="utf-8")
-    # Every venture ships the same licence text (FSL-1.1-MIT since 2026-11-24). Publishing one at the site root
-    # both states the licence for the site as a whole and gives a product page
-    # linking `../LICENSE` something real to resolve to.
+    # The free tools ship the same licence text (FSL-1.1-MIT since 2026-11-24); the
+    # paid products carry an all-rights-reserved notice instead (2026-11-26,
+    # relicense_arr.py). Publishing an FSL copy at the site root states the
+    # licence for the site as a whole and gives a product page linking
+    # `../LICENSE` something real to resolve to; a paid product's notice never
+    # becomes the site's licence.
     root_license = next(
-        (p.venture / "LICENSE" for p in products if (p.venture / "LICENSE").is_file()),
+        (p.venture / "LICENSE" for p in products
+         if (p.venture / "LICENSE").is_file()
+         and "grants no licence" not in (p.venture / "LICENSE").read_text(errors="replace")[:2000]),
         None,
     )
     if root_license is not None:

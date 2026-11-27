@@ -3482,7 +3482,7 @@ verifying its output before relying on it**, and for meeting any obligation it
 helps you prepare for. To the maximum extent permitted by law, the authors
 accept no liability for any loss or damage arising from its use.
 
-FSL-1.1-MIT licence (`LICENSE`).
+all-rights-reserved notice (`LICENSE`).
 
 ### Section 179 taxable-income limit (engine)
 

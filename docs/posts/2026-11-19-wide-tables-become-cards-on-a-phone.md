@@ -157,6 +157,33 @@ none of them tables the script could match: six command-line `pre` blocks, one
 No card is taller than the screen. Desktop is unchanged. Run notes:
 `docs/reports/polish-2026-11-27-online-seller-tables-stack.md`.
 
+## Update, later on 2026-11-27: the marketplace fee comparison
+
+The 1,223 px table left over above is the one the online-seller tools exist to lead to: the
+marketplace fee comparison, which prices one item on ten selling channels side by side. At
+390 px it showed the channel name and part of the fee rate. Net profit, margin, break-even
+price and the price that would match the best channel were all off to the right.
+
+The note above was wrong about why the script skipped it: the page writes its `<thead>` in
+the HTML, and only the rows come from the script. So it takes the same `class="stack"` by
+hand, plus two phone-only lines in the page's own CSS (its figure cells were `nowrap`, and
+its channel column kept an 11rem minimum). The best channel's card gets the accent border,
+as its row gets the "best" mark on a desktop. The bulk catalog page's table took the same.
+
+| Fee comparison at 390 px, before | after |
+|---|---|
+| ![channel and part of the fee rate visible](../reports/img/polish-2026-11-27-fee-compare-before.png) | ![each channel as a card with net profit, margin and break-even](../reports/img/polish-2026-11-27-fee-compare-after.png) |
+
+| at 390 px, example loaded | before | after |
+|---|---|---|
+| comparison table, width in its scroll box | 1,219 px in 326 | 326 in 326 |
+| bulk catalog table | 470 px in 316 | 316 in 316 |
+| unlabelled cells | 0 | 0 |
+
+Each card is up to 349 px tall, so ten channels make a long page. The tighter
+`compact` cards could not help: at 390 px two figures with their labels need 322 px, and
+the card has 302. Desktop is unchanged (the rules sit behind `max-width: 600px`).
+
 ## Update, 2026-11-27: the job-shop quoting tools
 
 The same probe, pointed at the free tools that lead to the planned quoting

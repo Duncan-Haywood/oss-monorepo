@@ -34,7 +34,7 @@ node --test ventures/sales-export-to-journal/
 
 ## License
 
-FSL-1.1-MIT. See `LICENSE`.
+All rights reserved. See `LICENSE`.
 
 ## No warranty
 
