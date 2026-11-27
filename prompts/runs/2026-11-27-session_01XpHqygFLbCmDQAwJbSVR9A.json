@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 11,
   "outcome": "success",
@@ -41,6 +41,10 @@
     {
       "file": "docs/posts/2026-11-27-florida-notice-to-owner-45-days.md",
       "issue": "Still linked sign-up to workers.dev after PR #19665 moved every public link to payapps.marisstella.app; fixed in this PR."
+    },
+    {
+      "file": "platform/ci/adversarial_gate/gate.py",
+      "issue": "new-outbound-host blocks a citation URL in a payapps (code-owned) file when any added line matches NET_CALL, and the comment word 'fetched' matches `fetch`; reworded to 'read'. Running `gate.py analyze --base <merge-base> --head HEAD` locally before the push would have caught it (with --base origin/main it diffs against a moved main)."
     }
   ],
   "deviations": [
@@ -55,7 +59,7 @@
     "docs/posts/2026-11-27-texas-notice-of-claim-for-subcontractors.md"
   ],
   "goal": "$10k MRR: deepen the paid PayApps suite (Crew plan feature) and add a customer post for the 'Texas notice of claim' search",
-  "notes": "Security queue empty (7 claimed). No ideas or requests. private-monorepo clone refused (final). Seller Books and Job Shop Quote were already being worked by open PRs (#19692, #19682, #19703). Texas statute text came from tcss.legis.texas.gov's chapter 53 file (200) and H.B. 2237's enrolled PDF (Sec. 37 applicability). Local checks: lien-waivers node --test 262/262; payapps typecheck, test:unit, worker notices.test.ts 8/8, build; payapps-site test:unit 22/22 and build; biome clean. Not run: the Playwright e2e suite (the UI change is a select and a date helper with no server calls). Preflight result is appended below if it finished.",
+  "notes": "Security queue empty (7 claimed). No ideas or requests. private-monorepo clone refused (final). Seller Books and Job Shop Quote were already being worked by open PRs (#19692, #19682, #19703). Texas statute text came from tcss.legis.texas.gov's chapter 53 file (200) and H.B. 2237's enrolled PDF (Sec. 37 applicability). Local checks: lien-waivers node --test 262/262; payapps typecheck, test:unit, worker notices.test.ts 8/8, build; payapps-site test:unit 22/22 and build; biome clean. Not run: the Playwright e2e suite (the UI change is a select and a date helper with no server calls). Preflight result is appended below if it finished. Merge was first held by Security gate pending behind a queued run for the superseded first commit (cancelled it, run 45985737749); a local adversarial-gate run then showed one block (above), fixed in a third commit.",
   "corrections": [],
   "redteam": null,
   "usage": {
