@@ -3,7 +3,7 @@ title: "One page for machine shops: quoting, CMMC and the free tools already her
 seo_title: "Software for CNC job shops: quoting, CMMC, ISO 9001"
 date: 2026-11-24
 tags: [manufacturing, machine-shops, cmmc, quoting, iso-9001, for-customers]
-description: "Eight free tools for CNC and fabrication shops were scattered across categories. One page now maps them, and two products (Job Shop Quote, open free since 27 November, and a CMMC workspace in development), to four shop problems."
+description: "Quoting software (Job Shop Quote, free to start), a CMMC workspace in development and free tools for CNC shops, mapped to four shop problems."
 ---
 
 A CNC or fabrication job shop has a short list of problems that cost it money
