@@ -122,10 +122,11 @@ export function OrgPage() {
       <SubmittalsToChaseAlert orgId={orgId} />
       <LowerTierToChaseAlert orgId={orgId} />
       <div className="grid gap-6 lg:grid-cols-3">
-        <section className="card lg:col-span-2">
-          <div className="mb-3 flex items-baseline justify-between">
+        <section className="card overflow-x-auto lg:col-span-2">
+          {/* Ten links: they wrap on a phone instead of widening the whole page. */}
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
             <h1 className="text-xl font-semibold">Projects</h1>
-            <span className="flex gap-4 text-sm">
+            <span className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
               <Link to="/orgs/$orgId/estimates" params={{ orgId }} className="underline">
                 Estimates
               </Link>

@@ -287,8 +287,8 @@ describe("mid-job start (opening application)", () => {
     const lower = { ...opening, retainageHeldCents: 150_000 };
     const [a2] = computeApplications({ ...project, opening: lower }, openedSov, [co1], [p2]);
     const w = a2?.warnings.find((x) => x.code === "opening_retainage_differs");
-    expect(w?.message).toContain("$1500.00");
-    expect(w?.message).toContain("$2000.00");
+    expect(w?.message).toContain("$1,500.00");
+    expect(w?.message).toContain("$2,000.00");
     expect(w?.message).toContain("10%");
     expect(w?.message).toContain("If retainage of $500.00 was released before the move");
     expect(w?.message).toContain("Retainage released before the move");
@@ -345,14 +345,14 @@ describe("mid-job start (opening application)", () => {
         (all[2]?.summary.totalEarnedLessRetainageCents ?? 0) - 100_000,
       );
       const w = a3?.warnings.find((x) => x.code === "opening_retainage_differs");
-      expect(w?.message).toContain("If retainage of $1000.00 was released before the move");
+      expect(w?.message).toContain("If retainage of $1,000.00 was released before the move");
     });
 
     it("names the release in the warning when the figures still differ", () => {
       const off = { ...opening2, retainageHeldCents: opening2.retainageHeldCents - 50_000 };
       const [a3] = computeApplications({ ...project, opening: off }, moved, [co1], [p3r]);
       const w = a3?.warnings.find((x) => x.code === "opening_retainage_differs");
-      expect(w?.message).toContain("less $1000.00 released before the move");
+      expect(w?.message).toContain("less $1,000.00 released before the move");
     });
 
     it("a release above what the line held is flagged", () => {
@@ -499,7 +499,7 @@ describe("work billed against a change order not yet approved", () => {
     expect(rest).toEqual([]);
     expect(w?.code).toBe("billed_on_unapproved_change_order");
     expect(w?.message).toBe(
-      "Item 3: completed and stored ($1500.00) is $1500.00 over the approved scheduled value ($0.00), and change order 1 ($2000.00) is still pending. GCs do not certify work on a change order before it is approved: hold the $1500.00 until it is signed, or mark it approved with the date the GC signed.",
+      "Item 3: completed and stored ($1,500.00) is $1,500.00 over the approved scheduled value ($0.00), and change order 1 ($2,000.00) is still pending. GCs do not certify work on a change order before it is approved: hold the $1,500.00 until it is signed, or mark it approved with the date the GC signed.",
     );
     expect(BLOCKING_WARNINGS.has("billed_on_unapproved_change_order")).toBe(false);
   });
@@ -508,7 +508,7 @@ describe("work billed against a change order not yet approved", () => {
     const [w] = lineWarning([co1]); // approved 2026-02-10, period ends 2026-01-31
     expect(w?.code).toBe("billed_on_unapproved_change_order");
     expect(w?.message).toContain(
-      "change order 1 ($2000.00, approved 2026-02-10) was approved after this period ends (2026-01-31)",
+      "change order 1 ($2,000.00, approved 2026-02-10) was approved after this period ends (2026-01-31)",
     );
     expect(w?.message).toContain("It counts from the first application ending on or after");
   });
@@ -548,7 +548,7 @@ describe("work billed against a change order not yet approved", () => {
       },
     ];
     const [w] = lineWarning(cos);
-    expect(w?.message).toContain("change orders 2 ($1000.00) and 10 ($500.00) are still pending");
+    expect(w?.message).toContain("change orders 2 ($1,000.00) and 10 ($500.00) are still pending");
     expect(w?.message).not.toContain("Even with");
   });
 
