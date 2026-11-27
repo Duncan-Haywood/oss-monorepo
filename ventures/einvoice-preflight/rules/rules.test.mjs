@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import fs from "node:fs";
-import { LANGS, SOURCES, loadRules, official, officialChecks, renderAll, slugOf } from "./build.mjs";
+import { LANGS, REQUIRED_LANGS, SOURCES, langsOf, loadRules, official, officialChecks, renderAll, slugOf } from "./build.mjs";
 
 /** XML with its comments removed, repeated until nothing changes. */
 function withoutComments(x) {
@@ -38,10 +38,13 @@ test("covers the whole BR-DE set and at least 30 EN 16931 / Peppol rules", () =>
   assert.equal(ids.size, rules.length, "a rule id is listed twice");
 });
 
-test("every rule has a complete explanation in English, German and French", () => {
+test("every rule has a complete explanation in English, German and French, and in Dutch outside XRechnung", () => {
   for (const r of rules) {
     assert.ok(Array.isArray(r.terms), `${r.id}: terms`);
-    for (const lang of LANGS) {
+    // Belgian and Dutch readers hit the EN 16931 and Peppol rules; BR-DE rules are German-only.
+    if (r.source !== "xrechnung") assert.ok(r.nl, `${r.id}: no nl (every EN 16931 and Peppol rule is explained in Dutch)`);
+    for (const k of Object.keys(r)) if (r[k]?.title !== undefined) assert.ok(LANGS.includes(k), `${r.id}: language ${k} is not in LANGS`);
+    for (const lang of langsOf(r)) {
       const c = r[lang];
       assert.ok(c, `${r.id}: no ${lang}`);
       for (const k of ["title", "meaning"]) assert.ok(typeof c[k] === "string" && c[k].trim().length > 5, `${r.id}/${lang}: ${k}`);
@@ -51,6 +54,16 @@ test("every rule has a complete explanation in English, German and French", () =
     // The three languages are not copies of each other.
     assert.notEqual(r.en.meaning, r.de.meaning, `${r.id}: German meaning is the English one`);
     assert.notEqual(r.en.meaning, r.fr.meaning, `${r.id}: French meaning is the English one`);
+    if (r.nl) {
+      assert.notEqual(r.en.meaning, r.nl.meaning, `${r.id}: Dutch meaning is the English one`);
+      assert.equal(r.nl.causes.length, r.en.causes.length, `${r.id}: Dutch causes differ in number from the English`);
+      assert.equal(r.nl.fix.length, r.en.fix.length, `${r.id}: Dutch fix steps differ in number from the English`);
+      // The same facts: every business term, rule id, code value and amount in the English text is in the Dutch.
+      const facts = (c) => new Set([c.meaning, ...c.causes, ...c.fix].join(" ").match(/\b(BT|BG)-\d+\b|\b(BR|PEPPOL)-[A-Z0-9-]+\d\b|\b(?:cbc|cac|ram|rsm):[A-Za-z]+|urn:[^\s,;)]+[^\s,;).]|\d+\.\d\d\b/g) || []);
+      // Dutch prose writes 1,00 where the English writes 1.00; the amount is the same.
+      const nlFacts = new Set([...facts(r.nl)].concat([r.nl.meaning, ...r.nl.causes, ...r.nl.fix].join(" ").match(/\b\d+,\d\d\b/g)?.map((x) => x.replace(",", ".")) || []));
+      for (const f of facts(r.en)) assert.ok(nlFacts.has(f), `${r.id}: "${f}" is in the English explanation but not the Dutch`);
+    }
   }
 });
 
@@ -95,25 +108,31 @@ test("the committed pages are what rules/build.mjs writes (run `node rules/build
   for (const [p, html] of pages) assert.equal(fs.readFileSync(new URL(p, here), "utf8"), html, p);
   for (const lang of LANGS) {
     const onDisk = fs.readdirSync(new URL(`${lang}/`, here)).filter((f) => f.endsWith(".html")).length;
-    assert.equal(onDisk, rules.length + 1, `${lang}/ holds a page no rule writes`);
+    assert.equal(onDisk, rules.filter((r) => langsOf(r).includes(lang)).length + 1, `${lang}/ holds a page no rule writes`);
   }
+  assert.ok(rules.filter((r) => langsOf(r).includes("nl")).length >= 30, "at least 30 rules in Dutch");
 });
 
 test("each page quotes the official message, cites and links its source, links the checker and early access, and carries the disclaimer", () => {
   for (const r of rules) {
     const off = official(r);
     assert.ok(off.messages.length && off.syntaxes.length && off.flag, r.id);
-    for (const lang of LANGS) {
+    for (const lang of langsOf(r)) {
       const html = pages.find(([p]) => p === `${lang}/${slugOf(r.id)}.html`)[1];
       const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
       for (const m of off.messages) assert.ok(html.includes(esc(m)), `${r.id}/${lang}: official message`);
       assert.ok(html.includes(SOURCES[r.source].url) && html.includes(SOURCES[r.source].version), `${r.id}/${lang}: source`);
       assert.ok(html.includes('href="../../index.html"'), `${r.id}/${lang}: checker link`);
       assert.ok(html.includes("industries/eu-e-invoicing/"), `${r.id}/${lang}: early access link`);
-      assert.match(html, /(Not tax or legal advice|Keine Steuer- oder Rechtsberatung|Ni conseil fiscal)/);
-      assert.match(html, /(early access|früher Zugang|accès anticipé)/i);
+      assert.match(html, /(Not tax or legal advice|Keine Steuer- oder Rechtsberatung|Ni conseil fiscal|Geen fiscaal of juridisch advies)/);
+      assert.match(html, /(early access|früher Zugang|accès anticipé|vroege toegang)/i);
+      assert.match(html, /FSL-1\.1-MIT/, `${r.id}/${lang}: the licence line names the venture's licence`);
       assert.match(html, new RegExp(`<html lang="${lang}">`));
-      for (const l of LANGS) assert.ok(html.includes(`hreflang="${l}" href="https://example.invalid/einvoice-preflight/rules/${l}/${slugOf(r.id)}"`), `${r.id}/${lang}: hreflang ${l}`);
+      for (const l of LANGS) {
+        const alt = html.includes(`hreflang="${l}" href="https://example.invalid/einvoice-preflight/rules/${l}/${slugOf(r.id)}"`);
+        // An alternate for every language the rule has, and none pointing at a page that is not written.
+        assert.equal(alt, langsOf(r).includes(l), `${r.id}/${lang}: hreflang ${l}`);
+      }
       assert.doesNotMatch(html, /[$€]\s?\d/, `${r.id}/${lang}: no price claims`);
     }
   }

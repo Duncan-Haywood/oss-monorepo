@@ -7,8 +7,10 @@ import {
   LIEN_DEADLINE_STATES,
   type LienDeadline,
   lastFurnishedFloor,
+  lienDateFields,
   lienDeadline,
   lienDeadlineText,
+  monthEnd,
 } from "./lien-deadline";
 
 const deadline = (input: Parameters<typeof lienDeadline>[0]): LienDeadline => {
@@ -121,6 +123,98 @@ describe("lienDeadline: completion states (California, Arizona)", () => {
       noticeOfCompletionOn: "2026-11-20",
     });
     expect(d.statutoryOn).toBe("2026-11-30");
+  });
+});
+
+describe("lienDeadline: the states added 2026-11-27 (statute text read that day)", () => {
+  it("Michigan 90 days and Minnesota 120 days after last furnishing", () => {
+    const mi = deadline({ state: "MI", lastFurnishedOn: "2026-09-01" });
+    expect(mi.statutoryOn).toBe("2026-11-30");
+    expect(mi.citation).toBe("Mich. Comp. Laws § 570.1111(1)");
+    expect(deadline({ state: "MN", lastFurnishedOn: "2026-09-01" }).statutoryOn).toBe("2026-12-30");
+  });
+  it("Nevada: 90 days after the latest of completion and your last day, 40 after a notice", () => {
+    expect(deadline({ state: "NV", lastFurnishedOn: "2026-09-01" }).statutoryOn).toBe("2026-11-30");
+    expect(
+      deadline({ state: "NV", lastFurnishedOn: "2026-09-01", completedOn: "2026-09-15" })
+        .statutoryOn,
+    ).toBe("2026-12-14");
+    // 2026-09-10 + 40 = 2026-10-20, earlier than 90 days after 09-01.
+    expect(
+      deadline({ state: "NV", lastFurnishedOn: "2026-09-01", noticeOfCompletionOn: "2026-09-10" })
+        .statutoryOn,
+    ).toBe("2026-10-20");
+  });
+  it("Utah: 180 days after final completion, 90 after a notice of completion", () => {
+    const d = deadline({ state: "UT", lastFurnishedOn: "2026-09-01" });
+    expect(d.statutoryOn).toBe("2027-02-28"); // 180 days, a Sunday
+    expect(d.dueOn).toBe("2027-02-26");
+    expect(d.rule).toContain("final completion of the original contract");
+    expect(
+      deadline({ state: "UT", lastFurnishedOn: "2026-09-01", noticeOfCompletionOn: "2026-10-01" })
+        .statutoryOn,
+    ).toBe("2026-12-30");
+  });
+  it("Oregon: 75 days after your last day or after completion, whichever is earlier", () => {
+    const d = deadline({ state: "OR", lastFurnishedOn: "2026-09-01" });
+    expect(d.statutoryOn).toBe("2026-11-15"); // a Sunday
+    expect(d.dueOn).toBe("2026-11-13");
+    expect(d.notes[0]).toContain("enter its date");
+    // Completion before the sub's last day (punch work after it): the earlier count wins.
+    const early = deadline({
+      state: "OR",
+      lastFurnishedOn: "2026-09-01",
+      completedOn: "2026-08-20",
+    });
+    expect(early.statutoryOn).toBe("2026-11-03");
+    expect(early.rule).toContain("completion of construction");
+    // A later completion does not move it later.
+    expect(
+      deadline({ state: "OR", lastFurnishedOn: "2026-09-01", completedOn: "2026-10-01" })
+        .statutoryOn,
+    ).toBe("2026-11-15");
+  });
+  it("Virginia: 90 days from the end of the month, never later than 90 after completion", () => {
+    expect(monthEnd("2026-09-10")).toBe("2026-09-30");
+    expect(monthEnd("2028-02-03")).toBe("2028-02-29");
+    // No completion entered: completion is on or after 09-10, so 90 days after 09-10 is the floor.
+    const none = deadline({ state: "VA", lastFurnishedOn: "2026-09-10" });
+    expect(none.statutoryOn).toBe("2026-12-09");
+    expect(none.usedLastFurnishingAsCompletion).toBe(true);
+    // Completed 10-15: 90 days after it is 2027-01-13, later than 09-30 + 90 = 12-29.
+    const late = deadline({
+      state: "VA",
+      lastFurnishedOn: "2026-09-10",
+      completedOn: "2026-10-15",
+    });
+    expect(late.statutoryOn).toBe("2026-12-29");
+    expect(late.rule).toContain("last day of the month");
+    // Completed 09-20: 12-19 (a Saturday) is earlier than 12-29.
+    const soon = deadline({
+      state: "VA",
+      lastFurnishedOn: "2026-09-10",
+      completedOn: "2026-09-20",
+    });
+    expect(soon.statutoryOn).toBe("2026-12-19");
+    expect(soon.dueOn).toBe("2026-12-18");
+    expect(soon.rule).toContain("completion of the building");
+  });
+  it("asks for the completion dates only where the state counts from them", () => {
+    expect(lienDateFields("CA")).toEqual({ completion: true, noticeOfCompletion: true });
+    expect(lienDateFields("ut")).toEqual({ completion: true, noticeOfCompletion: true });
+    expect(lienDateFields("VA")).toEqual({ completion: true, noticeOfCompletion: false });
+    expect(lienDateFields("OR")).toEqual({ completion: true, noticeOfCompletion: false });
+    expect(lienDateFields("MI")).toEqual({ completion: false, noticeOfCompletion: false });
+    expect(lienDateFields("MO")).toEqual({ completion: false, noticeOfCompletion: false });
+    expect(lienDateFields(null)).toEqual({ completion: false, noticeOfCompletion: false });
+  });
+  it("names a notice of cessation only in California", () => {
+    expect(deadline({ state: "NV", lastFurnishedOn: "2026-09-01" }).notes[0]).not.toContain(
+      "cessation",
+    );
+    expect(deadline({ state: "CA", lastFurnishedOn: "2026-09-01" }).notes[0]).toContain(
+      "cessation",
+    );
   });
 });
 

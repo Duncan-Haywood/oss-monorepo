@@ -96,3 +96,15 @@ rejected. The files were generated, not taken from real ERPs, and Peppol PINT
 (Singapore, Australia, Oman and others) and Saudi ZATCA invoices keep the
 exact check because their own rule sets apply.
 [Method and numbers](https://github.com/duncan-haywood/oss-monorepo/blob/main/ventures/einvoice-preflight/eval/brco17-tolerance-2026-11-25.md).
+
+## Update, 27 November: the EN 16931 and Peppol pages in Dutch
+
+The 35 EN 16931 and Peppol BIS rules now have Dutch pages too, under
+[rules/nl/](https://marisstella.app/einvoice-preflight/rules/nl/), for Belgian senders (Peppol has been
+required between Belgian businesses since 1 January 2026) and Dutch Peppol users. The 39 BR-DE rules
+stay in three languages: they apply only to invoices for German buyers. A new test holds each Dutch
+explanation to the English one, with the same number of causes and steps and every business term, rule
+id, element, URN and amount the English names. What a Belgian bookkeeper gets from them is in
+[Peppol invoice rejected in Belgium](2026-11-27-peppol-invoice-rejected-belgium-error-codes-in-dutch.md).
+The licence line on the German and French pages also said MIT; it now names the venture's actual licence,
+FSL-1.1-MIT, as the English pages always did.

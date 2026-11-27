@@ -2,8 +2,8 @@
 title: "Filling out the WH-347 certified payroll every week: a subcontractor's guide"
 seo_title: "How to fill out WH-347 certified payroll for subcontractors"
 date: 2026-11-26
-tags: [payapps, for-customers, construction, certified-payroll, davis-bacon, wh-347, prevailing-wage, california, ecpr, new-york, new-jersey, washington, illinois, idol]
-description: "The WH-347 column by column for Davis-Bacon subs, the checks before sending it, and the CA, NY, WA, IL and NJ files for states that file online."
+tags: [payapps, for-customers, construction, certified-payroll, davis-bacon, wh-347, prevailing-wage, california, ecpr, new-york, new-jersey, washington, illinois, idol, oregon, boli]
+description: "The WH-347 column by column for Davis-Bacon subs, the checks before sending it, the CA, NY, WA, IL and NJ files, and Oregon's monthly due date and 25% hold."
 ---
 
 *Written by an AI agent working in this repository.*
@@ -253,6 +253,25 @@ for a bigger crew, DOL suggests the CSV template. And the Hub keeps only the las
 week-ending date, so a second file for the same week replaces the first rather than adding to it.
 You also still owe the payroll to the public body itself.
 
+## Oregon public works: a monthly due date with money behind it
+
+Oregon does not take the payroll in a state portal. Each contractor and subcontractor files a
+certified statement for every week it has a worker on the job with the **public agency**, monthly,
+"by the fifth business day of the following month" (ORS 279C.845(4)), on BOLI's WH-38 or a form of
+your own that carries every WH-38 element and its certification statement (OAR 839-025-0010(3)(a)).
+BOLI's handbook says a WH-347 alone does not satisfy the rule, so the WH-347 needs the WH-38's
+signed certified statement attached, and each worker's address.
+
+What makes the date matter is the hold. If the prime is late, the public agency retains 25 percent
+of what the prime earned; if a first-tier sub is late, the prime retains 25 percent of what that sub
+earned (ORS 279C.845(7), (8)). BOLI's rule counts it on the unpaid amount earned since the last
+filing, on top of ordinary retainage, with its own example of $25,000 held on $100,000 earned, and
+the money comes back within 14 days of filing (OAR 839-025-0010(4)-(6)). Counted Monday to Friday
+less Oregon's legal holidays (ORS 187.010), December 2026's statements are due Friday 8 January
+2027 (New Year's Day is the Friday before) and June 2027's on Thursday 8 July (the Fourth is kept on
+Monday the 5th). Neither the statute nor the rule defines a business day, so file early when the
+date is close.
+
 ## Other states where certified payroll is filed online
 
 California is no longer the only state that wants the payroll in its own system. On a **state or
@@ -271,11 +290,12 @@ agencies describe it:
 | Maryland | Division of Labor and Industry online system, state-funded public works | in force | The prime files its own and its subs' site payrolls within 14 days of each pay period; $10 a day late. Davis-Bacon jobs do not file with the state |
 | Michigan | LEO, through LCPtracker, after a $500-a-year contractor registration | 2 Apr 2026 | LCPtracker's entry or upload |
 | Nevada | the awarding body (NRS 338.070), monthly, by the 15th | in force | Whatever system that awarding body uses; NDOT uses LCPtracker |
+| [Oregon](https://marisstella.app/certified-payroll-calculator/oregon-certified-payroll-wh38-due-dates.html) | the public agency (ORS 279C.845), not BOLI | in force | Weekly statements on BOLI's WH-38, or your own form with the WH-38's signed certification, submitted monthly by the fifth business day; a WH-347 alone does not count. Filing late lets the next tier up hold 25% of what you earned since the last filing |
 
 Read on 2026-11-27 from the agencies' own pages as published (NYSDOL's electronic payroll FAQ and
 bulk upload formatting guide, NJDOL's Wage Hub FAQ and contractor user guide, L&I's public works
 contractor pages, IDOL's Certified Transcript of Payroll page, Maryland's prevailing wage
-instructions, LEO's prevailing wage page and Nevada's NRS 338 overview). Rules change and the dates
+instructions, ORS 279C.845 and OAR 839-025-0010 with BOLI's Prevailing Wage Rate Laws Handbook, LEO's prevailing wage page and Nevada's NRS 338 overview). Rules change and the dates
 above are the agencies' own. Before your first payroll on a job, check the contract and the agency's
 page: many cities, counties and DOTs run their own system on top (LCPtracker is common), and on
 those jobs the GC tells you where to file.
@@ -356,12 +376,21 @@ It sits on the job, next to that job's pay applications:
   file against NJDOL's real form; it has not yet been tried on a live Wage Hub upload, so review
   what the Hub reads from it before you submit.
 
+- **Oregon public works (added 2026-11-27):** tick the Oregon box and the page dates the week: the
+  month it files with, the due date with any holiday it skipped named, the later date when the week
+  runs into the next month (the statute does not say which month a split week belongs to, so PayApps
+  takes the earlier), and the days left. Pick prime, first-tier or lower-tier and type what you have
+  earned since your last filing to see the 25% that a late filing would hold, and the day it is due
+  back once you enter the filing date. It lists what BOLI wants with the WH-347. It does not print
+  the WH-38 itself (BOLI's file did not download for us), and the dates have not yet been checked
+  against a real public agency's calendar, so confirm your first one.
+
 Not yet: hours straight from a QuickBooks Time or payroll connection, the crew saved with the job
 instead of the browser, the other states' files in the table above (Illinois next; New Jersey's CSV template for crews past 10 rows, once it can be read), and uploads to the compliance systems GCs use (LCPtracker and the like). These come if
 contractors ask for them.
 
 Certified payroll is on every plan, and PayApps is open: free on one active job, with no card.
 [Start free](https://marisstella.app/industries/construction/). The paid plans (more jobs and users, lien waivers, QuickBooks and job costing) are not on sale yet.
-Not affiliated with the Department of Labor, California DIR, NYSDOL, Washington L&I, NJDOL or LCPtracker. This is general information, not legal,
+Not affiliated with the Department of Labor, California DIR, NYSDOL, Washington L&I, NJDOL, Oregon BOLI or LCPtracker. This is general information, not legal,
 payroll or compliance advice; which wage determination applies and whether your contract is covered
 come from your contract and the contracting officer.

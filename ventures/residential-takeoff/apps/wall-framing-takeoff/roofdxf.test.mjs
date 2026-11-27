@@ -2,7 +2,11 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { eaveFromDxf, measureOverhang, outlineFromEave, outerLoops } from "./roofdxf.mjs";
 import { planFromDxf } from "./dxf.mjs";
-import { readOutline, offsetOutline, outlineRoof } from "./roofoutline.mjs";
+import { readOutline, offsetOutline, outlineRoof, roofFromOutline } from "./roofoutline.mjs";
+import { layoutRoof, validateRoof } from "./roof.mjs";
+import { samplePlan } from "./engine.mjs";
+import { main } from "./cli.mjs";
+import { gableEnds, offsetSides } from "./roofdxf.mjs";
 
 const g = (c, v) => `${c}\n${v}\n`;
 /** ASCII DXF: LINEs [layer, x1, y1, x2, y2] and closed LWPOLYLINEs [layer, [[x, y], ...]]. */
@@ -147,4 +151,157 @@ test("outer loop walk: random hip-roof plans keep only the eave line", () => {
     assert.equal(L.length, 4, `case ${k}: ${JSON.stringify(loops[0])}`);
     assert.equal(areaOf(L), W * D);
   }
+});
+
+// Gable ends (2026-11-27): a ridge drawn square into the eave line marks a rake, measured apart from the eaves.
+const W40 = rect(0, 0, ft(40), ft(28)).map(([x, y]) => ({ x, y }));
+/** a 40 x 28 ft gable roof plan: 12 in eaves on the long sides, 6 in rakes, the ridge along the long way */
+const gable40x28 = (extra = []) => dxf([...walls40x28(), ["A-ROOF", -6, ft(14), ft(40) + 6, ft(14)], ...extra], [["A-ROOF", rect(-6, -12, ft(40) + 6, ft(28) + 12)]]);
+
+test("a ridge ending on the eave line marks those sides as gable ends; the rake overhang is measured apart", () => {
+  const e = eaveFromDxf(gable40x28());
+  assert.ok(e.ok, e.errors.join());
+  assert.deepEqual(e.ridgeEnds.map((x) => x.side), [1, 3]);
+  assert.deepEqual(e.ridgeEnds.map((x) => [x.at.x, x.at.y]), [[ft(40) + 6, ft(14)], [-6, ft(14)]]);
+  assert.match(e.notes.join(" "), /Gable ends read from the roof layer: a ridge runs square into eave sides 2, 4/);
+  // before: one overhang all round was refused (12 in at the eaves, 6 in at the rakes)
+  assert.equal(outlineFromEave(e.eave, { walls: W40 }).ok, false);
+  const o = outlineFromEave(e.eave, { walls: W40, ridgeEnds: e.ridgeEnds, inner: e.inner });
+  assert.ok(o.ok, o.errors.join());
+  assert.equal(o.shape, "gable");
+  assert.equal(o.overhang, 12);
+  assert.equal(o.gableOverhang, 6);
+  assert.deepEqual(o.gableEnds.map((p) => [p.x, p.y]), [[ft(40), ft(14)], [0, ft(14)]]);
+  assert.match(o.notes[0], /12 in at the eaves and 6 in at the rakes/);
+  // framed as that gable roof (4:12, so the 2x8 rafters fit the sample stock): 28 ft span, 40 ft ridge, 6 in rakes; the plane is rake to rake
+  const plan = samplePlan();
+  const b = roofFromOutline(pts(o.outline), { pitch: 4, overhang: o.overhang, gableOverhang: o.gableOverhang, gableEnds: o.gableEnds.map((p) => [p.x, p.y]) }, (x) => validateRoof(x, plan));
+  assert.ok(b.ok, b.errors.join());
+  assert.equal(b.roof.shape, "gable");
+  assert.equal(b.roof.width, ft(28));
+  assert.equal(b.roof.length, ft(40));
+  assert.equal(b.roof.gableEnds, undefined);
+  const l = layoutRoof(b.roof, plan);
+  assert.ok(l.ok, (l.errors || []).join());
+  assert.equal(l.gableOverhang, 6);
+  // its sheathed area is the drawn eave-and-rake line's plan area times the slope factor
+  const k = Math.sqrt(1 + (4 / 12) ** 2);
+  assert.ok(Math.abs(l.sheets.area - (ft(40) + 12) * (ft(28) + 24) * k / 144) < 0.5, `${l.sheets.area}`);
+});
+
+test("gable ends on the long sides turn the ridge the short way, as drawn", () => {
+  const text = dxf([...walls40x28(), ["A-ROOF", ft(20), -6, ft(20), ft(28) + 6]], [["A-ROOF", rect(-12, -6, ft(40) + 12, ft(28) + 6)]]);
+  const e = eaveFromDxf(text);
+  const o = outlineFromEave(e.eave, { walls: W40, ridgeEnds: e.ridgeEnds, inner: e.inner });
+  assert.ok(o.ok, o.errors.join());
+  assert.equal(o.gableOverhang, 6);
+  const b = roofFromOutline(pts(o.outline), { pitch: 6, overhang: 12, gableOverhang: 6, gableEnds: o.gableEnds.map((p) => [p.x, p.y]) }, (x) => validateRoof(x, samplePlan()));
+  assert.ok(b.ok, b.errors.join());
+  assert.equal(b.roof.width, ft(40));
+  assert.equal(b.roof.length, ft(28));
+  // without the drawing's gable ends the rectangle's ridge runs the long way, as before
+  const plain = roofFromOutline(pts(o.outline), { pitch: 6 }, (x) => validateRoof(x, samplePlan()));
+  assert.equal(plain.roof.width, ft(28));
+});
+
+test("ridges drawn but none on the eave line is a hip roof; only an eave line reads no shape", () => {
+  const E = rect(-12, -12, ft(40) + 12, ft(28) + 12);
+  const hips = [["A-ROOF", -12, -12, ft(14), ft(14)], ["A-ROOF", ft(40) + 12, -12, ft(26), ft(14)], ["A-ROOF", ft(40) + 12, ft(28) + 12, ft(26), ft(14)], ["A-ROOF", -12, ft(28) + 12, ft(14), ft(14)], ["A-ROOF", ft(14), ft(14), ft(26), ft(14)]];
+  const e = eaveFromDxf(dxf(hips, [["A-ROOF", E]]));
+  assert.deepEqual(e.ridgeEnds, []);
+  assert.equal(e.inner, 5);
+  assert.match(e.notes.join(" "), /every side is an eave: a hip roof/);
+  const o = outlineFromEave(e.eave, { walls: W40, ridgeEnds: e.ridgeEnds, inner: e.inner });
+  assert.equal(o.shape, "hip");
+  assert.equal(o.gableEnds, undefined);
+  const b = roofFromOutline(pts(o.outline), { pitch: 6, overhang: 12, gableEnds: [] }, (x) => validateRoof(x, samplePlan()));
+  assert.ok(b.ok, b.errors.join());
+  assert.equal(b.roof.shape, "hip");
+  // an L drawn as a hip roof is not framed as a gable with a wing
+  const Lw = [[0, 0], [ft(40), 0], [ft(40), ft(28)], [ft(28), ft(28)], [ft(28), ft(40)], [ft(12), ft(40)], [ft(12), ft(28)], [0, ft(28)]];
+  const bl = roofFromOutline(Lw, { pitch: 6, gableEnds: [] }, (x) => validateRoof(x, samplePlan()));
+  assert.equal(bl.ok, false);
+  assert.match(bl.errors[0], /draws a hip roof/);
+  // the eave line alone: no shape, so the CLI keeps its earlier default
+  const bare = eaveFromDxf(dxf([], [["A-ROOF", E]]));
+  assert.equal(bare.inner, 0);
+  assert.match(bare.notes.join(" "), /shape is not read/);
+  assert.equal(outlineFromEave(bare.eave, { walls: W40, ridgeEnds: bare.ridgeEnds, inner: bare.inner }).shape, undefined);
+});
+
+test("a slope arrow or a line near a corner is not a ridge; a ridge drawn on past the rake is", () => {
+  // an arrow up to the middle of the front eave with a free tail, and its two head strokes
+  const arrow = [["A-ROOF", ft(20), -12, ft(20), ft(6)], ["A-ROOF", ft(20), -12, ft(20) - 4, -4], ["A-ROOF", ft(20), -12, ft(20) + 4, -4]];
+  const e = eaveFromDxf(gable40x28(arrow));
+  assert.deepEqual(e.ridgeEnds.map((x) => x.side), [1, 3]);
+  // a stub 4 in from a corner, square to the side and meeting the ridge, is not a gable either
+  const R = rect(0, 0, 400, 200).map(([x, y]) => ({ x, y }));
+  const g = gableEnds(R, [...R.map((p, i) => ({ a: p, b: R[(i + 1) % 4] })), { a: { x: 4, y: 0 }, b: { x: 4, y: 100 } }, { a: { x: 0, y: 100 }, b: { x: 400, y: 100 } }], 1);
+  assert.deepEqual(g.ends.map((x) => x.side), [1, 3]); // only the ridge's two ends
+  // the ridge drawn 6 in past both rakes (the loose-lines drawing above) still marks both
+  const L = [
+    ["ROOF", 0, 0, ft(15), 0], ["ROOF", ft(15), 0, ft(30), 0], ["ROOF", ft(30), 0, ft(30), ft(20)],
+    ["ROOF", ft(30), ft(20), ft(12), ft(20)], ["ROOF", ft(12), ft(20), 0, ft(20)], ["ROOF", 0, ft(20), 0, 0],
+    ["ROOF", -6, ft(10), ft(30) + 6, ft(10)],
+  ];
+  assert.deepEqual(eaveFromDxf(dxf(L)).ridgeEnds.map((x) => [x.side, x.at.x, x.at.y]), [[1, ft(30), ft(10)], [3, 0, ft(10)]]);
+});
+
+test("an L with a gable wing frames as the gable main roof and its wing; ends elsewhere are refused", () => {
+  // main 40 x 28 ft, a 16 ft wing 12 ft out from the back wall, 12 in all round; ridges and valleys drawn
+  const Lw = [[0, 0], [ft(40), 0], [ft(40), ft(28)], [ft(28), ft(28)], [ft(28), ft(40)], [ft(12), ft(40)], [ft(12), ft(28)], [0, ft(28)]];
+  const eaveL = [[-12, -12], [ft(40) + 12, -12], [ft(40) + 12, ft(28) + 12], [ft(28) + 12, ft(28) + 12], [ft(28) + 12, ft(40) + 12], [ft(12) - 12, ft(40) + 12], [ft(12) - 12, ft(28) + 12], [-12, ft(28) + 12]];
+  const lines = [
+    ["ROOF", -12, ft(14), ft(40) + 12, ft(14)], // main ridge
+    ["ROOF", ft(20), ft(40) + 12, ft(20), ft(20)], // wing ridge, to where the valleys meet
+    ["ROOF", ft(12) - 12, ft(28) + 12, ft(20), ft(20)], ["ROOF", ft(28) + 12, ft(28) + 12, ft(20), ft(20)], // valleys
+  ];
+  const e = eaveFromDxf(dxf(lines, [["ROOF", eaveL]]));
+  assert.ok(e.ok, e.errors.join());
+  assert.equal(e.ridgeEnds.length, 3);
+  const o = outlineFromEave(e.eave, { overhang: 12, ridgeEnds: e.ridgeEnds, inner: e.inner });
+  assert.ok(o.ok, o.errors.join());
+  assert.deepEqual(pts(o.outline), Lw);
+  assert.equal(o.gableOverhang, 12);
+  const ends = o.gableEnds.map((p) => [p.x, p.y]);
+  const b = roofFromOutline(Lw, { pitch: 6, overhang: 12, gableOverhang: 12, gableEnds: ends }, (x) => validateRoof(x, samplePlan()));
+  assert.ok(b.ok, b.errors.join());
+  assert.equal(b.roof.wing.width, ft(16));
+  assert.equal(b.roof.wing.projection, ft(12));
+  // a gable end the framing model cannot put there (a hip at one end of the main roof)
+  const half = roofFromOutline(Lw, { pitch: 6, gableEnds: ends.slice(1) }, (x) => validateRoof(x, samplePlan()));
+  assert.equal(half.ok, false);
+  assert.match(half.errors[0], /not where a gable roof on this outline puts them/);
+});
+
+test("with no wall loop the rakes move in by their own overhang", () => {
+  const e = eaveFromDxf(dxf([["A-ROOF", -6, ft(14), ft(40) + 6, ft(14)]], [["A-ROOF", rect(-6, -12, ft(40) + 6, ft(28) + 12)]]));
+  const o = outlineFromEave(e.eave, { overhang: 12, gableOverhang: 6, ridgeEnds: e.ridgeEnds, inner: e.inner });
+  assert.ok(o.ok, o.errors.join());
+  assert.deepEqual(pts(o.outline), rect(0, 0, ft(40), ft(28)));
+  assert.deepEqual(o.gableEnds.map((p) => [p.x, p.y]), [[ft(40), ft(14)], [0, ft(14)]]);
+  // no rake typed: the eave's is used, and the note says so
+  const same = outlineFromEave(e.eave, { overhang: 12, ridgeEnds: e.ridgeEnds, inner: e.inner });
+  assert.deepEqual(pts(same.outline), rect(6, 0, ft(40) - 6, ft(28)));
+  assert.match(same.notes[0], /the eave's, since no rake overhang was typed/);
+  assert.equal(outlineFromEave(e.eave, { overhang: 12, gableOverhang: 50, ridgeEnds: e.ridgeEnds }).ok, false);
+  // offsetSides: each side in by its own distance; too deep turns a side round
+  assert.deepEqual(offsetSides(rect(0, 0, 100, 50).map(([x, y]) => ({ x, y })), [5, 10, 5, 10]).map((p) => [p.x, p.y]), [[10, 5], [90, 5], [90, 45], [10, 45]]);
+  assert.equal(offsetSides(rect(0, 0, 100, 50).map(([x, y]) => ({ x, y })), [5, 60, 5, 60]), null);
+});
+
+test("the CLI frames a drawn gable roof with its measured rake, and a drawn hip roof as a hip", () => {
+  const r = main(["gable.dxf", "--roof-pitch=4"], () => gable40x28());
+  assert.equal(r.code, 0, r.out);
+  assert.match(r.out, /12 in at the eaves and 6 in at the rakes/);
+  assert.match(r.out, /Roof: 28' 0" x 40' 0", 4:12 pitch, 12" eave and 6" rake overhang/);
+  // a 24 x 16 ft hip roof drawn with its hips and ridge: framed as a hip, where it used to be a gable
+  const hw = [["A-WALL", 0, 0, ft(24), 0], ["A-WALL", ft(24), 0, ft(24), ft(16)], ["A-WALL", ft(24), ft(16), 0, ft(16)], ["A-WALL", 0, ft(16), 0, 0]];
+  const E = rect(-12, -12, ft(24) + 12, ft(16) + 12);
+  const hips = [["A-ROOF", -12, -12, ft(8), ft(8)], ["A-ROOF", ft(24) + 12, -12, ft(16), ft(8)], ["A-ROOF", ft(24) + 12, ft(16) + 12, ft(16), ft(8)], ["A-ROOF", -12, ft(16) + 12, ft(8), ft(8)], ["A-ROOF", ft(8), ft(8), ft(16), ft(8)]];
+  const h = main(["hip.dxf", "--roof-pitch=4"], () => dxf([...hw, ...hips], [["A-ROOF", E]]));
+  assert.equal(h.code, 0, h.out);
+  assert.match(h.out, /every side is an eave: a hip roof/);
+  assert.match(h.out, /Roof: 16' 0" x 24' 0", 4:12 pitch, 12" eave overhang \(hip\)/);
+  assert.equal(main(["gable.dxf", "--roof-pitch=4", "--rake-overhang=99"], () => gable40x28()).code, 1);
 });

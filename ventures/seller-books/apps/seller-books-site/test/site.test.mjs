@@ -25,6 +25,7 @@ import {
   MILEAGE_EXAMPLE,
   MILEAGE_RATES,
   mileageLines,
+  PERSONAL_ITEM_EXAMPLE,
 } from "../src/pages.mjs";
 
 let out;
@@ -634,5 +635,51 @@ describe("the reseller tax deductions page", () => {
     assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
     assert.ok(read("llms.txt").includes(`${BASE_PATH}/reseller-tax-deductions)`));
     assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/reseller-tax-deductions`));
+  });
+});
+
+describe("the personal items or business page", () => {
+  const page = () => pages.find((p) => p.path === "/personal-items-or-business");
+  const appFile = (rel) =>
+    readFileSync(new URL(`../../seller-books/${rel}`, import.meta.url), "utf8");
+
+  test("the IRS's couch, the 2025 entry space and the older lines, with sources and FAQ markup", () => {
+    const html = htmlOf(page());
+    assert.deepEqual(PERSONAL_ITEM_EXAMPLE, { paid: 1000, sold: 700 });
+    for (const s of [
+      "entry space at the top of Schedule 1",
+      "line 8z",
+      "line 24z",
+      "Form 8949",
+      "line 8j",
+      "$1,000",
+      "$700",
+      "$300 loss is not deducted",
+      "over $20,000 and more than 200 transactions",
+      "https://www.irs.gov/instructions/i1040gi",
+      "https://www.irs.gov/newsroom/form-1099-k-faqs-general-information",
+      '"@type":"FAQPage"',
+    ])
+      assert.ok(html.includes(s), s);
+    assert.match(html, /read through search excerpts 2026-11-27/);
+    assert.ok(html.includes("you do not need bookkeeping software"), "says who does not need it");
+  });
+
+  test("what it says the app does, the app does", () => {
+    // Personal-use stock comes off line 36; a sale can be deleted.
+    assert.match(
+      appFile("src/worker/services/books/schedule-c.ts"),
+      /const line36 = purchases - personalUse/,
+    );
+    assert.match(appFile("src/worker/routes/org/sales.ts"), /routes\.delete\("\/:id", requireRole/);
+    assert.match(appFile("src/shared/enums.ts"), /"personal_use"/);
+  });
+
+  test("linked from the 1099-K page, every footer, llms.txt and the sitemap", () => {
+    const link = `href="${BASE_PATH}/personal-items-or-business"`;
+    assert.ok(htmlOf(pages.find((p) => p.path === "/1099-k")).includes(link));
+    assert.ok(htmlOf(pages.find((p) => p.path === "/")).includes(link));
+    assert.ok(read("llms.txt").includes(`${BASE_PATH}/personal-items-or-business)`));
+    assert.ok(read("sitemap.xml").includes(`${BASE_PATH}/personal-items-or-business`));
   });
 });

@@ -188,7 +188,8 @@ export function parseSquareTransactions(text: string): ImportParseResult {
         });
       } else {
         // A refund row carries negative amounts. The refund is what went back for the goods, tips and
-        // service charges; the tax given back is the state's money, never income, so it is left out.
+        // service charges; the tax given back is the state's money, never income, so it is kept out of the
+        // refund and stored apart as salesTaxCents, which lowers the sales tax the seller collected.
         const refund = Math.abs(goods) + Math.abs(tip) + Math.abs(service);
         if (refund === 0) {
           out.skipped.push({ line: row.line, reason: "Refund of $0.00 for goods (tax only)" });
@@ -217,7 +218,7 @@ export function parseSquareTransactions(text: string): ImportParseResult {
           quantity: 1,
           itemCents: 0,
           shippingChargedCents: 0,
-          salesTaxCents: 0,
+          salesTaxCents: Math.abs(tax),
           refundCents: refund,
           shippingLabelCents: 0,
           netCents: null,

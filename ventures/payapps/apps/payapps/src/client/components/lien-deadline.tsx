@@ -6,7 +6,12 @@
 // place, and a state or local one shows the state's payment bond claim steps (the eight states in
 // STATE_BOND_RULES) and its retainage cap on public work instead.
 import type { ProjectDetailDto } from "@shared/api/types";
-import { daysUntil, LIEN_DEADLINE_RULES, LIEN_DEADLINE_STATES } from "@shared/lien-deadline";
+import {
+  daysUntil,
+  LIEN_DEADLINE_RULES,
+  LIEN_DEADLINE_STATES,
+  lienDateFields,
+} from "@shared/lien-deadline";
 import {
   MILLER_TIER_LABELS,
   MILLER_TIERS,
@@ -70,9 +75,9 @@ export function LienDeadlinePanel(props: {
     mutationFn: () => {
       const s = state.trim().toUpperCase();
       if (s && !/^[A-Z]{2}$/.test(s)) throw new Error("Enter the state's two-letter code, like CA");
-      const completionState = !owner && (s === "CA" || s === "AZ");
-      // A state or local job keeps the public body's acceptance in the same column.
-      const keepsCompletion = completionState || owner === "state_local";
+      const fields = owner ? null : lienDateFields(s);
+      // A state or local job keeps the public body's acceptance in the completion column.
+      const keepsCompletion = !!fields?.completion || owner === "state_local";
       return api<ProjectDetailDto>(path, {
         method: "PATCH",
         body: {
@@ -80,7 +85,7 @@ export function LienDeadlinePanel(props: {
           lienResidential: residential,
           lastFurnishedOn: last || null,
           workCompletedOn: keepsCompletion ? completed || null : null,
-          noticeOfCompletionOn: completionState ? noc || null : null,
+          noticeOfCompletionOn: fields?.noticeOfCompletion ? noc || null : null,
           publicOwner: owner || null,
           millerTier: owner ? tier || null : null,
         },
@@ -95,7 +100,7 @@ export function LienDeadlinePanel(props: {
   const rule = (LIEN_DEADLINE_STATES as readonly string[]).includes(upper)
     ? LIEN_DEADLINE_RULES[upper as keyof typeof LIEN_DEADLINE_RULES]
     : null;
-  const completionState = !owner && (upper === "CA" || upper === "AZ");
+  const fields = owner ? null : lienDateFields(upper);
   const federal = p.publicOwner === "federal";
   // Every rate the job holds at: the latest application's (else the job's), and lines' own rates.
   const latest = p.payApps[p.payApps.length - 1];
@@ -398,7 +403,7 @@ export function LienDeadlinePanel(props: {
               </label>
             </div>
           )}
-          {completionState && (
+          {fields?.completion && (
             <div className="flex flex-wrap items-end gap-3">
               <label className="grid">
                 <span className="text-slate-600">Whole project completed (if known)</span>
@@ -410,16 +415,18 @@ export function LienDeadlinePanel(props: {
                   aria-label="Completion of the whole project"
                 />
               </label>
-              <label className="grid">
-                <span className="text-slate-600">Notice of completion recorded on</span>
-                <input
-                  className="input"
-                  type="date"
-                  value={noc}
-                  onChange={(e) => setNoc(e.target.value)}
-                  aria-label="Day the owner recorded a notice of completion"
-                />
-              </label>
+              {fields.noticeOfCompletion && (
+                <label className="grid">
+                  <span className="text-slate-600">Notice of completion recorded on</span>
+                  <input
+                    className="input"
+                    type="date"
+                    value={noc}
+                    onChange={(e) => setNoc(e.target.value)}
+                    aria-label="Day the owner recorded a notice of completion"
+                  />
+                </label>
+              )}
             </div>
           )}
           <div>

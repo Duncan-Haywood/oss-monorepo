@@ -49,7 +49,11 @@ export const sale = sqliteTable(
     /** Item price the buyer paid, after seller-funded discounts. */
     itemCents: cents("item_cents").notNull().default(0),
     shippingChargedCents: cents("shipping_charged_cents").notNull().default(0),
-    /** Sales tax the marketplace collected and remitted (not the seller's income). */
+    /**
+     * Sales tax on the sale, never the seller's income: collected and sent by the marketplace, or, on
+     * Square, PayPal, Shopify and direct sales, collected by the seller (shared/sales-tax.ts). On a
+     * refund row, the tax handed back to the buyer.
+     */
     salesTaxCents: cents("sales_tax_cents").notNull().default(0),
     /** Refund kind only: money returned to the buyer (positive). */
     refundCents: cents("refund_cents").notNull().default(0),

@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="nl"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BR-CO-17: EN 16931 uitgelegd</title>
+<meta name="description" content="BR-CO-17: In elke regel van de btw-uitsplitsing hoort het btw-bedrag (BT-117) het belastbare bedrag (BT-116) maal het tarief (BT-119) gedeeld door 100 te…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/nl/br-co-17">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/br-co-17">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/br-co-17">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/br-co-17">
+<link rel="alternate" hreflang="nl" href="https://example.invalid/einvoice-preflight/rules/nl/br-co-17">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/br-co-17">
+<meta property="og:title" content="BR-CO-17: EN 16931 uitgelegd">
+<meta property="og:description" content="BR-CO-17: In elke regel van de btw-uitsplitsing hoort het btw-bedrag (BT-117) het belastbare bedrag (BT-116) maal het tarief (BT-119) gedeeld door 100 te…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Wat betekent BR-CO-17?","acceptedAnswer":{"@type":"Answer","text":"In elke regel van de btw-uitsplitsing hoort het btw-bedrag (BT-117) het belastbare bedrag (BT-116) maal het tarief (BT-119) gedeeld door 100 te zijn, afgerond op twee decimalen; bijvoorbeeld 145.00 × 19 % = 27.55. De officiële test is ruimer dan zijn melding: hij aanvaardt elk bedrag dat minder dan 1,00 van die uitkomst afligt (in CII tot en met 1,00). Bij een tarief van 0, of zonder tarief, moet het btw-bedrag op nul afronden, dus onder 0,50 liggen."}},{"@type":"Question","name":"Hoe los ik BR-CO-17 op?","acceptedAnswer":{"@type":"Answer","text":"Bereken elke regel opnieuw: belastbaar bedrag × tarief ÷ 100, afgerond op twee decimalen (145.00 × 19 ÷ 100 = 27.55). Zet bij een categorie van 0 % het btw-bedrag van de regel op 0.00. Voer het tarief in als percentage in cbc:Percent (UBL) of ram:RateApplicablePercent (CII)."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}pre .ln{display:block;padding-left:calc((var(--i) + 2) * 1ch);text-indent:calc((var(--i) + 2) * -1ch)}@media (max-width:700px){pre{white-space:pre-wrap;overflow-wrap:anywhere}}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-factuurregel uitgelegd · EN 16931</p>
+<h1>BR-CO-17: Btw-bedrag in de uitsplitsing klopt niet met grondslag maal tarief</h1>
+<nav class="langs" aria-label="Andere talen"><a href="../en/br-co-17.html" hreflang="en" lang="en">English</a><a href="../de/br-co-17.html" hreflang="de" lang="de">Deutsch</a><a href="../fr/br-co-17.html" hreflang="fr" lang="fr">Français</a><a href="index.html">Alle regels</a></nav>
+</header>
+<section>
+<h2>Officiële melding</h2>
+<blockquote lang="en">VAT category tax amount (BT-117) = VAT category taxable amount (BT-116) x (VAT category rate (BT-119) / 100), rounded to two decimals.</blockquote>
+<dl>
+<dt>Ernst</dt><dd>Fout (de factuur wordt geweigerd)</dd>
+<dt>Gecontroleerd in</dt><dd>UBL, CII</dd>
+<dt>Bedrijfstermen</dt><dd>BT-117, BT-116, BT-119</dd>
+</dl>
+</section>
+<section>
+<h2>Wat betekent BR-CO-17?</h2>
+<p>In elke regel van de btw-uitsplitsing hoort het btw-bedrag (BT-117) het belastbare bedrag (BT-116) maal het tarief (BT-119) gedeeld door 100 te zijn, afgerond op twee decimalen; bijvoorbeeld 145.00 × 19 % = 27.55. De officiële test is ruimer dan zijn melding: hij aanvaardt elk bedrag dat minder dan 1,00 van die uitkomst afligt (in CII tot en met 1,00). Bij een tarief van 0, of zonder tarief, moet het btw-bedrag op nul afronden, dus onder 0,50 liggen.</p>
+<h2>Gebruikelijke oorzaken</h2>
+<ul>
+<li>Het btw-bedrag is overgenomen van een andere regel of een andere factuur.</li>
+<li>Het belastbare bedrag is gewijzigd (bijvoorbeeld door een korting op documentniveau) zonder de btw opnieuw te berekenen.</li>
+<li>Een regel van 0 % (vrijstelling, verlegging, export) heeft een btw-bedrag.</li>
+<li>Het tarief is als breuk ingevoerd (0.19) in plaats van als percentage (19).</li>
+</ul>
+</section>
+<section>
+<h2>Hoe los ik BR-CO-17 op?</h2>
+<ol>
+<li>Bereken elke regel opnieuw: belastbaar bedrag × tarief ÷ 100, afgerond op twee decimalen (145.00 × 19 ÷ 100 = 27.55).</li>
+<li>Zet bij een categorie van 0 % het btw-bedrag van de regel op 0.00.</li>
+<li>Voer het tarief in als percentage in cbc:Percent (UBL) of ram:RateApplicablePercent (CII).</li>
+</ol>
+<h2>Gecorrigeerde XML (minimaal voorbeeld van ons)</h2>
+<p><strong>UBL</strong></p>
+<pre><code><span class="ln" style="--i:0">&lt;cac:TaxSubtotal&gt;</span><span class="ln" style="--i:2">  &lt;cbc:TaxableAmount currencyID=&quot;EUR&quot;&gt;145.00<wbr>&lt;/cbc:TaxableAmount&gt;</span><span class="ln" style="--i:2">  &lt;cbc:TaxAmount currencyID=&quot;EUR&quot;&gt;27.55<wbr>&lt;/cbc:TaxAmount&gt;</span><span class="ln" style="--i:2">  &lt;cac:TaxCategory&gt;</span><span class="ln" style="--i:4">    &lt;cbc:ID&gt;S<wbr>&lt;/cbc:ID&gt;</span><span class="ln" style="--i:4">    &lt;cbc:Percent&gt;19<wbr>&lt;/cbc:Percent&gt;</span><span class="ln" style="--i:4">    &lt;cac:TaxScheme&gt;</span><span class="ln" style="--i:6">      &lt;cbc:ID&gt;VAT<wbr>&lt;/cbc:ID&gt;</span><span class="ln" style="--i:4">    &lt;/cac:TaxScheme&gt;</span><span class="ln" style="--i:2">  &lt;/cac:TaxCategory&gt;</span><span class="ln" style="--i:0">&lt;/cac:TaxSubtotal&gt;</span></code></pre>
+<p><strong>CII</strong></p>
+<pre><code><span class="ln" style="--i:0">&lt;ram:ApplicableTradeTax&gt;</span><span class="ln" style="--i:2">  &lt;ram:CalculatedAmount&gt;27.55<wbr>&lt;/ram:CalculatedAmount&gt;</span><span class="ln" style="--i:2">  &lt;ram:TypeCode&gt;VAT<wbr>&lt;/ram:TypeCode&gt;</span><span class="ln" style="--i:2">  &lt;ram:BasisAmount&gt;145.00<wbr>&lt;/ram:BasisAmount&gt;</span><span class="ln" style="--i:2">  &lt;ram:CategoryCode&gt;S<wbr>&lt;/ram:CategoryCode&gt;</span><span class="ln" style="--i:2">  &lt;ram:RateApplicablePercent&gt;19<wbr>&lt;/ram:RateApplicablePercent&gt;</span><span class="ln" style="--i:0">&lt;/ram:ApplicableTradeTax&gt;</span></code></pre>
+<p class="note">Alleen voorbeeldwaarden. Vervang of vul de elementen in uw bestand aan; de volgorde van de elementen ligt in beide syntaxen vast.</p>
+</section>
+<section>
+<h2>Controleer uw bestand gratis</h2>
+<p>De gratis controle voert de officiële regels voor EN 16931, XRechnung en Peppol uit in uw browser. Uw bestand wordt niet geüpload.</p>
+<p><a class="button" href="../../index.html">Open de gratis controle</a></p>
+</section>
+<section class="cta">
+<p><span class="state">In ontwikkeling — vroege toegang</span></p>
+<h2>Controleren en uitleggen, voor boekhouders en factuurteams</h2>
+<p>Een betaalde dienst die elke geschonden regel in gewoon Nederlands, Duits, Frans of Engels uitlegt en een gecorrigeerd bestand voorstelt, is in ontwikkeling. <a href="https://example.invalid/industries/eu-e-invoicing/">Vroege toegang</a></p>
+</section>
+<section>
+<h2>Bron</h2>
+<p>Regel-ID en officiële melding uit: CEN/TC 434 EN 16931 validation artefacts, validation-1.3.17 (EUPL-1.2), gecompileerd uit upstream-commit 6e35e0a. De uitleg, oorzaken, oplossing en XML op deze pagina zijn van ons, niet van de uitgever van de regel. <a href="https://github.com/ConnectingEurope/eInvoicing-EN16931/tree/validation-1.3.17" rel="noopener">CEN/TC 434 EN 16931 validation artefacts validation-1.3.17</a></p>
+</section>
+<footer>
+<p><strong>Geen fiscaal of juridisch advies.</strong> Deze pagina legt uit wat een validatieregel controleert en hoe een bestand die regel doorstaat. Ze zegt niet welke btw-behandeling op uw verkoop van toepassing is; vraag dat aan uw boekhouder of belastingadviseur. <strong>Zonder garantie (no warranty):</strong> gratis en zoals het is; controleer het resultaat voordat u erop vertrouwt.</p>
+<p>Onze code en uitleg vallen onder de licentie FSL-1.1-MIT. Officiële regelmeldingen worden geciteerd onder de licentie van hun uitgever (EUPL-1.2, Apache-2.0, MPL-2.0), die op elke pagina wordt genoemd.</p>
+</footer>
+</main></body></html>

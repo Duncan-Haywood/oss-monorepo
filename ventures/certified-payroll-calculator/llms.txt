@@ -17,6 +17,7 @@ Free to use and source available (FSL-1.1-MIT). Results are estimates from the n
 - [California eCPR XML upload (DIR certified payroll, version 2.0)](https://marisstella.app/certified-payroll-calculator/california-ecpr-xml-upload.html)
 - [New York certified payroll bulk upload (NYSDOL XML)](https://marisstella.app/certified-payroll-calculator/new-york-certified-payroll-bulk-upload.html)
 - [New Jersey certified payroll: the MW-562 for the NJ Wage Hub (NJDOL)](https://marisstella.app/certified-payroll-calculator/new-jersey-certified-payroll-wage-hub-mw562.html)
+- [Oregon certified payroll: WH-38 due dates and the 25% hold (BOLI)](https://marisstella.app/certified-payroll-calculator/oregon-certified-payroll-wh38-due-dates.html)
 - [Washington certified payroll XML upload (L&I PWIA)](https://marisstella.app/certified-payroll-calculator/washington-prevailing-wage-xml-upload.html)
 - [Illinois Certified Transcript of Payroll CSV (IDOL CTP)](https://marisstella.app/certified-payroll-calculator/illinois-certified-transcript-of-payroll-csv.html)
 

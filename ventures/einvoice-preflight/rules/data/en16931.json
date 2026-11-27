@@ -54,6 +54,20 @@
         "Supprimez les entrées S auxquelles aucune ligne ne correspond, puis recalculez les totaux de la facture."
       ]
     },
+    "nl": {
+      "title": "Regels met normaal tarief maar geen btw-uitsplitsing voor categorie S",
+      "meaning": "Heeft een factuurregel, een korting of een toeslag op documentniveau btw-categorie S (normaal tarief), dan moet de btw-uitsplitsing (BG-23) minstens één regel met categorie S bevatten. In de UBL-versie werkt de controle ook andersom: een S-regel in de uitsplitsing zonder factuurregel, korting of toeslag met categorie S faalt ook.",
+      "causes": [
+        "De regels hebben categorie S, maar de software schreef de btw-uitsplitsing met een andere code (bijvoorbeeld een eigen code of E).",
+        "De btw-uitsplitsing ontbreekt of is maar voor een deel van de tarieven op de factuur opgebouwd.",
+        "Een regel is na het berekenen van de totalen naar S (of van S naar iets anders) gewijzigd en de uitsplitsing is niet opnieuw opgebouwd."
+      ],
+      "fix": [
+        "Controleer de btw-categoriecode op elke regel, korting en toeslag; de code die daar staat, moet de uitsplitsing weerspiegelen.",
+        "Voeg per gebruikt normaal tarief één uitsplitsingsregel met categorie S toe, met het belastbare bedrag en het btw-bedrag.",
+        "Verwijder elke S-regel in de uitsplitsing waar geen factuurregel, korting of toeslag naar verwijst, en bereken daarna de factuurtotalen opnieuw."
+      ]
+    },
     "ubl": "<cac:TaxTotal>\n  <cbc:TaxAmount currencyID=\"EUR\">19.00</cbc:TaxAmount>\n  <cac:TaxSubtotal>\n    <cbc:TaxableAmount currencyID=\"EUR\">100.00</cbc:TaxableAmount>\n    <cbc:TaxAmount currencyID=\"EUR\">19.00</cbc:TaxAmount>\n    <cac:TaxCategory>\n      <cbc:ID>S</cbc:ID>\n      <cbc:Percent>19</cbc:Percent>\n      <cac:TaxScheme>\n        <cbc:ID>VAT</cbc:ID>\n      </cac:TaxScheme>\n    </cac:TaxCategory>\n  </cac:TaxSubtotal>\n</cac:TaxTotal>\n<cac:InvoiceLine>\n  <cbc:ID>1</cbc:ID>\n  <cbc:InvoicedQuantity unitCode=\"HUR\">1</cbc:InvoicedQuantity>\n  <cbc:LineExtensionAmount currencyID=\"EUR\">100.00</cbc:LineExtensionAmount>\n  <cac:Item>\n    <cbc:Name>Consulting</cbc:Name>\n    <cac:ClassifiedTaxCategory>\n      <cbc:ID>S</cbc:ID>\n      <cbc:Percent>19</cbc:Percent>\n      <cac:TaxScheme>\n        <cbc:ID>VAT</cbc:ID>\n      </cac:TaxScheme>\n    </cac:ClassifiedTaxCategory>\n  </cac:Item>\n  <cac:Price>\n    <cbc:PriceAmount currencyID=\"EUR\">100.00</cbc:PriceAmount>\n  </cac:Price>\n</cac:InvoiceLine>"
   },
   {
@@ -119,6 +133,21 @@
         "Créez une entrée de ventilation par taux, avec le même taux que sur les lignes, puis recalculez le montant de TVA et les totaux."
       ]
     },
+    "nl": {
+      "title": "Belastbaar bedrag bij normaal tarief klopt niet met de regels",
+      "meaning": "Voor elk normaal tarief (categorie S) in de btw-uitsplitsing moet het belastbare bedrag (BT-116) gelijk zijn aan de nettobedragen van de regels tegen dat tarief, plus de toeslagen en min de kortingen op documentniveau tegen dat tarief. De UBL-controle accepteert een verschil kleiner dan 1,00 en faalt ook als geen regel, korting of toeslag dat tarief gebruikt; de CII-controle vergelijkt exact, nadat elke som op twee decimalen is afgerond.",
+      "causes": [
+        "Een korting of toeslag op documentniveau is niet (of dubbel) meegeteld in het belastbare bedrag.",
+        "Het tarief op een regel verschilt van het tarief in de uitsplitsing, bijvoorbeeld 19 op de regels en 16 in de uitsplitsing, zodat de regels er niet voor meetellen.",
+        "Regels met verschillende normale tarieven zijn in één uitsplitsingsregel samengevoegd.",
+        "Het belastbare bedrag is berekend uit niet-afgeronde regelbedragen of prijzen in plaats van uit de afgeronde nettoregelbedragen."
+      ],
+      "fix": [
+        "Groepeer de regels, kortingen en toeslagen met categorie S op hun exacte tarief.",
+        "Tel per tarief de nettoregelbedragen (BT-131) op, tel de toeslagen erbij en trek de kortingen af; schrijf dat bedrag als belastbaar bedrag.",
+        "Gebruik één uitsplitsingsregel per tarief, met hetzelfde tarief als op de regels, en bereken daarna het btw-bedrag en de factuurtotalen opnieuw."
+      ]
+    },
     "ubl": "<!-- Lines at S 19%: 100.00 + 50.00 = 150.00; 150.00 + 10.00 charge - 20.00 allowance = 140.00 -->\n<cac:AllowanceCharge>\n  <cbc:ChargeIndicator>true</cbc:ChargeIndicator>\n  <cbc:AllowanceChargeReason>Freight</cbc:AllowanceChargeReason>\n  <cbc:Amount currencyID=\"EUR\">10.00</cbc:Amount>\n  <cac:TaxCategory>\n    <cbc:ID>S</cbc:ID>\n    <cbc:Percent>19</cbc:Percent>\n    <cac:TaxScheme>\n      <cbc:ID>VAT</cbc:ID>\n    </cac:TaxScheme>\n  </cac:TaxCategory>\n</cac:AllowanceCharge>\n<cac:AllowanceCharge>\n  <cbc:ChargeIndicator>false</cbc:ChargeIndicator>\n  <cbc:AllowanceChargeReason>Discount</cbc:AllowanceChargeReason>\n  <cbc:Amount currencyID=\"EUR\">20.00</cbc:Amount>\n  <cac:TaxCategory>\n    <cbc:ID>S</cbc:ID>\n    <cbc:Percent>19</cbc:Percent>\n    <cac:TaxScheme>\n      <cbc:ID>VAT</cbc:ID>\n    </cac:TaxScheme>\n  </cac:TaxCategory>\n</cac:AllowanceCharge>\n<cac:TaxTotal>\n  <cbc:TaxAmount currencyID=\"EUR\">26.60</cbc:TaxAmount>\n  <cac:TaxSubtotal>\n    <cbc:TaxableAmount currencyID=\"EUR\">140.00</cbc:TaxableAmount>\n    <cbc:TaxAmount currencyID=\"EUR\">26.60</cbc:TaxAmount>\n    <cac:TaxCategory>\n      <cbc:ID>S</cbc:ID>\n      <cbc:Percent>19</cbc:Percent>\n      <cac:TaxScheme>\n        <cbc:ID>VAT</cbc:ID>\n      </cac:TaxScheme>\n    </cac:TaxCategory>\n  </cac:TaxSubtotal>\n</cac:TaxTotal>"
   },
   {
@@ -176,6 +205,21 @@
         "Faites du total de TVA (BT-110) la somme des montants de la ventilation et mettez à jour le montant à payer."
       ]
     },
+    "nl": {
+      "title": "Btw-bedrag bij normaal tarief is niet belastbaar bedrag maal tarief",
+      "meaning": "In elke regel van de btw-uitsplitsing met categorie S moet het btw-bedrag (BT-117) gelijk zijn aan het belastbare bedrag (BT-116) maal het tarief (BT-119), afgerond op twee decimalen. De controle vergelijkt absolute waarden en accepteert een verschil kleiner dan 1,00; een fout betekent dus dat het bedrag duidelijk verkeerd is, niet alleen een afrondingscent.",
+      "causes": [
+        "De btw is regel per regel opgeteld en de uitkomsten per regel zijn uit elkaar gelopen, of het belastbare bedrag is later gewijzigd zonder de btw opnieuw te berekenen.",
+        "Het tarief in de uitsplitsing is niet het tarief waarmee echt gerekend is (bijvoorbeeld 19 geschreven, 7 toegepast).",
+        "De btw van twee tarieven staat in één uitsplitsingsregel.",
+        "Het tarief is als breuk geschreven (0.19) in plaats van als percentage (19)."
+      ],
+      "fix": [
+        "Schrijf het tarief als percentage, bijvoorbeeld 21 voor 21 %.",
+        "Bereken het btw-bedrag als belastbaar bedrag × tarief ÷ 100 en rond af op twee decimalen.",
+        "Maak het totale btw-bedrag (BT-110) gelijk aan de som van de btw-bedragen in de uitsplitsing en pas het te betalen bedrag aan."
+      ]
+    },
     "ubl": "<cac:TaxTotal>\n  <cbc:TaxAmount currencyID=\"EUR\">26.60</cbc:TaxAmount>\n  <cac:TaxSubtotal>\n    <cbc:TaxableAmount currencyID=\"EUR\">140.00</cbc:TaxableAmount>\n    <cbc:TaxAmount currencyID=\"EUR\">26.60</cbc:TaxAmount>\n    <cac:TaxCategory>\n      <cbc:ID>S</cbc:ID>\n      <cbc:Percent>19</cbc:Percent>\n      <cac:TaxScheme>\n        <cbc:ID>VAT</cbc:ID>\n      </cac:TaxScheme>\n    </cac:TaxCategory>\n  </cac:TaxSubtotal>\n</cac:TaxTotal>",
     "cii": "<ram:ApplicableTradeTax>\n  <ram:CalculatedAmount>26.60</ram:CalculatedAmount>\n  <ram:TypeCode>VAT</ram:TypeCode>\n  <ram:BasisAmount>140.00</ram:BasisAmount>\n  <ram:CategoryCode>S</ram:CategoryCode>\n  <ram:RateApplicablePercent>19</ram:RateApplicablePercent>\n</ram:ApplicableTradeTax>"
   },
@@ -228,6 +272,20 @@
         "Cette règle ne s'applique qu'une fois AE choisie ; savoir si l'autoliquidation s'applique à votre vente est une question fiscale, à voir avec votre conseiller en cas de doute.",
         "Dans l'entrée de ventilation AE, ajoutez le code VATEX-EU-AE et/ou le texte « Autoliquidation » (ou « Reverse charge »).",
         "Vous pouvez garder une note pour l'acheteur ; l'entrée de ventilation doit malgré tout porter son propre motif."
+      ]
+    },
+    "nl": {
+      "title": "Btw-uitsplitsing met verlegging heeft geen vrijstellingsreden",
+      "meaning": "Gebruikt de btw-uitsplitsing categorie AE (verlegging, reverse charge), dan moet die regel ook een code voor de vrijstellingsreden (BT-121) of een tekst voor de vrijstellingsreden (BT-120) bevatten. De officiële melding verwacht de tekst \"Reverse charge\"; de controle zelf test alleen of een van de twee aanwezig is.",
+      "causes": [
+        "De software zet categorie AE, maar heeft geen veld voor de vrijstellingsreden of laat het leeg.",
+        "De vermelding over de verlegging staat in een vrije notitie op de factuur in plaats van in de btw-uitsplitsing.",
+        "De reden staat op de factuurregel en niet op de regel van de btw-uitsplitsing."
+      ],
+      "fix": [
+        "Deze regel geldt pas als AE gekozen is; of verlegging voor uw verkoop geldt, is een fiscale vraag, dus vraag het bij twijfel aan uw boekhouder of belastingadviseur.",
+        "Voeg in de AE-regel van de uitsplitsing de code VATEX-EU-AE en/of de tekst \"Reverse charge\" (of de gebruikelijke vermelding in de taal van de factuur, zoals \"btw verlegd\") toe.",
+        "Houdt u een notitie voor de koper aan, laat die dan ook staan; de uitsplitsingsregel heeft nog steeds een eigen reden nodig."
       ]
     },
     "ubl": "<cac:TaxSubtotal>\n  <cbc:TaxableAmount currencyID=\"EUR\">1000.00</cbc:TaxableAmount>\n  <cbc:TaxAmount currencyID=\"EUR\">0.00</cbc:TaxAmount>\n  <cac:TaxCategory>\n    <cbc:ID>AE</cbc:ID>\n    <cbc:Percent>0</cbc:Percent>\n    <cbc:TaxExemptionReasonCode>VATEX-EU-AE</cbc:TaxExemptionReasonCode>\n    <cbc:TaxExemptionReason>Reverse charge</cbc:TaxExemptionReason>\n    <cac:TaxScheme>\n      <cbc:ID>VAT</cbc:ID>\n    </cac:TaxScheme>\n  </cac:TaxCategory>\n</cac:TaxSubtotal>",
@@ -284,6 +342,20 @@
         "S'il y a plusieurs entrées E, chacune doit porter son motif."
       ]
     },
+    "nl": {
+      "title": "Btw-uitsplitsing met vrijstelling heeft geen vrijstellingsreden",
+      "meaning": "Gebruikt de btw-uitsplitsing categorie E (vrijgesteld van btw), dan moet die regel een code voor de vrijstellingsreden (BT-121) of een tekst voor de vrijstellingsreden (BT-120) bevatten. De controle test alleen of een van de twee aanwezig is; ze beoordeelt niet of de reden de juiste is.",
+      "causes": [
+        "De software zet categorie E, maar laat de vrijstellingsreden leeg.",
+        "De wettelijke grondslag van de vrijstelling staat in een notitie op de factuur in plaats van in de btw-uitsplitsing.",
+        "De reden staat op de factuurregel en niet op de regel van de btw-uitsplitsing."
+      ],
+      "fix": [
+        "Deze regel geldt pas als E gekozen is; welke vrijstelling op uw verkoop van toepassing is, is een fiscale vraag, dus vraag het bij twijfel aan uw boekhouder of belastingadviseur.",
+        "Voeg in de E-regel van de uitsplitsing de tekst van de vrijstelling toe, meestal het wetsartikel dat uw factuur al vermeldt, en/of de bijbehorende VATEX-code.",
+        "Doe dit voor elke E-regel in de uitsplitsing als er meer dan één is."
+      ]
+    },
     "ubl": "<cac:TaxSubtotal>\n  <cbc:TaxableAmount currencyID=\"EUR\">500.00</cbc:TaxableAmount>\n  <cbc:TaxAmount currencyID=\"EUR\">0.00</cbc:TaxAmount>\n  <cac:TaxCategory>\n    <cbc:ID>E</cbc:ID>\n    <cbc:Percent>0</cbc:Percent>\n    <cbc:TaxExemptionReason>Exempt from VAT under [legal provision your invoice cites]</cbc:TaxExemptionReason>\n    <cac:TaxScheme>\n      <cbc:ID>VAT</cbc:ID>\n    </cac:TaxScheme>\n  </cac:TaxCategory>\n</cac:TaxSubtotal>"
   },
   {
@@ -337,6 +409,20 @@
         "Pour expliquer le taux zéro à l'acheteur, utilisez plutôt une note de facture (BT-22)."
       ]
     },
+    "nl": {
+      "title": "Btw-uitsplitsing met nultarief mag geen vrijstellingsreden hebben",
+      "meaning": "Een regel van de btw-uitsplitsing met categorie Z (nultarief) mag geen code voor de vrijstellingsreden (BT-121) en geen tekst voor de vrijstellingsreden (BT-120) bevatten. In EN 16931 is het nultarief een belast tarief van 0 %, geen vrijstelling, dus de redenvelden zijn daar niet toegestaan.",
+      "causes": [
+        "De software vult bij elke regel van 0 % een vrijstellingsreden in, ongeacht de categorie.",
+        "Een sjabloon voor vrijgestelde (E) of verlegde (AE) facturen is opnieuw gebruikt met categorie Z.",
+        "Eigenlijk hoorde er een andere categorie te staan, en Z is gekozen omdat het tarief 0 % is."
+      ],
+      "fix": [
+        "Controleer of Z de categorie is die u bedoelde; welke categorie bij uw verkoop past, is een fiscale vraag, dus vraag het bij twijfel aan uw boekhouder of belastingadviseur.",
+        "Is Z juist, verwijder dan TaxExemptionReason en TaxExemptionReasonCode (CII: ram:ExemptionReason en ram:ExemptionReasonCode) uit die uitsplitsingsregel.",
+        "Wilt u het nultarief aan de koper uitleggen, gebruik dan een factuurnotitie (BT-22)."
+      ]
+    },
     "ubl": "<cac:TaxSubtotal>\n  <cbc:TaxableAmount currencyID=\"EUR\">250.00</cbc:TaxableAmount>\n  <cbc:TaxAmount currencyID=\"EUR\">0.00</cbc:TaxAmount>\n  <cac:TaxCategory>\n    <cbc:ID>Z</cbc:ID>\n    <cbc:Percent>0</cbc:Percent>\n    <cac:TaxScheme>\n      <cbc:ID>VAT</cbc:ID>\n    </cac:TaxScheme>\n  </cac:TaxCategory>\n</cac:TaxSubtotal>"
   },
   {
@@ -383,6 +469,20 @@
         "Recherchez le code ISO 3166-1 à deux lettres de chaque pays figurant sur la facture.",
         "Saisissez-le en majuscules, sans espace, dans chaque champ pays : cbc:IdentificationCode en UBL, ram:CountryID en CII.",
         "Corrigez les fiches clients et fournisseurs pour que la prochaine facture soit juste."
+      ]
+    },
+    "nl": {
+      "title": "Landcode is geen ISO 3166-1-code",
+      "meaning": "Elke landcode in de factuur (adressen van verkoper, koper, levering en andere, en het land van oorsprong van een artikel) moet een tweeletterige ISO 3166-1 alpha-2-code in hoofdletters zijn, zoals BE, NL of DE. De lijst aanvaardt ook XI voor Noord-Ierland en 1A voor Kosovo.",
+      "causes": [
+        "Er staat een landnaam (\"België\", \"Nederland\") of een drieletterige code (BEL) in plaats van de tweeletterige code.",
+        "De code is in kleine letters geschreven (be) of bevat een spatie.",
+        "Een btw-prefix is als landcode gebruikt: EL voor Griekenland (de landcode is GR) of UK voor het Verenigd Koninkrijk (de landcode is GB)."
+      ],
+      "fix": [
+        "Zoek de tweeletterige ISO 3166-1-code op van elk land op de factuur.",
+        "Schrijf die in hoofdletters en zonder spaties in elk landveld: cbc:IdentificationCode in UBL, ram:CountryID in CII.",
+        "Corrigeer de stamgegevens van uw klanten en leveranciers, zodat ook de volgende factuur klopt."
       ]
     },
     "ubl": "<cac:PostalAddress>\n  <cbc:StreetName>Musterstraße 1</cbc:StreetName>\n  <cbc:CityName>Berlin</cbc:CityName>\n  <cbc:PostalZone>10115</cbc:PostalZone>\n  <cac:Country>\n    <cbc:IdentificationCode>DE</cbc:IdentificationCode>\n  </cac:Country>\n</cac:PostalAddress>",
@@ -432,6 +532,20 @@
         "Associez dans votre logiciel chaque unité à son code de la recommandation 20/21, par exemple pièce à H87, heure à HUR, forfait à LS.",
         "Écrivez le code exactement, en majuscules, dans l'attribut unitCode de cbc:InvoicedQuantity / cbc:BaseQuantity (CII : ram:BilledQuantity / ram:BasisQuantity).",
         "Vous pouvez garder le libellé lisible sur le PDF ; seul le code va dans l'attribut XML."
+      ]
+    },
+    "nl": {
+      "title": "Eenheid is geen code uit UN/ECE-aanbeveling 20/21",
+      "meaning": "De unitCode bij de gefactureerde hoeveelheid (BT-130) en bij de basishoeveelheid van de prijs (BT-150) moet een code uit UN/ECE-aanbeveling 20 of 21 zijn, precies zoals daar geschreven. Veelgebruikte codes zijn C62 (een/eenheid), H87 (stuk), HUR (uur), DAY (dag), MON (maand), KGM (kilogram), MTR (meter), LTR (liter) en LS (forfait).",
+      "causes": [
+        "Er is een label uit de factuursoftware of van de gedrukte factuur gebruikt, zoals \"st\", \"stuks\", \"u\" of \"pce\".",
+        "De code is in kleine letters geschreven (hur) of bevat een spatie.",
+        "Een eenheid is gekoppeld aan een code die aannemelijk lijkt maar niet op de lijst staat."
+      ],
+      "fix": [
+        "Koppel elke eenheid in uw software aan haar code uit aanbeveling 20/21, bijvoorbeeld stuk aan H87, uur aan HUR en forfait aan LS.",
+        "Schrijf de code exact en in hoofdletters in het attribuut unitCode van cbc:InvoicedQuantity / cbc:BaseQuantity (CII: ram:BilledQuantity / ram:BasisQuantity).",
+        "Het leesbare label mag op de pdf blijven staan; alleen de code hoort in het XML-attribuut."
       ]
     },
     "ubl": "<cbc:InvoicedQuantity unitCode=\"HUR\">8</cbc:InvoicedQuantity>",
@@ -486,6 +600,20 @@
         "Enregistrez les coordonnées bancaires dans les paramètres de votre logiciel de facturation pour que chaque facture les porte."
       ]
     },
+    "nl": {
+      "title": "Overschrijving zonder rekening om op te betalen",
+      "meaning": "Zegt de code van het betaalmiddel (BT-81) dat het om een overschrijving gaat, dan moet de factuur de identificatie van de betaalrekening (BT-84) geven, normaal het IBAN. In UBL slaat de controle alleen aan bij de codes 30 en 58. In CII kijkt ze alleen in een rekeningblok dat al aanwezig is, dus een CII-bestand met code 30 of 58 en helemaal geen rekeningblok wordt door deze regel niet opgemerkt.",
+      "causes": [
+        "Betaalmiddelcode 58 (SEPA-overschrijving) of 30 (overschrijving) is gezet, maar de bankgegevens ontbreken in de XML.",
+        "Het IBAN staat in een vrije betaalnotitie (BT-82) of bij de gegevens van de verkoper in plaats van bij de rekening van de begunstigde.",
+        "In UBL staat het IBAN in een ander element dan cbc:ID binnen cac:PayeeFinancialAccount; in CII is het rekeningblok er wel, maar zonder ram:IBANID en zonder ram:ProprietaryID."
+      ],
+      "fix": [
+        "Voeg de rekening toe waarop u betaald wilt worden: in UBL als cbc:ID in cac:PayeeFinancialAccount, in CII als ram:IBANID (of ram:ProprietaryID voor een rekening die geen IBAN is).",
+        "Controleer of de code past bij hoe u betaald wilt worden: 58 voor een SEPA-overschrijving, 30 voor andere overschrijvingen.",
+        "Sla de bankgegevens op in de bedrijfsinstellingen van uw factuursoftware, zodat elke factuur ze bevat."
+      ]
+    },
     "ubl": "<cac:PaymentMeans>\n  <cbc:PaymentMeansCode>58</cbc:PaymentMeansCode>\n  <cbc:PaymentID>INV-2026-001</cbc:PaymentID>\n  <cac:PayeeFinancialAccount>\n    <cbc:ID>DE02120300000000202051</cbc:ID>\n    <cbc:Name>Example GmbH</cbc:Name>\n  </cac:PayeeFinancialAccount>\n</cac:PaymentMeans>",
     "cii": "<ram:SpecifiedTradeSettlementPaymentMeans>\n  <ram:TypeCode>58</ram:TypeCode>\n  <ram:PayeePartyCreditorFinancialAccount>\n    <ram:IBANID>DE02120300000000202051</ram:IBANID>\n    <ram:AccountName>Example GmbH</ram:AccountName>\n  </ram:PayeePartyCreditorFinancialAccount>\n</ram:SpecifiedTradeSettlementPaymentMeans>"
   },
@@ -535,6 +663,20 @@
         "Déterminez le type d'adresse que vous indiquez : une adresse e-mail (EM), un GLN (0088), un SIRET (0009) ou un autre identifiant de la liste EAS.",
         "Ajoutez le code EAS correspondant en schemeID sur cbc:EndpointID dans cac:AccountingSupplierParty (CII : sur ram:URIID dans ram:URIUniversalCommunication).",
         "Ne laissez dans la valeur que l'identifiant lui-même, sans préfixe."
+      ]
+    },
+    "nl": {
+      "title": "Elektronisch adres van de verkoper heeft geen schema-identificatie",
+      "meaning": "Geeft de factuur het elektronische adres van de verkoper (BT-34), dan moet ze met een schema-identificatie (het attribuut schemeID) zeggen wat voor adres het is, met een code uit de EAS-codelijst, bijvoorbeeld EM voor een e-mailadres of 0088 voor een GLN. In CII wordt alleen het eerste elektronische adres van de verkoper gecontroleerd.",
+      "causes": [
+        "Het adres is zonder het attribuut schemeID geschreven, vaak omdat de software alleen de kale waarde bewaart.",
+        "Het schema staat in een ander attribuut of als voorvoegsel in de waarde (bijvoorbeeld \"0208:0123456789\").",
+        "Het attribuut schemeID is aanwezig maar leeg."
+      ],
+      "fix": [
+        "Ga na wat voor adres u opgeeft: een Belgisch ondernemingsnummer (0208), een KvK-nummer (0106), een GLN (0088), een e-mailadres (EM) of een andere identificatie uit de EAS-lijst.",
+        "Zet de bijbehorende EAS-code als schemeID op cbc:EndpointID in cac:AccountingSupplierParty (CII: op ram:URIID in ram:URIUniversalCommunication).",
+        "Laat in de waarde alleen de identificatie zelf staan, zonder voorvoegsel."
       ]
     },
     "ubl": "<cac:AccountingSupplierParty>\n  <cac:Party>\n    <cbc:EndpointID schemeID=\"EM\">invoices@example.com</cbc:EndpointID>\n  </cac:Party>\n</cac:AccountingSupplierParty>",
@@ -588,6 +730,20 @@
         "Ne laissez dans la valeur que l'identifiant lui-même, sans préfixe."
       ]
     },
+    "nl": {
+      "title": "Elektronisch adres van de koper heeft geen schema-identificatie",
+      "meaning": "Geeft de factuur het elektronische adres van de koper (BT-49), dan moet ze met een schema-identificatie (het attribuut schemeID) zeggen wat voor adres het is, met een code uit de EAS-codelijst, bijvoorbeeld EM voor een e-mailadres of 0088 voor een GLN. In CII wordt alleen het eerste elektronische adres van de koper gecontroleerd.",
+      "causes": [
+        "Het adres is zonder het attribuut schemeID geschreven, vaak omdat de software alleen de kale waarde bewaart.",
+        "Het schema staat in een ander attribuut of als voorvoegsel in de waarde (bijvoorbeeld \"0208:0123456789\").",
+        "Het attribuut schemeID is aanwezig maar leeg."
+      ],
+      "fix": [
+        "Ga na wat voor adres u opgeeft: het adres waarnaar de koper de factuur wil ontvangen, bijvoorbeeld een Belgisch ondernemingsnummer (0208), een KvK-nummer (0106), een GLN (0088) of een e-mailadres (EM).",
+        "Zet de bijbehorende EAS-code als schemeID op cbc:EndpointID in cac:AccountingCustomerParty (CII: op ram:URIID in ram:URIUniversalCommunication).",
+        "Laat in de waarde alleen de identificatie zelf staan, zonder voorvoegsel."
+      ]
+    },
     "ubl": "<cac:AccountingCustomerParty>\n  <cac:Party>\n    <cbc:EndpointID schemeID=\"0204\">04011000-12345-34</cbc:EndpointID>\n  </cac:Party>\n</cac:AccountingCustomerParty>",
     "cii": "<ram:BuyerTradeParty>\n  <ram:URIUniversalCommunication>\n    <ram:URIID schemeID=\"0204\">04011000-12345-34</ram:URIID>\n  </ram:URIUniversalCommunication>\n</ram:BuyerTradeParty>"
   },
@@ -637,6 +793,20 @@
         "Arrondissez chaque montant net de ligne à deux décimales avant de l'écrire ; le prix unitaire (BT-146) peut garder plus de décimales.",
         "Calculez les totaux du document et la ventilation de TVA à partir des montants de ligne arrondis, pour que les autres contrôles de sommes passent.",
         "Réglez l'export pour écrire tous les montants avec exactement deux décimales."
+      ]
+    },
+    "nl": {
+      "title": "Nettoregelbedrag heeft meer dan twee decimalen",
+      "meaning": "Het nettobedrag van een factuurregel (BT-131) mag hoogstens twee cijfers na de decimale punt hebben. De controle telt gewoon de tekens na de punt, dus 10.000 faalt net zo goed als 9.999, ook al is het hetzelfde als 10.00.",
+      "causes": [
+        "Het regelbedrag is geschreven als hoeveelheid × prijs zonder afronding, bijvoorbeeld 3 × 3.3333 = 9.9999.",
+        "De software schrijft elk getal met een vast aantal decimalen (drie of vier).",
+        "Nullen achter de komma uit een berekening zijn blijven staan (10.000)."
+      ],
+      "fix": [
+        "Rond elk nettoregelbedrag af op twee decimalen voordat u het schrijft; de eenheidsprijs (BT-146) mag meer decimalen houden.",
+        "Bouw de documenttotalen en de btw-uitsplitsing op uit de afgeronde regelbedragen, zodat de andere somcontroles blijven slagen.",
+        "Stel uw export zo in dat alle geldbedragen met precies twee decimalen worden geschreven."
       ]
     },
     "ubl": "<cac:InvoiceLine>\n  <cbc:ID>1</cbc:ID>\n  <cbc:InvoicedQuantity unitCode=\"H87\">3</cbc:InvoicedQuantity>\n  <cbc:LineExtensionAmount currencyID=\"EUR\">10.00</cbc:LineExtensionAmount>\n  <cac:Item>\n    <cbc:Name>Widget</cbc:Name>\n  </cac:Item>\n  <cac:Price>\n    <cbc:PriceAmount currencyID=\"EUR\">3.3333</cbc:PriceAmount>\n  </cac:Price>\n</cac:InvoiceLine>"
@@ -689,6 +859,20 @@
         "Pour une annulation complète, envisagez un avoir avec des montants positifs."
       ]
     },
+    "nl": {
+      "title": "Nettoprijs van het artikel is negatief",
+      "meaning": "De nettoprijs van het artikel (BT-146) op een factuurregel moet nul of meer zijn. Retouren en creditbedragen worden getoond met een negatieve hoeveelheid (en dus een negatief regelbedrag) of als korting, nooit met een negatieve prijs.",
+      "causes": [
+        "Een geretourneerd artikel of een terugbetaling is ingevoerd als regel met een negatieve eenheidsprijs.",
+        "Een korting is als aparte regel met een negatieve prijs ingevoerd.",
+        "Een creditnota is gemaakt door het teken van elk bedrag om te draaien, ook dat van de prijs."
+      ],
+      "fix": [
+        "Houd de eenheidsprijs positief en maak in plaats daarvan de hoeveelheid negatief; het nettoregelbedrag wordt dan negatief.",
+        "Gebruik voor een korting een regelkorting of een korting op documentniveau in plaats van een regel met een negatieve prijs.",
+        "Overweeg voor een volledige terugdraaiing een creditnota met positieve bedragen."
+      ]
+    },
     "ubl": "<cac:InvoiceLine>\n  <cbc:ID>2</cbc:ID>\n  <cbc:InvoicedQuantity unitCode=\"H87\">-1</cbc:InvoicedQuantity>\n  <cbc:LineExtensionAmount currencyID=\"EUR\">-50.00</cbc:LineExtensionAmount>\n  <cac:Item>\n    <cbc:Name>Returned widget</cbc:Name>\n  </cac:Item>\n  <cac:Price>\n    <cbc:PriceAmount currencyID=\"EUR\">50.00</cbc:PriceAmount>\n  </cac:Price>\n</cac:InvoiceLine>"
   },
   {
@@ -738,6 +922,20 @@
         "Déterminez le moyen de paiement décrit par le bloc et ajoutez son code UNCL 4461 : cbc:PaymentMeansCode en UBL, ram:TypeCode en CII.",
         "Placez le code en tête du bloc, avant la référence de paiement et les coordonnées du compte.",
         "Supprimez les blocs de paiement inutiles plutôt que de les laisser sans code."
+      ]
+    },
+    "nl": {
+      "title": "Betaalinstructies zonder code voor het betaalmiddel",
+      "meaning": "Elk blok met betaalinstructies (BG-16) in de factuur moet de typecode van het betaalmiddel (BT-81) uit de lijst UNCL 4461 vermelden, bijvoorbeeld 58 voor een SEPA-overschrijving, 59 voor een SEPA-domiciliëring (incasso) of 30 voor een overschrijving.",
+      "causes": [
+        "Er staan bankgegevens of een betalingskenmerk, maar de code die zegt hoe betaald wordt, ontbreekt.",
+        "De betaalwijze staat alleen als tekst (\"Overschrijving\") en niet als code.",
+        "Er is een leeg PaymentMeans-blok (CII: ram:SpecifiedTradeSettlementPaymentMeans) aangemaakt voor een betaalwijze die niet gebruikt wordt."
+      ],
+      "fix": [
+        "Bepaal welke betaalwijze het blok beschrijft en voeg de UNCL 4461-code toe: cbc:PaymentMeansCode in UBL, ram:TypeCode in CII.",
+        "Zet de code vooraan in het blok, vóór het betalingskenmerk en de rekeninggegevens.",
+        "Verwijder blokken met betaalinstructies die u niet nodig hebt, in plaats van ze zonder code te laten staan."
       ]
     },
     "ubl": "<cac:PaymentMeans>\n  <cbc:PaymentMeansCode>58</cbc:PaymentMeansCode>\n  <cbc:PaymentID>INV-2026-001</cbc:PaymentID>\n  <cac:PayeeFinancialAccount>\n    <cbc:ID>DE02120300000000202051</cbc:ID>\n  </cac:PayeeFinancialAccount>\n</cac:PaymentMeans>",

@@ -2,10 +2,17 @@
 // row-by-row sales ledger behind them (CSV download), the same rows as QuickBooks Online journal entries, the year-end records behind three worksheet figures
 // (closing inventory, mileage log, expenses; CSV downloads) and a Form 1099-K checked against the books.
 import { csvCell, toCsv } from "@shared/csv";
-import { type ExpenseCategory, PLATFORM_LABELS, PLATFORMS, type Platform } from "@shared/enums";
+import {
+  type ExpenseCategory,
+  PLATFORM_LABELS,
+  PLATFORMS,
+  type Platform,
+  type SaleChannel,
+} from "@shared/enums";
 import { estimate } from "@shared/estimated-tax";
 import { reconcile1099k } from "@shared/reconcile-1099k";
 import { reconcilePayouts } from "@shared/reconcile-payouts";
+import { salesTaxCsvRows, sellerSalesTaxRows } from "@shared/sales-tax";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { z } from "zod";
@@ -91,6 +98,29 @@ routes.get(
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
         "Content-Disposition": `attachment; filename=${csvCell(`sales-ledger-${from}-to-${to}.csv`)}`,
+      },
+    });
+  },
+);
+
+// The sales tax the seller collected themselves (Square, PayPal, Venmo, their Shopify store, direct sales), by
+// month and channel with quarter totals, for their own sales tax return (shared/sales-tax.ts). Tax a
+// marketplace collected is not in it: the marketplace sent it.
+routes.get(
+  "/sales-tax.csv",
+  validate("query", z.object({ from: isoDate, to: isoDate })),
+  async (c) => {
+    const { from, to } = c.req.valid("query");
+    if (from > to) throw badRequest("from must be on or before to");
+    const pnl = await pnlReport(c.var.ctx, c.var.tenant.orgId, from, to);
+    const rows = salesTaxCsvRows(
+      sellerSalesTaxRows(pnl.cells),
+      (p) => PLATFORM_LABELS[p as SaleChannel] ?? p,
+    );
+    return new Response(toCsv(rows), {
+      headers: {
+        "Content-Type": "text/csv; charset=utf-8",
+        "Content-Disposition": `attachment; filename=${csvCell(`sales-tax-collected-${from}-to-${to}.csv`)}`,
       },
     });
   },

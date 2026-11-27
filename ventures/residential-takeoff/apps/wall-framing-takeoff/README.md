@@ -361,9 +361,26 @@ and not used. The roof model takes the walls and one overhang, so the overhang i
 fills the eave overhang with it); an eave line that is deeper on one side is refused with every
 side's distance, not averaged. With no wall loop the eave line is moved in by the typed overhang
 (`--eave-overhang=N`, 12 in by default, said in the notes). Not read: a roof plan with more than
-one eave height or pitch, gable rakes (every side is treated as an eave, as the outline roof
-does), and a drawing turned off the axes (it reads as an angled outline: squares and roof lines,
-no framing).
+one eave height or pitch, and a drawing turned off the axes (it reads as an angled outline: squares
+and roof lines, no framing).
+
+**Gable ends on the roof layer** (2026-11-27, `gableEnds` in `roofdxf.mjs`). A ridge drawn square
+into the eave line (ending on it, or drawn on past it), more than 6 in from a corner, at least 12 in
+long, and meeting another roof line further in (a hip, valley, ridge or the far rake) marks that side
+as a **rake**, not an eave. Hips and valleys end at corners, so they never count, and a slope arrow
+drawn up to the eave with a free tail is not read as a ridge. The rake overhang is then measured
+apart from the eave overhang (each one to 1/2 in all round), or, with no wall loop, the rakes move in
+by `--rake-overhang=N` (the eave's when it is not typed, said in the notes). The roof is then framed
+as the gable roof whose gable ends are where the drawing put them (`roofFromOutline` with
+`gableEnds`): a rectangle with its ridge the way it is drawn, even across the short way, or a gable
+main roof with up to two cross wings; ends anywhere else (a hip at one end) are refused and not
+framed as an all-hip roof. A roof layer with ridges drawn and none on the eave line is a **hip
+roof**: a rectangle frames with `shape: "hip"` where it used to default to a gable, and an L or T
+goes to the all-hip framing on its roof lines. A roof layer with only the eave line reads no shape
+and keeps the old default. On the page, gable ends switch the roof card to the gable form, filled
+with the width, length, wings and both overhangs (`eval-roof-plan-click.mjs`); 16 cases in
+`roofdxf.test.mjs`, including a 40 x 28 ft gable at 12 in eaves and 6 in rakes whose sheathed area
+equals the drawn eave-and-rake line's plan area times the slope factor.
 
 **On the page, with a roof plan** (2026-11-26, `roofplan.mjs`). The roof card's shape list has
 "any outline, square-cornered or with angled sides": type the corners of the outside of the exterior walls, one

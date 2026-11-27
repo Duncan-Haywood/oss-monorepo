@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="nl"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BR-Z-10: EN 16931 uitgelegd</title>
+<meta name="description" content="BR-Z-10: Een regel van de btw-uitsplitsing met categorie Z (nultarief) mag geen code voor de vrijstellingsreden (BT-121) en geen tekst voor de…">
+<link rel="canonical" href="https://example.invalid/einvoice-preflight/rules/nl/br-z-10">
+<link rel="alternate" hreflang="en" href="https://example.invalid/einvoice-preflight/rules/en/br-z-10">
+<link rel="alternate" hreflang="de" href="https://example.invalid/einvoice-preflight/rules/de/br-z-10">
+<link rel="alternate" hreflang="fr" href="https://example.invalid/einvoice-preflight/rules/fr/br-z-10">
+<link rel="alternate" hreflang="nl" href="https://example.invalid/einvoice-preflight/rules/nl/br-z-10">
+<link rel="alternate" hreflang="x-default" href="https://example.invalid/einvoice-preflight/rules/en/br-z-10">
+<meta property="og:title" content="BR-Z-10: EN 16931 uitgelegd">
+<meta property="og:description" content="BR-Z-10: Een regel van de btw-uitsplitsing met categorie Z (nultarief) mag geen code voor de vrijstellingsreden (BT-121) en geen tekst voor de…">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Wat betekent BR-Z-10?","acceptedAnswer":{"@type":"Answer","text":"Een regel van de btw-uitsplitsing met categorie Z (nultarief) mag geen code voor de vrijstellingsreden (BT-121) en geen tekst voor de vrijstellingsreden (BT-120) bevatten. In EN 16931 is het nultarief een belast tarief van 0 %, geen vrijstelling, dus de redenvelden zijn daar niet toegestaan."}},{"@type":"Question","name":"Hoe los ik BR-Z-10 op?","acceptedAnswer":{"@type":"Answer","text":"Controleer of Z de categorie is die u bedoelde; welke categorie bij uw verkoop past, is een fiscale vraag, dus vraag het bij twijfel aan uw boekhouder of belastingadviseur. Is Z juist, verwijder dan TaxExemptionReason en TaxExemptionReasonCode (CII: ram:ExemptionReason en ram:ExemptionReasonCode) uit die uitsplitsingsregel. Wilt u het nultarief aan de koper uitleggen, gebruik dan een factuurnotitie (BT-22)."}}]}</script>
+<style>:root{color-scheme:light;font-family:system-ui,sans-serif;color:#15202b;background:#eef2f6}body{margin:0}main{max-width:860px;margin:auto;padding:1.5rem 16px}a{color:#0b5f8a;overflow-wrap:anywhere}.eyebrow{font-weight:700;letter-spacing:.04em;color:#0b5f8a;font-size:.85rem;margin:0}h1{font-size:clamp(1.6rem,5vw,2.3rem);line-height:1.12;margin:.3rem 0 .6rem}section{background:#fff;border:1px solid #d3dbe4;border-radius:14px;padding:1rem 1.2rem;margin:1rem 0}h2{margin:.2rem 0 .6rem;font-size:1.2rem}blockquote{margin:.4rem 0;padding:.5rem .8rem;border-left:4px solid #0b5f8a;background:#f5f8fb}dl{display:grid;grid-template-columns:max-content 1fr;gap:.3rem 1rem;margin:.6rem 0 0}dt{font-weight:600}dd{margin:0}pre{background:#15202b;color:#f1f5f9;padding:.8rem;border-radius:10px;overflow-x:auto;font-size:.85rem}pre .ln{display:block;padding-left:calc((var(--i) + 2) * 1ch);text-indent:calc((var(--i) + 2) * -1ch)}@media (max-width:700px){pre{white-space:pre-wrap;overflow-wrap:anywhere}}.note,footer{color:#3d4f5f;font-size:.88rem}.cta{background:#fffaf0;border-color:#e2c48a}.button{display:inline-block;background:#0b5f8a;color:#fff;padding:.5rem .9rem;border-radius:8px;text-decoration:none;font-weight:600}.state{display:inline-block;font-size:.78rem;font-weight:700;background:#fde7b0;color:#5b3d00;border-radius:999px;padding:.1rem .6rem}nav.langs a{margin-right:.8rem}ul.rules{columns:2 260px;padding-left:1.1rem}ul.rules li{margin:.2rem 0;break-inside:avoid}</style>
+</head><body><main>
+<header>
+<p class="eyebrow">E-factuurregel uitgelegd · EN 16931</p>
+<h1>BR-Z-10: Btw-uitsplitsing met nultarief mag geen vrijstellingsreden hebben</h1>
+<nav class="langs" aria-label="Andere talen"><a href="../en/br-z-10.html" hreflang="en" lang="en">English</a><a href="../de/br-z-10.html" hreflang="de" lang="de">Deutsch</a><a href="../fr/br-z-10.html" hreflang="fr" lang="fr">Français</a><a href="index.html">Alle regels</a></nav>
+</header>
+<section>
+<h2>Officiële melding</h2>
+<blockquote lang="en">A VAT breakdown (BG-23) with VAT Category code (BT-118) &quot;Zero rated&quot; shall not have a VAT exemption reason code (BT-121) or VAT exemption reason text (BT-120).</blockquote>
+<blockquote lang="en">A VAT Breakdown (BG-23) with VAT Category code (BT-118) &quot;Zero rated&quot; shall not have a VAT exemption reason code (BT-121) or VAT exemption reason text (BT-120).</blockquote>
+<dl>
+<dt>Ernst</dt><dd>Fout (de factuur wordt geweigerd)</dd>
+<dt>Gecontroleerd in</dt><dd>UBL, CII</dd>
+<dt>Bedrijfstermen</dt><dd>BG-23, BT-118, BT-121, BT-120</dd>
+</dl>
+</section>
+<section>
+<h2>Wat betekent BR-Z-10?</h2>
+<p>Een regel van de btw-uitsplitsing met categorie Z (nultarief) mag geen code voor de vrijstellingsreden (BT-121) en geen tekst voor de vrijstellingsreden (BT-120) bevatten. In EN 16931 is het nultarief een belast tarief van 0 %, geen vrijstelling, dus de redenvelden zijn daar niet toegestaan.</p>
+<h2>Gebruikelijke oorzaken</h2>
+<ul>
+<li>De software vult bij elke regel van 0 % een vrijstellingsreden in, ongeacht de categorie.</li>
+<li>Een sjabloon voor vrijgestelde (E) of verlegde (AE) facturen is opnieuw gebruikt met categorie Z.</li>
+<li>Eigenlijk hoorde er een andere categorie te staan, en Z is gekozen omdat het tarief 0 % is.</li>
+</ul>
+</section>
+<section>
+<h2>Hoe los ik BR-Z-10 op?</h2>
+<ol>
+<li>Controleer of Z de categorie is die u bedoelde; welke categorie bij uw verkoop past, is een fiscale vraag, dus vraag het bij twijfel aan uw boekhouder of belastingadviseur.</li>
+<li>Is Z juist, verwijder dan TaxExemptionReason en TaxExemptionReasonCode (CII: ram:ExemptionReason en ram:ExemptionReasonCode) uit die uitsplitsingsregel.</li>
+<li>Wilt u het nultarief aan de koper uitleggen, gebruik dan een factuurnotitie (BT-22).</li>
+</ol>
+<h2>Gecorrigeerde XML (minimaal voorbeeld van ons)</h2>
+<p><strong>UBL</strong></p>
+<pre><code><span class="ln" style="--i:0">&lt;cac:TaxSubtotal&gt;</span><span class="ln" style="--i:2">  &lt;cbc:TaxableAmount currencyID=&quot;EUR&quot;&gt;250.00<wbr>&lt;/cbc:TaxableAmount&gt;</span><span class="ln" style="--i:2">  &lt;cbc:TaxAmount currencyID=&quot;EUR&quot;&gt;0.00<wbr>&lt;/cbc:TaxAmount&gt;</span><span class="ln" style="--i:2">  &lt;cac:TaxCategory&gt;</span><span class="ln" style="--i:4">    &lt;cbc:ID&gt;Z<wbr>&lt;/cbc:ID&gt;</span><span class="ln" style="--i:4">    &lt;cbc:Percent&gt;0<wbr>&lt;/cbc:Percent&gt;</span><span class="ln" style="--i:4">    &lt;cac:TaxScheme&gt;</span><span class="ln" style="--i:6">      &lt;cbc:ID&gt;VAT<wbr>&lt;/cbc:ID&gt;</span><span class="ln" style="--i:4">    &lt;/cac:TaxScheme&gt;</span><span class="ln" style="--i:2">  &lt;/cac:TaxCategory&gt;</span><span class="ln" style="--i:0">&lt;/cac:TaxSubtotal&gt;</span></code></pre>
+<p class="note">Alleen voorbeeldwaarden. Vervang of vul de elementen in uw bestand aan; de volgorde van de elementen ligt in beide syntaxen vast.</p>
+</section>
+<section>
+<h2>Controleer uw bestand gratis</h2>
+<p>De gratis controle voert de officiële regels voor EN 16931, XRechnung en Peppol uit in uw browser. Uw bestand wordt niet geüpload.</p>
+<p><a class="button" href="../../index.html">Open de gratis controle</a></p>
+</section>
+<section class="cta">
+<p><span class="state">In ontwikkeling — vroege toegang</span></p>
+<h2>Controleren en uitleggen, voor boekhouders en factuurteams</h2>
+<p>Een betaalde dienst die elke geschonden regel in gewoon Nederlands, Duits, Frans of Engels uitlegt en een gecorrigeerd bestand voorstelt, is in ontwikkeling. <a href="https://example.invalid/industries/eu-e-invoicing/">Vroege toegang</a></p>
+</section>
+<section>
+<h2>Bron</h2>
+<p>Regel-ID en officiële melding uit: CEN/TC 434 EN 16931 validation artefacts, validation-1.3.17 (EUPL-1.2), gecompileerd uit upstream-commit 6e35e0a. De uitleg, oorzaken, oplossing en XML op deze pagina zijn van ons, niet van de uitgever van de regel. <a href="https://github.com/ConnectingEurope/eInvoicing-EN16931/tree/validation-1.3.17" rel="noopener">CEN/TC 434 EN 16931 validation artefacts validation-1.3.17</a></p>
+</section>
+<footer>
+<p><strong>Geen fiscaal of juridisch advies.</strong> Deze pagina legt uit wat een validatieregel controleert en hoe een bestand die regel doorstaat. Ze zegt niet welke btw-behandeling op uw verkoop van toepassing is; vraag dat aan uw boekhouder of belastingadviseur. <strong>Zonder garantie (no warranty):</strong> gratis en zoals het is; controleer het resultaat voordat u erop vertrouwt.</p>
+<p>Onze code en uitleg vallen onder de licentie FSL-1.1-MIT. Officiële regelmeldingen worden geciteerd onder de licentie van hun uitgever (EUPL-1.2, Apache-2.0, MPL-2.0), die op elke pagina wordt genoemd.</p>
+</footer>
+</main></body></html>

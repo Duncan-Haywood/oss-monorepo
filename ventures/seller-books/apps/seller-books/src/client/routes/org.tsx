@@ -6,7 +6,9 @@ import {
   PLATFORM_LABELS,
   type Platform,
   ROLE_RANK,
+  type SaleChannel,
 } from "@shared/enums";
+import { SELLER_TAX_CAVEATS, sellerSalesTaxRows, totalsBy } from "@shared/sales-tax";
 import { useQuery } from "@tanstack/react-query";
 import { Link, Outlet, useNavigate, useParams } from "@tanstack/react-router";
 import { useState } from "react";
@@ -105,6 +107,9 @@ interface PnlCell {
   expensesCents: number;
   netProfitCents: number;
   salesTaxCollectedCents: number;
+  marketplaceSalesTaxCents: number;
+  sellerSalesTaxCents: number;
+  sellerSalesTaxRefundedCents: number;
 }
 
 interface PnlReport {
@@ -161,6 +166,94 @@ function PnlTable({ rows, first }: { rows: PnlCell[]; first: (c: PnlCell) => str
         </tbody>
       </table>
     </div>
+  );
+}
+
+/**
+ * The tax the seller collected on the sales they rang up themselves (Square, PayPal, Venmo, their Shopify store,
+ * direct sales): theirs to report on their own sales tax return, by month and quarter. Hidden when the
+ * range has no sale on those channels.
+ */
+function SellerSalesTax({
+  orgId,
+  range,
+  cells,
+}: {
+  orgId: string;
+  range: string;
+  cells: PnlCell[];
+}) {
+  const rows = sellerSalesTaxRows(cells);
+  if (rows.length === 0) return null;
+  const quarters = totalsBy(rows, "quarter");
+  const caveats = [...new Set(rows.map((r) => r.platform))].flatMap((p) => {
+    const note = SELLER_TAX_CAVEATS[p as SaleChannel];
+    return note ? [note] : [];
+  });
+  return (
+    <section className="card space-y-2">
+      <div className="flex flex-wrap items-baseline gap-3">
+        <h2 className="mr-auto font-medium">Sales tax you collected</h2>
+        <a
+          className="btn-secondary"
+          href={apiUrl(orgPath(orgId, `/reports/sales-tax.csv?${range}`))}
+          title="By month and channel, with quarter totals"
+        >
+          Download (CSV)
+        </a>
+      </div>
+      <p className="text-sm text-stone-600">
+        Tax charged on sales you rang up yourself: Square, PayPal and Venmo payments, your own
+        Shopify store and the direct sales you typed in. No marketplace sent it to the state, so
+        reporting and paying it is up to you. Tax handed back is read from Square refunds and the
+        direct refunds you type in; for PayPal, Venmo and Shopify refunds, check it against their
+        reports. Which sales are taxable, and where, is for you or your preparer.
+      </p>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-stone-500">
+              <th className="py-1">Month</th>
+              <th>Channel</th>
+              <th className="text-right">Sales</th>
+              <th className="text-right">Refunds</th>
+              <th className="text-right">Tax collected</th>
+              <th className="text-right">Tax refunded</th>
+              <th className="text-right">Net tax</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={`${r.month}|${r.platform}`} className="border-t border-stone-100">
+                <td className="py-1">{r.month}</td>
+                <td>{platformLabel(r.platform)}</td>
+                <td className="text-right tabular-nums">{usd(r.salesCents)}</td>
+                <td className="text-right tabular-nums">{usd(r.refundsCents)}</td>
+                <td className="text-right tabular-nums">{usd(r.taxCollectedCents)}</td>
+                <td className="text-right tabular-nums">{usd(r.taxRefundedCents)}</td>
+                <td className="text-right tabular-nums">{usd(r.netTaxCents)}</td>
+              </tr>
+            ))}
+            {quarters.map((qt) => (
+              <tr key={qt.period} className="border-t border-stone-200 font-medium">
+                <td className="py-1">{qt.period}</td>
+                <td>All channels</td>
+                <td className="text-right tabular-nums">{usd(qt.salesCents)}</td>
+                <td className="text-right tabular-nums">{usd(qt.refundsCents)}</td>
+                <td className="text-right tabular-nums">{usd(qt.taxCollectedCents)}</td>
+                <td className="text-right tabular-nums">{usd(qt.taxRefundedCents)}</td>
+                <td className="text-right tabular-nums">{usd(qt.netTaxCents)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {caveats.map((c) => (
+        <p key={c} className="text-xs text-stone-500">
+          {c}
+        </p>
+      ))}
+    </section>
   );
 }
 
@@ -229,9 +322,14 @@ export function PnlPage() {
             </p>
           )}
           <p className="text-xs text-stone-500">
-            Sales tax collected and remitted by marketplaces ({usd(t.salesTaxCollectedCents)}) is
-            not revenue and is left out.
+            Sales tax is not revenue and is left out: {usd(t.marketplaceSalesTaxCents)} collected
+            and sent to the state by marketplaces
+            {t.sellerSalesTaxCents > 0
+              ? `, and ${usd(t.sellerSalesTaxCents)} you collected yourself (below)`
+              : ""}
+            .
           </p>
+          <SellerSalesTax orgId={orgId} range={range} cells={q.data?.cells ?? []} />
           <section className="card">
             <h2 className="mb-2 font-medium">By platform</h2>
             <PnlTable rows={q.data?.byPlatform ?? []} first={(c) => platformLabel(c.platform)} />

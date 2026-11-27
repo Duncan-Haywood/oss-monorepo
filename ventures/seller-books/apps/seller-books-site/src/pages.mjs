@@ -368,6 +368,7 @@ function form1099k() {
   </div>
   <h2>Who gets one</h2>
   <p>For federal reporting, a payment platform files a 1099-K when its payments to you for the year are over $20,000 and more than 200 transactions. Some states set lower thresholds, so a form can arrive below the federal line. Either way it is a report of payments, not a tax bill. See <a href="${IRS_1099K}">the IRS page on Form 1099-K</a>.</p>
+  <p>Sold some of your own things in the same account? Personal items sold at a loss are in box 1a too, and are not income: see <a href="${href("/personal-items-or-business")}">personal items, a hobby or a business</a>.</p>
   <h2>When the months don't match</h2>
   <p>The form also has a box for each month (5a for January through 5l for December). Laid beside your books month by month, the gap usually has one of a few causes:</p>
   <div class="table-scroll"><table>
@@ -421,6 +422,183 @@ ${NOT_TAX_ADVICE}`;
     jsonLd: [
       webPage(path, title, description),
       breadcrumbs([{ name: "Form 1099-K", path }]),
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      },
+    ],
+    text,
+  };
+}
+
+// The personal items page: the search a reseller's first 1099-K brings on ("I sold my own things, is
+// this income?"). Read through search-engine excerpts of the official pages on 2026-11-27 (irs.gov is
+// not reachable from the build environment): the 2025 Instructions for Form 1040 (a 1099-K amount for
+// personal items sold at a loss, or sent in error, goes in the entry space at the top of Schedule 1; the
+// $1,000 couch sold for $700; a gain goes on Form 8949 and Schedule D), the IRS Form 1099-K FAQs and
+// "Actions to take if a Form 1099-K is received in error" (2022 to 2024 returns used lines 8z and 24z;
+// fees go in the basis; gains are not offset by personal losses; more than a year is long-term), the
+// general 1099-K FAQs ($20,000 and 200 transactions; a platform may still send a form below it), and the
+// IRS hobby-or-business pages (all facts and circumstances, no one factor decides; hobby income on
+// Schedule 1 line 8j; hobby expenses not deductible). The couch is the IRS's own example; nothing else
+// on the page is a figure.
+export const PERSONAL_ITEMS_CHECKED_ON = "2026-11-27";
+export const PERSONAL_ITEM_EXAMPLE = { paid: 1000, sold: 700 };
+const IRS_1040_INSTRUCTIONS = "https://www.irs.gov/instructions/i1040gi";
+const IRS_1099K_FAQ_RECEIVED =
+  "https://www.irs.gov/newsroom/form-1099-k-faqs-what-to-do-if-you-receive-a-form-1099-k";
+const IRS_1099K_IN_ERROR =
+  "https://www.irs.gov/newsroom/actions-to-take-if-a-form-1099-k-is-received-in-error-or-with-incorrect-information";
+const IRS_1099K_FAQ_GENERAL = "https://www.irs.gov/newsroom/form-1099-k-faqs-general-information";
+const IRS_HOBBY =
+  "https://www.irs.gov/newsroom/heres-how-to-tell-the-difference-between-a-hobby-and-a-business-for-tax-purposes";
+
+function personalItems() {
+  const path = "/personal-items-or-business";
+  const title = "Sold your own things? Personal items or a business";
+  const description =
+    "A 1099-K for things you sold at a loss is not income: where it goes on the 2025 return, when a personal sale is a gain, and when selling is a business.";
+  const ex = PERSONAL_ITEM_EXAMPLE;
+  const cases = [
+    [
+      "Your own things, sold for less than you paid",
+      "Not taxable, and the loss is not deductible. If a Form 1099-K reported the sales, the 2025 Form 1040 instructions say to enter that amount in the entry space at the top of Schedule 1, so the form is accounted for without adding to your income.",
+      "Nothing to Schedule C.",
+    ],
+    [
+      "Your own things, sold for more than you paid",
+      "A capital gain: Form 8949, then Schedule D. Held more than a year, long-term; a year or less, short-term. A loss on another personal item does not offset it.",
+      "Nothing to Schedule C.",
+    ],
+    [
+      "Selling as a hobby, not for profit",
+      "The income goes on Schedule 1, line 8j (activity not engaged in for profit), and the IRS says the expenses of a hobby can no longer be deducted.",
+      "Nothing to Schedule C.",
+    ],
+    [
+      "Buying to resell, or selling as a business",
+      "Business income on Schedule C: gross sales on line 1, the platform's fees and your other costs as deductions, and what the items cost you through cost of goods sold.",
+      `This is what ${SITE_NAME} keeps the books for.`,
+    ],
+  ];
+  const factors = [
+    "whether you run it in a businesslike way, with complete and accurate books",
+    "whether you depend on the income for your living",
+    "whether it has made a profit in some years",
+    "the time and effort you put in, and whether you have changed methods to make it pay",
+  ];
+  const faqs = [
+    {
+      q: "Do I have to pay taxes on selling my used clothes on Poshmark or eBay?",
+      a: "Not on things you sold for less than you paid for them: a personal item sold at a loss is not income, and the loss is not deductible either. A personal item sold for more than you paid is a capital gain. Buying things in order to resell them is different again; that is a business, or a hobby, and its income is reported as such.",
+    },
+    {
+      q: "I got a 1099-K for selling personal items at a loss. What do I do?",
+      a: `For 2025 returns, the Form 1040 instructions say to enter the amount in the entry space at the top of Schedule 1. If the whole box 1a was personal items sold at a loss (or sent in error), that is the whole box 1a; if only part was, only that part, and the rest is reported where it belongs. Their example: a couch bought for ${usd(ex.paid)} and sold for ${usd(ex.sold)} is ${usd(ex.sold)} in that space. Returns for 2022 to 2024 used two offsetting lines instead, 8z and 24z. You can also report the sales on Form 8949. Check the instructions for the year you are filing.`,
+    },
+    {
+      q: "I sold personal items and resold things I bought, in the same account. Now what?",
+      a: `The 1099-K adds both together. Split them in your own records: the resale side is business income on Schedule C with its fees and cost of goods; the personal side is the Schedule 1 entry (a loss) or Form 8949 (a gain). ${SITE_NAME} keeps the business side only: delete an imported sale that was a personal item, and the 1099-K check shows the gap between the form and your business books, which is the part to account for elsewhere. Which side a sale belongs on is your call or your preparer's.`,
+    },
+    {
+      q: "Is reselling a hobby or a business?",
+      a: "The IRS decides it on all the facts and circumstances, and no one factor settles it. It asks, among other things, whether the activity is run in a businesslike way with complete books, whether you depend on the income, and whether it has made a profit in some years. A business deducts its costs on Schedule C; a hobby reports its income and cannot deduct its expenses.",
+    },
+    {
+      q: "Do I owe anything if I did not get a 1099-K?",
+      a: "The form only reports payments; it does not decide what is taxable. Federal reporting starts when a platform's payments to you are over $20,000 and more than 200 transactions, some states are lower, and a platform may send one below the line. Business or hobby income is reportable whether a form comes or not; personal items sold at a loss are not income either way.",
+    },
+  ];
+  const caseRows = cases
+    .map(
+      ([a, b, c]) =>
+        `      <tr><th scope="row">${esc(a)}</th><td>${esc(b)}</td><td>${esc(c)}</td></tr>`,
+    )
+    .join("\n");
+  const body = `<section class="wrap">
+  <h1>${esc(title)}</h1>
+  <p class="lead">A Form 1099-K counts payments, not profit, and it cannot tell the jacket you wore for five years from a jacket you bought to flip. What you owe depends on which one it was.</p>
+  <h2>Four kinds of sale, four places on the return</h2>
+  <div class="table-scroll"><table>
+    <thead><tr><th scope="col">What you sold</th><th scope="col">How it is taxed</th><th scope="col">Schedule C?</th></tr></thead>
+    <tbody>
+${caseRows}
+    </tbody>
+  </table></div>
+  <h2>Personal items sold at a loss</h2>
+  <p>Most things people own sell for less than they cost. That is not income, and the loss is not a deduction. The only work is when a platform sent a <a href="${href("/1099-k")}">Form 1099-K</a> for those sales: the IRS sees a payment and needs to see where it went. The <a href="${IRS_1040_INSTRUCTIONS}">2025 Instructions for Form 1040</a> say to enter the 1099-K amount for personal items sold at a loss in the entry space at the top of Schedule 1. If only part of box 1a was personal items, enter only that part.</p>
+  <div class="worked">
+    <p class="muted">The IRS's own example:</p>
+    <table>
+      <tbody>
+        <tr><th scope="row">You paid for a couch</th><td>${usd(ex.paid)}</td></tr>
+        <tr><th scope="row">You sold it, and box 1a reported</th><td>${usd(ex.sold)}</td></tr>
+        <tr class="total"><th scope="row">Entered at the top of Schedule 1</th><td>${usd(ex.sold)}</td></tr>
+      </tbody>
+    </table>
+    <p class="muted">The ${usd(ex.paid - ex.sold)} loss is not deducted anywhere.</p>
+  </div>
+  <p>For 2022 to 2024 returns the IRS asked for two offsetting entries instead, the proceeds on Schedule 1 line 8z and the same amount on line 24z (<a href="${IRS_1099K_FAQ_RECEIVED}">Form 1099-K FAQs</a>). Reporting the sales on Form 8949 is also allowed. Follow the instructions for the year you are filing.</p>
+  <h2>Personal items sold at a gain</h2>
+  <p>Sell something you own for more than you paid, a sneaker that rose in value or a vintage piece bought cheap years ago, and the difference is a capital gain, on Form 8949 and Schedule D. Held more than a year it is long-term. The IRS's <a href="${IRS_1099K_IN_ERROR}">guidance on 1099-Ks</a> says to count the selling and payment fees in your basis, and that a loss on another personal item does not reduce a gain. The 1099-K never knows what you paid, so the receipt or a note of it is your record.</p>
+  <h2>A hobby or a business</h2>
+  <p>Buying stock to sell at a profit is where the question changes. The IRS looks at <a href="${IRS_HOBBY}">all the facts and circumstances</a>, with no one factor deciding, including:</p>
+  ${list(factors)}
+  <p>A hobby's income goes on Schedule 1, line 8j, and its expenses are not deductible. A business reports gross sales on Schedule C and deducts what it cost to make them: marketplace fees, labels, mileage, and the cost of the items that sold. For someone who sources regularly, that is usually a large difference; whether your selling is a business is for you or your preparer to decide.</p>
+  <h2>Who needs ${esc(SITE_NAME)}, and who does not</h2>
+  <p>If all you did this year was clear out a closet at a loss, you do not need bookkeeping software: keep a note of what you sold and roughly what you paid, and make the Schedule 1 entry. ${esc(SITE_NAME)} is for the business side. It reads each platform's own report, keeps the fees and the cost of goods, and fills a <a href="${href("/schedule-c-worksheet")}">Schedule C worksheet</a>. If one account had both, delete the imported sales that were your own things; an item you pulled out of stock to keep can be marked as taken for personal use, so its cost comes off purchases on line 36 instead of being deducted. The <a href="${href("/1099-k")}">1099-K check</a> then shows the gap between box 1a and your business books.</p>
+  <p class="muted">Rules from the IRS pages linked here, read through search excerpts ${esc(PERSONAL_ITEMS_CHECKED_ON)}; the reporting threshold from the <a href="${IRS_1099K_FAQ_GENERAL}">general 1099-K FAQs</a>. Where a 1099-K amount goes has changed from year to year; check the current instructions before you file.</p>
+  <h2>Questions</h2>
+${faqs.map((f) => `  <h3>${esc(f.q)}</h3>\n  <p>${esc(f.a)}</p>`).join("\n")}
+  ${notTaxAdvice}
+</section>
+<div class="wrap">${callToAction(path, { idPrefix: "personal" })}</div>`;
+  const text = `# ${title}
+
+A Form 1099-K counts payments, not profit, and cannot tell a personal item from one bought to resell.
+
+## Four kinds of sale
+
+${mdList(cases.map(([a, b, c]) => `${a}: ${b} ${c}`))}
+
+## Personal items sold at a loss
+
+Not income; the loss is not deductible. 2025 Instructions for Form 1040 (${IRS_1040_INSTRUCTIONS}): enter the 1099-K amount for personal items sold at a loss in the entry space at the top of Schedule 1 (only the part of box 1a that was). IRS example: a couch bought for ${usd(ex.paid)} and sold for ${usd(ex.sold)}; enter ${usd(ex.sold)}. 2022 to 2024 returns used Schedule 1 lines 8z and 24z (${IRS_1099K_FAQ_RECEIVED}). Form 8949 is also allowed.
+
+## Personal items sold at a gain
+
+Capital gain on Form 8949 and Schedule D; long-term if held more than a year; fees count in basis; personal losses do not offset it (${IRS_1099K_IN_ERROR}).
+
+## A hobby or a business
+
+All facts and circumstances, no one factor deciding (${IRS_HOBBY}):
+
+${mdList(factors)}
+
+Hobby income: Schedule 1 line 8j, expenses not deductible. Business: Schedule C, fees and cost of goods deducted.
+
+## ${SITE_NAME}
+
+For the business side only. Delete imported sales that were personal items; mark an item taken out of stock for personal use (its cost comes off line 36); the 1099-K check shows the gap between box 1a and the business books. Read through search excerpts of the IRS pages ${PERSONAL_ITEMS_CHECKED_ON}; threshold from ${IRS_1099K_FAQ_GENERAL}.
+
+## Questions
+
+${faqs.map((f) => `### ${f.q}\n\n${f.a}`).join("\n\n")}
+
+${NOT_TAX_ADVICE}`;
+  return {
+    path,
+    title,
+    description,
+    body,
+    jsonLd: [
+      webPage(path, title, description),
+      breadcrumbs([{ name: "Personal items or a business", path }]),
       {
         "@context": "https://schema.org",
         "@type": "FAQPage",
@@ -1789,6 +1967,7 @@ export function allPages() {
     ...PLATFORMS.map(platformPage),
     scheduleC(),
     form1099k(),
+    personalItems(),
     costOfGoodsSold(),
     mileageDeduction(),
     homeOfficeAndEquipment(),

@@ -35,7 +35,11 @@ run, add required reviewers to the `payapps-production` environment (Settings ->
    price ids back (never pasted by hand).
 6. `wrangler deploy` with `APP_ENV=production`, `APP_URL`, `EMAIL_FROM`, `BILLING_PROVIDER`,
    `QBO_ENVIRONMENT` and `QBO_REDIRECT_URI` (`<APP_URL>/api/integrations/quickbooks/callback`).
-7. Copies the non-empty `PAYAPPS_*` secrets to the Worker, then generates `AUTH_SECRET` once if the
+   Then the Paddle notification destination and the checkout page's client-side token and default
+   payment link ([BILLING.md](BILLING.md), "Turning it on", 4 and 5); each warns and the deploy goes
+   on dark if Paddle refuses.
+7. Copies the non-empty `PAYAPPS_*` secrets (plus the webhook secret and `BILLING_CLIENT_TOKEN` from
+   the steps above) to the Worker, then generates `AUTH_SECRET` once if the
    Worker has none (stored only on the Worker; it never overwrites one).
 8. Smoke test: `<APP_URL>/api/health` must answer `ok: true`; `email: false` is a warning, because with
    verification required in production nobody can finish signing up without mail.

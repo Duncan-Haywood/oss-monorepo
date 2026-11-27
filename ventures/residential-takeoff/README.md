@@ -66,6 +66,15 @@ Build here from now on. Until the private copy is removed, refresh this one from
 commit with `./sync-from-private.sh /path/to/private-monorepo`, which audits first and stops on a block
 finding.
 
+**The sync script now loses work.** This copy carries fixes the private one lacks (CodeQL fixes such
+as `Object.hasOwn` lookups, `layerPattern` escaping in `cli.mjs`, the click checks' path guard, and
+the shortened calculator descriptions), so a wholesale replace reverts them. Port a newer private
+commit as a patch instead: `git -C <private> diff <base> <new> -- apps/wall-framing-takeoff >
+p.patch`, then `git apply -p3 --directory=ventures/residential-takeoff/apps/wall-framing-takeoff
+--reject p.patch` and fix any `.rej` by hand. Private commits ported so far: up to `1ee07fc`
+(private-monorepo PR #489, gable ends from a DXF roof layer, ported 2026-11-27; the move itself
+was `71e2b6c`).
+
 ## Disclaimer
 
 Estimates from the figures you enter, for planning and ordering only. Not engineering, structural,

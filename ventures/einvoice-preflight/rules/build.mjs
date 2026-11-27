@@ -1,5 +1,7 @@
 // Writes one page per e-invoice validation rule in English, German and French
-// (rules/en/, rules/de/, rules/fr/) plus a hub page per language, from the
+// (rules/en/, rules/de/, rules/fr/), and in Dutch (rules/nl/) for the rules whose
+// entry has an "nl" explanation (the EN 16931 and Peppol rules: BR-DE rules are
+// German-only), plus a hub page per language, from the
 // explanations in rules/data/*.json and the official rule text in ../plain/:
 //   node rules/build.mjs
 // rules.test.mjs fails when a committed page is not what this writes, and when a
@@ -14,7 +16,11 @@ import { pathToFileURL } from "node:url";
 
 const here = new URL("./", import.meta.url);
 const plain = new URL("../plain/", import.meta.url);
-export const LANGS = ["en", "de", "fr"];
+export const LANGS = ["en", "de", "fr", "nl"];
+// Every rule is explained in these; the rest of LANGS are optional per entry.
+export const REQUIRED_LANGS = ["en", "de", "fr"];
+/** The languages a rule has a page in, in LANGS order. */
+export const langsOf = (rule) => LANGS.filter((l) => REQUIRED_LANGS.includes(l) || Object.hasOwn(rule, l));
 const ORIGIN = "https://example.invalid/einvoice-preflight/rules/";
 // The form the site serves (platform/pages/served-path.mjs): no ".html", "dir/" for an index.
 const served = (p) => p.replace(/(^|\/)index\.html$/, "$1").replace(/\.html$/, "");
@@ -61,7 +67,7 @@ const T = {
     syntaxes: "Checked in", terms: "Business terms", meaningQ: (id) => `What does ${id} mean?`, causes: "Usual causes",
     fixQ: (id) => `How do I fix ${id}?`, snippet: "Corrected XML (minimal example we wrote)", snippetNote: "Example values only. Put the elements in place of, or beside, what your file has; element order matters in both syntaxes.",
     check: "Check your file for free", checkText: "The free checker runs the official EN 16931, XRechnung and Peppol rules in your browser. Your file is not uploaded.",
-    checkLink: "Open the free checker", paid: "Fix-and-explain for accountants and invoicing teams", paidText: "A paid service that explains every failed rule in plain German, French or English and proposes a corrected file is in development.",
+    checkLink: "Open the free checker", paid: "Fix-and-explain for accountants and invoicing teams", paidText: "A paid service that explains every failed rule in plain German, French, Dutch or English and proposes a corrected file is in development.",
     paidLink: "Early access", paidState: "In development — early access", source: "Source", sourceText: (s, c) => `Rule id and official message from the ${s.name}, ${s.version} (${s.licence}), compiled from upstream commit ${c.slice(0, 7)}. The explanation, causes, fix and XML on this page are our own, not the rule publisher's.`,
     disclaimer: "<strong>Not tax or legal advice.</strong> This page explains what a validation rule checks and how to make a file pass it. It does not say which VAT treatment applies to your sale; ask a tax adviser. <strong>No warranty:</strong> provided free and as-is; check the result before you rely on it.",
     hubTitle: "E-invoice validation errors explained: XRechnung, EN 16931, Peppol", hubH1: "E-invoice validation errors, explained",
@@ -78,7 +84,7 @@ const T = {
     syntaxes: "Geprüft in", terms: "Geschäftsbegriffe", meaningQ: (id) => `Was bedeutet ${id}?`, causes: "Typische Ursachen",
     fixQ: (id) => `Wie behebe ich ${id}?`, snippet: "Korrigiertes XML (minimales Beispiel von uns)", snippetNote: "Nur Beispielwerte. Ersetzen oder ergänzen Sie die Elemente in Ihrer Datei; die Reihenfolge der Elemente ist in beiden Syntaxen vorgeschrieben.",
     check: "Datei kostenlos prüfen", checkText: "Der kostenlose Prüfer führt die offiziellen Regeln für EN 16931, XRechnung und Peppol in Ihrem Browser aus. Ihre Datei wird nicht hochgeladen.",
-    checkLink: "Zum kostenlosen Prüfer", paid: "Prüfen und erklären für Steuerberater und Rechnungsteams", paidText: "Ein kostenpflichtiger Dienst, der jede verletzte Regel verständlich auf Deutsch, Französisch oder Englisch erklärt und eine korrigierte Datei vorschlägt, ist in Entwicklung.",
+    checkLink: "Zum kostenlosen Prüfer", paid: "Prüfen und erklären für Steuerberater und Rechnungsteams", paidText: "Ein kostenpflichtiger Dienst, der jede verletzte Regel verständlich auf Deutsch, Französisch, Niederländisch oder Englisch erklärt und eine korrigierte Datei vorschlägt, ist in Entwicklung.",
     paidLink: "Frühen Zugang anfragen", paidState: "In Entwicklung — früher Zugang", source: "Quelle", sourceText: (s, c) => `Regel-ID und offizielle Meldung aus: ${s.name}, ${s.version} (${s.licence}), kompiliert aus dem Upstream-Commit ${c.slice(0, 7)}. Erklärung, Ursachen, Lösung und XML auf dieser Seite stammen von uns, nicht vom Herausgeber der Regel.`,
     disclaimer: "<strong>Keine Steuer- oder Rechtsberatung.</strong> Diese Seite erklärt, was eine Prüfregel kontrolliert und wie eine Datei sie besteht. Sie sagt nicht, welche umsatzsteuerliche Behandlung für Ihren Umsatz gilt; fragen Sie dazu Ihre Steuerberatung. <strong>Ohne Gewähr (no warranty):</strong> kostenlos und wie besehen; prüfen Sie das Ergebnis, bevor Sie sich darauf verlassen.",
     hubTitle: "E-Rechnung Fehlermeldungen erklärt: XRechnung, EN 16931, Peppol", hubH1: "Fehlermeldungen bei E-Rechnungen, erklärt",
@@ -86,7 +92,7 @@ const T = {
     hubDesc: (n) => `Was ${n} Fehler bei XRechnung (BR-DE), EN 16931 (BR-CO, BR-S) und Peppol (PEPPOL-EN16931) bedeuten und wie Sie sie beheben, mit korrigiertem XML.`,
     groups: { xrechnung: "XRechnung (Deutschland, BR-DE)", en16931: "EN 16931 Grundregeln (alle E-Rechnungen in der EU)", peppol: "Peppol BIS Billing 3" },
     hubFaq: [["Woher stammen diese Regel-IDs?", "Aus den offiziellen Prüfartefakten: dem XRechnung-Schematron der KoSIT für BR-DE-Regeln, den EN-16931-Validierungsartefakten von CEN/TC 434 für BR-Regeln und den BIS-Billing-3-Regeln von OpenPeppol für PEPPOL-Regeln. Jede Seite nennt die Version und verlinkt sie."], ["Ist eine Warnung eine Abweisung?", "Nein. Eine Regel mit dem Schweregrad Warnung oder Hinweis weist die Rechnung in den offiziellen Regelwerken nicht allein ab, eine empfangende Plattform kann aber strenger sein. Ein Fehler (fatal) führt zur Abweisung."]],
-    licence: "Unser Code und unsere Erklärungen stehen unter der MIT-Lizenz. Offizielle Regelmeldungen werden unter den Lizenzen ihrer Herausgeber zitiert (EUPL-1.2, Apache-2.0, MPL-2.0), die auf jeder Seite genannt sind.",
+    licence: "Unser Code und unsere Erklärungen stehen unter der Lizenz FSL-1.1-MIT. Offizielle Regelmeldungen werden unter den Lizenzen ihrer Herausgeber zitiert (EUPL-1.2, Apache-2.0, MPL-2.0), die auf jeder Seite genannt sind.",
     others: "Andere Sprachen", titleTail: "erklärt", back: "Alle Regeln",
   },
   fr: {
@@ -95,7 +101,7 @@ const T = {
     syntaxes: "Vérifiée en", terms: "Termes métier", meaningQ: (id) => `Que signifie ${id} ?`, causes: "Causes fréquentes",
     fixQ: (id) => `Comment corriger ${id} ?`, snippet: "XML corrigé (exemple minimal rédigé par nous)", snippetNote: "Valeurs d'exemple uniquement. Remplacez ou complétez les éléments de votre fichier ; l'ordre des éléments est imposé dans les deux syntaxes.",
     check: "Vérifier votre fichier gratuitement", checkText: "Le vérificateur gratuit exécute les règles officielles EN 16931, XRechnung et Peppol dans votre navigateur. Votre fichier n'est pas envoyé.",
-    checkLink: "Ouvrir le vérificateur gratuit", paid: "Corriger et expliquer, pour les experts-comptables et les équipes de facturation", paidText: "Un service payant qui explique chaque règle en échec en français, en allemand ou en anglais clair et propose un fichier corrigé est en cours de développement.",
+    checkLink: "Ouvrir le vérificateur gratuit", paid: "Corriger et expliquer, pour les experts-comptables et les équipes de facturation", paidText: "Un service payant qui explique chaque règle en échec en français, en allemand, en néerlandais ou en anglais clair et propose un fichier corrigé est en cours de développement.",
     paidLink: "Accès anticipé", paidState: "En développement — accès anticipé", source: "Source", sourceText: (s, c) => `Identifiant et message officiel de la règle : ${s.name}, ${s.version} (${s.licence}), compilés depuis le commit amont ${c.slice(0, 7)}. L'explication, les causes, la correction et le XML de cette page sont les nôtres, pas ceux de l'éditeur de la règle.`,
     disclaimer: "<strong>Ni conseil fiscal ni conseil juridique.</strong> Cette page explique ce que vérifie une règle de validation et comment faire passer un fichier. Elle ne dit pas quel régime de TVA s'applique à votre vente ; demandez à votre expert-comptable. <strong>Sans garantie (no warranty) :</strong> gratuit et fourni en l'état ; vérifiez le résultat avant de vous y fier.",
     hubTitle: "Erreurs de facture électronique expliquées : EN 16931, Peppol", hubH1: "Erreurs de validation des factures électroniques, expliquées",
@@ -103,8 +109,25 @@ const T = {
     hubDesc: (n) => `Ce que signifient ${n} erreurs XRechnung (BR-DE), EN 16931 (BR-CO, BR-S) et Peppol (PEPPOL-EN16931) et comment les corriger, avec XML corrigé.`,
     groups: { xrechnung: "XRechnung (Allemagne, BR-DE)", en16931: "Règles de base EN 16931 (toutes les factures électroniques de l'UE)", peppol: "Peppol BIS Billing 3" },
     hubFaq: [["D'où viennent ces identifiants de règles ?", "Des artefacts de validation officiels : le Schematron XRechnung de la KoSIT pour les règles BR-DE, les artefacts de validation EN 16931 du CEN/TC 434 pour les règles BR-, et les règles BIS Billing 3 d'OpenPeppol pour les règles PEPPOL-. Chaque page cite la version et donne le lien."], ["Un avertissement est-il un rejet ?", "Non. Dans les référentiels officiels, une règle de gravité avertissement ou information ne rejette pas la facture à elle seule, mais une plateforme destinataire peut être plus stricte. Une erreur (fatal) la rejette."]],
-    licence: "Notre code et nos explications sont sous licence MIT. Les messages officiels des règles sont cités sous la licence de leur éditeur (EUPL-1.2, Apache-2.0, MPL-2.0), indiquée sur chaque page.",
+    licence: "Notre code et nos explications sont sous licence FSL-1.1-MIT. Les messages officiels des règles sont cités sous la licence de leur éditeur (EUPL-1.2, Apache-2.0, MPL-2.0), indiquée sur chaque page.",
     others: "Autres langues", titleTail: "expliquée", back: "Toutes les règles",
+  },
+  nl: {
+    htmlLang: "nl", eyebrow: "E-factuurregel uitgelegd", official: "Officiële melding", severity: "Ernst",
+    sev: { fatal: "Fout (de factuur wordt geweigerd)", warning: "Waarschuwing (best oplossen; op zich geen weigering)", information: "Informatie (een hint, geen fout)" },
+    syntaxes: "Gecontroleerd in", terms: "Bedrijfstermen", meaningQ: (id) => `Wat betekent ${id}?`, causes: "Gebruikelijke oorzaken",
+    fixQ: (id) => `Hoe los ik ${id} op?`, snippet: "Gecorrigeerde XML (minimaal voorbeeld van ons)", snippetNote: "Alleen voorbeeldwaarden. Vervang of vul de elementen in uw bestand aan; de volgorde van de elementen ligt in beide syntaxen vast.",
+    check: "Controleer uw bestand gratis", checkText: "De gratis controle voert de officiële regels voor EN 16931, XRechnung en Peppol uit in uw browser. Uw bestand wordt niet geüpload.",
+    checkLink: "Open de gratis controle", paid: "Controleren en uitleggen, voor boekhouders en factuurteams", paidText: "Een betaalde dienst die elke geschonden regel in gewoon Nederlands, Duits, Frans of Engels uitlegt en een gecorrigeerd bestand voorstelt, is in ontwikkeling.",
+    paidLink: "Vroege toegang", paidState: "In ontwikkeling — vroege toegang", source: "Bron", sourceText: (s, c) => `Regel-ID en officiële melding uit: ${s.name}, ${s.version} (${s.licence}), gecompileerd uit upstream-commit ${c.slice(0, 7)}. De uitleg, oorzaken, oplossing en XML op deze pagina zijn van ons, niet van de uitgever van de regel.`,
+    disclaimer: "<strong>Geen fiscaal of juridisch advies.</strong> Deze pagina legt uit wat een validatieregel controleert en hoe een bestand die regel doorstaat. Ze zegt niet welke btw-behandeling op uw verkoop van toepassing is; vraag dat aan uw boekhouder of belastingadviseur. <strong>Zonder garantie (no warranty):</strong> gratis en zoals het is; controleer het resultaat voordat u erop vertrouwt.",
+    hubTitle: "E-factuur foutmeldingen uitgelegd: Peppol BIS en EN 16931", hubH1: "Foutmeldingen bij e-facturen, uitgelegd",
+    hubLede: (n) => `${n} validatieregels waarop e-facturen worden geweigerd of gemarkeerd, elk met wat de regel betekent, de gebruikelijke oorzaken, de oplossing en een gecorrigeerd XML-fragment. Regel-ID's en meldingen komen uit de officiële regelsets die op elke pagina worden genoemd. De Duitse XRechnung-regels (BR-DE) staan alleen in het Duits, Frans en Engels.`,
+    hubDesc: (n) => `Wat ${n} foutmeldingen bij Peppol BIS (PEPPOL-EN16931) en EN 16931 (BR-CO, BR-S) e-facturen betekenen en hoe u ze oplost, met gecorrigeerde XML.`,
+    groups: { xrechnung: "XRechnung (Duitsland, BR-DE)", en16931: "Basisregels EN 16931 (alle e-facturen in de EU)", peppol: "Peppol BIS Billing 3" },
+    hubFaq: [["Waar komen deze regel-ID's vandaan?", "Uit de officiële validatieartefacten: de EN 16931-validatieartefacten van CEN/TC 434 voor de BR-regels en de BIS Billing 3-regels van OpenPeppol voor de PEPPOL-regels. Elke pagina noemt de versie en linkt ernaar."], ["Is een waarschuwing een weigering?", "Nee. Een regel met ernst waarschuwing of informatie weigert de factuur in de officiële regelsets niet op zich, maar een ontvangend platform of accesspoint kan strenger zijn. Een fout (fatal) leidt tot weigering."]],
+    licence: "Onze code en uitleg vallen onder de licentie FSL-1.1-MIT. Officiële regelmeldingen worden geciteerd onder de licentie van hun uitgever (EUPL-1.2, Apache-2.0, MPL-2.0), die op elke pagina wordt genoemd.",
+    others: "Andere talen", titleTail: "uitgelegd", back: "Alle regels",
   },
 };
 /** The cited source of a rule; throws on an unknown key (a prototype name included). */
@@ -112,7 +135,7 @@ export const sourceOf = (key) => {
   if (!Object.hasOwn(SOURCES, key)) throw new Error(`unknown rule source "${key}"`);
   return SOURCES[key];
 };
-const LANG_NAME = { en: "English", de: "Deutsch", fr: "Français" };
+const LANG_NAME = { en: "English", de: "Deutsch", fr: "Français", nl: "Nederlands" };
 
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 export const slugOf = (id) => id.toLowerCase();
@@ -226,7 +249,8 @@ export function renderRule(rule, lang) {
   const src = sourceOf(rule.source);
   const off = official(rule);
   const path = `${lang}/${slugOf(rule.id)}.html`;
-  const alternates = [...LANGS.map((l) => [l, `${l}/${slugOf(rule.id)}.html`]), ["x-default", `en/${slugOf(rule.id)}.html`]];
+  const langs = langsOf(rule);
+  const alternates = [...langs.map((l) => [l, `${l}/${slugOf(rule.id)}.html`]), ["x-default", `en/${slugOf(rule.id)}.html`]];
   const fixText = c.fix.join(" ");
   const ld = faqLd([[t.meaningQ(rule.id), c.meaning], [t.fixQ(rule.id), fixText]]);
   const desc = clip(`${rule.id}: ${c.meaning}`);
@@ -235,7 +259,7 @@ export function renderRule(rule, lang) {
 <header>
 <p class="eyebrow">${esc(t.eyebrow)} · ${esc(src.label)}</p>
 <h1>${esc(rule.id)}: ${esc(c.title)}</h1>
-<nav class="langs" aria-label="${esc(t.others)}">${LANGS.filter((l) => l !== lang).map((l) => `<a href="../${l}/${slugOf(rule.id)}.html" hreflang="${l}" lang="${l}">${LANG_NAME[l]}</a>`).join("")}<a href="index.html">${esc(t.back)}</a></nav>
+<nav class="langs" aria-label="${esc(t.others)}">${langs.filter((l) => l !== lang).map((l) => `<a href="../${l}/${slugOf(rule.id)}.html" hreflang="${l}" lang="${l}">${LANG_NAME[l]}</a>`).join("")}<a href="index.html">${esc(t.back)}</a></nav>
 </header>
 <section>
 <h2>${esc(t.official)}</h2>
@@ -271,8 +295,9 @@ ${ctas(t, "../../")}
 ${footer(t)}`;
 }
 
-export function renderHub(rules, lang) {
+export function renderHub(allRules, lang) {
   const t = T[lang];
+  const rules = allRules.filter((r) => langsOf(r).includes(lang));
   const path = `${lang}/index.html`;
   const alternates = [...LANGS.map((l) => [l, `${l}/index.html`]), ["x-default", "en/index.html"]];
   const groups = Object.keys(SOURCES).map((s) => {
@@ -307,7 +332,7 @@ export function renderAll() {
   const out = [];
   for (const lang of LANGS) {
     out.push([`${lang}/index.html`, renderHub(rules, lang)]);
-    for (const r of rules) out.push([`${lang}/${slugOf(r.id)}.html`, renderRule(r, lang)]);
+    for (const r of rules) if (langsOf(r).includes(lang)) out.push([`${lang}/${slugOf(r.id)}.html`, renderRule(r, lang)]);
   }
   out.push(["index.html", renderChooser(rules)]);
   return out;
@@ -316,12 +341,13 @@ export function renderAll() {
 /** rules/ itself: a language chooser, so the bare folder URL is not a 404. */
 export function renderChooser(rules) {
   const n = rules.length;
+  const nIn = (l) => rules.filter((r) => langsOf(r).includes(l)).length;
   return `<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>E-invoice errors explained / E-Rechnung Fehler / Erreurs</title>
-<meta name="description" content="${n} e-invoice validation rules explained in English, German and French.">
+<title>E-invoice errors explained / E-Rechnung Fehler / Erreurs / Fouten</title>
+<meta name="description" content="${n} e-invoice validation rules explained in English, German and French, and the EN 16931 and Peppol rules in Dutch.">
 <link rel="canonical" href="${ORIGIN}en/">
 ${LANGS.map((l) => `<link rel="alternate" hreflang="${l}" href="${ORIGIN}${l}/">`).join("\n")}
 <style>${STYLE}</style>
@@ -329,7 +355,7 @@ ${LANGS.map((l) => `<link rel="alternate" hreflang="${l}" href="${ORIGIN}${l}/">
 <h1>E-invoice validation errors explained</h1>
 ${LANGS.map((l) => `<section lang="${l}">
 <h2><a href="${l}/index.html" hreflang="${l}">${esc(T[l].hubH1)}</a> (${LANG_NAME[l]})</h2>
-<p>${esc(T[l].hubLede(n))}</p>
+<p>${esc(T[l].hubLede(nIn(l)))}</p>
 </section>`).join("\n")}
 <section>
 <h2>All rules</h2>

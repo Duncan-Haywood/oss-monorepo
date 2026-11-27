@@ -415,6 +415,21 @@
         "Pour un numéro grec en EL, demandez au destinataire contre quelle version des règles il valide avant de modifier quoi que ce soit."
       ]
     },
+    "nl": {
+      "title": "Btw-nummer begint niet met een geldige landcode",
+      "meaning": "Elk btw-identificatienummer op de factuur (verkoper BT-31, fiscaal vertegenwoordiger van de verkoper BT-63, koper BT-48) moet beginnen met een tweeletterige landcode in hoofdletters uit de lijst van de regel, bijvoorbeeld BE0123456789 of NL123456789B01. Opvallend: de lijst in de huidige officiële regels bevat GR maar niet EL, dus een Grieks btw-nummer met EL faalt hier, ook al zegt de melding dat EL is toegestaan (de oudere regels 1.3.8 aanvaardden EL nog).",
+      "causes": [
+        "Het nummer is zonder landprefix ingevoerd, bijvoorbeeld 0123456789.",
+        "Het prefix is in kleine letters geschreven (be0123456789) of er staat een spatie voor.",
+        "Een nationaal fiscaal nummer (zoals het Nederlandse fiscaal nummer of de Duitse Steuernummer) staat in een veld voor het btw-nummer: in UBL een PartyTaxScheme met belastingschema VAT, in CII een SpecifiedTaxRegistration met schemeID VA.",
+        "Een Grieks btw-nummer gebruikt het prefix EL."
+      ],
+      "fix": [
+        "Schrijf elk btw-nummer met zijn tweeletterige landprefix in hoofdletters en zonder spatie ervoor, zoals het op de btw-registratie staat.",
+        "Zet een nationaal fiscaal nummer dat geen btw-nummer is in een eigen veld (in UBL een PartyTaxScheme met een ander schema dan VAT, in CII schemeID FC), niet in het btw-veld.",
+        "Bij een Grieks EL-nummer: vraag de ontvanger tegen welke versie van de regels hij valideert voordat u iets wijzigt."
+      ]
+    },
     "ubl": "<cac:PartyTaxScheme>\n  <cbc:CompanyID>DE123456789</cbc:CompanyID>\n  <cac:TaxScheme>\n    <cbc:ID>VAT</cbc:ID>\n  </cac:TaxScheme>\n</cac:PartyTaxScheme>",
     "cii": "<ram:SpecifiedTaxRegistration>\n  <ram:ID schemeID=\"VA\">DE123456789</ram:ID>\n</ram:SpecifiedTaxRegistration>"
   },
@@ -465,6 +480,20 @@
         "Additionnez le montant net de chaque ligne tel qu'il figure dans le fichier (100,00 + 50,00 = 150,00).",
         "Inscrivez cette somme dans cbc:LineExtensionAmount de cac:LegalMonetaryTotal (UBL) ou dans ram:LineTotalAmount du récapitulatif d'en-tête (CII).",
         "Mettez les remises et charges au niveau du document dans leurs propres totaux (BT-107, BT-108), pas dans BT-106."
+      ]
+    },
+    "nl": {
+      "title": "Som van de nettoregelbedragen klopt niet met de factuurregels",
+      "meaning": "De som van de nettoregelbedragen in de totalen (BT-106) moet gelijk zijn aan de nettobedragen van alle factuurregels (BT-131) opgeteld en afgerond op twee decimalen. Regels van 100.00 en 50.00 vragen bijvoorbeeld een BT-106 van precies 150.00; 149.99 of 150.01 faalt.",
+      "causes": [
+        "Regelbedragen zijn anders afgerond dan het totaal, bijvoorbeeld omdat het totaal uit niet-afgeronde regelwaarden is berekend.",
+        "Een regel is toegevoegd, verwijderd of gewijzigd nadat de totalen berekend waren.",
+        "De software zette in BT-106 het bedrag na kortingen of toeslagen op documentniveau in plaats van de gewone som van de regels."
+      ],
+      "fix": [
+        "Tel het nettobedrag van elke factuurregel op zoals het in het bestand staat (100.00 + 50.00 = 150.00).",
+        "Schrijf die som in cbc:LineExtensionAmount in cac:LegalMonetaryTotal (UBL) of in ram:LineTotalAmount in de totalen van de kop (CII).",
+        "Zet kortingen en toeslagen op documentniveau in hun eigen totalen (BT-107, BT-108), niet in BT-106."
       ]
     },
     "ubl": "<cac:LegalMonetaryTotal>\n  <cbc:LineExtensionAmount currencyID=\"EUR\">150.00</cbc:LineExtensionAmount>\n</cac:LegalMonetaryTotal>\n<cac:InvoiceLine>\n  <cbc:ID>1</cbc:ID>\n  <cbc:InvoicedQuantity unitCode=\"C62\">2</cbc:InvoicedQuantity>\n  <cbc:LineExtensionAmount currencyID=\"EUR\">100.00</cbc:LineExtensionAmount>\n</cac:InvoiceLine>\n<cac:InvoiceLine>\n  <cbc:ID>2</cbc:ID>\n  <cbc:InvoicedQuantity unitCode=\"C62\">1</cbc:InvoicedQuantity>\n  <cbc:LineExtensionAmount currencyID=\"EUR\">50.00</cbc:LineExtensionAmount>\n</cac:InvoiceLine>",
@@ -521,6 +550,20 @@
         "Vérifiez que BT-107 et BT-108 sont bien les sommes des remises et charges au niveau du document."
       ]
     },
+    "nl": {
+      "title": "Totaal zonder btw klopt niet met regels, kortingen en toeslagen",
+      "meaning": "Het factuurtotaal zonder btw (BT-109) moet gelijk zijn aan de som van de nettoregelbedragen (BT-106) min de som van de kortingen op documentniveau (BT-107) plus de som van de toeslagen op documentniveau (BT-108), afgerond op twee decimalen; een ontbrekend totaal van kortingen of toeslagen telt als nul. Bijvoorbeeld 150.00 − 10.00 + 5.00 = 145.00.",
+      "causes": [
+        "Het totaal zonder btw is van de regelsom overgenomen en de korting of toeslag op documentniveau is vergeten.",
+        "Een korting is twee keer afgetrokken, een keer in de regels en een keer op documentniveau.",
+        "De totalen van kortingen en toeslagen zijn verwisseld, of een korting is als negatieve toeslag ingevoerd."
+      ],
+      "fix": [
+        "Bereken BT-109 als BT-106 − BT-107 + BT-108 (150.00 − 10.00 + 5.00 = 145.00).",
+        "Zet het in UBL in cbc:TaxExclusiveAmount, in CII in ram:TaxBasisTotalAmount.",
+        "Zorg dat BT-107 en BT-108 zelf de sommen zijn van de kortingen en toeslagen op documentniveau."
+      ]
+    },
     "ubl": "<cac:LegalMonetaryTotal>\n  <cbc:LineExtensionAmount currencyID=\"EUR\">150.00</cbc:LineExtensionAmount>\n  <cbc:TaxExclusiveAmount currencyID=\"EUR\">145.00</cbc:TaxExclusiveAmount>\n  <cbc:TaxInclusiveAmount currencyID=\"EUR\">172.55</cbc:TaxInclusiveAmount>\n  <cbc:AllowanceTotalAmount currencyID=\"EUR\">10.00</cbc:AllowanceTotalAmount>\n  <cbc:ChargeTotalAmount currencyID=\"EUR\">5.00</cbc:ChargeTotalAmount>\n  <cbc:PayableAmount currencyID=\"EUR\">172.55</cbc:PayableAmount>\n</cac:LegalMonetaryTotal>",
     "cii": "<ram:SpecifiedTradeSettlementHeaderMonetarySummation>\n  <ram:LineTotalAmount>150.00</ram:LineTotalAmount>\n  <ram:ChargeTotalAmount>5.00</ram:ChargeTotalAmount>\n  <ram:AllowanceTotalAmount>10.00</ram:AllowanceTotalAmount>\n  <ram:TaxBasisTotalAmount>145.00</ram:TaxBasisTotalAmount>\n  <ram:TaxTotalAmount currencyID=\"EUR\">27.55</ram:TaxTotalAmount>\n  <ram:GrandTotalAmount>172.55</ram:GrandTotalAmount>\n  <ram:DuePayableAmount>172.55</ram:DuePayableAmount>\n</ram:SpecifiedTradeSettlementHeaderMonetarySummation>"
   },
@@ -571,6 +614,20 @@
         "Additionnez le montant de TVA de chaque ligne de ventilation (19,00 + 3,15 = 22,15) et utilisez-le comme total de TVA.",
         "En UBL, mettez le total dans cac:TaxTotal/cbc:TaxAmount avec les lignes en cac:TaxSubtotal dans le même cac:TaxTotal ; en CII, dans ram:TaxTotalAmount avec un currencyID égal à la devise de la facture.",
         "Si les arrondis par ligne et par taux divergent, prenez les montants de la ventilation comme référence et ajustez le total."
+      ]
+    },
+    "nl": {
+      "title": "Totale btw is niet de som van de btw-uitsplitsing",
+      "meaning": "Het totale btw-bedrag van de factuur (BT-110) moet gelijk zijn aan de btw-bedragen van alle regels van de btw-uitsplitsing (BT-117) opgeteld en afgerond op twee decimalen. Bijvoorbeeld 19.00 tegen 19 % plus 3.15 tegen 7 % geeft een totale btw van 22.15. In UBL wordt een btw-totaal zonder uitsplitsingsregels niet gecontroleerd; zo slaagt het tweede btw-totaal in de boekhoudvaluta (BT-111).",
+      "causes": [
+        "De totale btw is regel per regel berekend en de uitsplitsing per tarief, zodat ze door afronding verschillen.",
+        "Een btw-tarief of -categorie is in de uitsplitsing toegevoegd of verwijderd zonder het totaal bij te werken.",
+        "In UBL staan de uitsplitsingsregels in een tweede cac:TaxTotal in plaats van in de cac:TaxTotal met BT-110."
+      ],
+      "fix": [
+        "Tel het btw-bedrag van elke uitsplitsingsregel op (19.00 + 3.15 = 22.15) en gebruik dat als totale btw.",
+        "Zet het totaal in UBL in cac:TaxTotal/cbc:TaxAmount, met de regels als cac:TaxSubtotal in dezelfde cac:TaxTotal; zet het in CII in ram:TaxTotalAmount met een currencyID gelijk aan de factuurvaluta.",
+        "Verschilt de afronding per regel en per tarief, neem dan de bedragen van de uitsplitsing als uitgangspunt en pas het totaal aan."
       ]
     },
     "ubl": "<cac:TaxTotal>\n  <cbc:TaxAmount currencyID=\"EUR\">22.15</cbc:TaxAmount>\n  <cac:TaxSubtotal>\n    <cbc:TaxableAmount currencyID=\"EUR\">100.00</cbc:TaxableAmount>\n    <cbc:TaxAmount currencyID=\"EUR\">19.00</cbc:TaxAmount>\n    <cac:TaxCategory>\n      <cbc:ID>S</cbc:ID>\n      <cbc:Percent>19</cbc:Percent>\n      <cac:TaxScheme>\n        <cbc:ID>VAT</cbc:ID>\n      </cac:TaxScheme>\n    </cac:TaxCategory>\n  </cac:TaxSubtotal>\n  <cac:TaxSubtotal>\n    <cbc:TaxableAmount currencyID=\"EUR\">45.00</cbc:TaxableAmount>\n    <cbc:TaxAmount currencyID=\"EUR\">3.15</cbc:TaxAmount>\n    <cac:TaxCategory>\n      <cbc:ID>S</cbc:ID>\n      <cbc:Percent>7</cbc:Percent>\n      <cac:TaxScheme>\n        <cbc:ID>VAT</cbc:ID>\n      </cac:TaxScheme>\n    </cac:TaxCategory>\n  </cac:TaxSubtotal>\n</cac:TaxTotal>",
@@ -626,6 +683,20 @@
         "Laissez les acomptes et l'arrondi à BT-113, BT-114 et au montant à payer."
       ]
     },
+    "nl": {
+      "title": "Totaal met btw is niet totaal zonder btw plus btw",
+      "meaning": "Het factuurtotaal met btw (BT-112) moet gelijk zijn aan het totaal zonder btw (BT-109) plus het totale btw-bedrag (BT-110), afgerond op twee decimalen; bijvoorbeeld 145.00 + 27.55 = 172.55. In UBL vraagt de test ook precies één btw-totaal waarvan de currencyID de factuurvaluta is, dus een ontbrekend of dubbel btw-totaal faalt ook. In CII slaagt de regel ook als BT-112 gewoon gelijk is aan BT-109.",
+      "causes": [
+        "Het totaal met btw is berekend uit niet-afgeronde bedragen of vóór een laatste wijziging van de btw.",
+        "In UBL verschilt de currencyID van het btw-totaal van cbc:DocumentCurrencyCode, of hebben twee cac:TaxTotal-elementen allebei een bedrag in de factuurvaluta.",
+        "Het vooruitbetaalde bedrag of een afrondingsbedrag is van BT-112 afgetrokken in plaats van van het te betalen bedrag (BT-115)."
+      ],
+      "fix": [
+        "Bereken BT-112 als BT-109 + BT-110 (145.00 + 27.55 = 172.55).",
+        "Geef in UBL precies één cac:TaxTotal/cbc:TaxAmount de currencyID van de factuurvaluta; een tweede btw-totaal in een andere boekhoudvaluta mag.",
+        "Verwerk vooruitbetalingen en afronding in BT-113, BT-114 en het te betalen bedrag."
+      ]
+    },
     "ubl": "<cbc:DocumentCurrencyCode>EUR</cbc:DocumentCurrencyCode>\n<cac:TaxTotal>\n  <cbc:TaxAmount currencyID=\"EUR\">27.55</cbc:TaxAmount>\n  <cac:TaxSubtotal>\n    <cbc:TaxableAmount currencyID=\"EUR\">145.00</cbc:TaxableAmount>\n    <cbc:TaxAmount currencyID=\"EUR\">27.55</cbc:TaxAmount>\n    <cac:TaxCategory>\n      <cbc:ID>S</cbc:ID>\n      <cbc:Percent>19</cbc:Percent>\n      <cac:TaxScheme>\n        <cbc:ID>VAT</cbc:ID>\n      </cac:TaxScheme>\n    </cac:TaxCategory>\n  </cac:TaxSubtotal>\n</cac:TaxTotal>\n<cac:LegalMonetaryTotal>\n  <cbc:LineExtensionAmount currencyID=\"EUR\">145.00</cbc:LineExtensionAmount>\n  <cbc:TaxExclusiveAmount currencyID=\"EUR\">145.00</cbc:TaxExclusiveAmount>\n  <cbc:TaxInclusiveAmount currencyID=\"EUR\">172.55</cbc:TaxInclusiveAmount>\n  <cbc:PayableAmount currencyID=\"EUR\">172.55</cbc:PayableAmount>\n</cac:LegalMonetaryTotal>",
     "cii": "<ram:SpecifiedTradeSettlementHeaderMonetarySummation>\n  <ram:LineTotalAmount>145.00</ram:LineTotalAmount>\n  <ram:TaxBasisTotalAmount>145.00</ram:TaxBasisTotalAmount>\n  <ram:TaxTotalAmount currencyID=\"EUR\">27.55</ram:TaxTotalAmount>\n  <ram:GrandTotalAmount>172.55</ram:GrandTotalAmount>\n  <ram:DuePayableAmount>172.55</ram:DuePayableAmount>\n</ram:SpecifiedTradeSettlementHeaderMonetarySummation>"
   },
@@ -678,6 +749,20 @@
         "Calculez BT-115 = BT-112 − BT-113 + BT-114 (172,55 − 50,00 + 0,00 = 122,55).",
         "En UBL, utilisez cbc:PrepaidAmount, cbc:PayableRoundingAmount et cbc:PayableAmount ; en CII, ram:TotalPrepaidAmount, ram:RoundingAmount et ram:DuePayableAmount.",
         "Saisissez un arrondi vers le bas comme montant d'arrondi négatif et un arrondi vers le haut comme montant positif."
+      ]
+    },
+    "nl": {
+      "title": "Te betalen bedrag is niet totaal min vooruitbetaald plus afronding",
+      "meaning": "Het te betalen bedrag (BT-115) moet gelijk zijn aan het totaal met btw (BT-112) min het al betaalde bedrag (BT-113) plus het afrondingsbedrag (BT-114); een ontbrekend betaald bedrag of afrondingsbedrag telt als nul. Bijvoorbeeld 172.55 − 50.00 = 122.55, of met een afrondingsbedrag van −0.05: 172.55 − 50.00 − 0.05 = 122.50. De UBL-test rondt af op twee decimalen; de CII-test vergelijkt de waarden exact.",
+      "causes": [
+        "Een vooruitbetaling of voorschot is van het te betalen bedrag afgetrokken, maar niet als betaald bedrag (BT-113) ingevoerd.",
+        "Er is een afronding op het te betalen bedrag toegepast zonder die als afrondingsbedrag (BT-114) in te voeren, of met het verkeerde teken.",
+        "Het betaalde bedrag is afgetrokken van het totaal met btw (BT-112) in plaats van alleen van het te betalen bedrag."
+      ],
+      "fix": [
+        "Bereken BT-115 als BT-112 − BT-113 + BT-114 (172.55 − 50.00 + 0.00 = 122.55).",
+        "Gebruik in UBL cbc:PrepaidAmount, cbc:PayableRoundingAmount en cbc:PayableAmount; in CII ram:TotalPrepaidAmount, ram:RoundingAmount en ram:DuePayableAmount.",
+        "Voer een afronding naar beneden in als negatief afrondingsbedrag en een afronding naar boven als positief."
       ]
     },
     "ubl": "<cac:LegalMonetaryTotal>\n  <cbc:LineExtensionAmount currencyID=\"EUR\">145.00</cbc:LineExtensionAmount>\n  <cbc:TaxExclusiveAmount currencyID=\"EUR\">145.00</cbc:TaxExclusiveAmount>\n  <cbc:TaxInclusiveAmount currencyID=\"EUR\">172.55</cbc:TaxInclusiveAmount>\n  <cbc:PrepaidAmount currencyID=\"EUR\">50.00</cbc:PrepaidAmount>\n  <cbc:PayableAmount currencyID=\"EUR\">122.55</cbc:PayableAmount>\n</cac:LegalMonetaryTotal>",
@@ -736,6 +821,21 @@
         "Saisissez le taux en pourcentage dans cbc:Percent (UBL) ou ram:RateApplicablePercent (CII)."
       ]
     },
+    "nl": {
+      "title": "Btw-bedrag in de uitsplitsing klopt niet met grondslag maal tarief",
+      "meaning": "In elke regel van de btw-uitsplitsing hoort het btw-bedrag (BT-117) het belastbare bedrag (BT-116) maal het tarief (BT-119) gedeeld door 100 te zijn, afgerond op twee decimalen; bijvoorbeeld 145.00 × 19 % = 27.55. De officiële test is ruimer dan zijn melding: hij aanvaardt elk bedrag dat minder dan 1,00 van die uitkomst afligt (in CII tot en met 1,00). Bij een tarief van 0, of zonder tarief, moet het btw-bedrag op nul afronden, dus onder 0,50 liggen.",
+      "causes": [
+        "Het btw-bedrag is overgenomen van een andere regel of een andere factuur.",
+        "Het belastbare bedrag is gewijzigd (bijvoorbeeld door een korting op documentniveau) zonder de btw opnieuw te berekenen.",
+        "Een regel van 0 % (vrijstelling, verlegging, export) heeft een btw-bedrag.",
+        "Het tarief is als breuk ingevoerd (0.19) in plaats van als percentage (19)."
+      ],
+      "fix": [
+        "Bereken elke regel opnieuw: belastbaar bedrag × tarief ÷ 100, afgerond op twee decimalen (145.00 × 19 ÷ 100 = 27.55).",
+        "Zet bij een categorie van 0 % het btw-bedrag van de regel op 0.00.",
+        "Voer het tarief in als percentage in cbc:Percent (UBL) of ram:RateApplicablePercent (CII)."
+      ]
+    },
     "ubl": "<cac:TaxSubtotal>\n  <cbc:TaxableAmount currencyID=\"EUR\">145.00</cbc:TaxableAmount>\n  <cbc:TaxAmount currencyID=\"EUR\">27.55</cbc:TaxAmount>\n  <cac:TaxCategory>\n    <cbc:ID>S</cbc:ID>\n    <cbc:Percent>19</cbc:Percent>\n    <cac:TaxScheme>\n      <cbc:ID>VAT</cbc:ID>\n    </cac:TaxScheme>\n  </cac:TaxCategory>\n</cac:TaxSubtotal>",
     "cii": "<ram:ApplicableTradeTax>\n  <ram:CalculatedAmount>27.55</ram:CalculatedAmount>\n  <ram:TypeCode>VAT</ram:TypeCode>\n  <ram:BasisAmount>145.00</ram:BasisAmount>\n  <ram:CategoryCode>S</ram:CategoryCode>\n  <ram:RateApplicablePercent>19</ram:RateApplicablePercent>\n</ram:ApplicableTradeTax>"
   },
@@ -790,6 +890,21 @@
         "Ajoutez le numéro de TVA du vendeur s'il en a un : en UBL un cac:PartyTaxScheme de schéma VAT, en CII ram:SpecifiedTaxRegistration avec schemeID VA.",
         "Ou ajoutez le numéro d'immatriculation (SIREN, registre du commerce) dans cac:PartyLegalEntity/cbc:CompanyID (UBL) ou ram:SpecifiedLegalOrganization/ram:ID (CII).",
         "Ou ajoutez un identifiant du vendeur, comme un GLN ou un numéro fournisseur attribué par l'acheteur, dans cac:PartyIdentification/cbc:ID (UBL) ou ram:ID / ram:GlobalID (CII)."
+      ]
+    },
+    "nl": {
+      "title": "Verkoper heeft geen identificatie, registratienummer of btw-nummer",
+      "meaning": "Zodat de koper de verkoper automatisch kan herkennen, moet de verkoper minstens één van deze hebben: een verkopersidentificatie (BT-29), een wettelijk registratienummer zoals een ondernemingsnummer of KvK-nummer (BT-30), of een btw-nummer (BT-31). Een nationaal fiscaal nummer (BT-32, bijvoorbeeld de Duitse Steuernummer) telt niet mee, en in UBL ook geen partij-identificatie met schemeID SEPA, want dat is de incassant-ID voor domiciliëringen.",
+      "causes": [
+        "Alleen de naam en het adres van de verkoper zijn ingevuld.",
+        "De verkoper gaf alleen een nationaal fiscaal nummer en geen btw-nummer, bijvoorbeeld een kleine onderneming zonder btw-nummer.",
+        "In UBL is de enige cac:PartyIdentification de SEPA-incassant-ID.",
+        "In CII is het btw-nummer verstuurd met schemeID FC in plaats van VA."
+      ],
+      "fix": [
+        "Voeg het btw-nummer van de verkoper toe als die er een heeft: in UBL een cac:PartyTaxScheme met belastingschema VAT, in CII ram:SpecifiedTaxRegistration met schemeID VA.",
+        "Of voeg het ondernemingsnummer, KvK-nummer of een andere wettelijke registratie toe in cac:PartyLegalEntity/cbc:CompanyID (UBL) of ram:SpecifiedLegalOrganization/ram:ID (CII).",
+        "Of voeg een verkopersidentificatie toe, zoals een GLN of een ID die de koper heeft toegekend, in cac:PartyIdentification/cbc:ID (UBL) of ram:ID / ram:GlobalID (CII)."
       ]
     },
     "ubl": "<cac:AccountingSupplierParty>\n  <cac:Party>\n    <cac:PartyTaxScheme>\n      <cbc:CompanyID>DE123456789</cbc:CompanyID>\n      <cac:TaxScheme>\n        <cbc:ID>VAT</cbc:ID>\n      </cac:TaxScheme>\n    </cac:PartyTaxScheme>\n    <cac:PartyLegalEntity>\n      <cbc:RegistrationName>Muster GmbH</cbc:RegistrationName>\n      <cbc:CompanyID>HRB 12345</cbc:CompanyID>\n    </cac:PartyLegalEntity>\n  </cac:Party>\n</cac:AccountingSupplierParty>",

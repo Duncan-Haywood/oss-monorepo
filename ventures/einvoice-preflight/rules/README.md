@@ -1,8 +1,11 @@
-# Rule pages: e-invoice validation errors explained (EN, DE, FR)
+# Rule pages: e-invoice validation errors explained (EN, DE, FR, NL)
 
 One page per high-traffic validation rule, in English (`en/`), German (`de/`)
-and French (`fr/`), plus a hub per language and a language chooser
-(`index.html`). Served at `/einvoice-preflight/rules/`. People search the exact
+and French (`fr/`), and in Dutch (`nl/`) for the EN 16931 and Peppol rules,
+plus a hub per language and a language chooser (`index.html`). Dutch was added
+on 2026-11-27 for Belgium, where Peppol e-invoicing between businesses has been
+required since 1 January 2026, and for Dutch Peppol users; the BR-DE rules
+concern German invoices only and stay in three languages. Served at `/einvoice-preflight/rules/`. People search the exact
 rule id or message a portal or access point sent back ("BR-DE-15",
 "Das Element Buyer reference (BT-10) muss übermittelt werden",
 "PEPPOL-EN16931-R003"); each page answers what it means, the usual causes, how
@@ -18,7 +21,7 @@ and fixes hit, not a measured ranking of search volume.
 ## How it is built
 
 ```sh
-node rules/build.mjs          # from ventures/einvoice-preflight; rewrites en/, de/, fr/, index.html
+node rules/build.mjs          # from ventures/einvoice-preflight; rewrites en/, de/, fr/, nl/, index.html
 node --test rules/rules.test.mjs
 ```
 
@@ -41,7 +44,7 @@ node --test rules/rules.test.mjs
 
 The tag-to-commit mapping was read with `git ls-remote` on 2026-11-24. Each page
 quotes only the one official message of its rule, with the source named and
-linked; the explanation, causes, fix and XML are this project's own (MIT). Not
+linked; the explanation, causes, fix and XML are this project's own (FSL-1.1-MIT, the venture's licence). Not
 tax or legal advice: the pages say what a rule checks and how a file passes it,
 never which VAT treatment applies to a sale.
 
@@ -50,7 +53,11 @@ never which VAT treatment applies to a sale.
 - every rule id exists in the official rule set version its page cites;
 - the cited commits equal `../plain/manifest.json`;
 - the whole BR-DE set is covered and at least 30 EN 16931 / Peppol rules;
-- every entry has title, meaning, 2-5 causes and 2-5 fix steps in all three languages;
+- every entry has title, meaning, 2-5 causes and 2-5 fix steps in English, German and French, and every
+  EN 16931 and Peppol entry also in Dutch, with the same number of causes and steps as the English and
+  every business term, rule id, element name, URN and amount the English names (the Dutch text was
+  written by an agent and has not been read by a native speaker);
+- a page's hreflang alternates are exactly the languages its rule has;
 - every XML snippet is a well-formed fragment with the right syntax's prefixes;
 - the committed pages equal what `build.mjs` writes;
 - each page quotes the official message, links its source, the checker and early access, carries the disclaimer and hreflang alternates, and has no price claim;

@@ -336,7 +336,8 @@ through it.**
   card is spent; the spend is a later payment's sales). A payment for a gift card alone books only its fee,
   as a charge.
 - **Refunds:** each `Refund` row is a refund dated on its own date: the goods, tips and service charges given
-  back, never the tax. A fee on a refund row is read as Square giving the fee back (a credit) when the file's
+  back, never the tax. The row's `Tax` (the tax handed back) is stored apart on the refund (since
+  2026-11-27), so the sales tax report nets it off what was collected; it never touches income. A fee on a refund row is read as Square giving the fee back (a credit) when the file's
   fees are signed (a payment with a negative `Fees`, as Square exports them); in a file with every cost
   positive it cannot be told apart from a charge, so it is left out with a warning. A payment showing
   `Partial Refunds` is warned about, since the refund comes from its own row and the date range must include it.

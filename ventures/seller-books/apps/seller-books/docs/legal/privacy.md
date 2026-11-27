@@ -52,7 +52,7 @@ We will update this list before adding a new subprocessor.
 - Your data is kept while your shop's account is active.
 - You can delete an import (which removes the sales and charges it created), inventory items and lots, mileage trips and expenses yourself at any time.
 - When a shop is deleted, by its owner or by us at your request, all of its data is deleted from our database. Provider backups and logs roll off on their normal schedules.
-- We keep billing records the merchant of record or the law requires.
+- We keep billing records the merchant of record or the law requires. One of them outlives a deleted shop: the record that you agreed to a paid plan's automatic renewal (the plan, its billing cycle, the version of the renewal terms, when you agreed, and the Paddle subscription and customer ids; no name, email address or books). California asks for that proof to be kept, so we keep it for three years from when you agreed, or one year after the subscription ends, whichever is later, and then delete it.
 
 ## Security
 
