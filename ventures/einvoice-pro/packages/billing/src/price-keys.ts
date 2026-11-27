@@ -44,9 +44,11 @@ export function missingPriceIds(
   plans: readonly { key: string; annualPriceCents: number | null }[],
 ): string[] {
   const missing: string[] = [];
+  // Own keys only: a plan keyed "constructor" must not count Object.prototype as a price id.
+  const has = (k: string) => Object.hasOwn(priceIds, k) && Boolean(priceIds[k]);
   for (const p of plans) {
-    if (!priceIds[p.key]) missing.push(p.key);
-    if (p.annualPriceCents !== null && !priceIds[checkoutPriceKey(p.key, "year")]) {
+    if (!has(p.key)) missing.push(p.key);
+    if (p.annualPriceCents !== null && !has(checkoutPriceKey(p.key, "year"))) {
       missing.push(checkoutPriceKey(p.key, "year"));
     }
   }

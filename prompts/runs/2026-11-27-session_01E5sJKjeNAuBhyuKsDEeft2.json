@@ -35,6 +35,10 @@
     {
       "file": "prompts/redteam.py",
       "issue": "campaign prints a tally that looks like a run-wide total but counts only the latest campaign (each of three printed seeded: 8); only rerun showed the 24 total."
+    },
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "run_venture_tests.py payapps passed locally, but check_billing_copies.py (the 5-copy billing package) only ran in CI; 'payapps --changed' does not say the billing package has sibling copies to port."
     }
   ],
   "deviations": [
@@ -53,7 +57,7 @@
   ],
   "writeups": [],
   "goal": null,
-  "notes": "Targets: payapps billing paddle.ts, subscription-events.ts, qbo-sync retainage.ts. Catch rate 0.739 -> 1.0. Local verification: billing 106/106 tests, qbo-sync 92/92, tsc clean, run_venture_tests.py payapps exit 0. Guard added: tests for the replay-window bypass on a non-numeric ts, the tolerance edge, and own-key lookups.",
+  "notes": "Targets: payapps billing paddle.ts, subscription-events.ts, qbo-sync retainage.ts. Catch rate 0.739 -> 1.0. Local verification: billing 106/106 tests, qbo-sync 92/92, tsc clean, run_venture_tests.py payapps exit 0. Guard added: tests for the replay-window bypass on a non-numeric ts, the tolerance edge, and own-key lookups. CI changed-ventures caught that the billing package is copied into 4 more ventures; ported paddle.ts and price-keys.ts to each (tests: cmmc 89, einvoice-pro 86, jobshop-quote 89, seller-books 89 pass; check_billing_copies 0 drift).",
   "corrections": [],
   "redteam": {
     "campaigns": [
@@ -430,7 +434,7 @@
     "real_defects": [
       {
         "file": "ventures/payapps/packages/billing/src/paddle.ts",
-        "issue": "priceIds/STATUS_MAP looked up with record[key]: plan keys 'toString'/'constructor' resolved to Object.prototype functions, so createCheckout and chargeUsage called Paddle instead of refusing, and a status 'constructor' normalized to a function; price-keys.ts missingPriceIds had the same lookup. Reproduced with a script; fixed with Object.hasOwn.",
+        "issue": "priceIds/STATUS_MAP looked up with record[key]: plan keys 'toString'/'constructor' resolved to Object.prototype functions, so createCheckout and chargeUsage called Paddle instead of refusing, and a status 'constructor' normalized to a function; price-keys.ts missingPriceIds had the same lookup. Reproduced with a script; fixed with Object.hasOwn. Same code in the cmmc, einvoice-pro, jobshop-quote and seller-books billing copies; ported to all (check_billing_copies.py enforces identical copies).",
         "patched": true,
         "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/19803"
       }
