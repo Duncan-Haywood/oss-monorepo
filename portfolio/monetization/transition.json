@@ -14,7 +14,7 @@
   "proprietary": [
     {
       "venture": "payapps",
-      "source_lines": 134174,
+      "source_lines": 141578,
       "track": "proprietary",
       "why": "flagship #1: the depth people pay for",
       "model": "subscription",
@@ -25,7 +25,7 @@
     },
     {
       "venture": "jobshop-quote",
-      "source_lines": 83544,
+      "source_lines": 83623,
       "track": "proprietary",
       "why": "flagship #2: the depth people pay for",
       "model": "subscription",
@@ -57,7 +57,7 @@
     },
     {
       "venture": "seller-books",
-      "source_lines": 44361,
+      "source_lines": 44389,
       "track": "proprietary",
       "why": "flagship #5: the depth people pay for",
       "model": "subscription",
@@ -277,7 +277,7 @@
     },
     {
       "venture": "machine-shop-guides",
-      "source_lines": 6721,
+      "source_lines": 6897,
       "track": "proprietary",
       "why": "over 5000 lines of product code, more than a single-page tool",
       "model": "subscription",

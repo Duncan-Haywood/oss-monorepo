@@ -86,6 +86,10 @@ OVERRIDES: dict[str, dict[str, str]] = {
         "model": "subscription",
         "why": "the cull and pipeline run on the user's machine and stay free; the paid part is hosted proofing galleries, which have a per-user storage cost (models.yaml, 2026-11-25)",
     },
+    "pay-app-guides": {
+        "track": "mit-lead-magnet",
+        "why": "the free front door to PayApps (bet #1): its guides and calculators exist to be found and send contractors to the paid product, so they stay free however many lines they grow to (2026-11-27, when the punch list page took it past 5,000)",
+    },
     "changepoint-detector": {
         "model": "one-off",
         "why": "statistics run on the user's own data in the browser or CLI; nothing to serve per user",
