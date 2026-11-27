@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-27",
+  "session": "https://claude.ai/code/session_01EhTJVPj6z5rJ6RE5pvGGmY",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-27T02:55:57Z",
+  "ended": "2026-11-27T03:02:37Z",
+  "wall_minutes": 7.79,
+  "tokens_in": 7740772,
+  "tokens_out": 33141,
+  "cost_usd": 3.2242,
+  "tool_calls": 69,
+  "task": "paddle-key-check (portfolio/work/tasks.yaml, paid-bets): is each app's Paddle key the right kind",
+  "projects": [
+    "packages/billing (private-monorepo)"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/private-monorepo/pull/459",
+  "repo": "Duncan-Haywood/private-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "partial",
+  "errors": [
+    "Duplicate work: a parallel session opened and merged private PR 458 for the same task at 03:00-03:01 UTC while this run was building the same thing on the same branch name (claude/paddle-key-check); this run's push was rejected, so it dropped its version and shipped only the delta (PR 459)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/roadmap_claim.py / portfolio/work/workctl.py",
+      "issue": "workctl.py next lists cross-bet tasks with no claim step; two sessions took paddle-key-check within minutes. slug_dupe.py found nothing because neither PR existed yet. Cross-bet work: tasks need a create-only claim branch like roadmap_claim's."
+    },
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "developer.paddle.com does not resolve in this session's network policy, so Paddle's key formats and error-ordering could not be checked against the vendor docs."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md (one PR per session's own work)",
+      "why": "The task had already landed via another session's PR 458; opening a competing PR would duplicate it.",
+      "did": "Rebased onto 458 and shipped only the bug fix it lacked (no-answer reported as acceptance) plus an all-apps workflow, as PR 459.",
+      "result": "merged; 86/86 billing tests"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Security queue empty (security_next exit 3); IDEAS empty; routed ventures/1. private-monorepo clone worked first try via add_repo. roadmap_claim --bets: no free ungated item on any bet, so took work task paddle-key-check. Verification (private CI starved): run_workflow_locally billing-ci 4/4 run steps ok on the first version; after merge with main, biome ci clean, tsc clean, node --test 86/86. Workflow run: step simulated locally with made-up keys. No post written: an internal billing diagnostic has no reader-facing story; tasks.yaml marked done.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "881bd46d-fcf3-5ccb-a01b-847eb3708b23",
+    "transcripts": 1,
+    "first": "2026-11-27T02:55:57Z",
+    "last": "2026-11-27T03:03:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 64,
+        "input": 126,
+        "output": 33141,
+        "thinking": 6229,
+        "cache_read": 7610811,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129835,
+        "api_equivalent_usd": 3.2242,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 64,
+      "input": 126,
+      "output": 33141,
+      "thinking": 6229,
+      "cache_read": 7610811,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129835,
+      "api_equivalent_usd": 3.2242,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 69,
+    "tools": {
+      "Bash": 56,
+      "Write": 4,
+      "ToolSearch": 3,
+      "mcp__claude-code-remote__add_repo": 1,
+      "WebFetch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.79,
+      "active_minutes": 7.79,
+      "model_minutes": 5.88,
+      "tool_minutes": 1.91,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-11-12",
+      "source": "Anthropic pricing page (platform.claude.com/docs/en/about-claude/pricing), fetched 2026-11-12. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads are 0.1x input except 0.05x on Opus 5.5 and Sonnet 5.5 and 0.025x on Fable/Mythos 5.1 and 5.2. Sonnet 5.5 cache_read was 0.20 here until 2026-11-12 (quality audit round 48): records priced before then overstate Sonnet 5.5 cost."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "probe bug fix, tests and a workflow for a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 46.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

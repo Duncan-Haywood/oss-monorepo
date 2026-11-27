@@ -663,10 +663,15 @@ tasks:
       a tested pure classifier in packages/billing. Nothing of the key past
       its public prefix is printed.
     hours: 4
-    status: open
+    status: done
     added: 2026-11-27
     notes: >-
-      Owner, 2026-11-27: "there is a key is it the right type or no?" No run
+      Done in private-monorepo PR 458 (classifier, probe, report before every
+      catalog sync, scripts/paddle-key-check.ts) and PR 459 (no answer from
+      Paddle is no longer reported as "accepted"; manual paddle-key-check
+      workflow checks all six apps' secrets in one run). The answer itself
+      waits on a runner: run paddle-key-check once private-ci-codebuild-cutover
+      lands. Owner, 2026-11-27: "there is a key is it the right type or no?" No run
       has been able to tell: the catalog sync landed 2026-11-25, after
       private-monorepo Actions stopped starting jobs. The recorded key is
       grants' BILLING_API_KEY; payapps-deploy reads PAYAPPS_BILLING_API_KEY.
