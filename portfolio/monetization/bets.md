@@ -286,6 +286,23 @@ free. `roadmap_claim.py --bets` lists them with the claims already on each.
     hard date is 2028, and we have no foothold with food buyers. Look again
     in early 2028, or if a food manufacturer becomes a customer of #2 or #4
     (lot traceability can sit next to ISO 9001 document control).
+- **Screened 2026-11-27, not ranked (score 14):** *Welding procedure and
+  welder-qualification records* (WPS, PQR, WPQ and continuity logs under
+  AWS D1.1 and ASME IX) for fabrication shops, the same buyers as #2 and #4.
+  - **Prices anchor low:** aggregator listings, not vendor pages, read in a
+    2026-11-27 search: weldXpert from
+    [€60/mo flat](https://www.capterra.com/p/10047360/weldXpert/), WeldNote from
+    [€50/user/mo](https://www.capterra.com/p/150411/WeldNote/) (SourceForge says $50),
+    TWI's Welding Qualifier quote-only by licence and codes
+    ([TWI price sheet](https://www.twi-global.com/locations/middle-east/technical-services/twi-software/twi-software-images/welding-qualifier-info-pricing.pdf)).
+    Continuity alerts are already a standard feature.
+  - **Size not pinned:** no count of AWS Certified Welding Fabricator
+    facilities was found ([AWS CWF](https://www.aws.org/Businesses/facility-accreditation/cwf/)
+    publishes a list, not a total); the Census CBP host was refused through
+    this session's proxy, so `cbp_counts.py 332` is the next reading.
+  - **Why not now:** a $50–60 a month ceiling set by several incumbents, and a
+    records job that sits naturally inside #4's ISO 9001 document control.
+    Revisit as a #4 module if a shop on #2 or #4 asks for welder continuity.
 
 ## Hardware (long term, not a ranked bet)
 
